@@ -10,9 +10,7 @@
 
 
 @interface Vector3i : NSObject {
-	int x;
-	int y;
-	int z;
+    int coords[3];
 }
 
 - (id)initWithVector:(Vector3i *)vector;
@@ -27,4 +25,7 @@
 - (void)setZ:(int)zCoord;
 
 - (void)set:(Vector3i *)vector;
+
+- (void)add:(Vector3i *)addend;
+- (void)addX:(int)xAddend Y:(int)yAddend Z:(int)zAddend;
 @end

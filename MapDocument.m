@@ -61,9 +61,8 @@
 }
 
 - (void)dealloc {
-	[worldspawn release];
-	[entities release];
-	
+	[map release];	
+
 	[super dealloc];
 }
 

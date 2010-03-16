@@ -20,6 +20,10 @@
     return self;
 }
 
+- (Brush *)worldspawn {
+    return worldspawn;
+}
+
 - (void)dealloc {
     [entities release];
     [worldspawn release];

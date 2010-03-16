@@ -8,7 +8,7 @@
 
 
 #import <Cocoa/Cocoa.h>
-#import "Entity.h"
+#import "Map.h"
 
 @interface MapDocument : NSDocument {
     Map* map;

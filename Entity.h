@@ -7,6 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Vector3i.h"
+#import "Brush.h"
 
 @interface Entity : NSObject {
 	NSMutableSet* brushes;
@@ -14,5 +16,11 @@
 }
 
 - (id)initWithKey:(NSString *)key value:(NSString *)value;
+
+- (Brush *)createCuboidAt:(Vector3i *)position with:(Vector3i *)dimensions;
+
+- (void)addBrush:(Brush *)brush;
+- (void)removeBrush:(Brush *)brush;
+
 
 @end

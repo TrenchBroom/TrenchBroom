@@ -21,6 +21,25 @@
 	return self;
 }
 
+- (Brush *)createCuboidAt:(Vector3i *)position with:(Vector3i *)dimensions {
+    Brush* brush = [[Brush alloc] initCuboidAt:position with:dimensions];
+    [brushes addObject:brush];
+    
+    return brush;
+}
+
+- (void)addBrush:(Brush *)brush {
+    if (brush)
+        [brushes addObject:brush];
+}
+
+- (void)removeBrush:(Brush *)brush {
+    if (brush)
+        [brushes removeObject:brush];
+}
+
+
+
 - (void) dealloc {
 	[properties release];
 	[brushes release];

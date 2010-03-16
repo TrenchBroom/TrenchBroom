@@ -12,6 +12,10 @@
 		48527F3811148D5C00CD6043 /* Face.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3711148D5C00CD6043 /* Face.m */; };
 		48527F3B11148D8E00CD6043 /* Vector3i.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3A11148D8E00CD6043 /* Vector3i.m */; };
 		48527F3E11148EAA00CD6043 /* Brush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* Brush.m */; };
+		487E31FC114F74600043A111 /* Renderer2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E31FB114F74600043A111 /* Renderer2D.m */; };
+		487E31FF114F747D0043A111 /* RenderContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E31FE114F747D0043A111 /* RenderContext.m */; };
+		487E3202114F76160043A111 /* RenderPolygon.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E3201114F76160043A111 /* RenderPolygon.m */; };
+		487E3216114F768D0043A111 /* RenderBrush.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E3215114F768D0043A111 /* RenderBrush.m */; };
 		48A68EB8114E96C00064732A /* MapWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68EB7114E96C00064732A /* MapWindowController.m */; };
 		48A68ECC114E9AF90064732A /* MapView2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68ECB114E9AF90064732A /* MapView2D.m */; };
 		48A68ECF114E9B0D0064732A /* MapView3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68ECE114E9B0D0064732A /* MapView3D.m */; };
@@ -48,6 +52,14 @@
 		48527F3A11148D8E00CD6043 /* Vector3i.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vector3i.m; sourceTree = "<group>"; };
 		48527F3C11148EAA00CD6043 /* Brush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Brush.h; sourceTree = "<group>"; };
 		48527F3D11148EAA00CD6043 /* Brush.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Brush.m; sourceTree = "<group>"; };
+		487E31FA114F74600043A111 /* Renderer2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer2D.h; sourceTree = "<group>"; };
+		487E31FB114F74600043A111 /* Renderer2D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Renderer2D.m; sourceTree = "<group>"; };
+		487E31FD114F747D0043A111 /* RenderContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderContext.h; sourceTree = "<group>"; };
+		487E31FE114F747D0043A111 /* RenderContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderContext.m; sourceTree = "<group>"; };
+		487E3200114F76160043A111 /* RenderPolygon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderPolygon.h; sourceTree = "<group>"; };
+		487E3201114F76160043A111 /* RenderPolygon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderPolygon.m; sourceTree = "<group>"; };
+		487E3214114F768D0043A111 /* RenderBrush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderBrush.h; sourceTree = "<group>"; };
+		487E3215114F768D0043A111 /* RenderBrush.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderBrush.m; sourceTree = "<group>"; };
 		48A68EB6114E96C00064732A /* MapWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWindowController.h; sourceTree = "<group>"; };
 		48A68EB7114E96C00064732A /* MapWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapWindowController.m; sourceTree = "<group>"; };
 		48A68ECA114E9AF90064732A /* MapView2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapView2D.h; sourceTree = "<group>"; };
@@ -127,9 +139,10 @@
 		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				48A68F1C114EA7750064732A /* Math */,
 				48A68E96114E93840064732A /* Controller */,
+				48A68F1C114EA7750064732A /* Math */,
 				48A68E93114E92730064732A /* Model */,
+				487E31F3114F741F0043A111 /* Renderer */,
 				48A68EC9114E9AE20064732A /* View */,
 			);
 			name = Classes;
@@ -165,15 +178,30 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		487E31F3114F741F0043A111 /* Renderer */ = {
+			isa = PBXGroup;
+			children = (
+				487E3214114F768D0043A111 /* RenderBrush.h */,
+				487E3215114F768D0043A111 /* RenderBrush.m */,
+				487E31FD114F747D0043A111 /* RenderContext.h */,
+				487E31FE114F747D0043A111 /* RenderContext.m */,
+				487E31FA114F74600043A111 /* Renderer2D.h */,
+				487E31FB114F74600043A111 /* Renderer2D.m */,
+				487E3200114F76160043A111 /* RenderPolygon.h */,
+				487E3201114F76160043A111 /* RenderPolygon.m */,
+			);
+			name = Renderer;
+			sourceTree = "<group>";
+		};
 		48A68E93114E92730064732A /* Model */ = {
 			isa = PBXGroup;
 			children = (
 				48527F3C11148EAA00CD6043 /* Brush.h */,
 				48527F3D11148EAA00CD6043 /* Brush.m */,
-				48527F3611148D5C00CD6043 /* Face.h */,
-				48527F3711148D5C00CD6043 /* Face.m */,
 				48A68F25114EDF360064732A /* Entity.h */,
 				48A68F26114EDF360064732A /* Entity.m */,
+				48527F3611148D5C00CD6043 /* Face.h */,
+				48527F3711148D5C00CD6043 /* Face.m */,
 				48A68F6E114EE6DC0064732A /* Map.h */,
 				48A68F6F114EE6DC0064732A /* Map.m */,
 			);
@@ -287,6 +315,10 @@
 				48A68F24114EDEF50064732A /* MapRenderer.m in Sources */,
 				48A68F27114EDF360064732A /* Entity.m in Sources */,
 				48A68F70114EE6DC0064732A /* Map.m in Sources */,
+				487E31FC114F74600043A111 /* Renderer2D.m in Sources */,
+				487E31FF114F747D0043A111 /* RenderContext.m in Sources */,
+				487E3202114F76160043A111 /* RenderPolygon.m in Sources */,
+				487E3216114F768D0043A111 /* RenderBrush.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

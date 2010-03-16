@@ -8,14 +8,13 @@
 
 #import "Vector3i.h"
 
-
 @implementation Vector3i
 
 - (id)init {
 	if (self = [super init]) {
-		x = 0;
-		y = 0;
-		z = 0;
+        coords[0] = 0;
+        coords[1] = 0;
+        coords[2] = 0;
 	}
 	
 	return self;
@@ -44,27 +43,27 @@
 }
 
 - (int)x {
-	return x;
+	return coords[0];
 }
 
 - (int)y {
-	return y;
+	return coords[1];
 }
 
 - (int)z {
-	return z;
+	return coords[2];
 }
 
 - (void)setX:(int)xCoord {
-	x = xCoord;
+	coords[0] = xCoord;
 }
 
 - (void)setY:(int)yCoord {
-	y = yCoord;
+	coords[1] = yCoord;
 }
 
 - (void)setZ:(int)zCoord {
-	z = zCoord;
+	coords[2] = zCoord;
 }
 
 - (void)set:(Vector3i *)vector {
@@ -73,4 +72,15 @@
 	[self setZ:[vector z]];
 }
 
+- (void)add:(Vector3i *)addend {
+    coords[0] += [addend x];
+    coords[1] += [addend y];
+    coords[2] += [addend z];
+}
+
+- (void)addX:(int)xAddend Y:(int)yAddend Z:(int)zAddend {
+    coords[0] += xAddend;
+    coords[1] += yAddend;
+    coords[2] += zAddend;
+}
 @end

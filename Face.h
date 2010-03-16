@@ -9,18 +9,25 @@
 #import <Cocoa/Cocoa.h>
 #import "Vector3i.h"
 
+typedef enum planeType {
+    XY, XZ, YZ
+} Plane;
+
 @interface Face : NSObject {
 	Vector3i* point1;
 	Vector3i* point2;
 	Vector3i* point3;
 	
-	NSString* texture;
+	NSMutableString* texture;
 	int xOffset;
 	int yOffset;
 	float rotation;
 	float xScale;
 	float yScale;
 }
+
+- (id)initOnPlane:(Plane)plane at:(Vector3i *)position texture:(NSString *)texture;
+- (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;
 
 - (Vector3i *)point1;
 - (Vector3i *)point2;

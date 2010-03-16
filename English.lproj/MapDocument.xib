@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="100055"/>
+			<integer value="5"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -39,7 +39,7 @@
 				<int key="NSWindowStyleMask">15</int>
 				<int key="NSWindowBacking">2</int>
 				<string key="NSWindowRect">{{133, -77}, {1187, 725}}</string>
-				<int key="NSWTFlags">1886912512</int>
+				<int key="NSWTFlags">1618477056</int>
 				<string key="NSWindowTitle">Window</string>
 				<string key="NSWindowClass">NSWindow</string>
 				<object class="NSToolbar" key="NSViewClass" id="389952297">
@@ -271,7 +271,7 @@
 									<reference key="NSSuperview" ref="59726334"/>
 									<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 										<object class="NSMutableData" key="NSPixelAttributes">
-											<bytes key="NS.bytes">AAAABQAAAGAAAAAIAAAAGAAAAAsAAAAIAAAAAA</bytes>
+											<bytes key="NS.bytes">AAAABQAAAGAAAAAIAAAAGAAAAAsAAAAIAAAADAAAABAAAAAAA</bytes>
 										</object>
 									</object>
 								</object>
@@ -500,6 +500,7 @@
 				<object class="NSArray" key="dict.sortedKeys">
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<string>-3.IBPluginDependency</string>
+					<string>100031.IBEditorWindowLastContentRect</string>
 					<string>100031.IBPluginDependency</string>
 					<string>100032.IBPluginDependency</string>
 					<string>100033.IBPluginDependency</string>
@@ -524,6 +525,7 @@
 				<object class="NSMutableArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>{{544, 844}, {617, 0}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -535,9 +537,9 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{259, 119}, {1187, 725}}</string>
+					<string>{{460, 110}, {1187, 725}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{259, 119}, {1187, 725}}</string>
+					<string>{{460, 110}, {1187, 725}}</string>
 					<integer value="1"/>
 					<string>{{201, 387}, {507, 413}}</string>
 					<integer value="1"/>

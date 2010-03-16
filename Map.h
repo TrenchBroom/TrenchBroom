@@ -8,10 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Entity.h"
+#import "Brush.h"
 
 @interface Map : NSObject {
     Entity* worldspawn;
     NSMutableSet* entities;
 }
+
+- (Brush *)worldspawn;
 
 @end
