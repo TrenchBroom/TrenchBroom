@@ -73,4 +73,15 @@
 	[self setZ:[vector z]];
 }
 
+- (BOOL)isEqual:(id)object {
+    if (object == self)
+        return YES;
+
+    if (![object isKindOfClass:[self class]])
+        return NO;
+    
+    Vector3f* vector = (Vector3f*)object;
+    return [self x] == [vector x] && [self y] == [vector y] && [self z] == [vector z];
+}
+
 @end

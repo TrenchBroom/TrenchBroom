@@ -38,15 +38,15 @@
 - (void)setBrush:(Brush *)aBrush {
     NSNotificationCenter* notificationCenter = [NSNotificationCenter defaultCenter];
     if (brush) {
-        [notificationCenter removeObserver:self name:BrushFaceAddedNotification object:brush];
-        [notificationCenter removeObserver:self name:BrushFaceRemovedNotification object:brush];
+        [notificationCenter removeObserver:self name:BrushFaceAdded object:brush];
+        [notificationCenter removeObserver:self name:BrushFaceRemoved object:brush];
         [brush release];
     }
     
     brush = [aBrush retain];
     
-    [notificationCenter addObserver:self selector:@selector(brushChanged:) name:BrushFaceAddedNotification object:brush];
-    [notificationCenter addObserver:self selector:@selector(brushChanged:) name:BrushFaceRemovedNotification object:brush];
+    [notificationCenter addObserver:self selector:@selector(brushChanged:) name:BrushFaceAdded object:brush];
+    [notificationCenter addObserver:self selector:@selector(brushChanged:) name:BrushFaceRemoved object:brush];
 }
 
 - (void)dealloc {

@@ -10,8 +10,8 @@
 #import "Entity.h"
 #import "Brush.h"
 
-extern NSString* const MapEntityAddedNotification;
-extern NSString* const MapEntityRemovedNotification;
+extern NSString* const MapEntityAdded;
+extern NSString* const MapEntityRemoved;
 
 extern NSString* const MapEntity;
 
@@ -21,5 +21,8 @@ extern NSString* const MapEntity;
 }
 
 - (Entity *)worldspawn;
+
+- (Entity *)createEntityWithProperty:(NSString *)key value:(NSString *)value;
+- (void)removeEntity:(Entity *)entity;
 
 @end

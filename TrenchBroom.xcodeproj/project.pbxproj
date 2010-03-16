@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		1DDD582C0DA1D0D100B32029 /* MapDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58280DA1D0D100B32029 /* MapDocument.xib */; };
 		1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD582A0DA1D0D100B32029 /* MainMenu.xib */; };
+		484C28FC115023A2004DD957 /* VBOManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FB115023A2004DD957 /* VBOManager.m */; };
+		484C28FF1150258B004DD957 /* VBOMemBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FE1150258B004DD957 /* VBOMemBlock.m */; };
 		48527F3811148D5C00CD6043 /* Face.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3711148D5C00CD6043 /* Face.m */; };
 		48527F3B11148D8E00CD6043 /* Vector3i.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3A11148D8E00CD6043 /* Vector3i.m */; };
 		48527F3E11148EAA00CD6043 /* Brush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* Brush.m */; };
@@ -46,6 +48,10 @@
 		2A37F4BAFDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		484C28FA115023A2004DD957 /* VBOManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOManager.h; sourceTree = "<group>"; };
+		484C28FB115023A2004DD957 /* VBOManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOManager.m; sourceTree = "<group>"; };
+		484C28FD1150258B004DD957 /* VBOMemBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOMemBlock.h; sourceTree = "<group>"; };
+		484C28FE1150258B004DD957 /* VBOMemBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOMemBlock.m; sourceTree = "<group>"; };
 		48527F3611148D5C00CD6043 /* Face.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Face.h; sourceTree = "<group>"; };
 		48527F3711148D5C00CD6043 /* Face.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Face.m; sourceTree = "<group>"; };
 		48527F3911148D8E00CD6043 /* Vector3i.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vector3i.h; sourceTree = "<group>"; };
@@ -189,6 +195,10 @@
 				487E31FB114F74600043A111 /* Renderer2D.m */,
 				487E3200114F76160043A111 /* RenderPolygon.h */,
 				487E3201114F76160043A111 /* RenderPolygon.m */,
+				484C28FA115023A2004DD957 /* VBOManager.h */,
+				484C28FB115023A2004DD957 /* VBOManager.m */,
+				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
+				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -319,6 +329,8 @@
 				487E31FF114F747D0043A111 /* RenderContext.m in Sources */,
 				487E3202114F76160043A111 /* RenderPolygon.m in Sources */,
 				487E3216114F768D0043A111 /* RenderBrush.m in Sources */,
+				484C28FC115023A2004DD957 /* VBOManager.m in Sources */,
+				484C28FF1150258B004DD957 /* VBOMemBlock.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

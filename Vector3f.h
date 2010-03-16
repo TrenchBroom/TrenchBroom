@@ -26,5 +26,4 @@
 - (void)setZ:(float)zCoord;
 
 - (void)set:(Vector3f *)vector;
-
 @end

@@ -8,8 +8,8 @@
 
 #import "Map.h"
 
-NSString* const MapEntityAddedNotification = @"EntityAdded";
-NSString* const MapEntityRemovedNotification = @"EntityRemoved";
+NSString* const MapEntityAdded = @"EntityAdded";
+NSString* const MapEntityRemoved = @"EntityRemoved";
 
 NSString* const MapEntity = @"Entity";
 
@@ -27,6 +27,27 @@ NSString* const MapEntity = @"Entity";
 - (Entity *)worldspawn {
     return worldspawn;
 }
+
+- (Entity *)createEntityWithProperty:(NSString *)key value:(NSString *)value {
+    Entity* entity = [[Entity alloc] initWithProperty:key value:value];
+    [entities addObject:[entity release]];
+
+    NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:1];
+    [info setObject:entity forKey:MapEntity];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:MapEntityAdded object:self userInfo:info];
+    return entity;
+}
+
+- (void)removeEntity:(Entity *)entity {
+    [entities removeObject:entity];
+
+    NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:1];
+    [[info setObject:entity forKey:MapEntity];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:MapEntityRemoved object:self userInfo:info];
+}
+
 
 - (void)dealloc {
     [entities release];

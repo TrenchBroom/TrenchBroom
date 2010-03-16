@@ -10,8 +10,8 @@
 #import "Vector3i.h"
 #import "Face.h"
 
-extern NSString* const BrushFaceAddedNotification;
-extern NSString* const BrushFaceRemovedNotification;
+extern NSString* const BrushFaceAdded;
+extern NSString* const BrushFaceRemoved;
 
 @interface Brush : NSObject {
 	NSMutableSet* faces;

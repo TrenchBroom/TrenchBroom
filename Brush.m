@@ -8,8 +8,8 @@
 
 #import "Brush.h"
 
-NSString* const BrushFaceAddedNotification = @"FaceAdded";
-NSString* const BrushFaceRemovedNotification = @"FaceRemoved";
+NSString* const BrushFaceAdded = @"FaceAdded";
+NSString* const BrushFaceRemoved = @"FaceRemoved";
 
 @implementation Brush
 
@@ -28,12 +28,23 @@ NSString* const BrushFaceRemovedNotification = @"FaceRemoved";
         Vector3i* pos2 = [[Vector3i alloc]initWithVector:position];
         [pos2 add:dimensions];
         
-        [faces addObject:[[Face alloc] initOnPlane:XZ at:position texture:nil]];
-        [faces addObject:[[Face alloc] initOnPlane:YZ at:position texture:nil]];
-        [faces addObject:[[Face alloc] initOnPlane:XY at:position texture:nil]];
-        [faces addObject:[[Face alloc] initOnPlane:XZ at:pos2 texture:nil]];
-        [faces addObject:[[Face alloc] initOnPlane:YZ at:pos2 texture:nil]];
-        [faces addObject:[[Face alloc] initOnPlane:XY at:pos2 texture:nil]];
+        Face* bottom = [[Face alloc] initOnPlane:XZ at:position texture:nil];
+        [faces addObject:[bottom release]];
+
+        Face* left = [[Face alloc] initOnPlane:YZ at:position texture:nil];
+        [faces addObject:[left release]];
+        
+        Face* back = [[Face alloc] initOnPlane:XY at:position texture:nil];
+        [faces addObject:[back release]];
+        
+        Face* top = [[Face alloc] initOnPlane:XZ at:pos2 texture:nil];
+        [faces addObject:[top release]];
+        
+        Face* right = [[Face alloc] initOnPlane:YZ at:pos2 texture:nil];
+        [faces addObject:[right release]];
+        
+        Face* front = [[Face alloc] initOnPlane:XY at:pos2 texture:nil];
+        [faces addObject:[front release]];
         
         [pos2 release];
     }

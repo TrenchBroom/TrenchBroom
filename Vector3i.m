@@ -83,4 +83,15 @@
     coords[1] += yAddend;
     coords[2] += zAddend;
 }
+
+- (BOOL)isEqual:(id)object {
+    if (object == self)
+        return YES;
+    
+    if (![object isKindOfClass:[self class]])
+        return NO;
+    
+    Vector3i* vector = (Vector3i*)object;
+    return [self x] == [vector x] && [self y] == [vector y] && [self z] == [vector z];
+}
 @end

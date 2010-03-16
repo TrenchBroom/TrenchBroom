@@ -37,7 +37,7 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
 
 - (Brush *)createCuboidAt:(Vector3i *)position with:(Vector3i *)dimensions {
     Brush* brush = [[Brush alloc] initCuboidAt:position with:dimensions];
-    [brushes addObject:brush];
+    [brushes addObject:[brush release]];
     
     return brush;
 }
@@ -47,7 +47,7 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
     if (brush == nil)
         return;
     
-    [brushes addObject:brush];
+    [brushes addObject: brush];
     
     NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:1];
     [info setObject:brush forKey:EntityBrush];
