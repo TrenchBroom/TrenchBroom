@@ -8,19 +8,23 @@
 
 #import "Map.h"
 
+NSString* const MapEntityAddedNotification = @"EntityAdded";
+NSString* const MapEntityRemovedNotification = @"EntityRemoved";
+
+NSString* const MapEntity = @"Entity";
 
 @implementation Map
 
 - (id)init {
     if (self = [super init]) {
-        worldspawn = [[Entity alloc] initWithKey:@"classname" value:@"worldspawn"];
+        worldspawn = [[Entity alloc] initWithProperty:@"classname" value:@"worldspawn"];
         entities = [[NSMutableSet alloc] init];
     }
     
     return self;
 }
 
-- (Brush *)worldspawn {
+- (Entity *)worldspawn {
     return worldspawn;
 }
 

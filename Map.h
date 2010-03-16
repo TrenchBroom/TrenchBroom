@@ -10,11 +10,16 @@
 #import "Entity.h"
 #import "Brush.h"
 
+extern NSString* const MapEntityAddedNotification;
+extern NSString* const MapEntityRemovedNotification;
+
+extern NSString* const MapEntity;
+
 @interface Map : NSObject {
     Entity* worldspawn;
     NSMutableSet* entities;
 }
 
-- (Brush *)worldspawn;
+- (Entity *)worldspawn;
 
 @end
