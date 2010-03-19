@@ -8,142 +8,191 @@
 
 #import "VBOManager.h"
 
+CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *context) {
+    VBOMemBlock *block1 = (VBOMemBlock *)val1;
+    VBOMemBlock *block2 = (VBOMemBlock *)val2;
+    
+    if ([block1 capacity] < [block2 capacity])
+        return kCFCompareLessThan;
+    
+    if ([block1 capacity] > [block2 capacity])
+        return kCFCompareGreaterThan;
+    
+    return kCFCompareEqualTo;
+}
 
 @implementation VBOManager
 
 - (id)init {
     if (self = [super init]) {
-        freeMemByIndex = [[NSMutableArray alloc] initWithCapacity:10];
-        freeMemBySize = [[NSMutableArray alloc] initWithCapacity:10];
+        freeBlocksByCapacity = [[NSMutableArray alloc] initWithCapacity:10];
     }
          
     return self;
 }
 
-- (id)initWithSize:(int)aSize {
+- (id)initWithTotalCapacity:(int)capacity {
     if (self = [self init]) {
-        size = aSize;
-        VBOMemBlock* memBlock = [[VBOMemBlock alloc] initWithIndex:0 size:aSize];
-        [freeMemByIndex addObject:memBlock];
-        [freeMemBySize addObject:memBlock];
-        [freeMem release];
+        totalCapacity = capacity;
+        freeCapacity = capacity;
+        firstBlock = [[VBOMemBlock alloc] initWithBlockCapacity:capacity];
+        [freeBlocksByCapacity addObject:firstBlock];
     }
     
     return self;
 }
 
-- (void)insertMemBlock:(VBOMemBlock *)aMemBlock {
-    
-    if ([freeMemByIndex count]) {
-        [freeMemByIndex addObject:aMemBlock];
-    } else {
-        if ([aMemBlock index] > [[freeMemByIndex lastObject] index]) {
-            if (![[freeMemByIndex lastObject] mergeWith:aMemBlock])
-                [freeMemByIndex addObject:aMemBlock];
-        } else {
-            // TODO binary search (CFArrayBSearchValues)
-            int blockIndex;
-            for (VBOMemBlock* memBlock in freeMemByIndex) {
-                if ([aMemBlock index] > [memBlock index]) {
-                    VBOMemBlock* previous;
-                    if (blockIndex > 0)
-                        previous = [freeMemByIndex objectAtIndex:blockIndex];
-                    
-                    VBOMemBlock* next;
-                    if (blockIndex + 1 < [freeMemByIndex count])
-                        next = [freeMemByIndex objectAtIndex:(blockIndex + 1)];
-                    
-                    if ([previous mergeWith:aMemBlock]) {
-                        if ([next mergeWith:previous]) {
-                            [freeMemByIndex removeObjectAtIndex:blockIndex];
-                            // change next's position in freeMemBySize appropriately
-                        } else {
-                            // change previous' position in freeMemBySize appropriately
-                        }
-                    } else if ([next mergeWith:aMemBlock]) {
-                        // change next's position in freeMemBySize appropriately
-                    } else {
-                        [freeMemByIndex insertObject:aMemBlock atIndex:blockIndex];
-                    }
-                    break;
-                }
-                blockIndex++;
-            }
-            
-            if (blockIndex > 0) {
-                if ([previous mergeWith:aMemBlock]) {
-                }
-            }
-        }
-        
-        // merge
-        if (blockIndex > 0 {
-            VBOMemBlock* previous = [freeMemByIndex objectAtIndex:(blockIndex - 1)];
-            if ([aMemBlock index] == [previous index] + [previous size]) {
-            }
-        }
-    }
-    
-    if ([freeMemBySize count] == 0 || [aMemBlock size] >= [[freeMemBySize lastObject] size]) {
-        [freeMemBySize addObject:aMemBlock];
-    } else {
-        // TODO binary search (CFArrayBSearchValues)
-        int blockIndex = 0;
-        for (VBOMemBlock* memBlock in freeMemBySize) {
-            if ([aMemBlock size] >= [memBlock size]) {
-                [freeMemBySize insertObject:aMemBlock atIndex:blockIndex];
-                break;
-            }
-            blockIndex++;
-        }
-    }
+- (int)totalCapacity {
+    return totalCapacity;
 }
 
-- (void)removeMemBlock:(VBOMemBlock *)memBlock {
-    // TODO binary search (CFArrayBSearchValues)
-    int blockIndex = 0;
-    for (VBOMemBlock* memBlock in freeMemByIndex) {
-        if ([aMemBlock index] > [memBlock index]) {
-            [freeMemByIndex insertObject:aMemBlock atIndex:blockIndex];
-            break;
-        }
-        blockIndex++;
-    }
-    
-    blockIndex = 0;
-    for (VBOMemBlock* memBlock in freeMemBySize) {
-        if ([aMemBlock size] >= [memBlock size]) {
-            [freeMemBySize insertObject:aMemBlock atIndex:blockIndex];
-            break;
-        }
-        blockIndex++;
-    }
+- (int)freeCapacity {
+    return freeCapacity;
 }
 
+- (unsigned)findMemBlock:(VBOMemBlock *)query {
+    return (unsigned)CFArrayBSearchValues((CFArrayRef)freeBlocksByCapacity, 
+                                          CFRangeMake(0, CFArrayGetCount((CFArrayRef)freeBlocksByCapacity)),
+                                          query,
+                                          (CFComparatorFunction)compareMemBlocks,
+                                          NULL);
+}
 
-- (VBOMemBlock*)getMemBlockSize:(int)aSize {
-    // TODO look at CFArrayBSearchValues to perform binary search
-    int blockIndex = 0;
-    for (VBOMemBlock* memBlock in freeMem) {
-        if ([memBlock size] >= aSize) {
-            [freeMem autorelease]
-            [freeMem removeObjectAtIndex:index];
-            
-            if ([freeMem size] > aSize) {
-                VBOMemBlock* result = [[VBOMemBlock alloc] initWithIndex:[freeMem index] size:aSize];
-            }
-        }
-        
-        blockIndex++;
+- (void)insertFreeMemBlock:(VBOMemBlock *)memBlock {
+    if (![memBlock free])
+        return;
+    
+    unsigned index = [self findMemBlock:memBlock];
+    if (index >= [freeBlocksByCapacity count])
+        [freeBlocksByCapacity addObject:memBlock];
+    else
+        [freeBlocksByCapacity insertObject:memBlock atIndex:index];
+}
+
+- (void)removeFreeMemBlock:(VBOMemBlock *)memBlock {
+    if (![memBlock free])
+        return;
+    
+    unsigned index = [self findMemBlock:memBlock];
+    VBOMemBlock* candidate = [freeBlocksByCapacity objectAtIndex:index];
+    int i = index;
+    
+    while (i > 0 && candidate != memBlock && [candidate free] && [candidate capacity] == [memBlock capacity])
+        candidate = [freeBlocksByCapacity objectAtIndex:--i];
+    
+    if (candidate != memBlock) {
+        i = index + 1;
+        candidate = [freeBlocksByCapacity objectAtIndex:i];
+        while (i < [freeBlocksByCapacity count] - 1 && candidate != memBlock && [candidate free] && [candidate capacity] == [memBlock capacity])
+            candidate = [freeBlocksByCapacity objectAtIndex:++i];
     }
     
-    return nil;
+    if (candidate != memBlock)
+        [NSException raise:NSInvalidArgumentException format:@"the given memory block could not be found"];
+    
+    [freeBlocksByCapacity removeObjectAtIndex:i];
+}
+
+- (void)resizeMemBlock:(VBOMemBlock *)memBlock toCapacity:(int)capacity {
+    if (capacity == [memBlock capacity])
+        return;
+
+    if (![memBlock free])
+        return;
+    
+    [self removeFreeMemBlock:memBlock];
+    [memBlock setCapacity:capacity];
+    [self insertFreeMemBlock:memBlock];
+}
+
+- (VBOMemBlock *)allocMemBlock:(int)capacity {
+    
+    if (capacity > freeCapacity)
+        return nil;
+    
+    VBOMemBlock* query = [[VBOMemBlock alloc]initWithBlockCapacity:capacity];
+    unsigned index = [self findMemBlock:query];
+    [query release];
+    
+    // todo try to rearrange memory?
+    if (index >= [freeBlocksByCapacity count])
+        return nil;
+    
+    VBOMemBlock* memBlock = [freeBlocksByCapacity objectAtIndex:index];
+    [freeBlocksByCapacity removeObjectAtIndex:index];
+    
+    // split the memory block
+    if (capacity < [memBlock capacity]) {
+        VBOMemBlock *remainder = [[VBOMemBlock alloc] initWithBlockCapacity:[memBlock capacity] - capacity];
+        [memBlock setCapacity:capacity];
+
+        VBOMemBlock* next = [memBlock next];
+        
+        [remainder setNext:next];
+        [remainder setPrevious:memBlock];
+        
+        [memBlock setNext:remainder];
+        [next setPrevious:remainder];
+
+        [self insertFreeMemBlock:remainder];
+    }
+    
+    [memBlock setFree:NO];
+    freeCapacity -= [memBlock capacity];
+    
+    return memBlock;
+}
+
+- (void)freeMemBlock:(VBOMemBlock *)memBlock {
+
+    VBOMemBlock* previous = [memBlock previous];
+    VBOMemBlock* next = [memBlock next];
+    
+    if ([previous free] && [next free]) {
+        VBOMemBlock* nextNext = [next next];
+        
+        [previous setNext:nextNext];
+        [nextNext setPrevious:previous];
+        
+        [memBlock setPrevious:nil];
+        [memBlock setNext:nil];
+        [next setPrevious:nil];
+        [next setNext:nil];
+        
+        [self resizeMemBlock:previous toCapacity:[previous capacity] + [memBlock capacity] + [next capacity]];
+        [self removeFreeMemBlock:next];
+    } else if ([previous free]) {
+        [previous setNext:next];
+        [next setPrevious:previous];
+        
+        [memBlock setPrevious:nil];
+        [memBlock setNext:nil];
+
+        [self resizeMemBlock:previous toCapacity:[previous capacity] + [memBlock capacity]];
+    } else if ([next free]) {
+        VBOMemBlock* nextNext = [next next];
+        
+        [memBlock setNext:nextNext];
+        [nextNext setPrevious:memBlock];
+        
+        [next setPrevious:nil];
+        [next setNext:nil];
+        
+        [memBlock setCapacity:[memBlock capacity] + [next capacity]];
+        [memBlock setFree:YES];
+        [self insertFreeMemBlock:memBlock];
+        [self removeFreeMemBlock:next];
+    } else {
+        [memBlock setFree:YES];
+        [self insertFreeMemBlock:memBlock];
+    }
+    
+    freeCapacity += [memBlock capacity];
 }
 
 - (void)dealloc {
-    [freeMemByIndex release];
-    [freeMemBySize release];
-
+    [freeBlocksByCapacity release];
+    [firstBlock release];
     [super dealloc];
 }
 

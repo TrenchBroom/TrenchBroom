@@ -29,22 +29,28 @@ NSString* const BrushFaceRemoved = @"FaceRemoved";
         [pos2 add:dimensions];
         
         Face* bottom = [[Face alloc] initOnPlane:XZ at:position texture:nil];
-        [faces addObject:[bottom release]];
+        [faces addObject:bottom];
+        [bottom release];
 
         Face* left = [[Face alloc] initOnPlane:YZ at:position texture:nil];
-        [faces addObject:[left release]];
+        [faces addObject:left];
+        [left release];
         
         Face* back = [[Face alloc] initOnPlane:XY at:position texture:nil];
-        [faces addObject:[back release]];
+        [faces addObject:back];
+        [back release];
         
         Face* top = [[Face alloc] initOnPlane:XZ at:pos2 texture:nil];
-        [faces addObject:[top release]];
+        [faces addObject:top];
+        [top release];
         
         Face* right = [[Face alloc] initOnPlane:YZ at:pos2 texture:nil];
-        [faces addObject:[right release]];
+        [faces addObject:right];
+        [right release];
         
         Face* front = [[Face alloc] initOnPlane:XY at:pos2 texture:nil];
-        [faces addObject:[front release]];
+        [faces addObject:front];
+        [front release];
         
         [pos2 release];
     }

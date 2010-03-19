@@ -10,14 +10,23 @@
 
 
 @interface VBOMemBlock : NSObject {
-    int index;
-    int size;
+    int capacity;
+    BOOL free;
+    VBOMemBlock* next;
+    VBOMemBlock* previous;
 }
 
-- (id)initWithIndex:(int)anIndex size:(int)aSize;
+- (id)initWithBlockCapacity:(int)aSize;
 
-- (int)index;
-- (int)size;
+- (BOOL)free;
+- (int)capacity;
 
-- (BOOL)mergeWith:(VBOMemBlock *)aMemBlock;
+- (void)setFree:(BOOL)value;
+- (void)setCapacity:(int)aSize;
+
+- (VBOMemBlock *)previous;
+- (VBOMemBlock *)next;
+
+- (void)setPrevious:(VBOMemBlock *)memBlock;
+- (void)setNext:(VBOMemBlock *)memBlock;
 @end

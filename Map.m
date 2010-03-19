@@ -30,7 +30,8 @@ NSString* const MapEntity = @"Entity";
 
 - (Entity *)createEntityWithProperty:(NSString *)key value:(NSString *)value {
     Entity* entity = [[Entity alloc] initWithProperty:key value:value];
-    [entities addObject:[entity release]];
+    [entities addObject:entity];
+    [entity release];
 
     NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:1];
     [info setObject:entity forKey:MapEntity];
@@ -43,7 +44,7 @@ NSString* const MapEntity = @"Entity";
     [entities removeObject:entity];
 
     NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:1];
-    [[info setObject:entity forKey:MapEntity];
+    [info setObject:entity forKey:MapEntity];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:MapEntityRemoved object:self userInfo:info];
 }

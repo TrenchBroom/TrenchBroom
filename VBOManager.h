@@ -7,19 +7,21 @@
 //
 
 #import <Cocoa/Cocoa.h>
-
+#import "VBOMemBlock.h"
 
 @interface VBOManager : NSObject {
-    int size;
-    NSMutableArray* freeMemBySize;
-    NSMutableArray* freeMemByIndex;
+    int totalCapacity;
+    int freeCapacity;
+    NSMutableArray* freeBlocksByCapacity;
+    VBOMemBlock *firstBlock;
 }
 
-- (id)initWithSize:(int)aSize;
+- (id)initWithTotalCapacity:(int)capacity;
 
-- (void)insertMemBlock:(VBOMemBlock *)aMemBlock;
-- (void)removeMemBlock:(VBOMemBlock *)aMemBlock;
+- (int)totalCapacity;
+- (int)freeCapacity;
 
-- (VBOMemBlock*)getMemBlockSize:(int)aSize;
+- (VBOMemBlock *)allocMemBlock:(int)capacity;
+- (void)freeMemBlock:(VBOMemBlock *)memBlock;
 
 @end

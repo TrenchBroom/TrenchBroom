@@ -11,36 +11,58 @@
 
 @implementation VBOMemBlock
 
-- (id)initWithIndex:(int)anIndex size:(int)aSize {
-    if (self = [self init]) {
-        index = anIndex;
-        size = aSize;
+- (id)init {
+    if (self = [super init]) {
+        [self setFree:YES];
     }
     
     return self;
 }
 
-- (int)index {
-    return index;
-}
-
-- (int)size {
-    return size;
-}
-
-- (BOOL)mergeWith:(VBOMemBlock *)aMemBlock {
-    if ([aMemBlock index] == index + size) {
-        size += [aMemBlock size];
-        return YES;
+- (id)initWithBlockCapacity:(int)aSize {
+    if (self = [self init]) {
+        [self setCapacity:aSize];
     }
     
-    if (index == [aMemBlock index] + [aMemBlock size]) {
-        index = [aMemBlock index];
-        size += [aMemBlock size];
-        return YES;
-    }
-    
-    return NO;
+    return self;
+}
+
+- (int)capacity {
+    return capacity;
+}
+
+- (BOOL)free {
+    return free;
+}
+
+- (void)setFree:(BOOL)value {
+    free = value;
+}
+
+- (void)setCapacity:(int)aSize {
+    capacity = aSize;
+}
+
+- (VBOMemBlock *)previous {
+    return previous;
+}
+
+- (VBOMemBlock *)next {
+    return next;
+}
+
+- (void)setPrevious:(VBOMemBlock *)memBlock {
+    previous = memBlock;
+}
+
+- (void)setNext:(VBOMemBlock *)memBlock {
+    [next release];
+    next = [memBlock retain];
+}
+
+- (void)dealloc {
+    [next release];
+    [super dealloc];
 }
 
 @end
