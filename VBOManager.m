@@ -147,6 +147,8 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 
     VBOMemBlock* previous = [memBlock previous];
     VBOMemBlock* next = [memBlock next];
+
+    freeCapacity += [memBlock capacity];
     
     if ([previous free] && [next free]) {
         VBOMemBlock* nextNext = [next next];
@@ -161,6 +163,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         
         [self resizeMemBlock:previous toCapacity:[previous capacity] + [memBlock capacity] + [next capacity]];
         [self removeFreeMemBlock:next];
+
     } else if ([previous free]) {
         [previous setNext:next];
         [next setPrevious:previous];
@@ -187,7 +190,6 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         [self insertFreeMemBlock:memBlock];
     }
     
-    freeCapacity += [memBlock capacity];
 }
 
 - (void)dealloc {

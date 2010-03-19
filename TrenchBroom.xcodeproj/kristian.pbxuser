@@ -27,11 +27,11 @@
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
 					20,
-					418,
+					366,
 					20,
-					318,
-					318,
-					248,
+					267,
+					267,
+					197,
 					20,
 				);
 				PBXFileTableDataSourceColumnsKey = (
@@ -51,7 +51,7 @@
 				PBXFileTableDataSourceColumnWidthsKey = (
 					22,
 					300,
-					1080,
+					875,
 				);
 				PBXFileTableDataSourceColumnsKey = (
 					PBXExecutablesDataSource_ActiveFlagID,
@@ -64,7 +64,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					1192,
+					987,
 					20,
 					48,
 					43,
@@ -79,6 +79,22 @@
 					PBXFileDataSource_Errors_ColumnID,
 					PBXFileDataSource_Warnings_ColumnID,
 					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXSymbolsDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXSymbolsDataSource_SymbolNameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					16,
+					200,
+					50,
+					927,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXSymbolsDataSource_SymbolTypeIconID,
+					PBXSymbolsDataSource_SymbolNameID,
+					PBXSymbolsDataSource_SymbolTypeID,
+					PBXSymbolsDataSource_ReferenceNameID,
 				);
 			};
 			PBXConfiguration.PBXFileTableDataSource3.XCSCMDataSource = {
@@ -110,7 +126,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					1152,
+					947,
 					60,
 					20,
 					48,
@@ -127,8 +143,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 290695713;
-			PBXWorkspaceStateSaveDate = 290695713;
+			PBXPerProjectTemplateStateSaveDate = 290729344;
+			PBXWorkspaceStateSaveDate = 290729344;
 		};
 		perUserProjectItems = {
 			484C28C8114FFBAB004DD957 /* PBXTextBookmark */ = 484C28C8114FFBAB004DD957 /* PBXTextBookmark */;
@@ -152,6 +168,9 @@
 			48A68F7B114EE8550064732A /* PBXTextBookmark */ = 48A68F7B114EE8550064732A /* PBXTextBookmark */;
 			48A68F7D114EE8550064732A /* PBXTextBookmark */ = 48A68F7D114EE8550064732A /* PBXTextBookmark */;
 			48A68F7E114EE8550064732A /* PBXTextBookmark */ = 48A68F7E114EE8550064732A /* PBXTextBookmark */;
+			48D45BCC1154306F006FBA04 /* PBXTextBookmark */ = 48D45BCC1154306F006FBA04 /* PBXTextBookmark */;
+			48D45BCD1154306F006FBA04 /* XCBuildMessageTextBookmark */ = 48D45BCD1154306F006FBA04 /* XCBuildMessageTextBookmark */;
+			48D45BCE1154306F006FBA04 /* PBXTextBookmark */ = 48D45BCE1154306F006FBA04 /* PBXTextBookmark */;
 			48EEE8F21153D361001A4D7C /* PBXTextBookmark */ = 48EEE8F21153D361001A4D7C /* PBXTextBookmark */;
 			48EEE8F31153D361001A4D7C /* PBXTextBookmark */ = 48EEE8F31153D361001A4D7C /* PBXTextBookmark */;
 			48EEE8F41153D361001A4D7C /* PBXTextBookmark */ = 48EEE8F41153D361001A4D7C /* PBXTextBookmark */;
@@ -161,13 +180,11 @@
 			48EEEA461153E595001A4D7C /* PBXTextBookmark */ = 48EEEA461153E595001A4D7C /* PBXTextBookmark */;
 			48EEEA641153E907001A4D7C /* PBXTextBookmark */ = 48EEEA641153E907001A4D7C /* PBXTextBookmark */;
 			48EEEA881153EBC7001A4D7C /* PBXTextBookmark */ = 48EEEA881153EBC7001A4D7C /* PBXTextBookmark */;
-			48EEEA891153EBC7001A4D7C /* PBXTextBookmark */ = 48EEEA891153EBC7001A4D7C /* PBXTextBookmark */;
 			48EEEA8A1153EBC7001A4D7C /* PBXTextBookmark */ = 48EEEA8A1153EBC7001A4D7C /* PBXTextBookmark */;
-			48EEEA8B1153EBC7001A4D7C /* PBXTextBookmark */ = 48EEEA8B1153EBC7001A4D7C /* PBXTextBookmark */;
-			48EEEA8D1153EBD0001A4D7C /* PBXTextBookmark */ = 48EEEA8D1153EBD0001A4D7C /* PBXTextBookmark */;
 		};
 		sourceControlManager = 48527F1E111482D900CD6043 /* Source Control */;
 		userBuildSettings = {
+			OBJROOT = "$(SYMROOT)";
 		};
 	};
 	2A37F4ACFDCFA73011CA2CEA /* MapDocument.m */ = {
@@ -275,9 +292,9 @@
 	};
 	484C28FB115023A2004DD957 /* VBOManager.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1370, 2561}}";
-			sepNavSelRange = "{4438, 0}";
-			sepNavVisRange = "{534, 1137}";
+			sepNavIntBoundsRect = "{{0, 0}, {1379, 2613}}";
+			sepNavSelRange = "{5495, 0}";
+			sepNavVisRange = "{5133, 464}";
 		};
 	};
 	484C28FD1150258B004DD957 /* VBOMemBlock.h */ = {
@@ -289,9 +306,9 @@
 	};
 	484C28FE1150258B004DD957 /* VBOMemBlock.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1370, 897}}";
-			sepNavSelRange = "{331, 0}";
-			sepNavVisRange = "{345, 607}";
+			sepNavIntBoundsRect = "{{0, 0}, {1379, 884}}";
+			sepNavSelRange = "{458, 0}";
+			sepNavVisRange = "{514, 205}";
 		};
 	};
 	484C290511502C86004DD957 /* PBXTextBookmark */ = {
@@ -317,11 +334,14 @@
 	48527F0C111482C400CD6043 /* TrenchBroom */ = {
 		isa = PBXExecutable;
 		activeArgIndices = (
+			YES,
 		);
 		argumentStrings = (
+			"-SenTest All",
 		);
 		autoAttachOnCrash = 1;
-		breakpointsEnabled = 0;
+		breakpointsEnabled = 1;
+		comments = "To enable / disable unit test injection for debugging purposes see\nhttp://developer.apple.com/mac/articles/tools/unittestingwithxcode3.html";
 		configStateDict = {
 		};
 		customDataFormattersEnabled = 1;
@@ -333,6 +353,26 @@
 		dylibVariantSuffix = "";
 		enableDebugStr = 1;
 		environmentEntries = (
+			{
+				active = YES;
+				name = XCInjectBundleInto;
+				value = TrenchBroom.app/Contents/MacOS/TrenchBroom;
+			},
+			{
+				active = YES;
+				name = XCInjectBundle;
+				value = Test.octest;
+			},
+			{
+				active = YES;
+				name = DYLD_FALLBACK_FRAMEWORK_PATH;
+				value = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+			},
+			{
+				active = YES;
+				name = DYLD_INSERT_LIBRARIES;
+				value = "$(DEVELOPER_LIBRARY_DIR)/PrivateFrameworks/DevToolsBundleInjection.framework/DevToolsBundleInjection";
+			},
 		);
 		executableSystemSymbolLevel = 0;
 		executableUserSymbolLevel = 0;
@@ -343,6 +383,8 @@
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
+		variableFormatDictionary = {
+		};
 	};
 	48527F1E111482D900CD6043 /* Source Control */ = {
 		isa = PBXSourceControlManager;
@@ -674,6 +716,35 @@
 		vrLen = 384;
 		vrLoc = 0;
 	};
+	48D45BCC1154306F006FBA04 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 484C28FB115023A2004DD957 /* VBOManager.m */;
+		name = "VBOManager.m: 152";
+		rLen = 0;
+		rLoc = 4433;
+		rType = 0;
+		vrLen = 1120;
+		vrLoc = 4612;
+	};
+	48D45BCD1154306F006FBA04 /* XCBuildMessageTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "returning a memory block should free memory";
+		fRef = 48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */;
+		fallbackIsa = XCBuildMessageTextBookmark;
+		rLen = 1;
+		rLoc = 85;
+		rType = 1;
+	};
+	48D45BCE1154306F006FBA04 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */;
+		name = "VBOManagerTestCase.m: 94";
+		rLen = 0;
+		rLoc = 3849;
+		rType = 0;
+		vrLen = 1391;
+		vrLoc = 2596;
+	};
 	48EEE8F21153D361001A4D7C /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 48527F3D11148EAA00CD6043 /* Brush.m */;
@@ -713,9 +784,10 @@
 	};
 	48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1370, 715}}";
-			sepNavSelRange = "{2118, 0}";
-			sepNavVisRange = "{203, 2024}";
+			sepNavIntBoundsRect = "{{0, 0}, {1165, 1313}}";
+			sepNavSelRange = "{3849, 0}";
+			sepNavVisRange = "{2596, 1391}";
+			sepNavWindowFrame = "{{1, 61}, {1439, 817}}";
 		};
 	};
 	48EEE94C1153DD03001A4D7C /* Test */ = {
@@ -743,6 +815,7 @@
 	};
 	48EEE9A21153E002001A4D7C /* NSArray.h */ = {
 		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
 		name = NSArray.h;
 		path = /Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Foundation.framework/Headers/NSArray.h;
 		sourceTree = "<absolute>";
@@ -787,16 +860,6 @@
 		vrLen = 607;
 		vrLoc = 345;
 	};
-	48EEEA891153EBC7001A4D7C /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */;
-		name = "VBOManagerTestCase.m: 50";
-		rLen = 0;
-		rLoc = 2118;
-		rType = 0;
-		vrLen = 2024;
-		vrLoc = 203;
-	};
 	48EEEA8A1153EBC7001A4D7C /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 484C28FD1150258B004DD957 /* VBOMemBlock.h */;
@@ -806,26 +869,6 @@
 		rType = 0;
 		vrLen = 571;
 		vrLoc = 0;
-	};
-	48EEEA8B1153EBC7001A4D7C /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 484C28FB115023A2004DD957 /* VBOManager.m */;
-		name = "VBOManager.m: 196";
-		rLen = 0;
-		rLoc = 5668;
-		rType = 0;
-		vrLen = 1372;
-		vrLoc = 4685;
-	};
-	48EEEA8D1153EBD0001A4D7C /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 484C28FB115023A2004DD957 /* VBOManager.m */;
-		name = "VBOManager.m: 152";
-		rLen = 0;
-		rLoc = 4438;
-		rType = 0;
-		vrLen = 1137;
-		vrLoc = 534;
 	};
 	8D15AC270486D014006FF6A4 /* TrenchBroom */ = {
 		activeExec = 0;
