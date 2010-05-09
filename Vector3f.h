@@ -7,15 +7,21 @@
 //
 
 #import <Cocoa/Cocoa.h>
-
+#import "Vector3i.h"
 
 @interface Vector3f : NSObject {
 	float x;
 	float y;
 	float z;
 }
-- (id)initWithVector:(Vector3f *)vector;
-- (id)initWithXCoord:(float)xCoord yCoord:(float)yCoord zCoord:(float) zCoord;
++ (Vector3f *)add:(Vector3f *)left addend:(Vector3f *)right;
++ (Vector3f *)sub:(Vector3f *)left subtrahend:(Vector3f *)right;
++ (Vector3f *)cross:(Vector3f *)left factor:(Vector3f *)right;
++ (Vector3f *)normalize:(Vector3f *)vector;
+
+- (id)initWithFloatVector:(Vector3f *)vector;
+- (id)initWithIntVector:(Vector3i *)vector;
+- (id)initWithX:(float)xCoord y:(float)yCoord z:(float)zCoord;
 
 - (float)x;
 - (float)y;
@@ -25,5 +31,21 @@
 - (void)setY:(float)yCoord;
 - (void)setZ:(float)zCoord;
 
-- (void)set:(Vector3f *)vector;
+- (void)setFloat:(Vector3f *)vector;
+- (void)setInt:(Vector3i *)vector;
+
+- (BOOL)isNull;
+
+- (void)add:(Vector3f *)addend;
+- (void)addX:(float)xAddend Y:(float)yAddend Z:(float)zAddend;
+
+- (void)sub:(Vector3f *)subtrahend;
+- (void)subX:(float)xSubtrahend Y:(float)ySubtrahend Z:(float)zSubtrahend;
+
+- (void)cross:(Vector3f *)m;
+- (float)dot:(Vector3f *)m;
+- (void)normalize;
+- (float)length;
+- (float)lengthSquared;
+
 @end

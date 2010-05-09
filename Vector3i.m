@@ -7,6 +7,7 @@
 //
 
 #import "Vector3i.h"
+#import "Math3D.h"
 
 @implementation Vector3i
 
@@ -72,6 +73,10 @@
 	[self setZ:[vector z]];
 }
 
+- (BOOL)null {
+    return coords[0] == 0 && coords[1] == 0 && coords[2] == 0;
+}
+
 - (void)add:(Vector3i *)addend {
     coords[0] += [addend x];
     coords[1] += [addend y];
@@ -84,6 +89,16 @@
     coords[2] += zAddend;
 }
 
+- (void)cross:(Vector3i *)m {
+    int x = [self y] * [m z] - [self z] * [m y];
+    int y = [self z] * [m x] - [self x] * [m z];
+    int z = [self x] * [m y] - [self y] * [m x];
+    
+    coords[0] = x;
+    coords[1] = y;
+    coords[2] = z;
+}
+
 - (BOOL)isEqual:(id)object {
     if (object == self)
         return YES;
@@ -92,6 +107,11 @@
         return NO;
     
     Vector3i* vector = (Vector3i*)object;
-    return [self x] == [vector x] && [self y] == [vector y] && [self z] == [vector z];
+    return fabsf([self x] - [vector x]) <= AlmostZero && fabsf([self y] - [vector y]) <= AlmostZero && fabsf([self z] - [vector z]) <= AlmostZero;
 }
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"X: %i, Y: %i, Z: %i", [self x], [self y], [self z]];
+}
+
 @end

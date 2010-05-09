@@ -7,9 +7,33 @@
 //
 
 #import "Vector3f.h"
-
+#import "Math3D.h"
 
 @implementation Vector3f
+
++ (Vector3f *)add:(Vector3f *)left addend:(Vector3f *)right {
+    Vector3f* result = [[Vector3f alloc] initWithFloatVector:left];
+    [result add:right];
+    return [result autorelease];
+}
+
++ (Vector3f *)sub:(Vector3f *)left subtrahend:(Vector3f *)right {
+    Vector3f* result = [[Vector3f alloc] initWithFloatVector:left];
+    [result sub:right];
+    return [result autorelease];
+}
+
++ (Vector3f *)cross:(Vector3f *)left factor:(Vector3f *)right {
+    Vector3f* result = [[Vector3f alloc] initWithFloatVector:left];
+    [result cross:right];
+    return [result autorelease];
+}
+
++ (Vector3f *)normalize:(Vector3f *)vector {
+    Vector3f* result = [[Vector3f alloc] initWithFloatVector:vector];
+    [result normalize];
+    return [result autorelease];
+}
 
 - (id)init {
 	if (self = [super init]) {
@@ -21,19 +45,31 @@
 	return self;
 }
 
-- (id)initWithVector:(Vector3f *)vector {
+- (id)initWithFloatVector:(Vector3f *)vector {
 	if (vector == nil) {
 		[self release];
 		return nil;
 	}
 	
 	if (self = [super init])
-		[self set:vector];
+		[self setFloat:vector];
 	
 	return self;
 }
 
-- (id)initWithXCoord:(float)xCoord yCoord:(float)yCoord zCoord:(float)zCoord {
+- (id)initWithIntVector:(Vector3i *)vector {
+	if (vector == nil) {
+		[self release];
+		return nil;
+	}
+	
+	if (self = [super init])
+		[self setInt:vector];
+	
+	return self;
+}
+
+- (id)initWithX:(float)xCoord y:(float)yCoord z:(float)zCoord {
 	if (self = [super init]) {
 		[self setX:xCoord];
 		[self setY:yCoord];
@@ -67,11 +103,69 @@
 	z = zCoord;
 }
 
-- (void)set:(Vector3f *)vector {
+- (void)setFloat:(Vector3f *)vector {
 	[self setX:[vector x]];
 	[self setY:[vector y]];
 	[self setZ:[vector z]];
 }
+
+- (void)setInt:(Vector3i *)vector {
+	[self setX:[vector x]];
+	[self setY:[vector y]];
+	[self setZ:[vector z]];
+}
+
+- (BOOL)isNull {
+    return fabsf(x) <= AlmostZero && fabsf(y) <= AlmostZero && fabsf(z) <= AlmostZero;
+}
+
+- (void)add:(Vector3f *)addend {
+    [self addX:[addend x] Y:[addend y] Z:[addend z]];
+}
+- (void)addX:(float)xAddend Y:(float)yAddend Z:(float)zAddend {
+    x += xAddend;
+    y += yAddend;
+    z += zAddend;
+}
+
+- (void)sub:(Vector3f *)subtrahend {
+    [self subX:[subtrahend x] Y:[subtrahend y] Z:[subtrahend z]];
+}
+
+- (void)subX:(float)xSubtrahend Y:(float)ySubtrahend Z:(float)zSubtrahend {
+    x -= xSubtrahend;
+    y -= ySubtrahend;
+    z -= zSubtrahend;
+}
+
+- (void)cross:(Vector3f *)m {
+    float xt = y * [m z] - z * [m y];
+    float yt = z * [m x] - x * [m z];
+    z = x * [m y] - y * [m x];
+    
+    x = xt;
+    y = yt;
+}
+
+- (float)dot:(Vector3f *)m {
+    return x * [m x] + y * [m y] + z * [m z];
+}
+
+- (void)normalize {
+    float l = [self length];
+    x /= l;
+    y /= l;
+    z /= l;
+}
+
+- (float)length {
+    return sqrtf([self lengthSquared]);
+}
+
+- (float)lengthSquared {
+    return x * x + y * y + z * z;
+}
+
 
 - (BOOL)isEqual:(id)object {
     if (object == self)
@@ -81,7 +175,11 @@
         return NO;
     
     Vector3f* vector = (Vector3f*)object;
-    return [self x] == [vector x] && [self y] == [vector y] && [self z] == [vector z];
+    return fabsf(x - [vector x]) < AlmostZero && fabsf(y - [vector y]) < AlmostZero && fabsf(z - [vector z]) < AlmostZero;
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"X: %f, Y: %f, Z: %f", x, y, z];
 }
 
 @end

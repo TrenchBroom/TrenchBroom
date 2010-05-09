@@ -9,7 +9,11 @@
 #import <Cocoa/Cocoa.h>
 #import "Vector3i.h"
 #import "Vector3f.h"
-#import "Line3D.h"
+#import "Line.h"
+
+typedef enum {
+    PSFront, PSBack
+} PlaneSide;
 
 @interface Plane : NSObject {
     float d;
@@ -21,6 +25,6 @@
 - (float)d;
 - (Vector3f *)n;
 
-- (Line3D *)intersectionWithPlane:(Plane *)plane;
+- (Line *)intersectionWithPlane:(Plane *)plane;
 
 @end

@@ -11,4 +11,8 @@
 
 @implementation RenderPolygon
 
+-(id)initWithFace:(Face*)face {
+    
+}
+
 @end

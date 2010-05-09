@@ -14,10 +14,10 @@
 - (id)init {
 	
 	if (self = [super init]) {
-		position = [[Vector3f alloc] initWithXCoord:0 yCoord:0 zCoord:0];
-		viewDir = [[Vector3f alloc] initWithXCoord:0 yCoord:0 zCoord:-1];
-		up = [[Vector3f alloc] initWithXCoord:0 yCoord:1 zCoord:0];
-		right = [[Vector3f alloc] initWithXCoord:1 yCoord:0 zCoord:0];
+		position = [[Vector3f alloc] initWithX:0 y:0 z:0];
+		viewDir = [[Vector3f alloc] initWithX:0 y:0 z:-1];
+		up = [[Vector3f alloc] initWithX:0 y:1 z:0];
+		right = [[Vector3f alloc] initWithX:1 y:0 z:0];
 	}
 	
 	return self;

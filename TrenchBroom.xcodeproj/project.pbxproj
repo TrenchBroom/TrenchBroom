@@ -9,6 +9,29 @@
 /* Begin PBXBuildFile section */
 		1DDD582C0DA1D0D100B32029 /* MapDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58280DA1D0D100B32029 /* MapDocument.xib */; };
 		1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD582A0DA1D0D100B32029 /* MainMenu.xib */; };
+		4809F3BD118ED82F000F66FD /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4809F3BB118ED82F000F66FD /* Math3D.m */; };
+		4809F43F118EDE63000F66FD /* ConvexAreaTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 4809F3F4118EDAD0000F66FD /* ConvexAreaTestCase.m */; };
+		4809F440118EDE64000F66FD /* VBOManagerTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */; };
+		4809F443118EDE6A000F66FD /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4809F3BB118ED82F000F66FD /* Math3D.m */; };
+		4809F444118EDE6A000F66FD /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CD8875118319500030AA56 /* Edge.m */; };
+		4809F445118EDE6B000F66FD /* ConvexArea.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AE13A61182240B0008745F /* ConvexArea.m */; };
+		4809F446118EDE6C000F66FD /* ConvexVolume.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AE13A2118223EB0008745F /* ConvexVolume.m */; };
+		4809F447118EDE6D000F66FD /* Vector3i.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3A11148D8E00CD6043 /* Vector3i.m */; };
+		4809F448118EDE6D000F66FD /* Vector3f.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F1E114EA95A0064732A /* Vector3f.m */; };
+		4809F449118EDE6E000F66FD /* Plane.m in Sources */ = {isa = PBXBuildFile; fileRef = 482E87F91178617D0051E782 /* Plane.m */; };
+		4809F44A118EDE6F000F66FD /* Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 482E87FC117861840051E782 /* Line.m */; };
+		4809F44D118EDE78000F66FD /* VBOMemBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FE1150258B004DD957 /* VBOMemBlock.m */; };
+		4809F44E118EDE79000F66FD /* VBOManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FB115023A2004DD957 /* VBOManager.m */; };
+		4809F44F118EDE7A000F66FD /* RenderPolygon.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E3201114F76160043A111 /* RenderPolygon.m */; };
+		4809F450118EDE7A000F66FD /* Renderer2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E31FB114F74600043A111 /* Renderer2D.m */; };
+		4809F451118EDE7B000F66FD /* RenderContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E31FE114F747D0043A111 /* RenderContext.m */; };
+		4809F452118EDE7C000F66FD /* RenderBrush.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E3215114F768D0043A111 /* RenderBrush.m */; };
+		4809F453118EDE80000F66FD /* Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* Map.m */; };
+		4809F454118EDE81000F66FD /* Face.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3711148D5C00CD6043 /* Face.m */; };
+		4809F455118EDE81000F66FD /* Entity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* Entity.m */; };
+		4809F456118EDE82000F66FD /* Brush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* Brush.m */; };
+		482E87FA1178617D0051E782 /* Plane.m in Sources */ = {isa = PBXBuildFile; fileRef = 482E87F91178617D0051E782 /* Plane.m */; };
+		482E87FD117861840051E782 /* Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 482E87FC117861840051E782 /* Line.m */; };
 		484C28FC115023A2004DD957 /* VBOManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FB115023A2004DD957 /* VBOManager.m */; };
 		484C28FF1150258B004DD957 /* VBOMemBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FE1150258B004DD957 /* VBOMemBlock.m */; };
 		48527F3811148D5C00CD6043 /* Face.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3711148D5C00CD6043 /* Face.m */; };
@@ -28,9 +51,9 @@
 		48A68F24114EDEF50064732A /* MapRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F23114EDEF50064732A /* MapRenderer.m */; };
 		48A68F27114EDF360064732A /* Entity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* Entity.m */; };
 		48A68F70114EE6DC0064732A /* Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* Map.m */; };
-		48EEE9531153DD39001A4D7C /* VBOManagerTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */; };
-		48EEE9541153DD40001A4D7C /* VBOMemBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FE1150258B004DD957 /* VBOMemBlock.m */; };
-		48EEE9551153DD41001A4D7C /* VBOManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FB115023A2004DD957 /* VBOManager.m */; };
+		48AE13A4118223EB0008745F /* ConvexVolume.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AE13A2118223EB0008745F /* ConvexVolume.m */; };
+		48AE13A81182240B0008745F /* ConvexArea.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AE13A61182240B0008745F /* ConvexArea.m */; };
+		48CD8877118319500030AA56 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CD8875118319500030AA56 /* Edge.m */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
 		8D15AC310486D014006FF6A4 /* MapDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4ACFDCFA73011CA2CEA /* MapDocument.m */; settings = {ATTRIBUTES = (); }; };
@@ -39,11 +62,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		48D45BA511542E09006FBA04 /* PBXContainerItemProxy */ = {
+		4809F49C118EE2D8000F66FD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2A37F4A9FDCFA73011CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 8D15AC270486D014006FF6A4 /* TrenchBroom */;
+			remoteGlobalIDString = 8D15AC270486D014006FF6A4;
 			remoteInfo = TrenchBroom;
 		};
 /* End PBXContainerItemProxy section */
@@ -61,6 +84,15 @@
 		2A37F4BAFDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		4809F3BA118ED82F000F66FD /* Math3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math3D.h; sourceTree = "<group>"; };
+		4809F3BB118ED82F000F66FD /* Math3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math3D.m; sourceTree = "<group>"; };
+		4809F3F3118EDAD0000F66FD /* ConvexAreaTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConvexAreaTestCase.h; sourceTree = "<group>"; };
+		4809F3F4118EDAD0000F66FD /* ConvexAreaTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConvexAreaTestCase.m; sourceTree = "<group>"; };
+		4809F42F118EDDB8000F66FD /* Test.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Test.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		482E87F81178617D0051E782 /* Plane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane.h; sourceTree = "<group>"; };
+		482E87F91178617D0051E782 /* Plane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Plane.m; sourceTree = "<group>"; };
+		482E87FB117861840051E782 /* Line.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line.h; sourceTree = "<group>"; };
+		482E87FC117861840051E782 /* Line.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line.m; sourceTree = "<group>"; };
 		484C28FA115023A2004DD957 /* VBOManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOManager.h; sourceTree = "<group>"; };
 		484C28FB115023A2004DD957 /* VBOManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOManager.m; sourceTree = "<group>"; };
 		484C28FD1150258B004DD957 /* VBOMemBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOMemBlock.h; sourceTree = "<group>"; };
@@ -97,16 +129,21 @@
 		48A68F26114EDF360064732A /* Entity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Entity.m; sourceTree = "<group>"; };
 		48A68F6E114EE6DC0064732A /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
 		48A68F6F114EE6DC0064732A /* Map.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Map.m; sourceTree = "<group>"; };
+		48AE13A1118223EB0008745F /* ConvexVolume.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConvexVolume.h; sourceTree = "<group>"; };
+		48AE13A2118223EB0008745F /* ConvexVolume.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConvexVolume.m; sourceTree = "<group>"; };
+		48AE13A51182240B0008745F /* ConvexArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConvexArea.h; sourceTree = "<group>"; };
+		48AE13A61182240B0008745F /* ConvexArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConvexArea.m; sourceTree = "<group>"; };
+		48CD8874118319500030AA56 /* Edge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Edge.h; sourceTree = "<group>"; };
+		48CD8875118319500030AA56 /* Edge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Edge.m; sourceTree = "<group>"; };
 		48EEE9041153D816001A4D7C /* Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Test-Info.plist"; sourceTree = "<group>"; };
 		48EEE9181153D95E001A4D7C /* VBOManagerTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOManagerTestCase.h; sourceTree = "<group>"; };
 		48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOManagerTestCase.m; sourceTree = "<group>"; };
-		48EEE94D1153DD03001A4D7C /* Test.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Test.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D15AC360486D014006FF6A4 /* TrenchBroom-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "TrenchBroom-Info.plist"; sourceTree = "<group>"; };
 		8D15AC370486D014006FF6A4 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		48EEE94A1153DD03001A4D7C /* Frameworks */ = {
+		4809F42C118EDDB8000F66FD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -150,7 +187,7 @@
 			isa = PBXGroup;
 			children = (
 				8D15AC370486D014006FF6A4 /* TrenchBroom.app */,
-				48EEE94D1153DD03001A4D7C /* Test.octest */,
+				4809F42F118EDDB8000F66FD /* Test.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -274,10 +311,22 @@
 		48A68F1C114EA7750064732A /* Math */ = {
 			isa = PBXGroup;
 			children = (
-				48527F3911148D8E00CD6043 /* Vector3i.h */,
-				48527F3A11148D8E00CD6043 /* Vector3i.m */,
+				482E87FB117861840051E782 /* Line.h */,
+				482E87FC117861840051E782 /* Line.m */,
+				482E87F81178617D0051E782 /* Plane.h */,
+				482E87F91178617D0051E782 /* Plane.m */,
 				48A68F1D114EA95A0064732A /* Vector3f.h */,
 				48A68F1E114EA95A0064732A /* Vector3f.m */,
+				48527F3911148D8E00CD6043 /* Vector3i.h */,
+				48527F3A11148D8E00CD6043 /* Vector3i.m */,
+				48AE13A1118223EB0008745F /* ConvexVolume.h */,
+				48AE13A2118223EB0008745F /* ConvexVolume.m */,
+				48AE13A51182240B0008745F /* ConvexArea.h */,
+				48AE13A61182240B0008745F /* ConvexArea.m */,
+				48CD8874118319500030AA56 /* Edge.h */,
+				48CD8875118319500030AA56 /* Edge.m */,
+				4809F3BA118ED82F000F66FD /* Math3D.h */,
+				4809F3BB118ED82F000F66FD /* Math3D.m */,
 			);
 			name = Math;
 			sourceTree = "<group>";
@@ -287,6 +336,8 @@
 			children = (
 				48EEE9181153D95E001A4D7C /* VBOManagerTestCase.h */,
 				48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */,
+				4809F3F3118EDAD0000F66FD /* ConvexAreaTestCase.h */,
+				4809F3F4118EDAD0000F66FD /* ConvexAreaTestCase.m */,
 			);
 			name = "Test Cases";
 			sourceTree = "<group>";
@@ -294,23 +345,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		48EEE94C1153DD03001A4D7C /* Test */ = {
+		4809F42E118EDDB8000F66FD /* Test */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 48EEE9501153DD22001A4D7C /* Build configuration list for PBXNativeTarget "Test" */;
+			buildConfigurationList = 4809F435118EDDE2000F66FD /* Build configuration list for PBXNativeTarget "Test" */;
 			buildPhases = (
-				48EEE9481153DD03001A4D7C /* Resources */,
-				48EEE9491153DD03001A4D7C /* Sources */,
-				48EEE94A1153DD03001A4D7C /* Frameworks */,
-				48EEE94B1153DD03001A4D7C /* ShellScript */,
+				4809F42A118EDDB8000F66FD /* Resources */,
+				4809F42B118EDDB8000F66FD /* Sources */,
+				4809F42C118EDDB8000F66FD /* Frameworks */,
+				4809F42D118EDDB8000F66FD /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				48D45BA611542E09006FBA04 /* PBXTargetDependency */,
+				4809F49D118EE2D8000F66FD /* PBXTargetDependency */,
 			);
 			name = Test;
 			productName = Test;
-			productReference = 48EEE94D1153DD03001A4D7C /* Test.octest */;
+			productReference = 4809F42F118EDDB8000F66FD /* Test.octest */;
 			productType = "com.apple.product-type.bundle";
 		};
 		8D15AC270486D014006FF6A4 /* TrenchBroom */ = {
@@ -344,13 +395,13 @@
 			projectRoot = "";
 			targets = (
 				8D15AC270486D014006FF6A4 /* TrenchBroom */,
-				48EEE94C1153DD03001A4D7C /* Test */,
+				4809F42E118EDDB8000F66FD /* Test */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		48EEE9481153DD03001A4D7C /* Resources */ = {
+		4809F42A118EDDB8000F66FD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -371,7 +422,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		48EEE94B1153DD03001A4D7C /* ShellScript */ = {
+		4809F42D118EDDB8000F66FD /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -387,13 +438,30 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		48EEE9491153DD03001A4D7C /* Sources */ = {
+		4809F42B118EDDB8000F66FD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				48EEE9531153DD39001A4D7C /* VBOManagerTestCase.m in Sources */,
-				48EEE9541153DD40001A4D7C /* VBOMemBlock.m in Sources */,
-				48EEE9551153DD41001A4D7C /* VBOManager.m in Sources */,
+				4809F43F118EDE63000F66FD /* ConvexAreaTestCase.m in Sources */,
+				4809F440118EDE64000F66FD /* VBOManagerTestCase.m in Sources */,
+				4809F443118EDE6A000F66FD /* Math3D.m in Sources */,
+				4809F444118EDE6A000F66FD /* Edge.m in Sources */,
+				4809F445118EDE6B000F66FD /* ConvexArea.m in Sources */,
+				4809F446118EDE6C000F66FD /* ConvexVolume.m in Sources */,
+				4809F447118EDE6D000F66FD /* Vector3i.m in Sources */,
+				4809F448118EDE6D000F66FD /* Vector3f.m in Sources */,
+				4809F449118EDE6E000F66FD /* Plane.m in Sources */,
+				4809F44A118EDE6F000F66FD /* Line.m in Sources */,
+				4809F44D118EDE78000F66FD /* VBOMemBlock.m in Sources */,
+				4809F44E118EDE79000F66FD /* VBOManager.m in Sources */,
+				4809F44F118EDE7A000F66FD /* RenderPolygon.m in Sources */,
+				4809F450118EDE7A000F66FD /* Renderer2D.m in Sources */,
+				4809F451118EDE7B000F66FD /* RenderContext.m in Sources */,
+				4809F452118EDE7C000F66FD /* RenderBrush.m in Sources */,
+				4809F453118EDE80000F66FD /* Map.m in Sources */,
+				4809F454118EDE81000F66FD /* Face.m in Sources */,
+				4809F455118EDE81000F66FD /* Entity.m in Sources */,
+				4809F456118EDE82000F66FD /* Brush.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -420,16 +488,22 @@
 				487E3216114F768D0043A111 /* RenderBrush.m in Sources */,
 				484C28FC115023A2004DD957 /* VBOManager.m in Sources */,
 				484C28FF1150258B004DD957 /* VBOMemBlock.m in Sources */,
+				482E87FA1178617D0051E782 /* Plane.m in Sources */,
+				482E87FD117861840051E782 /* Line.m in Sources */,
+				48AE13A4118223EB0008745F /* ConvexVolume.m in Sources */,
+				48AE13A81182240B0008745F /* ConvexArea.m in Sources */,
+				48CD8877118319500030AA56 /* Edge.m in Sources */,
+				4809F3BD118ED82F000F66FD /* Math3D.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		48D45BA611542E09006FBA04 /* PBXTargetDependency */ = {
+		4809F49D118EE2D8000F66FD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8D15AC270486D014006FF6A4 /* TrenchBroom */;
-			targetProxy = 48D45BA511542E09006FBA04 /* PBXContainerItemProxy */;
+			targetProxy = 4809F49C118EE2D8000F66FD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -469,7 +543,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		48EEE94E1153DD04001A4D7C /* Debug */ = {
+		4809F430118EDDB9000F66FD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -496,7 +570,7 @@
 			};
 			name = Debug;
 		};
-		48EEE94F1153DD04001A4D7C /* Release */ = {
+		4809F431118EDDB9000F66FD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -583,11 +657,11 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		48EEE9501153DD22001A4D7C /* Build configuration list for PBXNativeTarget "Test" */ = {
+		4809F435118EDDE2000F66FD /* Build configuration list for PBXNativeTarget "Test" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				48EEE94E1153DD04001A4D7C /* Debug */,
-				48EEE94F1153DD04001A4D7C /* Release */,
+				4809F430118EDDB9000F66FD /* Debug */,
+				4809F431118EDDB9000F66FD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

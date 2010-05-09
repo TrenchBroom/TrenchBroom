@@ -26,6 +26,10 @@
 
 - (void)set:(Vector3i *)vector;
 
+- (BOOL)null;
+
 - (void)add:(Vector3i *)addend;
 - (void)addX:(int)xAddend Y:(int)yAddend Z:(int)zAddend;
+
+- (void)cross:(Vector3i *)m;
 @end

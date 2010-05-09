@@ -7,10 +7,12 @@
 //
 
 #import <Cocoa/Cocoa.h>
-
+#import "Face.h"
 
 @interface RenderPolygon : NSObject {
     NSMutableArray* points;
 }
+
+-(id)initWithFace:(Face*)face;
 
 @end

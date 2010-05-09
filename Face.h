@@ -38,9 +38,9 @@ extern NSString* const FaceXScaleNew;
 extern NSString* const FaceYScaleOld;
 extern NSString* const FaceYScaleNew;
 
-typedef enum planeType {
+typedef enum {
     XY, XZ, YZ
-} Plane;
+} PlaneType;
 
 @interface Face : NSObject {
 	Vector3i* point1;
@@ -55,7 +55,7 @@ typedef enum planeType {
 	float yScale;
 }
 
-- (id)initOnPlane:(Plane)plane at:(Vector3i *)position texture:(NSString *)texture;
+- (id)initOnPlane:(PlaneType)plane at:(Vector3i *)position texture:(NSString *)texture;
 - (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;
 
 - (Vector3i *)point1;

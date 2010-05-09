@@ -32,7 +32,7 @@
         [p2p1 release];
         [p3p1 release];
         
-        if ([n null]) {
+        if ([n isNull]) {
             [p1 release];
             [self release];
             return nil;
@@ -53,11 +53,11 @@
     return n;
 }
 
-- (Line3D *)intersectionWithPlane:(Plane *)plane {
+- (Line *)intersectionWithPlane:(Plane *)plane {
     Vector3f *ln = [[Vector3f alloc] initWithFloatVector:n];
     [ln cross:[plane n]];
     
-    if ([ln null]) {
+    if ([ln isNull]) {
         [ln release];
         return nil; // planes are parallel
     }
@@ -67,33 +67,37 @@
     // intersect projections of the planes on the XY plane
     float fx = [n x] / [[plane n] x];
     float dy = [n y] - fx * [[plane n] y];
-    if (abs(dy) > AlmostZero) {
+    if (fabsf(dy) > AlmostZero) {
         float y = (d - fx * [plane d]) / dy;
         float x = (d - [n y] * y) / [n x];
         float z = (d - [n x] * x - [n y] * y) / [n z];
-        lp = [[Vector3f alloc] initWithXCoord:x yCoord:y zCoord:z];
+        lp = [[Vector3f alloc] initWithX:x y:y z:z];
     } else { // try XZ plane
         float dz = [n z] - fx * [[plane n] z];
-        if (abs(dz) > AlmostZero) {
+        if (fabsf(dz) > AlmostZero) {
             float z = (d - fx * [plane d]) / dz;
             float x = (d - [n z] * z) / [n x];
             float y = (d - [n x] * x - [n z] * z) / [n y];
-            lp = [[Vector3f alloc] initWithXCoord:x yCoord:y zCoord:z];
+            lp = [[Vector3f alloc] initWithX:x y:y z:z];
         } else { // try YZ plane
             float fy = [n y] / [[plane n] y];
             dz = [n z] - fy * [[plane n] z];
             float z = (d - fy * [plane d]) / dz;
             float y = (d - [n z] * z) / [n y];
             float x = (d - [n y] * y - [n z] * z) / [n x];
-            lp = [[Vector3f alloc] initWithXCoord:x yCoord:y zCoord:z];
+            lp = [[Vector3f alloc] initWithX:x y:y z:z];
         }
     }
     
-    Line3D* l = [[Line3D alloc] initWithPoint:lp normalizedDirection:ln];
+    Line* l = [[Line alloc] initWithPoint:lp normalizedDirection:ln];
     [ln release];
     [lp release];
     
     return [l autorelease];
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"distance: %f, normal: %@", d, n];
 }
 
 - (void)dealloc {

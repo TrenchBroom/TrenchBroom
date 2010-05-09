@@ -50,7 +50,7 @@ NSString* const FaceYScaleNew = @"YScaleNew";
     return self;
 }
 
-- (id) initOnPlane:(Plane)plane at:(Vector3i *)position texture:(NSString *)texture {
+- (id) initOnPlane:(PlaneType)plane at:(Vector3i *)position texture:(NSString *)texture {
     Vector3i* p1 = [[Vector3i alloc] initWithVector:position];
     Vector3i* p2 = [[Vector3i alloc] initWithVector:position];
     Vector3i* p3 = [[Vector3i alloc] initWithVector:position];

@@ -1,16 +1,14 @@
 //
-//  Math3D.h
+//  ConvexAreaTestCase.h
 //  TrenchBroom
 //
 //  Created by Kristian Duske on 03.05.10.
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <SenTestingKit/SenTestingKit.h>
 
-extern float const AlmostZero;
-
-@interface Math3D : NSObject {
+@interface ConvexAreaTestCase : SenTestCase {
 
 }
 

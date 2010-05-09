@@ -58,6 +58,10 @@ NSString* const BrushFaceRemoved = @"FaceRemoved";
     return self;
 }
 
+- (NSSet*)faces {
+    return faces;
+}
+
 - (void)dealloc {
     
     [faces release];
