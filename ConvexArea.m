@@ -40,10 +40,10 @@
         Vector3f* is = [current intersectionWithLine:line];
         if (is) {
             [is add:[line d]];
-            LineSide s = [[current line] sideOfPoint:is up:normal];
-            if (s == LSLeft) {
+            Side s = [[current line] sideOfPoint:is up:normal];
+            if (s == SLeft) {
                 next = current;
-            } else if (s == LSRight) {
+            } else if (s == SRight) {
                 previous = current;
             }
         }
@@ -73,9 +73,9 @@
     
     // line did not intersect with any segment
     if (![startEdge next] && ![startEdge previous]) { // 1 parallel edge
-        LineSide side = [[startEdge line] sideOfPoint:[line p] up:normal];
+        Side side = [[startEdge line] sideOfPoint:[line p] up:normal];
         if ([[startEdge line] sameDirectionAs:line up:normal]) {
-            if (side == LSRight) {
+            if (side == SRight) {
                 [startEdge release];
                 startEdge = [[Edge alloc] initWithLine:line];
             }
@@ -83,7 +83,7 @@
             return TRUE;
         }
         
-        if (side == LSRight) {
+        if (side == SRight) {
             [startEdge insertAfter:line until:nil];
             return TRUE;
         }
@@ -92,16 +92,16 @@
     } else if (![startEdge previous] ^ ![startEdge previous]) { // 2 parallel edges
         Edge* first = startEdge;
         Edge* second = [first next];
-        LineSide firstSide = [[first line] sideOfPoint:[line p] up:normal];
-        LineSide secondSide = [[second line] sideOfPoint:[line p] up:normal];
+        Side firstSide = [[first line] sideOfPoint:[line p] up:normal];
+        Side secondSide = [[second line] sideOfPoint:[line p] up:normal];
         
-        if (firstSide == LSLeft && [[first line] sameDirectionAs:line up:normal])
+        if (firstSide == SLeft && [[first line] sameDirectionAs:line up:normal])
             return TRUE;
         
-        if (secondSide == LSRight && [[second line] sameDirectionAs:line up:normal])
+        if (secondSide == SRight && [[second line] sameDirectionAs:line up:normal])
             return TRUE;
         
-        if (firstSide == LSRight && secondSide == LSLeft) {
+        if (firstSide == SRight && secondSide == SLeft) {
             if ([[first line] sameDirectionAs:line up:normal]) {
                 Edge* newEdge = [first replaceWith:line];
                 [startEdge release];
@@ -126,7 +126,7 @@
         if (!vertex)
             [NSException raise:NSInternalInconsistencyException format:@"convex area has more than two edges, but no vertices"];
         
-        return [line sideOfPoint:vertex up:normal] == LSRight;
+        return [line sideOfPoint:vertex up:normal] == SRight;
     }
 }
 

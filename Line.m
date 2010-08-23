@@ -86,29 +86,19 @@
     return [[[Vector3f alloc] initWithX:x y:y z:z] autorelease];
 }
 
-- (LineSide)sideOfPoint:(Vector3f *)point up:(Vector3f *)up {
+- (Side)sideOfPoint:(Vector3f *)point up:(Vector3f *)up {
     if (!point)
         [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
-    if (!up)
-        [NSException raise:NSInvalidArgumentException format:@"up vector must not be nil"];
 
-    // d and up vector form a plane, check on which side of the plane the point is
-    // first, get cross of d and up
-    Vector3f* c = [Vector3f cross:up factor:d];
-    if ([c isNull])
-        [NSException raise:NSInvalidArgumentException format:@"up vector and direction of this line must not be colinear"];
-    
     Vector3f* r = [Vector3f sub:point subtrahend:p];
     if ([r isNull])
-        return LSNeither;
-    
+        return SNeither;
     [r normalize];
-    float cos = [r dot:c];
-    if (cos > AlmostZero)
-        return LSLeft;
-    if (cos < -AlmostZero)
-        return LSRight;
-    return LSNeither;
+    return [Math3D turnDirectionFrom:d to:r up:up];
+}
+
+- (Side)turnDirectionTo:(Line *)line up:(Vector3f *)up {
+    return [Math3D turnDirectionFrom:d to:[line d] up:up];
 }
 
 - (BOOL)sameDirectionAs:(Line *)l up:(Vector3f *)up {

@@ -5,20 +5,7 @@
 */
 
 #import <Cocoa/Cocoa.h>
-#import "Vector3f.h";
-
-/*!
-    @enum LineSide
-    @abstract   Enumerates the sides of the line on which a point can reside.
-    @discussion The sides are determined by viewer that looks in the direction of the vector D. The up vector must be provided.
-    @constant   LSLeft The left side of the line.
-    @constant   LSRight The right side of the line.
-    @constant   LSNeither The point is included in the line.
-*/
-
-typedef enum {
-    LSLeft, LSRight, LSNeither
-} LineSide;
+#import "Math3D.h";
 
 @interface Line : NSObject {
     Vector3f* p;
@@ -38,10 +25,20 @@ typedef enum {
     @abstract   Determines on which side of this line a given point resides in relation to a given up vector.
     @param      point The point to check.
     @param      up The up vector, which must be normalized.
-    @result     A value of the @link LineSide enum which indicates the side on which the given point resides.
+    @result     A value of the @link Side enum which indicates the side on which the given point resides.
     @throws     NSInvalidArgumentException if any of the given parameters is nil
 */
-- (LineSide)sideOfPoint:(Vector3f *)point up:(Vector3f *)up;
+- (Side)sideOfPoint:(Vector3f *)point up:(Vector3f *)up;
+
+/*!
+ @method     turnDirectionTo
+ @abstract   Determines in which direction this line needs to be rotated to give it the same direction as a given line in relation to a given up vector.
+ @param      point The line to rotate to.
+ @param      up The up vector, which must be normalized.
+ @result     A value of the @link Side enum which indicates the side on which the given point resides.
+ @throws     NSInvalidArgumentException if any of the given parameters is nil
+ */
+- (Side)turnDirectionTo:(Line *)line up:(Vector3f *)up;
 
 /*!
     @method     sameDirectionAs
