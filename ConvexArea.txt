@@ -1,0 +1,50 @@
+Datenstruktur Halfplane
+- definiert eine Halbebene
+- hat eine Grenzlinie l
+- und einen Vektor d, dieser ist parallel zu l und so orientiert, dass die Halbebene stets rechts liegt
+
+Datenstruktur ConvexArea
+- Speichert eine Folge von Halbebenen, die durch Linien begrenzt sind.
+- Die Grenzlinien sind stets zusammenhängend.
+  - Sonderfall: zwei Halbebenen mit paralellen Grenzlinien und nichtleerer Schnittmenge
+- Die Grenzlinien ergeben, ausser im o.g. Sonderfall, einen zusammenhängenden Kantenzug, bei dem erste und letzte Kante einseitig unbegrenzt sind, falls sie sich nicht schneiden.
+  - Situationen einer ConvexArea C:
+    - S1: C ist leer, enthält also keine Halbebene
+    - S2: C enthält genau eine Halbebene
+    - S3: C enthält zwei Halbebenen, deren Grenzlinien parallel sind und deren Schnittmenge nicht leer ist
+    - S4: C enthält n => zwei Halbebenen und es liegt nicht S3 vor
+      - S4.1: C ist geschlossen
+      - S4.2: C ist offen, und die erste und die letzte Kante des Kantenzuges schneiden sich nicht.
+
+Einfügen einer neuen Halbebene e:
+Seien e1...en die bereits vorhanden Halbebenen. Fallunterscheidung:
+- n = 0: Setze e1 = e, fertig.
+- n = 1: Schneide e mit e1
+  Fallunterscheidung:
+  - e und e1 schneiden sich, berechne die Drehrichtung von e1.d auf e.d
+    Fallunterscheidung:
+    - e1.d dreht sich rechts auf e.d, dann setze e2 = e
+    - e1.d dreht sich links auf e.d, dann setze e2 = e1 und e1 = e
+  - e und e1 schneiden sich nicht, d.h. sie sind parallel
+    Fallunterscheidung:
+    - e.d und e1.d zeigen in dieselbe Richtung
+      Fallunterscheidung:
+      - e liegt links von e1: verwerfe e
+      - e1 liegt links von e: setze e1 = e
+    - e.d und e1.d zeigen in entgegengesetzte Richtungen
+      Fallunterscheidung:
+      - e liegt links von e1: Die konvexe Fläche verschwindet.
+      - e liegt rechts von e1: Setze e2 = e
+- n > 1: Berechne die k Schnittpunkte zwischen e.l und den bereits gespeicherten Kanten
+  Da C konvex ist, ist k <= 2. Fallunterscheidung:
+  - k = 0 Fallunterscheidung:
+    - Der Kantenzug liegt rechts von e: Verwerfe e.
+    - Der Kantenzug liegt links von e: Die konvexe Fläche verschwindet.
+  - k = 1: Sei e_s die Halbebene, auf deren Grenzlinie die geschnittene Kante liegt. Bestimme die Drehrichtung von e_s.d auf e.d
+    Fallunterscheidung:
+    - e_s.d dreht sich rechts auf e.d, dann verwerfe die Halbebenen e_s+1...e_n und setze e_s+1 = e
+    - e_s.d dreht sich links auf e.d, dann verwerfe die Halbebenen e_1...e_s-1 und füge e vor e_s ein (e wird dadurch zu e_1, e_s zu e_2 usw.)
+  - k = 2: Seien e_s1 und e_s2 die Halbebenen, auf deren Grenzlinien die geschnittenen Kanten liegen, wobei s2 > s1. Bestimme die Drehrichtung von e_s1.d auf e.d
+    Fallunterscheidung:
+    - e_s1.d dreht sich rechts auf e.d, dann ersetze e_s1+1...e_s2-1 durch e
+    - e_s1.d dreht sich links auf e.d, dann lösche e_1...e_s1-1 sowie e_s2+1...e_n und hänge e an.
