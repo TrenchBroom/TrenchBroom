@@ -26,12 +26,12 @@ typedef enum {
 
 /*!
     @method     turnDirectionFrom
-    @abstract   Determines the direction in which a vector must be rotated to match another vector in relation to a given up vector. All vectors are expected to be normalized.
+    @abstract   Determines the direction in which a vector must be rotated to match another vector in relation to a given normal vector. All vectors are expected to be normalized.
     @param      from The vector that is to be rotated.
     @param      to The vector to rotate the from vector to.
-    @param      up The up vector.
-    @throws     NSInvalidArgumentException if any of the given vectors is nil or if the given from and up vectors are colinear.
+    @param      normal The normal vector.
+    @throws     NSInvalidArgumentException if any of the given vectors is nil or if the given from and normal vectors are colinear.
 */
-+ (Side)turnDirectionFrom:(Vector3f *)from to:(Vector3f *)to up:(Vector3f *)up;
++ (Side)turnDirectionFrom:(Vector3f *)from to:(Vector3f *)to normal:(Vector3f *)normal;
 
 @end

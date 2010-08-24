@@ -12,6 +12,7 @@
 @interface ConvexArea : NSObject {
     Vector3f* normal;
     Edge* startEdge;
+    int numEdges;
 }
 
 /*!

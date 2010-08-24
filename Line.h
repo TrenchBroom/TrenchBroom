@@ -22,32 +22,32 @@
 
 /*!
     @method     sideOfPoint
-    @abstract   Determines on which side of this line a given point resides in relation to a given up vector.
+    @abstract   Determines on which side of this line a given point resides in relation to a given normal vector.
     @param      point The point to check.
-    @param      up The up vector, which must be normalized.
+    @param      normal The normal vector, which must be normalized.
     @result     A value of the @link Side enum which indicates the side on which the given point resides.
     @throws     NSInvalidArgumentException if any of the given parameters is nil
 */
-- (Side)sideOfPoint:(Vector3f *)point up:(Vector3f *)up;
+- (Side)sideOfPoint:(Vector3f *)point normal:(Vector3f *)normal;
 
 /*!
  @method     turnDirectionTo
- @abstract   Determines in which direction this line needs to be rotated to give it the same direction as a given line in relation to a given up vector.
+ @abstract   Determines in which direction this line needs to be rotated to give it the same direction as a given line in relation to a given normal vector.
  @param      point The line to rotate to.
- @param      up The up vector, which must be normalized.
+ @param      normal The normal vector, which must be normalized.
  @result     A value of the @link Side enum which indicates the side on which the given point resides.
  @throws     NSInvalidArgumentException if any of the given parameters is nil
  */
-- (Side)turnDirectionTo:(Line *)line up:(Vector3f *)up;
+- (Side)turnDirectionTo:(Line *)line normal:(Vector3f *)normal;
 
 /*!
     @method     sameDirectionAs
     @abstract   Determines whether the angle between the direction vectors of this line and the given line is less than PI/2 when seen from above.
     @param      l The other line.
-    @param      up The up vector, which must be normalized.
+    @param      normal The normal vector, which must be normalized.
     @result     TRUE if the angle of the direction vectors is less than PI/2 and FALSE otherwise
     @throws     NSInvalidArgumentException if the given line is nil
 */
-- (BOOL)sameDirectionAs:(Line *)l up:(Vector3f *)up;
+- (BOOL)sameDirectionAs:(Line *)l normal:(Vector3f *)normal;
 
 @end

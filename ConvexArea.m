@@ -18,6 +18,7 @@
     if (self = [super init]) {
         startEdge = nil;
         normal = [[Vector3f alloc] initWithFloatVector:n];
+        numEdges = 0;
     }
     
     return self;
@@ -27,107 +28,90 @@
     if (!line)
         [NSException raise:NSInvalidArgumentException format:@"line must not be nil"];
     
-    if (!startEdge) {
+    if (startEdge == nil) {
         startEdge = [[Edge alloc] initWithLine:line];
+        numEdges = 1;
         return TRUE;
     }
-
-    Edge *previous = nil;
-    Edge *next = nil;
-    Edge *current = startEdge;
-    do {
-        // find previous and next
-        Vector3f* is = [current intersectionWithLine:line];
+    
+    if ([startEdge next] == nil) {
+        Vector3f* is = [startEdge intersectionWithLine:line];
+        Line* startLine = [startEdge line];
         if (is) {
-            [is add:[line d]];
-            Side s = [[current line] sideOfPoint:is up:normal];
-            if (s == SLeft) {
-                next = current;
-            } else if (s == SRight) {
-                previous = current;
+            Side s = [startLine turnDirectionTo:line normal:normal];
+            if (s == SRight) {
+                [startEdge insertAfter:line until:nil];
+            } else {
+                Edge* newStart = [startEdge insertBefore:line];
+                [startEdge release];
+                startEdge = [newStart retain];
             }
+            return TRUE;
         }
         
-        current = [current next];
-    } while (!next && !previous && current && current != startEdge);
-    
-    if (previous) {
-        Edge* newEdge = [previous insertAfter:line until:next];
-        if ([startEdge previous]) { // area is bounded
-            [startEdge release];
-            startEdge = [newEdge retain];
-        }
-        
-        return TRUE;
-    }
-    
-    if (next) {
-        Edge* newEdge = [next insertBefore:line];
-        if (next == startEdge) {
-            [startEdge release];
-            startEdge = [newEdge retain];
-        }
-        
-        return TRUE;
-    }
-    
-    // line did not intersect with any segment
-    if (![startEdge next] && ![startEdge previous]) { // 1 parallel edge
-        Side side = [[startEdge line] sideOfPoint:[line p] up:normal];
-        if ([[startEdge line] sameDirectionAs:line up:normal]) {
-            if (side == SRight) {
+        // boundary lines are parallel
+        if ([startLine sameDirectionAs:line normal:normal]) {
+            if ([startLine sideOfPoint:[line p] normal:normal] == SRight) {
                 [startEdge release];
                 startEdge = [[Edge alloc] initWithLine:line];
             }
-            
-            return TRUE;
+            return YES;
         }
         
-        if (side == SRight) {
+        if ([startLine sideOfPoint:[line p] normal:normal] == SRight) {
             [startEdge insertAfter:line until:nil];
-            return TRUE;
+            return YES;
         }
         
-        return FALSE;
-    } else if (![startEdge previous] ^ ![startEdge previous]) { // 2 parallel edges
-        Edge* first = startEdge;
-        Edge* second = [first next];
-        Side firstSide = [[first line] sideOfPoint:[line p] up:normal];
-        Side secondSide = [[second line] sideOfPoint:[line p] up:normal];
-        
-        if (firstSide == SLeft && [[first line] sameDirectionAs:line up:normal])
-            return TRUE;
-        
-        if (secondSide == SRight && [[second line] sameDirectionAs:line up:normal])
-            return TRUE;
-        
-        if (firstSide == SRight && secondSide == SLeft) {
-            if ([[first line] sameDirectionAs:line up:normal]) {
-                Edge* newEdge = [first replaceWith:line];
-                [startEdge release];
-                startEdge = [newEdge retain];
-            } else {
-                [second replaceWith:line];
-            }
-            
-            return TRUE;
-        }
-        
-        return FALSE;
-    } else {
-        // line is outside of the convex area - does it nullify it?
-        Vector3f* vertex = nil;
-        Edge* current = startEdge;
-        do {
-            vertex = [current startVertex];
-            current = [current next];
-        } while (!vertex && current && current != startEdge);
-        
-        if (!vertex)
-            [NSException raise:NSInternalInconsistencyException format:@"convex area has more than two edges, but no vertices"];
-        
-        return [line sideOfPoint:vertex up:normal] == SRight;
+        return NO;
     }
+
+    
+    Edge* e1 = nil;
+    Edge* e2 = nil;
+    Edge* e = startEdge;
+    do {
+        if ([e intersectionWithLine:line]) {
+            if (e1 == nil)
+                e1 = e;
+            else
+                e2 = e;
+        }
+        e = [e next];
+    } while ((e1 == nil || e2 == nil) && e != nil && e != startEdge);
+    
+    if (e1 == nil && e2 == nil) { // no intersections
+        Vector3f* v = [startEdge endVertex];
+        return [line sideOfPoint:v normal:normal] == SRight;
+    }
+    
+    if (e1 != nil ^ e2 != nil) { // one intersection
+        e = e1 != nil ? e1 : e2;
+        if ([[e line] turnDirectionTo:line normal:normal] == SRight) {
+            [e insertAfter:line until:nil];
+        } else {
+            Edge* newStart = [e insertBefore:line];
+            [startEdge release];
+            startEdge = [newStart retain];
+        }
+        
+        return TRUE;
+    }
+    
+    // two intersections
+    if ([[e1 line] turnDirectionTo:line normal:normal] == SRight) {
+        [e1 insertAfter:line until:e2];
+    } else {
+        if (e1 != startEdge) {
+            [e1 retain];
+            [startEdge release];
+            startEdge = e1;
+        }
+        
+        [e2 insertAfter:line until:nil];
+    }
+
+    return TRUE;
 }
 
 - (NSArray *)vertices {

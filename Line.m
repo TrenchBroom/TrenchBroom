@@ -86,7 +86,7 @@
     return [[[Vector3f alloc] initWithX:x y:y z:z] autorelease];
 }
 
-- (Side)sideOfPoint:(Vector3f *)point up:(Vector3f *)up {
+- (Side)sideOfPoint:(Vector3f *)point normal:(Vector3f *)normal {
     if (!point)
         [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
 
@@ -94,14 +94,14 @@
     if ([r isNull])
         return SNeither;
     [r normalize];
-    return [Math3D turnDirectionFrom:d to:r up:up];
+    return [Math3D turnDirectionFrom:d to:r normal:normal];
 }
 
-- (Side)turnDirectionTo:(Line *)line up:(Vector3f *)up {
-    return [Math3D turnDirectionFrom:d to:[line d] up:up];
+- (Side)turnDirectionTo:(Line *)line normal:(Vector3f *)normal {
+    return [Math3D turnDirectionFrom:d to:[line d] normal:normal];
 }
 
-- (BOOL)sameDirectionAs:(Line *)l up:(Vector3f *)up {
+- (BOOL)sameDirectionAs:(Line *)l normal:(Vector3f *)normal {
     if (!l)
         [NSException raise:NSInvalidArgumentException format:@"line must not be nil"];
     
@@ -109,7 +109,7 @@
     if ([v isNull])
         return [d isEqualTo:[l d]];
     
-    return [v isEqualTo:up];
+    return [v isEqualTo:normal];
 }
 
 - (NSString *)description {
