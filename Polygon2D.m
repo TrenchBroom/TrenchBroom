@@ -9,6 +9,7 @@
 #import "Polygon2D.h"
 #import "Edge2D.h"
 #import "Vector2f.h"
+#import "Polygon2DIntersection.h"
 
 @implementation Polygon2D
 - (id)initWithVertices:(NSArray *)vertices {
@@ -20,16 +21,23 @@
     if (self = [super init]) {
         Vector2f* start = [vertices objectAtIndex:0];
         Vector2f* end = [vertices objectAtIndex:1];
-        edges = [[Edge2D alloc] initWithStart:start end:end];
-        Edge2D* current = edge;
+        Edge2D* first = [[Edge2D alloc] initWithStart:start end:end];
+        Edge2D* current = first;
+        
+        edges = first;
+        Vector2f* smallestStart = start;
         
         for (int i = 2; i < [vertices count]; i++) {
             start = end;
             end = [vertices objectAtIndex:i];
             current = [current insertAfterStart:start end:end];
+            if ([start isSmallerThan:smallestStart]) {
+                edges = current;
+                smallestStart = start;
+            }
         }
         
-        [current close:edges];
+        [current close:first];
     }
     
     return self;
@@ -53,10 +61,19 @@
         [vertices addObject:[current startVertex]];
         current = [current next];
     } while (current != edges);
+    
+    return [vertices autorelease];
 }
 
 - (Edge2D *)edges {
     return edges;
+}
+
+- (Polygon2D *)intersectWith:(Polygon2D *)polygon {
+    Polygon2DIntersection* pis = [[Polygon2DIntersection alloc] initWithPolygon1:self polygon2:polygon];
+    Polygon2D* is = [pis intersection];
+    [pis release];
+    return is;
 }
 
 - (void)dealloc {

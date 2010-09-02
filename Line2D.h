@@ -18,6 +18,7 @@
 - (id)initWithPoint1:(Vector2f *)point1 point2:(Vector2f *)point2;
 - (id)initWithPoint:(Vector2f *)p normalizedDirection:(Vector2f *)d;
 - (id)initWithPoint:(Vector2f *)p direction:(Vector2f *)d;
+- (id)initWithLine:(Line2D *)l;
 
 - (Vector2f *)point;
 - (Vector2f *)direction;

@@ -51,6 +51,12 @@
 	return self;
 }
 
+- (id)initWithLine:(Line2D *)l {
+    if (l == nil)
+        [NSException raise:NSInvalidArgumentException format:@"l must not be nil"];
+    return [self initWithPoint:[l point] normalizedDirection:[l direction]];
+}
+
 - (Vector2f *)point {
     return point;
 }

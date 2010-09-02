@@ -8,8 +8,6 @@
 
 #import "Polygon2DIntersection.h"
 
-static int const P1U = 0;
-
 @implementation Polygon2DIntersection
 
 - (id)initWithPolygon1:(Polygon2D *)p1 polygon2:(Polygon2D *)p2 {
@@ -19,12 +17,13 @@ static int const P1U = 0;
         [NSException raise:NSInvalidArgumentException format:@"polygon2 must not be nil"];
 
     if (self = [super init]) {
-        p1u = [p1 upperEdges];
-        p1l = [p1 lowerEdges];
-        p2u = [p2 upperEdges];
-        p2l = [p2 lowerEdges];
+        p1l = [p1 edges];
+        p1u = [p1l previous];
         
-        if ([[p1u startVertex] isSmallerThan:[p2u startVertex]] {
+        p2l = [p2 edges];
+        p2u = [p2l previous];
+        
+        if ([[p1u startVertex] isSmallerThan:[p2u startVertex]]) {
             float x = [[p2u startVertex] x];
             p1u = [self forward:p1u to:x];
             p1l = [self forward:p1l to:x];
@@ -33,7 +32,6 @@ static int const P1U = 0;
             p2u = [self forward:p2u to:x];
             p2l = [self forward:p2l to:x];
         }
-        [self update];
     }
 
     return self;
@@ -42,8 +40,8 @@ static int const P1U = 0;
 - (Polygon2D *)intersection {
     int ni = 0;
     while (ni = [self nextEvent] != -1) {
-        switch (nil) {
-            case P1U:
+        switch (ni) {
+            case P1U: {
                 Vector2f* is = [p1u intersectWith:p2u];
                 if (is != nil) {
                     if ([p2u contains:[p1u smallVertex]]) {
@@ -57,13 +55,14 @@ static int const P1U = 0;
 					[self addUpper:p1u];
 				}
 
-                if ([p1u previous] isUpper)
+                if ([[p1u previous] isUpper])
                     p1u = [p1u previous];
                 else
                     p1u = nil;
 
                 break;
-            case P1L:
+            }
+            case P1L: {
                 Vector2f* is = [p1l intersectWith:p2l];
                 if (is != nil) {
                     if ([p2l contains:[p1l smallVertex]]) {
@@ -77,13 +76,14 @@ static int const P1U = 0;
 					[self addLower:p1l];
 				}
                 
-                if ([p1l next] isLower)
+                if ([[p1l next] isLower])
                     p1l = [p1l next];
                 else
                     p1l = nil;
 
                 break;
-            case P2U:
+            }
+            case P2U: {
                 Vector2f* is = [p2u intersectWith:p1u];
                 if (is != nil) {
                     if ([p1u contains:[p2u smallVertex]]) {
@@ -96,8 +96,15 @@ static int const P1U = 0;
                 } else if ([p1u contains:[p2u smallVertex]] && [p1l contains:[p2u smallVertex]]) {
 					[self addUpper:p2u];
 				}
+                
+                if ([[p2u previous] isUpper])
+                    p2u = [p2u previous];
+                else
+                    p2u = nil;
+
                 break;
-            case P2L:
+            }
+            case P2L: {
                 Vector2f* is = [p2l intersectWith:p1l];
                 if (is != nil) {
                     if ([p1l contains:[p2l smallVertex]]) {
@@ -110,19 +117,24 @@ static int const P1U = 0;
                 } else if ([p1u contains:[p2l smallVertex]] && [p1l contains:[p2l smallVertex]]) {
 					[self addLower:p2l];
 				}
+
+                if ([[p2l next] isLower])
+                    p2l = [p2l next];
+                else
+                    p2l = nil;
+                
                 break;
+            }
         }
     }
     
     // merge upper and lower
-    [ll setNext:fu];
-    [fu setPrevious:ll];
+    [ll close:fu];
     [lu close:fl];
     
     // all edges now have retain count 1
-    Polygon2D* polygon = [[Polygon2D alloc] initWithUpper:lu lower:fl];
-    [lu release];
-    [fl release];
+    Polygon2D* polygon = [[Polygon2D alloc] initWithEdges:fl];
+    [fl release]; // fl was retained by the polygon
     
     return [polygon autorelease];
 }
@@ -152,17 +164,17 @@ static int const P1U = 0;
     int ni = P1U;
     Edge2D* ne = p1u;
     
-    if ([[p1l endVertex] smallerThan:ne]) {
+    if ([[p1l endVertex] isSmallerThan:[ne endVertex]]) {
         ni = P1L;
         ne = p1l;
     }
     
-    if ([[p2u endVertex] smallerThan:ne]) {
+    if ([[p2u endVertex] isSmallerThan:[ne endVertex]]) {
         ni = P2U;
         ne = p2u;
     }
     
-    if ([[p2l endVertex] smallerThan:ne]) {
+    if ([[p2l endVertex] isSmallerThan:[ne endVertex]]) {
         ni = P2L;
         ne = p2l;
     }
@@ -173,14 +185,14 @@ static int const P1U = 0;
 - (Edge2D *)forward:(Edge2D *)edge to:(float)x {
     if ([edge containsX:x])
         return edge;
-    if ([edge isUpper]) {
+    if ([edge isLower]) {
         Edge2D* next = [edge next];
         if (next != nil && [next isUpper])
             return [self forward:next to:x];
     } else {
         Edge2D* previous = [edge previous];
         if (previous != nil && [previous isLower])
-            return [self forward:previous:to:x];
+            return [self forward:previous to:x];
     }
     
     return nil;

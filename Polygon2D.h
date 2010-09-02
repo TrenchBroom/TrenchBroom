@@ -17,8 +17,6 @@
 - (id)initWithEdges:(Edge2D *)edges;
 
 - (Edge2D *)edges;
-- (Edge2D *)upperEdges;
-- (Edge2D *)lowerEdges;
 - (NSArray *)vertices;
 
 - (Polygon2D *)intersectWith:(Polygon2D *)polygon;

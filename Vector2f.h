@@ -42,6 +42,6 @@
 - (float)lengthSquared;
 
 - (NSComparisonResult)lexicographicCompare:(Vector2f *)vector;
-- (BOOL)smallerThan:(Vector2f *)vector;
+- (BOOL)isSmallerThan:(Vector2f *)vector;
 
 @end

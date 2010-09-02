@@ -142,8 +142,8 @@
     return NSOrderedSame;
 }
 
-- (BOOL)smallerThan:(Vector2f *)vector {
-    return [self lexicographicCompare:vector] == NSAscending;
+- (BOOL)isSmallerThan:(Vector2f *)vector {
+    return [self lexicographicCompare:vector] == NSOrderedAscending;
 }
 
 - (NSString *)description {

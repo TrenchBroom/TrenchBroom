@@ -28,4 +28,9 @@ typedef enum {
 
 - (id)initWithPolygon1:(Polygon2D *)p1 polygon2:(Polygon2D *)p2;
 - (Polygon2D *)intersection;
+
+- (Edge2D *)forward:(Edge2D *)edge to:(float)x;
+- (int)nextEvent;
+- (void)addUpper:(Edge2D *)e;
+- (void)addLower:(Edge2D *)e;
 @end

@@ -77,7 +77,7 @@
 - (Vector2f *)startVertex {
     if (!startVertex && previous) {
         Line2D* l = [previous line];
-        startVertex = [l intersectionWithLine:line];
+        startVertex = [l intersectWith:line];
         [startVertex retain];
     }
     
@@ -115,7 +115,7 @@
 - (BOOL)isUpper {
     if ([normal y] > AlmostZero)
         return YES;
-    return fabsf([normal y]) <= AlmostZero && [normal x] > AlmostZero;
+    return fabsf([normal y]) <= AlmostZero && [normal x] < AlmostZero;
 }
 
 - (BOOL)isLower {
@@ -202,7 +202,7 @@
 }
 
 - (Edge2D *)insertBeforeLine:(Line2D *)l normal:(Vector2f *)o {
-    Edge* newEdge = [[Edge2D alloc] initWithLine:l previous:previous next:self normal:o];
+    Edge2D* newEdge = [[Edge2D alloc] initWithLine:l previous:previous next:self normal:o];
     [previous setNext:newEdge];
     [self setPrevious:newEdge];
     
