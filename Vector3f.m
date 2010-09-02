@@ -7,7 +7,7 @@
 //
 
 #import "Vector3f.h"
-#import "Math3D.h"
+#import "Math.h"
 
 @implementation Vector3f
 
