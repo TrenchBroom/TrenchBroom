@@ -44,37 +44,95 @@ static int const P1U = 0;
     while (ni = [self nextEvent] != -1) {
         switch (nil) {
             case P1U:
-                if ([p2u contains:[p1u smallVertex]] && [p2l contains:[p1u smallVertex]]) {
-                    [self addUpper:p1u];
-                } else {
-                    Vector2f* is = [p1u intersectWith:p2u];
-                    if (is != nil) {
-                        if ([p2u contains:[p1u smallVertex]]) {
-                            [self addUpper:p1u];
-                            [self addUpper:p2u];
-                        } else {
-                            [self addUpper:p2u];
-                            [self addUpper:p1u];
-                        }
+                Vector2f* is = [p1u intersectWith:p2u];
+                if (is != nil) {
+                    if ([p2u contains:[p1u smallVertex]]) {
+                        [self addUpper:p1u];
+                        [self addUpper:p2u];
+                    } else {
+                        [self addUpper:p2u];
+                        [self addUpper:p1u];
                     }
-                }
+                } else if ([p2u contains:[p1u smallVertex]] && [p2l contains:[p1u smallVertex]]) {
+					[self addUpper:p1u];
+				}
+
+                if ([p1u previous] isUpper)
+                    p1u = [p1u previous];
+                else
+                    p1u = nil;
+
                 break;
             case P1L:
+                Vector2f* is = [p1l intersectWith:p2l];
+                if (is != nil) {
+                    if ([p2l contains:[p1l smallVertex]]) {
+                        [self addLower:p1l];
+                        [self addLower:p2l];
+                    } else {
+                        [self addLower:p2l];
+                        [self addLower:p1l];
+                    }
+                } else if ([p2u contains:[p1l smallVertex]] && [p2l contains:[p1l smallVertex]]) {
+					[self addLower:p1l];
+				}
+                
+                if ([p1l next] isLower)
+                    p1l = [p1l next];
+                else
+                    p1l = nil;
+
                 break;
             case P2U:
+                Vector2f* is = [p2u intersectWith:p1u];
+                if (is != nil) {
+                    if ([p1u contains:[p2u smallVertex]]) {
+                        [self addUpper:p2u];
+                        [self addUpper:p1u];
+                    } else {
+                        [self addUpper:p1u];
+                        [self addUpper:p2u];
+                    }
+                } else if ([p1u contains:[p2u smallVertex]] && [p1l contains:[p2u smallVertex]]) {
+					[self addUpper:p2u];
+				}
                 break;
             case P2L:
+                Vector2f* is = [p2l intersectWith:p1l];
+                if (is != nil) {
+                    if ([p1l contains:[p2l smallVertex]]) {
+                        [self addLower:p2l];
+                        [self addLower:p1l];
+                    } else {
+                        [self addLower:p1l];
+                        [self addLower:p2l];
+                    }
+                } else if ([p1u contains:[p2l smallVertex]] && [p1l contains:[p2l smallVertex]]) {
+					[self addLower:p2l];
+				}
                 break;
         }
     }
+    
+    // merge upper and lower
+    [ll setNext:fu];
+    [fu setPrevious:ll];
+    [lu close:fl];
+    
+    // all edges now have retain count 1
+    Polygon2D* polygon = [[Polygon2D alloc] initWithUpper:lu lower:fl];
+    [lu release];
+    [fl release];
+    
+    return [polygon autorelease];
 }
 
 - (void)addUpper:(Edge2D *)e {
-    if (fu == nil) {
-        fu = [[Edge2D alloc] initWithLine:[e line] normal:[e normal]];
-        lu = fu;
+    if (lu == nil) {
+        lu = [[Edge2D alloc] initWithLine:[e line] normal:[e normal]];
+        fu = lu;
     } else {
-        lu = [lu insertAfterLine:[e line] normal:[e normal]];
+        fu = [fu insertAfterLine:[e line] normal:[e normal]];
     }
 }
             
@@ -86,7 +144,6 @@ static int const P1U = 0;
         ll = [ll insertAfterLine:[e line] normal:[e normal]];
     }
 }
-            
 
 - (int)nextEvent {
     if (p1u == nil && p1l == nil || p2u == nil && p2l == nil)

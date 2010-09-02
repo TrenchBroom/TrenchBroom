@@ -166,6 +166,17 @@
     next = [n retain];
 }
 
+- (void)open {
+    [next setPrevious:nil];
+    next = nil; // do not release
+}
+
+- (void)close:(Edge2D *)n {
+    [next release];
+    next = n; // do not retain
+    [next setPrevious:self];
+}
+
 - (Edge2D *)previous {
     return previous;
 }
@@ -173,7 +184,6 @@
 - (Edge2D *)next {
     return next;
 }
-
 
 - (Edge2D *)insertAfterLine:(Line2D *)l normal:(Vector2f *)o {
     Edge2D* newEdge = [[Edge2D alloc] initWithLine:l previous:self next:next normal:o];
@@ -212,7 +222,10 @@
 }
 
 - (void)dealloc {
-    [next release];
+    if (next != nil) {
+        [next release];
+        next = nil;
+    }
     [line release];
     [startVertex release];
     [normal release];

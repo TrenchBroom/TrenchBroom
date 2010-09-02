@@ -44,6 +44,8 @@
 
 - (void)setPrevious:(Edge2D *)p;
 - (void)setNext:(Edge2D *)n;
+- (void)open;
+- (void)close:(Edge2D *)n;
 
 - (Edge2D *)previous;
 - (Edge2D *)next;

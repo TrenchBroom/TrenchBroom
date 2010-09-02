@@ -10,16 +10,17 @@
 #import "Edge2D.h"
 
 @interface Polygon2D : NSObject {
-    NSMutableArray* vertices;
-    NSMutableArray* firstUpper;
-    NSMutableArray* firstLower;
+    Edge2D* edges;
 }
 
 - (id)initWithVertices:(NSArray *)newVertices;
-- (Edge2D *)firstUpper;
-- (Edge2D *)firstLower;
+- (id)initWithEdges:(Edge2D *)edges;
 
+- (Edge2D *)edges;
+- (Edge2D *)upperEdges;
+- (Edge2D *)lowerEdges;
 - (NSArray *)vertices;
+
 - (Polygon2D *)intersectWith:(Polygon2D *)polygon;
 
 @end
