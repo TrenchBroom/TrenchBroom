@@ -8,17 +8,19 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Edge2D.h"
+#import "Vector2f.h"
+#import "Polygon2DIS.h"
 
 @interface Polygon2D : NSObject {
     Edge2D* edges;
 }
 
-- (id)initWithVertices:(NSArray *)newVertices;
-- (id)initWithEdges:(Edge2D *)edges;
+- (id)initWithVertices:(NSArray *)someVertices;
+- (id)initWithEdges:(Edge2D *)someEdges;
 
 - (Edge2D *)edges;
 - (NSArray *)vertices;
 
-- (Polygon2D *)intersectWith:(Polygon2D *)polygon;
+- (Polygon2D *)intersectWith:(Polygon2D *)aPolygon;
 
 @end

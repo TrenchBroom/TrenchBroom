@@ -7,33 +7,30 @@
 //
 
 #import "Polygon2D.h"
-#import "Edge2D.h"
-#import "Vector2f.h"
-#import "Polygon2DIntersection.h"
 
 @implementation Polygon2D
-- (id)initWithVertices:(NSArray *)vertices {
-    if (vertices == nil)
+- (id)initWithVertices:(NSArray *)someVertices {
+    if (someVertices == nil)
         [NSException raise:NSInvalidArgumentException format:@"vertex array must not be nil"];
-    if ([vertices count] < 3)
+    if ([someVertices count] < 3)
         [NSException raise:NSInvalidArgumentException format:@"vertex array must contain at least three vertices"];
     
     if (self = [super init]) {
-        Vector2f* start = [vertices objectAtIndex:0];
-        Vector2f* end = [vertices objectAtIndex:1];
+        Vector2f* start = [someVertices objectAtIndex:0];
+        Vector2f* end = [someVertices objectAtIndex:1];
         Edge2D* first = [[Edge2D alloc] initWithStart:start end:end];
         Edge2D* current = first;
         
         edges = first;
-        Vector2f* smallestStart = start;
+        Vector2f* smallest = start;
         
-        for (int i = 2; i < [vertices count]; i++) {
+        for (int i = 2; i < [someVertices count]; i++) {
             start = end;
-            end = [vertices objectAtIndex:i];
+            end = [someVertices objectAtIndex:i];
             current = [current insertAfterStart:start end:end];
-            if ([start isSmallerThan:smallestStart]) {
+            if ([start isSmallerThan:smallest]) {
                 edges = current;
-                smallestStart = start;
+                smallest = start;
             }
         }
         
@@ -43,12 +40,12 @@
     return self;
 }
 
-- (id)initWithEdges:(Edge2D *)newEdges {
-    if (newEdges == nil)
+- (id)initWithEdges:(Edge2D *)someEdges {
+    if (someEdges == nil)
         [NSException raise:NSInvalidArgumentException format:@"edge list must not be nil"];
 
     if (self = [super init]) {
-        edges = [newEdges retain];
+        edges = [someEdges retain];
     }
     
     return self;
@@ -69,11 +66,15 @@
     return edges;
 }
 
-- (Polygon2D *)intersectWith:(Polygon2D *)polygon {
-    Polygon2DIntersection* pis = [[Polygon2DIntersection alloc] initWithPolygon1:self polygon2:polygon];
-    Polygon2D* is = [pis intersection];
-    [pis release];
-    return is;
+- (Polygon2D *)intersectWith:(Polygon2D *)aPolygon {
+    if (aPolygon == nil)
+        [NSException raise:NSInvalidArgumentException format:@"polygon must not be nil"];
+
+    Polygon2DIS* polygonIntersection = [[Polygon2DIS alloc] initWithPolygon1:self polygon2:aPolygon];
+    Polygon2D* intersection = [polygonIntersection intersection];
+    [polygonIntersection release];
+
+    return intersection;
 }
 
 - (void)dealloc {

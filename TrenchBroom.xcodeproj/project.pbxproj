@@ -30,7 +30,7 @@
 		48527F3B11148D8E00CD6043 /* Vector3i.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3A11148D8E00CD6043 /* Vector3i.m */; };
 		48527F3E11148EAA00CD6043 /* Brush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* Brush.m */; };
 		485884FC12298C2E00E7806F /* Polygon2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 485884FB12298C2E00E7806F /* Polygon2DTestCase.m */; };
-		485885421229A68700E7806F /* Polygon2DIntersection.m in Sources */ = {isa = PBXBuildFile; fileRef = 485885411229A68700E7806F /* Polygon2DIntersection.m */; };
+		485885421229A68700E7806F /* Polygon2DIS.m in Sources */ = {isa = PBXBuildFile; fileRef = 485885411229A68700E7806F /* Polygon2DIS.m */; };
 		486640DD12296AA400752B89 /* Polygon2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 486640DC12296AA400752B89 /* Polygon2D.m */; };
 		486640E51229812700752B89 /* Polygon2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 486640DC12296AA400752B89 /* Polygon2D.m */; };
 		4866410E1229854A00752B89 /* Math2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1125122440350072EAFB /* Math2D.m */; };
@@ -103,8 +103,8 @@
 		48527F3D11148EAA00CD6043 /* Brush.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Brush.m; sourceTree = "<group>"; };
 		485884FA12298C2E00E7806F /* Polygon2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Polygon2DTestCase.h; sourceTree = "<group>"; };
 		485884FB12298C2E00E7806F /* Polygon2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polygon2DTestCase.m; sourceTree = "<group>"; };
-		485885401229A68700E7806F /* Polygon2DIntersection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Polygon2DIntersection.h; sourceTree = "<group>"; };
-		485885411229A68700E7806F /* Polygon2DIntersection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polygon2DIntersection.m; sourceTree = "<group>"; };
+		485885401229A68700E7806F /* Polygon2DIS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Polygon2DIS.h; sourceTree = "<group>"; };
+		485885411229A68700E7806F /* Polygon2DIS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polygon2DIS.m; sourceTree = "<group>"; };
 		486640DB12296AA400752B89 /* Polygon2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Polygon2D.h; sourceTree = "<group>"; };
 		486640DC12296AA400752B89 /* Polygon2D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polygon2D.m; sourceTree = "<group>"; };
 		4866413E122986AF00752B89 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = /Developer/Library/Frameworks/SenTestingKit.framework; sourceTree = "<absolute>"; };
@@ -287,8 +287,8 @@
 				483B1125122440350072EAFB /* Math2D.m */,
 				486640DB12296AA400752B89 /* Polygon2D.h */,
 				486640DC12296AA400752B89 /* Polygon2D.m */,
-				485885401229A68700E7806F /* Polygon2DIntersection.h */,
-				485885411229A68700E7806F /* Polygon2DIntersection.m */,
+				485885401229A68700E7806F /* Polygon2DIS.h */,
+				485885411229A68700E7806F /* Polygon2DIS.m */,
 			);
 			name = 2D;
 			sourceTree = "<group>";
@@ -479,7 +479,7 @@
 				486641101229854C00752B89 /* Vector2f.m in Sources */,
 				486641111229854E00752B89 /* Math.m in Sources */,
 				485884FC12298C2E00E7806F /* Polygon2DTestCase.m in Sources */,
-				485885421229A68700E7806F /* Polygon2DIntersection.m in Sources */,
+				485885421229A68700E7806F /* Polygon2DIS.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

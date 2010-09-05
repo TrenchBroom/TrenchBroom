@@ -19,49 +19,28 @@
 }
 
 - (void)testInit {
-    Vector2f* v0 = [[Vector2f alloc] initWithX:7 y:4];
-    Vector2f* v1 = [[Vector2f alloc] initWithX:4 y:5];
-    Vector2f* v2 = [[Vector2f alloc] initWithX:2 y:4];
-    Vector2f* v3 = [[Vector2f alloc] initWithX:3 y:7];
-    Vector2f* v4 = [[Vector2f alloc] initWithX:5 y:1];
-    Vector2f* v5 = [[Vector2f alloc] initWithX:7 y:2];
+    Vector2f* v0 = [[Vector2f alloc] initWithX:2 y:4];
+    Vector2f* v1 = [[Vector2f alloc] initWithX:3 y:2];
+    Vector2f* v2 = [[Vector2f alloc] initWithX:4 y:5];
     
-    NSMutableArray* vertices = [[NSMutableArray alloc] initWithObjects:v0, v1, v2, v3, v4, v5, nil];
-    Polygon2D* polygon = [[Polygon2D alloc] initWithVertices:vertices];
+    Polygon2D* p = [[Polygon2D alloc] initWithVertices:[NSArray arrayWithObjects:v1, v2, v0, nil]];
+    NSArray* v = [p vertices];
+    Edge2D* e = [p edges];
     
-    NSArray* polyVerts = [polygon vertices];
-    STAssertNotNil(polyVerts, @"polygon vertices must not be nil");
-    STAssertEquals([vertices count], [polyVerts count], @"polygon must contain %i vertices", [vertices count]);
-    STAssertEquals(v2, [polyVerts objectAtIndex:0], @"polygon vertex %i must be %@", 0, v2);
-    STAssertEquals(v3, [polyVerts objectAtIndex:1], @"polygon vertex %i must be %@", 1, v3);
-    STAssertEquals(v4, [polyVerts objectAtIndex:2], @"polygon vertex %i must be %@", 2, v4);
-    STAssertEquals(v5, [polyVerts objectAtIndex:3], @"polygon vertex %i must be %@", 3, v5);
-    STAssertEquals(v0, [polyVerts objectAtIndex:4], @"polygon vertex %i must be %@", 4, v0);
-    STAssertEquals(v1, [polyVerts objectAtIndex:5], @"polygon vertex %i must be %@", 5, v1);
+    NSArray* vx = [NSArray arrayWithObjects:v0, v1, v2 , nil];
+    STAssertTrue([v isEqualToArray:vx], @"vertex array must contain %@, %@, %@ in that order", v0, v1, v2);
+    [self assertEdge:e startVertex:v0 endVertex:v1];
     
-    NSArray* upperEdges = [polygon upperEdges];
-    STAssertNotNil(upperEdges, @"upper edge array must not be nil");
-    STAssertEquals((NSUInteger)2, [upperEdges count], @"upper array must contain 2 edges");
+    e = [e next];
+    [self assertEdge:e startVertex:v1 endVertex:v2];
     
-    [self assertEdge:[upperEdges objectAtIndex:0] startVertex:v2 endVertex:v1];
-    [self assertEdge:[upperEdges objectAtIndex:1] startVertex:v1 endVertex:v0];
+    e = [e next];
+    [self assertEdge:e startVertex:v2 endVertex:v1];
     
-    NSArray* lowerEdges = [polygon lowerEdges];
-    STAssertNotNil(lowerEdges, @"lower edge array must not be nil");
-    STAssertEquals((NSUInteger)4, [lowerEdges count], @"lower array must contain 4 edges");
-    
-    [self assertEdge:[lowerEdges objectAtIndex:0] startVertex:v2 endVertex:v3];
-    [self assertEdge:[lowerEdges objectAtIndex:1] startVertex:v3 endVertex:v4];
-    [self assertEdge:[lowerEdges objectAtIndex:2] startVertex:v4 endVertex:v5];
-    [self assertEdge:[lowerEdges objectAtIndex:3] startVertex:v5 endVertex:v0];
-    
-    [vertices release];
+    [p release];
     [v0 release];
     [v1 release];
     [v2 release];
-    [v3 release];
-    [v4 release];
-    [v5 release];
 }
 
 @end
