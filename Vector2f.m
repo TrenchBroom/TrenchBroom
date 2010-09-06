@@ -127,17 +127,17 @@
         return NO;
     
     Vector2f* vector = (Vector2f*)object;
-    return abs([self x] - [vector x]) <= AlmostZero && abs([self y] - [vector y]) <= AlmostZero;
+    return fabsf([self x] - [vector x]) <= AlmostZero && fabsf([self y] - [vector y]) <= AlmostZero;
 }
 
 - (NSComparisonResult)lexicographicCompare:(Vector2f *)vector {
-    if (x < [vector x])
+    if (x < [vector x] - AlmostZero)
         return NSOrderedAscending;
-    if (x > [vector x])
+    if (x > [vector x] + AlmostZero)
         return NSOrderedDescending;
-    if (y < [vector y])
+    if (y < [vector y] - AlmostZero)
         return NSOrderedAscending;
-    if (y > [vector y])
+    if (y > [vector y] + AlmostZero)
         return NSOrderedDescending;
     return NSOrderedSame;
 }

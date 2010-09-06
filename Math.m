@@ -8,7 +8,7 @@
 
 #import "Math.h"
 
-float const AlmostZero = 0.0000001f;
+float const AlmostZero = 0.000001f;
 
 @implementation Math
 + (BOOL)is:(float)v betweenBoundary:(float)b1 andBoundary:(float)b2 {

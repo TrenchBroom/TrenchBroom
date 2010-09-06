@@ -7,24 +7,21 @@
 //
 
 #import "Edge2D.h"
-#import "Math.h"
-#import "Vector2f.h"
 
 @implementation Edge2D
-
-- (id)initWithLine:(Line2D *)l normal:(Vector2f *)o {
-    return [self initWithLine:l previous:nil next:nil normal:o];
+- (id)initWithLine:(Line2D *)l norm:(Vector2f *)o {
+    return [self initWithLine:l previous:nil next:nil norm:o];
 }
 
-- (id)initWithLine:(Line2D *)l previous:(Edge2D *)p normal:(Vector2f *)o {
-    return [self initWithLine:l previous:p next:nil normal:o];
+- (id)initWithLine:(Line2D *)l previous:(Edge2D *)p norm:(Vector2f *)o {
+    return [self initWithLine:l previous:p next:nil norm:o];
 }
 
-- (id)initWithLine:(Line2D *)l next:(Edge2D *)n normal:(Vector2f *)o {
-    return [self initWithLine:l previous:nil next:n normal:o];
+- (id)initWithLine:(Line2D *)l next:(Edge2D *)n norm:(Vector2f *)o {
+    return [self initWithLine:l previous:nil next:n norm:o];
 }
 
-- (id)initWithLine:(Line2D *)l previous:(Edge2D *)p next:(Edge2D *)n normal:(Vector2f *)o {
+- (id)initWithLine:(Line2D *)l previous:(Edge2D *)p next:(Edge2D *)n norm:(Vector2f *)o {
     if (!l)
         [NSException raise:NSInvalidArgumentException format:@"line must not be nil"];
     if (!o)
@@ -35,7 +32,7 @@
         [self setPrevious:p];
         [self setNext:n];
         startVertex = nil;
-        normal = [[Vector2f alloc] initWithVector:o];
+        norm = [[Vector2f alloc] initWithVector:o];
     }
     
     return self;
@@ -66,7 +63,7 @@
     [o sub:s];
     [o normalize];
     
-    self = [self initWithLine:l previous:p next:n normal:o];
+    self = [self initWithLine:l previous:p next:n norm:o];
     [l release];
     [o release];
     
@@ -75,7 +72,7 @@
 
 
 - (Vector2f *)startVertex {
-    if (!startVertex && previous) {
+    if (startVertex == nil && previous != nil) {
         Line2D* l = [previous line];
         startVertex = [l intersectWith:line];
         [startVertex retain];
@@ -85,7 +82,7 @@
 }
 
 - (Vector2f *)endVertex {
-    if (!next)
+    if (next == nil)
         return nil;
     
     return [next startVertex];
@@ -108,14 +105,14 @@
     return line;
 }
 
-- (Vector2f *)normal {
-    return normal;
+- (Vector2f *)norm {
+    return norm;
 }
 
 - (BOOL)isUpper {
-    if ([normal y] > AlmostZero)
+    if ([norm y] > AlmostZero)
         return YES;
-    return fabsf([normal y]) <= AlmostZero && [normal x] < AlmostZero;
+    return fabsf([norm y]) <= AlmostZero && [norm x] < AlmostZero;
 }
 
 - (BOOL)isLower {
@@ -185,8 +182,8 @@
     return next;
 }
 
-- (Edge2D *)insertAfterLine:(Line2D *)l normal:(Vector2f *)o {
-    Edge2D* newEdge = [[Edge2D alloc] initWithLine:l previous:self next:next normal:o];
+- (Edge2D *)insertAfterLine:(Line2D *)l norm:(Vector2f *)o {
+    Edge2D* newEdge = [[Edge2D alloc] initWithLine:l previous:self next:next norm:o];
     [next setPrevious:newEdge];
     [self setNext:newEdge];
     
@@ -194,15 +191,15 @@
 }
 
 - (Edge2D *)insertAfterStart:(Vector2f *)s end:(Vector2f *)e {
-    Edge2D* newEdge = [[Edge2D alloc] initWithStart:s end:s previous:self next:next];
+    Edge2D* newEdge = [[Edge2D alloc] initWithStart:s end:e previous:self next:next];
     [next setPrevious:newEdge];
     [self setNext:newEdge];
     
     return [newEdge autorelease];
 }
 
-- (Edge2D *)insertBeforeLine:(Line2D *)l normal:(Vector2f *)o {
-    Edge2D* newEdge = [[Edge2D alloc] initWithLine:l previous:previous next:self normal:o];
+- (Edge2D *)insertBeforeLine:(Line2D *)l norm:(Vector2f *)o {
+    Edge2D* newEdge = [[Edge2D alloc] initWithLine:l previous:previous next:self norm:o];
     [previous setNext:newEdge];
     [self setPrevious:newEdge];
     
@@ -228,7 +225,7 @@
     }
     [line release];
     [startVertex release];
-    [normal release];
+    [norm release];
     [super dealloc];
 }
 

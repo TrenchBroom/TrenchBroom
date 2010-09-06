@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 #import "Line2D.h"
 #import "Vector2f.h"
 
@@ -14,14 +15,14 @@
     Edge2D* previous;
     Edge2D* next;
     Vector2f* startVertex;
-    Vector2f* normal;
+    Vector2f* norm;
     Line2D* line;
 }
 
-- (id)initWithLine:(Line2D *)l normal:(Vector2f *)o;
-- (id)initWithLine:(Line2D *)l previous:(Edge2D *)p normal:(Vector2f *)o;
-- (id)initWithLine:(Line2D *)l next:(Edge2D *)n normal:(Vector2f *)o;
-- (id)initWithLine:(Line2D *)l previous:(Edge2D *)p next:(Edge2D *)n normal:(Vector2f *)o;
+- (id)initWithLine:(Line2D *)l norm:(Vector2f *)o;
+- (id)initWithLine:(Line2D *)l previous:(Edge2D *)p norm:(Vector2f *)o;
+- (id)initWithLine:(Line2D *)l next:(Edge2D *)n norm:(Vector2f *)o;
+- (id)initWithLine:(Line2D *)l previous:(Edge2D *)p next:(Edge2D *)n norm:(Vector2f *)o;
 - (id)initWithStart:(Vector2f *)s end:(Vector2f *)e;
 - (id)initWithStart:(Vector2f *)s end:(Vector2f *)e previous:(Edge2D *)p;
 - (id)initWithStart:(Vector2f *)s end:(Vector2f *)e next:(Edge2D *)n;
@@ -31,7 +32,7 @@
 - (Vector2f *)endVertex;
 - (Vector2f *)smallVertex;
 - (Vector2f *)largeVertex;
-- (Vector2f *)normal;
+- (Vector2f *)norm;
 - (Line2D *)line;
 
 - (BOOL)isUpper;
@@ -50,9 +51,9 @@
 - (Edge2D *)previous;
 - (Edge2D *)next;
 
-- (Edge2D *)insertAfterLine:(Line2D *)l normal:(Vector2f *)o;
+- (Edge2D *)insertAfterLine:(Line2D *)l norm:(Vector2f *)o;
 - (Edge2D *)insertAfterStart:(Vector2f *)s end:(Vector2f *)e;
-- (Edge2D *)insertBeforeLine:(Line2D *)l normal:(Vector2f *)o;
+- (Edge2D *)insertBeforeLine:(Line2D *)l norm:(Vector2f *)o;
 - (Edge2D *)insertBeforeStart:(Vector2f *)s end:(Vector2f *)e;
     
 @end

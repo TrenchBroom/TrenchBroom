@@ -7,12 +7,15 @@
 //
 
 #import "Polygon2D.h"
+#import "Polygon2DIS.h"
 
 @implementation Polygon2D
 - (id)initWithVertices:(NSArray *)someVertices {
     if (someVertices == nil)
         [NSException raise:NSInvalidArgumentException format:@"vertex array must not be nil"];
-    if ([someVertices count] < 3)
+
+    int vertexCount = [someVertices count];
+    if (vertexCount < 3)
         [NSException raise:NSInvalidArgumentException format:@"vertex array must contain at least three vertices"];
     
     if (self = [super init]) {
@@ -24,9 +27,9 @@
         edges = first;
         Vector2f* smallest = start;
         
-        for (int i = 2; i < [someVertices count]; i++) {
+        for (int i = 2; i <= vertexCount; i++) {
             start = end;
-            end = [someVertices objectAtIndex:i];
+            end = [someVertices objectAtIndex:i % vertexCount];
             current = [current insertAfterStart:start end:end];
             if ([start isSmallerThan:smallest]) {
                 edges = current;

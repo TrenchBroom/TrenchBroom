@@ -14,8 +14,8 @@
 @implementation Polygon2DTestCase
 
 - (void)assertEdge:(Edge2D *)edge startVertex:(Vector2f *)startVertex endVertex:(Vector2f *)endVertex {
-    STAssertEquals(startVertex, [edge startVertex], @"start vertex of edge %@ must be %@", [edge description], [startVertex description]);
-    STAssertEquals(endVertex, [edge endVertex], @"end vertex of edge %@ must be %@", [edge description], [endVertex description]);
+    STAssertEqualObjects(startVertex, [edge startVertex], @"start vertex of edge must be %@", [startVertex description]);
+    STAssertEqualObjects(endVertex, [edge endVertex], @"end vertex of edge must be %@", [endVertex description]);
 }
 
 - (void)testInit {
@@ -28,14 +28,14 @@
     Edge2D* e = [p edges];
     
     NSArray* vx = [NSArray arrayWithObjects:v0, v1, v2 , nil];
-    STAssertTrue([v isEqualToArray:vx], @"vertex array must contain %@, %@, %@ in that order", v0, v1, v2);
+    STAssertTrue([v isEqualToArray:vx], @"vertex array must contain v0, v1 and v2 in that order");
     [self assertEdge:e startVertex:v0 endVertex:v1];
     
     e = [e next];
     [self assertEdge:e startVertex:v1 endVertex:v2];
     
     e = [e next];
-    [self assertEdge:e startVertex:v2 endVertex:v1];
+    [self assertEdge:e startVertex:v2 endVertex:v0];
     
     [p release];
     [v0 release];

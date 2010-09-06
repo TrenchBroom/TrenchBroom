@@ -141,19 +141,19 @@
 
 - (void)addUpper:(Edge2D *)edge {
     if (lastUpperEdge == nil) {
-        lastUpperEdge = [[Edge2D alloc] initWithLine:[edge line] normal:[edge normal]];
+        lastUpperEdge = [[Edge2D alloc] initWithLine:[edge line] norm:[edge norm]];
         firstUpperEdge = lastUpperEdge;
     } else {
-        firstUpperEdge = [firstUpperEdge insertAfterLine:[edge line] normal:[edge normal]];
+        firstUpperEdge = [firstUpperEdge insertBeforeLine:[edge line] norm:[edge norm]];
     }
 }
             
 - (void)addLower:(Edge2D *)edge {
     if (firstLowerEdge == nil) {
-        firstLowerEdge = [[Edge2D alloc] initWithLine:[edge line] normal:[edge normal]];
+        firstLowerEdge = [[Edge2D alloc] initWithLine:[edge line] norm:[edge norm]];
         lastLowerEdge = firstLowerEdge;
     } else {
-        lastLowerEdge = [lastLowerEdge insertAfterLine:[edge line] normal:[edge normal]];
+        lastLowerEdge = [lastLowerEdge insertAfterLine:[edge line] norm:[edge norm]];
     }
 }
 

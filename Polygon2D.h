@@ -9,7 +9,6 @@
 #import <Cocoa/Cocoa.h>
 #import "Edge2D.h"
 #import "Vector2f.h"
-#import "Polygon2DIS.h"
 
 @interface Polygon2D : NSObject {
     Edge2D* edges;
