@@ -16,7 +16,7 @@
     if (polygon2 == nil)
         [NSException raise:NSInvalidArgumentException format:@"polygon2 must not be nil"];
 
-    if (self = [super init]) {
+    if ((self = [super init]) != nil) {
         polygon1LowerEdge = [polygon1 edges];
         polygon1UpperEdge = [polygon1LowerEdge previous];
         
@@ -149,7 +149,7 @@
 }
             
 - (void)addLower:(Edge2D *)edge {
-    if (firstLowerEdge== nil) {
+    if (firstLowerEdge == nil) {
         firstLowerEdge = [[Edge2D alloc] initWithLine:[edge line] normal:[edge normal]];
         lastLowerEdge = firstLowerEdge;
     } else {
