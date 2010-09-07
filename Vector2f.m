@@ -10,6 +10,14 @@
 #import "Math.h"
 
 @implementation Vector2f
++ (Vector2f *)vectorWithVector:(Vector2f *)vector {
+    return [[[Vector2f alloc] initWithVector:vector] autorelease];
+}
+
++ (Vector2f *)vectorWithX:(float)xCoord y:(float)yCoord {
+    return [[[Vector2f alloc] initWithX:xCoord y:yCoord] autorelease];
+}
+
 + (Vector2f *)add:(Vector2f *)left addend:(Vector2f *)right {
     Vector2f* result = [[Vector2f alloc] initWithVector:left];
     [result add:right];

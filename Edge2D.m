@@ -62,6 +62,9 @@
     Vector2f* o = [[Vector2f alloc] initWithVector:e];
     [o sub:s];
     [o normalize];
+    float x = [o x];
+    [o setX:[o y]];
+    [o setY:-x];
     
     self = [self initWithLine:l previous:p next:n norm:o];
     [l release];
@@ -90,14 +93,14 @@
 
 - (Vector2f *)smallVertex {
     if ([self isUpper])
-        return [self startVertex];
-    return [self endVertex];
+        return [self endVertex];
+    return [self startVertex];
 }
 
 - (Vector2f *)largeVertex {
     if ([self isUpper])
-        return [self endVertex];
-    return [self startVertex];
+        return [self startVertex];
+    return [self endVertex];
 }
 
 

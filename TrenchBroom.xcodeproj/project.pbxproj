@@ -35,6 +35,7 @@
 		487E31FF114F747D0043A111 /* RenderContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E31FE114F747D0043A111 /* RenderContext.m */; };
 		487E3202114F76160043A111 /* RenderPolygon.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E3201114F76160043A111 /* RenderPolygon.m */; };
 		487E3216114F768D0043A111 /* RenderBrush.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E3215114F768D0043A111 /* RenderBrush.m */; };
+		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
 		48A68EB8114E96C00064732A /* MapWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68EB7114E96C00064732A /* MapWindowController.m */; };
 		48A68ECC114E9AF90064732A /* MapView2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68ECB114E9AF90064732A /* MapView2D.m */; };
 		48A68ECF114E9B0D0064732A /* MapView3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68ECE114E9B0D0064732A /* MapView3D.m */; };
@@ -111,6 +112,8 @@
 		487E3201114F76160043A111 /* RenderPolygon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderPolygon.m; sourceTree = "<group>"; };
 		487E3214114F768D0043A111 /* RenderBrush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderBrush.h; sourceTree = "<group>"; };
 		487E3215114F768D0043A111 /* RenderBrush.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderBrush.m; sourceTree = "<group>"; };
+		48941664123619870098E17C /* Line2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2DTestCase.h; sourceTree = "<group>"; };
+		48941665123619870098E17C /* Line2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line2DTestCase.m; sourceTree = "<group>"; };
 		48A68EB6114E96C00064732A /* MapWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWindowController.h; sourceTree = "<group>"; };
 		48A68EB7114E96C00064732A /* MapWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapWindowController.m; sourceTree = "<group>"; };
 		48A68ECA114E9AF90064732A /* MapView2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapView2D.h; sourceTree = "<group>"; };
@@ -356,6 +359,8 @@
 				485884FB12298C2E00E7806F /* Polygon2DTestCase.m */,
 				48EEE9181153D95E001A4D7C /* VBOManagerTestCase.h */,
 				48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */,
+				48941664123619870098E17C /* Line2DTestCase.h */,
+				48941665123619870098E17C /* Line2DTestCase.m */,
 			);
 			name = "Test Cases";
 			sourceTree = "<group>";
@@ -461,6 +466,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4809F440118EDE64000F66FD /* VBOManagerTestCase.m in Sources */,
+				48941666123619870098E17C /* Line2DTestCase.m in Sources */,
+				485884FC12298C2E00E7806F /* Polygon2DTestCase.m in Sources */,
 				4809F447118EDE6D000F66FD /* Vector3i.m in Sources */,
 				4809F448118EDE6D000F66FD /* Vector3f.m in Sources */,
 				4809F44D118EDE78000F66FD /* VBOMemBlock.m in Sources */,
@@ -474,7 +481,6 @@
 				4809F455118EDE81000F66FD /* Entity.m in Sources */,
 				4809F456118EDE82000F66FD /* Brush.m in Sources */,
 				486641111229854E00752B89 /* Math.m in Sources */,
-				485884FC12298C2E00E7806F /* Polygon2DTestCase.m in Sources */,
 				48E1107C1234BF5500087198 /* Edge2D.m in Sources */,
 				48E1107D1234BF5500087198 /* Line2D.m in Sources */,
 				48E1107E1234BF5500087198 /* Math2D.m in Sources */,

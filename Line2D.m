@@ -11,6 +11,22 @@
 #import "Math2D.h"
 
 @implementation Line2D
++ (Line2D *)lineWithPoint1:(Vector2f *)point1 point2:(Vector2f *)point2 {
+    return [[[Line2D alloc] initWithPoint1:point1 point2:point2] autorelease];
+}
+
++ (Line2D *)lineWithPoint:(Vector2f *)p normalizedDirection:(Vector2f *)d {
+    return [[[Line2D alloc] initWithPoint:p normalizedDirection:d] autorelease];
+}
+
++ (Line2D *)lineWithPoint:(Vector2f *)p direction:(Vector2f *)d {
+    return [[[Line2D alloc] initWithPoint:p direction:d] autorelease];
+}
+
++ (Line2D *)lineWithLine:(Line2D *)l {
+    return [[[Line2D alloc] initWithLine:l] autorelease];
+}
+
 - (id)initWithPoint1:(Vector2f *)point1 point2:(Vector2f *)point2 {
     if (point1 == nil)
         [NSException raise:NSInvalidArgumentException format:@"point1 must not be nil"];
@@ -66,7 +82,7 @@
 }
 
 - (float)yAt:(float)x {
-    return [direction y] * x / [direction x];
+    return [direction y] / [direction x] * (x - [point x]) + [point y];
 }
 
 
@@ -88,11 +104,6 @@
     
     float x = xp1 + t * xd1;
     float y = yp1 + t * yd1;
-    float sx = (x - xp2) / xd2;
-    float sy = (y - yp2) / yd2;
-    
-    if (fabsf(sx - sy) > AlmostZero)
-        return nil;
     
     return [[[Vector2f alloc] initWithX:x y:y] autorelease];
 }

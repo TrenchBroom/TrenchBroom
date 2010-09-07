@@ -13,6 +13,9 @@
 	float x;
 	float y;
 }
++ (Vector2f *)vectorWithVector:(Vector2f *)vector;
++ (Vector2f *)vectorWithX:(float)xCoord y:(float)yCoord;
+
 + (Vector2f *)add:(Vector2f *)left addend:(Vector2f *)right;
 + (Vector2f *)sub:(Vector2f *)left subtrahend:(Vector2f *)right;
 + (Vector2f *)normalize:(Vector2f *)vector;

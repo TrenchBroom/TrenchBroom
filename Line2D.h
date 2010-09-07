@@ -14,6 +14,10 @@
     Vector2f* point;
     Vector2f* direction; // normalized
 }
++ (Line2D *)lineWithPoint1:(Vector2f *)point1 point2:(Vector2f *)point2;
++ (Line2D *)lineWithPoint:(Vector2f *)p normalizedDirection:(Vector2f *)d;
++ (Line2D *)lineWithPoint:(Vector2f *)p direction:(Vector2f *)d;
++ (Line2D *)lineWithLine:(Line2D *)l;
 
 - (id)initWithPoint1:(Vector2f *)point1 point2:(Vector2f *)point2;
 - (id)initWithPoint:(Vector2f *)p normalizedDirection:(Vector2f *)d;

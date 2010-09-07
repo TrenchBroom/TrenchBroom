@@ -23,12 +23,12 @@
         polygon2LowerEdge = [polygon2 edges];
         polygon2UpperEdge = [polygon2LowerEdge previous];
         
-        if ([[polygon1UpperEdge startVertex] isSmallerThan:[polygon2UpperEdge startVertex]]) {
-            float x = [[polygon2UpperEdge startVertex] x];
+        if ([[polygon1LowerEdge startVertex] isSmallerThan:[polygon2LowerEdge startVertex]]) {
+            float x = [[polygon2LowerEdge startVertex] x];
             polygon1UpperEdge = [self forward:polygon1UpperEdge to:x];
             polygon1LowerEdge = [self forward:polygon1LowerEdge to:x];
         } else {
-            float x = [[polygon1UpperEdge startVertex] x];
+            float x = [[polygon1LowerEdge startVertex] x];
             polygon2UpperEdge = [self forward:polygon2UpperEdge to:x];
             polygon2LowerEdge = [self forward:polygon2LowerEdge to:x];
         }
@@ -38,8 +38,8 @@
 }
 
 - (Polygon2D *)intersection {
-    int nextIndex = 0;
-    while (nextIndex = [self nextEvent] != -1) {
+    int nextIndex = -1;
+    while ((nextIndex = [self nextEvent]) != -1) {
         switch (nextIndex) {
             case P1U: {
                 Vector2f* is = [polygon1UpperEdge intersectWith:polygon2UpperEdge];
@@ -93,9 +93,11 @@
                         [self addUpper:polygon1UpperEdge];
                         [self addUpper:polygon2UpperEdge];
                     }
-                } else if ([polygon1UpperEdge contains:[polygon2UpperEdge smallVertex]] && [polygon1LowerEdge contains:[polygon2UpperEdge smallVertex]]) {
-					[self addUpper:polygon2UpperEdge];
-				}
+                } else if ([polygon1UpperEdge contains:[polygon2UpperEdge smallVertex]]) {
+                    if ([polygon1LowerEdge contains:[polygon2UpperEdge smallVertex]]) {
+                        [self addUpper:polygon2UpperEdge];
+                    }
+                }
                 
                 if ([[polygon2UpperEdge previous] isUpper])
                     polygon2UpperEdge = [polygon2UpperEdge previous];
@@ -165,17 +167,17 @@
     int nextIndex = P1U;
     Edge2D* nextEdge = polygon1UpperEdge;
     
-    if ([[polygon1LowerEdge endVertex] isSmallerThan:[nextEdge endVertex]]) {
+    if ([[polygon1LowerEdge largeVertex] isSmallerThan:[nextEdge largeVertex]]) {
         nextIndex = P1L;
         nextEdge = polygon1LowerEdge;
     }
     
-    if ([[polygon2UpperEdge endVertex] isSmallerThan:[nextEdge endVertex]]) {
+    if ([[polygon2UpperEdge largeVertex] isSmallerThan:[nextEdge largeVertex]]) {
         nextIndex = P2U;
         nextEdge = polygon2UpperEdge;
     }
     
-    if ([[polygon2LowerEdge endVertex] isSmallerThan:[nextEdge endVertex]]) {
+    if ([[polygon2LowerEdge largeVertex] isSmallerThan:[nextEdge largeVertex]]) {
         nextIndex = P2L;
         nextEdge = polygon2LowerEdge;
     }
