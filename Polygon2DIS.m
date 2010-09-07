@@ -38,7 +38,7 @@
 }
 
 - (Polygon2D *)intersection {
-    int nextIndex = -1;
+    int nextIndex;
     while ((nextIndex = [self nextEvent]) != -1) {
         switch (nextIndex) {
             case P1U: {
@@ -51,15 +51,17 @@
                         [self addUpper:polygon2UpperEdge];
                         [self addUpper:polygon1UpperEdge];
                     }
-                } else if ([polygon2UpperEdge contains:[polygon1UpperEdge smallVertex]] && [polygon2LowerEdge contains:[polygon1UpperEdge smallVertex]]) {
+                } else {
+                    is = []
+                }
+                
+                else if ([polygon2UpperEdge contains:[polygon1UpperEdge smallVertex]] && [polygon2LowerEdge contains:[polygon1UpperEdge smallVertex]]) {
 					[self addUpper:polygon1UpperEdge];
 				}
-
                 if ([[polygon1UpperEdge previous] isUpper])
                     polygon1UpperEdge = [polygon1UpperEdge previous];
                 else
                     polygon1UpperEdge = nil;
-
                 break;
             }
             case P1L: {
@@ -75,12 +77,10 @@
                 } else if ([polygon2UpperEdge contains:[polygon1LowerEdge smallVertex]] && [polygon2LowerEdge contains:[polygon1LowerEdge smallVertex]]) {
 					[self addLower:polygon1LowerEdge];
 				}
-                
                 if ([[polygon1LowerEdge next] isLower])
                     polygon1LowerEdge = [polygon1LowerEdge next];
                 else
                     polygon1LowerEdge = nil;
-
                 break;
             }
             case P2U: {
@@ -98,12 +98,10 @@
                         [self addUpper:polygon2UpperEdge];
                     }
                 }
-                
                 if ([[polygon2UpperEdge previous] isUpper])
                     polygon2UpperEdge = [polygon2UpperEdge previous];
                 else
                     polygon2UpperEdge = nil;
-
                 break;
             }
             case P2L: {
@@ -119,12 +117,10 @@
                 } else if ([polygon1UpperEdge contains:[polygon2LowerEdge smallVertex]] && [polygon1LowerEdge contains:[polygon2LowerEdge smallVertex]]) {
 					[self addLower:polygon2LowerEdge];
 				}
-
                 if ([[polygon2LowerEdge next] isLower])
                     polygon2LowerEdge = [polygon2LowerEdge next];
                 else
                     polygon2LowerEdge = nil;
-                
                 break;
             }
         }
@@ -159,7 +155,9 @@
     }
 }
 
-- (int)nextEvent {
+- (int)nextEvents:(NSMutableArray *)events {
+    [events removeAllObjects];
+
     if (polygon1UpperEdge == nil && polygon1LowerEdge == nil || 
         polygon2UpperEdge == nil && polygon2LowerEdge == nil)
         return -1;
