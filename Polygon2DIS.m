@@ -27,10 +27,14 @@
             float x = [[polygon2LowerEdge startVertex] x];
             polygon1UpperEdge = [self forward:polygon1UpperEdge to:x];
             polygon1LowerEdge = [self forward:polygon1LowerEdge to:x];
+            [self handlePolygon2UpperEdge];
+            [self handlePolygon2LowerEdge];
         } else {
             float x = [[polygon1LowerEdge startVertex] x];
             polygon2UpperEdge = [self forward:polygon2UpperEdge to:x];
             polygon2LowerEdge = [self forward:polygon2LowerEdge to:x];
+            [self handlePolygon1UpperEdge];
+            [self handlePolygon1LowerEdge];
         }
     }
 
@@ -38,89 +42,43 @@
 }
 
 - (Polygon2D *)intersection {
-    int nextIndex;
-    while ((nextIndex = [self nextEvent]) != -1) {
-        switch (nextIndex) {
+    int nextEvent;
+    while ((nextEvent = [self nextEvent]) != -1) {
+        switch (nextEvent) {
             case P1U: {
-                Vector2f* is = [polygon1UpperEdge intersectWith:polygon2UpperEdge];
-                if (is != nil) {
-                    if ([polygon2UpperEdge contains:[polygon1UpperEdge smallVertex]]) {
-                        [self addUpper:polygon1UpperEdge];
-                        [self addUpper:polygon2UpperEdge];
-                    } else {
-                        [self addUpper:polygon2UpperEdge];
-                        [self addUpper:polygon1UpperEdge];
-                    }
-                } else {
-                    is = []
-                }
-                
-                else if ([polygon2UpperEdge contains:[polygon1UpperEdge smallVertex]] && [polygon2LowerEdge contains:[polygon1UpperEdge smallVertex]]) {
-					[self addUpper:polygon1UpperEdge];
-				}
-                if ([[polygon1UpperEdge previous] isUpper])
+                if ([[polygon1UpperEdge previous] isUpper]) {
                     polygon1UpperEdge = [polygon1UpperEdge previous];
-                else
+                    [self handlePolygon1UpperEdge];
+                } else {
                     polygon1UpperEdge = nil;
+                }
                 break;
             }
             case P1L: {
-                Vector2f* is = [polygon1LowerEdge intersectWith:polygon2LowerEdge];
-                if (is != nil) {
-                    if ([polygon2LowerEdge contains:[polygon1LowerEdge smallVertex]]) {
-                        [self addLower:polygon1LowerEdge];
-                        [self addLower:polygon2LowerEdge];
-                    } else {
-                        [self addLower:polygon2LowerEdge];
-                        [self addLower:polygon1LowerEdge];
-                    }
-                } else if ([polygon2UpperEdge contains:[polygon1LowerEdge smallVertex]] && [polygon2LowerEdge contains:[polygon1LowerEdge smallVertex]]) {
-					[self addLower:polygon1LowerEdge];
-				}
-                if ([[polygon1LowerEdge next] isLower])
+                if ([[polygon1LowerEdge next] isLower]) {
                     polygon1LowerEdge = [polygon1LowerEdge next];
-                else
+                    [self handlePolygon1LowerEdge];
+                } else {
                     polygon1LowerEdge = nil;
+                }
                 break;
             }
             case P2U: {
-                Vector2f* is = [polygon2UpperEdge intersectWith:polygon1UpperEdge];
-                if (is != nil) {
-                    if ([polygon1UpperEdge contains:[polygon2UpperEdge smallVertex]]) {
-                        [self addUpper:polygon2UpperEdge];
-                        [self addUpper:polygon1UpperEdge];
-                    } else {
-                        [self addUpper:polygon1UpperEdge];
-                        [self addUpper:polygon2UpperEdge];
-                    }
-                } else if ([polygon1UpperEdge contains:[polygon2UpperEdge smallVertex]]) {
-                    if ([polygon1LowerEdge contains:[polygon2UpperEdge smallVertex]]) {
-                        [self addUpper:polygon2UpperEdge];
-                    }
-                }
-                if ([[polygon2UpperEdge previous] isUpper])
+                if ([[polygon2UpperEdge previous] isUpper]) {
                     polygon2UpperEdge = [polygon2UpperEdge previous];
-                else
+                    [self handlePolygon2UpperEdge];
+                } else {
                     polygon2UpperEdge = nil;
+                }
                 break;
             }
             case P2L: {
-                Vector2f* is = [polygon2LowerEdge intersectWith:polygon1LowerEdge];
-                if (is != nil) {
-                    if ([polygon1LowerEdge contains:[polygon2LowerEdge smallVertex]]) {
-                        [self addLower:polygon2LowerEdge];
-                        [self addLower:polygon1LowerEdge];
-                    } else {
-                        [self addLower:polygon1LowerEdge];
-                        [self addLower:polygon2LowerEdge];
-                    }
-                } else if ([polygon1UpperEdge contains:[polygon2LowerEdge smallVertex]] && [polygon1LowerEdge contains:[polygon2LowerEdge smallVertex]]) {
-					[self addLower:polygon2LowerEdge];
-				}
-                if ([[polygon2LowerEdge next] isLower])
+                if ([[polygon2LowerEdge next] isLower]) {
                     polygon2LowerEdge = [polygon2LowerEdge next];
-                else
+                    [self handlePolygon2LowerEdge];
+                } else {
                     polygon2LowerEdge = nil;
+                }
                 break;
             }
         }
@@ -135,6 +93,111 @@
     [firstLowerEdge release]; // firstLowerEdge was retained by the polygon
     
     return [polygon autorelease];
+}
+
+- (void)handlePolygon1UpperEdge {
+    float x = [[polygon1UpperEdge endVertex] x];
+    float p1u = [[polygon1UpperEdge line] yAt:x];
+    float p2u = [[polygon2UpperEdge line] yAt:x];
+    float p2l = [[polygon2LowerEdge line] yAt:x];
+    
+    if ([Math is:p1u between:p2u and:p2l]) {
+        [self addUpper:polygon1UpperEdge];
+    }
+    
+    if ([polygon1UpperEdge intersectWith:polygon2LowerEdge] != nil) {
+        if (p1u < p2l) {
+            [self addUpper:polygon1UpperEdge];
+            [self addLower:polygon2LowerEdge];
+        }
+    }
+    
+    if ([polygon1UpperEdge intersectWith:polygon2UpperEdge] != nil) {
+        if (p1u < p2u) {
+            [self addUpper:polygon2UpperEdge];
+        } else {
+            [self addUpper:polygon1UpperEdge];
+        }
+    }
+}
+
+- (void)handlePolygon1LowerEdge {
+    float x = [[polygon1LowerEdge startVertex] x];
+    float p1l = [[polygon1LowerEdge line] yAt:x];
+    float p2u = [[polygon2UpperEdge line] yAt:x];
+    float p2l = [[polygon2LowerEdge line] yAt:x];
+    
+    if ([Math is:p1l between:p2u and:p2l]) {
+        [self addLower:polygon1LowerEdge];
+    }
+    
+    if ([polygon1LowerEdge intersectWith:polygon2UpperEdge] != nil) {
+        if (p1l > p2u) {
+            [self addUpper:polygon2UpperEdge];
+            [self addLower:polygon1LowerEdge];
+        }
+    }
+    
+    if ([polygon1LowerEdge intersectWith:polygon2LowerEdge] != nil) {
+        if (p1l > p2l) {
+            [self addLower:polygon2LowerEdge];
+        } else {
+            [self addLower:polygon1LowerEdge];
+        }
+    }
+}
+
+- (void)handlePolygon2UpperEdge {
+    float x = [[polygon2UpperEdge endVertex] x];
+    float p1u = [[polygon1UpperEdge line] yAt:x];
+    float p1l = [[polygon1LowerEdge line] yAt:x];
+    float p2u = [[polygon2UpperEdge line] yAt:x];
+    
+    if ([Math is:p2u between:p1u and:p1l]) {
+        [self addUpper:polygon2UpperEdge];
+    }
+    
+    if ([polygon2UpperEdge intersectWith:polygon1LowerEdge] != nil) {
+        if (p2u < p1l) {
+            [self addUpper:polygon2UpperEdge];
+            [self addLower:polygon1LowerEdge];
+        }
+    }
+    
+    if ([polygon2UpperEdge intersectWith:polygon1UpperEdge] != nil) {
+        if (p2u < p1u) {
+            [self addUpper:polygon1UpperEdge];
+        } else {
+            [self addUpper:polygon2UpperEdge];
+        }
+    }
+}
+
+- (void)handlePolygon2LowerEdge {
+    float x = [[polygon2LowerEdge startVertex] x];
+    float p2l = [[polygon2LowerEdge line] yAt:x];
+    float p1u = [[polygon1UpperEdge line] yAt:x];
+    float p1l = [[polygon1LowerEdge line] yAt:x];
+    
+    if ([Math is:p2l between:p1u and:p1l]) {
+        [self addLower:polygon2LowerEdge];
+    }
+    
+    if ([polygon2LowerEdge intersectWith:polygon1UpperEdge] != nil) {
+        if (p2l > p1u) {
+            [self addUpper:polygon1UpperEdge];
+            [self addLower:polygon2LowerEdge];
+        }
+    }
+    
+    if ([polygon2LowerEdge intersectWith:polygon1LowerEdge] != nil) {
+        if (p2l > p1l) {
+            [self addLower:polygon1LowerEdge];
+        } else {
+            [self addLower:polygon2LowerEdge];
+        }
+    }
+    
 }
 
 - (void)addUpper:(Edge2D *)edge {
@@ -155,11 +218,9 @@
     }
 }
 
-- (int)nextEvents:(NSMutableArray *)events {
-    [events removeAllObjects];
-
-    if (polygon1UpperEdge == nil && polygon1LowerEdge == nil || 
-        polygon2UpperEdge == nil && polygon2LowerEdge == nil)
+- (int)nextEvent {
+    if (polygon1UpperEdge == nil || polygon1LowerEdge == nil ||
+        polygon2UpperEdge == nil || polygon2LowerEdge == nil)
         return -1;
     
     int nextIndex = P1U;

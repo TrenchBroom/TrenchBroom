@@ -14,6 +14,6 @@ extern float const AlmostZero;
 
 }
 
-+ (BOOL)is:(float)v betweenBoundary:(float)b1 andBoundary:(float)b2;
++ (BOOL)is:(float)v between:(float)b1 and:(float)b2;
 
 @end
