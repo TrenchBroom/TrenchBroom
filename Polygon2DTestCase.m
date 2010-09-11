@@ -58,6 +58,7 @@
     STAssertNotNil(is, @"intersection must not be nil");
 
     NSArray* v = [is vertices];
+    STAssertEquals((NSUInteger)4, [v count], @"intersection must contain 4 vertices");
     STAssertEqualObjects([Vector2f vectorWithX:2 y:4], [v objectAtIndex:0], @"first vertex must be 2/4");
     STAssertEqualObjects([Vector2f vectorWithX:5 y:4], [v objectAtIndex:1], @"second vertex must be 5/4");
     STAssertEqualObjects([Vector2f vectorWithX:4.5f y:5.5f], [v objectAtIndex:2], @"third vertex must be 4.5/5.5");
@@ -79,10 +80,53 @@
     STAssertNotNil(is, @"intersection must not be nil");
     
     NSArray* v = [is vertices];
+    STAssertEquals((NSUInteger)4, [v count], @"intersection must contain 4 vertices");
     STAssertEqualObjects([Vector2f vectorWithX:3 y:2], [v objectAtIndex:0], @"first vertex must be 3/2");
     STAssertEqualObjects([Vector2f vectorWithX:(4 + 1/3.0f) y:2], [v objectAtIndex:1], @"second vertex must be 5/4");
 //    STAssertEqualObjects([Vector2f vectorWithX:4.5f y:5.5f], [v objectAtIndex:2], @"third vertex must be 4.5/5.5");
 //    STAssertEqualObjects([Vector2f vectorWithX:3 y:6], [v objectAtIndex:3], @"fourth vertex must be 3/6");
+}
+
+- (void)testIntersectionOfTriangles3 {
+    Vector2f* v10 = [[Vector2f alloc] initWithX:2 y:2];
+    Vector2f* v11 = [[Vector2f alloc] initWithX:6 y:2];
+    Vector2f* v12 = [[Vector2f alloc] initWithX:5 y:3];
+    Polygon2D* p1 = [[Polygon2D alloc] initWithVertices:[NSArray arrayWithObjects:v10, v11, v12, nil]];
+    
+    Vector2f* v20 = [[Vector2f alloc] initWithX:1 y:2];
+    Vector2f* v21 = [[Vector2f alloc] initWithX:4 y:1];
+    Vector2f* v22 = [[Vector2f alloc] initWithX:4 y:4];
+    Polygon2D* p2 = [[Polygon2D alloc] initWithVertices:[NSArray arrayWithObjects:v20, v21, v22, nil]];
+    
+    Polygon2D* is = [p1 intersectWith:p2];
+    STAssertNotNil(is, @"intersection must not be nil");
+    
+    NSArray* v = [is vertices];
+    STAssertEquals((NSUInteger)3, [v count], @"intersection must contain 4 vertices");
+    STAssertEqualObjects([Vector2f vectorWithX:2 y:2], [v objectAtIndex:0], @"first vertex must be 2/2");
+    STAssertEqualObjects([Vector2f vectorWithX:4 y:2], [v objectAtIndex:1], @"second vertex must be 4/4");
+    STAssertEqualObjects([Vector2f vectorWithX:4 y:(2 + 2/3.0f)], [v objectAtIndex:2], @"third vertex must be 4/2+2/3");
+}
+
+- (void)testIntersectionOfContainingTriangles {
+    Vector2f* v10 = [[Vector2f alloc] initWithX:1 y:2];
+    Vector2f* v11 = [[Vector2f alloc] initWithX:4 y:1];
+    Vector2f* v12 = [[Vector2f alloc] initWithX:4 y:4];
+    Polygon2D* p1 = [[Polygon2D alloc] initWithVertices:[NSArray arrayWithObjects:v10, v11, v12, nil]];
+    
+    Vector2f* v20 = [[Vector2f alloc] initWithX:2 y:2];
+    Vector2f* v21 = [[Vector2f alloc] initWithX:3 y:2];
+    Vector2f* v22 = [[Vector2f alloc] initWithX:3.5f y:2.5f];
+    Polygon2D* p2 = [[Polygon2D alloc] initWithVertices:[NSArray arrayWithObjects:v20, v21, v22, nil]];
+    
+    Polygon2D* is = [p1 intersectWith:p2];
+    STAssertNotNil(is, @"intersection must not be nil");
+    
+    NSArray* v = [is vertices];
+    STAssertEquals((NSUInteger)3, [v count], @"intersection must contain 3 vertices");
+    STAssertEqualObjects(v20, [v objectAtIndex:0], @"first vertex must be v20");
+    STAssertEqualObjects(v21, [v objectAtIndex:1], @"second vertex must be v21");
+    STAssertEqualObjects(v22, [v objectAtIndex:2], @"third vertex must be v22");
 }
 
 @end
