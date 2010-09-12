@@ -11,6 +11,7 @@
 #import "Vector2f.h"
 
 @interface Line2D : NSObject {
+@private
     Vector2f* point;
     Vector2f* direction; // normalized
 }
@@ -26,6 +27,9 @@
 
 - (Vector2f *)point;
 - (Vector2f *)direction;
+
+- (BOOL)isHorizontal;
+- (BOOL)isVertical;
 
 - (float)yAt:(float)x;
 

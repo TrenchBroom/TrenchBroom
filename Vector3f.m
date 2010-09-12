@@ -116,7 +116,7 @@
 }
 
 - (BOOL)isNull {
-    return fabsf(x) <= AlmostZero && fabsf(y) <= AlmostZero && fabsf(z) <= AlmostZero;
+    return [Math zer:x] && [Math zer:y] && [Math zer:z];
 }
 
 - (void)add:(Vector3f *)addend {
@@ -175,7 +175,7 @@
         return NO;
     
     Vector3f* vector = (Vector3f*)object;
-    return fabsf(x - [vector x]) < AlmostZero && fabsf(y - [vector y]) < AlmostZero && fabsf(z - [vector z]) < AlmostZero;
+    return [Math is:x eq:[vector x]] && [Math is:y eq:[vector y]] && [Math is:z eq:[vector z]];
 }
 
 - (NSString *)description {

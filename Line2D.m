@@ -81,6 +81,14 @@
     return direction;
 }
 
+- (BOOL)isHorizontal {
+    return [Math zer:[direction y]];
+}
+
+- (BOOL)isVertical {
+    return [Math zero:[direction x]];
+}
+
 - (float)yAt:(float)x {
     return [direction y] / [direction x] * (x - [point x]) + [point y];
 }
@@ -97,7 +105,7 @@
     float yd2 = [[line direction] y];
     
     float denom = xd1 * yd2 - xd2 * yd1;
-    if (fabsf(denom) < AlmostZero)
+    if ([Math zer:denom])
         return nil;
     
     float t = (xp2 * yd2 - yp2 * xd2 - xp1 * yd2 + xd2 * yp1) / denom;

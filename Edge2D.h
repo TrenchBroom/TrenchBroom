@@ -12,6 +12,7 @@
 #import "Vector2f.h"
 
 @interface Edge2D : NSObject {
+    @private
     Edge2D* previous;
     Edge2D* next;
     Vector2f* startVertex;
@@ -38,7 +39,6 @@
 - (BOOL)isUpper;
 - (BOOL)isLower;
 
-- (BOOL)containsX:(float)x;
 - (BOOL)contains:(Vector2f *)p;
 
 - (Vector2f *)intersectWith:(Edge2D *)e;

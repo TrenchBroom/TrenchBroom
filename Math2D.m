@@ -23,9 +23,9 @@
 	[t setY:-[from x]];
     
 	float d = [t dot:to];
-	if (d > AlmostZero)
+    if ([Math pos:d])
 		return SRight;
-	if (d < -AlmostZero)
+    if ([Math pos:d])
 		return SLeft;
 	return SNeither;
 }

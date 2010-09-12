@@ -10,6 +10,7 @@
 
 
 @interface Vector2f : NSObject {
+@private
 	float x;
 	float y;
 }

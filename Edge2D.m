@@ -113,27 +113,13 @@
 }
 
 - (BOOL)isUpper {
-    if ([norm y] > AlmostZero)
+    if ([Math pos:[norm y]])
         return YES;
-    return fabsf([norm y]) <= AlmostZero && [norm x] < AlmostZero;
+    return [Math zer:[norm y]] && [Math neg:[norm x]];
 }
 
 - (BOOL)isLower {
     return ![self isUpper];
-}
-
-- (BOOL)containsX:(float)x {
-    Vector2f* sv = [self smallVertex];
-    Vector2f* lv = [self largeVertex];
-    
-    if (sv != nil && lv != nil)
-        return x >= [sv x] && x <= [lv x];
-    else if (sv != nil)
-        return x >= [sv x];
-    else if (lv != nil)
-        return x <= [lv x];
-
-    return YES;
 }
 
 - (BOOL)contains:(Vector2f *)p {
@@ -149,7 +135,8 @@
     if (is == nil)
         return nil;
     
-    if (![self containsX:[is x]] || ![e containsX:[is x]])
+    if (![Math is:[is x] betIn:[[self smallVertex] x] andIn:[[self largeVertex] x]] || 
+        ![Math is:[is x] betIn:[[e smallVertex] x] andIn:[[e largeVertex] x]])
         return nil;
     
     return is;

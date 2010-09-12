@@ -88,7 +88,7 @@
 }
 
 - (BOOL)isNull {
-    return abs(x) <= AlmostZero && abs(y) <= AlmostZero;
+    return [Math zer:x] && [Math zer:y];
 }
 
 - (void)add:(Vector2f *)addend {
@@ -135,17 +135,17 @@
         return NO;
     
     Vector2f* vector = (Vector2f*)object;
-    return fabsf([self x] - [vector x]) <= AlmostZero && fabsf([self y] - [vector y]) <= AlmostZero;
+    return [Math is:[self x] eq:[vector x]] && [Math is:[self y] eq:[vector y]];
 }
 
 - (NSComparisonResult)lexicographicCompare:(Vector2f *)vector {
-    if (x < [vector x] - AlmostZero)
+    if ([Math is:x lt:[vector x]])
         return NSOrderedAscending;
-    if (x > [vector x] + AlmostZero)
+    if ([Math is:x gt:[vector x]])
         return NSOrderedDescending;
-    if (y < [vector y] - AlmostZero)
+    if ([Math is:y lt:[vector y]])
         return NSOrderedAscending;
-    if (y > [vector y] + AlmostZero)
+    if ([Math is:y gt:[vector y]])
         return NSOrderedDescending;
     return NSOrderedSame;
 }

@@ -107,7 +107,7 @@
         return NO;
     
     Vector3i* vector = (Vector3i*)object;
-    return fabsf([self x] - [vector x]) <= AlmostZero && fabsf([self y] - [vector y]) <= AlmostZero && fabsf([self z] - [vector z]) <= AlmostZero;
+    return [self x] == [vector x] && [self y] == [vector y] && [self z] == [vector z];
 }
 
 - (NSString *)description {

@@ -16,6 +16,7 @@ typedef enum {
 } CEdge;
 
 @interface Polygon2DIS : NSObject {
+    @private
     Edge2D* polygon1UpperEdge;
     Edge2D* polygon1LowerEdge;
     Edge2D* polygon2UpperEdge;
@@ -29,13 +30,4 @@ typedef enum {
 
 - (id)initWithPolygon1:(Polygon2D *)polygon1 polygon2:(Polygon2D *)polygon2;
 - (Polygon2D *)intersection;
-
-- (Edge2D *)forward:(Edge2D *)edge to:(float)x;
-- (int)nextEvent;
-- (void)addUpper:(Edge2D *)edge;
-- (void)addLower:(Edge2D *)edge;
-- (void)handlePolygon1UpperEdge;
-- (void)handlePolygon1LowerEdge;
-- (void)handlePolygon2UpperEdge;
-- (void)handlePolygon2LowerEdge;
 @end

@@ -11,6 +11,7 @@
 #import "Vector2f.h"
 
 @interface Polygon2D : NSObject {
+@private
     Edge2D* edges;
 }
 
