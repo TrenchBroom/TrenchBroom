@@ -86,7 +86,7 @@
 }
 
 - (BOOL)isVertical {
-    return [Math zero:[direction x]];
+    return [Math zer:[direction x]];
 }
 
 - (float)yAt:(float)x {
