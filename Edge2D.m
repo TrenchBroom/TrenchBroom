@@ -113,9 +113,9 @@
 }
 
 - (BOOL)isUpper {
-    if ([Math pos:[norm y]])
+    if (fpos([norm y]))
         return YES;
-    return [Math zer:[norm y]] && [Math neg:[norm x]];
+    return fzero([norm y]) && fneg([norm x]);
 }
 
 - (BOOL)isLower {
@@ -125,9 +125,9 @@
 - (BOOL)contains:(Vector2f *)p {
     float y = [line yAt:[p x]];
     if ([self isUpper])
-        return [p y] <= y;
+        return flte([p y], y);
 
-    return [p y] >= y;
+    return fgte([p y], y);
 }
 
 - (Vector2f *)intersectWith:(Edge2D *)e {
@@ -135,8 +135,8 @@
     if (is == nil)
         return nil;
     
-    if (![Math is:[is x] betIn:[[self smallVertex] x] andIn:[[self largeVertex] x]] || 
-        ![Math is:[is x] betIn:[[e smallVertex] x] andIn:[[e largeVertex] x]])
+    if (!finii([is x], [[self startVertex] x], [[self endVertex] x]) ||
+        !finii([is x], [[e startVertex] x], [[e endVertex] x]))
         return nil;
     
     return is;

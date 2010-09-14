@@ -88,7 +88,7 @@
 }
 
 - (BOOL)isNull {
-    return [Math zer:x] && [Math zer:y];
+    return fzero(x) && fzero(y);
 }
 
 - (void)add:(Vector2f *)addend {
@@ -135,17 +135,17 @@
         return NO;
     
     Vector2f* vector = (Vector2f*)object;
-    return [Math is:[self x] eq:[vector x]] && [Math is:[self y] eq:[vector y]];
+    return feq(x, [vector x]) && feq(y, [vector y]);
 }
 
 - (NSComparisonResult)lexicographicCompare:(Vector2f *)vector {
-    if ([Math is:x lt:[vector x]])
+    if (flt(x, [vector x]))
         return NSOrderedAscending;
-    if ([Math is:x gt:[vector x]])
+    if (fgt(x, [vector x]))
         return NSOrderedDescending;
-    if ([Math is:y lt:[vector y]])
+    if (flt(y, [vector y]))
         return NSOrderedAscending;
-    if ([Math is:y gt:[vector y]])
+    if (fgt(y, [vector y]))
         return NSOrderedDescending;
     return NSOrderedSame;
 }

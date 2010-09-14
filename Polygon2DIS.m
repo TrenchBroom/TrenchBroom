@@ -41,7 +41,7 @@
     float otherUpperEdgeY = [[otherUpperEdge line] yAt:x];
     float otherLowerEdgeY = [[otherLowerEdge line] yAt:x];
     
-    if ([Math is:y betEx:otherLowerEdgeY andEx:otherUpperEdgeY]) {
+    if (finxx(y, otherLowerEdgeY, otherUpperEdgeY)) {
         [self addUpper:upperEdge];
     }
     
@@ -69,7 +69,7 @@
     float otherUpperEdgeY = [[otherUpperEdge line] yAt:x];
     float otherLowerEdgeY = [[otherLowerEdge line] yAt:x];
     
-    if ([Math is:y betEx:otherLowerEdgeY andEx:otherUpperEdgeY]) {
+    if (finxx(y, otherLowerEdgeY, otherUpperEdgeY)) {
         [self addLower:lowerEdge];
     }
     
@@ -134,7 +134,7 @@
 }
 
 - (Edge2D *)forward:(Edge2D *)edge to:(float)x {
-    if ([Math is:x gte:[[edge smallVertex] x]] && [Math is:x lt:[[edge largeVertex] x]])
+    if (finix(x, [[edge startVertex] x], [[edge endVertex] x]))
         return edge;
     if ([edge isLower]) {
         Edge2D* next = [edge next];

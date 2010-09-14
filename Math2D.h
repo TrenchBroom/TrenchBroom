@@ -14,7 +14,7 @@ typedef enum {
     SLeft, SRight, SUp, SDown, SNeither
 } Side2D;
 
-@interface Math2D : Math {
+@interface Math2D : NSObject {
     
 }
 

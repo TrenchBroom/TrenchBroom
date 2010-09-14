@@ -116,7 +116,7 @@
 }
 
 - (BOOL)isNull {
-    return [Math zer:x] && [Math zer:y] && [Math zer:z];
+    return fzero(x) && fzero(y) && fzero(z);
 }
 
 - (void)add:(Vector3f *)addend {
@@ -175,7 +175,7 @@
         return NO;
     
     Vector3f* vector = (Vector3f*)object;
-    return [Math is:x eq:[vector x]] && [Math is:y eq:[vector y]] && [Math is:z eq:[vector z]];
+    return feq(x, [vector x]) && feq(y, [vector y]) && feq(z, [vector z]);
 }
 
 - (NSString *)description {
