@@ -15,45 +15,45 @@
     @private
     Edge2D* previous;
     Edge2D* next;
-    Vector2f* startVertex;
-    Vector2f* norm;
-    Line2D* line;
+    Vector2f* sVertex;
+    Vector2f* outsideVector;
+    Line2D* boundaryLine;
 }
 
-- (id)initWithLine:(Line2D *)l norm:(Vector2f *)o;
-- (id)initWithLine:(Line2D *)l previous:(Edge2D *)p norm:(Vector2f *)o;
-- (id)initWithLine:(Line2D *)l next:(Edge2D *)n norm:(Vector2f *)o;
-- (id)initWithLine:(Line2D *)l previous:(Edge2D *)p next:(Edge2D *)n norm:(Vector2f *)o;
-- (id)initWithStart:(Vector2f *)s end:(Vector2f *)e;
-- (id)initWithStart:(Vector2f *)s end:(Vector2f *)e previous:(Edge2D *)p;
-- (id)initWithStart:(Vector2f *)s end:(Vector2f *)e next:(Edge2D *)n;
-- (id)initWithStart:(Vector2f *)s end:(Vector2f *)e previous:(Edge2D *)p next:(Edge2D *)n;
+- (id)initWithBoundary:(Line2D *)boundary outside:(Vector2f *)outside;
+- (id)initWithBoundary:(Line2D *)boundary previous:(Edge2D *)previousEdge outside:(Vector2f *)outside;
+- (id)initWithBoundary:(Line2D *)boundary next:(Edge2D *)nextEdge outside:(Vector2f *)outside;
+- (id)initWithBoundary:(Line2D *)boundary previous:(Edge2D *)previousEdge next:(Edge2D *)nextEdge outside:(Vector2f *)outside;
+- (id)initWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex;
+- (id)initWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex previous:(Edge2D *)previousEdge;
+- (id)initWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex next:(Edge2D *)nextEdge;
+- (id)initWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex previous:(Edge2D *)previousEdge next:(Edge2D *)nextEdge;
 
 - (Vector2f *)startVertex;
 - (Vector2f *)endVertex;
 - (Vector2f *)smallVertex;
 - (Vector2f *)largeVertex;
-- (Vector2f *)norm;
-- (Line2D *)line;
+- (Vector2f *)outside;
+- (Line2D *)boundary;
 
 - (BOOL)isUpper;
 - (BOOL)isLower;
 
-- (BOOL)contains:(Vector2f *)p;
+- (BOOL)contains:(Vector2f *)point;
 
-- (Vector2f *)intersectWith:(Edge2D *)e;
+- (Vector2f *)intersectWith:(Edge2D *)edge;
 
-- (void)setPrevious:(Edge2D *)p;
-- (void)setNext:(Edge2D *)n;
+- (void)setPrevious:(Edge2D *)previousEdge;
+- (void)setNext:(Edge2D *)nextEdge;
 - (void)open;
-- (void)close:(Edge2D *)n;
+- (void)close:(Edge2D *)edge;
 
 - (Edge2D *)previous;
 - (Edge2D *)next;
 
-- (Edge2D *)insertAfterLine:(Line2D *)l norm:(Vector2f *)o;
-- (Edge2D *)insertAfterStart:(Vector2f *)s end:(Vector2f *)e;
-- (Edge2D *)insertBeforeLine:(Line2D *)l norm:(Vector2f *)o;
-- (Edge2D *)insertBeforeStart:(Vector2f *)s end:(Vector2f *)e;
+- (Edge2D *)appendEdgeWithBoundary:(Line2D *)boundary outside:(Vector2f *)outside;
+- (Edge2D *)appendEdgeWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex;
+- (Edge2D *)prependEdgeWithBoundary:(Line2D *)boundary outside:(Vector2f *)outside;
+- (Edge2D *)prependEdgeWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex;
     
 @end

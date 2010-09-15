@@ -37,9 +37,9 @@
          otherUpperEdge:(Edge2D *)otherUpperEdge 
          otherLowerEdge:(Edge2D *)otherLowerEdge {
     float x = [[upperEdge endVertex] x];
-    float y = [[upperEdge line] yAt:x];
-    float otherUpperEdgeY = [[otherUpperEdge line] yAt:x];
-    float otherLowerEdgeY = [[otherLowerEdge line] yAt:x];
+    float y = [[upperEdge boundary] yAt:x];
+    float otherUpperEdgeY = [[otherUpperEdge boundary] yAt:x];
+    float otherLowerEdgeY = [[otherLowerEdge boundary] yAt:x];
     
     if (finxx(y, otherLowerEdgeY, otherUpperEdgeY)) {
         [self addUpper:upperEdge];
@@ -65,9 +65,9 @@
          otherUpperEdge:(Edge2D *)otherUpperEdge 
          otherLowerEdge:(Edge2D *)otherLowerEdge {
     float x = [[lowerEdge startVertex] x];
-    float y = [[lowerEdge line] yAt:x];
-    float otherUpperEdgeY = [[otherUpperEdge line] yAt:x];
-    float otherLowerEdgeY = [[otherLowerEdge line] yAt:x];
+    float y = [[lowerEdge boundary] yAt:x];
+    float otherUpperEdgeY = [[otherUpperEdge boundary] yAt:x];
+    float otherLowerEdgeY = [[otherLowerEdge boundary] yAt:x];
     
     if (finxx(y, otherLowerEdgeY, otherUpperEdgeY)) {
         [self addLower:lowerEdge];
@@ -91,19 +91,19 @@
 
 - (void)addUpper:(Edge2D *)edge {
     if (lastUpperEdge == nil) {
-        lastUpperEdge = [[Edge2D alloc] initWithLine:[edge line] norm:[edge norm]];
+        lastUpperEdge = [[Edge2D alloc] initWithBoundary:[edge boundary] outside:[edge outside]];
         firstUpperEdge = lastUpperEdge;
     } else {
-        firstUpperEdge = [firstUpperEdge insertBeforeLine:[edge line] norm:[edge norm]];
+        firstUpperEdge = [firstUpperEdge prependEdgeWithBoundary:[edge boundary] outside:[edge outside]];
     }
 }
 
 - (void)addLower:(Edge2D *)edge {
     if (firstLowerEdge == nil) {
-        firstLowerEdge = [[Edge2D alloc] initWithLine:[edge line] norm:[edge norm]];
+        firstLowerEdge = [[Edge2D alloc] initWithBoundary:[edge boundary] outside:[edge outside]];
         lastLowerEdge = firstLowerEdge;
     } else {
-        lastLowerEdge = [lastLowerEdge insertAfterLine:[edge line] norm:[edge norm]];
+        lastLowerEdge = [lastLowerEdge appendEdgeWithBoundary:[edge boundary] outside:[edge outside]];
     }
 }
 

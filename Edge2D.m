@@ -9,79 +9,79 @@
 #import "Edge2D.h"
 
 @implementation Edge2D
-- (id)initWithLine:(Line2D *)l norm:(Vector2f *)o {
-    return [self initWithLine:l previous:nil next:nil norm:o];
+- (id)initWithBoundary:(Line2D *)boundary outside:(Vector2f *)outside {
+    return [self initWithBoundary:boundary previous:nil next:nil outside:outside];
 }
 
-- (id)initWithLine:(Line2D *)l previous:(Edge2D *)p norm:(Vector2f *)o {
-    return [self initWithLine:l previous:p next:nil norm:o];
+- (id)initWithBoundary:(Line2D *)boundary previous:(Edge2D *)previousEdge outside:(Vector2f *)outside {
+    return [self initWithBoundary:boundary previous:previousEdge next:nil outside:outside];
 }
 
-- (id)initWithLine:(Line2D *)l next:(Edge2D *)n norm:(Vector2f *)o {
-    return [self initWithLine:l previous:nil next:n norm:o];
+- (id)initWithBoundary:(Line2D *)boundary next:(Edge2D *)nextEdge outside:(Vector2f *)outside {
+    return [self initWithBoundary:boundary previous:nil next:nextEdge outside:outside];
 }
 
-- (id)initWithLine:(Line2D *)l previous:(Edge2D *)p next:(Edge2D *)n norm:(Vector2f *)o {
-    if (!l)
-        [NSException raise:NSInvalidArgumentException format:@"line must not be nil"];
-    if (!o)
-        [NSException raise:NSInvalidArgumentException format:@"normal must not be nil"];
+- (id)initWithBoundary:(Line2D *)boundary previous:(Edge2D *)previousEdge next:(Edge2D *)nextEdge outside:(Vector2f *)outside {
+    if (!boundary)
+        [NSException raise:NSInvalidArgumentException format:@"boundary must not be nil"];
+    if (!outside)
+        [NSException raise:NSInvalidArgumentException format:@"outside vector must not be nil"];
 
     if (self = [super init]) {
-        line = [[Line2D alloc] initWithLine:(Line2D *)l];
-        [self setPrevious:p];
-        [self setNext:n];
-        startVertex = nil;
-        norm = [[Vector2f alloc] initWithVector:o];
+        boundaryLine = [[Line2D alloc] initWithLine:boundary];
+        [self setPrevious:previousEdge];
+        [self setNext:nextEdge];
+        sVertex = nil;
+        outsideVector = [[Vector2f alloc] initWithVector:outside];
     }
     
     return self;
 }
 
-- (id)initWithStart:(Vector2f *)s end:(Vector2f *)e {
-    return [self initWithStart:s end:e previous:nil next:nil];
+- (id)initWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex {
+    return [self initWithStart:startVertex end:endVertex previous:nil next:nil];
 }
 
-- (id)initWithStart:(Vector2f *)s end:(Vector2f *)e previous:(Edge2D *)p {
-    return [self initWithStart:s end:e previous:p next:nil];
+- (id)initWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex previous:(Edge2D *)previousEdge {
+    return [self initWithStart:startVertex end:endVertex previous:previousEdge next:nil];
 }
 
-- (id)initWithStart:(Vector2f *)s end:(Vector2f *)e next:(Edge2D *)n {
-    return [self initWithStart:s end:e previous:nil next:n];
+- (id)initWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex next:(Edge2D *)nextEdge {
+    return [self initWithStart:startVertex end:endVertex previous:nil next:nextEdge];
 }
 
-- (id)initWithStart:(Vector2f *)s end:(Vector2f *)e previous:(Edge2D *)p next:(Edge2D *)n {
-    if (!s)
+- (id)initWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex previous:(Edge2D *)previousEdge next:(Edge2D *)nextEdge {
+    if (!startVertex)
         [NSException raise:NSInvalidArgumentException format:@"start must not be nil"];
-    if (!e)
+    if (!endVertex)
         [NSException raise:NSInvalidArgumentException format:@"end must not be nil"];
-    if ([s isEqual:e])
+    if ([startVertex isEqual:endVertex])
         [NSException raise:NSInvalidArgumentException format:@"start and end must not be identical"];
 
-    Line2D* l = [[Line2D alloc] initWithPoint1:s point2:e];
-    Vector2f* o = [[Vector2f alloc] initWithVector:e];
-    [o sub:s];
-    [o normalize];
-    float x = [o x];
-    [o setX:[o y]];
-    [o setY:-x];
+    Line2D* boundary = [[Line2D alloc] initWithPoint1:startVertex point2:endVertex];
+    Vector2f* outside = [[Vector2f alloc] initWithVector:endVertex];
+    [outside sub:startVertex];
+    [outside normalize];
+    float x = [outside x];
+    [outside setX:[outside y]];
+    [outside setY:-x];
     
-    self = [self initWithLine:l previous:p next:n norm:o];
-    [l release];
-    [o release];
+    self = [self initWithBoundary:boundary previous:previousEdge next:nextEdge outside:outside];
+    [boundary release];
+    [outside release];
     
     return self;
 }
 
 
 - (Vector2f *)startVertex {
-    if (startVertex == nil && previous != nil) {
-        Line2D* l = [previous line];
-        startVertex = [l intersectWith:line];
-        [startVertex retain];
+    if (sVertex == nil && previous != nil) {
+        Line2D* boundary = [previous boundary];
+        sVertex = [boundary intersectWith:boundaryLine];
+        [sVertex retain];
     }
     
-    return startVertex;
+    return sVertex;
 }
 
 - (Vector2f *)endVertex {
@@ -104,53 +104,53 @@
 }
 
 
-- (Line2D *)line {
-    return line;
+- (Line2D *)boundary {
+    return boundaryLine;
 }
 
-- (Vector2f *)norm {
-    return norm;
+- (Vector2f *)outside {
+    return outsideVector;
 }
 
 - (BOOL)isUpper {
-    if (fpos([norm y]))
+    if (fpos([outsideVector y]))
         return YES;
-    return fzero([norm y]) && fneg([norm x]);
+    return fzero([outsideVector y]) && fneg([outsideVector x]);
 }
 
 - (BOOL)isLower {
     return ![self isUpper];
 }
 
-- (BOOL)contains:(Vector2f *)p {
-    float y = [line yAt:[p x]];
+- (BOOL)contains:(Vector2f *)point {
+    float y = [boundaryLine yAt:[point x]];
     if ([self isUpper])
-        return flte([p y], y);
+        return flte([point y], y);
 
-    return fgte([p y], y);
+    return fgte([point y], y);
 }
 
-- (Vector2f *)intersectWith:(Edge2D *)e {
-    Vector2f* is = [line intersectWith:[e line]];
+- (Vector2f *)intersectWith:(Edge2D *)edge {
+    Vector2f* is = [boundaryLine intersectWith:[edge boundary]];
     if (is == nil)
         return nil;
     
     if (!finii([is x], [[self startVertex] x], [[self endVertex] x]) ||
-        !finii([is x], [[e startVertex] x], [[e endVertex] x]))
+        !finii([is x], [[edge startVertex] x], [[edge endVertex] x]))
         return nil;
     
     return is;
 }
 
-- (void)setPrevious:(Edge2D *)p {
-    previous = p;
-    [startVertex release];
-    startVertex = nil;
+- (void)setPrevious:(Edge2D *)previousEdge {
+    previous = previousEdge;
+    [sVertex release];
+    sVertex = nil;
 }
 
-- (void)setNext:(Edge2D *)n {
+- (void)setNext:(Edge2D *)nextEdge {
     [next release];
-    next = [n retain];
+    next = [nextEdge retain];
 }
 
 - (void)open {
@@ -158,9 +158,9 @@
     next = nil; // do not release
 }
 
-- (void)close:(Edge2D *)n {
+- (void)close:(Edge2D *)edge {
     [next release];
-    next = n; // do not retain
+    next = edge; // do not retain
     [next setPrevious:self];
 }
 
@@ -172,32 +172,32 @@
     return next;
 }
 
-- (Edge2D *)insertAfterLine:(Line2D *)l norm:(Vector2f *)o {
-    Edge2D* newEdge = [[Edge2D alloc] initWithLine:l previous:self next:next norm:o];
+- (Edge2D *)appendEdgeWithBoundary:(Line2D *)boundary outside:(Vector2f *)outside {
+    Edge2D* newEdge = [[Edge2D alloc] initWithBoundary:boundary previous:self next:next outside:outside];
     [next setPrevious:newEdge];
     [self setNext:newEdge];
     
     return [newEdge autorelease];
 }
 
-- (Edge2D *)insertAfterStart:(Vector2f *)s end:(Vector2f *)e {
-    Edge2D* newEdge = [[Edge2D alloc] initWithStart:s end:e previous:self next:next];
+- (Edge2D *)appendEdgeWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex {
+    Edge2D* newEdge = [[Edge2D alloc] initWithStart:startVertex end:endVertex previous:self next:next];
     [next setPrevious:newEdge];
     [self setNext:newEdge];
     
     return [newEdge autorelease];
 }
 
-- (Edge2D *)insertBeforeLine:(Line2D *)l norm:(Vector2f *)o {
-    Edge2D* newEdge = [[Edge2D alloc] initWithLine:l previous:previous next:self norm:o];
+- (Edge2D *)prependEdgeWithBoundary:(Line2D *)boundary outside:(Vector2f *)outside {
+    Edge2D* newEdge = [[Edge2D alloc] initWithBoundary:boundary previous:previous next:self outside:outside];
     [previous setNext:newEdge];
     [self setPrevious:newEdge];
     
     return [newEdge autorelease];
 }
 
-- (Edge2D *)insertBeforeStart:(Vector2f *)s end:(Vector2f *)e {
-    Edge2D* newEdge = [[Edge2D alloc] initWithStart:s end:e previous:previous next:self];
+- (Edge2D *)prependEdgeWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex {
+    Edge2D* newEdge = [[Edge2D alloc] initWithStart:startVertex end:endVertex previous:previous next:self];
     [previous setNext:newEdge];
     [self setPrevious:newEdge];
     
@@ -213,9 +213,9 @@
         [next release];
         next = nil;
     }
-    [line release];
-    [startVertex release];
-    [norm release];
+    [boundaryLine release];
+    [sVertex release];
+    [outsideVector release];
     [super dealloc];
 }
 

@@ -30,7 +30,7 @@
         for (int i = 2; i <= vertexCount; i++) {
             start = end;
             end = [someVertices objectAtIndex:i % vertexCount];
-            current = [current insertAfterStart:start end:end];
+            current = [current appendEdgeWithStart:start end:end];
             if ([start isSmallerThan:smallest]) {
                 edges = current;
                 smallest = start;
