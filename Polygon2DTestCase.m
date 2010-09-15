@@ -165,4 +165,17 @@
     STAssertEqualObjects(v13, [v objectAtIndex:2], @"third vertex must be v13");
 }
 
+- (void)testIntersectionOfTwoHalfSpaces {
+    Line2D* b1 = [Line2D lineWithPoint:[Vector2f vectorWithX:0 y:1] normalizedDirection:[Vector2f vectorWithX:1 y:0]];
+    Edge2D* e1 = [Edge2D edgeWithBoundary:b1 outside:[Vector2f vectorWithX:0 y:1]];
+    Polygon2D* p1 = [Polygon2D polygonWithSortedEdges:e1];
+    
+    Line2D* b2 = [Line2D lineWithPoint:[Vector2f vectorWithX:1 y:0] normalizedDirection:[Vector2f vectorWithX:0 y:1]];
+    Edge2D* e2 = [Edge2D edgeWithBoundary:b2 outside:[Vector2f vectorWithX:1 y:0]];
+    Polygon2D* p2 = [Polygon2D polygonWithSortedEdges:e2];
+    
+    Polygon2D* is = [p1 intersectWith:p2];
+    STAssertNotNil(is, @"intersection must not be nil");
+}
+
 @end

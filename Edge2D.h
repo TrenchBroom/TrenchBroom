@@ -20,6 +20,15 @@
     Line2D* boundaryLine;
 }
 
++ (Edge2D *)edgeWithBoundary:(Line2D *)boundary outside:(Vector2f *)outside;
++ (Edge2D *)edgeWithBoundary:(Line2D *)boundary previous:(Edge2D *)previousEdge outside:(Vector2f *)outside;
++ (Edge2D *)edgeWithBoundary:(Line2D *)boundary next:(Edge2D *)nextEdge outside:(Vector2f *)outside;
++ (Edge2D *)edgeWithBoundary:(Line2D *)boundary previous:(Edge2D *)previousEdge next:(Edge2D *)nextEdge outside:(Vector2f *)outside;
++ (Edge2D *)edgeWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex;
++ (Edge2D *)edgeWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex previous:(Edge2D *)previousEdge;
++ (Edge2D *)edgeWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex next:(Edge2D *)nextEdge;
++ (Edge2D *)edgeWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex previous:(Edge2D *)previousEdge next:(Edge2D *)nextEdge;
+
 - (id)initWithBoundary:(Line2D *)boundary outside:(Vector2f *)outside;
 - (id)initWithBoundary:(Line2D *)boundary previous:(Edge2D *)previousEdge outside:(Vector2f *)outside;
 - (id)initWithBoundary:(Line2D *)boundary next:(Edge2D *)nextEdge outside:(Vector2f *)outside;

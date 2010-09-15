@@ -9,6 +9,38 @@
 #import "Edge2D.h"
 
 @implementation Edge2D
++ (Edge2D *)edgeWithBoundary:(Line2D *)boundary outside:(Vector2f *)outside {
+    return [[[Edge2D alloc] initWithBoundary:boundary outside:outside] autorelease];
+}
+
++ (Edge2D *)edgeWithBoundary:(Line2D *)boundary previous:(Edge2D *)previousEdge outside:(Vector2f *)outside {
+    return [[[Edge2D alloc] initWithBoundary:boundary previous:previousEdge outside:outside] autorelease];
+}
+
++ (Edge2D *)edgeWithBoundary:(Line2D *)boundary next:(Edge2D *)nextEdge outside:(Vector2f *)outside {
+    return [[[Edge2D alloc] initWithBoundary:boundary next:nextEdge outside:outside] autorelease];
+}
+
++ (Edge2D *)edgeWithBoundary:(Line2D *)boundary previous:(Edge2D *)previousEdge next:(Edge2D *)nextEdge outside:(Vector2f *)outside {
+    return [[[Edge2D alloc] initWithBoundary:boundary previous:previousEdge next:nextEdge outside:outside] autorelease];
+}
+
++ (Edge2D *)edgeWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex {
+    return [[[Edge2D alloc] initWithStart:startVertex end:endVertex] autorelease];
+}
+
++ (Edge2D *)edgeWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex previous:(Edge2D *)previousEdge {
+    return [[[Edge2D alloc] initWithStart:startVertex end:endVertex previous:previousEdge] autorelease];
+}
+
++ (Edge2D *)edgeWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex next:(Edge2D *)nextEdge {
+    return [[[Edge2D alloc] initWithStart:startVertex end:endVertex next:nextEdge] autorelease];
+}
+
++ (Edge2D *)edgeWithStart:(Vector2f *)startVertex end:(Vector2f *)endVertex previous:(Edge2D *)previousEdge next:(Edge2D *)nextEdge {
+    return [[[Edge2D alloc] initWithStart:startVertex end:endVertex previous:previousEdge next:nextEdge] autorelease];
+}
+
 - (id)initWithBoundary:(Line2D *)boundary outside:(Vector2f *)outside {
     return [self initWithBoundary:boundary previous:nil next:nil outside:outside];
 }

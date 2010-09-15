@@ -10,6 +10,15 @@
 #import "Polygon2DIS.h"
 
 @implementation Polygon2D
+
++ (Polygon2D *)polygonWithVertices:(NSArray *)someVertices {
+    return [[[Polygon2D alloc] initWithVertices:someVertices] autorelease];
+}
+
++ (Polygon2D *)polygonWithSortedEdges:(Edge2D *)someEdges {
+    return [[[Polygon2D alloc] initWithSortedEdges:someEdges] autorelease];
+}
+
 - (id)initWithVertices:(NSArray *)someVertices {
     if (someVertices == nil)
         [NSException raise:NSInvalidArgumentException format:@"vertex array must not be nil"];
@@ -43,7 +52,7 @@
     return self;
 }
 
-- (id)initWithEdges:(Edge2D *)someEdges {
+- (id)initWithSortedEdges:(Edge2D *)someEdges {
     if (someEdges == nil)
         [NSException raise:NSInvalidArgumentException format:@"edge list must not be nil"];
 

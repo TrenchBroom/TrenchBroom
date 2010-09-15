@@ -248,7 +248,7 @@
     [lastUpperEdge close:firstLowerEdge];
     
     // all edges now have retain count 1
-    Polygon2D* polygon = [[Polygon2D alloc] initWithEdges:firstLowerEdge];
+    Polygon2D* polygon = [[Polygon2D alloc] initWithSortedEdges:firstLowerEdge];
     [firstLowerEdge release]; // firstLowerEdge was retained by the polygon
     
     return [polygon autorelease];

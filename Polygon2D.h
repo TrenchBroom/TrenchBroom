@@ -15,8 +15,11 @@
     Edge2D* edges;
 }
 
++ (Polygon2D *)polygonWithVertices:(NSArray *)someVertices;
++ (Polygon2D *)polygonWithSortedEdges:(Edge2D *)someEdges;
+
 - (id)initWithVertices:(NSArray *)someVertices;
-- (id)initWithEdges:(Edge2D *)someEdges;
+- (id)initWithSortedEdges:(Edge2D *)someEdges;
 
 - (Edge2D *)edges;
 - (NSArray *)vertices;
