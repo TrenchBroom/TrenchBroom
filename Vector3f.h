@@ -19,6 +19,10 @@
 + (Vector3f *)cross:(Vector3f *)left factor:(Vector3f *)right;
 + (Vector3f *)normalize:(Vector3f *)vector;
 
++ (Vector3f *)vectorWithFloatVector:(Vector3f *)vector;
++ (Vector3f *)vectorWithIntVector:(Vector3i *)vector;
++ (Vector3f *)vectorWithX:(float)xCoord y:(float)yCoord z:(float)zCoord;
+
 - (id)initWithFloatVector:(Vector3f *)vector;
 - (id)initWithIntVector:(Vector3i *)vector;
 - (id)initWithX:(float)xCoord y:(float)yCoord z:(float)zCoord;
@@ -44,6 +48,7 @@
 
 - (void)cross:(Vector3f *)m;
 - (float)dot:(Vector3f *)m;
+- (float)scale:(float)f;
 - (void)normalize;
 - (float)length;
 - (float)lengthSquared;

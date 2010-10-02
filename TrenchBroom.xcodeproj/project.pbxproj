@@ -29,6 +29,12 @@
 		48527F3B11148D8E00CD6043 /* Vector3i.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3A11148D8E00CD6043 /* Vector3i.m */; };
 		48527F3E11148EAA00CD6043 /* Brush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* Brush.m */; };
 		485884FC12298C2E00E7806F /* Polygon2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 485884FB12298C2E00E7806F /* Polygon2DTestCase.m */; };
+		485FD0C21257A59800F4AE49 /* Polyhedron.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0C11257A59800F4AE49 /* Polyhedron.m */; };
+		485FD0C31257A59800F4AE49 /* Polyhedron.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0C11257A59800F4AE49 /* Polyhedron.m */; };
+		485FD0C61257A61500F4AE49 /* Polygon3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0C51257A61500F4AE49 /* Polygon3D.m */; };
+		485FD0C71257A61500F4AE49 /* Polygon3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0C51257A61500F4AE49 /* Polygon3D.m */; };
+		485FD0CB1257A8D900F4AE49 /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0CA1257A8D900F4AE49 /* Math3D.m */; };
+		485FD0CC1257A8D900F4AE49 /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0CA1257A8D900F4AE49 /* Math3D.m */; };
 		486641111229854E00752B89 /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
 		486641C412298AED00752B89 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4866413E122986AF00752B89 /* SenTestingKit.framework */; };
 		487E31FC114F74600043A111 /* Renderer2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E31FB114F74600043A111 /* Renderer2D.m */; };
@@ -103,6 +109,12 @@
 		48527F3D11148EAA00CD6043 /* Brush.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Brush.m; sourceTree = "<group>"; };
 		485884FA12298C2E00E7806F /* Polygon2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Polygon2DTestCase.h; sourceTree = "<group>"; };
 		485884FB12298C2E00E7806F /* Polygon2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polygon2DTestCase.m; sourceTree = "<group>"; };
+		485FD0C01257A59800F4AE49 /* Polyhedron.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Polyhedron.h; sourceTree = "<group>"; };
+		485FD0C11257A59800F4AE49 /* Polyhedron.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polyhedron.m; sourceTree = "<group>"; };
+		485FD0C41257A61500F4AE49 /* Polygon3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Polygon3D.h; sourceTree = "<group>"; };
+		485FD0C51257A61500F4AE49 /* Polygon3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polygon3D.m; sourceTree = "<group>"; };
+		485FD0C91257A8D900F4AE49 /* Math3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math3D.h; sourceTree = "<group>"; };
+		485FD0CA1257A8D900F4AE49 /* Math3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math3D.m; sourceTree = "<group>"; };
 		4866413E122986AF00752B89 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = /Developer/Library/Frameworks/SenTestingKit.framework; sourceTree = "<absolute>"; };
 		487E31FA114F74600043A111 /* Renderer2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer2D.h; sourceTree = "<group>"; };
 		487E31FB114F74600043A111 /* Renderer2D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Renderer2D.m; sourceTree = "<group>"; };
@@ -259,6 +271,23 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		485FD0C81257A8C100F4AE49 /* 3D */ = {
+			isa = PBXGroup;
+			children = (
+				48A68F1D114EA95A0064732A /* Vector3f.h */,
+				48A68F1E114EA95A0064732A /* Vector3f.m */,
+				48527F3911148D8E00CD6043 /* Vector3i.h */,
+				48527F3A11148D8E00CD6043 /* Vector3i.m */,
+				485FD0C01257A59800F4AE49 /* Polyhedron.h */,
+				485FD0C11257A59800F4AE49 /* Polyhedron.m */,
+				485FD0C41257A61500F4AE49 /* Polygon3D.h */,
+				485FD0C51257A61500F4AE49 /* Polygon3D.m */,
+				485FD0C91257A8D900F4AE49 /* Math3D.h */,
+				485FD0CA1257A8D900F4AE49 /* Math3D.m */,
+			);
+			name = 3D;
+			sourceTree = "<group>";
+		};
 		487E31F3114F741F0043A111 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
@@ -342,10 +371,7 @@
 			isa = PBXGroup;
 			children = (
 				488FF49012243BC700EA9158 /* 2D */,
-				48A68F1D114EA95A0064732A /* Vector3f.h */,
-				48A68F1E114EA95A0064732A /* Vector3f.m */,
-				48527F3911148D8E00CD6043 /* Vector3i.h */,
-				48527F3A11148D8E00CD6043 /* Vector3i.m */,
+				485FD0C81257A8C100F4AE49 /* 3D */,
 				483B1127122441060072EAFB /* Math.h */,
 				483B1128122441060072EAFB /* Math.m */,
 			);
@@ -487,6 +513,9 @@
 				48E1107F1234BF5500087198 /* Polygon2D.m in Sources */,
 				48E110801234BF5500087198 /* Polygon2DIS.m in Sources */,
 				48E110811234BF5500087198 /* Vector2f.m in Sources */,
+				485FD0C21257A59800F4AE49 /* Polyhedron.m in Sources */,
+				485FD0C61257A61500F4AE49 /* Polygon3D.m in Sources */,
+				485FD0CB1257A8D900F4AE49 /* Math3D.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -520,6 +549,9 @@
 				48E110851234BF5500087198 /* Polygon2D.m in Sources */,
 				48E110861234BF5500087198 /* Polygon2DIS.m in Sources */,
 				48E110871234BF5500087198 /* Vector2f.m in Sources */,
+				485FD0C31257A59800F4AE49 /* Polyhedron.m in Sources */,
+				485FD0C71257A61500F4AE49 /* Polygon3D.m in Sources */,
+				485FD0CC1257A8D900F4AE49 /* Math3D.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

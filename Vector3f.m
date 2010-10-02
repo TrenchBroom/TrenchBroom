@@ -35,6 +35,19 @@
     return [result autorelease];
 }
 
++ (Vector3f *)vectorWithFloatVector:(Vector3f *)vector {
+    return [[[Vector3f alloc] initWithFloatVector:vector] autorelease];
+}
+
++ (Vector3f *)vectorWithIntVector:(Vector3i *)vector {
+    return [[[Vector3f alloc] initWithIntVector:vector] autorelease];
+}
+
++ (Vector3f *)vectorWithX:(float)xCoord y:(float)yCoord z:(float)zCoord {
+    return [[[Vector3f alloc] initWithX:xCoord y:yCoord z:zCoord] autorelease];
+}
+
+
 - (id)init {
 	if (self = [super init]) {
 		x = 0;
@@ -149,6 +162,12 @@
 
 - (float)dot:(Vector3f *)m {
     return x * [m x] + y * [m y] + z * [m z];
+}
+
+- (float)scale:(float)f {
+    x *= f;
+    y *= f;
+    z *= f;
 }
 
 - (void)normalize {
