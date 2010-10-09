@@ -91,7 +91,7 @@
                                                                [Vector3f vectorWithFloatVector:lbb],
                                                                [Vector3f vectorWithFloatVector:ltb],
                                                                nil]];
-        sides = [[NSMutableSet alloc] initWithObjects:left, right, top, bottom, front, back];
+        sides = [[NSMutableSet alloc] initWithObjects:left, right, top, bottom, front, back, nil];
         
         [left release];
         [right release];
@@ -113,4 +113,7 @@
     return self;
 }
 
+- (void)intersectWith:(HalfSpace3D *)halfSpace {
+    
+}
 @end

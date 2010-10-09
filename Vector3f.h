@@ -41,14 +41,14 @@
 - (BOOL)isNull;
 
 - (void)add:(Vector3f *)addend;
-- (void)addX:(float)xAddend Y:(float)yAddend Z:(float)zAddend;
+- (void)addX:(float)xAddend y:(float)yAddend z:(float)zAddend;
 
 - (void)sub:(Vector3f *)subtrahend;
-- (void)subX:(float)xSubtrahend Y:(float)ySubtrahend Z:(float)zSubtrahend;
+- (void)subX:(float)xSubtrahend y:(float)ySubtrahend z:(float)zSubtrahend;
 
 - (void)cross:(Vector3f *)m;
 - (float)dot:(Vector3f *)m;
-- (float)scale:(float)f;
+- (void)scale:(float)f;
 - (void)normalize;
 - (float)length;
 - (float)lengthSquared;

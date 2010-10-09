@@ -9,6 +9,7 @@
 #import "RenderBrush.h"
 #import "RenderPolygon.h"
 #import "Face.h"
+#import "Polyhedron.h"
 
 @implementation RenderBrush
 
@@ -29,12 +30,10 @@
 }
 
 - (void)brushChanged:(NSNotification *)notification {
-
     [self setBrush:[notification object]];
 }
 
 - (Brush *)brush {
-    
     return brush;
 }
 

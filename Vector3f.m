@@ -133,19 +133,20 @@
 }
 
 - (void)add:(Vector3f *)addend {
-    [self addX:[addend x] Y:[addend y] Z:[addend z]];
+    [self addX:[addend x] y:[addend y] z:[addend z]];
 }
-- (void)addX:(float)xAddend Y:(float)yAddend Z:(float)zAddend {
+
+- (void)addX:(float)xAddend y:(float)yAddend z:(float)zAddend {
     x += xAddend;
     y += yAddend;
     z += zAddend;
 }
 
 - (void)sub:(Vector3f *)subtrahend {
-    [self subX:[subtrahend x] Y:[subtrahend y] Z:[subtrahend z]];
+    [self subX:[subtrahend x] y:[subtrahend y] z:[subtrahend z]];
 }
 
-- (void)subX:(float)xSubtrahend Y:(float)ySubtrahend Z:(float)zSubtrahend {
+- (void)subX:(float)xSubtrahend y:(float)ySubtrahend z:(float)zSubtrahend {
     x -= xSubtrahend;
     y -= ySubtrahend;
     z -= zSubtrahend;
@@ -164,7 +165,7 @@
     return x * [m x] + y * [m y] + z * [m z];
 }
 
-- (float)scale:(float)f {
+- (void)scale:(float)f {
     x *= f;
     y *= f;
     z *= f;

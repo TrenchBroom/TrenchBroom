@@ -7,12 +7,13 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Math3D.h"
+#import "HalfSpace3D.h"
 
 @interface Polygon3D : NSObject {
     NSMutableArray* vertices;
 }
 - (id)init;
-- (id)initWithVertices:(NSArray *)vertices;
-- (id)initParaxialRectangleAt:(Vector3f *)center dimensions:(Vector2f *)dimensions plane:(Plane3D)plane direction:(Axis3D)axis;
+- (id)initWithVertices:(NSArray *)someVertices;
+
+- (void)intersectWith:(HalfSpace3D *)halfSpace;
 @end
