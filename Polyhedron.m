@@ -10,12 +10,17 @@
 
 
 @implementation Polyhedron
++ (Polyhedron *)cuboidAt:(Vector3f *)center dimensions:(Vector3f *)dimensions {
+    return [[[Polyhedron alloc] initCuboidAt:center dimensions:dimensions] autorelease];
+}
+
 - (id)init {
     if (self = [super init])
         sides = [[NSMutableSet alloc] init];
     
     return self;
 }
+
 -(id)initCuboidAt:(Vector3f *)center dimensions:(Vector3f *)dimensions {
     if (center == nil)
         [NSException raise:NSInvalidArgumentException format:@"center must not be nil"];

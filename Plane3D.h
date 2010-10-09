@@ -15,8 +15,13 @@
     Vector3f* norm;
 }
 + (Plane3D *)planeWithPoint:(Vector3f *)aPoint norm:(Vector3f *)aNorm;
++ (Plane3D *)planeWithPlane:(Plane3D *)aPlane;
 
 - (id)initWithPoint:(Vector3f *)aPoint norm:(Vector3f *)aNorm;
+- (id)initWithPlane:(Plane3D *)aPlane;
+
+- (Vector3f *)point;
+- (Vector3f *)norm;
 
 - (Vector3f *)intersectWith:(Line3D *)line;
 

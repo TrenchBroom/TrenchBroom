@@ -11,8 +11,13 @@
 #import "Plane3D.h"
 
 @interface HalfSpace3D : NSObject {
-
+    Plane3D* boundary;
+    Vector3f* outside;
 }
+
++ (HalfSpace3D *)halfSpaceWithBoundary:(Plane3D *)theBoundary outside:(Vector3f *)theOutside;
+
+- (id)initWithBoundary:(Plane3D *)theBoundary outside:(Vector3f *)theOutside;
 
 - (BOOL)contains:(Vector3f *)point;
 - (Plane3D *)boundary;

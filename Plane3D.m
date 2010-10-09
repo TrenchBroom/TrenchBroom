@@ -14,6 +14,10 @@
     return [[[Plane3D alloc] initWithPoint:aPoint norm:aNorm] autorelease];
 }
 
++ (Plane3D *)planeWithPlane:(Plane3D *)aPlane {
+    return [[[Plane3D alloc] initWithPlane:aPlane] autorelease];
+}
+
 - (id)initWithPoint:(Vector3f *)aPoint norm:(Vector3f *)aNorm {
     if (aPoint == nil)
         [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
@@ -27,6 +31,22 @@
     
     return self;
 }
+
+- (id)initWithPlane:(Plane3D *)aPlane {
+    if (aPlane == nil)
+        [NSException raise:NSInvalidArgumentException format:@"plane must not be nil"];
+    
+    return [self initWithPoint:[aPlane point] norm:[aPlane norm]];
+}
+
+- (Vector3f *)point {
+    return point;
+}
+
+- (Vector3f *)norm {
+    return norm;
+}
+
 
 - (Vector3f *)intersectWith:(Line3D *)line {
     if (line == nil)

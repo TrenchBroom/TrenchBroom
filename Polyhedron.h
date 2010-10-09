@@ -14,6 +14,8 @@
 @interface Polyhedron : NSObject {
     NSMutableSet* sides;
 }
++ (Polyhedron *)cuboidAt:(Vector3f *)center dimensions:(Vector3f *)dimensions;
+
 - (id)initCuboidAt:(Vector3f *)center dimensions:(Vector3f *)dimensions;
 
 - (void)intersectWith:(HalfSpace3D *)halfSpace;
