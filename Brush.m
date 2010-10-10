@@ -7,6 +7,8 @@
 //
 
 #import "Brush.h"
+#import "Polyhedron.h"
+#import "Polygon3D.h"
 
 NSString* const BrushFaceAdded = @"FaceAdded";
 NSString* const BrushFaceRemoved = @"FaceRemoved";
@@ -23,7 +25,6 @@ NSString* const BrushFaceRemoved = @"FaceRemoved";
 }
 
 - (id)initCuboidAt:(Vector3i *)position with:(Vector3i *)dimensions {
-    
     if (self = [self init]) {
         Vector3i* pos2 = [[Vector3i alloc]initWithVector:position];
         [pos2 add:dimensions];
@@ -58,12 +59,22 @@ NSString* const BrushFaceRemoved = @"FaceRemoved";
     return self;
 }
 
-- (NSSet*)faces {
+- (NSSet *)faces {
     return faces;
 }
 
-- (void)dealloc {
+- (NSSet *)polygons {
+    Polyhedron* polyhedron = [Polyhedron maximumCube];
     
+    NSEnumerator* faceEnum = [faces objectEnumerator];
+    Face* face;
+    while ((face = [faceEnum nextObject]) != nil)
+        [polyhedron intersectWith:[face halfSpace]];
+    
+    return [[polyhedron sides] autorelease];
+}
+
+- (void)dealloc {
     [faces release];
     [super dealloc];
 }

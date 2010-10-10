@@ -15,5 +15,5 @@
 - (id)init;
 - (id)initWithVertices:(NSArray *)someVertices;
 
-- (void)intersectWith:(HalfSpace3D *)halfSpace;
+- (BOOL)intersectWith:(HalfSpace3D *)halfSpace;
 @end

@@ -8,7 +8,3 @@
 
 #import "Math3D.h"
 
-
-@implementation Math3D
-
-@end

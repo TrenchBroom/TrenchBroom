@@ -14,9 +14,13 @@
 @interface Polyhedron : NSObject {
     NSMutableSet* sides;
 }
++ (Polyhedron *)maximumCube;
 + (Polyhedron *)cuboidAt:(Vector3f *)center dimensions:(Vector3f *)dimensions;
 
+- (id)initMaximumCube;
 - (id)initCuboidAt:(Vector3f *)center dimensions:(Vector3f *)dimensions;
 
-- (void)intersectWith:(HalfSpace3D *)halfSpace;
+- (NSSet *)sides;
+
+- (BOOL)intersectWith:(HalfSpace3D *)halfSpace;
 @end

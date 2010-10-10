@@ -13,16 +13,8 @@
 
 @implementation RenderBrush
 
-- (id)init {
-    if (self = [super init]) {
-        polygons = [[NSMutableArray alloc] init];
-    }
-    
-    return self;
-}
-
 - (id)initWithBrush:(Brush *)aBrush {
-    if (self = [self init]) {
+    if (self = [super init]) {
         [self setBrush:aBrush];
     }
     
@@ -38,12 +30,19 @@
 }
 
 - (void)setBrush:(Brush *)aBrush {
+    if (aBrush == nil)
+        [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
+    
+    [brush release];
+    brush = [aBrush retain];
+    
+    [polygons release];
+    polygons = [[brush polygons] retain];
 }
 
 - (void)dealloc {
     [brush release];
     [polygons release];
-
     [super dealloc];
 }
 

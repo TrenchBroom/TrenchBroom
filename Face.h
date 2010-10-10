@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Vector3i.h"
+#import "HalfSpace3D.h"
+#import "Vector3f.h"
 
 extern NSString* const FacePoint1Changed;
 extern NSString* const FacePoint2Changed;
@@ -79,4 +81,6 @@ typedef enum {
 - (void)setRotation:(float)angle;
 - (void)setXScale:(float)factor;
 - (void)setYSCale:(float)factor;
+
+- (HalfSpace3D *)halfSpace;
 @end

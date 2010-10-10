@@ -19,5 +19,6 @@ extern NSString* const BrushFaceRemoved;
 
 - (id)initCuboidAt:(Vector3i *)position with:(Vector3i *)dimensions;
 
-- (NSSet*)faces;
+- (NSSet *)faces;
+- (NSSet *)polygons;
 @end

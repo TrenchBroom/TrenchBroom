@@ -262,6 +262,12 @@ NSString* const FaceYScaleNew = @"YScaleNew";
     [[NSNotificationCenter defaultCenter] postNotificationName:FaceYScaleChanged object:self userInfo:info];
 }
 
+- (HalfSpace3D *)halfSpace {
+    return [HalfSpace3D halfSpaceWithIntPoint1:[self point1] 
+                                        point2:[self point2] 
+                                        point3:[self point3]];
+}
+
 - (void) dealloc {
 	[point1 release];
 	[point2 release];

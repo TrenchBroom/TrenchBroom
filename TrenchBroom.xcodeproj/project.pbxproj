@@ -59,6 +59,7 @@
 		48A68F24114EDEF50064732A /* MapRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F23114EDEF50064732A /* MapRenderer.m */; };
 		48A68F27114EDF360064732A /* Entity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* Entity.m */; };
 		48A68F70114EE6DC0064732A /* Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* Map.m */; };
+		48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C751981261A704000ABD57 /* PolyhedronTestCase.m */; };
 		48E1107C1234BF5500087198 /* Edge2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E110711234BF5500087198 /* Edge2D.m */; };
 		48E1107D1234BF5500087198 /* Line2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E110731234BF5500087198 /* Line2D.m */; };
 		48E1107E1234BF5500087198 /* Math2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E110751234BF5500087198 /* Math2D.m */; };
@@ -159,6 +160,8 @@
 		48A68F26114EDF360064732A /* Entity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Entity.m; sourceTree = "<group>"; };
 		48A68F6E114EE6DC0064732A /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
 		48A68F6F114EE6DC0064732A /* Map.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Map.m; sourceTree = "<group>"; };
+		48C751971261A704000ABD57 /* PolyhedronTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolyhedronTestCase.h; sourceTree = "<group>"; };
+		48C751981261A704000ABD57 /* PolyhedronTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PolyhedronTestCase.m; sourceTree = "<group>"; };
 		48E110701234BF5500087198 /* Edge2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Edge2D.h; sourceTree = "<group>"; };
 		48E110711234BF5500087198 /* Edge2D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Edge2D.m; sourceTree = "<group>"; };
 		48E110721234BF5500087198 /* Line2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2D.h; sourceTree = "<group>"; };
@@ -410,6 +413,8 @@
 				48941665123619870098E17C /* Line2DTestCase.m */,
 				483640191260416700363E3F /* Plane3DTestCase.h */,
 				4836401A1260416700363E3F /* Plane3DTestCase.m */,
+				48C751971261A704000ABD57 /* PolyhedronTestCase.h */,
+				48C751981261A704000ABD57 /* PolyhedronTestCase.m */,
 			);
 			name = "Test Cases";
 			sourceTree = "<group>";
@@ -461,7 +466,14 @@
 			isa = PBXProject;
 			buildConfigurationList = C05733CB08A9546B00998B17 /* Build configuration list for PBXProject "TrenchBroom" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 2A37F4AAFDCFA73011CA2CEA /* TrenchBroom */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -543,6 +555,7 @@
 				487CA0C5125B00E9002DF9D2 /* HalfSpace3D.m in Sources */,
 				4836401112603A5100363E3F /* Line3D.m in Sources */,
 				4836401B1260416700363E3F /* Plane3DTestCase.m in Sources */,
+				48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

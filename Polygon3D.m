@@ -26,7 +26,7 @@
     return self;
 }
 
-- (void)intersectWith:(HalfSpace3D *)halfSpace {
+- (BOOL)intersectWith:(HalfSpace3D *)halfSpace {
     NSMutableArray* newVertices = [[NSMutableArray alloc] init];
     Vector3f* prevVert = [vertices lastObject];
     BOOL prevContained = [halfSpace contains:prevVert];
@@ -43,7 +43,8 @@
         if (prevContained ^ curContained) {
             Plane3D* boundary = [halfSpace boundary];
             Line3D* line = [[Line3D alloc] initWithPoint1:prevVert point2:curVert];
-            [newVertices addObject:[boundary intersectWith:line]];
+            Vector3f* newVert = [boundary intersectWith:line];
+            [newVertices addObject:newVert];
             [line release];
         }
         
@@ -53,6 +54,8 @@
     
     [vertices release];
     vertices = newVertices;
+    
+    return [vertices count] != 0;
 }
 
 - (void)dealloc {

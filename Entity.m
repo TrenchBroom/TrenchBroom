@@ -44,9 +44,8 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
 }
 
 - (void)addBrush:(Brush *)brush {
-    
     if (brush == nil)
-        return;
+        [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
     
     [brushes addObject: brush];
     
@@ -57,8 +56,10 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
 }
 
 - (void)removeBrush:(Brush *)brush {
+    if (brush == nil)
+        [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
     
-    if (brush == nil || ![brushes containsObject:brush])
+    if (![brushes containsObject:brush])
         return;
     
     [brushes removeObject:brush];
@@ -70,7 +71,6 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
 }
 
 - (void)setProperty:(NSString *)key value:(NSString *)value {
-    
     NSString *oldValue = [self propertyForKey:key];
     BOOL exists = oldValue != nil;
     
@@ -92,7 +92,6 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
 }
 
 - (void)removeProperty:(NSString *)key {
-    
     NSString *oldValue = [self propertyForKey:key];
     if (oldValue == nil)
         return;
@@ -113,7 +112,6 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
 - (void) dealloc {
 	[properties release];
 	[brushes release];
-	
 	[super dealloc];
 }
 
