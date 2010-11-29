@@ -60,6 +60,8 @@
 		48A68F27114EDF360064732A /* Entity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* Entity.m */; };
 		48A68F70114EE6DC0064732A /* Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* Map.m */; };
 		48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C751981261A704000ABD57 /* PolyhedronTestCase.m */; };
+		48D9E561126D6D9B00650BE5 /* Segment3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D9E560126D6D9B00650BE5 /* Segment3D.m */; };
+		48D9E562126D6D9B00650BE5 /* Segment3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D9E560126D6D9B00650BE5 /* Segment3D.m */; };
 		48E1107C1234BF5500087198 /* Edge2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E110711234BF5500087198 /* Edge2D.m */; };
 		48E1107D1234BF5500087198 /* Line2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E110731234BF5500087198 /* Line2D.m */; };
 		48E1107E1234BF5500087198 /* Math2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E110751234BF5500087198 /* Math2D.m */; };
@@ -162,6 +164,8 @@
 		48A68F6F114EE6DC0064732A /* Map.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Map.m; sourceTree = "<group>"; };
 		48C751971261A704000ABD57 /* PolyhedronTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolyhedronTestCase.h; sourceTree = "<group>"; };
 		48C751981261A704000ABD57 /* PolyhedronTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PolyhedronTestCase.m; sourceTree = "<group>"; };
+		48D9E55F126D6D9B00650BE5 /* Segment3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Segment3D.h; sourceTree = "<group>"; };
+		48D9E560126D6D9B00650BE5 /* Segment3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Segment3D.m; sourceTree = "<group>"; };
 		48E110701234BF5500087198 /* Edge2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Edge2D.h; sourceTree = "<group>"; };
 		48E110711234BF5500087198 /* Edge2D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Edge2D.m; sourceTree = "<group>"; };
 		48E110721234BF5500087198 /* Line2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2D.h; sourceTree = "<group>"; };
@@ -304,6 +308,8 @@
 				485FD0C51257A61500F4AE49 /* Polygon3D.m */,
 				485FD0C01257A59800F4AE49 /* Polyhedron.h */,
 				485FD0C11257A59800F4AE49 /* Polyhedron.m */,
+				48D9E55F126D6D9B00650BE5 /* Segment3D.h */,
+				48D9E560126D6D9B00650BE5 /* Segment3D.m */,
 				48A68F1D114EA95A0064732A /* Vector3f.h */,
 				48A68F1E114EA95A0064732A /* Vector3f.m */,
 				48527F3911148D8E00CD6043 /* Vector3i.h */,
@@ -556,6 +562,7 @@
 				4836401112603A5100363E3F /* Line3D.m in Sources */,
 				4836401B1260416700363E3F /* Plane3DTestCase.m in Sources */,
 				48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */,
+				48D9E562126D6D9B00650BE5 /* Segment3D.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -595,6 +602,7 @@
 				487CA0BE125B005A002DF9D2 /* Plane3D.m in Sources */,
 				487CA0C6125B00E9002DF9D2 /* HalfSpace3D.m in Sources */,
 				4836401212603A5100363E3F /* Line3D.m in Sources */,
+				48D9E561126D6D9B00650BE5 /* Segment3D.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

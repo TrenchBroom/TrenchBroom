@@ -16,7 +16,6 @@ NSString* const BrushFaceRemoved = @"FaceRemoved";
 @implementation Brush
 
 - (id)init {
-    
     if (self = [super init]) {
         faces = [[NSMutableSet alloc] init];
     }

@@ -148,8 +148,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 308423642;
-			PBXWorkspaceStateSaveDate = 308423642;
+			PBXPerProjectTemplateStateSaveDate = 309160196;
+			PBXWorkspaceStateSaveDate = 309160196;
 		};
 		perUserProjectItems = {
 			48041C95117F46F1008AA34C = 48041C95117F46F1008AA34C /* PBXTextBookmark */;
@@ -304,7 +304,7 @@
 		fRef = 485FD0C41257A61500F4AE49 /* Polygon3D.h */;
 		name = "Polygon3D.h: 16";
 		rLen = 0;
-		rLoc = 310;
+		rLoc = 332;
 		rType = 0;
 		vrLen = 373;
 		vrLoc = 0;
@@ -634,23 +634,23 @@
 	};
 	484C28FB115023A2004DD957 /* VBOManager.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1145, 2730}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 2626}}";
 			sepNavSelRange = "{143, 0}";
-			sepNavVisRange = "{0, 860}";
+			sepNavVisRange = "{4910, 913}";
 		};
 	};
 	484C28FD1150258B004DD957 /* VBOMemBlock.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1625, 571}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 465}}";
 			sepNavSelRange = "{455, 0}";
 			sepNavVisRange = "{0, 571}";
 		};
 	};
 	484C28FE1150258B004DD957 /* VBOMemBlock.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1625, 897}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 884}}";
 			sepNavSelRange = "{440, 18}";
-			sepNavVisRange = "{415, 543}";
+			sepNavVisRange = "{415, 475}";
 		};
 	};
 	48527F0C111482C400CD6043 /* TrenchBroom */ = {
@@ -754,16 +754,16 @@
 	};
 	48527F3C11148EAA00CD6043 /* Brush.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1091, 509}}";
-			sepNavSelRange = "{203, 39}";
-			sepNavVisRange = "{0, 431}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 465}}";
+			sepNavSelRange = "{372, 0}";
+			sepNavVisRange = "{0, 453}";
 		};
 	};
 	48527F3D11148EAA00CD6043 /* Brush.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1091, 936}}";
-			sepNavSelRange = "{279, 0}";
-			sepNavVisRange = "{405, 1142}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 1066}}";
+			sepNavSelRange = "{426, 0}";
+			sepNavVisRange = "{1209, 752}";
 			sepNavWindowFrame = "{{15, 206}, {1439, 817}}";
 		};
 	};
@@ -794,23 +794,23 @@
 	};
 	485FD0C01257A59800F4AE49 /* Polyhedron.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1091, 528}}";
-			sepNavSelRange = "{299, 29}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 465}}";
+			sepNavSelRange = "{522, 0}";
 			sepNavVisRange = "{0, 577}";
 		};
 	};
 	485FD0C11257A59800F4AE49 /* Polyhedron.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1091, 2912}}";
-			sepNavSelRange = "{5363, 0}";
-			sepNavVisRange = "{0, 1579}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 2899}}";
+			sepNavSelRange = "{11321, 0}";
+			sepNavVisRange = "{10833, 742}";
 		};
 	};
 	485FD0C41257A61500F4AE49 /* Polygon3D.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1091, 741}}";
-			sepNavSelRange = "{327, 0}";
-			sepNavVisRange = "{0, 373}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 465}}";
+			sepNavSelRange = "{213, 0}";
+			sepNavVisRange = "{0, 402}";
 			sepNavWindowFrame = "{{15, 140}, {987, 733}}";
 		};
 	};
@@ -840,7 +840,7 @@
 		fRef = 487E3214114F768D0043A111 /* RenderBrush.h */;
 		name = "RenderBrush.h: 13";
 		rLen = 0;
-		rLoc = 252;
+		rLoc = 278;
 		rType = 0;
 		vrLen = 424;
 		vrLoc = 0;
@@ -850,7 +850,7 @@
 		fRef = 487E3215114F768D0043A111 /* RenderBrush.m */;
 		name = "RenderBrush.m: 25";
 		rLen = 0;
-		rLoc = 457;
+		rLoc = 505;
 		rType = 0;
 		vrLen = 645;
 		vrLoc = 37;
@@ -1000,7 +1000,7 @@
 	};
 	487E31FA114F74600043A111 /* Renderer2D.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1356, 610}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 465}}";
 			sepNavSelRange = "{194, 0}";
 			sepNavVisRange = "{0, 299}";
 		};
@@ -1014,7 +1014,7 @@
 	};
 	487E31FD114F747D0043A111 /* RenderContext.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1356, 610}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 465}}";
 			sepNavSelRange = "{0, 0}";
 			sepNavVisRange = "{0, 221}";
 		};
@@ -1028,8 +1028,8 @@
 	};
 	487E3200114F76160043A111 /* RenderPolygon.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1145, 491}}";
-			sepNavSelRange = "{288, 0}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 465}}";
+			sepNavSelRange = "{275, 0}";
 			sepNavVisRange = "{0, 293}";
 		};
 	};
@@ -1042,16 +1042,16 @@
 	};
 	487E3214114F768D0043A111 /* RenderBrush.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1091, 528}}";
-			sepNavSelRange = "{287, 0}";
-			sepNavVisRange = "{0, 424}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 465}}";
+			sepNavSelRange = "{416, 0}";
+			sepNavVisRange = "{0, 503}";
 		};
 	};
 	487E3215114F768D0043A111 /* RenderBrush.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1091, 663}}";
-			sepNavSelRange = "{696, 0}";
-			sepNavVisRange = "{213, 580}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 793}}";
+			sepNavSelRange = "{924, 0}";
+			sepNavVisRange = "{415, 800}";
 			sepNavWindowFrame = "{{241, 211}, {1439, 817}}";
 		};
 	};
@@ -1229,7 +1229,7 @@
 		ignoreCount = 0;
 		lineNumber = 27;
 		location = Test;
-		modificationTime = 308391249.7651811;
+		modificationTime = 308391249.7651812;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -1238,7 +1238,7 @@
 		fRef = 485FD0C41257A61500F4AE49 /* Polygon3D.h */;
 		name = "Polygon3D.h: 18";
 		rLen = 0;
-		rLoc = 327;
+		rLoc = 356;
 		rType = 0;
 		vrLen = 373;
 		vrLoc = 0;
@@ -1405,7 +1405,7 @@
 		fRef = 487E3214114F768D0043A111 /* RenderBrush.h */;
 		name = "RenderBrush.h: 13";
 		rLen = 0;
-		rLoc = 252;
+		rLoc = 278;
 		rType = 0;
 		vrLen = 424;
 		vrLoc = 0;
@@ -1415,23 +1415,37 @@
 		fRef = 487E3214114F768D0043A111 /* RenderBrush.h */;
 		name = "RenderBrush.h: 14";
 		rLen = 0;
-		rLoc = 270;
+		rLoc = 296;
 		rType = 0;
 		vrLen = 424;
 		vrLoc = 0;
 	};
+	48D9E55F126D6D9B00650BE5 /* Segment3D.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 465}}";
+			sepNavSelRange = "{402, 0}";
+			sepNavVisRange = "{0, 408}";
+		};
+	};
+	48D9E560126D6D9B00650BE5 /* Segment3D.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 494}}";
+			sepNavSelRange = "{166, 0}";
+			sepNavVisRange = "{0, 872}";
+		};
+	};
 	48E110701234BF5500087198 /* Edge2D.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1145, 897}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 910}}";
 			sepNavSelRange = "{0, 0}";
-			sepNavVisRange = "{35, 2066}";
+			sepNavVisRange = "{675, 1781}";
 		};
 	};
 	48E110711234BF5500087198 /* Edge2D.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1625, 3263}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1091, 2964}}";
 			sepNavSelRange = "{1868, 0}";
-			sepNavVisRange = "{0, 2415}";
+			sepNavVisRange = "{569, 1846}";
 			sepNavWindowFrame = "{{15, 315}, {750, 558}}";
 		};
 	};

@@ -6,10 +6,12 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
+#import <OpenGL/OpenGL.h>
 #import "RenderBrush.h"
 #import "RenderPolygon.h"
 #import "Face.h"
 #import "Polyhedron.h"
+#import "Polygon3D.h"
 
 @implementation RenderBrush
 
@@ -29,6 +31,17 @@
     return brush;
 }
 
+- (void)renderWithContext:(RenderContext *)context {
+    if (polygons == nil) {
+        polygons = [[NSMutableSet alloc] initWithCapacity:[brush polygons] count];
+        NSEnumerator* polygonEnum = [[brush polygons] objectEnumerator];
+        Polygon3D* polygon;
+        while ((polygon = [polygonEnum nextObject]) != nil) {
+            
+        }
+    }
+}
+
 - (void)setBrush:(Brush *)aBrush {
     if (aBrush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
@@ -37,7 +50,7 @@
     brush = [aBrush retain];
     
     [polygons release];
-    polygons = [[brush polygons] retain];
+    polygons = nil;
 }
 
 - (void)dealloc {
