@@ -53,4 +53,6 @@
 - (float)length;
 - (float)lengthSquared;
 
+- (NSComparisonResult)compareTo:(Vector3f *)vector;
+
 @end

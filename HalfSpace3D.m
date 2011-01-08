@@ -47,14 +47,16 @@
         Vector3f* p = [Vector3f vectorWithIntVector:point1];
         Vector3f* v1 = [Vector3f vectorWithIntVector:point2];
         Vector3f* v2 = [Vector3f vectorWithIntVector:point3];
-        [v2 sub:v1];
-        [v3 sub:v1];
+        [v1 sub:p];
+        [v2 sub:p];
 
         outside = [[Vector3f cross:v2 factor:v1] retain];
         [outside normalize];
         
         boundary = [[Plane3D alloc] initWithPoint:v1 norm:outside];
     }
+    
+    return self;
 }
 
 - (BOOL)contains:(Vector3f *)point {

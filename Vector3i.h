@@ -32,4 +32,6 @@
 - (void)addX:(int)xAddend Y:(int)yAddend Z:(int)zAddend;
 
 - (void)cross:(Vector3i *)m;
+
+- (NSComparisonResult)compareTo:(Vector3i *)vector;
 @end

@@ -16,3 +16,5 @@ typedef enum {
 typedef enum {
     AXPos, AXNeg, AYPos, AYNeg, AZPos, AZNeg
 } Axis3D;
+
+int smallestVertex(NSArray *vertices);

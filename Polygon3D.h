@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 #import "HalfSpace3D.h"
-#import "Segment3D.h"
 
 @interface Polygon3D : NSObject {
     NSMutableArray* vertices;
@@ -16,5 +15,5 @@
 - (id)init;
 - (id)initWithVertices:(NSArray *)someVertices;
 
-- (Segment3D *)intersectWith:(HalfSpace3D *)halfSpace;
+- (BOOL)intersectWith:(HalfSpace3D *)halfSpace;
 @end

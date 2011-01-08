@@ -33,7 +33,7 @@
 
 - (void)renderWithContext:(RenderContext *)context {
     if (polygons == nil) {
-        polygons = [[NSMutableSet alloc] initWithCapacity:[brush polygons] count];
+        polygons = [[NSMutableSet alloc] initWithCapacity:[[brush polygons] count]];
         NSEnumerator* polygonEnum = [[brush polygons] objectEnumerator];
         Polygon3D* polygon;
         while ((polygon = [polygonEnum nextObject]) != nil) {

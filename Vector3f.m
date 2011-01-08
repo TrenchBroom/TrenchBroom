@@ -186,6 +186,24 @@
     return x * x + y * y + z * z;
 }
 
+- (NSComparisonResult)compareTo:(Vector3f *)vector {
+    if (flte(x, [vector x]))
+        return NSOrderedAscending;
+    if (fgte(x, [vector x]))
+        return NSOrderedDescending;
+    
+    if (flte(y, [vector y]))
+        return NSOrderedAscending;
+    if (fgte(y, [vector y]))
+        return NSOrderedDescending;
+        
+    if (flte(z, [vector z]))
+        return NSOrderedAscending;
+    if (fgte(z, [vector z]))
+        return NSOrderedDescending;
+    
+    return NSOrderedSame;
+}
 
 - (BOOL)isEqual:(id)object {
     if (object == self)

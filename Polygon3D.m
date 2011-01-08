@@ -7,6 +7,8 @@
 //
 
 #import "Polygon3D.h"
+#import "Math3D.h"
+#import "Plane3D.h"
 
 @implementation Polygon3D
 - (id)init {
@@ -19,9 +21,22 @@
 - (id)initWithVertices:(NSArray *)someVertices {
     if (someVertices == nil)
         [NSException raise:NSInvalidArgumentException format:@"vertex array must not be nil"];
+    if ([someVertices count] < 3)
+        [NSException raise:NSInvalidArgumentException format:@"vertex array must contain at least three vertices"];
         
-    if (self = [super init])
-        vertices = [[NSMutableArray alloc] initWithArray:someVertices];
+        
+    if (self = [super init]) {
+        int si = smallestVertex(someVertices);
+        if (si == 0) {
+            vertices = [[NSMutableArray alloc] initWithArray:someVertices];
+        } else {
+            int c = [someVertices count];
+            vertices = [[NSMutableArray alloc] initWithCapacity:c];
+            int i;
+            for (i = 0; i < c; i++)
+                [vertices addObject:[someVertices objectAtIndex:(i + si) % c]];
+        }
+    }
     
     return self;
 }
@@ -56,6 +71,10 @@
     vertices = newVertices;
     
     return [vertices count] != 0;
+}
+
+- (BOOL)isEqual:(id)object {
+    return NO;
 }
 
 - (void)dealloc {
