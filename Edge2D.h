@@ -7,9 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Math.h"
-#import "Line2D.h"
-#import "Vector2f.h"
+
+@class Vector2f;
+@class Line2D;
 
 @interface Edge2D : NSObject {
     @private

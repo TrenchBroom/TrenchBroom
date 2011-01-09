@@ -7,8 +7,10 @@
 //
 
 #import "Polygon3D.h"
-#import "Math3D.h"
+#import "HalfSpace3D.h"
 #import "Plane3D.h"
+#import "Line3D.h"
+#import "Math3D.h"
 
 @implementation Polygon3D
 - (id)init {
@@ -41,7 +43,11 @@
     return self;
 }
 
-- (BOOL)intersectWith:(HalfSpace3D *)halfSpace {
+- (NSArray *)vertices {
+    return vertices;
+}
+
+- (BOOL)intersectWithHalfSpace:(HalfSpace3D *)halfSpace {
     NSMutableArray* newVertices = [[NSMutableArray alloc] init];
     Vector3f* prevVert = [vertices lastObject];
     BOOL prevContained = [halfSpace contains:prevVert];
@@ -58,7 +64,7 @@
         if (prevContained ^ curContained) {
             Plane3D* boundary = [halfSpace boundary];
             Line3D* line = [[Line3D alloc] initWithPoint1:prevVert point2:curVert];
-            Vector3f* newVert = [boundary intersectWith:line];
+            Vector3f* newVert = [boundary intersectWithLine:line];
             [newVertices addObject:newVert];
             [line release];
         }
@@ -73,8 +79,24 @@
     return [vertices count] != 0;
 }
 
-- (BOOL)isEqual:(id)object {
-    return NO;
+- (BOOL)isEqualToPolygon:(Polygon3D *)polygon {
+    if ([self isEqual:polygon])
+        return YES;
+    
+    Polygon3D* polygon = (Polygon3D*)object;
+    NSArray* otherVertices = [polygon vertices];
+    if ([vertices count] != [otherVertices count])
+        return NO;
+    
+    for (int i = 0; i < [vertices count]; i++) {
+        Vector3f* vertex = [vertices objectAtIndex:i];
+        Vector3f* otherVertex = [otherVertices objectAtIndex:i];
+        
+        if (![vertex isEqualToVector:otherVertex])
+            return NO;
+    }
+    
+    return YES;
 }
 
 - (void)dealloc {

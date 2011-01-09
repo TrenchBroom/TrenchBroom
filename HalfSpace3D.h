@@ -7,9 +7,10 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Vector3f.h"
-#import "Vector3i.h"
-#import "Plane3D.h"
+
+@class Plane3D;
+@class Vector3f;
+@class Vector3i;
 
 @interface HalfSpace3D : NSObject {
     Plane3D* boundary;

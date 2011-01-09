@@ -7,9 +7,6 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Vector3i.h"
-#import "HalfSpace3D.h"
-#import "Vector3f.h"
 
 extern NSString* const FacePoint1Changed;
 extern NSString* const FacePoint2Changed;
@@ -42,7 +39,10 @@ extern NSString* const FaceYScaleNew;
 
 typedef enum {
     XY, XZ, YZ
-} PlaneType;
+} EPlaneType;
+
+@class Vector3i;
+@class HalfSpace3D;
 
 @interface Face : NSObject {
 	Vector3i* point1;
@@ -57,7 +57,7 @@ typedef enum {
 	float yScale;
 }
 
-- (id)initOnPlane:(PlaneType)plane at:(Vector3i *)position texture:(NSString *)texture;
+- (id)initOnPlane:(EPlaneType)plane at:(Vector3i *)position texture:(NSString *)texture;
 - (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;
 
 - (Vector3i *)point1;

@@ -6,8 +6,10 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import <math.h>
 #import "Polyhedron.h"
+#import "Vector3f.h"
+#import "HalfSpace3D.h"
+#import "Polygon3D.h"
 
 @implementation Polyhedron
 + (Polyhedron *)maximumCube {
@@ -197,15 +199,17 @@
     return sides;
 }
 
-- (BOOL)intersectWith:(HalfSpace3D *)halfSpace {
+- (BOOL)intersectWithHalfSpace:(HalfSpace3D *)halfSpace {
     if (halfSpace == nil)
         [NSException raise:NSInvalidArgumentException format:@"half space must not be nil"];
+    
+    // TODO: an intersection creates a new polygon if the boundary of the half space intersects with the polyhedron - this new polygon must be computed and added accordingly
     
     NSMutableSet* newSides = [[NSMutableSet alloc] init];
     NSEnumerator* sideEnum = [sides objectEnumerator];
     Polygon3D* side;
     while ((side = [sideEnum nextObject]) != nil) {
-        if ([side intersectWith:halfSpace])
+        if ([side intersectWithHalfSpace:halfSpace])
             [newSides addObject:side];
     }
     
@@ -213,6 +217,32 @@
     sides = newSides;
     
     return [sides count] != 0;
+}
+
+- (BOOL)isEqualToPolyhedron:(Polyhedron *)polyhedron {
+    if ([self isEqual:polyhedron])
+        return YES;
+
+    NSSet* otherSides = [polyhedron sides];
+    if ([sides count] != [otherSides count])
+        return NO;
+    
+    NSEnumerator* sidesEnum = [sides objectEnumerator];
+    Polygon3D* side;
+
+    while ((side = [sidesEnum nextObject])) {
+        NSEnumerator* otherSidesEnum = [otherSides objectEnumerator];
+        Polygon3D* otherSide;
+        BOOL f = NO;
+        while (!f && (otherSide = [otherSidesEnum nextObject])) {
+            f = [side isEqualToPolygon:otherSide];
+        }
+        
+        if (!f)
+            return NO;
+    }
+    
+    return YES;
 }
 
 - (void)dealloc {

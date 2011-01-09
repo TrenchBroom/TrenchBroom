@@ -7,8 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Vector3i.h"
-#import "Face.h"
+
+@class Vector3i;
 
 extern NSString* const BrushFaceAdded;
 extern NSString* const BrushFaceRemoved;

@@ -7,6 +7,7 @@
 //
 
 #import "MapDocument.h"
+#import "Map.h"
 #import "MapWindowController.h"
 
 @implementation MapDocument

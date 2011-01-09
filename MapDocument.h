@@ -8,7 +8,8 @@
 
 
 #import <Cocoa/Cocoa.h>
-#import "Map.h"
+
+@class Map;
 
 @interface MapDocument : NSDocument {
     Map* map;

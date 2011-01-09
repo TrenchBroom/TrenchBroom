@@ -7,6 +7,9 @@
 //
 
 #import "Face.h"
+#import "Vector3i.h"
+#import "HalfSpace3D.h"
+#import "Vector3f.h"
 
 NSString* const FacePoint1Changed = @"Point1Changed";
 NSString* const FacePoint2Changed = @"Point2Changed";
@@ -50,7 +53,7 @@ NSString* const FaceYScaleNew = @"YScaleNew";
     return self;
 }
 
-- (id) initOnPlane:(PlaneType)plane at:(Vector3i *)position texture:(NSString *)texture {
+- (id) initOnPlane:(EPlaneType)plane at:(Vector3i *)position texture:(NSString *)texture {
     Vector3i* p1 = [[Vector3i alloc] initWithVector:position];
     Vector3i* p2 = [[Vector3i alloc] initWithVector:position];
     Vector3i* p3 = [[Vector3i alloc] initWithVector:position];

@@ -7,12 +7,15 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Vector3f.h"
+
+@class Vector3f;
 
 @interface Segment3D : NSObject {
     Vector3f* startVertex;
     Vector3f* endVertex;
 }
+
++ (Vector3f *)segmentWithStartVertex:(Vector3f *)start endVertex:(Vector3f *)end;
 
 - (id)initWithStartVertex:(Vector3f *)start endVertex:(Vector3f *)end;
 

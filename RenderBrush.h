@@ -7,8 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Brush.h"
-#import "RenderContext.h"
+
+@class Brush;
+@class RenderContext;
 
 @interface RenderBrush : NSObject {
     NSMutableSet* polygons;

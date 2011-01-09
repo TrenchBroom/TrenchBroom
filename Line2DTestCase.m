@@ -8,6 +8,7 @@
 
 #import "Line2DTestCase.h"
 #import "Line2D.h"
+#import "Vector2f.h"
 
 @implementation Line2DTestCase
 - (void)testIntersection {

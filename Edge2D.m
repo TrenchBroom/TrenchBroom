@@ -7,6 +7,9 @@
 //
 
 #import "Edge2D.h"
+#import "Math.h"
+#import "Line2D.h"
+#import "Vector2f.h"
 
 @implementation Edge2D
 + (Edge2D *)edgeWithBoundary:(Line2D *)boundary outside:(Vector2f *)outside {

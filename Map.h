@@ -7,13 +7,13 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Entity.h"
-#import "Brush.h"
 
 extern NSString* const MapEntityAdded;
 extern NSString* const MapEntityRemoved;
 
 extern NSString* const MapEntity;
+
+@class Entity;
 
 @interface Map : NSObject {
     Entity* worldspawn;

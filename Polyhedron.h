@@ -7,9 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Vector3f.h"
-#import "HalfSpace3D.h"
-#import "Polygon3D.h"
+
+@class Vector3f;
+@class HalfSpace3D;
 
 @interface Polyhedron : NSObject {
     NSMutableSet* sides;
@@ -22,5 +22,7 @@
 
 - (NSSet *)sides;
 
-- (BOOL)intersectWith:(HalfSpace3D *)halfSpace;
+- (BOOL)intersectWithHalfSpace:(HalfSpace3D *)halfSpace;
+
+- (BOOL)isEqualToPolyhedron:(Polyhedron *)polyhedron;
 @end

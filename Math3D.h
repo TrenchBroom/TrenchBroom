@@ -7,14 +7,13 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Brush.h"
 
 typedef enum {
     PXY, PXZ, PYZ
-} Plane3D;
+} EPlane3D;
 
 typedef enum {
     AXPos, AXNeg, AYPos, AYNeg, AZPos, AZNeg
-} Axis3D;
+} EAxis3D;
 
 int smallestVertex(NSArray *vertices);

@@ -7,7 +7,7 @@
 //
 
 #import "RenderPolygon.h"
-
+#import "Face.h"
 
 @implementation RenderPolygon
 

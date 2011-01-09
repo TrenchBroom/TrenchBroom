@@ -7,6 +7,11 @@
 //
 
 #import "Polygon2DIS.h"
+#import "Polygon2D.h"
+#import "Edge2D.h"
+#import "Line2D.h"
+#import "Vector2f.h"
+#import "Math.h"
 
 @interface Polygon2DIS (private)
 

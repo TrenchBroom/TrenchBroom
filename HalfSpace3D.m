@@ -7,6 +7,9 @@
 //
 
 #import "HalfSpace3D.h"
+#import "Vector3f.h"
+#import "Vector3i.h"
+#import "Plane3D.h"
 #import "Math.h"
 
 

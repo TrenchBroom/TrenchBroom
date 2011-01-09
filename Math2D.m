@@ -11,7 +11,7 @@
 #import "Vector2f.h"
 
 @implementation Math2D
-+ (Side2D)turnDirectionFrom:(Vector2f *)from to:(Vector2f *)to {
++ (ESide2D)turnDirectionFrom:(Vector2f *)from to:(Vector2f *)to {
     if (!from)
         [NSException raise:NSInvalidArgumentException format:@"from vector must not be nil"];
     if (!to)

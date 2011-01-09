@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-
 @interface Vector2f : NSObject {
 @private
 	float x;

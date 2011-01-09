@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-
 @interface Vector3i : NSObject {
     int coords[3];
 }
@@ -33,5 +32,6 @@
 
 - (void)cross:(Vector3i *)m;
 
-- (NSComparisonResult)compareTo:(Vector3i *)vector;
+- (NSComparisonResult)compareToVector:(Vector3i *)vector;
+- (BOOL)isEqualToVector:(Vector3i *)vector;
 @end

@@ -7,7 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Vector3i.h"
+
+@class Vector3i;
 
 @interface Vector3f : NSObject {
 	float x;
@@ -53,6 +54,7 @@
 - (float)length;
 - (float)lengthSquared;
 
-- (NSComparisonResult)compareTo:(Vector3f *)vector;
+- (NSComparisonResult)compareToVector:(Vector3f *)vector;
+- (BOOL)isEqualToVector:(Vector3f *)vector;
 
 @end

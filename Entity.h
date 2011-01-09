@@ -7,8 +7,6 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Vector3i.h"
-#import "Brush.h"
 
 extern NSString* const EntityBrushAdded;
 extern NSString* const EntityBrushRemoved;
@@ -22,6 +20,9 @@ extern NSString* const EntityPropertyChanged;
 extern NSString* const EntityPropertyKey;
 extern NSString* const EntityPropertyNewValue;
 extern NSString* const EntityPropertyOldValue;
+
+@class Vector3i;
+@class Brush;
 
 @interface Entity : NSObject {
 	NSMutableSet* brushes;

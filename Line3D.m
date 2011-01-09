@@ -7,7 +7,7 @@
 //
 
 #import "Line3D.h"
-
+#import "Vector3f.h"
 
 @implementation Line3D
 + (Line3D *)lineWithPoint1:(Vector3f *)point1 point2:(Vector3f *)point2 {

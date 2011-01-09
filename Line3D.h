@@ -7,7 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Vector3f.h"
+
+@class Vector3f;
 
 @interface Line3D : NSObject {
     Vector3f* point;

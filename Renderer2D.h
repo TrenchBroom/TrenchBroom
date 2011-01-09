@@ -7,7 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "RenderContext.h"
+
+@class RenderContext;
 
 @interface Renderer2D : NSObject {
 

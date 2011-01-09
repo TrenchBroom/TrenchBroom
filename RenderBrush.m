@@ -7,6 +7,8 @@
 //
 
 #import <OpenGL/OpenGL.h>
+#import "Brush.h"
+#import "RenderContext.h"
 #import "RenderBrush.h"
 #import "RenderPolygon.h"
 #import "Face.h"

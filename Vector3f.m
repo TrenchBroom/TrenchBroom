@@ -7,6 +7,7 @@
 //
 
 #import "Vector3f.h"
+#import "Vector3i.h"
 #import "Math.h"
 
 @implementation Vector3f
@@ -186,7 +187,7 @@
     return x * x + y * y + z * z;
 }
 
-- (NSComparisonResult)compareTo:(Vector3f *)vector {
+- (NSComparisonResult)compareToVector:(Vector3f *)vector {
     if (flte(x, [vector x]))
         return NSOrderedAscending;
     if (fgte(x, [vector x]))
@@ -205,14 +206,10 @@
     return NSOrderedSame;
 }
 
-- (BOOL)isEqual:(id)object {
-    if (object == self)
+- (BOOL)isEqualToVector:(Vector3f *)vector {
+    if ([self isEqual:vector])
         return YES;
-
-    if (![object isKindOfClass:[self class]])
-        return NO;
     
-    Vector3f* vector = (Vector3f*)object;
     return feq(x, [vector x]) && feq(y, [vector y]) && feq(z, [vector z]);
 }
 

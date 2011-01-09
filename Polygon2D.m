@@ -7,6 +7,8 @@
 //
 
 #import "Polygon2D.h"
+#import "Edge2D.h"
+#import "Vector2f.h"
 #import "Polygon2DIS.h"
 
 @implementation Polygon2D

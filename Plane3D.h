@@ -7,13 +7,16 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Vector3f.h"
-#import "Line3D.h"
+
+@class Vector3f;
+@class Line3D;
+@class Polygon3D;
 
 @interface Plane3D : NSObject {
     Vector3f* point;
     Vector3f* norm;
 }
+
 + (Plane3D *)planeWithPoint:(Vector3f *)aPoint norm:(Vector3f *)aNorm;
 + (Plane3D *)planeWithPlane:(Plane3D *)aPlane;
 
@@ -23,6 +26,9 @@
 - (Vector3f *)point;
 - (Vector3f *)norm;
 
-- (Vector3f *)intersectWith:(Line3D *)line;
+- (BOOL)isPointAbove:(Vector3f *)aPoint;
+
+- (Vector3f *)intersectWithLine:(Line3D *)line;
+- (Segment3D *)intersectWithPolygon:(Polygon3D *)polygon;
 
 @end

@@ -7,6 +7,8 @@
 //
 
 #import "Entity.h"
+#import "Vector3i.h"
+#import "Brush.h"
 
 NSString* const EntityBrushAdded = @"BrushAdded";
 NSString* const EntityBrushRemoved = @"BrushRemoved";

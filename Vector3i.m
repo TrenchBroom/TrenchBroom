@@ -99,7 +99,7 @@
     coords[2] = z;
 }
 
-- (NSComparisonResult)compareTo:(Vector3i *)vector {
+- (NSComparisonResult)compareToVector:(Vector3i *)vector {
     if ([self x] < [vector x])
         return NSOrderedAscending;
     if ([self x] > [vector x])
@@ -119,14 +119,10 @@
 }
 
 
-- (BOOL)isEqual:(id)object {
-    if (object == self)
+- (BOOL)isEqualToVector:(Vector3f *)vector {
+    if ([self isEqual:vector])
         return YES;
     
-    if (![object isKindOfClass:[self class]])
-        return NO;
-    
-    Vector3i* vector = (Vector3i*)object;
     return [self x] == [vector x] && [self y] == [vector y] && [self z] == [vector z];
 }
 

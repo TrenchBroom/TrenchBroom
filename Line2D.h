@@ -7,8 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Line2D.h"
-#import "Vector2f.h"
+
+@class Vector2f;
 
 @interface Line2D : NSObject {
 @private

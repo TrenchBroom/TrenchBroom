@@ -9,6 +9,7 @@
 #import "Line2D.h"
 #import "Math.h"
 #import "Math2D.h"
+#import "Vector2f.h"
 
 @implementation Line2D
 + (Line2D *)lineWithPoint1:(Vector2f *)point1 point2:(Vector2f *)point2 {

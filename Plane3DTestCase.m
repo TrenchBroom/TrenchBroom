@@ -9,6 +9,7 @@
 #import "Plane3DTestCase.h"
 #import "Line3D.h"
 #import "Plane3D.h"
+#import "Vector3f.h"
 
 @implementation Plane3DTestCase
 - (void)testIntersectWithLine {
@@ -17,7 +18,7 @@
     Plane3D* plane = [Plane3D planeWithPoint:[Vector3f vectorWithX:0 y:0 z:2] 
                                         norm:[Vector3f vectorWithX:0 y:0 z:1]];
     
-    Vector3f* is = [plane intersectWith:line];
+    Vector3f* is = [plane intersectWithLine:line];
     STAssertNotNil(is, @"intersection must not be nil");
     STAssertEqualObjects([Vector3f vectorWithX:1 y:1 z:2], is, @"intersection must be at (1;1;2)");
 }

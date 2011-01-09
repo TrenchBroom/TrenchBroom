@@ -7,12 +7,12 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Math.h"
-#import "Vector2f.h"
 
 typedef enum {
     SLeft, SRight, SUp, SDown, SNeither
-} Side2D;
+} ESide2D;
+
+@class Vector2f;
 
 @interface Math2D : NSObject {
     
@@ -25,6 +25,6 @@ typedef enum {
  @param      to The vector to rotate the from vector to.
  @throws     NSInvalidArgumentException if any of the given vectors is nil.
  */
-+ (Side2D)turnDirectionFrom:(Vector2f *)from to:(Vector2f *)to;
++ (ESide2D)turnDirectionFrom:(Vector2f *)from to:(Vector2f *)to;
 
 @end

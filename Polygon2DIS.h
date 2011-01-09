@@ -7,9 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Polygon2D.h"
-#import "Edge2D.h"
-#import "Vector2f.h"
+
+@class Edge2D;
+@class Polygon2D;
 
 typedef enum {
     P1U, P1L, P2U, P2L

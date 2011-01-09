@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-
 @interface VBOMemBlock : NSObject {
     int capacity;
     BOOL free;

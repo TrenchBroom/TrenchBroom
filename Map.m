@@ -7,6 +7,8 @@
 //
 
 #import "Map.h"
+#import "Entity.h"
+#import "Brush.h"
 
 NSString* const MapEntityAdded = @"EntityAdded";
 NSString* const MapEntityRemoved = @"EntityRemoved";

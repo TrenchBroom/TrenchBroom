@@ -7,7 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Face.h"
+
+@class Face;
 
 @interface RenderPolygon : NSObject {
     NSMutableArray* points;

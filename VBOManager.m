@@ -7,6 +7,7 @@
 //
 
 #import "VBOManager.h"
+#import "VBOMemBlock.h"
 
 CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *context) {
     VBOMemBlock *block1 = (VBOMemBlock *)val1;

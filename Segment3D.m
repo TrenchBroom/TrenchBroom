@@ -7,8 +7,13 @@
 //
 
 #import "Segment3D.h"
+#import "Vector3f.h"
 
 @implementation Segment3D
++ (Vector3f *)segmentWithStartVertex:(Vector3f *)start endVertex:(Vector3f *)end {
+    return [[[Segment3D alloc] initWithStartVertex:start endVertex:end] autorelease];
+}
+
 - (id)initWithStartVertex:(Vector3f *)start endVertex:(Vector3f *)end {
     if (start == nil)
         [NSException raise:NSInvalidArgumentException format:@"start vertex must not be nil"];
@@ -19,6 +24,8 @@
         startVertex = [[Vector3f alloc] initWithFloatVector:start];
         endVertex = [[Vector3f alloc] initWithFloatVector:end];
     }
+    
+    return self;
 }
 
 - (Vector3f *)startVertex {

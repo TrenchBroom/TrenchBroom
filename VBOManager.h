@@ -7,7 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "VBOMemBlock.h"
+
+@class VBOMemBlock;
 
 @interface VBOManager : NSObject {
     int totalCapacity;

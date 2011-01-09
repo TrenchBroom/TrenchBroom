@@ -7,8 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Edge2D.h"
-#import "Vector2f.h"
+
+@class Edge2D;
 
 @interface Polygon2D : NSObject {
 @private
