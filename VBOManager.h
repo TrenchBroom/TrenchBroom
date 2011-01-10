@@ -11,6 +11,7 @@
 @class VBOMemBlock;
 
 @interface VBOManager : NSObject {
+    @private
     int totalCapacity;
     int freeCapacity;
     NSMutableArray* freeBlocksByCapacity;

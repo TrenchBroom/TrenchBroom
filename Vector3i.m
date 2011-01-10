@@ -119,7 +119,7 @@
 }
 
 
-- (BOOL)isEqualToVector:(Vector3f *)vector {
+- (BOOL)isEqualToVector:(Vector3i *)vector {
     if ([self isEqual:vector])
         return YES;
     

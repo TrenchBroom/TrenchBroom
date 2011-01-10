@@ -11,8 +11,11 @@
 @class Plane3D;
 @class Vector3f;
 @class Vector3i;
+@class Polygon3D;
+@class Polyhedron;
 
 @interface HalfSpace3D : NSObject {
+    @private
     Plane3D* boundary;
     Vector3f* outside;
 }
@@ -23,6 +26,10 @@
 - (id)initWithBoundary:(Plane3D *)theBoundary outside:(Vector3f *)theOutside;
 - (id)initWithIntPoint1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *) point3;
 
-- (BOOL)contains:(Vector3f *)point;
+- (BOOL)containsPoint:(Vector3f *)point;
+- (BOOL)containsPolygon:(Polygon3D *)polygon;
+- (BOOL)containsPolyhedron:(Polyhedron *)polyhedron;
+- (Polygon3D *)intersectWithPolygon:(Polygon3D *)polygon;
+- (Polyhedron *)intersectWithPolyhedron:(Polyhedron *)polyhedron;
 - (Plane3D *)boundary;
 @end

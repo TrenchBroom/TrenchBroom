@@ -11,11 +11,12 @@
 @class Vector3f;
 
 @interface Segment3D : NSObject {
+    @private
     Vector3f* startVertex;
     Vector3f* endVertex;
 }
 
-+ (Vector3f *)segmentWithStartVertex:(Vector3f *)start endVertex:(Vector3f *)end;
++ (Segment3D *)segmentWithStartVertex:(Vector3f *)start endVertex:(Vector3f *)end;
 
 - (id)initWithStartVertex:(Vector3f *)start endVertex:(Vector3f *)end;
 

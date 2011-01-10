@@ -11,14 +11,15 @@
 @class HalfSpace3D;
 
 @interface Polygon3D : NSObject {
+    @private
     NSMutableArray* vertices;
 }
++ (Polygon3D *)polygonWithVertices:(NSArray *)someVertices;
+
 - (id)init;
 - (id)initWithVertices:(NSArray *)someVertices;
 
 - (NSArray *)vertices;
-
-- (BOOL)intersectWithHalfSpace:(HalfSpace3D *)halfSpace;
 
 - (BOOL)isEqualToPolygon:(Polygon3D *)polygon;
 @end

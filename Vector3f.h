@@ -11,6 +11,7 @@
 @class Vector3i;
 
 @interface Vector3f : NSObject {
+    @private
 	float x;
 	float y;
 	float z;

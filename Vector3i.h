@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @interface Vector3i : NSObject {
+    @private
     int coords[3];
 }
 

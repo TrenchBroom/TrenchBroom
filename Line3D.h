@@ -11,6 +11,7 @@
 @class Vector3f;
 
 @interface Line3D : NSObject {
+    @private
     Vector3f* point;
     Vector3f* direction; // normalized
 }

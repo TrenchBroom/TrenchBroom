@@ -11,6 +11,7 @@
 #import "Face.h"
 #import "Polyhedron.h"
 #import "Polygon3D.h"
+#import "HalfSpace3D.h"
 
 NSString* const BrushFaceAdded = @"FaceAdded";
 NSString* const BrushFaceRemoved = @"FaceRemoved";
@@ -70,7 +71,7 @@ NSString* const BrushFaceRemoved = @"FaceRemoved";
     NSEnumerator* faceEnum = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEnum nextObject]) != nil)
-        [polyhedron intersectWithHalfSpace:[face halfSpace]];
+        polyhedron = [[face halfSpace] intersectWithPolyhedron:polyhedron];
     
     return [[polyhedron sides] autorelease];
 }

@@ -9,6 +9,7 @@
 #import "Plane3D.h"
 #import "Vector3f.h"
 #import "Line3D.h"
+#import "Polygon3D.h"
 #import "Math.h"
 
 @implementation Plane3D
@@ -76,39 +77,6 @@
     [is add:lp];
     
     return [is autorelease];
-}
-
-- (Segment3D *)intersectWithPolygon:(Polygon3D *)polygon {
-    NSArray* vertices = [polygon vertices];
-    Vector3f* prevVert = [vertices lastObject];
-    BOOL prevAbove = [self isPointAbove:prevVert];
-    Vector3f* curVert;
-    BOOL curAbove;
-    
-    Vector3f* start;
-    Vector3f* end;
-    
-    for (int i = 0; i < [vertices count]; i++) {
-        curVert = [vertices objectAtIndex:i];
-        curAbove = [self isPointAbove:curVert];
-        
-        if (prevAbove ^ curAbove) {
-            Line3D* line = [[Line3D alloc] initWithPoint1:prevVert point2:curVert];
-            if (start == nil)
-                start = [self intersectWithLine:line];
-            else
-                end = [self intersectWithLine:line];
-            [line release];
-        }
-        
-        prevVert = curVert;
-        prevAbove = curAbove;
-    }
-    
-    if (start == nil || end == nil)
-        return nil;
-    
-    return [Segment3D segmentWithStartVertex:start endVertex:end];
 }
 
 - (void)dealloc {

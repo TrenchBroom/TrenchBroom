@@ -59,6 +59,7 @@
 		48A68F24114EDEF50064732A /* MapRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F23114EDEF50064732A /* MapRenderer.m */; };
 		48A68F27114EDF360064732A /* Entity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* Entity.m */; };
 		48A68F70114EE6DC0064732A /* Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* Map.m */; };
+		48C5137E12DB668A006240ED /* HalfSpace3DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C5137D12DB668A006240ED /* HalfSpace3DTestCase.m */; };
 		48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C751981261A704000ABD57 /* PolyhedronTestCase.m */; };
 		48D9E561126D6D9B00650BE5 /* Segment3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D9E560126D6D9B00650BE5 /* Segment3D.m */; };
 		48D9E562126D6D9B00650BE5 /* Segment3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D9E560126D6D9B00650BE5 /* Segment3D.m */; };
@@ -162,6 +163,8 @@
 		48A68F26114EDF360064732A /* Entity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Entity.m; sourceTree = "<group>"; };
 		48A68F6E114EE6DC0064732A /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
 		48A68F6F114EE6DC0064732A /* Map.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Map.m; sourceTree = "<group>"; };
+		48C5137C12DB668A006240ED /* HalfSpace3DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HalfSpace3DTestCase.h; sourceTree = "<group>"; };
+		48C5137D12DB668A006240ED /* HalfSpace3DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HalfSpace3DTestCase.m; sourceTree = "<group>"; };
 		48C751971261A704000ABD57 /* PolyhedronTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolyhedronTestCase.h; sourceTree = "<group>"; };
 		48C751981261A704000ABD57 /* PolyhedronTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PolyhedronTestCase.m; sourceTree = "<group>"; };
 		48D9E55F126D6D9B00650BE5 /* Segment3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Segment3D.h; sourceTree = "<group>"; };
@@ -421,6 +424,8 @@
 				4836401A1260416700363E3F /* Plane3DTestCase.m */,
 				48C751971261A704000ABD57 /* PolyhedronTestCase.h */,
 				48C751981261A704000ABD57 /* PolyhedronTestCase.m */,
+				48C5137C12DB668A006240ED /* HalfSpace3DTestCase.h */,
+				48C5137D12DB668A006240ED /* HalfSpace3DTestCase.m */,
 			);
 			name = "Test Cases";
 			sourceTree = "<group>";
@@ -563,6 +568,7 @@
 				4836401B1260416700363E3F /* Plane3DTestCase.m in Sources */,
 				48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */,
 				48D9E562126D6D9B00650BE5 /* Segment3D.m in Sources */,
+				48C5137E12DB668A006240ED /* HalfSpace3DTestCase.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

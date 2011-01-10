@@ -13,6 +13,7 @@
 @class Polygon3D;
 
 @interface Plane3D : NSObject {
+    @private
     Vector3f* point;
     Vector3f* norm;
 }
@@ -29,6 +30,5 @@
 - (BOOL)isPointAbove:(Vector3f *)aPoint;
 
 - (Vector3f *)intersectWithLine:(Line3D *)line;
-- (Segment3D *)intersectWithPolygon:(Polygon3D *)polygon;
 
 @end

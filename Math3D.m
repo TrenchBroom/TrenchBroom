@@ -24,7 +24,7 @@ int smallestVertex(NSArray *vertices) {
     int i;
     for (i = 1; i < [vertices count]; i++) {
         Vector3f* v = [vertices objectAtIndex:i];
-        if ([v compareTo:sv] == NSOrderedAscending) {
+        if ([v compareToVector:sv] == NSOrderedAscending) {
             s = i;
             sv = v;
         }

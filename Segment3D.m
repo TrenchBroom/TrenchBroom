@@ -10,7 +10,7 @@
 #import "Vector3f.h"
 
 @implementation Segment3D
-+ (Vector3f *)segmentWithStartVertex:(Vector3f *)start endVertex:(Vector3f *)end {
++ (Segment3D *)segmentWithStartVertex:(Vector3f *)start endVertex:(Vector3f *)end {
     return [[[Segment3D alloc] initWithStartVertex:start endVertex:end] autorelease];
 }
 
@@ -34,6 +34,10 @@
 
 - (Vector3f *)endVertex {
     return endVertex;
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"Start: %@, End: %@"];
 }
 
 - (void)dealloc {

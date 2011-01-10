@@ -12,17 +12,18 @@
 @class HalfSpace3D;
 
 @interface Polyhedron : NSObject {
+    @private
     NSMutableSet* sides;
 }
 + (Polyhedron *)maximumCube;
 + (Polyhedron *)cuboidAt:(Vector3f *)center dimensions:(Vector3f *)dimensions;
++ (Polyhedron *)polyhedronWithSides:(NSSet *)sides;
 
 - (id)initMaximumCube;
 - (id)initCuboidAt:(Vector3f *)center dimensions:(Vector3f *)dimensions;
+- (id)initWithSides:(NSSet *)someSides;
 
 - (NSSet *)sides;
-
-- (BOOL)intersectWithHalfSpace:(HalfSpace3D *)halfSpace;
 
 - (BOOL)isEqualToPolyhedron:(Polyhedron *)polyhedron;
 @end

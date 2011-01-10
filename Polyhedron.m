@@ -20,6 +20,10 @@
     return [[[Polyhedron alloc] initCuboidAt:center dimensions:dimensions] autorelease];
 }
 
++ (Polyhedron *)polyhedronWithSides:(NSSet *)sides {
+    return [[[Polyhedron alloc] initWithSides:sides] autorelease];
+}
+
 - (id)init {
     if (self = [super init])
         sides = [[NSMutableSet alloc] init];
@@ -195,28 +199,22 @@
     return self;
 }
 
-- (NSSet *)sides {
-    return sides;
-}
-
-- (BOOL)intersectWithHalfSpace:(HalfSpace3D *)halfSpace {
-    if (halfSpace == nil)
-        [NSException raise:NSInvalidArgumentException format:@"half space must not be nil"];
+- (id)initWithSides:(NSSet *)someSides {
+    if (someSides == nil)
+        [NSException raise:NSInvalidArgumentException format:@"set of sides must not be nil"];
+    if ([someSides count] < 4)
+        [NSException raise:NSInvalidArgumentException format:@"set of sides must contain at least four polygons"];
     
-    // TODO: an intersection creates a new polygon if the boundary of the half space intersects with the polyhedron - this new polygon must be computed and added accordingly
     
-    NSMutableSet* newSides = [[NSMutableSet alloc] init];
-    NSEnumerator* sideEnum = [sides objectEnumerator];
-    Polygon3D* side;
-    while ((side = [sideEnum nextObject]) != nil) {
-        if ([side intersectWithHalfSpace:halfSpace])
-            [newSides addObject:side];
+    if (self = [super init]) {
+        sides = [[NSMutableSet alloc] initWithSet:someSides];
     }
     
-    [sides release];
-    sides = newSides;
-    
-    return [sides count] != 0;
+    return self;
+}
+
+- (NSSet *)sides {
+    return sides;
 }
 
 - (BOOL)isEqualToPolyhedron:(Polyhedron *)polyhedron {
