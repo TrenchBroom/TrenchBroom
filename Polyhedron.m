@@ -243,6 +243,15 @@
     return YES;
 }
 
+- (NSString *)description {
+    NSMutableString* descr = [NSMutableString string];
+    NSEnumerator* sideEn = [sides objectEnumerator];
+    Polygon3D* side;
+    while ((side = [sideEn nextObject]))
+        [descr appendFormat:@"\n  %@", [side description]];
+    return descr;
+}
+
 - (void)dealloc {
     [sides release];
     [super dealloc];

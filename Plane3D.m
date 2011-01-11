@@ -79,6 +79,10 @@
     return [is autorelease];
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"point: %@, normal: %@", point, norm];
+}
+
 - (void)dealloc {
     [point release];
     [norm release];

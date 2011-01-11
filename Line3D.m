@@ -82,6 +82,10 @@
     return direction;
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"point: %@, direction: %@", point, direction];
+}
+
 - (void) dealloc {
     [point release];
     [direction release];

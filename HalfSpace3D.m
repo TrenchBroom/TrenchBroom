@@ -201,6 +201,10 @@
     return boundary;
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"boundary: %@, outside: %@", boundary, outside];
+}
+
 - (void)dealloc {
     [boundary release];
     [outside release];

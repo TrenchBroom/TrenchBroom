@@ -71,6 +71,13 @@
     return YES;
 }
 
+- (NSString *)description {
+    NSMutableString* descr = [NSMutableString string];
+    for (int i = 0; i < [vertices count]; i++)
+        [descr appendFormat:@"\n  %@", [[vertices objectAtIndex:i] description]];
+    return descr;
+}
+
 - (void)dealloc {
     [vertices release];
     [super dealloc];
