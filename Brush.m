@@ -67,13 +67,13 @@ NSString* const BrushFaceRemoved = @"FaceRemoved";
 
 - (NSSet *)polygons {
     Polyhedron* polyhedron = [Polyhedron maximumCube];
-    
+        
     NSEnumerator* faceEnum = [faces objectEnumerator];
     Face* face;
-    while ((face = [faceEnum nextObject]) != nil)
+    while ((face = [faceEnum nextObject]))
         polyhedron = [[face halfSpace] intersectWithPolyhedron:polyhedron];
-    
-    return [[polyhedron sides] autorelease];
+
+    return [polyhedron sides];
 }
 
 - (void)dealloc {

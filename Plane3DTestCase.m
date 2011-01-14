@@ -20,6 +20,6 @@
     
     Vector3f* is = [plane intersectWithLine:line];
     STAssertNotNil(is, @"intersection must not be nil");
-    STAssertEqualObjects([Vector3f vectorWithX:1 y:1 z:2], is, @"intersection must be at (1;1;2)");
+    STAssertTrue([is isEqualToVector:[Vector3f vectorWithX:1 y:1 z:2]], @"intersection must be at (1;1;2)");
 }
 @end

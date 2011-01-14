@@ -13,6 +13,7 @@
 @class Vector3i;
 @class Polygon3D;
 @class Polyhedron;
+@class Segment3D;
 
 @interface HalfSpace3D : NSObject {
     @private
@@ -31,5 +32,6 @@
 - (BOOL)containsPolyhedron:(Polyhedron *)polyhedron;
 - (Polygon3D *)intersectWithPolygon:(Polygon3D *)polygon;
 - (Polyhedron *)intersectWithPolyhedron:(Polyhedron *)polyhedron;
+- (Segment3D *)intersectWithPolygon:(Polygon3D *)polygon vertexArray:(NSMutableArray *)newVertices;
 - (Plane3D *)boundary;
 @end

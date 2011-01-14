@@ -7,8 +7,26 @@
 //
 
 #import "RenderContext.h"
-
+#import "Camera.h"
 
 @implementation RenderContext
+
+- (Camera *)camera {
+    return camera;
+}
+
+- (void)setCamera:(Camera *)aCamera {
+    if (aCamera == nil)
+        [NSException raise:NSInvalidArgumentException format:@"camera must not be nil"];
+    
+    [camera release]
+    camera = aCamera;
+    [camera retain];
+}
+
+- (void)dealloc {
+    [camera release];
+    [super dealloc];
+}
 
 @end

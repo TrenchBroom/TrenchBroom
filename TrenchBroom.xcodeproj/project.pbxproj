@@ -15,7 +15,6 @@
 		4809F44D118EDE78000F66FD /* VBOMemBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FE1150258B004DD957 /* VBOMemBlock.m */; };
 		4809F44E118EDE79000F66FD /* VBOManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FB115023A2004DD957 /* VBOManager.m */; };
 		4809F44F118EDE7A000F66FD /* RenderPolygon.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E3201114F76160043A111 /* RenderPolygon.m */; };
-		4809F450118EDE7A000F66FD /* Renderer2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E31FB114F74600043A111 /* Renderer2D.m */; };
 		4809F451118EDE7B000F66FD /* RenderContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E31FE114F747D0043A111 /* RenderContext.m */; };
 		4809F452118EDE7C000F66FD /* RenderBrush.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E3215114F768D0043A111 /* RenderBrush.m */; };
 		4809F453118EDE80000F66FD /* Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* Map.m */; };
@@ -44,10 +43,10 @@
 		487CA0BE125B005A002DF9D2 /* Plane3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0BC125B005A002DF9D2 /* Plane3D.m */; };
 		487CA0C5125B00E9002DF9D2 /* HalfSpace3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */; };
 		487CA0C6125B00E9002DF9D2 /* HalfSpace3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */; };
-		487E31FC114F74600043A111 /* Renderer2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E31FB114F74600043A111 /* Renderer2D.m */; };
 		487E31FF114F747D0043A111 /* RenderContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E31FE114F747D0043A111 /* RenderContext.m */; };
 		487E3202114F76160043A111 /* RenderPolygon.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E3201114F76160043A111 /* RenderPolygon.m */; };
 		487E3216114F768D0043A111 /* RenderBrush.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E3215114F768D0043A111 /* RenderBrush.m */; };
+		48835E5212DDB3BE00872FD6 /* Camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 48835E5112DDB3BE00872FD6 /* Camera.m */; };
 		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
 		48A68EB8114E96C00064732A /* MapWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68EB7114E96C00064732A /* MapWindowController.m */; };
 		48A68ECC114E9AF90064732A /* MapView2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68ECB114E9AF90064732A /* MapView2D.m */; };
@@ -135,14 +134,15 @@
 		487CA0BC125B005A002DF9D2 /* Plane3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Plane3D.m; sourceTree = "<group>"; };
 		487CA0C3125B00E9002DF9D2 /* HalfSpace3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HalfSpace3D.h; sourceTree = "<group>"; };
 		487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HalfSpace3D.m; sourceTree = "<group>"; };
-		487E31FA114F74600043A111 /* Renderer2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer2D.h; sourceTree = "<group>"; };
-		487E31FB114F74600043A111 /* Renderer2D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Renderer2D.m; sourceTree = "<group>"; };
 		487E31FD114F747D0043A111 /* RenderContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderContext.h; sourceTree = "<group>"; };
 		487E31FE114F747D0043A111 /* RenderContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderContext.m; sourceTree = "<group>"; };
 		487E3200114F76160043A111 /* RenderPolygon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderPolygon.h; sourceTree = "<group>"; };
 		487E3201114F76160043A111 /* RenderPolygon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderPolygon.m; sourceTree = "<group>"; };
 		487E3214114F768D0043A111 /* RenderBrush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderBrush.h; sourceTree = "<group>"; };
 		487E3215114F768D0043A111 /* RenderBrush.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderBrush.m; sourceTree = "<group>"; };
+		48835E2812DDB32E00872FD6 /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
+		48835E5012DDB3BE00872FD6 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
+		48835E5112DDB3BE00872FD6 /* Camera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Camera.m; sourceTree = "<group>"; };
 		48941664123619870098E17C /* Line2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2DTestCase.h; sourceTree = "<group>"; };
 		48941665123619870098E17C /* Line2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line2DTestCase.m; sourceTree = "<group>"; };
 		48A68EB6114E96C00064732A /* MapWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWindowController.h; sourceTree = "<group>"; };
@@ -257,6 +257,7 @@
 		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				48835E2912DDB38700872FD6 /* Camera */,
 				48A68E96114E93840064732A /* Controller */,
 				48A68F1C114EA7750064732A /* Math */,
 				48A68E93114E92730064732A /* Model */,
@@ -328,16 +329,24 @@
 				487E3215114F768D0043A111 /* RenderBrush.m */,
 				487E31FD114F747D0043A111 /* RenderContext.h */,
 				487E31FE114F747D0043A111 /* RenderContext.m */,
-				487E31FA114F74600043A111 /* Renderer2D.h */,
-				487E31FB114F74600043A111 /* Renderer2D.m */,
 				487E3200114F76160043A111 /* RenderPolygon.h */,
 				487E3201114F76160043A111 /* RenderPolygon.m */,
 				484C28FA115023A2004DD957 /* VBOManager.h */,
 				484C28FB115023A2004DD957 /* VBOManager.m */,
 				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
 				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
+				48835E2812DDB32E00872FD6 /* Renderer.h */,
 			);
 			name = Renderer;
+			sourceTree = "<group>";
+		};
+		48835E2912DDB38700872FD6 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				48835E5012DDB3BE00872FD6 /* Camera.h */,
+				48835E5112DDB3BE00872FD6 /* Camera.m */,
+			);
+			name = Camera;
 			sourceTree = "<group>";
 		};
 		488FF49012243BC700EA9158 /* 2D */ = {
@@ -545,7 +554,6 @@
 				4809F44D118EDE78000F66FD /* VBOMemBlock.m in Sources */,
 				4809F44E118EDE79000F66FD /* VBOManager.m in Sources */,
 				4809F44F118EDE7A000F66FD /* RenderPolygon.m in Sources */,
-				4809F450118EDE7A000F66FD /* Renderer2D.m in Sources */,
 				4809F451118EDE7B000F66FD /* RenderContext.m in Sources */,
 				4809F452118EDE7C000F66FD /* RenderBrush.m in Sources */,
 				4809F453118EDE80000F66FD /* Map.m in Sources */,
@@ -569,6 +577,7 @@
 				48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */,
 				48D9E562126D6D9B00650BE5 /* Segment3D.m in Sources */,
 				48C5137E12DB668A006240ED /* HalfSpace3DTestCase.m in Sources */,
+				48835E5212DDB3BE00872FD6 /* Camera.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -589,7 +598,6 @@
 				48A68F24114EDEF50064732A /* MapRenderer.m in Sources */,
 				48A68F27114EDF360064732A /* Entity.m in Sources */,
 				48A68F70114EE6DC0064732A /* Map.m in Sources */,
-				487E31FC114F74600043A111 /* Renderer2D.m in Sources */,
 				487E31FF114F747D0043A111 /* RenderContext.m in Sources */,
 				487E3202114F76160043A111 /* RenderPolygon.m in Sources */,
 				487E3216114F768D0043A111 /* RenderBrush.m in Sources */,

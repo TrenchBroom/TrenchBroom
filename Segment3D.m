@@ -20,11 +20,10 @@
     if (end == nil)
         [NSException raise:NSInvalidArgumentException format:@"end vertex must not be nil"];
     
-    if (self == [super init]) {
+    if (self = [super init]) {
         startVertex = [[Vector3f alloc] initWithFloatVector:start];
         endVertex = [[Vector3f alloc] initWithFloatVector:end];
     }
-    
     return self;
 }
 
@@ -37,7 +36,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"Start: %@, End: %@"];
+    return [NSString stringWithFormat:@"Start: %@, End: %@", startVertex, endVertex];
 }
 
 - (void)dealloc {

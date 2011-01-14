@@ -12,7 +12,9 @@
 @class RenderContext;
 
 @interface RenderBrush : NSObject {
+    @private
     NSMutableSet* polygons;
+    BOOL polygonsValid;
     Brush* brush;
 }
 

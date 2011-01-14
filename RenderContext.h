@@ -8,9 +8,14 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class Camera;
 
 @interface RenderContext : NSObject {
-
+    @private
+    Camera* camera;
 }
+
+- (Camera *)camera;
+- (void)setCamera:(Camera *)aCamera;
 
 @end

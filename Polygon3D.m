@@ -73,8 +73,10 @@
 
 - (NSString *)description {
     NSMutableString* descr = [NSMutableString string];
-    for (int i = 0; i < [vertices count]; i++)
-        [descr appendFormat:@"\n  %@", [[vertices objectAtIndex:i] description]];
+    NSEnumerator* vertexEn = [vertices objectEnumerator];
+    Vector3f* vertex;
+    while ((vertex = [vertexEn nextObject]))
+        [descr appendFormat:@"\n  %@", [vertex description]];
     return descr;
 }
 

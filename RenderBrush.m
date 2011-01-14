@@ -17,8 +17,20 @@
 
 @implementation RenderBrush
 
-- (id)initWithBrush:(Brush *)aBrush {
+- (id)init {
     if (self = [super init]) {
+        polygons = [[NSMutableSet alloc] init];
+        polygonsValid = NO;
+    }
+    
+    return self;
+}
+
+- (id)initWithBrush:(Brush *)aBrush {
+    if (aBrush == nil)
+        [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
+    
+    if (self = [self init]) {
         [self setBrush:aBrush];
     }
     
@@ -27,6 +39,8 @@
 
 - (void)brushChanged:(NSNotification *)notification {
     [self setBrush:[notification object]];
+    [polygons removeAllObjects];
+    polygonsValid = NO;
 }
 
 - (Brush *)brush {
@@ -34,14 +48,12 @@
 }
 
 - (void)renderWithContext:(RenderContext *)context {
-    if (polygons == nil) {
-        polygons = [[NSMutableSet alloc] initWithCapacity:[[brush polygons] count]];
-        NSEnumerator* polygonEnum = [[brush polygons] objectEnumerator];
-        Polygon3D* polygon;
-        while ((polygon = [polygonEnum nextObject]) != nil) {
-            
-        }
+    if (!polygonsValid) {
+        [polygons setSet:[brush polygons]];
+        polygonsValid = YES;
     }
+    
+    
 }
 
 - (void)setBrush:(Brush *)aBrush {
@@ -50,9 +62,9 @@
     
     [brush release];
     brush = [aBrush retain];
-    
-    [polygons release];
-    polygons = nil;
+
+    [polygons removeAllObjects];
+    polygonsValid = NO;
 }
 
 - (void)dealloc {

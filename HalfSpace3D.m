@@ -17,10 +17,6 @@
 #import "Math.h"
 
 
-@interface HalfSpace3D (private)
-- (Segment3D *)intersectWithPolygon:(Polygon3D *)polygon vertexArray:(NSMutableArray *)newVertices;
-@end
-
 @implementation HalfSpace3D
 + (HalfSpace3D *)halfSpaceWithBoundary:(Plane3D *)theBoundary outside:(Vector3f *)theOutside {
     return [[[HalfSpace3D alloc] initWithBoundary:theBoundary outside:theOutside] autorelease];
@@ -106,6 +102,48 @@
     return YES;
 }
 
+- (Segment3D *)intersectWithPolygon:(Polygon3D *)polygon vertexArray:(NSMutableArray *)newVertices {
+    NSArray* vertices = [polygon vertices];
+    Vector3f* newSegmentStart = nil;
+    Vector3f* newSegmentEnd = nil;
+
+    Vector3f* prevVert = [vertices lastObject];
+    BOOL prevContained = [self containsPoint:prevVert];
+    Vector3f* curVert;
+    BOOL curContained;
+    
+    BOOL contained = prevContained;
+    
+    for (int i = 0; i < [vertices count]; i++) {
+        curVert = [vertices objectAtIndex:i];
+        curContained = [self containsPoint:curVert];
+        
+        if (prevContained)
+            [newVertices addObject:prevVert];
+        
+        if (prevContained ^ curContained) {
+            Line3D* line = [[Line3D alloc] initWithPoint1:prevVert point2:curVert];
+            Vector3f* newVert = [boundary intersectWithLine:line];
+            [newVertices addObject:newVert];
+            [line release];
+            
+            if (newSegmentStart == nil)
+                newSegmentStart = newVert;
+            else if (newSegmentEnd == nil)
+                newSegmentEnd = newVert;
+        }
+        
+        prevVert = curVert;
+        prevContained = curContained;
+        contained &= prevContained;
+    }
+    
+    if (newSegmentStart == nil || newSegmentEnd == nil)
+        return nil;
+    
+    return [Segment3D segmentWithStartVertex:newSegmentStart endVertex:newSegmentEnd];
+}
+
 - (Polygon3D *)intersectWithPolygon:(Polygon3D *)polygon {
     if (polygon == nil)
         [NSException raise:NSInvalidArgumentException format:@"polygon must not be nil"];
@@ -153,48 +191,7 @@
     
     [newSides addObject:[Polygon3D polygonWithVertices:newVertices]];
     return [Polyhedron polyhedronWithSides:newSides];
-}
-
-- (Segment3D *)intersectWithPolygon:(Polygon3D *)polygon vertexArray:(NSMutableArray *)newVertices {
-    NSArray* vertices = [polygon vertices];
-    Vector3f* prevVert = [vertices lastObject];
-    BOOL prevContained = [self containsPoint:prevVert];
-    Vector3f* curVert;
-    BOOL curContained;
-
-    Vector3f* newSegmentStart;
-    Vector3f* newSegmentEnd;
-    
-    BOOL contained = prevContained;
-    
-    for (int i = 0; i < [vertices count]; i++) {
-        curVert = [vertices objectAtIndex:i];
-        curContained = [self containsPoint:curVert];
-        
-        if (prevContained)
-            [newVertices addObject:prevVert];
-        
-        if (prevContained ^ curContained) {
-            Line3D* line = [[Line3D alloc] initWithPoint1:prevVert point2:curVert];
-            Vector3f* newVert = [boundary intersectWithLine:line];
-            [newVertices addObject:newVert];
-            [line release];
-            
-            if (newSegmentStart == nil)
-                newSegmentStart = newVert;
-            else if (newSegmentEnd == nil)
-                newSegmentEnd = newVert;
-        }
-        
-        prevVert = curVert;
-        prevContained = curContained;
-        contained &= prevContained;
-    }
-    
-    if (newSegmentStart == nil || newSegmentEnd == nil)
-        return nil;
-    
-    return [Segment3D segmentWithStartVertex:newSegmentStart endVertex:newSegmentEnd];
+    return nil;
 }
 
 - (Plane3D *)boundary {

@@ -14,6 +14,7 @@ extern NSString* const BrushFaceAdded;
 extern NSString* const BrushFaceRemoved;
 
 @interface Brush : NSObject {
+    @private
 	NSMutableSet* faces;
 }
 
