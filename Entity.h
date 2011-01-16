@@ -36,8 +36,14 @@ extern NSString* const EntityPropertyOldValue;
 - (void)addBrush:(Brush *)brush;
 - (void)removeBrush:(Brush *)brush;
 
+- (NSSet *)brushes;
+
 - (void)setProperty:(NSString *)key value:(NSString *)value;
 - (void)removeProperty:(NSString *)key;
 - (NSString *)propertyForKey:(NSString *)key;
+
+- (NSDictionary *)properties;
+
+- (BOOL)isWorldspawn;
 
 @end

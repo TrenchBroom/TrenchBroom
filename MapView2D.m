@@ -8,13 +8,11 @@
 
 #import "MapView2D.h"
 #include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
 
 @implementation MapView2D
 
 -(void) drawRect:(NSRect)dirtyRect {
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glFlush();
 }
 
 @end

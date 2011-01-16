@@ -13,15 +13,13 @@
 
 @interface RenderBrush : NSObject {
     @private
-    NSMutableSet* polygons;
-    BOOL polygonsValid;
+    BOOL valid;
     Brush* brush;
 }
 
 - (id)initWithBrush:(Brush *)aBrush;
 
 - (Brush *)brush;
-- (void)setBrush:(Brush *)aBrush;
 
 - (void)renderWithContext:(RenderContext *)context;
 

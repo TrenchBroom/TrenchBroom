@@ -2,20 +2,19 @@
 //  RenderContext.h
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 16.03.10.
-//  Copyright 2010 __MyCompanyName__. All rights reserved.
+//  Created by Kristian Duske on 15.01.11.
+//  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
 
 @class Camera;
+@class RenderBrush;
 
-@interface RenderContext : NSObject {
-    @private
-    Camera* camera;
-}
+@protocol RenderContext
 
-- (Camera *)camera;
-- (void)setCamera:(Camera *)aCamera;
-
+- (void)preRender;
+- (void)updateView:(NSRect)bounds withCamera:(Camera *)camera;
+- (void)renderBrush:(RenderBrush *)renderBrush;
+- (void)postRender;
 @end

@@ -72,6 +72,10 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
     [[NSNotificationCenter defaultCenter] postNotificationName:EntityBrushRemoved object:self userInfo:info];
 }
 
+- (NSSet *)brushes {
+    return brushes;
+}
+
 - (void)setProperty:(NSString *)key value:(NSString *)value {
     NSString *oldValue = [self propertyForKey:key];
     BOOL exists = oldValue != nil;
@@ -110,7 +114,16 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
 - (NSString *)propertyForKey:(NSString *)key {
     return (NSString *)[properties objectForKey:key];
 }
-        
+
+- (NSDictionary *)properties {
+    return properties;
+}
+
+- (BOOL)isWorldspawn {
+    NSString* classname = [self propertyForKey:@"classname"];
+    return [classname isEqualToString:@"worldspawn"];
+}
+
 - (void) dealloc {
 	[properties release];
 	[brushes release];

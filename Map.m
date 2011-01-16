@@ -51,6 +51,9 @@ NSString* const MapEntity = @"Entity";
     [[NSNotificationCenter defaultCenter] postNotificationName:MapEntityRemoved object:self userInfo:info];
 }
 
+- (NSSet *)entities {
+    return entities;
+}
 
 - (void)dealloc {
     [entities release];

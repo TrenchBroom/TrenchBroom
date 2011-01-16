@@ -15,6 +15,6 @@
     Map* map;
 }
 
-
+- (Map *)map;
 
 @end

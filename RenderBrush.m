@@ -10,7 +10,6 @@
 #import "Brush.h"
 #import "RenderContext.h"
 #import "RenderBrush.h"
-#import "RenderPolygon.h"
 #import "Face.h"
 #import "Polyhedron.h"
 #import "Polygon3D.h"
@@ -19,8 +18,7 @@
 
 - (id)init {
     if (self = [super init]) {
-        polygons = [[NSMutableSet alloc] init];
-        polygonsValid = NO;
+        valid = NO;
     }
     
     return self;
@@ -31,16 +29,20 @@
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
     
     if (self = [self init]) {
-        [self setBrush:aBrush];
+        brush = [aBrush retain];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center addObserver:self selector:@selector(brushChanged:) name:BrushFaceAdded object:brush];
+        [center addObserver:self selector:@selector(brushChanged:) name:BrushFaceRemoved object:brush];
+        [center addObserver:self selector:@selector(brushChanged:) name:BrushFaceChanged object:brush];
+        
+        valid = NO;
     }
     
     return self;
 }
 
 - (void)brushChanged:(NSNotification *)notification {
-    [self setBrush:[notification object]];
-    [polygons removeAllObjects];
-    polygonsValid = NO;
+    valid = NO;
 }
 
 - (Brush *)brush {
@@ -48,28 +50,12 @@
 }
 
 - (void)renderWithContext:(RenderContext *)context {
-    if (!polygonsValid) {
-        [polygons setSet:[brush polygons]];
-        polygonsValid = YES;
-    }
-    
-    
-}
-
-- (void)setBrush:(Brush *)aBrush {
-    if (aBrush == nil)
-        [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
-    
-    [brush release];
-    brush = [aBrush retain];
-
-    [polygons removeAllObjects];
-    polygonsValid = NO;
+    [context renderBrush:self];
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [brush release];
-    [polygons release];
     [super dealloc];
 }
 

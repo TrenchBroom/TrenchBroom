@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>3D View</key>
+	<dict>
+		<key>BackgroundColor</key>
+		<array>
+			<real>0.3</real>
+			<real>0.3</real>
+			<real>0.3</real>
+		</array>
+	</dict>
+	<key>Camera</key>
+	<dict>
+		<key>FieldOfVision</key>
+		<integer>90</integer>
+		<key>NearClippingPlane</key>
+		<integer>1</integer>
+		<key>FarClippingPlane</key>
+		<integer>1000</integer>
+	</dict>
+</dict>
+</plist>

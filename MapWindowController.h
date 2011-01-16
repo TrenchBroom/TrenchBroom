@@ -7,14 +7,17 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "MapView2D.h"
-#import "MapView3D.h"
 
+@class MapView2D;
+@class MapView3D;
+@class Camera;
+@class RenderMap;
 
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView2D* view2D;
 	IBOutlet MapView3D* view3D;
-	IBOutlet NSOpenGLView* textureBrowser;
+    RenderMap* renderMap;
+    Camera* camera;
 }
 
 @end
