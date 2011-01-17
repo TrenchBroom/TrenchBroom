@@ -22,4 +22,5 @@
 
 - (Vector3f *)startVertex;
 - (Vector3f *)endVertex;
+- (void)flip;
 @end

@@ -19,8 +19,8 @@ NSString* const MapEntity = @"Entity";
 
 - (id)init {
     if (self = [super init]) {
-        worldspawn = [[Entity alloc] initWithProperty:@"classname" value:@"worldspawn"];
         entities = [[NSMutableSet alloc] init];
+        worldspawn = [self createEntityWithProperty:@"classname" value:@"worldspawn"];
     }
     
     return self;
@@ -33,13 +33,12 @@ NSString* const MapEntity = @"Entity";
 - (Entity *)createEntityWithProperty:(NSString *)key value:(NSString *)value {
     Entity* entity = [[Entity alloc] initWithProperty:key value:value];
     [entities addObject:entity];
-    [entity release];
 
     NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:1];
     [info setObject:entity forKey:MapEntity];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:MapEntityAdded object:self userInfo:info];
-    return entity;
+    return [entity autorelease];
 }
 
 - (void)removeEntity:(Entity *)entity {
@@ -57,7 +56,6 @@ NSString* const MapEntity = @"Entity";
 
 - (void)dealloc {
     [entities release];
-    [worldspawn release];
     
     [super dealloc];
 }

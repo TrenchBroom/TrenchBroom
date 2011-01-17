@@ -7,9 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "RenderContext.h"
 
 @class Brush;
-@class RenderContext;
 
 @interface RenderBrush : NSObject {
     @private
@@ -21,7 +21,7 @@
 
 - (Brush *)brush;
 
-- (void)renderWithContext:(RenderContext *)context;
+- (void)renderWithContext:(id <RenderContext>)renderContext;
 
 - (void)brushChanged:(NSNotification *)notification;
 

@@ -39,7 +39,7 @@
         
         while ((entity = [entityEn nextObject])) {
             RenderEntity* renderEntity = [[RenderEntity alloc] initWithEntity:entity];
-            [renderEntities setObject:renderEntity forKey:entity];
+            [renderEntities setObject:renderEntity forKey:[entity getId]];
             [renderEntity release];
         }
     }
@@ -50,13 +50,24 @@
 - (void)entityAdded:(NSNotification *)notification {
     Entity* entity = [notification object];
     RenderEntity* renderEntity = [[RenderEntity alloc] initWithEntity:entity];
-    [renderEntities setObject:renderEntity forKey:entity];
+    [renderEntities setObject:renderEntity forKey:[entity getId]];
     [renderEntity release];
 }
 
 - (void)entityRemoved:(NSNotification *)notification {
     Entity* entity = [notification object];
-    [renderEntities removeObjectForKey:entity];
+    [renderEntities removeObjectForKey:[entity getId]];
+}
+
+- (void)renderWithContext:(id <RenderContext>)renderContext {
+    if (renderContext == nil)
+        [NSException raise:NSInvalidArgumentException format:@"render context must not be nil"];
+    
+    NSEnumerator* en = [renderEntities objectEnumerator];
+    RenderEntity* entity;
+    
+    while ((entity = [en nextObject]))
+        [entity renderWithContext:renderContext];
 }
 
 - (void)dealloc {

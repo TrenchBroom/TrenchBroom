@@ -7,6 +7,7 @@
 //
 
 #import "Face.h"
+#import "IdGenerator.h"
 #import "Vector3i.h"
 #import "HalfSpace3D.h"
 #import "Vector3f.h"
@@ -44,6 +45,7 @@ NSString* const FaceYScaleNew = @"YScaleNew";
 
 - (id)init {
     if (self = [super init]) {
+        faceId = [[IdGenerator sharedGenerator] getId];
         point1 = [[Vector3i alloc] init];
         point2 = [[Vector3i alloc] init];
         point3 = [[Vector3i alloc] init];
@@ -53,27 +55,42 @@ NSString* const FaceYScaleNew = @"YScaleNew";
     return self;
 }
 
-- (id) initOnPlane:(EPlaneType)plane at:(Vector3i *)position texture:(NSString *)texture {
+- (id) initOnPlane:(EPlaneType)plane at:(Vector3i *)position thirdAxisPositive:(BOOL)thirdAxisPositive texture:(NSString *)aTexture {
     Vector3i* p1 = [[Vector3i alloc] initWithVector:position];
     Vector3i* p2 = [[Vector3i alloc] initWithVector:position];
     Vector3i* p3 = [[Vector3i alloc] initWithVector:position];
     
     switch (plane) {
         case XY:
-            [p2 addX:1 Y:0 Z:0];
-            [p3 addX:0 Y:1 Z:0];
+            if (thirdAxisPositive) {
+                [p2 addX:0 Y:1 Z:0];
+                [p3 addX:1 Y:0 Z:0];
+            } else {
+                [p2 addX:1 Y:0 Z:0];
+                [p3 addX:0 Y:1 Z:0];
+            }
             break;
         case XZ:
-            [p2 addX:1 Y:0 Z:0];
-            [p3 addX:0 Y:0 Z:1];
+            if (thirdAxisPositive) {
+                [p2 addX:1 Y:0 Z:0];
+                [p3 addX:0 Y:0 Z:1];
+            } else {
+                [p2 addX:0 Y:0 Z:1];
+                [p3 addX:1 Y:0 Z:0];
+            }
             break;
         case YZ:
-            [p2 addX:0 Y:1 Z:0];
-            [p3 addX:0 Y:0 Z:1];
+            if (thirdAxisPositive) {
+                [p2 addX:0 Y:0 Z:1];
+                [p3 addX:0 Y:1 Z:0];
+            } else {
+                [p2 addX:0 Y:1 Z:0];
+                [p3 addX:0 Y:0 Z:1];
+            }
             break;
     }
 
-    self = [self initWithPoint1:p1 point2:p2 point3:p3 texture:nil];
+    self = [self initWithPoint1:p1 point2:p2 point3:p3 texture:aTexture];
     
     [p1 release];
     [p2 release];
@@ -91,6 +108,10 @@ NSString* const FaceYScaleNew = @"YScaleNew";
     }
     
     return self;
+}
+
+- (NSNumber *)getId {
+    return faceId;
 }
 
 - (Vector3i *)point1 {
@@ -130,6 +151,9 @@ NSString* const FaceYScaleNew = @"YScaleNew";
 }
 
 - (void)setPoint1:(Vector3i *)point{
+    if (point == nil)
+        [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
+
     if ([point1 isEqual:point])
         return;
     
@@ -144,6 +168,9 @@ NSString* const FaceYScaleNew = @"YScaleNew";
 }
 
 - (void)setPoint2:(Vector3i *)point {
+    if (point == nil)
+        [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
+
     if ([point2 isEqual:point])
         return;
     
@@ -158,6 +185,9 @@ NSString* const FaceYScaleNew = @"YScaleNew";
 }
 
 - (void)setPoint3:(Vector3i *)point {
+    if (point == nil)
+        [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
+
     if ([point3 isEqual:point])
         return;
     
@@ -172,6 +202,9 @@ NSString* const FaceYScaleNew = @"YScaleNew";
 }
 
 - (void)setTexture:(NSString *)name {
+    if (name == nil)
+        [NSException raise:NSInvalidArgumentException format:@"texture name must not be nil"];
+    
     if ([texture isEqualToString:name])
         return;
     
@@ -269,6 +302,20 @@ NSString* const FaceYScaleNew = @"YScaleNew";
     return [HalfSpace3D halfSpaceWithIntPoint1:[self point1] 
                                         point2:[self point2] 
                                         point3:[self point3]];
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"ID: @i, point 1: %@, point 2: %@, point 3: %@, texture: %@, X offset: %i, Y offset: %i, rotation: %f, X scale: %f, Y scale: %f", 
+            [faceId intValue], 
+            point1, 
+            point2, 
+            point3, 
+            texture, 
+            xOffset, 
+            yOffset, 
+            rotation, 
+            xScale, 
+            yScale];
 }
 
 - (void) dealloc {

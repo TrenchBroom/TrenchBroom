@@ -50,7 +50,7 @@ extern NSString* const EntityPropertyChanged;
         
         while ((brush = [brushEn nextObject])) {
             RenderBrush* renderBrush = [[RenderBrush alloc] initWithBrush:brush];
-            [renderBrushes setObject:renderBrush forKey:brush];
+            [renderBrushes setObject:renderBrush forKey:[brush getId]];
             [renderBrush release];
         }
     }
@@ -61,13 +61,13 @@ extern NSString* const EntityPropertyChanged;
 - (void)brushAdded:(NSNotification *)notification{
     Brush* brush = [notification object];
     RenderBrush* renderBrush = [[RenderBrush alloc] initWithBrush:brush];
-    [renderBrushes setObject:renderBrush forKey:brush];
+    [renderBrushes setObject:renderBrush forKey:[brush getId]];
     [renderBrush release];
 }
 
 - (void)brushRemoved:(NSNotification *)notification {
     Brush* brush = [notification object];
-    [renderBrushes removeObjectForKey:brush];
+    [renderBrushes removeObjectForKey:[brush getId]];
 }
 
 - (void)propertyAdded:(NSNotification *)notification {
@@ -79,6 +79,16 @@ extern NSString* const EntityPropertyChanged;
 - (void)propertyChanged:(NSNotification *)notification {
 }
 
+- (void)renderWithContext:(id <RenderContext>)renderContext {
+    if (renderContext == nil)
+        [NSException raise:NSInvalidArgumentException format:@"render context must not be nil"];
+    
+    NSEnumerator* en = [renderBrushes objectEnumerator];
+    RenderBrush* brush;
+    
+    while ((brush = [en nextObject]))
+        [brush renderWithContext:renderContext];
+}
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];

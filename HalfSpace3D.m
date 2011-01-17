@@ -60,7 +60,7 @@
         outside = [[Vector3f cross:v2 factor:v1] retain];
         [outside normalize];
         
-        boundary = [[Plane3D alloc] initWithPoint:v1 norm:outside];
+        boundary = [[Plane3D alloc] initWithPoint:p norm:outside];
     }
     
     return self;
@@ -162,9 +162,9 @@
         [NSException raise:NSInvalidArgumentException format:@"polyhedron must not be nil"];
     
     NSEnumerator* sideEn = [[polyhedron sides] objectEnumerator];
-    NSMutableSet* newSides = [NSMutableSet set];
-    NSMutableArray* newVertices = [NSMutableArray array];
-    NSMutableArray* newSegments = [NSMutableArray array];
+    NSMutableSet* newSides = [[NSMutableSet alloc] init];
+    NSMutableArray* newVertices = [[NSMutableArray alloc] init];
+    NSMutableArray* newSegments = [[NSMutableArray alloc] init];
 
     Polygon3D* side;
     while ((side = [sideEn nextObject])) {
@@ -180,18 +180,43 @@
     for (int i = 0; i < [newSegments count]; i++) {
         Segment3D* segment = [newSegments objectAtIndex:i];
         [newVertices addObject:[segment startVertex]];
-        for (int j = i + 2; j < [newSegments count]; j++) {
+        for (int j = i + 1; j < [newSegments count]; j++) {
             Segment3D* candidate = [newSegments objectAtIndex:j];
             if ([[segment endVertex] isEqualToVector:[candidate startVertex]]) {
-                [newSegments exchangeObjectAtIndex:i + 1 withObjectAtIndex:j];
+                if (i + 1 != j)
+                    [newSegments exchangeObjectAtIndex:i + 1 withObjectAtIndex:j];
+                break;
+            } else if ([[segment endVertex] isEqualToVector:[candidate endVertex]]) {
+                [candidate flip];
+                if (i + 1 != j)
+                    [newSegments exchangeObjectAtIndex:i + 1 withObjectAtIndex:j];
                 break;
             }
         }
     }
+    [newSegments release];
+
+    if ([newVertices count] > 0) {
+        Vector3f* v1 = [Vector3f sub:[newVertices objectAtIndex:2] subtrahend:[newVertices objectAtIndex:1]];
+        Vector3f* v2 = [Vector3f sub:[newVertices objectAtIndex:1] subtrahend:[newVertices objectAtIndex:0]];
+        [v1 cross:v2];
+        [v1 normalize];
+
+        // invert the vertex array
+        if ([v1 isEqualToVector:outside]) {
+            int c = [newVertices count];
+            for (int i = 0; i < c / 2; i++)
+                [newVertices exchangeObjectAtIndex:i withObjectAtIndex:c - i - 1];
+        }
+
+        [newSides addObject:[Polygon3D polygonWithVertices:newVertices]];
+    }
+    [newVertices release];
     
-    [newSides addObject:[Polygon3D polygonWithVertices:newVertices]];
-    return [Polyhedron polyhedronWithSides:newSides];
-    return nil;
+    Polyhedron* result = [Polyhedron polyhedronWithSides:newSides];
+    [newSides release];
+
+    return result;
 }
 
 - (Plane3D *)boundary {

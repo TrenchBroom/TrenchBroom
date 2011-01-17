@@ -7,6 +7,7 @@
 //
 
 #import "Brush.h"
+#import "IdGenerator.h"
 #import "Vector3i.h"
 #import "Face.h"
 #import "Polyhedron.h"
@@ -21,45 +22,44 @@ NSString* const BrushFaceChanged = @"FaceChanged";
 
 - (id)init {
     if (self = [super init]) {
+        brushId = [[IdGenerator sharedGenerator] getId];
         faces = [[NSMutableSet alloc] init];
     }
     
     return self;
 }
 
-- (id)initCuboidAt:(Vector3i *)position with:(Vector3i *)dimensions {
+- (id)initCuboidAt:(Vector3i *)position dimensions:(Vector3i *)dimensions texture:(NSString *)texture {
     if (self = [self init]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        
         Vector3i* pos2 = [[Vector3i alloc]initWithVector:position];
         [pos2 add:dimensions];
         
-        Face* bottom = [[Face alloc] initOnPlane:XZ at:position texture:nil];
+        Face* bottom = [[Face alloc] initOnPlane:XY at:position thirdAxisPositive:NO texture:texture];
         [faces addObject:bottom];
         [self registerAsObserverOf:bottom];
         [bottom release];
 
-        Face* left = [[Face alloc] initOnPlane:YZ at:position texture:nil];
+        Face* left = [[Face alloc] initOnPlane:XZ at:position thirdAxisPositive:NO texture:texture];
         [faces addObject:left];
         [self registerAsObserverOf:left];
         [left release];
         
-        Face* back = [[Face alloc] initOnPlane:XY at:position texture:nil];
+        Face* back = [[Face alloc] initOnPlane:YZ at:position thirdAxisPositive:NO texture:texture];
         [faces addObject:back];
         [self registerAsObserverOf:back];
         [back release];
         
-        Face* top = [[Face alloc] initOnPlane:XZ at:pos2 texture:nil];
+        Face* top = [[Face alloc] initOnPlane:XY at:pos2 thirdAxisPositive:YES texture:texture];
         [faces addObject:top];
         [self registerAsObserverOf:top];
         [top release];
         
-        Face* right = [[Face alloc] initOnPlane:YZ at:pos2 texture:nil];
+        Face* right = [[Face alloc] initOnPlane:XZ at:pos2 thirdAxisPositive:YES texture:texture];
         [faces addObject:right];
         [self registerAsObserverOf:right];
         [right release];
         
-        Face* front = [[Face alloc] initOnPlane:XY at:pos2 texture:nil];
+        Face* front = [[Face alloc] initOnPlane:YZ at:pos2 thirdAxisPositive:YES texture:texture];
         [faces addObject:front];
         [self registerAsObserverOf:front];
         [front release];
@@ -100,7 +100,10 @@ NSString* const BrushFaceChanged = @"FaceChanged";
     [center removeObserver:self name:FaceXScaleChanged object:face];
     [center removeObserver:self name:FaceYScaleChanged object:face];
 }
-         
+      
+- (NSNumber *)getId {
+    return brushId;
+}
          
 - (NSSet *)faces {
     return faces;

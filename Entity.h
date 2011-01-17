@@ -25,16 +25,20 @@ extern NSString* const EntityPropertyOldValue;
 @class Brush;
 
 @interface Entity : NSObject {
+    @private
+    NSNumber* entityId;
 	NSMutableSet* brushes;
 	NSMutableDictionary* properties;
 }
 
 - (id)initWithProperty:(NSString *)key value:(NSString *)value;
 
-- (Brush *)createCuboidAt:(Vector3i *)position with:(Vector3i *)dimensions;
+- (Brush *)createCuboidAt:(Vector3i *)position dimensions:(Vector3i *)dimensions texture:(NSString *)texture;
 
 - (void)addBrush:(Brush *)brush;
 - (void)removeBrush:(Brush *)brush;
+
+- (NSNumber *)getId;
 
 - (NSSet *)brushes;
 

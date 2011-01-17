@@ -41,6 +41,7 @@
 		487CA0BE125B005A002DF9D2 /* Plane3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0BC125B005A002DF9D2 /* Plane3D.m */; };
 		487CA0C5125B00E9002DF9D2 /* HalfSpace3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */; };
 		487CA0C6125B00E9002DF9D2 /* HalfSpace3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */; };
+		487E1E9412E495060001C150 /* IdGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E1E9312E495060001C150 /* IdGenerator.m */; };
 		487E3216114F768D0043A111 /* RenderBrush.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E3215114F768D0043A111 /* RenderBrush.m */; };
 		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
 		48A68EB8114E96C00064732A /* MapWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68EB7114E96C00064732A /* MapWindowController.m */; };
@@ -136,6 +137,8 @@
 		487CA0BC125B005A002DF9D2 /* Plane3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Plane3D.m; sourceTree = "<group>"; };
 		487CA0C3125B00E9002DF9D2 /* HalfSpace3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HalfSpace3D.h; sourceTree = "<group>"; };
 		487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HalfSpace3D.m; sourceTree = "<group>"; };
+		487E1E9212E495060001C150 /* IdGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IdGenerator.h; sourceTree = "<group>"; };
+		487E1E9312E495060001C150 /* IdGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IdGenerator.m; sourceTree = "<group>"; };
 		487E3214114F768D0043A111 /* RenderBrush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderBrush.h; sourceTree = "<group>"; };
 		487E3215114F768D0043A111 /* RenderBrush.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderBrush.m; sourceTree = "<group>"; };
 		48941664123619870098E17C /* Line2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2DTestCase.h; sourceTree = "<group>"; };
@@ -379,6 +382,8 @@
 				48527F3711148D5C00CD6043 /* Face.m */,
 				48A68F6E114EE6DC0064732A /* Map.h */,
 				48A68F6F114EE6DC0064732A /* Map.m */,
+				487E1E9212E495060001C150 /* IdGenerator.h */,
+				487E1E9312E495060001C150 /* IdGenerator.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -619,6 +624,7 @@
 				48B3251712E1FE0F008748E2 /* RenderMap.m in Sources */,
 				48B3251A12E1FE17008748E2 /* RenderEntity.m in Sources */,
 				48B325E512E3788D008748E2 /* AppDelegate.m in Sources */,
+				487E1E9412E495060001C150 /* IdGenerator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

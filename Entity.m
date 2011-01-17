@@ -7,6 +7,7 @@
 //
 
 #import "Entity.h"
+#import "IdGenerator.h"
 #import "Vector3i.h"
 #import "Brush.h"
 
@@ -28,6 +29,7 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
 
 - (id)initWithProperty:(NSString *)key value:(NSString *)value {
 	if (self = [super init]) {
+        entityId = [[IdGenerator sharedGenerator] getId];
 		properties = [[NSMutableDictionary alloc] init];
 		brushes = [[NSMutableSet alloc] init];
 
@@ -37,19 +39,18 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
 	return self;
 }
 
-- (Brush *)createCuboidAt:(Vector3i *)position with:(Vector3i *)dimensions {
-    Brush* brush = [[Brush alloc] initCuboidAt:position with:dimensions];
+- (Brush *)createCuboidAt:(Vector3i *)position dimensions:(Vector3i *)dimensions texture:(NSString *)texture {
+    Brush* brush = [[Brush alloc] initCuboidAt:position dimensions:dimensions texture:texture];
     [brushes addObject:brush];
-    [brush release];
     
-    return brush;
+    return [brush autorelease];
 }
 
 - (void)addBrush:(Brush *)brush {
     if (brush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
     
-    [brushes addObject: brush];
+    [brushes addObject:brush];
     
     NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:1];
     [info setObject:brush forKey:EntityBrush];
@@ -70,6 +71,10 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
     [info setObject:brush forKey:EntityBrush];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:EntityBrushRemoved object:self userInfo:info];
+}
+
+- (NSNumber *)getId {
+    return entityId;
 }
 
 - (NSSet *)brushes {

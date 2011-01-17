@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "RenderContext.h"
 
 @class Map;
 @class RenderEntity;
@@ -21,5 +22,7 @@
 
 - (void)entityAdded:(NSNotification *)notification;
 - (void)entityRemoved:(NSNotification *)notification;
+
+- (void)renderWithContext:(id <RenderContext>)renderContext;
 
 @end

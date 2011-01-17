@@ -37,18 +37,13 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 	glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    id <NSObject, RenderContext> renderContext = [[RenderContext3D alloc] init];
+    RenderContext3D* renderContext = [[RenderContext3D alloc] init];
     [renderContext updateView:bounds withCamera:camera];
     
     glPolygonMode(GL_FRONT, GL_FILL);
     glColor4f(1, 0, 0, 0);
     
-    glBegin(GL_QUADS);
-    glVertex3f(-5, 5, -10);
-    glVertex3f(-5, -5, -10);
-    glVertex3f(5, -5, -10);
-    glVertex3f(5, 5, -10);
-    glEnd();
+    [renderMap renderWithContext:renderContext];
     
     [[self openGLContext] flushBuffer];
     [renderContext release];

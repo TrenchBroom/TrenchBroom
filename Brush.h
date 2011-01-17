@@ -17,14 +17,16 @@ extern NSString* const BrushFaceChanged;
 
 @interface Brush : NSObject {
     @private
+    NSNumber* brushId;
 	NSMutableSet* faces;
 }
 
-- (id)initCuboidAt:(Vector3i *)position with:(Vector3i *)dimensions;
+- (id)initCuboidAt:(Vector3i *)position dimensions:(Vector3i *)dimensions texture:(NSString *)texture;
 - (void)faceChanged:(NSNotification *)notification;
 - (void)registerAsObserverOf:(Face *)face;
 - (void)deregisterAsObserverOf:(Face *)face;
 
+- (NSNumber* )getId;
 - (NSSet *)faces;
 - (NSSet *)polygons;
 @end

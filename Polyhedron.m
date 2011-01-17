@@ -34,14 +34,14 @@
 - (id)initMaximumCube {
     if (self == [super init]) {
         // create all vertices of the cube
-        Vector3f* lbb = [[Vector3f alloc] initWithX:-MAXFLOAT y:-MAXFLOAT z:-MAXFLOAT];
-        Vector3f* lbf = [[Vector3f alloc] initWithX:-MAXFLOAT y:-MAXFLOAT z: MAXFLOAT];
-        Vector3f* ltf = [[Vector3f alloc] initWithX:-MAXFLOAT y: MAXFLOAT z: MAXFLOAT];
-        Vector3f *ltb = [[Vector3f alloc] initWithX:-MAXFLOAT y: MAXFLOAT z:-MAXFLOAT];
-        Vector3f *rbb = [[Vector3f alloc] initWithX: MAXFLOAT y:-MAXFLOAT z:-MAXFLOAT];
-        Vector3f *rbf = [[Vector3f alloc] initWithX: MAXFLOAT y:-MAXFLOAT z: MAXFLOAT];
-        Vector3f *rtf = [[Vector3f alloc] initWithX: MAXFLOAT y: MAXFLOAT z: MAXFLOAT];
-        Vector3f *rtb = [[Vector3f alloc] initWithX: MAXFLOAT y: MAXFLOAT z:-MAXFLOAT];
+        Vector3f* lbb = [[Vector3f alloc] initWithX:-4096 y:-4096 z:-4096];
+        Vector3f* lbf = [[Vector3f alloc] initWithX:-4096 y:-4096 z: 4096];
+        Vector3f* ltf = [[Vector3f alloc] initWithX:-4096 y: 4096 z: 4096];
+        Vector3f *ltb = [[Vector3f alloc] initWithX:-4096 y: 4096 z:-4096];
+        Vector3f *rbb = [[Vector3f alloc] initWithX: 4096 y:-4096 z:-4096];
+        Vector3f *rbf = [[Vector3f alloc] initWithX: 4096 y:-4096 z: 4096];
+        Vector3f *rtf = [[Vector3f alloc] initWithX: 4096 y: 4096 z: 4096];
+        Vector3f *rtb = [[Vector3f alloc] initWithX: 4096 y: 4096 z:-4096];
 
         // create all sides of the cube with vertices in CCW order when looking from outside
         Polygon3D* left = [[Polygon3D alloc] initWithVertices:[NSArray arrayWithObjects:

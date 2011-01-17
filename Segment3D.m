@@ -35,6 +35,12 @@
     return endVertex;
 }
 
+- (void)flip {
+    Vector3f* temp = startVertex;
+    startVertex = endVertex;
+    endVertex = temp;
+}
+
 - (NSString *)description {
     return [NSString stringWithFormat:@"Start: %@, End: %@", startVertex, endVertex];
 }

@@ -11,6 +11,15 @@
 
 @implementation Vector3i
 
++ (Vector3i *)vectorWithVector:(Vector3i *)vector {
+    return [[[Vector3i alloc] initWithVector:vector] autorelease];
+}
+
++ (Vector3i *)vectorWithX:(int)xCoord y:(int)yCoord z:(int)zCoord {
+    return [[[Vector3i alloc] initWithX:xCoord y:yCoord z:zCoord] autorelease];
+}
+
+
 - (id)init {
 	if (self = [super init]) {
         coords[0] = 0;
@@ -33,7 +42,7 @@
 	return self;
 }
 
-- (id)initWithXCoord:(int)xCoord yCoord:(int)yCoord zCoord:(int)zCoord {
+- (id)initWithX:(int)xCoord y:(int)yCoord z:(int)zCoord {
 	if (self = [super init]) {
 		[self setX:xCoord];
 		[self setY:yCoord];

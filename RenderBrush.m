@@ -8,7 +8,6 @@
 
 #import <OpenGL/OpenGL.h>
 #import "Brush.h"
-#import "RenderContext.h"
 #import "RenderBrush.h"
 #import "Face.h"
 #import "Polyhedron.h"
@@ -49,7 +48,7 @@
     return brush;
 }
 
-- (void)renderWithContext:(RenderContext *)context {
+- (void)renderWithContext:(id <RenderContext>)context {
     [context renderBrush:self];
 }
 

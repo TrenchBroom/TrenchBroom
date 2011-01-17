@@ -8,6 +8,8 @@
 
 #import "MapDocument.h"
 #import "Map.h"
+#import "Entity.h"
+#import "Vector3i.h"
 #import "MapWindowController.h"
 
 @implementation MapDocument
@@ -15,16 +17,15 @@
 - (void)makeWindowControllers {
 	MapWindowController* controller = [[MapWindowController alloc] initWithWindowNibName:@"MapDocument"];
 	[self addWindowController:controller];
-}
-
-- (void)windowControllerDidLoadNib:(NSWindowController *) aController {
-    [super windowControllerDidLoadNib:aController];
-    // Add any code here that needs to be executed once the windowController has loaded the document's window.
+    [controller release];
 }
 
 - (id)initWithType:(NSString *)typeName error:(NSError **)outError {
     if (self = [super initWithType:typeName error:outError]) {
         map = [[Map alloc] init];
+        [[map worldspawn] createCuboidAt:[Vector3i vectorWithX:0 y:0 z:0] 
+                              dimensions:[Vector3i vectorWithX:5 y:5 z:5] 
+                                 texture:@""];
     }
     
     return self;

@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "RenderContext.h"
 
 @class Entity;
 
@@ -23,4 +24,6 @@
 - (void)propertyAdded:(NSNotification *)notification;
 - (void)propertyRemoved:(NSNotification *)notification;
 - (void)propertyChanged:(NSNotification *)notification;
+
+- (void)renderWithContext:(id <RenderContext>)renderContext;
 @end
