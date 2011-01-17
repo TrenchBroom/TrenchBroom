@@ -13,7 +13,7 @@
 @implementation MapDocument
 
 - (void)makeWindowControllers {
-	MapWindowController* controller = [[MapWindowController alloc] initWithWindowNibName:@"MapDocument" owner:self];
+	MapWindowController* controller = [[MapWindowController alloc] initWithWindowNibName:@"MapDocument"];
 	[self addWindowController:controller];
 }
 
