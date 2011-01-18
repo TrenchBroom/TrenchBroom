@@ -100,7 +100,15 @@ NSString* const BrushFaceChanged = @"FaceChanged";
     [center removeObserver:self name:FaceXScaleChanged object:face];
     [center removeObserver:self name:FaceYScaleChanged object:face];
 }
-      
+
+- (Face *)createFaceWithPoint1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3 texture:(NSString *)texture {
+    Face* face = [[Face alloc] initWithPoint1:point1 point2:point2 point3:point3 texture:texture];
+    [faces addObject:face];
+    [self registerAsObserverOf:face];
+    
+    return [face autorelease];
+}
+
 - (NSNumber *)getId {
     return brushId;
 }

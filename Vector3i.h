@@ -13,6 +13,7 @@
     int coords[3];
 }
 
++ (Vector3i *)vector;
 + (Vector3i *)vectorWithVector:(Vector3i *)vector;
 + (Vector3i *)vectorWithX:(int)xCoord y:(int)yCoord z:(int)zCoord;
 

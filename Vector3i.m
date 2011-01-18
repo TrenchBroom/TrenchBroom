@@ -11,6 +11,10 @@
 
 @implementation Vector3i
 
++ (Vector3i *)vector {
+    return [[[Vector3i alloc] init] autorelease];
+}
+
 + (Vector3i *)vectorWithVector:(Vector3i *)vector {
     return [[[Vector3i alloc] initWithVector:vector] autorelease];
 }

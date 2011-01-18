@@ -26,6 +26,8 @@ extern NSString* const BrushFaceChanged;
 - (void)registerAsObserverOf:(Face *)face;
 - (void)deregisterAsObserverOf:(Face *)face;
 
+- (Face *)createFaceWithPoint1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3 texture:(NSString *)texture;
+
 - (NSNumber* )getId;
 - (NSSet *)faces;
 - (NSSet *)polygons;

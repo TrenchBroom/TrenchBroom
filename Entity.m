@@ -27,12 +27,18 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
 
 @implementation Entity
 
-- (id)initWithProperty:(NSString *)key value:(NSString *)value {
-	if (self = [super init]) {
+- (id)init {
+    if (self = [super init]) {
         entityId = [[IdGenerator sharedGenerator] getId];
 		properties = [[NSMutableDictionary alloc] init];
 		brushes = [[NSMutableSet alloc] init];
+    }
+    
+    return self;
+}
 
+- (id)initWithProperty:(NSString *)key value:(NSString *)value {
+	if (self = [self init]) {
 		[self setProperty:key value:value];
 	}
 	
@@ -41,7 +47,14 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
 
 - (Brush *)createCuboidAt:(Vector3i *)position dimensions:(Vector3i *)dimensions texture:(NSString *)texture {
     Brush* brush = [[Brush alloc] initCuboidAt:position dimensions:dimensions texture:texture];
-    [brushes addObject:brush];
+    [self addBrush:brush];
+    
+    return [brush autorelease];
+}
+
+- (Brush *)createBrush {
+    Brush* brush = [[Brush alloc] init];
+    [self addBrush:brush];
     
     return [brush autorelease];
 }
@@ -120,13 +133,16 @@ NSString* const EntityPropertyOldValue = @"PropertyOldValue";
     return (NSString *)[properties objectForKey:key];
 }
 
+- (NSString *)classname {
+    return [self propertyForKey:@"classname"];
+}
+
 - (NSDictionary *)properties {
     return properties;
 }
 
 - (BOOL)isWorldspawn {
-    NSString* classname = [self propertyForKey:@"classname"];
-    return [classname isEqualToString:@"worldspawn"];
+    return [[self classname] isEqualToString:@"worldspawn"];
 }
 
 - (void) dealloc {

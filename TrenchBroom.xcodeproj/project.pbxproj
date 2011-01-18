@@ -37,6 +37,9 @@
 		485FD0CC1257A8D900F4AE49 /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0CA1257A8D900F4AE49 /* Math3D.m */; };
 		486641111229854E00752B89 /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
 		486641C412298AED00752B89 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4866413E122986AF00752B89 /* SenTestingKit.framework */; };
+		48770FF312E5BE66009B440B /* Tokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF212E5BE66009B440B /* Tokenizer.m */; };
+		48770FF612E5BF28009B440B /* Token.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF512E5BF28009B440B /* Token.m */; };
+		4877106E12E5DA55009B440B /* MapParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4877106D12E5DA55009B440B /* MapParser.m */; };
 		487CA0BD125B005A002DF9D2 /* Plane3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0BC125B005A002DF9D2 /* Plane3D.m */; };
 		487CA0BE125B005A002DF9D2 /* Plane3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0BC125B005A002DF9D2 /* Plane3D.m */; };
 		487CA0C5125B00E9002DF9D2 /* HalfSpace3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */; };
@@ -133,6 +136,12 @@
 		485FD0C91257A8D900F4AE49 /* Math3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math3D.h; sourceTree = "<group>"; };
 		485FD0CA1257A8D900F4AE49 /* Math3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math3D.m; sourceTree = "<group>"; };
 		4866413E122986AF00752B89 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = /Developer/Library/Frameworks/SenTestingKit.framework; sourceTree = "<absolute>"; };
+		48770FF112E5BE66009B440B /* Tokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tokenizer.h; sourceTree = "<group>"; };
+		48770FF212E5BE66009B440B /* Tokenizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tokenizer.m; sourceTree = "<group>"; };
+		48770FF412E5BF28009B440B /* Token.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Token.h; sourceTree = "<group>"; };
+		48770FF512E5BF28009B440B /* Token.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Token.m; sourceTree = "<group>"; };
+		4877106C12E5DA55009B440B /* MapParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapParser.h; sourceTree = "<group>"; };
+		4877106D12E5DA55009B440B /* MapParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapParser.m; sourceTree = "<group>"; };
 		487CA0BB125B005A002DF9D2 /* Plane3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane3D.h; sourceTree = "<group>"; };
 		487CA0BC125B005A002DF9D2 /* Plane3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Plane3D.m; sourceTree = "<group>"; };
 		487CA0C3125B00E9002DF9D2 /* HalfSpace3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HalfSpace3D.h; sourceTree = "<group>"; };
@@ -330,6 +339,19 @@
 			name = 3D;
 			sourceTree = "<group>";
 		};
+		48770FF012E5BE58009B440B /* IO */ = {
+			isa = PBXGroup;
+			children = (
+				48770FF112E5BE66009B440B /* Tokenizer.h */,
+				48770FF212E5BE66009B440B /* Tokenizer.m */,
+				48770FF412E5BF28009B440B /* Token.h */,
+				48770FF512E5BF28009B440B /* Token.m */,
+				4877106C12E5DA55009B440B /* MapParser.h */,
+				4877106D12E5DA55009B440B /* MapParser.m */,
+			);
+			name = IO;
+			sourceTree = "<group>";
+		};
 		487E31F3114F741F0043A111 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
@@ -374,6 +396,7 @@
 		48A68E93114E92730064732A /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				48770FF012E5BE58009B440B /* IO */,
 				48527F3C11148EAA00CD6043 /* Brush.h */,
 				48527F3D11148EAA00CD6043 /* Brush.m */,
 				48A68F25114EDF360064732A /* Entity.h */,
@@ -625,6 +648,9 @@
 				48B3251A12E1FE17008748E2 /* RenderEntity.m in Sources */,
 				48B325E512E3788D008748E2 /* AppDelegate.m in Sources */,
 				487E1E9412E495060001C150 /* IdGenerator.m in Sources */,
+				48770FF312E5BE66009B440B /* Tokenizer.m in Sources */,
+				48770FF612E5BF28009B440B /* Token.m in Sources */,
+				4877106E12E5DA55009B440B /* MapParser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

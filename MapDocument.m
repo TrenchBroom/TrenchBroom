@@ -11,6 +11,7 @@
 #import "Entity.h"
 #import "Vector3i.h"
 #import "MapWindowController.h"
+#import "MapParser.h"
 
 @implementation MapDocument
 
@@ -23,7 +24,8 @@
 - (id)initWithType:(NSString *)typeName error:(NSError **)outError {
     if (self = [super initWithType:typeName error:outError]) {
         map = [[Map alloc] init];
-        [[map worldspawn] createCuboidAt:[Vector3i vectorWithX:0 y:0 z:0] 
+        Entity* worldspawn = [map createEntityWithProperty:@"classname" value:@"worldspawn"];
+        [worldspawn createCuboidAt:[Vector3i vectorWithX:0 y:0 z:0] 
                               dimensions:[Vector3i vectorWithX:5 y:5 z:5] 
                                  texture:@""];
     }
@@ -36,7 +38,11 @@
 }
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
-    return NO;
+    MapParser* parser = [[MapParser alloc] initWithData:data];
+    map = [[parser parse] retain];
+    
+    [parser release];
+    return YES;
 }
 
 - (Map *)map {

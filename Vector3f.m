@@ -12,6 +12,11 @@
 
 @implementation Vector3f
 
++ (Vector3f *)vector {
+    return [[[Vector3f alloc] init] autorelease];
+}
+
+
 + (Vector3f *)add:(Vector3f *)left addend:(Vector3f *)right {
     Vector3f* result = [[Vector3f alloc] initWithFloatVector:left];
     [result add:right];

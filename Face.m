@@ -282,7 +282,7 @@ NSString* const FaceYScaleNew = @"YScaleNew";
     [[NSNotificationCenter defaultCenter] postNotificationName:FaceXScaleChanged object:self userInfo:info];
 }
 
-- (void)setYSCale:(float)factor {
+- (void)setYScale:(float)factor {
     if (yScale == factor)
         return;
     

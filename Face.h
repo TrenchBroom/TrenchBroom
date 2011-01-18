@@ -84,7 +84,7 @@ typedef enum {
 - (void)setYOffset:(int)offset;
 - (void)setRotation:(float)angle;
 - (void)setXScale:(float)factor;
-- (void)setYSCale:(float)factor;
+- (void)setYScale:(float)factor;
 
 - (HalfSpace3D *)halfSpace;
 @end

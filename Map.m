@@ -20,14 +20,32 @@ NSString* const MapEntity = @"Entity";
 - (id)init {
     if (self = [super init]) {
         entities = [[NSMutableSet alloc] init];
-        worldspawn = [self createEntityWithProperty:@"classname" value:@"worldspawn"];
+        worldspawn = nil;
     }
     
     return self;
 }
 
 - (Entity *)worldspawn {
+    if (worldspawn == nil || ![worldspawn isWorldspawn]) {
+        NSEnumerator* en = [entities objectEnumerator];
+        while ((worldspawn = [en nextObject]))
+            if ([worldspawn isWorldspawn])
+                break;
+    }
+    
     return worldspawn;
+}
+
+- (Entity *)createEntity {
+    Entity* entity = [[Entity alloc] init];
+    [entities addObject:entity];
+    
+    NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:1];
+    [info setObject:entity forKey:MapEntity];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:MapEntityAdded object:self userInfo:info];
+    return [entity autorelease];
 }
 
 - (Entity *)createEntityWithProperty:(NSString *)key value:(NSString *)value {

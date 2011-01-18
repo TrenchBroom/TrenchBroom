@@ -17,12 +17,13 @@ extern NSString* const MapEntity;
 
 @interface Map : NSObject {
     @private
-    Entity* worldspawn;
     NSMutableSet* entities;
+    Entity* worldspawn;
 }
 
 - (Entity *)worldspawn;
 
+- (Entity *)createEntity;
 - (Entity *)createEntityWithProperty:(NSString *)key value:(NSString *)value;
 - (void)removeEntity:(Entity *)entity;
 

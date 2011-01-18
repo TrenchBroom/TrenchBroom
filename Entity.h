@@ -34,6 +34,7 @@ extern NSString* const EntityPropertyOldValue;
 - (id)initWithProperty:(NSString *)key value:(NSString *)value;
 
 - (Brush *)createCuboidAt:(Vector3i *)position dimensions:(Vector3i *)dimensions texture:(NSString *)texture;
+- (Brush *)createBrush;
 
 - (void)addBrush:(Brush *)brush;
 - (void)removeBrush:(Brush *)brush;
@@ -45,6 +46,7 @@ extern NSString* const EntityPropertyOldValue;
 - (void)setProperty:(NSString *)key value:(NSString *)value;
 - (void)removeProperty:(NSString *)key;
 - (NSString *)propertyForKey:(NSString *)key;
+- (NSString *)classname;
 
 - (NSDictionary *)properties;
 

@@ -21,6 +21,7 @@
 + (Vector3f *)cross:(Vector3f *)left factor:(Vector3f *)right;
 + (Vector3f *)normalize:(Vector3f *)vector;
 
++ (Vector3f *)vector;
 + (Vector3f *)vectorWithFloatVector:(Vector3f *)vector;
 + (Vector3f *)vectorWithIntVector:(Vector3i *)vector;
 + (Vector3f *)vectorWithX:(float)xCoord y:(float)yCoord z:(float)zCoord;
