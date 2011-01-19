@@ -29,6 +29,8 @@
         NSArray* vertices = [polygon vertices];
         
         glBegin(GL_POLYGON);
+        Vector3f* norm = [polygon norm];
+        glNormal3f([norm x], [norm y], [norm z]);
         for (int i = 0; i < [vertices count]; i++) {
             Vector3f* vertex = [vertices objectAtIndex:i];
             glVertex3f([vertex x], [vertex y], [vertex z]);

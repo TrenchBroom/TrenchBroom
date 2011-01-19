@@ -14,23 +14,30 @@
 #import "Vector3f.h"
 
 @implementation Polygon3D
++ (Polygon3D *)polygonWithVertices:(NSArray *)someVertices norm:(Vector3f *)aNorm {
+    return [[[Polygon3D alloc] initWithVertices:someVertices norm:aNorm] autorelease];
+}
+
 + (Polygon3D *)polygonWithVertices:(NSArray *)someVertices {
     return [[[Polygon3D alloc] initWithVertices:someVertices] autorelease];
 }
 
 - (id)init {
-    if (self == [super init])
+    if (self == [super init]) {
         vertices = [[NSMutableArray alloc] init];
-
+        norm = [[Vector3f alloc] init];
+    }
+    
     return self;
 }
 
-- (id)initWithVertices:(NSArray *)someVertices {
+- (id)initWithVertices:(NSArray *)someVertices norm:(Vector3f *)aNorm {
     if (someVertices == nil)
         [NSException raise:NSInvalidArgumentException format:@"vertex array must not be nil"];
     if ([someVertices count] < 3)
         [NSException raise:NSInvalidArgumentException format:@"vertex array must contain at least three vertices"];
-        
+    if (aNorm == nil)
+        [NSException raise:NSInvalidArgumentException format:@"normal must not be nil"];
         
     if (self = [super init]) {
         int si = smallestVertex(someVertices);
@@ -43,18 +50,43 @@
             for (i = 0; i < c; i++)
                 [vertices addObject:[someVertices objectAtIndex:(i + si) % c]];
         }
+        
+        norm = [[Vector3f alloc] initWithFloatVector:aNorm];
     }
     
     return self;
+}
+
+- (id)initWithVertices:(NSArray *)someVertices {
+    if (someVertices == nil)
+        [NSException raise:NSInvalidArgumentException format:@"vertex array must not be nil"];
+    if ([someVertices count] < 3)
+        [NSException raise:NSInvalidArgumentException format:@"vertex array must contain at least three vertices"];
+
+    // assumes CCW order of vertices
+    Vector3f* v1 = [Vector3f sub:[someVertices objectAtIndex:1] subtrahend:[someVertices objectAtIndex:0]];
+    Vector3f* v2 = [Vector3f sub:[someVertices objectAtIndex:2] subtrahend:[someVertices objectAtIndex:1]];
+    [v2 cross:v1];
+    [v2 normalize];
+    
+    return [self initWithVertices:someVertices norm:v2];
 }
 
 - (NSArray *)vertices {
     return vertices;
 }
 
+- (Vector3f *)norm {
+    return norm;
+}
+
 - (BOOL)isEqualToPolygon:(Polygon3D *)polygon {
     if ([self isEqual:polygon])
         return YES;
+    
+    Vector3f* otherNorm = [polygon norm];
+    if (![otherNorm isEqualToVector:norm])
+        return NO;
     
     NSArray* otherVertices = [polygon vertices];
     if ([vertices count] != [otherVertices count])
@@ -72,7 +104,7 @@
 }
 
 - (NSString *)description {
-    NSMutableString* descr = [NSMutableString string];
+    NSMutableString* descr = [NSMutableString stringWithFormat:@"normal: %@, vertices: ", norm];
     NSEnumerator* vertexEn = [vertices objectEnumerator];
     Vector3f* vertex;
     while ((vertex = [vertexEn nextObject]))
@@ -81,6 +113,7 @@
 }
 
 - (void)dealloc {
+    [norm release];
     [vertices release];
     [super dealloc];
 }

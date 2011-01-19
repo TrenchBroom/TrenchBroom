@@ -140,7 +140,7 @@
         Vector3f *rtb = [[Vector3f alloc] initWithFloatVector:center];
         [rtb addX:dx y:dy z:-dz];
         
-        // create all sides of the cube with vertices in CCW order when looking from outside
+        // create all sides of the cube
         Polygon3D* left = [[Polygon3D alloc] initWithVertices:[NSArray arrayWithObjects:
                                                                [Vector3f vectorWithFloatVector:lbb], 
                                                                [Vector3f vectorWithFloatVector:lbf],

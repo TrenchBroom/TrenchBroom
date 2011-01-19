@@ -10,12 +10,27 @@
 #import "Vector3i.h"
 #import "Math.h"
 
+static Vector3f* gXAxisPos;
+static Vector3f* gXAxisNeg;
+static Vector3f* gYAxisPos;
+static Vector3f* gYAxisNeg;
+static Vector3f* gZAxisPos;
+static Vector3f* gZAxisNeg;
+
 @implementation Vector3f
+
++ (void)initialize {
+    gXAxisPos = [Vector3f vectorWithX:1 y:0 z:0];
+    gXAxisNeg = [Vector3f vectorWithX:-1 y:0 z:0];
+    gYAxisPos = [Vector3f vectorWithX:0 y:1 z:0];
+    gYAxisNeg = [Vector3f vectorWithX:0 y:-1 z:0];
+    gZAxisPos = [Vector3f vectorWithX:0 y:0 z:1];
+    gZAxisNeg = [Vector3f vectorWithX:0 y:0 z:-1];
+}
 
 + (Vector3f *)vector {
     return [[[Vector3f alloc] init] autorelease];
 }
-
 
 + (Vector3f *)add:(Vector3f *)left addend:(Vector3f *)right {
     Vector3f* result = [[Vector3f alloc] initWithFloatVector:left];
@@ -53,6 +68,29 @@
     return [[[Vector3f alloc] initWithX:xCoord y:yCoord z:zCoord] autorelease];
 }
 
++ (Vector3f *)xAxisPos {
+    return gXAxisPos;
+}
+
++ (Vector3f *)xAxisNeg {
+    return gXAxisNeg;
+}
+
++ (Vector3f *)yAxisPos {
+    return gYAxisPos;
+}
+
++ (Vector3f *)yAxisNeg {
+    return gYAxisNeg;
+}
+
++ (Vector3f *)zAxisPos {
+    return gZAxisPos;
+}
+
++ (Vector3f *)zAxisNeg {
+    return gZAxisNeg;
+}
 
 - (id)init {
 	if (self = [super init]) {

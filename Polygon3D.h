@@ -9,17 +9,21 @@
 #import <Cocoa/Cocoa.h>
 
 @class HalfSpace3D;
+@class Vector3f;
 
 @interface Polygon3D : NSObject {
     @private
     NSMutableArray* vertices;
+    Vector3f* norm;
 }
++ (Polygon3D *)polygonWithVertices:(NSArray *)someVertices norm:(Vector3f *)aNorm;
 + (Polygon3D *)polygonWithVertices:(NSArray *)someVertices;
 
-- (id)init;
+- (id)initWithVertices:(NSArray *)someVertices norm:(Vector3f *)aNorm;
 - (id)initWithVertices:(NSArray *)someVertices;
 
 - (NSArray *)vertices;
+- (Vector3f *)norm;
 
 - (BOOL)isEqualToPolygon:(Polygon3D *)polygon;
 @end

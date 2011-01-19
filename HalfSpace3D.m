@@ -154,7 +154,7 @@
     if ([newVertices count] == 0)
         return nil;
     
-    return [Polygon3D polygonWithVertices:newVertices];
+    return [Polygon3D polygonWithVertices:newVertices norm:[polygon norm]];
 }
 
 - (Polyhedron *)intersectWithPolyhedron:(Polyhedron *)polyhedron {
@@ -170,7 +170,7 @@
     while ((side = [sideEn nextObject])) {
         Segment3D* newSegment = [self intersectWithPolygon:side vertexArray:newVertices];
         if ([newVertices count] != 0)
-            [newSides addObject:[Polygon3D polygonWithVertices:newVertices]];
+            [newSides addObject:[Polygon3D polygonWithVertices:newVertices norm:[side norm]]];
         if (newSegment != nil)
             [newSegments addObject:newSegment];
         [newVertices removeAllObjects];
@@ -194,27 +194,14 @@
             }
         }
     }
-    [newSegments release];
 
-    if ([newVertices count] > 0) {
-        Vector3f* v1 = [Vector3f sub:[newVertices objectAtIndex:2] subtrahend:[newVertices objectAtIndex:1]];
-        Vector3f* v2 = [Vector3f sub:[newVertices objectAtIndex:1] subtrahend:[newVertices objectAtIndex:0]];
-        [v1 cross:v2];
-        [v1 normalize];
-
-        // invert the vertex array
-        if ([v1 isEqualToVector:outside]) {
-            int c = [newVertices count];
-            for (int i = 0; i < c / 2; i++)
-                [newVertices exchangeObjectAtIndex:i withObjectAtIndex:c - i - 1];
-        }
-
-        [newSides addObject:[Polygon3D polygonWithVertices:newVertices]];
-    }
-    [newVertices release];
+    if ([newVertices count] > 0)
+        [newSides addObject:[Polygon3D polygonWithVertices:newVertices norm:outside]];
     
     Polyhedron* result = [Polyhedron polyhedronWithSides:newSides];
     [newSides release];
+    [newSegments release];
+    [newVertices release];
 
     return result;
 }

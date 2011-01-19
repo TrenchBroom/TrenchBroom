@@ -16,6 +16,7 @@
 	float y;
 	float z;
 }
+
 + (Vector3f *)add:(Vector3f *)left addend:(Vector3f *)right;
 + (Vector3f *)sub:(Vector3f *)left subtrahend:(Vector3f *)right;
 + (Vector3f *)cross:(Vector3f *)left factor:(Vector3f *)right;
@@ -25,6 +26,13 @@
 + (Vector3f *)vectorWithFloatVector:(Vector3f *)vector;
 + (Vector3f *)vectorWithIntVector:(Vector3i *)vector;
 + (Vector3f *)vectorWithX:(float)xCoord y:(float)yCoord z:(float)zCoord;
+
++ (Vector3f *)xAxisPos;
++ (Vector3f *)xAxisNeg;
++ (Vector3f *)yAxisPos;
++ (Vector3f *)yAxisNeg;
++ (Vector3f *)zAxisPos;
++ (Vector3f *)zAxisNeg;
 
 - (id)initWithFloatVector:(Vector3f *)vector;
 - (id)initWithIntVector:(Vector3i *)vector;
