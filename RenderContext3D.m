@@ -22,7 +22,7 @@
 
 - (void)renderBrush:(RenderBrush *)renderBrush {
     Brush* brush = [renderBrush brush];
-    NSSet* polygons = [brush polygons];
+    NSArray* polygons = [brush polygons];
     NSEnumerator* polygonEn = [polygons objectEnumerator];
     Polygon3D* polygon;
     while ((polygon = [polygonEn nextObject])) {

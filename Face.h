@@ -8,35 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-extern NSString* const FacePoint1Changed;
-extern NSString* const FacePoint2Changed;
-extern NSString* const FacePoint3Changed;
-extern NSString* const FaceTextureChanged;
-extern NSString* const FaceXOffsetChanged;
-extern NSString* const FaceYOffsetChanged;
-extern NSString* const FaceRotationChanged;
-extern NSString* const FaceXScaleChanged;
-extern NSString* const FaceYScaleChanged;
-
-extern NSString* const FacePoint1Old;
-extern NSString* const FacePoint1New;
-extern NSString* const FacePoint2Old;
-extern NSString* const FacePoint2New;
-extern NSString* const FacePoint3Old;
-extern NSString* const FacePoint3New;
-extern NSString* const FaceTextureOld;
-extern NSString* const FaceTextureNew;
-extern NSString* const FaceXOffsetOld;
-extern NSString* const FaceXOffsetNew;
-extern NSString* const FaceYOffsetOld;
-extern NSString* const FaceYOffsetNew;
-extern NSString* const FaceRotationOld;
-extern NSString* const FaceRotationNew;
-extern NSString* const FaceXScaleOld;
-extern NSString* const FaceXScaleNew;
-extern NSString* const FaceYScaleOld;
-extern NSString* const FaceYScaleNew;
-
 typedef enum {
     XY, XZ, YZ
 } EPlaneType;

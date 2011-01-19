@@ -12,35 +12,6 @@
 #import "HalfSpace3D.h"
 #import "Vector3f.h"
 
-NSString* const FacePoint1Changed = @"Point1Changed";
-NSString* const FacePoint2Changed = @"Point2Changed";
-NSString* const FacePoint3Changed = @"Point3Changed";
-NSString* const FaceTextureChanged = @"TextureChanged";
-NSString* const FaceXOffsetChanged = @"XOffsetChanged";
-NSString* const FaceYOffsetChanged = @"YOffsetChanged";
-NSString* const FaceRotationChanged = @"RotationChanged";
-NSString* const FaceXScaleChanged = @"XScaleChanged";
-NSString* const FaceYScaleChanged = @"YScaleChanged";
-
-NSString* const FacePoint1Old = @"Point1Old";
-NSString* const FacePoint1New = @"Point1New";
-NSString* const FacePoint2Old = @"Point2Old";
-NSString* const FacePoint2New = @"Point2New";
-NSString* const FacePoint3Old = @"Point3Old";
-NSString* const FacePoint3New = @"Point3New";
-NSString* const FaceTextureOld = @"TextureOld";
-NSString* const FaceTextureNew = @"TextureNew";
-NSString* const FaceXOffsetOld = @"XOffsetOld";
-NSString* const FaceXOffsetNew = @"XOffsetNew";
-NSString* const FaceYOffsetOld = @"YOffsetOld";
-NSString* const FaceYOffsetNew = @"YOffsetNew";
-NSString* const FaceRotationOld = @"RotationOld";
-NSString* const FaceRotationNew = @"RotationNew";
-NSString* const FaceXScaleOld = @"XScaleOld";
-NSString* const FaceXScaleNew = @"XScaleNew";
-NSString* const FaceYScaleOld = @"YScaleOld";
-NSString* const FaceYScaleNew = @"YScaleNew";
-
 @implementation Face
 
 - (id)init {
@@ -154,148 +125,48 @@ NSString* const FaceYScaleNew = @"YScaleNew";
     if (point == nil)
         [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
 
-    if ([point1 isEqual:point])
-        return;
-    
-    Vector3i* old = [[Vector3i alloc] initWithVector:point1];
     [point1 set:point];
-    
-    NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:2];
-    [info setObject:old forKey:FacePoint1Old];
-    [info setObject:point1 forKey:FacePoint1New];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:FacePoint1Changed object:self userInfo:info];
 }
 
 - (void)setPoint2:(Vector3i *)point {
     if (point == nil)
         [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
 
-    if ([point2 isEqual:point])
-        return;
-    
-    Vector3i* old = [[Vector3i alloc] initWithVector:point2];
     [point2 set:point];
-    
-    NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:2];
-    [info setObject:old forKey:FacePoint2Old];
-    [info setObject:point2 forKey:FacePoint2New];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:FacePoint2Changed object:self userInfo:info];
 }
 
 - (void)setPoint3:(Vector3i *)point {
     if (point == nil)
         [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
 
-    if ([point3 isEqual:point])
-        return;
-    
-    Vector3i* old = [[Vector3i alloc] initWithVector:point3];
     [point3 set:point];
-
-    NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:2];
-    [info setObject:old forKey:FacePoint3Old];
-    [info setObject:point3 forKey:FacePoint3New];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:FacePoint3Changed object:self userInfo:info];
 }
 
 - (void)setTexture:(NSString *)name {
     if (name == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture name must not be nil"];
     
-    if ([texture isEqualToString:name])
-        return;
-    
-    NSString* old = [[NSString alloc] initWithString:texture];
     [texture setString:name];
-    
-    NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:2];
-    [info setObject:old forKey:FaceTextureOld];
-    [info setObject:texture forKey:FaceTextureNew];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:FaceTextureChanged object:self userInfo:info];
 }
 
 - (void)setXOffset:(int)offset {
-    if (xOffset == offset)
-        return;
-    
-    NSNumber* old = [[NSNumber alloc] initWithInt:xOffset];
-    NSNumber* new = [[NSNumber alloc] initWithInt:offset];
-    
 	xOffset = offset;
-    
-    NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:2];
-    [info setObject:old forKey:FaceXOffsetOld];
-    [info setObject:new forKey:FaceXOffsetNew];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:FaceXOffsetChanged object:self userInfo:info];
 }
 
 - (void)setYOffset:(int)offset {
-    if (yOffset == offset)
-        return;
-    
-    NSNumber* old = [[NSNumber alloc] initWithInt:yOffset];
-    NSNumber* new = [[NSNumber alloc] initWithInt:offset];
-    
 	yOffset = offset;
-    
-    NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:2];
-    [info setObject:old forKey:FaceYOffsetOld];
-    [info setObject:new forKey:FaceYOffsetNew];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:FaceYOffsetChanged object:self userInfo:info];
 }
 
 - (void)setRotation:(float)angle {
-    if (rotation == angle)
-        return;
-    
-    NSNumber* old = [[NSNumber alloc] initWithFloat:rotation];
-    NSNumber* new = [[NSNumber alloc] initWithFloat:angle];
-    
 	rotation = angle;
-    
-    NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:2];
-    [info setObject:old forKey:FaceRotationOld];
-    [info setObject:new forKey:FaceRotationNew];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:FaceRotationChanged object:self userInfo:info];
 }
 
 - (void)setXScale:(float)factor {
-    if (xScale == factor)
-        return;
-    
-    NSNumber* old = [[NSNumber alloc] initWithFloat:xScale];
-    NSNumber* new = [[NSNumber alloc] initWithFloat:factor];
-    
 	xScale = factor;
-    
-    NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:2];
-    [info setObject:old forKey:FaceXScaleOld];
-    [info setObject:new forKey:FaceXScaleNew];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:FaceXScaleChanged object:self userInfo:info];
 }
 
 - (void)setYScale:(float)factor {
-    if (yScale == factor)
-        return;
-    
-    NSNumber* old = [[NSNumber alloc] initWithFloat:yScale];
-    NSNumber* new = [[NSNumber alloc] initWithFloat:factor];
-    
 	yScale = factor;
-    
-    NSMutableDictionary* info = [NSMutableDictionary dictionaryWithCapacity:2];
-    [info setObject:old forKey:FaceYScaleOld];
-    [info setObject:new forKey:FaceYScaleNew];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:FaceYScaleChanged object:self userInfo:info];
 }
 
 - (HalfSpace3D *)halfSpace {

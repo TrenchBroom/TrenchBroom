@@ -13,17 +13,17 @@
 
 @interface Polyhedron : NSObject {
     @private
-    NSMutableSet* sides;
+    NSMutableArray* sides;
 }
 + (Polyhedron *)maximumCube;
 + (Polyhedron *)cuboidAt:(Vector3f *)center dimensions:(Vector3f *)dimensions;
-+ (Polyhedron *)polyhedronWithSides:(NSSet *)sides;
++ (Polyhedron *)polyhedronWithSides:(NSArray *)sides;
 
 - (id)initMaximumCube;
 - (id)initCuboidAt:(Vector3f *)center dimensions:(Vector3f *)dimensions;
-- (id)initWithSides:(NSSet *)someSides;
+- (id)initWithSides:(NSArray *)someSides;
 
-- (NSSet *)sides;
+- (NSArray *)sides;
 
 - (BOOL)isEqualToPolyhedron:(Polyhedron *)polyhedron;
 @end

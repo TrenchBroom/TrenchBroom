@@ -23,6 +23,4 @@
 
 - (void)renderWithContext:(id <RenderContext>)renderContext;
 
-- (void)brushChanged:(NSNotification *)notification;
-
 @end

@@ -18,12 +18,5 @@
 
 - (id)initWithEntity:(Entity *)anEntity;
 
-- (void)brushAdded:(NSNotification *)notification;
-- (void)brushRemoved:(NSNotification *)notification;
-
-- (void)propertyAdded:(NSNotification *)notification;
-- (void)propertyRemoved:(NSNotification *)notification;
-- (void)propertyChanged:(NSNotification *)notification;
-
 - (void)renderWithContext:(id <RenderContext>)renderContext;
 @end

@@ -28,12 +28,8 @@
 
     if (self = [self init]) {
         map = [aMap retain];
-
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center addObserver:self selector:@selector(entityAdded:) name:MapEntityAdded object:map];
-        [center addObserver:self selector:@selector(entityRemoved:) name:MapEntityRemoved object:map];
         
-        NSSet* entities = [map entities];
+        NSArray* entities = [map entities];
         NSEnumerator* entityEn = [entities objectEnumerator];
         Entity* entity;
         
@@ -45,18 +41,6 @@
     }
     
     return self;
-}
-
-- (void)entityAdded:(NSNotification *)notification {
-    Entity* entity = [notification object];
-    RenderEntity* renderEntity = [[RenderEntity alloc] initWithEntity:entity];
-    [renderEntities setObject:renderEntity forKey:[entity getId]];
-    [renderEntity release];
-}
-
-- (void)entityRemoved:(NSNotification *)notification {
-    Entity* entity = [notification object];
-    [renderEntities removeObjectForKey:[entity getId]];
 }
 
 - (void)renderWithContext:(id <RenderContext>)renderContext {
@@ -71,7 +55,6 @@
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [renderEntities release];
     [map release];
     [super dealloc];

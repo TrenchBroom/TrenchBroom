@@ -8,26 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 
-extern NSString* const EntityBrushAdded;
-extern NSString* const EntityBrushRemoved;
-
-extern NSString* const EntityBrush;
-
-extern NSString* const EntityPropertyAdded;
-extern NSString* const EntityPropertyRemoved;
-extern NSString* const EntityPropertyChanged;
-
-extern NSString* const EntityPropertyKey;
-extern NSString* const EntityPropertyNewValue;
-extern NSString* const EntityPropertyOldValue;
-
 @class Vector3i;
 @class Brush;
 
 @interface Entity : NSObject {
     @private
     NSNumber* entityId;
-	NSMutableSet* brushes;
+	NSMutableArray* brushes;
 	NSMutableDictionary* properties;
 }
 
@@ -36,12 +23,9 @@ extern NSString* const EntityPropertyOldValue;
 - (Brush *)createCuboidAt:(Vector3i *)position dimensions:(Vector3i *)dimensions texture:(NSString *)texture;
 - (Brush *)createBrush;
 
-- (void)addBrush:(Brush *)brush;
-- (void)removeBrush:(Brush *)brush;
-
 - (NSNumber *)getId;
 
-- (NSSet *)brushes;
+- (NSArray *)brushes;
 
 - (void)setProperty:(NSString *)key value:(NSString *)value;
 - (void)removeProperty:(NSString *)key;

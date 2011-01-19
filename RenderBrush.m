@@ -29,19 +29,10 @@
     
     if (self = [self init]) {
         brush = [aBrush retain];
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center addObserver:self selector:@selector(brushChanged:) name:BrushFaceAdded object:brush];
-        [center addObserver:self selector:@selector(brushChanged:) name:BrushFaceRemoved object:brush];
-        [center addObserver:self selector:@selector(brushChanged:) name:BrushFaceChanged object:brush];
-        
         valid = NO;
     }
     
     return self;
-}
-
-- (void)brushChanged:(NSNotification *)notification {
-    valid = NO;
 }
 
 - (Brush *)brush {

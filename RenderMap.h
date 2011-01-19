@@ -20,9 +20,6 @@
 
 - (id)initWithMap:(Map *)aMap;
 
-- (void)entityAdded:(NSNotification *)notification;
-- (void)entityRemoved:(NSNotification *)notification;
-
 - (void)renderWithContext:(id <RenderContext>)renderContext;
 
 @end

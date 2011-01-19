@@ -162,7 +162,7 @@
         [NSException raise:NSInvalidArgumentException format:@"polyhedron must not be nil"];
     
     NSEnumerator* sideEn = [[polyhedron sides] objectEnumerator];
-    NSMutableSet* newSides = [[NSMutableSet alloc] init];
+    NSMutableArray* newSides = [[NSMutableArray alloc] init];
     NSMutableArray* newVertices = [[NSMutableArray alloc] init];
     NSMutableArray* newSegments = [[NSMutableArray alloc] init];
 

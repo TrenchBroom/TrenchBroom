@@ -37,14 +37,7 @@ extern NSString* const EntityPropertyChanged;
     if (self = [self init]) {
         entity = [anEntity retain];
         
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center addObserver:self selector:@selector(brushAdded:) name:EntityBrushAdded object:entity];
-        [center addObserver:self selector:@selector(brushRemoved:) name:EntityBrushRemoved object:entity];
-        [center addObserver:self selector:@selector(propertyAdded:) name:EntityPropertyAdded object:entity];
-        [center addObserver:self selector:@selector(propertyRemoved:) name:EntityPropertyRemoved object:entity];
-        [center addObserver:self selector:@selector(propertyChanged:) name:EntityPropertyChanged object:entity];
-        
-        NSSet* brushes = [entity brushes];
+        NSArray* brushes = [entity brushes];
         NSEnumerator* brushEn = [brushes objectEnumerator];
         Brush* brush;
         
@@ -56,27 +49,6 @@ extern NSString* const EntityPropertyChanged;
     }
     
     return self;
-}
-
-- (void)brushAdded:(NSNotification *)notification{
-    Brush* brush = [notification object];
-    RenderBrush* renderBrush = [[RenderBrush alloc] initWithBrush:brush];
-    [renderBrushes setObject:renderBrush forKey:[brush getId]];
-    [renderBrush release];
-}
-
-- (void)brushRemoved:(NSNotification *)notification {
-    Brush* brush = [notification object];
-    [renderBrushes removeObjectForKey:[brush getId]];
-}
-
-- (void)propertyAdded:(NSNotification *)notification {
-}
-
-- (void)propertyRemoved:(NSNotification *)notification {
-}
-
-- (void)propertyChanged:(NSNotification *)notification {
 }
 
 - (void)renderWithContext:(id <RenderContext>)renderContext {

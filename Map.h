@@ -8,16 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
-extern NSString* const MapEntityAdded;
-extern NSString* const MapEntityRemoved;
-
-extern NSString* const MapEntity;
-
 @class Entity;
 
 @interface Map : NSObject {
     @private
-    NSMutableSet* entities;
+    NSMutableArray* entities;
     Entity* worldspawn;
 }
 
@@ -27,6 +22,6 @@ extern NSString* const MapEntity;
 - (Entity *)createEntityWithProperty:(NSString *)key value:(NSString *)value;
 - (void)removeEntity:(Entity *)entity;
 
-- (NSSet* )entities;
+- (NSArray* )entities;
 
 @end

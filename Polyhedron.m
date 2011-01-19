@@ -20,13 +20,13 @@
     return [[[Polyhedron alloc] initCuboidAt:center dimensions:dimensions] autorelease];
 }
 
-+ (Polyhedron *)polyhedronWithSides:(NSSet *)sides {
++ (Polyhedron *)polyhedronWithSides:(NSArray *)sides {
     return [[[Polyhedron alloc] initWithSides:sides] autorelease];
 }
 
 - (id)init {
     if (self = [super init])
-        sides = [[NSMutableSet alloc] init];
+        sides = [[NSMutableArray alloc] init];
     
     return self;
 }
@@ -80,7 +80,7 @@
                                                                [Vector3f vectorWithFloatVector:lbb],
                                                                [Vector3f vectorWithFloatVector:ltb],
                                                                nil]];
-        sides = [[NSMutableSet alloc] initWithObjects:left, right, top, bottom, front, back, nil];
+        sides = [[NSMutableArray alloc] initWithObjects:left, right, top, bottom, front, back, nil];
         
         [left release];
         [right release];
@@ -177,7 +177,7 @@
                                                                [Vector3f vectorWithFloatVector:lbb],
                                                                [Vector3f vectorWithFloatVector:ltb],
                                                                nil]];
-        sides = [[NSMutableSet alloc] initWithObjects:left, right, top, bottom, front, back, nil];
+        sides = [[NSMutableArray alloc] initWithObjects:left, right, top, bottom, front, back, nil];
         
         [left release];
         [right release];
@@ -199,7 +199,7 @@
     return self;
 }
 
-- (id)initWithSides:(NSSet *)someSides {
+- (id)initWithSides:(NSArray *)someSides {
     if (someSides == nil)
         [NSException raise:NSInvalidArgumentException format:@"set of sides must not be nil"];
     if ([someSides count] < 4)
@@ -207,13 +207,13 @@
     
     
     if (self = [super init]) {
-        sides = [[NSMutableSet alloc] initWithSet:someSides];
+        sides = [[NSMutableArray alloc] initWithArray:someSides];
     }
     
     return self;
 }
 
-- (NSSet *)sides {
+- (NSArray *)sides {
     return sides;
 }
 
@@ -221,7 +221,7 @@
     if ([self isEqual:polyhedron])
         return YES;
 
-    NSSet* otherSides = [polyhedron sides];
+    NSArray* otherSides = [polyhedron sides];
     if ([sides count] != [otherSides count])
         return NO;
     
