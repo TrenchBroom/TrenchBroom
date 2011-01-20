@@ -76,9 +76,6 @@
 }
 
 - (NSArray *)polygons {
-    if ([brushId intValue] == 5724)
-        NSLog(@"asdf");
-    
     Polyhedron* polyhedron = [Polyhedron maximumCube];
         
     NSEnumerator* faceEnum = [faces objectEnumerator];

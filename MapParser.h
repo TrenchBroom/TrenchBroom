@@ -17,14 +17,14 @@ typedef enum {
 } EParserState;
 
 
-@class Tokenizer;
+@class MapTokenizer;
 @class Map;
 @class Entity;
 @class Brush;
 
 @interface MapParser : NSObject {
     @private
-    Tokenizer* tokenizer;
+    MapTokenizer* tokenizer;
     Map* map;
     Entity* entity;
     Brush* brush;

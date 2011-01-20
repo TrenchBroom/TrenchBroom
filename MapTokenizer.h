@@ -18,9 +18,9 @@ typedef enum {
 } ETokenizerState;
 
 
-@class Token;
+@class MapToken;
 
-@interface Tokenizer : NSObject {
+@interface MapTokenizer : NSObject {
     @private
     NSInputStream* stream;
     ETokenizerState state;
@@ -34,6 +34,6 @@ typedef enum {
 
 - (id)initWithInputStream:(NSInputStream *)aStream;
 
-- (Token *)nextToken;
+- (MapToken *)nextToken;
 
 @end

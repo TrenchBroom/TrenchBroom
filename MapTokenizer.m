@@ -6,10 +6,10 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#import "Tokenizer.h"
-#import "Token.h"
+#import "MapTokenizer.h"
+#import "MapToken.h"
 
-@implementation Tokenizer
+@implementation MapTokenizer
 
 - (id)initWithInputStream:(NSInputStream *)aStream {
     if (aStream == nil)
@@ -52,7 +52,7 @@
     return c;
 }
 
-- (Token *)nextToken {
+- (MapToken *)nextToken {
     char c;
     while ((c = [self readChar]) != 0) {
         switch (state) {
@@ -63,13 +63,13 @@
                     case ' ':
                         break; // ignore whitespace in boundaries
                     case '{':
-                        return [Token tokenWithType:TT_CB_O data:nil line:line column:column];
+                        return [MapToken tokenWithType:TT_CB_O data:nil line:line column:column];
                     case '}':
-                        return [Token tokenWithType:TT_CB_C data:nil line:line column:column];
+                        return [MapToken tokenWithType:TT_CB_C data:nil line:line column:column];
                     case '(':
-                        return [Token tokenWithType:TT_B_O data:nil line:line column:column];
+                        return [MapToken tokenWithType:TT_B_O data:nil line:line column:column];
                     case ')':
-                        return [Token tokenWithType:TT_B_C data:nil line:line column:column];
+                        return [MapToken tokenWithType:TT_B_C data:nil line:line column:column];
                     case '"':
                         state = TS_Q_STR;
                         string = [[NSMutableString alloc] init];
@@ -99,7 +99,7 @@
             case TS_Q_STR:
                 switch (c) {
                     case '"': {
-                        Token* token = [Token tokenWithType:TT_STR data:string line:line column:column];
+                        MapToken* token = [MapToken tokenWithType:TT_STR data:string line:line column:column];
                         [string release];
                         string = nil;
                         state = TS_DEF;
@@ -115,7 +115,7 @@
                     case '\n':
                     case '\t':
                     case ' ': {
-                        Token* token = [Token tokenWithType:TT_STR data:string line:line column:column];
+                        MapToken* token = [MapToken tokenWithType:TT_STR data:string line:line column:column];
                         [string release];
                         string = nil;
                         state = TS_DEF;
@@ -140,13 +140,13 @@
                             [string release];
                             string = nil;
                             state = TS_DEF;
-                            return [Token tokenWithType:TT_DEC data:number line:line column:column];
+                            return [MapToken tokenWithType:TT_DEC data:number line:line column:column];
                         } else {
                             number = [NSNumber numberWithFloat:[string floatValue]];
                             [string release];
                             string = nil;
                             state = TS_DEF;
-                            return [Token tokenWithType:TT_FRAC data:number line:line column:column];
+                            return [MapToken tokenWithType:TT_FRAC data:number line:line column:column];
                         }
                         break;
                     }

@@ -19,7 +19,7 @@ typedef enum {
 } ETokenType;
 
 
-@interface Token : NSObject {
+@interface MapToken : NSObject {
     @private
     ETokenType type;
     id data;
@@ -27,7 +27,7 @@ typedef enum {
     int column;
 }
 
-+ (Token *)tokenWithType:(ETokenType)aType data:(id)someData line:(int)aLine column:(int)aColumn;
++ (MapToken *)tokenWithType:(ETokenType)aType data:(id)someData line:(int)aLine column:(int)aColumn;
 + (NSString *)typeName:(int)aType;
 
 - (id)initWithType:(ETokenType)aType data:(id)someData line:(int)aLine column:(int)aColumn;

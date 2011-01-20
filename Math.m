@@ -8,7 +8,7 @@
 
 #import "Math.h"
 
-float const AlmostZero = 0.000001f;
+float const AlmostZero = 0.001f;
 
 BOOL fzero(float v) {
     return fabsf(v) <= AlmostZero;

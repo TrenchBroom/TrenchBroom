@@ -6,12 +6,12 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#import "Token.h"
+#import "MapToken.h"
 
 
-@implementation Token
-+ (Token *)tokenWithType:(ETokenType)aType data:(id)someData line:(int)aLine column:(int)aColumn {
-    return [[[Token alloc] initWithType:aType data:someData line:aLine column:aColumn] autorelease];
+@implementation MapToken
++ (MapToken *)tokenWithType:(ETokenType)aType data:(id)someData line:(int)aLine column:(int)aColumn {
+    return [[[MapToken alloc] initWithType:aType data:someData line:aLine column:aColumn] autorelease];
 }
 
 + (NSString *)typeName:(int)aType {
@@ -73,18 +73,18 @@
 - (NSString *)description {
     switch (type) {
         case TT_FRAC:
-            return [NSString stringWithFormat:@"position: %i,%i, type: %@, data: %f", line, column, [Token typeName:type], [data floatValue]];
+            return [NSString stringWithFormat:@"position: %i,%i, type: %@, data: %f", line, column, [MapToken typeName:type], [data floatValue]];
         case TT_DEC:
-            return [NSString stringWithFormat:@"position: %i,%i, type: %@, data: %i", line, column, [Token typeName:type], [data intValue]];
+            return [NSString stringWithFormat:@"position: %i,%i, type: %@, data: %i", line, column, [MapToken typeName:type], [data intValue]];
         case TT_STR:
-            return [NSString stringWithFormat:@"position: %i,%i, type: %@, data: %@", line, column, [Token typeName:type], data];
+            return [NSString stringWithFormat:@"position: %i,%i, type: %@, data: %@", line, column, [MapToken typeName:type], data];
         case TT_B_O:
         case TT_B_C:
         case TT_CB_O:
         case TT_CB_C:
-            return [NSString stringWithFormat:@"position: %i,%i, type: %@", line, column, [Token typeName:type]];
+            return [NSString stringWithFormat:@"position: %i,%i, type: %@", line, column, [MapToken typeName:type]];
         default:
-            return [NSString stringWithFormat:@"position: %i,%i, type: %@, data: %@", line, column, data, [Token typeName:type]];
+            return [NSString stringWithFormat:@"position: %i,%i, type: %@, data: %@", line, column, data, [MapToken typeName:type]];
     }
 }
 

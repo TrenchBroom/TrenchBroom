@@ -11,8 +11,8 @@
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
-#import "Tokenizer.h"
-#import "Token.h"
+#import "MapTokenizer.h"
+#import "MapToken.h"
 #import "Vector3i.h"
 
 NSString* const InvalidTokenException = @"InvalidTokenException";
@@ -24,16 +24,16 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     
     if (self = [self init]) {
         NSInputStream* stream = [[NSInputStream alloc] initWithData:someData];
-        tokenizer = [[Tokenizer alloc] initWithInputStream:stream];
+        tokenizer = [[MapTokenizer alloc] initWithInputStream:stream];
         [stream release];
     }
     
     return self;
 }
 
-- (void)expect:(int)expectedType actual:(Token* )actualToken {
+- (void)expect:(int)expectedType actual:(MapToken* )actualToken {
     if (!actualToken || ([actualToken type] & expectedType) == 0)
-        [NSException raise:InvalidTokenException format:@"invalid token: %@, expected %@", actualToken, [Token typeName:expectedType]];
+        [NSException raise:InvalidTokenException format:@"invalid token: %@, expected %@", actualToken, [MapToken typeName:expectedType]];
 }
 
 - (void)parseFace {
@@ -134,7 +134,7 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     state = PS_DEF;
     map = [[Map alloc] init];
     
-    Token* token;
+    MapToken* token;
     while ((token = [tokenizer nextToken])) {
         switch (state) {
             case PS_DEF:
