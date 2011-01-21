@@ -53,9 +53,9 @@
     TextureManager* textureManager = [[TextureManager alloc] init];
     
     [textureManager loadTexturesFrom:wad];
-    [wad release];
+//    [wad release];
     
-    [textureManager release];
+//    [textureManager release];
     
     return YES;
 }

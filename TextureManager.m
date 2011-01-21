@@ -36,14 +36,18 @@
     glGenTextures([textureEntries count], textureIds);
     
     for (int i = 0; i < [textureEntries count]; i++) {
-        int texId = textureIds[i];
-        NSLog(@"loading texture %i with ID %i", i, texId);
-        
         WadTextureEntry* textureEntry = [textureEntries objectAtIndex:i];
+        int texId = textureIds[i];
+
+        int width = [textureEntry width];
+        int height = [textureEntry height];
+        const void* buffer = [[textureEntry mip0] bytes];
+        
+        NSLog(@"loading texture %i with ID %i, width: %i, height: %i, data size: %i", i, texId, width, height, [[textureEntry mip0] length]);
         
         glBindTexture(GL_TEXTURE_2D, texId);
-        glColorTable(GL_TEXTURE_2D, GL_RGB8, 256, GL_RGB, GL_UNSIGNED_BYTE, [[paletteEntry data] bytes]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_COLOR_INDEX, [textureEntry width], [textureEntry height], 0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, [[textureEntry mip0] bytes]);
+        glColorTable(GL_COLOR_TABLE, GL_RGB, 256, GL_RGB, GL_UNSIGNED_BYTE, [[paletteEntry data] bytes]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
         
         [textures setObject:[NSNumber numberWithInt:texId] forKey:[textureEntry name]];
     }

@@ -57,6 +57,7 @@
 }
 
 - (void)dealloc {
+    [name release];
     [paletteEntries release];
     [textureEntries release];
     [super dealloc];
