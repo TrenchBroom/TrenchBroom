@@ -23,7 +23,7 @@ int const WAD_DIR_ENTRY_DSIZE_OFFSET = 4;
 int const WAD_DIR_ENTRY_TYPE_OFFSET = 12;
 int const WAD_DIR_ENTRY_ADDRESS_OFFSET = 0;
 int const WAD_DIR_ENTRY_NAME_OFFSET = 16;
-int const WAD_PAL_LENGTH = 256;
+int const WAD_PAL_LENGTH = 3 * 256;
 int const WAD_TEX_WIDTH_OFFSET = 16;
 int const WAD_TEX_HEIGHT_OFFSET = 20;
 int const WAD_TEX_MIP0_OFFSET = 24;
@@ -78,7 +78,7 @@ int const WAD_TEX_MIP3_OFFSET = 36;
     
     switch (type) {
         case '@': {
-            NSData* paletteData = [data subdataWithRange:NSMakeRange(location, WAD_PAL_LENGTH)];
+            NSData* paletteData = [data subdataWithRange:NSMakeRange(address, WAD_PAL_LENGTH)];
             WadPaletteEntry* paletteEntry = [[WadPaletteEntry alloc] initWithName:name data:paletteData];
             [wad addPaletteEntry:paletteEntry];
             [paletteEntry release];

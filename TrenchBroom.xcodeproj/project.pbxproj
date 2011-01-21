@@ -35,6 +35,7 @@
 		485FD0C71257A61500F4AE49 /* Polygon3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0C51257A61500F4AE49 /* Polygon3D.m */; };
 		485FD0CB1257A8D900F4AE49 /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0CA1257A8D900F4AE49 /* Math3D.m */; };
 		485FD0CC1257A8D900F4AE49 /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0CA1257A8D900F4AE49 /* Math3D.m */; };
+		48639BF412EA227100808576 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48639BF312EA227100808576 /* QuakePalette.lmp */; };
 		486641111229854E00752B89 /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
 		486641C412298AED00752B89 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4866413E122986AF00752B89 /* SenTestingKit.framework */; };
 		48770FF312E5BE66009B440B /* MapTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF212E5BE66009B440B /* MapTokenizer.m */; };
@@ -141,6 +142,7 @@
 		485FD0C51257A61500F4AE49 /* Polygon3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polygon3D.m; sourceTree = "<group>"; };
 		485FD0C91257A8D900F4AE49 /* Math3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math3D.h; sourceTree = "<group>"; };
 		485FD0CA1257A8D900F4AE49 /* Math3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math3D.m; sourceTree = "<group>"; };
+		48639BF312EA227100808576 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; path = QuakePalette.lmp; sourceTree = "<group>"; };
 		4866413E122986AF00752B89 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = /Developer/Library/Frameworks/SenTestingKit.framework; sourceTree = "<absolute>"; };
 		48770FF112E5BE66009B440B /* MapTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapTokenizer.h; sourceTree = "<group>"; };
 		48770FF212E5BE66009B440B /* MapTokenizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapTokenizer.m; sourceTree = "<group>"; };
@@ -314,6 +316,7 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				48639BF312EA227100808576 /* QuakePalette.lmp */,
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
 				8D15AC360486D014006FF6A4 /* TrenchBroom-Info.plist */,
 				089C165FFE840EACC02AAC07 /* InfoPlist.strings */,
@@ -385,6 +388,8 @@
 				48B3251912E1FE17008748E2 /* RenderEntity.m */,
 				48B3251512E1FE0F008748E2 /* RenderMap.h */,
 				48B3251612E1FE0F008748E2 /* RenderMap.m */,
+				4881C74012E9C8BE006BF922 /* TextureManager.h */,
+				4881C74112E9C8BE006BF922 /* TextureManager.m */,
 				484C28FA115023A2004DD957 /* VBOManager.h */,
 				484C28FB115023A2004DD957 /* VBOManager.m */,
 				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
@@ -443,8 +448,6 @@
 				48A68F6F114EE6DC0064732A /* Map.m */,
 				487E1E9212E495060001C150 /* IdGenerator.h */,
 				487E1E9312E495060001C150 /* IdGenerator.m */,
-				4881C74012E9C8BE006BF922 /* TextureManager.h */,
-				4881C74112E9C8BE006BF922 /* TextureManager.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -587,6 +590,7 @@
 				1DDD582C0DA1D0D100B32029 /* MapDocument.xib in Resources */,
 				1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */,
 				48B3256012E2D760008748E2 /* Defaults.plist in Resources */,
+				48639BF412EA227100808576 /* QuakePalette.lmp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

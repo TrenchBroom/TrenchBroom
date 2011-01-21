@@ -12,12 +12,14 @@
 @class MapView3D;
 @class Camera;
 @class RenderMap;
+@class TextureManager;
 
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView2D* view2D;
 	IBOutlet MapView3D* view3D;
     RenderMap* renderMap;
     Camera* camera;
+    TextureManager* textureManager;
 }
 
 @end
