@@ -41,7 +41,7 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     Vector3i* p2 = [[Vector3i alloc] init];
     Vector3i* p3 = [[Vector3i alloc] init];
     @try {
-        Token* token = [tokenizer nextToken];
+        MapToken* token = [tokenizer nextToken];
         [self expect:TT_DEC actual:token];
         [p1 setX:[[token data] intValue]];
 

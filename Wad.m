@@ -8,7 +8,6 @@
 
 #import "Wad.h"
 
-
 @implementation Wad
 
 - (id)init {

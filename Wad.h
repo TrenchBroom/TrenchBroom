@@ -7,8 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-
-@class WadEntry;
+#import "WadEntry.h"
 
 @interface Wad : NSObject {
     @private

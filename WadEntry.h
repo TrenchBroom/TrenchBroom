@@ -11,8 +11,8 @@
 typedef enum {
     WT_PAL, // palette
     WT_SPIC, // status bar picture
-    TS_MIP, // mip texture
-    TS_CPIC // console picture
+    WT_MIP, // mip texture
+    WT_CPIC // console picture
 } EWadEntryType;
 
 

@@ -8,14 +8,15 @@
 
 #import <Cocoa/Cocoa.h>
 
+extern NSString* const InvalidFileTypeException;
 extern NSString* const EndOfStreamException;
 
 @class Wad;
 
 @interface WadLoader : NSObject {
-    uint8_t intbuffer[4];
+    uint8_t buffer[16];
 }
 
-- (Wad *)loadFromData:(NSData *)someData;
+- (Wad *)loadFromData:(NSData *)someData wadName:(NSString *)wadName;
 
 @end

@@ -12,6 +12,8 @@
 #import "Vector3i.h"
 #import "MapWindowController.h"
 #import "MapParser.h"
+#import "WadLoader.h"
+#import "Wad.h"
 
 @implementation MapDocument
 
@@ -40,8 +42,13 @@
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
     MapParser* parser = [[MapParser alloc] initWithData:data];
     map = [[parser parse] retain];
-    
     [parser release];
+    
+    WadLoader* wadLoader = [[WadLoader alloc] init];
+    NSString* wadName = @"/Users/kristian/Dropbox/Dokumente/Maps/Wads/quake.wad";
+    Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:wadName] wadName:wadName];
+    [wadLoader release];
+    
     return YES;
 }
 
