@@ -12,7 +12,8 @@
 
 - (id)init {
     if (self = [super init]) {
-        entries = [[NSMutableDictionary alloc] init];
+        paletteEntries = [[NSMutableArray alloc] init];
+        textureEntries = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -29,18 +30,26 @@
     return self;
 }
 
-- (WadEntry *)createEntryWithType:(EWadEntryType)type name:(NSString *)aName data:(NSData *)data {
-    WadEntry* entry = [[WadEntry alloc] initWithType:type name:aName data:data];
-    [entries setObject:entry forKey:aName];
+- (void)addPaletteEntry:(WadPaletteEntry *)entry {
+    if (entry == nil)
+        [NSException raise:NSInvalidArgumentException format:@"entry must not be nil"];
     
-    return [entry autorelease];
+    [paletteEntries addObject:entry];
 }
 
-- (WadEntry *)entryForName:(NSString *)aName {
-    if (aName == nil)
-        [NSException raise:NSInvalidArgumentException format:@"name must not be nil"];
+- (void)addTextureEntry:(WadTextureEntry *)entry {
+    if (entry == nil)
+        [NSException raise:NSInvalidArgumentException format:@"entry must not be nil"];
     
-    return [entries objectForKey:aName];
+    [textureEntries addObject:entry];
+}
+
+- (NSArray *)paletteEntries {
+    return paletteEntries;
+}
+
+- (NSArray *)textureEntries {
+    return textureEntries;
 }
 
 - (NSString *)name {
@@ -48,7 +57,8 @@
 }
 
 - (void)dealloc {
-    [entries release];
+    [paletteEntries release];
+    [textureEntries release];
     [super dealloc];
 }
 

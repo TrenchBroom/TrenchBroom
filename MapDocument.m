@@ -14,6 +14,7 @@
 #import "MapParser.h"
 #import "WadLoader.h"
 #import "Wad.h"
+#import "TextureManager.h"
 
 @implementation MapDocument
 
@@ -48,6 +49,13 @@
     NSString* wadName = @"/Users/kristian/Dropbox/Dokumente/Maps/Wads/quake.wad";
     Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:wadName] wadName:wadName];
     [wadLoader release];
+    
+    TextureManager* textureManager = [[TextureManager alloc] init];
+    
+    [textureManager loadTexturesFrom:wad];
+    [wad release];
+    
+    [textureManager release];
     
     return YES;
 }

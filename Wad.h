@@ -7,18 +7,24 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "WadEntry.h"
+
+@class WadPaletteEntry;
+@class WadTextureEntry;
 
 @interface Wad : NSObject {
     @private
-    NSMutableDictionary* entries;
+    NSMutableArray* paletteEntries;
+    NSMutableArray* textureEntries;
     NSString* name;
 }
 
 - (id)initWithName:(NSString *)aName;
 
-- (WadEntry *)createEntryWithType:(EWadEntryType)type name:(NSString *)aName data:(NSData *)data;
-- (WadEntry *)entryForName:(NSString *)aName;
+- (void)addPaletteEntry:(WadPaletteEntry *)entry;
+- (void)addTextureEntry:(WadTextureEntry *)entry;
+
+- (NSArray *)paletteEntries;
+- (NSArray *)textureEntries;
 
 - (NSString *)name;
 

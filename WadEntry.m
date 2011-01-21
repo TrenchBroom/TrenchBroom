@@ -10,36 +10,23 @@
 
 
 @implementation WadEntry
-- (id)initWithType:(EWadEntryType)aType name:(NSString *)aName data:(NSData *)someData {
-    if (aName == nil)
+- (id)initWithName:(NSString *)theName {
+    if (theName == nil)
         [NSException raise:NSInvalidArgumentException format:@"name must not be nil"];
-    if (someData == nil)
-        [NSException raise:NSInvalidArgumentException format:@"data must not be nil"];
     
     if (self = [self init]) {
-        type = aType;
-        name = [aName retain];
-        data = [someData retain];
+        name = [theName retain];
     }
     
     return self;
-}
-
-- (EWadEntryType)type {
-    return type;
 }
 
 - (NSString *)name {
     return name;
 }
 
-- (NSData *)data {
-    return data;
-}
-
 - (void)dealloc {
     [name release];
-    [data release];
     [super dealloc];
 }
 

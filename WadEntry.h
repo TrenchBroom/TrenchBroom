@@ -8,25 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 
-typedef enum {
-    WT_PAL, // palette
-    WT_SPIC, // status bar picture
-    WT_MIP, // mip texture
-    WT_CPIC // console picture
-} EWadEntryType;
-
-
 @interface WadEntry : NSObject {
     @private
-    EWadEntryType type;
     NSString* name;
-    NSData* data;
 }
 
-- (id)initWithType:(EWadEntryType)aType name:(NSString *)aName data:(NSData *)someData;
+- (id)initWithName:(NSString *)theName;
 
-- (EWadEntryType)type;
 - (NSString *)name;
-- (NSData *)data;
 
 @end

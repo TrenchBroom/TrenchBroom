@@ -8,7 +8,8 @@
 
 #import "WadLoader.h"
 #import "Wad.h"
-#import "WadEntry.h"
+#import "WadPaletteEntry.h"
+#import "WadTextureEntry.h"
 
 NSString* const InvalidFileTypeException = @"InvalidFileTypeException";
 NSString* const EndOfStreamException = @"EndOfStreamException";
@@ -22,6 +23,13 @@ int const WAD_DIR_ENTRY_DSIZE_OFFSET = 4;
 int const WAD_DIR_ENTRY_TYPE_OFFSET = 12;
 int const WAD_DIR_ENTRY_ADDRESS_OFFSET = 0;
 int const WAD_DIR_ENTRY_NAME_OFFSET = 16;
+int const WAD_PAL_LENGTH = 256;
+int const WAD_TEX_WIDTH_OFFSET = 16;
+int const WAD_TEX_HEIGHT_OFFSET = 20;
+int const WAD_TEX_MIP0_OFFSET = 24;
+int const WAD_TEX_MIP1_OFFSET = 28;
+int const WAD_TEX_MIP2_OFFSET = 32;
+int const WAD_TEX_MIP3_OFFSET = 36;
 
 @implementation WadLoader
 
@@ -63,31 +71,46 @@ int const WAD_DIR_ENTRY_NAME_OFFSET = 16;
     return (char) buffer[0];
 }
 
-- (EWadEntryType)getType:(char)typeCh {
-    switch (typeCh) {
-        case '@':
-            return WT_PAL;
-        case 'B':
-            return WT_SPIC;
-        case 'D':
-            return WT_MIP;
-        case 'E':
-            return WT_CPIC;
-        default:
-            [NSException raise:NSInvalidArgumentException format:@"unknown wad entry type char: %c", typeCh];
-    }
-    
-    return 0; // never reached
-}
-
 - (void)readEntry:(NSData *)data location:(unsigned int)location wad:(Wad *)wad {
     unsigned int address = [self readInt:data location:location + WAD_DIR_ENTRY_ADDRESS_OFFSET];
-    unsigned int dsize = [self readInt:data location:location + WAD_DIR_ENTRY_DSIZE_OFFSET];
     char type = [self readChar:data location:location + WAD_DIR_ENTRY_TYPE_OFFSET];
     NSString* name = [self readString:data range:NSMakeRange(location + WAD_DIR_ENTRY_NAME_OFFSET, 16)];
-    NSData* entryData = [data subdataWithRange:NSMakeRange(address, dsize)];
     
-    [wad createEntryWithType:[self getType:type] name:name data:entryData];
+    switch (type) {
+        case '@': {
+            NSData* paletteData = [data subdataWithRange:NSMakeRange(location, WAD_PAL_LENGTH)];
+            WadPaletteEntry* paletteEntry = [[WadPaletteEntry alloc] initWithName:name data:paletteData];
+            [wad addPaletteEntry:paletteEntry];
+            [paletteEntry release];
+            break;
+        }
+        case 'D': {
+            unsigned int width = [self readInt:data location:address + WAD_TEX_WIDTH_OFFSET];
+            unsigned int height = [self readInt:data location:address + WAD_TEX_HEIGHT_OFFSET];
+            unsigned int mip0Offset = [self readInt:data location:address + WAD_TEX_MIP0_OFFSET];
+            unsigned int mip1Offset = [self readInt:data location:address + WAD_TEX_MIP1_OFFSET];
+            unsigned int mip2Offset = [self readInt:data location:address + WAD_TEX_MIP2_OFFSET];
+            unsigned int mip3Offset = [self readInt:data location:address + WAD_TEX_MIP3_OFFSET];
+            NSData* mip0 = [data subdataWithRange:NSMakeRange(address + mip0Offset, width * height)];
+            NSData* mip1 = [data subdataWithRange:NSMakeRange(address + mip1Offset, width * height / 4)];
+            NSData* mip2 = [data subdataWithRange:NSMakeRange(address + mip2Offset, width * height / 16)];
+            NSData* mip3 = [data subdataWithRange:NSMakeRange(address + mip3Offset, width * height / 64)];
+            
+            WadTextureEntry* textureEntry = [[WadTextureEntry alloc] initWithName:name 
+                                                                            width:width 
+                                                                           height:height 
+                                                                             mip0:mip0 
+                                                                             mip1:mip1 
+                                                                             mip2:mip2 
+                                                                             mip3:mip3];
+            [wad addTextureEntry:textureEntry];
+            [textureEntry release];
+            break;
+        }
+        default:
+            // ignore
+            break;
+    }
 }
 
 - (Wad *)loadFromData:(NSData *)someData wadName:(NSString *)wadName {
