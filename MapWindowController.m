@@ -9,6 +9,7 @@
 #import "MapWindowController.h"
 #import "MapView2D.h"
 #import "MapView3D.h"
+#import "TextureView.h"
 #import "RenderMap.h"
 #import "Map.h"
 #import "Camera.h"
@@ -52,6 +53,8 @@
             }
         }
     }
+    
+    [textureView setTextureManager:textureManager];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {

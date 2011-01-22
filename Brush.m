@@ -76,17 +76,22 @@
 }
 
 - (NSArray *)polygons {
-    Polyhedron* polyhedron = [Polyhedron maximumCube];
+    if (polyhedron == nil) {
+        polyhedron = [Polyhedron maximumCube];
         
-    NSEnumerator* faceEnum = [faces objectEnumerator];
-    Face* face;
-    while ((face = [faceEnum nextObject]))
-        polyhedron = [[face halfSpace] intersectWithPolyhedron:polyhedron];
+        NSEnumerator* faceEnum = [faces objectEnumerator];
+        Face* face;
+        while ((face = [faceEnum nextObject]))
+            polyhedron = [[face halfSpace] intersectWithPolyhedron:polyhedron];
+        
+        [polyhedron retain];
+    }
 
     return [polyhedron sides];
 }
 
 - (void)dealloc {
+    [polyhedron release];
     [faces release];
     [super dealloc];
 }

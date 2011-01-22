@@ -10,6 +10,7 @@
 
 @class MapView2D;
 @class MapView3D;
+@class TextureView;
 @class Camera;
 @class RenderMap;
 @class TextureManager;
@@ -17,6 +18,7 @@
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView2D* view2D;
 	IBOutlet MapView3D* view3D;
+    IBOutlet TextureView* textureView;
     RenderMap* renderMap;
     Camera* camera;
     TextureManager* textureManager;

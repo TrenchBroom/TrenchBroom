@@ -10,11 +10,13 @@
 
 @class Vector3i;
 @class Face;
+@class Polyhedron;
 
 @interface Brush : NSObject {
     @private
     NSNumber* brushId;
 	NSMutableArray* faces;
+    Polyhedron* polyhedron;
 }
 
 - (id)initCuboidAt:(Vector3i *)position dimensions:(Vector3i *)dimensions texture:(NSString *)texture;

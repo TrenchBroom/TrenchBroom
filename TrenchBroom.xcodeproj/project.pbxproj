@@ -38,9 +38,14 @@
 		48639BF412EA227100808576 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48639BF312EA227100808576 /* QuakePalette.lmp */; };
 		486641111229854E00752B89 /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
 		486641C412298AED00752B89 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4866413E122986AF00752B89 /* SenTestingKit.framework */; };
+		4866F3B112EAC9FA009B345C /* TextureViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3B012EAC9FA009B345C /* TextureViewLayout.m */; };
+		4866F3BE12EACD2B009B345C /* TextureViewLayoutRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */; };
+		4866F3C412EACE73009B345C /* TextureViewLayoutCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */; };
 		48770FF312E5BE66009B440B /* MapTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF212E5BE66009B440B /* MapTokenizer.m */; };
 		48770FF612E5BF28009B440B /* MapToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF512E5BF28009B440B /* MapToken.m */; };
 		4877106E12E5DA55009B440B /* MapParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4877106D12E5DA55009B440B /* MapParser.m */; };
+		487A645812EA397C00A43289 /* TextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A645712EA397C00A43289 /* TextureView.m */; };
+		487A646C12EA3A7E00A43289 /* Texture.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A646B12EA3A7E00A43289 /* Texture.m */; };
 		487CA0BD125B005A002DF9D2 /* Plane3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0BC125B005A002DF9D2 /* Plane3D.m */; };
 		487CA0BE125B005A002DF9D2 /* Plane3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0BC125B005A002DF9D2 /* Plane3D.m */; };
 		487CA0C5125B00E9002DF9D2 /* HalfSpace3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */; };
@@ -144,12 +149,22 @@
 		485FD0CA1257A8D900F4AE49 /* Math3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math3D.m; sourceTree = "<group>"; };
 		48639BF312EA227100808576 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; path = QuakePalette.lmp; sourceTree = "<group>"; };
 		4866413E122986AF00752B89 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = /Developer/Library/Frameworks/SenTestingKit.framework; sourceTree = "<absolute>"; };
+		4866F3AF12EAC9FA009B345C /* TextureViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayout.h; sourceTree = "<group>"; };
+		4866F3B012EAC9FA009B345C /* TextureViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayout.m; sourceTree = "<group>"; };
+		4866F3BC12EACD2B009B345C /* TextureViewLayoutRow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayoutRow.h; sourceTree = "<group>"; };
+		4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayoutRow.m; sourceTree = "<group>"; };
+		4866F3C212EACE73009B345C /* TextureViewLayoutCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayoutCell.h; sourceTree = "<group>"; };
+		4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayoutCell.m; sourceTree = "<group>"; };
 		48770FF112E5BE66009B440B /* MapTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapTokenizer.h; sourceTree = "<group>"; };
 		48770FF212E5BE66009B440B /* MapTokenizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapTokenizer.m; sourceTree = "<group>"; };
 		48770FF412E5BF28009B440B /* MapToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapToken.h; sourceTree = "<group>"; };
 		48770FF512E5BF28009B440B /* MapToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapToken.m; sourceTree = "<group>"; };
 		4877106C12E5DA55009B440B /* MapParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapParser.h; sourceTree = "<group>"; };
 		4877106D12E5DA55009B440B /* MapParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapParser.m; sourceTree = "<group>"; };
+		487A645612EA397C00A43289 /* TextureView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureView.h; sourceTree = "<group>"; };
+		487A645712EA397C00A43289 /* TextureView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureView.m; sourceTree = "<group>"; };
+		487A646A12EA3A7E00A43289 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture.h; sourceTree = "<group>"; };
+		487A646B12EA3A7E00A43289 /* Texture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Texture.m; sourceTree = "<group>"; };
 		487CA0BB125B005A002DF9D2 /* Plane3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane3D.h; sourceTree = "<group>"; };
 		487CA0BC125B005A002DF9D2 /* Plane3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Plane3D.m; sourceTree = "<group>"; };
 		487CA0C3125B00E9002DF9D2 /* HalfSpace3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HalfSpace3D.h; sourceTree = "<group>"; };
@@ -394,6 +409,8 @@
 				484C28FB115023A2004DD957 /* VBOManager.m */,
 				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
 				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
+				487A646A12EA3A7E00A43289 /* Texture.h */,
+				487A646B12EA3A7E00A43289 /* Texture.m */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -474,6 +491,14 @@
 				48A68ECE114E9B0D0064732A /* MapView3D.m */,
 				48A68F22114EDEF50064732A /* MapRenderer.h */,
 				48A68F23114EDEF50064732A /* MapRenderer.m */,
+				487A645612EA397C00A43289 /* TextureView.h */,
+				487A645712EA397C00A43289 /* TextureView.m */,
+				4866F3AF12EAC9FA009B345C /* TextureViewLayout.h */,
+				4866F3B012EAC9FA009B345C /* TextureViewLayout.m */,
+				4866F3BC12EACD2B009B345C /* TextureViewLayoutRow.h */,
+				4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */,
+				4866F3C212EACE73009B345C /* TextureViewLayoutCell.h */,
+				4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -699,6 +724,11 @@
 				4881C74212E9C8BE006BF922 /* TextureManager.m in Sources */,
 				4881C74812E9CD88006BF922 /* WadTextureEntry.m in Sources */,
 				4881C74B12E9CD8F006BF922 /* WadPaletteEntry.m in Sources */,
+				487A645812EA397C00A43289 /* TextureView.m in Sources */,
+				487A646C12EA3A7E00A43289 /* Texture.m in Sources */,
+				4866F3B112EAC9FA009B345C /* TextureViewLayout.m in Sources */,
+				4866F3BE12EACD2B009B345C /* TextureViewLayoutRow.m in Sources */,
+				4866F3C412EACE73009B345C /* TextureViewLayoutCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
