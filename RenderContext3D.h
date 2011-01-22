@@ -9,7 +9,11 @@
 #import <Cocoa/Cocoa.h>
 #import "RenderContext.h"
 
+@class TextureManager;
+
 @interface RenderContext3D : NSObject <RenderContext> {
+    @private 
+    TextureManager* textureManager;
 }
 
 @end

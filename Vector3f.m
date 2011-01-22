@@ -148,6 +148,29 @@ static Vector3f* gZAxisNeg;
 	return z;
 }
 
+- (float)component:(int)index {
+    if (index == 0)
+        return x;
+    if (index == 1)
+        return y;
+    if (index == 2)
+        return z;
+    
+    [NSException raise:NSInvalidArgumentException format:@"invalid component index: %i", index];
+}
+
+- (void)setComponent:(int)index value:(float)value {
+    if (index == 0)
+        x = value;
+    else if (index == 1) 
+        y = value;
+    else if (index == 2)
+        z = value;
+    else
+        [NSException raise:NSInvalidArgumentException format:@"invalid component index: %i", index];
+}
+
+
 - (void)setX:(float)xCoord {
 	x = xCoord;
 }
@@ -159,6 +182,8 @@ static Vector3f* gZAxisNeg;
 - (void)setZ:(float)zCoord {
 	z = zCoord;
 }
+
+
 
 - (void)setFloat:(Vector3f *)vector {
 	[self setX:[vector x]];

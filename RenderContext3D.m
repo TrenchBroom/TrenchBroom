@@ -14,14 +14,33 @@
 #import "Polygon3D.h"
 #import "Vector3f.h"
 #import "Camera.h"
+#import "TextureManager.h"
+#import "Texture.h"
 
 @implementation RenderContext3D
+
+- (id)initWithTextureManager:(TextureManager *)theTextureManager {
+    if (theTextureManager == nil)
+        [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
+    
+    if (self = [self init]) {
+        textureManager = [theTextureManager retain];
+    }
+    
+    return self;
+}
 
 - (void)preRender {
 }
 
 - (void)renderBrush:(RenderBrush *)renderBrush {
     Brush* brush = [renderBrush brush];
+    NSString* textureName = [brush texture];
+    Texture* texture = [textureManager textureForName:textureName];
+    if (texture != nil)
+        [texture activate];
+    
+    Vector2f* texCoords = [[Vector2f alloc] init];
     NSArray* polygons = [brush polygons];
     NSEnumerator* polygonEn = [polygons objectEnumerator];
     Polygon3D* polygon;
@@ -37,6 +56,8 @@
         }
         glEnd();
     }
+    
+    [texCoords release];
 }
 
 - (void)updateView:(NSRect)bounds withCamera:(Camera *)camera {
@@ -68,4 +89,10 @@
 
 - (void)postRender {
 }
+
+- (void)dealloc {
+    [textureManager release];
+    [super dealloc];
+}
+
 @end

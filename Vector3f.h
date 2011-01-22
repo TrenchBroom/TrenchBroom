@@ -42,6 +42,9 @@
 - (float)y;
 - (float)z;
 
+- (float)component:(int)index;
+- (void)setComponent:(int)index value:(float)value;
+
 - (void)setX:(float)xCoord;
 - (void)setY:(float)yCoord;
 - (void)setZ:(float)zCoord;

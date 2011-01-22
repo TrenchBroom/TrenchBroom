@@ -12,6 +12,8 @@ typedef enum {
     XY, XZ, YZ
 } EPlaneType;
 
+@class Vector2f;
+@class Vector3f;
 @class Vector3i;
 @class HalfSpace3D;
 
@@ -28,6 +30,10 @@ typedef enum {
 	float rotation;
 	float xScale;
 	float yScale;
+    
+    Vector3f* norm;
+    Vector3f* texAxisX;
+    Vector3f* texAxisY;
 }
 
 - (id)initOnPlane:(EPlaneType)plane at:(Vector3i *)position thirdAxisPositive:(BOOL)thirdAxisPositive texture:(NSString *)texture;
@@ -46,6 +52,8 @@ typedef enum {
 - (float)xScale;
 - (float)yScale;
 
+- (Vector3f *)norm;
+
 - (void)setPoint1:(Vector3i *)point;
 - (void)setPoint2:(Vector3i *)point;
 - (void)setPoint3:(Vector3i *)point;
@@ -56,6 +64,8 @@ typedef enum {
 - (void)setRotation:(float)angle;
 - (void)setXScale:(float)factor;
 - (void)setYScale:(float)factor;
+
+- (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex;
 
 - (HalfSpace3D *)halfSpace;
 @end
