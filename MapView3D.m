@@ -13,6 +13,7 @@
 #import "Camera.h"
 #import "RenderContext.h"
 #import "RenderContext3D.h"
+#import "TextureManager.h"
 
 NSString* const MapView3DDefaults = @"3D View";
 NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
@@ -34,19 +35,23 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     NSRect bounds = [self frame];
     glViewport(bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);
     
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    RenderContext3D* renderContext = [[RenderContext3D alloc] init];
+    RenderContext3D* renderContext = [[RenderContext3D alloc] initWithTextureManager:textureManager];
     [renderContext updateView:bounds withCamera:camera];
     
     glPolygonMode(GL_FRONT, GL_FILL);
-    glColor4f(1, 0, 0, 0);
     
     [renderMap renderWithContext:renderContext];
+    [renderContext release];
     
     [[self openGLContext] flushBuffer];
-    [renderContext release];
 }
 
 - (void)userDefaultsChanged:(NSNotification *)notification {
@@ -76,10 +81,18 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     renderMap = [aRenderMap retain];
 }
 
+- (void)setTextureManager:(TextureManager *)theTextureManager {
+    if (theTextureManager == nil)
+        [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
+    
+    textureManager = [theTextureManager retain];
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [renderMap release];
     [camera release];
+    [textureManager release];
     [super dealloc];
 }
 

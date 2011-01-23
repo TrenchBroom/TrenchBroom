@@ -18,6 +18,7 @@
         entityId = [[IdGenerator sharedGenerator] getId];
 		properties = [[NSMutableDictionary alloc] init];
 		brushes = [[NSMutableArray alloc] init];
+        brushIndices = [[NSMutableDictionary alloc] init];
     }
     
     return self;
@@ -31,18 +32,24 @@
 	return self;
 }
 
-- (Brush *)createCuboidAt:(Vector3i *)position dimensions:(Vector3i *)dimensions texture:(NSString *)texture {
-    Brush* brush = [[Brush alloc] initCuboidAt:position dimensions:dimensions texture:texture];
+- (Brush *)createBrush {
+    Brush* brush = [[Brush alloc] init];
     [brushes addObject:brush];
+    [brushIndices setObject:[NSNumber numberWithInt:[brushes count] - 1] forKey:[brush getId]];
     
     return [brush autorelease];
 }
 
-- (Brush *)createBrush {
-    Brush* brush = [[Brush alloc] init];
-    [brushes addObject:brush];
+- (void)removeBrush:(Brush *)brush {
+    if (brush == nil)
+        [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
+ 
+    NSNumber* index = [brushIndices objectForKey:[brush getId]];
+    if (index == nil)
+        [NSException raise:NSInvalidArgumentException format:@"Entity %@ does not contain brush %@", self, brush];
     
-    return [brush autorelease];
+    [brushes removeObjectAtIndex:[index intValue]];
+    [brushIndices removeObjectForKey:[brush getId]];
 }
 
 - (NSNumber *)getId {
@@ -90,6 +97,7 @@
 - (void) dealloc {
 	[properties release];
 	[brushes release];
+    [brushIndices release];
 	[super dealloc];
 }
 

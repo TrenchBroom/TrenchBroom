@@ -294,7 +294,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"ID: @i, point 1: %@, point 2: %@, point 3: %@, texture: %@, X offset: %i, Y offset: %i, rotation: %f, X scale: %f, Y scale: %f", 
+    return [NSString stringWithFormat:@"ID: %i, point 1: %@, point 2: %@, point 3: %@, texture: %@, X offset: %i, Y offset: %i, rotation: %f, X scale: %f, Y scale: %f", 
             [faceId intValue], 
             point1, 
             point2, 

@@ -34,4 +34,5 @@
 - (Polyhedron *)intersectWithPolyhedron:(Polyhedron *)polyhedron;
 - (Segment3D *)intersectWithPolygon:(Polygon3D *)polygon vertexArray:(NSMutableArray *)newVertices;
 - (Plane3D *)boundary;
+- (Vector3f *)outside;
 @end

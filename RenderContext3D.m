@@ -11,8 +11,9 @@
 #import <OpenGL/glu.h>
 #import "RenderBrush.h"
 #import "Brush.h"
-#import "Polygon3D.h"
+#import "Face.h"
 #import "Vector3f.h"
+#import "Vector2f.h"
 #import "Camera.h"
 #import "TextureManager.h"
 #import "Texture.h"
@@ -35,23 +36,26 @@
 
 - (void)renderBrush:(RenderBrush *)renderBrush {
     Brush* brush = [renderBrush brush];
-    NSString* textureName = [brush texture];
-    Texture* texture = [textureManager textureForName:textureName];
-    if (texture != nil)
-        [texture activate];
-    
     Vector2f* texCoords = [[Vector2f alloc] init];
-    NSArray* polygons = [brush polygons];
-    NSEnumerator* polygonEn = [polygons objectEnumerator];
-    Polygon3D* polygon;
-    while ((polygon = [polygonEn nextObject])) {
-        NSArray* vertices = [polygon vertices];
+    
+    NSArray* faces = [brush faces];
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject])) {
+        NSArray* vertices = [brush verticesForFace:face];
+        NSString* textureName = [face texture];
+        Texture* texture = [textureManager textureForName:textureName];
+        if (texture != nil)
+            [texture activate];
         
         glBegin(GL_POLYGON);
-        Vector3f* norm = [polygon norm];
+        Vector3f* norm = [face norm];
         glNormal3f([norm x], [norm y], [norm z]);
         for (int i = 0; i < [vertices count]; i++) {
             Vector3f* vertex = [vertices objectAtIndex:i];
+            [face texCoords:texCoords forVertex:vertex];
+            
+            glTexCoord2f([texCoords x], [texCoords y]);
             glVertex3f([vertex x], [vertex y], [vertex z]);
         }
         glEnd();

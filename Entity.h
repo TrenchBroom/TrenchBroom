@@ -15,13 +15,14 @@
     @private
     NSNumber* entityId;
 	NSMutableArray* brushes;
+    NSMutableDictionary* brushIndices;
 	NSMutableDictionary* properties;
 }
 
 - (id)initWithProperty:(NSString *)key value:(NSString *)value;
 
-- (Brush *)createCuboidAt:(Vector3i *)position dimensions:(Vector3i *)dimensions texture:(NSString *)texture;
 - (Brush *)createBrush;
+- (void)removeBrush:(Brush *)brush;
 
 - (NSNumber *)getId;
 

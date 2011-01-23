@@ -24,10 +24,7 @@
 - (id)initWithType:(NSString *)typeName error:(NSError **)outError {
     if (self = [super initWithType:typeName error:outError]) {
         map = [[Map alloc] init];
-        Entity* worldspawn = [map createEntityWithProperty:@"classname" value:@"worldspawn"];
-        [worldspawn createCuboidAt:[Vector3i vectorWithX:0 y:0 z:0] 
-                              dimensions:[Vector3i vectorWithX:5 y:5 z:5] 
-                                 texture:@""];
+        [map createEntityWithProperty:@"classname" value:@"worldspawn"];
     }
     
     return self;

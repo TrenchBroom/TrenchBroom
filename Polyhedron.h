@@ -25,5 +25,7 @@
 
 - (NSArray *)sides;
 
+- (BOOL)intersectWithHalfSpace:(HalfSpace3D *)halfSpace;
+
 - (BOOL)isEqualToPolyhedron:(Polyhedron *)polyhedron;
 @end

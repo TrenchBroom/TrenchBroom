@@ -16,14 +16,12 @@
     @private
     NSNumber* brushId;
 	NSMutableArray* faces;
-    Polyhedron* polyhedron;
+    NSMutableDictionary* vertices;
 }
-
-- (id)initCuboidAt:(Vector3i *)position dimensions:(Vector3i *)dimensions texture:(NSString *)texture;
 
 - (Face *)createFaceWithPoint1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3 texture:(NSString *)texture;
 
 - (NSNumber* )getId;
 - (NSArray *)faces;
-- (NSArray *)polygons;
+- (NSArray *)verticesForFace:(Face *)face;
 @end

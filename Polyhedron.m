@@ -10,6 +10,7 @@
 #import "Vector3f.h"
 #import "HalfSpace3D.h"
 #import "Polygon3D.h"
+#import "Segment3D.h"
 
 @implementation Polyhedron
 + (Polyhedron *)maximumCube {
@@ -215,6 +216,56 @@
 
 - (NSArray *)sides {
     return sides;
+}
+
+- (BOOL)intersectWithHalfSpace:(HalfSpace3D *)halfSpace {
+    if (halfSpace == nil)
+        [NSException raise:NSInvalidArgumentException format:@"half space must not be nil"];
+    
+    NSMutableArray* segments = [[NSMutableArray alloc] init];
+    int i = 0;
+    while (i < [sides count]) {
+        Polygon3D* side = [sides objectAtIndex:i];
+        Segment3D* segment = nil;
+        if ([side intersectWithHalfSpace:halfSpace newSegment:&segment]) {
+            if (segment != nil)
+                [segments addObject:segment];
+            i++;
+        } else {
+            [sides removeObjectAtIndex:i];
+        }
+
+    }
+    
+    // sort the new segments and add their start vertices in order to newVerts
+    if ([segments count] > 0) {
+        NSMutableArray* newVertices = [[NSMutableArray alloc] init];
+        for (int i = 0; i < [segments count]; i++) {
+            Segment3D* segment = [segments objectAtIndex:i];
+            [newVertices addObject:[segment startVertex]];
+            for (int j = i + 1; j < [segments count]; j++) {
+                Segment3D* candidate = [segments objectAtIndex:j];
+                if ([[segment endVertex] isEqualToVector:[candidate startVertex]]) {
+                    if (i + 1 != j)
+                        [segments exchangeObjectAtIndex:i + 1 withObjectAtIndex:j];
+                    break;
+                } else if ([[segment endVertex] isEqualToVector:[candidate endVertex]]) {
+                    [candidate flip];
+                    if (i + 1 != j)
+                        [segments exchangeObjectAtIndex:i + 1 withObjectAtIndex:j];
+                    break;
+                }
+            }
+        }
+        
+        if ([newVertices count] > 0)
+            [sides addObject:[Polygon3D polygonWithVertices:newVertices norm:[halfSpace outside]]];
+        
+        [newVertices release];
+    }
+    [segments release];
+    
+    return [sides count] >= 4;
 }
 
 - (BOOL)isEqualToPolyhedron:(Polyhedron *)polyhedron {

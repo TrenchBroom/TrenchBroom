@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class HalfSpace3D;
+@class Segment3D;
 @class Vector3f;
 
 @interface Polygon3D : NSObject {
@@ -24,6 +25,8 @@
 
 - (NSArray *)vertices;
 - (Vector3f *)norm;
+
+- (BOOL)intersectWithHalfSpace:(HalfSpace3D *)halfSpace newSegment:(Segment3D **)newSegment;
 
 - (BOOL)isEqualToPolygon:(Polygon3D *)polygon;
 @end

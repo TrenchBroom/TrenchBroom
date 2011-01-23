@@ -55,6 +55,7 @@
     }
     
     [textureView setTextureManager:textureManager];
+    [view3D setTextureManager:textureManager];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {

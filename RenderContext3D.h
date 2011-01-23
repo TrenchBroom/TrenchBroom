@@ -16,4 +16,6 @@
     TextureManager* textureManager;
 }
 
+- (id)initWithTextureManager:(TextureManager *)theTextureManager;
+
 @end

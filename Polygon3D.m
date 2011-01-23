@@ -12,6 +12,7 @@
 #import "Line3D.h"
 #import "Math3D.h"
 #import "Vector3f.h"
+#import "Segment3D.h"
 
 @implementation Polygon3D
 + (Polygon3D *)polygonWithVertices:(NSArray *)someVertices norm:(Vector3f *)aNorm {
@@ -99,6 +100,53 @@
         if (![vertex isEqualToVector:otherVertex])
             return NO;
     }
+    
+    return YES;
+}
+
+- (BOOL)intersectWithHalfSpace:(HalfSpace3D *)halfSpace newSegment:(Segment3D **)newSegment {
+    Vector3f* newSegmentStart = nil;
+    Vector3f* newSegmentEnd = nil;
+    
+    Vector3f* prevVert = [vertices lastObject];
+    BOOL prevContained = [halfSpace containsPoint:prevVert];
+    Vector3f* curVert;
+    BOOL curContained;
+    BOOL outside = !prevContained;
+    
+    NSMutableArray* newVertices = [[NSMutableArray alloc] init];
+    NSEnumerator* vertEn = [vertices objectEnumerator];
+    while ((curVert = [vertEn nextObject])) {
+        curContained = [halfSpace containsPoint:curVert];
+        
+        if (prevContained)
+            [newVertices addObject:prevVert];
+        
+        if (prevContained ^ curContained) {
+            Line3D* line = [[Line3D alloc] initWithPoint1:prevVert point2:curVert];
+            Vector3f* newVert = [[halfSpace boundary] intersectWithLine:line];
+            [newVertices addObject:newVert];
+            [line release];
+            
+            if (newSegmentStart == nil)
+                newSegmentStart = newVert;
+            else if (newSegmentEnd == nil)
+                newSegmentEnd = newVert;
+        }
+        
+        prevVert = curVert;
+        prevContained = curContained;
+        outside &= !prevContained;
+    }
+    
+    [vertices release];
+    vertices = newVertices;
+    
+    if (outside)
+        return NO;
+    
+    if (newSegmentStart != nil && newSegmentEnd != nil)
+        *newSegment = [Segment3D segmentWithStartVertex:newSegmentStart endVertex:newSegmentEnd];
     
     return YES;
 }

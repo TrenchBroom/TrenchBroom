@@ -210,6 +210,10 @@
     return boundary;
 }
 
+- (Vector3f *)outside {
+    return outside;
+}
+
 - (NSString *)description {
     return [NSString stringWithFormat:@"boundary: %@, outside: %@", boundary, outside];
 }
