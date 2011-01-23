@@ -59,12 +59,12 @@
         Vector3f* rfb = [[Vector3f alloc] initWithX:+4096 y:+4096 z:-4096];
         Vector3f* rft = [[Vector3f alloc] initWithX:+4096 y:+4096 z:+4096];
         
-        NSMutableArray* bottomVertices = [[NSMutableArray alloc] initWithObjects:lbb, lfb, rbb, rfb, nil];
-        NSMutableArray* leftVertices   = [[NSMutableArray alloc] initWithObjects:lbb, lbt, lfb, lft, nil];
-        NSMutableArray* topVertices    = [[NSMutableArray alloc] initWithObjects:lbt, lft, rbt, rft, nil];
-        NSMutableArray* rightVertices  = [[NSMutableArray alloc] initWithObjects:rbb, rbt, rfb, rft, nil];
-        NSMutableArray* frontVertices  = [[NSMutableArray alloc] initWithObjects:lfb, lft, rfb, rft, nil];
-        NSMutableArray* backVertices   = [[NSMutableArray alloc] initWithObjects:lbb, lbt, rbb, rbt, nil];
+        NSMutableArray* bottomVertices = [[NSMutableArray alloc] initWithObjects:lbb, lfb, rfb, rbb, nil];
+        NSMutableArray* leftVertices   = [[NSMutableArray alloc] initWithObjects:lbb, lbt, lft, lfb, nil];
+        NSMutableArray* topVertices    = [[NSMutableArray alloc] initWithObjects:lbt, lft, rft, rbt, nil];
+        NSMutableArray* rightVertices  = [[NSMutableArray alloc] initWithObjects:rbb, rbt, rft, rfb, nil];
+        NSMutableArray* frontVertices  = [[NSMutableArray alloc] initWithObjects:lfb, lft, rft, rfb, nil];
+        NSMutableArray* backVertices   = [[NSMutableArray alloc] initWithObjects:lbb, lbt, rbt, rbb, nil];
         
         [vertices setObject:bottomVertices forKey:[bottom getId]];
         [vertices setObject:leftVertices forKey:[left getId]];
