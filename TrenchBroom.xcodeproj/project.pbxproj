@@ -19,6 +19,9 @@
 		4809F454118EDE81000F66FD /* Face.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3711148D5C00CD6043 /* Face.m */; };
 		4809F455118EDE81000F66FD /* Entity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* Entity.m */; };
 		4809F456118EDE82000F66FD /* Brush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* Brush.m */; };
+		480AD8B212ED784B009B5970 /* VertexData.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B112ED784B009B5970 /* VertexData.m */; };
+		480AD8B612ED78FA009B5970 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B512ED78FA009B5970 /* Edge.m */; };
+		480AD8D612ED9E4A009B5970 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
 		4836401112603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
 		4836401212603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
 		4836401B1260416700363E3F /* Plane3DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401A1260416700363E3F /* Plane3DTestCase.m */; };
@@ -123,6 +126,12 @@
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		4809F42F118EDDB8000F66FD /* Test.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Test.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		480AD8B012ED784B009B5970 /* VertexData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexData.h; sourceTree = "<group>"; };
+		480AD8B112ED784B009B5970 /* VertexData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexData.m; sourceTree = "<group>"; };
+		480AD8B412ED78FA009B5970 /* Edge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Edge.h; sourceTree = "<group>"; };
+		480AD8B512ED78FA009B5970 /* Edge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Edge.m; sourceTree = "<group>"; };
+		480AD8D412ED9E4A009B5970 /* Side.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Side.h; sourceTree = "<group>"; };
+		480AD8D512ED9E4A009B5970 /* Side.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Side.m; sourceTree = "<group>"; };
 		4836400F12603A5100363E3F /* Line3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line3D.h; sourceTree = "<group>"; };
 		4836401012603A5100363E3F /* Line3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line3D.m; sourceTree = "<group>"; };
 		483640191260416700363E3F /* Plane3DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane3DTestCase.h; sourceTree = "<group>"; };
@@ -351,6 +360,19 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		480AD8B312ED78E7009B5970 /* VertexData */ = {
+			isa = PBXGroup;
+			children = (
+				480AD8D412ED9E4A009B5970 /* Side.h */,
+				480AD8D512ED9E4A009B5970 /* Side.m */,
+				480AD8B012ED784B009B5970 /* VertexData.h */,
+				480AD8B112ED784B009B5970 /* VertexData.m */,
+				480AD8B412ED78FA009B5970 /* Edge.h */,
+				480AD8B512ED78FA009B5970 /* Edge.m */,
+			);
+			name = VertexData;
+			sourceTree = "<group>";
+		};
 		485FD0C81257A8C100F4AE49 /* 3D */ = {
 			isa = PBXGroup;
 			children = (
@@ -454,6 +476,7 @@
 		48A68E93114E92730064732A /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				480AD8B312ED78E7009B5970 /* VertexData */,
 				48770FF012E5BE58009B440B /* IO */,
 				48527F3C11148EAA00CD6043 /* Brush.h */,
 				48527F3D11148EAA00CD6043 /* Brush.m */,
@@ -729,6 +752,9 @@
 				4866F3B112EAC9FA009B345C /* TextureViewLayout.m in Sources */,
 				4866F3BE12EACD2B009B345C /* TextureViewLayoutRow.m in Sources */,
 				4866F3C412EACE73009B345C /* TextureViewLayoutCell.m in Sources */,
+				480AD8B212ED784B009B5970 /* VertexData.m in Sources */,
+				480AD8B612ED78FA009B5970 /* Edge.m in Sources */,
+				480AD8D612ED9E4A009B5970 /* Side.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

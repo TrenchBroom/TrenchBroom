@@ -26,6 +26,15 @@
     return [[[Line3D alloc] initWithLine:aLine] autorelease];
 }
 
+- (id)init {
+    if (self = [super init]) {
+        point = [[Vector3f alloc] init];
+        direction = [[Vector3f alloc] initWithFloatVector:[Vector3f zAxisPos]];
+    }
+    
+    return self;
+}
+
 - (id)initWithPoint1:(Vector3f *)point1 point2:(Vector3f *)point2 {
     if (point1 == nil)
         [NSException raise:NSInvalidArgumentException format:@"point1 must not be nil"];
@@ -72,6 +81,14 @@
     
     self = [self initWithPoint:[aLine point] normalizedDirection:[aLine direction]];
     return self;
+}
+
+- (void)setPoint1:(Vector3f *)thePoint1 point2:(Vector3f *)thePoint2 {
+    [point setFloat:thePoint1];
+    [direction setFloat:thePoint2];
+    
+    [direction sub:point];
+    [direction normalize];
 }
 
 - (Vector3f *)point {

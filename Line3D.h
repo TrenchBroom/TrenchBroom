@@ -25,6 +25,8 @@
 - (id)initWithPoint:(Vector3f *)aPoint direction:(Vector3f *)aDirection;
 - (id)initWithLine:(Line3D *)aLine;
 
+- (void)setPoint1:(Vector3f *)thePoint1 point2:(Vector3f *)thePoint2;
+
 - (Vector3f *)point;
 - (Vector3f *)direction;
 
