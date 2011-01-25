@@ -28,50 +28,6 @@
     return self;
 }
 
-- (id) initOnPlane:(EPlaneType)plane at:(Vector3i *)position thirdAxisPositive:(BOOL)thirdAxisPositive texture:(NSString *)aTexture {
-    Vector3i* p1 = [[Vector3i alloc] initWithVector:position];
-    Vector3i* p2 = [[Vector3i alloc] initWithVector:position];
-    Vector3i* p3 = [[Vector3i alloc] initWithVector:position];
-    
-    switch (plane) {
-        case XY:
-            if (thirdAxisPositive) {
-                [p2 addX:0 Y:1 Z:0];
-                [p3 addX:1 Y:0 Z:0];
-            } else {
-                [p2 addX:1 Y:0 Z:0];
-                [p3 addX:0 Y:1 Z:0];
-            }
-            break;
-        case XZ:
-            if (thirdAxisPositive) {
-                [p2 addX:1 Y:0 Z:0];
-                [p3 addX:0 Y:0 Z:1];
-            } else {
-                [p2 addX:0 Y:0 Z:1];
-                [p3 addX:1 Y:0 Z:0];
-            }
-            break;
-        case YZ:
-            if (thirdAxisPositive) {
-                [p2 addX:0 Y:0 Z:1];
-                [p3 addX:0 Y:1 Z:0];
-            } else {
-                [p2 addX:0 Y:1 Z:0];
-                [p3 addX:0 Y:0 Z:1];
-            }
-            break;
-    }
-
-    self = [self initWithPoint1:p1 point2:p2 point3:p3 texture:aTexture];
-    
-    [p1 release];
-    [p2 release];
-    [p3 release];
-    
-    return self;
-}
-
 - (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture {
     if (self = [self init]) {
         [self setPoint1:aPoint1];

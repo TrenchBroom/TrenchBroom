@@ -9,7 +9,13 @@
 #import "Vector3i.h"
 #import "Math.h"
 
+static Vector3i* gNullVector;
+
 @implementation Vector3i
+
++ (void)initialize {
+    gNullVector = [[Vector3i alloc] init];
+}
 
 + (Vector3i *)vector {
     return [[[Vector3i alloc] init] autorelease];
@@ -23,6 +29,9 @@
     return [[[Vector3i alloc] initWithX:xCoord y:yCoord z:zCoord] autorelease];
 }
 
++ (Vector3i *)nullVector {
+    return gNullVector;
+}
 
 - (id)init {
 	if (self = [super init]) {
@@ -110,6 +119,12 @@
     coords[0] = x;
     coords[1] = y;
     coords[2] = z;
+}
+
+- (void)scale:(float)f {
+    coords[0] *= f;
+    coords[1] *= f;
+    coords[2] *= f;
 }
 
 - (NSComparisonResult)compareToVector:(Vector3i *)vector {

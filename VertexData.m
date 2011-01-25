@@ -22,130 +22,182 @@
         edges = [[NSMutableArray alloc] init];
         sides = [[NSMutableArray alloc] init];
         faceToSide = [[NSMutableDictionary alloc] init];
+        sideToFace = [[NSMutableArray alloc] init];
+        freeVertexSlots = [[NSMutableArray alloc] init];
+        freeEdgeSlots = [[NSMutableArray alloc] init];
+        freeSideSlots = [[NSMutableArray alloc] init];
+        null = [[NSObject alloc] init];
 
         // initialize as huge cube
         Vector3f* v = [[Vector3f alloc] initWithX:-4096 y:-4096 z:-4096];
         [vertices addObject:v];
         [v release];
-        int lbb = [vertices count] - 1;
+        int wsb = [vertices count] - 1;
         
         v = [[Vector3f alloc] initWithX:-4096 y:-4096 z:+4096];
         [vertices addObject:v];
         [v release];
-        int lbt = [vertices count] - 1;
+        int wst = [vertices count] - 1;
         
         v = [[Vector3f alloc] initWithX:-4096 y:+4096 z:-4096];
         [vertices addObject:v];
         [v release];
-        int lfb = [vertices count] - 1;
+        int wnb = [vertices count] - 1;
         
         v = [[Vector3f alloc] initWithX:-4096 y:+4096 z:+4096];
         [vertices addObject:v];
         [v release];
-        int lft = [vertices count] - 1;
+        int wnt = [vertices count] - 1;
         
         v = [[Vector3f alloc] initWithX:+4096 y:-4096 z:-4096];
         [vertices addObject:v];
         [v release];
-        int rbb = [vertices count] - 1;
+        int esb = [vertices count] - 1;
         
         v = [[Vector3f alloc] initWithX:+4096 y:-4096 z:+4096];
         [vertices addObject:v];
         [v release];
-        int rbt = [vertices count] - 1;
+        int est = [vertices count] - 1;
         
         v = [[Vector3f alloc] initWithX:+4096 y:+4096 z:-4096];
         [vertices addObject:v];
         [v release];
-        int rfb = [vertices count] - 1;
+        int enb = [vertices count] - 1;
         
         v = [[Vector3f alloc] initWithX:+4096 y:+4096 z:+4096];
         [vertices addObject:v];
         [v release];
-        int rft = [vertices count] - 1;
+        int ent = [vertices count] - 1;
 
         // create edges
-        Edge* e = [[Edge alloc] initWithStartIndex:lbb endIndex:lbt];
+        Edge* e = [[Edge alloc] initWithStartIndex:wsb endIndex:wst];
         [edges addObject:e];
         [e release];
-        int lbblbt = [edges count] - 1;
+        int wsbwst = [edges count] - 1;
 
-        e = [[Edge alloc] initWithStartIndex:lbb endIndex:lfb];
+        e = [[Edge alloc] initWithStartIndex:wsb endIndex:wnb];
         [edges addObject:e];
         [e release];
-        int lbblfb = [edges count] - 1;
+        int wsbwnb = [edges count] - 1;
         
-        e = [[Edge alloc] initWithStartIndex:lbb endIndex:rbb];
+        e = [[Edge alloc] initWithStartIndex:wsb endIndex:esb];
         [edges addObject:e];
         [e release];
-        int lbbrbb = [edges count] - 1;
+        int wsbesb = [edges count] - 1;
         
-        e = [[Edge alloc] initWithStartIndex:rft endIndex:rfb];
+        e = [[Edge alloc] initWithStartIndex:ent endIndex:enb];
         [edges addObject:e];
         [e release];
-        int rftrfb = [edges count] - 1;
+        int entenb = [edges count] - 1;
         
-        e = [[Edge alloc] initWithStartIndex:rft endIndex:rbt];
+        e = [[Edge alloc] initWithStartIndex:ent endIndex:est];
         [edges addObject:e];
         [e release];
-        int rftrbt = [edges count] - 1;
+        int entest = [edges count] - 1;
         
-        e = [[Edge alloc] initWithStartIndex:rft endIndex:lft];
+        e = [[Edge alloc] initWithStartIndex:ent endIndex:wnt];
         [edges addObject:e];
         [e release];
-        int rftlft = [edges count] - 1;
+        int entwnt = [edges count] - 1;
         
-        e = [[Edge alloc] initWithStartIndex:lbt endIndex:lft];
+        e = [[Edge alloc] initWithStartIndex:wst endIndex:wnt];
         [edges addObject:e];
         [e release];
-        int lbtlft = [edges count] - 1;
+        int wstwnt = [edges count] - 1;
         
-        e = [[Edge alloc] initWithStartIndex:lbt endIndex:rbt];
+        e = [[Edge alloc] initWithStartIndex:wst endIndex:est];
         [edges addObject:e];
         [e release];
-        int lbtrbt = [edges count] - 1;
+        int wstest = [edges count] - 1;
         
-        e = [[Edge alloc] initWithStartIndex:lfb endIndex:lft];
+        e = [[Edge alloc] initWithStartIndex:wnb endIndex:wnt];
         [edges addObject:e];
         [e release];
-        int lfblft = [edges count] - 1;
+        int wnbwnt = [edges count] - 1;
         
-        e = [[Edge alloc] initWithStartIndex:lfb endIndex:rfb];
+        e = [[Edge alloc] initWithStartIndex:wnb endIndex:enb];
         [edges addObject:e];
         [e release];
-        int lfbrfb = [edges count] - 1;
+        int wnbenb = [edges count] - 1;
         
-        e = [[Edge alloc] initWithStartIndex:rbb endIndex:rbt];
+        e = [[Edge alloc] initWithStartIndex:esb endIndex:est];
         [edges addObject:e];
         [e release];
-        int rbbrbt = [edges count] - 1;
+        int esbest = [edges count] - 1;
         
-        e = [[Edge alloc] initWithStartIndex:rbb endIndex:rfb];
+        e = [[Edge alloc] initWithStartIndex:esb endIndex:enb];
         [edges addObject:e];
         [e release];
-        int rbbrfb = [edges count] - 1;
+        int esbenb = [edges count] - 1;
         
         // create sides
+        int eastEdges[] = {esbenb, entenb, entest, esbest};
+        BOOL eastFlipped[] = {NO, YES, NO, YES};
+        Side* eastSide = [[Side alloc] initWithEdges:eastEdges flipped:eastFlipped count:4];
+        [sides addObject:eastSide];
+        [sideToFace addObject:null];
+        [eastSide release];
+        
+        int westEdges[] = {wsbwst, wstwnt, wnbwnt, wsbwnb};
+        BOOL westFlipped[] = {NO, NO, YES, YES};
+        Side* westSide = [[Side alloc] initWithEdges:westEdges flipped:westFlipped count:4];
+        [sides addObject:westSide];
+        [sideToFace addObject:null];
+        [westSide release];
+        
+        int northEdges[] = {entwnt, wnbwnt, wnbenb, entenb};
+        BOOL northFlipped[] = {NO, YES, NO, YES};
+        Side* northSide = [[Side alloc] initWithEdges:northEdges flipped:northFlipped count:4];
+        [sides addObject:northSide];
+        [sideToFace addObject:null];
+        [northSide release];
+        
+        int southEdges[] = {wsbesb, esbest, wstest, wsbwst};
+        BOOL southFlipped[] = {NO, NO, YES, YES};
+        Side* southSide = [[Side alloc] initWithEdges:southEdges flipped:southFlipped count:4];
+        [sides addObject:southSide];
+        [sideToFace addObject:null];
+        [southSide release];
+        
+        int topEdges[] = {wstest, entest, entwnt, wstwnt};
+        BOOL topFlipped[] = {NO, YES, NO, YES};
+        Side* topSide = [[Side alloc] initWithEdges:topEdges flipped:topFlipped count:4];
+        [sides addObject:topSide];
+        [sideToFace addObject:null];
+        [topSide release];
+        
+        int bottomEdges[] = {wsbwnb, wnbenb, esbenb, wsbesb};
+        BOOL bottomFlipped[] = {NO, NO, YES, YES};
+        Side* bottomSide = [[Side alloc] initWithEdges:bottomEdges flipped:bottomFlipped count:4];
+        [sides addObject:bottomSide];
+        [sideToFace addObject:null];
+        [bottomSide release];
     }
     
     return self;
 }
 
-- (BOOL)cutWithFace:(Face *)face droppedFaces:(NSArray **)droppedFaces {
+- (BOOL)cutWithFace:(Face *)face droppedFaces:(NSMutableArray **)droppedFaces {
     HalfSpace3D* halfSpace = [face halfSpace];
     
     int oldVertexCount = [vertices count];
     int oldEdgeCount = [edges count];
     
-    BOOL vertexStatus[[vertices count]];
-    vertexStatus[0] = [halfSpace containsPoint:[vertices objectAtIndex:0]];
-    EObjectStatus status = vertexStatus[0] ? OS_KEEP : OS_DROP;
+    // mark vertex statuses
+    BOOL vertexStatus[oldVertexCount];
+    EObjectStatus status;
     
-    for (int i = i; i < [vertices count]; i++) {
-        Vector3f* vertex = [vertices objectAtIndex:i];
-        vertexStatus[i] = [halfSpace containsPoint:vertex];
-        if (vertexStatus[i - 1] != vertexStatus[i])
-            status = OS_SPLIT;
+    int p = -1;
+    for (int i = 0; i < [vertices count]; i++) {
+        if ([vertices objectAtIndex:i] != null) {
+            Vector3f* vertex = [vertices objectAtIndex:i];
+            vertexStatus[i] = [halfSpace containsPoint:vertex];
+            if (p == -1)
+                status = vertexStatus[i] ? OS_KEEP : OS_DROP;
+            else if (vertexStatus[p] != vertexStatus[i])
+                status = OS_SPLIT;
+            p = i;
+        }
     }
 
     if (status == OS_KEEP)
@@ -153,35 +205,75 @@
     
     if (status == OS_DROP)
         return NO;
-                            
+    
+    // mark edge statuses
     Line3D* line = [[Line3D alloc] init];
-    EObjectStatus edgeStatus[[edges count]];
+    EObjectStatus edgeStatus[oldEdgeCount];
     for (int i = 0; i < [edges count]; i++) {
-        Edge* edge = [edges objectAtIndex:i];
-        BOOL startStatus = vertexStatus[[edge startIndex]];
-        BOOL endStatus = vertexStatus[[edge endIndex]];
-        
-        if (startStatus && endStatus) {
-            edgeStatus[i] = OS_KEEP;
-        } else if (!startStatus && !endStatus) {
-            edgeStatus[i] = OS_DROP;
-        } else {
-            edgeStatus[i] = OS_SPLIT;
-            [line setPoint1:[edge startVertex:vertices] point2:[edge endVertex:vertices]];
-            Vector3f* newVertex = [[halfSpace boundary] intersectWithLine:line];
-            [vertices addObject:newVertex];
-            if (startStatus == OS_DROP)
-                [edge setStartIndex:[vertices count] - 1];
-            else
-                [edge setEndIndex:[vertices count] - 1];
+        if ([edges objectAtIndex:i] != null) {
+            Edge* edge = [edges objectAtIndex:i];
+            BOOL startStatus = vertexStatus[[edge startIndex]];
+            BOOL endStatus = vertexStatus[[edge endIndex]];
+            
+            if (startStatus && endStatus) {
+                edgeStatus[i] = OS_KEEP;
+            } else if (!startStatus && !endStatus) {
+                edgeStatus[i] = OS_DROP;
+            } else {
+                edgeStatus[i] = OS_SPLIT;
+                [line setPoint1:[edge startVertex:vertices] point2:[edge endVertex:vertices]];
+                Vector3f* newVertex = [[halfSpace boundary] intersectWithLine:line];
+                
+                int newVertexIndex;
+                if ([freeVertexSlots count] > 0) {
+                    newVertexIndex = [[freeVertexSlots lastObject] intValue];
+                    [freeVertexSlots removeLastObject];
+                    [vertices replaceObjectAtIndex:newVertexIndex withObject:newVertex];
+                } else {
+                    newVertexIndex = [vertices count];
+                    [vertices addObject:newVertex];
+                }
+                
+                if (!startStatus)
+                    [edge setStartIndex:newVertexIndex];
+                else
+                    [edge setEndIndex:newVertexIndex];
+            }
         }
     }
     [line release];
     
+    // handle sides
+    *droppedFaces = [[NSMutableArray alloc] init];
     for (int i = 0; i < [sides count]; i++) {
         Side* side = [sides objectAtIndex:i];
-        if (![side updateEdges:edgeStatus edges:edges])
-            [sides removeObjectAtIndex:i--];
+        if (side != null) {
+            int newEdgeIndex;
+            if ([freeEdgeSlots count] > 0)
+                newEdgeIndex = [[freeEdgeSlots lastObject] intValue];
+            else
+                newEdgeIndex = [edges count];
+            
+            ESideUpdateResult result = [side updateEdges:edgeStatus newEdgeIndex:newEdgeIndex edges:edges];
+            if (result.status == OS_DROP) {
+                if ([sideToFace objectAtIndex:i] != null) {
+                    Face* face = [sideToFace objectAtIndex:i];
+                    [sideToFace replaceObjectAtIndex:i withObject:null];
+                    [faceToSide removeObjectForKey:[face getId]];
+                    [*droppedFaces addObject:face];
+                }
+                [sides replaceObjectAtIndex:i withObject:null];
+                [freeSideSlots addObject:[NSNumber numberWithInt:i]];
+            } else if (result.status == OS_SPLIT) {
+                if ([freeEdgeSlots count] > 0) {
+                    [freeEdgeSlots removeLastObject];
+                    [edges replaceObjectAtIndex:newEdgeIndex withObject:result.newEdge];
+                } else {
+                    [edges addObject:result.newEdge];
+                }
+                [result.newEdge release];
+            }
+        }
     }
 
     // create a new side from the newly created edges
@@ -193,6 +285,7 @@
     for (int i = 0; i < newSideEdgeCount; i++)
         newSideEdges[i] = i + oldEdgeCount;
 
+    // sort the edges to form a polygon
     for (int i = 0; i < newSideEdgeCount - 1; i++) {
         Edge* edge = [edges objectAtIndex:newSideEdges[i]];
         int edgeEndIndex = newSideFlipped[i] ? [edge startIndex] : [edge endIndex];
@@ -209,20 +302,52 @@
         }
     }
 
-    Side* side = [[Side alloc] initWithEdges:newSideEdgeIndices flipped:newSideFlipped count:newEdgeCount];
-    [sides addObject:side];
+    Side* side = [[Side alloc] initWithEdges:newSideEdges flipped:newSideFlipped count:newSideEdgeCount];
+    if ([freeSideSlots count] > 0) {
+        int newSideIndex = [[freeSideSlots lastObject] intValue];
+        [freeSideSlots removeLastObject];
+        [sides replaceObjectAtIndex:newSideIndex withObject:side];
+        [sideToFace replaceObjectAtIndex:newSideIndex withObject:face];
+    } else {
+        [sides addObject:side];
+        [sideToFace addObject:face];
+    }
     [faceToSide setObject:side forKey:[face getId]];
 
+    for (int i = 0; i < oldEdgeCount; i++) {
+        if (edgeStatus[i] == OS_DROP) {
+            [edges replaceObjectAtIndex:i withObject:null];
+            [freeEdgeSlots addObject:[NSNumber numberWithInt:i]];
+        }
+    }
     
+    for (int i = 0; i < oldVertexCount; i++) {
+        if (!vertexStatus[i]) {
+            [vertices replaceObjectAtIndex:i withObject:null];
+            [freeVertexSlots addObject:[NSNumber numberWithInt:i]];
+        }
+    }
     
     return YES;
 }
 
+- (NSArray *)verticesForFace:(Face *)face {
+    Side* side = [faceToSide objectForKey:[face getId]];
+    if (side == nil)
+        [NSException raise:NSInvalidArgumentException format:@"Unknown face: %@", face];
+    return [side verticesWidthEdgeArray:edges vertexArray:vertices];
+}
+
 - (void)dealloc {
+    [sideToFace release];
     [faceToSide release];
     [sides release];
     [edges release];
     [vertices release];
+    [freeVertexSlots release];
+    [freeEdgeSlots release];
+    [freeSideSlots release];
+    [null release];
     [super dealloc];
 }
 

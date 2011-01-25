@@ -36,7 +36,6 @@ typedef enum {
     Vector3f* texAxisY;
 }
 
-- (id)initOnPlane:(EPlaneType)plane at:(Vector3i *)position thirdAxisPositive:(BOOL)thirdAxisPositive texture:(NSString *)texture;
 - (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;
 
 - (NSNumber *)getId;

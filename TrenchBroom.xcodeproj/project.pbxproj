@@ -39,6 +39,10 @@
 		485FD0CB1257A8D900F4AE49 /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0CA1257A8D900F4AE49 /* Math3D.m */; };
 		485FD0CC1257A8D900F4AE49 /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0CA1257A8D900F4AE49 /* Math3D.m */; };
 		48639BF412EA227100808576 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48639BF312EA227100808576 /* QuakePalette.lmp */; };
+		4865993112EECD6700665E94 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
+		4865993212EECD6800665E94 /* VertexData.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B112ED784B009B5970 /* VertexData.m */; };
+		4865993312EECD6900665E94 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B512ED78FA009B5970 /* Edge.m */; };
+		4865993C12EEE27300665E94 /* BrushFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 4865993B12EEE27300665E94 /* BrushFactory.m */; };
 		486641111229854E00752B89 /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
 		486641C412298AED00752B89 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4866413E122986AF00752B89 /* SenTestingKit.framework */; };
 		4866F3B112EAC9FA009B345C /* TextureViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3B012EAC9FA009B345C /* TextureViewLayout.m */; };
@@ -157,6 +161,8 @@
 		485FD0C91257A8D900F4AE49 /* Math3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math3D.h; sourceTree = "<group>"; };
 		485FD0CA1257A8D900F4AE49 /* Math3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math3D.m; sourceTree = "<group>"; };
 		48639BF312EA227100808576 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; path = QuakePalette.lmp; sourceTree = "<group>"; };
+		4865993A12EEE27300665E94 /* BrushFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushFactory.h; sourceTree = "<group>"; };
+		4865993B12EEE27300665E94 /* BrushFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrushFactory.m; sourceTree = "<group>"; };
 		4866413E122986AF00752B89 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = /Developer/Library/Frameworks/SenTestingKit.framework; sourceTree = "<absolute>"; };
 		4866F3AF12EAC9FA009B345C /* TextureViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayout.h; sourceTree = "<group>"; };
 		4866F3B012EAC9FA009B345C /* TextureViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayout.m; sourceTree = "<group>"; };
@@ -488,6 +494,8 @@
 				48A68F6F114EE6DC0064732A /* Map.m */,
 				487E1E9212E495060001C150 /* IdGenerator.h */,
 				487E1E9312E495060001C150 /* IdGenerator.m */,
+				4865993A12EEE27300665E94 /* BrushFactory.h */,
+				4865993B12EEE27300665E94 /* BrushFactory.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -696,6 +704,9 @@
 				48C5137E12DB668A006240ED /* HalfSpace3DTestCase.m in Sources */,
 				48B3243712E1BF76008748E2 /* RenderContext3D.m in Sources */,
 				48B3243C12E1C6B8008748E2 /* Camera.m in Sources */,
+				4865993112EECD6700665E94 /* Side.m in Sources */,
+				4865993212EECD6800665E94 /* VertexData.m in Sources */,
+				4865993312EECD6900665E94 /* Edge.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -755,6 +766,7 @@
 				480AD8B212ED784B009B5970 /* VertexData.m in Sources */,
 				480AD8B612ED78FA009B5970 /* Edge.m in Sources */,
 				480AD8D612ED9E4A009B5970 /* Side.m in Sources */,
+				4865993C12EEE27300665E94 /* BrushFactory.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

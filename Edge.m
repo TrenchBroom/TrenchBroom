@@ -44,4 +44,8 @@
     endIndex = theEndIndex;
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"start: %i, end: %i", startIndex, endIndex];
+}
+
 @end

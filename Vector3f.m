@@ -10,6 +10,7 @@
 #import "Vector3i.h"
 #import "Math.h"
 
+static Vector3f* gNullVector;
 static Vector3f* gXAxisPos;
 static Vector3f* gXAxisNeg;
 static Vector3f* gYAxisPos;
@@ -20,6 +21,7 @@ static Vector3f* gZAxisNeg;
 @implementation Vector3f
 
 + (void)initialize {
+    gNullVector = [[Vector3f alloc] init];
     gXAxisPos = [[Vector3f alloc] initWithX:1 y:0 z:0];
     gXAxisNeg = [[Vector3f alloc] initWithX:-1 y:0 z:0];
     gYAxisPos = [[Vector3f alloc] initWithX:0 y:1 z:0];
@@ -66,6 +68,10 @@ static Vector3f* gZAxisNeg;
 
 + (Vector3f *)vectorWithX:(float)xCoord y:(float)yCoord z:(float)zCoord {
     return [[[Vector3f alloc] initWithX:xCoord y:yCoord z:zCoord] autorelease];
+}
+
++ (Vector3f *)nullVector {
+    return gNullVector;
 }
 
 + (Vector3f *)xAxisPos {

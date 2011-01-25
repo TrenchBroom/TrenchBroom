@@ -27,6 +27,7 @@
 + (Vector3f *)vectorWithIntVector:(Vector3i *)vector;
 + (Vector3f *)vectorWithX:(float)xCoord y:(float)yCoord z:(float)zCoord;
 
++ (Vector3f *)nullVector;
 + (Vector3f *)xAxisPos;
 + (Vector3f *)xAxisNeg;
 + (Vector3f *)yAxisPos;

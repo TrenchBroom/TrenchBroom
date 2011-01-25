@@ -17,6 +17,8 @@
 + (Vector3i *)vectorWithVector:(Vector3i *)vector;
 + (Vector3i *)vectorWithX:(int)xCoord y:(int)yCoord z:(int)zCoord;
 
++ (Vector3i *)nullVector;
+
 - (id)initWithVector:(Vector3i *)vector;
 - (id)initWithX:(int)xCoord y:(int)yCoord z:(int) zCoord;
 
@@ -36,6 +38,7 @@
 - (void)addX:(int)xAddend Y:(int)yAddend Z:(int)zAddend;
 
 - (void)cross:(Vector3i *)m;
+- (void)scale:(float)f;
 
 - (NSComparisonResult)compareToVector:(Vector3i *)vector;
 - (BOOL)isEqualToVector:(Vector3i *)vector;

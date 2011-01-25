@@ -12,6 +12,7 @@
 #import "Vector3i.h"
 #import "MapWindowController.h"
 #import "MapParser.h"
+#import "BrushFactory.h"
 
 @implementation MapDocument
 
@@ -24,7 +25,10 @@
 - (id)initWithType:(NSString *)typeName error:(NSError **)outError {
     if (self = [super initWithType:typeName error:outError]) {
         map = [[Map alloc] init];
-        [map createEntityWithProperty:@"classname" value:@"worldspawn"];
+        Entity* worldspawn = [map createEntityWithProperty:@"classname" value:@"worldspawn"];
+
+        BrushFactory* brushFactory = [BrushFactory sharedFactory];
+        Brush* brush = [brushFactory createCuboidFor:worldspawn atCenter:[Vector3i nullVector] dimensions:[Vector3i vectorWithX:64 y:64 z:64] texture:@""];
     }
     
     return self;

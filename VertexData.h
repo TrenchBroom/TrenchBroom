@@ -21,8 +21,14 @@ typedef enum {
     NSMutableArray* edges;
     NSMutableArray* sides;
     NSMutableDictionary* faceToSide;
+    NSMutableArray* sideToFace;
+    NSMutableArray* freeVertexSlots;
+    NSMutableArray* freeEdgeSlots;
+    NSMutableArray* freeSideSlots;
+    NSObject* null;
 }
 
-- (BOOL)cutWithFace:(Face *)face droppedFaces:(NSArray **)droppedFaces;
+- (BOOL)cutWithFace:(Face *)face droppedFaces:(NSMutableArray **)droppedFaces;
+- (NSArray *)verticesForFace:(Face *)face;
 
 @end

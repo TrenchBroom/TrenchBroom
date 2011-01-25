@@ -11,6 +11,11 @@
 
 @class Edge;
 
+typedef struct {
+    EObjectStatus status;
+    Edge* newEdge;
+} ESideUpdateResult;
+
 @interface Side : NSObject {
     int* edgeIndices;
     BOOL* flipped;
@@ -19,6 +24,7 @@
 
 - (id)initWithEdges:(int*)theEdgeIndices flipped:(BOOL*)theFlipped count:(int)theCount;
 
-- (BOOL)updateEdges:(EObjectStatus *)edgeStatus edges:(NSMutableArray *)edges;
+- (ESideUpdateResult)updateEdges:(EObjectStatus *)edgeStatus newEdgeIndex:(int)newEdgeIndex edges:(NSArray *)edges;
 
+- (NSArray *)verticesWidthEdgeArray:(NSArray *)edges vertexArray:(NSArray *)vertices;
 @end
