@@ -119,6 +119,7 @@ int const WAD_TEX_MIP3_OFFSET = 36;
     if (wadName == nil)
         [NSException raise:NSInvalidArgumentException format:@"wad name must not be nil"];
 
+    NSDate* startDate = [NSDate date];
     NSString* fileType = [self readString:someData range:NSMakeRange(WAD_TYPE_ADDRESS, WAD_TYPE_LENGTH)];
     if (![fileType isEqualToString:@"WAD2"])
         [NSException raise:InvalidFileTypeException format:@"WAD file header is corrupt"];
@@ -132,6 +133,10 @@ int const WAD_TEX_MIP3_OFFSET = 36;
         [self readEntry:someData location:address wad:wad];
         address += WAD_DIR_ENTRY_LENGTH;
     }
+    
+    NSTimeInterval duration = [startDate timeIntervalSinceNow];
+    NSLog(@"Loaded '%@' in %f seconds", wadName, -duration);
+    
     return [wad autorelease];
 }
 

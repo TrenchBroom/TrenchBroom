@@ -8,6 +8,7 @@
 
 #import "Camera.h"
 #import "Vector3f.h"
+#import "Quaternion.h"
 
 NSString* const CameraDefaults = @"Camera";
 NSString* const CameraDefaultsFov = @"FieldOfVision";
@@ -18,10 +19,11 @@ NSString* const CameraDefaultsFar = @"FarClippingPlane";
 
 - (id)init {
     if (self = [super init]) {
-        position = [[Vector3f alloc] initWithX:0 y:0 z:256];
-        direction = [[Vector3f alloc] initWithX:0 y:0 z:-1];
-        [direction normalize];
-        up = [[Vector3f alloc] initWithX:0 y:1 z:0];
+        position = [[Vector3f alloc] initWithX:256 y:0 z:0];
+        direction = [[Vector3f alloc] initWithX:-1 y:0 z:0];
+        up = [[Vector3f alloc] initWithX:0 y:0 z:1];
+        right = [[Vector3f alloc] initWithFloatVector:direction];
+        [right cross:up];
 
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self 
@@ -67,6 +69,35 @@ NSString* const CameraDefaultsFar = @"FarClippingPlane";
     fov = [[cameraDefaults objectForKey:CameraDefaultsFov] floatValue];
     near = [[cameraDefaults objectForKey:CameraDefaultsNear] floatValue];
     far = [[cameraDefaults objectForKey:CameraDefaultsFar] floatValue];
+}
+
+- (void)rotateYaw:(float)yaw pitch:(float)pitch {
+    Quaternion* qy = [[Quaternion alloc] initWithAngle:yaw axis:up];
+    Quaternion* qp = [[Quaternion alloc] initWithAngle:pitch axis:right];
+    [qy mul:qp];
+    
+    [qy rotate:direction];
+    [right setFloat:direction];
+    [right cross:up];
+    
+    [qy release];
+    [qp release];
+}
+
+- (void)moveForward:(float)f right:(float)r up:(float)u {
+    Vector3f* v = [[Vector3f alloc] initWithFloatVector:direction];
+    [v scale:f];
+    [position add:v];
+    
+    [v setFloat:right];
+    [v scale:r];
+    [position add:v];
+    
+    [v setFloat:up];
+    [v scale:u];
+    [position add:v];
+    
+    [v release];
 }
 
 - (void)dealloc {

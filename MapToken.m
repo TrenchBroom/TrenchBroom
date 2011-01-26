@@ -10,10 +10,6 @@
 
 
 @implementation MapToken
-+ (MapToken *)tokenWithType:(ETokenType)aType data:(id)someData line:(int)aLine column:(int)aColumn {
-    return [[[MapToken alloc] initWithType:aType data:someData line:aLine column:aColumn] autorelease];
-}
-
 + (NSString *)typeName:(int)aType {
     NSMutableString* result = [[NSMutableString alloc] init];
     if ((aType & TT_FRAC) != 0)
@@ -43,17 +39,6 @@
     return result;
 }
 
-- (id)initWithType:(ETokenType)aType data:(id)someData line:(int)aLine column:(int)aColumn {
-    if (self = [self init]) {
-        type = aType;
-        data = [someData retain];
-        line = aLine;
-        column = aColumn;
-    }
-    
-    return self;
-}
-
 - (ETokenType)type {
     return type;
 }
@@ -68,6 +53,17 @@
 
 - (int)column {
     return column;
+}
+
+- (MapToken *)setType:(ETokenType)theType data:(id)theData line:(int)theLine column:(int)theColumn {
+    [data release];
+    
+    type = theType;
+    data = [theData retain];
+    line = theLine;
+    column = theColumn;
+    
+    return self;
 }
 
 - (NSString *)description {

@@ -196,8 +196,8 @@
             [Vector3f zAxisNeg], [Vector3f xAxisPos], [Vector3f yAxisNeg],
             [Vector3f xAxisPos], [Vector3f yAxisPos], [Vector3f zAxisNeg],
             [Vector3f xAxisNeg], [Vector3f yAxisPos], [Vector3f zAxisNeg],
-            [Vector3f yAxisPos], [Vector3f xAxisPos], [Vector3f yAxisNeg],
-            [Vector3f yAxisNeg], [Vector3f xAxisPos], [Vector3f yAxisNeg]
+            [Vector3f yAxisPos], [Vector3f xAxisPos], [Vector3f zAxisNeg],
+            [Vector3f yAxisNeg], [Vector3f xAxisPos], [Vector3f zAxisNeg]
         };
         
         float best = 0;
@@ -241,8 +241,8 @@
             [texAxes[i] setComponent:tv value:nt];
         }
         
-        [texAxisX scale:1 / xScale];
-        [texAxisY scale:1 / yScale];
+        [texAxisX scale:xScale];
+        [texAxisY scale:yScale];
     }
     
     [texCoords setX:[vertex dot:texAxisX] + xOffset];

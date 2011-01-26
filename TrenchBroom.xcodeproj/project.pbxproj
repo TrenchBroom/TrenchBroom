@@ -88,6 +88,8 @@
 		48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C751981261A704000ABD57 /* PolyhedronTestCase.m */; };
 		48D9E561126D6D9B00650BE5 /* Segment3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D9E560126D6D9B00650BE5 /* Segment3D.m */; };
 		48D9E562126D6D9B00650BE5 /* Segment3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D9E560126D6D9B00650BE5 /* Segment3D.m */; };
+		48DB957812F0699600FB5483 /* InputManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB957712F0699600FB5483 /* InputManager.m */; };
+		48DB95A312F0A89E00FB5483 /* Quaternion.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB95A212F0A89E00FB5483 /* Quaternion.m */; };
 		48E1107C1234BF5500087198 /* Edge2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E110711234BF5500087198 /* Edge2D.m */; };
 		48E1107D1234BF5500087198 /* Line2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E110731234BF5500087198 /* Line2D.m */; };
 		48E1107E1234BF5500087198 /* Math2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E110751234BF5500087198 /* Math2D.m */; };
@@ -241,6 +243,10 @@
 		48C751981261A704000ABD57 /* PolyhedronTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PolyhedronTestCase.m; sourceTree = "<group>"; };
 		48D9E55F126D6D9B00650BE5 /* Segment3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Segment3D.h; sourceTree = "<group>"; };
 		48D9E560126D6D9B00650BE5 /* Segment3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Segment3D.m; sourceTree = "<group>"; };
+		48DB957612F0699600FB5483 /* InputManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputManager.h; sourceTree = "<group>"; };
+		48DB957712F0699600FB5483 /* InputManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InputManager.m; sourceTree = "<group>"; };
+		48DB95A112F0A89E00FB5483 /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quaternion.h; sourceTree = "<group>"; };
+		48DB95A212F0A89E00FB5483 /* Quaternion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Quaternion.m; sourceTree = "<group>"; };
 		48E110701234BF5500087198 /* Edge2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Edge2D.h; sourceTree = "<group>"; };
 		48E110711234BF5500087198 /* Edge2D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Edge2D.m; sourceTree = "<group>"; };
 		48E110721234BF5500087198 /* Line2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2D.h; sourceTree = "<group>"; };
@@ -409,6 +415,8 @@
 				48A68F1E114EA95A0064732A /* Vector3f.m */,
 				48527F3911148D8E00CD6043 /* Vector3i.h */,
 				48527F3A11148D8E00CD6043 /* Vector3i.m */,
+				48DB95A112F0A89E00FB5483 /* Quaternion.h */,
+				48DB95A212F0A89E00FB5483 /* Quaternion.m */,
 			);
 			name = 3D;
 			sourceTree = "<group>";
@@ -518,6 +526,8 @@
 				48A68EB7114E96C00064732A /* MapWindowController.m */,
 				48B325E312E3788D008748E2 /* AppDelegate.h */,
 				48B325E412E3788D008748E2 /* AppDelegate.m */,
+				48DB957612F0699600FB5483 /* InputManager.h */,
+				48DB957712F0699600FB5483 /* InputManager.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -777,6 +787,8 @@
 				4838DFB412EF4E86008ADB71 /* VertexData.m in Sources */,
 				4838DFB712EF4E94008ADB71 /* Vertex.m in Sources */,
 				4838DFBC12EF548F008ADB71 /* SideEdge.m in Sources */,
+				48DB957812F0699600FB5483 /* InputManager.m in Sources */,
+				48DB95A312F0A89E00FB5483 /* Quaternion.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

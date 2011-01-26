@@ -17,6 +17,7 @@
 #import "WadLoader.h"
 #import "Wad.h"
 #import "TextureManager.h"
+#import "InputManager.h"
 
 @implementation MapWindowController
 
@@ -54,8 +55,11 @@
         }
     }
     
+    inputManager = [[InputManager alloc] init];
+    
     [textureView setTextureManager:textureManager];
     [view3D setTextureManager:textureManager];
+    [view3D setInputManager:inputManager];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
@@ -63,6 +67,7 @@
 }
 
 - (void)dealloc {
+    [inputManager release];
     [textureManager release];
     [renderMap release];
     [camera release];

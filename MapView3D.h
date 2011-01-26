@@ -12,6 +12,7 @@ extern NSString* const MapView3DDefaults;
 extern NSString* const MapView3DDefaultsBackgroundColor;
 
 @class TextureManager;
+@class InputManager;
 @class Camera;
 @class RenderMap;
 
@@ -20,11 +21,15 @@ extern NSString* const MapView3DDefaultsBackgroundColor;
     Camera* camera;
     TextureManager* textureManager;
     float backgroundColor[3];
+    InputManager* inputManager;
 }
 
 - (void)setCamera:(Camera *)aCamera;
 - (void)setRenderMap:(RenderMap *)aRenderMap;
 - (void)setTextureManager:(TextureManager *)theTextureManager;
+- (void)setInputManager:(InputManager *)theInputManager;
+
+- (Camera *)camera;
 
 - (void)userDefaultsChanged:(NSNotification *)notification;
 

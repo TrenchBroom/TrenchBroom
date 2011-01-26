@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="100116"/>
+			<integer value="100055"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -266,7 +266,7 @@
 									<reference key="NSSuperview" ref="59726334"/>
 									<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 										<object class="NSMutableData" key="NSPixelAttributes">
-											<bytes key="NS.bytes">AAAABQAAAGAAAAAIAAAAGAAAAAsAAAAIAAAADAAAABAAAAAAA</bytes>
+											<bytes key="NS.bytes">AAAABQAAADsAAABgAAAACAAAABgAAAALAAAACAAAAAwAAAAYAAAAOAAAAAQAAAA3AAAAAQAAAAA</bytes>
 										</object>
 									</object>
 								</object>
@@ -422,6 +422,14 @@
 						<reference key="destination" ref="425858896"/>
 					</object>
 					<int key="connectionID">100113</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">initialFirstResponder</string>
+						<reference key="source" ref="275939982"/>
+						<reference key="destination" ref="855575142"/>
+					</object>
+					<int key="connectionID">100120</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -670,7 +678,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">100119</int>
+			<int key="maxID">100120</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">

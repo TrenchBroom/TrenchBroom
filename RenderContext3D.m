@@ -32,6 +32,8 @@
 }
 
 - (void)preRender {
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glFrontFace(GL_CW);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
@@ -51,12 +53,10 @@
     Face* face;
     while ((face = [faceEn nextObject])) {
         NSArray* vertices = [brush verticesForFace:face];
-        /*
         NSString* textureName = [face texture];
         Texture* texture = [textureManager textureForName:textureName];
         if (texture != nil)
             [texture activate];
-        */
          
         glColor4f(flatColor[0], flatColor[1], flatColor[2], 1);
         glBegin(GL_POLYGON);
@@ -65,10 +65,10 @@
         for (int i = 0; i < [vertices count]; i++) {
             Vector3f* vertex = [vertices objectAtIndex:i];
             
-            /*
             [face texCoords:texCoords forVertex:vertex];
+            [texCoords setX:[texCoords x] / [texture width]];
+            [texCoords setY:[texCoords y] / [texture height]];
             glTexCoord2f([texCoords x], [texCoords y]);
-             */
 
             glVertex3f([vertex x], [vertex y], [vertex z]);
         }

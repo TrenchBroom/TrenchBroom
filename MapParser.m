@@ -100,7 +100,7 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     
     token = [tokenizer nextToken];
     [self expect:TT_STR actual:token];
-    NSString* texture = [token data];
+    NSString* texture = [[token data] retain];
     
     token = [tokenizer nextToken];
     [self expect:TT_DEC actual:token];
@@ -128,9 +128,12 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     [face setRotation:rotation];
     [face setXScale:xScale];
     [face setYScale:yScale];
+    
+    [texture release];
 }
 
 - (Map *)parse {
+    NSDate* startDate = [NSDate date];
     state = PS_DEF;
     map = [[Map alloc] init];
     
@@ -145,11 +148,13 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
             case PS_ENT:
                 switch ([token type]) {
                     case TT_STR: {
-                        NSString* key = [token data];
+                        NSString* key = [[token data] retain];
                         token = [tokenizer nextToken];
                         [self expect:TT_STR actual:token];
-                        NSString* value = [token data];
+                        NSString* value = [[token data] retain];
                         [entity setProperty:key value:value];
+                        [key release];
+                        [value release];
                         break;
                     }
                     case TT_CB_O:
@@ -184,6 +189,9 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
         }
     }
     
+    NSTimeInterval duration = [startDate timeIntervalSinceNow];
+    NSLog(@"Loaded map file in %f seconds", -duration);
+
     return [map autorelease];
 }
 

@@ -24,6 +24,7 @@ typedef enum {
     @private
     NSInputStream* stream;
     ETokenizerState state;
+    MapToken* token;
     uint8_t buffer[1024];
     NSMutableString* string;
     int bufferSize;

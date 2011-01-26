@@ -14,6 +14,7 @@
 #import "RenderContext.h"
 #import "RenderContext3D.h"
 #import "TextureManager.h"
+#import "InputManager.h"
 
 NSString* const MapView3DDefaults = @"3D View";
 NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
@@ -29,6 +30,18 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
                                                object:[NSUserDefaults standardUserDefaults]];
     
     [self userDefaultsChanged:nil];
+}
+
+- (BOOL)acceptsFirstResponder {
+    return YES;
+}
+
+- (void)keyDown:(NSEvent *)theEvent {
+    [inputManager handleKeyDown:theEvent sender:self];
+}
+
+- (void)mouseDragged:(NSEvent *)theEvent {
+    [inputManager handleMouseDragged:theEvent sender:self];
 }
 
 - (void) drawRect:(NSRect)dirtyRect {
@@ -87,11 +100,24 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     textureManager = [theTextureManager retain];
 }
 
+- (void)setInputManager:(InputManager *)theInputManager {
+    if (theInputManager == nil)
+        [NSException raise:NSInvalidArgumentException format:@"input manager must not be nil"];
+    
+    [inputManager release];
+    inputManager = [theInputManager retain];
+}
+
+- (Camera *)camera {
+    return camera;
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [renderMap release];
     [camera release];
     [textureManager release];
+    [inputManager release];
     [super dealloc];
 }
 

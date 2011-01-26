@@ -27,15 +27,14 @@ typedef enum {
     int column;
 }
 
-+ (MapToken *)tokenWithType:(ETokenType)aType data:(id)someData line:(int)aLine column:(int)aColumn;
 + (NSString *)typeName:(int)aType;
-
-- (id)initWithType:(ETokenType)aType data:(id)someData line:(int)aLine column:(int)aColumn;
 
 - (ETokenType)type;
 - (id)data;
 
 - (int)line;
 - (int)column;
+
+- (MapToken *)setType:(ETokenType)theType data:(id)theData line:(int)theLine column:(int)theColumn;
 
 @end

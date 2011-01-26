@@ -14,12 +14,14 @@ extern NSString* const CameraDefaultsNear;
 extern NSString* const CameraDefaultsFar;
 
 @class Vector3f;
+@class Quaternion;
 
 @interface Camera : NSObject {
     @private
     Vector3f* position;
     Vector3f* direction;
     Vector3f* up;
+    Vector3f* right;
     
     float fov;
     float near;
@@ -32,6 +34,9 @@ extern NSString* const CameraDefaultsFar;
 - (float)fieldOfVision;
 - (float)nearClippingPlane;
 - (float)farClippingPlane;
+
+- (void)rotateYaw:(float)yaw pitch:(float)pitch;
+- (void)moveForward:(float)f right:(float)r up:(float)u;
 
 - (void)userDefaultsChanged:(NSNotification *)notification;
 
