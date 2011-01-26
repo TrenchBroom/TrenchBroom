@@ -16,9 +16,9 @@
 		<key>FieldOfVision</key>
 		<integer>90</integer>
 		<key>NearClippingPlane</key>
-		<integer>1</integer>
+		<integer>10</integer>
 		<key>FarClippingPlane</key>
-		<integer>1000</integer>
+		<integer>5000</integer>
 	</dict>
 </dict>
 </plist>

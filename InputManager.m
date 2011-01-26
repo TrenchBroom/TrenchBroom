@@ -35,7 +35,6 @@
         default:
             break;
     }
-    [mapView3D setNeedsDisplay:YES];
 }
 
 - (void)handleMouseDragged:(NSEvent *)event sender:(id)sender {
@@ -46,7 +45,6 @@
         float yaw = -[event deltaX] / 50;
         float pitch = [event deltaY] / 50;
         [camera rotateYaw:yaw pitch:pitch];
-        [mapView3D setNeedsDisplay:YES];
     }
 }
 

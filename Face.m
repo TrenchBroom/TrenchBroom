@@ -34,6 +34,8 @@
         [self setPoint2:aPoint2];
         [self setPoint3:aPoint3];
         [self setTexture:aTexture];
+        [self setXScale:1];
+        [self setYScale:1];
     }
     
     return self;
@@ -241,8 +243,8 @@
             [texAxes[i] setComponent:tv value:nt];
         }
         
-        [texAxisX scale:xScale];
-        [texAxisY scale:yScale];
+        [texAxisX scale:1 / xScale];
+        [texAxisY scale:1 / yScale];
     }
     
     [texCoords setX:[vertex dot:texAxisX] + xOffset];

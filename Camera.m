@@ -15,6 +15,8 @@ NSString* const CameraDefaultsFov = @"FieldOfVision";
 NSString* const CameraDefaultsNear = @"NearClippingPlane";
 NSString* const CameraDefaultsFar = @"FarClippingPlane";
 
+NSString* const CameraChanged = @"CameraChanged";
+
 @implementation Camera
 
 - (id)init {
@@ -82,6 +84,9 @@ NSString* const CameraDefaultsFar = @"FarClippingPlane";
     
     [qy release];
     [qp release];
+
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotification:[NSNotification notificationWithName:CameraChanged object:self]];
 }
 
 - (void)moveForward:(float)f right:(float)r up:(float)u {
@@ -98,6 +103,9 @@ NSString* const CameraDefaultsFar = @"FarClippingPlane";
     [position add:v];
     
     [v release];
+
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotification:[NSNotification notificationWithName:CameraChanged object:self]];
 }
 
 - (void)dealloc {

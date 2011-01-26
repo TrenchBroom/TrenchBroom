@@ -59,6 +59,7 @@
         switch (state) {
             case TS_DEF:
                 switch (c) {
+                    case '\r':
                     case '\n':
                     case '\t':
                     case ' ':
@@ -119,6 +120,7 @@
                 break;
             case TS_STR:
                 switch (c) {
+                    case '\r':
                     case '\n':
                     case '\t':
                     case ' ': {
@@ -138,6 +140,7 @@
                     state = TS_FRAC;
             case TS_FRAC:
                 switch (c) {
+                    case '\r':
                     case '\n':
                     case '\t':
                     case ' ': {
@@ -157,9 +160,12 @@
                         }
                         break;
                     }
-                    default:
+                    default: {
+                        if ((c < '0' || c > '9') && (c != '.'))
+                            state = TS_STR;
                         [string appendFormat:@"%c", c];
                         break;
+                    }
                 }
             default:
                 break;
