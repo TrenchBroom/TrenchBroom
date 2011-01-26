@@ -26,6 +26,10 @@
         brushId = [[IdGenerator sharedGenerator] getId];
         faces = [[NSMutableArray alloc] init];
         vertexData = [[VertexData alloc] init];
+        
+        flatColor[0] = (rand() % 255) / 255.0f;
+        flatColor[1] = (rand() % 255) / 255.0f;
+        flatColor[2] = (rand() % 255) / 255.0f;
     }
     
     return self;
@@ -68,6 +72,10 @@
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
 
     return [vertexData verticesForFace:face];
+}
+
+- (float *)flatColor {
+    return flatColor;
 }
 
 - (void)dealloc {

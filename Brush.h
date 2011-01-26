@@ -18,6 +18,7 @@
     NSNumber* brushId;
 	NSMutableArray* faces;
     VertexData* vertexData;
+    float flatColor[3];
 }
 
 - (Face *)createFaceWithPoint1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3 texture:(NSString *)texture;
@@ -25,4 +26,5 @@
 - (NSNumber* )getId;
 - (NSArray *)faces;
 - (NSArray *)verticesForFace:(Face *)face;
+- (float *)flatColor;
 @end

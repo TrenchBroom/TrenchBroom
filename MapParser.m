@@ -18,6 +18,16 @@
 NSString* const InvalidTokenException = @"InvalidTokenException";
 
 @implementation MapParser
+- (id)init {
+    if (self = [super init]) {
+        p1 = [[Vector3i alloc] init];
+        p2 = [[Vector3i alloc] init];
+        p3 = [[Vector3i alloc] init];
+    }
+    
+    return self;
+}
+
 - (id)initWithData:(NSData *)someData {
     if (someData == nil)
         [NSException raise:NSInvalidArgumentException format:@"data must not be nil"];
@@ -37,97 +47,87 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
 }
 
 - (void)parseFace {
-    Vector3i* p1 = [[Vector3i alloc] init];
-    Vector3i* p2 = [[Vector3i alloc] init];
-    Vector3i* p3 = [[Vector3i alloc] init];
-    @try {
-        MapToken* token = [tokenizer nextToken];
-        [self expect:TT_DEC actual:token];
-        [p1 setX:[[token data] intValue]];
-
-        token = [tokenizer nextToken];
-        [self expect:TT_DEC actual:token];
-        [p1 setY:[[token data] intValue]];
-
-        token = [tokenizer nextToken];
-        [self expect:TT_DEC actual:token];
-        [p1 setZ:[[token data] intValue]];
-
-        token = [tokenizer nextToken];
-        [self expect:TT_B_C actual:token];
-
-        token = [tokenizer nextToken];
-        [self expect:TT_B_O actual:token];
-
-        token = [tokenizer nextToken];
-        [self expect:TT_DEC actual:token];
-        [p2 setX:[[token data] intValue]];
-        
-        token = [tokenizer nextToken];
-        [self expect:TT_DEC actual:token];
-        [p2 setY:[[token data] intValue]];
-        
-        token = [tokenizer nextToken];
-        [self expect:TT_DEC actual:token];
-        [p2 setZ:[[token data] intValue]];
-
-        token = [tokenizer nextToken];
-        [self expect:TT_B_C actual:token];
-        
-        token = [tokenizer nextToken];
-        [self expect:TT_B_O actual:token];
-
-        token = [tokenizer nextToken];
-        [self expect:TT_DEC actual:token];
-        [p3 setX:[[token data] intValue]];
-        
-        token = [tokenizer nextToken];
-        [self expect:TT_DEC actual:token];
-        [p3 setY:[[token data] intValue]];
-        
-        token = [tokenizer nextToken];
-        [self expect:TT_DEC actual:token];
-        [p3 setZ:[[token data] intValue]];
-        
-        token = [tokenizer nextToken];
-        [self expect:TT_B_C actual:token];
-        
-        token = [tokenizer nextToken];
-        [self expect:TT_STR actual:token];
-        NSString* texture = [token data];
-        
-        token = [tokenizer nextToken];
-        [self expect:TT_DEC actual:token];
-        int xOffset = [[token data] intValue];
-        
-        token = [tokenizer nextToken];
-        [self expect:TT_DEC actual:token];
-        int yOffset = [[token data] intValue];
-        
-        token = [tokenizer nextToken];
-        [self expect:TT_DEC | TT_FRAC actual:token];
-        float rotation = [[token data] floatValue];
-        
-        token = [tokenizer nextToken];
-        [self expect:TT_DEC | TT_FRAC actual:token];
-        float xScale = [[token data] floatValue];
-        
-        token = [tokenizer nextToken];
-        [self expect:TT_DEC | TT_FRAC actual:token];
-        float yScale = [[token data] floatValue];
-        
-        Face* face = [brush createFaceWithPoint1:p1 point2:p2 point3:p3 texture:texture];
-        [face setXOffset:xOffset];
-        [face setYOffset:yOffset];
-        [face setRotation:rotation];
-        [face setXScale:xScale];
-        [face setYScale:yScale];
-    }
-    @finally {
-        [p1 release];
-        [p2 release];
-        [p3 release];
-    }
+    MapToken* token = [tokenizer nextToken];
+    [self expect:TT_DEC actual:token];
+    [p1 setX:[[token data] intValue]];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_DEC actual:token];
+    [p1 setY:[[token data] intValue]];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_DEC actual:token];
+    [p1 setZ:[[token data] intValue]];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_B_C actual:token];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_B_O actual:token];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_DEC actual:token];
+    [p2 setX:[[token data] intValue]];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_DEC actual:token];
+    [p2 setY:[[token data] intValue]];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_DEC actual:token];
+    [p2 setZ:[[token data] intValue]];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_B_C actual:token];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_B_O actual:token];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_DEC actual:token];
+    [p3 setX:[[token data] intValue]];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_DEC actual:token];
+    [p3 setY:[[token data] intValue]];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_DEC actual:token];
+    [p3 setZ:[[token data] intValue]];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_B_C actual:token];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_STR actual:token];
+    NSString* texture = [token data];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_DEC actual:token];
+    int xOffset = [[token data] intValue];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_DEC actual:token];
+    int yOffset = [[token data] intValue];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_DEC | TT_FRAC actual:token];
+    float rotation = [[token data] floatValue];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_DEC | TT_FRAC actual:token];
+    float xScale = [[token data] floatValue];
+    
+    token = [tokenizer nextToken];
+    [self expect:TT_DEC | TT_FRAC actual:token];
+    float yScale = [[token data] floatValue];
+    
+    Face* face = [brush createFaceWithPoint1:p1 point2:p2 point3:p3 texture:texture];
+    [face setXOffset:xOffset];
+    [face setYOffset:yOffset];
+    [face setRotation:rotation];
+    [face setXScale:xScale];
+    [face setYScale:yScale];
 }
 
 - (Map *)parse {
@@ -188,8 +188,11 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
 }
 
 - (void)dealloc {
+    [p1 release];
+    [p2 release];
+    [p3 release];
+    
     [tokenizer release];
-    [map release];
     [super dealloc];
 }
 

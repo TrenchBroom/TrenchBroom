@@ -374,16 +374,16 @@
 		480AD8B312ED78E7009B5970 /* VertexData */ = {
 			isa = PBXGroup;
 			children = (
-				480AD8D412ED9E4A009B5970 /* Side.h */,
-				480AD8D512ED9E4A009B5970 /* Side.m */,
 				480AD8B412ED78FA009B5970 /* Edge.h */,
 				480AD8B512ED78FA009B5970 /* Edge.m */,
-				4838DFB212EF4E86008ADB71 /* VertexData.h */,
-				4838DFB312EF4E86008ADB71 /* VertexData.m */,
-				4838DFB512EF4E94008ADB71 /* Vertex.h */,
-				4838DFB612EF4E94008ADB71 /* Vertex.m */,
+				480AD8D412ED9E4A009B5970 /* Side.h */,
+				480AD8D512ED9E4A009B5970 /* Side.m */,
 				4838DFBA12EF548F008ADB71 /* SideEdge.h */,
 				4838DFBB12EF548F008ADB71 /* SideEdge.m */,
+				4838DFB512EF4E94008ADB71 /* Vertex.h */,
+				4838DFB612EF4E94008ADB71 /* Vertex.m */,
+				4838DFB212EF4E86008ADB71 /* VertexData.h */,
+				4838DFB312EF4E86008ADB71 /* VertexData.m */,
 			);
 			name = VertexData;
 			sourceTree = "<group>";

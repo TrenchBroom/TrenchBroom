@@ -64,7 +64,7 @@
         SideEdge* sideEdge = [edges objectAtIndex:i];
         EEdgeMark currentMark = [sideEdge mark];
         if (currentMark == EM_SPLIT) {
-            if (previousMark == EM_KEEP)
+            if ([[sideEdge startVertex] mark] == VM_KEEP)
                 splitIndex1 = i;
             else
                 splitIndex2 = i;

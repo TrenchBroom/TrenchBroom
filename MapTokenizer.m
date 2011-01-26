@@ -21,7 +21,7 @@
         bufferIndex = 0;
         bufferSize = [stream read:buffer maxLength:1024];
         line = 1;
-        column = 1;
+        column = 0;
         state = TS_DEF;
     }
     
@@ -44,7 +44,7 @@
     char c = (char)buffer[bufferIndex++];
     if (c == '\n') {
         line++;
-        column = 1;
+        column = 0;
     } else {
         column++;
     }
@@ -73,6 +73,8 @@
                     case '"':
                         state = TS_Q_STR;
                         string = [[NSMutableString alloc] init];
+                        startLine = line;
+                        startColumn = column;
                         break;
                     case '-':
                     case '0':
@@ -88,18 +90,22 @@
                         state = TS_DEC;
                         string = [[NSMutableString alloc] init];
                         [string appendFormat:@"%c", c];
+                        startLine = line;
+                        startColumn = column;
                         break;
                     default:
                         state = TS_STR;
                         string = [[NSMutableString alloc] init];
                         [string appendFormat:@"%c", c];
+                        startLine = line;
+                        startColumn = column;
                         break;
                 }
                 break;
             case TS_Q_STR:
                 switch (c) {
                     case '"': {
-                        MapToken* token = [MapToken tokenWithType:TT_STR data:string line:line column:column];
+                        MapToken* token = [MapToken tokenWithType:TT_STR data:string line:startLine column:startColumn];
                         [string release];
                         string = nil;
                         state = TS_DEF;
@@ -115,7 +121,7 @@
                     case '\n':
                     case '\t':
                     case ' ': {
-                        MapToken* token = [MapToken tokenWithType:TT_STR data:string line:line column:column];
+                        MapToken* token = [MapToken tokenWithType:TT_STR data:string line:startLine column:startColumn];
                         [string release];
                         string = nil;
                         state = TS_DEF;
@@ -140,13 +146,13 @@
                             [string release];
                             string = nil;
                             state = TS_DEF;
-                            return [MapToken tokenWithType:TT_DEC data:number line:line column:column];
+                            return [MapToken tokenWithType:TT_DEC data:number line:startLine column:startColumn];
                         } else {
                             number = [NSNumber numberWithFloat:[string floatValue]];
                             [string release];
                             string = nil;
                             state = TS_DEF;
-                            return [MapToken tokenWithType:TT_FRAC data:number line:line column:column];
+                            return [MapToken tokenWithType:TT_FRAC data:number line:startLine column:startColumn];
                         }
                         break;
                     }

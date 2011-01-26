@@ -32,13 +32,14 @@
         // Brush* brush = [brushFactory createCuboidFor:worldspawn atCenter:[Vector3i nullVector] dimensions:[Vector3i vectorWithX:64 y:64 z:64] texture:@""];
         Brush* brush = [worldspawn createBrush];
         
+        
         [brush createFaceWithPoint1:[Vector3i vectorWithX:276 y:108 z:176] point2:[Vector3i vectorWithX:276 y:120 z:176] point3:[Vector3i vectorWithX:260 y:120 z:176] texture:@"mt_sr_v13"];
         [brush createFaceWithPoint1:[Vector3i vectorWithX:260 y:120 z:208] point2:[Vector3i vectorWithX:276 y:120 z:208] point3:[Vector3i vectorWithX:276 y:108 z:208] texture:@"mt_sr_v13"];
         [brush createFaceWithPoint1:[Vector3i vectorWithX:252 y:116 z:176] point2:[Vector3i vectorWithX:252 y:116 z:208] point3:[Vector3i vectorWithX:268 y:100 z:208] texture:@"mt_sr_v13"];
         [brush createFaceWithPoint1:[Vector3i vectorWithX:288 y:122 z:208] point2:[Vector3i vectorWithX:288 y:122 z:176] point3:[Vector3i vectorWithX:268 y:102 z:176] texture:@"mt_sr_v13"];
         [brush createFaceWithPoint1:[Vector3i vectorWithX:288 y:120 z:176] point2:[Vector3i vectorWithX:288 y:120 z:208] point3:[Vector3i vectorWithX:288 y:152 z:208] texture:@"mt_sr_v13"];
         [brush createFaceWithPoint1:[Vector3i vectorWithX:289 y:152 z:176] point2:[Vector3i vectorWithX:289 y:152 z:208] point3:[Vector3i vectorWithX:253 y:116 z:208] texture:@"mt_sr_v13"];
-              
+
         /*
          ( 276 108 176 ) ( 276 120 176 ) ( 260 120 176 ) mt_sr_v13 -59 116 -90 1 1
          ( 260 120 208 ) ( 276 120 208 ) ( 276 108 208 ) mt_sr_v13 -59 116 -90 1 1
@@ -58,7 +59,8 @@
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
     MapParser* parser = [[MapParser alloc] initWithData:data];
-    map = [[parser parse] retain];
+    map = [parser parse];
+    [map retain];
     [parser release];
 
     return YES;

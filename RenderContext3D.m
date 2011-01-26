@@ -32,30 +32,44 @@
 }
 
 - (void)preRender {
+    glFrontFace(GL_CW);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glPolygonMode(GL_FRONT, GL_FILL);
+    glShadeModel(GL_FLAT);
 }
 
 - (void)renderBrush:(RenderBrush *)renderBrush {
     Brush* brush = [renderBrush brush];
     Vector2f* texCoords = [[Vector2f alloc] init];
+    float* flatColor = [brush flatColor];
     
     NSArray* faces = [brush faces];
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject])) {
         NSArray* vertices = [brush verticesForFace:face];
+        /*
         NSString* textureName = [face texture];
-//        Texture* texture = [textureManager textureForName:textureName];
-//        if (texture != nil)
-//            [texture activate];
-        
+        Texture* texture = [textureManager textureForName:textureName];
+        if (texture != nil)
+            [texture activate];
+        */
+         
+        glColor4f(flatColor[0], flatColor[1], flatColor[2], 1);
         glBegin(GL_POLYGON);
-        Vector3f* norm = [face norm];
-        glNormal3f([norm x], [norm y], [norm z]);
+        // Vector3f* norm = [face norm];
+        // glNormal3f([norm x], [norm y], [norm z]);
         for (int i = 0; i < [vertices count]; i++) {
             Vector3f* vertex = [vertices objectAtIndex:i];
-            [face texCoords:texCoords forVertex:vertex];
             
-//            glTexCoord2f([texCoords x], [texCoords y]);
+            /*
+            [face texCoords:texCoords forVertex:vertex];
+            glTexCoord2f([texCoords x], [texCoords y]);
+             */
+
             glVertex3f([vertex x], [vertex y], [vertex z]);
         }
         glEnd();

@@ -168,7 +168,7 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     
     GLuint textureIds[[textures count]];
     
-    NSEnumerator* texEn = [textures keyEnumerator];
+    NSEnumerator* texEn = [textures objectEnumerator];
     Texture* texture;
     
     int i = 0;

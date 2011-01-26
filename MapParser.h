@@ -21,6 +21,7 @@ typedef enum {
 @class Map;
 @class Entity;
 @class Brush;
+@class Vector3i;
 
 @interface MapParser : NSObject {
     @private
@@ -29,6 +30,9 @@ typedef enum {
     Entity* entity;
     Brush* brush;
     EParserState state;
+    Vector3i* p1;
+    Vector3i* p2;
+    Vector3i* p3;
 }
 
 - (id)initWithData:(NSData *)someData;

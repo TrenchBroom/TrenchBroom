@@ -30,6 +30,8 @@ typedef enum {
     int bufferIndex;
     int line;
     int column;
+    int startLine;
+    int startColumn;
 }
 
 - (id)initWithInputStream:(NSInputStream *)aStream;
