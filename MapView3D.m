@@ -35,6 +35,7 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     NSRect bounds = [self frame];
     glViewport(bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);
     
+    glFrontFace(GL_CW);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);

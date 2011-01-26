@@ -18,7 +18,7 @@ NSString* const CameraDefaultsFar = @"FarClippingPlane";
 
 - (id)init {
     if (self = [super init]) {
-        position = [[Vector3f alloc] initWithX:0 y:0 z:20];
+        position = [[Vector3f alloc] initWithX:0 y:0 z:256];
         direction = [[Vector3f alloc] initWithX:0 y:0 z:-1];
         [direction normalize];
         up = [[Vector3f alloc] initWithX:0 y:1 z:0];

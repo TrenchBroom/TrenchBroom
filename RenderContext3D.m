@@ -44,9 +44,9 @@
     while ((face = [faceEn nextObject])) {
         NSArray* vertices = [brush verticesForFace:face];
         NSString* textureName = [face texture];
-        Texture* texture = [textureManager textureForName:textureName];
-        if (texture != nil)
-            [texture activate];
+//        Texture* texture = [textureManager textureForName:textureName];
+//        if (texture != nil)
+//            [texture activate];
         
         glBegin(GL_POLYGON);
         Vector3f* norm = [face norm];
@@ -55,7 +55,7 @@
             Vector3f* vertex = [vertices objectAtIndex:i];
             [face texCoords:texCoords forVertex:vertex];
             
-            glTexCoord2f([texCoords x], [texCoords y]);
+//            glTexCoord2f([texCoords x], [texCoords y]);
             glVertex3f([vertex x], [vertex y], [vertex z]);
         }
         glEnd();

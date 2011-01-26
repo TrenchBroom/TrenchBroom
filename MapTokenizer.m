@@ -21,7 +21,7 @@
         bufferIndex = 0;
         bufferSize = [stream read:buffer maxLength:1024];
         line = 1;
-        column = 0;
+        column = 1;
         state = TS_DEF;
     }
     
@@ -44,7 +44,7 @@
     char c = (char)buffer[bufferIndex++];
     if (c == '\n') {
         line++;
-        column = 0;
+        column = 1;
     } else {
         column++;
     }

@@ -8,21 +8,32 @@
 
 #import <Cocoa/Cocoa.h>
 
+typedef enum {
+    EM_KEEP,
+    EM_DROP,
+    EM_SPLIT,
+    EM_NEW,
+    EM_UNKNOWN
+} EEdgeMark;
+
+@class Vertex;
 @class Vector3f;
+@class Plane3D;
 
 @interface Edge : NSObject {
-    int startIndex;
-    int endIndex;
+    @private
+    Vertex* startVertex;
+    Vertex* endVertex;
+    EEdgeMark mark;
 }
-- (id)initWithStartIndex:(int)theStartIndex endIndex:(int)theEndIndex;
+- (id)initWithStartVertex:(Vertex *)theStartVertex endVertex:(Vertex *)theEndVertex;
 
-- (int)startIndex;
-- (int)endIndex;
+- (Vertex *)startVertex;
+- (Vertex *)endVertex;
 
-- (Vector3f *)startVertex:(NSArray *)vertices;
-- (Vector3f *)endVertex:(NSArray *)vertices;
+- (Vertex *)splitAt:(Plane3D *)plane;
 
-- (void)setStartIndex:(int)theStartIndex;
-- (void)setEndIndex:(int)theEndIndex;
+- (EEdgeMark)mark;
+- (void)updateMark;
 
 @end

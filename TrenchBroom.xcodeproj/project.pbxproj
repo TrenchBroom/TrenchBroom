@@ -19,12 +19,14 @@
 		4809F454118EDE81000F66FD /* Face.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3711148D5C00CD6043 /* Face.m */; };
 		4809F455118EDE81000F66FD /* Entity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* Entity.m */; };
 		4809F456118EDE82000F66FD /* Brush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* Brush.m */; };
-		480AD8B212ED784B009B5970 /* VertexData.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B112ED784B009B5970 /* VertexData.m */; };
 		480AD8B612ED78FA009B5970 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B512ED78FA009B5970 /* Edge.m */; };
 		480AD8D612ED9E4A009B5970 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
 		4836401112603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
 		4836401212603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
 		4836401B1260416700363E3F /* Plane3DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401A1260416700363E3F /* Plane3DTestCase.m */; };
+		4838DFB412EF4E86008ADB71 /* VertexData.m in Sources */ = {isa = PBXBuildFile; fileRef = 4838DFB312EF4E86008ADB71 /* VertexData.m */; };
+		4838DFB712EF4E94008ADB71 /* Vertex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4838DFB612EF4E94008ADB71 /* Vertex.m */; };
+		4838DFBC12EF548F008ADB71 /* SideEdge.m in Sources */ = {isa = PBXBuildFile; fileRef = 4838DFBB12EF548F008ADB71 /* SideEdge.m */; };
 		483B1129122441060072EAFB /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
 		484C28FC115023A2004DD957 /* VBOManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FB115023A2004DD957 /* VBOManager.m */; };
 		484C28FF1150258B004DD957 /* VBOMemBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FE1150258B004DD957 /* VBOMemBlock.m */; };
@@ -40,7 +42,6 @@
 		485FD0CC1257A8D900F4AE49 /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0CA1257A8D900F4AE49 /* Math3D.m */; };
 		48639BF412EA227100808576 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48639BF312EA227100808576 /* QuakePalette.lmp */; };
 		4865993112EECD6700665E94 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
-		4865993212EECD6800665E94 /* VertexData.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B112ED784B009B5970 /* VertexData.m */; };
 		4865993312EECD6900665E94 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B512ED78FA009B5970 /* Edge.m */; };
 		4865993C12EEE27300665E94 /* BrushFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 4865993B12EEE27300665E94 /* BrushFactory.m */; };
 		486641111229854E00752B89 /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
@@ -130,8 +131,6 @@
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		4809F42F118EDDB8000F66FD /* Test.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Test.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		480AD8B012ED784B009B5970 /* VertexData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexData.h; sourceTree = "<group>"; };
-		480AD8B112ED784B009B5970 /* VertexData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexData.m; sourceTree = "<group>"; };
 		480AD8B412ED78FA009B5970 /* Edge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Edge.h; sourceTree = "<group>"; };
 		480AD8B512ED78FA009B5970 /* Edge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Edge.m; sourceTree = "<group>"; };
 		480AD8D412ED9E4A009B5970 /* Side.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Side.h; sourceTree = "<group>"; };
@@ -140,6 +139,12 @@
 		4836401012603A5100363E3F /* Line3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line3D.m; sourceTree = "<group>"; };
 		483640191260416700363E3F /* Plane3DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane3DTestCase.h; sourceTree = "<group>"; };
 		4836401A1260416700363E3F /* Plane3DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Plane3DTestCase.m; sourceTree = "<group>"; };
+		4838DFB212EF4E86008ADB71 /* VertexData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexData.h; sourceTree = "<group>"; };
+		4838DFB312EF4E86008ADB71 /* VertexData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexData.m; sourceTree = "<group>"; };
+		4838DFB512EF4E94008ADB71 /* Vertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vertex.h; sourceTree = "<group>"; };
+		4838DFB612EF4E94008ADB71 /* Vertex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vertex.m; sourceTree = "<group>"; };
+		4838DFBA12EF548F008ADB71 /* SideEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SideEdge.h; sourceTree = "<group>"; };
+		4838DFBB12EF548F008ADB71 /* SideEdge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SideEdge.m; sourceTree = "<group>"; };
 		483B1127122441060072EAFB /* Math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		483B1128122441060072EAFB /* Math.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math.m; sourceTree = "<group>"; };
 		484C28FA115023A2004DD957 /* VBOManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOManager.h; sourceTree = "<group>"; };
@@ -371,10 +376,14 @@
 			children = (
 				480AD8D412ED9E4A009B5970 /* Side.h */,
 				480AD8D512ED9E4A009B5970 /* Side.m */,
-				480AD8B012ED784B009B5970 /* VertexData.h */,
-				480AD8B112ED784B009B5970 /* VertexData.m */,
 				480AD8B412ED78FA009B5970 /* Edge.h */,
 				480AD8B512ED78FA009B5970 /* Edge.m */,
+				4838DFB212EF4E86008ADB71 /* VertexData.h */,
+				4838DFB312EF4E86008ADB71 /* VertexData.m */,
+				4838DFB512EF4E94008ADB71 /* Vertex.h */,
+				4838DFB612EF4E94008ADB71 /* Vertex.m */,
+				4838DFBA12EF548F008ADB71 /* SideEdge.h */,
+				4838DFBB12EF548F008ADB71 /* SideEdge.m */,
 			);
 			name = VertexData;
 			sourceTree = "<group>";
@@ -705,7 +714,6 @@
 				48B3243712E1BF76008748E2 /* RenderContext3D.m in Sources */,
 				48B3243C12E1C6B8008748E2 /* Camera.m in Sources */,
 				4865993112EECD6700665E94 /* Side.m in Sources */,
-				4865993212EECD6800665E94 /* VertexData.m in Sources */,
 				4865993312EECD6900665E94 /* Edge.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -763,10 +771,12 @@
 				4866F3B112EAC9FA009B345C /* TextureViewLayout.m in Sources */,
 				4866F3BE12EACD2B009B345C /* TextureViewLayoutRow.m in Sources */,
 				4866F3C412EACE73009B345C /* TextureViewLayoutCell.m in Sources */,
-				480AD8B212ED784B009B5970 /* VertexData.m in Sources */,
 				480AD8B612ED78FA009B5970 /* Edge.m in Sources */,
 				480AD8D612ED9E4A009B5970 /* Side.m in Sources */,
 				4865993C12EEE27300665E94 /* BrushFactory.m in Sources */,
+				4838DFB412EF4E86008ADB71 /* VertexData.m in Sources */,
+				4838DFB712EF4E94008ADB71 /* Vertex.m in Sources */,
+				4838DFBC12EF548F008ADB71 /* SideEdge.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

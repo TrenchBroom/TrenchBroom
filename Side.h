@@ -9,22 +9,30 @@
 #import <Cocoa/Cocoa.h>
 #import "VertexData.h"
 
-@class Edge;
+typedef enum {
+    SM_KEEP,
+    SM_DROP,
+    SM_SPLIT,
+    SM_NEW,
+    SM_UNKNOWN
+} ESideMark;
 
-typedef struct {
-    EObjectStatus status;
-    Edge* newEdge;
-} ESideUpdateResult;
+@class Edge;
+@class SideEdge;
 
 @interface Side : NSObject {
-    int* edgeIndices;
-    BOOL* flipped;
-    int edgeCount;
+    @private
+    NSMutableArray* edges;
+    ESideMark mark;
 }
 
-- (id)initWithEdges:(int*)theEdgeIndices flipped:(BOOL*)theFlipped count:(int)theCount;
+- (id)initWithEdges:(NSArray *)theEdges flipped:(BOOL*)flipped;
+- (id)initWithSideEdges:(NSArray *)theEdges;
 
-- (ESideUpdateResult)updateEdges:(EObjectStatus *)edgeStatus newEdgeIndex:(int)newEdgeIndex edges:(NSArray *)edges;
+- (SideEdge *)split;
 
-- (NSArray *)verticesWidthEdgeArray:(NSArray *)edges vertexArray:(NSArray *)vertices;
+- (ESideMark)mark;
+- (void)setMark:(ESideMark)theMark;
+
+- (NSArray *)vertices;
 @end
