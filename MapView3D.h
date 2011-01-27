@@ -12,20 +12,24 @@ extern NSString* const MapView3DDefaults;
 extern NSString* const MapView3DDefaultsBackgroundColor;
 
 @class TextureManager;
+@class VBOBuffer;
 @class InputManager;
 @class Camera;
 @class RenderMap;
 
 @interface MapView3D : NSOpenGLView {
+    @private
+    float backgroundColor[3];
     RenderMap* renderMap;
     Camera* camera;
     TextureManager* textureManager;
-    float backgroundColor[3];
     InputManager* inputManager;
+    VBOBuffer* vboBuffer;
 }
 
 - (void)setCamera:(Camera *)aCamera;
 - (void)setRenderMap:(RenderMap *)aRenderMap;
+- (void)setVBOBuffer:(VBOBuffer *)theVboBuffer;
 - (void)setTextureManager:(TextureManager *)theTextureManager;
 - (void)setInputManager:(InputManager *)theInputManager;
 

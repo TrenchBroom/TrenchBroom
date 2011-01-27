@@ -10,17 +10,23 @@
 #import "RenderContext.h"
 
 @class Brush;
+@class VBOBuffer;
+@class VBOMemBlock;
+@class TextureManager;
 
 @interface RenderBrush : NSObject {
     @private
-    BOOL valid;
     Brush* brush;
+    VBOBuffer* vboBuffer;
+    VBOMemBlock* vboMemBlock;
+    NSMutableDictionary* arrayInfoForTexture;
 }
 
-- (id)initWithBrush:(Brush *)aBrush;
+- (id)initWithBrush:(Brush *)theBrush vboBuffer:(VBOBuffer *)theVboBuffer;
 
 - (Brush *)brush;
 
 - (void)renderWithContext:(id <RenderContext>)renderContext;
 
+- (NSDictionary *)prepareWithTextureManager:(TextureManager *)theTextureManager;
 @end

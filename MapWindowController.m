@@ -18,16 +18,16 @@
 #import "Wad.h"
 #import "TextureManager.h"
 #import "InputManager.h"
+#import "VBOBuffer.h"
 
 @implementation MapWindowController
 
 - (void)windowDidLoad {
+    vboBuffer = [[VBOBuffer alloc] initWithTotalCapacity:8192];
+
     Map* map = [[self document] map];
-    renderMap = [[RenderMap alloc] initWithMap:map];
+    renderMap = [[RenderMap alloc] initWithMap:map vboBuffer:vboBuffer];
     camera = [[Camera alloc] init];
-    
-    [view3D setCamera:camera];
-    [view3D setRenderMap:renderMap];
     
     NSBundle* mainBundle = [NSBundle mainBundle];
     NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
@@ -60,10 +60,15 @@
     [textureView setTextureManager:textureManager];
     [view3D setTextureManager:textureManager];
     [view3D setInputManager:inputManager];
+    [view3D setVBOBuffer:vboBuffer];
+    [view3D setCamera:camera];
+    [view3D setRenderMap:renderMap];
+    
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
     [textureManager disposeTextures];
+    [vboBuffer dispose];
 }
 
 - (void)dealloc {

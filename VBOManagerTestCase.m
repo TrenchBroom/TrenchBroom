@@ -7,13 +7,13 @@
 //
 
 #import "VBOManagerTestCase.h"
-#import "VBOManager.h"
+#import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 
 @implementation VBOManagerTestCase
 
 - (void)testAlloc {
-    VBOManager* manager = [[VBOManager alloc] initWithTotalCapacity:2000];
+    VBOBuffer* manager = [[VBOBuffer alloc] initWithTotalCapacity:2000];
     
     VBOMemBlock* block = [manager allocMemBlock:3000];
     STAssertNil(block, @"allocating a block with too little memory should return nil");
@@ -37,7 +37,7 @@
 }
 
 - (void)testFreeAndMergeWithPrevious {
-    VBOManager* manager = [[VBOManager alloc] initWithTotalCapacity:2000];
+    VBOBuffer* manager = [[VBOBuffer alloc] initWithTotalCapacity:2000];
     
     VBOMemBlock* previous = [manager allocMemBlock:400];
     VBOMemBlock* block = [manager allocMemBlock:600];
@@ -56,7 +56,7 @@
 }
 
 - (void)testFreeAndMergeWithNext {
-    VBOManager* manager = [[VBOManager alloc] initWithTotalCapacity:2000];
+    VBOBuffer* manager = [[VBOBuffer alloc] initWithTotalCapacity:2000];
     
     VBOMemBlock* block = [manager allocMemBlock:600];
     VBOMemBlock* next = [manager allocMemBlock:200];
@@ -75,7 +75,7 @@
 }
 
 - (void)testFreeAndMergeWithNextAndPrevious {
-    VBOManager* manager = [[VBOManager alloc] initWithTotalCapacity:2000];
+    VBOBuffer* manager = [[VBOBuffer alloc] initWithTotalCapacity:2000];
     
     VBOMemBlock* previous = [manager allocMemBlock:400];
     VBOMemBlock* block = [manager allocMemBlock:600];

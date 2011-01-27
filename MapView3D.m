@@ -51,7 +51,7 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 	glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    RenderContext3D* renderContext = [[RenderContext3D alloc] initWithTextureManager:textureManager];
+    RenderContext3D* renderContext = [[RenderContext3D alloc] initWithTextureManager:textureManager vboBuffer:vboBuffer];
     [renderContext preRender];
     [renderContext updateView:bounds withCamera:camera];
     
@@ -102,6 +102,14 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     renderMap = [aRenderMap retain];
 }
 
+- (void)setVBOBuffer:(VBOBuffer *)theVboBuffer {
+    if (theVboBuffer == nil)
+        [NSException raise:NSInvalidArgumentException format:@"VBO buffer must not be nil"];
+    
+    [vboBuffer release];
+    vboBuffer = [theVboBuffer retain];
+}
+
 - (void)setTextureManager:(TextureManager *)theTextureManager {
     if (theTextureManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
@@ -125,6 +133,7 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [renderMap release];
+    [vboBuffer release];
     [camera release];
     [textureManager release];
     [inputManager release];

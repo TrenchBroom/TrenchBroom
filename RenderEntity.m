@@ -10,6 +10,7 @@
 #import "Entity.h"
 #import "RenderBrush.h"
 #import "Brush.h"
+#import "VBOBuffer.h"
 
 @implementation RenderEntity
 
@@ -30,19 +31,22 @@ extern NSString* const EntityPropertyAdded;
 extern NSString* const EntityPropertyRemoved;
 extern NSString* const EntityPropertyChanged;
 
-- (id)initWithEntity:(Entity *)anEntity {
-    if (anEntity == nil)
+- (id)initWithEntity:(Entity *)theEntity vboBuffer:(VBOBuffer *)theVboBuffer {
+    if (theEntity == nil)
         [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
+    if (theVboBuffer == nil)
+        [NSException raise:NSInvalidArgumentException format:@"VBO buffer must not be nil"];
 
     if (self = [self init]) {
-        entity = [anEntity retain];
+        entity = [theEntity retain];
+        vboBuffer = [theVboBuffer retain];
         
         NSArray* brushes = [entity brushes];
         NSEnumerator* brushEn = [brushes objectEnumerator];
         Brush* brush;
         
         while ((brush = [brushEn nextObject])) {
-            RenderBrush* renderBrush = [[RenderBrush alloc] initWithBrush:brush];
+            RenderBrush* renderBrush = [[RenderBrush alloc] initWithBrush:brush vboBuffer:vboBuffer];
             [renderBrushes setObject:renderBrush forKey:[brush getId]];
             [renderBrush release];
         }
@@ -64,6 +68,7 @@ extern NSString* const EntityPropertyChanged;
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [vboBuffer release];
     [renderBrushes release];
     [entity release];
     [super dealloc];

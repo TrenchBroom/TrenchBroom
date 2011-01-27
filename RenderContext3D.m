@@ -17,15 +17,21 @@
 #import "Camera.h"
 #import "TextureManager.h"
 #import "Texture.h"
+#import "VBOBuffer.h"
+#import "VBOArrayEntry.h"
 
 @implementation RenderContext3D
 
-- (id)initWithTextureManager:(TextureManager *)theTextureManager {
+- (id)initWithTextureManager:(TextureManager *)theTextureManager vboBuffer:(VBOBuffer *)theVboBuffer {
     if (theTextureManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
+    if (theVboBuffer == nil)
+        [NSException raise:NSInvalidArgumentException format:@"VBO buffer manager must not be nil"];
     
     if (self = [self init]) {
         textureManager = [theTextureManager retain];
+        vboBuffer = [theVboBuffer retain];
+        arrayInfoForTexture = [[NSMutableDictionary alloc] init];
     }
     
     return self;
@@ -41,41 +47,27 @@
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glPolygonMode(GL_FRONT, GL_FILL);
     glShadeModel(GL_FLAT);
+
+    [arrayInfoForTexture removeAllObjects];
+    [vboBuffer activate];
+    [vboBuffer mapBuffer];
 }
 
 - (void)renderBrush:(RenderBrush *)renderBrush {
-    Brush* brush = [renderBrush brush];
-    Vector2f* texCoords = [[Vector2f alloc] init];
-    float* flatColor = [brush flatColor];
-    
-    NSArray* faces = [brush faces];
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    Face* face;
-    while ((face = [faceEn nextObject])) {
-        NSArray* vertices = [brush verticesForFace:face];
-        NSString* textureName = [face texture];
-        Texture* texture = [textureManager textureForName:textureName];
-        if (texture != nil)
-            [texture activate];
-         
-        glColor4f(flatColor[0], flatColor[1], flatColor[2], 1);
-        glBegin(GL_POLYGON);
-        // Vector3f* norm = [face norm];
-        // glNormal3f([norm x], [norm y], [norm z]);
-        for (int i = 0; i < [vertices count]; i++) {
-            Vector3f* vertex = [vertices objectAtIndex:i];
-            
-            [face texCoords:texCoords forVertex:vertex];
-            [texCoords setX:[texCoords x] / [texture width]];
-            [texCoords setY:[texCoords y] / [texture height]];
-            glTexCoord2f([texCoords x], [texCoords y]);
-
-            glVertex3f([vertex x], [vertex y], [vertex z]);
+    NSDictionary* brushArrayInfos = [renderBrush prepareWithTextureManager:textureManager];
+    NSEnumerator* textureNameEn = [brushArrayInfos keyEnumerator];
+    NSString* textureName;
+    while ((textureName = [textureNameEn nextObject])) {
+        NSArray* brushInfos = [brushArrayInfos objectForKey:textureName];
+        NSMutableArray* infos = [arrayInfoForTexture objectForKey:textureName];
+        if (infos == nil) {
+            infos = [[NSMutableArray alloc] initWithArray:brushInfos];
+            [arrayInfoForTexture setObject:infos forKey:textureName];
+            [infos release];
+        } else {
+            [infos addObjectsFromArray:brushInfos];
         }
-        glEnd();
     }
-    
-    [texCoords release];
 }
 
 - (void)updateView:(NSRect)bounds withCamera:(Camera *)camera {
@@ -106,9 +98,43 @@
 }
 
 - (void)postRender {
+    [vboBuffer unmapBuffer];
+    
+    NSEnumerator* textureNameEn = [arrayInfoForTexture keyEnumerator];
+    NSString* textureName;
+    while ((textureName = [textureNameEn nextObject])) {
+        NSArray* infos = [arrayInfoForTexture objectForKey:textureName];
+        NSMutableData* indexArray = [[NSMutableData alloc] init];
+        NSMutableData* countArray = [[NSMutableData alloc] init];
+
+        NSEnumerator* infoEn = [infos objectEnumerator];
+        VBOArrayEntry* entry;
+        while ((entry = [infoEn nextObject])) {
+            int index = [entry index];
+            int count = [entry count];
+            [indexArray appendBytes:(char *)&index length:sizeof(int)];
+            [countArray appendBytes:(char *)&count length:sizeof(int)];
+        }
+
+        Texture* texture = [textureManager textureForName:textureName];
+        [texture activate];
+        
+        const void* indexBuffer = [indexArray bytes];
+        const void* countBuffer = [countArray bytes];
+        
+        glInterleavedArrays(GL_T2F_V3F, 0, NULL);
+        glMultiDrawArrays(GL_POLYGON, indexBuffer, countBuffer, [infos count]);
+        
+        [indexArray release];
+        [countArray release];
+    }
+    
+    [vboBuffer deactivate];
 }
 
 - (void)dealloc {
+    [arrayInfoForTexture release];
+    [vboBuffer release];
     [textureManager release];
     [super dealloc];
 }

@@ -6,8 +6,12 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import "VBOManager.h"
+#import "VBOBuffer.h"
 #import "VBOMemBlock.h"
+#import "Vector2f.h"
+#import "Vector3f.h"
+
+NSString* const BufferNotMappedException = @"BufferNotMappedException";
 
 CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *context) {
     VBOMemBlock *block1 = (VBOMemBlock *)val1;
@@ -22,7 +26,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     return kCFCompareEqualTo;
 }
 
-@implementation VBOManager
+@implementation VBOBuffer
 
 - (id)init {
     if (self = [super init]) {
@@ -36,7 +40,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     if (self = [self init]) {
         totalCapacity = capacity;
         freeCapacity = capacity;
-        firstBlock = [[VBOMemBlock alloc] initWithBlockCapacity:capacity];
+        firstBlock = [[VBOMemBlock alloc] initBlockIn:self at:0 capacity:capacity];
         [freeBlocksByCapacity addObject:firstBlock];
     }
     
@@ -60,7 +64,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 }
 
 - (void)insertFreeMemBlock:(VBOMemBlock *)memBlock {
-    if (![memBlock free])
+    if ([memBlock state] != BS_FREE)
         return;
     
     unsigned index = [self findMemBlock:memBlock];
@@ -71,20 +75,24 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 }
 
 - (void)removeFreeMemBlock:(VBOMemBlock *)memBlock {
-    if (![memBlock free])
+    if ([memBlock state] != BS_FREE)
         return;
     
     unsigned index = [self findMemBlock:memBlock];
     VBOMemBlock* candidate = [freeBlocksByCapacity objectAtIndex:index];
     int i = index;
     
-    while (i > 0 && candidate != memBlock && [candidate free] && [candidate capacity] == [memBlock capacity])
+    while (i > 0 && candidate != memBlock 
+           && [candidate state] == BS_FREE 
+           && [candidate capacity] == [memBlock capacity])
         candidate = [freeBlocksByCapacity objectAtIndex:--i];
     
     if (candidate != memBlock) {
         i = index + 1;
         candidate = [freeBlocksByCapacity objectAtIndex:i];
-        while (i < [freeBlocksByCapacity count] - 1 && candidate != memBlock && [candidate free] && [candidate capacity] == [memBlock capacity])
+        while (i < [freeBlocksByCapacity count] - 1 && candidate != memBlock 
+               && [candidate state] == BS_FREE 
+               && [candidate capacity] == [memBlock capacity])
             candidate = [freeBlocksByCapacity objectAtIndex:++i];
     }
     
@@ -94,11 +102,65 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     [freeBlocksByCapacity removeObjectAtIndex:i];
 }
 
+- (void)activate {
+    if (vboId == 0) {
+        glGenBuffers(1, &vboId);
+        glBindBuffer(GL_ARRAY_BUFFER, vboId);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glBufferData(GL_ARRAY_BUFFER, totalCapacity, NULL, GL_DYNAMIC_DRAW);
+    } else {
+        glBindBuffer(GL_ARRAY_BUFFER, vboId);
+        glEnableClientState(GL_VERTEX_ARRAY);
+    }
+}
+
+- (void)deactivate {
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+- (void)mapBuffer {
+    buffer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+}
+
+- (void)unmapBuffer {
+    if (buffer != NULL) {
+        glUnmapBuffer(GL_ARRAY_BUFFER);
+        buffer = NULL;
+    }
+}
+
+- (void)writeFloat:(float)f address:(int)theAddress {
+    if (buffer == NULL)
+        [NSException raise:BufferNotMappedException format:@"cannot write to unmapped buffer"];
+    
+    for (int i = 0; i < 4; i++)
+        buffer[theAddress + i] = ((char *)&f)[i];
+}
+
+- (void)writeVector3f:(Vector3f *)theVector address:(int)theAddress {
+    if (theVector == nil)
+        [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
+    
+    [self writeFloat:[theVector x] address:theAddress];
+    [self writeFloat:[theVector y] address:theAddress + sizeof(float)];
+    [self writeFloat:[theVector z] address:theAddress + 2 * sizeof(float)];
+}
+
+- (void)writeVector2f:(Vector2f *)theVector address:(int)theAddress {
+    if (theVector == nil)
+        [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
+    
+    [self writeFloat:[theVector x] address:theAddress];
+    [self writeFloat:[theVector y] address:theAddress + sizeof(float)];
+}
+
+
 - (void)resizeMemBlock:(VBOMemBlock *)memBlock toCapacity:(int)capacity {
     if (capacity == [memBlock capacity])
         return;
 
-    if (![memBlock free])
+    if ([memBlock state] != BS_FREE)
         return;
     
     [self removeFreeMemBlock:memBlock];
@@ -106,25 +168,55 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     [self insertFreeMemBlock:memBlock];
 }
 
+- (void)resizeBufferTo:(int)newCapacity {
+    int addedCapacity = newCapacity - totalCapacity;
+    freeCapacity = newCapacity - (totalCapacity - freeCapacity);
+    totalCapacity = newCapacity;
+    
+    VBOMemBlock* block = firstBlock;
+    VBOMemBlock* lastBlock;
+    while (block != nil) {
+        if ([block state] == BS_USED_VALID)
+            [block setState:BS_USED_INVALID];
+        lastBlock = block;
+        block = [block next];
+    }
+    
+    if ([lastBlock state] == BS_FREE) {
+        [self resizeMemBlock:lastBlock toCapacity:[lastBlock capacity] + addedCapacity];
+    } else {
+        block = [[VBOMemBlock alloc] initBlockIn:self at:[lastBlock address] + [lastBlock capacity] capacity:addedCapacity];
+        [lastBlock setNext:block];
+        [block setPrevious:lastBlock];
+        [self insertFreeMemBlock:block];
+        [block release];
+    }
+
+    [self dispose];
+}
+
 - (VBOMemBlock *)allocMemBlock:(int)capacity {
+    if (capacity > freeCapacity) {
+        [self resizeBufferTo:2 * totalCapacity];
+        return [self allocMemBlock:capacity];
+    }
     
-    if (capacity > freeCapacity)
-        return nil;
-    
-    VBOMemBlock* query = [[VBOMemBlock alloc]initWithBlockCapacity:capacity];
+    VBOMemBlock* query = [[VBOMemBlock alloc]initBlockIn:self at:0 capacity:capacity];
     unsigned index = [self findMemBlock:query];
     [query release];
     
     // todo try to rearrange memory?
-    if (index >= [freeBlocksByCapacity count])
-        return nil;
+    if (index >= [freeBlocksByCapacity count]) {
+        [self resizeBufferTo:2 * totalCapacity];
+        return [self allocMemBlock:capacity];
+    }
     
     VBOMemBlock* memBlock = [freeBlocksByCapacity objectAtIndex:index];
     [freeBlocksByCapacity removeObjectAtIndex:index];
     
     // split the memory block
     if (capacity < [memBlock capacity]) {
-        VBOMemBlock *remainder = [[VBOMemBlock alloc] initWithBlockCapacity:[memBlock capacity] - capacity];
+        VBOMemBlock *remainder = [[VBOMemBlock alloc] initBlockIn:self at:[memBlock address] + capacity capacity:[memBlock capacity] - capacity];
         [memBlock setCapacity:capacity];
 
         VBOMemBlock* next = [memBlock next];
@@ -136,22 +228,25 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         [next setPrevious:remainder];
 
         [self insertFreeMemBlock:remainder];
+        [remainder release];
     }
     
-    [memBlock setFree:NO];
+    [memBlock setState:BS_USED_INVALID];
     freeCapacity -= [memBlock capacity];
     
     return memBlock;
 }
 
 - (void)freeMemBlock:(VBOMemBlock *)memBlock {
-
+    if (memBlock == nil)
+        [NSException raise:NSInvalidArgumentException format:@"block must not be nil"];
+    
     VBOMemBlock* previous = [memBlock previous];
     VBOMemBlock* next = [memBlock next];
 
     freeCapacity += [memBlock capacity];
     
-    if ([previous free] && [next free]) {
+    if ([previous state] == BS_FREE && [next state] == BS_FREE) {
         VBOMemBlock* nextNext = [next next];
         
         [previous setNext:nextNext];
@@ -165,7 +260,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         [self resizeMemBlock:previous toCapacity:[previous capacity] + [memBlock capacity] + [next capacity]];
         [self removeFreeMemBlock:next];
 
-    } else if ([previous free]) {
+    } else if ([previous state] == BS_FREE) {
         [previous setNext:next];
         [next setPrevious:previous];
         
@@ -173,7 +268,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         [memBlock setNext:nil];
 
         [self resizeMemBlock:previous toCapacity:[previous capacity] + [memBlock capacity]];
-    } else if ([next free]) {
+    } else if ([next state] == BS_FREE) {
         VBOMemBlock* nextNext = [next next];
         
         [memBlock setNext:nextNext];
@@ -183,14 +278,20 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         [next setNext:nil];
         
         [memBlock setCapacity:[memBlock capacity] + [next capacity]];
-        [memBlock setFree:YES];
+        [memBlock setState:BS_FREE];
         [self insertFreeMemBlock:memBlock];
         [self removeFreeMemBlock:next];
     } else {
-        [memBlock setFree:YES];
+        [memBlock setState:BS_FREE];
         [self insertFreeMemBlock:memBlock];
     }
-    
+}
+
+- (void)dispose {
+    [self unmapBuffer];
+    [self deactivate];
+    if (vboId != 0)
+        glDeleteBuffers(1, &vboId);
 }
 
 - (void)dealloc {

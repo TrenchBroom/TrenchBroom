@@ -12,13 +12,15 @@
 @class Map;
 @class RenderEntity;
 @class Entity;
+@class VBOBuffer;
 
 @interface RenderMap : NSObject {
     Map* map;
+    VBOBuffer* vboBuffer;
     NSMutableDictionary* renderEntities;
 }
 
-- (id)initWithMap:(Map *)aMap;
+- (id)initWithMap:(Map *)theMap vboBuffer:(VBOBuffer *)theVboBuffer;
 
 - (void)renderWithContext:(id <RenderContext>)renderContext;
 

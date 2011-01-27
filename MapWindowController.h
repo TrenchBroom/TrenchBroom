@@ -15,6 +15,7 @@
 @class RenderMap;
 @class TextureManager;
 @class InputManager;
+@class VBOBuffer;
 
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView2D* view2D;
@@ -24,6 +25,7 @@
     Camera* camera;
     TextureManager* textureManager;
     InputManager* inputManager;
+    VBOBuffer* vboBuffer;
 }
 
 @end

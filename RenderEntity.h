@@ -10,13 +10,15 @@
 #import "RenderContext.h"
 
 @class Entity;
+@class VBOBuffer;
 
 @interface RenderEntity : NSObject {
     Entity* entity;
     NSMutableDictionary* renderBrushes;
+    VBOBuffer* vboBuffer;
 }
 
-- (id)initWithEntity:(Entity *)anEntity;
+- (id)initWithEntity:(Entity *)theEntity vboBuffer:(VBOBuffer *)vboBuffer;
 
 - (void)renderWithContext:(id <RenderContext>)renderContext;
 @end

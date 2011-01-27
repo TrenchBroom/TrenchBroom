@@ -7,40 +7,61 @@
 //
 
 #import "VBOMemBlock.h"
-
+#import "VBOBuffer.h"
+#import "Vector3f.h"
+#import "Vector2f.h"
 
 @implementation VBOMemBlock
 
 - (id)init {
     if (self = [super init]) {
-        [self setFree:YES];
+        state = BS_FREE;
     }
     
     return self;
 }
 
-- (id)initWithBlockCapacity:(int)aSize {
+- (id)initBlockIn:(VBOBuffer *)theVboBuffer at:(int)theAddress capacity:(int)theCapacity {
+    if (theVboBuffer == nil)
+        [NSException raise:NSInvalidArgumentException format:@"VBO buffer must not be nil"];
+    
     if (self = [self init]) {
-        [self setCapacity:aSize];
+        vboBuffer = [theVboBuffer retain];
+        address = theAddress;
+        capacity = theCapacity;
     }
     
     return self;
+}
+
+- (int)address {
+    return address;
 }
 
 - (int)capacity {
     return capacity;
 }
 
-- (BOOL)free {
-    return free;
-}
-
-- (void)setFree:(BOOL)value {
-    free = value;
+- (EVBOMemBlockState)state {
+    return state;
 }
 
 - (void)setCapacity:(int)aSize {
     capacity = aSize;
+}
+
+- (void)setState:(EVBOMemBlockState)theState {
+    state = theState;
+}
+
+- (int)writeVector3f:(Vector3f *)theVector offset:(int)theOffset {
+    [vboBuffer writeVector3f:theVector address:address + theOffset];
+    return theOffset + 3 * sizeof(float);
+}
+
+- (int)writeVector2f:(Vector2f *)theVector offset:(int)theOffset {
+    [vboBuffer writeVector2f:theVector address:address + theOffset];
+    return theOffset + 2 * sizeof(float);
 }
 
 - (VBOMemBlock *)previous {
@@ -61,6 +82,7 @@
 }
 
 - (void)dealloc {
+    [vboBuffer release];
     [next release];
     [super dealloc];
 }

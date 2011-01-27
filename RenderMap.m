@@ -10,6 +10,7 @@
 #import "Map.h"
 #import "Entity.h"
 #import "RenderEntity.h"
+#import "VBOBuffer.h"
 
 @implementation RenderMap
 
@@ -22,19 +23,22 @@
     return self;
 }
 
-- (id)initWithMap:(Map *)aMap {
-    if (aMap == nil)
+- (id)initWithMap:(Map *)theMap vboBuffer:(VBOBuffer *)theVboBuffer {
+    if (theMap == nil)
         [NSException raise:NSInvalidArgumentException format:@"map must not be nil"];
+    if (theVboBuffer == nil)
+        [NSException raise:NSInvalidArgumentException format:@"VBO buffer must not be nil"];
 
     if (self = [self init]) {
-        map = [aMap retain];
+        map = [theMap retain];
+        vboBuffer = [theVboBuffer retain];
         
         NSArray* entities = [map entities];
         NSEnumerator* entityEn = [entities objectEnumerator];
         Entity* entity;
         
         while ((entity = [entityEn nextObject])) {
-            RenderEntity* renderEntity = [[RenderEntity alloc] initWithEntity:entity];
+            RenderEntity* renderEntity = [[RenderEntity alloc] initWithEntity:entity vboBuffer:vboBuffer];
             [renderEntities setObject:renderEntity forKey:[entity getId]];
             [renderEntity release];
         }
@@ -55,6 +59,7 @@
 }
 
 - (void)dealloc {
+    [vboBuffer release];
     [renderEntities release];
     [map release];
     [super dealloc];

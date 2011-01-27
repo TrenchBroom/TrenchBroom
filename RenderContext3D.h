@@ -10,12 +10,15 @@
 #import "RenderContext.h"
 
 @class TextureManager;
+@class VBOBuffer;
 
 @interface RenderContext3D : NSObject <RenderContext> {
     @private 
     TextureManager* textureManager;
+    VBOBuffer* vboBuffer;
+    NSMutableDictionary* arrayInfoForTexture;
 }
 
-- (id)initWithTextureManager:(TextureManager *)theTextureManager;
+- (id)initWithTextureManager:(TextureManager *)theTextureManager vboBuffer:(VBOBuffer *)theVboBuffer;
 
 @end

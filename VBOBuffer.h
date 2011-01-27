@@ -8,14 +8,20 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class VBOMemBlock;
+extern NSString* const BufferNotMappedException;
 
-@interface VBOManager : NSObject {
+@class VBOMemBlock;
+@class Vector3f;
+@class Vector2f;
+
+@interface VBOBuffer : NSObject {
     @private
     int totalCapacity;
     int freeCapacity;
     NSMutableArray* freeBlocksByCapacity;
-    VBOMemBlock *firstBlock;
+    VBOMemBlock* firstBlock;
+    uint8_t* buffer;
+    GLuint vboId;
 }
 
 - (id)initWithTotalCapacity:(int)capacity;
@@ -23,7 +29,19 @@
 - (int)totalCapacity;
 - (int)freeCapacity;
 
+- (void)activate;
+- (void)deactivate;
+
+- (void)mapBuffer;
+- (void)unmapBuffer;
+
+- (void)writeFloat:(float)f address:(int)theAddress;
+- (void)writeVector3f:(Vector3f *)theVector address:(int)theAddress;
+- (void)writeVector2f:(Vector2f *)theVector address:(int)theAddress;
+
 - (VBOMemBlock *)allocMemBlock:(int)capacity;
 - (void)freeMemBlock:(VBOMemBlock *)memBlock;
+
+- (void)dispose;
 
 @end
