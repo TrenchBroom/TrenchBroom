@@ -41,7 +41,7 @@
     return self;
 }
 
-- (NSNumber *)getId {
+- (NSNumber *)faceId {
     return faceId;
 }
 

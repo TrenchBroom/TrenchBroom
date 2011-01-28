@@ -35,7 +35,7 @@
 - (Brush *)createBrush {
     Brush* brush = [[Brush alloc] init];
     [brushes addObject:brush];
-    [brushIndices setObject:[NSNumber numberWithInt:[brushes count] - 1] forKey:[brush getId]];
+    [brushIndices setObject:[NSNumber numberWithInt:[brushes count] - 1] forKey:[brush brushId]];
     
     return [brush autorelease];
 }
@@ -44,15 +44,15 @@
     if (brush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
  
-    NSNumber* index = [brushIndices objectForKey:[brush getId]];
+    NSNumber* index = [brushIndices objectForKey:[brush brushId]];
     if (index == nil)
         [NSException raise:NSInvalidArgumentException format:@"Entity %@ does not contain brush %@", self, brush];
     
     [brushes removeObjectAtIndex:[index intValue]];
-    [brushIndices removeObjectForKey:[brush getId]];
+    [brushIndices removeObjectForKey:[brush brushId]];
 }
 
-- (NSNumber *)getId {
+- (NSNumber *)entityId {
     return entityId;
 }
 

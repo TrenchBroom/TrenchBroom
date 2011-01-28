@@ -39,7 +39,7 @@
         
         while ((entity = [entityEn nextObject])) {
             RenderEntity* renderEntity = [[RenderEntity alloc] initWithEntity:entity vboBuffer:vboBuffer];
-            [renderEntities setObject:renderEntity forKey:[entity getId]];
+            [renderEntities setObject:renderEntity forKey:[entity entityId]];
             [renderEntity release];
         }
     }

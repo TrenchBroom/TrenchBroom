@@ -18,6 +18,7 @@
 #import "Plane3D.h"
 #import "Segment3D.h"
 #import "VertexData.h"
+#import "BoundingBox.h"
 
 @implementation Brush
 
@@ -59,7 +60,7 @@
     return [face autorelease];
 }
 
-- (NSNumber *)getId {
+- (NSNumber *)brushId {
     return brushId;
 }
          
@@ -76,6 +77,10 @@
 
 - (float *)flatColor {
     return flatColor;
+}
+
+- (BoundingBox *)bounds {
+    return [vertexData bounds];
 }
 
 - (void)dealloc {

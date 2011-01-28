@@ -14,6 +14,7 @@
 #import "Vector3f.h"
 #import "HalfSpace3D.h"
 #import "Face.h"
+#import "BoundingBox.h"
 
 static NSString* dummy = @"dummy";
 
@@ -26,6 +27,7 @@ static NSString* dummy = @"dummy";
         sides = [[NSMutableArray alloc] init];
         faceToSide = [[NSMutableDictionary alloc] init];
         sideToFace = [[NSMutableArray alloc] init];
+        bounds = nil;
         
         // initialize as huge cube
         Vector3f* v = [[Vector3f alloc] initWithX:-4096 y:-4096 z:-4096];
@@ -257,7 +259,7 @@ static NSString* dummy = @"dummy";
     Side* side = [[Side alloc] initWithSideEdges:newEdges];
     [sides addObject:side];
     [sideToFace addObject:face];
-    [faceToSide setObject:side forKey:[face getId]];
+    [faceToSide setObject:side forKey:[face faceId]];
     [newEdges release];
     
     // clean up
@@ -281,10 +283,45 @@ static NSString* dummy = @"dummy";
     return YES;
 }
 
+- (BoundingBox *)bounds {
+    if (bounds == nil) {
+        NSEnumerator* vertexEn = [vertices objectEnumerator];
+        Vertex* vertex = [vertexEn nextObject];
+        
+        Vector3f* min = [[Vector3f alloc] initWithFloatVector:[vertex vector]];
+        Vector3f* max = [[Vector3f alloc] initWithFloatVector:[vertex vector]];
+        
+        while ((vertex = [vertexEn nextObject])) {
+            Vector3f* vector = [vertex vector];
+            if ([vector x] < [min x])
+                [min setX:[vector x]];
+            if ([vector y] < [min y])
+                [min setY:[vector y]];
+            if ([vector z] < [min z])
+                [min setZ:[vector z]];
+            
+            if ([vector x] > [max x])
+                [max setX:[vector x]];
+            if ([vector y] > [max y])
+                [max setY:[vector y]];
+            if ([vector z] > [max z])
+                [max setZ:[vector z]];
+        }
+        
+        [max sub:min];
+        bounds = [[BoundingBox alloc] initAtOrigin:min dimensions:max];
+
+        [min release];
+        [max release];
+    }
+    
+    return bounds;
+}
+
 - (NSArray*)verticesForFace:(Face *)face {
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
-    Side* side = [faceToSide objectForKey:[face getId]];
+    Side* side = [faceToSide objectForKey:[face faceId]];
     if (side == nil)
         [NSException raise:NSInvalidArgumentException format:@"no vertex data for face"];
     
@@ -297,6 +334,7 @@ static NSString* dummy = @"dummy";
     [sides release];
     [edges release];
     [vertices release];
+    [bounds release];
     [super dealloc];
 }
 

@@ -47,7 +47,7 @@ extern NSString* const EntityPropertyChanged;
         
         while ((brush = [brushEn nextObject])) {
             RenderBrush* renderBrush = [[RenderBrush alloc] initWithBrush:brush vboBuffer:vboBuffer];
-            [renderBrushes setObject:renderBrush forKey:[brush getId]];
+            [renderBrushes setObject:renderBrush forKey:[brush brushId]];
             [renderBrush release];
         }
     }

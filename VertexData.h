@@ -15,6 +15,7 @@ typedef enum {
 } EBrushMark;
 
 @class Face;
+@class BoundingBox;
 
 @interface VertexData : NSObject {
     @private
@@ -23,8 +24,10 @@ typedef enum {
     NSMutableArray* sides;
     NSMutableArray* sideToFace;
     NSMutableDictionary* faceToSide;
+    BoundingBox* bounds;
 }
 
 - (BOOL)cutWithFace:(Face *)face droppedFaces:(NSMutableArray **)droppedFaces;
 - (NSArray*)verticesForFace:(Face *)face;
+- (BoundingBox *)bounds;
 @end

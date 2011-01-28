@@ -24,7 +24,7 @@
 - (Brush *)createBrush;
 - (void)removeBrush:(Brush *)brush;
 
-- (NSNumber *)getId;
+- (NSNumber *)entityId;
 
 - (NSArray *)brushes;
 

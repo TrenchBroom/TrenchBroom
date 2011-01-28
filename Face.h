@@ -38,7 +38,7 @@ typedef enum {
 
 - (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;
 
-- (NSNumber *)getId;
+- (NSNumber *)faceId;
 
 - (Vector3i *)point1;
 - (Vector3i *)point2;

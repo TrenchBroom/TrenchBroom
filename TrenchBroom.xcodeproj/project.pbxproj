@@ -21,6 +21,7 @@
 		4809F456118EDE82000F66FD /* Brush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* Brush.m */; };
 		480AD8B612ED78FA009B5970 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B512ED78FA009B5970 /* Edge.m */; };
 		480AD8D612ED9E4A009B5970 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
+		4824957B12F3004C004F3615 /* BoundingBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 4824957A12F3004C004F3615 /* BoundingBox.m */; };
 		4836401112603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
 		4836401212603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
 		4836401B1260416700363E3F /* Plane3DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401A1260416700363E3F /* Plane3DTestCase.m */; };
@@ -138,6 +139,8 @@
 		480AD8B512ED78FA009B5970 /* Edge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Edge.m; sourceTree = "<group>"; };
 		480AD8D412ED9E4A009B5970 /* Side.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Side.h; sourceTree = "<group>"; };
 		480AD8D512ED9E4A009B5970 /* Side.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Side.m; sourceTree = "<group>"; };
+		4824957912F3004C004F3615 /* BoundingBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundingBox.h; sourceTree = "<group>"; };
+		4824957A12F3004C004F3615 /* BoundingBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundingBox.m; sourceTree = "<group>"; };
 		4836400F12603A5100363E3F /* Line3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line3D.h; sourceTree = "<group>"; };
 		4836401012603A5100363E3F /* Line3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line3D.m; sourceTree = "<group>"; };
 		483640191260416700363E3F /* Plane3DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane3DTestCase.h; sourceTree = "<group>"; };
@@ -383,6 +386,8 @@
 		480AD8B312ED78E7009B5970 /* VertexData */ = {
 			isa = PBXGroup;
 			children = (
+				4824957912F3004C004F3615 /* BoundingBox.h */,
+				4824957A12F3004C004F3615 /* BoundingBox.m */,
 				480AD8B412ED78FA009B5970 /* Edge.h */,
 				480AD8B512ED78FA009B5970 /* Edge.m */,
 				480AD8D412ED9E4A009B5970 /* Side.h */,
@@ -795,6 +800,7 @@
 				48DB957812F0699600FB5483 /* InputManager.m in Sources */,
 				48DB95A312F0A89E00FB5483 /* Quaternion.m in Sources */,
 				48AB6C6712F2251C008BC88E /* VBOArrayEntry.m in Sources */,
+				4824957B12F3004C004F3615 /* BoundingBox.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
