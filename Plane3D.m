@@ -9,7 +9,7 @@
 #import "Plane3D.h"
 #import "Vector3f.h"
 #import "Line3D.h"
-#import "Polygon3D.h"
+#import "Ray3D.h"
 #import "Math.h"
 
 @implementation Plane3D
@@ -28,8 +28,7 @@
         [NSException raise:NSInvalidArgumentException format:@"normal must not be nil"];
     
     if (self == [super init]) {
-        point = [[Vector3f alloc] initWithFloatVector:aPoint];
-        norm = [[Vector3f alloc] initWithFloatVector:aNorm];
+        [self setPoint:aPoint norm:aNorm];
     }
     
     return self;
@@ -40,6 +39,19 @@
         [NSException raise:NSInvalidArgumentException format:@"plane must not be nil"];
     
     return [self initWithPoint:[aPlane point] norm:[aPlane norm]];
+}
+
+- (void)setPoint:(Vector3f *)thePoint norm:(Vector3f *)theNorm {
+    if (thePoint == nil)
+        [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
+    if (theNorm == nil)
+        [NSException raise:NSInvalidArgumentException format:@"normal must not be nil"];
+    
+    [point release];
+    point = [thePoint retain];
+    
+    [norm release];
+    norm = [theNorm retain];
 }
 
 - (Vector3f *)point {
@@ -75,6 +87,28 @@
     Vector3f* is = [[Vector3f alloc] initWithFloatVector:ld];
     [is scale:d];
     [is add:lp];
+    
+    return [is autorelease];
+}
+
+- (Vector3f *)intersectWithRay:(Ray3D *)ray {
+    if (ray == nil)
+        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
+    
+    Vector3f* ro = [ray origin];
+    Vector3f* rd = [ray direction];
+    float denom = [rd dot:norm];
+    if (fzero(denom))
+        return nil;
+    
+    Vector3f* diff = [Vector3f sub:point subtrahend:ro];
+    float d = [diff dot:norm] / denom;
+    if (fneg(d))
+        return nil;
+    
+    Vector3f* is = [[Vector3f alloc] initWithFloatVector:rd];
+    [is scale:d];
+    [is add:ro];
     
     return [is autorelease];
 }

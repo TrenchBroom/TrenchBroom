@@ -50,6 +50,9 @@
 		4866F3B112EAC9FA009B345C /* TextureViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3B012EAC9FA009B345C /* TextureViewLayout.m */; };
 		4866F3BE12EACD2B009B345C /* TextureViewLayoutRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */; };
 		4866F3C412EACE73009B345C /* TextureViewLayoutCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */; };
+		486A9C1C12F41FCA003D26FE /* Octree.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1B12F41FCA003D26FE /* Octree.m */; };
+		486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1E12F41FD1003D26FE /* OctreeNode.m */; };
+		486A9C3812F488E4003D26FE /* Ray3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C3712F488E4003D26FE /* Ray3D.m */; };
 		48770FF312E5BE66009B440B /* MapTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF212E5BE66009B440B /* MapTokenizer.m */; };
 		48770FF612E5BF28009B440B /* MapToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF512E5BF28009B440B /* MapToken.m */; };
 		4877106E12E5DA55009B440B /* MapParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4877106D12E5DA55009B440B /* MapParser.m */; };
@@ -181,6 +184,12 @@
 		4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayoutRow.m; sourceTree = "<group>"; };
 		4866F3C212EACE73009B345C /* TextureViewLayoutCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayoutCell.h; sourceTree = "<group>"; };
 		4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayoutCell.m; sourceTree = "<group>"; };
+		486A9C1A12F41FCA003D26FE /* Octree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Octree.h; sourceTree = "<group>"; };
+		486A9C1B12F41FCA003D26FE /* Octree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Octree.m; sourceTree = "<group>"; };
+		486A9C1D12F41FD1003D26FE /* OctreeNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OctreeNode.h; sourceTree = "<group>"; };
+		486A9C1E12F41FD1003D26FE /* OctreeNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OctreeNode.m; sourceTree = "<group>"; };
+		486A9C3612F488E4003D26FE /* Ray3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ray3D.h; sourceTree = "<group>"; };
+		486A9C3712F488E4003D26FE /* Ray3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Ray3D.m; sourceTree = "<group>"; };
 		48770FF112E5BE66009B440B /* MapTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapTokenizer.h; sourceTree = "<group>"; };
 		48770FF212E5BE66009B440B /* MapTokenizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapTokenizer.m; sourceTree = "<group>"; };
 		48770FF412E5BF28009B440B /* MapToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapToken.h; sourceTree = "<group>"; };
@@ -425,6 +434,8 @@
 				48527F3A11148D8E00CD6043 /* Vector3i.m */,
 				48DB95A112F0A89E00FB5483 /* Quaternion.h */,
 				48DB95A212F0A89E00FB5483 /* Quaternion.m */,
+				486A9C3612F488E4003D26FE /* Ray3D.h */,
+				486A9C3712F488E4003D26FE /* Ray3D.m */,
 			);
 			name = 3D;
 			sourceTree = "<group>";
@@ -523,6 +534,10 @@
 				487E1E9312E495060001C150 /* IdGenerator.m */,
 				4865993A12EEE27300665E94 /* BrushFactory.h */,
 				4865993B12EEE27300665E94 /* BrushFactory.m */,
+				486A9C1A12F41FCA003D26FE /* Octree.h */,
+				486A9C1B12F41FCA003D26FE /* Octree.m */,
+				486A9C1D12F41FD1003D26FE /* OctreeNode.h */,
+				486A9C1E12F41FD1003D26FE /* OctreeNode.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -801,6 +816,9 @@
 				48DB95A312F0A89E00FB5483 /* Quaternion.m in Sources */,
 				48AB6C6712F2251C008BC88E /* VBOArrayEntry.m in Sources */,
 				4824957B12F3004C004F3615 /* BoundingBox.m in Sources */,
+				486A9C1C12F41FCA003D26FE /* Octree.m in Sources */,
+				486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */,
+				486A9C3812F488E4003D26FE /* Ray3D.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

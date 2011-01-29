@@ -16,6 +16,7 @@
 @class TextureManager;
 @class InputManager;
 @class VBOBuffer;
+@class Octree;
 
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView2D* view2D;
@@ -26,6 +27,7 @@
     TextureManager* textureManager;
     InputManager* inputManager;
     VBOBuffer* vboBuffer;
+    Octree* octree;
 }
 
 @end

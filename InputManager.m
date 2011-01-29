@@ -21,16 +21,16 @@
 
     switch ([event keyCode]) {
         case 0: // a
-            [camera moveForward:0 right:-10 up:0];
+            [camera moveForward:0 right:-20 up:0];
             break;
         case 1: // s
-            [camera moveForward:-10 right:0 up:0];
+            [camera moveForward:-20 right:0 up:0];
             break;
         case 2: // d
-            [camera moveForward:0 right:10 up:0];
+            [camera moveForward:0 right:20 up:0];
             break;
         case 13: // w
-            [camera moveForward:10 right:0 up:0];
+            [camera moveForward:20 right:0 up:0];
             break;
         default:
             break;

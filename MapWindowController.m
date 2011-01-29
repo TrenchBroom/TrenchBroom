@@ -19,6 +19,7 @@
 #import "TextureManager.h"
 #import "InputManager.h"
 #import "VBOBuffer.h"
+#import "Octree.h"
 
 @implementation MapWindowController
 
@@ -56,6 +57,7 @@
     }
     
     inputManager = [[InputManager alloc] init];
+    octree = [[Octree alloc] initWithMap:map minSize:64];
     
     [textureView setTextureManager:textureManager];
     [view3D setTextureManager:textureManager];
@@ -72,6 +74,7 @@
 }
 
 - (void)dealloc {
+    [octree release];
     [inputManager release];
     [textureManager release];
     [renderMap release];

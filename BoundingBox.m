@@ -10,18 +10,26 @@
 #import "Vector3f.h"
 
 @implementation BoundingBox
-- (id)initAtOrigin:(Vector3f *)theOrigin dimensions:(Vector3f *)theDimensions {
+- (id)initWithMin:(Vector3f *)theMin max:(Vector3f *)theMax {
     if (self = [self init]) {
-        origin = [theOrigin retain];
-        dimensions = [theDimensions retain];
+        min = [theMin retain];
+        max = [theMax retain];
     }
     
     return self;
 }
 
+- (Vector3f *)min {
+    return min;
+}
+
+- (Vector3f *)max {
+    return max;
+}
+
 - (void)dealloc {
-    [origin release];
-    [dimensions release];
+    [min release];
+    [max release];
     [super dealloc];
 }
 

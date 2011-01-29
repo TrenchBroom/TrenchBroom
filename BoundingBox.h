@@ -12,9 +12,13 @@
 
 @interface BoundingBox : NSObject {
     @private
-    Vector3f* origin;
-    Vector3f* dimensions;
+    Vector3f* min;
+    Vector3f* max;
 }
 
-- (id)initAtOrigin:(Vector3f *)theOrigin dimensions:(Vector3f *)theDimensions;
+- (id)initWithMin:(Vector3f *)theMin max:(Vector3f *)theMax;
+
+- (Vector3f *)min;
+- (Vector3f *)max;
+
 @end

@@ -18,7 +18,7 @@
 		<key>NearClippingPlane</key>
 		<integer>10</integer>
 		<key>FarClippingPlane</key>
-		<integer>5000</integer>
+		<integer>10000</integer>
 	</dict>
 </dict>
 </plist>

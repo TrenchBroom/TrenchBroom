@@ -16,6 +16,7 @@
     if (self = [super init]) {
         entities = [[NSMutableArray alloc] init];
         worldspawn = nil;
+        worldSize = 8192;
     }
     
     return self;
@@ -50,6 +51,10 @@
 
 - (NSArray *)entities {
     return entities;
+}
+
+- (int)worldSize {
+    return worldSize;
 }
 
 - (void)dealloc {

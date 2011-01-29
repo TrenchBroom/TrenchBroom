@@ -14,6 +14,7 @@
     @private
     NSMutableArray* entities;
     Entity* worldspawn;
+    int worldSize;
 }
 
 - (Entity *)worldspawn;
@@ -23,5 +24,5 @@
 - (void)removeEntity:(Entity *)entity;
 
 - (NSArray* )entities;
-
+- (int)worldSize;
 @end

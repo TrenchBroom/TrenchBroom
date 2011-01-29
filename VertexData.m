@@ -308,8 +308,7 @@ static NSString* dummy = @"dummy";
                 [max setZ:[vector z]];
         }
         
-        [max sub:min];
-        bounds = [[BoundingBox alloc] initAtOrigin:min dimensions:max];
+        bounds = [[BoundingBox alloc] initWithMin:min max:max];
 
         [min release];
         [max release];
