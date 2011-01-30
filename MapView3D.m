@@ -44,6 +44,18 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     [inputManager handleMouseDragged:theEvent sender:self];
 }
 
+- (void)mouseMoved:(NSEvent *)theEvent {
+    [inputManager handleMouseMoved:theEvent sender:self];
+}
+
+- (void)mouseDown:(NSEvent *)theEvent {
+    [inputManager handleMouseDown:theEvent sender:self];
+}
+
+- (void)mouseUp:(NSEvent *)theEvent {
+    [inputManager handleMouseUp:theEvent sender:self];
+}
+
 - (void) drawRect:(NSRect)dirtyRect {
     NSRect bounds = [self frame];
     glViewport(bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);

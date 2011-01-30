@@ -16,6 +16,7 @@ typedef enum {
 @class Vector3f;
 @class Vector3i;
 @class HalfSpace3D;
+@class Plane3D;
 
 @interface Face : NSObject {
     @private
@@ -34,6 +35,7 @@ typedef enum {
     Vector3f* norm;
     Vector3f* texAxisX;
     Vector3f* texAxisY;
+    HalfSpace3D* halfSpace;
 }
 
 - (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;

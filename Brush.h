@@ -13,6 +13,8 @@
 @class Polyhedron;
 @class VertexData;
 @class BoundingBox;
+@class Ray3D;
+@class PickingHit;
 
 @interface Brush : NSObject {
     @private
@@ -29,4 +31,5 @@
 - (NSArray *)verticesForFace:(Face *)face;
 - (float *)flatColor;
 - (BoundingBox *)bounds;
+- (PickingHit *)pickFace:(Ray3D *)theRay;
 @end

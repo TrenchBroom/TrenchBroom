@@ -19,6 +19,8 @@
 #import "Segment3D.h"
 #import "VertexData.h"
 #import "BoundingBox.h"
+#import "Ray3D.h"
+#import "PickingHit.h"
 
 @implementation Brush
 
@@ -81,6 +83,10 @@
 
 - (BoundingBox *)bounds {
     return [vertexData bounds];
+}
+
+- (PickingHit *)pickFace:(Ray3D *)theRay; {
+    return [vertexData pickFace:theRay];
 }
 
 - (void)dealloc {

@@ -7,6 +7,7 @@
 //
 
 #import "Camera.h"
+#import <OpenGL/glu.h>
 #import "Vector3f.h"
 #import "Quaternion.h"
 
@@ -21,8 +22,8 @@ NSString* const CameraChanged = @"CameraChanged";
 
 - (id)init {
     if (self = [super init]) {
-        position = [[Vector3f alloc] initWithX:256 y:0 z:0];
-        direction = [[Vector3f alloc] initWithX:-1 y:0 z:0];
+        position = [[Vector3f alloc] initWithX:0 y:0 z:0];
+        direction = [[Vector3f alloc] initWithX:1 y:0 z:0];
         up = [[Vector3f alloc] initWithX:0 y:0 z:1];
         right = [[Vector3f alloc] initWithFloatVector:direction];
         [right cross:up];
@@ -106,6 +107,21 @@ NSString* const CameraChanged = @"CameraChanged";
 
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotification:[NSNotification notificationWithName:CameraChanged object:self]];
+}
+
+- (Vector3f *)unprojectX:(float)x y:(float)y {
+    static GLint viewport[4];
+    static GLdouble modelview[16];
+    static GLdouble projection[16];
+    
+    glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+    glGetDoublev(GL_PROJECTION_MATRIX, projection);
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    
+    GLdouble rx, ry, rz;
+    gluUnProject(x, y, 1, modelview, projection, viewport, &rx, &ry, &rz);
+    
+    return [Vector3f vectorWithX:rx y:ry z:rz];
 }
 
 - (void)dealloc {

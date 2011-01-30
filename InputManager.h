@@ -8,12 +8,19 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class Camera;
+@class Picker;
 
 @interface InputManager : NSObject {
+    @private 
+    Picker* picker;
 }
+
+- (id)initWithPicker:(Picker *)thePicker;
 
 - (void)handleKeyDown:(NSEvent *)event sender:(id)sender;
 - (void)handleMouseDragged:(NSEvent *)event sender:(id)sender;
+- (void)handleMouseMoved:(NSEvent *)event sender:(id)sender;
+- (void)handleMouseDown:(NSEvent *)event sender:(id)sender;
+- (void)handleMouseUp:(NSEvent *)event sender:(id)sender;
 
 @end

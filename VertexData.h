@@ -16,6 +16,8 @@ typedef enum {
 
 @class Face;
 @class BoundingBox;
+@class Ray3D;
+@class PickingHit;
 
 @interface VertexData : NSObject {
     @private
@@ -30,4 +32,5 @@ typedef enum {
 - (BOOL)cutWithFace:(Face *)face droppedFaces:(NSMutableArray **)droppedFaces;
 - (NSArray*)verticesForFace:(Face *)face;
 - (BoundingBox *)bounds;
+- (PickingHit *)pickFace:(Ray3D *)theRay;
 @end

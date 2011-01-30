@@ -35,6 +35,9 @@
 		48527F3B11148D8E00CD6043 /* Vector3i.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3A11148D8E00CD6043 /* Vector3i.m */; };
 		48527F3E11148EAA00CD6043 /* Brush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* Brush.m */; };
 		485884FC12298C2E00E7806F /* Polygon2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 485884FB12298C2E00E7806F /* Polygon2DTestCase.m */; };
+		485AE8A712F4B9BA00CDBD6A /* Picker.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8A612F4B9BA00CDBD6A /* Picker.m */; };
+		485AE8B712F4BFB700CDBD6A /* CoordinatePlane.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8B612F4BFB700CDBD6A /* CoordinatePlane.m */; };
+		485AE8D712F4C5BD00CDBD6A /* PickingHit.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8D612F4C5BD00CDBD6A /* PickingHit.m */; };
 		485FD0C21257A59800F4AE49 /* Polyhedron.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0C11257A59800F4AE49 /* Polyhedron.m */; };
 		485FD0C31257A59800F4AE49 /* Polyhedron.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0C11257A59800F4AE49 /* Polyhedron.m */; };
 		485FD0C61257A61500F4AE49 /* Polygon3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0C51257A61500F4AE49 /* Polygon3D.m */; };
@@ -168,6 +171,12 @@
 		48527F3D11148EAA00CD6043 /* Brush.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Brush.m; sourceTree = "<group>"; };
 		485884FA12298C2E00E7806F /* Polygon2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Polygon2DTestCase.h; sourceTree = "<group>"; };
 		485884FB12298C2E00E7806F /* Polygon2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polygon2DTestCase.m; sourceTree = "<group>"; };
+		485AE8A512F4B9BA00CDBD6A /* Picker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Picker.h; sourceTree = "<group>"; };
+		485AE8A612F4B9BA00CDBD6A /* Picker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Picker.m; sourceTree = "<group>"; };
+		485AE8B512F4BFB700CDBD6A /* CoordinatePlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordinatePlane.h; sourceTree = "<group>"; };
+		485AE8B612F4BFB700CDBD6A /* CoordinatePlane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoordinatePlane.m; sourceTree = "<group>"; };
+		485AE8D512F4C5BD00CDBD6A /* PickingHit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PickingHit.h; sourceTree = "<group>"; };
+		485AE8D612F4C5BD00CDBD6A /* PickingHit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PickingHit.m; sourceTree = "<group>"; };
 		485FD0C01257A59800F4AE49 /* Polyhedron.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Polyhedron.h; sourceTree = "<group>"; };
 		485FD0C11257A59800F4AE49 /* Polyhedron.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polyhedron.m; sourceTree = "<group>"; };
 		485FD0C41257A61500F4AE49 /* Polygon3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Polygon3D.h; sourceTree = "<group>"; };
@@ -436,6 +445,8 @@
 				48DB95A212F0A89E00FB5483 /* Quaternion.m */,
 				486A9C3612F488E4003D26FE /* Ray3D.h */,
 				486A9C3712F488E4003D26FE /* Ray3D.m */,
+				485AE8B512F4BFB700CDBD6A /* CoordinatePlane.h */,
+				485AE8B612F4BFB700CDBD6A /* CoordinatePlane.m */,
 			);
 			name = 3D;
 			sourceTree = "<group>";
@@ -538,6 +549,10 @@
 				486A9C1B12F41FCA003D26FE /* Octree.m */,
 				486A9C1D12F41FD1003D26FE /* OctreeNode.h */,
 				486A9C1E12F41FD1003D26FE /* OctreeNode.m */,
+				485AE8A512F4B9BA00CDBD6A /* Picker.h */,
+				485AE8A612F4B9BA00CDBD6A /* Picker.m */,
+				485AE8D512F4C5BD00CDBD6A /* PickingHit.h */,
+				485AE8D612F4C5BD00CDBD6A /* PickingHit.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -819,6 +834,9 @@
 				486A9C1C12F41FCA003D26FE /* Octree.m in Sources */,
 				486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */,
 				486A9C3812F488E4003D26FE /* Ray3D.m in Sources */,
+				485AE8A712F4B9BA00CDBD6A /* Picker.m in Sources */,
+				485AE8B712F4BFB700CDBD6A /* CoordinatePlane.m in Sources */,
+				485AE8D712F4C5BD00CDBD6A /* PickingHit.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

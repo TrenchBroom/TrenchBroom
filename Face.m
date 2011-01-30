@@ -180,9 +180,13 @@
 }
 
 - (HalfSpace3D *)halfSpace {
-    return [HalfSpace3D halfSpaceWithIntPoint1:[self point1] 
-                                        point2:[self point2] 
-                                        point3:[self point3]];
+    if (halfSpace == nil) {
+        halfSpace =  [[HalfSpace3D alloc] initWithIntPoint1:[self point1] 
+                                                     point2:[self point2] 
+                                                     point3:[self point3]];
+    }
+    
+    return halfSpace;
 }
 
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex {
@@ -266,6 +270,7 @@
 }
 
 - (void) dealloc {
+    [halfSpace release];
 	[point1 release];
 	[point2 release];
 	[point3 release];

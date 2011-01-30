@@ -163,6 +163,7 @@ static Vector3f* gZAxisNeg;
         return z;
     
     [NSException raise:NSInvalidArgumentException format:@"invalid component index: %i", index];
+    return 0; // never reached
 }
 
 - (void)setComponent:(int)index value:(float)value {

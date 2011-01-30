@@ -176,26 +176,30 @@
     if (theSet == nil)
         [NSException raise:NSInvalidArgumentException format:@"set must not be nil"];
     
-    Plane3D* plane = [[Plane3D alloc] init];
     Vector3f* origin = [theRay origin];
-    BOOL hit = NO;
+    BOOL hit = [origin x] >= [min x] && [origin y] >= [min y] && [origin z] >= [min z] && [origin x] <= [max x] && [origin y] <= [max y] && [origin z] <= [max z];
     
-    if ([origin x] > 0) {
-        [plane setPoint:[Vector3f vectorWithIntVector:min] norm:[Vector3f xAxisNeg]];
-        Vector3f* is = [plane intersectWithRay:theRay];
-        hit = is != nil && [is y] >= [min y] && [is y] <= [max y] && [is z] >= [min z] && [is z] <= [max z];
-    } else if ([origin x] < 0) {
-        [plane setPoint:[Vector3f vectorWithIntVector:max] norm:[Vector3f xAxisPos]];
-        Vector3f* is = [plane intersectWithRay:theRay];
-        hit = is != nil && [is y] >= [min y] && [is y] <= [max y] && [is z] >= [min z] && [is z] <= [max z];
+    Plane3D* plane = [[Plane3D alloc] init];
+    Vector3f* direction = [theRay direction];
+    
+    if (!hit) {
+        if ([direction x] > 0) {
+            [plane setPoint:[Vector3f vectorWithIntVector:min] norm:[Vector3f xAxisNeg]];
+            Vector3f* is = [plane intersectWithRay:theRay];
+            hit = is != nil && [is y] >= [min y] && [is y] <= [max y] && [is z] >= [min z] && [is z] <= [max z];
+        } else if ([direction x] < 0) {
+            [plane setPoint:[Vector3f vectorWithIntVector:max] norm:[Vector3f xAxisPos]];
+            Vector3f* is = [plane intersectWithRay:theRay];
+            hit = is != nil && [is y] >= [min y] && [is y] <= [max y] && [is z] >= [min z] && [is z] <= [max z];
+        }
     }
     
     if (!hit) {
-        if ([origin y] > 0) {
+        if ([direction y] > 0) {
             [plane setPoint:[Vector3f vectorWithIntVector:min] norm:[Vector3f yAxisNeg]];
             Vector3f* is = [plane intersectWithRay:theRay];
             hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is z] >= [min z] && [is z] <= [max z];
-        } else if ([origin y] < 0) {
+        } else if ([direction y] < 0) {
             [plane setPoint:[Vector3f vectorWithIntVector:max] norm:[Vector3f yAxisPos]];
             Vector3f* is = [plane intersectWithRay:theRay];
             hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is z] >= [min z] && [is z] <= [max z];
@@ -203,11 +207,11 @@
     }
      
     if (!hit) {
-        if ([origin z] > 0) {
+        if ([direction z] > 0) {
             [plane setPoint:[Vector3f vectorWithIntVector:min] norm:[Vector3f zAxisNeg]];
             Vector3f* is = [plane intersectWithRay:theRay];
             hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is y] >= [min y] && [is y] <= [max y];
-        } else if ([origin z] < 0) {
+        } else if ([direction z] < 0) {
             [plane setPoint:[Vector3f vectorWithIntVector:max] norm:[Vector3f zAxisPos]];
             Vector3f* is = [plane intersectWithRay:theRay];
             hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is y] >= [min y] && [is y] <= [max y];

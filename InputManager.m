@@ -7,10 +7,26 @@
 //
 
 #import "InputManager.h"
+#import <OpenGL/glu.h>
 #import "Camera.h"
+#import "Picker.h"
+#import "PickingHit.h"
 #import "MapView3D.h"
+#import "Ray3D.h"
+#import "Vector3f.h"
 
 @implementation InputManager
+- (id)initWithPicker:(Picker *)thePicker {
+    if (thePicker == nil)
+        [NSException raise:NSInvalidArgumentException format:@"picker must not be nil"];
+    
+    if (self = [self init]) {
+        picker = [thePicker retain];
+    }
+    
+    return self;
+}
+
 - (NSUInteger)modifierFlagsForCameraLook {
     return NSAlternateKeyMask;
 }
@@ -46,6 +62,42 @@
         float pitch = [event deltaY] / 50;
         [camera rotateYaw:yaw pitch:pitch];
     }
+}
+
+- (void)handleMouseMoved:(NSEvent *)event sender:(id)sender {
+}
+
+- (void)handleMouseDown:(NSEvent *)event sender:(id)sender {
+    MapView3D* mapView3D = (MapView3D *)sender;
+    [[mapView3D openGLContext] makeCurrentContext];
+    Camera* camera = [mapView3D camera];
+
+    NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
+    
+    Vector3f* direction = [camera unprojectX:m.x y:m.y];
+    Vector3f* origin = [camera position];
+    
+    [direction sub:origin];
+    [direction normalize];
+    
+    NSLog(@"coords:%@", direction);
+    
+    Ray3D* ray = [[Ray3D alloc] initWithOrigin:origin direction:direction];
+    NSArray* hits = [picker objectsHitByRay:ray];
+    
+    NSEnumerator* hitEn = [hits objectEnumerator];
+    PickingHit* hit;
+    while ((hit = [hitEn nextObject])) {
+        NSLog(@"hit object is %@", [hit object]);
+    }
+}
+
+- (void)handleMouseUp:(NSEvent *)event sender:(id)sender {
+}
+
+- (void)dealloc {
+    [picker release];
+    [super dealloc];
 }
 
 @end

@@ -42,4 +42,5 @@ extern NSString* const CameraChanged;
 
 - (void)userDefaultsChanged:(NSNotification *)notification;
 
+- (Vector3f *)unprojectX:(float)x y:(float)y;
 @end
