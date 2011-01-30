@@ -16,6 +16,7 @@ typedef enum {
     TT_B_C  = 1 << 4, // closing brace
     TT_CB_O = 1 << 5, // opening curly brace
     TT_CB_C = 1 << 6, // closing curly brace
+    TT_COM  = 1 << 7 // comment
 } ETokenType;
 
 

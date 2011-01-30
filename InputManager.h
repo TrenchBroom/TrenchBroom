@@ -9,10 +9,12 @@
 #import <Cocoa/Cocoa.h>
 
 @class Picker;
+@class PickingHit;
 
 @interface InputManager : NSObject {
     @private 
     Picker* picker;
+    PickingHit* lastHit;
 }
 
 - (id)initWithPicker:(Picker *)thePicker;
@@ -22,5 +24,5 @@
 - (void)handleMouseMoved:(NSEvent *)event sender:(id)sender;
 - (void)handleMouseDown:(NSEvent *)event sender:(id)sender;
 - (void)handleMouseUp:(NSEvent *)event sender:(id)sender;
-
+- (void)handleScrollWheel:(NSEvent *)event sender:(id)sender;
 @end

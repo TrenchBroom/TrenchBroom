@@ -46,79 +46,87 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
         [NSException raise:InvalidTokenException format:@"invalid token: %@, expected %@", actualToken, [MapToken typeName:expectedType]];
 }
 
-- (void)parseFace {
+- (MapToken *)nextToken {
     MapToken* token = [tokenizer nextToken];
+    while (token != nil && [token type] == TT_COM)
+        token = [tokenizer nextToken];
+    
+    return token;
+}
+
+- (void)parseFace {
+    MapToken* token = [self nextToken];
     [self expect:TT_DEC actual:token];
     [p1 setX:[[token data] intValue]];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_DEC actual:token];
     [p1 setY:[[token data] intValue]];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_DEC actual:token];
     [p1 setZ:[[token data] intValue]];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_B_C actual:token];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_B_O actual:token];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_DEC actual:token];
     [p2 setX:[[token data] intValue]];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_DEC actual:token];
     [p2 setY:[[token data] intValue]];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_DEC actual:token];
     [p2 setZ:[[token data] intValue]];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_B_C actual:token];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_B_O actual:token];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_DEC actual:token];
     [p3 setX:[[token data] intValue]];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_DEC actual:token];
     [p3 setY:[[token data] intValue]];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_DEC actual:token];
     [p3 setZ:[[token data] intValue]];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_B_C actual:token];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_STR actual:token];
     NSString* texture = [[token data] retain];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_DEC actual:token];
     int xOffset = [[token data] intValue];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_DEC actual:token];
     int yOffset = [[token data] intValue];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_DEC | TT_FRAC actual:token];
     float rotation = [[token data] floatValue];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_DEC | TT_FRAC actual:token];
     float xScale = [[token data] floatValue];
     
-    token = [tokenizer nextToken];
+    token = [self nextToken];
     [self expect:TT_DEC | TT_FRAC actual:token];
     float yScale = [[token data] floatValue];
     
@@ -138,54 +146,56 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     map = [[Map alloc] init];
     
     MapToken* token;
-    while ((token = [tokenizer nextToken])) {
-        switch (state) {
-            case PS_DEF:
-                [self expect:TT_CB_O actual:token];
-                state = PS_ENT;
-                entity = [map createEntity];
-                break;
-            case PS_ENT:
-                switch ([token type]) {
-                    case TT_STR: {
-                        NSString* key = [[token data] retain];
-                        token = [tokenizer nextToken];
-                        [self expect:TT_STR actual:token];
-                        NSString* value = [[token data] retain];
-                        [entity setProperty:key value:value];
-                        [key release];
-                        [value release];
-                        break;
+    while ((token = [self nextToken])) {
+        if ([token type] != TT_COM) {
+            switch (state) {
+                case PS_DEF:
+                    [self expect:TT_CB_O actual:token];
+                    state = PS_ENT;
+                    entity = [map createEntity];
+                    break;
+                case PS_ENT:
+                    switch ([token type]) {
+                        case TT_STR: {
+                            NSString* key = [[token data] retain];
+                            token = [self nextToken];
+                            [self expect:TT_STR actual:token];
+                            NSString* value = [[token data] retain];
+                            [entity setProperty:key value:value];
+                            [key release];
+                            [value release];
+                            break;
+                        }
+                        case TT_CB_O:
+                            state = PS_BRUSH;
+                            brush = [entity createBrush];
+                            break;
+                        case TT_CB_C:
+                            state = PS_DEF;
+                            entity = nil;
+                            break;
+                        default:
+                            break;
                     }
-                    case TT_CB_O:
-                        state = PS_BRUSH;
-                        brush = [entity createBrush];
-                        break;
-                    case TT_CB_C:
-                        state = PS_DEF;
-                        entity = nil;
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            case PS_BRUSH:
-                switch ([token type]) {
-                    case TT_B_O:
-                        [self parseFace];
-                        break;
-                    case TT_CB_C:
-                        state = PS_ENT;
-                        brush = nil;
-                        break;
-                    default:
-                        [self expect:TT_B_O | TT_CB_C actual:token];
-                        break;
-                }
-                
-                break;
-            default:
-                break;
+                    break;
+                case PS_BRUSH:
+                    switch ([token type]) {
+                        case TT_B_O:
+                            [self parseFace];
+                            break;
+                        case TT_CB_C:
+                            state = PS_ENT;
+                            brush = nil;
+                            break;
+                        default:
+                            [self expect:TT_B_O | TT_CB_C actual:token];
+                            break;
+                    }
+                    
+                    break;
+                default:
+                    break;
+            }
         }
     }
     

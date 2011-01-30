@@ -20,6 +20,7 @@
         [stream open];
         bufferIndex = 0;
         bufferSize = [stream read:buffer maxLength:1024];
+        pushBuffer = [[NSMutableString alloc] init];
         line = 1;
         column = 0;
         state = TS_DEF;
@@ -32,6 +33,12 @@
 - (char)readChar {
     if (state == EOF)
         [NSException raise:@"Invalid State" format:@"read past end of file"];
+    
+    if ([pushBuffer length] > 0) {
+        char c = [pushBuffer characterAtIndex:0];
+        [pushBuffer deleteCharactersInRange:NSMakeRange(0, 1)];
+        return c;
+    }
     
     if (bufferIndex == bufferSize) {
         bufferIndex = 0;
@@ -53,12 +60,28 @@
     return c;
 }
 
+- (void)pushBack:(char)c {
+    [pushBuffer appendFormat:@"%c", c];
+}
+
 - (MapToken *)nextToken {
     char c;
     while ((c = [self readChar]) != 0) {
         switch (state) {
             case TS_DEF:
                 switch (c) {
+                    case '/': {
+                        char d = [self readChar];
+                        if (d == '/') {
+                            state = TS_COM;
+                            string = [[NSMutableString alloc] init];
+                            startLine = line;
+                            startColumn = column;
+                            break;
+                        } else {
+                            [self pushBack:d];
+                        }
+                    }
                     case '\r':
                     case '\n':
                     case '\t':
@@ -118,8 +141,16 @@
                     }
                 }
                 break;
-            case TS_STR:
+            case TS_STR: {
+                BOOL comment = NO;
                 switch (c) {
+                    case '/': {
+                        char d = [self readChar];
+                        if (d == '/')
+                            comment = YES;
+                        else
+                            [self pushBack:d];
+                    }
                     case '\r':
                     case '\n':
                     case '\t':
@@ -127,7 +158,7 @@
                         [token setType:TT_STR data:string line:startLine column:startColumn];
                         [string release];
                         string = nil;
-                        state = TS_DEF;
+                        state = comment ? TS_COM : TS_DEF;
                         return token;
                     default:
                         [string appendFormat:@"%c", c];
@@ -135,11 +166,20 @@
                     }
                 }
                 break;
+            }
             case TS_DEC:
                 if (c == '.')
                     state = TS_FRAC;
-            case TS_FRAC:
+            case TS_FRAC: {
+                BOOL comment = NO;
                 switch (c) {
+                    case '/': {
+                        char d = [self readChar];
+                        if (d == '/')
+                            comment = YES;
+                        else
+                            [self pushBack:d];
+                    }
                     case '\r':
                     case '\n':
                     case '\t':
@@ -149,13 +189,13 @@
                             number = [NSNumber numberWithInt:[string intValue]];
                             [string release];
                             string = nil;
-                            state = TS_DEF;
+                            state = comment ? TS_COM : TS_DEF;
                             return [token setType:TT_DEC data:number line:startLine column:startColumn];
                         } else {
                             number = [NSNumber numberWithFloat:[string floatValue]];
                             [string release];
                             string = nil;
-                            state = TS_DEF;
+                            state = comment ? TS_COM : TS_DEF;
                             return [token setType:TT_FRAC data:number line:startLine column:startColumn];
                         }
                         break;
@@ -167,6 +207,22 @@
                         break;
                     }
                 }
+                break;
+            }
+            case TS_COM:
+                switch (c) {
+                    case '\r':
+                    case '\n':
+                        [token setType:TT_COM data:string line:startLine column:startColumn];
+                        [string release];
+                        string = nil;
+                        state = TS_DEF;
+                        return token;
+                    default:
+                        [string appendFormat:@"%c", c];
+                        break;
+                    }
+                break;
             default:
                 break;
         }
@@ -176,6 +232,7 @@
 }
 
 - (void)dealloc {
+    [pushBuffer release];
     [token release];
     [stream release];
     [string release];

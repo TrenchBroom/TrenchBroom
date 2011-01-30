@@ -109,6 +109,26 @@ NSString* const CameraChanged = @"CameraChanged";
     [center postNotification:[NSNotification notificationWithName:CameraChanged object:self]];
 }
 
+- (void)orbitCenter:(Vector3f *)c hAngle:(float)h vAngle:(float)v {
+    [position sub:c];
+    Quaternion* qh = [[Quaternion alloc] initWithAngle:h axis:up];
+    Quaternion* qv = [[Quaternion alloc] initWithAngle:v axis:right];
+    [qh mul:qv];
+    
+    [qh rotate:position];
+    [qh rotate:direction];
+    [right setFloat:direction];
+    [right cross:up];
+
+    [qh release];
+    [qv release];
+
+    [position add:c];
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotification:[NSNotification notificationWithName:CameraChanged object:self]];
+}
+
 - (Vector3f *)unprojectX:(float)x y:(float)y {
     static GLint viewport[4];
     static GLdouble modelview[16];

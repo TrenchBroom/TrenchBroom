@@ -56,6 +56,10 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     [inputManager handleMouseUp:theEvent sender:self];
 }
 
+- (void)scrollWheel:(NSEvent *)theEvent {
+    [inputManager handleScrollWheel:theEvent sender:self];
+}
+
 - (void) drawRect:(NSRect)dirtyRect {
     NSRect bounds = [self frame];
     glViewport(bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);

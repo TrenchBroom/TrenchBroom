@@ -54,6 +54,7 @@
 }
 
 - (void)renderBrush:(RenderBrush *)renderBrush {
+    glColor4f(1, 1, 1, 1);
     NSDictionary* brushArrayInfos = [renderBrush prepareWithTextureManager:textureManager];
     NSEnumerator* textureNameEn = [brushArrayInfos keyEnumerator];
     NSString* textureName;

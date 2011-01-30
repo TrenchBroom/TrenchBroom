@@ -33,6 +33,8 @@
     NSMutableSet* objects = [[NSMutableSet alloc] init];
     [octree addObjectsForRay:theRay to:objects];
     
+    NSLog(@"%i candidates", [objects count]);
+    
     NSEnumerator* objectEn = [objects objectEnumerator];
     id object;
     while ((object = [objectEn nextObject])) {

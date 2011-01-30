@@ -27,7 +27,7 @@
     return self;
 }
 
-- (NSUInteger)modifierFlagsForCameraLook {
+- (NSUInteger)modifierFlagsForCameraOrbit {
     return NSAlternateKeyMask;
 }
 
@@ -58,9 +58,17 @@
         MapView3D* mapView3D = (MapView3D *)sender;
         Camera* camera = [mapView3D camera];
         
-        float yaw = -[event deltaX] / 50;
-        float pitch = [event deltaY] / 50;
-        [camera rotateYaw:yaw pitch:pitch];
+        if (([event modifierFlags] & [self modifierFlagsForCameraOrbit]) != 0) {
+            if (lastHit != nil) {
+                float h = -[event deltaX] / 70;
+                float v = [event deltaY] / 70;
+                [camera orbitCenter:[lastHit hitPoint] hAngle:h vAngle:v];
+            }
+        } else {
+            float yaw = -[event deltaX] / 50;
+            float pitch = [event deltaY] / 50;
+            [camera rotateYaw:yaw pitch:pitch];
+        }
     }
 }
 
@@ -68,34 +76,48 @@
 }
 
 - (void)handleMouseDown:(NSEvent *)event sender:(id)sender {
-    MapView3D* mapView3D = (MapView3D *)sender;
-    [[mapView3D openGLContext] makeCurrentContext];
-    Camera* camera = [mapView3D camera];
-
-    NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
-    
-    Vector3f* direction = [camera unprojectX:m.x y:m.y];
-    Vector3f* origin = [camera position];
-    
-    [direction sub:origin];
-    [direction normalize];
-    
-    NSLog(@"coords:%@", direction);
-    
-    Ray3D* ray = [[Ray3D alloc] initWithOrigin:origin direction:direction];
-    NSArray* hits = [picker objectsHitByRay:ray];
-    
-    NSEnumerator* hitEn = [hits objectEnumerator];
-    PickingHit* hit;
-    while ((hit = [hitEn nextObject])) {
-        NSLog(@"hit object is %@", [hit object]);
+    if ([sender isKindOfClass:[MapView3D class]]) {
+        MapView3D* mapView3D = (MapView3D *)sender;
+        [[mapView3D openGLContext] makeCurrentContext];
+        Camera* camera = [mapView3D camera];
+        
+        NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
+        
+        Vector3f* direction = [camera unprojectX:m.x y:m.y];
+        Vector3f* origin = [camera position];
+        
+        [direction sub:origin];
+        [direction normalize];
+        
+        NSLog(@"coords:%@", direction);
+        
+        Ray3D* ray = [[Ray3D alloc] initWithOrigin:origin direction:direction];
+        NSArray* hits = [picker objectsHitByRay:ray];
+        
+        [lastHit release];
+        if ([hits count] > 0)
+            lastHit = [[hits objectAtIndex:0] retain];
+        else
+            lastHit = nil;
+        
+        NSLog(@"hit object is %@", [lastHit object]);
     }
 }
 
 - (void)handleMouseUp:(NSEvent *)event sender:(id)sender {
 }
 
+- (void)handleScrollWheel:(NSEvent *)event sender:(id)sender {
+    if ([sender isKindOfClass:[MapView3D class]]) {
+        MapView3D* mapView3D = (MapView3D *)sender;
+        Camera* camera = [mapView3D camera];
+        
+        [camera moveForward:4 * [event deltaY] right:4 * [event deltaX] up:4 * [event deltaZ]];
+    }
+}
+
 - (void)dealloc {
+    [lastHit release];
     [picker release];
     [super dealloc];
 }

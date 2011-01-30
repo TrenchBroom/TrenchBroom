@@ -30,9 +30,9 @@ static CoordinatePlane* gPlaneYZ;
     float y = fabs([theNorm y]);
     float z = fabs([theNorm z]);
     
-    if (x > y && x > z)
+    if (x >= y && x >= z)
         return gPlaneYZ;
-    if (y > x && y > z)
+    if (y >= x && y >= z)
         return gPlaneXZ;
     return gPlaneXY;
 }

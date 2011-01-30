@@ -12,6 +12,7 @@
 #import "BoundingBox.h"
 #import "Ray3D.h"
 #import "Plane3D.h"
+#import "math.h"
 
 @implementation OctreeNode
 
@@ -26,116 +27,101 @@
     return self;
 }
 
-- (BOOL)contains:(BoundingBox *)theBounds {
-    if ([[theBounds max] x] < [min x])
-        return NO;
-    if ([[theBounds max] y] < [min y])
-        return NO;
-    if ([[theBounds max] z] < [min z])
-        return NO;
-    if ([[theBounds min] x] > [max x])
-        return NO;
-    if ([[theBounds min] y] > [max y])
-        return NO;
-    if ([[theBounds min] z] > [max z])
-        return NO;
-    
-    return YES;
+- (BOOL)bounds:(BoundingBox *)theBounds containedInMin:(Vector3i *)theMin max:(Vector3i *)theMax {
+    return fgte([[theBounds min] x], [theMin x])
+        && fgte([[theBounds min] y], [theMin y])
+        && fgte([[theBounds min] z], [theMin z])
+        && flte([[theBounds max] x], [theMax x])
+        && flte([[theBounds max] y], [theMax y])
+        && flte([[theBounds max] z], [theMax z]);
 }
+
 
 - (BOOL)addObject:(id)theObject bounds:(BoundingBox *)theBounds toChild:(int)theIndex {
     if (children[theIndex] != nil)
         return [children[theIndex] addObject:theObject bounds:theBounds];
-
+    
     Vector3i* childMin = [[Vector3i alloc] init];
     Vector3i* childMax = [[Vector3i alloc] init];
-    switch (theIndex) {
-        case CP_WSB:
-            [childMin setX:[min x]];
-            [childMin setY:[min y]];
-            [childMin setZ:[min z]];
-            [childMax setX:([min x] + [max x]) / 2];
-            [childMax setY:([min y] + [max y]) / 2];
-            [childMax setZ:([min z] + [max z]) / 2];
-            break;
-        case CP_WST:
-            [childMin setX:[min x]];
-            [childMin setY:[min y]];
-            [childMin setZ:([min z] + [max z]) / 2];
-            [childMax setX:([min x] + [max x]) / 2];
-            [childMax setY:([min y] + [max y]) / 2];
-            [childMax setZ:[max z]];
-            break;
-        case CP_WNB:
-            [childMin setX:[min x]];
-            [childMin setY:([min y] + [max y]) / 2];
-            [childMin setZ:[min z]];
-            [childMax setX:([min x] + [max x]) / 2];
-            [childMax setY:[max y]];
-            [childMax setZ:([min z] + [max z]) / 2];
-            break;
-        case CP_WNT:
-            [childMin setX:[min x]];
-            [childMin setY:([min y] + [max y]) / 2];
-            [childMin setZ:([min z] + [max z]) / 2];
-            [childMax setX:([min x] + [max x]) / 2];
-            [childMax setY:[max y]];
-            [childMax setZ:[max z]];
-            break;
-        case CP_ESB:
-            [childMin setX:([min x] + [max x]) / 2];
-            [childMin setY:[min y]];
-            [childMin setZ:[min z]];
-            [childMax setX:[max x]];
-            [childMax setY:([min y] + [max y]) / 2];
-            [childMax setZ:([min z] + [max z]) / 2];
-            break;
-        case CP_EST:
-            [childMin setX:([min x] + [max x]) / 2];
-            [childMin setY:[min y]];
-            [childMin setZ:([min z] + [max z]) / 2];
-            [childMax setX:[max x]];
-            [childMax setY:([min y] + [max y]) / 2];
-            [childMax setZ:[max z]];
-            break;
-        case CP_ENB:
-            [childMin setX:([min x] + [max x]) / 2];
-            [childMin setY:([min y] + [max y]) / 2];
-            [childMin setZ:[min z]];
-            [childMax setX:[max x]];
-            [childMax setY:[max y]];
-            [childMax setZ:([min z] + [max z]) / 2];
-            break;
-        case CP_ENT:
-            [childMin setX:([min x] + [max x]) / 2];
-            [childMin setY:([min y] + [max y]) / 2];
-            [childMin setZ:([min z] + [max z]) / 2];
-            [childMax setX:[max x]];
-            [childMax setY:[max y]];
-            [childMax setZ:[max z]];
-            break;
-        default:
-            [NSException raise:NSInvalidArgumentException format:@"child index out of bounds: %i", theIndex];
+    @try {
+        switch (theIndex) {
+            case CP_WSB:
+                [childMin setX:[min x]];
+                [childMin setY:[min y]];
+                [childMin setZ:[min z]];
+                [childMax setX:([min x] + [max x]) / 2];
+                [childMax setY:([min y] + [max y]) / 2];
+                [childMax setZ:([min z] + [max z]) / 2];
+                break;
+            case CP_WST:
+                [childMin setX:[min x]];
+                [childMin setY:[min y]];
+                [childMin setZ:([min z] + [max z]) / 2];
+                [childMax setX:([min x] + [max x]) / 2];
+                [childMax setY:([min y] + [max y]) / 2];
+                [childMax setZ:[max z]];
+                break;
+            case CP_WNB:
+                [childMin setX:[min x]];
+                [childMin setY:([min y] + [max y]) / 2];
+                [childMin setZ:[min z]];
+                [childMax setX:([min x] + [max x]) / 2];
+                [childMax setY:[max y]];
+                [childMax setZ:([min z] + [max z]) / 2];
+                break;
+            case CP_WNT:
+                [childMin setX:[min x]];
+                [childMin setY:([min y] + [max y]) / 2];
+                [childMin setZ:([min z] + [max z]) / 2];
+                [childMax setX:([min x] + [max x]) / 2];
+                [childMax setY:[max y]];
+                [childMax setZ:[max z]];
+                break;
+            case CP_ESB:
+                [childMin setX:([min x] + [max x]) / 2];
+                [childMin setY:[min y]];
+                [childMin setZ:[min z]];
+                [childMax setX:[max x]];
+                [childMax setY:([min y] + [max y]) / 2];
+                [childMax setZ:([min z] + [max z]) / 2];
+                break;
+            case CP_EST:
+                [childMin setX:([min x] + [max x]) / 2];
+                [childMin setY:[min y]];
+                [childMin setZ:([min z] + [max z]) / 2];
+                [childMax setX:[max x]];
+                [childMax setY:([min y] + [max y]) / 2];
+                [childMax setZ:[max z]];
+                break;
+            case CP_ENB:
+                [childMin setX:([min x] + [max x]) / 2];
+                [childMin setY:([min y] + [max y]) / 2];
+                [childMin setZ:[min z]];
+                [childMax setX:[max x]];
+                [childMax setY:[max y]];
+                [childMax setZ:([min z] + [max z]) / 2];
+                break;
+            case CP_ENT:
+                [childMin setX:([min x] + [max x]) / 2];
+                [childMin setY:([min y] + [max y]) / 2];
+                [childMin setZ:([min z] + [max z]) / 2];
+                [childMax setX:[max x]];
+                [childMax setY:[max y]];
+                [childMax setZ:[max z]];
+                break;
+            default:
+                [NSException raise:NSInvalidArgumentException format:@"child index out of bounds: %i", theIndex];
+        }
+        
+        if (![self bounds:theBounds containedInMin:childMin max:childMax])
+            return NO;
+        
+        children[theIndex] = [[OctreeNode alloc] initWithMin:childMin max:childMax minSize:minSize];
+        return [children[theIndex] addObject:theObject bounds:theBounds];
+    } @finally {
+        [childMin release];
+        [childMax release];
     }
-    
-    if ([[theBounds min] x] < [childMin x])
-        return NO;
-    if ([[theBounds min] y] < [childMin y])
-        return NO;
-    if ([[theBounds min] z] < [childMin z])
-        return NO;
-    if ([[theBounds max] x] > [childMax x])
-        return NO;
-    if ([[theBounds max] y] > [childMax y])
-        return NO;
-    if ([[theBounds max] z] > [childMax z])
-        return NO;
-
-    children[theIndex] = [[OctreeNode alloc] initWithMin:childMin max:childMax minSize:minSize];
-    [childMin release];
-    [childMax release];
-    
-    return [children[theIndex] addObject:theObject bounds:theBounds];
 }
 
 - (BOOL)addObject:(id)theObject bounds:(BoundingBox *)theBounds {
@@ -148,6 +134,9 @@
         for (int i = 0; i < 8; i++)
             if ([self addObject:theObject bounds:theBounds toChild:i])
                 return YES;
+    
+    if (![self bounds:theBounds containedInMin:min max:max])
+        return NO;
 
     [objects addObject:theObject];
     return YES;
@@ -159,7 +148,7 @@
     if (theBounds == nil)
         [NSException raise:NSInvalidArgumentException format:@"bounds must not be nil"];
     
-    if (![self contains:theBounds])
+    if (![self bounds:theBounds containedInMin:min max:max])
         return NO;
     
     for (int i = 0; i < 8; i++)
@@ -177,7 +166,7 @@
         [NSException raise:NSInvalidArgumentException format:@"set must not be nil"];
     
     Vector3f* origin = [theRay origin];
-    BOOL hit = [origin x] >= [min x] && [origin y] >= [min y] && [origin z] >= [min z] && [origin x] <= [max x] && [origin y] <= [max y] && [origin z] <= [max z];
+    BOOL hit = fgte([origin x], [min x]) && fgte([origin y], [min y]) && fgte([origin z], [min z]) && flte([origin x], [max x]) && flte([origin y], [max y]) && flte([origin z], [max z]);
     
     Plane3D* plane = [[Plane3D alloc] init];
     Vector3f* direction = [theRay direction];
@@ -186,11 +175,11 @@
         if ([direction x] > 0) {
             [plane setPoint:[Vector3f vectorWithIntVector:min] norm:[Vector3f xAxisNeg]];
             Vector3f* is = [plane intersectWithRay:theRay];
-            hit = is != nil && [is y] >= [min y] && [is y] <= [max y] && [is z] >= [min z] && [is z] <= [max z];
+            hit = is != nil && fgte([is y], [min y]) && flte([is y], [max y]) && fgte([is z], [min z]) && flte([is z], [max z]);
         } else if ([direction x] < 0) {
             [plane setPoint:[Vector3f vectorWithIntVector:max] norm:[Vector3f xAxisPos]];
             Vector3f* is = [plane intersectWithRay:theRay];
-            hit = is != nil && [is y] >= [min y] && [is y] <= [max y] && [is z] >= [min z] && [is z] <= [max z];
+            hit = is != nil && fgte([is y], [min y]) && flte([is y], [max y]) && fgte([is z], [min z]) && flte([is z], [max z]);
         }
     }
     
@@ -198,14 +187,14 @@
         if ([direction y] > 0) {
             [plane setPoint:[Vector3f vectorWithIntVector:min] norm:[Vector3f yAxisNeg]];
             Vector3f* is = [plane intersectWithRay:theRay];
-            hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is z] >= [min z] && [is z] <= [max z];
+            hit = is != nil && fgte([is x], [min x]) && flte([is x], [max x]) && fgte([is z], [min z]) && flte([is z], [max z]);
         } else if ([direction y] < 0) {
             [plane setPoint:[Vector3f vectorWithIntVector:max] norm:[Vector3f yAxisPos]];
             Vector3f* is = [plane intersectWithRay:theRay];
-            hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is z] >= [min z] && [is z] <= [max z];
+            hit = is != nil && fgte([is x], [min x]) && flte([is x], [max x]) && fgte([is z], [min z]) && flte([is z], [max z]);
         }
     }
-     
+    
     if (!hit) {
         if ([direction z] > 0) {
             [plane setPoint:[Vector3f vectorWithIntVector:min] norm:[Vector3f zAxisNeg]];
