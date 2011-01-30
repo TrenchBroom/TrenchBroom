@@ -16,6 +16,7 @@ extern NSString* const MapView3DDefaultsBackgroundColor;
 @class InputManager;
 @class Camera;
 @class RenderMap;
+@class SelectionManager;
 
 @interface MapView3D : NSOpenGLView {
     @private
@@ -24,6 +25,7 @@ extern NSString* const MapView3DDefaultsBackgroundColor;
     Camera* camera;
     TextureManager* textureManager;
     InputManager* inputManager;
+    SelectionManager* selectionManager;
     VBOBuffer* vboBuffer;
 }
 
@@ -32,6 +34,7 @@ extern NSString* const MapView3DDefaultsBackgroundColor;
 - (void)setVBOBuffer:(VBOBuffer *)theVboBuffer;
 - (void)setTextureManager:(TextureManager *)theTextureManager;
 - (void)setInputManager:(InputManager *)theInputManager;
+- (void)setSelectionManager:(SelectionManager *)theSelectionManager;
 
 - (Camera *)camera;
 

@@ -134,8 +134,7 @@ int const WAD_TEX_MIP3_OFFSET = 36;
         address += WAD_DIR_ENTRY_LENGTH;
     }
     
-    NSTimeInterval duration = [startDate timeIntervalSinceNow];
-    NSLog(@"Loaded '%@' in %f seconds", wadName, -duration);
+    NSLog(@"Loaded '%@' in %f seconds", wadName, -[startDate timeIntervalSinceNow]);
     
     return [wad autorelease];
 }

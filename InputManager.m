@@ -14,14 +14,20 @@
 #import "MapView3D.h"
 #import "Ray3D.h"
 #import "Vector3f.h"
+#import "SelectionManager.h"
+#import "Face.h"
+#import "Brush.h"
 
 @implementation InputManager
-- (id)initWithPicker:(Picker *)thePicker {
+- (id)initWithPicker:(Picker *)thePicker selectionManager:(SelectionManager *)theSelectionManager {
     if (thePicker == nil)
         [NSException raise:NSInvalidArgumentException format:@"picker must not be nil"];
+    if (theSelectionManager == nil)
+        [NSException raise:NSInvalidArgumentException format:@"selection manager must not be nil"];
     
     if (self = [self init]) {
         picker = [thePicker retain];
+        selectionManager = [theSelectionManager retain];
     }
     
     return self;
@@ -89,8 +95,6 @@
         [direction sub:origin];
         [direction normalize];
         
-        NSLog(@"coords:%@", direction);
-        
         Ray3D* ray = [[Ray3D alloc] initWithOrigin:origin direction:direction];
         NSArray* hits = [picker objectsHitByRay:ray];
         
@@ -100,7 +104,39 @@
         else
             lastHit = nil;
         
-        NSLog(@"hit object is %@", [lastHit object]);
+        if (([event modifierFlags] & NSAlternateKeyMask) == 0) {
+            if (lastHit != nil) {
+                Face* face = [lastHit object];
+                Brush* brush = [face brush];
+                
+                if ([selectionManager mode] == SM_FACES) {
+                    if ([selectionManager isFaceSelected:face]) {
+                        [selectionManager removeFace:face];
+                    } else {
+                        if (([event modifierFlags] & NSCommandKeyMask) == 0) {
+                            if ([selectionManager hasSelectedFaces:brush]) {
+                                [selectionManager removeAll];
+                                [selectionManager addFace:face];
+                            } else {
+                                [selectionManager addBrush:brush];
+                            }
+                        } else {
+                            [selectionManager addFace:face];
+                        }
+                    }
+                } else {
+                    if ([selectionManager isBrushSelected:brush]) {
+                        [selectionManager addFace:face];
+                    } else {
+                        if (([event modifierFlags] & NSCommandKeyMask) == 0)
+                            [selectionManager removeAll];
+                        [selectionManager addBrush:brush];
+                    }
+                }
+            } else {
+                [selectionManager removeAll];
+            }
+        }
     }
 }
 
@@ -112,11 +148,12 @@
         MapView3D* mapView3D = (MapView3D *)sender;
         Camera* camera = [mapView3D camera];
         
-        [camera moveForward:4 * [event deltaY] right:4 * [event deltaX] up:4 * [event deltaZ]];
+        [camera moveForward:4 * [event deltaY] right:-4 * [event deltaX] up:4 * [event deltaZ]];
     }
 }
 
 - (void)dealloc {
+    [selectionManager release];
     [lastHit release];
     [picker release];
     [super dealloc];

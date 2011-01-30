@@ -21,6 +21,7 @@
 #import "VBOBuffer.h"
 #import "Octree.h"
 #import "Picker.h"
+#import "SelectionManager.h"
 
 @implementation MapWindowController
 
@@ -60,11 +61,13 @@
     octree = [[Octree alloc] initWithMap:map minSize:64];
     picker = [[Picker alloc] initWithOctree:octree];
     
-    inputManager = [[InputManager alloc] initWithPicker:picker];
+    selectionManager = [[SelectionManager alloc] init];
+    inputManager = [[InputManager alloc] initWithPicker:picker selectionManager:selectionManager];
     
     [textureView setTextureManager:textureManager];
     [view3D setTextureManager:textureManager];
     [view3D setInputManager:inputManager];
+    [view3D setSelectionManager:selectionManager];
     [view3D setVBOBuffer:vboBuffer];
     [view3D setCamera:camera];
     [view3D setRenderMap:renderMap];
@@ -77,6 +80,7 @@
 }
 
 - (void)dealloc {
+    [selectionManager release];
     [picker release];
     [octree release];
     [inputManager release];

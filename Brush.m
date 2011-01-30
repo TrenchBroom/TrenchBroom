@@ -36,7 +36,7 @@
 }
 
 - (Face *)createFaceWithPoint1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3 texture:(NSString *)texture {
-    Face* face = [[Face alloc] initWithPoint1:point1 point2:point2 point3:point3 texture:texture];
+    Face* face = [[Face alloc] initInBrush:self point1:point1 point2:point2 point3:point3 texture:texture];
 
     NSMutableArray* droppedFaces = nil;
     if (![vertexData cutWithFace:face droppedFaces:&droppedFaces]) {

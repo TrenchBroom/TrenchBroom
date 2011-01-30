@@ -17,10 +17,13 @@ typedef enum {
 @class Vector3i;
 @class HalfSpace3D;
 @class Plane3D;
+@class Brush;
 
 @interface Face : NSObject {
     @private
+    Brush* brush;
     NSNumber* faceId;
+    
 	Vector3i* point1;
 	Vector3i* point2;
 	Vector3i* point3;
@@ -38,9 +41,10 @@ typedef enum {
     HalfSpace3D* halfSpace;
 }
 
-- (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;
+- (id)initInBrush:(Brush *)theBrush point1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;
 
 - (NSNumber *)faceId;
+- (Brush *)brush;
 
 - (Vector3i *)point1;
 - (Vector3i *)point2;

@@ -82,7 +82,7 @@
             int count = [vertices count];
             int index = ([vboMemBlock address] + offset) / vertexSize;
             
-            VBOArrayEntry* entry = [[VBOArrayEntry alloc] initWithIndex:index count:count];
+            VBOArrayEntry* entry = [[VBOArrayEntry alloc] initWithObject:face index:index count:count];
             [entries addObject:entry];
             [entry release];
             

@@ -38,12 +38,9 @@
 
 
 - (BOOL)addObject:(id)theObject bounds:(BoundingBox *)theBounds toChild:(int)theIndex {
-    if (children[theIndex] != nil)
-        return [children[theIndex] addObject:theObject bounds:theBounds];
-    
-    Vector3i* childMin = [[Vector3i alloc] init];
-    Vector3i* childMax = [[Vector3i alloc] init];
-    @try {
+    if (children[theIndex] == nil) {
+        Vector3i* childMin = [[Vector3i alloc] init];
+        Vector3i* childMax = [[Vector3i alloc] init];
         switch (theIndex) {
             case CP_WSB:
                 [childMin setX:[min x]];
@@ -112,16 +109,11 @@
             default:
                 [NSException raise:NSInvalidArgumentException format:@"child index out of bounds: %i", theIndex];
         }
-        
-        if (![self bounds:theBounds containedInMin:childMin max:childMax])
-            return NO;
-        
         children[theIndex] = [[OctreeNode alloc] initWithMin:childMin max:childMax minSize:minSize];
-        return [children[theIndex] addObject:theObject bounds:theBounds];
-    } @finally {
         [childMin release];
         [childMax release];
     }
+    return [children[theIndex] addObject:theObject bounds:theBounds];
 }
 
 - (BOOL)addObject:(id)theObject bounds:(BoundingBox *)theBounds {
@@ -130,14 +122,14 @@
     if (theBounds == nil)
         [NSException raise:NSInvalidArgumentException format:@"bounds must not be nil"];
     
+    if (![self bounds:theBounds containedInMin:min max:max])
+        return NO;
+    
     if ([max x] - [min x] > minSize)
         for (int i = 0; i < 8; i++)
             if ([self addObject:theObject bounds:theBounds toChild:i])
                 return YES;
     
-    if (![self bounds:theBounds containedInMin:min max:max])
-        return NO;
-
     [objects addObject:theObject];
     return YES;
 }

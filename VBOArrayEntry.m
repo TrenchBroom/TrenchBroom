@@ -10,13 +10,21 @@
 
 
 @implementation VBOArrayEntry
-- (id)initWithIndex:(int)theIndex count:(int)theCount {
+- (id)initWithObject:(id)theObject index:(int)theIndex count:(int)theCount {
+    if (theObject == nil)
+        [NSException raise:NSInvalidArgumentException format:@"object must not be nil"];
+    
     if (self = [self init]) {
+        object = [theObject retain];
         index = theIndex;
         count = theCount;
     }
     
     return self;
+}
+
+- (id)object {
+    return object;
 }
 
 - (int)index {
@@ -25,6 +33,11 @@
 
 - (int)count {
     return count;
+}
+
+- (void)dealloc {
+    [object release];
+    [super dealloc];
 }
 
 @end

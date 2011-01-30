@@ -10,14 +10,16 @@
 
 @class Picker;
 @class PickingHit;
+@class SelectionManager;
 
 @interface InputManager : NSObject {
     @private 
     Picker* picker;
     PickingHit* lastHit;
+    SelectionManager* selectionManager;
 }
 
-- (id)initWithPicker:(Picker *)thePicker;
+- (id)initWithPicker:(Picker *)thePicker selectionManager:(SelectionManager *)theSelectionManager;
 
 - (void)handleKeyDown:(NSEvent *)event sender:(id)sender;
 - (void)handleMouseDragged:(NSEvent *)event sender:(id)sender;

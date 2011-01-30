@@ -13,6 +13,7 @@
 #import "Vector3f.h"
 #import "Vector2f.h"
 #import "math.h"
+#import "Brush.h"
 
 @implementation Face
 
@@ -28,8 +29,9 @@
     return self;
 }
 
-- (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture {
+- (id)initInBrush:(Brush *)theBrush point1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture {
     if (self = [self init]) {
+        brush = theBrush; // do not retain
         [self setPoint1:aPoint1];
         [self setPoint2:aPoint2];
         [self setPoint3:aPoint3];
@@ -43,6 +45,10 @@
 
 - (NSNumber *)faceId {
     return faceId;
+}
+
+- (Brush *)brush {
+    return brush;
 }
 
 - (Vector3i *)point1 {

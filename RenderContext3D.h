@@ -11,14 +11,17 @@
 
 @class TextureManager;
 @class VBOBuffer;
+@class SelectionManager;
 
 @interface RenderContext3D : NSObject <RenderContext> {
     @private 
     TextureManager* textureManager;
     VBOBuffer* vboBuffer;
-    NSMutableDictionary* arrayInfoForTexture;
+    SelectionManager* selectionManager;
+    NSMutableDictionary* renderObjects;
+    NSMutableDictionary* selectedRenderObjects;
 }
 
-- (id)initWithTextureManager:(TextureManager *)theTextureManager vboBuffer:(VBOBuffer *)theVboBuffer;
+- (id)initWithTextureManager:(TextureManager *)theTextureManager vboBuffer:(VBOBuffer *)theVboBuffer selectionManager:(SelectionManager *)theSelectionManager;
 
 @end

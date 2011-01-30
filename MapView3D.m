@@ -15,6 +15,7 @@
 #import "RenderContext3D.h"
 #import "TextureManager.h"
 #import "InputManager.h"
+#import "SelectionManager.h"
 
 NSString* const MapView3DDefaults = @"3D View";
 NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
@@ -67,7 +68,7 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 	glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    RenderContext3D* renderContext = [[RenderContext3D alloc] initWithTextureManager:textureManager vboBuffer:vboBuffer];
+    RenderContext3D* renderContext = [[RenderContext3D alloc] initWithTextureManager:textureManager vboBuffer:vboBuffer selectionManager:selectionManager];
     [renderContext preRender];
     [renderContext updateView:bounds withCamera:camera];
     
@@ -142,6 +143,23 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     inputManager = [theInputManager retain];
 }
 
+- (void)selectionChanged:(NSNotification *)notification {
+    [self setNeedsDisplay:YES];
+}
+
+- (void)setSelectionManager:(SelectionManager *)theSelectionManager {
+    if (theSelectionManager == nil)
+        [NSException raise:NSInvalidArgumentException format:@"selection manager must not be nil"];
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center removeObserver:self name:SelectionChanged object:selectionManager];
+    
+    [selectionManager release];
+    selectionManager = [theSelectionManager retain];
+    
+    [center addObserver:self selector:@selector(selectionChanged:) name:SelectionChanged object:selectionManager];
+}
+     
 - (Camera *)camera {
     return camera;
 }

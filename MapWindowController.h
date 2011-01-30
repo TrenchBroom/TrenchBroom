@@ -18,6 +18,7 @@
 @class VBOBuffer;
 @class Octree;
 @class Picker;
+@class SelectionManager;
 
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView2D* view2D;
@@ -30,6 +31,7 @@
     VBOBuffer* vboBuffer;
     Octree* octree;
     Picker* picker;
+    SelectionManager* selectionManager;
 }
 
 @end

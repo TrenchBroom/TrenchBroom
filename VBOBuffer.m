@@ -125,7 +125,9 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 
 - (void)unmapBuffer {
     if (buffer != NULL) {
+        NSDate* startDate = [NSDate date];
         glUnmapBuffer(GL_ARRAY_BUFFER);
+        NSLog(@"Uploaded vertex buffer in %f seconds", -[startDate timeIntervalSinceNow]);
         buffer = NULL;
     }
 }
