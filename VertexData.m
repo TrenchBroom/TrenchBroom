@@ -323,7 +323,7 @@ static NSString* dummy = @"dummy";
     return bounds;
 }
 
-- (NSArray*)verticesForFace:(Face *)face {
+- (NSArray *)verticesForFace:(Face *)face {
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
     Side* side = [faceToSide objectForKey:[face faceId]];
@@ -331,6 +331,26 @@ static NSString* dummy = @"dummy";
         [NSException raise:NSInvalidArgumentException format:@"no vertex data for face"];
     
     return [side vertices];
+}
+
+- (NSArray *)verticesForWireframe {
+    NSMutableArray* result = [[NSMutableArray alloc] initWithCapacity:2 * [self edgeCount]];
+    
+    NSEnumerator* edgeEn = [edges objectEnumerator];
+    Edge* edge;
+    while ((edge = [edgeEn nextObject])) {
+        Vertex* startVertex = [edge startVertex];
+        Vertex* endVertex = [edge endVertex];
+        
+        [result addObject:[startVertex vector]];
+        [result addObject:[endVertex vector]];
+    }
+    
+    return [result autorelease];
+}
+
+- (int)edgeCount {
+    return [edges count];
 }
 
 - (PickingHit *)pickFace:(Ray3D *)theRay {

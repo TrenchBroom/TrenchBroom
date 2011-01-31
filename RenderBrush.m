@@ -16,26 +16,30 @@
 #import "VBOArrayEntry.h"
 #import "TextureManager.h"
 #import "Texture.h"
+#import "IntData.h"
 
 @implementation RenderBrush
 
 - (id)init {
     if (self = [super init]) {
-        arrayInfoForTexture = [[NSMutableDictionary alloc] init];
+        faceEntries = [[NSMutableDictionary alloc] init];
     }
     
     return self;
 }
 
-- (id)initWithBrush:(Brush *)theBrush vboBuffer:(VBOBuffer *)theVboBuffer {
+- (id)initWithBrush:(Brush *)theBrush faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO {
     if (theBrush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
-    if (theVboBuffer == nil)
-        [NSException raise:NSInvalidArgumentException format:@"VBO buffer must not be nil"];
+    if (theFaceVBO == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face VBO buffer must not be nil"];
+    if (theEdgeVBO == nil)
+        [NSException raise:NSInvalidArgumentException format:@"edge VBO buffer must not be nil"];
     
     if (self = [self init]) {
         brush = [theBrush retain];
-        vboBuffer = [theVboBuffer retain];
+        faceVBO = [theFaceVBO retain];
+        edgeVBO = [theEdgeVBO retain];
         
         int vertexCount = 0;
         NSEnumerator* faceEn = [[brush faces] objectEnumerator];
@@ -43,7 +47,8 @@
         while ((face = [faceEn nextObject]))
             vertexCount += [[brush verticesForFace:face] count];
         
-        vboMemBlock = [[vboBuffer allocMemBlock:5 * sizeof(float) * vertexCount] retain];
+        faceBlock = [[faceVBO allocMemBlock:5 * sizeof(float) * vertexCount] retain];
+        edgeBlock = [[edgeVBO allocMemBlock:3 * sizeof(float) * 2 * [brush edgeCount]] retain];
     }
     
     return self;
@@ -53,12 +58,8 @@
     return brush;
 }
 
-- (void)renderWithContext:(id <RenderContext>)renderContext {
-    [renderContext renderBrush:self];
-}
-
-- (NSDictionary *)prepareWithTextureManager:(TextureManager *)theTextureManager {
-    if ([vboMemBlock state] == BS_USED_INVALID) {
+- (void)prepareFacesWithTextureManager:(TextureManager *)theTextureManager {
+    if ([faceBlock state] == BS_USED_INVALID) {
         int offset = 0;
         int vertexSize = 5 * sizeof(float);
         Vector2f* texCoords = [[Vector2f alloc] init];
@@ -71,19 +72,11 @@
             int width = texture != nil ? [texture width] : 1;
             int height = texture != nil ? [texture height] : 1;
             
-            NSMutableArray* entries = [arrayInfoForTexture objectForKey:textureName];
-            if (entries == nil) {
-                entries = [[NSMutableArray alloc] init];
-                [arrayInfoForTexture setObject:entries forKey:textureName];
-                [entries release];
-            }
-            
             NSArray* vertices = [brush verticesForFace:face];
-            int count = [vertices count];
-            int index = ([vboMemBlock address] + offset) / vertexSize;
-            
-            VBOArrayEntry* entry = [[VBOArrayEntry alloc] initWithObject:face index:index count:count];
-            [entries addObject:entry];
+            int index = ([faceBlock address] + offset) / vertexSize;
+
+            VBOArrayEntry* entry = [[VBOArrayEntry alloc] initWithIndex:index count:[vertices count]];
+            [faceEntries setObject:entry forKey:[face faceId]];
             [entry release];
             
             NSEnumerator* vertexEn = [vertices objectEnumerator];
@@ -92,23 +85,54 @@
                 [face texCoords:texCoords forVertex:vertex];
                 [texCoords setX:[texCoords x] / width];
                 [texCoords setY:[texCoords y] / height];
-                offset = [vboMemBlock writeVector2f:texCoords offset:offset];
-                offset = [vboMemBlock writeVector3f:vertex offset:offset];
+                offset = [faceBlock writeVector2f:texCoords offset:offset];
+                offset = [faceBlock writeVector3f:vertex offset:offset];
             }
         }
         
         [texCoords release];
-        [vboMemBlock setState:BS_USED_VALID];
+        [faceBlock setState:BS_USED_VALID];
     }
-    
-    return arrayInfoForTexture;
+}
+
+- (void)prepareWireframe {
+    if ([edgeBlock state] == BS_USED_INVALID) {
+        NSArray* vertices = [brush verticesForWireframe];
+        int offset = 0;
+        int vertexSize = 3 * sizeof(float);
+        
+        NSEnumerator* vertexEn = [vertices objectEnumerator];
+        Vector3f* vertex;
+        while ((vertex = [vertexEn nextObject]))
+            offset = [edgeBlock writeVector3f:vertex offset:offset];
+        
+        wireframeCount = [vertices count];
+        wireframeIndex = [edgeBlock address] / vertexSize;
+
+        [edgeBlock setState:BS_USED_VALID];
+    }
+}
+
+- (void)indexForFace:(Face *)face indexBuffer:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer {
+    VBOArrayEntry* entry = [faceEntries objectForKey:[face faceId]];
+    if (entry != nil) {
+        [theIndexBuffer appendInt:[entry index]];
+        [theCountBuffer appendInt:[entry count]];
+    }
+}
+
+- (void)wireFrameIndices:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer {
+    [theIndexBuffer appendInt:wireframeIndex];
+    [theCountBuffer appendInt:wireframeCount];
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [arrayInfoForTexture release];
-    [vboMemBlock release];
-    [vboBuffer release];
+    [faceEntries release];
+    [faceBlock release];
+    [edgeBlock release];
+    [faceVBO release];
+    [edgeVBO release];
     [brush release];
     [super dealloc];
 }

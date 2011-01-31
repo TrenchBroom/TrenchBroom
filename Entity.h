@@ -9,21 +9,25 @@
 #import <Cocoa/Cocoa.h>
 
 @class Vector3i;
+@class Map;
 @class Brush;
 
 @interface Entity : NSObject {
     @private
+    Map* map;
     NSNumber* entityId;
 	NSMutableArray* brushes;
     NSMutableDictionary* brushIndices;
 	NSMutableDictionary* properties;
 }
 
-- (id)initWithProperty:(NSString *)key value:(NSString *)value;
+- (id)initInMap:(Map *)theMap;
+- (id)initInMap:(Map *)theMap property:(NSString *)key value:(NSString *)value;
 
 - (Brush *)createBrush;
 - (void)removeBrush:(Brush *)brush;
 
+- (Map *)map;
 - (NSNumber *)entityId;
 
 - (NSArray *)brushes;

@@ -9,6 +9,8 @@
 #import "RenderContext3D.h"
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
+#import "RenderMap.h"
+#import "RenderEntity.h"
 #import "RenderBrush.h"
 #import "Brush.h"
 #import "Face.h"
@@ -20,67 +22,248 @@
 #import "VBOBuffer.h"
 #import "VBOArrayEntry.h"
 #import "SelectionManager.h"
+#import "IntData.h"
 
 @implementation RenderContext3D
 
-- (id)initWithTextureManager:(TextureManager *)theTextureManager 
-                   vboBuffer:(VBOBuffer *)theVboBuffer 
-            selectionManager:(SelectionManager *)theSelectionManager {
+- (id)initWithRenderMap:(RenderMap *)theRenderMap camera:(Camera *)theCamera textureManager:(TextureManager *)theTextureManager faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO selectionManager:(SelectionManager *)theSelectionManager {
+    if (theRenderMap == nil)
+        [NSException raise:NSInvalidArgumentException format:@"render map must not be nil"];
+    if (theCamera == nil)
+        [NSException raise:NSInvalidArgumentException format:@"camera must not be nil"];
     if (theTextureManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
-    if (theVboBuffer == nil)
-        [NSException raise:NSInvalidArgumentException format:@"VBO buffer manager must not be nil"];
-    if (theVboBuffer == nil)
-        [NSException raise:NSInvalidArgumentException format:@"VBO buffer manager must not be nil"];
+    if (theFaceVBO == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face VBO buffer manager must not be nil"];
+    if (theEdgeVBO == nil)
+        [NSException raise:NSInvalidArgumentException format:@"edge VBO buffer manager must not be nil"];
     if (theSelectionManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"selection manager must not be nil"];
     
     if (self = [self init]) {
+        renderMap = [theRenderMap retain];
+        camera = [theCamera retain];
         textureManager = [theTextureManager retain];
-        vboBuffer = [theVboBuffer retain];
+        faceVBO = [theFaceVBO retain];
+        edgeVBO = [theEdgeVBO retain];
         selectionManager = [theSelectionManager retain];
-        renderObjects = [[NSMutableDictionary alloc] init];
-        selectedRenderObjects = [[NSMutableDictionary alloc] init];
     }
     
     return self;
 }
 
 - (void)preRender {
-    glEnable(GL_TEXTURE_2D);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glFrontFace(GL_CW);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glPolygonMode(GL_FRONT, GL_FILL);
     glShadeModel(GL_FLAT);
-
-    [renderObjects removeAllObjects];
-    [vboBuffer activate];
-    [vboBuffer mapBuffer];
 }
 
-- (void)renderBrush:(RenderBrush *)renderBrush {
-    glColor4f(1, 1, 1, 1);
-    NSDictionary* brushArrayInfos = [renderBrush prepareWithTextureManager:textureManager];
-    NSEnumerator* textureNameEn = [brushArrayInfos keyEnumerator];
+- (void)prepareFaces {
+    [faceVBO activate];
+    [faceVBO mapBuffer];
+
+    NSEnumerator* renderEntityEn = [[renderMap renderEntities] objectEnumerator];
+    RenderEntity* renderEntity;
+    while ((renderEntity = [renderEntityEn nextObject])) {
+        NSEnumerator* renderBrushEn = [[renderEntity renderBrushes] objectEnumerator];
+        RenderBrush* renderBrush;
+        while ((renderBrush = [renderBrushEn nextObject]))
+            [renderBrush prepareFacesWithTextureManager:textureManager];
+    }
+
+    [faceVBO unmapBuffer];
+    [faceVBO deactivate];
+}
+
+- (void)prepareWireframe {
+    [edgeVBO activate];
+    [edgeVBO mapBuffer];
+    
+    NSEnumerator* renderEntityEn = [[renderMap renderEntities] objectEnumerator];
+    RenderEntity* renderEntity;
+    while ((renderEntity = [renderEntityEn nextObject])) {
+        NSEnumerator* renderBrushEn = [[renderEntity renderBrushes] objectEnumerator];
+        RenderBrush* renderBrush;
+        while ((renderBrush = [renderBrushEn nextObject]))
+            [renderBrush prepareWireframe];
+    }
+    
+    [edgeVBO unmapBuffer];
+    [edgeVBO deactivate];
+}
+
+- (void)renderPolygonsWithIndexBuffers:(NSMutableDictionary *)indexBuffers countBuffers:(NSMutableDictionary *)countBuffers {
+    NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
     NSString* textureName;
     while ((textureName = [textureNameEn nextObject])) {
-        NSArray* brushInfos = [brushArrayInfos objectForKey:textureName];
-        NSMutableArray* infos = [renderObjects objectForKey:textureName];
-        if (infos == nil) {
-            infos = [[NSMutableArray alloc] init];
-            [renderObjects setObject:infos forKey:textureName];
-            [infos release];
-        }
+        Texture* texture = [textureManager textureForName:textureName];
+        [texture activate];
         
-        [infos addObjectsFromArray:brushInfos];
+        IntData* indexBuffer = [indexBuffers objectForKey:textureName];
+        IntData* countBuffer = [countBuffers objectForKey:textureName];
+        
+        const void* indexBytes = [indexBuffer bytes];
+        const void* countBytes = [countBuffer bytes];
+        int primCount = [indexBuffer count];
+        
+        glInterleavedArrays(GL_T2F_V3F, 0, NULL);
+        glMultiDrawArrays(GL_POLYGON, indexBytes, countBytes, primCount);
     }
 }
 
-- (void)updateView:(NSRect)bounds withCamera:(Camera *)camera {
+- (void)renderFaces {
+    glEnable(GL_TEXTURE_2D);
+    glPolygonMode(GL_FRONT, GL_FILL);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.0, 1.0);
+    
+    [faceVBO activate];
+
+    // map texture names to index and count buffers for efficient texture rendering
+    NSMutableDictionary* indexBuffers = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary* countBuffers = [[NSMutableDictionary alloc] init];
+    
+    // same for selection
+    NSMutableDictionary* selIndexBuffers = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary* selCountBuffers = [[NSMutableDictionary alloc] init];
+    
+    NSEnumerator* renderEntityEn = [[renderMap renderEntities] objectEnumerator];
+    RenderEntity* renderEntity;
+    while ((renderEntity = [renderEntityEn nextObject])) {
+        NSEnumerator* renderBrushEn = [[renderEntity renderBrushes] objectEnumerator];
+        RenderBrush* renderBrush;
+        while ((renderBrush = [renderBrushEn nextObject])) {
+            Brush* brush = [renderBrush brush];
+            NSArray* faces = [brush faces];
+            
+            NSEnumerator* faceEn = [faces objectEnumerator];
+            Face* face;
+            while ((face = [faceEn nextObject])) {
+                NSString* textureName = [face texture];
+                
+                NSMutableDictionary* currentIndexBuffers;
+                NSMutableDictionary* currentCountBuffers;
+                if ([selectionManager isBrushSelected:brush] || [selectionManager isFaceSelected:face]) {
+                    currentIndexBuffers = selIndexBuffers;
+                    currentCountBuffers = selCountBuffers;
+                } else {
+                    currentIndexBuffers = indexBuffers;
+                    currentCountBuffers = countBuffers;
+                }
+                
+                IntData* indexBuffer = [currentIndexBuffers objectForKey:textureName];
+                if (indexBuffer == nil) {
+                    indexBuffer = [[IntData alloc] init];
+                    [currentIndexBuffers setObject:indexBuffer forKey:textureName];
+                    [indexBuffer release];
+                }
+                
+                IntData* countBuffer = [currentCountBuffers objectForKey:textureName];
+                if (countBuffer == nil) {
+                    countBuffer = [[IntData alloc] init];
+                    [currentCountBuffers setObject:countBuffer forKey:textureName];
+                    [countBuffer release];
+                }
+                
+                [renderBrush indexForFace:face indexBuffer:indexBuffer countBuffer:countBuffer];
+            }
+        }
+    }
+    
+    glColor4f(0.7, 0.7, 0.7, 1);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    [self renderPolygonsWithIndexBuffers:indexBuffers countBuffers:countBuffers];
+    
+    [indexBuffers release];
+    [countBuffers release];
+    
+    glColor4f(1, 0, 0, 1);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    [self renderPolygonsWithIndexBuffers:selIndexBuffers countBuffers:selCountBuffers];
+    
+    [selIndexBuffers release];
+    [selCountBuffers release];
+
+    [faceVBO deactivate];
+    glDisable(GL_POLYGON_OFFSET_FILL);
+}
+
+- (void)renderWireframeWithIndexBuffer:(IntData *)indexBuffer countBuffer:(IntData *)countBuffer {
+    [edgeVBO activate];
+
+    const void* indexBytes = [indexBuffer bytes];
+    const void* countBytes = [countBuffer bytes];
+        
+    glVertexPointer(3, GL_FLOAT, 0, 0);
+    glMultiDrawArrays(GL_LINES, indexBytes, countBytes, [indexBuffer count]);
+
+    [edgeVBO deactivate];
+}
+
+- (void)renderWireframe {
+    glDisable(GL_TEXTURE_2D);
+    
+    IntData* indexBuffer = [[IntData alloc] init];
+    IntData* countBuffer = [[IntData alloc] init];
+    
+    IntData* selIndexBuffer = [[IntData alloc] init];
+    IntData* selCountBuffer = [[IntData alloc] init];
+    
+    NSEnumerator* renderEntityEn = [[renderMap renderEntities] objectEnumerator];
+    RenderEntity* renderEntity;
+    while ((renderEntity = [renderEntityEn nextObject])) {
+        NSEnumerator* renderBrushEn = [[renderEntity renderBrushes] objectEnumerator];
+        RenderBrush* renderBrush;
+        while ((renderBrush = [renderBrushEn nextObject])) {
+            IntData* currentIndexBuffer;
+            IntData* currentCountBuffer;
+            if ([selectionManager isBrushSelected:[renderBrush brush]]) {
+                currentIndexBuffer = selIndexBuffer;
+                currentCountBuffer = selCountBuffer;
+            } else {
+                currentIndexBuffer = indexBuffer;
+                currentCountBuffer = countBuffer;
+            }
+            
+            [renderBrush wireFrameIndices:currentIndexBuffer countBuffer:currentCountBuffer];
+        }
+    }
+    
+    glColor4f(1, 1, 1, 0.4);
+    [self renderWireframeWithIndexBuffer:indexBuffer countBuffer:countBuffer];
+    
+    [indexBuffer release];
+    [countBuffer release];
+    
+    glDisable(GL_DEPTH_TEST);
+    glColor4f(1, 0, 0, 0.4);
+    [self renderWireframeWithIndexBuffer:selIndexBuffer countBuffer:selCountBuffer];
+    glEnable(GL_DEPTH_TEST);
+    
+    [selIndexBuffer release];
+    [selCountBuffer release];
+}
+
+- (void)postRender {
+    
+}
+
+- (void)render {
+    [self preRender];
+
+    [self prepareFaces];
+    [self prepareWireframe];
+    
+    [self renderFaces];
+    [self renderWireframe];
+    
+    [self postRender];
+}
+
+- (void)updateView:(NSRect)bounds {
     float fov = [camera fieldOfVision];
     float aspect = bounds.size.width / bounds.size.height;
     float near = [camera nearClippingPlane];
@@ -107,74 +290,14 @@
               [up z]);
 }
 
-- (void)postRender {
-    [vboBuffer unmapBuffer];
-    
-    NSEnumerator* textureNameEn = [renderObjects keyEnumerator];
-    NSString* textureName;
-    while ((textureName = [textureNameEn nextObject])) {
-        NSArray* infos = [renderObjects objectForKey:textureName];
-        NSMutableData* indexArray = [[NSMutableData alloc] init];
-        NSMutableData* countArray = [[NSMutableData alloc] init];
-        NSMutableData* indexArraySel = [[NSMutableData alloc] init];
-        NSMutableData* countArraySel = [[NSMutableData alloc] init];
 
-        int infoCount = 0;
-        int infoSelCount = 0;
-        
-        NSEnumerator* infoEn = [infos objectEnumerator];
-        VBOArrayEntry* entry;
-        while ((entry = [infoEn nextObject])) {
-            int index = [entry index];
-            int count = [entry count];
-
-            Face* face = [entry object];
-            if ([selectionManager isFaceSelected:face] || 
-                [selectionManager isBrushSelected:[face brush]]) {
-                [indexArraySel appendBytes:(char *)&index length:sizeof(int)];
-                [countArraySel appendBytes:(char *)&count length:sizeof(int)];
-                infoSelCount++;
-            } else {
-                [indexArray appendBytes:(char *)&index length:sizeof(int)];
-                [countArray appendBytes:(char *)&count length:sizeof(int)];
-                infoCount++;
-            }
-            
-        }
-
-        Texture* texture = [textureManager textureForName:textureName];
-        [texture activate];
-        
-        const void* indexBuffer = [indexArray bytes];
-        const void* countBuffer = [countArray bytes];
-        
-        glColor4f(1, 1, 1, 1);
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-        glInterleavedArrays(GL_T2F_V3F, 0, NULL);
-        glMultiDrawArrays(GL_POLYGON, indexBuffer, countBuffer, infoCount);
-        
-        indexBuffer = [indexArraySel bytes];
-        countBuffer = [countArraySel bytes];
-        
-        glColor4f(1, 0, 0, 1);
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-        glInterleavedArrays(GL_T2F_V3F, 0, NULL);
-        glMultiDrawArrays(GL_POLYGON, indexBuffer, countBuffer, infoSelCount);
-        
-        [indexArray release];
-        [countArray release];
-        [indexArraySel release];
-        [countArraySel release];
-    }
-    
-    [vboBuffer deactivate];
-}
 
 - (void)dealloc {
-    [selectedRenderObjects release];
-    [renderObjects release];
+    [camera release];
+    [renderMap release];
     [selectionManager release];
-    [vboBuffer release];
+    [faceVBO release];
+    [edgeVBO release];
     [textureManager release];
     [super dealloc];
 }

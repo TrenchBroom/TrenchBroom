@@ -26,10 +26,11 @@
 @implementation MapWindowController
 
 - (void)windowDidLoad {
-    vboBuffer = [[VBOBuffer alloc] initWithTotalCapacity:8192];
+    faceVBO = [[VBOBuffer alloc] initWithTotalCapacity:8192];
+    edgeVBO = [[VBOBuffer alloc] initWithTotalCapacity:8192];
 
     Map* map = [[self document] map];
-    renderMap = [[RenderMap alloc] initWithMap:map vboBuffer:vboBuffer];
+    renderMap = [[RenderMap alloc] initWithMap:map faceVBO:faceVBO edgeVBO:edgeVBO];
     camera = [[Camera alloc] init];
     
     NSBundle* mainBundle = [NSBundle mainBundle];
@@ -68,7 +69,8 @@
     [view3D setTextureManager:textureManager];
     [view3D setInputManager:inputManager];
     [view3D setSelectionManager:selectionManager];
-    [view3D setVBOBuffer:vboBuffer];
+    [view3D setFaceVBO:faceVBO];
+    [view3D setEdgeVBO:edgeVBO];
     [view3D setCamera:camera];
     [view3D setRenderMap:renderMap];
     
@@ -76,10 +78,13 @@
 
 - (void)windowWillClose:(NSNotification *)notification {
     [textureManager disposeTextures];
-    [vboBuffer dispose];
+    [faceVBO dispose];
+    [edgeVBO dispose];
 }
 
 - (void)dealloc {
+    [faceVBO release];
+    [edgeVBO release];
     [selectionManager release];
     [picker release];
     [octree release];

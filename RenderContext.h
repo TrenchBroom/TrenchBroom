@@ -13,8 +13,6 @@
 
 @protocol RenderContext
 
-- (void)preRender;
-- (void)updateView:(NSRect)bounds withCamera:(Camera *)camera;
-- (void)renderBrush:(RenderBrush *)renderBrush;
-- (void)postRender;
+- (void)render;
+- (void)updateView:(NSRect)bounds;
 @end

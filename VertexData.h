@@ -30,7 +30,9 @@ typedef enum {
 }
 
 - (BOOL)cutWithFace:(Face *)face droppedFaces:(NSMutableArray **)droppedFaces;
-- (NSArray*)verticesForFace:(Face *)face;
+- (NSArray *)verticesForFace:(Face *)face;
+- (NSArray *)verticesForWireframe;
+- (int)edgeCount;
 - (BoundingBox *)bounds;
 - (PickingHit *)pickFace:(Ray3D *)theRay;
 @end

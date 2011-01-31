@@ -26,12 +26,14 @@ extern NSString* const MapView3DDefaultsBackgroundColor;
     TextureManager* textureManager;
     InputManager* inputManager;
     SelectionManager* selectionManager;
-    VBOBuffer* vboBuffer;
+    VBOBuffer* faceVBO;
+    VBOBuffer* edgeVBO;
 }
 
 - (void)setCamera:(Camera *)aCamera;
 - (void)setRenderMap:(RenderMap *)aRenderMap;
-- (void)setVBOBuffer:(VBOBuffer *)theVboBuffer;
+- (void)setFaceVBO:(VBOBuffer *)theFaceVBO;
+- (void)setEdgeVBO:(VBOBuffer *)theEdgeVBO;
 - (void)setTextureManager:(TextureManager *)theTextureManager;
 - (void)setInputManager:(InputManager *)theInputManager;
 - (void)setSelectionManager:(SelectionManager *)theSelectionManager;

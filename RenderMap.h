@@ -7,21 +7,19 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "RenderContext.h"
 
 @class Map;
-@class RenderEntity;
-@class Entity;
 @class VBOBuffer;
 
 @interface RenderMap : NSObject {
     Map* map;
-    VBOBuffer* vboBuffer;
+    VBOBuffer* faceVBO;
+    VBOBuffer* edgeVBO;
     NSMutableDictionary* renderEntities;
 }
 
-- (id)initWithMap:(Map *)theMap vboBuffer:(VBOBuffer *)theVboBuffer;
+- (id)initWithMap:(Map *)theMap faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO;
 
-- (void)renderWithContext:(id <RenderContext>)renderContext;
+- (NSArray *)renderEntities;
 
 @end

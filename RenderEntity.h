@@ -7,7 +7,6 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "RenderContext.h"
 
 @class Entity;
 @class VBOBuffer;
@@ -15,10 +14,11 @@
 @interface RenderEntity : NSObject {
     Entity* entity;
     NSMutableDictionary* renderBrushes;
-    VBOBuffer* vboBuffer;
+    VBOBuffer* faceVBO;
+    VBOBuffer* edgeVBO;
 }
 
-- (id)initWithEntity:(Entity *)theEntity vboBuffer:(VBOBuffer *)vboBuffer;
+- (id)initWithEntity:(Entity *)theEntity faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO;
 
-- (void)renderWithContext:(id <RenderContext>)renderContext;
+- (NSArray *)renderBrushes;
 @end

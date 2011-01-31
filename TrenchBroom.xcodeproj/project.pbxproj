@@ -69,6 +69,7 @@
 		4881C74212E9C8BE006BF922 /* TextureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74112E9C8BE006BF922 /* TextureManager.m */; };
 		4881C74812E9CD88006BF922 /* WadTextureEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74712E9CD88006BF922 /* WadTextureEntry.m */; };
 		4881C74B12E9CD8F006BF922 /* WadPaletteEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */; };
+		488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */ = {isa = PBXBuildFile; fileRef = 488C8EE012F6C3ED00F358E6 /* IntData.m */; };
 		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
 		48A68EB8114E96C00064732A /* MapWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68EB7114E96C00064732A /* MapWindowController.m */; };
 		48A68ECC114E9AF90064732A /* MapView2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68ECB114E9AF90064732A /* MapView2D.m */; };
@@ -210,6 +211,8 @@
 		4881C74712E9CD88006BF922 /* WadTextureEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WadTextureEntry.m; sourceTree = "<group>"; };
 		4881C74912E9CD8F006BF922 /* WadPaletteEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WadPaletteEntry.h; sourceTree = "<group>"; };
 		4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WadPaletteEntry.m; sourceTree = "<group>"; };
+		488C8EDF12F6C3ED00F358E6 /* IntData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntData.h; sourceTree = "<group>"; };
+		488C8EE012F6C3ED00F358E6 /* IntData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntData.m; sourceTree = "<group>"; };
 		48941664123619870098E17C /* Line2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2DTestCase.h; sourceTree = "<group>"; };
 		48941665123619870098E17C /* Line2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line2DTestCase.m; sourceTree = "<group>"; };
 		48A68EB6114E96C00064732A /* MapWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWindowController.h; sourceTree = "<group>"; };
@@ -332,9 +335,8 @@
 			children = (
 				48A68E96114E93840064732A /* Controller */,
 				48A68F1C114EA7750064732A /* Math */,
-				48A68E93114E92730064732A /* Model */,
 				4881C74512E9CD69006BF922 /* Wad */,
-				487E31F3114F741F0043A111 /* Renderer */,
+				48A68E93114E92730064732A /* Map */,
 				48A68EC9114E9AE20064732A /* View */,
 			);
 			name = Classes;
@@ -416,19 +418,6 @@
 			name = 3D;
 			sourceTree = "<group>";
 		};
-		48770FF012E5BE58009B440B /* IO */ = {
-			isa = PBXGroup;
-			children = (
-				48770FF112E5BE66009B440B /* MapTokenizer.h */,
-				48770FF212E5BE66009B440B /* MapTokenizer.m */,
-				48770FF412E5BF28009B440B /* MapToken.h */,
-				48770FF512E5BF28009B440B /* MapToken.m */,
-				4877106C12E5DA55009B440B /* MapParser.h */,
-				4877106D12E5DA55009B440B /* MapParser.m */,
-			);
-			name = IO;
-			sourceTree = "<group>";
-		};
 		487E31F3114F741F0043A111 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
@@ -453,6 +442,8 @@
 				487A646B12EA3A7E00A43289 /* Texture.m */,
 				48AB6C6512F2251C008BC88E /* VBOArrayEntry.h */,
 				48AB6C6612F2251C008BC88E /* VBOArrayEntry.m */,
+				488C8EDF12F6C3ED00F358E6 /* IntData.h */,
+				488C8EE012F6C3ED00F358E6 /* IntData.m */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -460,8 +451,7 @@
 		4881C74512E9CD69006BF922 /* Wad */ = {
 			isa = PBXGroup;
 			children = (
-				487FC65812E8BF60006FF29E /* WadLoader.h */,
-				487FC65912E8BF60006FF29E /* WadLoader.m */,
+				488C8EB912F69F7D00F358E6 /* IO */,
 				487FC64412E8B86B006FF29E /* Wad.h */,
 				487FC64512E8B86B006FF29E /* Wad.m */,
 				487FC64712E8BB53006FF29E /* WadEntry.h */,
@@ -474,32 +464,31 @@
 			name = Wad;
 			sourceTree = "<group>";
 		};
-		488FF49012243BC700EA9158 /* 2D */ = {
+		488C8EB812F69F6900F358E6 /* IO */ = {
 			isa = PBXGroup;
 			children = (
-				48E1107A1234BF5500087198 /* Vector2f.h */,
-				48E1107B1234BF5500087198 /* Vector2f.m */,
+				48770FF112E5BE66009B440B /* MapTokenizer.h */,
+				48770FF212E5BE66009B440B /* MapTokenizer.m */,
+				48770FF412E5BF28009B440B /* MapToken.h */,
+				48770FF512E5BF28009B440B /* MapToken.m */,
+				4877106C12E5DA55009B440B /* MapParser.h */,
+				4877106D12E5DA55009B440B /* MapParser.m */,
 			);
-			name = 2D;
+			name = IO;
 			sourceTree = "<group>";
 		};
-		48A68E93114E92730064732A /* Model */ = {
+		488C8EB912F69F7D00F358E6 /* IO */ = {
 			isa = PBXGroup;
 			children = (
-				480AD8B312ED78E7009B5970 /* VertexData */,
-				48770FF012E5BE58009B440B /* IO */,
-				48527F3C11148EAA00CD6043 /* Brush.h */,
-				48527F3D11148EAA00CD6043 /* Brush.m */,
-				48A68F25114EDF360064732A /* Entity.h */,
-				48A68F26114EDF360064732A /* Entity.m */,
-				48527F3611148D5C00CD6043 /* Face.h */,
-				48527F3711148D5C00CD6043 /* Face.m */,
-				48A68F6E114EE6DC0064732A /* Map.h */,
-				48A68F6F114EE6DC0064732A /* Map.m */,
-				487E1E9212E495060001C150 /* IdGenerator.h */,
-				487E1E9312E495060001C150 /* IdGenerator.m */,
-				4865993A12EEE27300665E94 /* BrushFactory.h */,
-				4865993B12EEE27300665E94 /* BrushFactory.m */,
+				487FC65812E8BF60006FF29E /* WadLoader.h */,
+				487FC65912E8BF60006FF29E /* WadLoader.m */,
+			);
+			name = IO;
+			sourceTree = "<group>";
+		};
+		488C8EBA12F69F9300F358E6 /* Picking */ = {
+			isa = PBXGroup;
+			children = (
 				486A9C1A12F41FCA003D26FE /* Octree.h */,
 				486A9C1B12F41FCA003D26FE /* Octree.m */,
 				486A9C1D12F41FD1003D26FE /* OctreeNode.h */,
@@ -509,20 +498,51 @@
 				485AE8D512F4C5BD00CDBD6A /* PickingHit.h */,
 				485AE8D612F4C5BD00CDBD6A /* PickingHit.m */,
 			);
-			name = Model;
+			name = Picking;
+			sourceTree = "<group>";
+		};
+		488FF49012243BC700EA9158 /* 2D */ = {
+			isa = PBXGroup;
+			children = (
+				48E1107A1234BF5500087198 /* Vector2f.h */,
+				48E1107B1234BF5500087198 /* Vector2f.m */,
+			);
+			name = 2D;
+			sourceTree = "<group>";
+		};
+		48A68E93114E92730064732A /* Map */ = {
+			isa = PBXGroup;
+			children = (
+				488C8EB812F69F6900F358E6 /* IO */,
+				480AD8B312ED78E7009B5970 /* VertexData */,
+				48527F3C11148EAA00CD6043 /* Brush.h */,
+				48527F3D11148EAA00CD6043 /* Brush.m */,
+				4865993A12EEE27300665E94 /* BrushFactory.h */,
+				4865993B12EEE27300665E94 /* BrushFactory.m */,
+				48A68F25114EDF360064732A /* Entity.h */,
+				48A68F26114EDF360064732A /* Entity.m */,
+				48527F3611148D5C00CD6043 /* Face.h */,
+				48527F3711148D5C00CD6043 /* Face.m */,
+				487E1E9212E495060001C150 /* IdGenerator.h */,
+				487E1E9312E495060001C150 /* IdGenerator.m */,
+				48A68F6E114EE6DC0064732A /* Map.h */,
+				48A68F6F114EE6DC0064732A /* Map.m */,
+			);
+			name = Map;
 			sourceTree = "<group>";
 		};
 		48A68E96114E93840064732A /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				2A37F4AEFDCFA73011CA2CEA /* MapDocument.h */,
-				2A37F4ACFDCFA73011CA2CEA /* MapDocument.m */,
-				48A68EB6114E96C00064732A /* MapWindowController.h */,
-				48A68EB7114E96C00064732A /* MapWindowController.m */,
+				488C8EBA12F69F9300F358E6 /* Picking */,
 				48B325E312E3788D008748E2 /* AppDelegate.h */,
 				48B325E412E3788D008748E2 /* AppDelegate.m */,
 				48DB957612F0699600FB5483 /* InputManager.h */,
 				48DB957712F0699600FB5483 /* InputManager.m */,
+				2A37F4AEFDCFA73011CA2CEA /* MapDocument.h */,
+				2A37F4ACFDCFA73011CA2CEA /* MapDocument.m */,
+				48A68EB6114E96C00064732A /* MapWindowController.h */,
+				48A68EB7114E96C00064732A /* MapWindowController.m */,
 				48E1806312F5F07D007995FE /* SelectionManager.h */,
 				48E1806412F5F07D007995FE /* SelectionManager.m */,
 			);
@@ -532,6 +552,7 @@
 		48A68EC9114E9AE20064732A /* View */ = {
 			isa = PBXGroup;
 			children = (
+				487E31F3114F741F0043A111 /* Renderer */,
 				48A68ECA114E9AF90064732A /* MapView2D.h */,
 				48A68ECB114E9AF90064732A /* MapView2D.m */,
 				48A68ECD114E9B0D0064732A /* MapView3D.h */,
@@ -779,6 +800,7 @@
 				485AE8B712F4BFB700CDBD6A /* CoordinatePlane.m in Sources */,
 				485AE8D712F4C5BD00CDBD6A /* PickingHit.m in Sources */,
 				48E1806512F5F07D007995FE /* SelectionManager.m in Sources */,
+				488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

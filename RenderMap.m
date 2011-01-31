@@ -23,22 +23,25 @@
     return self;
 }
 
-- (id)initWithMap:(Map *)theMap vboBuffer:(VBOBuffer *)theVboBuffer {
+- (id)initWithMap:(Map *)theMap faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO {
     if (theMap == nil)
         [NSException raise:NSInvalidArgumentException format:@"map must not be nil"];
-    if (theVboBuffer == nil)
-        [NSException raise:NSInvalidArgumentException format:@"VBO buffer must not be nil"];
+    if (theFaceVBO == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face VBO buffer must not be nil"];
+    if (theEdgeVBO == nil)
+        [NSException raise:NSInvalidArgumentException format:@"edge VBO buffer must not be nil"];
 
     if (self = [self init]) {
         map = [theMap retain];
-        vboBuffer = [theVboBuffer retain];
+        faceVBO = [theFaceVBO retain];
+        edgeVBO = [theEdgeVBO retain];
         
         NSArray* entities = [map entities];
         NSEnumerator* entityEn = [entities objectEnumerator];
         Entity* entity;
         
         while ((entity = [entityEn nextObject])) {
-            RenderEntity* renderEntity = [[RenderEntity alloc] initWithEntity:entity vboBuffer:vboBuffer];
+            RenderEntity* renderEntity = [[RenderEntity alloc] initWithEntity:entity faceVBO:faceVBO edgeVBO:edgeVBO];
             [renderEntities setObject:renderEntity forKey:[entity entityId]];
             [renderEntity release];
         }
@@ -47,19 +50,13 @@
     return self;
 }
 
-- (void)renderWithContext:(id <RenderContext>)renderContext {
-    if (renderContext == nil)
-        [NSException raise:NSInvalidArgumentException format:@"render context must not be nil"];
-    
-    NSEnumerator* en = [renderEntities objectEnumerator];
-    RenderEntity* entity;
-    
-    while ((entity = [en nextObject]))
-        [entity renderWithContext:renderContext];
+- (NSArray *)renderEntities {
+    return [renderEntities allValues];
 }
 
 - (void)dealloc {
-    [vboBuffer release];
+    [faceVBO release];
+    [edgeVBO release];
     [renderEntities release];
     [map release];
     [super dealloc];

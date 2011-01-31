@@ -11,14 +11,12 @@
 
 @interface VBOArrayEntry : NSObject {
     @private
-    id object;
     int index;
     int count;
 }
 
-- (id)initWithObject:(id)theObject index:(int)theIndex count:(int)theCount;
+- (id)initWithIndex:(int)theIndex count:(int)theCount;
 
-- (id)object;
 - (int)index;
 - (int)count;
 

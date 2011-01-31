@@ -28,7 +28,8 @@
     Camera* camera;
     TextureManager* textureManager;
     InputManager* inputManager;
-    VBOBuffer* vboBuffer;
+    VBOBuffer* faceVBO;
+    VBOBuffer* edgeVBO;
     Octree* octree;
     Picker* picker;
     SelectionManager* selectionManager;

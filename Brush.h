@@ -8,9 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class Entity;
 @class Vector3i;
 @class Face;
-@class Polyhedron;
 @class VertexData;
 @class BoundingBox;
 @class Ray3D;
@@ -18,6 +18,7 @@
 
 @interface Brush : NSObject {
     @private
+    Entity* entity;
     NSNumber* brushId;
 	NSMutableArray* faces;
     VertexData* vertexData;
@@ -26,9 +27,16 @@
 
 - (Face *)createFaceWithPoint1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3 texture:(NSString *)texture;
 
+- (id)initInEntity:(Entity *)theEntity;
+
 - (NSNumber* )brushId;
+- (Entity *)entity;
+
 - (NSArray *)faces;
 - (NSArray *)verticesForFace:(Face *)face;
+- (int)edgeCount;
+- (NSArray *)verticesForWireframe;
+
 - (float *)flatColor;
 - (BoundingBox *)bounds;
 - (PickingHit *)pickFace:(Ray3D *)theRay;

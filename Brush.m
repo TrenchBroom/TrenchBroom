@@ -7,13 +7,12 @@
 //
 
 #import "Brush.h"
+#import "Entity.h"
 #import "IdGenerator.h"
 #import "Vector3f.h"
 #import "Vector3i.h"
 #import "Face.h"
 #import "HalfSpace3D.h"
-#import "Line3D.h"
-#import "Plane3D.h"
 #import "VertexData.h"
 #import "BoundingBox.h"
 #import "Ray3D.h"
@@ -30,6 +29,17 @@
         flatColor[0] = (rand() % 255) / 255.0f;
         flatColor[1] = (rand() % 255) / 255.0f;
         flatColor[2] = (rand() % 255) / 255.0f;
+    }
+    
+    return self;
+}
+
+- (id)initInEntity:(Entity *)theEntity {
+    if (theEntity == nil)
+        [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
+    
+    if (self = [self init]) {
+        entity = theEntity; // do not retain
     }
     
     return self;
@@ -59,6 +69,10 @@
     return [face autorelease];
 }
 
+- (Entity *)entity {
+    return entity;
+}
+
 - (NSNumber *)brushId {
     return brushId;
 }
@@ -72,6 +86,14 @@
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
 
     return [vertexData verticesForFace:face];
+}
+
+- (int)edgeCount {
+    return [vertexData edgeCount];
+}
+
+- (NSArray *)verticesForWireframe {
+    return [vertexData verticesForWireframe];
 }
 
 - (float *)flatColor {

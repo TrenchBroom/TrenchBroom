@@ -7,6 +7,7 @@
 //
 
 #import "Entity.h"
+#import "Map.h"
 #import "IdGenerator.h"
 #import "Vector3i.h"
 #import "Brush.h"
@@ -23,9 +24,19 @@
     
     return self;
 }
+- (id)initInMap:(Map *)theMap {
+    if (theMap == nil)
+        [NSException raise:NSInvalidArgumentException format:@"map must not be nil"];
+    
+    if (self = [self init]) {
+        map = theMap; // do not retain
+    }
+    
+    return self;
+}
 
-- (id)initWithProperty:(NSString *)key value:(NSString *)value {
-	if (self = [self init]) {
+- (id)initInMap:(Map *)theMap property:(NSString *)key value:(NSString *)value {
+	if (self = [self initInMap:theMap]) {
 		[self setProperty:key value:value];
 	}
 	
@@ -33,7 +44,7 @@
 }
 
 - (Brush *)createBrush {
-    Brush* brush = [[Brush alloc] init];
+    Brush* brush = [[Brush alloc] initInEntity:self];
     [brushes addObject:brush];
     [brushIndices setObject:[NSNumber numberWithInt:[brushes count] - 1] forKey:[brush brushId]];
     
@@ -50,6 +61,10 @@
     
     [brushes removeObjectAtIndex:[index intValue]];
     [brushIndices removeObjectForKey:[brush brushId]];
+}
+
+- (Map *)map {
+    return map;
 }
 
 - (NSNumber *)entityId {

@@ -27,6 +27,7 @@ typedef enum {
 
 - (Vector3f *)vector;
 - (EVertexMark)mark;
+
 - (void)setMark:(EVertexMark)theMark;
 
 @end

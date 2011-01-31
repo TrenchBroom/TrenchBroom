@@ -34,13 +34,13 @@
 }
 
 - (Entity *)createEntity {
-    Entity* entity = [[Entity alloc] init];
+    Entity* entity = [[Entity alloc] initInMap:self];
     [entities addObject:entity];
     return [entity autorelease];
 }
 
 - (Entity *)createEntityWithProperty:(NSString *)key value:(NSString *)value {
-    Entity* entity = [[Entity alloc] initWithProperty:key value:value];
+    Entity* entity = [[Entity alloc] initInMap:self property:key value:value];
     [entities addObject:entity];
     return entity;
 }

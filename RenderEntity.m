@@ -22,31 +22,25 @@
     return self;
 }
 
-extern NSString* const EntityBrushAdded;
-extern NSString* const EntityBrushRemoved;
-
-extern NSString* const EntityBrush;
-
-extern NSString* const EntityPropertyAdded;
-extern NSString* const EntityPropertyRemoved;
-extern NSString* const EntityPropertyChanged;
-
-- (id)initWithEntity:(Entity *)theEntity vboBuffer:(VBOBuffer *)theVboBuffer {
+- (id)initWithEntity:(Entity *)theEntity faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO {
     if (theEntity == nil)
         [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
-    if (theVboBuffer == nil)
-        [NSException raise:NSInvalidArgumentException format:@"VBO buffer must not be nil"];
+    if (theFaceVBO == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face VBO buffer must not be nil"];
+    if (theEdgeVBO == nil)
+        [NSException raise:NSInvalidArgumentException format:@"edge VBO buffer must not be nil"];
 
     if (self = [self init]) {
         entity = [theEntity retain];
-        vboBuffer = [theVboBuffer retain];
+        faceVBO = [theFaceVBO retain];
+        edgeVBO = [theEdgeVBO retain];
         
         NSArray* brushes = [entity brushes];
         NSEnumerator* brushEn = [brushes objectEnumerator];
         Brush* brush;
         
         while ((brush = [brushEn nextObject])) {
-            RenderBrush* renderBrush = [[RenderBrush alloc] initWithBrush:brush vboBuffer:vboBuffer];
+            RenderBrush* renderBrush = [[RenderBrush alloc] initWithBrush:brush faceVBO:faceVBO edgeVBO:edgeVBO];
             [renderBrushes setObject:renderBrush forKey:[brush brushId]];
             [renderBrush release];
         }
@@ -55,20 +49,14 @@ extern NSString* const EntityPropertyChanged;
     return self;
 }
 
-- (void)renderWithContext:(id <RenderContext>)renderContext {
-    if (renderContext == nil)
-        [NSException raise:NSInvalidArgumentException format:@"render context must not be nil"];
-    
-    NSEnumerator* en = [renderBrushes objectEnumerator];
-    RenderBrush* brush;
-    
-    while ((brush = [en nextObject]))
-        [brush renderWithContext:renderContext];
+- (NSArray *)renderBrushes {
+    return [renderBrushes allValues];
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [vboBuffer release];
+    [faceVBO release];
+    [edgeVBO release];
     [renderBrushes release];
     [entity release];
     [super dealloc];

@@ -9,19 +9,22 @@
 #import <Cocoa/Cocoa.h>
 #import "RenderContext.h"
 
+@class Camera;
+@class RenderMap;
 @class TextureManager;
 @class VBOBuffer;
 @class SelectionManager;
 
 @interface RenderContext3D : NSObject <RenderContext> {
     @private 
+    Camera* camera;
+    RenderMap* renderMap;
+    VBOBuffer* faceVBO;
+    VBOBuffer* edgeVBO;
     TextureManager* textureManager;
-    VBOBuffer* vboBuffer;
     SelectionManager* selectionManager;
-    NSMutableDictionary* renderObjects;
-    NSMutableDictionary* selectedRenderObjects;
 }
 
-- (id)initWithTextureManager:(TextureManager *)theTextureManager vboBuffer:(VBOBuffer *)theVboBuffer selectionManager:(SelectionManager *)theSelectionManager;
+- (id)initWithRenderMap:(RenderMap *)theRenderMap camera:(Camera *)theCamera textureManager:(TextureManager *)theTextureManager faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO selectionManager:(SelectionManager *)theSelectionManager;
 
 @end

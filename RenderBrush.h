@@ -10,6 +10,8 @@
 #import "RenderContext.h"
 
 @class Brush;
+@class Face;
+@class IntData;
 @class VBOBuffer;
 @class VBOMemBlock;
 @class TextureManager;
@@ -17,16 +19,22 @@
 @interface RenderBrush : NSObject {
     @private
     Brush* brush;
-    VBOBuffer* vboBuffer;
-    VBOMemBlock* vboMemBlock;
-    NSMutableDictionary* arrayInfoForTexture;
+    VBOBuffer* faceVBO;
+    VBOBuffer* edgeVBO;
+    VBOMemBlock* faceBlock;
+    VBOMemBlock* edgeBlock;
+    NSMutableDictionary* faceEntries;
+    int wireframeCount;
+    int wireframeIndex;
 }
 
-- (id)initWithBrush:(Brush *)theBrush vboBuffer:(VBOBuffer *)theVboBuffer;
+- (id)initWithBrush:(Brush *)theBrush faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO;
 
 - (Brush *)brush;
 
-- (void)renderWithContext:(id <RenderContext>)renderContext;
+- (void)prepareFacesWithTextureManager:(TextureManager *)theTextureManager;
+- (void)prepareWireframe;
 
-- (NSDictionary *)prepareWithTextureManager:(TextureManager *)theTextureManager;
+- (void)indexForFace:(Face *)face indexBuffer:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer;
+- (void)wireFrameIndices:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer;
 @end

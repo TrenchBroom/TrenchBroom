@@ -68,13 +68,9 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 	glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    RenderContext3D* renderContext = [[RenderContext3D alloc] initWithTextureManager:textureManager vboBuffer:vboBuffer selectionManager:selectionManager];
-    [renderContext preRender];
-    [renderContext updateView:bounds withCamera:camera];
-    
-    [renderMap renderWithContext:renderContext];
-
-    [renderContext postRender];
+    RenderContext3D* renderContext = [[RenderContext3D alloc] initWithRenderMap:renderMap camera:camera textureManager:textureManager faceVBO:faceVBO edgeVBO:edgeVBO selectionManager:selectionManager];
+    [renderContext updateView:bounds];
+    [renderContext render];
     [renderContext release];
     
     [[self openGLContext] flushBuffer];
@@ -119,12 +115,20 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     renderMap = [aRenderMap retain];
 }
 
-- (void)setVBOBuffer:(VBOBuffer *)theVboBuffer {
-    if (theVboBuffer == nil)
-        [NSException raise:NSInvalidArgumentException format:@"VBO buffer must not be nil"];
+- (void)setFaceVBO:(VBOBuffer *)theFaceVBO {
+    if (theFaceVBO == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face VBO buffer must not be nil"];
     
-    [vboBuffer release];
-    vboBuffer = [theVboBuffer retain];
+    [faceVBO release];
+    faceVBO = [theFaceVBO retain];
+}
+
+- (void)setEdgeVBO:(VBOBuffer *)theEdgeVBO {
+    if (theEdgeVBO == nil)
+        [NSException raise:NSInvalidArgumentException format:@"edge VBO buffer must not be nil"];
+    
+    [edgeVBO release];
+    edgeVBO = [theEdgeVBO retain];
 }
 
 - (void)setTextureManager:(TextureManager *)theTextureManager {
@@ -167,7 +171,8 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [renderMap release];
-    [vboBuffer release];
+    [faceVBO release];
+    [edgeVBO release];
     [camera release];
     [textureManager release];
     [inputManager release];
