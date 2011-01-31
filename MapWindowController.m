@@ -73,7 +73,8 @@
     [view3D setEdgeVBO:edgeVBO];
     [view3D setCamera:camera];
     [view3D setRenderMap:renderMap];
-    
+ 
+    [[self window] makeKeyAndOrderFront:self];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {

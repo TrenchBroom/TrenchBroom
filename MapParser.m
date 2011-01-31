@@ -33,6 +33,7 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
         [NSException raise:NSInvalidArgumentException format:@"data must not be nil"];
     
     if (self = [self init]) {
+        size = [someData length];
         NSInputStream* stream = [[NSInputStream alloc] initWithData:someData];
         tokenizer = [[MapTokenizer alloc] initWithInputStream:stream];
         [stream release];
@@ -140,10 +141,13 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     [texture release];
 }
 
-- (Map *)parse {
+- (Map *)parseWithProgressIndicator:(NSProgressIndicator *)indicator {
+    [indicator setMaxValue:100];
+    
     NSDate* startDate = [NSDate date];
     state = PS_DEF;
     map = [[Map alloc] init];
+    [map setPostNotifications:NO];
     
     MapToken* token;
     while ((token = [self nextToken])) {
@@ -197,11 +201,18 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
                     break;
             }
         }
+        
+        [indicator setDoubleValue:100 * [token charsRead] / (double)size];
+        [[NSRunLoop currentRunLoop] runMode:NSModalPanelRunLoopMode beforeDate:[NSDate date]];
     }
+    
+    // just to make sure it reaches 100%
+    [indicator setDoubleValue:100];
     
     NSTimeInterval duration = [startDate timeIntervalSinceNow];
     NSLog(@"Loaded map file in %f seconds", -duration);
 
+    [map setPostNotifications:YES];
     return [map autorelease];
 }
 

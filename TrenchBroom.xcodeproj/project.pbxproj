@@ -21,6 +21,8 @@
 		4809F456118EDE82000F66FD /* Brush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* Brush.m */; };
 		480AD8B612ED78FA009B5970 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B512ED78FA009B5970 /* Edge.m */; };
 		480AD8D612ED9E4A009B5970 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
+		4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4814A02212F73F1E0082E05F /* ProgressWindow.xib */; };
+		4814A02712F740580082E05F /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4814A02612F740580082E05F /* ProgressWindowController.m */; };
 		4824957B12F3004C004F3615 /* BoundingBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 4824957A12F3004C004F3615 /* BoundingBox.m */; };
 		4836401112603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
 		4836401212603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
@@ -131,6 +133,9 @@
 		480AD8B512ED78FA009B5970 /* Edge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Edge.m; sourceTree = "<group>"; };
 		480AD8D412ED9E4A009B5970 /* Side.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Side.h; sourceTree = "<group>"; };
 		480AD8D512ED9E4A009B5970 /* Side.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Side.m; sourceTree = "<group>"; };
+		4814A02212F73F1E0082E05F /* ProgressWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProgressWindow.xib; sourceTree = "<group>"; };
+		4814A02512F740580082E05F /* ProgressWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressWindowController.h; sourceTree = "<group>"; };
+		4814A02612F740580082E05F /* ProgressWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProgressWindowController.m; sourceTree = "<group>"; };
 		4824957912F3004C004F3615 /* BoundingBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundingBox.h; sourceTree = "<group>"; };
 		4824957A12F3004C004F3615 /* BoundingBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundingBox.m; sourceTree = "<group>"; };
 		4836400F12603A5100363E3F /* Line3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line3D.h; sourceTree = "<group>"; };
@@ -360,6 +365,7 @@
 				089C165FFE840EACC02AAC07 /* InfoPlist.strings */,
 				1DDD58280DA1D0D100B32029 /* MapDocument.xib */,
 				1DDD582A0DA1D0D100B32029 /* MainMenu.xib */,
+				4814A02212F73F1E0082E05F /* ProgressWindow.xib */,
 				48B3255F12E2D760008748E2 /* Defaults.plist */,
 			);
 			name = Resources;
@@ -545,6 +551,8 @@
 				48A68EB7114E96C00064732A /* MapWindowController.m */,
 				48E1806312F5F07D007995FE /* SelectionManager.h */,
 				48E1806412F5F07D007995FE /* SelectionManager.m */,
+				4814A02512F740580082E05F /* ProgressWindowController.h */,
+				4814A02612F740580082E05F /* ProgressWindowController.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -684,6 +692,7 @@
 				1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */,
 				48B3256012E2D760008748E2 /* Defaults.plist in Resources */,
 				48639BF412EA227100808576 /* QuakePalette.lmp in Resources */,
+				4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -801,6 +810,7 @@
 				485AE8D712F4C5BD00CDBD6A /* PickingHit.m in Sources */,
 				48E1806512F5F07D007995FE /* SelectionManager.m in Sources */,
 				488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */,
+				4814A02712F740580082E05F /* ProgressWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

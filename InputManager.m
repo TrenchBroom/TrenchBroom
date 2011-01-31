@@ -33,8 +33,12 @@
     return self;
 }
 
-- (NSUInteger)modifierFlagsForCameraOrbit {
-    return NSAlternateKeyMask;
+- (BOOL)isCameraModifierPressed:(NSEvent *)event {
+    return ([event modifierFlags] & NSAlternateKeyMask) != 0;
+}
+
+- (BOOL)isCameraOrbitModifierPressed:(NSEvent *)event {
+    return [self isCameraModifierPressed:event] && ([event modifierFlags] & NSCommandKeyMask) != 0;
 }
 
 - (void)handleKeyDown:(NSEvent *)event sender:(id)sender {
@@ -62,18 +66,20 @@
 - (void)handleMouseDragged:(NSEvent *)event sender:(id)sender {
     if ([sender isKindOfClass:[MapView3D class]]) {
         MapView3D* mapView3D = (MapView3D *)sender;
-        Camera* camera = [mapView3D camera];
-        
-        if (([event modifierFlags] & [self modifierFlagsForCameraOrbit]) != 0) {
-            if (lastHit != nil) {
-                float h = -[event deltaX] / 70;
-                float v = [event deltaY] / 70;
-                [camera orbitCenter:[lastHit hitPoint] hAngle:h vAngle:v];
+        if ([self isCameraModifierPressed:event]) {
+            Camera* camera = [mapView3D camera];
+            
+            if ([self isCameraOrbitModifierPressed:event]) {
+                if (lastHit != nil) {
+                    float h = -[event deltaX] / 70;
+                    float v = [event deltaY] / 70;
+                    [camera orbitCenter:[lastHit hitPoint] hAngle:h vAngle:v];
+                }
+            } else {
+                float yaw = -[event deltaX] / 70;
+                float pitch = [event deltaY] / 70;
+                [camera rotateYaw:yaw pitch:pitch];
             }
-        } else {
-            float yaw = -[event deltaX] / 50;
-            float pitch = [event deltaY] / 50;
-            [camera rotateYaw:yaw pitch:pitch];
         }
     }
 }
@@ -104,7 +110,7 @@
         else
             lastHit = nil;
         
-        if (([event modifierFlags] & NSAlternateKeyMask) == 0) {
+        if (![self isCameraModifierPressed:event]) {
             if (lastHit != nil) {
                 Face* face = [lastHit object];
                 Brush* brush = [face brush];
@@ -146,9 +152,11 @@
 - (void)handleScrollWheel:(NSEvent *)event sender:(id)sender {
     if ([sender isKindOfClass:[MapView3D class]]) {
         MapView3D* mapView3D = (MapView3D *)sender;
-        Camera* camera = [mapView3D camera];
         
-        [camera moveForward:4 * [event deltaY] right:-4 * [event deltaX] up:4 * [event deltaZ]];
+        if ([self isCameraModifierPressed:event]) {
+            Camera* camera = [mapView3D camera];
+            [camera moveForward:4 * [event deltaY] right:-4 * [event deltaX] up:4 * [event deltaZ]];
+        }
     }
 }
 

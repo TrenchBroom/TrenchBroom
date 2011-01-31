@@ -26,6 +26,7 @@ typedef enum {
     id data;
     int line;
     int column;
+    int charsRead;
 }
 
 + (NSString *)typeName:(int)aType;
@@ -36,6 +37,8 @@ typedef enum {
 - (int)line;
 - (int)column;
 
-- (MapToken *)setType:(ETokenType)theType data:(id)theData line:(int)theLine column:(int)theColumn;
+- (int)charsRead;
+
+- (MapToken *)setType:(ETokenType)theType data:(id)theData line:(int)theLine column:(int)theColumn charsRead:(int)theCharsRead;
 
 @end

@@ -29,6 +29,8 @@ typedef enum {
     BoundingBox* bounds;
 }
 
+- (id)initWithFaces:(NSArray *)faces droppedFaces:(NSMutableArray **)droppedFaces;
+
 - (BOOL)cutWithFace:(Face *)face droppedFaces:(NSMutableArray **)droppedFaces;
 - (NSArray *)verticesForFace:(Face *)face;
 - (NSArray *)verticesForWireframe;

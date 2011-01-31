@@ -17,6 +17,7 @@
         entities = [[NSMutableArray alloc] init];
         worldspawn = nil;
         worldSize = 8192;
+        postNotifications = YES;
     }
     
     return self;
@@ -55,6 +56,14 @@
 
 - (int)worldSize {
     return worldSize;
+}
+
+- (BOOL)postNotifications {
+    return postNotifications;
+}
+
+- (void)setPostNotifications:(BOOL)value {
+    postNotifications = value;
 }
 
 - (void)dealloc {

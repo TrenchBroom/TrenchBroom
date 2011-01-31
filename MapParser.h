@@ -25,6 +25,7 @@ typedef enum {
 
 @interface MapParser : NSObject {
     @private
+    int size;
     MapTokenizer* tokenizer;
     Map* map;
     Entity* entity;
@@ -36,6 +37,6 @@ typedef enum {
 }
 
 - (id)initWithData:(NSData *)someData;
-- (Map *)parse;
+- (Map *)parseWithProgressIndicator:(NSProgressIndicator *)indicator;
 
 @end

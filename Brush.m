@@ -18,6 +18,12 @@
 #import "Ray3D.h"
 #import "PickingHit.h"
 
+NSString* const BrushFaceAdded              = @"BrushFaceAdded";
+NSString* const BrushFaceRemoved            = @"BrushFaceRemoved";
+NSString* const BrushFaceGeometryChanged    = @"BrushFaceGeometryChanged";
+NSString* const BrushFacePropertiesChanged  = @"BrushFacePropertiesChanged";
+NSString* const BrushFaceKey                = @"BrushFace";
+
 @implementation Brush
 
 - (id)init {
@@ -45,11 +51,22 @@
     return self;
 }
 
+- (VertexData *)vertexData {
+    if (vertexData == nil) {
+        NSMutableArray* droppedFaces = nil;
+        vertexData = [[VertexData alloc] initWithFaces:faces droppedFaces:&droppedFaces];
+        if (droppedFaces != nil)
+            [faces removeObjectsInArray:droppedFaces];
+    }
+    
+    return vertexData;
+}
+
 - (Face *)createFaceWithPoint1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3 texture:(NSString *)texture {
     Face* face = [[Face alloc] initInBrush:self point1:point1 point2:point2 point3:point3 texture:texture];
 
     NSMutableArray* droppedFaces = nil;
-    if (![vertexData cutWithFace:face droppedFaces:&droppedFaces]) {
+    if (![[self vertexData] cutWithFace:face droppedFaces:&droppedFaces]) {
         NSLog(@"Brush %@ was cut away by face %@", self, face);
         [face release];
         return nil;
@@ -60,13 +77,43 @@
         Face* droppedFace;
         while ((droppedFace = [droppedFacesEn nextObject])) {
             NSLog(@"Face %@ was cut away by face %@", droppedFace, face);
-            // TODO speed this up by using a map of face id -> face
             [faces removeObject:droppedFace];
         }
     }
 
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center addObserver:self selector:@selector(faceGeometryChanged:) name:FaceGeometryChanged object:face];
+    [center addObserver:self selector:@selector(facePropertiesChanged:) name:FacePropertiesChanged object:face];
+    
     [faces addObject:face];
+
+    if ([self postNotifications])
+        [center postNotificationName:BrushFaceAdded
+                              object:self 
+                            userInfo:[NSDictionary dictionaryWithObject:face forKey:BrushFaceKey]];
+    
     return [face autorelease];
+}
+
+- (void)faceGeometryChanged:(NSNotification *)notification {
+    [vertexData release];
+    vertexData = nil;
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushFaceGeometryChanged 
+                              object:self 
+                            userInfo:[NSDictionary dictionaryWithObject:[notification object] forKey:BrushFaceKey]];
+    }
+}
+
+- (void)facePropertiesChanged:(NSNotification *)notification {
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushFacePropertiesChanged 
+                              object:self 
+                            userInfo:[NSDictionary dictionaryWithObject:[notification object] forKey:BrushFaceKey]];
+    }
 }
 
 - (Entity *)entity {
@@ -108,7 +155,12 @@
     return [vertexData pickFace:theRay];
 }
 
+- (BOOL)postNotifications {
+    return [entity postNotifications];
+}
+
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [vertexData release];
     [faces release];
     [super dealloc];

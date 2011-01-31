@@ -8,6 +8,17 @@
 
 #import <Cocoa/Cocoa.h>
 
+extern NSString* const EntityBrushAdded;
+extern NSString* const EntityBrushRemoved;
+extern NSString* const EntityBrushChanged;
+extern NSString* const EntityBrushKey;
+extern NSString* const EntityPropertyAdded;
+extern NSString* const EntityPropertyRemoved;
+extern NSString* const EntityPropertyChanged;
+extern NSString* const EntityPropertyNameKey;
+extern NSString* const EntityPropertyValueKey;
+extern NSString* const EntityPropertyOldValueKey;
+
 @class Vector3i;
 @class Map;
 @class Brush;
@@ -41,4 +52,5 @@
 
 - (BOOL)isWorldspawn;
 
+- (BOOL)postNotifications;
 @end

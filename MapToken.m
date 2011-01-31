@@ -55,13 +55,18 @@
     return column;
 }
 
-- (MapToken *)setType:(ETokenType)theType data:(id)theData line:(int)theLine column:(int)theColumn {
+- (int)charsRead {
+    return charsRead;
+}
+
+- (MapToken *)setType:(ETokenType)theType data:(id)theData line:(int)theLine column:(int)theColumn charsRead:(int)theCharsRead {
     [data release];
     
     type = theType;
     data = [theData retain];
     line = theLine;
     column = theColumn;
+    charsRead = theCharsRead;
     
     return self;
 }

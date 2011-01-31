@@ -14,6 +14,7 @@
 #import "MapWindowController.h"
 #import "MapParser.h"
 #import "BrushFactory.h"
+#import "ProgressWindowController.h"
 
 @implementation MapDocument
 
@@ -58,11 +59,21 @@
 }
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
+    ProgressWindowController* pwc = [[ProgressWindowController alloc] initWithWindowNibName:@"ProgressWindow"];
+    [[pwc window] makeKeyAndOrderFront:self];
+    [[pwc label] setStringValue:@"Loading map file..."];
+    
+    NSProgressIndicator* indicator = [pwc progressIndicator];
+    [indicator setIndeterminate:NO];
+    [indicator setUsesThreadedAnimation:YES];
+    
     MapParser* parser = [[MapParser alloc] initWithData:data];
-    map = [parser parse];
+    map = [parser parseWithProgressIndicator:indicator];
     [map retain];
     [parser release];
 
+    [pwc close];
+    
     return YES;
 }
 

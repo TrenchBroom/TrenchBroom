@@ -15,6 +15,7 @@
     NSMutableArray* entities;
     Entity* worldspawn;
     int worldSize;
+    BOOL postNotifications;
 }
 
 - (Entity *)worldspawn;
@@ -25,4 +26,7 @@
 
 - (NSArray* )entities;
 - (int)worldSize;
+
+- (BOOL)postNotifications;
+- (void)setPostNotifications:(BOOL)value;
 @end

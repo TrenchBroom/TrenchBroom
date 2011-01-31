@@ -8,6 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
+extern NSString* const FacePropertiesChanged;
+extern NSString* const FaceGeometryChanged;
+
 typedef enum {
     XY, XZ, YZ
 } EPlaneType;
@@ -73,4 +76,6 @@ typedef enum {
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex;
 
 - (HalfSpace3D *)halfSpace;
+
+- (BOOL)postNotifications;
 @end

@@ -21,6 +21,7 @@
         bufferIndex = 0;
         bufferSize = [stream read:buffer maxLength:1024];
         pushBuffer = [[NSMutableString alloc] init];
+        charsRead = 0;
         line = 1;
         column = 0;
         state = TS_DEF;
@@ -67,6 +68,7 @@
 - (MapToken *)nextToken {
     char c;
     while ((c = [self readChar]) != 0) {
+        charsRead++;
         switch (state) {
             case TS_DEF:
                 switch (c) {
@@ -88,13 +90,13 @@
                     case ' ':
                         break; // ignore whitespace in boundaries
                     case '{':
-                        return [token setType:TT_CB_O data:nil line:line column:column];
+                        return [token setType:TT_CB_O data:nil line:line column:column charsRead:charsRead];
                     case '}':
-                        return [token setType:TT_CB_C data:nil line:line column:column];
+                        return [token setType:TT_CB_C data:nil line:line column:column charsRead:charsRead];
                     case '(':
-                        return [token setType:TT_B_O data:nil line:line column:column];
+                        return [token setType:TT_B_O data:nil line:line column:column charsRead:charsRead];
                     case ')':
-                        return [token setType:TT_B_C data:nil line:line column:column];
+                        return [token setType:TT_B_C data:nil line:line column:column charsRead:charsRead];
                     case '"':
                         state = TS_Q_STR;
                         string = [[NSMutableString alloc] init];
@@ -130,7 +132,7 @@
             case TS_Q_STR:
                 switch (c) {
                     case '"': {
-                        [token setType:TT_STR data:string line:startLine column:startColumn];
+                        [token setType:TT_STR data:string line:startLine column:startColumn charsRead:charsRead];
                         [string release];
                         string = nil;
                         state = TS_DEF;
@@ -155,7 +157,7 @@
                     case '\n':
                     case '\t':
                     case ' ': {
-                        [token setType:TT_STR data:string line:startLine column:startColumn];
+                        [token setType:TT_STR data:string line:startLine column:startColumn charsRead:charsRead];
                         [string release];
                         string = nil;
                         state = comment ? TS_COM : TS_DEF;
@@ -190,13 +192,13 @@
                             [string release];
                             string = nil;
                             state = comment ? TS_COM : TS_DEF;
-                            return [token setType:TT_DEC data:number line:startLine column:startColumn];
+                            return [token setType:TT_DEC data:number line:startLine column:startColumn charsRead:charsRead];
                         } else {
                             number = [NSNumber numberWithFloat:[string floatValue]];
                             [string release];
                             string = nil;
                             state = comment ? TS_COM : TS_DEF;
-                            return [token setType:TT_FRAC data:number line:startLine column:startColumn];
+                            return [token setType:TT_FRAC data:number line:startLine column:startColumn charsRead:charsRead];
                         }
                         break;
                     }
@@ -213,7 +215,7 @@
                 switch (c) {
                     case '\r':
                     case '\n':
-                        [token setType:TT_COM data:string line:startLine column:startColumn];
+                        [token setType:TT_COM data:string line:startLine column:startColumn charsRead:charsRead];
                         [string release];
                         string = nil;
                         state = TS_DEF;

@@ -12,6 +12,18 @@
 #import "Vector3i.h"
 #import "Brush.h"
 
+NSString* const EntityBrushAdded            = @"EntityBrushAdded";
+NSString* const EntityBrushRemoved          = @"EntityBrushRemoved";
+NSString* const EntityBrushChanged          = @"EntityBrushChanged";
+NSString* const EntityBrushKey              = @"EntityBrushKey";
+NSString* const EntityPropertyAdded         = @"EntityPropertyAdded";
+NSString* const EntityPropertyRemoved       = @"EntityPropertyRemoved";
+NSString* const EntityPropertyChanged       = @"EntityPropertyChanged";
+NSString* const EntityPropertyKeyKey        = @"EntityPropertyKeyKey";
+NSString* const EntityPropertyValueKey      = @"EntityPropertyValueKey";
+NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
+
+
 @implementation Entity
 
 - (id)init {
@@ -43,10 +55,23 @@
 	return self;
 }
 
+- (void)brushChanged:(NSNotification *)notification {
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:EntityBrushChanged object:self userInfo:[NSDictionary dictionaryWithObject:[notification object] forKey:EntityBrushKey]];
+}
+
 - (Brush *)createBrush {
     Brush* brush = [[Brush alloc] initInEntity:self];
     [brushes addObject:brush];
     [brushIndices setObject:[NSNumber numberWithInt:[brushes count] - 1] forKey:[brush brushId]];
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center addObserver:self selector:@selector(brushChanged:) name:BrushFaceAdded object:brush];
+    [center addObserver:self selector:@selector(brushChanged:) name:BrushFaceRemoved object:brush];
+    [center addObserver:self selector:@selector(brushChanged:) name:BrushFaceGeometryChanged object:brush];
+    
+    if ([self postNotifications])
+        [center postNotificationName:EntityBrushAdded object:self userInfo:[NSDictionary dictionaryWithObject:brush forKey:EntityBrushKey]];
     
     return [brush autorelease];
 }
@@ -59,8 +84,17 @@
     if (index == nil)
         [NSException raise:NSInvalidArgumentException format:@"Entity %@ does not contain brush %@", self, brush];
     
+    NSDictionary* userInfo = [NSDictionary dictionaryWithObject:brush forKey:EntityBrushKey];
     [brushes removeObjectAtIndex:[index intValue]];
     [brushIndices removeObjectForKey:[brush brushId]];
+
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center removeObserver:self name:BrushFaceAdded object:brush];
+    [center removeObserver:self name:BrushFaceRemoved object:brush];
+    [center removeObserver:self name:BrushFaceGeometryChanged object:brush];
+    
+    if ([self postNotifications])
+        [center postNotificationName:EntityBrushRemoved object:self userInfo:userInfo];
 }
 
 - (Map *)map {
@@ -76,13 +110,27 @@
 }
 
 - (void)setProperty:(NSString *)key value:(NSString *)value {
-    NSString *oldValue = [self propertyForKey:key];
+    NSString* oldValue = [self propertyForKey:key];
     BOOL exists = oldValue != nil;
     
     if (exists && [oldValue isEqualToString:value])
         return;
     
     [properties setObject:value forKey:key];
+
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+        [userInfo setObject:key forKey:EntityPropertyKeyKey];
+        [userInfo setObject:value forKey:EntityPropertyValueKey];
+    
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        if (exists) {
+            [userInfo setObject:oldValue forKey:EntityPropertyOldValueKey];
+            [center postNotificationName:EntityPropertyChanged object:self userInfo:userInfo];
+        } else {
+            [center postNotificationName:EntityPropertyAdded object:self userInfo:userInfo];
+        }
+    }
 }
 
 - (void)removeProperty:(NSString *)key {
@@ -91,6 +139,15 @@
         return;
     
     [properties removeObjectForKey:key];
+
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+        [userInfo setObject:key forKey:EntityPropertyKeyKey];
+        [userInfo setObject:oldValue forKey:EntityPropertyValueKey];
+
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:EntityPropertyAdded object:self userInfo:userInfo];
+    }
 }
 
 - (NSString *)propertyForKey:(NSString *)key {
@@ -109,7 +166,12 @@
     return [[self classname] isEqualToString:@"worldspawn"];
 }
 
+- (BOOL)postNotifications {
+    return [map postNotifications];
+}
+
 - (void) dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 	[properties release];
 	[brushes release];
     [brushIndices release];

@@ -186,6 +186,24 @@ static NSString* dummy = @"dummy";
     return self;
 }
 
+- (id)initWithFaces:(NSArray *)faces droppedFaces:(NSMutableArray **)droppedFaces {
+    if (faces == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face array must not be nil"];
+
+    if (self = [self init]) {
+        NSEnumerator* faceEn = [faces objectEnumerator];
+        Face* face;
+        while ((face = [faceEn nextObject])) {
+            if (![self cutWithFace:face droppedFaces:droppedFaces]) {
+                [self release];
+                return nil;
+            }
+        }
+    }
+    
+    return self;
+}
+
 - (BOOL)cutWithFace:(Face *)face droppedFaces:(NSMutableArray **)droppedFaces {
     HalfSpace3D* halfSpace = [face halfSpace];
     
@@ -228,7 +246,9 @@ static NSString* dummy = @"dummy";
     }
     
     // mark, split and drop sides
-    *droppedFaces = [NSMutableArray array];
+    if (*droppedFaces == nil)
+        *droppedFaces = [NSMutableArray array];
+    
     NSMutableArray* newEdges = [[NSMutableArray alloc] init];
     for (int i = 0; i < [sides count]; i++) {
         Side* side = [sides objectAtIndex:i];

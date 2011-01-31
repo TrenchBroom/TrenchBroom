@@ -35,6 +35,7 @@ typedef enum {
     int column;
     int startLine;
     int startColumn;
+    int charsRead;
 }
 
 - (id)initWithInputStream:(NSInputStream *)aStream;

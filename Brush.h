@@ -8,6 +8,12 @@
 
 #import <Cocoa/Cocoa.h>
 
+extern NSString* const BrushFaceAdded;
+extern NSString* const BrushFaceRemoved;
+extern NSString* const BrushFaceGeometryChanged;
+extern NSString* const BrushFacePropertiesChanged;
+extern NSString* const BrushFaceKey;
+
 @class Entity;
 @class Vector3i;
 @class Face;
@@ -40,4 +46,6 @@
 - (float *)flatColor;
 - (BoundingBox *)bounds;
 - (PickingHit *)pickFace:(Ray3D *)theRay;
+
+- (BOOL)postNotifications;
 @end

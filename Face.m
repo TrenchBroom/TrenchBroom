@@ -15,6 +15,9 @@
 #import "math.h"
 #import "Brush.h"
 
+NSString* const FacePropertiesChanged   = @"FacePropertiesChanged";
+NSString* const FaceGeometryChanged     = @"FaceGeometryChanged";
+
 @implementation Face
 
 - (id)init {
@@ -110,79 +113,160 @@
     if (point == nil)
         [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
 
+    if ([point1 isEqualToVector:point])
+        return;
+    
     [point1 set:point];
+
     [norm release];
     norm = nil;
+    
+    [halfSpace release];
+    halfSpace = nil;
+    
+    [texAxisX release];
+    texAxisX = nil;
+    [texAxisY release];
+    texAxisY = nil;
+
+    if ([self postNotifications])
+        [[NSNotificationCenter defaultCenter] postNotificationName:FaceGeometryChanged object:self];
 }
 
 - (void)setPoint2:(Vector3i *)point {
     if (point == nil)
         [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
 
+    if ([point2 isEqualToVector:point])
+        return;
+    
     [point2 set:point];
+
     [norm release];
     norm = nil;
+    
+    [halfSpace release];
+    halfSpace = nil;
+    
+    [texAxisX release];
+    texAxisX = nil;
+    [texAxisY release];
+    texAxisY = nil;
+
+    if ([self postNotifications])
+        [[NSNotificationCenter defaultCenter] postNotificationName:FaceGeometryChanged object:self];
 }
 
 - (void)setPoint3:(Vector3i *)point {
     if (point == nil)
         [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
 
+    if ([point3 isEqualToVector:point])
+        return;
+    
     [point3 set:point];
+
     [norm release];
     norm = nil;
+    
+    [halfSpace release];
+    halfSpace = nil;
+    
+    [texAxisX release];
+    texAxisX = nil;
+    [texAxisY release];
+    texAxisY = nil;
+
+    if ([self postNotifications])
+        [[NSNotificationCenter defaultCenter] postNotificationName:FaceGeometryChanged object:self];
 }
 
 - (void)setTexture:(NSString *)name {
     if (name == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture name must not be nil"];
+
+    if ([texture isEqualTo:name])
+        return;
     
     [texture setString:name];
+    
+    if ([self postNotifications])
+        [[NSNotificationCenter defaultCenter] postNotificationName:FacePropertiesChanged object:self];
 }
 
 - (void)setXOffset:(int)offset {
+    if (xOffset == offset)
+        return;
+    
 	xOffset = offset;
 
     [texAxisX release];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
+    
+    if ([self postNotifications])
+        [[NSNotificationCenter defaultCenter] postNotificationName:FacePropertiesChanged object:self];
 }
 
 - (void)setYOffset:(int)offset {
+    if (yOffset == offset)
+        return;
+    
 	yOffset = offset;
     
     [texAxisX release];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
+    
+    if ([self postNotifications])
+        [[NSNotificationCenter defaultCenter] postNotificationName:FacePropertiesChanged object:self];
 }
 
 - (void)setRotation:(float)angle {
+    if (rotation == angle)
+        return;
+    
 	rotation = angle;
     
     [texAxisX release];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
+    
+    if ([self postNotifications])
+        [[NSNotificationCenter defaultCenter] postNotificationName:FacePropertiesChanged object:self];
 }
 
 - (void)setXScale:(float)factor {
+    if (xScale == factor)
+        return;
+    
 	xScale = factor;
     
     [texAxisX release];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
+    
+    if ([self postNotifications])
+        [[NSNotificationCenter defaultCenter] postNotificationName:FacePropertiesChanged object:self];
 }
 
 - (void)setYScale:(float)factor {
+    if (yScale == factor)
+        return;
+    
 	yScale = factor;
     
     [texAxisX release];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
+    
+    if ([self postNotifications])
+        [[NSNotificationCenter defaultCenter] postNotificationName:FacePropertiesChanged object:self];
 }
 
 - (HalfSpace3D *)halfSpace {
@@ -273,6 +357,10 @@
             rotation, 
             xScale, 
             yScale];
+}
+
+- (BOOL)postNotifications {
+    return [brush postNotifications];
 }
 
 - (void) dealloc {
