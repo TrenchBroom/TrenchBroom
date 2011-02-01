@@ -9,6 +9,12 @@
 #import <Cocoa/Cocoa.h>
 #import "RenderContext.h"
 
+typedef enum {
+    RM_TEXTURED,
+    RM_FLAT,
+    RM_WIREFRAME
+} ERenderMode;
+
 @class Camera;
 @class RenderMap;
 @class TextureManager;
@@ -20,11 +26,10 @@
     Camera* camera;
     RenderMap* renderMap;
     VBOBuffer* faceVBO;
-    VBOBuffer* edgeVBO;
     TextureManager* textureManager;
     SelectionManager* selectionManager;
 }
 
-- (id)initWithRenderMap:(RenderMap *)theRenderMap camera:(Camera *)theCamera textureManager:(TextureManager *)theTextureManager faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO selectionManager:(SelectionManager *)theSelectionManager;
+- (id)initWithRenderMap:(RenderMap *)theRenderMap camera:(Camera *)theCamera textureManager:(TextureManager *)theTextureManager faceVBO:(VBOBuffer *)theFaceVBO selectionManager:(SelectionManager *)theSelectionManager;
 
 @end

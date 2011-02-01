@@ -29,7 +29,6 @@
     TextureManager* textureManager;
     InputManager* inputManager;
     VBOBuffer* faceVBO;
-    VBOBuffer* edgeVBO;
     Octree* octree;
     Picker* picker;
     SelectionManager* selectionManager;

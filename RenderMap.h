@@ -14,11 +14,10 @@
 @interface RenderMap : NSObject {
     Map* map;
     VBOBuffer* faceVBO;
-    VBOBuffer* edgeVBO;
     NSMutableDictionary* renderEntities;
 }
 
-- (id)initWithMap:(Map *)theMap faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO;
+- (id)initWithMap:(Map *)theMap faceVBO:(VBOBuffer *)theFaceVBO;
 
 - (NSArray *)renderEntities;
 

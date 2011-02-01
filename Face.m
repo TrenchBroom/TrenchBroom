@@ -15,9 +15,6 @@
 #import "math.h"
 #import "Brush.h"
 
-NSString* const FacePropertiesChanged   = @"FacePropertiesChanged";
-NSString* const FaceGeometryChanged     = @"FaceGeometryChanged";
-
 @implementation Face
 
 - (id)init {
@@ -35,9 +32,7 @@ NSString* const FaceGeometryChanged     = @"FaceGeometryChanged";
 - (id)initInBrush:(Brush *)theBrush point1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture {
     if (self = [self init]) {
         brush = theBrush; // do not retain
-        [self setPoint1:aPoint1];
-        [self setPoint2:aPoint2];
-        [self setPoint3:aPoint3];
+        [self setPoint1:aPoint1 point2:aPoint2 point3:aPoint3];
         [self setTexture:aTexture];
         [self setXScale:1];
         [self setYScale:1];
@@ -109,15 +104,19 @@ NSString* const FaceGeometryChanged     = @"FaceGeometryChanged";
     return norm;
 }
 
-- (void)setPoint1:(Vector3i *)point{
-    if (point == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
+- (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3{
+    if (thePoint1 == nil)
+        [NSException raise:NSInvalidArgumentException format:@"point 1 must not be nil"];
+    if (thePoint2 == nil)
+        [NSException raise:NSInvalidArgumentException format:@"point 2 must not be nil"];
+    if (thePoint3 == nil)
+        [NSException raise:NSInvalidArgumentException format:@"point 3 must not be nil"];
 
-    if ([point1 isEqualToVector:point])
+    if ([point1 isEqualToVector:thePoint1] &&
+        [point2 isEqualToVector:thePoint2] &&
+        [point3 isEqualToVector:thePoint3])
         return;
     
-    [point1 set:point];
-
     [norm release];
     norm = nil;
     
@@ -128,57 +127,12 @@ NSString* const FaceGeometryChanged     = @"FaceGeometryChanged";
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
-
-    if ([self postNotifications])
-        [[NSNotificationCenter defaultCenter] postNotificationName:FaceGeometryChanged object:self];
-}
-
-- (void)setPoint2:(Vector3i *)point {
-    if (point == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
-
-    if ([point2 isEqualToVector:point])
-        return;
     
-    [point2 set:point];
-
-    [norm release];
-    norm = nil;
+    [point1 set:thePoint1];
+    [point2 set:thePoint2];
+    [point3 set:thePoint3];
     
-    [halfSpace release];
-    halfSpace = nil;
-    
-    [texAxisX release];
-    texAxisX = nil;
-    [texAxisY release];
-    texAxisY = nil;
-
-    if ([self postNotifications])
-        [[NSNotificationCenter defaultCenter] postNotificationName:FaceGeometryChanged object:self];
-}
-
-- (void)setPoint3:(Vector3i *)point {
-    if (point == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
-
-    if ([point3 isEqualToVector:point])
-        return;
-    
-    [point3 set:point];
-
-    [norm release];
-    norm = nil;
-    
-    [halfSpace release];
-    halfSpace = nil;
-    
-    [texAxisX release];
-    texAxisX = nil;
-    [texAxisY release];
-    texAxisY = nil;
-
-    if ([self postNotifications])
-        [[NSNotificationCenter defaultCenter] postNotificationName:FaceGeometryChanged object:self];
+    [brush faceGeometryChanged:self];
 }
 
 - (void)setTexture:(NSString *)name {
@@ -189,9 +143,7 @@ NSString* const FaceGeometryChanged     = @"FaceGeometryChanged";
         return;
     
     [texture setString:name];
-    
-    if ([self postNotifications])
-        [[NSNotificationCenter defaultCenter] postNotificationName:FacePropertiesChanged object:self];
+    [brush faceFlagsChanged:self];
 }
 
 - (void)setXOffset:(int)offset {
@@ -205,8 +157,7 @@ NSString* const FaceGeometryChanged     = @"FaceGeometryChanged";
     [texAxisY release];
     texAxisY = nil;
     
-    if ([self postNotifications])
-        [[NSNotificationCenter defaultCenter] postNotificationName:FacePropertiesChanged object:self];
+    [brush faceFlagsChanged:self];
 }
 
 - (void)setYOffset:(int)offset {
@@ -220,8 +171,7 @@ NSString* const FaceGeometryChanged     = @"FaceGeometryChanged";
     [texAxisY release];
     texAxisY = nil;
     
-    if ([self postNotifications])
-        [[NSNotificationCenter defaultCenter] postNotificationName:FacePropertiesChanged object:self];
+    [brush faceFlagsChanged:self];
 }
 
 - (void)setRotation:(float)angle {
@@ -235,8 +185,7 @@ NSString* const FaceGeometryChanged     = @"FaceGeometryChanged";
     [texAxisY release];
     texAxisY = nil;
     
-    if ([self postNotifications])
-        [[NSNotificationCenter defaultCenter] postNotificationName:FacePropertiesChanged object:self];
+    [brush faceFlagsChanged:self];
 }
 
 - (void)setXScale:(float)factor {
@@ -250,8 +199,7 @@ NSString* const FaceGeometryChanged     = @"FaceGeometryChanged";
     [texAxisY release];
     texAxisY = nil;
     
-    if ([self postNotifications])
-        [[NSNotificationCenter defaultCenter] postNotificationName:FacePropertiesChanged object:self];
+    [brush faceFlagsChanged:self];
 }
 
 - (void)setYScale:(float)factor {
@@ -265,8 +213,7 @@ NSString* const FaceGeometryChanged     = @"FaceGeometryChanged";
     [texAxisY release];
     texAxisY = nil;
     
-    if ([self postNotifications])
-        [[NSNotificationCenter defaultCenter] postNotificationName:FacePropertiesChanged object:self];
+    [brush faceFlagsChanged:self];
 }
 
 - (HalfSpace3D *)halfSpace {
@@ -357,10 +304,6 @@ NSString* const FaceGeometryChanged     = @"FaceGeometryChanged";
             rotation, 
             xScale, 
             yScale];
-}
-
-- (BOOL)postNotifications {
-    return [brush postNotifications];
 }
 
 - (void) dealloc {

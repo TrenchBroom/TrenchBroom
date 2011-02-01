@@ -8,9 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-extern NSString* const FacePropertiesChanged;
-extern NSString* const FaceGeometryChanged;
-
 typedef enum {
     XY, XZ, YZ
 } EPlaneType;
@@ -62,9 +59,7 @@ typedef enum {
 
 - (Vector3f *)norm;
 
-- (void)setPoint1:(Vector3i *)point;
-- (void)setPoint2:(Vector3i *)point;
-- (void)setPoint3:(Vector3i *)point;
+- (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3;
 
 - (void)setTexture:(NSString *)name;
 - (void)setXOffset:(int)offset;
@@ -76,6 +71,4 @@ typedef enum {
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex;
 
 - (HalfSpace3D *)halfSpace;
-
-- (BOOL)postNotifications;
 @end

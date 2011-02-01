@@ -28,18 +28,15 @@
     return self;
 }
 
-- (id)initWithBrush:(Brush *)theBrush faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO {
+- (id)initWithBrush:(Brush *)theBrush faceVBO:(VBOBuffer *)theFaceVBO {
     if (theBrush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
     if (theFaceVBO == nil)
         [NSException raise:NSInvalidArgumentException format:@"face VBO buffer must not be nil"];
-    if (theEdgeVBO == nil)
-        [NSException raise:NSInvalidArgumentException format:@"edge VBO buffer must not be nil"];
     
     if (self = [self init]) {
         brush = [theBrush retain];
         faceVBO = [theFaceVBO retain];
-        edgeVBO = [theEdgeVBO retain];
         
         int vertexCount = 0;
         NSEnumerator* faceEn = [[brush faces] objectEnumerator];
@@ -48,7 +45,6 @@
             vertexCount += [[brush verticesForFace:face] count];
         
         faceBlock = [[faceVBO allocMemBlock:5 * sizeof(float) * vertexCount] retain];
-        edgeBlock = [[edgeVBO allocMemBlock:3 * sizeof(float) * 2 * [brush edgeCount]] retain];
     }
     
     return self;
@@ -95,24 +91,6 @@
     }
 }
 
-- (void)prepareWireframe {
-    if ([edgeBlock state] == BS_USED_INVALID) {
-        NSArray* vertices = [brush verticesForWireframe];
-        int offset = 0;
-        int vertexSize = 3 * sizeof(float);
-        
-        NSEnumerator* vertexEn = [vertices objectEnumerator];
-        Vector3f* vertex;
-        while ((vertex = [vertexEn nextObject]))
-            offset = [edgeBlock writeVector3f:vertex offset:offset];
-        
-        wireframeCount = [vertices count];
-        wireframeIndex = [edgeBlock address] / vertexSize;
-
-        [edgeBlock setState:BS_USED_VALID];
-    }
-}
-
 - (void)indexForFace:(Face *)face indexBuffer:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer {
     VBOArrayEntry* entry = [faceEntries objectForKey:[face faceId]];
     if (entry != nil) {
@@ -121,18 +99,11 @@
     }
 }
 
-- (void)wireFrameIndices:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer {
-    [theIndexBuffer appendInt:wireframeIndex];
-    [theCountBuffer appendInt:wireframeCount];
-}
-
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [faceEntries release];
     [faceBlock release];
-    [edgeBlock release];
     [faceVBO release];
-    [edgeVBO release];
     [brush release];
     [super dealloc];
 }

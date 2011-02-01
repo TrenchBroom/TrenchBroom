@@ -21,7 +21,7 @@
 NSString* const BrushFaceAdded              = @"BrushFaceAdded";
 NSString* const BrushFaceRemoved            = @"BrushFaceRemoved";
 NSString* const BrushFaceGeometryChanged    = @"BrushFaceGeometryChanged";
-NSString* const BrushFacePropertiesChanged  = @"BrushFacePropertiesChanged";
+NSString* const BrushFaceFlagsChanged       = @"BrushFaceFlagsChanged";
 NSString* const BrushFaceKey                = @"BrushFace";
 
 @implementation Brush
@@ -81,21 +81,19 @@ NSString* const BrushFaceKey                = @"BrushFace";
         }
     }
 
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center addObserver:self selector:@selector(faceGeometryChanged:) name:FaceGeometryChanged object:face];
-    [center addObserver:self selector:@selector(facePropertiesChanged:) name:FacePropertiesChanged object:face];
-    
     [faces addObject:face];
 
-    if ([self postNotifications])
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:BrushFaceAdded
                               object:self 
                             userInfo:[NSDictionary dictionaryWithObject:face forKey:BrushFaceKey]];
+    }
     
     return [face autorelease];
 }
 
-- (void)faceGeometryChanged:(NSNotification *)notification {
+- (void)faceGeometryChanged:(Face *)theFace {
     [vertexData release];
     vertexData = nil;
     
@@ -103,16 +101,16 @@ NSString* const BrushFaceKey                = @"BrushFace";
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:BrushFaceGeometryChanged 
                               object:self 
-                            userInfo:[NSDictionary dictionaryWithObject:[notification object] forKey:BrushFaceKey]];
+                            userInfo:[NSDictionary dictionaryWithObject:theFace forKey:BrushFaceKey]];
     }
 }
 
-- (void)facePropertiesChanged:(NSNotification *)notification {
+- (void)faceFlagsChanged:(Face *)theFace {
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushFacePropertiesChanged 
+        [center postNotificationName:BrushFaceFlagsChanged 
                               object:self 
-                            userInfo:[NSDictionary dictionaryWithObject:[notification object] forKey:BrushFaceKey]];
+                            userInfo:[NSDictionary dictionaryWithObject:theFace forKey:BrushFaceKey]];
     }
 }
 

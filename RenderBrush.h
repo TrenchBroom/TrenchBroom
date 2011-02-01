@@ -20,21 +20,14 @@
     @private
     Brush* brush;
     VBOBuffer* faceVBO;
-    VBOBuffer* edgeVBO;
     VBOMemBlock* faceBlock;
-    VBOMemBlock* edgeBlock;
     NSMutableDictionary* faceEntries;
-    int wireframeCount;
-    int wireframeIndex;
 }
 
-- (id)initWithBrush:(Brush *)theBrush faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO;
+- (id)initWithBrush:(Brush *)theBrush faceVBO:(VBOBuffer *)theFaceVBO;
 
 - (Brush *)brush;
 
 - (void)prepareFacesWithTextureManager:(TextureManager *)theTextureManager;
-- (void)prepareWireframe;
-
 - (void)indexForFace:(Face *)face indexBuffer:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer;
-- (void)wireFrameIndices:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer;
 @end

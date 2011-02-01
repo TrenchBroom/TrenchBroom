@@ -15,10 +15,9 @@
     Entity* entity;
     NSMutableDictionary* renderBrushes;
     VBOBuffer* faceVBO;
-    VBOBuffer* edgeVBO;
 }
 
-- (id)initWithEntity:(Entity *)theEntity faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO;
+- (id)initWithEntity:(Entity *)theEntity faceVBO:(VBOBuffer *)theFaceVBO;
 
 - (NSArray *)renderBrushes;
 @end

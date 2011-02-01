@@ -11,7 +11,7 @@
 extern NSString* const BrushFaceAdded;
 extern NSString* const BrushFaceRemoved;
 extern NSString* const BrushFaceGeometryChanged;
-extern NSString* const BrushFacePropertiesChanged;
+extern NSString* const BrushFaceFlagsChanged;
 extern NSString* const BrushFaceKey;
 
 @class Entity;
@@ -48,4 +48,6 @@ extern NSString* const BrushFaceKey;
 - (PickingHit *)pickFace:(Ray3D *)theRay;
 
 - (BOOL)postNotifications;
+- (void)faceGeometryChanged:(Face *)theFace;
+- (void)faceFlagsChanged:(Face *)theFace;
 @end

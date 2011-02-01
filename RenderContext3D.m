@@ -26,7 +26,7 @@
 
 @implementation RenderContext3D
 
-- (id)initWithRenderMap:(RenderMap *)theRenderMap camera:(Camera *)theCamera textureManager:(TextureManager *)theTextureManager faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO selectionManager:(SelectionManager *)theSelectionManager {
+- (id)initWithRenderMap:(RenderMap *)theRenderMap camera:(Camera *)theCamera textureManager:(TextureManager *)theTextureManager faceVBO:(VBOBuffer *)theFaceVBO selectionManager:(SelectionManager *)theSelectionManager {
     if (theRenderMap == nil)
         [NSException raise:NSInvalidArgumentException format:@"render map must not be nil"];
     if (theCamera == nil)
@@ -35,8 +35,6 @@
         [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
     if (theFaceVBO == nil)
         [NSException raise:NSInvalidArgumentException format:@"face VBO buffer manager must not be nil"];
-    if (theEdgeVBO == nil)
-        [NSException raise:NSInvalidArgumentException format:@"edge VBO buffer manager must not be nil"];
     if (theSelectionManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"selection manager must not be nil"];
     
@@ -45,7 +43,6 @@
         camera = [theCamera retain];
         textureManager = [theTextureManager retain];
         faceVBO = [theFaceVBO retain];
-        edgeVBO = [theEdgeVBO retain];
         selectionManager = [theSelectionManager retain];
     }
     
@@ -57,12 +54,14 @@
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.0, 1.0);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glShadeModel(GL_FLAT);
+    [faceVBO activate];
 }
 
 - (void)prepareFaces {
-    [faceVBO activate];
     [faceVBO mapBuffer];
 
     NSEnumerator* renderEntityEn = [[renderMap renderEntities] objectEnumerator];
@@ -75,27 +74,9 @@
     }
 
     [faceVBO unmapBuffer];
-    [faceVBO deactivate];
 }
 
-- (void)prepareWireframe {
-    [edgeVBO activate];
-    [edgeVBO mapBuffer];
-    
-    NSEnumerator* renderEntityEn = [[renderMap renderEntities] objectEnumerator];
-    RenderEntity* renderEntity;
-    while ((renderEntity = [renderEntityEn nextObject])) {
-        NSEnumerator* renderBrushEn = [[renderEntity renderBrushes] objectEnumerator];
-        RenderBrush* renderBrush;
-        while ((renderBrush = [renderBrushEn nextObject]))
-            [renderBrush prepareWireframe];
-    }
-    
-    [edgeVBO unmapBuffer];
-    [edgeVBO deactivate];
-}
-
-- (void)renderPolygonsWithIndexBuffers:(NSMutableDictionary *)indexBuffers countBuffers:(NSMutableDictionary *)countBuffers {
+- (void)renderTexturedPolygonsWithIndexBuffers:(NSMutableDictionary *)indexBuffers countBuffers:(NSMutableDictionary *)countBuffers {
     NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
     NSString* textureName;
     while ((textureName = [textureNameEn nextObject])) {
@@ -114,13 +95,23 @@
     }
 }
 
-- (void)renderFaces {
-    glEnable(GL_TEXTURE_2D);
-    glPolygonMode(GL_FRONT, GL_FILL);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1.0, 1.0);
-    
-    [faceVBO activate];
+- (void)renderWireframePolygonsWithIndexBuffers:(NSMutableDictionary *)indexBuffers countBuffers:(NSMutableDictionary *)countBuffers {
+    NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
+    NSString* textureName;
+    while ((textureName = [textureNameEn nextObject])) {
+        IntData* indexBuffer = [indexBuffers objectForKey:textureName];
+        IntData* countBuffer = [countBuffers objectForKey:textureName];
+        
+        const void* indexBytes = [indexBuffer bytes];
+        const void* countBytes = [countBuffer bytes];
+        int primCount = [indexBuffer count];
+
+        glVertexPointer(3, GL_FLOAT, 20, 8);
+        glMultiDrawArrays(GL_POLYGON, indexBytes, countBytes, primCount);
+    }
+}
+
+- (void)renderFacesInMode:(ERenderMode)mode {
 
     // map texture names to index and count buffers for efficient texture rendering
     NSMutableDictionary* indexBuffers = [[NSMutableDictionary alloc] init];
@@ -173,92 +164,55 @@
         }
     }
     
-    glColor4f(0.7, 0.7, 0.7, 1);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    [self renderPolygonsWithIndexBuffers:indexBuffers countBuffers:countBuffers];
+    switch (mode) {
+        case RM_TEXTURED:
+            glEnable(GL_TEXTURE_2D);
+            glPolygonMode(GL_FRONT, GL_FILL);
+
+            glColor4f(0.7, 0.7, 0.7, 1);
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+            [self renderTexturedPolygonsWithIndexBuffers:indexBuffers countBuffers:countBuffers];
+
+            glColor4f(1, 0, 0, 1);
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+            [self renderTexturedPolygonsWithIndexBuffers:selIndexBuffers countBuffers:selCountBuffers];
+            break;
+        case RM_FLAT:
+            break;
+        case RM_WIREFRAME:
+            glDisable(GL_TEXTURE_2D);
+            glPolygonMode(GL_FRONT, GL_LINE);
+
+            glColor4f(1, 1, 1, 0.5);
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+            [self renderWireframePolygonsWithIndexBuffers:indexBuffers countBuffers:countBuffers];
+            
+            glDisable(GL_DEPTH_TEST);
+            glColor4f(1, 0, 0, 1);
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+            [self renderWireframePolygonsWithIndexBuffers:selIndexBuffers countBuffers:selCountBuffers];
+            glEnable(GL_DEPTH_TEST);
+            break;
+    }
+    
     
     [indexBuffers release];
     [countBuffers release];
     
-    glColor4f(1, 0, 0, 1);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    [self renderPolygonsWithIndexBuffers:selIndexBuffers countBuffers:selCountBuffers];
-    
     [selIndexBuffers release];
     [selCountBuffers release];
-
-    [faceVBO deactivate];
-    glDisable(GL_POLYGON_OFFSET_FILL);
-}
-
-- (void)renderWireframeWithIndexBuffer:(IntData *)indexBuffer countBuffer:(IntData *)countBuffer {
-    [edgeVBO activate];
-
-    const void* indexBytes = [indexBuffer bytes];
-    const void* countBytes = [countBuffer bytes];
-        
-    glVertexPointer(3, GL_FLOAT, 0, 0);
-    glMultiDrawArrays(GL_LINES, indexBytes, countBytes, [indexBuffer count]);
-
-    [edgeVBO deactivate];
-}
-
-- (void)renderWireframe {
-    glDisable(GL_TEXTURE_2D);
-    
-    IntData* indexBuffer = [[IntData alloc] init];
-    IntData* countBuffer = [[IntData alloc] init];
-    
-    IntData* selIndexBuffer = [[IntData alloc] init];
-    IntData* selCountBuffer = [[IntData alloc] init];
-    
-    NSEnumerator* renderEntityEn = [[renderMap renderEntities] objectEnumerator];
-    RenderEntity* renderEntity;
-    while ((renderEntity = [renderEntityEn nextObject])) {
-        NSEnumerator* renderBrushEn = [[renderEntity renderBrushes] objectEnumerator];
-        RenderBrush* renderBrush;
-        while ((renderBrush = [renderBrushEn nextObject])) {
-            IntData* currentIndexBuffer;
-            IntData* currentCountBuffer;
-            if ([selectionManager isBrushSelected:[renderBrush brush]]) {
-                currentIndexBuffer = selIndexBuffer;
-                currentCountBuffer = selCountBuffer;
-            } else {
-                currentIndexBuffer = indexBuffer;
-                currentCountBuffer = countBuffer;
-            }
-            
-            [renderBrush wireFrameIndices:currentIndexBuffer countBuffer:currentCountBuffer];
-        }
-    }
-    
-    glColor4f(1, 1, 1, 0.4);
-    [self renderWireframeWithIndexBuffer:indexBuffer countBuffer:countBuffer];
-    
-    [indexBuffer release];
-    [countBuffer release];
-    
-    glDisable(GL_DEPTH_TEST);
-    glColor4f(1, 0, 0, 0.4);
-    [self renderWireframeWithIndexBuffer:selIndexBuffer countBuffer:selCountBuffer];
-    glEnable(GL_DEPTH_TEST);
-    
-    [selIndexBuffer release];
-    [selCountBuffer release];
 }
 
 - (void)postRender {
-    
+    [faceVBO deactivate];
 }
 
 - (void)render {
     [self preRender];
-
     [self prepareFaces];
-    [self prepareWireframe];
-    
-    [self renderFaces];
-    [self renderWireframe];
+
+    [self renderFacesInMode:RM_TEXTURED];
+    [self renderFacesInMode:RM_WIREFRAME];
     
     [self postRender];
 }
@@ -297,7 +251,6 @@
     [renderMap release];
     [selectionManager release];
     [faceVBO release];
-    [edgeVBO release];
     [textureManager release];
     [super dealloc];
 }

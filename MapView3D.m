@@ -68,7 +68,7 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 	glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    RenderContext3D* renderContext = [[RenderContext3D alloc] initWithRenderMap:renderMap camera:camera textureManager:textureManager faceVBO:faceVBO edgeVBO:edgeVBO selectionManager:selectionManager];
+    RenderContext3D* renderContext = [[RenderContext3D alloc] initWithRenderMap:renderMap camera:camera textureManager:textureManager faceVBO:faceVBO selectionManager:selectionManager];
     [renderContext updateView:bounds];
     [renderContext render];
     [renderContext release];
@@ -123,14 +123,6 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     faceVBO = [theFaceVBO retain];
 }
 
-- (void)setEdgeVBO:(VBOBuffer *)theEdgeVBO {
-    if (theEdgeVBO == nil)
-        [NSException raise:NSInvalidArgumentException format:@"edge VBO buffer must not be nil"];
-    
-    [edgeVBO release];
-    edgeVBO = [theEdgeVBO retain];
-}
-
 - (void)setTextureManager:(TextureManager *)theTextureManager {
     if (theTextureManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
@@ -172,7 +164,6 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [renderMap release];
     [faceVBO release];
-    [edgeVBO release];
     [camera release];
     [textureManager release];
     [inputManager release];

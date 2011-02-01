@@ -22,25 +22,22 @@
     return self;
 }
 
-- (id)initWithEntity:(Entity *)theEntity faceVBO:(VBOBuffer *)theFaceVBO edgeVBO:(VBOBuffer *)theEdgeVBO {
+- (id)initWithEntity:(Entity *)theEntity faceVBO:(VBOBuffer *)theFaceVBO {
     if (theEntity == nil)
         [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
     if (theFaceVBO == nil)
         [NSException raise:NSInvalidArgumentException format:@"face VBO buffer must not be nil"];
-    if (theEdgeVBO == nil)
-        [NSException raise:NSInvalidArgumentException format:@"edge VBO buffer must not be nil"];
 
     if (self = [self init]) {
         entity = [theEntity retain];
         faceVBO = [theFaceVBO retain];
-        edgeVBO = [theEdgeVBO retain];
         
         NSArray* brushes = [entity brushes];
         NSEnumerator* brushEn = [brushes objectEnumerator];
         Brush* brush;
         
         while ((brush = [brushEn nextObject])) {
-            RenderBrush* renderBrush = [[RenderBrush alloc] initWithBrush:brush faceVBO:faceVBO edgeVBO:edgeVBO];
+            RenderBrush* renderBrush = [[RenderBrush alloc] initWithBrush:brush faceVBO:faceVBO];
             [renderBrushes setObject:renderBrush forKey:[brush brushId]];
             [renderBrush release];
         }
@@ -56,7 +53,6 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [faceVBO release];
-    [edgeVBO release];
     [renderBrushes release];
     [entity release];
     [super dealloc];
