@@ -42,6 +42,8 @@ typedef enum {
 - (NSSet *)selectedBrushes;
 - (NSSet *)selectedFaces;
 
+- (BOOL)hasSelection;
+
 - (void)removeFace:(Face *)face;
 - (void)removeBrush:(Brush *)brush;
 - (void)removeEntity:(Entity *)entity;

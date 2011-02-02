@@ -229,12 +229,18 @@
             glEnable(GL_TEXTURE_2D);
             glPolygonMode(GL_FRONT, GL_FILL);
             
-            glColor4f(0.7, 0.7, 0.7, 1);
-            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+            if ([selectionManager hasSelection]) {
+                glColor4f(0.7, 0.7, 0.7, 0.5);
+                glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+            } else {
+                glColor4f(0, 0, 0, 1);
+                glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+            }
+
             [self renderTexturedPolygonsWithIndexBuffers:indexBuffers countBuffers:countBuffers];
             
             glColor4f(1, 0, 0, 1);
-            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
             [self renderTexturedPolygonsWithIndexBuffers:selIndexBuffers countBuffers:selCountBuffers];
             break;
         case RM_FLAT:
@@ -248,7 +254,7 @@
             [self renderWireframePolygonsWithIndexBuffers:indexBuffers countBuffers:countBuffers];
             
             glDisable(GL_DEPTH_TEST);
-            glColor4f(1, 0, 0, 1);
+            glColor4f(1, 0, 0, 0.5);
             glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
             [self renderWireframePolygonsWithIndexBuffers:selIndexBuffers countBuffers:selCountBuffers];
             glEnable(GL_DEPTH_TEST);

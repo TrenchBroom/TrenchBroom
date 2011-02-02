@@ -73,6 +73,9 @@
 		4881C74B12E9CD8F006BF922 /* WadPaletteEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */; };
 		488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */ = {isa = PBXBuildFile; fileRef = 488C8EE012F6C3ED00F358E6 /* IntData.m */; };
 		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
+		489DC5F312F9DDEA00053092 /* TextureWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 489DC5F212F9DDEA00053092 /* TextureWindowController.m */; };
+		489DC66012F9EC0000053092 /* GLStringManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 489DC65F12F9EC0000053092 /* GLStringManager.m */; };
+		489DC66312F9EC0600053092 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 489DC66212F9EC0600053092 /* GLString.m */; };
 		48A68EB8114E96C00064732A /* MapWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68EB7114E96C00064732A /* MapWindowController.m */; };
 		48A68ECC114E9AF90064732A /* MapView2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68ECB114E9AF90064732A /* MapView2D.m */; };
 		48A68ECF114E9B0D0064732A /* MapView3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68ECE114E9B0D0064732A /* MapView3D.m */; };
@@ -219,6 +222,12 @@
 		488C8EE012F6C3ED00F358E6 /* IntData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntData.m; sourceTree = "<group>"; };
 		48941664123619870098E17C /* Line2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2DTestCase.h; sourceTree = "<group>"; };
 		48941665123619870098E17C /* Line2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line2DTestCase.m; sourceTree = "<group>"; };
+		489DC5F112F9DDEA00053092 /* TextureWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureWindowController.h; sourceTree = "<group>"; };
+		489DC5F212F9DDEA00053092 /* TextureWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureWindowController.m; sourceTree = "<group>"; };
+		489DC65E12F9EC0000053092 /* GLStringManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLStringManager.h; sourceTree = "<group>"; };
+		489DC65F12F9EC0000053092 /* GLStringManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLStringManager.m; sourceTree = "<group>"; };
+		489DC66112F9EC0600053092 /* GLString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLString.h; sourceTree = "<group>"; };
+		489DC66212F9EC0600053092 /* GLString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLString.m; sourceTree = "<group>"; };
 		48A68EB6114E96C00064732A /* MapWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWindowController.h; sourceTree = "<group>"; };
 		48A68EB7114E96C00064732A /* MapWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapWindowController.m; sourceTree = "<group>"; };
 		48A68ECA114E9AF90064732A /* MapView2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapView2D.h; sourceTree = "<group>"; };
@@ -425,6 +434,7 @@
 		487E31F3114F741F0043A111 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
+				489DC65D12F9EBF500053092 /* Text */,
 				48B3243A12E1C6B8008748E2 /* Camera.h */,
 				48B3243B12E1C6B8008748E2 /* Camera.m */,
 				487E3214114F768D0043A111 /* RenderBrush.h */,
@@ -511,6 +521,17 @@
 			name = 2D;
 			sourceTree = "<group>";
 		};
+		489DC65D12F9EBF500053092 /* Text */ = {
+			isa = PBXGroup;
+			children = (
+				489DC65E12F9EC0000053092 /* GLStringManager.h */,
+				489DC65F12F9EC0000053092 /* GLStringManager.m */,
+				489DC66112F9EC0600053092 /* GLString.h */,
+				489DC66212F9EC0600053092 /* GLString.m */,
+			);
+			name = Text;
+			sourceTree = "<group>";
+		};
 		48A68E93114E92730064732A /* Map */ = {
 			isa = PBXGroup;
 			children = (
@@ -548,6 +569,8 @@
 				48E1806412F5F07D007995FE /* SelectionManager.m */,
 				4814A02512F740580082E05F /* ProgressWindowController.h */,
 				4814A02612F740580082E05F /* ProgressWindowController.m */,
+				489DC5F112F9DDEA00053092 /* TextureWindowController.h */,
+				489DC5F212F9DDEA00053092 /* TextureWindowController.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -805,6 +828,9 @@
 				48E1806512F5F07D007995FE /* SelectionManager.m in Sources */,
 				488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */,
 				4814A02712F740580082E05F /* ProgressWindowController.m in Sources */,
+				489DC5F312F9DDEA00053092 /* TextureWindowController.m in Sources */,
+				489DC66012F9EC0000053092 /* GLStringManager.m in Sources */,
+				489DC66312F9EC0600053092 /* GLString.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

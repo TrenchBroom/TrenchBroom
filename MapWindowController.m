@@ -22,6 +22,7 @@
 #import "Octree.h"
 #import "Picker.h"
 #import "SelectionManager.h"
+#import "TextureWindowController.h"
 
 @implementation MapWindowController
 
@@ -74,6 +75,9 @@
     [view3D setCamera:camera];
     [view3D setRenderMap:renderMap];
  
+    TextureWindowController* textureWindowController = [[TextureWindowController alloc] initWithWindowNibName:@"TextureBrowser" sharedContext:glContext textureManager:textureManager];
+    [[textureWindowController window] makeKeyAndOrderFront:self];
+    
     [[self window] makeKeyAndOrderFront:self];
 }
 

@@ -120,6 +120,10 @@ NSString* const SelectionChanged = @"SelectionChanged";
     return faces;
 }
 
+- (BOOL)hasSelection {
+    return [entities count] > 0 || [brushes count] > 0 || [faces count] > 0;
+}
+
 - (void)removeFace:(Face *)face {
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];

@@ -17,6 +17,6 @@
     TextureViewLayout* layout;
 }
 
-- (void)setTextureManager:(TextureManager *)theManager;
+- (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager;
 
 @end

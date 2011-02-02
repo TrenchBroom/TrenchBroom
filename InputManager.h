@@ -22,9 +22,10 @@
 - (id)initWithPicker:(Picker *)thePicker selectionManager:(SelectionManager *)theSelectionManager;
 
 - (void)handleKeyDown:(NSEvent *)event sender:(id)sender;
-- (void)handleMouseDragged:(NSEvent *)event sender:(id)sender;
+- (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender;
 - (void)handleMouseMoved:(NSEvent *)event sender:(id)sender;
-- (void)handleMouseDown:(NSEvent *)event sender:(id)sender;
-- (void)handleMouseUp:(NSEvent *)event sender:(id)sender;
+- (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender;
+- (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender;
+- (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender;
 - (void)handleScrollWheel:(NSEvent *)event sender:(id)sender;
 @end

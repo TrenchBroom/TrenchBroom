@@ -15,19 +15,12 @@
 #import "TextureViewLayout.h"
 #import "TextureViewLayoutRow.h"
 #import "TextureViewLayoutCell.h"
+#import "GLString.h"
 
 @implementation TextureView
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-
-    /*
-    NSOpenGLContext* sharedContext = [sharedView openGLContext];
-    NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:sharedContext];
-    [self setOpenGLContext:sharingContext];
-    [sharingContext release];
-    
-     */
     layout = [[TextureViewLayout alloc] initWithWidth:[self bounds].size.width innerMargin:10 outerMargin:5];
 }
 
@@ -90,6 +83,14 @@
             glEnd();
         }
     }
+
+    GLString* glString = [[GLString alloc] initWithString:@"ns_metal_1"];
+    
+    glTranslatef(100, 100, 0);
+    [glString render];
+    [glString dispose];
+    [glString release];
+    
     [[self openGLContext] flushBuffer];
 }
 
@@ -104,15 +105,23 @@
     [self setNeedsDisplay:YES];
 }
 
-- (void)setTextureManager:(TextureManager *)theManager {
-    if (theManager == nil)
+- (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager {
+    if (theSharedContext == nil)
+        [NSException raise:NSInvalidArgumentException format:@"shared context must not be nil"];
+    if (theTextureManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
 
+    NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:theSharedContext];
+    [self setOpenGLContext:sharingContext];
+    [sharingContext release];
+
     [textureManager release];
-    textureManager = [theManager retain];
+    textureManager = [theTextureManager retain];
     
     [layout removeAllTextures];
     [layout addTextures:[textureManager textures]];
+    
+    [self setNeedsDisplay:YES];
 }
 
 - (void)dealloc {

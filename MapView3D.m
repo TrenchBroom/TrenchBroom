@@ -40,7 +40,7 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
-    [inputManager handleMouseDragged:theEvent sender:self];
+    [inputManager handleLeftMouseDragged:theEvent sender:self];
 }
 
 - (void)mouseMoved:(NSEvent *)theEvent {
@@ -48,11 +48,15 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
-    [inputManager handleMouseDown:theEvent sender:self];
+    [inputManager handleLeftMouseDown:theEvent sender:self];
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
-    [inputManager handleMouseUp:theEvent sender:self];
+    [inputManager handleLeftMouseUp:theEvent sender:self];
+}
+
+- (void)rightMouseDragged:(NSEvent *)theEvent {
+    [inputManager handleRightMouseDragged:theEvent sender:self];
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {

@@ -59,6 +59,8 @@
         case 13: // w
             [camera moveForward:20 right:0 up:0];
             break;
+        case 49: // space bar
+            break;
         case 124: {// right arrow
             NSSet* brushes = [selectionManager selectedBrushes];
             NSEnumerator* brushEn = [brushes objectEnumerator];
@@ -74,23 +76,21 @@
     }
 }
 
-- (void)handleMouseDragged:(NSEvent *)event sender:(id)sender {
-    if ([sender isKindOfClass:[MapView3D class]]) {
-        MapView3D* mapView3D = (MapView3D *)sender;
-        if ([self isCameraModifierPressed:event]) {
-            Camera* camera = [mapView3D camera];
-            
-            if ([self isCameraOrbitModifierPressed:event]) {
-                if (lastHit != nil) {
-                    float h = -[event deltaX] / 70;
-                    float v = [event deltaY] / 70;
-                    [camera orbitCenter:[lastHit hitPoint] hAngle:h vAngle:v];
-                }
-            } else {
-                float yaw = -[event deltaX] / 70;
-                float pitch = [event deltaY] / 70;
-                [camera rotateYaw:yaw pitch:pitch];
+- (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender {
+    MapView3D* mapView3D = (MapView3D *)sender;
+    if ([self isCameraModifierPressed:event]) {
+        Camera* camera = [mapView3D camera];
+        
+        if ([self isCameraOrbitModifierPressed:event]) {
+            if (lastHit != nil) {
+                float h = -[event deltaX] / 70;
+                float v = [event deltaY] / 70;
+                [camera orbitCenter:[lastHit hitPoint] hAngle:h vAngle:v];
             }
+        } else {
+            float yaw = -[event deltaX] / 70;
+            float pitch = [event deltaY] / 70;
+            [camera rotateYaw:yaw pitch:pitch];
         }
     }
 }
@@ -98,76 +98,82 @@
 - (void)handleMouseMoved:(NSEvent *)event sender:(id)sender {
 }
 
-- (void)handleMouseDown:(NSEvent *)event sender:(id)sender {
-    if ([sender isKindOfClass:[MapView3D class]]) {
-        MapView3D* mapView3D = (MapView3D *)sender;
-        [[mapView3D openGLContext] makeCurrentContext];
-        Camera* camera = [mapView3D camera];
-        
-        NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
-        
-        Vector3f* direction = [camera unprojectX:m.x y:m.y];
-        Vector3f* origin = [camera position];
-        
-        [direction sub:origin];
-        [direction normalize];
-        
-        Ray3D* ray = [[Ray3D alloc] initWithOrigin:origin direction:direction];
-        NSArray* hits = [picker objectsHitByRay:ray];
-        
-        [lastHit release];
-        if ([hits count] > 0)
-            lastHit = [[hits objectAtIndex:0] retain];
-        else
-            lastHit = nil;
-        
-        if (![self isCameraModifierPressed:event]) {
-            if (lastHit != nil) {
-                Face* face = [lastHit object];
-                Brush* brush = [face brush];
-                
-                if ([selectionManager mode] == SM_FACES) {
-                    if ([selectionManager isFaceSelected:face]) {
-                        [selectionManager removeFace:face];
-                    } else {
-                        if (([event modifierFlags] & NSCommandKeyMask) == 0) {
-                            if ([selectionManager hasSelectedFaces:brush]) {
-                                [selectionManager removeAll];
-                                [selectionManager addFace:face];
-                            } else {
-                                [selectionManager addBrush:brush];
-                            }
-                        } else {
-                            [selectionManager addFace:face];
-                        }
-                    }
+- (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender {
+    MapView3D* mapView3D = (MapView3D *)sender;
+    [[mapView3D openGLContext] makeCurrentContext];
+    Camera* camera = [mapView3D camera];
+    
+    NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
+    
+    Vector3f* direction = [camera unprojectX:m.x y:m.y];
+    Vector3f* origin = [camera position];
+    
+    [direction sub:origin];
+    [direction normalize];
+    
+    Ray3D* ray = [[Ray3D alloc] initWithOrigin:origin direction:direction];
+    NSArray* hits = [picker objectsHitByRay:ray];
+    
+    [lastHit release];
+    if ([hits count] > 0)
+        lastHit = [[hits objectAtIndex:0] retain];
+    else
+        lastHit = nil;
+    
+    if (![self isCameraModifierPressed:event]) {
+        if (lastHit != nil) {
+            Face* face = [lastHit object];
+            Brush* brush = [face brush];
+            
+            if ([selectionManager mode] == SM_FACES) {
+                if ([selectionManager isFaceSelected:face]) {
+                    [selectionManager removeFace:face];
                 } else {
-                    if ([selectionManager isBrushSelected:brush]) {
-                        [selectionManager addFace:face];
-                    } else {
-                        if (([event modifierFlags] & NSCommandKeyMask) == 0)
+                    if (([event modifierFlags] & NSCommandKeyMask) == 0) {
+                        if ([selectionManager hasSelectedFaces:brush]) {
                             [selectionManager removeAll];
-                        [selectionManager addBrush:brush];
+                            [selectionManager addFace:face];
+                        } else {
+                            [selectionManager addBrush:brush];
+                        }
+                    } else {
+                        [selectionManager addFace:face];
                     }
                 }
             } else {
-                [selectionManager removeAll];
+                if ([selectionManager isBrushSelected:brush]) {
+                    [selectionManager addFace:face];
+                } else {
+                    if (([event modifierFlags] & NSCommandKeyMask) == 0)
+                        [selectionManager removeAll];
+                    [selectionManager addBrush:brush];
+                }
             }
+        } else {
+            [selectionManager removeAll];
         }
     }
 }
 
-- (void)handleMouseUp:(NSEvent *)event sender:(id)sender {
+- (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
+}
+
+
+
+- (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender {
+    MapView3D* mapView3D = (MapView3D *)sender;
+    if ([self isCameraModifierPressed:event]) {
+        Camera* camera = [mapView3D camera];
+        [camera moveForward:0 right:6 * [event deltaX] up:-6 * [event deltaY]];
+    }
 }
 
 - (void)handleScrollWheel:(NSEvent *)event sender:(id)sender {
-    if ([sender isKindOfClass:[MapView3D class]]) {
-        MapView3D* mapView3D = (MapView3D *)sender;
-        
-        if ([self isCameraModifierPressed:event]) {
-            Camera* camera = [mapView3D camera];
-            [camera moveForward:4 * [event deltaY] right:-4 * [event deltaX] up:4 * [event deltaZ]];
-        }
+    MapView3D* mapView3D = (MapView3D *)sender;
+    
+    if ([self isCameraModifierPressed:event]) {
+        Camera* camera = [mapView3D camera];
+        [camera moveForward:6 * [event deltaY] right:-6 * [event deltaX] up:6 * [event deltaZ]];
     }
 }
 
