@@ -76,6 +76,8 @@
 		489DC5F312F9DDEA00053092 /* TextureWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 489DC5F212F9DDEA00053092 /* TextureWindowController.m */; };
 		489DC66012F9EC0000053092 /* GLStringManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 489DC65F12F9EC0000053092 /* GLStringManager.m */; };
 		489DC66312F9EC0600053092 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 489DC66212F9EC0600053092 /* GLString.m */; };
+		489FB43D12FA0A5B00B6BAF1 /* GLFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 489FB43C12FA0A5B00B6BAF1 /* GLFont.m */; };
+		489FB44012FA0ABE00B6BAF1 /* GLFontChar.m in Sources */ = {isa = PBXBuildFile; fileRef = 489FB43F12FA0ABE00B6BAF1 /* GLFontChar.m */; };
 		48A68EB8114E96C00064732A /* MapWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68EB7114E96C00064732A /* MapWindowController.m */; };
 		48A68ECC114E9AF90064732A /* MapView2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68ECB114E9AF90064732A /* MapView2D.m */; };
 		48A68ECF114E9B0D0064732A /* MapView3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68ECE114E9B0D0064732A /* MapView3D.m */; };
@@ -228,6 +230,10 @@
 		489DC65F12F9EC0000053092 /* GLStringManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLStringManager.m; sourceTree = "<group>"; };
 		489DC66112F9EC0600053092 /* GLString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLString.h; sourceTree = "<group>"; };
 		489DC66212F9EC0600053092 /* GLString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLString.m; sourceTree = "<group>"; };
+		489FB43B12FA0A5B00B6BAF1 /* GLFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFont.h; sourceTree = "<group>"; };
+		489FB43C12FA0A5B00B6BAF1 /* GLFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFont.m; sourceTree = "<group>"; };
+		489FB43E12FA0ABE00B6BAF1 /* GLFontChar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFontChar.h; sourceTree = "<group>"; };
+		489FB43F12FA0ABE00B6BAF1 /* GLFontChar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFontChar.m; sourceTree = "<group>"; };
 		48A68EB6114E96C00064732A /* MapWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWindowController.h; sourceTree = "<group>"; };
 		48A68EB7114E96C00064732A /* MapWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapWindowController.m; sourceTree = "<group>"; };
 		48A68ECA114E9AF90064732A /* MapView2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapView2D.h; sourceTree = "<group>"; };
@@ -528,6 +534,10 @@
 				489DC65F12F9EC0000053092 /* GLStringManager.m */,
 				489DC66112F9EC0600053092 /* GLString.h */,
 				489DC66212F9EC0600053092 /* GLString.m */,
+				489FB43B12FA0A5B00B6BAF1 /* GLFont.h */,
+				489FB43C12FA0A5B00B6BAF1 /* GLFont.m */,
+				489FB43E12FA0ABE00B6BAF1 /* GLFontChar.h */,
+				489FB43F12FA0ABE00B6BAF1 /* GLFontChar.m */,
 			);
 			name = Text;
 			sourceTree = "<group>";
@@ -831,6 +841,8 @@
 				489DC5F312F9DDEA00053092 /* TextureWindowController.m in Sources */,
 				489DC66012F9EC0000053092 /* GLStringManager.m in Sources */,
 				489DC66312F9EC0600053092 /* GLString.m in Sources */,
+				489FB43D12FA0A5B00B6BAF1 /* GLFont.m in Sources */,
+				489FB44012FA0ABE00B6BAF1 /* GLFontChar.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
