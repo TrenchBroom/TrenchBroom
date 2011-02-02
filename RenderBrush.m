@@ -28,6 +28,11 @@
     return self;
 }
 
+- (void)brushChanged:(NSNotification *)notification {
+    [faceBlock setState:BS_USED_INVALID];
+    [faceEntries removeAllObjects];
+}
+
 - (id)initWithBrush:(Brush *)theBrush faceVBO:(VBOBuffer *)theFaceVBO {
     if (theBrush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
@@ -45,6 +50,10 @@
             vertexCount += [[brush verticesForFace:face] count];
         
         faceBlock = [[faceVBO allocMemBlock:5 * sizeof(float) * vertexCount] retain];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center addObserver:self selector:@selector(brushChanged:) name:BrushGeometryChanged object:brush];
+        [center addObserver:self selector:@selector(brushChanged:) name:BrushFlagsChanged object:brush];
     }
     
     return self;

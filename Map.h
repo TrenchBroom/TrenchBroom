@@ -8,6 +8,10 @@
 
 #import <Cocoa/Cocoa.h>
 
+extern NSString* const MapEntityAdded;
+extern NSString* const MapEntityRemoved;
+extern NSString* const MapEntityKey;
+
 @class Entity;
 
 @interface Map : NSObject {

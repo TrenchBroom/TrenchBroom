@@ -23,6 +23,24 @@
     return self;
 }
 
+- (void)addEntity:(Entity *)theEntity {
+    RenderEntity* renderEntity = [[RenderEntity alloc] initWithEntity:theEntity faceVBO:faceVBO];
+    [renderEntities setObject:renderEntity forKey:[theEntity entityId]];
+    [renderEntity release];
+}
+
+- (void)entityAdded:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    Entity* entity = [userInfo objectForKey:MapEntityKey];
+    [self addEntity:entity];
+}
+
+- (void)entityRemoved:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    Entity* entity = [userInfo objectForKey:MapEntityKey];
+    [renderEntities removeObjectForKey:[entity entityId]];
+}
+
 - (id)initWithMap:(Map *)theMap faceVBO:(VBOBuffer *)theFaceVBO {
     if (theMap == nil)
         [NSException raise:NSInvalidArgumentException format:@"map must not be nil"];
@@ -37,11 +55,12 @@
         NSEnumerator* entityEn = [entities objectEnumerator];
         Entity* entity;
         
-        while ((entity = [entityEn nextObject])) {
-            RenderEntity* renderEntity = [[RenderEntity alloc] initWithEntity:entity faceVBO:faceVBO];
-            [renderEntities setObject:renderEntity forKey:[entity entityId]];
-            [renderEntity release];
-        }
+        while ((entity = [entityEn nextObject]))
+            [self addEntity:entity];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center addObserver:self selector:@selector(entityAdded:) name:MapEntityAdded object:map];
+        [center addObserver:self selector:@selector(entityRemoved:) name:MapEntityRemoved object:map];
     }
     
     return self;
@@ -52,6 +71,7 @@
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [faceVBO release];
     [renderEntities release];
     [map release];

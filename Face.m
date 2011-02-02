@@ -19,7 +19,7 @@
 
 - (id)init {
     if (self = [super init]) {
-        faceId = [[IdGenerator sharedGenerator] getId];
+        faceId = [[[IdGenerator sharedGenerator] getId] retain];
         point1 = [[Vector3i alloc] init];
         point2 = [[Vector3i alloc] init];
         point3 = [[Vector3i alloc] init];
@@ -104,6 +104,19 @@
     return norm;
 }
 
+- (void)geometryChanged {
+    [norm release];
+    norm = nil;
+    
+    [halfSpace release];
+    halfSpace = nil;
+    
+    [texAxisX release];
+    texAxisX = nil;
+    [texAxisY release];
+    texAxisY = nil;
+}
+
 - (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3{
     if (thePoint1 == nil)
         [NSException raise:NSInvalidArgumentException format:@"point 1 must not be nil"];
@@ -117,22 +130,22 @@
         [point3 isEqualToVector:thePoint3])
         return;
     
-    [norm release];
-    norm = nil;
-    
-    [halfSpace release];
-    halfSpace = nil;
-    
-    [texAxisX release];
-    texAxisX = nil;
-    [texAxisY release];
-    texAxisY = nil;
-    
     [point1 set:thePoint1];
     [point2 set:thePoint2];
     [point3 set:thePoint3];
+
+    [self geometryChanged];
+}
+
+- (void)translateBy:(Vector3i *)theDelta {
+    if (theDelta == nil)
+        [NSException raise:NSInvalidArgumentException format:@"direction must not be nil"];
+
+    [point1 add:theDelta];
+    [point2 add:theDelta];
+    [point3 add:theDelta];
     
-    [brush faceGeometryChanged:self];
+    [self geometryChanged];
 }
 
 - (void)setTexture:(NSString *)name {
@@ -307,6 +320,7 @@
 }
 
 - (void) dealloc {
+    [faceId release];
     [halfSpace release];
 	[point1 release];
 	[point2 release];

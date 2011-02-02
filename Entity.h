@@ -10,7 +10,6 @@
 
 extern NSString* const EntityBrushAdded;
 extern NSString* const EntityBrushRemoved;
-extern NSString* const EntityBrushChanged;
 extern NSString* const EntityBrushKey;
 extern NSString* const EntityPropertyAdded;
 extern NSString* const EntityPropertyRemoved;

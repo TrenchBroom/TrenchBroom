@@ -106,7 +106,7 @@
         const void* countBytes = [countBuffer bytes];
         int primCount = [indexBuffer count];
 
-        glVertexPointer(3, GL_FLOAT, 20, 8);
+        glVertexPointer(3, GL_FLOAT, 20, (const GLvoid *)8); // cast to pointer type to avoid compiler warning
         glMultiDrawArrays(GL_POLYGON, indexBytes, countBytes, primCount);
     }
 }

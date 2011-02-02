@@ -108,6 +108,18 @@ NSString* const SelectionChanged = @"SelectionChanged";
     return NO;
 }
 
+- (NSSet *)selectedEntities {
+    return entities;
+}
+
+- (NSSet *)selectedBrushes {
+    return brushes;
+}
+
+- (NSSet *)selectedFaces {
+    return faces;
+}
+
 - (void)removeFace:(Face *)face {
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];

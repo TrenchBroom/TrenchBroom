@@ -17,6 +17,7 @@
 #import "SelectionManager.h"
 #import "Face.h"
 #import "Brush.h"
+#import "Vector3i.h"
 
 @implementation InputManager
 - (id)initWithPicker:(Picker *)thePicker selectionManager:(SelectionManager *)theSelectionManager {
@@ -58,7 +59,17 @@
         case 13: // w
             [camera moveForward:20 right:0 up:0];
             break;
+        case 124: {// right arrow
+            NSSet* brushes = [selectionManager selectedBrushes];
+            NSEnumerator* brushEn = [brushes objectEnumerator];
+            Brush* brush;
+            while ((brush = [brushEn nextObject]))
+                [brush translateBy:[Vector3i vectorWithX:32 y:32 z:32]];
+            [mapView3D setNeedsDisplay:YES];
+            break;
+        }
         default:
+            NSLog(@"unrecognized key code: %i", [event keyCode]);
             break;
     }
 }

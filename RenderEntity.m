@@ -22,6 +22,24 @@
     return self;
 }
 
+- (void)createRenderBrushFor:(Brush *)theBrush {
+    RenderBrush* renderBrush = [[RenderBrush alloc] initWithBrush:theBrush faceVBO:faceVBO];
+    [renderBrushes setObject:renderBrush forKey:[theBrush brushId]];
+    [renderBrush release];
+}
+
+- (void)brushAdded:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    Brush* brush = [userInfo objectForKey:EntityBrushKey];
+    [self createRenderBrushFor:brush];
+}
+
+- (void)brushRemoved:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    Brush* brush = [userInfo objectForKey:EntityBrushKey];
+    [renderBrushes removeObjectForKey:[brush brushId]];
+}
+
 - (id)initWithEntity:(Entity *)theEntity faceVBO:(VBOBuffer *)theFaceVBO {
     if (theEntity == nil)
         [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
@@ -36,11 +54,12 @@
         NSEnumerator* brushEn = [brushes objectEnumerator];
         Brush* brush;
         
-        while ((brush = [brushEn nextObject])) {
-            RenderBrush* renderBrush = [[RenderBrush alloc] initWithBrush:brush faceVBO:faceVBO];
-            [renderBrushes setObject:renderBrush forKey:[brush brushId]];
-            [renderBrush release];
-        }
+        while ((brush = [brushEn nextObject]))
+            [self createRenderBrushFor:brush];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center addObserver:self selector:@selector(brushAdded:) name:EntityBrushAdded object:entity];
+        [center addObserver:self selector:@selector(brushRemoved:) name:EntityBrushRemoved object:entity];
     }
     
     return self;

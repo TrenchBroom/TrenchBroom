@@ -38,6 +38,10 @@ typedef enum {
 - (BOOL)isEntitySelected:(Entity *)entity;
 - (BOOL)hasSelectedFaces:(Brush *)brush;
 
+- (NSSet *)selectedEntities;
+- (NSSet *)selectedBrushes;
+- (NSSet *)selectedFaces;
+
 - (void)removeFace:(Face *)face;
 - (void)removeBrush:(Brush *)brush;
 - (void)removeEntity:(Entity *)entity;

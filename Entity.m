@@ -14,7 +14,6 @@
 
 NSString* const EntityBrushAdded            = @"EntityBrushAdded";
 NSString* const EntityBrushRemoved          = @"EntityBrushRemoved";
-NSString* const EntityBrushChanged          = @"EntityBrushChanged";
 NSString* const EntityBrushKey              = @"EntityBrushKey";
 NSString* const EntityPropertyAdded         = @"EntityPropertyAdded";
 NSString* const EntityPropertyRemoved       = @"EntityPropertyRemoved";
@@ -28,7 +27,7 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
 
 - (id)init {
     if (self = [super init]) {
-        entityId = [[IdGenerator sharedGenerator] getId];
+        entityId = [[[IdGenerator sharedGenerator] getId] retain];
 		properties = [[NSMutableDictionary alloc] init];
 		brushes = [[NSMutableArray alloc] init];
         brushIndices = [[NSMutableDictionary alloc] init];
@@ -55,23 +54,15 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
 	return self;
 }
 
-- (void)brushChanged:(NSNotification *)notification {
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotificationName:EntityBrushChanged object:self userInfo:[NSDictionary dictionaryWithObject:[notification object] forKey:EntityBrushKey]];
-}
-
 - (Brush *)createBrush {
     Brush* brush = [[Brush alloc] initInEntity:self];
     [brushes addObject:brush];
     [brushIndices setObject:[NSNumber numberWithInt:[brushes count] - 1] forKey:[brush brushId]];
     
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center addObserver:self selector:@selector(brushChanged:) name:BrushFaceAdded object:brush];
-    [center addObserver:self selector:@selector(brushChanged:) name:BrushFaceRemoved object:brush];
-    [center addObserver:self selector:@selector(brushChanged:) name:BrushFaceGeometryChanged object:brush];
-    
-    if ([self postNotifications])
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:EntityBrushAdded object:self userInfo:[NSDictionary dictionaryWithObject:brush forKey:EntityBrushKey]];
+    }
     
     return [brush autorelease];
 }
@@ -87,14 +78,11 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:brush forKey:EntityBrushKey];
     [brushes removeObjectAtIndex:[index intValue]];
     [brushIndices removeObjectForKey:[brush brushId]];
-
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center removeObserver:self name:BrushFaceAdded object:brush];
-    [center removeObserver:self name:BrushFaceRemoved object:brush];
-    [center removeObserver:self name:BrushFaceGeometryChanged object:brush];
     
-    if ([self postNotifications])
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:EntityBrushRemoved object:self userInfo:userInfo];
+    }
 }
 
 - (Map *)map {
@@ -172,6 +160,7 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
 
 - (void) dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [entityId release];
 	[properties release];
 	[brushes release];
     [brushIndices release];

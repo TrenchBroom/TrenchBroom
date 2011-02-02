@@ -60,6 +60,7 @@ typedef enum {
 - (Vector3f *)norm;
 
 - (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3;
+- (void)translateBy:(Vector3i *)theDelta;
 
 - (void)setTexture:(NSString *)name;
 - (void)setXOffset:(int)offset;

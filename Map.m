@@ -10,6 +10,10 @@
 #import "Entity.h"
 #import "Brush.h"
 
+NSString* const MapEntityAdded      = @"MapEntityAdded";
+NSString* const MapEntityRemoved    = @"MapEntityRemoved";
+NSString* const MapEntityKey        = @"MapEntity";
+
 @implementation Map
 
 - (id)init {
@@ -34,20 +38,32 @@
     return worldspawn;
 }
 
+- (void)addEntity:(Entity *)theEntity {
+    [entities addObject:theEntity];
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:MapEntityAdded object:self userInfo:[NSDictionary dictionaryWithObject:theEntity forKey:MapEntityKey]];
+    }
+}
+
 - (Entity *)createEntity {
     Entity* entity = [[Entity alloc] initInMap:self];
-    [entities addObject:entity];
+    [self addEntity:entity];
     return [entity autorelease];
 }
 
 - (Entity *)createEntityWithProperty:(NSString *)key value:(NSString *)value {
     Entity* entity = [[Entity alloc] initInMap:self property:key value:value];
-    [entities addObject:entity];
+    [self addEntity:entity];
     return entity;
 }
 
 - (void)removeEntity:(Entity *)entity {
     [entities removeObject:entity];
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:MapEntityRemoved object:self userInfo:[NSDictionary dictionaryWithObject:entity forKey:MapEntityKey]];
+    }
 }
 
 - (NSArray *)entities {

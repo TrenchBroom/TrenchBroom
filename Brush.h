@@ -8,11 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-extern NSString* const BrushFaceAdded;
-extern NSString* const BrushFaceRemoved;
-extern NSString* const BrushFaceGeometryChanged;
-extern NSString* const BrushFaceFlagsChanged;
-extern NSString* const BrushFaceKey;
+extern NSString* const BrushGeometryChanged;
+extern NSString* const BrushFlagsChanged;
 
 @class Entity;
 @class Vector3i;
@@ -47,7 +44,8 @@ extern NSString* const BrushFaceKey;
 - (BoundingBox *)bounds;
 - (PickingHit *)pickFace:(Ray3D *)theRay;
 
+- (void)translateBy:(Vector3i *)theDelta;
+
 - (BOOL)postNotifications;
-- (void)faceGeometryChanged:(Face *)theFace;
 - (void)faceFlagsChanged:(Face *)theFace;
 @end

@@ -18,17 +18,14 @@
 #import "Ray3D.h"
 #import "PickingHit.h"
 
-NSString* const BrushFaceAdded              = @"BrushFaceAdded";
-NSString* const BrushFaceRemoved            = @"BrushFaceRemoved";
-NSString* const BrushFaceGeometryChanged    = @"BrushFaceGeometryChanged";
-NSString* const BrushFaceFlagsChanged       = @"BrushFaceFlagsChanged";
-NSString* const BrushFaceKey                = @"BrushFace";
+NSString* const BrushGeometryChanged    = @"BrushGeometryChanged";
+NSString* const BrushFlagsChanged       = @"BrushFlagsChanged";
 
 @implementation Brush
 
 - (id)init {
     if (self = [super init]) {
-        brushId = [[IdGenerator sharedGenerator] getId];
+        brushId = [[[IdGenerator sharedGenerator] getId] retain];
         faces = [[NSMutableArray alloc] init];
         vertexData = [[VertexData alloc] init];
         
@@ -49,6 +46,16 @@ NSString* const BrushFaceKey                = @"BrushFace";
     }
     
     return self;
+}
+
+- (void)geometryChanged {
+    [vertexData release];
+    vertexData = nil;
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushGeometryChanged object:self];
+    }
 }
 
 - (VertexData *)vertexData {
@@ -85,32 +92,16 @@ NSString* const BrushFaceKey                = @"BrushFace";
 
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushFaceAdded
-                              object:self 
-                            userInfo:[NSDictionary dictionaryWithObject:face forKey:BrushFaceKey]];
+        [center postNotificationName:BrushGeometryChanged object:self];
     }
     
     return [face autorelease];
 }
 
-- (void)faceGeometryChanged:(Face *)theFace {
-    [vertexData release];
-    vertexData = nil;
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushFaceGeometryChanged 
-                              object:self 
-                            userInfo:[NSDictionary dictionaryWithObject:theFace forKey:BrushFaceKey]];
-    }
-}
-
 - (void)faceFlagsChanged:(Face *)theFace {
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushFaceFlagsChanged 
-                              object:self 
-                            userInfo:[NSDictionary dictionaryWithObject:theFace forKey:BrushFaceKey]];
+        [center postNotificationName:BrushFlagsChanged object:self];
     }
 }
 
@@ -146,11 +137,20 @@ NSString* const BrushFaceKey                = @"BrushFace";
 }
 
 - (BoundingBox *)bounds {
-    return [vertexData bounds];
+    return [[self vertexData] bounds];
 }
 
 - (PickingHit *)pickFace:(Ray3D *)theRay; {
     return [vertexData pickFace:theRay];
+}
+
+- (void)translateBy:(Vector3i *)theDelta {
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face translateBy:theDelta];
+    
+    [self geometryChanged];
 }
 
 - (BOOL)postNotifications {
@@ -159,6 +159,7 @@ NSString* const BrushFaceKey                = @"BrushFace";
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [brushId release];
     [vertexData release];
     [faces release];
     [super dealloc];
