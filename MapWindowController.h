@@ -21,9 +21,7 @@
 @class SelectionManager;
 
 @interface MapWindowController : NSWindowController {
-	IBOutlet MapView2D* view2D;
 	IBOutlet MapView3D* view3D;
-    IBOutlet TextureView* textureView;
     RenderMap* renderMap;
     Camera* camera;
     TextureManager* textureManager;

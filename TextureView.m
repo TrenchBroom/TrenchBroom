@@ -20,12 +20,14 @@
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-    
+
+    /*
     NSOpenGLContext* sharedContext = [sharedView openGLContext];
     NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:sharedContext];
     [self setOpenGLContext:sharingContext];
     [sharingContext release];
     
+     */
     layout = [[TextureViewLayout alloc] initWithWidth:[self bounds].size.width innerMargin:10 outerMargin:5];
 }
 

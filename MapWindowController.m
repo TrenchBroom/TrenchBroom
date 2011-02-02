@@ -26,6 +26,9 @@
 @implementation MapWindowController
 
 - (void)windowDidLoad {
+    NSOpenGLContext* glContext = [view3D openGLContext];
+    [glContext makeCurrentContext];
+    
     Map* map = [[self document] map];
     
     NSBundle* mainBundle = [NSBundle mainBundle];
@@ -64,7 +67,6 @@
     faceVBO = [[VBOBuffer alloc] initWithTotalCapacity:8192];
     renderMap = [[RenderMap alloc] initWithMap:map faceVBO:faceVBO camera:camera textureManager:textureManager selectionManager:selectionManager];
 
-    [textureView setTextureManager:textureManager];
     [view3D setTextureManager:textureManager];
     [view3D setInputManager:inputManager];
     [view3D setSelectionManager:selectionManager];

@@ -12,8 +12,6 @@
 @class TextureViewLayout;
 
 @interface TextureView : NSOpenGLView {
-    IBOutlet NSOpenGLView* sharedView;
-    IBOutlet NSScrollView* scrollView;
     @private
     TextureManager* textureManager;
     TextureViewLayout* layout;

@@ -177,7 +177,6 @@
 }
 
 - (void)renderFacesInMode:(ERenderMode)mode {
-    
     if (!buffersValid) {
         NSEnumerator* renderEntityEn = [renderEntities objectEnumerator];
         RenderEntity* renderEntity;
