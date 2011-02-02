@@ -8,16 +8,20 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class RenderMap;
 @class Entity;
 @class VBOBuffer;
 
 @interface RenderEntity : NSObject {
+    RenderMap* renderMap;
     Entity* entity;
     NSMutableDictionary* renderBrushes;
     VBOBuffer* faceVBO;
 }
 
-- (id)initWithEntity:(Entity *)theEntity faceVBO:(VBOBuffer *)theFaceVBO;
+- (id)initInMap:(RenderMap *)theRenderMap withEntity:(Entity *)theEntity faceVBO:(VBOBuffer *)theFaceVBO;
 
 - (NSArray *)renderBrushes;
+
+- (void)brushChanged;
 @end

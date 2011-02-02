@@ -26,11 +26,7 @@
 @implementation MapWindowController
 
 - (void)windowDidLoad {
-    faceVBO = [[VBOBuffer alloc] initWithTotalCapacity:8192];
-
     Map* map = [[self document] map];
-    renderMap = [[RenderMap alloc] initWithMap:map faceVBO:faceVBO];
-    camera = [[Camera alloc] init];
     
     NSBundle* mainBundle = [NSBundle mainBundle];
     NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
@@ -60,10 +56,14 @@
     
     octree = [[Octree alloc] initWithMap:map minSize:64];
     picker = [[Picker alloc] initWithOctree:octree];
+    camera = [[Camera alloc] init];
     
     selectionManager = [[SelectionManager alloc] init];
     inputManager = [[InputManager alloc] initWithPicker:picker selectionManager:selectionManager];
     
+    faceVBO = [[VBOBuffer alloc] initWithTotalCapacity:8192];
+    renderMap = [[RenderMap alloc] initWithMap:map faceVBO:faceVBO camera:camera textureManager:textureManager selectionManager:selectionManager];
+
     [textureView setTextureManager:textureManager];
     [view3D setTextureManager:textureManager];
     [view3D setInputManager:inputManager];

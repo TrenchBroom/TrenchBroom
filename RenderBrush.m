@@ -7,6 +7,7 @@
 //
 
 #import "RenderBrush.h"
+#import "RenderEntity.h"
 #import "Brush.h"
 #import "Face.h"
 #import "VBOBuffer.h"
@@ -31,15 +32,19 @@
 - (void)brushChanged:(NSNotification *)notification {
     [faceBlock setState:BS_USED_INVALID];
     [faceEntries removeAllObjects];
+    [renderEntity brushChanged];
 }
 
-- (id)initWithBrush:(Brush *)theBrush faceVBO:(VBOBuffer *)theFaceVBO {
+- (id)initInEntity:(RenderEntity *)theRenderEntity withBrush:(Brush *)theBrush faceVBO:(VBOBuffer *)theFaceVBO {
+    if (theRenderEntity == nil)
+        [NSException raise:NSInvalidArgumentException format:@"render entity must not be nil"];
     if (theBrush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
     if (theFaceVBO == nil)
         [NSException raise:NSInvalidArgumentException format:@"face VBO buffer must not be nil"];
     
     if (self = [self init]) {
+        renderEntity = [theRenderEntity retain];
         brush = [theBrush retain];
         faceVBO = [theFaceVBO retain];
         
@@ -114,6 +119,7 @@
     [faceBlock release];
     [faceVBO release];
     [brush release];
+    [renderEntity release];
     [super dealloc];
 }
 

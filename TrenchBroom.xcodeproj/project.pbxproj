@@ -83,10 +83,8 @@
 		48A68F27114EDF360064732A /* Entity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* Entity.m */; };
 		48A68F70114EE6DC0064732A /* Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* Map.m */; };
 		48AB6C6712F2251C008BC88E /* VBOArrayEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AB6C6612F2251C008BC88E /* VBOArrayEntry.m */; };
-		48B3243712E1BF76008748E2 /* RenderContext3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3243612E1BF76008748E2 /* RenderContext3D.m */; };
 		48B3243C12E1C6B8008748E2 /* Camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3243B12E1C6B8008748E2 /* Camera.m */; };
 		48B324C112E1F455008748E2 /* Camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3243B12E1C6B8008748E2 /* Camera.m */; };
-		48B324C212E1F455008748E2 /* RenderContext3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3243612E1BF76008748E2 /* RenderContext3D.m */; };
 		48B3251712E1FE0F008748E2 /* RenderMap.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3251612E1FE0F008748E2 /* RenderMap.m */; };
 		48B3251A12E1FE17008748E2 /* RenderEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3251912E1FE17008748E2 /* RenderEntity.m */; };
 		48B3256012E2D760008748E2 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 48B3255F12E2D760008748E2 /* Defaults.plist */; };
@@ -238,9 +236,6 @@
 		48A68F6F114EE6DC0064732A /* Map.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Map.m; sourceTree = "<group>"; };
 		48AB6C6512F2251C008BC88E /* VBOArrayEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOArrayEntry.h; sourceTree = "<group>"; };
 		48AB6C6612F2251C008BC88E /* VBOArrayEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOArrayEntry.m; sourceTree = "<group>"; };
-		48B3243412E1BCBE008748E2 /* RenderContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderContext.h; sourceTree = "<group>"; };
-		48B3243512E1BF76008748E2 /* RenderContext3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderContext3D.h; sourceTree = "<group>"; };
-		48B3243612E1BF76008748E2 /* RenderContext3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderContext3D.m; sourceTree = "<group>"; };
 		48B3243A12E1C6B8008748E2 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		48B3243B12E1C6B8008748E2 /* Camera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Camera.m; sourceTree = "<group>"; };
 		48B3251512E1FE0F008748E2 /* RenderMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderMap.h; sourceTree = "<group>"; };
@@ -431,9 +426,6 @@
 				48B3243B12E1C6B8008748E2 /* Camera.m */,
 				487E3214114F768D0043A111 /* RenderBrush.h */,
 				487E3215114F768D0043A111 /* RenderBrush.m */,
-				48B3243412E1BCBE008748E2 /* RenderContext.h */,
-				48B3243512E1BF76008748E2 /* RenderContext3D.h */,
-				48B3243612E1BF76008748E2 /* RenderContext3D.m */,
 				48B3251812E1FE17008748E2 /* RenderEntity.h */,
 				48B3251912E1FE17008748E2 /* RenderEntity.m */,
 				48B3251512E1FE0F008748E2 /* RenderMap.h */,
@@ -740,7 +732,6 @@
 				4836401B1260416700363E3F /* Plane3DTestCase.m in Sources */,
 				48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */,
 				48C5137E12DB668A006240ED /* HalfSpace3DTestCase.m in Sources */,
-				48B3243712E1BF76008748E2 /* RenderContext3D.m in Sources */,
 				48B3243C12E1C6B8008748E2 /* Camera.m in Sources */,
 				4865993112EECD6700665E94 /* Side.m in Sources */,
 				4865993312EECD6900665E94 /* Edge.m in Sources */,
@@ -773,7 +764,6 @@
 				487CA0C6125B00E9002DF9D2 /* HalfSpace3D.m in Sources */,
 				4836401212603A5100363E3F /* Line3D.m in Sources */,
 				48B324C112E1F455008748E2 /* Camera.m in Sources */,
-				48B324C212E1F455008748E2 /* RenderContext3D.m in Sources */,
 				48B3251712E1FE0F008748E2 /* RenderMap.m in Sources */,
 				48B3251A12E1FE17008748E2 /* RenderEntity.m in Sources */,
 				48B325E512E3788D008748E2 /* AppDelegate.m in Sources */,

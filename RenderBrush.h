@@ -7,8 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "RenderContext.h"
 
+@class RenderEntity;
 @class Brush;
 @class Face;
 @class IntData;
@@ -18,13 +18,14 @@
 
 @interface RenderBrush : NSObject {
     @private
+    RenderEntity* renderEntity;
     Brush* brush;
     VBOBuffer* faceVBO;
     VBOMemBlock* faceBlock;
     NSMutableDictionary* faceEntries;
 }
 
-- (id)initWithBrush:(Brush *)theBrush faceVBO:(VBOBuffer *)theFaceVBO;
+- (id)initInEntity:(RenderEntity *)theEntity withBrush:(Brush *)theBrush faceVBO:(VBOBuffer *)theFaceVBO;
 
 - (Brush *)brush;
 

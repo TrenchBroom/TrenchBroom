@@ -11,8 +11,6 @@
 #import <OpenGL/glu.h>
 #import "RenderMap.h"
 #import "Camera.h"
-#import "RenderContext.h"
-#import "RenderContext3D.h"
 #import "TextureManager.h"
 #import "InputManager.h"
 #import "SelectionManager.h"
@@ -68,10 +66,8 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 	glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    RenderContext3D* renderContext = [[RenderContext3D alloc] initWithRenderMap:renderMap camera:camera textureManager:textureManager faceVBO:faceVBO selectionManager:selectionManager];
-    [renderContext updateView:bounds];
-    [renderContext render];
-    [renderContext release];
+    [renderMap updateView:bounds];
+    [renderMap render];
     
     [[self openGLContext] flushBuffer];
 }

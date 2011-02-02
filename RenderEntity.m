@@ -7,8 +7,9 @@
 //
 
 #import "RenderEntity.h"
-#import "Entity.h"
+#import "RenderMap.h"
 #import "RenderBrush.h"
+#import "Entity.h"
 #import "Brush.h"
 #import "VBOBuffer.h"
 
@@ -23,7 +24,7 @@
 }
 
 - (void)createRenderBrushFor:(Brush *)theBrush {
-    RenderBrush* renderBrush = [[RenderBrush alloc] initWithBrush:theBrush faceVBO:faceVBO];
+    RenderBrush* renderBrush = [[RenderBrush alloc] initInEntity:self withBrush:theBrush faceVBO:faceVBO];
     [renderBrushes setObject:renderBrush forKey:[theBrush brushId]];
     [renderBrush release];
 }
@@ -32,21 +33,26 @@
     NSDictionary* userInfo = [notification userInfo];
     Brush* brush = [userInfo objectForKey:EntityBrushKey];
     [self createRenderBrushFor:brush];
+    [renderMap entityChanged];
 }
 
 - (void)brushRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     Brush* brush = [userInfo objectForKey:EntityBrushKey];
     [renderBrushes removeObjectForKey:[brush brushId]];
+    [renderMap entityChanged];
 }
 
-- (id)initWithEntity:(Entity *)theEntity faceVBO:(VBOBuffer *)theFaceVBO {
+- (id)initInMap:(RenderMap *)theRenderMap withEntity:(Entity *)theEntity faceVBO:(VBOBuffer *)theFaceVBO {
+    if (theRenderMap == nil)
+        [NSException raise:NSInvalidArgumentException format:@"render map must not be nil"];
     if (theEntity == nil)
         [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
     if (theFaceVBO == nil)
         [NSException raise:NSInvalidArgumentException format:@"face VBO buffer must not be nil"];
 
     if (self = [self init]) {
+        renderMap = [theRenderMap retain];
         entity = [theEntity retain];
         faceVBO = [theFaceVBO retain];
         
@@ -69,11 +75,16 @@
     return [renderBrushes allValues];
 }
 
+- (void)brushChanged {
+    [renderMap entityChanged];
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [faceVBO release];
     [renderBrushes release];
     [entity release];
+    [renderMap release];
     [super dealloc];
 }
 
