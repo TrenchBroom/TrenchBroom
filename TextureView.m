@@ -16,6 +16,7 @@
 #import "TextureViewLayoutRow.h"
 #import "TextureViewLayoutCell.h"
 #import "GLString.h"
+#import "GLFont.h"
 
 @implementation TextureView
 
@@ -43,7 +44,7 @@
     glLoadIdentity();
     gluLookAt(0, 0, 0.1, 0, 0, -1, 0, 1, 0);
 
-	glClearColor(0, 0, 0, 0);
+	glClearColor(1, 1, 1, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
     
     glEnable(GL_TEXTURE_2D);
@@ -71,7 +72,6 @@
             [texture activate];
             
             glBegin(GL_QUADS);
-            glNormal3f(0, 0, 1);
             glTexCoord2f(0, 0);
             glVertex3f(x, y, 0);
             glTexCoord2f(0, 1);
@@ -84,12 +84,16 @@
         }
     }
 
-    GLString* glString = [[GLString alloc] initWithString:@"ns_metal_1"];
     
+    NSFont* font = [NSFont systemFontOfSize:12];
+    GLFont* glFont = [[GLFont alloc] initWithFont:font];
+
     glTranslatef(100, 100, 0);
-    [glString render];
-    [glString dispose];
-    [glString release];
+    glColor4f(1, 0, 0, 1);
+
+    [glFont renderString:@"ASDF"];
+    
+    [glFont release];
     
     [[self openGLContext] flushBuffer];
 }

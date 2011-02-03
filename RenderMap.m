@@ -250,12 +250,10 @@
             glPolygonMode(GL_FRONT, GL_LINE);
             
             glColor4f(1, 1, 1, 0.5);
-            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
             [self renderWireframePolygonsWithIndexBuffers:indexBuffers countBuffers:countBuffers];
             
             glDisable(GL_DEPTH_TEST);
             glColor4f(1, 0, 0, 0.5);
-            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
             [self renderWireframePolygonsWithIndexBuffers:selIndexBuffers countBuffers:selCountBuffers];
             glEnable(GL_DEPTH_TEST);
             break;

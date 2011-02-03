@@ -11,10 +11,17 @@
 
 @interface GLFont : NSObject {
     @private
-    NSArray* chars;
+    NSMutableArray* chars;
     GLuint texId;
+    NSSize texSize;
+    NSLayoutManager* layoutManager;
+    NSTextStorage* textStorage;
+    NSTextContainer* textContainer;
 }
 
 - (id)initWithFont:(NSFont *)theFont;
 
+- (void)renderString:(NSString *)theString;
+
+- (void)dispose;
 @end

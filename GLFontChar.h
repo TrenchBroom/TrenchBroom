@@ -10,8 +10,15 @@
 
 
 @interface GLFontChar : NSObject {
-    float s;
-    float t;
+    float s1;
+    float t1;
+    float s2;
+    float t2;
+    NSSize dimensions;
 }
 
+- (id)initWithDimensions:(NSSize)theDimensions;
+- (void)calculateTexCoordsForTexSize:(NSSize)theTexSize charPos:(NSPoint)theCharPos;
+
+- (void)render;
 @end
