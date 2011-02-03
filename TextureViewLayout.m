@@ -64,10 +64,10 @@
     Texture* texture;
     while ((texture = [texEn nextObject])) {
         TextureViewLayoutRow* row = [rows lastObject];
-        if (row == nil || ![row addTexture:texture]) {
+        if (row == nil || ![row addTexture:texture nameSize:NSMakeSize(10, 10)]) {
             float y = row == nil ? outerMargin : [row y] + [row height] + innerMargin;
             row = [[TextureViewLayoutRow alloc] initAtY:y width:width innerMargin:innerMargin outerMargin:outerMargin];
-            [row addTexture:texture];
+            [row addTexture:texture nameSize:NSMakeSize(10, 10)];
             [rows addObject:row];
             [row release];
         }

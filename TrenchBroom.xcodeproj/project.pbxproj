@@ -23,6 +23,7 @@
 		480AD8D612ED9E4A009B5970 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
 		4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4814A02212F73F1E0082E05F /* ProgressWindow.xib */; };
 		4814A02712F740580082E05F /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4814A02612F740580082E05F /* ProgressWindowController.m */; };
+		4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4818202212FB4746002D9AAD /* SingleTextureView.m */; };
 		481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 481D300F12FAE5C0001CBD9E /* GLFontManager.m */; };
 		4824957B12F3004C004F3615 /* BoundingBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 4824957A12F3004C004F3615 /* BoundingBox.m */; };
 		4836401112603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
@@ -140,6 +141,8 @@
 		4814A02212F73F1E0082E05F /* ProgressWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProgressWindow.xib; sourceTree = "<group>"; };
 		4814A02512F740580082E05F /* ProgressWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressWindowController.h; sourceTree = "<group>"; };
 		4814A02612F740580082E05F /* ProgressWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProgressWindowController.m; sourceTree = "<group>"; };
+		4818202112FB4746002D9AAD /* SingleTextureView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTextureView.h; sourceTree = "<group>"; };
+		4818202212FB4746002D9AAD /* SingleTextureView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SingleTextureView.m; sourceTree = "<group>"; };
 		481D300E12FAE5C0001CBD9E /* GLFontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFontManager.h; sourceTree = "<group>"; };
 		481D300F12FAE5C0001CBD9E /* GLFontManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFontManager.m; sourceTree = "<group>"; };
 		4824957912F3004C004F3615 /* BoundingBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundingBox.h; sourceTree = "<group>"; };
@@ -603,6 +606,8 @@
 				4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */,
 				4866F3C212EACE73009B345C /* TextureViewLayoutCell.h */,
 				4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */,
+				4818202112FB4746002D9AAD /* SingleTextureView.h */,
+				4818202212FB4746002D9AAD /* SingleTextureView.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -843,6 +848,7 @@
 				489FB44012FA0ABE00B6BAF1 /* GLFontChar.m in Sources */,
 				481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */,
 				488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */,
+				4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

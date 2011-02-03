@@ -35,7 +35,7 @@
     if (x + [texture width] + outerMargin > width)
         return NO;
     
-    TextureViewLayoutCell* cell = [[TextureViewLayoutCell alloc] initAtX:x texture:texture];
+    TextureViewLayoutCell* cell = [[TextureViewLayoutCell alloc] initAtX:x texture:texture nameSize:nameSize];
     [cells addObject:cell];
     [cell release];
 

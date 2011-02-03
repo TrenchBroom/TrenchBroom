@@ -45,6 +45,10 @@
     glBindTexture(GL_TEXTURE_2D, textureId);
 }
 
+- (void)deactivate {
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 - (NSComparisonResult)compare:(Texture *)texture {
     return [name compare:[texture name]];
 }

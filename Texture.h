@@ -24,6 +24,7 @@
 - (int)height;
 
 - (void)activate;
+- (void)deactivate;
 
 - (NSComparisonResult)compare:(Texture *)texture;
 @end
