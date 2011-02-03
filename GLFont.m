@@ -8,12 +8,17 @@
 
 #import "GLFont.h"
 #import "GLFontChar.h"
+#import "GLString.h"
+#import "VBOBuffer.h"
+#import "VBOMemBlock.h"
 
 @implementation GLFont
 
-- (id)initWithFont:(NSFont *)theFont {
+- (id)initWithFont:(NSFont *)theFont stringVBO:(VBOBuffer *)theStringVBO {
     if (theFont == nil)
         [NSException raise:NSInvalidArgumentException format:@"font must not be nil"];
+    if (theStringVBO == nil)
+        [NSException raise:NSInvalidArgumentException format:@"string VBO must not be nil"];
     
     if (self = [super init]) {
         // see "Calculating Text Height" in help
@@ -107,42 +112,63 @@
         
         [attrCharString release];
         [textContainer setContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
+        stringVBO = [theStringVBO retain];
     }    
     
     return self;
 }
 
-- (void)renderString:(NSString *)theString {
-    glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_COLOR_BUFFER_BIT);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texId);
-    
-    glPolygonMode(GL_FRONT, GL_FILL);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+- (GLString *)glStringFor:(NSString *)theString {
+    if (theString == nil || [theString length] == 0)
+        [NSException raise:NSInvalidArgumentException format:@"string must not be nil or empty"];
 
+    int capacity = 4 * 5 * [theString length] * sizeof(float);
+    VBOMemBlock* memBlock = [stringVBO allocMemBlock:capacity];
+    
     NSAttributedString* attrString = [[NSAttributedString alloc] initWithString:theString];
     [textStorage setAttributedString:attrString];
     [attrString release];
     
+    [stringVBO activate];
+    [stringVBO mapBuffer];
     [layoutManager ensureLayoutForTextContainer:textContainer];
-    NSPoint lastPos = NSMakePoint(0, 0);
+    int offset = 0;
     for (int i = 0; i < [theString length]; i++) {
         NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:NSMakeRange(i, 1) actualCharacterRange:NULL];
         NSRect bounds = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textContainer];
-        glTranslatef(bounds.origin.x - lastPos.x, bounds.origin.y - lastPos.y, 0);
-
-        lastPos = bounds.origin;
+        NSPoint position = NSMakePoint(bounds.origin.x, bounds.origin.y);
         
         int c = [theString characterAtIndex:i];
         GLFontChar* gc = [chars objectAtIndex:c - 32];
-        [gc render];
+        offset = [gc renderAt:position intoVBO:memBlock offset:offset];
     }
-
-    glPopAttrib();
+    [stringVBO unmapBuffer];
+    [stringVBO deactivate];
+    
+    return [[[GLString alloc] initWithMemBlock:memBlock glFont:self] autorelease];
 }
 
+- (void)activate {
+    glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_COLOR_BUFFER_BIT);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texId);
+
+    glPolygonMode(GL_FRONT, GL_FILL);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+    
+    [stringVBO activate];
+}
+
+- (void)deactivate {
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glPopAttrib();
+    [stringVBO deactivate];
+}
+
+
+         
 - (void)dispose {
     if (texId != 0) {
         glDeleteTextures(1, &texId);
@@ -154,6 +180,7 @@
     [textStorage release];
     [textContainer release];
     [layoutManager release];
+    [stringVBO release];
     [super dealloc];
 }
 

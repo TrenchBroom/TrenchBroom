@@ -246,7 +246,8 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 
     freeCapacity += [memBlock capacity];
     
-    if ([previous state] == BS_FREE && [next state] == BS_FREE) {
+    if (previous != nil && [previous state] == BS_FREE &&  
+        next != nil && [next state] == BS_FREE) {
         VBOMemBlock* nextNext = [next next];
         
         [previous setNext:nextNext];
@@ -260,7 +261,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         [self resizeMemBlock:previous toCapacity:[previous capacity] + [memBlock capacity] + [next capacity]];
         [self removeFreeMemBlock:next];
 
-    } else if ([previous state] == BS_FREE) {
+    } else if (previous != nil && [previous state] == BS_FREE) {
         [previous setNext:next];
         [next setPrevious:previous];
         
@@ -268,7 +269,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         [memBlock setNext:nil];
 
         [self resizeMemBlock:previous toCapacity:[previous capacity] + [memBlock capacity]];
-    } else if ([next state] == BS_FREE) {
+    } else if (next != nil && [next state] == BS_FREE) {
         VBOMemBlock* nextNext = [next next];
         
         [memBlock setNext:nextNext];

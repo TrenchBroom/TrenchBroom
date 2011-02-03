@@ -23,7 +23,7 @@
 
 - (void)addTexture:(Texture *)theTexture;
 - (void)addTextures:(NSArray *)theTextures;
-- (void)removeAllTextures;
+- (void)clear;
 
 - (void)setWidth:(float)theWidth;
 

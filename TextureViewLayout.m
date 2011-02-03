@@ -47,7 +47,7 @@
     [self layout];
 }
 
-- (void)removeAllTextures {
+- (void)clear {
     [textures removeAllObjects];
     [self layout];
 }

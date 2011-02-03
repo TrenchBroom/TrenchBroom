@@ -25,7 +25,7 @@
     return self;
 }
 
-- (BOOL)addTexture:(Texture *)texture {
+- (BOOL)addTexture:(Texture *)texture nameSize:(NSSize)nameSize {
     float x;
     if ([cells count] == 0)
         x = outerMargin;
@@ -35,11 +35,11 @@
     if (x + [texture width] + outerMargin > width)
         return NO;
     
-    height = fmax(height, [texture height]);
-    
     TextureViewLayoutCell* cell = [[TextureViewLayoutCell alloc] initAtX:x texture:texture];
     [cells addObject:cell];
     [cell release];
+
+    height = fmax(height, [cell cellSize].height);
     return YES;
 }
 

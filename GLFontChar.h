@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class Vector3f;
+@class VBOMemBlock;
 
 @interface GLFontChar : NSObject {
     float s1;
@@ -20,5 +22,5 @@
 - (id)initWithDimensions:(NSSize)theDimensions;
 - (void)calculateTexCoordsForTexSize:(NSSize)theTexSize charPos:(NSPoint)theCharPos;
 
-- (void)render;
+- (int)renderAt:(NSPoint)thePosition intoVBO:(VBOMemBlock *)theMemBlock offset:(int)theOffset;
 @end

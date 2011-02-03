@@ -10,13 +10,15 @@
 
 @class TextureManager;
 @class TextureViewLayout;
+@class GLFontManager;
 
 @interface TextureView : NSOpenGLView {
     @private
     TextureManager* textureManager;
     TextureViewLayout* layout;
+    GLFontManager* fontManager;
 }
 
-- (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager;
+- (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager;
 
 @end

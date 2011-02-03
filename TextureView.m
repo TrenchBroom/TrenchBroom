@@ -15,8 +15,9 @@
 #import "TextureViewLayout.h"
 #import "TextureViewLayoutRow.h"
 #import "TextureViewLayoutCell.h"
-#import "GLString.h"
+#import "GLFontManager.h"
 #import "GLFont.h"
+#import "GLString.h"
 
 @implementation TextureView
 
@@ -84,7 +85,17 @@
         }
     }
 
+    NSFont* font = [NSFont systemFontOfSize:12];
+    GLFont* glFont = [fontManager glFontFor:font];
+    GLString* glString = [glFont glStringFor:@"asdf"];
     
+    glTranslatef(100, 100, 0);
+    glColor4f(1, 0, 0, 1);
+    
+    [glString render];
+    [glString dispose];
+    
+    /*
     NSFont* font = [NSFont systemFontOfSize:12];
     GLFont* glFont = [[GLFont alloc] initWithFont:font];
 
@@ -94,7 +105,8 @@
     [glFont renderString:@"ASDF"];
     
     [glFont release];
-    
+    */
+     
     [[self openGLContext] flushBuffer];
 }
 
@@ -109,20 +121,25 @@
     [self setNeedsDisplay:YES];
 }
 
-- (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager {
+- (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager {
     if (theSharedContext == nil)
         [NSException raise:NSInvalidArgumentException format:@"shared context must not be nil"];
     if (theTextureManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
+    if (theFontManager == nil)
+        [NSException raise:NSInvalidArgumentException format:@"font manager must not be nil"];
 
     NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:theSharedContext];
     [self setOpenGLContext:sharingContext];
     [sharingContext release];
 
+    [fontManager release];
+    [fontManager = theFontManager retain];
+    
     [textureManager release];
     textureManager = [theTextureManager retain];
     
-    [layout removeAllTextures];
+    [layout clear];
     [layout addTextures:[textureManager textures]];
     
     [self setNeedsDisplay:YES];
@@ -131,6 +148,7 @@
 - (void)dealloc {
     [layout release];
     [textureManager release];
+    [fontManager release];
     [super dealloc];
 }
 

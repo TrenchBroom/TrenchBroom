@@ -54,6 +54,11 @@
     state = theState;
 }
 
+- (int)writeFloat:(float)theFloat offset:(int)theOffset {
+    [vboBuffer writeFloat:theFloat address:address + theOffset];
+    return theOffset + sizeof(float);
+}
+
 - (int)writeVector3f:(Vector3f *)theVector offset:(int)theOffset {
     [vboBuffer writeVector3f:theVector address:address + theOffset];
     return theOffset + 3 * sizeof(float);
@@ -79,6 +84,10 @@
 - (void)setNext:(VBOMemBlock *)memBlock {
     [next release];
     next = [memBlock retain];
+}
+
+- (void)dispose {
+    [vboBuffer freeMemBlock:self];
 }
 
 - (void)dealloc {

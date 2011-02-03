@@ -7,7 +7,7 @@
 //
 
 #import "GLFontChar.h"
-
+#import "VBOMemBlock.h"
 
 @implementation GLFontChar
 - (id)initWithDimensions:(NSSize)theDimensions {
@@ -25,17 +25,32 @@
     t2 = (theCharPos.y + dimensions.height) / theTexSize.height;
 }
 
-- (void)render {
-    glBegin(GL_QUADS);
-    glTexCoord2f(s1, t1);
-    glVertex2f(0, 0);
-    glTexCoord2f(s2, t1);
-    glVertex2f(dimensions.width, 0);
-    glTexCoord2f(s2, t2);
-    glVertex2f(dimensions.width, dimensions.height);
-    glTexCoord2f(s1, t2);
-    glVertex2f(0, dimensions.height);
-    glEnd();
+- (int)renderAt:(NSPoint)thePosition intoVBO:(VBOMemBlock *)theMemBlock offset:(int)theOffset {
+    int offset = [theMemBlock writeFloat:s1 offset:theOffset];
+    offset = [theMemBlock writeFloat:t1 offset:offset];
+    offset = [theMemBlock writeFloat:thePosition.x offset:offset];
+    offset = [theMemBlock writeFloat:thePosition.y offset:offset];
+    offset = [theMemBlock writeFloat:0 offset:offset];
+
+    offset = [theMemBlock writeFloat:s2 offset:offset];
+    offset = [theMemBlock writeFloat:t1 offset:offset];
+    offset = [theMemBlock writeFloat:thePosition.x + dimensions.width offset:offset];
+    offset = [theMemBlock writeFloat:thePosition.y offset:offset];
+    offset = [theMemBlock writeFloat:0 offset:offset];
+    
+    offset = [theMemBlock writeFloat:s2 offset:offset];
+    offset = [theMemBlock writeFloat:t2 offset:offset];
+    offset = [theMemBlock writeFloat:thePosition.x + dimensions.width offset:offset];
+    offset = [theMemBlock writeFloat:thePosition.y + dimensions.height offset:offset];
+    offset = [theMemBlock writeFloat:0 offset:offset];
+    
+    offset = [theMemBlock writeFloat:s1 offset:offset];
+    offset = [theMemBlock writeFloat:t2 offset:offset];
+    offset = [theMemBlock writeFloat:thePosition.x offset:offset];
+    offset = [theMemBlock writeFloat:thePosition.y + dimensions.height offset:offset];
+    offset = [theMemBlock writeFloat:0 offset:offset];
+    
+    return offset;
 }
 
 @end

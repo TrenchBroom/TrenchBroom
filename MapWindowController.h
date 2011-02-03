@@ -19,12 +19,14 @@
 @class Octree;
 @class Picker;
 @class SelectionManager;
+@class GLFontManager;
 
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView3D* view3D;
     RenderMap* renderMap;
     Camera* camera;
     TextureManager* textureManager;
+    GLFontManager* fontManager;
     InputManager* inputManager;
     VBOBuffer* faceVBO;
     Octree* octree;

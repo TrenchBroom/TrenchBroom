@@ -37,6 +37,7 @@ typedef enum {
 - (void)setCapacity:(int)aSize;
 - (void)setState:(EVBOMemBlockState)theState;
 
+- (int)writeFloat:(float)theFloat offset:(int)theOffset;
 - (int)writeVector3f:(Vector3f *)theVector offset:(int)theOffset;
 - (int)writeVector2f:(Vector2f *)theVector offset:(int)theOffset;
 
@@ -45,4 +46,6 @@ typedef enum {
 
 - (void)setPrevious:(VBOMemBlock *)memBlock;
 - (void)setNext:(VBOMemBlock *)memBlock;
+
+- (void)dispose;
 @end

@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class GLString;
+@class VBOBuffer;
 
 @interface GLFont : NSObject {
     @private
@@ -17,11 +19,15 @@
     NSLayoutManager* layoutManager;
     NSTextStorage* textStorage;
     NSTextContainer* textContainer;
+    VBOBuffer* stringVBO;
 }
 
-- (id)initWithFont:(NSFont *)theFont;
+- (id)initWithFont:(NSFont *)theFont stringVBO:(VBOBuffer *)theStringVBO;
 
-- (void)renderString:(NSString *)theString;
+- (GLString *)glStringFor:(NSString *)theString;
+
+- (void)activate;
+- (void)deactivate;
 
 - (void)dispose;
 @end

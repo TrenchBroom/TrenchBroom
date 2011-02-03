@@ -23,6 +23,7 @@
 #import "Picker.h"
 #import "SelectionManager.h"
 #import "TextureWindowController.h"
+#import "GLFontManager.h"
 
 @implementation MapWindowController
 
@@ -58,6 +59,8 @@
         }
     }
     
+    fontManager = [[GLFontManager alloc] init];
+    
     octree = [[Octree alloc] initWithMap:map minSize:64];
     picker = [[Picker alloc] initWithOctree:octree];
     camera = [[Camera alloc] init];
@@ -75,7 +78,7 @@
     [view3D setCamera:camera];
     [view3D setRenderMap:renderMap];
  
-    TextureWindowController* textureWindowController = [[TextureWindowController alloc] initWithWindowNibName:@"TextureBrowser" sharedContext:glContext textureManager:textureManager];
+    TextureWindowController* textureWindowController = [[TextureWindowController alloc] initWithWindowNibName:@"TextureBrowser" sharedContext:glContext textureManager:textureManager fontManager:fontManager];
     [[textureWindowController window] makeKeyAndOrderFront:self];
     
     [[self window] makeKeyAndOrderFront:self];
@@ -83,6 +86,7 @@
 
 - (void)windowWillClose:(NSNotification *)notification {
     [textureManager disposeTextures];
+    [fontManager dispose];
     [faceVBO dispose];
 }
 

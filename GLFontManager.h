@@ -8,11 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class VBOBuffer;
 @class GLFont;
 
 @interface GLFontManager : NSObject {
     @private
     NSMutableDictionary* fonts;
+    VBOBuffer* stringVBO;
 }
 
 - (GLFont *)glFontFor:(NSFont *)theFont;

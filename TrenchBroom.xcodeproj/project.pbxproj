@@ -72,6 +72,7 @@
 		4881C74212E9C8BE006BF922 /* TextureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74112E9C8BE006BF922 /* TextureManager.m */; };
 		4881C74812E9CD88006BF922 /* WadTextureEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74712E9CD88006BF922 /* WadTextureEntry.m */; };
 		4881C74B12E9CD8F006BF922 /* WadPaletteEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */; };
+		488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 488868DA12FAFCBF00CAEA55 /* GLString.m */; };
 		488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */ = {isa = PBXBuildFile; fileRef = 488C8EE012F6C3ED00F358E6 /* IntData.m */; };
 		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
 		489DC5F312F9DDEA00053092 /* TextureWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 489DC5F212F9DDEA00053092 /* TextureWindowController.m */; };
@@ -221,6 +222,8 @@
 		4881C74712E9CD88006BF922 /* WadTextureEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WadTextureEntry.m; sourceTree = "<group>"; };
 		4881C74912E9CD8F006BF922 /* WadPaletteEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WadPaletteEntry.h; sourceTree = "<group>"; };
 		4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WadPaletteEntry.m; sourceTree = "<group>"; };
+		488868D912FAFCBF00CAEA55 /* GLString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLString.h; sourceTree = "<group>"; };
+		488868DA12FAFCBF00CAEA55 /* GLString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLString.m; sourceTree = "<group>"; };
 		488C8EDF12F6C3ED00F358E6 /* IntData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntData.h; sourceTree = "<group>"; };
 		488C8EE012F6C3ED00F358E6 /* IntData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntData.m; sourceTree = "<group>"; };
 		48941664123619870098E17C /* Line2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2DTestCase.h; sourceTree = "<group>"; };
@@ -533,6 +536,8 @@
 				489FB43F12FA0ABE00B6BAF1 /* GLFontChar.m */,
 				481D300E12FAE5C0001CBD9E /* GLFontManager.h */,
 				481D300F12FAE5C0001CBD9E /* GLFontManager.m */,
+				488868D912FAFCBF00CAEA55 /* GLString.h */,
+				488868DA12FAFCBF00CAEA55 /* GLString.m */,
 			);
 			name = Text;
 			sourceTree = "<group>";
@@ -837,6 +842,7 @@
 				489FB43D12FA0A5B00B6BAF1 /* GLFont.m in Sources */,
 				489FB44012FA0ABE00B6BAF1 /* GLFontChar.m in Sources */,
 				481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */,
+				488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

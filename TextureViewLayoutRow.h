@@ -21,7 +21,7 @@
 }
 - (id)initAtY:(float)yPos width:(float)theWidth innerMargin:(float)theInnerMargin outerMargin:(float)theOuterMargin;
 
-- (BOOL)addTexture:(Texture *)texture;
+- (BOOL)addTexture:(Texture *)texture nameSize:(NSSize)theNameSize;
 - (NSArray *)cells;
 
 - (float)y;
