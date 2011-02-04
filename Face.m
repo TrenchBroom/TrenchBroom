@@ -219,6 +219,8 @@
     if (yScale == factor)
         return;
     
+    
+    
 	yScale = factor;
     
     [texAxisX release];

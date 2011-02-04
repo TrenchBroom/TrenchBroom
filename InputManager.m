@@ -67,7 +67,6 @@
             Brush* brush;
             while ((brush = [brushEn nextObject]))
                 [brush translateBy:[Vector3i vectorWithX:32 y:32 z:32]];
-            [mapView3D setNeedsDisplay:YES];
             break;
         }
         default:

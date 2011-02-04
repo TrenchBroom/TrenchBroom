@@ -75,6 +75,8 @@
 		4881C74B12E9CD8F006BF922 /* WadPaletteEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */; };
 		488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 488868DA12FAFCBF00CAEA55 /* GLString.m */; };
 		488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */ = {isa = PBXBuildFile; fileRef = 488C8EE012F6C3ED00F358E6 /* IntData.m */; };
+		4891E13A12FC0451007A3B93 /* FaceInspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4891E13912FC0451007A3B93 /* FaceInspector.xib */; };
+		4891E15612FC04B2007A3B93 /* FaceInspectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4891E15512FC04B2007A3B93 /* FaceInspectorController.m */; };
 		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
 		489DC5F312F9DDEA00053092 /* TextureWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 489DC5F212F9DDEA00053092 /* TextureWindowController.m */; };
 		489FB43D12FA0A5B00B6BAF1 /* GLFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 489FB43C12FA0A5B00B6BAF1 /* GLFont.m */; };
@@ -229,6 +231,9 @@
 		488868DA12FAFCBF00CAEA55 /* GLString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLString.m; sourceTree = "<group>"; };
 		488C8EDF12F6C3ED00F358E6 /* IntData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntData.h; sourceTree = "<group>"; };
 		488C8EE012F6C3ED00F358E6 /* IntData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntData.m; sourceTree = "<group>"; };
+		4891E13912FC0451007A3B93 /* FaceInspector.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FaceInspector.xib; sourceTree = "<group>"; };
+		4891E15412FC04B2007A3B93 /* FaceInspectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceInspectorController.h; sourceTree = "<group>"; };
+		4891E15512FC04B2007A3B93 /* FaceInspectorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceInspectorController.m; sourceTree = "<group>"; };
 		48941664123619870098E17C /* Line2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2DTestCase.h; sourceTree = "<group>"; };
 		48941665123619870098E17C /* Line2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line2DTestCase.m; sourceTree = "<group>"; };
 		489DC5F112F9DDEA00053092 /* TextureWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureWindowController.h; sourceTree = "<group>"; };
@@ -383,6 +388,7 @@
 				4814A02212F73F1E0082E05F /* ProgressWindow.xib */,
 				48B3255F12E2D760008748E2 /* Defaults.plist */,
 				48D3164E12F9BEF0009E2D09 /* TextureBrowser.xib */,
+				4891E13912FC0451007A3B93 /* FaceInspector.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -584,6 +590,8 @@
 				4814A02612F740580082E05F /* ProgressWindowController.m */,
 				489DC5F112F9DDEA00053092 /* TextureWindowController.h */,
 				489DC5F212F9DDEA00053092 /* TextureWindowController.m */,
+				4891E15412FC04B2007A3B93 /* FaceInspectorController.h */,
+				4891E15512FC04B2007A3B93 /* FaceInspectorController.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -727,6 +735,7 @@
 				48639BF412EA227100808576 /* QuakePalette.lmp in Resources */,
 				4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */,
 				48D3164F12F9BEF0009E2D09 /* TextureBrowser.xib in Resources */,
+				4891E13A12FC0451007A3B93 /* FaceInspector.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -849,6 +858,7 @@
 				481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */,
 				488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */,
 				4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */,
+				4891E15612FC04B2007A3B93 /* FaceInspectorController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

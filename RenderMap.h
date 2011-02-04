@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+extern NSString* const RenderMapChanged;
+
 typedef enum {
     RM_TEXTURED,
     RM_FLAT,

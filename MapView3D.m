@@ -107,12 +107,25 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
 }
 
+- (void)renderMapChanged:(NSNotification *)notification {
+    [self setNeedsDisplay:YES];
+}
+
 - (void)setRenderMap:(RenderMap *)aRenderMap {
     if (aRenderMap == nil)
         [NSException raise:NSInvalidArgumentException format:@"rendermap must not be nil"];
     
-    [renderMap release];
-    renderMap = [aRenderMap retain];
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    if (renderMap != nil) {
+        [center removeObserver:self name:RenderMapChanged object:renderMap];
+        [renderMap release];
+        renderMap = nil;
+    }
+    
+    if (aRenderMap != nil) {
+        renderMap = [aRenderMap retain];
+        [center addObserver:self selector:@selector(renderMapChanged:) name:RenderMapChanged object:renderMap];
+    }
 }
 
 - (void)setFaceVBO:(VBOBuffer *)theFaceVBO {

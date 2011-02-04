@@ -21,6 +21,8 @@
 #import "IntData.h"
 #import "Vector3f.h"
 
+NSString* const RenderMapChanged = @"RenderMapChanged";
+
 @implementation RenderMap
 
 - (id)init {
@@ -112,6 +114,9 @@
     [selIndexBuffers removeAllObjects];
     [selCountBuffers removeAllObjects];
     buffersValid = NO;
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:RenderMapChanged object:self];
 }
 
 - (void)preRender {

@@ -24,14 +24,6 @@
 
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView3D* view3D;
-    IBOutlet NSPanel* faceInspector;
-    IBOutlet NSTextField* xOffsetField;
-    IBOutlet NSTextField* yOffsetField;
-    IBOutlet NSTextField* xScaleField;
-    IBOutlet NSTextField* yScaleField;
-    IBOutlet NSTextField* rotationField;
-    IBOutlet NSTextField* textureNameField;
-    IBOutlet SingleTextureView* textureView;
     RenderMap* renderMap;
     Camera* camera;
     TextureManager* textureManager;
