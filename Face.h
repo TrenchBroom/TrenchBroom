@@ -18,6 +18,7 @@ typedef enum {
 @class HalfSpace3D;
 @class Plane3D;
 @class Brush;
+@class Quaternion;
 
 @interface Face : NSObject {
     @private
@@ -36,9 +37,12 @@ typedef enum {
 	float yScale;
     
     Vector3f* norm;
+    HalfSpace3D* halfSpace;
+    
     Vector3f* texAxisX;
     Vector3f* texAxisY;
-    HalfSpace3D* halfSpace;
+    Vector3f* surfAxisX;
+    Vector3f* surfAxisY;
 }
 
 - (id)initInBrush:(Brush *)theBrush point1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;
@@ -70,6 +74,27 @@ typedef enum {
 - (void)setYScale:(float)factor;
 
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex;
-
+- (Vector3f *)worldCoordsOf:(Vector2f *)sCoords;
 - (HalfSpace3D *)halfSpace;
+/*!
+    @function
+    @abstract   Returns the center of this face.
+    @result     The center of this face.
+*/
+- (Vector3f *)center;
+
+/*!
+    @function
+    @abstract   Returns this face's vertices in clockwise order.
+    @result     An array containing the vertices.
+*/
+- (NSArray *)vertices;
+
+/*!
+    @function
+    @abstract   Returns the undo manager for this face.
+    @discussion This method simply returns the undo manager of the brush to which this face belongs.
+    @result     The undo manager for this face or nil if there is no undo manager.
+*/
+- (NSUndoManager *)undoManager;
 @end

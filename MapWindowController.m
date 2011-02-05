@@ -28,6 +28,10 @@
 
 @implementation MapWindowController
 
+- (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window {
+    return [[self document] undoManager];
+}
+
 - (void)windowDidLoad {
     NSOpenGLContext* glContext = [view3D openGLContext];
     [glContext makeCurrentContext];

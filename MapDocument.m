@@ -27,7 +27,13 @@
 - (id)initWithType:(NSString *)typeName error:(NSError **)outError {
     if (self = [super initWithType:typeName error:outError]) {
         map = [[Map alloc] init];
+        
+        NSUndoManager* undoManager = [self undoManager];
+        [map setUndoManager:undoManager];
+
+        [undoManager disableUndoRegistration];
         Entity* worldspawn = [map createEntityWithProperty:@"classname" value:@"worldspawn"];
+        
 
         /*
         BrushFactory* brushFactory = [BrushFactory sharedFactory];
@@ -49,6 +55,8 @@
          ( 288 120 176 ) ( 288 120 208 ) ( 288 152 208 ) mt_sr_v13 -59 -62 -180 1 1.000008
          ( 289 152 176 ) ( 289 152 208 ) ( 253 116 208 ) mt_sr_v13 -6 -62 0 1 -1.000008
          */
+        
+        [undoManager enableUndoRegistration];
     }
     
     return self;
@@ -66,12 +74,15 @@
     NSProgressIndicator* indicator = [pwc progressIndicator];
     [indicator setIndeterminate:NO];
     [indicator setUsesThreadedAnimation:YES];
-    
+
     MapParser* parser = [[MapParser alloc] initWithData:data];
     map = [parser parseWithProgressIndicator:indicator];
     [map retain];
     [parser release];
 
+    NSUndoManager* undoManager = [self undoManager];
+    [map setUndoManager:undoManager];
+    
     [pwc close];
     
     return YES;

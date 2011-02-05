@@ -56,15 +56,22 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
 
 - (Brush *)createBrush {
     Brush* brush = [[Brush alloc] initInEntity:self];
+    [self addBrush:brush];
+    
+    return [brush autorelease];
+}
+
+- (void)addBrush:(Brush *)brush {
     [brushes addObject:brush];
     [brushIndices setObject:[NSNumber numberWithInt:[brushes count] - 1] forKey:[brush brushId]];
+
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] removeBrush:brush];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:EntityBrushAdded object:self userInfo:[NSDictionary dictionaryWithObject:brush forKey:EntityBrushKey]];
     }
-    
-    return [brush autorelease];
 }
 
 - (void)removeBrush:(Brush *)brush {
@@ -74,6 +81,9 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
     NSNumber* index = [brushIndices objectForKey:[brush brushId]];
     if (index == nil)
         [NSException raise:NSInvalidArgumentException format:@"Entity %@ does not contain brush %@", self, brush];
+ 
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] addBrush:brush];
     
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:brush forKey:EntityBrushKey];
     [brushes removeObjectAtIndex:[index intValue]];
@@ -104,6 +114,12 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
     if (exists && [oldValue isEqualToString:value])
         return;
     
+    NSUndoManager* undoManager = [self undoManager];
+    if (exists)
+        [[undoManager prepareWithInvocationTarget:self] setProperty:key value:oldValue];
+    else 
+        [[undoManager prepareWithInvocationTarget:self] removeProperty:key];
+    
     [properties setObject:value forKey:key];
 
     if ([self postNotifications]) {
@@ -125,6 +141,9 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
     NSString *oldValue = [self propertyForKey:key];
     if (oldValue == nil)
         return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] setProperty:key value:oldValue];
     
     [properties removeObjectForKey:key];
 
@@ -156,6 +175,10 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
 
 - (BOOL)postNotifications {
     return [map postNotifications];
+}
+
+- (NSUndoManager *)undoManager {
+    return [map undoManager];
 }
 
 - (void) dealloc {

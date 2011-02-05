@@ -19,11 +19,14 @@ typedef enum {
 
 @class Edge;
 @class SideEdge;
+@class Vector3f;
 
 @interface Side : NSObject {
     @private
     NSMutableArray* edges;
     ESideMark mark;
+    NSMutableArray* vertices;
+    Vector3f* center;
 }
 
 - (id)initWithEdges:(NSArray *)theEdges flipped:(BOOL*)flipped;
@@ -35,4 +38,11 @@ typedef enum {
 - (void)setMark:(ESideMark)theMark;
 
 - (NSArray *)vertices;
+
+/*!
+    @function
+    @abstract   Returns the center of this side.
+    @result     The center of this side.
+*/
+- (Vector3f *)center;
 @end

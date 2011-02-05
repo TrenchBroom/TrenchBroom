@@ -35,6 +35,7 @@ extern NSString* const EntityPropertyOldValueKey;
 - (id)initInMap:(Map *)theMap property:(NSString *)key value:(NSString *)value;
 
 - (Brush *)createBrush;
+- (void)addBrush:(Brush *)brush;
 - (void)removeBrush:(Brush *)brush;
 
 - (Map *)map;
@@ -52,4 +53,12 @@ extern NSString* const EntityPropertyOldValueKey;
 - (BOOL)isWorldspawn;
 
 - (BOOL)postNotifications;
+
+/*!
+    @function
+    @abstract   Returns the undo manager for this entity.
+    @discussion This method simply returns the undo manager of the map to which this entity belongs.
+    @result     The undo manager for this entity or nil if there is no undo manager.
+*/
+- (NSUndoManager *)undoManager;
 @end

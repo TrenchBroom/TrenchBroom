@@ -105,6 +105,7 @@
 		48E110811234BF5500087198 /* Vector2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1107B1234BF5500087198 /* Vector2f.m */; };
 		48E110871234BF5500087198 /* Vector2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1107B1234BF5500087198 /* Vector2f.m */; };
 		48E1806512F5F07D007995FE /* SelectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1806412F5F07D007995FE /* SelectionManager.m */; };
+		48FDA0BE12FD872500204729 /* FaceOffsetTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FDA0BD12FD872500204729 /* FaceOffsetTool.m */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
 		8D15AC310486D014006FF6A4 /* MapDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4ACFDCFA73011CA2CEA /* MapDocument.m */; settings = {ATTRIBUTES = (); }; };
@@ -285,6 +286,8 @@
 		48EEE9041153D816001A4D7C /* Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Test-Info.plist"; sourceTree = "<group>"; };
 		48EEE9181153D95E001A4D7C /* VBOManagerTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOManagerTestCase.h; sourceTree = "<group>"; };
 		48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOManagerTestCase.m; sourceTree = "<group>"; };
+		48FDA0BC12FD872500204729 /* FaceOffsetTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceOffsetTool.h; sourceTree = "<group>"; };
+		48FDA0BD12FD872500204729 /* FaceOffsetTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceOffsetTool.m; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* TrenchBroom-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "TrenchBroom-Info.plist"; sourceTree = "<group>"; };
 		8D15AC370486D014006FF6A4 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -575,6 +578,7 @@
 		48A68E96114E93840064732A /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				48FDA0B512FD86FD00204729 /* Tools */,
 				488C8EBA12F69F9300F358E6 /* Picking */,
 				48B325E312E3788D008748E2 /* AppDelegate.h */,
 				48B325E412E3788D008748E2 /* AppDelegate.m */,
@@ -648,6 +652,15 @@
 				48C5137D12DB668A006240ED /* HalfSpace3DTestCase.m */,
 			);
 			name = "Test Cases";
+			sourceTree = "<group>";
+		};
+		48FDA0B512FD86FD00204729 /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				48FDA0BC12FD872500204729 /* FaceOffsetTool.h */,
+				48FDA0BD12FD872500204729 /* FaceOffsetTool.m */,
+			);
+			name = Tools;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -859,6 +872,7 @@
 				488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */,
 				4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */,
 				4891E15612FC04B2007A3B93 /* FaceInspectorController.m in Sources */,
+				48FDA0BE12FD872500204729 /* FaceOffsetTool.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

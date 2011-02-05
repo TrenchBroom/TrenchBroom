@@ -12,10 +12,24 @@
 #import "HalfSpace3D.h"
 #import "Vector3f.h"
 #import "Vector2f.h"
+#import "Quaternion.h"
 #import "math.h"
 #import "Brush.h"
+#import "Plane3D.h"
+#import "Line3D.h"
+
+static Vector3f* baseAxes[18];
 
 @implementation Face
+
++ (void)initialize {
+    baseAxes[ 0] = [Vector3f xAxisPos]; baseAxes[ 1] = [Vector3f yAxisPos]; baseAxes[ 2] = [Vector3f zAxisNeg];
+    baseAxes[ 3] = [Vector3f xAxisNeg]; baseAxes[ 4] = [Vector3f yAxisPos]; baseAxes[ 5] = [Vector3f zAxisNeg];
+    baseAxes[ 6] = [Vector3f yAxisPos]; baseAxes[ 7] = [Vector3f xAxisPos]; baseAxes[ 8] = [Vector3f zAxisNeg];
+    baseAxes[ 9] = [Vector3f yAxisNeg]; baseAxes[10] = [Vector3f xAxisPos]; baseAxes[11] = [Vector3f zAxisNeg];
+    baseAxes[12] = [Vector3f zAxisPos]; baseAxes[13] = [Vector3f xAxisPos]; baseAxes[14] = [Vector3f yAxisNeg];
+    baseAxes[15] = [Vector3f zAxisNeg]; baseAxes[16] = [Vector3f xAxisPos]; baseAxes[17] = [Vector3f yAxisNeg];
+}
 
 - (id)init {
     if (self = [super init]) {
@@ -115,6 +129,11 @@
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
+
+    [surfAxisX release];
+    surfAxisX = nil;
+    [surfAxisY release];
+    surfAxisY = nil;
 }
 
 - (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3{
@@ -129,6 +148,14 @@
         [point2 isEqualToVector:thePoint2] &&
         [point3 isEqualToVector:thePoint3])
         return;
+
+    Vector3i* oldPoint1 = [Vector3i vectorWithVector:point1];
+    Vector3i* oldPoint2 = [Vector3i vectorWithVector:point2];
+    Vector3i* oldPoint3 = [Vector3i vectorWithVector:point3];
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] setPoint1:oldPoint1 point2:oldPoint2 point3:oldPoint3];
+    [undoManager setActionName:@"Change Face"];
     
     [point1 set:thePoint1];
     [point2 set:thePoint2];
@@ -141,6 +168,13 @@
     if (theDelta == nil)
         [NSException raise:NSInvalidArgumentException format:@"direction must not be nil"];
 
+    Vector3i* inverse = [Vector3i vectorWithVector:theDelta];
+    [inverse scale:-1];
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] translateBy:inverse];
+    [undoManager setActionName:@"Move Face"];
+    
     [point1 add:theDelta];
     [point2 add:theDelta];
     [point3 add:theDelta];
@@ -155,6 +189,9 @@
     if ([texture isEqualTo:name])
         return;
     
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] setTexture:[NSString stringWithString:texture]];
+    
     [texture setString:name];
     [brush faceFlagsChanged:self];
 }
@@ -162,6 +199,9 @@
 - (void)setXOffset:(int)offset {
     if (xOffset == offset)
         return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] setXOffset:xOffset];
     
 	xOffset = offset;
 
@@ -177,6 +217,9 @@
     if (yOffset == offset)
         return;
     
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] setYOffset:yOffset];
+    
 	yOffset = offset;
     
     [texAxisX release];
@@ -191,12 +234,19 @@
     if (rotation == angle)
         return;
     
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] setRotation:rotation];
+    
 	rotation = angle;
     
     [texAxisX release];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
+    [surfAxisX release];
+    surfAxisX = nil;
+    [surfAxisY release];
+    surfAxisY = nil;
     
     [brush faceFlagsChanged:self];
 }
@@ -204,6 +254,9 @@
 - (void)setXScale:(float)factor {
     if (xScale == factor)
         return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] setXScale:xScale];
     
 	xScale = factor;
     
@@ -219,7 +272,8 @@
     if (yScale == factor)
         return;
     
-    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] setYScale:yScale];
     
 	yScale = factor;
     
@@ -241,33 +295,40 @@
     return halfSpace;
 }
 
-- (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex {
-    if (texCoords == nil)
-        [NSException raise:NSInvalidArgumentException format:@"texture coordinate vector must not be nil"];
-    if (vertex == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vertex must not be nil"];
-    
-    if (texAxisX == nil || texAxisY == nil) {
-        // determine texture axes, this is from QBSP
-        Vector3f* baseAxes[18] = {
-            [Vector3f zAxisPos], [Vector3f xAxisPos], [Vector3f yAxisNeg],
-            [Vector3f zAxisNeg], [Vector3f xAxisPos], [Vector3f yAxisNeg],
-            [Vector3f xAxisPos], [Vector3f yAxisPos], [Vector3f zAxisNeg],
-            [Vector3f xAxisNeg], [Vector3f yAxisPos], [Vector3f zAxisNeg],
-            [Vector3f yAxisPos], [Vector3f xAxisPos], [Vector3f zAxisNeg],
-            [Vector3f yAxisNeg], [Vector3f xAxisPos], [Vector3f zAxisNeg]
-        };
-        
-        float best = 0;
-        int bestAxis = 0;
-        for (int i = 0; i < 6; i++) {
-            float dot = [[self norm] dot:baseAxes[i * 3]];
-            if (dot > best) {
-                best = dot;
-                bestAxis = i;
-            }
+- (void)calculateAxes {
+    // determine texture axes, this is from QBSP
+    float best = 0;
+    int bestAxis = 0;
+    for (int i = 0; i < 6; i++) {
+        float dot = [[self norm] dot:baseAxes[i * 3]];
+        if (dot > best) {
+            best = dot;
+            bestAxis = i;
         }
+    }
+
+    if (surfAxisX == nil || surfAxisY == nil) {
+        int c = bestAxis <= 1 ? 1 : 0;
+        float nx = [[self norm] component:c];
+        float nu = [[self norm] component:bestAxis / 3];
+        float n = - 1 * nx / nu;
         
+        surfAxisX = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 1]];
+        [surfAxisX setComponent:bestAxis / 3 value:n];
+        [surfAxisX normalize];
+        
+        c = bestAxis <= 3 ? 2 : 1;
+        nx = [[self norm] component:c];
+        n = - 1 * nx / nu;
+        
+        surfAxisY = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 2]];
+        if (bestAxis % 2 == 1)
+            [surfAxisY scale:-1];
+        [surfAxisY setComponent:bestAxis / 3 value:n];
+        [surfAxisY normalize];
+    }
+
+    if (texAxisX == nil || texAxisY == nil) {
         texAxisX = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 1]];
         texAxisY = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 2]];
         
@@ -282,7 +343,7 @@
             sv = 1;
         else
             sv = 2;
-            
+        
         if ([texAxisY x] != 0)
             tv = 0;
         else if ([texAxisY y] != 0)
@@ -302,9 +363,39 @@
         [texAxisX scale:1 / xScale];
         [texAxisY scale:1 / yScale];
     }
+}
+
+- (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex {
+    if (texCoords == nil)
+        [NSException raise:NSInvalidArgumentException format:@"texture coordinate vector must not be nil"];
+    if (vertex == nil)
+        [NSException raise:NSInvalidArgumentException format:@"vertex must not be nil"];
+    
+    if (texAxisX == nil || texAxisY == nil)
+        [self calculateAxes];
     
     [texCoords setX:[vertex dot:texAxisX] + xOffset];
     [texCoords setY:[vertex dot:texAxisY] + yOffset];
+}
+
+- (Vector3f *)worldCoordsOf:(Vector2f *)sCoords {
+    if (sCoords == nil)
+        [NSException raise:NSInvalidArgumentException format:@"surface coordinates must not be nil"];
+    
+    if (surfAxisX == nil || surfAxisY == nil)
+        [self calculateAxes];
+
+    Vector3f* x = [[Vector3f alloc] initWithFloatVector:surfAxisX];
+    [x scale:[sCoords x]];
+    
+    Vector3f* y = [[Vector3f alloc] initWithFloatVector:surfAxisY];
+    [y scale:[sCoords y]];
+    
+    [x add:y];
+//    [x add:[self center]];
+    
+    [y release];
+    return [x autorelease];
 }
 
 - (NSString *)description {
@@ -321,6 +412,18 @@
             yScale];
 }
 
+- (Vector3f *)center {
+    return [brush centerOfFace:self];
+}
+
+- (NSArray *)vertices {
+    return [brush verticesForFace:self];
+}
+
+- (NSUndoManager *)undoManager {
+    return [brush undoManager];
+}
+
 - (void) dealloc {
     [faceId release];
     [halfSpace release];
@@ -331,7 +434,8 @@
     [norm release];
     [texAxisX release];
     [texAxisY release];
-	
+    [surfAxisX release];
+    [surfAxisY release];
 	[super dealloc];
 }
 

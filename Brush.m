@@ -72,30 +72,57 @@ NSString* const BrushFlagsChanged       = @"BrushFlagsChanged";
 - (Face *)createFaceWithPoint1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3 texture:(NSString *)texture {
     Face* face = [[Face alloc] initInBrush:self point1:point1 point2:point2 point3:point3 texture:texture];
 
-    NSMutableArray* droppedFaces = nil;
-    if (![[self vertexData] cutWithFace:face droppedFaces:&droppedFaces]) {
-        NSLog(@"Brush %@ was cut away by face %@", self, face);
+    if (![self addFace:face]) {
         [face release];
         return nil;
     }
+    
+    return [face autorelease];
+}
 
+- (BOOL)addFace:(Face *)face {
+    NSUndoManager* undoManager = [self undoManager];
+
+    NSMutableArray* droppedFaces = nil;
+    if (![[self vertexData] cutWithFace:face droppedFaces:&droppedFaces]) {
+        NSLog(@"Brush %@ was cut away by face %@", self, face);
+        return NO;
+    } else {
+        [[undoManager prepareWithInvocationTarget:self] removeFace:face];
+    }
+    
     if (droppedFaces != nil) {
         NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
         Face* droppedFace;
         while ((droppedFace = [droppedFacesEn nextObject])) {
             NSLog(@"Face %@ was cut away by face %@", droppedFace, face);
             [faces removeObject:droppedFace];
+            [[undoManager prepareWithInvocationTarget:self] addFace:droppedFace];
         }
     }
 
     [faces addObject:face];
-
+    
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:BrushGeometryChanged object:self];
     }
     
-    return [face autorelease];
+    return YES;
+}
+
+- (void)removeFace:(Face *)face {
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] addFace:face];
+    
+    [faces removeObject:face];
+    [vertexData release];
+    vertexData = nil;
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushGeometryChanged object:self];
+    }
 }
 
 - (void)faceFlagsChanged:(Face *)theFace {
@@ -124,14 +151,6 @@ NSString* const BrushFlagsChanged       = @"BrushFlagsChanged";
     return [vertexData verticesForFace:face];
 }
 
-- (int)edgeCount {
-    return [vertexData edgeCount];
-}
-
-- (NSArray *)verticesForWireframe {
-    return [vertexData verticesForWireframe];
-}
-
 - (float *)flatColor {
     return flatColor;
 }
@@ -140,8 +159,12 @@ NSString* const BrushFlagsChanged       = @"BrushFlagsChanged";
     return [[self vertexData] bounds];
 }
 
+- (Vector3f *)centerOfFace:(Face *)face {
+    return [[self vertexData] centerOfFace:face];
+}
+
 - (PickingHit *)pickFace:(Ray3D *)theRay; {
-    return [vertexData pickFace:theRay];
+    return [[self vertexData] pickFace:theRay];
 }
 
 - (void)translateBy:(Vector3i *)theDelta {
@@ -155,6 +178,10 @@ NSString* const BrushFlagsChanged       = @"BrushFlagsChanged";
 
 - (BOOL)postNotifications {
     return [entity postNotifications];
+}
+
+- (NSUndoManager *)undoManager {
+    return [entity undoManager];
 }
 
 - (void)dealloc {

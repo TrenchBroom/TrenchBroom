@@ -39,6 +39,8 @@ NSString* const MapEntityKey        = @"MapEntity";
 }
 
 - (void)addEntity:(Entity *)theEntity {
+    [[undoManager prepareWithInvocationTarget:self] removeEntity:theEntity];
+    
     [entities addObject:theEntity];
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -59,6 +61,8 @@ NSString* const MapEntityKey        = @"MapEntity";
 }
 
 - (void)removeEntity:(Entity *)entity {
+    [[undoManager prepareWithInvocationTarget:self] addEntity:entity];
+    
     [entities removeObject:entity];
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -82,7 +86,17 @@ NSString* const MapEntityKey        = @"MapEntity";
     postNotifications = value;
 }
 
+- (NSUndoManager *)undoManager {
+    return undoManager;
+}
+
+- (void)setUndoManager:(NSUndoManager *)theUndoManager {
+    [undoManager release];
+    undoManager = [theUndoManager retain];
+}
+
 - (void)dealloc {
+    [undoManager release];
     [entities release];
     [super dealloc];
 }

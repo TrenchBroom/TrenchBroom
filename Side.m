@@ -10,6 +10,7 @@
 #import "Edge.h"
 #import "Vertex.h"
 #import "SideEdge.h"
+#import "Vector3f.h"
 
 @implementation Side
 
@@ -114,14 +115,16 @@
 }
 
 - (NSArray *)vertices {
-    NSMutableArray* vertices = [[NSMutableArray alloc] initWithCapacity:[edges count]];
+    if (vertices == nil) {
+        vertices = [[NSMutableArray alloc] initWithCapacity:[edges count]];
     
-    NSEnumerator* eEn = [edges objectEnumerator];
-    Edge* edge;
-    while ((edge = [eEn nextObject]))
-        [vertices addObject:[[edge startVertex] vector]];
+        NSEnumerator* eEn = [edges objectEnumerator];
+        Edge* edge;
+        while ((edge = [eEn nextObject]))
+            [vertices addObject:[[edge startVertex] vector]];
+    }
     
-    return [vertices autorelease];
+    return vertices;
 }
 
 - (NSString *)description {
@@ -155,7 +158,23 @@
     return desc;
 }
 
+- (Vector3f *)center {
+    if (center == nil) {
+        NSEnumerator* vertexEn = [[self vertices] objectEnumerator];
+        Vector3f* vertex = [vertexEn nextObject];
+        center = [[Vector3f alloc] initWithFloatVector:vertex];
+        while ((vertex = [vertexEn nextObject]))
+            [center add:vertex];
+        
+        [center scale:1.0f / [[self vertices] count]];
+    }
+    
+    return center;
+}
+
 - (void)dealloc {
+    [vertices release];
+    [center release];
     [edges release];
     [super dealloc];
 }

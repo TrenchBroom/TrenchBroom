@@ -33,6 +33,7 @@ static NSString* dummy = @"dummy";
         sides = [[NSMutableArray alloc] init];
         faceToSide = [[NSMutableDictionary alloc] init];
         sideToFace = [[NSMutableArray alloc] init];
+        centers = [[NSMutableDictionary alloc] init];
         bounds = nil;
         
         // initialize as huge cube
@@ -373,6 +374,17 @@ static NSString* dummy = @"dummy";
     return [edges count];
 }
 
+- (Vector3f *)centerOfFace:(Face *)face {
+    if (face == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
+    
+    Side* side = [faceToSide objectForKey:[face faceId]];
+    if (side == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face %@ does not belong to %@", face, self];
+    
+    return [side center];
+}
+
 - (PickingHit *)pickFace:(Ray3D *)theRay {
     for (int i = 0; i < [sides count]; i++) {
         Side* side = [sides objectAtIndex:i];
@@ -458,6 +470,7 @@ static NSString* dummy = @"dummy";
 }
 
 - (void)dealloc {
+    [centers release];
     [faceToSide release];
     [sideToFace release];
     [sides release];

@@ -34,6 +34,8 @@ typedef enum {
     NSMutableDictionary* selIndexBuffers;
     NSMutableDictionary* selCountBuffers;
     BOOL buffersValid;
+    
+    NSMutableArray* faceTools;
 }
 
 - (id)initWithMap:(Map *)theMap faceVBO:(VBOBuffer *)theFaceVBO camera:(Camera *)theCamera textureManager:(TextureManager *)theTextureManager selectionManager:(SelectionManager *)theSelectionManager;

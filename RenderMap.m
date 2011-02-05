@@ -20,6 +20,7 @@
 #import "SelectionManager.h"
 #import "IntData.h"
 #import "Vector3f.h"
+#import "FaceOffsetTool.h"
 
 NSString* const RenderMapChanged = @"RenderMapChanged";
 
@@ -29,6 +30,17 @@ NSString* const RenderMapChanged = @"RenderMapChanged";
     if (self = [super init]) {
         map = nil;
         renderEntities = [[NSMutableDictionary alloc] init];
+        
+        // map texture names to index and count buffers for efficient texture rendering
+        indexBuffers = [[NSMutableDictionary alloc] init];
+        countBuffers = [[NSMutableDictionary alloc] init];
+        
+        // same for selection
+        selIndexBuffers = [[NSMutableDictionary alloc] init];
+        selCountBuffers = [[NSMutableDictionary alloc] init];
+        buffersValid = NO;
+        
+        faceTools = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -57,7 +69,19 @@ NSString* const RenderMapChanged = @"RenderMapChanged";
     [countBuffers removeAllObjects];
     [selIndexBuffers removeAllObjects];
     [selCountBuffers removeAllObjects];
+    [faceTools removeAllObjects];
     buffersValid = NO;
+    
+    if ([selectionManager mode] == SM_FACES) {
+        NSSet* faces = [selectionManager selectedFaces];
+        NSEnumerator* faceEn = [faces objectEnumerator];
+        Face* face;
+        while ((face = [faceEn nextObject])) {
+            FaceOffsetTool* tool = [[FaceOffsetTool alloc] initWithFace:face];
+            [faceTools addObject:tool];
+            [tool release];
+        }
+    }
 }
 
 - (id)initWithMap:(Map *)theMap faceVBO:(VBOBuffer *)theFaceVBO camera:(Camera *)theCamera textureManager:(TextureManager *)theTextureManager selectionManager:(SelectionManager *)theSelectionManager {
@@ -79,15 +103,6 @@ NSString* const RenderMapChanged = @"RenderMapChanged";
         textureManager = [theTextureManager retain];
         selectionManager = [theSelectionManager retain];
         
-        // map texture names to index and count buffers for efficient texture rendering
-        indexBuffers = [[NSMutableDictionary alloc] init];
-        countBuffers = [[NSMutableDictionary alloc] init];
-        
-        // same for selection
-        selIndexBuffers = [[NSMutableDictionary alloc] init];
-        selCountBuffers = [[NSMutableDictionary alloc] init];
-        buffersValid = NO;
-
         NSArray* entities = [map entities];
         NSEnumerator* entityEn = [entities objectEnumerator];
         Entity* entity;
@@ -276,6 +291,14 @@ NSString* const RenderMapChanged = @"RenderMapChanged";
     
     [self renderFacesInMode:RM_TEXTURED];
     [self renderFacesInMode:RM_WIREFRAME];
+
+    NSEnumerator* faceToolEn = [faceTools objectEnumerator];
+    FaceOffsetTool* tool;
+    glDisable(GL_DEPTH_TEST);
+    while ((tool = [faceToolEn nextObject])) {
+        [tool render];
+    }
+    glEnable(GL_DEPTH_TEST);
     
     [self postRender];
 }
@@ -309,6 +332,7 @@ NSString* const RenderMapChanged = @"RenderMapChanged";
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [faceTools release];
     [indexBuffers release];
     [countBuffers release];
     [selIndexBuffers release];

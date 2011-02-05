@@ -18,6 +18,7 @@ typedef enum {
 @class BoundingBox;
 @class Ray3D;
 @class PickingHit;
+@class Vector3f;
 
 @interface VertexData : NSObject {
     @private
@@ -26,6 +27,7 @@ typedef enum {
     NSMutableArray* sides;
     NSMutableArray* sideToFace;
     NSMutableDictionary* faceToSide;
+    NSMutableDictionary* centers;
     BoundingBox* bounds;
 }
 
@@ -36,5 +38,13 @@ typedef enum {
 - (NSArray *)verticesForWireframe;
 - (int)edgeCount;
 - (BoundingBox *)bounds;
+
+/*!
+    @function
+    @abstract   Returns the center of the given face.
+    @param      The face.
+    @result     The center of the given face.
+*/
+- (Vector3f *)centerOfFace:(Face *)face;
 - (PickingHit *)pickFace:(Ray3D *)theRay;
 @end

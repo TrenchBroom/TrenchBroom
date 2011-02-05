@@ -20,6 +20,7 @@ extern NSString* const MapEntityKey;
     Entity* worldspawn;
     int worldSize;
     BOOL postNotifications;
+    NSUndoManager* undoManager;
 }
 
 - (Entity *)worldspawn;
@@ -32,5 +33,19 @@ extern NSString* const MapEntityKey;
 - (int)worldSize;
 
 - (BOOL)postNotifications;
+
+/*!
+    @function
+    @abstract   Returns the undo manager for this map.
+    @result     The undo manager for this map or nil if there is no undo manager.
+*/
+- (NSUndoManager *)undoManager;
+
+/*!
+    @function
+    @abstract   Sets the undo manager for this map.
+*/
+- (void)setUndoManager:(NSUndoManager *)theUndoManager;
+
 - (void)setPostNotifications:(BOOL)value;
 @end
