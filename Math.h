@@ -6,6 +6,8 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
+#import <Cocoa/Cocoa.h>
+
 extern float const AlmostZero;
 
 BOOL fzero(float v);
@@ -20,3 +22,6 @@ BOOL finxx(float v, float b1, float b2);
 BOOL finxi(float v, float b1, float b2);
 BOOL finix(float v, float b1, float b2);
 BOOL finii(float v, float b1, float b2);
+
+NSArray* makeCircle(float radius, int segments);
+NSArray* makeRing(float innerRadius, float outerRadius, int segments);

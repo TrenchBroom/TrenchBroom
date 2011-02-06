@@ -14,6 +14,7 @@
 #import "Vector2f.h"
 #import "Quaternion.h"
 #import "math.h"
+#import "Math.h"
 #import "Brush.h"
 #import "Plane3D.h"
 #import "Line3D.h"
@@ -129,11 +130,8 @@ static Vector3f* baseAxes[18];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
-
-    [surfAxisX release];
-    surfAxisX = nil;
-    [surfAxisY release];
-    surfAxisY = nil;
+    [surfaceRotation release];
+    surfaceRotation = nil;
 }
 
 - (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3{
@@ -243,10 +241,8 @@ static Vector3f* baseAxes[18];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
-    [surfAxisX release];
-    surfAxisX = nil;
-    [surfAxisY release];
-    surfAxisY = nil;
+    [surfaceRotation release];
+    surfaceRotation = nil;
     
     [brush faceFlagsChanged:self];
 }
@@ -295,40 +291,24 @@ static Vector3f* baseAxes[18];
     return halfSpace;
 }
 
-- (void)calculateAxes {
-    // determine texture axes, this is from QBSP
-    float best = 0;
-    int bestAxis = 0;
-    for (int i = 0; i < 6; i++) {
-        float dot = [[self norm] dot:baseAxes[i * 3]];
-        if (dot > best) {
-            best = dot;
-            bestAxis = i;
-        }
-    }
-
-    if (surfAxisX == nil || surfAxisY == nil) {
-        int c = bestAxis <= 1 ? 1 : 0;
-        float nx = [[self norm] component:c];
-        float nu = [[self norm] component:bestAxis / 3];
-        float n = - 1 * nx / nu;
-        
-        surfAxisX = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 1]];
-        [surfAxisX setComponent:bestAxis / 3 value:n];
-        [surfAxisX normalize];
-        
-        c = bestAxis <= 3 ? 2 : 1;
-        nx = [[self norm] component:c];
-        n = - 1 * nx / nu;
-        
-        surfAxisY = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 2]];
-        if (bestAxis % 2 == 1)
-            [surfAxisY scale:-1];
-        [surfAxisY setComponent:bestAxis / 3 value:n];
-        [surfAxisY normalize];
-    }
-
+- (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex {
+    if (texCoords == nil)
+        [NSException raise:NSInvalidArgumentException format:@"texture coordinate vector must not be nil"];
+    if (vertex == nil)
+        [NSException raise:NSInvalidArgumentException format:@"vertex must not be nil"];
+    
     if (texAxisX == nil || texAxisY == nil) {
+        // determine texture axes, this is from QBSP
+        float best = 0;
+        int bestAxis = 0;
+        for (int i = 0; i < 6; i++) {
+            float dot = [[self norm] dot:baseAxes[i * 3]];
+            if (dot > best) {
+                best = dot;
+                bestAxis = i;
+            }
+        }
+        
         texAxisX = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 1]];
         texAxisY = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 2]];
         
@@ -363,16 +343,6 @@ static Vector3f* baseAxes[18];
         [texAxisX scale:1 / xScale];
         [texAxisY scale:1 / yScale];
     }
-}
-
-- (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex {
-    if (texCoords == nil)
-        [NSException raise:NSInvalidArgumentException format:@"texture coordinate vector must not be nil"];
-    if (vertex == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vertex must not be nil"];
-    
-    if (texAxisX == nil || texAxisY == nil)
-        [self calculateAxes];
     
     [texCoords setX:[vertex dot:texAxisX] + xOffset];
     [texCoords setY:[vertex dot:texAxisY] + yOffset];
@@ -382,20 +352,108 @@ static Vector3f* baseAxes[18];
     if (sCoords == nil)
         [NSException raise:NSInvalidArgumentException format:@"surface coordinates must not be nil"];
     
-    if (surfAxisX == nil || surfAxisY == nil)
-        [self calculateAxes];
+    [surfaceRotation release];
+    surfaceRotation = nil;
+    
+    if (surfaceRotation == nil) {
+        float dot = [[Vector3f zAxisPos] dot:[self norm]];
+        Quaternion* zRotation = [[Quaternion alloc] initWithAngle:0 axis:[Vector3f xAxisPos]];
+        if (!feq(dot, 1)) {
+            Vector3f* zRotAxis = [[Vector3f alloc] initWithFloatVector:[Vector3f zAxisPos]];
+            [zRotAxis cross:[self norm]];
+            [zRotAxis normalize];
+            
+            [zRotation setAngle:acos(dot) axis:zRotAxis];
+            [zRotAxis release];
+        }
+        
+        Vector3f* xAxis = [[Vector3f alloc] initWithFloatVector:[Vector3f xAxisPos]];
+        [zRotation rotate:xAxis];
+        
+        Vector3f* refAxis = [[Vector3f alloc] init];
+        
+        float ny = [[self norm] y];
+        if (fneg(ny)) {
+            // surface X axis is normalized projection of positive world X axis along Y axis onto plane
+            Vector3f* point = [[Vector3f alloc] initWithFloatVector:[self center]];
+            [point setX:[point x] + 1];
+            Line3D* line = [[Line3D alloc] initWithPoint:point normalizedDirection:[Vector3f yAxisPos]];
+            Plane3D* plane = [[self halfSpace] boundary];
+            [refAxis setFloat:[plane intersectWithLine:line]];
+            [refAxis sub:[self center]];
+            [refAxis normalize];
+            [line release];
+            [point release];
+        } else if (fpos(ny)) {
+            // surface X axis is normalized projection of negative world X axis along Y axis onto plane
+            Vector3f* point = [[Vector3f alloc] initWithFloatVector:[self center]];
+            [point setX:[point x] - 1];
+            Line3D* line = [[Line3D alloc] initWithPoint:point normalizedDirection:[Vector3f yAxisPos]];
+            Plane3D* plane = [[self halfSpace] boundary];
+            [refAxis setFloat:[plane intersectWithLine:line]];
+            [refAxis sub:[self center]];
+            [refAxis normalize];
+            [line release];
+            [point release];
+        } else {
+            // plane normal is on XZ plane, try X, then Z
+            float nx = [[self norm] x];
+            if (fpos(nx)) {
+                // positive world Y axis is surface X axis
+                [refAxis setFloat:[Vector3f yAxisPos]];
+            } else if (fneg(nx)) {
+                // negative world Y axis is surface X axis
+                [refAxis setFloat:[Vector3f yAxisNeg]];
+            } else {
+                // surface normal is Z = 1 or Z = -1
+                float nz = [[self norm] z];
+                if (nz > 0) {
+                    // positive world X axis is surface X axis
+                    [refAxis setFloat:[Vector3f xAxisPos]];
+                } else {
+                    // negative world X axis is surface X axis
+                    [refAxis setFloat:[Vector3f xAxisNeg]];
+                }
+            }
+        }
+        
+        dot = [xAxis dot:refAxis];
+        Quaternion* xRotation = [[Quaternion alloc] initWithAngle:0 axis:[Vector3f xAxisPos]];
+        
+        if (!feq(dot, 1)) {
+            Vector3f* xRotAxis = [[Vector3f alloc] initWithFloatVector:xAxis];
+            [xRotAxis cross:refAxis];
+            if ([xRotAxis isNull])
+                [xRotAxis setFloat:[self norm]];
+            else
+                [xRotAxis normalize];
 
-    Vector3f* x = [[Vector3f alloc] initWithFloatVector:surfAxisX];
-    [x scale:[sCoords x]];
+            [xRotation setAngle:acos(dot) axis:xRotAxis];
+            [xRotAxis release];
+        }
+
+        [xAxis release];
+        [refAxis release];
+        
+        [xRotation mul:zRotation];
+        [zRotation release];
+
+        surfaceRotation = xRotation;
+    }
+
+    float x = [sCoords x];
+    float y = [sCoords y];
+    float z = 0;
     
-    Vector3f* y = [[Vector3f alloc] initWithFloatVector:surfAxisY];
-    [y scale:[sCoords y]];
+    Vector3f* result = [[Vector3f alloc] init];
+    [result setX:x];
+    [result setY:y];
+    [result setZ:z];
     
-    [x add:y];
-//    [x add:[self center]];
+    [surfaceRotation rotate:result];
+    [result add:[self center]];
     
-    [y release];
-    return [x autorelease];
+    return [result autorelease];
 }
 
 - (NSString *)description {
@@ -434,8 +492,7 @@ static Vector3f* baseAxes[18];
     [norm release];
     [texAxisX release];
     [texAxisY release];
-    [surfAxisX release];
-    [surfAxisY release];
+    [surfaceRotation release];
 	[super dealloc];
 }
 

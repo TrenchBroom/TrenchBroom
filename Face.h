@@ -41,8 +41,8 @@ typedef enum {
     
     Vector3f* texAxisX;
     Vector3f* texAxisY;
-    Vector3f* surfAxisX;
-    Vector3f* surfAxisY;
+    Quaternion* surfaceRotation;
+    
 }
 
 - (id)initInBrush:(Brush *)theBrush point1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;

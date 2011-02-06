@@ -7,6 +7,8 @@
 //
 
 #import "Math.h"
+#import "math.h"
+#import "Vector2f.h"
 
 float const AlmostZero = 0.001f;
 
@@ -56,4 +58,43 @@ BOOL finix(float v, float b1, float b2) {
 
 BOOL finii(float v, float b1, float b2) {
     return b1 < b2 ? fgte(v, b1) && flte(v, b2) : fgte(v, b2) && flte(v, b1);
+}
+
+NSArray* makeCircle(float radius, int segments) {
+    NSMutableArray* points = [[NSMutableArray alloc] initWithCapacity:segments];
+    
+    float d = 2 * M_PI / segments;
+    float a = 0;
+    for (int i = 0; i < segments; i++) {
+        float s = sin(a);
+        float c = cos(a);
+        Vector2f* point = [[Vector2f alloc] initWithX:radius * s y:radius * c];
+        [points addObject:point];
+        [point release];
+        a += d;
+    }
+    
+    return [points autorelease];
+}
+
+NSArray* makeRing(float innerRadius, float outerRadius, int segments) {
+    NSMutableArray* points = [[NSMutableArray alloc] initWithCapacity:2 * segments + 2];
+    
+    float d = 2 * M_PI / (2 * segments);
+    float a = 0;
+    for (int i = 0; i < 2 * segments; i++) {
+        float s = sin(a);
+        float c = cos(a);
+        float r = i % 2 == 0 ? innerRadius : outerRadius;
+        
+        Vector2f* point = [[Vector2f alloc] initWithX:r * s y:r * c];
+        [points addObject:point];
+        [point release];
+        a += d;
+    }
+    
+    [points addObject:[points objectAtIndex:0]];
+    [points addObject:[points objectAtIndex:1]];
+    
+    return [points autorelease];
 }

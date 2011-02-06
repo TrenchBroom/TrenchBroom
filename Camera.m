@@ -27,7 +27,8 @@ NSString* const CameraChanged = @"CameraChanged";
         up = [[Vector3f alloc] initWithX:0 y:0 z:1];
         right = [[Vector3f alloc] initWithFloatVector:direction];
         [right cross:up];
-
+        [right normalize];
+        
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self 
                    selector:@selector(userDefaultsChanged:) 
@@ -82,6 +83,7 @@ NSString* const CameraChanged = @"CameraChanged";
     [qy rotate:direction];
     [right setFloat:direction];
     [right cross:up];
+    [right normalize];
     
     [qy release];
     [qp release];
@@ -119,6 +121,7 @@ NSString* const CameraChanged = @"CameraChanged";
     [qh rotate:direction];
     [right setFloat:direction];
     [right cross:up];
+    [right normalize];
 
     [qh release];
     [qv release];
