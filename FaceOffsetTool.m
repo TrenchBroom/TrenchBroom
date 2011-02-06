@@ -82,7 +82,6 @@ static NSArray* ring;
     w = [face worldCoordsOf:v];
     glVertex3f([w x], [w y], [w z]);
     
-    /*
     // right arrow
     [v setX:4];
     [v setY:2];
@@ -130,7 +129,6 @@ static NSArray* ring;
     [v setY:2];
     w = [face worldCoordsOf:v];
     glVertex3f([w x], [w y], [w z]);
-     */
     
     glEnd();
 }

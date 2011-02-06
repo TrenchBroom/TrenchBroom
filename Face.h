@@ -18,7 +18,7 @@ typedef enum {
 @class HalfSpace3D;
 @class Plane3D;
 @class Brush;
-@class Quaternion;
+@class Matrix4f;
 
 @interface Face : NSObject {
     @private
@@ -41,8 +41,9 @@ typedef enum {
     
     Vector3f* texAxisX;
     Vector3f* texAxisY;
-    Quaternion* surfaceRotation;
     
+    // transforms surface coordinates to world coordinates
+    Matrix4f* surfaceMatrix;
 }
 
 - (id)initInBrush:(Brush *)theBrush point1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;

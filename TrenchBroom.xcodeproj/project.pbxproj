@@ -56,6 +56,8 @@
 		486A9C1C12F41FCA003D26FE /* Octree.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1B12F41FCA003D26FE /* Octree.m */; };
 		486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1E12F41FD1003D26FE /* OctreeNode.m */; };
 		486A9C3812F488E4003D26FE /* Ray3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C3712F488E4003D26FE /* Ray3D.m */; };
+		4872C97712FF4DC200C5DD29 /* Matrix4f.m in Sources */ = {isa = PBXBuildFile; fileRef = 4872C97612FF4DC200C5DD29 /* Matrix4f.m */; };
+		4872C97A12FF4DEC00C5DD29 /* Vector4f.m in Sources */ = {isa = PBXBuildFile; fileRef = 4872C97912FF4DEC00C5DD29 /* Vector4f.m */; };
 		48770FF312E5BE66009B440B /* MapTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF212E5BE66009B440B /* MapTokenizer.m */; };
 		48770FF612E5BF28009B440B /* MapToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF512E5BF28009B440B /* MapToken.m */; };
 		4877106E12E5DA55009B440B /* MapParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4877106D12E5DA55009B440B /* MapParser.m */; };
@@ -198,6 +200,10 @@
 		486A9C1E12F41FD1003D26FE /* OctreeNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OctreeNode.m; sourceTree = "<group>"; };
 		486A9C3612F488E4003D26FE /* Ray3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ray3D.h; sourceTree = "<group>"; };
 		486A9C3712F488E4003D26FE /* Ray3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Ray3D.m; sourceTree = "<group>"; };
+		4872C97512FF4DC200C5DD29 /* Matrix4f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix4f.h; sourceTree = "<group>"; };
+		4872C97612FF4DC200C5DD29 /* Matrix4f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix4f.m; sourceTree = "<group>"; };
+		4872C97812FF4DEC00C5DD29 /* Vector4f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vector4f.h; sourceTree = "<group>"; };
+		4872C97912FF4DEC00C5DD29 /* Vector4f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vector4f.m; sourceTree = "<group>"; };
 		48770FF112E5BE66009B440B /* MapTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapTokenizer.h; sourceTree = "<group>"; };
 		48770FF212E5BE66009B440B /* MapTokenizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapTokenizer.m; sourceTree = "<group>"; };
 		48770FF412E5BF28009B440B /* MapToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapToken.h; sourceTree = "<group>"; };
@@ -427,6 +433,10 @@
 		485FD0C81257A8C100F4AE49 /* 3D */ = {
 			isa = PBXGroup;
 			children = (
+				4872C97812FF4DEC00C5DD29 /* Vector4f.h */,
+				4872C97912FF4DEC00C5DD29 /* Vector4f.m */,
+				4872C97512FF4DC200C5DD29 /* Matrix4f.h */,
+				4872C97612FF4DC200C5DD29 /* Matrix4f.m */,
 				487CA0C3125B00E9002DF9D2 /* HalfSpace3D.h */,
 				487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */,
 				4836400F12603A5100363E3F /* Line3D.h */,
@@ -873,6 +883,8 @@
 				4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */,
 				4891E15612FC04B2007A3B93 /* FaceInspectorController.m in Sources */,
 				48FDA0BE12FD872500204729 /* FaceOffsetTool.m in Sources */,
+				4872C97712FF4DC200C5DD29 /* Matrix4f.m in Sources */,
+				4872C97A12FF4DEC00C5DD29 /* Vector4f.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

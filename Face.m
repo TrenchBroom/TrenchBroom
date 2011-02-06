@@ -16,6 +16,7 @@
 #import "math.h"
 #import "Math.h"
 #import "Brush.h"
+#import "Matrix4f.h"
 #import "Plane3D.h"
 #import "Line3D.h"
 
@@ -130,8 +131,8 @@ static Vector3f* baseAxes[18];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
-    [surfaceRotation release];
-    surfaceRotation = nil;
+    [surfaceMatrix release];
+    surfaceMatrix = nil;
 }
 
 - (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3{
@@ -241,8 +242,8 @@ static Vector3f* baseAxes[18];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
-    [surfaceRotation release];
-    surfaceRotation = nil;
+    [surfaceMatrix release];
+    surfaceMatrix = nil;
     
     [brush faceFlagsChanged:self];
 }
@@ -352,25 +353,13 @@ static Vector3f* baseAxes[18];
     if (sCoords == nil)
         [NSException raise:NSInvalidArgumentException format:@"surface coordinates must not be nil"];
     
-    [surfaceRotation release];
-    surfaceRotation = nil;
+    [surfaceMatrix release];
+    surfaceMatrix = nil;
     
-    if (surfaceRotation == nil) {
-        float dot = [[Vector3f zAxisPos] dot:[self norm]];
-        Quaternion* zRotation = [[Quaternion alloc] initWithAngle:0 axis:[Vector3f xAxisPos]];
-        if (!feq(dot, 1)) {
-            Vector3f* zRotAxis = [[Vector3f alloc] initWithFloatVector:[Vector3f zAxisPos]];
-            [zRotAxis cross:[self norm]];
-            [zRotAxis normalize];
-            
-            [zRotation setAngle:acos(dot) axis:zRotAxis];
-            [zRotAxis release];
-        }
-        
-        Vector3f* xAxis = [[Vector3f alloc] initWithFloatVector:[Vector3f xAxisPos]];
-        [zRotation rotate:xAxis];
-        
-        Vector3f* refAxis = [[Vector3f alloc] init];
+    if (surfaceMatrix == nil) {
+        Vector3f* xAxis = [[Vector3f alloc] init];
+        Vector3f* yAxis = [[Vector3f alloc] init];
+        Vector3f* zAxis = [[Vector3f alloc] initWithFloatVector:[self norm]];
         
         float ny = [[self norm] y];
         if (fneg(ny)) {
@@ -379,9 +368,9 @@ static Vector3f* baseAxes[18];
             [point setX:[point x] + 1];
             Line3D* line = [[Line3D alloc] initWithPoint:point normalizedDirection:[Vector3f yAxisPos]];
             Plane3D* plane = [[self halfSpace] boundary];
-            [refAxis setFloat:[plane intersectWithLine:line]];
-            [refAxis sub:[self center]];
-            [refAxis normalize];
+            [xAxis setFloat:[plane intersectWithLine:line]];
+            [xAxis sub:[self center]];
+            [xAxis normalize];
             [line release];
             [point release];
         } else if (fpos(ny)) {
@@ -390,9 +379,9 @@ static Vector3f* baseAxes[18];
             [point setX:[point x] - 1];
             Line3D* line = [[Line3D alloc] initWithPoint:point normalizedDirection:[Vector3f yAxisPos]];
             Plane3D* plane = [[self halfSpace] boundary];
-            [refAxis setFloat:[plane intersectWithLine:line]];
-            [refAxis sub:[self center]];
-            [refAxis normalize];
+            [xAxis setFloat:[plane intersectWithLine:line]];
+            [xAxis sub:[self center]];
+            [xAxis normalize];
             [line release];
             [point release];
         } else {
@@ -400,45 +389,34 @@ static Vector3f* baseAxes[18];
             float nx = [[self norm] x];
             if (fpos(nx)) {
                 // positive world Y axis is surface X axis
-                [refAxis setFloat:[Vector3f yAxisPos]];
+                [xAxis setFloat:[Vector3f yAxisPos]];
             } else if (fneg(nx)) {
                 // negative world Y axis is surface X axis
-                [refAxis setFloat:[Vector3f yAxisNeg]];
+                [xAxis setFloat:[Vector3f yAxisNeg]];
             } else {
                 // surface normal is Z = 1 or Z = -1
                 float nz = [[self norm] z];
                 if (nz > 0) {
                     // positive world X axis is surface X axis
-                    [refAxis setFloat:[Vector3f xAxisPos]];
+                    [xAxis setFloat:[Vector3f xAxisPos]];
                 } else {
                     // negative world X axis is surface X axis
-                    [refAxis setFloat:[Vector3f xAxisNeg]];
+                    [xAxis setFloat:[Vector3f xAxisNeg]];
                 }
             }
         }
         
-        dot = [xAxis dot:refAxis];
-        Quaternion* xRotation = [[Quaternion alloc] initWithAngle:0 axis:[Vector3f xAxisPos]];
+        [yAxis setFloat:zAxis];
+        [yAxis cross:xAxis];
+        [yAxis normalize];
         
-        if (!feq(dot, 1)) {
-            Vector3f* xRotAxis = [[Vector3f alloc] initWithFloatVector:xAxis];
-            [xRotAxis cross:refAxis];
-            if ([xRotAxis isNull])
-                [xRotAxis setFloat:[self norm]];
-            else
-                [xRotAxis normalize];
-
-            [xRotation setAngle:acos(dot) axis:xRotAxis];
-            [xRotAxis release];
-        }
-
-        [xAxis release];
-        [refAxis release];
-        
-        [xRotation mul:zRotation];
-        [zRotation release];
-
-        surfaceRotation = xRotation;
+        // build transformation matrix
+        surfaceMatrix = [[Matrix4f alloc] init];
+        [surfaceMatrix setRow:0 values:xAxis];
+        [surfaceMatrix setRow:1 values:yAxis];
+        [surfaceMatrix setRow:2 values:zAxis];
+        [surfaceMatrix setRow:3 values:[self center]];
+        [surfaceMatrix setRow:3 column:3 value:1];
     }
 
     float x = [sCoords x];
@@ -450,9 +428,7 @@ static Vector3f* baseAxes[18];
     [result setY:y];
     [result setZ:z];
     
-    [surfaceRotation rotate:result];
-    [result add:[self center]];
-    
+    [surfaceMatrix transformVector3f:result];
     return [result autorelease];
 }
 
@@ -492,7 +468,7 @@ static Vector3f* baseAxes[18];
     [norm release];
     [texAxisX release];
     [texAxisY release];
-    [surfaceRotation release];
+    [surfaceMatrix release];
 	[super dealloc];
 }
 
