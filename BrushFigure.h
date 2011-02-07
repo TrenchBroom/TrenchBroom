@@ -8,27 +8,25 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class RenderEntity;
 @class Brush;
 @class Face;
 @class IntData;
 @class VBOBuffer;
 @class VBOMemBlock;
-@class TextureManager;
+@class RenderContext;
 
-@interface RenderBrush : NSObject {
+@interface BrushFigure : NSObject {
     @private
-    RenderEntity* renderEntity;
     Brush* brush;
-    VBOBuffer* faceVBO;
-    VBOMemBlock* faceBlock;
+    VBOBuffer* vbo;
+    VBOMemBlock* block;
     NSMutableDictionary* faceEntries;
 }
 
-- (id)initInEntity:(RenderEntity *)theEntity withBrush:(Brush *)theBrush faceVBO:(VBOBuffer *)theFaceVBO;
+- (id)initWithBrush:(Brush *)theBrush vbo:(VBOBuffer *)theVbo;
 
 - (Brush *)brush;
 
-- (void)prepareFacesWithTextureManager:(TextureManager *)theTextureManager;
+- (void)prepare:(RenderContext *)renderContext;
 - (void)indexForFace:(Face *)face indexBuffer:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer;
 @end

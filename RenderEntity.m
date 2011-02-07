@@ -8,7 +8,7 @@
 
 #import "RenderEntity.h"
 #import "RenderMap.h"
-#import "RenderBrush.h"
+#import "BrushFigure.h"
 #import "Entity.h"
 #import "Brush.h"
 #import "VBOBuffer.h"
@@ -24,7 +24,7 @@
 }
 
 - (void)createRenderBrushFor:(Brush *)theBrush {
-    RenderBrush* renderBrush = [[RenderBrush alloc] initInEntity:self withBrush:theBrush faceVBO:faceVBO];
+    BrushFigure* renderBrush = [[BrushFigure alloc] initInEntity:self withBrush:theBrush faceVBO:faceVBO];
     [renderBrushes setObject:renderBrush forKey:[theBrush brushId]];
     [renderBrush release];
 }

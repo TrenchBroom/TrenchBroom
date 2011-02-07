@@ -11,7 +11,8 @@
 #import "Brush.h"
 #import "Face.h"
 
-NSString* const SelectionChanged = @"SelectionChanged";
+NSString* const SelectionAdded = @"SelectionAdded";
+NSString* const SelectionRemoved = @"SelectionRemoved";
 
 @implementation SelectionManager
 
@@ -30,41 +31,86 @@ NSString* const SelectionChanged = @"SelectionChanged";
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
     
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    NSMutableDictionary* userInfo = nil;
+    
     if (mode != SM_FACES) {
-        [entities removeAllObjects];
-        [brushes removeAllObjects];
+        if ([entities count] > 0 || [brushes count] > 0) {
+            userInfo = [[NSMutableDictionary alloc] init];
+            if ([entities count] > 0)
+                [userInfo setObject:[NSSet setWithSet:entities] forKey:SelectionEntities];
+            if ([brushes count] > 0)
+                [userInfo setObject:[NSSet setWithSet:brushes] forKey:SelectionBrushes];
+
+            [entities removeAllObjects];
+            [brushes removeAllObjects];
+            
+            [center postNotificationName:SelectionRemoved object:self userInfo:userInfo];
+            [userInfo release];
+        } else {
+            [entities removeAllObjects];
+            [brushes removeAllObjects];
+        }
     }
+    
+    
     [faces addObject:face];
     mode = SM_FACES;
     
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotification:[NSNotification notificationWithName:SelectionChanged object:self]];
+    userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:[NSSet setWithObject:face] forKey:SelectionFaces];
+    [center postNotification:[NSNotification notificationWithName:SelectionAdded object:self userInfo:userInfo]];
+    [userInfo release];
 }
 
 - (void)addBrush:(Brush *)brush {
     if (brush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
     
-    if (mode != SM_GEOMETRY)
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    NSMutableDictionary* userInfo = nil;
+    
+    if (mode != SM_GEOMETRY) {
+        userInfo= [[NSMutableDictionary alloc] init];
+        [userInfo setObject:[NSSet setWithSet:faces] forKey:SelectionFaces];
+        
         [faces removeAllObjects];
+
+        [center postNotificationName:SelectionRemoved object:self userInfo:userInfo];
+        [userInfo release];
+    }
     [brushes addObject:brush];
     mode = SM_GEOMETRY;
     
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotification:[NSNotification notificationWithName:SelectionChanged object:self]];
+    userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:[NSSet setWithObject:brush] forKey:SelectionBrushes];
+    [center postNotification:[NSNotification notificationWithName:SelectionAdded object:self userInfo:userInfo]];
+    [userInfo release];
 }
 
 - (void)addEntity:(Entity *)entity {
     if (entity == nil)
         [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
  
-    if (mode != SM_GEOMETRY)
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    NSMutableDictionary* userInfo = nil;
+
+    if (mode != SM_GEOMETRY) {
+        userInfo= [[NSMutableDictionary alloc] init];
+        [userInfo setObject:[NSSet setWithSet:faces] forKey:SelectionFaces];
+
         [faces removeAllObjects];
+        
+        [center postNotificationName:SelectionRemoved object:self userInfo:userInfo];
+        [userInfo release];
+    }
     [entities addObject:entity];
     mode = SM_GEOMETRY;
     
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotification:[NSNotification notificationWithName:SelectionChanged object:self]];
+    userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:[NSSet setWithObject:entity] forKey:SelectionEntities];
+    [center postNotification:[NSNotification notificationWithName:SelectionAdded object:self userInfo:userInfo]];
+    [userInfo release];
 }
 
 - (ESelectionMode)mode {
@@ -133,7 +179,8 @@ NSString* const SelectionChanged = @"SelectionChanged";
         mode = SM_UNDEFINED;
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotification:[NSNotification notificationWithName:SelectionChanged object:self]];
+    NSDictionary* userInfo = [NSDictionary dictionaryWithObject:[NSSet setWithObject:face] forKey:SelectionFaces];
+    [center postNotification:[NSNotification notificationWithName:SelectionRemoved object:self userInfo:userInfo]];
 }
 
 - (void)removeBrush:(Brush *)brush {
@@ -145,7 +192,8 @@ NSString* const SelectionChanged = @"SelectionChanged";
         mode = SM_UNDEFINED;
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotification:[NSNotification notificationWithName:SelectionChanged object:self]];
+    NSDictionary* userInfo = [NSDictionary dictionaryWithObject:[NSSet setWithObject:brush] forKey:SelectionBrushes];
+    [center postNotification:[NSNotification notificationWithName:SelectionRemoved object:self userInfo:userInfo]];
 }
 
 - (void)removeEntity:(Entity *)entity {
@@ -157,17 +205,30 @@ NSString* const SelectionChanged = @"SelectionChanged";
         mode = SM_UNDEFINED;
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotification:[NSNotification notificationWithName:SelectionChanged object:self]];
+    NSDictionary* userInfo = [NSDictionary dictionaryWithObject:[NSSet setWithObject:entity] forKey:SelectionEntities];
+    [center postNotification:[NSNotification notificationWithName:SelectionRemoved object:self userInfo:userInfo]];
 }
 
 - (void)removeAll {
+    if (![self hasSelection])
+        return;
+    
+    NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+    if ([faces count] > 0)
+        [userInfo setObject:[NSSet setWithSet:faces] forKey:SelectionFaces];
+    if ([brushes count] > 0)
+        [userInfo setObject:[NSSet setWithSet:brushes] forKey:SelectionBrushes];
+    if ([entities count] > 0)
+        [userInfo setObject:[NSSet setWithSet:entities] forKey:SelectionEntities];
+    
     [faces removeAllObjects];
     [brushes removeAllObjects];
     [entities removeAllObjects];
     mode = SM_UNDEFINED;
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotification:[NSNotification notificationWithName:SelectionChanged object:self]];
+    [center postNotification:[NSNotification notificationWithName:SelectionRemoved object:self userInfo:userInfo]];
+    [userInfo release];
 }
 
 - (void)dealloc {

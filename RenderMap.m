@@ -13,7 +13,7 @@
 #import "Brush.h"
 #import "Face.h"
 #import "RenderEntity.h"
-#import "RenderBrush.h"
+#import "BrushFigure.h"
 #import "VBOBuffer.h"
 #import "Camera.h"
 #import "TextureManager.h"
@@ -153,7 +153,7 @@ NSString* const RenderMapChanged = @"RenderMapChanged";
     RenderEntity* renderEntity;
     while ((renderEntity = [renderEntityEn nextObject])) {
         NSEnumerator* renderBrushEn = [[renderEntity renderBrushes] objectEnumerator];
-        RenderBrush* renderBrush;
+        BrushFigure* renderBrush;
         while ((renderBrush = [renderBrushEn nextObject]))
             [renderBrush prepareFacesWithTextureManager:textureManager];
     }
@@ -202,7 +202,7 @@ NSString* const RenderMapChanged = @"RenderMapChanged";
         RenderEntity* renderEntity;
         while ((renderEntity = [renderEntityEn nextObject])) {
             NSEnumerator* renderBrushEn = [[renderEntity renderBrushes] objectEnumerator];
-            RenderBrush* renderBrush;
+            BrushFigure* renderBrush;
             while ((renderBrush = [renderBrushEn nextObject])) {
                 Brush* brush = [renderBrush brush];
                 NSArray* faces = [brush faces];

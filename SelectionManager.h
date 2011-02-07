@@ -8,7 +8,12 @@
 
 #import <Cocoa/Cocoa.h>
 
-extern NSString* const SelectionChanged;
+extern NSString* const SelectionAdded;
+extern NSString* const SelectionRemoved;
+
+extern NSString* const SelectionEntities;
+extern NSString* const SelectionBrushes;
+extern NSString* const SelectionFaces;
 
 typedef enum {
     SM_UNDEFINED,

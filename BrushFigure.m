@@ -6,8 +6,7 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import "RenderBrush.h"
-#import "RenderEntity.h"
+#import "BrushFigure.h"
 #import "Brush.h"
 #import "Face.h"
 #import "VBOBuffer.h"
@@ -18,8 +17,9 @@
 #import "TextureManager.h"
 #import "Texture.h"
 #import "IntData.h"
+#import "RenderContext.h"
 
-@implementation RenderBrush
+@implementation BrushFigure
 
 - (id)init {
     if (self = [super init]) {
@@ -30,31 +30,20 @@
 }
 
 - (void)brushChanged:(NSNotification *)notification {
-    [faceBlock setState:BS_USED_INVALID];
-    [faceEntries removeAllObjects];
-    [renderEntity brushChanged];
+    [vbo freeMemBlock:block];
+    [block release];
+    block = nil;
 }
 
-- (id)initInEntity:(RenderEntity *)theRenderEntity withBrush:(Brush *)theBrush faceVBO:(VBOBuffer *)theFaceVBO {
-    if (theRenderEntity == nil)
-        [NSException raise:NSInvalidArgumentException format:@"render entity must not be nil"];
+- (id)initWithBrush:(Brush *)theBrush vbo:(VBOBuffer *)theVbo {
     if (theBrush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
-    if (theFaceVBO == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face VBO buffer must not be nil"];
+    if (theVbo == nil)
+        [NSException raise:NSInvalidArgumentException format:@"VBO buffer must not be nil"];
     
     if (self = [self init]) {
-        renderEntity = [theRenderEntity retain];
         brush = [theBrush retain];
-        faceVBO = [theFaceVBO retain];
-        
-        int vertexCount = 0;
-        NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-        Face* face;
-        while ((face = [faceEn nextObject]))
-            vertexCount += [[brush verticesForFace:face] count];
-        
-        faceBlock = [[faceVBO allocMemBlock:5 * sizeof(float) * vertexCount] retain];
+        vbo = [theVbo retain];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(brushChanged:) name:BrushGeometryChanged object:brush];
@@ -68,8 +57,22 @@
     return brush;
 }
 
-- (void)prepareFacesWithTextureManager:(TextureManager *)theTextureManager {
-    if ([faceBlock state] == BS_USED_INVALID) {
+- (void)prepare:(RenderContext *)renderContext {
+    if (block == nil) {
+        int vertexCount = 0;
+        NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+        Face* face;
+        while ((face = [faceEn nextObject]))
+            vertexCount += [[brush verticesForFace:face] count];
+        
+        block = [[vbo allocMemBlock:5 * sizeof(float) * vertexCount] retain];
+        
+    }
+    
+    if ([block state] == BS_USED_INVALID) {
+        TextureManager* textureManager = [renderContext textureManager];
+        [faceEntries removeAllObjects];
+
         int offset = 0;
         int vertexSize = 5 * sizeof(float);
         Vector2f* texCoords = [[Vector2f alloc] init];
@@ -78,12 +81,12 @@
         Face* face;
         while ((face = [faceEn nextObject])) {
             NSString* textureName = [face texture];
-            Texture* texture = [theTextureManager textureForName:textureName];
+            Texture* texture = [textureManager textureForName:textureName];
             int width = texture != nil ? [texture width] : 1;
             int height = texture != nil ? [texture height] : 1;
             
             NSArray* vertices = [brush verticesForFace:face];
-            int index = ([faceBlock address] + offset) / vertexSize;
+            int index = ([block address] + offset) / vertexSize;
 
             VBOArrayEntry* entry = [[VBOArrayEntry alloc] initWithIndex:index count:[vertices count]];
             [faceEntries setObject:entry forKey:[face faceId]];
@@ -95,13 +98,13 @@
                 [face texCoords:texCoords forVertex:vertex];
                 [texCoords setX:[texCoords x] / width];
                 [texCoords setY:[texCoords y] / height];
-                offset = [faceBlock writeVector2f:texCoords offset:offset];
-                offset = [faceBlock writeVector3f:vertex offset:offset];
+                offset = [block writeVector2f:texCoords offset:offset];
+                offset = [block writeVector3f:vertex offset:offset];
             }
         }
         
         [texCoords release];
-        [faceBlock setState:BS_USED_VALID];
+        [block setState:BS_USED_VALID];
     }
 }
 
@@ -116,10 +119,9 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [faceEntries release];
-    [faceBlock release];
-    [faceVBO release];
+    [block release];
+    [vbo release];
     [brush release];
-    [renderEntity release];
     [super dealloc];
 }
 
