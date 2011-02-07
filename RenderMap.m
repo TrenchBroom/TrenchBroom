@@ -249,13 +249,8 @@ NSString* const RenderMapChanged = @"RenderMapChanged";
             glEnable(GL_TEXTURE_2D);
             glPolygonMode(GL_FRONT, GL_FILL);
             
-            if ([selectionManager hasSelection]) {
-                glColor4f(0.7, 0.7, 0.7, 0.5);
-                glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-            } else {
-                glColor4f(0, 0, 0, 1);
-                glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-            }
+            glColor4f(0, 0, 0, 1);
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
             [self renderTexturedPolygonsWithIndexBuffers:indexBuffers countBuffers:countBuffers];
             
