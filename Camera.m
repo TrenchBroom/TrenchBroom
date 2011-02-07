@@ -80,16 +80,21 @@ NSString* const CameraChanged = @"CameraChanged";
     Quaternion* qp = [[Quaternion alloc] initWithAngle:pitch axis:right];
     [qy mul:qp];
     
-    [qy rotate:direction];
-    [right setFloat:direction];
-    [right cross:up];
-    [right normalize];
+    Vector3f*  t = [[Vector3f alloc] initWithFloatVector:direction];
+    [qy rotate:t];
     
+    if (!(([t x] < 0 ^ [direction x] < 0) && ([t y] < 0 ^ [direction y] < 0))) {
+        [direction setFloat:t];
+        [right setFloat:direction];
+        [right cross:up];
+        [right normalize];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotification:[NSNotification notificationWithName:CameraChanged object:self]];
+    }
+    [t release];
     [qy release];
     [qp release];
-
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotification:[NSNotification notificationWithName:CameraChanged object:self]];
 }
 
 - (void)moveForward:(float)f right:(float)r up:(float)u {
@@ -112,24 +117,28 @@ NSString* const CameraChanged = @"CameraChanged";
 }
 
 - (void)orbitCenter:(Vector3f *)c hAngle:(float)h vAngle:(float)v {
-    [position sub:c];
     Quaternion* qh = [[Quaternion alloc] initWithAngle:h axis:up];
     Quaternion* qv = [[Quaternion alloc] initWithAngle:v axis:right];
     [qh mul:qv];
     
-    [qh rotate:position];
-    [qh rotate:direction];
-    [right setFloat:direction];
-    [right cross:up];
-    [right normalize];
-
+    Vector3f*  t = [[Vector3f alloc] initWithFloatVector:direction];
+    [qh rotate:t];
+    if (!(([t x] < 0 ^ [direction x] < 0) && ([t y] < 0 ^ [direction y] < 0))) {
+        [direction setFloat:t];
+        [right setFloat:direction];
+        [right cross:up];
+        [right normalize];
+        
+        [position sub:c];
+        [qh rotate:position];
+        [position add:c];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotification:[NSNotification notificationWithName:CameraChanged object:self]];
+    }
+    [t release];
     [qh release];
     [qv release];
-
-    [position add:c];
-    
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotification:[NSNotification notificationWithName:CameraChanged object:self]];
 }
 
 - (Vector3f *)unprojectX:(float)x y:(float)y {

@@ -348,7 +348,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>487D744F130006A90066EC02</string>
+										<string>487AB8A0130043770094DE23</string>
 										<key>history</key>
 										<array>
 											<string>48F2E4C71196E35B00AECD87</string>
@@ -499,7 +499,7 @@
 											<string>4872C9CF12FF57B400C5DD29</string>
 											<string>487D744A130006090066EC02</string>
 											<string>487D744D130006A90066EC02</string>
-											<string>487D744E130006A90066EC02</string>
+											<string>487D744F130006A90066EC02</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -513,18 +513,18 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {1673, 785}}</string>
+								<string>{{0, 0}, {1673, 782}}</string>
 								<key>RubberWindowFrame</key>
 								<string>0 117 1920 941 0 0 1920 1058 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>785pt</string>
+							<string>782pt</string>
 						</dict>
 						<dict>
 							<key>Proportion</key>
-							<string>110pt</string>
+							<string>113pt</string>
 							<key>Tabs</key>
 							<array>
 								<dict>
@@ -538,7 +538,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {1673, 83}}</string>
+										<string>{{10, 27}, {1673, 86}}</string>
 										<key>RubberWindowFrame</key>
 										<string>0 117 1920 941 0 0 1920 1058 </string>
 									</dict>
@@ -622,11 +622,11 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>487D743C130005DA0066EC02</string>
+				<string>487AB86E130040070094DE23</string>
 				<string>1CA23ED40692098700951B8B</string>
-				<string>487D743D130005DA0066EC02</string>
+				<string>487AB86F130040070094DE23</string>
 				<string>48A68F71114EE8550064732A</string>
-				<string>487D743E130005DA0066EC02</string>
+				<string>487AB870130040070094DE23</string>
 				<string>1CA23EDF0692099D00951B8B</string>
 				<string>1CA23EE00692099D00951B8B</string>
 				<string>1CA23EE10692099D00951B8B</string>
@@ -779,14 +779,14 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>487D743F130005DA0066EC02</string>
+				<string>487AB871130040070094DE23</string>
 				<string>1CCC7628064C1048000F2A68</string>
 				<string>1CCC7629064C1048000F2A68</string>
-				<string>487D7440130005DA0066EC02</string>
-				<string>487D7441130005DA0066EC02</string>
-				<string>487D7442130005DA0066EC02</string>
-				<string>487D7443130005DA0066EC02</string>
-				<string>487D7444130005DA0066EC02</string>
+				<string>487AB872130040070094DE23</string>
+				<string>487AB873130040070094DE23</string>
+				<string>487AB874130040070094DE23</string>
+				<string>487AB875130040070094DE23</string>
+				<string>487AB876130040070094DE23</string>
 			</array>
 			<key>ToolbarConfigUserDefaultsMinorVersion</key>
 			<string>2</string>
@@ -820,8 +820,8 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>487D7446130005DA0066EC02</string>
-		<string>487D7447130005DA0066EC02</string>
+		<string>487AB878130040070094DE23</string>
+		<string>487AB879130040070094DE23</string>
 		<string>/Users/kristian/Documents/Code/XCode/TrenchBroom/TrenchBroom.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
