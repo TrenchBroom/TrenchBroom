@@ -8,13 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 #import "RenderContext.h"
-#import "Brush.h"
+#import "Face.h"
 
 @protocol Layer
 
 - (void)render:(RenderContext *)renderContext;
 
-- (void)addBrush:(Brush *)theBrush;
-- (void)removeBrush:(Brush *)theBrush;
+- (void)addFace:(Face *)theFace;
+- (void)removeFace:(Face *)theFace;
 
 @end

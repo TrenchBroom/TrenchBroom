@@ -9,10 +9,11 @@
 #import "Map.h"
 #import "Entity.h"
 #import "Brush.h"
+#import "Face.h"
 
 NSString* const MapEntityAdded      = @"MapEntityAdded";
 NSString* const MapEntityRemoved    = @"MapEntityRemoved";
-NSString* const MapEntityKey        = @"MapEntity";
+NSString* const EntityKey           = @"Entity";
 
 @implementation Map
 
@@ -42,10 +43,17 @@ NSString* const MapEntityKey        = @"MapEntity";
     [[undoManager prepareWithInvocationTarget:self] removeEntity:theEntity];
     
     [entities addObject:theEntity];
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:MapEntityAdded object:self userInfo:[NSDictionary dictionaryWithObject:theEntity forKey:MapEntityKey]];
-    }
+    [self addForward:FaceGeometryChanged from:theEntity];
+    [self addForward:FaceFlagsChanged from:theEntity];
+    [self addForward:BrushFaceAdded from:theEntity];
+    [self addForward:BrushFaceRemoved from:theEntity];
+    [self addForward:EntityBrushAdded from:theEntity];
+    [self addForward:EntityBrushRemoved from:theEntity];
+    [self addForward:EntityPropertyAdded from:theEntity];
+    [self addForward:EntityPropertyChanged from:theEntity];
+    [self addForward:EntityPropertyRemoved from:theEntity];
+    
+    [self notifyObservers:MapEntityAdded infoObject:theEntity infoKey:EntityKey];
 }
 
 - (Entity *)createEntity {
@@ -63,11 +71,11 @@ NSString* const MapEntityKey        = @"MapEntity";
 - (void)removeEntity:(Entity *)entity {
     [[undoManager prepareWithInvocationTarget:self] addEntity:entity];
     
+    NSDictionary* userInfo = [NSDictionary dictionaryWithObject:entity forKey:EntityKey];
+    [entity removeObserver:self];
+    
     [entities removeObject:entity];
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:MapEntityRemoved object:self userInfo:[NSDictionary dictionaryWithObject:entity forKey:MapEntityKey]];
-    }
+    [self notifyObservers:MapEntityAdded userInfo:userInfo];
 }
 
 - (NSArray *)entities {
@@ -96,6 +104,11 @@ NSString* const MapEntityKey        = @"MapEntity";
 }
 
 - (void)dealloc {
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    Entity* entity;
+    while ((entity = [entityEn nextObject]))
+        [entity removeObserver:self];
+    
     [undoManager release];
     [entities release];
     [super dealloc];

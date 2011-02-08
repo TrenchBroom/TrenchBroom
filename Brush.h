@@ -6,10 +6,12 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import "Observable.h"
 
-extern NSString* const BrushGeometryChanged;
-extern NSString* const BrushFlagsChanged;
+extern NSString* const BrushFaceAdded;
+extern NSString* const BrushFaceRemoved;
+
+extern NSString* const FaceKey;
 
 @class Entity;
 @class Vector3i;
@@ -20,7 +22,7 @@ extern NSString* const BrushFlagsChanged;
 @class Ray3D;
 @class PickingHit;
 
-@interface Brush : NSObject {
+@interface Brush : Observable {
     @private
     Entity* entity;
     NSNumber* brushId;
@@ -64,6 +66,4 @@ extern NSString* const BrushFlagsChanged;
     @result     The undo manager for this brush or nil if there is no undo manager.
 */
 - (NSUndoManager *)undoManager;
-
-- (void)faceFlagsChanged:(Face *)theFace;
 @end

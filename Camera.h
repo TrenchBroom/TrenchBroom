@@ -6,7 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import "Observable.h"
 
 extern NSString* const CameraDefaults;
 extern NSString* const CameraDefaultsFov;
@@ -18,7 +18,7 @@ extern NSString* const CameraChanged;
 @class Vector3f;
 @class Quaternion;
 
-@interface Camera : NSObject {
+@interface Camera : Observable {
     @private
     Vector3f* position;
     Vector3f* direction;

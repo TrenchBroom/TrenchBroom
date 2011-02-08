@@ -24,15 +24,20 @@
 
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView3D* view3D;
-    RenderMap* renderMap;
     Camera* camera;
     TextureManager* textureManager;
     GLFontManager* fontManager;
     InputManager* inputManager;
-    VBOBuffer* faceVBO;
+    VBOBuffer* vbo;
     Octree* octree;
     Picker* picker;
     SelectionManager* selectionManager;
 }
+
+- (VBOBuffer *)vbo;
+- (Camera *)camera;
+- (SelectionManager *)selectionManager;
+- (InputManager *)inputManager;
+- (TextureManager *)textureManager;
 
 @end

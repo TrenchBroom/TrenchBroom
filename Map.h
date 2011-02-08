@@ -6,15 +6,15 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import "Observable.h"
 
 extern NSString* const MapEntityAdded;
 extern NSString* const MapEntityRemoved;
-extern NSString* const MapEntityKey;
+extern NSString* const EntityKey;
 
 @class Entity;
 
-@interface Map : NSObject {
+@interface Map : Observable {
     @private
     NSMutableArray* entities;
     Entity* worldspawn;

@@ -6,23 +6,23 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import "Observable.h"
 
 extern NSString* const EntityBrushAdded;
 extern NSString* const EntityBrushRemoved;
-extern NSString* const EntityBrushKey;
+extern NSString* const BrushKey;
 extern NSString* const EntityPropertyAdded;
 extern NSString* const EntityPropertyRemoved;
 extern NSString* const EntityPropertyChanged;
-extern NSString* const EntityPropertyNameKey;
-extern NSString* const EntityPropertyValueKey;
-extern NSString* const EntityPropertyOldValueKey;
+extern NSString* const PropertyNameKey;
+extern NSString* const PropertyValueKey;
+extern NSString* const PropertyOldValueKey;
 
 @class Vector3i;
 @class Map;
 @class Brush;
 
-@interface Entity : NSObject {
+@interface Entity : Observable {
     @private
     Map* map;
     NSNumber* entityId;

@@ -23,6 +23,10 @@
 
 - (id)initWithVbo:(VBOBuffer *)theVbo;
 
+- (void)renderWireframe:(RenderContext *)renderContext;
+- (void)renderTextured:(RenderContext *)renderContext;
+- (void)renderFaces:(RenderContext *)renderContext;
+- (void)prepare:(RenderContext *)renderContext;
 - (void)render:(RenderContext *)renderContext;
 
 @end

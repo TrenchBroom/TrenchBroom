@@ -8,13 +8,14 @@
 
 #import "Entity.h"
 #import "Map.h"
+#import "Brush.h"
+#import "Face.h"
 #import "IdGenerator.h"
 #import "Vector3i.h"
-#import "Brush.h"
 
 NSString* const EntityBrushAdded            = @"EntityBrushAdded";
 NSString* const EntityBrushRemoved          = @"EntityBrushRemoved";
-NSString* const EntityBrushKey              = @"EntityBrushKey";
+NSString* const BrushKey                    = @"EntityBrushKey";
 NSString* const EntityPropertyAdded         = @"EntityPropertyAdded";
 NSString* const EntityPropertyRemoved       = @"EntityPropertyRemoved";
 NSString* const EntityPropertyChanged       = @"EntityPropertyChanged";
@@ -62,16 +63,18 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
 }
 
 - (void)addBrush:(Brush *)brush {
-    [brushes addObject:brush];
-    [brushIndices setObject:[NSNumber numberWithInt:[brushes count] - 1] forKey:[brush brushId]];
-
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] removeBrush:brush];
     
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:EntityBrushAdded object:self userInfo:[NSDictionary dictionaryWithObject:brush forKey:EntityBrushKey]];
-    }
+    [brushes addObject:brush];
+    [brushIndices setObject:[NSNumber numberWithInt:[brushes count] - 1] forKey:[brush brushId]];
+
+    [self addForward:BrushFaceAdded from:brush];
+    [self addForward:BrushFaceAdded from:brush];
+    [self addForward:FaceGeometryChanged from:brush];
+    [self addForward:FaceFlagsChanged from:brush];
+    
+    [self notifyObservers:EntityBrushAdded infoObject:brush infoKey:BrushKey];
 }
 
 - (void)removeBrush:(Brush *)brush {
@@ -85,14 +88,12 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] addBrush:brush];
     
-    NSDictionary* userInfo = [NSDictionary dictionaryWithObject:brush forKey:EntityBrushKey];
+    NSDictionary* userInfo = [NSDictionary dictionaryWithObject:brush forKey:BrushKey];
+    [brush removeObserver:self];
     [brushes removeObjectAtIndex:[index intValue]];
     [brushIndices removeObjectForKey:[brush brushId]];
     
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:EntityBrushRemoved object:self userInfo:userInfo];
-    }
+    [self notifyObservers:EntityBrushRemoved userInfo:userInfo];
 }
 
 - (Map *)map {
@@ -122,18 +123,15 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
     
     [properties setObject:value forKey:key];
 
-    if ([self postNotifications]) {
-        NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
-        [userInfo setObject:key forKey:EntityPropertyKeyKey];
-        [userInfo setObject:value forKey:EntityPropertyValueKey];
+    NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+    [userInfo setObject:key forKey:EntityPropertyKeyKey];
+    [userInfo setObject:value forKey:EntityPropertyValueKey];
     
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        if (exists) {
-            [userInfo setObject:oldValue forKey:EntityPropertyOldValueKey];
-            [center postNotificationName:EntityPropertyChanged object:self userInfo:userInfo];
-        } else {
-            [center postNotificationName:EntityPropertyAdded object:self userInfo:userInfo];
-        }
+    if (exists) {
+        [userInfo setObject:oldValue forKey:EntityPropertyOldValueKey];
+        [self notifyObservers:EntityPropertyChanged userInfo:userInfo];
+    } else {
+        [self notifyObservers:EntityPropertyAdded userInfo:userInfo];
     }
 }
 
@@ -145,16 +143,13 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] setProperty:key value:oldValue];
     
+    NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+    [userInfo setObject:key forKey:EntityPropertyKeyKey];
+    [userInfo setObject:oldValue forKey:EntityPropertyValueKey];
+
     [properties removeObjectForKey:key];
 
-    if ([self postNotifications]) {
-        NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
-        [userInfo setObject:key forKey:EntityPropertyKeyKey];
-        [userInfo setObject:oldValue forKey:EntityPropertyValueKey];
-
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:EntityPropertyAdded object:self userInfo:userInfo];
-    }
+    [self notifyObservers:EntityPropertyRemoved userInfo:userInfo];
 }
 
 - (NSString *)propertyForKey:(NSString *)key {
@@ -182,7 +177,11 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
 }
 
 - (void) dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    Brush* brush;
+    while ((brush = [brushEn nextObject]))
+        [brush removeObserver:self];
+    
     [entityId release];
 	[properties release];
 	[brushes release];

@@ -20,6 +20,12 @@
 #import "Plane3D.h"
 #import "Line3D.h"
 
+NSString* const FaceGeometryChanged = @"FaceGeometryChanged";
+NSString* const FaceFlagsChanged = @"FaceFlagsChanged";
+
+NSString* const TextureOldKey = @"TextureOld";
+NSString* const TextureNewKey = @"TextureNew";
+
 static Vector3f* baseAxes[18];
 
 @implementation Face
@@ -133,6 +139,8 @@ static Vector3f* baseAxes[18];
     texAxisY = nil;
     [surfaceMatrix release];
     surfaceMatrix = nil;
+    
+    [self notifyObservers:FaceGeometryChanged];
 }
 
 - (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3{
@@ -190,9 +198,13 @@ static Vector3f* baseAxes[18];
     
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] setTexture:[NSString stringWithString:texture]];
+
+    NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+    [userInfo setObject:[NSString stringWithString:texture] forKey:TextureOldKey];
+    [userInfo setObject:name forKey:TextureNewKey];
     
     [texture setString:name];
-    [brush faceFlagsChanged:self];
+    [self notifyObservers:FaceFlagsChanged userInfo:userInfo];
 }
 
 - (void)setXOffset:(int)offset {
@@ -208,8 +220,8 @@ static Vector3f* baseAxes[18];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
-    
-    [brush faceFlagsChanged:self];
+
+    [self notifyObservers:FaceFlagsChanged];
 }
 
 - (void)setYOffset:(int)offset {
@@ -226,7 +238,7 @@ static Vector3f* baseAxes[18];
     [texAxisY release];
     texAxisY = nil;
     
-    [brush faceFlagsChanged:self];
+    [self notifyObservers:FaceFlagsChanged];
 }
 
 - (void)setRotation:(float)angle {
@@ -245,7 +257,7 @@ static Vector3f* baseAxes[18];
     [surfaceMatrix release];
     surfaceMatrix = nil;
     
-    [brush faceFlagsChanged:self];
+    [self notifyObservers:FaceFlagsChanged];
 }
 
 - (void)setXScale:(float)factor {
@@ -262,7 +274,7 @@ static Vector3f* baseAxes[18];
     [texAxisY release];
     texAxisY = nil;
     
-    [brush faceFlagsChanged:self];
+    [self notifyObservers:FaceFlagsChanged];
 }
 
 - (void)setYScale:(float)factor {
@@ -279,7 +291,7 @@ static Vector3f* baseAxes[18];
     [texAxisY release];
     texAxisY = nil;
     
-    [brush faceFlagsChanged:self];
+    [self notifyObservers:FaceFlagsChanged];
 }
 
 - (HalfSpace3D *)halfSpace {
@@ -456,6 +468,10 @@ static Vector3f* baseAxes[18];
 
 - (NSUndoManager *)undoManager {
     return [brush undoManager];
+}
+
+- (BOOL)postNotifications {
+    return [brush postNotifications];
 }
 
 - (void) dealloc {

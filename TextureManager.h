@@ -6,7 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import "Observable.h"
 
 extern NSString* const TexturesRemoved;
 extern NSString* const TexturesAdded;
@@ -19,7 +19,7 @@ extern NSString* const MissingPaletteException;
 @class Texture;
 @class Wad;
 
-@interface TextureManager : NSObject {
+@interface TextureManager : Observable {
     @private
     NSMutableDictionary* textures;
     NSMutableArray* texturesByName;

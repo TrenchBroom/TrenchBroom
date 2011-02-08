@@ -8,9 +8,8 @@
 
 #import "GeometryLayer.h"
 #import <OpenGL/gl.h>
-#import "Brush.h"
 #import "Face.h"
-#import "BrushFigure.h"
+#import "FaceFigure.h"
 #import "VBOBuffer.h"
 #import "IntData.h"
 #import "RenderContext.h"
@@ -21,7 +20,7 @@
 
 - (id)init {
     if (self = [super init]) {
-        faceFigures = [[NSMutableDictionary alloc] init]; // the smallest rendering thingy is a face!
+        faceFigures = [[NSMutableDictionary alloc] init];
         indexBuffers = [[NSMutableDictionary alloc] init];
         countBuffers = [[NSMutableDictionary alloc] init];
         buffersValid = NO;
@@ -41,70 +40,71 @@
     return self;
 }
 
-- (void)brushChanged:(NSNotification *)notification {
+- (void)faceChanged:(NSNotification *)notification {
     [indexBuffers removeAllObjects];
     [countBuffers removeAllObjects];
     buffersValid = NO;
 }
 
-- (void)addBrush:(Brush *)theBrush {
-    if (theBrush == nil)
-        [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
+- (void)addFace:(Face *)theFace {
+    if (theFace == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
     
-    BrushFigure* brushFigure = [[BrushFigure alloc] initWithBrush:theBrush vbo:vbo];
-    [brushFigures setObject:brushFigure forKey:[theBrush brushId]];
-    [brushFigure release];
+    FaceFigure* faceFigure = [[FaceFigure alloc] initWithFace:theFace vbo:vbo];
+    [faceFigures setObject:faceFigure forKey:[theFace faceId]];
+    [faceFigure release];
     
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center addObserver:self selector:@selector(brushChanged:) name:BrushFlagsChanged object:theBrush];
-    [center addObserver:self selector:@selector(brushChanged:) name:BrushGeometryChanged object:theBrush];
+    [theFace addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged];
+    [theFace addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged];
+
+    [indexBuffers removeAllObjects];
+    [countBuffers removeAllObjects];
+    buffersValid = NO;
 }
 
-- (void)removeBrush:(Brush *)theBrush {
-    if (theBrush == nil)
-        [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
+- (void)removeFace:(Face *)theFace {
+    if (theFace == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
+    
+    [faceFigures removeObjectForKey:[theFace faceId]];
 
-    [brushFigures removeObjectForKey:[theBrush brushId]];
-
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center removeObserver:self name:BrushFlagsChanged object:theBrush];
-    [center removeObserver:self name:BrushGeometryChanged object:theBrush];
+    [theFace removeObserver:self];
+    
+    [indexBuffers removeAllObjects];
+    [countBuffers removeAllObjects];
+    buffersValid = NO;
 }
 
 - (void)prepare:(RenderContext *)renderContext {
     [vbo mapBuffer];
     
-    NSEnumerator* figureEn = [brushFigures objectEnumerator];
-    BrushFigure* brushFigure;
-    while ((brushFigure = [figureEn nextObject]))
-        [brushFigure prepare:renderContext];
+    NSEnumerator* figureEn = [faceFigures objectEnumerator];
+    FaceFigure* faceFigure;
+    while ((faceFigure = [figureEn nextObject]))
+        [faceFigure prepare:renderContext];
 
     [vbo unmapBuffer];
 
-    while ((brushFigure = [figureEn nextObject])) {
-        Brush* brush = [brushFigure brush];
+    figureEn = [faceFigures objectEnumerator];
+    while ((faceFigure = [figureEn nextObject])) {
+        Face* face = [faceFigure face];
+        NSString* textureName = [face texture];
         
-        NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-        Face* face;
-        while ((face = [faceEn nextObject])) {
-            NSString* textureName = [face texture];
-            
-            IntData* indexBuffer = [indexBuffers objectForKey:textureName];
-            if (indexBuffer == nil) {
-                indexBuffer = [[IntData alloc] init];
-                [indexBuffers setObject:indexBuffer forKey:textureName];
-                [indexBuffer release];
-            }
-            
-            IntData* countBuffer = [countBuffers objectForKey:textureName];
-            if (countBuffer == nil) {
-                countBuffer = [[IntData alloc] init];
-                [countBuffers setObject:countBuffer forKey:textureName];
-                [countBuffer release];
-            }
-            
-            [brushFigure indexForFace:face indexBuffer:indexBuffer countBuffer:countBuffer];
+        IntData* indexBuffer = [indexBuffers objectForKey:textureName];
+        if (indexBuffer == nil) {
+            indexBuffer = [[IntData alloc] init];
+            [indexBuffers setObject:indexBuffer forKey:textureName];
+            [indexBuffer release];
         }
+        
+        IntData* countBuffer = [countBuffers objectForKey:textureName];
+        if (countBuffer == nil) {
+            countBuffer = [[IntData alloc] init];
+            [countBuffers setObject:countBuffer forKey:textureName];
+            [countBuffer release];
+        }
+        
+        [faceFigure getIndex:indexBuffer count:countBuffer];
     }
     
     buffersValid = YES;
@@ -154,6 +154,10 @@
             glColor4f(0, 0, 0, 1);
             glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
             [self renderTextured:renderContext];
+
+            glDisable(GL_TEXTURE_2D);
+            glPolygonMode(GL_FRONT, GL_LINE);
+            glColor4f(1, 1, 1, 0.5);
             [self renderWireframe:renderContext];
             break;
         case RM_FLAT:
@@ -176,21 +180,26 @@
     glPolygonOffset(1.0, 1.0);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glShadeModel(GL_FLAT);
+    
     [vbo activate];
-
     if (!buffersValid)
         [self prepare:renderContext];
 
     [self renderFaces:renderContext];
-    
     [vbo deactivate];
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    NSEnumerator* faceFigureEn = [faceFigures objectEnumerator];
+    FaceFigure* faceFigure;
+    while ((faceFigure = [faceFigureEn nextObject])) {
+        Face* face = [faceFigure face];
+        [face removeObserver:self];
+    }
+    
     [indexBuffers release];
     [countBuffers release];
-    [brushFigures release];
+    [faceFigures release];
     [vbo release];
     [super dealloc];
 }

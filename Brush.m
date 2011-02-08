@@ -18,8 +18,10 @@
 #import "Ray3D.h"
 #import "PickingHit.h"
 
-NSString* const BrushGeometryChanged    = @"BrushGeometryChanged";
-NSString* const BrushFlagsChanged       = @"BrushFlagsChanged";
+NSString* const BrushFaceAdded = @"BrushFaceAdded";
+NSString* const BrushFaceRemoved = @"BrushFaceRemoved";
+
+NSString* const FaceKey = @"Face";
 
 @implementation Brush
 
@@ -48,22 +50,23 @@ NSString* const BrushFlagsChanged       = @"BrushFlagsChanged";
     return self;
 }
 
-- (void)geometryChanged {
+- (void)faceGeometryChanged:(NSNotification *)notification {
     [vertexData release];
     vertexData = nil;
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushGeometryChanged object:self];
-    }
 }
 
 - (VertexData *)vertexData {
     if (vertexData == nil) {
         NSMutableArray* droppedFaces = nil;
         vertexData = [[VertexData alloc] initWithFaces:faces droppedFaces:&droppedFaces];
-        if (droppedFaces != nil)
-            [faces removeObjectsInArray:droppedFaces];
+        if (droppedFaces != nil) {
+            NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
+            Face* droppedFace;
+            while ((droppedFace = [droppedFacesEn nextObject])) {
+                NSLog(@"Face %@ was cut away", droppedFace);
+                [self removeFace:droppedFace];
+            }
+        }
     }
     
     return vertexData;
@@ -96,18 +99,19 @@ NSString* const BrushFlagsChanged       = @"BrushFlagsChanged";
         Face* droppedFace;
         while ((droppedFace = [droppedFacesEn nextObject])) {
             NSLog(@"Face %@ was cut away by face %@", droppedFace, face);
-            [faces removeObject:droppedFace];
-            [[undoManager prepareWithInvocationTarget:self] addFace:droppedFace];
+            [self removeFace:droppedFace];
         }
     }
 
+    [face addObserver:self selector:@selector(faceGeometryChanged:) name:FaceGeometryChanged];
+    [face addForward:FaceGeometryChanged from:face];
+    [face addForward:FaceFlagsChanged from:face];
+
     [faces addObject:face];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushGeometryChanged object:self];
-    }
-    
+    [vertexData release];
+    vertexData = nil;
+   
+    [self notifyObservers:BrushFaceAdded infoObject:face infoKey:FaceKey];
     return YES;
 }
 
@@ -115,21 +119,14 @@ NSString* const BrushFlagsChanged       = @"BrushFlagsChanged";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] addFace:face];
     
+    [face removeObserver:self];
+    NSDictionary* userInfo = [NSDictionary dictionaryWithObject:face forKey:FaceKey];
+    
     [faces removeObject:face];
     [vertexData release];
     vertexData = nil;
     
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushGeometryChanged object:self];
-    }
-}
-
-- (void)faceFlagsChanged:(Face *)theFace {
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushFlagsChanged object:self];
-    }
+    [self notifyObservers:BrushFaceRemoved userInfo:userInfo];
 }
 
 - (Entity *)entity {
@@ -172,8 +169,6 @@ NSString* const BrushFlagsChanged       = @"BrushFlagsChanged";
     Face* face;
     while ((face = [faceEn nextObject]))
         [face translateBy:theDelta];
-    
-    [self geometryChanged];
 }
 
 - (BOOL)postNotifications {
@@ -185,7 +180,11 @@ NSString* const BrushFlagsChanged       = @"BrushFlagsChanged";
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face removeObserver:self];
+    
     [brushId release];
     [vertexData release];
     [faces release];

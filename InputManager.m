@@ -18,6 +18,7 @@
 #import "Face.h"
 #import "Brush.h"
 #import "Vector3i.h"
+#import "MapWindowController.h"
 
 @implementation InputManager
 - (id)initWithPicker:(Picker *)thePicker selectionManager:(SelectionManager *)theSelectionManager {
@@ -44,7 +45,7 @@
 
 - (void)handleKeyDown:(NSEvent *)event sender:(id)sender {
     MapView3D* mapView3D = (MapView3D *)sender;
-    Camera* camera = [mapView3D camera];
+    Camera* camera = [[[mapView3D window] windowController] camera];
 
     switch ([event keyCode]) {
         case 0: // a
@@ -78,7 +79,7 @@
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender {
     MapView3D* mapView3D = (MapView3D *)sender;
     if ([self isCameraModifierPressed:event]) {
-        Camera* camera = [mapView3D camera];
+        Camera* camera = [[[mapView3D window] windowController] camera];
         
         if ([self isCameraOrbitModifierPressed:event]) {
             if (lastHit != nil) {
@@ -100,7 +101,7 @@
 - (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender {
     MapView3D* mapView3D = (MapView3D *)sender;
     [[mapView3D openGLContext] makeCurrentContext];
-    Camera* camera = [mapView3D camera];
+    Camera* camera = [[[mapView3D window] windowController] camera];
     
     NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
     
@@ -157,12 +158,10 @@
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
 }
 
-
-
 - (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender {
     MapView3D* mapView3D = (MapView3D *)sender;
     if ([self isCameraModifierPressed:event]) {
-        Camera* camera = [mapView3D camera];
+        Camera* camera = [[[mapView3D window] windowController] camera];
         [camera moveForward:0 right:6 * [event deltaX] up:-6 * [event deltaY]];
     }
 }
@@ -171,7 +170,7 @@
     MapView3D* mapView3D = (MapView3D *)sender;
     
     if ([self isCameraModifierPressed:event]) {
-        Camera* camera = [mapView3D camera];
+        Camera* camera = [[[mapView3D window] windowController] camera];
         [camera moveForward:6 * [event deltaY] right:-6 * [event deltaX] up:6 * [event deltaZ]];
     }
 }

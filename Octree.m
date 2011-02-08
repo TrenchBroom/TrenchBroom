@@ -13,53 +13,25 @@
 #import "Map.h"
 #import "Entity.h"
 #import "Brush.h"
+#import "Face.h"
 
 @implementation Octree
 
-- (void)addEntity:(Entity *)entity {
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center addObserver:self selector:@selector(brushAdded:) name:EntityBrushAdded object:entity];
-    [center addObserver:self selector:@selector(brushRemoved:) name:EntityBrushRemoved object:entity];
-}
-
-- (void)entityAdded:(NSNotification *)notification {
-    NSDictionary* userInfo = [notification userInfo];
-    Entity* entity = [userInfo objectForKey:MapEntityKey];
-    [self addEntity:entity];
-}
-
-- (void)entityRemoved:(NSNotification *)notification {
-    NSDictionary* userInfo = [notification userInfo];
-    Entity* entity = [userInfo objectForKey:MapEntityKey];
-
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center removeObserver:self name:EntityBrushAdded object:entity];
-    [center removeObserver:self name:EntityBrushRemoved object:entity];
-}
-
-- (void)addBrush:(Brush *)brush {
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center addObserver:self selector:@selector(brushChanged:) name:BrushGeometryChanged object:brush];
-    [root addObject:brush bounds:[brush bounds]];
-}
-
 - (void)brushAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    Brush* brush = [userInfo objectForKey:EntityBrushKey];
-    [self addBrush:brush];
+    Brush* brush = [userInfo objectForKey:BrushKey];
+    [root addObject:brush bounds:[brush bounds]];
 }
 
 - (void)brushRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    Brush* brush = [userInfo objectForKey:EntityBrushKey];
-
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center removeObserver:self name:BrushGeometryChanged object:brush];
+    Brush* brush = [userInfo objectForKey:BrushKey];
     [root removeObject:brush bounds:[brush bounds]];
 }
 
 - (void)brushChanged:(NSNotification *)notification {
-    Brush* brush = [notification object];
+    Face* face = [notification object];
+    Brush* brush = [face brush];
 
     [root removeObject:brush bounds:[brush bounds]];
     [root addObject:brush bounds:[brush bounds]];
@@ -81,22 +53,18 @@
         [min release];
         [max release];
         
-        NSArray* entities = [map entities];
-        NSEnumerator* entityEn = [entities objectEnumerator];
+        NSEnumerator* entityEn = [[map entities] objectEnumerator];
         Entity* entity;
         while ((entity = [entityEn nextObject])) {
-            NSArray* brushes = [entity brushes];
-            NSEnumerator* brushEn = [brushes objectEnumerator];
+            NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
             Brush* brush;
             while ((brush = [brushEn nextObject]))
-                [self addBrush:brush];
-            
-            [self addEntity:entity];
+                [root addObject:brush bounds:[brush bounds]];
         }
         
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center addObserver:self selector:@selector(entityAdded:) name:MapEntityAdded object:map];
-        [center addObserver:self selector:@selector(entityRemoved:) name:MapEntityRemoved object:map];
+        [map addObserver:self selector:@selector(brushChanged:) name:FaceGeometryChanged];
+        [map addObserver:self selector:@selector(brushAdded:) name:BrushFaceAdded];
+        [map addObserver:self selector:@selector(brushRemoved:) name:BrushFaceRemoved];
     }
     
     return self;
@@ -107,7 +75,7 @@
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [map removeObserver:self];
     [root release];
     [map release];
     [super dealloc];

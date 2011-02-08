@@ -6,7 +6,13 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import "Observable.h"
+
+extern NSString* const FaceGeometryChanged;
+extern NSString* const FaceFlagsChanged;
+
+extern NSString* const TextureOldKey;
+extern NSString* const TextureNewKey;
 
 typedef enum {
     XY, XZ, YZ
@@ -20,7 +26,7 @@ typedef enum {
 @class Brush;
 @class Matrix4f;
 
-@interface Face : NSObject {
+@interface Face : Observable {
     @private
     Brush* brush;
     NSNumber* faceId;
@@ -98,4 +104,6 @@ typedef enum {
     @result     The undo manager for this face or nil if there is no undo manager.
 */
 - (NSUndoManager *)undoManager;
+
+- (BOOL)postNotifications;
 @end

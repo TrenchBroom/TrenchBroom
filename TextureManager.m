@@ -115,10 +115,7 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     
     [texturesByName sortUsingSelector:@selector(compare:)];
     
-    NSNotificationCenter* notificationCenter = [NSNotificationCenter defaultCenter];
-    NSDictionary* userInfo = [NSDictionary dictionaryWithObject:addedTextures forKey:UserInfoTextures];
-    [addedTextures release];
-    [notificationCenter postNotification:[NSNotification notificationWithName:TexturesAdded object:self userInfo:userInfo]];
+    [self notifyObservers:TexturesAdded infoObject:addedTextures infoKey:UserInfoTextures];
 }
 
 - (Texture *)textureForName:(NSString *)name {
@@ -177,10 +174,7 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     [textures removeAllObjects];
     [texturesByName removeAllObjects];
     
-    NSNotificationCenter* notificationCenter = [NSNotificationCenter defaultCenter];
-    NSDictionary* userInfo = [NSDictionary dictionaryWithObject:removedTextures forKey:UserInfoTextures];
-    [removedTextures release];
-    [notificationCenter postNotification:[NSNotification notificationWithName:TexturesRemoved object:self userInfo:userInfo]];
+    [self notifyObservers:TexturesRemoved infoObject:removedTextures infoKey:UserInfoTextures];
 }
 
 - (void)dealloc {

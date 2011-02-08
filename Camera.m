@@ -89,8 +89,7 @@ NSString* const CameraChanged = @"CameraChanged";
         [right cross:up];
         [right normalize];
         
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotification:[NSNotification notificationWithName:CameraChanged object:self]];
+        [self notifyObservers:CameraChanged];
     }
     [t release];
     [qy release];
@@ -112,8 +111,7 @@ NSString* const CameraChanged = @"CameraChanged";
     
     [v release];
 
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotification:[NSNotification notificationWithName:CameraChanged object:self]];
+    [self notifyObservers:CameraChanged];
 }
 
 - (void)orbitCenter:(Vector3f *)c hAngle:(float)h vAngle:(float)v {
@@ -133,8 +131,7 @@ NSString* const CameraChanged = @"CameraChanged";
         [qh rotate:position];
         [position add:c];
         
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotification:[NSNotification notificationWithName:CameraChanged object:self]];
+        [self notifyObservers:CameraChanged];
     }
     [t release];
     [qh release];
@@ -157,6 +154,7 @@ NSString* const CameraChanged = @"CameraChanged";
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [position release];
     [direction release];
     [up release];

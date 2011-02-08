@@ -7,10 +7,8 @@
 //
 
 #import "MapWindowController.h"
-#import "MapView2D.h"
 #import "MapView3D.h"
 #import "TextureView.h"
-#import "RenderMap.h"
 #import "Map.h"
 #import "Face.h"
 #import "Camera.h"
@@ -73,18 +71,10 @@
     selectionManager = [[SelectionManager alloc] init];
     inputManager = [[InputManager alloc] initWithPicker:picker selectionManager:selectionManager];
     
-    faceVBO = [[VBOBuffer alloc] initWithTotalCapacity:8192];
-    renderMap = [[RenderMap alloc] initWithMap:map faceVBO:faceVBO camera:camera textureManager:textureManager selectionManager:selectionManager];
-
-    [view3D setTextureManager:textureManager];
-    [view3D setInputManager:inputManager];
-    [view3D setSelectionManager:selectionManager];
-    [view3D setFaceVBO:faceVBO];
-    [view3D setCamera:camera];
-    [view3D setRenderMap:renderMap];
- 
+    vbo = [[VBOBuffer alloc] initWithTotalCapacity:8192];
+    [view3D setup];
+    
     FaceInspectorController* faceInspector = [FaceInspectorController sharedInspector];
-    [[self window] makeKeyAndOrderFront:self];
     [[faceInspector window] makeKeyAndOrderFront:self];
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -101,18 +91,37 @@
 - (void)windowWillClose:(NSNotification *)notification {
     [textureManager disposeTextures];
     [fontManager dispose];
-    [faceVBO dispose];
+    [vbo dispose];
+}
+
+- (VBOBuffer *)vbo {
+    return vbo;
+}
+
+- (Camera *)camera {
+    return camera;
+}
+
+- (SelectionManager *)selectionManager {
+    return selectionManager;
+}
+
+- (InputManager *)inputManager {
+    return inputManager;
+}
+
+- (TextureManager *)textureManager {
+    return textureManager;
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [faceVBO release];
+    [vbo release];
     [selectionManager release];
     [picker release];
     [octree release];
     [inputManager release];
     [textureManager release];
-    [renderMap release];
     [camera release];
     [super dealloc];
 }

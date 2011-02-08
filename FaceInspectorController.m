@@ -64,7 +64,7 @@ static FaceInspectorController* sharedInstance = nil;
         NSLog(@"selection manager: %i", [selectionManager mode]);
     }
     
-    if ([selectionManager mode] == SM_FACES) {
+    if ([selectionManager mode] == SM_FACES && [[selectionManager selectedFaces] count] > 0) {
         [xOffsetField setEnabled:YES];
         [yOffsetField setEnabled:YES];
         [xScaleField setEnabled:YES];
@@ -176,30 +176,29 @@ static FaceInspectorController* sharedInstance = nil;
         [textureView setOpenGLContext:context];
         [context release];
     }
-    
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+
     if (textureManager != nil) {
-        [center removeObserver:self name:TexturesAdded object:textureManager];
-        [center removeObserver:self name:TexturesRemoved object:textureManager];
+        [textureManager removeObserver:self];
         [textureManager release];
         textureManager = nil;
     }
     
     if (selectionManager != nil) {
-        [center removeObserver:self name:SelectionChanged object:selectionManager];
+        [selectionManager removeObserver:self];
         [selectionManager release];
         selectionManager = nil;
     }
     
     if (theTextureManager != nil) {
         textureManager = [theTextureManager retain];
-        [center addObserver:self selector:@selector(textureManagerChanged:) name:TexturesAdded object:textureManager];
-        [center addObserver:self selector:@selector(textureManagerChanged:) name:TexturesRemoved object:textureManager];
+        [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesAdded];
+        [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesRemoved];
     }
 
     if (theSelectionManager != nil) {
         selectionManager = [theSelectionManager retain];
-        [center addObserver:self selector:@selector(selectionChanged:) name:SelectionChanged object:selectionManager];
+        [selectionManager addObserver:self selector:@selector(selectionChanged:) name:SelectionAdded];
+        [selectionManager addObserver:self selector:@selector(selectionChanged:) name:SelectionRemoved];
         [self selectionChanged:nil];
     }
 }
@@ -253,7 +252,8 @@ static FaceInspectorController* sharedInstance = nil;
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [selectionManager removeObserver:self];
+    [textureManager removeObserver:self];
     [selectionManager release];
     [textureManager release];
     [super dealloc];

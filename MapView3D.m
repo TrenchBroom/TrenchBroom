@@ -9,16 +9,27 @@
 #import "MapView3D.h"
 #import <OpenGl/gl.h>
 #import <OpenGL/glu.h>
-#import "RenderMap.h"
+#import "Renderer.h"
 #import "Camera.h"
 #import "TextureManager.h"
 #import "InputManager.h"
 #import "SelectionManager.h"
+#import "MapWindowController.h"
+#import "MapDocument.h"
+#import "RenderContext.h"
 
 NSString* const MapView3DDefaults = @"3D View";
 NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 
 @implementation MapView3D
+
+- (void)cameraChanged:(NSNotification *)notification {
+    [self setNeedsDisplay:YES];
+}
+
+- (void)rendererChanged:(NSNotification *)notification {
+    [self setNeedsDisplay:YES];
+}
 
 - (void)awakeFromNib {
     [super awakeFromNib];
@@ -31,35 +42,60 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     [self userDefaultsChanged:nil];
 }
 
+- (void)setup {
+    MapWindowController* controller = [[self window] windowController];
+    
+    MapDocument* document = [controller document];
+    Map* map = [document map];
+    VBOBuffer* vbo = [controller vbo];
+    renderer = [[Renderer alloc] initWithMap:map vbo:vbo];
+    
+    Camera* camera = [controller camera];
+    SelectionManager* selectionManager = [controller selectionManager];
+    
+    [renderer setCamera:camera];
+    [renderer setSelectionManager:selectionManager];
+    
+    [camera addObserver:self selector:@selector(cameraChanged:) name:CameraChanged];
+    [renderer addObserver:self selector:@selector(rendererChanged:) name:RendererChanged];
+}
+
 - (BOOL)acceptsFirstResponder {
     return YES;
 }
 
 - (void)keyDown:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
     [inputManager handleKeyDown:theEvent sender:self];
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
     [inputManager handleLeftMouseDragged:theEvent sender:self];
 }
 
 - (void)mouseMoved:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
     [inputManager handleMouseMoved:theEvent sender:self];
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
     [inputManager handleLeftMouseDown:theEvent sender:self];
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
     [inputManager handleLeftMouseUp:theEvent sender:self];
 }
 
 - (void)rightMouseDragged:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
     [inputManager handleRightMouseDragged:theEvent sender:self];
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
     [inputManager handleScrollWheel:theEvent sender:self];
 }
 
@@ -70,8 +106,11 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 	glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    [renderMap updateView:bounds];
-    [renderMap render];
+    TextureManager* textureManager = [[[self window] windowController] textureManager];
+    RenderContext* context = [[RenderContext alloc] initWithTextureManager:textureManager mode:RM_TEXTURED];
+    
+    [renderer updateView:bounds];
+    [renderer render:context];
     
     [[self openGLContext] flushBuffer];
 }
@@ -89,97 +128,15 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     [self setNeedsDisplay:YES];
 }
 
-- (void)cameraChanged:(NSNotification *)notification {
-    [self setNeedsDisplay:YES];
-}
-
-- (void)setCamera:(Camera *)aCamera {
-    if (aCamera == nil)
-        [NSException raise:NSInvalidArgumentException format:@"camera must not be nil"];
-    
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    if (camera != nil) {
-        [center removeObserver:self name:CameraChanged object:camera];
-        [camera release];
-    }
-    
-    camera = [aCamera retain];
-    [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
-}
-
-- (void)renderMapChanged:(NSNotification *)notification {
-    [self setNeedsDisplay:YES];
-}
-
-- (void)setRenderMap:(RenderMap *)aRenderMap {
-    if (aRenderMap == nil)
-        [NSException raise:NSInvalidArgumentException format:@"rendermap must not be nil"];
-    
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    if (renderMap != nil) {
-        [center removeObserver:self name:RenderMapChanged object:renderMap];
-        [renderMap release];
-        renderMap = nil;
-    }
-    
-    if (aRenderMap != nil) {
-        renderMap = [aRenderMap retain];
-        [center addObserver:self selector:@selector(renderMapChanged:) name:RenderMapChanged object:renderMap];
-    }
-}
-
-- (void)setFaceVBO:(VBOBuffer *)theFaceVBO {
-    if (theFaceVBO == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face VBO buffer must not be nil"];
-    
-    [faceVBO release];
-    faceVBO = [theFaceVBO retain];
-}
-
-- (void)setTextureManager:(TextureManager *)theTextureManager {
-    if (theTextureManager == nil)
-        [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
-    
-    [textureManager release];
-    textureManager = [theTextureManager retain];
-}
-
-- (void)setInputManager:(InputManager *)theInputManager {
-    if (theInputManager == nil)
-        [NSException raise:NSInvalidArgumentException format:@"input manager must not be nil"];
-    
-    [inputManager release];
-    inputManager = [theInputManager retain];
-}
-
-- (void)selectionChanged:(NSNotification *)notification {
-    [self setNeedsDisplay:YES];
-}
-
-- (void)setSelectionManager:(SelectionManager *)theSelectionManager {
-    if (theSelectionManager == nil)
-        [NSException raise:NSInvalidArgumentException format:@"selection manager must not be nil"];
-    
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center removeObserver:self name:SelectionChanged object:selectionManager];
-    
-    [selectionManager release];
-    selectionManager = [theSelectionManager retain];
-    
-    [center addObserver:self selector:@selector(selectionChanged:) name:SelectionChanged object:selectionManager];
-}
-     
-- (Camera *)camera {
-    return camera;
-}
-
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [renderMap release];
-    [faceVBO release];
-    [camera release];
-    [textureManager release];
-    [inputManager release];
+    
+    MapWindowController* controller = [[self window] windowController];
+    Camera* camera = [controller camera];
+    [camera removeObserver:self];
+    
+    [renderer removeObserver:self];
+    [renderer release];
     [super dealloc];
 }
 
