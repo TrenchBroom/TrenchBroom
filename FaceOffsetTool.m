@@ -35,34 +35,40 @@ static NSArray* ring;
     return self;
 }
 
-- (void)renderPoints:(NSArray *)points {
+- (void)renderPoints:(NSArray *)points z:(float)z {
     NSEnumerator* pointEn = [points objectEnumerator];
-    Vector2f* point;
-    while ((point = [pointEn nextObject])) {
-        Vector3f* w = [face worldCoordsOf:point];
+    Vector2f* point2D;
+    Vector3f* point3D = [[Vector3f alloc] init];
+    [point3D setZ:z]; // slight offset from face
+    
+    while ((point2D = [pointEn nextObject])) {
+        [point3D setX:[point2D x]];
+        [point3D setY:[point2D y]];
+        Vector3f* w = [face worldCoordsOf:point3D];
         glVertex3f([w x], [w y], [w z]);
     }
 }
 
 - (void)render {
-    
     glPolygonMode(GL_FRONT, GL_FILL);
+    
+    glColor4f(0.02, 0.5, 0.9, 0.65);
+    glBegin(GL_TRIANGLE_STRIP);
+    [self renderPoints:ring z:0.01];
+    glEnd();
     
     glColor4f(1, 1, 1, 0.65);
     glBegin(GL_POLYGON);
-    [self renderPoints:largeCircle];
+    [self renderPoints:largeCircle z:0.01];
     glEnd();
     
     glColor4f(0.02, 0.5, 0.9, 0.65);
     glBegin(GL_POLYGON);
-    [self renderPoints:smallCircle];
+    [self renderPoints:smallCircle z:0.02];
     glEnd();
     
-    glBegin(GL_TRIANGLE_STRIP);
-    [self renderPoints:ring];
-    glEnd();
-    
-    Vector2f* v = [[Vector2f alloc] init];
+    Vector3f* v = [[Vector3f alloc] init];
+    [v setZ:0.02];
     Vector3f* w;
     
     glBegin(GL_TRIANGLES);

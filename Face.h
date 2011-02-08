@@ -81,7 +81,7 @@ typedef enum {
 - (void)setYScale:(float)factor;
 
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex;
-- (Vector3f *)worldCoordsOf:(Vector2f *)sCoords;
+- (Vector3f *)worldCoordsOf:(Vector3f *)sCoords;
 - (HalfSpace3D *)halfSpace;
 /*!
     @function

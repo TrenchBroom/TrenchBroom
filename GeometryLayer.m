@@ -20,7 +20,7 @@
 
 - (id)init {
     if (self = [super init]) {
-        faceFigures = [[NSMutableDictionary alloc] init];
+        faceFigures = [[NSMutableSet alloc] init];
         indexBuffers = [[NSMutableDictionary alloc] init];
         countBuffers = [[NSMutableDictionary alloc] init];
         buffersValid = NO;
@@ -46,29 +46,31 @@
     buffersValid = NO;
 }
 
-- (void)addFace:(Face *)theFace {
-    if (theFace == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
+- (void)addFigure:(id)theFigure {
+    if (theFigure == nil)
+        [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
     
-    FaceFigure* faceFigure = [[FaceFigure alloc] initWithFace:theFace vbo:vbo];
-    [faceFigures setObject:faceFigure forKey:[theFace faceId]];
-    [faceFigure release];
+    FaceFigure* faceFigure = (FaceFigure *)theFigure;
+    [faceFigures addObject:faceFigure];
     
-    [theFace addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged];
-    [theFace addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged];
+    Face* face = [faceFigure face];
+    [face addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged];
+    [face addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged];
 
     [indexBuffers removeAllObjects];
     [countBuffers removeAllObjects];
     buffersValid = NO;
 }
 
-- (void)removeFace:(Face *)theFace {
-    if (theFace == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
+- (void)removeFigure:(id)theFigure {
+    if (theFigure == nil)
+        [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
     
-    [faceFigures removeObjectForKey:[theFace faceId]];
+    FaceFigure* faceFigure = (FaceFigure *)theFigure;
+    [faceFigures removeObject:faceFigure];
 
-    [theFace removeObserver:self];
+    Face* face = [faceFigure face];
+    [face removeObserver:self];
     
     [indexBuffers removeAllObjects];
     [countBuffers removeAllObjects];

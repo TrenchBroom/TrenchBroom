@@ -14,6 +14,7 @@
 #import "Face.h"
 #import "GeometryLayer.h"
 #import "SelectionLayer.h"
+#import "ToolLayer.h"
 #import "VBOBuffer.h"
 #import "RenderContext.h"
 #import "SelectionManager.h"
@@ -21,27 +22,38 @@
 #import "Face.h"
 #import "Camera.h"
 #import "Vector3f.h"
+#import "ToolManager.h"
+#import "FaceFigure.h"
 
 NSString* const RendererChanged = @"RendererChanged";
 
 @implementation Renderer
 
+- (FaceFigure *)createFaceFigure:(Face *)theFace {
+    FaceFigure* faceFigure = [[FaceFigure alloc] initWithFace:theFace vbo:vbo];
+    [faceFigures setObject:faceFigure forKey:[theFace faceId]];
+    return [faceFigure autorelease];
+}
+
 - (void)addFace:(Face *)face {
-    if ([selectionManager isFaceSelected:face])
-        [selectionLayer addFace:face];
-    else
-        [geometryLayer addFace:face];
+    if ([selectionManager isFaceSelected:face]) {
+        [selectionLayer addFigure:[self createFaceFigure:face]];
+    } else {
+        [geometryLayer addFigure:[self createFaceFigure:face]];
+    }
     
     [face addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged];
     [face addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged];
 }
 
 - (void)removeFace:(Face *)face {
+    FaceFigure* faceFigure = [faceFigures objectForKey:[face faceId]];
     if ([selectionManager isFaceSelected:face])
-        [selectionLayer removeFace:face];
+        [selectionLayer removeFigure:faceFigure];
     else
-        [geometryLayer removeFace:face];
+        [geometryLayer removeFigure:faceFigure];
     
+    [faceFigures removeObjectForKey:[face faceId]];
     [face removeObserver:self];
 }
 
@@ -135,17 +147,26 @@ NSString* const RendererChanged = @"RendererChanged";
     [self notifyObservers:RendererChanged];
 }
 
+- (id)init {
+    if (self = [super init]) {
+        faceFigures = [[NSMutableDictionary alloc] init];
+    }
+    
+    return self;
+}
+
 - (id)initWithMap:(Map *)theMap vbo:(VBOBuffer *)theVbo {
     if (theMap == nil)
         [NSException raise:NSInvalidArgumentException format:@"map must not be nil"];
     if (theVbo == nil)
         [NSException raise:NSInvalidArgumentException format:@"vbo must not be nil"];
     
-    if (self = [super init]) {
+    if (self = [self init]) {
         map =[theMap retain];
         vbo = [theVbo retain];
         geometryLayer = [[GeometryLayer alloc] initWithVbo:vbo];
         selectionLayer = [[SelectionLayer alloc] initWithVbo:vbo];
+        toolLayer = [[ToolLayer alloc] init];
 
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
         Entity* entity;
@@ -172,8 +193,9 @@ NSString* const RendererChanged = @"RendererChanged";
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
             Face* face;
             while ((face = [faceEn nextObject])) {
-                [geometryLayer removeFace:face];
-                [selectionLayer addFace:face];
+                FaceFigure* faceFigure = [faceFigures objectForKey:[face faceId]];
+                [geometryLayer removeFigure:faceFigure];
+                [selectionLayer addFigure:faceFigure];
             }
         }
     }
@@ -182,8 +204,9 @@ NSString* const RendererChanged = @"RendererChanged";
         NSEnumerator* faceEn = [faces objectEnumerator];
         Face* face;
         while ((face = [faceEn nextObject])) {
-            [geometryLayer removeFace:face];
-            [selectionLayer addFace:face];
+            FaceFigure* faceFigure = [faceFigures objectForKey:[face faceId]];
+            [geometryLayer removeFigure:faceFigure];
+            [selectionLayer addFigure:faceFigure];
         }
     }
 
@@ -203,8 +226,9 @@ NSString* const RendererChanged = @"RendererChanged";
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
             Face* face;
             while ((face = [faceEn nextObject])) {
-                [selectionLayer removeFace:face];
-                [geometryLayer addFace:face];
+                FaceFigure* faceFigure = [faceFigures objectForKey:[face faceId]];
+                [selectionLayer removeFigure:faceFigure];
+                [geometryLayer addFigure:faceFigure];
             }
         }
     }
@@ -213,8 +237,9 @@ NSString* const RendererChanged = @"RendererChanged";
         NSEnumerator* faceEn = [faces objectEnumerator];
         Face* face;
         while ((face = [faceEn nextObject])) {
-            [selectionLayer removeFace:face];
-            [geometryLayer addFace:face];
+            FaceFigure* faceFigure = [faceFigures objectForKey:[face faceId]];
+            [selectionLayer removeFigure:faceFigure];
+            [geometryLayer addFigure:faceFigure];
         }
     }
 
@@ -228,7 +253,6 @@ NSString* const RendererChanged = @"RendererChanged";
     if (selectionManager != nil) {
         [selectionManager removeObserver:self];
         [selectionManager release];
-        selectionManager = nil;
     }
     
     selectionManager = [theSelectionManager retain];
@@ -236,18 +260,61 @@ NSString* const RendererChanged = @"RendererChanged";
     [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
 }
 
+- (void)toolsAdded:(NSNotification *)notification {
+    NSDictionary* userInfo= [notification userInfo];
+    NSSet* tools = [userInfo objectForKey:ToolsKey];
+
+    NSEnumerator* toolEn = [tools objectEnumerator];
+    id tool;
+    while ((tool = [toolEn nextObject]))
+        [toolLayer addFigure:tool];
+}
+
+- (void)toolsRemoved:(NSNotification *)notification {
+    NSDictionary* userInfo= [notification userInfo];
+    NSSet* tools = [userInfo objectForKey:ToolsKey];
+    
+    NSEnumerator* toolEn = [tools objectEnumerator];
+    id tool;
+    while ((tool = [toolEn nextObject]))
+        [toolLayer removeFigure:tool];
+}
+
+- (void)setToolManager:(ToolManager *)theToolManager {
+    if (theToolManager == nil)
+        [NSException raise:NSInvalidArgumentException format:@"tool manager must not be nil"];
+    
+    if (toolManager != nil) {
+        [toolManager removeObserver:self];
+        [toolManager release];
+    }
+    
+    toolManager = [theToolManager retain];
+    [toolManager addObserver:self selector:@selector(toolsAdded:) name:ToolsAdded];
+    [toolManager addObserver:self selector:@selector(toolsRemoved:) name:ToolsRemoved];
+}
+
+- (void)cameraChanged:(NSNotification *)notification {
+    [self notifyObservers:RendererChanged];
+}
+
 - (void)setCamera:(Camera *)theCamera {
     if (theCamera == nil)
         [NSException raise:NSInvalidArgumentException format:@"camera must not be nil"];
     
-    [camera release];
+    if (camera != nil) {
+        [camera removeObserver:self];
+        [camera release];
+    }
+    
     camera = [theCamera retain];
+    [camera addObserver:self selector:@selector(cameraChanged:) name:CameraChanged];
 }
 
 - (void)render:(RenderContext *)renderContext {
     [geometryLayer render:renderContext];
     [selectionLayer render:renderContext];
-    [handleLayer render:renderContext];
+    [toolLayer render:renderContext];
 }
 
 - (void)updateView:(NSRect)bounds {
@@ -295,10 +362,16 @@ NSString* const RendererChanged = @"RendererChanged";
     }
     [map removeObserver:self];
     
+    [selectionManager removeObserver:self];
+    [toolManager removeObserver:self];
+    [camera removeObserver:self];
+    
     [geometryLayer release];
     [selectionLayer release];
-    [handleLayer release];
+    [toolLayer release];
+    [faceFigures release];
     [vbo release];
+    [toolManager release];
     [selectionManager release];
     [camera release];
     [map release];

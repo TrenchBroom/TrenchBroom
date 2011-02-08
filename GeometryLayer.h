@@ -14,7 +14,7 @@
 
 @interface GeometryLayer : NSObject <Layer> {
     @private
-    NSMutableDictionary* faceFigures;
+    NSMutableSet* faceFigures;
     NSMutableDictionary* indexBuffers;
     NSMutableDictionary* countBuffers;
     VBOBuffer* vbo;

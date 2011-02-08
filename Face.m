@@ -361,7 +361,7 @@ static Vector3f* baseAxes[18];
     [texCoords setY:[vertex dot:texAxisY] + yOffset];
 }
 
-- (Vector3f *)worldCoordsOf:(Vector2f *)sCoords {
+- (Vector3f *)worldCoordsOf:(Vector3f *)sCoords {
     if (sCoords == nil)
         [NSException raise:NSInvalidArgumentException format:@"surface coordinates must not be nil"];
     
@@ -431,16 +431,9 @@ static Vector3f* baseAxes[18];
         [surfaceMatrix setRow:3 column:3 value:1];
     }
 
-    float x = [sCoords x];
-    float y = [sCoords y];
-    float z = 0;
-    
-    Vector3f* result = [[Vector3f alloc] init];
-    [result setX:x];
-    [result setY:y];
-    [result setZ:z];
-    
+    Vector3f* result = [[Vector3f alloc] initWithFloatVector:sCoords];
     [surfaceMatrix transformVector3f:result];
+
     return [result autorelease];
 }
 

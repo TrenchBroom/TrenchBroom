@@ -8,11 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class MapView2D;
 @class MapView3D;
 @class TextureView;
 @class Camera;
-@class RenderMap;
 @class TextureManager;
 @class InputManager;
 @class VBOBuffer;
@@ -21,6 +19,7 @@
 @class SelectionManager;
 @class GLFontManager;
 @class SingleTextureView;
+@class ToolManager;
 
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView3D* view3D;
@@ -32,6 +31,7 @@
     Octree* octree;
     Picker* picker;
     SelectionManager* selectionManager;
+    ToolManager* toolManager;
 }
 
 - (VBOBuffer *)vbo;
@@ -39,5 +39,6 @@
 - (SelectionManager *)selectionManager;
 - (InputManager *)inputManager;
 - (TextureManager *)textureManager;
+- (ToolManager *)toolManager;
 
 @end

@@ -14,7 +14,7 @@
 
 - (void)render:(RenderContext *)renderContext;
 
-- (void)addFace:(Face *)theFace;
-- (void)removeFace:(Face *)theFace;
+- (void)addFigure:(id)theFigure;
+- (void)removeFigure:(id)theFigure;
 
 @end

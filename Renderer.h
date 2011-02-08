@@ -15,6 +15,7 @@ extern NSString* const RendererChanged;
 @class VBOBuffer;
 @class RenderContext;
 @class SelectionManager;
+@class ToolManager;
 @class Camera;
 
 @interface Renderer : Observable {
@@ -23,9 +24,11 @@ extern NSString* const RendererChanged;
     VBOBuffer* vbo;
     NSObject<Layer>* geometryLayer;
     NSObject<Layer>* selectionLayer;
-    NSObject<Layer>* handleLayer;
+    NSObject<Layer>* toolLayer;
     SelectionManager* selectionManager;
+    ToolManager* toolManager;
     Camera* camera;
+    NSMutableDictionary* faceFigures;
 }
 
 - (id)initWithMap:(Map *)theMap vbo:(VBOBuffer *)theVbo;
@@ -34,6 +37,7 @@ extern NSString* const RendererChanged;
 - (void)updateView:(NSRect)bounds;
 
 - (void)setSelectionManager:(SelectionManager *)theSelectionManager;
+- (void)setToolManager:(ToolManager *)theToolManager;
 - (void)setCamera:(Camera *)theCamera;
 
 @end

@@ -23,10 +23,6 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 
 @implementation MapView3D
 
-- (void)cameraChanged:(NSNotification *)notification {
-    [self setNeedsDisplay:YES];
-}
-
 - (void)rendererChanged:(NSNotification *)notification {
     [self setNeedsDisplay:YES];
 }
@@ -52,11 +48,12 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
     
     Camera* camera = [controller camera];
     SelectionManager* selectionManager = [controller selectionManager];
+    ToolManager* toolManager = [controller toolManager];
     
     [renderer setCamera:camera];
     [renderer setSelectionManager:selectionManager];
+    [renderer setToolManager:toolManager];
     
-    [camera addObserver:self selector:@selector(cameraChanged:) name:CameraChanged];
     [renderer addObserver:self selector:@selector(rendererChanged:) name:RendererChanged];
 }
 
@@ -130,11 +127,6 @@ NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
-    MapWindowController* controller = [[self window] windowController];
-    Camera* camera = [controller camera];
-    [camera removeObserver:self];
-    
     [renderer removeObserver:self];
     [renderer release];
     [super dealloc];

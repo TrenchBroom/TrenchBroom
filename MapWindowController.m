@@ -23,6 +23,7 @@
 #import "SelectionManager.h"
 #import "GLFontManager.h"
 #import "FaceInspectorController.h"
+#import "ToolManager.h"
 
 @implementation MapWindowController
 
@@ -70,6 +71,7 @@
     
     selectionManager = [[SelectionManager alloc] init];
     inputManager = [[InputManager alloc] initWithPicker:picker selectionManager:selectionManager];
+    toolManager = [[ToolManager alloc] initWithSelectionManager:selectionManager];
     
     vbo = [[VBOBuffer alloc] initWithTotalCapacity:8192];
     [view3D setup];
@@ -114,8 +116,13 @@
     return textureManager;
 }
 
+- (ToolManager *)toolManager {
+    return toolManager;
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [toolManager release];
     [vbo release];
     [selectionManager release];
     [picker release];

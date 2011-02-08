@@ -82,6 +82,8 @@
 		488F07CE13013F9F0063E550 /* SelectionLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F07CD13013F9F0063E550 /* SelectionLayer.m */; };
 		488F0983130161020063E550 /* Observable.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F0982130161020063E550 /* Observable.m */; };
 		488F09881301628D0063E550 /* Observer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F09871301628D0063E550 /* Observer.m */; };
+		488F0AA413019DEC0063E550 /* ToolManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F0AA313019DEC0063E550 /* ToolManager.m */; };
+		488F0AAF1301A2C50063E550 /* ToolLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F0AAE1301A2C50063E550 /* ToolLayer.m */; };
 		4891E13A12FC0451007A3B93 /* FaceInspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4891E13912FC0451007A3B93 /* FaceInspector.xib */; };
 		4891E15612FC04B2007A3B93 /* FaceInspectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4891E15512FC04B2007A3B93 /* FaceInspectorController.m */; };
 		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
@@ -252,6 +254,10 @@
 		488F0982130161020063E550 /* Observable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Observable.m; sourceTree = "<group>"; };
 		488F09861301628D0063E550 /* Observer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Observer.h; sourceTree = "<group>"; };
 		488F09871301628D0063E550 /* Observer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Observer.m; sourceTree = "<group>"; };
+		488F0AA213019DEC0063E550 /* ToolManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToolManager.h; sourceTree = "<group>"; };
+		488F0AA313019DEC0063E550 /* ToolManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ToolManager.m; sourceTree = "<group>"; };
+		488F0AAD1301A2C50063E550 /* ToolLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToolLayer.h; sourceTree = "<group>"; };
+		488F0AAE1301A2C50063E550 /* ToolLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ToolLayer.m; sourceTree = "<group>"; };
 		4891E13912FC0451007A3B93 /* FaceInspector.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FaceInspector.xib; sourceTree = "<group>"; };
 		4891E15412FC04B2007A3B93 /* FaceInspectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceInspectorController.h; sourceTree = "<group>"; };
 		4891E15512FC04B2007A3B93 /* FaceInspectorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceInspectorController.m; sourceTree = "<group>"; };
@@ -494,6 +500,8 @@
 				488F078F130130580063E550 /* FaceFigure.m */,
 				488F07CC13013F9F0063E550 /* SelectionLayer.h */,
 				488F07CD13013F9F0063E550 /* SelectionLayer.m */,
+				488F0AAD1301A2C50063E550 /* ToolLayer.h */,
+				488F0AAE1301A2C50063E550 /* ToolLayer.m */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -680,6 +688,8 @@
 			children = (
 				48FDA0BC12FD872500204729 /* FaceOffsetTool.h */,
 				48FDA0BD12FD872500204729 /* FaceOffsetTool.m */,
+				488F0AA213019DEC0063E550 /* ToolManager.h */,
+				488F0AA313019DEC0063E550 /* ToolManager.m */,
 			);
 			name = Tools;
 			sourceTree = "<group>";
@@ -897,6 +907,8 @@
 				488F07CE13013F9F0063E550 /* SelectionLayer.m in Sources */,
 				488F0983130161020063E550 /* Observable.m in Sources */,
 				488F09881301628D0063E550 /* Observer.m in Sources */,
+				488F0AA413019DEC0063E550 /* ToolManager.m in Sources */,
+				488F0AAF1301A2C50063E550 /* ToolLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
