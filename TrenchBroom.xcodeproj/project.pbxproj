@@ -20,6 +20,8 @@
 		4809F456118EDE82000F66FD /* Brush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* Brush.m */; };
 		480AD8B612ED78FA009B5970 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B512ED78FA009B5970 /* Edge.m */; };
 		480AD8D612ED9E4A009B5970 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
+		480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 480BB4711302ED1C005E3492 /* Matrix2f.m */; };
+		480BB50A13031A9D005E3492 /* Matrix3f.m in Sources */ = {isa = PBXBuildFile; fileRef = 480BB50913031A9D005E3492 /* Matrix3f.m */; };
 		4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4814A02212F73F1E0082E05F /* ProgressWindow.xib */; };
 		4814A02712F740580082E05F /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4814A02612F740580082E05F /* ProgressWindowController.m */; };
 		4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4818202212FB4746002D9AAD /* SingleTextureView.m */; };
@@ -146,6 +148,10 @@
 		480AD8B512ED78FA009B5970 /* Edge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Edge.m; sourceTree = "<group>"; };
 		480AD8D412ED9E4A009B5970 /* Side.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Side.h; sourceTree = "<group>"; };
 		480AD8D512ED9E4A009B5970 /* Side.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Side.m; sourceTree = "<group>"; };
+		480BB4701302ED1C005E3492 /* Matrix2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix2f.h; sourceTree = "<group>"; };
+		480BB4711302ED1C005E3492 /* Matrix2f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix2f.m; sourceTree = "<group>"; };
+		480BB50813031A9D005E3492 /* Matrix3f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix3f.h; sourceTree = "<group>"; };
+		480BB50913031A9D005E3492 /* Matrix3f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix3f.m; sourceTree = "<group>"; };
 		4814A02212F73F1E0082E05F /* ProgressWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProgressWindow.xib; sourceTree = "<group>"; };
 		4814A02512F740580082E05F /* ProgressWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressWindowController.h; sourceTree = "<group>"; };
 		4814A02612F740580082E05F /* ProgressWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProgressWindowController.m; sourceTree = "<group>"; };
@@ -447,6 +453,8 @@
 			children = (
 				4872C97812FF4DEC00C5DD29 /* Vector4f.h */,
 				4872C97912FF4DEC00C5DD29 /* Vector4f.m */,
+				480BB50813031A9D005E3492 /* Matrix3f.h */,
+				480BB50913031A9D005E3492 /* Matrix3f.m */,
 				4872C97512FF4DC200C5DD29 /* Matrix4f.h */,
 				4872C97612FF4DC200C5DD29 /* Matrix4f.m */,
 				487CA0C3125B00E9002DF9D2 /* HalfSpace3D.h */,
@@ -564,6 +572,8 @@
 			children = (
 				48E1107A1234BF5500087198 /* Vector2f.h */,
 				48E1107B1234BF5500087198 /* Vector2f.m */,
+				480BB4701302ED1C005E3492 /* Matrix2f.h */,
+				480BB4711302ED1C005E3492 /* Matrix2f.m */,
 			);
 			name = 2D;
 			sourceTree = "<group>";
@@ -909,6 +919,8 @@
 				488F09881301628D0063E550 /* Observer.m in Sources */,
 				488F0AA413019DEC0063E550 /* ToolManager.m in Sources */,
 				488F0AAF1301A2C50063E550 /* ToolLayer.m in Sources */,
+				480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */,
+				480BB50A13031A9D005E3492 /* Matrix3f.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

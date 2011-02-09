@@ -19,9 +19,10 @@
 #import "Brush.h"
 #import "Vector3i.h"
 #import "MapWindowController.h"
+#import "ToolManager.h"
 
 @implementation InputManager
-- (id)initWithPicker:(Picker *)thePicker selectionManager:(SelectionManager *)theSelectionManager {
+- (id)initWithPicker:(Picker *)thePicker selectionManager:(SelectionManager *)theSelectionManager toolManager:(ToolManager *)theToolManager {
     if (thePicker == nil)
         [NSException raise:NSInvalidArgumentException format:@"picker must not be nil"];
     if (theSelectionManager == nil)
@@ -30,6 +31,7 @@
     if (self = [self init]) {
         picker = [thePicker retain];
         selectionManager = [theSelectionManager retain];
+        toolManager = [theToolManager retain];
     }
     
     return self;
@@ -112,6 +114,10 @@
     [direction normalize];
     
     Ray3D* ray = [[Ray3D alloc] initWithOrigin:origin direction:direction];
+    NSArray* tools = [toolManager toolsHitByRay:ray];
+    if ([tools count] > 0)
+        NSLog(@"hit %i tools", [tools count]);
+    
     NSArray* hits = [picker objectsHitByRay:ray];
     
     [lastHit release];
@@ -176,6 +182,7 @@
 }
 
 - (void)dealloc {
+    [toolManager release];
     [selectionManager release];
     [lastHit release];
     [picker release];

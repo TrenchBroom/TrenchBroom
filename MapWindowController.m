@@ -70,8 +70,8 @@
     camera = [[Camera alloc] init];
     
     selectionManager = [[SelectionManager alloc] init];
-    inputManager = [[InputManager alloc] initWithPicker:picker selectionManager:selectionManager];
     toolManager = [[ToolManager alloc] initWithSelectionManager:selectionManager];
+    inputManager = [[InputManager alloc] initWithPicker:picker selectionManager:selectionManager toolManager:toolManager];
     
     vbo = [[VBOBuffer alloc] initWithTotalCapacity:8192];
     [view3D setup];

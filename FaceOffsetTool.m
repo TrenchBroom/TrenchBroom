@@ -11,6 +11,10 @@
 #import "Vector2f.h"
 #import "Vector3f.h"
 #import "Math.h"
+#import "SelectionManager.h"
+#import "Ray3D.h"
+#import "HalfSpace3D.h"
+#import "Plane3D.h"
 
 static NSArray* smallCircle;
 static NSArray* largeCircle;
@@ -24,12 +28,15 @@ static NSArray* ring;
     ring = [makeRing(10, 11, 32) retain];
 }
 
-- (id)initWithFace:(Face *)theFace {
+- (id)initWithFace:(Face *)theFace selectionManager:(SelectionManager *)theSelectionManager {
     if (theFace == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
+    if (theSelectionManager == nil)
+        [NSException raise:NSInvalidArgumentException format:@"selection manager must not be nil"];
     
     if (self = [self init]) {
         face = [theFace retain];
+        selectionManager = [theSelectionManager retain];
     }
     
     return self;
@@ -88,6 +95,7 @@ static NSArray* ring;
     w = [face worldCoordsOf:v];
     glVertex3f([w x], [w y], [w z]);
     
+    /*
     // right arrow
     [v setX:4];
     [v setY:2];
@@ -135,12 +143,28 @@ static NSArray* ring;
     [v setY:2];
     w = [face worldCoordsOf:v];
     glVertex3f([w x], [w y], [w z]);
-    
+    */
     glEnd();
+}
+
+- (BOOL)hitByRay:(Ray3D *)theRay {
+    if (theRay == nil)
+        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
+    
+    Plane3D* plane = [[face halfSpace] boundary];
+    Vector3f* is = [plane intersectWithRay:theRay];
+    if (is == nil)
+        return NO;
+    
+    Vector3f* s = [face surfaceCoordsOf:is];
+    Vector3f* c = [face center];
+    [c sub:s];
+    return flte([c length], 11);
 }
 
 - (void)dealloc {
     [face release];
+    [selectionManager release];
     [super dealloc];
 }
 

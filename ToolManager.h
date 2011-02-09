@@ -13,6 +13,7 @@ extern NSString* const ToolsRemoved;
 extern NSString* const ToolsKey;
 
 @class SelectionManager;
+@class Ray3D;
 
 @interface ToolManager : Observable {
     @private
@@ -21,5 +22,7 @@ extern NSString* const ToolsKey;
 }
 
 - (id)initWithSelectionManager:(SelectionManager *)theSelectionManager;
+
+- (NSArray *)toolsHitByRay:(Ray3D *)theRay;
 
 @end

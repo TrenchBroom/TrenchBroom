@@ -9,6 +9,9 @@
 #import "Matrix4f.h"
 #import "Vector3f.h"
 #import "Vector4f.h"
+#import "Matrix3f.h"
+#import "Matrix2f.h"
+#import "Math.h"
 
 @implementation Matrix4f
 
@@ -16,6 +19,14 @@
     if (self = [super init]) {
         values = malloc(4 * 4 * sizeof(float));
         [self setIdentity];
+    }
+    
+    return self;
+}
+
+- (id)initWithMatrix4f:(Matrix4f *)matrix{
+    if (self = [self init]) {
+        [self setMatrix4f:matrix];
     }
     
     return self;
@@ -32,6 +43,42 @@
 
 - (void)setMatrix4f:(Matrix4f *)matrix {
     memcpy(values, [matrix columnMajor], 4 * 4 * sizeof(float));
+}
+
+- (void)setSubMatrix:(int)index to:(Matrix2f *)matrix {
+    if (matrix == nil)
+        [NSException raise:NSInvalidArgumentException format:@"matrix must not be nil"];
+    
+    float* mvalues = [matrix columnMajor];
+    switch (index) {
+        case 0:
+            values[ 0] = mvalues[0];
+            values[ 1] = mvalues[1];
+            values[ 4] = mvalues[2];
+            values[ 5] = mvalues[3];
+            break;
+        case 1:
+            values[ 2] = mvalues[0];
+            values[ 3] = mvalues[1];
+            values[ 6] = mvalues[2];
+            values[ 7] = mvalues[3];
+            break;
+        case 2:
+            values[ 8] = mvalues[0];
+            values[ 9] = mvalues[1];
+            values[12] = mvalues[2];
+            values[13] = mvalues[3];
+            break;
+        case 3:
+            values[10] = mvalues[0];
+            values[11] = mvalues[1];
+            values[14] = mvalues[2];
+            values[15] = mvalues[3];
+            break;
+        default:
+            [NSException raise:NSInvalidArgumentException format:@"sub matrix index out of bounds: %i", index];
+            break;
+    }
 }
 
 - (void)multiply:(float *)m {
@@ -104,13 +151,96 @@
     values[15] += [offset z];
 }
 
-- (void)setRow:(int)row column:(int)column value:(float)value {
+- (BOOL)invert {
+    float det = [self determinant];
+    if (fzero(det))
+        return NO;
+    
+    Matrix2f* A = [[Matrix2f alloc] initAsSubMatrix:0 of:self];
+    Matrix2f* Ai = [[Matrix2f alloc] initWithMatrix2f:A];
+    if ([Ai invert]) { // use quick method
+        Matrix2f* B = [[Matrix2f alloc] initAsSubMatrix:2 of:self];
+        Matrix2f* C = [[Matrix2f alloc] initAsSubMatrix:1 of:self];
+        Matrix2f* D = [[Matrix2f alloc] initAsSubMatrix:3 of:self];
+        
+        Matrix2f* CAi = [[Matrix2f alloc] initWithMatrix2f:C];
+        [CAi mul:Ai];
+        
+        Matrix2f* CAiB = [[Matrix2f alloc] initWithMatrix2f:CAi];
+        [CAiB mul:B];
+        
+        Matrix2f* AiB = [[Matrix2f alloc] initWithMatrix2f:Ai];
+        [AiB mul:B];
+        
+        [D sub:CAiB];
+        
+        [A setMatrix2f:AiB];
+        [A mul:D];
+        
+        [B setMatrix2f:A];
+        [B negate];
+        
+        [A mul:CAi];
+        [A add:Ai];
+        
+        [C setMatrix2f:D];
+        [C mul:CAi];
+        [C negate];
+        
+        [self setSubMatrix:0 to:A];
+        [self setSubMatrix:1 to:C];
+        [self setSubMatrix:2 to:B];
+        [self setSubMatrix:3 to:D];
+        
+        [B release];
+        [C release];
+        [D release];
+        
+        [CAi release];
+        [CAiB release];
+        [AiB release];
+    } else { // use general but slower method
+        [self adjunct];
+        [self scale:1 / det];
+    }
+    
+    [A release];
+    [Ai release];
+    return YES;
+}
+
+- (void)adjunct {
+    float* nvalues = malloc(4 * 4 * sizeof(float));
+    Matrix3f* m = [[Matrix3f alloc] init];
+    for (int col = 0; col < 4; col++)
+        for (int row = 0; row < 4; row++) {
+            [m setMinorOf:self col:col row:row];
+            nvalues[col * 4 + row] = [m determinant];
+        }
+    
+    free(values);
+    values = nvalues;
+    [m release];
+}
+
+- (float)determinant {
+    return values[ 0] * values[ 5] * values[10] * values[15]
+         + values[ 4] * values[ 9] * values[14] * values[ 3]
+         + values[ 8] * values[13] * values[ 2] * values[ 7]
+         + values[12] * values[ 1] * values[ 6] * values[11]
+         - values[ 3] * values[ 6] * values[ 9] * values[12]
+         - values[ 7] * values[10] * values[13] * values[ 0]
+         - values[11] * values[14] * values[ 1] * values[ 4]
+         - values[15] * values[ 2] * values[ 5] * values[ 8];
+}
+
+- (void)setColumn:(int)col row:(int)row value:(float)value {
+    if (col < 0 || col > 3)
+        [NSException raise:NSInvalidArgumentException format:@"column index out of bounds: %i", col];
     if (row < 0 || row > 3)
         [NSException raise:NSInvalidArgumentException format:@"row index out of bounds: %i", row];
-    if (column < 0 || column > 3)
-        [NSException raise:NSInvalidArgumentException format:@"column index out of bounds: %i", column];
     
-    values[column * 4 + row] = value;
+    values[col * 4 + row] = value;
 }
 
 - (void)setRow:(int)row values:(Vector3f *)vector {
@@ -125,6 +255,18 @@
     values[12 + row] = 0;
 }
 
+- (void)setColumn:(int)col values:(Vector3f *)vector {
+    if (col < 0 || col > 3)
+        [NSException raise:NSInvalidArgumentException format:@"column index out of bounds: %i", col];
+    if (vector == nil)
+        [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
+    
+    values[col * 4 + 0] = [vector x];
+    values[col * 4 + 1] = [vector y];
+    values[col * 4 + 2] = [vector z];
+    values[col * 4 + 3] = 0;
+}
+
 - (void)transformVector3f:(Vector3f *)vector {
     Vector4f* vector4f = [[Vector4f alloc] initWithVector3f:vector];
     [self transformVector4f:vector4f];
@@ -136,15 +278,53 @@
     if (vector == nil)
         [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
     
-    float x = [vector x] * values[ 0] + [vector y] * values[ 1] + [vector z] * values[ 2] + [vector w] * values[ 3];
-    float y = [vector x] * values[ 4] + [vector y] * values[ 5] + [vector z] * values[ 6] + [vector w] * values[ 7];
-    float z = [vector x] * values[ 8] + [vector y] * values[ 9] + [vector z] * values[10] + [vector w] * values[11];
-    float w = [vector x] * values[12] + [vector y] * values[13] + [vector z] * values[14] + [vector w] * values[15];
+    float x = values[ 0] * [vector x] + values[ 4] * [vector y] + values[ 8] * [vector z] + values[12] * [vector w];
+    float y = values[ 1] * [vector x] + values[ 5] * [vector y] + values[ 9] * [vector z] + values[13] * [vector w];
+    float z = values[ 2] * [vector x] + values[ 6] * [vector y] + values[10] * [vector z] + values[14] * [vector w];
+    float w = values[ 3] * [vector x] + values[ 7] * [vector y] + values[11] * [vector z] + values[15] * [vector w];
     
     [vector setX:x];
     [vector setY:y];
     [vector setZ:z];
     [vector setW:w];
+}
+
+- (void)negate {
+    for (int i = 0; i < 16; i++)
+        values[i] = -1 * values[i];
+}
+
+- (void)add:(Matrix4f *)matrix {
+    float* mvalues = [matrix columnMajor];
+    for (int i = 0; i < 16; i++)
+        values[i] += mvalues[i];
+}
+
+- (void)sub:(Matrix4f *)matrix {
+    float* mvalues = [matrix columnMajor];
+    for (int i = 0; i < 16; i++)
+        values[i] -= mvalues[i];
+}
+
+- (void)mul:(Matrix4f *)matrix {
+    float* mvalues = [matrix columnMajor];
+    float* nvalues = malloc(4 * 4 * sizeof(float));
+    
+    for (int col = 0; col < 4; col++) {
+        for (int row = 0; row < 4; row++) {
+            nvalues[col * 4 + row] = 0;
+            for (int i = 0; i < 4; i++)
+                nvalues[col * 4 + row] += values[i * 4 + row] * mvalues[col * 4 + i];
+        }
+    }
+    
+    free(values);
+    values = nvalues;
+}
+
+- (void)scale:(float)factor {
+    for (int i = 0; i < 16; i++)
+        values[i] *= factor;
 }
 
 - (float*)columnMajor {

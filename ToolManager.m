@@ -39,7 +39,7 @@ NSString* const ToolsKey = @"Tools";
             [activeTools setObject:toolsForFace forKey:[face faceId]];
             [toolsForFace release];
             
-            FaceOffsetTool* tool = [[FaceOffsetTool alloc] initWithFace:face];
+            FaceOffsetTool* tool = [[FaceOffsetTool alloc] initWithFace:face selectionManager:selectionManager];
             [toolsForFace addObject:tool];
             [newTools addObject:tool];
             [tool release];
@@ -78,6 +78,20 @@ NSString* const ToolsKey = @"Tools";
     }
     
     return self;
+}
+
+- (NSArray *)toolsHitByRay:(Ray3D *)theRay {
+    NSMutableArray* result = [[NSMutableArray alloc] init];
+    NSEnumerator* toolsForFaceEn = [activeTools objectEnumerator];
+    NSArray* toolsForFace;
+    while ((toolsForFace = [toolsForFaceEn nextObject])) {
+        NSEnumerator* toolEn = [toolsForFace objectEnumerator];
+        id tool;
+        while ((tool = [toolEn nextObject]))
+            if ([tool hitByRay:theRay])
+                [result addObject:tool];
+    }
+    return [result autorelease];
 }
 
 - (void)dealloc {

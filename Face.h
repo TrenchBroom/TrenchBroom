@@ -50,6 +50,7 @@ typedef enum {
     
     // transforms surface coordinates to world coordinates
     Matrix4f* surfaceMatrix;
+    Matrix4f* worldMatrix; // inverse of surface matrix
 }
 
 - (id)initInBrush:(Brush *)theBrush point1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;
@@ -82,6 +83,7 @@ typedef enum {
 
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex;
 - (Vector3f *)worldCoordsOf:(Vector3f *)sCoords;
+- (Vector3f *)surfaceCoordsOf:(Vector3f *)wCoords;
 - (HalfSpace3D *)halfSpace;
 /*!
     @function
