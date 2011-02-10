@@ -200,7 +200,7 @@
         [CAiB release];
         [AiB release];
     } else { // use general but slower method
-        [self adjunct];
+        [self adjugate];
         [self scale:1 / det];
     }
     
@@ -209,29 +209,42 @@
     return YES;
 }
 
-- (void)adjunct {
+- (void)adjugate {
     float* nvalues = malloc(4 * 4 * sizeof(float));
     Matrix3f* m = [[Matrix3f alloc] init];
     for (int col = 0; col < 4; col++)
         for (int row = 0; row < 4; row++) {
             [m setMinorOf:self col:col row:row];
-            nvalues[col * 4 + row] = [m determinant];
+            nvalues[col * 4 + row] = ((col + row) % 2 == 0 ? 1 : -1) * [m determinant];
         }
     
     free(values);
     values = nvalues;
     [m release];
+
+    [self transpose];
+}
+
+- (void)transpose {
+    for (int col = 0; col < 4; col++)
+        for (int row = col + 1; row < 4; row++) {
+            float t = values[col * 4 + row];
+            values[col * 4 + row] = values[row * 4 + col];
+            values[row * 4 + col] = t;
+        }
 }
 
 - (float)determinant {
-    return values[ 0] * values[ 5] * values[10] * values[15]
-         + values[ 4] * values[ 9] * values[14] * values[ 3]
-         + values[ 8] * values[13] * values[ 2] * values[ 7]
-         + values[12] * values[ 1] * values[ 6] * values[11]
-         - values[ 3] * values[ 6] * values[ 9] * values[12]
-         - values[ 7] * values[10] * values[13] * values[ 0]
-         - values[11] * values[14] * values[ 1] * values[ 4]
-         - values[15] * values[ 2] * values[ 5] * values[ 8];
+    // Laplace after first col
+    float det = 0;
+    Matrix3f* m = [[Matrix3f alloc] init];
+    for (int row = 0; row < 4; row++) {
+        [m setMinorOf:self col:0 row:row];
+        det += (row % 2 == 0 ? 1 : -1) * values[row] * [m determinant]; 
+    }
+    
+    [m release];
+    return det;
 }
 
 - (void)setColumn:(int)col row:(int)row value:(float)value {

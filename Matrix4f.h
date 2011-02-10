@@ -27,8 +27,9 @@
 - (void)rotateAbout:(Vector3f *)axis angle:(float)a;
 - (void)translate:(Vector3f *)offset;
 - (BOOL)invert;
-- (void)adjunct;
+- (void)adjugate;
 - (float)determinant;
+- (void)transpose;
 
 - (void)setColumn:(int)col row:(int)row value:(float)value;
 - (void)setColumn:(int)col values:(Vector3f *)vector;

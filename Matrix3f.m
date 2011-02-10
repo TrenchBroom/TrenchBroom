@@ -80,28 +80,39 @@
     if (fzero(det))
         return NO;
     
-    [self adjunct];
+    [self adjugate];
     [self scale:1 / det];
     return YES;
 }
 
-- (void)adjunct {
+- (void)adjugate {
     float* nvalues = malloc(3 * 3 * sizeof(float));
     Matrix2f* m = [[Matrix2f alloc] init];
     for (int col = 0; col < 3; col++)
         for (int row = 0; row < 3; row++) {
             [m setMinorOf:self col:col row:row];
-            nvalues[col * 3 + row] = [m determinant];
+            nvalues[col * 3 + row] = ((col + row) % 2 == 0 ? 1 : -1) * [m determinant];
         }
             
     free(values);
     values = nvalues;
     [m release];
+    
+    [self transpose];
+}
+
+- (void)transpose {
+    for (int col = 0; col < 3; col++)
+        for (int row = col + 1; row < 3; row++) {
+            float t = values[col * 3 + row];
+            values[col * 3 + row] = values[row * 3 + col];
+            values[row * 3 + col] = t;
+        }
 }
 
 - (float)determinant {
     return values[0] * values[4] * values[8]
-         + values[3] * values[7] * values[1]
+         + values[3] * values[7] * values[2]
          + values[6] * values[1] * values[5]
          - values[2] * values[4] * values[6]
          - values[5] * values[7] * values[0]

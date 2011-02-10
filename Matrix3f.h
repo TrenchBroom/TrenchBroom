@@ -24,9 +24,10 @@
 - (void)setColumn:(int)col values:(Vector3f *)vector;
 
 - (BOOL)invert;
-- (void)adjunct;
+- (void)adjugate;
 - (float)determinant;
 - (void)negate;
+- (void)transpose;
 
 - (void)add:(Matrix3f *)matrix;
 - (void)sub:(Matrix3f *)matrix;
