@@ -10,6 +10,7 @@
 #import <OpenGL/glu.h>
 #import "Vector3f.h"
 #import "Quaternion.h"
+#import "Ray3D.h"
 
 NSString* const CameraDefaults = @"Camera";
 NSString* const CameraDefaultsFov = @"FieldOfVision";
@@ -151,6 +152,15 @@ NSString* const CameraChanged = @"CameraChanged";
     gluUnProject(x, y, 1, modelview, projection, viewport, &rx, &ry, &rz);
     
     return [Vector3f vectorWithX:rx y:ry z:rz];
+}
+
+- (Ray3D *)pickRayX:(float)x y:(float)y {
+    Vector3f* rayDir = [self unprojectX:x y:y];
+    
+    [rayDir sub:position];
+    [rayDir normalize];
+    
+    return [[[Ray3D alloc] initWithOrigin:position direction:rayDir] autorelease];
 }
 
 - (void)dealloc {

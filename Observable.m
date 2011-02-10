@@ -20,6 +20,8 @@
 }
 
 - (void)addObserver:(id)target selector:(SEL)selector name:(NSString *)name {
+    if (target == self)
+        NSLog(@"listen to self?");
     NSMutableArray* observersForName = [observers objectForKey:name];
     if (observersForName == nil) {
         observersForName = [[NSMutableArray alloc] init];

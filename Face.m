@@ -434,14 +434,10 @@ static Vector3f* baseAxes[18];
         [NSException raise:@"NonInvertibleMatrixException" format:@"surface transformation matrix is not invertible"];
     
     worldMatrix = [[Matrix4f alloc] init];
-    [worldMatrix translate:center];
-    
+    [worldMatrix embed:m];
+
     Matrix4f* n = [[Matrix4f alloc] init];
-    [n embed:m];
-    
-    [worldMatrix mul:n];
-    [n setIdentity];
-    [n translate:[self center]];
+    [n translate:center];
     [worldMatrix mul:n];
     
     [n release];

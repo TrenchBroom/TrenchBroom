@@ -37,6 +37,7 @@ static NSArray* ring;
     if (self = [self init]) {
         face = [theFace retain];
         selectionManager = [theSelectionManager retain];
+        lastSurfacePos = [[Vector3f alloc] init];
     }
     
     return self;
@@ -95,7 +96,6 @@ static NSArray* ring;
     w = [face worldCoordsOf:v];
     glVertex3f([w x], [w y], [w z]);
     
-    /*
     // right arrow
     [v setX:4];
     [v setY:2];
@@ -143,7 +143,7 @@ static NSArray* ring;
     [v setY:2];
     w = [face worldCoordsOf:v];
     glVertex3f([w x], [w y], [w z]);
-    */
+
     glEnd();
 }
 
@@ -156,16 +156,46 @@ static NSArray* ring;
     if (is == nil)
         return NO;
     
-    Vector3f* s = [face surfaceCoordsOf:is];
-    Vector3f* c = [[Vector3f alloc] initWithFloatVector:[face center]];
-    [c sub:s];
-    float d = [c length];
+    [is sub:[face center]];
+    return flte([is lengthSquared], 11 * 11);
+}
+
+- (void)startDrag:(Ray3D *)theRay {
+    Plane3D* plane = [[face halfSpace] boundary];
+    Vector3f* is = [plane intersectWithRay:theRay];
+    if (is == nil)
+        return;
     
-    [c release];
-    return flte(d, 11);
+    [lastSurfacePos setFloat:[face surfaceCoordsOf:is]];
+    NSLog(@"initial surface pos: %@ -> %@", is, lastSurfacePos);
+}
+
+- (void)drag:(Ray3D *)theRay {
+    Plane3D* plane = [[face halfSpace] boundary];
+    Vector3f* is = [plane intersectWithRay:theRay];
+    if (is == nil)
+        return;
+    
+    Vector3f* surfacePos = [face surfaceCoordsOf:is];
+    int dx = (int)[surfacePos x] - (int)[lastSurfacePos x];
+    int dy = (int)[surfacePos y] - (int)[lastSurfacePos y];
+
+    if (dx != 0) {
+        [face setXOffset:[face xOffset] - dx];
+        [lastSurfacePos setX:[surfacePos x]];
+    }
+    
+    if (dy != 0) {
+        [face setYOffset:[face yOffset] + dy];
+        [lastSurfacePos setY:[surfacePos y]];
+    }
+}
+
+- (void)endDrag:(Ray3D *)theRay {
 }
 
 - (void)dealloc {
+    [lastSurfacePos release];
     [face release];
     [selectionManager release];
     [super dealloc];

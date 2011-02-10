@@ -17,6 +17,7 @@ extern NSString* const CameraChanged;
 
 @class Vector3f;
 @class Quaternion;
+@class Ray3D;
 
 @interface Camera : Observable {
     @private
@@ -44,4 +45,5 @@ extern NSString* const CameraChanged;
 - (void)userDefaultsChanged:(NSNotification *)notification;
 
 - (Vector3f *)unprojectX:(float)x y:(float)y;
+- (Ray3D *)pickRayX:(float)x y:(float)y;
 @end

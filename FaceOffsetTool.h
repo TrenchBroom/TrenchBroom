@@ -11,11 +11,13 @@
 @class Face;
 @class SelectionManager;
 @class Ray3D;
+@class Vector3f;
 
 @interface FaceOffsetTool : NSObject {
     @private
     Face* face;
     SelectionManager* selectionManager;
+    Vector3f* lastSurfacePos;
 }
 
 /*!
@@ -34,5 +36,9 @@
 - (void)render;
 
 - (BOOL)hitByRay:(Ray3D *)theRay;
+
+- (void)startDrag:(Ray3D *)theRay;
+- (void)drag:(Ray3D *)theRay;
+- (void)endDrag:(Ray3D *)theRay;
 
 @end

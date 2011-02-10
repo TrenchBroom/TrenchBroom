@@ -19,6 +19,7 @@
     PickingHit* lastHit;
     SelectionManager* selectionManager;
     ToolManager* toolManager;
+    NSMutableArray* currentTools;
 }
 
 - (id)initWithPicker:(Picker *)thePicker selectionManager:(SelectionManager *)theSelectionManager toolManager:(ToolManager *)theToolManager;

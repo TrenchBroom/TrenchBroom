@@ -104,8 +104,8 @@ NSString* const FaceKey = @"Face";
     }
 
     [face addObserver:self selector:@selector(faceGeometryChanged:) name:FaceGeometryChanged];
-    [face addForward:FaceGeometryChanged from:face];
-    [face addForward:FaceFlagsChanged from:face];
+    [self addForward:FaceGeometryChanged from:face];
+    [self addForward:FaceFlagsChanged from:face];
 
     [faces addObject:face];
     [vertexData release];
