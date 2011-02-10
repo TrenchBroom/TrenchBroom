@@ -11,6 +11,7 @@
 @class Vector3f;
 @class Vector4f;
 @class Matrix2f;
+@class Matrix3f;
 
 @interface Matrix4f : NSObject {
     @private
@@ -32,6 +33,7 @@
 - (void)setColumn:(int)col row:(int)row value:(float)value;
 - (void)setColumn:(int)col values:(Vector3f *)vector;
 - (void)setRow:(int)row values:(Vector3f *)vector;
+- (void)embed:(Matrix3f *)matrix;
 
 - (void)transformVector3f:(Vector3f *)vector;
 - (void)transformVector4f:(Vector4f *)vector;

@@ -157,9 +157,12 @@ static NSArray* ring;
         return NO;
     
     Vector3f* s = [face surfaceCoordsOf:is];
-    Vector3f* c = [face center];
+    Vector3f* c = [[Vector3f alloc] initWithFloatVector:[face center]];
     [c sub:s];
-    return flte([c length], 11);
+    float d = [c length];
+    
+    [c release];
+    return flte(d, 11);
 }
 
 - (void)dealloc {

@@ -10,6 +10,7 @@
 #import "Matrix4f.h"
 #import "Matrix2f.h"
 #import "Math.h"
+#import "Vector3f.h"
 
 @implementation Matrix3f
 
@@ -66,6 +67,12 @@
         for (int r = 0; r < 4; r++)
             if (c != col && r != row)
                 values[i++] = mvalues[c * 4 + r];
+}
+
+- (void)setColumn:(int)col values:(Vector3f *)vector {
+    values[col * 3 + 0] = [vector x];
+    values[col * 3 + 1] = [vector y];
+    values[col * 3 + 2] = [vector z];
 }
 
 - (BOOL)invert {
@@ -146,8 +153,9 @@
 - (NSString *)description {
     NSMutableString* desc = [[NSMutableString alloc] init];
     
-    [desc appendFormat:@"%f %f\n", values[ 0], values[ 2]];
-    [desc appendFormat:@"%f %f\n", values[ 1], values[ 3]];
+    [desc appendFormat:@"%f %f %f\n", values[0], values[3], values[6]];
+    [desc appendFormat:@"%f %f %f\n", values[1], values[4], values[7]];
+    [desc appendFormat:@"%f %f %f\n", values[2], values[5], values[8]];
     
     return [desc autorelease];
 }

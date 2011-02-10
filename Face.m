@@ -17,6 +17,7 @@
 #import "Math.h"
 #import "Brush.h"
 #import "Matrix4f.h"
+#import "Matrix3f.h"
 #import "Plane3D.h"
 #import "Line3D.h"
 
@@ -415,20 +416,40 @@ static Vector3f* baseAxes[18];
     [yAxis cross:xAxis];
     [yAxis normalize];
     
+    Matrix3f* m = [[Matrix3f alloc] init];
+    [m setColumn:0 values:xAxis];
+    [m setColumn:1 values:yAxis];
+    [m setColumn:2 values:zAxis];
+    
+    Vector3f* center = [[Vector3f alloc] initWithFloatVector:[self center]];
+    
     // build transformation matrix
     surfaceMatrix = [[Matrix4f alloc] init];
-    [surfaceMatrix setColumn:0 values:xAxis];
-    [surfaceMatrix setColumn:1 values:yAxis];
-    [surfaceMatrix setColumn:2 values:zAxis];
-    [surfaceMatrix setColumn:3 values:[self center]];
+    [surfaceMatrix embed:m];
+    [surfaceMatrix setColumn:3 values:center];
     [surfaceMatrix setColumn:3 row:3 value:1];
+
+    [center scale:-1];
+    if (![m invert])
+        [NSException raise:@"NonInvertibleMatrixException" format:@"surface transformation matrix is not invertible"];
     
-    worldMatrix = [[Matrix4f alloc] initWithMatrix4f:surfaceMatrix];
-    [worldMatrix invert];
+    worldMatrix = [[Matrix4f alloc] init];
+    [worldMatrix translate:center];
     
+    Matrix4f* n = [[Matrix4f alloc] init];
+    [n embed:m];
+    
+    [worldMatrix mul:n];
+    [n setIdentity];
+    [n translate:[self center]];
+    [worldMatrix mul:n];
+    
+    [n release];
+    [m release];
     [xAxis release];
     [yAxis release];
     [zAxis release];
+    [center release];
 }
 
 - (Vector3f *)worldCoordsOf:(Vector3f *)sCoords {

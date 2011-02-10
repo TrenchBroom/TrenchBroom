@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class Matrix4f;
+@class Vector3f;
 
 @interface Matrix3f : NSObject {
     @private
@@ -20,6 +21,7 @@
 - (void)setIdentity;
 - (void)setMatrix3f:(Matrix3f *)matrix;
 - (void)setMinorOf:(Matrix4f *)matrix col:(int)col row:(int)row;
+- (void)setColumn:(int)col values:(Vector3f *)vector;
 
 - (BOOL)invert;
 - (void)adjunct;

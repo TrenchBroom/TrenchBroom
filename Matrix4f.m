@@ -146,9 +146,9 @@
     if (offset == nil)
         [NSException raise:NSInvalidArgumentException format:@"offset must not be nil"];
     
-    values[13] += [offset x];
-    values[14] += [offset y];
-    values[15] += [offset z];
+    values[12] += [offset x];
+    values[13] += [offset y];
+    values[14] += [offset z];
 }
 
 - (BOOL)invert {
@@ -265,6 +265,20 @@
     values[col * 4 + 1] = [vector y];
     values[col * 4 + 2] = [vector z];
     values[col * 4 + 3] = 0;
+}
+
+- (void)embed:(Matrix3f *)matrix {
+    float* mvalues = [matrix columnMajor];
+    for (int col = 0; col < 3; col++)
+        for (int row = 0; row < 3; row++)
+            values[col * 4 + row] = mvalues[col * 3 + row];
+    
+    for (int i = 0; i < 3; i++) {
+        values[i * 4 + 3] = 0;
+        values[3 * 4 + i] = 0;
+    }
+    
+    values[15] = 1;
 }
 
 - (void)transformVector3f:(Vector3f *)vector {
