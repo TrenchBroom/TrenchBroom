@@ -25,6 +25,8 @@ typedef enum {
 @class Plane3D;
 @class Brush;
 @class Matrix4f;
+@class PickingHit;
+@class Ray3D;
 
 @interface Face : Observable {
     @private
@@ -45,6 +47,7 @@ typedef enum {
     Vector3f* norm;
     HalfSpace3D* halfSpace;
     
+    int bestAxis;
     Vector3f* texAxisX;
     Vector3f* texAxisY;
     
@@ -80,11 +83,13 @@ typedef enum {
 - (void)setRotation:(float)angle;
 - (void)setXScale:(float)factor;
 - (void)setYScale:(float)factor;
+- (void)translateOffsetsX:(int)x y:(int)y;
 
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex;
 - (Vector3f *)worldCoordsOf:(Vector3f *)sCoords;
 - (Vector3f *)surfaceCoordsOf:(Vector3f *)wCoords;
 - (HalfSpace3D *)halfSpace;
+- (PickingHit *)pickWithRay:(Ray3D *)theRay;
 /*!
     @function
     @abstract   Returns the center of this face.

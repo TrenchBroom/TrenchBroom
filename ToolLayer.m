@@ -24,7 +24,7 @@
     NSEnumerator* figureEn = [toolFigures objectEnumerator];
     id toolFigure;
     while ((toolFigure = [figureEn nextObject])) {
-        [toolFigure render];
+        [toolFigure render:renderContext];
     }
 }
 

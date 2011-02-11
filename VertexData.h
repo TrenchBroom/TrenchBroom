@@ -25,7 +25,6 @@ typedef enum {
     NSMutableArray* vertices;
     NSMutableArray* edges;
     NSMutableArray* sides;
-    NSMutableArray* sideToFace;
     NSMutableDictionary* faceToSide;
     NSMutableDictionary* centers;
     BoundingBox* bounds;
@@ -46,5 +45,6 @@ typedef enum {
     @result     The center of the given face.
 */
 - (Vector3f *)centerOfFace:(Face *)face;
-- (PickingHit *)pickFace:(Ray3D *)theRay;
+
+- (PickingHit *)pickFace:(Face *)theFace withRay:(Ray3D *)theRay;
 @end

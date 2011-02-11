@@ -8,11 +8,6 @@
 
 #import "Observable.h"
 
-extern NSString* const CameraDefaults;
-extern NSString* const CameraDefaultsFov;
-extern NSString* const CameraDefaultsNear;
-extern NSString* const CameraDefaultsFar;
-
 extern NSString* const CameraChanged;
 
 @class Vector3f;

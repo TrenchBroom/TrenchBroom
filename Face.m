@@ -20,6 +20,8 @@
 #import "Matrix3f.h"
 #import "Plane3D.h"
 #import "Line3D.h"
+#import "PickingHit.h"
+#import "Ray3D.h"
 
 NSString* const FaceGeometryChanged = @"FaceGeometryChanged";
 NSString* const FaceFlagsChanged = @"FaceFlagsChanged";
@@ -219,11 +221,6 @@ static Vector3f* baseAxes[18];
     
 	xOffset = offset;
 
-    [texAxisX release];
-    texAxisX = nil;
-    [texAxisY release];
-    texAxisY = nil;
-
     [self notifyObservers:FaceFlagsChanged];
 }
 
@@ -235,11 +232,6 @@ static Vector3f* baseAxes[18];
     [[undoManager prepareWithInvocationTarget:self] setYOffset:yOffset];
     
 	yOffset = offset;
-    
-    [texAxisX release];
-    texAxisX = nil;
-    [texAxisY release];
-    texAxisY = nil;
     
     [self notifyObservers:FaceFlagsChanged];
 }
@@ -295,6 +287,84 @@ static Vector3f* baseAxes[18];
     [self notifyObservers:FaceFlagsChanged];
 }
 
+- (void)updateTexAxes {
+    // determine texture axes, this is from QBSP
+    float best = 0;
+    bestAxis = 0;
+    for (int i = 0; i < 6; i++) {
+        float dot = [[self norm] dot:baseAxes[i * 3]];
+        if (dot > best) {
+            best = dot;
+            bestAxis = i;
+        }
+    }
+    
+    texAxisX = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 1]];
+    texAxisY = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 2]];
+    
+    float ang = rotation / 180 * M_PI;
+    float sinv = sin(ang);
+    float cosv = cos(ang);
+    
+    int sv, tv;
+    if ([texAxisX x] != 0)
+        sv = 0;
+    else if ([texAxisX y] != 0)
+        sv = 1;
+    else
+        sv = 2;
+    
+    if ([texAxisY x] != 0)
+        tv = 0;
+    else if ([texAxisY y] != 0)
+        tv = 1;
+    else
+        tv = 2;
+    
+    Vector3f* texAxes[2] = {texAxisX, texAxisY};
+    for (int i = 0; i < 2; i++) {
+        float ns = cosv * [texAxes[i] component:sv] - sinv * [texAxes[i] component:tv];
+        float nt = sinv * [texAxes[i] component:sv] + cosv * [texAxes[i] component:tv];
+        
+        [texAxes[i] setComponent:sv value:ns];
+        [texAxes[i] setComponent:tv value:nt];
+    }
+    
+    [texAxisX scale:1 / xScale];
+    [texAxisY scale:1 / yScale];
+}
+
+- (void)translateOffsetsX:(int)x y:(int)y {
+    if (x == 0 && y == 0)
+        return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] translateOffsetsX:-x y:-y];
+
+    if (texAxisX == nil || texAxisY == nil)
+        [self updateTexAxes];
+    
+    NSLog(@"best axis: %i", bestAxis);
+    switch (bestAxis) {
+        case 0:
+        case 3:
+        case 4:
+            xOffset += -x;
+            yOffset += y;
+            break;
+        case 1:
+        case 2:
+        case 5:
+            xOffset += x;
+            yOffset += y;
+            break;
+        default:
+            break;
+    }
+
+    [self notifyObservers:FaceFlagsChanged];
+}
+
 - (HalfSpace3D *)halfSpace {
     if (halfSpace == nil) {
         halfSpace =  [[HalfSpace3D alloc] initWithIntPoint1:[self point1] 
@@ -305,58 +375,18 @@ static Vector3f* baseAxes[18];
     return halfSpace;
 }
 
+- (PickingHit *)pickWithRay:(Ray3D *)theRay {
+    return [brush pickFace:self withRay:theRay];
+}
+
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex {
     if (texCoords == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture coordinate vector must not be nil"];
     if (vertex == nil)
         [NSException raise:NSInvalidArgumentException format:@"vertex must not be nil"];
     
-    if (texAxisX == nil || texAxisY == nil) {
-        // determine texture axes, this is from QBSP
-        float best = 0;
-        int bestAxis = 0;
-        for (int i = 0; i < 6; i++) {
-            float dot = [[self norm] dot:baseAxes[i * 3]];
-            if (dot > best) {
-                best = dot;
-                bestAxis = i;
-            }
-        }
-        
-        texAxisX = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 1]];
-        texAxisY = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 2]];
-        
-        float ang = rotation / 180 * M_PI;
-        float sinv = sin(ang);
-        float cosv = cos(ang);
-        
-        int sv, tv;
-        if ([texAxisX x] != 0)
-            sv = 0;
-        else if ([texAxisX y] != 0)
-            sv = 1;
-        else
-            sv = 2;
-        
-        if ([texAxisY x] != 0)
-            tv = 0;
-        else if ([texAxisY y] != 0)
-            tv = 1;
-        else
-            tv = 2;
-        
-        Vector3f* texAxes[2] = {texAxisX, texAxisY};
-        for (int i = 0; i < 2; i++) {
-            float ns = cosv * [texAxes[i] component:sv] - sinv * [texAxes[i] component:tv];
-            float nt = sinv * [texAxes[i] component:sv] + cosv * [texAxes[i] component:tv];
-            
-            [texAxes[i] setComponent:sv value:ns];
-            [texAxes[i] setComponent:tv value:nt];
-        }
-        
-        [texAxisX scale:1 / xScale];
-        [texAxisY scale:1 / yScale];
-    }
+    if (texAxisX == nil || texAxisY == nil)
+        [self updateTexAxes];
     
     [texCoords setX:[vertex dot:texAxisX] + xOffset];
     [texCoords setY:[vertex dot:texAxisY] + yOffset];

@@ -109,6 +109,7 @@
 		48D3164F12F9BEF0009E2D09 /* TextureBrowser.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48D3164E12F9BEF0009E2D09 /* TextureBrowser.xib */; };
 		48DB957812F0699600FB5483 /* InputManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB957712F0699600FB5483 /* InputManager.m */; };
 		48DB95A312F0A89E00FB5483 /* Quaternion.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB95A212F0A89E00FB5483 /* Quaternion.m */; };
+		48E0F52F1305E62A00971BA2 /* FaceOffsetFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E0F52E1305E62A00971BA2 /* FaceOffsetFigure.m */; };
 		48E110811234BF5500087198 /* Vector2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1107B1234BF5500087198 /* Vector2f.m */; };
 		48E110871234BF5500087198 /* Vector2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1107B1234BF5500087198 /* Vector2f.m */; };
 		48E1806512F5F07D007995FE /* SelectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1806412F5F07D007995FE /* SelectionManager.m */; };
@@ -304,6 +305,8 @@
 		48DB957712F0699600FB5483 /* InputManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InputManager.m; sourceTree = "<group>"; };
 		48DB95A112F0A89E00FB5483 /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quaternion.h; sourceTree = "<group>"; };
 		48DB95A212F0A89E00FB5483 /* Quaternion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Quaternion.m; sourceTree = "<group>"; };
+		48E0F52D1305E62A00971BA2 /* FaceOffsetFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceOffsetFigure.h; sourceTree = "<group>"; };
+		48E0F52E1305E62A00971BA2 /* FaceOffsetFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceOffsetFigure.m; sourceTree = "<group>"; };
 		48E1107A1234BF5500087198 /* Vector2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vector2f.h; sourceTree = "<group>"; };
 		48E1107B1234BF5500087198 /* Vector2f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vector2f.m; sourceTree = "<group>"; };
 		48E1806312F5F07D007995FE /* SelectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionManager.h; sourceTree = "<group>"; };
@@ -702,6 +705,8 @@
 				488F0AA213019DEC0063E550 /* ToolManager.h */,
 				488F0AA313019DEC0063E550 /* ToolManager.m */,
 				4865CE7F1305731A0004702E /* Tool.h */,
+				48E0F52D1305E62A00971BA2 /* FaceOffsetFigure.h */,
+				48E0F52E1305E62A00971BA2 /* FaceOffsetFigure.m */,
 			);
 			name = Tools;
 			sourceTree = "<group>";
@@ -923,6 +928,7 @@
 				488F0AAF1301A2C50063E550 /* ToolLayer.m in Sources */,
 				480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */,
 				480BB50A13031A9D005E3492 /* Matrix3f.m in Sources */,
+				48E0F52F1305E62A00971BA2 /* FaceOffsetFigure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

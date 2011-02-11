@@ -65,16 +65,8 @@
             break;
         case 49: // space bar
             break;
-        case 124: {// right arrow
-            NSSet* brushes = [selectionManager selectedBrushes];
-            NSEnumerator* brushEn = [brushes objectEnumerator];
-            Brush* brush;
-            while ((brush = [brushEn nextObject]))
-                [brush translateBy:[Vector3i vectorWithX:32 y:32 z:32]];
-            break;
-        }
         default:
-            NSLog(@"unrecognized key code: %i", [event keyCode]);
+            [toolManager keyDown:event];
             break;
     }
 }

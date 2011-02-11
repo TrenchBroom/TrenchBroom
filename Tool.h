@@ -15,5 +15,10 @@
 - (void)drag:(Ray3D *)theRay;
 - (void)endDrag:(Ray3D *)theRay;
 
+- (void)keyDown:(NSEvent *)theEvent;
+
 - (BOOL)hitByRay:(Ray3D *)theRay;
+
+- (id)addObject:(id)object;
+- (id)removeObject:(id)object;
 @end

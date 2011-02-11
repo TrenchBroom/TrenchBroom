@@ -8,21 +8,23 @@
 
 #import "Observable.h"
 
-extern NSString* const ToolsAdded;
-extern NSString* const ToolsRemoved;
-extern NSString* const ToolsKey;
+extern NSString* const FiguresAdded;
+extern NSString* const FiguresRemoved;
+extern NSString* const FiguresKey;
 
 @class SelectionManager;
 @class Ray3D;
+@class FaceOffsetTool;
 
 @interface ToolManager : Observable {
     @private
-    NSMutableDictionary* activeTools;
+    FaceOffsetTool* faceOffsetTool;
     SelectionManager* selectionManager;
+    NSUndoManager* undoManager;
     NSMutableArray* dragReceivers;
 }
 
-- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager;
+- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager undoManager:(NSUndoManager *)theUndoManager;
 
 - (NSArray *)toolsHitByRay:(Ray3D *)theRay;
 
@@ -30,5 +32,7 @@ extern NSString* const ToolsKey;
 - (void)drag:(Ray3D *)theRay;
 - (void)endDrag:(Ray3D *)theRay;
 - (BOOL)dragActive;
+
+- (void)keyDown:(NSEvent *)theEvent;
 
 @end

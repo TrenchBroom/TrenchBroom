@@ -22,8 +22,6 @@
 #import "CoordinatePlane.h"
 #import "PickingHit.h"
 
-static NSString* dummy = @"dummy";
-
 @implementation VertexData
 
 - (id)init {
@@ -32,7 +30,6 @@ static NSString* dummy = @"dummy";
         edges = [[NSMutableArray alloc] init];
         sides = [[NSMutableArray alloc] init];
         faceToSide = [[NSMutableDictionary alloc] init];
-        sideToFace = [[NSMutableArray alloc] init];
         centers = [[NSMutableDictionary alloc] init];
         bounds = nil;
         
@@ -137,49 +134,43 @@ static NSString* dummy = @"dummy";
         // create sides
         NSArray* southEdges = [[NSArray alloc] initWithObjects:esbwsb, wsbwst, wstest, estesb, nil];
         BOOL southFlipped[] = {NO, NO, NO, NO};
-        Side* southSide = [[Side alloc] initWithEdges:southEdges flipped:southFlipped];
+        Side* southSide = [[Side alloc] initWithFace:nil edges:southEdges flipped:southFlipped];
         [sides addObject:southSide];
-        [sideToFace addObject:dummy];
         [southSide release];
         [southEdges release];
         
         NSArray* northEdges = [[NSArray alloc] initWithObjects:wnbenb, enbent, entwnt, wntwnb, nil];
         BOOL northFlipped[] = {NO, NO, NO, NO};
-        Side* northSide = [[Side alloc] initWithEdges:northEdges flipped:northFlipped];
+        Side* northSide = [[Side alloc] initWithFace:nil edges:northEdges flipped:northFlipped];
         [sides addObject:northSide];
-        [sideToFace addObject:dummy];
         [northSide release];
         [northEdges release];
 
         NSArray* westEdges = [[NSArray alloc] initWithObjects:wsbwnb, wntwnb, wntwst, wsbwst, nil];
         BOOL westFlipped[] = {NO, YES, NO, YES};
-        Side* westSide = [[Side alloc] initWithEdges:westEdges flipped:westFlipped];
+        Side* westSide = [[Side alloc] initWithFace:nil edges:westEdges flipped:westFlipped];
         [sides addObject:westSide];
-        [sideToFace addObject:dummy];
         [westSide release];
         [westEdges release];
         
         NSArray* eastEdges = [[NSArray alloc] initWithObjects:enbesb, estesb, estent, enbent, nil];
         BOOL eastFlipped[] = {NO, YES, NO, YES};
-        Side* eastSide = [[Side alloc] initWithEdges:eastEdges flipped:eastFlipped];
+        Side* eastSide = [[Side alloc] initWithFace:nil edges:eastEdges flipped:eastFlipped];
         [sides addObject:eastSide];
-        [sideToFace addObject:dummy];
         [eastSide release];
         [eastEdges release];
         
         NSArray* topEdges = [[NSArray alloc] initWithObjects:wstest, wntwst, entwnt, estent, nil];
         BOOL topFlipped[] = {YES, YES, YES, YES};
-        Side* topSide = [[Side alloc] initWithEdges:topEdges flipped:topFlipped];
+        Side* topSide = [[Side alloc] initWithFace:nil edges:topEdges flipped:topFlipped];
         [sides addObject:topSide];
-        [sideToFace addObject:dummy];
         [topSide release];
         [topEdges release];
         
         NSArray* bottomEdges = [[NSArray alloc] initWithObjects:esbwsb, enbesb, wnbenb, wsbwnb, nil];
         BOOL bottomFlipped[] = {YES, YES, YES, YES};
-        Side* bottomSide = [[Side alloc] initWithEdges:bottomEdges flipped:bottomFlipped];
+        Side* bottomSide = [[Side alloc] initWithFace:nil edges:bottomEdges flipped:bottomFlipped];
         [sides addObject:bottomSide];
-        [sideToFace addObject:dummy];
         [bottomSide release];
         [bottomEdges release];
     }
@@ -255,10 +246,9 @@ static NSString* dummy = @"dummy";
         Side* side = [sides objectAtIndex:i];
         SideEdge* newEdge = [side split];
         if ([side mark] == SM_DROP) {
-            id face = [sideToFace objectAtIndex:i];
-            if (face != dummy)
+            id face = [side face];
+            if (face != nil)
                 [*droppedFaces addObject:face];
-            [sideToFace removeObjectAtIndex:i];
             [sides removeObjectAtIndex:i--];
         } else if ([side mark] == SM_SPLIT) {
             [edges addObject:[newEdge edge]];
@@ -283,9 +273,8 @@ static NSString* dummy = @"dummy";
     }
     
     // now create the side
-    Side* side = [[Side alloc] initWithSideEdges:newEdges];
+    Side* side = [[Side alloc] initWithFace:face sideEdges:newEdges];
     [sides addObject:side];
-    [sideToFace addObject:face];
     [faceToSide setObject:side forKey:[face faceId]];
     [newEdges release];
     
@@ -385,94 +374,19 @@ static NSString* dummy = @"dummy";
     return [side center];
 }
 
-- (PickingHit *)pickFace:(Ray3D *)theRay {
-    for (int i = 0; i < [sides count]; i++) {
-        Side* side = [sides objectAtIndex:i];
-        Face* face = [sideToFace objectAtIndex:i];
-        
-        Vector3f* norm = [face norm];
-        float d = [norm dot:[theRay direction]];
-        if (!fneg(d))
-            continue;
-        
-        Plane3D* plane = [[face halfSpace] boundary];
-        Vector3f* is = [plane intersectWithRay:theRay];
-        if (is == nil)
-            continue;
-        
-        CoordinatePlane* cPlane = [CoordinatePlane projectionPlaneForNormal:norm];
-        Vector2f* is2D = [cPlane project:is];
-
-        NSArray* sideVertices = [side vertices];
-        
-        int c = 0;
-        Vector3f* v = [sideVertices lastObject];
-        Vector2f* v0 = [cPlane project:v];
-        [v0 sub:is2D];
-        
-        NSEnumerator* vertexEn = [sideVertices objectEnumerator];
-        while ((v = [vertexEn nextObject])) {
-            Vector2f* v1 = [cPlane project:v];
-            [v1 sub:is2D];
-            
-            if ([v0 isNull] || [v1 isNull]) {
-                // the point is identical to a polygon vertex, cancel search
-                c = 1;
-                break;
-            }
-            
-            float x0 = [v0 x];
-            float y0 = [v0 y];
-            float x1 = [v1 x];
-            float y1 = [v1 y];
-            
-            /*
-             * A polygon edge intersects with the positive X axis if the
-             * following conditions are met: The Y coordinates of its
-             * vertices must have different signs (we assign a negative sign
-             * to 0 here in order to count it as a negative number) and one
-             * of the following two conditions must be met: Either the X
-             * coordinates of the vertices are both positive or the X
-             * coordinates of the edge have different signs (again, we
-             * assign a negative sign to 0 here). In the latter case, we
-             * must calculate the point of intersection between the edge and
-             * the X axis and determine whether its X coordinate is positive
-             * or zero.
-             */
-            
-            // do the Y coordinates have different signs?
-            if ((y0 > 0 && y1 <= 0) || (y0 <= 0 && y1 > 0)) {
-                // Is segment entirely on the positive side of the X axis?
-                if (x0 > 0 && x1 > 0) {
-                    c += 1; // edge intersects with the X axis
-                    // if not, do the X coordinates have different signs?
-                } else if ((x0 > 0 && x1 <= 0) || (x0 <= 0 && x1 > 0)) {
-                    // calculate the point of intersection between the edge
-                    // and the X axis
-                    float x = -y0 * (x1 - x0) / (y1 - y0) + x0;
-                    if (x >= 0)
-                        c += 1; // edge intersects with the X axis
-                }
-            }
-            
-            v0 = v1;
-        }
-        
-        if (c % 2 == 0)
-            continue;
-        
-        return [PickingHit hitWithObject:face 
-                                hitPoint:is 
-                                distance:[[Vector3f sub:is subtrahend:[theRay origin]] length]];
-    }
+- (PickingHit *)pickFace:(Face *)theFace withRay:(Ray3D *)theRay {
+    if (theFace == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
+    if (theRay == nil)
+        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
     
-    return nil;
+    Side* side = [faceToSide objectForKey:[theFace faceId]];
+    return [side pickWithRay:theRay];
 }
 
 - (void)dealloc {
     [centers release];
     [faceToSide release];
-    [sideToFace release];
     [sides release];
     [edges release];
     [vertices release];

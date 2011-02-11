@@ -12,15 +12,15 @@
 #import "Face.h"
 #import "Tool.h"
 
-NSString* const ToolsAdded = @"ToolsAdded";
-NSString* const ToolsRemoved = @"ToolsRemoved";
-NSString* const ToolsKey = @"Tools";
+NSString* const FiguresAdded = @"FiguresAdded";
+NSString* const FiguresRemoved = @"FiguresRemoved";
+NSString* const FiguresKey = @"Figures";
 
 @implementation ToolManager
 
 - (id)init {
     if (self = [super init]) {
-        activeTools = [[NSMutableDictionary alloc] init];
+        faceOffsetTool = [[FaceOffsetTool alloc] init];
         dragReceivers = [[NSMutableArray alloc] init];
     }
     
@@ -31,50 +31,48 @@ NSString* const ToolsKey = @"Tools";
     NSDictionary* userInfo = [notification userInfo];
     NSSet* faces = [userInfo objectForKey:SelectionFaces];
 
-    NSMutableSet* newTools = [NSMutableSet set];
+    NSMutableSet* newFigures = [NSMutableSet set];
     
     if (faces != nil) {
         NSEnumerator* faceEn = [faces objectEnumerator];
         Face* face;
         while ((face = [faceEn nextObject])) {
-            NSMutableArray* toolsForFace = [[NSMutableArray alloc] init];
-            [activeTools setObject:toolsForFace forKey:[face faceId]];
-            [toolsForFace release];
-            
-            FaceOffsetTool* tool = [[FaceOffsetTool alloc] initWithFace:face selectionManager:selectionManager];
-            [toolsForFace addObject:tool];
-            [newTools addObject:tool];
-            [tool release];
+            id figure = [faceOffsetTool addObject:face];
+            [newFigures addObject:figure];
         }
     }
     
-    [self notifyObservers:ToolsAdded infoObject:newTools infoKey:ToolsKey];
+    [self notifyObservers:FiguresAdded infoObject:newFigures infoKey:FiguresKey];
 }
 
 - (void)selectionRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* faces = [userInfo objectForKey:SelectionFaces];
     
-    NSMutableSet* removedTools = [NSMutableSet set];
+    NSMutableSet* removedFigures = [NSMutableSet set];
     
     if (faces != nil) {
         NSEnumerator* faceEn = [faces objectEnumerator];
         Face* face;
         while ((face = [faceEn nextObject])) {
-            [removedTools addObjectsFromArray:[activeTools objectForKey:[face faceId]]];
-            [activeTools removeObjectForKey:[face faceId]];
+            id figure = [faceOffsetTool removeObject:face];
+            [removedFigures addObject:figure];
         }
     }
     
-    [self notifyObservers:ToolsRemoved infoObject:removedTools infoKey:ToolsKey];
+    [self notifyObservers:FiguresRemoved infoObject:removedFigures infoKey:FiguresKey];
 }
 
-- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager {
+- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager undoManager:(NSUndoManager *)theUndoManager {
     if (theSelectionManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"selection manager must not be nil"];
+    if (theUndoManager == nil)
+        [NSException raise:NSInvalidArgumentException format:@"undo manager must not be nil"];
     
     if (self = [self init]) {
         selectionManager = [theSelectionManager retain];
+        undoManager = [theUndoManager retain];
+        
         [selectionManager addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded];
         [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
     }
@@ -83,15 +81,8 @@ NSString* const ToolsKey = @"Tools";
 }
 
 - (void)addToolsHitByRay:(Ray3D *)theRay toList:(NSMutableArray *)toolList {
-    NSEnumerator* toolsForFaceEn = [activeTools objectEnumerator];
-    NSArray* toolsForFace;
-    while ((toolsForFace = [toolsForFaceEn nextObject])) {
-        NSEnumerator* toolEn = [toolsForFace objectEnumerator];
-        id <Tool> tool;
-        while ((tool = [toolEn nextObject]))
-            if ([tool hitByRay:theRay])
-                [toolList addObject:tool];
-    }
+    if ([faceOffsetTool hitByRay:theRay])
+        [toolList addObject:faceOffsetTool];
 }
 
 - (NSArray *)toolsHitByRay:(Ray3D *)theRay {
@@ -104,6 +95,8 @@ NSString* const ToolsKey = @"Tools";
     [self addToolsHitByRay:theRay toList:dragReceivers];
     if ([dragReceivers count] == 0)
         return NO;
+    
+    [undoManager beginUndoGrouping];
     
     NSEnumerator* toolEn = [dragReceivers objectEnumerator];
     id <Tool> tool;
@@ -126,17 +119,25 @@ NSString* const ToolsKey = @"Tools";
     while ((tool = [toolEn nextObject]))
         [tool endDrag:theRay];
     [dragReceivers removeAllObjects];
+
+    [undoManager setActionName:@"Change Texture Offset"];
+    [undoManager endUndoGrouping];
 }
 
 - (BOOL)dragActive {
     return [dragReceivers count] > 0;
 }
 
+- (void)keyDown:(NSEvent *)theEvent {
+    [faceOffsetTool keyDown:theEvent];
+}
+
 - (void)dealloc {
     [selectionManager removeObserver:self];
     [selectionManager release];
-    [activeTools release];
+    [undoManager release];
     [dragReceivers release];
+    [faceOffsetTool release];
     [super dealloc];
 }
 

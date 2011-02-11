@@ -11,8 +11,7 @@
 
 @interface Observable : NSObject {
     @private
-    NSMutableDictionary* observers;
-    NSMutableDictionary* observerIndices;
+    NSMutableArray* observers;
 }
 
 - (void)addObserver:(id)target selector:(SEL)selector name:(NSString *)name;

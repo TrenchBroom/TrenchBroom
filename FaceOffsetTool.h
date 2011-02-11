@@ -16,24 +16,16 @@
 
 @interface FaceOffsetTool : NSObject <Tool> {
     @private
-    Face* face;
-    SelectionManager* selectionManager;
+    NSMutableArray* faces;
+    NSMutableArray* figures;
     Vector3f* lastSurfacePos;
+    Face* draggedFace;
+    int moveLeftKey;
+    int moveRightKey;
+    int moveUpKey;
+    int moveDownKey;
 }
 
-/*!
-    @function
-    @abstract   Initializes the face offset tool with the specified face.
-    @param      theFace The face which is edited through this tool.
-    @param      theSelectionManager The selection manager.
-    @result     The initialized face offset tool.
-*/
-- (id)initWithFace:(Face *)theFace selectionManager:(SelectionManager *)theSelectionManager;
-
-/*!
-    @function
-    @abstract   Renders the visual handle for this tool
-*/
-- (void)render;
+- (Face *)faceHitByRay:(Ray3D *)theRay;
 
 @end

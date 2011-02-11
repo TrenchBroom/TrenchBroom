@@ -260,24 +260,24 @@ NSString* const RendererChanged = @"RendererChanged";
     [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
 }
 
-- (void)toolsAdded:(NSNotification *)notification {
+- (void)toolFiguresAdded:(NSNotification *)notification {
     NSDictionary* userInfo= [notification userInfo];
-    NSSet* tools = [userInfo objectForKey:ToolsKey];
+    NSSet* figures = [userInfo objectForKey:FiguresKey];
 
-    NSEnumerator* toolEn = [tools objectEnumerator];
-    id tool;
-    while ((tool = [toolEn nextObject]))
-        [toolLayer addFigure:tool];
+    NSEnumerator* figureEn = [figures objectEnumerator];
+    id figure;
+    while ((figure = [figureEn nextObject]))
+        [toolLayer addFigure:figure];
 }
 
-- (void)toolsRemoved:(NSNotification *)notification {
+- (void)toolFiguresRemoved:(NSNotification *)notification {
     NSDictionary* userInfo= [notification userInfo];
-    NSSet* tools = [userInfo objectForKey:ToolsKey];
+    NSSet* figures = [userInfo objectForKey:FiguresKey];
     
-    NSEnumerator* toolEn = [tools objectEnumerator];
-    id tool;
-    while ((tool = [toolEn nextObject]))
-        [toolLayer removeFigure:tool];
+    NSEnumerator* figureEn = [figures objectEnumerator];
+    id figure;
+    while ((figure = [figureEn nextObject]))
+        [toolLayer removeFigure:figure];
 }
 
 - (void)setToolManager:(ToolManager *)theToolManager {
@@ -290,8 +290,8 @@ NSString* const RendererChanged = @"RendererChanged";
     }
     
     toolManager = [theToolManager retain];
-    [toolManager addObserver:self selector:@selector(toolsAdded:) name:ToolsAdded];
-    [toolManager addObserver:self selector:@selector(toolsRemoved:) name:ToolsRemoved];
+    [toolManager addObserver:self selector:@selector(toolFiguresAdded:) name:FiguresAdded];
+    [toolManager addObserver:self selector:@selector(toolFiguresRemoved:) name:FiguresRemoved];
 }
 
 - (void)cameraChanged:(NSNotification *)notification {

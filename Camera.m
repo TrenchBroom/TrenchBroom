@@ -12,10 +12,10 @@
 #import "Quaternion.h"
 #import "Ray3D.h"
 
-NSString* const CameraDefaults = @"Camera";
-NSString* const CameraDefaultsFov = @"FieldOfVision";
-NSString* const CameraDefaultsNear = @"NearClippingPlane";
-NSString* const CameraDefaultsFar = @"FarClippingPlane";
+static NSString* CameraDefaults = @"Camera";
+static NSString* CameraDefaultsFov = @"Field Of Vision";
+static NSString* CameraDefaultsNear = @"Near Clipping Plane";
+static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 
 NSString* const CameraChanged = @"CameraChanged";
 

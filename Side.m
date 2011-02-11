@@ -11,6 +11,14 @@
 #import "Vertex.h"
 #import "SideEdge.h"
 #import "Vector3f.h"
+#import "Vector2f.h"
+#import "Face.h"
+#import "Ray3D.h"
+#import "PickingHit.h"
+#import "CoordinatePlane.h"
+#import "Math.h"
+#import "HalfSpace3D.h"
+#import "Plane3D.h"
 
 @implementation Side
 
@@ -23,11 +31,12 @@
     return self;
 }
 
-- (id)initWithEdges:(NSArray *)theEdges flipped:(BOOL*)flipped {
+- (id)initWithFace:(Face *)theFace edges:(NSArray *)theEdges flipped:(BOOL*)flipped {
     if (theEdges == nil)
         [NSException raise:NSInvalidArgumentException format:@"edge array must not be nil"];
     
     if (self = [self init]) {
+        face = [theFace retain];
         for (int i = 0; i < [theEdges count]; i++) {
             Edge* edge = [theEdges objectAtIndex:i];
             SideEdge* sideEdge = [[SideEdge alloc] initWithEdge:edge flipped:flipped[i]];
@@ -39,11 +48,12 @@
     return self;
 }
 
-- (id)initWithSideEdges:(NSArray *)theEdges {
+- (id)initWithFace:(Face *)theFace sideEdges:(NSArray *)theEdges {
     if (theEdges == nil)
         [NSException raise:NSInvalidArgumentException format:@"edge array must not be nil"];
     
     if (self = [self init]) {
+        face = [theFace retain];
         [edges addObjectsFromArray:theEdges];
     }
     
@@ -127,6 +137,85 @@
     return vertices;
 }
 
+- (Face *)face {
+    return face;
+}
+
+- (PickingHit *)pickWithRay:(Ray3D *)theRay {
+    Vector3f* norm = [face norm];
+    float d = [norm dot:[theRay direction]];
+    if (!fneg(d))
+        return nil;
+    
+    Plane3D* plane = [[face halfSpace] boundary];
+    Vector3f* is = [plane intersectWithRay:theRay];
+    if (is == nil)
+        return nil;
+    
+    CoordinatePlane* cPlane = [CoordinatePlane projectionPlaneForNormal:norm];
+    Vector2f* is2D = [cPlane project:is];
+    
+    int c = 0;
+    Vector3f* v = [vertices lastObject];
+    Vector2f* v0 = [cPlane project:v];
+    [v0 sub:is2D];
+    
+    NSEnumerator* vertexEn = [vertices objectEnumerator];
+    while ((v = [vertexEn nextObject])) {
+        Vector2f* v1 = [cPlane project:v];
+        [v1 sub:is2D];
+        
+        if ([v0 isNull] || [v1 isNull]) {
+            // the point is identical to a polygon vertex, cancel search
+            c = 1;
+            break;
+        }
+        
+        float x0 = [v0 x];
+        float y0 = [v0 y];
+        float x1 = [v1 x];
+        float y1 = [v1 y];
+        
+        /*
+         * A polygon edge intersects with the positive X axis if the
+         * following conditions are met: The Y coordinates of its
+         * vertices must have different signs (we assign a negative sign
+         * to 0 here in order to count it as a negative number) and one
+         * of the following two conditions must be met: Either the X
+         * coordinates of the vertices are both positive or the X
+         * coordinates of the edge have different signs (again, we
+         * assign a negative sign to 0 here). In the latter case, we
+         * must calculate the point of intersection between the edge and
+         * the X axis and determine whether its X coordinate is positive
+         * or zero.
+         */
+        
+        // do the Y coordinates have different signs?
+        if ((y0 > 0 && y1 <= 0) || (y0 <= 0 && y1 > 0)) {
+            // Is segment entirely on the positive side of the X axis?
+            if (x0 > 0 && x1 > 0) {
+                c += 1; // edge intersects with the X axis
+                // if not, do the X coordinates have different signs?
+            } else if ((x0 > 0 && x1 <= 0) || (x0 <= 0 && x1 > 0)) {
+                // calculate the point of intersection between the edge
+                // and the X axis
+                float x = -y0 * (x1 - x0) / (y1 - y0) + x0;
+                if (x >= 0)
+                    c += 1; // edge intersects with the X axis
+            }
+        }
+        
+        v0 = v1;
+    }
+    
+    if (c % 2 == 0)
+        return nil;
+    
+    return [PickingHit hitWithObject:face 
+                            hitPoint:is 
+                            distance:[[Vector3f sub:is subtrahend:[theRay origin]] length]];
+}
+
 - (NSString *)description {
     NSMutableString* desc = [NSMutableString stringWithFormat:@"side mark: "];
     switch (mark) {
@@ -173,6 +262,7 @@
 }
 
 - (void)dealloc {
+    [face release];
     [vertices release];
     [center release];
     [edges release];

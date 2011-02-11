@@ -13,10 +13,12 @@
     @private
     id target;
     SEL selector;
+    NSString* name;
 }
 
-- (id)initWithTarget:(id)theTarget selector:(SEL)theSelector;
+- (id)initWithTarget:(id)theTarget selector:(SEL)theSelector name:(NSString *)theName;
 - (void)notify:(NSNotification *)notification;
 
 - (id)target;
+- (NSString *)name;
 @end

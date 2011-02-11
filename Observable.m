@@ -13,47 +13,31 @@
 
 - (id)init {
     if (self = [super init]) {
-        observers = [[NSMutableDictionary alloc] init];
+        observers = [[NSMutableArray alloc] init];
     }
     
     return self;
 }
 
 - (void)addObserver:(id)target selector:(SEL)selector name:(NSString *)name {
-    if (target == self)
-        NSLog(@"listen to self?");
-    NSMutableArray* observersForName = [observers objectForKey:name];
-    if (observersForName == nil) {
-        observersForName = [[NSMutableArray alloc] init];
-        [observers setObject:observersForName forKey:name];
-        [observersForName release];
-    }
-
-    Observer* observer = [[Observer alloc] initWithTarget:target selector:selector];
-    [observersForName addObject:observer];
+    Observer* observer = [[Observer alloc] initWithTarget:target selector:selector name:name];
+    [observers addObject:observer];
     [observer release];
 }
 
 - (void)removeObserver:(id)target {
-    NSEnumerator* en = [observers objectEnumerator];
-    NSMutableArray* observersForName;
-    while ((observersForName = [en nextObject])) {
-        for (int i = 0; i < [observersForName count]; i++) {
-            Observer* observer = [observersForName objectAtIndex:i];
-            if ([observer target] == target)
-                [observersForName removeObjectAtIndex:i--];
-        }
+    for (int i = 0; i < [observers count]; i++) {
+        Observer* observer = [observers objectAtIndex:i];
+        if ([observer target] == target)
+            [observers removeObjectAtIndex:i--];
     }
 }
 
 - (void)removeObserver:(id)target name:(NSString *)name {
-    NSMutableArray* observersForName = [observers objectForKey:name];
-    if (observersForName != nil) {
-        for (int i = 0; i < [observersForName count]; i++) {
-            Observer* observer = [observersForName objectAtIndex:i];
-            if ([observer target] == target)
-                [observersForName removeObjectAtIndex:i--];
-        }
+    for (int i = 0; i < [observers count]; i++) {
+        Observer* observer = [observers objectAtIndex:i];
+        if ([observer target] == target && [observer name] == name)
+            [observers removeObjectAtIndex:i--];
     }
 }
 
@@ -61,6 +45,9 @@
     if (![self postNotifications])
         return;
     
+    if ([observers count] == 0)
+        return;
+
     [self notifyObservers:name userInfo:nil];
 }
 
@@ -68,6 +55,9 @@
     if (![self postNotifications])
         return;
     
+    if ([observers count] == 0)
+        return;
+
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:infoObject forKey:infoKey];
     [self notifyObservers:name userInfo:userInfo];
 }
@@ -75,15 +65,16 @@
 - (void)notifyObservers:(NSString *)name userInfo:(NSDictionary *)userInfo{
     if (![self postNotifications])
         return;
+
+    if ([observers count] == 0)
+        return;
     
-    NSArray* observersForName = [observers objectForKey:name];
-    if (observersForName != nil && [observersForName count] > 0) {
-        NSNotification* notification = [NSNotification notificationWithName:name object:self userInfo:userInfo];
-        NSEnumerator* observerEn = [observersForName objectEnumerator];
-        Observer* observer;
-        while ((observer = [observerEn nextObject]))
+    NSNotification* notification = [NSNotification notificationWithName:name object:self userInfo:userInfo];
+    NSEnumerator* observerEn = [observers objectEnumerator];
+    Observer* observer;
+    while ((observer = [observerEn nextObject]))
+        if ([observer name] == name)
             [observer notify:notification];
-    }
 }
 
 - (void)addForward:(NSString *)name from:(Observable *)observable {
@@ -92,13 +83,13 @@
 
 - (void)forwardNotification:(NSNotification *)notification {
     NSString* name = [notification name];
-    NSArray* observersForName = [observers objectForKey:name];
 
-    if (observersForName != nil) {
-        NSEnumerator* observerEn = [observersForName objectEnumerator];
+    if ([observers count] > 0) {
+        NSEnumerator* observerEn = [observers objectEnumerator];
         Observer* observer;
         while ((observer = [observerEn nextObject]))
-            [observer notify:notification];
+            if ([observer name] == name)
+                [observer notify:notification];
     }
 }
 

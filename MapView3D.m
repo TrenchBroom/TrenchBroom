@@ -18,8 +18,8 @@
 #import "MapDocument.h"
 #import "RenderContext.h"
 
-NSString* const MapView3DDefaults = @"3D View";
-NSString* const MapView3DDefaultsBackgroundColor = @"BackgroundColor";
+static NSString* MapView3DDefaults = @"3D View";
+static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 
 @implementation MapView3D
 

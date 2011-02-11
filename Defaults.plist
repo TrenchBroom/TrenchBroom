@@ -2,9 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>Face Flags</key>
+	<dict>
+		<key>Move Texture Left</key>
+		<integer>123</integer>
+		<key>Move Texture Right</key>
+		<integer>124</integer>
+		<key>Move Texture Up</key>
+		<integer>126</integer>
+		<key>Move Texture Down</key>
+		<integer>125</integer>
+	</dict>
 	<key>3D View</key>
 	<dict>
-		<key>BackgroundColor</key>
+		<key>Background Color</key>
 		<array>
 			<real>0.3</real>
 			<real>0.3</real>
@@ -13,11 +24,11 @@
 	</dict>
 	<key>Camera</key>
 	<dict>
-		<key>FieldOfVision</key>
+		<key>Field Of Vision</key>
 		<integer>90</integer>
-		<key>NearClippingPlane</key>
+		<key>Near Clipping Plane</key>
 		<integer>10</integer>
-		<key>FarClippingPlane</key>
+		<key>Far Clipping Plane</key>
 		<integer>10000</integer>
 	</dict>
 </dict>

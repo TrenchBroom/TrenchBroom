@@ -161,7 +161,19 @@ NSString* const FaceKey = @"Face";
 }
 
 - (PickingHit *)pickFace:(Ray3D *)theRay; {
-    return [[self vertexData] pickFace:theRay];
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject])) {
+        PickingHit* hit = [vertexData pickFace:face withRay:theRay];
+        if (hit != nil)
+            return hit;
+    }
+    
+    return nil;
+}
+
+- (PickingHit *)pickFace:(Face *)theFace withRay:(Ray3D *)theRay {
+    return [vertexData pickFace:theFace withRay:theRay];
 }
 
 - (void)translateBy:(Vector3i *)theDelta {

@@ -54,6 +54,7 @@ extern NSString* const FaceKey;
 */
 - (Vector3f *)centerOfFace:(Face *)face;
 - (PickingHit *)pickFace:(Ray3D *)theRay;
+- (PickingHit *)pickFace:(Face *)theFace withRay:(Ray3D *)theRay;
 
 - (void)translateBy:(Vector3i *)theDelta;
 

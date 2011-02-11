@@ -8,9 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-extern NSString* const MapView3DDefaults;
-extern NSString* const MapView3DDefaultsBackgroundColor;
-
 @class InputManager;
 @class Renderer;
 
