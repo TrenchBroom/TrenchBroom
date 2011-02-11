@@ -10,6 +10,7 @@
 #import "SelectionManager.h"
 #import "FaceOffsetTool.h"
 #import "Face.h"
+#import "Tool.h"
 
 NSString* const ToolsAdded = @"ToolsAdded";
 NSString* const ToolsRemoved = @"ToolsRemoved";
@@ -20,6 +21,7 @@ NSString* const ToolsKey = @"Tools";
 - (id)init {
     if (self = [super init]) {
         activeTools = [[NSMutableDictionary alloc] init];
+        dragReceivers = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -80,24 +82,61 @@ NSString* const ToolsKey = @"Tools";
     return self;
 }
 
-- (NSArray *)toolsHitByRay:(Ray3D *)theRay {
-    NSMutableArray* result = [[NSMutableArray alloc] init];
+- (void)addToolsHitByRay:(Ray3D *)theRay toList:(NSMutableArray *)toolList {
     NSEnumerator* toolsForFaceEn = [activeTools objectEnumerator];
     NSArray* toolsForFace;
     while ((toolsForFace = [toolsForFaceEn nextObject])) {
         NSEnumerator* toolEn = [toolsForFace objectEnumerator];
-        id tool;
+        id <Tool> tool;
         while ((tool = [toolEn nextObject]))
             if ([tool hitByRay:theRay])
-                [result addObject:tool];
+                [toolList addObject:tool];
     }
+}
+
+- (NSArray *)toolsHitByRay:(Ray3D *)theRay {
+    NSMutableArray* result = [[NSMutableArray alloc] init];
+    [self addToolsHitByRay:theRay toList:result];
     return [result autorelease];
+}
+
+- (BOOL)startDrag:(Ray3D *)theRay {
+    [self addToolsHitByRay:theRay toList:dragReceivers];
+    if ([dragReceivers count] == 0)
+        return NO;
+    
+    NSEnumerator* toolEn = [dragReceivers objectEnumerator];
+    id <Tool> tool;
+    while ((tool = [toolEn nextObject]))
+        [tool startDrag:theRay];
+
+    return YES;
+}
+
+- (void)drag:(Ray3D *)theRay {
+    NSEnumerator* toolEn = [dragReceivers objectEnumerator];
+    id <Tool> tool;
+    while ((tool = [toolEn nextObject]))
+        [tool drag:theRay];
+}
+
+- (void)endDrag:(Ray3D *)theRay {
+    NSEnumerator* toolEn = [dragReceivers objectEnumerator];
+    id <Tool> tool;
+    while ((tool = [toolEn nextObject]))
+        [tool endDrag:theRay];
+    [dragReceivers removeAllObjects];
+}
+
+- (BOOL)dragActive {
+    return [dragReceivers count] > 0;
 }
 
 - (void)dealloc {
     [selectionManager removeObserver:self];
     [selectionManager release];
     [activeTools release];
+    [dragReceivers release];
     [super dealloc];
 }
 

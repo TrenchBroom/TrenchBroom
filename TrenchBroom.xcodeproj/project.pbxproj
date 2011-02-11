@@ -196,6 +196,7 @@
 		48639BF312EA227100808576 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; path = QuakePalette.lmp; sourceTree = "<group>"; };
 		4865993A12EEE27300665E94 /* BrushFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushFactory.h; sourceTree = "<group>"; };
 		4865993B12EEE27300665E94 /* BrushFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrushFactory.m; sourceTree = "<group>"; };
+		4865CE7F1305731A0004702E /* Tool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tool.h; sourceTree = "<group>"; };
 		4866413E122986AF00752B89 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = /Developer/Library/Frameworks/SenTestingKit.framework; sourceTree = "<absolute>"; };
 		4866F3AF12EAC9FA009B345C /* TextureViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayout.h; sourceTree = "<group>"; };
 		4866F3B012EAC9FA009B345C /* TextureViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayout.m; sourceTree = "<group>"; };
@@ -700,6 +701,7 @@
 				48FDA0BD12FD872500204729 /* FaceOffsetTool.m */,
 				488F0AA213019DEC0063E550 /* ToolManager.h */,
 				488F0AA313019DEC0063E550 /* ToolManager.m */,
+				4865CE7F1305731A0004702E /* Tool.h */,
 			);
 			name = Tools;
 			sourceTree = "<group>";

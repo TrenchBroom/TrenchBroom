@@ -33,7 +33,6 @@
         picker = [thePicker retain];
         selectionManager = [theSelectionManager retain];
         toolManager = [theToolManager retain];
-        currentTools = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -96,16 +95,12 @@
             float pitch = [event deltaY] / 70;
             [camera rotateYaw:yaw pitch:pitch];
         }
-    } else if ([currentTools count] > 0) {
+    } else if ([toolManager dragActive]) {
         Camera* camera = [[[mapView3D window] windowController] camera];
         
         NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
         Ray3D* ray = [camera pickRayX:m.x y:m.y];
-        
-        NSEnumerator* toolEn = [currentTools objectEnumerator];
-        id tool;
-        while ((tool = [toolEn nextObject]))
-            [tool drag:ray];
+        [toolManager drag:ray];
     }
 }
 
@@ -119,14 +114,10 @@
     
     NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
     Ray3D* ray = [camera pickRayX:m.x y:m.y];
-
-    NSArray* tools = [toolManager toolsHitByRay:ray];
-    [currentTools setArray:tools];
-        
-    if ([currentTools count] == 0) {
-        NSArray* hits = [picker objectsHitByRay:ray];
-        
+    
+    if (![toolManager startDrag:ray]) {
         [lastHit release];
+        NSArray* hits = [picker objectsHitByRay:ray];
         if ([hits count] > 0)
             lastHit = [[hits objectAtIndex:0] retain];
         else
@@ -165,25 +156,18 @@
                 [selectionManager removeAll];
             }
         }
-    } else {
-        NSEnumerator* toolEn = [currentTools objectEnumerator];
-        id tool;
-        while ((tool = [toolEn nextObject]))
-            [tool startDrag:ray];
     }
 }
 
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
-    MapView3D* mapView3D = (MapView3D *)sender;
-    Camera* camera = [[[mapView3D window] windowController] camera];
-    
-    NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
-    Ray3D* ray = [camera pickRayX:m.x y:m.y];
-
-    NSEnumerator* toolEn = [currentTools objectEnumerator];
-    id tool;
-    while ((tool = [toolEn nextObject]))
-        [tool endDrag:ray];
+    if ([toolManager dragActive]) {
+        MapView3D* mapView3D = (MapView3D *)sender;
+        Camera* camera = [[[mapView3D window] windowController] camera];
+        
+        NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
+        Ray3D* ray = [camera pickRayX:m.x y:m.y];
+        [toolManager endDrag:ray];
+    }
 }
 
 - (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender {
@@ -204,7 +188,6 @@
 }
 
 - (void)dealloc {
-    [currentTools release];
     [toolManager release];
     [selectionManager release];
     [lastHit release];

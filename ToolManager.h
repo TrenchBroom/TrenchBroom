@@ -19,10 +19,16 @@ extern NSString* const ToolsKey;
     @private
     NSMutableDictionary* activeTools;
     SelectionManager* selectionManager;
+    NSMutableArray* dragReceivers;
 }
 
 - (id)initWithSelectionManager:(SelectionManager *)theSelectionManager;
 
 - (NSArray *)toolsHitByRay:(Ray3D *)theRay;
+
+- (BOOL)startDrag:(Ray3D *)theRay;
+- (void)drag:(Ray3D *)theRay;
+- (void)endDrag:(Ray3D *)theRay;
+- (BOOL)dragActive;
 
 @end

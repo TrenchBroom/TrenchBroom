@@ -167,7 +167,6 @@ static NSArray* ring;
         return;
     
     [lastSurfacePos setFloat:[face surfaceCoordsOf:is]];
-    NSLog(@"initial surface pos: %@ -> %@", is, lastSurfacePos);
 }
 
 - (void)drag:(Ray3D *)theRay {
@@ -181,7 +180,7 @@ static NSArray* ring;
     int dy = (int)[surfacePos y] - (int)[lastSurfacePos y];
 
     if (dx != 0) {
-        [face setXOffset:[face xOffset] - dx];
+        [face setXOffset:[face xOffset] + dx];
         [lastSurfacePos setX:[surfacePos x]];
     }
     
