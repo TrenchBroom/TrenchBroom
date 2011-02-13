@@ -90,6 +90,8 @@ typedef enum {
 - (Vector3f *)surfaceCoordsOf:(Vector3f *)wCoords;
 - (HalfSpace3D *)halfSpace;
 - (PickingHit *)pickWithRay:(Ray3D *)theRay;
+- (NSArray *)gridWithSize:(int)gridSize;
+
 /*!
     @function
     @abstract   Returns the center of this face.

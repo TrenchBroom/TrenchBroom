@@ -379,6 +379,10 @@ static Vector3f* baseAxes[18];
     return [brush pickFace:self withRay:theRay];
 }
 
+- (NSArray *)gridWithSize:(int)gridSize {
+    return [brush gridForFace:(self) gridSize:gridSize];
+}
+
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex {
     if (texCoords == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture coordinate vector must not be nil"];

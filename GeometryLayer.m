@@ -15,6 +15,7 @@
 #import "RenderContext.h"
 #import "TextureManager.h"
 #import "Texture.h"
+#import "Options.h"
 
 @implementation GeometryLayer
 
@@ -149,7 +150,7 @@
 }
 
 - (void)renderFaces:(RenderContext *)renderContext {
-    switch ([renderContext mode]) {
+    switch ([[renderContext options] renderMode]) {
         case RM_TEXTURED:
             glEnable(GL_TEXTURE_2D);
             glPolygonMode(GL_FRONT, GL_FILL);

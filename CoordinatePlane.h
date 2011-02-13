@@ -9,7 +9,6 @@
 #import <Cocoa/Cocoa.h>
 #import "Math3D.h"
 
-@class Vector2f;
 @class Vector3f;
 
 @interface CoordinatePlane : NSObject {
@@ -21,6 +20,13 @@
 
 - (id)initAs:(EPlane3D)thePlane;
 
-- (Vector2f *)project:(Vector3f *)thePoint;
+- (Vector3f *)project:(Vector3f *)thePoint;
+- (BOOL)clockwise:(Vector3f *)theNorm;
+
+- (float)xOf:(Vector3f *)thePoint;
+- (float)yOf:(Vector3f *)thePoint;
+- (float)zOf:(Vector3f *)thePoint;
+
+- (void)set:(Vector3f *)thePoint toX:(float)x y:(float)y z:(float)z;
 
 @end

@@ -17,6 +17,7 @@
 #import "PickingHit.h"
 #import "CoordinatePlane.h"
 #import "Math.h"
+#import "Math3D.h"
 #import "HalfSpace3D.h"
 #import "Plane3D.h"
 
@@ -153,28 +154,24 @@
         return nil;
     
     CoordinatePlane* cPlane = [CoordinatePlane projectionPlaneForNormal:norm];
-    Vector2f* is2D = [cPlane project:is];
+    float isx = [cPlane xOf:is];
+    float isy = [cPlane yOf:is];
     
     int c = 0;
     Vector3f* v = [vertices lastObject];
-    Vector2f* v0 = [cPlane project:v];
-    [v0 sub:is2D];
+    float x0 = [cPlane xOf:v] - isx;
+    float y0 = [cPlane yOf:v] - isy;
     
     NSEnumerator* vertexEn = [vertices objectEnumerator];
     while ((v = [vertexEn nextObject])) {
-        Vector2f* v1 = [cPlane project:v];
-        [v1 sub:is2D];
+        float x1 = [cPlane xOf:v] - isx;
+        float y1 = [cPlane yOf:v] - isy;
         
-        if ([v0 isNull] || [v1 isNull]) {
+        if ((fzero(x0) && fzero(y0)) || (fzero(x1) && fzero(y1))) {
             // the point is identical to a polygon vertex, cancel search
             c = 1;
             break;
         }
-        
-        float x0 = [v0 x];
-        float y0 = [v0 y];
-        float x1 = [v1 x];
-        float y1 = [v1 y];
         
         /*
          * A polygon edge intersects with the positive X axis if the
@@ -205,7 +202,8 @@
             }
         }
         
-        v0 = v1;
+        x0 = x1;
+        y0 = y1;
     }
     
     if (c % 2 == 0)

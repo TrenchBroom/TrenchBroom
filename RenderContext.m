@@ -8,16 +8,19 @@
 
 #import "RenderContext.h"
 #import "TextureManager.h"
+#import "Options.h"
 
 @implementation RenderContext
 
-- (id)initWithTextureManager:(TextureManager *)theTextureManager mode:(ERenderMode)theMode {
+- (id)initWithTextureManager:(TextureManager *)theTextureManager options:(Options *)theOptions {
     if (theTextureManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
+    if (theOptions == nil)
+        [NSException raise:NSInvalidArgumentException format:@"options must not be nil"];
     
     if (self = [self init]) {
         textureManager = [theTextureManager retain];
-        mode = theMode;
+        options = [theOptions retain];
     }
     
     return self;
@@ -27,12 +30,13 @@
     return textureManager;
 }
 
-- (ERenderMode)mode {
-    return mode;
+- (Options *)options {
+    return options;
 }
 
 - (void)dealloc {
     [textureManager release];
+    [options release];
     [super dealloc];
 }
 

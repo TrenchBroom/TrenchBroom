@@ -43,6 +43,8 @@
 		485AE8A712F4B9BA00CDBD6A /* Picker.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8A612F4B9BA00CDBD6A /* Picker.m */; };
 		485AE8B712F4BFB700CDBD6A /* CoordinatePlane.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8B612F4BFB700CDBD6A /* CoordinatePlane.m */; };
 		485AE8D712F4C5BD00CDBD6A /* PickingHit.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8D612F4C5BD00CDBD6A /* PickingHit.m */; };
+		485D2B5C1306F69100CF73D8 /* SegmentIterator.m in Sources */ = {isa = PBXBuildFile; fileRef = 485D2B5B1306F69100CF73D8 /* SegmentIterator.m */; };
+		485D2EAF1308624900CF73D8 /* Options.m in Sources */ = {isa = PBXBuildFile; fileRef = 485D2EAE1308624900CF73D8 /* Options.m */; };
 		485FD0CB1257A8D900F4AE49 /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0CA1257A8D900F4AE49 /* Math3D.m */; };
 		485FD0CC1257A8D900F4AE49 /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0CA1257A8D900F4AE49 /* Math3D.m */; };
 		48639BF412EA227100808576 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48639BF312EA227100808576 /* QuakePalette.lmp */; };
@@ -192,6 +194,10 @@
 		485AE8B612F4BFB700CDBD6A /* CoordinatePlane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoordinatePlane.m; sourceTree = "<group>"; };
 		485AE8D512F4C5BD00CDBD6A /* PickingHit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PickingHit.h; sourceTree = "<group>"; };
 		485AE8D612F4C5BD00CDBD6A /* PickingHit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PickingHit.m; sourceTree = "<group>"; };
+		485D2B5A1306F69100CF73D8 /* SegmentIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SegmentIterator.h; sourceTree = "<group>"; };
+		485D2B5B1306F69100CF73D8 /* SegmentIterator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SegmentIterator.m; sourceTree = "<group>"; };
+		485D2EAD1308624900CF73D8 /* Options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Options.h; sourceTree = "<group>"; };
+		485D2EAE1308624900CF73D8 /* Options.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Options.m; sourceTree = "<group>"; };
 		485FD0C91257A8D900F4AE49 /* Math3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math3D.h; sourceTree = "<group>"; };
 		485FD0CA1257A8D900F4AE49 /* Math3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math3D.m; sourceTree = "<group>"; };
 		48639BF312EA227100808576 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; path = QuakePalette.lmp; sourceTree = "<group>"; };
@@ -489,31 +495,31 @@
 				489DC65D12F9EBF500053092 /* Text */,
 				48B3243A12E1C6B8008748E2 /* Camera.h */,
 				48B3243B12E1C6B8008748E2 /* Camera.m */,
-				4881C74012E9C8BE006BF922 /* TextureManager.h */,
-				4881C74112E9C8BE006BF922 /* TextureManager.m */,
-				484C28FA115023A2004DD957 /* VBOBuffer.h */,
-				484C28FB115023A2004DD957 /* VBOBuffer.m */,
-				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
-				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
-				487A646A12EA3A7E00A43289 /* Texture.h */,
-				487A646B12EA3A7E00A43289 /* Texture.m */,
-				48AB6C6512F2251C008BC88E /* VBOArrayEntry.h */,
-				48AB6C6612F2251C008BC88E /* VBOArrayEntry.m */,
+				488F078E130130580063E550 /* FaceFigure.h */,
+				488F078F130130580063E550 /* FaceFigure.m */,
+				487A7E39130071F300434806 /* GeometryLayer.h */,
+				487A7E3A130071F300434806 /* GeometryLayer.m */,
 				488C8EDF12F6C3ED00F358E6 /* IntData.h */,
 				488C8EE012F6C3ED00F358E6 /* IntData.m */,
 				487A7E38130071DD00434806 /* Layer.h */,
-				487A7E39130071F300434806 /* GeometryLayer.h */,
-				487A7E3A130071F300434806 /* GeometryLayer.m */,
 				487A7E46130078F100434806 /* RenderContext.h */,
 				487A7E47130078F100434806 /* RenderContext.m */,
 				487A7E631300801A00434806 /* Renderer.h */,
 				487A7E641300801A00434806 /* Renderer.m */,
-				488F078E130130580063E550 /* FaceFigure.h */,
-				488F078F130130580063E550 /* FaceFigure.m */,
 				488F07CC13013F9F0063E550 /* SelectionLayer.h */,
 				488F07CD13013F9F0063E550 /* SelectionLayer.m */,
+				487A646A12EA3A7E00A43289 /* Texture.h */,
+				487A646B12EA3A7E00A43289 /* Texture.m */,
+				4881C74012E9C8BE006BF922 /* TextureManager.h */,
+				4881C74112E9C8BE006BF922 /* TextureManager.m */,
 				488F0AAD1301A2C50063E550 /* ToolLayer.h */,
 				488F0AAE1301A2C50063E550 /* ToolLayer.m */,
+				48AB6C6512F2251C008BC88E /* VBOArrayEntry.h */,
+				48AB6C6612F2251C008BC88E /* VBOArrayEntry.m */,
+				484C28FA115023A2004DD957 /* VBOBuffer.h */,
+				484C28FB115023A2004DD957 /* VBOBuffer.m */,
+				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
+				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -578,6 +584,8 @@
 				48E1107B1234BF5500087198 /* Vector2f.m */,
 				480BB4701302ED1C005E3492 /* Matrix2f.h */,
 				480BB4711302ED1C005E3492 /* Matrix2f.m */,
+				485D2B5A1306F69100CF73D8 /* SegmentIterator.h */,
+				485D2B5B1306F69100CF73D8 /* SegmentIterator.m */,
 			);
 			name = 2D;
 			sourceTree = "<group>";
@@ -643,6 +651,8 @@
 				489DC5F212F9DDEA00053092 /* TextureWindowController.m */,
 				4891E15412FC04B2007A3B93 /* FaceInspectorController.h */,
 				4891E15512FC04B2007A3B93 /* FaceInspectorController.m */,
+				485D2EAD1308624900CF73D8 /* Options.h */,
+				485D2EAE1308624900CF73D8 /* Options.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -929,6 +939,8 @@
 				480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */,
 				480BB50A13031A9D005E3492 /* Matrix3f.m in Sources */,
 				48E0F52F1305E62A00971BA2 /* FaceOffsetFigure.m in Sources */,
+				485D2B5C1306F69100CF73D8 /* SegmentIterator.m in Sources */,
+				485D2EAF1308624900CF73D8 /* Options.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

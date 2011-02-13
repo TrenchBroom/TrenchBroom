@@ -17,6 +17,7 @@
 #import "MapWindowController.h"
 #import "MapDocument.h"
 #import "RenderContext.h"
+#import "Options.h"
 
 static NSString* MapView3DDefaults = @"3D View";
 static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
@@ -24,6 +25,10 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 @implementation MapView3D
 
 - (void)rendererChanged:(NSNotification *)notification {
+    [self setNeedsDisplay:YES];
+}
+
+- (void)optionsChanged:(NSNotification *)notification {
     [self setNeedsDisplay:YES];
 }
 
@@ -46,6 +51,8 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
     VBOBuffer* vbo = [controller vbo];
     renderer = [[Renderer alloc] initWithMap:map vbo:vbo];
     
+    options = [[controller options] retain];
+    
     Camera* camera = [controller camera];
     SelectionManager* selectionManager = [controller selectionManager];
     ToolManager* toolManager = [controller toolManager];
@@ -55,6 +62,7 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
     [renderer setToolManager:toolManager];
     
     [renderer addObserver:self selector:@selector(rendererChanged:) name:RendererChanged];
+    [options addObserver:self selector:@selector(optionsChanged:) name:OptionsChanged];
 }
 
 - (BOOL)acceptsFirstResponder {
@@ -104,7 +112,7 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     TextureManager* textureManager = [[[self window] windowController] textureManager];
-    RenderContext* context = [[RenderContext alloc] initWithTextureManager:textureManager mode:RM_TEXTURED];
+    RenderContext* context = [[RenderContext alloc] initWithTextureManager:textureManager options:options];
     
     [renderer updateView:bounds];
     [renderer render:context];
@@ -129,6 +137,7 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [renderer removeObserver:self];
     [renderer release];
+    [options release];
     [super dealloc];
 }
 

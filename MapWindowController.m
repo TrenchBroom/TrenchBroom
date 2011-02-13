@@ -24,6 +24,7 @@
 #import "GLFontManager.h"
 #import "FaceInspectorController.h"
 #import "ToolManager.h"
+#import "Options.h"
 
 @implementation MapWindowController
 
@@ -34,6 +35,8 @@
 - (void)windowDidLoad {
     NSOpenGLContext* glContext = [view3D openGLContext];
     [glContext makeCurrentContext];
+    
+    options = [[Options alloc] init];
     
     Map* map = [[self document] map];
     
@@ -120,8 +123,41 @@
     return toolManager;
 }
 
+- (Options *)options {
+    return options;
+}
+
+- (IBAction)toggleGrid:(id)sender {
+    [options setDrawGrid:![options drawGrid]];
+}
+
+- (IBAction)gridSize8:(id)sender {
+    [options setGridSize:8];
+}
+
+- (IBAction)gridSize16:(id)sender {
+    [options setGridSize:16];
+}
+
+- (IBAction)gridSize32:(id)sender {
+    [options setGridSize:32];
+}
+
+- (IBAction)gridSize64:(id)sender {
+    [options setGridSize:64];
+}
+
+- (IBAction)gridSize128:(id)sender {
+    [options setGridSize:128];
+}
+
+- (IBAction)gridSize256:(id)sender {
+    [options setGridSize:256];
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [options release];
     [toolManager release];
     [vbo release];
     [selectionManager release];

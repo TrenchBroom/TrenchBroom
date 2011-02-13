@@ -25,3 +25,6 @@ BOOL finii(float v, float b1, float b2);
 
 NSArray* makeCircle(float radius, int segments);
 NSArray* makeRing(float innerRadius, float outerRadius, int segments);
+
+int smallestXVertex2D(NSArray *vertices);
+int smallestYVertex2D(NSArray *vertices);

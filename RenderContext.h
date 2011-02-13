@@ -8,23 +8,18 @@
 
 #import <Cocoa/Cocoa.h>
 
-typedef enum {
-    RM_TEXTURED,
-    RM_FLAT,
-    RM_WIREFRAME
-} ERenderMode;
-
 @class TextureManager;
+@class Options;
 
 @interface RenderContext : NSObject {
     @private
     TextureManager* textureManager;
-    ERenderMode mode;
+    Options* options;
 }
 
-- (id)initWithTextureManager:(TextureManager *)theTextureManager mode:(ERenderMode)theMode;
+- (id)initWithTextureManager:(TextureManager *)theTextureManager options:(Options *)theOptions;
 
 - (TextureManager *)textureManager;
-- (ERenderMode)mode;
+- (Options *)options;
 
 @end

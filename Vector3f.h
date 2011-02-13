@@ -8,6 +8,12 @@
 
 #import <Cocoa/Cocoa.h>
 
+typedef enum {
+    VC_X,
+    VC_Y,
+    VC_Z
+} EVectorComponent;
+
 @class Vector3i;
 
 @interface Vector3f : NSObject {
@@ -43,8 +49,9 @@
 - (float)y;
 - (float)z;
 
-- (float)component:(int)index;
-- (void)setComponent:(int)index value:(float)value;
+- (float)component:(EVectorComponent)index;
+- (void)setComponent:(EVectorComponent)index value:(float)value;
+- (EVectorComponent)largestComponent;
 
 - (void)setX:(float)xCoord;
 - (void)setY:(float)yCoord;

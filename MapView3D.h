@@ -10,11 +10,13 @@
 
 @class InputManager;
 @class Renderer;
+@class Options;
 
 @interface MapView3D : NSOpenGLView {
     @private
     float backgroundColor[3];
     Renderer* renderer;
+    Options* options;
 }
 
 - (void)setup;

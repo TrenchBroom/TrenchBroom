@@ -176,6 +176,10 @@ NSString* const FaceKey = @"Face";
     return [vertexData pickFace:theFace withRay:theRay];
 }
 
+- (NSArray *)gridForFace:(Face *)theFace gridSize:(int)gridSize {
+    return [vertexData gridForFace:theFace gridSize:gridSize];
+}
+
 - (void)translateBy:(Vector3i *)theDelta {
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;

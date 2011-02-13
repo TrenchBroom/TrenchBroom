@@ -13,7 +13,6 @@
 @class RenderContext;
 
 @interface GeometryLayer : NSObject <Layer> {
-    @private
     NSMutableSet* faceFigures;
     NSMutableDictionary* indexBuffers;
     NSMutableDictionary* countBuffers;

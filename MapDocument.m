@@ -15,6 +15,7 @@
 #import "MapParser.h"
 #import "BrushFactory.h"
 #import "ProgressWindowController.h"
+#import "Options.h"
 
 @implementation MapDocument
 

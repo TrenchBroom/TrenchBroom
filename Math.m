@@ -98,3 +98,49 @@ NSArray* makeRing(float innerRadius, float outerRadius, int segments) {
     
     return [points autorelease];
 }
+
+int smallestXVertex2D(NSArray *vertices) {
+    if (vertices == nil)
+        [NSException raise:NSInvalidArgumentException format:@"vertex array must not be nil"];
+    if ([vertices count] == 0)
+        [NSException raise:NSInvalidArgumentException format:@"vertex array must not be empty"];
+        
+    int s = 0;
+    Vector2f* v = [vertices objectAtIndex:0];
+    float x = [v x];
+    float y = [v y];
+    
+    for (int i = 1; i < [vertices count]; i++) {
+        v = [vertices objectAtIndex:i];
+        if (flt([v x], x) || (feq([v x], x) && flt([v y], y))) {
+            x = [v x];
+            y = [v y];
+            s = i;
+        }
+    }
+    
+    return s;
+}
+
+int smallestYVertex2D(NSArray *vertices)  {
+    if (vertices == nil)
+        [NSException raise:NSInvalidArgumentException format:@"vertex array must not be nil"];
+    if ([vertices count] == 0)
+        [NSException raise:NSInvalidArgumentException format:@"vertex array must not be empty"];
+    
+    int s = 0;
+    Vector2f* v = [vertices objectAtIndex:0];
+    float x = [v x];
+    float y = [v y];
+    
+    for (int i = 1; i < [vertices count]; i++) {
+        v = [vertices objectAtIndex:i];
+        if (flt([v y], y) || (feq([v y], y) && flt([v x], x))) {
+            x = [v x];
+            y = [v y];
+            s = i;
+        }
+    }
+    
+    return s;
+}

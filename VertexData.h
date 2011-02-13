@@ -37,6 +37,7 @@ typedef enum {
 - (NSArray *)verticesForWireframe;
 - (int)edgeCount;
 - (BoundingBox *)bounds;
+- (NSArray *)gridForFace:(Face *)face gridSize:(int)gridSize;
 
 /*!
     @function

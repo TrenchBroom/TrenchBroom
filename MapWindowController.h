@@ -20,6 +20,7 @@
 @class GLFontManager;
 @class SingleTextureView;
 @class ToolManager;
+@class Options;
 
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView3D* view3D;
@@ -32,7 +33,16 @@
     Picker* picker;
     SelectionManager* selectionManager;
     ToolManager* toolManager;
+    Options* options;
 }
+
+- (IBAction)toggleGrid:(id)sender;
+- (IBAction)gridSize8:(id)sender;
+- (IBAction)gridSize16:(id)sender;
+- (IBAction)gridSize32:(id)sender;
+- (IBAction)gridSize64:(id)sender;
+- (IBAction)gridSize128:(id)sender;
+- (IBAction)gridSize256:(id)sender;
 
 - (VBOBuffer *)vbo;
 - (Camera *)camera;
@@ -40,5 +50,6 @@
 - (InputManager *)inputManager;
 - (TextureManager *)textureManager;
 - (ToolManager *)toolManager;
+- (Options *)options;
 
 @end
