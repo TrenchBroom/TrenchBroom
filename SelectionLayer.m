@@ -20,7 +20,7 @@
             glEnable(GL_TEXTURE_2D);
             glPolygonMode(GL_FRONT, GL_FILL);
             glColor4f(1, 0, 0, 1);
-            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
             [self renderTextured:renderContext];
 
             glDisable(GL_TEXTURE_2D);

@@ -13,6 +13,7 @@
 @class SelectionManager;
 @class Ray3D;
 @class Vector3f;
+@class Options;
 
 @interface FaceOffsetTool : NSObject <Tool> {
     @private
@@ -24,7 +25,10 @@
     int moveRightKey;
     int moveUpKey;
     int moveDownKey;
+    Options* options;
 }
+
+- (id)initWithOptions:(Options *)theOptions;
 
 - (Face *)faceHitByRay:(Ray3D *)theRay;
 

@@ -16,6 +16,7 @@
 #import "HalfSpace3D.h"
 #import "Plane3D.h"
 #import "FaceOffsetFigure.h"
+#import "Options.h"
 
 static NSString* FaceDefaults = @"Face Flags";
 static NSString* MoveLeftKey = @"Move Texture Left";
@@ -41,7 +42,7 @@ static NSString* MoveDownKey = @"Move Texture Down";
         faces = [[NSMutableArray alloc] init];
         figures = [[NSMutableArray alloc] init];
         lastSurfacePos = [[Vector3f alloc] init];
-
+        
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self 
                    selector:@selector(userDefaultsChanged:) 
@@ -49,6 +50,17 @@ static NSString* MoveDownKey = @"Move Texture Down";
                      object:[NSUserDefaults standardUserDefaults]];
         
         [self userDefaultsChanged:nil];
+    }
+    
+    return self;
+}
+
+- (id)initWithOptions:(Options *)theOptions {
+    if (theOptions == nil)
+        [NSException raise:NSInvalidArgumentException format:@"options must not be nil"];
+    
+    if (self = [self init]) {
+        options = [theOptions retain];
     }
     
     return self;
@@ -101,15 +113,19 @@ static NSString* MoveDownKey = @"Move Texture Down";
     if (is == nil)
         return;
     
+    int d = [options gridSize];
+    if (([NSEvent modifierFlags] & NSShiftKeyMask) != 0)
+        d = 1;
+    
     Vector3f* surfacePos = [draggedFace surfaceCoordsOf:is];
-    int dx = (int)[surfacePos x] - (int)[lastSurfacePos x];
-    int dy = (int)[surfacePos y] - (int)[lastSurfacePos y];
+    int dx = ((int)([surfacePos x] - [lastSurfacePos x])) / d;
+    int dy = ((int)([surfacePos y] - [lastSurfacePos y])) / d;
 
     if (dx != 0 || dy != 0) {
         NSEnumerator* faceEn = [faces objectEnumerator];
         Face* face;
         while ((face = [faceEn nextObject]))
-            [face translateOffsetsX:dx y:dy];
+            [face translateOffsetsX:dx * d y:dy * d];
     }
 
     if (dx != 0)
@@ -126,21 +142,25 @@ static NSString* MoveDownKey = @"Move Texture Down";
 
 - (void)keyDown:(NSEvent *)theEvent {
     int keyCode = [theEvent keyCode];
+    int d = [options gridSize];
 
+    if (([theEvent modifierFlags] & NSShiftKeyMask) != 0)
+        d = 1;
+    
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     if (keyCode == moveLeftKey)
         while ((face = [faceEn nextObject]))
-            [face translateOffsetsX:-8 y:0];
+            [face translateOffsetsX:-d y:0];
     else if (keyCode == moveRightKey)
         while ((face = [faceEn nextObject]))
-            [face translateOffsetsX:8 y:0];
+            [face translateOffsetsX:d y:0];
     else if (keyCode == moveUpKey)
         while ((face = [faceEn nextObject]))
-            [face translateOffsetsX:0 y:8];
+            [face translateOffsetsX:0 y:d];
     else if (keyCode == moveDownKey)
         while ((face = [faceEn nextObject]))
-            [face translateOffsetsX:0 y:-8];
+            [face translateOffsetsX:0 y:-d];
     else
         NSLog(@"unknown key code: %i", [theEvent keyCode]);
 }
@@ -170,6 +190,7 @@ static NSString* MoveDownKey = @"Move Texture Down";
     [lastSurfacePos release];
     [faces release];
     [figures release];
+    [options release];
     [super dealloc];
 }
 

@@ -15,6 +15,7 @@ extern NSString* const FiguresKey;
 @class SelectionManager;
 @class Ray3D;
 @class FaceOffsetTool;
+@class Options;
 
 @interface ToolManager : Observable {
     @private
@@ -24,7 +25,7 @@ extern NSString* const FiguresKey;
     NSMutableArray* dragReceivers;
 }
 
-- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager undoManager:(NSUndoManager *)theUndoManager;
+- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager undoManager:(NSUndoManager *)theUndoManager options:(Options *)theOptions;
 
 - (NSArray *)toolsHitByRay:(Ray3D *)theRay;
 

@@ -8,6 +8,7 @@
 
 #import "ToolManager.h"
 #import "SelectionManager.h"
+#import "Options.h"
 #import "FaceOffsetTool.h"
 #import "Face.h"
 #import "Tool.h"
@@ -20,7 +21,6 @@ NSString* const FiguresKey = @"Figures";
 
 - (id)init {
     if (self = [super init]) {
-        faceOffsetTool = [[FaceOffsetTool alloc] init];
         dragReceivers = [[NSMutableArray alloc] init];
     }
     
@@ -63,13 +63,16 @@ NSString* const FiguresKey = @"Figures";
     [self notifyObservers:FiguresRemoved infoObject:removedFigures infoKey:FiguresKey];
 }
 
-- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager undoManager:(NSUndoManager *)theUndoManager {
+- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager undoManager:(NSUndoManager *)theUndoManager options:(Options *)theOptions {
     if (theSelectionManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"selection manager must not be nil"];
     if (theUndoManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"undo manager must not be nil"];
+    if (theOptions == nil)
+        [NSException raise:NSInvalidArgumentException format:@"options must not be nil"];
     
     if (self = [self init]) {
+        faceOffsetTool = [[FaceOffsetTool alloc] initWithOptions:theOptions];
         selectionManager = [theSelectionManager retain];
         undoManager = [theUndoManager retain];
         

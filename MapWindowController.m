@@ -73,7 +73,7 @@
     camera = [[Camera alloc] init];
     
     selectionManager = [[SelectionManager alloc] init];
-    toolManager = [[ToolManager alloc] initWithSelectionManager:selectionManager undoManager:[[self document] undoManager]];
+    toolManager = [[ToolManager alloc] initWithSelectionManager:selectionManager undoManager:[[self document] undoManager] options:options];
     inputManager = [[InputManager alloc] initWithPicker:picker selectionManager:selectionManager toolManager:toolManager];
     
     vbo = [[VBOBuffer alloc] initWithTotalCapacity:8192];
