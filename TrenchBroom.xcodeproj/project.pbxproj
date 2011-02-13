@@ -106,6 +106,7 @@
 		48B324C112E1F455008748E2 /* Camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3243B12E1C6B8008748E2 /* Camera.m */; };
 		48B3256012E2D760008748E2 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 48B3255F12E2D760008748E2 /* Defaults.plist */; };
 		48B325E512E3788D008748E2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B325E412E3788D008748E2 /* AppDelegate.m */; };
+		48C3324413087D8600C23607 /* MenuDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C3324313087D8600C23607 /* MenuDelegate.m */; };
 		48C5137E12DB668A006240ED /* HalfSpace3DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C5137D12DB668A006240ED /* HalfSpace3DTestCase.m */; };
 		48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C751981261A704000ABD57 /* PolyhedronTestCase.m */; };
 		48D3164F12F9BEF0009E2D09 /* TextureBrowser.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48D3164E12F9BEF0009E2D09 /* TextureBrowser.xib */; };
@@ -302,6 +303,8 @@
 		48B3255F12E2D760008748E2 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
 		48B325E312E3788D008748E2 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		48B325E412E3788D008748E2 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		48C3324213087D8600C23607 /* MenuDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuDelegate.h; sourceTree = "<group>"; };
+		48C3324313087D8600C23607 /* MenuDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MenuDelegate.m; sourceTree = "<group>"; };
 		48C5137C12DB668A006240ED /* HalfSpace3DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HalfSpace3DTestCase.h; sourceTree = "<group>"; };
 		48C5137D12DB668A006240ED /* HalfSpace3DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HalfSpace3DTestCase.m; sourceTree = "<group>"; };
 		48C751971261A704000ABD57 /* PolyhedronTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolyhedronTestCase.h; sourceTree = "<group>"; };
@@ -653,6 +656,8 @@
 				4891E15512FC04B2007A3B93 /* FaceInspectorController.m */,
 				485D2EAD1308624900CF73D8 /* Options.h */,
 				485D2EAE1308624900CF73D8 /* Options.m */,
+				48C3324213087D8600C23607 /* MenuDelegate.h */,
+				48C3324313087D8600C23607 /* MenuDelegate.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -941,6 +946,7 @@
 				48E0F52F1305E62A00971BA2 /* FaceOffsetFigure.m in Sources */,
 				485D2B5C1306F69100CF73D8 /* SegmentIterator.m in Sources */,
 				485D2EAF1308624900CF73D8 /* Options.m in Sources */,
+				48C3324413087D8600C23607 /* MenuDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

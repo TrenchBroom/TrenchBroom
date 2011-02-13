@@ -37,12 +37,7 @@
 }
 
 - (IBAction)toggleGrid:(id)sender;
-- (IBAction)gridSize8:(id)sender;
-- (IBAction)gridSize16:(id)sender;
-- (IBAction)gridSize32:(id)sender;
-- (IBAction)gridSize64:(id)sender;
-- (IBAction)gridSize128:(id)sender;
-- (IBAction)gridSize256:(id)sender;
+- (IBAction)setGridSize:(id)sender;
 
 - (VBOBuffer *)vbo;
 - (Camera *)camera;

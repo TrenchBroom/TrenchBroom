@@ -16,6 +16,7 @@
 #import "SelectionLayer.h"
 #import "ToolLayer.h"
 #import "VBOBuffer.h"
+#import "VBOMemBlock.h"
 #import "RenderContext.h"
 #import "SelectionManager.h"
 #import "Brush.h"
@@ -24,6 +25,7 @@
 #import "Vector3f.h"
 #import "ToolManager.h"
 #import "FaceFigure.h"
+#import "Options.h"
 
 NSString* const RendererChanged = @"RendererChanged";
 

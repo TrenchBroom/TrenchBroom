@@ -131,28 +131,8 @@
     [options setDrawGrid:![options drawGrid]];
 }
 
-- (IBAction)gridSize8:(id)sender {
-    [options setGridSize:8];
-}
-
-- (IBAction)gridSize16:(id)sender {
-    [options setGridSize:16];
-}
-
-- (IBAction)gridSize32:(id)sender {
-    [options setGridSize:32];
-}
-
-- (IBAction)gridSize64:(id)sender {
-    [options setGridSize:64];
-}
-
-- (IBAction)gridSize128:(id)sender {
-    [options setGridSize:128];
-}
-
-- (IBAction)gridSize256:(id)sender {
-    [options setGridSize:256];
+- (IBAction)setGridSize:(id)sender {
+    [options setGridSize:[sender tag]];
 }
 
 - (void)dealloc {
