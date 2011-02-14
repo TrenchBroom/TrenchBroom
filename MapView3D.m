@@ -104,6 +104,21 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
     [inputManager handleScrollWheel:theEvent sender:self];
 }
 
+- (void)beginGestureWithEvent:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    [inputManager handleBeginGesture:theEvent sender:self];
+}
+
+- (void)endGestureWithEvent:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    [inputManager handleEndGesture:theEvent sender:self];
+}
+
+- (void)magnifyWithEvent:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    [inputManager handleMagnify:theEvent sender:self];
+}
+
 - (void) drawRect:(NSRect)dirtyRect {
     NSRect bounds = [self frame];
     glViewport(bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);

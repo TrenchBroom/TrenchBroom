@@ -19,6 +19,7 @@
     PickingHit* lastHit;
     SelectionManager* selectionManager;
     ToolManager* toolManager;
+    BOOL gesture;
 }
 
 - (id)initWithPicker:(Picker *)thePicker selectionManager:(SelectionManager *)theSelectionManager toolManager:(ToolManager *)theToolManager;
@@ -30,4 +31,7 @@
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender;
 - (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender;
 - (void)handleScrollWheel:(NSEvent *)event sender:(id)sender;
+- (void)handleBeginGesture:(NSEvent *)event sender:(id)sender;
+- (void)handleEndGesture:(NSEvent *)event sender:(id)sender;
+- (void)handleMagnify:(NSEvent *)event sender:(id)sender;
 @end

@@ -136,12 +136,19 @@
                         }
                     }
                 } else {
-                    if ([selectionManager isBrushSelected:brush]) {
-                        [selectionManager addFace:face];
-                    } else {
-                        if (([event modifierFlags] & NSCommandKeyMask) == 0)
+                    if (([event modifierFlags] & NSCommandKeyMask) == 0) {
+                        if ([selectionManager isBrushSelected:brush]) {
+                            [selectionManager addFace:face];
+                        } else {
                             [selectionManager removeAll];
-                        [selectionManager addBrush:brush];
+                            [selectionManager addBrush:brush];
+                        }
+                    } else {
+                        if ([selectionManager isBrushSelected:brush]) {
+                            [selectionManager removeBrush:brush];
+                        } else {
+                            [selectionManager addBrush:brush];
+                        }
                     }
                 }
             } else {
@@ -175,7 +182,27 @@
     
     if ([self isCameraModifierPressed:event]) {
         Camera* camera = [[[mapView3D window] windowController] camera];
-        [camera moveForward:6 * [event deltaY] right:-6 * [event deltaX] up:6 * [event deltaZ]];
+        if (gesture)
+            [camera moveForward:6 * [event deltaZ] right:-6 * [event deltaX] up:6 * [event deltaY]];
+        else
+            [camera moveForward:6 * [event deltaY] right:-6 * [event deltaX] up:6 * [event deltaZ]];
+    }
+}
+
+- (void)handleBeginGesture:(NSEvent *)event sender:(id)sender {
+    gesture = YES;
+}
+
+- (void)handleEndGesture:(NSEvent *)event sender:(id)sender {
+    gesture = NO;
+}
+
+- (void)handleMagnify:(NSEvent *)event sender:(id)sender {
+    MapView3D* mapView3D = (MapView3D *)sender;
+    
+    if ([self isCameraModifierPressed:event]) {
+        Camera* camera = [[[mapView3D window] windowController] camera];
+        [camera moveForward:160 * [event magnification] right:0 up:0];
     }
 }
 
