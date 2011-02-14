@@ -37,6 +37,7 @@
 }
 
 - (IBAction)toggleGrid:(id)sender;
+- (IBAction)toggleSnap:(id)sender;
 - (IBAction)setGridSize:(id)sender;
 
 - (VBOBuffer *)vbo;

@@ -3,12 +3,12 @@
 	<data>
 		<int key="IBDocument.SystemTarget">1060</int>
 		<string key="IBDocument.SystemVersion">10J567</string>
-		<string key="IBDocument.InterfaceBuilderVersion">823</string>
+		<string key="IBDocument.InterfaceBuilderVersion">804</string>
 		<string key="IBDocument.AppKitVersion">1038.35</string>
 		<string key="IBDocument.HIToolboxVersion">462.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">823</string>
+			<string key="NS.object.0">804</string>
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1253,6 +1253,14 @@
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
 											</object>
+											<object class="NSMenuItem" id="477418875">
+												<reference key="NSMenu" ref="709869826"/>
+												<string key="NSTitle">Snap to Grid</string>
+												<string key="NSKeyEquiv"/>
+												<int key="NSMnemonicLoc">2147483647</int>
+												<reference key="NSOnImage" ref="1033313550"/>
+												<reference key="NSMixedImage" ref="310636482"/>
+											</object>
 											<object class="NSMenuItem" id="362238228">
 												<reference key="NSMenu" ref="709869826"/>
 												<bool key="NSIsDisabled">YES</bool>
@@ -2213,6 +2221,22 @@
 						<reference key="destination" ref="18607914"/>
 					</object>
 					<int key="connectionID">650</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">snapToGridItem</string>
+						<reference key="source" ref="435038469"/>
+						<reference key="destination" ref="477418875"/>
+					</object>
+					<int key="connectionID">652</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">toggleSnap:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="477418875"/>
+					</object>
+					<int key="connectionID">653</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -3272,6 +3296,7 @@
 							<reference ref="669352188"/>
 							<reference ref="741663348"/>
 							<reference ref="18607914"/>
+							<reference ref="477418875"/>
 						</object>
 						<reference key="parent" ref="942009878"/>
 					</object>
@@ -3324,6 +3349,11 @@
 						<int key="objectID">633</int>
 						<reference key="object" ref="435038469"/>
 						<reference key="parent" ref="0"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">651</int>
+						<reference key="object" ref="477418875"/>
+						<reference key="parent" ref="709869826"/>
 					</object>
 				</object>
 			</object>
@@ -3562,6 +3592,7 @@
 					<string>593.IBPluginDependency</string>
 					<string>594.IBPluginDependency</string>
 					<string>633.IBPluginDependency</string>
+					<string>651.IBPluginDependency</string>
 					<string>72.IBPluginDependency</string>
 					<string>72.ImportedFromIB2</string>
 					<string>73.IBPluginDependency</string>
@@ -3811,7 +3842,8 @@
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{1235, 794}, {144, 153}}</string>
+					<string>{{1235, 774}, {144, 173}}</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3866,7 +3898,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">650</int>
+			<int key="maxID">653</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -3881,15 +3913,18 @@
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">FirstResponder</string>
+					<string key="superclassName">NSObject</string>
 					<object class="NSMutableDictionary" key="actions">
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>setGridSize:</string>
 							<string>toggleGrid:</string>
+							<string>toggleSnap:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 						</object>
@@ -3900,6 +3935,7 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>setGridSize:</string>
 							<string>toggleGrid:</string>
+							<string>toggleSnap:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
@@ -3909,6 +3945,10 @@
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">toggleGrid:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">toggleSnap:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 						</object>
@@ -3935,9 +3975,11 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>setGridSize:</string>
 							<string>toggleGrid:</string>
+							<string>toggleSnap:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 						</object>
@@ -3948,6 +3990,7 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>setGridSize:</string>
 							<string>toggleGrid:</string>
+							<string>toggleSnap:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
@@ -3957,6 +4000,10 @@
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">toggleGrid:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">toggleSnap:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 						</object>
@@ -3991,9 +4038,11 @@
 							<string>gridSize64Item</string>
 							<string>gridSize8Item</string>
 							<string>showGridItem</string>
+							<string>snapToGridItem</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>NSMenuItem</string>
 							<string>NSMenuItem</string>
 							<string>NSMenuItem</string>
 							<string>NSMenuItem</string>
@@ -4014,6 +4063,7 @@
 							<string>gridSize64Item</string>
 							<string>gridSize8Item</string>
 							<string>showGridItem</string>
+							<string>snapToGridItem</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
@@ -4043,6 +4093,10 @@
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">showGridItem</string>
+								<string key="candidateClassName">NSMenuItem</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">snapToGridItem</string>
 								<string key="candidateClassName">NSMenuItem</string>
 							</object>
 						</object>

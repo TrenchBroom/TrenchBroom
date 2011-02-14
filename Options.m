@@ -16,6 +16,7 @@ NSString* const OptionsChanged = @"OptionsChanged";
 - (id)init {
     if (self = [super init]) {
         drawGrid = YES;
+        snapToGrid = YES;
         gridSize = 16;
     }
     
@@ -24,6 +25,10 @@ NSString* const OptionsChanged = @"OptionsChanged";
 
 - (BOOL)drawGrid {
     return drawGrid;
+}
+
+- (BOOL)snapToGrid {
+    return snapToGrid;
 }
 
 - (int)gridSize {
@@ -39,6 +44,14 @@ NSString* const OptionsChanged = @"OptionsChanged";
         return;
     
     drawGrid = doDrawGrid;
+    [self notifyObservers:OptionsChanged];
+}
+
+- (void)setSnapToGrid:(BOOL)doSnapToGrid {
+    if (snapToGrid == doSnapToGrid)
+        return;
+    
+    snapToGrid = doSnapToGrid;
     [self notifyObservers:OptionsChanged];
 }
 

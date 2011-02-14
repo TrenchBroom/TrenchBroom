@@ -131,6 +131,10 @@
     [options setDrawGrid:![options drawGrid]];
 }
 
+- (IBAction)toggleSnap:(id)sender {
+    [options setSnapToGrid:![options snapToGrid]];
+}
+
 - (IBAction)setGridSize:(id)sender {
     [options setGridSize:[sender tag]];
 }

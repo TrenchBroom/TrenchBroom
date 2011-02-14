@@ -21,6 +21,7 @@
         Options* options = [mapController options];
         
         [showGridItem setEnabled:YES];
+        [snapToGridItem setEnabled:YES];
         [gridSize8Item setEnabled:YES];
         [gridSize16Item setEnabled:YES];
         [gridSize32Item setEnabled:YES];
@@ -29,6 +30,7 @@
         [gridSize256Item setEnabled:YES];
         
         [showGridItem setState:[options drawGrid] ? NSOnState : NSOffState];
+        [snapToGridItem setState:[options snapToGrid] ? NSOnState : NSOffState];
         [gridSize8Item setState:[options gridSize] == 8 ? NSOnState : NSOffState];
         [gridSize16Item setState:[options gridSize] == 16 ? NSOnState : NSOffState];
         [gridSize32Item setState:[options gridSize] == 32 ? NSOnState : NSOffState];
@@ -37,6 +39,7 @@
         [gridSize256Item setState:[options gridSize] == 256 ? NSOnState : NSOffState];
     } else {
         [showGridItem setEnabled:NO];
+        [snapToGridItem setEnabled:NO];
         [gridSize8Item setEnabled:NO];
         [gridSize16Item setEnabled:NO];
         [gridSize32Item setEnabled:NO];
@@ -45,6 +48,7 @@
         [gridSize256Item setEnabled:NO];
         
         [showGridItem setState:NSOffState];
+        [snapToGridItem setState:NSOffState];
         [gridSize8Item setState:NSOffState];
         [gridSize16Item setState:NSOffState];
         [gridSize32Item setState:NSOffState];

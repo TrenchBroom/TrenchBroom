@@ -114,7 +114,7 @@ static NSString* MoveDownKey = @"Move Texture Down";
         return;
     
     int d = [options gridSize];
-    if (([NSEvent modifierFlags] & NSShiftKeyMask) != 0)
+    if (![options snapToGrid] ^ ([NSEvent modifierFlags] & NSShiftKeyMask) != 0)
         d = 1;
     
     Vector3f* surfacePos = [draggedFace surfaceCoordsOf:is];
@@ -144,7 +144,7 @@ static NSString* MoveDownKey = @"Move Texture Down";
     int keyCode = [theEvent keyCode];
     int d = [options gridSize];
 
-    if (([theEvent modifierFlags] & NSShiftKeyMask) != 0)
+    if (![options snapToGrid] ^ ([theEvent modifierFlags] & NSShiftKeyMask) != 0)
         d = 1;
     
     NSEnumerator* faceEn = [faces objectEnumerator];

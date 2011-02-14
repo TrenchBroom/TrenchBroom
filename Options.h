@@ -19,16 +19,18 @@ extern NSString* const OptionsChanged;
 @interface Options : Observable {
     @private
     BOOL drawGrid;
+    BOOL snapToGrid;
     int gridSize;
     ERenderMode renderMode;
 }
 
 - (BOOL)drawGrid;
+- (BOOL)snapToGrid;
 - (int)gridSize;
-
 - (ERenderMode)renderMode;
 
 - (void)setDrawGrid:(BOOL)doDrawGrid;
+- (void)setSnapToGrid:(BOOL)doSnapToGrid;
 - (void)setGridSize:(int)theGridSize;
 - (void)setRenderMode:(ERenderMode)theRenderMode;
 

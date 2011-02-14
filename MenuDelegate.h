@@ -11,6 +11,7 @@
 
 @interface MenuDelegate : NSObject <NSMenuDelegate> {
     IBOutlet NSMenuItem* showGridItem;
+    IBOutlet NSMenuItem* snapToGridItem;
     IBOutlet NSMenuItem* gridSize8Item;
     IBOutlet NSMenuItem* gridSize16Item;
     IBOutlet NSMenuItem* gridSize32Item;
