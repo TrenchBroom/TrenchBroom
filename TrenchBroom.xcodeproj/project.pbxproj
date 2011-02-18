@@ -27,6 +27,9 @@
 		4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4818202212FB4746002D9AAD /* SingleTextureView.m */; };
 		481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 481D300F12FAE5C0001CBD9E /* GLFontManager.m */; };
 		4824957B12F3004C004F3615 /* BoundingBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 4824957A12F3004C004F3615 /* BoundingBox.m */; };
+		48334C42130EC52A004485E1 /* FaceTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48334C41130EC52A004485E1 /* FaceTool.m */; };
+		48334C78130EE514004485E1 /* FaceRotationTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48334C77130EE514004485E1 /* FaceRotationTool.m */; };
+		48334C7F130EE64E004485E1 /* FaceRotationFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48334C7E130EE64E004485E1 /* FaceRotationFigure.m */; };
 		4836401112603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
 		4836401212603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
 		4836401B1260416700363E3F /* Plane3DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401A1260416700363E3F /* Plane3DTestCase.m */; };
@@ -165,6 +168,12 @@
 		481D300F12FAE5C0001CBD9E /* GLFontManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFontManager.m; sourceTree = "<group>"; };
 		4824957912F3004C004F3615 /* BoundingBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundingBox.h; sourceTree = "<group>"; };
 		4824957A12F3004C004F3615 /* BoundingBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundingBox.m; sourceTree = "<group>"; };
+		48334C40130EC52A004485E1 /* FaceTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceTool.h; sourceTree = "<group>"; };
+		48334C41130EC52A004485E1 /* FaceTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceTool.m; sourceTree = "<group>"; };
+		48334C76130EE514004485E1 /* FaceRotationTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceRotationTool.h; sourceTree = "<group>"; };
+		48334C77130EE514004485E1 /* FaceRotationTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceRotationTool.m; sourceTree = "<group>"; };
+		48334C7D130EE64E004485E1 /* FaceRotationFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceRotationFigure.h; sourceTree = "<group>"; };
+		48334C7E130EE64E004485E1 /* FaceRotationFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceRotationFigure.m; sourceTree = "<group>"; };
 		4836400F12603A5100363E3F /* Line3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line3D.h; sourceTree = "<group>"; };
 		4836401012603A5100363E3F /* Line3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line3D.m; sourceTree = "<group>"; };
 		483640191260416700363E3F /* Plane3DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane3DTestCase.h; sourceTree = "<group>"; };
@@ -715,13 +724,19 @@
 		48FDA0B512FD86FD00204729 /* Tools */ = {
 			isa = PBXGroup;
 			children = (
-				48FDA0BC12FD872500204729 /* FaceOffsetTool.h */,
-				48FDA0BD12FD872500204729 /* FaceOffsetTool.m */,
-				488F0AA213019DEC0063E550 /* ToolManager.h */,
-				488F0AA313019DEC0063E550 /* ToolManager.m */,
-				4865CE7F1305731A0004702E /* Tool.h */,
 				48E0F52D1305E62A00971BA2 /* FaceOffsetFigure.h */,
 				48E0F52E1305E62A00971BA2 /* FaceOffsetFigure.m */,
+				48FDA0BC12FD872500204729 /* FaceOffsetTool.h */,
+				48FDA0BD12FD872500204729 /* FaceOffsetTool.m */,
+				48334C40130EC52A004485E1 /* FaceTool.h */,
+				48334C41130EC52A004485E1 /* FaceTool.m */,
+				4865CE7F1305731A0004702E /* Tool.h */,
+				488F0AA213019DEC0063E550 /* ToolManager.h */,
+				488F0AA313019DEC0063E550 /* ToolManager.m */,
+				48334C76130EE514004485E1 /* FaceRotationTool.h */,
+				48334C77130EE514004485E1 /* FaceRotationTool.m */,
+				48334C7D130EE64E004485E1 /* FaceRotationFigure.h */,
+				48334C7E130EE64E004485E1 /* FaceRotationFigure.m */,
 			);
 			name = Tools;
 			sourceTree = "<group>";
@@ -947,6 +962,9 @@
 				485D2B5C1306F69100CF73D8 /* SegmentIterator.m in Sources */,
 				485D2EAF1308624900CF73D8 /* Options.m in Sources */,
 				48C3324413087D8600C23607 /* MenuDelegate.m in Sources */,
+				48334C42130EC52A004485E1 /* FaceTool.m in Sources */,
+				48334C78130EE514004485E1 /* FaceRotationTool.m in Sources */,
+				48334C7F130EE64E004485E1 /* FaceRotationFigure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,9 +9,10 @@
 #import "ToolManager.h"
 #import "SelectionManager.h"
 #import "Options.h"
-#import "FaceOffsetTool.h"
-#import "Face.h"
 #import "Tool.h"
+#import "FaceOffsetTool.h"
+#import "FaceRotationTool.h"
+#import "Face.h"
 
 NSString* const FiguresAdded = @"FiguresAdded";
 NSString* const FiguresRemoved = @"FiguresRemoved";
@@ -37,8 +38,8 @@ NSString* const FiguresKey = @"Figures";
         NSEnumerator* faceEn = [faces objectEnumerator];
         Face* face;
         while ((face = [faceEn nextObject])) {
-            id figure = [faceOffsetTool addObject:face];
-            [newFigures addObject:figure];
+            [newFigures addObject:[faceOffsetTool addObject:face]];
+            [newFigures addObject:[faceRotationTool addObject:face]];
         }
     }
     
@@ -55,8 +56,8 @@ NSString* const FiguresKey = @"Figures";
         NSEnumerator* faceEn = [faces objectEnumerator];
         Face* face;
         while ((face = [faceEn nextObject])) {
-            id figure = [faceOffsetTool removeObject:face];
-            [removedFigures addObject:figure];
+            [removedFigures addObject:[faceOffsetTool removeObject:face]];
+            [removedFigures addObject:[faceRotationTool removeObject:face]];
         }
     }
     
@@ -73,6 +74,7 @@ NSString* const FiguresKey = @"Figures";
     
     if (self = [self init]) {
         faceOffsetTool = [[FaceOffsetTool alloc] initWithOptions:theOptions];
+        faceRotationTool = [[FaceRotationTool alloc] initWithOptions:theOptions];
         selectionManager = [theSelectionManager retain];
         undoManager = [theUndoManager retain];
         
@@ -86,6 +88,8 @@ NSString* const FiguresKey = @"Figures";
 - (void)addToolsHitByRay:(Ray3D *)theRay toList:(NSMutableArray *)toolList {
     if ([faceOffsetTool hitByRay:theRay])
         [toolList addObject:faceOffsetTool];
+    if ([faceRotationTool hitByRay:theRay])
+        [toolList addObject:faceRotationTool];
 }
 
 - (NSArray *)toolsHitByRay:(Ray3D *)theRay {
@@ -140,6 +144,7 @@ NSString* const FiguresKey = @"Figures";
     [selectionManager release];
     [undoManager release];
     [dragReceivers release];
+    [faceRotationTool release];
     [faceOffsetTool release];
     [super dealloc];
 }

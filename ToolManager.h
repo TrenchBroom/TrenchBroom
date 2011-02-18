@@ -15,11 +15,13 @@ extern NSString* const FiguresKey;
 @class SelectionManager;
 @class Ray3D;
 @class FaceOffsetTool;
+@class FaceRotationTool;
 @class Options;
 
 @interface ToolManager : Observable {
     @private
     FaceOffsetTool* faceOffsetTool;
+    FaceRotationTool* faceRotationTool;
     SelectionManager* selectionManager;
     NSUndoManager* undoManager;
     NSMutableArray* dragReceivers;
