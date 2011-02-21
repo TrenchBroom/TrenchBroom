@@ -137,6 +137,7 @@ NSString* const FiguresKey = @"Figures";
 
 - (void)keyDown:(NSEvent *)theEvent {
     [faceOffsetTool keyDown:theEvent];
+    [faceRotationTool keyDown:theEvent];
 }
 
 - (void)dealloc {

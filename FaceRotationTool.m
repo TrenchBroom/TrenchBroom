@@ -33,36 +33,7 @@ static NSString* RotateCCWKey = @"Rotate Texture Counterclockwise";
     [is sub:[theFace center]];
     float ls = [is lengthSquared];
     
-    return fgte(ls, 144) && flte(ls, 196);
-}
-
-- (void)drag:(Ray3D *)theRay {
-    Plane3D* plane = [[draggedFace halfSpace] boundary];
-    Vector3f* is = [plane intersectWithRay:theRay];
-    if (is == nil)
-        return;
-    
-    int d = [options gridSize];
-    if (![options snapToGrid] ^ ([NSEvent modifierFlags] & NSShiftKeyMask) != 0)
-        d = 1;
-    
-    Vector3f* surfacePos = [draggedFace surfaceCoordsOf:is];
-    int dx = ((int)([surfacePos x] - [lastSurfacePos x])) / d;
-    int dy = ((int)([surfacePos y] - [lastSurfacePos y])) / d;
-    
-    if (dx != 0 || dy != 0) {
-        NSEnumerator* faceEn = [faces objectEnumerator];
-        Face* face;
-        while ((face = [faceEn nextObject]))
-            [face translateOffsetsX:dx * d y:dy * d];
-    }
-    
-    if (dx != 0)
-        [lastSurfacePos setX:[surfacePos x]];
-    
-    if (dy != 0)
-        [lastSurfacePos setY:[surfacePos y]];
-    
+    return fgte(ls, 144) && flte(ls, 256);
 }
 
 - (void)keyDown:(NSEvent *)theEvent {

@@ -12,6 +12,10 @@
 		<integer>126</integer>
 		<key>Move Texture Down</key>
 		<integer>125</integer>
+		<key>Rotate Texture Clockwise</key>
+		<integer>15</integer>
+		<key>Rotate Texture Counterclockwise</key>
+		<integer>17</integer>
 	</dict>
 	<key>3D View</key>
 	<dict>

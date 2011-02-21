@@ -17,7 +17,7 @@ static NSArray* ring;
 @implementation FaceRotationFigure
 
 + (void)initialize {
-    ring = [makeRing(12, 14, 32) retain];
+    ring = [makeRing(12, 16, 32) retain];
 }
 
 - (id)initWithFace:(Face *)theFace {
