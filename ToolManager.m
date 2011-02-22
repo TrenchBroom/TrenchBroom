@@ -38,8 +38,8 @@ NSString* const FiguresKey = @"Figures";
         NSEnumerator* faceEn = [faces objectEnumerator];
         Face* face;
         while ((face = [faceEn nextObject])) {
-            [newFigures addObject:[faceOffsetTool addObject:face]];
-            [newFigures addObject:[faceRotationTool addObject:face]];
+//            [newFigures addObject:[faceOffsetTool addObject:face]];
+//            [newFigures addObject:[faceRotationTool addObject:face]];
         }
     }
     
@@ -56,8 +56,8 @@ NSString* const FiguresKey = @"Figures";
         NSEnumerator* faceEn = [faces objectEnumerator];
         Face* face;
         while ((face = [faceEn nextObject])) {
-            [removedFigures addObject:[faceOffsetTool removeObject:face]];
-            [removedFigures addObject:[faceRotationTool removeObject:face]];
+//            [removedFigures addObject:[faceOffsetTool removeObject:face]];
+//            [removedFigures addObject:[faceRotationTool removeObject:face]];
         }
     }
     

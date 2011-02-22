@@ -37,6 +37,34 @@
         [gridSize64Item setState:[options gridSize] == 64 ? NSOnState : NSOffState];
         [gridSize128Item setState:[options gridSize] == 128 ? NSOnState : NSOffState];
         [gridSize256Item setState:[options gridSize] == 256 ? NSOnState : NSOffState];
+        
+        if ([options snapToGrid]) {
+            [moveFaceLeftItem setTitle:@"Move Left"];
+            [moveFaceLeftAltItem setTitle:@"Move Left (No Snap)"];
+            [moveFaceRightItem setTitle:@"Move Right"];
+            [moveFaceRightAltItem setTitle:@"Move Right (No Snap)"];
+            [moveFaceUpItem setTitle:@"Move Up"];
+            [moveFaceUpAltItem setTitle:@"Move Up (No Snap)"];
+            [moveFaceDownItem setTitle:@"Move Down"];
+            [moveFaceDownAltItem setTitle:@"Move Down (No Snap)"];
+            [rotateFaceLeftItem setTitle:@"Rotate Left"];
+            [rotateFaceLeftAltItem setTitle:@"Rotate Left (No Snap)"];
+            [rotateFaceRightItem setTitle:@"Rotate Right"];
+            [rotateFaceRightAltItem setTitle:@"Rotate Right (No Snap)"];
+        } else {
+            [moveFaceLeftItem setTitle:@"Move Left (No Snap)"];
+            [moveFaceLeftAltItem setTitle:@"Move Left"];
+            [moveFaceRightItem setTitle:@"Move Right (No Snap)"];
+            [moveFaceRightAltItem setTitle:@"Move Right"];
+            [moveFaceUpItem setTitle:@"Move Up (No Snap)"];
+            [moveFaceUpAltItem setTitle:@"Move Up"];
+            [moveFaceDownItem setTitle:@"Move Down (No Snap)"];
+            [moveFaceDownAltItem setTitle:@"Move Down"];
+            [rotateFaceLeftItem setTitle:@"Rotate Left (No Snap)"];
+            [rotateFaceLeftAltItem setTitle:@"Rotate Left"];
+            [rotateFaceRightItem setTitle:@"Rotate Right (No Snap)"];
+            [rotateFaceRightAltItem setTitle:@"Rotate Right"];
+        }
     } else {
         [showGridItem setEnabled:NO];
         [snapToGridItem setEnabled:NO];
@@ -56,6 +84,8 @@
         [gridSize128Item setState:NSOffState];
         [gridSize256Item setState:NSOffState];
     }
+    
+    
 }
 
 @end

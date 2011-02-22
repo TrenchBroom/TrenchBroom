@@ -40,6 +40,23 @@
 - (IBAction)toggleSnap:(id)sender;
 - (IBAction)setGridSize:(id)sender;
 
+- (IBAction)clearSelection:(id)sender;
+- (IBAction)copySelection:(id)sender;
+- (IBAction)cutSelection:(id)sender;
+- (IBAction)pasteClipboard:(id)sender;
+- (IBAction)deleteSelection:(id)sender;
+
+- (IBAction)moveFaceLeft:(id)sender;
+- (IBAction)moveFaceRight:(id)sender;
+- (IBAction)moveFaceUp:(id)sender;
+- (IBAction)moveFaceDown:(id)sender;
+- (IBAction)stretchFaceHorizontally:(id)sender;
+- (IBAction)shrinkFaceHorizontally:(id)sender;
+- (IBAction)stretchFaceVertically:(id)sender;
+- (IBAction)shrinkFaceVertically:(id)sender;
+- (IBAction)rotateFaceLeft:(id)sender;
+- (IBAction)rotateFaceRight:(id)sender;
+
 - (VBOBuffer *)vbo;
 - (Camera *)camera;
 - (SelectionManager *)selectionManager;

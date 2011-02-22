@@ -18,6 +18,18 @@
     IBOutlet NSMenuItem* gridSize64Item;
     IBOutlet NSMenuItem* gridSize128Item;
     IBOutlet NSMenuItem* gridSize256Item;
+    IBOutlet NSMenuItem* moveFaceLeftItem;
+    IBOutlet NSMenuItem* moveFaceLeftAltItem;
+    IBOutlet NSMenuItem* moveFaceRightItem;
+    IBOutlet NSMenuItem* moveFaceRightAltItem;
+    IBOutlet NSMenuItem* moveFaceUpItem;
+    IBOutlet NSMenuItem* moveFaceUpAltItem;
+    IBOutlet NSMenuItem* moveFaceDownItem;
+    IBOutlet NSMenuItem* moveFaceDownAltItem;
+    IBOutlet NSMenuItem* rotateFaceLeftItem;
+    IBOutlet NSMenuItem* rotateFaceLeftAltItem;
+    IBOutlet NSMenuItem* rotateFaceRightItem;
+    IBOutlet NSMenuItem* rotateFaceRightAltItem;
 }
 
 @end

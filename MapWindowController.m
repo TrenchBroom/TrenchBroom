@@ -139,6 +139,76 @@
     [options setGridSize:[sender tag]];
 }
 
+- (IBAction)clearSelection:(id)sender {
+    [selectionManager removeAll];
+}
+
+- (IBAction)copySelection:(id)sender {}
+- (IBAction)cutSelection:(id)sender {}
+- (IBAction)pasteClipboard:(id)sender {}
+
+- (IBAction)deleteSelection:(id)sender {}
+
+- (IBAction)moveFaceLeft:(id)sender {
+    int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
+
+    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face translateOffsetsX:-d y:0];
+}
+
+- (IBAction)moveFaceRight:(id)sender {
+    int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
+    
+    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face translateOffsetsX:d y:0];
+}
+
+- (IBAction)moveFaceUp:(id)sender {
+    int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
+    
+    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face translateOffsetsX:0 y:d];
+}
+
+- (IBAction)moveFaceDown:(id)sender {
+    int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
+    
+    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face translateOffsetsX:0 y:-d];
+}
+
+- (IBAction)stretchFaceHorizontally:(id)sender {}
+- (IBAction)shrinkFaceHorizontally:(id)sender {}
+- (IBAction)stretchFaceVertically:(id)sender {}
+- (IBAction)shrinkFaceVertically:(id)sender {}
+
+- (IBAction)rotateFaceLeft:(id)sender {
+    int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
+    
+    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face setRotation:[face rotation] - d];
+}
+
+- (IBAction)rotateFaceRight:(id)sender {
+    int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
+    
+    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face setRotation:[face rotation] + d];
+}
+
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [options release];
