@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "TextureFilter.h"
 
 @class Texture;
 
@@ -17,6 +18,7 @@
     float width;
     float innerMargin;
     float outerMargin;
+    id<TextureFilter> filter;
 }
 
 - (id)initWithWidth:(float)theWidth innerMargin:(float)theInnerMargin outerMargin:(float)theOuterMargin;
@@ -32,5 +34,7 @@
 - (float)height;
 - (NSArray *)rows;
 - (NSArray *)rowsInY:(float)y height:(float)height;
+
+- (void)setTextureFilter:(id <TextureFilter>)theFilter;
 
 @end

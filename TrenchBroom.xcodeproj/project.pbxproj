@@ -91,8 +91,7 @@
 		488F09881301628D0063E550 /* Observer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F09871301628D0063E550 /* Observer.m */; };
 		488F0AA413019DEC0063E550 /* ToolManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F0AA313019DEC0063E550 /* ToolManager.m */; };
 		488F0AAF1301A2C50063E550 /* ToolLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F0AAE1301A2C50063E550 /* ToolLayer.m */; };
-		4891E13A12FC0451007A3B93 /* FaceInspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4891E13912FC0451007A3B93 /* FaceInspector.xib */; };
-		4891E15612FC04B2007A3B93 /* FaceInspectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4891E15512FC04B2007A3B93 /* FaceInspectorController.m */; };
+		4891E15612FC04B2007A3B93 /* InspectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4891E15512FC04B2007A3B93 /* InspectorController.m */; };
 		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
 		489DC5F312F9DDEA00053092 /* TextureWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 489DC5F212F9DDEA00053092 /* TextureWindowController.m */; };
 		489FB43D12FA0A5B00B6BAF1 /* GLFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 489FB43C12FA0A5B00B6BAF1 /* GLFont.m */; };
@@ -119,6 +118,9 @@
 		48E110811234BF5500087198 /* Vector2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1107B1234BF5500087198 /* Vector2f.m */; };
 		48E110871234BF5500087198 /* Vector2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1107B1234BF5500087198 /* Vector2f.m */; };
 		48E1806512F5F07D007995FE /* SelectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1806412F5F07D007995FE /* SelectionManager.m */; };
+		48E4006D13159E7E004642CD /* TextureNameFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E4006C13159E7E004642CD /* TextureNameFilter.m */; };
+		48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E400AE1315A7DA004642CD /* TextureUsageFilter.m */; };
+		48E4FFD613157C46004642CD /* Inspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48E4FFD513157C46004642CD /* Inspector.xib */; };
 		48FDA0BE12FD872500204729 /* FaceOffsetTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FDA0BD12FD872500204729 /* FaceOffsetTool.m */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
@@ -282,9 +284,8 @@
 		488F0AA313019DEC0063E550 /* ToolManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ToolManager.m; sourceTree = "<group>"; };
 		488F0AAD1301A2C50063E550 /* ToolLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToolLayer.h; sourceTree = "<group>"; };
 		488F0AAE1301A2C50063E550 /* ToolLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ToolLayer.m; sourceTree = "<group>"; };
-		4891E13912FC0451007A3B93 /* FaceInspector.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FaceInspector.xib; sourceTree = "<group>"; };
-		4891E15412FC04B2007A3B93 /* FaceInspectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceInspectorController.h; sourceTree = "<group>"; };
-		4891E15512FC04B2007A3B93 /* FaceInspectorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceInspectorController.m; sourceTree = "<group>"; };
+		4891E15412FC04B2007A3B93 /* InspectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorController.h; sourceTree = "<group>"; };
+		4891E15512FC04B2007A3B93 /* InspectorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectorController.m; sourceTree = "<group>"; };
 		48941664123619870098E17C /* Line2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2DTestCase.h; sourceTree = "<group>"; };
 		48941665123619870098E17C /* Line2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line2DTestCase.m; sourceTree = "<group>"; };
 		489DC5F112F9DDEA00053092 /* TextureWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureWindowController.h; sourceTree = "<group>"; };
@@ -329,6 +330,12 @@
 		48E1107B1234BF5500087198 /* Vector2f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vector2f.m; sourceTree = "<group>"; };
 		48E1806312F5F07D007995FE /* SelectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionManager.h; sourceTree = "<group>"; };
 		48E1806412F5F07D007995FE /* SelectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectionManager.m; sourceTree = "<group>"; };
+		48E4006013159CE2004642CD /* TextureFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureFilter.h; sourceTree = "<group>"; };
+		48E4006B13159E7E004642CD /* TextureNameFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureNameFilter.h; sourceTree = "<group>"; };
+		48E4006C13159E7E004642CD /* TextureNameFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureNameFilter.m; sourceTree = "<group>"; };
+		48E400AD1315A7DA004642CD /* TextureUsageFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureUsageFilter.h; sourceTree = "<group>"; };
+		48E400AE1315A7DA004642CD /* TextureUsageFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureUsageFilter.m; sourceTree = "<group>"; };
+		48E4FFD513157C46004642CD /* Inspector.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Inspector.xib; sourceTree = "<group>"; };
 		48EEE9041153D816001A4D7C /* Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Test-Info.plist"; sourceTree = "<group>"; };
 		48EEE9181153D95E001A4D7C /* VBOManagerTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOManagerTestCase.h; sourceTree = "<group>"; };
 		48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOManagerTestCase.m; sourceTree = "<group>"; };
@@ -437,7 +444,7 @@
 				4814A02212F73F1E0082E05F /* ProgressWindow.xib */,
 				48B3255F12E2D760008748E2 /* Defaults.plist */,
 				48D3164E12F9BEF0009E2D09 /* TextureBrowser.xib */,
-				4891E13912FC0451007A3B93 /* FaceInspector.xib */,
+				48E4FFD513157C46004642CD /* Inspector.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -661,8 +668,8 @@
 				4814A02612F740580082E05F /* ProgressWindowController.m */,
 				489DC5F112F9DDEA00053092 /* TextureWindowController.h */,
 				489DC5F212F9DDEA00053092 /* TextureWindowController.m */,
-				4891E15412FC04B2007A3B93 /* FaceInspectorController.h */,
-				4891E15512FC04B2007A3B93 /* FaceInspectorController.m */,
+				4891E15412FC04B2007A3B93 /* InspectorController.h */,
+				4891E15512FC04B2007A3B93 /* InspectorController.m */,
 				485D2EAD1308624900CF73D8 /* Options.h */,
 				485D2EAE1308624900CF73D8 /* Options.m */,
 				48C3324213087D8600C23607 /* MenuDelegate.h */,
@@ -687,6 +694,11 @@
 				4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */,
 				4818202112FB4746002D9AAD /* SingleTextureView.h */,
 				4818202212FB4746002D9AAD /* SingleTextureView.m */,
+				48E4006013159CE2004642CD /* TextureFilter.h */,
+				48E4006B13159E7E004642CD /* TextureNameFilter.h */,
+				48E4006C13159E7E004642CD /* TextureNameFilter.m */,
+				48E400AD1315A7DA004642CD /* TextureUsageFilter.h */,
+				48E400AE1315A7DA004642CD /* TextureUsageFilter.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -826,7 +838,7 @@
 				48639BF412EA227100808576 /* QuakePalette.lmp in Resources */,
 				4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */,
 				48D3164F12F9BEF0009E2D09 /* TextureBrowser.xib in Resources */,
-				4891E13A12FC0451007A3B93 /* FaceInspector.xib in Resources */,
+				48E4FFD613157C46004642CD /* Inspector.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -943,7 +955,7 @@
 				481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */,
 				488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */,
 				4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */,
-				4891E15612FC04B2007A3B93 /* FaceInspectorController.m in Sources */,
+				4891E15612FC04B2007A3B93 /* InspectorController.m in Sources */,
 				48FDA0BE12FD872500204729 /* FaceOffsetTool.m in Sources */,
 				4872C97712FF4DC200C5DD29 /* Matrix4f.m in Sources */,
 				4872C97A12FF4DEC00C5DD29 /* Vector4f.m in Sources */,
@@ -965,6 +977,8 @@
 				48334C42130EC52A004485E1 /* FaceTool.m in Sources */,
 				48334C78130EE514004485E1 /* FaceRotationTool.m in Sources */,
 				48334C7F130EE64E004485E1 /* FaceRotationFigure.m in Sources */,
+				48E4006D13159E7E004642CD /* TextureNameFilter.m in Sources */,
+				48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

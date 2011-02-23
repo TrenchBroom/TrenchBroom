@@ -6,17 +6,22 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#import "FaceInspectorController.h"
+#import "InspectorController.h"
 #import "SelectionManager.h"
 #import "TextureManager.h"
+#import "GLFontManager.h"
+#import "TextureView.h"
 #import "SingleTextureView.h"
+#import "TextureNameFilter.h"
+#import "TextureUsageFilter.h"
+#import "Map.h"
 #import "Face.h"
 
-static FaceInspectorController* sharedInstance = nil;
+static InspectorController* sharedInstance = nil;
 
-@implementation FaceInspectorController
+@implementation InspectorController
 
-+ (FaceInspectorController *)sharedInspector {
++ (InspectorController *)sharedInspector {
     @synchronized(self) {
         if (sharedInstance == nil)
             sharedInstance = [[self alloc] init];
@@ -55,15 +60,10 @@ static FaceInspectorController* sharedInstance = nil;
 }
 
 - (NSString *)windowNibName {
-    return @"FaceInspector";
+    return @"Inspector";
 }
 
-- (void)selectionChanged:(NSNotification *)notification {
-    NSLog(@"selection manager: %@", selectionManager);
-    if (selectionManager != nil) {
-        NSLog(@"selection manager: %i", [selectionManager mode]);
-    }
-    
+- (void)updateTextureControls {
     if ([selectionManager mode] == SM_FACES && [[selectionManager selectedFaces] count] > 0) {
         [xOffsetField setEnabled:YES];
         [yOffsetField setEnabled:YES];
@@ -136,12 +136,12 @@ static FaceInspectorController* sharedInstance = nil;
         if (textureMultiple) {
             [[textureNameField cell] setPlaceholderString:@"multiple"];
             [textureNameField setStringValue:@""];
-            [textureView setTexture:nil];
+            [singleTextureView setTexture:nil];
         } else {
             [textureNameField setStringValue:textureName];
             
             Texture* texture = [textureManager textureForName:textureName];
-            [textureView setTexture:texture];
+            [singleTextureView setTexture:texture];
         }
     } else {
         [xOffsetField setEnabled:NO];
@@ -163,44 +163,78 @@ static FaceInspectorController* sharedInstance = nil;
         [yScaleField setStringValue:@""];
         [rotationField setStringValue:@""];
         [textureNameField setStringValue:@""];
-        [textureView setTexture:nil];
+        [singleTextureView setTexture:nil];
     }
 }
 
-- (void)switchToContext:(NSOpenGLContext *)sharedContext selectionManager:(SelectionManager *)theSelectionManager textureManager:(TextureManager *)theTextureManager {
+- (void)faceFlagsChanged:(NSNotification *)notification {
+    [self updateTextureControls];
+}
+
+- (void)selectionRemoved:(NSNotification *)notification {
+    [self updateTextureControls];
+    
+    NSDictionary* userInfo = [notification userInfo];
+    NSSet* faces = [userInfo objectForKey:SelectionFaces];
+    
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face removeObserver:self];
+}
+
+- (void)selectionAdded:(NSNotification *)notification {
+    [self updateTextureControls];
+
+    NSDictionary* userInfo = [notification userInfo];
+    NSSet* faces = [userInfo objectForKey:SelectionFaces];
+    
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face addObserver:self selector:@selector(faceFlagsChanged:) name:FaceFlagsChanged];
+}
+
+- (void)switchToContext:(NSOpenGLContext *)sharedContext selectionManager:(SelectionManager *)theSelectionManager textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager map:(Map *)theMap {
     if (theSelectionManager == selectionManager && theTextureManager == textureManager)
         return;
     
     if (sharedContext != nil) {
         NSOpenGLContext* context = [[NSOpenGLContext alloc] initWithFormat:[textureView pixelFormat] shareContext:sharedContext];
-        [textureView setOpenGLContext:context];
+        [singleTextureView setOpenGLContext:context];
         [context release];
     }
 
-    if (textureManager != nil) {
-        [textureManager removeObserver:self];
-        [textureManager release];
-        textureManager = nil;
-    }
+    [textureManager removeObserver:self];
+    [textureManager release];
+    textureManager = [theTextureManager retain];
+    [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesAdded];
+    [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesRemoved];
     
     if (selectionManager != nil) {
+        NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+        Face* face;
+        while ((face = [faceEn nextObject]))
+            [face removeObserver:self];
+
         [selectionManager removeObserver:self];
         [selectionManager release];
-        selectionManager = nil;
-    }
-    
-    if (theTextureManager != nil) {
-        textureManager = [theTextureManager retain];
-        [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesAdded];
-        [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesRemoved];
     }
 
-    if (theSelectionManager != nil) {
-        selectionManager = [theSelectionManager retain];
-        [selectionManager addObserver:self selector:@selector(selectionChanged:) name:SelectionAdded];
-        [selectionManager addObserver:self selector:@selector(selectionChanged:) name:SelectionRemoved];
-        [self selectionChanged:nil];
-    }
+    selectionManager = [theSelectionManager retain];
+    [selectionManager addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded];
+    [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
+
+    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face addObserver:self selector:@selector(faceFlagsChanged:) name:FaceFlagsChanged];
+
+    [map release];
+    map = [theMap retain];
+    
+    [self updateTextureControls];
+    [textureView switchToContext:sharedContext textureManager:textureManager fontManager:theFontManager];
 }
 
 - (void)textureManagerChanged:(NSNotification *)notification {
@@ -251,11 +285,37 @@ static FaceInspectorController* sharedInstance = nil;
         [face setRotation:rotation];
 }
 
+- (void)updateFilter {
+    id<TextureFilter> filter = nil;
+    NSString* pattern = [textureNameFilterField stringValue];
+    
+    if (pattern != nil && [pattern length] > 0)
+        filter = [[TextureNameFilter alloc] initWithPattern:pattern];
+    
+    if ([textureUsageFilterSC selectedSegment] == 1) {
+        id<TextureFilter> temp = [[TextureUsageFilter alloc] initWithTextureNames:[map textureNames] filter:filter];
+        [filter release];
+        filter = temp;
+    }
+    
+    [textureView setTextureFilter:filter];
+    [filter release];
+}
+
+- (IBAction)textureNameFilterTextChanged:(id)sender {
+    [self updateFilter];
+}
+
+- (IBAction)textureUsageFilterChanged:(id)sender {
+    [self updateFilter];
+}
+
 - (void)dealloc {
     [selectionManager removeObserver:self];
     [textureManager removeObserver:self];
     [selectionManager release];
     [textureManager release];
+    [map release];
     [super dealloc];
 }
 

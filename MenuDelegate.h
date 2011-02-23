@@ -30,6 +30,10 @@
     IBOutlet NSMenuItem* rotateFaceLeftAltItem;
     IBOutlet NSMenuItem* rotateFaceRightItem;
     IBOutlet NSMenuItem* rotateFaceRightAltItem;
+    IBOutlet NSMenuItem* stretchFaceHorizontallyItem;
+    IBOutlet NSMenuItem* shrinkFaceHorizontallyItem;
+    IBOutlet NSMenuItem* stretchFaceVerticallyItem;
+    IBOutlet NSMenuItem* shrinkFaceVerticallyItem;
 }
 
 @end

@@ -22,7 +22,7 @@
 #import "Picker.h"
 #import "SelectionManager.h"
 #import "GLFontManager.h"
-#import "FaceInspectorController.h"
+#import "InspectorController.h"
 #import "ToolManager.h"
 #import "Options.h"
 
@@ -79,18 +79,26 @@
     vbo = [[VBOBuffer alloc] initWithTotalCapacity:8192];
     [view3D setup];
     
-    FaceInspectorController* faceInspector = [FaceInspectorController sharedInspector];
-    [[faceInspector window] makeKeyAndOrderFront:self];
+    InspectorController* inspector = [InspectorController sharedInspector];
+    [inspector showWindow:nil];
     
+    [inspector switchToContext:[view3D openGLContext] 
+              selectionManager:selectionManager 
+                textureManager:textureManager
+                   fontManager:fontManager
+                           map:map];
+
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification object:[self window]];
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
-    FaceInspectorController* inspector = [FaceInspectorController sharedInspector];
+    InspectorController* inspector = [InspectorController sharedInspector];
     [inspector switchToContext:[view3D openGLContext] 
               selectionManager:selectionManager 
-                textureManager:textureManager];
+                textureManager:textureManager
+                   fontManager:fontManager
+                           map:[[self document] map]];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
@@ -149,7 +157,7 @@
 
 - (IBAction)deleteSelection:(id)sender {}
 
-- (IBAction)moveFaceLeft:(id)sender {
+- (IBAction)moveTextureLeft:(id)sender {
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
 
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
@@ -158,7 +166,7 @@
         [face translateOffsetsX:-d y:0];
 }
 
-- (IBAction)moveFaceRight:(id)sender {
+- (IBAction)moveTextureRight:(id)sender {
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
@@ -167,7 +175,7 @@
         [face translateOffsetsX:d y:0];
 }
 
-- (IBAction)moveFaceUp:(id)sender {
+- (IBAction)moveTextureUp:(id)sender {
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
@@ -176,7 +184,7 @@
         [face translateOffsetsX:0 y:d];
 }
 
-- (IBAction)moveFaceDown:(id)sender {
+- (IBAction)moveTextureDown:(id)sender {
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
@@ -185,12 +193,35 @@
         [face translateOffsetsX:0 y:-d];
 }
 
-- (IBAction)stretchFaceHorizontally:(id)sender {}
-- (IBAction)shrinkFaceHorizontally:(id)sender {}
-- (IBAction)stretchFaceVertically:(id)sender {}
-- (IBAction)shrinkFaceVertically:(id)sender {}
+- (IBAction)stretchTextureHorizontally:(id)sender {
+    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face setXScale:[face xScale] + 0.1f];
+}
 
-- (IBAction)rotateFaceLeft:(id)sender {
+- (IBAction)shrinkTextureHorizontally:(id)sender {
+    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face setXScale:[face xScale] - 0.1f];
+}
+
+- (IBAction)stretchTextureVertically:(id)sender {
+    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face setYScale:[face yScale] + 0.1f];
+}
+
+- (IBAction)shrinkTextureVertically:(id)sender {
+    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face setYScale:[face yScale] - 0.1f];
+}
+
+- (IBAction)rotateTextureLeft:(id)sender {
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
@@ -199,7 +230,7 @@
         [face setRotation:[face rotation] - d];
 }
 
-- (IBAction)rotateFaceRight:(id)sender {
+- (IBAction)rotateTextureRight:(id)sender {
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];

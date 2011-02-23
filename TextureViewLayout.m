@@ -63,13 +63,15 @@
     NSEnumerator* texEn = [textures objectEnumerator];
     Texture* texture;
     while ((texture = [texEn nextObject])) {
-        TextureViewLayoutRow* row = [rows lastObject];
-        if (row == nil || ![row addTexture:texture nameSize:NSMakeSize(10, 10)]) {
-            float y = row == nil ? outerMargin : [row y] + [row height] + innerMargin;
-            row = [[TextureViewLayoutRow alloc] initAtY:y width:width innerMargin:innerMargin outerMargin:outerMargin];
-            [row addTexture:texture nameSize:NSMakeSize(10, 10)];
-            [rows addObject:row];
-            [row release];
+        if (filter == nil || [filter passes:texture]) {
+            TextureViewLayoutRow* row = [rows lastObject];
+            if (row == nil || ![row addTexture:texture nameSize:NSMakeSize(10, 10)]) {
+                float y = row == nil ? outerMargin : [row y] + [row height] + innerMargin;
+                row = [[TextureViewLayoutRow alloc] initAtY:y width:width innerMargin:innerMargin outerMargin:outerMargin];
+                [row addTexture:texture nameSize:NSMakeSize(10, 10)];
+                [rows addObject:row];
+                [row release];
+            }
         }
     }
 }
@@ -104,7 +106,14 @@
     return [result autorelease];
 }
 
+- (void)setTextureFilter:(id <TextureFilter>)theFilter {
+    [filter release];
+    filter = [theFilter retain];
+    [self layout];
+}
+
 - (void)dealloc {
+    [filter release];
     [textures release];
     [rows release];
     [super dealloc];

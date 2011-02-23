@@ -39,31 +39,31 @@
         [gridSize256Item setState:[options gridSize] == 256 ? NSOnState : NSOffState];
         
         if ([options snapToGrid]) {
-            [moveFaceLeftItem setTitle:@"Move Left"];
-            [moveFaceLeftAltItem setTitle:@"Move Left (No Snap)"];
-            [moveFaceRightItem setTitle:@"Move Right"];
-            [moveFaceRightAltItem setTitle:@"Move Right (No Snap)"];
-            [moveFaceUpItem setTitle:@"Move Up"];
-            [moveFaceUpAltItem setTitle:@"Move Up (No Snap)"];
-            [moveFaceDownItem setTitle:@"Move Down"];
-            [moveFaceDownAltItem setTitle:@"Move Down (No Snap)"];
-            [rotateFaceLeftItem setTitle:@"Rotate Left"];
-            [rotateFaceLeftAltItem setTitle:@"Rotate Left (No Snap)"];
-            [rotateFaceRightItem setTitle:@"Rotate Right"];
-            [rotateFaceRightAltItem setTitle:@"Rotate Right (No Snap)"];
+            [moveFaceLeftItem setTitle:[NSString stringWithFormat:@"Move Left By %i", [options gridSize]]];
+            [moveFaceLeftAltItem setTitle:@"Move Left By 1"];
+            [moveFaceRightItem setTitle:[NSString stringWithFormat:@"Move Right By %i", [options gridSize]]];
+            [moveFaceRightAltItem setTitle:@"Move Right By 1"];
+            [moveFaceUpItem setTitle:[NSString stringWithFormat:@"Move Up By %i", [options gridSize]]];
+            [moveFaceUpAltItem setTitle:@"Move Up By 1"];
+            [moveFaceDownItem setTitle:[NSString stringWithFormat:@"Move Down By %i", [options gridSize]]];
+            [moveFaceDownAltItem setTitle:@"Move Down By 1"];
+            [rotateFaceLeftItem setTitle:@"Rotate Left By 15"];
+            [rotateFaceLeftAltItem setTitle:@"Rotate Left By 1"];
+            [rotateFaceRightItem setTitle:@"Rotate Right By 15"];
+            [rotateFaceRightAltItem setTitle:@"Rotate Right By 1"];
         } else {
-            [moveFaceLeftItem setTitle:@"Move Left (No Snap)"];
-            [moveFaceLeftAltItem setTitle:@"Move Left"];
-            [moveFaceRightItem setTitle:@"Move Right (No Snap)"];
-            [moveFaceRightAltItem setTitle:@"Move Right"];
-            [moveFaceUpItem setTitle:@"Move Up (No Snap)"];
-            [moveFaceUpAltItem setTitle:@"Move Up"];
-            [moveFaceDownItem setTitle:@"Move Down (No Snap)"];
-            [moveFaceDownAltItem setTitle:@"Move Down"];
-            [rotateFaceLeftItem setTitle:@"Rotate Left (No Snap)"];
-            [rotateFaceLeftAltItem setTitle:@"Rotate Left"];
-            [rotateFaceRightItem setTitle:@"Rotate Right (No Snap)"];
-            [rotateFaceRightAltItem setTitle:@"Rotate Right"];
+            [moveFaceLeftItem setTitle:@"Move Left By 1"];
+            [moveFaceLeftAltItem setTitle:[NSString stringWithFormat:@"Move Left By %i", [options gridSize]]];
+            [moveFaceRightItem setTitle:@"Move Right By 1"];
+            [moveFaceRightAltItem setTitle:[NSString stringWithFormat:@"Move Right By %i", [options gridSize]]];
+            [moveFaceUpItem setTitle:@"Move Up By 1"];
+            [moveFaceUpAltItem setTitle:[NSString stringWithFormat:@"Move Up By %i", [options gridSize]]];
+            [moveFaceDownItem setTitle:@"Move Down By 1"];
+            [moveFaceDownAltItem setTitle:[NSString stringWithFormat:@"Move Down By %i", [options gridSize]]];
+            [rotateFaceLeftItem setTitle:@"Rotate Left By 1"];
+            [rotateFaceLeftAltItem setTitle:@"Rotate Left By 15"];
+            [rotateFaceRightItem setTitle:@"Rotate Right By 1"];
+            [rotateFaceRightAltItem setTitle:@"Rotate Right By 15"];
         }
     } else {
         [showGridItem setEnabled:NO];

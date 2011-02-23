@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "TextureFilter.h"
 
 @class TextureManager;
 @class TextureViewLayout;
@@ -20,5 +21,7 @@
 }
 
 - (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager;
+
+- (void)setTextureFilter:(id <TextureFilter>)theFilter;
 
 @end

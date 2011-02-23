@@ -46,16 +46,16 @@
 - (IBAction)pasteClipboard:(id)sender;
 - (IBAction)deleteSelection:(id)sender;
 
-- (IBAction)moveFaceLeft:(id)sender;
-- (IBAction)moveFaceRight:(id)sender;
-- (IBAction)moveFaceUp:(id)sender;
-- (IBAction)moveFaceDown:(id)sender;
-- (IBAction)stretchFaceHorizontally:(id)sender;
-- (IBAction)shrinkFaceHorizontally:(id)sender;
-- (IBAction)stretchFaceVertically:(id)sender;
-- (IBAction)shrinkFaceVertically:(id)sender;
-- (IBAction)rotateFaceLeft:(id)sender;
-- (IBAction)rotateFaceRight:(id)sender;
+- (IBAction)moveTextureLeft:(id)sender;
+- (IBAction)moveTextureRight:(id)sender;
+- (IBAction)moveTextureUp:(id)sender;
+- (IBAction)moveTextureDown:(id)sender;
+- (IBAction)stretchTextureHorizontally:(id)sender;
+- (IBAction)shrinkTextureHorizontally:(id)sender;
+- (IBAction)stretchTextureVertically:(id)sender;
+- (IBAction)shrinkTextureVertically:(id)sender;
+- (IBAction)rotateTextureLeft:(id)sender;
+- (IBAction)rotateTextureRight:(id)sender;
 
 - (VBOBuffer *)vbo;
 - (Camera *)camera;

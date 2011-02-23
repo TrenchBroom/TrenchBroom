@@ -45,7 +45,7 @@
     glLoadIdentity();
     gluLookAt(0, 0, 0.1, 0, 0, -1, 0, 1, 0);
 
-	glClearColor(1, 1, 1, 1);
+	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
     
     glEnable(GL_TEXTURE_2D);
@@ -85,6 +85,7 @@
         }
     }
 
+    /*
     NSFont* font = [NSFont systemFontOfSize:12];
     GLFont* glFont = [fontManager glFontFor:font];
     GLString* glString = [glFont glStringFor:@"asdf"];
@@ -95,7 +96,6 @@
     [glString render];
     [glString dispose];
     
-    /*
     NSFont* font = [NSFont systemFontOfSize:12];
     GLFont* glFont = [[GLFont alloc] initWithFont:font];
 
@@ -142,6 +142,11 @@
     [layout clear];
     [layout addTextures:[textureManager textures]];
     
+    [self setNeedsDisplay:YES];
+}
+
+- (void)setTextureFilter:(id <TextureFilter>)theFilter {
+    [layout setTextureFilter:theFilter];
     [self setNeedsDisplay:YES];
 }
 

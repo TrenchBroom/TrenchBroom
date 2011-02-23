@@ -32,6 +32,8 @@ extern NSString* const EntityKey;
 - (NSArray* )entities;
 - (int)worldSize;
 
+- (NSSet *)textureNames;
+
 - (BOOL)postNotifications;
 
 /*!

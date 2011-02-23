@@ -75,7 +75,7 @@ NSString* const EntityKey           = @"Entity";
     [entity removeObserver:self];
     
     [entities removeObject:entity];
-    [self notifyObservers:MapEntityAdded userInfo:userInfo];
+    [self notifyObservers:MapEntityRemoved userInfo:userInfo];
 }
 
 - (NSArray *)entities {
@@ -88,6 +88,25 @@ NSString* const EntityKey           = @"Entity";
 
 - (BOOL)postNotifications {
     return postNotifications;
+}
+
+- (NSSet *)textureNames {
+    NSMutableSet* textureNames = [[NSMutableSet alloc] init];
+    
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    Entity* entity;
+    while ((entity = [entityEn nextObject])) {
+        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+        Brush* brush;
+        while ((brush = [brushEn nextObject])) {
+            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+            Face* face;
+            while ((face = [faceEn nextObject]))
+                [textureNames addObject:[face texture]];
+        }
+    }
+    
+    return [textureNames autorelease];
 }
 
 - (void)setPostNotifications:(BOOL)value {
