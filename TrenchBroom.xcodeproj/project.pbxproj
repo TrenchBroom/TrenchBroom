@@ -93,7 +93,6 @@
 		488F0AAF1301A2C50063E550 /* ToolLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F0AAE1301A2C50063E550 /* ToolLayer.m */; };
 		4891E15612FC04B2007A3B93 /* InspectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4891E15512FC04B2007A3B93 /* InspectorController.m */; };
 		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
-		489DC5F312F9DDEA00053092 /* TextureWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 489DC5F212F9DDEA00053092 /* TextureWindowController.m */; };
 		489FB43D12FA0A5B00B6BAF1 /* GLFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 489FB43C12FA0A5B00B6BAF1 /* GLFont.m */; };
 		489FB44012FA0ABE00B6BAF1 /* GLFontChar.m in Sources */ = {isa = PBXBuildFile; fileRef = 489FB43F12FA0ABE00B6BAF1 /* GLFontChar.m */; };
 		48A68EB8114E96C00064732A /* MapWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68EB7114E96C00064732A /* MapWindowController.m */; };
@@ -111,7 +110,6 @@
 		48C3324413087D8600C23607 /* MenuDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C3324313087D8600C23607 /* MenuDelegate.m */; };
 		48C5137E12DB668A006240ED /* HalfSpace3DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C5137D12DB668A006240ED /* HalfSpace3DTestCase.m */; };
 		48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C751981261A704000ABD57 /* PolyhedronTestCase.m */; };
-		48D3164F12F9BEF0009E2D09 /* TextureBrowser.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48D3164E12F9BEF0009E2D09 /* TextureBrowser.xib */; };
 		48DB957812F0699600FB5483 /* InputManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB957712F0699600FB5483 /* InputManager.m */; };
 		48DB95A312F0A89E00FB5483 /* Quaternion.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB95A212F0A89E00FB5483 /* Quaternion.m */; };
 		48E0F52F1305E62A00971BA2 /* FaceOffsetFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E0F52E1305E62A00971BA2 /* FaceOffsetFigure.m */; };
@@ -288,8 +286,6 @@
 		4891E15512FC04B2007A3B93 /* InspectorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectorController.m; sourceTree = "<group>"; };
 		48941664123619870098E17C /* Line2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2DTestCase.h; sourceTree = "<group>"; };
 		48941665123619870098E17C /* Line2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line2DTestCase.m; sourceTree = "<group>"; };
-		489DC5F112F9DDEA00053092 /* TextureWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureWindowController.h; sourceTree = "<group>"; };
-		489DC5F212F9DDEA00053092 /* TextureWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureWindowController.m; sourceTree = "<group>"; };
 		489FB43B12FA0A5B00B6BAF1 /* GLFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFont.h; sourceTree = "<group>"; };
 		489FB43C12FA0A5B00B6BAF1 /* GLFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFont.m; sourceTree = "<group>"; };
 		489FB43E12FA0ABE00B6BAF1 /* GLFontChar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFontChar.h; sourceTree = "<group>"; };
@@ -319,7 +315,6 @@
 		48C5137D12DB668A006240ED /* HalfSpace3DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HalfSpace3DTestCase.m; sourceTree = "<group>"; };
 		48C751971261A704000ABD57 /* PolyhedronTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolyhedronTestCase.h; sourceTree = "<group>"; };
 		48C751981261A704000ABD57 /* PolyhedronTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PolyhedronTestCase.m; sourceTree = "<group>"; };
-		48D3164E12F9BEF0009E2D09 /* TextureBrowser.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextureBrowser.xib; sourceTree = "<group>"; };
 		48DB957612F0699600FB5483 /* InputManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputManager.h; sourceTree = "<group>"; };
 		48DB957712F0699600FB5483 /* InputManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InputManager.m; sourceTree = "<group>"; };
 		48DB95A112F0A89E00FB5483 /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quaternion.h; sourceTree = "<group>"; };
@@ -443,7 +438,6 @@
 				1DDD582A0DA1D0D100B32029 /* MainMenu.xib */,
 				4814A02212F73F1E0082E05F /* ProgressWindow.xib */,
 				48B3255F12E2D760008748E2 /* Defaults.plist */,
-				48D3164E12F9BEF0009E2D09 /* TextureBrowser.xib */,
 				48E4FFD513157C46004642CD /* Inspector.xib */,
 			);
 			name = Resources;
@@ -666,8 +660,6 @@
 				48E1806412F5F07D007995FE /* SelectionManager.m */,
 				4814A02512F740580082E05F /* ProgressWindowController.h */,
 				4814A02612F740580082E05F /* ProgressWindowController.m */,
-				489DC5F112F9DDEA00053092 /* TextureWindowController.h */,
-				489DC5F212F9DDEA00053092 /* TextureWindowController.m */,
 				4891E15412FC04B2007A3B93 /* InspectorController.h */,
 				4891E15512FC04B2007A3B93 /* InspectorController.m */,
 				485D2EAD1308624900CF73D8 /* Options.h */,
@@ -837,7 +829,6 @@
 				48B3256012E2D760008748E2 /* Defaults.plist in Resources */,
 				48639BF412EA227100808576 /* QuakePalette.lmp in Resources */,
 				4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */,
-				48D3164F12F9BEF0009E2D09 /* TextureBrowser.xib in Resources */,
 				48E4FFD613157C46004642CD /* Inspector.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -949,7 +940,6 @@
 				48E1806512F5F07D007995FE /* SelectionManager.m in Sources */,
 				488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */,
 				4814A02712F740580082E05F /* ProgressWindowController.m in Sources */,
-				489DC5F312F9DDEA00053092 /* TextureWindowController.m in Sources */,
 				489FB43D12FA0A5B00B6BAF1 /* GLFont.m in Sources */,
 				489FB44012FA0ABE00B6BAF1 /* GLFontChar.m in Sources */,
 				481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */,

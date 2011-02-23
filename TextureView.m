@@ -18,6 +18,7 @@
 #import "GLFontManager.h"
 #import "GLFont.h"
 #import "GLString.h"
+#import "Map.h"
 
 @implementation TextureView
 
@@ -58,6 +59,8 @@
     NSEnumerator* rowEn = [rows objectEnumerator];
     TextureViewLayoutRow* row;
     
+    NSSet* usedTextureNames = [map textureNames];
+    
     while ((row = [rowEn nextObject])) {
         float y = [row y];
         
@@ -82,6 +85,18 @@
             glTexCoord2f(1, 0);
             glVertex3f(x2, y, 0);
             glEnd();
+            
+            [texture deactivate];
+            
+            if ([usedTextureNames containsObject:[texture name]]) {
+                glColor4f(1, 0, 0, 1);
+                glBegin(GL_LINE_LOOP);
+                glVertex3f(x - 1, y - 1, 0);
+                glVertex3f(x - 1, y2 + 1, 0);
+                glVertex3f(x2 + 1, y2 + 1, 0);
+                glVertex3f(x2 + 1, y - 1, 0);
+                glEnd();
+            }
         }
     }
 
@@ -121,13 +136,15 @@
     [self setNeedsDisplay:YES];
 }
 
-- (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager {
+- (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager map:(Map *)theMap {
     if (theSharedContext == nil)
         [NSException raise:NSInvalidArgumentException format:@"shared context must not be nil"];
     if (theTextureManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
     if (theFontManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"font manager must not be nil"];
+    if (theMap == nil)
+        [NSException raise:NSInvalidArgumentException format:@"map must not be nil"];
 
     NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:theSharedContext];
     [self setOpenGLContext:sharingContext];
@@ -139,6 +156,9 @@
     [textureManager release];
     textureManager = [theTextureManager retain];
     
+    [map release];
+    map = [theMap retain];
+    
     [layout clear];
     [layout addTextures:[textureManager textures]];
     
@@ -147,6 +167,7 @@
 
 - (void)setTextureFilter:(id <TextureFilter>)theFilter {
     [layout setTextureFilter:theFilter];
+    [self reshape];
     [self setNeedsDisplay:YES];
 }
 
@@ -154,6 +175,7 @@
     [layout release];
     [textureManager release];
     [fontManager release];
+    [map release];
     [super dealloc];
 }
 

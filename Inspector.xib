@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="7"/>
+			<integer value="1"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -47,6 +47,7 @@
 				<string key="NSWindowClass">NSWindow</string>
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{1.79769e+308, 1.79769e+308}</string>
+				<string key="NSWindowContentMinSize">{527, 500}</string>
 				<object class="NSView" key="NSWindowView" id="1006">
 					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
@@ -80,7 +81,7 @@
 											</object>
 											<object class="NSTextField" id="47310515">
 												<reference key="NSNextResponder" ref="425344334"/>
-												<int key="NSvFlags">290</int>
+												<int key="NSvFlags">268</int>
 												<string key="NSFrame">{{14, 580}, {139, 16}}</string>
 												<reference key="NSSuperview" ref="425344334"/>
 												<bool key="NSEnabled">YES</bool>
@@ -591,7 +592,7 @@
 											</object>
 											<object class="NSBox" id="613758131">
 												<reference key="NSNextResponder" ref="425344334"/>
-												<int key="NSvFlags">12</int>
+												<int key="NSvFlags">10</int>
 												<string key="NSFrame">{{17, 569}, {468, 5}}</string>
 												<reference key="NSSuperview" ref="425344334"/>
 												<string key="NSOffsets">{0, 0}</string>
@@ -629,7 +630,7 @@
 											</object>
 											<object class="NSButton" id="479711454">
 												<reference key="NSNextResponder" ref="425344334"/>
-												<int key="NSvFlags">268</int>
+												<int key="NSvFlags">265</int>
 												<string key="NSFrame">{{460, 540}, {29, 26}}</string>
 												<reference key="NSSuperview" ref="425344334"/>
 												<bool key="NSEnabled">YES</bool>
@@ -693,7 +694,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 											</object>
 											<object class="NSSearchField" id="685782996">
 												<reference key="NSNextResponder" ref="425344334"/>
-												<int key="NSvFlags">268</int>
+												<int key="NSvFlags">265</int>
 												<string key="NSFrame">{{328, 543}, {128, 22}}</string>
 												<reference key="NSSuperview" ref="425344334"/>
 												<bool key="NSEnabled">YES</bool>
@@ -754,7 +755,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 											</object>
 											<object class="NSSegmentedControl" id="910482351">
 												<reference key="NSNextResponder" ref="425344334"/>
-												<int key="NSvFlags">268</int>
+												<int key="NSvFlags">265</int>
 												<string key="NSFrame">{{227, 541}, {95, 24}}</string>
 												<reference key="NSSuperview" ref="425344334"/>
 												<bool key="NSEnabled">YES</bool>
@@ -888,6 +889,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
+				<string key="NSMinSize">{527, 522}</string>
 				<string key="NSMaxSize">{1.79769e+308, 1.79769e+308}</string>
 			</object>
 		</object>
@@ -1462,6 +1464,8 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 					<string>1.NSWindowTemplate.visibleAtLaunch</string>
 					<string>1.WindowOrigin</string>
 					<string>1.editorWindowContentRectSynchronizationRect</string>
+					<string>1.windowTemplate.hasMinSize</string>
+					<string>1.windowTemplate.minSize</string>
 					<string>10.CustomClassName</string>
 					<string>10.IBPluginDependency</string>
 					<string>10.IBViewBoundsToFrameTransform</string>
@@ -1544,12 +1548,14 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 				</object>
 				<object class="NSMutableArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
-					<string>{{1095, 366}, {527, 786}}</string>
+					<string>{{341, 69}, {527, 786}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{1095, 366}, {527, 786}}</string>
+					<string>{{341, 69}, {527, 786}}</string>
 					<integer value="1"/>
 					<string>{196, 240}</string>
 					<string>{{202, 428}, {480, 270}}</string>
+					<boolean value="YES"/>
+					<string>{527, 500}</string>
 					<string>SingleTextureView</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<object class="NSAffineTransform">

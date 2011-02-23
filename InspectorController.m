@@ -234,7 +234,7 @@ static InspectorController* sharedInstance = nil;
     map = [theMap retain];
     
     [self updateTextureControls];
-    [textureView switchToContext:sharedContext textureManager:textureManager fontManager:theFontManager];
+    [textureView switchToContext:sharedContext textureManager:textureManager fontManager:theFontManager map:map];
 }
 
 - (void)textureManagerChanged:(NSNotification *)notification {

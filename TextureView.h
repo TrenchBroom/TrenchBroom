@@ -12,15 +12,17 @@
 @class TextureManager;
 @class TextureViewLayout;
 @class GLFontManager;
+@class Map;
 
 @interface TextureView : NSOpenGLView {
     @private
     TextureManager* textureManager;
     TextureViewLayout* layout;
     GLFontManager* fontManager;
+    Map* map;
 }
 
-- (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager;
+- (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager map:(Map *)theMap;
 
 - (void)setTextureFilter:(id <TextureFilter>)theFilter;
 
