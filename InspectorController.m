@@ -225,7 +225,7 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (void)switchToContext:(NSOpenGLContext *)sharedContext selectionManager:(SelectionManager *)theSelectionManager textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager map:(Map *)theMap {
-    if (theSelectionManager == selectionManager && theTextureManager == textureManager)
+    if (theSelectionManager == selectionManager && theTextureManager == textureManager && theFontManager = fontManager)
         return;
     
     if (sharedContext != nil) {
