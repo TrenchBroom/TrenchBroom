@@ -9,7 +9,6 @@
 #import <Cocoa/Cocoa.h>
 
 @class GLString;
-@class VBOBuffer;
 
 @interface GLFont : NSObject {
     @private
@@ -19,10 +18,10 @@
     NSLayoutManager* layoutManager;
     NSTextStorage* textStorage;
     NSTextContainer* textContainer;
-    VBOBuffer* stringVBO;
+    NSMutableArray* vbos;
 }
 
-- (id)initWithFont:(NSFont *)theFont stringVBO:(VBOBuffer *)theStringVBO;
+- (id)initWithFont:(NSFont *)theFont;
 
 - (GLString *)glStringFor:(NSString *)theString;
 - (NSSize)sizeOfString:(NSString *)theString;

@@ -139,6 +139,15 @@ NSString* const SelectionFaces = @"SelectionFaces";
     return faces;
 }
 
+- (NSSet *)selectedBrushFaces {
+    NSMutableSet* result = [[NSMutableSet alloc] init];
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    Brush* brush;
+    while ((brush = [brushEn nextObject]))
+        [result addObjectsFromArray:[brush faces]];
+    return [result autorelease];
+}
+
 - (BOOL)hasSelection {
     return [entities count] > 0 || [brushes count] > 0 || [faces count] > 0;
 }

@@ -54,6 +54,14 @@
     state = theState;
 }
 
+- (void)activate {
+    [vboBuffer activate];
+}
+
+- (void)deactivate {
+    [vboBuffer deactivate];
+}
+
 - (int)writeFloat:(float)theFloat offset:(int)theOffset {
     [vboBuffer writeFloat:theFloat address:address + theOffset];
     return theOffset + sizeof(float);

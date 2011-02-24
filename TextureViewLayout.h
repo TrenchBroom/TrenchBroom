@@ -16,6 +16,8 @@
     @private
     NSMutableArray* rows;
     NSMutableArray* textures;
+    NSSize* nameSizes;
+    int nameSizeCapacity;
     float width;
     float innerMargin;
     float outerMargin;

@@ -17,23 +17,21 @@
     
     if (self = [self init]) {
         texture = [theTexture retain];
+             
         cellRect = NSMakeRect(location.x, location.y, fmax([texture width], theNameSize.width), [texture height] + theNameSize.height + 2);
+        textureRect = NSMakeRect(location.x + (cellRect.size.width - [texture width]) / 2, location.y, [texture width], [texture height]);
         nameRect = NSMakeRect(location.x + (cellRect.size.width - theNameSize.width) / 2, location.y + [texture height] + 1, theNameSize.width, theNameSize.height);
     }
     
     return self;
 }
 
-- (float)textureWidth {
-    return [texture width];
-}
-
-- (float)textureHeight {
-    return [texture height];
-}
-
 - (NSRect)cellRect {
     return cellRect;
+}
+
+- (NSRect)textureRect {
+    return textureRect;
 }
 
 - (NSRect)nameRect {

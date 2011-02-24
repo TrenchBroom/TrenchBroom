@@ -66,15 +66,7 @@ static InspectorController* sharedInstance = nil;
 
 - (void)updateTextureControls {
     NSMutableSet* selectedTextureNames = nil;
-    NSMutableSet* selectedFaces = [[NSMutableSet alloc] initWithSet:[selectionManager selectedFaces]];
-    NSSet* selectedBrushes = [selectionManager selectedBrushes];
-    
-    if ([selectedBrushes count] > 0) {
-        NSEnumerator* brushEn = [selectedBrushes objectEnumerator];
-        Brush* brush;
-        while ((brush = [brushEn nextObject]))
-            [selectedFaces addObjectsFromArray:[brush faces]];
-    }
+    NSSet* selectedFaces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     
     if ([selectedFaces count] > 0) {
         selectedTextureNames = [[NSMutableSet alloc] init];
@@ -184,7 +176,6 @@ static InspectorController* sharedInstance = nil;
     
     [textureView setSelectedTextureNames:selectedTextureNames];
     [selectedTextureNames release];
-    [selectedFaces release];
 }
 
 - (void)faceFlagsChanged:(NSNotification *)notification {
@@ -195,24 +186,42 @@ static InspectorController* sharedInstance = nil;
     [self updateTextureControls];
     
     NSDictionary* userInfo = [notification userInfo];
+    NSSet* brushes = [userInfo objectForKey:SelectionBrushes];
     NSSet* faces = [userInfo objectForKey:SelectionFaces];
     
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
         [face removeObserver:self];
+
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    Brush* brush;
+    while ((brush = [brushEn nextObject])) {
+        faceEn = [[brush faces] objectEnumerator];
+        while ((face = [faceEn nextObject]))
+            [face removeObserver:self];
+    }
 }
 
 - (void)selectionAdded:(NSNotification *)notification {
     [self updateTextureControls];
 
     NSDictionary* userInfo = [notification userInfo];
+    NSSet* brushes = [userInfo objectForKey:SelectionBrushes];
     NSSet* faces = [userInfo objectForKey:SelectionFaces];
     
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
         [face addObserver:self selector:@selector(faceFlagsChanged:) name:FaceFlagsChanged];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    Brush* brush;
+    while ((brush = [brushEn nextObject])) {
+        faceEn = [[brush faces] objectEnumerator];
+        while ((face = [faceEn nextObject]))
+            [face addObserver:self selector:@selector(faceFlagsChanged:) name:FaceFlagsChanged];
+    }
 }
 
 - (void)switchToContext:(NSOpenGLContext *)sharedContext selectionManager:(SelectionManager *)theSelectionManager textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager map:(Map *)theMap {
@@ -245,7 +254,8 @@ static InspectorController* sharedInstance = nil;
     [selectionManager addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded];
     [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
 
-    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
         [face addObserver:self selector:@selector(faceFlagsChanged:) name:FaceFlagsChanged];
@@ -262,7 +272,7 @@ static InspectorController* sharedInstance = nil;
 
 - (IBAction)xOffsetTextChanged:(id)sender {
     int xOffset = [xOffsetField intValue];
-    NSSet* faces = [selectionManager selectedFaces];
+    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
@@ -271,7 +281,7 @@ static InspectorController* sharedInstance = nil;
 
 - (IBAction)yOffsetTextChanged:(id)sender {
     int yOffset = [yOffsetField intValue];
-    NSSet* faces = [selectionManager selectedFaces];
+    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
@@ -280,7 +290,7 @@ static InspectorController* sharedInstance = nil;
 
 - (IBAction)xScaleTextChanged:(id)sender {
     float xScale = [xScaleField floatValue];
-    NSSet* faces = [selectionManager selectedFaces];
+    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
@@ -289,7 +299,7 @@ static InspectorController* sharedInstance = nil;
 
 - (IBAction)yScaleTextChanged:(id)sender {
     float yScale = [yScaleField floatValue];
-    NSSet* faces = [selectionManager selectedFaces];
+    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
@@ -298,11 +308,19 @@ static InspectorController* sharedInstance = nil;
 
 - (IBAction)rotationTextChanged:(id)sender {
     float rotation = [rotationField floatValue];
-    NSSet* faces = [selectionManager selectedFaces];
+    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
         [face setRotation:rotation];
+}
+
+- (void)textureSelected:(Texture *)texture {
+    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [face setTexture:[texture name]];
 }
 
 - (void)updateFilter {

@@ -22,10 +22,12 @@
     Map* map;
     NSSet* selectedTextureNames;
     NSMutableDictionary* glStrings;
+    IBOutlet id target;
 }
 
 - (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager map:(Map *)theMap;
 
 - (void)setTextureFilter:(id <TextureFilter>)theFilter;
 - (void)setSelectedTextureNames:(NSSet *)theNames;
+
 @end

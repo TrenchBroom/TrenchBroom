@@ -27,6 +27,7 @@
 		4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4818202212FB4746002D9AAD /* SingleTextureView.m */; };
 		481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 481D300F12FAE5C0001CBD9E /* GLFontManager.m */; };
 		4824957B12F3004C004F3615 /* BoundingBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 4824957A12F3004C004F3615 /* BoundingBox.m */; };
+		482B817E13169EB200F36EF5 /* GLException.m in Sources */ = {isa = PBXBuildFile; fileRef = 482B817D13169EB200F36EF5 /* GLException.m */; };
 		48334C42130EC52A004485E1 /* FaceTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48334C41130EC52A004485E1 /* FaceTool.m */; };
 		48334C78130EE514004485E1 /* FaceRotationTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48334C77130EE514004485E1 /* FaceRotationTool.m */; };
 		48334C7F130EE64E004485E1 /* FaceRotationFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48334C7E130EE64E004485E1 /* FaceRotationFigure.m */; };
@@ -168,6 +169,8 @@
 		481D300F12FAE5C0001CBD9E /* GLFontManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFontManager.m; sourceTree = "<group>"; };
 		4824957912F3004C004F3615 /* BoundingBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundingBox.h; sourceTree = "<group>"; };
 		4824957A12F3004C004F3615 /* BoundingBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundingBox.m; sourceTree = "<group>"; };
+		482B817C13169EB200F36EF5 /* GLException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLException.h; sourceTree = "<group>"; };
+		482B817D13169EB200F36EF5 /* GLException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLException.m; sourceTree = "<group>"; };
 		48334C40130EC52A004485E1 /* FaceTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceTool.h; sourceTree = "<group>"; };
 		48334C41130EC52A004485E1 /* FaceTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceTool.m; sourceTree = "<group>"; };
 		48334C76130EE514004485E1 /* FaceRotationTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceRotationTool.h; sourceTree = "<group>"; };
@@ -691,6 +694,8 @@
 				48E4006C13159E7E004642CD /* TextureNameFilter.m */,
 				48E400AD1315A7DA004642CD /* TextureUsageFilter.h */,
 				48E400AE1315A7DA004642CD /* TextureUsageFilter.m */,
+				482B817C13169EB200F36EF5 /* GLException.h */,
+				482B817D13169EB200F36EF5 /* GLException.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -969,6 +974,7 @@
 				48334C7F130EE64E004485E1 /* FaceRotationFigure.m in Sources */,
 				48E4006D13159E7E004642CD /* TextureNameFilter.m in Sources */,
 				48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */,
+				482B817E13169EB200F36EF5 /* GLException.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

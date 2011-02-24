@@ -28,8 +28,10 @@
 
 - (void)render {
     [glFont activate];
+    [memBlock activate];
     glInterleavedArrays(GL_T2F_V3F, 0, NULL);
-    glDrawArrays(GL_QUADS, [memBlock address], [memBlock capacity] / (5 * sizeof(float)));
+    glDrawArrays(GL_QUADS, [memBlock address] / (5 * sizeof(float)), [memBlock capacity] / (5 * sizeof(float)));
+    [memBlock deactivate];
     [glFont deactivate];
 }
 

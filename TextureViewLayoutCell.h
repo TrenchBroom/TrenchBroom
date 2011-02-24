@@ -13,16 +13,15 @@
 @interface TextureViewLayoutCell : NSObject {
     @private
     Texture* texture;
+    NSRect textureRect;
     NSRect cellRect;
     NSRect nameRect;
 }
 
 - (id)initAt:(NSPoint)location texture:(Texture *)theTexture nameSize:(NSSize)theNameSize;
 
-- (float)textureWidth;
-- (float)textureHeight;
-
 - (NSRect)cellRect;
+- (NSRect)textureRect;
 - (NSRect)nameRect;
 
 - (BOOL)contains:(NSPoint)point;

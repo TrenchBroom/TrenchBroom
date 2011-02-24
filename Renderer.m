@@ -320,7 +320,8 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)updateView:(NSRect)bounds {
-    float fov = [camera fieldOfVision];
+    // float fov = [camera fieldOfVision];
+    float fov = atan(tan(90 * M_PI / 360) * 0.75 * bounds.size.width / bounds.size.height) * 360 / M_PI;
     float aspect = bounds.size.width / bounds.size.height;
     float near = [camera nearClippingPlane];
     float far = [camera farClippingPlane];

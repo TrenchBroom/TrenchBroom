@@ -33,16 +33,11 @@
 - (void)mouseDown:(NSEvent *)theEvent {
     NSPoint clickPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 
-    NSRect bounds = [[self superview] bounds];
-    clickPoint.x += bounds.origin.x;
-    clickPoint.y += bounds.origin.y;
-    
-    NSLog(@"click: %f, %f", clickPoint.x, clickPoint.y);
-    
     Texture* texture = [layout textureAt:clickPoint];
     if (texture != nil)
-        NSLog(@"%@", [texture name]);
+        [target textureSelected:texture];
 }
+
 
 - (void)drawRect:(NSRect)dirtyRect {
     NSRect visibleRect = [self visibleRect];
@@ -68,35 +63,35 @@
     glPolygonMode(GL_FRONT, GL_FILL);
     
     NSArray* rows = [layout rowsInY:NSMinY(visibleRect) height:NSHeight(visibleRect)];
-//    NSArray* rows = [layout rows];
     NSEnumerator* rowEn = [rows objectEnumerator];
     TextureViewLayoutRow* row;
     
     NSSet* usedTextureNames = [map textureNames];
+    NSFont* font = [NSFont systemFontOfSize:12];
+    GLFont* glFont = [fontManager glFontFor:font];
     
     while ((row = [rowEn nextObject])) {
-        float y = [row y];
-        
         NSArray* cells = [row cells];
         NSEnumerator* cellEn = [cells objectEnumerator];
         TextureViewLayoutCell* cell;
         while ((cell = [cellEn nextObject])) {
-            float x = [cell cellRect].origin.x;
-            float x2 = x + [cell textureWidth];
-            float y2 = y + [cell textureHeight];
+            float tx = [cell textureRect].origin.x;
+            float ty = [cell textureRect].origin.y;
+            float tx2 = tx + [cell textureRect].size.width;
+            float ty2 = ty + [cell textureRect].size.height;
             
             Texture* texture = [cell texture];
             [texture activate];
             
             glBegin(GL_QUADS);
             glTexCoord2f(0, 0);
-            glVertex3f(x, y, 0);
+            glVertex3f(tx, ty, 0);
             glTexCoord2f(0, 1);
-            glVertex3f(x, y2, 0);
+            glVertex3f(tx, ty2, 0);
             glTexCoord2f(1, 1);
-            glVertex3f(x2, y2, 0);
+            glVertex3f(tx2, ty2, 0);
             glTexCoord2f(1, 0);
-            glVertex3f(x2, y, 0);
+            glVertex3f(tx2, ty, 0);
             glEnd();
             
             [texture deactivate];
@@ -104,62 +99,37 @@
             if (selectedTextureNames != nil && [selectedTextureNames containsObject:[texture name]]) {
                 glColor4f(0.6, 0, 0, 1);
                 glBegin(GL_LINE_LOOP);
-                glVertex3f(x - 1, y - 1, 0);
-                glVertex3f(x - 1, y2 + 1, 0);
-                glVertex3f(x2 + 1, y2 + 1, 0);
-                glVertex3f(x2 + 1, y - 1, 0);
+                glVertex3f(tx - 0.5, ty - 0.5, 0);
+                glVertex3f(tx - 0.5, ty2 + 0.5, 0);
+                glVertex3f(tx2 + 0.5, ty2 + 0.5, 0);
+                glVertex3f(tx2 + 0.5, ty - 0.5, 0);
                 glEnd();
             } else if ([usedTextureNames containsObject:[texture name]]) {
-                glColor4f(0, 0, 0.6, 1);
+                glColor4f(0.6, 0.6, 0, 1);
                 glBegin(GL_LINE_LOOP);
-                glVertex3f(x - 1, y - 1, 0);
-                glVertex3f(x - 1, y2 + 1, 0);
-                glVertex3f(x2 + 1, y2 + 1, 0);
-                glVertex3f(x2 + 1, y - 1, 0);
+                glVertex3f(tx - 0.5, ty - 0.5, 0);
+                glVertex3f(tx - 0.5, ty2 + 0.5, 0);
+                glVertex3f(tx2 + 0.5, ty2 + 0.5, 0);
+                glVertex3f(tx2 + 0.5, ty - 0.5, 0);
                 glEnd();
-            } else {
-                glColor4f(1, 1, 1, 1);
             }
             
-            NSFont* font = [NSFont systemFontOfSize:12];
-            GLFont* glFont = [fontManager glFontFor:font];
-
+            glColor4f(1, 1, 1, 1);
+            float nx = [cell nameRect].origin.x;
+            float ny = [cell nameRect].origin.y;
+            
             GLString* glString = [glStrings objectForKey:[texture name]];
             if (glString == nil) {
                 glString = [glFont glStringFor:[texture name]];
                 [glStrings setObject:glString forKey:[texture name]];
             }
-
-            glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
-            glTranslatef([cell nameRect].origin.x, [cell nameRect].origin.y, 0);
+            glTranslatef(nx, ny, 0);
             [glString render];
             glPopMatrix();
         }
     }
 
-    /*
-    NSFont* font = [NSFont systemFontOfSize:12];
-    GLFont* glFont = [fontManager glFontFor:font];
-    GLString* glString = [glFont glStringFor:@"asdf"];
-    
-    glTranslatef(100, 100, 0);
-    glColor4f(1, 0, 0, 1);
-    
-    [glString render];
-    [glString dispose];
-    
-    NSFont* font = [NSFont systemFontOfSize:12];
-    GLFont* glFont = [[GLFont alloc] initWithFont:font];
-
-    glTranslatef(100, 100, 0);
-    glColor4f(1, 0, 0, 1);
-
-    [glFont renderString:@"ASDF"];
-    
-    [glFont release];
-    */
-     
     [[self openGLContext] flushBuffer];
 }
 

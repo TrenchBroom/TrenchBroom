@@ -14,7 +14,6 @@
 @interface GLFontManager : NSObject {
     @private
     NSMutableDictionary* fonts;
-    VBOBuffer* stringVBO;
 }
 
 - (GLFont *)glFontFor:(NSFont *)theFont;

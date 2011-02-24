@@ -14,6 +14,7 @@
 @class SingleTextureView;
 @class GLFontManager;
 @class Map;
+@class Texture;
 
 @interface InspectorController : NSWindowController {
     IBOutlet NSTextField* xOffsetField;
@@ -42,4 +43,6 @@
 - (IBAction)rotationTextChanged:(id)sender;
 - (IBAction)textureNameFilterTextChanged:(id)sender;
 - (IBAction)textureUsageFilterChanged:(id)sender;
+
+- (void)textureSelected:(Texture *)texture;
 @end

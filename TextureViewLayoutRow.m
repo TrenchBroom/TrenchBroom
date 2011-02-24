@@ -30,9 +30,9 @@
     if ([cells count] == 0)
         x = outerMargin;
     else
-        x = [[cells lastObject] cellRect].origin.x + [[cells lastObject] textureWidth] + innerMargin;
+        x = [[cells lastObject] cellRect].origin.x + [[cells lastObject] cellRect].size.width + innerMargin;
     
-    if (x + [texture width] + outerMargin > width)
+    if (x + fmax([texture width], nameSize.width) + outerMargin > width)
         return NO;
     
     TextureViewLayoutCell* cell = [[TextureViewLayoutCell alloc] initAt:NSMakePoint(x, y) texture:texture nameSize:nameSize];

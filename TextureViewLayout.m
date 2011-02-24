@@ -18,6 +18,8 @@
     if (self = [super init]) {
         rows = [[NSMutableArray alloc] init];
         textures = [[NSMutableArray alloc] init];
+        nameSizeCapacity = 64;
+        nameSizes = malloc(64 * sizeof(NSSize));
     }
     
     return self;
@@ -37,19 +39,45 @@
     return self;
 }
 
+- (void)resizeNameSizesToMinCapacity:(int)newMinCapacity {
+    
+    int newCapacity = nameSizeCapacity;
+    while (newCapacity < newMinCapacity)
+        newCapacity *= 2;
+    NSSize* newSizes = malloc(newCapacity * sizeof(NSSize));
+    memcpy(newSizes, nameSizes, nameSizeCapacity * sizeof(NSSize));
+    free(nameSizes);
+    nameSizes = newSizes;
+    nameSizeCapacity = newCapacity;
+}
+
 - (void)addTexture:(Texture *)theTexture {
     if (theTexture == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture must not be nil"];
     
+    if ([textures count] >= nameSizeCapacity)
+        [self resizeNameSizesToMinCapacity:[textures count]];
+    
     [textures addObject:theTexture];
+    nameSizes[[textures count]] = [font sizeOfString:[theTexture name]];
+
     [self layout];
 }
 
 - (void)addTextures:(NSArray *)theTextures {
     if (textures == nil)
         [NSException raise:NSInvalidArgumentException format:@"textures must not be nil"];
-    
-    [textures addObjectsFromArray:theTextures];
+
+    if ([textures count] + [theTextures count] >= nameSizeCapacity)
+        [self resizeNameSizesToMinCapacity:[textures count] + [theTextures count]];
+
+    NSEnumerator* textureEn = [theTextures objectEnumerator];
+    Texture* texture;
+    while ((texture = [textureEn nextObject])) {
+        nameSizes[[textures count]] = [font sizeOfString:[texture name]];
+        [textures addObject:texture];
+    }
+
     [self layout];
 }
 
@@ -71,18 +99,19 @@
     
     NSEnumerator* texEn = [textures objectEnumerator];
     Texture* texture;
+    int i = 0;
     while ((texture = [texEn nextObject])) {
         if (filter == nil || [filter passes:texture]) {
-            NSSize nameSize = [font sizeOfString:[texture name]];
             TextureViewLayoutRow* row = [rows lastObject];
-            if (row == nil || ![row addTexture:texture nameSize:nameSize]) {
+            if (row == nil || ![row addTexture:texture nameSize:nameSizes[i]]) {
                 float y = row == nil ? outerMargin : [row y] + [row height] + innerMargin;
                 row = [[TextureViewLayoutRow alloc] initAtY:y width:width innerMargin:innerMargin outerMargin:outerMargin];
-                [row addTexture:texture nameSize:nameSize];
+                [row addTexture:texture nameSize:nameSizes[i]];
                 [rows addObject:row];
                 [row release];
             }
         }
+        i++;
     }
 }
 
@@ -135,6 +164,7 @@
 - (void)dealloc {
     [filter release];
     [textures release];
+    free(nameSizes);
     [rows release];
     [font release];
     [super dealloc];

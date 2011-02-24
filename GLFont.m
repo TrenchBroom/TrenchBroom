@@ -14,11 +14,9 @@
 
 @implementation GLFont
 
-- (id)initWithFont:(NSFont *)theFont stringVBO:(VBOBuffer *)theStringVBO {
+- (id)initWithFont:(NSFont *)theFont {
     if (theFont == nil)
         [NSException raise:NSInvalidArgumentException format:@"font must not be nil"];
-    if (theStringVBO == nil)
-        [NSException raise:NSInvalidArgumentException format:@"string VBO must not be nil"];
     
     if (self = [super init]) {
         // see "Calculating Text Height" in help
@@ -40,6 +38,8 @@
         
         [layoutManager addTextContainer:textContainer];
         [textStorage addLayoutManager:layoutManager];
+        
+        [textContainer setLineFragmentPadding:0];
         
         float width = 32;
         float height;
@@ -79,12 +79,6 @@
         [image unlockFocus];
         [context restoreGraphicsState];
 
-        NSBitmapImageRep* grayscale= [bitmap bitmapImageRepByConvertingToColorSpace:[NSColorSpace genericGrayColorSpace] renderingIntent:NSColorRenderingIntentDefault];
-        NSLog(@"bitmap: %i, grayscale: %i", [bitmap bitsPerPixel], [grayscale bitsPerPixel]);
-        
-        NSData *data = [grayscale representationUsingType: NSPNGFileType properties: nil];
-        [data writeToFile: @"/test.png" atomically: NO];
-
         glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT);
         glEnable(GL_TEXTURE_2D);
         glGenTextures(1, &texId);
@@ -112,7 +106,8 @@
         
         [attrCharString release];
         [textContainer setContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
-        stringVBO = [theStringVBO retain];
+        
+        vbos = [[NSMutableArray alloc] init];
     }    
     
     return self;
@@ -121,16 +116,23 @@
 - (GLString *)glStringFor:(NSString *)theString {
     if (theString == nil || [theString length] == 0)
         [NSException raise:NSInvalidArgumentException format:@"string must not be nil or empty"];
-
+    
     int capacity = 4 * 5 * [theString length] * sizeof(float);
-    VBOMemBlock* memBlock = [stringVBO allocMemBlock:capacity];
+    VBOBuffer* vbo = [vbos lastObject];
+    if (vbo == nil || capacity > [vbo freeCapacity]) {
+        vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
+        [vbos addObject:vbo];
+        [vbo release];
+    }
+    
+    VBOMemBlock* memBlock = [vbo allocMemBlock:capacity];
     
     NSAttributedString* attrString = [[NSAttributedString alloc] initWithString:theString];
     [textStorage setAttributedString:attrString];
     [attrString release];
     
-    [stringVBO activate];
-    [stringVBO mapBuffer];
+    [vbo activate];
+    [vbo mapBuffer];
     [layoutManager ensureLayoutForTextContainer:textContainer];
     int offset = 0;
     for (int i = 0; i < [theString length]; i++) {
@@ -142,8 +144,8 @@
         GLFontChar* gc = [chars objectAtIndex:c - 32];
         offset = [gc renderAt:position intoVBO:memBlock offset:offset];
     }
-    [stringVBO unmapBuffer];
-    [stringVBO deactivate];
+    [vbo unmapBuffer];
+    [vbo deactivate];
     
     return [[[GLString alloc] initWithMemBlock:memBlock glFont:self] autorelease];
 }
@@ -169,30 +171,31 @@
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-    
-    [stringVBO activate];
 }
 
 - (void)deactivate {
     glBindTexture(GL_TEXTURE_2D, 0);
     glPopAttrib();
-    [stringVBO deactivate];
 }
 
-
-         
 - (void)dispose {
     if (texId != 0) {
         glDeleteTextures(1, &texId);
         texId = 0;
     }
+
+    NSEnumerator* vboEn = [vbos objectEnumerator];
+    VBOBuffer* vbo;
+    while ((vbo = [vboEn nextObject]))
+        [vbo dispose];
+    
 }
 
 - (void)dealloc {
     [textStorage release];
     [textContainer release];
     [layoutManager release];
-    [stringVBO release];
+    [vbos release];
     [super dealloc];
 }
 
