@@ -11,21 +11,17 @@
 
 @implementation TextureViewLayoutCell
 
-- (id)initAtX:(float)xPos texture:(Texture *)theTexture nameSize:(NSSize)theNameSize {
+- (id)initAt:(NSPoint)location texture:(Texture *)theTexture nameSize:(NSSize)theNameSize {
     if (theTexture == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture must not be nil"];
     
     if (self = [self init]) {
-        x = xPos;
         texture = [theTexture retain];
-        cellSize = NSMakeSize(fmax([texture width], theNameSize.width), [texture height] + theNameSize.height + 2);
+        cellRect = NSMakeRect(location.x, location.y, fmax([texture width], theNameSize.width), [texture height] + theNameSize.height + 2);
+        nameRect = NSMakeRect(location.x + (cellRect.size.width - theNameSize.width) / 2, location.y + [texture height] + 1, theNameSize.width, theNameSize.height);
     }
     
     return self;
-}
-
-- (float)x {
-    return x;
 }
 
 - (float)textureWidth {
@@ -36,8 +32,19 @@
     return [texture height];
 }
 
-- (NSSize)cellSize {
-    return cellSize;
+- (NSRect)cellRect {
+    return cellRect;
+}
+
+- (NSRect)nameRect {
+    return nameRect;
+}
+
+- (BOOL)contains:(NSPoint)point {
+    return point.x >= cellRect.origin.x && 
+           point.x <= cellRect.origin.x + cellRect.size.width && 
+           point.y >= cellRect.origin.y && 
+           point.y <= cellRect.origin.y + cellRect.size.height;
 }
 
 - (Texture *)texture {

@@ -10,6 +10,7 @@
 #import "TextureFilter.h"
 
 @class Texture;
+@class GLFont;
 
 @interface TextureViewLayout : NSObject {
     @private
@@ -19,9 +20,10 @@
     float innerMargin;
     float outerMargin;
     id<TextureFilter> filter;
+    GLFont* font;
 }
 
-- (id)initWithWidth:(float)theWidth innerMargin:(float)theInnerMargin outerMargin:(float)theOuterMargin;
+- (id)initWithWidth:(float)theWidth innerMargin:(float)theInnerMargin outerMargin:(float)theOuterMargin font:(GLFont *)theFont;
 
 - (void)addTexture:(Texture *)theTexture;
 - (void)addTextures:(NSArray *)theTextures;
@@ -34,6 +36,7 @@
 - (float)height;
 - (NSArray *)rows;
 - (NSArray *)rowsInY:(float)y height:(float)height;
+- (Texture *)textureAt:(NSPoint)location;
 
 - (void)setTextureFilter:(id <TextureFilter>)theFilter;
 

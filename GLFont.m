@@ -148,6 +148,18 @@
     return [[[GLString alloc] initWithMemBlock:memBlock glFont:self] autorelease];
 }
 
+- (NSSize)sizeOfString:(NSString *)theString {
+    NSAttributedString* attrString = [[NSAttributedString alloc] initWithString:theString];
+    [textStorage setAttributedString:attrString];
+    [attrString release];
+    [layoutManager ensureLayoutForTextContainer:textContainer];
+    
+    NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [theString length]) actualCharacterRange:NULL];
+    NSRect bounds = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textContainer];
+    
+    return bounds.size;
+}
+
 - (void)activate {
     glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_COLOR_BUFFER_BIT);
     glEnable(GL_TEXTURE_2D);

@@ -15,6 +15,7 @@
 #import "TextureNameFilter.h"
 #import "TextureUsageFilter.h"
 #import "Map.h"
+#import "Brush.h"
 #import "Face.h"
 
 static InspectorController* sharedInstance = nil;
@@ -64,15 +65,27 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (void)updateTextureControls {
-    if ([selectionManager mode] == SM_FACES && [[selectionManager selectedFaces] count] > 0) {
+    NSMutableSet* selectedTextureNames = nil;
+    NSMutableSet* selectedFaces = [[NSMutableSet alloc] initWithSet:[selectionManager selectedFaces]];
+    NSSet* selectedBrushes = [selectionManager selectedBrushes];
+    
+    if ([selectedBrushes count] > 0) {
+        NSEnumerator* brushEn = [selectedBrushes objectEnumerator];
+        Brush* brush;
+        while ((brush = [brushEn nextObject]))
+            [selectedFaces addObjectsFromArray:[brush faces]];
+    }
+    
+    if ([selectedFaces count] > 0) {
+        selectedTextureNames = [[NSMutableSet alloc] init];
+
         [xOffsetField setEnabled:YES];
         [yOffsetField setEnabled:YES];
         [xScaleField setEnabled:YES];
         [yScaleField setEnabled:YES];
         [rotationField setEnabled:YES];
         
-        NSSet* faces = [selectionManager selectedFaces];
-        NSEnumerator* faceEn = [faces objectEnumerator];
+        NSEnumerator* faceEn = [selectedFaces objectEnumerator];
         Face* face = [faceEn nextObject];
         
         int xOffset = [face xOffset];
@@ -81,6 +94,8 @@ static InspectorController* sharedInstance = nil;
         float yScale = [face yScale];
         float rotation = [face rotation];
         NSString* textureName = [face texture];
+        
+        [selectedTextureNames addObject:textureName];
         
         BOOL xOffsetMultiple = NO;
         BOOL yOffsetMultiple = NO;
@@ -96,6 +111,7 @@ static InspectorController* sharedInstance = nil;
             yScaleMultiple   |= yScale   != [face yScale];
             rotationMultiple |= rotation != [face rotation];
             textureMultiple  |= ![textureName isEqualToString:[face texture]];
+            [selectedTextureNames addObject:[face texture]];
         }
         
         if (xOffsetMultiple) {
@@ -165,6 +181,10 @@ static InspectorController* sharedInstance = nil;
         [textureNameField setStringValue:@""];
         [singleTextureView setTexture:nil];
     }
+    
+    [textureView setSelectedTextureNames:selectedTextureNames];
+    [selectedTextureNames release];
+    [selectedFaces release];
 }
 
 - (void)faceFlagsChanged:(NSNotification *)notification {

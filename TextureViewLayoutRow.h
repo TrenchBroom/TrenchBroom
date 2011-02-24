@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class Texture;
+@class TextureViewLayoutCell;
 
 @interface TextureViewLayoutRow : NSObject {
     @private
@@ -26,4 +27,7 @@
 
 - (float)y;
 - (float)height;
+
+- (BOOL)containsY:(float)yCoord;
+- (TextureViewLayoutCell *)cellAt:(NSPoint)location;
 @end

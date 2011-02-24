@@ -22,13 +22,26 @@
 
 @implementation TextureView
 
-- (void)awakeFromNib {
-    [super awakeFromNib];
-    layout = [[TextureViewLayout alloc] initWithWidth:[self bounds].size.width innerMargin:10 outerMargin:5];
-}
-
 - (BOOL)isFlipped {
     return YES;
+}
+
+- (BOOL)acceptsFirstResponder {
+    return YES;
+}
+
+- (void)mouseDown:(NSEvent *)theEvent {
+    NSPoint clickPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+
+    NSRect bounds = [[self superview] bounds];
+    clickPoint.x += bounds.origin.x;
+    clickPoint.y += bounds.origin.y;
+    
+    NSLog(@"click: %f, %f", clickPoint.x, clickPoint.y);
+    
+    Texture* texture = [layout textureAt:clickPoint];
+    if (texture != nil)
+        NSLog(@"%@", [texture name]);
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
@@ -68,7 +81,7 @@
         NSEnumerator* cellEn = [cells objectEnumerator];
         TextureViewLayoutCell* cell;
         while ((cell = [cellEn nextObject])) {
-            float x = [cell x];
+            float x = [cell cellRect].origin.x;
             float x2 = x + [cell textureWidth];
             float y2 = y + [cell textureHeight];
             
@@ -88,15 +101,40 @@
             
             [texture deactivate];
             
-            if ([usedTextureNames containsObject:[texture name]]) {
-                glColor4f(1, 0, 0, 1);
+            if (selectedTextureNames != nil && [selectedTextureNames containsObject:[texture name]]) {
+                glColor4f(0.6, 0, 0, 1);
                 glBegin(GL_LINE_LOOP);
                 glVertex3f(x - 1, y - 1, 0);
                 glVertex3f(x - 1, y2 + 1, 0);
                 glVertex3f(x2 + 1, y2 + 1, 0);
                 glVertex3f(x2 + 1, y - 1, 0);
                 glEnd();
+            } else if ([usedTextureNames containsObject:[texture name]]) {
+                glColor4f(0, 0, 0.6, 1);
+                glBegin(GL_LINE_LOOP);
+                glVertex3f(x - 1, y - 1, 0);
+                glVertex3f(x - 1, y2 + 1, 0);
+                glVertex3f(x2 + 1, y2 + 1, 0);
+                glVertex3f(x2 + 1, y - 1, 0);
+                glEnd();
+            } else {
+                glColor4f(1, 1, 1, 1);
             }
+            
+            NSFont* font = [NSFont systemFontOfSize:12];
+            GLFont* glFont = [fontManager glFontFor:font];
+
+            GLString* glString = [glStrings objectForKey:[texture name]];
+            if (glString == nil) {
+                glString = [glFont glStringFor:[texture name]];
+                [glStrings setObject:glString forKey:[texture name]];
+            }
+
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+            glTranslatef([cell nameRect].origin.x, [cell nameRect].origin.y, 0);
+            [glString render];
+            glPopMatrix();
         }
     }
 
@@ -158,8 +196,22 @@
     
     [map release];
     map = [theMap retain];
+
+    if (glStrings != nil) {
+        NSEnumerator* stringEn = [glStrings objectEnumerator];
+        GLString* string;
+        while ((string = [stringEn nextObject]))
+            [string dispose];
+        [glStrings release];
+    }
+    glStrings = [[NSMutableDictionary alloc] init];
     
-    [layout clear];
+    [layout release];
+    
+    NSFont* font = [NSFont systemFontOfSize:12];
+    GLFont* glFont = [fontManager glFontFor:font];
+    
+    layout = [[TextureViewLayout alloc] initWithWidth:[self bounds].size.width innerMargin:10 outerMargin:5 font:glFont];
     [layout addTextures:[textureManager textures]];
     
     [self setNeedsDisplay:YES];
@@ -171,11 +223,26 @@
     [self setNeedsDisplay:YES];
 }
 
+- (void)setSelectedTextureNames:(NSSet *)theNames {
+    [selectedTextureNames release];
+    selectedTextureNames = [theNames retain];
+    [self setNeedsDisplay:YES];
+}
+
 - (void)dealloc {
+    if (glStrings != nil) {
+        NSEnumerator* stringEn = [glStrings objectEnumerator];
+        GLString* string;
+        while ((string = [stringEn nextObject]))
+            [string dispose];
+        [glStrings release];
+    }
+
     [layout release];
     [textureManager release];
     [fontManager release];
     [map release];
+    [selectedTextureNames release];
     [super dealloc];
 }
 

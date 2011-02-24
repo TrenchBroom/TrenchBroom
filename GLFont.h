@@ -25,6 +25,7 @@
 - (id)initWithFont:(NSFont *)theFont stringVBO:(VBOBuffer *)theStringVBO;
 
 - (GLString *)glStringFor:(NSString *)theString;
+- (NSSize)sizeOfString:(NSString *)theString;
 
 - (void)activate;
 - (void)deactivate;
