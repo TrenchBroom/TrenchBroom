@@ -21,5 +21,4 @@
 - (id)initWithMemBlock:(VBOMemBlock *)theMemBlock glFont:(GLFont *)theFont;
 
 - (void)render;
-- (void)dispose;
 @end

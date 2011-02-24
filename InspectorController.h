@@ -8,12 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class SelectionManager;
-@class TextureManager;
+@class MapWindowController;
 @class TextureView;
 @class SingleTextureView;
-@class GLFontManager;
-@class Map;
 @class Texture;
 
 @interface InspectorController : NSWindowController {
@@ -27,15 +24,13 @@
     IBOutlet NSSegmentedControl* textureUsageFilterSC;
     IBOutlet SingleTextureView* singleTextureView;
     IBOutlet TextureView* textureView;
-    Map* map;
-    SelectionManager* selectionManager;
-    TextureManager* textureManager;
-    GLFontManager* fontManager;
+    MapWindowController* mapWindowController;
 }
 
 + (InspectorController *)sharedInspector;
 
-- (void)switchToContext:(NSOpenGLContext *)sharedContext selectionManager:(SelectionManager *)theSelectionManager textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager map:(Map *)theMap;
+- (void)setMapWindowController:(MapWindowController *)theMapWindowController;
+
 - (IBAction)xOffsetTextChanged:(id)sender;
 - (IBAction)yOffsetTextChanged:(id)sender;
 - (IBAction)xScaleTextChanged:(id)sender;

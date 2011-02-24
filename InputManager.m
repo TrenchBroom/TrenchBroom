@@ -19,20 +19,18 @@
 #import "Brush.h"
 #import "Vector3i.h"
 #import "MapWindowController.h"
+#import "MapDocument.h"
 #import "ToolManager.h"
 #import "FaceOffsetTool.h"
 
 @implementation InputManager
-- (id)initWithPicker:(Picker *)thePicker selectionManager:(SelectionManager *)theSelectionManager toolManager:(ToolManager *)theToolManager {
-    if (thePicker == nil)
-        [NSException raise:NSInvalidArgumentException format:@"picker must not be nil"];
-    if (theSelectionManager == nil)
-        [NSException raise:NSInvalidArgumentException format:@"selection manager must not be nil"];
+- (id)initWithWindowController:(MapWindowController *)theWindowController {
+    if (theWindowController == nil)
+        [NSException raise:NSInvalidArgumentException format:@"window controller must not be nil"];
     
     if (self = [self init]) {
-        picker = [thePicker retain];
-        selectionManager = [theSelectionManager retain];
-        toolManager = [theToolManager retain];
+        windowController = [theWindowController retain];
+        toolManager = [[ToolManager alloc] initWithWindowController:windowController];
     }
     
     return self;
@@ -47,8 +45,7 @@
 }
 
 - (void)handleKeyDown:(NSEvent *)event sender:(id)sender {
-    MapView3D* mapView3D = (MapView3D *)sender;
-    Camera* camera = [[[mapView3D window] windowController] camera];
+    Camera* camera = [windowController camera];
 
     switch ([event keyCode]) {
         case 0: // a
@@ -74,7 +71,7 @@
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender {
     MapView3D* mapView3D = (MapView3D *)sender;
     if ([self isCameraModifierPressed:event]) {
-        Camera* camera = [[[mapView3D window] windowController] camera];
+        Camera* camera = [windowController camera];
         
         if ([self isCameraOrbitModifierPressed:event]) {
             if (lastHit != nil) {
@@ -88,7 +85,7 @@
             [camera rotateYaw:yaw pitch:pitch];
         }
     } else if ([toolManager dragActive]) {
-        Camera* camera = [[[mapView3D window] windowController] camera];
+        Camera* camera = [windowController camera];
         
         NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
         Ray3D* ray = [camera pickRayX:m.x y:m.y];
@@ -102,13 +99,15 @@
 - (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender {
     MapView3D* mapView3D = (MapView3D *)sender;
     [[mapView3D openGLContext] makeCurrentContext];
-    Camera* camera = [[[mapView3D window] windowController] camera];
+    Camera* camera = [windowController camera];
     
     NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
     Ray3D* ray = [camera pickRayX:m.x y:m.y];
     
     if (![toolManager startDrag:ray]) {
+        Picker* picker = [[windowController document] picker];
         [lastHit release];
+        
         NSArray* hits = [picker objectsHitByRay:ray];
         if ([hits count] > 0)
             lastHit = [[hits objectAtIndex:0] retain];
@@ -116,6 +115,7 @@
             lastHit = nil;
         
         if (![self isCameraModifierPressed:event]) {
+            SelectionManager* selectionManager = [windowController selectionManager];
             if (lastHit != nil) {
                 Face* face = [lastHit object];
                 Brush* brush = [face brush];
@@ -161,7 +161,7 @@
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
     if ([toolManager dragActive]) {
         MapView3D* mapView3D = (MapView3D *)sender;
-        Camera* camera = [[[mapView3D window] windowController] camera];
+        Camera* camera = [windowController camera];
         
         NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
         Ray3D* ray = [camera pickRayX:m.x y:m.y];
@@ -170,18 +170,15 @@
 }
 
 - (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender {
-    MapView3D* mapView3D = (MapView3D *)sender;
     if ([self isCameraModifierPressed:event]) {
-        Camera* camera = [[[mapView3D window] windowController] camera];
+        Camera* camera = [windowController camera];
         [camera moveForward:0 right:6 * [event deltaX] up:-6 * [event deltaY]];
     }
 }
 
 - (void)handleScrollWheel:(NSEvent *)event sender:(id)sender {
-    MapView3D* mapView3D = (MapView3D *)sender;
-    
     if ([self isCameraModifierPressed:event]) {
-        Camera* camera = [[[mapView3D window] windowController] camera];
+        Camera* camera = [windowController camera];
         if (gesture)
             [camera moveForward:6 * [event deltaZ] right:-6 * [event deltaX] up:6 * [event deltaY]];
         else
@@ -198,19 +195,16 @@
 }
 
 - (void)handleMagnify:(NSEvent *)event sender:(id)sender {
-    MapView3D* mapView3D = (MapView3D *)sender;
-    
     if ([self isCameraModifierPressed:event]) {
-        Camera* camera = [[[mapView3D window] windowController] camera];
+        Camera* camera = [windowController camera];
         [camera moveForward:160 * [event magnification] right:0 up:0];
     }
 }
 
 - (void)dealloc {
-    [toolManager release];
-    [selectionManager release];
     [lastHit release];
-    [picker release];
+    [toolManager release];
+    [windowController release];
     [super dealloc];
 }
 

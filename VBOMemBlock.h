@@ -50,5 +50,5 @@ typedef enum {
 - (void)setPrevious:(VBOMemBlock *)memBlock;
 - (void)setNext:(VBOMemBlock *)memBlock;
 
-- (void)dispose;
+- (void)free;
 @end

@@ -9,25 +9,20 @@
 #import <Cocoa/Cocoa.h>
 #import "TextureFilter.h"
 
-@class TextureManager;
 @class TextureViewLayout;
-@class GLFontManager;
-@class Map;
+@class GLResources;
 
 @interface TextureView : NSOpenGLView {
     @private
-    TextureManager* textureManager;
     TextureViewLayout* layout;
-    GLFontManager* fontManager;
-    Map* map;
     NSSet* selectedTextureNames;
     NSMutableDictionary* glStrings;
     IBOutlet id target;
+    GLResources* glResources;
 }
-
-- (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager map:(Map *)theMap;
 
 - (void)setTextureFilter:(id <TextureFilter>)theFilter;
 - (void)setSelectedTextureNames:(NSSet *)theNames;
+- (void)setGLResources:(GLResources *)theGLResources;
 
 @end

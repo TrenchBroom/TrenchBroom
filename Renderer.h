@@ -11,33 +11,21 @@
 
 extern NSString* const RendererChanged;
 
-@class Map;
-@class VBOBuffer;
 @class RenderContext;
-@class SelectionManager;
-@class ToolManager;
-@class Camera;
+@class MapWindowController;
 
 @interface Renderer : Observable {
     @private
-    Map* map;
-    VBOBuffer* vbo;
+    MapWindowController* windowController;
     NSObject<Layer>* geometryLayer;
     NSObject<Layer>* selectionLayer;
     NSObject<Layer>* toolLayer;
-    SelectionManager* selectionManager;
-    ToolManager* toolManager;
-    Camera* camera;
     NSMutableDictionary* faceFigures;
 }
 
-- (id)initWithMap:(Map *)theMap vbo:(VBOBuffer *)theVbo;
+- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 - (void)render:(RenderContext *)renderContext;
 - (void)updateView:(NSRect)bounds;
-
-- (void)setSelectionManager:(SelectionManager *)theSelectionManager;
-- (void)setToolManager:(ToolManager *)theToolManager;
-- (void)setCamera:(Camera *)theCamera;
 
 @end

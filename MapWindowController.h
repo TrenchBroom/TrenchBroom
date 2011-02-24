@@ -13,26 +13,16 @@
 @class Camera;
 @class TextureManager;
 @class InputManager;
-@class VBOBuffer;
-@class Octree;
-@class Picker;
 @class SelectionManager;
 @class GLFontManager;
 @class SingleTextureView;
-@class ToolManager;
 @class Options;
 
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView3D* view3D;
     Camera* camera;
-    Octree* octree;
-    Picker* picker;
     SelectionManager* selectionManager;
-    ToolManager* toolManager;
-    TextureManager* textureManager;
-    GLFontManager* fontManager;
     InputManager* inputManager;
-    VBOBuffer* vbo;
     Options* options;
 }
 
@@ -57,12 +47,8 @@
 - (IBAction)rotateTextureLeft:(id)sender;
 - (IBAction)rotateTextureRight:(id)sender;
 
-- (VBOBuffer *)vbo;
 - (Camera *)camera;
 - (SelectionManager *)selectionManager;
 - (InputManager *)inputManager;
-- (TextureManager *)textureManager;
-- (ToolManager *)toolManager;
 - (Options *)options;
-
 @end

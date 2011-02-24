@@ -178,20 +178,12 @@
     glPopAttrib();
 }
 
-- (void)dispose {
+- (void)dealloc {
     if (texId != 0) {
         glDeleteTextures(1, &texId);
         texId = 0;
     }
-
-    NSEnumerator* vboEn = [vbos objectEnumerator];
-    VBOBuffer* vbo;
-    while ((vbo = [vboEn nextObject]))
-        [vbo dispose];
     
-}
-
-- (void)dealloc {
     [textStorage release];
     [textContainer release];
     [layoutManager release];

@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class MapDocument;
 @class Octree;
 @class Ray3D;
 
@@ -16,7 +17,7 @@
     Octree* octree;
 }
 
-- (id)initWithOctree:(Octree *)theOctree;
+- (id)initWithDocument:(MapDocument *)theDocument;
 
 - (NSArray *)objectsHitByRay:(Ray3D *)theRay;
 

@@ -42,6 +42,4 @@ extern NSString* const BufferNotMappedException;
 - (VBOMemBlock *)allocMemBlock:(int)capacity;
 - (void)freeMemBlock:(VBOMemBlock *)memBlock;
 
-- (void)dispose;
-
 @end

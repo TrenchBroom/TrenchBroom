@@ -13,12 +13,13 @@
 #import "PickingHit.h"
 
 @implementation Picker
-- (id)initWithOctree:(Octree *)theOctree {
-    if (theOctree == nil)
-        [NSException raise:NSInvalidArgumentException format:@"octree must not be nil"];
+
+- (id)initWithDocument:(MapDocument *)theDocument {
+    if (theDocument == nil)
+        [NSException raise:NSInvalidArgumentException format:@"document must not be nil"];
     
     if (self = [self init]) {
-        octree = [theOctree retain];
+        octree = [[Octree alloc] initWithDocument:theDocument minSize:32];
     }
     
     return self;
@@ -32,8 +33,6 @@
     
     NSMutableSet* objects = [[NSMutableSet alloc] init];
     [octree addObjectsForRay:theRay to:objects];
-    
-    NSLog(@"%i candidates", [objects count]);
     
     NSEnumerator* objectEn = [objects objectEnumerator];
     id object;

@@ -16,6 +16,10 @@
 #import "BrushFactory.h"
 #import "ProgressWindowController.h"
 #import "Options.h"
+#import "Picker.h"
+#import "GLResources.h"
+#import "WadLoader.h"
+#import "TextureManager.h"
 
 @implementation MapDocument
 
@@ -23,6 +27,31 @@
 	MapWindowController* controller = [[MapWindowController alloc] initWithWindowNibName:@"MapDocument"];
 	[self addWindowController:controller];
     [controller release];
+}
+
+- (void)postInit {
+    picker = [[Picker alloc] initWithDocument:self];
+    glResources = [[GLResources alloc] init];
+
+    NSString* wads = [[map worldspawn] propertyForKey:@"wad"];
+    if (wads != nil) {
+        TextureManager* textureManager = [glResources textureManager];
+        NSArray* wadPaths = [wads componentsSeparatedByString:@";"];
+        for (int i = 0; i < [wadPaths count]; i++) {
+            NSString* wadPath = [[wadPaths objectAtIndex:i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            NSFileManager* fileManager = [NSFileManager defaultManager];
+            if ([fileManager fileExistsAtPath:wadPath]) {
+                int slashIndex = [wadPath rangeOfString:@"/" options:NSBackwardsSearch].location;
+                NSString* wadName = [wadPath substringFromIndex:slashIndex + 1];
+                
+                WadLoader* wadLoader = [[WadLoader alloc] init];
+                Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:wadPath] wadName:wadName];
+                [wadLoader release];
+                
+                [textureManager loadTexturesFrom:wad];
+            }
+        }
+    }
 }
 
 - (id)initWithType:(NSString *)typeName error:(NSError **)outError {
@@ -58,6 +87,7 @@
          */
         
         [undoManager enableUndoRegistration];
+        [self postInit];
     }
     
     return self;
@@ -83,9 +113,9 @@
 
     NSUndoManager* undoManager = [self undoManager];
     [map setUndoManager:undoManager];
-    
     [pwc close];
     
+    [self postInit];
     return YES;
 }
 
@@ -93,8 +123,18 @@
     return map;
 }
 
+- (Picker *)picker {
+    return picker;
+}
+
+- (GLResources *)glResources {
+    return glResources;
+}
+
 - (void)dealloc {
     [map release];
+    [picker release];
+    [glResources release];
 	[super dealloc];
 }
 

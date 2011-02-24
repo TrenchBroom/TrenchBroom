@@ -10,11 +10,17 @@
 #import <Cocoa/Cocoa.h>
 
 @class Map;
+@class Picker;
+@class GLResources;
 
 @interface MapDocument : NSDocument {
     Map* map;
+    Picker* picker;
+    GLResources* glResources;
 }
 
 - (Map *)map;
+- (Picker *)picker;
+- (GLResources *)glResources;
 
 @end

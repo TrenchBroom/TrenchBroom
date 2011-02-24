@@ -17,6 +17,4 @@
 }
 
 - (GLFont *)glFontFor:(NSFont *)theFont;
-
-- (void)dispose;
 @end

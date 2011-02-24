@@ -7,6 +7,8 @@
 //
 
 #import "InspectorController.h"
+#import "MapWindowController.h"
+#import "MapDocument.h"
 #import "SelectionManager.h"
 #import "TextureManager.h"
 #import "GLFontManager.h"
@@ -65,9 +67,10 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (void)updateTextureControls {
-    NSMutableSet* selectedTextureNames = nil;
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
     NSSet* selectedFaces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     
+    NSMutableSet* selectedTextureNames = nil;
     if ([selectedFaces count] > 0) {
         selectedTextureNames = [[NSMutableSet alloc] init];
 
@@ -148,6 +151,7 @@ static InspectorController* sharedInstance = nil;
         } else {
             [textureNameField setStringValue:textureName];
             
+            TextureManager* textureManager = [[mapWindowController document] textureManager];
             Texture* texture = [textureManager textureForName:textureName];
             [singleTextureView setTexture:texture];
         }
@@ -224,53 +228,54 @@ static InspectorController* sharedInstance = nil;
     }
 }
 
-- (void)switchToContext:(NSOpenGLContext *)sharedContext selectionManager:(SelectionManager *)theSelectionManager textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager map:(Map *)theMap {
-    if (theSelectionManager == selectionManager && theTextureManager == textureManager && theFontManager = fontManager)
+- (void)setMapWindowController:(MapWindowController *)theMapWindowController {
+    if (mapWindowController == theMapWindowController)
         return;
     
-    if (sharedContext != nil) {
-        NSOpenGLContext* context = [[NSOpenGLContext alloc] initWithFormat:[textureView pixelFormat] shareContext:sharedContext];
-        [singleTextureView setOpenGLContext:context];
-        [context release];
-    }
-
-    [textureManager removeObserver:self];
-    [textureManager release];
-    textureManager = [theTextureManager retain];
-    [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesAdded];
-    [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesRemoved];
-    
-    if (selectionManager != nil) {
-        NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    if (mapWindowController != nil) {
+        TextureManager* textureManager = [[mapWindowController document] textureManager];
+        [textureManager removeObserver:self];
+        
+        SelectionManager* selectionManager = [mapWindowController selectionManager];
+        NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+        NSEnumerator* faceEn = [faces objectEnumerator];
         Face* face;
         while ((face = [faceEn nextObject]))
             [face removeObserver:self];
-
         [selectionManager removeObserver:self];
-        [selectionManager release];
+
+        [mapWindowController release];
+    }
+    
+    mapWindowController = [theMapWindowController retain];
+
+    if (mapWindowController != nil) {
+        NSOpenGLContext* context = [[NSOpenGLContext alloc] initWithFormat:[singleTextureView pixelFormat] shareContext:[mapWindowController glContext]];
+        [singleTextureView setOpenGLContext:context];
+        [context release];
+
+        TextureManager* textureManager = [[mapWindowController document] textureManager];
+        [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesAdded];
+        [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesRemoved];
+
+        SelectionManager* selectionManager = [mapWindowController selectionManager];
+        [selectionManager addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded];
+        [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
     }
 
-    selectionManager = [theSelectionManager retain];
-    [selectionManager addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded];
-    [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
-
-    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    Face* face;
-    while ((face = [faceEn nextObject]))
-        [face addObserver:self selector:@selector(faceFlagsChanged:) name:FaceFlagsChanged];
-
-    [map release];
-    map = [theMap retain];
-    
     [self updateTextureControls];
-    [textureView switchToContext:sharedContext textureManager:textureManager fontManager:theFontManager map:map];
+    [textureView mapChanged];
+}
+
+- (MapWindowController *)mapWindowController {
+    return mapWindowController;
 }
 
 - (void)textureManagerChanged:(NSNotification *)notification {
 }
 
 - (IBAction)xOffsetTextChanged:(id)sender {
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
     int xOffset = [xOffsetField intValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
@@ -280,6 +285,7 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (IBAction)yOffsetTextChanged:(id)sender {
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
     int yOffset = [yOffsetField intValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
@@ -289,6 +295,7 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (IBAction)xScaleTextChanged:(id)sender {
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
     float xScale = [xScaleField floatValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
@@ -298,6 +305,7 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (IBAction)yScaleTextChanged:(id)sender {
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
     float yScale = [yScaleField floatValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
@@ -307,6 +315,7 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (IBAction)rotationTextChanged:(id)sender {
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
     float rotation = [rotationField floatValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
@@ -316,6 +325,7 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (void)textureSelected:(Texture *)texture {
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
@@ -331,6 +341,7 @@ static InspectorController* sharedInstance = nil;
         filter = [[TextureNameFilter alloc] initWithPattern:pattern];
     
     if ([textureUsageFilterSC selectedSegment] == 1) {
+        Map* map = [[mapWindowController document] map];
         id<TextureFilter> temp = [[TextureUsageFilter alloc] initWithTextureNames:[map textureNames] filter:filter];
         [filter release];
         filter = temp;
@@ -349,11 +360,7 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (void)dealloc {
-    [selectionManager removeObserver:self];
-    [textureManager removeObserver:self];
-    [selectionManager release];
-    [textureManager release];
-    [map release];
+    [self setMapWindowController:nil];
     [super dealloc];
 }
 

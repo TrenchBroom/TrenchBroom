@@ -158,9 +158,7 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-- (void)disposeTextures {
-    NSArray* removedTextures = [[NSArray alloc] initWithArray:texturesByName];
-    
+- (void)dealloc {
     GLuint textureIds[[textures count]];
     
     NSEnumerator* texEn = [textures objectEnumerator];
@@ -171,13 +169,7 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
         textureIds[i++] = [texture textureId];
     
     glDeleteTextures([textures count], textureIds);
-    [textures removeAllObjects];
-    [texturesByName removeAllObjects];
-    
-    [self notifyObservers:TexturesRemoved infoObject:removedTextures infoKey:UserInfoTextures];
-}
 
-- (void)dealloc {
     [palette release];
     [textures release];
     [texturesByName release];

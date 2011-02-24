@@ -10,19 +10,18 @@
 
 @class Picker;
 @class PickingHit;
-@class SelectionManager;
+@class MapWindowController;
 @class ToolManager;
 
 @interface InputManager : NSObject {
     @private 
-    Picker* picker;
     PickingHit* lastHit;
-    SelectionManager* selectionManager;
+    MapWindowController* windowController;
     ToolManager* toolManager;
     BOOL gesture;
 }
 
-- (id)initWithPicker:(Picker *)thePicker selectionManager:(SelectionManager *)theSelectionManager toolManager:(ToolManager *)theToolManager;
+- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 - (void)handleKeyDown:(NSEvent *)event sender:(id)sender;
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender;

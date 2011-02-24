@@ -28,6 +28,4 @@
 
 - (void)activate;
 - (void)deactivate;
-
-- (void)dispose;
 @end

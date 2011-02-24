@@ -94,7 +94,7 @@
     next = [memBlock retain];
 }
 
-- (void)dispose {
+- (void)free {
     [vboBuffer freeMemBlock:self];
 }
 

@@ -288,14 +288,12 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     }
 }
 
-- (void)dispose {
+- (void)dealloc {
     [self unmapBuffer];
     [self deactivate];
     if (vboId != 0)
         glDeleteBuffers(1, &vboId);
-}
 
-- (void)dealloc {
     [freeBlocksByCapacity release];
     [firstBlock release];
     [super dealloc];

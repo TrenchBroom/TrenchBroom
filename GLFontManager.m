@@ -31,15 +31,6 @@
     return glFont;
 }
 
-- (void)dispose {
-    NSEnumerator* fontEn = [fonts objectEnumerator];
-    GLFont* glFont;
-    while ((glFont = [fontEn nextObject]))
-        [glFont dispose];
-
-    [fonts removeAllObjects];
-}
-
 - (void)dealloc {
     [fonts release];
     [super dealloc];

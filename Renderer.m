@@ -26,6 +26,8 @@
 #import "ToolManager.h"
 #import "FaceFigure.h"
 #import "Options.h"
+#import "MapDocument.h"
+#import "GLResources.h"
 
 NSString* const RendererChanged = @"RendererChanged";
 
@@ -149,39 +151,6 @@ NSString* const RendererChanged = @"RendererChanged";
     [self notifyObservers:RendererChanged];
 }
 
-- (id)init {
-    if (self = [super init]) {
-        faceFigures = [[NSMutableDictionary alloc] init];
-    }
-    
-    return self;
-}
-
-- (id)initWithMap:(Map *)theMap vbo:(VBOBuffer *)theVbo {
-    if (theMap == nil)
-        [NSException raise:NSInvalidArgumentException format:@"map must not be nil"];
-    if (theVbo == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vbo must not be nil"];
-    
-    if (self = [self init]) {
-        map =[theMap retain];
-        vbo = [theVbo retain];
-        geometryLayer = [[GeometryLayer alloc] initWithVbo:vbo];
-        selectionLayer = [[SelectionLayer alloc] initWithVbo:vbo];
-        toolLayer = [[ToolLayer alloc] init];
-
-        NSEnumerator* entityEn = [[map entities] objectEnumerator];
-        Entity* entity;
-        while ((entity = [entityEn nextObject]))
-            [self addEntity:entity];
-
-        [map addObserver:self selector:@selector(entityAdded:) name:MapEntityAdded];
-        [map addObserver:self selector:@selector(entityRemoved:) name:MapEntityRemoved];
-    }
-    
-    return self;
-}
-
 - (void)selectionAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* entities = [userInfo objectForKey:SelectionEntities];
@@ -211,7 +180,7 @@ NSString* const RendererChanged = @"RendererChanged";
             [selectionLayer addFigure:faceFigure];
         }
     }
-
+    
     [self notifyObservers:RendererChanged];
 }
 
@@ -244,73 +213,55 @@ NSString* const RendererChanged = @"RendererChanged";
             [geometryLayer addFigure:faceFigure];
         }
     }
-
+    
     [self notifyObservers:RendererChanged];
-}
-
-- (void)setSelectionManager:(SelectionManager *)theSelectionManager {
-    if (theSelectionManager == nil)
-        [NSException raise:NSInvalidArgumentException format:@"selection manager must not be nil"];
-    
-    if (selectionManager != nil) {
-        [selectionManager removeObserver:self];
-        [selectionManager release];
-    }
-    
-    selectionManager = [theSelectionManager retain];
-    [selectionManager addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded];
-    [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
-}
-
-- (void)toolFiguresAdded:(NSNotification *)notification {
-    NSDictionary* userInfo= [notification userInfo];
-    NSSet* figures = [userInfo objectForKey:FiguresKey];
-
-    NSEnumerator* figureEn = [figures objectEnumerator];
-    id figure;
-    while ((figure = [figureEn nextObject]))
-        [toolLayer addFigure:figure];
-}
-
-- (void)toolFiguresRemoved:(NSNotification *)notification {
-    NSDictionary* userInfo= [notification userInfo];
-    NSSet* figures = [userInfo objectForKey:FiguresKey];
-    
-    NSEnumerator* figureEn = [figures objectEnumerator];
-    id figure;
-    while ((figure = [figureEn nextObject]))
-        [toolLayer removeFigure:figure];
-}
-
-- (void)setToolManager:(ToolManager *)theToolManager {
-    if (theToolManager == nil)
-        [NSException raise:NSInvalidArgumentException format:@"tool manager must not be nil"];
-    
-    if (toolManager != nil) {
-        [toolManager removeObserver:self];
-        [toolManager release];
-    }
-    
-    toolManager = [theToolManager retain];
-    [toolManager addObserver:self selector:@selector(toolFiguresAdded:) name:FiguresAdded];
-    [toolManager addObserver:self selector:@selector(toolFiguresRemoved:) name:FiguresRemoved];
 }
 
 - (void)cameraChanged:(NSNotification *)notification {
     [self notifyObservers:RendererChanged];
 }
 
-- (void)setCamera:(Camera *)theCamera {
-    if (theCamera == nil)
-        [NSException raise:NSInvalidArgumentException format:@"camera must not be nil"];
-    
-    if (camera != nil) {
-        [camera removeObserver:self];
-        [camera release];
+- (id)init {
+    if (self = [super init]) {
+        faceFigures = [[NSMutableDictionary alloc] init];
     }
     
-    camera = [theCamera retain];
-    [camera addObserver:self selector:@selector(cameraChanged:) name:CameraChanged];
+    return self;
+}
+
+- (id)initWithWindowController:(MapWindowController *)theWindowController {
+    if (theWindowController == nil)
+        [NSException raise:NSInvalidArgumentException format:@"window controller must not be nil"];
+    
+    if (self = [self init]) {
+        windowController = [theWindowController retain];
+
+        MapDocument* mapDocument = [windowController document];
+        GLResources* glResources = [mapDocument glResources];
+        VBOBuffer* vbo = [glResources geometryVBO];
+        
+        geometryLayer = [[GeometryLayer alloc] initWithVbo:vbo];
+        selectionLayer = [[SelectionLayer alloc] initWithVbo:vbo];
+        toolLayer = [[ToolLayer alloc] init];
+
+        Map* map = [mapDocument map];
+        NSEnumerator* entityEn = [[map entities] objectEnumerator];
+        Entity* entity;
+        while ((entity = [entityEn nextObject]))
+            [self addEntity:entity];
+
+        [map addObserver:self selector:@selector(entityAdded:) name:MapEntityAdded];
+        [map addObserver:self selector:@selector(entityRemoved:) name:MapEntityRemoved];
+        
+        SelectionManager* selectionManager = [windowController selectionManager];
+        [selectionManager addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded];
+        [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
+        
+        Camera* camera = [windowController camera];
+        [camera addObserver:self selector:@selector(cameraChanged:) name:CameraChanged];
+    }
+    
+    return self;
 }
 
 - (void)render:(RenderContext *)renderContext {
@@ -320,7 +271,7 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)updateView:(NSRect)bounds {
-    // float fov = [camera fieldOfVision];
+    Camera* camera = [windowController camera];
     float fov = atan(tan(90 * M_PI / 360) * 0.75 * bounds.size.width / bounds.size.height) * 360 / M_PI;
     float aspect = bounds.size.width / bounds.size.height;
     float near = [camera nearClippingPlane];
@@ -348,6 +299,7 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)dealloc {
+    Map* map = [[windowController document] map];
     NSEnumerator* entityEn = [[map entities] objectEnumerator];
     Entity* entity;
     while ((entity = [entityEn nextObject])) {
@@ -365,19 +317,18 @@ NSString* const RendererChanged = @"RendererChanged";
     }
     [map removeObserver:self];
     
+    SelectionManager* selectionManager = [windowController selectionManager];
     [selectionManager removeObserver:self];
-    [toolManager removeObserver:self];
+
+    Camera* camera = [windowController camera];
     [camera removeObserver:self];
+    
+    [windowController release];
     
     [geometryLayer release];
     [selectionLayer release];
     [toolLayer release];
     [faceFigures release];
-    [vbo release];
-    [toolManager release];
-    [selectionManager release];
-    [camera release];
-    [map release];
     [super dealloc];
 }
 

@@ -12,22 +12,20 @@ extern NSString* const FiguresAdded;
 extern NSString* const FiguresRemoved;
 extern NSString* const FiguresKey;
 
-@class SelectionManager;
 @class Ray3D;
 @class FaceOffsetTool;
 @class FaceRotationTool;
-@class Options;
+@class MapWindowController;
 
 @interface ToolManager : Observable {
     @private
+    MapWindowController* windowController;
     FaceOffsetTool* faceOffsetTool;
     FaceRotationTool* faceRotationTool;
-    SelectionManager* selectionManager;
-    NSUndoManager* undoManager;
     NSMutableArray* dragReceivers;
 }
 
-- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager undoManager:(NSUndoManager *)theUndoManager options:(Options *)theOptions;
+- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 - (NSArray *)toolsHitByRay:(Ray3D *)theRay;
 

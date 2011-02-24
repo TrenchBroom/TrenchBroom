@@ -37,6 +37,4 @@ extern NSString* const MissingPaletteException;
 - (void)activateTexture:(NSString *)name;
 - (void)deactivateTexture;
 
-- (void)disposeTextures;
-
 @end

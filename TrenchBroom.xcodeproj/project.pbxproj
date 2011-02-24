@@ -111,6 +111,7 @@
 		48C3324413087D8600C23607 /* MenuDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C3324313087D8600C23607 /* MenuDelegate.m */; };
 		48C5137E12DB668A006240ED /* HalfSpace3DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C5137D12DB668A006240ED /* HalfSpace3DTestCase.m */; };
 		48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C751981261A704000ABD57 /* PolyhedronTestCase.m */; };
+		48CBDD9913170B330041F704 /* GLResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CBDD9813170B330041F704 /* GLResources.m */; };
 		48DB957812F0699600FB5483 /* InputManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB957712F0699600FB5483 /* InputManager.m */; };
 		48DB95A312F0A89E00FB5483 /* Quaternion.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB95A212F0A89E00FB5483 /* Quaternion.m */; };
 		48E0F52F1305E62A00971BA2 /* FaceOffsetFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E0F52E1305E62A00971BA2 /* FaceOffsetFigure.m */; };
@@ -318,6 +319,8 @@
 		48C5137D12DB668A006240ED /* HalfSpace3DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HalfSpace3DTestCase.m; sourceTree = "<group>"; };
 		48C751971261A704000ABD57 /* PolyhedronTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolyhedronTestCase.h; sourceTree = "<group>"; };
 		48C751981261A704000ABD57 /* PolyhedronTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PolyhedronTestCase.m; sourceTree = "<group>"; };
+		48CBDD9713170B330041F704 /* GLResources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLResources.h; sourceTree = "<group>"; };
+		48CBDD9813170B330041F704 /* GLResources.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLResources.m; sourceTree = "<group>"; };
 		48DB957612F0699600FB5483 /* InputManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputManager.h; sourceTree = "<group>"; };
 		48DB957712F0699600FB5483 /* InputManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InputManager.m; sourceTree = "<group>"; };
 		48DB95A112F0A89E00FB5483 /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quaternion.h; sourceTree = "<group>"; };
@@ -636,6 +639,8 @@
 				48527F3711148D5C00CD6043 /* Face.m */,
 				487E1E9212E495060001C150 /* IdGenerator.h */,
 				487E1E9312E495060001C150 /* IdGenerator.m */,
+				2A37F4AEFDCFA73011CA2CEA /* MapDocument.h */,
+				2A37F4ACFDCFA73011CA2CEA /* MapDocument.m */,
 				48A68F6E114EE6DC0064732A /* Map.h */,
 				48A68F6F114EE6DC0064732A /* Map.m */,
 				488F0981130161020063E550 /* Observable.h */,
@@ -655,8 +660,6 @@
 				48B325E412E3788D008748E2 /* AppDelegate.m */,
 				48DB957612F0699600FB5483 /* InputManager.h */,
 				48DB957712F0699600FB5483 /* InputManager.m */,
-				2A37F4AEFDCFA73011CA2CEA /* MapDocument.h */,
-				2A37F4ACFDCFA73011CA2CEA /* MapDocument.m */,
 				48A68EB6114E96C00064732A /* MapWindowController.h */,
 				48A68EB7114E96C00064732A /* MapWindowController.m */,
 				48E1806312F5F07D007995FE /* SelectionManager.h */,
@@ -696,6 +699,8 @@
 				48E400AE1315A7DA004642CD /* TextureUsageFilter.m */,
 				482B817C13169EB200F36EF5 /* GLException.h */,
 				482B817D13169EB200F36EF5 /* GLException.m */,
+				48CBDD9713170B330041F704 /* GLResources.h */,
+				48CBDD9813170B330041F704 /* GLResources.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -975,6 +980,7 @@
 				48E4006D13159E7E004642CD /* TextureNameFilter.m in Sources */,
 				48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */,
 				482B817E13169EB200F36EF5 /* GLException.m in Sources */,
+				48CBDD9913170B330041F704 /* GLResources.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

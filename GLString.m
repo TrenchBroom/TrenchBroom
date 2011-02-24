@@ -35,11 +35,8 @@
     [glFont deactivate];
 }
 
-- (void)dispose {
-    [memBlock dispose];
-}
-
 - (void)dealloc {
+    [memBlock free];
     [memBlock release];
     [glFont release];
     [super dealloc];

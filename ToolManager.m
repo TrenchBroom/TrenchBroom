@@ -7,6 +7,7 @@
 //
 
 #import "ToolManager.h"
+#import "MapWindowController.h"
 #import "SelectionManager.h"
 #import "Options.h"
 #import "Tool.h"
@@ -64,20 +65,17 @@ NSString* const FiguresKey = @"Figures";
     [self notifyObservers:FiguresRemoved infoObject:removedFigures infoKey:FiguresKey];
 }
 
-- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager undoManager:(NSUndoManager *)theUndoManager options:(Options *)theOptions {
-    if (theSelectionManager == nil)
-        [NSException raise:NSInvalidArgumentException format:@"selection manager must not be nil"];
-    if (theUndoManager == nil)
-        [NSException raise:NSInvalidArgumentException format:@"undo manager must not be nil"];
-    if (theOptions == nil)
-        [NSException raise:NSInvalidArgumentException format:@"options must not be nil"];
+- (id)initWithWindowController:(MapWindowController *)theWindowController {
+    if (theWindowController == nil)
+        [NSException raise:NSInvalidArgumentException format:@"window controller must not be nil"];
     
     if (self = [self init]) {
-        faceOffsetTool = [[FaceOffsetTool alloc] initWithOptions:theOptions];
-        faceRotationTool = [[FaceRotationTool alloc] initWithOptions:theOptions];
-        selectionManager = [theSelectionManager retain];
-        undoManager = [theUndoManager retain];
+        windowController = [theWindowController retain];
+        Options* options = [windowController options];
+        faceOffsetTool = [[FaceOffsetTool alloc] initWithOptions:options];
+        faceRotationTool = [[FaceRotationTool alloc] initWithOptions:options];
         
+        SelectionManager* selectionManager = [windowController selectionManager];
         [selectionManager addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded];
         [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
     }
@@ -103,6 +101,7 @@ NSString* const FiguresKey = @"Figures";
     if ([dragReceivers count] == 0)
         return NO;
     
+    NSUndoManager* undoManager = [[windowController document] undoManager];
     [undoManager beginUndoGrouping];
     
     NSEnumerator* toolEn = [dragReceivers objectEnumerator];
@@ -127,6 +126,7 @@ NSString* const FiguresKey = @"Figures";
         [tool endDrag:theRay];
     [dragReceivers removeAllObjects];
 
+    NSUndoManager* undoManager = [[windowController document] undoManager];
     [undoManager setActionName:@"Change Texture Offset"];
     [undoManager endUndoGrouping];
 }
@@ -141,12 +141,11 @@ NSString* const FiguresKey = @"Figures";
 }
 
 - (void)dealloc {
-    [selectionManager removeObserver:self];
-    [selectionManager release];
-    [undoManager release];
+    [[windowController selectionManager] removeObserver:self];
     [dragReceivers release];
     [faceRotationTool release];
     [faceOffsetTool release];
+    [windowController release];
     [super dealloc];
 }
 

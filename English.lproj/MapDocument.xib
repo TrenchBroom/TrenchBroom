@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="5"/>
+			<integer value="6"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -456,11 +456,11 @@
 					<string>MapView3D</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<object class="NSAffineTransform">
-						<bytes key="NSTransformStruct">P4AAAL+AAAAAAAAAxC/AAA</bytes>
+						<bytes key="NSTransformStruct">AQAAAABBoAAAA</bytes>
 					</object>
-					<string>{{253, 75}, {1187, 725}}</string>
+					<string>{{796, 337}, {1187, 725}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{253, 75}, {1187, 725}}</string>
+					<string>{{796, 337}, {1187, 725}}</string>
 					<integer value="1"/>
 					<string>{{201, 387}, {507, 413}}</string>
 					<integer value="1"/>
@@ -501,98 +501,164 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">MapWindowController</string>
 					<string key="superclassName">NSWindowController</string>
-					<object class="NSMutableDictionary" key="outlets">
+					<object class="NSMutableDictionary" key="actions">
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>faceInspector</string>
-							<string>rotationField</string>
-							<string>textureNameField</string>
-							<string>textureView</string>
-							<string>view3D</string>
-							<string>xOffsetField</string>
-							<string>xScaleField</string>
-							<string>yOffsetField</string>
-							<string>yScaleField</string>
+							<string>clearSelection:</string>
+							<string>copySelection:</string>
+							<string>cutSelection:</string>
+							<string>deleteSelection:</string>
+							<string>moveTextureDown:</string>
+							<string>moveTextureLeft:</string>
+							<string>moveTextureRight:</string>
+							<string>moveTextureUp:</string>
+							<string>pasteClipboard:</string>
+							<string>rotateTextureLeft:</string>
+							<string>rotateTextureRight:</string>
+							<string>setGridSize:</string>
+							<string>shrinkTextureHorizontally:</string>
+							<string>shrinkTextureVertically:</string>
+							<string>stretchTextureHorizontally:</string>
+							<string>stretchTextureVertically:</string>
+							<string>toggleGrid:</string>
+							<string>toggleSnap:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSPanel</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>SingleTextureView</string>
-							<string>MapView3D</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
 						</object>
 					</object>
-					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+					<object class="NSMutableDictionary" key="actionInfosByName">
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>faceInspector</string>
-							<string>rotationField</string>
-							<string>textureNameField</string>
-							<string>textureView</string>
-							<string>view3D</string>
-							<string>xOffsetField</string>
-							<string>xScaleField</string>
-							<string>yOffsetField</string>
-							<string>yScaleField</string>
+							<string>clearSelection:</string>
+							<string>copySelection:</string>
+							<string>cutSelection:</string>
+							<string>deleteSelection:</string>
+							<string>moveTextureDown:</string>
+							<string>moveTextureLeft:</string>
+							<string>moveTextureRight:</string>
+							<string>moveTextureUp:</string>
+							<string>pasteClipboard:</string>
+							<string>rotateTextureLeft:</string>
+							<string>rotateTextureRight:</string>
+							<string>setGridSize:</string>
+							<string>shrinkTextureHorizontally:</string>
+							<string>shrinkTextureVertically:</string>
+							<string>stretchTextureHorizontally:</string>
+							<string>stretchTextureVertically:</string>
+							<string>toggleGrid:</string>
+							<string>toggleSnap:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBToOneOutletInfo">
-								<string key="name">faceInspector</string>
-								<string key="candidateClassName">NSPanel</string>
+							<object class="IBActionInfo">
+								<string key="name">clearSelection:</string>
+								<string key="candidateClassName">id</string>
 							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">rotationField</string>
-								<string key="candidateClassName">NSTextField</string>
+							<object class="IBActionInfo">
+								<string key="name">copySelection:</string>
+								<string key="candidateClassName">id</string>
 							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">textureNameField</string>
-								<string key="candidateClassName">NSTextField</string>
+							<object class="IBActionInfo">
+								<string key="name">cutSelection:</string>
+								<string key="candidateClassName">id</string>
 							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">textureView</string>
-								<string key="candidateClassName">SingleTextureView</string>
+							<object class="IBActionInfo">
+								<string key="name">deleteSelection:</string>
+								<string key="candidateClassName">id</string>
 							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">view3D</string>
-								<string key="candidateClassName">MapView3D</string>
+							<object class="IBActionInfo">
+								<string key="name">moveTextureDown:</string>
+								<string key="candidateClassName">id</string>
 							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">xOffsetField</string>
-								<string key="candidateClassName">NSTextField</string>
+							<object class="IBActionInfo">
+								<string key="name">moveTextureLeft:</string>
+								<string key="candidateClassName">id</string>
 							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">xScaleField</string>
-								<string key="candidateClassName">NSTextField</string>
+							<object class="IBActionInfo">
+								<string key="name">moveTextureRight:</string>
+								<string key="candidateClassName">id</string>
 							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">yOffsetField</string>
-								<string key="candidateClassName">NSTextField</string>
+							<object class="IBActionInfo">
+								<string key="name">moveTextureUp:</string>
+								<string key="candidateClassName">id</string>
 							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">yScaleField</string>
-								<string key="candidateClassName">NSTextField</string>
+							<object class="IBActionInfo">
+								<string key="name">pasteClipboard:</string>
+								<string key="candidateClassName">id</string>
 							</object>
+							<object class="IBActionInfo">
+								<string key="name">rotateTextureLeft:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">rotateTextureRight:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">setGridSize:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">shrinkTextureHorizontally:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">shrinkTextureVertically:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">stretchTextureHorizontally:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">stretchTextureVertically:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">toggleGrid:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">toggleSnap:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<string key="NS.key.0">view3D</string>
+						<string key="NS.object.0">MapView3D</string>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<string key="NS.key.0">view3D</string>
+						<object class="IBToOneOutletInfo" key="NS.object.0">
+							<string key="name">view3D</string>
+							<string key="candidateClassName">MapView3D</string>
 						</object>
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">MapWindowController.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">SingleTextureView</string>
-					<string key="superclassName">NSOpenGLView</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">SingleTextureView.h</string>
 					</object>
 				</object>
 			</object>
@@ -642,22 +708,6 @@
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
-					<string key="className">NSControl</string>
-					<string key="superclassName">NSView</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="972202639">
-						<string key="majorKey">IBFrameworkSource</string>
-						<string key="minorKey">AppKit.framework/Headers/NSControl.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">NSFormatter</string>
-					<string key="superclassName">NSObject</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBFrameworkSource</string>
-						<string key="minorKey">Foundation.framework/Headers/NSFormatter.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
 					<string key="className">NSMenu</string>
 					<string key="superclassName">NSObject</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="684631159">
@@ -686,7 +736,10 @@
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
-					<reference key="sourceIdentifier" ref="972202639"/>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBFrameworkSource</string>
+						<string key="minorKey">AppKit.framework/Headers/NSControl.h</string>
+					</object>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
@@ -918,14 +971,6 @@
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
-					<string key="className">NSPanel</string>
-					<string key="superclassName">NSWindow</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBFrameworkSource</string>
-						<string key="minorKey">AppKit.framework/Headers/NSPanel.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
 					<string key="className">NSResponder</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBFrameworkSource</string>
@@ -938,14 +983,6 @@
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBFrameworkSource</string>
 						<string key="minorKey">AppKit.framework/Headers/NSResponder.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">NSTextField</string>
-					<string key="superclassName">NSControl</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBFrameworkSource</string>
-						<string key="minorKey">AppKit.framework/Headers/NSTextField.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">

@@ -37,12 +37,13 @@
     [root addObject:brush bounds:[brush bounds]];
 }
 
-- (id)initWithMap:(Map *)theMap minSize:(int)theMinSize {
-    if (theMap == nil)
-        [NSException raise:NSInvalidArgumentException format:@"map must not be nil"];
+- (id)initWithDocument:(MapDocument *)theDocument minSize:(int)theMinSize {
+    if (theDocument == nil)
+        [NSException raise:NSInvalidArgumentException format:@"document must not be nil"];
     
     if (self = [self init]) {
-        map = [theMap retain];
+        document = [theDocument retain];
+        Map* map = [document map];
         
         int w = [map worldSize] / 2;
         Vector3i* min = [[Vector3i alloc] initWithX:-w y:-w z:-w];
@@ -75,9 +76,9 @@
 }
 
 - (void)dealloc {
-    [map removeObserver:self];
+    [[document map] removeObserver:self];
     [root release];
-    [map release];
+    [document release];
     [super dealloc];
 }
 @end

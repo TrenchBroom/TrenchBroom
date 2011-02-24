@@ -19,6 +19,7 @@
 #import "GLFont.h"
 #import "GLString.h"
 #import "Map.h"
+#import "GLResources.h"
 
 @implementation TextureView
 
@@ -31,11 +32,13 @@
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
-    NSPoint clickPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
-    Texture* texture = [layout textureAt:clickPoint];
-    if (texture != nil)
-        [target textureSelected:texture];
+    if (layout != nil) {
+        NSPoint clickPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+        
+        Texture* texture = [layout textureAt:clickPoint];
+        if (texture != nil)
+            [target textureSelected:texture];
+    }
 }
 
 
@@ -62,135 +65,117 @@
     
     glPolygonMode(GL_FRONT, GL_FILL);
     
-    NSArray* rows = [layout rowsInY:NSMinY(visibleRect) height:NSHeight(visibleRect)];
-    NSEnumerator* rowEn = [rows objectEnumerator];
-    TextureViewLayoutRow* row;
-    
-    NSSet* usedTextureNames = [map textureNames];
-    NSFont* font = [NSFont systemFontOfSize:12];
-    GLFont* glFont = [fontManager glFontFor:font];
-    
-    while ((row = [rowEn nextObject])) {
-        NSArray* cells = [row cells];
-        NSEnumerator* cellEn = [cells objectEnumerator];
-        TextureViewLayoutCell* cell;
-        while ((cell = [cellEn nextObject])) {
-            float tx = [cell textureRect].origin.x;
-            float ty = [cell textureRect].origin.y;
-            float tx2 = tx + [cell textureRect].size.width;
-            float ty2 = ty + [cell textureRect].size.height;
-            
-            Texture* texture = [cell texture];
-            [texture activate];
-            
-            glBegin(GL_QUADS);
-            glTexCoord2f(0, 0);
-            glVertex3f(tx, ty, 0);
-            glTexCoord2f(0, 1);
-            glVertex3f(tx, ty2, 0);
-            glTexCoord2f(1, 1);
-            glVertex3f(tx2, ty2, 0);
-            glTexCoord2f(1, 0);
-            glVertex3f(tx2, ty, 0);
-            glEnd();
-            
-            [texture deactivate];
-            
-            if (selectedTextureNames != nil && [selectedTextureNames containsObject:[texture name]]) {
-                glColor4f(0.6, 0, 0, 1);
-                glBegin(GL_LINE_LOOP);
-                glVertex3f(tx - 0.5, ty - 0.5, 0);
-                glVertex3f(tx - 0.5, ty2 + 0.5, 0);
-                glVertex3f(tx2 + 0.5, ty2 + 0.5, 0);
-                glVertex3f(tx2 + 0.5, ty - 0.5, 0);
+    if (layout != nil) {
+        NSArray* rows = [layout rowsInY:NSMinY(visibleRect) height:NSHeight(visibleRect)];
+        NSEnumerator* rowEn = [rows objectEnumerator];
+        TextureViewLayoutRow* row;
+
+        GLFontManager* fontManager = [glResources fontManager];
+        NSFont* font = [NSFont systemFontOfSize:12];
+        GLFont* glFont = [fontManager glFontFor:font];
+        
+        while ((row = [rowEn nextObject])) {
+            NSArray* cells = [row cells];
+            NSEnumerator* cellEn = [cells objectEnumerator];
+            TextureViewLayoutCell* cell;
+            while ((cell = [cellEn nextObject])) {
+                float tx = [cell textureRect].origin.x;
+                float ty = [cell textureRect].origin.y;
+                float tx2 = tx + [cell textureRect].size.width;
+                float ty2 = ty + [cell textureRect].size.height;
+                
+                Texture* texture = [cell texture];
+                [texture activate];
+                
+                glBegin(GL_QUADS);
+                glTexCoord2f(0, 0);
+                glVertex3f(tx, ty, 0);
+                glTexCoord2f(0, 1);
+                glVertex3f(tx, ty2, 0);
+                glTexCoord2f(1, 1);
+                glVertex3f(tx2, ty2, 0);
+                glTexCoord2f(1, 0);
+                glVertex3f(tx2, ty, 0);
                 glEnd();
-            } else if ([usedTextureNames containsObject:[texture name]]) {
-                glColor4f(0.6, 0.6, 0, 1);
-                glBegin(GL_LINE_LOOP);
-                glVertex3f(tx - 0.5, ty - 0.5, 0);
-                glVertex3f(tx - 0.5, ty2 + 0.5, 0);
-                glVertex3f(tx2 + 0.5, ty2 + 0.5, 0);
-                glVertex3f(tx2 + 0.5, ty - 0.5, 0);
-                glEnd();
+                
+                [texture deactivate];
+                
+                if (selectedTextureNames != nil && [selectedTextureNames containsObject:[texture name]]) {
+                    glColor4f(0.6, 0, 0, 1);
+                    glBegin(GL_LINE_LOOP);
+                    glVertex3f(tx - 0.5, ty - 0.5, 0);
+                    glVertex3f(tx - 0.5, ty2 + 0.5, 0);
+                    glVertex3f(tx2 + 0.5, ty2 + 0.5, 0);
+                    glVertex3f(tx2 + 0.5, ty - 0.5, 0);
+                    glEnd();
+                }
+                
+                glColor4f(1, 1, 1, 1);
+                float nx = [cell nameRect].origin.x;
+                float ny = [cell nameRect].origin.y;
+                
+                GLString* glString = [glStrings objectForKey:[texture name]];
+                if (glString == nil) {
+                    glString = [glFont glStringFor:[texture name]];
+                    [glStrings setObject:glString forKey:[texture name]];
+                }
+                glPushMatrix();
+                glTranslatef(nx, ny, 0);
+                [glString render];
+                glPopMatrix();
             }
-            
-            glColor4f(1, 1, 1, 1);
-            float nx = [cell nameRect].origin.x;
-            float ny = [cell nameRect].origin.y;
-            
-            GLString* glString = [glStrings objectForKey:[texture name]];
-            if (glString == nil) {
-                glString = [glFont glStringFor:[texture name]];
-                [glStrings setObject:glString forKey:[texture name]];
-            }
-            glPushMatrix();
-            glTranslatef(nx, ny, 0);
-            [glString render];
-            glPopMatrix();
         }
     }
-
+    
     [[self openGLContext] flushBuffer];
 }
 
 -  (void)reshape {
-    NSRect frame = [self frame];
-    [layout setWidth:NSWidth(frame)];
-    
-    float h =  fmaxf([layout height], NSHeight([[self superview] bounds]));
-    
-    [[self superview] setNeedsDisplay:YES];
-    [self setFrameSize:NSMakeSize(NSWidth(frame), h)];
-    [self setNeedsDisplay:YES];
+    if (layout != nil) {
+        NSRect frame = [self frame];
+        [layout setWidth:NSWidth(frame)];
+        
+        float h =  fmaxf([layout height], NSHeight([[self superview] bounds]));
+        
+        [[self superview] setNeedsDisplay:YES];
+        [self setFrameSize:NSMakeSize(NSWidth(frame), h)];
+        [self setNeedsDisplay:YES];
+    }
 }
 
-- (void)switchToContext:(NSOpenGLContext *)theSharedContext textureManager:(TextureManager *)theTextureManager fontManager:(GLFontManager *)theFontManager map:(Map *)theMap {
-    if (theSharedContext == nil)
-        [NSException raise:NSInvalidArgumentException format:@"shared context must not be nil"];
-    if (theTextureManager == nil)
-        [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
-    if (theFontManager == nil)
-        [NSException raise:NSInvalidArgumentException format:@"font manager must not be nil"];
-    if (theMap == nil)
-        [NSException raise:NSInvalidArgumentException format:@"map must not be nil"];
-
-    NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:theSharedContext];
-    [self setOpenGLContext:sharingContext];
-    [sharingContext release];
-
-    [fontManager release];
-    [fontManager = theFontManager retain];
-    
-    [textureManager release];
-    textureManager = [theTextureManager retain];
-    
-    [map release];
-    map = [theMap retain];
-
-    if (glStrings != nil) {
-        NSEnumerator* stringEn = [glStrings objectEnumerator];
-        GLString* string;
-        while ((string = [stringEn nextObject]))
-            [string dispose];
-        [glStrings release];
-    }
-    glStrings = [[NSMutableDictionary alloc] init];
+- (void)setGLResources:(GLResources *)theGLResources {
+    if (glStrings == nil)
+        glStrings = [[NSMutableDictionary alloc] init];
+    else
+        [glStrings removeAllObjects];
     
     [layout release];
+    layout = nil;
     
-    NSFont* font = [NSFont systemFontOfSize:12];
-    GLFont* glFont = [fontManager glFontFor:font];
+    [glResources release];
+    glResources = [theGLResources retain];
     
-    layout = [[TextureViewLayout alloc] initWithWidth:[self bounds].size.width innerMargin:10 outerMargin:5 font:glFont];
-    [layout addTextures:[textureManager textures]];
-    
-    [self setNeedsDisplay:YES];
+    if (glResources != nil) {
+        NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:[glResources openGLContext]];
+        [self setOpenGLContext:sharingContext];
+        [sharingContext release];
+
+        TextureManager* textureManager = [glResources textureManager];
+        GLFontManager* fontManager = [glResources fontManager];
+        
+        NSFont* font = [NSFont systemFontOfSize:12];
+        GLFont* glFont = [fontManager glFontFor:font];
+        
+        layout = [[TextureViewLayout alloc] initWithWidth:[self bounds].size.width innerMargin:10 outerMargin:5 font:glFont];
+        [layout addTextures:[textureManager textures]];
+    }
 }
 
 - (void)setTextureFilter:(id <TextureFilter>)theFilter {
-    [layout setTextureFilter:theFilter];
-    [self reshape];
-    [self setNeedsDisplay:YES];
+    if (layout != nil) {
+        [layout setTextureFilter:theFilter];
+        [self reshape];
+    }
 }
 
 - (void)setSelectedTextureNames:(NSSet *)theNames {
@@ -200,18 +185,7 @@
 }
 
 - (void)dealloc {
-    if (glStrings != nil) {
-        NSEnumerator* stringEn = [glStrings objectEnumerator];
-        GLString* string;
-        while ((string = [stringEn nextObject]))
-            [string dispose];
-        [glStrings release];
-    }
-
-    [layout release];
-    [textureManager release];
-    [fontManager release];
-    [map release];
+    [glStrings release];
     [selectedTextureNames release];
     [super dealloc];
 }
