@@ -44,7 +44,7 @@ NSString* const FiguresKey = @"Figures";
         }
     }
     
-    [self notifyObservers:FiguresAdded infoObject:newFigures infoKey:FiguresKey];
+//    [self notifyObservers:FiguresAdded infoObject:newFigures infoKey:FiguresKey];
 }
 
 - (void)selectionRemoved:(NSNotification *)notification {
@@ -62,7 +62,7 @@ NSString* const FiguresKey = @"Figures";
         }
     }
     
-    [self notifyObservers:FiguresRemoved infoObject:removedFigures infoKey:FiguresKey];
+//    [self notifyObservers:FiguresRemoved infoObject:removedFigures infoKey:FiguresKey];
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
@@ -76,8 +76,8 @@ NSString* const FiguresKey = @"Figures";
         faceRotationTool = [[FaceRotationTool alloc] initWithOptions:options];
         
         SelectionManager* selectionManager = [windowController selectionManager];
-        [selectionManager addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded];
-        [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
+//        [selectionManager addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded];
+//        [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
     }
     
     return self;
@@ -141,7 +141,7 @@ NSString* const FiguresKey = @"Figures";
 }
 
 - (void)dealloc {
-    [[windowController selectionManager] removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [dragReceivers release];
     [faceRotationTool release];
     [faceOffsetTool release];

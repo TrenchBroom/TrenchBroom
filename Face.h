@@ -6,13 +6,7 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import "Observable.h"
-
-extern NSString* const FaceGeometryChanged;
-extern NSString* const FaceFlagsChanged;
-
-extern NSString* const TextureOldKey;
-extern NSString* const TextureNewKey;
+#import <Cocoa/Cocoa.h>
 
 typedef enum {
     XY, XZ, YZ
@@ -28,7 +22,7 @@ typedef enum {
 @class PickingHit;
 @class Ray3D;
 
-@interface Face : Observable {
+@interface Face : NSObject {
     @private
     Brush* brush;
     NSNumber* faceId;
@@ -92,27 +86,8 @@ typedef enum {
 - (PickingHit *)pickWithRay:(Ray3D *)theRay;
 - (NSArray *)gridWithSize:(int)gridSize;
 
-/*!
-    @function
-    @abstract   Returns the center of this face.
-    @result     The center of this face.
-*/
 - (Vector3f *)center;
-
-/*!
-    @function
-    @abstract   Returns this face's vertices in clockwise order.
-    @result     An array containing the vertices.
-*/
 - (NSArray *)vertices;
 
-/*!
-    @function
-    @abstract   Returns the undo manager for this face.
-    @discussion This method simply returns the undo manager of the brush to which this face belongs.
-    @result     The undo manager for this face or nil if there is no undo manager.
-*/
 - (NSUndoManager *)undoManager;
-
-- (BOOL)postNotifications;
 @end

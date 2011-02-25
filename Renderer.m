@@ -312,32 +312,8 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)dealloc {
-    Map* map = [[windowController document] map];
-    NSEnumerator* entityEn = [[map entities] objectEnumerator];
-    Entity* entity;
-    while ((entity = [entityEn nextObject])) {
-        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-        Brush* brush;
-        while ((brush = [brushEn nextObject])) {
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            Face* face;
-            while ((face = [faceEn nextObject])) {
-                [face removeObserver:self];
-            }
-            [brush removeObserver:self];
-        }
-        [entity removeObserver:self];
-    }
-    [map removeObserver:self];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-    [selectionManager removeObserver:self];
-
-    Camera* camera = [windowController camera];
-    [camera removeObserver:self];
-    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [windowController release];
-    
     [geometryLayer release];
     [selectionLayer release];
     [toolLayer release];

@@ -18,11 +18,6 @@
 #import "Ray3D.h"
 #import "PickingHit.h"
 
-NSString* const BrushFaceAdded = @"BrushFaceAdded";
-NSString* const BrushFaceRemoved = @"BrushFaceRemoved";
-
-NSString* const FaceKey = @"Face";
-
 @implementation Brush
 
 - (id)init {
@@ -48,11 +43,6 @@ NSString* const FaceKey = @"Face";
     }
     
     return self;
-}
-
-- (void)faceGeometryChanged:(NSNotification *)notification {
-    [vertexData release];
-    vertexData = nil;
 }
 
 - (VertexData *)vertexData {
@@ -103,15 +93,11 @@ NSString* const FaceKey = @"Face";
         }
     }
 
-    [face addObserver:self selector:@selector(faceGeometryChanged:) name:FaceGeometryChanged];
-    [self addForward:FaceGeometryChanged from:face];
-    [self addForward:FaceFlagsChanged from:face];
-
     [faces addObject:face];
     [vertexData release];
     vertexData = nil;
-   
-    [self notifyObservers:BrushFaceAdded infoObject:face infoKey:FaceKey];
+
+    [entity faceAdded:face];
     return YES;
 }
 
@@ -119,14 +105,11 @@ NSString* const FaceKey = @"Face";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] addFace:face];
     
-    [face removeObserver:self];
-    NSDictionary* userInfo = [NSDictionary dictionaryWithObject:face forKey:FaceKey];
-    
     [faces removeObject:face];
     [vertexData release];
     vertexData = nil;
-    
-    [self notifyObservers:BrushFaceRemoved userInfo:userInfo];
+
+    [entity faceRemoved:face];
 }
 
 - (Entity *)entity {
@@ -187,20 +170,25 @@ NSString* const FaceKey = @"Face";
         [face translateBy:theDelta];
 }
 
-- (BOOL)postNotifications {
-    return [entity postNotifications];
-}
-
 - (NSUndoManager *)undoManager {
     return [entity undoManager];
 }
 
+- (void)faceFlagsChanged:(Face *)face {
+    [entity faceFlagsChanged:face];
+}
+
+- (void)faceTextureChanged:(Face *)face oldTexture:(NSString *)oldTexture newTexture:(NSString *)newTexture {
+    [entity faceTextureChanged:face oldTexture:oldTexture newTexture:newTexture];
+}
+
+- (void)faceGeometryChanged:(Face *)face {
+    [vertexData release];
+    vertexData = nil;
+    [entity faceGeometryChanged:face];
+}
+
 - (void)dealloc {
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    Face* face;
-    while ((face = [faceEn nextObject]))
-        [face removeObserver:self];
-    
     [brushId release];
     [vertexData release];
     [faces release];

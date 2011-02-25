@@ -6,7 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#import "Observable.h"
+#import <Cocoa/Cocoa.h>
 #import "Layer.h"
 
 extern NSString* const RendererChanged;
@@ -14,7 +14,7 @@ extern NSString* const RendererChanged;
 @class RenderContext;
 @class MapWindowController;
 
-@interface Renderer : Observable {
+@interface Renderer : NSObject {
     @private
     MapWindowController* windowController;
     NSObject<Layer>* geometryLayer;

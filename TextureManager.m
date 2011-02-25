@@ -115,7 +115,8 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     
     [texturesByName sortUsingSelector:@selector(compare:)];
     
-    [self notifyObservers:TexturesAdded infoObject:addedTextures infoKey:UserInfoTextures];
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:TexturesAdded object:self userInfo:[NSDictionary dictionaryWithObject:addedTextures forKey:UserInfoTextures]];
 }
 
 - (Texture *)textureForName:(NSString *)name {

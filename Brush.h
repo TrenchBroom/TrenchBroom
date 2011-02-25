@@ -6,12 +6,7 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import "Observable.h"
-
-extern NSString* const BrushFaceAdded;
-extern NSString* const BrushFaceRemoved;
-
-extern NSString* const FaceKey;
+#import <Cocoa/Cocoa.h>
 
 @class Entity;
 @class Vector3i;
@@ -22,7 +17,7 @@ extern NSString* const FaceKey;
 @class Ray3D;
 @class PickingHit;
 
-@interface Brush : Observable {
+@interface Brush : NSObject {
     @private
     Entity* entity;
     NSNumber* brushId;
@@ -45,13 +40,6 @@ extern NSString* const FaceKey;
 
 - (float *)flatColor;
 - (BoundingBox *)bounds;
-
-/*!
-    @function
-    @abstract   Returns the center of the given face.
-    @param      The face.
-    @result     The center of the given face.
-*/
 - (Vector3f *)centerOfFace:(Face *)face;
 - (PickingHit *)pickFace:(Ray3D *)theRay;
 - (PickingHit *)pickFace:(Face *)theFace withRay:(Ray3D *)theRay;
@@ -59,13 +47,9 @@ extern NSString* const FaceKey;
 
 - (void)translateBy:(Vector3i *)theDelta;
 
-- (BOOL)postNotifications;
-
-/*!
-    @function
-    @abstract   Returns the undo manager for this brush.
-    @discussion This method simply returns the undo manager of the entity to which this brush belongs.
-    @result     The undo manager for this brush or nil if there is no undo manager.
-*/
 - (NSUndoManager *)undoManager;
+
+- (void)faceFlagsChanged:(Face *)face;
+- (void)faceTextureChanged:(Face *)face oldTexture:(NSString *)oldTexture newTexture:(NSString *)newTexture;
+- (void)faceGeometryChanged:(Face *)face;
 @end

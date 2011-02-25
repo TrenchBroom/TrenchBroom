@@ -63,9 +63,10 @@
                 [root addObject:brush bounds:[brush bounds]];
         }
         
-        [map addObserver:self selector:@selector(brushChanged:) name:FaceGeometryChanged];
-        [map addObserver:self selector:@selector(brushAdded:) name:BrushFaceAdded];
-        [map addObserver:self selector:@selector(brushRemoved:) name:BrushFaceRemoved];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center addObserver:self selector:@selector(brushAdded:) name:BrushAdded object:map];
+        [center addObserver:self selector:@selector(brushRemoved:) name:BrushRemoved object:map];
+        [center addObserver:self selector:@selector(brushChanged:) name:BrushChanged object:map];
     }
     
     return self;
@@ -76,7 +77,7 @@
 }
 
 - (void)dealloc {
-    [[document map] removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [root release];
     [document release];
     [super dealloc];

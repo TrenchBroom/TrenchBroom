@@ -6,7 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#import "Observable.h"
+#import <Cocoa/Cocoa.h>
 
 extern NSString* const FiguresAdded;
 extern NSString* const FiguresRemoved;
@@ -17,7 +17,7 @@ extern NSString* const FiguresKey;
 @class FaceRotationTool;
 @class MapWindowController;
 
-@interface ToolManager : Observable {
+@interface ToolManager : NSObject {
     @private
     MapWindowController* windowController;
     FaceOffsetTool* faceOffsetTool;

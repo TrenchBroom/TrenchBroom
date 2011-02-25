@@ -13,17 +13,6 @@
 #import "IdGenerator.h"
 #import "Vector3i.h"
 
-NSString* const EntityBrushAdded            = @"EntityBrushAdded";
-NSString* const EntityBrushRemoved          = @"EntityBrushRemoved";
-NSString* const BrushKey                    = @"EntityBrushKey";
-NSString* const EntityPropertyAdded         = @"EntityPropertyAdded";
-NSString* const EntityPropertyRemoved       = @"EntityPropertyRemoved";
-NSString* const EntityPropertyChanged       = @"EntityPropertyChanged";
-NSString* const EntityPropertyKeyKey        = @"EntityPropertyKeyKey";
-NSString* const EntityPropertyValueKey      = @"EntityPropertyValueKey";
-NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
-
-
 @implementation Entity
 
 - (id)init {
@@ -69,12 +58,7 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
     [brushes addObject:brush];
     [brushIndices setObject:[NSNumber numberWithInt:[brushes count] - 1] forKey:[brush brushId]];
 
-    [self addForward:BrushFaceAdded from:brush];
-    [self addForward:BrushFaceAdded from:brush];
-    [self addForward:FaceGeometryChanged from:brush];
-    [self addForward:FaceFlagsChanged from:brush];
-    
-    [self notifyObservers:EntityBrushAdded infoObject:brush infoKey:BrushKey];
+    [map brushAdded:brush];
 }
 
 - (void)removeBrush:(Brush *)brush {
@@ -88,12 +72,10 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] addBrush:brush];
     
-    NSDictionary* userInfo = [NSDictionary dictionaryWithObject:brush forKey:BrushKey];
-    [brush removeObserver:self];
     [brushes removeObjectAtIndex:[index intValue]];
     [brushIndices removeObjectForKey:[brush brushId]];
     
-    [self notifyObservers:EntityBrushRemoved userInfo:userInfo];
+    [map brushRemoved:brush];
 }
 
 - (Map *)map {
@@ -122,17 +104,11 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
         [[undoManager prepareWithInvocationTarget:self] removeProperty:key];
     
     [properties setObject:value forKey:key];
-
-    NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
-    [userInfo setObject:key forKey:EntityPropertyKeyKey];
-    [userInfo setObject:value forKey:EntityPropertyValueKey];
     
-    if (exists) {
-        [userInfo setObject:oldValue forKey:EntityPropertyOldValueKey];
-        [self notifyObservers:EntityPropertyChanged userInfo:userInfo];
-    } else {
-        [self notifyObservers:EntityPropertyAdded userInfo:userInfo];
-    }
+    if (exists)
+        [map propertyChanged:self key:key oldValue:oldValue newValue:value];
+    else
+        [map propertyAdded:self key:key value:value];
 }
 
 - (void)removeProperty:(NSString *)key {
@@ -143,13 +119,8 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] setProperty:key value:oldValue];
     
-    NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
-    [userInfo setObject:key forKey:EntityPropertyKeyKey];
-    [userInfo setObject:oldValue forKey:EntityPropertyValueKey];
-
     [properties removeObjectForKey:key];
-
-    [self notifyObservers:EntityPropertyRemoved userInfo:userInfo];
+    [map propertyRemoved:self key:key value:oldValue];
 }
 
 - (NSString *)propertyForKey:(NSString *)key {
@@ -168,20 +139,31 @@ NSString* const EntityPropertyOldValueKey   = @"EntityPropertyOldValueKey";
     return [[self classname] isEqualToString:@"worldspawn"];
 }
 
-- (BOOL)postNotifications {
-    return [map postNotifications];
-}
-
 - (NSUndoManager *)undoManager {
     return [map undoManager];
 }
 
+- (void)faceFlagsChanged:(Face *)face {
+    [map faceFlagsChanged:face];
+}
+
+- (void)faceTextureChanged:(Face *)face oldTexture:(NSString *)oldTexture newTexture:(NSString *)newTexture {
+    [map faceTextureChanged:face oldTexture:oldTexture newTexture:newTexture];
+}
+
+- (void)faceGeometryChanged:(Face *)face {
+    [map faceGeometryChanged:face];
+}
+
+- (void)faceAdded:(Face *)face {
+    [map faceAdded:face];
+}
+
+- (void)faceRemoved:(Face *)face {
+    [map faceRemoved:face];
+}
+
 - (void) dealloc {
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    Brush* brush;
-    while ((brush = [brushEn nextObject]))
-        [brush removeObserver:self];
-    
     [entityId release];
 	[properties release];
 	[brushes release];

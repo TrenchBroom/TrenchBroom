@@ -23,12 +23,6 @@
 #import "PickingHit.h"
 #import "Ray3D.h"
 
-NSString* const FaceGeometryChanged = @"FaceGeometryChanged";
-NSString* const FaceFlagsChanged = @"FaceFlagsChanged";
-
-NSString* const TextureOldKey = @"TextureOld";
-NSString* const TextureNewKey = @"TextureNew";
-
 static Vector3f* baseAxes[18];
 
 @implementation Face
@@ -145,7 +139,7 @@ static Vector3f* baseAxes[18];
     [worldMatrix release];
     worldMatrix = nil;
     
-    [self notifyObservers:FaceGeometryChanged];
+    [brush faceGeometryChanged:self];
 }
 
 - (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3{
@@ -201,15 +195,13 @@ static Vector3f* baseAxes[18];
     if ([texture isEqualTo:name])
         return;
     
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setTexture:[NSString stringWithString:texture]];
-
-    NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
-    [userInfo setObject:[NSString stringWithString:texture] forKey:TextureOldKey];
-    [userInfo setObject:name forKey:TextureNewKey];
+    NSString* oldName = [NSString stringWithString:texture];
     
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] setTexture:oldName];
+
     [texture setString:name];
-    [self notifyObservers:FaceFlagsChanged userInfo:userInfo];
+    [brush faceTextureChanged:self oldTexture:oldName newTexture:texture];
 }
 
 - (void)setXOffset:(int)offset {
@@ -221,7 +213,7 @@ static Vector3f* baseAxes[18];
     
 	xOffset = offset;
 
-    [self notifyObservers:FaceFlagsChanged];
+    [brush faceFlagsChanged:self];
 }
 
 - (void)setYOffset:(int)offset {
@@ -233,7 +225,7 @@ static Vector3f* baseAxes[18];
     
 	yOffset = offset;
     
-    [self notifyObservers:FaceFlagsChanged];
+    [brush faceFlagsChanged:self];
 }
 
 - (void)setRotation:(float)angle {
@@ -250,7 +242,7 @@ static Vector3f* baseAxes[18];
     [texAxisY release];
     texAxisY = nil;
     
-    [self notifyObservers:FaceFlagsChanged];
+    [brush faceFlagsChanged:self];
 }
 
 - (void)setXScale:(float)factor {
@@ -267,7 +259,7 @@ static Vector3f* baseAxes[18];
     [texAxisY release];
     texAxisY = nil;
     
-    [self notifyObservers:FaceFlagsChanged];
+    [brush faceFlagsChanged:self];
 }
 
 - (void)setYScale:(float)factor {
@@ -284,7 +276,7 @@ static Vector3f* baseAxes[18];
     [texAxisY release];
     texAxisY = nil;
     
-    [self notifyObservers:FaceFlagsChanged];
+    [brush faceFlagsChanged:self];
 }
 
 - (void)updateTexAxes {
@@ -362,7 +354,7 @@ static Vector3f* baseAxes[18];
             break;
     }
 
-    [self notifyObservers:FaceFlagsChanged];
+    [brush faceFlagsChanged:self];
 }
 
 - (HalfSpace3D *)halfSpace {
@@ -520,10 +512,6 @@ static Vector3f* baseAxes[18];
 
 - (NSUndoManager *)undoManager {
     return [brush undoManager];
-}
-
-- (BOOL)postNotifications {
-    return [brush postNotifications];
 }
 
 - (void) dealloc {

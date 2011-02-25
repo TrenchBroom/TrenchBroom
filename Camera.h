@@ -6,7 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#import "Observable.h"
+#import <Cocoa/Cocoa.h>
 
 extern NSString* const CameraChanged;
 
@@ -14,7 +14,7 @@ extern NSString* const CameraChanged;
 @class Quaternion;
 @class Ray3D;
 
-@interface Camera : Observable {
+@interface Camera : NSObject {
     @private
     Vector3f* position;
     Vector3f* direction;

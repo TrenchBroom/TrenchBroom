@@ -74,6 +74,8 @@ NSString* const CameraChanged = @"CameraChanged";
     fov = [[cameraDefaults objectForKey:CameraDefaultsFov] floatValue];
     near = [[cameraDefaults objectForKey:CameraDefaultsNear] floatValue];
     far = [[cameraDefaults objectForKey:CameraDefaultsFar] floatValue];
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
 - (void)rotateYaw:(float)yaw pitch:(float)pitch {
@@ -89,8 +91,8 @@ NSString* const CameraChanged = @"CameraChanged";
         [right setFloat:direction];
         [right cross:up];
         [right normalize];
-        
-        [self notifyObservers:CameraChanged];
+
+        [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
     }
     [t release];
     [qy release];
@@ -112,7 +114,7 @@ NSString* const CameraChanged = @"CameraChanged";
     
     [v release];
 
-    [self notifyObservers:CameraChanged];
+    [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
 - (void)orbitCenter:(Vector3f *)c hAngle:(float)h vAngle:(float)v {
@@ -132,7 +134,7 @@ NSString* const CameraChanged = @"CameraChanged";
         [qh rotate:position];
         [position add:c];
         
-        [self notifyObservers:CameraChanged];
+        [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
     }
     [t release];
     [qh release];

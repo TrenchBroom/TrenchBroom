@@ -6,7 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#import "Observable.h"
+#import <Cocoa/Cocoa.h>
 
 typedef enum {
     RM_TEXTURED,
@@ -16,7 +16,7 @@ typedef enum {
 
 extern NSString* const OptionsChanged;
 
-@interface Options : Observable {
+@interface Options : NSObject {
     @private
     BOOL drawGrid;
     BOOL snapToGrid;

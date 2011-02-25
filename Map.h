@@ -6,15 +6,38 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import "Observable.h"
+#import <Cocoa/Cocoa.h>
 
-extern NSString* const MapEntityAdded;
-extern NSString* const MapEntityRemoved;
+extern NSString* const FaceAdded;
+extern NSString* const FaceRemoved;
+extern NSString* const FaceFlagsChanged;
+extern NSString* const FaceTextureChanged;
+extern NSString* const FaceGeometryChanged;
+extern NSString* const FaceKey;
+extern NSString* const FaceOldTextureKey;
+extern NSString* const FaceNewTextureKey;
+
+extern NSString* const BrushAdded;
+extern NSString* const BrushRemoved;
+extern NSString* const BrushChanged;
+extern NSString* const BrushKey;
+
+extern NSString* const EntityAdded;
+extern NSString* const EntityRemoved;
 extern NSString* const EntityKey;
 
-@class Entity;
+extern NSString* const PropertyAdded;
+extern NSString* const PropertyRemoved;
+extern NSString* const PropertyChanged;
+extern NSString* const PropertyKeyKey;
+extern NSString* const PropertyOldValueKey;
+extern NSString* const PropertyNewValueKey;
 
-@interface Map : Observable {
+@class Entity;
+@class Brush;
+@class Face;
+
+@interface Map : NSObject {
     @private
     NSMutableArray* entities;
     Entity* worldspawn;
@@ -35,19 +58,22 @@ extern NSString* const EntityKey;
 - (NSSet *)textureNames;
 
 - (BOOL)postNotifications;
+- (void)setPostNotifications:(BOOL)value;
 
-/*!
-    @function
-    @abstract   Returns the undo manager for this map.
-    @result     The undo manager for this map or nil if there is no undo manager.
-*/
 - (NSUndoManager *)undoManager;
-
-/*!
-    @function
-    @abstract   Sets the undo manager for this map.
-*/
 - (void)setUndoManager:(NSUndoManager *)theUndoManager;
 
-- (void)setPostNotifications:(BOOL)value;
+- (void)faceFlagsChanged:(Face *)face;
+- (void)faceTextureChanged:(Face *)face oldTexture:(NSString *)oldTexture newTexture:(NSString *)newTexture;
+- (void)faceGeometryChanged:(Face *)face;
+- (void)faceAdded:(Face *)face;
+- (void)faceRemoved:(Face *)face;
+
+- (void)brushAdded:(Brush *)brush;
+- (void)brushRemoved:(Brush *)brush;
+
+- (void)propertyAdded:(Entity *)entity key:(NSString *)key value:(NSString *)value;
+- (void)propertyRemoved:(Entity *)entity key:(NSString *)key value:(NSString *)value;
+- (void)propertyChanged:(Entity *)entity key:(NSString *)key oldValue:(NSString *)oldValue newValue:(NSString *)newValue;
+
 @end

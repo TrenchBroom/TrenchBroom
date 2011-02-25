@@ -6,23 +6,14 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import "Observable.h"
-
-extern NSString* const EntityBrushAdded;
-extern NSString* const EntityBrushRemoved;
-extern NSString* const BrushKey;
-extern NSString* const EntityPropertyAdded;
-extern NSString* const EntityPropertyRemoved;
-extern NSString* const EntityPropertyChanged;
-extern NSString* const PropertyNameKey;
-extern NSString* const PropertyValueKey;
-extern NSString* const PropertyOldValueKey;
+#import <Cocoa/Cocoa.h>
 
 @class Vector3i;
 @class Map;
 @class Brush;
+@class Face;
 
-@interface Entity : Observable {
+@interface Entity : NSObject {
     @private
     Map* map;
     NSNumber* entityId;
@@ -52,13 +43,12 @@ extern NSString* const PropertyOldValueKey;
 
 - (BOOL)isWorldspawn;
 
-- (BOOL)postNotifications;
-
-/*!
-    @function
-    @abstract   Returns the undo manager for this entity.
-    @discussion This method simply returns the undo manager of the map to which this entity belongs.
-    @result     The undo manager for this entity or nil if there is no undo manager.
-*/
 - (NSUndoManager *)undoManager;
+
+- (void)faceFlagsChanged:(Face *)face;
+- (void)faceTextureChanged:(Face *)face oldTexture:(NSString *)oldTexture newTexture:(NSString *)newTexture;
+- (void)faceGeometryChanged:(Face *)face;
+
+- (void)faceAdded:(Face *)face;
+- (void)faceRemoved:(Face *)face;
 @end

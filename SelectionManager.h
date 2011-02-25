@@ -6,7 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#import "Observable.h"
+#import <Cocoa/Cocoa.h>
 
 extern NSString* const SelectionAdded;
 extern NSString* const SelectionRemoved;
@@ -25,7 +25,7 @@ typedef enum {
 @class Brush;
 @class Entity;
 
-@interface SelectionManager : Observable {
+@interface SelectionManager : NSObject {
     @private
     NSMutableSet* faces;
     NSMutableSet* brushes;

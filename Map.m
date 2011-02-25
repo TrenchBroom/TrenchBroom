@@ -11,9 +11,30 @@
 #import "Brush.h"
 #import "Face.h"
 
-NSString* const MapEntityAdded      = @"MapEntityAdded";
-NSString* const MapEntityRemoved    = @"MapEntityRemoved";
+NSString* const FaceAdded           = @"FaceAdded";
+NSString* const FaceRemoved         = @"FaceRemoved";
+NSString* const FaceFlagsChanged    = @"FaceFlagsChanged";
+NSString* const FaceTextureChanged  = @"FaceTextureChanged";
+NSString* const FaceGeometryChanged = @"FaceGeometryChanged";
+NSString* const FaceKey             = @"Face";
+NSString* const FaceOldTextureKey   = @"FaceOldTexture";
+NSString* const FaceNewTextureKey   = @"FaceNewTexture";
+
+NSString* const BrushAdded          = @"BrushAdded";
+NSString* const BrushRemoved        = @"BrushRemoved";
+NSString* const BrushChanged        = @"BrushChanged";
+NSString* const BrushKey            = @"Brush";
+
+NSString* const EntityAdded         = @"EntityAdded";
+NSString* const EntityRemoved       = @"EntityRemoved";
 NSString* const EntityKey           = @"Entity";
+
+NSString* const PropertyAdded       = @"PropertyAdded";
+NSString* const PropertyRemoved     = @"PropertyRemoved";
+NSString* const PropertyChanged     = @"PropertyChanged";
+NSString* const PropertyKeyKey      = @"PropertyKey";
+NSString* const PropertyOldValueKey = @"PropertyOldValue";
+NSString* const PropertyNewValueKey = @"PropertyNewValue";
 
 @implementation Map
 
@@ -43,17 +64,11 @@ NSString* const EntityKey           = @"Entity";
     [[undoManager prepareWithInvocationTarget:self] removeEntity:theEntity];
     
     [entities addObject:theEntity];
-    [self addForward:FaceGeometryChanged from:theEntity];
-    [self addForward:FaceFlagsChanged from:theEntity];
-    [self addForward:BrushFaceAdded from:theEntity];
-    [self addForward:BrushFaceRemoved from:theEntity];
-    [self addForward:EntityBrushAdded from:theEntity];
-    [self addForward:EntityBrushRemoved from:theEntity];
-    [self addForward:EntityPropertyAdded from:theEntity];
-    [self addForward:EntityPropertyChanged from:theEntity];
-    [self addForward:EntityPropertyRemoved from:theEntity];
     
-    [self notifyObservers:MapEntityAdded infoObject:theEntity infoKey:EntityKey];
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:EntityAdded object:self userInfo:[NSDictionary dictionaryWithObject:theEntity forKey:EntityKey]];
+    }
 }
 
 - (Entity *)createEntity {
@@ -72,10 +87,12 @@ NSString* const EntityKey           = @"Entity";
     [[undoManager prepareWithInvocationTarget:self] addEntity:entity];
     
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:entity forKey:EntityKey];
-    [entity removeObserver:self];
-    
     [entities removeObject:entity];
-    [self notifyObservers:MapEntityRemoved userInfo:userInfo];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:EntityAdded object:self userInfo:userInfo];
+    }
 }
 
 - (NSArray *)entities {
@@ -122,12 +139,101 @@ NSString* const EntityKey           = @"Entity";
     undoManager = [theUndoManager retain];
 }
 
+- (void)faceFlagsChanged:(Face *)face {
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FaceFlagsChanged object:self userInfo:[NSDictionary dictionaryWithObject:face forKey:FaceKey]];
+    }
+}
+
+- (void)faceTextureChanged:(Face *)face oldTexture:(NSString *)oldTexture newTexture:(NSString *)newTexture {
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+        [userInfo setObject:face forKey:FaceKey];
+        [userInfo setObject:oldTexture forKey:FaceOldTextureKey];
+        [userInfo setObject:newTexture forKey:FaceNewTextureKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FaceTextureChanged object:self userInfo:userInfo];
+    }
+}
+
+- (void)faceGeometryChanged:(Face *)face {
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FaceGeometryChanged object:self userInfo:[NSDictionary dictionaryWithObject:face forKey:FaceKey]];
+        [center postNotificationName:BrushChanged object:self userInfo:[NSDictionary dictionaryWithObject:[face brush] forKey:BrushKey]];
+    }
+}
+
+- (void)faceAdded:(Face *)face {
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FaceAdded object:self userInfo:[NSDictionary dictionaryWithObject:face forKey:FaceKey]];
+        [center postNotificationName:BrushChanged object:self userInfo:[NSDictionary dictionaryWithObject:[face brush] forKey:BrushKey]];
+    }
+}
+
+- (void)faceRemoved:(Face *)face {
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FaceRemoved object:self userInfo:[NSDictionary dictionaryWithObject:face forKey:FaceKey]];
+        [center postNotificationName:BrushChanged object:self userInfo:[NSDictionary dictionaryWithObject:[face brush] forKey:BrushKey]];
+    }
+}
+
+- (void)brushAdded:(Brush *)brush {
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushAdded object:self userInfo:[NSDictionary dictionaryWithObject:brush forKey:BrushKey]];
+    }
+}
+
+- (void)brushRemoved:(Brush *)brush {
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushRemoved object:self userInfo:[NSDictionary dictionaryWithObject:brush forKey:BrushKey]];
+    }
+}
+
+- (void)propertyAdded:(Entity *)entity key:(NSString *)key value:(NSString *)value {
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+        [userInfo setObject:entity forKey:EntityKey];
+        [userInfo setObject:key forKey:PropertyKeyKey];
+        [userInfo setObject:value forKey:PropertyNewValueKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertyAdded object:self userInfo:userInfo];
+    }
+}
+
+- (void)propertyRemoved:(Entity *)entity key:(NSString *)key value:(NSString *)value {
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+        [userInfo setObject:entity forKey:EntityKey];
+        [userInfo setObject:key forKey:PropertyKeyKey];
+        [userInfo setObject:value forKey:PropertyOldValueKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertyRemoved object:self userInfo:userInfo];
+    }
+}
+
+- (void)propertyChanged:(Entity *)entity key:(NSString *)key oldValue:(NSString *)oldValue newValue:(NSString *)newValue {
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+        [userInfo setObject:entity forKey:EntityKey];
+        [userInfo setObject:key forKey:PropertyKeyKey];
+        [userInfo setObject:oldValue forKey:PropertyOldValueKey];
+        [userInfo setObject:newValue forKey:PropertyNewValueKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertyChanged object:self userInfo:userInfo];
+    }
+}
+
 - (void)dealloc {
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    Entity* entity;
-    while ((entity = [entityEn nextObject]))
-        [entity removeObserver:self];
-    
     [undoManager release];
     [entities release];
     [super dealloc];

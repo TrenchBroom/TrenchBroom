@@ -10,7 +10,6 @@
 
 NSString* const OptionsChanged = @"OptionsChanged";
 
-
 @implementation Options
 
 - (id)init {
@@ -44,7 +43,9 @@ NSString* const OptionsChanged = @"OptionsChanged";
         return;
     
     drawGrid = doDrawGrid;
-    [self notifyObservers:OptionsChanged];
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:OptionsChanged object:self];
 }
 
 - (void)setSnapToGrid:(BOOL)doSnapToGrid {
@@ -52,7 +53,9 @@ NSString* const OptionsChanged = @"OptionsChanged";
         return;
     
     snapToGrid = doSnapToGrid;
-    [self notifyObservers:OptionsChanged];
+
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:OptionsChanged object:self];
 }
 
 - (void)setGridSize:(int)theGridSize {
@@ -63,7 +66,9 @@ NSString* const OptionsChanged = @"OptionsChanged";
         [NSException raise:NSInvalidArgumentException format:@"grid size must be a positive integer"];
     
     gridSize = theGridSize;
-    [self notifyObservers:OptionsChanged];
+
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:OptionsChanged object:self];
 }
 
 - (void)setRenderMode:(ERenderMode)theRenderMode {
@@ -71,7 +76,9 @@ NSString* const OptionsChanged = @"OptionsChanged";
         return;
     
     renderMode = theRenderMode;
-    [self notifyObservers:OptionsChanged];
+
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:OptionsChanged object:self];
 }
 
 @end
