@@ -14,7 +14,7 @@
 @implementation GLResources
 
 - (id)init {
-    if (self = [self init]) {
+    if (self = [super init]) {
         NSOpenGLPixelFormatAttribute attrs[] = {0};
         NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
         openGLContext = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
@@ -53,7 +53,7 @@
     [textureManager release];
     [geometryVBO release];
     [openGLContext release];
-    [super dispose];
+    [super dealloc];
 }
 
 @end

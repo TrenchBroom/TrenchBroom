@@ -33,8 +33,11 @@
 }
 
 - (void)windowDidLoad {
-    NSOpenGLContext* glContext = [view3D openGLContext];
-    [glContext makeCurrentContext];
+    GLResources* glResources = [[self document] glResources];
+    NSOpenGLContext* sharedContext = [glResources openGLContext];
+    NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[view3D pixelFormat] shareContext:sharedContext];
+    [view3D setOpenGLContext:sharingContext];
+    [sharingContext release];
     
     options = [[Options alloc] init];
     camera = [[Camera alloc] init];

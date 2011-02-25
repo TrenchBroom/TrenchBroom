@@ -25,7 +25,7 @@ extern NSString* const RendererChanged;
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
 
-- (void)render:(RenderContext *)renderContext;
+- (void)render;
 - (void)updateView:(NSRect)bounds;
 
 @end

@@ -46,20 +46,8 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 - (void)setup {
     MapWindowController* controller = [[self window] windowController];
     
-    MapDocument* document = [controller document];
-    Map* map = [document map];
-    VBOBuffer* vbo = [controller vbo];
-    renderer = [[Renderer alloc] initWithMap:map vbo:vbo];
-    
+    renderer = [[Renderer alloc] initWithWindowController:controller];
     options = [[controller options] retain];
-    
-    Camera* camera = [controller camera];
-    SelectionManager* selectionManager = [controller selectionManager];
-    ToolManager* toolManager = [controller toolManager];
-    
-    [renderer setCamera:camera];
-    [renderer setSelectionManager:selectionManager];
-    [renderer setToolManager:toolManager];
     
     [renderer addObserver:self selector:@selector(rendererChanged:) name:RendererChanged];
     [options addObserver:self selector:@selector(optionsChanged:) name:OptionsChanged];
@@ -128,11 +116,8 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 	glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    TextureManager* textureManager = [[[self window] windowController] textureManager];
-    RenderContext* context = [[RenderContext alloc] initWithTextureManager:textureManager options:options];
-    
     [renderer updateView:bounds];
-    [renderer render:context];
+    [renderer render];
     
     [[self openGLContext] flushBuffer];
 }

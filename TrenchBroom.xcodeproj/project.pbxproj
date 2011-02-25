@@ -71,7 +71,6 @@
 		487A645812EA397C00A43289 /* TextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A645712EA397C00A43289 /* TextureView.m */; };
 		487A646C12EA3A7E00A43289 /* Texture.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A646B12EA3A7E00A43289 /* Texture.m */; };
 		487A7E3B130071F300434806 /* GeometryLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A7E3A130071F300434806 /* GeometryLayer.m */; };
-		487A7E48130078F100434806 /* RenderContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A7E47130078F100434806 /* RenderContext.m */; };
 		487A7E651300801A00434806 /* Renderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A7E641300801A00434806 /* Renderer.m */; };
 		487CA0BD125B005A002DF9D2 /* Plane3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0BC125B005A002DF9D2 /* Plane3D.m */; };
 		487CA0BE125B005A002DF9D2 /* Plane3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0BC125B005A002DF9D2 /* Plane3D.m */; };
@@ -81,6 +80,7 @@
 		487FC64612E8B86B006FF29E /* Wad.m in Sources */ = {isa = PBXBuildFile; fileRef = 487FC64512E8B86B006FF29E /* Wad.m */; };
 		487FC64912E8BB53006FF29E /* WadEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 487FC64812E8BB53006FF29E /* WadEntry.m */; };
 		487FC65A12E8BF60006FF29E /* WadLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 487FC65912E8BF60006FF29E /* WadLoader.m */; };
+		488089A61317A2F100823C27 /* RenderContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 488089A51317A2F100823C27 /* RenderContext.m */; };
 		4881C74212E9C8BE006BF922 /* TextureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74112E9C8BE006BF922 /* TextureManager.m */; };
 		4881C74812E9CD88006BF922 /* WadTextureEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74712E9CD88006BF922 /* WadTextureEntry.m */; };
 		4881C74B12E9CD8F006BF922 /* WadPaletteEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */; };
@@ -248,8 +248,6 @@
 		487A7E38130071DD00434806 /* Layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Layer.h; sourceTree = "<group>"; };
 		487A7E39130071F300434806 /* GeometryLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryLayer.h; sourceTree = "<group>"; };
 		487A7E3A130071F300434806 /* GeometryLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeometryLayer.m; sourceTree = "<group>"; };
-		487A7E46130078F100434806 /* RenderContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderContext.h; sourceTree = "<group>"; };
-		487A7E47130078F100434806 /* RenderContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderContext.m; sourceTree = "<group>"; };
 		487A7E631300801A00434806 /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
 		487A7E641300801A00434806 /* Renderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Renderer.m; sourceTree = "<group>"; };
 		487CA0BB125B005A002DF9D2 /* Plane3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane3D.h; sourceTree = "<group>"; };
@@ -264,6 +262,8 @@
 		487FC64812E8BB53006FF29E /* WadEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WadEntry.m; sourceTree = "<group>"; };
 		487FC65812E8BF60006FF29E /* WadLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WadLoader.h; sourceTree = "<group>"; };
 		487FC65912E8BF60006FF29E /* WadLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WadLoader.m; sourceTree = "<group>"; };
+		488089A41317A2F100823C27 /* RenderContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderContext.h; sourceTree = "<group>"; };
+		488089A51317A2F100823C27 /* RenderContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderContext.m; sourceTree = "<group>"; };
 		4881C74012E9C8BE006BF922 /* TextureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureManager.h; sourceTree = "<group>"; };
 		4881C74112E9C8BE006BF922 /* TextureManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureManager.m; sourceTree = "<group>"; };
 		4881C74612E9CD88006BF922 /* WadTextureEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WadTextureEntry.h; sourceTree = "<group>"; };
@@ -521,10 +521,10 @@
 				488C8EDF12F6C3ED00F358E6 /* IntData.h */,
 				488C8EE012F6C3ED00F358E6 /* IntData.m */,
 				487A7E38130071DD00434806 /* Layer.h */,
-				487A7E46130078F100434806 /* RenderContext.h */,
-				487A7E47130078F100434806 /* RenderContext.m */,
 				487A7E631300801A00434806 /* Renderer.h */,
 				487A7E641300801A00434806 /* Renderer.m */,
+				488089A41317A2F100823C27 /* RenderContext.h */,
+				488089A51317A2F100823C27 /* RenderContext.m */,
 				488F07CC13013F9F0063E550 /* SelectionLayer.h */,
 				488F07CD13013F9F0063E550 /* SelectionLayer.m */,
 				487A646A12EA3A7E00A43289 /* Texture.h */,
@@ -960,7 +960,6 @@
 				4872C97712FF4DC200C5DD29 /* Matrix4f.m in Sources */,
 				4872C97A12FF4DEC00C5DD29 /* Vector4f.m in Sources */,
 				487A7E3B130071F300434806 /* GeometryLayer.m in Sources */,
-				487A7E48130078F100434806 /* RenderContext.m in Sources */,
 				487A7E651300801A00434806 /* Renderer.m in Sources */,
 				488F0790130130580063E550 /* FaceFigure.m in Sources */,
 				488F07CE13013F9F0063E550 /* SelectionLayer.m in Sources */,
@@ -981,6 +980,7 @@
 				48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */,
 				482B817E13169EB200F36EF5 /* GLException.m in Sources */,
 				48CBDD9913170B330041F704 /* GLResources.m in Sources */,
+				488089A61317A2F100823C27 /* RenderContext.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

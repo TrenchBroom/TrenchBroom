@@ -32,7 +32,8 @@
 - (void)postInit {
     picker = [[Picker alloc] initWithDocument:self];
     glResources = [[GLResources alloc] init];
-
+    [[glResources openGLContext] makeCurrentContext];
+    
     NSString* wads = [[map worldspawn] propertyForKey:@"wad"];
     if (wads != nil) {
         TextureManager* textureManager = [glResources textureManager];

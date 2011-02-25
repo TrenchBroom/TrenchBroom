@@ -9,6 +9,7 @@
 #import "InspectorController.h"
 #import "MapWindowController.h"
 #import "MapDocument.h"
+#import "GLResources.h"
 #import "SelectionManager.h"
 #import "TextureManager.h"
 #import "GLFontManager.h"
@@ -151,7 +152,9 @@ static InspectorController* sharedInstance = nil;
         } else {
             [textureNameField setStringValue:textureName];
             
-            TextureManager* textureManager = [[mapWindowController document] textureManager];
+            MapDocument* document = [mapWindowController document];
+            GLResources* glResources = [document glResources];
+            TextureManager* textureManager = [glResources textureManager];
             Texture* texture = [textureManager textureForName:textureName];
             [singleTextureView setTexture:texture];
         }
@@ -233,7 +236,10 @@ static InspectorController* sharedInstance = nil;
         return;
     
     if (mapWindowController != nil) {
-        TextureManager* textureManager = [[mapWindowController document] textureManager];
+        MapDocument* document = [mapWindowController document];
+        GLResources* glResources = [document glResources];
+
+        TextureManager* textureManager = [glResources textureManager];
         [textureManager removeObserver:self];
         
         SelectionManager* selectionManager = [mapWindowController selectionManager];
@@ -250,21 +256,25 @@ static InspectorController* sharedInstance = nil;
     mapWindowController = [theMapWindowController retain];
 
     if (mapWindowController != nil) {
-        NSOpenGLContext* context = [[NSOpenGLContext alloc] initWithFormat:[singleTextureView pixelFormat] shareContext:[mapWindowController glContext]];
+        MapDocument* document = [mapWindowController document];
+        GLResources* glResources = [document glResources];
+        NSOpenGLContext* context = [[NSOpenGLContext alloc] initWithFormat:[singleTextureView pixelFormat] shareContext:[glResources openGLContext]];
         [singleTextureView setOpenGLContext:context];
         [context release];
 
-        TextureManager* textureManager = [[mapWindowController document] textureManager];
+        TextureManager* textureManager = [glResources textureManager];
         [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesAdded];
         [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesRemoved];
 
         SelectionManager* selectionManager = [mapWindowController selectionManager];
         [selectionManager addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded];
         [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
+        [textureView setGLResources:glResources];
+    } else {
+        [textureView setGLResources:nil];
     }
 
     [self updateTextureControls];
-    [textureView mapChanged];
 }
 
 - (MapWindowController *)mapWindowController {

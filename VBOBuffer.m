@@ -192,7 +192,10 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         [block release];
     }
 
-    [self dispose];
+    [self unmapBuffer];
+    [self deactivate];
+    if (vboId != 0)
+        glDeleteBuffers(1, &vboId);
 }
 
 - (VBOMemBlock *)allocMemBlock:(int)capacity {

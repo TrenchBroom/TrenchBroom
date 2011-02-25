@@ -27,6 +27,7 @@
 #import "FaceFigure.h"
 #import "Options.h"
 #import "MapDocument.h"
+#import "MapWindowController.h"
 #import "GLResources.h"
 
 NSString* const RendererChanged = @"RendererChanged";
@@ -34,12 +35,17 @@ NSString* const RendererChanged = @"RendererChanged";
 @implementation Renderer
 
 - (FaceFigure *)createFaceFigure:(Face *)theFace {
+    MapDocument* document = [windowController document];
+    GLResources* glResources = [document glResources];
+    VBOBuffer* vbo = [glResources geometryVBO];
+    
     FaceFigure* faceFigure = [[FaceFigure alloc] initWithFace:theFace vbo:vbo];
     [faceFigures setObject:faceFigure forKey:[theFace faceId]];
     return [faceFigure autorelease];
 }
 
 - (void)addFace:(Face *)face {
+    SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager isFaceSelected:face]) {
         [selectionLayer addFigure:[self createFaceFigure:face]];
     } else {
@@ -51,6 +57,7 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)removeFace:(Face *)face {
+    SelectionManager* selectionManager = [windowController selectionManager];
     FaceFigure* faceFigure = [faceFigures objectForKey:[face faceId]];
     if ([selectionManager isFaceSelected:face])
         [selectionLayer removeFigure:faceFigure];
@@ -264,7 +271,13 @@ NSString* const RendererChanged = @"RendererChanged";
     return self;
 }
 
-- (void)render:(RenderContext *)renderContext {
+- (void)render {
+    MapDocument* document = [windowController document];
+    GLResources* glResources = [document glResources];
+    TextureManager* textureManager = [glResources textureManager];
+    Options* options = [windowController options];
+    
+    RenderContext* renderContext = [[RenderContext alloc] initWithTextureManager:textureManager options:options];
     [geometryLayer render:renderContext];
     [selectionLayer render:renderContext];
     [toolLayer render:renderContext];
