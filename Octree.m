@@ -10,7 +10,7 @@
 #import "OctreeNode.h"
 #import "Vector3i.h"
 #import "Ray3D.h"
-#import "Map.h"
+#import "MapDocument.h"
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
@@ -42,8 +42,7 @@
         [NSException raise:NSInvalidArgumentException format:@"document must not be nil"];
     
     if (self = [self init]) {
-        document = [theDocument retain];
-        Map* map = [document map];
+        map = [theDocument retain];
         
         int w = [map worldSize] / 2;
         Vector3i* min = [[Vector3i alloc] initWithX:-w y:-w z:-w];
@@ -79,7 +78,7 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [root release];
-    [document release];
+    [map release];
     [super dealloc];
 }
 @end

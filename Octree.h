@@ -15,7 +15,7 @@
 @interface Octree : NSObject {
     @private
     OctreeNode* root;
-    MapDocument* document;
+    MapDocument* map;
 }
 
 - (id)initWithDocument:(MapDocument *)theDocument minSize:(int)theMinSize;

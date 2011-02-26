@@ -1,27 +1,63 @@
 //
-//  MyDocument.m
+//  Map.m
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 30.01.10.
+//  Created by Kristian Duske on 15.03.10.
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
 #import "MapDocument.h"
-#import "Map.h"
 #import "Entity.h"
 #import "Brush.h"
-#import "Vector3i.h"
-#import "MapWindowController.h"
-#import "MapParser.h"
-#import "BrushFactory.h"
-#import "ProgressWindowController.h"
-#import "Options.h"
+#import "Face.h"
+#import "TextureManager.h"
 #import "Picker.h"
 #import "GLResources.h"
 #import "WadLoader.h"
-#import "TextureManager.h"
+#import "MapWindowController.h"
+#import "ProgressWindowController.h"
+#import "MapParser.h"
+
+NSString* const FaceAdded           = @"FaceAdded";
+NSString* const FaceRemoved         = @"FaceRemoved";
+NSString* const FaceFlagsChanged    = @"FaceFlagsChanged";
+NSString* const FaceTextureChanged  = @"FaceTextureChanged";
+NSString* const FaceGeometryChanged = @"FaceGeometryChanged";
+NSString* const FaceKey             = @"Face";
+NSString* const FaceOldTextureKey   = @"FaceOldTexture";
+NSString* const FaceNewTextureKey   = @"FaceNewTexture";
+
+NSString* const BrushAdded          = @"BrushAdded";
+NSString* const BrushRemoved        = @"BrushRemoved";
+NSString* const BrushChanged        = @"BrushChanged";
+NSString* const BrushKey            = @"Brush";
+
+NSString* const EntityAdded         = @"EntityAdded";
+NSString* const EntityRemoved       = @"EntityRemoved";
+NSString* const EntityKey           = @"Entity";
+
+NSString* const PropertyAdded       = @"PropertyAdded";
+NSString* const PropertyRemoved     = @"PropertyRemoved";
+NSString* const PropertyChanged     = @"PropertyChanged";
+NSString* const PropertyKeyKey      = @"PropertyKey";
+NSString* const PropertyOldValueKey = @"PropertyOldValue";
+NSString* const PropertyNewValueKey = @"PropertyNewValue";
 
 @implementation MapDocument
+
+- (id)init {
+    if (self = [super init]) {
+        entities = [[NSMutableArray alloc] init];
+        worldspawn = nil;
+        worldSize = 8192;
+        postNotifications = YES;
+
+        picker = [[Picker alloc] initWithDocument:self];
+        glResources = [[GLResources alloc] init];
+    }
+    
+    return self;
+}
 
 - (void)makeWindowControllers {
 	MapWindowController* controller = [[MapWindowController alloc] initWithWindowNibName:@"MapDocument"];
@@ -29,14 +65,187 @@
     [controller release];
 }
 
-- (void)postInit {
-    picker = [[Picker alloc] initWithDocument:self];
-    glResources = [[GLResources alloc] init];
-    [[glResources openGLContext] makeCurrentContext];
+- (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError {
+    return nil;
+}
+
+- (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
+    ProgressWindowController* pwc = [[ProgressWindowController alloc] initWithWindowNibName:@"ProgressWindow"];
+    [[pwc window] makeKeyAndOrderFront:self];
+    [[pwc label] setStringValue:@"Loading map file..."];
     
-    NSString* wads = [[map worldspawn] propertyForKey:@"wad"];
+    NSProgressIndicator* indicator = [pwc progressIndicator];
+    [indicator setIndeterminate:NO];
+    [indicator setUsesThreadedAnimation:YES];
+    
+    [[self undoManager] disableUndoRegistration];
+    MapParser* parser = [[MapParser alloc] initWithData:data];
+    [parser parseMap:self withProgressIndicator:indicator];
+    [parser release];
+    [[self undoManager] enableUndoRegistration];
+    
+    [pwc close];
+    [pwc release];
+    
+    [picker release];
+    picker = [[Picker alloc] initWithDocument:self];
+    [self refreshWadFiles];
+    return YES;
+}
+
+- (Entity *)worldspawn {
+    if (worldspawn == nil || ![worldspawn isWorldspawn]) {
+        NSEnumerator* en = [entities objectEnumerator];
+        while ((worldspawn = [en nextObject]))
+            if ([worldspawn isWorldspawn])
+                break;
+    }
+    
+    return worldspawn;
+}
+
+- (void)addEntity:(Entity *)theEntity {
+    [[[self undoManager] prepareWithInvocationTarget:self] removeEntity:theEntity];
+    
+    [entities addObject:theEntity];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:EntityAdded object:self userInfo:[NSDictionary dictionaryWithObject:theEntity forKey:EntityKey]];
+    }
+}
+
+- (Entity *)createEntity {
+    Entity* entity = [[Entity alloc] initInMap:self];
+    [self addEntity:entity];
+    return [entity autorelease];
+}
+
+- (Entity *)createEntityWithProperty:(NSString *)key value:(NSString *)value {
+    Entity* entity = [[Entity alloc] initInMap:self property:key value:value];
+    [self addEntity:entity];
+    return entity;
+}
+
+- (void)removeEntity:(Entity *)entity {
+    [[[self undoManager] prepareWithInvocationTarget:self] addEntity:entity];
+    
+    NSDictionary* userInfo = [NSDictionary dictionaryWithObject:entity forKey:EntityKey];
+    [entities removeObject:entity];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:EntityAdded object:self userInfo:userInfo];
+    }
+}
+
+- (NSArray *)entities {
+    return entities;
+}
+
+- (int)worldSize {
+    return worldSize;
+}
+
+- (BOOL)postNotifications {
+    return postNotifications;
+}
+
+- (NSSet *)textureNames {
+    NSMutableSet* textureNames = [[NSMutableSet alloc] init];
+    
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    Entity* entity;
+    while ((entity = [entityEn nextObject])) {
+        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+        Brush* brush;
+        while ((brush = [brushEn nextObject])) {
+            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+            Face* face;
+            while ((face = [faceEn nextObject]))
+                [textureNames addObject:[face texture]];
+        }
+    }
+    
+    return [textureNames autorelease];
+}
+
+- (void)setPostNotifications:(BOOL)value {
+    postNotifications = value;
+}
+
+- (Picker *)picker {
+    return picker;
+}
+
+- (GLResources *)glResources {
+    return glResources;
+}
+
+- (void)faceFlagsChanged:(Face *)face {
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FaceFlagsChanged object:self userInfo:[NSDictionary dictionaryWithObject:face forKey:FaceKey]];
+    }
+}
+
+- (void)faceTextureChanged:(Face *)face oldTexture:(NSString *)oldTexture newTexture:(NSString *)newTexture {
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+        [userInfo setObject:face forKey:FaceKey];
+        [userInfo setObject:oldTexture forKey:FaceOldTextureKey];
+        [userInfo setObject:newTexture forKey:FaceNewTextureKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FaceTextureChanged object:self userInfo:userInfo];
+    }
+}
+
+- (void)faceGeometryChanged:(Face *)face {
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FaceGeometryChanged object:self userInfo:[NSDictionary dictionaryWithObject:face forKey:FaceKey]];
+        [center postNotificationName:BrushChanged object:self userInfo:[NSDictionary dictionaryWithObject:[face brush] forKey:BrushKey]];
+    }
+}
+
+- (void)faceAdded:(Face *)face {
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FaceAdded object:self userInfo:[NSDictionary dictionaryWithObject:face forKey:FaceKey]];
+        [center postNotificationName:BrushChanged object:self userInfo:[NSDictionary dictionaryWithObject:[face brush] forKey:BrushKey]];
+    }
+}
+
+- (void)faceRemoved:(Face *)face {
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FaceRemoved object:self userInfo:[NSDictionary dictionaryWithObject:face forKey:FaceKey]];
+        [center postNotificationName:BrushChanged object:self userInfo:[NSDictionary dictionaryWithObject:[face brush] forKey:BrushKey]];
+    }
+}
+
+- (void)brushAdded:(Brush *)brush {
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushAdded object:self userInfo:[NSDictionary dictionaryWithObject:brush forKey:BrushKey]];
+    }
+}
+
+- (void)brushRemoved:(Brush *)brush {
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushRemoved object:self userInfo:[NSDictionary dictionaryWithObject:brush forKey:BrushKey]];
+    }
+}
+
+- (void)refreshWadFiles {
+    TextureManager* textureManager = [glResources textureManager];
+    [textureManager removeAllTextures];
+
+    NSString* wads = [[self worldspawn] propertyForKey:@"wad"];
     if (wads != nil) {
-        TextureManager* textureManager = [glResources textureManager];
+        [[glResources openGLContext] makeCurrentContext];
         NSArray* wadPaths = [wads componentsSeparatedByString:@";"];
         for (int i = 0; i < [wadPaths count]; i++) {
             NSString* wadPath = [[wadPaths objectAtIndex:i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
@@ -55,88 +264,57 @@
     }
 }
 
-- (id)initWithType:(NSString *)typeName error:(NSError **)outError {
-    if (self = [super initWithType:typeName error:outError]) {
-        map = [[Map alloc] init];
+- (void)propertyAdded:(Entity *)entity key:(NSString *)key value:(NSString *)value {
+    if ([key isEqualToString:@"wad"])
+        [self refreshWadFiles];
+    
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+        [userInfo setObject:entity forKey:EntityKey];
+        [userInfo setObject:key forKey:PropertyKeyKey];
+        [userInfo setObject:value forKey:PropertyNewValueKey];
         
-        NSUndoManager* undoManager = [self undoManager];
-        [map setUndoManager:undoManager];
-
-        [undoManager disableUndoRegistration];
-        Entity* worldspawn = [map createEntityWithProperty:@"classname" value:@"worldspawn"];
-        
-
-        /*
-        BrushFactory* brushFactory = [BrushFactory sharedFactory];
-        // Brush* brush = [brushFactory createCuboidFor:worldspawn atCenter:[Vector3i nullVector] dimensions:[Vector3i vectorWithX:64 y:64 z:64] texture:@""];
-        Brush* brush = [worldspawn createBrush];
-        
-        
-        [brush createFaceWithPoint1:[Vector3i vectorWithX:276 y:108 z:176] point2:[Vector3i vectorWithX:276 y:120 z:176] point3:[Vector3i vectorWithX:260 y:120 z:176] texture:@"mt_sr_v13"];
-        [brush createFaceWithPoint1:[Vector3i vectorWithX:260 y:120 z:208] point2:[Vector3i vectorWithX:276 y:120 z:208] point3:[Vector3i vectorWithX:276 y:108 z:208] texture:@"mt_sr_v13"];
-        [brush createFaceWithPoint1:[Vector3i vectorWithX:252 y:116 z:176] point2:[Vector3i vectorWithX:252 y:116 z:208] point3:[Vector3i vectorWithX:268 y:100 z:208] texture:@"mt_sr_v13"];
-        [brush createFaceWithPoint1:[Vector3i vectorWithX:288 y:122 z:208] point2:[Vector3i vectorWithX:288 y:122 z:176] point3:[Vector3i vectorWithX:268 y:102 z:176] texture:@"mt_sr_v13"];
-        [brush createFaceWithPoint1:[Vector3i vectorWithX:288 y:120 z:176] point2:[Vector3i vectorWithX:288 y:120 z:208] point3:[Vector3i vectorWithX:288 y:152 z:208] texture:@"mt_sr_v13"];
-        [brush createFaceWithPoint1:[Vector3i vectorWithX:289 y:152 z:176] point2:[Vector3i vectorWithX:289 y:152 z:208] point3:[Vector3i vectorWithX:253 y:116 z:208] texture:@"mt_sr_v13"];
-
-         ( 276 108 176 ) ( 276 120 176 ) ( 260 120 176 ) mt_sr_v13 -59 116 -90 1 1
-         ( 260 120 208 ) ( 276 120 208 ) ( 276 108 208 ) mt_sr_v13 -59 116 -90 1 1
-         ( 252 116 176 ) ( 252 116 208 ) ( 268 100 208 ) mt_sr_v13 20 -62 -180 1 1.000008
-         ( 288 122 208 ) ( 288 122 176 ) ( 268 102 176 ) mt_sr_v13 -34 -62 0 1 -1.000008
-         ( 288 120 176 ) ( 288 120 208 ) ( 288 152 208 ) mt_sr_v13 -59 -62 -180 1 1.000008
-         ( 289 152 176 ) ( 289 152 208 ) ( 253 116 208 ) mt_sr_v13 -6 -62 0 1 -1.000008
-         */
-        
-        [undoManager enableUndoRegistration];
-        [self postInit];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertyAdded object:self userInfo:userInfo];
     }
-    
-    return self;
 }
 
-- (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError {
-    return nil;
+- (void)propertyRemoved:(Entity *)entity key:(NSString *)key value:(NSString *)value {
+    if ([key isEqualToString:@"wad"])
+        [self refreshWadFiles];
+
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+        [userInfo setObject:entity forKey:EntityKey];
+        [userInfo setObject:key forKey:PropertyKeyKey];
+        [userInfo setObject:value forKey:PropertyOldValueKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertyRemoved object:self userInfo:userInfo];
+    }
 }
 
-- (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
-    ProgressWindowController* pwc = [[ProgressWindowController alloc] initWithWindowNibName:@"ProgressWindow"];
-    [[pwc window] makeKeyAndOrderFront:self];
-    [[pwc label] setStringValue:@"Loading map file..."];
-    
-    NSProgressIndicator* indicator = [pwc progressIndicator];
-    [indicator setIndeterminate:NO];
-    [indicator setUsesThreadedAnimation:YES];
+- (void)propertyChanged:(Entity *)entity key:(NSString *)key oldValue:(NSString *)oldValue newValue:(NSString *)newValue {
+    if ([key isEqualToString:@"wad"])
+        [self refreshWadFiles];
 
-    MapParser* parser = [[MapParser alloc] initWithData:data];
-    map = [parser parseWithProgressIndicator:indicator];
-    [map retain];
-    [parser release];
-
-    NSUndoManager* undoManager = [self undoManager];
-    [map setUndoManager:undoManager];
-    [pwc close];
-    
-    [self postInit];
-    return YES;
-}
-
-- (Map *)map {
-    return map;
-}
-
-- (Picker *)picker {
-    return picker;
-}
-
-- (GLResources *)glResources {
-    return glResources;
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+        [userInfo setObject:entity forKey:EntityKey];
+        [userInfo setObject:key forKey:PropertyKeyKey];
+        [userInfo setObject:oldValue forKey:PropertyOldValueKey];
+        [userInfo setObject:newValue forKey:PropertyNewValueKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertyChanged object:self userInfo:userInfo];
+    }
 }
 
 - (void)dealloc {
-    [map release];
+    [entities release];
     [picker release];
     [glResources release];
-	[super dealloc];
+    [super dealloc];
 }
 
 @end

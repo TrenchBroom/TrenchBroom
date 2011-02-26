@@ -29,6 +29,7 @@ extern NSString* const MissingPaletteException;
 - (id)initWithPalette:(NSData *)thePalette;
 
 - (void)loadTexturesFrom:(Wad *)wad;
+- (void)removeAllTextures;
 
 - (Texture *)textureForName:(NSString *)name;
 - (NSArray *)texturesForNames:(NSArray *)names;

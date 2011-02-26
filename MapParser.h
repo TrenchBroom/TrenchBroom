@@ -18,7 +18,7 @@ typedef enum {
 
 
 @class MapTokenizer;
-@class Map;
+@class MapDocument;
 @class Entity;
 @class Brush;
 @class Vector3i;
@@ -27,7 +27,7 @@ typedef enum {
     @private
     int size;
     MapTokenizer* tokenizer;
-    Map* map;
+    MapDocument* map;
     Entity* entity;
     Brush* brush;
     EParserState state;
@@ -37,6 +37,6 @@ typedef enum {
 }
 
 - (id)initWithData:(NSData *)someData;
-- (Map *)parseWithProgressIndicator:(NSProgressIndicator *)indicator;
+- (void)parseMap:(MapDocument *)theMap withProgressIndicator:(NSProgressIndicator *)theIndicator;
 
 @end

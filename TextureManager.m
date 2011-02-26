@@ -119,6 +119,30 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     [center postNotificationName:TexturesAdded object:self userInfo:[NSDictionary dictionaryWithObject:addedTextures forKey:UserInfoTextures]];
 }
 
+- (void)deleteTextures {
+    GLuint textureIds[[textures count]];
+    
+    NSEnumerator* texEn = [textures objectEnumerator];
+    Texture* texture;
+    
+    int i = 0;
+    while ((texture = [texEn nextObject]))
+        textureIds[i++] = [texture textureId];
+    
+    glDeleteTextures([textures count], textureIds);
+}
+
+- (void)removeAllTextures {
+    NSArray* removedTextures = [NSArray arrayWithArray:[textures allValues]];
+    [self deleteTextures];
+    
+    [textures removeAllObjects];
+    [texturesByName removeAllObjects];
+
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:TexturesRemoved object:self userInfo:[NSDictionary dictionaryWithObject:removedTextures forKey:UserInfoTextures]];
+}
+
 - (Texture *)textureForName:(NSString *)name {
     if (name == nil)
         [NSException raise:NSInvalidArgumentException format:@"name must not be nil"];
@@ -160,17 +184,7 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
 }
 
 - (void)dealloc {
-    GLuint textureIds[[textures count]];
-    
-    NSEnumerator* texEn = [textures objectEnumerator];
-    Texture* texture;
-    
-    int i = 0;
-    while ((texture = [texEn nextObject]))
-        textureIds[i++] = [texture textureId];
-    
-    glDeleteTextures([textures count], textureIds);
-
+    [self deleteTextures];
     [palette release];
     [textures release];
     [texturesByName release];

@@ -14,7 +14,7 @@
 		4809F448118EDE6D000F66FD /* Vector3f.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F1E114EA95A0064732A /* Vector3f.m */; };
 		4809F44D118EDE78000F66FD /* VBOMemBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FE1150258B004DD957 /* VBOMemBlock.m */; };
 		4809F44E118EDE79000F66FD /* VBOBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FB115023A2004DD957 /* VBOBuffer.m */; };
-		4809F453118EDE80000F66FD /* Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* Map.m */; };
+		4809F453118EDE80000F66FD /* MapDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* MapDocument.m */; };
 		4809F454118EDE81000F66FD /* Face.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3711148D5C00CD6043 /* Face.m */; };
 		4809F455118EDE81000F66FD /* Entity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* Entity.m */; };
 		4809F456118EDE82000F66FD /* Brush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* Brush.m */; };
@@ -100,7 +100,7 @@
 		48A68F18114EA76E0064732A /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48A68F17114EA76E0064732A /* Accelerate.framework */; };
 		48A68F1F114EA95A0064732A /* Vector3f.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F1E114EA95A0064732A /* Vector3f.m */; };
 		48A68F27114EDF360064732A /* Entity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* Entity.m */; };
-		48A68F70114EE6DC0064732A /* Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* Map.m */; };
+		48A68F70114EE6DC0064732A /* MapDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* MapDocument.m */; };
 		48B3243C12E1C6B8008748E2 /* Camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3243B12E1C6B8008748E2 /* Camera.m */; };
 		48B324C112E1F455008748E2 /* Camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3243B12E1C6B8008748E2 /* Camera.m */; };
 		48B3256012E2D760008748E2 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 48B3255F12E2D760008748E2 /* Defaults.plist */; };
@@ -121,7 +121,6 @@
 		48FDA0BE12FD872500204729 /* FaceOffsetTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FDA0BD12FD872500204729 /* FaceOffsetTool.m */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
-		8D15AC310486D014006FF6A4 /* MapDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4ACFDCFA73011CA2CEA /* MapDocument.m */; settings = {ATTRIBUTES = (); }; };
 		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
@@ -143,8 +142,6 @@
 		1DDD58290DA1D0D100B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MapDocument.xib; sourceTree = "<group>"; };
 		1DDD582B0DA1D0D100B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		2564AD2C0F5327BB00F57823 /* TrenchBroom_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroom_Prefix.pch; sourceTree = "<group>"; };
-		2A37F4ACFDCFA73011CA2CEA /* MapDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapDocument.m; sourceTree = "<group>"; };
-		2A37F4AEFDCFA73011CA2CEA /* MapDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapDocument.h; sourceTree = "<group>"; };
 		2A37F4B0FDCFA73011CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2A37F4BAFDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
@@ -297,8 +294,8 @@
 		48A68F1E114EA95A0064732A /* Vector3f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vector3f.m; sourceTree = "<group>"; };
 		48A68F25114EDF360064732A /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Entity.h; sourceTree = "<group>"; };
 		48A68F26114EDF360064732A /* Entity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Entity.m; sourceTree = "<group>"; };
-		48A68F6E114EE6DC0064732A /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
-		48A68F6F114EE6DC0064732A /* Map.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Map.m; sourceTree = "<group>"; };
+		48A68F6E114EE6DC0064732A /* MapDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapDocument.h; sourceTree = "<group>"; };
+		48A68F6F114EE6DC0064732A /* MapDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapDocument.m; sourceTree = "<group>"; };
 		48B3243A12E1C6B8008748E2 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		48B3243B12E1C6B8008748E2 /* Camera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Camera.m; sourceTree = "<group>"; };
 		48B3255F12E2D760008748E2 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
@@ -628,10 +625,8 @@
 				48527F3711148D5C00CD6043 /* Face.m */,
 				487E1E9212E495060001C150 /* IdGenerator.h */,
 				487E1E9312E495060001C150 /* IdGenerator.m */,
-				2A37F4AEFDCFA73011CA2CEA /* MapDocument.h */,
-				2A37F4ACFDCFA73011CA2CEA /* MapDocument.m */,
-				48A68F6E114EE6DC0064732A /* Map.h */,
-				48A68F6F114EE6DC0064732A /* Map.m */,
+				48A68F6E114EE6DC0064732A /* MapDocument.h */,
+				48A68F6F114EE6DC0064732A /* MapDocument.m */,
 			);
 			name = Map;
 			sourceTree = "<group>";
@@ -858,7 +853,7 @@
 				4809F448118EDE6D000F66FD /* Vector3f.m in Sources */,
 				4809F44D118EDE78000F66FD /* VBOMemBlock.m in Sources */,
 				4809F44E118EDE79000F66FD /* VBOBuffer.m in Sources */,
-				4809F453118EDE80000F66FD /* Map.m in Sources */,
+				4809F453118EDE80000F66FD /* MapDocument.m in Sources */,
 				4809F454118EDE81000F66FD /* Face.m in Sources */,
 				4809F455118EDE81000F66FD /* Entity.m in Sources */,
 				4809F456118EDE82000F66FD /* Brush.m in Sources */,
@@ -881,7 +876,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8D15AC310486D014006FF6A4 /* MapDocument.m in Sources */,
 				8D15AC320486D014006FF6A4 /* main.m in Sources */,
 				48527F3811148D5C00CD6043 /* Face.m in Sources */,
 				48527F3B11148D8E00CD6043 /* Vector3i.m in Sources */,
@@ -890,7 +884,7 @@
 				48A68ECF114E9B0D0064732A /* MapView3D.m in Sources */,
 				48A68F1F114EA95A0064732A /* Vector3f.m in Sources */,
 				48A68F27114EDF360064732A /* Entity.m in Sources */,
-				48A68F70114EE6DC0064732A /* Map.m in Sources */,
+				48A68F70114EE6DC0064732A /* MapDocument.m in Sources */,
 				484C28FC115023A2004DD957 /* VBOBuffer.m in Sources */,
 				484C28FF1150258B004DD957 /* VBOMemBlock.m in Sources */,
 				483B1129122441060072EAFB /* Math.m in Sources */,

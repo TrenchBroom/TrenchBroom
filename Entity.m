@@ -7,7 +7,7 @@
 //
 
 #import "Entity.h"
-#import "Map.h"
+#import "MapDocument.h"
 #import "Brush.h"
 #import "Face.h"
 #import "IdGenerator.h"
@@ -25,7 +25,7 @@
     
     return self;
 }
-- (id)initInMap:(Map *)theMap {
+- (id)initInMap:(MapDocument *)theMap {
     if (theMap == nil)
         [NSException raise:NSInvalidArgumentException format:@"map must not be nil"];
     
@@ -36,7 +36,7 @@
     return self;
 }
 
-- (id)initInMap:(Map *)theMap property:(NSString *)key value:(NSString *)value {
+- (id)initInMap:(MapDocument *)theMap property:(NSString *)key value:(NSString *)value {
 	if (self = [self initInMap:theMap]) {
 		[self setProperty:key value:value];
 	}
@@ -78,7 +78,7 @@
     [map brushRemoved:brush];
 }
 
-- (Map *)map {
+- (MapDocument *)map {
     return map;
 }
 

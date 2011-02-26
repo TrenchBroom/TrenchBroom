@@ -9,7 +9,7 @@
 #import "MapWindowController.h"
 #import "MapView3D.h"
 #import "TextureView.h"
-#import "Map.h"
+#import "MapDocument.h"
 #import "Face.h"
 #import "Camera.h"
 #import "MapDocument.h"

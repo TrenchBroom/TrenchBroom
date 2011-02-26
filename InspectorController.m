@@ -17,7 +17,7 @@
 #import "SingleTextureView.h"
 #import "TextureNameFilter.h"
 #import "TextureUsageFilter.h"
-#import "Map.h"
+#import "MapDocument.h"
 #import "Brush.h"
 #import "Face.h"
 
@@ -211,8 +211,8 @@ static InspectorController* sharedInstance = nil;
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
 
     if (mapWindowController != nil) {
-        MapDocument* document = [mapWindowController document];
-        GLResources* glResources = [document glResources];
+        MapDocument* map = [mapWindowController document];
+        GLResources* glResources = [map glResources];
 
         TextureManager* textureManager = [glResources textureManager];
         [center removeObserver:self name:TexturesAdded object:textureManager];
@@ -222,7 +222,6 @@ static InspectorController* sharedInstance = nil;
         [center removeObserver:self name:SelectionAdded object:selectionManager];
         [center removeObserver:self name:SelectionRemoved object:selectionManager];
 
-        Map* map = [document map];
         [center removeObserver:self name:FaceFlagsChanged object:map];
         
         [mapWindowController release];
@@ -231,8 +230,8 @@ static InspectorController* sharedInstance = nil;
     mapWindowController = [theMapWindowController retain];
 
     if (mapWindowController != nil) {
-        MapDocument* document = [mapWindowController document];
-        GLResources* glResources = [document glResources];
+        MapDocument* map = [mapWindowController document];
+        GLResources* glResources = [map glResources];
         NSOpenGLContext* context = [[NSOpenGLContext alloc] initWithFormat:[singleTextureView pixelFormat] shareContext:[glResources openGLContext]];
         [singleTextureView setOpenGLContext:context];
         [context release];
@@ -245,9 +244,8 @@ static InspectorController* sharedInstance = nil;
 
         SelectionManager* selectionManager = [mapWindowController selectionManager];
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
-        [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionAdded object:selectionManager];
+        [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
         
-        Map* map = [document map];
         [center addObserver:self selector:@selector(faceFlagsChanged:) name:FaceFlagsChanged object:map];
     } else {
         [textureView setGLResources:nil];
@@ -330,7 +328,7 @@ static InspectorController* sharedInstance = nil;
         filter = [[TextureNameFilter alloc] initWithPattern:pattern];
     
     if ([textureUsageFilterSC selectedSegment] == 1) {
-        Map* map = [[mapWindowController document] map];
+        MapDocument* map = [mapWindowController document];
         id<TextureFilter> temp = [[TextureUsageFilter alloc] initWithTextureNames:[map textureNames] filter:filter];
         [filter release];
         filter = temp;

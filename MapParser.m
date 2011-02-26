@@ -7,7 +7,7 @@
 //
 
 #import "MapParser.h"
-#import "Map.h"
+#import "MapDocument.h"
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
@@ -141,12 +141,12 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     [texture release];
 }
 
-- (Map *)parseWithProgressIndicator:(NSProgressIndicator *)indicator {
-    [indicator setMaxValue:100];
+- (void)parseMap:(MapDocument *)theMap withProgressIndicator:(NSProgressIndicator *)theIndicator {
+    [theIndicator setMaxValue:100];
     
     NSDate* startDate = [NSDate date];
     state = PS_DEF;
-    map = [[Map alloc] init];
+    map = [theMap retain];
     [map setPostNotifications:NO];
     
     MapToken* token;
@@ -202,18 +202,17 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
             }
         }
         
-        [indicator setDoubleValue:100 * [token charsRead] / (double)size];
+        [theIndicator setDoubleValue:100 * [token charsRead] / (double)size];
         [[NSRunLoop currentRunLoop] runMode:NSModalPanelRunLoopMode beforeDate:[NSDate date]];
     }
     
     // just to make sure it reaches 100%
-    [indicator setDoubleValue:100];
+    [theIndicator setDoubleValue:100];
     
     NSTimeInterval duration = [startDate timeIntervalSinceNow];
     NSLog(@"Loaded map file in %f seconds", -duration);
 
     [map setPostNotifications:YES];
-    return [map autorelease];
 }
 
 - (void)dealloc {
@@ -222,6 +221,7 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     [p3 release];
     
     [tokenizer release];
+    [map release];
     [super dealloc];
 }
 

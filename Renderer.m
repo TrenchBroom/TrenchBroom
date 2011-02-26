@@ -8,7 +8,7 @@
 
 #import "Renderer.h"
 #import <OpenGL/glu.h>
-#import "Map.h"
+#import "MapDocument.h"
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
@@ -233,8 +233,7 @@ NSString* const RendererChanged = @"RendererChanged";
         selectionLayer = [[SelectionLayer alloc] initWithWindowController:windowController];
         toolLayer = [[ToolLayer alloc] init];
 
-        MapDocument* mapDocument = [windowController document];
-        Map* map = [mapDocument map];
+        MapDocument* map = [windowController document];
 
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
         Entity* entity;

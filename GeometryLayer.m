@@ -11,7 +11,7 @@
 #import "MapWindowController.h"
 #import "MapDocument.h"
 #import "GLResources.h"
-#import "Map.h"
+#import "MapDocument.h"
 #import "Face.h"
 #import "FaceFigure.h"
 #import "VBOBuffer.h"
@@ -54,8 +54,7 @@
     if (self = [self init]) {
         mapWindowController = [theMapWindowController retain];
         
-        MapDocument* document = [mapWindowController document];
-        Map* map = [document map];
+        MapDocument* map = [mapWindowController document];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged object:map];
