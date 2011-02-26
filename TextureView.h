@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "TextureFilter.h"
+#import "TextureManager.h"
 
 @class TextureViewLayout;
 @class GLResources;
@@ -19,9 +20,11 @@
     NSMutableDictionary* glStrings;
     IBOutlet id target;
     GLResources* glResources;
+    ESortCriterion sortCriterion;
 }
 
 - (void)setTextureFilter:(id <TextureFilter>)theFilter;
+- (void)setSortCriterion:(ESortCriterion)theSortCriterion;
 - (void)setSelectedTextureNames:(NSSet *)theNames;
 - (void)setGLResources:(GLResources *)theGLResources;
 

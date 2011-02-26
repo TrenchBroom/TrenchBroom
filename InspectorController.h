@@ -22,6 +22,7 @@
     IBOutlet NSTextField* textureNameField;
     IBOutlet NSSearchField* textureNameFilterField;
     IBOutlet NSSegmentedControl* textureUsageFilterSC;
+    IBOutlet NSSegmentedControl* textureSortCriterionSC;
     IBOutlet SingleTextureView* singleTextureView;
     IBOutlet TextureView* textureView;
     MapWindowController* mapWindowController;
@@ -38,6 +39,7 @@
 - (IBAction)rotationTextChanged:(id)sender;
 - (IBAction)textureNameFilterTextChanged:(id)sender;
 - (IBAction)textureUsageFilterChanged:(id)sender;
+- (IBAction)textureSortCriterionChanged:(id)sender;
 
 - (void)textureSelected:(Texture *)texture;
 @end

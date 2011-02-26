@@ -25,7 +25,6 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
 - (id)init {
     if (self = [super init]) {
         textures = [[NSMutableDictionary alloc] init];
-        texturesByName = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -108,12 +107,9 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
         
         Texture* texture = [[Texture alloc] initWithName:[textureEntry name] width:(int)width height:(int)height textureId:texId];
         [textures setObject:texture forKey:[textureEntry name]];
-        [texturesByName addObject:texture];
         [addedTextures addObject:texture];
         [texture release];
     }
-    
-    [texturesByName sortUsingSelector:@selector(compare:)];
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:TexturesAdded object:self userInfo:[NSDictionary dictionaryWithObject:addedTextures forKey:UserInfoTextures]];
@@ -137,7 +133,6 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     [self deleteTextures];
     
     [textures removeAllObjects];
-    [texturesByName removeAllObjects];
 
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:TexturesRemoved object:self userInfo:[NSDictionary dictionaryWithObject:removedTextures forKey:UserInfoTextures]];
@@ -164,8 +159,14 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     return [result autorelease];
 }
 
-- (NSArray *)textures {
-    return texturesByName;
+- (NSArray *)textures:(ESortCriterion)sortCriterion {
+    NSMutableArray* result = [NSMutableArray arrayWithArray:[textures allValues]];
+    if (sortCriterion == SC_USAGE)
+        [result sortUsingSelector:@selector(compareByUsageCount:)];
+    else
+        [result sortUsingSelector:@selector(compareByName:)];
+    
+    return result;
 }
 
 - (void)activateTexture:(NSString *)name {
@@ -183,11 +184,22 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+- (void)incUsageCount:(NSString *)name {
+    Texture* texture = [textures objectForKey:name];
+    if (texture != nil)
+        [texture incUsageCount];
+}
+
+- (void)decUsageCount:(NSString *)name {
+    Texture* texture = [textures objectForKey:name];
+    if (texture != nil)
+        [texture decUsageCount];
+}
+
 - (void)dealloc {
     [self deleteTextures];
     [palette release];
     [textures release];
-    [texturesByName release];
     [super dealloc];
 }
 

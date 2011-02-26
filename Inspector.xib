@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="68"/>
+			<integer value="7"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -612,22 +612,6 @@
 												<int key="NSTitlePosition">0</int>
 												<bool key="NSTransparent">NO</bool>
 											</object>
-											<object class="NSTextField" id="317761187">
-												<reference key="NSNextResponder" ref="425344334"/>
-												<int key="NSvFlags">268</int>
-												<string key="NSFrame">{{14, 545}, {108, 17}}</string>
-												<reference key="NSSuperview" ref="425344334"/>
-												<bool key="NSEnabled">YES</bool>
-												<object class="NSTextFieldCell" key="NSCell" id="748292694">
-													<int key="NSCellFlags">68288064</int>
-													<int key="NSCellFlags2">272630784</int>
-													<string key="NSContents">Texture Browser</string>
-													<reference key="NSSupport" ref="499727316"/>
-													<reference key="NSControlView" ref="317761187"/>
-													<reference key="NSBackgroundColor" ref="421279443"/>
-													<reference key="NSTextColor" ref="816079860"/>
-												</object>
-											</object>
 											<object class="NSButton" id="479711454">
 												<reference key="NSNextResponder" ref="425344334"/>
 												<int key="NSvFlags">265</int>
@@ -762,7 +746,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 												<object class="NSSegmentedCell" key="NSCell" id="913715680">
 													<int key="NSCellFlags">67239424</int>
 													<int key="NSCellFlags2">0</int>
-													<object class="NSFont" key="NSSupport">
+													<object class="NSFont" key="NSSupport" id="704932820">
 														<string key="NSName">LucidaGrande</string>
 														<double key="NSSize">13</double>
 														<int key="NSfFlags">16</int>
@@ -772,11 +756,13 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 														<bool key="EncodedWithXMLCoder">YES</bool>
 														<object class="NSSegmentItem">
 															<string key="NSSegmentItemLabel">All</string>
+															<string key="NSSegmentItemTooltip">Show all textures.</string>
 															<bool key="NSSegmentItemSelected">YES</bool>
 															<int key="NSSegmentItemImageScaling">0</int>
 														</object>
 														<object class="NSSegmentItem">
 															<string key="NSSegmentItemLabel">Used</string>
+															<string key="NSSegmentItemTooltip">Show only used textures.</string>
 															<int key="NSSegmentItemTag">1</int>
 															<int key="NSSegmentItemImageScaling">0</int>
 														</object>
@@ -842,6 +828,35 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 												<reference key="NSVScroller" ref="765351916"/>
 												<reference key="NSHScroller" ref="351373474"/>
 												<reference key="NSContentView" ref="999772963"/>
+											</object>
+											<object class="NSSegmentedControl" id="938514034">
+												<reference key="NSNextResponder" ref="425344334"/>
+												<int key="NSvFlags">268</int>
+												<string key="NSFrame">{{15, 540}, {123, 24}}</string>
+												<reference key="NSSuperview" ref="425344334"/>
+												<bool key="NSEnabled">YES</bool>
+												<object class="NSSegmentedCell" key="NSCell" id="449279317">
+													<int key="NSCellFlags">67239424</int>
+													<int key="NSCellFlags2">0</int>
+													<reference key="NSSupport" ref="704932820"/>
+													<reference key="NSControlView" ref="938514034"/>
+													<object class="NSMutableArray" key="NSSegmentImages">
+														<bool key="EncodedWithXMLCoder">YES</bool>
+														<object class="NSSegmentItem">
+															<string key="NSSegmentItemLabel">Name</string>
+															<string key="NSSegmentItemTooltip">Sort the textures by name.</string>
+															<bool key="NSSegmentItemSelected">YES</bool>
+															<int key="NSSegmentItemImageScaling">0</int>
+														</object>
+														<object class="NSSegmentItem">
+															<string key="NSSegmentItemLabel">Usage</string>
+															<string key="NSSegmentItemTooltip">Sort the textures by their usage count.</string>
+															<int key="NSSegmentItemTag">1</int>
+															<int key="NSSegmentItemImageScaling">0</int>
+														</object>
+													</object>
+													<int key="NSSegmentStyle">1</int>
+												</object>
 											</object>
 										</object>
 										<string key="NSFrame">{{10, 33}, {502, 735}}</string>
@@ -1048,6 +1063,22 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 					</object>
 					<int key="connectionID">77</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">textureSortCriterionChanged:</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="938514034"/>
+					</object>
+					<int key="connectionID">82</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">textureSortCriterionSC</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="938514034"/>
+					</object>
+					<int key="connectionID">83</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -1147,10 +1178,10 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 							<reference ref="613758131"/>
 							<reference ref="300826834"/>
 							<reference ref="479711454"/>
-							<reference ref="317761187"/>
 							<reference ref="685782996"/>
 							<reference ref="910482351"/>
 							<reference ref="1051272120"/>
+							<reference ref="938514034"/>
 						</object>
 						<reference key="parent" ref="830292190"/>
 					</object>
@@ -1378,20 +1409,6 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 						<reference key="parent" ref="425344334"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">41</int>
-						<reference key="object" ref="317761187"/>
-						<object class="NSMutableArray" key="children">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="748292694"/>
-						</object>
-						<reference key="parent" ref="425344334"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">42</int>
-						<reference key="object" ref="748292694"/>
-						<reference key="parent" ref="317761187"/>
-					</object>
-					<object class="IBObjectRecord">
 						<int key="objectID">45</int>
 						<reference key="object" ref="479711454"/>
 						<object class="NSMutableArray" key="children">
@@ -1459,6 +1476,20 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 						<int key="objectID">71</int>
 						<reference key="object" ref="765351916"/>
 						<reference key="parent" ref="1051272120"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">80</int>
+						<reference key="object" ref="938514034"/>
+						<object class="NSMutableArray" key="children">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<reference ref="449279317"/>
+						</object>
+						<reference key="parent" ref="425344334"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">81</int>
+						<reference key="object" ref="449279317"/>
+						<reference key="parent" ref="938514034"/>
 					</object>
 				</object>
 			</object>
@@ -1531,9 +1562,6 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 					<string>4.IBPluginDependency</string>
 					<string>40.IBPluginDependency</string>
 					<string>40.IBViewBoundsToFrameTransform</string>
-					<string>41.IBPluginDependency</string>
-					<string>41.IBViewBoundsToFrameTransform</string>
-					<string>42.IBPluginDependency</string>
 					<string>45.IBPluginDependency</string>
 					<string>45.IBViewBoundsToFrameTransform</string>
 					<string>46.IBPluginDependency</string>
@@ -1553,6 +1581,10 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 					<string>69.IBPluginDependency</string>
 					<string>69.IBViewBoundsToFrameTransform</string>
 					<string>7.IBPluginDependency</string>
+					<string>80.IBPluginDependency</string>
+					<string>80.IBViewBoundsToFrameTransform</string>
+					<string>81.IBPluginDependency</string>
+					<string>81.IBSegmentedControlInspectorSelectedSegmentMetadataKey</string>
 				</object>
 				<object class="NSMutableArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1651,11 +1683,6 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<object class="NSAffineTransform">
-						<bytes key="NSTransformStruct">P4AAAL+AAABDNgAAxAxAAA</bytes>
-					</object>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAABDkYAAxAzAAA</bytes>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -1672,7 +1699,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<integer value="0"/>
+					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAADCDAAAxAQAAA</bytes>
@@ -1683,6 +1710,12 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 						<bytes key="NSTransformStruct">AUJUAABD04AAA</bytes>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<object class="NSAffineTransform">
+						<bytes key="NSTransformStruct">P4AAAL+AAABBEAAAxAyAAA</bytes>
+					</object>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<integer value="1"/>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="unlocalizedProperties">
@@ -1701,7 +1734,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">77</int>
+			<int key="maxID">83</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1715,6 +1748,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>rotationTextChanged:</string>
 							<string>textureNameFilterTextChanged:</string>
+							<string>textureSortCriterionChanged:</string>
 							<string>textureUsageFilterChanged:</string>
 							<string>xOffsetTextChanged:</string>
 							<string>xScaleTextChanged:</string>
@@ -1723,6 +1757,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -1738,6 +1773,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>rotationTextChanged:</string>
 							<string>textureNameFilterTextChanged:</string>
+							<string>textureSortCriterionChanged:</string>
 							<string>textureUsageFilterChanged:</string>
 							<string>xOffsetTextChanged:</string>
 							<string>xScaleTextChanged:</string>
@@ -1752,6 +1788,10 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">textureNameFilterTextChanged:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">textureSortCriterionChanged:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
@@ -1784,6 +1824,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 							<string>singleTextureView</string>
 							<string>textureNameField</string>
 							<string>textureNameFilterField</string>
+							<string>textureSortCriterionSC</string>
 							<string>textureUsageFilterSC</string>
 							<string>textureView</string>
 							<string>xOffsetField</string>
@@ -1797,6 +1838,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 							<string>SingleTextureView</string>
 							<string>NSTextField</string>
 							<string>NSSearchField</string>
+							<string>NSSegmentedControl</string>
 							<string>NSSegmentedControl</string>
 							<string>TextureView</string>
 							<string>NSTextField</string>
@@ -1813,6 +1855,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 							<string>singleTextureView</string>
 							<string>textureNameField</string>
 							<string>textureNameFilterField</string>
+							<string>textureSortCriterionSC</string>
 							<string>textureUsageFilterSC</string>
 							<string>textureView</string>
 							<string>xOffsetField</string>
@@ -1837,6 +1880,10 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 							<object class="IBToOneOutletInfo">
 								<string key="name">textureNameFilterField</string>
 								<string key="candidateClassName">NSSearchField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">textureSortCriterionSC</string>
+								<string key="candidateClassName">NSSegmentedControl</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">textureUsageFilterSC</string>

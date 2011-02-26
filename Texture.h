@@ -14,6 +14,7 @@
     int textureId;
     int width;
     int height;
+    int usageCount;
 }
 
 - (id)initWithName:(NSString *)theName width:(int)theWidth height:(int)theHeight textureId:(int)theTextureId;
@@ -26,5 +27,10 @@
 - (void)activate;
 - (void)deactivate;
 
-- (NSComparisonResult)compare:(Texture *)texture;
+- (void)incUsageCount;
+- (void)decUsageCount;
+- (int)usageCount;
+
+- (NSComparisonResult)compareByName:(Texture *)texture;
+- (NSComparisonResult)compareByUsageCount:(Texture *)texture;
 @end

@@ -10,7 +10,6 @@
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
 #import "math.h"
-#import "TextureManager.h"
 #import "Texture.h"
 #import "TextureViewLayout.h"
 #import "TextureViewLayoutRow.h"
@@ -107,6 +106,14 @@
                     glVertex3f(tx2 + 0.5, ty2 + 0.5, 0);
                     glVertex3f(tx2 + 0.5, ty - 0.5, 0);
                     glEnd();
+                } else if ([texture usageCount] > 0) {
+                    glColor4f(0.6, 0.6, 0, 1);
+                    glBegin(GL_LINE_LOOP);
+                    glVertex3f(tx - 0.5, ty - 0.5, 0);
+                    glVertex3f(tx - 0.5, ty2 + 0.5, 0);
+                    glVertex3f(tx2 + 0.5, ty2 + 0.5, 0);
+                    glVertex3f(tx2 + 0.5, ty - 0.5, 0);
+                    glEnd();
                 }
                 
                 glColor4f(1, 1, 1, 1);
@@ -148,9 +155,6 @@
     else
         [glStrings removeAllObjects];
     
-    [layout release];
-    layout = nil;
-    
     [glResources release];
     glResources = [theGLResources retain];
     
@@ -160,13 +164,17 @@
         [sharingContext release];
 
         TextureManager* textureManager = [glResources textureManager];
-        GLFontManager* fontManager = [glResources fontManager];
+        if (layout == nil) {
+            GLFontManager* fontManager = [glResources fontManager];
+            NSFont* font = [NSFont systemFontOfSize:12];
+            GLFont* glFont = [fontManager glFontFor:font];
         
-        NSFont* font = [NSFont systemFontOfSize:12];
-        GLFont* glFont = [fontManager glFontFor:font];
+            layout = [[TextureViewLayout alloc] initWithWidth:[self bounds].size.width innerMargin:10 outerMargin:5 font:glFont];
+        } else {
+            [layout clear];
+        }
         
-        layout = [[TextureViewLayout alloc] initWithWidth:[self bounds].size.width innerMargin:10 outerMargin:5 font:glFont];
-        [layout addTextures:[textureManager textures]];
+        [layout addTextures:[textureManager textures:sortCriterion]];
     }
 }
 
@@ -181,6 +189,19 @@
     [selectedTextureNames release];
     selectedTextureNames = [theNames retain];
     [self setNeedsDisplay:YES];
+}
+
+- (void)setSortCriterion:(ESortCriterion)theSortCriterion {
+    if (sortCriterion == theSortCriterion)
+        return;
+    
+    sortCriterion = theSortCriterion;
+    if (layout != nil && glResources != nil) {
+        TextureManager* textureManager = [glResources textureManager];
+        [layout clear];
+        [layout addTextures:[textureManager textures:sortCriterion]];
+        [self setNeedsDisplay:YES];
+    }
 }
 
 - (void)dealloc {

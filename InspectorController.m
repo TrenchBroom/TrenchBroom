@@ -67,6 +67,10 @@ static InspectorController* sharedInstance = nil;
     return @"Inspector";
 }
 
+- (void)windowDidLoad {
+    [super windowDidLoad];
+}
+
 - (void)updateTextureControls {
     SelectionManager* selectionManager = [mapWindowController selectionManager];
     NSSet* selectedFaces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
@@ -344,6 +348,13 @@ static InspectorController* sharedInstance = nil;
 
 - (IBAction)textureUsageFilterChanged:(id)sender {
     [self updateFilter];
+}
+
+- (IBAction)textureSortCriterionChanged:(id)sender {
+    if ([textureSortCriterionSC selectedSegment] == 0)
+        [textureView setSortCriterion:SC_NAME];
+    else
+        [textureView setSortCriterion:SC_USAGE];
 }
 
 - (void)dealloc {

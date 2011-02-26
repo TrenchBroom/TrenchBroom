@@ -90,6 +90,7 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     [picker release];
     picker = [[Picker alloc] initWithDocument:self];
     [self refreshWadFiles];
+    
     return YES;
 }
 
@@ -199,6 +200,10 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:FaceTextureChanged object:self userInfo:userInfo];
     }
+    
+    TextureManager* textureManager = [glResources textureManager];
+    [textureManager decUsageCount:oldTexture];
+    [textureManager incUsageCount:newTexture];
 }
 
 - (void)faceGeometryChanged:(Face *)face {
@@ -215,6 +220,9 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         [center postNotificationName:FaceAdded object:self userInfo:[NSDictionary dictionaryWithObject:face forKey:FaceKey]];
         [center postNotificationName:BrushChanged object:self userInfo:[NSDictionary dictionaryWithObject:[face brush] forKey:BrushKey]];
     }
+    
+    TextureManager* textureManager = [glResources textureManager];
+    [textureManager incUsageCount:[face texture]];
 }
 
 - (void)faceRemoved:(Face *)face {
@@ -223,6 +231,9 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         [center postNotificationName:FaceRemoved object:self userInfo:[NSDictionary dictionaryWithObject:face forKey:FaceKey]];
         [center postNotificationName:BrushChanged object:self userInfo:[NSDictionary dictionaryWithObject:[face brush] forKey:BrushKey]];
     }
+
+    TextureManager* textureManager = [glResources textureManager];
+    [textureManager decUsageCount:[face texture]];
 }
 
 - (void)brushAdded:(Brush *)brush {
@@ -230,6 +241,14 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:BrushAdded object:self userInfo:[NSDictionary dictionaryWithObject:brush forKey:BrushKey]];
     }
+
+    NSEnumerator* faces = [[brush faces] objectEnumerator];
+    Face* face;
+
+    TextureManager* textureManager = [glResources textureManager];
+    while ((face = [faces nextObject]))
+        [textureManager incUsageCount:[face texture]];
+        
 }
 
 - (void)brushRemoved:(Brush *)brush {
@@ -237,6 +256,13 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:BrushRemoved object:self userInfo:[NSDictionary dictionaryWithObject:brush forKey:BrushKey]];
     }
+    
+    NSEnumerator* faces = [[brush faces] objectEnumerator];
+    Face* face;
+    
+    TextureManager* textureManager = [glResources textureManager];
+    while ((face = [faces nextObject]))
+        [textureManager decUsageCount:[face texture]];
 }
 
 - (void)refreshWadFiles {
@@ -260,6 +286,19 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
                 
                 [textureManager loadTexturesFrom:wad];
             }
+        }
+    }
+    
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    Entity* entity;
+    while ((entity = [entityEn nextObject])) {
+        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+        Brush* brush;
+        while ((brush = [brushEn nextObject])) {
+            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+            Face* face;
+            while ((face = [faceEn nextObject]))
+                [textureManager incUsageCount:[face texture]];
         }
     }
 }
