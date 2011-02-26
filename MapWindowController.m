@@ -76,6 +76,47 @@
     return options;
 }
 
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    SEL action = [menuItem action];
+    if (action == @selector(clearSelection:)) {
+        return [selectionManager hasSelection];
+    } else if (action == @selector(copySelection:)) {
+        return [selectionManager hasSelectedEntities] || [selectionManager hasSelectedBrushes];
+    } else if (action == @selector(cutSelection:)) {
+        return [selectionManager hasSelectedEntities] || [selectionManager hasSelectedBrushes];
+    } else if (action == @selector(pasteClipboard:)) {
+        return NO;
+    } else if (action == @selector(deleteSelection:)) {
+        return [selectionManager hasSelectedEntities] || [selectionManager hasSelectedBrushes];
+    } else if (action == @selector(moveTextureLeft:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
+    } else if (action == @selector(moveTextureLeft:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
+    } else if (action == @selector(moveTextureRight:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
+    } else if (action == @selector(moveTextureUp:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
+    } else if (action == @selector(moveTextureDown:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
+    } else if (action == @selector(stretchTextureHorizontally:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
+    } else if (action == @selector(shrinkTextureHorizontally:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
+    } else if (action == @selector(stretchTextureVertically:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
+    } else if (action == @selector(shrinkTextureVertically:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
+    } else if (action == @selector(rotateTextureLeft:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
+    } else if (action == @selector(rotateTextureRight:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
+    } else if (action == @selector(duplicateSelection:)) {
+        return [selectionManager hasSelectedBrushes];
+    }
+
+    return NO;
+}
+
 - (IBAction)toggleGrid:(id)sender {
     [options setDrawGrid:![options drawGrid]];
 }
@@ -99,87 +140,172 @@
 - (IBAction)deleteSelection:(id)sender {}
 
 - (IBAction)moveTextureLeft:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+    
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
 
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face translateOffsetsX:-d y:0];
+        [[self document] translateFaceOffset:face xDelta:-d yDelta:0];
+
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Move Texture"];
 }
 
 - (IBAction)moveTextureRight:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face translateOffsetsX:d y:0];
+        [[self document] translateFaceOffset:face xDelta:d yDelta:0];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Move Texture"];
 }
 
 - (IBAction)moveTextureUp:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face translateOffsetsX:0 y:d];
+        [[self document] translateFaceOffset:face xDelta:0 yDelta:d];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Move Texture"];
 }
 
 - (IBAction)moveTextureDown:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face translateOffsetsX:0 y:-d];
+        [[self document] translateFaceOffset:face xDelta:0 yDelta:-d];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Move Texture"];
 }
 
 - (IBAction)stretchTextureHorizontally:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face setXScale:[face xScale] + 0.1f];
+        [[self document] setFace:face xScale:[face xScale] + 0.1f];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Stretch Texture Horizontally"];
 }
 
 - (IBAction)shrinkTextureHorizontally:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+    
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face setXScale:[face xScale] - 0.1f];
+        [[self document] setFace:face xScale:[face xScale] - 0.1f];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Shrink Texture Horizontally"];
 }
 
 - (IBAction)stretchTextureVertically:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+    
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face setYScale:[face yScale] + 0.1f];
+        [[self document] setFace:face yScale:[face yScale] + 0.1f];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Stretch Texture Vertically"];
 }
 
 - (IBAction)shrinkTextureVertically:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+    
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face setYScale:[face yScale] - 0.1f];
+        [[self document] setFace:face yScale:[face yScale] - 0.1f];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Shrink Texture Vertically"];
 }
 
 - (IBAction)rotateTextureLeft:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+    
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face setRotation:[face rotation] - d];
+        [[self document] setFace:face rotation:[face rotation] - d];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Rotate Texture Left"];
 }
 
 - (IBAction)rotateTextureRight:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+    
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face setRotation:[face rotation] + d];
+        [[self document] setFace:face rotation:[face rotation] + d];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Rotate Texture Right"];
 }
 
+- (IBAction)duplicateSelection:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+    
+    Entity* worldspawn = [[self document] worldspawn];
+    NSMutableSet* newBrushes = [[NSMutableSet alloc] init];
+
+    NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+    Brush* brush;
+    while ((brush = [brushEn nextObject])) {
+        Brush* newBrush = [[self document] createBrushInEntity:worldspawn fromTemplate:brush];
+        [[self document] translateBrush:newBrush xDelta:[options gridSize] yDelta:[options gridSize] zDelta:[options gridSize]];
+        [newBrushes addObject:newBrush];
+    }
+    
+    [[undoManager prepareWithInvocationTarget:selectionManager] addBrushes:[NSSet setWithSet:[selectionManager selectedBrushes]]];
+    [[undoManager prepareWithInvocationTarget:selectionManager] removeAll];
+    
+    [selectionManager removeAll];
+    [selectionManager addBrushes:newBrushes];
+    [newBrushes release];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Duplicate Selection"];
+}
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];

@@ -21,6 +21,7 @@ typedef enum {
 @class Matrix4f;
 @class PickingHit;
 @class Ray3D;
+@class FaceFigure;
 
 @interface Face : NSObject {
     @private
@@ -69,7 +70,6 @@ typedef enum {
 - (Vector3f *)norm;
 
 - (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3;
-- (void)translateBy:(Vector3i *)theDelta;
 
 - (void)setTexture:(NSString *)name;
 - (void)setXOffset:(int)offset;
@@ -88,6 +88,4 @@ typedef enum {
 
 - (Vector3f *)center;
 - (NSArray *)vertices;
-
-- (NSUndoManager *)undoManager;
 @end

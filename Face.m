@@ -22,6 +22,11 @@
 #import "Line3D.h"
 #import "PickingHit.h"
 #import "Ray3D.h"
+#import "MapDocument.h"
+#import "Entity.h"
+#import "GLResources.h"
+#import "VBOBuffer.h"
+#import "FaceFigure.h"
 
 static Vector3f* baseAxes[18];
 
@@ -155,14 +160,6 @@ static Vector3f* baseAxes[18];
         [point3 isEqualToVector:thePoint3])
         return;
 
-    Vector3i* oldPoint1 = [Vector3i vectorWithVector:point1];
-    Vector3i* oldPoint2 = [Vector3i vectorWithVector:point2];
-    Vector3i* oldPoint3 = [Vector3i vectorWithVector:point3];
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setPoint1:oldPoint1 point2:oldPoint2 point3:oldPoint3];
-    [undoManager setActionName:@"Change Face"];
-    
     [point1 set:thePoint1];
     [point2 set:thePoint2];
     [point3 set:thePoint3];
@@ -176,10 +173,6 @@ static Vector3f* baseAxes[18];
 
     Vector3i* inverse = [Vector3i vectorWithVector:theDelta];
     [inverse scale:-1];
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateBy:inverse];
-    [undoManager setActionName:@"Move Face"];
     
     [point1 add:theDelta];
     [point2 add:theDelta];
@@ -196,9 +189,6 @@ static Vector3f* baseAxes[18];
         return;
     
     NSString* oldName = [NSString stringWithString:texture];
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setTexture:oldName];
 
     [texture setString:name];
     [brush faceTextureChanged:self oldTexture:oldName newTexture:texture];
@@ -207,9 +197,6 @@ static Vector3f* baseAxes[18];
 - (void)setXOffset:(int)offset {
     if (xOffset == offset)
         return;
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setXOffset:xOffset];
     
 	xOffset = offset;
 
@@ -220,9 +207,6 @@ static Vector3f* baseAxes[18];
     if (yOffset == offset)
         return;
     
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setYOffset:yOffset];
-    
 	yOffset = offset;
     
     [brush faceFlagsChanged:self];
@@ -231,9 +215,6 @@ static Vector3f* baseAxes[18];
 - (void)setRotation:(float)angle {
     if (rotation == angle)
         return;
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setRotation:rotation];
     
 	rotation = angle;
     
@@ -249,9 +230,6 @@ static Vector3f* baseAxes[18];
     if (xScale == factor)
         return;
     
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setXScale:xScale];
-    
 	xScale = factor;
     
     [texAxisX release];
@@ -265,9 +243,6 @@ static Vector3f* baseAxes[18];
 - (void)setYScale:(float)factor {
     if (yScale == factor)
         return;
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setYScale:yScale];
     
 	yScale = factor;
     
@@ -330,9 +305,6 @@ static Vector3f* baseAxes[18];
     if (x == 0 && y == 0)
         return;
     
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateOffsetsX:-x y:-y];
-
     if (texAxisX == nil || texAxisY == nil)
         [self updateTexAxes];
     
@@ -508,10 +480,6 @@ static Vector3f* baseAxes[18];
 
 - (NSArray *)vertices {
     return [brush verticesForFace:self];
-}
-
-- (NSUndoManager *)undoManager {
-    return [brush undoManager];
 }
 
 - (void) dealloc {

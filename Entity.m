@@ -7,11 +7,11 @@
 //
 
 #import "Entity.h"
-#import "MapDocument.h"
 #import "Brush.h"
 #import "Face.h"
 #import "IdGenerator.h"
 #import "Vector3i.h"
+#import "Map.h"
 
 @implementation Entity
 
@@ -25,7 +25,7 @@
     
     return self;
 }
-- (id)initInMap:(MapDocument *)theMap {
+- (id)initInMap:(id<Map>)theMap {
     if (theMap == nil)
         [NSException raise:NSInvalidArgumentException format:@"map must not be nil"];
     
@@ -36,7 +36,7 @@
     return self;
 }
 
-- (id)initInMap:(MapDocument *)theMap property:(NSString *)key value:(NSString *)value {
+- (id)initInMap:(id<Map>)theMap property:(NSString *)key value:(NSString *)value {
 	if (self = [self initInMap:theMap]) {
 		[self setProperty:key value:value];
 	}
@@ -51,10 +51,18 @@
     return [brush autorelease];
 }
 
-- (void)addBrush:(Brush *)brush {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] removeBrush:brush];
+- (Brush *)createBrushFromTemplate:(Brush *)theTemplate {
+    Brush* brush = [self createBrush];
     
+    NSEnumerator* faceEn = [[theTemplate faces] objectEnumerator];
+    Face* face;
+    while ((face = [faceEn nextObject]))
+        [brush createFaceFromTemplate:face];
+    
+    return brush;
+}
+
+- (void)addBrush:(Brush *)brush {
     [brushes addObject:brush];
     [brushIndices setObject:[NSNumber numberWithInt:[brushes count] - 1] forKey:[brush brushId]];
 
@@ -69,16 +77,13 @@
     if (index == nil)
         [NSException raise:NSInvalidArgumentException format:@"Entity %@ does not contain brush %@", self, brush];
  
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] addBrush:brush];
-    
     [brushes removeObjectAtIndex:[index intValue]];
     [brushIndices removeObjectForKey:[brush brushId]];
     
     [map brushRemoved:brush];
 }
 
-- (MapDocument *)map {
+- (id<Map>)map {
     return map;
 }
 
@@ -97,12 +102,6 @@
     if (exists && [oldValue isEqualToString:value])
         return;
     
-    NSUndoManager* undoManager = [self undoManager];
-    if (exists)
-        [[undoManager prepareWithInvocationTarget:self] setProperty:key value:oldValue];
-    else 
-        [[undoManager prepareWithInvocationTarget:self] removeProperty:key];
-    
     [properties setObject:value forKey:key];
     
     if (exists)
@@ -115,9 +114,6 @@
     NSString *oldValue = [self propertyForKey:key];
     if (oldValue == nil)
         return;
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setProperty:key value:oldValue];
     
     [properties removeObjectForKey:key];
     [map propertyRemoved:self key:key value:oldValue];
@@ -137,10 +133,6 @@
 
 - (BOOL)isWorldspawn {
     return [[self classname] isEqualToString:@"worldspawn"];
-}
-
-- (NSUndoManager *)undoManager {
-    return [map undoManager];
 }
 
 - (void)faceFlagsChanged:(Face *)face {

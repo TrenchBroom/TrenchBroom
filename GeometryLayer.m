@@ -25,7 +25,7 @@
 
 - (id)init {
     if (self = [super init]) {
-        faceFigures = [[NSMutableDictionary alloc] init];
+        faceFigures = [[NSMutableSet alloc] init];
         indexBuffers = [[NSMutableDictionary alloc] init];
         countBuffers = [[NSMutableDictionary alloc] init];
         buffersValid = NO;
@@ -34,32 +34,12 @@
     return self;
 }
 
-- (void)faceChanged:(NSNotification *)notification {
-    NSDictionary* userInfo = [notification userInfo];
-    Face* face = [userInfo objectForKey:FaceKey];
-    
-    FaceFigure* faceFigure = [faceFigures objectForKey:[face faceId]];
-    if (faceFigure != nil) {
-        [faceFigure invalidate];
-        [indexBuffers removeAllObjects];
-        [countBuffers removeAllObjects];
-        buffersValid = NO;
-    }
-}
-
 - (id)initWithWindowController:(MapWindowController *)theMapWindowController {
     if (theMapWindowController == nil)
         [NSException raise:NSInvalidArgumentException format:@"window controller must not be nil"];
     
     if (self = [self init]) {
         mapWindowController = [theMapWindowController retain];
-        
-        MapDocument* map = [mapWindowController document];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged object:map];
-        [center addObserver:self selector:@selector(faceChanged:) name:FaceTextureChanged object:map];
-        [center addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged object:map];
     }
     
     return self;
@@ -70,12 +50,8 @@
         [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
     
     FaceFigure* faceFigure = (FaceFigure *)theFigure;
-    Face* face = [faceFigure face];
-    [faceFigures setObject:faceFigure forKey:[face faceId]];
-    
-    [indexBuffers removeAllObjects];
-    [countBuffers removeAllObjects];
-    buffersValid = NO;
+    [faceFigures addObject:faceFigure];
+    [self invalidate];
 }
 
 - (void)removeFigure:(id)theFigure {
@@ -83,12 +59,8 @@
         [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
     
     FaceFigure* faceFigure = (FaceFigure *)theFigure;
-    Face* face = [faceFigure face];
-    [faceFigures removeObjectForKey:[face faceId]];
-    
-    [indexBuffers removeAllObjects];
-    [countBuffers removeAllObjects];
-    buffersValid = NO;
+    [faceFigures removeObject:faceFigure];
+    [self invalidate];
 }
 
 - (void)prepare:(RenderContext *)renderContext {
@@ -211,6 +183,14 @@
 
     [self renderFaces:renderContext];
     [vbo deactivate];
+}
+
+- (void)invalidate {
+    if (buffersValid) {
+        [indexBuffers removeAllObjects];
+        [countBuffers removeAllObjects];
+        buffersValid = NO;
+    }
 }
 
 - (void)dealloc {

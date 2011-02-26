@@ -30,8 +30,8 @@
 }
 
 - (void)brushChanged:(NSNotification *)notification {
-    Face* face = [notification object];
-    Brush* brush = [face brush];
+    NSDictionary* userInfo = [notification userInfo];
+    Brush* brush = [userInfo objectForKey:BrushKey];
 
     [root removeObject:brush bounds:[brush bounds]];
     [root addObject:brush bounds:[brush bounds]];

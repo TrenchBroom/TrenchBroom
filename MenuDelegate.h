@@ -34,6 +34,7 @@
     IBOutlet NSMenuItem* shrinkFaceHorizontallyItem;
     IBOutlet NSMenuItem* stretchFaceVerticallyItem;
     IBOutlet NSMenuItem* shrinkFaceVerticallyItem;
+    IBOutlet NSMenuItem* duplicateItem;
 }
 
 @end

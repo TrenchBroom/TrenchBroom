@@ -379,6 +379,14 @@
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
 								</object>
+								<object class="NSMenuItem" id="189026083">
+									<reference key="NSMenu" ref="789758025"/>
+									<string key="NSTitle">Duplicate</string>
+									<string type="base64-UTF8" key="NSKeyEquiv">IA</string>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="1033313550"/>
+									<reference key="NSMixedImage" ref="310636482"/>
+								</object>
 								<object class="NSMenuItem" id="437104165">
 									<reference key="NSMenu" ref="789758025"/>
 									<string key="NSTitle">Delete</string>
@@ -2217,6 +2225,62 @@
 					</object>
 					<int key="connectionID">736</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">duplicateSelection:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="189026083"/>
+					</object>
+					<int key="connectionID">738</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">duplicateItem</string>
+						<reference key="source" ref="435038469"/>
+						<reference key="destination" ref="189026083"/>
+					</object>
+					<int key="connectionID">739</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">delegate</string>
+						<reference key="source" ref="789758025"/>
+						<reference key="destination" ref="435038469"/>
+					</object>
+					<int key="connectionID">742</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">shrinkFaceHorizontallyItem</string>
+						<reference key="source" ref="435038469"/>
+						<reference key="destination" ref="1058260435"/>
+					</object>
+					<int key="connectionID">743</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">shrinkFaceVerticallyItem</string>
+						<reference key="source" ref="435038469"/>
+						<reference key="destination" ref="152293776"/>
+					</object>
+					<int key="connectionID">744</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">stretchFaceHorizontallyItem</string>
+						<reference key="source" ref="435038469"/>
+						<reference key="destination" ref="343004271"/>
+					</object>
+					<int key="connectionID">745</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">stretchFaceVerticallyItem</string>
+						<reference key="source" ref="435038469"/>
+						<reference key="destination" ref="295938688"/>
+					</object>
+					<int key="connectionID">746</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -2407,6 +2471,7 @@
 							<reference ref="600792235"/>
 							<reference ref="673708202"/>
 							<reference ref="549565365"/>
+							<reference ref="189026083"/>
 						</object>
 						<reference key="parent" ref="952259628"/>
 					</object>
@@ -3274,6 +3339,11 @@
 						<reference key="object" ref="152293776"/>
 						<reference key="parent" ref="945979814"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">737</int>
+						<reference key="object" ref="189026083"/>
+						<reference key="parent" ref="789758025"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -3480,6 +3550,7 @@
 					<string>72.ImportedFromIB2</string>
 					<string>73.IBPluginDependency</string>
 					<string>73.ImportedFromIB2</string>
+					<string>737.IBPluginDependency</string>
 					<string>74.IBPluginDependency</string>
 					<string>74.ImportedFromIB2</string>
 					<string>75.IBPluginDependency</string>
@@ -3548,7 +3619,7 @@
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
-					<string>{{1349, 743}, {158, 223}}</string>
+					<string>{{1349, 723}, {160, 243}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
 					<string>{{197, 734}, {243, 243}}</string>
@@ -3673,7 +3744,7 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{1507, 463}, {211, 343}}</string>
+					<string>{{1509, 443}, {211, 343}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3705,6 +3776,7 @@
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3745,7 +3817,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">736</int>
+			<int key="maxID">746</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -3785,6 +3857,7 @@
 							<string>copySelection:</string>
 							<string>cutSelection:</string>
 							<string>deleteSelection:</string>
+							<string>duplicateSelection:</string>
 							<string>moveTextureDown:</string>
 							<string>moveTextureLeft:</string>
 							<string>moveTextureRight:</string>
@@ -3820,6 +3893,7 @@
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
+							<string>id</string>
 						</object>
 					</object>
 					<object class="NSMutableDictionary" key="actionInfosByName">
@@ -3830,6 +3904,7 @@
 							<string>copySelection:</string>
 							<string>cutSelection:</string>
 							<string>deleteSelection:</string>
+							<string>duplicateSelection:</string>
 							<string>moveTextureDown:</string>
 							<string>moveTextureLeft:</string>
 							<string>moveTextureRight:</string>
@@ -3861,6 +3936,10 @@
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">deleteSelection:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">duplicateSelection:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
@@ -3944,6 +4023,7 @@
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>duplicateItem</string>
 							<string>gridSize128Item</string>
 							<string>gridSize16Item</string>
 							<string>gridSize256Item</string>
@@ -3971,6 +4051,7 @@
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>NSMenuItem</string>
 							<string>NSMenuItem</string>
 							<string>NSMenuItem</string>
 							<string>NSMenuItem</string>
@@ -4001,6 +4082,7 @@
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>duplicateItem</string>
 							<string>gridSize128Item</string>
 							<string>gridSize16Item</string>
 							<string>gridSize256Item</string>
@@ -4028,6 +4110,10 @@
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">duplicateItem</string>
+								<string key="candidateClassName">NSMenuItem</string>
+							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">gridSize128Item</string>
 								<string key="candidateClassName">NSMenuItem</string>

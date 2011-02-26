@@ -47,6 +47,8 @@
 - (IBAction)rotateTextureLeft:(id)sender;
 - (IBAction)rotateTextureRight:(id)sender;
 
+- (IBAction)duplicateSelection:(id)sender;
+
 - (Camera *)camera;
 - (SelectionManager *)selectionManager;
 - (InputManager *)inputManager;

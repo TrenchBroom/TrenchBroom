@@ -17,4 +17,5 @@
 - (void)addFigure:(id)theFigure;
 - (void)removeFigure:(id)theFigure;
 
+- (void)invalidate;
 @end

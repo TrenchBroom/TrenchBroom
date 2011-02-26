@@ -7,7 +7,7 @@
 //
 
 #import "MapParser.h"
-#import "MapDocument.h"
+#import "Map.h"
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
@@ -141,13 +141,12 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     [texture release];
 }
 
-- (void)parseMap:(MapDocument *)theMap withProgressIndicator:(NSProgressIndicator *)theIndicator {
+- (void)parseMap:(id<Map>)theMap withProgressIndicator:(NSProgressIndicator *)theIndicator {
     [theIndicator setMaxValue:100];
     
     NSDate* startDate = [NSDate date];
     state = PS_DEF;
     map = [theMap retain];
-    [map setPostNotifications:NO];
     
     MapToken* token;
     while ((token = [self nextToken])) {
@@ -211,8 +210,6 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     
     NSTimeInterval duration = [startDate timeIntervalSinceNow];
     NSLog(@"Loaded map file in %f seconds", -duration);
-
-    [map setPostNotifications:YES];
 }
 
 - (void)dealloc {

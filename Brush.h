@@ -27,6 +27,7 @@
 }
 
 - (Face *)createFaceWithPoint1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3 texture:(NSString *)texture;
+- (Face *)createFaceFromTemplate:(Face *)theTemplate;
 - (BOOL)addFace:(Face *)face;
 - (void)removeFace:(Face *)face;
 
@@ -46,8 +47,6 @@
 - (NSArray *)gridForFace:(Face *)theFace gridSize:(int)gridSize;
 
 - (void)translateBy:(Vector3i *)theDelta;
-
-- (NSUndoManager *)undoManager;
 
 - (void)faceFlagsChanged:(Face *)face;
 - (void)faceTextureChanged:(Face *)face oldTexture:(NSString *)oldTexture newTexture:(NSString *)newTexture;

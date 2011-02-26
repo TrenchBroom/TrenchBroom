@@ -9,27 +9,28 @@
 #import <Cocoa/Cocoa.h>
 
 @class Vector3i;
-@class MapDocument;
 @class Brush;
 @class Face;
+@protocol Map;
 
 @interface Entity : NSObject {
     @private
-    MapDocument* map;
+    id<Map> map;
     NSNumber* entityId;
 	NSMutableArray* brushes;
     NSMutableDictionary* brushIndices;
 	NSMutableDictionary* properties;
 }
 
-- (id)initInMap:(MapDocument *)theMap;
-- (id)initInMap:(MapDocument *)theMap property:(NSString *)key value:(NSString *)value;
+- (id)initInMap:(id<Map>)theMap;
+- (id)initInMap:(id<Map>)theMap property:(NSString *)key value:(NSString *)value;
 
 - (Brush *)createBrush;
+- (Brush *)createBrushFromTemplate:(Brush *)theTemplate;
 - (void)addBrush:(Brush *)brush;
 - (void)removeBrush:(Brush *)brush;
 
-- (MapDocument *)map;
+- (id<Map>)map;
 - (NSNumber *)entityId;
 
 - (NSArray *)brushes;
@@ -42,8 +43,6 @@
 - (NSDictionary *)properties;
 
 - (BOOL)isWorldspawn;
-
-- (NSUndoManager *)undoManager;
 
 - (void)faceFlagsChanged:(Face *)face;
 - (void)faceTextureChanged:(Face *)face oldTexture:(NSString *)oldTexture newTexture:(NSString *)newTexture;

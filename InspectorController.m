@@ -332,8 +332,7 @@ static InspectorController* sharedInstance = nil;
         filter = [[TextureNameFilter alloc] initWithPattern:pattern];
     
     if ([textureUsageFilterSC selectedSegment] == 1) {
-        MapDocument* map = [mapWindowController document];
-        id<TextureFilter> temp = [[TextureUsageFilter alloc] initWithTextureNames:[map textureNames] filter:filter];
+        id<TextureFilter> temp = [[TextureUsageFilter alloc] initWithFilter:filter];
         [filter release];
         filter = temp;
     }

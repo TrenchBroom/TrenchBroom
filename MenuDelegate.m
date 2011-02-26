@@ -8,6 +8,7 @@
 
 #import "MenuDelegate.h"
 #import "MapWindowController.h"
+#import "SelectionManager.h"
 #import "Options.h"
 
 @implementation MenuDelegate
@@ -19,16 +20,7 @@
     if ([controller isKindOfClass:[MapWindowController class]]) {
         MapWindowController* mapController = (MapWindowController *)controller;
         Options* options = [mapController options];
-        
-        [showGridItem setEnabled:YES];
-        [snapToGridItem setEnabled:YES];
-        [gridSize8Item setEnabled:YES];
-        [gridSize16Item setEnabled:YES];
-        [gridSize32Item setEnabled:YES];
-        [gridSize64Item setEnabled:YES];
-        [gridSize128Item setEnabled:YES];
-        [gridSize256Item setEnabled:YES];
-        
+
         [showGridItem setState:[options drawGrid] ? NSOnState : NSOffState];
         [snapToGridItem setState:[options snapToGrid] ? NSOnState : NSOffState];
         [gridSize8Item setState:[options gridSize] == 8 ? NSOnState : NSOffState];
@@ -66,15 +58,6 @@
             [rotateFaceRightAltItem setTitle:@"Rotate Right By 15"];
         }
     } else {
-        [showGridItem setEnabled:NO];
-        [snapToGridItem setEnabled:NO];
-        [gridSize8Item setEnabled:NO];
-        [gridSize16Item setEnabled:NO];
-        [gridSize32Item setEnabled:NO];
-        [gridSize64Item setEnabled:NO];
-        [gridSize128Item setEnabled:NO];
-        [gridSize256Item setEnabled:NO];
-        
         [showGridItem setState:NSOffState];
         [snapToGridItem setState:NSOffState];
         [gridSize8Item setState:NSOffState];

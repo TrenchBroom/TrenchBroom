@@ -34,34 +34,40 @@ NSString* const RendererChanged = @"RendererChanged";
 
 @implementation Renderer
 
-- (FaceFigure *)createFaceFigure:(Face *)theFace {
-    MapDocument* document = [windowController document];
-    GLResources* glResources = [document glResources];
-    VBOBuffer* vbo = [glResources geometryVBO];
+- (FaceFigure *)figureForFace:(Face *)face create:(BOOL)create {
+    FaceFigure* figure = [faceFigures objectForKey:[face faceId]];
+    if (figure == nil && create) {
+        MapDocument* mapDocument = [windowController document];
+        GLResources* glResources = [mapDocument glResources];
+        VBOBuffer* vbo = [glResources geometryVBO];
+        
+        figure = [[FaceFigure alloc] initWithFace:face vbo:vbo];
+        [faceFigures setObject:figure forKey:[face faceId]];
+        [figure release];
+    }
     
-    FaceFigure* faceFigure = [[FaceFigure alloc] initWithFace:theFace vbo:vbo];
-    [faceFigures setObject:faceFigure forKey:[theFace faceId]];
-    return [faceFigure autorelease];
+    return figure;
 }
 
 - (void)addFace:(Face *)face {
     SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager isFaceSelected:face]) {
-        [selectionLayer addFigure:[self createFaceFigure:face]];
-    } else {
-        [geometryLayer addFigure:[self createFaceFigure:face]];
-    }
+    FaceFigure* figure = [self figureForFace:face create:YES];
+    if ([selectionManager isFaceSelected:face])
+        [selectionLayer addFigure:figure];
+    else 
+        [geometryLayer addFigure:figure];
 }
 
 - (void)removeFace:(Face *)face {
     SelectionManager* selectionManager = [windowController selectionManager];
-    FaceFigure* faceFigure = [faceFigures objectForKey:[face faceId]];
-    if ([selectionManager isFaceSelected:face])
-        [selectionLayer removeFigure:faceFigure];
-    else
-        [geometryLayer removeFigure:faceFigure];
+    FaceFigure* figure = [self figureForFace:face create:NO];
+    if (figure == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face %@ has no figure", face];
     
-    [faceFigures removeObjectForKey:[face faceId]];
+    if ([selectionManager isFaceSelected:face])
+        [selectionLayer removeFigure:figure];
+    else
+        [geometryLayer removeFigure:figure];
 }
 
 - (void)addBrush:(Brush *)brush {
@@ -93,6 +99,18 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)faceChanged:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    Face* face = [userInfo objectForKey:FaceKey];
+    FaceFigure* figure = [self figureForFace:face create:NO];
+    if (figure != nil) {
+        [figure invalidate];
+        SelectionManager* selectionManager = [windowController selectionManager];
+        if ([selectionManager isFaceSelected:face])
+            [selectionLayer invalidate];
+        else
+            [geometryLayer invalidate];
+    }
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
@@ -157,9 +175,9 @@ NSString* const RendererChanged = @"RendererChanged";
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
             Face* face;
             while ((face = [faceEn nextObject])) {
-                FaceFigure* faceFigure = [faceFigures objectForKey:[face faceId]];
-                [geometryLayer removeFigure:faceFigure];
-                [selectionLayer addFigure:faceFigure];
+                FaceFigure* figure = [self figureForFace:face create:NO];
+                [geometryLayer removeFigure:figure];
+                [selectionLayer addFigure:figure];
             }
         }
     }
@@ -168,9 +186,9 @@ NSString* const RendererChanged = @"RendererChanged";
         NSEnumerator* faceEn = [faces objectEnumerator];
         Face* face;
         while ((face = [faceEn nextObject])) {
-            FaceFigure* faceFigure = [faceFigures objectForKey:[face faceId]];
-            [geometryLayer removeFigure:faceFigure];
-            [selectionLayer addFigure:faceFigure];
+            FaceFigure* figure = [self figureForFace:face create:NO];
+            [geometryLayer removeFigure:figure];
+            [selectionLayer addFigure:figure];
         }
     }
     
@@ -190,9 +208,9 @@ NSString* const RendererChanged = @"RendererChanged";
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
             Face* face;
             while ((face = [faceEn nextObject])) {
-                FaceFigure* faceFigure = [faceFigures objectForKey:[face faceId]];
-                [selectionLayer removeFigure:faceFigure];
-                [geometryLayer addFigure:faceFigure];
+                FaceFigure* figure = [self figureForFace:face create:NO];
+                [selectionLayer removeFigure:figure];
+                [geometryLayer addFigure:figure];
             }
         }
     }
@@ -201,9 +219,9 @@ NSString* const RendererChanged = @"RendererChanged";
         NSEnumerator* faceEn = [faces objectEnumerator];
         Face* face;
         while ((face = [faceEn nextObject])) {
-            FaceFigure* faceFigure = [faceFigures objectForKey:[face faceId]];
-            [selectionLayer removeFigure:faceFigure];
-            [geometryLayer addFigure:faceFigure];
+            FaceFigure* figure = [self figureForFace:face create:NO];
+            [selectionLayer removeFigure:figure];
+            [geometryLayer addFigure:figure];
         }
     }
     
@@ -248,7 +266,7 @@ NSString* const RendererChanged = @"RendererChanged";
         [center addObserver:self selector:@selector(brushRemoved:) name:BrushRemoved object:map];
         [center addObserver:self selector:@selector(faceAdded:) name:FaceAdded object:map];
         [center addObserver:self selector:@selector(faceRemoved:) name:FaceRemoved object:map];
-        [center addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged object:map];
+//        [center addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged object:map];
         [center addObserver:self selector:@selector(faceChanged:) name:FaceTextureChanged object:map];
         [center addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged object:map];
         

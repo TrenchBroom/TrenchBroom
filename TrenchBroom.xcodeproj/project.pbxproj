@@ -31,6 +31,9 @@
 		48334C42130EC52A004485E1 /* FaceTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48334C41130EC52A004485E1 /* FaceTool.m */; };
 		48334C78130EE514004485E1 /* FaceRotationTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48334C77130EE514004485E1 /* FaceRotationTool.m */; };
 		48334C7F130EE64E004485E1 /* FaceRotationFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48334C7E130EE64E004485E1 /* FaceRotationFigure.m */; };
+		4833C15C131953D300EB1B85 /* Test.map in Resources */ = {isa = PBXBuildFile; fileRef = 4833C15B131953D300EB1B85 /* Test.map */; };
+		4833C15F131953F600EB1B85 /* PrefabManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C15E131953F600EB1B85 /* PrefabManager.m */; };
+		4833C1BD13196CFB00EB1B85 /* Prefab.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C1BC13196CFB00EB1B85 /* Prefab.m */; };
 		4836401112603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
 		4836401212603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
 		4836401B1260416700363E3F /* Plane3DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401A1260416700363E3F /* Plane3DTestCase.m */; };
@@ -172,6 +175,12 @@
 		48334C77130EE514004485E1 /* FaceRotationTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceRotationTool.m; sourceTree = "<group>"; };
 		48334C7D130EE64E004485E1 /* FaceRotationFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceRotationFigure.h; sourceTree = "<group>"; };
 		48334C7E130EE64E004485E1 /* FaceRotationFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceRotationFigure.m; sourceTree = "<group>"; };
+		4833C15B131953D300EB1B85 /* Test.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Test.map; sourceTree = "<group>"; };
+		4833C15D131953F600EB1B85 /* PrefabManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabManager.h; sourceTree = "<group>"; };
+		4833C15E131953F600EB1B85 /* PrefabManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabManager.m; sourceTree = "<group>"; };
+		4833C174131964FF00EB1B85 /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
+		4833C1BB13196CFB00EB1B85 /* Prefab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Prefab.h; sourceTree = "<group>"; };
+		4833C1BC13196CFB00EB1B85 /* Prefab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Prefab.m; sourceTree = "<group>"; };
 		4836400F12603A5100363E3F /* Line3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line3D.h; sourceTree = "<group>"; };
 		4836401012603A5100363E3F /* Line3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line3D.m; sourceTree = "<group>"; };
 		483640191260416700363E3F /* Plane3DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane3DTestCase.h; sourceTree = "<group>"; };
@@ -424,6 +433,7 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4833C15B131953D300EB1B85 /* Test.map */,
 				48639BF312EA227100808576 /* QuakePalette.lmp */,
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
 				8D15AC360486D014006FF6A4 /* TrenchBroom-Info.plist */,
@@ -627,6 +637,9 @@
 				487E1E9312E495060001C150 /* IdGenerator.m */,
 				48A68F6E114EE6DC0064732A /* MapDocument.h */,
 				48A68F6F114EE6DC0064732A /* MapDocument.m */,
+				4833C174131964FF00EB1B85 /* Map.h */,
+				4833C1BB13196CFB00EB1B85 /* Prefab.h */,
+				4833C1BC13196CFB00EB1B85 /* Prefab.m */,
 			);
 			name = Map;
 			sourceTree = "<group>";
@@ -652,6 +665,8 @@
 				485D2EAE1308624900CF73D8 /* Options.m */,
 				48C3324213087D8600C23607 /* MenuDelegate.h */,
 				48C3324313087D8600C23607 /* MenuDelegate.m */,
+				4833C15D131953F600EB1B85 /* PrefabManager.h */,
+				4833C15E131953F600EB1B85 /* PrefabManager.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -820,6 +835,7 @@
 				48639BF412EA227100808576 /* QuakePalette.lmp in Resources */,
 				4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */,
 				48E4FFD613157C46004642CD /* Inspector.xib in Resources */,
+				4833C15C131953D300EB1B85 /* Test.map in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -957,6 +973,8 @@
 				482B817E13169EB200F36EF5 /* GLException.m in Sources */,
 				48CBDD9913170B330041F704 /* GLResources.m in Sources */,
 				488089A61317A2F100823C27 /* RenderContext.m in Sources */,
+				4833C15F131953F600EB1B85 /* PrefabManager.m in Sources */,
+				4833C1BD13196CFB00EB1B85 /* Prefab.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Map.h"
 
 extern NSString* const FaceAdded;
 extern NSString* const FaceRemoved;
@@ -38,8 +39,9 @@ extern NSString* const PropertyNewValueKey;
 @class Face;
 @class Picker;
 @class GLResources;
+@class Vector3i;
 
-@interface MapDocument : NSDocument {
+@interface MapDocument : NSDocument <Map> {
     @private
     NSMutableArray* entities;
     Entity* worldspawn;
@@ -49,34 +51,25 @@ extern NSString* const PropertyNewValueKey;
     GLResources* glResources;
 }
 
-- (Entity *)worldspawn;
+- (void)setFace:(Face *)face xOffset:(int)xOffset;
+- (void)setFace:(Face *)face yOffset:(int)yOffset;
+- (void)translateFaceOffset:(Face *)face xDelta:(int)xDelta yDelta:(int)yDelta;
+- (void)setFace:(Face *)face xScale:(float)xScale;
+- (void)setFace:(Face *)face yScale:(float)yScale;
+- (void)setFace:(Face *)face rotation:(float)angle;
+- (void)setFace:(Face *)face texture:(NSString *)texture;
+- (void)setFace:(Face *)face point1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3;
+- (void)translateFace:(Face *)face xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta;
 
-- (Entity *)createEntity;
-- (Entity *)createEntityWithProperty:(NSString *)key value:(NSString *)value;
-- (void)removeEntity:(Entity *)entity;
+- (Brush *)createBrushInEntity:(Entity *)entity fromTemplate:(Brush *)theTemplate;
+- (void)deleteBrush:(Brush *)brush;
+- (void)translateBrush:(Brush *)brush xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta;
 
-- (NSArray* )entities;
 - (int)worldSize;
 
-- (NSSet *)textureNames;
-
-- (BOOL)postNotifications;
 - (void)setPostNotifications:(BOOL)value;
 
 - (Picker *)picker;
 - (GLResources *)glResources;
-
-- (void)faceFlagsChanged:(Face *)face;
-- (void)faceTextureChanged:(Face *)face oldTexture:(NSString *)oldTexture newTexture:(NSString *)newTexture;
-- (void)faceGeometryChanged:(Face *)face;
-- (void)faceAdded:(Face *)face;
-- (void)faceRemoved:(Face *)face;
-
-- (void)brushAdded:(Brush *)brush;
-- (void)brushRemoved:(Brush *)brush;
-
-- (void)propertyAdded:(Entity *)entity key:(NSString *)key value:(NSString *)value;
-- (void)propertyRemoved:(Entity *)entity key:(NSString *)key value:(NSString *)value;
-- (void)propertyChanged:(Entity *)entity key:(NSString *)key oldValue:(NSString *)oldValue newValue:(NSString *)newValue;
 
 @end

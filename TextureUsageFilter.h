@@ -10,11 +10,9 @@
 #import "TextureFilter.h"
 
 @interface TextureUsageFilter : NSObject <TextureFilter> {
-    NSSet* names;
     id<TextureFilter> filter;
 }
 
-- (id)initWithTextureNames:(NSSet *)theNames;
-- (id)initWithTextureNames:(NSSet *)theNames filter:(id<TextureFilter>)theFilter;
+- (id)initWithFilter:(id<TextureFilter>)theFilter;
 
 @end

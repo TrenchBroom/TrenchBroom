@@ -73,15 +73,24 @@
     return [face autorelease];
 }
 
-- (BOOL)addFace:(Face *)face {
-    NSUndoManager* undoManager = [self undoManager];
+- (Face *)createFaceFromTemplate:(Face *)theTemplate {
+    Face* face = [self createFaceWithPoint1:[theTemplate point1] point2:[theTemplate point2] point3:[theTemplate point3] texture:[theTemplate texture]];
+    if (face != nil) {
+        [face setXOffset:[theTemplate xOffset]];
+        [face setYOffset:[theTemplate yOffset]];
+        [face setXScale:[theTemplate xScale]];
+        [face setYScale:[theTemplate yScale]];
+        [face setRotation:[theTemplate rotation]];
+    }
+    
+    return face;
+}
 
+- (BOOL)addFace:(Face *)face {
     NSMutableArray* droppedFaces = nil;
     if (![[self vertexData] cutWithFace:face droppedFaces:&droppedFaces]) {
         NSLog(@"Brush %@ was cut away by face %@", self, face);
         return NO;
-    } else {
-        [[undoManager prepareWithInvocationTarget:self] removeFace:face];
     }
     
     if (droppedFaces != nil) {
@@ -102,9 +111,6 @@
 }
 
 - (void)removeFace:(Face *)face {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] addFace:face];
-    
     [faces removeObject:face];
     [vertexData release];
     vertexData = nil;
@@ -128,7 +134,7 @@
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
 
-    return [vertexData verticesForFace:face];
+    return [[self vertexData] verticesForFace:face];
 }
 
 - (float *)flatColor {
@@ -168,10 +174,6 @@
     Face* face;
     while ((face = [faceEn nextObject]))
         [face translateBy:theDelta];
-}
-
-- (NSUndoManager *)undoManager {
-    return [entity undoManager];
 }
 
 - (void)faceFlagsChanged:(Face *)face {

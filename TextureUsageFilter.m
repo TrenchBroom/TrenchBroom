@@ -11,19 +11,8 @@
 
 @implementation TextureUsageFilter
 
-- (id)initWithTextureNames:(NSSet *)theNames {
-    if (theNames == nil)
-        [NSException raise:NSInvalidArgumentException format:@"name set must not be nil"];
-    
+- (id)initWithFilter:(id<TextureFilter>)theFilter {
     if (self = [self init]) {
-        names = [theNames retain];
-    }
-    
-    return self;
-}
-
-- (id)initWithTextureNames:(NSSet *)theNames filter:(id<TextureFilter>)theFilter {
-    if (self = [self initWithTextureNames:theNames]) {
         filter = [theFilter retain];
     }
     
@@ -34,11 +23,10 @@
     if (filter != nil && ![filter passes:texture])
         return NO;
     
-    return [names containsObject:[texture name]];
+    return [texture usageCount] > 0;
 }
 
 - (void)dealloc {
-    [names release];
     [filter release];
     [super dealloc];
 }
