@@ -34,9 +34,6 @@
         Brush* brush = [face brush];
         int vertexCount = [[brush verticesForFace:face] count];
         block = [[vbo allocMemBlock:5 * sizeof(float) * vertexCount] retain];
-
-        [face addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged];
-        [face addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged];
     }
     
     return self;
@@ -46,7 +43,7 @@
     return face;
 }
 
-- (void)faceChanged:(NSNotification *)notification {
+- (void)invalidate {
     [vbo freeMemBlock:block];
     [block release];
 
@@ -96,7 +93,6 @@
 }
 
 - (void)dealloc {
-    [face removeObserver:self];
     [face release];
     [vbo freeMemBlock:block];
     [block release];

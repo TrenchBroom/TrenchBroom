@@ -8,6 +8,10 @@
 
 #import "GeometryLayer.h"
 #import <OpenGL/gl.h>
+#import "MapWindowController.h"
+#import "MapDocument.h"
+#import "GLResources.h"
+#import "Map.h"
 #import "Face.h"
 #import "FaceFigure.h"
 #import "VBOBuffer.h"
@@ -21,7 +25,7 @@
 
 - (id)init {
     if (self = [super init]) {
-        faceFigures = [[NSMutableSet alloc] init];
+        faceFigures = [[NSMutableDictionary alloc] init];
         indexBuffers = [[NSMutableDictionary alloc] init];
         countBuffers = [[NSMutableDictionary alloc] init];
         buffersValid = NO;
@@ -30,21 +34,36 @@
     return self;
 }
 
-- (id)initWithVbo:(VBOBuffer *)theVbo {
-    if (theVbo == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vbo must not be nil"];
+- (void)faceChanged:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    Face* face = [userInfo objectForKey:FaceKey];
+    
+    FaceFigure* faceFigure = [faceFigures objectForKey:[face faceId]];
+    if (faceFigure != nil) {
+        [faceFigure invalidate];
+        [indexBuffers removeAllObjects];
+        [countBuffers removeAllObjects];
+        buffersValid = NO;
+    }
+}
+
+- (id)initWithWindowController:(MapWindowController *)theMapWindowController {
+    if (theMapWindowController == nil)
+        [NSException raise:NSInvalidArgumentException format:@"window controller must not be nil"];
     
     if (self = [self init]) {
-        vbo = [theVbo retain];
+        mapWindowController = [theMapWindowController retain];
+        
+        MapDocument* document = [mapWindowController document];
+        Map* map = [document map];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged object:map];
+        [center addObserver:self selector:@selector(faceChanged:) name:FaceTextureChanged object:map];
+        [center addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged object:map];
     }
     
     return self;
-}
-
-- (void)faceChanged:(NSNotification *)notification {
-    [indexBuffers removeAllObjects];
-    [countBuffers removeAllObjects];
-    buffersValid = NO;
 }
 
 - (void)addFigure:(id)theFigure {
@@ -52,12 +71,9 @@
         [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
     
     FaceFigure* faceFigure = (FaceFigure *)theFigure;
-    [faceFigures addObject:faceFigure];
-    
     Face* face = [faceFigure face];
-    [face addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged];
-    [face addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged];
-
+    [faceFigures setObject:faceFigure forKey:[face faceId]];
+    
     [indexBuffers removeAllObjects];
     [countBuffers removeAllObjects];
     buffersValid = NO;
@@ -68,10 +84,8 @@
         [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
     
     FaceFigure* faceFigure = (FaceFigure *)theFigure;
-    [faceFigures removeObject:faceFigure];
-
     Face* face = [faceFigure face];
-    [face removeObserver:self];
+    [faceFigures removeObjectForKey:[face faceId]];
     
     [indexBuffers removeAllObjects];
     [countBuffers removeAllObjects];
@@ -79,6 +93,10 @@
 }
 
 - (void)prepare:(RenderContext *)renderContext {
+    MapDocument* document = [mapWindowController document];
+    GLResources* glResources = [document glResources];
+    VBOBuffer* vbo = [glResources geometryVBO];
+    
     [vbo mapBuffer];
     
     NSEnumerator* figureEn = [faceFigures objectEnumerator];
@@ -184,6 +202,10 @@
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glShadeModel(GL_FLAT);
     
+    MapDocument* document = [mapWindowController document];
+    GLResources* glResources = [document glResources];
+    VBOBuffer* vbo = [glResources geometryVBO];
+
     [vbo activate];
     if (!buffersValid)
         [self prepare:renderContext];
@@ -193,17 +215,11 @@
 }
 
 - (void)dealloc {
-    NSEnumerator* faceFigureEn = [faceFigures objectEnumerator];
-    FaceFigure* faceFigure;
-    while ((faceFigure = [faceFigureEn nextObject])) {
-        Face* face = [faceFigure face];
-        [face removeObserver:self];
-    }
-    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [indexBuffers release];
     [countBuffers release];
     [faceFigures release];
-    [vbo release];
+    [mapWindowController release];
     [super dealloc];
 }
 

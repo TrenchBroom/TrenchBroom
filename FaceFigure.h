@@ -29,4 +29,5 @@
 - (void)prepare:(RenderContext *)renderContext;
 - (void)getIndex:(IntData *)theIndexBuffer count:(IntData *)theCountBuffer;
 
+- (void)invalidate;
 @end

@@ -9,18 +9,18 @@
 #import <Cocoa/Cocoa.h>
 #import "Layer.h"
 
-@class VBOBuffer;
+@class MapWindowController;
 @class RenderContext;
 
 @interface GeometryLayer : NSObject <Layer> {
-    NSMutableSet* faceFigures;
+    NSMutableDictionary* faceFigures;
     NSMutableDictionary* indexBuffers;
     NSMutableDictionary* countBuffers;
-    VBOBuffer* vbo;
+    MapWindowController* mapWindowController;
     BOOL buffersValid;
 }
 
-- (id)initWithVbo:(VBOBuffer *)theVbo;
+- (id)initWithWindowController:(MapWindowController *)theMapWindowController;
 
 - (void)renderWireframe:(RenderContext *)renderContext;
 - (void)renderTextured:(RenderContext *)renderContext;

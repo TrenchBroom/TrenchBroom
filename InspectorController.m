@@ -186,70 +186,45 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (void)faceFlagsChanged:(NSNotification *)notification {
-    [self updateTextureControls];
+    NSDictionary* userInfo = [notification userInfo];
+    NSSet* face = [userInfo objectForKey:FaceKey];
+    
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+    NSSet* selectedFaces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+
+    if ([selectedFaces containsObject:face])
+        [self updateTextureControls];
 }
 
 - (void)selectionRemoved:(NSNotification *)notification {
     [self updateTextureControls];
-    
-    NSDictionary* userInfo = [notification userInfo];
-    NSSet* brushes = [userInfo objectForKey:SelectionBrushes];
-    NSSet* faces = [userInfo objectForKey:SelectionFaces];
-    
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    Face* face;
-    while ((face = [faceEn nextObject]))
-        [face removeObserver:self];
-
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    Brush* brush;
-    while ((brush = [brushEn nextObject])) {
-        faceEn = [[brush faces] objectEnumerator];
-        while ((face = [faceEn nextObject]))
-            [face removeObserver:self];
-    }
 }
 
 - (void)selectionAdded:(NSNotification *)notification {
     [self updateTextureControls];
-
-    NSDictionary* userInfo = [notification userInfo];
-    NSSet* brushes = [userInfo objectForKey:SelectionBrushes];
-    NSSet* faces = [userInfo objectForKey:SelectionFaces];
-    
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    Face* face;
-    while ((face = [faceEn nextObject]))
-        [face addObserver:self selector:@selector(faceFlagsChanged:) name:FaceFlagsChanged];
-    
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    Brush* brush;
-    while ((brush = [brushEn nextObject])) {
-        faceEn = [[brush faces] objectEnumerator];
-        while ((face = [faceEn nextObject]))
-            [face addObserver:self selector:@selector(faceFlagsChanged:) name:FaceFlagsChanged];
-    }
 }
 
 - (void)setMapWindowController:(MapWindowController *)theMapWindowController {
     if (mapWindowController == theMapWindowController)
         return;
     
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+
     if (mapWindowController != nil) {
         MapDocument* document = [mapWindowController document];
         GLResources* glResources = [document glResources];
 
         TextureManager* textureManager = [glResources textureManager];
-        [textureManager removeObserver:self];
+        [center removeObserver:self name:TexturesAdded object:textureManager];
+        [center removeObserver:self name:TexturesRemoved object:textureManager];
         
         SelectionManager* selectionManager = [mapWindowController selectionManager];
-        NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
-        NSEnumerator* faceEn = [faces objectEnumerator];
-        Face* face;
-        while ((face = [faceEn nextObject]))
-            [face removeObserver:self];
-        [selectionManager removeObserver:self];
+        [center removeObserver:self name:SelectionAdded object:selectionManager];
+        [center removeObserver:self name:SelectionRemoved object:selectionManager];
 
+        Map* map = [document map];
+        [center removeObserver:self name:FaceFlagsChanged object:map];
+        
         [mapWindowController release];
     }
     
@@ -262,14 +237,18 @@ static InspectorController* sharedInstance = nil;
         [singleTextureView setOpenGLContext:context];
         [context release];
 
+        [textureView setGLResources:glResources];
+
         TextureManager* textureManager = [glResources textureManager];
-        [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesAdded];
-        [textureManager addObserver:self selector:@selector(textureManagerChanged:) name:TexturesRemoved];
+        [center addObserver:self selector:@selector(textureManagerChanged:) name:TexturesAdded object:textureManager];
+        [center addObserver:self selector:@selector(textureManagerChanged:) name:TexturesRemoved object:textureManager];
 
         SelectionManager* selectionManager = [mapWindowController selectionManager];
-        [selectionManager addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded];
-        [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
-        [textureView setGLResources:glResources];
+        [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
+        [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionAdded object:selectionManager];
+        
+        Map* map = [document map];
+        [center addObserver:self selector:@selector(faceFlagsChanged:) name:FaceFlagsChanged object:map];
     } else {
         [textureView setGLResources:nil];
     }

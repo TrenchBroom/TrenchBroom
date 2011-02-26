@@ -49,8 +49,9 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
     renderer = [[Renderer alloc] initWithWindowController:controller];
     options = [[controller options] retain];
     
-    [renderer addObserver:self selector:@selector(rendererChanged:) name:RendererChanged];
-    [options addObserver:self selector:@selector(optionsChanged:) name:OptionsChanged];
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center addObserver:self selector:@selector(rendererChanged:) name:RendererChanged object:renderer];
+    [center addObserver:self selector:@selector(optionsChanged:) name:OptionsChanged object:options];
 }
 
 - (BOOL)acceptsFirstResponder {
@@ -137,7 +138,6 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [renderer removeObserver:self];
     [renderer release];
     [options release];
     [super dealloc];

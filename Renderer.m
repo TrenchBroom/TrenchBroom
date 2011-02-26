@@ -51,9 +51,6 @@ NSString* const RendererChanged = @"RendererChanged";
     } else {
         [geometryLayer addFigure:[self createFaceFigure:face]];
     }
-    
-    [face addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged];
-    [face addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged];
 }
 
 - (void)removeFace:(Face *)face {
@@ -65,7 +62,6 @@ NSString* const RendererChanged = @"RendererChanged";
         [geometryLayer removeFigure:faceFigure];
     
     [faceFigures removeObjectForKey:[face faceId]];
-    [face removeObserver:self];
 }
 
 - (void)addBrush:(Brush *)brush {
@@ -73,9 +69,6 @@ NSString* const RendererChanged = @"RendererChanged";
     Face* face;
     while ((face = [faceEn nextObject]))
         [self addFace:face];
-
-    [brush addObserver:self selector:@selector(faceAdded:) name:BrushFaceAdded];
-    [brush addObserver:self selector:@selector(faceRemoved:) name:BrushFaceRemoved];
 }
 
 - (void)removeBrush:(Brush *)brush {
@@ -83,8 +76,6 @@ NSString* const RendererChanged = @"RendererChanged";
     Face* face;
     while ((face = [faceEn nextObject]))
         [self removeFace:face];
-
-    [brush removeObserver:self];
 }
 
 - (void)addEntity:(Entity *)entity {
@@ -92,9 +83,6 @@ NSString* const RendererChanged = @"RendererChanged";
     Brush* brush;
     while ((brush = [brushEn nextObject]))
         [self addBrush:brush];
-    
-    [entity addObserver:self selector:@selector(brushAdded:) name:EntityBrushAdded];
-    [entity addObserver:self selector:@selector(brushAdded:) name:EntityBrushRemoved];
 }
 
 - (void)removeEntity:(Entity *)entity {
@@ -102,12 +90,10 @@ NSString* const RendererChanged = @"RendererChanged";
     Brush* brush;
     while ((brush = [brushEn nextObject]))
         [self removeBrush:brush];
-
-    [entity removeObserver:self];
 }
 
 - (void)faceChanged:(NSNotification *)notification {
-    [self notifyObservers:RendererChanged];
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)faceAdded:(NSNotification *)notification {
@@ -115,7 +101,7 @@ NSString* const RendererChanged = @"RendererChanged";
     Face* face = [userInfo objectForKey:FaceKey];
     [self addFace:face];
     
-    [self notifyObservers:RendererChanged];
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)faceRemoved:(NSNotification *)notification {
@@ -123,7 +109,7 @@ NSString* const RendererChanged = @"RendererChanged";
     Face* face = [userInfo objectForKey:FaceKey];
     [self removeFace:face];
     
-    [self notifyObservers:RendererChanged];
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)brushAdded:(NSNotification *)notification {
@@ -131,7 +117,7 @@ NSString* const RendererChanged = @"RendererChanged";
     Brush* brush = [userInfo objectForKey:BrushKey];
     [self addBrush:brush];
     
-    [self notifyObservers:RendererChanged];
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)brushRemoved:(NSNotification *)notification {
@@ -139,7 +125,7 @@ NSString* const RendererChanged = @"RendererChanged";
     Brush* brush = [userInfo objectForKey:BrushKey];
     [self removeBrush:brush];
     
-    [self notifyObservers:RendererChanged];
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)entityAdded:(NSNotification *)notification {
@@ -147,7 +133,7 @@ NSString* const RendererChanged = @"RendererChanged";
     Entity* entity = [userInfo objectForKey:EntityKey];
     [self addEntity:entity];
     
-    [self notifyObservers:RendererChanged];
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)entityRemoved:(NSNotification *)notification {
@@ -155,7 +141,7 @@ NSString* const RendererChanged = @"RendererChanged";
     Entity* entity = [userInfo objectForKey:EntityKey];
     [self removeEntity:entity];
     
-    [self notifyObservers:RendererChanged];
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)selectionAdded:(NSNotification *)notification {
@@ -188,7 +174,7 @@ NSString* const RendererChanged = @"RendererChanged";
         }
     }
     
-    [self notifyObservers:RendererChanged];
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)selectionRemoved:(NSNotification *)notification {
@@ -221,11 +207,11 @@ NSString* const RendererChanged = @"RendererChanged";
         }
     }
     
-    [self notifyObservers:RendererChanged];
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)cameraChanged:(NSNotification *)notification {
-    [self notifyObservers:RendererChanged];
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (id)init {
@@ -243,29 +229,36 @@ NSString* const RendererChanged = @"RendererChanged";
     if (self = [self init]) {
         windowController = [theWindowController retain];
 
-        MapDocument* mapDocument = [windowController document];
-        GLResources* glResources = [mapDocument glResources];
-        VBOBuffer* vbo = [glResources geometryVBO];
-        
-        geometryLayer = [[GeometryLayer alloc] initWithVbo:vbo];
-        selectionLayer = [[SelectionLayer alloc] initWithVbo:vbo];
+        geometryLayer = [[GeometryLayer alloc] initWithWindowController:windowController];
+        selectionLayer = [[SelectionLayer alloc] initWithWindowController:windowController];
         toolLayer = [[ToolLayer alloc] init];
 
+        MapDocument* mapDocument = [windowController document];
         Map* map = [mapDocument map];
+
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
         Entity* entity;
         while ((entity = [entityEn nextObject]))
             [self addEntity:entity];
 
-        [map addObserver:self selector:@selector(entityAdded:) name:MapEntityAdded];
-        [map addObserver:self selector:@selector(entityRemoved:) name:MapEntityRemoved];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        
+        [center addObserver:self selector:@selector(entityAdded:) name:EntityAdded object:map];
+        [center addObserver:self selector:@selector(entityRemoved:) name:EntityRemoved object:map];
+        [center addObserver:self selector:@selector(brushAdded:) name:BrushAdded object:map];
+        [center addObserver:self selector:@selector(brushRemoved:) name:BrushRemoved object:map];
+        [center addObserver:self selector:@selector(faceAdded:) name:FaceAdded object:map];
+        [center addObserver:self selector:@selector(faceRemoved:) name:FaceRemoved object:map];
+        [center addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged object:map];
+        [center addObserver:self selector:@selector(faceChanged:) name:FaceTextureChanged object:map];
+        [center addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged object:map];
         
         SelectionManager* selectionManager = [windowController selectionManager];
-        [selectionManager addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded];
-        [selectionManager addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved];
+        [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
+        [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
         
         Camera* camera = [windowController camera];
-        [camera addObserver:self selector:@selector(cameraChanged:) name:CameraChanged];
+        [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
     }
     
     return self;
