@@ -16,4 +16,6 @@
     Entity* entity;
 }
 
+- (void)translateToOrigin;
+
 @end

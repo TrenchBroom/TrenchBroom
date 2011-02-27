@@ -28,6 +28,7 @@ typedef enum {
     NSMutableDictionary* faceToSide;
     NSMutableDictionary* centers;
     BoundingBox* bounds;
+    Vector3f* center;
 }
 
 - (id)initWithFaces:(NSArray *)faces droppedFaces:(NSMutableArray **)droppedFaces;
@@ -37,6 +38,7 @@ typedef enum {
 - (NSArray *)verticesForWireframe;
 - (int)edgeCount;
 - (BoundingBox *)bounds;
+- (Vector3f *)center;
 - (NSArray *)gridForFace:(Face *)face gridSize:(int)gridSize;
 
 /*!

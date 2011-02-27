@@ -14,11 +14,16 @@
     @private
     Vector3f* min;
     Vector3f* max;
+    Vector3f* size;
 }
 
 - (id)initWithMin:(Vector3f *)theMin max:(Vector3f *)theMax;
 
 - (Vector3f *)min;
 - (Vector3f *)max;
+
+- (Vector3f *)size;
+
+- (void)merge:(BoundingBox *)theBounds;
 
 @end

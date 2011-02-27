@@ -142,7 +142,8 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
 }
 
 - (void)parseMap:(id<Map>)theMap withProgressIndicator:(NSProgressIndicator *)theIndicator {
-    [theIndicator setMaxValue:100];
+    if (theIndicator != nil)
+        [theIndicator setMaxValue:100];
     
     NSDate* startDate = [NSDate date];
     state = PS_DEF;
@@ -201,12 +202,15 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
             }
         }
         
-        [theIndicator setDoubleValue:100 * [token charsRead] / (double)size];
-        [[NSRunLoop currentRunLoop] runMode:NSModalPanelRunLoopMode beforeDate:[NSDate date]];
+        if (theIndicator != nil) {
+            [theIndicator setDoubleValue:100 * [token charsRead] / (double)size];
+            [[NSRunLoop currentRunLoop] runMode:NSModalPanelRunLoopMode beforeDate:[NSDate date]];
+        }
     }
     
     // just to make sure it reaches 100%
-    [theIndicator setDoubleValue:100];
+    if (theIndicator != nil)
+        [theIndicator setDoubleValue:100];
     
     NSTimeInterval duration = [startDate timeIntervalSinceNow];
     NSLog(@"Loaded map file in %f seconds", -duration);

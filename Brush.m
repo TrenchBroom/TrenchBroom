@@ -145,6 +145,11 @@
     return [[self vertexData] bounds];
 }
 
+- (Vector3f *)center {
+    return [[self vertexData] center];
+}
+
+
 - (Vector3f *)centerOfFace:(Face *)face {
     return [[self vertexData] centerOfFace:face];
 }

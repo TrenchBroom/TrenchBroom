@@ -9,8 +9,10 @@
 #import <Cocoa/Cocoa.h>
 
 @class Vector3i;
+@class Vector3f;
 @class Brush;
 @class Face;
+@class BoundingBox;
 @protocol Map;
 
 @interface Entity : NSObject {
@@ -20,6 +22,8 @@
 	NSMutableArray* brushes;
     NSMutableDictionary* brushIndices;
 	NSMutableDictionary* properties;
+    Vector3f* center;
+    BoundingBox* bounds;
 }
 
 - (id)initInMap:(id<Map>)theMap;
@@ -43,6 +47,9 @@
 - (NSDictionary *)properties;
 
 - (BOOL)isWorldspawn;
+
+- (BoundingBox *)bounds;
+- (Vector3f *)center;
 
 - (void)faceFlagsChanged:(Face *)face;
 - (void)faceTextureChanged:(Face *)face oldTexture:(NSString *)oldTexture newTexture:(NSString *)newTexture;

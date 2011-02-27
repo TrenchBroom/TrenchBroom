@@ -11,6 +11,8 @@
 @class MapWindowController;
 @class TextureView;
 @class SingleTextureView;
+@class PrefabView;
+@class Prefab;
 @class Texture;
 
 @interface InspectorController : NSWindowController {
@@ -25,6 +27,7 @@
     IBOutlet NSSegmentedControl* textureSortCriterionSC;
     IBOutlet SingleTextureView* singleTextureView;
     IBOutlet TextureView* textureView;
+    IBOutlet PrefabView* prefabView;
     MapWindowController* mapWindowController;
 }
 
@@ -42,4 +45,5 @@
 - (IBAction)textureSortCriterionChanged:(id)sender;
 
 - (void)textureSelected:(Texture *)texture;
+- (void)prefabSelected:(Prefab *)prefab;
 @end

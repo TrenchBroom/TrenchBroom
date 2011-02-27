@@ -7,7 +7,7 @@
 //
 
 #import "AppDelegate.h"
-
+#import "PrefabManager.h"
 
 @implementation AppDelegate
 
@@ -16,6 +16,12 @@
     NSDictionary* defaults = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
     srand(time(NULL));
+    
+    NSBundle* mainBundle = [NSBundle mainBundle];
+    NSString* bundlePath = [mainBundle bundlePath];
+
+    PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
+    [prefabManager loadPrefabsAtPath:bundlePath];
 }
 
 @end

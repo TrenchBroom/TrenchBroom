@@ -20,6 +20,7 @@
 #import "MapDocument.h"
 #import "Brush.h"
 #import "Face.h"
+#import "PrefabView.h"
 
 static InspectorController* sharedInstance = nil;
 
@@ -189,7 +190,7 @@ static InspectorController* sharedInstance = nil;
     [selectedTextureNames release];
 }
 
-- (void)faceFlagsChanged:(NSNotification *)notification {
+- (void)faceChanged:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* face = [userInfo objectForKey:FaceKey];
     
@@ -241,6 +242,7 @@ static InspectorController* sharedInstance = nil;
         [context release];
 
         [textureView setGLResources:glResources];
+        [prefabView setGLResources:glResources];
 
         TextureManager* textureManager = [glResources textureManager];
         [center addObserver:self selector:@selector(textureManagerChanged:) name:TexturesAdded object:textureManager];
@@ -250,7 +252,8 @@ static InspectorController* sharedInstance = nil;
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
         [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
         
-        [center addObserver:self selector:@selector(faceFlagsChanged:) name:FaceFlagsChanged object:map];
+        [center addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged object:map];
+        [center addObserver:self selector:@selector(faceChanged:) name:FaceTextureChanged object:map];
     } else {
         [textureView setGLResources:nil];
     }
@@ -266,62 +269,110 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (IBAction)xOffsetTextChanged:(id)sender {
+    MapDocument* map = [mapWindowController document];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
     SelectionManager* selectionManager = [mapWindowController selectionManager];
     int xOffset = [xOffsetField intValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face setXOffset:xOffset];
+        [map setFace:face xOffset:xOffset];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Set Texture Horizontal Offset"];
 }
 
 - (IBAction)yOffsetTextChanged:(id)sender {
+    MapDocument* map = [mapWindowController document];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
     SelectionManager* selectionManager = [mapWindowController selectionManager];
     int yOffset = [yOffsetField intValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face setYOffset:yOffset];
+        [map setFace:face yOffset:yOffset];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Set Texture Vertical Offset"];
 }
 
 - (IBAction)xScaleTextChanged:(id)sender {
+    MapDocument* map = [mapWindowController document];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
     SelectionManager* selectionManager = [mapWindowController selectionManager];
     float xScale = [xScaleField floatValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face setXScale:xScale];
+        [map setFace:face xScale:xScale];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Set Texture Horizontal Scale"];
 }
 
 - (IBAction)yScaleTextChanged:(id)sender {
+    MapDocument* map = [mapWindowController document];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
     SelectionManager* selectionManager = [mapWindowController selectionManager];
     float yScale = [yScaleField floatValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face setYScale:yScale];
+        [map setFace:face yScale:yScale];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Set Texture Vertical Scale"];
 }
 
 - (IBAction)rotationTextChanged:(id)sender {
+    MapDocument* map = [mapWindowController document];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
     SelectionManager* selectionManager = [mapWindowController selectionManager];
     float rotation = [rotationField floatValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face setRotation:rotation];
+        [map setFace:face rotation:rotation];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Set Texture Rotation"];
 }
 
 - (void)textureSelected:(Texture *)texture {
+    MapDocument* map = [mapWindowController document];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
     SelectionManager* selectionManager = [mapWindowController selectionManager];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
     Face* face;
     while ((face = [faceEn nextObject]))
-        [face setTexture:[texture name]];
+        [map setFace:face texture:[texture name]];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Set Texture"];
 }
 
 - (void)updateFilter {
@@ -354,6 +405,10 @@ static InspectorController* sharedInstance = nil;
         [textureView setSortCriterion:SC_NAME];
     else
         [textureView setSortCriterion:SC_USAGE];
+}
+
+- (void)prefabSelected:(Prefab *)prefab {
+    [mapWindowController insertPrefab:prefab];
 }
 
 - (void)dealloc {

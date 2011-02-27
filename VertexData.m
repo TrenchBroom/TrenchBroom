@@ -298,6 +298,12 @@
 
     }
     
+    [center release];
+    center = nil;
+    
+    [bounds release];
+    bounds = nil;
+    
     return YES;
 }
 
@@ -333,6 +339,21 @@
     }
     
     return bounds;
+}
+
+- (Vector3f *)center {
+    if (center == nil) {
+        NSEnumerator* vertexEn = [vertices objectEnumerator];
+        Vertex* vertex = [vertexEn nextObject];
+        center = [[Vector3f alloc] initWithFloatVector:[vertex vector]];
+        
+        while ((vertex = [vertexEn nextObject]))
+            [center add:[vertex vector]];
+        
+        [center scale:1.0f / [vertices count]];
+    }
+    
+    return center;
 }
 
 - (NSArray *)verticesForFace:(Face *)face {
@@ -521,6 +542,7 @@
     [edges release];
     [vertices release];
     [bounds release];
+    [center release];
     [super dealloc];
 }
 

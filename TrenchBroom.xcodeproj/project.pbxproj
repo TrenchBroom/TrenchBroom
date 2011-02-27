@@ -31,7 +31,7 @@
 		48334C42130EC52A004485E1 /* FaceTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48334C41130EC52A004485E1 /* FaceTool.m */; };
 		48334C78130EE514004485E1 /* FaceRotationTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48334C77130EE514004485E1 /* FaceRotationTool.m */; };
 		48334C7F130EE64E004485E1 /* FaceRotationFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48334C7E130EE64E004485E1 /* FaceRotationFigure.m */; };
-		4833C15C131953D300EB1B85 /* Test.map in Resources */ = {isa = PBXBuildFile; fileRef = 4833C15B131953D300EB1B85 /* Test.map */; };
+		4833C15C131953D300EB1B85 /* Prefab2.map in Resources */ = {isa = PBXBuildFile; fileRef = 4833C15B131953D300EB1B85 /* Prefab2.map */; };
 		4833C15F131953F600EB1B85 /* PrefabManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C15E131953F600EB1B85 /* PrefabManager.m */; };
 		4833C1BD13196CFB00EB1B85 /* Prefab.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C1BC13196CFB00EB1B85 /* Prefab.m */; };
 		4836401112603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
@@ -121,6 +121,8 @@
 		48E4006D13159E7E004642CD /* TextureNameFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E4006C13159E7E004642CD /* TextureNameFilter.m */; };
 		48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E400AE1315A7DA004642CD /* TextureUsageFilter.m */; };
 		48E4FFD613157C46004642CD /* Inspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48E4FFD513157C46004642CD /* Inspector.xib */; };
+		48F0EC52131A9CCD0088FA02 /* PrefabView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F0EC51131A9CCD0088FA02 /* PrefabView.m */; };
+		48F0EDAC131AD9A70088FA02 /* Prefab1.map in Resources */ = {isa = PBXBuildFile; fileRef = 48F0EDAB131AD9A70088FA02 /* Prefab1.map */; };
 		48FDA0BE12FD872500204729 /* FaceOffsetTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FDA0BD12FD872500204729 /* FaceOffsetTool.m */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
@@ -175,7 +177,7 @@
 		48334C77130EE514004485E1 /* FaceRotationTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceRotationTool.m; sourceTree = "<group>"; };
 		48334C7D130EE64E004485E1 /* FaceRotationFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceRotationFigure.h; sourceTree = "<group>"; };
 		48334C7E130EE64E004485E1 /* FaceRotationFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceRotationFigure.m; sourceTree = "<group>"; };
-		4833C15B131953D300EB1B85 /* Test.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Test.map; sourceTree = "<group>"; };
+		4833C15B131953D300EB1B85 /* Prefab2.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prefab2.map; sourceTree = "<group>"; };
 		4833C15D131953F600EB1B85 /* PrefabManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabManager.h; sourceTree = "<group>"; };
 		4833C15E131953F600EB1B85 /* PrefabManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabManager.m; sourceTree = "<group>"; };
 		4833C174131964FF00EB1B85 /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
@@ -337,6 +339,9 @@
 		48EEE9041153D816001A4D7C /* Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Test-Info.plist"; sourceTree = "<group>"; };
 		48EEE9181153D95E001A4D7C /* VBOManagerTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOManagerTestCase.h; sourceTree = "<group>"; };
 		48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOManagerTestCase.m; sourceTree = "<group>"; };
+		48F0EC50131A9CCD0088FA02 /* PrefabView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabView.h; sourceTree = "<group>"; };
+		48F0EC51131A9CCD0088FA02 /* PrefabView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabView.m; sourceTree = "<group>"; };
+		48F0EDAB131AD9A70088FA02 /* Prefab1.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prefab1.map; sourceTree = "<group>"; };
 		48FDA0BC12FD872500204729 /* FaceOffsetTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceOffsetTool.h; sourceTree = "<group>"; };
 		48FDA0BD12FD872500204729 /* FaceOffsetTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceOffsetTool.m; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* TrenchBroom-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "TrenchBroom-Info.plist"; sourceTree = "<group>"; };
@@ -433,7 +438,7 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				4833C15B131953D300EB1B85 /* Test.map */,
+				48F0EC32131A999E0088FA02 /* Prefabs */,
 				48639BF312EA227100808576 /* QuakePalette.lmp */,
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
 				8D15AC360486D014006FF6A4 /* TrenchBroom-Info.plist */,
@@ -519,10 +524,10 @@
 				488C8EDF12F6C3ED00F358E6 /* IntData.h */,
 				488C8EE012F6C3ED00F358E6 /* IntData.m */,
 				487A7E38130071DD00434806 /* Layer.h */,
-				487A7E631300801A00434806 /* Renderer.h */,
-				487A7E641300801A00434806 /* Renderer.m */,
 				488089A41317A2F100823C27 /* RenderContext.h */,
 				488089A51317A2F100823C27 /* RenderContext.m */,
+				487A7E631300801A00434806 /* Renderer.h */,
+				487A7E641300801A00434806 /* Renderer.m */,
 				488F07CC13013F9F0063E550 /* SelectionLayer.h */,
 				488F07CD13013F9F0063E550 /* SelectionLayer.m */,
 				487A646A12EA3A7E00A43289 /* Texture.h */,
@@ -675,16 +680,14 @@
 			isa = PBXGroup;
 			children = (
 				487E31F3114F741F0043A111 /* Renderer */,
+				482B817C13169EB200F36EF5 /* GLException.h */,
+				482B817D13169EB200F36EF5 /* GLException.m */,
+				48CBDD9713170B330041F704 /* GLResources.h */,
+				48CBDD9813170B330041F704 /* GLResources.m */,
 				48A68ECD114E9B0D0064732A /* MapView3D.h */,
 				48A68ECE114E9B0D0064732A /* MapView3D.m */,
-				487A645612EA397C00A43289 /* TextureView.h */,
-				487A645712EA397C00A43289 /* TextureView.m */,
-				4866F3AF12EAC9FA009B345C /* TextureViewLayout.h */,
-				4866F3B012EAC9FA009B345C /* TextureViewLayout.m */,
-				4866F3BC12EACD2B009B345C /* TextureViewLayoutRow.h */,
-				4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */,
-				4866F3C212EACE73009B345C /* TextureViewLayoutCell.h */,
-				4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */,
+				48F0EC50131A9CCD0088FA02 /* PrefabView.h */,
+				48F0EC51131A9CCD0088FA02 /* PrefabView.m */,
 				4818202112FB4746002D9AAD /* SingleTextureView.h */,
 				4818202212FB4746002D9AAD /* SingleTextureView.m */,
 				48E4006013159CE2004642CD /* TextureFilter.h */,
@@ -692,10 +695,14 @@
 				48E4006C13159E7E004642CD /* TextureNameFilter.m */,
 				48E400AD1315A7DA004642CD /* TextureUsageFilter.h */,
 				48E400AE1315A7DA004642CD /* TextureUsageFilter.m */,
-				482B817C13169EB200F36EF5 /* GLException.h */,
-				482B817D13169EB200F36EF5 /* GLException.m */,
-				48CBDD9713170B330041F704 /* GLResources.h */,
-				48CBDD9813170B330041F704 /* GLResources.m */,
+				487A645612EA397C00A43289 /* TextureView.h */,
+				487A645712EA397C00A43289 /* TextureView.m */,
+				4866F3AF12EAC9FA009B345C /* TextureViewLayout.h */,
+				4866F3B012EAC9FA009B345C /* TextureViewLayout.m */,
+				4866F3C212EACE73009B345C /* TextureViewLayoutCell.h */,
+				4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */,
+				4866F3BC12EACD2B009B345C /* TextureViewLayoutRow.h */,
+				4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -728,6 +735,15 @@
 				48C5137D12DB668A006240ED /* HalfSpace3DTestCase.m */,
 			);
 			name = "Test Cases";
+			sourceTree = "<group>";
+		};
+		48F0EC32131A999E0088FA02 /* Prefabs */ = {
+			isa = PBXGroup;
+			children = (
+				48F0EDAB131AD9A70088FA02 /* Prefab1.map */,
+				4833C15B131953D300EB1B85 /* Prefab2.map */,
+			);
+			name = Prefabs;
 			sourceTree = "<group>";
 		};
 		48FDA0B512FD86FD00204729 /* Tools */ = {
@@ -835,7 +851,8 @@
 				48639BF412EA227100808576 /* QuakePalette.lmp in Resources */,
 				4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */,
 				48E4FFD613157C46004642CD /* Inspector.xib in Resources */,
-				4833C15C131953D300EB1B85 /* Test.map in Resources */,
+				4833C15C131953D300EB1B85 /* Prefab2.map in Resources */,
+				48F0EDAC131AD9A70088FA02 /* Prefab1.map in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -975,6 +992,7 @@
 				488089A61317A2F100823C27 /* RenderContext.m in Sources */,
 				4833C15F131953F600EB1B85 /* PrefabManager.m in Sources */,
 				4833C1BD13196CFB00EB1B85 /* Prefab.m in Sources */,
+				48F0EC52131A9CCD0088FA02 /* PrefabView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

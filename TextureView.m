@@ -176,6 +176,8 @@
         
         [layout addTextures:[textureManager textures:sortCriterion]];
     }
+    
+    [self setNeedsDisplay:YES];
 }
 
 - (void)setTextureFilter:(id <TextureFilter>)theFilter {

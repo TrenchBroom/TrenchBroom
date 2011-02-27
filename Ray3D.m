@@ -44,6 +44,13 @@
     return direction;
 }
 
+- (Vector3f *)pointAtDistance:(float)distance {
+    Vector3f* point = [[Vector3f alloc] initWithFloatVector:direction];
+    [point scale:distance];
+    [point add:origin];
+    return [point autorelease];
+}
+
 - (void)dealloc {
     [origin release];
     [direction release];

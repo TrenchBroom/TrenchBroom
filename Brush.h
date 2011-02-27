@@ -41,6 +41,7 @@
 
 - (float *)flatColor;
 - (BoundingBox *)bounds;
+- (Vector3f *)center;
 - (Vector3f *)centerOfFace:(Face *)face;
 - (PickingHit *)pickFace:(Ray3D *)theRay;
 - (PickingHit *)pickFace:(Face *)theFace withRay:(Ray3D *)theRay;

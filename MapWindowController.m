@@ -25,6 +25,9 @@
 #import "InspectorController.h"
 #import "ToolManager.h"
 #import "Options.h"
+#import "Ray3D.h"
+#import "Vector3f.h"
+#import "Vector3i.h"
 
 @implementation MapWindowController
 
@@ -321,6 +324,33 @@
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Duplicate Selection"];
+}
+
+- (void)insertPrefab:(Prefab *)prefab {
+    Entity* prefabEntity = [prefab worldspawn];
+    
+    NSRect visibleRect = [view3D visibleRect];
+    Ray3D* ray = [camera pickRayX:NSMidX(visibleRect) y:NSMidY(visibleRect)];
+    Vector3f* point = [ray pointAtDistance:30];
+    [point sub:[prefabEntity center]];
+    
+    Vector3i* offset = [[Vector3i alloc] initWithX:[point x] y:[point y] z:[point z]];
+    
+    [selectionManager removeAll];
+
+    MapDocument* map = [self document];
+    Entity* worldspawn = [map worldspawn];
+    if (worldspawn == nil)
+        worldspawn = [map createEntityWithProperty:@"classname" value:@"worldspawn"];
+    
+    NSEnumerator* templateEn = [[prefabEntity brushes] objectEnumerator];
+    Brush* template;
+    while ((template = [templateEn nextObject])) {
+        Brush* brush = [worldspawn createBrushFromTemplate:template];
+        [brush translateBy:offset];
+        [selectionManager addBrush:brush];
+    }
+    [offset release];
 }
 
 - (void)dealloc {

@@ -14,6 +14,11 @@
     NSMutableDictionary* prefabs;
 }
 
++ (PrefabManager *)sharedPrefabManager;
+
+- (void)loadPrefabsAtPath:(NSString *)thePath;
 - (void)loadPrefab:(NSData *)prefabData;
+
+- (NSArray *)prefabs;
 
 @end

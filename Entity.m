@@ -11,6 +11,8 @@
 #import "Face.h"
 #import "IdGenerator.h"
 #import "Vector3i.h"
+#import "Vector3f.h"
+#import "BoundingBox.h"
 #import "Map.h"
 
 @implementation Entity
@@ -135,6 +137,34 @@
     return [[self classname] isEqualToString:@"worldspawn"];
 }
 
+- (BoundingBox *)bounds {
+    if (bounds == nil && [brushes count] > 0) {
+        NSEnumerator* brushEn = [brushes objectEnumerator];
+        Brush* brush = [brushEn nextObject];
+        
+        bounds = [[BoundingBox alloc] initWithMin:[[brush bounds] min] max:[[brush bounds] max]];
+        while ((brush = [brushEn nextObject]))
+            [bounds merge:[brush bounds]];
+    }
+    
+    return bounds;
+}
+
+- (Vector3f *)center {
+    if (center == nil && [brushes count] > 0) {
+        NSEnumerator* brushEn = [brushes objectEnumerator];
+        Brush* brush = [brushEn nextObject];
+        
+        center = [[Vector3f alloc] initWithFloatVector:[brush center]];
+        while ((brush = [brushEn nextObject]))
+            [center add:[brush center]];
+        
+        [center scale:1.0f / [brushes count]];
+    }
+    
+    return center;
+}
+
 - (void)faceFlagsChanged:(Face *)face {
     [map faceFlagsChanged:face];
 }
@@ -145,6 +175,10 @@
 
 - (void)faceGeometryChanged:(Face *)face {
     [map faceGeometryChanged:face];
+    [center release];
+    center = nil;
+    [bounds release];
+    bounds = nil;
 }
 
 - (void)faceAdded:(Face *)face {
@@ -160,6 +194,8 @@
 	[properties release];
 	[brushes release];
     [brushIndices release];
+    [center release];
+    [bounds release];
 	[super dealloc];
 }
 

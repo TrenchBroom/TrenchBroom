@@ -234,7 +234,7 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 
 - (void)setFace:(Face *)face texture:(NSString *)texture {
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setFace:face texture:[face texture]]; // this could go wrong
+    [[undoManager prepareWithInvocationTarget:self] setFace:face texture:[NSString stringWithString:[face texture]]];
     
     [face setTexture:texture];
 }

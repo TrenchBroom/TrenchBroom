@@ -17,6 +17,7 @@
 @class GLFontManager;
 @class SingleTextureView;
 @class Options;
+@class Prefab;
 
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView3D* view3D;
@@ -48,6 +49,8 @@
 - (IBAction)rotateTextureRight:(id)sender;
 
 - (IBAction)duplicateSelection:(id)sender;
+
+- (void)insertPrefab:(Prefab *)prefab;
 
 - (Camera *)camera;
 - (SelectionManager *)selectionManager;

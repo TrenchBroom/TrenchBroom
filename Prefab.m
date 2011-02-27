@@ -11,6 +11,8 @@
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
+#import "Vector3i.h"
+#import "Vector3f.h"
 
 @implementation Prefab
 
@@ -43,6 +45,20 @@
 
 - (BOOL)postNotifications {
     return NO;
+}
+
+- (void)translateToOrigin {
+    Vector3i* offset = [[Vector3i alloc] init];
+    [offset setX:-[[entity center] x]];
+    [offset setY:-[[entity center] y]];
+    [offset setZ:-[[entity center] z]];
+    
+    NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+    Brush* brush;
+    while ((brush = [brushEn nextObject]))
+        [brush translateBy:offset];
+    
+    [offset release];
 }
 
 - (void)faceFlagsChanged:(Face *)face {}
