@@ -52,7 +52,7 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)addFace:(Face *)face {
     SelectionManager* selectionManager = [windowController selectionManager];
     FaceFigure* figure = [self figureForFace:face create:YES];
-    if ([selectionManager isFaceSelected:face])
+    if ([selectionManager isFaceSelected:face] || [selectionManager isBrushSelected:[face brush]])
         [selectionLayer addFigure:figure];
     else 
         [geometryLayer addFigure:figure];
@@ -64,10 +64,12 @@ NSString* const RendererChanged = @"RendererChanged";
     if (figure == nil)
         [NSException raise:NSInvalidArgumentException format:@"face %@ has no figure", face];
     
-    if ([selectionManager isFaceSelected:face])
+    if ([selectionManager isFaceSelected:face] || [selectionManager isBrushSelected:[face brush]])
         [selectionLayer removeFigure:figure];
     else
         [geometryLayer removeFigure:figure];
+    
+    [faceFigures removeObjectForKey:[face faceId]];
 }
 
 - (void)addBrush:(Brush *)brush {
@@ -105,7 +107,7 @@ NSString* const RendererChanged = @"RendererChanged";
     if (figure != nil) {
         [figure invalidate];
         SelectionManager* selectionManager = [windowController selectionManager];
-        if ([selectionManager isFaceSelected:face])
+        if ([selectionManager isFaceSelected:face] || [selectionManager isBrushSelected:[face brush]])
             [selectionLayer invalidate];
         else
             [geometryLayer invalidate];
@@ -209,8 +211,10 @@ NSString* const RendererChanged = @"RendererChanged";
             Face* face;
             while ((face = [faceEn nextObject])) {
                 FaceFigure* figure = [self figureForFace:face create:NO];
-                [selectionLayer removeFigure:figure];
-                [geometryLayer addFigure:figure];
+                if (figure != nil) {
+                    [selectionLayer removeFigure:figure];
+                    [geometryLayer addFigure:figure];
+                }
             }
         }
     }
@@ -220,8 +224,10 @@ NSString* const RendererChanged = @"RendererChanged";
         Face* face;
         while ((face = [faceEn nextObject])) {
             FaceFigure* figure = [self figureForFace:face create:NO];
-            [selectionLayer removeFigure:figure];
-            [geometryLayer addFigure:figure];
+            if (figure != nil) {
+                [selectionLayer removeFigure:figure];
+                [geometryLayer addFigure:figure];
+            }
         }
     }
     

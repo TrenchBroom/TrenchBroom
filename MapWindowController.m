@@ -137,7 +137,23 @@
 - (IBAction)cutSelection:(id)sender {}
 - (IBAction)pasteClipboard:(id)sender {}
 
-- (IBAction)deleteSelection:(id)sender {}
+- (IBAction)deleteSelection:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+
+    NSSet* deletedBrushes = [[NSSet alloc] initWithSet:[selectionManager selectedBrushes]];
+
+    NSEnumerator* brushEn = [deletedBrushes objectEnumerator];
+    Brush* brush;
+    while ((brush = [brushEn nextObject]))
+        [[self document] deleteBrush:brush];
+    
+    [selectionManager removeAll];
+    [deletedBrushes release];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Delete Selection"];
+}
 
 - (IBAction)moveTextureLeft:(id)sender {
     NSUndoManager* undoManager = [[self document] undoManager];

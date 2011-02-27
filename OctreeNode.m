@@ -144,7 +144,7 @@
         return NO;
     
     for (int i = 0; i < 8; i++)
-        if (children[i] != nil && [children[i] addObject:theObject bounds:theBounds])
+        if (children[i] != nil && [children[i] removeObject:theObject bounds:theBounds])
             return YES;
     
     [objects removeObject:theObject];
