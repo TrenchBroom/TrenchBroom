@@ -21,6 +21,10 @@
     return self;
 }
 
+- (id)initWithBounds:(BoundingBox *)theBounds {
+    return [self initWithMin:[theBounds min] max:[theBounds max]];
+}
+
 - (Vector3f *)min {
     return min;
 }

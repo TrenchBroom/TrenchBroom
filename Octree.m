@@ -33,9 +33,11 @@
 - (void)brushChanged:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
-
-    [root removeObject:brush bounds:[brush bounds]];
-    [root addObject:brush bounds:[brush bounds]];
+    BoundingBox* oldBounds = [userInfo objectForKey:BrushOldBoundsKey];
+    BoundingBox* newBounds = [userInfo objectForKey:BrushNewBoundsKey];
+    
+    [root removeObject:brush bounds:oldBounds];
+    [root addObject:brush bounds:newBounds];
 }
 
 - (id)initWithDocument:(MapDocument *)theDocument minSize:(int)theMinSize {

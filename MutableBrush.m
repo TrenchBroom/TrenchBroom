@@ -7,9 +7,9 @@
 //
 
 #import "MutableBrush.h"
-#import "Brush.h"
 #import "MutableFace.h"
 #import "Face.h"
+#import "Brush.h"
 #import "Entity.h"
 #import "IdGenerator.h"
 #import "Vector3f.h"

@@ -35,6 +35,8 @@ NSString* const BrushAdded          = @"BrushAdded";
 NSString* const BrushRemoved        = @"BrushRemoved";
 NSString* const BrushChanged        = @"BrushChanged";
 NSString* const BrushKey            = @"Brush";
+NSString* const BrushOldBoundsKey   = @"BrushOldBounds";
+NSString* const BrushNewBoundsKey   = @"BrushNewBounds";
 
 NSString* const EntityAdded         = @"EntityAdded";
 NSString* const EntityRemoved       = @"EntityRemoved";
@@ -320,14 +322,24 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 - (void)translateBrush:(id <Brush>)brush xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] translateBrush:brush xDelta:-xDelta yDelta:-yDelta zDelta:-zDelta];
+
+    BoundingBox* oldBounds = [[BoundingBox alloc] initWithBounds:[brush bounds]];
     
     MutableBrush* mutableBrush = (MutableBrush *)brush;
     [mutableBrush translateBy:[Vector3i vectorWithX:xDelta y:yDelta z:zDelta]];
     
     if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:brush forKey:BrushKey];
+        [userInfo setObject:oldBounds forKey:BrushOldBoundsKey];
+        [userInfo setObject:[brush bounds] forKey:BrushNewBoundsKey];
+        
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushChanged object:self userInfo:[NSDictionary dictionaryWithObject:brush forKey:BrushKey]];
+        [center postNotificationName:BrushChanged object:self userInfo:userInfo];
+        [userInfo release];
     }
+    
+    [oldBounds release];
 }
 
 - (int)worldSize {

@@ -17,9 +17,8 @@ extern NSString* const RendererChanged;
 @interface Renderer : NSObject {
     @private
     MapWindowController* windowController;
-    NSObject<Layer>* geometryLayer;
-    NSObject<Layer>* selectionLayer;
-    NSObject<Layer>* toolLayer;
+    id<Layer> geometryLayer;
+    id<Layer> selectionLayer;
     NSMutableDictionary* faceFigures;
 }
 

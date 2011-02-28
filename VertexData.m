@@ -7,6 +7,9 @@
 //
 
 #import "VertexData.h"
+#import "Vertex.h"
+#import "Vector2f.h"
+#import "Vector3f.h"
 #import "BoundingBox.h"
 #import "CoordinatePlane.h"
 #import "Edge.h"
@@ -19,9 +22,6 @@
 #import "Ray3D.h"
 #import "Side.h"
 #import "SideEdge.h"
-#import "Vertex.h"
-#import "Vector2f.h"
-#import "Vector3f.h"
 #import "SegmentIterator.h"
 
 @implementation VertexData

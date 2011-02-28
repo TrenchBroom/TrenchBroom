@@ -14,7 +14,6 @@
 #import "Face.h"
 #import "GeometryLayer.h"
 #import "SelectionLayer.h"
-#import "ToolLayer.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "RenderContext.h"
@@ -254,7 +253,6 @@ NSString* const RendererChanged = @"RendererChanged";
 
         geometryLayer = [[GeometryLayer alloc] initWithWindowController:windowController];
         selectionLayer = [[SelectionLayer alloc] initWithWindowController:windowController];
-        toolLayer = [[ToolLayer alloc] init];
 
         MapDocument* map = [windowController document];
 
@@ -295,7 +293,6 @@ NSString* const RendererChanged = @"RendererChanged";
     RenderContext* renderContext = [[RenderContext alloc] initWithTextureManager:textureManager options:options];
     [geometryLayer render:renderContext];
     [selectionLayer render:renderContext];
-    [toolLayer render:renderContext];
 }
 
 - (void)updateView:(NSRect)bounds {
@@ -331,7 +328,6 @@ NSString* const RendererChanged = @"RendererChanged";
     [windowController release];
     [geometryLayer release];
     [selectionLayer release];
-    [toolLayer release];
     [faceFigures release];
     [super dealloc];
 }

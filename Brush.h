@@ -7,11 +7,12 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Entity.h"
-#import "BoundingBox.h"
-#import "Vector3f.h"
-#import "PickingHit.h"
-#import "Ray3D.h"
+
+@protocol Entity;
+@class BoundingBox;
+@class Vector3f;
+@class PickingHit;
+@class Ray3D;
 
 @protocol Brush <NSObject>
 

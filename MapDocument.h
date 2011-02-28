@@ -22,6 +22,8 @@ extern NSString* const BrushAdded;
 extern NSString* const BrushRemoved;
 extern NSString* const BrushChanged;
 extern NSString* const BrushKey;
+extern NSString* const BrushOldBoundsKey;
+extern NSString* const BrushNewBoundsKey;
 
 extern NSString* const EntityAdded;
 extern NSString* const EntityRemoved;

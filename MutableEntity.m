@@ -97,7 +97,7 @@
         NSEnumerator* brushEn = [brushes objectEnumerator];
         MutableBrush* brush = [brushEn nextObject];
         
-        bounds = [[BoundingBox alloc] initWithMin:[[brush bounds] min] max:[[brush bounds] max]];
+        bounds = [[BoundingBox alloc] initWithBounds:[brush bounds]];
         while ((brush = [brushEn nextObject]))
             [bounds merge:[brush bounds]];
     }

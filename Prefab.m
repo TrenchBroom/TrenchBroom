@@ -53,7 +53,7 @@
         NSEnumerator* entityEn = [entities objectEnumerator];
         id <Entity> entity = [entityEn nextObject];
 
-        bounds = [[BoundingBox alloc] initWithMin:[[entity bounds] min] max:[[entity bounds] max]];
+        bounds = [[BoundingBox alloc] initWithBounds:[entity bounds]];
         while ((entity = [entityEn nextObject]))
             [bounds merge:[entity bounds]];
     }

@@ -54,7 +54,6 @@
 		48639BF412EA227100808576 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48639BF312EA227100808576 /* QuakePalette.lmp */; };
 		4865993112EECD6700665E94 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
 		4865993312EECD6900665E94 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B512ED78FA009B5970 /* Edge.m */; };
-		4865993C12EEE27300665E94 /* BrushFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 4865993B12EEE27300665E94 /* BrushFactory.m */; };
 		486641111229854E00752B89 /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
 		486641C412298AED00752B89 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4866413E122986AF00752B89 /* SenTestingKit.framework */; };
 		4866F3B112EAC9FA009B345C /* TextureViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3B012EAC9FA009B345C /* TextureViewLayout.m */; };
@@ -88,7 +87,6 @@
 		488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */ = {isa = PBXBuildFile; fileRef = 488C8EE012F6C3ED00F358E6 /* IntData.m */; };
 		488F0790130130580063E550 /* FaceFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F078F130130580063E550 /* FaceFigure.m */; };
 		488F07CE13013F9F0063E550 /* SelectionLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F07CD13013F9F0063E550 /* SelectionLayer.m */; };
-		488F0AAF1301A2C50063E550 /* ToolLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F0AAE1301A2C50063E550 /* ToolLayer.m */; };
 		4891E15612FC04B2007A3B93 /* InspectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4891E15512FC04B2007A3B93 /* InspectorController.m */; };
 		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
 		489FB43D12FA0A5B00B6BAF1 /* GLFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 489FB43C12FA0A5B00B6BAF1 /* GLFont.m */; };
@@ -211,8 +209,6 @@
 		485FD0C91257A8D900F4AE49 /* Math3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math3D.h; sourceTree = "<group>"; };
 		485FD0CA1257A8D900F4AE49 /* Math3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math3D.m; sourceTree = "<group>"; };
 		48639BF312EA227100808576 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; path = QuakePalette.lmp; sourceTree = "<group>"; };
-		4865993A12EEE27300665E94 /* BrushFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushFactory.h; sourceTree = "<group>"; };
-		4865993B12EEE27300665E94 /* BrushFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrushFactory.m; sourceTree = "<group>"; };
 		4866413E122986AF00752B89 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = /Developer/Library/Frameworks/SenTestingKit.framework; sourceTree = "<absolute>"; };
 		4866F3AF12EAC9FA009B345C /* TextureViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayout.h; sourceTree = "<group>"; };
 		4866F3B012EAC9FA009B345C /* TextureViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayout.m; sourceTree = "<group>"; };
@@ -273,8 +269,6 @@
 		488F078F130130580063E550 /* FaceFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceFigure.m; sourceTree = "<group>"; };
 		488F07CC13013F9F0063E550 /* SelectionLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionLayer.h; sourceTree = "<group>"; };
 		488F07CD13013F9F0063E550 /* SelectionLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectionLayer.m; sourceTree = "<group>"; };
-		488F0AAD1301A2C50063E550 /* ToolLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToolLayer.h; sourceTree = "<group>"; };
-		488F0AAE1301A2C50063E550 /* ToolLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ToolLayer.m; sourceTree = "<group>"; };
 		4891E15412FC04B2007A3B93 /* InspectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorController.h; sourceTree = "<group>"; };
 		4891E15512FC04B2007A3B93 /* InspectorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectorController.m; sourceTree = "<group>"; };
 		48941664123619870098E17C /* Line2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2DTestCase.h; sourceTree = "<group>"; };
@@ -518,8 +512,6 @@
 				487A646B12EA3A7E00A43289 /* Texture.m */,
 				4881C74012E9C8BE006BF922 /* TextureManager.h */,
 				4881C74112E9C8BE006BF922 /* TextureManager.m */,
-				488F0AAD1301A2C50063E550 /* ToolLayer.h */,
-				488F0AAE1301A2C50063E550 /* ToolLayer.m */,
 				484C28FA115023A2004DD957 /* VBOBuffer.h */,
 				484C28FB115023A2004DD957 /* VBOBuffer.m */,
 				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
@@ -616,8 +608,6 @@
 				480AD8B312ED78E7009B5970 /* VertexData */,
 				48527F3C11148EAA00CD6043 /* MutableBrush.h */,
 				48527F3D11148EAA00CD6043 /* MutableBrush.m */,
-				4865993A12EEE27300665E94 /* BrushFactory.h */,
-				4865993B12EEE27300665E94 /* BrushFactory.m */,
 				48A68F25114EDF360064732A /* MutableEntity.h */,
 				48A68F26114EDF360064732A /* MutableEntity.m */,
 				48379C6A131B940400F53DFA /* Face.h */,
@@ -911,7 +901,6 @@
 				4866F3C412EACE73009B345C /* TextureViewLayoutCell.m in Sources */,
 				480AD8B612ED78FA009B5970 /* Edge.m in Sources */,
 				480AD8D612ED9E4A009B5970 /* Side.m in Sources */,
-				4865993C12EEE27300665E94 /* BrushFactory.m in Sources */,
 				4838DFB412EF4E86008ADB71 /* VertexData.m in Sources */,
 				4838DFB712EF4E94008ADB71 /* Vertex.m in Sources */,
 				4838DFBC12EF548F008ADB71 /* SideEdge.m in Sources */,
@@ -939,7 +928,6 @@
 				487A7E651300801A00434806 /* Renderer.m in Sources */,
 				488F0790130130580063E550 /* FaceFigure.m in Sources */,
 				488F07CE13013F9F0063E550 /* SelectionLayer.m in Sources */,
-				488F0AAF1301A2C50063E550 /* ToolLayer.m in Sources */,
 				480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */,
 				480BB50A13031A9D005E3492 /* Matrix3f.m in Sources */,
 				485D2B5C1306F69100CF73D8 /* SegmentIterator.m in Sources */,

@@ -10,7 +10,7 @@
 #import "RenderContext.h"
 #import "Face.h"
 
-@protocol Layer
+@protocol Layer <NSObject>
 
 - (void)render:(RenderContext *)renderContext;
 
