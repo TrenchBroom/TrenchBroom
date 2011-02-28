@@ -26,7 +26,8 @@
 - (void)brushRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
-    [root removeObject:brush bounds:[brush bounds]];
+    if (![root removeObject:brush bounds:[brush bounds]])
+        [NSException raise:NSInvalidArgumentException format:@"Brush %@ was not removed from octree", brush];
 }
 
 - (void)brushChanged:(NSNotification *)notification {
