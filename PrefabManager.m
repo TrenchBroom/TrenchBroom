@@ -77,18 +77,22 @@ static PrefabManager* sharedInstance = nil;
         if ([ext isEqualToString:@"map"]) {
             NSArray* pathComponents = [NSArray arrayWithObjects:thePath, subPath, nil];
             NSString* prefabPath = [NSString pathWithComponents:pathComponents];
-            NSLog(@"Loading prefab '%@'", prefabPath);
+            NSLog(@"Loading prefab from '%@'", prefabPath);
 
             NSData* prefabData = [NSData dataWithContentsOfMappedFile:prefabPath];
-            [self loadPrefab:prefabData];
+            NSString* prefabName = [prefabPath lastPathComponent];
+            
+            [self loadPrefab:prefabData name:prefabName];
         }
     }
     
 }
 
-- (void)loadPrefab:(NSData *)prefabData {
+- (void)loadPrefab:(NSData *)prefabData name:(NSString *)prefabName {
     if (prefabData == nil)
         [NSException raise:NSInvalidArgumentException format:@"prefab data must not be nil"];
+    if (prefabName == nil)
+        [NSException raise:NSInvalidArgumentException format:@"prefab name must not be nil"];
     
     MapParser* parser = [[MapParser alloc] initWithData:prefabData];
     Prefab* prefab = [[Prefab alloc] init];
@@ -96,19 +100,10 @@ static PrefabManager* sharedInstance = nil;
     [parser parseMap:prefab withProgressIndicator:nil];
     [parser release];
 
-    Entity* entity = [prefab worldspawn];
-    NSString* name = [entity propertyForKey:@"name"];
-    
-    if (name == nil) {
-        NSLog(@"Cannot load prefab without a name");
-        [prefab release];
-        return;
-    }
-
     [prefab translateToOrigin];
     
-    [prefabs setObject:prefab forKey:name];
-    NSLog(@"Loaded prefab '%@'", name);
+    [prefabs setObject:prefab forKey:prefabName];
+    NSLog(@"Loaded prefab '%@'", prefabName);
     [prefab release];
 }
 

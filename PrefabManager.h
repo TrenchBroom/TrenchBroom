@@ -17,7 +17,7 @@
 + (PrefabManager *)sharedPrefabManager;
 
 - (void)loadPrefabsAtPath:(NSString *)thePath;
-- (void)loadPrefab:(NSData *)prefabData;
+- (void)loadPrefab:(NSData *)prefabData name:(NSString *)prefabName;
 
 - (NSArray *)prefabs;
 

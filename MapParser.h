@@ -18,8 +18,8 @@ typedef enum {
 
 @protocol Map;
 @class MapTokenizer;
-@class Entity;
-@class Brush;
+@class MutableEntity;
+@class MutableBrush;
 @class Vector3i;
 
 @interface MapParser : NSObject {
@@ -27,8 +27,8 @@ typedef enum {
     int size;
     MapTokenizer* tokenizer;
     id<Map> map;
-    Entity* entity;
-    Brush* brush;
+    MutableEntity* entity;
+    MutableBrush* brush;
     EParserState state;
     Vector3i* p1;
     Vector3i* p2;

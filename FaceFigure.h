@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class Face;
+@protocol Face;
 @class VBOBuffer;
 @class VBOMemBlock;
 @class IntData;
@@ -16,16 +16,16 @@
 
 @interface FaceFigure : NSObject {
     @private
-    Face* face;
+    id <Face> face;
     VBOBuffer* vbo;
     VBOMemBlock* block;
     int vboIndex;
     int vboCount;
 }
 
-- (id)initWithFace:(Face *)theFace vbo:(VBOBuffer *)theVbo;
+- (id)initWithFace:(id <Face>)theFace vbo:(VBOBuffer *)theVbo;
 
-- (Face *)face;
+- (id <Face>)face;
 - (void)prepare:(RenderContext *)renderContext;
 - (void)getIndex:(IntData *)theIndexBuffer count:(IntData *)theCountBuffer;
 

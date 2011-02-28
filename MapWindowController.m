@@ -23,7 +23,6 @@
 #import "SelectionManager.h"
 #import "GLFontManager.h"
 #import "InspectorController.h"
-#import "ToolManager.h"
 #import "Options.h"
 #import "Ray3D.h"
 #import "Vector3f.h"
@@ -147,7 +146,7 @@
     NSSet* deletedBrushes = [[NSSet alloc] initWithSet:[selectionManager selectedBrushes]];
 
     NSEnumerator* brushEn = [deletedBrushes objectEnumerator];
-    Brush* brush;
+    id <Brush> brush;
     while ((brush = [brushEn nextObject]))
         [[self document] deleteBrush:brush];
     
@@ -165,7 +164,7 @@
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
 
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [[self document] translateFaceOffset:face xDelta:-d yDelta:0];
 
@@ -180,7 +179,7 @@
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [[self document] translateFaceOffset:face xDelta:d yDelta:0];
     
@@ -195,7 +194,7 @@
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [[self document] translateFaceOffset:face xDelta:0 yDelta:d];
     
@@ -210,7 +209,7 @@
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [[self document] translateFaceOffset:face xDelta:0 yDelta:-d];
     
@@ -223,7 +222,7 @@
     [undoManager beginUndoGrouping];
 
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [[self document] setFace:face xScale:[face xScale] + 0.1f];
     
@@ -236,7 +235,7 @@
     [undoManager beginUndoGrouping];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [[self document] setFace:face xScale:[face xScale] - 0.1f];
     
@@ -249,7 +248,7 @@
     [undoManager beginUndoGrouping];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [[self document] setFace:face yScale:[face yScale] + 0.1f];
     
@@ -262,7 +261,7 @@
     [undoManager beginUndoGrouping];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [[self document] setFace:face yScale:[face yScale] - 0.1f];
     
@@ -277,7 +276,7 @@
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [[self document] setFace:face rotation:[face rotation] - d];
     
@@ -292,7 +291,7 @@
     int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [[self document] setFace:face rotation:[face rotation] + d];
     
@@ -304,13 +303,13 @@
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    Entity* worldspawn = [[self document] worldspawn];
+    id <Entity> worldspawn = [[self document] worldspawn];
     NSMutableSet* newBrushes = [[NSMutableSet alloc] init];
 
     NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-    Brush* brush;
+    id <Brush> brush;
     while ((brush = [brushEn nextObject])) {
-        Brush* newBrush = [[self document] createBrushInEntity:worldspawn fromTemplate:brush];
+        id <Brush> newBrush = [[self document] createBrushInEntity:worldspawn fromTemplate:brush];
         [[self document] translateBrush:newBrush xDelta:[options gridSize] yDelta:[options gridSize] zDelta:[options gridSize]];
         [newBrushes addObject:newBrush];
     }
@@ -327,30 +326,6 @@
 }
 
 - (void)insertPrefab:(Prefab *)prefab {
-    Entity* prefabEntity = [prefab worldspawn];
-    
-    NSRect visibleRect = [view3D visibleRect];
-    Ray3D* ray = [camera pickRayX:NSMidX(visibleRect) y:NSMidY(visibleRect)];
-    Vector3f* point = [ray pointAtDistance:30];
-    [point sub:[prefabEntity center]];
-    
-    Vector3i* offset = [[Vector3i alloc] initWithX:[point x] y:[point y] z:[point z]];
-    
-    [selectionManager removeAll];
-
-    MapDocument* map = [self document];
-    Entity* worldspawn = [map worldspawn];
-    if (worldspawn == nil)
-        worldspawn = [map createEntityWithProperty:@"classname" value:@"worldspawn"];
-    
-    NSEnumerator* templateEn = [[prefabEntity brushes] objectEnumerator];
-    Brush* template;
-    while ((template = [templateEn nextObject])) {
-        Brush* brush = [worldspawn createBrushFromTemplate:template];
-        [brush translateBy:offset];
-        [selectionManager addBrush:brush];
-    }
-    [offset release];
 }
 
 - (void)dealloc {

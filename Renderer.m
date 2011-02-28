@@ -23,7 +23,6 @@
 #import "Face.h"
 #import "Camera.h"
 #import "Vector3f.h"
-#import "ToolManager.h"
 #import "FaceFigure.h"
 #import "Options.h"
 #import "MapDocument.h"
@@ -34,7 +33,7 @@ NSString* const RendererChanged = @"RendererChanged";
 
 @implementation Renderer
 
-- (FaceFigure *)figureForFace:(Face *)face create:(BOOL)create {
+- (FaceFigure *)figureForFace:(id <Face>)face create:(BOOL)create {
     FaceFigure* figure = [faceFigures objectForKey:[face faceId]];
     if (figure == nil && create) {
         MapDocument* mapDocument = [windowController document];
@@ -49,7 +48,7 @@ NSString* const RendererChanged = @"RendererChanged";
     return figure;
 }
 
-- (void)addFace:(Face *)face {
+- (void)addFace:(id <Face>)face {
     SelectionManager* selectionManager = [windowController selectionManager];
     FaceFigure* figure = [self figureForFace:face create:YES];
     if ([selectionManager isFaceSelected:face] || [selectionManager isBrushSelected:[face brush]])
@@ -58,7 +57,7 @@ NSString* const RendererChanged = @"RendererChanged";
         [geometryLayer addFigure:figure];
 }
 
-- (void)removeFace:(Face *)face {
+- (void)removeFace:(id <Face>)face {
     SelectionManager* selectionManager = [windowController selectionManager];
     FaceFigure* figure = [self figureForFace:face create:NO];
     if (figure == nil)
@@ -72,37 +71,37 @@ NSString* const RendererChanged = @"RendererChanged";
     [faceFigures removeObjectForKey:[face faceId]];
 }
 
-- (void)addBrush:(Brush *)brush {
+- (void)addBrush:(id <Brush>)brush {
     NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [self addFace:face];
 }
 
-- (void)removeBrush:(Brush *)brush {
+- (void)removeBrush:(id <Brush>)brush {
     NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [self removeFace:face];
 }
 
-- (void)addEntity:(Entity *)entity {
+- (void)addEntity:(id <Entity>)entity {
     NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-    Brush* brush;
+    id <Brush> brush;
     while ((brush = [brushEn nextObject]))
         [self addBrush:brush];
 }
 
-- (void)removeEntity:(Entity *)entity {
+- (void)removeEntity:(id <Entity>)entity {
     NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-    Brush* brush;
+    id <Brush> brush;
     while ((brush = [brushEn nextObject]))
         [self removeBrush:brush];
 }
 
 - (void)faceChanged:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    Face* face = [userInfo objectForKey:FaceKey];
+    id <Face> face = [userInfo objectForKey:FaceKey];
     FaceFigure* figure = [self figureForFace:face create:NO];
     if (figure != nil) {
         [figure invalidate];
@@ -118,7 +117,7 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)faceAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    Face* face = [userInfo objectForKey:FaceKey];
+    id <Face> face = [userInfo objectForKey:FaceKey];
     [self addFace:face];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -126,7 +125,7 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)faceRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    Face* face = [userInfo objectForKey:FaceKey];
+    id <Face> face = [userInfo objectForKey:FaceKey];
     [self removeFace:face];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -134,7 +133,7 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)brushAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    Brush* brush = [userInfo objectForKey:BrushKey];
+    id <Brush> brush = [userInfo objectForKey:BrushKey];
     [self addBrush:brush];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -142,7 +141,7 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)brushRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    Brush* brush = [userInfo objectForKey:BrushKey];
+    id <Brush> brush = [userInfo objectForKey:BrushKey];
     [self removeBrush:brush];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -150,7 +149,7 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)entityAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    Entity* entity = [userInfo objectForKey:EntityKey];
+    id <Entity> entity = [userInfo objectForKey:EntityKey];
     [self addEntity:entity];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -158,7 +157,7 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)entityRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    Entity* entity = [userInfo objectForKey:EntityKey];
+    id <Entity> entity = [userInfo objectForKey:EntityKey];
     [self removeEntity:entity];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -172,10 +171,10 @@ NSString* const RendererChanged = @"RendererChanged";
     
     if (brushes != nil) {
         NSEnumerator* brushEn = [brushes objectEnumerator];
-        Brush* brush;
+        id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            Face* face;
+            id <Face> face;
             while ((face = [faceEn nextObject])) {
                 FaceFigure* figure = [self figureForFace:face create:NO];
                 [geometryLayer removeFigure:figure];
@@ -186,7 +185,7 @@ NSString* const RendererChanged = @"RendererChanged";
     
     if (faces != nil) {
         NSEnumerator* faceEn = [faces objectEnumerator];
-        Face* face;
+        id <Face> face;
         while ((face = [faceEn nextObject])) {
             FaceFigure* figure = [self figureForFace:face create:NO];
             [geometryLayer removeFigure:figure];
@@ -205,10 +204,10 @@ NSString* const RendererChanged = @"RendererChanged";
     
     if (brushes != nil) {
         NSEnumerator* brushEn = [brushes objectEnumerator];
-        Brush* brush;
+        id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            Face* face;
+            id <Face> face;
             while ((face = [faceEn nextObject])) {
                 FaceFigure* figure = [self figureForFace:face create:NO];
                 if (figure != nil) {
@@ -221,7 +220,7 @@ NSString* const RendererChanged = @"RendererChanged";
     
     if (faces != nil) {
         NSEnumerator* faceEn = [faces objectEnumerator];
-        Face* face;
+        id <Face> face;
         while ((face = [faceEn nextObject])) {
             FaceFigure* figure = [self figureForFace:face create:NO];
             if (figure != nil) {
@@ -260,7 +259,7 @@ NSString* const RendererChanged = @"RendererChanged";
         MapDocument* map = [windowController document];
 
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
-        Entity* entity;
+        id <Entity> entity;
         while ((entity = [entityEn nextObject]))
             [self addEntity:entity];
 
@@ -272,7 +271,7 @@ NSString* const RendererChanged = @"RendererChanged";
         [center addObserver:self selector:@selector(brushRemoved:) name:BrushRemoved object:map];
         [center addObserver:self selector:@selector(faceAdded:) name:FaceAdded object:map];
         [center addObserver:self selector:@selector(faceRemoved:) name:FaceRemoved object:map];
-//        [center addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged object:map];
+        [center addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged object:map];
         [center addObserver:self selector:@selector(faceChanged:) name:FaceTextureChanged object:map];
         [center addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged object:map];
         

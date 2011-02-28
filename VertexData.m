@@ -10,7 +10,7 @@
 #import "BoundingBox.h"
 #import "CoordinatePlane.h"
 #import "Edge.h"
-#import "Face.h"
+#import "MutableFace.h"
 #import "HalfSpace3D.h"
 #import "Math.h"
 #import "Math3D.h"
@@ -186,7 +186,7 @@
 
     if (self = [self init]) {
         NSEnumerator* faceEn = [faces objectEnumerator];
-        Face* face;
+        MutableFace * face;
         while ((face = [faceEn nextObject])) {
             if (![self cutWithFace:face droppedFaces:droppedFaces]) {
                 [self release];
@@ -198,7 +198,7 @@
     return self;
 }
 
-- (BOOL)cutWithFace:(Face *)face droppedFaces:(NSMutableArray **)droppedFaces {
+- (BOOL)cutWithFace:(MutableFace *)face droppedFaces:(NSMutableArray **)droppedFaces {
     HalfSpace3D* halfSpace = [face halfSpace];
     
     // mark vertices and brush
@@ -356,7 +356,7 @@
     return center;
 }
 
-- (NSArray *)verticesForFace:(Face *)face {
+- (NSArray *)verticesForFace:(MutableFace *)face {
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
     Side* side = [faceToSide objectForKey:[face faceId]];
@@ -366,7 +366,7 @@
     return [side vertices];
 }
 
-- (NSArray *)gridForFace:(Face *)face gridSize:(int)gridSize {
+- (NSArray *)gridForFace:(MutableFace *)face gridSize:(int)gridSize {
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
 
@@ -514,7 +514,7 @@
     return [edges count];
 }
 
-- (Vector3f *)centerOfFace:(Face *)face {
+- (Vector3f *)centerOfFace:(MutableFace *)face {
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
     
@@ -525,7 +525,7 @@
     return [side center];
 }
 
-- (PickingHit *)pickFace:(Face *)theFace withRay:(Ray3D *)theRay {
+- (PickingHit *)pickFace:(MutableFace *)theFace withRay:(Ray3D *)theRay {
     if (theFace == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
     if (theRay == nil)

@@ -21,7 +21,7 @@
 
 @implementation FaceFigure
 
-- (id)initWithFace:(Face *)theFace vbo:(VBOBuffer *)theVbo {
+- (id)initWithFace:(id <Face>)theFace vbo:(VBOBuffer *)theVbo {
     if (theFace == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
     if (theVbo == nil)
@@ -31,15 +31,14 @@
         face = [theFace retain];
         vbo = [theVbo retain];
         
-        Brush* brush = [face brush];
-        int vertexCount = [[brush verticesForFace:face] count];
+        int vertexCount = [[face vertices] count];
         block = [[vbo allocMemBlock:5 * sizeof(float) * vertexCount] retain];
     }
     
     return self;
 }
 
-- (Face *)face {
+- (id <Face>)face {
     return face;
 }
 
@@ -47,14 +46,12 @@
     [vbo freeMemBlock:block];
     [block release];
 
-    Brush* brush = [face brush];
-    int vertexCount = [[brush verticesForFace:face] count];
+    int vertexCount = [[face vertices] count];
     block = [[vbo allocMemBlock:5 * sizeof(float) * vertexCount] retain];
 }
 
 - (void)prepare:(RenderContext *)renderContext {
     if ([block state] == BS_USED_INVALID) {
-        Brush* brush = [face brush];
         TextureManager* textureManager = [renderContext textureManager];
         Vector2f* texCoords = [[Vector2f alloc] init];
         
@@ -64,7 +61,7 @@
         int height = texture != nil ? [texture height] : 1;
         
         int vertexSize = 5 * sizeof(float);
-        NSArray* vertices = [brush verticesForFace:face];
+        NSArray* vertices = [face vertices];
         vboIndex = [block address] / vertexSize;
         vboCount = [vertices count];
         

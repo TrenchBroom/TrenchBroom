@@ -10,12 +10,18 @@
 #import "Map.h"
 
 @protocol Map;
-@class Entity;
+@class BoundingBox;
+@class Vector3f;
 
 @interface Prefab : NSObject <Map> {
-    Entity* entity;
+    @private
+    NSMutableArray* entities;
+    BoundingBox* bounds;
+    Vector3f* center;
 }
+- (NSArray *)entities;
 
 - (void)translateToOrigin;
-
+- (BoundingBox *)bounds;
+- (Vector3f *)center;
 @end

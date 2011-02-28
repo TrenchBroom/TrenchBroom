@@ -79,7 +79,7 @@
 
     figureEn = [faceFigures objectEnumerator];
     while ((faceFigure = [figureEn nextObject])) {
-        Face* face = [faceFigure face];
+        id <Face> face = [faceFigure face];
         NSString* textureName = [face texture];
         
         IntData* indexBuffer = [indexBuffers objectForKey:textureName];

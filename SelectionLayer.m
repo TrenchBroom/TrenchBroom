@@ -51,7 +51,7 @@
         NSEnumerator* figureEn = [faceFigures objectEnumerator];
         FaceFigure* figure;
         while ((figure = [figureEn nextObject])) {
-            Face* face = [figure face];
+            id <Face> face = [figure face];
             NSArray* gridVertices = [face gridWithSize:gridSize];
             NSEnumerator* vertexEn = [gridVertices objectEnumerator];
             Vector3f* vertex;

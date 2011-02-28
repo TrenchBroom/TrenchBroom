@@ -11,13 +11,11 @@
 @class Picker;
 @class PickingHit;
 @class MapWindowController;
-@class ToolManager;
 
 @interface InputManager : NSObject {
     @private 
     PickingHit* lastHit;
     MapWindowController* windowController;
-    ToolManager* toolManager;
     BOOL gesture;
 }
 

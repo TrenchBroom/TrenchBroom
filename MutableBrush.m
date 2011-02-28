@@ -6,19 +6,21 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
+#import "MutableBrush.h"
 #import "Brush.h"
+#import "MutableFace.h"
+#import "Face.h"
 #import "Entity.h"
 #import "IdGenerator.h"
 #import "Vector3f.h"
 #import "Vector3i.h"
-#import "Face.h"
 #import "HalfSpace3D.h"
 #import "VertexData.h"
 #import "BoundingBox.h"
 #import "Ray3D.h"
 #import "PickingHit.h"
 
-@implementation Brush
+@implementation MutableBrush
 
 - (id)init {
     if (self = [super init]) {
@@ -34,12 +36,15 @@
     return self;
 }
 
-- (id)initInEntity:(Entity *)theEntity {
-    if (theEntity == nil)
-        [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
-    
+- (id)initWithTemplate:(id <Brush>)theTemplate {
     if (self = [self init]) {
-        entity = theEntity; // do not retain
+        NSEnumerator* faceEn = [[theTemplate faces] objectEnumerator];
+        id <Face> faceTemplate;
+        while ((faceTemplate = [faceEn nextObject])) {
+            MutableFace* face = [[MutableFace alloc] initWithTemplate:faceTemplate];
+            [self addFace:face];
+            [face release];
+        }
     }
     
     return self;
@@ -51,7 +56,7 @@
         vertexData = [[VertexData alloc] initWithFaces:faces droppedFaces:&droppedFaces];
         if (droppedFaces != nil) {
             NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
-            Face* droppedFace;
+            MutableFace* droppedFace;
             while ((droppedFace = [droppedFacesEn nextObject])) {
                 NSLog(@"Face %@ was cut away", droppedFace);
                 [self removeFace:droppedFace];
@@ -62,31 +67,7 @@
     return vertexData;
 }
 
-- (Face *)createFaceWithPoint1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3 texture:(NSString *)texture {
-    Face* face = [[Face alloc] initInBrush:self point1:point1 point2:point2 point3:point3 texture:texture];
-
-    if (![self addFace:face]) {
-        [face release];
-        return nil;
-    }
-    
-    return [face autorelease];
-}
-
-- (Face *)createFaceFromTemplate:(Face *)theTemplate {
-    Face* face = [self createFaceWithPoint1:[theTemplate point1] point2:[theTemplate point2] point3:[theTemplate point3] texture:[theTemplate texture]];
-    if (face != nil) {
-        [face setXOffset:[theTemplate xOffset]];
-        [face setYOffset:[theTemplate yOffset]];
-        [face setXScale:[theTemplate xScale]];
-        [face setYScale:[theTemplate yScale]];
-        [face setRotation:[theTemplate rotation]];
-    }
-    
-    return face;
-}
-
-- (BOOL)addFace:(Face *)face {
+- (BOOL)addFace:(MutableFace *)face {
     NSMutableArray* droppedFaces = nil;
     if (![[self vertexData] cutWithFace:face droppedFaces:&droppedFaces]) {
         NSLog(@"Brush %@ was cut away by face %@", self, face);
@@ -95,42 +76,40 @@
     
     if (droppedFaces != nil) {
         NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
-        Face* droppedFace;
+        MutableFace* droppedFace;
         while ((droppedFace = [droppedFacesEn nextObject])) {
             NSLog(@"Face %@ was cut away by face %@", droppedFace, face);
             [self removeFace:droppedFace];
         }
     }
 
+    [face setBrush:self];
     [faces addObject:face];
     [vertexData release];
     vertexData = nil;
-
-    [entity faceAdded:face];
     return YES;
 }
 
-- (void)removeFace:(Face *)face {
+- (void)removeFace:(MutableFace *)face {
+    [face setBrush:nil];
     [faces removeObject:face];
     [vertexData release];
     vertexData = nil;
-
-    [entity faceRemoved:face];
-}
-
-- (Entity *)entity {
-    return entity;
 }
 
 - (NSNumber *)brushId {
     return brushId;
 }
-         
+
+- (id <Entity>)entity {
+    return entity;
+}
+
 - (NSArray *)faces {
     return faces;
 }
 
-- (NSArray *)verticesForFace:(Face *)face {
+- (NSArray *)verticesForFace:(MutableFace *)face {
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
 
@@ -150,13 +129,13 @@
 }
 
 
-- (Vector3f *)centerOfFace:(Face *)face {
+- (Vector3f *)centerOfFace:(MutableFace *)face {
     return [[self vertexData] centerOfFace:face];
 }
 
 - (PickingHit *)pickFace:(Ray3D *)theRay; {
     NSEnumerator* faceEn = [faces objectEnumerator];
-    Face* face;
+    MutableFace* face;
     while ((face = [faceEn nextObject])) {
         PickingHit* hit = [vertexData pickFace:face withRay:theRay];
         if (hit != nil)
@@ -166,33 +145,28 @@
     return nil;
 }
 
-- (PickingHit *)pickFace:(Face *)theFace withRay:(Ray3D *)theRay {
+- (PickingHit *)pickFace:(MutableFace *)theFace withRay:(Ray3D *)theRay {
     return [vertexData pickFace:theFace withRay:theRay];
 }
 
-- (NSArray *)gridForFace:(Face *)theFace gridSize:(int)gridSize {
+- (NSArray *)gridForFace:(MutableFace *)theFace gridSize:(int)gridSize {
     return [vertexData gridForFace:theFace gridSize:gridSize];
+}
+
+- (void)setEntity:(MutableEntity *)theEntity {
+    entity = theEntity;
 }
 
 - (void)translateBy:(Vector3i *)theDelta {
     NSEnumerator* faceEn = [faces objectEnumerator];
-    Face* face;
+    MutableFace* face;
     while ((face = [faceEn nextObject]))
         [face translateBy:theDelta];
 }
 
-- (void)faceFlagsChanged:(Face *)face {
-    [entity faceFlagsChanged:face];
-}
-
-- (void)faceTextureChanged:(Face *)face oldTexture:(NSString *)oldTexture newTexture:(NSString *)newTexture {
-    [entity faceTextureChanged:face oldTexture:oldTexture newTexture:newTexture];
-}
-
-- (void)faceGeometryChanged:(Face *)face {
+- (void)faceGeometryChanged:(MutableFace *)face {
     [vertexData release];
     vertexData = nil;
-    [entity faceGeometryChanged:face];
 }
 
 - (void)dealloc {

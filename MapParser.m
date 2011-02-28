@@ -8,9 +8,9 @@
 
 #import "MapParser.h"
 #import "Map.h"
-#import "Entity.h"
-#import "Brush.h"
-#import "Face.h"
+#import "MutableEntity.h"
+#import "MutableBrush.h"
+#import "MutableFace.h"
 #import "MapTokenizer.h"
 #import "MapToken.h"
 #import "Vector3i.h"
@@ -131,13 +131,18 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     [self expect:TT_DEC | TT_FRAC actual:token];
     float yScale = [[token data] floatValue];
     
-    Face* face = [brush createFaceWithPoint1:p1 point2:p2 point3:p3 texture:texture];
+    MutableFace* face = [[MutableFace alloc] init];
+    [face setPoint1:p1 point2:p2 point3:p3];
+    [face setTexture:texture];
     [face setXOffset:xOffset];
     [face setYOffset:yOffset];
     [face setRotation:rotation];
     [face setXScale:xScale];
     [face setYScale:yScale];
+
+    [brush addFace:face];
     
+    [face release];
     [texture release];
 }
 
@@ -156,7 +161,7 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
                 case PS_DEF:
                     [self expect:TT_CB_O actual:token];
                     state = PS_ENT;
-                    entity = [map createEntity];
+                    entity = [[MutableEntity alloc] init];
                     break;
                 case PS_ENT:
                     switch ([token type]) {
@@ -172,9 +177,11 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
                         }
                         case TT_CB_O:
                             state = PS_BRUSH;
-                            brush = [entity createBrush];
+                            brush = [[MutableBrush alloc] init];
                             break;
                         case TT_CB_C:
+                            [map addEntity:entity];
+                            [entity release];
                             state = PS_DEF;
                             entity = nil;
                             break;
@@ -188,6 +195,8 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
                             [self parseFace];
                             break;
                         case TT_CB_C:
+                            [entity addBrush:brush];
+                            [brush release];
                             state = PS_ENT;
                             brush = nil;
                             break;

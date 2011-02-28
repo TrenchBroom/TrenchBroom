@@ -12,6 +12,7 @@
 #import "PrefabManager.h"
 #import "Prefab.h"
 #import "Entity.h"
+#import "Face.h"
 #import "Quaternion.h"
 #import "Vector3f.h"
 #import "Vector2f.h"
@@ -77,7 +78,7 @@ static int NUM_COLS = 5;
     [self setNeedsDisplay:YES];
 }
 
-- (void)renderFace:(Face *)face rotation:(Quaternion *)rotation {
+- (void)renderFace:(id <Face>)face rotation:(Quaternion *)rotation {
     Vector3f* v = [[Vector3f alloc] init];
     Vector2f* t = [[Vector2f alloc] init];
     
@@ -148,8 +149,7 @@ static int NUM_COLS = 5;
         
         glViewport(x, y, gridSize, gridSize);
         
-        Entity* entity = [prefab worldspawn];
-        BoundingBox* bounds = [entity bounds];
+        BoundingBox* bounds = [prefab bounds];
         Vector3f* size = [bounds size];
         
         float width = fmax([size x], [size y]);
@@ -180,24 +180,27 @@ static int NUM_COLS = 5;
             [p setAngle:0 axis:[Vector3f nullVector]];
         }
         
-        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-        Brush* brush;
-        while ((brush = [brushEn nextObject])) {
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            Face* face;
-            while ((face = [faceEn nextObject])) {
-                glEnable(GL_TEXTURE_2D);
-                glPolygonMode(GL_FRONT, GL_FILL);
-                glColor4f(0, 0, 0, 1);
-                [self renderFace:face rotation:p];
-
-                glDisable(GL_TEXTURE_2D);
-                glPolygonMode(GL_FRONT, GL_LINE);
-                glColor4f(1, 1, 1, 0.5);
-                [self renderFace:face rotation:p];
+        NSEnumerator* entityEn = [[prefab entities] objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+            id <Brush> brush;
+            while ((brush = [brushEn nextObject])) {
+                NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+                id <Face> face;
+                while ((face = [faceEn nextObject])) {
+                    glEnable(GL_TEXTURE_2D);
+                    glPolygonMode(GL_FRONT, GL_FILL);
+                    glColor4f(0, 0, 0, 1);
+                    [self renderFace:face rotation:p];
+                    
+                    glDisable(GL_TEXTURE_2D);
+                    glPolygonMode(GL_FRONT, GL_LINE);
+                    glColor4f(1, 1, 1, 0.5);
+                    [self renderFace:face rotation:p];
+                }
             }
         }
-        
         col++;
         if (col == NUM_COLS) {
             col = 0;

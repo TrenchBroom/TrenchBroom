@@ -14,7 +14,7 @@ typedef enum {
     BM_SPLIT
 } EBrushMark;
 
-@class Face;
+@class MutableFace;
 @class BoundingBox;
 @class Ray3D;
 @class PickingHit;
@@ -33,21 +33,13 @@ typedef enum {
 
 - (id)initWithFaces:(NSArray *)faces droppedFaces:(NSMutableArray **)droppedFaces;
 
-- (BOOL)cutWithFace:(Face *)face droppedFaces:(NSMutableArray **)droppedFaces;
-- (NSArray *)verticesForFace:(Face *)face;
+- (BOOL)cutWithFace:(MutableFace *)face droppedFaces:(NSMutableArray **)droppedFaces;
+- (NSArray *)verticesForFace:(MutableFace *)face;
 - (NSArray *)verticesForWireframe;
 - (int)edgeCount;
 - (BoundingBox *)bounds;
 - (Vector3f *)center;
-- (NSArray *)gridForFace:(Face *)face gridSize:(int)gridSize;
-
-/*!
-    @function
-    @abstract   Returns the center of the given face.
-    @param      The face.
-    @result     The center of the given face.
-*/
-- (Vector3f *)centerOfFace:(Face *)face;
-
-- (PickingHit *)pickFace:(Face *)theFace withRay:(Ray3D *)theRay;
+- (NSArray *)gridForFace:(MutableFace *)face gridSize:(int)gridSize;
+- (Vector3f *)centerOfFace:(MutableFace *)face;
+- (PickingHit *)pickFace:(MutableFace *)theFace withRay:(Ray3D *)theRay;
 @end

@@ -6,7 +6,8 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import "Face.h"
+#import "MutableFace.h"
+#import "MutableBrush.h"
 #import "IdGenerator.h"
 #import "Vector3i.h"
 #import "HalfSpace3D.h"
@@ -22,15 +23,10 @@
 #import "Line3D.h"
 #import "PickingHit.h"
 #import "Ray3D.h"
-#import "MapDocument.h"
-#import "Entity.h"
-#import "GLResources.h"
-#import "VBOBuffer.h"
-#import "FaceFigure.h"
 
 static Vector3f* baseAxes[18];
 
-@implementation Face
+@implementation MutableFace
 
 + (void)initialize {
     baseAxes[ 0] = [Vector3f xAxisPos]; baseAxes[ 1] = [Vector3f yAxisPos]; baseAxes[ 2] = [Vector3f zAxisNeg];
@@ -53,9 +49,8 @@ static Vector3f* baseAxes[18];
     return self;
 }
 
-- (id)initInBrush:(Brush *)theBrush point1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture {
+- (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture {
     if (self = [self init]) {
-        brush = theBrush; // do not retain
         [self setPoint1:aPoint1 point2:aPoint2 point3:aPoint3];
         [self setTexture:aTexture];
         [self setXScale:1];
@@ -65,11 +60,25 @@ static Vector3f* baseAxes[18];
     return self;
 }
 
+- (id)initWithTemplate:(id <Face>)theTemplate {
+    if (self = [self init]) {
+        [self setPoint1:[theTemplate point1] point2:[theTemplate point2] point3:[theTemplate point3]];
+        [self setTexture:[theTemplate texture]];
+        [self setXOffset:[theTemplate xOffset]];
+        [self setYOffset:[theTemplate yOffset]];
+        [self setRotation:[theTemplate rotation]];
+        [self setXScale:[theTemplate xScale]];
+        [self setYScale:[theTemplate yScale]];
+    }
+    
+    return self;
+}
+
 - (NSNumber *)faceId {
     return faceId;
 }
 
-- (Brush *)brush {
+- (id <Brush>)brush {
     return brush;
 }
 
@@ -147,6 +156,10 @@ static Vector3f* baseAxes[18];
     [brush faceGeometryChanged:self];
 }
 
+- (void)setBrush:(MutableBrush *)theBrush {
+    brush = theBrush;
+}
+
 - (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3{
     if (thePoint1 == nil)
         [NSException raise:NSInvalidArgumentException format:@"point 1 must not be nil"];
@@ -185,13 +198,7 @@ static Vector3f* baseAxes[18];
     if (name == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture name must not be nil"];
 
-    if ([texture isEqualTo:name])
-        return;
-    
-    NSString* oldName = [NSString stringWithString:texture];
-
     [texture setString:name];
-    [brush faceTextureChanged:self oldTexture:oldName newTexture:texture];
 }
 
 - (void)setXOffset:(int)offset {
@@ -199,8 +206,6 @@ static Vector3f* baseAxes[18];
         return;
     
 	xOffset = offset;
-
-    [brush faceFlagsChanged:self];
 }
 
 - (void)setYOffset:(int)offset {
@@ -208,8 +213,6 @@ static Vector3f* baseAxes[18];
         return;
     
 	yOffset = offset;
-    
-    [brush faceFlagsChanged:self];
 }
 
 - (void)setRotation:(float)angle {
@@ -222,8 +225,6 @@ static Vector3f* baseAxes[18];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
-    
-    [brush faceFlagsChanged:self];
 }
 
 - (void)setXScale:(float)factor {
@@ -236,8 +237,6 @@ static Vector3f* baseAxes[18];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
-    
-    [brush faceFlagsChanged:self];
 }
 
 - (void)setYScale:(float)factor {
@@ -250,8 +249,6 @@ static Vector3f* baseAxes[18];
     texAxisX = nil;
     [texAxisY release];
     texAxisY = nil;
-    
-    [brush faceFlagsChanged:self];
 }
 
 - (void)updateTexAxes {
@@ -325,8 +322,6 @@ static Vector3f* baseAxes[18];
         default:
             break;
     }
-
-    [brush faceFlagsChanged:self];
 }
 
 - (HalfSpace3D *)halfSpace {

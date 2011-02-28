@@ -87,7 +87,7 @@ static InspectorController* sharedInstance = nil;
         [rotationField setEnabled:YES];
         
         NSEnumerator* faceEn = [selectedFaces objectEnumerator];
-        Face* face = [faceEn nextObject];
+        id <Face> face = [faceEn nextObject];
         
         int xOffset = [face xOffset];
         int yOffset = [face yOffset];
@@ -278,7 +278,7 @@ static InspectorController* sharedInstance = nil;
     int xOffset = [xOffsetField intValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [map setFace:face xOffset:xOffset];
     
@@ -296,7 +296,7 @@ static InspectorController* sharedInstance = nil;
     int yOffset = [yOffsetField intValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [map setFace:face yOffset:yOffset];
     
@@ -314,7 +314,7 @@ static InspectorController* sharedInstance = nil;
     float xScale = [xScaleField floatValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [map setFace:face xScale:xScale];
     
@@ -332,7 +332,7 @@ static InspectorController* sharedInstance = nil;
     float yScale = [yScaleField floatValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [map setFace:face yScale:yScale];
     
@@ -350,7 +350,7 @@ static InspectorController* sharedInstance = nil;
     float rotation = [rotationField floatValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [map setFace:face rotation:rotation];
     
@@ -367,7 +367,7 @@ static InspectorController* sharedInstance = nil;
     SelectionManager* selectionManager = [mapWindowController selectionManager];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     NSEnumerator* faceEn = [faces objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         [map setFace:face texture:[texture name]];
     

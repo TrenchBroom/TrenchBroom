@@ -1,46 +1,23 @@
 //
-//  Entitiy.h
+//  Entity.h
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 15.03.10.
-//  Copyright 2010 __MyCompanyName__. All rights reserved.
+//  Created by Kristian Duske on 28.02.11.
+//  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Map.h"
+#import "BoundingBox.h"
+#import "Vector2f.h"
 
-@class Vector3i;
-@class Vector3f;
-@class Brush;
-@class Face;
-@class BoundingBox;
-@protocol Map;
+@protocol Entity
 
-@interface Entity : NSObject {
-    @private
-    id<Map> map;
-    NSNumber* entityId;
-	NSMutableArray* brushes;
-    NSMutableDictionary* brushIndices;
-	NSMutableDictionary* properties;
-    Vector3f* center;
-    BoundingBox* bounds;
-}
-
-- (id)initInMap:(id<Map>)theMap;
-- (id)initInMap:(id<Map>)theMap property:(NSString *)key value:(NSString *)value;
-
-- (Brush *)createBrush;
-- (Brush *)createBrushFromTemplate:(Brush *)theTemplate;
-- (void)addBrush:(Brush *)brush;
-- (void)removeBrush:(Brush *)brush;
-
-- (id<Map>)map;
 - (NSNumber *)entityId;
+- (id <Map>)map;
 
 - (NSArray *)brushes;
 
-- (void)setProperty:(NSString *)key value:(NSString *)value;
-- (void)removeProperty:(NSString *)key;
 - (NSString *)propertyForKey:(NSString *)key;
 - (NSString *)classname;
 
@@ -51,10 +28,4 @@
 - (BoundingBox *)bounds;
 - (Vector3f *)center;
 
-- (void)faceFlagsChanged:(Face *)face;
-- (void)faceTextureChanged:(Face *)face oldTexture:(NSString *)oldTexture newTexture:(NSString *)newTexture;
-- (void)faceGeometryChanged:(Face *)face;
-
-- (void)faceAdded:(Face *)face;
-- (void)faceRemoved:(Face *)face;
 @end

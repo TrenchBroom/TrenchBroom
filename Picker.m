@@ -37,8 +37,8 @@
     NSEnumerator* objectEn = [objects objectEnumerator];
     id object;
     while ((object = [objectEn nextObject])) {
-        if ([object isKindOfClass:[Brush class]]) {
-            Brush* brush = (Brush *)object;
+        if ([object conformsToProtocol:@protocol(Brush)]) {
+            id <Brush> brush = (id <Brush>)object;
             PickingHit* hit = [brush pickFace:theRay];
             if (hit != nil)
                 [hits addObject:hit];

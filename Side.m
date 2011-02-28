@@ -12,7 +12,7 @@
 #import "SideEdge.h"
 #import "Vector3f.h"
 #import "Vector2f.h"
-#import "Face.h"
+#import "MutableFace.h"
 #import "Ray3D.h"
 #import "PickingHit.h"
 #import "CoordinatePlane.h"
@@ -32,7 +32,7 @@
     return self;
 }
 
-- (id)initWithFace:(Face *)theFace edges:(NSArray *)theEdges flipped:(BOOL*)flipped {
+- (id)initWithFace:(MutableFace *)theFace edges:(NSArray *)theEdges flipped:(BOOL*)flipped {
     if (theEdges == nil)
         [NSException raise:NSInvalidArgumentException format:@"edge array must not be nil"];
     
@@ -49,7 +49,7 @@
     return self;
 }
 
-- (id)initWithFace:(Face *)theFace sideEdges:(NSArray *)theEdges {
+- (id)initWithFace:(MutableFace *)theFace sideEdges:(NSArray *)theEdges {
     if (theEdges == nil)
         [NSException raise:NSInvalidArgumentException format:@"edge array must not be nil"];
     
@@ -138,7 +138,7 @@
     return vertices;
 }
 
-- (Face *)face {
+- (MutableFace *)face {
     return face;
 }
 

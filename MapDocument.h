@@ -34,42 +34,45 @@ extern NSString* const PropertyKeyKey;
 extern NSString* const PropertyOldValueKey;
 extern NSString* const PropertyNewValueKey;
 
-@class Entity;
-@class Brush;
-@class Face;
+@class MutableEntity;
 @class Picker;
 @class GLResources;
 @class Vector3i;
+@protocol Entity;
+@protocol Brush;
+@protocol Face;
 
 @interface MapDocument : NSDocument <Map> {
     @private
     NSMutableArray* entities;
-    Entity* worldspawn;
+    MutableEntity* worldspawn;
     int worldSize;
     BOOL postNotifications;
     Picker* picker;
     GLResources* glResources;
 }
 
-- (void)setFace:(Face *)face xOffset:(int)xOffset;
-- (void)setFace:(Face *)face yOffset:(int)yOffset;
-- (void)translateFaceOffset:(Face *)face xDelta:(int)xDelta yDelta:(int)yDelta;
-- (void)setFace:(Face *)face xScale:(float)xScale;
-- (void)setFace:(Face *)face yScale:(float)yScale;
-- (void)setFace:(Face *)face rotation:(float)angle;
-- (void)setFace:(Face *)face texture:(NSString *)texture;
-- (void)setFace:(Face *)face point1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3;
-- (void)translateFace:(Face *)face xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta;
+- (void)setFace:(id <Face>)face xOffset:(int)xOffset;
+- (void)setFace:(id <Face>)face yOffset:(int)yOffset;
+- (void)translateFaceOffset:(id <Face>)face xDelta:(int)xDelta yDelta:(int)yDelta;
+- (void)setFace:(id <Face>)face xScale:(float)xScale;
+- (void)setFace:(id <Face>)face yScale:(float)yScale;
+- (void)setFace:(id <Face>)face rotation:(float)angle;
+- (void)setFace:(id <Face>)face texture:(NSString *)texture;
 
-- (Brush *)createBrushInEntity:(Entity *)entity fromTemplate:(Brush *)theTemplate;
-- (void)deleteBrush:(Brush *)brush;
-- (void)translateBrush:(Brush *)brush xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta;
+- (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate;
+- (void)translateBrush:(id <Brush>)brush xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta;
+- (void)deleteBrush:(id <Brush>)brush;
+
+- (id <Entity>)createEntity;
 
 - (int)worldSize;
+- (id <Entity>)worldspawn;
+- (NSArray *)entities;
 
+- (BOOL)postNotifications;
 - (void)setPostNotifications:(BOOL)value;
 
 - (Picker *)picker;
 - (GLResources *)glResources;
-
 @end

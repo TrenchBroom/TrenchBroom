@@ -21,9 +21,9 @@ typedef enum {
     SM_GEOMETRY
 } ESelectionMode;
 
-@class Face;
-@class Brush;
-@class Entity;
+@protocol Face;
+@protocol Brush;
+@protocol Entity;
 
 @interface SelectionManager : NSObject {
     @private
@@ -33,18 +33,18 @@ typedef enum {
     ESelectionMode mode;
 }
 
-- (void)addFace:(Face *)face;
+- (void)addFace:(id <Face>)face;
 - (void)addFaces:(NSSet *)theFaces;
-- (void)addBrush:(Brush *)brush;
+- (void)addBrush:(id <Brush>)brush;
 - (void)addBrushes:(NSSet *)theBrushes;
-- (void)addEntity:(Entity *)entity;
+- (void)addEntity:(id <Entity>)entity;
 - (void)addEntities:(NSSet *)theEntities;
 
 - (ESelectionMode)mode;
-- (BOOL)isFaceSelected:(Face *)face;
-- (BOOL)isBrushSelected:(Brush *)brush;
-- (BOOL)isEntitySelected:(Entity *)entity;
-- (BOOL)hasSelectedFaces:(Brush *)brush;
+- (BOOL)isFaceSelected:(id <Face>)face;
+- (BOOL)isBrushSelected:(id <Brush>)brush;
+- (BOOL)isEntitySelected:(id <Entity>)entity;
+- (BOOL)hasSelectedFaces:(id <Brush>)brush;
 
 - (NSSet *)selectedEntities;
 - (NSSet *)selectedBrushes;
@@ -56,9 +56,9 @@ typedef enum {
 - (BOOL)hasSelectedBrushes;
 - (BOOL)hasSelectedFaces;
 
-- (void)removeFace:(Face *)face;
-- (void)removeBrush:(Brush *)brush;
-- (void)removeEntity:(Entity *)entity;
+- (void)removeFace:(id <Face>)face;
+- (void)removeBrush:(id <Brush>)brush;
+- (void)removeEntity:(id <Entity>)entity;
 
 - (void)removeAll;
 

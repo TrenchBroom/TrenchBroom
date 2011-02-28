@@ -19,19 +19,19 @@
 
 - (void)brushAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    Brush* brush = [userInfo objectForKey:BrushKey];
+    id <Brush> brush = [userInfo objectForKey:BrushKey];
     [root addObject:brush bounds:[brush bounds]];
 }
 
 - (void)brushRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    Brush* brush = [userInfo objectForKey:BrushKey];
+    id <Brush> brush = [userInfo objectForKey:BrushKey];
     [root removeObject:brush bounds:[brush bounds]];
 }
 
 - (void)brushChanged:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    Brush* brush = [userInfo objectForKey:BrushKey];
+    id <Brush> brush = [userInfo objectForKey:BrushKey];
 
     [root removeObject:brush bounds:[brush bounds]];
     [root addObject:brush bounds:[brush bounds]];
@@ -54,10 +54,10 @@
         [max release];
         
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
-        Entity* entity;
+        id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
             NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-            Brush* brush;
+            id <Brush> brush;
             while ((brush = [brushEn nextObject]))
                 [root addObject:brush bounds:[brush bounds]];
         }

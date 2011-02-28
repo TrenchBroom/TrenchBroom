@@ -3,7 +3,7 @@
 //  TrenchBroom
 //
 //  Created by Kristian Duske on 30.01.11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 20id <Brush>11 __MyCompanyName__. All rights reserved.
 //
 
 #import "SelectionManager.h"
@@ -31,7 +31,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
     return self;
 }
 
-- (void)addFace:(Face *)face {
+- (void)addFace:(id <Face>)face {
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
     
@@ -88,7 +88,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
     [center postNotificationName:SelectionAdded object:self userInfo:userInfo];
 }
 
-- (void)addBrush:(Brush *)brush {
+- (void)addBrush:(id <Brush>)brush {
     if (brush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
     
@@ -133,7 +133,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
     [center postNotificationName:SelectionAdded object:self userInfo:userInfo];
 }
 
-- (void)addEntity:(Entity *)entity {
+- (void)addEntity:(id <Entity>)entity {
     if (entity == nil)
         [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
  
@@ -182,28 +182,28 @@ NSString* const SelectionFaces = @"SelectionFaces";
     return mode;
 }
 
-- (BOOL)isFaceSelected:(Face *)face {
+- (BOOL)isFaceSelected:(id <Face>)face {
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
 
     return [faces containsObject:face];
 }
 
-- (BOOL)isBrushSelected:(Brush *)brush {
+- (BOOL)isBrushSelected:(id <Brush>)brush {
     if (brush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
 
     return [brushes containsObject:brush];
 }
 
-- (BOOL)isEntitySelected:(Entity *)entity {
+- (BOOL)isEntitySelected:(id <Entity>)entity {
     if (entity == nil)
         [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
     
     return [entities containsObject:entity];
 }
 
-- (BOOL)hasSelectedFaces:(Brush *)brush {
+- (BOOL)hasSelectedFaces:(id <Brush>)brush {
     if (brush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
     
@@ -211,7 +211,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
         return NO;
     
     NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-    Face* face;
+    id <Face> face;
     while ((face = [faceEn nextObject]))
         if ([self isFaceSelected:face])
             return YES;
@@ -234,7 +234,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
 - (NSSet *)selectedBrushFaces {
     NSMutableSet* result = [[NSMutableSet alloc] init];
     NSEnumerator* brushEn = [brushes objectEnumerator];
-    Brush* brush;
+    id <Brush> brush;
     while ((brush = [brushEn nextObject]))
         [result addObjectsFromArray:[brush faces]];
     return [result autorelease];
@@ -256,7 +256,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
     return [faces count] > 0;
 }
 
-- (void)removeFace:(Face *)face {
+- (void)removeFace:(id <Face>)face {
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
     
@@ -270,7 +270,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
     [center postNotificationName:SelectionRemoved object:self userInfo:userInfo];
 }
 
-- (void)removeBrush:(Brush *)brush {
+- (void)removeBrush:(id <Brush>)brush {
     if (brush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
     
@@ -284,7 +284,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
     [center postNotificationName:SelectionRemoved object:self userInfo:userInfo];
 }
 
-- (void)removeEntity:(Entity *)entity {
+- (void)removeEntity:(id <Entity>)entity {
     if (entity == nil)
         [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
     
