@@ -153,6 +153,7 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     NSDate* startDate = [NSDate date];
     state = PS_DEF;
     map = [theMap retain];
+    int progress = 0;
     
     MapToken* token;
     while ((token = [self nextToken])) {
@@ -212,8 +213,12 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
         }
         
         if (theIndicator != nil) {
-            [theIndicator setDoubleValue:100 * [token charsRead] / (double)size];
-            [[NSRunLoop currentRunLoop] runMode:NSModalPanelRunLoopMode beforeDate:[NSDate date]];
+            int newProgress = 100 * [token charsRead] / size;
+            if (newProgress != progress) {
+                progress = newProgress;
+                [theIndicator setDoubleValue:progress];
+                [[NSRunLoop currentRunLoop] runMode:NSModalPanelRunLoopMode beforeDate:[NSDate date]];
+            }
         }
     }
     

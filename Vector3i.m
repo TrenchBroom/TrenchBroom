@@ -17,18 +17,6 @@ static Vector3i* gNullVector;
     gNullVector = [[Vector3i alloc] init];
 }
 
-+ (Vector3i *)vector {
-    return [[[Vector3i alloc] init] autorelease];
-}
-
-+ (Vector3i *)vectorWithVector:(Vector3i *)vector {
-    return [[[Vector3i alloc] initWithVector:vector] autorelease];
-}
-
-+ (Vector3i *)vectorWithX:(int)xCoord y:(int)yCoord z:(int)zCoord {
-    return [[[Vector3i alloc] initWithX:xCoord y:yCoord z:zCoord] autorelease];
-}
-
 + (Vector3i *)nullVector {
     return gNullVector;
 }

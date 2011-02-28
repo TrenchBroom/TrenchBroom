@@ -11,6 +11,7 @@
 #import "Line3D.h"
 #import "Plane3D.h"
 #import "Vector3f.h"
+#import "MathCache.h"
 
 @implementation Edge
 - (id)init {
@@ -46,8 +47,11 @@
 - (Vertex *)splitAt:(Plane3D *)plane {
     if (mark != EM_SPLIT)
         [NSException raise:NSInvalidArgumentException format:@"cannot split edge that is not marked with EM_SPLIT"];
+
+    MathCache* cache = [MathCache sharedCache];
+    Line3D* line = [cache line3D];
+    [line setPoint1:[startVertex vector] point2:[endVertex vector]];
     
-    Line3D* line = [[Line3D alloc] initWithPoint1:[startVertex vector] point2:[endVertex vector]];
     Vector3f* newVector = [plane intersectWithLine:line];
     Vertex* newVertex = [[Vertex alloc] initWithVector:newVector];
 
@@ -58,8 +62,8 @@
         [endVertex release];
         endVertex = [newVertex retain];
     }
-    
-    [line release];
+
+    [cache returnLine3D:line];
     return [newVertex autorelease];
 }
 

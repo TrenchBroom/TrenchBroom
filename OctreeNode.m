@@ -13,6 +13,7 @@
 #import "Ray3D.h"
 #import "Plane3D.h"
 #import "math.h"
+#import "MathCache.h"
 
 @implementation OctreeNode
 
@@ -160,16 +161,22 @@
     Vector3f* origin = [theRay origin];
     BOOL hit = fgte([origin x], [min x]) && fgte([origin y], [min y]) && fgte([origin z], [min z]) && flte([origin x], [max x]) && flte([origin y], [max y]) && flte([origin z], [max z]);
     
-    Plane3D* plane = [[Plane3D alloc] init];
+    MathCache* cache = [MathCache sharedCache];
+    Plane3D* plane = [cache plane3D];
+    Vector3f* intMin = [cache vector3f];
+    Vector3f* intMax = [cache vector3f];
+    [intMin setInt:min];
+    [intMax setInt:max];
+    
     Vector3f* direction = [theRay direction];
     
     if (!hit) {
         if ([direction x] > 0) {
-            [plane setPoint:[Vector3f vectorWithIntVector:min] norm:[Vector3f xAxisNeg]];
+            [plane setPoint:intMin norm:[Vector3f xAxisNeg]];
             Vector3f* is = [plane intersectWithRay:theRay];
             hit = is != nil && fgte([is y], [min y]) && flte([is y], [max y]) && fgte([is z], [min z]) && flte([is z], [max z]);
         } else if ([direction x] < 0) {
-            [plane setPoint:[Vector3f vectorWithIntVector:max] norm:[Vector3f xAxisPos]];
+            [plane setPoint:intMax norm:[Vector3f xAxisPos]];
             Vector3f* is = [plane intersectWithRay:theRay];
             hit = is != nil && fgte([is y], [min y]) && flte([is y], [max y]) && fgte([is z], [min z]) && flte([is z], [max z]);
         }
@@ -177,11 +184,11 @@
     
     if (!hit) {
         if ([direction y] > 0) {
-            [plane setPoint:[Vector3f vectorWithIntVector:min] norm:[Vector3f yAxisNeg]];
+            [plane setPoint:intMin norm:[Vector3f yAxisNeg]];
             Vector3f* is = [plane intersectWithRay:theRay];
             hit = is != nil && fgte([is x], [min x]) && flte([is x], [max x]) && fgte([is z], [min z]) && flte([is z], [max z]);
         } else if ([direction y] < 0) {
-            [plane setPoint:[Vector3f vectorWithIntVector:max] norm:[Vector3f yAxisPos]];
+            [plane setPoint:intMax norm:[Vector3f yAxisPos]];
             Vector3f* is = [plane intersectWithRay:theRay];
             hit = is != nil && fgte([is x], [min x]) && flte([is x], [max x]) && fgte([is z], [min z]) && flte([is z], [max z]);
         }
@@ -189,16 +196,19 @@
     
     if (!hit) {
         if ([direction z] > 0) {
-            [plane setPoint:[Vector3f vectorWithIntVector:min] norm:[Vector3f zAxisNeg]];
+            [plane setPoint:intMin norm:[Vector3f zAxisNeg]];
             Vector3f* is = [plane intersectWithRay:theRay];
             hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is y] >= [min y] && [is y] <= [max y];
         } else if ([direction z] < 0) {
-            [plane setPoint:[Vector3f vectorWithIntVector:max] norm:[Vector3f zAxisPos]];
+            [plane setPoint:intMax norm:[Vector3f zAxisPos]];
             Vector3f* is = [plane intersectWithRay:theRay];
             hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is y] >= [min y] && [is y] <= [max y];
         }
     }
-    [plane release];
+
+    [cache returnVector3f:intMax];
+    [cache returnVector3f:intMin];
+    [cache returnPlane3D:plane];
     
     if (hit) {
         [theSet unionSet:objects];

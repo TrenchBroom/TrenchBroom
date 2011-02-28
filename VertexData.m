@@ -248,7 +248,7 @@
         Side* side = [sides objectAtIndex:i];
         SideEdge* newEdge = [side split];
         if ([side mark] == SM_DROP) {
-            id face = [side face];
+            id <Face> face = [side face];
             if (face != nil)
                 [*droppedFaces addObject:face];
             [sides removeObjectAtIndex:i--];
@@ -279,6 +279,7 @@
     [sides addObject:side];
     [faceToSide setObject:side forKey:[face faceId]];
     [newEdges release];
+    [side release];
     
     // clean up
     for (int i = 0; i < [vertices count]; i++) {

@@ -20,6 +20,7 @@
 #import "Math3D.h"
 #import "HalfSpace3D.h"
 #import "Plane3D.h"
+#import "MathCache.h"
 
 @implementation Side
 
@@ -209,9 +210,17 @@
     if (c % 2 == 0)
         return nil;
     
+    MathCache* cache = [MathCache sharedCache];
+    Vector3f* diff = [cache vector3f];
+    [diff setFloat:is];
+    [diff sub:[theRay origin]];
+    
+    float distance = [diff length];
+    [cache returnVector3f:diff];
+    
     return [PickingHit hitWithObject:face 
                             hitPoint:is 
-                            distance:[[Vector3f sub:is subtrahend:[theRay origin]] length]];
+                            distance:distance];
 }
 
 - (NSString *)description {

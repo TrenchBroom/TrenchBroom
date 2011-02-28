@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1DDD582C0DA1D0D100B32029 /* MapDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58280DA1D0D100B32029 /* MapDocument.xib */; };
 		1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD582A0DA1D0D100B32029 /* MainMenu.xib */; };
+		4809EE34131C3D9A00EB2EAB /* MathCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 4809EE33131C3D9A00EB2EAB /* MathCache.m */; };
 		4809F440118EDE64000F66FD /* VBOManagerTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */; };
 		4809F447118EDE6D000F66FD /* Vector3i.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3A11148D8E00CD6043 /* Vector3i.m */; };
 		4809F448118EDE6D000F66FD /* Vector3f.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F1E114EA95A0064732A /* Vector3f.m */; };
@@ -143,6 +144,8 @@
 		2A37F4BAFDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		4809EE32131C3D9A00EB2EAB /* MathCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MathCache.h; sourceTree = "<group>"; };
+		4809EE33131C3D9A00EB2EAB /* MathCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MathCache.m; sourceTree = "<group>"; };
 		4809F42F118EDDB8000F66FD /* Test.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Test.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		480AD8B412ED78FA009B5970 /* Edge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Edge.h; sourceTree = "<group>"; };
 		480AD8B512ED78FA009B5970 /* Edge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Edge.m; sourceTree = "<group>"; };
@@ -690,6 +693,8 @@
 				485FD0C81257A8C100F4AE49 /* 3D */,
 				483B1127122441060072EAFB /* Math.h */,
 				483B1128122441060072EAFB /* Math.m */,
+				4809EE32131C3D9A00EB2EAB /* MathCache.h */,
+				4809EE33131C3D9A00EB2EAB /* MathCache.m */,
 			);
 			name = Math;
 			sourceTree = "<group>";
@@ -941,6 +946,7 @@
 				4833C15F131953F600EB1B85 /* PrefabManager.m in Sources */,
 				4833C1BD13196CFB00EB1B85 /* Prefab.m in Sources */,
 				48F0EC52131A9CCD0088FA02 /* PrefabView.m in Sources */,
+				4809EE34131C3D9A00EB2EAB /* MathCache.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

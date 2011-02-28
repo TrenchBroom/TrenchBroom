@@ -19,9 +19,6 @@
     Vector3f* norm;
 }
 
-+ (Plane3D *)planeWithPoint:(Vector3f *)aPoint norm:(Vector3f *)aNorm;
-+ (Plane3D *)planeWithPlane:(Plane3D *)aPlane;
-
 - (id)initWithPoint:(Vector3f *)aPoint norm:(Vector3f *)aNorm;
 - (id)initWithPlane:(Plane3D *)aPlane;
 

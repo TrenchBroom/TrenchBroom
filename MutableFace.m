@@ -184,9 +184,6 @@ static Vector3f* baseAxes[18];
     if (theDelta == nil)
         [NSException raise:NSInvalidArgumentException format:@"direction must not be nil"];
 
-    Vector3i* inverse = [Vector3i vectorWithVector:theDelta];
-    [inverse scale:-1];
-    
     [point1 add:theDelta];
     [point2 add:theDelta];
     [point3 add:theDelta];

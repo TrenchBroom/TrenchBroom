@@ -21,6 +21,7 @@
 #import "ProgressWindowController.h"
 #import "MapParser.h"
 #import "Vector3i.h"
+#import "MathCache.h"
 
 NSString* const FaceAdded           = @"FaceAdded";
 NSString* const FaceRemoved         = @"FaceRemoved";
@@ -325,8 +326,16 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 
     BoundingBox* oldBounds = [[BoundingBox alloc] initWithBounds:[brush bounds]];
     
+    MathCache* cache = [MathCache sharedCache];
+    Vector3i* delta = [cache vector3i];
+    [delta setX:xDelta];
+    [delta setY:yDelta];
+    [delta setZ:zDelta];
+    
     MutableBrush* mutableBrush = (MutableBrush *)brush;
-    [mutableBrush translateBy:[Vector3i vectorWithX:xDelta y:yDelta z:zDelta]];
+    [mutableBrush translateBy:delta];
+    
+    [cache returnVector3i:delta];
     
     if ([self postNotifications]) {
         NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];

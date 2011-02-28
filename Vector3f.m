@@ -30,46 +30,6 @@ static Vector3f* gZAxisNeg;
     gZAxisNeg = [[Vector3f alloc] initWithX:0 y:0 z:-1];
 }
 
-+ (Vector3f *)vector {
-    return [[[Vector3f alloc] init] autorelease];
-}
-
-+ (Vector3f *)add:(Vector3f *)left addend:(Vector3f *)right {
-    Vector3f* result = [[Vector3f alloc] initWithFloatVector:left];
-    [result add:right];
-    return [result autorelease];
-}
-
-+ (Vector3f *)sub:(Vector3f *)left subtrahend:(Vector3f *)right {
-    Vector3f* result = [[Vector3f alloc] initWithFloatVector:left];
-    [result sub:right];
-    return [result autorelease];
-}
-
-+ (Vector3f *)cross:(Vector3f *)left factor:(Vector3f *)right {
-    Vector3f* result = [[Vector3f alloc] initWithFloatVector:left];
-    [result cross:right];
-    return [result autorelease];
-}
-
-+ (Vector3f *)normalize:(Vector3f *)vector {
-    Vector3f* result = [[Vector3f alloc] initWithFloatVector:vector];
-    [result normalize];
-    return [result autorelease];
-}
-
-+ (Vector3f *)vectorWithFloatVector:(Vector3f *)vector {
-    return [[[Vector3f alloc] initWithFloatVector:vector] autorelease];
-}
-
-+ (Vector3f *)vectorWithIntVector:(Vector3i *)vector {
-    return [[[Vector3f alloc] initWithIntVector:vector] autorelease];
-}
-
-+ (Vector3f *)vectorWithX:(float)xCoord y:(float)yCoord z:(float)zCoord {
-    return [[[Vector3f alloc] initWithX:xCoord y:yCoord z:zCoord] autorelease];
-}
-
 + (Vector3f *)nullVector {
     return gNullVector;
 }
