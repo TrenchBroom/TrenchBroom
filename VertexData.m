@@ -492,7 +492,7 @@
     [si release];
 
     [pVertices release];
-    return gVertices;
+    return [gVertices autorelease];
 }
 
 - (NSArray *)verticesForWireframe {

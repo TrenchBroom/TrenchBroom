@@ -44,9 +44,10 @@
                 [hits addObject:hit];
         }
     }
+    [objects release];
     
     [hits sortUsingSelector:@selector(compareTo:)];
-    return hits;
+    return [hits autorelease];
 }
 
 - (void)dealloc {

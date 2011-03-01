@@ -36,7 +36,7 @@
     if ([result length] > 0)
         [result deleteCharactersInRange:NSMakeRange([result length] - 2, 2)];
     
-    return result;
+    return [result autorelease];
 }
 
 - (ETokenType)type {

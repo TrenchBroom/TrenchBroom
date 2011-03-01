@@ -113,6 +113,7 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:TexturesAdded object:self userInfo:[NSDictionary dictionaryWithObject:addedTextures forKey:UserInfoTextures]];
+    [addedTextures release];
 }
 
 - (void)deleteTextures {

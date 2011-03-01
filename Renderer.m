@@ -164,7 +164,6 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)selectionAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* entities = [userInfo objectForKey:SelectionEntities];
     NSSet* brushes = [userInfo objectForKey:SelectionBrushes];
     NSSet* faces = [userInfo objectForKey:SelectionFaces];
     
@@ -197,7 +196,6 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)selectionRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* entities = [userInfo objectForKey:SelectionEntities];
     NSSet* brushes = [userInfo objectForKey:SelectionBrushes];
     NSSet* faces = [userInfo objectForKey:SelectionFaces];
     
@@ -293,6 +291,8 @@ NSString* const RendererChanged = @"RendererChanged";
     RenderContext* renderContext = [[RenderContext alloc] initWithTextureManager:textureManager options:options];
     [geometryLayer render:renderContext];
     [selectionLayer render:renderContext];
+    
+    [renderContext release];
 }
 
 - (void)updateView:(NSRect)bounds {

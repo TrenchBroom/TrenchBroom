@@ -15,7 +15,6 @@
     @private
     GLFont* glFont;
     VBOMemBlock* memBlock;
-    int length;
 }
 
 - (id)initWithMemBlock:(VBOMemBlock *)theMemBlock glFont:(GLFont *)theFont;

@@ -418,9 +418,6 @@ static Vector3f* baseAxes[18];
     if (![worldMatrix invert])
         [NSException raise:@"NonInvertibleMatrixException" format:@"surface transformation matrix is not invertible"];
 
-    Matrix4f* m = [[Matrix4f alloc] initWithMatrix4f:surfaceMatrix];
-    [m mul:worldMatrix];
-    
     [xAxis release];
     [yAxis release];
     [zAxis release];

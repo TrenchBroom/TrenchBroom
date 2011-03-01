@@ -64,6 +64,7 @@
         
         boundary = [[Plane3D alloc] initWithPoint:p norm:outside];
 
+        [p release];
         [cache returnVector3f:v1];
         [cache returnVector3f:v2];
     }

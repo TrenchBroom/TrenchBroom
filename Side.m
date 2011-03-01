@@ -63,19 +63,19 @@
 }
 
 - (SideEdge *)split {
-    EEdgeMark previousMark = [[edges lastObject] mark];
-    if (previousMark == EM_KEEP)
+    EEdgeMark currentMark = [[edges lastObject] mark];
+    if (currentMark == EM_KEEP)
         mark = SM_KEEP;
-    else if (previousMark == EM_DROP)
+    else if (currentMark == EM_DROP)
         mark = SM_DROP;
-    else if (previousMark == EM_SPLIT)
+    else if (currentMark == EM_SPLIT)
         mark = SM_SPLIT;
     
     int splitIndex1, splitIndex2 = -1;
 
     for (int i = 0; i < [edges count]; i++) {
         SideEdge* sideEdge = [edges objectAtIndex:i];
-        EEdgeMark currentMark = [sideEdge mark];
+        currentMark = [sideEdge mark];
         if (currentMark == EM_SPLIT) {
             if ([[sideEdge startVertex] mark] == VM_KEEP)
                 splitIndex1 = i;
@@ -86,7 +86,6 @@
         if ((mark == SM_KEEP && currentMark != EM_KEEP) || 
             (mark == SM_DROP && currentMark != EM_DROP))
             mark = SM_SPLIT;
-        previousMark = currentMark;
     }
     
     if (mark == SM_KEEP || mark == SM_DROP)

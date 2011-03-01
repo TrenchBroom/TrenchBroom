@@ -18,9 +18,11 @@
         NSOpenGLPixelFormatAttribute attrs[] = {0};
         NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
         openGLContext = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
+        [pixelFormat release];
+
         fontManager = [[GLFontManager alloc] init];
         geometryVBO = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
-
+        
         NSBundle* mainBundle = [NSBundle mainBundle];
         NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
         NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
