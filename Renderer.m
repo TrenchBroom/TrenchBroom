@@ -295,34 +295,6 @@ NSString* const RendererChanged = @"RendererChanged";
     [renderContext release];
 }
 
-- (void)updateView:(NSRect)bounds {
-    Camera* camera = [windowController camera];
-    float fov = atan(tan(90 * M_PI / 360) * 0.75 * bounds.size.width / bounds.size.height) * 360 / M_PI;
-    float aspect = bounds.size.width / bounds.size.height;
-    float near = [camera nearClippingPlane];
-    float far = [camera farClippingPlane];
-    
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(fov, aspect, near, far);
-    
-    Vector3f* pos = [camera position];
-    Vector3f* dir = [camera direction];
-    Vector3f* up = [camera up];
-    
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluLookAt([pos x],
-              [pos y],
-              [pos z],
-              [pos x] + [dir x],
-              [pos y] + [dir y],
-              [pos z] + [dir z],
-              [up x],
-              [up y],
-              [up z]);
-}
-
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [windowController release];

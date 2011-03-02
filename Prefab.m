@@ -13,15 +13,22 @@
 #import "MutableBrush.h"
 #import "Vector3i.h"
 #import "Vector3f.h"
+#import "MathCache.h"
+#import "IdGenerator.h"
 
 @implementation Prefab
 
 - (id)init {
     if (self = [super init]) {
+        prefabId = [[[IdGenerator sharedGenerator] getId] retain];
         entities = [[NSMutableArray alloc] init];
     }
     
     return self;
+}
+
+- (NSNumber *)prefabId {
+    return prefabId;
 }
 
 - (NSArray *)entities {
@@ -59,6 +66,48 @@
     }
     
     return bounds;
+}
+
+- (BoundingBox *)maxBounds {
+    if (maxBounds == nil && [entities count] > 0) {
+        float distSquared = 0;
+        NSEnumerator* entityEn = [entities objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+            id <Brush> brush;
+            while ((brush = [brushEn nextObject])) {
+                NSEnumerator* vertexEn = [[brush vertices] objectEnumerator];
+                Vector3f* vertex;
+                while ((vertex = [vertexEn nextObject])) {
+                    float lengthSquared = [vertex lengthSquared];
+                    if (lengthSquared > distSquared)
+                        distSquared = lengthSquared;
+                }
+            }
+        }
+        
+        if (distSquared > 0) {
+            float dist = sqrt(distSquared);
+            MathCache* cache = [MathCache sharedCache];
+            Vector3f* min = [cache vector3f];
+            Vector3f* max = [cache vector3f];
+            
+            [min setX:-dist];
+            [min setY:-dist];
+            [min setZ:-dist];
+            [max setX:dist];
+            [max setY:dist];
+            [max setZ:dist];
+            
+            maxBounds = [[BoundingBox alloc] initWithMin:min max:max];
+            
+            [cache returnVector3f:min];
+            [cache returnVector3f:max];
+        }
+    }
+    
+    return maxBounds;
 }
 
 - (Vector3f *)center {
@@ -102,8 +151,10 @@
 }
 
 - (void)dealloc {
+    [prefabId release];
     [entities release];
     [bounds release];
+    [maxBounds release];
     [center release];
     [super dealloc];
 }

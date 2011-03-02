@@ -22,10 +22,56 @@
 #import "TextureManager.h"
 #import "Texture.h"
 #import "InspectorController.h"
-
-static int NUM_COLS = 5;
+#import "Camera.h"
+#import "MathCache.h"
 
 @implementation PrefabView
+
+- (void)resetCamera:(Camera *)camera forPrefab:(Prefab *)prefab {
+    BoundingBox* maxBounds = [prefab maxBounds];
+    Vector3f* size = [maxBounds size];
+
+    MathCache* cache = [MathCache sharedCache];
+    Vector3f* position = [cache vector3f];
+    
+    [position setFloat:size];
+    [position scale:0.5f];
+    [camera moveTo:position];
+    [camera lookAt:[Vector3f nullVector]];
+    
+    [cache returnVector3f:position];
+}
+
+- (void)addPrefab:(Prefab *)prefab {
+    Camera* camera = [[Camera alloc] initWithFieldOfVision:90 nearClippingPlane:10 farClippingPlane:1000];
+    [self resetCamera:camera forPrefab:prefab];
+
+    [cameras setObject:camera forKey:[prefab prefabId]];
+    [camera release];
+}
+
+- (void)prefabAdded:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    Prefab* prefab = [userInfo objectForKey:PrefabKey];
+    [self addPrefab:prefab];
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super initWithCoder:aDecoder]) {
+        cameras = [[NSMutableDictionary alloc] init];
+
+        PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
+        NSEnumerator* prefabEn = [[prefabManager prefabs] objectEnumerator];
+        Prefab* prefab;
+        while ((prefab = [prefabEn nextObject]))
+            [self addPrefab:prefab];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center addObserver:self selector:@selector(prefabAdded:) name:PrefabAdded object:prefabManager];
+    }
+    
+    return self;
+}
 
 - (BOOL)isFlipped {
     return YES;
@@ -37,17 +83,17 @@ static int NUM_COLS = 5;
 
 - (void)reshape {
     [super reshape];
-
-    NSRect visibleRect = [self visibleRect];
-    gridSize = NSWidth(visibleRect) / NUM_COLS;
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
     NSPoint clickPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
     
+    NSRect visibleRect = [self visibleRect];
+    float gridSize = NSWidth(visibleRect) / prefabsPerRow;
+    
     int col = clickPoint.x / gridSize;
     int row = clickPoint.y / gridSize;
-    int index = row * NUM_COLS + col;
+    int index = row * prefabsPerRow + col;
     
     PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
     NSArray* prefabs = [prefabManager prefabs];
@@ -60,26 +106,24 @@ static int NUM_COLS = 5;
             [windowController prefabSelected:[prefabs objectAtIndex:index]];
         }
     }
-    
-    vAngle = 0;
-    hAngle = 0;
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
     if (draggedPrefab != nil) {
-        hAngle += ([theEvent deltaX] / 70);
-        vAngle += ([theEvent deltaY] / 70);
+        Camera* camera = [cameras objectForKey:[draggedPrefab prefabId]];
+        [camera orbitCenter:[Vector3f nullVector] hAngle:[theEvent deltaX] / 70 vAngle:[theEvent deltaY] / 70];
         [self setNeedsDisplay:YES];
     }
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
+    Camera* camera = [cameras objectForKey:[draggedPrefab prefabId]];
+    [self resetCamera:camera forPrefab:draggedPrefab];
     draggedPrefab = nil;
     [self setNeedsDisplay:YES];
 }
 
-- (void)renderFace:(id <Face>)face rotation:(Quaternion *)rotation {
-    Vector3f* v = [[Vector3f alloc] init];
+- (void)renderFace:(id <Face>)face {
     Vector2f* t = [[Vector2f alloc] init];
     
     TextureManager* textureManager = [glResources textureManager];
@@ -87,18 +131,19 @@ static int NUM_COLS = 5;
     if (texture != nil)
         [texture activate];
     
+    float width = texture != nil ? [texture width] : 1;
+    float height = texture != nil ? [texture height] : 1;
+    
     NSEnumerator* vertexEn = [[face vertices] objectEnumerator];
     Vector3f* vertex;
     glBegin(GL_POLYGON);
     while ((vertex = [vertexEn nextObject])) {
         if (texture != nil) {
             [face texCoords:t forVertex:vertex];
-            glTexCoord2f([t x], [t y]);
+            glTexCoord2f([t x] / width, [t y] / height);
         }
         
-        [v setFloat:vertex];
-        [rotation rotate:v];
-        glVertex3f([v x], [v y], [v z]);
+        glVertex3f([vertex x], [vertex y], [vertex z]);
         
     }
     glEnd();
@@ -106,19 +151,14 @@ static int NUM_COLS = 5;
     if (texture != nil)
         [texture deactivate];
     
-    [v release];
     [t release];
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
     NSRect visibleRect = [self visibleRect];
-    glViewport(0, 0, NSWidth(visibleRect), NSHeight(visibleRect));
     
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    // glEnable(GL_TEXTURE_2D);
-    // glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     
     glFrontFace(GL_CW);
     glEnable(GL_CULL_FACE);
@@ -134,51 +174,18 @@ static int NUM_COLS = 5;
     PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
     NSArray* prefabs = [prefabManager prefabs];
 
+    float gridSize = NSWidth(visibleRect) / prefabsPerRow;
     int row = 0;
     int col = 0;
 
-    Quaternion* p = [[Quaternion alloc] init];
-    Quaternion* q = [[Quaternion alloc] init];
-    Vector3f* v = [[Vector3f alloc] init];
-    
     NSEnumerator* prefabEn = [prefabs objectEnumerator];
     Prefab* prefab;
     while ((prefab = [prefabEn nextObject])) {
         int x = col * gridSize;
-        float y = NSHeight(visibleRect) - row * gridSize - gridSize;
+        float y = NSHeight(visibleRect) - (row + 1) * gridSize;
         
-        glViewport(x, y, gridSize, gridSize);
-        
-        BoundingBox* bounds = [prefab bounds];
-        Vector3f* size = [bounds size];
-        
-        float width = fmax([size x], [size y]);
-        float height = [size z];
-        float dist = fmax(width, height) / 2;
-        
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        gluPerspective(90, width / height, 10, 1000);
-        
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        gluLookAt(0,
-                  -dist - 30,
-                  0,
-                  0,
-                  0,
-                  0,
-                  0, 0, 1);
-        
-        if (prefab == draggedPrefab) {
-            [p setAngle:hAngle axis:[Vector3f zAxisPos]];
-            [v setFloat:[Vector3f xAxisPos]];
-            [p rotate:v];
-            [q setAngle:vAngle axis:v];
-            [p mul:q];
-        } else {
-            [p setAngle:0 axis:[Vector3f nullVector]];
-        }
+        Camera* camera = [cameras objectForKey:[prefab prefabId]];
+        [camera updateView:NSMakeRect(x, y, gridSize, gridSize)];
         
         NSEnumerator* entityEn = [[prefab entities] objectEnumerator];
         id <Entity> entity;
@@ -192,25 +199,21 @@ static int NUM_COLS = 5;
                     glEnable(GL_TEXTURE_2D);
                     glPolygonMode(GL_FRONT, GL_FILL);
                     glColor4f(0, 0, 0, 1);
-                    [self renderFace:face rotation:p];
+                    [self renderFace:face];
                     
                     glDisable(GL_TEXTURE_2D);
                     glPolygonMode(GL_FRONT, GL_LINE);
                     glColor4f(1, 1, 1, 0.5);
-                    [self renderFace:face rotation:p];
+                    [self renderFace:face];
                 }
             }
         }
         col++;
-        if (col == NUM_COLS) {
+        if (col == prefabsPerRow) {
             col = 0;
             row++;
         }
     }
-    
-    [q release];
-    [p release];
-    [v release];
     
     [[self openGLContext] flushBuffer];
 }
@@ -228,7 +231,12 @@ static int NUM_COLS = 5;
     [self setNeedsDisplay:YES];
 }
 
+- (void)setPrefabsPerRow:(int)thePrefabsPerRow {
+    prefabsPerRow = thePrefabsPerRow;
+    [self setNeedsDisplay:YES];
+}
 - (void)dealloc {
+    [cameras release];
     [glResources release];
     [super dealloc];
 }

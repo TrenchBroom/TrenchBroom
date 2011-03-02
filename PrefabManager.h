@@ -8,6 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
+extern NSString* const PrefabAdded;
+extern NSString* const PrefabRemoved;
+extern NSString* const PrefabKey;
 
 @interface PrefabManager : NSObject {
     @private

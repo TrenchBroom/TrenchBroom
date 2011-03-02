@@ -10,6 +10,7 @@
 
 @class Vector3f;
 @class Vector3i;
+@class Quaternion;
 @class Line3D;
 @class Plane3D;
 
@@ -17,6 +18,7 @@
     @private
     NSMutableArray* vector3fCache;
     NSMutableArray* vector3iCache;
+    NSMutableArray* quaternionCache;
     NSMutableArray* line3DCache;
     NSMutableArray* plane3DCache;
 }
@@ -28,6 +30,9 @@
 
 - (Vector3i *)vector3i;
 - (void)returnVector3i:(Vector3i *)vector;
+
+- (Quaternion *)quaternion;
+- (void)returnQuaternion:(Quaternion *)quaternion;
 
 - (Line3D *)line3D;
 - (void)returnLine3D:(Line3D *)line;

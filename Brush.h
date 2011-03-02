@@ -20,6 +20,7 @@
 - (id <Entity>)entity;
 
 - (NSArray *)faces;
+- (NSArray *)vertices;
 
 - (float *)flatColor;
 - (BoundingBox *)bounds;

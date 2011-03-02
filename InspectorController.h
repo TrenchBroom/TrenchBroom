@@ -27,6 +27,7 @@
     IBOutlet NSSegmentedControl* textureSortCriterionSC;
     IBOutlet SingleTextureView* singleTextureView;
     IBOutlet TextureView* textureView;
+    IBOutlet NSSlider* prefabsPerRowSlider;
     IBOutlet PrefabView* prefabView;
     MapWindowController* mapWindowController;
 }
@@ -43,6 +44,7 @@
 - (IBAction)textureNameFilterTextChanged:(id)sender;
 - (IBAction)textureUsageFilterChanged:(id)sender;
 - (IBAction)textureSortCriterionChanged:(id)sender;
+- (IBAction)prefabsPerRowChanged:(id)sender;
 
 - (void)textureSelected:(Texture *)texture;
 - (void)prefabSelected:(Prefab *)prefab;

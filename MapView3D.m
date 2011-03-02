@@ -111,13 +111,11 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 }
 
 - (void) drawRect:(NSRect)dirtyRect {
-    NSRect bounds = [self frame];
-    glViewport(bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);
-    
 	glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    [renderer updateView:bounds];
+    Camera* camera = [[[self window] windowController] camera];
+    [camera updateView:[self visibleRect]];
     [renderer render];
     
     [[self openGLContext] flushBuffer];

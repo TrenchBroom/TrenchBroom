@@ -11,11 +11,7 @@
 #import "Vector3f.h"
 #import "Quaternion.h"
 #import "Ray3D.h"
-
-static NSString* CameraDefaults = @"Camera";
-static NSString* CameraDefaultsFov = @"Field Of Vision";
-static NSString* CameraDefaultsNear = @"Near Clipping Plane";
-static NSString* CameraDefaultsFar = @"Far Clipping Plane";
+#import "MathCache.h"
 
 NSString* const CameraChanged = @"CameraChanged";
 
@@ -29,14 +25,34 @@ NSString* const CameraChanged = @"CameraChanged";
         right = [[Vector3f alloc] initWithFloatVector:direction];
         [right cross:up];
         [right normalize];
+    }
+    
+    return self;
+}
+
+- (id)initWithFieldOfVision:(float)theFov nearClippingPlane:(float)theNear farClippingPlane:(float)theFar {
+    if (self = [self init]) {
+        fov = theFov;
+        near = theNear;
+        far = theFar;
+    }
+    
+    return self;
+}
+
+- (id)initWithCamera:(Camera *)theCamera {
+    if (self = [self init]) {
+        [position setFloat:[theCamera position]];
+        [direction setFloat:[theCamera direction]];
+        [up setFloat:[theCamera up]];
         
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center addObserver:self 
-                   selector:@selector(userDefaultsChanged:) 
-                       name:NSUserDefaultsDidChangeNotification 
-                     object:[NSUserDefaults standardUserDefaults]];
-        
-        [self userDefaultsChanged:nil];
+        [right setFloat:direction];
+        [right cross:up];
+        [right normalize];
+
+        fov = [theCamera fieldOfVision];
+        near = [theCamera nearClippingPlane];
+        far = [theCamera farClippingPlane];
     }
     
     return self;
@@ -66,24 +82,34 @@ NSString* const CameraChanged = @"CameraChanged";
     return far;
 }
 
-- (void)userDefaultsChanged:(NSNotification *)notification {
-    NSDictionary* cameraDefaults = [[NSUserDefaults standardUserDefaults] dictionaryForKey:CameraDefaults];
-    if (cameraDefaults == nil)
-        return;
-    
-    fov = [[cameraDefaults objectForKey:CameraDefaultsFov] floatValue];
-    near = [[cameraDefaults objectForKey:CameraDefaultsNear] floatValue];
-    far = [[cameraDefaults objectForKey:CameraDefaultsFar] floatValue];
+- (void)moveTo:(Vector3f *)thePosition {
+    [position setFloat:thePosition];
+    [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
+}
 
+- (void)lookAt:(Vector3f *)thePoint {
+    [direction setFloat:thePoint];
+    [direction sub:position];
+    [direction normalize];
+
+    [right setFloat:direction];
+    [right cross:up];
+    [right normalize];
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
 - (void)rotateYaw:(float)yaw pitch:(float)pitch {
-    Quaternion* qy = [[Quaternion alloc] initWithAngle:yaw axis:up];
-    Quaternion* qp = [[Quaternion alloc] initWithAngle:pitch axis:right];
+    MathCache* cache = [MathCache sharedCache];
+    
+    Quaternion* qy = [cache quaternion];
+    Quaternion* qp = [cache quaternion];
+    [qy setAngle:yaw axis:up];
+    [qp setAngle:pitch axis:right];
     [qy mul:qp];
     
-    Vector3f*  t = [[Vector3f alloc] initWithFloatVector:direction];
+    Vector3f*  t = [cache vector3f];
+    [t setFloat:direction];
     [qy rotate:t];
     
     if (!(([t x] < 0 ^ [direction x] < 0) && ([t y] < 0 ^ [direction y] < 0))) {
@@ -94,13 +120,17 @@ NSString* const CameraChanged = @"CameraChanged";
 
         [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
     }
-    [t release];
-    [qy release];
-    [qp release];
+    
+    [cache returnVector3f:t];
+    [cache returnQuaternion:qy];
+    [cache returnQuaternion:qp];
 }
 
 - (void)moveForward:(float)f right:(float)r up:(float)u {
-    Vector3f* v = [[Vector3f alloc] initWithFloatVector:direction];
+    MathCache* cache = [MathCache sharedCache];
+    
+    Vector3f* v = [cache vector3f];
+    [v setFloat:direction];
     [v scale:f];
     [position add:v];
     
@@ -111,19 +141,25 @@ NSString* const CameraChanged = @"CameraChanged";
     [v setFloat:up];
     [v scale:u];
     [position add:v];
-    
-    [v release];
+
+    [cache returnVector3f:v];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
 - (void)orbitCenter:(Vector3f *)c hAngle:(float)h vAngle:(float)v {
-    Quaternion* qh = [[Quaternion alloc] initWithAngle:h axis:up];
-    Quaternion* qv = [[Quaternion alloc] initWithAngle:v axis:right];
+    MathCache* cache = [MathCache sharedCache];
+    
+    Quaternion* qh = [cache quaternion];
+    Quaternion* qv = [cache quaternion];
+    [qh setAngle:v axis:right];
+    [qv setAngle:h axis:up];
     [qh mul:qv];
     
-    Vector3f*  t = [[Vector3f alloc] initWithFloatVector:direction];
+    Vector3f*  t = [cache vector3f];
+    [t setFloat:direction];
     [qh rotate:t];
+    
     if (!(([t x] < 0 ^ [direction x] < 0) && ([t y] < 0 ^ [direction y] < 0))) {
         [direction setFloat:t];
         [right setFloat:direction];
@@ -136,10 +172,47 @@ NSString* const CameraChanged = @"CameraChanged";
         
         [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
     }
-    [t release];
-    [qh release];
-    [qv release];
+    
+    [cache returnVector3f:t];
+    [cache returnQuaternion:qh];
+    [cache returnQuaternion:qv];
 }
+
+- (void)setFieldOfVision:(float)theFov {
+    fov = theFov;
+    [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
+}
+
+- (void)setNearClippingPlane:(float)theNear {
+    near = theNear;
+    [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
+}
+
+- (void)setFarCliippingPlane:(float)theFar {
+    far = theFar;
+    [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
+}
+
+- (void)updateView:(NSRect)bounds {
+    glViewport(NSMinX(bounds), NSMinY(bounds), NSWidth(bounds), NSHeight(bounds));
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(fov, NSWidth(bounds) / NSHeight(bounds), near, far);
+    
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt([position x],
+              [position y],
+              [position z],
+              [position x] + [direction x],
+              [position y] + [direction y],
+              [position z] + [direction z],
+              [up x],
+              [up y],
+              [up z]);
+}
+
 
 - (Vector3f *)unprojectX:(float)x y:(float)y {
     static GLint viewport[4];

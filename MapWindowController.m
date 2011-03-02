@@ -28,10 +28,34 @@
 #import "Vector3f.h"
 #import "Vector3i.h"
 
+static NSString* CameraDefaults = @"Camera";
+static NSString* CameraDefaultsFov = @"Field Of Vision";
+static NSString* CameraDefaultsNear = @"Near Clipping Plane";
+static NSString* CameraDefaultsFar = @"Far Clipping Plane";
+
 @implementation MapWindowController
 
 - (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window {
     return [[self document] undoManager];
+}
+
+- (void)windowDidBecomeKey:(NSNotification *)notification {
+    InspectorController* inspector = [InspectorController sharedInspector];
+    [inspector setMapWindowController:self];
+}
+
+- (void)userDefaultsChanged:(NSNotification *)notification {
+    NSDictionary* cameraDefaults = [[NSUserDefaults standardUserDefaults] dictionaryForKey:CameraDefaults];
+    if (cameraDefaults == nil)
+        return;
+    
+    float fov = [[cameraDefaults objectForKey:CameraDefaultsFov] floatValue];
+    float near = [[cameraDefaults objectForKey:CameraDefaultsNear] floatValue];
+    float far = [[cameraDefaults objectForKey:CameraDefaultsFar] floatValue];
+    
+    [camera setFieldOfVision:fov];
+    [camera setNearClippingPlane:near];
+    [camera setFarCliippingPlane:far];
 }
 
 - (void)windowDidLoad {
@@ -43,6 +67,7 @@
     
     options = [[Options alloc] init];
     camera = [[Camera alloc] init];
+    [self userDefaultsChanged:nil];
     
     selectionManager = [[SelectionManager alloc] init];
     inputManager = [[InputManager alloc] initWithWindowController:self];
@@ -55,11 +80,7 @@
 
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification object:[self window]];
-}
-
-- (void)windowDidBecomeKey:(NSNotification *)notification {
-    InspectorController* inspector = [InspectorController sharedInspector];
-    [inspector setMapWindowController:self];
+    [center addObserver:self selector:@selector(userDefaultsChanged:) name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
 }
 
 - (Camera *)camera {
@@ -113,6 +134,8 @@
     } else if (action == @selector(rotateTextureRight:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
     } else if (action == @selector(duplicateSelection:)) {
+        return [selectionManager hasSelectedBrushes];
+    } else if (action == @selector(createPrefabFromSelection:)) {
         return [selectionManager hasSelectedBrushes];
     }
 
@@ -323,6 +346,9 @@
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Duplicate Selection"];
+}
+
+- (IBAction)createPrefabFromSelection:(id)sender {
 }
 
 - (void)insertPrefab:(Prefab *)prefab {

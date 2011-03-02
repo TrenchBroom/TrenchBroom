@@ -10,6 +10,10 @@
 #import "MapParser.h"
 #import "Prefab.h"
 
+NSString* const PrefabAdded = @"PrefabAdded";
+NSString* const PrefabRemoved = @"PrefabRemoved";
+NSString* const PrefabKey = @"Prefab";
+
 static PrefabManager* sharedInstance = nil;
 
 @implementation PrefabManager
@@ -104,6 +108,10 @@ static PrefabManager* sharedInstance = nil;
     
     [prefabs setObject:prefab forKey:prefabName];
     NSLog(@"Loaded prefab '%@'", prefabName);
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:PrefabAdded object:self userInfo:[NSDictionary dictionaryWithObject:prefab forKey:PrefabKey]];
+    
     [prefab release];
 }
 

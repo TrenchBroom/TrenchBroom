@@ -70,6 +70,7 @@ static InspectorController* sharedInstance = nil;
 
 - (void)windowDidLoad {
     [super windowDidLoad];
+    [self prefabsPerRowChanged:prefabsPerRowSlider];
 }
 
 - (void)updateTextureControls {
@@ -405,6 +406,10 @@ static InspectorController* sharedInstance = nil;
         [textureView setSortCriterion:SC_NAME];
     else
         [textureView setSortCriterion:SC_USAGE];
+}
+
+- (IBAction)prefabsPerRowChanged:(id)sender {
+    [prefabView setPrefabsPerRow:[prefabsPerRowSlider intValue]];
 }
 
 - (void)prefabSelected:(Prefab *)prefab {

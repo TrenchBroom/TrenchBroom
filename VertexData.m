@@ -308,6 +308,16 @@
     return YES;
 }
 
+- (NSArray *)vertices {
+    NSMutableArray* result = [[NSMutableArray alloc] initWithCapacity:[vertices count]];
+    NSEnumerator* vertexEn = [vertices objectEnumerator];
+    Vertex* vertex;
+    while ((vertex = [vertexEn nextObject]))
+        [result addObject:[vertex vector]];
+    
+    return [result autorelease];
+}
+
 - (BoundingBox *)bounds {
     if (bounds == nil) {
         NSEnumerator* vertexEn = [vertices objectEnumerator];

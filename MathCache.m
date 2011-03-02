@@ -9,6 +9,7 @@
 #import "MathCache.h"
 #import "Vector3f.h"
 #import "Vector3i.h"
+#import "Quaternion.h"
 #import "Line3D.h"
 #import "Plane3D.h"
 
@@ -58,6 +59,7 @@ static MathCache* sharedInstance = nil;
     if (self = [super init]) {
         vector3fCache = [[NSMutableArray alloc] init];
         vector3iCache = [[NSMutableArray alloc] init];
+        quaternionCache = [[NSMutableArray alloc] init];
         line3DCache = [[NSMutableArray alloc] init];
         plane3DCache = [[NSMutableArray alloc] init];
     }
@@ -97,6 +99,22 @@ static MathCache* sharedInstance = nil;
     [vector release];
 }
 
+- (Quaternion *)quaternion {
+    if ([quaternionCache count] == 0)
+        return [[Quaternion alloc] init];
+    
+    Quaternion* quaternion = [quaternionCache lastObject];
+    [quaternion retain];
+    [quaternionCache removeLastObject];
+    
+    return quaternion;
+}
+
+- (void)returnQuaternion:(Quaternion *)quaternion {
+    [quaternionCache addObject:quaternion];
+    [quaternion release];
+}
+
 - (Line3D *)line3D {
     if ([line3DCache count] == 0)
         return [[Line3D alloc] init];
@@ -132,6 +150,7 @@ static MathCache* sharedInstance = nil;
 - (void)dealloc {
     [vector3fCache release];
     [vector3iCache release];
+    [quaternionCache release];
     [line3DCache release];
     [plane3DCache release];
     [super dealloc];

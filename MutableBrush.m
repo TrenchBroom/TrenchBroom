@@ -109,6 +109,10 @@
     return faces;
 }
 
+- (NSArray *)vertices {
+    return [[self vertexData] vertices];
+}
+
 - (NSArray *)verticesForFace:(MutableFace *)face {
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];

@@ -15,13 +15,18 @@
 
 @interface Prefab : NSObject <Map> {
     @private
+    NSNumber* prefabId;
     NSMutableArray* entities;
     BoundingBox* bounds;
+    BoundingBox* maxBounds;
     Vector3f* center;
 }
+
+- (NSNumber *)prefabId;
 - (NSArray *)entities;
 
 - (void)translateToOrigin;
 - (BoundingBox *)bounds;
+- (BoundingBox *)maxBounds;
 - (Vector3f *)center;
 @end

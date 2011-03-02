@@ -26,6 +26,9 @@ extern NSString* const CameraChanged;
     float far;
 }
 
+- (id)initWithFieldOfVision:(float)theFov nearClippingPlane:(float)theNear farClippingPlane:(float)theFar;
+- (id)initWithCamera:(Camera *)theCamera;
+
 - (Vector3f *)position;
 - (Vector3f *)direction;
 - (Vector3f *)up;
@@ -33,11 +36,15 @@ extern NSString* const CameraChanged;
 - (float)nearClippingPlane;
 - (float)farClippingPlane;
 
+- (void)moveTo:(Vector3f *)thePosition;
+- (void)lookAt:(Vector3f *)thePoint;
 - (void)rotateYaw:(float)yaw pitch:(float)pitch;
 - (void)moveForward:(float)f right:(float)r up:(float)u;
 - (void)orbitCenter:(Vector3f *)c hAngle:(float)h vAngle:(float)v;
-
-- (void)userDefaultsChanged:(NSNotification *)notification;
+- (void)setFieldOfVision:(float)theFov;
+- (void)setNearClippingPlane:(float)theNear;
+- (void)setFarCliippingPlane:(float)theFar;
+- (void)updateView:(NSRect)bounds;
 
 - (Vector3f *)unprojectX:(float)x y:(float)y;
 - (Ray3D *)pickRayX:(float)x y:(float)y;

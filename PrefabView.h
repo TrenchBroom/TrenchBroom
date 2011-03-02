@@ -8,16 +8,18 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class Camera;
 @class Prefab;
 @class GLResources;
 
 @interface PrefabView : NSOpenGLView {
-    float gridSize;
+    NSMutableDictionary* cameras;
     Prefab* draggedPrefab;
-    float hAngle, vAngle;
     GLResources* glResources;
+    int prefabsPerRow;
 }
 
 - (void)setGLResources:(GLResources *)theGLResources;
+- (void)setPrefabsPerRow:(int)thePrefabsPerRow;
 
 @end

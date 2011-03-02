@@ -49,6 +49,7 @@
 - (IBAction)rotateTextureRight:(id)sender;
 
 - (IBAction)duplicateSelection:(id)sender;
+- (IBAction)createPrefabFromSelection:(id)sender;
 
 - (void)insertPrefab:(Prefab *)prefab;
 
