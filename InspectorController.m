@@ -70,6 +70,16 @@ static InspectorController* sharedInstance = nil;
 
 - (void)windowDidLoad {
     [super windowDidLoad];
+
+    MapDocument* map = [mapWindowController document];
+    GLResources* glResources = [map glResources];
+    NSOpenGLContext* context = [[NSOpenGLContext alloc] initWithFormat:[singleTextureView pixelFormat] shareContext:[glResources openGLContext]];
+    [singleTextureView setOpenGLContext:context];
+    [context release];
+    
+    [textureView setGLResources:glResources];
+    [prefabView setGLResources:glResources];
+
     [self prefabsPerRowChanged:prefabsPerRowSlider];
 }
 
@@ -257,6 +267,7 @@ static InspectorController* sharedInstance = nil;
         [center addObserver:self selector:@selector(faceChanged:) name:FaceTextureChanged object:map];
     } else {
         [textureView setGLResources:nil];
+        [prefabView setGLResources:nil];
     }
 
     [self updateTextureControls];

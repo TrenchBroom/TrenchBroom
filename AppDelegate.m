@@ -18,10 +18,11 @@
     srand(time(NULL));
     
     NSBundle* mainBundle = [NSBundle mainBundle];
-    NSString* bundlePath = [mainBundle bundlePath];
+    NSString* resourcePath = [mainBundle resourcePath];
+    NSString* prefabPath = [NSString pathWithComponents:[NSArray arrayWithObjects:resourcePath, @"Prefabs", nil]];
 
     PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-    [prefabManager loadPrefabsAtPath:bundlePath];
+    [prefabManager loadPrefabsAtPath:prefabPath readOnly:YES];
 }
 
 @end

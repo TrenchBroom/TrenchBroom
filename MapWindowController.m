@@ -27,6 +27,8 @@
 #import "Ray3D.h"
 #import "Vector3f.h"
 #import "Vector3i.h"
+#import "PrefabManager.h"
+#import "PrefabNameSheetController.h"
 
 static NSString* CameraDefaults = @"Camera";
 static NSString* CameraDefaultsFov = @"Field Of Vision";
@@ -348,7 +350,30 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [undoManager setActionName:@"Duplicate Selection"];
 }
 
+- (void)prefabNameSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
+    PrefabNameSheetController* pns = [sheet windowController];
+    /*
+    if (returnCode == NSOKButton) {
+        NSString* prefabName = [pns prefabName];
+        NSString* prefabGroup = [pns prefabGroup];
+        
+        PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
+        Prefab* prefab = [prefabManager createPrefabFromBrushTemplates:[selectionManager selectedBrushes] name:prefabName group:prefabGroup];
+        
+        NSUndoManager* undoManager = [[self document] undoManager];
+        [[undoManager prepareWithInvocationTarget:prefabManager] removePrefab:prefab];
+    }
+    */
+    [pns release];
+}
+
 - (IBAction)createPrefabFromSelection:(id)sender {
+    PrefabNameSheetController* pns = [[PrefabNameSheetController alloc] init];
+    NSWindow* prefabNameSheet = [pns window];
+    
+    NSApplication* app = [NSApplication sharedApplication];
+    [app beginSheet:prefabNameSheet modalForWindow:[self window] modalDelegate:self didEndSelector:@selector(prefabNameSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
+    
 }
 
 - (void)insertPrefab:(Prefab *)prefab {

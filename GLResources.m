@@ -20,6 +20,8 @@
         openGLContext = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
         [pixelFormat release];
 
+        [openGLContext makeCurrentContext];
+        
         fontManager = [[GLFontManager alloc] init];
         geometryVBO = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
         

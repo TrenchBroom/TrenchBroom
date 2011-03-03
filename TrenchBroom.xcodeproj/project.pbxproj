@@ -29,9 +29,8 @@
 		481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 481D300F12FAE5C0001CBD9E /* GLFontManager.m */; };
 		4824957B12F3004C004F3615 /* BoundingBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 4824957A12F3004C004F3615 /* BoundingBox.m */; };
 		482B817E13169EB200F36EF5 /* GLException.m in Sources */ = {isa = PBXBuildFile; fileRef = 482B817D13169EB200F36EF5 /* GLException.m */; };
-		4833C15C131953D300EB1B85 /* Prefab2.map in Resources */ = {isa = PBXBuildFile; fileRef = 4833C15B131953D300EB1B85 /* Prefab2.map */; };
 		4833C15F131953F600EB1B85 /* PrefabManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C15E131953F600EB1B85 /* PrefabManager.m */; };
-		4833C1BD13196CFB00EB1B85 /* Prefab.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C1BC13196CFB00EB1B85 /* Prefab.m */; };
+		4833C1BD13196CFB00EB1B85 /* MutablePrefab.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C1BC13196CFB00EB1B85 /* MutablePrefab.m */; };
 		4836401112603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
 		4836401212603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
 		4836401B1260416700363E3F /* Plane3DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401A1260416700363E3F /* Plane3DTestCase.m */; };
@@ -88,6 +87,10 @@
 		488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */ = {isa = PBXBuildFile; fileRef = 488C8EE012F6C3ED00F358E6 /* IntData.m */; };
 		488F0790130130580063E550 /* FaceFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F078F130130580063E550 /* FaceFigure.m */; };
 		488F07CE13013F9F0063E550 /* SelectionLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F07CD13013F9F0063E550 /* SelectionLayer.m */; };
+		488FEAF1131F9D1800010A04 /* MutablePrefabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */; };
+		488FEB5C131FC49A00010A04 /* PrefabLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB5B131FC49A00010A04 /* PrefabLayout.m */; };
+		488FEB64131FCBA700010A04 /* PrefabLayoutGroupRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB63131FCBA700010A04 /* PrefabLayoutGroupRow.m */; };
+		488FEB67131FD49C00010A04 /* PrefabLayoutPrefabCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB66131FD49C00010A04 /* PrefabLayoutPrefabCell.m */; };
 		4891E15612FC04B2007A3B93 /* InspectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4891E15512FC04B2007A3B93 /* InspectorController.m */; };
 		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
 		489FB43D12FA0A5B00B6BAF1 /* GLFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 489FB43C12FA0A5B00B6BAF1 /* GLFont.m */; };
@@ -103,6 +106,10 @@
 		48B324C112E1F455008748E2 /* Camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3243B12E1C6B8008748E2 /* Camera.m */; };
 		48B3256012E2D760008748E2 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 48B3255F12E2D760008748E2 /* Defaults.plist */; };
 		48B325E512E3788D008748E2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B325E412E3788D008748E2 /* AppDelegate.m */; };
+		48B5A18D131EE2DB0043FBD9 /* PrefabNameSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48B5A18C131EE2DB0043FBD9 /* PrefabNameSheet.xib */; };
+		48B5A19F131EE8FD0043FBD9 /* Prefab1.map in Copy Brush Prefabs */ = {isa = PBXBuildFile; fileRef = 48F0EDAB131AD9A70088FA02 /* Prefab1.map */; };
+		48B5A1A0131EE8FD0043FBD9 /* Prefab2.map in Copy Brush Prefabs */ = {isa = PBXBuildFile; fileRef = 4833C15B131953D300EB1B85 /* Prefab2.map */; };
+		48B5A1DB131EEE440043FBD9 /* PrefabNameSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */; };
 		48C3324413087D8600C23607 /* MenuDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C3324313087D8600C23607 /* MenuDelegate.m */; };
 		48C5137E12DB668A006240ED /* HalfSpace3DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C5137D12DB668A006240ED /* HalfSpace3DTestCase.m */; };
 		48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C751981261A704000ABD57 /* PolyhedronTestCase.m */; };
@@ -116,7 +123,6 @@
 		48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E400AE1315A7DA004642CD /* TextureUsageFilter.m */; };
 		48E4FFD613157C46004642CD /* Inspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48E4FFD513157C46004642CD /* Inspector.xib */; };
 		48F0EC52131A9CCD0088FA02 /* PrefabView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F0EC51131A9CCD0088FA02 /* PrefabView.m */; };
-		48F0EDAC131AD9A70088FA02 /* Prefab1.map in Resources */ = {isa = PBXBuildFile; fileRef = 48F0EDAB131AD9A70088FA02 /* Prefab1.map */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
 		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -132,6 +138,21 @@
 			remoteInfo = TrenchBroom;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		48B5A1AC131EE9020043FBD9 /* Copy Brush Prefabs */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Prefabs/Brushes;
+			dstSubfolderSpec = 7;
+			files = (
+				48B5A19F131EE8FD0043FBD9 /* Prefab1.map in Copy Brush Prefabs */,
+				48B5A1A0131EE8FD0043FBD9 /* Prefab2.map in Copy Brush Prefabs */,
+			);
+			name = "Copy Brush Prefabs";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		089C1660FE840EACC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -170,8 +191,8 @@
 		4833C15D131953F600EB1B85 /* PrefabManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabManager.h; sourceTree = "<group>"; };
 		4833C15E131953F600EB1B85 /* PrefabManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabManager.m; sourceTree = "<group>"; };
 		4833C174131964FF00EB1B85 /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
-		4833C1BB13196CFB00EB1B85 /* Prefab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Prefab.h; sourceTree = "<group>"; };
-		4833C1BC13196CFB00EB1B85 /* Prefab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Prefab.m; sourceTree = "<group>"; };
+		4833C1BB13196CFB00EB1B85 /* MutablePrefab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutablePrefab.h; sourceTree = "<group>"; };
+		4833C1BC13196CFB00EB1B85 /* MutablePrefab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutablePrefab.m; sourceTree = "<group>"; };
 		4836400F12603A5100363E3F /* Line3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line3D.h; sourceTree = "<group>"; };
 		4836401012603A5100363E3F /* Line3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line3D.m; sourceTree = "<group>"; };
 		483640191260416700363E3F /* Plane3DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane3DTestCase.h; sourceTree = "<group>"; };
@@ -272,6 +293,16 @@
 		488F078F130130580063E550 /* FaceFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceFigure.m; sourceTree = "<group>"; };
 		488F07CC13013F9F0063E550 /* SelectionLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionLayer.h; sourceTree = "<group>"; };
 		488F07CD13013F9F0063E550 /* SelectionLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectionLayer.m; sourceTree = "<group>"; };
+		488FEAEF131F9D1800010A04 /* MutablePrefabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutablePrefabGroup.h; sourceTree = "<group>"; };
+		488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutablePrefabGroup.m; sourceTree = "<group>"; };
+		488FEAF2131F9D7200010A04 /* PrefabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabGroup.h; sourceTree = "<group>"; };
+		488FEB08131FA02200010A04 /* Prefab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Prefab.h; sourceTree = "<group>"; };
+		488FEB5A131FC49A00010A04 /* PrefabLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabLayout.h; sourceTree = "<group>"; };
+		488FEB5B131FC49A00010A04 /* PrefabLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabLayout.m; sourceTree = "<group>"; };
+		488FEB62131FCBA700010A04 /* PrefabLayoutGroupRow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabLayoutGroupRow.h; sourceTree = "<group>"; };
+		488FEB63131FCBA700010A04 /* PrefabLayoutGroupRow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabLayoutGroupRow.m; sourceTree = "<group>"; };
+		488FEB65131FD49C00010A04 /* PrefabLayoutPrefabCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabLayoutPrefabCell.h; sourceTree = "<group>"; };
+		488FEB66131FD49C00010A04 /* PrefabLayoutPrefabCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabLayoutPrefabCell.m; sourceTree = "<group>"; };
 		4891E15412FC04B2007A3B93 /* InspectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorController.h; sourceTree = "<group>"; };
 		4891E15512FC04B2007A3B93 /* InspectorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectorController.m; sourceTree = "<group>"; };
 		48941664123619870098E17C /* Line2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2DTestCase.h; sourceTree = "<group>"; };
@@ -297,6 +328,9 @@
 		48B3255F12E2D760008748E2 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
 		48B325E312E3788D008748E2 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		48B325E412E3788D008748E2 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		48B5A18C131EE2DB0043FBD9 /* PrefabNameSheet.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PrefabNameSheet.xib; sourceTree = "<group>"; };
+		48B5A1D9131EEE440043FBD9 /* PrefabNameSheetController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabNameSheetController.h; sourceTree = "<group>"; };
+		48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabNameSheetController.m; sourceTree = "<group>"; };
 		48C3324213087D8600C23607 /* MenuDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuDelegate.h; sourceTree = "<group>"; };
 		48C3324313087D8600C23607 /* MenuDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MenuDelegate.m; sourceTree = "<group>"; };
 		48C5137C12DB668A006240ED /* HalfSpace3DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HalfSpace3DTestCase.h; sourceTree = "<group>"; };
@@ -387,6 +421,7 @@
 				48EEE9171153D936001A4D7C /* Test Cases */,
 				2A37F4ABFDCFA73011CA2CEA /* Classes */,
 				2A37F4AFFDCFA73011CA2CEA /* Other Sources */,
+				48F0EC32131A999E0088FA02 /* Prefabs */,
 				2A37F4B8FDCFA73011CA2CEA /* Resources */,
 				2A37F4C3FDCFA73011CA2CEA /* Frameworks */,
 				19C28FB0FE9D524F11CA2CBB /* Products */,
@@ -419,7 +454,6 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				48F0EC32131A999E0088FA02 /* Prefabs */,
 				48639BF312EA227100808576 /* QuakePalette.lmp */,
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
 				8D15AC360486D014006FF6A4 /* TrenchBroom-Info.plist */,
@@ -429,6 +463,7 @@
 				4814A02212F73F1E0082E05F /* ProgressWindow.xib */,
 				48B3255F12E2D760008748E2 /* Defaults.plist */,
 				48E4FFD513157C46004642CD /* Inspector.xib */,
+				48B5A18C131EE2DB0043FBD9 /* PrefabNameSheet.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -621,8 +656,12 @@
 				48A68F6E114EE6DC0064732A /* MapDocument.h */,
 				48A68F6F114EE6DC0064732A /* MapDocument.m */,
 				4833C174131964FF00EB1B85 /* Map.h */,
-				4833C1BB13196CFB00EB1B85 /* Prefab.h */,
-				4833C1BC13196CFB00EB1B85 /* Prefab.m */,
+				488FEB08131FA02200010A04 /* Prefab.h */,
+				4833C1BB13196CFB00EB1B85 /* MutablePrefab.h */,
+				4833C1BC13196CFB00EB1B85 /* MutablePrefab.m */,
+				488FEAF2131F9D7200010A04 /* PrefabGroup.h */,
+				488FEAEF131F9D1800010A04 /* MutablePrefabGroup.h */,
+				488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */,
 				48379C6B131B949A00F53DFA /* Brush.h */,
 				48379C6C131B956B00F53DFA /* Entity.h */,
 			);
@@ -651,6 +690,8 @@
 				48C3324313087D8600C23607 /* MenuDelegate.m */,
 				4833C15D131953F600EB1B85 /* PrefabManager.h */,
 				4833C15E131953F600EB1B85 /* PrefabManager.m */,
+				48B5A1D9131EEE440043FBD9 /* PrefabNameSheetController.h */,
+				48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -667,6 +708,10 @@
 				48A68ECE114E9B0D0064732A /* MapView3D.m */,
 				48F0EC50131A9CCD0088FA02 /* PrefabView.h */,
 				48F0EC51131A9CCD0088FA02 /* PrefabView.m */,
+				488FEB5A131FC49A00010A04 /* PrefabLayout.h */,
+				488FEB5B131FC49A00010A04 /* PrefabLayout.m */,
+				488FEB62131FCBA700010A04 /* PrefabLayoutGroupRow.h */,
+				488FEB63131FCBA700010A04 /* PrefabLayoutGroupRow.m */,
 				4818202112FB4746002D9AAD /* SingleTextureView.h */,
 				4818202212FB4746002D9AAD /* SingleTextureView.m */,
 				48E4006013159CE2004642CD /* TextureFilter.h */,
@@ -682,6 +727,8 @@
 				4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */,
 				4866F3BC12EACD2B009B345C /* TextureViewLayoutRow.h */,
 				4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */,
+				488FEB65131FD49C00010A04 /* PrefabLayoutPrefabCell.h */,
+				488FEB66131FD49C00010A04 /* PrefabLayoutPrefabCell.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -756,6 +803,7 @@
 				8D15AC2B0486D014006FF6A4 /* Resources */,
 				8D15AC300486D014006FF6A4 /* Sources */,
 				8D15AC330486D014006FF6A4 /* Frameworks */,
+				48B5A1AC131EE9020043FBD9 /* Copy Brush Prefabs */,
 			);
 			buildRules = (
 			);
@@ -812,8 +860,7 @@
 				48639BF412EA227100808576 /* QuakePalette.lmp in Resources */,
 				4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */,
 				48E4FFD613157C46004642CD /* Inspector.xib in Resources */,
-				4833C15C131953D300EB1B85 /* Prefab2.map in Resources */,
-				48F0EDAC131AD9A70088FA02 /* Prefab1.map in Resources */,
+				48B5A18D131EE2DB0043FBD9 /* PrefabNameSheet.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -944,9 +991,14 @@
 				48CBDD9913170B330041F704 /* GLResources.m in Sources */,
 				488089A61317A2F100823C27 /* RenderContext.m in Sources */,
 				4833C15F131953F600EB1B85 /* PrefabManager.m in Sources */,
-				4833C1BD13196CFB00EB1B85 /* Prefab.m in Sources */,
+				4833C1BD13196CFB00EB1B85 /* MutablePrefab.m in Sources */,
 				48F0EC52131A9CCD0088FA02 /* PrefabView.m in Sources */,
 				4809EE34131C3D9A00EB2EAB /* MathCache.m in Sources */,
+				48B5A1DB131EEE440043FBD9 /* PrefabNameSheetController.m in Sources */,
+				488FEAF1131F9D1800010A04 /* MutablePrefabGroup.m in Sources */,
+				488FEB5C131FC49A00010A04 /* PrefabLayout.m in Sources */,
+				488FEB64131FCBA700010A04 /* PrefabLayoutGroupRow.m in Sources */,
+				488FEB67131FD49C00010A04 /* PrefabLayoutPrefabCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

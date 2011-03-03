@@ -24,6 +24,13 @@
 #import "InspectorController.h"
 #import "Camera.h"
 #import "MathCache.h"
+#import "PrefabGroup.h"
+#import "PrefabLayout.h"
+#import "PrefabLayoutGroupRow.h"
+#import "PrefabLayoutPrefabCell.h"
+#import "GLFontManager.h"
+#import "GLFont.h"
+#import "GLString.h"
 
 @implementation PrefabView
 
@@ -58,13 +65,18 @@
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
     if (self = [super initWithCoder:aDecoder]) {
+        glStrings = [[NSMutableDictionary alloc] init];
         cameras = [[NSMutableDictionary alloc] init];
-
+        
         PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-        NSEnumerator* prefabEn = [[prefabManager prefabs] objectEnumerator];
-        Prefab* prefab;
-        while ((prefab = [prefabEn nextObject]))
-            [self addPrefab:prefab];
+        NSEnumerator* groupEn = [[prefabManager groups] objectEnumerator];
+        id <PrefabGroup> group;
+        while ((group = [groupEn nextObject])) {
+            NSEnumerator* prefabEn = [[group prefabs] objectEnumerator];
+            Prefab* prefab;
+            while ((prefab = [prefabEn nextObject]))
+                [self addPrefab:prefab];
+        }
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(prefabAdded:) name:PrefabAdded object:prefabManager];
@@ -82,10 +94,25 @@
 }
 
 - (void)reshape {
-    [super reshape];
+    NSRect frame = [self frame];
+    [layout setWidth:NSWidth(frame)];
+    
+    float h =  fmaxf([layout height], NSHeight([[self superview] bounds]));
+    
+    [[self superview] setNeedsDisplay:YES];
+    [self setFrameSize:NSMakeSize(NSWidth(frame), h)];
+    [self setNeedsDisplay:YES];
+}
+
+- (BOOL)isCameraModifierPressed:(NSEvent *)event {
+    return ([event modifierFlags] & NSShiftKeyMask) != 0;
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
+    if (![self isCameraModifierPressed:theEvent])
+        return;
+    
+    /*
     NSPoint clickPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
     
     NSRect visibleRect = [self visibleRect];
@@ -106,6 +133,7 @@
             [windowController prefabSelected:[prefabs objectAtIndex:index]];
         }
     }
+     */
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
@@ -117,10 +145,12 @@
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
-    Camera* camera = [cameras objectForKey:[draggedPrefab prefabId]];
-    [self resetCamera:camera forPrefab:draggedPrefab];
-    draggedPrefab = nil;
-    [self setNeedsDisplay:YES];
+    if (draggedPrefab != nil) {
+        Camera* camera = [cameras objectForKey:[draggedPrefab prefabId]];
+        [self resetCamera:camera forPrefab:draggedPrefab];
+        draggedPrefab = nil;
+        [self setNeedsDisplay:YES];
+    }
 }
 
 - (void)renderFace:(id <Face>)face {
@@ -162,15 +192,80 @@
     
     glFrontFace(GL_CW);
     glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.0, 1.0);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glShadeModel(GL_FLAT);
+    glEnable(GL_TEXTURE_2D);
     
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+//    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
+    NSEnumerator* groupRowEn = [[layout groupRows] objectEnumerator];
+    PrefabLayoutGroupRow* groupRow;
+    while ((groupRow = [groupRowEn nextObject])) {
+        NSRect nameBounds = [groupRow nameBounds];
+        id <PrefabGroup> prefabGroup = [groupRow prefabGroup];
+        GLString* groupNameString = [glStrings objectForKey:[prefabGroup name]];
+        if (groupNameString == nil) {
+            GLFont* glFont = [layout glFont];
+            groupNameString = [glFont glStringFor:[prefabGroup name]];
+            [glStrings setObject:groupNameString forKey:[prefabGroup name]];
+        }
+        
+        glViewport(NSMinX(visibleRect), NSMinY(visibleRect), NSWidth(visibleRect), NSHeight(visibleRect));
+        
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        gluOrtho2D(NSMinX(visibleRect), 
+                   NSMinX(visibleRect), 
+                   NSMaxX(visibleRect), 
+                   NSMaxY(visibleRect));
+        
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        gluLookAt(0, 0, 0.1, 0, 0, -1, 0, 1, 0);
+        
+        glDisable(GL_DEPTH_TEST);
+        glColor4f(1, 1, 1, 1);
+//        glTranslatef(NSMinX(nameBounds), NSMinY(nameBounds), 0);
+        [groupNameString render];
+        glEnable(GL_DEPTH_TEST);
+
+        NSEnumerator* cellEn = [[groupRow cells] objectEnumerator];
+        PrefabLayoutPrefabCell* cell;
+        while ((cell = [cellEn nextObject])) {
+            id <Prefab> prefab = [cell prefab];
+            NSRect prefabBounds = [cell prefabBounds];
+
+            Camera* camera = [cameras objectForKey:[prefab prefabId]];
+            [camera updateView:prefabBounds];
+            
+            NSEnumerator* entityEn = [[prefab entities] objectEnumerator];
+            id <Entity> entity;
+            while ((entity = [entityEn nextObject])) {
+                NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+                id <Brush> brush;
+                while ((brush = [brushEn nextObject])) {
+                    NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+                    id <Face> face;
+                    while ((face = [faceEn nextObject])) {
+                        glEnable(GL_TEXTURE_2D);
+                        glPolygonMode(GL_FRONT, GL_FILL);
+                        glColor4f(0, 0, 0, 1);
+                        [self renderFace:face];
+                        
+                        glDisable(GL_TEXTURE_2D);
+                        glPolygonMode(GL_FRONT, GL_LINE);
+                        glColor4f(1, 1, 1, 0.5);
+                        [self renderFace:face];
+                    }
+                }
+            }
+        }
+    }
+    
+    /*
     PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
     NSArray* prefabs = [prefabManager prefabs];
 
@@ -214,7 +309,7 @@
             row++;
         }
     }
-    
+    */
     [[self openGLContext] flushBuffer];
 }
 
@@ -223,9 +318,22 @@
     glResources = [theGLResources retain];
     
     if (glResources != nil) {
+        [glStrings removeAllObjects];
+        
         NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:[glResources openGLContext]];
         [self setOpenGLContext:sharingContext];
+        [sharingContext makeCurrentContext];
         [sharingContext release];
+
+        [layout release];
+
+        GLFontManager* fontManager = [glResources fontManager];
+        NSFont* font = [NSFont systemFontOfSize:13];
+        GLFont* glFont = [fontManager glFontFor:font];
+        PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
+
+        layout = [[PrefabLayout alloc] initWithPrefabManager:prefabManager prefabsPerRow:prefabsPerRow glFont:glFont];
+                  
     }
 
     [self setNeedsDisplay:YES];
@@ -233,11 +341,14 @@
 
 - (void)setPrefabsPerRow:(int)thePrefabsPerRow {
     prefabsPerRow = thePrefabsPerRow;
+    [layout setPrefabsPerRow:prefabsPerRow];
     [self setNeedsDisplay:YES];
 }
 - (void)dealloc {
+    [glStrings release];
     [cameras release];
     [glResources release];
+    [layout release];
     [super dealloc];
 }
 

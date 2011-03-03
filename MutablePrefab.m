@@ -6,7 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#import "Prefab.h"
+#import "MutablePrefab.h"
 #import "Map.h"
 #import "Brush.h"
 #import "MutableEntity.h"
@@ -15,8 +15,9 @@
 #import "Vector3f.h"
 #import "MathCache.h"
 #import "IdGenerator.h"
+#import "MutablePrefabGroup.h"
 
-@implementation Prefab
+@implementation MutablePrefab
 
 - (id)init {
     if (self = [super init]) {
@@ -27,8 +28,30 @@
     return self;
 }
 
+- (id)initWithName:(NSString *)theName group:(MutablePrefabGroup *)thePrefabGroup readOnly:(BOOL)isReadOnly {
+    if (self = [self init]) {
+        name = [theName retain];
+        prefabGroup = [thePrefabGroup retain];
+        readOnly = isReadOnly;
+    }
+    
+    return self;
+}
+
+- (NSString *)name {
+    return name;
+}
+
+- (id <PrefabGroup>)prefabGroup {
+    return prefabGroup;
+}
+
 - (NSNumber *)prefabId {
     return prefabId;
+}
+
+- (BOOL)readOnly {
+    return readOnly;
 }
 
 - (NSArray *)entities {
@@ -125,6 +148,11 @@
     return center;
 }
 
+- (void)setPrefabGroup:(MutablePrefabGroup *)thePrefabGroup {
+    [prefabGroup release];
+    prefabGroup = [thePrefabGroup retain];
+}
+
 - (void)translateToOrigin {
     if ([entities count] == 0)
         return;
@@ -150,12 +178,18 @@
     [offset release];
 }
 
+- (NSComparisonResult)compareByName:(MutablePrefab *)prefab {
+    return [name localizedCaseInsensitiveCompare:[prefab name]];
+}
+
 - (void)dealloc {
+    [prefabGroup release];
     [prefabId release];
     [entities release];
     [bounds release];
     [maxBounds release];
     [center release];
+    [name release];
     [super dealloc];
 }
 

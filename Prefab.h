@@ -2,31 +2,27 @@
 //  Prefab.h
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 26.02.11.
+//  Created by Kristian Duske on 03.03.11.
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Map.h"
 
-@protocol Map;
+@protocol PrefabGroup;
 @class BoundingBox;
-@class Vector3f;
 
-@interface Prefab : NSObject <Map> {
-    @private
-    NSNumber* prefabId;
-    NSMutableArray* entities;
-    BoundingBox* bounds;
-    BoundingBox* maxBounds;
-    Vector3f* center;
-}
+@protocol Prefab <NSObject>
 
+- (NSString *)name;
 - (NSNumber *)prefabId;
+- (BOOL)readOnly;
+- (id <PrefabGroup>)prefabGroup;
+
 - (NSArray *)entities;
 
-- (void)translateToOrigin;
 - (BoundingBox *)bounds;
 - (BoundingBox *)maxBounds;
-- (Vector3f *)center;
+
+- (NSComparisonResult)compareByName:(id <Prefab>)prefab;
+
 @end

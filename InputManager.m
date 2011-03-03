@@ -34,7 +34,7 @@
 }
 
 - (BOOL)isCameraModifierPressed:(NSEvent *)event {
-    return ([event modifierFlags] & NSAlternateKeyMask) != 0;
+    return ([event modifierFlags] & NSShiftKeyMask) != 0;
 }
 
 - (BOOL)isCameraOrbitModifierPressed:(NSEvent *)event {
