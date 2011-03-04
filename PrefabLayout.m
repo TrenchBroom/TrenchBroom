@@ -74,6 +74,19 @@
     return height;
 }
 
+- (id <Prefab>)prefabAt:(NSPoint)pos {
+    if (!valid)
+        [self validate];
+    
+    NSEnumerator* groupRowEn = [groupRows objectEnumerator];
+    PrefabLayoutGroupRow* groupRow;
+    while ((groupRow = [groupRowEn nextObject]))
+        if (NSPointInRect(pos, [groupRow bounds]))
+            return [groupRow prefabAt:(NSPoint)pos];
+    
+    return nil;
+}
+
 - (void)setPrefabsPerRow:(int)thePrefabsPerRow {
     prefabsPerRow = thePrefabsPerRow;
     valid = NO;

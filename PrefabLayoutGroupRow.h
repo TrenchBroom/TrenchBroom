@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @protocol PrefabGroup;
+@protocol Prefab;
 @class GLFont;
 
 @interface PrefabLayoutGroupRow : NSObject {
@@ -22,6 +23,8 @@
 
 - (id <PrefabGroup>)prefabGroup;
 - (NSArray *)cells;
+
+- (id <Prefab>)prefabAt:(NSPoint)pos;
 
 - (NSRect)nameBounds;
 - (NSRect)bounds;

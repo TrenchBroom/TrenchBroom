@@ -34,7 +34,7 @@
 
 @implementation PrefabView
 
-- (void)resetCamera:(Camera *)camera forPrefab:(Prefab *)prefab {
+- (void)resetCamera:(Camera *)camera forPrefab:(id <Prefab>)prefab {
     BoundingBox* maxBounds = [prefab maxBounds];
     Vector3f* size = [maxBounds size];
 
@@ -49,7 +49,7 @@
     [cache returnVector3f:position];
 }
 
-- (void)addPrefab:(Prefab *)prefab {
+- (void)addPrefab:(id <Prefab>)prefab {
     Camera* camera = [[Camera alloc] initWithFieldOfVision:90 nearClippingPlane:10 farClippingPlane:1000];
     [self resetCamera:camera forPrefab:prefab];
 
@@ -59,12 +59,13 @@
 
 - (void)prefabAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    Prefab* prefab = [userInfo objectForKey:PrefabKey];
+    id <Prefab> prefab = [userInfo objectForKey:PrefabKey];
     [self addPrefab:prefab];
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
     if (self = [super initWithCoder:aDecoder]) {
+        prefabsPerRow = 1;
         glStrings = [[NSMutableDictionary alloc] init];
         cameras = [[NSMutableDictionary alloc] init];
         
@@ -73,7 +74,7 @@
         id <PrefabGroup> group;
         while ((group = [groupEn nextObject])) {
             NSEnumerator* prefabEn = [[group prefabs] objectEnumerator];
-            Prefab* prefab;
+            id <Prefab> prefab;
             while ((prefab = [prefabEn nextObject]))
                 [self addPrefab:prefab];
         }
@@ -94,14 +95,16 @@
 }
 
 - (void)reshape {
-    NSRect frame = [self frame];
-    [layout setWidth:NSWidth(frame)];
-    
-    float h =  fmaxf([layout height], NSHeight([[self superview] bounds]));
-    
-    [[self superview] setNeedsDisplay:YES];
-    [self setFrameSize:NSMakeSize(NSWidth(frame), h)];
-    [self setNeedsDisplay:YES];
+    if (layout != nil) {
+        NSRect frame = [self frame];
+        [layout setWidth:NSWidth(frame)];
+        
+        float h =  fmaxf([layout height], NSHeight([[self superview] bounds]));
+        
+        [[self superview] setNeedsDisplay:YES];
+        [self setFrameSize:NSMakeSize(NSWidth(frame), h)];
+        [self setNeedsDisplay:YES];
+    }
 }
 
 - (BOOL)isCameraModifierPressed:(NSEvent *)event {
@@ -112,28 +115,9 @@
     if (![self isCameraModifierPressed:theEvent])
         return;
     
-    /*
     NSPoint clickPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-    
-    NSRect visibleRect = [self visibleRect];
-    float gridSize = NSWidth(visibleRect) / prefabsPerRow;
-    
-    int col = clickPoint.x / gridSize;
-    int row = clickPoint.y / gridSize;
-    int index = row * prefabsPerRow + col;
-    
-    PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-    NSArray* prefabs = [prefabManager prefabs];
-
-    if (index < [prefabs count]) {
-        if ([theEvent clickCount] == 1) {
-            draggedPrefab = [prefabs objectAtIndex:index];
-        } else {
-            id windowController = [[self window] windowController];
-            [windowController prefabSelected:[prefabs objectAtIndex:index]];
-        }
-    }
-     */
+    if ([theEvent clickCount] == 1)
+        draggedPrefab = [layout prefabAt:clickPoint];
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
@@ -187,6 +171,8 @@
 - (void)drawRect:(NSRect)dirtyRect {
     NSRect visibleRect = [self visibleRect];
     
+    NSLog(@"%f, %f, %f, %f", NSMinX(visibleRect), NSMinY(visibleRect), NSWidth(visibleRect), NSHeight(visibleRect));
+    
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
@@ -199,12 +185,12 @@
     glShadeModel(GL_FLAT);
     glEnable(GL_TEXTURE_2D);
     
-//    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
     NSEnumerator* groupRowEn = [[layout groupRows] objectEnumerator];
     PrefabLayoutGroupRow* groupRow;
     while ((groupRow = [groupRowEn nextObject])) {
-        NSRect nameBounds = [groupRow nameBounds];
+        /*
         id <PrefabGroup> prefabGroup = [groupRow prefabGroup];
         GLString* groupNameString = [glStrings objectForKey:[prefabGroup name]];
         if (groupNameString == nil) {
@@ -232,14 +218,16 @@
         [groupNameString render];
         glEnable(GL_DEPTH_TEST);
 
+         */
         NSEnumerator* cellEn = [[groupRow cells] objectEnumerator];
         PrefabLayoutPrefabCell* cell;
         while ((cell = [cellEn nextObject])) {
             id <Prefab> prefab = [cell prefab];
             NSRect prefabBounds = [cell prefabBounds];
-
+            NSRect cameraBounds = NSMakeRect(NSMinX(prefabBounds), NSHeight(visibleRect) - NSMinY(prefabBounds) - NSHeight(prefabBounds) + NSMinY(visibleRect), NSWidth(prefabBounds), NSHeight(prefabBounds));
+            
             Camera* camera = [cameras objectForKey:[prefab prefabId]];
-            [camera updateView:prefabBounds];
+            [camera updateView:cameraBounds];
             
             NSEnumerator* entityEn = [[prefab entities] objectEnumerator];
             id <Entity> entity;
@@ -336,13 +324,13 @@
                   
     }
 
-    [self setNeedsDisplay:YES];
+    [self reshape];
 }
 
 - (void)setPrefabsPerRow:(int)thePrefabsPerRow {
     prefabsPerRow = thePrefabsPerRow;
     [layout setPrefabsPerRow:prefabsPerRow];
-    [self setNeedsDisplay:YES];
+    [self reshape];
 }
 - (void)dealloc {
     [glStrings release];

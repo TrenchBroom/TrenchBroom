@@ -10,6 +10,7 @@
 
 @class PrefabManager;
 @class GLFont;
+@protocol Prefab;
 
 @interface PrefabLayout : NSObject {
     @private
@@ -30,6 +31,8 @@
 - (GLFont *)glFont;
 - (NSArray *)groupRows;
 - (float)height;
+
+- (id <Prefab>)prefabAt:(NSPoint)pos;
 
 - (void)setPrefabsPerRow:(int)thePrefabsPerRow;
 - (void)setWidth:(float)width;

@@ -8,14 +8,14 @@
 
 #import <Cocoa/Cocoa.h>
 
+@protocol Prefab;
 @class Camera;
-@class Prefab;
 @class GLResources;
 @class PrefabLayout;
 
 @interface PrefabView : NSOpenGLView {
     NSMutableDictionary* cameras;
-    Prefab* draggedPrefab;
+    id <Prefab> draggedPrefab;
     GLResources* glResources;
     PrefabLayout* layout;
     int prefabsPerRow;

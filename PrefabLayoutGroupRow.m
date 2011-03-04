@@ -61,6 +61,15 @@
     return cells;
 }
 
+- (id <Prefab>)prefabAt:(NSPoint)pos {
+    NSEnumerator* cellEn = [cells objectEnumerator];
+    PrefabLayoutPrefabCell* cell;
+    while ((cell = [cellEn nextObject]))
+        if (NSPointInRect(pos, [cell prefabBounds]))
+            return [cell prefab];
+    return nil;
+}
+
 - (NSRect)nameBounds {
     return nameBounds;
 }
