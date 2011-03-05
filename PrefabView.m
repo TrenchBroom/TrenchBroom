@@ -171,8 +171,6 @@
 - (void)drawRect:(NSRect)dirtyRect {
     NSRect visibleRect = [self visibleRect];
     
-    NSLog(@"%f, %f, %f, %f", NSMinX(visibleRect), NSMinY(visibleRect), NSWidth(visibleRect), NSHeight(visibleRect));
-    
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
@@ -190,35 +188,6 @@
     NSEnumerator* groupRowEn = [[layout groupRows] objectEnumerator];
     PrefabLayoutGroupRow* groupRow;
     while ((groupRow = [groupRowEn nextObject])) {
-        /*
-        id <PrefabGroup> prefabGroup = [groupRow prefabGroup];
-        GLString* groupNameString = [glStrings objectForKey:[prefabGroup name]];
-        if (groupNameString == nil) {
-            GLFont* glFont = [layout glFont];
-            groupNameString = [glFont glStringFor:[prefabGroup name]];
-            [glStrings setObject:groupNameString forKey:[prefabGroup name]];
-        }
-        
-        glViewport(NSMinX(visibleRect), NSMinY(visibleRect), NSWidth(visibleRect), NSHeight(visibleRect));
-        
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        gluOrtho2D(NSMinX(visibleRect), 
-                   NSMinX(visibleRect), 
-                   NSMaxX(visibleRect), 
-                   NSMaxY(visibleRect));
-        
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        gluLookAt(0, 0, 0.1, 0, 0, -1, 0, 1, 0);
-        
-        glDisable(GL_DEPTH_TEST);
-        glColor4f(1, 1, 1, 1);
-//        glTranslatef(NSMinX(nameBounds), NSMinY(nameBounds), 0);
-        [groupNameString render];
-        glEnable(GL_DEPTH_TEST);
-
-         */
         NSEnumerator* cellEn = [[groupRow cells] objectEnumerator];
         PrefabLayoutPrefabCell* cell;
         while ((cell = [cellEn nextObject])) {
@@ -253,51 +222,65 @@
         }
     }
     
-    /*
-    PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-    NSArray* prefabs = [prefabManager prefabs];
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    glPolygonMode(GL_FRONT, GL_FILL);
 
-    float gridSize = NSWidth(visibleRect) / prefabsPerRow;
-    int row = 0;
-    int col = 0;
+    glViewport(NSMinX(visibleRect), NSMinY(visibleRect), NSWidth(visibleRect), NSHeight(visibleRect));
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(NSMinX(visibleRect), 
+               NSMaxX(visibleRect), 
+               NSMaxY(visibleRect), 
+               NSMinY(visibleRect));
+    
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(0, 0, 1, 0, 0, -1, 0, 1, 0);
+    
+    glDisable(GL_DEPTH_TEST);
 
-    NSEnumerator* prefabEn = [prefabs objectEnumerator];
-    Prefab* prefab;
-    while ((prefab = [prefabEn nextObject])) {
-        int x = col * gridSize;
-        float y = NSHeight(visibleRect) - (row + 1) * gridSize;
-        
-        Camera* camera = [cameras objectForKey:[prefab prefabId]];
-        [camera updateView:NSMakeRect(x, y, gridSize, gridSize)];
-        
-        NSEnumerator* entityEn = [[prefab entities] objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
-            NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-            id <Brush> brush;
-            while ((brush = [brushEn nextObject])) {
-                NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-                id <Face> face;
-                while ((face = [faceEn nextObject])) {
-                    glEnable(GL_TEXTURE_2D);
-                    glPolygonMode(GL_FRONT, GL_FILL);
-                    glColor4f(0, 0, 0, 1);
-                    [self renderFace:face];
-                    
-                    glDisable(GL_TEXTURE_2D);
-                    glPolygonMode(GL_FRONT, GL_LINE);
-                    glColor4f(1, 1, 1, 0.5);
-                    [self renderFace:face];
-                }
-            }
+    groupRowEn = [[layout groupRows] objectEnumerator];
+    while ((groupRow = [groupRowEn nextObject])) {
+        id <PrefabGroup> prefabGroup = [groupRow prefabGroup];
+        GLString* groupNameString = [glStrings objectForKey:[prefabGroup prefabGroupId]];
+        if (groupNameString == nil) {
+            GLFont* glFont = [layout glFont];
+            groupNameString = [glFont glStringFor:[prefabGroup name]];
+            [glStrings setObject:groupNameString forKey:[prefabGroup prefabGroupId]];
         }
-        col++;
-        if (col == prefabsPerRow) {
-            col = 0;
-            row++;
+        
+        glPushMatrix();
+        NSRect titleBounds = [groupRow titleBounds];
+        NSRect titleBarBounds = [groupRow titleBarBounds];
+
+        glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+        glRectf(NSMinX(titleBarBounds), NSMinY(titleBarBounds), NSMaxX(titleBarBounds), NSMaxY(titleBarBounds));
+        
+        glTranslatef(NSMinX(titleBounds), NSMinY(titleBounds), 0);
+        glColor4f(1, 1, 1, 1);
+        [groupNameString render];
+        glPopMatrix();
+        
+        NSEnumerator* cellEn = [[groupRow cells] objectEnumerator];
+        PrefabLayoutPrefabCell* cell;
+        while ((cell = [cellEn nextObject])) {
+            id <Prefab> prefab = [cell prefab];
+            GLString* prefabNameString = [glStrings objectForKey:[prefab prefabId]];
+            if (prefabNameString == nil) {
+                GLFont* glFont = [layout glFont];
+                prefabNameString = [glFont glStringFor:[prefab name]];
+                [glStrings setObject:prefabNameString forKey:[prefab prefabId]];
+            }
+            
+            glPushMatrix();
+            NSRect nameBounds = [cell nameBounds];
+            glTranslatef(NSMinX(nameBounds), NSMinY(nameBounds), 0);
+            glColor4f(1, 1, 1, 1);
+            [prefabNameString render];
+            glPopMatrix();
         }
     }
-    */
+
     [[self openGLContext] flushBuffer];
 }
 

@@ -9,9 +9,9 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PrefabNameSheetController : NSWindowController {
+@interface PrefabNameSheetController : NSWindowController <NSComboBoxDataSource> {
     IBOutlet NSTextField* prefabNameField;
-    IBOutlet NSTextField* prefabGroupField;
+    IBOutlet NSComboBox* prefabGroupField;
 }
 
 - (IBAction)createPrefabClicked:(id)sender;

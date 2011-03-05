@@ -26,10 +26,11 @@
     if (self = [self init]) {
         prefabGroup = [thePrefabGroup retain];
         NSSize nameSize = [theGLFont sizeOfString:[prefabGroup name]];
-        nameBounds = NSMakeRect(thePos.x, thePos.y, nameSize.width, nameSize.height);
+        titleBarBounds = NSMakeRect(thePos.x, thePos.y, theWidth, nameSize.height + 4);
+        titleBounds = NSMakeRect(thePos.x + 4, thePos.y + 2, nameSize.width, nameSize.height);
 
         float x = thePos.x;
-        float y = thePos.y + nameSize.height + innerMargin;
+        float y = NSMaxY(titleBarBounds) + innerMargin;
         float cellWidth = theWidth / thePrefabsPerRow - (thePrefabsPerRow - 1) * innerMargin;
         
         NSArray* prefabs = [prefabGroup prefabs];
@@ -70,8 +71,12 @@
     return nil;
 }
 
-- (NSRect)nameBounds {
-    return nameBounds;
+- (NSRect)titleBarBounds {
+    return titleBarBounds;
+}
+
+- (NSRect)titleBounds {
+    return titleBounds;
 }
 
 - (NSRect)bounds {

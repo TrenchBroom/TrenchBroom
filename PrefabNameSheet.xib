@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="2"/>
+			<integer value="15"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -202,6 +202,9 @@
 												<reference key="NSTextColor" ref="1029626870"/>
 												<int key="NSVisibleItemCount">5</int>
 												<bool key="NSHasVerticalScroller">YES</bool>
+												<bool key="NSUsesDataSource">YES</bool>
+												<bool key="NSCompletes">YES</bool>
+												<nil key="NSDataSource"/>
 												<reference key="NSDelegate" ref="1063783828"/>
 												<object class="NSComboTableView" key="NSTableView" id="509930653">
 													<reference key="NSNextResponder"/>
@@ -267,7 +270,6 @@
 													<string key="NSAction">tableViewAction:</string>
 													<int key="NSTvFlags">-767524864</int>
 													<reference key="NSDelegate" ref="579130941"/>
-													<reference key="NSDataSource" ref="579130941"/>
 													<reference key="NSTarget" ref="579130941"/>
 													<int key="NSColumnAutoresizingStyle">1</int>
 													<int key="NSDraggingSourceMaskForLocal">15</int>
@@ -276,6 +278,7 @@
 													<int key="NSTableViewDraggingDestinationStyle">0</int>
 												</object>
 											</object>
+											<nil key="NSDataSource"/>
 										</object>
 									</object>
 									<string key="NSFrame">{{1, 1}, {330, 100}}</string>
@@ -357,6 +360,14 @@
 						<reference key="destination" ref="262412423"/>
 					</object>
 					<int key="connectionID">28</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">dataSource</string>
+						<reference key="source" ref="1063783828"/>
+						<reference key="destination" ref="1001"/>
+					</object>
+					<int key="connectionID">29</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -542,9 +553,9 @@
 				</object>
 				<object class="NSMutableArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
-					<string>{{899, 809}, {366, 176}}</string>
+					<string>{{379, 639}, {366, 176}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{899, 809}, {366, 176}}</string>
+					<string>{{379, 639}, {366, 176}}</string>
 					<boolean value="NO"/>
 					<string>{196, 240}</string>
 					<string>{{202, 428}, {480, 270}}</string>
@@ -605,7 +616,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">28</int>
+			<int key="maxID">29</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -654,7 +665,7 @@
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSTextField</string>
+							<string>NSComboBox</string>
 							<string>NSTextField</string>
 						</object>
 					</object>
@@ -669,7 +680,7 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<object class="IBToOneOutletInfo">
 								<string key="name">prefabGroupField</string>
-								<string key="candidateClassName">NSTextField</string>
+								<string key="candidateClassName">NSComboBox</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">prefabNameField</string>

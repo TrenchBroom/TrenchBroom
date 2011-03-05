@@ -14,7 +14,8 @@
 
 @interface PrefabLayoutGroupRow : NSObject {
     id <PrefabGroup> prefabGroup;
-    NSRect nameBounds;
+    NSRect titleBarBounds;
+    NSRect titleBounds;
     NSRect bounds;
     NSMutableArray* cells;
 }
@@ -26,7 +27,8 @@
 
 - (id <Prefab>)prefabAt:(NSPoint)pos;
 
-- (NSRect)nameBounds;
+- (NSRect)titleBarBounds;
+- (NSRect)titleBounds;
 - (NSRect)bounds;
 
 @end

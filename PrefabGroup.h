@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@protocol PrefabGroup <NSObject>
+@protocol PrefabGroup <NSObject, NSCopying>
 
 - (NSNumber *)prefabGroupId;
 - (NSString *)name;

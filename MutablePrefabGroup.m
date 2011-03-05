@@ -29,6 +29,14 @@
     return self;
 }
 
+- (id)copyWithZone:(NSZone *)zone {
+    MutablePrefabGroup* copy = [[MutablePrefabGroup allocWithZone:zone] initWithName:name];
+    copy->prefabGroupId = [prefabGroupId retain];
+    [copy->prefabs release];
+    copy->prefabs = [prefabs retain];
+    return copy;
+}
+
 - (NSNumber *)prefabGroupId {
     return prefabGroupId;
 }
@@ -74,6 +82,10 @@
 
 - (NSComparisonResult)compareByName:(id <PrefabGroup>)prefabGroup {
     return [name localizedCaseInsensitiveCompare:[prefabGroup name]];
+}
+
+- (NSString *)description {
+    return name;
 }
 
 - (void)dealloc {

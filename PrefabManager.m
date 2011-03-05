@@ -102,7 +102,7 @@ static PrefabManager* sharedInstance = nil;
                     
                     NSData* prefabData = [NSData dataWithContentsOfMappedFile:prefabPath];
                     id <PrefabGroup> prefabGroup = [self prefabGroupWithName:groupName create:YES];
-                    [self createPrefabFromData:prefabData name:prefabName group:prefabGroup readOnly:readOnly];
+                    [self createPrefabFromData:prefabData name:[prefabName stringByDeletingPathExtension] group:prefabGroup readOnly:readOnly];
                 }
             }
         }
