@@ -14,8 +14,9 @@
 
 - (id)init {
     if (self = [super init]) {
-        prefabGroupId = [[IdGenerator sharedGenerator] getId];
+        prefabGroupId = [[[IdGenerator sharedGenerator] getId] retain];
         prefabs = [[NSMutableArray alloc] init];
+        nameToPrefab = [[NSMutableDictionary alloc] init];
     }
     
     return self;
@@ -64,19 +65,29 @@
     return prefabs;
 }
 
+- (id <Prefab>) prefabWithName:(NSString *)prefabName {
+    return [nameToPrefab objectForKey:[prefabName lowercaseString]];
+}
+
 - (void)setName:(NSString *)theName {
     [name release];
     name = [theName retain];
 }
 
 - (void)addPrefab:(MutablePrefab *)thePrefab {
+    NSString* prefabName = [[thePrefab name] lowercaseString];
+    if ([nameToPrefab objectForKey:prefabName] != nil)
+        return;
+    
     [prefabs addObject:thePrefab];
+    [nameToPrefab setObject:thePrefab forKey:prefabName];
     [thePrefab setPrefabGroup:self];
     sorted = NO;
 }
 
 - (void)removePrefab:(MutablePrefab *)thePrefab {
     [thePrefab setPrefabGroup:nil];
+    [nameToPrefab removeObjectForKey:[[thePrefab name] lowercaseString]];
     [prefabs removeObject:thePrefab];
 }
 
@@ -92,6 +103,7 @@
     [prefabGroupId release];
     [name release];
     [prefabs release];
+    [nameToPrefab release];
     [super dealloc];
 }
 

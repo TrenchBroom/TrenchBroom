@@ -9,10 +9,14 @@
 #import <Cocoa/Cocoa.h>
 
 @class MutableEntity;
+@protocol Entity;
 
 @protocol Map <NSObject>
 
 - (void)addEntity:(MutableEntity *)theEntity;
 - (void)removeEntity:(MutableEntity *)theEntity;
+
+- (id <Entity>)worldspawn;
+- (NSArray *)entities;
 
 @end

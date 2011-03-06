@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "PrefabManager.h"
+#import "NSFileManager+AppSupportCategory.h"
 
 @implementation AppDelegate
 
@@ -19,10 +20,19 @@
     
     NSBundle* mainBundle = [NSBundle mainBundle];
     NSString* resourcePath = [mainBundle resourcePath];
-    NSString* prefabPath = [NSString pathWithComponents:[NSArray arrayWithObjects:resourcePath, @"Prefabs", nil]];
+    NSString* builtinPrefabPath = [NSString pathWithComponents:[NSArray arrayWithObjects:resourcePath, @"Prefabs", nil]];
 
     PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-    [prefabManager loadPrefabsAtPath:prefabPath readOnly:YES];
+    [prefabManager loadPrefabsAtPath:builtinPrefabPath readOnly:YES];
+
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    NSString* appSupportPath = [fileManager findApplicationSupportFolder];
+    
+    NSString* userPrefabPath = [NSString pathWithComponents:[NSArray arrayWithObjects:appSupportPath, @"Prefabs", nil]];
+    BOOL directory;
+    BOOL exists = [fileManager fileExistsAtPath:userPrefabPath isDirectory:&directory];
+    if (exists && directory)
+        [prefabManager loadPrefabsAtPath:userPrefabPath readOnly:NO];
 }
 
 @end

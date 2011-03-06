@@ -41,7 +41,7 @@
 - (void)validate {
     [groupRows removeAllObjects];
     
-    NSEnumerator* groupEn = [[prefabManager groups] objectEnumerator];
+    NSEnumerator* groupEn = [[prefabManager prefabGroups] objectEnumerator];
     id <PrefabGroup> group;
     int y = outerMargin;
     
@@ -89,11 +89,15 @@
 
 - (void)setPrefabsPerRow:(int)thePrefabsPerRow {
     prefabsPerRow = thePrefabsPerRow;
-    valid = NO;
+    [self invalidate];
 }
 
 - (void)setWidth:(float)theWidth {
     width = theWidth;
+    [self invalidate];
+}
+
+- (void)invalidate {
     valid = NO;
 }
 

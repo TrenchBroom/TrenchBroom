@@ -15,36 +15,22 @@
 
 - (NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox {
     PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-    return [[prefabManager groups] count];
+    return [[prefabManager prefabGroups] count];
 }
 
 - (id)comboBox:(NSComboBox *)aComboBox objectValueForItemAtIndex:(NSInteger)index {
     PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-    return [[prefabManager groups] objectAtIndex:index];
+    return [[prefabManager prefabGroups] objectAtIndex:index];
 }
 
 - (NSString *)comboBox:(NSComboBox *)aComboBox completedString:(NSString *)string {
-    NSString* lowercaseString = [string lowercaseString];
     PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-    NSEnumerator* groupEn = [[prefabManager groups] objectEnumerator];
-    id <PrefabGroup> group;
-    while ((group = [groupEn nextObject]))
-        if ([[[group name] lowercaseString] hasPrefix:lowercaseString])
-            return [group name];
-    return nil;
+    return [[prefabManager prefabGroupWithNamePrefix:string] name];
 }
 
 - (NSUInteger)comboBox:(NSComboBox *)aComboBox indexOfItemWithStringValue:(NSString *)string {
     PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-    NSEnumerator* groupEn = [[prefabManager groups] objectEnumerator];
-    id <PrefabGroup> group;
-    int index = 0;
-    while ((group = [groupEn nextObject])) {
-        if ([[group name] isEqualToString:string])
-            return index;
-        index++;
-    }
-    return NSNotFound;
+    return [prefabManager indexOfPrefabGroupWithName:string];
 }
 
 - (NSString *)windowNibName {
@@ -63,11 +49,62 @@
     [app endSheet:[self window] returnCode:NSCancelButton];
 }
 
-- (NSString *)prefabName {
-    return [prefabNameField stringValue];
+- (void)validate {
+    [prefabNameField setTextColor:[NSColor textColor]];
+    [prefabGroupField setTextColor:[NSColor textColor]];
+    [errorLabel setStringValue:@""];
+    [createButton setEnabled:YES];
+    
+    NSString* prefabName = [self prefabName];
+    NSString* prefabGroupName = [self prefabGroup];
+    
+    if ([prefabName length] == 0) {
+        [prefabNameField setTextColor:[NSColor redColor]];
+        [errorLabel setStringValue:@"Enter a prefab name."];
+        [createButton setEnabled:NO];
+        return;
+    }
+    
+    if ([prefabGroupName length] == 0) {
+        [prefabGroupField setTextColor:[NSColor redColor]];
+        [errorLabel setStringValue:@"Enter a prefab group name."];
+        [createButton setEnabled:NO];
+        return;
+    }
+    
+    PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
+    id <PrefabGroup> group = [prefabManager prefabGroupWithName:prefabGroupName create:NO];
+    if (group != nil) {
+        id <Prefab> prefab = [group prefabWithName:prefabName];
+        if (prefab != nil) {
+            [prefabNameField setTextColor:[NSColor redColor]];
+            [errorLabel setStringValue:@"A prefab with this name exists."];
+            [createButton setEnabled:NO];
+            return;
+        }
+    }
 }
+
+- (void)controlTextDidChange:(NSNotification *)notification {
+    [self validate];
+}
+
+- (void)comboBoxSelectionDidChange:(NSNotification *)notification {
+    NSInteger index = [prefabGroupField indexOfSelectedItem];
+    if (index != -1) {
+        PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
+        id <PrefabGroup> prefabGroup = [[prefabManager prefabGroups] objectAtIndex:index];
+        [prefabGroupField setStringValue:[prefabGroup name]];
+    }
+    [self validate];
+}
+
+- (NSString *)prefabName {
+    return [[prefabNameField stringValue] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+}
+
 - (NSString *)prefabGroup {
-    return [prefabGroupField stringValue];
+    return [[prefabGroupField stringValue] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
 @end

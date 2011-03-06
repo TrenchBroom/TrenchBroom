@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import "PrefabGroup.h"
 
+@protocol Prefab;
 @class MutablePrefab;
 
 @interface MutablePrefabGroup : NSObject <PrefabGroup> {
@@ -16,6 +17,7 @@
     NSNumber* prefabGroupId;
     NSString* name;
     NSMutableArray* prefabs;
+    NSMutableDictionary* nameToPrefab;
     BOOL sorted;
 }
 

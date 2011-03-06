@@ -55,12 +55,29 @@
 
     [cameras setObject:camera forKey:[prefab prefabId]];
     [camera release];
+    
+    [layout invalidate];
+    [self setNeedsDisplay:YES];
 }
 
 - (void)prefabAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Prefab> prefab = [userInfo objectForKey:PrefabKey];
     [self addPrefab:prefab];
+}
+
+- (void)prefabRemoved:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    id <Prefab> prefab = [userInfo objectForKey:PrefabKey];
+    
+    [cameras removeObjectForKey:[prefab prefabId]];
+    [layout invalidate];
+    [self setNeedsDisplay:YES];
+}
+
+- (void)prefabGroupChanged:(NSNotification *)notification {
+    [layout invalidate];
+    [self setNeedsDisplay:YES];
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
@@ -70,7 +87,7 @@
         cameras = [[NSMutableDictionary alloc] init];
         
         PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-        NSEnumerator* groupEn = [[prefabManager groups] objectEnumerator];
+        NSEnumerator* groupEn = [[prefabManager prefabGroups] objectEnumerator];
         id <PrefabGroup> group;
         while ((group = [groupEn nextObject])) {
             NSEnumerator* prefabEn = [[group prefabs] objectEnumerator];
@@ -81,6 +98,9 @@
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(prefabAdded:) name:PrefabAdded object:prefabManager];
+        [center addObserver:self selector:@selector(prefabRemoved:) name:PrefabRemoved object:prefabManager];
+        [center addObserver:self selector:@selector(prefabGroupChanged:) name:PrefabGroupAdded object:prefabManager];
+        [center addObserver:self selector:@selector(prefabGroupChanged:) name:PrefabGroupRemoved object:prefabManager];
     }
     
     return self;
@@ -225,7 +245,7 @@
     glDisable(GL_POLYGON_OFFSET_FILL);
     glPolygonMode(GL_FRONT, GL_FILL);
 
-    glViewport(NSMinX(visibleRect), NSMinY(visibleRect), NSWidth(visibleRect), NSHeight(visibleRect));
+    glViewport(0, 0, NSWidth(visibleRect), NSHeight(visibleRect));
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(NSMinX(visibleRect), 

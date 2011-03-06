@@ -27,6 +27,8 @@
     BoundingBox* bounds;
 }
 
+- (id)initWithProperties:(NSDictionary *)theProperties;
+
 - (void)addBrush:(MutableBrush *)brush;
 - (void)removeBrush:(MutableBrush *)brush;
 

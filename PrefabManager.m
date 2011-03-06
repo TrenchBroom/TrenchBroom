@@ -14,6 +14,8 @@
 #import "MutablePrefabGroup.h"
 #import "MutableEntity.h"
 #import "MutableBrush.h"
+#import "MapWriter.h"
+#import "NSFileManager+AppSupportCategory.h"
 
 NSString* const PrefabAdded = @"PrefabAdded";
 NSString* const PrefabRemoved = @"PrefabRemoved";
@@ -109,12 +111,12 @@ static PrefabManager* sharedInstance = nil;
     }
 }
 
-- (id <PrefabGroup>)prefabGroupWithName:(NSString *)prefabGroupName create:(BOOL)create {
-    id <PrefabGroup> prefabGroup = [nameToPrefabGroup objectForKey:prefabGroupName];
+- (id <PrefabGroup>)prefabGroupWithName:(NSString *)name create:(BOOL)create {
+    id <PrefabGroup> prefabGroup = [nameToPrefabGroup objectForKey:[name lowercaseString]];
     if (prefabGroup == nil && create) {
-        prefabGroup = [[MutablePrefabGroup alloc] initWithName:prefabGroupName];
+        prefabGroup = [[MutablePrefabGroup alloc] initWithName:name];
         [prefabGroups addObject:prefabGroup];
-        [nameToPrefabGroup setObject:prefabGroup forKey:prefabGroupName];
+        [nameToPrefabGroup setObject:prefabGroup forKey:[name lowercaseString]];
         [prefabGroup release];
         sorted = NO;
         
@@ -161,6 +163,20 @@ static PrefabManager* sharedInstance = nil;
     return [prefab autorelease];
 }
 
+- (void)writePrefab:(MutablePrefab *)prefab {
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    NSString* appSupportPath = [fileManager findApplicationSupportFolder];
+    NSString* groupName = [[prefab prefabGroup] name];
+    NSString* fileName = [NSString stringWithFormat:@"%@.map", [prefab name]];
+    
+    NSString* directoryPath = [NSString pathWithComponents:[NSArray arrayWithObjects:appSupportPath, @"Prefabs", groupName, nil]];
+    [fileManager createDirectoryAtPath:directoryPath withIntermediateDirectories:YES attributes:nil error:NULL];
+    
+    MapWriter* mapWriter = [[MapWriter alloc] initWithMap:prefab];
+    [mapWriter writeToFileAtPath:[NSString pathWithComponents:[NSArray arrayWithObjects:directoryPath, fileName, nil]]];
+    [mapWriter release];
+}
+
 - (id <Prefab>)createPrefabFromBrushTemplates:(NSSet *)brushTemplates name:(NSString *)prefabName group:(id <PrefabGroup>)prefabGroup {
     if (brushTemplates == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush template set data must not be nil"];
@@ -172,21 +188,34 @@ static PrefabManager* sharedInstance = nil;
     if ([brushTemplates count] == 0)
         return nil;
     
-    MutablePrefab* prefab = [[MutablePrefab alloc] initWithName:prefabName];
-    MutableEntity* entity = [[MutableEntity alloc] init];
-    [prefab addEntity:entity];
-    [entity release];
+    MutablePrefab* prefab = [[MutablePrefab alloc] initWithName:prefabName group:prefabGroup readOnly:NO];
+    NSMutableDictionary* entities = [[NSMutableDictionary alloc] init];
     
     NSEnumerator* brushEn = [brushTemplates objectEnumerator];
     id <Brush> brush;
     while ((brush = [brushEn nextObject])) {
+        id <Entity> brushEntity = [brush entity];
+        MutableEntity* newEntity = [entities objectForKey:[brushEntity entityId]];
+        if (newEntity == nil) {
+            if ([brushEntity isWorldspawn]) {
+                newEntity = [[MutableEntity alloc] init];
+                [newEntity setProperty:@"classname" value:@"worldspawn"];
+            } else {
+                newEntity = [[MutableEntity alloc] initWithProperties:[[brush entity] properties]];
+            }
+            [prefab addEntity:newEntity];
+            [entities setObject:newEntity forKey:[[brush entity] entityId]];
+            [newEntity release];
+        }
+        
         id <Brush> newBrush = [[MutableBrush alloc] initWithTemplate:brush];
-        [entity addBrush:newBrush];
+        [newEntity addBrush:newBrush];
         [newBrush release];
     }
     
     [prefab translateToOrigin];
     [self addPrefab:prefab group:(MutablePrefabGroup *)prefabGroup];
+    [self writePrefab:prefab];
     
     return [prefab autorelease];
 }
@@ -215,20 +244,38 @@ static PrefabManager* sharedInstance = nil;
         [userInfo setObject:prefabGroup forKey:PrefabGroupKey];
         
         [prefabGroups removeObject:prefabGroup];
-        [nameToPrefabGroup removeObjectForKey:[prefabGroup name]];
+        [nameToPrefabGroup removeObjectForKey:[[prefabGroup name] lowercaseString]];
 
         [center postNotificationName:PrefabGroupRemoved object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (NSArray *)groups {
+- (NSArray *)prefabGroups {
     if (!sorted) {
         [prefabGroups sortUsingSelector:@selector(compareByName:)];
         sorted = YES;
     }
     
     return prefabGroups;
+}
+
+- (id <PrefabGroup>)prefabGroupWithNamePrefix:(NSString *)prefix {
+    NSString* lowercasePrefix = [prefix lowercaseString];
+    NSEnumerator* groupEn = [prefabGroups objectEnumerator];
+    id <PrefabGroup> group;
+    while ((group = [groupEn nextObject]))
+        if ([[[group name] lowercaseString] hasPrefix:lowercasePrefix])
+            return group;
+    return nil;
+}
+
+- (NSUInteger)indexOfPrefabGroupWithName:(NSString *)name {
+    id <PrefabGroup> group = [nameToPrefabGroup objectForKey:[name lowercaseString]];
+    if (group == nil)
+        return NSNotFound;
+    
+    return [prefabGroups indexOfObject:group];
 }
 
 - (void)dealloc {

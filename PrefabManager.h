@@ -30,13 +30,15 @@ extern NSString* const PrefabGroupKey;
 
 - (void)loadPrefabsAtPath:(NSString *)thePath readOnly:(BOOL)readOnly;
 
-- (id <PrefabGroup>)prefabGroupWithName:(NSString *)prefabGroupName create:(BOOL)create;
+- (NSArray *)prefabGroups;
+- (id <PrefabGroup>)prefabGroupWithName:(NSString *)name create:(BOOL)create;
+- (id <PrefabGroup>)prefabGroupWithNamePrefix:(NSString *)prefix;
+- (NSUInteger)indexOfPrefabGroupWithName:(NSString *)name;
 
 - (id <Prefab>)createPrefabFromData:(NSData *)prefabData name:(NSString *)prefabName group:(id <PrefabGroup>)prefabGroup readOnly:(BOOL)readOnly;
 - (id <Prefab>)createPrefabFromBrushTemplates:(NSSet *)brushTemplates name:(NSString *)prefabName group:(id <PrefabGroup>)prefabGroup;
 
 - (void)removePrefab:(id <Prefab>)prefab;
 
-- (NSArray *)groups;
 
 @end

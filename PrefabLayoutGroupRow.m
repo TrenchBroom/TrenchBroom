@@ -32,6 +32,7 @@
         float x = thePos.x;
         float y = NSMaxY(titleBarBounds) + innerMargin;
         float cellWidth = theWidth / thePrefabsPerRow - (thePrefabsPerRow - 1) * innerMargin;
+        PrefabLayoutPrefabCell* cell;
         
         NSArray* prefabs = [prefabGroup prefabs];
         for (int i = 0; i < [prefabs count]; i++) {
@@ -41,14 +42,16 @@
             }
 
             id <Prefab> prefab = [prefabs objectAtIndex:i];
-            PrefabLayoutPrefabCell* cell = [[PrefabLayoutPrefabCell alloc] initWithPrefab:prefab glFont:theGLFont atPos:NSMakePoint(x, y) width:cellWidth];
+            cell = [[PrefabLayoutPrefabCell alloc] initWithPrefab:prefab glFont:theGLFont atPos:NSMakePoint(x, y) width:cellWidth];
             [cells addObject:cell];
             [cell release];
             
             x += cellWidth + innerMargin;
         }
+
+        float height = NSMaxY([cell bounds]) - thePos.y;
         
-        bounds = NSMakeRect(thePos.x, thePos.y, theWidth, y + cellWidth + innerMargin);
+        bounds = NSMakeRect(thePos.x, thePos.y, theWidth, height);
     }
     
     return self;

@@ -36,4 +36,5 @@
 
 - (void)setPrefabsPerRow:(int)thePrefabsPerRow;
 - (void)setWidth:(float)width;
+- (void)invalidate;
 @end

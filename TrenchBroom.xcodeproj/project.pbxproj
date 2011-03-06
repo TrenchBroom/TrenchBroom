@@ -38,6 +38,8 @@
 		4838DFB712EF4E94008ADB71 /* Vertex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4838DFB612EF4E94008ADB71 /* Vertex.m */; };
 		4838DFBC12EF548F008ADB71 /* SideEdge.m in Sources */ = {isa = PBXBuildFile; fileRef = 4838DFBB12EF548F008ADB71 /* SideEdge.m */; };
 		483B1129122441060072EAFB /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
+		484524A61323CCBD003B2855 /* MapWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524A51323CCBD003B2855 /* MapWriter.m */; };
+		484524D713240049003B2855 /* NSFileManager+AppSupportCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */; };
 		484C28FC115023A2004DD957 /* VBOBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FB115023A2004DD957 /* VBOBuffer.m */; };
 		484C28FF1150258B004DD957 /* VBOMemBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FE1150258B004DD957 /* VBOMemBlock.m */; };
 		48527F3811148D5C00CD6043 /* MutableFace.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3711148D5C00CD6043 /* MutableFace.m */; };
@@ -208,6 +210,10 @@
 		4838DFBB12EF548F008ADB71 /* SideEdge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SideEdge.m; sourceTree = "<group>"; };
 		483B1127122441060072EAFB /* Math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		483B1128122441060072EAFB /* Math.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math.m; sourceTree = "<group>"; };
+		484524A41323CCBD003B2855 /* MapWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWriter.h; sourceTree = "<group>"; };
+		484524A51323CCBD003B2855 /* MapWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapWriter.m; sourceTree = "<group>"; };
+		484524D513240049003B2855 /* NSFileManager+AppSupportCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+AppSupportCategory.h"; sourceTree = "<group>"; };
+		484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+AppSupportCategory.m"; sourceTree = "<group>"; };
 		484C28FA115023A2004DD957 /* VBOBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOBuffer.h; sourceTree = "<group>"; };
 		484C28FB115023A2004DD957 /* VBOBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOBuffer.m; sourceTree = "<group>"; };
 		484C28FD1150258B004DD957 /* VBOMemBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOMemBlock.h; sourceTree = "<group>"; };
@@ -583,6 +589,8 @@
 				48770FF512E5BF28009B440B /* MapToken.m */,
 				4877106C12E5DA55009B440B /* MapParser.h */,
 				4877106D12E5DA55009B440B /* MapParser.m */,
+				484524A41323CCBD003B2855 /* MapWriter.h */,
+				484524A51323CCBD003B2855 /* MapWriter.m */,
 			);
 			name = IO;
 			sourceTree = "<group>";
@@ -692,6 +700,8 @@
 				4833C15E131953F600EB1B85 /* PrefabManager.m */,
 				48B5A1D9131EEE440043FBD9 /* PrefabNameSheetController.h */,
 				48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */,
+				484524D513240049003B2855 /* NSFileManager+AppSupportCategory.h */,
+				484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -999,6 +1009,8 @@
 				488FEB5C131FC49A00010A04 /* PrefabLayout.m in Sources */,
 				488FEB64131FCBA700010A04 /* PrefabLayoutGroupRow.m in Sources */,
 				488FEB67131FD49C00010A04 /* PrefabLayoutPrefabCell.m in Sources */,
+				484524A61323CCBD003B2855 /* MapWriter.m in Sources */,
+				484524D713240049003B2855 /* NSFileManager+AppSupportCategory.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -12,6 +12,9 @@
 @interface PrefabNameSheetController : NSWindowController <NSComboBoxDataSource> {
     IBOutlet NSTextField* prefabNameField;
     IBOutlet NSComboBox* prefabGroupField;
+    IBOutlet NSTextField* errorLabel;
+    IBOutlet NSButton* cancelButton;
+    IBOutlet NSButton* createButton;
 }
 
 - (IBAction)createPrefabClicked:(id)sender;

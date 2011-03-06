@@ -54,6 +54,16 @@
     return readOnly;
 }
 
+- (id <Entity>)worldspawn {
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject]))
+        if ([[entity classname] isEqualToString:@"worldspawn"])
+            return entity;
+    
+    return nil;
+}
+
 - (NSArray *)entities {
     return entities;
 }

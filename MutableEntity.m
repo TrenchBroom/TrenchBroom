@@ -27,6 +27,14 @@
     return self;
 }
 
+- (id)initWithProperties:(NSDictionary *)theProperties {
+    if (self = [self init]) {
+        [properties addEntriesFromDictionary:theProperties];
+    }
+    
+    return self;
+}
+
 - (void)addBrush:(MutableBrush *)brush {
     [brushes addObject:brush];
     [brushIndices setObject:[NSNumber numberWithInt:[brushes count] - 1] forKey:[brush brushId]];

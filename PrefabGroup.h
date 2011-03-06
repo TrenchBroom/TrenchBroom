@@ -8,12 +8,15 @@
 
 #import <Cocoa/Cocoa.h>
 
+@protocol Prefab;
+
 @protocol PrefabGroup <NSObject, NSCopying>
 
 - (NSNumber *)prefabGroupId;
 - (NSString *)name;
 - (BOOL)readOnly;
 - (NSArray *)prefabs;
+- (id <Prefab>) prefabWithName:(NSString *)prefabName;
 
 - (NSComparisonResult)compareByName:(id <PrefabGroup>)prefabGroup;
 @end
