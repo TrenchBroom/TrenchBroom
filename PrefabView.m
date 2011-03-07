@@ -136,8 +136,13 @@
         return;
     
     NSPoint clickPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-    if ([theEvent clickCount] == 1)
+    if ([theEvent clickCount] == 1) {
         draggedPrefab = [layout prefabAt:clickPoint];
+    } else if ([theEvent clickCount] == 2) {
+        id <Prefab> prefab = [layout prefabAt:clickPoint];
+        if (prefab != nil)
+            [target prefabSelected:prefab];
+    }
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
