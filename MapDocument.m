@@ -160,6 +160,12 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     return [entity autorelease];
 }
 
+- (id <Entity>)createEntityWithProperties:(NSDictionary *)properties {
+    MutableEntity* entity = [[MutableEntity alloc] initWithProperties:properties];
+    [self addEntity:entity];
+    return [entity autorelease];
+}
+
 - (void)addEntity:(MutableEntity *)theEntity {
     [[[self undoManager] prepareWithInvocationTarget:self] removeEntity:theEntity];
     

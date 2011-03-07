@@ -7,6 +7,7 @@
 //
 
 #import "Options.h"
+#import "Grid.h"
 
 NSString* const OptionsChanged = @"OptionsChanged";
 
@@ -14,61 +15,18 @@ NSString* const OptionsChanged = @"OptionsChanged";
 
 - (id)init {
     if (self = [super init]) {
-        drawGrid = YES;
-        snapToGrid = YES;
-        gridSize = 16;
+        grid = [[Grid alloc] init];
     }
     
     return self;
 }
 
-- (BOOL)drawGrid {
-    return drawGrid;
-}
-
-- (BOOL)snapToGrid {
-    return snapToGrid;
-}
-
-- (int)gridSize {
-    return gridSize;
+- (Grid *)grid {
+    return grid;
 }
 
 - (ERenderMode)renderMode {
     return renderMode;
-}
-
-- (void)setDrawGrid:(BOOL)doDrawGrid {
-    if (drawGrid == doDrawGrid)
-        return;
-    
-    drawGrid = doDrawGrid;
-    
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotificationName:OptionsChanged object:self];
-}
-
-- (void)setSnapToGrid:(BOOL)doSnapToGrid {
-    if (snapToGrid == doSnapToGrid)
-        return;
-    
-    snapToGrid = doSnapToGrid;
-
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotificationName:OptionsChanged object:self];
-}
-
-- (void)setGridSize:(int)theGridSize {
-    if (gridSize == theGridSize)
-        return;
-    
-    if (gridSize <= 0)
-        [NSException raise:NSInvalidArgumentException format:@"grid size must be a positive integer"];
-    
-    gridSize = theGridSize;
-
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center postNotificationName:OptionsChanged object:self];
 }
 
 - (void)setRenderMode:(ERenderMode)theRenderMode {
@@ -79,6 +37,11 @@ NSString* const OptionsChanged = @"OptionsChanged";
 
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:OptionsChanged object:self];
+}
+
+- (void)dealloc {
+    [grid release];
+    [super dealloc];
 }
 
 @end

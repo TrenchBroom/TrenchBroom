@@ -161,7 +161,7 @@
         if (gesture)
             [camera moveForward:6 * [event deltaZ] right:-6 * [event deltaX] up:6 * [event deltaY]];
         else
-            [camera moveForward:6 * [event deltaY] right:-6 * [event deltaX] up:6 * [event deltaZ]];
+            [camera moveForward:6 * [event deltaX] right:-6 * [event deltaY] up:6 * [event deltaZ]];
     }
 }
 

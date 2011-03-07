@@ -14,6 +14,7 @@
 @class PrefabView;
 @class Prefab;
 @class Texture;
+@protocol Prefab;
 
 @interface InspectorController : NSWindowController {
     IBOutlet NSTextField* xOffsetField;
@@ -47,5 +48,5 @@
 - (IBAction)prefabsPerRowChanged:(id)sender;
 
 - (void)textureSelected:(Texture *)texture;
-- (void)prefabSelected:(Prefab *)prefab;
+- (void)prefabSelected:(id <Prefab>)prefab;
 @end

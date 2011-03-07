@@ -11,6 +11,7 @@
 #import "FaceFigure.h"
 #import "Vector3f.h"
 #import "Options.h"
+#import "Grid.h"
 
 @implementation SelectionLayer
 
@@ -45,8 +46,8 @@
 - (void)render:(RenderContext*)renderContext {
     [super render:renderContext];
 
-    if ([[renderContext options] drawGrid]) {
-        int gridSize = [[renderContext options] gridSize];
+    if ([[[renderContext options] grid] draw]) {
+        int gridSize = [[[renderContext options] grid] size];
         
         NSEnumerator* figureEn = [faceFigures objectEnumerator];
         FaceFigure* figure;

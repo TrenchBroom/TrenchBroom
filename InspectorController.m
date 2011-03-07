@@ -423,7 +423,7 @@ static InspectorController* sharedInstance = nil;
     [prefabView setPrefabsPerRow:[prefabsPerRowSlider intValue]];
 }
 
-- (void)prefabSelected:(Prefab *)prefab {
+- (void)prefabSelected:(id <Prefab>)prefab {
     [mapWindowController insertPrefab:prefab];
 }
 

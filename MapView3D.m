@@ -18,6 +18,7 @@
 #import "MapDocument.h"
 #import "RenderContext.h"
 #import "Options.h"
+#import "Grid.h"
 
 static NSString* MapView3DDefaults = @"3D View";
 static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
@@ -28,7 +29,7 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
     [self setNeedsDisplay:YES];
 }
 
-- (void)optionsChanged:(NSNotification *)notification {
+- (void)gridChanged:(NSNotification *)notification {
     [self setNeedsDisplay:YES];
 }
 
@@ -51,7 +52,7 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(rendererChanged:) name:RendererChanged object:renderer];
-    [center addObserver:self selector:@selector(optionsChanged:) name:OptionsChanged object:options];
+    [center addObserver:self selector:@selector(gridChanged:) name:GridChanged object:[options grid]];
 }
 
 - (BOOL)acceptsFirstResponder {

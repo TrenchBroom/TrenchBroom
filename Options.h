@@ -16,22 +16,17 @@ typedef enum {
 
 extern NSString* const OptionsChanged;
 
+@class Grid;
+
 @interface Options : NSObject {
     @private
-    BOOL drawGrid;
-    BOOL snapToGrid;
-    int gridSize;
+    Grid* grid;
     ERenderMode renderMode;
 }
 
-- (BOOL)drawGrid;
-- (BOOL)snapToGrid;
-- (int)gridSize;
+- (Grid *)grid;
 - (ERenderMode)renderMode;
 
-- (void)setDrawGrid:(BOOL)doDrawGrid;
-- (void)setSnapToGrid:(BOOL)doSnapToGrid;
-- (void)setGridSize:(int)theGridSize;
 - (void)setRenderMode:(ERenderMode)theRenderMode;
 
 @end

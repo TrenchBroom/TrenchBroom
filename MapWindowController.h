@@ -18,6 +18,7 @@
 @class SingleTextureView;
 @class Options;
 @class Prefab;
+@protocol Prefab;
 
 @interface MapWindowController : NSWindowController {
 	IBOutlet MapView3D* view3D;
@@ -51,7 +52,7 @@
 - (IBAction)duplicateSelection:(id)sender;
 - (IBAction)createPrefabFromSelection:(id)sender;
 
-- (void)insertPrefab:(Prefab *)prefab;
+- (void)insertPrefab:(id <Prefab>)prefab;
 
 - (Camera *)camera;
 - (SelectionManager *)selectionManager;

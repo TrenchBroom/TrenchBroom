@@ -132,11 +132,8 @@
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
-    if (![self isCameraModifierPressed:theEvent])
-        return;
-    
     NSPoint clickPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-    if ([theEvent clickCount] == 1) {
+    if ([theEvent clickCount] == 1 && [self isCameraModifierPressed:theEvent]) {
         draggedPrefab = [layout prefabAt:clickPoint];
     } else if ([theEvent clickCount] == 2) {
         id <Prefab> prefab = [layout prefabAt:clickPoint];

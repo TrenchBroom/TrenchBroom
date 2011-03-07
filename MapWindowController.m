@@ -10,6 +10,8 @@
 #import "MapView3D.h"
 #import "TextureView.h"
 #import "MapDocument.h"
+#import "Entity.h"
+#import "Brush.h"
 #import "Face.h"
 #import "Camera.h"
 #import "MapDocument.h"
@@ -24,12 +26,15 @@
 #import "GLFontManager.h"
 #import "InspectorController.h"
 #import "Options.h"
+#import "Grid.h"
 #import "Ray3D.h"
 #import "Vector3f.h"
 #import "Vector3i.h"
 #import "PrefabManager.h"
 #import "PrefabNameSheetController.h"
+#import "Prefab.h"
 #import "MapWriter.h"
+#import "MathCache.h"
 
 static NSString* CameraDefaults = @"Camera";
 static NSString* CameraDefaultsFov = @"Field Of Vision";
@@ -146,15 +151,15 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 }
 
 - (IBAction)toggleGrid:(id)sender {
-    [options setDrawGrid:![options drawGrid]];
+    [[options grid] toggleDraw];
 }
 
 - (IBAction)toggleSnap:(id)sender {
-    [options setSnapToGrid:![options snapToGrid]];
+    [[options grid] toggleSnap];
 }
 
 - (IBAction)setGridSize:(id)sender {
-    [options setGridSize:[sender tag]];
+    [[options grid] setSize:[sender tag]];
 }
 
 - (IBAction)clearSelection:(id)sender {
@@ -187,7 +192,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
+    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] size];
 
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;
@@ -202,7 +207,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
 
-    int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
+    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] size];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;
@@ -217,7 +222,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
 
-    int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
+    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] size];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;
@@ -232,7 +237,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
 
-    int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [options gridSize];
+    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] size];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;
@@ -299,7 +304,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
+    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;
@@ -314,7 +319,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    int d = ![options snapToGrid] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
+    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;
@@ -336,7 +341,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     id <Brush> brush;
     while ((brush = [brushEn nextObject])) {
         id <Brush> newBrush = [[self document] createBrushInEntity:worldspawn fromTemplate:brush];
-        [[self document] translateBrush:newBrush xDelta:[options gridSize] yDelta:[options gridSize] zDelta:[options gridSize]];
+        [[self document] translateBrush:newBrush xDelta:[[options grid] size] yDelta:[[options grid] size] zDelta:[[options grid] size]];
         [newBrushes addObject:newBrush];
     }
     
@@ -373,7 +378,52 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     
 }
 
-- (void)insertPrefab:(Prefab *)prefab {
+- (void)insertPrefab:(id <Prefab>)prefab {
+    [selectionManager removeAll];
+    
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+    
+    MathCache* cache = [MathCache sharedCache];
+    Vector3f* insertPos = [cache vector3f];
+    [insertPos setFloat:[camera direction]];
+    [insertPos scale:256];
+    [insertPos add:[camera position]];
+    [[options grid] snapToGrid:insertPos];
+
+    Vector3f* dist = [cache vector3f];
+    [dist setFloat:insertPos];
+    [dist sub:[prefab center]];
+    
+    MapDocument* map = [self document];
+    
+    NSEnumerator* entityEn = [[prefab entities] objectEnumerator];
+    id <Entity> prefabEntity;
+    while ((prefabEntity = [entityEn nextObject])) {
+        id <Entity> mapEntity;
+        if ([prefabEntity isWorldspawn]) {
+            mapEntity = [map worldspawn];
+            if (mapEntity == nil)
+                mapEntity = [map createEntityWithProperties:[NSDictionary dictionaryWithObject:@"worldspawn" forKey:@"classname"]];
+        } else {
+            mapEntity = [map createEntityWithProperties:[prefabEntity properties]];
+            [selectionManager addEntity:mapEntity];
+        }
+        
+        NSEnumerator* prefabBrushEn = [[prefabEntity brushes] objectEnumerator];
+        id <Brush> prefabBrush;
+        while ((prefabBrush = [prefabBrushEn nextObject])) {
+            id <Brush> mapBrush = [map createBrushInEntity:mapEntity fromTemplate:prefabBrush];
+            [map translateBrush:mapBrush xDelta:[dist x] yDelta:[dist y] zDelta:[dist z]];
+            [selectionManager addBrush:mapBrush];
+        }
+    }
+    
+    [cache returnVector3f:dist];
+    [cache returnVector3f:insertPos];
+
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:[NSString stringWithFormat:@"Insert Prefab '%@'", [prefab name]]];
 }
 
 - (void)dealloc {

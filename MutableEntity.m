@@ -21,7 +21,6 @@
         entityId = [[[IdGenerator sharedGenerator] getId] retain];
 		properties = [[NSMutableDictionary alloc] init];
 		brushes = [[NSMutableArray alloc] init];
-        brushIndices = [[NSMutableDictionary alloc] init];
     }
     
     return self;
@@ -37,7 +36,6 @@
 
 - (void)addBrush:(MutableBrush *)brush {
     [brushes addObject:brush];
-    [brushIndices setObject:[NSNumber numberWithInt:[brushes count] - 1] forKey:[brush brushId]];
     [brush setEntity:self];
 }
 
@@ -45,13 +43,8 @@
     if (brush == nil)
         [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
  
-    NSNumber* index = [brushIndices objectForKey:[brush brushId]];
-    if (index == nil)
-        [NSException raise:NSInvalidArgumentException format:@"Entity %@ does not contain brush %@", self, brush];
- 
     [brush setEntity:nil];
-    [brushes removeObjectAtIndex:[index intValue]];
-    [brushIndices removeObjectForKey:[brush brushId]];
+    [brushes removeObject:brush];
 }
 
 - (NSNumber *)entityId {
@@ -136,7 +129,6 @@
     [entityId release];
 	[properties release];
 	[brushes release];
-    [brushIndices release];
     [center release];
     [bounds release];
 	[super dealloc];

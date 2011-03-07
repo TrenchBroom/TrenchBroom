@@ -16,6 +16,7 @@
 #import "MathCache.h"
 #import "IdGenerator.h"
 #import "MutablePrefabGroup.h"
+#import "MapDocument.h"
 
 @implementation MutablePrefab
 
@@ -58,7 +59,7 @@
     NSEnumerator* entityEn = [entities objectEnumerator];
     id <Entity> entity;
     while ((entity = [entityEn nextObject]))
-        if ([[entity classname] isEqualToString:@"worldspawn"])
+        if ([entity isWorldspawn])
             return entity;
     
     return nil;
@@ -76,6 +77,8 @@
     center = nil;
     [bounds release];
     bounds = nil;
+    [maxBounds release];
+    maxBounds = nil;
 }
 
 - (void)removeEntity:(MutableEntity *)theEntity {
@@ -86,6 +89,8 @@
     center = nil;
     [bounds release];
     bounds = nil;
+    [maxBounds release];
+    maxBounds = nil;
 }
 
 - (BoundingBox *)bounds {
@@ -172,8 +177,6 @@
     [offset setY:-[[self center] y]];
     [offset setZ:-[[self center] z]];
     
-    [center release];
-    
     NSEnumerator* entityEn = [entities objectEnumerator];
     id <Entity> entity;
     while ((entity = [entityEn nextObject])) {
@@ -186,6 +189,13 @@
     }
     
     [offset release];
+    
+    [center release];
+    center = nil;
+    [bounds release];
+    bounds = nil;
+    [maxBounds release];
+    maxBounds = nil;
 }
 
 - (NSComparisonResult)compareByName:(MutablePrefab *)prefab {

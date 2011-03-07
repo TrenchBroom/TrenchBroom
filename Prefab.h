@@ -10,6 +10,8 @@
 
 @protocol PrefabGroup;
 @class BoundingBox;
+@class MapDocument;
+@class Vector3f;
 
 @protocol Prefab <NSObject>
 
@@ -20,6 +22,7 @@
 
 - (NSArray *)entities;
 
+- (Vector3f *)center;
 - (BoundingBox *)bounds;
 - (BoundingBox *)maxBounds;
 

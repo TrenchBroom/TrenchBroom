@@ -13,6 +13,7 @@
 @class MutablePrefabGroup;
 @class BoundingBox;
 @class Vector3f;
+@class MapDocument;
 
 @interface MutablePrefab : NSObject <Prefab, Map> {
     @private

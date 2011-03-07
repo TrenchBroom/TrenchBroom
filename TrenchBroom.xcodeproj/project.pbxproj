@@ -23,6 +23,7 @@
 		480AD8D612ED9E4A009B5970 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
 		480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 480BB4711302ED1C005E3492 /* Matrix2f.m */; };
 		480BB50A13031A9D005E3492 /* Matrix3f.m in Sources */ = {isa = PBXBuildFile; fileRef = 480BB50913031A9D005E3492 /* Matrix3f.m */; };
+		480F2F65132562CA00651FED /* Grid.m in Sources */ = {isa = PBXBuildFile; fileRef = 480F2F64132562CA00651FED /* Grid.m */; };
 		4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4814A02212F73F1E0082E05F /* ProgressWindow.xib */; };
 		4814A02712F740580082E05F /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4814A02612F740580082E05F /* ProgressWindowController.m */; };
 		4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4818202212FB4746002D9AAD /* SingleTextureView.m */; };
@@ -178,6 +179,8 @@
 		480BB4711302ED1C005E3492 /* Matrix2f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix2f.m; sourceTree = "<group>"; };
 		480BB50813031A9D005E3492 /* Matrix3f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix3f.h; sourceTree = "<group>"; };
 		480BB50913031A9D005E3492 /* Matrix3f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix3f.m; sourceTree = "<group>"; };
+		480F2F63132562CA00651FED /* Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Grid.h; sourceTree = "<group>"; };
+		480F2F64132562CA00651FED /* Grid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Grid.m; sourceTree = "<group>"; };
 		4814A02212F73F1E0082E05F /* ProgressWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProgressWindow.xib; sourceTree = "<group>"; };
 		4814A02512F740580082E05F /* ProgressWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressWindowController.h; sourceTree = "<group>"; };
 		4814A02612F740580082E05F /* ProgressWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProgressWindowController.m; sourceTree = "<group>"; };
@@ -702,6 +705,8 @@
 				48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */,
 				484524D513240049003B2855 /* NSFileManager+AppSupportCategory.h */,
 				484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */,
+				480F2F63132562CA00651FED /* Grid.h */,
+				480F2F64132562CA00651FED /* Grid.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -1011,6 +1016,7 @@
 				488FEB67131FD49C00010A04 /* PrefabLayoutPrefabCell.m in Sources */,
 				484524A61323CCBD003B2855 /* MapWriter.m in Sources */,
 				484524D713240049003B2855 /* NSFileManager+AppSupportCategory.m in Sources */,
+				480F2F65132562CA00651FED /* Grid.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -67,6 +67,7 @@ extern NSString* const PropertyNewValueKey;
 - (void)deleteBrush:(id <Brush>)brush;
 
 - (id <Entity>)createEntity;
+- (id <Entity>)createEntityWithProperties:(NSDictionary *)properties;
 
 - (int)worldSize;
 - (id <Entity>)worldspawn;
