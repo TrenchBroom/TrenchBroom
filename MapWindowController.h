@@ -28,6 +28,8 @@
     Options* options;
 }
 
+- (IBAction)showInspector:(id)sender;
+
 - (IBAction)toggleGrid:(id)sender;
 - (IBAction)toggleSnap:(id)sender;
 - (IBAction)setGridSize:(id)sender;

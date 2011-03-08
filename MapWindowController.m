@@ -84,11 +84,12 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     
     InspectorController* inspector = [InspectorController sharedInspector];
     [inspector setMapWindowController:self];
-    [inspector showWindow:nil];
 
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification object:[self window]];
     [center addObserver:self selector:@selector(userDefaultsChanged:) name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
+    
+    [[self window] makeKeyAndOrderFront:nil];
 }
 
 - (Camera *)camera {
@@ -145,9 +146,16 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         return [selectionManager hasSelectedBrushes];
     } else if (action == @selector(createPrefabFromSelection:)) {
         return [selectionManager hasSelectedBrushes];
+    } else if (action == @selector(showInspector:)) {
+        return YES;
     }
 
     return NO;
+}
+
+- (IBAction)showInspector:(id)sender {
+    InspectorController* inspector = [InspectorController sharedInspector];
+    [[inspector window] makeKeyAndOrderFront:nil];
 }
 
 - (IBAction)toggleGrid:(id)sender {
