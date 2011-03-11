@@ -29,6 +29,5 @@
 
 - (id)initWithName:(NSString *)theName group:(MutablePrefabGroup *)thePrefabGroup readOnly:(BOOL)isReadOnly;
 
-- (void)translateToOrigin;
 - (void)setPrefabGroup:(MutablePrefabGroup *)thePrefabGroup;
 @end

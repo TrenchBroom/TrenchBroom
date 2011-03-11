@@ -38,8 +38,12 @@
     return self;
 }
 
-- (id <Face>)face {
+- (id)object {
     return face;
+}
+
+- (NSString *)texture {
+    return [face texture];
 }
 
 - (void)invalidate {

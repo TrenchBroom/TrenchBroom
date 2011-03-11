@@ -13,7 +13,7 @@
 @class RenderContext;
 
 @interface GeometryLayer : NSObject <Layer> {
-    NSMutableSet* faceFigures;
+    NSMutableSet* figures;
     NSMutableDictionary* indexBuffers;
     NSMutableDictionary* countBuffers;
     MapWindowController* mapWindowController;

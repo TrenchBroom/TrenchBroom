@@ -8,7 +8,7 @@
 
 #import "SelectionLayer.h"
 #import <OpenGL/gl.h>
-#import "FaceFigure.h"
+#import "Figure.h"
 #import "Vector3f.h"
 #import "Options.h"
 #import "Grid.h"
@@ -49,10 +49,10 @@
     if ([[[renderContext options] grid] draw]) {
         int gridSize = [[[renderContext options] grid] size];
         
-        NSEnumerator* figureEn = [faceFigures objectEnumerator];
-        FaceFigure* figure;
+        NSEnumerator* figureEn = [figures objectEnumerator];
+        id <Figure> figure;
         while ((figure = [figureEn nextObject])) {
-            id <Face> face = [figure face];
+            id <Face> face = [figure object];
             NSArray* gridVertices = [face gridWithSize:gridSize];
             NSEnumerator* vertexEn = [gridVertices objectEnumerator];
             Vector3f* vertex;

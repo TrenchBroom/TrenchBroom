@@ -320,6 +320,7 @@
 		489FB43C12FA0A5B00B6BAF1 /* GLFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFont.m; sourceTree = "<group>"; };
 		489FB43E12FA0ABE00B6BAF1 /* GLFontChar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFontChar.h; sourceTree = "<group>"; };
 		489FB43F12FA0ABE00B6BAF1 /* GLFontChar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFontChar.m; sourceTree = "<group>"; };
+		48A0A18E132A728B001CA997 /* Figure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
 		48A68EB6114E96C00064732A /* MapWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWindowController.h; sourceTree = "<group>"; };
 		48A68EB7114E96C00064732A /* MapWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapWindowController.m; sourceTree = "<group>"; };
 		48A68ECD114E9B0D0064732A /* MapView3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapView3D.h; sourceTree = "<group>"; };
@@ -544,6 +545,7 @@
 				48B3243B12E1C6B8008748E2 /* Camera.m */,
 				488F078E130130580063E550 /* FaceFigure.h */,
 				488F078F130130580063E550 /* FaceFigure.m */,
+				48A0A18E132A728B001CA997 /* Figure.h */,
 				487A7E39130071F300434806 /* GeometryLayer.h */,
 				487A7E3A130071F300434806 /* GeometryLayer.m */,
 				488C8EDF12F6C3ED00F358E6 /* IntData.h */,

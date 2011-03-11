@@ -13,7 +13,7 @@
 #import "GLResources.h"
 #import "MapDocument.h"
 #import "Face.h"
-#import "FaceFigure.h"
+#import "Figure.h"
 #import "VBOBuffer.h"
 #import "IntData.h"
 #import "RenderContext.h"
@@ -25,7 +25,7 @@
 
 - (id)init {
     if (self = [super init]) {
-        faceFigures = [[NSMutableSet alloc] init];
+        figures = [[NSMutableSet alloc] init];
         indexBuffers = [[NSMutableDictionary alloc] init];
         countBuffers = [[NSMutableDictionary alloc] init];
         buffersValid = NO;
@@ -45,21 +45,19 @@
     return self;
 }
 
-- (void)addFigure:(id)theFigure {
+- (void)addFigure:(id <Figure>)theFigure {
     if (theFigure == nil)
         [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
     
-    FaceFigure* faceFigure = (FaceFigure *)theFigure;
-    [faceFigures addObject:faceFigure];
+    [figures addObject:theFigure];
     [self invalidate];
 }
 
-- (void)removeFigure:(id)theFigure {
+- (void)removeFigure:(id <Figure>)theFigure {
     if (theFigure == nil)
         [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
     
-    FaceFigure* faceFigure = (FaceFigure *)theFigure;
-    [faceFigures removeObject:faceFigure];
+    [figures removeObject:theFigure];
     [self invalidate];
 }
 
@@ -70,17 +68,16 @@
     
     [vbo mapBuffer];
     
-    NSEnumerator* figureEn = [faceFigures objectEnumerator];
-    FaceFigure* faceFigure;
-    while ((faceFigure = [figureEn nextObject]))
-        [faceFigure prepare:renderContext];
+    NSEnumerator* figureEn = [figures objectEnumerator];
+    id <Figure> figure;
+    while ((figure = [figureEn nextObject]))
+        [figure prepare:renderContext];
 
     [vbo unmapBuffer];
 
-    figureEn = [faceFigures objectEnumerator];
-    while ((faceFigure = [figureEn nextObject])) {
-        id <Face> face = [faceFigure face];
-        NSString* textureName = [face texture];
+    figureEn = [figures objectEnumerator];
+    while ((figure = [figureEn nextObject])) {
+        NSString* textureName = [figure texture];
         
         IntData* indexBuffer = [indexBuffers objectForKey:textureName];
         if (indexBuffer == nil) {
@@ -96,7 +93,7 @@
             [countBuffer release];
         }
         
-        [faceFigure getIndex:indexBuffer count:countBuffer];
+        [figure getIndex:indexBuffer count:countBuffer];
     }
     
     buffersValid = YES;
@@ -197,7 +194,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [indexBuffers release];
     [countBuffers release];
-    [faceFigures release];
+    [figures release];
     [mapWindowController release];
     [super dealloc];
 }

@@ -43,8 +43,10 @@
     
     [position setFloat:size];
     [position scale:0.5f];
+    [position add:[prefab center]];
+    
     [camera moveTo:position];
-    [camera lookAt:[Vector3f nullVector]];
+    [camera lookAt:[prefab center]];
     
     [cache returnVector3f:position];
 }
@@ -145,7 +147,7 @@
 - (void)mouseDragged:(NSEvent *)theEvent {
     if (draggedPrefab != nil) {
         Camera* camera = [cameras objectForKey:[draggedPrefab prefabId]];
-        [camera orbitCenter:[Vector3f nullVector] hAngle:[theEvent deltaX] / 70 vAngle:[theEvent deltaY] / 70];
+        [camera orbitCenter:[draggedPrefab center] hAngle:[theEvent deltaX] / 70 vAngle:[theEvent deltaY] / 70];
         [self setNeedsDisplay:YES];
     }
 }

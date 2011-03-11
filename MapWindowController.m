@@ -393,11 +393,15 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [undoManager beginUndoGrouping];
     
     MathCache* cache = [MathCache sharedCache];
+
     Vector3f* insertPos = [cache vector3f];
     [insertPos setFloat:[camera direction]];
     [insertPos scale:256];
     [insertPos add:[camera position]];
     [[options grid] snapToGrid:insertPos];
+    
+    Vector3f* offset = [[options grid] gridOffsetOf:[prefab center]];
+    [insertPos add:offset];
 
     Vector3f* dist = [cache vector3f];
     [dist setFloat:insertPos];
@@ -422,7 +426,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         id <Brush> prefabBrush;
         while ((prefabBrush = [prefabBrushEn nextObject])) {
             id <Brush> mapBrush = [map createBrushInEntity:mapEntity fromTemplate:prefabBrush];
-            [map translateBrush:mapBrush xDelta:[dist x] yDelta:[dist y] zDelta:[dist z]];
+            [map translateBrush:mapBrush xDelta:roundf([dist x]) yDelta:roundf([dist y]) zDelta:roundf([dist z])];
             [selectionManager addBrush:mapBrush];
         }
     }

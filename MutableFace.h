@@ -22,7 +22,6 @@ typedef enum {
 @class Matrix4f;
 @class PickingHit;
 @class Ray3D;
-@class FaceFigure;
 
 @interface MutableFace : NSObject <Face> {
     @private

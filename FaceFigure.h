@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Figure.h"
 
 @protocol Face;
 @class VBOBuffer;
@@ -14,7 +15,7 @@
 @class IntData;
 @class RenderContext;
 
-@interface FaceFigure : NSObject {
+@interface FaceFigure : NSObject <Figure> {
     @private
     id <Face> face;
     VBOBuffer* vbo;
@@ -24,10 +25,4 @@
 }
 
 - (id)initWithFace:(id <Face>)theFace vbo:(VBOBuffer *)theVbo;
-
-- (id <Face>)face;
-- (void)prepare:(RenderContext *)renderContext;
-- (void)getIndex:(IntData *)theIndexBuffer count:(IntData *)theCountBuffer;
-
-- (void)invalidate;
 @end

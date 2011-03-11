@@ -108,6 +108,9 @@
 
 - (BoundingBox *)maxBounds {
     if (maxBounds == nil && [entities count] > 0) {
+        MathCache* cache = [MathCache sharedCache];
+        Vector3f* diff = [cache vector3f];
+        
         float distSquared = 0;
         NSEnumerator* entityEn = [entities objectEnumerator];
         id <Entity> entity;
@@ -118,12 +121,16 @@
                 NSEnumerator* vertexEn = [[brush vertices] objectEnumerator];
                 Vector3f* vertex;
                 while ((vertex = [vertexEn nextObject])) {
-                    float lengthSquared = [vertex lengthSquared];
+                    [diff setFloat:vertex];
+                    [diff sub:[self center]];
+                    float lengthSquared = [diff lengthSquared];
                     if (lengthSquared > distSquared)
                         distSquared = lengthSquared;
                 }
             }
         }
+        
+        [cache returnVector3f:diff];
         
         if (distSquared > 0) {
             float dist = sqrt(distSquared);
@@ -137,6 +144,9 @@
             [max setX:dist];
             [max setY:dist];
             [max setZ:dist];
+            
+            [min add:[self center]];
+            [max add:[self center]];
             
             maxBounds = [[BoundingBox alloc] initWithMin:min max:max];
             
@@ -166,36 +176,6 @@
 - (void)setPrefabGroup:(MutablePrefabGroup *)thePrefabGroup {
     [prefabGroup release];
     prefabGroup = [thePrefabGroup retain];
-}
-
-- (void)translateToOrigin {
-    if ([entities count] == 0)
-        return;
-    
-    Vector3i* offset = [[Vector3i alloc] init];
-    [offset setX:-[[self center] x]];
-    [offset setY:-[[self center] y]];
-    [offset setZ:-[[self center] z]];
-    
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
-        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            MutableBrush* mutableBrush = (MutableBrush *)brush;
-            [mutableBrush translateBy:offset];
-        }
-    }
-    
-    [offset release];
-    
-    [center release];
-    center = nil;
-    [bounds release];
-    bounds = nil;
-    [maxBounds release];
-    maxBounds = nil;
 }
 
 - (NSComparisonResult)compareByName:(MutablePrefab *)prefab {

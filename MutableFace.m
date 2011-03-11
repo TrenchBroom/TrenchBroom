@@ -26,6 +26,133 @@
 
 static Vector3f* baseAxes[18];
 
+@interface MutableFace (private)
+- (void)updateTexAxes;
+- (void)updateMatrices;
+@end
+
+@implementation MutableFace (private)
+
+- (void)updateTexAxes {
+    // determine texture axes, this is from QBSP
+    float best = 0;
+    bestAxis = 0;
+    for (int i = 0; i < 6; i++) {
+        float dot = [[self norm] dot:baseAxes[i * 3]];
+        if (dot > best) {
+            best = dot;
+            bestAxis = i;
+        }
+    }
+    
+    texAxisX = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 1]];
+    texAxisY = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 2]];
+    
+    float ang = rotation / 180 * M_PI;
+    float sinv = sin(ang);
+    float cosv = cos(ang);
+    
+    int sv, tv;
+    if ([texAxisX x] != 0)
+        sv = 0;
+    else if ([texAxisX y] != 0)
+        sv = 1;
+    else
+        sv = 2;
+    
+    if ([texAxisY x] != 0)
+        tv = 0;
+    else if ([texAxisY y] != 0)
+        tv = 1;
+    else
+        tv = 2;
+    
+    Vector3f* texAxes[2] = {texAxisX, texAxisY};
+    for (int i = 0; i < 2; i++) {
+        float ns = cosv * [texAxes[i] component:sv] - sinv * [texAxes[i] component:tv];
+        float nt = sinv * [texAxes[i] component:sv] + cosv * [texAxes[i] component:tv];
+        
+        [texAxes[i] setComponent:sv value:ns];
+        [texAxes[i] setComponent:tv value:nt];
+    }
+    
+    [texAxisX scale:1 / xScale];
+    [texAxisY scale:1 / yScale];
+}
+
+- (void)updateMatrices {
+    Vector3f* xAxis = [[Vector3f alloc] init];
+    Vector3f* yAxis = [[Vector3f alloc] init];
+    Vector3f* zAxis = [[Vector3f alloc] initWithFloatVector:[self norm]];
+    
+    float ny = [[self norm] y];
+    if (fneg(ny)) {
+        // surface X axis is normalized projection of positive world X axis along Y axis onto plane
+        Vector3f* point = [[Vector3f alloc] initWithFloatVector:[self center]];
+        [point setX:[point x] + 1];
+        Line3D* line = [[Line3D alloc] initWithPoint:point normalizedDirection:[Vector3f yAxisPos]];
+        Plane3D* plane = [[self halfSpace] boundary];
+        [xAxis setFloat:[plane intersectWithLine:line]];
+        [xAxis sub:[self center]];
+        [xAxis normalize];
+        [line release];
+        [point release];
+    } else if (fpos(ny)) {
+        // surface X axis is normalized projection of negative world X axis along Y axis onto plane
+        Vector3f* point = [[Vector3f alloc] initWithFloatVector:[self center]];
+        [point setX:[point x] - 1];
+        Line3D* line = [[Line3D alloc] initWithPoint:point normalizedDirection:[Vector3f yAxisPos]];
+        Plane3D* plane = [[self halfSpace] boundary];
+        [xAxis setFloat:[plane intersectWithLine:line]];
+        [xAxis sub:[self center]];
+        [xAxis normalize];
+        [line release];
+        [point release];
+    } else {
+        // plane normal is on XZ plane, try X, then Z
+        float nx = [[self norm] x];
+        if (fpos(nx)) {
+            // positive world Y axis is surface X axis
+            [xAxis setFloat:[Vector3f yAxisPos]];
+        } else if (fneg(nx)) {
+            // negative world Y axis is surface X axis
+            [xAxis setFloat:[Vector3f yAxisNeg]];
+        } else {
+            // surface normal is Z = 1 or Z = -1
+            float nz = [[self norm] z];
+            if (nz > 0) {
+                // positive world X axis is surface X axis
+                [xAxis setFloat:[Vector3f xAxisPos]];
+            } else {
+                // negative world X axis is surface X axis
+                [xAxis setFloat:[Vector3f xAxisNeg]];
+            }
+        }
+    }
+    
+    [yAxis setFloat:zAxis];
+    [yAxis cross:xAxis];
+    [yAxis normalize];
+    
+    // build transformation matrix
+    surfaceMatrix = [[Matrix4f alloc] init];
+    [surfaceMatrix setColumn:0 values:xAxis];
+    [surfaceMatrix setColumn:1 values:yAxis];
+    [surfaceMatrix setColumn:2 values:zAxis];
+    [surfaceMatrix setColumn:3 values:[self center]];
+    [surfaceMatrix setColumn:3 row:3 value:1];
+    
+    worldMatrix = [[Matrix4f alloc] initWithMatrix4f:surfaceMatrix];
+    if (![worldMatrix invert])
+        [NSException raise:@"NonInvertibleMatrixException" format:@"surface transformation matrix is not invertible"];
+    
+    [xAxis release];
+    [yAxis release];
+    [zAxis release];
+}
+
+@end
+
 @implementation MutableFace
 
 + (void)initialize {
@@ -188,6 +315,29 @@ static Vector3f* baseAxes[18];
     [point2 add:theDelta];
     [point3 add:theDelta];
     
+    if (texAxisX == nil || texAxisY == nil)
+        [self updateTexAxes];
+    
+    switch (bestAxis) {
+        case 0: // xAxisPos
+        case 1: // xAxisNeg
+            xOffset += [theDelta y];
+            yOffset += [theDelta z];
+            break;
+        case 2: // yAxisPos
+        case 3: // yAxisNeg
+            xOffset += [theDelta x];
+            yOffset += [theDelta z];
+            break;
+        case 4: // zAxisPos
+        case 5: // zAxisNeg
+            xOffset += [theDelta x];
+            yOffset += [theDelta y];
+            break;
+        default:
+            break;
+    }
+    
     [self geometryChanged];
 }
 
@@ -248,53 +398,6 @@ static Vector3f* baseAxes[18];
     texAxisY = nil;
 }
 
-- (void)updateTexAxes {
-    // determine texture axes, this is from QBSP
-    float best = 0;
-    bestAxis = 0;
-    for (int i = 0; i < 6; i++) {
-        float dot = [[self norm] dot:baseAxes[i * 3]];
-        if (dot > best) {
-            best = dot;
-            bestAxis = i;
-        }
-    }
-    
-    texAxisX = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 1]];
-    texAxisY = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 2]];
-    
-    float ang = rotation / 180 * M_PI;
-    float sinv = sin(ang);
-    float cosv = cos(ang);
-    
-    int sv, tv;
-    if ([texAxisX x] != 0)
-        sv = 0;
-    else if ([texAxisX y] != 0)
-        sv = 1;
-    else
-        sv = 2;
-    
-    if ([texAxisY x] != 0)
-        tv = 0;
-    else if ([texAxisY y] != 0)
-        tv = 1;
-    else
-        tv = 2;
-    
-    Vector3f* texAxes[2] = {texAxisX, texAxisY};
-    for (int i = 0; i < 2; i++) {
-        float ns = cosv * [texAxes[i] component:sv] - sinv * [texAxes[i] component:tv];
-        float nt = sinv * [texAxes[i] component:sv] + cosv * [texAxes[i] component:tv];
-        
-        [texAxes[i] setComponent:sv value:ns];
-        [texAxes[i] setComponent:tv value:nt];
-    }
-    
-    [texAxisX scale:1 / xScale];
-    [texAxisY scale:1 / yScale];
-}
-
 - (void)translateOffsetsX:(int)x y:(int)y {
     if (x == 0 && y == 0)
         return;
@@ -307,7 +410,7 @@ static Vector3f* baseAxes[18];
         case 0:
         case 3:
         case 4:
-            xOffset += -x;
+            xOffset -= x;
             yOffset += y;
             break;
         case 1:
@@ -350,77 +453,6 @@ static Vector3f* baseAxes[18];
     
     [texCoords setX:[vertex dot:texAxisX] + xOffset];
     [texCoords setY:[vertex dot:texAxisY] + yOffset];
-}
-
-- (void)updateMatrices {
-    Vector3f* xAxis = [[Vector3f alloc] init];
-    Vector3f* yAxis = [[Vector3f alloc] init];
-    Vector3f* zAxis = [[Vector3f alloc] initWithFloatVector:[self norm]];
-    
-    float ny = [[self norm] y];
-    if (fneg(ny)) {
-        // surface X axis is normalized projection of positive world X axis along Y axis onto plane
-        Vector3f* point = [[Vector3f alloc] initWithFloatVector:[self center]];
-        [point setX:[point x] + 1];
-        Line3D* line = [[Line3D alloc] initWithPoint:point normalizedDirection:[Vector3f yAxisPos]];
-        Plane3D* plane = [[self halfSpace] boundary];
-        [xAxis setFloat:[plane intersectWithLine:line]];
-        [xAxis sub:[self center]];
-        [xAxis normalize];
-        [line release];
-        [point release];
-    } else if (fpos(ny)) {
-        // surface X axis is normalized projection of negative world X axis along Y axis onto plane
-        Vector3f* point = [[Vector3f alloc] initWithFloatVector:[self center]];
-        [point setX:[point x] - 1];
-        Line3D* line = [[Line3D alloc] initWithPoint:point normalizedDirection:[Vector3f yAxisPos]];
-        Plane3D* plane = [[self halfSpace] boundary];
-        [xAxis setFloat:[plane intersectWithLine:line]];
-        [xAxis sub:[self center]];
-        [xAxis normalize];
-        [line release];
-        [point release];
-    } else {
-        // plane normal is on XZ plane, try X, then Z
-        float nx = [[self norm] x];
-        if (fpos(nx)) {
-            // positive world Y axis is surface X axis
-            [xAxis setFloat:[Vector3f yAxisPos]];
-        } else if (fneg(nx)) {
-            // negative world Y axis is surface X axis
-            [xAxis setFloat:[Vector3f yAxisNeg]];
-        } else {
-            // surface normal is Z = 1 or Z = -1
-            float nz = [[self norm] z];
-            if (nz > 0) {
-                // positive world X axis is surface X axis
-                [xAxis setFloat:[Vector3f xAxisPos]];
-            } else {
-                // negative world X axis is surface X axis
-                [xAxis setFloat:[Vector3f xAxisNeg]];
-            }
-        }
-    }
-    
-    [yAxis setFloat:zAxis];
-    [yAxis cross:xAxis];
-    [yAxis normalize];
-    
-    // build transformation matrix
-    surfaceMatrix = [[Matrix4f alloc] init];
-    [surfaceMatrix setColumn:0 values:xAxis];
-    [surfaceMatrix setColumn:1 values:yAxis];
-    [surfaceMatrix setColumn:2 values:zAxis];
-    [surfaceMatrix setColumn:3 values:[self center]];
-    [surfaceMatrix setColumn:3 row:3 value:1];
-
-    worldMatrix = [[Matrix4f alloc] initWithMatrix4f:surfaceMatrix];
-    if (![worldMatrix invert])
-        [NSException raise:@"NonInvertibleMatrixException" format:@"surface transformation matrix is not invertible"];
-
-    [xAxis release];
-    [yAxis release];
-    [zAxis release];
 }
 
 - (Vector3f *)worldCoordsOf:(Vector3f *)sCoords {

@@ -156,7 +156,6 @@ static PrefabManager* sharedInstance = nil;
     [parser parseMap:prefab withProgressIndicator:nil];
     [parser release];
 
-    [prefab translateToOrigin];
     [self addPrefab:prefab group:prefabGroup];
     
     NSLog(@"Loaded prefab '%@'", prefabName);
@@ -213,7 +212,6 @@ static PrefabManager* sharedInstance = nil;
         [newBrush release];
     }
     
-    [prefab translateToOrigin];
     [self addPrefab:prefab group:(MutablePrefabGroup *)prefabGroup];
     [self writePrefab:prefab];
     

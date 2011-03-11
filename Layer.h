@@ -7,15 +7,16 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "RenderContext.h"
-#import "Face.h"
+
+@class RenderContext;
+@protocol Figure;
 
 @protocol Layer <NSObject>
 
 - (void)render:(RenderContext *)renderContext;
 
-- (void)addFigure:(id)theFigure;
-- (void)removeFigure:(id)theFigure;
+- (void)addFigure:(id <Figure>)theFigure;
+- (void)removeFigure:(id <Figure>)theFigure;
 
 - (void)invalidate;
 @end
