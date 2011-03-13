@@ -8,7 +8,9 @@
 
 #import "SelectionLayer.h"
 #import <OpenGL/gl.h>
+#import "RenderContext.h"
 #import "Figure.h"
+#import "Face.h"
 #import "Vector3f.h"
 #import "Options.h"
 #import "Grid.h"

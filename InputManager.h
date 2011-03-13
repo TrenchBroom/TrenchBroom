@@ -11,12 +11,15 @@
 @class Picker;
 @class PickingHit;
 @class MapWindowController;
+@class BrushTool;
 
 @interface InputManager : NSObject {
     @private 
     PickingHit* lastHit;
     MapWindowController* windowController;
+    BrushTool* brushTool;
     BOOL gesture;
+    BOOL drag;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

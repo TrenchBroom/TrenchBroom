@@ -26,6 +26,7 @@
 		480F2F65132562CA00651FED /* Grid.m in Sources */ = {isa = PBXBuildFile; fileRef = 480F2F64132562CA00651FED /* Grid.m */; };
 		4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4814A02212F73F1E0082E05F /* ProgressWindow.xib */; };
 		4814A02712F740580082E05F /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4814A02612F740580082E05F /* ProgressWindowController.m */; };
+		4816144D132BE7C300CD66AF /* BrushTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4816144C132BE7C300CD66AF /* BrushTool.m */; };
 		4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4818202212FB4746002D9AAD /* SingleTextureView.m */; };
 		481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 481D300F12FAE5C0001CBD9E /* GLFontManager.m */; };
 		4824957B12F3004C004F3615 /* BoundingBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 4824957A12F3004C004F3615 /* BoundingBox.m */; };
@@ -184,6 +185,8 @@
 		4814A02212F73F1E0082E05F /* ProgressWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProgressWindow.xib; sourceTree = "<group>"; };
 		4814A02512F740580082E05F /* ProgressWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressWindowController.h; sourceTree = "<group>"; };
 		4814A02612F740580082E05F /* ProgressWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProgressWindowController.m; sourceTree = "<group>"; };
+		4816144B132BE7C300CD66AF /* BrushTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushTool.h; sourceTree = "<group>"; };
+		4816144C132BE7C300CD66AF /* BrushTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrushTool.m; sourceTree = "<group>"; };
 		4818202112FB4746002D9AAD /* SingleTextureView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTextureView.h; sourceTree = "<group>"; };
 		4818202212FB4746002D9AAD /* SingleTextureView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SingleTextureView.m; sourceTree = "<group>"; };
 		481D300E12FAE5C0001CBD9E /* GLFontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFontManager.h; sourceTree = "<group>"; };
@@ -709,6 +712,8 @@
 				484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */,
 				480F2F63132562CA00651FED /* Grid.h */,
 				480F2F64132562CA00651FED /* Grid.m */,
+				4816144B132BE7C300CD66AF /* BrushTool.h */,
+				4816144C132BE7C300CD66AF /* BrushTool.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -1019,6 +1024,7 @@
 				484524A61323CCBD003B2855 /* MapWriter.m in Sources */,
 				484524D713240049003B2855 /* NSFileManager+AppSupportCategory.m in Sources */,
 				480F2F65132562CA00651FED /* Grid.m in Sources */,
+				4816144D132BE7C300CD66AF /* BrushTool.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

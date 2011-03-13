@@ -20,6 +20,7 @@
 #import "Vector3i.h"
 #import "MapWindowController.h"
 #import "MapDocument.h"
+#import "BrushTool.h"
 
 @implementation InputManager
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
@@ -65,9 +66,8 @@
 }
 
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender {
+    Camera* camera = [windowController camera];
     if ([self isCameraModifierPressed:event]) {
-        Camera* camera = [windowController camera];
-        
         if ([self isCameraOrbitModifierPressed:event]) {
             if (lastHit != nil) {
                 float h = -[event deltaX] / 70;
@@ -79,7 +79,18 @@
             float pitch = [event deltaY] / 70;
             [camera rotateYaw:yaw pitch:pitch];
         }
+    } else if (brushTool != nil) {
+        MapView3D* mapView3D = (MapView3D *)sender;
+        [[mapView3D openGLContext] makeCurrentContext];
+        Camera* camera = [windowController camera];
+        
+        NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
+        Ray3D* ray = [camera pickRayX:m.x y:m.y];
+
+        [brushTool translateTo:ray toggleSnap:NO altPlane:NO];
     }
+    
+    drag = YES;
 }
 
 - (void)handleMouseMoved:(NSEvent *)event sender:(id)sender {
@@ -102,7 +113,19 @@
     else
         lastHit = nil;
     
-    if (![self isCameraModifierPressed:event]) {
+    if (lastHit != nil && ![self isCameraModifierPressed:event]) {
+        SelectionManager* selectionManager = [windowController selectionManager];
+        if ([selectionManager isBrushSelected:[[lastHit object] brush]]) {
+            MapDocument* map = [windowController document];
+            NSUndoManager* undoManager = [map undoManager];
+            [undoManager beginUndoGrouping];
+            brushTool = [[BrushTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
+        }
+    }
+}
+
+- (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
+    if (![self isCameraModifierPressed:event] && !drag) {
         SelectionManager* selectionManager = [windowController selectionManager];
         if (lastHit != nil) {
             id <Face> face = [lastHit object];
@@ -143,9 +166,17 @@
             [selectionManager removeAll];
         }
     }
-}
-
-- (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
+    
+    if (brushTool != nil) {
+        MapDocument* map = [windowController document];
+        NSUndoManager* undoManager = [map undoManager];
+        [undoManager endUndoGrouping];
+        [undoManager setActionName:@"Move Brushes"];
+        [brushTool release];
+        brushTool = nil;
+    }
+    
+    drag = NO;
 }
 
 - (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender {

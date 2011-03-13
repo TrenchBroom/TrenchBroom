@@ -101,7 +101,7 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)faceChanged:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Face> face = [userInfo objectForKey:FaceKey];
-    FaceFigure* figure = [self figureForFace:face create:NO];
+    id <Figure> figure = [self figureForFace:face create:NO];
     if (figure != nil) {
         [figure invalidate];
         SelectionManager* selectionManager = [windowController selectionManager];
@@ -126,6 +126,26 @@ NSString* const RendererChanged = @"RendererChanged";
     NSDictionary* userInfo = [notification userInfo];
     id <Face> face = [userInfo objectForKey:FaceKey];
     [self removeFace:face];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+}
+
+- (void)brushChanged:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    id <Brush> brush = [userInfo objectForKey:BrushKey];
+    NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject])) {
+        FaceFigure* figure = [self figureForFace:face create:NO];
+        if (figure != nil) {
+            [figure invalidate];
+            SelectionManager* selectionManager = [windowController selectionManager];
+            if ([selectionManager isFaceSelected:face] || [selectionManager isBrushSelected:brush])
+                [selectionLayer invalidate];
+            else
+                [geometryLayer invalidate];
+        }
+    }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -265,6 +285,7 @@ NSString* const RendererChanged = @"RendererChanged";
         [center addObserver:self selector:@selector(entityRemoved:) name:EntityRemoved object:map];
         [center addObserver:self selector:@selector(brushAdded:) name:BrushAdded object:map];
         [center addObserver:self selector:@selector(brushRemoved:) name:BrushRemoved object:map];
+        [center addObserver:self selector:@selector(brushChanged:) name:BrushChanged object:map];
         [center addObserver:self selector:@selector(faceAdded:) name:FaceAdded object:map];
         [center addObserver:self selector:@selector(faceRemoved:) name:FaceRemoved object:map];
         [center addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged object:map];
