@@ -3,16 +3,16 @@
 	<data>
 		<int key="IBDocument.SystemTarget">1060</int>
 		<string key="IBDocument.SystemVersion">10J567</string>
-		<string key="IBDocument.InterfaceBuilderVersion">804</string>
+		<string key="IBDocument.InterfaceBuilderVersion">823</string>
 		<string key="IBDocument.AppKitVersion">1038.35</string>
 		<string key="IBDocument.HIToolboxVersion">462.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">804</string>
+			<string key="NS.object.0">823</string>
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="24"/>
+			<integer value="755"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1277,6 +1277,29 @@
 										</object>
 									</object>
 								</object>
+								<object class="NSMenuItem" id="707082612">
+									<reference key="NSMenu" ref="466310130"/>
+									<string key="NSTitle">Camera</string>
+									<string key="NSKeyEquiv"/>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="1033313550"/>
+									<reference key="NSMixedImage" ref="310636482"/>
+									<string key="NSAction">submenuAction:</string>
+									<object class="NSMenu" key="NSSubmenu" id="403305097">
+										<string key="NSTitle">Camera</string>
+										<object class="NSMutableArray" key="NSMenuItems">
+											<bool key="EncodedWithXMLCoder">YES</bool>
+											<object class="NSMenuItem" id="532629463">
+												<reference key="NSMenu" ref="403305097"/>
+												<string key="NSTitle">Switch To XY View</string>
+												<string key="NSKeyEquiv"/>
+												<int key="NSMnemonicLoc">2147483647</int>
+												<reference key="NSOnImage" ref="1033313550"/>
+												<reference key="NSMixedImage" ref="310636482"/>
+											</object>
+										</object>
+									</object>
+								</object>
 							</object>
 						</object>
 					</object>
@@ -2333,6 +2356,14 @@
 					</object>
 					<int key="connectionID">753</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveCameraXY:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="532629463"/>
+					</object>
+					<int key="connectionID">758</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -2709,6 +2740,7 @@
 							<reference ref="237841660"/>
 							<reference ref="813317821"/>
 							<reference ref="942009878"/>
+							<reference ref="707082612"/>
 						</object>
 						<reference key="parent" ref="586577488"/>
 					</object>
@@ -3420,6 +3452,29 @@
 						<reference key="object" ref="774530423"/>
 						<reference key="parent" ref="835318025"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">754</int>
+						<reference key="object" ref="707082612"/>
+						<object class="NSMutableArray" key="children">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<reference ref="403305097"/>
+						</object>
+						<reference key="parent" ref="466310130"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">755</int>
+						<reference key="object" ref="403305097"/>
+						<object class="NSMutableArray" key="children">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<reference ref="532629463"/>
+						</object>
+						<reference key="parent" ref="707082612"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">757</int>
+						<reference key="object" ref="532629463"/>
+						<reference key="parent" ref="403305097"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -3635,6 +3690,10 @@
 					<string>75.ImportedFromIB2</string>
 					<string>751.IBPluginDependency</string>
 					<string>752.IBPluginDependency</string>
+					<string>754.IBPluginDependency</string>
+					<string>755.IBEditorWindowLastContentRect</string>
+					<string>755.IBPluginDependency</string>
+					<string>757.IBPluginDependency</string>
 					<string>77.IBPluginDependency</string>
 					<string>77.ImportedFromIB2</string>
 					<string>78.IBPluginDependency</string>
@@ -3719,17 +3778,17 @@
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
-					<string>{{1284, 815}, {194, 103}}</string>
+					<string>{{646, 623}, {194, 103}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
 					<string>{{525, 802}, {197, 73}}</string>
-					<string>{{955, 918}, {461, 20}}</string>
+					<string>{{317, 726}, {461, 20}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
 					<string>{74, 862}</string>
 					<string>{{11, 977}, {478, 20}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{1234, 845}, {231, 73}}</string>
+					<string>{{596, 633}, {231, 93}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{475, 832}, {234, 43}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3866,6 +3925,10 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>{{827, 633}, {176, 23}}</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
@@ -3901,7 +3964,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">753</int>
+			<int key="maxID">758</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -3943,6 +4006,9 @@
 							<string>cutSelection:</string>
 							<string>deleteSelection:</string>
 							<string>duplicateSelection:</string>
+							<string>moveCameraXY:</string>
+							<string>moveCameraXZ:</string>
+							<string>moveCameraYZ:</string>
 							<string>moveTextureDown:</string>
 							<string>moveTextureLeft:</string>
 							<string>moveTextureRight:</string>
@@ -3982,6 +4048,9 @@
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
 						</object>
 					</object>
 					<object class="NSMutableDictionary" key="actionInfosByName">
@@ -3994,6 +4063,9 @@
 							<string>cutSelection:</string>
 							<string>deleteSelection:</string>
 							<string>duplicateSelection:</string>
+							<string>moveCameraXY:</string>
+							<string>moveCameraXZ:</string>
+							<string>moveCameraYZ:</string>
 							<string>moveTextureDown:</string>
 							<string>moveTextureLeft:</string>
 							<string>moveTextureRight:</string>
@@ -4034,6 +4106,18 @@
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">duplicateSelection:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">moveCameraXY:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">moveCameraXZ:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">moveCameraYZ:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">

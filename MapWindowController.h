@@ -34,6 +34,10 @@
 - (IBAction)toggleSnap:(id)sender;
 - (IBAction)setGridSize:(id)sender;
 
+- (IBAction)moveCameraXY:(id)sender;
+- (IBAction)moveCameraXZ:(id)sender;
+- (IBAction)moveCameraYZ:(id)sender;
+
 - (IBAction)clearSelection:(id)sender;
 - (IBAction)copySelection:(id)sender;
 - (IBAction)cutSelection:(id)sender;

@@ -35,6 +35,7 @@
 #import "Prefab.h"
 #import "MapWriter.h"
 #import "MathCache.h"
+#import "CameraAnimation.h"
 
 static NSString* CameraDefaults = @"Camera";
 static NSString* CameraDefaultsFov = @"Field Of Vision";
@@ -148,6 +149,8 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         return [selectionManager hasSelectedBrushes];
     } else if (action == @selector(showInspector:)) {
         return YES;
+    } else if (action == @selector(moveCameraXY:)) {
+        return YES;
     }
 
     return NO;
@@ -168,6 +171,24 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 
 - (IBAction)setGridSize:(id)sender {
     [[options grid] setSize:[sender tag]];
+}
+
+- (IBAction)moveCameraXY:(id)sender {
+    MathCache* cache = [MathCache sharedCache];
+    Vector3f* position = [cache vector3f];
+    
+    [position setFloat:[camera position]];
+    
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position direction:[Vector3f zAxisNeg] duration:0.5];
+    [animation startAnimation];
+    
+    [cache returnVector3f:position];
+}
+
+- (IBAction)moveCameraXZ:(id)sender {
+}
+
+- (IBAction)moveCameraYZ:(id)sender {
 }
 
 - (IBAction)clearSelection:(id)sender {

@@ -99,6 +99,17 @@ NSString* const CameraChanged = @"CameraChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
+- (void)setDirection:(Vector3f *)theDirection {
+    [direction setFloat:theDirection];
+    [direction normalize];
+    
+    [right setFloat:direction];
+    [right cross:up];
+    [right normalize];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
+}
+
 - (void)rotateYaw:(float)yaw pitch:(float)pitch {
     MathCache* cache = [MathCache sharedCache];
     
