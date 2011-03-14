@@ -38,6 +38,7 @@ extern NSString* const CameraChanged;
 
 - (void)moveTo:(Vector3f *)thePosition;
 - (void)lookAt:(Vector3f *)thePoint;
+- (void)setDirection:(Vector3f *)theDirection;
 - (void)rotateYaw:(float)yaw pitch:(float)pitch;
 - (void)moveForward:(float)f right:(float)r up:(float)u;
 - (void)orbitCenter:(Vector3f *)c hAngle:(float)h vAngle:(float)v;

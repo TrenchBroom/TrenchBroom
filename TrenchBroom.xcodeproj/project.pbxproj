@@ -97,6 +97,7 @@
 		488FEB67131FD49C00010A04 /* PrefabLayoutPrefabCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB66131FD49C00010A04 /* PrefabLayoutPrefabCell.m */; };
 		4891E15612FC04B2007A3B93 /* InspectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4891E15512FC04B2007A3B93 /* InspectorController.m */; };
 		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
+		48958209132E52EF00BB7D8F /* CameraAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 48958208132E52EF00BB7D8F /* CameraAnimation.m */; };
 		489FB43D12FA0A5B00B6BAF1 /* GLFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 489FB43C12FA0A5B00B6BAF1 /* GLFont.m */; };
 		489FB44012FA0ABE00B6BAF1 /* GLFontChar.m in Sources */ = {isa = PBXBuildFile; fileRef = 489FB43F12FA0ABE00B6BAF1 /* GLFontChar.m */; };
 		48A68EB8114E96C00064732A /* MapWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68EB7114E96C00064732A /* MapWindowController.m */; };
@@ -319,6 +320,8 @@
 		4891E15512FC04B2007A3B93 /* InspectorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectorController.m; sourceTree = "<group>"; };
 		48941664123619870098E17C /* Line2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Line2DTestCase.h; sourceTree = "<group>"; };
 		48941665123619870098E17C /* Line2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line2DTestCase.m; sourceTree = "<group>"; };
+		48958207132E52EF00BB7D8F /* CameraAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraAnimation.h; sourceTree = "<group>"; };
+		48958208132E52EF00BB7D8F /* CameraAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraAnimation.m; sourceTree = "<group>"; };
 		489FB43B12FA0A5B00B6BAF1 /* GLFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFont.h; sourceTree = "<group>"; };
 		489FB43C12FA0A5B00B6BAF1 /* GLFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFont.m; sourceTree = "<group>"; };
 		489FB43E12FA0ABE00B6BAF1 /* GLFontChar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFontChar.h; sourceTree = "<group>"; };
@@ -714,6 +717,8 @@
 				480F2F64132562CA00651FED /* Grid.m */,
 				4816144B132BE7C300CD66AF /* BrushTool.h */,
 				4816144C132BE7C300CD66AF /* BrushTool.m */,
+				48958207132E52EF00BB7D8F /* CameraAnimation.h */,
+				48958208132E52EF00BB7D8F /* CameraAnimation.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -1025,6 +1030,7 @@
 				484524D713240049003B2855 /* NSFileManager+AppSupportCategory.m in Sources */,
 				480F2F65132562CA00651FED /* Grid.m in Sources */,
 				4816144D132BE7C300CD66AF /* BrushTool.m in Sources */,
+				48958209132E52EF00BB7D8F /* CameraAnimation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
