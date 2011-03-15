@@ -39,16 +39,27 @@
     Vector3f* size = [maxBounds size];
 
     MathCache* cache = [MathCache sharedCache];
-    Vector3f* position = [cache vector3f];
+    Vector3f* p = [cache vector3f];
+    Vector3f* d = [cache vector3f];
+    Vector3f* u = [cache vector3f];
     
-    [position setFloat:size];
-    [position scale:0.5f];
-    [position add:[prefab center]];
+    [p setFloat:size];
+    [p scale:0.5f];
+    [p add:[prefab center]];
     
-    [camera moveTo:position];
-    [camera lookAt:[prefab center]];
+    [d setFloat:[prefab center]];
+    [d sub:p];
     
-    [cache returnVector3f:position];
+    [u setFloat:d];
+    [u cross:[Vector3f zAxisPos]]; // points to right
+    [u cross:d];
+    
+    [camera moveTo:p];
+    [camera setDirection:d up:u];
+    
+    [cache returnVector3f:p];
+    [cache returnVector3f:d];
+    [cache returnVector3f:u];
 }
 
 - (void)addPrefab:(id <Prefab>)prefab {

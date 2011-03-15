@@ -32,21 +32,25 @@ extern NSString* const CameraChanged;
 - (Vector3f *)position;
 - (Vector3f *)direction;
 - (Vector3f *)up;
+- (Vector3f *)right;
 - (float)fieldOfVision;
 - (float)nearClippingPlane;
 - (float)farClippingPlane;
 
 - (void)moveTo:(Vector3f *)thePosition;
-- (void)lookAt:(Vector3f *)thePoint;
-- (void)setDirection:(Vector3f *)theDirection;
-- (void)rotateYaw:(float)yaw pitch:(float)pitch;
 - (void)moveForward:(float)f right:(float)r up:(float)u;
+
+- (void)lookAt:(Vector3f *)thePoint up:(Vector3f *)theUpVector;
+- (void)setDirection:(Vector3f *)theDirection up:(Vector3f *)theUpVector;
+
+- (void)rotateYaw:(float)yaw pitch:(float)pitch;
 - (void)orbitCenter:(Vector3f *)c hAngle:(float)h vAngle:(float)v;
+
 - (void)setFieldOfVision:(float)theFov;
 - (void)setNearClippingPlane:(float)theNear;
 - (void)setFarCliippingPlane:(float)theFar;
-- (void)updateView:(NSRect)bounds;
 
+- (void)updateView:(NSRect)bounds;
 - (Vector3f *)unprojectX:(float)x y:(float)y;
 - (Ray3D *)pickRayX:(float)x y:(float)y;
 @end

@@ -19,12 +19,10 @@ NSString* const CameraChanged = @"CameraChanged";
 
 - (id)init {
     if (self = [super init]) {
-        position = [[Vector3f alloc] initWithX:0 y:0 z:0];
-        direction = [[Vector3f alloc] initWithX:1 y:0 z:0];
-        up = [[Vector3f alloc] initWithX:0 y:0 z:1];
-        right = [[Vector3f alloc] initWithFloatVector:direction];
-        [right cross:up];
-        [right normalize];
+        position = [[Vector3f alloc] initWithFloatVector:[Vector3f nullVector]];
+        direction = [[Vector3f alloc] initWithFloatVector:[Vector3f xAxisPos]];
+        up = [[Vector3f alloc] initWithFloatVector:[Vector3f zAxisPos]];
+        right = [[Vector3f alloc] initWithFloatVector:[Vector3f yAxisNeg]];
     }
     
     return self;
@@ -45,10 +43,7 @@ NSString* const CameraChanged = @"CameraChanged";
         [position setFloat:[theCamera position]];
         [direction setFloat:[theCamera direction]];
         [up setFloat:[theCamera up]];
-        
-        [right setFloat:direction];
-        [right cross:up];
-        [right normalize];
+        [right setFloat:[theCamera right]];
 
         fov = [theCamera fieldOfVision];
         near = [theCamera nearClippingPlane];
@@ -70,6 +65,10 @@ NSString* const CameraChanged = @"CameraChanged";
     return up;
 }
 
+- (Vector3f *)right {
+    return right;
+}
+
 - (float)fieldOfVision {
     return fov;
 }
@@ -87,21 +86,23 @@ NSString* const CameraChanged = @"CameraChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
-- (void)lookAt:(Vector3f *)thePoint {
-    [direction setFloat:thePoint];
-    [direction sub:position];
-    [direction normalize];
-
-    [right setFloat:direction];
-    [right cross:up];
-    [right normalize];
+- (void)lookAt:(Vector3f *)thePoint up:(Vector3f *)theUpVector {
+    MathCache* cache = [MathCache sharedCache];
+    Vector3f* d = [cache vector3f];
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
+    [d setFloat:thePoint];
+    [d sub:position];
+    [self setDirection:d up:theUpVector];
+    
+    [cache returnVector3f:d];
 }
 
-- (void)setDirection:(Vector3f *)theDirection {
+- (void)setDirection:(Vector3f *)theDirection up:(Vector3f *)theUpVector {
     [direction setFloat:theDirection];
     [direction normalize];
+    
+    [up setFloat:theUpVector];
+    [up normalize];
     
     [right setFloat:direction];
     [right cross:up];
@@ -115,24 +116,29 @@ NSString* const CameraChanged = @"CameraChanged";
     
     Quaternion* qy = [cache quaternion];
     Quaternion* qp = [cache quaternion];
-    [qy setAngle:yaw axis:up];
+    [qy setAngle:yaw axis:[Vector3f zAxisPos]];
     [qp setAngle:pitch axis:right];
     [qy mul:qp];
     
-    Vector3f*  t = [cache vector3f];
-    [t setFloat:direction];
-    [qy rotate:t];
+    Vector3f* d = [cache vector3f];
+    Vector3f* u = [cache vector3f];
     
-    if (!(([t x] < 0 ^ [direction x] < 0) && ([t y] < 0 ^ [direction y] < 0))) {
-        [direction setFloat:t];
-        [right setFloat:direction];
-        [right cross:up];
-        [right normalize];
-
-        [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
+    [d setFloat:direction];
+    [qy rotate:d];
+    
+    [u setFloat:up];
+    [qy rotate:u];
+    
+    if ([u z] < 0) {
+        [u setZ:0];
+        [d setX:0];
+        [d setY:0];
     }
     
-    [cache returnVector3f:t];
+    [self setDirection:d up:u];
+    
+    [cache returnVector3f:d];
+    [cache returnVector3f:u];
     [cache returnQuaternion:qy];
     [cache returnQuaternion:qp];
 }
@@ -149,7 +155,7 @@ NSString* const CameraChanged = @"CameraChanged";
     [v scale:r];
     [position add:v];
     
-    [v setFloat:up];
+    [v setFloat:[Vector3f zAxisPos]];
     [v scale:u];
     [position add:v];
 
@@ -163,28 +169,46 @@ NSString* const CameraChanged = @"CameraChanged";
     
     Quaternion* qh = [cache quaternion];
     Quaternion* qv = [cache quaternion];
-    [qh setAngle:v axis:right];
-    [qv setAngle:h axis:up];
+    [qv setAngle:v axis:right];
+    [qh setAngle:h axis:[Vector3f zAxisPos]];
     [qh mul:qv];
     
-    Vector3f*  t = [cache vector3f];
-    [t setFloat:direction];
-    [qh rotate:t];
+    Vector3f* d = [cache vector3f];
+    Vector3f* u = [cache vector3f];
+    Vector3f* p = [cache vector3f];
     
-    if (!(([t x] < 0 ^ [direction x] < 0) && ([t y] < 0 ^ [direction y] < 0))) {
-        [direction setFloat:t];
-        [right setFloat:direction];
-        [right cross:up];
-        [right normalize];
+    [d setFloat:direction];
+    [qh rotate:d];
+    
+    [u setFloat:up];
+    [qh rotate:u];
+    
+    [p setFloat:position];
+    [p sub:c];
+    [qh rotate:p];
+    
+    if ([u z] < 0) {
+        [u setZ:0];
+        [d setX:0];
+        [d setY:0];
         
-        [position sub:c];
-        [qh rotate:position];
-        [position add:c];
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
+        float z = [p length];
+        [p setX:0];
+        [p setY:0];
+        if ([p z] > 0)
+            [p setZ:z];
+        else
+            [p setZ:-z];
     }
     
-    [cache returnVector3f:t];
+    [self setDirection:d up:u];
+    
+    [p add:c];
+    [self moveTo:p];
+    
+    [cache returnVector3f:d];
+    [cache returnVector3f:u];
+    [cache returnVector3f:p];
     [cache returnQuaternion:qh];
     [cache returnQuaternion:qv];
 }
