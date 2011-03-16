@@ -187,11 +187,10 @@ NSString* const CameraChanged = @"CameraChanged";
     [p sub:c];
     
     if ([u z] < 0) {
-        [u setZ:0];
+        [u setFloat:up];
+
         [d setX:0];
         [d setY:0];
-
-        [u normalize];
         [d normalize];
         
         Vector3f* axis = [cache vector3f];
@@ -204,9 +203,11 @@ NSString* const CameraChanged = @"CameraChanged";
             Quaternion* q = [cache quaternion];
             [q setAngle:angle axis:axis];
             [q rotate:p];
+            [q rotate:u];
             
             [cache returnQuaternion:q];
         }
+        
         [cache returnVector3f:axis];
     } else {
         [qh rotate:p];
