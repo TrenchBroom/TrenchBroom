@@ -8,6 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
+typedef enum {
+    CM_PARALLEL,
+    CM_PERSPECTIVE
+} ECameraMode;
+
 extern NSString* const CameraChanged;
 
 @class Vector3f;
@@ -24,6 +29,8 @@ extern NSString* const CameraChanged;
     float fov;
     float near;
     float far;
+    ECameraMode mode;
+    float zoom;
 }
 
 - (id)initWithFieldOfVision:(float)theFov nearClippingPlane:(float)theNear farClippingPlane:(float)theFar;
@@ -36,6 +43,8 @@ extern NSString* const CameraChanged;
 - (float)fieldOfVision;
 - (float)nearClippingPlane;
 - (float)farClippingPlane;
+- (float)zoom;
+- (ECameraMode)mode;
 
 - (void)moveTo:(Vector3f *)thePosition;
 - (void)moveForward:(float)f right:(float)r up:(float)u;
@@ -48,7 +57,9 @@ extern NSString* const CameraChanged;
 
 - (void)setFieldOfVision:(float)theFov;
 - (void)setNearClippingPlane:(float)theNear;
-- (void)setFarCliippingPlane:(float)theFar;
+- (void)setFarClippingPlane:(float)theFar;
+- (void)setZoom:(float)theZoom;
+- (void)setMode:(ECameraMode)theMode;
 
 - (void)updateView:(NSRect)bounds;
 - (Vector3f *)unprojectX:(float)x y:(float)y;

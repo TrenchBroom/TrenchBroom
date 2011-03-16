@@ -34,6 +34,7 @@
 - (IBAction)toggleSnap:(id)sender;
 - (IBAction)setGridSize:(id)sender;
 - (IBAction)isolateSelection:(id)sender;
+- (IBAction)toggleProjection:(id)sender;
 
 - (IBAction)switchToXYView:(id)sender;
 - (IBAction)switchToInvertedXYView:(id)sender;

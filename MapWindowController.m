@@ -64,7 +64,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     
     [camera setFieldOfVision:fov];
     [camera setNearClippingPlane:near];
-    [camera setFarCliippingPlane:far];
+    [camera setFarClippingPlane:far];
 }
 
 - (void)windowDidLoad {
@@ -163,6 +163,8 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         return YES;
     } else if (action == @selector(isolateSelection:)) {
         return YES;
+    } else if (action == @selector(toggleProjection:)) {
+        return YES;
     }
 
     return NO;
@@ -188,6 +190,11 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 - (IBAction)isolateSelection:(id)sender {
     EIsolationMode isolationMode = [options isolationMode];
     [options setIsolationMode:(isolationMode + 1) % 3];
+}
+
+- (IBAction)toggleProjection:(id)sender {
+    ECameraMode cameraMode = [camera mode];
+    [camera setMode:(cameraMode + 1) % 2];
 }
 
 - (IBAction)switchToXYView:(id)sender {

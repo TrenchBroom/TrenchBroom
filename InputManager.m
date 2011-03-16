@@ -198,10 +198,17 @@
 - (void)handleScrollWheel:(NSEvent *)event sender:(id)sender {
     if ([self isCameraModifierPressed:event]) {
         Camera* camera = [windowController camera];
-        if (gesture)
-            [camera moveForward:6 * [event deltaZ] right:-6 * [event deltaX] up:6 * [event deltaY]];
-        else
-            [camera moveForward:6 * [event deltaX] right:-6 * [event deltaY] up:6 * [event deltaZ]];
+        if ([self isCameraOrbitModifierPressed:event]) {
+            if (gesture)
+                [camera setZoom:[camera zoom] + [event deltaZ] / 10];
+            else
+                [camera setZoom:[camera zoom] + [event deltaX] / 10];
+        } else {
+            if (gesture)
+                [camera moveForward:6 * [event deltaZ] right:-6 * [event deltaX] up:6 * [event deltaY]];
+            else
+                [camera moveForward:6 * [event deltaX] right:-6 * [event deltaY] up:6 * [event deltaZ]];
+        }
     }
 }
 
@@ -216,7 +223,10 @@
 - (void)handleMagnify:(NSEvent *)event sender:(id)sender {
     if ([self isCameraModifierPressed:event]) {
         Camera* camera = [windowController camera];
-        [camera moveForward:160 * [event magnification] right:0 up:0];
+        if ([self isCameraOrbitModifierPressed:event])
+            [camera setZoom:[camera zoom] - [event magnification] / 2];
+        else
+            [camera moveForward:160 * [event magnification] right:0 up:0];
     }
 }
 

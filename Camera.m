@@ -23,6 +23,8 @@ NSString* const CameraChanged = @"CameraChanged";
         direction = [[Vector3f alloc] initWithFloatVector:[Vector3f xAxisPos]];
         up = [[Vector3f alloc] initWithFloatVector:[Vector3f zAxisPos]];
         right = [[Vector3f alloc] initWithFloatVector:[Vector3f yAxisNeg]];
+        mode = CM_PERSPECTIVE;
+        zoom = 0.5f;
     }
     
     return self;
@@ -79,6 +81,14 @@ NSString* const CameraChanged = @"CameraChanged";
 
 - (float)farClippingPlane {
     return far;
+}
+
+- (float)zoom {
+    return zoom;
+}
+
+- (ECameraMode)mode {
+    return mode;
 }
 
 - (void)moveTo:(Vector3f *)thePosition {
@@ -235,8 +245,18 @@ NSString* const CameraChanged = @"CameraChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
-- (void)setFarCliippingPlane:(float)theFar {
+- (void)setFarClippingPlane:(float)theFar {
     far = theFar;
+    [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
+}
+
+- (void)setZoom:(float)theZoom {
+    zoom = theZoom;
+    [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
+}
+
+- (void)setMode:(ECameraMode)theMode {
+    mode = theMode;
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
@@ -245,8 +265,10 @@ NSString* const CameraChanged = @"CameraChanged";
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(fov, NSWidth(bounds) / NSHeight(bounds), near, far);
-    // glOrtho(NSWidth(bounds) / -2, NSWidth(bounds) / 2, NSHeight(bounds) / -2, NSHeight(bounds) / 2, near, far);
+    if (mode == CM_PERSPECTIVE)
+        gluPerspective(fov, NSWidth(bounds) / NSHeight(bounds), near, far);
+    else
+        glOrtho(zoom * NSWidth(bounds) / -2, zoom * NSWidth(bounds) / 2, zoom * NSHeight(bounds) / -2, zoom * NSHeight(bounds) / 2, near, far);
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -278,18 +300,16 @@ NSString* const CameraChanged = @"CameraChanged";
 }
 
 - (Ray3D *)pickRayX:(float)x y:(float)y {
-    Vector3f* rayDir = [self unprojectX:x y:y];
-    
-    [rayDir sub:position];
-    [rayDir normalize];
-    
-    return [[[Ray3D alloc] initWithOrigin:position direction:rayDir] autorelease];
-
-    /*
-    Vector3f* rayDir = [[Vector3f alloc] initWithFloatVector:direction];
-    Vector3f* rayPos = [self unprojectX:x y:y];
-    return [[[Ray3D alloc] initWithOrigin:rayPos direction:[rayDir autorelease]] autorelease];
-    */
+    if (mode == CM_PERSPECTIVE) {
+        Vector3f* rayDir = [self unprojectX:x y:y];
+        [rayDir sub:position];
+        [rayDir normalize];
+        return [[[Ray3D alloc] initWithOrigin:position direction:rayDir] autorelease];
+    } else {
+        Vector3f* rayDir = [[Vector3f alloc] initWithFloatVector:direction];
+        Vector3f* rayPos = [self unprojectX:x y:y];
+        return [[[Ray3D alloc] initWithOrigin:rayPos direction:[rayDir autorelease]] autorelease];
+    }
 }
 
 - (void)dealloc {
