@@ -19,6 +19,6 @@
 
 - (id)initWithDocument:(MapDocument *)theDocument;
 
-- (NSArray *)objectsHitByRay:(Ray3D *)theRay;
+- (NSArray *)objectsHitByRay:(Ray3D *)theRay include:(NSSet *)includedObjects exclude:(NSSet *)excludedObjects;
 
 @end

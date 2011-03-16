@@ -25,7 +25,7 @@
     return self;
 }
 
-- (NSArray *)objectsHitByRay:(Ray3D *)theRay {
+- (NSArray *)objectsHitByRay:(Ray3D *)theRay include:(NSSet *)includedObjects exclude:(NSSet *)excludedObjects {
     if (theRay == nil)
         [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
     
@@ -33,6 +33,11 @@
     
     NSMutableSet* objects = [[NSMutableSet alloc] init];
     [octree addObjectsForRay:theRay to:objects];
+    
+    if (includedObjects != nil)
+        [objects intersectSet:includedObjects];
+    if (excludedObjects != nil)
+        [objects minusSet:excludedObjects];
     
     NSEnumerator* objectEn = [objects objectEnumerator];
     id object;

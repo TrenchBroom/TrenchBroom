@@ -25,6 +25,8 @@ typedef enum {
 @protocol Brush;
 @protocol Entity;
 
+@class Vector3f;
+
 @interface SelectionManager : NSObject {
     @private
     NSMutableSet* faces;
@@ -50,6 +52,7 @@ typedef enum {
 - (NSSet *)selectedBrushes;
 - (NSSet *)selectedFaces;
 - (NSSet *)selectedBrushFaces;
+- (Vector3f *)selectionCenter;
 
 - (BOOL)hasSelection;
 - (BOOL)hasSelectedEntities;

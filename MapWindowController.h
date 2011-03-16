@@ -33,10 +33,14 @@
 - (IBAction)toggleGrid:(id)sender;
 - (IBAction)toggleSnap:(id)sender;
 - (IBAction)setGridSize:(id)sender;
+- (IBAction)isolateSelection:(id)sender;
 
-- (IBAction)moveCameraXY:(id)sender;
-- (IBAction)moveCameraXZ:(id)sender;
-- (IBAction)moveCameraYZ:(id)sender;
+- (IBAction)switchToXYView:(id)sender;
+- (IBAction)switchToInvertedXYView:(id)sender;
+- (IBAction)switchToXZView:(id)sender;
+- (IBAction)switchToInvertedXZView:(id)sender;
+- (IBAction)switchToYZView:(id)sender;
+- (IBAction)switchToInvertedYZView:(id)sender;
 
 - (IBAction)clearSelection:(id)sender;
 - (IBAction)copySelection:(id)sender;

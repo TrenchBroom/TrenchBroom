@@ -138,24 +138,29 @@
 - (void)renderFaces:(RenderContext *)renderContext {
     switch ([[renderContext options] renderMode]) {
         case RM_TEXTURED:
-            glEnable(GL_TEXTURE_2D);
-            glPolygonMode(GL_FRONT, GL_FILL);
-            glColor4f(0, 0, 0, 1);
-            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-            [self renderTextured:renderContext];
-
-            glDisable(GL_TEXTURE_2D);
-            glPolygonMode(GL_FRONT, GL_LINE);
-            glColor4f(1, 1, 1, 0.5);
-            [self renderWireframe:renderContext];
+            if ([[renderContext options] isolationMode] == IM_NONE) {
+                glEnable(GL_TEXTURE_2D);
+                glPolygonMode(GL_FRONT, GL_FILL);
+                glColor4f(0, 0, 0, 1);
+                glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+                [self renderTextured:renderContext];
+            }
+            if ([[renderContext options] isolationMode] != IM_DISCARD) {
+                glDisable(GL_TEXTURE_2D);
+                glPolygonMode(GL_FRONT, GL_LINE);
+                glColor4f(1, 1, 1, 0.5);
+                [self renderWireframe:renderContext];
+            }
             break;
         case RM_FLAT:
             break;
         case RM_WIREFRAME:
-            glDisable(GL_TEXTURE_2D);
-            glPolygonMode(GL_FRONT, GL_LINE);
-            glColor4f(1, 1, 1, 0.5);
-            [self renderWireframe:renderContext];
+            if ([[renderContext options] isolationMode] != IM_DISCARD) {
+                glDisable(GL_TEXTURE_2D);
+                glPolygonMode(GL_FRONT, GL_LINE);
+                glColor4f(1, 1, 1, 0.5);
+                [self renderWireframe:renderContext];
+            }
             break;
     }
 }

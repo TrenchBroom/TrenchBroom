@@ -16,11 +16,12 @@
     Camera* camera;
     Vector3f* initialPosition;
     Vector3f* initialDirection;
+    Vector3f* initialUpVector;
     Vector3f* targetPosition;
     Vector3f* targetDirection;
-    
+    Vector3f* targetUpVector;
 }
 
-- (id)initWithCamera:(Camera *)theCamera targetPosition:(Vector3f *)thePosition direction:(Vector3f *)theDirection duration:(NSTimeInterval)duration;
+- (id)initWithCamera:(Camera *)theCamera targetPosition:(Vector3f *)thePosition targetDirection:(Vector3f *)theDirection targetUp:(Vector3f *)theUpVector duration:(NSTimeInterval)duration;
 
 @end

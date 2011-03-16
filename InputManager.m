@@ -21,6 +21,7 @@
 #import "MapWindowController.h"
 #import "MapDocument.h"
 #import "BrushTool.h"
+#import "Options.h"
 
 @implementation InputManager
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
@@ -104,10 +105,17 @@
     NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
     Ray3D* ray = [camera pickRayX:m.x y:m.y];
     
-    Picker* picker = [[windowController document] picker];
     [lastHit release];
+    Picker* picker = [[windowController document] picker];
+    NSSet* includedObjects = nil;
+
+    Options* options = [windowController options];
+    if ([options isolationMode] != IM_NONE) {
+        SelectionManager* selectionManager = [windowController selectionManager];
+        includedObjects = [selectionManager selectedBrushes];
+    }
     
-    NSArray* hits = [picker objectsHitByRay:ray];
+    NSArray* hits = [picker objectsHitByRay:ray include:includedObjects exclude:nil];
     if ([hits count] > 0)
         lastHit = [[hits objectAtIndex:0] retain];
     else
@@ -125,7 +133,8 @@
 }
 
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
-    if (![self isCameraModifierPressed:event] && !drag) {
+    Options* options = [windowController options];
+    if (![self isCameraModifierPressed:event] && !drag && [options isolationMode] == IM_NONE) {
         SelectionManager* selectionManager = [windowController selectionManager];
         if (lastHit != nil) {
             id <Face> face = [lastHit object];

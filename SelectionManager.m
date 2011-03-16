@@ -240,6 +240,32 @@ NSString* const SelectionFaces = @"SelectionFaces";
     return [result autorelease];
 }
 
+- (Vector3f *)selectionCenter {
+    switch ([self mode]) {
+        case SM_FACES: {
+            NSEnumerator* faceEn = [faces objectEnumerator];
+            id <Face> face = [faceEn nextObject];
+            Vector3f* center = [[Vector3f alloc] initWithFloatVector:[face center]];
+            while ((face = [faceEn nextObject]))
+                [center add:[face center]];
+            
+            [center scale:1.0f / [faces count]];
+            return [center autorelease];
+        }
+        case SM_GEOMETRY: {
+            NSEnumerator* brushEn = [brushes objectEnumerator];
+            id <Brush> brush = [brushEn nextObject];
+            Vector3f* center = [[Vector3f alloc] initWithFloatVector:[brush center]];
+            while ((brush = [brushEn nextObject]))
+                [center add:[brush center]];
+            
+            [center scale:1.0f / [brushes count]];
+            return [center autorelease];
+        }
+    }
+    return nil;
+}
+
 - (BOOL)hasSelection {
     return [self hasSelectedEntities] || [self hasSelectedBrushes] || [self hasSelectedFaces];
 }

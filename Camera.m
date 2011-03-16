@@ -192,13 +192,16 @@ NSString* const CameraChanged = @"CameraChanged";
         [d setX:0];
         [d setY:0];
         
-        float z = [p length];
+        Vector3f* diff = [cache vector3f];
+        [diff setFloat:c];
+        [diff sub:position];
+        
+        float l = [diff length];
         [p setX:0];
         [p setY:0];
-        if ([p z] > 0)
-            [p setZ:z];
-        else
-            [p setZ:-z];
+        [p setZ:l];
+        
+        [cache returnVector3f:diff];
     }
     
     [self setDirection:d up:u];
@@ -234,6 +237,7 @@ NSString* const CameraChanged = @"CameraChanged";
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(fov, NSWidth(bounds) / NSHeight(bounds), near, far);
+    // glOrtho(NSWidth(bounds) / -2, NSWidth(bounds) / 2, NSHeight(bounds) / -2, NSHeight(bounds) / 2, near, far);
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -259,7 +263,7 @@ NSString* const CameraChanged = @"CameraChanged";
     glGetIntegerv(GL_VIEWPORT, viewport);
     
     GLdouble rx, ry, rz;
-    gluUnProject(x, y, 1, modelview, projection, viewport, &rx, &ry, &rz);
+    gluUnProject(x, y, 0, modelview, projection, viewport, &rx, &ry, &rz);
     
     return [[[Vector3f alloc] initWithX:rx y:ry z:rz] autorelease];
 }
@@ -271,6 +275,12 @@ NSString* const CameraChanged = @"CameraChanged";
     [rayDir normalize];
     
     return [[[Ray3D alloc] initWithOrigin:position direction:rayDir] autorelease];
+
+    /*
+    Vector3f* rayDir = [[Vector3f alloc] initWithFloatVector:direction];
+    Vector3f* rayPos = [self unprojectX:x y:y];
+    return [[[Ray3D alloc] initWithOrigin:rayPos direction:[rayDir autorelease]] autorelease];
+    */
 }
 
 - (void)dealloc {

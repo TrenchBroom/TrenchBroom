@@ -254,6 +254,10 @@ NSString* const RendererChanged = @"RendererChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
+- (void)optionsChanged:(NSNotification *)notification {
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+}
+
 - (id)init {
     if (self = [super init]) {
         faceFigures = [[NSMutableDictionary alloc] init];
@@ -298,6 +302,9 @@ NSString* const RendererChanged = @"RendererChanged";
         
         Camera* camera = [windowController camera];
         [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
+        
+        Options* options = [windowController options];
+        [center addObserver:self selector:@selector(optionsChanged:) name:OptionsChanged object:options];
     }
     
     return self;

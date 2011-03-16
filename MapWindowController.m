@@ -149,7 +149,19 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         return [selectionManager hasSelectedBrushes];
     } else if (action == @selector(showInspector:)) {
         return YES;
-    } else if (action == @selector(moveCameraXY:)) {
+    } else if (action == @selector(switchToXYView:)) {
+        return YES;
+    } else if (action == @selector(switchToInvertedXYView:)) {
+        return YES;
+    } else if (action == @selector(switchToXZView:)) {
+        return YES;
+    } else if (action == @selector(switchToInvertedXZView:)) {
+        return YES;
+    } else if (action == @selector(switchToYZView:)) {
+        return YES;
+    } else if (action == @selector(switchToInvertedYZView:)) {
+        return YES;
+    } else if (action == @selector(isolateSelection:)) {
         return YES;
     }
 
@@ -173,22 +185,159 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [[options grid] setSize:[sender tag]];
 }
 
-- (IBAction)moveCameraXY:(id)sender {
+- (IBAction)isolateSelection:(id)sender {
+    EIsolationMode isolationMode = [options isolationMode];
+    [options setIsolationMode:(isolationMode + 1) % 3];
+}
+
+- (IBAction)switchToXYView:(id)sender {
     MathCache* cache = [MathCache sharedCache];
+
+    Vector3f* center = [selectionManager selectionCenter];
+    if (center == nil) {
+        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
+        [center scale:256];
+        [center add:[camera position]];
+    }
+    
+    Vector3f* diff = [cache vector3f];
+    [diff setFloat:center];
+    [diff sub:[camera position]];
+    
     Vector3f* position = [cache vector3f];
+    [position setFloat:center];
+    [position setZ:[position z] + [diff length]];
     
-    [position setFloat:[camera position]];
-    
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position direction:[Vector3f zAxisNeg] duration:0.5];
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f zAxisNeg] targetUp:[Vector3f yAxisPos] duration:0.5];
     [animation startAnimation];
     
+    [cache returnVector3f:diff];
     [cache returnVector3f:position];
 }
 
-- (IBAction)moveCameraXZ:(id)sender {
+- (IBAction)switchToInvertedXYView:(id)sender {
+    MathCache* cache = [MathCache sharedCache];
+    
+    Vector3f* center = [selectionManager selectionCenter];
+    if (center == nil) {
+        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
+        [center scale:256];
+        [center add:[camera position]];
+    }
+    
+    Vector3f* diff = [cache vector3f];
+    [diff setFloat:center];
+    [diff sub:[camera position]];
+    
+    Vector3f* position = [cache vector3f];
+    [position setFloat:center];
+    [position setZ:[position z] - [diff length]];
+    
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f zAxisPos] targetUp:[Vector3f yAxisPos] duration:0.5];
+    [animation startAnimation];
+    
+    [cache returnVector3f:diff];
+    [cache returnVector3f:position];
 }
 
-- (IBAction)moveCameraYZ:(id)sender {
+- (IBAction)switchToXZView:(id)sender {
+    MathCache* cache = [MathCache sharedCache];
+    
+    Vector3f* center = [selectionManager selectionCenter];
+    if (center == nil) {
+        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
+        [center scale:256];
+        [center add:[camera position]];
+    }
+    
+    Vector3f* diff = [cache vector3f];
+    [diff setFloat:center];
+    [diff sub:[camera position]];
+    
+    Vector3f* position = [cache vector3f];
+    [position setFloat:center];
+    [position setY:[position y] - [diff length]];
+    
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f yAxisPos] targetUp:[Vector3f zAxisPos] duration:0.5];
+    [animation startAnimation];
+    
+    [cache returnVector3f:diff];
+    [cache returnVector3f:position];
+}
+
+- (IBAction)switchToInvertedXZView:(id)sender {
+    MathCache* cache = [MathCache sharedCache];
+    
+    Vector3f* center = [selectionManager selectionCenter];
+    if (center == nil) {
+        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
+        [center scale:256];
+        [center add:[camera position]];
+    }
+    
+    Vector3f* diff = [cache vector3f];
+    [diff setFloat:center];
+    [diff sub:[camera position]];
+    
+    Vector3f* position = [cache vector3f];
+    [position setFloat:center];
+    [position setY:[position y] + [diff length]];
+    
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f yAxisNeg] targetUp:[Vector3f zAxisPos] duration:0.5];
+    [animation startAnimation];
+    
+    [cache returnVector3f:diff];
+    [cache returnVector3f:position];
+}
+
+- (IBAction)switchToYZView:(id)sender {
+    MathCache* cache = [MathCache sharedCache];
+    
+    Vector3f* center = [selectionManager selectionCenter];
+    if (center == nil) {
+        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
+        [center scale:256];
+        [center add:[camera position]];
+    }
+    
+    Vector3f* diff = [cache vector3f];
+    [diff setFloat:center];
+    [diff sub:[camera position]];
+    
+    Vector3f* position = [cache vector3f];
+    [position setFloat:center];
+    [position setX:[position x] + [diff length]];
+    
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f xAxisNeg] targetUp:[Vector3f zAxisPos] duration:0.5];
+    [animation startAnimation];
+    
+    [cache returnVector3f:diff];
+    [cache returnVector3f:position];
+}
+
+- (IBAction)switchToInvertedYZView:(id)sender {
+    MathCache* cache = [MathCache sharedCache];
+    
+    Vector3f* center = [selectionManager selectionCenter];
+    if (center == nil) {
+        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
+        [center scale:256];
+        [center add:[camera position]];
+    }
+    
+    Vector3f* diff = [cache vector3f];
+    [diff setFloat:center];
+    [diff sub:[camera position]];
+    
+    Vector3f* position = [cache vector3f];
+    [position setFloat:center];
+    [position setX:[position x] - [diff length]];
+    
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f xAxisPos] targetUp:[Vector3f zAxisPos] duration:0.5];
+    [animation startAnimation];
+    
+    [cache returnVector3f:diff];
+    [cache returnVector3f:position];
 }
 
 - (IBAction)clearSelection:(id)sender {

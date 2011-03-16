@@ -13,13 +13,15 @@
 
 @implementation CameraAnimation
 
-- (id)initWithCamera:(Camera *)theCamera targetPosition:(Vector3f *)thePosition direction:(Vector3f *)theDirection duration:(NSTimeInterval)duration {
+- (id)initWithCamera:(Camera *)theCamera targetPosition:(Vector3f *)thePosition targetDirection:(Vector3f *)theDirection targetUp:(Vector3f *)theUpVector duration:(NSTimeInterval)duration {
     if (self = [super initWithDuration:duration animationCurve:NSAnimationEaseInOut]) {
         camera = [theCamera retain];
         initialPosition = [[Vector3f alloc] initWithFloatVector:[camera position]];
         initialDirection = [[Vector3f alloc] initWithFloatVector:[camera direction]];
+        initialUpVector = [[Vector3f alloc] initWithFloatVector:[camera up]];
         targetPosition = [[Vector3f alloc] initWithFloatVector:thePosition];
         targetDirection = [[Vector3f alloc] initWithFloatVector:theDirection];
+        targetUpVector = [[Vector3f alloc] initWithFloatVector:theUpVector];
         [super setFrameRate:60];
         [super setAnimationBlockingMode:NSAnimationNonblocking];
         [super setDelegate:self];
@@ -33,6 +35,7 @@
     
     MathCache* cache = [MathCache sharedCache];
     Vector3f* t = [cache vector3f];
+    Vector3f* u = [cache vector3f];
     
     [t setFloat:targetPosition];
     [t sub:initialPosition];
@@ -44,9 +47,18 @@
     [t sub:initialDirection];
     [t scale:progress];
     [t add:initialDirection];
-    [camera setDirection:t];
+    [t normalize];
+    
+    [u setFloat:targetUpVector];
+    [u sub:initialUpVector];
+    [u scale:progress];
+    [u add:initialUpVector];
+    [u normalize];
+    
+    [camera setDirection:t up:u];
     
     [cache returnVector3f:t];
+    [cache returnVector3f:u];
 }
 
 - (void)animationDidEnd:(NSAnimation *)animation {

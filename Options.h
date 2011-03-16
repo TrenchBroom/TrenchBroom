@@ -14,6 +14,12 @@ typedef enum {
     RM_WIREFRAME
 } ERenderMode;
 
+typedef enum {
+    IM_NONE, // no isolation
+    IM_WIREFRAME, // render unselected geometry as wireframe, ignore while picking
+    IM_DISCARD // do not render unselected geometry, ignore while picking
+} EIsolationMode;
+
 extern NSString* const OptionsChanged;
 
 @class Grid;
@@ -22,11 +28,14 @@ extern NSString* const OptionsChanged;
     @private
     Grid* grid;
     ERenderMode renderMode;
+    EIsolationMode isolationMode;
 }
 
 - (Grid *)grid;
 - (ERenderMode)renderMode;
+- (EIsolationMode)isolationMode;
 
 - (void)setRenderMode:(ERenderMode)theRenderMode;
+- (void)setIsolationMode:(EIsolationMode)theIsolationMode;
 
 @end
