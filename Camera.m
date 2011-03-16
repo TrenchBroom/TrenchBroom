@@ -185,23 +185,31 @@ NSString* const CameraChanged = @"CameraChanged";
     
     [p setFloat:position];
     [p sub:c];
-    [qh rotate:p];
     
     if ([u z] < 0) {
         [u setZ:0];
         [d setX:0];
         [d setY:0];
+
+        [u normalize];
+        [d normalize];
         
-        Vector3f* diff = [cache vector3f];
-        [diff setFloat:c];
-        [diff sub:position];
-        
-        float l = [diff length];
-        [p setX:0];
-        [p setY:0];
-        [p setZ:l];
-        
-        [cache returnVector3f:diff];
+        Vector3f* axis = [cache vector3f];
+        float angle = acos([direction dot:d]);
+        if (angle != 0) {
+            [axis setFloat:direction];
+            [axis cross:d];
+            [axis normalize];
+            
+            Quaternion* q = [cache quaternion];
+            [q setAngle:angle axis:axis];
+            [q rotate:p];
+            
+            [cache returnQuaternion:q];
+        }
+        [cache returnVector3f:axis];
+    } else {
+        [qh rotate:p];
     }
     
     [self setDirection:d up:u];
