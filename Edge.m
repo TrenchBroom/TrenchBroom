@@ -7,7 +7,11 @@
 //
 
 #import "Edge.h"
+#import "SideEdge.h"
+#import "Side.h"
 #import "Vertex.h"
+#import "Face.h"
+#import "MutableFace.h"
 #import "Line3D.h"
 #import "Plane3D.h"
 #import "Vector3f.h"
@@ -43,6 +47,28 @@
 - (Vertex *)endVertex {
     return endVertex;
 }
+
+- (id <Face>)leftFace {
+    return [[leftEdge side] face];
+}
+
+- (id <Face>)rightFace {
+    return [[rightEdge side] face];
+}
+
+- (void)setLeftEdge:(SideEdge *)theLeftEdge {
+    if (leftEdge != nil)
+        [NSException raise:NSInvalidArgumentException format:@"left edge is already set"];
+    
+    leftEdge = [theLeftEdge retain];
+}
+- (void)setRightEdge:(SideEdge *)theRightEdge {
+    if (rightEdge != nil)
+        [NSException raise:NSInvalidArgumentException format:@"right edge is already set"];
+    
+    rightEdge = [theRightEdge retain];
+}
+
 
 - (Vertex *)splitAt:(Plane3D *)plane {
     if (mark != EM_SPLIT)
@@ -116,6 +142,8 @@
 - (void)dealloc {
     [startVertex release];
     [endVertex release];
+    [leftEdge release];
+    [rightEdge release];
     [super dealloc];
 }
 

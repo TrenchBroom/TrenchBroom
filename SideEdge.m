@@ -7,7 +7,7 @@
 //
 
 #import "SideEdge.h"
-#import "Edge.h"
+#import "Side.h"
 
 @implementation SideEdge
 - (id)initWithEdge:(Edge *)theEdge flipped:(BOOL)isFlipped {
@@ -17,6 +17,11 @@
     if (self = [self init]) {
         edge = [theEdge retain];
         flipped = isFlipped;
+        
+        if (flipped)
+            [theEdge setLeftEdge:self];
+        else
+            [theEdge setRightEdge:self];
     }
     
     return self;
@@ -37,6 +42,19 @@
 
 - (Edge *)edge {
     return edge;
+}
+
+- (Side *)side {
+    return side;
+}
+
+- (void)setSide:(Side *)theSide {
+    if (theSide == nil)
+        [NSException raise:NSInvalidArgumentException format:@"side must not be nil"];
+    if (side != nil)
+        [NSException raise:NSInvalidArgumentException format:@"side is already set"];
+    
+    side = [theSide retain];
 }
 
 - (NSString *)description {
@@ -67,6 +85,7 @@
 
 - (void)dealloc {
     [edge release];
+    [side release];
     [super dealloc];
 }
 

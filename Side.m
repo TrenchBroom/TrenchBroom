@@ -43,6 +43,7 @@
             Edge* edge = [theEdges objectAtIndex:i];
             SideEdge* sideEdge = [[SideEdge alloc] initWithEdge:edge flipped:flipped[i]];
             [edges addObject:sideEdge];
+            [sideEdge setSide:self];
             [sideEdge release];
         }
     }
@@ -56,7 +57,13 @@
     
     if (self = [self init]) {
         face = [theFace retain];
-        [edges addObjectsFromArray:theEdges];
+
+        NSEnumerator* edgeEn = [theEdges objectEnumerator];
+        SideEdge* edge;
+        while ((edge = [edgeEn nextObject])) {
+            [edges addObject:edge];
+            [edge setSide:self];
+        }
     }
     
     return self;
@@ -95,6 +102,7 @@
     Vertex* endVertex = [[edges objectAtIndex:splitIndex2] startVertex];
     Edge* newEdge = [[Edge alloc] initWithStartVertex:startVertex endVertex:endVertex];
     SideEdge* sideEdge = [[SideEdge alloc] initWithEdge:newEdge flipped:NO];
+    [sideEdge setSide:self];
     if (splitIndex2 > splitIndex1) {
         int num = splitIndex2 - splitIndex1 - 1;
         if (num > 0)

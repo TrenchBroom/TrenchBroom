@@ -17,19 +17,28 @@ typedef enum {
 } EEdgeMark;
 
 @class Vertex;
+@class SideEdge;
 @class Vector3f;
 @class Plane3D;
+@protocol Face;
 
 @interface Edge : NSObject {
     @private
     Vertex* startVertex;
     Vertex* endVertex;
+    SideEdge* leftEdge;
+    SideEdge* rightEdge;
     EEdgeMark mark;
 }
 - (id)initWithStartVertex:(Vertex *)theStartVertex endVertex:(Vertex *)theEndVertex;
 
 - (Vertex *)startVertex;
 - (Vertex *)endVertex;
+
+- (id <Face>)leftFace;
+- (id <Face>)rightFace;
+- (void)setLeftEdge:(SideEdge *)theLeftEdge;
+- (void)setRightEdge:(SideEdge *)theRightEdge;
 
 - (Vertex *)splitAt:(Plane3D *)plane;
 
