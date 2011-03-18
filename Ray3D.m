@@ -45,6 +45,9 @@
 }
 
 - (Vector3f *)pointAtDistance:(float)distance {
+    if (isnan(distance))
+        return nil;
+    
     Vector3f* point = [[Vector3f alloc] initWithFloatVector:direction];
     [point scale:distance];
     [point add:origin];

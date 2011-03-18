@@ -305,6 +305,9 @@
     [bounds release];
     bounds = nil;
     
+    [pickingBounds release];
+    pickingBounds = nil;
+    
     return YES;
 }
 
@@ -536,6 +539,66 @@
     return [side center];
 }
 
+- (void)pickBrush:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
+    if (theRay == nil)
+        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
+    if (theHits == nil)
+        [NSException raise:NSInvalidArgumentException format:@"hit set must not be nil"];
+    
+    NSEnumerator* sideEn = [sides objectEnumerator];
+    Side* side;
+    PickingHit* faceHit = nil;
+    while ((side = [sideEn nextObject])) {
+        PickingHit* hit = [side pickWithRay:theRay];
+        if (hit != nil && (faceHit == nil || [hit compareTo:faceHit] == NSOrderedAscending))
+            faceHit = hit;
+    }
+    
+    if (faceHit != nil) {
+        PickingHit* brushHit = [[PickingHit alloc] initWithObject:self hitPoint:[faceHit hitPoint] distance:[faceHit distance]];
+        [theHits addObject:brushHit];
+        [brushHit release];
+    }
+}
+
+- (void)pickFace:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
+    if (theRay == nil)
+        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
+    if (theHits == nil)
+        [NSException raise:NSInvalidArgumentException format:@"hit set must not be nil"];
+    
+    NSEnumerator* sideEn = [sides objectEnumerator];
+    Side* side;
+    while ((side = [sideEn nextObject])) {
+        PickingHit* hit = [side pickWithRay:theRay];
+        if (hit != nil)
+            [theHits addObject:hit];
+    }
+}
+
+- (void)pickEdge:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
+    if (theRay == nil)
+        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
+    if (theHits == nil)
+        [NSException raise:NSInvalidArgumentException format:@"hit set must not be nil"];
+    
+    NSEnumerator* edgeEn = [edges objectEnumerator];
+    Edge* edge;
+    while ((edge = [edgeEn nextObject])) {
+        PickingHit* hit = [edge pickWithRay:theRay];
+        if (hit != nil)
+            [theHits addObject:hit];
+    }
+}
+
+- (void)pickVertex:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
+    if (theRay == nil)
+        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
+    if (theHits == nil)
+        [NSException raise:NSInvalidArgumentException format:@"hit set must not be nil"];
+    
+}
+
 - (PickingHit *)pickFace:(MutableFace *)theFace withRay:(Ray3D *)theRay {
     if (theFace == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
@@ -546,6 +609,13 @@
     return [side pickWithRay:theRay];
 }
 
+- (BoundingBox *)pickingBounds {
+    if (pickingBounds == nil) {
+    }
+    
+    return pickingBounds;
+}
+
 - (void)dealloc {
     [centers release];
     [faceToSide release];
@@ -553,6 +623,7 @@
     [edges release];
     [vertices release];
     [bounds release];
+    [pickingBounds release];
     [center release];
     [super dealloc];
 }

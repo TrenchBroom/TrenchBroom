@@ -29,7 +29,7 @@
 
 - (BOOL)isPointAbove:(Vector3f *)aPoint;
 
-- (Vector3f *)intersectWithLine:(Line3D *)line;
-- (Vector3f *)intersectWithRay:(Ray3D *)ray;
+- (float)intersectWithLine:(Line3D *)line;
+- (float)intersectWithRay:(Ray3D *)ray;
 
 @end

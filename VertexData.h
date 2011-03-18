@@ -28,6 +28,7 @@ typedef enum {
     NSMutableDictionary* faceToSide;
     NSMutableDictionary* centers;
     BoundingBox* bounds;
+    BoundingBox* pickingBounds;
     Vector3f* center;
 }
 
@@ -40,7 +41,14 @@ typedef enum {
 - (int)edgeCount;
 - (BoundingBox *)bounds;
 - (Vector3f *)center;
+
 - (NSArray *)gridForFace:(MutableFace *)face gridSize:(int)gridSize;
 - (Vector3f *)centerOfFace:(MutableFace *)face;
-- (PickingHit *)pickFace:(MutableFace *)theFace withRay:(Ray3D *)theRay;
+
+- (void)pickBrush:(Ray3D *)theRay hits:(NSMutableSet *)theHits;
+- (void)pickFace:(Ray3D *)theRay hits:(NSMutableSet *)theHits;
+- (void)pickEdge:(Ray3D *)theRay hits:(NSMutableSet *)theHits;
+- (void)pickVertex:(Ray3D *)theRay hits:(NSMutableSet *)theHits;
+- (BoundingBox *)pickingBounds;
+
 @end

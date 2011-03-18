@@ -157,10 +157,11 @@
         return nil;
     
     Plane3D* plane = [[face halfSpace] boundary];
-    Vector3f* is = [plane intersectWithRay:theRay];
-    if (is == nil)
+    float dist = [plane intersectWithRay:theRay];
+    if (isnan(dist))
         return nil;
     
+    Vector3f* is = [theRay pointAtDistance:dist];
     CoordinatePlane* cPlane = [CoordinatePlane projectionPlaneForNormal:norm];
     float isx = [cPlane xOf:is];
     float isy = [cPlane yOf:is];

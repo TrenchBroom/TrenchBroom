@@ -38,7 +38,6 @@
 - (NSArray *)faces;
 
 - (Vector3f *)centerOfFace:(MutableFace *)face;
-- (PickingHit *)pickFace:(MutableFace *)theFace withRay:(Ray3D *)theRay;
 - (NSArray *)gridForFace:(MutableFace *)theFace gridSize:(int)gridSize;
 - (NSArray *)verticesForFace:(MutableFace *)face;
 

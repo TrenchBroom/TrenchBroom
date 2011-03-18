@@ -173,11 +173,11 @@
     if (!hit) {
         if ([direction x] > 0) {
             [plane setPoint:intMin norm:[Vector3f xAxisNeg]];
-            Vector3f* is = [plane intersectWithRay:theRay];
+            Vector3f* is = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
             hit = is != nil && fgte([is y], [min y]) && flte([is y], [max y]) && fgte([is z], [min z]) && flte([is z], [max z]);
         } else if ([direction x] < 0) {
             [plane setPoint:intMax norm:[Vector3f xAxisPos]];
-            Vector3f* is = [plane intersectWithRay:theRay];
+            Vector3f* is = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
             hit = is != nil && fgte([is y], [min y]) && flte([is y], [max y]) && fgte([is z], [min z]) && flte([is z], [max z]);
         }
     }
@@ -185,11 +185,11 @@
     if (!hit) {
         if ([direction y] > 0) {
             [plane setPoint:intMin norm:[Vector3f yAxisNeg]];
-            Vector3f* is = [plane intersectWithRay:theRay];
+            Vector3f* is = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
             hit = is != nil && fgte([is x], [min x]) && flte([is x], [max x]) && fgte([is z], [min z]) && flte([is z], [max z]);
         } else if ([direction y] < 0) {
             [plane setPoint:intMax norm:[Vector3f yAxisPos]];
-            Vector3f* is = [plane intersectWithRay:theRay];
+            Vector3f* is = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
             hit = is != nil && fgte([is x], [min x]) && flte([is x], [max x]) && fgte([is z], [min z]) && flte([is z], [max z]);
         }
     }
@@ -197,11 +197,11 @@
     if (!hit) {
         if ([direction z] > 0) {
             [plane setPoint:intMin norm:[Vector3f zAxisNeg]];
-            Vector3f* is = [plane intersectWithRay:theRay];
+            Vector3f* is = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
             hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is y] >= [min y] && [is y] <= [max y];
         } else if ([direction z] < 0) {
             [plane setPoint:intMax norm:[Vector3f zAxisPos]];
-            Vector3f* is = [plane intersectWithRay:theRay];
+            Vector3f* is = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
             hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is y] >= [min y] && [is y] <= [max y];
         }
     }

@@ -138,20 +138,24 @@
     return [[self vertexData] centerOfFace:face];
 }
 
-- (PickingHit *)pickFace:(Ray3D *)theRay; {
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject])) {
-        PickingHit* hit = [vertexData pickFace:face withRay:theRay];
-        if (hit != nil)
-            return hit;
-    }
-    
-    return nil;
+- (void)pickBrush:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
+    [[self vertexData] pickBrush:theRay hits:theHits];
 }
 
-- (PickingHit *)pickFace:(MutableFace *)theFace withRay:(Ray3D *)theRay {
-    return [vertexData pickFace:theFace withRay:theRay];
+- (void)pickFace:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
+    [[self vertexData] pickFace:theRay hits:theHits];
+}
+
+- (void)pickEdge:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
+    [[self vertexData] pickEdge:theRay hits:theHits];
+}
+
+- (void)pickVertex:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
+    [[self vertexData] pickVertex:theRay hits:theHits];
+}
+
+- (BoundingBox *)pickingBounds {
+    return [[self vertexData] pickingBounds];
 }
 
 - (NSArray *)gridForFace:(MutableFace *)theFace gridSize:(int)gridSize {

@@ -26,5 +26,6 @@
 - (Vector3f *)size;
 
 - (void)merge:(BoundingBox *)theBounds;
+- (void)mergeMin:(Vector3f *)theMin max:(Vector3f *)theMax;
 
 @end

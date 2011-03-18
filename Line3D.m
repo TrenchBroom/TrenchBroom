@@ -106,6 +106,16 @@
     return direction;
 }
 
+- (Vector3f *)pointAtDistance:(float)distance {
+    if (isnan(distance))
+        return nil;
+    
+    Vector3f* p = [[Vector3f alloc] initWithFloatVector:direction];
+    [p scale:distance];
+    [p add:point];
+    return [p autorelease];
+}
+
 - (NSString *)description {
     return [NSString stringWithFormat:@"point: %@, direction: %@", point, direction];
 }

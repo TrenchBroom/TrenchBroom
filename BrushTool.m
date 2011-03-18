@@ -59,8 +59,11 @@
 }
 
 - (void)translateTo:(Ray3D *)theRay toggleSnap:(BOOL)toggleSnap altPlane:(BOOL)altPlane {
-    Vector3f* diff = [plane intersectWithRay:theRay];
-    [diff sub:[plane intersectWithRay:lastRay]];
+    Vector3f* diff = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
+    if (diff == nil)
+        return;
+    
+    [diff sub:[theRay pointAtDistance:[plane intersectWithRay:lastRay]]];
     
     [delta add:diff];
     Grid* grid = [[windowController options] grid];

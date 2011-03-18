@@ -24,7 +24,12 @@
 
 - (float *)flatColor;
 - (BoundingBox *)bounds;
+- (BoundingBox *)pickingBounds;
 - (Vector3f *)center;
-- (PickingHit *)pickFace:(Ray3D *)theRay;
+
+- (void)pickBrush:(Ray3D *)theRay hits:(NSMutableSet *)theHits;
+- (void)pickFace:(Ray3D *)theRay hits:(NSMutableSet *)theHits;
+- (void)pickEdge:(Ray3D *)theRay hits:(NSMutableSet *)theHits;
+- (void)pickVertex:(Ray3D *)theRay hits:(NSMutableSet *)theHits;
 
 @end

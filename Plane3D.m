@@ -79,7 +79,7 @@
 }
 
 
-- (Vector3f *)intersectWithLine:(Line3D *)line {
+- (float)intersectWithLine:(Line3D *)line {
     if (line == nil)
         [NSException raise:NSInvalidArgumentException format:@"line must not be nil"];
     
@@ -87,23 +87,20 @@
     Vector3f* ld = [line direction];
     float denom = [ld dot:norm];
     if (fzero(denom))
-        return nil;
+        return NAN;
 
     MathCache* cache = [MathCache sharedCache];
     Vector3f* diff = [cache vector3f];
-    [diff setFloat:point];
-    [diff sub:lp];
-
-    float d = [diff dot:norm] / denom;
-    Vector3f* is = [[Vector3f alloc] initWithFloatVector:ld];
-    [is scale:d];
-    [is add:lp];
-    
-    [cache returnVector3f:diff];
-    return [is autorelease];
+    @try {
+        [diff setFloat:point];
+        [diff sub:lp];
+        return [diff dot:norm] / denom;
+    } @finally {
+        [cache returnVector3f:diff];
+    }
 }
 
-- (Vector3f *)intersectWithRay:(Ray3D *)ray {
+- (float)intersectWithRay:(Ray3D *)ray {
     if (ray == nil)
         [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
     
@@ -111,23 +108,22 @@
     Vector3f* rd = [ray direction];
     float denom = [rd dot:norm];
     if (fzero(denom))
-        return nil;
+        return NAN;
     
     MathCache* cache = [MathCache sharedCache];
     Vector3f* diff = [cache vector3f];
-    [diff setFloat:point];
-    [diff sub:ro];
-
-    float d = [diff dot:norm] / denom;
-    if (fneg(d))
-        return nil;
-    
-    Vector3f* is = [[Vector3f alloc] initWithFloatVector:rd];
-    [is scale:d];
-    [is add:ro];
-    
-    [cache returnVector3f:diff];
-    return [is autorelease];
+    @try {
+        [diff setFloat:point];
+        [diff sub:ro];
+        
+        float d = [diff dot:norm] / denom;
+        if (fneg(d))
+            return NAN;
+        
+        return d;
+    } @finally {
+        [cache returnVector3f:diff];
+    }
 }
 
 - (NSString *)description {

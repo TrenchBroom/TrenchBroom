@@ -20,6 +20,9 @@ typedef enum {
 @class SideEdge;
 @class Vector3f;
 @class Plane3D;
+@class Ray3D;
+@class PickingHit;
+@class BoundingBox;
 @protocol Face;
 
 @interface Edge : NSObject {
@@ -41,6 +44,9 @@ typedef enum {
 - (void)setRightEdge:(SideEdge *)theRightEdge;
 
 - (Vertex *)splitAt:(Plane3D *)plane;
+
+- (PickingHit *)pickWithRay:(Ray3D *)theRay;
+- (void)expandBounds:(BoundingBox *)theBounds;
 
 - (EEdgeMark)mark;
 - (void)updateMark;

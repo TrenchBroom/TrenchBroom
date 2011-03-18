@@ -30,4 +30,6 @@
 - (Vector3f *)point;
 - (Vector3f *)direction;
 
+- (Vector3f *)pointAtDistance:(float)distance;
+
 @end

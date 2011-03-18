@@ -38,20 +38,22 @@
 }
 
 - (void)merge:(BoundingBox *)theBounds {
-    Vector3f* otherMin = [theBounds min];
-    Vector3f* otherMax = [theBounds max];
-    if ([otherMin x] < [min x])
-        [min setX:[otherMin x]];
-    if ([otherMin y] < [min y])
-        [min setY:[otherMin y]];
-    if ([otherMin z] < [min z])
-        [min setZ:[otherMin z]];
-    if ([otherMax x] > [max x])
-        [max setX:[otherMax x]];
-    if ([otherMax y] > [max y])
-        [max setY:[otherMax y]];
-    if ([otherMax z] > [max z])
-        [max setZ:[otherMax z]];
+    [self mergeMin:[theBounds min] max:[theBounds max]];
+}
+
+- (void)mergeMin:(Vector3f *)theMin max:(Vector3f *)theMax {
+    if ([theMin x] < [min x])
+        [min setX:[theMin x]];
+    if ([theMin y] < [min y])
+        [min setY:[theMin y]];
+    if ([theMin z] < [min z])
+        [min setZ:[theMin z]];
+    if ([theMax x] > [max x])
+        [max setX:[theMax x]];
+    if ([theMax y] > [max y])
+        [max setY:[theMax y]];
+    if ([theMax z] > [max z])
+        [max setZ:[theMax z]];
     
     [size setFloat:max];
     [size sub:min];
