@@ -37,7 +37,7 @@
     return size;
 }
 
-- (void)merge:(BoundingBox *)theBounds {
+- (void)mergeBounds:(BoundingBox *)theBounds {
     [self mergeMin:[theBounds min] max:[theBounds max]];
 }
 
@@ -54,6 +54,24 @@
         [max setY:[theMax y]];
     if ([theMax z] > [max z])
         [max setZ:[theMax z]];
+    
+    [size setFloat:max];
+    [size sub:min];
+}
+
+- (void)mergePoint:(Vector3f *)thePoint {
+    if ([thePoint x] < [min x])
+        [min setX:[thePoint x]];
+    else if ([thePoint x] > [max x])
+        [max setX:[thePoint x]];
+    if ([thePoint y] < [min y])
+        [min setY:[thePoint y]];
+    else if ([thePoint y] > [max y])
+        [max setY:[thePoint y]];
+    if ([thePoint z] < [min z])
+        [min setZ:[thePoint z]];
+    else if ([thePoint z] > [max z])
+        [max setZ:[thePoint z]];
     
     [size setFloat:max];
     [size sub:min];

@@ -39,7 +39,6 @@
 - (Vector3f *)worldCoordsOf:(Vector3f *)sCoords;
 - (Vector3f *)surfaceCoordsOf:(Vector3f *)wCoords;
 - (HalfSpace3D *)halfSpace;
-- (PickingHit *)pickWithRay:(Ray3D *)theRay;
 - (NSArray *)gridWithSize:(int)gridSize;
 
 @end

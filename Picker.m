@@ -11,6 +11,7 @@
 #import "Ray3D.h"
 #import "Brush.h"
 #import "PickingHit.h"
+#import "PickingHitList.h"
 
 @implementation Picker
 
@@ -25,11 +26,11 @@
     return self;
 }
 
-- (NSArray *)objectsHitByRay:(Ray3D *)theRay include:(NSSet *)includedObjects exclude:(NSSet *)excludedObjects {
+- (PickingHitList *)pickObjects:(Ray3D *)theRay include:(NSSet *)includedObjects exclude:(NSSet *)excludedObjects {
     if (theRay == nil)
         [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
     
-    NSMutableArray* hits = [[NSMutableArray alloc] init];
+    PickingHitList* hitList = [[PickingHitList alloc] init];
     
     NSMutableSet* objects = [[NSMutableSet alloc] init];
     [octree addObjectsForRay:theRay to:objects];
@@ -44,15 +45,15 @@
     while ((object = [objectEn nextObject])) {
         if ([object conformsToProtocol:@protocol(Brush)]) {
             id <Brush> brush = (id <Brush>)object;
-            PickingHit* hit = [brush pickFace:theRay];
-            if (hit != nil)
-                [hits addObject:hit];
+            [brush pickBrush:theRay hitList:hitList];
+            [brush pickFace:theRay hitList:hitList];
+            [brush pickEdge:theRay hitList:hitList];
+            [brush pickVertex:theRay hitList:hitList];
         }
     }
     [objects release];
     
-    [hits sortUsingSelector:@selector(compareTo:)];
-    return [hits autorelease];
+    return [hitList autorelease];
 }
 
 - (void)dealloc {

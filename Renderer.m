@@ -18,6 +18,7 @@
 #import "VBOMemBlock.h"
 #import "RenderContext.h"
 #import "SelectionManager.h"
+#import "TrackingManager.h"
 #import "Brush.h"
 #import "Face.h"
 #import "Camera.h"
@@ -32,24 +33,13 @@ NSString* const RendererChanged = @"RendererChanged";
 
 @implementation Renderer
 
-- (FaceFigure *)figureForFace:(id <Face>)face create:(BOOL)create {
-    FaceFigure* figure = [faceFigures objectForKey:[face faceId]];
-    if (figure == nil && create) {
-        MapDocument* mapDocument = [windowController document];
-        GLResources* glResources = [mapDocument glResources];
-        VBOBuffer* vbo = [glResources geometryVBO];
-        
-        figure = [[FaceFigure alloc] initWithFace:face vbo:vbo];
-        [faceFigures setObject:figure forKey:[face faceId]];
-        [figure release];
-    }
-    
-    return figure;
+- (id <Figure>)figureForFace:(id <Face>)face {
+    return (id <Figure>)face;
 }
 
 - (void)addFace:(id <Face>)face {
     SelectionManager* selectionManager = [windowController selectionManager];
-    FaceFigure* figure = [self figureForFace:face create:YES];
+    id <Figure> figure = [self figureForFace:face];
     if ([selectionManager isFaceSelected:face] || [selectionManager isBrushSelected:[face brush]])
         [selectionLayer addFigure:figure];
     else 
@@ -58,16 +48,11 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)removeFace:(id <Face>)face {
     SelectionManager* selectionManager = [windowController selectionManager];
-    FaceFigure* figure = [self figureForFace:face create:NO];
-    if (figure == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face %@ has no figure", face];
-    
+    id <Figure> figure = [self figureForFace:face];
     if ([selectionManager isFaceSelected:face] || [selectionManager isBrushSelected:[face brush]])
         [selectionLayer removeFigure:figure];
     else
         [geometryLayer removeFigure:figure];
-    
-    [faceFigures removeObjectForKey:[face faceId]];
 }
 
 - (void)addBrush:(id <Brush>)brush {
@@ -101,7 +86,7 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)faceChanged:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Face> face = [userInfo objectForKey:FaceKey];
-    id <Figure> figure = [self figureForFace:face create:NO];
+    id <Figure> figure = [self figureForFace:face];
     if (figure != nil) {
         [figure invalidate];
         SelectionManager* selectionManager = [windowController selectionManager];
@@ -136,7 +121,7 @@ NSString* const RendererChanged = @"RendererChanged";
     NSEnumerator* faceEn = [[brush faces] objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject])) {
-        FaceFigure* figure = [self figureForFace:face create:NO];
+        id <Figure> figure = [self figureForFace:face];
         if (figure != nil) {
             [figure invalidate];
             SelectionManager* selectionManager = [windowController selectionManager];
@@ -194,7 +179,7 @@ NSString* const RendererChanged = @"RendererChanged";
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
             id <Face> face;
             while ((face = [faceEn nextObject])) {
-                FaceFigure* figure = [self figureForFace:face create:NO];
+                id <Figure> figure = [self figureForFace:face];
                 [geometryLayer removeFigure:figure];
                 [selectionLayer addFigure:figure];
             }
@@ -205,7 +190,7 @@ NSString* const RendererChanged = @"RendererChanged";
         NSEnumerator* faceEn = [faces objectEnumerator];
         id <Face> face;
         while ((face = [faceEn nextObject])) {
-            FaceFigure* figure = [self figureForFace:face create:NO];
+            id <Figure> figure = [self figureForFace:face];
             [geometryLayer removeFigure:figure];
             [selectionLayer addFigure:figure];
         }
@@ -226,7 +211,7 @@ NSString* const RendererChanged = @"RendererChanged";
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
             id <Face> face;
             while ((face = [faceEn nextObject])) {
-                FaceFigure* figure = [self figureForFace:face create:NO];
+                id <Figure> figure = [self figureForFace:face];
                 if (figure != nil) {
                     [selectionLayer removeFigure:figure];
                     [geometryLayer addFigure:figure];
@@ -239,7 +224,7 @@ NSString* const RendererChanged = @"RendererChanged";
         NSEnumerator* faceEn = [faces objectEnumerator];
         id <Face> face;
         while ((face = [faceEn nextObject])) {
-            FaceFigure* figure = [self figureForFace:face create:NO];
+            id <Figure> figure = [self figureForFace:face];
             if (figure != nil) {
                 [selectionLayer removeFigure:figure];
                 [geometryLayer addFigure:figure];
@@ -250,20 +235,22 @@ NSString* const RendererChanged = @"RendererChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
+- (void)trackedObjectChanged:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    id untrackedObject = [userInfo objectForKey:UntrackedObjectKey];
+    id trackedObject = [userInfo objectForKey:TrackedObjectKey];
+    
+    
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+}
+
 - (void)cameraChanged:(NSNotification *)notification {
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)optionsChanged:(NSNotification *)notification {
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
-}
-
-- (id)init {
-    if (self = [super init]) {
-        faceFigures = [[NSMutableDictionary alloc] init];
-    }
-    
-    return self;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
@@ -300,6 +287,9 @@ NSString* const RendererChanged = @"RendererChanged";
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
         [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
         
+        TrackingManager* trackingManager = [windowController trackingManager];
+        [center addObserver:self selector:@selector(trackedObjectChanged:) name:TrackedObjectChanged object:trackingManager];
+        
         Camera* camera = [windowController camera];
         [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
         
@@ -314,9 +304,10 @@ NSString* const RendererChanged = @"RendererChanged";
     MapDocument* document = [windowController document];
     GLResources* glResources = [document glResources];
     TextureManager* textureManager = [glResources textureManager];
+    VBOBuffer* vbo = [glResources geometryVBO];
     Options* options = [windowController options];
     
-    RenderContext* renderContext = [[RenderContext alloc] initWithTextureManager:textureManager options:options];
+    RenderContext* renderContext = [[RenderContext alloc] initWithTextureManager:textureManager vbo:vbo options:options];
     [geometryLayer render:renderContext];
     [selectionLayer render:renderContext];
     
@@ -328,7 +319,6 @@ NSString* const RendererChanged = @"RendererChanged";
     [windowController release];
     [geometryLayer release];
     [selectionLayer release];
-    [faceFigures release];
     [super dealloc];
 }
 

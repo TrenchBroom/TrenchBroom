@@ -18,6 +18,7 @@
 #import "Math.h"
 #import "Math3D.h"
 #import "PickingHit.h"
+#import "PickingHitList.h"
 #import "Plane3D.h"
 #import "Ray3D.h"
 #import "Side.h"
@@ -539,47 +540,45 @@
     return [side center];
 }
 
-- (void)pickBrush:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
+- (void)pickBrush:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
     if (theRay == nil)
         [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
-    if (theHits == nil)
+    if (theHitList == nil)
         [NSException raise:NSInvalidArgumentException format:@"hit set must not be nil"];
     
     NSEnumerator* sideEn = [sides objectEnumerator];
     Side* side;
     PickingHit* faceHit = nil;
-    while ((side = [sideEn nextObject])) {
-        PickingHit* hit = [side pickWithRay:theRay];
-        if (hit != nil && (faceHit == nil || [hit compareTo:faceHit] == NSOrderedAscending))
-            faceHit = hit;
-    }
+    while ((side = [sideEn nextObject]) && faceHit == nil)
+        faceHit = [side pickWithRay:theRay];
     
     if (faceHit != nil) {
-        PickingHit* brushHit = [[PickingHit alloc] initWithObject:self hitPoint:[faceHit hitPoint] distance:[faceHit distance]];
-        [theHits addObject:brushHit];
+        PickingHit* brushHit = [[PickingHit alloc] initWithObject:[[faceHit object] brush] type:HT_BRUSH hitPoint:[faceHit hitPoint] distance:[faceHit distance]];
+        [theHitList addHit:brushHit];
         [brushHit release];
     }
 }
 
-- (void)pickFace:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
+- (void)pickFace:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
     if (theRay == nil)
         [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
-    if (theHits == nil)
+    if (theHitList == nil)
         [NSException raise:NSInvalidArgumentException format:@"hit set must not be nil"];
     
     NSEnumerator* sideEn = [sides objectEnumerator];
     Side* side;
-    while ((side = [sideEn nextObject])) {
-        PickingHit* hit = [side pickWithRay:theRay];
-        if (hit != nil)
-            [theHits addObject:hit];
-    }
+    PickingHit* hit = nil;
+    while ((side = [sideEn nextObject]) && hit == nil)
+        hit = [side pickWithRay:theRay];
+    
+    if (hit != nil)
+        [theHitList addHit:hit];
 }
 
-- (void)pickEdge:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
+- (void)pickEdge:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
     if (theRay == nil)
         [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
-    if (theHits == nil)
+    if (theHitList == nil)
         [NSException raise:NSInvalidArgumentException format:@"hit set must not be nil"];
     
     NSEnumerator* edgeEn = [edges objectEnumerator];
@@ -587,30 +586,25 @@
     while ((edge = [edgeEn nextObject])) {
         PickingHit* hit = [edge pickWithRay:theRay];
         if (hit != nil)
-            [theHits addObject:hit];
+            [theHitList addHit:hit];
     }
 }
 
-- (void)pickVertex:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
+- (void)pickVertex:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
     if (theRay == nil)
         [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
-    if (theHits == nil)
+    if (theHitList == nil)
         [NSException raise:NSInvalidArgumentException format:@"hit set must not be nil"];
     
 }
 
-- (PickingHit *)pickFace:(MutableFace *)theFace withRay:(Ray3D *)theRay {
-    if (theFace == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
-    if (theRay == nil)
-        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
-    
-    Side* side = [faceToSide objectForKey:[theFace faceId]];
-    return [side pickWithRay:theRay];
-}
-
 - (BoundingBox *)pickingBounds {
     if (pickingBounds == nil) {
+        pickingBounds = [[BoundingBox alloc] initWithBounds:[self bounds]];
+        NSEnumerator* edgeEn = [edges objectEnumerator];
+        Edge* edge;
+        while ((edge = [edgeEn nextObject]))
+            [edge expandBounds:pickingBounds];
     }
     
     return pickingBounds;

@@ -19,7 +19,6 @@ extern NSString* const RendererChanged;
     MapWindowController* windowController;
     id<Layer> geometryLayer;
     id<Layer> selectionLayer;
-    NSMutableDictionary* faceFigures;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

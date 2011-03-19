@@ -11,6 +11,7 @@
 @class MapDocument;
 @class Octree;
 @class Ray3D;
+@class PickingHitList;
 
 @interface Picker : NSObject {
     @private
@@ -19,6 +20,6 @@
 
 - (id)initWithDocument:(MapDocument *)theDocument;
 
-- (NSArray *)objectsHitByRay:(Ray3D *)theRay include:(NSSet *)includedObjects exclude:(NSSet *)excludedObjects;
+- (PickingHitList *)pickObjects:(Ray3D *)theRay include:(NSSet *)includedObjects exclude:(NSSet *)excludedObjects;
 
 @end

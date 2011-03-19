@@ -18,6 +18,7 @@
 @class SingleTextureView;
 @class Options;
 @class Prefab;
+@class TrackingManager;
 @protocol Prefab;
 
 @interface MapWindowController : NSWindowController {
@@ -25,6 +26,7 @@
     Camera* camera;
     SelectionManager* selectionManager;
     InputManager* inputManager;
+    TrackingManager* trackingManager;
     Options* options;
 }
 
@@ -68,5 +70,6 @@
 - (Camera *)camera;
 - (SelectionManager *)selectionManager;
 - (InputManager *)inputManager;
+- (TrackingManager *)trackingManager;
 - (Options *)options;
 @end

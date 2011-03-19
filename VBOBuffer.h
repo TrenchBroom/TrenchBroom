@@ -22,6 +22,7 @@ extern NSString* const BufferNotMappedException;
     VBOMemBlock* firstBlock;
     uint8_t* buffer;
     GLuint vboId;
+    BOOL active;
 }
 
 - (id)initWithTotalCapacity:(int)capacity;

@@ -112,11 +112,13 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         glBindBuffer(GL_ARRAY_BUFFER, vboId);
         glEnableClientState(GL_VERTEX_ARRAY);
     }
+    active = YES;
 }
 
 - (void)deactivate {
     glDisableClientState(GL_VERTEX_ARRAY);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    active = NO;
 }
 
 - (void)mapBuffer {
@@ -169,6 +171,21 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 }
 
 - (void)resizeBufferTo:(int)newCapacity {
+    BOOL wasActive = active;
+    BOOL wasMapped = buffer != NULL;
+
+    if (!wasActive)
+        [self activate];
+    if (!wasMapped)
+        [self mapBuffer];
+    
+    int tempSize = totalCapacity - freeCapacity;
+    uint8_t* temp = NULL;
+    if (vboId != 0) {
+        temp = malloc(tempSize * sizeof(uint8_t));
+        memcpy(temp, buffer, tempSize * sizeof(uint8_t));
+    }
+    
     int addedCapacity = newCapacity - totalCapacity;
     freeCapacity = newCapacity - (totalCapacity - freeCapacity);
     totalCapacity = newCapacity;
@@ -176,8 +193,6 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     VBOMemBlock* block = firstBlock;
     VBOMemBlock* lastBlock;
     while (block != nil) {
-        if ([block state] == BS_USED_VALID)
-            [block setState:BS_USED_INVALID];
         lastBlock = block;
         block = [block next];
     }
@@ -194,8 +209,26 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 
     [self unmapBuffer];
     [self deactivate];
-    if (vboId != 0)
+    if (vboId != 0) {
         glDeleteBuffers(1, &vboId);
+        vboId = 0;
+    }
+    
+    if (temp != NULL) {
+        [self activate];
+        [self mapBuffer];
+        memcpy(buffer, temp, tempSize * sizeof(uint8_t));
+        free(temp);
+        if (!wasMapped)
+            [self unmapBuffer];
+        if (!wasActive)
+            [self deactivate];
+    } else {
+        if (wasActive)
+            [self activate];
+        if (wasMapped)
+            [self mapBuffer];
+    }
 }
 
 - (VBOMemBlock *)allocMemBlock:(int)capacity {

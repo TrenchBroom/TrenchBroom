@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Face.h"
+#import "Figure.h"
 
 typedef enum {
     XY, XZ, YZ
@@ -22,8 +23,9 @@ typedef enum {
 @class Matrix4f;
 @class PickingHit;
 @class Ray3D;
+@class VBOMemBlock;
 
-@interface MutableFace : NSObject <Face> {
+@interface MutableFace : NSObject <Face, Figure> {
     @private
     MutableBrush* brush;
     NSNumber* faceId;
@@ -49,6 +51,10 @@ typedef enum {
     // transforms surface coordinates to world coordinates
     Matrix4f* surfaceMatrix;
     Matrix4f* worldMatrix; // inverse of surface matrix
+
+    VBOMemBlock* block;
+    int vboIndex;
+    int vboCount;
 }
 
 - (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;

@@ -10,16 +10,19 @@
 
 @class TextureManager;
 @class Options;
+@class VBOBuffer;
 
 @interface RenderContext : NSObject {
     @private
     TextureManager* textureManager;
     Options* options;
+    VBOBuffer* vbo;
 }
 
-- (id)initWithTextureManager:(TextureManager *)theTextureManager options:(Options *)theOptions;
+- (id)initWithTextureManager:(TextureManager *)theTextureManager vbo:(VBOBuffer *)theVbo options:(Options *)theOptions;
 
 - (TextureManager *)textureManager;
+- (VBOBuffer *)vbo;
 - (Options *)options;
 
 @end

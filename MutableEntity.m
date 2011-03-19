@@ -100,7 +100,7 @@
         
         bounds = [[BoundingBox alloc] initWithBounds:[brush bounds]];
         while ((brush = [brushEn nextObject]))
-            [bounds merge:[brush bounds]];
+            [bounds mergeBounds:[brush bounds]];
     }
     
     return bounds;

@@ -226,9 +226,7 @@
     float distance = [diff length];
     [cache returnVector3f:diff];
     
-    return [PickingHit hitWithObject:face 
-                            hitPoint:is 
-                            distance:distance];
+    return [[[PickingHit alloc] initWithObject:face type:HT_FACE hitPoint:is distance:distance] autorelease];
 }
 
 - (NSString *)description {

@@ -20,6 +20,7 @@
 #import "BoundingBox.h"
 #import "Ray3D.h"
 #import "PickingHit.h"
+#import "PickingHitList.h"
 
 @implementation MutableBrush
 
@@ -138,20 +139,20 @@
     return [[self vertexData] centerOfFace:face];
 }
 
-- (void)pickBrush:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
-    [[self vertexData] pickBrush:theRay hits:theHits];
+- (void)pickBrush:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
+    [[self vertexData] pickBrush:theRay hitList:theHitList];
 }
 
-- (void)pickFace:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
-    [[self vertexData] pickFace:theRay hits:theHits];
+- (void)pickFace:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
+    [[self vertexData] pickFace:theRay hitList:theHitList];
 }
 
-- (void)pickEdge:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
-    [[self vertexData] pickEdge:theRay hits:theHits];
+- (void)pickEdge:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
+    [[self vertexData] pickEdge:theRay hitList:theHitList];
 }
 
-- (void)pickVertex:(Ray3D *)theRay hits:(NSMutableSet *)theHits {
-    [[self vertexData] pickVertex:theRay hits:theHits];
+- (void)pickVertex:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
+    [[self vertexData] pickVertex:theRay hitList:theHitList];
 }
 
 - (BoundingBox *)pickingBounds {

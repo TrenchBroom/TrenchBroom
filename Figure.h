@@ -14,7 +14,7 @@
 @protocol Figure <NSObject>
 
 - (id)object;
-- (NSString *)texture;
+- (id <NSCopying>)figureId;
 - (void)prepare:(RenderContext *)renderContext;
 - (void)getIndex:(IntData *)theIndexBuffer count:(IntData *)theCountBuffer;
 

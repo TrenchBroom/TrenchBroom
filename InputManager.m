@@ -11,6 +11,7 @@
 #import "Camera.h"
 #import "Picker.h"
 #import "PickingHit.h"
+#import "PickingHitList.h"
 #import "MapView3D.h"
 #import "Ray3D.h"
 #import "Vector3f.h"
@@ -22,6 +23,7 @@
 #import "MapDocument.h"
 #import "BrushTool.h"
 #import "Options.h"
+#import "TrackingManager.h"
 
 @implementation InputManager
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
@@ -95,6 +97,15 @@
 }
 
 - (void)handleMouseMoved:(NSEvent *)event sender:(id)sender {
+    MapView3D* mapView3D = (MapView3D *)sender;
+    [[mapView3D openGLContext] makeCurrentContext];
+    Camera* camera = [windowController camera];
+    
+    NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
+    Ray3D* ray = [camera pickRayX:m.x y:m.y];
+
+    TrackingManager* trackingManager = [windowController trackingManager];
+    [trackingManager updateWithRay:ray];
 }
 
 - (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender {
@@ -115,11 +126,8 @@
         includedObjects = [selectionManager selectedBrushes];
     }
     
-    NSArray* hits = [picker objectsHitByRay:ray include:includedObjects exclude:nil];
-    if ([hits count] > 0)
-        lastHit = [[hits objectAtIndex:0] retain];
-    else
-        lastHit = nil;
+    PickingHitList* hits = [picker pickObjects:ray include:includedObjects exclude:nil];
+    lastHit = [[hits firstHitOfType:HT_FACE ignoreOccluders:YES] retain];
     
     if (lastHit != nil && ![self isCameraModifierPressed:event]) {
         SelectionManager* selectionManager = [windowController selectionManager];

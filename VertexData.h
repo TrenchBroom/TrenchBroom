@@ -17,7 +17,7 @@ typedef enum {
 @class MutableFace;
 @class BoundingBox;
 @class Ray3D;
-@class PickingHit;
+@class PickingHitList;
 @class Vector3f;
 
 @interface VertexData : NSObject {
@@ -45,10 +45,10 @@ typedef enum {
 - (NSArray *)gridForFace:(MutableFace *)face gridSize:(int)gridSize;
 - (Vector3f *)centerOfFace:(MutableFace *)face;
 
-- (void)pickBrush:(Ray3D *)theRay hits:(NSMutableSet *)theHits;
-- (void)pickFace:(Ray3D *)theRay hits:(NSMutableSet *)theHits;
-- (void)pickEdge:(Ray3D *)theRay hits:(NSMutableSet *)theHits;
-- (void)pickVertex:(Ray3D *)theRay hits:(NSMutableSet *)theHits;
+- (void)pickBrush:(Ray3D *)theRay hitList:(PickingHitList *)theHitList;
+- (void)pickFace:(Ray3D *)theRay hitList:(PickingHitList *)theHitList;
+- (void)pickEdge:(Ray3D *)theRay hitList:(PickingHitList *)theHitList;
+- (void)pickVertex:(Ray3D *)theRay hitList:(PickingHitList *)theHitList;
 - (BoundingBox *)pickingBounds;
 
 @end

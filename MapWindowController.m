@@ -36,6 +36,7 @@
 #import "MapWriter.h"
 #import "MathCache.h"
 #import "CameraAnimation.h"
+#import "TrackingManager.h"
 
 static NSString* CameraDefaults = @"Camera";
 static NSString* CameraDefaultsFov = @"Field Of Vision";
@@ -79,6 +80,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [self userDefaultsChanged:nil];
     
     selectionManager = [[SelectionManager alloc] init];
+    trackingManager = [[TrackingManager alloc] initWithWindowController:self];
     inputManager = [[InputManager alloc] initWithWindowController:self];
     
     [view3D setup];
@@ -90,6 +92,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [center addObserver:self selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification object:[self window]];
     [center addObserver:self selector:@selector(userDefaultsChanged:) name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
     
+    [[self window] setAcceptsMouseMovedEvents:YES];
     [[self window] makeKeyAndOrderFront:nil];
 }
 
@@ -103,6 +106,10 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 
 - (InputManager *)inputManager {
     return inputManager;
+}
+
+- (TrackingManager *)trackingManager {
+    return trackingManager;
 }
 
 - (Options *)options {
@@ -618,6 +625,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [options release];
+    [trackingManager release];
     [selectionManager release];
     [inputManager release];
     [camera release];

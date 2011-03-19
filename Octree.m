@@ -20,13 +20,13 @@
 - (void)brushAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
-    [root addObject:brush bounds:[brush bounds]];
+    [root addObject:brush bounds:[brush pickingBounds]];
 }
 
 - (void)brushRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
-    if (![root removeObject:brush bounds:[brush bounds]])
+    if (![root removeObject:brush bounds:[brush pickingBounds]])
         [NSException raise:NSInvalidArgumentException format:@"Brush %@ was not removed from octree", brush];
 }
 
@@ -62,7 +62,7 @@
             NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
             id <Brush> brush;
             while ((brush = [brushEn nextObject]))
-                [root addObject:brush bounds:[brush bounds]];
+                [root addObject:brush bounds:[brush pickingBounds]];
         }
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];

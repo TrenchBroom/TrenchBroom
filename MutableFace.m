@@ -23,6 +23,12 @@
 #import "Line3D.h"
 #import "PickingHit.h"
 #import "Ray3D.h"
+#import "VBOBuffer.h"
+#import "VBOMemBlock.h"
+#import "TextureManager.h"
+#import "Texture.h"
+#import "RenderContext.h"
+#import "IntData.h"
 
 static Vector3f* baseAxes[18];
 
@@ -434,10 +440,6 @@ static Vector3f* baseAxes[18];
     return halfSpace;
 }
 
-- (PickingHit *)pickWithRay:(Ray3D *)theRay {
-    return [brush pickFace:self withRay:theRay];
-}
-
 - (NSArray *)gridWithSize:(int)gridSize {
     return [brush gridForFace:(self) gridSize:gridSize];
 }
@@ -501,6 +503,65 @@ static Vector3f* baseAxes[18];
 
 - (NSArray *)vertices {
     return [brush verticesForFace:self];
+}
+
+- (id)object {
+    return self;
+}
+
+- (id <NSCopying>)figureId {
+    return [self faceId];
+}
+
+- (void)invalidate {
+    [block free];
+    [block release];
+    block = nil;
+}
+
+- (void)prepare:(RenderContext *)renderContext {
+    if (block == nil) {
+        VBOBuffer* vbo = [renderContext vbo];
+        
+        int vertexCount = [[self vertices] count];
+        block = [[vbo allocMemBlock:5 * sizeof(float) * vertexCount] retain];
+    }
+
+    if ([block state] == BS_USED_INVALID) {
+        TextureManager* textureManager = [renderContext textureManager];
+        Vector2f* texCoords = [[Vector2f alloc] init];
+        
+        Texture* tex = [textureManager textureForName:texture];
+        int width = tex != nil ? [tex width] : 1;
+        int height = tex != nil ? [tex height] : 1;
+        
+        int vertexSize = 5 * sizeof(float);
+        NSArray* vertices = [self vertices];
+        vboIndex = [block address] / vertexSize;
+        vboCount = [vertices count];
+        
+        int offset = 0;
+        NSEnumerator* vertexEn = [vertices objectEnumerator];
+        Vector3f* vertex;
+        while ((vertex = [vertexEn nextObject])) {
+            [self texCoords:texCoords forVertex:vertex];
+            [texCoords setX:[texCoords x] / width];
+            [texCoords setY:[texCoords y] / height];
+            offset = [block writeVector2f:texCoords offset:offset];
+            offset = [block writeVector3f:vertex offset:offset];
+        }
+        
+        [texCoords release];
+        [block setState:BS_USED_VALID];
+    }
+}
+
+- (void)getIndex:(IntData *)theIndexBuffer count:(IntData *)theCountBuffer {
+    if ([block state] != BS_USED_VALID)
+        [NSException raise:@"InvalidMemBlockState" format:@"VBO memory block is not valid"];
+    
+    [theIndexBuffer appendInt:vboIndex];
+    [theCountBuffer appendInt:vboCount];
 }
 
 - (void) dealloc {

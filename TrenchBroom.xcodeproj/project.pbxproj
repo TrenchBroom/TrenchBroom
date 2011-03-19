@@ -23,6 +23,7 @@
 		480AD8D612ED9E4A009B5970 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
 		480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 480BB4711302ED1C005E3492 /* Matrix2f.m */; };
 		480BB50A13031A9D005E3492 /* Matrix3f.m in Sources */ = {isa = PBXBuildFile; fileRef = 480BB50913031A9D005E3492 /* Matrix3f.m */; };
+		480D23201334A3A800D3B57B /* PickingHitList.m in Sources */ = {isa = PBXBuildFile; fileRef = 480D231F1334A3A800D3B57B /* PickingHitList.m */; };
 		480F2F65132562CA00651FED /* Grid.m in Sources */ = {isa = PBXBuildFile; fileRef = 480F2F64132562CA00651FED /* Grid.m */; };
 		4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4814A02212F73F1E0082E05F /* ProgressWindow.xib */; };
 		4814A02712F740580082E05F /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4814A02612F740580082E05F /* ProgressWindowController.m */; };
@@ -107,6 +108,7 @@
 		48A68F1F114EA95A0064732A /* Vector3f.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F1E114EA95A0064732A /* Vector3f.m */; };
 		48A68F27114EDF360064732A /* MutableEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* MutableEntity.m */; };
 		48A68F70114EE6DC0064732A /* MapDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* MapDocument.m */; };
+		48AE78851334092D00821DBA /* TrackingManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AE78841334092D00821DBA /* TrackingManager.m */; };
 		48B3243C12E1C6B8008748E2 /* Camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3243B12E1C6B8008748E2 /* Camera.m */; };
 		48B324C112E1F455008748E2 /* Camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3243B12E1C6B8008748E2 /* Camera.m */; };
 		48B3256012E2D760008748E2 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 48B3255F12E2D760008748E2 /* Defaults.plist */; };
@@ -181,6 +183,8 @@
 		480BB4711302ED1C005E3492 /* Matrix2f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix2f.m; sourceTree = "<group>"; };
 		480BB50813031A9D005E3492 /* Matrix3f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix3f.h; sourceTree = "<group>"; };
 		480BB50913031A9D005E3492 /* Matrix3f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix3f.m; sourceTree = "<group>"; };
+		480D231E1334A3A800D3B57B /* PickingHitList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PickingHitList.h; sourceTree = "<group>"; };
+		480D231F1334A3A800D3B57B /* PickingHitList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PickingHitList.m; sourceTree = "<group>"; };
 		480F2F63132562CA00651FED /* Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Grid.h; sourceTree = "<group>"; };
 		480F2F64132562CA00651FED /* Grid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Grid.m; sourceTree = "<group>"; };
 		4814A02212F73F1E0082E05F /* ProgressWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProgressWindow.xib; sourceTree = "<group>"; };
@@ -339,6 +343,8 @@
 		48A68F26114EDF360064732A /* MutableEntity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutableEntity.m; sourceTree = "<group>"; };
 		48A68F6E114EE6DC0064732A /* MapDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapDocument.h; sourceTree = "<group>"; };
 		48A68F6F114EE6DC0064732A /* MapDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapDocument.m; sourceTree = "<group>"; };
+		48AE78831334092D00821DBA /* TrackingManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrackingManager.h; sourceTree = "<group>"; };
+		48AE78841334092D00821DBA /* TrackingManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TrackingManager.m; sourceTree = "<group>"; };
 		48B3243A12E1C6B8008748E2 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		48B3243B12E1C6B8008748E2 /* Camera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Camera.m; sourceTree = "<group>"; };
 		48B3255F12E2D760008748E2 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
@@ -626,6 +632,8 @@
 				485AE8A612F4B9BA00CDBD6A /* Picker.m */,
 				485AE8D512F4C5BD00CDBD6A /* PickingHit.h */,
 				485AE8D612F4C5BD00CDBD6A /* PickingHit.m */,
+				480D231E1334A3A800D3B57B /* PickingHitList.h */,
+				480D231F1334A3A800D3B57B /* PickingHitList.m */,
 			);
 			name = Picking;
 			sourceTree = "<group>";
@@ -719,6 +727,8 @@
 				4816144C132BE7C300CD66AF /* BrushTool.m */,
 				48958207132E52EF00BB7D8F /* CameraAnimation.h */,
 				48958208132E52EF00BB7D8F /* CameraAnimation.m */,
+				48AE78831334092D00821DBA /* TrackingManager.h */,
+				48AE78841334092D00821DBA /* TrackingManager.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -1031,6 +1041,8 @@
 				480F2F65132562CA00651FED /* Grid.m in Sources */,
 				4816144D132BE7C300CD66AF /* BrushTool.m in Sources */,
 				48958209132E52EF00BB7D8F /* CameraAnimation.m in Sources */,
+				48AE78851334092D00821DBA /* TrackingManager.m in Sources */,
+				480D23201334A3A800D3B57B /* PickingHitList.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

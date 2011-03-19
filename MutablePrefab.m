@@ -100,7 +100,7 @@
 
         bounds = [[BoundingBox alloc] initWithBounds:[entity bounds]];
         while ((entity = [entityEn nextObject]))
-            [bounds merge:[entity bounds]];
+            [bounds mergeBounds:[entity bounds]];
     }
     
     return bounds;

@@ -11,11 +11,7 @@
 
 @implementation PickingHit
 
-+ (PickingHit *)hitWithObject:(id)theObject hitPoint:(Vector3f *)theHitPoint distance:(float)theDistance {
-    return [[[self alloc] initWithObject:theObject hitPoint:theHitPoint distance:theDistance] autorelease];
-}
-
-- (id)initWithObject:(id)theObject hitPoint:(Vector3f *)theHitPoint distance:(float)theDistance {
+- (id)initWithObject:(id)theObject type:(EHitType)theType hitPoint:(Vector3f *)theHitPoint distance:(float)theDistance {
     if (theObject == nil)
         [NSException raise:NSInvalidArgumentException format:@"object must not be nil"];
     if (theHitPoint == nil)
@@ -23,6 +19,7 @@
     
     if (self = [self init]) {
         object = [theObject retain];
+        type = theType;
         hitPoint = [theHitPoint retain];
         distance = theDistance;
     }
@@ -32,6 +29,14 @@
 
 - (id)object {
     return object;
+}
+
+- (EHitType)type {
+    return type;
+}
+
+- (BOOL)isType:(EHitType)theTypeMask {
+    return (theTypeMask & type) != 0;
 }
 
 - (Vector3f *)hitPoint {

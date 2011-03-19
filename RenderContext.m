@@ -12,14 +12,17 @@
 
 @implementation RenderContext
 
-- (id)initWithTextureManager:(TextureManager *)theTextureManager options:(Options *)theOptions {
+- (id)initWithTextureManager:(TextureManager *)theTextureManager vbo:(VBOBuffer *)theVbo options:(Options *)theOptions {
     if (theTextureManager == nil)
         [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
+    if (theVbo == nil)
+        [NSException raise:NSInvalidArgumentException format:@"vbo must not be nil"];
     if (theOptions == nil)
         [NSException raise:NSInvalidArgumentException format:@"options must not be nil"];
     
     if (self = [self init]) {
         textureManager = [theTextureManager retain];
+        vbo = [theVbo retain];
         options = [theOptions retain];
     }
     
@@ -34,8 +37,13 @@
     return options;
 }
 
+- (VBOBuffer *)vbo {
+    return vbo;
+}
+
 - (void)dealloc {
     [textureManager release];
+    [vbo release];
     [options release];
     [super dealloc];
 }

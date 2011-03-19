@@ -330,7 +330,7 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] translateBrush:brush xDelta:-xDelta yDelta:-yDelta zDelta:-zDelta];
 
-    BoundingBox* oldBounds = [[BoundingBox alloc] initWithBounds:[brush bounds]];
+    BoundingBox* oldBounds = [[BoundingBox alloc] initWithBounds:[brush pickingBounds]];
     
     MathCache* cache = [MathCache sharedCache];
     Vector3i* delta = [cache vector3i];
@@ -347,7 +347,7 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
         [userInfo setObject:brush forKey:BrushKey];
         [userInfo setObject:oldBounds forKey:BrushOldBoundsKey];
-        [userInfo setObject:[brush bounds] forKey:BrushNewBoundsKey];
+        [userInfo setObject:[brush pickingBounds] forKey:BrushNewBoundsKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:BrushChanged object:self userInfo:userInfo];

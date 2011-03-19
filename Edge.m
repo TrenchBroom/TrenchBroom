@@ -223,7 +223,7 @@ static float HANDLE_RADIUS = 2.0f;
         if (t == MAXFLOAT)
             return nil;
         
-        return [[[PickingHit alloc] initWithObject:self hitPoint:is distance:t] autorelease];
+        return [[[PickingHit alloc] initWithObject:self type:HT_EDGE hitPoint:is distance:t] autorelease];
     } @finally {
         [cache returnVector3f:va];
         [cache returnVector3f:dp];
@@ -234,57 +234,106 @@ static float HANDLE_RADIUS = 2.0f;
     }
 }
 
-- (void)expandBounds:(BoundingBox *)theBounds {
+- (void)expandBounds:(BoundingBox *)theBounds extremeVector:(Vector3f *)extreme axis:(Vector3f *)axis {
     MathCache* cache = [MathCache sharedCache];
-    Vector3f* min = [cache vector3f];
-    Vector3f* max = [cache vector3f];
+    Vector3f* p = [cache vector3f];
     
+    [p setFloat:extreme];
+    [p scale:HANDLE_RADIUS];
+    [p add:[startVertex vector]];
+    [theBounds mergePoint:p];
+    
+    [p add:axis];
+    [theBounds mergePoint:p];
+    
+    [p setFloat:extreme];
+    [p scale:-HANDLE_RADIUS];
+    [p add:[startVertex vector]];
+    [theBounds mergePoint:p];
+    
+    [p add:axis];
+    [theBounds mergePoint:p];
+    
+    [cache returnVector3f:p];
+}
+
+- (void)expandBounds:(BoundingBox *)theBounds {
     Vector3f* s = [startVertex vector];
     Vector3f* e = [endVertex vector];
     
+    MathCache* cache = [MathCache sharedCache];
     if (feq([s x], [e x])) {
+        Vector3f* min = [cache vector3f];
+        Vector3f* max = [cache vector3f];
+
         [min setX:fminf([s x], [e x])];
         [min setY:[s y] - HANDLE_RADIUS];
         [min setZ:[s z] - HANDLE_RADIUS];
         [max setX:fmaxf([s x], [e x])];
         [max setY:[s y] + HANDLE_RADIUS];
         [max setZ:[s z] + HANDLE_RADIUS];
+
+        [theBounds mergeMin:min max:max];
+        [cache returnVector3f:min];
+        [cache returnVector3f:max];
     } else if (feq([s y], [e y])) {
+        Vector3f* min = [cache vector3f];
+        Vector3f* max = [cache vector3f];
+
         [min setX:[s x] - HANDLE_RADIUS];
         [min setY:fminf([s y], [e y])];
         [min setZ:[s z] - HANDLE_RADIUS];
         [max setX:[s x] + HANDLE_RADIUS];
         [max setY:fmaxf([s y], [e y])];
         [max setZ:[s z] + HANDLE_RADIUS];
+
+        [theBounds mergeMin:min max:max];
+        [cache returnVector3f:min];
+        [cache returnVector3f:max];
     } else if (feq([s z], [e z])) {
+        Vector3f* min = [cache vector3f];
+        Vector3f* max = [cache vector3f];
+
         [min setX:[s x] - HANDLE_RADIUS];
         [min setY:[s y] - HANDLE_RADIUS];
         [min setZ:fminf([s z], [e z])];
         [max setX:[s x] + HANDLE_RADIUS];
         [max setY:[s y] + HANDLE_RADIUS];
         [max setZ:fmaxf([s z], [e z])];
-    } else {
-        Vector3f* n = [cache vector3f];
-        Vector3f* v = [cache vector3f];
-        
-        [n setFloat:[endVertex vector]];
-        [n sub:[startVertex vector]];
-        [n normalize];
-        
-        [v setFloat:n];
-        [v cross:[Vector3f xAxisPos]];
-        [v normalize];
 
+        [theBounds mergeMin:min max:max];
+        [cache returnVector3f:min];
+        [cache returnVector3f:max];
+    } else {
+        Vector3f* norm = [cache vector3f];
+        Vector3f* extreme = [cache vector3f];
+        Vector3f* axis = [cache vector3f];
         
+        [axis setFloat:e];
+        [axis sub:s];
+
+        [norm setFloat:axis];
+        [norm normalize];
+
+        [extreme setFloat:norm];
+        [extreme cross:[Vector3f xAxisPos]];
+        [extreme normalize];
+        [self expandBounds:theBounds extremeVector:extreme axis:axis];
+
+        [extreme setFloat:norm];
+        [extreme cross:[Vector3f yAxisPos]];
+        [extreme normalize];
+        [self expandBounds:theBounds extremeVector:extreme axis:axis];
         
+        [extreme setFloat:norm];
+        [extreme cross:[Vector3f zAxisPos]];
+        [extreme normalize];
+        [self expandBounds:theBounds extremeVector:extreme axis:axis];
         
-        [cache returnVector3f:n];
-        [cache returnVector3f:v];
+        [cache returnVector3f:norm];
+        [cache returnVector3f:extreme];
+        [cache returnVector3f:axis];
     }
- 
-    [theBounds mergeMin:min max:max];
-    [cache returnVector3f:min];
-    [cache returnVector3f:max];
 }
 
 - (EEdgeMark)mark {
