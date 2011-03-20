@@ -28,6 +28,25 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 
 @implementation VBOBuffer
 
+- (void)checkChain {
+    VBOMemBlock* block = firstBlock;
+    if ([block previous] != nil)
+        [NSException raise:@"VBOBufferChainException" format:@"first block has previous block"];
+    
+    while ([block next] != nil) {
+        block = [block next];
+        VBOMemBlock* previous = [block previous];
+        VBOMemBlock* next = [block next];
+        if ([previous next] != block)
+            [NSException raise:@"VBOBufferChainException" format:@"chain is invalid"];
+        if (next != nil && [next previous] != block)
+            [NSException raise:@"VBOBufferChainException" format:@"chain is invalid"];
+    }
+    
+    if (block != lastBlock)
+        [NSException raise:@"VBOBufferChainException" format:@"last block is not last in chain"];
+}
+
 - (id)init {
     if (self = [super init]) {
         freeBlocksByCapacity = [[NSMutableArray alloc] initWithCapacity:10];
@@ -41,6 +60,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         totalCapacity = capacity;
         freeCapacity = capacity;
         firstBlock = [[VBOMemBlock alloc] initBlockIn:self at:0 capacity:capacity];
+        lastBlock = firstBlock;
         [freeBlocksByCapacity addObject:firstBlock];
     }
     
@@ -190,21 +210,13 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     freeCapacity = newCapacity - (totalCapacity - freeCapacity);
     totalCapacity = newCapacity;
     
-    VBOMemBlock* block = firstBlock;
-    VBOMemBlock* lastBlock;
-    while (block != nil) {
-        lastBlock = block;
-        block = [block next];
-    }
-    
     if ([lastBlock state] == BS_FREE) {
         [self resizeMemBlock:lastBlock toCapacity:[lastBlock capacity] + addedCapacity];
     } else {
-        block = [[VBOMemBlock alloc] initBlockIn:self at:[lastBlock address] + [lastBlock capacity] capacity:addedCapacity];
-        [lastBlock setNext:block];
-        [block setPrevious:lastBlock];
+        VBOMemBlock* block = [[VBOMemBlock alloc] initBlockIn:self at:[lastBlock address] + [lastBlock capacity] capacity:addedCapacity];
+        [block insertBetweenPrevious:lastBlock next:nil];
         [self insertFreeMemBlock:block];
-        [block release];
+        lastBlock = block;
     }
 
     [self unmapBuffer];
@@ -256,22 +268,22 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         VBOMemBlock *remainder = [[VBOMemBlock alloc] initBlockIn:self at:[memBlock address] + capacity capacity:[memBlock capacity] - capacity];
         [memBlock setCapacity:capacity];
 
-        VBOMemBlock* next = [memBlock next];
-        
-        [remainder setNext:next];
-        [remainder setPrevious:memBlock];
-        
-        [memBlock setNext:remainder];
-        [next setPrevious:remainder];
-
+        [remainder insertBetweenPrevious:memBlock next:[memBlock next]];
         [self insertFreeMemBlock:remainder];
-        [remainder release];
+        
+        if (lastBlock == memBlock)
+            lastBlock = remainder;
     }
     
     [memBlock setState:BS_USED_INVALID];
     freeCapacity -= [memBlock capacity];
     
-    return [memBlock autorelease];
+    
+#ifdef DEBUG
+    [self checkChain];
+#endif 
+
+    return memBlock;
 }
 
 - (void)freeMemBlock:(VBOMemBlock *)memBlock {
@@ -282,47 +294,118 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     VBOMemBlock* next = [memBlock next];
 
     freeCapacity += [memBlock capacity];
+    [memBlock setState:BS_FREE];
     
     if (previous != nil && [previous state] == BS_FREE &&  
         next != nil && [next state] == BS_FREE) {
-        VBOMemBlock* nextNext = [next next];
-        
-        [previous setNext:nextNext];
-        [nextNext setPrevious:previous];
-        
-        [memBlock setPrevious:nil];
-        [memBlock setNext:nil];
-        [next setPrevious:nil];
-        [next setNext:nil];
-        
         [self resizeMemBlock:previous toCapacity:[previous capacity] + [memBlock capacity] + [next capacity]];
-        [self removeFreeMemBlock:next];
 
-    } else if (previous != nil && [previous state] == BS_FREE) {
-        [previous setNext:next];
-        [next setPrevious:previous];
+        if (lastBlock == next)
+            lastBlock = previous;
+
+        [self removeFreeMemBlock:next];
+        [next remove];
+        [next release];
         
-        [memBlock setPrevious:nil];
-        [memBlock setNext:nil];
+        [memBlock remove];
+        [memBlock release];
+    } else if (previous != nil && [previous state] == BS_FREE) {
+        if (lastBlock == memBlock)
+            lastBlock = previous;
 
         [self resizeMemBlock:previous toCapacity:[previous capacity] + [memBlock capacity]];
+        [memBlock remove];
+        [memBlock release];
     } else if (next != nil && [next state] == BS_FREE) {
-        VBOMemBlock* nextNext = [next next];
-        
-        [memBlock setNext:nextNext];
-        [nextNext setPrevious:memBlock];
-        
-        [next setPrevious:nil];
-        [next setNext:nil];
-        
+        if (lastBlock == next)
+            lastBlock = memBlock;
+
         [memBlock setCapacity:[memBlock capacity] + [next capacity]];
         [memBlock setState:BS_FREE];
+
         [self insertFreeMemBlock:memBlock];
         [self removeFreeMemBlock:next];
+        
+        [next remove];
+        [next release];
     } else {
         [memBlock setState:BS_FREE];
         [self insertFreeMemBlock:memBlock];
     }
+    
+#ifdef DEBUG
+    [self checkChain];
+#endif 
+}
+
+- (VBOMemBlock *)packMemBlock:(VBOMemBlock *)freeBlock {
+    VBOMemBlock* first = [freeBlock next];
+    if (first == nil)
+        return nil;
+    
+    VBOMemBlock* previous = [freeBlock previous];
+    VBOMemBlock* last = first;
+    int size = 0;
+    do {
+        [last setAddress:[previous address] + [previous capacity]];
+        size += [last capacity];
+        previous = last;
+        last = [last next];
+    } while (last != nil && [last state] != BS_FREE);
+    
+    if (size <= [freeBlock capacity]) {
+        memcpy(buffer + [freeBlock address], buffer + [first address], size);
+    } else {
+        uint8_t* temp = malloc(size);
+        memcpy(temp, buffer + [first address], size);
+        memcpy(buffer + [freeBlock address], temp, size);
+        free(temp);
+    }
+    
+    // remove the free block
+    if (firstBlock == freeBlock)
+        firstBlock = [freeBlock next];
+    
+    [self removeFreeMemBlock:freeBlock];
+    [freeBlock remove];
+    [freeBlock release];
+    
+    return last;
+}
+
+- (void)pack {
+    if (buffer == NULL)
+        [NSException raise:@"InvalidStateException" format:@"buffer must be mapped before it can be packed"];
+    
+    if (totalCapacity == freeCapacity || ([lastBlock state] == BS_FREE && [lastBlock capacity] == freeCapacity))
+        return;
+    
+    VBOMemBlock* freeBlock = firstBlock; // find first free block
+    while (freeBlock != nil && [freeBlock state] != BS_FREE)
+        freeBlock = [freeBlock next];
+    
+    int capacity = 0; // total capacity of the blocks that we killed so far
+    while (freeBlock != nil && [freeBlock next] != nil) {
+        int t = [freeBlock capacity];
+        freeBlock = [self packMemBlock:freeBlock];
+        capacity += t;
+    }
+
+    if (capacity > 0) {
+        if ([lastBlock state] == BS_FREE) {
+            [self resizeMemBlock:lastBlock toCapacity:[freeBlock capacity] + capacity];
+        } else {
+            VBOMemBlock* newBlock = [[VBOMemBlock alloc] initBlockIn:self at:[lastBlock address] + [lastBlock capacity] capacity:capacity];
+            [self insertFreeMemBlock:newBlock];
+            [newBlock insertBetweenPrevious:lastBlock next:nil];
+            lastBlock = newBlock;
+        }
+    }
+
+    
+#ifdef DEBUG
+    [self checkChain];
+#endif 
 }
 
 - (void)dealloc {
@@ -332,7 +415,14 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         glDeleteBuffers(1, &vboId);
 
     [freeBlocksByCapacity release];
-    [firstBlock release];
+    
+    VBOMemBlock* block = lastBlock;
+    while (block != nil) {
+        block = [block previous];
+        if (block != nil)
+            [[block next] release];
+    }
+    
     [super dealloc];
 }
 

@@ -11,21 +11,23 @@
 
 @class MapWindowController;
 @class RenderContext;
+@class IntData;
 
 @interface GeometryLayer : NSObject <Layer> {
-    NSMutableSet* figures;
-    NSMutableDictionary* indexBuffers;
-    NSMutableDictionary* countBuffers;
+    NSMutableSet* faceFigures;
+    NSMutableSet* edgeFigures;
+    NSMutableDictionary* faceIndexBuffers;
+    NSMutableDictionary* faceCountBuffers;
+    NSNumber* edgeVboKey;
     MapWindowController* mapWindowController;
     BOOL buffersValid;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theMapWindowController;
 
-- (void)renderWireframe:(RenderContext *)renderContext;
-- (void)renderTextured:(RenderContext *)renderContext;
-- (void)renderFaces:(RenderContext *)renderContext;
-- (void)prepare:(RenderContext *)renderContext;
+- (void)renderFaces;
+- (void)renderEdges;
+- (void)prepare;
 - (void)render:(RenderContext *)renderContext;
 
 @end

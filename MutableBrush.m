@@ -115,11 +115,22 @@
     return [[self vertexData] vertices];
 }
 
+- (NSArray *)edges {
+    return [[self vertexData] edges];
+}
+
 - (NSArray *)verticesForFace:(MutableFace *)face {
     if (face == nil)
         [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
 
     return [[self vertexData] verticesForFace:face];
+}
+
+- (NSArray *)edgesForFace:(MutableFace *)face {
+    if (face == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
+    
+    return [[self vertexData] edgesForFace:face];
 }
 
 - (float *)flatColor {

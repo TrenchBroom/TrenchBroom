@@ -38,12 +38,20 @@
     return address;
 }
 
+- (void)setAddress:(int)theAddress {
+    address = theAddress;
+}
+
 - (int)capacity {
     return capacity;
 }
 
 - (EVBOMemBlockState)state {
     return state;
+}
+
+- (VBOBuffer *)vbo {
+    return vboBuffer;
 }
 
 - (void)setCapacity:(int)aSize {
@@ -90,8 +98,25 @@
 }
 
 - (void)setNext:(VBOMemBlock *)memBlock {
-    [next release];
-    next = [memBlock retain];
+    next = memBlock;
+}
+
+- (void)insertBetweenPrevious:(VBOMemBlock *)previousBlock next:(VBOMemBlock *)nextBlock {
+    if ((previousBlock != nil && [previousBlock next] != nextBlock) || (nextBlock != nil && [nextBlock previous] != previousBlock))
+        [NSException raise:NSInvalidArgumentException format:@"cannot insert between unchained blocks"];
+    
+    [previousBlock setNext:self];
+    previous = previousBlock;
+    [nextBlock setPrevious:self];
+    next = nextBlock;
+}
+
+- (void)remove {
+    [previous setNext:next];
+    [next setPrevious:previous];
+    
+    previous = nil;
+    next = nil;
 }
 
 - (void)free {
@@ -100,7 +125,6 @@
 
 - (void)dealloc {
     [vboBuffer release];
-    [next release];
     [super dealloc];
 }
 

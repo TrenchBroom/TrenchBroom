@@ -20,6 +20,7 @@ extern NSString* const BufferNotMappedException;
     int freeCapacity;
     NSMutableArray* freeBlocksByCapacity;
     VBOMemBlock* firstBlock;
+    VBOMemBlock* lastBlock;
     uint8_t* buffer;
     GLuint vboId;
     BOOL active;
@@ -42,5 +43,6 @@ extern NSString* const BufferNotMappedException;
 
 - (VBOMemBlock *)allocMemBlock:(int)capacity;
 - (void)freeMemBlock:(VBOMemBlock *)memBlock;
+- (void)pack;
 
 @end

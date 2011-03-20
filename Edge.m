@@ -19,6 +19,10 @@
 #import "MathCache.h"
 #import "Math.h"
 #import "BoundingBox.h"
+#import "RenderContext.h"
+#import "VBOBuffer.h"
+#import "VBOMemBlock.h"
+#import "IntData.h"
 
 static float HANDLE_RADIUS = 2.0f;
 
@@ -382,11 +386,42 @@ static float HANDLE_RADIUS = 2.0f;
     return desc;
 }
 
+#pragma mark Implementation of Figure protocol -
+
+- (id)object {
+    return self;
+}
+
+- (void)prepareWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager {
+    if (block != nil && [block vbo] != theVbo)
+        [self invalidate];
+    
+    if (block == nil)
+        block = [[theVbo allocMemBlock:3 * sizeof(float) * 2] retain];
+    
+    if ([block state] == BS_USED_INVALID) {
+        int offset = [block writeVector3f:[startVertex vector] offset:0];
+        [block writeVector3f:[endVertex vector] offset:offset];
+        [block setState:BS_USED_VALID];
+    }
+}
+
+- (void)getIndex:(IntData *)theIndexBuffer count:(IntData *)theCountBuffer {
+    [NSException raise:@"UnknownOperationException" format:@"VBO memory block is not valid"];
+}
+- (void)invalidate {
+    [block free];
+    [block release];
+    block = nil;
+}
+
 - (void)dealloc {
     [startVertex release];
     [endVertex release];
     [leftEdge release];
     [rightEdge release];
+    [block free];
+    [block release];
     [super dealloc];
 }
 

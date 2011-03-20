@@ -40,6 +40,7 @@
 - (Vector3f *)centerOfFace:(MutableFace *)face;
 - (NSArray *)gridForFace:(MutableFace *)theFace gridSize:(int)gridSize;
 - (NSArray *)verticesForFace:(MutableFace *)face;
+- (NSArray *)edgesForFace:(MutableFace *)face;
 
 - (void)setEntity:(MutableEntity *)theEntity;
 - (void)translateBy:(Vector3i *)theDelta;

@@ -322,6 +322,20 @@
     return [result autorelease];
 }
 
+- (NSArray *)edges {
+    return edges;
+}
+
+- (NSArray *)edgesForFace:(MutableFace *)face {
+    if (face == nil)
+        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
+    Side* side = [faceToSide objectForKey:[face faceId]];
+    if (side == nil)
+        [NSException raise:NSInvalidArgumentException format:@"no vertex data for face %@", face];
+    
+    return [side edges];
+}
+
 - (BoundingBox *)bounds {
     if (bounds == nil) {
         NSEnumerator* vertexEn = [vertices objectEnumerator];
@@ -507,22 +521,6 @@
 
     [pVertices release];
     return [gVertices autorelease];
-}
-
-- (NSArray *)verticesForWireframe {
-    NSMutableArray* result = [[NSMutableArray alloc] initWithCapacity:2 * [self edgeCount]];
-    
-    NSEnumerator* edgeEn = [edges objectEnumerator];
-    Edge* edge;
-    while ((edge = [edgeEn nextObject])) {
-        Vertex* startVertex = [edge startVertex];
-        Vertex* endVertex = [edge endVertex];
-        
-        [result addObject:[startVertex vector]];
-        [result addObject:[endVertex vector]];
-    }
-    
-    return [result autorelease];
 }
 
 - (int)edgeCount {

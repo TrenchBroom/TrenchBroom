@@ -13,6 +13,7 @@
 #import "GLResources.h"
 #import "MapDocument.h"
 #import "Face.h"
+#import "Edge.h"
 #import "Figure.h"
 #import "VBOBuffer.h"
 #import "IntData.h"
@@ -20,14 +21,19 @@
 #import "TextureManager.h"
 #import "Texture.h"
 #import "Options.h"
+#import "IdGenerator.h"
+
+static NSString* const FaceVboKey = @"FaceVbo";
 
 @implementation GeometryLayer
 
 - (id)init {
     if (self = [super init]) {
-        figures = [[NSMutableSet alloc] init];
-        indexBuffers = [[NSMutableDictionary alloc] init];
-        countBuffers = [[NSMutableDictionary alloc] init];
+        faceFigures = [[NSMutableSet alloc] init];
+        edgeFigures = [[NSMutableSet alloc] init];
+        faceIndexBuffers = [[NSMutableDictionary alloc] init];
+        faceCountBuffers = [[NSMutableDictionary alloc] init];
+        edgeVboKey = [[IdGenerator sharedGenerator] getId];
         buffersValid = NO;
     }
     
@@ -49,66 +55,98 @@
     if (theFigure == nil)
         [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
     
-    [figures addObject:theFigure];
+    id object = [theFigure object];
+    if ([object conformsToProtocol:@protocol(Face)])
+        [faceFigures addObject:theFigure];
+    else if ([object isKindOfClass:[Edge class]])
+        [edgeFigures addObject:theFigure];
+    
     [self invalidate];
 }
 
 - (void)removeFigure:(id <Figure>)theFigure {
     if (theFigure == nil)
         [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
+
+    id object = [theFigure object];
+    if ([object conformsToProtocol:@protocol(Face)])
+        [faceFigures removeObject:theFigure];
+    else if ([object isKindOfClass:[Edge class]])
+        [edgeFigures removeObject:theFigure];
     
-    [figures removeObject:theFigure];
     [self invalidate];
 }
 
-- (void)prepare:(RenderContext *)renderContext {
+- (void)prepare {
     MapDocument* document = [mapWindowController document];
     GLResources* glResources = [document glResources];
-    VBOBuffer* vbo = [glResources geometryVBO];
+    VBOBuffer* faceVbo = [glResources vboForKey:FaceVboKey];
+    VBOBuffer* edgeVbo = [glResources vboForKey:edgeVboKey];
     
-    [vbo mapBuffer];
+    [faceVbo activate];
+    [faceVbo mapBuffer];
     
-    NSEnumerator* figureEn = [figures objectEnumerator];
-    id <Figure> figure;
-    while ((figure = [figureEn nextObject]))
-        [figure prepare:renderContext];
+    NSEnumerator* faceFigureEn = [faceFigures objectEnumerator];
+    id <Figure> faceFigure;
+    while ((faceFigure = [faceFigureEn nextObject]))
+        [faceFigure prepareWithVbo:faceVbo textureManager:[glResources textureManager]];
 
-    [vbo unmapBuffer];
+    [faceVbo unmapBuffer];
+    [faceVbo deactivate];
 
-    figureEn = [figures objectEnumerator];
-    while ((figure = [figureEn nextObject])) {
-        NSString* textureName = [figure texture];
+    faceFigureEn = [faceFigures objectEnumerator];
+    while ((faceFigure = [faceFigureEn nextObject])) {
+        id <Face> face = [faceFigure object];
+        NSString* textureName = [face texture];
         
-        IntData* indexBuffer = [indexBuffers objectForKey:textureName];
+        IntData* indexBuffer = [faceIndexBuffers objectForKey:textureName];
         if (indexBuffer == nil) {
             indexBuffer = [[IntData alloc] init];
-            [indexBuffers setObject:indexBuffer forKey:textureName];
+            [faceIndexBuffers setObject:indexBuffer forKey:textureName];
             [indexBuffer release];
         }
         
-        IntData* countBuffer = [countBuffers objectForKey:textureName];
+        IntData* countBuffer = [faceCountBuffers objectForKey:textureName];
         if (countBuffer == nil) {
             countBuffer = [[IntData alloc] init];
-            [countBuffers setObject:countBuffer forKey:textureName];
+            [faceCountBuffers setObject:countBuffer forKey:textureName];
             [countBuffer release];
         }
         
-        [figure getIndex:indexBuffer count:countBuffer];
+        [faceFigure getIndex:indexBuffer count:countBuffer];
     }
     
+    [edgeVbo activate];
+    [edgeVbo mapBuffer];
+    
+    NSEnumerator* edgeFigureEn = [edgeFigures objectEnumerator];
+    id <Figure> edgeFigure;
+    while ((edgeFigure = [edgeFigureEn nextObject]))
+        [edgeFigure prepareWithVbo:edgeVbo textureManager:[glResources textureManager]];
+
+    [edgeVbo pack];
+    [edgeVbo unmapBuffer];
+    [edgeVbo deactivate];
+
     buffersValid = YES;
 }
 
-- (void)renderTextured:(RenderContext *)renderContext {
-    TextureManager* textureManager = [renderContext textureManager];
-    NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
+- (void)renderFaces {
+    MapDocument* document = [mapWindowController document];
+    GLResources* glResources = [document glResources];
+    VBOBuffer* faceVbo = [glResources vboForKey:FaceVboKey];
+
+    [faceVbo activate];
+    
+    TextureManager* textureManager = [glResources textureManager];
+    NSEnumerator* textureNameEn = [faceIndexBuffers keyEnumerator];
     NSString* textureName;
     while ((textureName = [textureNameEn nextObject])) {
         Texture* texture = [textureManager textureForName:textureName];
         [texture activate];
         
-        IntData* indexBuffer = [indexBuffers objectForKey:textureName];
-        IntData* countBuffer = [countBuffers objectForKey:textureName];
+        IntData* indexBuffer = [faceIndexBuffers objectForKey:textureName];
+        IntData* countBuffer = [faceCountBuffers objectForKey:textureName];
         
         const void* indexBytes = [indexBuffer bytes];
         const void* countBytes = [countBuffer bytes];
@@ -117,25 +155,25 @@
         glInterleavedArrays(GL_T2F_V3F, 0, NULL);
         glMultiDrawArrays(GL_POLYGON, indexBytes, countBytes, primCount);
     }
+    
+    [faceVbo deactivate];
 }
 
-- (void)renderWireframe:(RenderContext *)renderContext {
-    NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
-    NSString* textureName;
-    while ((textureName = [textureNameEn nextObject])) {
-        IntData* indexBuffer = [indexBuffers objectForKey:textureName];
-        IntData* countBuffer = [countBuffers objectForKey:textureName];
-        
-        const void* indexBytes = [indexBuffer bytes];
-        const void* countBytes = [countBuffer bytes];
-        int primCount = [indexBuffer count];
-        
-        glVertexPointer(3, GL_FLOAT, 20, (const GLvoid *)8); // cast to pointer type to avoid compiler warning
-        glMultiDrawArrays(GL_POLYGON, indexBytes, countBytes, primCount);
-    }
+- (void)renderEdges {
+    MapDocument* document = [mapWindowController document];
+    GLResources* glResources = [document glResources];
+    VBOBuffer* edgeVbo = [glResources vboForKey:edgeVboKey];
+
+    [edgeVbo activate];
+    
+    glVertexPointer(3, GL_FLOAT, 0, NULL);
+    glDrawArrays(GL_LINES, 0, [edgeFigures count] * 2);
+    
+    [edgeVbo deactivate];
+    
 }
 
-- (void)renderFaces:(RenderContext *)renderContext {
+- (void)doRender:(RenderContext *)renderContext {
     switch ([[renderContext options] renderMode]) {
         case RM_TEXTURED:
             if ([[renderContext options] isolationMode] == IM_NONE) {
@@ -143,24 +181,16 @@
                 glPolygonMode(GL_FRONT, GL_FILL);
                 glColor4f(0, 0, 0, 1);
                 glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-                [self renderTextured:renderContext];
+                [self renderFaces];
             }
-            if ([[renderContext options] isolationMode] != IM_DISCARD) {
-                glDisable(GL_TEXTURE_2D);
-                glPolygonMode(GL_FRONT, GL_LINE);
-                glColor4f(1, 1, 1, 0.5);
-                [self renderWireframe:renderContext];
-            }
-            break;
-        case RM_FLAT:
-            break;
         case RM_WIREFRAME:
             if ([[renderContext options] isolationMode] != IM_DISCARD) {
                 glDisable(GL_TEXTURE_2D);
-                glPolygonMode(GL_FRONT, GL_LINE);
                 glColor4f(1, 1, 1, 0.5);
-                [self renderWireframe:renderContext];
+                [self renderEdges];
             }
+            break;
+        case RM_FLAT:
             break;
     }
 }
@@ -174,32 +204,27 @@
     glPolygonOffset(1.0, 1.0);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glShadeModel(GL_FLAT);
-    
-    MapDocument* document = [mapWindowController document];
-    GLResources* glResources = [document glResources];
-    VBOBuffer* vbo = [glResources geometryVBO];
 
-    [vbo activate];
     if (!buffersValid)
-        [self prepare:renderContext];
+        [self prepare];
 
-    [self renderFaces:renderContext];
-    [vbo deactivate];
+    [self doRender:renderContext];
 }
 
 - (void)invalidate {
     if (buffersValid) {
-        [indexBuffers removeAllObjects];
-        [countBuffers removeAllObjects];
+        [faceIndexBuffers removeAllObjects];
+        [faceCountBuffers removeAllObjects];
         buffersValid = NO;
     }
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [indexBuffers release];
-    [countBuffers release];
-    [figures release];
+    [faceIndexBuffers release];
+    [faceCountBuffers release];
+    [faceFigures release];
+    [edgeFigures release];
     [mapWindowController release];
     [super dealloc];
 }

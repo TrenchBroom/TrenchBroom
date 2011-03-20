@@ -505,12 +505,12 @@ static Vector3f* baseAxes[18];
     return [brush verticesForFace:self];
 }
 
-- (id)object {
-    return self;
+- (NSArray *)edges {
+    return [brush edgesForFace:self];
 }
 
-- (id <NSCopying>)figureId {
-    return [self faceId];
+- (id)object {
+    return self;
 }
 
 - (void)invalidate {
@@ -519,19 +519,19 @@ static Vector3f* baseAxes[18];
     block = nil;
 }
 
-- (void)prepare:(RenderContext *)renderContext {
+- (void)prepareWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager {
+    if (block != nil && [block vbo] != theVbo)
+        [self invalidate];
+
     if (block == nil) {
-        VBOBuffer* vbo = [renderContext vbo];
-        
         int vertexCount = [[self vertices] count];
-        block = [[vbo allocMemBlock:5 * sizeof(float) * vertexCount] retain];
+        block = [[theVbo allocMemBlock:5 * sizeof(float) * vertexCount] retain];
     }
 
     if ([block state] == BS_USED_INVALID) {
-        TextureManager* textureManager = [renderContext textureManager];
         Vector2f* texCoords = [[Vector2f alloc] init];
         
-        Texture* tex = [textureManager textureForName:texture];
+        Texture* tex = [theTextureManager textureForName:texture];
         int width = tex != nil ? [tex width] : 1;
         int height = tex != nil ? [tex height] : 1;
         
@@ -576,6 +576,8 @@ static Vector3f* baseAxes[18];
     [texAxisY release];
     [surfaceMatrix release];
     [worldMatrix release];
+    [block free];
+    [block release];
 	[super dealloc];
 }
 

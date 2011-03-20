@@ -8,14 +8,14 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class RenderContext;
+@class VBOBuffer;
+@class TextureManager;
 @class IntData;
 
 @protocol Figure <NSObject>
 
 - (id)object;
-- (id <NSCopying>)figureId;
-- (void)prepare:(RenderContext *)renderContext;
+- (void)prepareWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager;
 - (void)getIndex:(IntData *)theIndexBuffer count:(IntData *)theCountBuffer;
 
 - (void)invalidate;

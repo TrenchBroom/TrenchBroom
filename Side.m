@@ -26,7 +26,7 @@
 
 - (id)init {
     if (self = [super init]) {
-        edges = [[NSMutableArray alloc] init];
+        sideEdges = [[NSMutableArray alloc] init];
         mark = SM_NEW;
     }
     
@@ -42,7 +42,7 @@
         for (int i = 0; i < [theEdges count]; i++) {
             Edge* edge = [theEdges objectAtIndex:i];
             SideEdge* sideEdge = [[SideEdge alloc] initWithEdge:edge flipped:flipped[i]];
-            [edges addObject:sideEdge];
+            [sideEdges addObject:sideEdge];
             [sideEdge setSide:self];
             [sideEdge release];
         }
@@ -61,7 +61,7 @@
         NSEnumerator* edgeEn = [theEdges objectEnumerator];
         SideEdge* edge;
         while ((edge = [edgeEn nextObject])) {
-            [edges addObject:edge];
+            [sideEdges addObject:edge];
             [edge setSide:self];
         }
     }
@@ -70,7 +70,7 @@
 }
 
 - (SideEdge *)split {
-    EEdgeMark currentMark = [[edges lastObject] mark];
+    EEdgeMark currentMark = [[sideEdges lastObject] mark];
     if (currentMark == EM_KEEP)
         mark = SM_KEEP;
     else if (currentMark == EM_DROP)
@@ -80,8 +80,8 @@
     
     int splitIndex1, splitIndex2 = -1;
 
-    for (int i = 0; i < [edges count]; i++) {
-        SideEdge* sideEdge = [edges objectAtIndex:i];
+    for (int i = 0; i < [sideEdges count]; i++) {
+        SideEdge* sideEdge = [sideEdges objectAtIndex:i];
         currentMark = [sideEdge mark];
         if (currentMark == EM_SPLIT) {
             if ([[sideEdge startVertex] mark] == VM_KEEP)
@@ -98,24 +98,29 @@
     if (mark == SM_KEEP || mark == SM_DROP)
         return nil;
 
-    Vertex* startVertex = [[edges objectAtIndex:splitIndex1] endVertex];
-    Vertex* endVertex = [[edges objectAtIndex:splitIndex2] startVertex];
+    [vertices release];
+    vertices = nil;
+    [edges release];
+    edges = nil;
+    
+    Vertex* startVertex = [[sideEdges objectAtIndex:splitIndex1] endVertex];
+    Vertex* endVertex = [[sideEdges objectAtIndex:splitIndex2] startVertex];
     Edge* newEdge = [[Edge alloc] initWithStartVertex:startVertex endVertex:endVertex];
     SideEdge* sideEdge = [[SideEdge alloc] initWithEdge:newEdge flipped:NO];
     [sideEdge setSide:self];
     if (splitIndex2 > splitIndex1) {
         int num = splitIndex2 - splitIndex1 - 1;
         if (num > 0)
-            [edges removeObjectsInRange:NSMakeRange(splitIndex1 + 1, num)];
-        [edges insertObject:sideEdge atIndex:splitIndex1 + 1];
+            [sideEdges removeObjectsInRange:NSMakeRange(splitIndex1 + 1, num)];
+        [sideEdges insertObject:sideEdge atIndex:splitIndex1 + 1];
     } else {
-        int num = [edges count] - splitIndex1 - 1;
+        int num = [sideEdges count] - splitIndex1 - 1;
         if (num > 0)
-            [edges removeObjectsInRange:NSMakeRange(splitIndex1 + 1, num)];
+            [sideEdges removeObjectsInRange:NSMakeRange(splitIndex1 + 1, num)];
         num = splitIndex2;
         if (num > 0)
-            [edges removeObjectsInRange:NSMakeRange(0, num)];
-        [edges addObject:sideEdge];
+            [sideEdges removeObjectsInRange:NSMakeRange(0, num)];
+        [sideEdges addObject:sideEdge];
     }
     [sideEdge release];
     
@@ -135,15 +140,28 @@
 
 - (NSArray *)vertices {
     if (vertices == nil) {
-        vertices = [[NSMutableArray alloc] initWithCapacity:[edges count]];
+        vertices = [[NSMutableArray alloc] initWithCapacity:[sideEdges count]];
     
-        NSEnumerator* eEn = [edges objectEnumerator];
-        Edge* edge;
-        while ((edge = [eEn nextObject]))
-            [vertices addObject:[[edge startVertex] vector]];
+        NSEnumerator* sideEdgeEn = [sideEdges objectEnumerator];
+        SideEdge* sideEdge;
+        while ((sideEdge = [sideEdgeEn nextObject]))
+            [vertices addObject:[[sideEdge startVertex] vector]];
     }
     
     return vertices;
+}
+
+- (NSArray *)edges {
+    if (edges == nil) {
+        edges = [[NSMutableArray alloc] initWithCapacity:[sideEdges count]];
+        
+        NSEnumerator* sideEdgeEn = [sideEdges objectEnumerator];
+        SideEdge* sideEdge;
+        while ((sideEdge = [sideEdgeEn nextObject]))
+            [edges addObject:[sideEdge edge]];
+    }
+    
+    return edges;
 }
 
 - (MutableFace *)face {
@@ -252,7 +270,7 @@
             break;
     }
     
-    NSEnumerator* eEn = [edges objectEnumerator];
+    NSEnumerator* eEn = [sideEdges objectEnumerator];
     SideEdge* sideEdge;
     while ((sideEdge = [eEn nextObject]))
         [desc appendFormat:@"%@\n", sideEdge];
@@ -278,7 +296,7 @@
     [face release];
     [vertices release];
     [center release];
-    [edges release];
+    [sideEdges release];
     [super dealloc];
 }
 

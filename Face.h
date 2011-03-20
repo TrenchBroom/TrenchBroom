@@ -34,6 +34,7 @@
 - (Vector3f *)norm;
 - (Vector3f *)center;
 - (NSArray *)vertices;
+- (NSArray *)edges;
 
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex;
 - (Vector3f *)worldCoordsOf:(Vector3f *)sCoords;

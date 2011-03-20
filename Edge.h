@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Figure.h"
 
 typedef enum {
     EM_KEEP,
@@ -23,16 +24,20 @@ typedef enum {
 @class Ray3D;
 @class PickingHit;
 @class BoundingBox;
+@class VBOMemBlock;
 @protocol Face;
 
-@interface Edge : NSObject {
+@interface Edge : NSObject <Figure> {
     @private
     Vertex* startVertex;
     Vertex* endVertex;
     SideEdge* leftEdge;
     SideEdge* rightEdge;
     EEdgeMark mark;
+
+    VBOMemBlock* block;
 }
+
 - (id)initWithStartVertex:(Vertex *)theStartVertex endVertex:(Vertex *)theEndVertex;
 
 - (Vertex *)startVertex;

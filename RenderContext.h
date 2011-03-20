@@ -8,21 +8,15 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class TextureManager;
 @class Options;
-@class VBOBuffer;
 
 @interface RenderContext : NSObject {
     @private
-    TextureManager* textureManager;
     Options* options;
-    VBOBuffer* vbo;
 }
 
-- (id)initWithTextureManager:(TextureManager *)theTextureManager vbo:(VBOBuffer *)theVbo options:(Options *)theOptions;
+- (id)initWithOptions:(Options *)theOptions;
 
-- (TextureManager *)textureManager;
-- (VBOBuffer *)vbo;
 - (Options *)options;
 
 @end

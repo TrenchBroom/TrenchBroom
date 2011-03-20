@@ -31,8 +31,10 @@ typedef enum {
 - (id)initBlockIn:(VBOBuffer *)theVboBuffer at:(int)theAddress capacity:(int)theCapacity;
 
 - (int)address;
+- (void)setAddress:(int)theAddress;
 - (int)capacity;
 - (EVBOMemBlockState)state;
+- (VBOBuffer *)vbo;
                                                                        
 - (void)setCapacity:(int)aSize;
 - (void)setState:(EVBOMemBlockState)theState;
@@ -49,6 +51,9 @@ typedef enum {
 
 - (void)setPrevious:(VBOMemBlock *)memBlock;
 - (void)setNext:(VBOMemBlock *)memBlock;
+
+- (void)insertBetweenPrevious:(VBOMemBlock *)previousBlock next:(VBOMemBlock *)nextBlock;
+- (void)remove;
 
 - (void)free;
 @end

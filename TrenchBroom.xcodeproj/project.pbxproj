@@ -90,7 +90,6 @@
 		4881C74B12E9CD8F006BF922 /* WadPaletteEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */; };
 		488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 488868DA12FAFCBF00CAEA55 /* GLString.m */; };
 		488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */ = {isa = PBXBuildFile; fileRef = 488C8EE012F6C3ED00F358E6 /* IntData.m */; };
-		488F0790130130580063E550 /* FaceFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F078F130130580063E550 /* FaceFigure.m */; };
 		488F07CE13013F9F0063E550 /* SelectionLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F07CD13013F9F0063E550 /* SelectionLayer.m */; };
 		488FEAF1131F9D1800010A04 /* MutablePrefabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */; };
 		488FEB5C131FC49A00010A04 /* PrefabLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB5B131FC49A00010A04 /* PrefabLayout.m */; };
@@ -306,8 +305,6 @@
 		488868DA12FAFCBF00CAEA55 /* GLString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLString.m; sourceTree = "<group>"; };
 		488C8EDF12F6C3ED00F358E6 /* IntData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntData.h; sourceTree = "<group>"; };
 		488C8EE012F6C3ED00F358E6 /* IntData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntData.m; sourceTree = "<group>"; };
-		488F078E130130580063E550 /* FaceFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceFigure.h; sourceTree = "<group>"; };
-		488F078F130130580063E550 /* FaceFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceFigure.m; sourceTree = "<group>"; };
 		488F07CC13013F9F0063E550 /* SelectionLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionLayer.h; sourceTree = "<group>"; };
 		488F07CD13013F9F0063E550 /* SelectionLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectionLayer.m; sourceTree = "<group>"; };
 		488FEAEF131F9D1800010A04 /* MutablePrefabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutablePrefabGroup.h; sourceTree = "<group>"; };
@@ -555,8 +552,6 @@
 				489DC65D12F9EBF500053092 /* Text */,
 				48B3243A12E1C6B8008748E2 /* Camera.h */,
 				48B3243B12E1C6B8008748E2 /* Camera.m */,
-				488F078E130130580063E550 /* FaceFigure.h */,
-				488F078F130130580063E550 /* FaceFigure.m */,
 				48A0A18E132A728B001CA997 /* Figure.h */,
 				487A7E39130071F300434806 /* GeometryLayer.h */,
 				487A7E3A130071F300434806 /* GeometryLayer.m */,
@@ -1015,7 +1010,6 @@
 				4872C97A12FF4DEC00C5DD29 /* Vector4f.m in Sources */,
 				487A7E3B130071F300434806 /* GeometryLayer.m in Sources */,
 				487A7E651300801A00434806 /* Renderer.m in Sources */,
-				488F0790130130580063E550 /* FaceFigure.m in Sources */,
 				488F07CE13013F9F0063E550 /* SelectionLayer.m in Sources */,
 				480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */,
 				480BB50A13031A9D005E3492 /* Matrix3f.m in Sources */,
@@ -1183,6 +1177,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;

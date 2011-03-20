@@ -27,9 +27,10 @@ typedef enum {
 @interface Side : NSObject {
     @private
     MutableFace * face;
-    NSMutableArray* edges;
+    NSMutableArray* sideEdges;
     ESideMark mark;
     NSMutableArray* vertices;
+    NSMutableArray* edges;
     Vector3f* center;
 }
 
@@ -42,6 +43,7 @@ typedef enum {
 - (void)setMark:(ESideMark)theMark;
 
 - (NSArray *)vertices;
+- (NSArray *)edges;
 - (MutableFace *)face;
 - (PickingHit *)pickWithRay:(Ray3D *)theRay;
 

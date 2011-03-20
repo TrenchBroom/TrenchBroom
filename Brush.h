@@ -22,6 +22,7 @@
 
 - (NSArray *)faces;
 - (NSArray *)vertices;
+- (NSArray *)edges;
 
 - (float *)flatColor;
 - (BoundingBox *)bounds;
