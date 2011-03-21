@@ -251,7 +251,6 @@ NSString* const RendererChanged = @"RendererChanged";
                 if (figure != nil) {
                     [geometryLayer removeFigure:figure];
                     [selectionLayer addFigure:figure];
-                    [figure invalidate];
                 }
             }
         }
@@ -274,7 +273,6 @@ NSString* const RendererChanged = @"RendererChanged";
             id <Figure> figure = [self figureForEdge:edge];
             [geometryLayer removeFigure:figure];
             [selectionLayer addFigure:figure];
-            [figure invalidate];
         }
         
         [edges release];
@@ -309,7 +307,6 @@ NSString* const RendererChanged = @"RendererChanged";
                 if (figure != nil) {
                     [selectionLayer removeFigure:figure];
                     [geometryLayer addFigure:figure];
-                    [figure invalidate];
                 }
             }
         }
@@ -333,7 +330,6 @@ NSString* const RendererChanged = @"RendererChanged";
                 id <Figure> figure = [self figureForEdge:edge];
                 [selectionLayer removeFigure:figure];
                 [geometryLayer addFigure:figure];
-                [figure invalidate];
             }
             
             [edges release];

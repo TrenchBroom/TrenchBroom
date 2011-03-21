@@ -56,10 +56,12 @@ static NSString* const FaceVboKey = @"FaceVbo";
         [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
     
     id object = [theFigure object];
-    if ([object conformsToProtocol:@protocol(Face)])
+    if ([object conformsToProtocol:@protocol(Face)]) {
         [faceFigures addObject:theFigure];
-    else if ([object isKindOfClass:[Edge class]])
+    } else if ([object isKindOfClass:[Edge class]]) {
         [edgeFigures addObject:theFigure];
+        [theFigure invalidate];
+    }
     
     [self invalidate];
 }
@@ -69,10 +71,12 @@ static NSString* const FaceVboKey = @"FaceVbo";
         [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
 
     id object = [theFigure object];
-    if ([object conformsToProtocol:@protocol(Face)])
+    if ([object conformsToProtocol:@protocol(Face)]) {
         [faceFigures removeObject:theFigure];
-    else if ([object isKindOfClass:[Edge class]])
+    } else if ([object isKindOfClass:[Edge class]]) {
         [edgeFigures removeObject:theFigure];
+        [theFigure invalidate];
+    }
     
     [self invalidate];
 }

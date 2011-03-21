@@ -346,6 +346,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     VBOMemBlock* previous = [freeBlock previous];
     VBOMemBlock* last = first;
     int size = 0;
+    int address = [first address];
     do {
         [last setAddress:[previous address] + [previous capacity]];
         size += [last capacity];
@@ -354,10 +355,10 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     } while (last != nil && [last state] != BS_FREE);
     
     if (size <= [freeBlock capacity]) {
-        memcpy(buffer + [freeBlock address], buffer + [first address], size);
+        memcpy(buffer + [freeBlock address], buffer + address, size);
     } else {
         uint8_t* temp = malloc(size);
-        memcpy(temp, buffer + [first address], size);
+        memcpy(temp, buffer + address, size);
         memcpy(buffer + [freeBlock address], temp, size);
         free(temp);
     }
