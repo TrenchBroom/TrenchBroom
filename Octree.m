@@ -30,14 +30,18 @@
         [NSException raise:NSInvalidArgumentException format:@"Brush %@ was not removed from octree", brush];
 }
 
+- (void)brushWillChange:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    id <Brush> brush = [userInfo objectForKey:BrushKey];
+
+    [root removeObject:brush bounds:[brush pickingBounds]];
+}
+
 - (void)brushChanged:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
-    BoundingBox* oldBounds = [userInfo objectForKey:BrushOldBoundsKey];
-    BoundingBox* newBounds = [userInfo objectForKey:BrushNewBoundsKey];
     
-    [root removeObject:brush bounds:oldBounds];
-    [root addObject:brush bounds:newBounds];
+    [root addObject:brush bounds:[brush pickingBounds]];
 }
 
 - (id)initWithDocument:(MapDocument *)theDocument minSize:(int)theMinSize {
@@ -68,6 +72,7 @@
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(brushAdded:) name:BrushAdded object:map];
         [center addObserver:self selector:@selector(brushRemoved:) name:BrushRemoved object:map];
+        [center addObserver:self selector:@selector(brushWillChange:) name:BrushWillChange object:map];
         [center addObserver:self selector:@selector(brushChanged:) name:BrushChanged object:map];
     }
     

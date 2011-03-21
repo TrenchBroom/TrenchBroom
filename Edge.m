@@ -392,7 +392,7 @@ static float HANDLE_RADIUS = 2.0f;
     return self;
 }
 
-- (void)prepareWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager {
+- (void)prepareWithVbo:(VBOBuffer *)theVbo {
     if (block != nil && [block vbo] != theVbo)
         [self invalidate];
     
@@ -406,9 +406,6 @@ static float HANDLE_RADIUS = 2.0f;
     }
 }
 
-- (void)getIndex:(IntData *)theIndexBuffer count:(IntData *)theCountBuffer {
-    [NSException raise:@"UnknownOperationException" format:@"VBO memory block is not valid"];
-}
 - (void)invalidate {
     [block free];
     [block release];

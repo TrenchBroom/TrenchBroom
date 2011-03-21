@@ -64,6 +64,9 @@
 		4866F3B112EAC9FA009B345C /* TextureViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3B012EAC9FA009B345C /* TextureViewLayout.m */; };
 		4866F3BE12EACD2B009B345C /* TextureViewLayoutRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */; };
 		4866F3C412EACE73009B345C /* TextureViewLayoutCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */; };
+		48691DE01337CBAD00A0F098 /* PolygonRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48691DDF1337CBAD00A0F098 /* PolygonRenderer.m */; };
+		48691DF51337D27F00A0F098 /* LineRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48691DF41337D27F00A0F098 /* LineRenderer.m */; };
+		48691E121337E28600A0F098 /* GridFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48691E111337E28600A0F098 /* GridFigure.m */; };
 		486A9C1C12F41FCA003D26FE /* Octree.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1B12F41FCA003D26FE /* Octree.m */; };
 		486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1E12F41FD1003D26FE /* OctreeNode.m */; };
 		486A9C3812F488E4003D26FE /* Ray3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C3712F488E4003D26FE /* Ray3D.m */; };
@@ -256,6 +259,15 @@
 		4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayoutRow.m; sourceTree = "<group>"; };
 		4866F3C212EACE73009B345C /* TextureViewLayoutCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayoutCell.h; sourceTree = "<group>"; };
 		4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayoutCell.m; sourceTree = "<group>"; };
+		48691DDE1337CBAD00A0F098 /* PolygonRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolygonRenderer.h; sourceTree = "<group>"; };
+		48691DDF1337CBAD00A0F098 /* PolygonRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PolygonRenderer.m; sourceTree = "<group>"; };
+		48691DE11337CC4D00A0F098 /* PolygonFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolygonFigure.h; sourceTree = "<group>"; };
+		48691DE21337CC7D00A0F098 /* FigureFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FigureFilter.h; sourceTree = "<group>"; };
+		48691DF01337D10500A0F098 /* LineFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineFigure.h; sourceTree = "<group>"; };
+		48691DF31337D27F00A0F098 /* LineRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineRenderer.h; sourceTree = "<group>"; };
+		48691DF41337D27F00A0F098 /* LineRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LineRenderer.m; sourceTree = "<group>"; };
+		48691E101337E28600A0F098 /* GridFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridFigure.h; sourceTree = "<group>"; };
+		48691E111337E28600A0F098 /* GridFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridFigure.m; sourceTree = "<group>"; };
 		486A9C1A12F41FCA003D26FE /* Octree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Octree.h; sourceTree = "<group>"; };
 		486A9C1B12F41FCA003D26FE /* Octree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Octree.m; sourceTree = "<group>"; };
 		486A9C1D12F41FD1003D26FE /* OctreeNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OctreeNode.h; sourceTree = "<group>"; };
@@ -572,6 +584,13 @@
 				484C28FB115023A2004DD957 /* VBOBuffer.m */,
 				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
 				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
+				48691DDE1337CBAD00A0F098 /* PolygonRenderer.h */,
+				48691DDF1337CBAD00A0F098 /* PolygonRenderer.m */,
+				48691DE11337CC4D00A0F098 /* PolygonFigure.h */,
+				48691DE21337CC7D00A0F098 /* FigureFilter.h */,
+				48691DF01337D10500A0F098 /* LineFigure.h */,
+				48691DF31337D27F00A0F098 /* LineRenderer.h */,
+				48691DF41337D27F00A0F098 /* LineRenderer.m */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -686,6 +705,8 @@
 				488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */,
 				48379C6B131B949A00F53DFA /* Brush.h */,
 				48379C6C131B956B00F53DFA /* Entity.h */,
+				48691E101337E28600A0F098 /* GridFigure.h */,
+				48691E111337E28600A0F098 /* GridFigure.m */,
 			);
 			name = Map;
 			sourceTree = "<group>";
@@ -1037,6 +1058,9 @@
 				48958209132E52EF00BB7D8F /* CameraAnimation.m in Sources */,
 				48AE78851334092D00821DBA /* TrackingManager.m in Sources */,
 				480D23201334A3A800D3B57B /* PickingHitList.m in Sources */,
+				48691DE01337CBAD00A0F098 /* PolygonRenderer.m in Sources */,
+				48691DF51337D27F00A0F098 /* LineRenderer.m in Sources */,
+				48691E121337E28600A0F098 /* GridFigure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

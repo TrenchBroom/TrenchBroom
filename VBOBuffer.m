@@ -277,11 +277,6 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     
     [memBlock setState:BS_USED_INVALID];
     freeCapacity -= [memBlock capacity];
-    
-    
-#ifdef DEBUG
-    [self checkChain];
-#endif 
 
     return memBlock;
 }
@@ -332,10 +327,6 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         [memBlock setState:BS_FREE];
         [self insertFreeMemBlock:memBlock];
     }
-    
-#ifdef DEBUG
-    [self checkChain];
-#endif 
 }
 
 - (VBOMemBlock *)packMemBlock:(VBOMemBlock *)freeBlock {
@@ -402,11 +393,6 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
             lastBlock = newBlock;
         }
     }
-
-    
-#ifdef DEBUG
-    [self checkChain];
-#endif 
 }
 
 - (void)dealloc {

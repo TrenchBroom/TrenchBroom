@@ -8,7 +8,9 @@
 
 #import "SelectionLayer.h"
 #import <OpenGL/gl.h>
+#import "MapWindowController.h"
 #import "RenderContext.h"
+#import "LineRenderer.h"
 #import "Figure.h"
 #import "Face.h"
 #import "Vector3f.h"
@@ -17,48 +19,51 @@
 
 @implementation SelectionLayer
 
-- (void)doRender:(RenderContext *)renderContext {
-    switch ([[renderContext options] renderMode]) {
-        case RM_TEXTURED:
-            glEnable(GL_TEXTURE_2D);
-            glPolygonMode(GL_FRONT, GL_FILL);
-            glColor4f(1, 0, 0, 1);
-            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-            [super renderFaces];
-        case RM_WIREFRAME:
-            glDisable(GL_TEXTURE_2D);
-            glDisable(GL_DEPTH_TEST);
-            glColor4f(1, 0, 0, 1);
-            [super renderEdges];
-            glEnable(GL_DEPTH_TEST);
-            break;
-        case RM_FLAT:
-            break;
+- (id)initWithWindowController:(MapWindowController *)theMapWindowController {
+    if (self = [super initWithWindowController:theMapWindowController]) {
+        gridRenderer = [[LineRenderer alloc] init];
+        options = [[theMapWindowController options] retain];
+        gridFigures = [[NSMutableDictionary alloc] init];
     }
+    
+    return self;
+}
+
+- (void)addFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges {
+    [super addFace:theFace includeEdges:includeEdges];
+    
+    NSArray* grid = [theFace gridWithSize:[[options grid] size]];
+    [gridFigures setObject:grid forKey:[theFace faceId]];
+    
+    NSEnumerator* figureEn = [grid objectEnumerator];
+    id <LineFigure> figure;
+    while ((figure = [figureEn nextObject]))
+        [gridRenderer addFigure:figure];
+}
+
+- (void)removeFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges {
+    [super removeFace:theFace includeEdges:includeEdges];
+    
+    NSArray* grid = [gridFigures objectForKey:[theFace faceId]];
+    NSEnumerator* figureEn = [grid objectEnumerator];
+    id <LineFigure> figure;
+    while ((figure = [figureEn nextObject]))
+        [gridRenderer removeFigure:figure];
+    
+    [gridFigures removeObjectForKey:[theFace faceId]];
+}
+
+- (void)renderEdges {
+    glColor4f(1, 0, 0, 1);
+    glDisable(GL_DEPTH_TEST);
+    [edgeRenderer render];
+    glEnable(GL_DEPTH_TEST);
 }
 
 - (void)render:(RenderContext*)renderContext {
     [super render:renderContext];
-
-    if ([[[renderContext options] grid] draw]) {
-        int gridSize = [[[renderContext options] grid] size];
-        
-        NSEnumerator* figureEn = [faceFigures objectEnumerator];
-        id <Figure> figure;
-        while ((figure = [figureEn nextObject])) {
-            id <Face> face = [figure object];
-            NSArray* gridVertices = [face gridWithSize:gridSize];
-            NSEnumerator* vertexEn = [gridVertices objectEnumerator];
-            Vector3f* vertex;
-            
-            glDisable(GL_TEXTURE_2D);
-            glColor4f(1, 0, 0, 0.5);
-            glBegin(GL_LINES);
-            while ((vertex = [vertexEn nextObject]))
-                glVertex3f([vertex x], [vertex y], [vertex z]);
-            glEnd();
-        }
-    }
+    glColor4f(1, 0, 0, 0.5f);
+    [gridRenderer render];
 }
 
 @end

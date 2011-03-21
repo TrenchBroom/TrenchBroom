@@ -8,15 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class VBOBuffer;
-@class TextureManager;
-@class IntData;
-
 @protocol Figure <NSObject>
-
-- (id)object;
-- (void)prepareWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager;
-- (void)getIndex:(IntData *)theIndexBuffer count:(IntData *)theCountBuffer;
 
 - (void)invalidate;
 

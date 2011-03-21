@@ -29,6 +29,7 @@
 #import "Texture.h"
 #import "RenderContext.h"
 #import "IntData.h"
+#import "MathCache.h"
 
 static Vector3f* baseAxes[18];
 
@@ -441,7 +442,7 @@ static Vector3f* baseAxes[18];
 }
 
 - (NSArray *)gridWithSize:(int)gridSize {
-    return [brush gridForFace:(self) gridSize:gridSize];
+    return [brush gridForFace:self gridSize:gridSize];
 }
 
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex {
@@ -509,10 +510,6 @@ static Vector3f* baseAxes[18];
     return [brush edgesForFace:self];
 }
 
-- (id)object {
-    return self;
-}
-
 - (void)invalidate {
     [block free];
     [block release];
@@ -525,17 +522,22 @@ static Vector3f* baseAxes[18];
 
     if (block == nil) {
         int vertexCount = [[self vertices] count];
-        block = [[theVbo allocMemBlock:5 * sizeof(float) * vertexCount] retain];
+        block = [[theVbo allocMemBlock:8 * sizeof(float) * vertexCount] retain];
     }
 
     if ([block state] == BS_USED_INVALID) {
-        Vector2f* texCoords = [[Vector2f alloc] init];
+        MathCache* cache = [MathCache sharedCache];
+        Vector3f* color = [cache vector3f];
+        [color setX:[brush flatColor][0]];
+        [color setY:[brush flatColor][1]];
+        [color setZ:[brush flatColor][2]];
+        Vector2f* texCoords = [cache vector2f];
         
         Texture* tex = [theTextureManager textureForName:texture];
         int width = tex != nil ? [tex width] : 1;
         int height = tex != nil ? [tex height] : 1;
         
-        int vertexSize = 5 * sizeof(float);
+        int vertexSize = 8 * sizeof(float);
         NSArray* vertices = [self vertices];
         vboIndex = [block address] / vertexSize;
         vboCount = [vertices count];
@@ -548,10 +550,12 @@ static Vector3f* baseAxes[18];
             [texCoords setX:[texCoords x] / width];
             [texCoords setY:[texCoords y] / height];
             offset = [block writeVector2f:texCoords offset:offset];
+            offset = [block writeVector3f:color offset:offset];
             offset = [block writeVector3f:vertex offset:offset];
         }
         
-        [texCoords release];
+        [cache returnVector3f:color];
+        [cache returnVector2f:texCoords];
         [block setState:BS_USED_VALID];
     }
 }

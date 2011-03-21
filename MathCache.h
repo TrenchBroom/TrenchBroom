@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class Vector2f;
 @class Vector3f;
 @class Vector3i;
 @class Quaternion;
@@ -16,6 +17,7 @@
 
 @interface MathCache : NSObject {
     @private
+    NSMutableArray* vector2fCache;
     NSMutableArray* vector3fCache;
     NSMutableArray* vector3iCache;
     NSMutableArray* quaternionCache;
@@ -24,6 +26,9 @@
 }
 
 + (MathCache *)sharedCache;
+
+- (Vector2f *)vector2f;
+- (void)returnVector2f:(Vector2f *)vector;
 
 - (Vector3f *)vector3f;
 - (void)returnVector3f:(Vector3f *)vector;

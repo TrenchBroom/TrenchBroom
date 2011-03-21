@@ -31,6 +31,7 @@ typedef enum {
     ESideMark mark;
     NSMutableArray* vertices;
     NSMutableArray* edges;
+    NSMutableDictionary* grids;
     Vector3f* center;
 }
 
@@ -44,13 +45,9 @@ typedef enum {
 
 - (NSArray *)vertices;
 - (NSArray *)edges;
+- (NSArray *)gridWithSize:(int)gridSize;
 - (MutableFace *)face;
 - (PickingHit *)pickWithRay:(Ray3D *)theRay;
 
-/*!
-    @function
-    @abstract   Returns the center of this side.
-    @result     The center of this side.
-*/
 - (Vector3f *)center;
 @end

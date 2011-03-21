@@ -7,6 +7,7 @@
 //
 
 #import "MathCache.h"
+#import "Vector2f.h"
 #import "Vector3f.h"
 #import "Vector3i.h"
 #import "Quaternion.h"
@@ -57,6 +58,7 @@ static MathCache* sharedInstance = nil;
 
 - (id)init {
     if (self = [super init]) {
+        vector2fCache = [[NSMutableArray alloc] init];
         vector3fCache = [[NSMutableArray alloc] init];
         vector3iCache = [[NSMutableArray alloc] init];
         quaternionCache = [[NSMutableArray alloc] init];
@@ -65,6 +67,22 @@ static MathCache* sharedInstance = nil;
     }
     
     return self;
+}
+
+- (Vector2f *)vector2f {
+    if ([vector2fCache count] == 0)
+        return [[Vector2f alloc] init];
+    
+    Vector2f* vector = [vector2fCache lastObject];
+    [vector retain];
+    [vector2fCache removeLastObject];
+    
+    return vector;
+}
+
+- (void)returnVector2f:(Vector2f *)vector {
+    [vector2fCache addObject:vector];
+    [vector release];
 }
 
 - (Vector3f *)vector3f {
@@ -148,6 +166,7 @@ static MathCache* sharedInstance = nil;
 }
 
 - (void)dealloc {
+    [vector2fCache release];
     [vector3fCache release];
     [vector3iCache release];
     [quaternionCache release];

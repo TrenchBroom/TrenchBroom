@@ -9,25 +9,23 @@
 #import <Cocoa/Cocoa.h>
 #import "Layer.h"
 
+@class PolygonRenderer;
+@class LineRenderer;
 @class MapWindowController;
 @class RenderContext;
-@class IntData;
 
 @interface GeometryLayer : NSObject <Layer> {
-    NSMutableSet* faceFigures;
-    NSMutableSet* edgeFigures;
-    NSMutableDictionary* faceIndexBuffers;
-    NSMutableDictionary* faceCountBuffers;
-    NSNumber* edgeVboKey;
-    MapWindowController* mapWindowController;
-    BOOL buffersValid;
+    PolygonRenderer* faceRenderer;
+    LineRenderer* edgeRenderer;
+    MapWindowController* windowController;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theMapWindowController;
 
-- (void)renderFaces;
+- (void)renderTexturedFaces;
+- (void)renderFlatFaces;
 - (void)renderEdges;
-- (void)prepare;
+
 - (void)render:(RenderContext *)renderContext;
 
 @end

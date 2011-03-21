@@ -34,7 +34,6 @@ NSString* const RendererChanged = @"RendererChanged";
 
 @interface Renderer (private)
 
-- (id <Figure>)figureForFace:(id <Face>)face;
 - (void)addFace:(id <Face>)face;
 - (void)removeFace:(id <Face>)face;
 - (void)addBrush:(id <Brush>)brush;
@@ -61,30 +60,20 @@ NSString* const RendererChanged = @"RendererChanged";
 
 @implementation Renderer (private)
 
-- (id <Figure>)figureForFace:(id <Face>)face {
-    return (id <Figure>)face;
-}
-
-- (id <Figure>)figureForEdge:(Edge *)edge {
-    return (id <Figure>)edge;
-}
-
 - (void)addFace:(id <Face>)face {
     SelectionManager* selectionManager = [windowController selectionManager];
-    id <Figure> faceFigure = [self figureForFace:face];
     if ([selectionManager isFaceSelected:face] || [selectionManager isBrushSelected:[face brush]])
-        [selectionLayer addFigure:faceFigure];
+        [selectionLayer addFace:face includeEdges:NO];
     else 
-        [geometryLayer addFigure:faceFigure];
+        [geometryLayer addFace:face includeEdges:NO];
 }
 
 - (void)removeFace:(id <Face>)face {
     SelectionManager* selectionManager = [windowController selectionManager];
-    id <Figure> faceFigure = [self figureForFace:face];
     if ([selectionManager isFaceSelected:face] || [selectionManager isBrushSelected:[face brush]])
-        [selectionLayer removeFigure:faceFigure];
+        [selectionLayer removeFace:face includeEdges:NO];
     else
-        [geometryLayer removeFigure:faceFigure];
+        [geometryLayer removeFace:face includeEdges:NO];
 }
 
 - (void)addBrush:(id <Brush>)brush {
@@ -98,13 +87,12 @@ NSString* const RendererChanged = @"RendererChanged";
     NSEnumerator* edgeEn = [[brush edges] objectEnumerator];
     Edge* edge;
     while ((edge = [edgeEn nextObject])) {
-        id <Figure> edgeFigure = [self figureForEdge:edge];
         if ([selectionManager isBrushSelected:brush] || 
             [selectionManager isFaceSelected:[edge leftFace]] || 
             [selectionManager isFaceSelected:[edge rightFace]])
-            [selectionLayer addFigure:edgeFigure];
+            [selectionLayer addEdge:edge];
         else
-            [geometryLayer addFigure:edgeFigure];
+            [geometryLayer addEdge:edge];
     }
 }
 
@@ -119,13 +107,12 @@ NSString* const RendererChanged = @"RendererChanged";
     NSEnumerator* edgeEn = [[brush edges] objectEnumerator];
     Edge* edge;
     while ((edge = [edgeEn nextObject])) {
-        id <Figure> edgeFigure = [self figureForEdge:edge];
         if ([selectionManager isBrushSelected:brush] || 
             [selectionManager isFaceSelected:[edge leftFace]] || 
             [selectionManager isFaceSelected:[edge rightFace]])
-            [selectionLayer removeFigure:edgeFigure];
+            [selectionLayer removeEdge:edge];
         else
-            [geometryLayer removeFigure:edgeFigure];
+            [geometryLayer removeEdge:edge];
     }
 }
 
@@ -143,18 +130,26 @@ NSString* const RendererChanged = @"RendererChanged";
         [self removeBrush:brush];
 }
 
+- (void)faceWillChange:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    id <Face> face = [userInfo objectForKey:FaceKey];
+    
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager isFaceSelected:face] || [selectionManager isBrushSelected:[face brush]])
+        [selectionLayer removeFace:face includeEdges:YES];
+    else
+        [geometryLayer removeFace:face includeEdges:YES];
+}
+
 - (void)faceChanged:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Face> face = [userInfo objectForKey:FaceKey];
-    id <Figure> faceFigure = [self figureForFace:face];
-    if (faceFigure != nil) {
-        [faceFigure invalidate];
-        SelectionManager* selectionManager = [windowController selectionManager];
-        if ([selectionManager isFaceSelected:face] || [selectionManager isBrushSelected:[face brush]])
-            [selectionLayer invalidate];
-        else
-            [geometryLayer invalidate];
-    }
+    
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager isFaceSelected:face] || [selectionManager isBrushSelected:[face brush]])
+        [selectionLayer addFace:face includeEdges:YES];
+    else
+        [geometryLayer addFace:face includeEdges:YES];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -175,23 +170,18 @@ NSString* const RendererChanged = @"RendererChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
+- (void)brushWillChange:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    id <Brush> brush = [userInfo objectForKey:BrushKey];
+    
+    [self removeBrush:brush];
+}
+
 - (void)brushChanged:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
-    NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
-        id <Figure> figure = [self figureForFace:face];
-        if (figure != nil) {
-            [figure invalidate];
-            SelectionManager* selectionManager = [windowController selectionManager];
-            if ([selectionManager isFaceSelected:face] || [selectionManager isBrushSelected:brush])
-                [selectionLayer invalidate];
-            else
-                [geometryLayer invalidate];
-        }
-    }
-    
+
+    [self addBrush:brush];
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
@@ -239,43 +229,19 @@ NSString* const RendererChanged = @"RendererChanged";
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
             id <Face> face;
             while ((face = [faceEn nextObject])) {
-                id <Figure> figure = [self figureForFace:face];
-                [geometryLayer removeFigure:figure];
-                [selectionLayer addFigure:figure];
-            }
-            
-            NSEnumerator* edgeEn = [[brush edges] objectEnumerator];
-            Edge* edge;
-            while ((edge = [edgeEn nextObject])) {
-                id <Figure> figure = [self figureForEdge:edge];
-                if (figure != nil) {
-                    [geometryLayer removeFigure:figure];
-                    [selectionLayer addFigure:figure];
-                }
+                [geometryLayer removeFace:face includeEdges:YES];
+                [selectionLayer addFace:face includeEdges:YES];
             }
         }
     }
     
     if (faces != nil) {
-        NSMutableSet* edges = [[NSMutableSet alloc] init];
         NSEnumerator* faceEn = [faces objectEnumerator];
         id <Face> face;
         while ((face = [faceEn nextObject])) {
-            [edges addObjectsFromArray:[face edges]];
-            id <Figure> figure = [self figureForFace:face];
-            [geometryLayer removeFigure:figure];
-            [selectionLayer addFigure:figure];
+            [geometryLayer removeFace:face includeEdges:YES];
+            [selectionLayer addFace:face includeEdges:YES];
         }
-        
-        NSEnumerator* edgeEn = [edges objectEnumerator];
-        Edge* edge;
-        while ((edge = [edgeEn nextObject])) {
-            id <Figure> figure = [self figureForEdge:edge];
-            [geometryLayer removeFigure:figure];
-            [selectionLayer addFigure:figure];
-        }
-        
-        [edges release];
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -293,46 +259,18 @@ NSString* const RendererChanged = @"RendererChanged";
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
             id <Face> face;
             while ((face = [faceEn nextObject])) {
-                id <Figure> figure = [self figureForFace:face];
-                if (figure != nil) {
-                    [selectionLayer removeFigure:figure];
-                    [geometryLayer addFigure:figure];
-                }
-            }
-            
-            NSEnumerator* edgeEn = [[brush edges] objectEnumerator];
-            Edge* edge;
-            while ((edge = [edgeEn nextObject])) {
-                id <Figure> figure = [self figureForEdge:edge];
-                if (figure != nil) {
-                    [selectionLayer removeFigure:figure];
-                    [geometryLayer addFigure:figure];
-                }
+                [selectionLayer removeFace:face includeEdges:YES];
+                [geometryLayer addFace:face includeEdges:YES];
             }
         }
     }
     
     if (faces != nil) {
-        NSMutableSet* edges = [[NSMutableSet alloc] init];
         NSEnumerator* faceEn = [faces objectEnumerator];
         id <Face> face;
         while ((face = [faceEn nextObject])) {
-            [edges addObjectsFromArray:[face edges]];
-            id <Figure> figure = [self figureForFace:face];
-            if (figure != nil) {
-                [selectionLayer removeFigure:figure];
-                [geometryLayer addFigure:figure];
-            }
-            
-            NSEnumerator* edgeEn = [edges objectEnumerator];
-            Edge* edge;
-            while ((edge = [edgeEn nextObject])) {
-                id <Figure> figure = [self figureForEdge:edge];
-                [selectionLayer removeFigure:figure];
-                [geometryLayer addFigure:figure];
-            }
-            
-            [edges release];
+            [selectionLayer removeFace:face includeEdges:YES];
+            [geometryLayer addFace:face includeEdges:YES];
         }
     }
     
@@ -384,11 +322,13 @@ NSString* const RendererChanged = @"RendererChanged";
         [center addObserver:self selector:@selector(entityRemoved:) name:EntityRemoved object:map];
         [center addObserver:self selector:@selector(brushAdded:) name:BrushAdded object:map];
         [center addObserver:self selector:@selector(brushRemoved:) name:BrushRemoved object:map];
+        [center addObserver:self selector:@selector(brushWillChange:) name:BrushWillChange object:map];
         [center addObserver:self selector:@selector(brushChanged:) name:BrushChanged object:map];
         [center addObserver:self selector:@selector(faceAdded:) name:FaceAdded object:map];
         [center addObserver:self selector:@selector(faceRemoved:) name:FaceRemoved object:map];
         [center addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged object:map];
         [center addObserver:self selector:@selector(faceChanged:) name:FaceTextureChanged object:map];
+        [center addObserver:self selector:@selector(faceGeometryWillChange:) name:FaceGeometryWillChange object:map];
         [center addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged object:map];
         
         SelectionManager* selectionManager = [windowController selectionManager];
@@ -409,6 +349,9 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)render {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     Options* options = [windowController options];
     
     RenderContext* renderContext = [[RenderContext alloc] initWithOptions:options];
