@@ -9,17 +9,17 @@
 #import <Cocoa/Cocoa.h>
 
 @class RenderContext;
-@class FaceFigure;
-@class EdgeFigure;
+@class Edge;
+@protocol Face;
 
 @protocol Layer <NSObject>
 
 - (void)render:(RenderContext *)renderContext;
 
-- (void)addFaceFigure:(FaceFigure *)theFigure;
-- (void)removeFaceFigure:(FaceFigure *)theFigure;
+- (void)addFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges;
+- (void)removeFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges;
 
-- (void)addEdgeFigure:(EdgeFigure *)theFigure;
-- (void)removeEdgeFigure:(EdgeFigure *)theFigure;
+- (void)addEdge:(Edge *)theEdge;
+- (void)removeEdge:(Edge *)theEdge;
 
 @end

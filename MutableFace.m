@@ -510,6 +510,64 @@ static Vector3f* baseAxes[18];
     return [brush edgesForFace:self];
 }
 
+- (void)invalidate {
+    [block free];
+    [block release];
+    block = nil;
+}
+
+- (void)prepareWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager {
+    if (block != nil && [block vbo] != theVbo)
+        [self invalidate];
+
+    if (block == nil) {
+        int vertexCount = [[self vertices] count];
+        block = [[theVbo allocMemBlock:8 * sizeof(float) * vertexCount] retain];
+    }
+
+    if ([block state] == BS_USED_INVALID) {
+        MathCache* cache = [MathCache sharedCache];
+        Vector3f* color = [cache vector3f];
+        [color setX:[brush flatColor][0]];
+        [color setY:[brush flatColor][1]];
+        [color setZ:[brush flatColor][2]];
+        Vector2f* texCoords = [cache vector2f];
+        
+        Texture* tex = [theTextureManager textureForName:texture];
+        int width = tex != nil ? [tex width] : 1;
+        int height = tex != nil ? [tex height] : 1;
+        
+        int vertexSize = 8 * sizeof(float);
+        NSArray* vertices = [self vertices];
+        vboIndex = [block address] / vertexSize;
+        vboCount = [vertices count];
+        
+        int offset = 0;
+        NSEnumerator* vertexEn = [vertices objectEnumerator];
+        Vector3f* vertex;
+        while ((vertex = [vertexEn nextObject])) {
+            [self texCoords:texCoords forVertex:vertex];
+            [texCoords setX:[texCoords x] / width];
+            [texCoords setY:[texCoords y] / height];
+            offset = [block writeVector2f:texCoords offset:offset];
+            offset = [block writeVector3f:color offset:offset];
+            offset = [block writeVector3f:vertex offset:offset];
+        }
+        
+        [cache returnVector3f:color];
+        [cache returnVector2f:texCoords];
+        [block setState:BS_USED_VALID];
+    }
+}
+
+- (void)getIndex:(IntData *)theIndexBuffer count:(IntData *)theCountBuffer {
+    if ([block state] != BS_USED_VALID)
+        [NSException raise:@"InvalidMemBlockState" format:@"VBO memory block is not valid"];
+    
+    [theIndexBuffer appendInt:vboIndex];
+    [theCountBuffer appendInt:vboCount];
+}
+
 - (void) dealloc {
     [faceId release];
     [halfSpace release];
@@ -522,6 +580,8 @@ static Vector3f* baseAxes[18];
     [texAxisY release];
     [surfaceMatrix release];
     [worldMatrix release];
+    [block free];
+    [block release];
 	[super dealloc];
 }
 

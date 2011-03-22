@@ -26,4 +26,6 @@
 - (void)setFilter:(id <FigureFilter>)theFilter;
 - (void)render;
 
+- (void)invalidate;
+
 @end

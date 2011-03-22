@@ -29,10 +29,28 @@
     return self;
 }
 
-- (void)render:(RenderContext *)renderContext {
-    [super render:renderContext];
-    glColor4f(1, 0, 0, 0.5f);
-    [gridRenderer render];
+- (void)addFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges {
+    [super addFace:theFace includeEdges:includeEdges];
+    
+    NSArray* grid = [theFace gridWithSize:[[options grid] size]];
+    [gridFigures setObject:grid forKey:[theFace faceId]];
+    
+    NSEnumerator* figureEn = [grid objectEnumerator];
+    id <LineFigure> figure;
+    while ((figure = [figureEn nextObject]))
+        [gridRenderer addFigure:figure];
+}
+
+- (void)removeFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges {
+    [super removeFace:theFace includeEdges:includeEdges];
+    
+    NSArray* grid = [gridFigures objectForKey:[theFace faceId]];
+    NSEnumerator* figureEn = [grid objectEnumerator];
+    id <LineFigure> figure;
+    while ((figure = [figureEn nextObject]))
+        [gridRenderer removeFigure:figure];
+    
+    [gridFigures removeObjectForKey:[theFace faceId]];
 }
 
 - (void)renderEdges {

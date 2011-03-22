@@ -17,12 +17,12 @@
     NSOpenGLContext* openGLContext;
     GLFontManager* fontManager;
     TextureManager* textureManager;
-    VBOBuffer* faceVbo;
+    NSMutableDictionary* vbos;
 }
 
 - (NSOpenGLContext *)openGLContext;
 - (GLFontManager *)fontManager;
 - (TextureManager *)textureManager;
-- (VBOBuffer *)faceVbo;
+- (VBOBuffer *)vboForKey:(id <NSCopying>)theKey;
 
 @end

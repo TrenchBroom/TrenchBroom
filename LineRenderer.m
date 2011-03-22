@@ -13,31 +13,29 @@
 
 @interface LineRenderer (private)
 
-- (void)validate;
+- (void)prepare;
 
 @end
 
 @implementation LineRenderer (private)
 
-- (void)validate {
-    if (!valid) {
-        [vbo mapBuffer];
-        vertexCount = 0;
-        
-        NSEnumerator* figureEn = [figures objectEnumerator];
-        id <LineFigure> figure;
-        while ((figure = [figureEn nextObject])) {
-            if (filter == nil || [filter passes:figure]) {
-                [figure updateVBO:vbo];
-                vertexCount += 2;
-            }
+- (void)prepare {
+    [vbo mapBuffer];
+    vertexCount = 0;
+    
+    NSEnumerator* figureEn = [figures objectEnumerator];
+    id <LineFigure> figure;
+    while ((figure = [figureEn nextObject])) {
+        if (filter == nil || [filter passes:figure]) {
+            [figure prepareWithVbo:vbo];
+            vertexCount += 2;
         }
-        
-        [vbo pack];
-        [vbo unmapBuffer];
-        
-        valid = YES;
     }
+    
+    [vbo pack];
+    [vbo unmapBuffer];
+    
+    valid = YES;
 }
 
 @end
@@ -58,7 +56,7 @@
         [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
     
     [figures addObject:theFigure];
-    valid = NO;
+    [self invalidate];
 }
 
 - (void)removeFigure:(id <LineFigure>)theFigure {
@@ -66,7 +64,7 @@
         [NSException raise:NSInvalidArgumentException format:@"figure must not be nil"];
     
     [figures removeObject:theFigure];
-    valid = NO;
+    [self invalidate];
 }
 
 - (void)setFilter:(id <FigureFilter>)theFilter {
@@ -75,17 +73,23 @@
     
     [filter release];
     filter = [theFilter retain];
-    valid = NO;
+    [self invalidate];
 }
 
 - (void)render {
     [vbo activate];
-    [self validate];
+    
+    if (!valid)
+        [self prepare];
     
     glVertexPointer(3, GL_FLOAT, 0, NULL);
     glDrawArrays(GL_LINES, 0, vertexCount);
     
     [vbo deactivate];
+}
+
+- (void)invalidate {
+    valid = NO;
 }
 
 - (void)dealloc {

@@ -16,48 +16,46 @@
 
 @interface PolygonRenderer (private)
 
-- (void)validate;
+- (void)prepare;
 
 @end
 
 @implementation PolygonRenderer (private)
 
-- (void)validate {
-    if (!valid) {
-        [vbo mapBuffer];
-        
-        NSEnumerator* figureEn = [figures objectEnumerator];
-        id <PolygonFigure> figure;
-        while ((figure = [figureEn nextObject]))
-            [figure updateVBO:vbo];
-        
-        [vbo unmapBuffer];
-        
-        figureEn = [figures objectEnumerator];
-        while ((figure = [figureEn nextObject])) {
-            if (filter == nil || [filter passes:figure]) {
-                NSString* textureName = [figure texture];
-                
-                IntData* indexBuffer = [indexBuffers objectForKey:textureName];
-                if (indexBuffer == nil) {
-                    indexBuffer = [[IntData alloc] init];
-                    [indexBuffers setObject:indexBuffer forKey:textureName];
-                    [indexBuffer release];
-                }
-                
-                IntData* countBuffer = [countBuffers objectForKey:textureName];
-                if (countBuffer == nil) {
-                    countBuffer = [[IntData alloc] init];
-                    [countBuffers setObject:countBuffer forKey:textureName];
-                    [countBuffer release];
-                }
-                
-                [figure getIndex:indexBuffer count:countBuffer];
+- (void)prepare {
+    [vbo mapBuffer];
+
+    NSEnumerator* figureEn = [figures objectEnumerator];
+    id <PolygonFigure> figure;
+    while ((figure = [figureEn nextObject]))
+        [figure prepareWithVbo:vbo textureManager:textureManager];
+    
+    [vbo unmapBuffer];
+    
+    figureEn = [figures objectEnumerator];
+    while ((figure = [figureEn nextObject])) {
+        if (filter == nil || [filter passes:figure]) {
+            NSString* textureName = [figure texture];
+            
+            IntData* indexBuffer = [indexBuffers objectForKey:textureName];
+            if (indexBuffer == nil) {
+                indexBuffer = [[IntData alloc] init];
+                [indexBuffers setObject:indexBuffer forKey:textureName];
+                [indexBuffer release];
             }
+            
+            IntData* countBuffer = [countBuffers objectForKey:textureName];
+            if (countBuffer == nil) {
+                countBuffer = [[IntData alloc] init];
+                [countBuffers setObject:countBuffer forKey:textureName];
+                [countBuffer release];
+            }
+            
+            [figure getIndex:indexBuffer count:countBuffer];
         }
-        
-        valid = YES;
     }
+    
+    valid = YES;
 }
 
 @end
@@ -75,12 +73,11 @@
     return self;
 }
 
-- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager {
-    NSAssert(theVbo != nil, @"VBO must not be nil");
-    NSAssert(theTextureManager != nil, @"texture manager must not be nil");
+- (id)initWithTextureManager:(TextureManager *)theTextureManager {
+    if (theTextureManager == nil)
+        [NSException raise:NSInvalidArgumentException format:@"texture manager must not be nil"];
     
     if (self = [self init]) {
-        vbo = [theVbo retain];
         textureManager = [theTextureManager retain];
     }
     
@@ -123,7 +120,9 @@
     glShadeModel(GL_FLAT);
     
     [vbo activate];
-    [self validate];
+    
+    if (!valid)
+        [self prepare];
     
     glPolygonMode(GL_FRONT, GL_FILL);
     if (textured) {
@@ -160,11 +159,9 @@
 }
 
 - (void)invalidate {
-    if (valid) {
-        [indexBuffers removeAllObjects];
-        [countBuffers removeAllObjects];
-        valid = NO;
-    }
+    [indexBuffers removeAllObjects];
+    [countBuffers removeAllObjects];
+    valid = NO;
 }
 
 - (void)dealloc {

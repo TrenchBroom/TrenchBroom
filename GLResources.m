@@ -23,7 +23,7 @@
         [openGLContext makeCurrentContext];
         
         fontManager = [[GLFontManager alloc] init];
-        faceVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
+        vbos = [[NSMutableDictionary alloc] init];
         
         NSBundle* mainBundle = [NSBundle mainBundle];
         NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
@@ -48,14 +48,21 @@
     return textureManager;
 }
 
-- (VBOBuffer *)faceVbo {
-    return faceVbo;
+- (VBOBuffer *)vboForKey:(id <NSCopying>)theKey {
+    VBOBuffer* vbo = [vbos objectForKey:theKey];
+    if (vbo == nil) {
+        vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
+        [vbos setObject:vbo forKey:theKey];
+        [vbo release];
+    }
+    
+    return vbo;
 }
 
 - (void)dealloc {
     [fontManager release];
     [textureManager release];
-    [faceVbo release];
+    [vbos release];
     [openGLContext release];
     [super dealloc];
 }

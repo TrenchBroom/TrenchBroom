@@ -8,6 +8,10 @@
 
 #import "Figure.h"
 
+@class VBOBuffer;
+
 @protocol LineFigure <Figure>
+
+- (void)prepareWithVbo:(VBOBuffer *)theVbo;
 
 @end

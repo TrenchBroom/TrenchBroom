@@ -201,7 +201,7 @@ static InspectorController* sharedInstance = nil;
     [selectedTextureNames release];
 }
 
-- (void)faceDidChange:(NSNotification *)notification {
+- (void)faceChanged:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* face = [userInfo objectForKey:FaceKey];
     
@@ -238,7 +238,7 @@ static InspectorController* sharedInstance = nil;
         [center removeObserver:self name:SelectionAdded object:selectionManager];
         [center removeObserver:self name:SelectionRemoved object:selectionManager];
 
-        [center removeObserver:self name:FaceDidChange object:map];
+        [center removeObserver:self name:FaceFlagsChanged object:map];
         
         [mapWindowController release];
     }
@@ -263,7 +263,8 @@ static InspectorController* sharedInstance = nil;
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
         [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
         
-        [center addObserver:self selector:@selector(faceDidChange:) name:FaceDidChange object:map];
+        [center addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged object:map];
+        [center addObserver:self selector:@selector(faceChanged:) name:FaceTextureChanged object:map];
     } else {
         [textureView setGLResources:nil];
         [prefabView setGLResources:nil];

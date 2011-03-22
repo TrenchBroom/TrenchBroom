@@ -386,11 +386,39 @@ static float HANDLE_RADIUS = 2.0f;
     return desc;
 }
 
+#pragma mark Implementation of Figure protocol -
+
+- (id)object {
+    return self;
+}
+
+- (void)prepareWithVbo:(VBOBuffer *)theVbo {
+    if (block != nil && [block vbo] != theVbo)
+        [self invalidate];
+    
+    if (block == nil)
+        block = [[theVbo allocMemBlock:3 * sizeof(float) * 2] retain];
+    
+    if ([block state] == BS_USED_INVALID) {
+        int offset = [block writeVector3f:[startVertex vector] offset:0];
+        [block writeVector3f:[endVertex vector] offset:offset];
+        [block setState:BS_USED_VALID];
+    }
+}
+
+- (void)invalidate {
+    [block free];
+    [block release];
+    block = nil;
+}
+
 - (void)dealloc {
     [startVertex release];
     [endVertex release];
     [leftEdge release];
     [rightEdge release];
+    [block free];
+    [block release];
     [super dealloc];
 }
 

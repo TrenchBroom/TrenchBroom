@@ -131,9 +131,6 @@
 		48E4006D13159E7E004642CD /* TextureNameFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E4006C13159E7E004642CD /* TextureNameFilter.m */; };
 		48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E400AE1315A7DA004642CD /* TextureUsageFilter.m */; };
 		48E4FFD613157C46004642CD /* Inspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48E4FFD513157C46004642CD /* Inspector.xib */; };
-		48EC1BD71338EB3000856B8D /* FaceFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48EC1BD61338EB3000856B8D /* FaceFigure.m */; };
-		48EC1C01133906CE00856B8D /* EdgeFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48EC1C00133906CE00856B8D /* EdgeFigure.m */; };
-		48EC1C581339186A00856B8D /* GridFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48EC1C571339186A00856B8D /* GridFigure.m */; };
 		48F0EC52131A9CCD0088FA02 /* PrefabView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F0EC51131A9CCD0088FA02 /* PrefabView.m */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
@@ -342,6 +339,7 @@
 		489FB43C12FA0A5B00B6BAF1 /* GLFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFont.m; sourceTree = "<group>"; };
 		489FB43E12FA0ABE00B6BAF1 /* GLFontChar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFontChar.h; sourceTree = "<group>"; };
 		489FB43F12FA0ABE00B6BAF1 /* GLFontChar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFontChar.m; sourceTree = "<group>"; };
+		48A0A18E132A728B001CA997 /* Figure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
 		48A68EB6114E96C00064732A /* MapWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWindowController.h; sourceTree = "<group>"; };
 		48A68EB7114E96C00064732A /* MapWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapWindowController.m; sourceTree = "<group>"; };
 		48A68ECD114E9B0D0064732A /* MapView3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapView3D.h; sourceTree = "<group>"; };
@@ -386,13 +384,6 @@
 		48E400AD1315A7DA004642CD /* TextureUsageFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureUsageFilter.h; sourceTree = "<group>"; };
 		48E400AE1315A7DA004642CD /* TextureUsageFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureUsageFilter.m; sourceTree = "<group>"; };
 		48E4FFD513157C46004642CD /* Inspector.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Inspector.xib; sourceTree = "<group>"; };
-		48EC1BD51338EB3000856B8D /* FaceFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceFigure.h; sourceTree = "<group>"; };
-		48EC1BD61338EB3000856B8D /* FaceFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceFigure.m; sourceTree = "<group>"; };
-		48EC1BFF133906CE00856B8D /* EdgeFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EdgeFigure.h; sourceTree = "<group>"; };
-		48EC1C00133906CE00856B8D /* EdgeFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EdgeFigure.m; sourceTree = "<group>"; };
-		48EC1C30133912C400856B8D /* Figure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
-		48EC1C561339186A00856B8D /* GridFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridFigure.h; sourceTree = "<group>"; };
-		48EC1C571339186A00856B8D /* GridFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridFigure.m; sourceTree = "<group>"; };
 		48EEE9041153D816001A4D7C /* Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Test-Info.plist"; sourceTree = "<group>"; };
 		48EEE9181153D95E001A4D7C /* VBOManagerTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOManagerTestCase.h; sourceTree = "<group>"; };
 		48EEE9191153D95E001A4D7C /* VBOManagerTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOManagerTestCase.m; sourceTree = "<group>"; };
@@ -570,17 +561,21 @@
 		487E31F3114F741F0043A111 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
-				48EC1C0313390CDE00856B8D /* Figure */,
-				48EC1C0213390CC600856B8D /* Layer */,
 				489DC65D12F9EBF500053092 /* Text */,
 				48B3243A12E1C6B8008748E2 /* Camera.h */,
 				48B3243B12E1C6B8008748E2 /* Camera.m */,
+				48A0A18E132A728B001CA997 /* Figure.h */,
+				487A7E39130071F300434806 /* GeometryLayer.h */,
+				487A7E3A130071F300434806 /* GeometryLayer.m */,
 				488C8EDF12F6C3ED00F358E6 /* IntData.h */,
 				488C8EE012F6C3ED00F358E6 /* IntData.m */,
+				487A7E38130071DD00434806 /* Layer.h */,
 				488089A41317A2F100823C27 /* RenderContext.h */,
 				488089A51317A2F100823C27 /* RenderContext.m */,
 				487A7E631300801A00434806 /* Renderer.h */,
 				487A7E641300801A00434806 /* Renderer.m */,
+				488F07CC13013F9F0063E550 /* SelectionLayer.h */,
+				488F07CD13013F9F0063E550 /* SelectionLayer.m */,
 				487A646A12EA3A7E00A43289 /* Texture.h */,
 				487A646B12EA3A7E00A43289 /* Texture.m */,
 				4881C74012E9C8BE006BF922 /* TextureManager.h */,
@@ -589,6 +584,13 @@
 				484C28FB115023A2004DD957 /* VBOBuffer.m */,
 				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
 				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
+				48691DDE1337CBAD00A0F098 /* PolygonRenderer.h */,
+				48691DDF1337CBAD00A0F098 /* PolygonRenderer.m */,
+				48691DE11337CC4D00A0F098 /* PolygonFigure.h */,
+				48691DE21337CC7D00A0F098 /* FigureFilter.h */,
+				48691DF01337D10500A0F098 /* LineFigure.h */,
+				48691DF31337D27F00A0F098 /* LineRenderer.h */,
+				48691DF41337D27F00A0F098 /* LineRenderer.m */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -795,39 +797,6 @@
 				4809EE33131C3D9A00EB2EAB /* MathCache.m */,
 			);
 			name = Math;
-			sourceTree = "<group>";
-		};
-		48EC1C0213390CC600856B8D /* Layer */ = {
-			isa = PBXGroup;
-			children = (
-				487A7E39130071F300434806 /* GeometryLayer.h */,
-				487A7E3A130071F300434806 /* GeometryLayer.m */,
-				487A7E38130071DD00434806 /* Layer.h */,
-				488F07CC13013F9F0063E550 /* SelectionLayer.h */,
-				488F07CD13013F9F0063E550 /* SelectionLayer.m */,
-			);
-			name = Layer;
-			sourceTree = "<group>";
-		};
-		48EC1C0313390CDE00856B8D /* Figure */ = {
-			isa = PBXGroup;
-			children = (
-				48EC1BFF133906CE00856B8D /* EdgeFigure.h */,
-				48EC1C00133906CE00856B8D /* EdgeFigure.m */,
-				48EC1BD51338EB3000856B8D /* FaceFigure.h */,
-				48EC1BD61338EB3000856B8D /* FaceFigure.m */,
-				48EC1C30133912C400856B8D /* Figure.h */,
-				48691DE21337CC7D00A0F098 /* FigureFilter.h */,
-				48691DF01337D10500A0F098 /* LineFigure.h */,
-				48691DF31337D27F00A0F098 /* LineRenderer.h */,
-				48691DF41337D27F00A0F098 /* LineRenderer.m */,
-				48691DE11337CC4D00A0F098 /* PolygonFigure.h */,
-				48691DDE1337CBAD00A0F098 /* PolygonRenderer.h */,
-				48691DDF1337CBAD00A0F098 /* PolygonRenderer.m */,
-				48EC1C561339186A00856B8D /* GridFigure.h */,
-				48EC1C571339186A00856B8D /* GridFigure.m */,
-			);
-			name = Figure;
 			sourceTree = "<group>";
 		};
 		48EEE9171153D936001A4D7C /* Test Cases */ = {
@@ -1092,9 +1061,6 @@
 				48691DE01337CBAD00A0F098 /* PolygonRenderer.m in Sources */,
 				48691DF51337D27F00A0F098 /* LineRenderer.m in Sources */,
 				48691E121337E28600A0F098 /* GridFigure.m in Sources */,
-				48EC1BD71338EB3000856B8D /* FaceFigure.m in Sources */,
-				48EC1C01133906CE00856B8D /* EdgeFigure.m in Sources */,
-				48EC1C581339186A00856B8D /* GridFigure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

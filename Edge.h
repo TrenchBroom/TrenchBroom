@@ -24,6 +24,7 @@ typedef enum {
 @class Ray3D;
 @class PickingHit;
 @class BoundingBox;
+@class VBOMemBlock;
 @protocol Face;
 
 @interface Edge : NSObject <Figure> {
@@ -33,6 +34,8 @@ typedef enum {
     SideEdge* leftEdge;
     SideEdge* rightEdge;
     EEdgeMark mark;
+
+    VBOMemBlock* block;
 }
 
 - (id)initWithStartVertex:(Vertex *)theStartVertex endVertex:(Vertex *)theEndVertex;

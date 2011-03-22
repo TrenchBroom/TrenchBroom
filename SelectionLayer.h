@@ -17,7 +17,4 @@
     NSMutableDictionary* gridFigures;
 }
 
-- (void)addGridFigure:(GridFigure *)theFigure;
-- (void)removeGridFigure:(GridFigure *)theFigure;
-
 @end
