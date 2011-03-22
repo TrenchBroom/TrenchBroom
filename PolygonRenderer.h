@@ -24,7 +24,7 @@
     BOOL valid;
 }
 
-- (id)initWithTextureManager:(TextureManager *)theTextureManager;
+- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager;
 
 - (void)addFigure:(id <PolygonFigure>)theFigure;
 - (void)removeFigure:(id <PolygonFigure>)theFigure;

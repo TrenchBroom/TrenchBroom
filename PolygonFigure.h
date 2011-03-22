@@ -8,14 +8,12 @@
 
 #import "Figure.h"
 
-@class VBOBuffer;
-@class TextureManager;
 @class IntData;
 
 @protocol PolygonFigure <Figure>
 
+- (void)invalidate;
 - (NSString *)texture;
-- (void)prepareWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager;
 - (void)getIndex:(IntData *)theIndexBuffer count:(IntData *)theCountBuffer;
 
 @end
