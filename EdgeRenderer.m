@@ -40,7 +40,7 @@ static int VerticesPerBlock = 2000;
         [vbo activate];
         [vbo mapBuffer];
 
-        VBOMemBlock* block;
+        VBOMemBlock* block = nil;
         int offset;
         vertexCount = 0;
        
@@ -50,7 +50,7 @@ static int VerticesPerBlock = 2000;
             if (filter == nil || [filter edgePasses:edge]) {
                 if ((vertexCount % VerticesPerBlock) == 0) {
                     [block setState:BS_USED_VALID];
-                    block = [vbo allocMemBlock:VerticesPerBlock * 2 * 3 * sizeof(float)];
+                    block = [vbo allocMemBlock:VerticesPerBlock * 3 * sizeof(float)];
                     offset = 0;
                 }
                 
@@ -59,8 +59,9 @@ static int VerticesPerBlock = 2000;
             }
         }
         
-        [block setState:BS_USED_VALID];
-        [vbo pack]; // probably unnecessary
+        if (block != nil)
+            [block setState:BS_USED_VALID];
+        // [vbo pack]; // probably unnecessary
         [vbo unmapBuffer];
         
         valid = YES;
@@ -82,18 +83,18 @@ static int VerticesPerBlock = 2000;
 
 - (void)addEdge:(Edge *)theEdge {
     NSAssert(theEdge != nil, @"edge must not be nil");
-    NSAssert(![edges containsObject:theEdge], @"edge is already handled by this renderer");
-    
-    [edges addObject:theEdge];
-    [self invalidate];
+    if (![edges containsObject:theEdge]) {
+        [edges addObject:theEdge];
+        [self invalidate];
+    }
 }
 
 - (void)removeEdge:(Edge *)theEdge {
     NSAssert(theEdge != nil, @"edge must not be nil");
-    NSAssert([edges containsObject:theEdge], @"edge is not handled by this renderer");
-    
-    [edges removeObject:theEdge];
-    [self invalidate];
+    if ([edges containsObject:theEdge]) {
+        [edges removeObject:theEdge];
+        [self invalidate];
+    }
 }
 
 - (void)setFilter:(id <RenderFilter>)theFilter {

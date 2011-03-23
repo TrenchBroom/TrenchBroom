@@ -192,9 +192,9 @@
     
     // not sure why this is neccessary
     glDisableClientState(GL_COLOR_ARRAY);
+    glDisable(GL_POLYGON_OFFSET_FILL);
 
     [vbo deactivate];
-    glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 - (void)invalidate {

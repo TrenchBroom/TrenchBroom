@@ -42,7 +42,7 @@ extern NSString* const BufferNotMappedException;
 - (void)writeVector2f:(Vector2f *)theVector address:(int)theAddress;
 
 - (VBOMemBlock *)allocMemBlock:(int)capacity;
-- (void)freeMemBlock:(VBOMemBlock *)memBlock;
+- (VBOMemBlock *)freeMemBlock:(VBOMemBlock *)memBlock;
 - (void)freeAllBlocks;
 - (void)pack;
 

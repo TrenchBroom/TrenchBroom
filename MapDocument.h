@@ -9,14 +9,8 @@
 #import <Cocoa/Cocoa.h>
 #import "Map.h"
 
-extern NSString* const FaceAdded;
-extern NSString* const FaceRemoved;
-extern NSString* const FaceFlagsWillChange;
-extern NSString* const FaceFlagsChanged;
-extern NSString* const FaceTextureWillChange;
-extern NSString* const FaceTextureChanged;
-extern NSString* const FaceGeometryWillChange;
-extern NSString* const FaceGeometryChanged;
+extern NSString* const FaceWillChange;
+extern NSString* const FaceDidChange;
 extern NSString* const FaceKey;
 extern NSString* const FaceOldTextureKey;
 extern NSString* const FaceNewTextureKey;
@@ -24,7 +18,7 @@ extern NSString* const FaceNewTextureKey;
 extern NSString* const BrushAdded;
 extern NSString* const BrushRemoved;
 extern NSString* const BrushWillChange;
-extern NSString* const BrushChanged;
+extern NSString* const BrushDidChange;
 extern NSString* const BrushKey;
 
 extern NSString* const EntityAdded;

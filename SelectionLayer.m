@@ -33,9 +33,9 @@
 
 - (id)initWithWindowController:(MapWindowController *)theMapWindowController {
     if (self = [super initWithWindowController:theMapWindowController]) {
-        gridRenderer = [[GridRenderer alloc] init];
-        
         options = [[theMapWindowController options] retain];
+        gridRenderer = [[GridRenderer alloc] initWithGridSize:[[options grid] size]];
+
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(optionsChanged:) name:OptionsChanged object:options];
     }

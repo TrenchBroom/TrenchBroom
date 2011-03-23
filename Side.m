@@ -290,6 +290,7 @@
         [pVertices release];
         
         [grids setObject:grid forKey:key];
+        [grid release];
     }
     
     return grid;

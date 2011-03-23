@@ -41,10 +41,9 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)addEntity:(id <Entity>)entity;
 - (void)removeEntity:(id <Entity>)entity;
 
-- (void)faceChanged:(NSNotification *)notification;
-- (void)faceAdded:(NSNotification *)notification;
-- (void)faceRemoved:(NSNotification *)notification;
-- (void)brushChanged:(NSNotification *)notification;
+- (void)faceDidChange:(NSNotification *)notification;
+- (void)brushWillChange:(NSNotification *)notification;
+- (void)brushDidChange:(NSNotification *)notification;
 - (void)brushAdded:(NSNotification *)notification;
 - (void)brushRemoved:(NSNotification *)notification;
 - (void)entityAdded:(NSNotification *)notification;
@@ -141,7 +140,7 @@ NSString* const RendererChanged = @"RendererChanged";
         [geometryLayer removeFace:face includeEdges:YES];
 }
 
-- (void)faceChanged:(NSNotification *)notification {
+- (void)faceDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Face> face = [userInfo objectForKey:FaceKey];
     
@@ -154,22 +153,6 @@ NSString* const RendererChanged = @"RendererChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
-- (void)faceAdded:(NSNotification *)notification {
-    NSDictionary* userInfo = [notification userInfo];
-    id <Face> face = [userInfo objectForKey:FaceKey];
-    [self addFace:face];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
-}
-
-- (void)faceRemoved:(NSNotification *)notification {
-    NSDictionary* userInfo = [notification userInfo];
-    id <Face> face = [userInfo objectForKey:FaceKey];
-    [self removeFace:face];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
-}
-
 - (void)brushWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
@@ -177,7 +160,7 @@ NSString* const RendererChanged = @"RendererChanged";
     [self removeBrush:brush];
 }
 
-- (void)brushChanged:(NSNotification *)notification {
+- (void)brushDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
 
@@ -323,13 +306,8 @@ NSString* const RendererChanged = @"RendererChanged";
         [center addObserver:self selector:@selector(brushAdded:) name:BrushAdded object:map];
         [center addObserver:self selector:@selector(brushRemoved:) name:BrushRemoved object:map];
         [center addObserver:self selector:@selector(brushWillChange:) name:BrushWillChange object:map];
-        [center addObserver:self selector:@selector(brushChanged:) name:BrushChanged object:map];
-        [center addObserver:self selector:@selector(faceAdded:) name:FaceAdded object:map];
-        [center addObserver:self selector:@selector(faceRemoved:) name:FaceRemoved object:map];
-        [center addObserver:self selector:@selector(faceChanged:) name:FaceFlagsChanged object:map];
-        [center addObserver:self selector:@selector(faceChanged:) name:FaceTextureChanged object:map];
-        [center addObserver:self selector:@selector(faceGeometryWillChange:) name:FaceGeometryWillChange object:map];
-        [center addObserver:self selector:@selector(faceChanged:) name:FaceGeometryChanged object:map];
+        [center addObserver:self selector:@selector(brushDidChange:) name:BrushDidChange object:map];
+        [center addObserver:self selector:@selector(faceDidChange:) name:FaceDidChange object:map];
         
         SelectionManager* selectionManager = [windowController selectionManager];
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
