@@ -40,7 +40,7 @@ NSString* const UntrackedObjectKey = @"UntrackedObjectKey";
     Picker* picker = [[windowController document] picker];
     
     PickingHitList* hits = [picker pickObjects:currentRay include:[selectionManager selectedBrushes] exclude:nil];
-    PickingHit* hit = [hits firstHitOfType:HT_EDGE | HT_VERTEX ignoreOccluders:NO];
+    PickingHit* hit = [hits firstHitOfType:HT_EDGE | HT_VERTEX ignoreOccluders:YES];
     if (hit == nil) {
         if (currentObject != nil) {
             NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
