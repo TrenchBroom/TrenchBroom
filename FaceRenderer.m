@@ -7,8 +7,9 @@
 //
 
 #import "FaceRenderer.h"
-#import "Face.h"
 #import "Brush.h"
+#import "Face.h"
+#import "Vertex.h"
 #import "TextureManager.h"
 #import "Texture.h"
 #import "VBOBuffer.h"
@@ -50,14 +51,14 @@
     
     int offset = 0;
     NSEnumerator* vertexEn = [vertices objectEnumerator];
-    Vector3f* vertex;
+    Vertex* vertex;
     while ((vertex = [vertexEn nextObject])) {
-        [theFace texCoords:texCoords forVertex:vertex];
+        [theFace texCoords:texCoords forVertex:[vertex vector]];
         [texCoords setX:[texCoords x] / width];
         [texCoords setY:[texCoords y] / height];
         offset = [block writeVector2f:texCoords offset:offset];
         offset = [block writeVector3f:color offset:offset];
-        offset = [block writeVector3f:vertex offset:offset];
+        offset = [block writeVector3f:[vertex vector] offset:offset];
     }
     
     [cache returnVector3f:color];

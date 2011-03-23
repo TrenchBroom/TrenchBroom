@@ -11,6 +11,7 @@
 #import "Brush.h"
 #import "Face.h"
 #import "Edge.h"
+#import "Vector3f.h"
 
 NSString* const SelectionAdded = @"SelectionAdded";
 NSString* const SelectionRemoved = @"SelectionRemoved";
@@ -177,27 +178,34 @@ NSString* const SelectionFaces = @"SelectionFaces";
     return mode;
 }
 
+- (BOOL)isVertexSelected:(Vertex *)vertex {
+    NSAssert(vertex != nil, @"vertex must not be nil");
+    NSEnumerator* edgeEn = [[vertex edges] objectEnumerator];
+    Edge* edge;
+    while ((edge = [edgeEn nextObject]))
+        if ([self isEdgeSelected:edge])
+            return YES;
+    
+    return NO;
+}
+
 - (BOOL)isEdgeSelected:(Edge *)edge {
     NSAssert(edge != nil, @"edge must not be nil");
-    
     return [self isFaceSelected:[edge leftFace]] || [self isFaceSelected:[edge rightFace]];
 }
 
 - (BOOL)isFaceSelected:(id <Face>)face {
     NSAssert(face != nil, @"face must not be nil");
-    
     return [faces containsObject:face] || [self isBrushSelected:[face brush]];
 }
 
 - (BOOL)isBrushSelected:(id <Brush>)brush {
     NSAssert(brush != nil, @"brush must not be nil");
-
     return [brushes containsObject:brush] || [self isEntitySelected:[brush entity]];
 }
 
 - (BOOL)isEntitySelected:(id <Entity>)entity {
     NSAssert(entity != nil, @"entity must not be nil");
-    
     return [entities containsObject:entity];
 }
 

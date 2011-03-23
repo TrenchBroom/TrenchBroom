@@ -11,6 +11,7 @@
 #import "Brush.h"
 #import "MutableEntity.h"
 #import "MutableBrush.h"
+#import "Vertex.h"
 #import "Vector3i.h"
 #import "Vector3f.h"
 #import "MathCache.h"
@@ -119,9 +120,9 @@
             id <Brush> brush;
             while ((brush = [brushEn nextObject])) {
                 NSEnumerator* vertexEn = [[brush vertices] objectEnumerator];
-                Vector3f* vertex;
+                Vertex* vertex;
                 while ((vertex = [vertexEn nextObject])) {
-                    [diff setFloat:vertex];
+                    [diff setFloat:[vertex vector]];
                     [diff sub:[self center]];
                     float lengthSquared = [diff lengthSquared];
                     if (lengthSquared > distSquared)

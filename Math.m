@@ -9,6 +9,7 @@
 #import "Math.h"
 #import "math.h"
 #import "Vector2f.h"
+#import "Vector3f.h"
 
 float const AlmostZero = 0.001f;
 
@@ -106,7 +107,7 @@ int smallestXVertex2D(NSArray *vertices) {
         [NSException raise:NSInvalidArgumentException format:@"vertex array must not be empty"];
         
     int s = 0;
-    Vector2f* v = [vertices objectAtIndex:0];
+    Vector3f* v = [vertices objectAtIndex:0];
     float x = [v x];
     float y = [v y];
     
@@ -129,7 +130,7 @@ int smallestYVertex2D(NSArray *vertices)  {
         [NSException raise:NSInvalidArgumentException format:@"vertex array must not be empty"];
     
     int s = 0;
-    Vector2f* v = [vertices objectAtIndex:0];
+    Vector3f* v = [vertices objectAtIndex:0];
     float x = [v x];
     float y = [v y];
     

@@ -15,6 +15,7 @@
 #import "TextureManager.h"
 #import "FaceRenderer.h"
 #import "EdgeRenderer.h"
+#import "Brush.h"
 #import "Face.h"
 #import "Edge.h"
 #import "RenderContext.h"
@@ -39,13 +40,26 @@
     return self;
 }
 
-- (void)addBrush:(id <Brush>)theBrush {
+- (void)addBrushFaces:(id <Brush>)theBrush {
     NSAssert(theBrush != nil, @"brush must not be nil");
     
     NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject]))
-        [self addFace:face includeEdges:NO];
+        [self addFace:face];
+}
+
+- (void)removeBrushFaces:(id <Brush>)theBrush {
+    NSAssert(theBrush != nil, @"brush must not be nil");
+    
+    NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject]))
+        [self removeFace:face];
+}
+
+- (void)addBrushEdges:(id <Brush>)theBrush {
+    NSAssert(theBrush != nil, @"brush must not be nil");
     
     NSEnumerator* edgeEn = [[theBrush edges] objectEnumerator];
     Edge* edge;
@@ -53,13 +67,8 @@
         [self addEdge:edge];
 }
 
-- (void)removeBrush:(id <Brush>)theBrush {
+- (void)removeBrushEdges:(id <Brush>)theBrush {
     NSAssert(theBrush != nil, @"brush must not be nil");
-    
-    NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [self removeFace:face includeEdges:NO];
     
     NSEnumerator* edgeEn = [[theBrush edges] objectEnumerator];
     Edge* edge;
@@ -67,39 +76,41 @@
         [self removeEdge:edge];
 }
 
-- (void)addFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges {
+- (void)addFace:(id <Face>)theFace {
     NSAssert(theFace != nil, @"face must not be nil");
-
     [faceRenderer addFace:theFace];
-    if (includeEdges) {
-        NSEnumerator* edgeEn = [[theFace edges] objectEnumerator];
-        Edge* edge;
-        while ((edge = [edgeEn nextObject]))
-            [edgeRenderer addEdge:edge];
-    }
 }
 
-- (void)removeFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges {
+- (void)removeFace:(id <Face>)theFace {
     NSAssert(theFace != nil, @"face must not be nil");
-    
     [faceRenderer removeFace:theFace];
-    if (includeEdges) {
-        NSEnumerator* edgeEn = [[theFace edges] objectEnumerator];
-        Edge* edge;
-        while ((edge = [edgeEn nextObject]))
-            [edgeRenderer removeEdge:edge];
-    }
+}
+
+- (void)addFaceEdges:(id <Face>)theFace {
+    NSAssert(theFace != nil, @"face must not be nil");
+
+    NSEnumerator* edgeEn = [[theFace edges] objectEnumerator];
+    Edge* edge;
+    while ((edge = [edgeEn nextObject]))
+        [self addEdge:edge];
+}
+
+- (void)removeFaceEdges:(id <Face>)theFace {
+    NSAssert(theFace != nil, @"face must not be nil");
+
+    NSEnumerator* edgeEn = [[theFace edges] objectEnumerator];
+    Edge* edge;
+    while ((edge = [edgeEn nextObject]))
+        [self removeEdge:edge];
 }
 
 - (void)addEdge:(Edge *)theEdge {
     NSAssert(theEdge != nil, @"edge must not be nil");
-    
     [edgeRenderer addEdge:theEdge];
 }
 
 - (void)removeEdge:(Edge *)theEdge {
     NSAssert(theEdge != nil, @"edge must not be nil");
-    
     [edgeRenderer removeEdge:theEdge];
 }
 

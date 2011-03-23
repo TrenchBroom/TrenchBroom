@@ -313,13 +313,7 @@
 }
 
 - (NSArray *)vertices {
-    NSMutableArray* result = [[NSMutableArray alloc] initWithCapacity:[vertices count]];
-    NSEnumerator* vertexEn = [vertices objectEnumerator];
-    Vertex* vertex;
-    while ((vertex = [vertexEn nextObject]))
-        [result addObject:[vertex vector]];
-    
-    return [result autorelease];
+    return vertices;
 }
 
 - (NSArray *)edges {
@@ -477,6 +471,13 @@
     if (theHitList == nil)
         [NSException raise:NSInvalidArgumentException format:@"hit set must not be nil"];
     
+    NSEnumerator* vertexEn = [vertices objectEnumerator];
+    Vertex* vertex;
+    while ((vertex = [vertexEn nextObject])) {
+        PickingHit* hit = [vertex pickWithRay:theRay];
+        if (hit != nil)
+            [theHitList addHit:hit];
+    }
 }
 
 - (BoundingBox *)pickingBounds {

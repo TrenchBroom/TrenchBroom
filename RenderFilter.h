@@ -10,10 +10,12 @@
 
 @protocol Face;
 @class Edge;
+@class Vertex;
 
 @protocol RenderFilter <NSObject>
 
 - (BOOL)facePasses:(id <Face>)theFace;
 - (BOOL)edgePasses:(Edge *)theEdge;
+- (BOOL)vertexPasses:(Vertex *)theVertex;
 
 @end

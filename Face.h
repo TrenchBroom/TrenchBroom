@@ -7,13 +7,15 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Brush.h"
-#import "Vector3i.h"
-#import "Vector3f.h"
-#import "Vector2f.h"
-#import "HalfSpace3D.h"
-#import "Ray3D.h"
-#import "PickingHit.h"
+
+@protocol Brush;
+@class Vertex;
+@class Vector3i;
+@class Vector3f;
+@class Vector2f;
+@class HalfSpace3D;
+@class Ray3D;
+@class PickingHit;
 
 @protocol Face <NSObject>
 

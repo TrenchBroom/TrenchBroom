@@ -43,11 +43,11 @@ NSString* const UntrackedObjectKey = @"UntrackedObjectKey";
     Picker* picker = [[windowController document] picker];
     
     PickingHitList* hits = [picker pickObjects:currentRay include:[selectionManager selectedBrushes] exclude:nil];
-    PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:YES];
+    PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
     if (hit == nil)
-        hit = [hits firstHitOfType:HT_EDGE ignoreOccluders:YES];
+        hit = [hits firstHitOfType:HT_EDGE ignoreOccluders:NO];
     if (hit == nil)
-        hit = [hits firstHitOfType:HT_BRUSH ignoreOccluders:YES];
+        hit = [hits firstHitOfType:HT_BRUSH ignoreOccluders:NO];
     
     if (hit == nil) {
         if (currentObject != nil) {
@@ -96,6 +96,19 @@ NSString* const UntrackedObjectKey = @"UntrackedObjectKey";
 
 - (BOOL)isEdgeTracked:(Edge *)theEdge {
     return currentObject == theEdge || [self isFaceTracked:[theEdge leftFace]] || [self isFaceTracked:[theEdge rightFace]];
+}
+
+- (BOOL)isVertexTracked:(Vertex *)theVertex {
+    if (currentObject == theVertex)
+        return YES;
+    
+    NSEnumerator* edgeEn = [[theVertex edges] objectEnumerator];
+    Edge* edge;
+    while ((edge = [edgeEn nextObject]))
+        if ([self isEdgeTracked:edge])
+            return YES;
+    
+    return NO;
 }
 
 - (void)dealloc {

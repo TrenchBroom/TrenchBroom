@@ -23,6 +23,7 @@
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "IntData.h"
+#import "PickingHit.h"
 
 static float HANDLE_RADIUS = 2.0f;
 
@@ -43,7 +44,9 @@ static float HANDLE_RADIUS = 2.0f;
     
     if (self = [self init]) {
         startVertex = [theStartVertex retain];
+        [startVertex addEdge:self];
         endVertex = [theEndVertex retain];
+        [endVertex addEdge:self];
     }
     
     return self;
@@ -88,6 +91,7 @@ static float HANDLE_RADIUS = 2.0f;
     
     Vector3f* newVector = [line pointAtDistance:[plane intersectWithLine:line]];
     Vertex* newVertex = [[Vertex alloc] initWithVector:newVector];
+    [newVertex addEdge:self];
 
     if ([startVertex mark] == VM_DROP) {
         [startVertex release];

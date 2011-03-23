@@ -8,6 +8,12 @@
 
 #import "Vertex.h"
 #import "Vector3f.h"
+#import "BoundingBox.h"
+#import "PickingHit.h"
+#import "Ray3D.h"
+#import "Plane3D.h"
+#import "MathCache.h"
+#import "Math.h"
 
 @implementation Vertex
 - (id)initWithVector:(Vector3f *)theVector {
@@ -17,6 +23,7 @@
     if (self = [self init]) {
         vector = [theVector retain];
         mark = VM_NEW;
+        edges = [[NSMutableSet alloc] init];
     }
     
     return self;
@@ -26,12 +33,89 @@
     return vector;
 }
 
+- (void)addEdge:(Edge *)theEdge {
+    NSAssert(theEdge != nil, @"edge must not be nil");
+    [edges addObject:theEdge];
+}
+
+- (NSSet *)edges {
+    return edges;
+}
+
 - (EVertexMark)mark {
     return mark;
 }
 
 - (void)setMark:(EVertexMark)theMark {
     mark = theMark;
+}
+
+- (PickingHit *)pickWithRay:(Ray3D *)theRay {
+    MathCache* cache = [MathCache sharedCache];
+    Plane3D* plane = [cache plane3D];
+    Vector3f* min = [cache vector3f];
+    Vector3f* max = [cache vector3f];
+    [min setFloat:vector];
+    [min subX:2 y:2 z:2];
+    [max setFloat:vector];
+    [max addX:2 y:2 z:2];
+    
+    Vector3f* direction = [theRay direction];
+    
+    BOOL hit = NO;
+    float distance;
+    Vector3f* is;
+    
+    if (!hit) {
+        if ([direction x] > 0) {
+            [plane setPoint:min norm:[Vector3f xAxisNeg]];
+            distance = [plane intersectWithRay:theRay];
+            is = [theRay pointAtDistance:distance];
+            hit = is != nil && fgte([is y], [min y]) && flte([is y], [max y]) && fgte([is z], [min z]) && flte([is z], [max z]);
+        } else if ([direction x] < 0) {
+            [plane setPoint:max norm:[Vector3f xAxisPos]];
+            distance = [plane intersectWithRay:theRay];
+            is = [theRay pointAtDistance:distance];
+            hit = is != nil && fgte([is y], [min y]) && flte([is y], [max y]) && fgte([is z], [min z]) && flte([is z], [max z]);
+        }
+    }
+    
+    if (!hit) {
+        if ([direction y] > 0) {
+            [plane setPoint:min norm:[Vector3f yAxisNeg]];
+            distance = [plane intersectWithRay:theRay];
+            is = [theRay pointAtDistance:distance];
+            hit = is != nil && fgte([is x], [min x]) && flte([is x], [max x]) && fgte([is z], [min z]) && flte([is z], [max z]);
+        } else if ([direction y] < 0) {
+            [plane setPoint:max norm:[Vector3f yAxisPos]];
+            distance = [plane intersectWithRay:theRay];
+            is = [theRay pointAtDistance:distance];
+            hit = is != nil && fgte([is x], [min x]) && flte([is x], [max x]) && fgte([is z], [min z]) && flte([is z], [max z]);
+        }
+    }
+    
+    if (!hit) {
+        if ([direction z] > 0) {
+            [plane setPoint:min norm:[Vector3f zAxisNeg]];
+            distance = [plane intersectWithRay:theRay];
+            is = [theRay pointAtDistance:distance];
+            hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is y] >= [min y] && [is y] <= [max y];
+        } else if ([direction z] < 0) {
+            [plane setPoint:max norm:[Vector3f zAxisPos]];
+            distance = [plane intersectWithRay:theRay];
+            is = [theRay pointAtDistance:distance];
+            hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is y] >= [min y] && [is y] <= [max y];
+        }
+    }
+    
+    [cache returnVector3f:max];
+    [cache returnVector3f:min];
+    [cache returnPlane3D:plane];
+    
+    if (!hit)
+        return nil;
+    
+    return [[[PickingHit alloc] initWithObject:self type:HT_VERTEX hitPoint:is distance:distance] autorelease];
 }
 
 - (NSString *)description {
@@ -59,6 +143,7 @@
 
 - (void)dealloc {
     [vector release];
+    [edges release];
     [super dealloc];
 }
 

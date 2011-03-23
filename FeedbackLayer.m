@@ -12,14 +12,23 @@
 @implementation FeedbackLayer
 
 - (void)renderEdges {
-    glColor4f(1, 0.5f, 0.5f, 1);
+    glColor4f(1, 1, 0, 1);
     glDisable(GL_DEPTH_TEST);
+    glLineWidth(2);
     [edgeRenderer render];
+    glEnable(GL_DEPTH_TEST);
+    glLineWidth(1);
+}
+
+- (void)renderVertices {
+    glColor4f(1, 1, 0, 1);
+    glDisable(GL_DEPTH_TEST);
+    [vertexRenderer render];
     glEnable(GL_DEPTH_TEST);
 }
 
 - (void)renderGrid {
-    glColor4f(1, 0.5f, 0.5f, 0.5f);
+    glColor4f(1, 1, 0, 0.5f);
     [gridRenderer render];
 }
 

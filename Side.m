@@ -148,7 +148,7 @@
         NSEnumerator* sideEdgeEn = [sideEdges objectEnumerator];
         SideEdge* sideEdge;
         while ((sideEdge = [sideEdgeEn nextObject]))
-            [vertices addObject:[[sideEdge startVertex] vector]];
+            [vertices addObject:[sideEdge startVertex]];
     }
     
     return vertices;
@@ -182,9 +182,9 @@
         float ly = -FLT_MAX;
         
         NSEnumerator* vertexEn = [[self vertices] objectEnumerator];
-        Vector3f* vertex;
+        Vertex* vertex;
         while ((vertex = [vertexEn nextObject])) {
-            Vector3f* pVertex = [plane project:vertex];
+            Vector3f* pVertex = [plane project:[vertex vector]];
             [pVertices addObject:pVertex];
             
             float x = [pVertex x];
@@ -317,14 +317,14 @@
     float isy = [cPlane yOf:is];
     
     int c = 0;
-    Vector3f* v = [vertices lastObject];
-    float x0 = [cPlane xOf:v] - isx;
-    float y0 = [cPlane yOf:v] - isy;
+    Vertex* v = [[self vertices] lastObject];
+    float x0 = [cPlane xOf:[v vector]] - isx;
+    float y0 = [cPlane yOf:[v vector]] - isy;
     
     NSEnumerator* vertexEn = [vertices objectEnumerator];
     while ((v = [vertexEn nextObject])) {
-        float x1 = [cPlane xOf:v] - isx;
-        float y1 = [cPlane yOf:v] - isy;
+        float x1 = [cPlane xOf:[v vector]] - isx;
+        float y1 = [cPlane yOf:[v vector]] - isy;
         
         if ((fzero(x0) && fzero(y0)) || (fzero(x1) && fzero(y1))) {
             // the point is identical to a polygon vertex, cancel search
@@ -413,10 +413,10 @@
 - (Vector3f *)center {
     if (center == nil) {
         NSEnumerator* vertexEn = [[self vertices] objectEnumerator];
-        Vector3f* vertex = [vertexEn nextObject];
-        center = [[Vector3f alloc] initWithFloatVector:vertex];
+        Vertex* vertex = [vertexEn nextObject];
+        center = [[Vector3f alloc] initWithFloatVector:[vertex vector]];
         while ((vertex = [vertexEn nextObject]))
-            [center add:vertex];
+            [center add:[vertex vector]];
         
         [center scale:1.0f / [[self vertices] count]];
     }

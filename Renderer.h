@@ -11,15 +11,18 @@
 
 extern NSString* const RendererChanged;
 
+@class GeometryLayer;
+@class SelectionLayer;
+@class FeedbackLayer;
 @class RenderContext;
 @class MapWindowController;
 
 @interface Renderer : NSObject {
     @private
     MapWindowController* windowController;
-    id<Layer> geometryLayer;
-    id<Layer> selectionLayer;
-    id<Layer> feedbackLayer;
+    GeometryLayer* geometryLayer;
+    SelectionLayer* selectionLayer;
+    FeedbackLayer* feedbackLayer;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

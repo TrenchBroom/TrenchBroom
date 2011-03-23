@@ -17,11 +17,17 @@
 
 - (void)render:(RenderContext *)renderContext;
 
-- (void)addBrush:(id <Brush>)theBrush;
-- (void)removeBrush:(id <Brush>)theBrush;
+- (void)addBrushFaces:(id <Brush>)theBrush;
+- (void)removeBrushFaces:(id <Brush>)theBrush;
 
-- (void)addFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges;
-- (void)removeFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges;
+- (void)addBrushEdges:(id <Brush>)theBrush;
+- (void)removeBrushEdges:(id <Brush>)theBrush;
+
+- (void)addFace:(id <Face>)theFace;
+- (void)removeFace:(id <Face>)theFace;
+
+- (void)addFaceEdges:(id <Face>)theFace;
+- (void)removeFaceEdges:(id <Face>)theFace;
 
 - (void)addEdge:(Edge *)theEdge;
 - (void)removeEdge:(Edge *)theEdge;

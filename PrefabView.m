@@ -12,6 +12,7 @@
 #import "PrefabManager.h"
 #import "Prefab.h"
 #import "Entity.h"
+#import "Brush.h"
 #import "Face.h"
 #import "Quaternion.h"
 #import "Vector3f.h"
@@ -184,15 +185,15 @@
     float height = texture != nil ? [texture height] : 1;
     
     NSEnumerator* vertexEn = [[face vertices] objectEnumerator];
-    Vector3f* vertex;
+    Vertex* vertex;
     glBegin(GL_POLYGON);
     while ((vertex = [vertexEn nextObject])) {
         if (texture != nil) {
-            [face texCoords:t forVertex:vertex];
+            [face texCoords:t forVertex:[vertex vector]];
             glTexCoord2f([t x] / width, [t y] / height);
         }
         
-        glVertex3f([vertex x], [vertex y], [vertex z]);
+        glVertex3f([[vertex vector] x], [[vertex vector] y], [[vertex vector] z]);
         
     }
     glEnd();
