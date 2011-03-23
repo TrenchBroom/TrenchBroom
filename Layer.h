@@ -10,11 +10,15 @@
 
 @class RenderContext;
 @class Edge;
+@protocol Brush;
 @protocol Face;
 
 @protocol Layer <NSObject>
 
 - (void)render:(RenderContext *)renderContext;
+
+- (void)addBrush:(id <Brush>)theBrush;
+- (void)removeBrush:(id <Brush>)theBrush;
 
 - (void)addFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges;
 - (void)removeFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges;

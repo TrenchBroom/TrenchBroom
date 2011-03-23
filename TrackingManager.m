@@ -14,6 +14,9 @@
 #import "PickingHitList.h"
 #import "SelectionManager.h"
 #import "Ray3D.h"
+#import "Brush.h"
+#import "Face.h"
+#import "Edge.h"
 
 NSString* const TrackedObjectChanged = @"TrackedObjectChanged";
 NSString* const TrackedObjectKey = @"TrackedObjectKey";
@@ -40,7 +43,12 @@ NSString* const UntrackedObjectKey = @"UntrackedObjectKey";
     Picker* picker = [[windowController document] picker];
     
     PickingHitList* hits = [picker pickObjects:currentRay include:[selectionManager selectedBrushes] exclude:nil];
-    PickingHit* hit = [hits firstHitOfType:HT_EDGE | HT_VERTEX ignoreOccluders:YES];
+    PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:YES];
+    if (hit == nil)
+        hit = [hits firstHitOfType:HT_EDGE ignoreOccluders:YES];
+    if (hit == nil)
+        hit = [hits firstHitOfType:HT_BRUSH ignoreOccluders:YES];
+    
     if (hit == nil) {
         if (currentObject != nil) {
             NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
@@ -72,6 +80,22 @@ NSString* const UntrackedObjectKey = @"UntrackedObjectKey";
             NSLog(@"tracked object changed to %@", currentObject);
         }
     }
+}
+
+- (id)trackedObject {
+    return currentObject;
+}
+
+- (BOOL)isBrushTracked:(id <Brush>)theBrush {
+    return currentObject == theBrush;
+}
+
+- (BOOL)isFaceTracked:(id <Face>)theFace {
+    return currentObject == theFace || [self isBrushTracked:[theFace brush]];
+}
+
+- (BOOL)isEdgeTracked:(Edge *)theEdge {
+    return currentObject == theEdge || [self isFaceTracked:[theEdge leftFace]] || [self isFaceTracked:[theEdge rightFace]];
 }
 
 - (void)dealloc {

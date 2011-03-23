@@ -60,12 +60,15 @@
     glEnable(GL_DEPTH_TEST);
 }
 
+- (void)renderGrid {
+    glColor4f(1, 0, 0, 0.5f);
+    [gridRenderer render];
+}
+
 - (void)render:(RenderContext*)renderContext {
     [super render:renderContext];
-    
     if ([[options grid] draw]) {
-        glColor4f(1, 0, 0, 0.5f);
-        [gridRenderer render];
+        [self renderGrid];
     }
 }
 

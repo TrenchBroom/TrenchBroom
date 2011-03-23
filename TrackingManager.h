@@ -14,6 +14,9 @@ extern NSString* const TrackedObjectKey;
 
 @class MapWindowController;
 @class Ray3D;
+@class Edge;
+@protocol Brush;
+@protocol Face;
 
 @interface TrackingManager : NSObject {
     @private
@@ -25,5 +28,9 @@ extern NSString* const TrackedObjectKey;
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 - (void)updateWithRay:(Ray3D *)theRay;
+- (id)trackedObject;
+- (BOOL)isBrushTracked:(id <Brush>)theBrush;
+- (BOOL)isFaceTracked:(id <Face>)theFace;
+- (BOOL)isEdgeTracked:(Edge *)theEdge;
 
 @end

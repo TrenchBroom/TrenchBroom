@@ -12,10 +12,15 @@
 @implementation FeedbackLayer
 
 - (void)renderEdges {
-    glColor4f(0, 0, 1, 1);
+    glColor4f(1, 0.5f, 0.5f, 1);
     glDisable(GL_DEPTH_TEST);
     [edgeRenderer render];
     glEnable(GL_DEPTH_TEST);
+}
+
+- (void)renderGrid {
+    glColor4f(1, 0.5f, 0.5f, 0.5f);
+    [gridRenderer render];
 }
 
 @end

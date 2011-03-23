@@ -138,6 +138,9 @@
             brushTool = [[BrushTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
         }
     }
+
+    TrackingManager* trackingManager = [windowController trackingManager];
+    [trackingManager updateWithRay:ray];
 }
 
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
@@ -184,6 +187,16 @@
         }
     }
     
+    MapView3D* mapView3D = (MapView3D *)sender;
+    [[mapView3D openGLContext] makeCurrentContext];
+    Camera* camera = [windowController camera];
+    
+    NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
+    Ray3D* ray = [camera pickRayX:m.x y:m.y];
+
+    TrackingManager* trackingManager = [windowController trackingManager];
+    [trackingManager updateWithRay:ray];
+
     if (brushTool != nil) {
         MapDocument* map = [windowController document];
         NSUndoManager* undoManager = [map undoManager];

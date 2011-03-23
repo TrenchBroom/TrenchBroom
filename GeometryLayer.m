@@ -39,6 +39,34 @@
     return self;
 }
 
+- (void)addBrush:(id <Brush>)theBrush {
+    NSAssert(theBrush != nil, @"brush must not be nil");
+    
+    NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject]))
+        [self addFace:face includeEdges:NO];
+    
+    NSEnumerator* edgeEn = [[theBrush edges] objectEnumerator];
+    Edge* edge;
+    while ((edge = [edgeEn nextObject]))
+        [self addEdge:edge];
+}
+
+- (void)removeBrush:(id <Brush>)theBrush {
+    NSAssert(theBrush != nil, @"brush must not be nil");
+    
+    NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject]))
+        [self removeFace:face includeEdges:NO];
+    
+    NSEnumerator* edgeEn = [[theBrush edges] objectEnumerator];
+    Edge* edge;
+    while ((edge = [edgeEn nextObject]))
+        [self removeEdge:edge];
+}
+
 - (void)addFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges {
     NSAssert(theFace != nil, @"face must not be nil");
 

@@ -16,4 +16,6 @@
     Options* options;
 }
 
+- (void)renderGrid;
+
 @end

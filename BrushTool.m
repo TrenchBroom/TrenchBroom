@@ -63,9 +63,9 @@
     if (diff == nil)
         return;
     
-    [diff sub:[theRay pointAtDistance:[plane intersectWithRay:lastRay]]];
-    
+    [diff sub:[lastRay pointAtDistance:[plane intersectWithRay:lastRay]]];
     [delta add:diff];
+
     Grid* grid = [[windowController options] grid];
     int gs = [grid size];
     
@@ -73,20 +73,21 @@
     int y = roundf(floorf([delta y] / gs) * gs);
     int z = roundf(floorf([delta z] / gs) * gs);
     
-    [delta setX:[delta x] - x];
-    [delta setY:[delta y] - y];
-    [delta setZ:[delta z] - z];
-    
-    MapDocument* map = [windowController document];
-    
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    MutableBrush* brush;
-    while ((brush = [brushEn nextObject]))
-        [map translateBrush:brush 
-                     xDelta:x
-                     yDelta:y
-                     zDelta:z];
-
+    if (x != 0 || y != 0 || z != 0) {
+        [delta setX:[delta x] - x];
+        [delta setY:[delta y] - y];
+        [delta setZ:[delta z] - z];
+        
+        MapDocument* map = [windowController document];
+        
+        NSEnumerator* brushEn = [brushes objectEnumerator];
+        MutableBrush* brush;
+        while ((brush = [brushEn nextObject]))
+            [map translateBrush:brush 
+                         xDelta:x
+                         yDelta:y
+                         zDelta:z];
+    }
     [lastRay release];
     lastRay = [theRay retain];
 }

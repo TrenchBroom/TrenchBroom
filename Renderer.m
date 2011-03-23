@@ -63,7 +63,10 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)addFace:(id <Face>)face {
     SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager isFaceSelected:face])
+    TrackingManager* trackingManager = [windowController trackingManager];
+    if ([trackingManager isFaceTracked:face])
+        [feedbackLayer addFace:face includeEdges:NO];
+    else if ([selectionManager isFaceSelected:face])
         [selectionLayer addFace:face includeEdges:NO];
     else 
         [geometryLayer addFace:face includeEdges:NO];
@@ -71,7 +74,10 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)removeFace:(id <Face>)face {
     SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager isFaceSelected:face])
+    TrackingManager* trackingManager = [windowController trackingManager];
+    if ([trackingManager isFaceTracked:face])
+        [feedbackLayer removeFace:face includeEdges:NO];
+    else if ([selectionManager isFaceSelected:face])
         [selectionLayer removeFace:face includeEdges:NO];
     else
         [geometryLayer removeFace:face includeEdges:NO];
@@ -84,11 +90,14 @@ NSString* const RendererChanged = @"RendererChanged";
         [self addFace:face];
     
     SelectionManager* selectionManager = [windowController selectionManager];
+    TrackingManager* trackingManager = [windowController trackingManager];
 
     NSEnumerator* edgeEn = [[brush edges] objectEnumerator];
     Edge* edge;
     while ((edge = [edgeEn nextObject])) {
-        if ([selectionManager isEdgeSelected:edge])
+        if ([trackingManager isEdgeTracked:edge])
+            [feedbackLayer addEdge:edge];
+        else if ([selectionManager isEdgeSelected:edge])
             [selectionLayer addEdge:edge];
         else
             [geometryLayer addEdge:edge];
@@ -102,11 +111,14 @@ NSString* const RendererChanged = @"RendererChanged";
         [self removeFace:face];
     
     SelectionManager* selectionManager = [windowController selectionManager];
-    
+    TrackingManager* trackingManager = [windowController trackingManager];
+
     NSEnumerator* edgeEn = [[brush edges] objectEnumerator];
     Edge* edge;
     while ((edge = [edgeEn nextObject])) {
-        if ([selectionManager isEdgeSelected:edge])
+        if ([trackingManager isEdgeTracked:edge])
+            [feedbackLayer removeEdge:edge];
+        else if ([selectionManager isEdgeSelected:edge])
             [selectionLayer removeEdge:edge];
         else
             [geometryLayer removeEdge:edge];
@@ -132,7 +144,10 @@ NSString* const RendererChanged = @"RendererChanged";
     id <Face> face = [userInfo objectForKey:FaceKey];
     
     SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager isFaceSelected:face])
+    TrackingManager* trackingManager = [windowController trackingManager];
+    if ([trackingManager isFaceTracked:face])
+        [feedbackLayer removeFace:face includeEdges:YES];
+    else if ([selectionManager isFaceSelected:face])
         [selectionLayer removeFace:face includeEdges:YES];
     else
         [geometryLayer removeFace:face includeEdges:YES];
@@ -143,6 +158,9 @@ NSString* const RendererChanged = @"RendererChanged";
     id <Face> face = [userInfo objectForKey:FaceKey];
     
     SelectionManager* selectionManager = [windowController selectionManager];
+    TrackingManager* trackingManager = [windowController trackingManager];
+    if ([trackingManager isFaceTracked:face])
+        [feedbackLayer addFace:face includeEdges:YES];
     if ([selectionManager isFaceSelected:face])
         [selectionLayer addFace:face includeEdges:YES];
     else
@@ -265,22 +283,40 @@ NSString* const RendererChanged = @"RendererChanged";
     
     SelectionManager* selectionManager = [windowController selectionManager];
 
-    if (untrackedObject != nil && [untrackedObject isKindOfClass:[Edge class]]) {
-        Edge* edge = (Edge *)untrackedObject;
-        [feedbackLayer removeEdge:edge];
-        if ([selectionManager isEdgeSelected:edge])
-            [selectionLayer addEdge:edge];
-        else
-            [geometryLayer addEdge:edge];
+    if (untrackedObject != nil) {
+        if ([untrackedObject isKindOfClass:[Edge class]]) {
+            Edge* edge = (Edge *)untrackedObject;
+            [feedbackLayer removeEdge:edge];
+            if ([selectionManager isEdgeSelected:edge])
+                [selectionLayer addEdge:edge];
+            else
+                [geometryLayer addEdge:edge];
+        } else if ([untrackedObject conformsToProtocol:@protocol(Brush)]) {
+            id <Brush> brush = (id <Brush>)untrackedObject;
+            [feedbackLayer removeBrush:brush];
+            if ([selectionManager isBrushSelected:brush])
+                [selectionLayer addBrush:brush];
+            else
+                [geometryLayer addBrush:brush];
+        }
     }
 
-    if (trackedObject != nil && [trackedObject isKindOfClass:[Edge class]]) {
-        Edge* edge = (Edge *)trackedObject;
-        if ([selectionManager isEdgeSelected:edge])
-            [selectionLayer removeEdge:edge];
-        else
-            [geometryLayer removeEdge:edge];
-        [feedbackLayer addEdge:edge];
+    if (trackedObject != nil) {
+        if ([trackedObject isKindOfClass:[Edge class]]) {
+            Edge* edge = (Edge *)trackedObject;
+            if ([selectionManager isEdgeSelected:edge])
+                [selectionLayer removeEdge:edge];
+            else
+                [geometryLayer removeEdge:edge];
+            [feedbackLayer addEdge:edge];
+        } else if ([trackedObject conformsToProtocol:@protocol(Brush)]) {
+            id <Brush> brush = (id <Brush>)trackedObject;
+            if ([selectionManager isBrushSelected:brush])
+                [selectionLayer removeBrush:brush];
+            else
+                [geometryLayer removeBrush:brush];
+            [feedbackLayer addBrush:brush];
+        }
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];

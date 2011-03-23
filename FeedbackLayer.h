@@ -6,9 +6,9 @@
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "GeometryLayer.h"
+#import "SelectionLayer.h"
 
-@interface FeedbackLayer : GeometryLayer {
+@interface FeedbackLayer : SelectionLayer {
 
 }
 
