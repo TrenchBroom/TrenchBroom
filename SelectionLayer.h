@@ -8,13 +8,12 @@
 
 #import "GeometryLayer.h"
 
-@class LineRenderer;
+@class GridRenderer;
 @class Options;
 
 @interface SelectionLayer : GeometryLayer {
-    LineRenderer* gridRenderer;
+    GridRenderer* gridRenderer;
     Options* options;
-    NSMutableDictionary* gridFigures;
 }
 
 @end

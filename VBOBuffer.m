@@ -395,6 +395,22 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     }
 }
 
+- (void)freeAllBlocks {
+    if (freeCapacity == totalCapacity)
+        return;
+    
+    VBOMemBlock* block = firstBlock;
+    do {
+        if (![block state] == BS_FREE) {
+            VBOMemBlock* next = [block next];
+            [block free];
+            block = next;
+        } else {
+            block = [block next];
+        }
+    } while (block != nil);
+}
+
 - (void)dealloc {
     [self unmapBuffer];
     [self deactivate];

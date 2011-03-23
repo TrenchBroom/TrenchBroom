@@ -22,7 +22,6 @@
 #import "Plane3D.h"
 #import "SegmentIterator.h"
 #import "MathCache.h"
-#import "GridFigure.h"
 
 @implementation Side
 
@@ -236,10 +235,9 @@
             Vector3f* rgv = [[Vector3f alloc] init];
             [plane set:rgv toX:rx y:ry z:rz];
             
-            GridFigure* figure = [[GridFigure alloc] initWithPoint1:lgv point2:rgv];
-            [grid addObject:figure];
+            [grid addObject:lgv];
+            [grid addObject:rgv];
 
-            [figure release];
             [lgv release];
             [rgv release];
             
@@ -279,10 +277,9 @@
             Vector3f* rgv = [[Vector3f alloc] init];
             [plane set:rgv toX:rx y:ry z:rz];
             
-            GridFigure* figure = [[GridFigure alloc] initWithPoint1:lgv point2:rgv];
-            [grid addObject:figure];
-            
-            [figure release];
+            [grid addObject:lgv];
+            [grid addObject:rgv];
+
             [lgv release];
             [rgv release];
             

@@ -13,13 +13,10 @@
 #import "GLResources.h"
 #import "MapDocument.h"
 #import "TextureManager.h"
-#import "PolygonRenderer.h"
-#import "LineRenderer.h"
+#import "FaceRenderer.h"
+#import "EdgeRenderer.h"
 #import "Face.h"
 #import "Edge.h"
-#import "Figure.h"
-#import "PolygonFigure.h"
-#import "LineFigure.h"
 #import "RenderContext.h"
 #import "Options.h"
 
@@ -35,51 +32,47 @@
         MapDocument* map = [windowController document];
         GLResources* glResources = [map glResources];
         TextureManager* textureManager = [glResources textureManager];
-        faceRenderer = [[PolygonRenderer alloc] initWithTextureManager:textureManager];
-        edgeRenderer = [[LineRenderer alloc] init];
+        faceRenderer = [[FaceRenderer alloc] initWithTextureManager:textureManager];
+        edgeRenderer = [[EdgeRenderer alloc] init];
     }
     
     return self;
 }
 
 - (void)addFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges {
-    if (theFace == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
+    NSAssert(theFace != nil, @"face must not be nil");
 
-    [faceRenderer addFigure:(id <PolygonFigure>)theFace];
+    [faceRenderer addFace:theFace];
     if (includeEdges) {
         NSEnumerator* edgeEn = [[theFace edges] objectEnumerator];
         Edge* edge;
         while ((edge = [edgeEn nextObject]))
-            [edgeRenderer addFigure:(id <LineFigure>)edge];
+            [edgeRenderer addEdge:edge];
     }
 }
 
 - (void)removeFace:(id <Face>)theFace includeEdges:(BOOL)includeEdges {
-    if (theFace == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
+    NSAssert(theFace != nil, @"face must not be nil");
     
-    [faceRenderer removeFigure:(id <PolygonFigure>)theFace];
+    [faceRenderer removeFace:theFace];
     if (includeEdges) {
         NSEnumerator* edgeEn = [[theFace edges] objectEnumerator];
         Edge* edge;
         while ((edge = [edgeEn nextObject]))
-            [edgeRenderer removeFigure:(id <LineFigure>)edge];
+            [edgeRenderer removeEdge:edge];
     }
 }
 
 - (void)addEdge:(Edge *)theEdge {
-    if (theEdge == nil)
-        [NSException raise:NSInvalidArgumentException format:@"edge must not be nil"];
+    NSAssert(theEdge != nil, @"edge must not be nil");
     
-    [edgeRenderer addFigure:(id <LineFigure>)theEdge];
+    [edgeRenderer addEdge:theEdge];
 }
 
 - (void)removeEdge:(Edge *)theEdge {
-    if (theEdge == nil)
-        [NSException raise:NSInvalidArgumentException format:@"edge must not be nil"];
+    NSAssert(theEdge != nil, @"edge must not be nil");
     
-    [edgeRenderer removeFigure:(id <LineFigure>)theEdge];
+    [edgeRenderer removeEdge:theEdge];
 }
 
 - (void)renderTexturedFaces {

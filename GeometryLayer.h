@@ -9,14 +9,14 @@
 #import <Cocoa/Cocoa.h>
 #import "Layer.h"
 
-@class PolygonRenderer;
-@class LineRenderer;
+@class FaceRenderer;
+@class EdgeRenderer;
 @class MapWindowController;
 @class RenderContext;
 
 @interface GeometryLayer : NSObject <Layer> {
-    PolygonRenderer* faceRenderer;
-    LineRenderer* edgeRenderer;
+    FaceRenderer* faceRenderer;
+    EdgeRenderer* edgeRenderer;
     MapWindowController* windowController;
 }
 

@@ -10,15 +10,15 @@
 
 @class VBOBuffer;
 @class TextureManager;
-@protocol PolygonFigure;
-@protocol FigureFilter;
+@protocol Face;
+@protocol RenderFilter;
 
-@interface PolygonRenderer : NSObject {
+@interface FaceRenderer : NSObject {
     @private
-    NSMutableSet* figures;
+    NSMutableSet* faces;
     NSMutableDictionary* indexBuffers;
     NSMutableDictionary* countBuffers;
-    id <FigureFilter> filter;
+    id <RenderFilter> filter;
     VBOBuffer* vbo;
     TextureManager* textureManager;
     BOOL valid;
@@ -26,10 +26,10 @@
 
 - (id)initWithTextureManager:(TextureManager *)theTextureManager;
 
-- (void)addFigure:(id <PolygonFigure>)theFigure;
-- (void)removeFigure:(id <PolygonFigure>)theFigure;
+- (void)addFace:(id <Face>)theFace;
+- (void)removeFace:(id <Face>)theFace;
 
-- (void)setFilter:(id <FigureFilter>)theFilter;
+- (void)setFilter:(id <RenderFilter>)theFilter;
 - (void)renderTextured:(BOOL)textured;
 
 - (void)invalidate;

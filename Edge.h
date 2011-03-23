@@ -7,7 +7,6 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Figure.h"
 
 typedef enum {
     EM_KEEP,
@@ -27,15 +26,13 @@ typedef enum {
 @class VBOMemBlock;
 @protocol Face;
 
-@interface Edge : NSObject <Figure> {
+@interface Edge : NSObject {
     @private
     Vertex* startVertex;
     Vertex* endVertex;
     SideEdge* leftEdge;
     SideEdge* rightEdge;
     EEdgeMark mark;
-
-    VBOMemBlock* block;
 }
 
 - (id)initWithStartVertex:(Vertex *)theStartVertex endVertex:(Vertex *)theEndVertex;
