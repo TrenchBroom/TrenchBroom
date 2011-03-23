@@ -10,6 +10,7 @@
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
+#import "Edge.h"
 
 NSString* const SelectionAdded = @"SelectionAdded";
 NSString* const SelectionRemoved = @"SelectionRemoved";
@@ -32,8 +33,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
 }
 
 - (void)addFace:(id <Face>)face {
-    if (face == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
+    NSAssert(face != nil, @"face must not be nil");
     
     if (mode != SM_FACES && ([entities count] > 0 || [brushes count] > 0)) {
         NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
@@ -59,8 +59,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
 }
 
 - (void)addFaces:(NSSet *)theFaces {
-    if (theFaces == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face set must not be nil"];
+    NSAssert(theFaces != nil, @"face set must not be nil");
     
     if (mode != SM_FACES && ([entities count] > 0 || [brushes count] > 0)) {
         NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
@@ -89,8 +88,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
 }
 
 - (void)addBrush:(id <Brush>)brush {
-    if (brush == nil)
-        [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
+    NSAssert(brush != nil, @"brush must not be nil");
     
     if (mode != SM_GEOMETRY && [faces count] > 0) {
         NSDictionary* userInfo = [NSMutableDictionary dictionaryWithObject:[NSSet setWithSet:faces] forKey:SelectionFaces];
@@ -110,8 +108,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
 }
 
 - (void)addBrushes:(NSSet *)theBrushes {
-    if (theBrushes == nil)
-        [NSException raise:NSInvalidArgumentException format:@"brush set must not be nil"];
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if (mode != SM_GEOMETRY && [faces count] > 0) {
         NSDictionary* userInfo = [NSMutableDictionary dictionaryWithObject:[NSSet setWithSet:faces] forKey:SelectionFaces];
@@ -134,8 +131,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
 }
 
 - (void)addEntity:(id <Entity>)entity {
-    if (entity == nil)
-        [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
+    NSAssert(entity != nil, @"entity must not be nil");
  
     if (mode != SM_GEOMETRY && [faces count] > 0) {
         NSDictionary* userInfo = [NSMutableDictionary dictionaryWithObject:[NSSet setWithSet:faces] forKey:SelectionFaces];
@@ -155,8 +151,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
 }
 
 - (void)addEntities:(NSSet *)theEntities {
-    if (theEntities == nil)
-        [NSException raise:NSInvalidArgumentException format:@"entity set must not be nil"];
+    NSAssert(theEntities != nil, @"entity set must not be nil");
     
     if (mode != SM_GEOMETRY && [faces count] > 0) {
         NSDictionary* userInfo = [NSMutableDictionary dictionaryWithObject:[NSSet setWithSet:faces] forKey:SelectionFaces];
@@ -182,30 +177,32 @@ NSString* const SelectionFaces = @"SelectionFaces";
     return mode;
 }
 
-- (BOOL)isFaceSelected:(id <Face>)face {
-    if (face == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
+- (BOOL)isEdgeSelected:(Edge *)edge {
+    NSAssert(edge != nil, @"edge must not be nil");
+    
+    return [self isFaceSelected:[edge leftFace]] || [self isFaceSelected:[edge rightFace]];
+}
 
-    return [faces containsObject:face];
+- (BOOL)isFaceSelected:(id <Face>)face {
+    NSAssert(face != nil, @"face must not be nil");
+    
+    return [faces containsObject:face] || [self isBrushSelected:[face brush]];
 }
 
 - (BOOL)isBrushSelected:(id <Brush>)brush {
-    if (brush == nil)
-        [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
+    NSAssert(brush != nil, @"brush must not be nil");
 
-    return [brushes containsObject:brush];
+    return [brushes containsObject:brush] || [self isEntitySelected:[brush entity]];
 }
 
 - (BOOL)isEntitySelected:(id <Entity>)entity {
-    if (entity == nil)
-        [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
+    NSAssert(entity != nil, @"entity must not be nil");
     
     return [entities containsObject:entity];
 }
 
 - (BOOL)hasSelectedFaces:(id <Brush>)brush {
-    if (brush == nil)
-        [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
+    NSAssert(brush != nil, @"brush must not be nil");
     
     if (mode != SM_FACES)
         return NO;
@@ -283,8 +280,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
 }
 
 - (void)removeFace:(id <Face>)face {
-    if (face == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
+    NSAssert(face != nil, @"face must not be nil");
     
     [faces removeObject:face];
     if ([faces count] == 0)
@@ -297,8 +293,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
 }
 
 - (void)removeBrush:(id <Brush>)brush {
-    if (brush == nil)
-        [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
+    NSAssert(brush != nil, @"brush must not be nil");
     
     [brushes removeObject:brush];
     if ([brushes count] == 0 && [entities count] == 0)
@@ -311,8 +306,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
 }
 
 - (void)removeEntity:(id <Entity>)entity {
-    if (entity == nil)
-        [NSException raise:NSInvalidArgumentException format:@"entity must not be nil"];
+    NSAssert(entity != nil, @"brush must not be nil");
     
     [entities removeObject:entity];
     if ([brushes count] == 0 && [entities count] == 0)

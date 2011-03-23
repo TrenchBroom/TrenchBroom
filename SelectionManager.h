@@ -25,6 +25,7 @@ typedef enum {
 @protocol Brush;
 @protocol Entity;
 
+@class Edge;
 @class Vector3f;
 
 @interface SelectionManager : NSObject {
@@ -43,6 +44,7 @@ typedef enum {
 - (void)addEntities:(NSSet *)theEntities;
 
 - (ESelectionMode)mode;
+- (BOOL)isEdgeSelected:(Edge *)edge;
 - (BOOL)isFaceSelected:(id <Face>)face;
 - (BOOL)isBrushSelected:(id <Brush>)brush;
 - (BOOL)isEntitySelected:(id <Entity>)entity;

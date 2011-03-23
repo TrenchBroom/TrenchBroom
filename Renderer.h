@@ -19,6 +19,7 @@ extern NSString* const RendererChanged;
     MapWindowController* windowController;
     id<Layer> geometryLayer;
     id<Layer> selectionLayer;
+    id<Layer> feedbackLayer;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
