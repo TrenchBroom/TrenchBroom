@@ -10,17 +10,18 @@
 #import "Layer.h"
 
 @class FaceRenderer;
-@class EdgeRenderer;
 @class MapWindowController;
 @class RenderContext;
+@protocol EdgeRenderer;
 
 @interface GeometryLayer : NSObject <Layer> {
     FaceRenderer* faceRenderer;
-    EdgeRenderer* edgeRenderer;
+    id <EdgeRenderer> edgeRenderer;
     MapWindowController* windowController;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theMapWindowController;
+- (id <EdgeRenderer>)createEdgeRenderer;
 
 - (void)renderTexturedFaces;
 - (void)renderFlatFaces;

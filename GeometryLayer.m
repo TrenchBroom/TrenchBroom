@@ -14,7 +14,7 @@
 #import "MapDocument.h"
 #import "TextureManager.h"
 #import "FaceRenderer.h"
-#import "EdgeRenderer.h"
+#import "ThinEdgeRenderer.h"
 #import "Brush.h"
 #import "Face.h"
 #import "Edge.h"
@@ -34,10 +34,14 @@
         GLResources* glResources = [map glResources];
         TextureManager* textureManager = [glResources textureManager];
         faceRenderer = [[FaceRenderer alloc] initWithTextureManager:textureManager];
-        edgeRenderer = [[EdgeRenderer alloc] init];
+        edgeRenderer = [[self createEdgeRenderer] retain];
     }
     
     return self;
+}
+
+- (id <EdgeRenderer>)createEdgeRenderer {
+    return [[[ThinEdgeRenderer alloc] init] autorelease];
 }
 
 - (void)addBrushFaces:(id <Brush>)theBrush {

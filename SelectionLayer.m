@@ -12,6 +12,7 @@
 #import "RenderContext.h"
 #import "GridRenderer.h"
 #import "VertexRenderer.h"
+#import "ThickEdgeRenderer.h"
 #import "Brush.h"
 #import "Face.h"
 #import "Edge.h"
@@ -46,6 +47,10 @@
     }
     
     return self;
+}
+
+- (id <EdgeRenderer>)createEdgeRenderer {
+    return [[[ThickEdgeRenderer alloc] init] autorelease];
 }
 
 - (void)addBrushVertices:(id <Brush>)theBrush {

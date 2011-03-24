@@ -1,8 +1,8 @@
 //
-//  ThickEdgeRenderer.h
+//  LineRenderer.h
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 24.03.11.
+//  Created by Kristian Duske on 21.03.11.
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
@@ -12,7 +12,7 @@
 @class VBOBuffer;
 @protocol RenderFilter;
 
-@interface ThickEdgeRenderer : NSObject <EdgeRenderer> {
+@interface ThinEdgeRenderer : NSObject <EdgeRenderer> {
     NSMutableSet* edges;
     int vertexCount;
     VBOBuffer* vbo;

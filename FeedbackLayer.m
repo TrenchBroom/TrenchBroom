@@ -7,7 +7,7 @@
 //
 
 #import "FeedbackLayer.h"
-#import "EdgeRenderer.h"
+#import "ThinEdgeRenderer.h"
 
 @implementation FeedbackLayer
 

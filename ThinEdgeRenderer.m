@@ -6,7 +6,7 @@
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "EdgeRenderer.h"
+#import "ThinEdgeRenderer.h"
 #import "Edge.h"
 #import "Vertex.h"
 #import "RenderFilter.h"
@@ -16,14 +16,14 @@
 
 static int VerticesPerBlock = 2000;
 
-@interface EdgeRenderer (private)
+@interface ThinEdgeRenderer (private)
 
 - (int)writeEdge:(Edge *)theEdge block:(VBOMemBlock *)theBlock offset:(int)offset;
 - (void)validate;
 
 @end
 
-@implementation EdgeRenderer (private)
+@implementation ThinEdgeRenderer (private)
 
 - (int)writeEdge:(Edge *)theEdge block:(VBOMemBlock *)theBlock offset:(int)offset {
     Vector3f* startVertex = [[theEdge startVertex] vector];
@@ -70,7 +70,7 @@ static int VerticesPerBlock = 2000;
 
 @end
 
-@implementation EdgeRenderer
+@implementation ThinEdgeRenderer
 
 - (id)init {
     if (self = [super init]) {

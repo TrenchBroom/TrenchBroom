@@ -13,11 +13,14 @@
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "Vector3f.h"
+#import "Quaternion.h"
 #import "MathCache.h"
+#import "Math.h"
 
-static int VerticesPerBlock = 2000;
-static float Radius = 2.0f;
-static int Segments = 12;
+static float Radius = 1.0f;
+static int Segments = 8;
+static NSArray* Circle;
+static int VerticesPerBlock;
 
 @interface ThickEdgeRenderer (private)
 
@@ -28,19 +31,76 @@ static int Segments = 12;
 
 @implementation ThickEdgeRenderer (private)
 
++ (void)initialize {
+    Circle = [makeCircle(Radius, Segments) retain];
+    VerticesPerBlock = 500 * 4 * Segments;
+}
+
 - (int)writeEdge:(Edge *)theEdge block:(VBOMemBlock *)theBlock offset:(int)offset {
     Vector3f* startVertex = [[theEdge startVertex] vector];
     Vector3f* endVertex = [[theEdge endVertex] vector];
     
     MathCache* cache = [MathCache sharedCache];
     Vector3f* diff = [cache vector3f];
+    Vector3f* edgeAxis = [cache vector3f];
+    Vector3f* rotAxis = [cache vector3f];
+    Vector3f* v1 = [cache vector3f];
+    Vector3f* v2 = [cache vector3f];
+    Vector3f* v3 = [cache vector3f];
+    Vector3f* v4 = [cache vector3f];
+    Quaternion* rot = [cache quaternion];
+
     [diff setFloat:endVertex];
     [diff sub:startVertex];
+
+    [edgeAxis setFloat:diff];
+    [edgeAxis normalize];
     
-    Vector3f* v = [cache vector3f];
+    [rotAxis setFloat:diff];
+    [rotAxis cross:[Vector3f zAxisPos]];
+    
+    BOOL needsRot = ![rotAxis isNull];
+    if (needsRot) {
+        [rotAxis normalize];
+    
+        float cos = [edgeAxis dot:[Vector3f zAxisPos]];
+        [rot setAngle:acos(cos) axis:rotAxis];
+    }
+    
+    [v1 setFloat:[Circle lastObject]];
+    if (needsRot)
+        [rot rotate:v1];
+    [v1 add:startVertex];
+    [v2 setFloat:v1];
+    [v2 add:diff];
+    
+    for (int i = 0; i < [Circle count]; i++) {
+        [v3 setFloat:[Circle objectAtIndex:i]];
+        if (needsRot)
+            [rot rotate:v3];
+        [v3 add:startVertex];
+        [v4 setFloat:v3];
+        [v4 add:diff];
+        
+        offset = [theBlock writeVector3f:v1 offset:offset];
+        offset = [theBlock writeVector3f:v2 offset:offset];
+        offset = [theBlock writeVector3f:v4 offset:offset];
+        offset = [theBlock writeVector3f:v3 offset:offset];
+
+        [v1 setFloat:v3];
+        [v2 setFloat:v4];
+    }
     
     [cache returnVector3f:diff];
-    [cache returnVector3f:v];
+    [cache returnVector3f:edgeAxis];
+    [cache returnVector3f:rotAxis];
+    [cache returnQuaternion:rot];
+    [cache returnVector3f:v1];
+    [cache returnVector3f:v2];
+    [cache returnVector3f:v3];
+    [cache returnVector3f:v4];
+    
+    return offset;
 }
 
 - (void)validate {
@@ -66,7 +126,7 @@ static int Segments = 12;
                 }
                 
                 offset = [self writeEdge:edge block:block offset:offset];
-                vertexCount += 2;
+                vertexCount += 4 * Segments;
             }
         }
         
@@ -122,7 +182,7 @@ static int Segments = 12;
     [self validate];
     
     glVertexPointer(3, GL_FLOAT, 0, NULL);
-    glDrawArrays(GL_LINES, 0, vertexCount);
+    glDrawArrays(GL_QUADS, 0, vertexCount);
     
     [vbo deactivate];
 }

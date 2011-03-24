@@ -1,24 +1,17 @@
 //
-//  LineRenderer.h
+//  EdgeRenderer.h
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 21.03.11.
+//  Created by Kristian Duske on 24.03.11.
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
 
-@class VBOBuffer;
 @class Edge;
 @protocol RenderFilter;
 
-@interface EdgeRenderer : NSObject {
-    NSMutableSet* edges;
-    int vertexCount;
-    VBOBuffer* vbo;
-    BOOL valid;
-    id <RenderFilter> filter;
-}
+@protocol EdgeRenderer <NSObject>
 
 - (void)addEdge:(Edge *)theEdge;
 - (void)removeEdge:(Edge *)theEdge;
