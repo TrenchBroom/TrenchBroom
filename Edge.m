@@ -168,16 +168,17 @@ static float HANDLE_RADIUS = 2.0f;
         [w sub:v];
         
 
-        if (fgt([w lengthSquared], HANDLE_RADIUS * HANDLE_RADIUS))
-            return nil;
-
-        Vector3f* is = [theRay pointAtDistance:rc];
-        return [[[PickingHit alloc] initWithObject:self type:HT_EDGE hitPoint:is distance:rc] autorelease];
+        if (flte([w lengthSquared], HANDLE_RADIUS * HANDLE_RADIUS)) {
+            Vector3f* is = [theRay pointAtDistance:rc];
+            return [[[PickingHit alloc] initWithObject:self type:HT_EDGE hitPoint:is distance:rc] autorelease];
+        }
     } @finally {
         [cache returnVector3f:u];
         [cache returnVector3f:v];
         [cache returnVector3f:w];
     }
+    
+    return nil;
 }
 
 - (void)expandBounds:(BoundingBox *)theBounds {
