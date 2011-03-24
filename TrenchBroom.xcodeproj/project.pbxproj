@@ -68,6 +68,7 @@
 		48691DE01337CBAD00A0F098 /* FaceRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48691DDF1337CBAD00A0F098 /* FaceRenderer.m */; };
 		48691DF51337D27F00A0F098 /* EdgeRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48691DF41337D27F00A0F098 /* EdgeRenderer.m */; };
 		4869211D133A965600A0F098 /* VertexRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4869211C133A965600A0F098 /* VertexRenderer.m */; };
+		48692209133B272000A0F098 /* ThickEdgeRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48692208133B272000A0F098 /* ThickEdgeRenderer.m */; };
 		486A9C1C12F41FCA003D26FE /* Octree.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1B12F41FCA003D26FE /* Octree.m */; };
 		486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1E12F41FD1003D26FE /* OctreeNode.m */; };
 		486A9C3812F488E4003D26FE /* Ray3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C3712F488E4003D26FE /* Ray3D.m */; };
@@ -269,6 +270,8 @@
 		48691DF41337D27F00A0F098 /* EdgeRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EdgeRenderer.m; sourceTree = "<group>"; };
 		4869211B133A965600A0F098 /* VertexRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexRenderer.h; sourceTree = "<group>"; };
 		4869211C133A965600A0F098 /* VertexRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexRenderer.m; sourceTree = "<group>"; };
+		48692207133B272000A0F098 /* ThickEdgeRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThickEdgeRenderer.h; sourceTree = "<group>"; };
+		48692208133B272000A0F098 /* ThickEdgeRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThickEdgeRenderer.m; sourceTree = "<group>"; };
 		486A9C1A12F41FCA003D26FE /* Octree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Octree.h; sourceTree = "<group>"; };
 		486A9C1B12F41FCA003D26FE /* Octree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Octree.m; sourceTree = "<group>"; };
 		486A9C1D12F41FD1003D26FE /* OctreeNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OctreeNode.h; sourceTree = "<group>"; };
@@ -535,6 +538,8 @@
 				48EFEA631339F323003D81B7 /* GridRenderer.h */,
 				48EFEA641339F323003D81B7 /* GridRenderer.m */,
 				48EFEA331339E3D8003D81B7 /* RenderFilter.h */,
+				48692207133B272000A0F098 /* ThickEdgeRenderer.h */,
+				48692208133B272000A0F098 /* ThickEdgeRenderer.m */,
 				4869211B133A965600A0F098 /* VertexRenderer.h */,
 				4869211C133A965600A0F098 /* VertexRenderer.m */,
 			);
@@ -1083,6 +1088,7 @@
 				48EFEA651339F323003D81B7 /* GridRenderer.m in Sources */,
 				48025143133A1266001C51F2 /* FeedbackLayer.m in Sources */,
 				4869211D133A965600A0F098 /* VertexRenderer.m in Sources */,
+				48692209133B272000A0F098 /* ThickEdgeRenderer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

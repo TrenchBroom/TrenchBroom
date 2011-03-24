@@ -536,6 +536,11 @@
 			486921FB133AAE5B00A0F098 /* PBXTextBookmark */ = 486921FB133AAE5B00A0F098 /* PBXTextBookmark */;
 			486921FC133AAE5B00A0F098 /* PBXTextBookmark */ = 486921FC133AAE5B00A0F098 /* PBXTextBookmark */;
 			486921FD133AAE5C00A0F098 /* PBXTextBookmark */ = 486921FD133AAE5C00A0F098 /* PBXTextBookmark */;
+			48692201133B26FF00A0F098 /* PBXTextBookmark */ = 48692201133B26FF00A0F098 /* PBXTextBookmark */;
+			48692202133B26FF00A0F098 /* PBXTextBookmark */ = 48692202133B26FF00A0F098 /* PBXTextBookmark */;
+			48692203133B270000A0F098 /* PBXTextBookmark */ = 48692203133B270000A0F098 /* PBXTextBookmark */;
+			48692204133B270100A0F098 /* PBXTextBookmark */ = 48692204133B270100A0F098 /* PBXTextBookmark */;
+			48692206133B271400A0F098 /* PBXTextBookmark */ = 48692206133B271400A0F098 /* PBXTextBookmark */;
 			48722524133362DD007560F6 = 48722524133362DD007560F6 /* PBXTextBookmark */;
 			487225811333C87B007560F6 = 487225811333C87B007560F6 /* PBXTextBookmark */;
 			487225861333C87B007560F6 = 487225861333C87B007560F6 /* PBXTextBookmark */;
@@ -1537,9 +1542,9 @@
 	};
 	4838DFB512EF4E94008ADB71 /* Vertex.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {2114, 880}}";
-			sepNavSelRange = "{538, 0}";
-			sepNavVisRange = "{0, 660}";
+			sepNavIntBoundsRect = "{{0, 0}, {994, 546}}";
+			sepNavSelRange = "{330, 0}";
+			sepNavVisRange = "{140, 430}";
 		};
 	};
 	4838DFB612EF4E94008ADB71 /* Vertex.m */ = {
@@ -2023,7 +2028,7 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		location = libobjc.A.dylib;
-		modificationTime = 322612827.778723;
+		modificationTime = 322643712.815521;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 		symbolName = objc_exception_throw;
@@ -2086,16 +2091,16 @@
 	};
 	48691DF31337D27F00A0F098 /* EdgeRenderer.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {2114, 978}}";
-			sepNavSelRange = "{164, 55}";
-			sepNavVisRange = "{0, 533}";
+			sepNavIntBoundsRect = "{{0, 0}, {994, 416}}";
+			sepNavSelRange = "{257, 270}";
+			sepNavVisRange = "{41, 492}";
 		};
 	};
 	48691DF41337D27F00A0F098 /* EdgeRenderer.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {2114, 1573}}";
-			sepNavSelRange = "{164, 128}";
-			sepNavVisRange = "{0, 1935}";
+			sepNavIntBoundsRect = "{{0, 0}, {994, 1612}}";
+			sepNavSelRange = "{1859, 0}";
+			sepNavVisRange = "{1378, 694}";
 		};
 	};
 	48691E591337F20A00A0F098 /* PBXTextBookmark */ = {
@@ -5128,6 +5133,63 @@
 		vrLen = 660;
 		vrLoc = 0;
 	};
+	48692201133B26FF00A0F098 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 480AD8B512ED78FA009B5970 /* Edge.m */;
+		name = "Edge.m: 49";
+		rLen = 0;
+		rLoc = 1194;
+		rType = 0;
+		vrLen = 717;
+		vrLoc = 783;
+	};
+	48692202133B26FF00A0F098 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4838DFB512EF4E94008ADB71 /* Vertex.h */;
+		name = "Vertex.h: 26";
+		rLen = 0;
+		rLoc = 404;
+		rType = 0;
+		vrLen = 316;
+		vrLoc = 181;
+	};
+	48692203133B270000A0F098 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4838DFB512EF4E94008ADB71 /* Vertex.h */;
+		name = "Vertex.h: 26";
+		rLen = 0;
+		rLoc = 404;
+		rType = 0;
+		vrLen = 408;
+		vrLoc = 140;
+	};
+	48692204133B270100A0F098 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4838DFB512EF4E94008ADB71 /* Vertex.h */;
+		name = "Vertex.h: 26";
+		rLen = 0;
+		rLoc = 404;
+		rType = 0;
+		vrLen = 408;
+		vrLoc = 140;
+	};
+	48692206133B271400A0F098 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4838DFB512EF4E94008ADB71 /* Vertex.h */;
+		name = "Vertex.h: 26";
+		rLen = 0;
+		rLoc = 404;
+		rType = 0;
+		vrLen = 199;
+		vrLoc = 181;
+	};
+	48692207133B272000A0F098 /* ThickEdgeRenderer.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {994, 416}}";
+			sepNavSelRange = "{381, 0}";
+			sepNavVisRange = "{46, 497}";
+		};
+	};
 	486A9C1A12F41FCA003D26FE /* Octree.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {2152, 785}}";
@@ -6346,7 +6408,7 @@
 		ignoreCount = 0;
 		lineNumber = 384;
 		location = TrenchBroom;
-		modificationTime = 322612827.501108;
+		modificationTime = 322643712.457601;
 		originalNumberOfMultipleMatches = 1;
 		state = 2;
 	};
