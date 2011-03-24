@@ -102,6 +102,15 @@ NSString* const RendererChanged = @"RendererChanged";
         else
             [geometryLayer addEdge:edge];
     }
+    
+    NSEnumerator* vertexEn = [[brush vertices] objectEnumerator];
+    Vertex* vertex;
+    while ((vertex = [vertexEn nextObject])) {
+        if ([trackingManager isVertexTracked:vertex])
+            [feedbackLayer addVertex:vertex];
+        else if ([selectionManager isVertexSelected:vertex])
+            [selectionLayer addVertex:vertex];
+    }
 }
 
 - (void)removeBrush:(id <Brush>)brush {
@@ -122,6 +131,15 @@ NSString* const RendererChanged = @"RendererChanged";
             [selectionLayer removeEdge:edge];
         else
             [geometryLayer removeEdge:edge];
+    }
+    
+    NSEnumerator* vertexEn = [[brush vertices] objectEnumerator];
+    Vertex* vertex;
+    while ((vertex = [vertexEn nextObject])) {
+        if ([trackingManager isVertexTracked:vertex])
+            [feedbackLayer removeVertex:vertex];
+        else if ([selectionManager isVertexSelected:vertex])
+            [selectionLayer removeVertex:vertex];
     }
 }
 
