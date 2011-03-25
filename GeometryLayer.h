@@ -9,23 +9,28 @@
 #import <Cocoa/Cocoa.h>
 #import "Layer.h"
 
-@class FaceRenderer;
-@class MapWindowController;
 @class RenderContext;
-@protocol EdgeRenderer;
+@class VBOBuffer;
+@class TextureManager;
 
 @interface GeometryLayer : NSObject <Layer> {
-    FaceRenderer* faceRenderer;
-    id <EdgeRenderer> edgeRenderer;
-    MapWindowController* windowController;
+    VBOBuffer* sharedVbo;
+    NSDictionary* sharedBlockMap;
+    NSMutableSet* faces;
+    NSMutableSet* addedFaces;
+    NSMutableSet* removedFaces;
+    NSMutableDictionary* indexBuffers;
+    NSMutableDictionary* countBuffers;
+    TextureManager* textureManager;
 }
 
-- (id)initWithWindowController:(MapWindowController *)theMapWindowController;
-- (id <EdgeRenderer>)createEdgeRenderer;
+- (id)initWithVbo:(VBOBuffer *)theVbo blockMap:(NSDictionary *)theBlockMap textureManager:(TextureManager *)theTextureManager;
 
-- (void)renderTexturedFaces;
-- (void)renderFlatFaces;
+
+- (void)renderFaces:(BOOL)textured;
 - (void)renderEdges;
+- (void)preRenderEdges;
+- (void)postRenderEdges;
 
 - (void)render:(RenderContext *)renderContext;
 

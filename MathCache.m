@@ -74,7 +74,6 @@ static MathCache* sharedInstance = nil;
         return [[Vector2f alloc] init];
     
     Vector2f* vector = [vector2fCache lastObject];
-    [vector retain];
     [vector2fCache removeLastObject];
     
     return vector;
@@ -82,7 +81,6 @@ static MathCache* sharedInstance = nil;
 
 - (void)returnVector2f:(Vector2f *)vector {
     [vector2fCache addObject:vector];
-    [vector release];
 }
 
 - (Vector3f *)vector3f {
@@ -90,7 +88,6 @@ static MathCache* sharedInstance = nil;
         return [[Vector3f alloc] init];
     
     Vector3f* vector = [vector3fCache lastObject];
-    [vector retain];
     [vector3fCache removeLastObject];
     
     return vector;
@@ -98,7 +95,6 @@ static MathCache* sharedInstance = nil;
 
 - (void)returnVector3f:(Vector3f *)vector {
     [vector3fCache addObject:vector];
-    [vector release];
 }
 
 - (Vector3i *)vector3i {
@@ -106,7 +102,6 @@ static MathCache* sharedInstance = nil;
         return [[Vector3i alloc] init];
     
     Vector3i* vector = [vector3iCache lastObject];
-    [vector retain];
     [vector3iCache removeLastObject];
     
     return vector;
@@ -114,7 +109,6 @@ static MathCache* sharedInstance = nil;
 
 - (void)returnVector3i:(Vector3i *)vector {
     [vector3iCache addObject:vector];
-    [vector release];
 }
 
 - (Quaternion *)quaternion {
@@ -122,7 +116,6 @@ static MathCache* sharedInstance = nil;
         return [[Quaternion alloc] init];
     
     Quaternion* quaternion = [quaternionCache lastObject];
-    [quaternion retain];
     [quaternionCache removeLastObject];
     
     return quaternion;
@@ -130,7 +123,6 @@ static MathCache* sharedInstance = nil;
 
 - (void)returnQuaternion:(Quaternion *)quaternion {
     [quaternionCache addObject:quaternion];
-    [quaternion release];
 }
 
 - (Line3D *)line3D {
@@ -138,7 +130,6 @@ static MathCache* sharedInstance = nil;
         return [[Line3D alloc] init];
     
     Line3D* line = [line3DCache lastObject];
-    [line retain];
     [line3DCache removeLastObject];
     
     return line;
@@ -146,7 +137,6 @@ static MathCache* sharedInstance = nil;
 
 - (void)returnLine3D:(Line3D *)line {
     [line3DCache addObject:line];
-    [line release];
 }
 
 - (Plane3D *)plane3D {
@@ -154,7 +144,6 @@ static MathCache* sharedInstance = nil;
         return [[Plane3D alloc] init];
     
     Plane3D* plane = [plane3DCache lastObject];
-    [plane retain];
     [plane3DCache removeLastObject];
     
     return plane;
@@ -162,7 +151,6 @@ static MathCache* sharedInstance = nil;
 
 - (void)returnPlane3D:(Plane3D *)plane {
     [plane3DCache addObject:plane];
-    [plane release];
 }
 
 - (void)dealloc {

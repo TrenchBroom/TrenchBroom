@@ -11,18 +11,23 @@
 
 extern NSString* const RendererChanged;
 
+@class VBOBuffer;
 @class GeometryLayer;
 @class SelectionLayer;
-@class FeedbackLayer;
 @class RenderContext;
 @class MapWindowController;
+@class TextureManager;
 
 @interface Renderer : NSObject {
     @private
     MapWindowController* windowController;
+    TextureManager* textureManager;
+    VBOBuffer* sharedVbo;
+    NSMutableDictionary* sharedBlockMap;
+    NSMutableSet* invalidFaces;
     GeometryLayer* geometryLayer;
     SelectionLayer* selectionLayer;
-    FeedbackLayer* feedbackLayer;
+//    FeedbackLayer* feedbackLayer;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

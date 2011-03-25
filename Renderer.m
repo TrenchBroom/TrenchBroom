@@ -16,7 +16,6 @@
 #import "Vertex.h"
 #import "GeometryLayer.h"
 #import "SelectionLayer.h"
-#import "FeedbackLayer.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "RenderContext.h"
@@ -31,10 +30,15 @@
 #import "MapDocument.h"
 #import "MapWindowController.h"
 #import "GLResources.h"
+#import "MathCache.h"
+#import "TextureManager.h"
+#import "Texture.h"
 
 NSString* const RendererChanged = @"RendererChanged";
 
 @interface Renderer (private)
+
+- (void)validate;
 
 - (void)addFace:(id <Face>)face;
 - (void)removeFace:(id <Face>)face;
@@ -61,11 +65,75 @@ NSString* const RendererChanged = @"RendererChanged";
 
 @implementation Renderer (private)
 
+- (void)validate {
+    if ([invalidFaces count] == 0)
+        return;
+    
+    [sharedVbo activate];
+    [sharedVbo mapBuffer];
+    
+    MathCache* cache = [MathCache sharedCache];
+    Vector3f* color = [cache vector3f];
+    Vector2f* texCoords = [cache vector2f];
+    
+    NSEnumerator* faceEn = [invalidFaces objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject])) {
+        NSArray* vertices = [face vertices];
+        
+        int vertexSize = 8 * sizeof(float);
+        int vertexCount = [vertices count];
+        
+        VBOMemBlock* block = [sharedBlockMap objectForKey:[face faceId]];
+        if (block != nil && [block capacity] != vertexCount * vertexSize * sizeof(float)) {
+            [block free];
+            [sharedBlockMap removeObjectForKey:[face faceId]];
+            block = nil;
+        }
+        
+        if (block == nil) {
+            block = [sharedVbo allocMemBlock:vertexCount * vertexSize * sizeof(float)];
+            [sharedBlockMap setObject:block forKey:[face faceId]];
+        }
+        
+        id <Brush> brush = [face brush];
+        [color setX:[brush flatColor][0]];
+        [color setY:[brush flatColor][1]];
+        [color setZ:[brush flatColor][2]];
+        
+        Texture* texture = [textureManager textureForName:[face texture]];
+        int width = texture != nil ? [texture width] : 1;
+        int height = texture != nil ? [texture height] : 1;
+        
+        int offset = 0;
+        NSEnumerator* vertexEn = [vertices objectEnumerator];
+        Vertex* vertex;
+        while ((vertex = [vertexEn nextObject])) {
+            [face texCoords:texCoords forVertex:[vertex vector]];
+            [texCoords setX:[texCoords x] / width];
+            [texCoords setY:[texCoords y] / height];
+            offset = [block writeVector2f:texCoords offset:offset];
+            offset = [block writeVector3f:color offset:offset];
+            offset = [block writeVector3f:[vertex vector] offset:offset];
+        }
+        
+        [block setState:BS_USED_VALID];
+    }
+    [cache returnVector3f:color];
+    [cache returnVector2f:texCoords];
+    [invalidFaces removeAllObjects];
+    
+    [sharedVbo unmapBuffer];
+    [sharedVbo deactivate];
+}
+
 - (void)addFace:(id <Face>)face {
+    [invalidFaces addObject:face];
+    
     SelectionManager* selectionManager = [windowController selectionManager];
     TrackingManager* trackingManager = [windowController trackingManager];
     if ([trackingManager isFaceTracked:face])
-        [feedbackLayer addFace:face];
+        ;// [feedbackLayer addFace:face];
     else if ([selectionManager isFaceSelected:face])
         [selectionLayer addFace:face];
     else 
@@ -76,11 +144,17 @@ NSString* const RendererChanged = @"RendererChanged";
     SelectionManager* selectionManager = [windowController selectionManager];
     TrackingManager* trackingManager = [windowController trackingManager];
     if ([trackingManager isFaceTracked:face])
-        [feedbackLayer removeFace:face];
+        ; //[feedbackLayer removeFace:face];
     else if ([selectionManager isFaceSelected:face])
         [selectionLayer removeFace:face];
     else
         [geometryLayer removeFace:face];
+    
+    VBOMemBlock* block = [sharedBlockMap objectForKey:[face faceId]];
+    if (block != nil) {
+        [block free];
+        [sharedBlockMap removeObjectForKey:[face faceId]];
+    }
 }
 
 - (void)addBrush:(id <Brush>)brush {
@@ -88,7 +162,8 @@ NSString* const RendererChanged = @"RendererChanged";
     id <Face> face;
     while ((face = [faceEn nextObject]))
         [self addFace:face];
-    
+
+    /*
     SelectionManager* selectionManager = [windowController selectionManager];
     TrackingManager* trackingManager = [windowController trackingManager];
 
@@ -111,6 +186,7 @@ NSString* const RendererChanged = @"RendererChanged";
         else if ([selectionManager isVertexSelected:vertex])
             [selectionLayer addVertex:vertex];
     }
+     */
 }
 
 - (void)removeBrush:(id <Brush>)brush {
@@ -119,6 +195,7 @@ NSString* const RendererChanged = @"RendererChanged";
     while ((face = [faceEn nextObject]))
         [self removeFace:face];
     
+    /*
     SelectionManager* selectionManager = [windowController selectionManager];
     TrackingManager* trackingManager = [windowController trackingManager];
 
@@ -141,6 +218,7 @@ NSString* const RendererChanged = @"RendererChanged";
         else if ([selectionManager isVertexSelected:vertex])
             [selectionLayer removeVertex:vertex];
     }
+     */
 }
 
 - (void)addEntity:(id <Entity>)entity {
@@ -164,32 +242,30 @@ NSString* const RendererChanged = @"RendererChanged";
     SelectionManager* selectionManager = [windowController selectionManager];
     TrackingManager* trackingManager = [windowController trackingManager];
     if ([trackingManager isFaceTracked:face]) {
-        [feedbackLayer removeFace:face];
-        [feedbackLayer removeFaceEdges:face];
+        // [feedbackLayer removeFace:face];
+        // [feedbackLayer removeFaceEdges:face];
     } else if ([selectionManager isFaceSelected:face]) {
         [selectionLayer removeFace:face];
-        [selectionLayer removeFaceEdges:face];
     } else {
         [geometryLayer removeFace:face];
-        [geometryLayer removeFaceEdges:face];
     }
 }
 
 - (void)faceDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Face> face = [userInfo objectForKey:FaceKey];
+
+    [invalidFaces addObject:face];
     
     SelectionManager* selectionManager = [windowController selectionManager];
     TrackingManager* trackingManager = [windowController trackingManager];
     if ([trackingManager isFaceTracked:face]) {
-        [feedbackLayer addFace:face];
-        [feedbackLayer addFaceEdges:face];
+        // [feedbackLayer addFace:face];
+        // [feedbackLayer addFaceEdges:face];
     } if ([selectionManager isFaceSelected:face]) {
         [selectionLayer addFace:face];
-        [selectionLayer addFaceEdges:face];
     } else {
         [geometryLayer addFace:face];
-        [geometryLayer addFaceEdges:face];
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -252,10 +328,7 @@ NSString* const RendererChanged = @"RendererChanged";
         id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
             [geometryLayer removeBrushFaces:brush];
-            [geometryLayer removeBrushEdges:brush];
             [selectionLayer addBrushFaces:brush];
-            [selectionLayer addBrushEdges:brush];
-            [selectionLayer addBrushVertices:brush];
         }
     }
     
@@ -264,10 +337,7 @@ NSString* const RendererChanged = @"RendererChanged";
         id <Face> face;
         while ((face = [faceEn nextObject])) {
             [geometryLayer removeFace:face];
-            [geometryLayer removeFaceEdges:face];
             [selectionLayer addFace:face];
-            [selectionLayer addFaceEdges:face];
-            [selectionLayer removeFaceVertices:face];
         }
     }
     
@@ -284,10 +354,7 @@ NSString* const RendererChanged = @"RendererChanged";
         id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
             [selectionLayer removeBrushFaces:brush];
-            [selectionLayer removeBrushEdges:brush];
-            [selectionLayer removeBrushVertices:brush];
             [geometryLayer addBrushFaces:brush];
-            [geometryLayer addBrushEdges:brush];
         }
     }
     
@@ -296,10 +363,7 @@ NSString* const RendererChanged = @"RendererChanged";
         id <Face> face;
         while ((face = [faceEn nextObject])) {
             [selectionLayer removeFace:face];
-            [selectionLayer removeFaceEdges:face];
-            [selectionLayer removeFaceVertices:face];
             [geometryLayer addFace:face];
-            [geometryLayer addFaceEdges:face];
         }
     }
     
@@ -307,6 +371,7 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)trackedObjectChanged:(NSNotification *)notification {
+    /*
     NSDictionary* userInfo = [notification userInfo];
     id untrackedObject = [userInfo objectForKey:UntrackedObjectKey];
     id trackedObject = [userInfo objectForKey:TrackedObjectKey];
@@ -378,6 +443,7 @@ NSString* const RendererChanged = @"RendererChanged";
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+     */
 }
 
 - (void)cameraChanged:(NSNotification *)notification {
@@ -399,11 +465,17 @@ NSString* const RendererChanged = @"RendererChanged";
     if (self = [self init]) {
         windowController = [theWindowController retain];
 
-        geometryLayer = [[GeometryLayer alloc] initWithWindowController:windowController];
-        selectionLayer = [[SelectionLayer alloc] initWithWindowController:windowController];
-        feedbackLayer = [[FeedbackLayer alloc] initWithWindowController:windowController];
-
+        sharedVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
+        sharedBlockMap = [[NSMutableDictionary alloc] init];
+        invalidFaces = [[NSMutableSet alloc] init];
+        
         MapDocument* map = [windowController document];
+        GLResources* glResources = [map glResources];
+        textureManager = [[glResources textureManager] retain];
+        
+        geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo blockMap:sharedBlockMap textureManager:textureManager];
+        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo blockMap:sharedBlockMap textureManager:textureManager];
+        // feedbackLayer = [[FeedbackLayer alloc] initWithWindowController:windowController];
 
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
         id <Entity> entity;
@@ -438,15 +510,21 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)render {
+    [self validate];
+    
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    glFrontFace(GL_CW);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    glShadeModel(GL_FLAT);
+    
     Options* options = [windowController options];
     
     RenderContext* renderContext = [[RenderContext alloc] initWithOptions:options];
     [geometryLayer render:renderContext];
     [selectionLayer render:renderContext];
-    [feedbackLayer render:renderContext];
+//    [feedbackLayer render:renderContext];
     
     [renderContext release];
 }
@@ -456,7 +534,12 @@ NSString* const RendererChanged = @"RendererChanged";
     [windowController release];
     [geometryLayer release];
     [selectionLayer release];
-    [feedbackLayer release];
+//    [feedbackLayer release];
+    
+    [textureManager release];
+    [sharedVbo release];
+    [sharedBlockMap release];
+    [invalidFaces release];
     [super dealloc];
 }
 

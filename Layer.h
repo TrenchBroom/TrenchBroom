@@ -9,7 +9,6 @@
 #import <Cocoa/Cocoa.h>
 
 @class RenderContext;
-@class Edge;
 @protocol Brush;
 @protocol Face;
 
@@ -20,16 +19,7 @@
 - (void)addBrushFaces:(id <Brush>)theBrush;
 - (void)removeBrushFaces:(id <Brush>)theBrush;
 
-- (void)addBrushEdges:(id <Brush>)theBrush;
-- (void)removeBrushEdges:(id <Brush>)theBrush;
-
 - (void)addFace:(id <Face>)theFace;
 - (void)removeFace:(id <Face>)theFace;
-
-- (void)addFaceEdges:(id <Face>)theFace;
-- (void)removeFaceEdges:(id <Face>)theFace;
-
-- (void)addEdge:(Edge *)theEdge;
-- (void)removeEdge:(Edge *)theEdge;
 
 @end

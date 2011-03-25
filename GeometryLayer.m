@@ -8,40 +8,107 @@
 
 #import "GeometryLayer.h"
 #import <OpenGL/gl.h>
-#import "MapWindowController.h"
-#import "MapDocument.h"
-#import "GLResources.h"
-#import "MapDocument.h"
 #import "TextureManager.h"
-#import "FaceRenderer.h"
-#import "ThinEdgeRenderer.h"
 #import "Brush.h"
 #import "Face.h"
-#import "Edge.h"
 #import "RenderContext.h"
 #import "Options.h"
+#import "VBOBuffer.h"
+#import "VBOMemBlock.h"
+#import "IntData.h"
+
+@interface GeometryLayer (private) 
+
+- (void)validateFaces:(NSSet *)invalidFaces;
+- (void)validate;
+
+@end
+
+@implementation GeometryLayer (private)
+
+- (void)validateFaces:(NSSet *)invalidFaces {
+    NSEnumerator* faceEn = [invalidFaces objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject])) {
+        VBOMemBlock* block = [sharedBlockMap objectForKey:[face faceId]];
+        NSAssert(block != nil, @"VBO mem block must be in shared block map");
+        NSAssert([block state] == BS_USED_VALID, @"VBO mem block must be valid");
+        
+        NSString* textureName = [face texture];
+        
+        IntData* indexBuffer = [indexBuffers objectForKey:textureName];
+        if (indexBuffer == nil) {
+            indexBuffer = [[IntData alloc] init];
+            [indexBuffers setObject:indexBuffer forKey:textureName];
+            [indexBuffer release];
+        }
+        
+        IntData* countBuffer = [countBuffers objectForKey:textureName];
+        if (countBuffer == nil) {
+            countBuffer = [[IntData alloc] init];
+            [countBuffers setObject:countBuffer forKey:textureName];
+            [countBuffer release];
+        }
+        
+        int index = [block address] / (8 * sizeof(float));
+        int count = [[face vertices] count];
+        [indexBuffer appendInt:index];
+        [countBuffer appendInt:count];
+    }
+}
+
+- (void)validate {
+    BOOL valid = YES;
+    if ([removedFaces count] > 0) {
+        valid = NO;
+        [addedFaces minusSet:removedFaces];
+        [faces minusSet:removedFaces];
+        [removedFaces removeAllObjects];
+    }
+    
+    if ([addedFaces count] > 0) {
+        [addedFaces minusSet:faces]; // to be safe
+        if (valid)
+            [self validateFaces:addedFaces];
+        [faces unionSet:addedFaces];
+        [addedFaces removeAllObjects];
+    }
+    
+    if (!valid) {
+        [indexBuffers removeAllObjects];
+        [countBuffers removeAllObjects];
+        [self validateFaces:faces];
+    }
+}
+
+@end
 
 @implementation GeometryLayer
 
-- (id)initWithWindowController:(MapWindowController *)theMapWindowController {
-    if (theMapWindowController == nil)
-        [NSException raise:NSInvalidArgumentException format:@"window controller must not be nil"];
-    
-    if (self = [self init]) {
-        windowController = [theMapWindowController retain];
-        
-        MapDocument* map = [windowController document];
-        GLResources* glResources = [map glResources];
-        TextureManager* textureManager = [glResources textureManager];
-        faceRenderer = [[FaceRenderer alloc] initWithTextureManager:textureManager];
-        edgeRenderer = [[self createEdgeRenderer] retain];
+- (id)init {
+    if (self = [super init]) {
+        faces = [[NSMutableSet alloc] init];
+        addedFaces = [[NSMutableSet alloc] init];
+        removedFaces = [[NSMutableSet alloc] init];
+        indexBuffers = [[NSMutableDictionary alloc] init];
+        countBuffers = [[NSMutableDictionary alloc] init];
     }
     
     return self;
 }
 
-- (id <EdgeRenderer>)createEdgeRenderer {
-    return [[[ThinEdgeRenderer alloc] init] autorelease];
+- (id)initWithVbo:(VBOBuffer *)theVbo blockMap:(NSDictionary *)theBlockMap textureManager:(TextureManager *)theTextureManager {
+    NSAssert(theVbo != nil, @"VBO must not be nil");
+    NSAssert(theBlockMap != nil, @"block map must not be nil");
+    NSAssert(theTextureManager != nil, @"texture manager must not be nil");
+    
+    if (self = [self init]) {
+        sharedVbo = [theVbo retain];
+        sharedBlockMap = [theBlockMap retain];
+        textureManager = [theTextureManager retain];
+    }
+    
+    return self;
 }
 
 - (void)addBrushFaces:(id <Brush>)theBrush {
@@ -62,102 +129,105 @@
         [self removeFace:face];
 }
 
-- (void)addBrushEdges:(id <Brush>)theBrush {
-    NSAssert(theBrush != nil, @"brush must not be nil");
-    
-    NSEnumerator* edgeEn = [[theBrush edges] objectEnumerator];
-    Edge* edge;
-    while ((edge = [edgeEn nextObject]))
-        [self addEdge:edge];
-}
-
-- (void)removeBrushEdges:(id <Brush>)theBrush {
-    NSAssert(theBrush != nil, @"brush must not be nil");
-    
-    NSEnumerator* edgeEn = [[theBrush edges] objectEnumerator];
-    Edge* edge;
-    while ((edge = [edgeEn nextObject]))
-        [self removeEdge:edge];
-}
-
 - (void)addFace:(id <Face>)theFace {
     NSAssert(theFace != nil, @"face must not be nil");
-    [faceRenderer addFace:theFace];
+    [addedFaces addObject:theFace];
 }
 
 - (void)removeFace:(id <Face>)theFace {
     NSAssert(theFace != nil, @"face must not be nil");
-    [faceRenderer removeFace:theFace];
+    [removedFaces addObject:theFace];
 }
 
-- (void)addFaceEdges:(id <Face>)theFace {
-    NSAssert(theFace != nil, @"face must not be nil");
-
-    NSEnumerator* edgeEn = [[theFace edges] objectEnumerator];
-    Edge* edge;
-    while ((edge = [edgeEn nextObject]))
-        [self addEdge:edge];
+- (void)renderFaces:(BOOL)textured {
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.0, 1.0);
+    glPolygonMode(GL_FRONT, GL_FILL);
+    if (textured) {
+        glEnable(GL_TEXTURE_2D);
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    } else {
+        glDisable(GL_TEXTURE_2D);
+    }
+    
+    NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
+    NSString* textureName;
+    while ((textureName = [textureNameEn nextObject])) {
+        if (textured) {
+            Texture* texture = [textureManager textureForName:textureName];
+            [texture activate];
+        }
+        
+        IntData* indexBuffer = [indexBuffers objectForKey:textureName];
+        IntData* countBuffer = [countBuffers objectForKey:textureName];
+        
+        const void* indexBytes = [indexBuffer bytes];
+        const void* countBytes = [countBuffer bytes];
+        int primCount = [indexBuffer count];
+        
+        glInterleavedArrays(GL_T2F_C3F_V3F, 0, NULL);
+        glMultiDrawArrays(GL_POLYGON, indexBytes, countBytes, primCount);
+    }
+    
+    // not sure why this is neccessary
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
-- (void)removeFaceEdges:(id <Face>)theFace {
-    NSAssert(theFace != nil, @"face must not be nil");
-
-    NSEnumerator* edgeEn = [[theFace edges] objectEnumerator];
-    Edge* edge;
-    while ((edge = [edgeEn nextObject]))
-        [self removeEdge:edge];
+- (void)preRenderEdges {
+    glColor4f(1, 1, 1, 1);
 }
 
-- (void)addEdge:(Edge *)theEdge {
-    NSAssert(theEdge != nil, @"edge must not be nil");
-    [edgeRenderer addEdge:theEdge];
-}
-
-- (void)removeEdge:(Edge *)theEdge {
-    NSAssert(theEdge != nil, @"edge must not be nil");
-    [edgeRenderer removeEdge:theEdge];
-}
-
-- (void)renderTexturedFaces {
-    [faceRenderer renderTextured:YES];
-}
-
-- (void)renderFlatFaces {
-    [faceRenderer renderTextured:NO];
+- (void)postRenderEdges {
 }
 
 - (void)renderEdges {
-    glColor4f(1, 1, 1, 0.5f);
-    [edgeRenderer render];
+    [self preRenderEdges];
+    glDisable(GL_TEXTURE_2D);
+    NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
+    NSString* textureName;
+    while ((textureName = [textureNameEn nextObject])) {
+        IntData* indexBuffer = [indexBuffers objectForKey:textureName];
+        IntData* countBuffer = [countBuffers objectForKey:textureName];
+        
+        const void* indexBytes = [indexBuffer bytes];
+        const void* countBytes = [countBuffer bytes];
+        int primCount = [indexBuffer count];
+        
+        glVertexPointer(3, GL_FLOAT, 8 * sizeof(float), 5 * sizeof(float));
+        glMultiDrawArrays(GL_LINE_LOOP, indexBytes, countBytes, primCount);
+    }
+    [self postRenderEdges];
 }
 
 - (void)render:(RenderContext *)renderContext {
+    [self validate];
+    [sharedVbo activate];
     switch ([[renderContext options] renderMode]) {
         case RM_TEXTURED:
-            [self renderTexturedFaces];
-            glDisable(GL_TEXTURE_2D);
+            [self renderFaces:YES];
             [self renderEdges];
             break;
         case RM_FLAT:
-            [self renderFlatFaces];
+            [self renderFaces:NO];
             [self renderEdges];
             break;
         case RM_WIREFRAME:
-            glDisable(GL_TEXTURE_2D);
             [self renderEdges];
             break;
     }
-}
-
-- (void)invalidate {
-    [faceRenderer invalidate];
-    [edgeRenderer invalidate];
+    [sharedVbo deactivate];
 }
 
 - (void)dealloc {
-    [faceRenderer release];
-    [edgeRenderer release];
-    [windowController release];
+    [sharedVbo release];
+    [sharedBlockMap release];
+    [faces release];
+    [addedFaces release];
+    [removedFaces release];
+    [indexBuffers release];
+    [countBuffers release];
+    [textureManager release];
     [super dealloc];
 }
 
