@@ -12,7 +12,6 @@
 #import "PickingHit.h"
 #import "Ray3D.h"
 #import "Plane3D.h"
-#import "MathCache.h"
 #import "Math.h"
 
 @implementation Vertex
@@ -51,13 +50,10 @@
 }
 
 - (PickingHit *)pickWithRay:(Ray3D *)theRay {
-    MathCache* cache = [MathCache sharedCache];
-    Plane3D* plane = [cache plane3D];
-    Vector3f* min = [cache vector3f];
-    Vector3f* max = [cache vector3f];
-    [min setFloat:vector];
+    Plane3D* plane = [[Plane3D alloc] init];
+    Vector3f* min = [[Vector3f alloc] initWithFloatVector:vector];
+    Vector3f* max = [[Vector3f alloc] initWithFloatVector:vector];
     [min subX:2 y:2 z:2];
-    [max setFloat:vector];
     [max addX:2 y:2 z:2];
     
     Vector3f* direction = [theRay direction];
@@ -108,9 +104,9 @@
         }
     }
     
-    [cache returnVector3f:max];
-    [cache returnVector3f:min];
-    [cache returnPlane3D:plane];
+    [plane release];
+    [min release];
+    [max release];
     
     if (!hit)
         return nil;

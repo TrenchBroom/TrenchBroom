@@ -14,7 +14,6 @@
 #import "Vertex.h"
 #import "Vector3i.h"
 #import "Vector3f.h"
-#import "MathCache.h"
 #import "IdGenerator.h"
 #import "MutablePrefabGroup.h"
 #import "MapDocument.h"
@@ -109,8 +108,7 @@
 
 - (BoundingBox *)maxBounds {
     if (maxBounds == nil && [entities count] > 0) {
-        MathCache* cache = [MathCache sharedCache];
-        Vector3f* diff = [cache vector3f];
+        Vector3f* diff = [[Vector3f alloc] init];
         
         float distSquared = 0;
         NSEnumerator* entityEn = [entities objectEnumerator];
@@ -130,29 +128,20 @@
                 }
             }
         }
-        
-        [cache returnVector3f:diff];
+
+        [diff release];
         
         if (distSquared > 0) {
             float dist = sqrt(distSquared);
-            MathCache* cache = [MathCache sharedCache];
-            Vector3f* min = [cache vector3f];
-            Vector3f* max = [cache vector3f];
-            
-            [min setX:-dist];
-            [min setY:-dist];
-            [min setZ:-dist];
-            [max setX:dist];
-            [max setY:dist];
-            [max setZ:dist];
+            Vector3f* min = [[Vector3f alloc] initWithX:-dist y:-dist z:-dist];
+            Vector3f* max = [[Vector3f alloc] initWithX:dist y:dist z:dist];
             
             [min add:[self center]];
             [max add:[self center]];
             
             maxBounds = [[BoundingBox alloc] initWithMin:min max:max];
-            
-            [cache returnVector3f:min];
-            [cache returnVector3f:max];
+            [min release];
+            [max release];
         }
     }
     

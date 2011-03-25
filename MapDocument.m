@@ -21,7 +21,6 @@
 #import "ProgressWindowController.h"
 #import "MapParser.h"
 #import "Vector3i.h"
-#import "MathCache.h"
 
 NSString* const FaceWillChange      = @"FaceWillChange";
 NSString* const FaceDidChange       = @"FaceDidChange";
@@ -422,16 +421,11 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
     }
     
-    MathCache* cache = [MathCache sharedCache];
-    Vector3i* delta = [cache vector3i];
-    [delta setX:xDelta];
-    [delta setY:yDelta];
-    [delta setZ:zDelta];
-    
+    Vector3i* delta = [[Vector3i alloc] initWithX:xDelta y:yDelta z:zDelta];
     MutableBrush* mutableBrush = (MutableBrush *)brush;
     [mutableBrush translateBy:delta];
-    
-    [cache returnVector3i:delta];
+
+    [delta release];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];

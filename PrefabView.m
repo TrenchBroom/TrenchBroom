@@ -24,7 +24,6 @@
 #import "Texture.h"
 #import "InspectorController.h"
 #import "Camera.h"
-#import "MathCache.h"
 #import "PrefabGroup.h"
 #import "PrefabLayout.h"
 #import "PrefabLayoutGroupRow.h"
@@ -39,28 +38,23 @@
     BoundingBox* maxBounds = [prefab maxBounds];
     Vector3f* size = [maxBounds size];
 
-    MathCache* cache = [MathCache sharedCache];
-    Vector3f* p = [cache vector3f];
-    Vector3f* d = [cache vector3f];
-    Vector3f* u = [cache vector3f];
-    
-    [p setFloat:size];
+    Vector3f* p = [[Vector3f alloc] initWithFloatVector:size];
     [p scale:0.5f];
     [p add:[prefab center]];
     
-    [d setFloat:[prefab center]];
+    Vector3f* d = [[Vector3f alloc] initWithFloatVector:[prefab center]];
     [d sub:p];
     
-    [u setFloat:d];
+    Vector3f* u = [[Vector3f alloc] initWithFloatVector:d];
     [u cross:[Vector3f zAxisPos]]; // points to right
     [u cross:d];
     
     [camera moveTo:p];
     [camera setDirection:d up:u];
-    
-    [cache returnVector3f:p];
-    [cache returnVector3f:d];
-    [cache returnVector3f:u];
+
+    [p release];
+    [d release];
+    [u release];
 }
 
 - (void)addPrefab:(id <Prefab>)prefab {

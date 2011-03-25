@@ -34,7 +34,6 @@
 #import "PrefabNameSheetController.h"
 #import "Prefab.h"
 #import "MapWriter.h"
-#import "MathCache.h"
 #import "CameraAnimation.h"
 #import "TrackingManager.h"
 
@@ -205,8 +204,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 }
 
 - (IBAction)switchToXYView:(id)sender {
-    MathCache* cache = [MathCache sharedCache];
-
     Vector3f* center = [selectionManager selectionCenter];
     if (center == nil) {
         center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
@@ -214,49 +211,20 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         [center add:[camera position]];
     }
     
-    Vector3f* diff = [cache vector3f];
-    [diff setFloat:center];
+    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:center];
     [diff sub:[camera position]];
     
-    Vector3f* position = [cache vector3f];
-    [position setFloat:center];
+    Vector3f* position = [[Vector3f alloc] initWithFloatVector:center];
     [position setZ:[position z] + [diff length]];
     
     CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f zAxisNeg] targetUp:[Vector3f yAxisPos] duration:0.5];
     [animation startAnimation];
     
-    [cache returnVector3f:diff];
-    [cache returnVector3f:position];
-}
-
-- (IBAction)switchToInvertedXYView:(id)sender {
-    MathCache* cache = [MathCache sharedCache];
-    
-    Vector3f* center = [selectionManager selectionCenter];
-    if (center == nil) {
-        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
-        [center scale:256];
-        [center add:[camera position]];
-    }
-    
-    Vector3f* diff = [cache vector3f];
-    [diff setFloat:center];
-    [diff sub:[camera position]];
-    
-    Vector3f* position = [cache vector3f];
-    [position setFloat:center];
-    [position setZ:[position z] - [diff length]];
-    
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f zAxisPos] targetUp:[Vector3f yAxisPos] duration:0.5];
-    [animation startAnimation];
-    
-    [cache returnVector3f:diff];
-    [cache returnVector3f:position];
+    [diff release];
+    [position release];
 }
 
 - (IBAction)switchToXZView:(id)sender {
-    MathCache* cache = [MathCache sharedCache];
-    
     Vector3f* center = [selectionManager selectionCenter];
     if (center == nil) {
         center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
@@ -264,49 +232,20 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         [center add:[camera position]];
     }
     
-    Vector3f* diff = [cache vector3f];
-    [diff setFloat:center];
+    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:center];
     [diff sub:[camera position]];
     
-    Vector3f* position = [cache vector3f];
-    [position setFloat:center];
+    Vector3f* position = [[Vector3f alloc] initWithFloatVector:center];
     [position setY:[position y] - [diff length]];
     
     CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f yAxisPos] targetUp:[Vector3f zAxisPos] duration:0.5];
     [animation startAnimation];
-    
-    [cache returnVector3f:diff];
-    [cache returnVector3f:position];
-}
 
-- (IBAction)switchToInvertedXZView:(id)sender {
-    MathCache* cache = [MathCache sharedCache];
-    
-    Vector3f* center = [selectionManager selectionCenter];
-    if (center == nil) {
-        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
-        [center scale:256];
-        [center add:[camera position]];
-    }
-    
-    Vector3f* diff = [cache vector3f];
-    [diff setFloat:center];
-    [diff sub:[camera position]];
-    
-    Vector3f* position = [cache vector3f];
-    [position setFloat:center];
-    [position setY:[position y] + [diff length]];
-    
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f yAxisNeg] targetUp:[Vector3f zAxisPos] duration:0.5];
-    [animation startAnimation];
-    
-    [cache returnVector3f:diff];
-    [cache returnVector3f:position];
+    [diff release];
+    [position release];
 }
 
 - (IBAction)switchToYZView:(id)sender {
-    MathCache* cache = [MathCache sharedCache];
-    
     Vector3f* center = [selectionManager selectionCenter];
     if (center == nil) {
         center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
@@ -314,44 +253,17 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         [center add:[camera position]];
     }
     
-    Vector3f* diff = [cache vector3f];
-    [diff setFloat:center];
+    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:center];
     [diff sub:[camera position]];
     
-    Vector3f* position = [cache vector3f];
-    [position setFloat:center];
+    Vector3f* position = [[Vector3f alloc] initWithFloatVector:center];
     [position setX:[position x] + [diff length]];
     
     CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f xAxisNeg] targetUp:[Vector3f zAxisPos] duration:0.5];
     [animation startAnimation];
     
-    [cache returnVector3f:diff];
-    [cache returnVector3f:position];
-}
-
-- (IBAction)switchToInvertedYZView:(id)sender {
-    MathCache* cache = [MathCache sharedCache];
-    
-    Vector3f* center = [selectionManager selectionCenter];
-    if (center == nil) {
-        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
-        [center scale:256];
-        [center add:[camera position]];
-    }
-    
-    Vector3f* diff = [cache vector3f];
-    [diff setFloat:center];
-    [diff sub:[camera position]];
-    
-    Vector3f* position = [cache vector3f];
-    [position setFloat:center];
-    [position setX:[position x] - [diff length]];
-    
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f xAxisPos] targetUp:[Vector3f zAxisPos] duration:0.5];
-    [animation startAnimation];
-    
-    [cache returnVector3f:diff];
-    [cache returnVector3f:position];
+    [diff release];
+    [position release];
 }
 
 - (IBAction)clearSelection:(id)sender {
@@ -576,10 +488,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    MathCache* cache = [MathCache sharedCache];
-
-    Vector3f* insertPos = [cache vector3f];
-    [insertPos setFloat:[camera direction]];
+    Vector3f* insertPos = [[Vector3f alloc] initWithFloatVector:[camera direction]];
     [insertPos scale:256];
     [insertPos add:[camera position]];
     [[options grid] snapToGrid:insertPos];
@@ -587,8 +496,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     Vector3f* offset = [[options grid] gridOffsetOf:[prefab center]];
     [insertPos add:offset];
 
-    Vector3f* dist = [cache vector3f];
-    [dist setFloat:insertPos];
+    Vector3f* dist = [[Vector3f alloc] initWithFloatVector:insertPos];
     [dist sub:[prefab center]];
     
     MapDocument* map = [self document];
@@ -615,8 +523,8 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         }
     }
     
-    [cache returnVector3f:dist];
-    [cache returnVector3f:insertPos];
+    [dist release];
+    [insertPos release];
 
     [undoManager endUndoGrouping];
     [undoManager setActionName:[NSString stringWithFormat:@"Insert Prefab '%@'", [prefab name]]];

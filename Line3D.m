@@ -8,7 +8,6 @@
 
 #import "Line3D.h"
 #import "Vector3f.h"
-#import "MathCache.h"
 
 @implementation Line3D
 + (Line3D *)lineWithPoint1:(Vector3f *)point1 point2:(Vector3f *)point2 {
@@ -42,14 +41,12 @@
     if (point2 == nil)
         [NSException raise:NSInvalidArgumentException format:@"point2 must not be nil"];
     
-    MathCache* cache = [MathCache sharedCache];
-    Vector3f* d = [cache vector3f];
-    [d setFloat:point2];
+    Vector3f* d = [[Vector3f alloc] initWithFloatVector:point2];
     [d sub:point1];
-    
+
     self = [self initWithPoint:point1 direction:d];
-    
-    [cache returnVector3f:d];
+    [d release];
+
     return self;
 }
 

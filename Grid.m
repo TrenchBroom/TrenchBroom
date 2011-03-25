@@ -9,7 +9,6 @@
 #import "Grid.h"
 #import "Vector3f.h"
 #import "math.h"
-#import "MathCache.h"
 
 NSString* const GridChanged = @"GridChanged";
 
@@ -82,15 +81,13 @@ NSString* const GridChanged = @"GridChanged";
 }
 
 - (Vector3f *)gridOffsetOf:(Vector3f *)vector {
-    MathCache* cache = [MathCache sharedCache];
-    Vector3f* snapped = [cache vector3f];
-    [snapped setFloat:vector];
+    Vector3f* snapped = [[Vector3f alloc] initWithFloatVector:vector];
     [self snapToGrid:snapped];
     
     Vector3f* diff = [[Vector3f alloc] initWithFloatVector:vector];
     [diff sub:snapped];
-    
-    [cache returnVector3f:snapped];
+
+    [snapped release];
     return [diff autorelease];
 }
 

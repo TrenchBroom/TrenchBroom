@@ -9,7 +9,6 @@
 #import "CameraAnimation.h"
 #import "Vector3f.h"
 #import "Camera.h"
-#import "MathCache.h"
 
 @implementation CameraAnimation
 
@@ -33,10 +32,7 @@
 - (void)setCurrentProgress:(NSAnimationProgress)progress {
     [super setCurrentProgress:progress];
     
-    MathCache* cache = [MathCache sharedCache];
-    Vector3f* t = [cache vector3f];
-    Vector3f* u = [cache vector3f];
-    
+    Vector3f* t = [[Vector3f alloc] initWithFloatVector:targetPosition];
     [t setFloat:targetPosition];
     [t sub:initialPosition];
     [t scale:progress];
@@ -49,6 +45,7 @@
     [t add:initialDirection];
     [t normalize];
     
+    Vector3f* u = [[Vector3f alloc] initWithFloatVector:targetUpVector];
     [u setFloat:targetUpVector];
     [u sub:initialUpVector];
     [u scale:progress];
@@ -56,9 +53,9 @@
     [u normalize];
     
     [camera setDirection:t up:u];
-    
-    [cache returnVector3f:t];
-    [cache returnVector3f:u];
+
+    [t release];
+    [u release];
 }
 
 - (void)animationDidEnd:(NSAnimation *)animation {

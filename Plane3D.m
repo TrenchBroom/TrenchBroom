@@ -11,7 +11,6 @@
 #import "Line3D.h"
 #import "Ray3D.h"
 #import "Math.h"
-#import "MathCache.h"
 
 @implementation Plane3D
 + (Plane3D *)planeWithPoint:(Vector3f *)aPoint norm:(Vector3f *)aNorm {
@@ -67,13 +66,11 @@
     if (aPoint == nil)
         [NSException raise:NSInvalidArgumentException format:@"aPoint must not be nil"];
     
-    MathCache* cache = [MathCache sharedCache];
-    Vector3f* t = [cache vector3f];
-    [t setFloat:aPoint];
+    Vector3f* t = [[Vector3f alloc] initWithFloatVector:aPoint];;
     [t sub:point];
     
     BOOL above = fpos([norm dot:t]);
-    [cache returnVector3f:t];
+    [t release];
     
     return above;
 }
@@ -89,15 +86,12 @@
     if (fzero(denom))
         return NAN;
 
-    MathCache* cache = [MathCache sharedCache];
-    Vector3f* diff = [cache vector3f];
-    @try {
-        [diff setFloat:point];
-        [diff sub:lp];
-        return [diff dot:norm] / denom;
-    } @finally {
-        [cache returnVector3f:diff];
-    }
+    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:point];
+    [diff sub:lp];
+    float dist = [diff dot:norm] / denom;
+
+    [diff release];
+    return dist;
 }
 
 - (float)intersectWithRay:(Ray3D *)ray {
@@ -110,20 +104,15 @@
     if (fzero(denom))
         return NAN;
     
-    MathCache* cache = [MathCache sharedCache];
-    Vector3f* diff = [cache vector3f];
-    @try {
-        [diff setFloat:point];
-        [diff sub:ro];
-        
-        float d = [diff dot:norm] / denom;
-        if (fneg(d))
-            return NAN;
-        
-        return d;
-    } @finally {
-        [cache returnVector3f:diff];
-    }
+    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:point];
+    [diff sub:ro];
+    float d = [diff dot:norm] / denom;
+    [diff release];
+
+    if (fneg(d))
+        return NAN;
+    
+    return d;
 }
 
 - (NSString *)description {

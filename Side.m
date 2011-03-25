@@ -21,7 +21,6 @@
 #import "HalfSpace3D.h"
 #import "Plane3D.h"
 #import "SegmentIterator.h"
-#import "MathCache.h"
 
 @implementation Side
 
@@ -368,13 +367,11 @@
     if (c % 2 == 0)
         return nil;
     
-    MathCache* cache = [MathCache sharedCache];
-    Vector3f* diff = [cache vector3f];
-    [diff setFloat:is];
+    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:is];
     [diff sub:[theRay origin]];
     
     float distance = [diff length];
-    [cache returnVector3f:diff];
+    [diff release];
     
     return [[[PickingHit alloc] initWithObject:face type:HT_FACE hitPoint:is distance:distance] autorelease];
 }

@@ -14,7 +14,6 @@
 #import "VBOMemBlock.h"
 #import "Vector3f.h"
 #import "Quaternion.h"
-#import "MathCache.h"
 #import "Math.h"
 
 static float Radius = 1.0f;
@@ -40,35 +39,30 @@ static int VerticesPerBlock;
     Vector3f* startVertex = [[theEdge startVertex] vector];
     Vector3f* endVertex = [[theEdge endVertex] vector];
     
-    MathCache* cache = [MathCache sharedCache];
-    Vector3f* diff = [cache vector3f];
-    Vector3f* edgeAxis = [cache vector3f];
-    Vector3f* rotAxis = [cache vector3f];
-    Vector3f* v1 = [cache vector3f];
-    Vector3f* v2 = [cache vector3f];
-    Vector3f* v3 = [cache vector3f];
-    Vector3f* v4 = [cache vector3f];
-    Quaternion* rot = [cache quaternion];
-
-    [diff setFloat:endVertex];
+    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:endVertex];
     [diff sub:startVertex];
 
-    [edgeAxis setFloat:diff];
+    Vector3f* edgeAxis = [[Vector3f alloc] initWithFloatVector:diff];
     [edgeAxis normalize];
     
-    [rotAxis setFloat:diff];
+    Vector3f* rotAxis = [[Vector3f alloc] initWithFloatVector:diff];
     [rotAxis cross:[Vector3f zAxisPos]];
     
-    BOOL needsRot = ![rotAxis isNull];
-    if (needsRot) {
+    Quaternion* rot = nil;
+    if (![rotAxis isNull]) {
         [rotAxis normalize];
     
         float cos = [edgeAxis dot:[Vector3f zAxisPos]];
-        [rot setAngle:acos(cos) axis:rotAxis];
+        rot = [[Quaternion alloc] initWithAngle:acos(cos) axis:rotAxis];
     }
     
+    Vector3f* v1 = [[Vector3f alloc] init];
+    Vector3f* v2 = [[Vector3f alloc] init];
+    Vector3f* v3 = [[Vector3f alloc] init];
+    Vector3f* v4 = [[Vector3f alloc] init];
+    
     [v1 setFloat:[Circle lastObject]];
-    if (needsRot)
+    if (rot != nil)
         [rot rotate:v1];
     [v1 add:startVertex];
     [v2 setFloat:v1];
@@ -76,7 +70,7 @@ static int VerticesPerBlock;
     
     for (int i = 0; i < [Circle count]; i++) {
         [v3 setFloat:[Circle objectAtIndex:i]];
-        if (needsRot)
+        if (rot != nil)
             [rot rotate:v3];
         [v3 add:startVertex];
         [v4 setFloat:v3];
@@ -91,14 +85,14 @@ static int VerticesPerBlock;
         [v2 setFloat:v4];
     }
     
-    [cache returnVector3f:diff];
-    [cache returnVector3f:edgeAxis];
-    [cache returnVector3f:rotAxis];
-    [cache returnQuaternion:rot];
-    [cache returnVector3f:v1];
-    [cache returnVector3f:v2];
-    [cache returnVector3f:v3];
-    [cache returnVector3f:v4];
+    [diff release];
+    [edgeAxis release];
+    [rotAxis release];
+    [rot release];
+    [v1 release];
+    [v2 release];
+    [v3 release];
+    [v4 release];
     
     return offset;
 }

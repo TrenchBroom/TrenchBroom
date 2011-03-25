@@ -12,7 +12,6 @@
 #import "Plane3D.h"
 #import "Line3D.h"
 #import "Math.h"
-#import "MathCache.h"
 
 @implementation HalfSpace3D
 + (HalfSpace3D *)halfSpaceWithBoundary:(Plane3D *)theBoundary outside:(Vector3f *)theOutside {
@@ -48,13 +47,9 @@
         [NSException raise:NSInvalidArgumentException format:@"point3 must not be nil"];
     
     if (self = [super init]) {
-        MathCache* cache = [MathCache sharedCache];
-        
         Vector3f* p = [[Vector3f alloc] initWithIntVector:point1];
-        Vector3f* v1 = [cache vector3f];
-        Vector3f* v2 = [cache vector3f];
-        [v1 setInt:point2];
-        [v2 setInt:point3];
+        Vector3f* v1 = [[Vector3f alloc] initWithIntVector:point2];
+        Vector3f* v2 = [[Vector3f alloc] initWithIntVector:point3];
         [v1 sub:p];
         [v2 sub:p];
 
@@ -65,8 +60,8 @@
         boundary = [[Plane3D alloc] initWithPoint:p norm:outside];
 
         [p release];
-        [cache returnVector3f:v1];
-        [cache returnVector3f:v2];
+        [v1 release];
+        [v2 release];
     }
     
     return self;
@@ -76,13 +71,11 @@
     if (point == nil)
         [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
     
-    MathCache* cache = [MathCache sharedCache];
-    Vector3f* t = [cache vector3f];
-    [t setFloat:point];
+    Vector3f* t = [[Vector3f alloc] initWithFloatVector:point];
     [t sub:[boundary point]];
     
     BOOL contains = flte([t dot:outside], 0); // positive if angle < 90
-    [cache returnVector3f:t];
+    [t release];
     
     return contains;
 }

@@ -39,11 +39,8 @@
 - (IBAction)toggleProjection:(id)sender;
 
 - (IBAction)switchToXYView:(id)sender;
-- (IBAction)switchToInvertedXYView:(id)sender;
 - (IBAction)switchToXZView:(id)sender;
-- (IBAction)switchToInvertedXZView:(id)sender;
 - (IBAction)switchToYZView:(id)sender;
-- (IBAction)switchToInvertedYZView:(id)sender;
 
 - (IBAction)clearSelection:(id)sender;
 - (IBAction)copySelection:(id)sender;

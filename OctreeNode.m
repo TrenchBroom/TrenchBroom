@@ -13,7 +13,6 @@
 #import "Ray3D.h"
 #import "Plane3D.h"
 #import "math.h"
-#import "MathCache.h"
 
 @implementation OctreeNode
 
@@ -161,12 +160,9 @@
     Vector3f* origin = [theRay origin];
     BOOL hit = fgte([origin x], [min x]) && fgte([origin y], [min y]) && fgte([origin z], [min z]) && flte([origin x], [max x]) && flte([origin y], [max y]) && flte([origin z], [max z]);
     
-    MathCache* cache = [MathCache sharedCache];
-    Plane3D* plane = [cache plane3D];
-    Vector3f* intMin = [cache vector3f];
-    Vector3f* intMax = [cache vector3f];
-    [intMin setInt:min];
-    [intMax setInt:max];
+    Plane3D* plane = [[Plane3D alloc] init];
+    Vector3f* intMin = [[Vector3f alloc] initWithIntVector:min];
+    Vector3f* intMax = [[Vector3f alloc] initWithIntVector:max];
     
     Vector3f* direction = [theRay direction];
     
@@ -205,10 +201,10 @@
             hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is y] >= [min y] && [is y] <= [max y];
         }
     }
-
-    [cache returnVector3f:intMax];
-    [cache returnVector3f:intMin];
-    [cache returnPlane3D:plane];
+    
+    [plane release];
+    [intMin release];
+    [intMax release];
     
     if (hit) {
         [theSet unionSet:objects];

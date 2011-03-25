@@ -11,7 +11,6 @@
 #import "Vector3f.h"
 #import "Quaternion.h"
 #import "Ray3D.h"
-#import "MathCache.h"
 
 NSString* const CameraChanged = @"CameraChanged";
 
@@ -97,14 +96,10 @@ NSString* const CameraChanged = @"CameraChanged";
 }
 
 - (void)lookAt:(Vector3f *)thePoint up:(Vector3f *)theUpVector {
-    MathCache* cache = [MathCache sharedCache];
-    Vector3f* d = [cache vector3f];
-    
-    [d setFloat:thePoint];
+    Vector3f* d = [[Vector3f alloc] initWithFloatVector:thePoint];
     [d sub:position];
     [self setDirection:d up:theUpVector];
-    
-    [cache returnVector3f:d];
+    [d release];
 }
 
 - (void)setDirection:(Vector3f *)theDirection up:(Vector3f *)theUpVector {
@@ -122,21 +117,14 @@ NSString* const CameraChanged = @"CameraChanged";
 }
 
 - (void)rotateYaw:(float)yaw pitch:(float)pitch {
-    MathCache* cache = [MathCache sharedCache];
-    
-    Quaternion* qy = [cache quaternion];
-    Quaternion* qp = [cache quaternion];
-    [qy setAngle:yaw axis:[Vector3f zAxisPos]];
-    [qp setAngle:pitch axis:right];
+    Quaternion* qy = [[Quaternion alloc] initWithAngle:yaw axis:[Vector3f zAxisPos]];
+    Quaternion* qp = [[Quaternion alloc] initWithAngle:pitch axis:right];
     [qy mul:qp];
     
-    Vector3f* d = [cache vector3f];
-    Vector3f* u = [cache vector3f];
-    
-    [d setFloat:direction];
+    Vector3f* d = [[Vector3f alloc] initWithFloatVector:direction];
     [qy rotate:d];
     
-    [u setFloat:up];
+    Vector3f* u = [[Vector3f alloc] initWithFloatVector:up];
     [qy rotate:u];
     
     if ([u z] < 0) {
@@ -146,18 +134,15 @@ NSString* const CameraChanged = @"CameraChanged";
     }
     
     [self setDirection:d up:u];
-    
-    [cache returnVector3f:d];
-    [cache returnVector3f:u];
-    [cache returnQuaternion:qy];
-    [cache returnQuaternion:qp];
+
+    [d release];
+    [u release];
+    [qy release];
+    [qp release];
 }
 
 - (void)moveForward:(float)f right:(float)r up:(float)u {
-    MathCache* cache = [MathCache sharedCache];
-    
-    Vector3f* v = [cache vector3f];
-    [v setFloat:direction];
+    Vector3f* v = [[Vector3f alloc] initWithFloatVector:direction];
     [v scale:f];
     [position add:v];
     
@@ -169,31 +154,24 @@ NSString* const CameraChanged = @"CameraChanged";
     [v scale:u];
     [position add:v];
 
-    [cache returnVector3f:v];
-
+    [v release];
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
 - (void)orbitCenter:(Vector3f *)c hAngle:(float)h vAngle:(float)v {
-    MathCache* cache = [MathCache sharedCache];
-    
-    Quaternion* qh = [cache quaternion];
-    Quaternion* qv = [cache quaternion];
-    [qv setAngle:v axis:right];
-    [qh setAngle:h axis:[Vector3f zAxisPos]];
+    Quaternion* qh = [[Quaternion alloc] initWithAngle:v axis:right];
+    Quaternion* qv = [[Quaternion alloc] initWithAngle:h axis:[Vector3f zAxisPos]];
     [qh mul:qv];
     
-    Vector3f* d = [cache vector3f];
-    Vector3f* u = [cache vector3f];
-    Vector3f* p = [cache vector3f];
-    
+    Vector3f* d = [[Vector3f alloc] initWithFloatVector:direction];
     [d setFloat:direction];
     [qh rotate:d];
-    
-    [u setFloat:up];
+
+    Vector3f* u = [[Vector3f alloc] initWithFloatVector:up];
     [qh rotate:u];
-    
-    [p setFloat:position];
+
+    Vector3f* p = [[Vector3f alloc] initWithFloatVector:position];
     [p sub:c];
     
     if ([u z] < 0) {
@@ -203,22 +181,19 @@ NSString* const CameraChanged = @"CameraChanged";
         [d setY:0];
         [d normalize];
         
-        Vector3f* axis = [cache vector3f];
         float angle = acos([direction dot:d]);
         if (angle != 0) {
-            [axis setFloat:direction];
+            Vector3f* axis = [[Vector3f alloc] initWithFloatVector:direction];
             [axis cross:d];
             [axis normalize];
             
-            Quaternion* q = [cache quaternion];
-            [q setAngle:angle axis:axis];
+            Quaternion* q = [[Quaternion alloc] initWithAngle:angle axis:axis];
             [q rotate:p];
             [q rotate:u];
-            
-            [cache returnQuaternion:q];
+
+            [q release];
+            [axis release];
         }
-        
-        [cache returnVector3f:axis];
     } else {
         [qh rotate:p];
     }
@@ -228,11 +203,11 @@ NSString* const CameraChanged = @"CameraChanged";
     [p add:c];
     [self moveTo:p];
     
-    [cache returnVector3f:d];
-    [cache returnVector3f:u];
-    [cache returnVector3f:p];
-    [cache returnQuaternion:qh];
-    [cache returnQuaternion:qv];
+    [d release];
+    [u release];
+    [p release];
+    [qh release];
+    [qv release];
 }
 
 - (void)setFieldOfVision:(float)theFov {

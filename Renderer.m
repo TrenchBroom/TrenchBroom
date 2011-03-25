@@ -30,7 +30,6 @@
 #import "MapDocument.h"
 #import "MapWindowController.h"
 #import "GLResources.h"
-#import "MathCache.h"
 #import "TextureManager.h"
 #import "Texture.h"
 
@@ -72,9 +71,8 @@ NSString* const RendererChanged = @"RendererChanged";
     [sharedVbo activate];
     [sharedVbo mapBuffer];
     
-    MathCache* cache = [MathCache sharedCache];
-    Vector3f* color = [cache vector3f];
-    Vector2f* texCoords = [cache vector2f];
+    Vector3f* color = [[Vector3f alloc] init];
+    Vector2f* texCoords = [[Vector3f alloc] init];
     
     NSEnumerator* faceEn = [invalidFaces objectEnumerator];
     id <Face> face;
@@ -119,8 +117,8 @@ NSString* const RendererChanged = @"RendererChanged";
         
         [block setState:BS_USED_VALID];
     }
-    [cache returnVector3f:color];
-    [cache returnVector2f:texCoords];
+    [color release];
+    [texCoords release];
     [invalidFaces removeAllObjects];
     
     [sharedVbo unmapBuffer];
