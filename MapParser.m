@@ -29,9 +29,6 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
 }
 
 - (id)initWithData:(NSData *)someData {
-    if (someData == nil)
-        [NSException raise:NSInvalidArgumentException format:@"data must not be nil"];
-    
     if (self = [self init]) {
         size = [someData length];
         NSInputStream* stream = [[NSInputStream alloc] initWithData:someData];

@@ -31,9 +31,6 @@
 }
 
 - (id)initAsSubMatrix:(int)index of:(Matrix4f *)matrix {
-    if (matrix == nil)
-        [NSException raise:NSInvalidArgumentException format:@"matrix must not be nil"];
-    
     if (self = [self init]) {
         float* mvalues = [matrix columnMajor];
         switch (index) {
@@ -71,9 +68,6 @@
 }
 
 - (void)setMinorOf:(Matrix3f *)matrix col:(int)col row:(int)row {
-    if (matrix == nil)
-        [NSException raise:NSInvalidArgumentException format:@"matrix must not be nil"];
-    
     float* mvalues = [matrix columnMajor];
     int i = 0;
     for (int c = 0; c < 3; c++)

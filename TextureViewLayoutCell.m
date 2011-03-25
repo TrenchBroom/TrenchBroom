@@ -12,9 +12,6 @@
 @implementation TextureViewLayoutCell
 
 - (id)initAt:(NSPoint)location texture:(Texture *)theTexture nameSize:(NSSize)theNameSize {
-    if (theTexture == nil)
-        [NSException raise:NSInvalidArgumentException format:@"texture must not be nil"];
-    
     if (self = [self init]) {
         texture = [theTexture retain];
              

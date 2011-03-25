@@ -12,9 +12,6 @@
 @implementation MapTokenizer
 
 - (id)initWithInputStream:(NSInputStream *)aStream {
-    if (aStream == nil)
-        [NSException raise:NSInvalidArgumentException format:@"stream must not be nil"];
-    
     if (self = [self init]) {
         stream = [aStream retain];
         [stream open];

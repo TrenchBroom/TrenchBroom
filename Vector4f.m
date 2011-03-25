@@ -118,9 +118,6 @@
 }
 
 - (void)setVector3f:(Vector3f *)vector {
-    if (vector == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
-
     x = [vector x];
     y = [vector y];
     z = [vector z];
@@ -128,9 +125,6 @@
 }
 
 - (void)setVector4f:(Vector4f *)vector {
-    if (vector == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
-    
     x = [vector x];
     y = [vector y];
     z = [vector z];
@@ -138,9 +132,6 @@
 }
 
 - (void)getVector3f:(Vector3f *)vector {
-    if (vector == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
-    
     [vector setX:x / w];
     [vector setY:y / w];
     [vector setZ:z / w];

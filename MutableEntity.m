@@ -40,9 +40,6 @@
 }
 
 - (void)removeBrush:(MutableBrush *)brush {
-    if (brush == nil)
-        [NSException raise:NSInvalidArgumentException format:@"brush must not be nil"];
- 
     [brush setEntity:nil];
     [brushes removeObject:brush];
 }

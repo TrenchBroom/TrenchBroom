@@ -20,6 +20,6 @@
 
 - (id)initWithDocument:(MapDocument *)theDocument;
 
-- (PickingHitList *)pickObjects:(Ray3D *)theRay include:(NSSet *)includedObjects exclude:(NSSet *)excludedObjects;
+- (PickingHitList *)pickObjects:(Ray3D *)ray include:(NSSet *)include exclude:(NSSet *)exclude;
 
 @end

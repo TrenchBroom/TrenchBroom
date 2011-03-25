@@ -114,11 +114,6 @@ int const WAD_TEX_MIP3_OFFSET = 36;
 }
 
 - (Wad *)loadFromData:(NSData *)someData wadName:(NSString *)wadName {
-    if (someData == nil)
-        [NSException raise:NSInvalidArgumentException format:@"data must not be nil"];
-    if (wadName == nil)
-        [NSException raise:NSInvalidArgumentException format:@"wad name must not be nil"];
-
     NSDate* startDate = [NSDate date];
     NSString* fileType = [self readString:someData range:NSMakeRange(WAD_TYPE_ADDRESS, WAD_TYPE_LENGTH)];
     if (![fileType isEqualToString:@"WAD2"])

@@ -19,7 +19,6 @@ typedef enum {
 
 @class MutableFace;
 @class Edge;
-@class SideEdge;
 @class Vector3f;
 @class Ray3D;
 @class PickingHit;
@@ -27,25 +26,22 @@ typedef enum {
 @interface Side : NSObject {
     @private
     MutableFace * face;
-    NSMutableArray* sideEdges;
     ESideMark mark;
     NSMutableArray* vertices;
     NSMutableArray* edges;
-    NSMutableDictionary* grids;
     Vector3f* center;
 }
 
 - (id)initWithFace:(MutableFace *)theFace edges:(NSArray *)theEdges flipped:(BOOL*)flipped;
-- (id)initWithFace:(MutableFace *)theFace sideEdges:(NSArray *)theEdges;
+- (id)initWithFace:(MutableFace *)theFace edges:(NSArray *)theEdges;
 
-- (SideEdge *)split;
+- (Edge *)split;
 
 - (ESideMark)mark;
 - (void)setMark:(ESideMark)theMark;
 
 - (NSArray *)vertices;
 - (NSArray *)edges;
-- (NSArray *)gridWithSize:(int)gridSize;
 - (MutableFace *)face;
 - (PickingHit *)pickWithRay:(Ray3D *)theRay;
 

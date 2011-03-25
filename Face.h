@@ -16,6 +16,7 @@
 @class HalfSpace3D;
 @class Ray3D;
 @class PickingHit;
+@class VBOMemBlock;
 
 @protocol Face <NSObject>
 
@@ -43,5 +44,8 @@
 - (Vector3f *)surfaceCoordsOf:(Vector3f *)wCoords;
 - (HalfSpace3D *)halfSpace;
 - (NSArray *)gridWithSize:(int)gridSize;
+
+- (void)setMemBlock:(VBOMemBlock *)theBlock;
+- (VBOMemBlock *)memBlock;
 
 @end

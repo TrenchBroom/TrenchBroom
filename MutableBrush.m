@@ -87,8 +87,6 @@
 
     [face setBrush:self];
     [faces addObject:face];
-    [vertexData release];
-    vertexData = nil;
     return YES;
 }
 
@@ -119,20 +117,6 @@
     return [[self vertexData] edges];
 }
 
-- (NSArray *)verticesForFace:(MutableFace *)face {
-    if (face == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
-
-    return [[self vertexData] verticesForFace:face];
-}
-
-- (NSArray *)edgesForFace:(MutableFace *)face {
-    if (face == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
-    
-    return [[self vertexData] edgesForFace:face];
-}
-
 - (float *)flatColor {
     return flatColor;
 }
@@ -145,10 +129,6 @@
     return [[self vertexData] center];
 }
 
-
-- (Vector3f *)centerOfFace:(MutableFace *)face {
-    return [[self vertexData] centerOfFace:face];
-}
 
 - (void)pickBrush:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
     [[self vertexData] pickBrush:theRay hitList:theHitList];
@@ -168,10 +148,6 @@
 
 - (BoundingBox *)pickingBounds {
     return [[self vertexData] pickingBounds];
-}
-
-- (NSArray *)gridForFace:(MutableFace *)theFace gridSize:(int)gridSize {
-    return [vertexData gridForFace:theFace gridSize:gridSize];
 }
 
 - (void)setEntity:(MutableEntity *)theEntity {

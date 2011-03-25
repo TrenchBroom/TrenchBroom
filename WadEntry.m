@@ -11,9 +11,6 @@
 
 @implementation WadEntry
 - (id)initWithName:(NSString *)theName {
-    if (theName == nil)
-        [NSException raise:NSInvalidArgumentException format:@"name must not be nil"];
-    
     if (self = [self init]) {
         name = [theName retain];
     }

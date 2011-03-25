@@ -18,9 +18,6 @@ static int BUF_SIZE = 16;
 @implementation MapWriter
 
 - (id)initWithMap:(id <Map>)theMap {
-    if (theMap == nil)
-        [NSException raise:NSInvalidArgumentException format:@"map must not be nil"];
-    
     if (self = [self init]) {
         map = [theMap retain];
         buffer = malloc(BUF_SIZE);

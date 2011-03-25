@@ -143,13 +143,6 @@ static PrefabManager* sharedInstance = nil;
 }
 
 - (id <Prefab>)createPrefabFromData:(NSData *)prefabData name:(NSString *)prefabName group:(id <PrefabGroup>)prefabGroup readOnly:(BOOL)readOnly {
-    if (prefabData == nil)
-        [NSException raise:NSInvalidArgumentException format:@"prefab data must not be nil"];
-    if (prefabName == nil)
-        [NSException raise:NSInvalidArgumentException format:@"prefab name must not be nil"];
-    if (prefabGroup == nil)
-        [NSException raise:NSInvalidArgumentException format:@"prefab group must not be nil"];
-    
     MapParser* parser = [[MapParser alloc] initWithData:prefabData];
     MutablePrefab* prefab = [[MutablePrefab alloc] initWithName:prefabName group:prefabGroup readOnly:readOnly];
     
@@ -177,13 +170,6 @@ static PrefabManager* sharedInstance = nil;
 }
 
 - (id <Prefab>)createPrefabFromBrushTemplates:(NSSet *)brushTemplates name:(NSString *)prefabName group:(id <PrefabGroup>)prefabGroup {
-    if (brushTemplates == nil)
-        [NSException raise:NSInvalidArgumentException format:@"brush template set data must not be nil"];
-    if (prefabName == nil)
-        [NSException raise:NSInvalidArgumentException format:@"prefab name must not be nil"];
-    if (prefabGroup == nil)
-        [NSException raise:NSInvalidArgumentException format:@"prefab group must not be nil"];
-
     if ([brushTemplates count] == 0)
         return nil;
     
@@ -219,9 +205,6 @@ static PrefabManager* sharedInstance = nil;
 }
 
 - (void)removePrefab:(id <Prefab>)prefab {
-    if (prefab == nil)
-        [NSException raise:NSInvalidArgumentException format:@"prefab must not be nil"];
-    
     if ([prefab readOnly])
         [NSException raise:NSInvalidArgumentException format:@"cannot remove read only prefab"];
     

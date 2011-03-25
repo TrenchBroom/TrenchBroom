@@ -16,9 +16,6 @@
 
 @implementation Vertex
 - (id)initWithVector:(Vector3f *)theVector {
-    if (theVector == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
-    
     if (self = [self init]) {
         vector = [theVector retain];
         mark = VM_NEW;

@@ -23,7 +23,6 @@ extern NSString* const RendererChanged;
     MapWindowController* windowController;
     TextureManager* textureManager;
     VBOBuffer* sharedVbo;
-    NSMutableDictionary* sharedBlockMap;
     NSMutableSet* invalidFaces;
     GeometryLayer* geometryLayer;
     SelectionLayer* selectionLayer;

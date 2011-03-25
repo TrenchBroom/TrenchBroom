@@ -36,11 +36,6 @@
 }
 
 - (id)initWithPoint1:(Vector3f *)point1 point2:(Vector3f *)point2 {
-    if (point1 == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point1 must not be nil"];
-    if (point2 == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point2 must not be nil"];
-    
     Vector3f* d = [[Vector3f alloc] initWithFloatVector:point2];
     [d sub:point1];
 
@@ -51,11 +46,6 @@
 }
 
 - (id)initWithPoint:(Vector3f *)aPoint normalizedDirection:(Vector3f *)aDirection {
-    if (aPoint == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
-    if (aDirection == nil)
-        [NSException raise:NSInvalidArgumentException format:@"direction must not be nil"];
-    
 	if (self = [super init]) {
         point = [[Vector3f alloc] initWithFloatVector:aPoint];
         direction = [[Vector3f alloc] initWithFloatVector:aDirection];
@@ -65,11 +55,6 @@
 }
 
 - (id)initWithPoint:(Vector3f *)aPoint direction:(Vector3f *)aDirection {
-    if (aPoint == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
-    if (aDirection == nil)
-        [NSException raise:NSInvalidArgumentException format:@"direction must not be nil"];
-
 	if (self = [super init]) {
         point = [[Vector3f alloc] initWithFloatVector:aPoint];
         direction = [[Vector3f alloc] initWithFloatVector:aDirection];
@@ -80,9 +65,6 @@
 }
 
 - (id)initWithLine:(Line3D *)aLine {
-    if (aLine == nil)
-        [NSException raise:NSInvalidArgumentException format:@"line must not be nil"];
-    
     self = [self initWithPoint:[aLine point] normalizedDirection:[aLine direction]];
     return self;
 }

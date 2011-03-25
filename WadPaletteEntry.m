@@ -11,9 +11,6 @@
 
 @implementation WadPaletteEntry
 - (id)initWithName:(NSString *)theName data:(NSData *)theData {
-    if (theData == nil)
-        [NSException raise:NSInvalidArgumentException format:@"data must not be nil"];
-    
     if (self = [super initWithName:theName]) {
         data = [theData retain];
     }

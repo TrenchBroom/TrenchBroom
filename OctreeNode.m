@@ -117,11 +117,6 @@
 }
 
 - (BOOL)addObject:(id)theObject bounds:(BoundingBox *)theBounds {
-    if (theObject == nil)
-        [NSException raise:NSInvalidArgumentException format:@"object must not be nil"];
-    if (theBounds == nil)
-        [NSException raise:NSInvalidArgumentException format:@"bounds must not be nil"];
-    
     if (![self bounds:theBounds containedInMin:min max:max])
         return NO;
     
@@ -135,11 +130,6 @@
 }
 
 - (BOOL)removeObject:(id)theObject bounds:(BoundingBox *)theBounds {
-    if (theObject == nil)
-        [NSException raise:NSInvalidArgumentException format:@"object must not be nil"];
-    if (theBounds == nil)
-        [NSException raise:NSInvalidArgumentException format:@"bounds must not be nil"];
-    
     if (![self bounds:theBounds containedInMin:min max:max])
         return NO;
     
@@ -151,66 +141,69 @@
     return YES;
 }
 
-- (void)addObjectsForRay:(Ray3D *)theRay to:(NSMutableSet *)theSet {
-    if (theRay == nil)
-        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
-    if (theSet == nil)
-        [NSException raise:NSInvalidArgumentException format:@"set must not be nil"];
-    
-    Vector3f* origin = [theRay origin];
+- (void)addObjectsForRay:(Ray3D *)ray to:(NSMutableArray *)list include:(NSSet *)include exclude:(NSSet *)exclude {
+    Vector3f* origin = [ray origin];
     BOOL hit = fgte([origin x], [min x]) && fgte([origin y], [min y]) && fgte([origin z], [min z]) && flte([origin x], [max x]) && flte([origin y], [max y]) && flte([origin z], [max z]);
-    
-    Plane3D* plane = [[Plane3D alloc] init];
-    Vector3f* intMin = [[Vector3f alloc] initWithIntVector:min];
-    Vector3f* intMax = [[Vector3f alloc] initWithIntVector:max];
-    
-    Vector3f* direction = [theRay direction];
-    
+
     if (!hit) {
-        if ([direction x] > 0) {
-            [plane setPoint:intMin norm:[Vector3f xAxisNeg]];
-            Vector3f* is = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
-            hit = is != nil && fgte([is y], [min y]) && flte([is y], [max y]) && fgte([is z], [min z]) && flte([is z], [max z]);
-        } else if ([direction x] < 0) {
-            [plane setPoint:intMax norm:[Vector3f xAxisPos]];
-            Vector3f* is = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
-            hit = is != nil && fgte([is y], [min y]) && flte([is y], [max y]) && fgte([is z], [min z]) && flte([is z], [max z]);
+        Plane3D* plane = [[Plane3D alloc] init];
+        Vector3f* intMin = [[Vector3f alloc] initWithIntVector:min];
+        Vector3f* intMax = [[Vector3f alloc] initWithIntVector:max];
+        
+        Vector3f* direction = [ray direction];
+        
+        if (!hit) {
+            if ([direction x] > 0) {
+                [plane setPoint:intMin norm:[Vector3f xAxisNeg]];
+                Vector3f* is = [ray pointAtDistance:[plane intersectWithRay:ray]];
+                hit = is != nil && fgte([is y], [min y]) && flte([is y], [max y]) && fgte([is z], [min z]) && flte([is z], [max z]);
+            } else if ([direction x] < 0) {
+                [plane setPoint:intMax norm:[Vector3f xAxisPos]];
+                Vector3f* is = [ray pointAtDistance:[plane intersectWithRay:ray]];
+                hit = is != nil && fgte([is y], [min y]) && flte([is y], [max y]) && fgte([is z], [min z]) && flte([is z], [max z]);
+            }
         }
-    }
-    
-    if (!hit) {
-        if ([direction y] > 0) {
-            [plane setPoint:intMin norm:[Vector3f yAxisNeg]];
-            Vector3f* is = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
-            hit = is != nil && fgte([is x], [min x]) && flte([is x], [max x]) && fgte([is z], [min z]) && flte([is z], [max z]);
-        } else if ([direction y] < 0) {
-            [plane setPoint:intMax norm:[Vector3f yAxisPos]];
-            Vector3f* is = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
-            hit = is != nil && fgte([is x], [min x]) && flte([is x], [max x]) && fgte([is z], [min z]) && flte([is z], [max z]);
+        
+        if (!hit) {
+            if ([direction y] > 0) {
+                [plane setPoint:intMin norm:[Vector3f yAxisNeg]];
+                Vector3f* is = [ray pointAtDistance:[plane intersectWithRay:ray]];
+                hit = is != nil && fgte([is x], [min x]) && flte([is x], [max x]) && fgte([is z], [min z]) && flte([is z], [max z]);
+            } else if ([direction y] < 0) {
+                [plane setPoint:intMax norm:[Vector3f yAxisPos]];
+                Vector3f* is = [ray pointAtDistance:[plane intersectWithRay:ray]];
+                hit = is != nil && fgte([is x], [min x]) && flte([is x], [max x]) && fgte([is z], [min z]) && flte([is z], [max z]);
+            }
         }
-    }
-    
-    if (!hit) {
-        if ([direction z] > 0) {
-            [plane setPoint:intMin norm:[Vector3f zAxisNeg]];
-            Vector3f* is = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
-            hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is y] >= [min y] && [is y] <= [max y];
-        } else if ([direction z] < 0) {
-            [plane setPoint:intMax norm:[Vector3f zAxisPos]];
-            Vector3f* is = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
-            hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is y] >= [min y] && [is y] <= [max y];
+        
+        if (!hit) {
+            if ([direction z] > 0) {
+                [plane setPoint:intMin norm:[Vector3f zAxisNeg]];
+                Vector3f* is = [ray pointAtDistance:[plane intersectWithRay:ray]];
+                hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is y] >= [min y] && [is y] <= [max y];
+            } else if ([direction z] < 0) {
+                [plane setPoint:intMax norm:[Vector3f zAxisPos]];
+                Vector3f* is = [ray pointAtDistance:[plane intersectWithRay:ray]];
+                hit = is != nil && [is x] >= [min x] && [is x] <= [max x] && [is y] >= [min y] && [is y] <= [max y];
+            }
         }
+        
+        [plane release];
+        [intMin release];
+        [intMax release];
     }
-    
-    [plane release];
-    [intMin release];
-    [intMax release];
     
     if (hit) {
-        [theSet unionSet:objects];
+        NSEnumerator* objectEn = [objects objectEnumerator];
+        id object;
+        while ((object = [objectEn nextObject]))
+            if ((include == nil || [include containsObject:object]) && 
+                (exclude == nil || ![exclude containsObject:object]))
+                [list addObject:object];
+        
         for (int i = 0; i < 8; i++)
             if (children[i] != nil)
-                [children[i] addObjectsForRay:theRay to:theSet];
+                [children[i] addObjectsForRay:ray to:list include:include exclude:exclude];
     }
 }
 

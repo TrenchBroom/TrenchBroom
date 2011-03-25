@@ -9,7 +9,6 @@
 #import "Side.h"
 #import "Edge.h"
 #import "Vertex.h"
-#import "SideEdge.h"
 #import "Vector3f.h"
 #import "Vector2f.h"
 #import "MutableFace.h"
@@ -26,52 +25,48 @@
 
 - (id)init {
     if (self = [super init]) {
-        sideEdges = [[NSMutableArray alloc] init];
         mark = SM_NEW;
-        grids = [[NSMutableDictionary alloc] init];
+        vertices = [[NSMutableArray alloc] init];
+        edges = [[NSMutableArray alloc] init];
     }
     
     return self;
 }
 
 - (id)initWithFace:(MutableFace *)theFace edges:(NSArray *)theEdges flipped:(BOOL*)flipped {
-    if (theEdges == nil)
-        [NSException raise:NSInvalidArgumentException format:@"edge array must not be nil"];
-    
     if (self = [self init]) {
         face = [theFace retain];
         for (int i = 0; i < [theEdges count]; i++) {
             Edge* edge = [theEdges objectAtIndex:i];
-            SideEdge* sideEdge = [[SideEdge alloc] initWithEdge:edge flipped:flipped[i]];
-            [sideEdges addObject:sideEdge];
-            [sideEdge setSide:self];
-            [sideEdge release];
+            if (!flipped[i])
+                [edge setRightSide:self];
+            else
+                [edge setLeftSide:self];
+            [edges addObject:edge];
+            [vertices addObject:[edge startVertexForSide:self]];
         }
     }
     
     return self;
 }
 
-- (id)initWithFace:(MutableFace *)theFace sideEdges:(NSArray *)theEdges {
-    if (theEdges == nil)
-        [NSException raise:NSInvalidArgumentException format:@"edge array must not be nil"];
-    
+- (id)initWithFace:(MutableFace *)theFace edges:(NSArray *)theEdges {
     if (self = [self init]) {
         face = [theFace retain];
-
         NSEnumerator* edgeEn = [theEdges objectEnumerator];
-        SideEdge* edge;
+        Edge* edge;
         while ((edge = [edgeEn nextObject])) {
-            [sideEdges addObject:edge];
-            [edge setSide:self];
+            [edge setLeftSide:self];
+            [edges addObject:edge];
+            [vertices addObject:[edge startVertexForSide:self]];
         }
     }
     
     return self;
 }
 
-- (SideEdge *)split {
-    EEdgeMark currentMark = [[sideEdges lastObject] mark];
+- (Edge *)split {
+    EEdgeMark currentMark = [[edges lastObject] mark];
     if (currentMark == EM_KEEP)
         mark = SM_KEEP;
     else if (currentMark == EM_DROP)
@@ -81,11 +76,11 @@
     
     int splitIndex1, splitIndex2 = -1;
 
-    for (int i = 0; i < [sideEdges count]; i++) {
-        SideEdge* sideEdge = [sideEdges objectAtIndex:i];
-        currentMark = [sideEdge mark];
+    for (int i = 0; i < [edges count]; i++) {
+        Edge* edge = [edges objectAtIndex:i];
+        currentMark = [edge mark];
         if (currentMark == EM_SPLIT) {
-            if ([[sideEdge startVertex] mark] == VM_KEEP)
+            if ([[edge startVertexForSide:self] mark] == VM_KEEP)
                 splitIndex1 = i;
             else
                 splitIndex2 = i;
@@ -99,37 +94,36 @@
     if (mark == SM_KEEP || mark == SM_DROP)
         return nil;
 
-    [vertices release];
-    vertices = nil;
-    [edges release];
-    edges = nil;
-    [grids removeAllObjects];
-    
-    Vertex* startVertex = [[sideEdges objectAtIndex:splitIndex1] endVertex];
-    Vertex* endVertex = [[sideEdges objectAtIndex:splitIndex2] startVertex];
+    Vertex* startVertex = [[edges objectAtIndex:splitIndex1] endVertexForSide:self];
+    Vertex* endVertex = [[edges objectAtIndex:splitIndex2] startVertexForSide:self];
     Edge* newEdge = [[Edge alloc] initWithStartVertex:startVertex endVertex:endVertex];
-    SideEdge* sideEdge = [[SideEdge alloc] initWithEdge:newEdge flipped:NO];
-    [sideEdge setSide:self];
+    [newEdge setRightSide:self];
+    
     if (splitIndex2 > splitIndex1) {
         int num = splitIndex2 - splitIndex1 - 1;
         if (num > 0)
-            [sideEdges removeObjectsInRange:NSMakeRange(splitIndex1 + 1, num)];
-        [sideEdges insertObject:sideEdge atIndex:splitIndex1 + 1];
+            [edges removeObjectsInRange:NSMakeRange(splitIndex1 + 1, num)];
+        [edges insertObject:newEdge atIndex:splitIndex1 + 1];
     } else {
-        int num = [sideEdges count] - splitIndex1 - 1;
+        int num = [edges count] - splitIndex1 - 1;
         if (num > 0)
-            [sideEdges removeObjectsInRange:NSMakeRange(splitIndex1 + 1, num)];
+            [edges removeObjectsInRange:NSMakeRange(splitIndex1 + 1, num)];
         num = splitIndex2;
         if (num > 0)
-            [sideEdges removeObjectsInRange:NSMakeRange(0, num)];
-        [sideEdges addObject:sideEdge];
+            [edges removeObjectsInRange:NSMakeRange(0, num)];
+        [edges addObject:newEdge];
     }
-    [sideEdge release];
+
+    [vertices removeAllObjects];
+    NSEnumerator* edgeEn = [edges objectEnumerator];
+    Edge* edge;
+    while ((edge = [edgeEn nextObject]))
+        [vertices addObject:[edge startVertexForSide:self]];
     
-    SideEdge* opposingEdge = [[SideEdge alloc] initWithEdge:newEdge flipped:YES];
-    [newEdge release];
+    [face setVertices:vertices];
+    [face setEdges:edges];
     
-    return [opposingEdge autorelease];
+    return [newEdge autorelease];
 }
 
 - (ESideMark)mark {
@@ -141,158 +135,11 @@
 }
 
 - (NSArray *)vertices {
-    if (vertices == nil) {
-        vertices = [[NSMutableArray alloc] initWithCapacity:[sideEdges count]];
-    
-        NSEnumerator* sideEdgeEn = [sideEdges objectEnumerator];
-        SideEdge* sideEdge;
-        while ((sideEdge = [sideEdgeEn nextObject]))
-            [vertices addObject:[sideEdge startVertex]];
-    }
-    
     return vertices;
 }
 
 - (NSArray *)edges {
-    if (edges == nil) {
-        edges = [[NSMutableArray alloc] initWithCapacity:[sideEdges count]];
-        
-        NSEnumerator* sideEdgeEn = [sideEdges objectEnumerator];
-        SideEdge* sideEdge;
-        while ((sideEdge = [sideEdgeEn nextObject]))
-            [edges addObject:[sideEdge edge]];
-    }
-    
     return edges;
-}
-
-- (NSArray *)gridWithSize:(int)gridSize {
-    NSNumber* key = [NSNumber numberWithInt:gridSize];
-    NSMutableArray* grid = [grids objectForKey:key];
-    if (grid == nil) {
-        Vector3f* norm = [face norm];
-        CoordinatePlane* plane = [CoordinatePlane projectionPlaneForNormal:norm];
-        
-        NSMutableArray* pVertices = [[NSMutableArray alloc] initWithCapacity:[[self vertices] count]];
-        
-        float sx = FLT_MAX;
-        float sy = FLT_MAX;
-        float lx = -FLT_MAX;
-        float ly = -FLT_MAX;
-        
-        NSEnumerator* vertexEn = [[self vertices] objectEnumerator];
-        Vertex* vertex;
-        while ((vertex = [vertexEn nextObject])) {
-            Vector3f* pVertex = [plane project:[vertex vector]];
-            [pVertices addObject:pVertex];
-            
-            float x = [pVertex x];
-            float y = [pVertex y];
-            
-            if (x < sx)
-                sx = x;
-            if (x > lx)
-                lx = x;
-            if (y < sy)
-                sy = y;
-            if (y > ly)
-                ly = y;
-        }
-        
-        int gridNo = sx / gridSize;
-        if (sx > 0)
-            gridNo++;
-        float gridX = gridNo * gridSize; // first grid line to intersect with polygon
-        if (feq(gridX, sx))
-            gridX += gridSize;
-        
-        BOOL clockwise = [plane clockwise:norm];
-        grid = [[NSMutableArray alloc] init];
-        
-        SegmentIterator* si = [[SegmentIterator alloc] initWithVertices:pVertices vertical:NO clockwise:clockwise];
-        while (flt(gridX, lx)) {
-            
-            Vector3f* ls = [si forwardLeftTo:gridX];
-            Vector3f* rs = [si forwardRightTo:gridX];
-            if (ls == nil || rs == nil)
-                break;
-            
-            Vector3f* le = [si nextLeft];
-            Vector3f* re = [si nextRight];
-            
-            float lx = gridX;
-            float ly = ([le y] - [ls y]) * (gridX - [ls x]) / ([le x] - [ls x]) + [ls y];
-            float lz = ([le z] - [ls z]) * (gridX - [ls x]) / ([le x] - [ls x]) + [ls z];
-            
-            Vector3f* lgv = [[Vector3f alloc] init];
-            [plane set:lgv toX:lx y:ly z:lz];
-            
-            float rx = gridX;
-            float ry = ([re y] - [rs y]) * (gridX - [rs x]) / ([re x] - [rs x]) + [rs y];
-            float rz = ([re z] - [rs z]) * (gridX - [rs x]) / ([re x] - [rs x]) + [rs z];
-            
-            Vector3f* rgv = [[Vector3f alloc] init];
-            [plane set:rgv toX:rx y:ry z:rz];
-            
-            [grid addObject:lgv];
-            [grid addObject:rgv];
-
-            [lgv release];
-            [rgv release];
-            
-            gridX += gridSize;
-        }
-        [si release];
-        
-        gridNo = sy / gridSize;
-        if (sy > 0)
-            gridNo++;
-        float gridY = gridNo * gridSize;
-        if (feq(gridY, sy))
-            gridY += gridSize;
-        
-        si = [[SegmentIterator alloc] initWithVertices:pVertices vertical:YES clockwise:clockwise];
-        
-        while (flt(gridY, ly)) {
-            Vector3f* ls = [si forwardLeftTo:gridY];
-            Vector3f* rs = [si forwardRightTo:gridY];
-            if (ls == nil || rs == nil)
-                break;
-            
-            Vector3f* le = [si nextLeft];
-            Vector3f* re = [si nextRight];
-            
-            float lx = ([le x] - [ls x]) * (gridY - [ls y]) / ([le y] - [ls y]) + [ls x];
-            float ly = gridY;
-            float lz = ([le z] - [ls z]) * (gridY - [ls y]) / ([le y] - [ls y]) + [ls z];
-            
-            Vector3f* lgv = [[Vector3f alloc] init];
-            [plane set:lgv toX:lx y:ly z:lz];
-            
-            float rx = ([re x] - [rs x]) * (gridY - [rs y]) / ([re y] - [rs y]) + [rs x];
-            float ry = gridY;
-            float rz = ([re z] - [rs z]) * (gridY - [rs y]) / ([re y] - [rs y]) + [rs z];
-            
-            Vector3f* rgv = [[Vector3f alloc] init];
-            [plane set:rgv toX:rx y:ry z:rz];
-            
-            [grid addObject:lgv];
-            [grid addObject:rgv];
-
-            [lgv release];
-            [rgv release];
-            
-            gridY += gridSize;
-        }
-        [si release];
-        
-        [pVertices release];
-        
-        [grids setObject:grid forKey:key];
-        [grid release];
-    }
-    
-    return grid;
 }
 
 - (MutableFace *)face {
@@ -399,10 +246,10 @@
             break;
     }
     
-    NSEnumerator* eEn = [sideEdges objectEnumerator];
-    SideEdge* sideEdge;
-    while ((sideEdge = [eEn nextObject]))
-        [desc appendFormat:@"%@\n", sideEdge];
+    NSEnumerator* eEn = [edges objectEnumerator];
+    Edge* edge;
+    while ((edge = [eEn nextObject]))
+        [desc appendFormat:@"%@\n", edge];
     
     return desc;
 }
@@ -424,9 +271,8 @@
 - (void)dealloc {
     [face release];
     [vertices release];
+    [edges release];
     [center release];
-    [sideEdges release];
-    [grids release];
     [super dealloc];
 }
 

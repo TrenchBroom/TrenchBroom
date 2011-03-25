@@ -10,12 +10,7 @@
 #import "Vector3f.h"
 
 int smallestVertex(NSArray *vertices) {
-    if (vertices == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vertex array must not be nil"];
-    
-    if ([vertices count] == 0)
-        [NSException raise:NSInvalidArgumentException format:@"vertex array must not be empty"];
-    else if ([vertices count] == 1)
+    if ([vertices count] == 1)
         return 0;
     
     int s = 0;

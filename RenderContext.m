@@ -13,9 +13,6 @@
 @implementation RenderContext
 
 - (id)initWithOptions:(Options *)theOptions {
-    if (theOptions == nil)
-        [NSException raise:NSInvalidArgumentException format:@"options must not be nil"];
-    
     if (self = [self init]) {
         options = [theOptions retain];
     }

@@ -17,7 +17,7 @@ typedef enum {
 } EEdgeMark;
 
 @class Vertex;
-@class SideEdge;
+@class Side;
 @class Vector3f;
 @class Plane3D;
 @class Ray3D;
@@ -30,8 +30,8 @@ typedef enum {
     @private
     Vertex* startVertex;
     Vertex* endVertex;
-    SideEdge* leftEdge;
-    SideEdge* rightEdge;
+    Side* leftSide;
+    Side* rightSide;
     EEdgeMark mark;
 }
 
@@ -42,8 +42,12 @@ typedef enum {
 
 - (id <Face>)leftFace;
 - (id <Face>)rightFace;
-- (void)setLeftEdge:(SideEdge *)theLeftEdge;
-- (void)setRightEdge:(SideEdge *)theRightEdge;
+- (Side *)leftSide;
+- (Side *)rightSide;
+- (Vertex *)startVertexForSide:(Side *)theSide;
+- (Vertex *)endVertexForSide:(Side *)theSide;
+- (void)setLeftSide:(Side *)theLeftSide;
+- (void)setRightSide:(Side *)theRightSide;
 
 - (Vertex *)splitAt:(Plane3D *)plane;
 

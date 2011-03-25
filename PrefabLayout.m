@@ -23,9 +23,6 @@
 }
 
 - (id)initWithPrefabManager:(PrefabManager *)thePrefabManager prefabsPerRow:(int)thePrefabsPerRow glFont:(GLFont *)theGLFont {
-    if (thePrefabManager == nil)
-        [NSException raise:NSInvalidArgumentException format:@"prefab manager must not be nil"];
-    
     if (self = [self init]) {
         prefabManager = [thePrefabManager retain];
         prefabsPerRow = thePrefabsPerRow;

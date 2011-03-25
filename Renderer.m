@@ -82,16 +82,10 @@ NSString* const RendererChanged = @"RendererChanged";
         int vertexSize = 8 * sizeof(float);
         int vertexCount = [vertices count];
         
-        VBOMemBlock* block = [sharedBlockMap objectForKey:[face faceId]];
-        if (block != nil && [block capacity] != vertexCount * vertexSize * sizeof(float)) {
-            [block free];
-            [sharedBlockMap removeObjectForKey:[face faceId]];
-            block = nil;
-        }
-        
-        if (block == nil) {
+        VBOMemBlock* block = [face memBlock];
+        if (block == nil || (block != nil && [block capacity] != vertexCount * vertexSize * sizeof(float))) {
             block = [sharedVbo allocMemBlock:vertexCount * vertexSize * sizeof(float)];
-            [sharedBlockMap setObject:block forKey:[face faceId]];
+            [face setMemBlock:block];
         }
         
         id <Brush> brush = [face brush];
@@ -147,12 +141,8 @@ NSString* const RendererChanged = @"RendererChanged";
         [selectionLayer removeFace:face];
     else
         [geometryLayer removeFace:face];
-    
-    VBOMemBlock* block = [sharedBlockMap objectForKey:[face faceId]];
-    if (block != nil) {
-        [block free];
-        [sharedBlockMap removeObjectForKey:[face faceId]];
-    }
+
+    [face setMemBlock:nil];
 }
 
 - (void)addBrush:(id <Brush>)brush {
@@ -457,22 +447,18 @@ NSString* const RendererChanged = @"RendererChanged";
 @implementation Renderer
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
-    if (theWindowController == nil)
-        [NSException raise:NSInvalidArgumentException format:@"window controller must not be nil"];
-    
     if (self = [self init]) {
         windowController = [theWindowController retain];
 
         sharedVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
-        sharedBlockMap = [[NSMutableDictionary alloc] init];
         invalidFaces = [[NSMutableSet alloc] init];
         
         MapDocument* map = [windowController document];
         GLResources* glResources = [map glResources];
         textureManager = [[glResources textureManager] retain];
         
-        geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo blockMap:sharedBlockMap textureManager:textureManager];
-        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo blockMap:sharedBlockMap textureManager:textureManager];
+        geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager];
+        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager];
         // feedbackLayer = [[FeedbackLayer alloc] initWithWindowController:windowController];
 
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
@@ -536,7 +522,6 @@ NSString* const RendererChanged = @"RendererChanged";
     
     [textureManager release];
     [sharedVbo release];
-    [sharedBlockMap release];
     [invalidFaces release];
     [super dealloc];
 }

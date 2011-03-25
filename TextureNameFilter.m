@@ -12,9 +12,6 @@
 @implementation TextureNameFilter
 
 - (id)initWithPattern:(NSString *)thePattern {
-    if (thePattern == nil)
-        [NSException raise:NSInvalidArgumentException format:@"pattern must not be nil"];
-    
     if (self = [self init]) {
         pattern = [thePattern retain];
     }

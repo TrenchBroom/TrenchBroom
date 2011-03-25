@@ -12,11 +12,6 @@
 @implementation PickingHit
 
 - (id)initWithObject:(id)theObject type:(EHitType)theType hitPoint:(Vector3f *)theHitPoint distance:(float)theDistance {
-    if (theObject == nil)
-        [NSException raise:NSInvalidArgumentException format:@"object must not be nil"];
-    if (theHitPoint == nil)
-        [NSException raise:NSInvalidArgumentException format:@"hit point must not be nil"];
-    
     if (self = [self init]) {
         object = [theObject retain];
         type = theType;

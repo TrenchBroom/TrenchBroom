@@ -22,11 +22,6 @@
 }
 
 - (id)initWithPoint:(Vector3f *)aPoint norm:(Vector3f *)aNorm {
-    if (aPoint == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
-    if (aNorm == nil)
-        [NSException raise:NSInvalidArgumentException format:@"normal must not be nil"];
-    
     if (self == [super init]) {
         [self setPoint:aPoint norm:aNorm];
     }
@@ -35,18 +30,10 @@
 }
 
 - (id)initWithPlane:(Plane3D *)aPlane {
-    if (aPlane == nil)
-        [NSException raise:NSInvalidArgumentException format:@"plane must not be nil"];
-    
     return [self initWithPoint:[aPlane point] norm:[aPlane norm]];
 }
 
 - (void)setPoint:(Vector3f *)thePoint norm:(Vector3f *)theNorm {
-    if (thePoint == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
-    if (theNorm == nil)
-        [NSException raise:NSInvalidArgumentException format:@"normal must not be nil"];
-    
     [point release];
     point = [thePoint retain];
     
@@ -63,9 +50,6 @@
 }
 
 - (BOOL)isPointAbove:(Vector3f *)aPoint {
-    if (aPoint == nil)
-        [NSException raise:NSInvalidArgumentException format:@"aPoint must not be nil"];
-    
     Vector3f* t = [[Vector3f alloc] initWithFloatVector:aPoint];;
     [t sub:point];
     
@@ -77,9 +61,6 @@
 
 
 - (float)intersectWithLine:(Line3D *)line {
-    if (line == nil)
-        [NSException raise:NSInvalidArgumentException format:@"line must not be nil"];
-    
     Vector3f* lp = [line point];
     Vector3f* ld = [line direction];
     float denom = [ld dot:norm];
@@ -95,9 +76,6 @@
 }
 
 - (float)intersectWithRay:(Ray3D *)ray {
-    if (ray == nil)
-        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
-    
     Vector3f* ro = [ray origin];
     Vector3f* rd = [ray direction];
     float denom = [rd dot:norm];

@@ -161,18 +161,12 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 }
 
 - (void)writeVector3f:(Vector3f *)theVector address:(int)theAddress {
-    if (theVector == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
-    
     [self writeFloat:[theVector x] address:theAddress];
     [self writeFloat:[theVector y] address:theAddress + sizeof(float)];
     [self writeFloat:[theVector z] address:theAddress + 2 * sizeof(float)];
 }
 
 - (void)writeVector2f:(Vector2f *)theVector address:(int)theAddress {
-    if (theVector == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
-    
     [self writeFloat:[theVector x] address:theAddress];
     [self writeFloat:[theVector y] address:theAddress + sizeof(float)];
 }
@@ -285,9 +279,6 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 }
 
 - (VBOMemBlock *)freeMemBlock:(VBOMemBlock *)memBlock {
-    if (memBlock == nil)
-        [NSException raise:NSInvalidArgumentException format:@"block must not be nil"];
-    
     VBOMemBlock* previous = [memBlock previous];
     VBOMemBlock* next = [memBlock next];
 

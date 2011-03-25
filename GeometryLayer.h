@@ -15,7 +15,6 @@
 
 @interface GeometryLayer : NSObject <Layer> {
     VBOBuffer* sharedVbo;
-    NSDictionary* sharedBlockMap;
     NSMutableSet* faces;
     NSMutableSet* addedFaces;
     NSMutableSet* removedFaces;
@@ -24,7 +23,7 @@
     TextureManager* textureManager;
 }
 
-- (id)initWithVbo:(VBOBuffer *)theVbo blockMap:(NSDictionary *)theBlockMap textureManager:(TextureManager *)theTextureManager;
+- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager;
 
 
 - (void)renderFaces:(BOOL)textured;

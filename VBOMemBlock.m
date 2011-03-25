@@ -22,9 +22,6 @@
 }
 
 - (id)initBlockIn:(VBOBuffer *)theVboBuffer at:(int)theAddress capacity:(int)theCapacity {
-    if (theVboBuffer == nil)
-        [NSException raise:NSInvalidArgumentException format:@"VBO buffer must not be nil"];
-    
     if (self = [self init]) {
         vboBuffer = [theVboBuffer retain];
         address = theAddress;

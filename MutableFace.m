@@ -29,6 +29,8 @@
 #import "Texture.h"
 #import "RenderContext.h"
 #import "IntData.h"
+#import "CoordinatePlane.h"
+#import "SegmentIterator.h"
 
 static Vector3f* baseAxes[18];
 
@@ -294,13 +296,6 @@ static Vector3f* baseAxes[18];
 }
 
 - (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3{
-    if (thePoint1 == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point 1 must not be nil"];
-    if (thePoint2 == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point 2 must not be nil"];
-    if (thePoint3 == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point 3 must not be nil"];
-
     if ([point1 isEqualToVector:thePoint1] &&
         [point2 isEqualToVector:thePoint2] &&
         [point3 isEqualToVector:thePoint3])
@@ -314,9 +309,6 @@ static Vector3f* baseAxes[18];
 }
 
 - (void)translateBy:(Vector3i *)theDelta {
-    if (theDelta == nil)
-        [NSException raise:NSInvalidArgumentException format:@"direction must not be nil"];
-
     [point1 add:theDelta];
     [point2 add:theDelta];
     [point3 add:theDelta];
@@ -348,9 +340,7 @@ static Vector3f* baseAxes[18];
 }
 
 - (void)setTexture:(NSString *)name {
-    if (name == nil)
-        [NSException raise:NSInvalidArgumentException format:@"texture name must not be nil"];
-
+    NSAssert(name != nil, @"texture name must not be nil");
     [texture setString:name];
 }
 
@@ -411,7 +401,6 @@ static Vector3f* baseAxes[18];
     if (texAxisX == nil || texAxisY == nil)
         [self updateTexAxes];
     
-    NSLog(@"best axis: %i", bestAxis);
     switch (bestAxis) {
         case 0:
         case 3:
@@ -441,15 +430,126 @@ static Vector3f* baseAxes[18];
 }
 
 - (NSArray *)gridWithSize:(int)gridSize {
-    return [brush gridForFace:self gridSize:gridSize];
+    CoordinatePlane* plane = [CoordinatePlane projectionPlaneForNormal:norm];
+    
+    NSMutableArray* pVertices = [[NSMutableArray alloc] initWithCapacity:[[self vertices] count]];
+    
+    float sx = FLT_MAX;
+    float sy = FLT_MAX;
+    float lx = -FLT_MAX;
+    float ly = -FLT_MAX;
+    
+    NSEnumerator* vertexEn = [[self vertices] objectEnumerator];
+    Vertex* vertex;
+    while ((vertex = [vertexEn nextObject])) {
+        Vector3f* pVertex = [plane project:[vertex vector]];
+        [pVertices addObject:pVertex];
+        
+        float x = [pVertex x];
+        float y = [pVertex y];
+        
+        if (x < sx)
+            sx = x;
+        if (x > lx)
+            lx = x;
+        if (y < sy)
+            sy = y;
+        if (y > ly)
+            ly = y;
+    }
+    
+    int gridNo = sx / gridSize;
+    if (sx > 0)
+        gridNo++;
+    float gridX = gridNo * gridSize; // first grid line to intersect with polygon
+    if (feq(gridX, sx))
+        gridX += gridSize;
+    
+    BOOL clockwise = [plane clockwise:norm];
+    NSMutableArray* grid = [[NSMutableArray alloc] init];
+    
+    SegmentIterator* si = [[SegmentIterator alloc] initWithVertices:pVertices vertical:NO clockwise:clockwise];
+    while (flt(gridX, lx)) {
+        
+        Vector3f* ls = [si forwardLeftTo:gridX];
+        Vector3f* rs = [si forwardRightTo:gridX];
+        if (ls == nil || rs == nil)
+            break;
+        
+        Vector3f* le = [si nextLeft];
+        Vector3f* re = [si nextRight];
+        
+        float lx = gridX;
+        float ly = ([le y] - [ls y]) * (gridX - [ls x]) / ([le x] - [ls x]) + [ls y];
+        float lz = ([le z] - [ls z]) * (gridX - [ls x]) / ([le x] - [ls x]) + [ls z];
+        
+        Vector3f* lgv = [[Vector3f alloc] init];
+        [plane set:lgv toX:lx y:ly z:lz];
+        
+        float rx = gridX;
+        float ry = ([re y] - [rs y]) * (gridX - [rs x]) / ([re x] - [rs x]) + [rs y];
+        float rz = ([re z] - [rs z]) * (gridX - [rs x]) / ([re x] - [rs x]) + [rs z];
+        
+        Vector3f* rgv = [[Vector3f alloc] init];
+        [plane set:rgv toX:rx y:ry z:rz];
+        
+        [grid addObject:lgv];
+        [grid addObject:rgv];
+        
+        [lgv release];
+        [rgv release];
+        
+        gridX += gridSize;
+    }
+    [si release];
+    
+    gridNo = sy / gridSize;
+    if (sy > 0)
+        gridNo++;
+    float gridY = gridNo * gridSize;
+    if (feq(gridY, sy))
+        gridY += gridSize;
+    
+    si = [[SegmentIterator alloc] initWithVertices:pVertices vertical:YES clockwise:clockwise];
+    
+    while (flt(gridY, ly)) {
+        Vector3f* ls = [si forwardLeftTo:gridY];
+        Vector3f* rs = [si forwardRightTo:gridY];
+        if (ls == nil || rs == nil)
+            break;
+        
+        Vector3f* le = [si nextLeft];
+        Vector3f* re = [si nextRight];
+        
+        float lx = ([le x] - [ls x]) * (gridY - [ls y]) / ([le y] - [ls y]) + [ls x];
+        float ly = gridY;
+        float lz = ([le z] - [ls z]) * (gridY - [ls y]) / ([le y] - [ls y]) + [ls z];
+        
+        Vector3f* lgv = [[Vector3f alloc] init];
+        [plane set:lgv toX:lx y:ly z:lz];
+        
+        float rx = ([re x] - [rs x]) * (gridY - [rs y]) / ([re y] - [rs y]) + [rs x];
+        float ry = gridY;
+        float rz = ([re z] - [rs z]) * (gridY - [rs y]) / ([re y] - [rs y]) + [rs z];
+        
+        Vector3f* rgv = [[Vector3f alloc] init];
+        [plane set:rgv toX:rx y:ry z:rz];
+        
+        [grid addObject:lgv];
+        [grid addObject:rgv];
+        
+        [lgv release];
+        [rgv release];
+        
+        gridY += gridSize;
+    }
+    [si release];
+    
+    [pVertices release];
+    return [grid autorelease];
 }
 
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex {
-    if (texCoords == nil)
-        [NSException raise:NSInvalidArgumentException format:@"texture coordinate vector must not be nil"];
-    if (vertex == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vertex must not be nil"];
-    
     if (texAxisX == nil || texAxisY == nil)
         [self updateTexAxes];
     
@@ -458,9 +558,6 @@ static Vector3f* baseAxes[18];
 }
 
 - (Vector3f *)worldCoordsOf:(Vector3f *)sCoords {
-    if (sCoords == nil)
-        [NSException raise:NSInvalidArgumentException format:@"surface coordinates must not be nil"];
-    
     if (surfaceMatrix == nil)
         [self updateMatrices];
 
@@ -471,9 +568,6 @@ static Vector3f* baseAxes[18];
 }
 
 - (Vector3f *)surfaceCoordsOf:(Vector3f *)wCoords {
-    if (wCoords == nil)
-        [NSException raise:NSInvalidArgumentException format:@"world coordinates must not be nil"];
-    
     if (worldMatrix == nil)
         [self updateMatrices];
     
@@ -498,15 +592,47 @@ static Vector3f* baseAxes[18];
 }
 
 - (Vector3f *)center {
-    return [brush centerOfFace:self];
+    if (center == nil) {
+        NSEnumerator* vertexEn = [vertices objectEnumerator];
+        Vertex* vertex = [vertexEn nextObject];
+        center = [[Vector3f alloc] initWithFloatVector:[vertex vector]];
+        while ((vertex = [vertexEn nextObject]))
+            [center add:[vertex vector]];
+        [center scale:1.0f / [vertices count]];
+    }
+    
+    return center;
 }
 
 - (NSArray *)vertices {
-    return [brush verticesForFace:self];
+    return vertices;
 }
 
 - (NSArray *)edges {
-    return [brush edgesForFace:self];
+    return edges;
+}
+
+- (void)setMemBlock:(VBOMemBlock *)theBlock {
+    [memBlock free];
+    [memBlock release];
+    memBlock = [theBlock retain];
+}
+
+- (VBOMemBlock *)memBlock {
+    return memBlock;
+}
+
+- (void)setVertices:(NSArray *)theVertices {
+    [center release];
+    center = nil;
+    
+    [vertices release];
+    vertices = [theVertices retain];
+}
+
+- (void)setEdges:(NSArray *)theEdges {
+    [edges release];
+    edges = [theEdges retain];
 }
 
 - (void) dealloc {
@@ -521,6 +647,11 @@ static Vector3f* baseAxes[18];
     [texAxisY release];
     [surfaceMatrix release];
     [worldMatrix release];
+    [memBlock free];
+    [memBlock release];
+    [vertices release];
+    [edges release];
+    [center release];
 	[super dealloc];
 }
 

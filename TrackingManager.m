@@ -25,9 +25,6 @@ NSString* const UntrackedObjectKey = @"UntrackedObjectKey";
 @implementation TrackingManager
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
-    if (theWindowController == nil)
-        [NSException raise:NSInvalidArgumentException format:@"window controller must not be nil"];
-    
     if (self = [self init]) {
         windowController = [theWindowController retain];
     }

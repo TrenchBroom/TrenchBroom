@@ -11,19 +11,6 @@
 
 @implementation WadTextureEntry
 - (id)initWithName:(NSString *)theName width:(int)theWidth height:(int)theHeight mip0:(NSData *)mip0Data mip1:(NSData *)mip1Data mip2:(NSData *)mip2Data mip3:(NSData *)mip3Data {
-    if (mip0Data == nil)
-        [NSException raise:NSInvalidArgumentException format:@"mip 0 data must not be nil"];
-    if (mip1Data == nil)
-        [NSException raise:NSInvalidArgumentException format:@"mip 1 data must not be nil"];
-    if (mip2Data == nil)
-        [NSException raise:NSInvalidArgumentException format:@"mip 2 data must not be nil"];
-    if (mip3Data == nil)
-        [NSException raise:NSInvalidArgumentException format:@"mip 3 data must not be nil"];
-    if (theWidth <= 0)
-        [NSException raise:NSInvalidArgumentException format:@"width must be a positive number"];
-    if (theHeight <= 0)
-        [NSException raise:NSInvalidArgumentException format:@"height must be a positive number"];
-
     if (self = [super initWithName:theName]) {
         width = theWidth;
         height = theHeight;

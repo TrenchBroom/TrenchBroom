@@ -45,9 +45,6 @@
 }
 
 - (id)initWithDocument:(MapDocument *)theDocument minSize:(int)theMinSize {
-    if (theDocument == nil)
-        [NSException raise:NSInvalidArgumentException format:@"document must not be nil"];
-    
     if (self = [self init]) {
         map = [theDocument retain];
         
@@ -79,8 +76,10 @@
     return self;
 }
 
-- (void)addObjectsForRay:(Ray3D *)theRay to:(NSMutableSet *)theSet {
-    [root addObjectsForRay:theRay to:theSet];
+- (NSArray *)pickObjectsWithRay:(Ray3D *)ray include:(NSSet *)include exclude:(NSSet *)exclude {
+    NSMutableArray* result = [[NSMutableArray alloc] init];
+    [root addObjectsForRay:ray to:result include:include exclude:exclude];
+    return [result autorelease];
 }
 
 - (void)dealloc {

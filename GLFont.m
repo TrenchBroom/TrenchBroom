@@ -15,9 +15,6 @@
 @implementation GLFont
 
 - (id)initWithFont:(NSFont *)theFont {
-    if (theFont == nil)
-        [NSException raise:NSInvalidArgumentException format:@"font must not be nil"];
-    
     if (self = [super init]) {
         // see "Calculating Text Height" in help
         
@@ -114,9 +111,8 @@
 }
 
 - (GLString *)glStringFor:(NSString *)theString {
-    if (theString == nil || [theString length] == 0)
-        [NSException raise:NSInvalidArgumentException format:@"string must not be nil or empty"];
-    
+    NSAssert(theString != nil && [theString length] > 0, @"string must not be nil or empty");
+
     int capacity = 4 * 5 * [theString length] * sizeof(float);
     VBOBuffer* vbo = [vbos lastObject];
     if (vbo == nil || capacity > [vbo freeCapacity]) {

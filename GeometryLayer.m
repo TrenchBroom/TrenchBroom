@@ -30,7 +30,7 @@
     NSEnumerator* faceEn = [invalidFaces objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject])) {
-        VBOMemBlock* block = [sharedBlockMap objectForKey:[face faceId]];
+        VBOMemBlock* block = [face memBlock];
         NSAssert(block != nil, @"VBO mem block must be in shared block map");
         NSAssert([block state] == BS_USED_VALID, @"VBO mem block must be valid");
         
@@ -97,14 +97,12 @@
     return self;
 }
 
-- (id)initWithVbo:(VBOBuffer *)theVbo blockMap:(NSDictionary *)theBlockMap textureManager:(TextureManager *)theTextureManager {
+- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager {
     NSAssert(theVbo != nil, @"VBO must not be nil");
-    NSAssert(theBlockMap != nil, @"block map must not be nil");
     NSAssert(theTextureManager != nil, @"texture manager must not be nil");
     
     if (self = [self init]) {
         sharedVbo = [theVbo retain];
-        sharedBlockMap = [theBlockMap retain];
         textureManager = [theTextureManager retain];
     }
     
@@ -221,7 +219,6 @@
 
 - (void)dealloc {
     [sharedVbo release];
-    [sharedBlockMap release];
     [faces release];
     [addedFaces release];
     [removedFaces release];

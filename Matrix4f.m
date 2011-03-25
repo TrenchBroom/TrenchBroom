@@ -46,9 +46,6 @@
 }
 
 - (void)setSubMatrix:(int)index to:(Matrix2f *)matrix {
-    if (matrix == nil)
-        [NSException raise:NSInvalidArgumentException format:@"matrix must not be nil"];
-    
     float* mvalues = [matrix columnMajor];
     switch (index) {
         case 0:
@@ -96,9 +93,6 @@
 }
 
 - (void)rotateAbout:(Vector3f *)axis angle:(float)a {
-    if (axis == nil)
-        [NSException raise:NSInvalidArgumentException format:@"axis must not be nil"];
-    
     float s = sin(a);
     float c = cos(a);
     float t = 1 - c;
@@ -143,9 +137,6 @@
 }
 
 - (void)translate:(Vector3f *)offset {
-    if (offset == nil)
-        [NSException raise:NSInvalidArgumentException format:@"offset must not be nil"];
-    
     values[12] += [offset x];
     values[13] += [offset y];
     values[14] += [offset z];
@@ -248,20 +239,13 @@
 }
 
 - (void)setColumn:(int)col row:(int)row value:(float)value {
-    if (col < 0 || col > 3)
-        [NSException raise:NSInvalidArgumentException format:@"column index out of bounds: %i", col];
-    if (row < 0 || row > 3)
-        [NSException raise:NSInvalidArgumentException format:@"row index out of bounds: %i", row];
-    
+    NSAssert(col >= 0 && col <= 3, @"column index out of bounds");
+    NSAssert(row >= 0 && row <= 3, @"row index out of bounds");
     values[col * 4 + row] = value;
 }
 
 - (void)setRow:(int)row values:(Vector3f *)vector {
-    if (row < 0 || row > 3)
-        [NSException raise:NSInvalidArgumentException format:@"row index out of bounds: %i", row];
-    if (vector == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
-    
+    NSAssert(row >= 0 && row <= 3, @"row index out of bounds");
     values[ 0 + row] = [vector x];
     values[ 4 + row] = [vector y];
     values[ 8 + row] = [vector z];
@@ -269,11 +253,7 @@
 }
 
 - (void)setColumn:(int)col values:(Vector3f *)vector {
-    if (col < 0 || col > 3)
-        [NSException raise:NSInvalidArgumentException format:@"column index out of bounds: %i", col];
-    if (vector == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
-    
+    NSAssert(col >= 0 && col <= 3, @"column index out of bounds");
     values[col * 4 + 0] = [vector x];
     values[col * 4 + 1] = [vector y];
     values[col * 4 + 2] = [vector z];
@@ -302,9 +282,6 @@
 }
 
 - (void)transformVector4f:(Vector4f *)vector {
-    if (vector == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
-    
     float x = values[ 0] * [vector x] + values[ 4] * [vector y] + values[ 8] * [vector z] + values[12] * [vector w];
     float y = values[ 1] * [vector x] + values[ 5] * [vector y] + values[ 9] * [vector z] + values[13] * [vector w];
     float z = values[ 2] * [vector x] + values[ 6] * [vector y] + values[10] * [vector z] + values[14] * [vector w];

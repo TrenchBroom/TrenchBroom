@@ -26,9 +26,6 @@
 }
 
 - (id)initWithWidth:(float)theWidth innerMargin:(float)theInnerMargin outerMargin:(float)theOuterMargin font:(GLFont *)theFont {
-    if (theFont == nil)
-        [NSException raise:NSInvalidArgumentException format:@"font must not be nil"];
-    
     if (self = [self init]) {
         width = theWidth;
         innerMargin = theInnerMargin;
@@ -52,9 +49,6 @@
 }
 
 - (void)addTexture:(Texture *)theTexture {
-    if (theTexture == nil)
-        [NSException raise:NSInvalidArgumentException format:@"texture must not be nil"];
-    
     if ([textures count] >= nameSizeCapacity)
         [self resizeNameSizesToMinCapacity:[textures count]];
     
@@ -65,9 +59,6 @@
 }
 
 - (void)addTextures:(NSArray *)theTextures {
-    if (textures == nil)
-        [NSException raise:NSInvalidArgumentException format:@"textures must not be nil"];
-
     if ([textures count] + [theTextures count] >= nameSizeCapacity)
         [self resizeNameSizesToMinCapacity:[textures count] + [theTextures count]];
 

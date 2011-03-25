@@ -23,13 +23,6 @@
 }
 
 - (id)initWithBoundary:(Plane3D *)theBoundary outside:(Vector3f *)theOutside {
-    if (theBoundary == nil)
-        [NSException raise:NSInvalidArgumentException format:@"boundary must not be nil"];
-    if (theOutside == nil)
-        [NSException raise:NSInvalidArgumentException format:@"outside must not be nil"];
-    if ([theOutside isNull])
-        [NSException raise:NSInvalidArgumentException format:@"outside must not be null"];
-    
     if (self = [super init]) {
         boundary = [[Plane3D alloc] initWithPlane:theBoundary];
         outside = [[Vector3f alloc] initWithFloatVector:theOutside];
@@ -39,13 +32,6 @@
 }
 
 - (id)initWithIntPoint1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3 {
-    if (point1 == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point1 must not be nil"];
-    if (point2 == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point2 must not be nil"];
-    if (point3 == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point3 must not be nil"];
-    
     if (self = [super init]) {
         Vector3f* p = [[Vector3f alloc] initWithIntVector:point1];
         Vector3f* v1 = [[Vector3f alloc] initWithIntVector:point2];
@@ -68,9 +54,6 @@
 }
 
 - (BOOL)containsPoint:(Vector3f *)point {
-    if (point == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
-    
     Vector3f* t = [[Vector3f alloc] initWithFloatVector:point];
     [t sub:[boundary point]];
     

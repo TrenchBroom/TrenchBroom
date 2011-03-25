@@ -38,6 +38,6 @@ typedef enum {
 - (BOOL)addObject:(id)theObject bounds:(BoundingBox *)theBounds;
 - (BOOL)removeObject:(id)theObject bounds:(BoundingBox *)theBounds;
 
-- (void)addObjectsForRay:(Ray3D *)theRay to:(NSMutableSet *)theSet;
+- (void)addObjectsForRay:(Ray3D *)ray to:(NSMutableArray *)list include:(NSSet *)include exclude:(NSSet *)exclude;
 
 @end

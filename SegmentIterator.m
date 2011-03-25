@@ -17,11 +17,7 @@
 }
 
 - (id)initWithVertices:(NSArray *)theVertices vertical:(BOOL)isVertical clockwise:(BOOL)isClockwise {
-    if (theVertices == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vertex array must not be nil"];
-    if ([theVertices count] < 3)
-        [NSException raise:NSInvalidArgumentException format:@"vertex array must contain at least three elements"];
-    
+    NSAssert([theVertices count] >= 3, @"vertex array must contain at least three elements");
     if (self = [self init]) {
         vertices = [theVertices retain];
         vertical = isVertical;

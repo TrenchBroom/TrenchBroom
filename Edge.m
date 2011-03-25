@@ -7,7 +7,6 @@
 //
 
 #import "Edge.h"
-#import "SideEdge.h"
 #import "Side.h"
 #import "Vertex.h"
 #import "Face.h"
@@ -36,11 +35,6 @@ static float HANDLE_RADIUS = 2.0f;
 }
 
 - (id)initWithStartVertex:(Vertex *)theStartVertex endVertex:(Vertex *)theEndVertex {
-    if (theStartVertex == nil)
-        [NSException raise:NSInvalidArgumentException format:@"start vertex must not be nil"];
-    if (theEndVertex == nil)
-        [NSException raise:NSInvalidArgumentException format:@"end vertex must not be nil"];
-    
     if (self = [self init]) {
         startVertex = [theStartVertex retain];
         [startVertex addEdge:self];
@@ -60,29 +54,53 @@ static float HANDLE_RADIUS = 2.0f;
 }
 
 - (id <Face>)leftFace {
-    return [[leftEdge side] face];
+    return [leftSide face];
 }
 
 - (id <Face>)rightFace {
-    return [[rightEdge side] face];
+    return [rightSide face];
 }
 
-- (void)setLeftEdge:(SideEdge *)theLeftEdge {
-    if (leftEdge != nil)
-        [NSException raise:NSInvalidArgumentException format:@"left edge is already set"];
-    
-    leftEdge = [theLeftEdge retain];
+- (Side *)leftSide {
+    return leftSide;
 }
-- (void)setRightEdge:(SideEdge *)theRightEdge {
-    if (rightEdge != nil)
-        [NSException raise:NSInvalidArgumentException format:@"right edge is already set"];
+
+- (Side *)rightSide {
+    return rightSide;
+}
+
+- (Vertex *)startVertexForSide:(Side *)theSide {
+    if (theSide == leftSide)
+        return endVertex;
+    else if (theSide == rightSide)
+        return startVertex;
     
-    rightEdge = [theRightEdge retain];
+    [NSException raise:NSInvalidArgumentException format:@"given side is neither left nor right side"];
+    return nil;
+}
+
+- (Vertex *)endVertexForSide:(Side *)theSide {
+    if (theSide == leftSide)
+        return startVertex;
+    else if (theSide == rightSide)
+        return endVertex;
+
+    [NSException raise:NSInvalidArgumentException format:@"given side is neither left nor right side"];
+    return nil;
+}
+
+- (void)setLeftSide:(Side *)theLeftSide {
+    NSAssert(leftSide == nil, @"left side must not be set");
+    leftSide = [theLeftSide retain];
+}
+
+- (void)setRightSide:(Side *)theRightSide {
+    NSAssert(rightSide == nil, @"right side must not be set");
+    rightSide = [theRightSide retain];
 }
 
 - (Vertex *)splitAt:(Plane3D *)plane {
-    if (mark != EM_SPLIT)
-        [NSException raise:NSInvalidArgumentException format:@"cannot split edge that is not marked with EM_SPLIT"];
+    NSAssert(mark == EM_SPLIT, @"cannot split edge that is not marked with EM_SPLIT");
 
     Line3D* line = [[Line3D alloc] initWithPoint1:[startVertex vector] point2:[endVertex vector]];
     Vector3f* newVector = [line pointAtDistance:[plane intersectWithLine:line]];
@@ -248,8 +266,8 @@ static float HANDLE_RADIUS = 2.0f;
 - (void)dealloc {
     [startVertex release];
     [endVertex release];
-    [leftEdge release];
-    [rightEdge release];
+    [leftSide release];
+    [rightSide release];
     [super dealloc];
 }
 

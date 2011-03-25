@@ -20,9 +20,6 @@
 }
 
 - (id)initWithName:(NSString *)aName {
-    if (aName == nil)
-        [NSException raise:NSInvalidArgumentException format:@"name must not be nil"];
-    
     if (self = [self init]) {
         name = [aName retain];
     }
@@ -31,16 +28,10 @@
 }
 
 - (void)addPaletteEntry:(WadPaletteEntry *)entry {
-    if (entry == nil)
-        [NSException raise:NSInvalidArgumentException format:@"entry must not be nil"];
-    
     [paletteEntries addObject:entry];
 }
 
 - (void)addTextureEntry:(WadTextureEntry *)entry {
-    if (entry == nil)
-        [NSException raise:NSInvalidArgumentException format:@"entry must not be nil"];
-    
     [textureEntries addObject:entry];
 }
 

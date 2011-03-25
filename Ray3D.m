@@ -11,11 +11,6 @@
 
 @implementation Ray3D
 - (id)initWithOrigin:(Vector3f *)theOrigin direction:(Vector3f *)theDirection {
-    if (theOrigin == nil)
-        [NSException raise:NSInvalidArgumentException format:@"origin must not be nil"];
-    if (theDirection == nil)
-        [NSException raise:NSInvalidArgumentException format:@"direction must not be nil"];
-
     if (self = [self init]) {
         origin = [theOrigin retain];
         direction = [theDirection retain];
@@ -25,11 +20,6 @@
 }
 
 - (id)initWithOrigin:(Vector3f *)theOrigin point:(Vector3f *)thePoint {
-    if (theOrigin == nil)
-        [NSException raise:NSInvalidArgumentException format:@"origin must not be nil"];
-    if (thePoint == nil)
-        [NSException raise:NSInvalidArgumentException format:@"point must not be nil"];
-    
     [thePoint sub:theOrigin];
     [thePoint normalize];
     

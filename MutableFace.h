@@ -43,6 +43,10 @@ typedef enum {
     Vector3f* norm;
     HalfSpace3D* halfSpace;
     
+    Vector3f* center;
+    NSArray* vertices;
+    NSArray* edges;
+    
     int bestAxis;
     Vector3f* texAxisX;
     Vector3f* texAxisY;
@@ -50,6 +54,8 @@ typedef enum {
     // transforms surface coordinates to world coordinates
     Matrix4f* surfaceMatrix;
     Matrix4f* worldMatrix; // inverse of surface matrix
+    
+    VBOMemBlock* memBlock;
 }
 
 - (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;
@@ -65,4 +71,7 @@ typedef enum {
 - (void)setYScale:(float)factor;
 - (void)translateOffsetsX:(int)x y:(int)y;
 - (void)translateBy:(Vector3i *)theDelta;
+
+- (void)setVertices:(NSArray *)theVertices;
+- (void)setEdges:(NSArray *)theEdges;
 @end

@@ -20,5 +20,5 @@
 
 - (id)initWithDocument:(MapDocument *)theDocument minSize:(int)theMinSize;
 
-- (void)addObjectsForRay:(Ray3D *)theRay to:(NSMutableSet *)theSet;
+- (NSArray *)pickObjectsWithRay:(Ray3D *)ray include:(NSSet *)include exclude:(NSSet *)exclude;
 @end

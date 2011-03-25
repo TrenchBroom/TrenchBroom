@@ -33,15 +33,6 @@
 - (BOOL)addFace:(MutableFace *)face;
 - (void)removeFace:(MutableFace *)face;
 
-- (NSNumber* )brushId;
-
-- (NSArray *)faces;
-
-- (Vector3f *)centerOfFace:(MutableFace *)face;
-- (NSArray *)gridForFace:(MutableFace *)theFace gridSize:(int)gridSize;
-- (NSArray *)verticesForFace:(MutableFace *)face;
-- (NSArray *)edgesForFace:(MutableFace *)face;
-
 - (void)setEntity:(MutableEntity *)theEntity;
 - (void)translateBy:(Vector3i *)theDelta;
 - (void)faceGeometryChanged:(MutableFace *)face;

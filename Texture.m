@@ -12,9 +12,6 @@
 @implementation Texture
 
 - (id)initWithName:(NSString *)theName width:(int)theWidth height:(int)theHeight textureId:(int)theTextureId {
-    if (theName == nil)
-        [NSException raise:NSInvalidArgumentException format:@"name must not be nil"];
-    
     if (self = [self init]) {
         name = [theName retain];
         textureId = theTextureId;

@@ -22,7 +22,6 @@
 #import "Plane3D.h"
 #import "Ray3D.h"
 #import "Side.h"
-#import "SideEdge.h"
 #import "SegmentIterator.h"
 
 @implementation VertexData
@@ -32,57 +31,55 @@
         vertices = [[NSMutableArray alloc] init];
         edges = [[NSMutableArray alloc] init];
         sides = [[NSMutableArray alloc] init];
-        faceToSide = [[NSMutableDictionary alloc] init];
-        centers = [[NSMutableDictionary alloc] init];
         bounds = nil;
         
         // initialize as huge cube
         Vector3f* v = [[Vector3f alloc] initWithX:-4096 y:-4096 z:-4096];
-        Vertex* wsb = [[Vertex alloc] initWithVector:v];
-        [vertices addObject:wsb];
-        [wsb release];
-        [v release];
-        
-        v = [[Vector3f alloc] initWithX:-4096 y:-4096 z:+4096];
-        Vertex* wst = [[Vertex alloc] initWithVector:v];
-        [vertices addObject:wst];
-        [wst release];
-        [v release];
-        
-        v = [[Vector3f alloc] initWithX:-4096 y:+4096 z:-4096];
-        Vertex* wnb = [[Vertex alloc] initWithVector:v];
-        [vertices addObject:wnb];
-        [wnb release];
-        [v release];
-        
-        v = [[Vector3f alloc] initWithX:-4096 y:+4096 z:+4096];
-        Vertex* wnt = [[Vertex alloc] initWithVector:v];
-        [vertices addObject:wnt];
-        [wnt release];
-        [v release];
-        
-        v = [[Vector3f alloc] initWithX:+4096 y:-4096 z:-4096];
         Vertex* esb = [[Vertex alloc] initWithVector:v];
         [vertices addObject:esb];
         [esb release];
         [v release];
         
-        v = [[Vector3f alloc] initWithX:+4096 y:-4096 z:+4096];
+        v = [[Vector3f alloc] initWithX:-4096 y:-4096 z:+4096];
         Vertex* est = [[Vertex alloc] initWithVector:v];
         [vertices addObject:est];
         [est release];
         [v release];
         
-        v = [[Vector3f alloc] initWithX:+4096 y:+4096 z:-4096];
+        v = [[Vector3f alloc] initWithX:-4096 y:+4096 z:-4096];
         Vertex* enb = [[Vertex alloc] initWithVector:v];
         [vertices addObject:enb];
         [enb release];
         [v release];
         
-        v = [[Vector3f alloc] initWithX:+4096 y:+4096 z:+4096];
+        v = [[Vector3f alloc] initWithX:-4096 y:+4096 z:+4096];
         Vertex* ent = [[Vertex alloc] initWithVector:v];
         [vertices addObject:ent];
         [ent release];
+        [v release];
+        
+        v = [[Vector3f alloc] initWithX:+4096 y:-4096 z:-4096];
+        Vertex* wsb = [[Vertex alloc] initWithVector:v];
+        [vertices addObject:wsb];
+        [wsb release];
+        [v release];
+        
+        v = [[Vector3f alloc] initWithX:+4096 y:-4096 z:+4096];
+        Vertex* wst = [[Vertex alloc] initWithVector:v];
+        [vertices addObject:wst];
+        [wst release];
+        [v release];
+        
+        v = [[Vector3f alloc] initWithX:+4096 y:+4096 z:-4096];
+        Vertex* wnb = [[Vertex alloc] initWithVector:v];
+        [vertices addObject:wnb];
+        [wnb release];
+        [v release];
+        
+        v = [[Vector3f alloc] initWithX:+4096 y:+4096 z:+4096];
+        Vertex* wnt = [[Vertex alloc] initWithVector:v];
+        [vertices addObject:wnt];
+        [wnt release];
         [v release];
         
         // create edges
@@ -135,43 +132,43 @@
         [wntwst release];
                 
         // create sides
-        NSArray* southEdges = [[NSArray alloc] initWithObjects:esbwsb, wsbwst, wstest, estesb, nil];
-        BOOL southFlipped[] = {NO, NO, NO, NO};
+        NSArray* southEdges = [[NSArray alloc] initWithObjects:esbwsb, estesb, wstest, wsbwst, nil];
+        BOOL southFlipped[] = {YES, YES, YES, YES};
         Side* southSide = [[Side alloc] initWithFace:nil edges:southEdges flipped:southFlipped];
         [sides addObject:southSide];
         [southSide release];
         [southEdges release];
         
-        NSArray* northEdges = [[NSArray alloc] initWithObjects:wnbenb, enbent, entwnt, wntwnb, nil];
-        BOOL northFlipped[] = {NO, NO, NO, NO};
+        NSArray* northEdges = [[NSArray alloc] initWithObjects:wnbenb, wntwnb, entwnt, enbent, nil];
+        BOOL northFlipped[] = {YES, YES, YES, YES};
         Side* northSide = [[Side alloc] initWithFace:nil edges:northEdges flipped:northFlipped];
         [sides addObject:northSide];
         [northSide release];
         [northEdges release];
 
-        NSArray* westEdges = [[NSArray alloc] initWithObjects:wsbwnb, wntwnb, wntwst, wsbwst, nil];
-        BOOL westFlipped[] = {NO, YES, NO, YES};
+        NSArray* westEdges = [[NSArray alloc] initWithObjects:wsbwnb, wsbwst, wntwst, wntwnb, nil];
+        BOOL westFlipped[] = {YES, NO, YES, NO};
         Side* westSide = [[Side alloc] initWithFace:nil edges:westEdges flipped:westFlipped];
         [sides addObject:westSide];
         [westSide release];
         [westEdges release];
         
-        NSArray* eastEdges = [[NSArray alloc] initWithObjects:enbesb, estesb, estent, enbent, nil];
-        BOOL eastFlipped[] = {NO, YES, NO, YES};
+        NSArray* eastEdges = [[NSArray alloc] initWithObjects:enbesb, enbent, estent, estesb, nil];
+        BOOL eastFlipped[] = {YES, NO, YES, NO};
         Side* eastSide = [[Side alloc] initWithFace:nil edges:eastEdges flipped:eastFlipped];
         [sides addObject:eastSide];
         [eastSide release];
         [eastEdges release];
         
-        NSArray* topEdges = [[NSArray alloc] initWithObjects:wstest, wntwst, entwnt, estent, nil];
-        BOOL topFlipped[] = {YES, YES, YES, YES};
+        NSArray* topEdges = [[NSArray alloc] initWithObjects:wstest, estent, entwnt, wntwst, nil];
+        BOOL topFlipped[] = {NO, NO, NO, NO};
         Side* topSide = [[Side alloc] initWithFace:nil edges:topEdges flipped:topFlipped];
         [sides addObject:topSide];
         [topSide release];
         [topEdges release];
         
-        NSArray* bottomEdges = [[NSArray alloc] initWithObjects:esbwsb, enbesb, wnbenb, wsbwnb, nil];
-        BOOL bottomFlipped[] = {YES, YES, YES, YES};
+        NSArray* bottomEdges = [[NSArray alloc] initWithObjects:esbwsb, wsbwnb, wnbenb, enbesb, nil];
+        BOOL bottomFlipped[] = {NO, NO, NO, NO};
         Side* bottomSide = [[Side alloc] initWithFace:nil edges:bottomEdges flipped:bottomFlipped];
         [sides addObject:bottomSide];
         [bottomSide release];
@@ -182,9 +179,6 @@
 }
 
 - (id)initWithFaces:(NSArray *)faces droppedFaces:(NSMutableArray **)droppedFaces {
-    if (faces == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face array must not be nil"];
-
     if (self = [self init]) {
         NSEnumerator* faceEn = [faces objectEnumerator];
         MutableFace * face;
@@ -247,14 +241,14 @@
     NSMutableArray* newEdges = [[NSMutableArray alloc] init];
     for (int i = 0; i < [sides count]; i++) {
         Side* side = [sides objectAtIndex:i];
-        SideEdge* newEdge = [side split];
+        Edge* newEdge = [side split];
         if ([side mark] == SM_DROP) {
             id <Face> face = [side face];
             if (face != nil)
                 [*droppedFaces addObject:face];
             [sides removeObjectAtIndex:i--];
         } else if ([side mark] == SM_SPLIT) {
-            [edges addObject:[newEdge edge]];
+            [edges addObject:newEdge];
             [newEdges addObject:newEdge];
             [side setMark:SM_UNKNOWN];
         } else {
@@ -265,10 +259,10 @@
     // create new side from newly created edge
     // first, sort the new edges to form a polygon
     for (int i = 0; i < [newEdges count] - 1; i++) {
-        SideEdge* edge = [newEdges objectAtIndex:i];
+        Edge* edge = [newEdges objectAtIndex:i];
         for (int j = i + 2; j < [newEdges count]; j++) {
-            SideEdge* candidate = [newEdges objectAtIndex:j];
-            if ([edge endVertex] == [candidate startVertex]) {
+            Edge* candidate = [newEdges objectAtIndex:j];
+            if ([edge startVertex] == [candidate endVertex]) {
                 [newEdges exchangeObjectAtIndex:j withObjectAtIndex:i + 1];
                 break;
             }
@@ -276,9 +270,8 @@
     }
     
     // now create the side
-    Side* side = [[Side alloc] initWithFace:face sideEdges:newEdges];
+    Side* side = [[Side alloc] initWithFace:face edges:newEdges];
     [sides addObject:side];
-    [faceToSide setObject:side forKey:[face faceId]];
     [newEdges release];
     [side release];
     
@@ -318,16 +311,6 @@
 
 - (NSArray *)edges {
     return edges;
-}
-
-- (NSArray *)edgesForFace:(MutableFace *)face {
-    if (face == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
-    Side* side = [faceToSide objectForKey:[face faceId]];
-    if (side == nil)
-        [NSException raise:NSInvalidArgumentException format:@"no vertex data for face %@", face];
-    
-    return [side edges];
 }
 
 - (BoundingBox *)bounds {
@@ -379,48 +362,11 @@
     return center;
 }
 
-- (NSArray *)verticesForFace:(MutableFace *)face {
-    if (face == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
-    Side* side = [faceToSide objectForKey:[face faceId]];
-    if (side == nil)
-        [NSException raise:NSInvalidArgumentException format:@"no vertex data for face %@", face];
-    
-    return [side vertices];
-}
-
-- (NSArray *)gridForFace:(MutableFace *)face gridSize:(int)gridSize {
-    if (face == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
-
-    Side* side = [faceToSide objectForKey:[face faceId]];
-    if (side == nil)
-        [NSException raise:NSInvalidArgumentException format:@"no vertex data for face %@", face];
-
-    return [side gridWithSize:gridSize];
-}
-
 - (int)edgeCount {
     return [edges count];
 }
 
-- (Vector3f *)centerOfFace:(MutableFace *)face {
-    if (face == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face must not be nil"];
-    
-    Side* side = [faceToSide objectForKey:[face faceId]];
-    if (side == nil)
-        [NSException raise:NSInvalidArgumentException format:@"face %@ does not belong to %@", face, self];
-    
-    return [side center];
-}
-
 - (void)pickBrush:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
-    if (theRay == nil)
-        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
-    if (theHitList == nil)
-        [NSException raise:NSInvalidArgumentException format:@"hit set must not be nil"];
-    
     NSEnumerator* sideEn = [sides objectEnumerator];
     Side* side;
     PickingHit* faceHit = nil;
@@ -435,11 +381,6 @@
 }
 
 - (void)pickFace:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
-    if (theRay == nil)
-        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
-    if (theHitList == nil)
-        [NSException raise:NSInvalidArgumentException format:@"hit set must not be nil"];
-    
     NSEnumerator* sideEn = [sides objectEnumerator];
     Side* side;
     PickingHit* hit = nil;
@@ -451,11 +392,6 @@
 }
 
 - (void)pickEdge:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
-    if (theRay == nil)
-        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
-    if (theHitList == nil)
-        [NSException raise:NSInvalidArgumentException format:@"hit set must not be nil"];
-    
     NSEnumerator* edgeEn = [edges objectEnumerator];
     Edge* edge;
     while ((edge = [edgeEn nextObject])) {
@@ -466,11 +402,6 @@
 }
 
 - (void)pickVertex:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
-    if (theRay == nil)
-        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
-    if (theHitList == nil)
-        [NSException raise:NSInvalidArgumentException format:@"hit set must not be nil"];
-    
     NSEnumerator* vertexEn = [vertices objectEnumerator];
     Vertex* vertex;
     while ((vertex = [vertexEn nextObject])) {
@@ -493,8 +424,6 @@
 }
 
 - (void)dealloc {
-    [centers release];
-    [faceToSide release];
     [sides release];
     [edges release];
     [vertices release];

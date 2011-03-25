@@ -13,11 +13,6 @@
 @implementation GLString
 
 - (id)initWithMemBlock:(VBOMemBlock *)theMemBlock glFont:(GLFont *)theFont {
-    if (theMemBlock == nil)
-        [NSException raise:NSInvalidArgumentException format:@"mem block must not be nil"];
-    if (theFont == nil)
-        [NSException raise:NSInvalidArgumentException format:@"font must not be nil"];
-    
     if (self = [self init]) {
         memBlock = [theMemBlock retain];
         glFont = [theFont retain];

@@ -16,9 +16,6 @@
 @implementation Picker
 
 - (id)initWithDocument:(MapDocument *)theDocument {
-    if (theDocument == nil)
-        [NSException raise:NSInvalidArgumentException format:@"document must not be nil"];
-    
     if (self = [self init]) {
         octree = [[Octree alloc] initWithDocument:theDocument minSize:32];
     }
@@ -26,32 +23,22 @@
     return self;
 }
 
-- (PickingHitList *)pickObjects:(Ray3D *)theRay include:(NSSet *)includedObjects exclude:(NSSet *)excludedObjects {
-    if (theRay == nil)
-        [NSException raise:NSInvalidArgumentException format:@"ray must not be nil"];
-    
+- (PickingHitList *)pickObjects:(Ray3D *)ray include:(NSSet *)include exclude:(NSSet *)exclude {
+
     PickingHitList* hitList = [[PickingHitList alloc] init];
-    
-    NSMutableSet* objects = [[NSMutableSet alloc] init];
-    [octree addObjectsForRay:theRay to:objects];
-    
-    if (includedObjects != nil)
-        [objects intersectSet:includedObjects];
-    if (excludedObjects != nil)
-        [objects minusSet:excludedObjects];
+    NSArray* objects = [octree pickObjectsWithRay:ray include:include exclude:exclude];
     
     NSEnumerator* objectEn = [objects objectEnumerator];
     id object;
     while ((object = [objectEn nextObject])) {
         if ([object conformsToProtocol:@protocol(Brush)]) {
             id <Brush> brush = (id <Brush>)object;
-            [brush pickBrush:theRay hitList:hitList];
-            [brush pickFace:theRay hitList:hitList];
-            [brush pickEdge:theRay hitList:hitList];
-            [brush pickVertex:theRay hitList:hitList];
+            [brush pickBrush:ray hitList:hitList];
+            [brush pickFace:ray hitList:hitList];
+//            [brush pickEdge:theRay hitList:hitList];
+//            [brush pickVertex:theRay hitList:hitList];
         }
     }
-    [objects release];
     
     return [hitList autorelease];
 }

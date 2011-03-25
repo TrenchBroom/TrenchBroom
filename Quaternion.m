@@ -79,33 +79,21 @@
 }
 
 - (void)setVector:(Vector3f *)theVector {
-    if (theVector == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vector must not be nil"];
-    
     [v setFloat:theVector];
 }
 
 - (void)setQuaternion:(Quaternion *)theQuaternion {
-    if (theQuaternion == nil)
-        [NSException raise:NSInvalidArgumentException format:@"quaternion must not be nil"];
-    
     a = [theQuaternion scalar];
     [v setFloat:[theQuaternion vector]];
 }
 
 - (void)setAngle:(float)theAngle axis:(Vector3f *)theAxis {
-    if (theAxis == nil)
-        [NSException raise:NSInvalidArgumentException format:@"axis must not be nil"];
-    
     a = cos(theAngle / 2);
     [v setFloat:theAxis];
     [v scale:sin(theAngle / 2)];
 }
 
 - (void)mul:(Quaternion *)right {
-    if (right == nil)
-        [NSException raise:NSInvalidArgumentException format:@"right must not be nil"];
-    
     float b = [right scalar];
     Vector3f* w = [right vector];
     

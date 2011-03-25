@@ -277,11 +277,6 @@ NSArray* makeRing(float innerRadius, float outerRadius, int segments) {
 }
 
 int smallestXVertex2D(NSArray *vertices) {
-    if (vertices == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vertex array must not be nil"];
-    if ([vertices count] == 0)
-        [NSException raise:NSInvalidArgumentException format:@"vertex array must not be empty"];
-        
     int s = 0;
     Vector3f* v = [vertices objectAtIndex:0];
     float x = [v x];
@@ -300,11 +295,6 @@ int smallestXVertex2D(NSArray *vertices) {
 }
 
 int smallestYVertex2D(NSArray *vertices)  {
-    if (vertices == nil)
-        [NSException raise:NSInvalidArgumentException format:@"vertex array must not be nil"];
-    if ([vertices count] == 0)
-        [NSException raise:NSInvalidArgumentException format:@"vertex array must not be empty"];
-    
     int s = 0;
     Vector3f* v = [vertices objectAtIndex:0];
     float x = [v x];

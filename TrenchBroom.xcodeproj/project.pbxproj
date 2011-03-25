@@ -38,7 +38,6 @@
 		4836401B1260416700363E3F /* Plane3DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401A1260416700363E3F /* Plane3DTestCase.m */; };
 		4838DFB412EF4E86008ADB71 /* VertexData.m in Sources */ = {isa = PBXBuildFile; fileRef = 4838DFB312EF4E86008ADB71 /* VertexData.m */; };
 		4838DFB712EF4E94008ADB71 /* Vertex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4838DFB612EF4E94008ADB71 /* Vertex.m */; };
-		4838DFBC12EF548F008ADB71 /* SideEdge.m in Sources */ = {isa = PBXBuildFile; fileRef = 4838DFBB12EF548F008ADB71 /* SideEdge.m */; };
 		483B1129122441060072EAFB /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
 		484524A61323CCBD003B2855 /* MapWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524A51323CCBD003B2855 /* MapWriter.m */; };
 		484524D713240049003B2855 /* NSFileManager+AppSupportCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */; };
@@ -217,8 +216,6 @@
 		4838DFB312EF4E86008ADB71 /* VertexData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexData.m; sourceTree = "<group>"; };
 		4838DFB512EF4E94008ADB71 /* Vertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vertex.h; sourceTree = "<group>"; };
 		4838DFB612EF4E94008ADB71 /* Vertex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vertex.m; sourceTree = "<group>"; };
-		4838DFBA12EF548F008ADB71 /* SideEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SideEdge.h; sourceTree = "<group>"; };
-		4838DFBB12EF548F008ADB71 /* SideEdge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SideEdge.m; sourceTree = "<group>"; };
 		483B1127122441060072EAFB /* Math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		483B1128122441060072EAFB /* Math.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math.m; sourceTree = "<group>"; };
 		484524A41323CCBD003B2855 /* MapWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWriter.h; sourceTree = "<group>"; };
@@ -544,8 +541,6 @@
 				480AD8B512ED78FA009B5970 /* Edge.m */,
 				480AD8D412ED9E4A009B5970 /* Side.h */,
 				480AD8D512ED9E4A009B5970 /* Side.m */,
-				4838DFBA12EF548F008ADB71 /* SideEdge.h */,
-				4838DFBB12EF548F008ADB71 /* SideEdge.m */,
 				4838DFB512EF4E94008ADB71 /* Vertex.h */,
 				4838DFB612EF4E94008ADB71 /* Vertex.m */,
 				4838DFB212EF4E86008ADB71 /* VertexData.h */,
@@ -1020,7 +1015,6 @@
 				480AD8D612ED9E4A009B5970 /* Side.m in Sources */,
 				4838DFB412EF4E86008ADB71 /* VertexData.m in Sources */,
 				4838DFB712EF4E94008ADB71 /* Vertex.m in Sources */,
-				4838DFBC12EF548F008ADB71 /* SideEdge.m in Sources */,
 				48DB957812F0699600FB5483 /* InputManager.m in Sources */,
 				48DB95A312F0A89E00FB5483 /* Quaternion.m in Sources */,
 				4824957B12F3004C004F3615 /* BoundingBox.m in Sources */,

@@ -31,9 +31,6 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
 }
 
 - (id)initWithPalette:(NSData *)thePalette {
-    if (thePalette == nil)
-        [NSException raise:NSInvalidArgumentException format:@"palette must not be nil"];
-    
     if (self = [self init]) {
         palette = [thePalette retain];
     }
@@ -72,9 +69,6 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
 }
 
 - (void)loadTexturesFrom:(Wad *)wad {
-    if (wad == nil)
-        [NSException raise:NSInvalidArgumentException format:@"wad must not be nil"];
-    
     glEnable(GL_TEXTURE_2D);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -140,16 +134,10 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
 }
 
 - (Texture *)textureForName:(NSString *)name {
-    if (name == nil)
-        [NSException raise:NSInvalidArgumentException format:@"name must not be nil"];
-    
     return [textures objectForKey:name];
 }
 
 - (NSArray *)texturesForNames:(NSArray *)names {
-    if (names == nil)
-        [NSException raise:NSInvalidArgumentException format:@"name must not be nil"];
-    
     NSMutableArray* result = [[NSMutableArray alloc] init];
     
     NSEnumerator* nameEn = [names objectEnumerator];
@@ -171,9 +159,6 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
 }
 
 - (void)activateTexture:(NSString *)name {
-    if (name == nil)
-        [NSException raise:NSInvalidArgumentException format:@"name must not be nil"];
-    
     Texture* texture = [textures objectForKey:name];
     if (texture == nil)
         [NSException raise:UnknownTextureNameException format:@"unknown texture name: %@", name];

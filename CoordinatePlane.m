@@ -22,9 +22,6 @@ static CoordinatePlane* gPlaneYZ;
 }
 
 + (CoordinatePlane *)projectionPlaneForNormal:(Vector3f *)theNorm {
-    if (theNorm == nil)
-        [NSException raise:NSInvalidArgumentException format:@"normal must not be nil"];
-    
     EVectorComponent lc = [theNorm largestComponent];
     if (lc == VC_X)
         return gPlaneYZ;
