@@ -257,7 +257,6 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     }
     
     VBOMemBlock* memBlock = [freeBlocksByCapacity objectAtIndex:index];
-    [memBlock retain];
     [freeBlocksByCapacity removeObjectAtIndex:index];
     
     // split the memory block

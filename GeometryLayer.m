@@ -60,9 +60,9 @@
 - (void)validate {
     BOOL valid = YES;
     if ([removedFaces count] > 0) {
-        valid = NO;
-        [addedFaces minusSet:removedFaces];
+        int c = [faces count];
         [faces minusSet:removedFaces];
+        valid = c == [faces count];
         [removedFaces removeAllObjects];
     }
     
@@ -130,11 +130,15 @@
 - (void)addFace:(id <Face>)theFace {
     NSAssert(theFace != nil, @"face must not be nil");
     [addedFaces addObject:theFace];
+    [removedFaces removeObject:theFace];
 }
 
 - (void)removeFace:(id <Face>)theFace {
     NSAssert(theFace != nil, @"face must not be nil");
-    [removedFaces addObject:theFace];
+    if ([addedFaces containsObject:theFace])
+        [addedFaces removeObject:theFace];
+    else
+        [removedFaces addObject:theFace];
 }
 
 - (void)renderFaces:(BOOL)textured {

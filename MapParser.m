@@ -137,6 +137,9 @@ NSString* const InvalidTokenException = @"InvalidTokenException";
     [face setXScale:xScale];
     [face setYScale:yScale];
 
+    if ([token line] == 9)
+        NSLog(@"asdf");
+    
     [brush addFace:face];
     
     [face release];

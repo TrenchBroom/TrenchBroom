@@ -45,6 +45,9 @@
             [edges addObject:edge];
             [vertices addObject:[edge startVertexForSide:self]];
         }
+
+        [face setVertices:vertices];
+        [face setEdges:edges];
     }
     
     return self;
@@ -60,6 +63,9 @@
             [edges addObject:edge];
             [vertices addObject:[edge startVertexForSide:self]];
         }
+        
+        [face setVertices:vertices];
+        [face setEdges:edges];
     }
     
     return self;

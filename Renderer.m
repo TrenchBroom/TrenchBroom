@@ -72,7 +72,7 @@ NSString* const RendererChanged = @"RendererChanged";
     [sharedVbo mapBuffer];
     
     Vector3f* color = [[Vector3f alloc] init];
-    Vector2f* texCoords = [[Vector3f alloc] init];
+    Vector2f* texCoords = [[Vector2f alloc] init];
     
     NSEnumerator* faceEn = [invalidFaces objectEnumerator];
     id <Face> face;
@@ -81,10 +81,12 @@ NSString* const RendererChanged = @"RendererChanged";
         
         int vertexSize = 8 * sizeof(float);
         int vertexCount = [vertices count];
+        if (vertexCount == 0)
+            NSLog(@"asdf");
         
         VBOMemBlock* block = [face memBlock];
-        if (block == nil || (block != nil && [block capacity] != vertexCount * vertexSize * sizeof(float))) {
-            block = [sharedVbo allocMemBlock:vertexCount * vertexSize * sizeof(float)];
+        if (block == nil || [block capacity] != vertexCount * vertexSize) {
+            block = [sharedVbo allocMemBlock:vertexCount * vertexSize];
             [face setMemBlock:block];
         }
         

@@ -257,7 +257,7 @@
     }
     
     // create new side from newly created edge
-    // first, sort the new edges to form a polygon
+    // first, sort the new edges to form a polygon in clockwise order
     for (int i = 0; i < [newEdges count] - 1; i++) {
         Edge* edge = [newEdges objectAtIndex:i];
         for (int j = i + 2; j < [newEdges count]; j++) {
