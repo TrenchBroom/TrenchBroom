@@ -69,9 +69,10 @@
     Camera* camera = [windowController camera];
     if ([self isCameraModifierPressed:event]) {
         if ([self isCameraOrbitModifierPressed:event]) {
-            if (lastHit != nil) {
+            if (lastHits != nil) {
                 float h = -[event deltaX] / 70;
                 float v = [event deltaY] / 70;
+                PickingHit* lastHit = [lastHits firstHitOfType:HT_ANY ignoreOccluders:NO];
                 [camera orbitCenter:[lastHit hitPoint] hAngle:h vAngle:v];
             }
         } else {
@@ -113,7 +114,7 @@
     NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
     Ray3D* ray = [camera pickRayX:m.x y:m.y];
     
-    [lastHit release];
+    [lastHits release];
     Picker* picker = [[windowController document] picker];
     NSSet* includedObjects = nil;
 
@@ -123,16 +124,28 @@
         includedObjects = [selectionManager selectedBrushes];
     }
     
-    PickingHitList* hits = [picker pickObjects:ray include:includedObjects exclude:nil];
-    lastHit = [[hits firstHitOfType:HT_FACE ignoreOccluders:YES] retain];
-    
-    if (lastHit != nil && ![self isCameraModifierPressed:event]) {
+    lastHits = [[picker pickObjects:ray include:includedObjects exclude:nil] retain];
+    if (lastHits != nil && ![self isCameraModifierPressed:event]) {
+        PickingHit* lastHit = [lastHits firstHitOfType:HT_ANY ignoreOccluders:NO];
         SelectionManager* selectionManager = [windowController selectionManager];
-        if ([selectionManager isBrushSelected:[[lastHit object] brush]]) {
-            MapDocument* map = [windowController document];
-            NSUndoManager* undoManager = [map undoManager];
-            [undoManager beginUndoGrouping];
-            brushTool = [[BrushTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
+        switch ([lastHit type]) {
+            case HT_BRUSH:
+            case HT_FACE: {
+                id <Brush> brush = [lastHit type] == HT_BRUSH ? [lastHit object] : [[lastHit object] brush];
+                if ([selectionManager isBrushSelected:brush]) {
+                    MapDocument* map = [windowController document];
+                    NSUndoManager* undoManager = [map undoManager];
+                    [undoManager beginUndoGrouping];
+                    brushTool = [[BrushTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
+                }
+                break;
+            }
+            case HT_EDGE:
+                break;
+            case HT_VERTEX:
+                break;
+            default:
+                break;
         }
     }
 
@@ -142,8 +155,9 @@
 
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
     Options* options = [windowController options];
-    if (![self isCameraModifierPressed:event] && !drag && [options isolationMode] == IM_NONE) {
+    if (![self isCameraModifierPressed:event] && !drag && [options isolationMode] == IM_NONE && lastHits != nil) {
         SelectionManager* selectionManager = [windowController selectionManager];
+        PickingHit* lastHit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
         if (lastHit != nil) {
             id <Face> face = [lastHit object];
             id <Brush> brush = [face brush];
@@ -249,7 +263,7 @@
 }
 
 - (void)dealloc {
-    [lastHit release];
+    [lastHits release];
     [windowController release];
     [super dealloc];
 }

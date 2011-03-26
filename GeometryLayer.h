@@ -33,4 +33,7 @@
 
 - (void)render:(RenderContext *)renderContext;
 
+- (void)validateFaces:(NSSet *)invalidFaces;
+- (void)validate;
+
 @end

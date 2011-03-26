@@ -12,7 +12,8 @@ typedef enum {
     HT_BRUSH  = 1 << 0,
     HT_FACE   = 1 << 1,
     HT_EDGE   = 1 << 2,
-    HT_VERTEX = 1 << 3
+    HT_VERTEX = 1 << 3,
+    HT_ANY    = HT_BRUSH | HT_FACE | HT_EDGE | HT_VERTEX
 } EHitType;
 
 @class Vector3f;

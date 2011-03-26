@@ -160,8 +160,8 @@ NSString* const CameraChanged = @"CameraChanged";
 }
 
 - (void)orbitCenter:(Vector3f *)c hAngle:(float)h vAngle:(float)v {
-    Quaternion* qh = [[Quaternion alloc] initWithAngle:v axis:right];
-    Quaternion* qv = [[Quaternion alloc] initWithAngle:h axis:[Vector3f zAxisPos]];
+    Quaternion* qv = [[Quaternion alloc] initWithAngle:v axis:right];
+    Quaternion* qh = [[Quaternion alloc] initWithAngle:h axis:[Vector3f zAxisPos]];
     [qh mul:qv];
     
     Vector3f* d = [[Vector3f alloc] initWithFloatVector:direction];

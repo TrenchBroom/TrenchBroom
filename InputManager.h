@@ -9,13 +9,13 @@
 #import <Cocoa/Cocoa.h>
 
 @class Picker;
-@class PickingHit;
+@class PickingHitList;
 @class MapWindowController;
 @class BrushTool;
 
 @interface InputManager : NSObject {
     @private 
-    PickingHit* lastHit;
+    PickingHitList* lastHits;
     MapWindowController* windowController;
     BrushTool* brushTool;
     BOOL gesture;

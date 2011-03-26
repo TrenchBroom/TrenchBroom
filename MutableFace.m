@@ -628,9 +628,6 @@ static Vector3f* baseAxes[18];
     
     [vertices release];
     vertices = [theVertices retain];
-    
-    if ([vertices count] == 0)
-        NSLog(@"asdf");
 }
 
 - (void)setEdges:(NSArray *)theEdges {

@@ -17,72 +17,6 @@
 #import "VBOMemBlock.h"
 #import "IntData.h"
 
-@interface GeometryLayer (private) 
-
-- (void)validateFaces:(NSSet *)invalidFaces;
-- (void)validate;
-
-@end
-
-@implementation GeometryLayer (private)
-
-- (void)validateFaces:(NSSet *)invalidFaces {
-    NSEnumerator* faceEn = [invalidFaces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
-        VBOMemBlock* block = [face memBlock];
-        NSAssert(block != nil, @"VBO mem block must be in shared block map");
-        NSAssert([block state] == BS_USED_VALID, @"VBO mem block must be valid");
-        
-        NSString* textureName = [face texture];
-        
-        IntData* indexBuffer = [indexBuffers objectForKey:textureName];
-        if (indexBuffer == nil) {
-            indexBuffer = [[IntData alloc] init];
-            [indexBuffers setObject:indexBuffer forKey:textureName];
-            [indexBuffer release];
-        }
-        
-        IntData* countBuffer = [countBuffers objectForKey:textureName];
-        if (countBuffer == nil) {
-            countBuffer = [[IntData alloc] init];
-            [countBuffers setObject:countBuffer forKey:textureName];
-            [countBuffer release];
-        }
-        
-        int index = [block address] / (8 * sizeof(float));
-        int count = [[face vertices] count];
-        [indexBuffer appendInt:index];
-        [countBuffer appendInt:count];
-    }
-}
-
-- (void)validate {
-    BOOL valid = YES;
-    if ([removedFaces count] > 0) {
-        int c = [faces count];
-        [faces minusSet:removedFaces];
-        valid = c == [faces count];
-        [removedFaces removeAllObjects];
-    }
-    
-    if ([addedFaces count] > 0) {
-        [addedFaces minusSet:faces]; // to be safe
-        if (valid)
-            [self validateFaces:addedFaces];
-        [faces unionSet:addedFaces];
-        [addedFaces removeAllObjects];
-    }
-    
-    if (!valid) {
-        [indexBuffers removeAllObjects];
-        [countBuffers removeAllObjects];
-        [self validateFaces:faces];
-    }
-}
-
-@end
-
 @implementation GeometryLayer
 
 - (id)init {
@@ -220,6 +154,62 @@
     }
     [sharedVbo deactivate];
 }
+
+- (void)validateFaces:(NSSet *)invalidFaces {
+    NSEnumerator* faceEn = [invalidFaces objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject])) {
+        VBOMemBlock* block = [face memBlock];
+        NSAssert(block != nil, @"VBO mem block must be in shared block map");
+        NSAssert([block state] == BS_USED_VALID, @"VBO mem block must be valid");
+        
+        NSString* textureName = [face texture];
+        
+        IntData* indexBuffer = [indexBuffers objectForKey:textureName];
+        if (indexBuffer == nil) {
+            indexBuffer = [[IntData alloc] init];
+            [indexBuffers setObject:indexBuffer forKey:textureName];
+            [indexBuffer release];
+        }
+        
+        IntData* countBuffer = [countBuffers objectForKey:textureName];
+        if (countBuffer == nil) {
+            countBuffer = [[IntData alloc] init];
+            [countBuffers setObject:countBuffer forKey:textureName];
+            [countBuffer release];
+        }
+        
+        int index = [block address] / (8 * sizeof(float));
+        int count = [[face vertices] count];
+        [indexBuffer appendInt:index];
+        [countBuffer appendInt:count];
+    }
+}
+
+- (void)validate {
+    BOOL valid = YES;
+    if ([removedFaces count] > 0) {
+        int c = [faces count];
+        [faces minusSet:removedFaces];
+        valid = c == [faces count];
+        [removedFaces removeAllObjects];
+    }
+    
+    if ([addedFaces count] > 0) {
+        [addedFaces minusSet:faces]; // to be safe
+        if (valid)
+            [self validateFaces:addedFaces];
+        [faces unionSet:addedFaces];
+        [addedFaces removeAllObjects];
+    }
+    
+    if (!valid) {
+        [indexBuffers removeAllObjects];
+        [countBuffers removeAllObjects];
+        [self validateFaces:faces];
+    }
+}
+
 
 - (void)dealloc {
     [sharedVbo release];

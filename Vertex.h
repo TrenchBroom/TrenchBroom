@@ -17,6 +17,7 @@ typedef enum {
 
 @class Edge;
 @class Vector3f;
+@class Vector3i;
 @class PickingHit;
 @class Ray3D;
 
@@ -37,5 +38,4 @@ typedef enum {
 - (void)setMark:(EVertexMark)theMark;
 
 - (PickingHit *)pickWithRay:(Ray3D *)theRay;
-
 @end

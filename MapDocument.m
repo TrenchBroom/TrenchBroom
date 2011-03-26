@@ -434,6 +434,9 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     }
 }
 
+- (void)translateVertex:(Vertex *)theVertex xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {
+}
+
 - (int)worldSize {
     return worldSize;
 }
