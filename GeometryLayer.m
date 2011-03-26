@@ -109,7 +109,7 @@
     return self;
 }
 
-- (void)addBrushFaces:(id <Brush>)theBrush {
+- (void)addBrush:(id <Brush>)theBrush {
     NSAssert(theBrush != nil, @"brush must not be nil");
     
     NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];
@@ -118,7 +118,7 @@
         [self addFace:face];
 }
 
-- (void)removeBrushFaces:(id <Brush>)theBrush {
+- (void)removeBrush:(id <Brush>)theBrush {
     NSAssert(theBrush != nil, @"brush must not be nil");
     
     NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];

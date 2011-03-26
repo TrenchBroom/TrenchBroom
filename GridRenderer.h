@@ -16,7 +16,6 @@
 @interface GridRenderer : NSObject {
 @private
     NSMutableSet* faces;
-    id <RenderFilter> filter;
     VBOBuffer* vbo;
     int vertexCount;
     BOOL valid;
@@ -28,7 +27,6 @@
 - (void)addFace:(id <Face>)theFace;
 - (void)removeFace:(id <Face>)theFace;
 
-- (void)setFilter:(id <RenderFilter>)theFilter;
 - (void)setGridSize:(int)theGridSize;
 - (void)render;
 

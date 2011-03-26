@@ -14,6 +14,7 @@ extern NSString* const RendererChanged;
 @class VBOBuffer;
 @class GeometryLayer;
 @class SelectionLayer;
+@class TrackingLayer;
 @class RenderContext;
 @class MapWindowController;
 @class TextureManager;
@@ -26,7 +27,7 @@ extern NSString* const RendererChanged;
     NSMutableSet* invalidFaces;
     GeometryLayer* geometryLayer;
     SelectionLayer* selectionLayer;
-//    FeedbackLayer* feedbackLayer;
+    TrackingLayer* trackingLayer;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

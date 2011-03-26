@@ -88,24 +88,15 @@ NSString* const UntrackedObjectKey = @"UntrackedObjectKey";
 }
 
 - (BOOL)isFaceTracked:(id <Face>)theFace {
-    return currentObject == theFace || [self isBrushTracked:[theFace brush]];
+    return currentObject == theFace;
 }
 
 - (BOOL)isEdgeTracked:(Edge *)theEdge {
-    return currentObject == theEdge || [self isFaceTracked:[theEdge leftFace]] || [self isFaceTracked:[theEdge rightFace]];
+    return currentObject == theEdge;
 }
 
 - (BOOL)isVertexTracked:(Vertex *)theVertex {
-    if (currentObject == theVertex)
-        return YES;
-    
-    NSEnumerator* edgeEn = [[theVertex edges] objectEnumerator];
-    Edge* edge;
-    while ((edge = [edgeEn nextObject]))
-        if ([self isEdgeTracked:edge])
-            return YES;
-    
-    return NO;
+    return currentObject == theVertex;
 }
 
 - (void)dealloc {

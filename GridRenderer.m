@@ -49,8 +49,7 @@
         NSEnumerator* faceEn = [faces objectEnumerator];
         id <Face> face;
         while ((face = [faceEn nextObject]))
-            if (filter == nil || [filter facePasses:face])
-                vertexCount += [self writeFace:face];
+            vertexCount += [self writeFace:face];
 
         [vbo pack]; // probably unnecessary
         [vbo unmapBuffer];
@@ -96,15 +95,6 @@
     [self invalidate];
 }
 
-- (void)setFilter:(id <RenderFilter>)theFilter {
-    if (filter == theFilter)
-        return;
-    
-    [filter release];
-    filter = [theFilter retain];
-    [self invalidate];
-}
-
 - (void)setGridSize:(int)theGridSize {
     if (gridSize == theGridSize)
         return;
@@ -129,7 +119,6 @@
 
 - (void)dealloc {
     [faces release];
-    [filter release],
     [vbo release];
     [super dealloc];
 }

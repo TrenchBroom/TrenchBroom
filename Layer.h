@@ -16,8 +16,8 @@
 
 - (void)render:(RenderContext *)renderContext;
 
-- (void)addBrushFaces:(id <Brush>)theBrush;
-- (void)removeBrushFaces:(id <Brush>)theBrush;
+- (void)addBrush:(id <Brush>)theBrush;
+- (void)removeBrush:(id <Brush>)theBrush;
 
 - (void)addFace:(id <Face>)theFace;
 - (void)removeFace:(id <Face>)theFace;

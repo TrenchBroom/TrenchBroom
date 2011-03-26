@@ -8,8 +8,16 @@
 
 #import "GeometryLayer.h"
 
-@interface SelectionLayer : GeometryLayer {
+@class GridRenderer;
 
+@interface SelectionLayer : GeometryLayer {
+    GridRenderer* gridRenderer;
+    BOOL drawGrid;
 }
+
+- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager gridSize:(int)theGridSize drawGrid:(BOOL)doDrawGrid;
+
+- (void)setGridSize:(int)theGridSize;
+- (void)setDrawGrid:(BOOL)doDrawGrid;
 
 @end
