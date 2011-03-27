@@ -21,7 +21,7 @@
 + (Vector2f *)normalize:(Vector2f *)vector;
 
 - (id)initWithVector:(Vector2f *)vector;
-- (id)initWithX:(float)xCoord y:(float)yCoord;
+- (id)initWithFloatX:(float)xCoord y:(float)yCoord;
 
 - (float)x;
 - (float)y;

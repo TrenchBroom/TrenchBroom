@@ -9,9 +9,11 @@
 #import "GeometryLayer.h"
 
 @class GridRenderer;
+@class FaceHandleRenderer;
 
 @interface SelectionLayer : GeometryLayer {
     GridRenderer* gridRenderer;
+    FaceHandleRenderer* handleRenderer;
     BOOL drawGrid;
 }
 

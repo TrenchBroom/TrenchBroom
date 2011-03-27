@@ -196,7 +196,7 @@ static float HANDLE_RADIUS = 2.0f;
     Vector3f* e = [endVertex vector];
     
     Vector3f* t = [[Vector3f alloc] initWithFloatVector:s];
-    Vector3f* r = [[Vector3f alloc] initWithX:HANDLE_RADIUS y:HANDLE_RADIUS z:HANDLE_RADIUS];
+    Vector3f* r = [[Vector3f alloc] initWithFloatX:HANDLE_RADIUS y:HANDLE_RADIUS z:HANDLE_RADIUS];
 
     [t sub:r];
     [theBounds mergePoint:t];

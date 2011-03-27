@@ -245,7 +245,7 @@ NSArray* makeCircle(float radius, int segments) {
     for (int i = 0; i < segments; i++) {
         float s = sin(a);
         float c = cos(a);
-        Vector3f* point = [[Vector3f alloc] initWithX:radius * s y:radius * c z:0];
+        Vector3f* point = [[Vector3f alloc] initWithFloatX:radius * s y:radius * c z:0];
         [points addObject:point];
         [point release];
         a += d;
@@ -264,7 +264,7 @@ NSArray* makeRing(float innerRadius, float outerRadius, int segments) {
         float c = cos(a);
         float r = i % 2 == 0 ? innerRadius : outerRadius;
         
-        Vector3f* point = [[Vector3f alloc] initWithX:r * s y:r * c z:0];
+        Vector3f* point = [[Vector3f alloc] initWithFloatX:r * s y:r * c z:0];
         [points addObject:point];
         [point release];
         a += d;

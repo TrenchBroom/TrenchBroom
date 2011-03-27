@@ -22,12 +22,12 @@ static Vector3f* gZAxisNeg;
 
 + (void)initialize {
     gNullVector = [[Vector3f alloc] init];
-    gXAxisPos = [[Vector3f alloc] initWithX:1 y:0 z:0];
-    gXAxisNeg = [[Vector3f alloc] initWithX:-1 y:0 z:0];
-    gYAxisPos = [[Vector3f alloc] initWithX:0 y:1 z:0];
-    gYAxisNeg = [[Vector3f alloc] initWithX:0 y:-1 z:0];
-    gZAxisPos = [[Vector3f alloc] initWithX:0 y:0 z:1];
-    gZAxisNeg = [[Vector3f alloc] initWithX:0 y:0 z:-1];
+    gXAxisPos = [[Vector3f alloc] initWithFloatX:1 y:0 z:0];
+    gXAxisNeg = [[Vector3f alloc] initWithFloatX:-1 y:0 z:0];
+    gYAxisPos = [[Vector3f alloc] initWithFloatX:0 y:1 z:0];
+    gYAxisNeg = [[Vector3f alloc] initWithFloatX:0 y:-1 z:0];
+    gZAxisPos = [[Vector3f alloc] initWithFloatX:0 y:0 z:1];
+    gZAxisNeg = [[Vector3f alloc] initWithFloatX:0 y:0 z:-1];
 }
 
 + (Vector3f *)nullVector {
@@ -92,7 +92,7 @@ static Vector3f* gZAxisNeg;
 	return self;
 }
 
-- (id)initWithX:(float)xCoord y:(float)yCoord z:(float)zCoord {
+- (id)initWithFloatX:(float)xCoord y:(float)yCoord z:(float)zCoord {
 	if (self = [super init]) {
 		[self setX:xCoord];
 		[self setY:yCoord];

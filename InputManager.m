@@ -22,6 +22,7 @@
 #import "MapWindowController.h"
 #import "MapDocument.h"
 #import "BrushTool.h"
+#import "FaceTool.h"
 #import "Options.h"
 #import "TrackingManager.h"
 
@@ -80,7 +81,7 @@
             float pitch = [event deltaY] / 70;
             [camera rotateYaw:yaw pitch:pitch];
         }
-    } else if (brushTool != nil) {
+    } else if (tool != nil) {
         MapView3D* mapView3D = (MapView3D *)sender;
         [[mapView3D openGLContext] makeCurrentContext];
         Camera* camera = [windowController camera];
@@ -88,7 +89,7 @@
         NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
         Ray3D* ray = [camera pickRayX:m.x y:m.y];
 
-        [brushTool translateTo:ray toggleSnap:NO altPlane:NO];
+        [tool translateTo:ray toggleSnap:NO altPlane:NO];
     }
     
     drag = YES;
@@ -116,27 +117,30 @@
     
     [lastHits release];
     Picker* picker = [[windowController document] picker];
-    NSSet* includedObjects = nil;
-
-    Options* options = [windowController options];
-    if ([options isolationMode] != IM_NONE) {
-        SelectionManager* selectionManager = [windowController selectionManager];
-        includedObjects = [selectionManager selectedBrushes];
-    }
+    lastHits = [[picker pickObjects:ray include:nil exclude:nil] retain];
     
-    lastHits = [[picker pickObjects:ray include:includedObjects exclude:nil] retain];
     if (lastHits != nil && ![self isCameraModifierPressed:event]) {
         PickingHit* lastHit = [lastHits firstHitOfType:HT_ANY ignoreOccluders:NO];
         SelectionManager* selectionManager = [windowController selectionManager];
         switch ([lastHit type]) {
             case HT_BRUSH:
             case HT_FACE: {
-                id <Brush> brush = [lastHit type] == HT_BRUSH ? [lastHit object] : [[lastHit object] brush];
-                if ([selectionManager isBrushSelected:brush]) {
-                    MapDocument* map = [windowController document];
-                    NSUndoManager* undoManager = [map undoManager];
-                    [undoManager beginUndoGrouping];
-                    brushTool = [[BrushTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
+                if ([selectionManager mode] == SM_GEOMETRY) {
+                    id <Brush> brush = [lastHit type] == HT_BRUSH ? [lastHit object] : [[lastHit object] brush];
+                    if ([selectionManager isBrushSelected:brush]) {
+                        MapDocument* map = [windowController document];
+                        NSUndoManager* undoManager = [map undoManager];
+                        [undoManager beginUndoGrouping];
+                        tool = [[BrushTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
+                    }
+                } else if ([selectionManager mode] == SM_FACES && [lastHit type] == HT_FACE) {
+                    id <Face> face = [lastHit object];
+                    if ([selectionManager isFaceSelected:face]) {
+                        MapDocument* map = [windowController document];
+                        NSUndoManager* undoManager = [map undoManager];
+                        [undoManager beginUndoGrouping];
+                        tool = [[FaceTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
+                    }
                 }
                 break;
             }
@@ -154,6 +158,13 @@
 }
 
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
+    MapView3D* mapView3D = (MapView3D *)sender;
+    [[mapView3D openGLContext] makeCurrentContext];
+    Camera* camera = [windowController camera];
+    
+    NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
+    Ray3D* ray = [camera pickRayX:m.x y:m.y];
+
     Options* options = [windowController options];
     if (![self isCameraModifierPressed:event] && !drag && [options isolationMode] == IM_NONE && lastHits != nil) {
         SelectionManager* selectionManager = [windowController selectionManager];
@@ -198,23 +209,16 @@
         }
     }
     
-    MapView3D* mapView3D = (MapView3D *)sender;
-    [[mapView3D openGLContext] makeCurrentContext];
-    Camera* camera = [windowController camera];
-    
-    NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
-    Ray3D* ray = [camera pickRayX:m.x y:m.y];
-
     TrackingManager* trackingManager = [windowController trackingManager];
     [trackingManager updateWithRay:ray];
 
-    if (brushTool != nil) {
+    if (tool != nil) {
         MapDocument* map = [windowController document];
         NSUndoManager* undoManager = [map undoManager];
         [undoManager endUndoGrouping];
-        [undoManager setActionName:@"Move Brushes"];
-        [brushTool release];
-        brushTool = nil;
+        [undoManager setActionName:[tool actionName]];
+        [tool release];
+        tool = nil;
     }
     
     drag = NO;
@@ -263,6 +267,7 @@
 }
 
 - (void)dealloc {
+    [tool release];
     [lastHits release];
     [windowController release];
     [super dealloc];

@@ -33,7 +33,7 @@ typedef enum {
 
 - (id)initWithFloatVector:(Vector3f *)vector;
 - (id)initWithIntVector:(Vector3i *)vector;
-- (id)initWithX:(float)xCoord y:(float)yCoord z:(float)zCoord;
+- (id)initWithFloatX:(float)xCoord y:(float)yCoord z:(float)zCoord;
 
 - (float)x;
 - (float)y;

@@ -16,7 +16,7 @@
 + (Vector3i *)nullVector;
 
 - (id)initWithVector:(Vector3i *)vector;
-- (id)initWithX:(int)xCoord y:(int)yCoord z:(int) zCoord;
+- (id)initWithIntX:(int)xCoord y:(int)yCoord z:(int) zCoord;
 
 - (int)x;
 - (int)y;

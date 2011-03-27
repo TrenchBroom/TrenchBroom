@@ -34,49 +34,49 @@
         bounds = nil;
         
         // initialize as huge cube
-        Vector3f* v = [[Vector3f alloc] initWithX:-4096 y:-4096 z:-4096];
+        Vector3f* v = [[Vector3f alloc] initWithFloatX:-4096 y:-4096 z:-4096];
         Vertex* esb = [[Vertex alloc] initWithVector:v];
         [vertices addObject:esb];
         [esb release];
         [v release];
         
-        v = [[Vector3f alloc] initWithX:-4096 y:-4096 z:+4096];
+        v = [[Vector3f alloc] initWithFloatX:-4096 y:-4096 z:+4096];
         Vertex* est = [[Vertex alloc] initWithVector:v];
         [vertices addObject:est];
         [est release];
         [v release];
         
-        v = [[Vector3f alloc] initWithX:-4096 y:+4096 z:-4096];
+        v = [[Vector3f alloc] initWithFloatX:-4096 y:+4096 z:-4096];
         Vertex* enb = [[Vertex alloc] initWithVector:v];
         [vertices addObject:enb];
         [enb release];
         [v release];
         
-        v = [[Vector3f alloc] initWithX:-4096 y:+4096 z:+4096];
+        v = [[Vector3f alloc] initWithFloatX:-4096 y:+4096 z:+4096];
         Vertex* ent = [[Vertex alloc] initWithVector:v];
         [vertices addObject:ent];
         [ent release];
         [v release];
         
-        v = [[Vector3f alloc] initWithX:+4096 y:-4096 z:-4096];
+        v = [[Vector3f alloc] initWithFloatX:+4096 y:-4096 z:-4096];
         Vertex* wsb = [[Vertex alloc] initWithVector:v];
         [vertices addObject:wsb];
         [wsb release];
         [v release];
         
-        v = [[Vector3f alloc] initWithX:+4096 y:-4096 z:+4096];
+        v = [[Vector3f alloc] initWithFloatX:+4096 y:-4096 z:+4096];
         Vertex* wst = [[Vertex alloc] initWithVector:v];
         [vertices addObject:wst];
         [wst release];
         [v release];
         
-        v = [[Vector3f alloc] initWithX:+4096 y:+4096 z:-4096];
+        v = [[Vector3f alloc] initWithFloatX:+4096 y:+4096 z:-4096];
         Vertex* wnb = [[Vertex alloc] initWithVector:v];
         [vertices addObject:wnb];
         [wnb release];
         [v release];
         
-        v = [[Vector3f alloc] initWithX:+4096 y:+4096 z:+4096];
+        v = [[Vector3f alloc] initWithFloatX:+4096 y:+4096 z:+4096];
         Vertex* wnt = [[Vertex alloc] initWithVector:v];
         [vertices addObject:wnt];
         [wnt release];

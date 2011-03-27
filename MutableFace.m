@@ -288,6 +288,9 @@ static Vector3f* baseAxes[18];
     [worldMatrix release];
     worldMatrix = nil;
     
+    [handleVertices release];
+    handleVertices = nil;
+    
     [brush faceGeometryChanged:self];
 }
 
@@ -549,6 +552,54 @@ static Vector3f* baseAxes[18];
     return [grid autorelease];
 }
 
+- (NSArray *)handleVertices {
+    if (handleVertices == nil) {
+        handleVertices = [[NSMutableArray alloc] initWithCapacity:8];
+        Vector3f* esb = [[Vector3f alloc] initWithFloatX:-3 y:-3 z:-3];
+        Vector3f* est = [[Vector3f alloc] initWithFloatX:-3 y:-3 z:+3];
+        Vector3f* enb = [[Vector3f alloc] initWithFloatX:-3 y:+3 z:-3];
+        Vector3f* ent = [[Vector3f alloc] initWithFloatX:-3 y:+3 z:+3];
+        Vector3f* wsb = [[Vector3f alloc] initWithFloatX:+3 y:-3 z:-3];
+        Vector3f* wst = [[Vector3f alloc] initWithFloatX:+3 y:-3 z:+3];
+        Vector3f* wnb = [[Vector3f alloc] initWithFloatX:+3 y:+3 z:-3];
+        Vector3f* wnt = [[Vector3f alloc] initWithFloatX:+3 y:+3 z:+3];
+
+        [self transformToWorld:esb];
+        [handleVertices addObject:esb];
+        [esb release];
+        
+        [self transformToWorld:est];
+        [handleVertices addObject:est];
+        [est release];
+        
+        [self transformToWorld:enb];
+        [handleVertices addObject:enb];
+        [enb release];
+        
+        [self transformToWorld:ent];
+        [handleVertices addObject:ent];
+        [ent release];
+        
+        [self transformToWorld:wsb];
+        [handleVertices addObject:wsb];
+        [wsb release];
+        
+        [self transformToWorld:wst];
+        [handleVertices addObject:wst];
+        [wst release];
+        
+        [self transformToWorld:wnb];
+        [handleVertices addObject:wnb];
+        [wnb release];
+        
+        [self transformToWorld:wnt];
+        [handleVertices addObject:wnt];
+        [wnt release];
+    }
+    
+    return handleVertices;
+}
+
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex {
     if (texAxisX == nil || texAxisY == nil)
         [self updateTexAxes];
@@ -557,24 +608,18 @@ static Vector3f* baseAxes[18];
     [texCoords setY:[vertex dot:texAxisY] + yOffset];
 }
 
-- (Vector3f *)worldCoordsOf:(Vector3f *)sCoords {
+- (void)transformToWorld:(Vector3f *)point {
     if (surfaceMatrix == nil)
         [self updateMatrices];
-
-    Vector3f* result = [[Vector3f alloc] initWithFloatVector:sCoords];
-    [surfaceMatrix transformVector3f:result];
-
-    return [result autorelease];
+    
+    [surfaceMatrix transformVector3f:point];
 }
 
-- (Vector3f *)surfaceCoordsOf:(Vector3f *)wCoords {
+- (void)transformToSurface:(Vector3f *)point {
     if (worldMatrix == nil)
         [self updateMatrices];
     
-    Vector3f* result = [[Vector3f alloc] initWithFloatVector:wCoords];
-    [worldMatrix transformVector3f:result];
-    
-    return [result autorelease];
+    [worldMatrix transformVector3f:point];
 }
 
 - (NSString *)description {
@@ -655,6 +700,7 @@ static Vector3f* baseAxes[18];
     [vertices release];
     [edges release];
     [center release];
+    [handleVertices release];
 	[super dealloc];
 }
 

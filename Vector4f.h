@@ -20,7 +20,7 @@
 
 - (id)initWithVector3f:(Vector3f *)vector;
 - (id)initWithVector4f:(Vector4f *)vector;
-- (id)initWithX:(float)xCoord y:(float)yCoord z:(float)zCoord w:(float)wCoord;
+- (id)initWithFloatX:(float)xCoord y:(float)yCoord z:(float)zCoord w:(float)wCoord;
 
 - (float)x;
 - (float)y;

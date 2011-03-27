@@ -1,12 +1,12 @@
 //
-//  BrushTool.m
+//  FaceTool.m
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 12.03.11.
+//  Created by Kristian Duske on 27.03.11.
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "BrushTool.h"
+#import "FaceTool.h"
 #import "Grid.h"
 #import "Options.h"
 #import "Camera.h"
@@ -24,11 +24,11 @@
 #import "math.h"
 #import "Math.h"
 
-@implementation BrushTool
 
+@implementation FaceTool
 - (id)init {
     if (self = [super init]) {
-        brushes = [[NSMutableSet alloc] init];
+        faces = [[NSMutableSet alloc] init];
         delta = [[Vector3f alloc] init];
     }
     
@@ -39,7 +39,7 @@
     [lastRay release];
     [delta release];
     [plane release];
-    [brushes release];
+    [faces release];
     [windowController release];
     [super dealloc];
 }
@@ -49,7 +49,7 @@
 
 - (id)initWithController:(MapWindowController *)theWindowController pickHit:(PickingHit *)theHit pickRay:(Ray3D *)theRay {
     if (self = [self init]) {
-        [brushes unionSet:[[theWindowController selectionManager] selectedBrushes]];
+        [faces unionSet:[[theWindowController selectionManager] selectedFaces]];
         windowController = [theWindowController retain];
         lastRay = [theRay retain];
         
@@ -92,10 +92,10 @@
         
         MapDocument* map = [windowController document];
         
-        NSEnumerator* brushEn = [brushes objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject]))
-            [map translateBrush:brush 
+        NSEnumerator* faceEn = [faces objectEnumerator];
+        id <Face> face;
+        while ((face = [faceEn nextObject]))
+            [map translateFace:face
                          xDelta:x
                          yDelta:y
                          zDelta:z];
@@ -105,7 +105,7 @@
 }
 
 - (NSString *)actionName {
-    return "Move Brushes";
+    return "Move Faces";
 }
 
 @end

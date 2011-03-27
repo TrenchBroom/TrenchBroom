@@ -8,7 +8,6 @@
 
 #import "GridRenderer.h"
 #import "Face.h"
-#import "RenderFilter.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "Vector3f.h"
@@ -51,7 +50,6 @@
         while ((face = [faceEn nextObject]))
             vertexCount += [self writeFace:face];
 
-        [vbo pack]; // probably unnecessary
         [vbo unmapBuffer];
         
         valid = YES;

@@ -133,8 +133,8 @@
         
         if (distSquared > 0) {
             float dist = sqrt(distSquared);
-            Vector3f* min = [[Vector3f alloc] initWithX:-dist y:-dist z:-dist];
-            Vector3f* max = [[Vector3f alloc] initWithX:dist y:dist z:dist];
+            Vector3f* min = [[Vector3f alloc] initWithFloatX:-dist y:-dist z:-dist];
+            Vector3f* max = [[Vector3f alloc] initWithFloatX:dist y:dist z:dist];
             
             [min add:[self center]];
             [max add:[self center]];

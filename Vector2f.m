@@ -15,7 +15,7 @@
 }
 
 + (Vector2f *)vectorWithX:(float)xCoord y:(float)yCoord {
-    return [[[Vector2f alloc] initWithX:xCoord y:yCoord] autorelease];
+    return [[[Vector2f alloc] initWithFloatX:xCoord y:yCoord] autorelease];
 }
 
 + (Vector2f *)add:(Vector2f *)left addend:(Vector2f *)right {
@@ -57,7 +57,7 @@
 	return self;
 }
 
-- (id)initWithX:(float)xCoord y:(float)yCoord {
+- (id)initWithFloatX:(float)xCoord y:(float)yCoord {
 	if (self = [super init]) {
 		[self setX:xCoord];
 		[self setY:yCoord];

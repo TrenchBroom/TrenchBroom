@@ -1,8 +1,8 @@
 //
-//  BrushTool.h
+//  FaceTool.h
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 12.03.11.
+//  Created by Kristian Duske on 27.03.11.
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
@@ -15,9 +15,9 @@
 @class Ray3D;
 @class Vector3f;
 
-@interface BrushTool : NSObject <Tool> {
-    @private
-    NSMutableSet* brushes;
+@interface FaceTool : NSObject <Tool> {
+@private
+    NSMutableSet* faces;
     MapWindowController* windowController;
     Plane3D* plane;
     Ray3D* lastRay;

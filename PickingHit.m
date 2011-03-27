@@ -47,6 +47,10 @@
         return NSOrderedAscending;
     if (distance > [other distance])
         return NSOrderedDescending;
+    if (type == HT_FACE && [other type] == HT_BRUSH)
+        return NSOrderedAscending;
+    if (type == HT_BRUSH && [other type] == HT_FACE)
+        return NSOrderedDescending;
     return NSOrderedSame;
 }
 

@@ -421,7 +421,7 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
     }
     
-    Vector3i* delta = [[Vector3i alloc] initWithX:xDelta y:yDelta z:zDelta];
+    Vector3i* delta = [[Vector3i alloc] initWithIntX:xDelta y:yDelta z:zDelta];
     MutableBrush* mutableBrush = (MutableBrush *)brush;
     [mutableBrush translateBy:delta];
 
@@ -434,7 +434,30 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     }
 }
 
-- (void)translateVertex:(Vertex *)theVertex xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {
+- (void)translateFace:(id <Face>)face xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] translateFace:face xDelta:-xDelta yDelta:-yDelta zDelta:-zDelta];
+    
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:[face brush] forKey:BrushKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
+    }
+    
+    Vector3i* delta = [[Vector3i alloc] initWithIntX:xDelta y:yDelta z:zDelta];
+    MutableFace* mutableFace = (MutableFace *)face;
+    [mutableFace translateBy:delta];
+    
+    [delta release];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
 }
 
 - (int)worldSize {

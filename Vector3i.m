@@ -43,7 +43,7 @@ static Vector3i* gNullVector;
 	return self;
 }
 
-- (id)initWithX:(int)xCoord y:(int)yCoord z:(int)zCoord {
+- (id)initWithIntX:(int)xCoord y:(int)yCoord z:(int)zCoord {
 	if (self = [super init]) {
 		[self setX:xCoord];
 		[self setY:yCoord];

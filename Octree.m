@@ -49,8 +49,8 @@
         map = [theDocument retain];
         
         int w = [map worldSize] / 2;
-        Vector3i* min = [[Vector3i alloc] initWithX:-w y:-w z:-w];
-        Vector3i* max = [[Vector3i alloc] initWithX:+w y:+w z:+w];
+        Vector3i* min = [[Vector3i alloc] initWithIntX:-w y:-w z:-w];
+        Vector3i* max = [[Vector3i alloc] initWithIntX:+w y:+w z:+w];
 
         root = [[OctreeNode alloc] initWithMin:min max:max minSize:theMinSize];
         

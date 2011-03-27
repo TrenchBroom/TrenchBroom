@@ -39,7 +39,7 @@
     return self;
 }
 
-- (id)initWithX:(float)xCoord y:(float)yCoord z:(float)zCoord w:(float)wCoord {
+- (id)initWithFloatX:(float)xCoord y:(float)yCoord z:(float)zCoord w:(float)wCoord {
     if (self = [super init]) {
         x = xCoord;
         y = yCoord;

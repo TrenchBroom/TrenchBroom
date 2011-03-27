@@ -8,12 +8,14 @@
 
 #import "SelectionLayer.h"
 #import "GridRenderer.h"
+#import "FaceHandleRenderer.h"
 
 @implementation SelectionLayer
 
 - (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager gridSize:(int)theGridSize drawGrid:(BOOL)doDrawGrid {
     if (self = [super initWithVbo:theVbo textureManager:theTextureManager]) {
         gridRenderer = [[GridRenderer alloc] initWithGridSize:theGridSize];
+        handleRenderer = [[FaceHandleRenderer alloc] init];
         drawGrid = doDrawGrid;
     }
     
@@ -22,11 +24,13 @@
 
 - (void)addFace:(id <Face>)theFace {
     [gridRenderer addFace:theFace];
+    [handleRenderer addFace:theFace];
     [super addFace:theFace];
 }
 
 - (void)removeFace:(id <Face>)theFace {
     [gridRenderer removeFace:theFace];
+    [handleRenderer removeFace:theFace];
     [super removeFace:theFace];
 }
 
@@ -45,6 +49,9 @@
         glColor4f(1, 0, 0, 0.5f);
         [gridRenderer render];
     }
+
+    glColor4f(1, 0, 0, 1);
+    [handleRenderer render];
 }
 
 - (void)setGridSize:(int)theGridSize {
@@ -57,6 +64,7 @@
 
 - (void)dealloc {
     [gridRenderer release];
+    [handleRenderer release];
     [super dealloc];
 }
 

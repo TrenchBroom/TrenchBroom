@@ -271,7 +271,7 @@ NSString* const CameraChanged = @"CameraChanged";
     GLdouble rx, ry, rz;
     gluUnProject(x, y, 0, modelview, projection, viewport, &rx, &ry, &rz);
     
-    return [[[Vector3f alloc] initWithX:rx y:ry z:rz] autorelease];
+    return [[[Vector3f alloc] initWithFloatX:rx y:ry z:rz] autorelease];
 }
 
 - (Ray3D *)pickRayX:(float)x y:(float)y {
