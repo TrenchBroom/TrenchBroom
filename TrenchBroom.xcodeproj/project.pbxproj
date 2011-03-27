@@ -594,9 +594,9 @@
 			children = (
 				4816144B132BE7C300CD66AF /* BrushTool.h */,
 				4816144C132BE7C300CD66AF /* BrushTool.m */,
-				486928E8133F27D300A0F098 /* Tool.h */,
 				486928EA133F282100A0F098 /* FaceTool.h */,
 				486928EB133F282100A0F098 /* FaceTool.m */,
+				486928E8133F27D300A0F098 /* Tool.h */,
 			);
 			name = Tool;
 			sourceTree = "<group>";

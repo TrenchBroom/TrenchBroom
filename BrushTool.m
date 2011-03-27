@@ -29,15 +29,13 @@
 - (id)init {
     if (self = [super init]) {
         brushes = [[NSMutableSet alloc] init];
-        delta = [[Vector3f alloc] init];
     }
     
     return self;
 }
 
 - (void)dealloc {
-    [lastRay release];
-    [delta release];
+    [lastPoint release];
     [plane release];
     [brushes release];
     [windowController release];
@@ -51,57 +49,54 @@
     if (self = [self init]) {
         [brushes unionSet:[[theWindowController selectionManager] selectedBrushes]];
         windowController = [theWindowController retain];
-        lastRay = [theRay retain];
         
-        Vector3f* hitPoint = [theHit hitPoint];
+        lastPoint = [[theHit hitPoint] retain];
         switch ([[theRay direction] largestComponent]) {
             case VC_X:
-                plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f xAxisPos]];
+                plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f xAxisPos]];
                 break;
             case VC_Y:
-                plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f yAxisPos]];
+                plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f yAxisPos]];
                 break;
             default:
-                plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f zAxisPos]];
+                plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f zAxisPos]];
                 break;
         }
     }
     
+    Grid* grid = [[windowController options] grid];
+    [grid snapToGrid:lastPoint];
+
     return self;
 }
 
 - (void)translateTo:(Ray3D *)theRay toggleSnap:(BOOL)toggleSnap altPlane:(BOOL)altPlane {
-    Vector3f* diff = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
-    if (diff == nil)
+    Vector3f* point = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
+    if (point == nil)
         return;
     
-    [diff sub:[lastRay pointAtDistance:[plane intersectWithRay:lastRay]]];
-    [delta add:diff];
-    
     Grid* grid = [[windowController options] grid];
-    int gs = [grid size];
+    [grid snapToGrid:point];
     
-    int x = roundf(floorf([delta x] / gs) * gs);
-    int y = roundf(floorf([delta y] / gs) * gs);
-    int z = roundf(floorf([delta z] / gs) * gs);
+    if ([point isEqualToVector:lastPoint])
+        return;
     
-    if (x != 0 || y != 0 || z != 0) {
-        [delta setX:[delta x] - x];
-        [delta setY:[delta y] - y];
-        [delta setZ:[delta z] - z];
-        
-        MapDocument* map = [windowController document];
-        
-        NSEnumerator* brushEn = [brushes objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject]))
-            [map translateBrush:brush 
-                         xDelta:x
-                         yDelta:y
-                         zDelta:z];
-    }
-    [lastRay release];
-    lastRay = [theRay retain];
+    int x = roundf([point x] - [lastPoint x]);
+    int y = roundf([point y] - [lastPoint y]);
+    int z = roundf([point z] - [lastPoint z]);
+
+    MapDocument* map = [windowController document];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject]))
+        [map translateBrush:brush 
+                     xDelta:x
+                     yDelta:y
+                     zDelta:z];
+
+    [lastPoint release];
+    lastPoint = [point retain];
 }
 
 - (NSString *)actionName {

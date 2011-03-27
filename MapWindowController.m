@@ -157,19 +157,19 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         return YES;
     } else if (action == @selector(switchToXYView:)) {
         return YES;
-    } else if (action == @selector(switchToInvertedXYView:)) {
-        return YES;
     } else if (action == @selector(switchToXZView:)) {
         return YES;
-    } else if (action == @selector(switchToInvertedXZView:)) {
-        return YES;
     } else if (action == @selector(switchToYZView:)) {
-        return YES;
-    } else if (action == @selector(switchToInvertedYZView:)) {
         return YES;
     } else if (action == @selector(isolateSelection:)) {
         return YES;
     } else if (action == @selector(toggleProjection:)) {
+        return YES;
+    } else if (action == @selector(toggleGrid:)) {
+        return YES;
+    } else if (action == @selector(toggleSnap:)) {
+        return YES;
+    } else if (action == @selector(setGridSize:)) {
         return YES;
     }
 

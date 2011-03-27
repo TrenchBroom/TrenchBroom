@@ -20,9 +20,8 @@
     NSMutableSet* faces;
     MapWindowController* windowController;
     Plane3D* plane;
-    Ray3D* lastRay;
-    Vector3f* delta;
-    EVectorComponent dragDir;
+    Vector3f* lastPoint;
+    Vector3f* dragDir;
 }
 
 - (id)initWithController:(MapWindowController *)theWindowController pickHit:(PickingHit *)theHit pickRay:(Ray3D *)theRay;

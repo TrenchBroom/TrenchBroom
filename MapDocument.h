@@ -54,6 +54,7 @@ extern NSString* const PropertyNewValueKey;
 - (void)setFace:(id <Face>)face yOffset:(int)yOffset;
 - (void)translateFaceOffset:(id <Face>)face xDelta:(int)xDelta yDelta:(int)yDelta;
 - (void)translateFace:(id <Face>)face xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta;
+- (void)dragFace:(id <Face>)face dist:(float)dist;
 - (void)setFace:(id <Face>)face xScale:(float)xScale;
 - (void)setFace:(id <Face>)face yScale:(float)yScale;
 - (void)setFace:(id <Face>)face rotation:(float)angle;

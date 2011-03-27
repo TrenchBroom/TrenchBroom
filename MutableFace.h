@@ -72,6 +72,7 @@ typedef enum {
 - (void)setYScale:(float)factor;
 - (void)translateOffsetsX:(int)x y:(int)y;
 - (void)translateBy:(Vector3i *)theDelta;
+- (void)dragBy:(float)dist;
 
 - (void)setVertices:(NSArray *)theVertices;
 - (void)setEdges:(NSArray *)theEdges;

@@ -20,8 +20,7 @@
     NSMutableSet* brushes;
     MapWindowController* windowController;
     Plane3D* plane;
-    Ray3D* lastRay;
-    Vector3f* delta;
+    Vector3f* lastPoint;
 }
 
 - (id)initWithController:(MapWindowController *)theWindowController pickHit:(PickingHit *)theHit pickRay:(Ray3D *)theRay;

@@ -79,18 +79,20 @@
 
 - (void)addFace:(id <Face>)theFace {
     NSAssert(theFace != nil, @"face must not be nil");
-    NSAssert(![faces containsObject:theFace], @"face is already handled by this renderer");
     
-    [faces addObject:theFace];
-    [self invalidate];
+    if (![faces containsObject:theFace]) {
+        [faces addObject:theFace];
+        [self invalidate];
+    }
 }
 
 - (void)removeFace:(id <Face>)theFace {
     NSAssert(theFace != nil, @"face must not be nil");
-    NSAssert([faces containsObject:theFace], @"face is not handled by this renderer");
-    
-    [faces removeObject:theFace];
-    [self invalidate];
+
+    if ([faces containsObject:theFace]) {
+        [faces removeObject:theFace];
+        [self invalidate];
+    }
 }
 
 - (void)setGridSize:(int)theGridSize {

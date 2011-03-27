@@ -36,6 +36,9 @@ NSString* const SelectionFaces = @"SelectionFaces";
 - (void)addFace:(id <Face>)face {
     NSAssert(face != nil, @"face must not be nil");
     
+    if ([faces containsObject:face])
+        return;
+    
     if (mode != SM_FACES && ([entities count] > 0 || [brushes count] > 0)) {
         NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
         if ([entities count] > 0)
@@ -62,6 +65,14 @@ NSString* const SelectionFaces = @"SelectionFaces";
 - (void)addFaces:(NSSet *)theFaces {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
+    NSMutableSet* addedFaces = [[NSMutableSet alloc] initWithSet:theFaces];
+    [addedFaces minusSet:faces];
+
+    if ([addedFaces count] == 0) {
+        [addedFaces release];
+        return;
+    }
+    
     if (mode != SM_FACES && ([entities count] > 0 || [brushes count] > 0)) {
         NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
         if ([entities count] > 0)
@@ -76,8 +87,6 @@ NSString* const SelectionFaces = @"SelectionFaces";
         [center postNotificationName:SelectionRemoved object:self userInfo:userInfo];
     }
     
-    NSMutableSet* addedFaces = [[NSMutableSet alloc] initWithSet:theFaces];
-    [addedFaces minusSet:faces];
     [faces unionSet:addedFaces];
     mode = SM_FACES;
     
@@ -90,6 +99,9 @@ NSString* const SelectionFaces = @"SelectionFaces";
 
 - (void)addBrush:(id <Brush>)brush {
     NSAssert(brush != nil, @"brush must not be nil");
+    
+    if ([brushes containsObject:brush])
+        return;
     
     if (mode != SM_GEOMETRY && [faces count] > 0) {
         NSDictionary* userInfo = [NSMutableDictionary dictionaryWithObject:[NSSet setWithSet:faces] forKey:SelectionFaces];
@@ -111,6 +123,14 @@ NSString* const SelectionFaces = @"SelectionFaces";
 - (void)addBrushes:(NSSet *)theBrushes {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
+    NSMutableSet* addedBrushes = [[NSMutableSet alloc] initWithSet:theBrushes];
+    [addedBrushes minusSet:brushes];
+    
+    if ([addedBrushes count] == 0) {
+        [addedBrushes release];
+        return;
+    }
+
     if (mode != SM_GEOMETRY && [faces count] > 0) {
         NSDictionary* userInfo = [NSMutableDictionary dictionaryWithObject:[NSSet setWithSet:faces] forKey:SelectionFaces];
         [faces removeAllObjects];
@@ -119,8 +139,6 @@ NSString* const SelectionFaces = @"SelectionFaces";
         [center postNotificationName:SelectionRemoved object:self userInfo:userInfo];
     }
     
-    NSMutableSet* addedBrushes = [[NSMutableSet alloc] initWithSet:theBrushes];
-    [addedBrushes minusSet:brushes];
     [brushes unionSet:addedBrushes];
     mode = SM_GEOMETRY;
     
@@ -134,6 +152,9 @@ NSString* const SelectionFaces = @"SelectionFaces";
 - (void)addEntity:(id <Entity>)entity {
     NSAssert(entity != nil, @"entity must not be nil");
  
+    if ([entities containsObject:entity])
+        return;
+    
     if (mode != SM_GEOMETRY && [faces count] > 0) {
         NSDictionary* userInfo = [NSMutableDictionary dictionaryWithObject:[NSSet setWithSet:faces] forKey:SelectionFaces];
         [faces removeAllObjects];
@@ -154,6 +175,14 @@ NSString* const SelectionFaces = @"SelectionFaces";
 - (void)addEntities:(NSSet *)theEntities {
     NSAssert(theEntities != nil, @"entity set must not be nil");
     
+    NSMutableSet* addedEntities = [[NSMutableSet alloc] initWithSet:theEntities];
+    [addedEntities minusSet:entities];
+    
+    if ([addedEntities count] == 0) {
+        [addedEntities release];
+        return;
+    }
+
     if (mode != SM_GEOMETRY && [faces count] > 0) {
         NSDictionary* userInfo = [NSMutableDictionary dictionaryWithObject:[NSSet setWithSet:faces] forKey:SelectionFaces];
         [faces removeAllObjects];
@@ -162,8 +191,6 @@ NSString* const SelectionFaces = @"SelectionFaces";
         [center postNotificationName:SelectionRemoved object:self userInfo:userInfo];
     }
 
-    NSMutableSet* addedEntities = [[NSMutableSet alloc] initWithSet:theEntities];
-    [addedEntities minusSet:entities];
     [entities unionSet:addedEntities];
     mode = SM_GEOMETRY;
     

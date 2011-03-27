@@ -342,6 +342,17 @@ static Vector3f* baseAxes[18];
     [self geometryChanged];
 }
 
+- (void)dragBy:(float)dist {
+    Vector3f* f = [[Vector3f alloc] initWithFloatVector:norm];
+    [f scale:dist];
+    
+    Vector3i* delta = [[Vector3i alloc] initWithIntX:roundf([f x]) y:roundf([f y]) z:roundf([f z])];
+    [self translateBy:delta];
+    
+    [f release];
+    [delta release];
+}
+
 - (void)setTexture:(NSString *)name {
     NSAssert(name != nil, @"texture name must not be nil");
     [texture setString:name];

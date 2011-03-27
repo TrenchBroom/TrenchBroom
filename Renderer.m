@@ -61,6 +61,7 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)trackedObjectChanged:(NSNotification *)notification;
 - (void)cameraChanged:(NSNotification *)notification;
 - (void)optionsChanged:(NSNotification *)notification;
+- (void)gridChanged:(NSNotification *)notification;
 
 @end
 
@@ -425,10 +426,13 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)optionsChanged:(NSNotification *)notification {
-    Options* options = [notification object];
-    [selectionLayer setGridSize:[[options grid] size]];
-    [selectionLayer setDrawGrid:[[options grid] draw]];
-    
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+}
+
+- (void)gridChanged:(NSNotification *)notification {
+    Grid* grid = [notification object];
+    [selectionLayer setGridSize:[grid size]];
+    [selectionLayer setDrawGrid:[grid draw]];
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
@@ -448,9 +452,10 @@ NSString* const RendererChanged = @"RendererChanged";
         textureManager = [[glResources textureManager] retain];
         
         Options* options = [windowController options];
-        
+        Grid* grid = [options grid];
+
         geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager];
-        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager gridSize:[[options grid] size] drawGrid:[[options grid] draw]];
+        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager gridSize:[grid size] drawGrid:[grid draw]];
         trackingLayer = [[TrackingLayer alloc] init];
 
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
@@ -479,6 +484,7 @@ NSString* const RendererChanged = @"RendererChanged";
         [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
         
         [center addObserver:self selector:@selector(optionsChanged:) name:OptionsChanged object:options];
+        [center addObserver:self selector:@selector(gridChanged:) name:GridChanged object:grid];
     }
     
     return self;

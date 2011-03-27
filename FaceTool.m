@@ -29,15 +29,14 @@
 - (id)init {
     if (self = [super init]) {
         faces = [[NSMutableSet alloc] init];
-        delta = [[Vector3f alloc] init];
     }
     
     return self;
 }
 
 - (void)dealloc {
-    [lastRay release];
-    [delta release];
+    [lastPoint release];
+    [dragDir release];
     [plane release];
     [faces release];
     [windowController release];
@@ -51,91 +50,51 @@
     if (self = [self init]) {
         [faces unionSet:[[theWindowController selectionManager] selectedFaces]];
         windowController = [theWindowController retain];
-        lastRay = [theRay retain];
         
         id <Face> face = [theHit object];
-        id <Brush> brush = [face brush];
-        Vector3f* dragVector = [[Vector3f alloc] initWithFloatVector:[face center]];
-        [dragVector sub:[brush center]];
-
-        dragDir = [dragVector largestComponent];
-        [dragVector release];
+        dragDir = [[face norm] retain];
         
-        Vector3f* hitPoint = [theHit hitPoint];
-        switch (dragDir) {
-            case VC_X:
-                if ([[theRay direction] largestComponent] == VC_Y)
-                    plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f yAxisPos]];
-                else
-                    plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f zAxisPos]];
-                break;
-            case VC_Y:
-                if ([[theRay direction] largestComponent] == VC_X)
-                    plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f xAxisPos]];
-                else
-                    plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f zAxisPos]];
-                break;
-            default:
-                if ([[theRay direction] largestComponent] == VC_X)
-                    plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f xAxisPos]];
-                else
-                    plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f yAxisPos]];
-                break;
-        }
+        Vector3f* planeNorm = [[Vector3f alloc] initWithFloatVector:dragDir];
+        [planeNorm cross:[theRay direction]];
+        [planeNorm cross:dragDir];
+        [planeNorm normalize];
+        
+        lastPoint = [[theHit hitPoint] retain];
+        plane = [[Plane3D alloc] initWithPoint:lastPoint norm:planeNorm];
+        [planeNorm release];
+        
+        Grid* grid = [[windowController options] grid];
+        [grid snapToGrid:lastPoint];
     }
     
     return self;
 }
 
 - (void)translateTo:(Ray3D *)theRay toggleSnap:(BOOL)toggleSnap altPlane:(BOOL)altPlane {
-    Vector3f* diff = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
-    if (diff == nil)
+    Vector3f* point = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
+    if (point == nil)
         return;
     
-    [diff sub:[lastRay pointAtDistance:[plane intersectWithRay:lastRay]]];
-    [delta add:diff];
-    
     Grid* grid = [[windowController options] grid];
-    int gs = [grid size];
+    [grid snapToGrid:point];
     
-    int x = roundf(floorf([delta x] / gs) * gs);
-    int y = roundf(floorf([delta y] / gs) * gs);
-    int z = roundf(floorf([delta z] / gs) * gs);
+    if ([point isEqualToVector:lastPoint])
+        return;
     
-    switch (dragDir) {
-        case VC_X:
-            y = 0;
-            z = 0;
-            break;
-        case VC_Y:
-            x = 0;
-            z = 0;
-            break;
-        case VC_Z:
-            x = 0;
-            y = 0;
-            break;
-        default:
-            break;
-    }
-
-    if (x != 0 || y != 0 || z != 0) {
-        [delta setX:[delta x] - x];
-        [delta setY:[delta y] - y];
-        [delta setZ:[delta z] - z];
-        
-        MapDocument* map = [windowController document];
-        
-        NSEnumerator* faceEn = [faces objectEnumerator];
-        id <Face> face;
-        while ((face = [faceEn nextObject]))
-            [map translateFace:face
-                         xDelta:x
-                         yDelta:y
-                         zDelta:z];
-    }
-    [lastRay release];
-    lastRay = [theRay retain];
+    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:point];
+    [diff sub:lastPoint];
+    float dist = [diff dot:dragDir];
+    
+    MapDocument* map = [windowController document];
+    
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject]))
+        [map dragFace:face dist:dist];
+    
+    [diff release];
+    [lastPoint release];
+    lastPoint = [point retain];
 }
 
 - (NSString *)actionName {
