@@ -64,7 +64,6 @@
 - (void)addFace:(id <Face>)theFace {
     NSAssert(theFace != nil, @"face must not be nil");
     [addedFaces addObject:theFace];
-    [removedFaces removeObject:theFace];
 }
 
 - (void)removeFace:(id <Face>)theFace {

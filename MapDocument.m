@@ -448,6 +448,8 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     }
     
     Vector3i* delta = [[Vector3i alloc] initWithIntX:xDelta y:yDelta z:zDelta];
+    NSLog(@"Translating %@ by %@", face, delta);
+    
     MutableFace* mutableFace = (MutableFace *)face;
     [mutableFace translateBy:delta];
     

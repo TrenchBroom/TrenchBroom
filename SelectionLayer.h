@@ -13,7 +13,6 @@
 
 @interface SelectionLayer : GeometryLayer {
     GridRenderer* gridRenderer;
-    FaceHandleRenderer* handleRenderer;
     BOOL drawGrid;
 }
 

@@ -105,7 +105,7 @@
 }
 
 - (NSString *)actionName {
-    return "Move Brushes";
+    return @"Move Brushes";
 }
 
 @end

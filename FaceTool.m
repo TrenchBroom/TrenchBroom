@@ -19,8 +19,8 @@
 #import "Vector3f.h"
 #import "Vector3i.h"
 #import "PickingHit.h"
+#import "Face.h"
 #import "Brush.h"
-#import "MutableBrush.h"
 #import "math.h"
 #import "Math.h"
 
@@ -53,16 +53,33 @@
         windowController = [theWindowController retain];
         lastRay = [theRay retain];
         
+        id <Face> face = [theHit object];
+        id <Brush> brush = [face brush];
+        Vector3f* dragVector = [[Vector3f alloc] initWithFloatVector:[face center]];
+        [dragVector sub:[brush center]];
+
+        dragDir = [dragVector largestComponent];
+        [dragVector release];
+        
         Vector3f* hitPoint = [theHit hitPoint];
-        switch ([[theRay direction] largestComponent]) {
+        switch (dragDir) {
             case VC_X:
-                plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f xAxisPos]];
+                if ([[theRay direction] largestComponent] == VC_Y)
+                    plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f yAxisPos]];
+                else
+                    plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f zAxisPos]];
                 break;
             case VC_Y:
-                plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f yAxisPos]];
+                if ([[theRay direction] largestComponent] == VC_X)
+                    plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f xAxisPos]];
+                else
+                    plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f zAxisPos]];
                 break;
             default:
-                plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f zAxisPos]];
+                if ([[theRay direction] largestComponent] == VC_X)
+                    plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f xAxisPos]];
+                else
+                    plane = [[Plane3D alloc] initWithPoint:hitPoint norm:[Vector3f yAxisPos]];
                 break;
         }
     }
@@ -85,6 +102,23 @@
     int y = roundf(floorf([delta y] / gs) * gs);
     int z = roundf(floorf([delta z] / gs) * gs);
     
+    switch (dragDir) {
+        case VC_X:
+            y = 0;
+            z = 0;
+            break;
+        case VC_Y:
+            x = 0;
+            z = 0;
+            break;
+        case VC_Z:
+            x = 0;
+            y = 0;
+            break;
+        default:
+            break;
+    }
+
     if (x != 0 || y != 0 || z != 0) {
         [delta setX:[delta x] - x];
         [delta setY:[delta y] - y];
@@ -105,7 +139,7 @@
 }
 
 - (NSString *)actionName {
-    return "Move Faces";
+    return @"Move Faces";
 }
 
 @end

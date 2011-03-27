@@ -8,12 +8,12 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Tool.h"
+#import "Vector3f.h"
 
 @class MapWindowController;
 @class PickingHit;
 @class Plane3D;
 @class Ray3D;
-@class Vector3f;
 
 @interface FaceTool : NSObject <Tool> {
 @private
@@ -22,6 +22,7 @@
     Plane3D* plane;
     Ray3D* lastRay;
     Vector3f* delta;
+    EVectorComponent dragDir;
 }
 
 - (id)initWithController:(MapWindowController *)theWindowController pickHit:(PickingHit *)theHit pickRay:(Ray3D *)theRay;
