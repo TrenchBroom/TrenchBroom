@@ -44,6 +44,29 @@
     return [point autorelease];
 }
 
+- (float)intersectWithSphere:(Vector3f *)center radius:(float)radius {
+    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:origin];
+    [diff sub:center];
+    
+    float p = 2 * [direction dot:diff];
+    float q = [diff lengthSquared] - radius * radius;
+    [diff release];
+    
+    float d = p * p - 4 * q;
+    if (d < 0)
+        return NAN;
+    
+    float r = sqrt(d);
+    float t0 = -p + r;
+    float t1 = -p - r;
+
+    if (t0 < 0 && t1 < 0)
+        return NAN;
+    if (t0 > 0 && t1 > 0)
+        return fmin(t0, t1);
+    return fmax(t0, t1);
+}
+
 - (void)dealloc {
     [origin release];
     [direction release];

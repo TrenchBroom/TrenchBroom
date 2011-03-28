@@ -304,9 +304,9 @@ static Vector3f* baseAxes[18];
         [point3 isEqualToVector:thePoint3])
         return;
 
-    [point1 set:thePoint1];
-    [point2 set:thePoint2];
-    [point3 set:thePoint3];
+    [point1 setInt:thePoint1];
+    [point2 setInt:thePoint2];
+    [point3 setInt:thePoint3];
 
     [self geometryChanged];
 }

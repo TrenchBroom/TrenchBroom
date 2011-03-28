@@ -31,6 +31,10 @@
 		481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 481D300F12FAE5C0001CBD9E /* GLFontManager.m */; };
 		4824957B12F3004C004F3615 /* BoundingBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 4824957A12F3004C004F3615 /* BoundingBox.m */; };
 		482B817E13169EB200F36EF5 /* GLException.m in Sources */ = {isa = PBXBuildFile; fileRef = 482B817D13169EB200F36EF5 /* GLException.m */; };
+		482F0050134107DC00849BF5 /* ClipLineFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482F004F134107DC00849BF5 /* ClipLineFeedbackFigure.m */; };
+		482F008213410F7400849BF5 /* ClipPlaneFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482F008113410F7400849BF5 /* ClipPlaneFeedbackFigure.m */; };
+		482FFF011340E10E00849BF5 /* ClipTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 482FFF001340E10E00849BF5 /* ClipTool.m */; };
+		482FFF181340E56000849BF5 /* ClipPointFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482FFF171340E56000849BF5 /* ClipPointFeedbackFigure.m */; };
 		4833C15F131953F600EB1B85 /* PrefabManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C15E131953F600EB1B85 /* PrefabManager.m */; };
 		4833C1BD13196CFB00EB1B85 /* MutablePrefab.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C1BC13196CFB00EB1B85 /* MutablePrefab.m */; };
 		4836401112603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
@@ -201,6 +205,15 @@
 		4824957A12F3004C004F3615 /* BoundingBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundingBox.m; sourceTree = "<group>"; };
 		482B817C13169EB200F36EF5 /* GLException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLException.h; sourceTree = "<group>"; };
 		482B817D13169EB200F36EF5 /* GLException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLException.m; sourceTree = "<group>"; };
+		482F004E134107DC00849BF5 /* ClipLineFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipLineFeedbackFigure.h; sourceTree = "<group>"; };
+		482F004F134107DC00849BF5 /* ClipLineFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipLineFeedbackFigure.m; sourceTree = "<group>"; };
+		482F008013410F7400849BF5 /* ClipPlaneFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipPlaneFeedbackFigure.h; sourceTree = "<group>"; };
+		482F008113410F7400849BF5 /* ClipPlaneFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipPlaneFeedbackFigure.m; sourceTree = "<group>"; };
+		482FFEFF1340E10E00849BF5 /* ClipTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipTool.h; sourceTree = "<group>"; };
+		482FFF001340E10E00849BF5 /* ClipTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipTool.m; sourceTree = "<group>"; };
+		482FFF111340E3C600849BF5 /* FeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeedbackFigure.h; sourceTree = "<group>"; };
+		482FFF161340E56000849BF5 /* ClipPointFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipPointFeedbackFigure.h; sourceTree = "<group>"; };
+		482FFF171340E56000849BF5 /* ClipPointFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipPointFeedbackFigure.m; sourceTree = "<group>"; };
 		4833C15B131953D300EB1B85 /* Prefab2.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prefab2.map; sourceTree = "<group>"; };
 		4833C15D131953F600EB1B85 /* PrefabManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabManager.h; sourceTree = "<group>"; };
 		4833C15E131953F600EB1B85 /* PrefabManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabManager.m; sourceTree = "<group>"; };
@@ -597,6 +610,14 @@
 				486928EA133F282100A0F098 /* FaceTool.h */,
 				486928EB133F282100A0F098 /* FaceTool.m */,
 				486928E8133F27D300A0F098 /* Tool.h */,
+				482FFEFF1340E10E00849BF5 /* ClipTool.h */,
+				482FFF001340E10E00849BF5 /* ClipTool.m */,
+				482FFF161340E56000849BF5 /* ClipPointFeedbackFigure.h */,
+				482FFF171340E56000849BF5 /* ClipPointFeedbackFigure.m */,
+				482F004E134107DC00849BF5 /* ClipLineFeedbackFigure.h */,
+				482F004F134107DC00849BF5 /* ClipLineFeedbackFigure.m */,
+				482F008013410F7400849BF5 /* ClipPlaneFeedbackFigure.h */,
+				482F008113410F7400849BF5 /* ClipPlaneFeedbackFigure.m */,
 			);
 			name = Tool;
 			sourceTree = "<group>";
@@ -623,6 +644,7 @@
 				484C28FB115023A2004DD957 /* VBOBuffer.m */,
 				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
 				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
+				482FFF111340E3C600849BF5 /* FeedbackFigure.h */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -1089,6 +1111,10 @@
 				4869279C133E8FF000A0F098 /* GridRenderer.m in Sources */,
 				4869280E133F12B800A0F098 /* FaceHandleRenderer.m in Sources */,
 				486928EC133F282100A0F098 /* FaceTool.m in Sources */,
+				482FFF011340E10E00849BF5 /* ClipTool.m in Sources */,
+				482FFF181340E56000849BF5 /* ClipPointFeedbackFigure.m in Sources */,
+				482F0050134107DC00849BF5 /* ClipLineFeedbackFigure.m in Sources */,
+				482F008213410F7400849BF5 /* ClipPlaneFeedbackFigure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

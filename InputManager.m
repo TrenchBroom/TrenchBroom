@@ -25,6 +25,7 @@
 #import "FaceTool.h"
 #import "Options.h"
 #import "TrackingManager.h"
+#import "ClipTool.h"
 
 @implementation InputManager
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
@@ -43,32 +44,9 @@
     return [self isCameraModifierPressed:event] && ([event modifierFlags] & NSCommandKeyMask) != 0;
 }
 
-- (void)handleKeyDown:(NSEvent *)event sender:(id)sender {
-    Camera* camera = [windowController camera];
-
-    switch ([event keyCode]) {
-        case 0: // a
-            [camera moveForward:0 right:-20 up:0];
-            break;
-        case 1: // s
-            [camera moveForward:-20 right:0 up:0];
-            break;
-        case 2: // d
-            [camera moveForward:0 right:20 up:0];
-            break;
-        case 13: // w
-            [camera moveForward:20 right:0 up:0];
-            break;
-        case 49: // space bar
-            break;
-        default:
-            break;
-    }
-}
-
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender {
-    Camera* camera = [windowController camera];
     if ([self isCameraModifierPressed:event]) {
+        Camera* camera = [windowController camera];
         if ([self isCameraOrbitModifierPressed:event]) {
             if (lastHits != nil) {
                 float h = -[event deltaX] / 70;
@@ -81,7 +59,7 @@
             float pitch = [event deltaY] / 70;
             [camera rotateYaw:yaw pitch:pitch];
         }
-    } else if (tool != nil) {
+    } else {
         MapView3D* mapView3D = (MapView3D *)sender;
         [[mapView3D openGLContext] makeCurrentContext];
         Camera* camera = [windowController camera];
@@ -89,7 +67,10 @@
         NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
         Ray3D* ray = [camera pickRayX:m.x y:m.y];
 
-        [tool translateTo:ray toggleSnap:NO altPlane:NO];
+        if (tool != nil)
+            [tool translateTo:ray toggleSnap:NO altPlane:NO];
+        else if (clipTool != nil)
+            [clipTool handleLeftMouseDragged:ray];
     }
     
     drag = YES;
@@ -103,6 +84,9 @@
     NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
     Ray3D* ray = [camera pickRayX:m.x y:m.y];
 
+    if (clipTool != nil)
+        [clipTool handleMouseMoved:ray];
+    
     TrackingManager* trackingManager = [windowController trackingManager];
     [trackingManager updateWithRay:ray];
 }
@@ -115,41 +99,45 @@
     NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
     Ray3D* ray = [camera pickRayX:m.x y:m.y];
     
-    [lastHits release];
-    Picker* picker = [[windowController document] picker];
-    lastHits = [[picker pickObjects:ray include:nil exclude:nil] retain];
-    
-    if (lastHits != nil && ![self isCameraModifierPressed:event]) {
-        PickingHit* lastHit = [lastHits firstHitOfType:HT_ANY ignoreOccluders:NO];
-        SelectionManager* selectionManager = [windowController selectionManager];
-        switch ([lastHit type]) {
-            case HT_BRUSH:
-            case HT_FACE: {
-                if ([selectionManager mode] == SM_GEOMETRY) {
-                    id <Brush> brush = [lastHit type] == HT_BRUSH ? [lastHit object] : [[lastHit object] brush];
-                    if ([selectionManager isBrushSelected:brush]) {
-                        MapDocument* map = [windowController document];
-                        NSUndoManager* undoManager = [map undoManager];
-                        [undoManager beginUndoGrouping];
-                        tool = [[BrushTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
+    if (clipTool != nil && ![self isCameraModifierPressed:event]) {
+        [clipTool handleLeftMouseDown:ray];
+    } else {
+        [lastHits release];
+        Picker* picker = [[windowController document] picker];
+        lastHits = [[picker pickObjects:ray include:nil exclude:nil] retain];
+        
+        if (lastHits != nil && ![self isCameraModifierPressed:event]) {
+            PickingHit* lastHit = [lastHits firstHitOfType:HT_ANY ignoreOccluders:NO];
+            SelectionManager* selectionManager = [windowController selectionManager];
+            switch ([lastHit type]) {
+                case HT_BRUSH:
+                case HT_FACE: {
+                    if ([selectionManager mode] == SM_GEOMETRY) {
+                        id <Brush> brush = [lastHit type] == HT_BRUSH ? [lastHit object] : [[lastHit object] brush];
+                        if ([selectionManager isBrushSelected:brush]) {
+                            MapDocument* map = [windowController document];
+                            NSUndoManager* undoManager = [map undoManager];
+                            [undoManager beginUndoGrouping];
+                            tool = [[BrushTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
+                        }
+                    } else if ([selectionManager mode] == SM_FACES && [lastHit type] == HT_FACE) {
+                        id <Face> face = [lastHit object];
+                        if ([selectionManager isFaceSelected:face]) {
+                            MapDocument* map = [windowController document];
+                            NSUndoManager* undoManager = [map undoManager];
+                            [undoManager beginUndoGrouping];
+                            tool = [[FaceTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
+                        }
                     }
-                } else if ([selectionManager mode] == SM_FACES && [lastHit type] == HT_FACE) {
-                    id <Face> face = [lastHit object];
-                    if ([selectionManager isFaceSelected:face]) {
-                        MapDocument* map = [windowController document];
-                        NSUndoManager* undoManager = [map undoManager];
-                        [undoManager beginUndoGrouping];
-                        tool = [[FaceTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
-                    }
+                    break;
                 }
-                break;
+                case HT_EDGE:
+                    break;
+                case HT_VERTEX:
+                    break;
+                default:
+                    break;
             }
-            case HT_EDGE:
-                break;
-            case HT_VERTEX:
-                break;
-            default:
-                break;
         }
     }
 
@@ -164,62 +152,64 @@
     
     NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
     Ray3D* ray = [camera pickRayX:m.x y:m.y];
-
-    Options* options = [windowController options];
-    if (![self isCameraModifierPressed:event] && !drag && [options isolationMode] == IM_NONE && lastHits != nil) {
-        SelectionManager* selectionManager = [windowController selectionManager];
-        PickingHit* lastHit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
-        if (lastHit != nil) {
-            id <Face> face = [lastHit object];
-            id <Brush> brush = [face brush];
-            
-            if ([selectionManager mode] == SM_FACES) {
-                if ([selectionManager isFaceSelected:face]) {
-                    [selectionManager removeFace:face];
+    
+    if (clipTool != nil) {
+        [clipTool handleLeftMouseUp:ray];
+    } else {
+        Options* options = [windowController options];
+        if (![self isCameraModifierPressed:event] && !drag && [options isolationMode] == IM_NONE && lastHits != nil) {
+            SelectionManager* selectionManager = [windowController selectionManager];
+            PickingHit* lastHit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
+            if (lastHit != nil) {
+                id <Face> face = [lastHit object];
+                id <Brush> brush = [face brush];
+                
+                if ([selectionManager mode] == SM_FACES) {
+                    if ([selectionManager isFaceSelected:face]) {
+                        [selectionManager removeFace:face];
+                    } else {
+                        if (([event modifierFlags] & NSCommandKeyMask) == 0) {
+                            if ([selectionManager hasSelectedFaces:brush]) {
+                                [selectionManager removeAll];
+                                [selectionManager addFace:face];
+                            } else {
+                                [selectionManager addBrush:brush];
+                            }
+                        } else {
+                            [selectionManager addFace:face];
+                        }
+                    }
                 } else {
                     if (([event modifierFlags] & NSCommandKeyMask) == 0) {
-                        if ([selectionManager hasSelectedFaces:brush]) {
-                            [selectionManager removeAll];
+                        if ([selectionManager isBrushSelected:brush]) {
                             [selectionManager addFace:face];
                         } else {
+                            [selectionManager removeAll];
                             [selectionManager addBrush:brush];
                         }
                     } else {
-                        [selectionManager addFace:face];
+                        if ([selectionManager isBrushSelected:brush]) {
+                            [selectionManager removeBrush:brush];
+                        } else {
+                            [selectionManager addBrush:brush];
+                        }
                     }
                 }
             } else {
-                if (([event modifierFlags] & NSCommandKeyMask) == 0) {
-                    if ([selectionManager isBrushSelected:brush]) {
-                        [selectionManager addFace:face];
-                    } else {
-                        [selectionManager removeAll];
-                        [selectionManager addBrush:brush];
-                    }
-                } else {
-                    if ([selectionManager isBrushSelected:brush]) {
-                        [selectionManager removeBrush:brush];
-                    } else {
-                        [selectionManager addBrush:brush];
-                    }
-                }
+                [selectionManager removeAll];
             }
-        } else {
-            [selectionManager removeAll];
+        }
+        if (tool != nil) {
+            MapDocument* map = [windowController document];
+            NSUndoManager* undoManager = [map undoManager];
+            [undoManager endUndoGrouping];
+            [undoManager setActionName:[tool actionName]];
+            [tool release];
+            tool = nil;
         }
     }
-    
     TrackingManager* trackingManager = [windowController trackingManager];
     [trackingManager updateWithRay:ray];
-
-    if (tool != nil) {
-        MapDocument* map = [windowController document];
-        NSUndoManager* undoManager = [map undoManager];
-        [undoManager endUndoGrouping];
-        [undoManager setActionName:[tool actionName]];
-        [tool release];
-        tool = nil;
-    }
     
     drag = NO;
 }
@@ -266,7 +256,13 @@
     }
 }
 
+- (void)setClipTool:(ClipTool *)theClipTool {
+    [clipTool release];
+    clipTool = [theClipTool retain];
+}
+
 - (void)dealloc {
+    [clipTool release];
     [tool release];
     [lastHits release];
     [windowController release];

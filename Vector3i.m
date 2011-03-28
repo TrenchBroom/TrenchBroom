@@ -31,14 +31,14 @@ static Vector3i* gNullVector;
 	return self;
 }
 
-- (id)initWithVector:(Vector3i *)vector {
+- (id)initWithIntVector:(Vector3i *)vector {
 	if (vector == nil) {
 		[self release];
 		return nil;
 	}
 	
 	if (self = [super init])
-		[self set:vector];
+		[self setInt:vector];
 	
 	return self;
 }
@@ -77,7 +77,7 @@ static Vector3i* gNullVector;
 	coords[2] = zCoord;
 }
 
-- (void)set:(Vector3i *)vector {
+- (void)setInt:(Vector3i *)vector {
 	[self setX:[vector x]];
 	[self setY:[vector y]];
 	[self setZ:[vector z]];

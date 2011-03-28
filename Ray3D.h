@@ -23,5 +23,6 @@
 - (Vector3f *)direction;
 
 - (Vector3f *)pointAtDistance:(float)distance;
+- (float)intersectWithSphere:(Vector3f *)center radius:(float)radius;
 
 @end

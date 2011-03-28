@@ -18,6 +18,7 @@ extern NSString* const RendererChanged;
 @class RenderContext;
 @class MapWindowController;
 @class TextureManager;
+@protocol FeedbackFigure;
 
 @interface Renderer : NSObject {
     @private
@@ -25,12 +26,16 @@ extern NSString* const RendererChanged;
     TextureManager* textureManager;
     VBOBuffer* sharedVbo;
     NSMutableSet* invalidFaces;
+    NSMutableSet* feedbackFigures;
     GeometryLayer* geometryLayer;
     SelectionLayer* selectionLayer;
     TrackingLayer* trackingLayer;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
+
+- (void)addFeedbackFigure:(id <FeedbackFigure>)theFigure;
+- (void)removeFeedbackFigure:(id <FeedbackFigure>)theFigure;
 
 - (void)render;
 

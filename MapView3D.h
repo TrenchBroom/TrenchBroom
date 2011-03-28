@@ -21,5 +21,6 @@
 
 - (void)setup;
 - (void)userDefaultsChanged:(NSNotification *)notification;
+- (Renderer *)renderer;
 
 @end

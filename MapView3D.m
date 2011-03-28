@@ -135,6 +135,10 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
     [self setNeedsDisplay:YES];
 }
 
+- (Renderer *)renderer {
+    return renderer;
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [renderer release];

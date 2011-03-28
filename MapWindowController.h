@@ -19,6 +19,7 @@
 @class Options;
 @class Prefab;
 @class TrackingManager;
+@class ClipTool;
 @protocol Prefab;
 
 @interface MapWindowController : NSWindowController {
@@ -28,6 +29,7 @@
     InputManager* inputManager;
     TrackingManager* trackingManager;
     Options* options;
+    ClipTool* clipTool;
 }
 
 - (IBAction)showInspector:(id)sender;
@@ -61,6 +63,7 @@
 
 - (IBAction)duplicateSelection:(id)sender;
 - (IBAction)createPrefabFromSelection:(id)sender;
+- (IBAction)toggleClipTool:(id)sender;
 
 - (void)insertPrefab:(id <Prefab>)prefab;
 

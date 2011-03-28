@@ -11,6 +11,7 @@
 @class Picker;
 @class PickingHitList;
 @class MapWindowController;
+@class ClipTool;
 @protocol Tool;
 
 @interface InputManager : NSObject {
@@ -18,13 +19,13 @@
     PickingHitList* lastHits;
     MapWindowController* windowController;
     id <Tool> tool;
+    ClipTool* clipTool;
     BOOL gesture;
     BOOL drag;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
 
-- (void)handleKeyDown:(NSEvent *)event sender:(id)sender;
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender;
 - (void)handleMouseMoved:(NSEvent *)event sender:(id)sender;
 - (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender;
@@ -34,4 +35,6 @@
 - (void)handleBeginGesture:(NSEvent *)event sender:(id)sender;
 - (void)handleEndGesture:(NSEvent *)event sender:(id)sender;
 - (void)handleMagnify:(NSEvent *)event sender:(id)sender;
+
+- (void)setClipTool:(ClipTool *)theClipTool;
 @end

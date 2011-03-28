@@ -79,8 +79,6 @@ void rotateQ(TQuaternion* q, TVector3f* v);
 TVector3f* rayPointAtDistance(TRay* r, float d);
 TVector3f* linePointAtDistance(TLine* l, float d);
 
-
-
 NSArray* makeCircle(float radius, int segments);
 NSArray* makeRing(float innerRadius, float outerRadius, int segments);
 

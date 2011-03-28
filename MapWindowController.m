@@ -36,6 +36,7 @@
 #import "MapWriter.h"
 #import "CameraAnimation.h"
 #import "TrackingManager.h"
+#import "ClipTool.h"
 
 static NSString* CameraDefaults = @"Camera";
 static NSString* CameraDefaultsFov = @"Field Of Vision";
@@ -171,6 +172,8 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         return YES;
     } else if (action == @selector(setGridSize:)) {
         return YES;
+    } else if (action == @selector(toggleClipTool:)) {
+        return [selectionManager hasSelectedBrushes];
     }
 
     return NO;
@@ -480,6 +483,17 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSApplication* app = [NSApplication sharedApplication];
     [app beginSheet:prefabNameSheet modalForWindow:[self window] modalDelegate:self didEndSelector:@selector(prefabNameSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
     
+}
+
+- (IBAction)toggleClipTool:(id)sender {
+    if (clipTool == nil) {
+        clipTool = [[ClipTool alloc] initWithBrushes:[selectionManager selectedBrushes] picker:[[self document] picker] grid:[options grid] renderer:[view3D renderer]];
+    } else {
+        [clipTool release];
+        clipTool = nil;
+    }
+    
+    [inputManager setClipTool:clipTool];
 }
 
 - (void)insertPrefab:(id <Prefab>)prefab {

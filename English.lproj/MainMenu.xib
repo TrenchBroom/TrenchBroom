@@ -3,12 +3,12 @@
 	<data>
 		<int key="IBDocument.SystemTarget">1060</int>
 		<string key="IBDocument.SystemVersion">10J567</string>
-		<string key="IBDocument.InterfaceBuilderVersion">804</string>
+		<string key="IBDocument.InterfaceBuilderVersion">851</string>
 		<string key="IBDocument.AppKitVersion">1038.35</string>
 		<string key="IBDocument.HIToolboxVersion">462.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">804</string>
+			<string key="NS.object.0">851</string>
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -604,8 +604,8 @@
 											<bool key="EncodedWithXMLCoder">YES</bool>
 											<object class="NSMenuItem" id="423392075">
 												<reference key="NSMenu" ref="388273987"/>
-												<string key="NSTitle">Item</string>
-												<string key="NSKeyEquiv"/>
+												<string key="NSTitle">Toggle Clip Tool</string>
+												<string key="NSKeyEquiv">c</string>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
@@ -832,16 +832,6 @@
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
 											</object>
-											<object class="NSMenuItem" id="335505425">
-												<reference key="NSMenu" ref="403305097"/>
-												<bool key="NSIsAlternate">YES</bool>
-												<string key="NSTitle">Switch To Inverted XY View</string>
-												<string key="NSKeyEquiv">1</string>
-												<int key="NSKeyEquivModMask">655360</int>
-												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="1033313550"/>
-												<reference key="NSMixedImage" ref="310636482"/>
-											</object>
 											<object class="NSMenuItem" id="328646194">
 												<reference key="NSMenu" ref="403305097"/>
 												<string key="NSTitle">Switch To XZ View</string>
@@ -851,31 +841,11 @@
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
 											</object>
-											<object class="NSMenuItem" id="686722389">
-												<reference key="NSMenu" ref="403305097"/>
-												<bool key="NSIsAlternate">YES</bool>
-												<string key="NSTitle">Switch To Inverted XZ View</string>
-												<string key="NSKeyEquiv">2</string>
-												<int key="NSKeyEquivModMask">655360</int>
-												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="1033313550"/>
-												<reference key="NSMixedImage" ref="310636482"/>
-											</object>
 											<object class="NSMenuItem" id="1043181363">
 												<reference key="NSMenu" ref="403305097"/>
 												<string key="NSTitle">Switch To YZ View</string>
 												<string key="NSKeyEquiv">3</string>
 												<int key="NSKeyEquivModMask">131072</int>
-												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="1033313550"/>
-												<reference key="NSMixedImage" ref="310636482"/>
-											</object>
-											<object class="NSMenuItem" id="184896113">
-												<reference key="NSMenu" ref="403305097"/>
-												<bool key="NSIsAlternate">YES</bool>
-												<string key="NSTitle">Switch To Inverted YZ View</string>
-												<string key="NSKeyEquiv">3</string>
-												<int key="NSKeyEquivModMask">655360</int>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
@@ -1687,14 +1657,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">switchToInvertedXYView:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="335505425"/>
-					</object>
-					<int key="connectionID">767</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">switchToXZView:</string>
 						<reference key="source" ref="1014"/>
 						<reference key="destination" ref="328646194"/>
@@ -1703,27 +1665,11 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">switchToInvertedXZView:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="686722389"/>
-					</object>
-					<int key="connectionID">769</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">switchToYZView:</string>
 						<reference key="source" ref="1014"/>
 						<reference key="destination" ref="1043181363"/>
 					</object>
 					<int key="connectionID">770</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">switchToInvertedYZView:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="184896113"/>
-					</object>
-					<int key="connectionID">771</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -1748,6 +1694,14 @@
 						<reference key="destination" ref="503492308"/>
 					</object>
 					<int key="connectionID">778</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">toggleClipTool:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="423392075"/>
+					</object>
+					<int key="connectionID">779</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -2471,9 +2425,6 @@
 							<reference ref="532629463"/>
 							<reference ref="328646194"/>
 							<reference ref="1043181363"/>
-							<reference ref="335505425"/>
-							<reference ref="686722389"/>
-							<reference ref="184896113"/>
 							<reference ref="576181861"/>
 							<reference ref="503492308"/>
 						</object>
@@ -2492,21 +2443,6 @@
 					<object class="IBObjectRecord">
 						<int key="objectID">760</int>
 						<reference key="object" ref="1043181363"/>
-						<reference key="parent" ref="403305097"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">763</int>
-						<reference key="object" ref="335505425"/>
-						<reference key="parent" ref="403305097"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">764</int>
-						<reference key="object" ref="686722389"/>
-						<reference key="parent" ref="403305097"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">765</int>
-						<reference key="object" ref="184896113"/>
 						<reference key="parent" ref="403305097"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -2685,9 +2621,6 @@
 					<string>757.IBPluginDependency</string>
 					<string>759.IBPluginDependency</string>
 					<string>760.IBPluginDependency</string>
-					<string>763.IBPluginDependency</string>
-					<string>764.IBPluginDependency</string>
-					<string>765.IBPluginDependency</string>
 					<string>77.IBPluginDependency</string>
 					<string>77.ImportedFromIB2</string>
 					<string>772.IBPluginDependency</string>
@@ -2807,7 +2740,7 @@
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{1076, 708}, {154, 173}}</string>
+					<string>{{1010, 708}, {154, 173}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2824,14 +2757,11 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{1509, 743}, {83, 23}}</string>
+					<string>{{923, 708}, {174, 23}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{1509, 723}, {83, 23}}</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>{{923, 688}, {83, 23}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2849,23 +2779,23 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{1010, 708}, {272, 153}}</string>
+					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>{{1010, 768}, {235, 93}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2909,7 +2839,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">778</int>
+			<int key="maxID">779</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2965,20 +2895,16 @@
 							<string>shrinkTextureVertically:</string>
 							<string>stretchTextureHorizontally:</string>
 							<string>stretchTextureVertically:</string>
-							<string>switchToInvertedXYView:</string>
-							<string>switchToInvertedXZView:</string>
-							<string>switchToInvertedYZView:</string>
 							<string>switchToXYView:</string>
 							<string>switchToXZView:</string>
 							<string>switchToYZView:</string>
+							<string>toggleClipTool:</string>
 							<string>toggleGrid:</string>
 							<string>toggleProjection:</string>
 							<string>toggleSnap:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>id</string>
-							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -3032,12 +2958,10 @@
 							<string>shrinkTextureVertically:</string>
 							<string>stretchTextureHorizontally:</string>
 							<string>stretchTextureVertically:</string>
-							<string>switchToInvertedXYView:</string>
-							<string>switchToInvertedXZView:</string>
-							<string>switchToInvertedYZView:</string>
 							<string>switchToXYView:</string>
 							<string>switchToXZView:</string>
 							<string>switchToYZView:</string>
+							<string>toggleClipTool:</string>
 							<string>toggleGrid:</string>
 							<string>toggleProjection:</string>
 							<string>toggleSnap:</string>
@@ -3125,18 +3049,6 @@
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
-								<string key="name">switchToInvertedXYView:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">switchToInvertedXZView:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">switchToInvertedYZView:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
 								<string key="name">switchToXYView:</string>
 								<string key="candidateClassName">id</string>
 							</object>
@@ -3146,6 +3058,10 @@
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">switchToYZView:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">toggleClipTool:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">

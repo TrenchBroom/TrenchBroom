@@ -34,6 +34,7 @@
 #import "GLResources.h"
 #import "TextureManager.h"
 #import "Texture.h"
+#import "FeedbackFigure.h"
 
 NSString* const RendererChanged = @"RendererChanged";
 
@@ -443,6 +444,7 @@ NSString* const RendererChanged = @"RendererChanged";
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
         windowController = [theWindowController retain];
+        feedbackFigures = [[NSMutableSet alloc] init];
 
         sharedVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
         invalidFaces = [[NSMutableSet alloc] init];
@@ -490,6 +492,23 @@ NSString* const RendererChanged = @"RendererChanged";
     return self;
 }
 
+- (void)addFeedbackFigure:(id <FeedbackFigure>)theFigure {
+    NSAssert(theFigure != nil, @"figure must not be nil");
+    if (![feedbackFigures containsObject:theFigure]) {
+        [feedbackFigures addObject:theFigure];
+        [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+        [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+    }
+}
+
+- (void)removeFeedbackFigure:(id <FeedbackFigure>)theFigure {
+    NSAssert(theFigure != nil, @"figure must not be nil");
+    if ([feedbackFigures containsObject:theFigure]) {
+        [feedbackFigures removeObject:theFigure];
+        [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+    }
+}
+
 - (void)render {
     [self validate];
     
@@ -507,12 +526,20 @@ NSString* const RendererChanged = @"RendererChanged";
     [selectionLayer render:renderContext];
     [trackingLayer render:renderContext];
     
+    glDisable(GL_DEPTH_TEST);
+    NSEnumerator* figureEn = [feedbackFigures objectEnumerator];
+    id <FeedbackFigure> figure;
+    while ((figure = [figureEn nextObject]))
+        [figure render];
+    glEnable(GL_DEPTH_TEST);
+    
     [renderContext release];
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [windowController release];
+    [feedbackFigures release];
     [geometryLayer release];
     [selectionLayer release];
     [trackingLayer release];

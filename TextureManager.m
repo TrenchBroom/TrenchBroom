@@ -7,6 +7,7 @@
 //
 
 #import "TextureManager.h"
+#import <OpenGL/gl.h>
 #import "Texture.h"
 #import "Wad.h"
 #import "WadPaletteEntry.h"
