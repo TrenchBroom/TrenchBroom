@@ -146,6 +146,7 @@
         picker = [thePicker retain];
         grid = [theGrid retain];
         renderer = [theRenderer retain];
+        clipMode = CM_FRONT;
     }
     
     return self;
@@ -243,6 +244,20 @@
     }
 
     [self updateFeedback];
+}
+
+- (void)toggleClipMode {
+    switch (clipMode) {
+        case CM_FRONT:
+            clipMode = CM_BACK;
+            break;
+        case CM_BACK:
+            clipMode = CM_SPLIT;
+            break;
+        default:
+            clipMode = CM_FRONT;
+            break;
+    }
 }
 
 - (void)dealloc {

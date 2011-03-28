@@ -8,6 +8,12 @@
 
 #import <Cocoa/Cocoa.h>
 
+typedef enum {
+    CM_FRONT,
+    CM_BACK,
+    CM_SPLIT
+} EClipMode;
+
 @class Vector3i;
 @class Picker;
 @class Ray3D;
@@ -34,6 +40,7 @@
     ClipPlaneFeedbackFigure* planeFigure;
     Vector3i* currentPoint;
     Vector3i* draggedPoint;
+    EClipMode clipMode;
 }
 
 - (id)initWithBrushes:(NSSet *)theBrushes picker:(Picker *)thePicker grid:(Grid *)theGrid renderer:(Renderer *)theRenderer;
@@ -42,5 +49,7 @@
 - (void)handleLeftMouseDown:(Ray3D *)ray;
 - (void)handleLeftMouseUp:(Ray3D *)ray;
 - (void)handleMouseMoved:(Ray3D *)ray;
+
+- (void)toggleClipMode;
 
 @end
