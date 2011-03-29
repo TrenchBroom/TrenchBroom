@@ -59,10 +59,8 @@
         if (droppedFaces != nil) {
             NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
             MutableFace* droppedFace;
-            while ((droppedFace = [droppedFacesEn nextObject])) {
-                NSLog(@"Face %@ was cut away", droppedFace);
+            while ((droppedFace = [droppedFacesEn nextObject]))
                 [self removeFace:droppedFace];
-            }
         }
     }
     
@@ -71,18 +69,14 @@
 
 - (BOOL)addFace:(MutableFace *)face {
     NSMutableArray* droppedFaces = nil;
-    if (![[self vertexData] cutWithFace:face droppedFaces:&droppedFaces]) {
-        NSLog(@"Brush %@ was cut away by face %@", self, face);
+    if (![[self vertexData] cutWithFace:face droppedFaces:&droppedFaces])
         return NO;
-    }
     
     if (droppedFaces != nil) {
         NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
         MutableFace* droppedFace;
-        while ((droppedFace = [droppedFacesEn nextObject])) {
-            NSLog(@"Face %@ was cut away by face %@", droppedFace, face);
+        while ((droppedFace = [droppedFacesEn nextObject]))
             [self removeFace:droppedFace];
-        }
     }
 
     [face setBrush:self];

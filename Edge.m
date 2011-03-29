@@ -36,9 +36,10 @@ static float HANDLE_RADIUS = 2.0f;
 
 - (id)initWithStartVertex:(Vertex *)theStartVertex endVertex:(Vertex *)theEndVertex {
     if (self = [self init]) {
-        startVertex = [theStartVertex retain];
+        // do not retain vertices to avoid circular references and leaking
+        startVertex = theStartVertex;
+        endVertex = theEndVertex;
         [startVertex addEdge:self];
-        endVertex = [theEndVertex retain];
         [endVertex addEdge:self];
     }
     
@@ -91,12 +92,12 @@ static float HANDLE_RADIUS = 2.0f;
 
 - (void)setLeftSide:(Side *)theLeftSide {
     NSAssert(leftSide == nil, @"left side must not be set");
-    leftSide = [theLeftSide retain];
+    leftSide = theLeftSide;
 }
 
 - (void)setRightSide:(Side *)theRightSide {
     NSAssert(rightSide == nil, @"right side must not be set");
-    rightSide = [theRightSide retain];
+    rightSide = theRightSide;
 }
 
 - (Vertex *)splitAt:(Plane3D *)plane {
@@ -110,11 +111,9 @@ static float HANDLE_RADIUS = 2.0f;
     [newVertex addEdge:self];
 
     if ([startVertex mark] == VM_DROP) {
-        [startVertex release];
-        startVertex = [newVertex retain];
+        startVertex = newVertex;
     } else {
-        [endVertex release];
-        endVertex = [newVertex retain];
+        endVertex = newVertex;
     }
     
     return [newVertex autorelease];
@@ -264,10 +263,6 @@ static float HANDLE_RADIUS = 2.0f;
 }
 
 - (void)dealloc {
-    [startVertex release];
-    [endVertex release];
-    [leftSide release];
-    [rightSide release];
     [super dealloc];
 }
 

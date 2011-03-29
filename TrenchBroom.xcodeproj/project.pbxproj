@@ -130,6 +130,8 @@
 		48CBDD9913170B330041F704 /* GLResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CBDD9813170B330041F704 /* GLResources.m */; };
 		48DB957812F0699600FB5483 /* InputManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB957712F0699600FB5483 /* InputManager.m */; };
 		48DB95A312F0A89E00FB5483 /* Quaternion.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB95A212F0A89E00FB5483 /* Quaternion.m */; };
+		48DBE7451341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */; };
+		48DBE74F1341CD8B00C0FDE7 /* ClipPlane.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */; };
 		48E110811234BF5500087198 /* Vector2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1107B1234BF5500087198 /* Vector2f.m */; };
 		48E110871234BF5500087198 /* Vector2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1107B1234BF5500087198 /* Vector2f.m */; };
 		48E1806512F5F07D007995FE /* SelectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1806412F5F07D007995FE /* SelectionManager.m */; };
@@ -388,6 +390,10 @@
 		48DB957712F0699600FB5483 /* InputManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InputManager.m; sourceTree = "<group>"; };
 		48DB95A112F0A89E00FB5483 /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quaternion.h; sourceTree = "<group>"; };
 		48DB95A212F0A89E00FB5483 /* Quaternion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Quaternion.m; sourceTree = "<group>"; };
+		48DBE7431341CCD200C0FDE7 /* ClipBrushFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipBrushFeedbackFigure.h; sourceTree = "<group>"; };
+		48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipBrushFeedbackFigure.m; sourceTree = "<group>"; };
+		48DBE74D1341CD8B00C0FDE7 /* ClipPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipPlane.h; sourceTree = "<group>"; };
+		48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipPlane.m; sourceTree = "<group>"; };
 		48E1107A1234BF5500087198 /* Vector2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vector2f.h; sourceTree = "<group>"; };
 		48E1107B1234BF5500087198 /* Vector2f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vector2f.m; sourceTree = "<group>"; };
 		48E1806312F5F07D007995FE /* SelectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionManager.h; sourceTree = "<group>"; };
@@ -618,6 +624,10 @@
 				482F004F134107DC00849BF5 /* ClipLineFeedbackFigure.m */,
 				482F008013410F7400849BF5 /* ClipPlaneFeedbackFigure.h */,
 				482F008113410F7400849BF5 /* ClipPlaneFeedbackFigure.m */,
+				48DBE7431341CCD200C0FDE7 /* ClipBrushFeedbackFigure.h */,
+				48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */,
+				48DBE74D1341CD8B00C0FDE7 /* ClipPlane.h */,
+				48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */,
 			);
 			name = Tool;
 			sourceTree = "<group>";
@@ -1115,6 +1125,8 @@
 				482FFF181340E56000849BF5 /* ClipPointFeedbackFigure.m in Sources */,
 				482F0050134107DC00849BF5 /* ClipLineFeedbackFigure.m in Sources */,
 				482F008213410F7400849BF5 /* ClipPlaneFeedbackFigure.m in Sources */,
+				48DBE7451341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m in Sources */,
+				48DBE74F1341CD8B00C0FDE7 /* ClipPlane.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

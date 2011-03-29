@@ -44,6 +44,23 @@
     return [self isCameraModifierPressed:event] && ([event modifierFlags] & NSCommandKeyMask) != 0;
 }
 
+- (BOOL)handleKeyDown:(NSEvent *)event sender:(id)sender {
+    switch ([event keyCode]) {
+        case 48:
+            if (clipTool != nil) {
+                [clipTool toggleClipMode];
+                return YES;
+            }
+            break;
+        default:
+//            NSLog(@"unknown key code: %i", [event keyCode]);
+            break;
+    }
+    
+    return NO;
+}
+
+
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender {
     if ([self isCameraModifierPressed:event]) {
         Camera* camera = [windowController camera];
