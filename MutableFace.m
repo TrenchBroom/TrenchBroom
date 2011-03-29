@@ -195,7 +195,7 @@ static Vector3f* baseAxes[18];
     return self;
 }
 
-- (id)initWithTemplate:(id <Face>)theTemplate {
+- (id)initWithFaceTemplate:(id <Face>)theTemplate {
     if (self = [self init]) {
         [self setPoint1:[theTemplate point1] point2:[theTemplate point2] point3:[theTemplate point3]];
         [self setTexture:[theTemplate texture]];

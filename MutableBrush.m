@@ -38,12 +38,12 @@
     return self;
 }
 
-- (id)initWithTemplate:(id <Brush>)theTemplate {
+- (id)initWithBrushTemplate:(id <Brush>)theTemplate {
     if (self = [self init]) {
         NSEnumerator* faceEn = [[theTemplate faces] objectEnumerator];
         id <Face> faceTemplate;
         while ((faceTemplate = [faceEn nextObject])) {
-            MutableFace* face = [[MutableFace alloc] initWithTemplate:faceTemplate];
+            MutableFace* face = [[MutableFace alloc] initWithFaceTemplate:faceTemplate];
             [self addFace:face];
             [face release];
         }

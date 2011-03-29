@@ -23,7 +23,7 @@
     [root addObject:brush bounds:[brush pickingBounds]];
 }
 
-- (void)brushRemoved:(NSNotification *)notification {
+- (void)brushWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
     if (![root removeObject:brush bounds:[brush pickingBounds]])
@@ -68,7 +68,7 @@
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(brushAdded:) name:BrushAdded object:map];
-        [center addObserver:self selector:@selector(brushRemoved:) name:BrushRemoved object:map];
+        [center addObserver:self selector:@selector(brushWillBeRemoved:) name:BrushWillBeRemoved object:map];
         [center addObserver:self selector:@selector(brushWillChange:) name:BrushWillChange object:map];
         [center addObserver:self selector:@selector(brushDidChange:) name:BrushDidChange object:map];
     }

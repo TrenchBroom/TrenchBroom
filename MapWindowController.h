@@ -65,6 +65,7 @@
 - (IBAction)createPrefabFromSelection:(id)sender;
 - (IBAction)toggleClipTool:(id)sender;
 - (IBAction)toggleClipMode:(id)sender;
+- (IBAction)performClip:(id)sender;
 
 - (void)insertPrefab:(id <Prefab>)prefab;
 

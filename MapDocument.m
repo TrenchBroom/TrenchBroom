@@ -22,26 +22,26 @@
 #import "MapParser.h"
 #import "Vector3i.h"
 
-NSString* const FaceWillChange      = @"FaceWillChange";
-NSString* const FaceDidChange       = @"FaceDidChange";
-NSString* const FaceKey             = @"Face";
+NSString* const FaceWillChange          = @"FaceWillChange";
+NSString* const FaceDidChange           = @"FaceDidChange";
+NSString* const FaceKey                 = @"Face";
 
-NSString* const BrushAdded          = @"BrushAdded";
-NSString* const BrushRemoved        = @"BrushRemoved";
-NSString* const BrushWillChange     = @"BrushWillChange";
-NSString* const BrushDidChange      = @"BrushDidChange";
-NSString* const BrushKey            = @"Brush";
+NSString* const BrushAdded              = @"BrushAdded";
+NSString* const BrushWillBeRemoved      = @"BrushWillBeRemoved";
+NSString* const BrushWillChange         = @"BrushWillChange";
+NSString* const BrushDidChange          = @"BrushDidChange";
+NSString* const BrushKey                = @"Brush";
 
-NSString* const EntityAdded         = @"EntityAdded";
-NSString* const EntityRemoved       = @"EntityRemoved";
-NSString* const EntityKey           = @"Entity";
+NSString* const EntityAdded             = @"EntityAdded";
+NSString* const EntityWillBeRemoved     = @"EntityWillBeRemoved";
+NSString* const EntityKey               = @"Entity";
 
-NSString* const PropertyAdded       = @"PropertyAdded";
-NSString* const PropertyRemoved     = @"PropertyRemoved";
-NSString* const PropertyChanged     = @"PropertyChanged";
-NSString* const PropertyKeyKey      = @"PropertyKey";
-NSString* const PropertyOldValueKey = @"PropertyOldValue";
-NSString* const PropertyNewValueKey = @"PropertyNewValue";
+NSString* const PropertyAdded           = @"PropertyAdded";
+NSString* const PropertyWillBeRemoved   = @"PropertyRemoved";
+NSString* const PropertyChanged         = @"PropertyChanged";
+NSString* const PropertyKeyKey          = @"PropertyKey";
+NSString* const PropertyOldValueKey     = @"PropertyOldValue";
+NSString* const PropertyNewValueKey     = @"PropertyNewValue";
 
 @implementation MapDocument
 
@@ -73,7 +73,7 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     TextureManager* textureManager = [glResources textureManager];
     [textureManager removeAllTextures];
     
-    NSString* wads = [[self worldspawn] propertyForKey:@"wad"];
+    NSString* wads = [[self worldspawn:NO] propertyForKey:@"wad"];
     if (wads != nil) {
         [[glResources openGLContext] makeCurrentContext];
         NSArray* wadPaths = [wads componentsSeparatedByString:@";"];
@@ -136,12 +136,17 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     return YES;
 }
 
-- (id <Entity>)worldspawn {
+- (id <Entity>)worldspawn:(BOOL)create {
     if (worldspawn == nil || ![worldspawn isWorldspawn]) {
         NSEnumerator* en = [entities objectEnumerator];
         while ((worldspawn = [en nextObject]))
             if ([worldspawn isWorldspawn])
                 break;
+    }
+    
+    if (worldspawn == nil && create) {
+        worldspawn = [self createEntity];
+        [worldspawn setProperty:@"classname" value:@"worldspawn"];
     }
     
     return worldspawn;
@@ -368,7 +373,7 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 }
 
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate {
-    MutableBrush* brush = [[MutableBrush alloc] initWithTemplate:theTemplate];
+    MutableBrush* brush = [[MutableBrush alloc] initWithBrushTemplate:theTemplate];
     
     MutableEntity* mutableEntity = (MutableEntity *)theEntity;
     [mutableEntity addBrush:brush];
@@ -392,20 +397,17 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] createBrushInEntity:[brush entity] fromTemplate:brush];
     
-    NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
+        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
         [userInfo setObject:brush forKey:BrushKey];
+
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushWillBeRemoved object:self userInfo:userInfo];
+        [userInfo release];
     }
     
     MutableEntity* mutableEntity = (MutableEntity *)[brush entity];
     [mutableEntity removeBrush:brush];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushRemoved object:self userInfo:userInfo];
-        [userInfo release];
-    }
 }
 
 - (void)translateBrush:(id <Brush>)brush xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {

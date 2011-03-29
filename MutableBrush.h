@@ -28,7 +28,7 @@
     float flatColor[3];
 }
 
-- (id)initWithTemplate:(id <Brush>)theTemplate;
+- (id)initWithBrushTemplate:(id <Brush>)theTemplate;
 
 - (BOOL)addFace:(MutableFace *)face;
 - (void)removeFace:(MutableFace *)face;

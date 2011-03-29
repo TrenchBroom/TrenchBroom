@@ -16,6 +16,9 @@
 #import "Ray3D.h"
 #import "Grid.h"
 #import "Face.h"
+#import "Brush.h"
+#import "Entity.h"
+#import "MapDocument.h"
 #import "ClipPlane.h"
 #import "ClipPointFeedbackFigure.h"
 #import "ClipLineFeedbackFigure.h"
@@ -340,6 +343,35 @@
     if ([clipPlane point3] == nil)
         return 2;
     return 3;
+}
+
+- (NSSet *)performClip:(MapDocument* )map {
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+
+    NSMutableSet* result = [[NSMutableSet alloc] init];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject])) {
+        id <Brush> firstResult = nil;
+        id <Brush> secondResult = nil;
+        [clipPlane clipBrush:brush firstResult:&firstResult secondResult:&secondResult];
+        
+        id <Entity> entity = [brush entity];
+        [map deleteBrush:brush];
+        
+        if (firstResult != nil)
+            [result addObject:[map createBrushInEntity:entity fromTemplate:firstResult]];
+        
+        if (secondResult != nil)
+            [result addObject:[map createBrushInEntity:entity fromTemplate:secondResult]];
+    }
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:[brushes count] == 1 ? @"Clip Brush" : @"Clip Brushes"];
+    
+    return [result autorelease];
 }
 
 - (void)dealloc {

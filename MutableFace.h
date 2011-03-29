@@ -60,7 +60,7 @@ typedef enum {
 }
 
 - (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;
-- (id)initWithTemplate:(id <Face>)theTemplate;
+- (id)initWithFaceTemplate:(id <Face>)theTemplate;
 
 - (void)setBrush:(MutableBrush *)theBrush;
 - (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3;

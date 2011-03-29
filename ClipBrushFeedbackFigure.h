@@ -9,13 +9,12 @@
 #import <Cocoa/Cocoa.h>
 #import "FeedbackFigure.h"
 
-@class MutableBrush;
 @protocol Brush;
 @class ClipPlane;
 
 @interface ClipBrushFeedbackFigure : NSObject <FeedbackFigure> {
-    MutableBrush* brush1;
-    MutableBrush* brush2;
+    id <Brush> brush1;
+    id <Brush> brush2;
 }
 
 - (id)initWithBrush:(id <Brush>)theBrush clipPlane:(ClipPlane *)theClipPlane;

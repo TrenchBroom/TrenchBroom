@@ -96,7 +96,7 @@ static int BUF_SIZE = 16;
 }
 
 - (void)writeToStream:(NSOutputStream *)theStream {
-    id <Entity> worldspawn = [map worldspawn];
+    id <Entity> worldspawn = [map worldspawn:NO];
     if (worldspawn != nil)
         [self writeEntity:worldspawn toStream:theStream];
     

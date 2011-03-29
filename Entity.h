@@ -7,11 +7,12 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Map.h"
-#import "BoundingBox.h"
-#import "Vector2f.h"
 
-@protocol Entity
+@protocol Map;
+@class BoundingBox;
+@class Vector3f;
+
+@protocol Entity <NSObject>
 
 - (NSNumber *)entityId;
 - (id <Map>)map;

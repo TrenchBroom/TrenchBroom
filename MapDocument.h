@@ -12,21 +12,19 @@
 extern NSString* const FaceWillChange;
 extern NSString* const FaceDidChange;
 extern NSString* const FaceKey;
-extern NSString* const FaceOldTextureKey;
-extern NSString* const FaceNewTextureKey;
 
 extern NSString* const BrushAdded;
-extern NSString* const BrushRemoved;
+extern NSString* const BrushWillBeRemoved;
 extern NSString* const BrushWillChange;
 extern NSString* const BrushDidChange;
 extern NSString* const BrushKey;
 
 extern NSString* const EntityAdded;
-extern NSString* const EntityRemoved;
+extern NSString* const EntityWillBeRemoved;
 extern NSString* const EntityKey;
 
 extern NSString* const PropertyAdded;
-extern NSString* const PropertyRemoved;
+extern NSString* const PropertyWillBeRemoved;
 extern NSString* const PropertyChanged;
 extern NSString* const PropertyKeyKey;
 extern NSString* const PropertyOldValueKey;
@@ -68,7 +66,6 @@ extern NSString* const PropertyNewValueKey;
 - (id <Entity>)createEntityWithProperties:(NSDictionary *)properties;
 
 - (int)worldSize;
-- (id <Entity>)worldspawn;
 - (NSArray *)entities;
 
 - (BOOL)postNotifications;

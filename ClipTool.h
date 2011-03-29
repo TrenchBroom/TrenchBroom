@@ -14,6 +14,7 @@
 @class Ray3D;
 @class Renderer;
 @class Grid;
+@class MapDocument;
 @class ClipPlane;
 @class ClipPointFeedbackFigure;
 @class ClipLineFeedbackFigure;
@@ -47,6 +48,7 @@
 - (void)handleMouseMoved:(Ray3D *)ray;
 
 - (void)toggleClipMode;
+- (NSSet *)performClip:(MapDocument* )map;
 
 - (void)deleteLastPoint;
 - (int)numPoints;

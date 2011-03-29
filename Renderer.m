@@ -27,6 +27,7 @@
 #import "MutableFace.h"
 #import "Camera.h"
 #import "Vector3f.h"
+#import "Vector2f.h"
 #import "Options.h"
 #import "Grid.h"
 #import "MapDocument.h"
@@ -53,9 +54,9 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)brushWillChange:(NSNotification *)notification;
 - (void)brushDidChange:(NSNotification *)notification;
 - (void)brushAdded:(NSNotification *)notification;
-- (void)brushRemoved:(NSNotification *)notification;
+- (void)brushWillBeRemoved:(NSNotification *)notification;
 - (void)entityAdded:(NSNotification *)notification;
-- (void)entityRemoved:(NSNotification *)notification;
+- (void)entityWillBeRemoved:(NSNotification *)notification;
 
 - (void)selectionAdded:(NSNotification *)notification;
 - (void)selectionRemoved:(NSNotification *)notification;
@@ -298,7 +299,7 @@ NSString* const RendererChanged = @"RendererChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
-- (void)brushRemoved:(NSNotification *)notification {
+- (void)brushWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
     [self removeBrush:brush];
@@ -314,7 +315,7 @@ NSString* const RendererChanged = @"RendererChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
-- (void)entityRemoved:(NSNotification *)notification {
+- (void)entityWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Entity> entity = [userInfo objectForKey:EntityKey];
     [self removeEntity:entity];
@@ -468,9 +469,9 @@ NSString* const RendererChanged = @"RendererChanged";
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         
         [center addObserver:self selector:@selector(entityAdded:) name:EntityAdded object:map];
-        [center addObserver:self selector:@selector(entityRemoved:) name:EntityRemoved object:map];
+        [center addObserver:self selector:@selector(entityWillBeRemoved:) name:EntityWillBeRemoved object:map];
         [center addObserver:self selector:@selector(brushAdded:) name:BrushAdded object:map];
-        [center addObserver:self selector:@selector(brushRemoved:) name:BrushRemoved object:map];
+        [center addObserver:self selector:@selector(brushWillBeRemoved:) name:BrushWillBeRemoved object:map];
         [center addObserver:self selector:@selector(brushWillChange:) name:BrushWillChange object:map];
         [center addObserver:self selector:@selector(brushDidChange:) name:BrushDidChange object:map];
         [center addObserver:self selector:@selector(faceDidChange:) name:FaceDidChange object:map];

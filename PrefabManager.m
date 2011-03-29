@@ -193,7 +193,7 @@ static PrefabManager* sharedInstance = nil;
             [newEntity release];
         }
         
-        id <Brush> newBrush = [[MutableBrush alloc] initWithTemplate:brush];
+        id <Brush> newBrush = [[MutableBrush alloc] initWithBrushTemplate:brush];
         [newEntity addBrush:newBrush];
         [newBrush release];
     }

@@ -17,6 +17,7 @@ typedef enum {
 @class Vector3i;
 @class MutableFace;
 @protocol Face;
+@protocol Brush;
 
 @interface ClipPlane : NSObject {
     Vector3i* point1;
@@ -40,7 +41,8 @@ typedef enum {
 - (Vector3i *)point2;
 - (Vector3i *)point3;
 - (EClipMode)clipMode;
-- (MutableFace *)frontFace;
-- (MutableFace *)backFace;
+- (MutableFace *)face:(BOOL)front;
+
+- (void)clipBrush:(id <Brush>)brush firstResult:(id <Brush>*)firstResult secondResult:(id <Brush>*)secondResult;
 
 @end

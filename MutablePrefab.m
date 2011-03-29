@@ -14,6 +14,7 @@
 #import "Vertex.h"
 #import "Vector3i.h"
 #import "Vector3f.h"
+#import "BoundingBox.h"
 #import "IdGenerator.h"
 #import "MutablePrefabGroup.h"
 #import "MapDocument.h"
@@ -55,12 +56,18 @@
     return readOnly;
 }
 
-- (id <Entity>)worldspawn {
+- (id <Entity>)worldspawn:(BOOL)create {
     NSEnumerator* entityEn = [entities objectEnumerator];
     id <Entity> entity;
     while ((entity = [entityEn nextObject]))
         if ([entity isWorldspawn])
             return entity;
+    
+    if (create) {
+        entity = [[MutableEntity alloc] initWithProperties:[NSDictionary dictionaryWithObject:@"worldspawn" forKey:@"classname"]];
+        [self addEntity:entity];
+        return [entity autorelease];
+    }
     
     return nil;
 }

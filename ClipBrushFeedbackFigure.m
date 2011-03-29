@@ -21,20 +21,14 @@
     NSAssert(theClipPlane != nil, @"clip plane must not be nil");
     
     if (self = [self init]) {
-        brush1 = [[MutableBrush alloc] initWithTemplate:theBrush];
-        MutableFace* clipFace1 = [theClipPlane clipMode] == CM_BACK ? [theClipPlane backFace] : [theClipPlane frontFace];
-        if (clipFace1 != nil && ![brush1 addFace:clipFace1]) {
-            [brush1 release];
-            brush1 = nil;
-        }
-        
-        if ([theClipPlane clipMode] == CM_SPLIT) {
-            brush2 = [[MutableBrush alloc] initWithTemplate:theBrush];
-            MutableFace* clipFace2 = [theClipPlane backFace];
-            if (clipFace2 != nil && ![brush2 addFace:clipFace2]) {
-                [brush2 release];
-                brush2 = nil;
-            }
+        [theClipPlane clipBrush:theBrush firstResult:&brush1 secondResult:&brush2];
+        if (brush1 == nil && brush2 == nil) {
+            brush1 = [theBrush retain];
+        } else {
+            if (brush1 != nil)
+                [brush1 retain];
+            if (brush2 != nil)
+                [brush2 retain];
         }
     }
     

@@ -16,7 +16,7 @@
 - (void)addEntity:(MutableEntity *)theEntity;
 - (void)removeEntity:(MutableEntity *)theEntity;
 
-- (id <Entity>)worldspawn;
+- (id <Entity>)worldspawn:(BOOL)create;
 - (NSArray *)entities;
 
 @end

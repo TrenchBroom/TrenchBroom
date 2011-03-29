@@ -176,6 +176,8 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         return [selectionManager hasSelectedBrushes];
     } else if (action == @selector(toggleClipMode:)) {
         return clipTool != nil;
+    } else if (action == @selector(performClip:)) {
+        return clipTool != nil && [clipTool numPoints] > 1;
     }
 
     return NO;
@@ -447,7 +449,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    id <Entity> worldspawn = [[self document] worldspawn];
+    id <Entity> worldspawn = [[self document] worldspawn:YES];
     NSMutableSet* newBrushes = [[NSMutableSet alloc] init];
 
     NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
@@ -506,6 +508,16 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [clipTool toggleClipMode];
 }
 
+- (IBAction)performClip:(id)sender {
+    [selectionManager removeAll];
+    NSSet* newBrushes = [clipTool performClip:[self document]];
+    [inputManager setClipTool:nil];
+    [clipTool release];
+    clipTool = nil;
+    
+    [selectionManager addBrushes:newBrushes];
+}
+
 - (void)insertPrefab:(id <Prefab>)prefab {
     [selectionManager removeAll];
     
@@ -530,9 +542,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     while ((prefabEntity = [entityEn nextObject])) {
         id <Entity> mapEntity;
         if ([prefabEntity isWorldspawn]) {
-            mapEntity = [map worldspawn];
-            if (mapEntity == nil)
-                mapEntity = [map createEntityWithProperties:[NSDictionary dictionaryWithObject:@"worldspawn" forKey:@"classname"]];
+            mapEntity = [map worldspawn:YES];
         } else {
             mapEntity = [map createEntityWithProperties:[prefabEntity properties]];
             [selectionManager addEntity:mapEntity];
