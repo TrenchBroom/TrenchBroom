@@ -81,13 +81,15 @@
     glPolygonOffset(1.0, 1.0);
     glPolygonMode(GL_FRONT, GL_FILL);
     
-    glActiveTexture(GL_TEXTURE1);
-    glEnable(GL_TEXTURE_2D);
-    [grid activateTexture];
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glClientActiveTexture(GL_TEXTURE1);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (0 * sizeof(float)));
+    if ([grid draw]) {
+        glActiveTexture(GL_TEXTURE1);
+        glEnable(GL_TEXTURE_2D);
+        [grid activateTexture];
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+        glClientActiveTexture(GL_TEXTURE1);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (0 * sizeof(float)));
+    }
      
     glActiveTexture(GL_TEXTURE0);
     if (textured) {
@@ -123,8 +125,17 @@
     }
 
     if (textured) {
+        glDisable(GL_TEXTURE_2D);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     }
+    
+    if ([grid draw]) {
+        glActiveTexture(GL_TEXTURE1);
+        glDisable(GL_TEXTURE_2D);
+        glClientActiveTexture(GL_TEXTURE1);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
+    
     glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_POLYGON_OFFSET_FILL);
 }

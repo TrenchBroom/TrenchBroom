@@ -115,7 +115,7 @@ NSString* const GridChanged = @"GridChanged";
                         pixel[i + 0] = 0xFF;
                         pixel[i + 1] = 0xFF;
                         pixel[i + 2] = 0xFF;
-                        pixel[i + 3] = 0x33;
+                        pixel[i + 3] = 0x22;
                     } else {
                         pixel[i + 0] = 0x00;
                         pixel[i + 1] = 0x00;
@@ -125,8 +125,8 @@ NSString* const GridChanged = @"GridChanged";
                 }
         
         glBindTexture(GL_TEXTURE_2D, texIds[size]);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         

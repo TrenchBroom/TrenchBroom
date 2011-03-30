@@ -289,13 +289,13 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         [undoManager beginUndoGrouping];
         
         NSSet* deletedBrushes = [[NSSet alloc] initWithSet:[selectionManager selectedBrushes]];
+        [selectionManager removeAll];
         
         NSEnumerator* brushEn = [deletedBrushes objectEnumerator];
         id <Brush> brush;
         while ((brush = [brushEn nextObject]))
             [[self document] deleteBrush:brush];
         
-        [selectionManager removeAll];
         [deletedBrushes release];
         
         [undoManager endUndoGrouping];
@@ -456,7 +456,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     id <Brush> brush;
     while ((brush = [brushEn nextObject])) {
         id <Brush> newBrush = [[self document] createBrushInEntity:worldspawn fromTemplate:brush];
-        [[self document] translateBrush:newBrush xDelta:[[options grid] size] yDelta:[[options grid] size] zDelta:[[options grid] size]];
+        [[self document] translateBrush:newBrush xDelta:[[options grid] actualSize] yDelta:[[options grid] actualSize] zDelta:[[options grid] actualSize]];
         [newBrushes addObject:newBrush];
     }
     
@@ -557,9 +557,11 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         }
     }
     
+    
     [dist release];
     [insertPos release];
 
+    [[undoManager prepareWithInvocationTarget:selectionManager] removeAll];
     [undoManager endUndoGrouping];
     [undoManager setActionName:[NSString stringWithFormat:@"Insert Prefab '%@'", [prefab name]]];
 }

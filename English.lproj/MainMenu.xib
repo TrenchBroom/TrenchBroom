@@ -729,7 +729,7 @@
 											<object class="NSMenuItem" id="290239895">
 												<reference key="NSMenu" ref="709869826"/>
 												<string key="NSTitle">Show Grid</string>
-												<string key="NSKeyEquiv">g</string>
+												<string key="NSKeyEquiv">G</string>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
@@ -737,7 +737,7 @@
 											<object class="NSMenuItem" id="477418875">
 												<reference key="NSMenu" ref="709869826"/>
 												<string key="NSTitle">Snap to Grid</string>
-												<string key="NSKeyEquiv">h</string>
+												<string key="NSKeyEquiv">H</string>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
@@ -2785,7 +2785,7 @@
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{1010, 708}, {154, 173}}</string>
+					<string>{{1010, 708}, {168, 173}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
