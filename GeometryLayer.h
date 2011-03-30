@@ -12,6 +12,7 @@
 @class RenderContext;
 @class VBOBuffer;
 @class TextureManager;
+@class Grid;
 
 @interface GeometryLayer : NSObject <Layer> {
     VBOBuffer* sharedVbo;
@@ -21,9 +22,10 @@
     NSMutableDictionary* indexBuffers;
     NSMutableDictionary* countBuffers;
     TextureManager* textureManager;
+    Grid* grid;
 }
 
-- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager;
+- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager grid:(Grid *)theGrid;;
 
 
 - (void)renderFaces:(BOOL)textured;

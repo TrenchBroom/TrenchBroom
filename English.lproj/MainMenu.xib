@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="658"/>
+			<integer value="586"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -759,7 +759,6 @@
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
-												<int key="NSTag">8</int>
 											</object>
 											<object class="NSMenuItem" id="327184244">
 												<reference key="NSMenu" ref="709869826"/>
@@ -768,7 +767,7 @@
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
-												<int key="NSTag">16</int>
+												<int key="NSTag">1</int>
 											</object>
 											<object class="NSMenuItem" id="606825913">
 												<reference key="NSMenu" ref="709869826"/>
@@ -777,7 +776,7 @@
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
-												<int key="NSTag">32</int>
+												<int key="NSTag">2</int>
 											</object>
 											<object class="NSMenuItem" id="669352188">
 												<reference key="NSMenu" ref="709869826"/>
@@ -786,7 +785,7 @@
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
-												<int key="NSTag">64</int>
+												<int key="NSTag">3</int>
 											</object>
 											<object class="NSMenuItem" id="741663348">
 												<reference key="NSMenu" ref="709869826"/>
@@ -795,7 +794,7 @@
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
-												<int key="NSTag">128</int>
+												<int key="NSTag">4</int>
 											</object>
 											<object class="NSMenuItem" id="18607914">
 												<reference key="NSMenu" ref="709869826"/>
@@ -804,7 +803,7 @@
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
-												<int key="NSTag">256</int>
+												<int key="NSTag">5</int>
 											</object>
 										</object>
 									</object>

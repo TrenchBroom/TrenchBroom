@@ -48,9 +48,6 @@ typedef enum {
     NSArray* edges;
     
     int bestAxis;
-    Vector3f* gridTexAxisX;
-    Vector3f* gridTexAxisY;
-    Vector3f* gridTexAxisZ;
     Vector3f* texAxisX;
     Vector3f* texAxisY;
     BOOL texAxesValid;

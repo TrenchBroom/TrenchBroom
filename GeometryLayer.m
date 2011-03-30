@@ -13,6 +13,7 @@
 #import "Face.h"
 #import "RenderContext.h"
 #import "Options.h"
+#import "Grid.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "IntData.h"
@@ -31,13 +32,14 @@
     return self;
 }
 
-- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager {
+- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager grid:(Grid *)theGrid {
     NSAssert(theVbo != nil, @"VBO must not be nil");
     NSAssert(theTextureManager != nil, @"texture manager must not be nil");
     
     if (self = [self init]) {
         sharedVbo = [theVbo retain];
         textureManager = [theTextureManager retain];
+        grid = [theGrid retain];
     }
     
     return self;
@@ -78,19 +80,29 @@
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.0, 1.0);
     glPolygonMode(GL_FRONT, GL_FILL);
+    
+    glActiveTexture(GL_TEXTURE1);
+    glEnable(GL_TEXTURE_2D);
+    [grid activateTexture];
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glClientActiveTexture(GL_TEXTURE1);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (0 * sizeof(float)));
+     
+    glActiveTexture(GL_TEXTURE0);
     if (textured) {
         glEnable(GL_TEXTURE_2D);
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+        glClientActiveTexture(GL_TEXTURE0);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (2 * sizeof(float)));
     } else {
         glDisable(GL_TEXTURE_2D);
     }
     
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
-
-    glTexCoordPointer(2, GL_FLOAT, 11 * sizeof(float), (const GLvoid *) (3 * sizeof(float)));
-    glColorPointer(3, GL_FLOAT, 11 * sizeof(float), (const GLvoid *) (5 * sizeof(float)));
-    glVertexPointer(3, GL_FLOAT, 11 * sizeof(float), (const GLvoid *) (8 * sizeof(float)));
+    glColorPointer(3, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (4 * sizeof(float)));
+    glVertexPointer(3, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (7 * sizeof(float)));
     
     NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
     NSString* textureName;
@@ -110,7 +122,9 @@
         glMultiDrawArrays(GL_POLYGON, indexBytes, countBytes, primCount);
     }
 
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    if (textured) {
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
     glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_POLYGON_OFFSET_FILL);
 }
@@ -126,7 +140,7 @@
     [self preRenderEdges];
     glDisable(GL_TEXTURE_2D);
 
-    glVertexPointer(3, GL_FLOAT, 11 * sizeof(float), (const GLvoid *) (8 * sizeof(float)));
+    glVertexPointer(3, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (7 * sizeof(float)));
     
     NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
     NSString* textureName;
@@ -186,7 +200,7 @@
             [countBuffer release];
         }
         
-        int index = [block address] / (11 * sizeof(float));
+        int index = [block address] / (10 * sizeof(float));
         int count = [[face vertices] count];
         [indexBuffer appendInt:index];
         [countBuffer appendInt:count];
@@ -226,6 +240,7 @@
     [indexBuffers release];
     [countBuffers release];
     [textureManager release];
+    [grid release];
     [super dealloc];
 }
 

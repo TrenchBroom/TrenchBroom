@@ -25,12 +25,12 @@
 
         [showGridItem setState:[grid draw] ? NSOnState : NSOffState];
         [snapToGridItem setState:[grid snap] ? NSOnState : NSOffState];
-        [gridSize8Item setState:[grid size] == 8 ? NSOnState : NSOffState];
-        [gridSize16Item setState:[grid size] == 16 ? NSOnState : NSOffState];
-        [gridSize32Item setState:[grid size] == 32 ? NSOnState : NSOffState];
-        [gridSize64Item setState:[grid size] == 64 ? NSOnState : NSOffState];
-        [gridSize128Item setState:[grid size] == 128 ? NSOnState : NSOffState];
-        [gridSize256Item setState:[grid size] == 256 ? NSOnState : NSOffState];
+        [gridSize8Item setState:[grid size] == 0 ? NSOnState : NSOffState];
+        [gridSize16Item setState:[grid size] == 1 ? NSOnState : NSOffState];
+        [gridSize32Item setState:[grid size] == 2 ? NSOnState : NSOffState];
+        [gridSize64Item setState:[grid size] == 3 ? NSOnState : NSOffState];
+        [gridSize128Item setState:[grid size] == 4 ? NSOnState : NSOffState];
+        [gridSize256Item setState:[grid size] == 5 ? NSOnState : NSOffState];
         
         if ([grid snap]) {
             [moveFaceLeftItem setTitle:[NSString stringWithFormat:@"Move Left By %i", [[options grid] size]]];

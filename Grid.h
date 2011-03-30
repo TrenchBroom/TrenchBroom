@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <OpenGL/gl.h>
 
 extern NSString* const GridChanged;
 
@@ -17,9 +18,11 @@ extern NSString* const GridChanged;
     int size;
     BOOL draw;
     BOOL snap;
+    GLuint texIds[6];
 }
 
 - (int)size;
+- (int)actualSize;
 - (BOOL)draw;
 - (BOOL)snap;
 
@@ -31,4 +34,7 @@ extern NSString* const GridChanged;
 
 - (void)snapToGrid:(Vector3f *)vector;
 - (Vector3f *)gridOffsetOf:(Vector3f *)vector;
+
+- (void)activateTexture;
+- (void)deactivateTexture;
 @end

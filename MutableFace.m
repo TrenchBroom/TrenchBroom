@@ -54,10 +54,6 @@ static Vector3f* baseAxes[18];
             }
         }
         
-        [gridTexAxisX setFloat:baseAxes[bestAxis * 3 + 1]];
-        [gridTexAxisY setFloat:baseAxes[bestAxis * 3 + 2]];
-        [gridTexAxisZ setFloat:baseAxes[bestAxis * 3 + 0]];
-
         [texAxisX setFloat:baseAxes[bestAxis * 3 + 1]];
         [texAxisY setFloat:baseAxes[bestAxis * 3 + 2]];
         
@@ -189,9 +185,6 @@ static Vector3f* baseAxes[18];
         texture = [[NSMutableString alloc] init];
         texAxisX = [[Vector3f alloc] init];
         texAxisY = [[Vector3f alloc] init];
-        gridTexAxisX = [[Vector3f alloc] init];
-        gridTexAxisY = [[Vector3f alloc] init];
-        gridTexAxisZ = [[Vector3f alloc] init];
     }
     
     return self;
@@ -565,11 +558,21 @@ static Vector3f* baseAxes[18];
     [texCoords setY:[vertex dot:texAxisY] + yOffset];
 }
 
-- (void)gridTexCoords:(Vector3f *)texCoords forVertex:(Vector3f *)vertex {
-    [self updateTexAxes];
-    [texCoords setX:[vertex dot:gridTexAxisX]];
-    [texCoords setY:[vertex dot:gridTexAxisY]];
-    [texCoords setZ:[vertex dot:gridTexAxisZ]];
+- (void)gridCoords:(Vector2f *)gridCoords forVertex:(Vector3f *)vertex {
+    switch ([[self norm] largestComponent]) {
+        case VC_X:
+            [gridCoords setX:([vertex y] + 0.5f) / 256];
+            [gridCoords setY:([vertex z] + 0.5f) / 256];
+            break;
+        case VC_Y:
+            [gridCoords setX:([vertex x] + 0.5f) / 256];
+            [gridCoords setY:([vertex z] + 0.5f) / 256];
+            break;
+        default:
+            [gridCoords setX:([vertex x] + 0.5f) / 256];
+            [gridCoords setY:([vertex y] + 0.5f) / 256];
+            break;
+    }
 }
 
 - (void)transformToWorld:(Vector3f *)point {
@@ -657,9 +660,6 @@ static Vector3f* baseAxes[18];
     [norm release];
     [texAxisX release];
     [texAxisY release];
-    [gridTexAxisX release];
-    [gridTexAxisY release];
-    [gridTexAxisZ release];
     [surfaceMatrix release];
     [worldMatrix release];
     [memBlock free];

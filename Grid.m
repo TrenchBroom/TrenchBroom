@@ -9,6 +9,7 @@
 #import "Grid.h"
 #import "Vector3f.h"
 #import "math.h"
+#import "FloatData.h"
 
 NSString* const GridChanged = @"GridChanged";
 
@@ -16,9 +17,11 @@ NSString* const GridChanged = @"GridChanged";
 
 - (id)init {
     if (self = [super init]) {
-        size = 16;
+        size = 1;
         draw = YES;
         snap = YES;
+        for (int i = 0; i < 6; i++)
+            texIds[i] = 0;
     }
     
     return self;
@@ -26,6 +29,10 @@ NSString* const GridChanged = @"GridChanged";
 
 - (int)size {
     return size;
+}
+
+- (int)actualSize {
+    return 1 << (size + 3);
 }
 
 - (BOOL)draw {
@@ -37,6 +44,9 @@ NSString* const GridChanged = @"GridChanged";
 }
 
 - (void)setSize:(int)theSize {
+    if (theSize < 0 || theSize > 5)
+        [NSException raise:NSInvalidArgumentException format:@"invalid grid size: %i", theSize];
+
     if (size == theSize)
         return;
     
@@ -75,9 +85,9 @@ NSString* const GridChanged = @"GridChanged";
 }
 
 - (void)snapToGrid:(Vector3f *)vector {
-    [vector setX:size * roundf([vector x] / size)];
-    [vector setY:size * roundf([vector y] / size)];
-    [vector setZ:size * roundf([vector z] / size)];
+    [vector setX:[self actualSize] * roundf([vector x] / [self actualSize])];
+    [vector setY:[self actualSize] * roundf([vector y] / [self actualSize])];
+    [vector setZ:[self actualSize] * roundf([vector z] / [self actualSize])];
 }
 
 - (Vector3f *)gridOffsetOf:(Vector3f *)vector {
@@ -89,6 +99,53 @@ NSString* const GridChanged = @"GridChanged";
 
     [snapped release];
     return [diff autorelease];
+}
+
+- (void)activateTexture {
+    if (texIds[size] == 0) {
+        glGenTextures(1, &texIds[size]);
+        
+        int dim = [self actualSize];
+        int texSize = 1 << 8; // 256 biggest grid size
+        char* pixel = malloc(texSize * texSize * 4);
+            for (int y = 0; y < texSize; y++)
+                for (int x = 0; x < texSize; x++) {
+                    int i = (y * texSize + x) * 4;
+                    if ((x % dim) == 0 || (y % dim) == 0) {
+                        pixel[i + 0] = 0xFF;
+                        pixel[i + 1] = 0xFF;
+                        pixel[i + 2] = 0xFF;
+                        pixel[i + 3] = 0x33;
+                    } else {
+                        pixel[i + 0] = 0x00;
+                        pixel[i + 1] = 0x00;
+                        pixel[i + 2] = 0x00;
+                        pixel[i + 3] = 0x00;
+                    }
+                }
+        
+        glBindTexture(GL_TEXTURE_2D, texIds[size]);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+        free(pixel);
+    }
+    else {
+        glBindTexture(GL_TEXTURE_2D, texIds[size]);
+    }
+}
+
+- (void)deactivateTexture {
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+- (void)dealloc {
+    for (int i = 0; i < 6; i++)
+        glDeleteTextures(1, &texIds[i]);
+    [super dealloc];
 }
 
 @end

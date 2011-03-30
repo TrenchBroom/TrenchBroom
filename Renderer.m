@@ -76,9 +76,9 @@ NSString* const RendererChanged = @"RendererChanged";
     [sharedVbo activate];
     [sharedVbo mapBuffer];
     
-    int vertexSize = 11 * sizeof(float);
+    int vertexSize = 10 * sizeof(float);
     Vector3f* color = [[Vector3f alloc] init];
-    Vector3f* gridTexCoords = [[Vector3f alloc] init];
+    Vector2f* gridCoords = [[Vector3f alloc] init];
     Vector2f* texCoords = [[Vector2f alloc] init];
     
     NSEnumerator* faceEn = [invalidFaces objectEnumerator];
@@ -106,12 +106,12 @@ NSString* const RendererChanged = @"RendererChanged";
         NSEnumerator* vertexEn = [vertices objectEnumerator];
         Vertex* vertex;
         while ((vertex = [vertexEn nextObject])) {
-            [face gridTexCoords:gridTexCoords forVertex:[vertex vector]];
+            [face gridCoords:gridCoords forVertex:[vertex vector]];
             [face texCoords:texCoords forVertex:[vertex vector]];
             [texCoords setX:[texCoords x] / width];
             [texCoords setY:[texCoords y] / height];
             
-            offset = [block writeVector3f:gridTexCoords offset:offset];
+            offset = [block writeVector2f:gridCoords offset:offset];
             offset = [block writeVector2f:texCoords offset:offset];
             offset = [block writeVector3f:color offset:offset];
             offset = [block writeVector3f:[vertex vector] offset:offset];
@@ -120,7 +120,7 @@ NSString* const RendererChanged = @"RendererChanged";
         [block setState:BS_USED_VALID];
     }
     [color release];
-    [gridTexCoords release];
+    [gridCoords release];
     [texCoords release];
     [invalidFaces removeAllObjects];
     
@@ -434,9 +434,6 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)gridChanged:(NSNotification *)notification {
-    Grid* grid = [notification object];
-    [selectionLayer setGridSize:[grid size]];
-    [selectionLayer setDrawGrid:[grid draw]];
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
@@ -459,8 +456,8 @@ NSString* const RendererChanged = @"RendererChanged";
         Options* options = [windowController options];
         Grid* grid = [options grid];
 
-        geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager];
-        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager gridSize:[grid size] drawGrid:[grid draw]];
+        geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid];
+        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid];
         trackingLayer = [[TrackingLayer alloc] init];
 
         NSEnumerator* entityEn = [[map entities] objectEnumerator];

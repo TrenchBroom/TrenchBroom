@@ -1,15 +1,15 @@
 //
-//  IntData.m
+//  FloatData.m
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 31.01.11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Created by Kristian Duske on 30.03.11.
+//  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "IntData.h"
+#import "FloatData.h"
 
 
-@implementation IntData
+@implementation FloatData
 - (id)init {
     if (self = [super init]) {
         data = [[NSMutableData alloc] init];
@@ -21,15 +21,15 @@
 
 - (id)initDataWithCapacity:(int)capacity {
     if (self = [super init]) {
-        data = [[NSMutableData alloc] initWithLength:capacity * sizeof(float)];
+        data = [[NSMutableData alloc] initWithLength:capacity * sizeof(int)];
         count = 0;
     }
     
     return self;
 }
 
-- (void)appendInt:(int)value {
-    [data appendBytes:(char *)&value length:sizeof(int)];
+- (void)appendFloat:(float)value {
+    [data appendBytes:(char *)&value length:sizeof(float)];
     count++;
 }
 

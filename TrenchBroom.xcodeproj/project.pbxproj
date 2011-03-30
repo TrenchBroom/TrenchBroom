@@ -69,7 +69,6 @@
 		4869211D133A965600A0F098 /* VertexRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4869211C133A965600A0F098 /* VertexRenderer.m */; };
 		48692209133B272000A0F098 /* ThickEdgeRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48692208133B272000A0F098 /* ThickEdgeRenderer.m */; };
 		48692690133E1CAE00A0F098 /* TrackingLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4869268F133E1CAE00A0F098 /* TrackingLayer.m */; };
-		4869279C133E8FF000A0F098 /* GridRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4869279B133E8FF000A0F098 /* GridRenderer.m */; };
 		486928EC133F282100A0F098 /* FaceTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 486928EB133F282100A0F098 /* FaceTool.m */; };
 		486A9C1C12F41FCA003D26FE /* Octree.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1B12F41FCA003D26FE /* Octree.m */; };
 		486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1E12F41FD1003D26FE /* OctreeNode.m */; };
@@ -96,6 +95,7 @@
 		4881C74812E9CD88006BF922 /* WadTextureEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74712E9CD88006BF922 /* WadTextureEntry.m */; };
 		4881C74B12E9CD8F006BF922 /* WadPaletteEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */; };
 		488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 488868DA12FAFCBF00CAEA55 /* GLString.m */; };
+		4888732A13436206005FCE15 /* FloatData.m in Sources */ = {isa = PBXBuildFile; fileRef = 4888732913436206005FCE15 /* FloatData.m */; };
 		488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */ = {isa = PBXBuildFile; fileRef = 488C8EE012F6C3ED00F358E6 /* IntData.m */; };
 		488FEAF1131F9D1800010A04 /* MutablePrefabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */; };
 		488FEB5C131FC49A00010A04 /* PrefabLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB5B131FC49A00010A04 /* PrefabLayout.m */; };
@@ -276,8 +276,6 @@
 		48692208133B272000A0F098 /* ThickEdgeRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThickEdgeRenderer.m; sourceTree = "<group>"; };
 		4869268E133E1CAE00A0F098 /* TrackingLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrackingLayer.h; sourceTree = "<group>"; };
 		4869268F133E1CAE00A0F098 /* TrackingLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TrackingLayer.m; sourceTree = "<group>"; };
-		4869279A133E8FF000A0F098 /* GridRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridRenderer.h; sourceTree = "<group>"; };
-		4869279B133E8FF000A0F098 /* GridRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridRenderer.m; sourceTree = "<group>"; };
 		486928E8133F27D300A0F098 /* Tool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tool.h; sourceTree = "<group>"; };
 		486928EA133F282100A0F098 /* FaceTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceTool.h; sourceTree = "<group>"; };
 		486928EB133F282100A0F098 /* FaceTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceTool.m; sourceTree = "<group>"; };
@@ -328,6 +326,8 @@
 		4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WadPaletteEntry.m; sourceTree = "<group>"; };
 		488868D912FAFCBF00CAEA55 /* GLString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLString.h; sourceTree = "<group>"; };
 		488868DA12FAFCBF00CAEA55 /* GLString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLString.m; sourceTree = "<group>"; };
+		4888732813436206005FCE15 /* FloatData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatData.h; sourceTree = "<group>"; };
+		4888732913436206005FCE15 /* FloatData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FloatData.m; sourceTree = "<group>"; };
 		488C8EDF12F6C3ED00F358E6 /* IntData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntData.h; sourceTree = "<group>"; };
 		488C8EE012F6C3ED00F358E6 /* IntData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntData.m; sourceTree = "<group>"; };
 		488FEAEF131F9D1800010A04 /* MutablePrefabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutablePrefabGroup.h; sourceTree = "<group>"; };
@@ -543,8 +543,6 @@
 		48025140133A1211001C51F2 /* PrimitiveRenderer */ = {
 			isa = PBXGroup;
 			children = (
-				4869279A133E8FF000A0F098 /* GridRenderer.h */,
-				4869279B133E8FF000A0F098 /* GridRenderer.m */,
 				48A93B73133B3E7400466992 /* EdgeRenderer.h */,
 				48EFEA331339E3D8003D81B7 /* RenderFilter.h */,
 				48692207133B272000A0F098 /* ThickEdgeRenderer.h */,
@@ -637,6 +635,8 @@
 				48B3243B12E1C6B8008748E2 /* Camera.m */,
 				488C8EDF12F6C3ED00F358E6 /* IntData.h */,
 				488C8EE012F6C3ED00F358E6 /* IntData.m */,
+				4888732813436206005FCE15 /* FloatData.h */,
+				4888732913436206005FCE15 /* FloatData.m */,
 				488089A41317A2F100823C27 /* RenderContext.h */,
 				488089A51317A2F100823C27 /* RenderContext.m */,
 				487A7E631300801A00434806 /* Renderer.h */,
@@ -1113,7 +1113,6 @@
 				48692209133B272000A0F098 /* ThickEdgeRenderer.m in Sources */,
 				48B016E0133CCCBB00E3AF90 /* SelectionLayer.m in Sources */,
 				48692690133E1CAE00A0F098 /* TrackingLayer.m in Sources */,
-				4869279C133E8FF000A0F098 /* GridRenderer.m in Sources */,
 				486928EC133F282100A0F098 /* FaceTool.m in Sources */,
 				482FFF011340E10E00849BF5 /* ClipTool.m in Sources */,
 				482FFF181340E56000849BF5 /* ClipPointFeedbackFigure.m in Sources */,
@@ -1121,6 +1120,7 @@
 				482F008213410F7400849BF5 /* ClipPlaneFeedbackFigure.m in Sources */,
 				48DBE7451341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m in Sources */,
 				48DBE74F1341CD8B00C0FDE7 /* ClipPlane.m in Sources */,
+				4888732A13436206005FCE15 /* FloatData.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

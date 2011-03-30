@@ -35,8 +35,8 @@
             id <Brush> brush = (id <Brush>)object;
             [brush pickBrush:ray hitList:hitList];
             [brush pickFace:ray hitList:hitList];
-            [brush pickEdge:ray hitList:hitList];
-            [brush pickVertex:ray hitList:hitList];
+//            [brush pickEdge:ray hitList:hitList];
+//            [brush pickVertex:ray hitList:hitList];
         }
     }
     
