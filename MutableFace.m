@@ -42,50 +42,58 @@ static Vector3f* baseAxes[18];
 @implementation MutableFace (private)
 
 - (void)updateTexAxes {
-    // determine texture axes, this is from QBSP
-    float best = 0;
-    bestAxis = 0;
-    for (int i = 0; i < 6; i++) {
-        float dot = [[self norm] dot:baseAxes[i * 3]];
-        if (dot > best) {
-            best = dot;
-            bestAxis = i;
+    if (!texAxesValid) {
+        // determine texture axes, this is from QBSP
+        float best = 0;
+        bestAxis = 0;
+        for (int i = 0; i < 6; i++) {
+            float dot = [[self norm] dot:baseAxes[i * 3]];
+            if (dot > best) {
+                best = dot;
+                bestAxis = i;
+            }
         }
-    }
-    
-    texAxisX = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 1]];
-    texAxisY = [[Vector3f alloc] initWithFloatVector:baseAxes[bestAxis * 3 + 2]];
-    
-    float ang = rotation / 180 * M_PI;
-    float sinv = sin(ang);
-    float cosv = cos(ang);
-    
-    int sv, tv;
-    if ([texAxisX x] != 0)
-        sv = 0;
-    else if ([texAxisX y] != 0)
-        sv = 1;
-    else
-        sv = 2;
-    
-    if ([texAxisY x] != 0)
-        tv = 0;
-    else if ([texAxisY y] != 0)
-        tv = 1;
-    else
-        tv = 2;
-    
-    Vector3f* texAxes[2] = {texAxisX, texAxisY};
-    for (int i = 0; i < 2; i++) {
-        float ns = cosv * [texAxes[i] component:sv] - sinv * [texAxes[i] component:tv];
-        float nt = sinv * [texAxes[i] component:sv] + cosv * [texAxes[i] component:tv];
         
-        [texAxes[i] setComponent:sv value:ns];
-        [texAxes[i] setComponent:tv value:nt];
+        [gridTexAxisX setFloat:baseAxes[bestAxis * 3 + 1]];
+        [gridTexAxisY setFloat:baseAxes[bestAxis * 3 + 2]];
+        [gridTexAxisZ setFloat:baseAxes[bestAxis * 3 + 0]];
+
+        [texAxisX setFloat:baseAxes[bestAxis * 3 + 1]];
+        [texAxisY setFloat:baseAxes[bestAxis * 3 + 2]];
+        
+        float ang = rotation / 180 * M_PI;
+        float sinv = sin(ang);
+        float cosv = cos(ang);
+        
+        int sv, tv;
+        if ([texAxisX x] != 0)
+            sv = 0;
+        else if ([texAxisX y] != 0)
+            sv = 1;
+        else
+            sv = 2;
+        
+        if ([texAxisY x] != 0)
+            tv = 0;
+        else if ([texAxisY y] != 0)
+            tv = 1;
+        else
+            tv = 2;
+        
+        Vector3f* texAxes[2] = {texAxisX, texAxisY};
+        for (int i = 0; i < 2; i++) {
+            float ns = cosv * [texAxes[i] component:sv] - sinv * [texAxes[i] component:tv];
+            float nt = sinv * [texAxes[i] component:sv] + cosv * [texAxes[i] component:tv];
+            
+            [texAxes[i] setComponent:sv value:ns];
+            [texAxes[i] setComponent:tv value:nt];
+        }
+        
+        [texAxisX scale:1 / xScale];
+        [texAxisY scale:1 / yScale];
+        
+        texAxesValid = YES;
     }
-    
-    [texAxisX scale:1 / xScale];
-    [texAxisY scale:1 / yScale];
 }
 
 - (void)updateMatrices {
@@ -179,6 +187,11 @@ static Vector3f* baseAxes[18];
         point2 = [[Vector3i alloc] init];
         point3 = [[Vector3i alloc] init];
         texture = [[NSMutableString alloc] init];
+        texAxisX = [[Vector3f alloc] init];
+        texAxisY = [[Vector3f alloc] init];
+        gridTexAxisX = [[Vector3f alloc] init];
+        gridTexAxisY = [[Vector3f alloc] init];
+        gridTexAxisZ = [[Vector3f alloc] init];
     }
     
     return self;
@@ -279,17 +292,12 @@ static Vector3f* baseAxes[18];
     [halfSpace release];
     halfSpace = nil;
     
-    [texAxisX release];
-    texAxisX = nil;
-    [texAxisY release];
-    texAxisY = nil;
     [surfaceMatrix release];
     surfaceMatrix = nil;
     [worldMatrix release];
     worldMatrix = nil;
     
-    [handleVertices release];
-    handleVertices = nil;
+    texAxesValid = NO;
     
     [brush faceGeometryChanged:self];
 }
@@ -377,11 +385,7 @@ static Vector3f* baseAxes[18];
         return;
     
 	rotation = angle;
-    
-    [texAxisX release];
-    texAxisX = nil;
-    [texAxisY release];
-    texAxisY = nil;
+    texAxesValid = NO;
 }
 
 - (void)setXScale:(float)factor {
@@ -389,11 +393,7 @@ static Vector3f* baseAxes[18];
         return;
     
 	xScale = factor;
-    
-    [texAxisX release];
-    texAxisX = nil;
-    [texAxisY release];
-    texAxisY = nil;
+    texAxesValid = NO;
 }
 
 - (void)setYScale:(float)factor {
@@ -401,11 +401,7 @@ static Vector3f* baseAxes[18];
         return;
     
 	yScale = factor;
-    
-    [texAxisX release];
-    texAxisX = nil;
-    [texAxisY release];
-    texAxisY = nil;
+    texAxesValid = NO;
 }
 
 - (void)translateOffsetsX:(int)x y:(int)y {
@@ -563,60 +559,17 @@ static Vector3f* baseAxes[18];
     return [grid autorelease];
 }
 
-- (NSArray *)handleVertices {
-    if (handleVertices == nil) {
-        handleVertices = [[NSMutableArray alloc] initWithCapacity:8];
-        Vector3f* esb = [[Vector3f alloc] initWithFloatX:-3 y:-3 z:-3];
-        Vector3f* est = [[Vector3f alloc] initWithFloatX:-3 y:-3 z:+3];
-        Vector3f* enb = [[Vector3f alloc] initWithFloatX:-3 y:+3 z:-3];
-        Vector3f* ent = [[Vector3f alloc] initWithFloatX:-3 y:+3 z:+3];
-        Vector3f* wsb = [[Vector3f alloc] initWithFloatX:+3 y:-3 z:-3];
-        Vector3f* wst = [[Vector3f alloc] initWithFloatX:+3 y:-3 z:+3];
-        Vector3f* wnb = [[Vector3f alloc] initWithFloatX:+3 y:+3 z:-3];
-        Vector3f* wnt = [[Vector3f alloc] initWithFloatX:+3 y:+3 z:+3];
-
-        [self transformToWorld:esb];
-        [handleVertices addObject:esb];
-        [esb release];
-        
-        [self transformToWorld:est];
-        [handleVertices addObject:est];
-        [est release];
-        
-        [self transformToWorld:enb];
-        [handleVertices addObject:enb];
-        [enb release];
-        
-        [self transformToWorld:ent];
-        [handleVertices addObject:ent];
-        [ent release];
-        
-        [self transformToWorld:wsb];
-        [handleVertices addObject:wsb];
-        [wsb release];
-        
-        [self transformToWorld:wst];
-        [handleVertices addObject:wst];
-        [wst release];
-        
-        [self transformToWorld:wnb];
-        [handleVertices addObject:wnb];
-        [wnb release];
-        
-        [self transformToWorld:wnt];
-        [handleVertices addObject:wnt];
-        [wnt release];
-    }
-    
-    return handleVertices;
-}
-
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex {
-    if (texAxisX == nil || texAxisY == nil)
-        [self updateTexAxes];
-    
+    [self updateTexAxes];
     [texCoords setX:[vertex dot:texAxisX] + xOffset];
     [texCoords setY:[vertex dot:texAxisY] + yOffset];
+}
+
+- (void)gridTexCoords:(Vector3f *)texCoords forVertex:(Vector3f *)vertex {
+    [self updateTexAxes];
+    [texCoords setX:[vertex dot:gridTexAxisX]];
+    [texCoords setY:[vertex dot:gridTexAxisY]];
+    [texCoords setZ:[vertex dot:gridTexAxisZ]];
 }
 
 - (void)transformToWorld:(Vector3f *)point {
@@ -704,6 +657,9 @@ static Vector3f* baseAxes[18];
     [norm release];
     [texAxisX release];
     [texAxisY release];
+    [gridTexAxisX release];
+    [gridTexAxisY release];
+    [gridTexAxisZ release];
     [surfaceMatrix release];
     [worldMatrix release];
     [memBlock free];
@@ -711,7 +667,6 @@ static Vector3f* baseAxes[18];
     [vertices release];
     [edges release];
     [center release];
-    [handleVertices release];
 	[super dealloc];
 }
 

@@ -85,6 +85,13 @@
         glDisable(GL_TEXTURE_2D);
     }
     
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+
+    glTexCoordPointer(2, GL_FLOAT, 11 * sizeof(float), (const GLvoid *) (3 * sizeof(float)));
+    glColorPointer(3, GL_FLOAT, 11 * sizeof(float), (const GLvoid *) (5 * sizeof(float)));
+    glVertexPointer(3, GL_FLOAT, 11 * sizeof(float), (const GLvoid *) (8 * sizeof(float)));
+    
     NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
     NSString* textureName;
     while ((textureName = [textureNameEn nextObject])) {
@@ -99,12 +106,11 @@
         const void* indexBytes = [indexBuffer bytes];
         const void* countBytes = [countBuffer bytes];
         int primCount = [indexBuffer count];
-        
-        glInterleavedArrays(GL_T2F_C3F_V3F, 0, NULL);
+
         glMultiDrawArrays(GL_POLYGON, indexBytes, countBytes, primCount);
     }
-    
-    // not sure why this is neccessary
+
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_POLYGON_OFFSET_FILL);
 }
@@ -119,6 +125,9 @@
 - (void)renderEdges {
     [self preRenderEdges];
     glDisable(GL_TEXTURE_2D);
+
+    glVertexPointer(3, GL_FLOAT, 11 * sizeof(float), (const GLvoid *) (8 * sizeof(float)));
+    
     NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
     NSString* textureName;
     while ((textureName = [textureNameEn nextObject])) {
@@ -129,7 +138,6 @@
         const void* countBytes = [countBuffer bytes];
         int primCount = [indexBuffer count];
         
-        glVertexPointer(3, GL_FLOAT, 8 * sizeof(float), 5 * sizeof(float));
         glMultiDrawArrays(GL_LINE_LOOP, indexBytes, countBytes, primCount);
     }
     [self postRenderEdges];
@@ -178,7 +186,7 @@
             [countBuffer release];
         }
         
-        int index = [block address] / (8 * sizeof(float));
+        int index = [block address] / (11 * sizeof(float));
         int count = [[face vertices] count];
         [indexBuffer appendInt:index];
         [countBuffer appendInt:count];

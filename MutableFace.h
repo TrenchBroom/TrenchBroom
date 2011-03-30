@@ -48,15 +48,18 @@ typedef enum {
     NSArray* edges;
     
     int bestAxis;
+    Vector3f* gridTexAxisX;
+    Vector3f* gridTexAxisY;
+    Vector3f* gridTexAxisZ;
     Vector3f* texAxisX;
     Vector3f* texAxisY;
+    BOOL texAxesValid;
     
     // transforms surface coordinates to world coordinates
     Matrix4f* surfaceMatrix;
     Matrix4f* worldMatrix; // inverse of surface matrix
     
     VBOMemBlock* memBlock;
-    NSMutableArray* handleVertices;
 }
 
 - (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;

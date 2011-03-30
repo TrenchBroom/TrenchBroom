@@ -40,11 +40,11 @@
 - (NSArray *)edges;
 
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex;
+- (void)gridTexCoords:(Vector3f *)texCoords forVertex:(Vector3f *)vertex;
 - (void)transformToWorld:(Vector3f *)point;
 - (void)transformToSurface:(Vector3f *)point;
 - (HalfSpace3D *)halfSpace;
 - (NSArray *)gridWithSize:(int)gridSize;
-- (NSArray *)handleVertices;
 
 - (void)setMemBlock:(VBOMemBlock *)theBlock;
 - (VBOMemBlock *)memBlock;

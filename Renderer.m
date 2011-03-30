@@ -76,19 +76,17 @@ NSString* const RendererChanged = @"RendererChanged";
     [sharedVbo activate];
     [sharedVbo mapBuffer];
     
+    int vertexSize = 11 * sizeof(float);
     Vector3f* color = [[Vector3f alloc] init];
+    Vector3f* gridTexCoords = [[Vector3f alloc] init];
     Vector2f* texCoords = [[Vector2f alloc] init];
     
     NSEnumerator* faceEn = [invalidFaces objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject])) {
         NSArray* vertices = [face vertices];
-        
-        int vertexSize = 8 * sizeof(float);
         int vertexCount = [vertices count];
-        if (vertexCount == 0)
-            NSLog(@"asdf");
-        
+
         VBOMemBlock* block = [face memBlock];
         if (block == nil || [block capacity] != vertexCount * vertexSize) {
             block = [sharedVbo allocMemBlock:vertexCount * vertexSize];
@@ -108,9 +106,12 @@ NSString* const RendererChanged = @"RendererChanged";
         NSEnumerator* vertexEn = [vertices objectEnumerator];
         Vertex* vertex;
         while ((vertex = [vertexEn nextObject])) {
+            [face gridTexCoords:gridTexCoords forVertex:[vertex vector]];
             [face texCoords:texCoords forVertex:[vertex vector]];
             [texCoords setX:[texCoords x] / width];
             [texCoords setY:[texCoords y] / height];
+            
+            offset = [block writeVector3f:gridTexCoords offset:offset];
             offset = [block writeVector2f:texCoords offset:offset];
             offset = [block writeVector3f:color offset:offset];
             offset = [block writeVector3f:[vertex vector] offset:offset];
@@ -119,6 +120,7 @@ NSString* const RendererChanged = @"RendererChanged";
         [block setState:BS_USED_VALID];
     }
     [color release];
+    [gridTexCoords release];
     [texCoords release];
     [invalidFaces removeAllObjects];
     

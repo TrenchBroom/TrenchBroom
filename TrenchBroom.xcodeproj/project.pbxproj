@@ -70,7 +70,6 @@
 		48692209133B272000A0F098 /* ThickEdgeRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48692208133B272000A0F098 /* ThickEdgeRenderer.m */; };
 		48692690133E1CAE00A0F098 /* TrackingLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4869268F133E1CAE00A0F098 /* TrackingLayer.m */; };
 		4869279C133E8FF000A0F098 /* GridRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4869279B133E8FF000A0F098 /* GridRenderer.m */; };
-		4869280E133F12B800A0F098 /* FaceHandleRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4869280D133F12B800A0F098 /* FaceHandleRenderer.m */; };
 		486928EC133F282100A0F098 /* FaceTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 486928EB133F282100A0F098 /* FaceTool.m */; };
 		486A9C1C12F41FCA003D26FE /* Octree.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1B12F41FCA003D26FE /* Octree.m */; };
 		486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1E12F41FD1003D26FE /* OctreeNode.m */; };
@@ -279,8 +278,6 @@
 		4869268F133E1CAE00A0F098 /* TrackingLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TrackingLayer.m; sourceTree = "<group>"; };
 		4869279A133E8FF000A0F098 /* GridRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridRenderer.h; sourceTree = "<group>"; };
 		4869279B133E8FF000A0F098 /* GridRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridRenderer.m; sourceTree = "<group>"; };
-		4869280C133F12B800A0F098 /* FaceHandleRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceHandleRenderer.h; sourceTree = "<group>"; };
-		4869280D133F12B800A0F098 /* FaceHandleRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceHandleRenderer.m; sourceTree = "<group>"; };
 		486928E8133F27D300A0F098 /* Tool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tool.h; sourceTree = "<group>"; };
 		486928EA133F282100A0F098 /* FaceTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceTool.h; sourceTree = "<group>"; };
 		486928EB133F282100A0F098 /* FaceTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceTool.m; sourceTree = "<group>"; };
@@ -548,8 +545,6 @@
 			children = (
 				4869279A133E8FF000A0F098 /* GridRenderer.h */,
 				4869279B133E8FF000A0F098 /* GridRenderer.m */,
-				4869280C133F12B800A0F098 /* FaceHandleRenderer.h */,
-				4869280D133F12B800A0F098 /* FaceHandleRenderer.m */,
 				48A93B73133B3E7400466992 /* EdgeRenderer.h */,
 				48EFEA331339E3D8003D81B7 /* RenderFilter.h */,
 				48692207133B272000A0F098 /* ThickEdgeRenderer.h */,
@@ -1119,7 +1114,6 @@
 				48B016E0133CCCBB00E3AF90 /* SelectionLayer.m in Sources */,
 				48692690133E1CAE00A0F098 /* TrackingLayer.m in Sources */,
 				4869279C133E8FF000A0F098 /* GridRenderer.m in Sources */,
-				4869280E133F12B800A0F098 /* FaceHandleRenderer.m in Sources */,
 				486928EC133F282100A0F098 /* FaceTool.m in Sources */,
 				482FFF011340E10E00849BF5 /* ClipTool.m in Sources */,
 				482FFF181340E56000849BF5 /* ClipPointFeedbackFigure.m in Sources */,
