@@ -344,7 +344,7 @@ static Vector3f* baseAxes[18];
 }
 
 - (void)dragBy:(float)dist {
-    Vector3f* f = [[Vector3f alloc] initWithFloatVector:norm];
+    Vector3f* f = [[Vector3f alloc] initWithFloatVector:[self norm]];
     [f scale:dist];
     
     Vector3i* delta = [[Vector3i alloc] initWithIntX:roundf([f x]) y:roundf([f y]) z:roundf([f z])];

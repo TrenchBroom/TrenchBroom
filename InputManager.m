@@ -134,6 +134,7 @@
                         if ([selectionManager isBrushSelected:brush]) {
                             MapDocument* map = [windowController document];
                             NSUndoManager* undoManager = [map undoManager];
+                            [undoManager setGroupsByEvent:NO];
                             [undoManager beginUndoGrouping];
                             tool = [[BrushTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
                         }
@@ -142,6 +143,7 @@
                         if ([selectionManager isFaceSelected:face]) {
                             MapDocument* map = [windowController document];
                             NSUndoManager* undoManager = [map undoManager];
+                            [undoManager setGroupsByEvent:NO];
                             [undoManager beginUndoGrouping];
                             tool = [[FaceTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
                         }
@@ -183,44 +185,45 @@
                 
                 if ([selectionManager mode] == SM_FACES) {
                     if ([selectionManager isFaceSelected:face]) {
-                        [selectionManager removeFace:face];
+                        [selectionManager removeFace:face record:NO];
                     } else {
                         if (([event modifierFlags] & NSCommandKeyMask) == 0) {
                             if ([selectionManager hasSelectedFaces:brush]) {
-                                [selectionManager removeAll];
-                                [selectionManager addFace:face];
+                                [selectionManager removeAll:NO];
+                                [selectionManager addFace:face record:NO];
                             } else {
-                                [selectionManager addBrush:brush];
+                                [selectionManager addBrush:brush record:NO];
                             }
                         } else {
-                            [selectionManager addFace:face];
+                            [selectionManager addFace:face record:NO];
                         }
                     }
                 } else {
                     if (([event modifierFlags] & NSCommandKeyMask) == 0) {
                         if ([selectionManager isBrushSelected:brush]) {
-                            [selectionManager addFace:face];
+                            [selectionManager addFace:face record:NO];
                         } else {
-                            [selectionManager removeAll];
-                            [selectionManager addBrush:brush];
+                            [selectionManager removeAll:NO];
+                            [selectionManager addBrush:brush record:NO];
                         }
                     } else {
                         if ([selectionManager isBrushSelected:brush]) {
-                            [selectionManager removeBrush:brush];
+                            [selectionManager removeBrush:brush record:NO];
                         } else {
-                            [selectionManager addBrush:brush];
+                            [selectionManager addBrush:brush record:NO];
                         }
                     }
                 }
             } else {
-                [selectionManager removeAll];
+                [selectionManager removeAll:NO];
             }
         }
         if (tool != nil) {
             MapDocument* map = [windowController document];
             NSUndoManager* undoManager = [map undoManager];
-            [undoManager endUndoGrouping];
             [undoManager setActionName:[tool actionName]];
+            [undoManager endUndoGrouping];
+            [undoManager setGroupsByEvent:YES];
             [tool release];
             tool = nil;
         }

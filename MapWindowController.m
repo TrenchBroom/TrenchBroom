@@ -79,7 +79,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     camera = [[Camera alloc] init];
     [self userDefaultsChanged:nil];
     
-    selectionManager = [[SelectionManager alloc] init];
+    selectionManager = [[SelectionManager alloc] initWithUndoManager:[[self document] undoManager]];
     trackingManager = [[TrackingManager alloc] initWithWindowController:self];
     inputManager = [[InputManager alloc] initWithWindowController:self];
     
@@ -274,7 +274,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 }
 
 - (IBAction)clearSelection:(id)sender {
-    [selectionManager removeAll];
+    [selectionManager removeAll:NO];
 }
 
 - (IBAction)copySelection:(id)sender {}
@@ -289,7 +289,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         [undoManager beginUndoGrouping];
         
         NSSet* deletedBrushes = [[NSSet alloc] initWithSet:[selectionManager selectedBrushes]];
-        [selectionManager removeAll];
+        [selectionManager removeAll:YES];
         
         NSEnumerator* brushEn = [deletedBrushes objectEnumerator];
         id <Brush> brush;
@@ -460,11 +460,8 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         [newBrushes addObject:newBrush];
     }
     
-    [[undoManager prepareWithInvocationTarget:selectionManager] addBrushes:[NSSet setWithSet:[selectionManager selectedBrushes]]];
-    [[undoManager prepareWithInvocationTarget:selectionManager] removeAll];
-    
-    [selectionManager removeAll];
-    [selectionManager addBrushes:newBrushes];
+    [selectionManager removeAll:YES];
+    [selectionManager addBrushes:newBrushes record:YES];
     [newBrushes release];
     
     [undoManager endUndoGrouping];
@@ -509,17 +506,17 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 }
 
 - (IBAction)performClip:(id)sender {
-    [selectionManager removeAll];
+    [selectionManager removeAll:YES];
     NSSet* newBrushes = [clipTool performClip:[self document]];
     [inputManager setClipTool:nil];
     [clipTool release];
     clipTool = nil;
     
-    [selectionManager addBrushes:newBrushes];
+    [selectionManager addBrushes:newBrushes record:YES];
 }
 
 - (void)insertPrefab:(id <Prefab>)prefab {
-    [selectionManager removeAll];
+    [selectionManager removeAll:YES];
     
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
@@ -545,7 +542,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
             mapEntity = [map worldspawn:YES];
         } else {
             mapEntity = [map createEntityWithProperties:[prefabEntity properties]];
-            [selectionManager addEntity:mapEntity];
         }
         
         NSEnumerator* prefabBrushEn = [[prefabEntity brushes] objectEnumerator];
@@ -553,7 +549,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         while ((prefabBrush = [prefabBrushEn nextObject])) {
             id <Brush> mapBrush = [map createBrushInEntity:mapEntity fromTemplate:prefabBrush];
             [map translateBrush:mapBrush xDelta:roundf([dist x]) yDelta:roundf([dist y]) zDelta:roundf([dist z])];
-            [selectionManager addBrush:mapBrush];
+            [selectionManager addBrush:mapBrush record:YES];
         }
     }
     
@@ -561,7 +557,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [dist release];
     [insertPos release];
 
-    [[undoManager prepareWithInvocationTarget:selectionManager] removeAll];
     [undoManager endUndoGrouping];
     [undoManager setActionName:[NSString stringWithFormat:@"Insert Prefab '%@'", [prefab name]]];
 }

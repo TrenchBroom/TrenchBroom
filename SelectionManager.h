@@ -31,18 +31,21 @@ typedef enum {
 
 @interface SelectionManager : NSObject {
     @private
+    NSUndoManager* undoManager;
     NSMutableSet* faces;
     NSMutableSet* brushes;
     NSMutableSet* entities;
     ESelectionMode mode;
 }
 
-- (void)addFace:(id <Face>)face;
-- (void)addFaces:(NSSet *)theFaces;
-- (void)addBrush:(id <Brush>)brush;
-- (void)addBrushes:(NSSet *)theBrushes;
-- (void)addEntity:(id <Entity>)entity;
-- (void)addEntities:(NSSet *)theEntities;
+- (id)initWithUndoManager:(NSUndoManager *)theUndoManager;
+
+- (void)addFace:(id <Face>)face record:(BOOL)record;
+- (void)addFaces:(NSSet *)theFaces record:(BOOL)record;
+- (void)addBrush:(id <Brush>)brush record:(BOOL)record;
+- (void)addBrushes:(NSSet *)theBrushes record:(BOOL)record;
+- (void)addEntity:(id <Entity>)entity record:(BOOL)record;
+- (void)addEntities:(NSSet *)theEntities record:(BOOL)record;
 
 - (ESelectionMode)mode;
 - (BOOL)isVertexSelected:(Vertex *)vertex;
@@ -63,10 +66,13 @@ typedef enum {
 - (BOOL)hasSelectedBrushes;
 - (BOOL)hasSelectedFaces;
 
-- (void)removeFace:(id <Face>)face;
-- (void)removeBrush:(id <Brush>)brush;
-- (void)removeEntity:(id <Entity>)entity;
+- (void)removeFace:(id <Face>)face record:(BOOL)record;
+- (void)removeFaces:(NSSet *)theFaces record:(BOOL)record;
+- (void)removeBrush:(id <Brush>)brush record:(BOOL)record;
+- (void)removeBrushes:(NSSet *)theBrushes record:(BOOL)record;
+- (void)removeEntity:(id <Entity>)entity record:(BOOL)record;
+- (void)removeEntities:(NSSet *)theEntities record:(BOOL)record;
 
-- (void)removeAll;
+- (void)removeAll:(BOOL)record;
 
 @end
