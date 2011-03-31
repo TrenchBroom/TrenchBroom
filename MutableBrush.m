@@ -156,41 +156,18 @@
         [face translateBy:theDelta];
 }
 
-- (void)rotateAbout:(Vector3f *)theCenter rotation:(Quaternion *)theRotation {
-    Vector3f* v = [[Vector3f alloc] init];
-    
-    Vector3i* p1 = [[Vector3i alloc] init];
-    Vector3i* p2 = [[Vector3i alloc] init];
-    Vector3i* p3 = [[Vector3i alloc] init];
-    
+- (void)rotateZ90CW:(Vector3i *)theCenter {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
-    while ((face = [faceEn nextObject])) {
-        [v setInt:[face point1]];
-        [v sub:theCenter];
-        [theRotation rotate:v];
-        [v add:theCenter];
-        [p1 setFloat:v];
+    while ((face = [faceEn nextObject]))
+        [face rotateZ90CW:theCenter];
+}
 
-        [v setInt:[face point2]];
-        [v sub:theCenter];
-        [theRotation rotate:v];
-        [v add:theCenter];
-        [p2 setFloat:v];
-
-        [v setInt:[face point3]];
-        [v sub:theCenter];
-        [theRotation rotate:v];
-        [v add:theCenter];
-        [p3 setFloat:v];
-        
-        [face setPoint1:p1 point2:p2 point3:p3];
-    }
-    
-    [v release];
-    [p1 release];
-    [p2 release];
-    [p3 release];
+- (void)rotateZ90CCW:(Vector3i *)theCenter {
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face rotateZ90CCW:theCenter];
 }
 
 - (void)faceGeometryChanged:(MutableFace *)face {

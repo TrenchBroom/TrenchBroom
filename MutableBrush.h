@@ -36,6 +36,7 @@
 
 - (void)setEntity:(MutableEntity *)theEntity;
 - (void)translateBy:(Vector3i *)theDelta;
-- (void)rotateAbout:(Vector3f *)theCenter rotation:(Quaternion *)theRotation;
+- (void)rotateZ90CW:(Vector3i *)theCenter;
+- (void)rotateZ90CCW:(Vector3i *)theCenter;
 - (void)faceGeometryChanged:(MutableFace *)face;
 @end

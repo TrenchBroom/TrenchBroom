@@ -317,28 +317,51 @@ static Vector3f* baseAxes[18];
     [point2 add:theDelta];
     [point3 add:theDelta];
     
-    if (texAxisX == nil || texAxisY == nil)
-        [self updateTexAxes];
+    [self geometryChanged];
+}
+
+- (void)rotateZ90CW:(Vector3i *)theCenter {
+    [point1 sub:theCenter];
+    int x = [point1 x];
+    [point1 setX:[point1 y]];
+    [point1 setY:-x];
+    [point1 add:theCenter];
+
+    [point2 sub:theCenter];
+    x = [point2 x];
+    [point2 setX:[point2 y]];
+    [point2 setY:-x];
+    [point2 add:theCenter];
+
+    [point3 sub:theCenter];
+    x = [point3 x];
+    [point3 setX:[point3 y]];
+    [point3 setY:-x];
+    [point3 add:theCenter];
+
     
-    switch (bestAxis) {
-        case 0: // xAxisPos
-        case 1: // xAxisNeg
-            xOffset += [theDelta y];
-            yOffset += [theDelta z];
-            break;
-        case 2: // yAxisPos
-        case 3: // yAxisNeg
-            xOffset += [theDelta x];
-            yOffset += [theDelta z];
-            break;
-        case 4: // zAxisPos
-        case 5: // zAxisNeg
-            xOffset += [theDelta x];
-            yOffset += [theDelta y];
-            break;
-        default:
-            break;
-    }
+    [self geometryChanged];
+}
+
+- (void)rotateZ90CCW:(Vector3i *)theCenter {
+    [point1 sub:theCenter];
+    int x = [point1 x];
+    [point1 setX:-[point1 y]];
+    [point1 setY:x];
+    [point1 add:theCenter];
+    
+    [point2 sub:theCenter];
+    x = [point2 x];
+    [point2 setX:-[point2 y]];
+    [point2 setY:x];
+    [point2 add:theCenter];
+    
+    [point3 sub:theCenter];
+    x = [point3 x];
+    [point3 setX:-[point3 y]];
+    [point3 setY:x];
+    [point3 add:theCenter];
+    
     
     [self geometryChanged];
 }

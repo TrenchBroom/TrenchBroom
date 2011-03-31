@@ -37,6 +37,13 @@
     return size;
 }
 
+- (Vector3f *)center {
+    Vector3f* center = [[Vector3f alloc] initWithFloatVector:size];
+    [center scale:0.5f];
+    [center add:min];
+    return [center autorelease];
+}
+
 - (void)mergeBounds:(BoundingBox *)theBounds {
     [self mergeMin:[theBounds min] max:[theBounds max]];
 }

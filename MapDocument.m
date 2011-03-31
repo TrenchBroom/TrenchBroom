@@ -23,6 +23,7 @@
 #import "Vector3i.h"
 #import "Vector3f.h"
 #import "Quaternion.h"
+#import "BoundingBox.h"
 
 NSString* const FaceWillChange          = @"FaceWillChange";
 NSString* const FaceDidChange           = @"FaceDidChange";
@@ -438,23 +439,21 @@ NSString* const PropertyNewValueKey     = @"PropertyNewValue";
     }
 }
 
-- (void)rotate:(NSSet *)brushes axis:(Vector3f *)axis angle:(float)angle {
+- (void)rotateZ90CW:(NSSet *)brushes {
     if ([brushes count] == 0)
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotate:brushes axis:axis angle:-angle];
-
-    Quaternion* rotation = [[Quaternion alloc] initWithAngle:angle axis:axis];
-
+    [[undoManager prepareWithInvocationTarget:self] rotateZ90CCW:brushes];
+    
     NSEnumerator* brushEn = [brushes objectEnumerator];
-    MutableBrush* brush= [brushEn nextObject];
-    Vector3f* rotationCenter = [[Vector3f alloc] initWithFloatVector:[brush center]];
-    
+    MutableBrush* brush = [brushEn nextObject];
+    BoundingBox* bounds = [[BoundingBox alloc] initWithBounds:[brush bounds]];
     while ((brush = [brushEn nextObject]))
-        [rotationCenter add:[brush center]];
+        [bounds mergeBounds:[brush bounds]];
     
-    [rotationCenter scale:1.0f / [brushes count]];
+    Vector3i* rotationCenter = [[Vector3i alloc] initWithFloatVector:[bounds center]];
+    [bounds release];
     
     brushEn = [brushes objectEnumerator];
     if ([self postNotifications]) {
@@ -464,16 +463,52 @@ NSString* const PropertyNewValueKey     = @"PropertyNewValue";
             [userInfo setObject:brush forKey:BrushKey];
             
             [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
-            [brush rotateAbout:rotationCenter rotation:rotation];
+            [brush rotateZ90CW:rotationCenter];
             [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
             [userInfo release];
         }
     } else {
         while ((brush = [brushEn nextObject]))
-            [brush rotateAbout:rotationCenter rotation:rotation];
+            [brush rotateZ90CW:rotationCenter];
     }
     
-    [rotation release];
+    [rotationCenter release];
+    
+}
+
+- (void)rotateZ90CCW:(NSSet *)brushes {
+    if ([brushes count] == 0)
+        return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] rotateZ90CW:brushes];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    MutableBrush* brush = [brushEn nextObject];
+    BoundingBox* bounds = [[BoundingBox alloc] initWithBounds:[brush bounds]];
+    while ((brush = [brushEn nextObject]))
+        [bounds mergeBounds:[brush bounds]];
+    
+    Vector3i* rotationCenter = [[Vector3i alloc] initWithFloatVector:[bounds center]];
+    [bounds release];
+    
+    brushEn = [brushes objectEnumerator];
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        while ((brush = [brushEn nextObject])) {
+            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:brush forKey:BrushKey];
+            
+            [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
+            [brush rotateZ90CCW:rotationCenter];
+            [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
+            [userInfo release];
+        }
+    } else {
+        while ((brush = [brushEn nextObject]))
+            [brush rotateZ90CCW:rotationCenter];
+    }
+    
     [rotationCenter release];
 }
 

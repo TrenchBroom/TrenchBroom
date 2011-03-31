@@ -50,6 +50,8 @@ static Vector3i* gNullVector;
         [self setY:roundf([vector y])];
         [self setZ:roundf([vector z])];
     }
+    
+    return self;
 }
 
 - (id)initWithIntX:(int)xCoord y:(int)yCoord z:(int)zCoord {
@@ -112,6 +114,22 @@ static Vector3i* gNullVector;
     coords[0] += xAddend;
     coords[1] += yAddend;
     coords[2] += zAddend;
+}
+
+- (void)sub:(Vector3i *)subtrahend {
+    coords[0] -= [subtrahend x];
+    coords[1] -= [subtrahend y];
+    coords[2] -= [subtrahend z];
+}
+
+- (void)subX:(int)xSubtrahend Y:(int)ySubtrahend Z:(int)zSubtrahend {
+    coords[0] -= xSubtrahend;
+    coords[1] -= ySubtrahend;
+    coords[2] -= zSubtrahend;
+}
+
+- (int)dot:(Vector3i *)m {
+    return coords[0] * [m x] + coords[1] * [m y] + coords[2] * [m z];
 }
 
 - (void)cross:(Vector3i *)m {

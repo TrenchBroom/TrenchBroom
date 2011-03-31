@@ -520,11 +520,11 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 }
 
 - (IBAction)rotateZ90CW:(id)sender {
-    [[self document] rotate:[selectionManager selectedBrushes] axis:[Vector3f zAxisPos] angle:M_PI / 2];
+    [[self document] rotateZ90CW:[selectionManager selectedBrushes]];
 }
 
 - (IBAction)rotateZ90CCW:(id)sender {
-    [[self document] rotate:[selectionManager selectedBrushes] axis:[Vector3f zAxisPos] angle:-M_PI / 2];
+    [[self document] rotateZ90CCW:[selectionManager selectedBrushes]];
 }
 
 - (void)insertPrefab:(id <Prefab>)prefab {

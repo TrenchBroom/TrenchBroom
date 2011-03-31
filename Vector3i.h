@@ -36,7 +36,10 @@
 
 - (void)add:(Vector3i *)addend;
 - (void)addX:(int)xAddend Y:(int)yAddend Z:(int)zAddend;
+- (void)sub:(Vector3i *)subtrahend;
+- (void)subX:(int)xSubtrahend Y:(int)ySubtrahend Z:(int)zSubtrahend;
 
+- (int)dot:(Vector3i *)m;
 - (void)cross:(Vector3i *)m;
 - (void)scale:(float)f;
 
