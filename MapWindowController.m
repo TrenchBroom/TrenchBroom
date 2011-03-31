@@ -178,6 +178,10 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         return clipTool != nil;
     } else if (action == @selector(performClip:)) {
         return clipTool != nil && [clipTool numPoints] > 1;
+    } else if (action == @selector(rotateZ90CW:)) {
+        return [selectionManager hasSelectedBrushes];
+    } else if (action == @selector(rotateZ90CCW:)) {
+        return [selectionManager hasSelectedBrushes];
     }
 
     return NO;
@@ -456,7 +460,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     id <Brush> brush;
     while ((brush = [brushEn nextObject])) {
         id <Brush> newBrush = [[self document] createBrushInEntity:worldspawn fromTemplate:brush];
-        [[self document] translateBrush:newBrush xDelta:[[options grid] actualSize] yDelta:[[options grid] actualSize] zDelta:[[options grid] actualSize]];
+        [[self document] translateBrush:newBrush xDelta:[[options grid] actualSize] yDelta:[[options grid] actualSize] zDelta:0];
         [newBrushes addObject:newBrush];
     }
     
@@ -513,6 +517,14 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     clipTool = nil;
     
     [selectionManager addBrushes:newBrushes record:YES];
+}
+
+- (IBAction)rotateZ90CW:(id)sender {
+    [[self document] rotate:[selectionManager selectedBrushes] axis:[Vector3f zAxisPos] angle:M_PI / 2];
+}
+
+- (IBAction)rotateZ90CCW:(id)sender {
+    [[self document] rotate:[selectionManager selectedBrushes] axis:[Vector3f zAxisPos] angle:-M_PI / 2];
 }
 
 - (void)insertPrefab:(id <Prefab>)prefab {

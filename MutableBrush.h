@@ -18,6 +18,7 @@
 @class BoundingBox;
 @class Ray3D;
 @class PickingHit;
+@class Quaternion;
 
 @interface MutableBrush : NSObject <Brush> {
     @private
@@ -35,5 +36,6 @@
 
 - (void)setEntity:(MutableEntity *)theEntity;
 - (void)translateBy:(Vector3i *)theDelta;
+- (void)rotateAbout:(Vector3f *)theCenter rotation:(Quaternion *)theRotation;
 - (void)faceGeometryChanged:(MutableFace *)face;
 @end

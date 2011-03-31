@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class Vector3f;
+
 @interface Vector3i : NSObject {
     @private
     int coords[3];
@@ -16,6 +18,7 @@
 + (Vector3i *)nullVector;
 
 - (id)initWithIntVector:(Vector3i *)vector;
+- (id)initWithFloatVector:(Vector3f *)vector;
 - (id)initWithIntX:(int)xCoord y:(int)yCoord z:(int) zCoord;
 
 - (int)x;
@@ -27,6 +30,7 @@
 - (void)setZ:(int)zCoord;
 
 - (void)setInt:(Vector3i *)vector;
+- (void)setFloat:(Vector3f *)vector;
 
 - (BOOL)null;
 

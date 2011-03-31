@@ -10,7 +10,7 @@
 
 @class Vector3i;
 @class Picker;
-@class PickingHit;
+@class PickingHitList;
 @class Ray3D;
 @class Renderer;
 @class Grid;
@@ -35,7 +35,7 @@
     ClipPlaneFeedbackFigure* planeFigure;
     NSMutableSet* brushFigures;
     Vector3i* currentPoint;
-    PickingHit* currentHit;
+    PickingHitList* currentHitList;
     ClipPointFeedbackFigure* currentFigure;
     Vector3i* draggedPoint;
 }

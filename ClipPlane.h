@@ -14,6 +14,7 @@ typedef enum {
     CM_SPLIT
 } EClipMode;
 
+@class PickingHitList;
 @class Vector3i;
 @class MutableFace;
 @protocol Face;
@@ -23,18 +24,18 @@ typedef enum {
     Vector3i* point1;
     Vector3i* point2;
     Vector3i* point3;
-    id <Face> face1;
-    id <Face> face2;
-    id <Face> face3;
+    PickingHitList* hitList1;
+    PickingHitList* hitList2;
+    PickingHitList* hitList3;
     EClipMode clipMode;
 }
 
 - (void)setPoint1:(Vector3i *)thePoint1;
 - (void)setPoint2:(Vector3i *)thePoint2;
 - (void)setPoint3:(Vector3i *)thePoint3;
-- (void)setFace1:(id <Face>)theFace1;
-- (void)setFace2:(id <Face>)theFace2;
-- (void)setFace3:(id <Face>)theFace3;
+- (void)setHitList1:(PickingHitList *)theHitList1;
+- (void)setHitList2:(PickingHitList *)theHitList2;
+- (void)setHitList3:(PickingHitList *)theHitList3;
 - (void)setClipMode:(EClipMode)theClipMode;
 
 - (Vector3i *)point1;

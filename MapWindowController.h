@@ -66,6 +66,8 @@
 - (IBAction)toggleClipTool:(id)sender;
 - (IBAction)toggleClipMode:(id)sender;
 - (IBAction)performClip:(id)sender;
+- (IBAction)rotateZ90CW:(id)sender;
+- (IBAction)rotateZ90CCW:(id)sender;
 
 - (void)insertPrefab:(id <Prefab>)prefab;
 

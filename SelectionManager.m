@@ -373,7 +373,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
 - (void)removeFace:(id <Face>)face record:(BOOL)record {
     NSAssert(face != nil, @"face must not be nil");
     
-    if ([faces containsObject:face])
+    if (![faces containsObject:face])
         return;
     
     if (record)

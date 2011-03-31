@@ -185,7 +185,7 @@
                 
                 if ([selectionManager mode] == SM_FACES) {
                     if ([selectionManager isFaceSelected:face]) {
-                        [selectionManager removeFace:face record:NO];
+                        [selectionManager addBrush:brush record:NO];
                     } else {
                         if (([event modifierFlags] & NSCommandKeyMask) == 0) {
                             if ([selectionManager hasSelectedFaces:brush]) {

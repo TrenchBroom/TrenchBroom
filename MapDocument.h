@@ -34,6 +34,7 @@ extern NSString* const PropertyNewValueKey;
 @class Picker;
 @class GLResources;
 @class Vector3i;
+@class Vector3f;
 @protocol Entity;
 @protocol Brush;
 @protocol Face;
@@ -60,6 +61,7 @@ extern NSString* const PropertyNewValueKey;
 
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate;
 - (void)translateBrush:(id <Brush>)brush xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta;
+- (void)rotate:(NSSet *)brushes axis:(Vector3f *)axis angle:(float)angle;
 - (void)deleteBrush:(id <Brush>)brush;
 
 - (id <Entity>)createEntity;

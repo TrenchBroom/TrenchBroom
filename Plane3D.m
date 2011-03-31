@@ -59,6 +59,15 @@
     return above;
 }
 
+- (BOOL)containsPoint:(Vector3f *)aPoint {
+    Vector3f* t = [[Vector3f alloc] initWithFloatVector:aPoint];;
+    [t sub:point];
+    
+    BOOL contains = fzero([norm dot:t]);
+    [t release];
+    
+    return contains;
+}
 
 - (float)intersectWithLine:(Line3D *)line {
     Vector3f* lp = [line point];

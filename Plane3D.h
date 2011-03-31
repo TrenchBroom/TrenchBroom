@@ -28,6 +28,7 @@
 - (Vector3f *)norm;
 
 - (BOOL)isPointAbove:(Vector3f *)aPoint;
+- (BOOL)containsPoint:(Vector3f *)aPoint;
 
 - (float)intersectWithLine:(Line3D *)line;
 - (float)intersectWithRay:(Ray3D *)ray;

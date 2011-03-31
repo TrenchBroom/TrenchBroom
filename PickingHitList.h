@@ -17,6 +17,8 @@
 
 - (void)addHit:(PickingHit *)theHit;
 - (PickingHit *)firstHitOfType:(EHitType)theTypeMask ignoreOccluders:(BOOL)ignoreOccluders;
+- (NSArray *)hitsOfType:(EHitType)theTypeMask;
+- (NSSet *)objectsOfType:(EHitType)theTypeMask;
 - (NSArray *)hits;
 
 @end

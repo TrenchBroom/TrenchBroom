@@ -13,6 +13,8 @@
 #import "MutableFace.h"
 #import "Brush.h"
 #import "MutableBrush.h"
+#import "PickingHit.h"
+#import "PickingHitList.h"
 
 @implementation ClipPlane
 
@@ -31,19 +33,19 @@
     point3 = [thePoint3 retain];
 }
 
-- (void)setFace1:(id <Face>)theFace1 {
-    [face1 release];
-    face1 = [theFace1 retain];
+- (void)setHitList1:(PickingHitList *)theHitList1 {
+    [hitList1 release];
+    hitList1 = [theHitList1 retain];
 }
 
-- (void)setFace2:(id <Face>)theFace2 {
-    [face2 release];
-    face2 = [theFace2 retain];
+- (void)setHitList2:(PickingHitList *)theHitList2 {
+    [hitList2 release];
+    hitList2 = [theHitList2 retain];
 }
 
-- (void)setFace3:(id <Face>)theFace3 {
-    [face3 release];
-    face3 = [theFace3 retain];
+- (void)setHitList3:(PickingHitList *)theHitList3 {
+    [hitList3 release];
+    hitList3 = [theHitList3 retain];
 }
 
 
@@ -74,30 +76,56 @@
 
     Vector3i* p3 = point3;
     if (p3 == nil) {
-        Vector3f* norm = [[Vector3f alloc] initWithFloatVector:[face1 norm]];
-        if (face2 != face1) {
-            [norm add:[face2 norm]];
-            [norm scale:0.5f];
+        Vector3f* norm = nil;
+        if ([point1 x] != [point2 x] &&
+            [point1 y] != [point2 y] &&
+            [point1 z] != [point2 z]) {
+            norm = [[Vector3f alloc] initWithFloatVector:[Vector3f zAxisPos]];
+        } else if ([point1 x] == [point2 x] &&
+                   [point1 y] != [point2 y] &&
+                   [point1 z] != [point2 z]) {
+            norm = [[Vector3f alloc] initWithFloatVector:[Vector3f xAxisPos]];
+        } else if ([point1 x] != [point2 x] &&
+                   [point1 y] == [point2 y] &&
+                   [point1 z] != [point2 z]) {
+            norm = [[Vector3f alloc] initWithFloatVector:[Vector3f yAxisPos]];
+        } else if ([point1 x] != [point2 x] &&
+                   [point1 y] != [point2 y] &&
+                   [point1 z] == [point2 z]) {
+            norm = [[Vector3f alloc] initWithFloatVector:[Vector3f zAxisPos]];
+        } else {
+            NSSet* faces1 = [hitList1 objectsOfType:HT_FACE];
+            NSSet* faces2 = [hitList2 objectsOfType:HT_FACE];
             
-            if ([norm isNull])
-                [norm setFloat:[face1 norm]];
+            NSSet* both = [[NSMutableSet alloc] initWithSet:faces1];
+            [both intersectsSet:faces2];
+            
+            if ([both count] > 0) {
+                id <Face> face = [[both objectEnumerator] nextObject];
+                norm = [[Vector3f alloc] initWithFloatVector:[face norm]];
+            }
+            
+            [both release];
         }
         
-        [norm scale:10000];
-        
-        p3 = [[Vector3i alloc] init];
-        [p3 setX:roundf([norm x])];
-        [p3 setY:roundf([norm y])];
-        [p3 setZ:roundf([norm z])];
-        
-        [norm release];
+        if (norm != nil) {
+            [norm scale:10000];
+            
+            p3 = [[Vector3i alloc] init];
+            [p3 setX:roundf([norm x])];
+            [p3 setY:roundf([norm y])];
+            [p3 setZ:roundf([norm z])];
+            [p3 add:point1];
+            
+            [norm release];
+        }
     }
     
-    id <Face> template = face3;
-    if (template == nil)
-        template = face2;
-    if (template == nil || face1 == face2)
-        template = face1;
+    
+    if (p3 == nil)
+        return nil;
+    
+    id <Face> template = [[hitList1 firstHitOfType:HT_FACE ignoreOccluders:YES] object];
     
     MutableFace* face = nil;
     if (front)
@@ -145,9 +173,9 @@
     [point1 release];
     [point2 release];
     [point3 release];
-    [face1 release];
-    [face2 release];
-    [face3 release];
+    [hitList1 release];
+    [hitList2 release];
+    [hitList3 release];
     [super dealloc];
 }
 

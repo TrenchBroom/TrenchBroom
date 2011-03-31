@@ -21,6 +21,8 @@
 #import "ProgressWindowController.h"
 #import "MapParser.h"
 #import "Vector3i.h"
+#import "Vector3f.h"
+#import "Quaternion.h"
 
 NSString* const FaceWillChange          = @"FaceWillChange";
 NSString* const FaceDidChange           = @"FaceDidChange";
@@ -434,6 +436,45 @@ NSString* const PropertyNewValueKey     = @"PropertyNewValue";
         [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
+}
+
+- (void)rotate:(NSSet *)brushes axis:(Vector3f *)axis angle:(float)angle {
+    if ([brushes count] == 0)
+        return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] rotate:brushes axis:axis angle:-angle];
+
+    Quaternion* rotation = [[Quaternion alloc] initWithAngle:angle axis:axis];
+
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    MutableBrush* brush= [brushEn nextObject];
+    Vector3f* rotationCenter = [[Vector3f alloc] initWithFloatVector:[brush center]];
+    
+    while ((brush = [brushEn nextObject]))
+        [rotationCenter add:[brush center]];
+    
+    [rotationCenter scale:1.0f / [brushes count]];
+    
+    brushEn = [brushes objectEnumerator];
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        while ((brush = [brushEn nextObject])) {
+            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:brush forKey:BrushKey];
+            
+            [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
+            [brush rotateAbout:rotationCenter rotation:rotation];
+            [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
+            [userInfo release];
+        }
+    } else {
+        while ((brush = [brushEn nextObject]))
+            [brush rotateAbout:rotationCenter rotation:rotation];
+    }
+    
+    [rotation release];
+    [rotationCenter release];
 }
 
 - (void)translateFace:(id <Face>)face xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {

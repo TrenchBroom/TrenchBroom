@@ -190,17 +190,17 @@
                 [[clipPlane point1] setX:x];
                 [[clipPlane point1] setY:y];
                 [[clipPlane point1] setZ:z];
-                [clipPlane setFace1:[hit object]];
+                [clipPlane setHitList1:hitList];
             } else if (draggedPoint == [clipPlane point2]) {
                 [[clipPlane point2] setX:x];
                 [[clipPlane point2] setY:y];
                 [[clipPlane point2] setZ:z];
-                [clipPlane setFace2:[hit object]];
+                [clipPlane setHitList2:hitList];
             } else {
                 [[clipPlane point3] setX:x];
                 [[clipPlane point3] setY:y];
                 [[clipPlane point3] setZ:z];
-                [clipPlane setFace3:[hit object]];
+                [clipPlane setHitList3:hitList];
             }
         }
     }
@@ -209,7 +209,7 @@
 }
 
 - (void)handleLeftMouseDown:(Ray3D *)ray {
-    if (currentPoint == nil || currentHit == nil)
+    if (currentPoint == nil || currentHitList == nil)
         return;
     
     Vector3i* p1 = [clipPlane point1];
@@ -219,7 +219,7 @@
     if (p1 == nil) {
         p1 = [[Vector3i alloc] initWithIntVector:currentPoint];
         [clipPlane setPoint1:p1];
-        [clipPlane setFace1:[currentHit object]];
+        [clipPlane setHitList1:currentHitList];
         [p1 release];
     } else {
         if ([self intersect:ray withClipPoint:p1]) {
@@ -228,7 +228,7 @@
             if (![p1 isEqualToVector:currentPoint]) {
                 p2 = [[Vector3i alloc] initWithIntVector:currentPoint];
                 [clipPlane setPoint2:p2];
-                [clipPlane setFace2:[currentHit object]];
+                [clipPlane setHitList2:currentHitList];
                 [p2 release];
             }
         } else {
@@ -238,7 +238,7 @@
                 if (![p1 isEqualToVector:currentPoint] && ![p2 isEqualToVector:currentPoint]) {
                     p3 = [[Vector3i alloc] initWithIntVector:currentPoint];
                     [clipPlane setPoint3:p3];
-                    [clipPlane setFace3:[currentHit object]];
+                    [clipPlane setHitList3:currentHitList];
                     [p3 release];
                 }
             } else {
@@ -267,9 +267,9 @@
         currentPoint = nil;
     }
     
-    if (currentHit != nil) {
-        [currentHit release];
-        currentHit = nil;
+    if (currentHitList != nil) {
+        [currentHitList release];
+        currentHitList = nil;
     }
     
     if (currentFigure != nil) {
@@ -278,8 +278,8 @@
         currentFigure = nil;
     }
 
-    PickingHitList* hitList = [picker pickObjects:ray include:brushes exclude:nil];
-    currentHit = [[hitList firstHitOfType:HT_FACE ignoreOccluders:YES] retain];
+    currentHitList = [[picker pickObjects:ray include:brushes exclude:nil] retain];
+    PickingHit* currentHit = [currentHitList firstHitOfType:HT_FACE ignoreOccluders:YES];
     if (currentHit != nil) {
         Vector3f* temp = [[Vector3f alloc] initWithFloatVector:[currentHit hitPoint]];
         [grid snapToGrid:temp];
@@ -321,13 +321,13 @@
 - (void)deleteLastPoint {
     if ([clipPlane point3] != nil) {
         [clipPlane setPoint3:nil];
-        [clipPlane setFace3:nil];
+        [clipPlane setHitList3:nil];
     } else if ([clipPlane point2] != nil) {
         [clipPlane setPoint2:nil];
-        [clipPlane setFace2:nil];
+        [clipPlane setHitList2:nil];
     } else if ([clipPlane point1] != nil) {
         [clipPlane setPoint1:nil];
-        [clipPlane setFace1:nil];
+        [clipPlane setHitList1:nil];
     } else {
         return;
     }
@@ -419,7 +419,7 @@
     [brushFigures release];
     
     [currentPoint release];
-    [currentHit release];
+    [currentHitList release];
     [clipPlane release];
     [super dealloc];
 }

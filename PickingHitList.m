@@ -42,6 +42,38 @@
     return nil;
 }
 
+- (NSArray *)hitsOfType:(EHitType)theTypeMask {
+    if ([hitList count] == 0)
+        return [NSArray array];
+    
+    NSMutableArray* result = [[NSMutableArray alloc] init];
+    
+    NSEnumerator* hitEn = [[self hits] objectEnumerator];
+    PickingHit* hit;
+    while ((hit = [hitEn nextObject]))
+        if ([hit isType:theTypeMask])
+            [result addObject:hit];
+    
+    
+    return [result autorelease];
+}
+
+- (NSSet *)objectsOfType:(EHitType)theTypeMask {
+    if ([hitList count] == 0)
+        return [NSSet set];
+    
+    NSMutableSet* result = [[NSMutableSet alloc] init];
+    
+    NSEnumerator* hitEn = [[self hits] objectEnumerator];
+    PickingHit* hit;
+    while ((hit = [hitEn nextObject]))
+        if ([hit isType:theTypeMask])
+            [result addObject:[hit object]];
+    
+    
+    return [result autorelease];
+}
+
 - (NSArray *)hits {
     if (!sorted) {
         [hitList sortUsingSelector:@selector(compareTo:)];

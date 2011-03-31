@@ -7,6 +7,7 @@
 //
 
 #import "Vector3i.h"
+#import "Vector3f.h"
 #import "Math.h"
 
 static Vector3i* gNullVector;
@@ -41,6 +42,14 @@ static Vector3i* gNullVector;
 		[self setInt:vector];
 	
 	return self;
+}
+
+- (id)initWithFloatVector:(Vector3f *)vector {
+    if (self = [super init]) {
+        [self setX:roundf([vector x])];
+        [self setY:roundf([vector y])];
+        [self setZ:roundf([vector z])];
+    }
 }
 
 - (id)initWithIntX:(int)xCoord y:(int)yCoord z:(int)zCoord {
@@ -81,6 +90,12 @@ static Vector3i* gNullVector;
 	[self setX:[vector x]];
 	[self setY:[vector y]];
 	[self setZ:[vector z]];
+}
+
+- (void)setFloat:(Vector3f *)vector {
+	[self setX:roundf([vector x])];
+	[self setY:roundf([vector y])];
+	[self setZ:roundf([vector z])];
 }
 
 - (BOOL)null {
