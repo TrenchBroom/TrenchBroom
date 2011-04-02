@@ -17,6 +17,7 @@ typedef enum {
 
 @class Grid;
 @class BoundingBox;
+@class Vector3f;
 
 @interface GridFeedbackFigure : NSObject <FeedbackFigure> {
     float gridPoints[2][2][3];
@@ -24,6 +25,6 @@ typedef enum {
     int cols;
 }
 
-- (id)initWithGrid:(Grid *)grid orientation:(EGridOrientation)orientation bounds:(BoundingBox *)bounds;
+- (id)initWithGrid:(Grid *)grid orientation:(EGridOrientation)orientation bounds:(BoundingBox *)bounds hitPoint:(Vector3f *)hitPoint;
 
 @end

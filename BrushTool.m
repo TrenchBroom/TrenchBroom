@@ -64,15 +64,15 @@
         switch ([[theRay direction] largestComponent]) {
             case VC_X:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f xAxisPos]];
-                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:GO_YZ bounds:bounds];
+                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:GO_YZ bounds:bounds hitPoint:[theHit hitPoint]];
                 break;
             case VC_Y:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f yAxisPos]];
-                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:GO_XZ bounds:bounds];
+                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:GO_XZ bounds:bounds hitPoint:[theHit hitPoint]];
                 break;
             default:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f zAxisPos]];
-                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:GO_XY bounds:bounds];
+                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:GO_XY bounds:bounds hitPoint:[theHit hitPoint]];
                 break;
         }
 

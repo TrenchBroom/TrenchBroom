@@ -13,9 +13,10 @@
 
 @implementation GridFeedbackFigure
 
-- (id)initWithGrid:(Grid *)grid orientation:(EGridOrientation)orientation bounds:(BoundingBox *)bounds {
+- (id)initWithGrid:(Grid *)grid orientation:(EGridOrientation)orientation bounds:(BoundingBox *)bounds hitPoint:(Vector3f *)hitPoint {
     NSAssert(grid != nil, @"grid must not be nil");
     NSAssert(bounds != nil, @"bounds must not be nil");
+    NSAssert(hitPoint != nil, @"hit point must not be nil");
     
     if (self = [self init]) {
         Vector3f* v = [[Vector3f alloc] initWithFloatVector:[bounds center]];
@@ -28,31 +29,31 @@
                 
                 gridPoints[0][0][0] = [v x] - cols * [grid actualSize] / 2;
                 gridPoints[0][0][1] = [v y] - rows * [grid actualSize] / 2;
-                gridPoints[0][0][2] = [v z];
+                gridPoints[0][0][2] = [hitPoint z];
                 gridPoints[0][1][0] = [v x] + cols * [grid actualSize] / 2;
                 gridPoints[0][1][1] = [v y] - rows * [grid actualSize] / 2;
-                gridPoints[0][1][2] = [v z];
+                gridPoints[0][1][2] = [hitPoint z];
                 gridPoints[1][0][0] = [v x] - cols * [grid actualSize] / 2;
                 gridPoints[1][0][1] = [v y] + rows * [grid actualSize] / 2;
-                gridPoints[1][0][2] = [v z];
+                gridPoints[1][0][2] = [hitPoint z];
                 gridPoints[1][1][0] = [v x] + cols * [grid actualSize] / 2;
                 gridPoints[1][1][1] = [v y] + rows * [grid actualSize] / 2;
-                gridPoints[1][1][2] = [v z];
+                gridPoints[1][1][2] = [hitPoint z];
                 break;
             case GO_YZ:
                 cols = [[bounds size] y] / [grid actualSize] * 2;
                 rows = [[bounds size] z] / [grid actualSize] * 2;
                 
-                gridPoints[0][0][0] = [v x];
+                gridPoints[0][0][0] = [hitPoint x];
                 gridPoints[0][0][1] = [v y] - cols * [grid actualSize] / 2;
                 gridPoints[0][0][2] = [v z] - rows * [grid actualSize] / 2;
-                gridPoints[0][1][0] = [v x];
+                gridPoints[0][1][0] = [hitPoint x];
                 gridPoints[0][1][1] = [v y] + cols * [grid actualSize] / 2;
                 gridPoints[0][1][2] = [v z] - rows * [grid actualSize] / 2;
-                gridPoints[1][0][0] = [v x];
+                gridPoints[1][0][0] = [hitPoint x];
                 gridPoints[1][0][1] = [v y] - cols * [grid actualSize] / 2;
                 gridPoints[1][0][2] = [v z] + rows * [grid actualSize] / 2;
-                gridPoints[1][1][0] = [v x];
+                gridPoints[1][1][0] = [hitPoint x];
                 gridPoints[1][1][1] = [v y] + cols * [grid actualSize] / 2;
                 gridPoints[1][1][2] = [v z] + rows * [grid actualSize] / 2;
                 break;
@@ -61,16 +62,16 @@
                 rows = [[bounds size] z] / [grid actualSize] * 2;
                 
                 gridPoints[0][0][0] = [v x] - cols * [grid actualSize] / 2;
-                gridPoints[0][0][1] = [v y];
+                gridPoints[0][0][1] = [hitPoint y];
                 gridPoints[0][0][2] = [v z] - rows * [grid actualSize] / 2;
                 gridPoints[0][1][0] = [v x] + cols * [grid actualSize] / 2;
-                gridPoints[0][1][1] = [v y];
+                gridPoints[0][1][1] = [hitPoint y];
                 gridPoints[0][1][2] = [v z] - rows * [grid actualSize] / 2;
                 gridPoints[1][0][0] = [v x] - cols * [grid actualSize] / 2;
-                gridPoints[1][0][1] = [v y];
+                gridPoints[1][0][1] = [hitPoint y];
                 gridPoints[1][0][2] = [v z] + rows * [grid actualSize] / 2;
                 gridPoints[1][1][0] = [v x] + cols * [grid actualSize] / 2;
-                gridPoints[1][1][1] = [v y];
+                gridPoints[1][1][1] = [hitPoint y];
                 gridPoints[1][1][2] = [v z] + rows * [grid actualSize] / 2;
                 break;
         }
@@ -81,6 +82,8 @@
 }
 
 - (void)render {
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(1, 0x8888);
     glColor4f(1, 1, 1, 1);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MAP2_VERTEX_3);
@@ -100,6 +103,7 @@
                 0, rows);  /* Starting at 0 mesh 6 steps (columns). */
     glDisable(GL_MAP2_VERTEX_3);
     glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LINE_STIPPLE);
 }
 
 @end
