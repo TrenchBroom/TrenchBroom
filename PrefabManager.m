@@ -200,6 +200,7 @@ static PrefabManager* sharedInstance = nil;
     
     [self addPrefab:prefab group:(MutablePrefabGroup *)prefabGroup];
     [self writePrefab:prefab];
+    [entities release];
     
     return [prefab autorelease];
 }

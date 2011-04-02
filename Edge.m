@@ -177,15 +177,15 @@ static float HANDLE_RADIUS = 2.0f;
     [w add:u];
     [w sub:v];
     
-    
-    if (flte([w lengthSquared], HANDLE_RADIUS * HANDLE_RADIUS)) {
-        Vector3f* is = [theRay pointAtDistance:rc];
-        return [[[PickingHit alloc] initWithObject:self type:HT_EDGE hitPoint:is distance:rc] autorelease];
-    }
-    
+    float wls = [w lengthSquared];
     [u release];
     [v release];
     [w release];
+    
+    if (flte(wls, HANDLE_RADIUS * HANDLE_RADIUS)) {
+        Vector3f* is = [theRay pointAtDistance:rc];
+        return [[[PickingHit alloc] initWithObject:self type:HT_EDGE hitPoint:is distance:rc] autorelease];
+    }
     
     return nil;
 }

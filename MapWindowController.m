@@ -116,6 +116,10 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     return options;
 }
 
+- (Renderer *)renderer {
+    return [view3D renderer];
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     SEL action = [menuItem action];
     if (action == @selector(clearSelection:)) {
@@ -215,7 +219,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 }
 
 - (IBAction)switchToXYView:(id)sender {
-    Vector3f* center = [selectionManager selectionCenter];
+    Vector3f* center = [[selectionManager selectionCenter] retain];
     if (center == nil) {
         center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
         [center scale:256];
@@ -233,10 +237,11 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     
     [diff release];
     [position release];
+    [center release];
 }
 
 - (IBAction)switchToXZView:(id)sender {
-    Vector3f* center = [selectionManager selectionCenter];
+    Vector3f* center = [[selectionManager selectionCenter] retain];
     if (center == nil) {
         center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
         [center scale:256];
@@ -254,10 +259,11 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 
     [diff release];
     [position release];
+    [center release];
 }
 
 - (IBAction)switchToYZView:(id)sender {
-    Vector3f* center = [selectionManager selectionCenter];
+    Vector3f* center = [[selectionManager selectionCenter] retain];
     if (center == nil) {
         center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
         [center scale:256];
@@ -275,6 +281,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     
     [diff release];
     [position release];
+    [center release];
 }
 
 - (IBAction)clearSelection:(id)sender {

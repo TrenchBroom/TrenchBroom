@@ -20,6 +20,7 @@
 @class Prefab;
 @class TrackingManager;
 @class ClipTool;
+@class Renderer;
 @protocol Prefab;
 
 @interface MapWindowController : NSWindowController {
@@ -76,4 +77,5 @@
 - (InputManager *)inputManager;
 - (TrackingManager *)trackingManager;
 - (Options *)options;
+- (Renderer *)renderer;
 @end

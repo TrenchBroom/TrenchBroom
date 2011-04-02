@@ -21,7 +21,6 @@
     NSNumber* entityId;
     id <Map> map;
 	NSMutableArray* brushes;
-    NSMutableDictionary* brushIndices;
 	NSMutableDictionary* properties;
     Vector3f* center;
     BoundingBox* bounds;

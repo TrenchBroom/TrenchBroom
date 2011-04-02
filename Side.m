@@ -16,7 +16,6 @@
 #import "PickingHit.h"
 #import "CoordinatePlane.h"
 #import "Math.h"
-#import "Math3D.h"
 #import "HalfSpace3D.h"
 #import "Plane3D.h"
 #import "SegmentIterator.h"

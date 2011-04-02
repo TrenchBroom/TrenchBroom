@@ -7,7 +7,10 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Math3D.h"
+
+typedef enum {
+    PXY, PXZ, PYZ
+} EPlane3D;
 
 @class Vector3f;
 

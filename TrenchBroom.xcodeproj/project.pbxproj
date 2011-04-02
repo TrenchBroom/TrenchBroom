@@ -56,8 +56,6 @@
 		485AE8D712F4C5BD00CDBD6A /* PickingHit.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8D612F4C5BD00CDBD6A /* PickingHit.m */; };
 		485D2B5C1306F69100CF73D8 /* SegmentIterator.m in Sources */ = {isa = PBXBuildFile; fileRef = 485D2B5B1306F69100CF73D8 /* SegmentIterator.m */; };
 		485D2EAF1308624900CF73D8 /* Options.m in Sources */ = {isa = PBXBuildFile; fileRef = 485D2EAE1308624900CF73D8 /* Options.m */; };
-		485FD0CB1257A8D900F4AE49 /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0CA1257A8D900F4AE49 /* Math3D.m */; };
-		485FD0CC1257A8D900F4AE49 /* Math3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 485FD0CA1257A8D900F4AE49 /* Math3D.m */; };
 		48639BF412EA227100808576 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48639BF312EA227100808576 /* QuakePalette.lmp */; };
 		4865993112EECD6700665E94 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
 		4865993312EECD6900665E94 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B512ED78FA009B5970 /* Edge.m */; };
@@ -73,6 +71,7 @@
 		486A9C1C12F41FCA003D26FE /* Octree.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1B12F41FCA003D26FE /* Octree.m */; };
 		486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1E12F41FD1003D26FE /* OctreeNode.m */; };
 		486A9C3812F488E4003D26FE /* Ray3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C3712F488E4003D26FE /* Ray3D.m */; };
+		4871FD7413459D760056F5D2 /* GridFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 4871FD7313459D760056F5D2 /* GridFeedbackFigure.m */; };
 		4872C97712FF4DC200C5DD29 /* Matrix4f.m in Sources */ = {isa = PBXBuildFile; fileRef = 4872C97612FF4DC200C5DD29 /* Matrix4f.m */; };
 		4872C97A12FF4DEC00C5DD29 /* Vector4f.m in Sources */ = {isa = PBXBuildFile; fileRef = 4872C97912FF4DEC00C5DD29 /* Vector4f.m */; };
 		48770FF312E5BE66009B440B /* MapTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF212E5BE66009B440B /* MapTokenizer.m */; };
@@ -260,8 +259,6 @@
 		485D2B5B1306F69100CF73D8 /* SegmentIterator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SegmentIterator.m; sourceTree = "<group>"; };
 		485D2EAD1308624900CF73D8 /* Options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Options.h; sourceTree = "<group>"; };
 		485D2EAE1308624900CF73D8 /* Options.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Options.m; sourceTree = "<group>"; };
-		485FD0C91257A8D900F4AE49 /* Math3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math3D.h; sourceTree = "<group>"; };
-		485FD0CA1257A8D900F4AE49 /* Math3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math3D.m; sourceTree = "<group>"; };
 		48639BF312EA227100808576 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; path = QuakePalette.lmp; sourceTree = "<group>"; };
 		4866413E122986AF00752B89 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = /Developer/Library/Frameworks/SenTestingKit.framework; sourceTree = "<absolute>"; };
 		4866F3AF12EAC9FA009B345C /* TextureViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayout.h; sourceTree = "<group>"; };
@@ -285,6 +282,8 @@
 		486A9C1E12F41FD1003D26FE /* OctreeNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OctreeNode.m; sourceTree = "<group>"; };
 		486A9C3612F488E4003D26FE /* Ray3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ray3D.h; sourceTree = "<group>"; };
 		486A9C3712F488E4003D26FE /* Ray3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Ray3D.m; sourceTree = "<group>"; };
+		4871FD7213459D760056F5D2 /* GridFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridFeedbackFigure.h; sourceTree = "<group>"; };
+		4871FD7313459D760056F5D2 /* GridFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridFeedbackFigure.m; sourceTree = "<group>"; };
 		4872C97512FF4DC200C5DD29 /* Matrix4f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix4f.h; sourceTree = "<group>"; };
 		4872C97612FF4DC200C5DD29 /* Matrix4f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix4f.m; sourceTree = "<group>"; };
 		4872C97812FF4DEC00C5DD29 /* Vector4f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vector4f.h; sourceTree = "<group>"; };
@@ -583,8 +582,6 @@
 				487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */,
 				4836400F12603A5100363E3F /* Line3D.h */,
 				4836401012603A5100363E3F /* Line3D.m */,
-				485FD0C91257A8D900F4AE49 /* Math3D.h */,
-				485FD0CA1257A8D900F4AE49 /* Math3D.m */,
 				487CA0BB125B005A002DF9D2 /* Plane3D.h */,
 				487CA0BC125B005A002DF9D2 /* Plane3D.m */,
 				48A68F1D114EA95A0064732A /* Vector3f.h */,
@@ -621,6 +618,8 @@
 				48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */,
 				48DBE74D1341CD8B00C0FDE7 /* ClipPlane.h */,
 				48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */,
+				4871FD7213459D760056F5D2 /* GridFeedbackFigure.h */,
+				4871FD7313459D760056F5D2 /* GridFeedbackFigure.m */,
 			);
 			name = Tool;
 			sourceTree = "<group>";
@@ -1007,7 +1006,6 @@
 				4809F456118EDE82000F66FD /* MutableBrush.m in Sources */,
 				486641111229854E00752B89 /* Math.m in Sources */,
 				48E110811234BF5500087198 /* Vector2f.m in Sources */,
-				485FD0CB1257A8D900F4AE49 /* Math3D.m in Sources */,
 				487CA0BD125B005A002DF9D2 /* Plane3D.m in Sources */,
 				487CA0C5125B00E9002DF9D2 /* HalfSpace3D.m in Sources */,
 				4836401112603A5100363E3F /* Line3D.m in Sources */,
@@ -1037,7 +1035,6 @@
 				484C28FF1150258B004DD957 /* VBOMemBlock.m in Sources */,
 				483B1129122441060072EAFB /* Math.m in Sources */,
 				48E110871234BF5500087198 /* Vector2f.m in Sources */,
-				485FD0CC1257A8D900F4AE49 /* Math3D.m in Sources */,
 				487CA0BE125B005A002DF9D2 /* Plane3D.m in Sources */,
 				487CA0C6125B00E9002DF9D2 /* HalfSpace3D.m in Sources */,
 				4836401212603A5100363E3F /* Line3D.m in Sources */,
@@ -1121,6 +1118,7 @@
 				48DBE7451341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m in Sources */,
 				48DBE74F1341CD8B00C0FDE7 /* ClipPlane.m in Sources */,
 				4888732A13436206005FCE15 /* FloatData.m in Sources */,
+				4871FD7413459D760056F5D2 /* GridFeedbackFigure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

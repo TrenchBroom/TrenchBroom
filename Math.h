@@ -10,6 +10,12 @@
 
 extern float const AlmostZero;
 
+typedef enum {
+    A_X,
+    A_Y,
+    A_Z
+} EAxis;
+
 typedef struct {
     float x,y,z;
 } TVector3f;

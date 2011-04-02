@@ -16,7 +16,6 @@
 #import "MutableFace.h"
 #import "HalfSpace3D.h"
 #import "Math.h"
-#import "Math3D.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
 #import "Plane3D.h"
