@@ -19,6 +19,7 @@
 
 - (id)initWithMin:(Vector3f *)theMin max:(Vector3f *)theMax;
 - (id)initWithBounds:(BoundingBox *)theBounds;
+- (id)initWithBrushes:(NSSet *)theBrushes;
 
 - (Vector3f *)min;
 - (Vector3f *)max;

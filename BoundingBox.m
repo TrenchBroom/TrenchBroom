@@ -8,6 +8,7 @@
 
 #import "BoundingBox.h"
 #import "Vector3f.h"
+#import "Brush.h"
 
 @implementation BoundingBox
 - (id)initWithMin:(Vector3f *)theMin max:(Vector3f *)theMax {
@@ -23,6 +24,21 @@
 
 - (id)initWithBounds:(BoundingBox *)theBounds {
     return [self initWithMin:[theBounds min] max:[theBounds max]];
+}
+
+- (id)initWithBrushes:(NSSet *)theBrushes {
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+    NSAssert([theBrushes count] > 0, @"brush set must not be empty");
+    
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    id <Brush> brush = [brushEn nextObject];
+    
+    if (self = [self initWithBounds:[brush bounds]]) {
+        while ((brush = [brushEn nextObject]))
+            [self mergeBounds:[brush bounds]];
+    }
+    
+    return self;
 }
 
 - (Vector3f *)min {

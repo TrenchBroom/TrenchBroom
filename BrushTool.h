@@ -14,6 +14,7 @@
 @class Plane3D;
 @class Ray3D;
 @class Vector3f;
+@class GridFeedbackFigure;
 
 @interface BrushTool : NSObject <Tool> {
     @private
@@ -21,6 +22,7 @@
     MapWindowController* windowController;
     Plane3D* plane;
     Vector3f* lastPoint;
+    GridFeedbackFigure* figure;
 }
 
 - (id)initWithController:(MapWindowController *)theWindowController pickHit:(PickingHit *)theHit pickRay:(Ray3D *)theRay;

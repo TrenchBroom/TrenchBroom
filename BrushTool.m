@@ -18,11 +18,15 @@
 #import "Plane3D.h"
 #import "Vector3f.h"
 #import "Vector3i.h"
+#import "BoundingBox.h"
 #import "PickingHit.h"
 #import "Brush.h"
 #import "MutableBrush.h"
 #import "math.h"
 #import "Math.h"
+#import "GridFeedbackFigure.h"
+#import "Renderer.h"
+#import "MapView3D.h"
 
 @implementation BrushTool
 
@@ -35,6 +39,9 @@
 }
 
 - (void)dealloc {
+    Renderer* renderer = [windowController renderer];
+    [renderer removeFeedbackFigure:figure];
+    [figure release];
     [lastPoint release];
     [plane release];
     [brushes release];
@@ -50,23 +57,31 @@
         [brushes unionSet:[[theWindowController selectionManager] selectedBrushes]];
         windowController = [theWindowController retain];
         
+        Grid* grid = [[windowController options] grid];
+        BoundingBox* bounds = [[BoundingBox alloc] initWithBrushes:brushes];
+        
         lastPoint = [[theHit hitPoint] retain];
         switch ([[theRay direction] largestComponent]) {
             case VC_X:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f xAxisPos]];
+                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:GO_YZ bounds:bounds];
                 break;
             case VC_Y:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f yAxisPos]];
+                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:GO_XZ bounds:bounds];
                 break;
             default:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f zAxisPos]];
+                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:GO_XY bounds:bounds];
                 break;
         }
-    }
-    
-    Grid* grid = [[windowController options] grid];
-    [grid snapToGrid:lastPoint];
 
+        [bounds release];
+        [grid snapToGrid:lastPoint];
+
+        Renderer* renderer = [windowController renderer];
+        [renderer addFeedbackFigure:figure];
+    }
     return self;
 }
 
