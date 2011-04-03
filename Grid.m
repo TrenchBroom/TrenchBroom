@@ -90,6 +90,18 @@ NSString* const GridChanged = @"GridChanged";
     [vector setZ:[self actualSize] * roundf([vector z] / [self actualSize])];
 }
 
+- (void)snapUpToGrid:(Vector3f *)vector {
+    [vector setX:[self actualSize] * ceilf([vector x] / [self actualSize])];
+    [vector setY:[self actualSize] * ceilf([vector y] / [self actualSize])];
+    [vector setZ:[self actualSize] * ceilf([vector z] / [self actualSize])];
+}
+
+- (void)snapDownToGrid:(Vector3f *)vector {
+    [vector setX:[self actualSize] * floorf([vector x] / [self actualSize])];
+    [vector setY:[self actualSize] * floorf([vector y] / [self actualSize])];
+    [vector setZ:[self actualSize] * floorf([vector z] / [self actualSize])];
+}
+
 - (Vector3f *)gridOffsetOf:(Vector3f *)vector {
     Vector3f* snapped = [[Vector3f alloc] initWithFloatVector:vector];
     [self snapToGrid:snapped];

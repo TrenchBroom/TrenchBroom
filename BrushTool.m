@@ -24,7 +24,6 @@
 #import "MutableBrush.h"
 #import "math.h"
 #import "Math.h"
-#import "GridFeedbackFigure.h"
 #import "Renderer.h"
 #import "MapView3D.h"
 
@@ -64,15 +63,18 @@
         switch ([[theRay direction] largestComponent]) {
             case VC_X:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f xAxisPos]];
-                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:GO_YZ bounds:bounds hitPoint:[theHit hitPoint]];
+                figureOrientation = GO_YZ;
+                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:figureOrientation bounds:bounds hitPoint:[theHit hitPoint]];
                 break;
             case VC_Y:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f yAxisPos]];
-                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:GO_XZ bounds:bounds hitPoint:[theHit hitPoint]];
+                figureOrientation = GO_XZ;
+                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:figureOrientation bounds:bounds hitPoint:[theHit hitPoint]];
                 break;
             default:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f zAxisPos]];
-                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:GO_XY bounds:bounds hitPoint:[theHit hitPoint]];
+                figureOrientation = GO_XY;
+                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:figureOrientation bounds:bounds hitPoint:[theHit hitPoint]];
                 break;
         }
 
@@ -112,6 +114,14 @@
 
     [lastPoint release];
     lastPoint = [point retain];
+
+    Renderer* renderer = [windowController renderer];
+    [renderer removeFeedbackFigure:figure];
+    [figure release];
+    
+    BoundingBox* bounds = [[BoundingBox alloc] initWithBrushes:brushes];
+    figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:figureOrientation bounds:bounds hitPoint:point];
+    [renderer addFeedbackFigure:figure];
 }
 
 - (NSString *)actionName {

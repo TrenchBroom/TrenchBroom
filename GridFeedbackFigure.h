@@ -26,5 +26,4 @@ typedef enum {
 }
 
 - (id)initWithGrid:(Grid *)grid orientation:(EGridOrientation)orientation bounds:(BoundingBox *)bounds hitPoint:(Vector3f *)hitPoint;
-
 @end

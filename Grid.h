@@ -33,6 +33,8 @@ extern NSString* const GridChanged;
 - (void)toggleSnap;
 
 - (void)snapToGrid:(Vector3f *)vector;
+- (void)snapUpToGrid:(Vector3f *)vector;
+- (void)snapDownToGrid:(Vector3f *)vector;
 - (Vector3f *)gridOffsetOf:(Vector3f *)vector;
 
 - (void)activateTexture;

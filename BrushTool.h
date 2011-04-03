@@ -8,13 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Tool.h"
+#import "GridFeedbackFigure.h"
 
 @class MapWindowController;
 @class PickingHit;
 @class Plane3D;
 @class Ray3D;
 @class Vector3f;
-@class GridFeedbackFigure;
 
 @interface BrushTool : NSObject <Tool> {
     @private
@@ -23,6 +23,7 @@
     Plane3D* plane;
     Vector3f* lastPoint;
     GridFeedbackFigure* figure;
+    EGridOrientation figureOrientation;
 }
 
 - (id)initWithController:(MapWindowController *)theWindowController pickHit:(PickingHit *)theHit pickRay:(Ray3D *)theRay;

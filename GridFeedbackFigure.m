@@ -11,6 +11,8 @@
 #import "Vector3f.h"
 #import "BoundingBox.h"
 
+static int G = 2;
+
 @implementation GridFeedbackFigure
 
 - (id)initWithGrid:(Grid *)grid orientation:(EGridOrientation)orientation bounds:(BoundingBox *)bounds hitPoint:(Vector3f *)hitPoint {
@@ -19,63 +21,69 @@
     NSAssert(hitPoint != nil, @"hit point must not be nil");
     
     if (self = [self init]) {
-        Vector3f* v = [[Vector3f alloc] initWithFloatVector:[bounds center]];
-        [grid snapToGrid:v];
+        Vector3f* min = [[Vector3f alloc] initWithFloatVector:[bounds min]];
+        Vector3f* max = [[Vector3f alloc] initWithFloatVector:[bounds max]];
+        [grid snapDownToGrid:min];
+        [grid snapUpToGrid:max];
+        
+        Vector3f* size = [[Vector3f alloc] initWithFloatVector:max];
+        [size sub:min];
         
         switch (orientation) {
             case GO_XY:
-                cols = [[bounds size] x] / [grid actualSize] * 2;
-                rows = [[bounds size] y] / [grid actualSize] * 2;
+                cols = [size x] / [grid actualSize] + 2 * G;
+                rows = [size y] / [grid actualSize] + 2 * G;
                 
-                gridPoints[0][0][0] = [v x] - cols * [grid actualSize] / 2;
-                gridPoints[0][0][1] = [v y] - rows * [grid actualSize] / 2;
+                gridPoints[0][0][0] = [min x] - G * [grid actualSize];
+                gridPoints[0][0][1] = [min y] - G * [grid actualSize];
                 gridPoints[0][0][2] = [hitPoint z];
-                gridPoints[0][1][0] = [v x] + cols * [grid actualSize] / 2;
-                gridPoints[0][1][1] = [v y] - rows * [grid actualSize] / 2;
+                gridPoints[0][1][0] = [max x] + G * [grid actualSize];
+                gridPoints[0][1][1] = [min y] - G * [grid actualSize];
                 gridPoints[0][1][2] = [hitPoint z];
-                gridPoints[1][0][0] = [v x] - cols * [grid actualSize] / 2;
-                gridPoints[1][0][1] = [v y] + rows * [grid actualSize] / 2;
+                gridPoints[1][0][0] = [min x] - G * [grid actualSize];
+                gridPoints[1][0][1] = [max y] + G * [grid actualSize];
                 gridPoints[1][0][2] = [hitPoint z];
-                gridPoints[1][1][0] = [v x] + cols * [grid actualSize] / 2;
-                gridPoints[1][1][1] = [v y] + rows * [grid actualSize] / 2;
+                gridPoints[1][1][0] = [max x] + G * [grid actualSize];
+                gridPoints[1][1][1] = [max y] + G * [grid actualSize];
                 gridPoints[1][1][2] = [hitPoint z];
                 break;
             case GO_YZ:
-                cols = [[bounds size] y] / [grid actualSize] * 2;
-                rows = [[bounds size] z] / [grid actualSize] * 2;
+                cols = [size y] / [grid actualSize] + 2 * G;
+                rows = [size z] / [grid actualSize] + 2 * G;
                 
                 gridPoints[0][0][0] = [hitPoint x];
-                gridPoints[0][0][1] = [v y] - cols * [grid actualSize] / 2;
-                gridPoints[0][0][2] = [v z] - rows * [grid actualSize] / 2;
+                gridPoints[0][0][1] = [min y] - G * [grid actualSize];
+                gridPoints[0][0][2] = [min z] - G * [grid actualSize];
                 gridPoints[0][1][0] = [hitPoint x];
-                gridPoints[0][1][1] = [v y] + cols * [grid actualSize] / 2;
-                gridPoints[0][1][2] = [v z] - rows * [grid actualSize] / 2;
+                gridPoints[0][1][1] = [max y] + G * [grid actualSize];
+                gridPoints[0][1][2] = [min z] - G * [grid actualSize];
                 gridPoints[1][0][0] = [hitPoint x];
-                gridPoints[1][0][1] = [v y] - cols * [grid actualSize] / 2;
-                gridPoints[1][0][2] = [v z] + rows * [grid actualSize] / 2;
+                gridPoints[1][0][1] = [min y] - G * [grid actualSize];
+                gridPoints[1][0][2] = [max z] + G * [grid actualSize];
                 gridPoints[1][1][0] = [hitPoint x];
-                gridPoints[1][1][1] = [v y] + cols * [grid actualSize] / 2;
-                gridPoints[1][1][2] = [v z] + rows * [grid actualSize] / 2;
+                gridPoints[1][1][1] = [max y] + G * [grid actualSize];
+                gridPoints[1][1][2] = [max z] + G * [grid actualSize];
                 break;
             default:
-                cols = [[bounds size] x] / [grid actualSize] * 2;
-                rows = [[bounds size] z] / [grid actualSize] * 2;
+                cols = [size x] / [grid actualSize] + 2 * G;
+                rows = [size z] / [grid actualSize] + 2 * G;
                 
-                gridPoints[0][0][0] = [v x] - cols * [grid actualSize] / 2;
+                gridPoints[0][0][0] = [min x] - G * [grid actualSize];
                 gridPoints[0][0][1] = [hitPoint y];
-                gridPoints[0][0][2] = [v z] - rows * [grid actualSize] / 2;
-                gridPoints[0][1][0] = [v x] + cols * [grid actualSize] / 2;
+                gridPoints[0][0][2] = [min z] - G * [grid actualSize];
+                gridPoints[0][1][0] = [max x] + G * [grid actualSize];
                 gridPoints[0][1][1] = [hitPoint y];
-                gridPoints[0][1][2] = [v z] - rows * [grid actualSize] / 2;
-                gridPoints[1][0][0] = [v x] - cols * [grid actualSize] / 2;
+                gridPoints[0][1][2] = [min z] - G * [grid actualSize];
+                gridPoints[1][0][0] = [min x] - G * [grid actualSize];
                 gridPoints[1][0][1] = [hitPoint y];
-                gridPoints[1][0][2] = [v z] + rows * [grid actualSize] / 2;
-                gridPoints[1][1][0] = [v x] + cols * [grid actualSize] / 2;
+                gridPoints[1][0][2] = [max z] + G * [grid actualSize];
+                gridPoints[1][1][0] = [max x] + G * [grid actualSize];
                 gridPoints[1][1][1] = [hitPoint y];
-                gridPoints[1][1][2] = [v z] + rows * [grid actualSize] / 2;
+                gridPoints[1][1][2] = [max z] + G * [grid actualSize];
                 break;
         }
-        [v release];
+        [min release];
+        [max release];
     }
     
     return self;
