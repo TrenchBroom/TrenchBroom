@@ -40,11 +40,7 @@ NSString* const UntrackedObjectKey = @"UntrackedObjectKey";
     Picker* picker = [[windowController document] picker];
     
     PickingHitList* hits = [picker pickObjects:currentRay include:[selectionManager selectedBrushes] exclude:nil];
-    PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
-    if (hit == nil)
-        hit = [hits firstHitOfType:HT_EDGE ignoreOccluders:NO];
-    if (hit == nil)
-        hit = [hits firstHitOfType:HT_BRUSH ignoreOccluders:NO];
+    PickingHit* hit = [hits firstHitOfType:HT_BRUSH ignoreOccluders:YES];
     
     if (hit == nil) {
         if (currentObject != nil) {

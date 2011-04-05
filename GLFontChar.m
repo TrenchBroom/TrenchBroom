@@ -27,27 +27,27 @@
 
 - (int)renderAt:(NSPoint)thePosition intoVBO:(VBOMemBlock *)theMemBlock offset:(int)theOffset {
     int offset = [theMemBlock writeFloat:s1 offset:theOffset];
-    offset = [theMemBlock writeFloat:t1 offset:offset];
+    offset = [theMemBlock writeFloat:t2 offset:offset];
     offset = [theMemBlock writeFloat:thePosition.x offset:offset];
     offset = [theMemBlock writeFloat:thePosition.y offset:offset];
     offset = [theMemBlock writeFloat:0 offset:offset];
 
+    offset = [theMemBlock writeFloat:s1 offset:offset];
+    offset = [theMemBlock writeFloat:t1 offset:offset];
+    offset = [theMemBlock writeFloat:thePosition.x offset:offset];
+    offset = [theMemBlock writeFloat:thePosition.y + dimensions.height offset:offset];
+    offset = [theMemBlock writeFloat:0 offset:offset];
+    
     offset = [theMemBlock writeFloat:s2 offset:offset];
     offset = [theMemBlock writeFloat:t1 offset:offset];
     offset = [theMemBlock writeFloat:thePosition.x + dimensions.width offset:offset];
-    offset = [theMemBlock writeFloat:thePosition.y offset:offset];
+    offset = [theMemBlock writeFloat:thePosition.y + dimensions.height offset:offset];
     offset = [theMemBlock writeFloat:0 offset:offset];
     
     offset = [theMemBlock writeFloat:s2 offset:offset];
     offset = [theMemBlock writeFloat:t2 offset:offset];
     offset = [theMemBlock writeFloat:thePosition.x + dimensions.width offset:offset];
-    offset = [theMemBlock writeFloat:thePosition.y + dimensions.height offset:offset];
-    offset = [theMemBlock writeFloat:0 offset:offset];
-    
-    offset = [theMemBlock writeFloat:s1 offset:offset];
-    offset = [theMemBlock writeFloat:t2 offset:offset];
-    offset = [theMemBlock writeFloat:thePosition.x offset:offset];
-    offset = [theMemBlock writeFloat:thePosition.y + dimensions.height offset:offset];
+    offset = [theMemBlock writeFloat:thePosition.y offset:offset];
     offset = [theMemBlock writeFloat:0 offset:offset];
     
     return offset;

@@ -15,9 +15,12 @@
     @private
     GLFont* glFont;
     VBOMemBlock* memBlock;
+    NSSize size;
 }
 
-- (id)initWithMemBlock:(VBOMemBlock *)theMemBlock glFont:(GLFont *)theFont;
+- (id)initWithMemBlock:(VBOMemBlock *)theMemBlock glFont:(GLFont *)theFont size:(NSSize)theSize;
+
+- (NSSize)size;
 
 - (void)render;
 @end

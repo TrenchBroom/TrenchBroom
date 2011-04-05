@@ -143,7 +143,10 @@
     [vbo unmapBuffer];
     [vbo deactivate];
     
-    return [[[GLString alloc] initWithMemBlock:memBlock glFont:self] autorelease];
+    NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [theString length]) actualCharacterRange:NULL];
+    NSRect bounds = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textContainer];
+
+    return [[[GLString alloc] initWithMemBlock:memBlock glFont:self size:bounds.size] autorelease];
 }
 
 - (NSSize)sizeOfString:(NSString *)theString {

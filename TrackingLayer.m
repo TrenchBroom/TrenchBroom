@@ -7,20 +7,17 @@
 //
 
 #import "TrackingLayer.h"
-#import "ThickEdgeRenderer.h"
-#import "VertexRenderer.h"
-#import "Vertex.h"
+#import "BrushGuideRenderer.h"
 #import "Brush.h"
 #import "Face.h"
-#import "Edge.h"
-#import "Vertex.h"
+#import "Camera.h"
+#import "GLFont.h"
 
 @implementation TrackingLayer
 
-- (id)init {
+- (id)initWithCamera:(Camera *)theCamera glFont:(GLFont *)theGlFont {
     if (self = [super init]) {
-        edgeRenderer = [[ThickEdgeRenderer alloc] init];
-        vertexRenderer = [[VertexRenderer alloc] init];
+        brushGuideRenderer = [[BrushGuideRenderer alloc] initWithCamera:theCamera glFont:theGlFont];
     }
     
     return self;
@@ -28,75 +25,31 @@
 
 - (void)addBrush:(id <Brush>)theBrush {
     NSAssert(theBrush != nil, @"brush must not be nil");
-    
-    NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [self addFace:face];
+    [brushGuideRenderer addBrush:theBrush];
 }
 
 - (void)removeBrush:(id <Brush>)theBrush {
     NSAssert(theBrush != nil, @"brush must not be nil");
-    
-    NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [self removeFace:face];
+    [brushGuideRenderer removeBrush:theBrush];
 }
 
 - (void)addFace:(id <Face>)theFace {
     NSAssert(theFace != nil, @"face must not be nil");
-    
-    NSEnumerator* edgeEn = [[theFace edges] objectEnumerator];
-    Edge* edge;
-    while ((edge = [edgeEn nextObject]))
-        [self addEdge:edge];
 }
 
 - (void)removeFace:(id <Face>)theFace {
     NSAssert(theFace != nil, @"face must not be nil");
-
-    NSEnumerator* edgeEn = [[theFace edges] objectEnumerator];
-    Edge* edge;
-    while ((edge = [edgeEn nextObject]))
-        [self removeEdge:edge];
-}
-
-- (void)addEdge:(Edge *)theEdge {
-    NSAssert(theEdge != nil, @"edge must not be nil");
-    [edgeRenderer addEdge:theEdge];
-    [self addVertex:[theEdge startVertex]];
-    [self addVertex:[theEdge endVertex]];
-}
-
-- (void)removeEdge:(Edge *)theEdge {
-    NSAssert(theEdge != nil, @"edge must not be nil");
-    [edgeRenderer removeEdge:theEdge];
-    [self removeVertex:[theEdge startVertex]];
-    [self removeVertex:[theEdge endVertex]];
-}
-
-- (void)addVertex:(Vertex *)theVertex{
-    NSAssert(theVertex != nil, @"vertex must not be nil");
-    [vertexRenderer addVertex:theVertex];
-}
-
-- (void)removeVertex:(Vertex *)theVertex {
-    NSAssert(theVertex != nil, @"vertex must not be nil");
-    [vertexRenderer removeVertex:theVertex];
 }
 
 - (void)render:(RenderContext *)renderContext {
-    glColor4f(1, 1, 0, 0.5);
+    glColor4f(1, 1, 1, 1);
     glDisable(GL_DEPTH_TEST);
-    [edgeRenderer render];
-    [vertexRenderer render];
+    [brushGuideRenderer render];
     glEnable(GL_DEPTH_TEST);
 }
 
 - (void)dealloc {
-    [edgeRenderer release];
-    [vertexRenderer release];
+    [brushGuideRenderer release];
     [super dealloc];
 }
 

@@ -34,6 +34,8 @@
 #import "MapWindowController.h"
 #import "GLResources.h"
 #import "TextureManager.h"
+#import "GLFontManager.h"
+#import "GLFont.h"
 #import "Texture.h"
 #import "FeedbackFigure.h"
 
@@ -397,26 +399,14 @@ NSString* const RendererChanged = @"RendererChanged";
     id trackedObject = [userInfo objectForKey:TrackedObjectKey];
     
     if (untrackedObject != nil) {
-        if ([untrackedObject isKindOfClass:[Vertex class]]) {
-            Vertex* vertex = (Vertex *)untrackedObject;
-            [trackingLayer removeVertex:vertex];
-        } else if ([untrackedObject isKindOfClass:[Edge class]]) {
-            Edge* edge = (Edge *)untrackedObject;
-            [trackingLayer removeEdge:edge];
-        } else if ([untrackedObject conformsToProtocol:@protocol(Brush)]) {
+        if ([untrackedObject conformsToProtocol:@protocol(Brush)]) {
             id <Brush> brush = (id <Brush>)untrackedObject;
             [trackingLayer removeBrush:brush];
         }
     }
 
     if (trackedObject != nil) {
-        if ([trackedObject isKindOfClass:[Vertex class]]) {
-            Vertex* vertex = (Vertex *)trackedObject;
-            [trackingLayer addVertex:vertex];
-        } else if ([trackedObject isKindOfClass:[Edge class]]) {
-            Edge* edge = (Edge *)trackedObject;
-            [trackingLayer addEdge:edge];
-        } else if ([trackedObject conformsToProtocol:@protocol(Brush)]) {
+        if ([trackedObject conformsToProtocol:@protocol(Brush)]) {
             id <Brush> brush = (id <Brush>)trackedObject;
             [trackingLayer addBrush:brush];
         }
@@ -451,14 +441,17 @@ NSString* const RendererChanged = @"RendererChanged";
         
         MapDocument* map = [windowController document];
         GLResources* glResources = [map glResources];
+        GLFontManager* fontManager = [glResources fontManager];
+        GLFont* trackingFont = [fontManager glFontFor:[NSFont systemFontOfSize:11]];
         textureManager = [[glResources textureManager] retain];
         
+        Camera* camera = [windowController camera];
         Options* options = [windowController options];
         Grid* grid = [options grid];
 
         geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid];
         selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid];
-        trackingLayer = [[TrackingLayer alloc] init];
+        trackingLayer = [[TrackingLayer alloc] initWithCamera:camera glFont:trackingFont];
 
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
         id <Entity> entity;
@@ -482,7 +475,6 @@ NSString* const RendererChanged = @"RendererChanged";
         TrackingManager* trackingManager = [windowController trackingManager];
         [center addObserver:self selector:@selector(trackedObjectChanged:) name:TrackedObjectChanged object:trackingManager];
         
-        Camera* camera = [windowController camera];
         [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
         
         [center addObserver:self selector:@selector(optionsChanged:) name:OptionsChanged object:options];

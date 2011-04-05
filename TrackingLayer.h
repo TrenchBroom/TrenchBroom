@@ -9,20 +9,14 @@
 #import <Cocoa/Cocoa.h>
 #import "Layer.h"
 
-@class ThickEdgeRenderer;
-@class VertexRenderer;
-@class Edge;
-@class Vertex;
+@class BrushGuideRenderer;
+@class Camera;
+@class GLFont;
 
 @interface TrackingLayer : NSObject <Layer> {
-    ThickEdgeRenderer* edgeRenderer;
-    VertexRenderer* vertexRenderer;
+    BrushGuideRenderer* brushGuideRenderer;
 }
 
-- (void)addEdge:(Edge *)theEdge;
-- (void)removeEdge:(Edge *)theEdge;
-
-- (void)addVertex:(Vertex *)theVertex;
-- (void)removeVertex:(Vertex *)theVertex;
+- (id)initWithCamera:(Camera *)theCamera glFont:(GLFont *)theGlFont;
 
 @end

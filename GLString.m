@@ -12,13 +12,18 @@
 
 @implementation GLString
 
-- (id)initWithMemBlock:(VBOMemBlock *)theMemBlock glFont:(GLFont *)theFont {
+- (id)initWithMemBlock:(VBOMemBlock *)theMemBlock glFont:(GLFont *)theFont size:(NSSize)theSize {
     if (self = [self init]) {
         memBlock = [theMemBlock retain];
         glFont = [theFont retain];
+        size = theSize;
     }
     
     return self;
+}
+
+- (NSSize)size {
+    return size;
 }
 
 - (void)render {
