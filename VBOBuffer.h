@@ -37,6 +37,7 @@ extern NSString* const BufferNotMappedException;
 - (void)mapBuffer;
 - (void)unmapBuffer;
 
+- (void)writeBuffer:(const void*)theBuffer address:(int)theAddress count:(int)theCount;
 - (void)writeFloat:(float)f address:(int)theAddress;
 - (void)writeVector3f:(Vector3f *)theVector address:(int)theAddress;
 - (void)writeVector2f:(Vector2f *)theVector address:(int)theAddress;

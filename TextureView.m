@@ -15,7 +15,6 @@
 #import "TextureViewLayoutRow.h"
 #import "TextureViewLayoutCell.h"
 #import "GLFontManager.h"
-#import "GLFont.h"
 #import "GLString.h"
 #import "GLResources.h"
 
@@ -70,7 +69,6 @@
 
         GLFontManager* fontManager = [glResources fontManager];
         NSFont* font = [NSFont systemFontOfSize:12];
-        GLFont* glFont = [fontManager glFontFor:font];
         
         while ((row = [rowEn nextObject])) {
             NSArray* cells = [row cells];
@@ -120,11 +118,7 @@
                 float nx = [cell nameRect].origin.x;
                 float ny = [cell nameRect].origin.y;
                 
-                GLString* glString = [glStrings objectForKey:[texture name]];
-                if (glString == nil) {
-                    glString = [glFont glStringFor:[texture name]];
-                    [glStrings setObject:glString forKey:[texture name]];
-                }
+                GLString* glString = [fontManager glStringFor:[texture name] font:font];
                 glPushMatrix();
                 glTranslatef(nx, ny, 0);
                 [glString render];
@@ -150,11 +144,6 @@
 }
 
 - (void)setGLResources:(GLResources *)theGLResources {
-    if (glStrings == nil)
-        glStrings = [[NSMutableDictionary alloc] init];
-    else
-        [glStrings removeAllObjects];
-    
     [glResources release];
     glResources = [theGLResources retain];
     
@@ -167,9 +156,8 @@
         if (layout == nil) {
             GLFontManager* fontManager = [glResources fontManager];
             NSFont* font = [NSFont systemFontOfSize:12];
-            GLFont* glFont = [fontManager glFontFor:font];
         
-            layout = [[TextureViewLayout alloc] initWithWidth:[self bounds].size.width innerMargin:10 outerMargin:5 font:glFont];
+            layout = [[TextureViewLayout alloc] initWithWidth:[self bounds].size.width innerMargin:10 outerMargin:5 fontManager:fontManager font:font];
         } else {
             [layout clear];
         }
@@ -207,7 +195,6 @@
 }
 
 - (void)dealloc {
-    [glStrings release];
     [selectedTextureNames release];
     [super dealloc];
 }

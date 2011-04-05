@@ -11,6 +11,7 @@
 
 @interface Texture : NSObject {
     NSString* name;
+    NSNumber* uniqueId;
     int textureId;
     int width;
     int height;
@@ -20,6 +21,7 @@
 - (id)initWithName:(NSString *)theName width:(int)theWidth height:(int)theHeight textureId:(int)theTextureId;
 
 - (NSString *)name;
+- (NSNumber *)uniqueId;
 - (int)textureId;
 - (int)width;
 - (int)height;

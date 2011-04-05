@@ -152,6 +152,13 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     }
 }
 
+- (void)writeBuffer:(const void*)theBuffer address:(int)theAddress count:(int)theCount {
+    if (buffer == NULL)
+        [NSException raise:BufferNotMappedException format:@"cannot write to unmapped buffer"];
+    
+    memcpy(buffer + theAddress, theBuffer, theCount);
+}
+
 - (void)writeFloat:(float)f address:(int)theAddress {
     if (buffer == NULL)
         [NSException raise:BufferNotMappedException format:@"cannot write to unmapped buffer"];

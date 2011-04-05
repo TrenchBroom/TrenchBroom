@@ -102,8 +102,6 @@
 		4891E15612FC04B2007A3B93 /* InspectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4891E15512FC04B2007A3B93 /* InspectorController.m */; };
 		48941666123619870098E17C /* Line2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48941665123619870098E17C /* Line2DTestCase.m */; };
 		48958209132E52EF00BB7D8F /* CameraAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 48958208132E52EF00BB7D8F /* CameraAnimation.m */; };
-		489FB43D12FA0A5B00B6BAF1 /* GLFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 489FB43C12FA0A5B00B6BAF1 /* GLFont.m */; };
-		489FB44012FA0ABE00B6BAF1 /* GLFontChar.m in Sources */ = {isa = PBXBuildFile; fileRef = 489FB43F12FA0ABE00B6BAF1 /* GLFontChar.m */; };
 		48A68EB8114E96C00064732A /* MapWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68EB7114E96C00064732A /* MapWindowController.m */; };
 		48A68ECF114E9B0D0064732A /* MapView3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68ECE114E9B0D0064732A /* MapView3D.m */; };
 		48A68F0F114EA0420064732A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48A68F0E114EA0420064732A /* OpenGL.framework */; };
@@ -127,6 +125,7 @@
 		48CBDD9913170B330041F704 /* GLResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CBDD9813170B330041F704 /* GLResources.m */; };
 		48CE70AC134741C400886260 /* GridFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CE70AB134741C400886260 /* GridFeedbackFigure.m */; };
 		48D6B714134859890084F82E /* BrushGuideRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B713134859890084F82E /* BrushGuideRenderer.m */; };
+		48D6B903134B8DC90084F82E /* GLStringData.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B902134B8DC90084F82E /* GLStringData.m */; };
 		48DB957812F0699600FB5483 /* InputManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB957712F0699600FB5483 /* InputManager.m */; };
 		48DB95A312F0A89E00FB5483 /* Quaternion.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB95A212F0A89E00FB5483 /* Quaternion.m */; };
 		48DBE7451341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */; };
@@ -344,10 +343,6 @@
 		48941665123619870098E17C /* Line2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Line2DTestCase.m; sourceTree = "<group>"; };
 		48958207132E52EF00BB7D8F /* CameraAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraAnimation.h; sourceTree = "<group>"; };
 		48958208132E52EF00BB7D8F /* CameraAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraAnimation.m; sourceTree = "<group>"; };
-		489FB43B12FA0A5B00B6BAF1 /* GLFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFont.h; sourceTree = "<group>"; };
-		489FB43C12FA0A5B00B6BAF1 /* GLFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFont.m; sourceTree = "<group>"; };
-		489FB43E12FA0ABE00B6BAF1 /* GLFontChar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFontChar.h; sourceTree = "<group>"; };
-		489FB43F12FA0ABE00B6BAF1 /* GLFontChar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFontChar.m; sourceTree = "<group>"; };
 		48A68EB6114E96C00064732A /* MapWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWindowController.h; sourceTree = "<group>"; };
 		48A68EB7114E96C00064732A /* MapWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapWindowController.m; sourceTree = "<group>"; };
 		48A68ECD114E9B0D0064732A /* MapView3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapView3D.h; sourceTree = "<group>"; };
@@ -385,6 +380,8 @@
 		48CE70AB134741C400886260 /* GridFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridFeedbackFigure.m; sourceTree = "<group>"; };
 		48D6B712134859890084F82E /* BrushGuideRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushGuideRenderer.h; sourceTree = "<group>"; };
 		48D6B713134859890084F82E /* BrushGuideRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrushGuideRenderer.m; sourceTree = "<group>"; };
+		48D6B901134B8DC90084F82E /* GLStringData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLStringData.h; sourceTree = "<group>"; };
+		48D6B902134B8DC90084F82E /* GLStringData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLStringData.m; sourceTree = "<group>"; };
 		48DB957612F0699600FB5483 /* InputManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputManager.h; sourceTree = "<group>"; };
 		48DB957712F0699600FB5483 /* InputManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InputManager.m; sourceTree = "<group>"; };
 		48DB95A112F0A89E00FB5483 /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quaternion.h; sourceTree = "<group>"; };
@@ -731,14 +728,12 @@
 		489DC65D12F9EBF500053092 /* Text */ = {
 			isa = PBXGroup;
 			children = (
-				489FB43B12FA0A5B00B6BAF1 /* GLFont.h */,
-				489FB43C12FA0A5B00B6BAF1 /* GLFont.m */,
-				489FB43E12FA0ABE00B6BAF1 /* GLFontChar.h */,
-				489FB43F12FA0ABE00B6BAF1 /* GLFontChar.m */,
 				481D300E12FAE5C0001CBD9E /* GLFontManager.h */,
 				481D300F12FAE5C0001CBD9E /* GLFontManager.m */,
 				488868D912FAFCBF00CAEA55 /* GLString.h */,
 				488868DA12FAFCBF00CAEA55 /* GLString.m */,
+				48D6B901134B8DC90084F82E /* GLStringData.h */,
+				48D6B902134B8DC90084F82E /* GLStringData.m */,
 			);
 			name = Text;
 			sourceTree = "<group>";
@@ -1076,8 +1071,6 @@
 				48E1806512F5F07D007995FE /* SelectionManager.m in Sources */,
 				488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */,
 				4814A02712F740580082E05F /* ProgressWindowController.m in Sources */,
-				489FB43D12FA0A5B00B6BAF1 /* GLFont.m in Sources */,
-				489FB44012FA0ABE00B6BAF1 /* GLFontChar.m in Sources */,
 				481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */,
 				488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */,
 				4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */,
@@ -1125,6 +1118,7 @@
 				4888732A13436206005FCE15 /* FloatData.m in Sources */,
 				48CE70AC134741C400886260 /* GridFeedbackFigure.m in Sources */,
 				48D6B714134859890084F82E /* BrushGuideRenderer.m in Sources */,
+				48D6B903134B8DC90084F82E /* GLStringData.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

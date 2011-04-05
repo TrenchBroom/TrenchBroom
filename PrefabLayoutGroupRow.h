@@ -10,7 +10,7 @@
 
 @protocol PrefabGroup;
 @protocol Prefab;
-@class GLFont;
+@class GLFontManager;
 
 @interface PrefabLayoutGroupRow : NSObject {
     id <PrefabGroup> prefabGroup;
@@ -20,7 +20,7 @@
     NSMutableArray* cells;
 }
 
-- (id)initWithPrefabGroup:(id <PrefabGroup>)thePrefabGroup prefabsPerRow:(int)prefabsPerRow glFont:(GLFont *)theGLFont atPos:(NSPoint)thePos width:(float)theWidth innerMargin:(float)innerMargin;
+- (id)initWithPrefabGroup:(id <PrefabGroup>)thePrefabGroup prefabsPerRow:(int)prefabsPerRow atPos:(NSPoint)thePos width:(float)theWidth innerMargin:(float)innerMargin fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;
 
 - (id <PrefabGroup>)prefabGroup;
 - (NSArray *)cells;

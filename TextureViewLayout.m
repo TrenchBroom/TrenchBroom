@@ -9,7 +9,8 @@
 #import "TextureViewLayout.h"
 #import "TextureViewLayoutRow.h"
 #import "TextureViewLayoutCell.h"
-#import "GLFont.h"
+#import "GLFontManager.h"
+#import "GLString.h"
 #import "math.h"
 
 @implementation TextureViewLayout
@@ -18,56 +19,33 @@
     if (self = [super init]) {
         rows = [[NSMutableArray alloc] init];
         textures = [[NSMutableArray alloc] init];
-        nameSizeCapacity = 64;
-        nameSizes = malloc(64 * sizeof(NSSize));
     }
     
     return self;
 }
 
-- (id)initWithWidth:(float)theWidth innerMargin:(float)theInnerMargin outerMargin:(float)theOuterMargin font:(GLFont *)theFont {
+- (id)initWithWidth:(float)theWidth innerMargin:(float)theInnerMargin outerMargin:(float)theOuterMargin fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
     if (self = [self init]) {
         width = theWidth;
         innerMargin = theInnerMargin;
         outerMargin = theOuterMargin;
+        fontManager = [theFontManager retain];
         font = [theFont retain];
     }
     
     return self;
 }
 
-- (void)resizeNameSizesToMinCapacity:(int)newMinCapacity {
-    
-    int newCapacity = nameSizeCapacity;
-    while (newCapacity < newMinCapacity)
-        newCapacity *= 2;
-    NSSize* newSizes = malloc(newCapacity * sizeof(NSSize));
-    memcpy(newSizes, nameSizes, nameSizeCapacity * sizeof(NSSize));
-    free(nameSizes);
-    nameSizes = newSizes;
-    nameSizeCapacity = newCapacity;
-}
-
 - (void)addTexture:(Texture *)theTexture {
-    if ([textures count] >= nameSizeCapacity)
-        [self resizeNameSizesToMinCapacity:[textures count]];
-    
     [textures addObject:theTexture];
-    nameSizes[[textures count]] = [font sizeOfString:[theTexture name]];
-
     [self layout];
 }
 
 - (void)addTextures:(NSArray *)theTextures {
-    if ([textures count] + [theTextures count] >= nameSizeCapacity)
-        [self resizeNameSizesToMinCapacity:[textures count] + [theTextures count]];
-
     NSEnumerator* textureEn = [theTextures objectEnumerator];
     Texture* texture;
-    while ((texture = [textureEn nextObject])) {
-        nameSizes[[textures count]] = [font sizeOfString:[texture name]];
+    while ((texture = [textureEn nextObject]))
         [textures addObject:texture];
-    }
 
     [self layout];
 }
@@ -90,19 +68,19 @@
     
     NSEnumerator* texEn = [textures objectEnumerator];
     Texture* texture;
-    int i = 0;
     while ((texture = [texEn nextObject])) {
         if (filter == nil || [filter passes:texture]) {
+            GLString* nameString = [fontManager glStringFor:[texture name] font:font];
+            NSSize nameSize = [nameString size];
             TextureViewLayoutRow* row = [rows lastObject];
-            if (row == nil || ![row addTexture:texture nameSize:nameSizes[i]]) {
+            if (row == nil || ![row addTexture:texture nameSize:nameSize]) {
                 float y = row == nil ? outerMargin : [row y] + [row height] + innerMargin;
                 row = [[TextureViewLayoutRow alloc] initAtY:y width:width innerMargin:innerMargin outerMargin:outerMargin];
-                [row addTexture:texture nameSize:nameSizes[i]];
+                [row addTexture:texture nameSize:nameSize];
                 [rows addObject:row];
                 [row release];
             }
         }
-        i++;
     }
 }
 
@@ -155,8 +133,8 @@
 - (void)dealloc {
     [filter release];
     [textures release];
-    free(nameSizes);
     [rows release];
+    [fontManager release];
     [font release];
     [super dealloc];
 }

@@ -8,18 +8,19 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class GLFont;
+@class GLFontManager;
 @class Camera;
 @protocol Brush;
 
 @interface BrushGuideRenderer : NSObject {
     NSMutableDictionary* glStrings;
     NSMutableSet* brushes;
-    GLFont* glFont;
+    GLFontManager* fontManager;
+    NSFont* font;
     Camera* camera;
 }
 
-- (id)initWithCamera:(Camera *)theCamera glFont:(GLFont *)theGlFont;
+- (id)initWithCamera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;
 
 - (void)addBrush:(id <Brush>)brush;
 - (void)removeBrush:(id <Brush>)brush;

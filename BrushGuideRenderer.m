@@ -10,7 +10,7 @@
 #import <OpenGL/gl.h>
 #import "Brush.h"
 #import "Camera.h"
-#import "GLFont.h"
+#import "GLFontManager.h"
 #import "BoundingBox.h"
 #import "Vector3f.h"
 #import "Matrix4f.h"
@@ -30,13 +30,15 @@ static NSString* DepthKey = @"Depth";
     return self;
 }
 
-- (id)initWithCamera:(Camera *)theCamera glFont:(GLFont *)theGlFont {
+- (id)initWithCamera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
     NSAssert(theCamera != nil, @"camera must not be nil");
-    NSAssert(theGlFont != nil, @"GL font must not be nil");
+    NSAssert(theFontManager != nil, @"font manager must not be nil");
+    NSAssert(theFont != nil, @"font must not be nil");
     
     if (self = [self init]) {
         camera = [theCamera retain];
-        glFont = [theGlFont retain];
+        fontManager = [theFontManager retain];
+        font = [theFont retain];
     }
     
     return self;
@@ -55,9 +57,9 @@ static NSString* DepthKey = @"Depth";
     NSString* height = [[NSString alloc] initWithFormat:@"%.0f", [[bounds size] y]];
     NSString* depth = [[NSString alloc] initWithFormat:@"%.0f", [[bounds size] z]];
     
-    GLString* widthStr = [glFont glStringFor:width];
-    GLString* heightStr = [glFont glStringFor:height];
-    GLString* depthStr = [glFont glStringFor:depth];
+    GLString* widthStr = [fontManager glStringFor:width font:font];
+    GLString* heightStr = [fontManager glStringFor:height font:font];
+    GLString* depthStr = [fontManager glStringFor:depth font:font];
     
     NSMutableDictionary* brushStrings = [[NSMutableDictionary alloc] init];
     [brushStrings setObject:widthStr forKey:WidthKey];
@@ -88,10 +90,7 @@ static NSString* DepthKey = @"Depth";
     Vector3f* y = [[Vector3f alloc] init];
     Vector3f* z = [[Vector3f alloc] init];
     Matrix3f* m = [[Matrix4f alloc] init];
-    
-    
-    [glFont activate];
-    
+
     NSEnumerator* brushEn = [brushes objectEnumerator];
     id <Brush> brush;
     while ((brush = [brushEn nextObject])) {
@@ -183,8 +182,6 @@ static NSString* DepthKey = @"Depth";
         glPopMatrix();
     }
     
-    [glFont deactivate];
-    
     [p release];
     [x release];
     [y release];
@@ -194,7 +191,8 @@ static NSString* DepthKey = @"Depth";
 
 - (void)dealloc {
     [glStrings release];
-    [glFont release];
+    [fontManager release];
+    [font release];
     [camera release];
     [brushes release];
     [super dealloc];

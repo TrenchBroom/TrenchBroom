@@ -7,12 +7,13 @@
 //
 
 #import "Texture.h"
-
+#import "IdGenerator.h"
 
 @implementation Texture
 
 - (id)initWithName:(NSString *)theName width:(int)theWidth height:(int)theHeight textureId:(int)theTextureId {
     if (self = [self init]) {
+        uniqueId = [[[IdGenerator sharedGenerator] getId] retain];
         name = [theName retain];
         textureId = theTextureId;
         width = theWidth;
@@ -25,6 +26,10 @@
 
 - (NSString *)name {
     return name;
+}
+
+- (NSNumber *)uniqueId {
+    return uniqueId;
 }
 
 - (int)textureId {
@@ -72,6 +77,7 @@
 }
 
 - (void)dealloc {
+    [uniqueId release];
     [name release];
     [super dealloc];
 }

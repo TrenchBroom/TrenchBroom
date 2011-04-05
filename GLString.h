@@ -8,17 +8,27 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class GLFont;
+@class GLStringData;
+@class VBOBuffer;
 @class VBOMemBlock;
+@class IntData;
 
 @interface GLString : NSObject {
     @private
-    GLFont* glFont;
     VBOMemBlock* memBlock;
+    BOOL hasTriangleSet;
+    int triangleSetIndex;
+    int triangleSetCount;
+    BOOL hasTriangleStrips;
+    IntData* triangleStripIndices;
+    IntData* triangleStripCounts;
+    BOOL hasTriangleFans;
+    IntData* triangleFanIndices;
+    IntData* triangleFanCounts;
     NSSize size;
 }
 
-- (id)initWithMemBlock:(VBOMemBlock *)theMemBlock glFont:(GLFont *)theFont size:(NSSize)theSize;
+- (id)initWithVbo:(VBOBuffer *)theVbo data:(GLStringData *)theData size:(NSSize)theSize;
 
 - (NSSize)size;
 

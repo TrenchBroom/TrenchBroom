@@ -11,13 +11,13 @@
 #import "Brush.h"
 #import "Face.h"
 #import "Camera.h"
-#import "GLFont.h"
+#import "GLFontManager.h"
 
 @implementation TrackingLayer
 
-- (id)initWithCamera:(Camera *)theCamera glFont:(GLFont *)theGlFont {
+- (id)initWithCamera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
     if (self = [super init]) {
-        brushGuideRenderer = [[BrushGuideRenderer alloc] initWithCamera:theCamera glFont:theGlFont];
+        brushGuideRenderer = [[BrushGuideRenderer alloc] initWithCamera:theCamera fontManager:theFontManager font:theFont];
     }
     
     return self;

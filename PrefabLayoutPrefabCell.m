@@ -8,19 +8,16 @@
 
 #import "PrefabLayoutPrefabCell.h"
 #import "Prefab.h"
-#import "GLFont.h"
-
 
 @implementation PrefabLayoutPrefabCell
 
-- (id)initWithPrefab:(id <Prefab>)thePrefab glFont:(GLFont *)theGLFont atPos:(NSPoint)thePos width:(float)theWidth {
+- (id)initWithPrefab:(id <Prefab>)thePrefab atPos:(NSPoint)thePos width:(float)theWidth nameSize:(NSSize)theNameSize {
     if (self = [self init]) {
         prefab = [thePrefab retain];
         prefabBounds = NSMakeRect(thePos.x, thePos.y, theWidth, theWidth);
 
-        NSSize nameSize = [theGLFont sizeOfString:[prefab name]];
-        nameBounds = NSMakeRect(thePos.x + (theWidth - nameSize.width) / 2, NSMaxY(prefabBounds), nameSize.width, nameSize.height);
-        bounds = NSMakeRect(thePos.x, thePos.y, theWidth, theWidth + nameSize.height);
+        nameBounds = NSMakeRect(thePos.x + (theWidth - theNameSize.width) / 2, NSMaxY(prefabBounds), theNameSize.width, theNameSize.height);
+        bounds = NSMakeRect(thePos.x, thePos.y, theWidth, theWidth + theNameSize.height);
     }
     
     return self;

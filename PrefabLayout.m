@@ -10,7 +10,7 @@
 #import "PrefabManager.h"
 #import "PrefabGroup.h"
 #import "PrefabLayoutGroupRow.h"
-#import "GLFont.h"
+#import "GLFontManager.h"
 
 @implementation PrefabLayout
 
@@ -22,11 +22,12 @@
     return self;
 }
 
-- (id)initWithPrefabManager:(PrefabManager *)thePrefabManager prefabsPerRow:(int)thePrefabsPerRow glFont:(GLFont *)theGLFont {
+- (id)initWithPrefabManager:(PrefabManager *)thePrefabManager prefabsPerRow:(int)thePrefabsPerRow fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
     if (self = [self init]) {
         prefabManager = [thePrefabManager retain];
         prefabsPerRow = thePrefabsPerRow;
-        glFont = [theGLFont retain];
+        fontManager = [theFontManager retain];
+        font = [theFont retain];
         outerMargin = 10;
         innerMargin = 5;
         groupMargin = 10;
@@ -43,7 +44,7 @@
     int y = outerMargin;
     
     while ((group = [groupEn nextObject])) {
-        PrefabLayoutGroupRow* groupRow = [[PrefabLayoutGroupRow alloc] initWithPrefabGroup:group prefabsPerRow:prefabsPerRow glFont:glFont atPos:NSMakePoint(outerMargin, y) width:width - 2 * outerMargin innerMargin:innerMargin];
+        PrefabLayoutGroupRow* groupRow = [[PrefabLayoutGroupRow alloc] initWithPrefabGroup:group prefabsPerRow:prefabsPerRow atPos:NSMakePoint(outerMargin, y) width:width - 2 * outerMargin innerMargin:innerMargin fontManager:fontManager font:font];
         [groupRows addObject:groupRow];
         y += NSHeight([groupRow bounds]) + groupMargin;
         [groupRow release];
@@ -51,10 +52,6 @@
     
     height = y - groupMargin + outerMargin;
     valid = YES;
-}
-
-- (GLFont *)glFont {
-    return glFont;
 }
 
 - (NSArray *)groupRows {
@@ -102,7 +99,8 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [groupRows release];
     [prefabManager release];
-    [glFont release];
+    [fontManager release];
+    [font release];
     [super dealloc];
 }
 @end

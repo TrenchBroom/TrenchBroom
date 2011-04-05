@@ -10,7 +10,8 @@
 #import "PrefabLayoutPrefabCell.h"
 #import "PrefabGroup.h"
 #import "Prefab.h"
-#import "GLFont.h"
+#import "GLFontManager.h"
+#import "GLString.h"
 
 @implementation PrefabLayoutGroupRow
 
@@ -22,10 +23,11 @@
     return self;
 }
 
-- (id)initWithPrefabGroup:(id <PrefabGroup>)thePrefabGroup prefabsPerRow:(int)thePrefabsPerRow glFont:(GLFont *)theGLFont atPos:(NSPoint)thePos width:(float)theWidth innerMargin:(float)innerMargin {
+- (id)initWithPrefabGroup:(id <PrefabGroup>)thePrefabGroup prefabsPerRow:(int)thePrefabsPerRow atPos:(NSPoint)thePos width:(float)theWidth innerMargin:(float)innerMargin fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
     if (self = [self init]) {
         prefabGroup = [thePrefabGroup retain];
-        NSSize nameSize = [theGLFont sizeOfString:[prefabGroup name]];
+        GLString* nameString = [theFontManager glStringFor:[prefabGroup name] font:theFont];
+        NSSize nameSize = [nameString size];
         titleBarBounds = NSMakeRect(thePos.x, thePos.y, theWidth, nameSize.height + 4);
         titleBounds = NSMakeRect(thePos.x + 4, thePos.y + 2, nameSize.width, nameSize.height);
 
@@ -42,7 +44,9 @@
             }
 
             id <Prefab> prefab = [prefabs objectAtIndex:i];
-            cell = [[PrefabLayoutPrefabCell alloc] initWithPrefab:prefab glFont:theGLFont atPos:NSMakePoint(x, y) width:cellWidth];
+            GLString* prefabNameString = [theFontManager glStringFor:[prefab name] font:theFont];
+            NSSize prefabNameSize = [prefabNameString size];
+            cell = [[PrefabLayoutPrefabCell alloc] initWithPrefab:prefab atPos:NSMakePoint(x, y) width:cellWidth nameSize:prefabNameSize];
             [cells addObject:cell];
             [cell release];
             

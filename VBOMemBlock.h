@@ -42,6 +42,7 @@ typedef enum {
 - (void)activate;
 - (void)deactivate;
 
+- (int)writeBuffer:(const void*)theBuffer offset:(int)theOffset count:(int)theCount;
 - (int)writeFloat:(float)theFloat offset:(int)theOffset;
 - (int)writeVector3f:(Vector3f *)theVector offset:(int)theOffset;
 - (int)writeVector2f:(Vector2f *)theVector offset:(int)theOffset;

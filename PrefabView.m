@@ -29,7 +29,7 @@
 #import "PrefabLayoutGroupRow.h"
 #import "PrefabLayoutPrefabCell.h"
 #import "GLFontManager.h"
-#import "GLFont.h"
+#import "GLFontManager.h"
 #import "GLString.h"
 
 @implementation PrefabView
@@ -91,7 +91,6 @@
 - (id)initWithCoder:(NSCoder *)aDecoder {
     if (self = [super initWithCoder:aDecoder]) {
         prefabsPerRow = 1;
-        glStrings = [[NSMutableDictionary alloc] init];
         cameras = [[NSMutableDictionary alloc] init];
         
         PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
@@ -269,16 +268,15 @@
     gluLookAt(0, 0, 1, 0, 0, -1, 0, 1, 0);
     
     glDisable(GL_DEPTH_TEST);
+    glDisable(GL_TEXTURE_2D);
 
+    GLFontManager* fontManager = [glResources fontManager];
+    NSFont* font = [NSFont systemFontOfSize:13];
+    
     groupRowEn = [[layout groupRows] objectEnumerator];
     while ((groupRow = [groupRowEn nextObject])) {
         id <PrefabGroup> prefabGroup = [groupRow prefabGroup];
-        GLString* groupNameString = [glStrings objectForKey:[prefabGroup prefabGroupId]];
-        if (groupNameString == nil) {
-            GLFont* glFont = [layout glFont];
-            groupNameString = [glFont glStringFor:[prefabGroup name]];
-            [glStrings setObject:groupNameString forKey:[prefabGroup prefabGroupId]];
-        }
+        GLString* groupNameString = [fontManager glStringFor:[prefabGroup name] font:font]; 
         
         glPushMatrix();
         NSRect titleBounds = [groupRow titleBounds];
@@ -296,12 +294,7 @@
         PrefabLayoutPrefabCell* cell;
         while ((cell = [cellEn nextObject])) {
             id <Prefab> prefab = [cell prefab];
-            GLString* prefabNameString = [glStrings objectForKey:[prefab prefabId]];
-            if (prefabNameString == nil) {
-                GLFont* glFont = [layout glFont];
-                prefabNameString = [glFont glStringFor:[prefab name]];
-                [glStrings setObject:prefabNameString forKey:[prefab prefabId]];
-            }
+            GLString* prefabNameString = [fontManager glStringFor:[prefab name] font:font];
             
             glPushMatrix();
             NSRect nameBounds = [cell nameBounds];
@@ -320,8 +313,6 @@
     glResources = [theGLResources retain];
     
     if (glResources != nil) {
-        [glStrings removeAllObjects];
-        
         NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:[glResources openGLContext]];
         [self setOpenGLContext:sharingContext];
         [sharingContext makeCurrentContext];
@@ -331,10 +322,8 @@
 
         GLFontManager* fontManager = [glResources fontManager];
         NSFont* font = [NSFont systemFontOfSize:13];
-        GLFont* glFont = [fontManager glFontFor:font];
         PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-
-        layout = [[PrefabLayout alloc] initWithPrefabManager:prefabManager prefabsPerRow:prefabsPerRow glFont:glFont];
+        layout = [[PrefabLayout alloc] initWithPrefabManager:prefabManager prefabsPerRow:prefabsPerRow fontManager:fontManager font:font];
                   
     }
 
@@ -347,7 +336,6 @@
     [self reshape];
 }
 - (void)dealloc {
-    [glStrings release];
     [cameras release];
     [glResources release];
     [layout release];

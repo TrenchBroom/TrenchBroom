@@ -7,14 +7,20 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <OpenGL/glu.h>
 
 @class VBOBuffer;
-@class GLFont;
+@class GLString;
 
 @interface GLFontManager : NSObject {
     @private
-    NSMutableDictionary* fonts;
+    VBOBuffer* vbo;
+    GLUtesselator* gluTess;
+    NSLayoutManager* layoutManager;
+    NSTextStorage* textStorage;
+    NSTextContainer* textContainer;
+    NSMutableDictionary* glStrings;
 }
 
-- (GLFont *)glFontFor:(NSFont *)theFont;
+- (GLString *)glStringFor:(NSString *)theString font:(NSFont *)theFont;
 @end

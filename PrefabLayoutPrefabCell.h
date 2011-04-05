@@ -19,7 +19,7 @@
     NSRect bounds;
 }
 
-- (id)initWithPrefab:(id <Prefab>)thePrefab glFont:(GLFont *)theGLFont atPos:(NSPoint)thePos width:(float)theWidth; 
+- (id)initWithPrefab:(id <Prefab>)thePrefab atPos:(NSPoint)thePos width:(float)theWidth nameSize:(NSSize)theNameSize;
 
 - (id <Prefab>)prefab;
 - (NSRect)prefabBounds;

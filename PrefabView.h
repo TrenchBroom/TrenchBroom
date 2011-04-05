@@ -19,7 +19,6 @@
     GLResources* glResources;
     PrefabLayout* layout;
     int prefabsPerRow;
-    NSMutableDictionary* glStrings;
     IBOutlet id target;
 }
 

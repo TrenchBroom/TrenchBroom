@@ -7,16 +7,66 @@
 //
 
 #import "GLString.h"
+#import "GLStringData.h"
+#import "VBOBuffer.h"
 #import "VBOMemBlock.h"
-#import "GLFont.h"
+#import "FloatData.h"
+#import "IntData.h"
 
 @implementation GLString
 
-- (id)initWithMemBlock:(VBOMemBlock *)theMemBlock glFont:(GLFont *)theFont size:(NSSize)theSize {
+- (id)initWithVbo:(VBOBuffer *)theVbo data:(GLStringData *)theData size:(NSSize)theSize {
     if (self = [self init]) {
-        memBlock = [theMemBlock retain];
-        glFont = [theFont retain];
         size = theSize;
+
+        FloatData* triangleSet = [theData triangleSet];
+        NSArray* triangleStrips = [theData triangleStrips];
+        NSArray* triangleFans = [theData triangleFans];
+        int vertexCount = [theData vertexCount];
+        
+        memBlock = [theVbo allocMemBlock:2 * vertexCount * sizeof(float)];
+        hasTriangleSet = triangleSet != nil;
+        hasTriangleStrips = triangleStrips != nil;
+        hasTriangleFans = triangleFans != nil;
+        
+        [theVbo activate];
+        [theVbo mapBuffer];
+        int offset = 0;
+        if (hasTriangleSet) {
+            triangleSetIndex = [memBlock address] / (2 * sizeof(float));
+            triangleSetCount = [triangleSet count] / 2;
+            const void* buffer = [triangleSet bytes];
+            offset = [memBlock writeBuffer:buffer offset:offset count:[triangleSet count] * sizeof(float)];
+        }
+        
+        if (hasTriangleStrips) {
+            triangleStripIndices = [[IntData alloc] init];
+            triangleStripCounts = [[IntData alloc] init];
+            NSEnumerator* stripEn = [triangleStrips objectEnumerator];
+            FloatData* strip;
+            while ((strip = [stripEn nextObject])) {
+                [triangleStripIndices appendInt:([memBlock address] + offset) / (2 * sizeof(float))];
+                [triangleStripCounts appendInt:[strip count] / 2];
+                const void* buffer = [strip bytes];
+                offset = [memBlock writeBuffer:buffer offset:offset count:[strip count] * sizeof(float)];
+            }
+        }
+        
+        if (hasTriangleFans) {
+            triangleFanIndices = [[IntData alloc] init];
+            triangleFanCounts = [[IntData alloc] init];
+            NSEnumerator* fanEn = [triangleFans objectEnumerator];
+            FloatData* fan;
+            while ((fan = [fanEn nextObject])) {
+                [triangleFanIndices appendInt:([memBlock address] + offset) / (2 * sizeof(float))];
+                [triangleFanCounts appendInt:[fan count] / 2];
+                const void* buffer = [fan bytes];
+                offset = [memBlock writeBuffer:buffer offset:offset count:[fan count] * sizeof(float)];
+            }
+        }
+        
+        [theVbo unmapBuffer];
+        [theVbo deactivate];
     }
     
     return self;
@@ -27,18 +77,24 @@
 }
 
 - (void)render {
-    [glFont activate];
     [memBlock activate];
-    glInterleavedArrays(GL_T2F_V3F, 0, NULL);
-    glDrawArrays(GL_QUADS, [memBlock address] / (5 * sizeof(float)), [memBlock capacity] / (5 * sizeof(float)));
+    glVertexPointer(2, GL_FLOAT, 0, 0);
+    if (hasTriangleSet)
+        glDrawArrays(GL_TRIANGLES, triangleSetIndex, triangleSetCount);
+    if (hasTriangleStrips)
+        glMultiDrawArrays(GL_TRIANGLE_STRIP, [triangleStripIndices bytes], [triangleStripCounts bytes], [triangleStripIndices count]);
+    if (hasTriangleFans)
+        glMultiDrawArrays(GL_TRIANGLE_FAN, [triangleFanIndices bytes], [triangleFanCounts bytes], [triangleFanIndices count]);
     [memBlock deactivate];
-    [glFont deactivate];
 }
 
 - (void)dealloc {
     [memBlock free];
     [memBlock release];
-    [glFont release];
+    [triangleStripIndices release];
+    [triangleStripCounts release];
+    [triangleFanIndices release];
+    [triangleFanCounts release];
     [super dealloc];
 }
 @end

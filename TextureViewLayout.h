@@ -10,22 +10,21 @@
 #import "TextureFilter.h"
 
 @class Texture;
-@class GLFont;
+@class GLFontManager;
 
 @interface TextureViewLayout : NSObject {
     @private
     NSMutableArray* rows;
     NSMutableArray* textures;
-    NSSize* nameSizes;
-    int nameSizeCapacity;
     float width;
     float innerMargin;
     float outerMargin;
     id<TextureFilter> filter;
-    GLFont* font;
+    GLFontManager* fontManager;
+    NSFont* font;
 }
 
-- (id)initWithWidth:(float)theWidth innerMargin:(float)theInnerMargin outerMargin:(float)theOuterMargin font:(GLFont *)theFont;
+- (id)initWithWidth:(float)theWidth innerMargin:(float)theInnerMargin outerMargin:(float)theOuterMargin fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;
 
 - (void)addTexture:(Texture *)theTexture;
 - (void)addTextures:(NSArray *)theTextures;

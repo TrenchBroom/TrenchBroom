@@ -11,12 +11,12 @@
 
 @class BrushGuideRenderer;
 @class Camera;
-@class GLFont;
+@class GLFontManager;
 
 @interface TrackingLayer : NSObject <Layer> {
     BrushGuideRenderer* brushGuideRenderer;
 }
 
-- (id)initWithCamera:(Camera *)theCamera glFont:(GLFont *)theGlFont;
+- (id)initWithCamera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;
 
 @end

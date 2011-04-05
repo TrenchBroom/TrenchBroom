@@ -35,7 +35,6 @@
 #import "GLResources.h"
 #import "TextureManager.h"
 #import "GLFontManager.h"
-#import "GLFont.h"
 #import "Texture.h"
 #import "FeedbackFigure.h"
 
@@ -442,7 +441,7 @@ NSString* const RendererChanged = @"RendererChanged";
         MapDocument* map = [windowController document];
         GLResources* glResources = [map glResources];
         GLFontManager* fontManager = [glResources fontManager];
-        GLFont* trackingFont = [fontManager glFontFor:[NSFont systemFontOfSize:11]];
+        NSFont* trackingFont = [NSFont systemFontOfSize:11];
         textureManager = [[glResources textureManager] retain];
         
         Camera* camera = [windowController camera];
@@ -451,7 +450,7 @@ NSString* const RendererChanged = @"RendererChanged";
 
         geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid];
         selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid];
-        trackingLayer = [[TrackingLayer alloc] initWithCamera:camera glFont:trackingFont];
+        trackingLayer = [[TrackingLayer alloc] initWithCamera:camera fontManager:fontManager font:trackingFont];
 
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
         id <Entity> entity;

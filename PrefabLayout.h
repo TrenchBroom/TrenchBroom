@@ -9,14 +9,15 @@
 #import <Cocoa/Cocoa.h>
 
 @class PrefabManager;
-@class GLFont;
+@class GLFontManager;
 @protocol Prefab;
 
 @interface PrefabLayout : NSObject {
     @private
     NSMutableArray* groupRows;
     PrefabManager* prefabManager;
-    GLFont* glFont;
+    GLFontManager* fontManager;
+    NSFont* font;
     int prefabsPerRow;
     float outerMargin;
     float innerMargin;
@@ -26,9 +27,8 @@
     BOOL valid;
 }
 
-- (id)initWithPrefabManager:(PrefabManager *)thePrefabManager prefabsPerRow:(int)thePrefabsPerRow glFont:(GLFont *)theGLFont;
+- (id)initWithPrefabManager:(PrefabManager *)thePrefabManager prefabsPerRow:(int)thePrefabsPerRow fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;
 
-- (GLFont *)glFont;
 - (NSArray *)groupRows;
 - (float)height;
 

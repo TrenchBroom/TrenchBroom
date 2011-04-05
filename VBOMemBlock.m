@@ -67,6 +67,11 @@
     [vboBuffer deactivate];
 }
 
+- (int)writeBuffer:(const void*)theBuffer offset:(int)theOffset count:(int)theCount {
+    [vboBuffer writeBuffer:theBuffer address:address + theOffset count:theCount];
+    return theOffset + theCount;
+}
+
 - (int)writeFloat:(float)theFloat offset:(int)theOffset {
     [vboBuffer writeFloat:theFloat address:address + theOffset];
     return theOffset + sizeof(float);

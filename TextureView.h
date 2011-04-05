@@ -17,7 +17,6 @@
     @private
     TextureViewLayout* layout;
     NSSet* selectedTextureNames;
-    NSMutableDictionary* glStrings;
     IBOutlet id target;
     GLResources* glResources;
     ESortCriterion sortCriterion;
