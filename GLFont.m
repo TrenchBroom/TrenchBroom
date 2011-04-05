@@ -24,6 +24,7 @@
 
         NSMutableDictionary* attrs = [[NSMutableDictionary alloc] init];
         [attrs setObject:[NSNumber numberWithFloat:2] forKey:NSKernAttributeName];
+        [attrs setObject:theFont forKey:NSFontAttributeName];
         
         NSAttributedString* attrCharString = [[NSAttributedString alloc] initWithString:charString attributes:attrs];
         [attrs release];
