@@ -94,9 +94,14 @@ void gluTessEndData(GLStringData* data) {
     
     GLString* glString = [stringsForFont objectForKey:theString];
     if (glString == nil) {
-        NSAttributedString* attrString = [[NSAttributedString alloc] initWithString:theString];
+        NSMutableDictionary* attrs = [[NSMutableDictionary alloc] init];
+//        [attrs setObject:[NSNumber numberWithFloat:2] forKey:NSKernAttributeName];
+        [attrs setObject:theFont forKey:NSFontAttributeName];
+        
+        NSAttributedString* attrString = [[NSAttributedString alloc] initWithString:theString attributes:attrs];
         [textStorage setAttributedString:attrString];
         [attrString release];
+        [attrs release];
         
         [layoutManager ensureLayoutForTextContainer:textContainer];
         
@@ -104,14 +109,20 @@ void gluTessEndData(GLStringData* data) {
         NSRect bounds = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textContainer];
         NSGlyph* glyphs = malloc((glyphRange.length + 1) * sizeof(NSGlyph));
         NSUInteger count = [layoutManager getGlyphs:glyphs range:glyphRange];
-        
+
+        [NSBezierPath setDefaultFlatness:0.1f];
         NSBezierPath* path = [NSBezierPath bezierPath];
-        [path setFlatness:1];
         [path moveToPoint:NSMakePoint(0, 0)];
         [path appendBezierPathWithGlyphs:glyphs count:count inFont:theFont];
         free(glyphs);
         
         path = [path bezierPathByFlatteningPath];
+        
+        NSAffineTransform* transform = [[NSAffineTransform alloc] init];
+        [transform translateXBy:0 yBy:bounds.size.height - [layoutManager defaultBaselineOffsetForFont:theFont]];
+        
+        [path transformUsingAffineTransform:transform];
+        [transform release];
         
         if ([path windingRule] == NSNonZeroWindingRule)
             gluTessProperty(gluTess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_NONZERO);

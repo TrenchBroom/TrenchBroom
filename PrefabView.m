@@ -223,7 +223,7 @@
         while ((cell = [cellEn nextObject])) {
             id <Prefab> prefab = [cell prefab];
             NSRect prefabBounds = [cell prefabBounds];
-            NSRect cameraBounds = NSMakeRect(NSMinX(prefabBounds), NSHeight(visibleRect) - NSMinY(prefabBounds) - NSHeight(prefabBounds) + NSMinY(visibleRect), NSWidth(prefabBounds), NSHeight(prefabBounds));
+            NSRect cameraBounds = NSMakeRect(NSMinX(prefabBounds), NSHeight(visibleRect) - NSMaxY(prefabBounds) + NSMinY(visibleRect), NSWidth(prefabBounds), NSHeight(prefabBounds));
             
             Camera* camera = [cameras objectForKey:[prefab prefabId]];
             [camera updateView:cameraBounds];
@@ -270,12 +270,11 @@
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_TEXTURE_2D);
 
-    float h = fmax([layout height], NSHeight(visibleRect));
-    
     GLFontManager* fontManager = [glResources fontManager];
     NSFont* font = [NSFont systemFontOfSize:13];
     
     [fontManager activate];
+    glTranslatef(0, 2 * NSMinY(visibleRect), 0);
     
     groupRowEn = [[layout groupRows] objectEnumerator];
     while ((groupRow = [groupRowEn nextObject])) {
@@ -287,12 +286,9 @@
         NSRect titleBarBounds = [groupRow titleBarBounds];
 
         glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
-        glRectf(NSMinX(titleBarBounds), h - NSMinY(titleBarBounds), NSMaxX(titleBarBounds), h - NSMaxY(titleBarBounds));
+        glRectf(NSMinX(titleBarBounds),  NSHeight(visibleRect) - NSMinY(titleBarBounds), NSMaxX(titleBarBounds), NSHeight(visibleRect) - NSMaxY(titleBarBounds));
 
-        glColor4f(0.5f, 0, 0, 1.0f);
-        glRectf(NSMinX(titleBounds), h - NSMinY(titleBounds), NSMaxX(titleBounds), h - NSMaxY(titleBounds));
-        
-        glTranslatef(NSMinX(titleBounds), h - NSMaxY(titleBounds), 0);
+        glTranslatef(NSMinX(titleBounds),  NSHeight(visibleRect) - NSMaxY(titleBounds), 0);
         glColor4f(1, 1, 1, 1);
         [groupNameString render];
         glPopMatrix();
@@ -305,7 +301,7 @@
             
             glPushMatrix();
             NSRect nameBounds = [cell nameBounds];
-            glTranslatef(NSMinX(nameBounds), h - NSMaxY(nameBounds) + 2, 0);
+            glTranslatef(NSMinX(nameBounds),  NSHeight(visibleRect) - NSMaxY(nameBounds), 0);
             glColor4f(1, 1, 1, 1);
             [prefabNameString render];
             glPopMatrix();
