@@ -86,6 +86,7 @@ static NSString* DepthKey = @"Depth";
 
 - (void)render {
     
+    glPolygonMode(GL_FRONT, GL_FILL);
     glDisable(GL_TEXTURE_2D);
     [fontManager activate];
     

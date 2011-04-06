@@ -252,24 +252,26 @@
         }
     }
     
-    glDisable(GL_POLYGON_OFFSET_FILL);
-    glPolygonMode(GL_FRONT, GL_FILL);
-
     glViewport(0, 0, NSWidth(visibleRect), NSHeight(visibleRect));
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(NSMinX(visibleRect), 
                NSMaxX(visibleRect), 
-               NSMaxY(visibleRect), 
-               NSMinY(visibleRect));
+               NSMinY(visibleRect), 
+               NSMaxY(visibleRect));
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(0, 0, 1, 0, 0, -1, 0, 1, 0);
     
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_TEXTURE_2D);
 
+    float h = fmax([layout height], NSHeight(visibleRect));
+    
     GLFontManager* fontManager = [glResources fontManager];
     NSFont* font = [NSFont systemFontOfSize:13];
     
@@ -285,9 +287,12 @@
         NSRect titleBarBounds = [groupRow titleBarBounds];
 
         glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
-        glRectf(NSMinX(titleBarBounds), NSMinY(titleBarBounds), NSMaxX(titleBarBounds), NSMaxY(titleBarBounds));
+        glRectf(NSMinX(titleBarBounds), h - NSMinY(titleBarBounds), NSMaxX(titleBarBounds), h - NSMaxY(titleBarBounds));
+
+        glColor4f(0.5f, 0, 0, 1.0f);
+        glRectf(NSMinX(titleBounds), h - NSMinY(titleBounds), NSMaxX(titleBounds), h - NSMaxY(titleBounds));
         
-        glTranslatef(NSMinX(titleBounds), NSMinY(titleBounds), 0);
+        glTranslatef(NSMinX(titleBounds), h - NSMaxY(titleBounds), 0);
         glColor4f(1, 1, 1, 1);
         [groupNameString render];
         glPopMatrix();
@@ -300,7 +305,7 @@
             
             glPushMatrix();
             NSRect nameBounds = [cell nameBounds];
-            glTranslatef(NSMinX(nameBounds), NSMinY(nameBounds), 0);
+            glTranslatef(NSMinX(nameBounds), h - NSMaxY(nameBounds) + 2, 0);
             glColor4f(1, 1, 1, 1);
             [prefabNameString render];
             glPopMatrix();

@@ -20,6 +20,8 @@
     NSTextStorage* textStorage;
     NSTextContainer* textContainer;
     NSMutableDictionary* glStrings;
+    NSPoint* points;
+    int pointCapacity;
 }
 
 - (GLString *)glStringFor:(NSString *)theString font:(NSFont *)theFont;

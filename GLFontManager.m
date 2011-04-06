@@ -19,7 +19,6 @@ void gluTessBeginData(GLenum type, GLStringData* data) {
 
 void gluTessVertexData(NSPoint* vertex, GLStringData* data) {
     [data appendVertex:vertex];
-    // free(vertex);
 }
 
 void gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, GLStringData* data) {
@@ -32,6 +31,24 @@ void gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[
 void gluTessEndData(GLStringData* data) {
     [data end];
 }
+
+@interface GLFontManager (private)
+
+- (void)resizePointArrayTo:(int)capacity;
+
+@end
+
+@implementation GLFontManager (private)
+
+- (void)resizePointArrayTo:(int)capacity {
+    NSPoint* temp = malloc(capacity * sizeof(NSPoint));
+    memcpy(temp, points, fmin(pointCapacity, capacity) * sizeof(NSPoint));
+    free(points);
+    points = temp;
+    pointCapacity = capacity;
+}
+
+@end
 
 @implementation GLFontManager
 
@@ -48,7 +65,7 @@ void gluTessEndData(GLStringData* data) {
         gluTessCallback(gluTess, GLU_TESS_VERTEX_DATA, &gluTessVertexData);
         gluTessCallback(gluTess, GLU_TESS_COMBINE_DATA, &gluTessCombineData);
         gluTessCallback(gluTess, GLU_TESS_END_DATA, &gluTessEndData);
-        gluTessNormal(gluTess, 0, 0, 1);
+        gluTessNormal(gluTess, 0, 0, -1);
 
         textStorage = [[NSTextStorage alloc] init];
         textContainer = [[NSTextContainer alloc] init];
@@ -58,6 +75,8 @@ void gluTessEndData(GLStringData* data) {
         [textStorage addLayoutManager:layoutManager];
         
         [textContainer setLineFragmentPadding:0];
+        pointCapacity = 128;
+        points = malloc(pointCapacity * sizeof(NSPoint));
     }
     
     return self;
@@ -87,6 +106,7 @@ void gluTessEndData(GLStringData* data) {
         NSUInteger count = [layoutManager getGlyphs:glyphs range:glyphRange];
         
         NSBezierPath* path = [NSBezierPath bezierPath];
+        [path setFlatness:1];
         [path moveToPoint:NSMakePoint(0, 0)];
         [path appendBezierPathWithGlyphs:glyphs count:count inFont:theFont];
         free(glyphs);
@@ -103,24 +123,27 @@ void gluTessEndData(GLStringData* data) {
         
         GLdouble coords[3];
         coords[2] = 0;
+        
+        while ([path elementCount] > pointCapacity)
+            [self resizePointArrayTo:2 * pointCapacity];
+        
         for (int i = 0; i < [path elementCount]; i++) {
-            NSPoint* point = malloc(sizeof(NSPoint));
-            NSBezierPathElement element = [path elementAtIndex:i associatedPoints:point];
-            point->y = bounds.size.height - point->y;
+            NSBezierPathElement element = [path elementAtIndex:i associatedPoints:&points[i]];
+            // points[i].y = bounds.size.height - points[i].y;
             switch (element) {
                 case NSMoveToBezierPathElement:
                     gluTessBeginContour(gluTess);
-                    coords[0] = point->x;
-                    coords[1] = point->y;
-                    gluTessVertex(gluTess, coords, point);
+                    coords[0] = points[i].x;
+                    coords[1] = points[i].y;
+                    gluTessVertex(gluTess, coords, &points[i]);
                     break;
                 case NSClosePathBezierPathElement:
                     gluTessEndContour(gluTess);
                     break;
                 case NSLineToBezierPathElement:
-                    coords[0] = point->x;
-                    coords[1] = point->y;
-                    gluTessVertex(gluTess, coords, point);
+                    coords[0] = points[i].x;
+                    coords[1] = points[i].y;
+                    gluTessVertex(gluTess, coords, &points[i]);
                     break;
                 default:
                     break;
@@ -154,6 +177,7 @@ void gluTessEndData(GLStringData* data) {
     gluDeleteTess(gluTess);
     [glStrings release];
     [vbo release];
+    free(points);
     [super dealloc];
 }
 @end
