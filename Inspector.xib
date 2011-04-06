@@ -2,17 +2,17 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.10">
 	<data>
 		<int key="IBDocument.SystemTarget">1060</int>
-		<string key="IBDocument.SystemVersion">10J567</string>
-		<string key="IBDocument.InterfaceBuilderVersion">823</string>
+		<string key="IBDocument.SystemVersion">10J869</string>
+		<string key="IBDocument.InterfaceBuilderVersion">851</string>
 		<string key="IBDocument.AppKitVersion">1038.35</string>
-		<string key="IBDocument.HIToolboxVersion">462.00</string>
+		<string key="IBDocument.HIToolboxVersion">461.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">823</string>
+			<string key="NS.object.0">851</string>
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="6"/>
+			<integer value="68"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -63,7 +63,7 @@
 								<object class="NSTabViewItem" id="830292190">
 									<string key="NSIdentifier">1</string>
 									<object class="NSView" key="NSView" id="425344334">
-										<nil key="NSNextResponder"/>
+										<reference key="NSNextResponder" ref="787823619"/>
 										<int key="NSvFlags">256</int>
 										<object class="NSMutableArray" key="NSSubviews">
 											<bool key="EncodedWithXMLCoder">YES</bool>
@@ -788,7 +788,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 																<reference key="NSSuperview" ref="999772963"/>
 																<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 																	<object class="NSMutableData" key="NSPixelAttributes">
-																		<bytes key="NS.bytes">AAAABQAAAGAAAAAIAAAAGAAAAAsAAAAIAAAAAA</bytes>
+																		<bytes key="NS.bytes">AAAABQAAAGAAAAAIAAAAGAAAAAsAAAAIAAAAOAAAAAQAAAA3AAAAAQAAAAA</bytes>
 																	</object>
 																</object>
 															</object>
@@ -860,6 +860,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 											</object>
 										</object>
 										<string key="NSFrame">{{10, 33}, {502, 735}}</string>
+										<reference key="NSSuperview" ref="787823619"/>
 									</object>
 									<string key="NSLabel">Face</string>
 									<reference key="NSColor" ref="421279443"/>
@@ -868,7 +869,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 								<object class="NSTabViewItem" id="177829809">
 									<string key="NSIdentifier">2</string>
 									<object class="NSView" key="NSView" id="565015667">
-										<reference key="NSNextResponder" ref="787823619"/>
+										<nil key="NSNextResponder"/>
 										<int key="NSvFlags">256</int>
 										<object class="NSMutableArray" key="NSSubviews">
 											<bool key="EncodedWithXMLCoder">YES</bool>
@@ -954,7 +955,6 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 											</object>
 										</object>
 										<string key="NSFrame">{{10, 33}, {502, 735}}</string>
-										<reference key="NSSuperview" ref="787823619"/>
 									</object>
 									<string key="NSLabel">Brush</string>
 									<reference key="NSColor" ref="421279443"/>
@@ -972,14 +972,14 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 									<reference key="NSTabView" ref="787823619"/>
 								</object>
 							</object>
-							<reference key="NSSelectedTabViewItem" ref="177829809"/>
+							<reference key="NSSelectedTabViewItem" ref="830292190"/>
 							<reference key="NSFont" ref="499727316"/>
 							<int key="NSTvFlags">0</int>
 							<bool key="NSAllowTruncatedLabels">YES</bool>
 							<bool key="NSDrawsBackground">YES</bool>
 							<object class="NSMutableArray" key="NSSubviews">
 								<bool key="EncodedWithXMLCoder">YES</bool>
-								<reference ref="565015667"/>
+								<reference ref="425344334"/>
 							</object>
 						</object>
 					</object>

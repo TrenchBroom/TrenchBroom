@@ -10,6 +10,7 @@
 #import "VBOMemBlock.h"
 #import "Vector2f.h"
 #import "Vector3f.h"
+#import "GLException.h"
 
 NSString* const BufferNotMappedException = @"BufferNotMappedException";
 
@@ -142,7 +143,11 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 }
 
 - (void)mapBuffer {
-    buffer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    if (!active)
+        [NSException raise:@"GLException" format:@"cannot map inactive buffer"];
+    buffer = glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE);
+    if (buffer == NULL)
+        [GLException raise];
 }
 
 - (void)unmapBuffer {

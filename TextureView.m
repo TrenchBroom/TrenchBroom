@@ -47,21 +47,26 @@
     glLoadIdentity();
     gluOrtho2D(NSMinX(visibleRect), 
                NSMaxX(visibleRect), 
-               NSMaxY(visibleRect), 
-               NSMinY(visibleRect));
+               NSMinY(visibleRect), 
+               NSMaxY(visibleRect));
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0, 0, 0.1, 0, 0, -1, 0, 1, 0);
+    gluLookAt(0, 0, 1, 0, 0, -1, 0, 1, 0);
 
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
     
-    glEnable(GL_TEXTURE_2D);
+    glFrontFace(GL_CW);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glShadeModel(GL_FLAT);
+
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    
     glPolygonMode(GL_FRONT, GL_FILL);
     
+    glTranslatef(0, 2 * NSMinY(visibleRect), 0);
     if (layout != nil) {
         NSArray* rows = [layout rowsInY:NSMinY(visibleRect) height:NSHeight(visibleRect)];
         NSEnumerator* rowEn = [rows objectEnumerator];
@@ -77,48 +82,50 @@
             NSEnumerator* cellEn = [cells objectEnumerator];
             TextureViewLayoutCell* cell;
             while ((cell = [cellEn nextObject])) {
-                float tx = [cell textureRect].origin.x;
-                float ty = [cell textureRect].origin.y;
-                float tx2 = tx + [cell textureRect].size.width;
-                float ty2 = ty + [cell textureRect].size.height;
+                float tx = NSMinX([cell textureRect]);
+                float ty = NSHeight(visibleRect) - NSMinY([cell textureRect]);
+                float tx2 = NSMaxX([cell textureRect]);
+                float ty2 = NSHeight(visibleRect) - NSMaxY([cell textureRect]);
                 
+                glEnable(GL_TEXTURE_2D);
                 Texture* texture = [cell texture];
                 [texture activate];
                 
                 glBegin(GL_QUADS);
                 glTexCoord2f(0, 0);
                 glVertex3f(tx, ty, 0);
-                glTexCoord2f(0, 1);
-                glVertex3f(tx, ty2, 0);
-                glTexCoord2f(1, 1);
-                glVertex3f(tx2, ty2, 0);
                 glTexCoord2f(1, 0);
                 glVertex3f(tx2, ty, 0);
+                glTexCoord2f(1, 1);
+                glVertex3f(tx2, ty2, 0);
+                glTexCoord2f(0, 1);
+                glVertex3f(tx, ty2, 0);
                 glEnd();
                 
                 [texture deactivate];
+                glDisable(GL_TEXTURE_2D);
                 
                 if (selectedTextureNames != nil && [selectedTextureNames containsObject:[texture name]]) {
                     glColor4f(0.6, 0, 0, 1);
                     glBegin(GL_LINE_LOOP);
-                    glVertex3f(tx - 0.5, ty - 0.5, 0);
-                    glVertex3f(tx - 0.5, ty2 + 0.5, 0);
+                    glVertex3f(tx  - 0.5, ty  - 0.5, 0);
+                    glVertex3f(tx2 + 0.5, ty  - 0.5, 0);
                     glVertex3f(tx2 + 0.5, ty2 + 0.5, 0);
-                    glVertex3f(tx2 + 0.5, ty - 0.5, 0);
+                    glVertex3f(tx  - 0.5, ty2 + 0.5, 0);
                     glEnd();
                 } else if ([texture usageCount] > 0) {
                     glColor4f(0.6, 0.6, 0, 1);
                     glBegin(GL_LINE_LOOP);
-                    glVertex3f(tx - 0.5, ty - 0.5, 0);
-                    glVertex3f(tx - 0.5, ty2 + 0.5, 0);
+                    glVertex3f(tx  - 0.5, ty  - 0.5, 0);
+                    glVertex3f(tx2 + 0.5, ty  - 0.5, 0);
                     glVertex3f(tx2 + 0.5, ty2 + 0.5, 0);
-                    glVertex3f(tx2 + 0.5, ty - 0.5, 0);
+                    glVertex3f(tx  - 0.5, ty2 + 0.5, 0);
                     glEnd();
                 }
                 
                 glColor4f(1, 1, 1, 1);
-                float nx = [cell nameRect].origin.x;
-                float ny = [cell nameRect].origin.y;
+                float nx = NSMinX([cell nameRect]);
+                float ny = NSHeight(visibleRect) - NSMaxY([cell nameRect]);
                 
                 GLString* glString = [fontManager glStringFor:[texture name] font:font];
                 glPushMatrix();
@@ -166,6 +173,7 @@
             [layout clear];
         }
         
+        [[self openGLContext] makeCurrentContext];
         [layout addTextures:[textureManager textures:sortCriterion]];
     }
     

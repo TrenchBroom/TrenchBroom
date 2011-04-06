@@ -65,7 +65,7 @@
 
 - (void)layout {
     [rows removeAllObjects];
-    
+
     NSEnumerator* texEn = [textures objectEnumerator];
     Texture* texture;
     while ((texture = [texEn nextObject])) {

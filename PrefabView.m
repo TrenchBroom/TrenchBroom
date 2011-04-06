@@ -265,8 +265,7 @@
     gluLookAt(0, 0, 1, 0, 0, -1, 0, 1, 0);
     
     glDisable(GL_POLYGON_OFFSET_FILL);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDisable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT, GL_FILL);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_TEXTURE_2D);
 
