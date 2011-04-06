@@ -11,6 +11,7 @@
 #import "VBOBuffer.h"
 #import "GLString.h"
 #import "GLStringData.h"
+#import "Math.h"
 
 void gluTessBeginData(GLenum type, GLStringData* data) {
     [data begin:type];
@@ -18,11 +19,14 @@ void gluTessBeginData(GLenum type, GLStringData* data) {
 
 void gluTessVertexData(NSPoint* vertex, GLStringData* data) {
     [data appendVertex:vertex];
+    // free(vertex);
 }
 
 void gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, GLStringData* data) {
-    NSPoint vertex = NSMakePoint(coords[0], coords[1]);
-    *outData = &vertex;
+    NSPoint* vertex = malloc(sizeof(NSPoint));
+    vertex->x = coords[0];
+    vertex->y = coords[1];
+    *outData = vertex;
 }
 
 void gluTessEndData(GLStringData* data) {
@@ -44,7 +48,7 @@ void gluTessEndData(GLStringData* data) {
         gluTessCallback(gluTess, GLU_TESS_VERTEX_DATA, &gluTessVertexData);
         gluTessCallback(gluTess, GLU_TESS_COMBINE_DATA, &gluTessCombineData);
         gluTessCallback(gluTess, GLU_TESS_END_DATA, &gluTessEndData);
-        gluTessNormal(gluTess, 0, 0, -1);
+        gluTessNormal(gluTess, 0, 0, 1);
 
         textStorage = [[NSTextStorage alloc] init];
         textContainer = [[NSTextContainer alloc] init];
@@ -100,22 +104,23 @@ void gluTessEndData(GLStringData* data) {
         GLdouble coords[3];
         coords[2] = 0;
         for (int i = 0; i < [path elementCount]; i++) {
-            NSPoint points[1];
-            NSBezierPathElement element = [path elementAtIndex:i associatedPoints:points];
+            NSPoint* point = malloc(sizeof(NSPoint));
+            NSBezierPathElement element = [path elementAtIndex:i associatedPoints:point];
+            point->y = bounds.size.height - point->y;
             switch (element) {
                 case NSMoveToBezierPathElement:
                     gluTessBeginContour(gluTess);
-                    coords[0] = points[0].x;
-                    coords[1] = points[0].y;
-                    gluTessVertex(gluTess, coords, &points[0]);
+                    coords[0] = point->x;
+                    coords[1] = point->y;
+                    gluTessVertex(gluTess, coords, point);
                     break;
                 case NSClosePathBezierPathElement:
                     gluTessEndContour(gluTess);
                     break;
                 case NSLineToBezierPathElement:
-                    coords[0] = points[0].x;
-                    coords[1] = points[0].y;
-                    gluTessVertex(gluTess, coords, &points[0]);
+                    coords[0] = point->x;
+                    coords[1] = point->y;
+                    gluTessVertex(gluTess, coords, point);
                     break;
                 default:
                     break;
@@ -132,6 +137,14 @@ void gluTessEndData(GLStringData* data) {
 
     
     return glString;
+}
+
+- (void)activate {
+    [vbo activate];
+}
+
+- (void)deactivate {
+    [vbo deactivate];
 }
 
 - (void)dealloc {

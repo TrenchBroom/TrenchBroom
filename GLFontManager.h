@@ -23,4 +23,7 @@
 }
 
 - (GLString *)glStringFor:(NSString *)theString font:(NSFont *)theFont;
+
+- (void)activate;
+- (void)deactivate;
 @end

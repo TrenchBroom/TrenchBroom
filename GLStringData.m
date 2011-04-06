@@ -59,6 +59,7 @@
         default:
             break;
     }
+    // free(vertex);
     vertexCount++;
 }
 

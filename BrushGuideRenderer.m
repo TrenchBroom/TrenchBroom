@@ -85,6 +85,10 @@ static NSString* DepthKey = @"Depth";
 }
 
 - (void)render {
+    
+    glDisable(GL_TEXTURE_2D);
+    [fontManager activate];
+    
     Vector3f* p = [[Vector3f alloc] init];
     Vector3f* x = [[Vector3f alloc] init];
     Vector3f* y = [[Vector3f alloc] init];
@@ -187,6 +191,8 @@ static NSString* DepthKey = @"Depth";
     [y release];
     [z release];
     [m release];
+    
+    [fontManager deactivate];
 }
 
 - (void)dealloc {

@@ -273,6 +273,8 @@
     GLFontManager* fontManager = [glResources fontManager];
     NSFont* font = [NSFont systemFontOfSize:13];
     
+    [fontManager activate];
+    
     groupRowEn = [[layout groupRows] objectEnumerator];
     while ((groupRow = [groupRowEn nextObject])) {
         id <PrefabGroup> prefabGroup = [groupRow prefabGroup];
@@ -305,6 +307,8 @@
         }
     }
 
+    [fontManager deactivate];
+    
     [[self openGLContext] flushBuffer];
 }
 

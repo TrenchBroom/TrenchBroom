@@ -70,6 +70,8 @@
         GLFontManager* fontManager = [glResources fontManager];
         NSFont* font = [NSFont systemFontOfSize:12];
         
+        [fontManager activate];
+        
         while ((row = [rowEn nextObject])) {
             NSArray* cells = [row cells];
             NSEnumerator* cellEn = [cells objectEnumerator];
@@ -125,7 +127,9 @@
                 glPopMatrix();
             }
         }
+        [fontManager deactivate];
     }
+    
     
     [[self openGLContext] flushBuffer];
 }

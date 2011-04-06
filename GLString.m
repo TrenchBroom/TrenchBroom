@@ -77,7 +77,6 @@
 }
 
 - (void)render {
-    [memBlock activate];
     glVertexPointer(2, GL_FLOAT, 0, 0);
     if (hasTriangleSet)
         glDrawArrays(GL_TRIANGLES, triangleSetIndex, triangleSetCount);
@@ -85,7 +84,6 @@
         glMultiDrawArrays(GL_TRIANGLE_STRIP, [triangleStripIndices bytes], [triangleStripCounts bytes], [triangleStripIndices count]);
     if (hasTriangleFans)
         glMultiDrawArrays(GL_TRIANGLE_FAN, [triangleFanIndices bytes], [triangleFanCounts bytes], [triangleFanIndices count]);
-    [memBlock deactivate];
 }
 
 - (void)dealloc {
