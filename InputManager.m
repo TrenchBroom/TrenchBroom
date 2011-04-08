@@ -48,12 +48,12 @@
     return ([event modifierFlags] & (NSShiftKeyMask | NSCommandKeyMask)) == (NSShiftKeyMask | NSCommandKeyMask);
 }
 
-- (BOOL)isCopyTextureModifierPressed:(NSEvent *)event {
-    return ([event modifierFlags] & (NSAlternateKeyMask | NSCommandKeyMask)) == (NSAlternateKeyMask | NSCommandKeyMask);
-}
-
 - (BOOL)isApplyTextureModifierPressed:(NSEvent *)event {
     return ([event modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
+}
+
+- (BOOL)isApplyTextureAndAttributesModifierPressed:(NSEvent *)event {
+    return ([event modifierFlags] & (NSAlternateKeyMask | NSCommandKeyMask)) == (NSAlternateKeyMask | NSCommandKeyMask);
 }
 
 - (BOOL)handleKeyDown:(NSEvent *)event sender:(id)sender {
@@ -170,18 +170,39 @@
                     default:
                         break;
                 }
-            } else if ([self isCopyTextureModifierPressed:event]) {
-                PickingHit* lastHit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
-                id <Face> face = [lastHit object];
-                
-                [texture release];
-                texture = [[face texture] retain];
-            } else if ([self isApplyTextureModifierPressed:event] && texture != nil) {
-                PickingHit* lastHit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
-                id <Face> face = [lastHit object];
-                
-                MapDocument* map = [windowController document];
-                [map setFace:face texture:texture];
+            } else if ([self isApplyTextureModifierPressed:event]) {
+                SelectionManager* selectionManager = [windowController selectionManager];
+                NSSet* selectedFaces = [selectionManager selectedFaces];
+                if ([selectedFaces count] == 1) {
+                    id <Face> source = [[selectedFaces objectEnumerator] nextObject];
+                    
+                    PickingHit* lastHit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
+                    id <Face> destination = [lastHit object];
+
+                    MapDocument* map = [windowController document];
+                    [map setFace:destination texture:[source texture]];
+                }
+            } else if ([self isApplyTextureAndAttributesModifierPressed:event]) {
+                SelectionManager* selectionManager = [windowController selectionManager];
+                NSSet* selectedFaces = [selectionManager selectedFaces];
+                if ([selectedFaces count] == 1) {
+                    id <Face> source = [[selectedFaces objectEnumerator] nextObject];
+                    
+                    PickingHit* lastHit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
+                    id <Face> destination = [lastHit object];
+                    
+                    MapDocument* map = [windowController document];
+                    NSUndoManager* undoManager = [map undoManager];
+                    [undoManager beginUndoGrouping];
+                    [map setFace:destination texture:[source texture]];
+                    [map setFace:destination xOffset:[source xOffset]];
+                    [map setFace:destination yOffset:[source yOffset]];
+                    [map setFace:destination xScale:[source xScale]];
+                    [map setFace:destination yScale:[source yScale]];
+                    [map setFace:destination rotation:[source rotation]];
+                    [undoManager endUndoGrouping];
+                    [undoManager setActionName:@"Copy Face Attributes"];
+                }
             }
         }
     }
@@ -308,7 +329,6 @@
 }
 
 - (void)dealloc {
-    [texture release];
     [clipTool release];
     [tool release];
     [lastHits release];
