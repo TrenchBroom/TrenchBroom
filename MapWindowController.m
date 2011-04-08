@@ -318,12 +318,12 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] size];
+    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] actualSize];
 
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject]))
-        [[self document] translateFaceOffset:face xDelta:-d yDelta:0];
+        [[self document] translateFaceOffset:face xDelta:d yDelta:0];
 
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Texture"];
@@ -333,12 +333,12 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
 
-    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] size];
+    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] actualSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject]))
-        [[self document] translateFaceOffset:face xDelta:d yDelta:0];
+        [[self document] translateFaceOffset:face xDelta:-d yDelta:0];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Texture"];
@@ -348,7 +348,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
 
-    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] size];
+    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] actualSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;
@@ -363,7 +363,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
 
-    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] size];
+    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] actualSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;

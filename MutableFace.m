@@ -427,15 +427,28 @@ static Vector3f* baseAxes[18];
     if (texAxisX == nil || texAxisY == nil)
         [self updateTexAxes];
     
+    NSLog(@"best axis %i", bestAxis);
     switch (bestAxis) {
         case 0:
+            xOffset += x;
+            yOffset += y;
+            break;
+        case 1:
+            xOffset -= x;
+            yOffset += y;
+            break;
+        case 2:
+            xOffset += x;
+            yOffset += y;
+            break;
         case 3:
+            xOffset += x;
+            yOffset += y;
+            break;
         case 4:
             xOffset -= x;
             yOffset += y;
             break;
-        case 1:
-        case 2:
         case 5:
             xOffset += x;
             yOffset += y;

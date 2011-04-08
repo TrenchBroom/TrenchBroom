@@ -22,6 +22,7 @@
     ClipTool* clipTool;
     BOOL gesture;
     BOOL drag;
+    NSString* texture;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

@@ -470,6 +470,7 @@ NSString* const RendererChanged = @"RendererChanged";
         [center addObserver:self selector:@selector(brushWillBeRemoved:) name:BrushWillBeRemoved object:map];
         [center addObserver:self selector:@selector(brushWillChange:) name:BrushWillChange object:map];
         [center addObserver:self selector:@selector(brushDidChange:) name:BrushDidChange object:map];
+        [center addObserver:self selector:@selector(faceWillChange:) name:FaceWillChange object:map];
         [center addObserver:self selector:@selector(faceDidChange:) name:FaceDidChange object:map];
         
         SelectionManager* selectionManager = [windowController selectionManager];

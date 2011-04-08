@@ -36,12 +36,24 @@
     return self;
 }
 
+- (BOOL)isSelectionModifierPressed:(NSEvent *)event {
+    return [event modifierFlags] == 256; // this might break
+}
+
 - (BOOL)isCameraModifierPressed:(NSEvent *)event {
-    return ([event modifierFlags] & NSShiftKeyMask) != 0;
+    return ([event modifierFlags] & NSShiftKeyMask) == NSShiftKeyMask;
 }
 
 - (BOOL)isCameraOrbitModifierPressed:(NSEvent *)event {
-    return [self isCameraModifierPressed:event] && ([event modifierFlags] & NSCommandKeyMask) != 0;
+    return ([event modifierFlags] & (NSShiftKeyMask | NSCommandKeyMask)) == (NSShiftKeyMask | NSCommandKeyMask);
+}
+
+- (BOOL)isCopyTextureModifierPressed:(NSEvent *)event {
+    return ([event modifierFlags] & (NSAlternateKeyMask | NSCommandKeyMask)) == (NSAlternateKeyMask | NSCommandKeyMask);
+}
+
+- (BOOL)isApplyTextureModifierPressed:(NSEvent *)event {
+    return ([event modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
 }
 
 - (BOOL)handleKeyDown:(NSEvent *)event sender:(id)sender {
@@ -123,39 +135,53 @@
         Picker* picker = [[windowController document] picker];
         lastHits = [[picker pickObjects:ray include:nil exclude:nil] retain];
         
-        if (lastHits != nil && ![self isCameraModifierPressed:event]) {
-            PickingHit* lastHit = [lastHits firstHitOfType:HT_ANY ignoreOccluders:NO];
-            SelectionManager* selectionManager = [windowController selectionManager];
-            switch ([lastHit type]) {
-                case HT_BRUSH:
-                case HT_FACE: {
-                    if ([selectionManager mode] == SM_GEOMETRY) {
-                        id <Brush> brush = [lastHit type] == HT_BRUSH ? [lastHit object] : [[lastHit object] brush];
-                        if ([selectionManager isBrushSelected:brush]) {
-                            MapDocument* map = [windowController document];
-                            NSUndoManager* undoManager = [map undoManager];
-                            [undoManager setGroupsByEvent:NO];
-                            [undoManager beginUndoGrouping];
-                            tool = [[BrushTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
+        if (lastHits != nil) {
+            if ([self isSelectionModifierPressed:event]) {
+                PickingHit* lastHit = [lastHits firstHitOfType:HT_ANY ignoreOccluders:NO];
+                SelectionManager* selectionManager = [windowController selectionManager];
+                switch ([lastHit type]) {
+                    case HT_BRUSH:
+                    case HT_FACE: {
+                        if ([selectionManager mode] == SM_GEOMETRY) {
+                            id <Brush> brush = [lastHit type] == HT_BRUSH ? [lastHit object] : [[lastHit object] brush];
+                            if ([selectionManager isBrushSelected:brush]) {
+                                MapDocument* map = [windowController document];
+                                NSUndoManager* undoManager = [map undoManager];
+                                [undoManager setGroupsByEvent:NO];
+                                [undoManager beginUndoGrouping];
+                                tool = [[BrushTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
+                            }
+                        } else if ([selectionManager mode] == SM_FACES && [lastHit type] == HT_FACE) {
+                            id <Face> face = [lastHit object];
+                            if ([selectionManager isFaceSelected:face]) {
+                                MapDocument* map = [windowController document];
+                                NSUndoManager* undoManager = [map undoManager];
+                                [undoManager setGroupsByEvent:NO];
+                                [undoManager beginUndoGrouping];
+                                tool = [[FaceTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
+                            }
                         }
-                    } else if ([selectionManager mode] == SM_FACES && [lastHit type] == HT_FACE) {
-                        id <Face> face = [lastHit object];
-                        if ([selectionManager isFaceSelected:face]) {
-                            MapDocument* map = [windowController document];
-                            NSUndoManager* undoManager = [map undoManager];
-                            [undoManager setGroupsByEvent:NO];
-                            [undoManager beginUndoGrouping];
-                            tool = [[FaceTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
-                        }
+                        break;
                     }
-                    break;
+                    case HT_EDGE:
+                        break;
+                    case HT_VERTEX:
+                        break;
+                    default:
+                        break;
                 }
-                case HT_EDGE:
-                    break;
-                case HT_VERTEX:
-                    break;
-                default:
-                    break;
+            } else if ([self isCopyTextureModifierPressed:event]) {
+                PickingHit* lastHit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
+                id <Face> face = [lastHit object];
+                
+                [texture release];
+                texture = [[face texture] retain];
+            } else if ([self isApplyTextureModifierPressed:event] && texture != nil) {
+                PickingHit* lastHit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
+                id <Face> face = [lastHit object];
+                
+                MapDocument* map = [windowController document];
+                [map setFace:face texture:texture];
             }
         }
     }
@@ -176,7 +202,7 @@
         [clipTool handleLeftMouseUp:ray];
     } else {
         Options* options = [windowController options];
-        if (![self isCameraModifierPressed:event] && !drag && [options isolationMode] == IM_NONE && lastHits != nil) {
+        if ([self isSelectionModifierPressed:event] && !drag && [options isolationMode] == IM_NONE && lastHits != nil) {
             SelectionManager* selectionManager = [windowController selectionManager];
             PickingHit* lastHit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
             if (lastHit != nil) {
@@ -282,6 +308,7 @@
 }
 
 - (void)dealloc {
+    [texture release];
     [clipTool release];
     [tool release];
     [lastHits release];

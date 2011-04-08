@@ -326,12 +326,25 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 
 - (void)translateFaceOffset:(id <Face>)face xDelta:(int)xDelta yDelta:(int)yDelta {
     NSUndoManager* undoManager = [self undoManager];
-    [undoManager beginUndoGrouping];
-
-    [self setFace:face xOffset:[face xOffset] + xDelta];
-    [self setFace:face yOffset:[face yOffset] + yDelta];
-
-    [undoManager endUndoGrouping];
+    [[undoManager prepareWithInvocationTarget:self] translateFaceOffset:face xDelta:-xDelta yDelta:-yDelta];
+    
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:face forKey:FaceKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FaceWillChange object:self userInfo:userInfo];
+    }
+    
+    MutableFace* mutableFace = (MutableFace *)face;
+    [mutableFace translateOffsetsX:xDelta y:yDelta];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FaceDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
 }
 
 - (void)setFace:(id <Face>)face xScale:(float)xScale {
