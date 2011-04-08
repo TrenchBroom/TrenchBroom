@@ -33,9 +33,11 @@ extern NSString* const BufferNotMappedException;
 
 - (void)activate;
 - (void)deactivate;
+- (BOOL)active;
 
 - (void)mapBuffer;
 - (void)unmapBuffer;
+- (BOOL)mapped;
 
 - (void)writeBuffer:(const void*)theBuffer address:(int)theAddress count:(int)theCount;
 - (void)writeFloat:(float)f address:(int)theAddress;

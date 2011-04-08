@@ -22,6 +22,7 @@
     id<TextureFilter> filter;
     GLFontManager* fontManager;
     NSFont* font;
+    BOOL valid;
 }
 
 - (id)initWithWidth:(float)theWidth innerMargin:(float)theInnerMargin outerMargin:(float)theOuterMargin fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;

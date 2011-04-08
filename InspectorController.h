@@ -30,7 +30,10 @@
     IBOutlet TextureView* textureView;
     IBOutlet NSSlider* prefabsPerRowSlider;
     IBOutlet PrefabView* prefabView;
+    IBOutlet NSBox* textureControlBox;
+    IBOutlet NSScrollView* textureScrollView;
     MapWindowController* mapWindowController;
+    NSMutableArray* wads;
 }
 
 + (InspectorController *)sharedInspector;
@@ -46,7 +49,11 @@
 - (IBAction)textureUsageFilterChanged:(id)sender;
 - (IBAction)textureSortCriterionChanged:(id)sender;
 - (IBAction)prefabsPerRowChanged:(id)sender;
+- (IBAction)toggleTextureControls:(id)sender;
 
 - (void)textureSelected:(Texture *)texture;
 - (void)prefabSelected:(id <Prefab>)prefab;
+
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView;
+- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
 @end

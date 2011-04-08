@@ -40,6 +40,8 @@
 
 
 - (void)drawRect:(NSRect)dirtyRect {
+    [layout layout];
+    
     NSRect visibleRect = [self visibleRect];
     glViewport(0, 0, NSWidth(visibleRect), NSHeight(visibleRect));
     
@@ -145,6 +147,7 @@
     if (layout != nil) {
         NSRect frame = [self frame];
         [layout setWidth:NSWidth(frame)];
+        [layout layout];
         
         float h =  fmaxf([layout height], NSHeight([[self superview] bounds]));
         
@@ -173,7 +176,6 @@
             [layout clear];
         }
         
-        [[self openGLContext] makeCurrentContext];
         [layout addTextures:[textureManager textures:sortCriterion]];
     }
     

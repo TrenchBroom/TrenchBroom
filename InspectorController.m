@@ -422,12 +422,35 @@ static InspectorController* sharedInstance = nil;
     [prefabView setPrefabsPerRow:[prefabsPerRowSlider intValue]];
 }
 
+- (IBAction)toggleTextureControls:(id)sender {
+    NSRect boxFrame = [textureControlBox frame];
+    NSRect viewFrame = [textureScrollView frame];
+    NSRect newBoxFrame;
+    NSRect newViewFrame;
+    if ([sender state] == NSOnState) {
+        newBoxFrame = NSMakeRect(NSMinX(boxFrame), NSMinY(boxFrame) - 100, NSWidth(boxFrame), NSHeight(boxFrame) + 100);
+        newViewFrame = NSMakeRect(NSMinX(viewFrame), NSMinY(viewFrame), NSWidth(viewFrame), NSHeight(viewFrame) - 100);
+    } else {
+        newBoxFrame = NSMakeRect(NSMinX(boxFrame), NSMinY(boxFrame) + 100, NSWidth(boxFrame), NSHeight(boxFrame) - 100);
+        newViewFrame = NSMakeRect(NSMinX(viewFrame), NSMinY(viewFrame), NSWidth(viewFrame), NSHeight(viewFrame) + 100);
+    }
+    
+    [textureControlBox setFrame:newBoxFrame];
+    [textureControlBox setNeedsDisplay:YES];
+
+    [textureScrollView setFrame:newViewFrame];
+    [textureScrollView setNeedsDisplay:YES];
+    
+    [[textureControlBox superview] setNeedsDisplay:YES];
+}
+
 - (void)prefabSelected:(id <Prefab>)prefab {
     [mapWindowController insertPrefab:prefab];
 }
 
 - (void)dealloc {
     [self setMapWindowController:nil];
+    [wads release];
     [super dealloc];
 }
 

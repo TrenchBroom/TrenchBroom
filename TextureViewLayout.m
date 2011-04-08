@@ -38,7 +38,7 @@
 
 - (void)addTexture:(Texture *)theTexture {
     [textures addObject:theTexture];
-    [self layout];
+    valid = NO;
 }
 
 - (void)addTextures:(NSArray *)theTextures {
@@ -47,12 +47,12 @@
     while ((texture = [textureEn nextObject]))
         [textures addObject:texture];
 
-    [self layout];
+    valid = NO;
 }
 
 - (void)clear {
     [textures removeAllObjects];
-    [self layout];
+    valid = NO;
 }
 
 - (void)setWidth:(float)theWidth {
@@ -60,27 +60,30 @@
         return;
     
     width = theWidth;
-    [self layout];
+    valid = NO;
 }
 
 - (void)layout {
-    [rows removeAllObjects];
-
-    NSEnumerator* texEn = [textures objectEnumerator];
-    Texture* texture;
-    while ((texture = [texEn nextObject])) {
-        if (filter == nil || [filter passes:texture]) {
-            GLString* nameString = [fontManager glStringFor:[texture name] font:font];
-            NSSize nameSize = [nameString size];
-            TextureViewLayoutRow* row = [rows lastObject];
-            if (row == nil || ![row addTexture:texture nameSize:nameSize]) {
-                float y = row == nil ? outerMargin : [row y] + [row height] + innerMargin;
-                row = [[TextureViewLayoutRow alloc] initAtY:y width:width innerMargin:innerMargin outerMargin:outerMargin];
-                [row addTexture:texture nameSize:nameSize];
-                [rows addObject:row];
-                [row release];
+    if (!valid) {
+        [rows removeAllObjects];
+        
+        NSEnumerator* texEn = [textures objectEnumerator];
+        Texture* texture;
+        while ((texture = [texEn nextObject])) {
+            if (filter == nil || [filter passes:texture]) {
+                GLString* nameString = [fontManager glStringFor:[texture name] font:font];
+                NSSize nameSize = [nameString size];
+                TextureViewLayoutRow* row = [rows lastObject];
+                if (row == nil || ![row addTexture:texture nameSize:nameSize]) {
+                    float y = row == nil ? outerMargin : [row y] + [row height] + innerMargin;
+                    row = [[TextureViewLayoutRow alloc] initAtY:y width:width innerMargin:innerMargin outerMargin:outerMargin];
+                    [row addTexture:texture nameSize:nameSize];
+                    [rows addObject:row];
+                    [row release];
+                }
             }
         }
+        valid = YES;
     }
 }
 

@@ -29,8 +29,14 @@
         hasTriangleStrips = triangleStrips != nil;
         hasTriangleFans = triangleFans != nil;
         
-        [theVbo activate];
-        [theVbo mapBuffer];
+        BOOL wasActive = [theVbo active];
+        BOOL wasMapped = [theVbo mapped];
+        
+        if (!wasActive)
+            [theVbo activate];
+        if (!wasMapped)
+            [theVbo mapBuffer];
+        
         int offset = 0;
         if (hasTriangleSet) {
             triangleSetIndex = [memBlock address] / (2 * sizeof(float));
@@ -65,8 +71,10 @@
             }
         }
         
-        [theVbo unmapBuffer];
-        [theVbo deactivate];
+        if (!wasMapped)
+            [theVbo unmapBuffer];
+        if (!wasActive)
+            [theVbo deactivate];
     }
     
     return self;
