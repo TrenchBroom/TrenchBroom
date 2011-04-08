@@ -13,30 +13,28 @@ typedef enum {
     SC_USAGE
 } ESortCriterion;
 
-extern NSString* const TexturesRemoved;
-extern NSString* const TexturesAdded;
-
-extern NSString* const UserInfoTextures;
+extern NSString* const TextureManagerChanged;
 
 extern NSString* const UnknownTextureNameException;
 extern NSString* const MissingPaletteException;
 
 @class Texture;
-@class Wad;
+@class TextureCollection;
 
 @interface TextureManager : NSObject {
     @private
+    NSMutableArray* textureCollections;
     NSMutableDictionary* textures;
-    NSData* palette;
+    NSMutableArray* texturesByName;
+    NSMutableArray* texturesByUsageCount;
+    BOOL valid;
 }
 
-- (id)initWithPalette:(NSData *)thePalette;
-
-- (void)loadTexturesFrom:(Wad *)wad;
-- (void)removeAllTextures;
+- (void)addTextureCollection:(TextureCollection *)theCollection;
+- (void)removeTextureCollection:(NSString *)theName;
+- (void)removeAllTextureCollections;
 
 - (Texture *)textureForName:(NSString *)name;
-- (NSArray *)texturesForNames:(NSArray *)names;
 - (NSArray *)textures:(ESortCriterion)sortCriterion;
 
 - (void)activateTexture:(NSString *)name;

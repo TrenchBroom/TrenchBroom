@@ -25,12 +25,7 @@
         fontManager = [[GLFontManager alloc] init];
         vbos = [[NSMutableDictionary alloc] init];
         
-        NSBundle* mainBundle = [NSBundle mainBundle];
-        NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
-        NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
-        
-        textureManager = [[TextureManager alloc] initWithPalette:palette];
-        [palette release];
+        textureManager = [[TextureManager alloc] init];
     }
     
     return self;

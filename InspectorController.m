@@ -231,8 +231,7 @@ static InspectorController* sharedInstance = nil;
         GLResources* glResources = [map glResources];
 
         TextureManager* textureManager = [glResources textureManager];
-        [center removeObserver:self name:TexturesAdded object:textureManager];
-        [center removeObserver:self name:TexturesRemoved object:textureManager];
+        [center removeObserver:self name:TextureManagerChanged object:textureManager];
         
         SelectionManager* selectionManager = [mapWindowController selectionManager];
         [center removeObserver:self name:SelectionAdded object:selectionManager];
@@ -256,8 +255,7 @@ static InspectorController* sharedInstance = nil;
         [prefabView setGLResources:glResources];
 
         TextureManager* textureManager = [glResources textureManager];
-        [center addObserver:self selector:@selector(textureManagerChanged:) name:TexturesAdded object:textureManager];
-        [center addObserver:self selector:@selector(textureManagerChanged:) name:TexturesRemoved object:textureManager];
+        [center addObserver:self selector:@selector(textureManagerChanged:) name:TextureManagerChanged object:textureManager];
 
         SelectionManager* selectionManager = [mapWindowController selectionManager];
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];

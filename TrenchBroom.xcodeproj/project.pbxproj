@@ -57,6 +57,7 @@
 		485D2B5C1306F69100CF73D8 /* SegmentIterator.m in Sources */ = {isa = PBXBuildFile; fileRef = 485D2B5B1306F69100CF73D8 /* SegmentIterator.m */; };
 		485D2EAF1308624900CF73D8 /* Options.m in Sources */ = {isa = PBXBuildFile; fileRef = 485D2EAE1308624900CF73D8 /* Options.m */; };
 		48639BF412EA227100808576 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48639BF312EA227100808576 /* QuakePalette.lmp */; };
+		486526C5134F0BC20045A4B6 /* TextureCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = 486526C4134F0BC20045A4B6 /* TextureCollection.m */; };
 		4865993112EECD6700665E94 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
 		4865993312EECD6900665E94 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B512ED78FA009B5970 /* Edge.m */; };
 		486641111229854E00752B89 /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
@@ -260,6 +261,8 @@
 		485D2EAD1308624900CF73D8 /* Options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Options.h; sourceTree = "<group>"; };
 		485D2EAE1308624900CF73D8 /* Options.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Options.m; sourceTree = "<group>"; };
 		48639BF312EA227100808576 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; path = QuakePalette.lmp; sourceTree = "<group>"; };
+		486526C3134F0BC20045A4B6 /* TextureCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureCollection.h; sourceTree = "<group>"; };
+		486526C4134F0BC20045A4B6 /* TextureCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureCollection.m; sourceTree = "<group>"; };
 		4866413E122986AF00752B89 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = /Developer/Library/Frameworks/SenTestingKit.framework; sourceTree = "<absolute>"; };
 		4866F3AF12EAC9FA009B345C /* TextureViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayout.h; sourceTree = "<group>"; };
 		4866F3B012EAC9FA009B345C /* TextureViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayout.m; sourceTree = "<group>"; };
@@ -644,6 +647,8 @@
 				487A7E641300801A00434806 /* Renderer.m */,
 				487A646A12EA3A7E00A43289 /* Texture.h */,
 				487A646B12EA3A7E00A43289 /* Texture.m */,
+				486526C3134F0BC20045A4B6 /* TextureCollection.h */,
+				486526C4134F0BC20045A4B6 /* TextureCollection.m */,
 				4881C74012E9C8BE006BF922 /* TextureManager.h */,
 				4881C74112E9C8BE006BF922 /* TextureManager.m */,
 				484C28FA115023A2004DD957 /* VBOBuffer.h */,
@@ -1119,6 +1124,7 @@
 				48CE70AC134741C400886260 /* GridFeedbackFigure.m in Sources */,
 				48D6B714134859890084F82E /* BrushGuideRenderer.m in Sources */,
 				48D6B903134B8DC90084F82E /* GLStringData.m in Sources */,
+				486526C5134F0BC20045A4B6 /* TextureCollection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

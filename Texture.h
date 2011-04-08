@@ -7,22 +7,24 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <OpenGL/gl.h>
 
+@class WadTextureEntry;
 
 @interface Texture : NSObject {
     NSString* name;
     NSNumber* uniqueId;
-    int textureId;
+    GLuint textureId;
     int width;
     int height;
     int usageCount;
+    NSData* data;
 }
 
-- (id)initWithName:(NSString *)theName width:(int)theWidth height:(int)theHeight textureId:(int)theTextureId;
+- (id)initWithWadEntry:(WadTextureEntry *)theEntry palette:(NSData *)thePalette;
 
 - (NSString *)name;
 - (NSNumber *)uniqueId;
-- (int)textureId;
 - (int)width;
 - (int)height;
 

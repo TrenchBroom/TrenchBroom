@@ -14,6 +14,7 @@
 #import "MutableBrush.h"
 #import "MutableFace.h"
 #import "TextureManager.h"
+#import "TextureCollection.h"
 #import "Picker.h"
 #import "GLResources.h"
 #import "WadLoader.h"
@@ -73,12 +74,15 @@ NSString* const PropertyNewValueKey     = @"PropertyNewValue";
 }
 
 - (void)refreshWadFiles {
+    NSBundle* mainBundle = [NSBundle mainBundle];
+    NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
+    NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
+
     TextureManager* textureManager = [glResources textureManager];
-    [textureManager removeAllTextures];
+    [textureManager removeAllTextureCollections];
     
     NSString* wads = [[self worldspawn:NO] propertyForKey:@"wad"];
     if (wads != nil) {
-        [[glResources openGLContext] makeCurrentContext];
         NSArray* wadPaths = [wads componentsSeparatedByString:@";"];
         for (int i = 0; i < [wadPaths count]; i++) {
             NSString* wadPath = [[wadPaths objectAtIndex:i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
@@ -91,11 +95,14 @@ NSString* const PropertyNewValueKey     = @"PropertyNewValue";
                 Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:wadPath] wadName:wadName];
                 [wadLoader release];
                 
-                [textureManager loadTexturesFrom:wad];
+                TextureCollection* collection = [[TextureCollection alloc] initName:wadName palette:palette wad:wad];
+                [textureManager addTextureCollection:collection];
+                [collection release];
             }
         }
     }
-    
+    [palette release];
+
     NSEnumerator* entityEn = [entities objectEnumerator];
     id <Entity> entity;
     while ((entity = [entityEn nextObject])) {
@@ -108,6 +115,7 @@ NSString* const PropertyNewValueKey     = @"PropertyNewValue";
                 [textureManager incUsageCount:[face texture]];
         }
     }
+                                                 
 }
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
