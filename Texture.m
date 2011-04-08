@@ -63,8 +63,6 @@
         data = [[self convertTexture:theEntry palette:thePalette] retain];
         width = [theEntry width];
         height = [theEntry height];
-
-        usageCount = 0;
         textureId = 0;
     }
     
@@ -109,28 +107,8 @@
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-- (void)incUsageCount {
-    usageCount++;
-}
-
-- (void)decUsageCount {
-    usageCount--;
-}
-
-- (int)usageCount {
-    return usageCount;
-}
-
 - (NSComparisonResult)compareByName:(Texture *)texture {
     return [name compare:[texture name]];
-}
-
-- (NSComparisonResult)compareByUsageCount:(Texture *)texture {
-    if (usageCount > [texture usageCount])
-        return NSOrderedAscending;
-    if (usageCount < [texture usageCount])
-        return NSOrderedDescending;
-    return [self compareByName:texture];
 }
 
 - (void)dealloc {

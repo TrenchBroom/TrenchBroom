@@ -24,7 +24,7 @@ extern NSString* const EntityWillBeRemoved;
 extern NSString* const EntityKey;
 
 extern NSString* const PropertyAdded;
-extern NSString* const PropertyWillBeRemoved;
+extern NSString* const PropertyRemoved;
 extern NSString* const PropertyChanged;
 extern NSString* const PropertyKeyKey;
 extern NSString* const PropertyOldValueKey;
@@ -42,6 +42,7 @@ extern NSString* const PropertyNewValueKey;
 @interface MapDocument : NSDocument <Map> {
     @private
     NSMutableArray* entities;
+    NSMutableArray* textureWads;
     MutableEntity* worldspawn;
     int worldSize;
     BOOL postNotifications;
@@ -67,6 +68,10 @@ extern NSString* const PropertyNewValueKey;
 
 - (id <Entity>)createEntity;
 - (id <Entity>)createEntityWithProperties:(NSDictionary *)properties;
+- (void)setEntity:(id <Entity>)entity propertyKey:(NSString *)key value:(NSString *)value;
+
+- (void)addTextureWad:(NSString *)wadPath;
+- (void)removeTextureWad:(NSString *)wadPath;
 
 - (int)worldSize;
 - (NSArray *)entities;

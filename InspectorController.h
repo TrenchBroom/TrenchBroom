@@ -31,9 +31,9 @@
     IBOutlet NSSlider* prefabsPerRowSlider;
     IBOutlet PrefabView* prefabView;
     IBOutlet NSBox* textureControlBox;
+    IBOutlet NSTableView* wadTableView;
     IBOutlet NSScrollView* textureScrollView;
     MapWindowController* mapWindowController;
-    NSMutableArray* wads;
 }
 
 + (InspectorController *)sharedInspector;
@@ -56,4 +56,6 @@
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView;
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
+- (IBAction)addTextureWad:(id)sender;
+- (IBAction)removeTextureWad:(id)sender;
 @end

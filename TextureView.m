@@ -115,6 +115,7 @@
                     glVertex3f(tx2 + 0.5, ty2 + 0.5, 0);
                     glVertex3f(tx  - 0.5, ty2 + 0.5, 0);
                     glEnd();
+                    /*
                 } else if ([texture usageCount] > 0) {
                     glColor4f(0.6, 0.6, 0, 1);
                     glBegin(GL_LINE_LOOP);
@@ -123,6 +124,7 @@
                     glVertex3f(tx2 + 0.5, ty2 + 0.5, 0);
                     glVertex3f(tx  - 0.5, ty2 + 0.5, 0);
                     glEnd();
+                     */
                 }
                 
                 glColor4f(1, 1, 1, 1);
@@ -157,8 +159,24 @@
     }
 }
 
+- (void)textureManagerChanged:(NSNotification *)notification {
+    [layout clear];
+    
+    TextureManager* textureManager = [glResources textureManager];
+    [layout addTextures:[textureManager texturesByName]];
+    [self reshape];
+}
+
 - (void)setGLResources:(GLResources *)theGLResources {
-    [glResources release];
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+
+    if (glResources != nil) {
+        TextureManager* textureManager = [glResources textureManager];
+        [center removeObserver:self name:TextureManagerChanged object:textureManager];
+
+        [glResources release];
+        glResources = nil;
+    }
     glResources = [theGLResources retain];
     
     if (glResources != nil) {
@@ -176,7 +194,8 @@
             [layout clear];
         }
         
-        [layout addTextures:[textureManager textures:sortCriterion]];
+        [layout addTextures:[textureManager texturesByName]];
+        [center addObserver:self selector:@selector(textureManagerChanged:) name:TextureManagerChanged object:textureManager];
     }
     
     [self setNeedsDisplay:YES];
@@ -193,19 +212,6 @@
     [selectedTextureNames release];
     selectedTextureNames = [theNames retain];
     [self setNeedsDisplay:YES];
-}
-
-- (void)setSortCriterion:(ESortCriterion)theSortCriterion {
-    if (sortCriterion == theSortCriterion)
-        return;
-    
-    sortCriterion = theSortCriterion;
-    if (layout != nil && glResources != nil) {
-        TextureManager* textureManager = [glResources textureManager];
-        [layout clear];
-        [layout addTextures:[textureManager textures:sortCriterion]];
-        [self setNeedsDisplay:YES];
-    }
 }
 
 - (void)dealloc {

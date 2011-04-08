@@ -12,6 +12,7 @@
 #import "GLResources.h"
 #import "SelectionManager.h"
 #import "TextureManager.h"
+#import "TextureCollection.h"
 #import "GLFontManager.h"
 #import "TextureView.h"
 #import "SingleTextureView.h"
@@ -267,6 +268,7 @@ static InspectorController* sharedInstance = nil;
         [prefabView setGLResources:nil];
     }
 
+    [wadTableView reloadData];
     [self updateTextureControls];
 }
 
@@ -275,6 +277,7 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (void)textureManagerChanged:(NSNotification *)notification {
+    [wadTableView reloadData];
 }
 
 - (IBAction)xOffsetTextChanged:(id)sender {
@@ -410,10 +413,6 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (IBAction)textureSortCriterionChanged:(id)sender {
-    if ([textureSortCriterionSC selectedSegment] == 0)
-        [textureView setSortCriterion:SC_NAME];
-    else
-        [textureView setSortCriterion:SC_USAGE];
 }
 
 - (IBAction)prefabsPerRowChanged:(id)sender {
@@ -425,12 +424,13 @@ static InspectorController* sharedInstance = nil;
     NSRect viewFrame = [textureScrollView frame];
     NSRect newBoxFrame;
     NSRect newViewFrame;
+    int a = 129;
     if ([sender state] == NSOnState) {
-        newBoxFrame = NSMakeRect(NSMinX(boxFrame), NSMinY(boxFrame) - 100, NSWidth(boxFrame), NSHeight(boxFrame) + 100);
-        newViewFrame = NSMakeRect(NSMinX(viewFrame), NSMinY(viewFrame), NSWidth(viewFrame), NSHeight(viewFrame) - 100);
+        newBoxFrame = NSMakeRect(NSMinX(boxFrame), NSMinY(boxFrame) - a, NSWidth(boxFrame), NSHeight(boxFrame) + a);
+        newViewFrame = NSMakeRect(NSMinX(viewFrame), NSMinY(viewFrame), NSWidth(viewFrame), NSHeight(viewFrame) - a);
     } else {
-        newBoxFrame = NSMakeRect(NSMinX(boxFrame), NSMinY(boxFrame) + 100, NSWidth(boxFrame), NSHeight(boxFrame) - 100);
-        newViewFrame = NSMakeRect(NSMinX(viewFrame), NSMinY(viewFrame), NSWidth(viewFrame), NSHeight(viewFrame) + 100);
+        newBoxFrame = NSMakeRect(NSMinX(boxFrame), NSMinY(boxFrame) + a, NSWidth(boxFrame), NSHeight(boxFrame) - a);
+        newViewFrame = NSMakeRect(NSMinX(viewFrame), NSMinY(viewFrame), NSWidth(viewFrame), NSHeight(viewFrame) + a);
     }
     
     [textureControlBox setFrame:newBoxFrame];
@@ -446,9 +446,64 @@ static InspectorController* sharedInstance = nil;
     [mapWindowController insertPrefab:prefab];
 }
 
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {
+    if (mapWindowController == nil)
+        return 0;
+    
+    MapDocument* map = [mapWindowController document];
+    GLResources* glResources = [map glResources];
+    TextureManager* textureManager = [glResources textureManager];
+    
+    return [[textureManager textureCollections] count];
+}
+
+- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
+    if ([@"WadPath" isEqualToString:[aTableColumn identifier]]) {
+        MapDocument* map = [mapWindowController document];
+        GLResources* glResources = [map glResources];
+        TextureManager* textureManager = [glResources textureManager];
+
+        TextureCollection* collection = [[textureManager textureCollections] objectAtIndex:rowIndex];
+        return [collection name];
+    }
+    
+    return nil;
+}
+
+- (IBAction)addTextureWad:(id)sender {
+    NSOpenPanel* openPanel = [NSOpenPanel openPanel];
+    [openPanel setCanChooseFiles:YES];
+    [openPanel setCanChooseDirectories:YES];
+    [openPanel setAllowsMultipleSelection:YES];
+    [openPanel setAllowedFileTypes:[NSArray arrayWithObject:@"wad"]];
+    [openPanel setAllowsOtherFileTypes:NO];
+    [openPanel setTitle:@"Choose Wad File(s)"];
+    [openPanel setNameFieldLabel:@"Wad File"];
+    [openPanel setCanCreateDirectories:NO];
+    
+    if ([openPanel runModal] == NSFileHandlingPanelOKButton) {
+        MapDocument* map = [mapWindowController document];
+        NSEnumerator* urlEn = [[openPanel URLs] objectEnumerator];
+        NSURL* url;
+        while ((url = [urlEn nextObject])) {
+            NSString* wadPath = [url path];
+            if (wadPath != nil)
+                [map addTextureWad:wadPath];
+        }
+    }
+}
+
+- (IBAction)removeTextureWad:(id)sender {
+    MapDocument* map = [mapWindowController document];
+    GLResources* glResources = [map glResources];
+    TextureManager* textureManager = [glResources textureManager];
+    
+    TextureCollection* collection = [[textureManager textureCollections] objectAtIndex:[wadTableView selectedRow]];
+    [map removeTextureWad:[collection name]];
+}
+
 - (void)dealloc {
     [self setMapWindowController:nil];
-    [wads release];
     [super dealloc];
 }
 

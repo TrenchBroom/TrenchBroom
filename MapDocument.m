@@ -26,26 +26,26 @@
 #import "Quaternion.h"
 #import "BoundingBox.h"
 
-NSString* const FaceWillChange          = @"FaceWillChange";
-NSString* const FaceDidChange           = @"FaceDidChange";
-NSString* const FaceKey                 = @"Face";
+NSString* const FaceWillChange      = @"FaceWillChange";
+NSString* const FaceDidChange       = @"FaceDidChange";
+NSString* const FaceKey             = @"Face";
 
-NSString* const BrushAdded              = @"BrushAdded";
-NSString* const BrushWillBeRemoved      = @"BrushWillBeRemoved";
-NSString* const BrushWillChange         = @"BrushWillChange";
-NSString* const BrushDidChange          = @"BrushDidChange";
-NSString* const BrushKey                = @"Brush";
+NSString* const BrushAdded          = @"BrushAdded";
+NSString* const BrushWillBeRemoved  = @"BrushWillBeRemoved";
+NSString* const BrushWillChange     = @"BrushWillChange";
+NSString* const BrushDidChange      = @"BrushDidChange";
+NSString* const BrushKey            = @"Brush";
 
-NSString* const EntityAdded             = @"EntityAdded";
-NSString* const EntityWillBeRemoved     = @"EntityWillBeRemoved";
-NSString* const EntityKey               = @"Entity";
+NSString* const EntityAdded         = @"EntityAdded";
+NSString* const EntityWillBeRemoved = @"EntityWillBeRemoved";
+NSString* const EntityKey           = @"Entity";
 
-NSString* const PropertyAdded           = @"PropertyAdded";
-NSString* const PropertyWillBeRemoved   = @"PropertyRemoved";
-NSString* const PropertyChanged         = @"PropertyChanged";
-NSString* const PropertyKeyKey          = @"PropertyKey";
-NSString* const PropertyOldValueKey     = @"PropertyOldValue";
-NSString* const PropertyNewValueKey     = @"PropertyNewValue";
+NSString* const PropertyAdded       = @"PropertyAdded";
+NSString* const PropertyRemoved     = @"PropertyRemoved";
+NSString* const PropertyChanged     = @"PropertyChanged";
+NSString* const PropertyKeyKey      = @"PropertyKey";
+NSString* const PropertyOldValueKey = @"PropertyOldValue";
+NSString* const PropertyNewValueKey = @"PropertyNewValue";
 
 @implementation MapDocument
 
@@ -95,27 +95,13 @@ NSString* const PropertyNewValueKey     = @"PropertyNewValue";
                 Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:wadPath] wadName:wadName];
                 [wadLoader release];
                 
-                TextureCollection* collection = [[TextureCollection alloc] initName:wadName palette:palette wad:wad];
+                TextureCollection* collection = [[TextureCollection alloc] initName:wadPath palette:palette wad:wad];
                 [textureManager addTextureCollection:collection];
                 [collection release];
             }
         }
     }
     [palette release];
-
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
-        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            id <Face> face;
-            while ((face = [faceEn nextObject]))
-                [textureManager incUsageCount:[face texture]];
-        }
-    }
-                                                 
 }
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
@@ -208,6 +194,84 @@ NSString* const PropertyNewValueKey     = @"PropertyNewValue";
         [center postNotificationName:EntityAdded object:self userInfo:userInfo];
         [userInfo release];
     }
+}
+
+- (void)setEntity:(id <Entity>)entity propertyKey:(NSString *)key value:(NSString *)value {
+    NSString* oldValue = [entity propertyForKey:key];
+    
+    if (oldValue == nil) {
+        if (value == nil)
+            return;
+    } else if ([oldValue isEqualToString:value])
+        return;
+    
+    [[[self undoManager] prepareWithInvocationTarget:self] setEntity:entity propertyKey:key value:oldValue];
+    
+    MutableEntity* mutableEntity = (MutableEntity *)entity;
+    if (value == nil)
+        [mutableEntity removeProperty:key];
+    else
+        [mutableEntity setProperty:key value:value];
+
+    if ([key isEqualToString:@"wad"])
+        [self refreshWadFiles];
+
+    
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:key forKey:PropertyKeyKey];
+        if (oldValue != nil)
+            [userInfo setObject:oldValue forKey:PropertyOldValueKey];
+        if (value != nil)
+            [userInfo setObject:value forKey:PropertyNewValueKey];
+
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        if (oldValue == nil && value != nil)
+            [center postNotificationName:PropertyAdded object:self userInfo:userInfo];
+        else if (oldValue != nil && value == nil)
+            [center postNotificationName:PropertyRemoved object:self userInfo:userInfo];
+        else
+            [center postNotificationName:PropertyChanged object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
+- (void)addTextureWad:(NSString *)wadPath {
+    NSAssert(wadPath != nil, @"wad path must not be nil");
+    
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:wadPath]) {
+        int slashIndex = [wadPath rangeOfString:@"/" options:NSBackwardsSearch].location;
+        NSString* wadName = [wadPath substringFromIndex:slashIndex + 1];
+        
+        WadLoader* wadLoader = [[WadLoader alloc] init];
+        Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:wadPath] wadName:wadName];
+        [wadLoader release];
+        
+        NSBundle* mainBundle = [NSBundle mainBundle];
+        NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
+        NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
+        
+        TextureCollection* collection = [[TextureCollection alloc] initName:wadPath palette:palette wad:wad];
+        [palette release];
+
+        TextureManager* textureManager = [glResources textureManager];
+        [textureManager addTextureCollection:collection];
+        [collection release];
+        
+        MutableEntity* wc = [self worldspawn:YES];
+        [wc setProperty:@"wad" value:[textureManager wadProperty]];
+    }
+}
+
+- (void)removeTextureWad:(NSString *)wadPath {
+    NSAssert(wadPath != nil, @"wad path must not be nil");
+
+    TextureManager* textureManager = [glResources textureManager];
+    [textureManager removeTextureCollection:wadPath];
+    
+    MutableEntity* wc = [self worldspawn:YES];
+    [wc setProperty:@"wad" value:[textureManager wadProperty]];
 }
 
 - (NSArray *)entities {

@@ -130,7 +130,7 @@
 - (void)setTextureFilter:(id <TextureFilter>)theFilter {
     [filter release];
     filter = [theFilter retain];
-    [self layout];
+    valid = NO;
 }
 
 - (void)dealloc {

@@ -17,7 +17,6 @@
     GLuint textureId;
     int width;
     int height;
-    int usageCount;
     NSData* data;
 }
 
@@ -31,10 +30,5 @@
 - (void)activate;
 - (void)deactivate;
 
-- (void)incUsageCount;
-- (void)decUsageCount;
-- (int)usageCount;
-
 - (NSComparisonResult)compareByName:(Texture *)texture;
-- (NSComparisonResult)compareByUsageCount:(Texture *)texture;
 @end

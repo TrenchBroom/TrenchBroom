@@ -109,9 +109,12 @@
     NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
     NSString* textureName;
     while ((textureName = [textureNameEn nextObject])) {
+        Texture* texture = [textureManager textureForName:textureName];
         if (textured) {
-            Texture* texture = [textureManager textureForName:textureName];
-            [texture activate];
+            if (texture != nil)
+                [texture activate];
+            else
+                glDisable(GL_TEXTURE_2D);
         }
         
         IntData* indexBuffer = [indexBuffers objectForKey:textureName];
@@ -122,6 +125,13 @@
         int primCount = [indexBuffer count];
 
         glMultiDrawArrays(GL_POLYGON, indexBytes, countBytes, primCount);
+        
+        if (textured) {
+            if (texture != nil)
+                [texture deactivate];
+            else
+                glEnable(GL_TEXTURE_2D);
+        }
     }
 
     if (textured) {

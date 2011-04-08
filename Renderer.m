@@ -62,6 +62,7 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)selectionAdded:(NSNotification *)notification;
 - (void)selectionRemoved:(NSNotification *)notification;
 - (void)trackedObjectChanged:(NSNotification *)notification;
+- (void)textureManagerChanged:(NSNotification *)notification;
 - (void)cameraChanged:(NSNotification *)notification;
 - (void)optionsChanged:(NSNotification *)notification;
 - (void)gridChanged:(NSNotification *)notification;
@@ -414,6 +415,10 @@ NSString* const RendererChanged = @"RendererChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
+- (void)textureManagerChanged:(NSNotification *)notification {
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+}
+
 - (void)cameraChanged:(NSNotification *)notification {
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -473,9 +478,9 @@ NSString* const RendererChanged = @"RendererChanged";
         
         TrackingManager* trackingManager = [windowController trackingManager];
         [center addObserver:self selector:@selector(trackedObjectChanged:) name:TrackedObjectChanged object:trackingManager];
-        
+
+        [center addObserver:self selector:@selector(textureManagerChanged:) name:TextureManagerChanged object:textureManager];
         [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
-        
         [center addObserver:self selector:@selector(optionsChanged:) name:OptionsChanged object:options];
         [center addObserver:self selector:@selector(gridChanged:) name:GridChanged object:grid];
     }

@@ -28,7 +28,6 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     if (!valid) {
         [textures removeAllObjects];
         [texturesByName removeAllObjects];
-        [texturesByUsageCount removeAllObjects];
         
         NSEnumerator* collectionEn = [textureCollections objectEnumerator];
         TextureCollection* collection;
@@ -40,10 +39,7 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
         }
         
         [texturesByName addObjectsFromArray:[textures allValues]];
-        [texturesByUsageCount addObjectsFromArray:texturesByName];
-        
         [texturesByName sortUsingSelector:@selector(compareByName:)];
-        [texturesByUsageCount sortUsingSelector:@selector(compareByUsageCount:)];
         
         valid = YES;
     }
@@ -58,7 +54,6 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
         textureCollections = [[NSMutableArray alloc] init];
         textures = [[NSMutableDictionary alloc] init];
         texturesByName = [[NSMutableArray alloc] init];
-        texturesByUsageCount = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -67,6 +62,7 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
 - (void)addTextureCollection:(TextureCollection *)theCollection {
     NSAssert(theCollection != nil, @"texture collection must not be nil");
     [textureCollections addObject:theCollection];
+    valid = NO;
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:TextureManagerChanged object:self];
@@ -102,6 +98,10 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     [center postNotificationName:TextureManagerChanged object:self];
 }
 
+- (NSArray *)textureCollections {
+    return textureCollections;
+}
+
 - (Texture *)textureForName:(NSString *)name {
     NSAssert(name != nil, @"name must not be nil");
     
@@ -109,13 +109,9 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     return [textures objectForKey:name];
 }
 
-- (NSArray *)textures:(ESortCriterion)sortCriterion {
+- (NSArray *)texturesByName {
     [self validate];
-    
-    if (sortCriterion == SC_NAME)
-        return texturesByName;
-
-    return texturesByUsageCount;
+    return texturesByName;
 }
 
 - (void)activateTexture:(NSString *)name {
@@ -130,21 +126,21 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-- (void)incUsageCount:(NSString *)name {
-    Texture* texture = [self textureForName:name];
-    if (texture != nil)
-        [texture incUsageCount];
-}
-
-- (void)decUsageCount:(NSString *)name {
-    Texture* texture = [self textureForName:name];
-    if (texture != nil)
-        [texture decUsageCount];
+- (NSString *)wadProperty {
+    NSMutableString* wadProperty = [[NSMutableString alloc] init];
+    
+    for (int i = 0; i < [textureCollections count]; i++) {
+        TextureCollection* collection = [textureCollections objectAtIndex:i];
+        [wadProperty appendString:[collection name]];
+        if (i < [textureCollections count] - 1)
+            [wadProperty appendString:@";"];
+    }
+    
+    return [wadProperty autorelease];
 }
 
 - (void)dealloc {
     [texturesByName release];
-    [texturesByUsageCount release];
     [textures release];
     [textureCollections release];
     [super dealloc];

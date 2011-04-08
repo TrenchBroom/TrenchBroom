@@ -19,11 +19,9 @@
     NSSet* selectedTextureNames;
     IBOutlet id target;
     GLResources* glResources;
-    ESortCriterion sortCriterion;
 }
 
 - (void)setTextureFilter:(id <TextureFilter>)theFilter;
-- (void)setSortCriterion:(ESortCriterion)theSortCriterion;
 - (void)setSelectedTextureNames:(NSSet *)theNames;
 - (void)setGLResources:(GLResources *)theGLResources;
 
