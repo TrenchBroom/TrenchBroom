@@ -151,7 +151,7 @@
 }
 
 - (void)preRenderEdges {
-    glColor4f(1, 1, 1, 1);
+    glColor4f(0.4f, 0.4f, 0.4f, 1);
 }
 
 - (void)postRenderEdges {
