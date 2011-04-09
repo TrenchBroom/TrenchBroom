@@ -37,7 +37,7 @@
 }
 
 - (BOOL)isSelectionModifierPressed:(NSEvent *)event {
-    return [event modifierFlags] == 256; // this might break
+    return [event modifierFlags] == 256 || ([event modifierFlags] & NSCommandKeyMask) == NSCommandKeyMask; // this might break
 }
 
 - (BOOL)isCameraModifierPressed:(NSEvent *)event {

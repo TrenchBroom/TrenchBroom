@@ -120,6 +120,9 @@
         case VM_DROP:
             [desc appendFormat:@", mark: VM_DROP"];
             break;
+        case VM_UNDECIDED:
+            [desc appendFormat:@", mark: VM_UNDECIDED"];
+            break;
         case VM_NEW:
             [desc appendFormat:@", mark: VM_NEW"];
             break;

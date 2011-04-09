@@ -33,6 +33,25 @@
     return [self initWithPoint:[aPlane point] norm:[aPlane norm]];
 }
 
+- (id)initWithIntPoint1:(Vector3i *)point1 point2:(Vector3i *)point2 point3:(Vector3i *)point3 {
+    if (self = [super init]) {
+        point = [[Vector3f alloc] initWithIntVector:point1];
+        Vector3f* v1 = [[Vector3f alloc] initWithIntVector:point2];
+        Vector3f* v2 = [[Vector3f alloc] initWithIntVector:point3];
+        [v1 sub:point];
+        [v2 sub:point];
+        
+        norm = [[Vector3f alloc] initWithFloatVector:v2];
+        [norm cross:v1];
+        [norm normalize];
+        
+        [v1 release];
+        [v2 release];
+    }
+    
+    return self;
+}
+
 - (void)setPoint:(Vector3f *)thePoint norm:(Vector3f *)theNorm {
     [point release];
     point = [thePoint retain];
@@ -49,24 +68,20 @@
     return norm;
 }
 
-- (BOOL)isPointAbove:(Vector3f *)aPoint {
-    Vector3f* t = [[Vector3f alloc] initWithFloatVector:aPoint];;
+- (EPointStatus)pointStatus:(Vector3f *)thePoint {
+    Vector3f* t = [[Vector3f alloc] initWithFloatVector:thePoint];
     [t sub:point];
     
-    BOOL above = fpos([norm dot:t]);
+    EPointStatus status;
+    if (fpos([norm dot:t]))
+        status = PS_ABOVE;
+    else if (fneg([norm dot:t]))
+        status = PS_BELOW;
+    else
+        status = PS_INSIDE;
     [t release];
     
-    return above;
-}
-
-- (BOOL)containsPoint:(Vector3f *)aPoint {
-    Vector3f* t = [[Vector3f alloc] initWithFloatVector:aPoint];;
-    [t sub:point];
-    
-    BOOL contains = fzero([norm dot:t]);
-    [t release];
-    
-    return contains;
+    return status;
 }
 
 - (float)intersectWithLine:(Line3D *)line {

@@ -40,8 +40,7 @@ typedef enum {
 	float xScale;
 	float yScale;
     
-    Vector3f* norm;
-    HalfSpace3D* halfSpace;
+    Plane3D* boundary;
     
     Vector3f* center;
     NSArray* vertices;

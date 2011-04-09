@@ -14,7 +14,6 @@
 #import "CoordinatePlane.h"
 #import "Edge.h"
 #import "MutableFace.h"
-#import "HalfSpace3D.h"
 #import "Math.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
@@ -193,32 +192,47 @@
 }
 
 - (BOOL)cutWithFace:(MutableFace *)face droppedFaces:(NSMutableArray **)droppedFaces {
-    HalfSpace3D* halfSpace = [face halfSpace];
+    Plane3D* plane = [face boundary];
+    
+    int keep = 0;
+    int drop = 0;
+    int undecided = 0;
     
     // mark vertices and brush
     NSEnumerator* vEn = [vertices objectEnumerator];
     Vertex* vertex = [vEn nextObject];
-    EVertexMark vertexMark = [halfSpace containsPoint:[vertex vector]] ? VM_KEEP : VM_DROP;
+    EPointStatus vertexStatus = [plane pointStatus:[vertex vector]];
+    EVertexMark vertexMark;
+    if (vertexStatus == PS_ABOVE) {
+        vertexMark = VM_DROP;
+        drop++;
+    } else if (vertexStatus == PS_BELOW) {
+        vertexMark = VM_KEEP;
+        keep++;
+    } else {
+        vertexMark = VM_UNDECIDED;
+        undecided++;
+    }
     [vertex setMark:vertexMark];
     
-    EBrushMark brushMark;
-    if (vertexMark == VM_KEEP)
-        brushMark = BM_KEEP;
-    else if (vertexMark == VM_DROP)
-        brushMark = BM_DROP;
-                              
     while ((vertex = [vEn nextObject])) {
-        vertexMark = [halfSpace containsPoint:[vertex vector]] ? VM_KEEP : VM_DROP;
+        vertexStatus = [plane pointStatus:[vertex vector]];
+        if (vertexStatus == PS_ABOVE) {
+            vertexMark = VM_DROP;
+            drop++;
+        } else if (vertexStatus == PS_BELOW) {
+            vertexMark = VM_KEEP;
+            keep++;
+        } else {
+            vertexMark = VM_UNDECIDED;
+            undecided++;
+        }
         [vertex setMark:vertexMark];
-        if (brushMark == BM_KEEP && vertexMark != VM_KEEP)
-            brushMark = BM_SPLIT;
-        else if (brushMark == BM_DROP && vertexMark != VM_DROP)
-            brushMark = BM_SPLIT;
     }
 
-    if (brushMark == VM_KEEP)
+    if (keep + undecided == [vertices count])
         return YES;
-    else if (brushMark == VM_DROP)
+    if (drop + undecided == [vertices count])
         return NO;
     
     // mark and split edges
@@ -228,7 +242,7 @@
     while ((edge = [eEn nextObject])) {
         [edge updateMark];
         if ([edge mark] == EM_SPLIT) {
-            Vertex* newVertex = [edge splitAt:[halfSpace boundary]];
+            Vertex* newVertex = [edge splitAt:plane];
             [vertices addObject:newVertex];
         }
     }
@@ -248,6 +262,12 @@
             [sides removeObjectAtIndex:i--];
         } else if ([side mark] == SM_SPLIT) {
             [edges addObject:newEdge];
+            [newEdges addObject:newEdge];
+            [side setMark:SM_UNKNOWN];
+        } else if ([side mark] == SM_KEEP && newEdge != nil) {
+            // the edge is an undecided edge, so it needs to be flipped in order to act as a new edge
+            if ([newEdge rightSide] != side)
+                [newEdge flip];
             [newEdges addObject:newEdge];
             [side setMark:SM_UNKNOWN];
         } else {
@@ -288,7 +308,7 @@
         if ([edge mark] == EM_DROP)
             [edges removeObjectAtIndex:i--];
         else
-            [edge updateMark];
+            [edge clearMark];
 
     }
     

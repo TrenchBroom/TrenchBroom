@@ -38,9 +38,6 @@
 }
 
 - (void)dealloc {
-    Renderer* renderer = [windowController renderer];
-    [renderer removeFeedbackFigure:figure];
-    [figure release];
     [lastPoint release];
     [plane release];
     [brushes release];
@@ -56,33 +53,21 @@
         [brushes unionSet:[[theWindowController selectionManager] selectedBrushes]];
         windowController = [theWindowController retain];
         
-        Grid* grid = [[windowController options] grid];
-        BoundingBox* bounds = [[BoundingBox alloc] initWithBrushes:brushes];
-        
         lastPoint = [[theHit hitPoint] retain];
         switch ([[theRay direction] largestComponent]) {
             case VC_X:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f xAxisPos]];
-                figureOrientation = GO_YZ;
-                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:figureOrientation bounds:bounds hitPoint:[theHit hitPoint]];
                 break;
             case VC_Y:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f yAxisPos]];
-                figureOrientation = GO_XZ;
-                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:figureOrientation bounds:bounds hitPoint:[theHit hitPoint]];
                 break;
             default:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f zAxisPos]];
-                figureOrientation = GO_XY;
-                figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:figureOrientation bounds:bounds hitPoint:[theHit hitPoint]];
                 break;
         }
 
-        [bounds release];
+        Grid* grid = [[windowController options] grid];
         [grid snapToGrid:lastPoint];
-
-        Renderer* renderer = [windowController renderer];
-        [renderer addFeedbackFigure:figure];
     }
     return self;
 }
@@ -114,14 +99,6 @@
 
     [lastPoint release];
     lastPoint = [point retain];
-
-    Renderer* renderer = [windowController renderer];
-    [renderer removeFeedbackFigure:figure];
-    [figure release];
-    
-    BoundingBox* bounds = [[BoundingBox alloc] initWithBrushes:brushes];
-    figure = [[GridFeedbackFigure alloc] initWithGrid:grid orientation:figureOrientation bounds:bounds hitPoint:point];
-    [renderer addFeedbackFigure:figure];
 }
 
 - (NSString *)actionName {

@@ -449,12 +449,13 @@ NSString* const RendererChanged = @"RendererChanged";
         NSFont* trackingFont = [NSFont systemFontOfSize:11];
         textureManager = [[glResources textureManager] retain];
         
+        SelectionManager* selectionManager = [windowController selectionManager];
         Camera* camera = [windowController camera];
         Options* options = [windowController options];
         Grid* grid = [options grid];
 
         geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid];
-        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid];
+        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid camera:camera fontManager:fontManager font:trackingFont];
         trackingLayer = [[TrackingLayer alloc] initWithCamera:camera fontManager:fontManager font:trackingFont];
 
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
@@ -473,7 +474,6 @@ NSString* const RendererChanged = @"RendererChanged";
         [center addObserver:self selector:@selector(faceWillChange:) name:FaceWillChange object:map];
         [center addObserver:self selector:@selector(faceDidChange:) name:FaceDidChange object:map];
         
-        SelectionManager* selectionManager = [windowController selectionManager];
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
         [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
         

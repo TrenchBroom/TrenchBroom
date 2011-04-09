@@ -30,5 +30,6 @@
 - (void)mergeBounds:(BoundingBox *)theBounds;
 - (void)mergeMin:(Vector3f *)theMin max:(Vector3f *)theMax;
 - (void)mergePoint:(Vector3f *)thePoint;
+- (void)expandBy:(float)delta;
 
 @end

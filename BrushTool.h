@@ -22,8 +22,6 @@
     MapWindowController* windowController;
     Plane3D* plane;
     Vector3f* lastPoint;
-    GridFeedbackFigure* figure;
-    EGridOrientation figureOrientation;
 }
 
 - (id)initWithController:(MapWindowController *)theWindowController pickHit:(PickingHit *)theHit pickRay:(Ray3D *)theRay;

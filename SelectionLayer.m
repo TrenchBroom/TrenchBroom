@@ -7,9 +7,28 @@
 //
 
 #import "SelectionLayer.h"
-#import "GridRenderer.h"
+#import "Face.h"
+#import "BoundsRenderer.h"
 
 @implementation SelectionLayer
+
+- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager grid:(Grid *)theGrid camera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
+    if (self = [super initWithVbo:theVbo textureManager:theTextureManager grid:theGrid]) {
+        boundsRenderer = [[BoundsRenderer alloc] initWithCamera:theCamera fontManager:theFontManager font:theFont];
+    }
+    
+    return self;
+}
+
+- (void)addFace:(id <Face>)theFace {
+    [super addFace:theFace];
+    [boundsRenderer addBrush:[theFace brush]];
+}
+
+- (void)removeFace:(id <Face>)theFace {
+    [super removeFace:theFace];
+    [boundsRenderer removeBrush:[theFace brush]];
+}
 
 - (void)preRenderEdges {
     glColor4f(1, 0, 0, 1);
@@ -18,6 +37,16 @@
 
 - (void)postRenderEdges {
     glEnable(GL_DEPTH_TEST);
+}
+
+- (void)render:(RenderContext *)renderContext {
+    [super render:renderContext];
+    [boundsRenderer render];
+}
+
+- (void)dealloc {
+    [boundsRenderer release];
+    [super dealloc];
 }
 
 @end

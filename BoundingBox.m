@@ -100,6 +100,12 @@
     [size sub:min];
 }
 
+- (void)expandBy:(float)delta {
+    [min subX:delta y:delta z:delta];
+    [max addX:delta y:delta z:delta];
+    [size addX:2 * delta y:2 * delta z:2 * delta];
+}
+
 - (void)dealloc {
     [min release];
     [max release];

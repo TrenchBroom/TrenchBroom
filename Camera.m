@@ -150,7 +150,7 @@ NSString* const CameraChanged = @"CameraChanged";
     [v scale:r];
     [position add:v];
     
-    [v setFloat:[Vector3f zAxisPos]];
+    [v setFloat:up];
     [v scale:u];
     [position add:v];
 

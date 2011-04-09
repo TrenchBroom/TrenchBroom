@@ -11,6 +11,7 @@
 typedef enum {
     VM_DROP,
     VM_KEEP,
+    VM_UNDECIDED,
     VM_NEW,
     VM_UNKNOWN
 } EVertexMark;

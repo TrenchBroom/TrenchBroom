@@ -8,12 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-typedef enum {
-    BM_KEEP,
-    BM_DROP,
-    BM_SPLIT
-} EBrushMark;
-
 @class MutableFace;
 @class BoundingBox;
 @class Ray3D;

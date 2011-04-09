@@ -16,7 +16,6 @@
 #import "Vector3f.h"
 #import "Vector3i.h"
 #import "Quaternion.h"
-#import "HalfSpace3D.h"
 #import "VertexData.h"
 #import "BoundingBox.h"
 #import "Ray3D.h"

@@ -91,13 +91,21 @@ static float HANDLE_RADIUS = 2.0f;
 }
 
 - (void)setLeftSide:(Side *)theLeftSide {
-    NSAssert(leftSide == nil, @"left side must not be set");
     leftSide = theLeftSide;
 }
 
 - (void)setRightSide:(Side *)theRightSide {
-    NSAssert(rightSide == nil, @"right side must not be set");
     rightSide = theRightSide;
+}
+
+- (void)flip {
+    Side* tempSide = leftSide;
+    leftSide = rightSide;
+    rightSide = tempSide;
+    
+    Vertex* tempVertex = startVertex;
+    startVertex = endVertex;
+    endVertex = tempVertex;
 }
 
 - (Vertex *)splitAt:(Plane3D *)plane {
@@ -221,20 +229,47 @@ static float HANDLE_RADIUS = 2.0f;
 }
 
 - (void)updateMark {
+    int keep = 0;
+    int drop = 0;
+    int undecided = 0;
+    
     EVertexMark s = [startVertex mark];
     EVertexMark e = [endVertex mark];
     
-    if (s == VM_KEEP && e == VM_KEEP)
-        mark = EM_KEEP;
-    else if (s == VM_DROP && e == VM_DROP)
-        mark = EM_DROP;
-    else if ((s == VM_KEEP && e == VM_DROP) ||
-             (s == VM_DROP && e == VM_KEEP))
-        mark = EM_SPLIT;
+    if (s == VM_KEEP)
+        keep++;
+    else if (s == VM_DROP)
+        drop++;
+    else if (s == VM_UNDECIDED)
+        undecided++;
     else
-        mark = EM_UNKNOWN;
+        [NSException raise:@"InvalidVertexStateException" format:@"invalid start vertex state: %i", s];
+    
+    if (e == VM_KEEP)
+        keep++;
+    else if (e == VM_DROP)
+        drop++;
+    else if (e == VM_UNDECIDED)
+        undecided++;
+    else
+        [NSException raise:@"InvalidVertexStateException" format:@"invalid end vertex state: %i", e];
+    
+    if (keep == 1 && drop == 1)
+        mark = EM_SPLIT;
+    else if (keep > 0)
+        mark = EM_KEEP;
+    else if (drop > 0)
+        mark = EM_DROP;
+    else
+        mark = EM_UNDECIDED;
+    
+    if (mark == EM_DROP && (s == VM_KEEP || e == VM_KEEP))
+        NSLog(@"asdf");
 }
 
+- (void)clearMark {
+    mark = EM_UNKNOWN;
+}
 
 - (NSString *)description {
     NSMutableString* desc = [NSMutableString stringWithFormat:@"[start: %@, end: %@", startVertex, endVertex];
@@ -248,6 +283,9 @@ static float HANDLE_RADIUS = 2.0f;
         case EM_SPLIT:
             [desc appendFormat:@", mark: EM_SPLIT]"];
             break;
+        case EM_UNDECIDED:
+            [desc appendFormat:@", mark: EM_UNDECIDED]"];
+            break;
         case EM_NEW:
             [desc appendFormat:@", mark: EM_NEW]"];
             break;
@@ -260,10 +298,6 @@ static float HANDLE_RADIUS = 2.0f;
     }
     
     return desc;
-}
-
-- (void)dealloc {
-    [super dealloc];
 }
 
 @end

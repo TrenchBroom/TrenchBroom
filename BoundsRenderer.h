@@ -9,14 +9,21 @@
 #import <Cocoa/Cocoa.h>
 
 @class GLFontManager;
+@class GLString;
 @class Camera;
+@class BoundingBox;
 @protocol Brush;
 
-@interface BrushGuideRenderer : NSObject {
-    NSMutableDictionary* glStrings;
+@interface BoundsRenderer : NSObject {
     NSMutableSet* brushes;
+    NSMutableDictionary* brushCounts;
     GLFontManager* fontManager;
     NSFont* font;
+    BoundingBox* bounds;
+    GLString* widthStr;
+    GLString* heightStr;
+    GLString* depthStr;
+    BOOL valid;
     Camera* camera;
 }
 

@@ -16,7 +16,6 @@
 #import "PickingHit.h"
 #import "CoordinatePlane.h"
 #import "Math.h"
-#import "HalfSpace3D.h"
 #import "Plane3D.h"
 #import "SegmentIterator.h"
 
@@ -71,34 +70,57 @@
 }
 
 - (Edge *)split {
-    EEdgeMark currentMark = [[edges lastObject] mark];
-    if (currentMark == EM_KEEP)
-        mark = SM_KEEP;
-    else if (currentMark == EM_DROP)
-        mark = SM_DROP;
-    else if (currentMark == EM_SPLIT)
-        mark = SM_SPLIT;
+    int keep = 0;
+    int drop = 0;
+    int split = 0;
+    int undecided = 0;
+    Edge* undecidedEdge = nil;
     
-    int splitIndex1, splitIndex2 = -1;
+    int splitIndex1 = -2;
+    int splitIndex2 = -2;
 
+    EEdgeMark lastMark = [[edges lastObject] mark];
     for (int i = 0; i < [edges count]; i++) {
         Edge* edge = [edges objectAtIndex:i];
-        currentMark = [edge mark];
+        EEdgeMark currentMark = [edge mark];
         if (currentMark == EM_SPLIT) {
             if ([[edge startVertexForSide:self] mark] == VM_KEEP)
                 splitIndex1 = i;
             else
                 splitIndex2 = i;
+            split++;
+        } else if (currentMark == EM_UNDECIDED) {
+            undecided++;
+            undecidedEdge = edge;
+        } else if (currentMark == EM_KEEP) {
+            if (lastMark == EM_DROP)
+                splitIndex2 = i;
+            keep++;
+        } else if (currentMark == EM_DROP) {
+            if (lastMark == EM_KEEP)
+                splitIndex1 = i > 0 ? i - 1 : [edges count] - 1;
+            drop++;
         }
-        
-        if ((mark == SM_KEEP && currentMark != EM_KEEP) || 
-            (mark == SM_DROP && currentMark != EM_DROP))
-            mark = SM_SPLIT;
+        lastMark = currentMark;
     }
     
-    if (mark == SM_KEEP || mark == SM_DROP)
+    if (keep == [edges count]) {
+        mark = SM_KEEP;
         return nil;
+    }
+    
+    if (undecided == 1 && keep == [edges count] - 1) {
+        mark = SM_KEEP;
+        return undecidedEdge;
+    }
+    
+    if (drop + undecided == [edges count]) {
+        mark = SM_DROP;
+        return nil;
+    }
 
+    mark = SM_SPLIT;
+    
     Vertex* startVertex = [[edges objectAtIndex:splitIndex1] endVertexForSide:self];
     Vertex* endVertex = [[edges objectAtIndex:splitIndex2] startVertexForSide:self];
     Edge* newEdge = [[Edge alloc] initWithStartVertex:startVertex endVertex:endVertex];
@@ -157,7 +179,7 @@
     if (!fneg(d))
         return nil;
     
-    Plane3D* plane = [[face halfSpace] boundary];
+    Plane3D* plane = [face boundary];
     float dist = [plane intersectWithRay:theRay];
     if (isnan(dist))
         return nil;

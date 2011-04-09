@@ -7,7 +7,7 @@
 //
 
 #import "TrackingLayer.h"
-#import "BrushGuideRenderer.h"
+#import "BoundsRenderer.h"
 #import "Brush.h"
 #import "Face.h"
 #import "Camera.h"
@@ -17,7 +17,7 @@
 
 - (id)initWithCamera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
     if (self = [super init]) {
-        brushGuideRenderer = [[BrushGuideRenderer alloc] initWithCamera:theCamera fontManager:theFontManager font:theFont];
+        brushGuideRenderer = [[BoundsRenderer alloc] initWithCamera:theCamera fontManager:theFontManager font:theFont];
     }
     
     return self;
@@ -25,12 +25,10 @@
 
 - (void)addBrush:(id <Brush>)theBrush {
     NSAssert(theBrush != nil, @"brush must not be nil");
-    [brushGuideRenderer addBrush:theBrush];
 }
 
 - (void)removeBrush:(id <Brush>)theBrush {
     NSAssert(theBrush != nil, @"brush must not be nil");
-    [brushGuideRenderer removeBrush:theBrush];
 }
 
 - (void)addFace:(id <Face>)theFace {
@@ -42,7 +40,7 @@
 }
 
 - (void)render:(RenderContext *)renderContext {
-    glColor4f(1, 1, 1, 1);
+    glColor4f(1, 1, 0, 1);
     glDisable(GL_DEPTH_TEST);
     [brushGuideRenderer render];
     glEnable(GL_DEPTH_TEST);

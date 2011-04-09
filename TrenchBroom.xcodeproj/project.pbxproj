@@ -83,8 +83,6 @@
 		487A7E651300801A00434806 /* Renderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A7E641300801A00434806 /* Renderer.m */; };
 		487CA0BD125B005A002DF9D2 /* Plane3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0BC125B005A002DF9D2 /* Plane3D.m */; };
 		487CA0BE125B005A002DF9D2 /* Plane3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0BC125B005A002DF9D2 /* Plane3D.m */; };
-		487CA0C5125B00E9002DF9D2 /* HalfSpace3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */; };
-		487CA0C6125B00E9002DF9D2 /* HalfSpace3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */; };
 		487E1E9412E495060001C150 /* IdGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E1E9312E495060001C150 /* IdGenerator.m */; };
 		487FC64612E8B86B006FF29E /* Wad.m in Sources */ = {isa = PBXBuildFile; fileRef = 487FC64512E8B86B006FF29E /* Wad.m */; };
 		487FC64912E8BB53006FF29E /* WadEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 487FC64812E8BB53006FF29E /* WadEntry.m */; };
@@ -125,7 +123,7 @@
 		48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C751981261A704000ABD57 /* PolyhedronTestCase.m */; };
 		48CBDD9913170B330041F704 /* GLResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CBDD9813170B330041F704 /* GLResources.m */; };
 		48CE70AC134741C400886260 /* GridFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CE70AB134741C400886260 /* GridFeedbackFigure.m */; };
-		48D6B714134859890084F82E /* BrushGuideRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B713134859890084F82E /* BrushGuideRenderer.m */; };
+		48D6B714134859890084F82E /* BoundsRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B713134859890084F82E /* BoundsRenderer.m */; };
 		48D6B903134B8DC90084F82E /* GLStringData.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B902134B8DC90084F82E /* GLStringData.m */; };
 		48DB957812F0699600FB5483 /* InputManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB957712F0699600FB5483 /* InputManager.m */; };
 		48DB95A312F0A89E00FB5483 /* Quaternion.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB95A212F0A89E00FB5483 /* Quaternion.m */; };
@@ -306,8 +304,6 @@
 		487A7E641300801A00434806 /* Renderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Renderer.m; sourceTree = "<group>"; };
 		487CA0BB125B005A002DF9D2 /* Plane3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane3D.h; sourceTree = "<group>"; };
 		487CA0BC125B005A002DF9D2 /* Plane3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Plane3D.m; sourceTree = "<group>"; };
-		487CA0C3125B00E9002DF9D2 /* HalfSpace3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HalfSpace3D.h; sourceTree = "<group>"; };
-		487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HalfSpace3D.m; sourceTree = "<group>"; };
 		487E1E9212E495060001C150 /* IdGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IdGenerator.h; sourceTree = "<group>"; };
 		487E1E9312E495060001C150 /* IdGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IdGenerator.m; sourceTree = "<group>"; };
 		487FC64412E8B86B006FF29E /* Wad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Wad.h; sourceTree = "<group>"; };
@@ -381,8 +377,8 @@
 		48CBDD9813170B330041F704 /* GLResources.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLResources.m; sourceTree = "<group>"; };
 		48CE70AA134741C400886260 /* GridFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridFeedbackFigure.h; sourceTree = "<group>"; };
 		48CE70AB134741C400886260 /* GridFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridFeedbackFigure.m; sourceTree = "<group>"; };
-		48D6B712134859890084F82E /* BrushGuideRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushGuideRenderer.h; sourceTree = "<group>"; };
-		48D6B713134859890084F82E /* BrushGuideRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrushGuideRenderer.m; sourceTree = "<group>"; };
+		48D6B712134859890084F82E /* BoundsRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundsRenderer.h; sourceTree = "<group>"; };
+		48D6B713134859890084F82E /* BoundsRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundsRenderer.m; sourceTree = "<group>"; };
 		48D6B901134B8DC90084F82E /* GLStringData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLStringData.h; sourceTree = "<group>"; };
 		48D6B902134B8DC90084F82E /* GLStringData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLStringData.m; sourceTree = "<group>"; };
 		48DB957612F0699600FB5483 /* InputManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputManager.h; sourceTree = "<group>"; };
@@ -551,8 +547,8 @@
 				48692208133B272000A0F098 /* ThickEdgeRenderer.m */,
 				4869211B133A965600A0F098 /* VertexRenderer.h */,
 				4869211C133A965600A0F098 /* VertexRenderer.m */,
-				48D6B712134859890084F82E /* BrushGuideRenderer.h */,
-				48D6B713134859890084F82E /* BrushGuideRenderer.m */,
+				48D6B712134859890084F82E /* BoundsRenderer.h */,
+				48D6B713134859890084F82E /* BoundsRenderer.m */,
 			);
 			name = PrimitiveRenderer;
 			sourceTree = "<group>";
@@ -583,8 +579,6 @@
 				480BB50913031A9D005E3492 /* Matrix3f.m */,
 				4872C97512FF4DC200C5DD29 /* Matrix4f.h */,
 				4872C97612FF4DC200C5DD29 /* Matrix4f.m */,
-				487CA0C3125B00E9002DF9D2 /* HalfSpace3D.h */,
-				487CA0C4125B00E9002DF9D2 /* HalfSpace3D.m */,
 				4836400F12603A5100363E3F /* Line3D.h */,
 				4836401012603A5100363E3F /* Line3D.m */,
 				487CA0BB125B005A002DF9D2 /* Plane3D.h */,
@@ -1012,7 +1006,6 @@
 				486641111229854E00752B89 /* Math.m in Sources */,
 				48E110811234BF5500087198 /* Vector2f.m in Sources */,
 				487CA0BD125B005A002DF9D2 /* Plane3D.m in Sources */,
-				487CA0C5125B00E9002DF9D2 /* HalfSpace3D.m in Sources */,
 				4836401112603A5100363E3F /* Line3D.m in Sources */,
 				4836401B1260416700363E3F /* Plane3DTestCase.m in Sources */,
 				48C7519A1261A704000ABD57 /* PolyhedronTestCase.m in Sources */,
@@ -1041,7 +1034,6 @@
 				483B1129122441060072EAFB /* Math.m in Sources */,
 				48E110871234BF5500087198 /* Vector2f.m in Sources */,
 				487CA0BE125B005A002DF9D2 /* Plane3D.m in Sources */,
-				487CA0C6125B00E9002DF9D2 /* HalfSpace3D.m in Sources */,
 				4836401212603A5100363E3F /* Line3D.m in Sources */,
 				48B324C112E1F455008748E2 /* Camera.m in Sources */,
 				48B325E512E3788D008748E2 /* AppDelegate.m in Sources */,
@@ -1122,7 +1114,7 @@
 				48DBE74F1341CD8B00C0FDE7 /* ClipPlane.m in Sources */,
 				4888732A13436206005FCE15 /* FloatData.m in Sources */,
 				48CE70AC134741C400886260 /* GridFeedbackFigure.m in Sources */,
-				48D6B714134859890084F82E /* BrushGuideRenderer.m in Sources */,
+				48D6B714134859890084F82E /* BoundsRenderer.m in Sources */,
 				48D6B903134B8DC90084F82E /* GLStringData.m in Sources */,
 				486526C5134F0BC20045A4B6 /* TextureCollection.m in Sources */,
 			);

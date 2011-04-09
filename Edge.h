@@ -12,6 +12,7 @@ typedef enum {
     EM_KEEP,
     EM_DROP,
     EM_SPLIT,
+    EM_UNDECIDED,
     EM_NEW,
     EM_UNKNOWN
 } EEdgeMark;
@@ -48,6 +49,7 @@ typedef enum {
 - (Vertex *)endVertexForSide:(Side *)theSide;
 - (void)setLeftSide:(Side *)theLeftSide;
 - (void)setRightSide:(Side *)theRightSide;
+- (void)flip;
 
 - (Vertex *)splitAt:(Plane3D *)plane;
 
@@ -56,5 +58,6 @@ typedef enum {
 
 - (EEdgeMark)mark;
 - (void)updateMark;
+- (void)clearMark;
 
 @end

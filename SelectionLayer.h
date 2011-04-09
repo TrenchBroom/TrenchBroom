@@ -8,7 +8,14 @@
 
 #import "GeometryLayer.h"
 
+@class BoundsRenderer;
+@class Camera;
+@class GLFontManager;
+
 @interface SelectionLayer : GeometryLayer {
+    BoundsRenderer* boundsRenderer;
 }
+
+- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager grid:(Grid *)theGrid camera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;
 
 @end

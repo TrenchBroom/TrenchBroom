@@ -9,12 +9,12 @@
 #import <Cocoa/Cocoa.h>
 #import "Layer.h"
 
-@class BrushGuideRenderer;
+@class BoundsRenderer;
 @class Camera;
 @class GLFontManager;
 
 @interface TrackingLayer : NSObject <Layer> {
-    BrushGuideRenderer* brushGuideRenderer;
+    BoundsRenderer* brushGuideRenderer;
 }
 
 - (id)initWithCamera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;

@@ -13,7 +13,7 @@
 @class Vector3i;
 @class Vector3f;
 @class Vector2f;
-@class HalfSpace3D;
+@class Plane3D;
 @class Ray3D;
 @class PickingHit;
 @class VBOMemBlock;
@@ -43,7 +43,7 @@
 - (void)gridCoords:(Vector2f *)gridCoords forVertex:(Vector3f *)vertex;
 - (void)transformToWorld:(Vector3f *)point;
 - (void)transformToSurface:(Vector3f *)point;
-- (HalfSpace3D *)halfSpace;
+- (Plane3D *)boundary;
 
 - (void)setMemBlock:(VBOMemBlock *)theBlock;
 - (VBOMemBlock *)memBlock;
