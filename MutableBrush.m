@@ -54,7 +54,7 @@
 
 - (VertexData *)vertexData {
     if (vertexData == nil) {
-        NSMutableArray* droppedFaces = nil;
+        NSMutableSet* droppedFaces = nil;
         vertexData = [[VertexData alloc] initWithFaces:faces droppedFaces:&droppedFaces];
         if (droppedFaces != nil) {
             NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
@@ -68,7 +68,7 @@
 }
 
 - (BOOL)addFace:(MutableFace *)face {
-    NSMutableArray* droppedFaces = nil;
+    NSMutableSet* droppedFaces = nil;
     if (![[self vertexData] cutWithFace:face droppedFaces:&droppedFaces])
         return NO;
     
@@ -172,6 +172,26 @@
 - (void)faceGeometryChanged:(MutableFace *)face {
     [vertexData release];
     vertexData = nil;
+}
+
+- (BOOL)canDrag:(MutableFace *)face by:(float)dist {
+    NSMutableArray* testFaces = [[NSMutableArray alloc] initWithArray:faces];
+    [testFaces removeObject:face];
+
+    MutableFace* testFace = [[MutableFace alloc] initWithFaceTemplate:face];
+    [testFace dragBy:dist];
+    [testFaces addObject:testFace];
+    [testFace release];
+    
+    NSMutableSet* droppedFaces = nil;
+    VertexData* testData = [[VertexData alloc] initWithFaces:testFaces droppedFaces:&droppedFaces];
+    BOOL canDrag = testData != nil && (droppedFaces == nil || [droppedFaces count] == 0);
+    
+    [testFaces release];
+    [testData release];
+    
+    return canDrag;
+    
 }
 
 - (void)dealloc {

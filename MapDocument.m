@@ -624,25 +624,28 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 }
 
 - (void)dragFace:(id <Face>)face dist:(float)dist {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] dragFace:face dist:-dist];
-    
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:[face brush] forKey:BrushKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
-    }
-    
     MutableFace* mutableFace = (MutableFace *)face;
-    [mutableFace dragBy:(float)dist];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
-        [userInfo release];
+    if ([mutableFace canDragBy:dist]) {
+        NSUndoManager* undoManager = [self undoManager];
+        [[undoManager prepareWithInvocationTarget:self] dragFace:face dist:-dist];
+        
+        NSMutableDictionary* userInfo;
+        if ([self postNotifications]) {
+            userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:[face brush] forKey:BrushKey];
+            
+            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+            [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
+        }
+        
+        MutableFace* mutableFace = (MutableFace *)face;
+        [mutableFace dragBy:(float)dist];
+        
+        if ([self postNotifications]) {
+            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+            [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
+            [userInfo release];
+        }
     }
 }
 

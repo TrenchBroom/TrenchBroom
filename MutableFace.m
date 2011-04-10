@@ -298,6 +298,29 @@ static Vector3f* baseAxes[18];
     [point2 add:theDelta];
     [point3 add:theDelta];
     
+    if (texAxisX == nil || texAxisY == nil)
+        [self updateTexAxes];
+
+    switch (bestAxis) {
+        case 0:
+        case 1:
+            xOffset -= [theDelta y];
+            yOffset += [theDelta z];
+            break;
+        case 2:
+        case 3:
+            xOffset -= [theDelta x];
+            yOffset += [theDelta z];
+            break;
+        case 4:
+        case 5:
+            xOffset -= [theDelta x];
+            yOffset += [theDelta y];
+            break;
+        default:
+            break;
+    }
+    
     [self geometryChanged];
 }
 
@@ -345,6 +368,10 @@ static Vector3f* baseAxes[18];
     
     
     [self geometryChanged];
+}
+
+- (BOOL)canDragBy:(float)dist {
+    return [brush canDrag:self by:dist];
 }
 
 - (void)dragBy:(float)dist {

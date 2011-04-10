@@ -24,9 +24,9 @@
     Vector3f* center;
 }
 
-- (id)initWithFaces:(NSArray *)faces droppedFaces:(NSMutableArray **)droppedFaces;
+- (id)initWithFaces:(NSArray *)faces droppedFaces:(NSMutableSet **)droppedFaces;
 
-- (BOOL)cutWithFace:(MutableFace *)face droppedFaces:(NSMutableArray **)droppedFaces;
+- (BOOL)cutWithFace:(MutableFace *)face droppedFaces:(NSMutableSet **)droppedFaces;
 - (NSArray *)vertices;
 - (NSArray *)edges;
 - (int)edgeCount;

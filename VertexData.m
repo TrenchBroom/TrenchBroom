@@ -176,7 +176,7 @@
     return self;
 }
 
-- (id)initWithFaces:(NSArray *)faces droppedFaces:(NSMutableArray **)droppedFaces {
+- (id)initWithFaces:(NSArray *)faces droppedFaces:(NSMutableSet **)droppedFaces {
     if (self = [self init]) {
         NSEnumerator* faceEn = [faces objectEnumerator];
         MutableFace * face;
@@ -191,7 +191,7 @@
     return self;
 }
 
-- (BOOL)cutWithFace:(MutableFace *)face droppedFaces:(NSMutableArray **)droppedFaces {
+- (BOOL)cutWithFace:(MutableFace *)face droppedFaces:(NSMutableSet **)droppedFaces {
     Plane3D* plane = [face boundary];
     
     int keep = 0;
@@ -230,8 +230,13 @@
         [vertex setMark:vertexMark];
     }
 
-    if (keep + undecided == [vertices count])
+    if (keep + undecided == [vertices count]) {
+        if (*droppedFaces == nil)
+            *droppedFaces = [NSMutableSet set];
+        [*droppedFaces addObject:face];
         return YES;
+    }
+    
     if (drop + undecided == [vertices count])
         return NO;
     
@@ -248,17 +253,17 @@
     }
     
     // mark, split and drop sides
-    if (*droppedFaces == nil)
-        *droppedFaces = [NSMutableArray array];
-    
     NSMutableArray* newEdges = [[NSMutableArray alloc] init];
     for (int i = 0; i < [sides count]; i++) {
         Side* side = [sides objectAtIndex:i];
         Edge* newEdge = [side split];
         if ([side mark] == SM_DROP) {
             id <Face> face = [side face];
-            if (face != nil)
+            if (face != nil) {
+                if (*droppedFaces == nil)
+                    *droppedFaces = [NSMutableSet set];
                 [*droppedFaces addObject:face];
+            }
             [sides removeObjectAtIndex:i--];
         } else if ([side mark] == SM_SPLIT) {
             [edges addObject:newEdge];

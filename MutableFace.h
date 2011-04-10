@@ -73,6 +73,7 @@ typedef enum {
 - (void)translateBy:(Vector3i *)theDelta;
 - (void)rotateZ90CW:(Vector3i *)theCenter;
 - (void)rotateZ90CCW:(Vector3i *)theCenter;
+- (BOOL)canDragBy:(float)dist;
 - (void)dragBy:(float)dist;
 
 - (void)setVertices:(NSArray *)theVertices;

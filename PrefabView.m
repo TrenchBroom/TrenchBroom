@@ -126,6 +126,7 @@
         NSRect frame = [self frame];
         [layout setWidth:NSWidth(frame)];
         
+        [[self openGLContext] makeCurrentContext];
         float h =  fmaxf([layout height], NSHeight([[self superview] bounds]));
         
         [[self superview] setNeedsDisplay:YES];
@@ -319,7 +320,6 @@
     if (glResources != nil) {
         NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:[glResources openGLContext]];
         [self setOpenGLContext:sharingContext];
-        [sharingContext makeCurrentContext];
         [sharingContext release];
 
         [layout release];

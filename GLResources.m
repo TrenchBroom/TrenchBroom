@@ -20,8 +20,6 @@
         openGLContext = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
         [pixelFormat release];
 
-        [openGLContext makeCurrentContext];
-        
         fontManager = [[GLFontManager alloc] init];
         vbos = [[NSMutableDictionary alloc] init];
         

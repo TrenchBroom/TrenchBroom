@@ -39,4 +39,6 @@
 - (void)rotateZ90CW:(Vector3i *)theCenter;
 - (void)rotateZ90CCW:(Vector3i *)theCenter;
 - (void)faceGeometryChanged:(MutableFace *)face;
+
+- (BOOL)canDrag:(MutableFace *)face by:(float)dist;
 @end

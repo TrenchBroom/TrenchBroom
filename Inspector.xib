@@ -12,7 +12,7 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="109"/>
+			<integer value="68"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -75,7 +75,7 @@
 												<reference key="NSSuperview" ref="425344334"/>
 												<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 													<object class="NSMutableData" key="NSPixelAttributes">
-														<bytes key="NS.bytes">AAAABQAAAGAAAAAIAAAAGAAAAAsAAAAIAAAAAA</bytes>
+														<bytes key="NS.bytes">AAAABQAAADsAAABgAAAACAAAABgAAAALAAAACAAAAAwAAAAYAAAAOAAAAAQAAAA3AAAAAQAAAAA</bytes>
 													</object>
 												</object>
 											</object>
@@ -630,7 +630,7 @@
 																<reference key="NSSuperview" ref="999772963"/>
 																<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 																	<object class="NSMutableData" key="NSPixelAttributes">
-																		<bytes key="NS.bytes">AAAABQAAAGAAAAAIAAAAGAAAAAsAAAAIAAAAOAAAAAQAAAA3AAAAAQAAAAA</bytes>
+																		<bytes key="NS.bytes">AAAABQAAADsAAABgAAAACAAAABgAAAALAAAACAAAAAwAAAAYAAAAOAAAAAQAAAA3AAAAAQAAAAA</bytes>
 																	</object>
 																</object>
 															</object>
@@ -1126,7 +1126,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 																<reference key="NSSuperview" ref="925467617"/>
 																<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 																	<object class="NSMutableData" key="NSPixelAttributes">
-																		<bytes key="NS.bytes">AAAABQAAAGAAAAAIAAAAGAAAAAsAAAAIAAAADAAAABgAAAA4AAAABAAAADcAAAABAAAAAA</bytes>
+																		<bytes key="NS.bytes">AAAABQAAADsAAABgAAAACAAAABgAAAALAAAACAAAAAwAAAAYAAAAOAAAAAQAAAA3AAAAAQAAAAA</bytes>
 																	</object>
 																</object>
 															</object>
@@ -2121,9 +2121,9 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 				</object>
 				<object class="NSMutableArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
-					<string>{{423, 227}, {527, 786}}</string>
+					<string>{{423, 70}, {527, 786}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{423, 227}, {527, 786}}</string>
+					<string>{{423, 70}, {527, 786}}</string>
 					<integer value="1"/>
 					<string>{196, 240}</string>
 					<string>{{202, 428}, {480, 270}}</string>

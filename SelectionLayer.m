@@ -41,7 +41,9 @@
 
 - (void)render:(RenderContext *)renderContext {
     [super render:renderContext];
+    glDisable(GL_DEPTH_TEST);
     [boundsRenderer render];
+    glEnable(GL_DEPTH_TEST);
 }
 
 - (void)dealloc {
