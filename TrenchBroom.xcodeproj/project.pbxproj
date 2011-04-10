@@ -35,6 +35,9 @@
 		482F008213410F7400849BF5 /* ClipPlaneFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482F008113410F7400849BF5 /* ClipPlaneFeedbackFigure.m */; };
 		482FFF011340E10E00849BF5 /* ClipTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 482FFF001340E10E00849BF5 /* ClipTool.m */; };
 		482FFF181340E56000849BF5 /* ClipPointFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482FFF171340E56000849BF5 /* ClipPointFeedbackFigure.m */; };
+		48325CB0135215B200E703E0 /* InfoLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48325CAF135215B200E703E0 /* InfoLayer.m */; };
+		48325CB3135215ED00E703E0 /* FigureLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48325CB2135215ED00E703E0 /* FigureLayer.m */; };
+		48325D4713524F7000E703E0 /* CompassFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48325D4613524F7000E703E0 /* CompassFigure.m */; };
 		4833C15F131953F600EB1B85 /* PrefabManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C15E131953F600EB1B85 /* PrefabManager.m */; };
 		4833C1BD13196CFB00EB1B85 /* MutablePrefab.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C1BC13196CFB00EB1B85 /* MutablePrefab.m */; };
 		4836401112603A5100363E3F /* Line3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4836401012603A5100363E3F /* Line3D.m */; };
@@ -210,9 +213,16 @@
 		482F008113410F7400849BF5 /* ClipPlaneFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipPlaneFeedbackFigure.m; sourceTree = "<group>"; };
 		482FFEFF1340E10E00849BF5 /* ClipTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipTool.h; sourceTree = "<group>"; };
 		482FFF001340E10E00849BF5 /* ClipTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipTool.m; sourceTree = "<group>"; };
-		482FFF111340E3C600849BF5 /* FeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeedbackFigure.h; sourceTree = "<group>"; };
+		482FFF111340E3C600849BF5 /* Figure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
 		482FFF161340E56000849BF5 /* ClipPointFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipPointFeedbackFigure.h; sourceTree = "<group>"; };
 		482FFF171340E56000849BF5 /* ClipPointFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipPointFeedbackFigure.m; sourceTree = "<group>"; };
+		48325C9D1352152800E703E0 /* Layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Layer.h; sourceTree = "<group>"; };
+		48325CAE135215B200E703E0 /* InfoLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InfoLayer.h; sourceTree = "<group>"; };
+		48325CAF135215B200E703E0 /* InfoLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InfoLayer.m; sourceTree = "<group>"; };
+		48325CB1135215ED00E703E0 /* FigureLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FigureLayer.h; sourceTree = "<group>"; };
+		48325CB2135215ED00E703E0 /* FigureLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FigureLayer.m; sourceTree = "<group>"; };
+		48325D4513524F7000E703E0 /* CompassFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompassFigure.h; sourceTree = "<group>"; };
+		48325D4613524F7000E703E0 /* CompassFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompassFigure.m; sourceTree = "<group>"; };
 		4833C15B131953D300EB1B85 /* Prefab2.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prefab2.map; sourceTree = "<group>"; };
 		4833C15D131953F600EB1B85 /* PrefabManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabManager.h; sourceTree = "<group>"; };
 		4833C15E131953F600EB1B85 /* PrefabManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabManager.m; sourceTree = "<group>"; };
@@ -297,7 +307,7 @@
 		487A645712EA397C00A43289 /* TextureView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureView.m; sourceTree = "<group>"; };
 		487A646A12EA3A7E00A43289 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture.h; sourceTree = "<group>"; };
 		487A646B12EA3A7E00A43289 /* Texture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Texture.m; sourceTree = "<group>"; };
-		487A7E38130071DD00434806 /* Layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Layer.h; sourceTree = "<group>"; };
+		487A7E38130071DD00434806 /* BrushLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushLayer.h; sourceTree = "<group>"; };
 		487A7E39130071F300434806 /* GeometryLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryLayer.h; sourceTree = "<group>"; };
 		487A7E3A130071F300434806 /* GeometryLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeometryLayer.m; sourceTree = "<group>"; };
 		487A7E631300801A00434806 /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
@@ -529,11 +539,16 @@
 			children = (
 				487A7E39130071F300434806 /* GeometryLayer.h */,
 				487A7E3A130071F300434806 /* GeometryLayer.m */,
-				487A7E38130071DD00434806 /* Layer.h */,
+				487A7E38130071DD00434806 /* BrushLayer.h */,
 				48B016DE133CCCBB00E3AF90 /* SelectionLayer.h */,
 				48B016DF133CCCBB00E3AF90 /* SelectionLayer.m */,
 				4869268E133E1CAE00A0F098 /* TrackingLayer.h */,
 				4869268F133E1CAE00A0F098 /* TrackingLayer.m */,
+				48325C9D1352152800E703E0 /* Layer.h */,
+				48325CAE135215B200E703E0 /* InfoLayer.h */,
+				48325CAF135215B200E703E0 /* InfoLayer.m */,
+				48325CB1135215ED00E703E0 /* FigureLayer.h */,
+				48325CB2135215ED00E703E0 /* FigureLayer.m */,
 			);
 			name = Layer;
 			sourceTree = "<group>";
@@ -619,6 +634,8 @@
 				48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */,
 				48CE70AA134741C400886260 /* GridFeedbackFigure.h */,
 				48CE70AB134741C400886260 /* GridFeedbackFigure.m */,
+				48325D4513524F7000E703E0 /* CompassFigure.h */,
+				48325D4613524F7000E703E0 /* CompassFigure.m */,
 			);
 			name = Tool;
 			sourceTree = "<group>";
@@ -649,7 +666,7 @@
 				484C28FB115023A2004DD957 /* VBOBuffer.m */,
 				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
 				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
-				482FFF111340E3C600849BF5 /* FeedbackFigure.h */,
+				482FFF111340E3C600849BF5 /* Figure.h */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -1117,6 +1134,9 @@
 				48D6B714134859890084F82E /* BoundsRenderer.m in Sources */,
 				48D6B903134B8DC90084F82E /* GLStringData.m in Sources */,
 				486526C5134F0BC20045A4B6 /* TextureCollection.m in Sources */,
+				48325CB0135215B200E703E0 /* InfoLayer.m in Sources */,
+				48325CB3135215ED00E703E0 /* FigureLayer.m in Sources */,
+				48325D4713524F7000E703E0 /* CompassFigure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

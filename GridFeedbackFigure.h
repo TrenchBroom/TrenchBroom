@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "FeedbackFigure.h"
+#import "Figure.h"
 
 typedef enum {
     GO_XY,
@@ -19,7 +19,7 @@ typedef enum {
 @class BoundingBox;
 @class Vector3f;
 
-@interface GridFeedbackFigure : NSObject <FeedbackFigure> {
+@interface GridFeedbackFigure : NSObject <Figure> {
     float gridPoints[2][2][3];
     int rows;
     int cols;

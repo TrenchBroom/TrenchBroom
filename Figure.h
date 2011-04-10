@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@protocol FeedbackFigure <NSObject>
+@protocol Figure <NSObject>
 
 - (void)render;
 

@@ -1,5 +1,5 @@
 //
-//  BrushLayer.h
+//  InfoLayer.h
 //  TrenchBroom
 //
 //  Created by Kristian Duske on 10.04.11.
@@ -7,11 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "FigureLayer.h"
 
-@class RenderContext;
-
-@protocol Layer <NSObject>
-
-- (void)render:(RenderContext *)renderContext;
+@interface InfoLayer : FigureLayer {
+}
 
 @end

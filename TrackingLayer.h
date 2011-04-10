@@ -1,5 +1,5 @@
 //
-//  TrackingLayer.h
+//  TrackingBrushLayer.h
 //  TrenchBroom
 //
 //  Created by Kristian Duske on 26.03.11.
@@ -7,13 +7,13 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Layer.h"
+#import "BrushLayer.h"
 
 @class BoundsRenderer;
 @class Camera;
 @class GLFontManager;
 
-@interface TrackingLayer : NSObject <Layer> {
+@interface TrackingLayer : NSObject <BrushLayer> {
     BoundsRenderer* brushGuideRenderer;
 }
 

@@ -9,11 +9,11 @@
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
-#import "FeedbackFigure.h"
+#import "Figure.h"
 
 @class Vector3i;
 
-@interface ClipPointFeedbackFigure : NSObject <FeedbackFigure> {
+@interface ClipPointFeedbackFigure : NSObject <Figure> {
     Vector3i* point;
     GLUquadric* sphere;
 }

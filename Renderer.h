@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Layer.h"
+#import "BrushLayer.h"
 
 extern NSString* const RendererChanged;
 
@@ -15,10 +15,12 @@ extern NSString* const RendererChanged;
 @class GeometryLayer;
 @class SelectionLayer;
 @class TrackingLayer;
+@class FigureLayer;
+@class InfoLayer;
 @class RenderContext;
 @class MapWindowController;
 @class TextureManager;
-@protocol FeedbackFigure;
+@protocol Figure;
 
 @interface Renderer : NSObject {
     @private
@@ -26,16 +28,17 @@ extern NSString* const RendererChanged;
     TextureManager* textureManager;
     VBOBuffer* sharedVbo;
     NSMutableSet* invalidFaces;
-    NSMutableSet* feedbackFigures;
     GeometryLayer* geometryLayer;
     SelectionLayer* selectionLayer;
     TrackingLayer* trackingLayer;
+    FigureLayer* feedbackLayer;
+    InfoLayer* infoLayer;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
 
-- (void)addFeedbackFigure:(id <FeedbackFigure>)theFigure;
-- (void)removeFeedbackFigure:(id <FeedbackFigure>)theFigure;
+- (void)addFeedbackFigure:(id <Figure>)theFigure;
+- (void)removeFeedbackFigure:(id <Figure>)theFigure;
 
 - (void)render;
 

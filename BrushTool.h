@@ -15,6 +15,7 @@
 @class Plane3D;
 @class Ray3D;
 @class Vector3f;
+@class CompassFigure;
 
 @interface BrushTool : NSObject <Tool> {
     @private
@@ -22,6 +23,7 @@
     MapWindowController* windowController;
     Plane3D* plane;
     Vector3f* lastPoint;
+    CompassFigure* compassFigure;
 }
 
 - (id)initWithController:(MapWindowController *)theWindowController pickHit:(PickingHit *)theHit pickRay:(Ray3D *)theRay;

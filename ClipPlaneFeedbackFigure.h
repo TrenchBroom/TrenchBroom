@@ -7,11 +7,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "FeedbackFigure.h"
+#import "Figure.h"
 
 @class Vector3i;
 
-@interface ClipPlaneFeedbackFigure : NSObject <FeedbackFigure> {
+@interface ClipPlaneFeedbackFigure : NSObject <Figure> {
     Vector3i* point1;
     Vector3i* point2;
     Vector3i* point3;

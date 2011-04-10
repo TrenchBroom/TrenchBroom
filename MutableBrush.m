@@ -30,9 +30,9 @@
         faces = [[NSMutableArray alloc] init];
         vertexData = [[VertexData alloc] init];
         
-        flatColor[0] = (rand() % 255) / 255.0f;
-        flatColor[1] = (rand() % 255) / 255.0f;
-        flatColor[2] = (rand() % 255) / 255.0f;
+        flatColor[0] = 0.2f;
+        flatColor[1] = 0.2f;
+        flatColor[2] = 0.2f;
     }
     
     return self;

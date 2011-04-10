@@ -1,5 +1,5 @@
 //
-//  GeometryLayer.h
+//  GeometryBrushLayer.h
 //  TrenchBroom
 //
 //  Created by Kristian Duske on 07.02.11.
@@ -7,14 +7,14 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Layer.h"
+#import "BrushLayer.h"
 
 @class RenderContext;
 @class VBOBuffer;
 @class TextureManager;
 @class Grid;
 
-@interface GeometryLayer : NSObject <Layer> {
+@interface GeometryLayer : NSObject <BrushLayer> {
     VBOBuffer* sharedVbo;
     NSMutableSet* faces;
     NSMutableSet* addedFaces;

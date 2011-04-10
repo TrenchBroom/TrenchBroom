@@ -7,12 +7,12 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "FeedbackFigure.h"
+#import "Figure.h"
 
 @protocol Brush;
 @class ClipPlane;
 
-@interface ClipBrushFeedbackFigure : NSObject <FeedbackFigure> {
+@interface ClipBrushFeedbackFigure : NSObject <Figure> {
     id <Brush> brush1;
     id <Brush> brush2;
 }

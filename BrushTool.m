@@ -26,6 +26,7 @@
 #import "Math.h"
 #import "Renderer.h"
 #import "MapView3D.h"
+#import "CompassFigure.h"
 
 @implementation BrushTool
 
@@ -38,6 +39,10 @@
 }
 
 - (void)dealloc {
+    Renderer* renderer = [windowController renderer];
+    [renderer removeFeedbackFigure:compassFigure];
+    [compassFigure release];
+
     [lastPoint release];
     [plane release];
     [brushes release];
@@ -53,21 +58,38 @@
         [brushes unionSet:[[theWindowController selectionManager] selectedBrushes]];
         windowController = [theWindowController retain];
         
+        BoundingBox* bounds = [[BoundingBox alloc] initWithBrushes:brushes];
+        compassFigure = [[CompassFigure alloc] init];
+        [compassFigure setPosition:[bounds center]];
+        [bounds release];
+
         lastPoint = [[theHit hitPoint] retain];
         switch ([[theRay direction] largestComponent]) {
             case VC_X:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f xAxisPos]];
+                [compassFigure setDrawX:NO];
+                [compassFigure setDrawY:YES];
+                [compassFigure setDrawZ:YES];
                 break;
             case VC_Y:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f yAxisPos]];
+                [compassFigure setDrawX:YES];
+                [compassFigure setDrawY:NO];
+                [compassFigure setDrawZ:YES];
                 break;
             default:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f zAxisPos]];
+                [compassFigure setDrawX:YES];
+                [compassFigure setDrawY:YES];
+                [compassFigure setDrawZ:NO];
                 break;
         }
 
         Grid* grid = [[windowController options] grid];
         [grid snapToGrid:lastPoint];
+        
+        Renderer* renderer = [windowController renderer];
+        [renderer addFeedbackFigure:compassFigure];
     }
     return self;
 }
@@ -99,6 +121,10 @@
 
     [lastPoint release];
     lastPoint = [point retain];
+
+    BoundingBox* bounds = [[BoundingBox alloc] initWithBrushes:brushes];
+    [compassFigure setPosition:[bounds center]];
+    [bounds release];
 }
 
 - (NSString *)actionName {

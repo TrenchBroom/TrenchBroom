@@ -17,6 +17,8 @@
 #import "GeometryLayer.h"
 #import "SelectionLayer.h"
 #import "TrackingLayer.h"
+#import "FigureLayer.h"
+#import "InfoLayer.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "RenderContext.h"
@@ -36,7 +38,8 @@
 #import "TextureManager.h"
 #import "GLFontManager.h"
 #import "Texture.h"
-#import "FeedbackFigure.h"
+#import "CompassFigure.h"
+#import "Figure.h"
 
 NSString* const RendererChanged = @"RendererChanged";
 
@@ -438,7 +441,6 @@ NSString* const RendererChanged = @"RendererChanged";
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
         windowController = [theWindowController retain];
-        feedbackFigures = [[NSMutableSet alloc] init];
 
         sharedVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
         invalidFaces = [[NSMutableSet alloc] init];
@@ -457,6 +459,8 @@ NSString* const RendererChanged = @"RendererChanged";
         geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid];
         selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid camera:camera fontManager:fontManager font:trackingFont];
         trackingLayer = [[TrackingLayer alloc] initWithCamera:camera fontManager:fontManager font:trackingFont];
+        feedbackLayer = [[FigureLayer alloc] init];
+        infoLayer = [[InfoLayer alloc] init];
 
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
         id <Entity> entity;
@@ -489,21 +493,13 @@ NSString* const RendererChanged = @"RendererChanged";
     return self;
 }
 
-- (void)addFeedbackFigure:(id <FeedbackFigure>)theFigure {
-    NSAssert(theFigure != nil, @"figure must not be nil");
-    if (![feedbackFigures containsObject:theFigure]) {
-        [feedbackFigures addObject:theFigure];
-        [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
-        [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
-    }
+- (void)addFeedbackFigure:(id <Figure>)theFigure {
+    [feedbackLayer addFigure:theFigure];
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
-- (void)removeFeedbackFigure:(id <FeedbackFigure>)theFigure {
-    NSAssert(theFigure != nil, @"figure must not be nil");
-    if ([feedbackFigures containsObject:theFigure]) {
-        [feedbackFigures removeObject:theFigure];
-        [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
-    }
+- (void)removeFeedbackFigure:(id <Figure>)theFigure {
+    [feedbackLayer removeFigure:theFigure];
 }
 
 - (void)render {
@@ -522,13 +518,8 @@ NSString* const RendererChanged = @"RendererChanged";
     [geometryLayer render:renderContext];
     [selectionLayer render:renderContext];
     [trackingLayer render:renderContext];
-    
-    glDisable(GL_DEPTH_TEST);
-    NSEnumerator* figureEn = [feedbackFigures objectEnumerator];
-    id <FeedbackFigure> figure;
-    while ((figure = [figureEn nextObject]))
-        [figure render];
-    glEnable(GL_DEPTH_TEST);
+    [feedbackLayer render:renderContext];
+    [infoLayer render:renderContext];
     
     [renderContext release];
 }
@@ -536,10 +527,11 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [windowController release];
-    [feedbackFigures release];
     [geometryLayer release];
     [selectionLayer release];
     [trackingLayer release];
+    [feedbackLayer release];
+    [infoLayer release];
     [textureManager release];
     [sharedVbo release];
     [invalidFaces release];
