@@ -72,6 +72,8 @@
     return NO;
 }
 
+- (void)handleFlagsChanged:(NSEvent *)event sender:(id)sender {
+}
 
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender {
     if ([self isCameraModifierPressed:event]) {

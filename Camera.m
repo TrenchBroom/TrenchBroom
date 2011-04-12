@@ -235,15 +235,16 @@ NSString* const CameraChanged = @"CameraChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
-- (void)updateView:(NSRect)bounds {
-    glViewport(NSMinX(bounds), NSMinY(bounds), NSWidth(bounds), NSHeight(bounds));
+- (void)updateView:(NSRect)theViewport {
+    viewport = theViewport;
+    glViewport(NSMinX(viewport), NSMinY(viewport), NSWidth(viewport), NSHeight(viewport));
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     if (mode == CM_PERSPECTIVE)
-        gluPerspective(fov, NSWidth(bounds) / NSHeight(bounds), near, far);
+        gluPerspective(fov, NSWidth(viewport) / NSHeight(viewport), near, far);
     else
-        glOrtho(zoom * NSWidth(bounds) / -2, zoom * NSWidth(bounds) / 2, zoom * NSHeight(bounds) / -2, zoom * NSHeight(bounds) / 2, near, far);
+        glOrtho(zoom * NSWidth(viewport) / -2, zoom * NSWidth(viewport) / 2, zoom * NSHeight(viewport) / -2, zoom * NSHeight(viewport) / 2, near, far);
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -260,18 +261,21 @@ NSString* const CameraChanged = @"CameraChanged";
 
 
 - (Vector3f *)unprojectX:(float)x y:(float)y {
-    static GLint viewport[4];
-    static GLdouble modelview[16];
-    static GLdouble projection[16];
+    GLint viewportInt[] = {NSMinX(viewport), NSMinY(viewport), NSWidth(viewport), NSHeight(viewport)};
+    GLdouble modelview[16];
+    GLdouble projection[16];
     
     glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
-    glGetIntegerv(GL_VIEWPORT, viewport);
     
     GLdouble rx, ry, rz;
-    gluUnProject(x, y, 0, modelview, projection, viewport, &rx, &ry, &rz);
+    gluUnProject(x, y, 0, modelview, projection, viewportInt, &rx, &ry, &rz);
     
     return [[[Vector3f alloc] initWithFloatX:rx y:ry z:rz] autorelease];
+}
+
+- (NSRect)viewport {
+    return viewport;
 }
 
 - (Ray3D *)pickRayX:(float)x y:(float)y {

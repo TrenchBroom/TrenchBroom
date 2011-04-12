@@ -23,7 +23,6 @@
     MapWindowController* windowController;
     Plane3D* plane;
     Vector3f* lastPoint;
-    CompassFigure* compassFigure;
 }
 
 - (id)initWithController:(MapWindowController *)theWindowController pickHit:(PickingHit *)theHit pickRay:(Ray3D *)theRay;

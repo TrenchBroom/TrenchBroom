@@ -11,20 +11,14 @@
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
 
-@class Vector3f;
+@class Camera;
 
 @interface CompassFigure : NSObject <Figure> {
     GLUquadric* arms;
     GLUquadric* disks;
-    Vector3f* position;
-    BOOL drawX;
-    BOOL drawY;
-    BOOL drawZ;
+    Camera* camera;
 }
 
-- (void)setPosition:(Vector3f *)thePosition;
-- (void)setDrawX:(BOOL)doDrawX;
-- (void)setDrawY:(BOOL)doDrawY;
-- (void)setDrawZ:(BOOL)doDrawZ;
+- (id)initWithCamera:(Camera *)theCamera;
 
 @end

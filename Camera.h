@@ -26,6 +26,7 @@ extern NSString* const CameraChanged;
     Vector3f* up;
     Vector3f* right;
     
+    NSRect viewport;
     float fov;
     float near;
     float far;
@@ -61,7 +62,8 @@ extern NSString* const CameraChanged;
 - (void)setZoom:(float)theZoom;
 - (void)setMode:(ECameraMode)theMode;
 
-- (void)updateView:(NSRect)bounds;
+- (void)updateView:(NSRect)theViewport;
+- (NSRect)viewport;
 - (Vector3f *)unprojectX:(float)x y:(float)y;
 - (Ray3D *)pickRayX:(float)x y:(float)y;
 @end

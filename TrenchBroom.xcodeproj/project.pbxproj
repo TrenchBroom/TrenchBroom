@@ -634,8 +634,6 @@
 				48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */,
 				48CE70AA134741C400886260 /* GridFeedbackFigure.h */,
 				48CE70AB134741C400886260 /* GridFeedbackFigure.m */,
-				48325D4513524F7000E703E0 /* CompassFigure.h */,
-				48325D4613524F7000E703E0 /* CompassFigure.m */,
 			);
 			name = Tool;
 			sourceTree = "<group>";
@@ -667,6 +665,8 @@
 				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
 				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
 				482FFF111340E3C600849BF5 /* Figure.h */,
+				48325D4513524F7000E703E0 /* CompassFigure.h */,
+				48325D4613524F7000E703E0 /* CompassFigure.m */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";

@@ -65,6 +65,11 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
         [super keyDown:theEvent];
 }
  
+- (void)flagsChanged:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    [inputManager handleFlagsChanged:theEvent sender:self];
+}
+
 - (void)mouseDragged:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
     [inputManager handleLeftMouseDragged:theEvent sender:self];

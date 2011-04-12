@@ -7,6 +7,7 @@
 //
 
 #import "CompassFigure.h"
+#import "Camera.h"
 #import "Vector3f.h"
 
 @implementation CompassFigure
@@ -20,21 +21,12 @@
     return self;
 }
 
-- (void)setPosition:(Vector3f *)thePosition {
-    [position release];
-    position = [thePosition retain];
-}
-
-- (void)setDrawX:(BOOL)doDrawX {
-    drawX = doDrawX;
-}
-
-- (void)setDrawY:(BOOL)doDrawY {
-    drawY = doDrawY;
-}
-
-- (void)setDrawZ:(BOOL)doDrawZ {
-    drawZ = doDrawZ;
+- (id)initWithCamera:(Camera *)theCamera {
+    if (self = [super init]) {
+        camera = [theCamera retain];
+    }
+    
+    return self;
 }
 
 - (void)render {
@@ -86,7 +78,7 @@
 - (void)dealloc {
     gluDeleteQuadric(arms);
     gluDeleteQuadric(disks);
-    [position release];
+    [camera release];
     [super dealloc];
 }
 

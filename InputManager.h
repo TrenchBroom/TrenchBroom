@@ -27,6 +27,7 @@
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 - (BOOL)handleKeyDown:(NSEvent *)event sender:(id)sender;
+- (void)handleFlagsChanged:(NSEvent *)event sender:(id)sender;
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender;
 - (void)handleMouseMoved:(NSEvent *)event sender:(id)sender;
 - (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender;
