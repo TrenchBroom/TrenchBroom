@@ -18,7 +18,7 @@
 #import "SelectionLayer.h"
 #import "TrackingLayer.h"
 #import "FigureLayer.h"
-#import "InfoLayer.h"
+#import "CompassFigure.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "RenderContext.h"
@@ -460,8 +460,9 @@ NSString* const RendererChanged = @"RendererChanged";
         selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid camera:camera fontManager:fontManager font:trackingFont];
         trackingLayer = [[TrackingLayer alloc] initWithCamera:camera fontManager:fontManager font:trackingFont];
         feedbackLayer = [[FigureLayer alloc] init];
-        infoLayer = [[InfoLayer alloc] init];
 
+        compassFigure = [[CompassFigure alloc] initWithCamera:camera];
+        
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject]))
@@ -509,29 +510,31 @@ NSString* const RendererChanged = @"RendererChanged";
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glFrontFace(GL_CW);
     glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
     glShadeModel(GL_FLAT);
     
     Options* options = [windowController options];
     
     RenderContext* renderContext = [[RenderContext alloc] initWithOptions:options];
+    glDepthMask(false);
+    [compassFigure render]; // first things first
+    glDepthMask(true);
     [geometryLayer render:renderContext];
     [selectionLayer render:renderContext];
     [trackingLayer render:renderContext];
     [feedbackLayer render:renderContext];
-    [infoLayer render:renderContext];
     
     [renderContext release];
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [compassFigure release];
     [windowController release];
     [geometryLayer release];
     [selectionLayer release];
     [trackingLayer release];
     [feedbackLayer release];
-    [infoLayer release];
     [textureManager release];
     [sharedVbo release];
     [invalidFaces release];

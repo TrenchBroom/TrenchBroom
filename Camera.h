@@ -32,6 +32,9 @@ extern NSString* const CameraChanged;
     float far;
     ECameraMode mode;
     float zoom;
+    
+    GLdouble modelview[16];
+    GLdouble projection[16];
 }
 
 - (id)initWithFieldOfVision:(float)theFov nearClippingPlane:(float)theNear farClippingPlane:(float)theFar;

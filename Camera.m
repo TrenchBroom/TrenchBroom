@@ -257,16 +257,14 @@ NSString* const CameraChanged = @"CameraChanged";
               [up x],
               [up y],
               [up z]);
+
+    glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+    glGetDoublev(GL_PROJECTION_MATRIX, projection);
 }
 
 
 - (Vector3f *)unprojectX:(float)x y:(float)y {
     GLint viewportInt[] = {NSMinX(viewport), NSMinY(viewport), NSWidth(viewport), NSHeight(viewport)};
-    GLdouble modelview[16];
-    GLdouble projection[16];
-    
-    glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-    glGetDoublev(GL_PROJECTION_MATRIX, projection);
     
     GLdouble rx, ry, rz;
     gluUnProject(x, y, 0, modelview, projection, viewportInt, &rx, &ry, &rz);

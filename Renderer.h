@@ -16,7 +16,7 @@ extern NSString* const RendererChanged;
 @class SelectionLayer;
 @class TrackingLayer;
 @class FigureLayer;
-@class InfoLayer;
+@class CompassFigure;
 @class RenderContext;
 @class MapWindowController;
 @class TextureManager;
@@ -32,7 +32,7 @@ extern NSString* const RendererChanged;
     SelectionLayer* selectionLayer;
     TrackingLayer* trackingLayer;
     FigureLayer* feedbackLayer;
-    InfoLayer* infoLayer;
+    CompassFigure* compassFigure;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

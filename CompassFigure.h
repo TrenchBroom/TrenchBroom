@@ -16,6 +16,7 @@
 @interface CompassFigure : NSObject <Figure> {
     GLUquadric* arms;
     GLUquadric* disks;
+    BOOL initialized;
     Camera* camera;
 }
 
