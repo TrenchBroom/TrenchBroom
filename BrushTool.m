@@ -20,13 +20,16 @@
 #import "Vector3i.h"
 #import "BoundingBox.h"
 #import "PickingHit.h"
+#import "PickingHitList.h"
+#import "Face.h"
 #import "Brush.h"
 #import "MutableBrush.h"
 #import "math.h"
 #import "Math.h"
 #import "Renderer.h"
 #import "MapView3D.h"
-#import "CompassFigure.h"
+#import "CursorManager.h"
+#import "BrushToolCursor.h"
 
 @implementation BrushTool
 
@@ -39,6 +42,10 @@
 }
 
 - (void)dealloc {
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager popCursor];
+    [cursor release];
+
     [lastPoint release];
     [plane release];
     [brushes release];
@@ -49,13 +56,17 @@
 # pragma mark -
 # pragma mark @implementation Tool
 
-- (id)initWithController:(MapWindowController *)theWindowController pickHit:(PickingHit *)theHit pickRay:(Ray3D *)theRay {
+- (id)initWithController:(MapWindowController *)theWindowController pickHits:(PickingHitList *)theHits pickRay:(Ray3D *)theRay {
     if (self = [self init]) {
         [brushes unionSet:[[theWindowController selectionManager] selectedBrushes]];
         windowController = [theWindowController retain];
         
-        lastPoint = [[theHit hitPoint] retain];
-        switch ([[theRay direction] largestComponent]) {
+        PickingHit* faceHit = [theHits firstHitOfType:HT_FACE ignoreOccluders:NO];
+        
+        lastPoint = [[faceHit hitPoint] retain];
+        id <Face> face = [faceHit object];
+        
+        switch ([[face norm] largestComponent]) {
             case VC_X:
                 plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f xAxisPos]];
                 break;
@@ -67,6 +78,12 @@
                 break;
         }
 
+        CursorManager* cursorManager = [windowController cursorManager];
+        cursor = [[BrushToolCursor alloc] init];
+        [cursor setPlaneNormal:[[face norm] largestComponent]];
+        [cursorManager pushCursor:cursor];
+        [cursorManager updateCursor:lastPoint];
+        
         Grid* grid = [[windowController options] grid];
         [grid snapToGrid:lastPoint];
     }
@@ -100,6 +117,9 @@
 
     [lastPoint release];
     lastPoint = [point retain];
+
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager updateCursor:lastPoint];
 }
 
 - (NSString *)actionName {

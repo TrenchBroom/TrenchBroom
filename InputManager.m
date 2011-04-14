@@ -26,6 +26,7 @@
 #import "Options.h"
 #import "TrackingManager.h"
 #import "ClipTool.h"
+#import "CursorManager.h"
 
 @implementation InputManager
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
@@ -151,7 +152,7 @@
                                 NSUndoManager* undoManager = [map undoManager];
                                 [undoManager setGroupsByEvent:NO];
                                 [undoManager beginUndoGrouping];
-                                tool = [[BrushTool alloc] initWithController:windowController pickHit:lastHit pickRay:ray];
+                                tool = [[BrushTool alloc] initWithController:windowController pickHits:lastHits pickRay:ray];
                             }
                         } else if ([selectionManager mode] == SM_FACES && [lastHit type] == HT_FACE) {
                             id <Face> face = [lastHit object];

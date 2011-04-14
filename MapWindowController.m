@@ -36,6 +36,7 @@
 #import "MapWriter.h"
 #import "CameraAnimation.h"
 #import "TrackingManager.h"
+#import "CursorManager.h"
 #import "ClipTool.h"
 
 static NSString* CameraDefaults = @"Camera";
@@ -82,6 +83,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     selectionManager = [[SelectionManager alloc] initWithUndoManager:[[self document] undoManager]];
     trackingManager = [[TrackingManager alloc] initWithWindowController:self];
     inputManager = [[InputManager alloc] initWithWindowController:self];
+    cursorManager = [[CursorManager alloc] init];
     
     [view3D setup];
     
@@ -110,6 +112,10 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 
 - (TrackingManager *)trackingManager {
     return trackingManager;
+}
+
+- (CursorManager *)cursorManager {
+    return cursorManager;
 }
 
 - (Options *)options {
@@ -586,6 +592,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [trackingManager release];
     [selectionManager release];
     [inputManager release];
+    [cursorManager release];
     [camera release];
     [super dealloc];
 }

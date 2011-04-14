@@ -11,11 +11,11 @@
 #import "GridFeedbackFigure.h"
 
 @class MapWindowController;
-@class PickingHit;
+@class PickingHitList;
 @class Plane3D;
 @class Ray3D;
 @class Vector3f;
-@class CompassFigure;
+@class BrushToolCursor;
 
 @interface BrushTool : NSObject <Tool> {
     @private
@@ -23,8 +23,9 @@
     MapWindowController* windowController;
     Plane3D* plane;
     Vector3f* lastPoint;
+    BrushToolCursor* cursor;
 }
 
-- (id)initWithController:(MapWindowController *)theWindowController pickHit:(PickingHit *)theHit pickRay:(Ray3D *)theRay;
+- (id)initWithController:(MapWindowController *)theWindowController pickHits:(PickingHitList *)theHits pickRay:(Ray3D *)theRay;
 
 @end

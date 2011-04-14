@@ -69,30 +69,19 @@
                       [up z]);
             [position release];
 
-            EVectorComponent l = [direction largestComponent];
-            
-            if (l == VC_X)
-                glColor4f(0.6f, 0.3f, 0.3f, 1);
-            else
-                glColor4f(1, 0, 0, 1);
+            glColor4f(1, 0, 0, 1);
             glPushMatrix();
             glRotatef(90, 0, 1, 0);
             [self renderArm];
             glPopMatrix();
             
-            if (l == VC_Y)
-                glColor4f(0.3f, 0.6f, 0.3f, 1);
-            else
-                glColor4f(0, 1, 0, 1);
+            glColor4f(0, 1, 0, 1);
             glPushMatrix();
             glRotatef(270, 1, 0, 0);
             [self renderArm];
             glPopMatrix();
             
-            if (l == VC_Z)
-                glColor4f(0.4f, 0.3f, 0.6f, 1);
-            else
-                glColor4f(0, 0, 1, 1);
+            glColor4f(0, 0, 1, 1);
             glPushMatrix();
             [self renderArm];
             glPopMatrix();

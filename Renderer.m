@@ -39,6 +39,7 @@
 #import "GLFontManager.h"
 #import "Texture.h"
 #import "CompassFigure.h"
+#import "CursorManager.h"
 #import "Figure.h"
 
 NSString* const RendererChanged = @"RendererChanged";
@@ -69,6 +70,7 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)cameraChanged:(NSNotification *)notification;
 - (void)optionsChanged:(NSNotification *)notification;
 - (void)gridChanged:(NSNotification *)notification;
+- (void)cursorChanged:(NSNotification *)notification;
 
 @end
 
@@ -434,6 +436,10 @@ NSString* const RendererChanged = @"RendererChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
+- (void)cursorChanged:(NSNotification *)notification {
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+}
+
 @end
 
 @implementation Renderer
@@ -489,6 +495,9 @@ NSString* const RendererChanged = @"RendererChanged";
         [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
         [center addObserver:self selector:@selector(optionsChanged:) name:OptionsChanged object:options];
         [center addObserver:self selector:@selector(gridChanged:) name:GridChanged object:grid];
+        
+        CursorManager* cursorManager = [windowController cursorManager];
+        [center addObserver:self selector:@selector(cursorChanged:) name:CursorChanged object:cursorManager];
     }
     
     return self;
@@ -521,6 +530,9 @@ NSString* const RendererChanged = @"RendererChanged";
     [trackingLayer render:renderContext];
     [feedbackLayer render:renderContext];
     
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager render];
+
     glClear(GL_DEPTH_BUFFER_BIT);
     [compassFigure render];
 

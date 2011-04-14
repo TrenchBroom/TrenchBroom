@@ -19,6 +19,7 @@
 @class Options;
 @class Prefab;
 @class TrackingManager;
+@class CursorManager;
 @class ClipTool;
 @class Renderer;
 @protocol Prefab;
@@ -29,6 +30,7 @@
     SelectionManager* selectionManager;
     InputManager* inputManager;
     TrackingManager* trackingManager;
+    CursorManager* cursorManager;
     Options* options;
     ClipTool* clipTool;
 }
@@ -76,6 +78,7 @@
 - (SelectionManager *)selectionManager;
 - (InputManager *)inputManager;
 - (TrackingManager *)trackingManager;
+- (CursorManager *)cursorManager;
 - (Options *)options;
 - (Renderer *)renderer;
 @end
