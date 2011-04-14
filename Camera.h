@@ -69,4 +69,5 @@ extern NSString* const CameraChanged;
 - (NSRect)viewport;
 - (Vector3f *)unprojectX:(float)x y:(float)y;
 - (Ray3D *)pickRayX:(float)x y:(float)y;
+- (Vector3f *)defaultPoint;
 @end

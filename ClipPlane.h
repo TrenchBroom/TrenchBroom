@@ -45,5 +45,6 @@ typedef enum {
 - (MutableFace *)face:(BOOL)front;
 
 - (void)clipBrush:(id <Brush>)brush firstResult:(id <Brush>*)firstResult secondResult:(id <Brush>*)secondResult;
+- (void)reset;
 
 @end

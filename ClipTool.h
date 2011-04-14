@@ -7,7 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "DefaultTool.h"
 
+@class MapWindowController;
 @class Vector3i;
 @class Picker;
 @class PickingHitList;
@@ -20,11 +22,8 @@
 @class ClipLineFeedbackFigure;
 @class ClipPlaneFeedbackFigure;
 
-@interface ClipTool : NSObject { 
-    Picker* picker;
-    Grid* grid;
-    Renderer* renderer;
-    NSSet* brushes;
+@interface ClipTool : DefaultTool {
+    MapWindowController* windowController;
     ClipPlane* clipPlane;
     ClipPointFeedbackFigure* point1Figure;
     ClipPointFeedbackFigure* point2Figure;
@@ -35,20 +34,15 @@
     ClipPlaneFeedbackFigure* planeFigure;
     NSMutableSet* brushFigures;
     Vector3i* currentPoint;
-    PickingHitList* currentHitList;
     ClipPointFeedbackFigure* currentFigure;
     Vector3i* draggedPoint;
 }
 
-- (id)initWithBrushes:(NSSet *)theBrushes picker:(Picker *)thePicker grid:(Grid *)theGrid renderer:(Renderer *)theRenderer;
-
-- (void)handleLeftMouseDragged:(Ray3D *)ray;
-- (void)handleLeftMouseDown:(Ray3D *)ray;
-- (void)handleLeftMouseUp:(Ray3D *)ray;
-- (void)handleMouseMoved:(Ray3D *)ray;
+- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 - (void)toggleClipMode;
 - (NSSet *)performClip:(MapDocument* )map;
+- (void)cancel;
 
 - (void)deleteLastPoint;
 - (int)numPoints;

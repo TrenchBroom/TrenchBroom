@@ -169,6 +169,21 @@
     }
 }
 
+- (void)reset {
+    [point1 release];
+    point1 = nil;
+    [point2 release];
+    point2 = nil;
+    [point3 release];
+    point3 = nil;
+    [hitList1 release];
+    hitList1 = nil;
+    [hitList2 release];
+    hitList2 = nil;
+    [hitList3 release];
+    hitList3 = nil;
+}
+
 - (void)dealloc {
     [point1 release];
     [point2 release];

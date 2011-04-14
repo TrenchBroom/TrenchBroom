@@ -508,6 +508,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 }
 
 - (IBAction)toggleClipTool:(id)sender {
+    /*
     if (clipTool == nil) {
         clipTool = [[ClipTool alloc] initWithBrushes:[selectionManager selectedBrushes] picker:[[self document] picker] grid:[options grid] renderer:[view3D renderer]];
     } else {
@@ -516,6 +517,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     }
     
     [inputManager setClipTool:clipTool];
+     */
 }
 
 - (IBAction)toggleClipMode:(id)sender {
@@ -523,6 +525,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 }
 
 - (IBAction)performClip:(id)sender {
+    /*
     [selectionManager removeAll:YES];
     NSSet* newBrushes = [clipTool performClip:[self document]];
     [inputManager setClipTool:nil];
@@ -530,6 +533,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     clipTool = nil;
     
     [selectionManager addBrushes:newBrushes record:YES];
+     */
 }
 
 - (IBAction)rotateZ90CW:(id)sender {
@@ -546,9 +550,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    Vector3f* insertPos = [[Vector3f alloc] initWithFloatVector:[camera direction]];
-    [insertPos scale:256];
-    [insertPos add:[camera position]];
+    Vector3f* insertPos = [camera defaultPoint];
     [[options grid] snapToGrid:insertPos];
     
     Vector3f* offset = [[options grid] gridOffsetOf:[prefab center]];
@@ -580,7 +582,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     
     
     [dist release];
-    [insertPos release];
 
     [undoManager endUndoGrouping];
     [undoManager setActionName:[NSString stringWithFormat:@"Insert Prefab '%@'", [prefab name]]];

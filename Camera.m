@@ -289,6 +289,13 @@ NSString* const CameraChanged = @"CameraChanged";
     }
 }
 
+- (Vector3f *)defaultPoint {
+    Vector3f* point = [[Vector3f alloc] initWithFloatVector:direction];
+    [point scale:256];
+    [point add:position];
+    return [point autorelease];
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [position release];

@@ -19,16 +19,32 @@
 #import "Vector3f.h"
 #import "Vector3i.h"
 #import "PickingHit.h"
+#import "PickingHitList.h"
 #import "Face.h"
 #import "Brush.h"
 #import "math.h"
 #import "Math.h"
 
+@interface FaceTool (private)
+
+- (BOOL)isAttributesModifierPressed:(NSEvent *)event;
+
+@end
+
+@implementation FaceTool (private)
+
+- (BOOL)isAttributesModifierPressed:(NSEvent *)event {
+    return ([event modifierFlags] & NSCommandKeyMask) != 0;
+}
+
+@end
 
 @implementation FaceTool
-- (id)init {
-    if (self = [super init]) {
-        faces = [[NSMutableSet alloc] init];
+
+- (id)initWithController:(MapWindowController *)theWindowController {
+    if (self = [self init]) {
+        windowController = [theWindowController retain];
+        
     }
     
     return self;
@@ -38,7 +54,6 @@
     [lastPoint release];
     [dragDir release];
     [plane release];
-    [faces release];
     [windowController release];
     [super dealloc];
 }
@@ -46,32 +61,60 @@
 # pragma mark -
 # pragma mark @implementation Tool
 
-- (id)initWithController:(MapWindowController *)theWindowController pickHit:(PickingHit *)theHit pickRay:(Ray3D *)theRay {
-    if (self = [self init]) {
-        [faces unionSet:[[theWindowController selectionManager] selectedFaces]];
-        windowController = [theWindowController retain];
+- (void)handleLeftMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    NSSet* selectedFaces = [selectionManager selectedFaces];
+    if ([selectedFaces count] == 1) {
+        id <Face> source = [[selectedFaces objectEnumerator] nextObject];
         
-        id <Face> face = [theHit object];
-        dragDir = [[face norm] retain];
+        PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+        id <Face> destination = [hit object];
         
-        Vector3f* planeNorm = [[Vector3f alloc] initWithFloatVector:dragDir];
-        [planeNorm cross:[theRay direction]];
-        [planeNorm cross:dragDir];
-        [planeNorm normalize];
-        
-        lastPoint = [[theHit hitPoint] retain];
-        plane = [[Plane3D alloc] initWithPoint:lastPoint norm:planeNorm];
-        [planeNorm release];
-        
-        Grid* grid = [[windowController options] grid];
-        [grid snapToGrid:lastPoint];
+        MapDocument* map = [windowController document];
+        if ([self isAttributesModifierPressed:event]) {
+            MapDocument* map = [windowController document];
+            NSUndoManager* undoManager = [map undoManager];
+            [undoManager beginUndoGrouping];
+            [map setFace:destination texture:[source texture]];
+            [map setFace:destination xOffset:[source xOffset]];
+            [map setFace:destination yOffset:[source yOffset]];
+            [map setFace:destination xScale:[source xScale]];
+            [map setFace:destination yScale:[source yScale]];
+            [map setFace:destination rotation:[source rotation]];
+            [undoManager endUndoGrouping];
+            [undoManager setActionName:@"Copy Face Attributes"];
+        } else {
+            [map setFace:destination texture:[source texture]];
+        }
     }
-    
-    return self;
 }
 
-- (void)translateTo:(Ray3D *)theRay toggleSnap:(BOOL)toggleSnap altPlane:(BOOL)altPlane {
-    Vector3f* point = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
+- (void)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
+
+    id <Face> face = [hit object];
+    dragDir = [[face norm] retain];
+    
+    Vector3f* planeNorm = [[Vector3f alloc] initWithFloatVector:dragDir];
+    [planeNorm cross:[ray direction]];
+    [planeNorm cross:dragDir];
+    [planeNorm normalize];
+    
+    lastPoint = [[hit hitPoint] retain];
+    plane = [[Plane3D alloc] initWithPoint:lastPoint norm:planeNorm];
+    [planeNorm release];
+    
+    Grid* grid = [[windowController options] grid];
+    [grid snapToGrid:lastPoint];
+
+    MapDocument* map = [windowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager setGroupsByEvent:NO];
+    [undoManager beginUndoGrouping];
+}
+
+- (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    Vector3f* point = [ray pointAtDistance:[plane intersectWithRay:ray]];
     if (point == nil)
         return;
     
@@ -87,7 +130,8 @@
     
     MapDocument* map = [windowController document];
     
-    NSEnumerator* faceEn = [faces objectEnumerator];
+    SelectionManager* selectionManager = [windowController selectionManager];
+    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject]))
         [map dragFace:face dist:dist];
@@ -95,6 +139,21 @@
     [diff release];
     [lastPoint release];
     lastPoint = [point retain];
+}
+
+- (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    MapDocument* map = [windowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager setActionName:[self actionName]];
+    [undoManager endUndoGrouping];
+    [undoManager setGroupsByEvent:YES];
+    
+    [plane release];
+    plane = nil;
+    [dragDir release];
+    dragDir = nil;
+    [lastPoint release];
+    lastPoint = nil;
 }
 
 - (NSString *)actionName {

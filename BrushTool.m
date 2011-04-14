@@ -33,22 +33,22 @@
 
 @implementation BrushTool
 
-- (id)init {
-    if (self = [super init]) {
-        brushes = [[NSMutableSet alloc] init];
+- (id)initWithController:(MapWindowController *)theWindowController {
+    if (self = [self init]) {
+        windowController = [theWindowController retain];
     }
-    
     return self;
 }
 
 - (void)dealloc {
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager popCursor];
-    [cursor release];
+    if (cursor != nil) {
+        CursorManager* cursorManager = [windowController cursorManager];
+        [cursorManager popCursor];
+        [cursor release];
+    }
 
     [lastPoint release];
     [plane release];
-    [brushes release];
     [windowController release];
     [super dealloc];
 }
@@ -56,42 +56,35 @@
 # pragma mark -
 # pragma mark @implementation Tool
 
-- (id)initWithController:(MapWindowController *)theWindowController pickHits:(PickingHitList *)theHits pickRay:(Ray3D *)theRay {
-    if (self = [self init]) {
-        [brushes unionSet:[[theWindowController selectionManager] selectedBrushes]];
-        windowController = [theWindowController retain];
-        
-        PickingHit* faceHit = [theHits firstHitOfType:HT_FACE ignoreOccluders:NO];
-        
-        lastPoint = [[faceHit hitPoint] retain];
-        id <Face> face = [faceHit object];
-        
-        switch ([[face norm] largestComponent]) {
-            case VC_X:
-                plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f xAxisPos]];
-                break;
-            case VC_Y:
-                plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f yAxisPos]];
-                break;
-            default:
-                plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f zAxisPos]];
-                break;
-        }
-
-        CursorManager* cursorManager = [windowController cursorManager];
-        cursor = [[BrushToolCursor alloc] init];
-        [cursor setPlaneNormal:[[face norm] largestComponent]];
-        [cursorManager pushCursor:cursor];
-        [cursorManager updateCursor:lastPoint];
-        
-        Grid* grid = [[windowController options] grid];
-        [grid snapToGrid:lastPoint];
+- (void)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    PickingHit* faceHit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
+    
+    lastPoint = [[faceHit hitPoint] retain];
+    id <Face> face = [faceHit object];
+    
+    switch ([[face norm] largestComponent]) {
+        case VC_X:
+            plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f xAxisPos]];
+            break;
+        case VC_Y:
+            plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f yAxisPos]];
+            break;
+        default:
+            plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f zAxisPos]];
+            break;
     }
-    return self;
+    
+    Grid* grid = [[windowController options] grid];
+    [grid snapToGrid:lastPoint];
+
+    MapDocument* map = [windowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager setGroupsByEvent:NO];
+    [undoManager beginUndoGrouping];
 }
 
-- (void)translateTo:(Ray3D *)theRay toggleSnap:(BOOL)toggleSnap altPlane:(BOOL)altPlane {
-    Vector3f* point = [theRay pointAtDistance:[plane intersectWithRay:theRay]];
+- (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    Vector3f* point = [ray pointAtDistance:[plane intersectWithRay:ray]];
     if (point == nil)
         return;
     
@@ -104,22 +97,64 @@
     int x = roundf([point x] - [lastPoint x]);
     int y = roundf([point y] - [lastPoint y]);
     int z = roundf([point z] - [lastPoint z]);
-
+    
     MapDocument* map = [windowController document];
     
-    NSEnumerator* brushEn = [brushes objectEnumerator];
+    SelectionManager* selectionManager = [windowController selectionManager];
+    NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
     id <Brush> brush;
     while ((brush = [brushEn nextObject]))
         [map translateBrush:brush 
                      xDelta:x
                      yDelta:y
                      zDelta:z];
-
+    
     [lastPoint release];
     lastPoint = [point retain];
-
+    
     CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager updateCursor:lastPoint];
+    [cursorManager updateCursor:lastPoint];}
+
+- (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    MapDocument* map = [windowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager setActionName:[self actionName]];
+    [undoManager endUndoGrouping];
+    [undoManager setGroupsByEvent:YES];
+
+    [lastPoint release];
+    lastPoint = nil;
+    [plane release];
+    plane = nil;
+}
+
+- (void)updateCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    CursorManager* cursorManager = [windowController cursorManager];
+    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    if (hit == nil) {
+        if (cursor != nil) {
+            [cursorManager popCursor];
+            [cursor release];
+            cursor = nil;
+        }
+    } else {
+        id <Face> face = [hit object];
+        id <Brush> brush = [face brush];
+        SelectionManager* selectionManager = [windowController selectionManager];
+        if ([selectionManager isBrushSelected:brush]) {
+            if (cursor == nil) {
+                cursor = [[BrushToolCursor alloc] init];
+                [cursorManager pushCursor:cursor];
+            }
+            [cursor setPlaneNormal:[[face norm] largestComponent]];
+        } else {
+            if (cursor != nil) {
+                [cursorManager popCursor];
+                [cursor release];
+                cursor = nil;
+            }
+        }
+    }
 }
 
 - (NSString *)actionName {

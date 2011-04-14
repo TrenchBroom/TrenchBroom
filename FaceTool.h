@@ -7,23 +7,21 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Tool.h"
-#import "Vector3f.h"
+#import "DefaultTool.h"
 
 @class MapWindowController;
 @class PickingHit;
 @class Plane3D;
-@class Ray3D;
+@class Vector3f;
 
-@interface FaceTool : NSObject <Tool> {
+@interface FaceTool : DefaultTool {
 @private
-    NSMutableSet* faces;
     MapWindowController* windowController;
     Plane3D* plane;
     Vector3f* lastPoint;
     Vector3f* dragDir;
 }
 
-- (id)initWithController:(MapWindowController *)theWindowController pickHit:(PickingHit *)theHit pickRay:(Ray3D *)theRay;
+- (id)initWithController:(MapWindowController *)theWindowController;
 
 @end

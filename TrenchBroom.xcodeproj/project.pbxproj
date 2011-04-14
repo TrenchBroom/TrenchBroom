@@ -53,6 +53,8 @@
 		48527F3811148D5C00CD6043 /* MutableFace.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3711148D5C00CD6043 /* MutableFace.m */; };
 		48527F3B11148D8E00CD6043 /* Vector3i.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3A11148D8E00CD6043 /* Vector3i.m */; };
 		48527F3E11148EAA00CD6043 /* MutableBrush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* MutableBrush.m */; };
+		485582131357874F005F8B2C /* CameraTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 485582121357874F005F8B2C /* CameraTool.m */; };
+		4855821D135788B5005F8B2C /* SelectionTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4855821C135788B5005F8B2C /* SelectionTool.m */; };
 		485884FC12298C2E00E7806F /* Polygon2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 485884FB12298C2E00E7806F /* Polygon2DTestCase.m */; };
 		485AE8A712F4B9BA00CDBD6A /* Picker.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8A612F4B9BA00CDBD6A /* Picker.m */; };
 		485AE8B712F4BFB700CDBD6A /* CoordinatePlane.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8B612F4BFB700CDBD6A /* CoordinatePlane.m */; };
@@ -68,6 +70,7 @@
 		4866F3B112EAC9FA009B345C /* TextureViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3B012EAC9FA009B345C /* TextureViewLayout.m */; };
 		4866F3BE12EACD2B009B345C /* TextureViewLayoutRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */; };
 		4866F3C412EACE73009B345C /* TextureViewLayoutCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */; };
+		4867430513577855009E7ABF /* DefaultTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4867430413577855009E7ABF /* DefaultTool.m */; };
 		4869211D133A965600A0F098 /* VertexRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4869211C133A965600A0F098 /* VertexRenderer.m */; };
 		48692209133B272000A0F098 /* ThickEdgeRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48692208133B272000A0F098 /* ThickEdgeRenderer.m */; };
 		48692690133E1CAE00A0F098 /* TrackingLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4869268F133E1CAE00A0F098 /* TrackingLayer.m */; };
@@ -258,6 +261,10 @@
 		48527F3A11148D8E00CD6043 /* Vector3i.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vector3i.m; sourceTree = "<group>"; };
 		48527F3C11148EAA00CD6043 /* MutableBrush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutableBrush.h; sourceTree = "<group>"; };
 		48527F3D11148EAA00CD6043 /* MutableBrush.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutableBrush.m; sourceTree = "<group>"; };
+		485582111357874F005F8B2C /* CameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraTool.h; sourceTree = "<group>"; };
+		485582121357874F005F8B2C /* CameraTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraTool.m; sourceTree = "<group>"; };
+		4855821B135788B5005F8B2C /* SelectionTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionTool.h; sourceTree = "<group>"; };
+		4855821C135788B5005F8B2C /* SelectionTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectionTool.m; sourceTree = "<group>"; };
 		485884FA12298C2E00E7806F /* Polygon2DTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Polygon2DTestCase.h; sourceTree = "<group>"; };
 		485884FB12298C2E00E7806F /* Polygon2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polygon2DTestCase.m; sourceTree = "<group>"; };
 		485AE8A512F4B9BA00CDBD6A /* Picker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Picker.h; sourceTree = "<group>"; };
@@ -280,6 +287,8 @@
 		4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayoutRow.m; sourceTree = "<group>"; };
 		4866F3C212EACE73009B345C /* TextureViewLayoutCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayoutCell.h; sourceTree = "<group>"; };
 		4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayoutCell.m; sourceTree = "<group>"; };
+		4867430313577855009E7ABF /* DefaultTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefaultTool.h; sourceTree = "<group>"; };
+		4867430413577855009E7ABF /* DefaultTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DefaultTool.m; sourceTree = "<group>"; };
 		4869211B133A965600A0F098 /* VertexRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexRenderer.h; sourceTree = "<group>"; };
 		4869211C133A965600A0F098 /* VertexRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexRenderer.m; sourceTree = "<group>"; };
 		48692207133B272000A0F098 /* ThickEdgeRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThickEdgeRenderer.h; sourceTree = "<group>"; };
@@ -643,6 +652,12 @@
 				48CE70AB134741C400886260 /* GridFeedbackFigure.m */,
 				48D6C94013574B4A00AC6A4D /* BrushToolCursor.h */,
 				48D6C94113574B4A00AC6A4D /* BrushToolCursor.m */,
+				4867430313577855009E7ABF /* DefaultTool.h */,
+				4867430413577855009E7ABF /* DefaultTool.m */,
+				485582111357874F005F8B2C /* CameraTool.h */,
+				485582121357874F005F8B2C /* CameraTool.m */,
+				4855821B135788B5005F8B2C /* SelectionTool.h */,
+				4855821C135788B5005F8B2C /* SelectionTool.m */,
 			);
 			name = Tool;
 			sourceTree = "<group>";
@@ -1151,6 +1166,9 @@
 				48325D4713524F7000E703E0 /* CompassFigure.m in Sources */,
 				48D6C9391357379900AC6A4D /* CursorManager.m in Sources */,
 				48D6C94213574B4A00AC6A4D /* BrushToolCursor.m in Sources */,
+				4867430513577855009E7ABF /* DefaultTool.m in Sources */,
+				485582131357874F005F8B2C /* CameraTool.m in Sources */,
+				4855821D135788B5005F8B2C /* SelectionTool.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
