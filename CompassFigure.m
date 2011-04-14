@@ -21,9 +21,10 @@
 }
 
 - (void)renderArm {
-    gluCylinder(arms, 4, 4, 30, 10, 1);
+    glTranslatef(0, 0, -30);
+    gluCylinder(arms, 4, 4, 60, 10, 1);
     gluDisk(disks, 0, 4, 10, 1);
-    glTranslatef(0, 0, 30);
+    glTranslatef(0, 0, 60);
     gluCylinder(arms, 8, 0, 12, 10, 5);
     gluDisk(disks, 0, 8, 10, 1);
 }
@@ -32,6 +33,8 @@
     if (!initialized) {
         arms = gluNewQuadric();
         disks = gluNewQuadric();
+        gluQuadricDrawStyle(arms, GLU_FILL);
+        gluQuadricDrawStyle(disks, GLU_FILL);
         gluQuadricOrientation(disks, GLU_INSIDE);
         initialized = YES;
     }
@@ -66,38 +69,30 @@
                       [up z]);
             [position release];
 
-            gluQuadricDrawStyle(arms, GLU_FILL);
-            gluQuadricDrawStyle(disks, GLU_FILL);
-            glPushMatrix();
-            glRotatef(90, 0, 1, 0);
-            glColor4f(1, 0, 0, 1);
-            [self renderArm];
-            glPopMatrix();
+            EVectorComponent l = [direction largestComponent];
             
-            glPushMatrix();
-            glRotatef(270, 1, 0, 0);
-            glColor4f(0, 1, 0, 1);
-            [self renderArm];
-            glPopMatrix();
-            
-            glPushMatrix();
-            glColor4f(0, 0, 1, 1);
-            [self renderArm];
-            glPopMatrix();
-            
-            glColor4f(1, 1, 1, 1);
-            gluQuadricDrawStyle(arms, GLU_SILHOUETTE);
-            gluQuadricDrawStyle(disks, GLU_SILHOUETTE);
+            if (l == VC_X)
+                glColor4f(0.6f, 0.3f, 0.3f, 1);
+            else
+                glColor4f(1, 0, 0, 1);
             glPushMatrix();
             glRotatef(90, 0, 1, 0);
             [self renderArm];
             glPopMatrix();
             
+            if (l == VC_Y)
+                glColor4f(0.3f, 0.6f, 0.3f, 1);
+            else
+                glColor4f(0, 1, 0, 1);
             glPushMatrix();
             glRotatef(270, 1, 0, 0);
             [self renderArm];
             glPopMatrix();
             
+            if (l == VC_Z)
+                glColor4f(0.4f, 0.3f, 0.6f, 1);
+            else
+                glColor4f(0, 0, 1, 1);
             glPushMatrix();
             [self renderArm];
             glPopMatrix();

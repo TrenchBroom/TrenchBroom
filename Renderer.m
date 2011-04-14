@@ -510,20 +510,20 @@ NSString* const RendererChanged = @"RendererChanged";
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glFrontFace(GL_CW);
     glEnable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_FLAT);
     
     Options* options = [windowController options];
     
     RenderContext* renderContext = [[RenderContext alloc] initWithOptions:options];
-    glDepthMask(false);
-    [compassFigure render]; // first things first
-    glDepthMask(true);
     [geometryLayer render:renderContext];
     [selectionLayer render:renderContext];
     [trackingLayer render:renderContext];
     [feedbackLayer render:renderContext];
     
+    glClear(GL_DEPTH_BUFFER_BIT);
+    [compassFigure render];
+
     [renderContext release];
 }
 
