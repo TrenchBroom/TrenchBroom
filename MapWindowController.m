@@ -126,6 +126,10 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     return [view3D renderer];
 }
 
+- (MapView3D *)view3D {
+    return view3D;
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     SEL action = [menuItem action];
     if (action == @selector(clearSelection:)) {

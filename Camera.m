@@ -13,6 +13,7 @@
 #import "Ray3D.h"
 
 NSString* const CameraChanged = @"CameraChanged";
+NSString* const CameraViewChanged = @"CameraViewChanged";
 
 @implementation Camera
 
@@ -260,6 +261,8 @@ NSString* const CameraChanged = @"CameraChanged";
 
     glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:CameraViewChanged object:self];
 }
 
 

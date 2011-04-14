@@ -14,6 +14,7 @@ typedef enum {
 } ECameraMode;
 
 extern NSString* const CameraChanged;
+extern NSString* const CameraViewChanged;
 
 @class Vector3f;
 @class Quaternion;

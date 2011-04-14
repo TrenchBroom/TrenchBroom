@@ -36,17 +36,13 @@
 - (id)initWithController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
         windowController = [theWindowController retain];
+        cursor = [[BrushToolCursor alloc] init];
     }
     return self;
 }
 
 - (void)dealloc {
-    if (cursor != nil) {
-        CursorManager* cursorManager = [windowController cursorManager];
-        [cursorManager popCursor];
-        [cursor release];
-    }
-
+    [cursor release];
     [lastPoint release];
     [plane release];
     [windowController release];
@@ -128,33 +124,25 @@
     plane = nil;
 }
 
-- (void)updateCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    CursorManager* cursorManager = [windowController cursorManager];
+- (void)setCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    if (hit == nil) {
-        if (cursor != nil) {
-            [cursorManager popCursor];
-            [cursor release];
-            cursor = nil;
-        }
-    } else {
-        id <Face> face = [hit object];
-        id <Brush> brush = [face brush];
-        SelectionManager* selectionManager = [windowController selectionManager];
-        if ([selectionManager isBrushSelected:brush]) {
-            if (cursor == nil) {
-                cursor = [[BrushToolCursor alloc] init];
-                [cursorManager pushCursor:cursor];
-            }
-            [cursor setPlaneNormal:[[face norm] largestComponent]];
-        } else {
-            if (cursor != nil) {
-                [cursorManager popCursor];
-                [cursor release];
-                cursor = nil;
-            }
-        }
-    }
+    id <Face> face = [hit object];
+
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager pushCursor:cursor];
+    [cursor setPlaneNormal:[[face norm] largestComponent]];
+}
+
+- (void)unsetCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager popCursor];
+}
+
+- (void)updateCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    id <Face> face = [hit object];
+    
+    [cursor setPlaneNormal:[[face norm] largestComponent]];
 }
 
 - (NSString *)actionName {

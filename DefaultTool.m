@@ -32,6 +32,8 @@
 - (void)rightDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
 - (void)endRightDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
 
+- (void)setCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
+- (void)unsetCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
 - (void)updateCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
 
 - (NSString *)actionName { return nil; }

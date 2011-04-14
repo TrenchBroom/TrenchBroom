@@ -14,14 +14,14 @@
 
 @interface CameraTool (private)
 
-- (BOOL)isCameraOrbitModifierPressed:(NSEvent *)event;
+- (BOOL)isCameraOrbitModifierPressed;
 
 @end
 
 @implementation CameraTool (private)
 
-- (BOOL)isCameraOrbitModifierPressed:(NSEvent *)event {
-    return ([event modifierFlags] & NSCommandKeyMask) != 0;
+- (BOOL)isCameraOrbitModifierPressed {
+    return ([NSEvent modifierFlags] & NSCommandKeyMask) != 0;
 }
 
 @end
@@ -38,7 +38,7 @@
 
 - (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     Camera* camera = [windowController camera];
-    if ([self isCameraOrbitModifierPressed:event]) {
+    if ([self isCameraOrbitModifierPressed]) {
         if (hits != nil) {
             float h = -[event deltaX] / 70;
             float v = [event deltaY] / 70;
@@ -67,7 +67,7 @@
 
 - (void)handleScrollWheel:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     Camera* camera = [windowController camera];
-    if ([self isCameraOrbitModifierPressed:event]) {
+    if ([self isCameraOrbitModifierPressed]) {
         if (gesture)
             [camera setZoom:[camera zoom] + [event deltaZ] / 10];
         else
@@ -82,7 +82,7 @@
 
 - (void)handleMagnify:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     Camera* camera = [windowController camera];
-    if ([self isCameraOrbitModifierPressed:event])
+    if ([self isCameraOrbitModifierPressed])
         [camera setZoom:[camera zoom] - [event magnification] / 2];
     else
         [camera moveForward:160 * [event magnification] right:0 up:0];

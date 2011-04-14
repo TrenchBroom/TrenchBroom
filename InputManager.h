@@ -35,6 +35,7 @@
     ClipTool* clipTool;
     id <Tool> dragTool;
     id <Tool> gestureTool;
+    id <Tool> cursorOwner;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

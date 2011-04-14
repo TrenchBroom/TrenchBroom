@@ -34,26 +34,68 @@
 
 @interface InputManager (private)
 
-- (void)updateRay:(NSEvent *)event sender:(id)sender;
+- (BOOL)isSelectionModifierPressed;
+- (BOOL)isCameraModifierPressed;
+- (BOOL)isCameraOrbitModifierPressed;
+- (BOOL)isApplyTextureModifierPressed;
+- (BOOL)isApplyTextureAndAttributesModifierPressed;
+
+- (void)updateEvent:(NSEvent *)event;
+- (void)updateRay;
 - (void)updateHits;
+- (void)updateCursorOwner;
 - (void)updateCursor;
+- (void)cameraViewChanged:(NSNotification *)notification;
 
 @end
 
 @implementation InputManager (private)
 
-- (void)updateRay:(NSEvent *)event sender:(id)sender {
+- (BOOL)isSelectionModifierPressed {
+    NSUInteger flags = [NSEvent modifierFlags];
+    return flags == 0 || (flags & NSCommandKeyMask) == NSCommandKeyMask; // this might break
+}
+
+- (BOOL)isCameraModifierPressed {
+    return ([NSEvent modifierFlags] & NSShiftKeyMask) == NSShiftKeyMask;
+}
+
+- (BOOL)isCameraOrbitModifierPressed {
+    return ([NSEvent modifierFlags] & (NSShiftKeyMask | NSCommandKeyMask)) == (NSShiftKeyMask | NSCommandKeyMask);
+}
+
+- (BOOL)isApplyTextureModifierPressed {
+    return ([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
+}
+
+- (BOOL)isApplyTextureAndAttributesModifierPressed {
+    return ([NSEvent modifierFlags] & (NSAlternateKeyMask | NSCommandKeyMask)) == (NSAlternateKeyMask | NSCommandKeyMask);
+}
+
+- (void)updateEvent:(NSEvent *)event {
+    BOOL rayChanged = YES;
+    if (lastEvent != nil)
+        rayChanged = [lastEvent locationInWindow].x != [event locationInWindow].x || [lastEvent locationInWindow].y != [event locationInWindow].y;
+    
     [lastEvent release];
+    lastEvent = [event retain];
+    
+    [lastRay release];
+    lastRay = nil;
+    [lastHits release];
+    lastHits = nil;
+}
+
+- (void)updateRay {
     [lastRay release];
     [lastHits release];
     lastHits = nil;
     
-    lastEvent = [event retain];
     
-    MapView3D* mapView3D = (MapView3D *)sender;
+    MapView3D* mapView3D = [windowController view3D];
     Camera* camera = [windowController camera];
     
-    NSPoint m = [mapView3D convertPointFromBase:[event locationInWindow]];
+    NSPoint m = [mapView3D convertPointFromBase:[lastEvent locationInWindow]];
     lastRay = [[camera pickRayX:m.x y:m.y] retain];
 }
 
@@ -62,12 +104,32 @@
     lastHits = [[picker pickObjects:lastRay include:nil exclude:nil] retain];
 }
 
+- (void)updateCursorOwner {
+    id <Tool> newOwner = selectionTool;
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([self isCameraModifierPressed]) {
+        newOwner = cameraTool;
+    } else if ([selectionManager mode] == SM_GEOMETRY) {
+        PickingHit* hit = [lastHits firstHitOfType:HT_BRUSH ignoreOccluders:YES];
+        if (hit != nil && [selectionManager isBrushSelected:[hit object]])
+            newOwner = brushTool;
+    } else if ([selectionManager mode] == SM_FACES) {
+        PickingHit* hit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
+        if (hit != nil && [selectionManager isFaceSelected:[hit object]])
+            newOwner = faceTool;
+    }
+    
+    if (newOwner != cursorOwner) {
+        [cursorOwner unsetCursor:lastEvent ray:lastRay hits:lastHits];
+        cursorOwner = newOwner;
+        [cursorOwner setCursor:lastEvent ray:lastRay hits:lastHits];
+    }
+    
+    [self updateCursor];
+}
+
 - (void)updateCursor {
-    [cameraTool updateCursor:lastEvent ray:lastRay hits:lastHits];
-    [selectionTool updateCursor:lastEvent ray:lastRay hits:lastHits];
-    [brushTool updateCursor:lastEvent ray:lastRay hits:lastHits];
-    [faceTool updateCursor:lastEvent ray:lastRay hits:lastHits];
-    [clipTool updateCursor:lastEvent ray:lastRay hits:lastHits];
+    [cursorOwner updateCursor:lastEvent ray:lastRay hits:lastHits];
     
     Camera* camera = [windowController camera];
     CursorManager* cursorManager = [windowController cursorManager];
@@ -77,6 +139,15 @@
         [cursorManager updateCursor:[hit hitPoint]];
     else
         [cursorManager updateCursor:[camera defaultPoint]];
+
+    MapView3D* view3D = [windowController view3D];
+    [view3D setNeedsDisplay:YES];
+}
+
+- (void)cameraViewChanged:(NSNotification *)notification {
+    [self updateRay];
+    [self updateHits];
+    [self updateCursor];
 }
 
 @end
@@ -91,29 +162,14 @@
         brushTool = [[BrushTool alloc] initWithController:windowController];
         faceTool = [[FaceTool alloc] initWithController:windowController];
         clipTool = [[ClipTool alloc] initWithWindowController:windowController];
+        cursorOwner = selectionTool;
+        
+        Camera* camera = [windowController camera];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center addObserver:self selector:@selector(cameraViewChanged:) name:CameraViewChanged object:camera];
     }
     
     return self;
-}
-
-- (BOOL)isSelectionModifierPressed:(NSEvent *)event {
-    return [event modifierFlags] == 256 || ([event modifierFlags] & NSCommandKeyMask) == NSCommandKeyMask; // this might break
-}
-
-- (BOOL)isCameraModifierPressed:(NSEvent *)event {
-    return ([event modifierFlags] & NSShiftKeyMask) == NSShiftKeyMask;
-}
-
-- (BOOL)isCameraOrbitModifierPressed:(NSEvent *)event {
-    return ([event modifierFlags] & (NSShiftKeyMask | NSCommandKeyMask)) == (NSShiftKeyMask | NSCommandKeyMask);
-}
-
-- (BOOL)isApplyTextureModifierPressed:(NSEvent *)event {
-    return ([event modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
-}
-
-- (BOOL)isApplyTextureAndAttributesModifierPressed:(NSEvent *)event {
-    return ([event modifierFlags] & (NSAlternateKeyMask | NSCommandKeyMask)) == (NSAlternateKeyMask | NSCommandKeyMask);
 }
 
 - (BOOL)handleKeyDown:(NSEvent *)event sender:(id)sender {
@@ -133,14 +189,14 @@
 }
 
 - (void)handleFlagsChanged:(NSEvent *)event sender:(id)sender {
-    [self updateCursor];
+    [self updateCursorOwner];
 }
 
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender {
     if (dragTool == nil) {
         SelectionManager* selectionManager = [windowController selectionManager];
         PickingHit* hit = [lastHits firstHitOfType:HT_ANY ignoreOccluders:NO];
-        if ([self isCameraModifierPressed:event])
+        if ([self isCameraModifierPressed])
             dragTool = cameraTool;
         else if ([selectionManager mode] == SM_GEOMETRY && hit != nil)
             dragTool = brushTool;
@@ -148,60 +204,62 @@
             dragTool = faceTool;
         else
             dragTool = selectionTool;
-            
+
         [dragTool beginLeftDrag:lastEvent ray:lastRay hits:lastHits];
+        [self updateCursorOwner];
+        [self updateCursor];
     }
     
-    [self updateRay:event sender:sender];
+    [self updateEvent:event];
+    [self updateRay];
     [self updateHits];
     [dragTool leftDrag:lastEvent ray:lastRay hits:lastHits];
-    [self updateRay:event sender:sender];
-    [self updateHits];
-    [self updateCursor];
+    [self updateCursorOwner];
 }
 
 - (void)handleMouseMoved:(NSEvent *)event sender:(id)sender {
-    [self updateRay:event sender:sender];
+    [self updateEvent:event];
+    [self updateRay];
     [self updateHits];
-    [self updateCursor];
+    [self updateCursorOwner];
 }
 
 - (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender {
     SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager mode] == HT_FACE && [self isApplyTextureModifierPressed:event])
+    if ([selectionManager mode] == HT_FACE && [self isApplyTextureModifierPressed])
         [faceTool handleLeftMouseDown:event ray:lastRay hits:lastHits];
-    [self updateCursor];
+    [self updateCursorOwner];
 }
 
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
     if (dragTool == nil) {
-        if ([self isSelectionModifierPressed:event])
+        if ([self isSelectionModifierPressed])
             [selectionTool handleLeftMouseUp:event ray:lastRay hits:lastHits];
     } else {
         [dragTool endLeftDrag:event ray:lastRay hits:lastHits];
         dragTool = nil;
     }
-    [self updateCursor];
+    [self updateCursorOwner];
 }
 
 - (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender {
     if (dragTool == nil) {
-        if ([self isCameraModifierPressed:event])
+        if ([self isCameraModifierPressed])
             dragTool = cameraTool;
         
         [dragTool beginRightDrag:lastEvent ray:lastRay hits:lastHits];
+        [self updateCursor];
     }
     
-    [self updateRay:event sender:sender];
+    [self updateEvent:event];
+    [self updateRay];
     [self updateHits];
     [dragTool rightDrag:lastEvent ray:lastRay hits:lastHits];
-    [self updateRay:event sender:sender];
-    [self updateHits];
-    [self updateCursor];
+    [self updateCursorOwner];
 }
 
 - (void)handleRightMouseDown:(NSEvent *)event sender:(id)sender {
-    [self updateCursor];
+    [self updateCursorOwner];
 }
 
 - (void)handleRightMouseUp:(NSEvent *)event sender:(id)sender {
@@ -209,24 +267,23 @@
         [dragTool endRightDrag:event ray:lastRay hits:lastHits];
         dragTool = nil;
     }
-    [self updateCursor];
+    [self updateCursorOwner];
 }
 
 - (void)handleScrollWheel:(NSEvent *)event sender:(id)sender {
-    if ([self isCameraModifierPressed:event]) {
+    if ([self isCameraModifierPressed]) {
         [cameraTool handleScrollWheel:event ray:lastRay hits:lastHits];
-        [self updateHits];
-        [self updateCursor];
-    } else {
-        [self updateCursor];
+        [self updateCursorOwner];
     }
+    [self updateCursorOwner];
 }
 
 - (void)handleBeginGesture:(NSEvent *)event sender:(id)sender {
-    if ([self isCameraModifierPressed:event]) {
+    if ([self isCameraModifierPressed]) {
         gestureTool = cameraTool;
         [gestureTool handleBeginGesture:event ray:lastRay hits:lastHits];
     }
+    [self updateCursorOwner];
 }
 
 - (void)handleEndGesture:(NSEvent *)event sender:(id)sender {
@@ -234,19 +291,19 @@
         [gestureTool handleEndGesture:event ray:lastRay hits:lastHits];
         gestureTool = nil;
     }
+    [self updateCursorOwner];
 }
 
 - (void)handleMagnify:(NSEvent *)event sender:(id)sender {
-    if ([self isCameraModifierPressed:event]) {
+    if ([self isCameraModifierPressed]) {
         [cameraTool handleMagnify:event ray:lastRay hits:lastHits];
-        [self updateHits];
-        [self updateCursor];
-    } else {
-        [self updateCursor];
+        [self updateCursorOwner];
     }
+    [self updateCursorOwner];
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [cameraTool release];
     [selectionTool release];
     [brushTool release];

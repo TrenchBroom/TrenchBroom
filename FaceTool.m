@@ -27,14 +27,14 @@
 
 @interface FaceTool (private)
 
-- (BOOL)isAttributesModifierPressed:(NSEvent *)event;
+- (BOOL)isAttributesModifierPressed;
 
 @end
 
 @implementation FaceTool (private)
 
-- (BOOL)isAttributesModifierPressed:(NSEvent *)event {
-    return ([event modifierFlags] & NSCommandKeyMask) != 0;
+- (BOOL)isAttributesModifierPressed {
+    return ([NSEvent modifierFlags] & NSCommandKeyMask) != 0;
 }
 
 @end
@@ -71,7 +71,7 @@
         id <Face> destination = [hit object];
         
         MapDocument* map = [windowController document];
-        if ([self isAttributesModifierPressed:event]) {
+        if ([self isAttributesModifierPressed]) {
             MapDocument* map = [windowController document];
             NSUndoManager* undoManager = [map undoManager];
             [undoManager beginUndoGrouping];

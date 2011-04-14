@@ -14,6 +14,21 @@
 #import "Face.h"
 #import "Brush.h"
 
+@interface SelectionTool (private)
+
+- (BOOL)isMultiSelectionModifierPressed;
+
+@end
+
+@implementation SelectionTool (private)
+
+- (BOOL)isMultiSelectionModifierPressed {
+    return ([NSEvent modifierFlags] & NSCommandKeyMask) != 0;
+}
+
+@end
+
+
 @implementation SelectionTool
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
@@ -35,7 +50,7 @@
             if ([selectionManager isFaceSelected:face]) {
                 [selectionManager addBrush:brush record:NO];
             } else {
-                if (([event modifierFlags] & NSCommandKeyMask) == 0) {
+                if (![self isMultiSelectionModifierPressed]) {
                     if ([selectionManager hasSelectedFaces:brush]) {
                         [selectionManager removeAll:NO];
                         [selectionManager addFace:face record:NO];
@@ -47,7 +62,7 @@
                 }
             }
         } else {
-            if (([event modifierFlags] & NSCommandKeyMask) == 0) {
+            if (![self isMultiSelectionModifierPressed]) {
                 if ([selectionManager isBrushSelected:brush]) {
                     [selectionManager addFace:face record:NO];
                 } else {

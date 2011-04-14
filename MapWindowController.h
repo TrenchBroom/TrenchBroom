@@ -81,4 +81,5 @@
 - (CursorManager *)cursorManager;
 - (Options *)options;
 - (Renderer *)renderer;
+- (MapView3D *)view3D;
 @end
