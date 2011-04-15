@@ -13,6 +13,7 @@
 @class PickingHit;
 @class Plane3D;
 @class Vector3f;
+@class DragFaceCursor;
 
 @interface FaceTool : DefaultTool {
 @private
@@ -20,6 +21,7 @@
     Plane3D* plane;
     Vector3f* lastPoint;
     Vector3f* dragDir;
+    DragFaceCursor* cursor;
 }
 
 - (id)initWithController:(MapWindowController *)theWindowController;

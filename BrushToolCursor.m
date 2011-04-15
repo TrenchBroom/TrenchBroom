@@ -68,7 +68,6 @@
     }
     
     glPopMatrix();
-    
     glFrontFace(GL_CW);
 }
 

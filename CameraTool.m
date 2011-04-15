@@ -36,15 +36,31 @@
     return self;
 }
 
+- (void)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    if ([self isCameraOrbitModifierPressed]) {
+        PickingHit* hit = [hits firstHitOfType:HT_ANY ignoreOccluders:YES];
+        if (hit != nil) {
+            orbitCenter = [[hit hitPoint] retain];
+        } else {
+            Camera* camera = [windowController camera];
+            orbitCenter = [camera defaultPoint];
+        }
+    }
+}
+
+- (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    if (orbitCenter != nil) {
+        [orbitCenter release];
+        orbitCenter = nil;
+    }
+}
+
 - (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     Camera* camera = [windowController camera];
-    if ([self isCameraOrbitModifierPressed]) {
-        if (hits != nil) {
-            float h = -[event deltaX] / 70;
-            float v = [event deltaY] / 70;
-            PickingHit* hit = [hits firstHitOfType:HT_ANY ignoreOccluders:NO];
-            [camera orbitCenter:[hit hitPoint] hAngle:h vAngle:v];
-        }
+    if (orbitCenter != nil) {
+        float h = -[event deltaX] / 70;
+        float v = [event deltaY] / 70;
+        [camera orbitCenter:orbitCenter hAngle:h vAngle:v];
     } else {
         float yaw = -[event deltaX] / 70;
         float pitch = [event deltaY] / 70;
@@ -89,6 +105,8 @@
 }
 
 - (void)dealloc {
+    if (orbitCenter != nil)
+        [orbitCenter release];
     [windowController release];
     [super dealloc];
 }

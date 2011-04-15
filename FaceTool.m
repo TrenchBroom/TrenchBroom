@@ -24,6 +24,8 @@
 #import "Brush.h"
 #import "math.h"
 #import "Math.h"
+#import "CursorManager.h"
+#import "DragFaceCursor.h"
 
 @interface FaceTool (private)
 
@@ -44,13 +46,14 @@
 - (id)initWithController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
         windowController = [theWindowController retain];
-        
+        cursor = [[DragFaceCursor alloc] init];
     }
     
     return self;
 }
 
 - (void)dealloc {
+    [cursor release];
     [lastPoint release];
     [dragDir release];
     [plane release];
@@ -154,6 +157,26 @@
     dragDir = nil;
     [lastPoint release];
     lastPoint = nil;
+}
+
+- (void)setCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    id <Face> face = [hit object];
+
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager pushCursor:cursor];
+    [cursor setDragDir:[face norm]];
+}
+
+- (void)unsetCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager popCursor];
+}
+
+- (void)updateCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    id <Face> face = [hit object];
+    [cursor setDragDir:[face norm]];
 }
 
 - (NSString *)actionName {

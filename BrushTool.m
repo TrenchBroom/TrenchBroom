@@ -31,6 +31,46 @@
 #import "CursorManager.h"
 #import "BrushToolCursor.h"
 
+@interface BrushTool (private)
+
+- (BOOL)isAltPlaneModifierPressed;
+- (EVectorComponent)planeNormal:(id <Face>)face;
+
+@end
+
+@implementation BrushTool (private)
+
+- (BOOL)isAltPlaneModifierPressed {
+    return ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0;
+}
+
+- (EVectorComponent)planeNormal:(id <Face>)face {
+    EVectorComponent planeNormal;
+    if (plane != nil) {
+        planeNormal = [[plane norm] largestComponent];
+    } else {
+        planeNormal = [[face norm] largestComponent];
+        if ([self isAltPlaneModifierPressed]) {
+            if (planeNormal == VC_X) {
+                planeNormal = VC_Y;
+            } else if (planeNormal == VC_Y) {
+                planeNormal = VC_X;
+            } else {
+                Camera* camera = [windowController camera];
+                Vector3f* cameraDir = [camera direction];
+                if (fabsf([cameraDir x]) > fabsf([cameraDir y]))
+                    planeNormal = VC_X;
+                else
+                    planeNormal = VC_Y;
+            }
+        }
+    }
+    
+    return planeNormal;
+}
+
+@end
+
 @implementation BrushTool
 
 - (id)initWithController:(MapWindowController *)theWindowController {
@@ -58,7 +98,7 @@
     lastPoint = [[faceHit hitPoint] retain];
     id <Face> face = [faceHit object];
     
-    switch ([[face norm] largestComponent]) {
+    switch ([self planeNormal:face]) {
         case VC_X:
             plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f xAxisPos]];
             break;
@@ -130,7 +170,9 @@
 
     CursorManager* cursorManager = [windowController cursorManager];
     [cursorManager pushCursor:cursor];
-    [cursor setPlaneNormal:[[face norm] largestComponent]];
+
+    EVectorComponent planeNormal = [self planeNormal:face];
+    [cursor setPlaneNormal:planeNormal];
 }
 
 - (void)unsetCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
@@ -142,7 +184,8 @@
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
     id <Face> face = [hit object];
     
-    [cursor setPlaneNormal:[[face norm] largestComponent]];
+    EVectorComponent planeNormal = [self planeNormal:face];
+    [cursor setPlaneNormal:planeNormal];
 }
 
 - (NSString *)actionName {
