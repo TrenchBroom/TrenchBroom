@@ -25,8 +25,6 @@
     NSEvent* lastEvent;
     Ray3D* lastRay;
     PickingHitList* lastHits;
-    BOOL gesture;
-    BOOL drag;
     
     CameraTool* cameraTool;
     SelectionTool* selectionTool;
@@ -53,4 +51,7 @@
 - (void)handleBeginGesture:(NSEvent *)event sender:(id)sender;
 - (void)handleEndGesture:(NSEvent *)event sender:(id)sender;
 - (void)handleMagnify:(NSEvent *)event sender:(id)sender;
+
+- (ClipTool *)clipTool;
+
 @end

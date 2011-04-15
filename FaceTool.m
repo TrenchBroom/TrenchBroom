@@ -31,19 +31,36 @@
 
 @interface FaceTool (private)
 
-- (BOOL)isFlagsModifierPressed;
+- (BOOL)isApplyTextureAndFlagsModifierPressed;
 - (BOOL)isApplyTextureModifierPressed;
+
+- (void)applyTextureFrom:(id <Face>)source to:(id <Face>)destination;
+- (void)applyFlagsFrom:(id <Face>)source to:(id <Face>)destination;
 
 @end
 
 @implementation FaceTool (private)
 
-- (BOOL)isFlagsModifierPressed {
-    return ([NSEvent modifierFlags] & NSCommandKeyMask) != 0;
+- (BOOL)isApplyTextureAndFlagsModifierPressed {
+    return [NSEvent modifierFlags] == (NSAlternateKeyMask | NSCommandKeyMask);
 }
 
 - (BOOL)isApplyTextureModifierPressed {
-    return ([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
+    return [NSEvent modifierFlags] == NSAlternateKeyMask;
+}
+
+- (void)applyTextureFrom:(id <Face>)source to:(id <Face>)destination {
+    MapDocument* map = [windowController document];
+    [map setFace:destination texture:[source texture]];
+}
+
+- (void)applyFlagsFrom:(id <Face>)source to:(id <Face>)destination {
+    MapDocument* map = [windowController document];
+    [map setFace:destination xOffset:[source xOffset]];
+    [map setFace:destination yOffset:[source yOffset]];
+    [map setFace:destination xScale:[source xScale]];
+    [map setFace:destination yScale:[source yScale]];
+    [map setFace:destination rotation:[source rotation]];
 }
 
 @end
@@ -73,38 +90,76 @@
 # pragma mark -
 # pragma mark @implementation Tool
 
-- (void)handleLeftMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)handleLeftMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    if (![self isApplyTextureModifierPressed] && ![self isApplyTextureAndFlagsModifierPressed])
+        return NO;
+    
     SelectionManager* selectionManager = [windowController selectionManager];
     NSSet* selectedFaces = [selectionManager selectedFaces];
-    if ([selectedFaces count] == 1) {
-        id <Face> source = [[selectedFaces objectEnumerator] nextObject];
-        
-        PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-        id <Face> destination = [hit object];
-        
-        MapDocument* map = [windowController document];
-        if ([self isFlagsModifierPressed]) {
+    if (![selectedFaces count] == 1)
+        return NO;
+    
+    id <Face> source = [[selectedFaces objectEnumerator] nextObject];
+    
+    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    id <Face> destination = [hit object];
+    
+    if ([event clickCount] == 1) {
+        if ([self isApplyTextureAndFlagsModifierPressed]) {
             MapDocument* map = [windowController document];
             NSUndoManager* undoManager = [map undoManager];
             [undoManager beginUndoGrouping];
-            [map setFace:destination texture:[source texture]];
-            [map setFace:destination xOffset:[source xOffset]];
-            [map setFace:destination yOffset:[source yOffset]];
-            [map setFace:destination xScale:[source xScale]];
-            [map setFace:destination yScale:[source yScale]];
-            [map setFace:destination rotation:[source rotation]];
+            [self applyTextureFrom:source to:destination];
+            [self applyFlagsFrom:source to:destination];
             [undoManager endUndoGrouping];
             [undoManager setActionName:@"Copy Face Attributes"];
         } else {
-            [map setFace:destination texture:[source texture]];
+            [self applyTextureFrom:source to:destination];
+        }
+    } else if ([event clickCount] == 2) {
+        MapDocument* map = [windowController document];
+        NSUndoManager* undoManager = [map undoManager];
+        [undoManager beginUndoGrouping];
+        if ([self isApplyTextureAndFlagsModifierPressed]) {
+            id <Face> face = destination;
+            id <Brush> brush = [face brush];
+            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+            while (destination = [faceEn nextObject]) {
+                if (destination != face) {
+                    [self applyTextureFrom:source to:destination];
+                    [self applyFlagsFrom:source to:destination];
+                }
+            }
+            [undoManager endUndoGrouping];
+            [undoManager setActionName:@"Copy Face Attributes To Brush"];
+        } else {
+            id <Face> face = destination;
+            id <Brush> brush = [face brush];
+            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+            while (destination = [faceEn nextObject]) {
+                if (destination != face) {
+                    [self applyTextureFrom:source to:destination];
+                }
+            }
+            [undoManager endUndoGrouping];
+            [undoManager setActionName:@"Copy Face Texture To Brush"];
         }
     }
+    
+    return YES;
 }
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
-
+    if (hit == nil)
+        return NO;
+    
     id <Face> face = [hit object];
+
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if (![selectionManager isFaceSelected:face])
+        return NO;
+    
     dragDir = [[face norm] retain];
     
     Vector3f* planeNorm = [[Vector3f alloc] initWithFloatVector:dragDir];
@@ -123,18 +178,20 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setGroupsByEvent:NO];
     [undoManager beginUndoGrouping];
+    
+    return YES;
 }
 
-- (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     Vector3f* point = [ray pointAtDistance:[plane intersectWithRay:ray]];
     if (point == nil)
-        return;
+        return YES;
     
     Grid* grid = [[windowController options] grid];
     [grid snapToGrid:point];
     
     if ([point isEqualToVector:lastPoint])
-        return;
+        return YES;
     
     Vector3f* diff = [[Vector3f alloc] initWithFloatVector:point];
     [diff sub:lastPoint];
@@ -151,9 +208,11 @@
     [diff release];
     [lastPoint release];
     lastPoint = [point retain];
+    
+    return YES;
 }
 
-- (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setActionName:[self actionName]];
@@ -166,6 +225,26 @@
     dragDir = nil;
     [lastPoint release];
     lastPoint = nil;
+    
+    return YES;
+}
+
+- (BOOL)hasCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    if (hit == nil)
+        return NO;
+    
+    id <Face> face = [hit object];
+    
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager isFaceSelected:face])
+        return YES;
+    
+    NSSet* selectedFaces = [selectionManager selectedFaces];
+    if ([selectedFaces count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed]))
+        return YES;
+        
+    return NO;
 }
 
 - (void)setCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
@@ -182,7 +261,7 @@
         CursorManager* cursorManager = [windowController cursorManager];
         [cursorManager pushCursor:applyFaceCursor];
         [applyFaceCursor setFace:face];
-        [applyFaceCursor setApplyFlags:[self isFlagsModifierPressed]];
+        [applyFaceCursor setApplyFlags:[self isApplyTextureAndFlagsModifierPressed]];
         currentCursor = applyFaceCursor;
     }
 }
@@ -213,7 +292,7 @@
             currentCursor = applyFaceCursor;
         }
         [applyFaceCursor setFace:face];
-        [applyFaceCursor setApplyFlags:[self isFlagsModifierPressed]];
+        [applyFaceCursor setApplyFlags:[self isApplyTextureAndFlagsModifierPressed]];
     }
 }
 

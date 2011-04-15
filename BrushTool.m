@@ -41,7 +41,7 @@
 @implementation BrushTool (private)
 
 - (BOOL)isAltPlaneModifierPressed {
-    return ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0;
+    return [NSEvent modifierFlags] == NSAlternateKeyMask;
 }
 
 - (EVectorComponent)planeNormal:(id <Face>)face {
@@ -92,11 +92,19 @@
 # pragma mark -
 # pragma mark @implementation Tool
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     PickingHit* faceHit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
+    if (faceHit == nil)
+        return NO;
+    
+    id <Face> face = [faceHit object];
+    id <Brush> brush = [face brush];
+
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if (![selectionManager isBrushSelected:brush])
+        return NO;
     
     lastPoint = [[faceHit hitPoint] retain];
-    id <Face> face = [faceHit object];
     
     switch ([self planeNormal:face]) {
         case VC_X:
@@ -117,18 +125,20 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setGroupsByEvent:NO];
     [undoManager beginUndoGrouping];
+    
+    return YES;
 }
 
-- (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     Vector3f* point = [ray pointAtDistance:[plane intersectWithRay:ray]];
     if (point == nil)
-        return;
+        return YES;
     
     Grid* grid = [[windowController options] grid];
     [grid snapToGrid:point];
     
     if ([point isEqualToVector:lastPoint])
-        return;
+        return YES;
     
     int x = roundf([point x] - [lastPoint x]);
     int y = roundf([point y] - [lastPoint y]);
@@ -149,9 +159,12 @@
     lastPoint = [point retain];
     
     CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager updateCursor:lastPoint];}
+    [cursorManager updateCursor:lastPoint];
+    
+    return YES;
+}
 
-- (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setActionName:[self actionName]];
@@ -162,6 +175,21 @@
     lastPoint = nil;
     [plane release];
     plane = nil;
+    
+    return YES;
+}
+
+- (BOOL)hasCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    PickingHit* hit = [hits firstHitOfType:HT_BRUSH ignoreOccluders:YES];
+    if (hit == nil)
+        return NO;
+    
+    id <Brush> brush = [hit object];
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if (![selectionManager isBrushSelected:brush])
+        return NO;
+    
+    return YES;
 }
 
 - (void)setCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {

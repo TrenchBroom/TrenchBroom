@@ -131,14 +131,16 @@
         [renderer removeFeedbackFigure:figure];
     [brushFigures removeAllObjects];
     
-    SelectionManager* selectionManager = [windowController selectionManager];
-    NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject])) {
-        figure = [[ClipBrushFeedbackFigure alloc] initWithBrush:brush clipPlane:clipPlane];
-        [brushFigures addObject:figure];
-        [renderer addFeedbackFigure:figure];
-        [figure release];
+    if (active) {
+        SelectionManager* selectionManager = [windowController selectionManager];
+        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            figure = [[ClipBrushFeedbackFigure alloc] initWithBrush:brush clipPlane:clipPlane];
+            [brushFigures addObject:figure];
+            [renderer addFeedbackFigure:figure];
+            [figure release];
+        }
     }
 }
 
@@ -170,10 +172,11 @@
     return self;
 }
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    return active;
 }
 
-- (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
     if (hit != nil) {
         Vector3f* temp = [[Vector3f alloc] initWithFloatVector:[hit hitPoint]];
@@ -212,16 +215,21 @@
     }
     
     [self updateFeedback];
+    return YES;
 }
 
-- (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     [clipPlane release];
     clipPlane = nil;
+    return YES;
 }
 
-- (void)handleLeftMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)handleLeftMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    if (!active)
+        return NO;
+    
     if (currentPoint == nil)
-        return;
+        return YES;
     
     Vector3i* p1 = [clipPlane point1];
     Vector3i* p2 = [clipPlane point2];
@@ -267,13 +275,22 @@
         [currentFigure release];
         currentFigure = nil;
     }
+    
+    return YES;
 }
 
-- (void)handleLeftMouseUp:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)handleLeftMouseUp:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    if (!active)
+        return NO;
+    
     draggedPoint = nil;
+    return YES;
 }
 
-- (void)handleMouseMoved:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)handleMouseMoved:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    if (!active)
+        return NO;
+    
     if (currentPoint != nil) {
         [currentPoint release];
         currentPoint = nil;
@@ -310,7 +327,24 @@
             currentFigure = [[ClipPointFeedbackFigure alloc] initWithPoint:currentPoint];
             [renderer addFeedbackFigure:currentFigure];
         }
-    }}
+    }
+    
+    return YES;
+}
+
+- (void)activate {
+    active = YES;
+    [self updateFeedback];
+}
+
+- (void)deactivate {
+    active = NO;
+    [self updateFeedback];
+}
+
+- (BOOL)active {
+    return active;
+}
 
 - (void)toggleClipMode {
     switch ([clipPlane clipMode]) {

@@ -36,9 +36,14 @@
     Vector3i* currentPoint;
     ClipPointFeedbackFigure* currentFigure;
     Vector3i* draggedPoint;
+    BOOL active;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
+
+- (void)activate;
+- (void)deactivate;
+- (BOOL)active;
 
 - (void)toggleClipMode;
 - (NSSet *)performClip:(MapDocument* )map;
