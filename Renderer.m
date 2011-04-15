@@ -530,11 +530,38 @@ NSString* const RendererChanged = @"RendererChanged";
     [trackingLayer render:renderContext];
     [feedbackLayer render:renderContext];
     
+    // enable lighting for cursor and compass
+    glEnable(GL_LIGHTING);
+    
+    Camera* camera = [windowController camera];
+    
+    glEnable(GL_LIGHT0);
+    GLfloat ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    GLfloat diffuseLight[] = { 0.8f, 0.8f, 0.8, 1.0f };
+    GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+    GLfloat position[] = { [[camera position] x], [[camera position] y], [[camera position] z], 1.0f };
+    
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
+    glLightfv(GL_LIGHT0, GL_POSITION, position);
+    
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+    
+    float specReflection[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+    glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
+    glMateriali(GL_FRONT, GL_SHININESS, 96);
+    
     CursorManager* cursorManager = [windowController cursorManager];
     [cursorManager render];
 
     glClear(GL_DEPTH_BUFFER_BIT);
     [compassFigure render];
+
+    glDisable(GL_LIGHT0);
+    glDisable(GL_COLOR_MATERIAL);
+    glDisable(GL_LIGHTING);
 
     [renderContext release];
 }

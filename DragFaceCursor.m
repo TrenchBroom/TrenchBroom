@@ -25,7 +25,9 @@
         disks = gluNewQuadric();
         gluQuadricDrawStyle(arm, GLU_FILL);
         gluQuadricDrawStyle(disks, GLU_FILL);
-        gluQuadricOrientation(disks, GLU_OUTSIDE);
+        gluQuadricOrientation(disks, GLU_INSIDE);
+        gluQuadricNormals(arm, GLU_SMOOTH);
+        gluQuadricNormals(disks, GLU_SMOOTH);
         initialized = YES;
     }
     
@@ -38,11 +40,11 @@
     glRotatef(angle, [axis x], [axis y], [axis z]);
     
     glColor4f(1, 1, 0, 1);
-    gluDisk(disks, 0, 2, 10, 1);
-    gluCylinder(arm, 2, 2, 10, 10, 1);
+    gluDisk(disks, 0, 2, 20, 1);
+    gluCylinder(arm, 2, 2, 10, 20, 1);
     glTranslatef(0, 0, 10);
-    gluDisk(disks, 0, 4, 10, 1);
-    gluCylinder(arm, 4, 0, 5, 10, 5);
+    gluDisk(disks, 0, 4, 20, 1);
+    gluCylinder(arm, 4, 0, 8, 20, 5);
     
     glPopMatrix();
     glFrontFace(GL_CW);

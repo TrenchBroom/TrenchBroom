@@ -36,6 +36,8 @@
         gluQuadricDrawStyle(arms, GLU_FILL);
         gluQuadricDrawStyle(disks, GLU_FILL);
         gluQuadricOrientation(disks, GLU_INSIDE);
+        gluQuadricNormals(arms, GLU_SMOOTH);
+        gluQuadricNormals(disks, GLU_SMOOTH);
         initialized = YES;
     }
     

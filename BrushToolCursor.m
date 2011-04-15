@@ -16,18 +16,18 @@
 
 - (void)renderArm {
     glTranslatef(0, 0, -15);
-    gluCylinder(arms, 0, 4, 5, 10, 5);
+    gluCylinder(arms, 0, 4, 5, 20, 5);
 
     glTranslatef(0, 0, 5);
     gluQuadricOrientation(disks, GLU_OUTSIDE);
     gluDisk(disks, 0, 4, 10, 1);
 
-    gluCylinder(arms, 2, 2, 20, 10, 1);
+    gluCylinder(arms, 2, 2, 20, 20, 1);
     
     glTranslatef(0, 0, 20);
-    gluCylinder(arms, 4, 0, 5, 10, 5);
+    gluCylinder(arms, 4, 0, 5, 20, 5);
     gluQuadricOrientation(disks, GLU_INSIDE);
-    gluDisk(disks, 0, 4, 10, 1);
+    gluDisk(disks, 0, 4, 20, 1);
 }
 
 - (void)render {
@@ -36,6 +36,8 @@
         disks = gluNewQuadric();
         gluQuadricDrawStyle(arms, GLU_FILL);
         gluQuadricDrawStyle(disks, GLU_FILL);
+        gluQuadricNormals(arms, GLU_SMOOTH);
+        gluQuadricNormals(disks, GLU_SMOOTH);
         initialized = YES;
     }
     
