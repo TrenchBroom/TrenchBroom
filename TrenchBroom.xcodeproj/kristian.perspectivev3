@@ -360,7 +360,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>48A68F71114EE8550064732A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>FaceTool.m</string>
+								<string>CameraTool.m</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -368,11 +368,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>48A68F72114EE8550064732A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>FaceTool.m</string>
+										<string>CameraTool.m</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>485587321359011A005F8B2C</string>
+										<string>485587661359045F005F8B2C</string>
 										<key>history</key>
 										<array>
 											<string>485D2B491306E8D700CF73D8</string>
@@ -538,15 +538,15 @@
 											<string>485586571358E48B005F8B2C</string>
 											<string>4855868E1358EB61005F8B2C</string>
 											<string>485586AF1358FBE2005F8B2C</string>
-											<string>485586B01358FBE2005F8B2C</string>
 											<string>485586B11358FBE2005F8B2C</string>
 											<string>485586B31358FBE2005F8B2C</string>
 											<string>485586B41358FBE2005F8B2C</string>
 											<string>485586F11358FD8E005F8B2C</string>
 											<string>485586FA1358FDB7005F8B2C</string>
 											<string>4855871C1358FF2E005F8B2C</string>
-											<string>48558726135900F0005F8B2C</string>
-											<string>4855873113590118005F8B2C</string>
+											<string>4855875013590292005F8B2C</string>
+											<string>4855876113590449005F8B2C</string>
+											<string>485587651359045C005F8B2C</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -849,7 +849,7 @@
 	<key>StatusbarIsVisible</key>
 	<true/>
 	<key>TimeStamp</key>
-	<real>324600090.88315701</real>
+	<real>324600927.17752898</real>
 	<key>ToolbarConfigUserDefaultsMinorVersion</key>
 	<string>2</string>
 	<key>ToolbarDisplayMode</key>

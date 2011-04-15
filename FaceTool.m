@@ -230,13 +230,15 @@
 }
 
 - (BOOL)hasCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager mode] != SM_FACES)
+        return NO;
+    
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
     if (hit == nil)
         return NO;
     
     id <Face> face = [hit object];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager isFaceSelected:face])
         return YES;
     

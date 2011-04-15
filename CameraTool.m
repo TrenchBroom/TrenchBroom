@@ -51,7 +51,7 @@
             orbitCenter = [[hit hitPoint] retain];
         } else {
             Camera* camera = [windowController camera];
-            orbitCenter = [camera defaultPoint];
+            orbitCenter = [[camera defaultPoint] retain];
         }
     }
     

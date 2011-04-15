@@ -180,12 +180,18 @@
 }
 
 - (BOOL)hasCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager mode] != SM_GEOMETRY)
+        return NO;
+
+    if ([NSEvent modifierFlags] != 0 && ![self isAltPlaneModifierPressed])
+        return NO;
+    
     PickingHit* hit = [hits firstHitOfType:HT_BRUSH ignoreOccluders:YES];
     if (hit == nil)
         return NO;
     
     id <Brush> brush = [hit object];
-    SelectionManager* selectionManager = [windowController selectionManager];
     if (![selectionManager isBrushSelected:brush])
         return NO;
     
