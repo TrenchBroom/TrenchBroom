@@ -94,9 +94,7 @@ static Vector3f* gZAxisNeg;
 
 - (id)initWithFloatX:(float)xCoord y:(float)yCoord z:(float)zCoord {
 	if (self = [super init]) {
-		[self setX:xCoord];
-		[self setY:yCoord];
-		[self setZ:zCoord];
+        [self setX:xCoord y:yCoord z:zCoord];
 	}
 	
 	return self;
@@ -149,6 +147,12 @@ static Vector3f* gZAxisNeg;
     return VC_Z;
 }
 
+- (void)setX:(float)xCoord y:(float)yCoord z:(float)zCoord {
+    [self setX:xCoord];
+    [self setY:yCoord];
+    [self setZ:zCoord];
+}
+
 - (void)setX:(float)xCoord {
 	x = xCoord;
 }
@@ -160,8 +164,6 @@ static Vector3f* gZAxisNeg;
 - (void)setZ:(float)zCoord {
 	z = zCoord;
 }
-
-
 
 - (void)setFloat:(Vector3f *)vector {
 	[self setX:[vector x]];

@@ -34,8 +34,11 @@
 static Vector3f* baseAxes[18];
 
 @interface MutableFace (private)
+
 - (void)updateTexAxes;
 - (void)updateMatrices;
+- (void)geometryChanged;
+
 @end
 
 @implementation MutableFace (private)
@@ -146,15 +149,15 @@ static Vector3f* baseAxes[18];
     [yAxis normalize];
     
     // build transformation matrix
-    surfaceMatrix = [[Matrix4f alloc] init];
-    [surfaceMatrix setColumn:0 values:xAxis];
-    [surfaceMatrix setColumn:1 values:yAxis];
-    [surfaceMatrix setColumn:2 values:zAxis];
-    [surfaceMatrix setColumn:3 values:[self center]];
-    [surfaceMatrix setColumn:3 row:3 value:1];
+    surfaceToWorldMatrix = [[Matrix4f alloc] init];
+    [surfaceToWorldMatrix setColumn:0 values:xAxis];
+    [surfaceToWorldMatrix setColumn:1 values:yAxis];
+    [surfaceToWorldMatrix setColumn:2 values:zAxis];
+    [surfaceToWorldMatrix setColumn:3 values:[self center]];
+    [surfaceToWorldMatrix setColumn:3 row:3 value:1];
     
-    worldMatrix = [[Matrix4f alloc] initWithMatrix4f:surfaceMatrix];
-    if (![worldMatrix invert])
+    worldToSurfaceMatrix = [[Matrix4f alloc] initWithMatrix4f:surfaceToWorldMatrix];
+    if (![worldToSurfaceMatrix invert])
         [NSException raise:@"NonInvertibleMatrixException" format:@"surface transformation matrix is not invertible"];
     
     [xAxis release];
@@ -162,8 +165,23 @@ static Vector3f* baseAxes[18];
     [zAxis release];
 }
 
+- (void)geometryChanged {
+    [boundary release];
+    boundary = nil;
+    
+    [surfaceToWorldMatrix release];
+    surfaceToWorldMatrix = nil;
+    [worldToSurfaceMatrix release];
+    worldToSurfaceMatrix = nil;
+    
+    texAxesValid = NO;
+    
+    [brush faceGeometryChanged:self];
+}
+
 @end
 
+#pragma mark -
 @implementation MutableFace
 
 + (void)initialize {
@@ -214,68 +232,6 @@ static Vector3f* baseAxes[18];
     return self;
 }
 
-- (NSNumber *)faceId {
-    return faceId;
-}
-
-- (id <Brush>)brush {
-    return brush;
-}
-
-- (Vector3i *)point1 {
-	return point1;
-}
-
-- (Vector3i *)point2 {
-	return point2;
-}
-
-- (Vector3i *)point3 {
-	return point3;
-}
-
-- (NSString *)texture {
-	return texture;
-}
-
-- (int)xOffset {
-	return xOffset;
-}
-
-- (int)yOffset {
-	return yOffset;
-}
-
-- (float)rotation {
-	return rotation;
-}
-
-- (float)xScale {
-	return xScale;
-}
-
-- (float)yScale {
-	return yScale;
-}
-
-- (Vector3f *)norm {
-    return [[self boundary] norm];
-}
-
-- (void)geometryChanged {
-    [boundary release];
-    boundary = nil;
-    
-    [surfaceMatrix release];
-    surfaceMatrix = nil;
-    [worldMatrix release];
-    worldMatrix = nil;
-    
-    texAxesValid = NO;
-    
-    [brush faceGeometryChanged:self];
-}
-
 - (void)setBrush:(MutableBrush *)theBrush {
     brush = theBrush;
 }
@@ -285,105 +241,14 @@ static Vector3f* baseAxes[18];
         [point2 isEqualToVector:thePoint2] &&
         [point3 isEqualToVector:thePoint3])
         return;
-
+    
     [point1 setInt:thePoint1];
     [point2 setInt:thePoint2];
     [point3 setInt:thePoint3];
-
-    [self geometryChanged];
-}
-
-- (void)translateBy:(Vector3i *)theDelta {
-    [point1 add:theDelta];
-    [point2 add:theDelta];
-    [point3 add:theDelta];
-    
-    if (texAxisX == nil || texAxisY == nil)
-        [self updateTexAxes];
-
-    switch (bestAxis) {
-        case 0:
-        case 1:
-            xOffset -= [theDelta y];
-            yOffset += [theDelta z];
-            break;
-        case 2:
-        case 3:
-            xOffset -= [theDelta x];
-            yOffset += [theDelta z];
-            break;
-        case 4:
-        case 5:
-            xOffset -= [theDelta x];
-            yOffset += [theDelta y];
-            break;
-        default:
-            break;
-    }
     
     [self geometryChanged];
 }
 
-- (void)rotateZ90CW:(Vector3i *)theCenter {
-    [point1 sub:theCenter];
-    int x = [point1 x];
-    [point1 setX:[point1 y]];
-    [point1 setY:-x];
-    [point1 add:theCenter];
-
-    [point2 sub:theCenter];
-    x = [point2 x];
-    [point2 setX:[point2 y]];
-    [point2 setY:-x];
-    [point2 add:theCenter];
-
-    [point3 sub:theCenter];
-    x = [point3 x];
-    [point3 setX:[point3 y]];
-    [point3 setY:-x];
-    [point3 add:theCenter];
-
-    
-    [self geometryChanged];
-}
-
-- (void)rotateZ90CCW:(Vector3i *)theCenter {
-    [point1 sub:theCenter];
-    int x = [point1 x];
-    [point1 setX:-[point1 y]];
-    [point1 setY:x];
-    [point1 add:theCenter];
-    
-    [point2 sub:theCenter];
-    x = [point2 x];
-    [point2 setX:-[point2 y]];
-    [point2 setY:x];
-    [point2 add:theCenter];
-    
-    [point3 sub:theCenter];
-    x = [point3 x];
-    [point3 setX:-[point3 y]];
-    [point3 setY:x];
-    [point3 add:theCenter];
-    
-    
-    [self geometryChanged];
-}
-
-- (BOOL)canDragBy:(float)dist {
-    return [brush canDrag:self by:dist];
-}
-
-- (void)dragBy:(float)dist {
-    Vector3f* f = [[Vector3f alloc] initWithFloatVector:[self norm]];
-    [f scale:dist];
-    
-    Vector3i* delta = [[Vector3i alloc] initWithIntX:roundf([f x]) y:roundf([f y]) z:roundf([f z])];
-    [self translateBy:delta];
-    
-    [f release];
-    [delta release];
-}
 
 - (void)setTexture:(NSString *)name {
     NSAssert(name != nil, @"texture name must not be nil");
@@ -466,11 +331,224 @@ static Vector3f* baseAxes[18];
     }
 }
 
+- (void)translateBy:(Vector3i *)theDelta {
+    [point1 add:theDelta];
+    [point2 add:theDelta];
+    [point3 add:theDelta];
+    
+    if (texAxisX == nil || texAxisY == nil)
+        [self updateTexAxes];
+    
+    switch (bestAxis) {
+        case 0:
+        case 1:
+            xOffset -= [theDelta y];
+            yOffset += [theDelta z];
+            break;
+        case 2:
+        case 3:
+            xOffset -= [theDelta x];
+            yOffset += [theDelta z];
+            break;
+        case 4:
+        case 5:
+            xOffset -= [theDelta x];
+            yOffset += [theDelta y];
+            break;
+        default:
+            break;
+    }
+    
+    [self geometryChanged];
+}
+
+- (void)rotateZ90CW:(Vector3i *)theCenter {
+    [point1 sub:theCenter];
+    int x = [point1 x];
+    [point1 setX:[point1 y]];
+    [point1 setY:-x];
+    [point1 add:theCenter];
+    
+    [point2 sub:theCenter];
+    x = [point2 x];
+    [point2 setX:[point2 y]];
+    [point2 setY:-x];
+    [point2 add:theCenter];
+    
+    [point3 sub:theCenter];
+    x = [point3 x];
+    [point3 setX:[point3 y]];
+    [point3 setY:-x];
+    [point3 add:theCenter];
+    
+    
+    [self geometryChanged];
+}
+
+- (void)rotateZ90CCW:(Vector3i *)theCenter {
+    [point1 sub:theCenter];
+    int x = [point1 x];
+    [point1 setX:-[point1 y]];
+    [point1 setY:x];
+    [point1 add:theCenter];
+    
+    [point2 sub:theCenter];
+    x = [point2 x];
+    [point2 setX:-[point2 y]];
+    [point2 setY:x];
+    [point2 add:theCenter];
+    
+    [point3 sub:theCenter];
+    x = [point3 x];
+    [point3 setX:-[point3 y]];
+    [point3 setY:x];
+    [point3 add:theCenter];
+    
+    
+    [self geometryChanged];
+}
+
+- (BOOL)canDragBy:(float)dist {
+    return [brush canDrag:self by:dist];
+}
+
+- (void)dragBy:(float)dist {
+    Vector3f* f = [[Vector3f alloc] initWithFloatVector:[self norm]];
+    [f scale:dist];
+    
+    Vector3i* delta = [[Vector3i alloc] initWithIntX:roundf([f x]) y:roundf([f y]) z:roundf([f z])];
+    [self translateBy:delta];
+    
+    [f release];
+    [delta release];
+}
+
+- (void)setVertices:(NSArray *)theVertices {
+    [center release];
+    center = nil;
+    
+    [vertices release];
+    vertices = [theVertices retain];
+}
+
+- (void)setEdges:(NSArray *)theEdges {
+    [center release];
+    center = nil;
+    
+    [edges release];
+    edges = [theEdges retain];
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"ID: %i, point 1: %@, point 2: %@, point 3: %@, texture: %@, X offset: %i, Y offset: %i, rotation: %f, X scale: %f, Y scale: %f", 
+            [faceId intValue], 
+            point1, 
+            point2, 
+            point3, 
+            texture, 
+            xOffset, 
+            yOffset, 
+            rotation, 
+            xScale, 
+            yScale];
+}
+
+- (void) dealloc {
+    [faceId release];
+    [boundary release];
+	[point1 release];
+	[point2 release];
+	[point3 release];
+	[texture release];
+    [texAxisX release];
+    [texAxisY release];
+    [surfaceToWorldMatrix release];
+    [worldToSurfaceMatrix release];
+    [memBlock free];
+    [memBlock release];
+    [vertices release];
+    [edges release];
+    [center release];
+	[super dealloc];
+}
+
+# pragma mark -
+# pragma mark @implementation Face
+
+- (NSNumber *)faceId {
+    return faceId;
+}
+
+- (id <Brush>)brush {
+    return brush;
+}
+
+- (Vector3i *)point1 {
+	return point1;
+}
+
+- (Vector3i *)point2 {
+	return point2;
+}
+
+- (Vector3i *)point3 {
+	return point3;
+}
+
+- (NSString *)texture {
+	return texture;
+}
+
+- (int)xOffset {
+	return xOffset;
+}
+
+- (int)yOffset {
+	return yOffset;
+}
+
+- (float)rotation {
+	return rotation;
+}
+
+- (float)xScale {
+	return xScale;
+}
+
+- (float)yScale {
+	return yScale;
+}
+
+- (Vector3f *)norm {
+    return [[self boundary] norm];
+}
+
+- (Vector3f *)center {
+    if (center == nil) {
+        NSEnumerator* vertexEn = [vertices objectEnumerator];
+        Vertex* vertex = [vertexEn nextObject];
+        center = [[Vector3f alloc] initWithFloatVector:[vertex vector]];
+        while ((vertex = [vertexEn nextObject]))
+            [center add:[vertex vector]];
+        [center scale:1.0f / [vertices count]];
+    }
+    
+    return center;
+}
+
 - (Plane3D *)boundary {
     if (boundary == nil)
         boundary =  [[Plane3D alloc] initWithIntPoint1:[self point1] point2:[self point2] point3:[self point3]];
     
     return boundary;
+}
+
+- (NSArray *)vertices {
+    return vertices;
+}
+
+- (NSArray *)edges {
+    return edges;
 }
 
 - (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex {
@@ -497,52 +575,31 @@ static Vector3f* baseAxes[18];
 }
 
 - (void)transformToWorld:(Vector3f *)point {
-    if (surfaceMatrix == nil)
+    if (surfaceToWorldMatrix == nil)
         [self updateMatrices];
     
-    [surfaceMatrix transformVector3f:point];
+    [surfaceToWorldMatrix transformVector3f:point];
 }
 
 - (void)transformToSurface:(Vector3f *)point {
-    if (worldMatrix == nil)
+    if (worldToSurfaceMatrix == nil)
         [self updateMatrices];
     
-    [worldMatrix transformVector3f:point];
+    [worldToSurfaceMatrix transformVector3f:point];
 }
 
-- (NSString *)description {
-    return [NSString stringWithFormat:@"ID: %i, point 1: %@, point 2: %@, point 3: %@, texture: %@, X offset: %i, Y offset: %i, rotation: %f, X scale: %f, Y scale: %f", 
-            [faceId intValue], 
-            point1, 
-            point2, 
-            point3, 
-            texture, 
-            xOffset, 
-            yOffset, 
-            rotation, 
-            xScale, 
-            yScale];
-}
-
-- (Vector3f *)center {
-    if (center == nil) {
-        NSEnumerator* vertexEn = [vertices objectEnumerator];
-        Vertex* vertex = [vertexEn nextObject];
-        center = [[Vector3f alloc] initWithFloatVector:[vertex vector]];
-        while ((vertex = [vertexEn nextObject]))
-            [center add:[vertex vector]];
-        [center scale:1.0f / [vertices count]];
-    }
+- (Matrix4f *)surfaceToWorldMatrix {
+    if (surfaceToWorldMatrix == nil)
+        [self updateMatrices];
     
-    return center;
+    return surfaceToWorldMatrix;
 }
 
-- (NSArray *)vertices {
-    return vertices;
-}
+- (Matrix4f *)worldToSurfaceMatrix {
+    if (worldToSurfaceMatrix == nil)
+        [self updateMatrices];
 
-- (NSArray *)edges {
-    return edges;
+    return worldToSurfaceMatrix;
 }
 
 - (void)setMemBlock:(VBOMemBlock *)theBlock {
@@ -553,41 +610,6 @@ static Vector3f* baseAxes[18];
 
 - (VBOMemBlock *)memBlock {
     return memBlock;
-}
-
-- (void)setVertices:(NSArray *)theVertices {
-    [center release];
-    center = nil;
-    
-    [vertices release];
-    vertices = [theVertices retain];
-}
-
-- (void)setEdges:(NSArray *)theEdges {
-    [center release];
-    center = nil;
-    
-    [edges release];
-    edges = [theEdges retain];
-}
-
-- (void) dealloc {
-    [faceId release];
-    [boundary release];
-	[point1 release];
-	[point2 release];
-	[point3 release];
-	[texture release];
-    [texAxisX release];
-    [texAxisY release];
-    [surfaceMatrix release];
-    [worldMatrix release];
-    [memBlock free];
-    [memBlock release];
-    [vertices release];
-    [edges release];
-    [center release];
-	[super dealloc];
 }
 
 @end

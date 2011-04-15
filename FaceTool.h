@@ -14,14 +14,18 @@
 @class Plane3D;
 @class Vector3f;
 @class DragFaceCursor;
+@class ApplyFaceCursor;
+@protocol Cursor;
 
 @interface FaceTool : DefaultTool {
-@private
+    @private
     MapWindowController* windowController;
     Plane3D* plane;
     Vector3f* lastPoint;
     Vector3f* dragDir;
-    DragFaceCursor* cursor;
+    DragFaceCursor* dragFaceCursor;
+    ApplyFaceCursor* applyFaceCursor;
+    id <Cursor> currentCursor;
 }
 
 - (id)initWithController:(MapWindowController *)theWindowController;

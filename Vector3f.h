@@ -43,6 +43,7 @@ typedef enum {
 - (void)setComponent:(EVectorComponent)index value:(float)value;
 - (EVectorComponent)largestComponent;
 
+- (void)setX:(float)xCoord y:(float)yCoord z:(float)zCoord;
 - (void)setX:(float)xCoord;
 - (void)setY:(float)yCoord;
 - (void)setZ:(float)zCoord;

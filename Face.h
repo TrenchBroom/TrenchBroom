@@ -13,6 +13,7 @@
 @class Vector3i;
 @class Vector3f;
 @class Vector2f;
+@class Matrix4f;
 @class Plane3D;
 @class Ray3D;
 @class PickingHit;
@@ -36,6 +37,7 @@
 
 - (Vector3f *)norm;
 - (Vector3f *)center;
+- (Plane3D *)boundary;
 - (NSArray *)vertices;
 - (NSArray *)edges;
 
@@ -43,7 +45,8 @@
 - (void)gridCoords:(Vector2f *)gridCoords forVertex:(Vector3f *)vertex;
 - (void)transformToWorld:(Vector3f *)point;
 - (void)transformToSurface:(Vector3f *)point;
-- (Plane3D *)boundary;
+- (Matrix4f *)surfaceToWorldMatrix;
+- (Matrix4f *)worldToSurfaceMatrix;
 
 - (void)setMemBlock:(VBOMemBlock *)theBlock;
 - (VBOMemBlock *)memBlock;

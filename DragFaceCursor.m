@@ -32,6 +32,7 @@
     }
     
     glDisable(GL_TEXTURE_2D);
+    glPolygonMode(GL_FRONT, GL_FILL);
     glFrontFace(GL_CCW);
     glMatrixMode(GL_MODELVIEW);
     

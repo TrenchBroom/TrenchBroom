@@ -26,17 +26,24 @@
 #import "Math.h"
 #import "CursorManager.h"
 #import "DragFaceCursor.h"
+#import "ApplyFaceCursor.h"
+#import "Cursor.h"
 
 @interface FaceTool (private)
 
-- (BOOL)isAttributesModifierPressed;
+- (BOOL)isFlagsModifierPressed;
+- (BOOL)isApplyTextureModifierPressed;
 
 @end
 
 @implementation FaceTool (private)
 
-- (BOOL)isAttributesModifierPressed {
+- (BOOL)isFlagsModifierPressed {
     return ([NSEvent modifierFlags] & NSCommandKeyMask) != 0;
+}
+
+- (BOOL)isApplyTextureModifierPressed {
+    return ([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
 }
 
 @end
@@ -46,14 +53,16 @@
 - (id)initWithController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
         windowController = [theWindowController retain];
-        cursor = [[DragFaceCursor alloc] init];
+        dragFaceCursor = [[DragFaceCursor alloc] init];
+        applyFaceCursor = [[ApplyFaceCursor alloc] init];
     }
     
     return self;
 }
 
 - (void)dealloc {
-    [cursor release];
+    [dragFaceCursor release];
+    [applyFaceCursor release];
     [lastPoint release];
     [dragDir release];
     [plane release];
@@ -74,7 +83,7 @@
         id <Face> destination = [hit object];
         
         MapDocument* map = [windowController document];
-        if ([self isAttributesModifierPressed]) {
+        if ([self isFlagsModifierPressed]) {
             MapDocument* map = [windowController document];
             NSUndoManager* undoManager = [map undoManager];
             [undoManager beginUndoGrouping];
@@ -163,20 +172,49 @@
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
     id <Face> face = [hit object];
 
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager pushCursor:cursor];
-    [cursor setDragDir:[face norm]];
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager isFaceSelected:face]) {
+        CursorManager* cursorManager = [windowController cursorManager];
+        [cursorManager pushCursor:dragFaceCursor];
+        [dragFaceCursor setDragDir:[face norm]];
+        currentCursor = dragFaceCursor;
+    } else if ([[selectionManager selectedFaces] count] == 1) {
+        CursorManager* cursorManager = [windowController cursorManager];
+        [cursorManager pushCursor:applyFaceCursor];
+        [applyFaceCursor setFace:face];
+        [applyFaceCursor setApplyFlags:[self isFlagsModifierPressed]];
+        currentCursor = applyFaceCursor;
+    }
 }
 
 - (void)unsetCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     CursorManager* cursorManager = [windowController cursorManager];
     [cursorManager popCursor];
+    currentCursor = nil;
 }
 
 - (void)updateCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
     id <Face> face = [hit object];
-    [cursor setDragDir:[face norm]];
+
+    CursorManager* cursorManager = [windowController cursorManager];
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager isFaceSelected:face]) {
+        if (currentCursor != dragFaceCursor) {
+            [cursorManager popCursor];
+            [cursorManager pushCursor:dragFaceCursor];
+            currentCursor = dragFaceCursor;
+        }
+        [dragFaceCursor setDragDir:[face norm]];
+    } else if ([[selectionManager selectedFaces] count] == 1) {
+        if (currentCursor != applyFaceCursor) {
+            [cursorManager popCursor];
+            [cursorManager pushCursor:applyFaceCursor];
+            currentCursor = applyFaceCursor;
+        }
+        [applyFaceCursor setFace:face];
+        [applyFaceCursor setApplyFlags:[self isFlagsModifierPressed]];
+    }
 }
 
 - (NSString *)actionName {

@@ -52,8 +52,8 @@ typedef enum {
     BOOL texAxesValid;
     
     // transforms surface coordinates to world coordinates
-    Matrix4f* surfaceMatrix;
-    Matrix4f* worldMatrix; // inverse of surface matrix
+    Matrix4f* surfaceToWorldMatrix;
+    Matrix4f* worldToSurfaceMatrix; // inverse of surface matrix
     
     VBOMemBlock* memBlock;
 }

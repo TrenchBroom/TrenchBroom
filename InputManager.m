@@ -38,7 +38,7 @@
 - (BOOL)isCameraModifierPressed;
 - (BOOL)isCameraOrbitModifierPressed;
 - (BOOL)isApplyTextureModifierPressed;
-- (BOOL)isApplyTextureAndAttributesModifierPressed;
+- (BOOL)isApplyTextureAndFlagsModifierPressed;
 
 - (void)updateEvent:(NSEvent *)event;
 - (void)updateRay;
@@ -68,7 +68,7 @@
     return ([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
 }
 
-- (BOOL)isApplyTextureAndAttributesModifierPressed {
+- (BOOL)isApplyTextureAndFlagsModifierPressed {
     return ([NSEvent modifierFlags] & (NSAlternateKeyMask | NSCommandKeyMask)) == (NSAlternateKeyMask | NSCommandKeyMask);
 }
 
@@ -115,8 +115,11 @@
             newOwner = brushTool;
     } else if ([selectionManager mode] == SM_FACES) {
         PickingHit* hit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
-        if (hit != nil && [selectionManager isFaceSelected:[hit object]])
-            newOwner = faceTool;
+        if (hit != nil) {
+            if ([selectionManager isFaceSelected:[hit object]] || 
+                ([[selectionManager selectedFaces] count] == 1 && [self isApplyTextureModifierPressed]))
+                newOwner = faceTool;
+        }
     }
     
     if (newOwner != cursorOwner) {
@@ -226,14 +229,14 @@
 
 - (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender {
     SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager mode] == HT_FACE && [self isApplyTextureModifierPressed])
+    if ([selectionManager mode] == SM_FACES && [self isApplyTextureModifierPressed])
         [faceTool handleLeftMouseDown:event ray:lastRay hits:lastHits];
     [self updateCursorOwner];
 }
 
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
     if (dragTool == nil) {
-        if ([self isSelectionModifierPressed])
+        if ([self isSelectionModifierPressed] && ![self isApplyTextureModifierPressed])
             [selectionTool handleLeftMouseUp:event ray:lastRay hits:lastHits];
     } else {
         [dragTool endLeftDrag:event ray:lastRay hits:lastHits];
