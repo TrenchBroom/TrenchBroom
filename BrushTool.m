@@ -92,17 +92,17 @@
 # pragma mark -
 # pragma mark @implementation Tool
 
-- (BOOL)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     PickingHit* faceHit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
     if (faceHit == nil)
-        return NO;
+        return;
     
     id <Face> face = [faceHit object];
     id <Brush> brush = [face brush];
 
     SelectionManager* selectionManager = [windowController selectionManager];
     if (![selectionManager isBrushSelected:brush])
-        return NO;
+        return;
     
     lastPoint = [[faceHit hitPoint] retain];
     
@@ -125,20 +125,18 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setGroupsByEvent:NO];
     [undoManager beginUndoGrouping];
-    
-    return YES;
 }
 
-- (BOOL)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     Vector3f* point = [ray pointAtDistance:[plane intersectWithRay:ray]];
     if (point == nil)
-        return YES;
+        return;
     
     Grid* grid = [[windowController options] grid];
     [grid snapToGrid:point];
     
     if ([point isEqualToVector:lastPoint])
-        return YES;
+        return;
     
     int x = roundf([point x] - [lastPoint x]);
     int y = roundf([point y] - [lastPoint y]);
@@ -160,11 +158,9 @@
     
     CursorManager* cursorManager = [windowController cursorManager];
     [cursorManager updateCursor:lastPoint];
-    
-    return YES;
 }
 
-- (BOOL)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setActionName:[self actionName]];
@@ -175,11 +171,9 @@
     lastPoint = nil;
     [plane release];
     plane = nil;
-    
-    return YES;
 }
 
-- (BOOL)hasCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)isCursorOwner:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager mode] != SM_GEOMETRY)
         return NO;

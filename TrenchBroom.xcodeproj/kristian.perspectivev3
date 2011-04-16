@@ -317,7 +317,6 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>8</integer>
 									<integer>4</integer>
 									<integer>3</integer>
 									<integer>2</integer>
@@ -360,7 +359,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>48A68F71114EE8550064732A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>CameraTool.m</string>
+								<string>InputManager.m</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -368,11 +367,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>48A68F72114EE8550064732A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>CameraTool.m</string>
+										<string>InputManager.m</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>485587661359045F005F8B2C</string>
+										<string>4855887013599039005F8B2C</string>
 										<key>history</key>
 										<array>
 											<string>485D2B491306E8D700CF73D8</string>
@@ -505,11 +504,9 @@
 											<string>48325CF013524D9D00E703E0</string>
 											<string>48325CF913524D9D00E703E0</string>
 											<string>48325CFA13524D9D00E703E0</string>
-											<string>48325CFC13524D9D00E703E0</string>
 											<string>48325CFD13524D9D00E703E0</string>
 											<string>48325D0613524DBF00E703E0</string>
 											<string>48325DD7135254A500E703E0</string>
-											<string>48325E4513525E3600E703E0</string>
 											<string>48325F6A1354E99900E703E0</string>
 											<string>48325F6B1354E99900E703E0</string>
 											<string>486742A11355FFFD009E7ABF</string>
@@ -519,10 +516,7 @@
 											<string>4855820113577E2A005F8B2C</string>
 											<string>485582D61357A0A5005F8B2C</string>
 											<string>485582D81357A23A005F8B2C</string>
-											<string>485582D91357A23A005F8B2C</string>
-											<string>485582DA1357A23A005F8B2C</string>
 											<string>485584E11358A197005F8B2C</string>
-											<string>485585021358A2EA005F8B2C</string>
 											<string>485585701358AC66005F8B2C</string>
 											<string>4855857A1358BD4B005F8B2C</string>
 											<string>485585821358BED4005F8B2C</string>
@@ -533,20 +527,27 @@
 											<string>485585D81358C401005F8B2C</string>
 											<string>485585D91358C401005F8B2C</string>
 											<string>485586061358C50F005F8B2C</string>
-											<string>4855862B1358DD7A005F8B2C</string>
-											<string>4855862D1358DD7A005F8B2C</string>
 											<string>485586571358E48B005F8B2C</string>
-											<string>4855868E1358EB61005F8B2C</string>
-											<string>485586AF1358FBE2005F8B2C</string>
 											<string>485586B11358FBE2005F8B2C</string>
-											<string>485586B31358FBE2005F8B2C</string>
-											<string>485586B41358FBE2005F8B2C</string>
 											<string>485586F11358FD8E005F8B2C</string>
-											<string>485586FA1358FDB7005F8B2C</string>
-											<string>4855871C1358FF2E005F8B2C</string>
-											<string>4855875013590292005F8B2C</string>
-											<string>4855876113590449005F8B2C</string>
-											<string>485587651359045C005F8B2C</string>
+											<string>4855877813596D70005F8B2C</string>
+											<string>4855878513596DE3005F8B2C</string>
+											<string>4855879B1359722F005F8B2C</string>
+											<string>485587AA135972CE005F8B2C</string>
+											<string>485587B31359733B005F8B2C</string>
+											<string>485587CB13597C9D005F8B2C</string>
+											<string>485587CC13597C9D005F8B2C</string>
+											<string>485587CD13597C9D005F8B2C</string>
+											<string>485587CF13597C9D005F8B2C</string>
+											<string>4855880513598A86005F8B2C</string>
+											<string>4855880613598A86005F8B2C</string>
+											<string>4855880713598A86005F8B2C</string>
+											<string>4855880813598A86005F8B2C</string>
+											<string>4855882E13598CCA005F8B2C</string>
+											<string>4855885813598EED005F8B2C</string>
+											<string>4855885A13598EED005F8B2C</string>
+											<string>4855886A13599018005F8B2C</string>
+											<string>4855886F13599038005F8B2C</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -849,7 +850,7 @@
 	<key>StatusbarIsVisible</key>
 	<true/>
 	<key>TimeStamp</key>
-	<real>324600927.17752898</real>
+	<real>324636729.79683203</real>
 	<key>ToolbarConfigUserDefaultsMinorVersion</key>
 	<string>2</string>
 	<key>ToolbarDisplayMode</key>

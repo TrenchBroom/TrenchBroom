@@ -94,33 +94,35 @@
         planeFigure = nil;
     }
     
-    Vector3i* p1 = [clipPlane point1];
-    Vector3i* p2 = [clipPlane point2];
-    Vector3i* p3 = [clipPlane point3];
-    
-    if (p1 != nil) {
-        point1Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p1];
-        [renderer addFeedbackFigure:point1Figure];
+    if (clipPlane != nil) {
+        Vector3i* p1 = [clipPlane point1];
+        Vector3i* p2 = [clipPlane point2];
+        Vector3i* p3 = [clipPlane point3];
         
-        if (p2 != nil) {
-            point2Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p2];
-            [renderer addFeedbackFigure:point2Figure];
-
-            line1Figure = [[ClipLineFeedbackFigure alloc] initWithStartPoint:p1 endPoint:p2];
-            [renderer addFeedbackFigure:line1Figure];
+        if (p1 != nil) {
+            point1Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p1];
+            [renderer addFeedbackFigure:point1Figure];
             
-            if (p3 != nil) {
-                point3Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p3];
-                [renderer addFeedbackFigure:point3Figure];
+            if (p2 != nil) {
+                point2Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p2];
+                [renderer addFeedbackFigure:point2Figure];
                 
-                line2Figure = [[ClipLineFeedbackFigure alloc] initWithStartPoint:p2 endPoint:p3];
-                [renderer addFeedbackFigure:line2Figure];
+                line1Figure = [[ClipLineFeedbackFigure alloc] initWithStartPoint:p1 endPoint:p2];
+                [renderer addFeedbackFigure:line1Figure];
                 
-                line3Figure = [[ClipLineFeedbackFigure alloc] initWithStartPoint:p3 endPoint:p1];
-                [renderer addFeedbackFigure:line3Figure];
-                
-                planeFigure = [[ClipPlaneFeedbackFigure alloc] initWithPoint1:p1 point2:p2 point3:p3];
-                [renderer addFeedbackFigure:planeFigure];
+                if (p3 != nil) {
+                    point3Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p3];
+                    [renderer addFeedbackFigure:point3Figure];
+                    
+                    line2Figure = [[ClipLineFeedbackFigure alloc] initWithStartPoint:p2 endPoint:p3];
+                    [renderer addFeedbackFigure:line2Figure];
+                    
+                    line3Figure = [[ClipLineFeedbackFigure alloc] initWithStartPoint:p3 endPoint:p1];
+                    [renderer addFeedbackFigure:line3Figure];
+                    
+                    planeFigure = [[ClipPlaneFeedbackFigure alloc] initWithPoint1:p1 point2:p2 point3:p3];
+                    [renderer addFeedbackFigure:planeFigure];
+                }
             }
         }
     }
@@ -131,7 +133,7 @@
         [renderer removeFeedbackFigure:figure];
     [brushFigures removeAllObjects];
     
-    if (active) {
+    if (clipPlane != nil) {
         SelectionManager* selectionManager = [windowController selectionManager];
         NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
         id <Brush> brush;
@@ -158,7 +160,6 @@
 - (id)init {
     if (self = [super init]) {
         brushFigures = [[NSMutableSet alloc] init];
-        clipPlane = [[ClipPlane alloc] init];
     }
     
     return self;
@@ -172,11 +173,7 @@
     return self;
 }
 
-- (BOOL)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    return active;
-}
-
-- (BOOL)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
     if (hit != nil) {
         Vector3f* temp = [[Vector3f alloc] initWithFloatVector:[hit hitPoint]];
@@ -215,21 +212,14 @@
     }
     
     [self updateFeedback];
-    return YES;
 }
 
-- (BOOL)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    [clipPlane release];
-    clipPlane = nil;
-    return YES;
-}
-
-- (BOOL)handleLeftMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    if (!active)
-        return NO;
+- (void)handleLeftMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    if (clipPlane == nil)
+        return;
     
     if (currentPoint == nil)
-        return YES;
+        return;
     
     Vector3i* p1 = [clipPlane point1];
     Vector3i* p2 = [clipPlane point2];
@@ -276,20 +266,19 @@
         currentFigure = nil;
     }
     
-    return YES;
+    return;
 }
 
-- (BOOL)handleLeftMouseUp:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    if (!active)
-        return NO;
+- (void)handleLeftMouseUp:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    if (clipPlane == nil)
+        return;
     
     draggedPoint = nil;
-    return YES;
 }
 
-- (BOOL)handleMouseMoved:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    if (!active)
-        return NO;
+- (void)handleMouseMoved:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    if (clipPlane == nil)
+        return;
     
     if (currentPoint != nil) {
         [currentPoint release];
@@ -328,22 +317,35 @@
             [renderer addFeedbackFigure:currentFigure];
         }
     }
-    
-    return YES;
+}
+
+- (BOOL)isCursorOwner:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+    return [self active];
 }
 
 - (void)activate {
-    active = YES;
+    clipPlane = [[ClipPlane alloc] init];
     [self updateFeedback];
 }
 
 - (void)deactivate {
-    active = NO;
+    [clipPlane release];
+    clipPlane = nil;
+    
+    [currentPoint release];
+    currentPoint = nil;
+    if (currentFigure != nil) {
+        Renderer* renderer = [windowController renderer];
+        [renderer removeFeedbackFigure:currentFigure];
+        [currentFigure release];
+        currentFigure = nil;
+    }
+
     [self updateFeedback];
 }
 
 - (BOOL)active {
-    return active;
+    return clipPlane != nil;
 }
 
 - (void)toggleClipMode {

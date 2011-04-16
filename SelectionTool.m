@@ -39,7 +39,7 @@
     return self;
 }
 
-- (BOOL)handleLeftMouseUp:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)handleLeftMouseUp:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     SelectionManager* selectionManager = [windowController selectionManager];
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
     if (hit != nil) {
@@ -80,8 +80,6 @@
     } else {
         [selectionManager removeAll:NO];
     }
-    
-    return YES;
 }
 
 - (void)dealloc {

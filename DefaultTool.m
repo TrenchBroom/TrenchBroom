@@ -13,26 +13,25 @@
 
 - (void)handleFlagsChanged:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
 
-- (BOOL)handleLeftMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
-- (BOOL)handleLeftMouseUp:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
-- (BOOL)handleRightMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
-- (BOOL)handleRightMouseUp:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
-- (BOOL)handleMouseMoved:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
-- (BOOL)handleScrollWheel:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
+- (void)handleLeftMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
+- (void)handleLeftMouseUp:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
+- (void)handleRightMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
+- (void)handleRightMouseUp:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
+- (void)handleMouseMoved:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
+- (void)handleScrollWheel:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
 
-- (BOOL)handleBeginGesture:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
-- (BOOL)handleEndGesture:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
-- (BOOL)handleMagnify:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
+- (void)handleBeginGesture:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
+- (void)handleEndGesture:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
+- (void)handleMagnify:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
 
-- (BOOL)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
-- (BOOL)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
-- (BOOL)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
+- (void)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
+- (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
+- (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
 
-- (BOOL)beginRightDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
-- (BOOL)rightDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
-- (BOOL)endRightDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
+- (void)beginRightDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
+- (void)rightDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
+- (void)endRightDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
 
-- (BOOL)hasCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits { return NO; }
 - (void)setCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
 - (void)unsetCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}
 - (void)updateCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {}

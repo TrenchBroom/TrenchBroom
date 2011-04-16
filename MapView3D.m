@@ -53,6 +53,19 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(rendererChanged:) name:RendererChanged object:renderer];
     [center addObserver:self selector:@selector(gridChanged:) name:GridChanged object:[options grid]];
+
+    mouseTracker = [[NSTrackingArea alloc] initWithRect:[self visibleRect] options:NSTrackingActiveWhenFirstResponder | NSTrackingMouseEnteredAndExited owner:self userInfo:nil];
+    [self addTrackingArea:mouseTracker];
+    
+}
+
+-  (void)updateTrackingAreas {
+    if (mouseTracker != nil) {
+        [self removeTrackingArea:mouseTracker];
+        [mouseTracker release];
+    }
+    mouseTracker = [[NSTrackingArea alloc] initWithRect:[self visibleRect] options:NSTrackingActiveWhenFirstResponder | NSTrackingMouseEnteredAndExited owner:self userInfo:nil];
+    [self addTrackingArea:mouseTracker];
 }
 
 - (BOOL)acceptsFirstResponder {
@@ -78,6 +91,16 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 - (void)mouseMoved:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
     [inputManager handleMouseMoved:theEvent sender:self];
+}
+
+- (void)mouseEntered:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    [inputManager handleMouseEntered:theEvent sender:self];
+}
+
+- (void)mouseExited:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    [inputManager handleMouseExited:theEvent sender:self];
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
@@ -157,6 +180,10 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [renderer release];
     [options release];
+    if (mouseTracker != nil) {
+        [self removeTrackingArea:mouseTracker];
+        [mouseTracker release];
+    }
     [super dealloc];
 }
 

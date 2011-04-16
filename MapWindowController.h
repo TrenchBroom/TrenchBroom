@@ -32,26 +32,17 @@
     TrackingManager* trackingManager;
     CursorManager* cursorManager;
     Options* options;
-    ClipTool* clipTool;
 }
 
 - (IBAction)showInspector:(id)sender;
-
 - (IBAction)toggleGrid:(id)sender;
 - (IBAction)toggleSnap:(id)sender;
 - (IBAction)setGridSize:(id)sender;
 - (IBAction)isolateSelection:(id)sender;
 - (IBAction)toggleProjection:(id)sender;
-
 - (IBAction)switchToXYView:(id)sender;
 - (IBAction)switchToXZView:(id)sender;
 - (IBAction)switchToYZView:(id)sender;
-
-- (IBAction)clearSelection:(id)sender;
-- (IBAction)copySelection:(id)sender;
-- (IBAction)cutSelection:(id)sender;
-- (IBAction)pasteClipboard:(id)sender;
-- (IBAction)deleteSelection:(id)sender;
 
 - (IBAction)moveTextureLeft:(id)sender;
 - (IBAction)moveTextureRight:(id)sender;
@@ -64,14 +55,19 @@
 - (IBAction)rotateTextureLeft:(id)sender;
 - (IBAction)rotateTextureRight:(id)sender;
 
-- (IBAction)duplicateSelection:(id)sender;
-- (IBAction)createPrefabFromSelection:(id)sender;
+- (IBAction)rotateZ90CW:(id)sender;
+- (IBAction)rotateZ90CCW:(id)sender;
 - (IBAction)toggleClipTool:(id)sender;
 - (IBAction)toggleClipMode:(id)sender;
 - (IBAction)performClip:(id)sender;
-- (IBAction)rotateZ90CW:(id)sender;
-- (IBAction)rotateZ90CCW:(id)sender;
 
+- (IBAction)clearSelection:(id)sender;
+- (IBAction)copySelection:(id)sender;
+- (IBAction)cutSelection:(id)sender;
+- (IBAction)pasteClipboard:(id)sender;
+- (IBAction)deleteSelection:(id)sender;
+- (IBAction)duplicateSelection:(id)sender;
+- (IBAction)createPrefabFromSelection:(id)sender;
 - (void)insertPrefab:(id <Prefab>)prefab;
 
 - (Camera *)camera;

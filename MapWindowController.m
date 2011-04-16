@@ -98,38 +98,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [[self window] makeKeyAndOrderFront:nil];
 }
 
-- (Camera *)camera {
-    return camera;
-}
-
-- (SelectionManager *)selectionManager {
-    return selectionManager;
-}
-
-- (InputManager *)inputManager {
-    return inputManager;
-}
-
-- (TrackingManager *)trackingManager {
-    return trackingManager;
-}
-
-- (CursorManager *)cursorManager {
-    return cursorManager;
-}
-
-- (Options *)options {
-    return options;
-}
-
-- (Renderer *)renderer {
-    return [view3D renderer];
-}
-
-- (MapView3D *)view3D {
-    return view3D;
-}
-
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     SEL action = [menuItem action];
     if (action == @selector(clearSelection:)) {
@@ -141,7 +109,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     } else if (action == @selector(pasteClipboard:)) {
         return NO;
     } else if (action == @selector(deleteSelection:)) {
-        return [selectionManager hasSelectedEntities] || [selectionManager hasSelectedBrushes] || [clipTool numPoints] > 0;
+        return [selectionManager hasSelectedEntities] || [selectionManager hasSelectedBrushes] || ([[inputManager clipTool] active] && [[inputManager clipTool] numPoints] > 0);
     } else if (action == @selector(moveTextureLeft:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
     } else if (action == @selector(moveTextureLeft:)) {
@@ -165,7 +133,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     } else if (action == @selector(rotateTextureRight:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
     } else if (action == @selector(duplicateSelection:)) {
-        return [selectionManager hasSelectedBrushes] && clipTool == nil;
+        return [selectionManager hasSelectedBrushes] && [[inputManager clipTool] active];
     } else if (action == @selector(createPrefabFromSelection:)) {
         return [selectionManager hasSelectedBrushes];
     } else if (action == @selector(showInspector:)) {
@@ -187,11 +155,11 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     } else if (action == @selector(setGridSize:)) {
         return YES;
     } else if (action == @selector(toggleClipTool:)) {
-        return [selectionManager hasSelectedBrushes];
+        return [selectionManager hasSelectedBrushes] || [[inputManager clipTool] active];
     } else if (action == @selector(toggleClipMode:)) {
-        return clipTool != nil;
+        return [[inputManager clipTool] active];
     } else if (action == @selector(performClip:)) {
-        return clipTool != nil && [clipTool numPoints] > 1;
+        return [[inputManager clipTool] active] && [[inputManager clipTool] numPoints] > 1;
     } else if (action == @selector(rotateZ90CW:)) {
         return [selectionManager hasSelectedBrushes];
     } else if (action == @selector(rotateZ90CCW:)) {
@@ -201,140 +169,78 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     return NO;
 }
 
-- (IBAction)showInspector:(id)sender {
-    InspectorController* inspector = [InspectorController sharedInspector];
-    [[inspector window] makeKeyAndOrderFront:nil];
-}
-
-- (IBAction)toggleGrid:(id)sender {
-    [[options grid] toggleDraw];
-}
-
-- (IBAction)toggleSnap:(id)sender {
-    [[options grid] toggleSnap];
-}
-
-- (IBAction)setGridSize:(id)sender {
-    [[options grid] setSize:[sender tag]];
-}
-
-- (IBAction)isolateSelection:(id)sender {
-    EIsolationMode isolationMode = [options isolationMode];
-    [options setIsolationMode:(isolationMode + 1) % 3];
-}
-
-- (IBAction)toggleProjection:(id)sender {
-    ECameraMode cameraMode = [camera mode];
-    [camera setMode:(cameraMode + 1) % 2];
-}
-
-- (IBAction)switchToXYView:(id)sender {
-    Vector3f* center = [[selectionManager selectionCenter] retain];
-    if (center == nil) {
-        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
-        [center scale:256];
-        [center add:[camera position]];
-    }
-    
-    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:center];
-    [diff sub:[camera position]];
-    
-    Vector3f* position = [[Vector3f alloc] initWithFloatVector:center];
-    [position setZ:[position z] + [diff length]];
-    
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f zAxisNeg] targetUp:[Vector3f yAxisPos] duration:0.5];
-    [animation startAnimation];
-    
-    [diff release];
-    [position release];
-    [center release];
-}
-
-- (IBAction)switchToXZView:(id)sender {
-    Vector3f* center = [[selectionManager selectionCenter] retain];
-    if (center == nil) {
-        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
-        [center scale:256];
-        [center add:[camera position]];
-    }
-    
-    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:center];
-    [diff sub:[camera position]];
-    
-    Vector3f* position = [[Vector3f alloc] initWithFloatVector:center];
-    [position setY:[position y] - [diff length]];
-    
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f yAxisPos] targetUp:[Vector3f zAxisPos] duration:0.5];
-    [animation startAnimation];
-
-    [diff release];
-    [position release];
-    [center release];
-}
-
-- (IBAction)switchToYZView:(id)sender {
-    Vector3f* center = [[selectionManager selectionCenter] retain];
-    if (center == nil) {
-        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
-        [center scale:256];
-        [center add:[camera position]];
-    }
-    
-    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:center];
-    [diff sub:[camera position]];
-    
-    Vector3f* position = [[Vector3f alloc] initWithFloatVector:center];
-    [position setX:[position x] + [diff length]];
-    
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f xAxisNeg] targetUp:[Vector3f zAxisPos] duration:0.5];
-    [animation startAnimation];
-    
-    [diff release];
-    [position release];
-    [center release];
-}
-
-- (IBAction)clearSelection:(id)sender {
-    [selectionManager removeAll:NO];
-}
-
-- (IBAction)copySelection:(id)sender {}
-- (IBAction)cutSelection:(id)sender {}
-- (IBAction)pasteClipboard:(id)sender {}
-
-- (IBAction)deleteSelection:(id)sender {
-    if (clipTool != nil) {
-        [clipTool deleteLastPoint];
-    } else {
-        NSUndoManager* undoManager = [[self document] undoManager];
-        [undoManager beginUndoGrouping];
+- (void)prefabNameSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
+    PrefabNameSheetController* pns = [sheet windowController];
+    if (returnCode == NSOKButton) {
+        NSString* prefabName = [pns prefabName];
+        NSString* prefabGroupName = [pns prefabGroup];
         
-        NSSet* deletedBrushes = [[NSSet alloc] initWithSet:[selectionManager selectedBrushes]];
+        PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
+        id <PrefabGroup> prefabGroup = [prefabManager prefabGroupWithName:prefabGroupName create:YES];
+        [prefabManager createPrefabFromBrushTemplates:[selectionManager selectedBrushes] name:prefabName group:prefabGroup];
+    }
+    [pns release];
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [options release];
+    [trackingManager release];
+    [selectionManager release];
+    [inputManager release];
+    [cursorManager release];
+    [camera release];
+    [super dealloc];
+}
+
+#pragma mark Brush related actions
+
+- (IBAction)rotateZ90CW:(id)sender {
+    [[self document] rotateZ90CW:[selectionManager selectedBrushes]];
+}
+
+- (IBAction)rotateZ90CCW:(id)sender {
+    [[self document] rotateZ90CCW:[selectionManager selectedBrushes]];
+}
+
+- (IBAction)toggleClipTool:(id)sender {
+    ClipTool* clipTool = [inputManager clipTool];
+    if ([clipTool active])
+        [clipTool deactivate];
+    else
+        [clipTool activate];
+}
+
+- (IBAction)toggleClipMode:(id)sender {
+    ClipTool* clipTool = [inputManager clipTool];
+    if ([clipTool active])
+        [clipTool toggleClipMode];
+}
+
+- (IBAction)performClip:(id)sender {
+    ClipTool* clipTool = [inputManager clipTool];
+    if ([clipTool active]) {
         [selectionManager removeAll:YES];
+        NSSet* newBrushes = [clipTool performClip:[self document]];
+        [clipTool deactivate];
         
-        NSEnumerator* brushEn = [deletedBrushes objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject]))
-            [[self document] deleteBrush:brush];
-        
-        [deletedBrushes release];
-        
-        [undoManager endUndoGrouping];
-        [undoManager setActionName:@"Delete Selection"];
+        [selectionManager addBrushes:newBrushes record:YES];
     }
 }
+
+#pragma mark Face related actions
 
 - (IBAction)moveTextureLeft:(id)sender {
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
     int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] actualSize];
-
+    
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject]))
         [[self document] translateFaceOffset:face xDelta:d yDelta:0];
-
+    
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Texture"];
 }
@@ -342,7 +248,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 - (IBAction)moveTextureRight:(id)sender {
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
-
+    
     int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] actualSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
@@ -357,7 +263,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 - (IBAction)moveTextureUp:(id)sender {
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
-
+    
     int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] actualSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
@@ -372,7 +278,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 - (IBAction)moveTextureDown:(id)sender {
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
-
+    
     int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] actualSize];
     
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
@@ -387,7 +293,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 - (IBAction)stretchTextureHorizontally:(id)sender {
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
-
+    
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject]))
@@ -466,13 +372,141 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [undoManager setActionName:@"Rotate Texture Right"];
 }
 
+#pragma mark View related actions
+
+- (IBAction)showInspector:(id)sender {
+    InspectorController* inspector = [InspectorController sharedInspector];
+    [[inspector window] makeKeyAndOrderFront:nil];
+}
+
+- (IBAction)toggleGrid:(id)sender {
+    [[options grid] toggleDraw];
+}
+
+- (IBAction)toggleSnap:(id)sender {
+    [[options grid] toggleSnap];
+}
+
+- (IBAction)setGridSize:(id)sender {
+    [[options grid] setSize:[sender tag]];
+}
+
+- (IBAction)isolateSelection:(id)sender {
+    EIsolationMode isolationMode = [options isolationMode];
+    [options setIsolationMode:(isolationMode + 1) % 3];
+}
+
+- (IBAction)toggleProjection:(id)sender {
+    ECameraMode cameraMode = [camera mode];
+    [camera setMode:(cameraMode + 1) % 2];
+}
+
+- (IBAction)switchToXYView:(id)sender {
+    Vector3f* center = [[selectionManager selectionCenter] retain];
+    if (center == nil) {
+        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
+        [center scale:256];
+        [center add:[camera position]];
+    }
+    
+    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:center];
+    [diff sub:[camera position]];
+    
+    Vector3f* position = [[Vector3f alloc] initWithFloatVector:center];
+    [position setZ:[position z] + [diff length]];
+    
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f zAxisNeg] targetUp:[Vector3f yAxisPos] duration:0.5];
+    [animation startAnimation];
+    
+    [diff release];
+    [position release];
+    [center release];
+}
+
+- (IBAction)switchToXZView:(id)sender {
+    Vector3f* center = [[selectionManager selectionCenter] retain];
+    if (center == nil) {
+        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
+        [center scale:256];
+        [center add:[camera position]];
+    }
+    
+    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:center];
+    [diff sub:[camera position]];
+    
+    Vector3f* position = [[Vector3f alloc] initWithFloatVector:center];
+    [position setY:[position y] - [diff length]];
+    
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f yAxisPos] targetUp:[Vector3f zAxisPos] duration:0.5];
+    [animation startAnimation];
+    
+    [diff release];
+    [position release];
+    [center release];
+}
+
+- (IBAction)switchToYZView:(id)sender {
+    Vector3f* center = [[selectionManager selectionCenter] retain];
+    if (center == nil) {
+        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
+        [center scale:256];
+        [center add:[camera position]];
+    }
+    
+    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:center];
+    [diff sub:[camera position]];
+    
+    Vector3f* position = [[Vector3f alloc] initWithFloatVector:center];
+    [position setX:[position x] + [diff length]];
+    
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f xAxisNeg] targetUp:[Vector3f zAxisPos] duration:0.5];
+    [animation startAnimation];
+    
+    [diff release];
+    [position release];
+    [center release];
+}
+
+#pragma mark Structure and selection
+
+- (IBAction)clearSelection:(id)sender {
+    [selectionManager removeAll:NO];
+}
+
+- (IBAction)copySelection:(id)sender {}
+- (IBAction)cutSelection:(id)sender {}
+- (IBAction)pasteClipboard:(id)sender {}
+
+- (IBAction)deleteSelection:(id)sender {
+    ClipTool* clipTool = [inputManager clipTool];
+    if ([clipTool active] && [clipTool numPoints] > 0) {
+        [clipTool deleteLastPoint];
+    } else {
+        NSUndoManager* undoManager = [[self document] undoManager];
+        [undoManager beginUndoGrouping];
+        
+        NSSet* deletedBrushes = [[NSSet alloc] initWithSet:[selectionManager selectedBrushes]];
+        [selectionManager removeAll:YES];
+        
+        NSEnumerator* brushEn = [deletedBrushes objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject]))
+            [[self document] deleteBrush:brush];
+        
+        [deletedBrushes release];
+        
+        [undoManager endUndoGrouping];
+        [undoManager setActionName:@"Delete Selection"];
+    }
+}
+
 - (IBAction)duplicateSelection:(id)sender {
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
     id <Entity> worldspawn = [[self document] worldspawn:YES];
     NSMutableSet* newBrushes = [[NSMutableSet alloc] init];
-
+    
     NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
     id <Brush> brush;
     while ((brush = [brushEn nextObject])) {
@@ -489,18 +523,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [undoManager setActionName:@"Duplicate Selection"];
 }
 
-- (void)prefabNameSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
-    PrefabNameSheetController* pns = [sheet windowController];
-    if (returnCode == NSOKButton) {
-        NSString* prefabName = [pns prefabName];
-        NSString* prefabGroupName = [pns prefabGroup];
-        
-        PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-        id <PrefabGroup> prefabGroup = [prefabManager prefabGroupWithName:prefabGroupName create:YES];
-        [prefabManager createPrefabFromBrushTemplates:[selectionManager selectedBrushes] name:prefabName group:prefabGroup];
-    }
-    [pns release];
-}
 
 - (IBAction)createPrefabFromSelection:(id)sender {
     PrefabNameSheetController* pns = [[PrefabNameSheetController alloc] init];
@@ -509,43 +531,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSApplication* app = [NSApplication sharedApplication];
     [app beginSheet:prefabNameSheet modalForWindow:[self window] modalDelegate:self didEndSelector:@selector(prefabNameSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
     
-}
-
-- (IBAction)toggleClipTool:(id)sender {
-    /*
-    if (clipTool == nil) {
-        clipTool = [[ClipTool alloc] initWithBrushes:[selectionManager selectedBrushes] picker:[[self document] picker] grid:[options grid] renderer:[view3D renderer]];
-    } else {
-        [clipTool release];
-        clipTool = nil;
-    }
-    
-    [inputManager setClipTool:clipTool];
-     */
-}
-
-- (IBAction)toggleClipMode:(id)sender {
-    [clipTool toggleClipMode];
-}
-
-- (IBAction)performClip:(id)sender {
-    /*
-    [selectionManager removeAll:YES];
-    NSSet* newBrushes = [clipTool performClip:[self document]];
-    [inputManager setClipTool:nil];
-    [clipTool release];
-    clipTool = nil;
-    
-    [selectionManager addBrushes:newBrushes record:YES];
-     */
-}
-
-- (IBAction)rotateZ90CW:(id)sender {
-    [[self document] rotateZ90CW:[selectionManager selectedBrushes]];
-}
-
-- (IBAction)rotateZ90CCW:(id)sender {
-    [[self document] rotateZ90CCW:[selectionManager selectedBrushes]];
 }
 
 - (void)insertPrefab:(id <Prefab>)prefab {
@@ -559,7 +544,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     
     Vector3f* offset = [[options grid] gridOffsetOf:[prefab center]];
     [insertPos add:offset];
-
+    
     Vector3f* dist = [[Vector3f alloc] initWithFloatVector:insertPos];
     [dist sub:[prefab center]];
     
@@ -586,20 +571,43 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     
     
     [dist release];
-
+    
     [undoManager endUndoGrouping];
     [undoManager setActionName:[NSString stringWithFormat:@"Insert Prefab '%@'", [prefab name]]];
 }
 
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [options release];
-    [trackingManager release];
-    [selectionManager release];
-    [inputManager release];
-    [cursorManager release];
-    [camera release];
-    [super dealloc];
+#pragma mark -
+#pragma mark Getters
+
+- (Camera *)camera {
+    return camera;
 }
 
+- (SelectionManager *)selectionManager {
+    return selectionManager;
+}
+
+- (InputManager *)inputManager {
+    return inputManager;
+}
+
+- (TrackingManager *)trackingManager {
+    return trackingManager;
+}
+
+- (CursorManager *)cursorManager {
+    return cursorManager;
+}
+
+- (Options *)options {
+    return options;
+}
+
+- (Renderer *)renderer {
+    return [view3D renderer];
+}
+
+- (MapView3D *)view3D {
+    return view3D;
+}
 @end

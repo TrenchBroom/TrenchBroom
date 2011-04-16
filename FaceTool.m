@@ -90,14 +90,14 @@
 # pragma mark -
 # pragma mark @implementation Tool
 
-- (BOOL)handleLeftMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)handleLeftMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     if (![self isApplyTextureModifierPressed] && ![self isApplyTextureAndFlagsModifierPressed])
-        return NO;
+        return;
     
     SelectionManager* selectionManager = [windowController selectionManager];
     NSSet* selectedFaces = [selectionManager selectedFaces];
     if (![selectedFaces count] == 1)
-        return NO;
+        return;
     
     id <Face> source = [[selectedFaces objectEnumerator] nextObject];
     
@@ -145,20 +145,18 @@
             [undoManager setActionName:@"Copy Face Texture To Brush"];
         }
     }
-    
-    return YES;
 }
 
-- (BOOL)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
     if (hit == nil)
-        return NO;
+        return;
     
     id <Face> face = [hit object];
 
     SelectionManager* selectionManager = [windowController selectionManager];
     if (![selectionManager isFaceSelected:face])
-        return NO;
+        return;
     
     dragDir = [[face norm] retain];
     
@@ -178,20 +176,18 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setGroupsByEvent:NO];
     [undoManager beginUndoGrouping];
-    
-    return YES;
 }
 
-- (BOOL)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     Vector3f* point = [ray pointAtDistance:[plane intersectWithRay:ray]];
     if (point == nil)
-        return YES;
+        return;
     
     Grid* grid = [[windowController options] grid];
     [grid snapToGrid:point];
     
     if ([point isEqualToVector:lastPoint])
-        return YES;
+        return;
     
     Vector3f* diff = [[Vector3f alloc] initWithFloatVector:point];
     [diff sub:lastPoint];
@@ -208,11 +204,9 @@
     [diff release];
     [lastPoint release];
     lastPoint = [point retain];
-    
-    return YES;
 }
 
-- (BOOL)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setActionName:[self actionName]];
@@ -225,11 +219,9 @@
     dragDir = nil;
     [lastPoint release];
     lastPoint = nil;
-    
-    return YES;
 }
 
-- (BOOL)hasCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (BOOL)isCursorOwner:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager mode] != SM_FACES)
         return NO;

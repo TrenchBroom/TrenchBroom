@@ -17,6 +17,7 @@
     float backgroundColor[3];
     Renderer* renderer;
     Options* options;
+    NSTrackingArea* mouseTracker;
 }
 
 - (void)setup;

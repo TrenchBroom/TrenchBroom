@@ -510,6 +510,7 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)removeFeedbackFigure:(id <Figure>)theFigure {
     [feedbackLayer removeFigure:theFigure];
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)render {

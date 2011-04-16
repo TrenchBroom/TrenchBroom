@@ -36,7 +36,6 @@
     Vector3i* currentPoint;
     ClipPointFeedbackFigure* currentFigure;
     Vector3i* draggedPoint;
-    BOOL active;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

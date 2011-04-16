@@ -31,9 +31,10 @@
     BrushTool* brushTool;
     FaceTool* faceTool;
     ClipTool* clipTool;
-    id <Tool> dragTool;
-    id <Tool> gestureTool;
+    id <Tool> activeTool;
     id <Tool> cursorOwner;
+    BOOL drag;
+    BOOL hasMouse;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
@@ -42,6 +43,8 @@
 - (void)handleFlagsChanged:(NSEvent *)event sender:(id)sender;
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender;
 - (void)handleMouseMoved:(NSEvent *)event sender:(id)sender;
+- (void)handleMouseEntered:(NSEvent *)event sender:(id)sender;
+- (void)handleMouseExited:(NSEvent *)event sender:(id)sender;
 - (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender;
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender;
 - (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender;
