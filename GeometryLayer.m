@@ -202,7 +202,7 @@
     id <Face> face;
     while ((face = [faceEn nextObject])) {
         VBOMemBlock* block = [face memBlock];
-        NSAssert(block != nil, @"VBO mem block must be in shared block map");
+        NSAssert(block != nil, @"face must have VBO mem block");
         NSAssert([block state] == BS_USED_VALID, @"VBO mem block must be valid");
         
         NSString* textureName = [face texture];

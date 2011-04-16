@@ -460,30 +460,34 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     return [brush autorelease];
 }
 
-- (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate {
-    MutableBrush* brush = [[MutableBrush alloc] initWithBrushTemplate:theTemplate];
+- (void)addBrushToEntity:(id <Entity>)theEntity brush:(id <Brush>)theBrush {
+    MutableBrush* mutableBrush = (MutableBrush *)theBrush;
     
     MutableEntity* mutableEntity = (MutableEntity *)theEntity;
-    [mutableEntity addBrush:brush];
+    [mutableEntity addBrush:mutableBrush];
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] deleteBrush:brush];
+    [[undoManager prepareWithInvocationTarget:self] deleteBrush:mutableBrush];
     
     if ([self postNotifications]) {
         NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:brush forKey:BrushKey];
+        [userInfo setObject:mutableBrush forKey:BrushKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:BrushAdded object:self userInfo:userInfo];
         [userInfo release];
     }
+}
 
+- (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate {
+    id <Brush> brush = [[MutableBrush alloc] initWithBrushTemplate:theTemplate];
+    [self addBrushToEntity:theEntity brush:brush];
     return [brush autorelease];
 }
 
 - (void)deleteBrush:(id <Brush>)brush {
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] createBrushInEntity:[brush entity] fromTemplate:brush];
+    [[undoManager prepareWithInvocationTarget:self] addBrushToEntity:[brush entity] brush:brush];
     
     if ([self postNotifications]) {
         NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];

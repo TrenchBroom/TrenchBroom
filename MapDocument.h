@@ -60,6 +60,7 @@ extern NSString* const PropertyNewValueKey;
 - (void)setFace:(id <Face>)face rotation:(float)angle;
 - (void)setFace:(id <Face>)face texture:(NSString *)texture;
 
+- (void)addBrushToEntity:(id <Entity>)theEntity brush:(id <Brush>)theBrush;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate;
 - (void)translateBrush:(id <Brush>)brush xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta;
 - (void)rotateZ90CW:(NSSet *)brushes;

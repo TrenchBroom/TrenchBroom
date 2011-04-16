@@ -220,11 +220,8 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 - (IBAction)performClip:(id)sender {
     ClipTool* clipTool = [inputManager clipTool];
     if ([clipTool active]) {
-        [selectionManager removeAll:YES];
-        NSSet* newBrushes = [clipTool performClip:[self document]];
+        [clipTool performClip:[self document]];
         [clipTool deactivate];
-        
-        [selectionManager addBrushes:newBrushes record:YES];
     }
 }
 

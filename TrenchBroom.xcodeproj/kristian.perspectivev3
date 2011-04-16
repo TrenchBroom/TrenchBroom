@@ -343,7 +343,7 @@
 							<real>312</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>0 122 2560 1296 0 0 2560 1418 </string>
+						<string>0 121 2560 1296 0 0 2560 1418 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -359,7 +359,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>48A68F71114EE8550064732A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>InputManager.m</string>
+								<string>ClipTool.m</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -367,11 +367,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>48A68F72114EE8550064732A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>InputManager.m</string>
+										<string>ClipTool.m</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>4855887013599039005F8B2C</string>
+										<string>4855890713599F52005F8B2C</string>
 										<key>history</key>
 										<array>
 											<string>485D2B491306E8D700CF73D8</string>
@@ -506,7 +506,6 @@
 											<string>48325CFA13524D9D00E703E0</string>
 											<string>48325CFD13524D9D00E703E0</string>
 											<string>48325D0613524DBF00E703E0</string>
-											<string>48325DD7135254A500E703E0</string>
 											<string>48325F6A1354E99900E703E0</string>
 											<string>48325F6B1354E99900E703E0</string>
 											<string>486742A11355FFFD009E7ABF</string>
@@ -533,21 +532,26 @@
 											<string>4855877813596D70005F8B2C</string>
 											<string>4855878513596DE3005F8B2C</string>
 											<string>4855879B1359722F005F8B2C</string>
-											<string>485587AA135972CE005F8B2C</string>
-											<string>485587B31359733B005F8B2C</string>
 											<string>485587CB13597C9D005F8B2C</string>
 											<string>485587CC13597C9D005F8B2C</string>
-											<string>485587CD13597C9D005F8B2C</string>
 											<string>485587CF13597C9D005F8B2C</string>
 											<string>4855880513598A86005F8B2C</string>
 											<string>4855880613598A86005F8B2C</string>
 											<string>4855880713598A86005F8B2C</string>
 											<string>4855880813598A86005F8B2C</string>
 											<string>4855882E13598CCA005F8B2C</string>
-											<string>4855885813598EED005F8B2C</string>
 											<string>4855885A13598EED005F8B2C</string>
 											<string>4855886A13599018005F8B2C</string>
-											<string>4855886F13599038005F8B2C</string>
+											<string>4855887B1359925C005F8B2C</string>
+											<string>4855888813599317005F8B2C</string>
+											<string>485588A0135994D2005F8B2C</string>
+											<string>485588A813599504005F8B2C</string>
+											<string>485588B7135999FF005F8B2C</string>
+											<string>485588B8135999FF005F8B2C</string>
+											<string>485588BA135999FF005F8B2C</string>
+											<string>485588C913599B7B005F8B2C</string>
+											<string>485588FB13599EFA005F8B2C</string>
+											<string>4855890613599F4F005F8B2C</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -563,7 +567,7 @@
 								<key>Frame</key>
 								<string>{{0, 0}, {2204, 917}}</string>
 								<key>RubberWindowFrame</key>
-								<string>0 122 2560 1296 0 0 2560 1418 </string>
+								<string>0 121 2560 1296 0 0 2560 1418 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -642,7 +646,7 @@
 										<key>Frame</key>
 										<string>{{10, 27}, {2204, 306}}</string>
 										<key>RubberWindowFrame</key>
-										<string>0 122 2560 1296 0 0 2560 1418 </string>
+										<string>0 121 2560 1296 0 0 2560 1418 </string>
 									</dict>
 									<key>Module</key>
 									<string>PBXBuildResultsModule</string>
@@ -850,7 +854,7 @@
 	<key>StatusbarIsVisible</key>
 	<true/>
 	<key>TimeStamp</key>
-	<real>324636729.79683203</real>
+	<real>324640594.844356</real>
 	<key>ToolbarConfigUserDefaultsMinorVersion</key>
 	<string>2</string>
 	<key>ToolbarDisplayMode</key>
@@ -873,7 +877,7 @@
 		<string>/Users/kristian/Documents/Code/XCode/TrenchBroom/TrenchBroom.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>0 122 2560 1296 0 0 2560 1418 </string>
+	<string>0 121 2560 1296 0 0 2560 1418 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>
