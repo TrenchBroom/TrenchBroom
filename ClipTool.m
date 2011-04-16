@@ -28,11 +28,12 @@
 #import "ClipLineFeedbackFigure.h"
 #import "ClipPlaneFeedbackFigure.h"
 #import "ClipBrushFeedbackFigure.h"
+#import "GridFeedbackFigure.h"
 
 @interface ClipTool (private)
 
 - (Vector3i *)setClipPointWithRay:(Ray3D *)ray hits:(PickingHitList *)hits;
-- (void)updateFeedback;
+- (void)updateFeedback:(Ray3D *)ray;
 - (BOOL)intersect:(Ray3D *)ray withClipPoint:(Vector3i *)point;
 
 @end
@@ -68,7 +69,7 @@
     return nil;
 }
 
-- (void)updateFeedback {
+- (void)updateFeedback:(Ray3D *)ray {
     Renderer* renderer = [windowController renderer];
     
     if (point1Figure != nil) {
@@ -125,6 +126,19 @@
         planeFigure = nil;
     }
     
+    if (gridFigure != nil) {
+        [renderer removeFeedbackFigure:gridFigure];
+        [gridFigure release];
+        gridFigure = nil;
+    }
+    
+    NSEnumerator* figureEn = [brushFigures objectEnumerator];
+    ClipBrushFeedbackFigure* figure;
+    while ((figure = [figureEn nextObject]))
+        [renderer removeFeedbackFigure:figure];
+    [brushFigures removeAllObjects];
+    
+
     if (clipPlane != nil) {
         Vector3i* p1 = [clipPlane point1];
         Vector3i* p2 = [clipPlane point2];
@@ -156,15 +170,7 @@
                 }
             }
         }
-    }
 
-    NSEnumerator* figureEn = [brushFigures objectEnumerator];
-    ClipBrushFeedbackFigure* figure;
-    while ((figure = [figureEn nextObject]))
-        [renderer removeFeedbackFigure:figure];
-    [brushFigures removeAllObjects];
-    
-    if (clipPlane != nil) {
         SelectionManager* selectionManager = [windowController selectionManager];
         NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
         id <Brush> brush;
@@ -173,6 +179,20 @@
             [brushFigures addObject:figure];
             [renderer addFeedbackFigure:figure];
             [figure release];
+        }
+        
+        if (draggedPoint != nil && ray != nil) {
+            Grid* grid = [[windowController options] grid];
+            PickingHit* hit;
+            if (draggedPoint == p1)
+                hit = [[clipPlane hitList1] firstHitOfType:HT_FACE ignoreOccluders:YES];
+            else if (draggedPoint == p2)
+                hit = [[clipPlane hitList2] firstHitOfType:HT_FACE ignoreOccluders:YES];
+            else if (draggedPoint == p3)
+                hit = [[clipPlane hitList3] firstHitOfType:HT_FACE ignoreOccluders:YES];
+                
+            gridFigure = [[GridFeedbackFigure alloc] initWithGrid:grid pickingHit:hit ray:ray];
+            [renderer addFeedbackFigure:gridFigure];
         }
     }
 }
@@ -223,7 +243,7 @@
         currentFigure = nil;
     }
     
-    [self updateFeedback];
+    [self updateFeedback:ray];
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
@@ -295,7 +315,7 @@
         }
     }
     
-    [self updateFeedback];
+    [self updateFeedback:ray];
 }
 
 - (void)handleLeftMouseUp:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
@@ -306,7 +326,7 @@
         return;
     
     [self setClipPointWithRay:ray hits:hits];
-    [self updateFeedback];
+    [self updateFeedback:ray];
     
     if (currentFigure != nil) {
         Renderer* renderer = [windowController renderer];
@@ -365,7 +385,7 @@
 
 - (void)activate {
     clipPlane = [[ClipPlane alloc] init];
-    [self updateFeedback];
+    [self updateFeedback:nil];
 }
 
 - (void)deactivate {
@@ -381,7 +401,7 @@
         currentFigure = nil;
     }
 
-    [self updateFeedback];
+    [self updateFeedback:nil];
 }
 
 - (BOOL)active {
@@ -400,7 +420,7 @@
             [clipPlane setClipMode:CM_FRONT];
             break;
     }
-    [self updateFeedback];
+    [self updateFeedback:nil];
 }
 
 - (void)deleteLastPoint {
@@ -417,7 +437,7 @@
         return;
     }
     
-    [self updateFeedback];
+    [self updateFeedback:nil];
 }
 
 - (int)numPoints {
@@ -465,7 +485,7 @@
     [clipPlane reset];
     [currentPoint release];
     currentPoint = nil;
-    [self updateFeedback];
+    [self updateFeedback:nil];
     
     return [result autorelease];
 }
@@ -474,12 +494,12 @@
     [clipPlane reset];
     [currentPoint release];
     currentPoint = nil;
-    [self updateFeedback];
+    [self updateFeedback:nil];
 }
 
 - (void)dealloc {
     [clipPlane reset];
-    [self updateFeedback];
+    [self updateFeedback:nil];
     [clipPlane release];
     [currentPoint release];
     [brushFigures release];

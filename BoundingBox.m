@@ -9,6 +9,7 @@
 #import "BoundingBox.h"
 #import "Vector3f.h"
 #import "Brush.h"
+#import "Grid.h"
 
 @implementation BoundingBox
 - (id)initWithMin:(Vector3f *)theMin max:(Vector3f *)theMax {
@@ -104,6 +105,14 @@
     [min subX:delta y:delta z:delta];
     [max addX:delta y:delta z:delta];
     [size addX:2 * delta y:2 * delta z:2 * delta];
+}
+
+- (void)expandToGrid:(Grid *)theGrid {
+    [theGrid snapDownToGrid:min];
+    [theGrid snapUpToGrid:max];
+
+    [size setFloat:max];
+    [size sub:min];
 }
 
 - (void)dealloc {

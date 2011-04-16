@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class Vector3f;
+@class Grid;
 
 @interface BoundingBox : NSObject {
     @private
@@ -31,5 +32,6 @@
 - (void)mergeMin:(Vector3f *)theMin max:(Vector3f *)theMax;
 - (void)mergePoint:(Vector3f *)thePoint;
 - (void)expandBy:(float)delta;
+- (void)expandToGrid:(Grid *)theGrid;
 
 @end

@@ -21,6 +21,7 @@
 @class ClipPointFeedbackFigure;
 @class ClipLineFeedbackFigure;
 @class ClipPlaneFeedbackFigure;
+@class GridFeedbackFigure;
 
 @interface ClipTool : DefaultTool {
     MapWindowController* windowController;
@@ -36,6 +37,7 @@
     Vector3i* currentPoint;
     ClipPointFeedbackFigure* currentFigure;
     Vector3i* draggedPoint;
+    GridFeedbackFigure* gridFigure;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

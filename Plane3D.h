@@ -39,4 +39,8 @@ typedef enum {
 - (float)intersectWithLine:(Line3D *)line;
 - (float)intersectWithRay:(Ray3D *)ray;
 
+- (float)xAtY:(float)y z:(float)z;
+- (float)yAtX:(float)x z:(float)z;
+- (float)zAtX:(float)x y:(float)y;
+
 @end

@@ -7,92 +7,102 @@
 //
 
 #import "GridFeedbackFigure.h"
-#import "Grid.h"
 #import "Vector3f.h"
+#import "Grid.h"
 #import "BoundingBox.h"
+#import "PickingHit.h"
+#import "Face.h"
+#import "Brush.h"
+#import "Plane3D.h"
+#import "Ray3D.h"
 
 static int G = 2;
 
 @implementation GridFeedbackFigure
 
-- (id)initWithGrid:(Grid *)grid orientation:(EGridOrientation)orientation bounds:(BoundingBox *)bounds hitPoint:(Vector3f *)hitPoint {
+- (id)initWithGrid:(Grid *)grid pickingHit:(PickingHit *)pickingHit ray:(Ray3D *)ray {
     NSAssert(grid != nil, @"grid must not be nil");
-    NSAssert(bounds != nil, @"bounds must not be nil");
-    NSAssert(hitPoint != nil, @"hit point must not be nil");
+    NSAssert(pickingHit != nil, @"hit must not be nil");
+    NSAssert([pickingHit type] == HT_FACE, @"hit type must be face");
     
     if (self = [self init]) {
-        Vector3f* min = [[Vector3f alloc] initWithFloatVector:[bounds min]];
-        Vector3f* max = [[Vector3f alloc] initWithFloatVector:[bounds max]];
-        [grid snapDownToGrid:min];
-        [grid snapUpToGrid:max];
+        id <Face> face = [pickingHit object];
+        id <Brush> brush = [face brush]; 
         
-        Vector3f* size = [[Vector3f alloc] initWithFloatVector:max];
-        [size sub:min];
+        Plane3D* boundary = [face boundary];
+        Vector3f* hitPoint = [ray pointAtDistance:[boundary intersectWithRay:ray]];
+
+        BoundingBox* largeBounds = [[BoundingBox alloc] initWithBounds:[brush bounds]];
+        [largeBounds mergePoint:hitPoint];
+        [largeBounds expandToGrid:grid];
+        [largeBounds expandBy:G * [grid actualSize]];
         
-        switch (orientation) {
-            case GO_XY:
-                cols = [size x] / [grid actualSize] + 2 * G;
-                rows = [size y] / [grid actualSize] + 2 * G;
+        Vector3f* min = [largeBounds min];
+        Vector3f* max = [largeBounds max];
+        Vector3f* size = [largeBounds size];
+        
+        switch ([[face norm] largestComponent]) {
+            case VC_Z:
+                cols = [size x] / [grid actualSize];
+                rows = [size y] / [grid actualSize];
                 
-                gridPoints[0][0][0] = [min x] - G * [grid actualSize];
-                gridPoints[0][0][1] = [min y] - G * [grid actualSize];
-                gridPoints[0][0][2] = [hitPoint z];
-                gridPoints[0][1][0] = [max x] + G * [grid actualSize];
-                gridPoints[0][1][1] = [min y] - G * [grid actualSize];
-                gridPoints[0][1][2] = [hitPoint z];
-                gridPoints[1][0][0] = [min x] - G * [grid actualSize];
-                gridPoints[1][0][1] = [max y] + G * [grid actualSize];
-                gridPoints[1][0][2] = [hitPoint z];
-                gridPoints[1][1][0] = [max x] + G * [grid actualSize];
-                gridPoints[1][1][1] = [max y] + G * [grid actualSize];
-                gridPoints[1][1][2] = [hitPoint z];
+                gridPoints[0][0][0] = [min x];
+                gridPoints[0][0][1] = [min y];
+                gridPoints[0][0][2] = [boundary zAtX:[min x] y:[min y]];
+                gridPoints[0][1][0] = [max x];
+                gridPoints[0][1][1] = [min y];
+                gridPoints[0][1][2] = [boundary zAtX:[max x] y:[min y]];
+                gridPoints[1][0][0] = [min x];
+                gridPoints[1][0][1] = [max y];
+                gridPoints[1][0][2] = [boundary zAtX:[min x] y:[max y]];
+                gridPoints[1][1][0] = [max x];
+                gridPoints[1][1][1] = [max y];
+                gridPoints[1][1][2] = [boundary zAtX:[max x] y:[max y]];
                 break;
-            case GO_YZ:
-                cols = [size y] / [grid actualSize] + 2 * G;
-                rows = [size z] / [grid actualSize] + 2 * G;
+            case VC_X:
+                cols = [size y] / [grid actualSize];
+                rows = [size z] / [grid actualSize];
                 
-                gridPoints[0][0][0] = [hitPoint x];
-                gridPoints[0][0][1] = [min y] - G * [grid actualSize];
-                gridPoints[0][0][2] = [min z] - G * [grid actualSize];
-                gridPoints[0][1][0] = [hitPoint x];
-                gridPoints[0][1][1] = [max y] + G * [grid actualSize];
-                gridPoints[0][1][2] = [min z] - G * [grid actualSize];
-                gridPoints[1][0][0] = [hitPoint x];
-                gridPoints[1][0][1] = [min y] - G * [grid actualSize];
-                gridPoints[1][0][2] = [max z] + G * [grid actualSize];
-                gridPoints[1][1][0] = [hitPoint x];
-                gridPoints[1][1][1] = [max y] + G * [grid actualSize];
-                gridPoints[1][1][2] = [max z] + G * [grid actualSize];
+                gridPoints[0][0][0] = [boundary xAtY:[min y] z:[min z]];
+                gridPoints[0][0][1] = [min y];
+                gridPoints[0][0][2] = [min z];
+                gridPoints[0][1][0] = [boundary xAtY:[max y] z:[min z]];
+                gridPoints[0][1][1] = [max y];
+                gridPoints[0][1][2] = [min z];
+                gridPoints[1][0][0] = [boundary xAtY:[min y] z:[max z]];
+                gridPoints[1][0][1] = [min y];
+                gridPoints[1][0][2] = [max z];
+                gridPoints[1][1][0] = [boundary xAtY:[max y] z:[max z]];
+                gridPoints[1][1][1] = [max y];
+                gridPoints[1][1][2] = [max z];
                 break;
             default:
-                cols = [size x] / [grid actualSize] + 2 * G;
-                rows = [size z] / [grid actualSize] + 2 * G;
+                cols = [size x] / [grid actualSize];
+                rows = [size z] / [grid actualSize];
                 
-                gridPoints[0][0][0] = [min x] - G * [grid actualSize];
-                gridPoints[0][0][1] = [hitPoint y];
-                gridPoints[0][0][2] = [min z] - G * [grid actualSize];
-                gridPoints[0][1][0] = [max x] + G * [grid actualSize];
-                gridPoints[0][1][1] = [hitPoint y];
-                gridPoints[0][1][2] = [min z] - G * [grid actualSize];
-                gridPoints[1][0][0] = [min x] - G * [grid actualSize];
-                gridPoints[1][0][1] = [hitPoint y];
-                gridPoints[1][0][2] = [max z] + G * [grid actualSize];
-                gridPoints[1][1][0] = [max x] + G * [grid actualSize];
-                gridPoints[1][1][1] = [hitPoint y];
-                gridPoints[1][1][2] = [max z] + G * [grid actualSize];
+                gridPoints[0][0][0] = [min x];
+                gridPoints[0][0][1] = [boundary yAtX:[min x] z:[min z]];
+                gridPoints[0][0][2] = [min z];
+                gridPoints[0][1][0] = [max x];
+                gridPoints[0][1][1] = [boundary yAtX:[max x] z:[min z]];
+                gridPoints[0][1][2] = [min z];
+                gridPoints[1][0][0] = [min x];
+                gridPoints[1][0][1] = [boundary yAtX:[min x] z:[max z]];
+                gridPoints[1][0][2] = [max z];
+                gridPoints[1][1][0] = [max x];
+                gridPoints[1][1][1] = [boundary yAtX:[max x] z:[max z]];
+                gridPoints[1][1][2] = [max z];
                 break;
         }
-        [min release];
-        [max release];
+        
+        [largeBounds release];
     }
     
     return self;
 }
 
 - (void)render {
-    glEnable(GL_LINE_STIPPLE);
-    glLineStipple(1, 0x8888);
-    glColor4f(1, 1, 1, 1);
+    glColor4f(0, 1, 0, 0.2f);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MAP2_VERTEX_3);
     glMap2f(GL_MAP2_VERTEX_3,
@@ -111,7 +121,6 @@ static int G = 2;
                 0, rows);  /* Starting at 0 mesh 6 steps (columns). */
     glDisable(GL_MAP2_VERTEX_3);
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LINE_STIPPLE);
 }
 
 @end

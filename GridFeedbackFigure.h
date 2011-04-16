@@ -9,15 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import "Figure.h"
 
-typedef enum {
-    GO_XY,
-    GO_YZ,
-    GO_XZ
-} EGridOrientation;
-
 @class Grid;
-@class BoundingBox;
-@class Vector3f;
+@class PickingHit;
+@class Ray3D;
 
 @interface GridFeedbackFigure : NSObject <Figure> {
     float gridPoints[2][2][3];
@@ -25,5 +19,5 @@ typedef enum {
     int cols;
 }
 
-- (id)initWithGrid:(Grid *)grid orientation:(EGridOrientation)orientation bounds:(BoundingBox *)bounds hitPoint:(Vector3f *)hitPoint;
+- (id)initWithGrid:(Grid *)grid pickingHit:(PickingHit *)pickingHit ray:(Ray3D *)ray;
 @end

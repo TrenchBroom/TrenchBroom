@@ -117,6 +117,21 @@
     return d;
 }
 
+- (float)xAtY:(float)y z:(float)z {
+    float l = [norm dot:point];
+    return (l - [norm y] * y - [norm z] * z) / [norm x];
+}
+
+- (float)yAtX:(float)x z:(float)z{
+    float l = [norm dot:point];
+    return (l - [norm x] * x - [norm z] * z) / [norm y];
+}
+
+- (float)zAtX:(float)x y:(float)y {
+    float l = [norm dot:point];
+    return (l - [norm x] * x - [norm y] * y) / [norm z];
+}
+
 - (NSString *)description {
     return [NSString stringWithFormat:@"point: %@, normal: %@", point, norm];
 }
