@@ -1093,6 +1093,13 @@
 			4855890413599F40005F8B2C /* PBXTextBookmark */ = 4855890413599F40005F8B2C /* PBXTextBookmark */;
 			4855890613599F4F005F8B2C /* PBXTextBookmark */ = 4855890613599F4F005F8B2C /* PBXTextBookmark */;
 			4855890713599F52005F8B2C /* PBXTextBookmark */ = 4855890713599F52005F8B2C /* PBXTextBookmark */;
+			4855890A1359A15B005F8B2C /* PBXTextBookmark */ = 4855890A1359A15B005F8B2C /* PBXTextBookmark */;
+			4855890B1359A15B005F8B2C /* PBXTextBookmark */ = 4855890B1359A15B005F8B2C /* PBXTextBookmark */;
+			4855890C1359A15D005F8B2C /* PBXTextBookmark */ = 4855890C1359A15D005F8B2C /* PBXTextBookmark */;
+			4855890E1359A178005F8B2C /* PBXTextBookmark */ = 4855890E1359A178005F8B2C /* PBXTextBookmark */;
+			485589191359A23E005F8B2C /* XCBuildMessageTextBookmark */ = 485589191359A23E005F8B2C /* XCBuildMessageTextBookmark */;
+			4855891A1359A23E005F8B2C /* PBXTextBookmark */ = 4855891A1359A23E005F8B2C /* PBXTextBookmark */;
+			4855891B1359A23F005F8B2C /* PBXTextBookmark */ = 4855891B1359A23F005F8B2C /* PBXTextBookmark */;
 			485CE4BC134CCDCC00FCCB5D = 485CE4BC134CCDCC00FCCB5D /* PBXTextBookmark */;
 			485CE6CC134D033700FCCB5D = 485CE6CC134D033700FCCB5D /* PBXTextBookmark */;
 			485CE711134D058A00FCCB5D = 485CE711134D058A00FCCB5D /* PBXTextBookmark */;
@@ -1609,9 +1616,9 @@
 	};
 	482FFF001340E10E00849BF5 /* ClipTool.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {2143, 5668}}";
-			sepNavSelRange = "{6986, 0}";
-			sepNavVisRange = "{5535, 2108}";
+			sepNavIntBoundsRect = "{{0, 0}, {2143, 5980}}";
+			sepNavSelRange = "{9271, 0}";
+			sepNavVisRange = "{7897, 2306}";
 		};
 	};
 	482FFF111340E3C600849BF5 /* Figure.h */ = {
@@ -1855,7 +1862,7 @@
 		ignoreCount = 0;
 		lineNumber = 17;
 		location = TrenchBroom;
-		modificationTime = 324640575.421904;
+		modificationTime = 324641342.34065;
 		originalNumberOfMultipleMatches = 1;
 		state = 2;
 	};
@@ -2378,7 +2385,7 @@
 		fRef = 48DBE74D1341CD8B00C0FDE7 /* ClipPlane.h */;
 		name = "ClipPlane.h: 48";
 		rLen = 15;
-		rLoc = 1100;
+		rLoc = 1190;
 		rType = 0;
 		vrLen = 1121;
 		vrLoc = 0;
@@ -2388,7 +2395,7 @@
 		fRef = 48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */;
 		name = "ClipPlane.m: 184";
 		rLen = 0;
-		rLoc = 4978;
+		rLoc = 5143;
 		rType = 0;
 		vrLen = 2083;
 		vrLoc = 3084;
@@ -2408,7 +2415,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 383";
 		rLen = 0;
-		rLoc = 13323;
+		rLoc = 14614;
 		rType = 0;
 		vrLen = 2076;
 		vrLoc = 9842;
@@ -2418,7 +2425,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 21";
 		rLen = 0;
-		rLoc = 411;
+		rLoc = 431;
 		rType = 0;
 		vrLen = 2320;
 		vrLoc = 7723;
@@ -2456,7 +2463,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 382";
 		rLen = 0;
-		rLoc = 13194;
+		rLoc = 14485;
 		rType = 0;
 		vrLen = 1775;
 		vrLoc = 10501;
@@ -4208,7 +4215,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 382";
 		rLen = 0;
-		rLoc = 13194;
+		rLoc = 14485;
 		rType = 0;
 		vrLen = 2398;
 		vrLoc = 2113;
@@ -7264,7 +7271,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 329";
 		rLen = 0;
-		rLoc = 11021;
+		rLoc = 12312;
 		rType = 0;
 		vrLen = 1651;
 		vrLoc = 9104;
@@ -7500,7 +7507,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 229";
 		rLen = 0;
-		rLoc = 8557;
+		rLoc = 9848;
 		rType = 0;
 		vrLen = 2287;
 		vrLoc = 5811;
@@ -7670,7 +7677,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 229";
 		rLen = 0;
-		rLoc = 8557;
+		rLoc = 9848;
 		rType = 0;
 		vrLen = 2287;
 		vrLoc = 5811;
@@ -7680,7 +7687,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 294";
 		rLen = 0;
-		rLoc = 9174;
+		rLoc = 10465;
 		rType = 0;
 		vrLen = 1559;
 		vrLoc = 9039;
@@ -7690,7 +7697,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 294";
 		rLen = 0;
-		rLoc = 9174;
+		rLoc = 10465;
 		rType = 0;
 		vrLen = 1559;
 		vrLoc = 9039;
@@ -7710,7 +7717,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 294";
 		rLen = 0;
-		rLoc = 9174;
+		rLoc = 10465;
 		rType = 0;
 		vrLen = 1057;
 		vrLoc = 9039;
@@ -7720,7 +7727,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 294";
 		rLen = 0;
-		rLoc = 9174;
+		rLoc = 10465;
 		rType = 0;
 		vrLen = 1701;
 		vrLoc = 8629;
@@ -7790,7 +7797,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 294";
 		rLen = 0;
-		rLoc = 9174;
+		rLoc = 10465;
 		rType = 0;
 		vrLen = 1057;
 		vrLoc = 9039;
@@ -9044,7 +9051,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 397";
 		rLen = 0;
-		rLoc = 12410;
+		rLoc = 13701;
 		rType = 0;
 		vrLen = 1810;
 		vrLoc = 11121;
@@ -9143,7 +9150,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 397";
 		rLen = 0;
-		rLoc = 12410;
+		rLoc = 13701;
 		rType = 0;
 		vrLen = 1816;
 		vrLoc = 11115;
@@ -9153,7 +9160,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 335";
 		rLen = 0;
-		rLoc = 10513;
+		rLoc = 11804;
 		rType = 0;
 		vrLen = 1797;
 		vrLoc = 8982;
@@ -9163,7 +9170,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 335";
 		rLen = 0;
-		rLoc = 10513;
+		rLoc = 11804;
 		rType = 0;
 		vrLen = 1797;
 		vrLoc = 8982;
@@ -9183,7 +9190,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 335";
 		rLen = 0;
-		rLoc = 10513;
+		rLoc = 11804;
 		rType = 0;
 		vrLen = 946;
 		vrLoc = 9664;
@@ -9193,7 +9200,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 335";
 		rLen = 0;
-		rLoc = 10513;
+		rLoc = 11804;
 		rType = 0;
 		vrLen = 1822;
 		vrLoc = 8982;
@@ -9203,7 +9210,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 335";
 		rLen = 0;
-		rLoc = 10513;
+		rLoc = 11804;
 		rType = 0;
 		vrLen = 2063;
 		vrLoc = 6659;
@@ -9213,7 +9220,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 335";
 		rLen = 0;
-		rLoc = 10513;
+		rLoc = 11804;
 		rType = 0;
 		vrLen = 2063;
 		vrLoc = 6659;
@@ -9223,7 +9230,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 335";
 		rLen = 0;
-		rLoc = 10513;
+		rLoc = 11804;
 		rType = 0;
 		vrLen = 2063;
 		vrLoc = 6659;
@@ -9233,7 +9240,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 335";
 		rLen = 0;
-		rLoc = 10513;
+		rLoc = 11804;
 		rType = 0;
 		vrLen = 2064;
 		vrLoc = 5900;
@@ -9243,7 +9250,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 335";
 		rLen = 0;
-		rLoc = 10513;
+		rLoc = 11804;
 		rType = 0;
 		vrLen = 2064;
 		vrLoc = 5900;
@@ -9253,7 +9260,7 @@
 		fRef = 48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */;
 		name = "ClipPlane.m: 149";
 		rLen = 0;
-		rLoc = 3975;
+		rLoc = 4140;
 		rType = 0;
 		vrLen = 904;
 		vrLoc = 4140;
@@ -9292,7 +9299,7 @@
 		isa = PBXTextBookmark;
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		rLen = 0;
-		rLoc = 287;
+		rLoc = 315;
 		rType = 1;
 	};
 	4855879E1359722F005F8B2C /* PBXTextBookmark */ = {
@@ -9300,7 +9307,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 227";
 		rLen = 0;
-		rLoc = 8557;
+		rLoc = 9848;
 		rType = 0;
 		vrLen = 1307;
 		vrLoc = 6657;
@@ -9310,7 +9317,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 241";
 		rLen = 0;
-		rLoc = 8557;
+		rLoc = 9848;
 		rType = 0;
 		vrLen = 2135;
 		vrLoc = 6331;
@@ -9340,7 +9347,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 227";
 		rLen = 0;
-		rLoc = 8557;
+		rLoc = 9848;
 		rType = 0;
 		vrLen = 1307;
 		vrLoc = 6657;
@@ -9380,7 +9387,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 347";
 		rLen = 0;
-		rLoc = 10731;
+		rLoc = 12022;
 		rType = 0;
 		vrLen = 2524;
 		vrLoc = 2546;
@@ -9440,7 +9447,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 347";
 		rLen = 0;
-		rLoc = 10684;
+		rLoc = 11975;
 		rType = 0;
 		vrLen = 1608;
 		vrLoc = 9560;
@@ -9450,7 +9457,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 347";
 		rLen = 0;
-		rLoc = 10684;
+		rLoc = 11975;
 		rType = 0;
 		vrLen = 1608;
 		vrLoc = 9560;
@@ -9470,7 +9477,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 347";
 		rLen = 0;
-		rLoc = 10684;
+		rLoc = 11975;
 		rType = 0;
 		vrLen = 912;
 		vrLoc = 9840;
@@ -9480,7 +9487,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 347";
 		rLen = 0;
-		rLoc = 10684;
+		rLoc = 11975;
 		rType = 0;
 		vrLen = 1643;
 		vrLoc = 9560;
@@ -9510,7 +9517,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 347";
 		rLen = 0;
-		rLoc = 10684;
+		rLoc = 11975;
 		rType = 0;
 		vrLen = 912;
 		vrLoc = 9840;
@@ -9570,7 +9577,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 272";
 		rLen = 0;
-		rLoc = 8564;
+		rLoc = 9855;
 		rType = 0;
 		vrLen = 2035;
 		vrLoc = 4887;
@@ -10534,7 +10541,7 @@
 		isa = PBXTextBookmark;
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		rLen = 0;
-		rLoc = 405;
+		rLoc = 433;
 		rType = 1;
 	};
 	4855888313599288005F8B2C /* PBXTextBookmark */ = {
@@ -10542,7 +10549,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 394";
 		rLen = 0;
-		rLoc = 12054;
+		rLoc = 13345;
 		rType = 0;
 		vrLen = 1357;
 		vrLoc = 11270;
@@ -10562,7 +10569,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 394";
 		rLen = 0;
-		rLoc = 12054;
+		rLoc = 13345;
 		rType = 0;
 		vrLen = 1842;
 		vrLoc = 10993;
@@ -10572,7 +10579,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 420";
 		rLen = 0;
-		rLoc = 13114;
+		rLoc = 14405;
 		rType = 0;
 		vrLen = 1830;
 		vrLoc = 11323;
@@ -10582,7 +10589,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 420";
 		rLen = 0;
-		rLoc = 13114;
+		rLoc = 14405;
 		rType = 0;
 		vrLen = 1830;
 		vrLoc = 11323;
@@ -10592,7 +10599,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 420";
 		rLen = 0;
-		rLoc = 13114;
+		rLoc = 14405;
 		rType = 0;
 		vrLen = 1315;
 		vrLoc = 11580;
@@ -10602,7 +10609,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 413";
 		rLen = 0;
-		rLoc = 12827;
+		rLoc = 14118;
 		rType = 0;
 		vrLen = 1835;
 		vrLoc = 11323;
@@ -10672,7 +10679,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 420";
 		rLen = 0;
-		rLoc = 13114;
+		rLoc = 14405;
 		rType = 0;
 		vrLen = 1315;
 		vrLoc = 11580;
@@ -10812,7 +10819,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 411";
 		rLen = 0;
-		rLoc = 12786;
+		rLoc = 14077;
 		rType = 0;
 		vrLen = 1853;
 		vrLoc = 11305;
@@ -10922,7 +10929,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 275";
 		rLen = 0;
-		rLoc = 9035;
+		rLoc = 10326;
 		rType = 0;
 		vrLen = 1991;
 		vrLoc = 6615;
@@ -10932,7 +10939,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 275";
 		rLen = 0;
-		rLoc = 9035;
+		rLoc = 10326;
 		rType = 0;
 		vrLen = 1991;
 		vrLoc = 6615;
@@ -10952,7 +10959,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 275";
 		rLen = 0;
-		rLoc = 9035;
+		rLoc = 10326;
 		rType = 0;
 		vrLen = 1379;
 		vrLoc = 7227;
@@ -10962,7 +10969,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 254";
 		rLen = 0;
-		rLoc = 8830;
+		rLoc = 10121;
 		rType = 0;
 		vrLen = 1990;
 		vrLoc = 6816;
@@ -10972,7 +10979,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 254";
 		rLen = 0;
-		rLoc = 8830;
+		rLoc = 10121;
 		rType = 0;
 		vrLen = 1990;
 		vrLoc = 6816;
@@ -10982,7 +10989,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 254";
 		rLen = 0;
-		rLoc = 8830;
+		rLoc = 10121;
 		rType = 0;
 		vrLen = 1212;
 		vrLoc = 7284;
@@ -10992,7 +10999,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 182";
 		rLen = 0;
-		rLoc = 6617;
+		rLoc = 6637;
 		rType = 0;
 		vrLen = 2227;
 		vrLoc = 5081;
@@ -11002,7 +11009,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 182";
 		rLen = 0;
-		rLoc = 6617;
+		rLoc = 6637;
 		rType = 0;
 		vrLen = 2227;
 		vrLoc = 5081;
@@ -11012,7 +11019,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 182";
 		rLen = 0;
-		rLoc = 6617;
+		rLoc = 6637;
 		rType = 0;
 		vrLen = 1229;
 		vrLoc = 6079;
@@ -11022,7 +11029,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 201";
 		rLen = 0;
-		rLoc = 7633;
+		rLoc = 7233;
 		rType = 0;
 		vrLen = 2204;
 		vrLoc = 5070;
@@ -11032,7 +11039,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 201";
 		rLen = 0;
-		rLoc = 7633;
+		rLoc = 7233;
 		rType = 0;
 		vrLen = 2204;
 		vrLoc = 5070;
@@ -11042,7 +11049,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 201";
 		rLen = 0;
-		rLoc = 7633;
+		rLoc = 7233;
 		rType = 0;
 		vrLen = 1236;
 		vrLoc = 6038;
@@ -11052,7 +11059,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 185";
 		rLen = 0;
-		rLoc = 6631;
+		rLoc = 6651;
 		rType = 0;
 		vrLen = 2240;
 		vrLoc = 4876;
@@ -11062,7 +11069,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 185";
 		rLen = 0;
-		rLoc = 6631;
+		rLoc = 6651;
 		rType = 0;
 		vrLen = 2240;
 		vrLoc = 4876;
@@ -11072,7 +11079,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 185";
 		rLen = 0;
-		rLoc = 6631;
+		rLoc = 6651;
 		rType = 0;
 		vrLen = 1340;
 		vrLoc = 5776;
@@ -11082,7 +11089,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 276";
 		rLen = 0;
-		rLoc = 8790;
+		rLoc = 10081;
 		rType = 0;
 		vrLen = 1883;
 		vrLoc = 8450;
@@ -11092,7 +11099,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 276";
 		rLen = 0;
-		rLoc = 8790;
+		rLoc = 10081;
 		rType = 0;
 		vrLen = 1883;
 		vrLoc = 8450;
@@ -11102,7 +11109,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 276";
 		rLen = 0;
-		rLoc = 8790;
+		rLoc = 10081;
 		rType = 0;
 		vrLen = 973;
 		vrLoc = 8450;
@@ -11112,7 +11119,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 223";
 		rLen = 0;
-		rLoc = 6707;
+		rLoc = 6727;
 		rType = 0;
 		vrLen = 2016;
 		vrLoc = 5770;
@@ -11122,7 +11129,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 223";
 		rLen = 0;
-		rLoc = 6707;
+		rLoc = 6727;
 		rType = 0;
 		vrLen = 1992;
 		vrLoc = 5770;
@@ -11132,7 +11139,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 223";
 		rLen = 0;
-		rLoc = 6707;
+		rLoc = 6727;
 		rType = 0;
 		vrLen = 1215;
 		vrLoc = 6571;
@@ -11152,7 +11159,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 223";
 		rLen = 65;
-		rLoc = 6684;
+		rLoc = 6704;
 		rType = 0;
 		vrLen = 1830;
 		vrLoc = 1919;
@@ -11162,7 +11169,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 41";
 		rLen = 0;
-		rLoc = 899;
+		rLoc = 919;
 		rType = 0;
 		vrLen = 1782;
 		vrLoc = 34;
@@ -11172,7 +11179,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 41";
 		rLen = 0;
-		rLoc = 899;
+		rLoc = 919;
 		rType = 0;
 		vrLen = 1782;
 		vrLoc = 34;
@@ -11182,7 +11189,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 41";
 		rLen = 0;
-		rLoc = 899;
+		rLoc = 919;
 		rType = 0;
 		vrLen = 1203;
 		vrLoc = 613;
@@ -11192,7 +11199,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 224";
 		rLen = 0;
-		rLoc = 6986;
+		rLoc = 7006;
 		rType = 0;
 		vrLen = 2210;
 		vrLoc = 5899;
@@ -11202,7 +11209,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 224";
 		rLen = 0;
-		rLoc = 6986;
+		rLoc = 7006;
 		rType = 0;
 		vrLen = 2210;
 		vrLoc = 5899;
@@ -11212,7 +11219,7 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 224";
 		rLen = 0;
-		rLoc = 6986;
+		rLoc = 7006;
 		rType = 0;
 		vrLen = 1232;
 		vrLoc = 5899;
@@ -11222,10 +11229,79 @@
 		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
 		name = "ClipTool.m: 224";
 		rLen = 0;
-		rLoc = 6986;
+		rLoc = 7006;
 		rType = 0;
 		vrLen = 2108;
 		vrLoc = 5535;
+	};
+	4855890A1359A15B005F8B2C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
+		name = "ClipTool.m: 252";
+		rLen = 0;
+		rLoc = 7356;
+		rType = 0;
+		vrLen = 2023;
+		vrLoc = 6863;
+	};
+	4855890B1359A15B005F8B2C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
+		name = "ClipTool.m: 277";
+		rLen = 0;
+		rLoc = 9044;
+		rType = 0;
+		vrLen = 1942;
+		vrLoc = 8533;
+	};
+	4855890C1359A15D005F8B2C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
+		name = "ClipTool.m: 277";
+		rLen = 0;
+		rLoc = 9044;
+		rType = 0;
+		vrLen = 1942;
+		vrLoc = 8533;
+	};
+	4855890E1359A178005F8B2C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
+		name = "ClipTool.m: 277";
+		rLen = 0;
+		rLoc = 9044;
+		rType = 0;
+		vrLen = 1261;
+		vrLoc = 8533;
+	};
+	485589191359A23E005F8B2C /* XCBuildMessageTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "Incompatible types in initialization";
+		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
+		fallbackIsa = XCBuildMessageTextBookmark;
+		rLen = 1;
+		rLoc = 238;
+		rType = 1;
+	};
+	4855891A1359A23E005F8B2C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
+		name = "ClipTool.m: 280";
+		rLen = 0;
+		rLoc = 9271;
+		rType = 0;
+		vrLen = 2306;
+		vrLoc = 7897;
+	};
+	4855891B1359A23F005F8B2C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 482FFF001340E10E00849BF5 /* ClipTool.m */;
+		name = "ClipTool.m: 280";
+		rLen = 0;
+		rLoc = 9271;
+		rType = 0;
+		vrLen = 2306;
+		vrLoc = 7897;
 	};
 	485884FA12298C2E00E7806F /* Polygon2DTestCase.h */ = {
 		uiCtxt = {
@@ -12910,7 +12986,7 @@
 		fRef = 48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */;
 		name = "ClipPlane.m: 108";
 		rLen = 0;
-		rLoc = 2774;
+		rLoc = 2939;
 		rType = 0;
 		vrLen = 2601;
 		vrLoc = 1177;
@@ -13280,16 +13356,16 @@
 	};
 	48DBE74D1341CD8B00C0FDE7 /* ClipPlane.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {2143, 1022}}";
-			sepNavSelRange = "{1100, 15}";
-			sepNavVisRange = "{0, 1121}";
+			sepNavIntBoundsRect = "{{0, 0}, {2143, 837}}";
+			sepNavSelRange = "{928, 90}";
+			sepNavVisRange = "{0, 1211}";
 		};
 	};
 	48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {2499, 2548}}";
-			sepNavSelRange = "{3975, 0}";
-			sepNavVisRange = "{4140, 904}";
+			sepNavIntBoundsRect = "{{0, 0}, {2143, 2795}}";
+			sepNavSelRange = "{1384, 0}";
+			sepNavVisRange = "{946, 1661}";
 		};
 	};
 	48DBE7771341D3F900C0FDE7 /* PBXTextBookmark */ = {

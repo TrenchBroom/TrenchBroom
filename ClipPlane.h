@@ -41,6 +41,9 @@ typedef enum {
 - (Vector3i *)point1;
 - (Vector3i *)point2;
 - (Vector3i *)point3;
+- (PickingHitList *)hitList1;
+- (PickingHitList *)hitList2;
+- (PickingHitList *)hitList3;
 - (EClipMode)clipMode;
 - (MutableFace *)face:(BOOL)front;
 

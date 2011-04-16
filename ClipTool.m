@@ -14,6 +14,7 @@
 #import "Vector3i.h"
 #import "Vector3f.h"
 #import "Ray3D.h"
+#import "Plane3D.h"
 #import "Options.h"
 #import "Grid.h"
 #import "Face.h"
@@ -230,40 +231,67 @@
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    if (hit != nil) {
-        Vector3f* temp = [[Vector3f alloc] initWithFloatVector:[hit hitPoint]];
-        
-        Grid* grid = [[windowController options] grid];
-        [grid snapToGrid:temp];
-        
-        id <Face> face = [hit object];
-        [face transformToSurface:temp];
-        [temp setZ:0];
-        [face transformToWorld:temp];
-        
-        int x = roundf([temp x]);
-        int y = roundf([temp y]);
-        int z = roundf([temp z]);
-        [temp release];
-        
-        if (draggedPoint != nil) {
-            if (draggedPoint == [clipPlane point1]) {
-                [[clipPlane point1] setX:x];
-                [[clipPlane point1] setY:y];
-                [[clipPlane point1] setZ:z];
-                [clipPlane setHitList1:hits];
-            } else if (draggedPoint == [clipPlane point2]) {
-                [[clipPlane point2] setX:x];
-                [[clipPlane point2] setY:y];
-                [[clipPlane point2] setZ:z];
-                [clipPlane setHitList2:hits];
-            } else {
-                [[clipPlane point3] setX:x];
-                [[clipPlane point3] setY:y];
-                [[clipPlane point3] setZ:z];
-                [clipPlane setHitList3:hits];
-            }
+    if (draggedPoint != nil) {
+        if (draggedPoint == [clipPlane point1]) {
+            PickingHit* hit = [[clipPlane hitList1] firstHitOfType:HT_FACE ignoreOccluders:YES];
+            id <Face> face = [hit object];
+            Plane3D* boundary = [face boundary];
+            Vector3f* hitPoint = [ray pointAtDistance:[boundary intersectWithRay:ray]];
+            
+            Grid* grid = [[windowController options] grid];
+            [grid snapToGrid:hitPoint];
+            
+            [face transformToSurface:hitPoint];
+            [hitPoint setZ:0];
+            [face transformToWorld:hitPoint];
+            
+            int x = roundf([hitPoint x]);
+            int y = roundf([hitPoint y]);
+            int z = roundf([hitPoint z]);
+            
+            [[clipPlane point1] setX:x];
+            [[clipPlane point1] setY:y];
+            [[clipPlane point1] setZ:z];
+        } else if (draggedPoint == [clipPlane point2]) {
+            PickingHit* hit = [[clipPlane hitList2] firstHitOfType:HT_FACE ignoreOccluders:YES];
+            id <Face> face = [hit object];
+            Plane3D* boundary = [face boundary];
+            Vector3f* hitPoint = [ray pointAtDistance:[boundary intersectWithRay:ray]];
+            
+            Grid* grid = [[windowController options] grid];
+            [grid snapToGrid:hitPoint];
+            
+            [face transformToSurface:hitPoint];
+            [hitPoint setZ:0];
+            [face transformToWorld:hitPoint];
+            
+            int x = roundf([hitPoint x]);
+            int y = roundf([hitPoint y]);
+            int z = roundf([hitPoint z]);
+            
+            [[clipPlane point2] setX:x];
+            [[clipPlane point2] setY:y];
+            [[clipPlane point2] setZ:z];
+        } else {
+            PickingHit* hit = [[clipPlane hitList3] firstHitOfType:HT_FACE ignoreOccluders:YES];
+            id <Face> face = [hit object];
+            Plane3D* boundary = [face boundary];
+            Vector3f* hitPoint = [ray pointAtDistance:[boundary intersectWithRay:ray]];
+            
+            Grid* grid = [[windowController options] grid];
+            [grid snapToGrid:hitPoint];
+            
+            [face transformToSurface:hitPoint];
+            [hitPoint setZ:0];
+            [face transformToWorld:hitPoint];
+            
+            int x = roundf([hitPoint x]);
+            int y = roundf([hitPoint y]);
+            int z = roundf([hitPoint z]);
+            
+            [[clipPlane point3] setX:x];
+            [[clipPlane point3] setY:y];
+            [[clipPlane point3] setZ:z];
         }
     }
     

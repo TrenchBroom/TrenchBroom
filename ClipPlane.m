@@ -66,6 +66,18 @@
     return point3;
 }
 
+- (PickingHitList *)hitList1 {
+    return hitList1;
+}
+
+- (PickingHitList *)hitList2 {
+    return hitList2;
+}
+
+- (PickingHitList *)hitList3 {
+    return hitList3;
+}
+
 - (EClipMode)clipMode {
     return clipMode;
 }
