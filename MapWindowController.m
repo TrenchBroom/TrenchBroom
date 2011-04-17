@@ -139,7 +139,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     } else if (action == @selector(rotateTextureRight:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
     } else if (action == @selector(duplicateSelection:)) {
-        return [selectionManager hasSelectedBrushes] && [[inputManager clipTool] active];
+        return [selectionManager hasSelectedBrushes] && ![[inputManager clipTool] active];
     } else if (action == @selector(createPrefabFromSelection:)) {
         return [selectionManager hasSelectedBrushes];
     } else if (action == @selector(showInspector:)) {

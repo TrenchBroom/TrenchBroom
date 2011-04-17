@@ -359,7 +359,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>48A68F71114EE8550064732A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>Renderer.m</string>
+								<string>MapWindowController.m</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -367,11 +367,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>48A68F72114EE8550064732A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>Renderer.m</string>
+										<string>MapWindowController.m</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>48743731135B77EF00F787E1</string>
+										<string>4874374B135B7E8200F787E1</string>
 										<key>history</key>
 										<array>
 											<string>485D2B491306E8D700CF73D8</string>
@@ -551,9 +551,9 @@
 											<string>487436DA135B643100F787E1</string>
 											<string>487436ED135B752D00F787E1</string>
 											<string>487436F9135B759A00F787E1</string>
-											<string>487436FA135B759A00F787E1</string>
-											<string>48743724135B771100F787E1</string>
-											<string>48743730135B77E200F787E1</string>
+											<string>4874373A135B7D9300F787E1</string>
+											<string>4874373B135B7D9300F787E1</string>
+											<string>4874374A135B7E7900F787E1</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -856,7 +856,7 @@
 	<key>StatusbarIsVisible</key>
 	<true/>
 	<key>TimeStamp</key>
-	<real>324761583.89998502</real>
+	<real>324763266.32725197</real>
 	<key>ToolbarConfigUserDefaultsMinorVersion</key>
 	<string>2</string>
 	<key>ToolbarDisplayMode</key>
