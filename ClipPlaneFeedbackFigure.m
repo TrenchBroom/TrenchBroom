@@ -26,8 +26,9 @@
 }
 
 - (void)render {
-    glColor4f(0, 1, 0, 0.5f);
-    glPolygonMode(GL_FRONT, GL_FILL);
+    glColor4f(0, 1, 0, 0.1f);
+    glDisable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_TRIANGLES);
     glVertex3f([point1 x], [point1 y], [point1 z]);
     glVertex3f([point2 x], [point2 y], [point2 z]);
@@ -36,6 +37,7 @@
     glVertex3f([point2 x], [point2 y], [point2 z]);
     glVertex3f([point1 x], [point1 y], [point1 z]);
     glEnd();
+    glEnable(GL_CULL_FACE);
 }
 
 - (void)dealloc {

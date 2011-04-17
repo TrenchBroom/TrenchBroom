@@ -248,6 +248,7 @@
 
 - (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
     draggedPoint = nil;
+    [self updateFeedback:ray];
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
