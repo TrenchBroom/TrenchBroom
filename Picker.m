@@ -12,6 +12,7 @@
 #import "Brush.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
+#import "Filter.h"
 
 @implementation Picker
 
@@ -23,20 +24,22 @@
     return self;
 }
 
-- (PickingHitList *)pickObjects:(Ray3D *)ray include:(NSSet *)include exclude:(NSSet *)exclude {
+- (PickingHitList *)pickObjects:(Ray3D *)ray filter:(id <Filter>)filter {
 
     PickingHitList* hitList = [[PickingHitList alloc] init];
-    NSArray* objects = [octree pickObjectsWithRay:ray include:include exclude:exclude];
+    NSArray* objects = [octree pickObjectsWithRay:ray];
     
     NSEnumerator* objectEn = [objects objectEnumerator];
     id object;
     while ((object = [objectEn nextObject])) {
         if ([object conformsToProtocol:@protocol(Brush)]) {
             id <Brush> brush = (id <Brush>)object;
-            [brush pickBrush:ray hitList:hitList];
-            [brush pickFace:ray hitList:hitList];
-//            [brush pickEdge:ray hitList:hitList];
-//            [brush pickVertex:ray hitList:hitList];
+            if (filter == nil || [filter brushPasses:brush]) {
+                [brush pickBrush:ray hitList:hitList];
+                [brush pickFace:ray hitList:hitList];
+                // [brush pickEdge:ray hitList:hitList];
+                // [brush pickVertex:ray hitList:hitList];
+            }
         }
     }
     

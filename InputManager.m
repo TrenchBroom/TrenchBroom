@@ -31,6 +31,7 @@
 #import "Options.h"
 #import "TrackingManager.h"
 #import "CursorManager.h"
+#import "SelectionFilter.h"
 
 @interface InputManager (private)
 
@@ -83,8 +84,15 @@
 }
 
 - (void)updateHits {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    Options* options = [windowController options];
+    id <Filter> filter = nil;
+    if ([options isolationMode] != IM_NONE && [selectionManager mode] != SM_UNDEFINED)
+        filter = [[SelectionFilter alloc] initWithSelectionManager:selectionManager];
+
     Picker* picker = [[windowController document] picker];
-    lastHits = [[picker pickObjects:lastRay include:nil exclude:nil] retain];
+    lastHits = [[picker pickObjects:lastRay filter:filter] retain];
+    [filter release];
 }
 
 - (void)updateActiveTool {

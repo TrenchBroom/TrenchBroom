@@ -69,6 +69,11 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [camera setFarClippingPlane:far];
 }
 
+- (void)selectionRemoved:(NSNotification *)notification {
+    if ([selectionManager mode] == SM_UNDEFINED)
+        [options setIsolationMode:IM_NONE];
+}
+
 - (void)windowDidLoad {
     GLResources* glResources = [[self document] glResources];
     NSOpenGLContext* sharedContext = [glResources openGLContext];
@@ -93,6 +98,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification object:[self window]];
     [center addObserver:self selector:@selector(userDefaultsChanged:) name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
+    [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
     
     [[self window] setAcceptsMouseMovedEvents:YES];
     [[self window] makeKeyAndOrderFront:nil];

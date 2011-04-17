@@ -141,7 +141,7 @@
     return YES;
 }
 
-- (void)addObjectsForRay:(Ray3D *)ray to:(NSMutableArray *)list include:(NSSet *)include exclude:(NSSet *)exclude {
+- (void)addObjectsForRay:(Ray3D *)ray to:(NSMutableArray *)list {
     Vector3f* origin = [ray origin];
     BOOL hit = fgte([origin x], [min x]) && fgte([origin y], [min y]) && fgte([origin z], [min z]) && flte([origin x], [max x]) && flte([origin y], [max y]) && flte([origin z], [max z]);
 
@@ -197,13 +197,11 @@
         NSEnumerator* objectEn = [objects objectEnumerator];
         id object;
         while ((object = [objectEn nextObject]))
-            if ((include == nil || [include containsObject:object]) && 
-                (exclude == nil || ![exclude containsObject:object]))
-                [list addObject:object];
+            [list addObject:object];
         
         for (int i = 0; i < 8; i++)
             if (children[i] != nil)
-                [children[i] addObjectsForRay:ray to:list include:include exclude:exclude];
+                [children[i] addObjectsForRay:ray to:list];
     }
 }
 

@@ -17,6 +17,7 @@
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "IntData.h"
+#import "Filter.h"
 
 @implementation GeometryLayer
 
@@ -32,14 +33,14 @@
     return self;
 }
 
-- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager grid:(Grid *)theGrid {
+- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager options:(Options *)theOptions {
     NSAssert(theVbo != nil, @"VBO must not be nil");
     NSAssert(theTextureManager != nil, @"texture manager must not be nil");
     
     if (self = [self init]) {
         sharedVbo = [theVbo retain];
         textureManager = [theTextureManager retain];
-        grid = [theGrid retain];
+        options = [theOptions retain];
     }
     
     return self;
@@ -81,6 +82,7 @@
     glPolygonOffset(1.0, 1.0);
     glPolygonMode(GL_FRONT, GL_FILL);
     
+    Grid* grid = [options grid];
     if ([grid draw]) {
         glActiveTexture(GL_TEXTURE1);
         glEnable(GL_TEXTURE_2D);
@@ -157,6 +159,14 @@
 - (void)postRenderEdges {
 }
 
+- (BOOL)doRenderFaces {
+    return [options isolationMode] == IM_NONE;
+}
+
+- (BOOL)doRenderEdges {
+    return [options isolationMode] != IM_DISCARD;
+}
+
 - (void)renderEdges {
     [self preRenderEdges];
     glDisable(GL_TEXTURE_2D);
@@ -183,15 +193,20 @@
     [sharedVbo activate];
     switch ([[renderContext options] renderMode]) {
         case RM_TEXTURED:
-            [self renderFaces:YES];
-            [self renderEdges];
+            if ([self doRenderFaces])
+                [self renderFaces:YES];
+            if ([self doRenderEdges])
+                [self renderEdges];
             break;
         case RM_FLAT:
-            [self renderFaces:NO];
-            [self renderEdges];
+            if ([self doRenderFaces])
+                [self renderFaces:NO];
+            if ([self doRenderEdges])
+                [self renderEdges];
             break;
         case RM_WIREFRAME:
-            [self renderEdges];
+            if ([self doRenderEdges])
+                [self renderEdges];
             break;
     }
     [sharedVbo deactivate];
@@ -201,30 +216,33 @@
     NSEnumerator* faceEn = [invalidFaces objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject])) {
-        VBOMemBlock* block = [face memBlock];
-        NSAssert(block != nil, @"face must have VBO mem block");
-        NSAssert([block state] == BS_USED_VALID, @"VBO mem block must be valid");
-        
-        NSString* textureName = [face texture];
-        
-        IntData* indexBuffer = [indexBuffers objectForKey:textureName];
-        if (indexBuffer == nil) {
-            indexBuffer = [[IntData alloc] init];
-            [indexBuffers setObject:indexBuffer forKey:textureName];
-            [indexBuffer release];
+        id <Brush> brush = [face brush];
+        if (filter == nil || [filter brushPasses:brush]) {
+            VBOMemBlock* block = [face memBlock];
+            NSAssert(block != nil, @"face must have VBO mem block");
+            NSAssert([block state] == BS_USED_VALID, @"VBO mem block must be valid");
+            
+            NSString* textureName = [face texture];
+            
+            IntData* indexBuffer = [indexBuffers objectForKey:textureName];
+            if (indexBuffer == nil) {
+                indexBuffer = [[IntData alloc] init];
+                [indexBuffers setObject:indexBuffer forKey:textureName];
+                [indexBuffer release];
+            }
+            
+            IntData* countBuffer = [countBuffers objectForKey:textureName];
+            if (countBuffer == nil) {
+                countBuffer = [[IntData alloc] init];
+                [countBuffers setObject:countBuffer forKey:textureName];
+                [countBuffer release];
+            }
+            
+            int index = [block address] / (10 * sizeof(float));
+            int count = [[face vertices] count];
+            [indexBuffer appendInt:index];
+            [countBuffer appendInt:count];
         }
-        
-        IntData* countBuffer = [countBuffers objectForKey:textureName];
-        if (countBuffer == nil) {
-            countBuffer = [[IntData alloc] init];
-            [countBuffers setObject:countBuffer forKey:textureName];
-            [countBuffer release];
-        }
-        
-        int index = [block address] / (10 * sizeof(float));
-        int count = [[face vertices] count];
-        [indexBuffer appendInt:index];
-        [countBuffer appendInt:count];
     }
 }
 
@@ -252,6 +270,17 @@
     }
 }
 
+- (void)setFilter:(id <Filter>)theFilter {
+    if (filter == theFilter)
+        return;
+    
+    [filter release];
+    filter = [theFilter retain];
+
+    [indexBuffers removeAllObjects];
+    [countBuffers removeAllObjects];
+    [self validateFaces:faces];
+}
 
 - (void)dealloc {
     [sharedVbo release];
@@ -261,7 +290,8 @@
     [indexBuffers release];
     [countBuffers release];
     [textureManager release];
-    [grid release];
+    [options release];
+    [filter release];
     [super dealloc];
 }
 

@@ -76,9 +76,9 @@
     return self;
 }
 
-- (NSArray *)pickObjectsWithRay:(Ray3D *)ray include:(NSSet *)include exclude:(NSSet *)exclude {
+- (NSArray *)pickObjectsWithRay:(Ray3D *)ray {
     NSMutableArray* result = [[NSMutableArray alloc] init];
-    [root addObjectsForRay:ray to:result include:include exclude:exclude];
+    [root addObjectsForRay:ray to:result];
     return [result autorelease];
 }
 

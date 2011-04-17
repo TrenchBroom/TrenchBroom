@@ -16,7 +16,6 @@
 #import "Vertex.h"
 #import "GeometryLayer.h"
 #import "SelectionLayer.h"
-#import "TrackingLayer.h"
 #import "FigureLayer.h"
 #import "CompassFigure.h"
 #import "VBOBuffer.h"
@@ -41,6 +40,8 @@
 #import "CompassFigure.h"
 #import "CursorManager.h"
 #import "Figure.h"
+#import "Filter.h"
+#import "SelectionFilter.h"
 
 NSString* const RendererChanged = @"RendererChanged";
 
@@ -91,40 +92,42 @@ NSString* const RendererChanged = @"RendererChanged";
     NSEnumerator* faceEn = [invalidFaces objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject])) {
-        NSArray* vertices = [face vertices];
-        int vertexCount = [vertices count];
-
-        VBOMemBlock* block = [face memBlock];
-        if (block == nil || [block capacity] != vertexCount * vertexSize) {
-            block = [sharedVbo allocMemBlock:vertexCount * vertexSize];
-            [face setMemBlock:block];
-        }
-        
         id <Brush> brush = [face brush];
-        [color setX:[brush flatColor][0]];
-        [color setY:[brush flatColor][1]];
-        [color setZ:[brush flatColor][2]];
-        
-        Texture* texture = [textureManager textureForName:[face texture]];
-        int width = texture != nil ? [texture width] : 1;
-        int height = texture != nil ? [texture height] : 1;
-        
-        int offset = 0;
-        NSEnumerator* vertexEn = [vertices objectEnumerator];
-        Vertex* vertex;
-        while ((vertex = [vertexEn nextObject])) {
-            [face gridCoords:gridCoords forVertex:[vertex vector]];
-            [face texCoords:texCoords forVertex:[vertex vector]];
-            [texCoords setX:[texCoords x] / width];
-            [texCoords setY:[texCoords y] / height];
+        if (filter == nil || [filter brushPasses:brush]) {
+            NSArray* vertices = [face vertices];
+            int vertexCount = [vertices count];
             
-            offset = [block writeVector2f:gridCoords offset:offset];
-            offset = [block writeVector2f:texCoords offset:offset];
-            offset = [block writeVector3f:color offset:offset];
-            offset = [block writeVector3f:[vertex vector] offset:offset];
+            VBOMemBlock* block = [face memBlock];
+            if (block == nil || [block capacity] != vertexCount * vertexSize) {
+                block = [sharedVbo allocMemBlock:vertexCount * vertexSize];
+                [face setMemBlock:block];
+            }
+            
+            [color setX:[brush flatColor][0]];
+            [color setY:[brush flatColor][1]];
+            [color setZ:[brush flatColor][2]];
+            
+            Texture* texture = [textureManager textureForName:[face texture]];
+            int width = texture != nil ? [texture width] : 1;
+            int height = texture != nil ? [texture height] : 1;
+            
+            int offset = 0;
+            NSEnumerator* vertexEn = [vertices objectEnumerator];
+            Vertex* vertex;
+            while ((vertex = [vertexEn nextObject])) {
+                [face gridCoords:gridCoords forVertex:[vertex vector]];
+                [face texCoords:texCoords forVertex:[vertex vector]];
+                [texCoords setX:[texCoords x] / width];
+                [texCoords setY:[texCoords y] / height];
+                
+                offset = [block writeVector2f:gridCoords offset:offset];
+                offset = [block writeVector2f:texCoords offset:offset];
+                offset = [block writeVector3f:color offset:offset];
+                offset = [block writeVector3f:[vertex vector] offset:offset];
+            }
+            
+            [block setState:BS_USED_VALID];
         }
-        
-        [block setState:BS_USED_VALID];
     }
     [color release];
     [gridCoords release];
@@ -137,12 +140,14 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)addFace:(id <Face>)face {
     [invalidFaces addObject:face];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
+
+    /*
     TrackingManager* trackingManager = [windowController trackingManager];
     if ([trackingManager isFaceTracked:face])
         [trackingLayer addFace:face];
-    
+    */
+     
+    SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager isFaceSelected:face])
         [selectionLayer addFace:face];
     else 
@@ -150,11 +155,13 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)removeFace:(id <Face>)face {
-    SelectionManager* selectionManager = [windowController selectionManager];
+    /*
     TrackingManager* trackingManager = [windowController trackingManager];
     if ([trackingManager isFaceTracked:face])
         [trackingLayer removeFace:face];
+     */
     
+    SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager isFaceSelected:face])
         [selectionLayer removeFace:face];
     else
@@ -169,34 +176,11 @@ NSString* const RendererChanged = @"RendererChanged";
     while ((face = [faceEn nextObject]))
         [self addFace:face];
 
+    /*
     TrackingManager* trackingManager = [windowController trackingManager];
     if ([trackingManager isBrushTracked:brush])
         [trackingLayer addBrush:brush];
-    
-    /*
-    SelectionManager* selectionManager = [windowController selectionManager];
-    TrackingManager* trackingManager = [windowController trackingManager];
-
-    NSEnumerator* edgeEn = [[brush edges] objectEnumerator];
-    Edge* edge;
-    while ((edge = [edgeEn nextObject])) {
-        if ([trackingManager isEdgeTracked:edge])
-            [feedbackLayer addEdge:edge];
-        else if ([selectionManager isEdgeSelected:edge])
-            [selectionLayer addEdge:edge];
-        else
-            [geometryLayer addEdge:edge];
-    }
-    
-    NSEnumerator* vertexEn = [[brush vertices] objectEnumerator];
-    Vertex* vertex;
-    while ((vertex = [vertexEn nextObject])) {
-        if ([trackingManager isVertexTracked:vertex])
-            [feedbackLayer addVertex:vertex];
-        else if ([selectionManager isVertexSelected:vertex])
-            [selectionLayer addVertex:vertex];
-    }
-     */
+    */
 }
 
 - (void)removeBrush:(id <Brush>)brush {
@@ -205,33 +189,10 @@ NSString* const RendererChanged = @"RendererChanged";
     while ((face = [faceEn nextObject]))
         [self removeFace:face];
     
+    /*
     TrackingManager* trackingManager = [windowController trackingManager];
     if ([trackingManager isBrushTracked:brush])
         [trackingLayer removeBrush:brush];
-    
-    /*
-    SelectionManager* selectionManager = [windowController selectionManager];
-    TrackingManager* trackingManager = [windowController trackingManager];
-
-    NSEnumerator* edgeEn = [[brush edges] objectEnumerator];
-    Edge* edge;
-    while ((edge = [edgeEn nextObject])) {
-        if ([trackingManager isEdgeTracked:edge])
-            [feedbackLayer removeEdge:edge];
-        else if ([selectionManager isEdgeSelected:edge])
-            [selectionLayer removeEdge:edge];
-        else
-            [geometryLayer removeEdge:edge];
-    }
-    
-    NSEnumerator* vertexEn = [[brush vertices] objectEnumerator];
-    Vertex* vertex;
-    while ((vertex = [vertexEn nextObject])) {
-        if ([trackingManager isVertexTracked:vertex])
-            [feedbackLayer removeVertex:vertex];
-        else if ([selectionManager isVertexSelected:vertex])
-            [selectionLayer removeVertex:vertex];
-    }
      */
 }
 
@@ -252,12 +213,14 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)faceWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Face> face = [userInfo objectForKey:FaceKey];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
+
+    /*
     TrackingManager* trackingManager = [windowController trackingManager];
     if ([trackingManager isFaceTracked:face])
         [trackingLayer removeFace:face];
-    
+    */
+     
+    SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager isFaceSelected:face]) {
         [selectionLayer removeFace:face];
     } else {
@@ -268,14 +231,15 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)faceDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Face> face = [userInfo objectForKey:FaceKey];
-
     [invalidFaces addObject:face];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
+
+    /*
     TrackingManager* trackingManager = [windowController trackingManager];
     if ([trackingManager isFaceTracked:face])
         [trackingLayer addFace:face];
+    */
     
+    SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager isFaceSelected:face]) {
         [selectionLayer addFace:face];
     } else {
@@ -337,7 +301,7 @@ NSString* const RendererChanged = @"RendererChanged";
     NSSet* brushes = [userInfo objectForKey:SelectionBrushes];
     NSSet* faces = [userInfo objectForKey:SelectionFaces];
     
-    TrackingManager* trackingManager = [windowController trackingManager];
+//    TrackingManager* trackingManager = [windowController trackingManager];
     if (brushes != nil) {
         NSEnumerator* brushEn = [brushes objectEnumerator];
         id <Brush> brush;
@@ -345,8 +309,10 @@ NSString* const RendererChanged = @"RendererChanged";
             [geometryLayer removeBrush:brush];
             [selectionLayer addBrush:brush];
 
+            /*
             if ([trackingManager isBrushTracked:brush])
                 [trackingLayer addBrush:brush];
+             */
         }
     }
     
@@ -357,10 +323,18 @@ NSString* const RendererChanged = @"RendererChanged";
             [geometryLayer removeFace:face];
             [selectionLayer addFace:face];
             
+            /*
             if ([trackingManager isFaceTracked:face])
                 [trackingLayer addFace:face];
+             */
         }
     }
+    
+    Options* options = [windowController options];
+    if ([options isolationMode] != IM_DISCARD)
+        [self setFilter:nil];
+    else
+        [self setFilter:[[[SelectionFilter alloc] initWithSelectionManager:[windowController selectionManager]] autorelease]];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -370,7 +344,7 @@ NSString* const RendererChanged = @"RendererChanged";
     NSSet* brushes = [userInfo objectForKey:SelectionBrushes];
     NSSet* faces = [userInfo objectForKey:SelectionFaces];
     
-    TrackingManager* trackingManager = [windowController trackingManager];
+    //TrackingManager* trackingManager = [windowController trackingManager];
     if (brushes != nil) {
         NSEnumerator* brushEn = [brushes objectEnumerator];
         id <Brush> brush;
@@ -378,8 +352,10 @@ NSString* const RendererChanged = @"RendererChanged";
             [selectionLayer removeBrush:brush];
             [geometryLayer addBrush:brush];
 
+            /*
             if ([trackingManager isBrushTracked:brush])
                 [trackingLayer removeBrush:brush];
+             */
         }
     }
     
@@ -390,15 +366,25 @@ NSString* const RendererChanged = @"RendererChanged";
             [selectionLayer removeFace:face];
             [geometryLayer addFace:face];
             
+            /*
             if ([trackingManager isFaceTracked:face])
                 [trackingLayer removeFace:face];
+             */
         }
     }
+    
+    Options* options = [windowController options];
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([options isolationMode] != IM_DISCARD || [selectionManager mode] == SM_UNDEFINED)
+        [self setFilter:nil];
+    else
+        [self setFilter:[[[SelectionFilter alloc] initWithSelectionManager:selectionManager] autorelease]];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)trackedObjectChanged:(NSNotification *)notification {
+    /*
     NSDictionary* userInfo = [notification userInfo];
     id untrackedObject = [userInfo objectForKey:UntrackedObjectKey];
     id trackedObject = [userInfo objectForKey:TrackedObjectKey];
@@ -418,6 +404,7 @@ NSString* const RendererChanged = @"RendererChanged";
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+     */
 }
 
 - (void)textureManagerChanged:(NSNotification *)notification {
@@ -429,6 +416,13 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)optionsChanged:(NSNotification *)notification {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    Options* options = [windowController options];
+    if ([options isolationMode] != IM_DISCARD || [selectionManager mode] == SM_UNDEFINED)
+        [self setFilter:nil];
+    else
+        [self setFilter:[[[SelectionFilter alloc] initWithSelectionManager:selectionManager] autorelease]];
+
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
@@ -462,9 +456,8 @@ NSString* const RendererChanged = @"RendererChanged";
         Options* options = [windowController options];
         Grid* grid = [options grid];
 
-        geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid];
-        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager grid:grid camera:camera fontManager:fontManager font:trackingFont];
-        trackingLayer = [[TrackingLayer alloc] initWithCamera:camera fontManager:fontManager font:trackingFont];
+        geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager options:options];
+        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager options:options camera:camera fontManager:fontManager font:trackingFont];
         feedbackLayer = [[FigureLayer alloc] init];
 
         compassFigure = [[CompassFigure alloc] initWithCamera:camera];
@@ -513,6 +506,17 @@ NSString* const RendererChanged = @"RendererChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
+- (void)setFilter:(id <Filter>)theFilter {
+    if (filter == theFilter)
+        return;
+    
+    [filter release];
+    filter = [theFilter retain];
+    
+    [geometryLayer setFilter:filter];
+    [selectionLayer setFilter:filter];
+}
+
 - (void)render {
     [self validate];
     
@@ -528,7 +532,6 @@ NSString* const RendererChanged = @"RendererChanged";
     RenderContext* renderContext = [[RenderContext alloc] initWithOptions:options];
     [geometryLayer render:renderContext];
     [selectionLayer render:renderContext];
-    [trackingLayer render:renderContext];
     [feedbackLayer render:renderContext];
     
     // enable lighting for cursor and compass
@@ -573,11 +576,11 @@ NSString* const RendererChanged = @"RendererChanged";
     [windowController release];
     [geometryLayer release];
     [selectionLayer release];
-    [trackingLayer release];
     [feedbackLayer release];
     [textureManager release];
     [sharedVbo release];
     [invalidFaces release];
+    [filter release];
     [super dealloc];
 }
 

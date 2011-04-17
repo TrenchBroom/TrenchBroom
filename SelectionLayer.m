@@ -12,8 +12,8 @@
 
 @implementation SelectionLayer
 
-- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager grid:(Grid *)theGrid camera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
-    if (self = [super initWithVbo:theVbo textureManager:theTextureManager grid:theGrid]) {
+- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager options:(Options *)theOptions camera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
+    if (self = [super initWithVbo:theVbo textureManager:theTextureManager options:theOptions]) {
         boundsRenderer = [[BoundsRenderer alloc] initWithCamera:theCamera fontManager:theFontManager font:theFont];
     }
     
@@ -38,6 +38,15 @@
 - (void)postRenderEdges {
     glEnable(GL_DEPTH_TEST);
 }
+
+- (BOOL)doRenderFaces {
+    return YES;
+}
+
+- (BOOL)doRenderEdges {
+    return YES;
+}
+
 
 - (void)render:(RenderContext *)renderContext {
     [super render:renderContext];

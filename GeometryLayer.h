@@ -12,7 +12,8 @@
 @class RenderContext;
 @class VBOBuffer;
 @class TextureManager;
-@class Grid;
+@class Options;
+@protocol Filter;
 
 @interface GeometryLayer : NSObject <BrushLayer> {
     VBOBuffer* sharedVbo;
@@ -22,20 +23,25 @@
     NSMutableDictionary* indexBuffers;
     NSMutableDictionary* countBuffers;
     TextureManager* textureManager;
-    Grid* grid;
+    Options* options;
+    id <Filter> filter;
 }
 
-- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager grid:(Grid *)theGrid;;
+- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager options:(Options *)theOptions;
 
 
 - (void)renderFaces:(BOOL)textured;
 - (void)renderEdges;
 - (void)preRenderEdges;
 - (void)postRenderEdges;
+- (BOOL)doRenderFaces;
+- (BOOL)doRenderEdges;
 
 - (void)render:(RenderContext *)renderContext;
 
 - (void)validateFaces:(NSSet *)invalidFaces;
 - (void)validate;
+
+- (void)setFilter:(id <Filter>)theFilter;
 
 @end

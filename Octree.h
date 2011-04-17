@@ -20,5 +20,5 @@
 
 - (id)initWithDocument:(MapDocument *)theDocument minSize:(int)theMinSize;
 
-- (NSArray *)pickObjectsWithRay:(Ray3D *)ray include:(NSSet *)include exclude:(NSSet *)exclude;
+- (NSArray *)pickObjectsWithRay:(Ray3D *)ray;
 @end

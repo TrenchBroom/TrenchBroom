@@ -14,13 +14,13 @@ extern NSString* const RendererChanged;
 @class VBOBuffer;
 @class GeometryLayer;
 @class SelectionLayer;
-@class TrackingLayer;
 @class FigureLayer;
 @class CompassFigure;
 @class RenderContext;
 @class MapWindowController;
 @class TextureManager;
 @protocol Figure;
+@protocol Filter;
 
 @interface Renderer : NSObject {
     @private
@@ -30,9 +30,9 @@ extern NSString* const RendererChanged;
     NSMutableSet* invalidFaces;
     GeometryLayer* geometryLayer;
     SelectionLayer* selectionLayer;
-    TrackingLayer* trackingLayer;
     FigureLayer* feedbackLayer;
     CompassFigure* compassFigure;
+    id <Filter> filter;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
@@ -40,6 +40,7 @@ extern NSString* const RendererChanged;
 - (void)addFeedbackFigure:(id <Figure>)theFigure;
 - (void)removeFeedbackFigure:(id <Figure>)theFigure;
 
+- (void)setFilter:(id <Filter>)theFilter;
 - (void)render;
 
 @end
