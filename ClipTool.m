@@ -176,9 +176,11 @@
         id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
             figure = [[ClipBrushFeedbackFigure alloc] initWithBrush:brush clipPlane:clipPlane];
-            [brushFigures addObject:figure];
-            [renderer addFeedbackFigure:figure];
-            [figure release];
+            if (figure != nil) {
+                [brushFigures addObject:figure];
+                [renderer addFeedbackFigure:figure];
+                [figure release];
+            }
         }
         
         if (draggedPoint != nil && ray != nil) {

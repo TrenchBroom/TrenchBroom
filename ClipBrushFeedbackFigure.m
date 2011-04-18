@@ -23,7 +23,8 @@
     if (self = [self init]) {
         [theClipPlane clipBrush:theBrush firstResult:&brush1 secondResult:&brush2];
         if (brush1 == nil && brush2 == nil) {
-            brush1 = [theBrush retain];
+            [self release];
+            return nil;
         } else {
             if (brush1 != nil)
                 [brush1 retain];

@@ -198,25 +198,12 @@
     int drop = 0;
     int undecided = 0;
     
-    // mark vertices and brush
+    // mark vertices
     NSEnumerator* vEn = [vertices objectEnumerator];
-    Vertex* vertex = [vEn nextObject];
-    EPointStatus vertexStatus = [plane pointStatus:[vertex vector]];
-    EVertexMark vertexMark;
-    if (vertexStatus == PS_ABOVE) {
-        vertexMark = VM_DROP;
-        drop++;
-    } else if (vertexStatus == PS_BELOW) {
-        vertexMark = VM_KEEP;
-        keep++;
-    } else {
-        vertexMark = VM_UNDECIDED;
-        undecided++;
-    }
-    [vertex setMark:vertexMark];
-    
+    Vertex* vertex;
     while ((vertex = [vEn nextObject])) {
-        vertexStatus = [plane pointStatus:[vertex vector]];
+        EPointStatus vertexStatus = [plane pointStatus:[vertex vector]];
+        EVertexMark vertexMark;
         if (vertexStatus == PS_ABOVE) {
             vertexMark = VM_DROP;
             drop++;
@@ -243,7 +230,6 @@
     // mark and split edges
     NSEnumerator* eEn = [edges objectEnumerator];
     Edge* edge;
-    
     while ((edge = [eEn nextObject])) {
         [edge updateMark];
         if ([edge mark] == EM_SPLIT) {

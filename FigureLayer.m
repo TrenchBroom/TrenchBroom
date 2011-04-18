@@ -22,11 +22,13 @@
 
 - (void)addFigure:(id <Figure>)theFigure {
     NSAssert(theFigure != nil, @"figure must not be nil");
+    NSLog(@"adding figure %@", theFigure);
     [figures addObject:theFigure];
 }
 
 - (void)removeFigure:(id <Figure>)theFigure {
     NSAssert(theFigure != nil, @"figure must not be nil");
+    NSLog(@"removing figure %@", theFigure);
     [figures removeObject:theFigure];
 }
 

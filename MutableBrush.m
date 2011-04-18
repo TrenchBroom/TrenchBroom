@@ -59,8 +59,10 @@
         if (droppedFaces != nil) {
             NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
             MutableFace* droppedFace;
-            while ((droppedFace = [droppedFacesEn nextObject]))
-                [self removeFace:droppedFace];
+            while ((droppedFace = [droppedFacesEn nextObject])) {
+                [droppedFace setBrush:nil];
+                [faces removeObject:droppedFace];
+            }
         }
     }
     
@@ -75,8 +77,10 @@
     if (droppedFaces != nil) {
         NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
         MutableFace* droppedFace;
-        while ((droppedFace = [droppedFacesEn nextObject]))
-            [self removeFace:droppedFace];
+        while ((droppedFace = [droppedFacesEn nextObject])) {
+            [droppedFace setBrush:nil];
+            [faces removeObject:droppedFace];
+        }
     }
 
     [face setBrush:self];

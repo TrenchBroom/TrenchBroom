@@ -116,6 +116,7 @@
 
     id <Tool> newOwner = nil;
     if (hasMouse) {
+        NSLog(@"has mouse");
         if ([self isCameraModifierPressed] || [self isCameraOrbitModifierPressed]) {
             newOwner = cameraTool;
         } else if ([clipTool active]) {

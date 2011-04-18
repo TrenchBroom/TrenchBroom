@@ -158,25 +158,30 @@
 }
 
 - (void)clipBrush:(id <Brush>)brush firstResult:(id <Brush>*)firstResult secondResult:(id <Brush>*)secondResult {
-    MutableBrush* newBrush = [[MutableBrush alloc] initWithBrushTemplate:brush];
     MutableFace* clipFace = clipMode == CM_BACK ? [self face:NO] : [self face:YES];
-    if (clipFace != nil && ![newBrush addFace:clipFace]) {
-        [newBrush release];
-        newBrush = nil;
-    } else {
-        *firstResult = newBrush;
-        [newBrush autorelease];
-    }
-    
-    if (clipMode == CM_SPLIT) {
-        newBrush = [[MutableBrush alloc] initWithBrushTemplate:brush];
-        clipFace = [self face:NO];
-        if (clipFace != nil && ![newBrush addFace:clipFace]) {
+    if (clipFace != nil) {
+        MutableBrush* newBrush = [[MutableBrush alloc] initWithBrushTemplate:brush];
+
+        if (![newBrush addFace:clipFace]) {
             [newBrush release];
             newBrush = nil;
         } else {
-            *secondResult = newBrush;
+            *firstResult = newBrush;
             [newBrush autorelease];
+        }
+        
+        if (clipMode == CM_SPLIT) {
+            clipFace = [self face:NO];
+            if (clipFace != nil) {
+                newBrush = [[MutableBrush alloc] initWithBrushTemplate:brush];
+                if (![newBrush addFace:clipFace]) {
+                    [newBrush release];
+                    newBrush = nil;
+                } else {
+                    *secondResult = newBrush;
+                    [newBrush autorelease];
+                }
+            }
         }
     }
 }
