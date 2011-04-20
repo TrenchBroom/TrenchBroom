@@ -36,7 +36,6 @@ NSString* const UntrackedObjectKey = @"UntrackedObjectKey";
     [currentRay release];
     currentRay = [theRay retain];
     
-    SelectionManager* selectionManager = [windowController selectionManager];
     Picker* picker = [[windowController document] picker];
     
     PickingHitList* hits = [picker pickObjects:currentRay filter:nil];

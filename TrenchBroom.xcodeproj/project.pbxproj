@@ -502,10 +502,10 @@
 		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				487437FC135ED48A00F787E1 /* Model */,
 				48A68E96114E93840064732A /* Controller */,
 				48A68F1C114EA7750064732A /* Math */,
 				4881C74512E9CD69006BF922 /* Wad */,
-				48A68E93114E92730064732A /* Map */,
 				48A68EC9114E9AE20064732A /* View */,
 			);
 			name = Classes;
@@ -652,38 +652,62 @@
 			name = Tool;
 			sourceTree = "<group>";
 		};
-		487E31F3114F741F0043A111 /* Renderer */ = {
+		487437FC135ED48A00F787E1 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				48025140133A1211001C51F2 /* PrimitiveRenderer */,
-				4802513E133A11FA001C51F2 /* Layer */,
-				489DC65D12F9EBF500053092 /* Text */,
-				48B3243A12E1C6B8008748E2 /* Camera.h */,
-				48B3243B12E1C6B8008748E2 /* Camera.m */,
-				488C8EDF12F6C3ED00F358E6 /* IntData.h */,
-				488C8EE012F6C3ED00F358E6 /* IntData.m */,
-				4888732813436206005FCE15 /* FloatData.h */,
-				4888732913436206005FCE15 /* FloatData.m */,
-				488089A41317A2F100823C27 /* RenderContext.h */,
-				488089A51317A2F100823C27 /* RenderContext.m */,
-				487A7E631300801A00434806 /* Renderer.h */,
-				487A7E641300801A00434806 /* Renderer.m */,
+				487437FE135ED49A00F787E1 /* Entity */,
+				487437FD135ED49300F787E1 /* Texture */,
+				48A68E93114E92730064732A /* Map */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		487437FD135ED49300F787E1 /* Texture */ = {
+			isa = PBXGroup;
+			children = (
 				487A646A12EA3A7E00A43289 /* Texture.h */,
 				487A646B12EA3A7E00A43289 /* Texture.m */,
 				486526C3134F0BC20045A4B6 /* TextureCollection.h */,
 				486526C4134F0BC20045A4B6 /* TextureCollection.m */,
 				4881C74012E9C8BE006BF922 /* TextureManager.h */,
 				4881C74112E9C8BE006BF922 /* TextureManager.m */,
+			);
+			name = Texture;
+			sourceTree = "<group>";
+		};
+		487437FE135ED49A00F787E1 /* Entity */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Entity;
+			sourceTree = "<group>";
+		};
+		487E31F3114F741F0043A111 /* Renderer */ = {
+			isa = PBXGroup;
+			children = (
+				4802513E133A11FA001C51F2 /* Layer */,
+				48025140133A1211001C51F2 /* PrimitiveRenderer */,
+				489DC65D12F9EBF500053092 /* Text */,
+				48B3243A12E1C6B8008748E2 /* Camera.h */,
+				48B3243B12E1C6B8008748E2 /* Camera.m */,
+				48325D4513524F7000E703E0 /* CompassFigure.h */,
+				48325D4613524F7000E703E0 /* CompassFigure.m */,
+				48D6C93A135737C100AC6A4D /* Cursor.h */,
+				48D6C9371357379900AC6A4D /* CursorManager.h */,
+				48D6C9381357379900AC6A4D /* CursorManager.m */,
+				482FFF111340E3C600849BF5 /* Figure.h */,
+				4888732813436206005FCE15 /* FloatData.h */,
+				4888732913436206005FCE15 /* FloatData.m */,
+				488C8EDF12F6C3ED00F358E6 /* IntData.h */,
+				488C8EE012F6C3ED00F358E6 /* IntData.m */,
+				488089A41317A2F100823C27 /* RenderContext.h */,
+				488089A51317A2F100823C27 /* RenderContext.m */,
+				487A7E631300801A00434806 /* Renderer.h */,
+				487A7E641300801A00434806 /* Renderer.m */,
 				484C28FA115023A2004DD957 /* VBOBuffer.h */,
 				484C28FB115023A2004DD957 /* VBOBuffer.m */,
 				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
 				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
-				482FFF111340E3C600849BF5 /* Figure.h */,
-				48325D4513524F7000E703E0 /* CompassFigure.h */,
-				48325D4613524F7000E703E0 /* CompassFigure.m */,
-				48D6C9371357379900AC6A4D /* CursorManager.h */,
-				48D6C9381357379900AC6A4D /* CursorManager.m */,
-				48D6C93A135737C100AC6A4D /* Cursor.h */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -803,39 +827,39 @@
 		48A68E96114E93840064732A /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				486928E9133F27D900A0F098 /* Tool */,
 				488C8EBA12F69F9300F358E6 /* Picking */,
+				486928E9133F27D900A0F098 /* Tool */,
 				48B325E312E3788D008748E2 /* AppDelegate.h */,
 				48B325E412E3788D008748E2 /* AppDelegate.m */,
+				48958207132E52EF00BB7D8F /* CameraAnimation.h */,
+				48958208132E52EF00BB7D8F /* CameraAnimation.m */,
+				4864F8C3135B564600511696 /* Filter.h */,
+				480F2F63132562CA00651FED /* Grid.h */,
+				480F2F64132562CA00651FED /* Grid.m */,
 				48DB957612F0699600FB5483 /* InputManager.h */,
 				48DB957712F0699600FB5483 /* InputManager.m */,
-				48A68EB6114E96C00064732A /* MapWindowController.h */,
-				48A68EB7114E96C00064732A /* MapWindowController.m */,
-				48E1806312F5F07D007995FE /* SelectionManager.h */,
-				48E1806412F5F07D007995FE /* SelectionManager.m */,
-				4814A02512F740580082E05F /* ProgressWindowController.h */,
-				4814A02612F740580082E05F /* ProgressWindowController.m */,
 				4891E15412FC04B2007A3B93 /* InspectorController.h */,
 				4891E15512FC04B2007A3B93 /* InspectorController.m */,
-				485D2EAD1308624900CF73D8 /* Options.h */,
-				485D2EAE1308624900CF73D8 /* Options.m */,
+				48A68EB6114E96C00064732A /* MapWindowController.h */,
+				48A68EB7114E96C00064732A /* MapWindowController.m */,
 				48C3324213087D8600C23607 /* MenuDelegate.h */,
 				48C3324313087D8600C23607 /* MenuDelegate.m */,
+				484524D513240049003B2855 /* NSFileManager+AppSupportCategory.h */,
+				484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */,
+				485D2EAD1308624900CF73D8 /* Options.h */,
+				485D2EAE1308624900CF73D8 /* Options.m */,
 				4833C15D131953F600EB1B85 /* PrefabManager.h */,
 				4833C15E131953F600EB1B85 /* PrefabManager.m */,
 				48B5A1D9131EEE440043FBD9 /* PrefabNameSheetController.h */,
 				48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */,
-				484524D513240049003B2855 /* NSFileManager+AppSupportCategory.h */,
-				484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */,
-				480F2F63132562CA00651FED /* Grid.h */,
-				480F2F64132562CA00651FED /* Grid.m */,
-				48958207132E52EF00BB7D8F /* CameraAnimation.h */,
-				48958208132E52EF00BB7D8F /* CameraAnimation.m */,
-				48AE78831334092D00821DBA /* TrackingManager.h */,
-				48AE78841334092D00821DBA /* TrackingManager.m */,
-				4864F8C3135B564600511696 /* Filter.h */,
+				4814A02512F740580082E05F /* ProgressWindowController.h */,
+				4814A02612F740580082E05F /* ProgressWindowController.m */,
 				487436A4135B5FD900F787E1 /* SelectionFilter.h */,
 				487436A5135B5FD900F787E1 /* SelectionFilter.m */,
+				48E1806312F5F07D007995FE /* SelectionManager.h */,
+				48E1806412F5F07D007995FE /* SelectionManager.m */,
+				48AE78831334092D00821DBA /* TrackingManager.h */,
+				48AE78841334092D00821DBA /* TrackingManager.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";

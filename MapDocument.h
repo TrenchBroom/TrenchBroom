@@ -73,6 +73,7 @@ extern NSString* const PropertyNewValueKey;
 
 - (void)addTextureWad:(NSString *)wadPath;
 - (void)removeTextureWad:(NSString *)wadPath;
+- (void)updateTextureUsageCounts;
 
 - (int)worldSize;
 - (NSArray *)entities;

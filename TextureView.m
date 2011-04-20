@@ -163,7 +163,7 @@
     [layout clear];
     
     TextureManager* textureManager = [glResources textureManager];
-    [layout addTextures:[textureManager texturesByName]];
+    [layout addTextures:[textureManager texturesByCriterion:sortCriterion]];
     [self reshape];
 }
 
@@ -194,7 +194,7 @@
             [layout clear];
         }
         
-        [layout addTextures:[textureManager texturesByName]];
+        [layout addTextures:[textureManager texturesByCriterion:sortCriterion]];
         [center addObserver:self selector:@selector(textureManagerChanged:) name:TextureManagerChanged object:textureManager];
     }
     
@@ -206,6 +206,15 @@
         [layout setTextureFilter:theFilter];
         [self reshape];
     }
+}
+
+- (void)setSortCriterion:(ETextureSortCriterion)criterion {
+    sortCriterion = criterion;
+    [layout clear];
+    
+    TextureManager* textureManager = [glResources textureManager];
+    [layout addTextures:[textureManager texturesByCriterion:sortCriterion]];
+    [self reshape];
 }
 
 - (void)setSelectedTextureNames:(NSSet *)theNames {

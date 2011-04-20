@@ -102,6 +102,17 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     return textureCollections;
 }
 
+- (void)resetUsageCounts {
+    NSEnumerator* collectionEn = [textureCollections objectEnumerator];
+    TextureCollection* collection;
+    while ((collection = [collectionEn nextObject])) {
+        NSEnumerator* textureEn = [[collection textures] objectEnumerator];
+        Texture* texture;
+        while ((texture = [textureEn nextObject]))
+            [texture setUsageCount:0];
+    }
+}
+
 - (Texture *)textureForName:(NSString *)name {
     NSAssert(name != nil, @"name must not be nil");
     
@@ -109,9 +120,22 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     return [textures objectForKey:name];
 }
 
-- (NSArray *)texturesByName {
+- (NSArray *)texturesByCriterion:(ETextureSortCriterion)criterion {
     [self validate];
-    return texturesByName;
+    switch (criterion) {
+        case TS_NAME:
+            return texturesByName;
+        case TS_USAGE: {
+            NSMutableArray* texturesByUsage = [[NSMutableArray alloc] initWithArray:[textures allValues]];
+            [texturesByUsage sortUsingSelector:@selector(compareByUsageCount:)];
+            return [texturesByUsage autorelease];
+        }
+        default:
+            [NSException raise:NSInvalidArgumentException format:@"unknown sort criterion: %i", criterion];
+            break;
+    }
+    
+    return nil; // unreachable
 }
 
 - (void)activateTexture:(NSString *)name {

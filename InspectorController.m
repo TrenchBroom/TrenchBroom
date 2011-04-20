@@ -413,6 +413,14 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (IBAction)textureSortCriterionChanged:(id)sender {
+    switch ([textureSortCriterionSC selectedSegment]) {
+        case 0:
+            [textureView setSortCriterion:TS_NAME];
+            break;
+        default:
+            [textureView setSortCriterion:TS_USAGE];
+            break;
+    }
 }
 
 - (IBAction)prefabsPerRowChanged:(id)sender {

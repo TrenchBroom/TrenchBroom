@@ -8,6 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
+typedef enum {
+    TS_NAME,
+    TS_USAGE
+} ETextureSortCriterion;
+
 extern NSString* const TextureManagerChanged;
 
 extern NSString* const UnknownTextureNameException;
@@ -20,7 +25,6 @@ extern NSString* const MissingPaletteException;
     @private
     NSMutableArray* textureCollections;
     NSMutableDictionary* textures;
-    NSMutableDictionary* usageCounts;
     NSMutableArray* texturesByName;
     BOOL valid;
 }
@@ -29,9 +33,10 @@ extern NSString* const MissingPaletteException;
 - (void)removeTextureCollection:(NSString *)theName;
 - (void)removeAllTextureCollections;
 - (NSArray *)textureCollections;
+- (void)resetUsageCounts;
 
 - (Texture *)textureForName:(NSString *)name;
-- (NSArray *)texturesByName;
+- (NSArray *)texturesByCriterion:(ETextureSortCriterion)criterion;
 
 - (void)activateTexture:(NSString *)name;
 - (void)deactivateTexture;

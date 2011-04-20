@@ -85,6 +85,22 @@
     return height;
 }
 
+- (void)incUsageCount {
+    usageCount++;
+}
+
+- (void)decUsageCount {
+    usageCount--;
+}
+
+- (void)setUsageCount:(int)theUsageCount {
+    usageCount = theUsageCount;
+}
+
+- (int)usageCount {
+    return usageCount;
+}
+
 - (void)activate {
     if (textureId == 0) {
         glGenTextures(1, &textureId);
@@ -109,6 +125,14 @@
 
 - (NSComparisonResult)compareByName:(Texture *)texture {
     return [name compare:[texture name]];
+}
+
+- (NSComparisonResult)compareByUsageCount:(Texture *)texture {
+    if (usageCount > [texture usageCount])
+        return NSOrderedAscending;
+    if (usageCount < [texture usageCount])
+        return NSOrderedDescending;
+    return [self compareByName:texture];
 }
 
 - (void)dealloc {

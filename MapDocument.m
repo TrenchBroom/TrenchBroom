@@ -15,6 +15,7 @@
 #import "MutableFace.h"
 #import "TextureManager.h"
 #import "TextureCollection.h"
+#import "Texture.h"
 #import "Picker.h"
 #import "GLResources.h"
 #import "WadLoader.h"
@@ -102,6 +103,8 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         }
     }
     [palette release];
+    
+    [self updateTextureUsageCounts];
 }
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
@@ -261,6 +264,8 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         
         MutableEntity* wc = [self worldspawn:YES];
         [wc setProperty:@"wad" value:[textureManager wadProperty]];
+        
+        [self updateTextureUsageCounts];
     }
 }
 
@@ -272,6 +277,29 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     
     MutableEntity* wc = [self worldspawn:YES];
     [wc setProperty:@"wad" value:[textureManager wadProperty]];
+
+    [self updateTextureUsageCounts];
+}
+
+- (void)updateTextureUsageCounts {
+    TextureManager* textureManager = [glResources textureManager];
+    [textureManager resetUsageCounts];
+    
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject])) {
+        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+            id <Face> face;
+            while ((face = [faceEn nextObject])) {
+                Texture* texture = [textureManager textureForName:[face texture]];
+                if (texture != nil)
+                    [texture incUsageCount];
+            }
+        }
+    }
 }
 
 - (NSArray *)entities {
