@@ -120,7 +120,8 @@
     
     Grid* grid = [[windowController options] grid];
     [grid snapToGrid:lastPoint];
-
+    drag = YES;
+    
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setGroupsByEvent:NO];
@@ -155,9 +156,6 @@
     
     [lastPoint release];
     lastPoint = [point retain];
-    
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager updateCursor:lastPoint];
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
@@ -171,6 +169,7 @@
     lastPoint = nil;
     [plane release];
     plane = nil;
+    drag = NO;
 }
 
 - (BOOL)isCursorOwner:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
@@ -209,11 +208,17 @@
 }
 
 - (void)updateCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    id <Face> face = [hit object];
-    
-    EVectorComponent planeNormal = [self planeNormal:face];
-    [cursor setPlaneNormal:planeNormal];
+    if (!drag) {
+        PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+        id <Face> face = [hit object];
+        
+        EVectorComponent planeNormal = [self planeNormal:face];
+        [cursor setPlaneNormal:planeNormal];
+        [cursor update:[hit hitPoint]];
+    } else {
+        Vector3f* position = [ray pointAtDistance:[plane intersectWithRay:ray]];
+        [cursor update:position];
+    }
 }
 
 - (NSString *)actionName {

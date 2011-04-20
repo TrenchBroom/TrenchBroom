@@ -278,6 +278,8 @@ NSString* const SelectionFaces = @"SelectionFaces";
 }
 
 - (BOOL)isFaceSelected:(id <Face>)face {
+    if (face == nil)
+        NSLog(@"asdf");
     NSAssert(face != nil, @"face must not be nil");
     return [faces containsObject:face] || [self isBrushSelected:[face brush]];
 }

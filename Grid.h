@@ -18,7 +18,7 @@ extern NSString* const GridChanged;
     int size;
     BOOL draw;
     BOOL snap;
-    GLuint texIds[6];
+    GLuint texIds[9];
 }
 
 - (int)size;

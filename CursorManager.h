@@ -19,7 +19,6 @@ extern NSString* const CursorChanged;
 
 - (void)pushCursor:(id <Cursor>)cursor;
 - (void)popCursor;
-- (void)updateCursor:(Vector3f *)thePosition;
 
 - (BOOL)empty;
 - (void)render;

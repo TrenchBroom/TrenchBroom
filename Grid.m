@@ -17,10 +17,10 @@ NSString* const GridChanged = @"GridChanged";
 
 - (id)init {
     if (self = [super init]) {
-        size = 1;
+        size = 4;
         draw = YES;
         snap = YES;
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 9; i++)
             texIds[i] = 0;
     }
     
@@ -32,7 +32,7 @@ NSString* const GridChanged = @"GridChanged";
 }
 
 - (int)actualSize {
-    return 1 << (size + 3);
+    return 1 << size;
 }
 
 - (BOOL)draw {
@@ -44,7 +44,7 @@ NSString* const GridChanged = @"GridChanged";
 }
 
 - (void)setSize:(int)theSize {
-    if (theSize < 0 || theSize > 5)
+    if (theSize < 0 || theSize > 8)
         [NSException raise:NSInvalidArgumentException format:@"invalid grid size: %i", theSize];
 
     if (size == theSize)
@@ -118,6 +118,8 @@ NSString* const GridChanged = @"GridChanged";
         glGenTextures(1, &texIds[size]);
         
         int dim = [self actualSize];
+        if (dim < 4)
+            dim = 4;
         int texSize = 1 << 8; // 256 biggest grid size
         char* pixel = malloc(texSize * texSize * 4);
             for (int y = 0; y < texSize; y++)
@@ -155,7 +157,7 @@ NSString* const GridChanged = @"GridChanged";
 }
 
 - (void)dealloc {
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 9; i++)
         glDeleteTextures(1, &texIds[i]);
     [super dealloc];
 }

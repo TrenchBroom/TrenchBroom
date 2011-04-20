@@ -112,54 +112,46 @@
 }
 
 - (void)updateCursorOwner {
-    SelectionManager* selectionManager = [windowController selectionManager];
-
-    id <Tool> newOwner = nil;
-    if (hasMouse) {
-        NSLog(@"has mouse");
-        if ([self isCameraModifierPressed] || [self isCameraOrbitModifierPressed]) {
-            newOwner = cameraTool;
-        } else if ([clipTool active]) {
-            newOwner = clipTool;
-        } else if ([selectionManager mode] == SM_GEOMETRY) {
-            PickingHit* hit = [lastHits firstHitOfType:HT_BRUSH ignoreOccluders:YES];
-            if (hit != nil) {
-                id <Brush> brush = [hit object];
-                if ([selectionManager isBrushSelected:brush])
-                    newOwner = brushTool;
-            }
-        } else if ([selectionManager mode] == SM_FACES) {
-            PickingHit* hit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
-            if (hit != nil) {
-                id <Face> face = [hit object];
-                if ([selectionManager isFaceSelected:face] || ([[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed])))
-                    newOwner = faceTool;
+    if (!drag) {
+        SelectionManager* selectionManager = [windowController selectionManager];
+        
+        id <Tool> newOwner = nil;
+        if (hasMouse) {
+            if ([self isCameraModifierPressed] || [self isCameraOrbitModifierPressed]) {
+                newOwner = cameraTool;
+            } else if ([clipTool active]) {
+                newOwner = clipTool;
+            } else if ([selectionManager mode] == SM_GEOMETRY) {
+                PickingHit* hit = [lastHits firstHitOfType:HT_BRUSH ignoreOccluders:YES];
+                if (hit != nil) {
+                    id <Brush> brush = [hit object];
+                    if ([selectionManager isBrushSelected:brush])
+                        newOwner = brushTool;
+                }
+            } else if ([selectionManager mode] == SM_FACES) {
+                PickingHit* hit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
+                if (hit != nil) {
+                    id <Face> face = [hit object];
+                    if ([selectionManager isFaceSelected:face] || ([[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed])))
+                        newOwner = faceTool;
+                }
             }
         }
-    }
-    
-    if (newOwner != cursorOwner) {
-        if (cursorOwner != nil)
-            [cursorOwner unsetCursor:lastEvent ray:lastRay hits:lastHits];
-        cursorOwner = newOwner;
-        if (cursorOwner != nil)
-            [cursorOwner setCursor:lastEvent ray:lastRay hits:lastHits];
+        
+        if (newOwner != cursorOwner) {
+            if (cursorOwner != nil)
+                [cursorOwner unsetCursor:lastEvent ray:lastRay hits:lastHits];
+            cursorOwner = newOwner;
+            if (cursorOwner != nil)
+                [cursorOwner setCursor:lastEvent ray:lastRay hits:lastHits];
+        }
     }
 }
 
 - (void)updateCursor {
     if (cursorOwner != nil) {
         [cursorOwner updateCursor:lastEvent ray:lastRay hits:lastHits];
-        
-        Camera* camera = [windowController camera];
-        CursorManager* cursorManager = [windowController cursorManager];
-        PickingHit* hit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
-        
-        if (hit != nil)
-            [cursorManager updateCursor:[hit hitPoint]];
-        else
-            [cursorManager updateCursor:[camera defaultPoint]];
-        
+
         MapView3D* view3D = [windowController view3D];
         [view3D setNeedsDisplay:YES];
     }
@@ -188,10 +180,6 @@
         Camera* camera = [windowController camera];
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(cameraViewChanged:) name:CameraViewChanged object:camera];
-
-        MapView3D* mapView3D = [windowController view3D];
-        NSPoint m = [mapView3D convertPointFromBase:[lastEvent locationInWindow]];
-        hasMouse = NSPointInRect(m, [mapView3D visibleRect]);
     }
     
     return self;

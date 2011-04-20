@@ -43,16 +43,6 @@ NSString* const CursorChanged = @"CursorChanged";
     [center postNotificationName:CursorChanged object:self];
 }
 
-- (void)updateCursor:(Vector3f *)thePosition {
-    if ([cursorStack count] > 0) {
-        id <Cursor> cursor = [cursorStack lastObject];
-        [cursor update:thePosition];
-
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:CursorChanged object:self];
-    }
-}
-
 - (BOOL)empty {
     return [cursorStack count] == 0;
 }

@@ -26,6 +26,7 @@
     DragFaceCursor* dragFaceCursor;
     ApplyFaceCursor* applyFaceCursor;
     id <Cursor> currentCursor;
+    BOOL drag;
 }
 
 - (id)initWithController:(MapWindowController *)theWindowController;

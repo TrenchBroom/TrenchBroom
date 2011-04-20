@@ -20,6 +20,7 @@
     Plane3D* plane;
     Vector3f* lastPoint;
     BrushToolCursor* cursor;
+    BOOL drag;
 }
 
 - (id)initWithController:(MapWindowController *)theWindowController;

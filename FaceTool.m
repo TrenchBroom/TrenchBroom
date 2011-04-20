@@ -172,6 +172,8 @@
     Grid* grid = [[windowController options] grid];
     [grid snapToGrid:lastPoint];
 
+    drag = YES;
+    
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setGroupsByEvent:NO];
@@ -219,6 +221,7 @@
     dragDir = nil;
     [lastPoint release];
     lastPoint = nil;
+    drag = NO;
 }
 
 - (BOOL)isCursorOwner:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
@@ -267,26 +270,33 @@
 }
 
 - (void)updateCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    id <Face> face = [hit object];
-
-    CursorManager* cursorManager = [windowController cursorManager];
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager isFaceSelected:face]) {
-        if (currentCursor != dragFaceCursor) {
-            [cursorManager popCursor];
-            [cursorManager pushCursor:dragFaceCursor];
-            currentCursor = dragFaceCursor;
+    if (!drag) {
+        PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+        id <Face> face = [hit object];
+        
+        CursorManager* cursorManager = [windowController cursorManager];
+        SelectionManager* selectionManager = [windowController selectionManager];
+        if ([selectionManager isFaceSelected:face]) {
+            if (currentCursor != dragFaceCursor) {
+                [cursorManager popCursor];
+                [cursorManager pushCursor:dragFaceCursor];
+                currentCursor = dragFaceCursor;
+            }
+            [dragFaceCursor setDragDir:[face norm]];
+        } else if ([[selectionManager selectedFaces] count] == 1) {
+            if (currentCursor != applyFaceCursor) {
+                [cursorManager popCursor];
+                [cursorManager pushCursor:applyFaceCursor];
+                currentCursor = applyFaceCursor;
+            }
+            [applyFaceCursor setFace:face];
+            [applyFaceCursor setApplyFlags:[self isApplyTextureAndFlagsModifierPressed]];
         }
-        [dragFaceCursor setDragDir:[face norm]];
-    } else if ([[selectionManager selectedFaces] count] == 1) {
-        if (currentCursor != applyFaceCursor) {
-            [cursorManager popCursor];
-            [cursorManager pushCursor:applyFaceCursor];
-            currentCursor = applyFaceCursor;
-        }
-        [applyFaceCursor setFace:face];
-        [applyFaceCursor setApplyFlags:[self isApplyTextureAndFlagsModifierPressed]];
+        
+        [currentCursor update:[hit hitPoint]];
+    } else {
+        Vector3f* position = [ray pointAtDistance:[plane intersectWithRay:ray]];
+        [currentCursor update:position];
     }
 }
 
