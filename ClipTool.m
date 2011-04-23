@@ -485,6 +485,7 @@
     [undoManager endUndoGrouping];
     [undoManager setActionName:[brushes count] == 1 ? @"Clip Brush" : @"Clip Brushes"];
     
+    [brushes release];
     [clipPlane reset];
     [currentPoint release];
     currentPoint = nil;

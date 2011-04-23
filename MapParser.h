@@ -8,8 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-extern NSString* const InvalidTokenException;
-
 typedef enum {
     PS_DEF, // default state
     PS_ENT, // currently parsing an entity

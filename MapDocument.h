@@ -30,6 +30,7 @@ extern NSString* const PropertyKeyKey;
 extern NSString* const PropertyOldValueKey;
 extern NSString* const PropertyNewValueKey;
 
+@class EntityDefinitionManager;
 @class MutableEntity;
 @class Picker;
 @class GLResources;
@@ -41,6 +42,7 @@ extern NSString* const PropertyNewValueKey;
 
 @interface MapDocument : NSDocument <Map> {
     @private
+    EntityDefinitionManager* entityDefinitionManager;
     NSMutableArray* entities;
     NSMutableArray* textureWads;
     MutableEntity* worldspawn;

@@ -47,6 +47,9 @@
 		483B1129122441060072EAFB /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
 		484524A61323CCBD003B2855 /* MapWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524A51323CCBD003B2855 /* MapWriter.m */; };
 		484524D713240049003B2855 /* NSFileManager+AppSupportCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */; };
+		484B9A4413620327003030D7 /* EntityDefinitionTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 484B9A4313620327003030D7 /* EntityDefinitionTokenizer.m */; };
+		484B9A47136203F8003030D7 /* EntityDefinitionToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 484B9A46136203F8003030D7 /* EntityDefinitionToken.m */; };
+		484B9A5813621004003030D7 /* EntityDefinitionParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 484B9A5713621004003030D7 /* EntityDefinitionParser.m */; };
 		484C28FC115023A2004DD957 /* VBOBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FB115023A2004DD957 /* VBOBuffer.m */; };
 		484C28FF1150258B004DD957 /* VBOMemBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FE1150258B004DD957 /* VBOMemBlock.m */; };
 		48527F3811148D5C00CD6043 /* MutableFace.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3711148D5C00CD6043 /* MutableFace.m */; };
@@ -79,6 +82,8 @@
 		4872C97712FF4DC200C5DD29 /* Matrix4f.m in Sources */ = {isa = PBXBuildFile; fileRef = 4872C97612FF4DC200C5DD29 /* Matrix4f.m */; };
 		4872C97A12FF4DEC00C5DD29 /* Vector4f.m in Sources */ = {isa = PBXBuildFile; fileRef = 4872C97912FF4DEC00C5DD29 /* Vector4f.m */; };
 		487436A6135B5FD900F787E1 /* SelectionFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 487436A5135B5FD900F787E1 /* SelectionFilter.m */; };
+		4874387013601A5700F787E1 /* EntityDefinitionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4874386F13601A5700F787E1 /* EntityDefinitionManager.m */; };
+		4874387313601A6000F787E1 /* EntityDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 4874387213601A6000F787E1 /* EntityDefinition.m */; };
 		48770FF312E5BE66009B440B /* MapTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF212E5BE66009B440B /* MapTokenizer.m */; };
 		48770FF612E5BF28009B440B /* MapToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF512E5BF28009B440B /* MapToken.m */; };
 		4877106E12E5DA55009B440B /* MapParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4877106D12E5DA55009B440B /* MapParser.m */; };
@@ -143,6 +148,12 @@
 		48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E400AE1315A7DA004642CD /* TextureUsageFilter.m */; };
 		48E4FFD613157C46004642CD /* Inspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48E4FFD513157C46004642CD /* Inspector.xib */; };
 		48F0EC52131A9CCD0088FA02 /* PrefabView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F0EC51131A9CCD0088FA02 /* PrefabView.m */; };
+		48FE96091363279D009B31FD /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48FE96081363279D009B31FD /* quake.def */; };
+		48FE96FD13636059009B31FD /* ChoiceProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE96FC13636059009B31FD /* ChoiceProperty.m */; };
+		48FE9701136360C8009B31FD /* ChoiceArgument.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE9700136360C8009B31FD /* ChoiceArgument.m */; };
+		48FE9795136368D5009B31FD /* ModelProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE9794136368D5009B31FD /* ModelProperty.m */; };
+		48FE97BA13636AF8009B31FD /* DefaultProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE97B913636AF8009B31FD /* DefaultProperty.m */; };
+		48FE97BD13636B9A009B31FD /* BaseProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE97BC13636B9A009B31FD /* BaseProperty.m */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
 		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -248,6 +259,12 @@
 		484524A51323CCBD003B2855 /* MapWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapWriter.m; sourceTree = "<group>"; };
 		484524D513240049003B2855 /* NSFileManager+AppSupportCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+AppSupportCategory.h"; sourceTree = "<group>"; };
 		484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+AppSupportCategory.m"; sourceTree = "<group>"; };
+		484B9A4213620327003030D7 /* EntityDefinitionTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionTokenizer.h; sourceTree = "<group>"; };
+		484B9A4313620327003030D7 /* EntityDefinitionTokenizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionTokenizer.m; sourceTree = "<group>"; };
+		484B9A45136203F8003030D7 /* EntityDefinitionToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionToken.h; sourceTree = "<group>"; };
+		484B9A46136203F8003030D7 /* EntityDefinitionToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionToken.m; sourceTree = "<group>"; };
+		484B9A5613621004003030D7 /* EntityDefinitionParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionParser.h; sourceTree = "<group>"; };
+		484B9A5713621004003030D7 /* EntityDefinitionParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionParser.m; sourceTree = "<group>"; };
 		484C28FA115023A2004DD957 /* VBOBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOBuffer.h; sourceTree = "<group>"; };
 		484C28FB115023A2004DD957 /* VBOBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOBuffer.m; sourceTree = "<group>"; };
 		484C28FD1150258B004DD957 /* VBOMemBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOMemBlock.h; sourceTree = "<group>"; };
@@ -306,6 +323,10 @@
 		4872C97912FF4DEC00C5DD29 /* Vector4f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vector4f.m; sourceTree = "<group>"; };
 		487436A4135B5FD900F787E1 /* SelectionFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionFilter.h; sourceTree = "<group>"; };
 		487436A5135B5FD900F787E1 /* SelectionFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectionFilter.m; sourceTree = "<group>"; };
+		4874386E13601A5700F787E1 /* EntityDefinitionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionManager.h; sourceTree = "<group>"; };
+		4874386F13601A5700F787E1 /* EntityDefinitionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionManager.m; sourceTree = "<group>"; };
+		4874387113601A6000F787E1 /* EntityDefinition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinition.h; sourceTree = "<group>"; };
+		4874387213601A6000F787E1 /* EntityDefinition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinition.m; sourceTree = "<group>"; };
 		48770FF112E5BE66009B440B /* MapTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapTokenizer.h; sourceTree = "<group>"; };
 		48770FF212E5BE66009B440B /* MapTokenizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapTokenizer.m; sourceTree = "<group>"; };
 		48770FF412E5BF28009B440B /* MapToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapToken.h; sourceTree = "<group>"; };
@@ -428,6 +449,18 @@
 		48F0EC50131A9CCD0088FA02 /* PrefabView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabView.h; sourceTree = "<group>"; };
 		48F0EC51131A9CCD0088FA02 /* PrefabView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabView.m; sourceTree = "<group>"; };
 		48F0EDAB131AD9A70088FA02 /* Prefab1.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prefab1.map; sourceTree = "<group>"; };
+		48FE96081363279D009B31FD /* quake.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = quake.def; sourceTree = "<group>"; };
+		48FE96FB13636059009B31FD /* ChoiceProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChoiceProperty.h; sourceTree = "<group>"; };
+		48FE96FC13636059009B31FD /* ChoiceProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChoiceProperty.m; sourceTree = "<group>"; };
+		48FE96FE1363609A009B31FD /* EntityDefinitionProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionProperty.h; sourceTree = "<group>"; };
+		48FE96FF136360C8009B31FD /* ChoiceArgument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChoiceArgument.h; sourceTree = "<group>"; };
+		48FE9700136360C8009B31FD /* ChoiceArgument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChoiceArgument.m; sourceTree = "<group>"; };
+		48FE9793136368D5009B31FD /* ModelProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModelProperty.h; sourceTree = "<group>"; };
+		48FE9794136368D5009B31FD /* ModelProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ModelProperty.m; sourceTree = "<group>"; };
+		48FE97B813636AF8009B31FD /* DefaultProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefaultProperty.h; sourceTree = "<group>"; };
+		48FE97B913636AF8009B31FD /* DefaultProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DefaultProperty.m; sourceTree = "<group>"; };
+		48FE97BB13636B9A009B31FD /* BaseProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseProperty.h; sourceTree = "<group>"; };
+		48FE97BC13636B9A009B31FD /* BaseProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseProperty.m; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* TrenchBroom-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "TrenchBroom-Info.plist"; sourceTree = "<group>"; };
 		8D15AC370486D014006FF6A4 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -502,10 +535,10 @@
 		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				484D092C1361C2BF004D6961 /* Misc */,
 				487437FC135ED48A00F787E1 /* Model */,
 				48A68E96114E93840064732A /* Controller */,
 				48A68F1C114EA7750064732A /* Math */,
-				4881C74512E9CD69006BF922 /* Wad */,
 				48A68EC9114E9AE20064732A /* View */,
 			);
 			name = Classes;
@@ -523,6 +556,7 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				48FE96081363279D009B31FD /* quake.def */,
 				48639BF312EA227100808576 /* QuakePalette.lmp */,
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
 				8D15AC360486D014006FF6A4 /* TrenchBroom-Info.plist */,
@@ -585,6 +619,15 @@
 				4838DFB312EF4E86008ADB71 /* VertexData.m */,
 			);
 			name = VertexData;
+			sourceTree = "<group>";
+		};
+		484D092C1361C2BF004D6961 /* Misc */ = {
+			isa = PBXGroup;
+			children = (
+				484524D513240049003B2855 /* NSFileManager+AppSupportCategory.h */,
+				484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */,
+			);
+			name = Misc;
 			sourceTree = "<group>";
 		};
 		485FD0C81257A8C100F4AE49 /* 3D */ = {
@@ -658,6 +701,7 @@
 				487437FE135ED49A00F787E1 /* Entity */,
 				487437FD135ED49300F787E1 /* Texture */,
 				48A68E93114E92730064732A /* Map */,
+				4881C74512E9CD69006BF922 /* Wad */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -678,8 +722,37 @@
 		487437FE135ED49A00F787E1 /* Entity */ = {
 			isa = PBXGroup;
 			children = (
+				4874387A13601F7F00F787E1 /* IO */,
+				4874386E13601A5700F787E1 /* EntityDefinitionManager.h */,
+				4874386F13601A5700F787E1 /* EntityDefinitionManager.m */,
+				4874387113601A6000F787E1 /* EntityDefinition.h */,
+				4874387213601A6000F787E1 /* EntityDefinition.m */,
 			);
 			name = Entity;
+			sourceTree = "<group>";
+		};
+		4874387A13601F7F00F787E1 /* IO */ = {
+			isa = PBXGroup;
+			children = (
+				484B9A4213620327003030D7 /* EntityDefinitionTokenizer.h */,
+				484B9A4313620327003030D7 /* EntityDefinitionTokenizer.m */,
+				484B9A45136203F8003030D7 /* EntityDefinitionToken.h */,
+				484B9A46136203F8003030D7 /* EntityDefinitionToken.m */,
+				484B9A5613621004003030D7 /* EntityDefinitionParser.h */,
+				484B9A5713621004003030D7 /* EntityDefinitionParser.m */,
+				48FE96FB13636059009B31FD /* ChoiceProperty.h */,
+				48FE96FC13636059009B31FD /* ChoiceProperty.m */,
+				48FE96FE1363609A009B31FD /* EntityDefinitionProperty.h */,
+				48FE96FF136360C8009B31FD /* ChoiceArgument.h */,
+				48FE9700136360C8009B31FD /* ChoiceArgument.m */,
+				48FE9793136368D5009B31FD /* ModelProperty.h */,
+				48FE9794136368D5009B31FD /* ModelProperty.m */,
+				48FE97B813636AF8009B31FD /* DefaultProperty.h */,
+				48FE97B913636AF8009B31FD /* DefaultProperty.m */,
+				48FE97BB13636B9A009B31FD /* BaseProperty.h */,
+				48FE97BC13636B9A009B31FD /* BaseProperty.m */,
+			);
+			name = IO;
 			sourceTree = "<group>";
 		};
 		487E31F3114F741F0043A111 /* Renderer */ = {
@@ -844,8 +917,6 @@
 				48A68EB7114E96C00064732A /* MapWindowController.m */,
 				48C3324213087D8600C23607 /* MenuDelegate.h */,
 				48C3324313087D8600C23607 /* MenuDelegate.m */,
-				484524D513240049003B2855 /* NSFileManager+AppSupportCategory.h */,
-				484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */,
 				485D2EAD1308624900CF73D8 /* Options.h */,
 				485D2EAE1308624900CF73D8 /* Options.m */,
 				4833C15D131953F600EB1B85 /* PrefabManager.h */,
@@ -1027,6 +1098,7 @@
 				4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */,
 				48E4FFD613157C46004642CD /* Inspector.xib in Resources */,
 				48B5A18D131EE2DB0043FBD9 /* PrefabNameSheet.xib in Resources */,
+				48FE96091363279D009B31FD /* quake.def in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1185,6 +1257,16 @@
 				485583CA13580B34005F8B2C /* DragFaceCursor.m in Sources */,
 				485585241358A668005F8B2C /* ApplyFaceCursor.m in Sources */,
 				487436A6135B5FD900F787E1 /* SelectionFilter.m in Sources */,
+				4874387013601A5700F787E1 /* EntityDefinitionManager.m in Sources */,
+				4874387313601A6000F787E1 /* EntityDefinition.m in Sources */,
+				484B9A4413620327003030D7 /* EntityDefinitionTokenizer.m in Sources */,
+				484B9A47136203F8003030D7 /* EntityDefinitionToken.m in Sources */,
+				484B9A5813621004003030D7 /* EntityDefinitionParser.m in Sources */,
+				48FE96FD13636059009B31FD /* ChoiceProperty.m in Sources */,
+				48FE9701136360C8009B31FD /* ChoiceArgument.m in Sources */,
+				48FE9795136368D5009B31FD /* ModelProperty.m in Sources */,
+				48FE97BA13636AF8009B31FD /* DefaultProperty.m in Sources */,
+				48FE97BD13636B9A009B31FD /* BaseProperty.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

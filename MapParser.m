@@ -15,7 +15,7 @@
 #import "MapToken.h"
 #import "Vector3i.h"
 
-NSString* const InvalidTokenException = @"InvalidTokenException";
+static NSString* InvalidTokenException = @"InvalidTokenException";
 
 @implementation MapParser
 - (id)init {

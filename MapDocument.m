@@ -7,6 +7,7 @@
 //
 
 #import "MapDocument.h"
+#import "EntityDefinitionManager.h"
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
@@ -52,6 +53,10 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 
 - (id)init {
     if (self = [super init]) {
+        NSBundle* mainBundle = [NSBundle mainBundle];
+        NSString* definitionPath = [mainBundle pathForResource:@"quake" ofType:@"def"];
+        entityDefinitionManager = [[EntityDefinitionManager alloc] initWithDefinitionFile:definitionPath];
+
         entities = [[NSMutableArray alloc] init];
         worldspawn = nil;
         worldSize = 8192;
