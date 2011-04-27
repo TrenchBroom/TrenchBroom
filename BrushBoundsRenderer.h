@@ -14,7 +14,7 @@
 @class BoundingBox;
 @protocol Brush;
 
-@interface BoundsRenderer : NSObject {
+@interface BrushBoundsRenderer : NSObject {
     NSMutableSet* brushes;
     NSMutableDictionary* brushCounts;
     GLFontManager* fontManager;

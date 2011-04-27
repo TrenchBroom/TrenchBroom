@@ -24,6 +24,7 @@
 	NSMutableDictionary* properties;
     Vector3f* center;
     BoundingBox* bounds;
+    NSMutableDictionary* memBlocks;
 }
 
 - (id)initWithProperties:(NSDictionary *)theProperties;

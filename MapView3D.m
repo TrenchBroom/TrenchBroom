@@ -44,6 +44,22 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
     [self userDefaultsChanged:nil];
 }
 
+- (BOOL)becomeFirstResponder {
+    if ([super becomeFirstResponder]) {
+        NSPoint base = [[self window] convertScreenToBase:[NSEvent mouseLocation]];
+        NSPoint point = [self convertPointFromBase:base];
+        if (NSPointInRect(point, [self visibleRect])) {
+            double timestamp = (double)(AbsoluteToDuration(UpTime())) / 1000.0;
+            [self mouseEntered:[NSEvent enterExitEventWithType:NSMouseEntered 
+                                                      location:base 
+                                                 modifierFlags:[NSEvent modifierFlags] 
+                                                     timestamp:timestamp windowNumber:[[self window] windowNumber] context:[[self window] graphicsContext] eventNumber:0 trackingNumber:0 userData:NULL]];
+        }
+        return YES;
+    }
+    return NO;
+}
+
 - (void)setup {
     MapWindowController* controller = [[self window] windowController];
     
@@ -56,16 +72,6 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 
     mouseTracker = [[NSTrackingArea alloc] initWithRect:[self visibleRect] options:NSTrackingActiveWhenFirstResponder | NSTrackingMouseEnteredAndExited owner:self userInfo:nil];
     [self addTrackingArea:mouseTracker];
-    
-    NSPoint base = [[self window] convertScreenToBase:[NSEvent mouseLocation]];
-    NSPoint point = [self convertPointFromBase:base];
-    if (NSPointInRect(point, [self visibleRect])) {
-        double timestamp = (double)(AbsoluteToDuration(UpTime())) / 1000.0;
-        [self mouseEntered:[NSEvent enterExitEventWithType:NSMouseEntered 
-                                                  location:base 
-                                             modifierFlags:[NSEvent modifierFlags] 
-                                                 timestamp:timestamp windowNumber:[[self window] windowNumber] context:[[self window] graphicsContext] eventNumber:0 trackingNumber:0 userData:NULL]];
-    }
 }
 
 -  (void)updateTrackingAreas {

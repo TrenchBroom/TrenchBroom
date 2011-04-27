@@ -6,7 +6,7 @@
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "BoundsRenderer.h"
+#import "BrushBoundsRenderer.h"
 #import <OpenGL/gl.h>
 #import "Brush.h"
 #import "Camera.h"
@@ -16,7 +16,7 @@
 #import "Vector3f.h"
 #import "Matrix4f.h"
 
-@implementation BoundsRenderer
+@implementation BrushBoundsRenderer
 
 - (id)init {
     if (self = [super init]) {

@@ -11,6 +11,7 @@
 @protocol Map;
 @class BoundingBox;
 @class Vector3f;
+@class VBOMemBlock;
 
 @protocol Entity <NSObject>
 
@@ -28,5 +29,8 @@
 
 - (BoundingBox *)bounds;
 - (Vector3f *)center;
+
+- (void)setMemBlock:(VBOMemBlock *)theBlock forKey:(id <NSCopying>)theKey;
+- (VBOMemBlock *)memBlockForKey:(id <NSCopying>)theKey;
 
 @end

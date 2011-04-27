@@ -13,6 +13,7 @@
 #import "Vector3i.h"
 #import "Vector3f.h"
 #import "BoundingBox.h"
+#import "VBOMemBlock.h"
 
 @implementation MutableEntity
 
@@ -21,6 +22,7 @@
         entityId = [[[IdGenerator sharedGenerator] getId] retain];
 		properties = [[NSMutableDictionary alloc] init];
 		brushes = [[NSMutableArray alloc] init];
+        memBlocks = [[NSMutableDictionary alloc] init];
     }
     
     return self;
@@ -44,18 +46,6 @@
     [brushes removeObject:brush];
 }
 
-- (NSNumber *)entityId {
-    return entityId;
-}
-
-- (id <Map>)map {
-    return map;
-}
-
-- (NSArray *)brushes {
-    return brushes;
-}
-
 - (void)setProperty:(NSString *)key value:(NSString *)value {
     NSString* oldValue = [self propertyForKey:key];
     BOOL exists = oldValue != nil;
@@ -72,6 +62,35 @@
         return;
     
     [properties removeObjectForKey:key];
+}
+
+- (void)setMap:(id <Map>)theMap {
+    map = theMap;
+}
+
+- (void) dealloc {
+    [entityId release];
+	[properties release];
+	[brushes release];
+    [center release];
+    [bounds release];
+    [memBlocks release];
+	[super dealloc];
+}
+
+#pragma mark -
+#pragma mark @implementation Entity
+
+- (NSNumber *)entityId {
+    return entityId;
+}
+
+- (id <Map>)map {
+    return map;
+}
+
+- (NSArray *)brushes {
+    return brushes;
 }
 
 - (NSString *)propertyForKey:(NSString *)key {
@@ -118,17 +137,19 @@
     return center;
 }
 
-- (void)setMap:(id <Map>)theMap {
-    map = theMap;
+- (void)setMemBlock:(VBOMemBlock *)theBlock forKey:(id <NSCopying>)theKey {
+    VBOMemBlock* oldBlock = [memBlocks objectForKey:theKey];
+    if (oldBlock != nil) {
+        [oldBlock free];
+        [memBlocks removeObjectForKey:theKey];
+    }
+        
+    if (theBlock != nil)
+        [memBlocks setObject:theBlock forKey:theKey];
 }
 
-- (void) dealloc {
-    [entityId release];
-	[properties release];
-	[brushes release];
-    [center release];
-    [bounds release];
-	[super dealloc];
+- (VBOMemBlock *)memBlockForKey:(id <NSCopying>)theKey {
+    return [memBlocks objectForKey:theKey];
 }
 
 @end

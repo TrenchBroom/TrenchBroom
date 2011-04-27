@@ -8,13 +8,13 @@
 
 #import "SelectionLayer.h"
 #import "Face.h"
-#import "BoundsRenderer.h"
+#import "BrushBoundsRenderer.h"
 
 @implementation SelectionLayer
 
 - (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager options:(Options *)theOptions camera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
     if (self = [super initWithVbo:theVbo textureManager:theTextureManager options:theOptions]) {
-        boundsRenderer = [[BoundsRenderer alloc] initWithCamera:theCamera fontManager:theFontManager font:theFont];
+        boundsRenderer = [[BrushBoundsRenderer alloc] initWithCamera:theCamera fontManager:theFontManager font:theFont];
     }
     
     return self;
