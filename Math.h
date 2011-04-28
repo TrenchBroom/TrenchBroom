@@ -61,6 +61,8 @@ BOOL finxi(float v, float b1, float b2);
 BOOL finix(float v, float b1, float b2);
 BOOL finii(float v, float b1, float b2);
 
+float dot3f(float lx, float ly, float lz, float rx, float ry, float rz);
+
 void setV3f(TVector3f* l, TVector3f* r);
 void addV3f(TVector3f* l, TVector3f* r);
 void subV3f(TVector3f* l, TVector3f* r);

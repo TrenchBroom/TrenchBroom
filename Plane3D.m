@@ -91,12 +91,11 @@
     if (fzero(denom))
         return NAN;
 
-    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:point];
-    [diff sub:lp];
-    float dist = [diff dot:norm] / denom;
-
-    [diff release];
-    return dist;
+    float dx = [point x] - [lp x];
+    float dy = [point y] - [lp y];
+    float dz = [point z] - [lp z];
+    
+    return dot3f(dx, dy, dz, [norm x], [norm y], [norm z]) / denom;
 }
 
 - (float)intersectWithRay:(Ray3D *)ray {
@@ -106,11 +105,11 @@
     if (fzero(denom))
         return NAN;
     
-    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:point];
-    [diff sub:ro];
-    float d = [diff dot:norm] / denom;
-    [diff release];
-
+    float dx = [point x] - [ro x];
+    float dy = [point y] - [ro y];
+    float dz = [point z] - [ro z];
+    
+    float d = dot3f(dx, dy, dz, [norm x], [norm y], [norm z]) / denom;
     if (fneg(d))
         return NAN;
     

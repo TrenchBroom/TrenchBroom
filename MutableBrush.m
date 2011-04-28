@@ -127,21 +127,8 @@
     return [[self vertexData] center];
 }
 
-
-- (void)pickBrush:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
-    [[self vertexData] pickBrush:theRay hitList:theHitList];
-}
-
-- (void)pickFace:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
-    [[self vertexData] pickFace:theRay hitList:theHitList];
-}
-
-- (void)pickEdge:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
-    [[self vertexData] pickEdge:theRay hitList:theHitList];
-}
-
-- (void)pickVertex:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
-    [[self vertexData] pickVertex:theRay hitList:theHitList];
+- (void)pick:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
+    [[self vertexData] pick:theRay hitList:theHitList];
 }
 
 - (BoundingBox *)pickingBounds {

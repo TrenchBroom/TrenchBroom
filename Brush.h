@@ -28,10 +28,7 @@
 - (BoundingBox *)bounds;
 - (Vector3f *)center;
 
-- (void)pickBrush:(Ray3D *)theRay hitList:(PickingHitList *)theHitList;
-- (void)pickFace:(Ray3D *)theRay hitList:(PickingHitList *)theHitList;
-- (void)pickEdge:(Ray3D *)theRay hitList:(PickingHitList *)theHitList;
-- (void)pickVertex:(Ray3D *)theRay hitList:(PickingHitList *)theHitList;
+- (void)pick:(Ray3D *)theRay hitList:(PickingHitList *)theHitList;
 - (BoundingBox *)pickingBounds;
 
 @end

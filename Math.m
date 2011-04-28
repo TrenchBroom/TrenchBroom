@@ -61,6 +61,12 @@ BOOL finii(float v, float b1, float b2) {
     return b1 < b2 ? fgte(v, b1) && flte(v, b2) : fgte(v, b2) && flte(v, b1);
 }
 
+#pragma mark 3D Vector functions
+
+float dot3f(float lx, float ly, float lz, float rx, float ry, float rz) {
+    return lx * rx + ly * ry + lz * rz;
+}
+
 #pragma mark TVector3f functions
 
 TVector3f* newV3f(TVector3f* v) {
@@ -88,7 +94,7 @@ void subV3f(TVector3f* l, TVector3f* r) {
 }
 
 float dotV3f(TVector3f* l, TVector3f* r) {
-    return l->x * r->x + l->y * r->y + l->z * r->z;
+    return dot3f(l->x, l->y, l->z, r->x, r->y, r->z);
 }
 
 void crossV3f(TVector3f* l, TVector3f* r) {

@@ -376,7 +376,7 @@
     return [edges count];
 }
 
-- (void)pickBrush:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
+- (void)pick:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
     NSEnumerator* sideEn = [sides objectEnumerator];
     Side* side;
     PickingHit* faceHit = nil;
@@ -386,38 +386,8 @@
     if (faceHit != nil) {
         PickingHit* brushHit = [[PickingHit alloc] initWithObject:[[faceHit object] brush] type:HT_BRUSH hitPoint:[faceHit hitPoint] distance:[faceHit distance]];
         [theHitList addHit:brushHit];
+        [theHitList addHit:faceHit];
         [brushHit release];
-    }
-}
-
-- (void)pickFace:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
-    NSEnumerator* sideEn = [sides objectEnumerator];
-    Side* side;
-    PickingHit* hit = nil;
-    while ((side = [sideEn nextObject]) && hit == nil)
-        hit = [side pickWithRay:theRay];
-    
-    if (hit != nil)
-        [theHitList addHit:hit];
-}
-
-- (void)pickEdge:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
-    NSEnumerator* edgeEn = [edges objectEnumerator];
-    Edge* edge;
-    while ((edge = [edgeEn nextObject])) {
-        PickingHit* hit = [edge pickWithRay:theRay];
-        if (hit != nil)
-            [theHitList addHit:hit];
-    }
-}
-
-- (void)pickVertex:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
-    NSEnumerator* vertexEn = [vertices objectEnumerator];
-    Vertex* vertex;
-    while ((vertex = [vertexEn nextObject])) {
-        PickingHit* hit = [vertex pickWithRay:theRay];
-        if (hit != nil)
-            [theHitList addHit:hit];
     }
 }
 

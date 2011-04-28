@@ -18,14 +18,13 @@
 
 - (id)initWithDocument:(MapDocument *)theDocument {
     if (self = [self init]) {
-        octree = [[Octree alloc] initWithDocument:theDocument minSize:32];
+        octree = [[Octree alloc] initWithDocument:theDocument minSize:64];
     }
     
     return self;
 }
 
 - (PickingHitList *)pickObjects:(Ray3D *)ray filter:(id <Filter>)filter {
-
     PickingHitList* hitList = [[PickingHitList alloc] init];
     NSArray* objects = [octree pickObjectsWithRay:ray];
     
@@ -34,15 +33,11 @@
     while ((object = [objectEn nextObject])) {
         if ([object conformsToProtocol:@protocol(Brush)]) {
             id <Brush> brush = (id <Brush>)object;
-            if (filter == nil || [filter brushPasses:brush]) {
-                [brush pickBrush:ray hitList:hitList];
-                [brush pickFace:ray hitList:hitList];
-                // [brush pickEdge:ray hitList:hitList];
-                // [brush pickVertex:ray hitList:hitList];
-            }
+            if (filter == nil || [filter brushPasses:brush])
+                [brush pick:ray hitList:hitList];
         }
     }
-    
+
     return [hitList autorelease];
 }
 
