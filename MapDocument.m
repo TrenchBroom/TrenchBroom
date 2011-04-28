@@ -706,7 +706,12 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     return glResources;
 }
 
+- (EntityDefinitionManager *)entityDefinitionManager {
+    return entityDefinitionManager;
+}
+
 - (void)dealloc {
+    [entityDefinitionManager release];
     [entities release];
     [picker release];
     [glResources release];

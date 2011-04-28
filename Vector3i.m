@@ -100,6 +100,47 @@ static Vector3i* gNullVector;
 	[self setZ:roundf([vector z])];
 }
 
+- (void)parse:(NSString *)string {
+    int s, l;
+    int component = -1;
+    char c;
+
+    for (int i = 0; i < [string length] && component != -4; i++) {
+        c = [string characterAtIndex:i];
+        switch (c) {
+            case '-':
+            case '+':
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9': {
+                if (component < 0) {
+                    s = i;
+                    l = 1;
+                    component *= -1;
+                } else {
+                    l++;
+                }
+                break;
+            }
+            default:
+                if (component > 0) {
+                    NSString* numString = [string substringWithRange:NSMakeRange(s, l)];
+                    coords[component - 1] = [numString intValue];
+                    component++;
+                    component *= -1;
+                }
+                break;
+        }
+    }
+}
+
 - (BOOL)null {
     return coords[0] == 0 && coords[1] == 0 && coords[2] == 0;
 }

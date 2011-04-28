@@ -22,4 +22,6 @@
 
 - (void)addEntity:(id <Entity>)entity;
 - (void)removeEntity:(id <Entity>)entity;
+
+- (void)render;
 @end

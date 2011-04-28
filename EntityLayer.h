@@ -9,8 +9,19 @@
 #import <Cocoa/Cocoa.h>
 #import "Layer.h"
 
+@class EntityDefinitionManager;
+@class EntityBoundsRenderer;
+@protocol Entity;
+
 @interface EntityLayer : NSObject <Layer> {
-    
+    EntityDefinitionManager* definitionManager;
+    EntityBoundsRenderer* boundsRenderer;
 }
+
+- (id)initWithEntityDefinitionManager:(EntityDefinitionManager *)theDefinitionManager;
+
+- (void)addEntity:(id <Entity>)entity;
+- (void)removeEntity:(id <Entity>)entity;
+- (void)updateEntity:(id <Entity>)entity;
 
 @end

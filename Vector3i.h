@@ -32,6 +32,8 @@
 - (void)setInt:(Vector3i *)vector;
 - (void)setFloat:(Vector3f *)vector;
 
+- (void)parse:(NSString *)string;
+
 - (BOOL)null;
 
 - (void)add:(Vector3i *)addend;

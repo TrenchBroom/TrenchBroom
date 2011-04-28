@@ -85,4 +85,5 @@ extern NSString* const PropertyNewValueKey;
 
 - (Picker *)picker;
 - (GLResources *)glResources;
+- (EntityDefinitionManager *)entityDefinitionManager;
 @end

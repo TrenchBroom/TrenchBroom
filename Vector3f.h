@@ -50,6 +50,9 @@ typedef enum {
 
 - (void)setFloat:(Vector3f *)vector;
 - (void)setInt:(Vector3i *)vector;
+- (void)setNull;
+
+- (void)parse:(NSString *)string;
 
 - (BOOL)isNull;
 

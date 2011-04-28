@@ -17,6 +17,7 @@
 #import "GeometryLayer.h"
 #import "SelectionLayer.h"
 #import "FigureLayer.h"
+#import "EntityLayer.h"
 #import "CompassFigure.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
@@ -201,6 +202,8 @@ NSString* const RendererChanged = @"RendererChanged";
     id <Brush> brush;
     while ((brush = [brushEn nextObject]))
         [self addBrush:brush];
+    
+    [entityLayer addEntity:entity];
 }
 
 - (void)removeEntity:(id <Entity>)entity {
@@ -208,6 +211,8 @@ NSString* const RendererChanged = @"RendererChanged";
     id <Brush> brush;
     while ((brush = [brushEn nextObject]))
         [self removeBrush:brush];
+
+    [entityLayer removeEntity:entity];
 }
 
 - (void)faceWillChange:(NSNotification *)notification {
@@ -457,6 +462,7 @@ NSString* const RendererChanged = @"RendererChanged";
         Grid* grid = [options grid];
 
         geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager options:options];
+        entityLayer = [[EntityLayer alloc] initWithEntityDefinitionManager:[map entityDefinitionManager]];
         selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager options:options camera:camera fontManager:fontManager font:trackingFont];
         feedbackLayer = [[FigureLayer alloc] init];
 
@@ -531,6 +537,7 @@ NSString* const RendererChanged = @"RendererChanged";
     
     RenderContext* renderContext = [[RenderContext alloc] initWithOptions:options];
     [geometryLayer render:renderContext];
+    [entityLayer render:renderContext];
     [selectionLayer render:renderContext];
     [feedbackLayer render:renderContext];
     
@@ -577,6 +584,7 @@ NSString* const RendererChanged = @"RendererChanged";
     [geometryLayer release];
     [selectionLayer release];
     [feedbackLayer release];
+    [entityLayer release];
     [textureManager release];
     [sharedVbo release];
     [invalidFaces release];

@@ -177,6 +177,66 @@ static Vector3f* gZAxisNeg;
 	[self setZ:[vector z]];
 }
 
+- (void)setNull {
+    x = 0;
+    y = 0;
+    z = 0;
+}
+
+- (void)parse:(NSString *)string {
+    int s, l;
+    int component = -1;
+    char c;
+    
+    for (int i = 0; i < [string length] && component != -4; i++) {
+        c = [string characterAtIndex:i];
+        switch (c) {
+            case '-':
+            case '+':
+            case '.':
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9': {
+                if (component < 0) {
+                    s = i;
+                    l = 1;
+                    component *= -1;
+                } else {
+                    l++;
+                }
+                break;
+            }
+            default:
+                if (component > 0) {
+                    NSString* numString = [string substringWithRange:NSMakeRange(s, l)];
+                    if (component == 1)
+                        x = [numString floatValue];
+                    else if (component == 2)
+                        y = [numString floatValue];
+                    else
+                        z = [numString floatValue];
+                        
+                    component++;
+                    component *= -1;
+                }
+                break;
+        }
+    }
+    
+    if (component == 3) {
+        NSString* numString = [string substringWithRange:NSMakeRange(s, l)];
+        z = [numString floatValue];
+    }
+}
+
+
 - (BOOL)isNull {
     return fzero(x) && fzero(y) && fzero(z);
 }
