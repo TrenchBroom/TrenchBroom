@@ -61,7 +61,7 @@
 		485585241358A668005F8B2C /* ApplyFaceCursor.m in Sources */ = {isa = PBXBuildFile; fileRef = 485585231358A668005F8B2C /* ApplyFaceCursor.m */; };
 		485884FC12298C2E00E7806F /* Polygon2DTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 485884FB12298C2E00E7806F /* Polygon2DTestCase.m */; };
 		485AE8A712F4B9BA00CDBD6A /* Picker.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8A612F4B9BA00CDBD6A /* Picker.m */; };
-		485AE8B712F4BFB700CDBD6A /* CoordinatePlane.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8B612F4BFB700CDBD6A /* CoordinatePlane.m */; };
+		485AE8B712F4BFB700CDBD6A /* CoordinatePlaneXY.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8B612F4BFB700CDBD6A /* CoordinatePlaneXY.m */; };
 		485AE8D712F4C5BD00CDBD6A /* PickingHit.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8D612F4C5BD00CDBD6A /* PickingHit.m */; };
 		485D2B5C1306F69100CF73D8 /* SegmentIterator.m in Sources */ = {isa = PBXBuildFile; fileRef = 485D2B5B1306F69100CF73D8 /* SegmentIterator.m */; };
 		485D2EAF1308624900CF73D8 /* Options.m in Sources */ = {isa = PBXBuildFile; fileRef = 485D2EAE1308624900CF73D8 /* Options.m */; };
@@ -156,6 +156,8 @@
 		48FE97BD13636B9A009B31FD /* BaseProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE97BC13636B9A009B31FD /* BaseProperty.m */; };
 		48FE9862136596C6009B31FD /* EntityLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE9861136596C6009B31FD /* EntityLayer.m */; };
 		48FE986513659869009B31FD /* EntityBoundsRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE986413659869009B31FD /* EntityBoundsRenderer.m */; };
+		48FE9952136A95AE009B31FD /* CoordinatePlaneXZ.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE9951136A95AE009B31FD /* CoordinatePlaneXZ.m */; };
+		48FE9955136A9673009B31FD /* CoordinatePlaneYZ.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE9954136A9673009B31FD /* CoordinatePlaneYZ.m */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
 		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -289,8 +291,8 @@
 		485884FB12298C2E00E7806F /* Polygon2DTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Polygon2DTestCase.m; sourceTree = "<group>"; };
 		485AE8A512F4B9BA00CDBD6A /* Picker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Picker.h; sourceTree = "<group>"; };
 		485AE8A612F4B9BA00CDBD6A /* Picker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Picker.m; sourceTree = "<group>"; };
-		485AE8B512F4BFB700CDBD6A /* CoordinatePlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordinatePlane.h; sourceTree = "<group>"; };
-		485AE8B612F4BFB700CDBD6A /* CoordinatePlane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoordinatePlane.m; sourceTree = "<group>"; };
+		485AE8B512F4BFB700CDBD6A /* CoordinatePlaneXY.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordinatePlaneXY.h; sourceTree = "<group>"; };
+		485AE8B612F4BFB700CDBD6A /* CoordinatePlaneXY.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoordinatePlaneXY.m; sourceTree = "<group>"; };
 		485AE8D512F4C5BD00CDBD6A /* PickingHit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PickingHit.h; sourceTree = "<group>"; };
 		485AE8D612F4C5BD00CDBD6A /* PickingHit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PickingHit.m; sourceTree = "<group>"; };
 		485D2B5A1306F69100CF73D8 /* SegmentIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SegmentIterator.h; sourceTree = "<group>"; };
@@ -467,6 +469,11 @@
 		48FE9861136596C6009B31FD /* EntityLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityLayer.m; sourceTree = "<group>"; };
 		48FE986313659869009B31FD /* EntityBoundsRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityBoundsRenderer.h; sourceTree = "<group>"; };
 		48FE986413659869009B31FD /* EntityBoundsRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityBoundsRenderer.m; sourceTree = "<group>"; };
+		48FE994B136A9426009B31FD /* CoordinatePlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordinatePlane.h; sourceTree = "<group>"; };
+		48FE9950136A95AE009B31FD /* CoordinatePlaneXZ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordinatePlaneXZ.h; sourceTree = "<group>"; };
+		48FE9951136A95AE009B31FD /* CoordinatePlaneXZ.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoordinatePlaneXZ.m; sourceTree = "<group>"; };
+		48FE9953136A9673009B31FD /* CoordinatePlaneYZ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordinatePlaneYZ.h; sourceTree = "<group>"; };
+		48FE9954136A9673009B31FD /* CoordinatePlaneYZ.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoordinatePlaneYZ.m; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* TrenchBroom-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "TrenchBroom-Info.plist"; sourceTree = "<group>"; };
 		8D15AC370486D014006FF6A4 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -661,8 +668,13 @@
 				48DB95A212F0A89E00FB5483 /* Quaternion.m */,
 				486A9C3612F488E4003D26FE /* Ray3D.h */,
 				486A9C3712F488E4003D26FE /* Ray3D.m */,
-				485AE8B512F4BFB700CDBD6A /* CoordinatePlane.h */,
-				485AE8B612F4BFB700CDBD6A /* CoordinatePlane.m */,
+				48FE994B136A9426009B31FD /* CoordinatePlane.h */,
+				485AE8B512F4BFB700CDBD6A /* CoordinatePlaneXY.h */,
+				485AE8B612F4BFB700CDBD6A /* CoordinatePlaneXY.m */,
+				48FE9950136A95AE009B31FD /* CoordinatePlaneXZ.h */,
+				48FE9951136A95AE009B31FD /* CoordinatePlaneXZ.m */,
+				48FE9953136A9673009B31FD /* CoordinatePlaneYZ.h */,
+				48FE9954136A9673009B31FD /* CoordinatePlaneYZ.m */,
 			);
 			name = 3D;
 			sourceTree = "<group>";
@@ -1206,7 +1218,7 @@
 				486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */,
 				486A9C3812F488E4003D26FE /* Ray3D.m in Sources */,
 				485AE8A712F4B9BA00CDBD6A /* Picker.m in Sources */,
-				485AE8B712F4BFB700CDBD6A /* CoordinatePlane.m in Sources */,
+				485AE8B712F4BFB700CDBD6A /* CoordinatePlaneXY.m in Sources */,
 				485AE8D712F4C5BD00CDBD6A /* PickingHit.m in Sources */,
 				48E1806512F5F07D007995FE /* SelectionManager.m in Sources */,
 				488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */,
@@ -1279,6 +1291,8 @@
 				48FE97BD13636B9A009B31FD /* BaseProperty.m in Sources */,
 				48FE9862136596C6009B31FD /* EntityLayer.m in Sources */,
 				48FE986513659869009B31FD /* EntityBoundsRenderer.m in Sources */,
+				48FE9952136A95AE009B31FD /* CoordinatePlaneXZ.m in Sources */,
+				48FE9955136A9673009B31FD /* CoordinatePlaneYZ.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

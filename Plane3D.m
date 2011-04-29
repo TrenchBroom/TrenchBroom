@@ -69,19 +69,18 @@
 }
 
 - (EPointStatus)pointStatus:(Vector3f *)thePoint {
-    Vector3f* t = [[Vector3f alloc] initWithFloatVector:thePoint];
-    [t sub:point];
+    float tx = [thePoint x] - [point x];
+    float ty = [thePoint y] - [point y];
+    float tz = [thePoint z] - [point z];
+
+    float d = dot3f([norm x], [norm y], [norm z], tx, ty, tz);
+    if (fpos(d))
+        return PS_ABOVE;
     
-    EPointStatus status;
-    if (fpos([norm dot:t]))
-        status = PS_ABOVE;
-    else if (fneg([norm dot:t]))
-        status = PS_BELOW;
-    else
-        status = PS_INSIDE;
-    [t release];
+    if (fneg(d))
+        return PS_BELOW;
     
-    return status;
+    return PS_INSIDE;
 }
 
 - (float)intersectWithLine:(Line3D *)line {

@@ -2,26 +2,15 @@
 //  CoordinatePlane.h
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 29.01.11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Created by Kristian Duske on 29.04.11.
+//  Copyright 2011 TU Berlin. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
 
-typedef enum {
-    PXY, PXZ, PYZ
-} EPlane3D;
-
 @class Vector3f;
 
-@interface CoordinatePlane : NSObject {
-    @private
-    EPlane3D plane;
-}
-
-+ (CoordinatePlane *)projectionPlaneForNormal:(Vector3f *)theNorm;
-
-- (id)initAs:(EPlane3D)thePlane;
+@protocol CoordinatePlane <NSObject>
 
 - (Vector3f *)project:(Vector3f *)thePoint;
 - (BOOL)clockwise:(Vector3f *)theNorm;

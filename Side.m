@@ -15,11 +15,46 @@
 #import "Ray3D.h"
 #import "PickingHit.h"
 #import "CoordinatePlane.h"
+#import "CoordinatePlaneXY.h"
+#import "CoordinatePlaneXZ.h"
+#import "CoordinatePlaneYZ.h"
 #import "Math.h"
 #import "Plane3D.h"
 #import "SegmentIterator.h"
 
+static id <CoordinatePlane> planeXY;
+static id <CoordinatePlane> planeXZ;
+static id <CoordinatePlane> planeYZ;
+
+@interface Side (private)
+
+- (id <CoordinatePlane>)projectionPlane;
+
+@end
+
+@implementation Side (private)
+
+- (id <CoordinatePlane>)projectionPlane {
+    Vector3f* norm = [face norm];
+    switch ([norm largestComponent]) {
+        case VC_X:
+            return planeYZ;
+        case VC_Y:
+            return planeXZ;
+        default:
+            return planeXY;
+    }
+}
+
+@end
+
 @implementation Side
+
++ (void) initialize {
+    planeXY = [[CoordinatePlaneXY alloc] init];
+    planeXZ = [[CoordinatePlaneXZ alloc] init];
+    planeYZ = [[CoordinatePlaneYZ alloc] init];
+}
 
 - (id)init {
     if (self = [super init]) {
@@ -185,7 +220,7 @@
         return nil;
     
     Vector3f* is = [theRay pointAtDistance:dist];
-    CoordinatePlane* cPlane = [CoordinatePlane projectionPlaneForNormal:norm];
+    CoordinatePlaneXY* cPlane = [self projectionPlane];
     float isx = [cPlane xOf:is];
     float isy = [cPlane yOf:is];
     
