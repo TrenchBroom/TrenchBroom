@@ -9,52 +9,32 @@
 #import "Side.h"
 #import "Edge.h"
 #import "Vertex.h"
-#import "Vector3f.h"
-#import "Vector2f.h"
 #import "MutableFace.h"
-#import "Ray3D.h"
 #import "PickingHit.h"
-#import "CoordinatePlane.h"
-#import "CoordinatePlaneXY.h"
-#import "CoordinatePlaneXZ.h"
-#import "CoordinatePlaneYZ.h"
-#import "Math.h"
-#import "Plane3D.h"
-#import "SegmentIterator.h"
-
-static id <CoordinatePlane> planeXY;
-static id <CoordinatePlane> planeXZ;
-static id <CoordinatePlane> planeYZ;
 
 @interface Side (private)
 
-- (id <CoordinatePlane>)projectionPlane;
+- (EPlane)projectionPlane;
 
 @end
 
 @implementation Side (private)
 
-- (id <CoordinatePlane>)projectionPlane {
-    Vector3f* norm = [face norm];
-    switch ([norm largestComponent]) {
-        case VC_X:
-            return planeYZ;
-        case VC_Y:
-            return planeXZ;
+- (EPlane)projectionPlane {
+    TVector3f* norm = [face norm];
+    switch (largestComponentV3f(norm)) {
+        case A_X:
+            return P_YZ;
+        case A_Y:
+            return P_XZ;
         default:
-            return planeXY;
+            return P_XY;
     }
 }
 
 @end
 
 @implementation Side
-
-+ (void) initialize {
-    planeXY = [[CoordinatePlaneXY alloc] init];
-    planeXZ = [[CoordinatePlaneXZ alloc] init];
-    planeYZ = [[CoordinatePlaneYZ alloc] init];
-}
 
 - (id)init {
     if (self = [super init]) {
@@ -208,33 +188,34 @@ static id <CoordinatePlane> planeYZ;
     return face;
 }
 
-- (PickingHit *)pickWithRay:(Ray3D *)theRay {
-    Vector3f* norm = [face norm];
-    float d = [norm dot:[theRay direction]];
+- (PickingHit *)pickWithRay:(TRay *)theRay {
+    TVector3f* norm = [face norm];
+    float d = dotV3f(norm, &theRay->direction);
     if (!fneg(d))
         return nil;
     
-    Plane3D* plane = [face boundary];
-    float dist = [plane intersectWithRay:theRay];
+    TPlane* plane = [face boundary];
+    float dist = intersectPlaneWithRay(plane, theRay);
     if (isnan(dist))
         return nil;
     
-    Vector3f* is = [theRay pointAtDistance:dist];
-    CoordinatePlaneXY* cPlane = [self projectionPlane];
-    float isx = [cPlane xOf:is];
-    float isy = [cPlane yOf:is];
+    EPlane cPlane = [self projectionPlane];
+    TVector3f is, pis, v0, v1;
+
+    rayPointAtDistance(theRay, dist, &is);
+    projectOntoPlane(cPlane, &is, &pis);
     
     int c = 0;
     Vertex* v = [[self vertices] lastObject];
-    float x0 = [cPlane xOf:[v vector]] - isx;
-    float y0 = [cPlane yOf:[v vector]] - isy;
+    projectOntoPlane(cPlane, [v vector], &v0);
+    subV3f(&v0, &pis, &v0);
     
     NSEnumerator* vertexEn = [vertices objectEnumerator];
     while ((v = [vertexEn nextObject])) {
-        float x1 = [cPlane xOf:[v vector]] - isx;
-        float y1 = [cPlane yOf:[v vector]] - isy;
+        projectOntoPlane(cPlane, [v vector], &v1);
+        subV3f(&v1, &pis, &v1);
         
-        if ((fzero(x0) && fzero(y0)) || (fzero(x1) && fzero(y1))) {
+        if ((fzero(v0.x) && fzero(v0.y)) || (fzero(v1.x) && fzero(v1.y))) {
             // the point is identical to a polygon vertex, cancel search
             c = 1;
             break;
@@ -255,34 +236,27 @@ static id <CoordinatePlane> planeYZ;
          */
         
         // do the Y coordinates have different signs?
-        if ((y0 > 0 && y1 <= 0) || (y0 <= 0 && y1 > 0)) {
+        if ((v0.y > 0 && v1.y <= 0) || (v0.y <= 0 && v1.y > 0)) {
             // Is segment entirely on the positive side of the X axis?
-            if (x0 > 0 && x1 > 0) {
+            if (v0.x > 0 && v1.x > 0) {
                 c += 1; // edge intersects with the X axis
                 // if not, do the X coordinates have different signs?
-            } else if ((x0 > 0 && x1 <= 0) || (x0 <= 0 && x1 > 0)) {
+            } else if ((v0.x > 0 && v1.x <= 0) || (v0.x <= 0 && v1.x > 0)) {
                 // calculate the point of intersection between the edge
                 // and the X axis
-                float x = -y0 * (x1 - x0) / (y1 - y0) + x0;
+                float x = -v0.y * (v1.x - v0.x) / (v1.y - v0.y) + v0.x;
                 if (x >= 0)
                     c += 1; // edge intersects with the X axis
             }
         }
         
-        x0 = x1;
-        y0 = y1;
+        v0 = v1;
     }
     
     if (c % 2 == 0)
         return nil;
     
-    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:is];
-    [diff sub:[theRay origin]];
-    
-    float distance = [diff length];
-    [diff release];
-    
-    return [[[PickingHit alloc] initWithObject:face type:HT_FACE hitPoint:is distance:distance] autorelease];
+    return [[[PickingHit alloc] initWithObject:face type:HT_FACE hitPoint:&is distance:dist] autorelease];
 }
 
 - (NSString *)description {
@@ -316,25 +290,10 @@ static id <CoordinatePlane> planeYZ;
     return desc;
 }
 
-- (Vector3f *)center {
-    if (center == nil) {
-        NSEnumerator* vertexEn = [[self vertices] objectEnumerator];
-        Vertex* vertex = [vertexEn nextObject];
-        center = [[Vector3f alloc] initWithFloatVector:[vertex vector]];
-        while ((vertex = [vertexEn nextObject]))
-            [center add:[vertex vector]];
-        
-        [center scale:1.0f / [[self vertices] count]];
-    }
-    
-    return center;
-}
-
 - (void)dealloc {
     [face release];
     [vertices release];
     [edges release];
-    [center release];
     [super dealloc];
 }
 

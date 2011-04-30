@@ -7,11 +7,8 @@
 //
 
 #import "Matrix4f.h"
-#import "Vector3f.h"
-#import "Vector4f.h"
 #import "Matrix3f.h"
 #import "Matrix2f.h"
-#import "Math.h"
 
 @implementation Matrix4f
 
@@ -92,25 +89,25 @@
     values = t;
 }
 
-- (void)rotateAbout:(Vector3f *)axis angle:(float)a {
+- (void)rotateAbout:(TVector3f *)axis angle:(float)a {
     float s = sin(a);
     float c = cos(a);
     float t = 1 - c;
     
-    float tx  = t  * [axis x];
-    float tx2 = tx * [axis x];
-    float txy = tx * [axis y];
-    float txz = tx * [axis z];
+    float tx  = t  * axis->x;
+    float tx2 = tx * axis->x;
+    float txy = tx * axis->y;
+    float txz = tx * axis->z;
     
-    float ty  = t  * [axis y];
-    float ty2 = ty * [axis y];
-    float tyz = ty * [axis z];
+    float ty  = t  * axis->y;
+    float ty2 = ty * axis->y;
+    float tyz = ty * axis->z;
     
-    float tz2 = t  * [axis z] * [axis z];
+    float tz2 = t  * axis->z * axis->z;
 
-    float sx = s * [axis x];
-    float sy = s * [axis y];
-    float sz = s * [axis z];
+    float sx = s * axis->x;
+    float sy = s * axis->y;
+    float sz = s * axis->z;
     
     float r[4 * 4];
     r[0] = tx2 + c;
@@ -136,10 +133,10 @@
     [self multiply:r];
 }
 
-- (void)translate:(Vector3f *)offset {
-    values[12] += [offset x];
-    values[13] += [offset y];
-    values[14] += [offset z];
+- (void)translate:(TVector3f *)offset {
+    values[12] += offset->x;
+    values[13] += offset->y;
+    values[14] += offset->z;
 }
 
 - (BOOL)invert {
@@ -244,19 +241,19 @@
     values[col * 4 + row] = value;
 }
 
-- (void)setRow:(int)row values:(Vector3f *)vector {
+- (void)setRow:(int)row values:(TVector3f *)vector {
     NSAssert(row >= 0 && row <= 3, @"row index out of bounds");
-    values[ 0 + row] = [vector x];
-    values[ 4 + row] = [vector y];
-    values[ 8 + row] = [vector z];
+    values[ 0 + row] = vector->x;
+    values[ 4 + row] = vector->y;
+    values[ 8 + row] = vector->z;
     values[12 + row] = 0;
 }
 
-- (void)setColumn:(int)col values:(Vector3f *)vector {
+- (void)setColumn:(int)col values:(TVector3f *)vector {
     NSAssert(col >= 0 && col <= 3, @"column index out of bounds");
-    values[col * 4 + 0] = [vector x];
-    values[col * 4 + 1] = [vector y];
-    values[col * 4 + 2] = [vector z];
+    values[col * 4 + 0] = vector->x;
+    values[col * 4 + 1] = vector->y;
+    values[col * 4 + 2] = vector->z;
     values[col * 4 + 3] = 0;
 }
 
@@ -274,23 +271,29 @@
     values[15] = 1;
 }
 
-- (void)transformVector3f:(Vector3f *)vector {
-    Vector4f* vector4f = [[Vector4f alloc] initWithVector3f:vector];
-    [self transformVector4f:vector4f];
-    [vector4f getVector3f:vector];
-    [vector4f release];
+- (void)transformVector3f:(TVector3f *)vector {
+    TVector4f v4f;
+    v4f.x = vector->x;
+    v4f.y = vector->y;
+    v4f.z = vector->z;
+    v4f.w = 1;
+    
+    [self transformVector4f:&v4f];
+    vector->x = v4f.x / v4f.w;
+    vector->y = v4f.y / v4f.w;
+    vector->z = v4f.z / v4f.w;
 }
 
-- (void)transformVector4f:(Vector4f *)vector {
-    float x = values[ 0] * [vector x] + values[ 4] * [vector y] + values[ 8] * [vector z] + values[12] * [vector w];
-    float y = values[ 1] * [vector x] + values[ 5] * [vector y] + values[ 9] * [vector z] + values[13] * [vector w];
-    float z = values[ 2] * [vector x] + values[ 6] * [vector y] + values[10] * [vector z] + values[14] * [vector w];
-    float w = values[ 3] * [vector x] + values[ 7] * [vector y] + values[11] * [vector z] + values[15] * [vector w];
+- (void)transformVector4f:(TVector4f *)vector {
+    float x = values[ 0] * vector->x + values[ 4] * vector->y + values[ 8] * vector->z + values[12] * vector->w;
+    float y = values[ 1] * vector->x + values[ 5] * vector->y + values[ 9] * vector->z + values[13] * vector->w;
+    float z = values[ 2] * vector->x + values[ 6] * vector->y + values[10] * vector->z + values[14] * vector->w;
+    float w = values[ 3] * vector->x + values[ 7] * vector->y + values[11] * vector->z + values[15] * vector->w;
     
-    [vector setX:x];
-    [vector setY:y];
-    [vector setZ:z];
-    [vector setW:w];
+    vector->x = x;
+    vector->y = y;
+    vector->z = z;
+    vector->w = w;
 }
 
 - (void)negate {

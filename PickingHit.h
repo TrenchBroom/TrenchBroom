@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 typedef enum {
     HT_BRUSH  = 1 << 0,
@@ -16,21 +17,19 @@ typedef enum {
     HT_ANY    = HT_BRUSH | HT_FACE | HT_EDGE | HT_VERTEX
 } EHitType;
 
-@class Vector3f;
-
 @interface PickingHit : NSObject {
     id object;
     EHitType type;
-    Vector3f* hitPoint;
+    TVector3f hitPoint;
     float distance;
 }
 
-- (id)initWithObject:(id)theObject type:(EHitType)theType hitPoint:(Vector3f *)theHitPoint distance:(float)theDistance;
+- (id)initWithObject:(id)theObject type:(EHitType)theType hitPoint:(TVector3f *)theHitPoint distance:(float)theDistance;
 
 - (id)object;
 - (EHitType)type;
 - (BOOL)isType:(EHitType)theTypeMask;
-- (Vector3f *)hitPoint;
+- (TVector3f *)hitPoint;
 - (float)distance;
 
 - (NSComparisonResult)compareTo:(PickingHit *)other;

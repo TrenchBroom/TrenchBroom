@@ -10,16 +10,16 @@
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
 #import "Cursor.h"
-#import "Vector3f.h"
+#import "Math.h"
 
 @interface BrushToolCursor : NSObject <Cursor> {
-    Vector3f* position;
+    TVector3f position;
     GLUquadric* arms;
     GLUquadric* disks;
     BOOL initialized;
-    EVectorComponent planeNormal;
+    EAxis planeNormal;
 }
 
-- (void)setPlaneNormal:(EVectorComponent)thePlaneNormal;
+- (void)setPlaneNormal:(EAxis)thePlaneNormal;
 
 @end

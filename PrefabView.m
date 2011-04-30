@@ -9,15 +9,13 @@
 #import "PrefabView.h"
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
+#import "Math.h"
 #import "PrefabManager.h"
 #import "Prefab.h"
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
-#import "Quaternion.h"
-#import "Vector3f.h"
-#import "Vector2f.h"
-#import "BoundingBox.h"
+#import "Vertex.h"
 #import "math.h"
 #import "GLResources.h"
 #import "TextureManager.h"
@@ -35,26 +33,20 @@
 @implementation PrefabView
 
 - (void)resetCamera:(Camera *)camera forPrefab:(id <Prefab>)prefab {
-    BoundingBox* maxBounds = [prefab maxBounds];
-    Vector3f* size = [maxBounds size];
+    TBoundingBox* maxBounds = [prefab maxBounds];
+    TVector3f s, p, d, u;
+    sizeOfBounds(maxBounds, &s);
+    
+    scaleV3f(&s, 0.5f, &p);
+    addV3f(&p, [prefab center], &p);
+    
+    subV3f([prefab center], &p, &d);
 
-    Vector3f* p = [[Vector3f alloc] initWithFloatVector:size];
-    [p scale:0.5f];
-    [p add:[prefab center]];
+    crossV3f(&d, &ZAxisPos, &u);
+    crossV3f(&u, &d, &u);
     
-    Vector3f* d = [[Vector3f alloc] initWithFloatVector:[prefab center]];
-    [d sub:p];
-    
-    Vector3f* u = [[Vector3f alloc] initWithFloatVector:d];
-    [u cross:[Vector3f zAxisPos]]; // points to right
-    [u cross:d];
-    
-    [camera moveTo:p];
-    [camera setDirection:d up:u];
-
-    [p release];
-    [d release];
-    [u release];
+    [camera moveTo:&p];
+    [camera setDirection:&d up:&u];
 }
 
 - (void)addPrefab:(id <Prefab>)prefab {
@@ -168,7 +160,7 @@
 }
 
 - (void)renderFace:(id <Face>)face {
-    Vector2f* t = [[Vector2f alloc] init];
+    TVector2f t;
     
     TextureManager* textureManager = [glResources textureManager];
     Texture* texture = [textureManager textureForName:[face texture]];
@@ -182,20 +174,19 @@
     Vertex* vertex;
     glBegin(GL_POLYGON);
     while ((vertex = [vertexEn nextObject])) {
+        TVector3f* vector = [vertex vector];
         if (texture != nil) {
-            [face texCoords:t forVertex:[vertex vector]];
-            glTexCoord2f([t x] / width, [t y] / height);
+            [face texCoords:&t forVertex:vector];
+            glTexCoord2f(t.x / width, t.y / height);
         }
         
-        glVertex3f([[vertex vector] x], [[vertex vector] y], [[vertex vector] z]);
+        glVertex3f(vector->x, vector->y, vector->z);
         
     }
     glEnd();
     
     if (texture != nil)
         [texture deactivate];
-    
-    [t release];
 }
 
 - (void)drawRect:(NSRect)dirtyRect {

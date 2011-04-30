@@ -10,14 +10,13 @@
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
 #import "Figure.h"
-
-@class Vector3i;
+#import "Math.h"
 
 @interface ClipPointFeedbackFigure : NSObject <Figure> {
-    Vector3i* point;
+    TVector3i point;
     GLUquadric* sphere;
 }
 
-- (id)initWithPoint:(Vector3i *)thePoint;
+- (id)initWithPoint:(TVector3i *)thePoint;
 
 @end

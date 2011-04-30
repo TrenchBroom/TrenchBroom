@@ -7,10 +7,10 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 @class MapDocument;
 @class Octree;
-@class Ray3D;
 @class PickingHitList;
 @protocol Filter;
 
@@ -21,6 +21,6 @@
 
 - (id)initWithDocument:(MapDocument *)theDocument;
 
-- (PickingHitList *)pickObjects:(Ray3D *)ray filter:(id <Filter>)filter;
+- (PickingHitList *)pickObjects:(TRay *)ray filter:(id <Filter>)filter;
 
 @end

@@ -13,17 +13,11 @@
 #import "MapWindowController.h"
 #import "MapDocument.h"
 #import "SelectionManager.h"
-#import "CoordinatePlane.h"
-#import "Ray3D.h"
-#import "Plane3D.h"
-#import "Vector3f.h"
-#import "Vector3i.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
 #import "Face.h"
 #import "Brush.h"
 #import "math.h"
-#import "Math.h"
 #import "CursorManager.h"
 #import "DragFaceCursor.h"
 #import "ApplyFaceCursor.h"
@@ -80,9 +74,6 @@
 - (void)dealloc {
     [dragFaceCursor release];
     [applyFaceCursor release];
-    [lastPoint release];
-    [dragDir release];
-    [plane release];
     [windowController release];
     [super dealloc];
 }
@@ -90,7 +81,7 @@
 # pragma mark -
 # pragma mark @implementation Tool
 
-- (void)handleLeftMouseDown:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)handleLeftMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isApplyTextureModifierPressed] && ![self isApplyTextureAndFlagsModifierPressed])
         return;
     
@@ -147,7 +138,7 @@
     }
 }
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
     if (hit == nil)
         return;
@@ -158,19 +149,15 @@
     if (![selectionManager isFaceSelected:face])
         return;
     
-    dragDir = [[face norm] retain];
+    dragDir = *[face norm];
+    lastPoint = *[hit hitPoint];
+    plane.point = lastPoint;
     
-    Vector3f* planeNorm = [[Vector3f alloc] initWithFloatVector:dragDir];
-    [planeNorm cross:[ray direction]];
-    [planeNorm cross:dragDir];
-    [planeNorm normalize];
-    
-    lastPoint = [[hit hitPoint] retain];
-    plane = [[Plane3D alloc] initWithPoint:lastPoint norm:planeNorm];
-    [planeNorm release];
+    crossV3f(&dragDir, &ray->direction, &plane.norm);
+    normalizeV3f(&plane.norm, &plane.norm);
     
     Grid* grid = [[windowController options] grid];
-    [grid snapToGrid:lastPoint];
+    [grid snapToGrid:&lastPoint result:&lastPoint];
 
     drag = YES;
     
@@ -180,20 +167,23 @@
     [undoManager beginUndoGrouping];
 }
 
-- (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    Vector3f* point = [ray pointAtDistance:[plane intersectWithRay:ray]];
-    if (point == nil)
+- (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    float dist = intersectPlaneWithRay(&plane, ray);
+    if (isnan(dist))
         return;
+    
+    TVector3f point;
+    rayPointAtDistance(ray, dist, &point);
     
     Grid* grid = [[windowController options] grid];
-    [grid snapToGrid:point];
+    [grid snapToGrid:&point result:&point];
     
-    if ([point isEqualToVector:lastPoint])
+    if (equalV3f(&point, &point))
         return;
-    
-    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:point];
-    [diff sub:lastPoint];
-    float dist = [diff dot:dragDir];
+
+    TVector3f diff;
+    subV3f(&point, &lastPoint, &diff);
+    dist = dotV3f(&diff, &dragDir);
     
     MapDocument* map = [windowController document];
     
@@ -202,49 +192,21 @@
     id <Face> face;
     while ((face = [faceEn nextObject]))
         [map dragFace:face dist:dist];
-    
-    [diff release];
-    [lastPoint release];
-    lastPoint = [point retain];
+
+    lastPoint = point;
 }
 
-- (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setActionName:[self actionName]];
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
-    
-    [plane release];
-    plane = nil;
-    [dragDir release];
-    dragDir = nil;
-    [lastPoint release];
-    lastPoint = nil;
+
     drag = NO;
 }
 
-- (BOOL)isCursorOwner:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager mode] != SM_FACES)
-        return NO;
-    
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    if (hit == nil)
-        return NO;
-    
-    id <Face> face = [hit object];
-    if ([selectionManager isFaceSelected:face])
-        return YES;
-    
-    NSSet* selectedFaces = [selectionManager selectedFaces];
-    if ([selectedFaces count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed]))
-        return YES;
-        
-    return NO;
-}
-
-- (void)setCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
     id <Face> face = [hit object];
 
@@ -263,13 +225,13 @@
     }
 }
 
-- (void)unsetCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     CursorManager* cursorManager = [windowController cursorManager];
     [cursorManager popCursor];
     currentCursor = nil;
 }
 
-- (void)updateCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (!drag) {
         PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
         id <Face> face = [hit object];
@@ -295,8 +257,10 @@
         
         [currentCursor update:[hit hitPoint]];
     } else {
-        Vector3f* position = [ray pointAtDistance:[plane intersectWithRay:ray]];
-        [currentCursor update:position];
+        TVector3f position;
+        float dist = intersectPlaneWithRay(&plane, ray);
+        rayPointAtDistance(ray, dist, &position);
+        [currentCursor update:&position];
     }
 }
 

@@ -12,8 +12,6 @@
 #import "VBOMemBlock.h"
 #import "EntityDefinitionManager.h"
 #import "EntityDefinition.h"
-#import "BoundingBox.h"
-#import "Vector3f.h"
 
 static NSString* QuadsBlockKey = @"bounds quads";
 static NSString* LinesBlockKey = @"bounds lines";
@@ -37,9 +35,7 @@ static NSString* LinesBlockKey = @"bounds lines";
     }
 
     if ([addedEntities count] > 0) {
-        Vector3f* c = [[Vector3f alloc] init];
-        Vector3f* t = [[Vector3f alloc] init];
-        Vector3f* o = [[Vector3f alloc] init];
+        TVector3f c, t, o;
         float defaultColor[] = {1, 1, 1};
         
         NSEnumerator* entityEn = [addedEntities objectEnumerator];
@@ -56,54 +52,51 @@ static NSString* LinesBlockKey = @"bounds lines";
             
             if ([quadsBlock state] != BS_USED_VALID) {
                 EntityDefinition* definition = [definitionManager definitionForName:[entity propertyForKey:@"classname"]];
-                BoundingBox* bounds = definition != nil && [definition type] == EDT_POINT ? [definition bounds] : [entity bounds];
+                TBoundingBox* bounds = definition != nil && [definition type] == EDT_POINT ? [definition bounds] : [entity bounds];
                 float* color = definition != nil ? [definition color] : defaultColor;
                 
                 NSString* originStr = [entity propertyForKey:@"origin"];
                 if (originStr != nil)
-                    [o parse:originStr];
+                    parseV3f(originStr, NSMakeRange(0, [originStr length]), &o);
                 else
-                    [o setNull];
-                
-                Vector3f* min = [bounds min];
-                Vector3f* max = [bounds max];
+                    o = NullVector;
                 
                 int offset = 0;
-                [c setX:color[0] y:color[1] z:color[2]];
+                c.x = color[0];
+                c.y = color[1];
+                c.z = color[2];
                 
-                [t setFloat:min];
-                [t add:o];
-                offset = [quadsBlock writeVector3f:c offset:offset];
-                offset = [quadsBlock writeVector3f:t offset:offset];
+                addV3f(&bounds->min, &o, &t);
+                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeVector3f:&t offset:offset];
 
-                [t setX:[o x] + [max x]];
-                offset = [quadsBlock writeVector3f:c offset:offset];
-                offset = [quadsBlock writeVector3f:t offset:offset];
+                t.x = o.x + bounds->max.x;
+                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeVector3f:&t offset:offset];
 
-                [t setY:[o y] + [max y]];
-                offset = [quadsBlock writeVector3f:c offset:offset];
-                offset = [quadsBlock writeVector3f:t offset:offset];
+                t.y = o.y + bounds->max.y;
+                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeVector3f:&t offset:offset];
 
-                [t setX:[o x] + [min x]];
-                offset = [quadsBlock writeVector3f:c offset:offset];
-                offset = [quadsBlock writeVector3f:t offset:offset];
+                t.x = o.x + bounds->min.x;
+                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeVector3f:&t offset:offset];
                 
-                [t setFloat:max];
-                [t add:o];
-                offset = [quadsBlock writeVector3f:c offset:offset];
-                offset = [quadsBlock writeVector3f:t offset:offset];
+                addV3f(&bounds->max, &o, &t);
+                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeVector3f:&t offset:offset];
 
-                [t setY:[o y] + [min y]];
-                offset = [quadsBlock writeVector3f:c offset:offset];
-                offset = [quadsBlock writeVector3f:t offset:offset];
+                t.y = o.y + bounds->min.y;
+                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeVector3f:&t offset:offset];
                 
-                [t setX:[o x] + [min x]];
-                offset = [quadsBlock writeVector3f:c offset:offset];
-                offset = [quadsBlock writeVector3f:t offset:offset];
+                t.x = o.x + bounds->min.x;
+                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeVector3f:&t offset:offset];
                 
-                [t setY:[o y] + [max y]];
-                offset = [quadsBlock writeVector3f:c offset:offset];
-                offset = [quadsBlock writeVector3f:t offset:offset];
+                t.y = o.y + bounds->max.y;
+                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 [quadsBlock setState:BS_USED_VALID];
             }
@@ -124,58 +117,53 @@ static NSString* LinesBlockKey = @"bounds lines";
             
             if ([linesBlock state] != BS_USED_VALID) {
                 EntityDefinition* definition = [definitionManager definitionForName:[entity propertyForKey:@"classname"]];
-                BoundingBox* bounds = definition != nil && [definition type] == EDT_POINT ? [definition bounds] : [entity bounds];
+                TBoundingBox* bounds = definition != nil && [definition type] == EDT_POINT ? [definition bounds] : [entity bounds];
                 float* color = definition != nil ? [definition color] : defaultColor;
                 
                 NSString* originStr = [entity propertyForKey:@"origin"];
                 if (originStr != nil)
-                    [o parse:originStr];
+                    parseV3f(originStr, NSMakeRange(0, [originStr length]), &o);
                 else
-                    [o setNull];
-                
-                Vector3f* min = [bounds min];
-                Vector3f* max = [bounds max];
+                    o = NullVector;
                 
                 int offset = 0;
-                [c setX:color[0] y:color[1] z:color[2]];
+                c.x = color[0];
+                c.y = color[1];
+                c.z = color[2];
+
+                addV3f(&bounds->min, &o, &t);
+                offset = [linesBlock writeVector3f:&c offset:offset];
+                offset = [linesBlock writeVector3f:&t offset:offset];
                 
-                [t setFloat:min];
-                [t add:o];
-                offset = [linesBlock writeVector3f:c offset:offset];
-                offset = [linesBlock writeVector3f:t offset:offset];
+                t.z = o.z + bounds->max.z;
+                offset = [linesBlock writeVector3f:&c offset:offset];
+                offset = [linesBlock writeVector3f:&t offset:offset];
                 
-                [t setZ:[o z] + [max z]];
-                offset = [linesBlock writeVector3f:c offset:offset];
-                offset = [linesBlock writeVector3f:t offset:offset];
+                addV3f(&bounds->min, &o, &t);
+                t.x = o.x + bounds->max.x;
+                offset = [linesBlock writeVector3f:&c offset:offset];
+                offset = [linesBlock writeVector3f:&t offset:offset];
                 
-                [t setFloat:min];
-                [t add:o];
-                [t setX:[o x] + [max x]];
-                offset = [linesBlock writeVector3f:c offset:offset];
-                offset = [linesBlock writeVector3f:t offset:offset];
+                t.z = o.z + bounds->max.z;
+                offset = [linesBlock writeVector3f:&c offset:offset];
+                offset = [linesBlock writeVector3f:&t offset:offset];
                 
-                [t setZ:[o z] + [max z]];
-                offset = [linesBlock writeVector3f:c offset:offset];
-                offset = [linesBlock writeVector3f:t offset:offset];
+                addV3f(&bounds->max, &o, &t);
+                offset = [linesBlock writeVector3f:&c offset:offset];
+                offset = [linesBlock writeVector3f:&t offset:offset];
                 
-                [t setFloat:max];
-                [t add:o];
-                offset = [linesBlock writeVector3f:c offset:offset];
-                offset = [linesBlock writeVector3f:t offset:offset];
+                t.z = o.z + bounds->min.z;
+                offset = [linesBlock writeVector3f:&c offset:offset];
+                offset = [linesBlock writeVector3f:&t offset:offset];
                 
-                [t setZ:[o z] + [min z]];
-                offset = [linesBlock writeVector3f:c offset:offset];
-                offset = [linesBlock writeVector3f:t offset:offset];
+                addV3f(&bounds->max, &o, &t);
+                t.x = o.x + bounds->min.x;
+                offset = [linesBlock writeVector3f:&c offset:offset];
+                offset = [linesBlock writeVector3f:&t offset:offset];
                 
-                [t setFloat:max];
-                [t add:o];
-                [t setX:[o x] + [min x]];
-                offset = [linesBlock writeVector3f:c offset:offset];
-                offset = [linesBlock writeVector3f:t offset:offset];
-                
-                [t setZ:[o z] + [min z]];
-                offset = [linesBlock writeVector3f:c offset:offset];
-                offset = [linesBlock writeVector3f:t offset:offset];
+                t.z = o.z + bounds->min.z;
+                offset = [linesBlock writeVector3f:&c offset:offset];
+                offset = [linesBlock writeVector3f:&t offset:offset];
                 
                 [linesBlock setState:BS_USED_VALID];
             }
@@ -183,10 +171,6 @@ static NSString* LinesBlockKey = @"bounds lines";
         [lines pack];
         [lines unmapBuffer];
         [lines deactivate];
-        
-        [c release];
-        [t release];
-        [o release];
     }
 }
 

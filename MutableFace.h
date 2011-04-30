@@ -8,20 +8,15 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Face.h"
+#import "Math.h"
 
 typedef enum {
     XY, XZ, YZ
 } EPlaneType;
 
 @class MutableBrush;
-@class Vector2f;
-@class Vector3f;
-@class Vector3i;
-@class HalfSpace3D;
-@class Plane3D;
 @class Matrix4f;
 @class PickingHit;
-@class Ray3D;
 @class VBOMemBlock;
 
 @interface MutableFace : NSObject <Face> {
@@ -29,9 +24,9 @@ typedef enum {
     MutableBrush* brush;
     NSNumber* faceId;
     
-	Vector3i* point1;
-	Vector3i* point2;
-	Vector3i* point3;
+	TVector3i point1;
+	TVector3i point2;
+	TVector3i point3;
 	
 	NSMutableString* texture;
 	int xOffset;
@@ -40,15 +35,17 @@ typedef enum {
 	float xScale;
 	float yScale;
     
-    Plane3D* boundary;
-    
-    Vector3f* center;
+    TPlane boundary;
+    BOOL boundaryValid;
+    TVector3f center;
+    BOOL centerValid;
+
     NSArray* vertices;
     NSArray* edges;
     
     int bestAxis;
-    Vector3f* texAxisX;
-    Vector3f* texAxisY;
+    TVector3f texAxisX;
+    TVector3f texAxisY;
     BOOL texAxesValid;
     
     // transforms surface coordinates to world coordinates
@@ -58,11 +55,11 @@ typedef enum {
     VBOMemBlock* memBlock;
 }
 
-- (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture;
+- (id)initWithPoint1:(TVector3i *)aPoint1 point2:(TVector3i *)aPoint2 point3:(TVector3i *)aPoint3 texture:(NSString *)aTexture;
 - (id)initWithFaceTemplate:(id <Face>)theTemplate;
 
 - (void)setBrush:(MutableBrush *)theBrush;
-- (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3;
+- (void)setPoint1:(TVector3i *)thePoint1 point2:(TVector3i *)thePoint2 point3:(TVector3i *)thePoint3;
 - (void)setTexture:(NSString *)name;
 - (void)setXOffset:(int)offset;
 - (void)setYOffset:(int)offset;
@@ -70,9 +67,9 @@ typedef enum {
 - (void)setXScale:(float)factor;
 - (void)setYScale:(float)factor;
 - (void)translateOffsetsX:(int)x y:(int)y;
-- (void)translateBy:(Vector3i *)theDelta;
-- (void)rotateZ90CW:(Vector3i *)theCenter;
-- (void)rotateZ90CCW:(Vector3i *)theCenter;
+- (void)translateBy:(TVector3i *)theDelta;
+- (void)rotateZ90CW:(TVector3i *)theCenter;
+- (void)rotateZ90CCW:(TVector3i *)theCenter;
 - (BOOL)canDragBy:(float)dist;
 - (void)dragBy:(float)dist;
 

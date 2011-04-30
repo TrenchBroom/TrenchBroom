@@ -10,12 +10,12 @@
 #import "DefaultTool.h"
 
 @class MapWindowController;
-@class Vector3f;
 
 @interface CameraTool : DefaultTool {
     MapWindowController* windowController;
-    Vector3f* orbitCenter;
+    TVector3f orbitCenter;
     BOOL gesture;
+    BOOL orbit;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

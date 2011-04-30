@@ -7,12 +7,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
-
-@class Vector3f;
+#import "Math.h"
 
 @protocol Cursor <NSObject>
 
 - (void)render;
-- (void)update:(Vector3f *)thePosition;
+- (void)update:(TVector3f *)thePosition;
 
 @end

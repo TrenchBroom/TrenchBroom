@@ -10,10 +10,37 @@
 #import "Brush.h"
 #import "MutableBrush.h"
 #import "IdGenerator.h"
-#import "Vector3i.h"
-#import "Vector3f.h"
-#import "BoundingBox.h"
 #import "VBOMemBlock.h"
+
+@interface MutableEntity (private)
+
+- (void)validate;
+
+@end
+
+@implementation MutableEntity (private)
+
+- (void)validate {
+    if ([brushes count] > 0) {
+        NSEnumerator* brushEn = [brushes objectEnumerator];
+        MutableBrush* brush = [brushEn nextObject];
+        
+        bounds = *[brush bounds];
+        center = *[brush center];
+        while ((brush = [brushEn nextObject])) {
+            mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
+            addV3f(&center, [brush center], &center);
+        }
+        
+        scaleV3f(&center, 1.0f / [brushes count], &center);
+    } else {
+        center = NullVector;
+        bounds.min = NullVector;
+        bounds.max = NullVector;
+    }
+}
+
+@end
 
 @implementation MutableEntity
 
@@ -39,11 +66,13 @@
 - (void)addBrush:(MutableBrush *)brush {
     [brushes addObject:brush];
     [brush setEntity:self];
+    valid = NO;
 }
 
 - (void)removeBrush:(MutableBrush *)brush {
     [brush setEntity:nil];
     [brushes removeObject:brush];
+    valid = NO;
 }
 
 - (void)setProperty:(NSString *)key value:(NSString *)value {
@@ -72,8 +101,6 @@
     [entityId release];
 	[properties release];
 	[brushes release];
-    [center release];
-    [bounds release];
     [memBlocks release];
 	[super dealloc];
 }
@@ -109,32 +136,18 @@
     return [[self classname] isEqualToString:@"worldspawn"];
 }
 
-- (BoundingBox *)bounds {
-    if (bounds == nil && [brushes count] > 0) {
-        NSEnumerator* brushEn = [brushes objectEnumerator];
-        MutableBrush* brush = [brushEn nextObject];
-        
-        bounds = [[BoundingBox alloc] initWithBounds:[brush bounds]];
-        while ((brush = [brushEn nextObject]))
-            [bounds mergeBounds:[brush bounds]];
-    }
+- (TBoundingBox *)bounds {
+    if (!valid)
+        [self validate];
     
-    return bounds;
+    return &bounds;
 }
 
-- (Vector3f *)center {
-    if (center == nil && [brushes count] > 0) {
-        NSEnumerator* brushEn = [brushes objectEnumerator];
-        MutableBrush* brush = [brushEn nextObject];
-        
-        center = [[Vector3f alloc] initWithFloatVector:[brush center]];
-        while ((brush = [brushEn nextObject]))
-            [center add:[brush center]];
-        
-        [center scale:1.0f / [brushes count]];
-    }
-    
-    return center;
+- (TVector3f *)center {
+    if (!valid)
+        [self validate];
+
+    return &center;
 }
 
 - (void)setMemBlock:(VBOMemBlock *)theBlock forKey:(id <NSCopying>)theKey {

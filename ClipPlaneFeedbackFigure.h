@@ -8,15 +8,14 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Figure.h"
-
-@class Vector3i;
+#import "Math.h"
 
 @interface ClipPlaneFeedbackFigure : NSObject <Figure> {
-    Vector3i* point1;
-    Vector3i* point2;
-    Vector3i* point3;
+    TVector3i point1;
+    TVector3i point2;
+    TVector3i point3;
 }
 
-- (id)initWithPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3;
+- (id)initWithPoint1:(TVector3i *)thePoint1 point2:(TVector3i *)thePoint2 point3:(TVector3i *)thePoint3;
 
 @end

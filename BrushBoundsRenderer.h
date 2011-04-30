@@ -7,11 +7,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 @class GLFontManager;
 @class GLString;
 @class Camera;
-@class BoundingBox;
 @protocol Brush;
 
 @interface BrushBoundsRenderer : NSObject {
@@ -19,7 +19,7 @@
     NSMutableDictionary* brushCounts;
     GLFontManager* fontManager;
     NSFont* font;
-    BoundingBox* bounds;
+    TBoundingBox bounds;
     GLString* widthStr;
     GLString* heightStr;
     GLString* depthStr;

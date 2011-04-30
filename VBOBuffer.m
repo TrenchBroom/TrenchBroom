@@ -8,8 +8,6 @@
 
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
-#import "Vector2f.h"
-#import "Vector3f.h"
 
 NSString* const BufferNotMappedException = @"BufferNotMappedException";
 
@@ -175,15 +173,15 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         buffer[theAddress + i] = ((char *)&f)[i];
 }
 
-- (void)writeVector3f:(Vector3f *)theVector address:(int)theAddress {
-    [self writeFloat:[theVector x] address:theAddress];
-    [self writeFloat:[theVector y] address:theAddress + sizeof(float)];
-    [self writeFloat:[theVector z] address:theAddress + 2 * sizeof(float)];
+- (void)writeVector3f:(TVector3f *)theVector address:(int)theAddress {
+    [self writeFloat:theVector->x address:theAddress];
+    [self writeFloat:theVector->y address:theAddress + sizeof(float)];
+    [self writeFloat:theVector->z address:theAddress + 2 * sizeof(float)];
 }
 
-- (void)writeVector2f:(Vector2f *)theVector address:(int)theAddress {
-    [self writeFloat:[theVector x] address:theAddress];
-    [self writeFloat:[theVector y] address:theAddress + sizeof(float)];
+- (void)writeVector2f:(TVector2f *)theVector address:(int)theAddress {
+    [self writeFloat:theVector->x address:theAddress];
+    [self writeFloat:theVector->y address:theAddress + sizeof(float)];
 }
 
 

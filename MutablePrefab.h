@@ -11,8 +11,6 @@
 #import "Map.h"
 
 @class MutablePrefabGroup;
-@class BoundingBox;
-@class Vector3f;
 @class MapDocument;
 
 @interface MutablePrefab : NSObject <Prefab, Map> {
@@ -22,9 +20,10 @@
     NSNumber* prefabId;
     BOOL readOnly;
     NSMutableArray* entities;
-    BoundingBox* bounds;
-    BoundingBox* maxBounds;
-    Vector3f* center;
+    TBoundingBox bounds;
+    TBoundingBox maxBounds;
+    TVector3f center;
+    BOOL valid;
 }
 
 - (id)initWithName:(NSString *)theName group:(MutablePrefabGroup *)thePrefabGroup readOnly:(BOOL)isReadOnly;

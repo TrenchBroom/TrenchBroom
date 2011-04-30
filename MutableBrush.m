@@ -13,12 +13,7 @@
 #import "Entity.h"
 #import "MutableEntity.h"
 #import "IdGenerator.h"
-#import "Vector3f.h"
-#import "Vector3i.h"
-#import "Quaternion.h"
 #import "VertexData.h"
-#import "BoundingBox.h"
-#import "Ray3D.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
 
@@ -119,41 +114,37 @@
     return flatColor;
 }
 
-- (BoundingBox *)bounds {
+- (TBoundingBox *)bounds {
     return [[self vertexData] bounds];
 }
 
-- (Vector3f *)center {
+- (TVector3f *)center {
     return [[self vertexData] center];
 }
 
-- (void)pick:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
+- (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList {
     [[self vertexData] pick:theRay hitList:theHitList];
-}
-
-- (BoundingBox *)pickingBounds {
-    return [[self vertexData] pickingBounds];
 }
 
 - (void)setEntity:(MutableEntity *)theEntity {
     entity = theEntity;
 }
 
-- (void)translateBy:(Vector3i *)theDelta {
+- (void)translateBy:(TVector3i *)theDelta {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
         [face translateBy:theDelta];
 }
 
-- (void)rotateZ90CW:(Vector3i *)theCenter {
+- (void)rotateZ90CW:(TVector3i *)theCenter {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
         [face rotateZ90CW:theCenter];
 }
 
-- (void)rotateZ90CCW:(Vector3i *)theCenter {
+- (void)rotateZ90CCW:(TVector3i *)theCenter {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))

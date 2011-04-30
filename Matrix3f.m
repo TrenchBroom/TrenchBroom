@@ -9,8 +9,6 @@
 #import "Matrix3f.h"
 #import "Matrix4f.h"
 #import "Matrix2f.h"
-#import "Math.h"
-#import "Vector3f.h"
 
 @implementation Matrix3f
 
@@ -63,10 +61,10 @@
                 values[i++] = mvalues[c * 4 + r];
 }
 
-- (void)setColumn:(int)col values:(Vector3f *)vector {
-    values[col * 3 + 0] = [vector x];
-    values[col * 3 + 1] = [vector y];
-    values[col * 3 + 2] = [vector z];
+- (void)setColumn:(int)col values:(TVector3f *)vector {
+    values[col * 3 + 0] = vector->x;
+    values[col * 3 + 1] = vector->y;
+    values[col * 3 + 2] = vector->z;
 }
 
 - (BOOL)invert {

@@ -8,9 +8,6 @@
 
 #import "Camera.h"
 #import <OpenGL/glu.h>
-#import "Vector3f.h"
-#import "Quaternion.h"
-#import "Ray3D.h"
 
 NSString* const CameraChanged = @"CameraChanged";
 NSString* const CameraViewChanged = @"CameraViewChanged";
@@ -19,10 +16,10 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 
 - (id)init {
     if (self = [super init]) {
-        position = [[Vector3f alloc] initWithFloatVector:[Vector3f nullVector]];
-        direction = [[Vector3f alloc] initWithFloatVector:[Vector3f xAxisPos]];
-        up = [[Vector3f alloc] initWithFloatVector:[Vector3f zAxisPos]];
-        right = [[Vector3f alloc] initWithFloatVector:[Vector3f yAxisNeg]];
+        position = NullVector;
+        direction = XAxisPos;
+        up = ZAxisPos;
+        right = YAxisNeg;
         mode = CM_PERSPECTIVE;
         zoom = 0.5f;
     }
@@ -42,11 +39,11 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 
 - (id)initWithCamera:(Camera *)theCamera {
     if (self = [self init]) {
-        [position setFloat:[theCamera position]];
-        [direction setFloat:[theCamera direction]];
-        [up setFloat:[theCamera up]];
-        [right setFloat:[theCamera right]];
-
+        position = *[theCamera position];
+        direction = *[theCamera direction];
+        up = *[theCamera up];
+        right = *[theCamera right];
+        
         fov = [theCamera fieldOfVision];
         near = [theCamera nearClippingPlane];
         far = [theCamera farClippingPlane];
@@ -55,20 +52,20 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     return self;
 }
 
-- (Vector3f *)position {
-    return position;
+- (const TVector3f *)position {
+    return &position;
 }
 
-- (Vector3f *)direction {
-    return direction;
+- (const TVector3f *)direction {
+    return &direction;
 }
 
-- (Vector3f *)up {
-    return up;
+- (const TVector3f *)up {
+    return &up;
 }
 
-- (Vector3f *)right {
-    return right;
+- (const TVector3f *)right {
+    return &right;
 }
 
 - (float)fieldOfVision {
@@ -91,124 +88,100 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     return mode;
 }
 
-- (void)moveTo:(Vector3f *)thePosition {
-    [position setFloat:thePosition];
+- (void)moveTo:(TVector3f *)thePosition {
+    position = *thePosition;
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
-- (void)lookAt:(Vector3f *)thePoint up:(Vector3f *)theUpVector {
-    Vector3f* d = [[Vector3f alloc] initWithFloatVector:thePoint];
-    [d sub:position];
-    [self setDirection:d up:theUpVector];
-    [d release];
+- (void)lookAt:(TVector3f *)thePoint up:(TVector3f *)theUpVector {
+    TVector3f d;
+    subV3f(thePoint, &position, &d);
+    [self setDirection:&d up:theUpVector];
 }
 
-- (void)setDirection:(Vector3f *)theDirection up:(Vector3f *)theUpVector {
-    [direction setFloat:theDirection];
-    [direction normalize];
-    
-    [up setFloat:theUpVector];
-    [up normalize];
-    
-    [right setFloat:direction];
-    [right cross:up];
-    [right normalize];
+- (void)setDirection:(TVector3f *)theDirection up:(TVector3f *)theUpVector {
+    normalizeV3f(theDirection, &direction);
+    normalizeV3f(theUpVector, &up);
+    crossV3f(&direction, &up, &right);
+    normalizeV3f(&right, &right);
     
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
 - (void)rotateYaw:(float)yaw pitch:(float)pitch {
-    Quaternion* qy = [[Quaternion alloc] initWithAngle:yaw axis:[Vector3f zAxisPos]];
-    Quaternion* qp = [[Quaternion alloc] initWithAngle:pitch axis:right];
-    [qy mul:qp];
+    TQuaternion qy, qp;
+    TVector3f d, u;
     
-    Vector3f* d = [[Vector3f alloc] initWithFloatVector:direction];
-    [qy rotate:d];
+    setAngleAndAxisQ(&qy, yaw, &ZAxisPos);
+    setAngleAndAxisQ(&qp, pitch, &right);
+    mulQ(&qy, &qp, &qy);
+
+    rotateQ(&qy, &direction, &d);
+    rotateQ(&qy, &up, &u);
     
-    Vector3f* u = [[Vector3f alloc] initWithFloatVector:up];
-    [qy rotate:u];
-    
-    if ([u z] < 0) {
-        [u setZ:0];
-        [d setX:0];
-        [d setY:0];
+    if (u.z < 0) {
+        u.z = 0;
+        d.x = 0;
+        d.y = 0;
     }
     
-    [self setDirection:d up:u];
-
-    [d release];
-    [u release];
-    [qy release];
-    [qp release];
+    [self setDirection:&d up:&u];
 }
 
 - (void)moveForward:(float)f right:(float)r up:(float)u {
-    Vector3f* v = [[Vector3f alloc] initWithFloatVector:direction];
-    [v scale:f];
-    [position add:v];
+    TVector3f t;
     
-    [v setFloat:right];
-    [v scale:r];
-    [position add:v];
+    scaleV3f(&direction, f, &t);
+    addV3f(&position, &t, &position);
     
-    [v setFloat:up];
-    [v scale:u];
-    [position add:v];
+    scaleV3f(&right, r, &t);
+    addV3f(&position, &t, &position);
 
-    [v release];
+    scaleV3f(&up, u, &t);
+    addV3f(&position, &t, &position);
     
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
-- (void)orbitCenter:(Vector3f *)c hAngle:(float)h vAngle:(float)v {
-    Quaternion* qv = [[Quaternion alloc] initWithAngle:v axis:right];
-    Quaternion* qh = [[Quaternion alloc] initWithAngle:h axis:[Vector3f zAxisPos]];
-    [qh mul:qv];
+- (void)orbitCenter:(const TVector3f *)c hAngle:(float)h vAngle:(float)v {
+    TQuaternion qv, qh;
+    TVector3f d, u, p;
     
-    Vector3f* d = [[Vector3f alloc] initWithFloatVector:direction];
-    [d setFloat:direction];
-    [qh rotate:d];
+    setAngleAndAxisQ(&qv, v, &right);
+    setAngleAndAxisQ(&qh, h, &ZAxisPos);
+    mulQ(&qh, &qv, &qh);
 
-    Vector3f* u = [[Vector3f alloc] initWithFloatVector:up];
-    [qh rotate:u];
-
-    Vector3f* p = [[Vector3f alloc] initWithFloatVector:position];
-    [p sub:c];
+    rotateQ(&qh, &direction, &d);
+    rotateQ(&qh, &up, &u);
+    subV3f(&position, c, &p);
     
-    if ([u z] < 0) {
-        [u setFloat:up];
-
-        [d setX:0];
-        [d setY:0];
-        [d normalize];
+    if (u.z < 0) {
+        u = up;
         
-        float angle = acos([direction dot:d]);
+        d.x = 0;
+        d.y = 0;
+        normalizeV3f(&d, &d);
+        
+        float angle = acos(dotV3f(&direction, &d));
         if (angle != 0) {
-            Vector3f* axis = [[Vector3f alloc] initWithFloatVector:direction];
-            [axis cross:d];
-            [axis normalize];
-            
-            Quaternion* q = [[Quaternion alloc] initWithAngle:angle axis:axis];
-            [q rotate:p];
-            [q rotate:u];
+            TQuaternion q;
+            TVector3f axis;
 
-            [q release];
-            [axis release];
+            crossV3f(&direction, &d, &axis);
+            normalizeV3f(&axis, &axis);
+            
+            setAngleAndAxisQ(&q, angle, &axis);
+            rotateQ(&q, &p, &p);
+            rotateQ(&q, &u, &u);
         }
     } else {
-        [qh rotate:p];
+        rotateQ(&qh, &p, &p);
     }
     
-    [self setDirection:d up:u];
+    [self setDirection:&d up:&u];
     
-    [p add:c];
-    [self moveTo:p];
-    
-    [d release];
-    [u release];
-    [p release];
-    [qh release];
-    [qv release];
+    addV3f(&p, c, &p);
+    [self moveTo:&p];
 }
 
 - (void)setFieldOfVision:(float)theFov {
@@ -249,15 +222,15 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt([position x],
-              [position y],
-              [position z],
-              [position x] + [direction x],
-              [position y] + [direction y],
-              [position z] + [direction z],
-              [up x],
-              [up y],
-              [up z]);
+    gluLookAt(position.x,
+              position.y,
+              position.z,
+              position.x + direction.x,
+              position.y + direction.y,
+              position.z + direction.z,
+              up.x,
+              up.y,
+              up.z);
 
     glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
@@ -266,44 +239,46 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 }
 
 
-- (Vector3f *)unprojectX:(float)x y:(float)y {
+- (TVector3f)unprojectX:(float)x y:(float)y {
     GLint viewportInt[] = {NSMinX(viewport), NSMinY(viewport), NSWidth(viewport), NSHeight(viewport)};
     
     GLdouble rx, ry, rz;
     gluUnProject(x, y, 0, modelview, projection, viewportInt, &rx, &ry, &rz);
     
-    return [[[Vector3f alloc] initWithFloatX:rx y:ry z:rz] autorelease];
+    TVector3f r = {rx, ry, rz};
+    return r;
 }
 
 - (NSRect)viewport {
     return viewport;
 }
 
-- (Ray3D *)pickRayX:(float)x y:(float)y {
+- (TRay)pickRayX:(float)x y:(float)y {
     if (mode == CM_PERSPECTIVE) {
-        Vector3f* rayDir = [self unprojectX:x y:y];
-        [rayDir sub:position];
-        [rayDir normalize];
-        return [[[Ray3D alloc] initWithOrigin:position direction:rayDir] autorelease];
+        TRay r;
+        r.origin = position;
+        r.direction = [self unprojectX:x y:y];
+        subV3f(&r.direction, &position, &r.direction);
+        normalizeV3f(&r.direction, &r.direction);
+        return r;
     } else {
-        Vector3f* rayDir = [[Vector3f alloc] initWithFloatVector:direction];
-        Vector3f* rayPos = [self unprojectX:x y:y];
-        return [[[Ray3D alloc] initWithOrigin:rayPos direction:[rayDir autorelease]] autorelease];
+        TRay r;
+        r.origin = [self unprojectX:x y:y];
+        r.direction = direction;
+        return r;
     }
 }
 
-- (Vector3f *)defaultPoint {
-    Vector3f* point = [[Vector3f alloc] initWithFloatVector:direction];
-    [point scale:256];
-    [point add:position];
-    return [point autorelease];
+- (TVector3f)defaultPoint {
+    TVector3f p;
+    p = direction;
+    scaleV3f(&p, 256, &p);
+    addV3f(&p, &position, &p);
+    return p;
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [position release];
-    [direction release];
-    [up release];
     [super dealloc];
 }
 

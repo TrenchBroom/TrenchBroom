@@ -9,35 +9,28 @@
 #import "MutableFace.h"
 #import "MutableBrush.h"
 #import "IdGenerator.h"
-#import "Vector3i.h"
-#import "Vector3f.h"
-#import "Vector2f.h"
-#import "Quaternion.h"
+#import "Vertex.h"
 #import "math.h"
 #import "Math.h"
 #import "Brush.h"
 #import "Matrix4f.h"
 #import "Matrix3f.h"
-#import "Plane3D.h"
-#import "Line3D.h"
 #import "PickingHit.h"
-#import "Ray3D.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "TextureManager.h"
 #import "Texture.h"
 #import "RenderContext.h"
 #import "IntData.h"
-#import "CoordinatePlane.h"
-#import "SegmentIterator.h"
 
-static Vector3f* baseAxes[18];
+static TVector3f baseAxes[18];
 
 @interface MutableFace (private)
 
 - (void)updateTexAxes;
 - (void)updateMatrices;
 - (void)geometryChanged;
+- (void)validate;
 
 @end
 
@@ -49,134 +42,146 @@ static Vector3f* baseAxes[18];
         float best = 0;
         bestAxis = 0;
         for (int i = 0; i < 6; i++) {
-            float dot = [[self norm] dot:baseAxes[i * 3]];
+            float dot = dotV3f([self norm], &baseAxes[i * 3]);
             if (dot > best) {
                 best = dot;
                 bestAxis = i;
             }
         }
         
-        [texAxisX setFloat:baseAxes[bestAxis * 3 + 1]];
-        [texAxisY setFloat:baseAxes[bestAxis * 3 + 2]];
+        texAxisX = baseAxes[bestAxis * 3 + 1];
+        texAxisY = baseAxes[bestAxis * 3 + 2];
         
         float ang = rotation / 180 * M_PI;
         float sinv = sin(ang);
         float cosv = cos(ang);
         
-        int sv, tv;
-        if ([texAxisX x] != 0)
-            sv = 0;
-        else if ([texAxisX y] != 0)
-            sv = 1;
+        EAxis sv, tv;
+        if (texAxisX.x != 0)
+            sv = A_X;
+        else if (texAxisX.y != 0)
+            sv = A_Y;
         else
-            sv = 2;
+            sv = A_Z;
         
-        if ([texAxisY x] != 0)
-            tv = 0;
-        else if ([texAxisY y] != 0)
-            tv = 1;
+        if (texAxisY.x != 0)
+            tv = A_X;
+        else if (texAxisY.y != 0)
+            tv = A_Y;
         else
-            tv = 2;
+            tv = A_Z;
         
-        Vector3f* texAxes[2] = {texAxisX, texAxisY};
+        TVector3f texAxes[2] = {texAxisX, texAxisY};
         for (int i = 0; i < 2; i++) {
-            float ns = cosv * [texAxes[i] component:sv] - sinv * [texAxes[i] component:tv];
-            float nt = sinv * [texAxes[i] component:sv] + cosv * [texAxes[i] component:tv];
+            float ns = cosv * componentV3f(&texAxes[i], sv) - sinv * componentV3f(&texAxes[i], tv);
+            float nt = sinv * componentV3f(&texAxes[i], sv) + cosv * componentV3f(&texAxes[i], tv);
             
-            [texAxes[i] setComponent:sv value:ns];
-            [texAxes[i] setComponent:tv value:nt];
+            setComponentV3f(&texAxes[i], sv, ns);
+            setComponentV3f(&texAxes[i], tv, nt);
         }
         
-        [texAxisX scale:1 / xScale];
-        [texAxisY scale:1 / yScale];
+        scaleV3f(&texAxisX, 1 / xScale, &texAxisX);
+        scaleV3f(&texAxisY, 1 / yScale, &texAxisY);
         
         texAxesValid = YES;
     }
 }
 
 - (void)updateMatrices {
-    Vector3f* xAxis = [[Vector3f alloc] init];
-    Vector3f* yAxis = [[Vector3f alloc] init];
-    Vector3f* zAxis = [[Vector3f alloc] initWithFloatVector:[self norm]];
+    TVector3f xAxis, yAxis, zAxis;
+    TLine line;
     
-    float ny = [[self norm] y];
+    zAxis = *[self norm];
+    float ny = [self norm]->y;
+
     if (fneg(ny)) {
         // surface X axis is normalized projection of positive world X axis along Y axis onto plane
-        Vector3f* point = [[Vector3f alloc] initWithFloatVector:[self center]];
-        [point setX:[point x] + 1];
-        Line3D* line = [[Line3D alloc] initWithPoint:point normalizedDirection:[Vector3f yAxisPos]];
-        Plane3D* plane = [self boundary];
-        [xAxis setFloat:[line pointAtDistance:[plane intersectWithLine:line]]];
-        [xAxis sub:[self center]];
-        [xAxis normalize];
-        [line release];
-        [point release];
+        line.point = *[self center];
+        line.point.x += 1;
+        line.direction = YAxisPos;
+        
+        float dist = intersectPlaneWithLine([self boundary], &line);
+        linePointAtDistance(&line, dist, &xAxis);
+        subV3f(&xAxis, [self center], &xAxis);
+        normalizeV3f(&xAxis, &xAxis);
     } else if (fpos(ny)) {
         // surface X axis is normalized projection of negative world X axis along Y axis onto plane
-        Vector3f* point = [[Vector3f alloc] initWithFloatVector:[self center]];
-        [point setX:[point x] - 1];
-        Line3D* line = [[Line3D alloc] initWithPoint:point normalizedDirection:[Vector3f yAxisPos]];
-        Plane3D* plane = [self boundary];
-        [xAxis setFloat:[line pointAtDistance:[plane intersectWithLine:line]]];
-        [xAxis sub:[self center]];
-        [xAxis normalize];
-        [line release];
-        [point release];
+        line.point = *[self center];
+        line.point.x -= 1;
+        line.direction = YAxisPos;
+        
+        float dist = intersectPlaneWithLine([self boundary], &line);
+        linePointAtDistance(&line, dist, &xAxis);
+        subV3f(&xAxis, [self center], &xAxis);
+        normalizeV3f(&xAxis, &xAxis);
     } else {
         // plane normal is on XZ plane, try X, then Z
-        float nx = [[self norm] x];
+        float nx = [self norm]->x;
         if (fpos(nx)) {
             // positive world Y axis is surface X axis
-            [xAxis setFloat:[Vector3f yAxisPos]];
+            xAxis = YAxisPos;
         } else if (fneg(nx)) {
             // negative world Y axis is surface X axis
-            [xAxis setFloat:[Vector3f yAxisNeg]];
+            xAxis = YAxisNeg;
         } else {
             // surface normal is Z = 1 or Z = -1
-            float nz = [[self norm] z];
+            float nz = [self norm]->z;
             if (nz > 0) {
                 // positive world X axis is surface X axis
-                [xAxis setFloat:[Vector3f xAxisPos]];
+                xAxis = XAxisPos;
             } else {
                 // negative world X axis is surface X axis
-                [xAxis setFloat:[Vector3f xAxisNeg]];
+                xAxis = XAxisNeg;
             }
         }
     }
     
-    [yAxis setFloat:zAxis];
-    [yAxis cross:xAxis];
-    [yAxis normalize];
+    yAxis = zAxis;
+    crossV3f(&zAxis, &xAxis, &yAxis);
+    normalizeV3f(&yAxis, &yAxis);
     
     // build transformation matrix
     surfaceToWorldMatrix = [[Matrix4f alloc] init];
-    [surfaceToWorldMatrix setColumn:0 values:xAxis];
-    [surfaceToWorldMatrix setColumn:1 values:yAxis];
-    [surfaceToWorldMatrix setColumn:2 values:zAxis];
+    [surfaceToWorldMatrix setColumn:0 values:&xAxis];
+    [surfaceToWorldMatrix setColumn:1 values:&yAxis];
+    [surfaceToWorldMatrix setColumn:2 values:&zAxis];
     [surfaceToWorldMatrix setColumn:3 values:[self center]];
     [surfaceToWorldMatrix setColumn:3 row:3 value:1];
     
     worldToSurfaceMatrix = [[Matrix4f alloc] initWithMatrix4f:surfaceToWorldMatrix];
     if (![worldToSurfaceMatrix invert])
         [NSException raise:@"NonInvertibleMatrixException" format:@"surface transformation matrix is not invertible"];
-    
-    [xAxis release];
-    [yAxis release];
-    [zAxis release];
 }
 
 - (void)geometryChanged {
-    [boundary release];
-    boundary = nil;
-    
     [surfaceToWorldMatrix release];
     surfaceToWorldMatrix = nil;
     [worldToSurfaceMatrix release];
     worldToSurfaceMatrix = nil;
     
+    boundaryValid = NO;
+    centerValid = NO;
     texAxesValid = NO;
     
     [brush faceGeometryChanged:self];
+}
+
+- (void)validate {
+    if (!centerValid && vertices != nil) {
+        NSEnumerator* vertexEn = [vertices objectEnumerator];
+        Vertex* vertex = [vertexEn nextObject];
+        center = *[vertex vector];
+        while ((vertex = [vertexEn nextObject]))
+            addV3f(&center, [vertex vector], &center);
+        scaleV3f(&center, 1.0f / [vertices count], &center);
+
+        centerValid = YES;
+    }
+    
+    if (!boundaryValid) {
+        setPlanePoints(&boundary, &point1, &point2, &point3);
+        boundaryValid = YES;
+    }
 }
 
 @end
@@ -185,29 +190,24 @@ static Vector3f* baseAxes[18];
 @implementation MutableFace
 
 + (void)initialize {
-    baseAxes[ 0] = [Vector3f xAxisPos]; baseAxes[ 1] = [Vector3f yAxisPos]; baseAxes[ 2] = [Vector3f zAxisNeg];
-    baseAxes[ 3] = [Vector3f xAxisNeg]; baseAxes[ 4] = [Vector3f yAxisPos]; baseAxes[ 5] = [Vector3f zAxisNeg];
-    baseAxes[ 6] = [Vector3f yAxisPos]; baseAxes[ 7] = [Vector3f xAxisPos]; baseAxes[ 8] = [Vector3f zAxisNeg];
-    baseAxes[ 9] = [Vector3f yAxisNeg]; baseAxes[10] = [Vector3f xAxisPos]; baseAxes[11] = [Vector3f zAxisNeg];
-    baseAxes[12] = [Vector3f zAxisPos]; baseAxes[13] = [Vector3f xAxisPos]; baseAxes[14] = [Vector3f yAxisNeg];
-    baseAxes[15] = [Vector3f zAxisNeg]; baseAxes[16] = [Vector3f xAxisPos]; baseAxes[17] = [Vector3f yAxisNeg];
+    baseAxes[ 0] = XAxisPos; baseAxes[ 1] = YAxisPos; baseAxes[ 2] = ZAxisNeg;
+    baseAxes[ 3] = XAxisNeg; baseAxes[ 4] = YAxisPos; baseAxes[ 5] = ZAxisNeg;
+    baseAxes[ 6] = YAxisPos; baseAxes[ 7] = XAxisPos; baseAxes[ 8] = ZAxisNeg;
+    baseAxes[ 9] = YAxisNeg; baseAxes[10] = XAxisPos; baseAxes[11] = ZAxisNeg;
+    baseAxes[12] = ZAxisPos; baseAxes[13] = XAxisPos; baseAxes[14] = ZAxisNeg;
+    baseAxes[15] = ZAxisNeg; baseAxes[16] = XAxisPos; baseAxes[17] = ZAxisNeg;
 }
 
 - (id)init {
     if (self = [super init]) {
         faceId = [[[IdGenerator sharedGenerator] getId] retain];
-        point1 = [[Vector3i alloc] init];
-        point2 = [[Vector3i alloc] init];
-        point3 = [[Vector3i alloc] init];
         texture = [[NSMutableString alloc] init];
-        texAxisX = [[Vector3f alloc] init];
-        texAxisY = [[Vector3f alloc] init];
     }
     
     return self;
 }
 
-- (id)initWithPoint1:(Vector3i *)aPoint1 point2:(Vector3i *)aPoint2 point3:(Vector3i *)aPoint3 texture:(NSString *)aTexture {
+- (id)initWithPoint1:(TVector3i *)aPoint1 point2:(TVector3i *)aPoint2 point3:(TVector3i *)aPoint3 texture:(NSString *)aTexture {
     if (self = [self init]) {
         [self setPoint1:aPoint1 point2:aPoint2 point3:aPoint3];
         [self setTexture:aTexture];
@@ -236,15 +236,15 @@ static Vector3f* baseAxes[18];
     brush = theBrush;
 }
 
-- (void)setPoint1:(Vector3i *)thePoint1 point2:(Vector3i *)thePoint2 point3:(Vector3i *)thePoint3{
-    if ([point1 isEqualToVector:thePoint1] &&
-        [point2 isEqualToVector:thePoint2] &&
-        [point3 isEqualToVector:thePoint3])
+- (void)setPoint1:(TVector3i *)thePoint1 point2:(TVector3i *)thePoint2 point3:(TVector3i *)thePoint3{
+    if (equalV3i(&point1, thePoint1) &&
+        equalV3i(&point2, thePoint2) &&
+        equalV3i(&point3, thePoint3))
         return;
     
-    [point1 setInt:thePoint1];
-    [point2 setInt:thePoint2];
-    [point3 setInt:thePoint3];
+    point1 = *thePoint1;
+    point2 = *thePoint2;
+    point3 = *thePoint3;
     
     [self geometryChanged];
 }
@@ -297,7 +297,7 @@ static Vector3f* baseAxes[18];
     if (x == 0 && y == 0)
         return;
     
-    if (texAxisX == nil || texAxisY == nil)
+    if (!texAxesValid)
         [self updateTexAxes];
     
     NSLog(@"best axis %i", bestAxis);
@@ -331,29 +331,29 @@ static Vector3f* baseAxes[18];
     }
 }
 
-- (void)translateBy:(Vector3i *)theDelta {
-    [point1 add:theDelta];
-    [point2 add:theDelta];
-    [point3 add:theDelta];
+- (void)translateBy:(TVector3i *)theDelta {
+    addV3i(&point1, theDelta, &point1);
+    addV3i(&point2, theDelta, &point2);
+    addV3i(&point3, theDelta, &point3);
     
-    if (texAxisX == nil || texAxisY == nil)
+    if (!texAxesValid)
         [self updateTexAxes];
     
     switch (bestAxis) {
         case 0:
         case 1:
-            xOffset -= [theDelta y];
-            yOffset += [theDelta z];
+            xOffset -= theDelta->y;
+            yOffset += theDelta->z;
             break;
         case 2:
         case 3:
-            xOffset -= [theDelta x];
-            yOffset += [theDelta z];
+            xOffset -= theDelta->x;
+            yOffset += theDelta->z;
             break;
         case 4:
         case 5:
-            xOffset -= [theDelta x];
-            yOffset += [theDelta y];
+            xOffset -= theDelta->x;
+            yOffset += theDelta->y;
             break;
         default:
             break;
@@ -362,49 +362,47 @@ static Vector3f* baseAxes[18];
     [self geometryChanged];
 }
 
-- (void)rotateZ90CW:(Vector3i *)theCenter {
-    [point1 sub:theCenter];
-    int x = [point1 x];
-    [point1 setX:[point1 y]];
-    [point1 setY:-x];
-    [point1 add:theCenter];
+- (void)rotateZ90CW:(TVector3i *)theCenter {
+    subV3i(&point1, theCenter, &point1);
+    int x = point1.x;
+    point1.x = point1.y;
+    point1.y = -x;
+    addV3i(&point1, theCenter, &point1);
     
-    [point2 sub:theCenter];
-    x = [point2 x];
-    [point2 setX:[point2 y]];
-    [point2 setY:-x];
-    [point2 add:theCenter];
-    
-    [point3 sub:theCenter];
-    x = [point3 x];
-    [point3 setX:[point3 y]];
-    [point3 setY:-x];
-    [point3 add:theCenter];
-    
+    subV3i(&point2, theCenter, &point2);
+    x = point2.x;
+    point2.x = point2.y;
+    point2.y = -x;
+    addV3i(&point2, theCenter, &point2);
+
+    subV3i(&point3, theCenter, &point3);
+    x = point3.x;
+    point3.x = point3.y;
+    point3.y = -x;
+    addV3i(&point3, theCenter, &point3);
     
     [self geometryChanged];
 }
 
-- (void)rotateZ90CCW:(Vector3i *)theCenter {
-    [point1 sub:theCenter];
-    int x = [point1 x];
-    [point1 setX:-[point1 y]];
-    [point1 setY:x];
-    [point1 add:theCenter];
+- (void)rotateZ90CCW:(TVector3i *)theCenter {
+    subV3i(&point1, theCenter, &point1);
+    int x = point1.x;
+    point1.x = -point1.y;
+    point1.y = x;
+    addV3i(&point1, theCenter, &point1);
     
-    [point2 sub:theCenter];
-    x = [point2 x];
-    [point2 setX:-[point2 y]];
-    [point2 setY:x];
-    [point2 add:theCenter];
+    subV3i(&point2, theCenter, &point2);
+    x = point2.x;
+    point2.x = -point2.y;
+    point2.y = x;
+    addV3i(&point2, theCenter, &point2);
     
-    [point3 sub:theCenter];
-    x = [point3 x];
-    [point3 setX:-[point3 y]];
-    [point3 setY:x];
-    [point3 add:theCenter];
-    
-    
+    subV3i(&point3, theCenter, &point3);
+    x = point3.x;
+    point3.x = -point3.y;
+    point3.y = x;
+    addV3i(&point3, theCenter, &point3);
+
     [self geometryChanged];
 }
 
@@ -413,30 +411,25 @@ static Vector3f* baseAxes[18];
 }
 
 - (void)dragBy:(float)dist {
-    Vector3f* f = [[Vector3f alloc] initWithFloatVector:[self norm]];
-    [f scale:dist];
+    TVector3f f;
+    scaleV3f([self norm], dist, &f);
     
-    Vector3i* delta = [[Vector3i alloc] initWithIntX:roundf([f x]) y:roundf([f y]) z:roundf([f z])];
-    [self translateBy:delta];
-    
-    [f release];
-    [delta release];
+    TVector3i delta = {roundf(f.x), roundf(f.y), roundf(f.z)};
+    [self translateBy:&delta];
 }
 
 - (void)setVertices:(NSArray *)theVertices {
-    [center release];
-    center = nil;
-    
     [vertices release];
     vertices = [theVertices retain];
+    
+    centerValid = NO;
 }
 
 - (void)setEdges:(NSArray *)theEdges {
-    [center release];
-    center = nil;
-    
     [edges release];
     edges = [theEdges retain];
+    
+    centerValid = NO;
 }
 
 - (NSString *)description {
@@ -455,20 +448,13 @@ static Vector3f* baseAxes[18];
 
 - (void) dealloc {
     [faceId release];
-    [boundary release];
-	[point1 release];
-	[point2 release];
-	[point3 release];
 	[texture release];
-    [texAxisX release];
-    [texAxisY release];
     [surfaceToWorldMatrix release];
     [worldToSurfaceMatrix release];
     [memBlock free];
     [memBlock release];
     [vertices release];
     [edges release];
-    [center release];
 	[super dealloc];
 }
 
@@ -483,16 +469,16 @@ static Vector3f* baseAxes[18];
     return brush;
 }
 
-- (Vector3i *)point1 {
-	return point1;
+- (TVector3i *)point1 {
+	return &point1;
 }
 
-- (Vector3i *)point2 {
-	return point2;
+- (TVector3i *)point2 {
+	return &point2;
 }
 
-- (Vector3i *)point3 {
-	return point3;
+- (TVector3i *)point3 {
+	return &point3;
 }
 
 - (NSString *)texture {
@@ -519,28 +505,18 @@ static Vector3f* baseAxes[18];
 	return yScale;
 }
 
-- (Vector3f *)norm {
-    return [[self boundary] norm];
+- (TVector3f *)norm {
+    return &[self boundary]->norm;
 }
 
-- (Vector3f *)center {
-    if (center == nil) {
-        NSEnumerator* vertexEn = [vertices objectEnumerator];
-        Vertex* vertex = [vertexEn nextObject];
-        center = [[Vector3f alloc] initWithFloatVector:[vertex vector]];
-        while ((vertex = [vertexEn nextObject]))
-            [center add:[vertex vector]];
-        [center scale:1.0f / [vertices count]];
-    }
-    
-    return center;
+- (TVector3f *)center {
+    [self validate];
+    return &center;
 }
 
-- (Plane3D *)boundary {
-    if (boundary == nil)
-        boundary =  [[Plane3D alloc] initWithIntPoint1:[self point1] point2:[self point2] point3:[self point3]];
-    
-    return boundary;
+- (TPlane *)boundary {
+    [self validate];
+    return &boundary;
 }
 
 - (NSArray *)vertices {
@@ -551,37 +527,37 @@ static Vector3f* baseAxes[18];
     return edges;
 }
 
-- (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex {
+- (void)texCoords:(TVector2f *)texCoords forVertex:(TVector3f *)vertex {
     [self updateTexAxes];
-    [texCoords setX:[vertex dot:texAxisX] + xOffset];
-    [texCoords setY:[vertex dot:texAxisY] + yOffset];
+    texCoords->x = dotV3f(vertex, &texAxisX) + xOffset;
+    texCoords->y = dotV3f(vertex, &texAxisY) + yOffset;
 }
 
-- (void)gridCoords:(Vector2f *)gridCoords forVertex:(Vector3f *)vertex {
-    switch ([[self norm] largestComponent]) {
-        case VC_X:
-            [gridCoords setX:([vertex y] + 0.5f) / 256];
-            [gridCoords setY:([vertex z] + 0.5f) / 256];
+- (void)gridCoords:(TVector2f *)gridCoords forVertex:(TVector3f *)vertex {
+    switch (largestComponentV3f([self norm])) {
+        case A_X:
+            gridCoords->x = (vertex->y + 0.5f) / 256;
+            gridCoords->y = (vertex->z + 0.5f) / 256;
             break;
-        case VC_Y:
-            [gridCoords setX:([vertex x] + 0.5f) / 256];
-            [gridCoords setY:([vertex z] + 0.5f) / 256];
+        case A_Y:
+            gridCoords->x = (vertex->x + 0.5f) / 256;
+            gridCoords->y = (vertex->z + 0.5f) / 256;
             break;
         default:
-            [gridCoords setX:([vertex x] + 0.5f) / 256];
-            [gridCoords setY:([vertex y] + 0.5f) / 256];
+            gridCoords->x = (vertex->x + 0.5f) / 256;
+            gridCoords->y = (vertex->y + 0.5f) / 256;
             break;
     }
 }
 
-- (void)transformToWorld:(Vector3f *)point {
+- (void)transformToWorld:(TVector3f *)point {
     if (surfaceToWorldMatrix == nil)
         [self updateMatrices];
     
     [surfaceToWorldMatrix transformVector3f:point];
 }
 
-- (void)transformToSurface:(Vector3f *)point {
+- (void)transformToSurface:(TVector3f *)point {
     if (worldToSurfaceMatrix == nil)
         [self updateMatrices];
     

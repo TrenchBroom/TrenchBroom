@@ -18,7 +18,6 @@
 @class SingleTextureView;
 @class Options;
 @class Prefab;
-@class TrackingManager;
 @class CursorManager;
 @class ClipTool;
 @class Renderer;
@@ -29,7 +28,6 @@
     Camera* camera;
     SelectionManager* selectionManager;
     InputManager* inputManager;
-    TrackingManager* trackingManager;
     CursorManager* cursorManager;
     Options* options;
 }
@@ -73,7 +71,6 @@
 - (Camera *)camera;
 - (SelectionManager *)selectionManager;
 - (InputManager *)inputManager;
-- (TrackingManager *)trackingManager;
 - (CursorManager *)cursorManager;
 - (Options *)options;
 - (Renderer *)renderer;

@@ -7,7 +7,6 @@
 //
 
 #import "Grid.h"
-#import "Vector3f.h"
 #import "math.h"
 #import "FloatData.h"
 
@@ -84,33 +83,31 @@ NSString* const GridChanged = @"GridChanged";
     [self setSnap:![self snap]];
 }
 
-- (void)snapToGrid:(Vector3f *)vector {
-    [vector setX:[self actualSize] * roundf([vector x] / [self actualSize])];
-    [vector setY:[self actualSize] * roundf([vector y] / [self actualSize])];
-    [vector setZ:[self actualSize] * roundf([vector z] / [self actualSize])];
+- (void)snapToGrid:(TVector3f *)vector result:(TVector3f *)result {
+    int actualSize = [self actualSize];
+    result->x = actualSize * roundf(vector->x / actualSize);
+    result->y = actualSize * roundf(vector->y / actualSize);
+    result->z = actualSize * roundf(vector->z / actualSize);
 }
 
-- (void)snapUpToGrid:(Vector3f *)vector {
-    [vector setX:[self actualSize] * ceilf([vector x] / [self actualSize])];
-    [vector setY:[self actualSize] * ceilf([vector y] / [self actualSize])];
-    [vector setZ:[self actualSize] * ceilf([vector z] / [self actualSize])];
+- (void)snapUpToGrid:(TVector3f *)vector result:(TVector3f *)result {
+    int actualSize = [self actualSize];
+    result->x = actualSize * ceilf(vector->x / actualSize);
+    result->y = actualSize * ceilf(vector->y / actualSize);
+    result->z = actualSize * ceilf(vector->z / actualSize);
 }
 
-- (void)snapDownToGrid:(Vector3f *)vector {
-    [vector setX:[self actualSize] * floorf([vector x] / [self actualSize])];
-    [vector setY:[self actualSize] * floorf([vector y] / [self actualSize])];
-    [vector setZ:[self actualSize] * floorf([vector z] / [self actualSize])];
+- (void)snapDownToGrid:(TVector3f *)vector result:(TVector3f *)result {
+    int actualSize = [self actualSize];
+    result->x = actualSize * floorf(vector->x / actualSize);
+    result->y = actualSize * floorf(vector->y / actualSize);
+    result->z = actualSize * floorf(vector->z / actualSize);
 }
 
-- (Vector3f *)gridOffsetOf:(Vector3f *)vector {
-    Vector3f* snapped = [[Vector3f alloc] initWithFloatVector:vector];
-    [self snapToGrid:snapped];
-    
-    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:vector];
-    [diff sub:snapped];
-
-    [snapped release];
-    return [diff autorelease];
+- (void)gridOffsetOf:(TVector3f *)vector result:(TVector3f *)result {
+    TVector3f snapped;
+    [self snapToGrid:vector result:&snapped];
+    subV3f(vector, &snapped, result);
 }
 
 - (void)activateTexture {

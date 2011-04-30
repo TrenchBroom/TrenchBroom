@@ -23,10 +23,6 @@
 #import "MapWindowController.h"
 #import "ProgressWindowController.h"
 #import "MapParser.h"
-#import "Vector3i.h"
-#import "Vector3f.h"
-#import "Quaternion.h"
-#import "BoundingBox.h"
 
 NSString* const FaceWillChange      = @"FaceWillChange";
 NSString* const FaceDidChange       = @"FaceDidChange";
@@ -548,12 +544,11 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
     }
     
-    Vector3i* delta = [[Vector3i alloc] initWithIntX:xDelta y:yDelta z:zDelta];
-    MutableBrush* mutableBrush = (MutableBrush *)brush;
-    [mutableBrush translateBy:delta];
+    TVector3i delta = {xDelta, yDelta, zDelta};
 
-    [delta release];
-    
+    MutableBrush* mutableBrush = (MutableBrush *)brush;
+    [mutableBrush translateBy:&delta];
+
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
@@ -570,12 +565,15 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     
     NSEnumerator* brushEn = [brushes objectEnumerator];
     MutableBrush* brush = [brushEn nextObject];
-    BoundingBox* bounds = [[BoundingBox alloc] initWithBounds:[brush bounds]];
-    while ((brush = [brushEn nextObject]))
-        [bounds mergeBounds:[brush bounds]];
     
-    Vector3i* rotationCenter = [[Vector3i alloc] initWithFloatVector:[bounds center]];
-    [bounds release];
+    TBoundingBox bounds = *[brush bounds];
+    while ((brush = [brushEn nextObject]))
+        mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
+    
+    TVector3f rcf;
+    TVector3i rci;
+    centerOfBounds(&bounds, &rcf);
+    roundV3f(&rcf, &rci);
     
     brushEn = [brushes objectEnumerator];
     if ([self postNotifications]) {
@@ -585,16 +583,14 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
             [userInfo setObject:brush forKey:BrushKey];
             
             [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
-            [brush rotateZ90CW:rotationCenter];
+            [brush rotateZ90CW:&rci];
             [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
             [userInfo release];
         }
     } else {
         while ((brush = [brushEn nextObject]))
-            [brush rotateZ90CW:rotationCenter];
+            [brush rotateZ90CW:&rci];
     }
-    
-    [rotationCenter release];
     
 }
 
@@ -607,12 +603,15 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     
     NSEnumerator* brushEn = [brushes objectEnumerator];
     MutableBrush* brush = [brushEn nextObject];
-    BoundingBox* bounds = [[BoundingBox alloc] initWithBounds:[brush bounds]];
-    while ((brush = [brushEn nextObject]))
-        [bounds mergeBounds:[brush bounds]];
     
-    Vector3i* rotationCenter = [[Vector3i alloc] initWithFloatVector:[bounds center]];
-    [bounds release];
+    TBoundingBox bounds = *[brush bounds];
+    while ((brush = [brushEn nextObject]))
+        mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
+    
+    TVector3f rcf;
+    TVector3i rci;
+    centerOfBounds(&bounds, &rcf);
+    roundV3f(&rcf, &rci);
     
     brushEn = [brushes objectEnumerator];
     if ([self postNotifications]) {
@@ -622,16 +621,14 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
             [userInfo setObject:brush forKey:BrushKey];
             
             [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
-            [brush rotateZ90CCW:rotationCenter];
+            [brush rotateZ90CCW:&rci];
             [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
             [userInfo release];
         }
     } else {
         while ((brush = [brushEn nextObject]))
-            [brush rotateZ90CCW:rotationCenter];
+            [brush rotateZ90CCW:&rci];
     }
-    
-    [rotationCenter release];
 }
 
 - (void)translateFace:(id <Face>)face xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {
@@ -647,11 +644,9 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
     }
     
-    Vector3i* delta = [[Vector3i alloc] initWithIntX:xDelta y:yDelta z:zDelta];
+    TVector3i delta = {xDelta, yDelta, zDelta};
     MutableFace* mutableFace = (MutableFace *)face;
-    [mutableFace translateBy:delta];
-    
-    [delta release];
+    [mutableFace translateBy:&delta];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];

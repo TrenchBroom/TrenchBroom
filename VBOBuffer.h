@@ -7,12 +7,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 extern NSString* const BufferNotMappedException;
 
 @class VBOMemBlock;
-@class Vector3f;
-@class Vector2f;
 
 @interface VBOBuffer : NSObject {
     @private
@@ -41,8 +40,8 @@ extern NSString* const BufferNotMappedException;
 
 - (void)writeBuffer:(const void*)theBuffer address:(int)theAddress count:(int)theCount;
 - (void)writeFloat:(float)f address:(int)theAddress;
-- (void)writeVector3f:(Vector3f *)theVector address:(int)theAddress;
-- (void)writeVector2f:(Vector2f *)theVector address:(int)theAddress;
+- (void)writeVector3f:(TVector3f *)theVector address:(int)theAddress;
+- (void)writeVector2f:(TVector2f *)theVector address:(int)theAddress;
 
 - (VBOMemBlock *)allocMemBlock:(int)capacity;
 - (VBOMemBlock *)freeMemBlock:(VBOMemBlock *)memBlock;

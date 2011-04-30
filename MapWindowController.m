@@ -27,15 +27,11 @@
 #import "InspectorController.h"
 #import "Options.h"
 #import "Grid.h"
-#import "Ray3D.h"
-#import "Vector3f.h"
-#import "Vector3i.h"
 #import "PrefabManager.h"
 #import "PrefabNameSheetController.h"
 #import "Prefab.h"
 #import "MapWriter.h"
 #import "CameraAnimation.h"
-#import "TrackingManager.h"
 #import "CursorManager.h"
 #import "ClipTool.h"
 
@@ -86,7 +82,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [self userDefaultsChanged:nil];
     
     selectionManager = [[SelectionManager alloc] initWithUndoManager:[[self document] undoManager]];
-    trackingManager = [[TrackingManager alloc] initWithWindowController:self];
     inputManager = [[InputManager alloc] initWithWindowController:self];
     cursorManager = [[CursorManager alloc] init];
     
@@ -191,7 +186,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [options release];
-    [trackingManager release];
     [selectionManager release];
     [inputManager release];
     [cursorManager release];
@@ -405,69 +399,54 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 }
 
 - (IBAction)switchToXYView:(id)sender {
-    Vector3f* center = [[selectionManager selectionCenter] retain];
-    if (center == nil) {
-        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
-        [center scale:256];
-        [center add:[camera position]];
+    TVector3f center, diff, position;
+    
+    if (![selectionManager selectionCenter:&center]) {
+        center = *[camera direction];
+        scaleV3f(&center, 256, &center);
+        addV3f(&center, [camera position], &center);
     }
     
-    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:center];
-    [diff sub:[camera position]];
+    subV3f(&center, [camera position], &diff);
+    position = center;
+    position.z += lengthV3f(&diff);
     
-    Vector3f* position = [[Vector3f alloc] initWithFloatVector:center];
-    [position setZ:[position z] + [diff length]];
-    
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f zAxisNeg] targetUp:[Vector3f yAxisPos] duration:0.5];
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetDirection:&ZAxisNeg targetUp:&YAxisPos duration:0.5];
     [animation startAnimation];
-    
-    [diff release];
-    [position release];
-    [center release];
 }
 
 - (IBAction)switchToXZView:(id)sender {
-    Vector3f* center = [[selectionManager selectionCenter] retain];
-    if (center == nil) {
-        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
-        [center scale:256];
-        [center add:[camera position]];
+    TVector3f center, diff, position;
+    
+    if (![selectionManager selectionCenter:&center]) {
+        center = *[camera direction];
+        scaleV3f(&center, 256, &center);
+        addV3f(&center, [camera position], &center);
     }
     
-    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:center];
-    [diff sub:[camera position]];
-    
-    Vector3f* position = [[Vector3f alloc] initWithFloatVector:center];
-    [position setY:[position y] - [diff length]];
-    
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f yAxisPos] targetUp:[Vector3f zAxisPos] duration:0.5];
+    subV3f(&center, [camera position], &diff);
+    position = center;
+    position.z -= lengthV3f(&diff);
+
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetDirection:&YAxisPos targetUp:&ZAxisPos duration:0.5];
     [animation startAnimation];
-    
-    [diff release];
-    [position release];
-    [center release];
 }
 
 - (IBAction)switchToYZView:(id)sender {
-    Vector3f* center = [[selectionManager selectionCenter] retain];
-    if (center == nil) {
-        center = [[Vector3f alloc] initWithFloatVector:[camera direction]];
-        [center scale:256];
-        [center add:[camera position]];
+    TVector3f center, diff, position;
+    
+    if (![selectionManager selectionCenter:&center]) {
+        center = *[camera direction];
+        scaleV3f(&center, 256, &center);
+        addV3f(&center, [camera position], &center);
     }
     
-    Vector3f* diff = [[Vector3f alloc] initWithFloatVector:center];
-    [diff sub:[camera position]];
+    subV3f(&center, [camera position], &diff);
+    position = center;
+    position.x += lengthV3f(&diff);
     
-    Vector3f* position = [[Vector3f alloc] initWithFloatVector:center];
-    [position setX:[position x] + [diff length]];
-    
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:position targetDirection:[Vector3f xAxisNeg] targetUp:[Vector3f zAxisPos] duration:0.5];
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetDirection:&XAxisNeg targetUp:&ZAxisPos duration:0.5];
     [animation startAnimation];
-    
-    [diff release];
-    [position release];
-    [center release];
 }
 
 #pragma mark Structure and selection
@@ -542,14 +521,16 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    Vector3f* insertPos = [camera defaultPoint];
-    [[options grid] snapToGrid:insertPos];
+    TVector3f insertPos = [camera defaultPoint];
+    [[options grid] snapToGrid:&insertPos result:&insertPos];
+
+    TVector3f offset;
+    [[options grid] gridOffsetOf:[prefab center] result:&offset];
     
-    Vector3f* offset = [[options grid] gridOffsetOf:[prefab center]];
-    [insertPos add:offset];
-    
-    Vector3f* dist = [[Vector3f alloc] initWithFloatVector:insertPos];
-    [dist sub:[prefab center]];
+    addV3f(&insertPos, &offset, &insertPos);
+
+    TVector3f dist;
+    subV3f(&insertPos, [prefab center], &dist);
     
     MapDocument* map = [self document];
     
@@ -567,13 +548,10 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         id <Brush> prefabBrush;
         while ((prefabBrush = [prefabBrushEn nextObject])) {
             id <Brush> mapBrush = [map createBrushInEntity:mapEntity fromTemplate:prefabBrush];
-            [map translateBrush:mapBrush xDelta:roundf([dist x]) yDelta:roundf([dist y]) zDelta:roundf([dist z])];
+            [map translateBrush:mapBrush xDelta:roundf(dist.x) yDelta:roundf(dist.y) zDelta:roundf(dist.z)];
             [selectionManager addBrush:mapBrush record:YES];
         }
     }
-    
-    
-    [dist release];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:[NSString stringWithFormat:@"Insert Prefab '%@'", [prefab name]]];
@@ -592,10 +570,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 
 - (InputManager *)inputManager {
     return inputManager;
-}
-
-- (TrackingManager *)trackingManager {
-    return trackingManager;
 }
 
 - (CursorManager *)cursorManager {

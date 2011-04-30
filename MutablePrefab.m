@@ -12,12 +12,79 @@
 #import "MutableEntity.h"
 #import "MutableBrush.h"
 #import "Vertex.h"
-#import "Vector3i.h"
-#import "Vector3f.h"
-#import "BoundingBox.h"
 #import "IdGenerator.h"
 #import "MutablePrefabGroup.h"
 #import "MapDocument.h"
+
+@interface MutablePrefab (private)
+
+- (void)validate;
+
+@end
+
+@implementation MutablePrefab (private)
+
+- (void)validate {
+    
+    if ([entities count] > 0) {
+        NSEnumerator* entityEn = [entities objectEnumerator];
+        id <Entity> entity = [entityEn nextObject];
+        
+        bounds = *[entity bounds];
+        center = *[entity center];
+        
+        while ((entity = [entityEn nextObject])) {
+            mergeBoundsWithBounds(&bounds, [entity bounds], &bounds);
+            addV3f(&center, [entity center], &center);
+        }
+        scaleV3f(&center, 1.0f / [entities count], &center);
+
+        TVector3f diff;
+        float distSquared = 0;
+        
+        entityEn = [entities objectEnumerator];
+        while ((entity = [entityEn nextObject])) {
+            NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+            id <Brush> brush;
+            while ((brush = [brushEn nextObject])) {
+                NSEnumerator* vertexEn = [[brush vertices] objectEnumerator];
+                Vertex* vertex;
+                while ((vertex = [vertexEn nextObject])) {
+                    subV3f([vertex vector], &center, &diff);
+                    float lengthSquared = lengthSquaredV3f(&diff);
+                    if (lengthSquared > distSquared)
+                        distSquared = lengthSquared;
+                }
+            }
+        }
+        
+        if (distSquared > 0) {
+            float dist = sqrt(distSquared);
+            maxBounds.min.x = -dist;
+            maxBounds.min.y = -dist;
+            maxBounds.min.z = -dist;
+            maxBounds.max.x = +dist;
+            maxBounds.max.y = +dist;
+            maxBounds.max.z = +dist;
+
+            addV3f(&maxBounds.min, &center, &maxBounds.min);
+            addV3f(&maxBounds.max, &center, &maxBounds.max);
+        } else {
+            maxBounds.min = NullVector;
+            maxBounds.max = NullVector;
+        }
+    } else {
+        bounds.min = NullVector;
+        bounds.max = NullVector;
+        maxBounds.min = NullVector;
+        maxBounds.max = NullVector;
+        center = NullVector;
+    }
+
+    valid = YES;
+}
+
+@end
 
 @implementation MutablePrefab
 
@@ -79,95 +146,36 @@
 - (void)addEntity:(MutableEntity *)theEntity {
     [entities addObject:theEntity];
     [theEntity setMap:self];
-    
-    [center release];
-    center = nil;
-    [bounds release];
-    bounds = nil;
-    [maxBounds release];
-    maxBounds = nil;
+
+    valid = NO;
 }
 
 - (void)removeEntity:(MutableEntity *)theEntity {
     [theEntity setMap:nil];
     [entities removeObject:theEntity];
-    
-    [center release];
-    center = nil;
-    [bounds release];
-    bounds = nil;
-    [maxBounds release];
-    maxBounds = nil;
+
+    valid = NO;
 }
 
-- (BoundingBox *)bounds {
-    if (bounds == nil && [entities count] > 0) {
-        NSEnumerator* entityEn = [entities objectEnumerator];
-        id <Entity> entity = [entityEn nextObject];
-
-        bounds = [[BoundingBox alloc] initWithBounds:[entity bounds]];
-        while ((entity = [entityEn nextObject]))
-            [bounds mergeBounds:[entity bounds]];
-    }
+- (TBoundingBox *)bounds {
+    if (!valid)
+        [self validate];
     
-    return bounds;
+    return &bounds;
 }
 
-- (BoundingBox *)maxBounds {
-    if (maxBounds == nil && [entities count] > 0) {
-        Vector3f* diff = [[Vector3f alloc] init];
-        
-        float distSquared = 0;
-        NSEnumerator* entityEn = [entities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
-            NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-            id <Brush> brush;
-            while ((brush = [brushEn nextObject])) {
-                NSEnumerator* vertexEn = [[brush vertices] objectEnumerator];
-                Vertex* vertex;
-                while ((vertex = [vertexEn nextObject])) {
-                    [diff setFloat:[vertex vector]];
-                    [diff sub:[self center]];
-                    float lengthSquared = [diff lengthSquared];
-                    if (lengthSquared > distSquared)
-                        distSquared = lengthSquared;
-                }
-            }
-        }
-
-        [diff release];
-        
-        if (distSquared > 0) {
-            float dist = sqrt(distSquared);
-            Vector3f* min = [[Vector3f alloc] initWithFloatX:-dist y:-dist z:-dist];
-            Vector3f* max = [[Vector3f alloc] initWithFloatX:dist y:dist z:dist];
-            
-            [min add:[self center]];
-            [max add:[self center]];
-            
-            maxBounds = [[BoundingBox alloc] initWithMin:min max:max];
-            [min release];
-            [max release];
-        }
-    }
+- (TBoundingBox *)maxBounds {
+    if (!valid)
+        [self validate];
     
-    return maxBounds;
+    return &maxBounds;
 }
 
-- (Vector3f *)center {
-    if (center == nil && [entities count] > 0) {
-        NSEnumerator* entityEn = [entities objectEnumerator];
-        id <Entity> entity = [entityEn nextObject];
-        
-        center = [[Vector3f alloc] initWithFloatVector:[entity center]];
-        while ((entity = [entityEn nextObject]))
-            [center add:[entity center]];
-        
-        [center scale:1.0f / [entities count]];
-    }
+- (TVector3f *)center {
+    if (!valid)
+        [self validate];
     
-    return center;
+    return &center;
 }
 
 - (void)setPrefabGroup:(MutablePrefabGroup *)thePrefabGroup {
@@ -183,9 +191,6 @@
     [prefabGroup release];
     [prefabId release];
     [entities release];
-    [bounds release];
-    [maxBounds release];
-    [center release];
     [name release];
     [super dealloc];
 }

@@ -8,17 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Brush.h"
+#import "Math.h"
 
 @class MutableEntity;
 @class MutableFace;
-@class Vector3i;
-@class Vector3f;
 @class Face;
 @class VertexData;
-@class BoundingBox;
-@class Ray3D;
 @class PickingHit;
-@class Quaternion;
 
 @interface MutableBrush : NSObject <Brush> {
     @private
@@ -35,9 +31,9 @@
 - (void)removeFace:(MutableFace *)face;
 
 - (void)setEntity:(MutableEntity *)theEntity;
-- (void)translateBy:(Vector3i *)theDelta;
-- (void)rotateZ90CW:(Vector3i *)theCenter;
-- (void)rotateZ90CCW:(Vector3i *)theCenter;
+- (void)translateBy:(TVector3i *)theDelta;
+- (void)rotateZ90CW:(TVector3i *)theCenter;
+- (void)rotateZ90CCW:(TVector3i *)theCenter;
 - (void)faceGeometryChanged:(MutableFace *)face;
 
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist;

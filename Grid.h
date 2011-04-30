@@ -8,10 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/gl.h>
+#import "Math.h"
 
 extern NSString* const GridChanged;
-
-@class Vector3f;
 
 @interface Grid : NSObject {
     @private
@@ -32,10 +31,10 @@ extern NSString* const GridChanged;
 - (void)toggleDraw;
 - (void)toggleSnap;
 
-- (void)snapToGrid:(Vector3f *)vector;
-- (void)snapUpToGrid:(Vector3f *)vector;
-- (void)snapDownToGrid:(Vector3f *)vector;
-- (Vector3f *)gridOffsetOf:(Vector3f *)vector;
+- (void)snapToGrid:(TVector3f *)vector result:(TVector3f *)result;
+- (void)snapUpToGrid:(TVector3f *)vector result:(TVector3f *)result;
+- (void)snapDownToGrid:(TVector3f *)vector result:(TVector3f *)result;
+- (void)gridOffsetOf:(TVector3f *)vector result:(TVector3f *)result;
 
 - (void)activateTexture;
 - (void)deactivateTexture;

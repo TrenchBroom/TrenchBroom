@@ -41,34 +41,32 @@
     return self;
 }
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isCameraModifierPressed] && ![self isCameraOrbitModifierPressed])
         return;
     
     if ([self isCameraOrbitModifierPressed]) {
         PickingHit* hit = [hits firstHitOfType:HT_ANY ignoreOccluders:YES];
         if (hit != nil) {
-            orbitCenter = [[hit hitPoint] retain];
+            orbitCenter = *[hit hitPoint];
         } else {
             Camera* camera = [windowController camera];
-            orbitCenter = [[camera defaultPoint] retain];
+            orbitCenter = [camera defaultPoint];
         }
+        orbit = YES;
     }
 }
 
-- (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    if (orbitCenter != nil) {
-        [orbitCenter release];
-        orbitCenter = nil;
-    }
+- (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    orbit = NO;
 }
 
-- (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     Camera* camera = [windowController camera];
-    if (orbitCenter != nil) {
+    if (orbit) {
         float h = -[event deltaX] / 70;
         float v = [event deltaY] / 70;
-        [camera orbitCenter:orbitCenter hAngle:h vAngle:v];
+        [camera orbitCenter:&orbitCenter hAngle:h vAngle:v];
     } else {
         float yaw = -[event deltaX] / 70;
         float pitch = [event deltaY] / 70;
@@ -76,7 +74,7 @@
     }
 }
 
-- (void)rightDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)rightDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isCameraModifierPressed])
         return;
     
@@ -84,15 +82,15 @@
     [camera moveForward:0 right:6 * [event deltaX] up:-6 * [event deltaY]];
 }
 
-- (void)handleBeginGesture:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)handleBeginGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     gesture = YES;
 }
 
-- (void)handleEndGesture:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)handleEndGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     gesture = NO;
 }
 
-- (void)handleScrollWheel:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)handleScrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isCameraModifierPressed] && ![self isCameraOrbitModifierPressed])
         return;
     
@@ -110,7 +108,7 @@
     }
 }
 
-- (void)handleMagnify:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)handleMagnify:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isCameraModifierPressed])
         return;
     
@@ -122,8 +120,6 @@
 }
 
 - (void)dealloc {
-    if (orbitCenter != nil)
-        [orbitCenter release];
     [windowController release];
     [super dealloc];
 }

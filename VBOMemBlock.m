@@ -8,8 +8,6 @@
 
 #import "VBOMemBlock.h"
 #import "VBOBuffer.h"
-#import "Vector3f.h"
-#import "Vector2f.h"
 
 @implementation VBOMemBlock
 
@@ -77,12 +75,12 @@
     return theOffset + sizeof(float);
 }
 
-- (int)writeVector3f:(Vector3f *)theVector offset:(int)theOffset {
+- (int)writeVector3f:(TVector3f *)theVector offset:(int)theOffset {
     [vboBuffer writeVector3f:theVector address:address + theOffset];
     return theOffset + 3 * sizeof(float);
 }
 
-- (int)writeVector2f:(Vector2f *)theVector offset:(int)theOffset {
+- (int)writeVector2f:(TVector2f *)theVector offset:(int)theOffset {
     [vboBuffer writeVector2f:theVector address:address + theOffset];
     return theOffset + 2 * sizeof(float);
 }

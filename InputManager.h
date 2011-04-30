@@ -7,8 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
-@class Ray3D;
 @class PickingHitList;
 @class MapWindowController;
 @class CameraTool;
@@ -23,7 +23,7 @@
     MapWindowController* windowController;
 
     NSEvent* lastEvent;
-    Ray3D* lastRay;
+    TRay lastRay;
     PickingHitList* lastHits;
     
     CameraTool* cameraTool;

@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 typedef enum {
     PS_DEF, // default state
@@ -18,7 +19,6 @@ typedef enum {
 @class MapTokenizer;
 @class MutableEntity;
 @class MutableBrush;
-@class Vector3i;
 
 @interface MapParser : NSObject {
     @private
@@ -28,9 +28,7 @@ typedef enum {
     MutableEntity* entity;
     MutableBrush* brush;
     EParserState state;
-    Vector3i* p1;
-    Vector3i* p2;
-    Vector3i* p3;
+    TVector3i p1, p2, p3;
 }
 
 - (id)initWithData:(NSData *)someData;

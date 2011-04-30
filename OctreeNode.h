@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 typedef enum {
     CP_WSB = 0,
@@ -20,24 +21,20 @@ typedef enum {
     
 } EChildPosition;
 
-@class Vector3i;
-@class BoundingBox;
-@class Ray3D;
-
 @interface OctreeNode : NSObject {
     @private
     int minSize;
-    Vector3i* min;
-    Vector3i* max;
+    TVector3i min;
+    TVector3i max;
     NSMutableSet* objects;
     OctreeNode* children[8];
 }
 
-- (id)initWithMin:(Vector3i *)theMin max:(Vector3i *)theMax minSize:(int)theMinSize;
+- (id)initWithMin:(TVector3i *)theMin max:(TVector3i *)theMax minSize:(int)theMinSize;
 
-- (BOOL)addObject:(id)theObject bounds:(BoundingBox *)theBounds;
-- (BOOL)removeObject:(id)theObject bounds:(BoundingBox *)theBounds;
+- (BOOL)addObject:(id)theObject bounds:(TBoundingBox *)theBounds;
+- (BOOL)removeObject:(id)theObject bounds:(TBoundingBox *)theBounds;
 
-- (void)addObjectsForRay:(Ray3D *)ray to:(NSMutableArray *)list;
+- (void)addObjectsForRay:(TRay *)ray to:(NSMutableArray *)list;
 
 @end

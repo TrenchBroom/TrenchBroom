@@ -7,10 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 @protocol Map;
-@class BoundingBox;
-@class Vector3f;
 @class VBOMemBlock;
 
 @protocol Entity <NSObject>
@@ -27,8 +26,8 @@
 
 - (BOOL)isWorldspawn;
 
-- (BoundingBox *)bounds;
-- (Vector3f *)center;
+- (TBoundingBox *)bounds;
+- (TVector3f *)center;
 
 - (void)setMemBlock:(VBOMemBlock *)theBlock forKey:(id <NSCopying>)theKey;
 - (VBOMemBlock *)memBlockForKey:(id <NSCopying>)theKey;

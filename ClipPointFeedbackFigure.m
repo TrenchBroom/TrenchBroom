@@ -7,15 +7,12 @@
 //
 
 #import "ClipPointFeedbackFigure.h"
-#import "Vector3i.h"
-#import "Vector3f.h"
 
 @implementation ClipPointFeedbackFigure
 
-- (id)initWithPoint:(Vector3i *)thePoint {
-    NSAssert(thePoint != nil, @"point must not be nil");
+- (id)initWithPoint:(TVector3i *)thePoint {
     if (self = [self init]) {
-        point = [thePoint retain];
+        point = *thePoint;
         sphere = gluNewQuadric();
         gluQuadricDrawStyle(sphere, GLU_FILL);
     }
@@ -26,14 +23,13 @@
 - (void)render {
     glFrontFace(GL_CCW);
     glPushMatrix();
-    glTranslatef([point x], [point y], [point z]);
+    glTranslatef(point.x, point.y, point.z);
     glColor4f(0, 1, 0, 1);
     gluSphere(sphere, 3, 12, 12);
     glPopMatrix();
 }
 
 - (void)dealloc {
-    [point release];
     gluDeleteQuadric(sphere);
     [super dealloc];
 }

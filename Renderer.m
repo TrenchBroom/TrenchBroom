@@ -23,13 +23,10 @@
 #import "VBOMemBlock.h"
 #import "RenderContext.h"
 #import "SelectionManager.h"
-#import "TrackingManager.h"
 #import "Brush.h"
 #import "Face.h"
 #import "MutableFace.h"
 #import "Camera.h"
-#import "Vector3f.h"
-#import "Vector2f.h"
 #import "Options.h"
 #import "Grid.h"
 #import "MapDocument.h"
@@ -86,9 +83,8 @@ NSString* const RendererChanged = @"RendererChanged";
     [sharedVbo mapBuffer];
     
     int vertexSize = 10 * sizeof(float);
-    Vector3f* color = [[Vector3f alloc] init];
-    Vector2f* gridCoords = [[Vector3f alloc] init];
-    Vector2f* texCoords = [[Vector2f alloc] init];
+    TVector3f color;
+    TVector2f gridCoords, texCoords;
     
     NSEnumerator* faceEn = [invalidFaces objectEnumerator];
     id <Face> face;
@@ -104,9 +100,9 @@ NSString* const RendererChanged = @"RendererChanged";
                 [face setMemBlock:block];
             }
             
-            [color setX:[brush flatColor][0]];
-            [color setY:[brush flatColor][1]];
-            [color setZ:[brush flatColor][2]];
+            color.x = [brush flatColor][0];
+            color.y = [brush flatColor][1];
+            color.z = [brush flatColor][2];
             
             Texture* texture = [textureManager textureForName:[face texture]];
             int width = texture != nil ? [texture width] : 1;
@@ -116,23 +112,20 @@ NSString* const RendererChanged = @"RendererChanged";
             NSEnumerator* vertexEn = [vertices objectEnumerator];
             Vertex* vertex;
             while ((vertex = [vertexEn nextObject])) {
-                [face gridCoords:gridCoords forVertex:[vertex vector]];
-                [face texCoords:texCoords forVertex:[vertex vector]];
-                [texCoords setX:[texCoords x] / width];
-                [texCoords setY:[texCoords y] / height];
+                [face gridCoords:&gridCoords forVertex:[vertex vector]];
+                [face texCoords:&texCoords forVertex:[vertex vector]];
+                texCoords.x /= width;
+                texCoords.y /= height;
                 
-                offset = [block writeVector2f:gridCoords offset:offset];
-                offset = [block writeVector2f:texCoords offset:offset];
-                offset = [block writeVector3f:color offset:offset];
+                offset = [block writeVector2f:&gridCoords offset:offset];
+                offset = [block writeVector2f:&texCoords offset:offset];
+                offset = [block writeVector3f:&color offset:offset];
                 offset = [block writeVector3f:[vertex vector] offset:offset];
             }
             
             [block setState:BS_USED_VALID];
         }
     }
-    [color release];
-    [gridCoords release];
-    [texCoords release];
     [invalidFaces removeAllObjects];
     
     [sharedVbo unmapBuffer];
@@ -487,9 +480,6 @@ NSString* const RendererChanged = @"RendererChanged";
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
         [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
         
-        TrackingManager* trackingManager = [windowController trackingManager];
-        [center addObserver:self selector:@selector(trackedObjectChanged:) name:TrackedObjectChanged object:trackingManager];
-
         [center addObserver:self selector:@selector(textureManagerChanged:) name:TextureManagerChanged object:textureManager];
         [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
         [center addObserver:self selector:@selector(optionsChanged:) name:OptionsChanged object:options];
@@ -550,7 +540,7 @@ NSString* const RendererChanged = @"RendererChanged";
     GLfloat ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
     GLfloat diffuseLight[] = { 0.8f, 0.8f, 0.8, 1.0f };
     GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-    GLfloat position[] = { [[camera position] x], [[camera position] y], [[camera position] z], 1.0f };
+    GLfloat position[] = { [camera position]->x, [camera position]->y, [camera position]->z, 1.0f };
     
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);

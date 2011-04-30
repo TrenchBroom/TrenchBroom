@@ -7,17 +7,9 @@
 //
 
 #import "DragFaceCursor.h"
-#import "Vector3f.h"
 #import "math.h"
 
 @implementation DragFaceCursor
-
-- (id)init {
-    if (self = [super init]) {
-        axis = [[Vector3f alloc] init];
-    }
-    return self;
-}
 
 - (void)render {
     if (!initialized) {
@@ -37,8 +29,8 @@
     glMatrixMode(GL_MODELVIEW);
     
     glPushMatrix();
-    glTranslatef([position x], [position y], [position z]);
-    glRotatef(angle, [axis x], [axis y], [axis z]);
+    glTranslatef(position.x, position.y, position.z);
+    glRotatef(angle, axis.x, axis.y, axis.z);
     
     glColor4f(1, 1, 0, 1);
     gluDisk(disks, 0, 2, 20, 1);
@@ -51,26 +43,24 @@
     glFrontFace(GL_CW);
 }
 
-- (void)setDragDir:(Vector3f *)theDragDir {
-    [axis setFloat:[Vector3f zAxisPos]];
-    float cos = [axis dot:theDragDir];
+- (void)setDragDir:(TVector3f *)theDragDir {
+    float cos = dotV3f(&ZAxisPos, theDragDir);
     
     if (feq(1, cos)) {
         angle = 0;
-        [axis setFloat:[Vector3f nullVector]];
+        axis = NullVector;
     } else if (feq(-1, cos)) {
         angle = 180;
-        [axis setFloat:[Vector3f xAxisPos]];
+        axis = XAxisPos;
     } else {
         angle = acos(cos) / (2 * M_PI) * 360;
-        [axis cross:theDragDir];
-        [axis normalize];
+        crossV3f(&ZAxisPos, theDragDir, &axis);
+        normalizeV3f(&axis, &axis);
     }
 }
 
-- (void)update:(Vector3f *)thePosition {
-    [position release];
-    position = [thePosition retain];
+- (void)update:(TVector3f *)thePosition {
+    position = *thePosition;
 }
 
 - (void)dealloc {
@@ -78,8 +68,6 @@
         gluDeleteQuadric(arm);
         gluDeleteQuadric(disks);
     }
-    [position release];
-    [axis release];
     [super dealloc];
 }
 

@@ -11,8 +11,6 @@
 
 @class MapWindowController;
 @class PickingHit;
-@class Plane3D;
-@class Vector3f;
 @class DragFaceCursor;
 @class ApplyFaceCursor;
 @protocol Cursor;
@@ -20,9 +18,9 @@
 @interface FaceTool : DefaultTool {
     @private
     MapWindowController* windowController;
-    Plane3D* plane;
-    Vector3f* lastPoint;
-    Vector3f* dragDir;
+    TPlane plane;
+    TVector3f lastPoint;
+    TVector3f dragDir;
     DragFaceCursor* dragFaceCursor;
     ApplyFaceCursor* applyFaceCursor;
     id <Cursor> currentCursor;

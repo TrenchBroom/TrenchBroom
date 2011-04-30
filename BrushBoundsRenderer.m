@@ -12,8 +12,6 @@
 #import "Camera.h"
 #import "GLFontManager.h"
 #import "GLString.h"
-#import "BoundingBox.h"
-#import "Vector3f.h"
 #import "Matrix4f.h"
 
 @implementation BrushBoundsRenderer
@@ -76,8 +74,6 @@
 
 - (void)render {
     if (!valid) {
-        [bounds release];
-        bounds = nil;
         [widthStr release];
         widthStr = nil;
         [heightStr release];
@@ -88,13 +84,17 @@
         if ([brushes count] > 0) {
             NSEnumerator* brushEn = [brushes objectEnumerator];
             id <Brush> brush = [brushEn nextObject];
-            bounds = [[BoundingBox alloc] initWithBounds:[brush bounds]];
-            while ((brush = [brushEn nextObject]))
-                [bounds mergeBounds:[brush bounds]];
+            bounds = *[brush bounds];
             
-            NSString* width = [[NSString alloc] initWithFormat:@"%.0f", [[bounds size] x]];
-            NSString* height = [[NSString alloc] initWithFormat:@"%.0f", [[bounds size] y]];
-            NSString* depth = [[NSString alloc] initWithFormat:@"%.0f", [[bounds size] z]];
+            while ((brush = [brushEn nextObject]))
+                mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
+            
+            TVector3f size;
+            sizeOfBounds(&bounds, &size);
+            
+            NSString* width = [[NSString alloc] initWithFormat:@"%.0f", size.x];
+            NSString* height = [[NSString alloc] initWithFormat:@"%.0f", size.y];
+            NSString* depth = [[NSString alloc] initWithFormat:@"%.0f", size.z];
             
             widthStr = [[fontManager glStringFor:width font:font] retain];
             heightStr = [[fontManager glStringFor:height font:font] retain];
@@ -113,55 +113,52 @@
         glDisable(GL_TEXTURE_2D);
         [fontManager activate];
         
-        Vector3f* p = [[Vector3f alloc] init];
-        Vector3f* x = [[Vector3f alloc] init];
-        Vector3f* y = [[Vector3f alloc] init];
-        Vector3f* z = [[Vector3f alloc] init];
+        TVector3f size, p, x, y, z;
         Matrix3f* m = [[Matrix4f alloc] init];
+        sizeOfBounds(&bounds, &size);
         
         glBegin(GL_LINES);
-        glVertex3f([[bounds min] x], [[bounds min] y] - 10, [[bounds min] z] + [[bounds size] z] / 2);
-        glVertex3f([[bounds max] x], [[bounds min] y] - 10, [[bounds min] z] + [[bounds size] z] / 2);
-        glVertex3f([[bounds min] x], [[bounds min] y] - 10, [[bounds min] z] + [[bounds size] z] / 2);
-        glVertex3f([[bounds min] x], [[bounds min] y] - 5, [[bounds min] z] + [[bounds size] z] / 2);
-        glVertex3f([[bounds max] x], [[bounds min] y] - 10, [[bounds min] z] + [[bounds size] z] / 2);
-        glVertex3f([[bounds max] x], [[bounds min] y] - 5, [[bounds min] z] + [[bounds size] z] / 2);
+        glVertex3f(bounds.min.x, bounds.min.y - 10, bounds.min.z + size.z / 2);
+        glVertex3f(bounds.max.x, bounds.min.y - 10, bounds.min.z + size.z / 2);
+        glVertex3f(bounds.min.x, bounds.min.y - 10, bounds.min.z + size.z / 2);
+        glVertex3f(bounds.min.x, bounds.min.y - 5, bounds.min.z + size.z / 2);
+        glVertex3f(bounds.max.x, bounds.min.y - 10, bounds.min.z + size.z / 2);
+        glVertex3f(bounds.max.x, bounds.min.y - 5, bounds.min.z + size.z / 2);
 
-        glVertex3f([[bounds min] x] - 10, [[bounds min] y], [[bounds min] z] + [[bounds size] z] / 2);
-        glVertex3f([[bounds min] x] - 10, [[bounds max] y], [[bounds min] z] + [[bounds size] z] / 2);
-        glVertex3f([[bounds min] x] - 10, [[bounds min] y], [[bounds min] z] + [[bounds size] z] / 2);
-        glVertex3f([[bounds min] x] - 5, [[bounds min] y], [[bounds min] z] + [[bounds size] z] / 2);
-        glVertex3f([[bounds min] x] - 10, [[bounds max] y], [[bounds min] z] + [[bounds size] z] / 2);
-        glVertex3f([[bounds min] x] - 5, [[bounds max] y], [[bounds min] z] + [[bounds size] z] / 2);
+        glVertex3f(bounds.min.x - 10, bounds.min.y, bounds.min.z + size.z / 2);
+        glVertex3f(bounds.min.x - 10, bounds.max.y, bounds.min.z + size.z / 2);
+        glVertex3f(bounds.min.x - 10, bounds.min.y, bounds.min.z + size.z / 2);
+        glVertex3f(bounds.min.x - 5, bounds.min.y, bounds.min.z + size.z / 2);
+        glVertex3f(bounds.min.x - 10, bounds.max.y, bounds.min.z + size.z / 2);
+        glVertex3f(bounds.min.x - 5, bounds.max.y, bounds.min.z + size.z / 2);
         
-        glVertex3f([[bounds max] x] + 10, [[bounds min] y] + [[bounds size] y] / 2, [[bounds min] z]) ;
-        glVertex3f([[bounds max] x] + 10, [[bounds min] y] + [[bounds size] y] / 2, [[bounds max] z]) ;
-        glVertex3f([[bounds max] x] + 10, [[bounds min] y] + [[bounds size] y] / 2, [[bounds min] z]);
-        glVertex3f([[bounds max] x] + 5, [[bounds min] y] + [[bounds size] y] / 2, [[bounds min] z]);
-        glVertex3f([[bounds max] x] + 10, [[bounds min] y] + [[bounds size] y] / 2, [[bounds max] z]);
-        glVertex3f([[bounds max] x] + 5, [[bounds min] y] + [[bounds size] y] / 2, [[bounds max] z]);
+        glVertex3f(bounds.max.x + 10, bounds.min.y + size.y / 2, bounds.min.z) ;
+        glVertex3f(bounds.max.x + 10, bounds.min.y + size.y / 2, bounds.max.z) ;
+        glVertex3f(bounds.max.x + 10, bounds.min.y + size.y / 2, bounds.min.z);
+        glVertex3f(bounds.max.x + 5, bounds.min.y + size.y / 2, bounds.min.z);
+        glVertex3f(bounds.max.x + 10, bounds.min.y + size.y / 2, bounds.max.z);
+        glVertex3f(bounds.max.x + 5, bounds.min.y + size.y / 2, bounds.max.z);
         glEnd();
         
-        [p setFloat:[bounds min]];
-        [p addX:[[bounds size] x] / 2 y:-10 z:[[bounds size] z] / 2];
+        p = bounds.min;
+        p.x += size.x / 2;
+        p.y -= 10;
+        p.y += size.z / 2;
 
-        [z setFloat:[camera position]];
-        [z sub:p];
-        [z normalize];
-        
-        [x setFloat:[camera up]];
-        [x cross:z];
-        [x normalize];
-        
-        [y setFloat:z];
-        [y cross:x];
-        [y normalize];
+        subV3f([camera position], &p, &z);
+        normalizeV3f(&z, &z);
+
+        crossV3f([camera up], &z, &x);
+        normalizeV3f(&x, &x);
+
+        crossV3f(&z, &x, &y);
+        normalizeV3f(&y, &y);
         
         [m setIdentity];
-        [m setColumn:0 values:x];
-        [m setColumn:1 values:y];
-        [m setColumn:2 values:z];
-        [m setColumn:3 values:p];
+        [m setColumn:0 values:&x];
+        [m setColumn:1 values:&y];
+        [m setColumn:2 values:&z];
+        [m setColumn:3 values:&p];
         [m setColumn:3 row:3 value:1];
         
         glPushMatrix();
@@ -170,26 +167,25 @@
         [widthStr render];
         glPopMatrix();
         
-        [p setFloat:[bounds min]];
-        [p addX:-10 y:[[bounds size] y] / 2 z:[[bounds size] z] / 2];
+        p = bounds.min;
+        p.x -= 10;
+        p.y += size.y / 2;
+        p.z += size.z / 2;
+
+        subV3f([camera position], &p, &z);
+        normalizeV3f(&z, &z);
+
+        crossV3f([camera up], &z, &x);
+        normalizeV3f(&x, &x);
         
-        [z setFloat:[camera position]];
-        [z sub:p];
-        [z normalize];
-        
-        [x setFloat:[camera up]];
-        [x cross:z];
-        [x normalize];
-        
-        [y setFloat:z];
-        [y cross:x];
-        [y normalize];
+        crossV3f(&z, &x, &y);
+        normalizeV3f(&y, &y);
         
         [m setIdentity];
-        [m setColumn:0 values:x];
-        [m setColumn:1 values:y];
-        [m setColumn:2 values:z];
-        [m setColumn:3 values:p];
+        [m setColumn:0 values:&x];
+        [m setColumn:1 values:&y];
+        [m setColumn:2 values:&z];
+        [m setColumn:3 values:&p];
         [m setColumn:3 row:3 value:1];
         
         glPushMatrix();
@@ -198,26 +194,25 @@
         [heightStr render];
         glPopMatrix();
         
-        [p setFloat:[bounds min]];
-        [p addX:[[bounds size] x] + 10 y:[[bounds size] y] / 2 z:[[bounds size] z] / 2];
+        p = bounds.min;
+        p.x += size.x + 10;
+        p.y += size.y / 2;
+        p.z += size.z / 2;
         
-        [z setFloat:[camera position]];
-        [z sub:p];
-        [z normalize];
+        subV3f([camera position], &p, &z);
+        normalizeV3f(&z, &z);
         
-        [x setFloat:[camera up]];
-        [x cross:z];
-        [x normalize];
+        crossV3f([camera up], &z, &x);
+        normalizeV3f(&x, &x);
         
-        [y setFloat:z];
-        [y cross:x];
-        [y normalize];
+        crossV3f(&z, &x, &y);
+        normalizeV3f(&y, &y);
         
         [m setIdentity];
-        [m setColumn:0 values:x];
-        [m setColumn:1 values:y];
-        [m setColumn:2 values:z];
-        [m setColumn:3 values:p];
+        [m setColumn:0 values:&x];
+        [m setColumn:1 values:&y];
+        [m setColumn:2 values:&z];
+        [m setColumn:3 values:&p];
         [m setColumn:3 row:3 value:1];
         
         glPushMatrix();
@@ -226,12 +221,6 @@
         [depthStr render];
         glPopMatrix();
 
-        [p release];
-        [x release];
-        [y release];
-        [z release];
-        [m release];
-        
         [fontManager deactivate];
     }
 }

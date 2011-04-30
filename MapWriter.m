@@ -11,7 +11,6 @@
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
-#import "Vector3i.h"
 
 static int BUF_SIZE = 16;
 
@@ -43,8 +42,8 @@ static int BUF_SIZE = 16;
     }
 }
 
-- (void)writePoint:(Vector3i *)thePoint toStream:(NSOutputStream *)theStream {
-    NSString* t = [[NSString alloc] initWithFormat:@"( %i %i %i )", [thePoint x], [thePoint y], [thePoint z]];
+- (void)writePoint:(TVector3i *)thePoint toStream:(NSOutputStream *)theStream {
+    NSString* t = [[NSString alloc] initWithFormat:@"( %i %i %i )", thePoint->x, thePoint->y, thePoint->z];
     [self writeString:t toStream:theStream];
     [t release];
 }

@@ -8,19 +8,42 @@
 
 #import "VertexData.h"
 #import "Vertex.h"
-#import "Vector2f.h"
-#import "Vector3f.h"
-#import "BoundingBox.h"
-#import "CoordinatePlane.h"
 #import "Edge.h"
 #import "MutableFace.h"
 #import "Math.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
-#import "Plane3D.h"
-#import "Ray3D.h"
 #import "Side.h"
-#import "SegmentIterator.h"
+
+@interface VertexData (private)
+
+- (void)validate;
+
+@end
+
+@implementation VertexData (private)
+
+- (void)validate {
+    if (!valid) {
+        NSEnumerator* vertexEn = [vertices objectEnumerator];
+        Vertex* vertex = [vertexEn nextObject];
+        
+        bounds.min = *[vertex vector];
+        bounds.max = *[vertex vector];        
+        center = *[vertex vector];
+        
+        while ((vertex = [vertexEn nextObject])) {
+            mergeBoundsWithPoint(&bounds, [vertex vector], &bounds);
+            addV3f(&center, [vertex vector], &center);
+        }
+        
+        scaleV3f(&center, 1.0f / [vertices count], &center);
+        
+        valid = YES;
+    }
+}
+
+@end
 
 @implementation VertexData
 
@@ -29,56 +52,39 @@
         vertices = [[NSMutableArray alloc] init];
         edges = [[NSMutableArray alloc] init];
         sides = [[NSMutableArray alloc] init];
-        bounds = nil;
         
         // initialize as huge cube
-        Vector3f* v = [[Vector3f alloc] initWithFloatX:-4096 y:-4096 z:-4096];
-        Vertex* esb = [[Vertex alloc] initWithVector:v];
+        Vertex* esb = [[Vertex alloc] initWithX:-4096 y:-4096 z:-4096];
         [vertices addObject:esb];
         [esb release];
-        [v release];
         
-        v = [[Vector3f alloc] initWithFloatX:-4096 y:-4096 z:+4096];
-        Vertex* est = [[Vertex alloc] initWithVector:v];
+        Vertex* est = [[Vertex alloc] initWithX:-4096 y:-4096 z:+4096];
         [vertices addObject:est];
         [est release];
-        [v release];
         
-        v = [[Vector3f alloc] initWithFloatX:-4096 y:+4096 z:-4096];
-        Vertex* enb = [[Vertex alloc] initWithVector:v];
+        Vertex* enb = [[Vertex alloc] initWithX:-4096 y:+4096 z:-4096];
         [vertices addObject:enb];
         [enb release];
-        [v release];
         
-        v = [[Vector3f alloc] initWithFloatX:-4096 y:+4096 z:+4096];
-        Vertex* ent = [[Vertex alloc] initWithVector:v];
+        Vertex* ent = [[Vertex alloc] initWithX:-4096 y:+4096 z:+4096];
         [vertices addObject:ent];
         [ent release];
-        [v release];
         
-        v = [[Vector3f alloc] initWithFloatX:+4096 y:-4096 z:-4096];
-        Vertex* wsb = [[Vertex alloc] initWithVector:v];
+        Vertex* wsb = [[Vertex alloc] initWithX:+4096 y:-4096 z:-4096];
         [vertices addObject:wsb];
         [wsb release];
-        [v release];
         
-        v = [[Vector3f alloc] initWithFloatX:+4096 y:-4096 z:+4096];
-        Vertex* wst = [[Vertex alloc] initWithVector:v];
+        Vertex* wst = [[Vertex alloc] initWithX:+4096 y:-4096 z:+4096];
         [vertices addObject:wst];
         [wst release];
-        [v release];
         
-        v = [[Vector3f alloc] initWithFloatX:+4096 y:+4096 z:-4096];
-        Vertex* wnb = [[Vertex alloc] initWithVector:v];
+        Vertex* wnb = [[Vertex alloc] initWithX:+4096 y:+4096 z:-4096];
         [vertices addObject:wnb];
         [wnb release];
-        [v release];
         
-        v = [[Vector3f alloc] initWithFloatX:+4096 y:+4096 z:+4096];
-        Vertex* wnt = [[Vertex alloc] initWithVector:v];
+        Vertex* wnt = [[Vertex alloc] initWithX:+4096 y:+4096 z:+4096];
         [vertices addObject:wnt];
         [wnt release];
-        [v release];
         
         // create edges
         Edge* esbwsb = [[Edge alloc] initWithStartVertex:esb endVertex:wsb];
@@ -192,7 +198,7 @@
 }
 
 - (BOOL)cutWithFace:(MutableFace *)face droppedFaces:(NSMutableSet **)droppedFaces {
-    Plane3D* plane = [face boundary];
+    TPlane* plane = [face boundary];
     
     int keep = 0;
     int drop = 0;
@@ -202,7 +208,7 @@
     NSEnumerator* vEn = [vertices objectEnumerator];
     Vertex* vertex;
     while ((vertex = [vEn nextObject])) {
-        EPointStatus vertexStatus = [plane pointStatus:[vertex vector]];
+        EPointStatus vertexStatus = pointStatus(plane, [vertex vector]);
         EVertexMark vertexMark;
         if (vertexStatus == PS_ABOVE) {
             vertexMark = VM_DROP;
@@ -302,16 +308,8 @@
             [edge clearMark];
 
     }
-    
-    [center release];
-    center = nil;
-    
-    [bounds release];
-    bounds = nil;
-    
-    [pickingBounds release];
-    pickingBounds = nil;
-    
+
+    valid = NO;
     return YES;
 }
 
@@ -323,60 +321,21 @@
     return edges;
 }
 
-- (BoundingBox *)bounds {
-    if (bounds == nil) {
-        NSEnumerator* vertexEn = [vertices objectEnumerator];
-        Vertex* vertex = [vertexEn nextObject];
-        
-        Vector3f* min = [[Vector3f alloc] initWithFloatVector:[vertex vector]];
-        Vector3f* max = [[Vector3f alloc] initWithFloatVector:[vertex vector]];
-        
-        while ((vertex = [vertexEn nextObject])) {
-            Vector3f* vector = [vertex vector];
-            if ([vector x] < [min x])
-                [min setX:[vector x]];
-            if ([vector y] < [min y])
-                [min setY:[vector y]];
-            if ([vector z] < [min z])
-                [min setZ:[vector z]];
-            
-            if ([vector x] > [max x])
-                [max setX:[vector x]];
-            if ([vector y] > [max y])
-                [max setY:[vector y]];
-            if ([vector z] > [max z])
-                [max setZ:[vector z]];
-        }
-        
-        bounds = [[BoundingBox alloc] initWithMin:min max:max];
-
-        [min release];
-        [max release];
-    }
-    
-    return bounds;
+- (TBoundingBox *)bounds {
+    [self validate];
+    return &bounds;
 }
 
-- (Vector3f *)center {
-    if (center == nil) {
-        NSEnumerator* vertexEn = [vertices objectEnumerator];
-        Vertex* vertex = [vertexEn nextObject];
-        center = [[Vector3f alloc] initWithFloatVector:[vertex vector]];
-        
-        while ((vertex = [vertexEn nextObject]))
-            [center add:[vertex vector]];
-        
-        [center scale:1.0f / [vertices count]];
-    }
-    
-    return center;
+- (TVector3f *)center {
+    [self validate];
+    return &center;
 }
 
 - (int)edgeCount {
     return [edges count];
 }
 
-- (void)pick:(Ray3D *)theRay hitList:(PickingHitList *)theHitList {
+- (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList {
     NSEnumerator* sideEn = [sides objectEnumerator];
     Side* side;
     PickingHit* faceHit = nil;
@@ -391,25 +350,10 @@
     }
 }
 
-- (BoundingBox *)pickingBounds {
-    if (pickingBounds == nil) {
-        pickingBounds = [[BoundingBox alloc] initWithBounds:[self bounds]];
-        NSEnumerator* edgeEn = [edges objectEnumerator];
-        Edge* edge;
-        while ((edge = [edgeEn nextObject]))
-            [edge expandBounds:pickingBounds];
-    }
-    
-    return pickingBounds;
-}
-
 - (void)dealloc {
     [sides release];
     [edges release];
     [vertices release];
-    [bounds release];
-    [pickingBounds release];
-    [center release];
     [super dealloc];
 }
 

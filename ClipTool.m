@@ -11,10 +11,6 @@
 #import "PickingHitList.h"
 #import "PickingHit.h"
 #import "Renderer.h";
-#import "Vector3i.h"
-#import "Vector3f.h"
-#import "Ray3D.h"
-#import "Plane3D.h"
 #import "Options.h"
 #import "Grid.h"
 #import "Face.h"
@@ -32,44 +28,21 @@
 
 @interface ClipTool (private)
 
-- (Vector3i *)setClipPointWithRay:(Ray3D *)ray hits:(PickingHitList *)hits;
-- (void)updateFeedback:(Ray3D *)ray;
-- (BOOL)intersect:(Ray3D *)ray withClipPoint:(Vector3i *)point;
+- (int)setClipPointWithRay:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)updateFeedback:(TRay *)ray;
+- (BOOL)intersect:(TRay *)ray withClipPoint:(TVector3i *)point;
 
 @end
 
 @implementation ClipTool (private)
 
-- (Vector3i *)setClipPointWithRay:(Ray3D *)ray hits:(PickingHitList *)hits {
-    Vector3i* p1 = [clipPlane point1];
-    Vector3i* p2 = [clipPlane point2];
-    Vector3i* p3 = [clipPlane point3];
-    
-    if (p1 == nil) {
-        p1 = [[Vector3i alloc] initWithIntVector:currentPoint];
-        [clipPlane setPoint1:p1];
-        [clipPlane setHitList1:hits];
-        return [p1 autorelease];
-    }
-    
-    if (p2 == nil && ![self intersect:ray withClipPoint:p1]) {
-        p2 = [[Vector3i alloc] initWithIntVector:currentPoint];
-        [clipPlane setPoint2:p2];
-        [clipPlane setHitList2:hits];
-        return [p2 autorelease];
-    }
-    
-    if (p3 == nil && ![self intersect:ray withClipPoint:p1] && ![self intersect:ray withClipPoint:p2]) {
-        p3 = [[Vector3i alloc] initWithIntVector:currentPoint];
-        [clipPlane setPoint3:p3];
-        [clipPlane setHitList3:hits];
-        return [p3 autorelease];
-    }
-    
-    return nil;
+- (int)setClipPointWithRay:(TRay *)ray hits:(PickingHitList *)hits {
+    if ([clipPlane numPoints] < 3)
+        [clipPlane addPoint:currentPoint hitList:hits];
+    return [clipPlane numPoints] - 1;
 }
 
-- (void)updateFeedback:(Ray3D *)ray {
+- (void)updateFeedback:(TRay *)ray {
     Renderer* renderer = [windowController renderer];
     
     if (point1Figure != nil) {
@@ -140,22 +113,23 @@
     
 
     if (clipPlane != nil) {
-        Vector3i* p1 = [clipPlane point1];
-        Vector3i* p2 = [clipPlane point2];
-        Vector3i* p3 = [clipPlane point3];
-        
-        if (p1 != nil) {
+        if ([clipPlane numPoints] > 0) {
+            TVector3i* p1 = [clipPlane point:0];
             point1Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p1];
             [renderer addFeedbackFigure:point1Figure];
-            
-            if (p2 != nil) {
+
+            if ([clipPlane numPoints] > 1) {
+                TVector3i* p2 = [clipPlane point:1];
+                
                 point2Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p2];
                 [renderer addFeedbackFigure:point2Figure];
                 
                 line1Figure = [[ClipLineFeedbackFigure alloc] initWithStartPoint:p1 endPoint:p2];
                 [renderer addFeedbackFigure:line1Figure];
-                
-                if (p3 != nil) {
+
+                if ([clipPlane numPoints] > 2) {
+                    TVector3i* p3 = [clipPlane point:2];
+
                     point3Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p3];
                     [renderer addFeedbackFigure:point3Figure];
                     
@@ -183,15 +157,15 @@
             }
         }
         
-        if (draggedPoint != nil && ray != nil) {
+        if (draggedPoint > 0 && ray != nil) {
             Grid* grid = [[windowController options] grid];
             PickingHit* hit;
-            if (draggedPoint == p1)
-                hit = [[clipPlane hitList1] firstHitOfType:HT_FACE ignoreOccluders:YES];
-            else if (draggedPoint == p2)
-                hit = [[clipPlane hitList2] firstHitOfType:HT_FACE ignoreOccluders:YES];
-            else if (draggedPoint == p3)
-                hit = [[clipPlane hitList3] firstHitOfType:HT_FACE ignoreOccluders:YES];
+            if (draggedPoint == 1)
+                hit = [[clipPlane hitList:0] firstHitOfType:HT_FACE ignoreOccluders:YES];
+            else if (draggedPoint == 2)
+                hit = [[clipPlane hitList:1] firstHitOfType:HT_FACE ignoreOccluders:YES];
+            else if (draggedPoint == 3)
+                hit = [[clipPlane hitList:2] firstHitOfType:HT_FACE ignoreOccluders:YES];
                 
             gridFigure = [[GridFeedbackFigure alloc] initWithGrid:grid pickingHit:hit ray:ray];
             [renderer addFeedbackFigure:gridFigure];
@@ -199,11 +173,9 @@
     }
 }
 
-- (BOOL)intersect:(Ray3D *)ray withClipPoint:(Vector3i *)point {
-    Vector3f* temp = [[Vector3f alloc] initWithIntVector:point];
-    float dist = [ray intersectWithSphere:temp radius:3];
-    [temp release];
-    return !isnan(dist);
+- (BOOL)intersect:(TRay *)ray withClipPoint:(TVector3i *)point {
+    TVector3f center = {point->x, point->y, point->z};
+    return !isnan(intersectSphereWithRay(&center, 3, ray));
 }
 
 @end
@@ -213,6 +185,7 @@
 - (id)init {
     if (self = [super init]) {
         brushFigures = [[NSMutableSet alloc] init];
+        draggedPoint = -1;
     }
     
     return self;
@@ -226,19 +199,19 @@
     return self;
 }
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    if ([self numPoints] > 0 && [self intersect:ray withClipPoint:[clipPlane point1]]) {
-        draggedPoint = [clipPlane point1];
-    } else if ([self numPoints] > 1 && [self intersect:ray withClipPoint:[clipPlane point2]]) {
-        draggedPoint = [clipPlane point2];
-    } else if ([self numPoints] > 2 && [self intersect:ray withClipPoint:[clipPlane point3]]) {
-        draggedPoint = [clipPlane point3];
+- (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if ([clipPlane numPoints] > 0 && [self intersect:ray withClipPoint:[clipPlane point:0]]) {
+        draggedPoint = 0;
+    } else if ([clipPlane numPoints] > 1 && [self intersect:ray withClipPoint:[clipPlane point:1]]) {
+        draggedPoint = 1;
+    } else if ([clipPlane numPoints] > 2 && [self intersect:ray withClipPoint:[clipPlane point:2]]) {
+        draggedPoint = 2;
     }
     
-    if (draggedPoint == nil && [self numPoints] < 3)
+    if (draggedPoint == -1 && [self numPoints] < 3)
         draggedPoint = [self setClipPointWithRay:ray hits:hits];
 
-    if (draggedPoint != nil && currentFigure != nil) {
+    if (draggedPoint > -1 && currentFigure != nil) {
         Renderer* renderer = [windowController renderer];
         [renderer removeFeedbackFigure:currentFigure];
         [currentFigure release];
@@ -248,84 +221,38 @@
     [self updateFeedback:ray];
 }
 
-- (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    draggedPoint = nil;
+- (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    draggedPoint = -1;
     [self updateFeedback:ray];
 }
 
-- (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    if (draggedPoint != nil) {
-        if (draggedPoint == [clipPlane point1]) {
-            PickingHit* hit = [[clipPlane hitList1] firstHitOfType:HT_FACE ignoreOccluders:YES];
-            id <Face> face = [hit object];
-            Plane3D* boundary = [face boundary];
-            Vector3f* hitPoint = [ray pointAtDistance:[boundary intersectWithRay:ray]];
-            
-            Grid* grid = [[windowController options] grid];
-            [grid snapToGrid:hitPoint];
-            
-            [face transformToSurface:hitPoint];
-            [hitPoint setZ:0];
-            [face transformToWorld:hitPoint];
-            
-            int x = roundf([hitPoint x]);
-            int y = roundf([hitPoint y]);
-            int z = roundf([hitPoint z]);
-            
-            [[clipPlane point1] setX:x];
-            [[clipPlane point1] setY:y];
-            [[clipPlane point1] setZ:z];
-        } else if (draggedPoint == [clipPlane point2]) {
-            PickingHit* hit = [[clipPlane hitList2] firstHitOfType:HT_FACE ignoreOccluders:YES];
-            id <Face> face = [hit object];
-            Plane3D* boundary = [face boundary];
-            Vector3f* hitPoint = [ray pointAtDistance:[boundary intersectWithRay:ray]];
-            
-            Grid* grid = [[windowController options] grid];
-            [grid snapToGrid:hitPoint];
-            
-            [face transformToSurface:hitPoint];
-            [hitPoint setZ:0];
-            [face transformToWorld:hitPoint];
-            
-            int x = roundf([hitPoint x]);
-            int y = roundf([hitPoint y]);
-            int z = roundf([hitPoint z]);
-            
-            [[clipPlane point2] setX:x];
-            [[clipPlane point2] setY:y];
-            [[clipPlane point2] setZ:z];
-        } else {
-            PickingHit* hit = [[clipPlane hitList3] firstHitOfType:HT_FACE ignoreOccluders:YES];
-            id <Face> face = [hit object];
-            Plane3D* boundary = [face boundary];
-            Vector3f* hitPoint = [ray pointAtDistance:[boundary intersectWithRay:ray]];
-            
-            Grid* grid = [[windowController options] grid];
-            [grid snapToGrid:hitPoint];
-            
-            [face transformToSurface:hitPoint];
-            [hitPoint setZ:0];
-            [face transformToWorld:hitPoint];
-            
-            int x = roundf([hitPoint x]);
-            int y = roundf([hitPoint y]);
-            int z = roundf([hitPoint z]);
-            
-            [[clipPlane point3] setX:x];
-            [[clipPlane point3] setY:y];
-            [[clipPlane point3] setZ:z];
-        }
+- (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (draggedPoint > -1) {
+        PickingHit* hit = [[clipPlane hitList:0] firstHitOfType:HT_FACE ignoreOccluders:YES];
+        id <Face> face = [hit object];
+        
+        TVector3f hitPoint;
+        float diff = intersectPlaneWithRay([face boundary], ray);
+        rayPointAtDistance(ray, diff, &hitPoint);
+        
+        Grid* grid = [[windowController options] grid];
+        [grid snapToGrid:&hitPoint result:&hitPoint];
+        
+        [face transformToSurface:&hitPoint];
+        hitPoint.z = 0;
+        [face transformToWorld:&hitPoint];
+        
+        [clipPlane updatePoint:draggedPoint x:roundf(hitPoint.x) y:roundf(hitPoint.y) z:roundf(hitPoint.z)];
     }
     
     [self updateFeedback:ray];
 }
 
-- (void)handleLeftMouseUp:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)handleLeftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (clipPlane == nil)
         return;
     
-    if (currentPoint == nil)
+    if (currentPoint == NULL)
         return;
     
     [self setClipPointWithRay:ray hits:hits];
@@ -339,13 +266,13 @@
     }
 }
 
-- (void)handleMouseMoved:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)handleMouseMoved:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (clipPlane == nil)
         return;
     
-    if (currentPoint != nil) {
-        [currentPoint release];
-        currentPoint = nil;
+    if (currentPoint != NULL) {
+        free(currentPoint);
+        currentPoint = NULL;
     }
     
     if (currentFigure != nil) {
@@ -357,33 +284,27 @@
     
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
     if (hit != nil) {
-        Vector3f* temp = [[Vector3f alloc] initWithFloatVector:[hit hitPoint]];
+        TVector3f t;
         
         Grid* grid = [[windowController options] grid];
-        [grid snapToGrid:temp];
+        [grid snapToGrid:[hit hitPoint] result:&t];
         
         id <Face> face = [hit object];
-        [face transformToSurface:temp];
-        [temp setZ:0];
-        [face transformToWorld:temp];
+        [face transformToSurface:&t];
+        t.z = 0;
+        [face transformToWorld:&t];
         
-        int x = roundf([temp x]);
-        int y = roundf([temp y]);
-        int z = roundf([temp z]);
-        [temp release];
+        currentPoint = malloc(sizeof(TVector3f));
+        currentPoint->x = roundf(t.x);
+        currentPoint->y = roundf(t.y);
+        currentPoint->z = roundf(t.z);
         
-        currentPoint = [[Vector3i alloc] initWithIntX:x y:y z:z];
-        
-        if ([clipPlane point3] == nil) {
+        if ([self numPoints] < 3) {
             Renderer* renderer = [windowController renderer];
             currentFigure = [[ClipPointFeedbackFigure alloc] initWithPoint:currentPoint];
             [renderer addFeedbackFigure:currentFigure];
         }
     }
-}
-
-- (BOOL)isCursorOwner:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    return [self active];
 }
 
 - (void)activate {
@@ -394,9 +315,10 @@
 - (void)deactivate {
     [clipPlane release];
     clipPlane = nil;
+
+    free(currentPoint);
+    currentPoint = NULL;
     
-    [currentPoint release];
-    currentPoint = nil;
     if (currentFigure != nil) {
         Renderer* renderer = [windowController renderer];
         [renderer removeFeedbackFigure:currentFigure];
@@ -427,30 +349,14 @@
 }
 
 - (void)deleteLastPoint {
-    if ([clipPlane point3] != nil) {
-        [clipPlane setPoint3:nil];
-        [clipPlane setHitList3:nil];
-    } else if ([clipPlane point2] != nil) {
-        [clipPlane setPoint2:nil];
-        [clipPlane setHitList2:nil];
-    } else if ([clipPlane point1] != nil) {
-        [clipPlane setPoint1:nil];
-        [clipPlane setHitList1:nil];
-    } else {
-        return;
+    if ([clipPlane numPoints] > 0) {
+        [clipPlane removeLastPoint];
+        [self updateFeedback:NULL];
     }
-    
-    [self updateFeedback:nil];
 }
 
 - (int)numPoints {
-    if ([clipPlane point1] == nil)
-        return 0;
-    if ([clipPlane point2] == nil)
-        return 1;
-    if ([clipPlane point3] == nil)
-        return 2;
-    return 3;
+    return [clipPlane numPoints];
 }
 
 - (NSSet *)performClip:(MapDocument* )map {
@@ -487,8 +393,11 @@
     
     [brushes release];
     [clipPlane reset];
-    [currentPoint release];
-    currentPoint = nil;
+    if (currentPoint != NULL) {
+        free(currentPoint);
+        currentPoint = NULL;
+    }
+
     [self updateFeedback:nil];
     
     return [result autorelease];
@@ -496,8 +405,10 @@
 
 - (void)cancel {
     [clipPlane reset];
-    [currentPoint release];
-    currentPoint = nil;
+    if (currentPoint != NULL) {
+        free(currentPoint);
+        currentPoint = NULL;
+    }
     [self updateFeedback:nil];
 }
 
@@ -505,7 +416,10 @@
     [clipPlane reset];
     [self updateFeedback:nil];
     [clipPlane release];
-    [currentPoint release];
+    if (currentPoint != NULL) {
+        free(currentPoint);
+        currentPoint = NULL;
+    }
     [brushFigures release];
     [windowController release];
     [super dealloc];

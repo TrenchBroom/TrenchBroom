@@ -7,21 +7,21 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 @class Camera;
-@class Vector3f;
 
 @interface CameraAnimation : NSAnimation <NSAnimationDelegate> {
     @private
     Camera* camera;
-    Vector3f* initialPosition;
-    Vector3f* initialDirection;
-    Vector3f* initialUpVector;
-    Vector3f* targetPosition;
-    Vector3f* targetDirection;
-    Vector3f* targetUpVector;
+    TVector3f initialPosition;
+    TVector3f initialDirection;
+    TVector3f initialUpVector;
+    TVector3f targetPosition;
+    TVector3f targetDirection;
+    TVector3f targetUpVector;
 }
 
-- (id)initWithCamera:(Camera *)theCamera targetPosition:(Vector3f *)thePosition targetDirection:(Vector3f *)theDirection targetUp:(Vector3f *)theUpVector duration:(NSTimeInterval)duration;
+- (id)initWithCamera:(Camera *)theCamera targetPosition:(const TVector3f *)thePosition targetDirection:(const TVector3f *)theDirection targetUp:(const TVector3f *)theUpVector duration:(NSTimeInterval)duration;
 
 @end

@@ -7,15 +7,14 @@
 //
 
 #import "PickingHit.h"
-#import "Vector3f.h"
 
 @implementation PickingHit
 
-- (id)initWithObject:(id)theObject type:(EHitType)theType hitPoint:(Vector3f *)theHitPoint distance:(float)theDistance {
+- (id)initWithObject:(id)theObject type:(EHitType)theType hitPoint:(TVector3f *)theHitPoint distance:(float)theDistance {
     if (self = [self init]) {
         object = [theObject retain];
         type = theType;
-        hitPoint = [theHitPoint retain];
+        hitPoint = *theHitPoint;
         distance = theDistance;
     }
     
@@ -34,8 +33,8 @@
     return (theTypeMask & type) != 0;
 }
 
-- (Vector3f *)hitPoint {
-    return hitPoint;
+- (TVector3f *)hitPoint {
+    return &hitPoint;
 }
 
 - (float)distance {
@@ -56,7 +55,6 @@
 
 - (void)dealloc {
     [object release];
-    [hitPoint release];
     [super dealloc];
 }
 

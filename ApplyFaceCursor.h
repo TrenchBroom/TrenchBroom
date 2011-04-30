@@ -7,15 +7,15 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 #import "Cursor.h"
 
-@class Vector3f;
 @class Matrix4f;
 @protocol Face;
 
 @interface ApplyFaceCursor : NSObject <Cursor> {
-    Vector3f* position;
-    Vector3f* center;
+    TVector3f position;
+    TVector3f center;
     Matrix4f* matrix;
     BOOL applyFlags;
 }

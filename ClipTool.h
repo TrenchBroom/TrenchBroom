@@ -8,12 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 #import "DefaultTool.h"
+#import "Math.h"
 
 @class MapWindowController;
-@class Vector3i;
 @class Picker;
 @class PickingHitList;
-@class Ray3D;
 @class Renderer;
 @class Grid;
 @class MapDocument;
@@ -34,9 +33,9 @@
     ClipLineFeedbackFigure* line3Figure;
     ClipPlaneFeedbackFigure* planeFigure;
     NSMutableSet* brushFigures;
-    Vector3i* currentPoint;
+    TVector3i* currentPoint;
     ClipPointFeedbackFigure* currentFigure;
-    Vector3i* draggedPoint;
+    int draggedPoint;
     GridFeedbackFigure* gridFigure;
 }
 

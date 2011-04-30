@@ -7,11 +7,10 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 @protocol PrefabGroup;
-@class BoundingBox;
 @class MapDocument;
-@class Vector3f;
 
 @protocol Prefab <NSObject>
 
@@ -22,9 +21,9 @@
 
 - (NSArray *)entities;
 
-- (Vector3f *)center;
-- (BoundingBox *)bounds;
-- (BoundingBox *)maxBounds;
+- (TVector3f *)center;
+- (TBoundingBox *)bounds;
+- (TBoundingBox *)maxBounds;
 
 - (NSComparisonResult)compareByName:(id <Prefab>)prefab;
 

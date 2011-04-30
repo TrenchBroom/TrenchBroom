@@ -10,19 +10,18 @@
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
 #import "Cursor.h"
-
-@class Vector3f;
+#import "Math.h"
 
 @interface DragFaceCursor : NSObject <Cursor> {
-    Vector3f* position;
+    TVector3f position;
     float angle;
-    Vector3f* axis;
+    TVector3f axis;
     GLUquadric* arm;
     GLUquadric* disks;
     BOOL initialized;
     
 }
 
-- (void)setDragDir:(Vector3f *)theDragDir;
+- (void)setDragDir:(TVector3f *)theDragDir;
 
 @end

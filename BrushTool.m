@@ -13,19 +13,12 @@
 #import "MapWindowController.h"
 #import "MapDocument.h"
 #import "SelectionManager.h"
-#import "CoordinatePlane.h"
-#import "Ray3D.h"
-#import "Plane3D.h"
-#import "Vector3f.h"
-#import "Vector3i.h"
-#import "BoundingBox.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
 #import "Face.h"
 #import "Brush.h"
 #import "MutableBrush.h"
 #import "math.h"
-#import "Math.h"
 #import "Renderer.h"
 #import "MapView3D.h"
 #import "CursorManager.h"
@@ -34,7 +27,7 @@
 @interface BrushTool (private)
 
 - (BOOL)isAltPlaneModifierPressed;
-- (EVectorComponent)planeNormal:(id <Face>)face;
+- (EAxis)planeNormal:(id <Face>)face;
 
 @end
 
@@ -44,24 +37,24 @@
     return [NSEvent modifierFlags] == NSAlternateKeyMask;
 }
 
-- (EVectorComponent)planeNormal:(id <Face>)face {
-    EVectorComponent planeNormal;
-    if (plane != nil) {
-        planeNormal = [[plane norm] largestComponent];
+- (EAxis)planeNormal:(id <Face>)face {
+    EAxis planeNormal;
+    if (drag) {
+        planeNormal = largestComponentV3f(&plane.norm);
     } else {
-        planeNormal = [[face norm] largestComponent];
+        planeNormal = largestComponentV3f([face norm]);
         if ([self isAltPlaneModifierPressed]) {
-            if (planeNormal == VC_X) {
-                planeNormal = VC_Y;
-            } else if (planeNormal == VC_Y) {
-                planeNormal = VC_X;
+            if (planeNormal == A_X) {
+                planeNormal = A_Y;
+            } else if (planeNormal == A_Y) {
+                planeNormal = A_X;
             } else {
                 Camera* camera = [windowController camera];
-                Vector3f* cameraDir = [camera direction];
-                if (fabsf([cameraDir x]) > fabsf([cameraDir y]))
-                    planeNormal = VC_X;
+                const TVector3f* cameraDir = [camera direction];
+                if (fabsf(cameraDir->x) > fabsf(cameraDir->y))
+                    planeNormal = A_X;
                 else
-                    planeNormal = VC_Y;
+                    planeNormal = A_Y;
             }
         }
     }
@@ -83,8 +76,6 @@
 
 - (void)dealloc {
     [cursor release];
-    [lastPoint release];
-    [plane release];
     [windowController release];
     [super dealloc];
 }
@@ -92,7 +83,7 @@
 # pragma mark -
 # pragma mark @implementation Tool
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     PickingHit* faceHit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
     if (faceHit == nil)
         return;
@@ -104,22 +95,23 @@
     if (![selectionManager isBrushSelected:brush])
         return;
     
-    lastPoint = [[faceHit hitPoint] retain];
+    lastPoint = *[faceHit hitPoint];
+    plane.point = lastPoint;
     
     switch ([self planeNormal:face]) {
-        case VC_X:
-            plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f xAxisPos]];
+        case A_X:
+            plane.norm = XAxisPos;
             break;
-        case VC_Y:
-            plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f yAxisPos]];
+        case A_Y:
+            plane.norm = YAxisPos;
             break;
         default:
-            plane = [[Plane3D alloc] initWithPoint:lastPoint norm:[Vector3f zAxisPos]];
+            plane.norm = ZAxisPos;
             break;
     }
     
     Grid* grid = [[windowController options] grid];
-    [grid snapToGrid:lastPoint];
+    [grid snapToGrid:&lastPoint result:&lastPoint];
     drag = YES;
     
     MapDocument* map = [windowController document];
@@ -128,20 +120,23 @@
     [undoManager beginUndoGrouping];
 }
 
-- (void)leftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    Vector3f* point = [ray pointAtDistance:[plane intersectWithRay:ray]];
-    if (point == nil)
+- (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    float dist = intersectPlaneWithRay(&plane, ray);
+    if (isnan(dist))
         return;
+    
+    TVector3f point;
+    rayPointAtDistance(ray, dist, &point);
     
     Grid* grid = [[windowController options] grid];
-    [grid snapToGrid:point];
+    [grid snapToGrid:&point result:&point];
     
-    if ([point isEqualToVector:lastPoint])
+    if (equalV3f(&point, &lastPoint))
         return;
     
-    int x = roundf([point x] - [lastPoint x]);
-    int y = roundf([point y] - [lastPoint y]);
-    int z = roundf([point z] - [lastPoint z]);
+    int x = roundf(point.x - lastPoint.x);
+    int y = roundf(point.y - lastPoint.y);
+    int z = roundf(point.z - lastPoint.z);
     
     MapDocument* map = [windowController document];
     
@@ -153,71 +148,49 @@
                      xDelta:x
                      yDelta:y
                      zDelta:z];
-    
-    [lastPoint release];
-    lastPoint = [point retain];
+
+    lastPoint = point;
 }
 
-- (void)endLeftDrag:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setActionName:[self actionName]];
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
 
-    [lastPoint release];
-    lastPoint = nil;
-    [plane release];
-    plane = nil;
     drag = NO;
 }
 
-- (BOOL)isCursorOwner:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager mode] != SM_GEOMETRY)
-        return NO;
-
-    if ([NSEvent modifierFlags] != 0 && ![self isAltPlaneModifierPressed])
-        return NO;
-    
-    PickingHit* hit = [hits firstHitOfType:HT_BRUSH ignoreOccluders:YES];
-    if (hit == nil)
-        return NO;
-    
-    id <Brush> brush = [hit object];
-    if (![selectionManager isBrushSelected:brush])
-        return NO;
-    
-    return YES;
-}
-
-- (void)setCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    id <Face> face = [hit object];
-
+- (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     CursorManager* cursorManager = [windowController cursorManager];
     [cursorManager pushCursor:cursor];
 
-    EVectorComponent planeNormal = [self planeNormal:face];
+    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    id <Face> face = [hit object];
+
+    EAxis planeNormal = [self planeNormal:face];
     [cursor setPlaneNormal:planeNormal];
 }
 
-- (void)unsetCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     CursorManager* cursorManager = [windowController cursorManager];
     [cursorManager popCursor];
 }
 
-- (void)updateCursor:(NSEvent *)event ray:(Ray3D *)ray hits:(PickingHitList *)hits {
+- (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (!drag) {
         PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
         id <Face> face = [hit object];
         
-        EVectorComponent planeNormal = [self planeNormal:face];
+        EAxis planeNormal = [self planeNormal:face];
         [cursor setPlaneNormal:planeNormal];
         [cursor update:[hit hitPoint]];
     } else {
-        Vector3f* position = [ray pointAtDistance:[plane intersectWithRay:ray]];
-        [cursor update:position];
+        float dist = intersectPlaneWithRay(&plane, ray);
+        TVector3f position;
+        rayPointAtDistance(ray, dist, &position);
+        [cursor update:&position];
     }
 }
 

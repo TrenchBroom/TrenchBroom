@@ -8,13 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Entity.h"
+#import "Math.h"
 
 @protocol Map;
-@class Vector3i;
-@class Vector3f;
 @class MutableBrush;
 @class Face;
-@class BoundingBox;
 
 @interface MutableEntity : NSObject <Entity> {
     @private
@@ -22,8 +20,9 @@
     id <Map> map;
 	NSMutableArray* brushes;
 	NSMutableDictionary* properties;
-    Vector3f* center;
-    BoundingBox* bounds;
+    TVector3f center;
+    TBoundingBox bounds;
+    BOOL valid;
     NSMutableDictionary* memBlocks;
 }
 

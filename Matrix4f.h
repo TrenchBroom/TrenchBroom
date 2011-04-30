@@ -7,9 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
-@class Vector3f;
-@class Vector4f;
 @class Matrix2f;
 @class Matrix3f;
 
@@ -24,20 +23,20 @@
 - (void)setMatrix4f:(Matrix4f *)matrix;
 - (void)setSubMatrix:(int)index to:(Matrix2f *)matrix;
 
-- (void)rotateAbout:(Vector3f *)axis angle:(float)a;
-- (void)translate:(Vector3f *)offset;
+- (void)rotateAbout:(TVector3f *)axis angle:(float)a;
+- (void)translate:(TVector3f *)offset;
 - (BOOL)invert;
 - (void)adjugate;
 - (float)determinant;
 - (void)transpose;
 
 - (void)setColumn:(int)col row:(int)row value:(float)value;
-- (void)setColumn:(int)col values:(Vector3f *)vector;
-- (void)setRow:(int)row values:(Vector3f *)vector;
+- (void)setColumn:(int)col values:(TVector3f *)vector;
+- (void)setRow:(int)row values:(TVector3f *)vector;
 - (void)embed:(Matrix3f *)matrix;
 
-- (void)transformVector3f:(Vector3f *)vector;
-- (void)transformVector4f:(Vector4f *)vector;
+- (void)transformVector3f:(TVector3f *)vector;
+- (void)transformVector4f:(TVector4f *)vector;
 
 - (void)add:(Matrix4f *)matrix;
 - (void)sub:(Matrix4f *)matrix;

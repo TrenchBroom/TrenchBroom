@@ -16,8 +16,6 @@
 #import "ModelProperty.h"
 #import "DefaultProperty.h"
 #import "BaseProperty.h"
-#import "BoundingBox.h"
-#import "Vector3f.h"
 
 static NSString* InvalidTokenException = @"InvalidTokenException";
 
@@ -60,26 +58,25 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     return color;
 }
 
-- (BoundingBox *)parseBounds {
+- (TBoundingBox *)parseBounds {
     EntityDefinitionToken* token = [tokenizer nextToken];
     [self expect:TT_B_O | TT_QM actual:token];
     if ([token type] == TT_QM)
-        return nil;
-    
-    Vector3f* min = [[Vector3f alloc] init];
-    Vector3f* max = [[Vector3f alloc] init];
+        return NULL;
+
+    TBoundingBox* bounds = malloc(sizeof(TBoundingBox));
     
     token = [tokenizer nextToken];
     [self expect:TT_DEC actual:token];
-    [min setX:[[token data] intValue]];
+    bounds->min.x = [[token data] intValue];
 
     token = [tokenizer nextToken];
     [self expect:TT_DEC actual:token];
-    [min setY:[[token data] intValue]];
+    bounds->min.y = [[token data] intValue];
 
     token = [tokenizer nextToken];
     [self expect:TT_DEC actual:token];
-    [min setZ:[[token data] intValue]];
+    bounds->min.z = [[token data] intValue];
 
     token = [tokenizer nextToken];
     [self expect:TT_B_C actual:token];
@@ -89,24 +86,20 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     
     token = [tokenizer nextToken];
     [self expect:TT_DEC actual:token];
-    [max setX:[[token data] intValue]];
+    bounds->max.x = [[token data] intValue];
     
     token = [tokenizer nextToken];
     [self expect:TT_DEC actual:token];
-    [max setY:[[token data] intValue]];
+    bounds->max.y = [[token data] intValue];
     
     token = [tokenizer nextToken];
     [self expect:TT_DEC actual:token];
-    [max setZ:[[token data] intValue]];
+    bounds->max.z = [[token data] intValue];
     
     token = [tokenizer nextToken];
     [self expect:TT_B_C actual:token];
     
-    [max add:min];
-    BoundingBox* bounds = [[BoundingBox alloc] initWithMin:min max:max];
-    [min release];
-    [max release];
-    return [bounds autorelease];
+    return bounds;
 }
 
 - (NSArray *)parseFlags {
@@ -272,7 +265,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
 
     NSString* name = nil;
     float* color = NULL;
-    BoundingBox* bounds = nil;
+    TBoundingBox* bounds = NULL;
     NSArray* flags = nil;
     NSArray* properties = nil;
     NSString* description = nil;
@@ -303,13 +296,16 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     EntityDefinition* definition;
     if (color == NULL)
         definition = [[EntityDefinition alloc] initBaseDefinitionWithName:name flags:flags properties:properties];
-    else if (bounds == nil)
-        definition = [[EntityDefinition alloc] initBrushDefinitionWithName:name color:color flags:flags properties:properties description:description];
-    else
+    else if (bounds != NULL)
         definition = [[EntityDefinition alloc] initPointDefinitionWithName:name color:color bounds:bounds flags:flags properties:properties description:description];
+    else
+        definition = [[EntityDefinition alloc] initBrushDefinitionWithName:name color:color flags:flags properties:properties description:description];
     
     [name release];
-    free(color);
+    if (color != NULL)
+        free(color);
+    if (bounds != NULL)
+        free(bounds);
     
     return [definition autorelease];
 }

@@ -8,7 +8,6 @@
 
 #import "CompassFigure.h"
 #import "Camera.h"
-#import "Vector3f.h"
 
 @implementation CompassFigure
 
@@ -55,22 +54,22 @@
         
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix(); {
-            Vector3f* direction = [camera direction];
-            Vector3f* up = [camera up];
-            Vector3f* position = [[Vector3f alloc] initWithFloatVector:direction];
-            [position scale:-50];
+            TVector3f position;
+            const TVector3f* direction = [camera direction];
+            const TVector3f* up = [camera up];
+            
+            scaleV3f(direction, -50, &position);
 
             glLoadIdentity();
-            gluLookAt([position x],
-                      [position y],
-                      [position z],
-                      [position x] + [direction x],
-                      [position y] + [direction y],
-                      [position z] + [direction z],
-                      [up x],
-                      [up y],
-                      [up z]);
-            [position release];
+            gluLookAt(position.x,
+                      position.y,
+                      position.y,
+                      position.x + direction->x,
+                      position.y + direction->y,
+                      position.y + direction->z,
+                      up->x,
+                      up->y,
+                      up->z);
 
             glColor4f(1, 0, 0, 1);
             glPushMatrix();

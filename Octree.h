@@ -7,10 +7,10 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 @class MapDocument;
 @class OctreeNode;
-@class Ray3D;
 
 @interface Octree : NSObject {
     @private
@@ -20,5 +20,5 @@
 
 - (id)initWithDocument:(MapDocument *)theDocument minSize:(int)theMinSize;
 
-- (NSArray *)pickObjectsWithRay:(Ray3D *)ray;
+- (NSArray *)pickObjectsWithRay:(TRay *)ray;
 @end

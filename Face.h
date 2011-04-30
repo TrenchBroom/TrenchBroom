@@ -7,15 +7,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 @protocol Brush;
 @class Vertex;
-@class Vector3i;
-@class Vector3f;
-@class Vector2f;
 @class Matrix4f;
-@class Plane3D;
-@class Ray3D;
 @class PickingHit;
 @class VBOMemBlock;
 
@@ -24,9 +20,9 @@
 - (NSNumber *)faceId;
 - (id <Brush>)brush;
 
-- (Vector3i *)point1;
-- (Vector3i *)point2;
-- (Vector3i *)point3;
+- (TVector3i *)point1;
+- (TVector3i *)point2;
+- (TVector3i *)point3;
 
 - (NSString *)texture;
 - (int)xOffset;
@@ -35,16 +31,16 @@
 - (float)xScale;
 - (float)yScale;
 
-- (Vector3f *)norm;
-- (Vector3f *)center;
-- (Plane3D *)boundary;
+- (TVector3f *)norm;
+- (TVector3f *)center;
+- (TPlane *)boundary;
 - (NSArray *)vertices;
 - (NSArray *)edges;
 
-- (void)texCoords:(Vector2f *)texCoords forVertex:(Vector3f *)vertex;
-- (void)gridCoords:(Vector2f *)gridCoords forVertex:(Vector3f *)vertex;
-- (void)transformToWorld:(Vector3f *)point;
-- (void)transformToSurface:(Vector3f *)point;
+- (void)texCoords:(TVector2f *)texCoords forVertex:(TVector3f *)vertex;
+- (void)gridCoords:(TVector2f *)gridCoords forVertex:(TVector3f *)vertex;
+- (void)transformToWorld:(TVector3f *)point;
+- (void)transformToSurface:(TVector3f *)point;
 - (Matrix4f *)surfaceToWorldMatrix;
 - (Matrix4f *)worldToSurfaceMatrix;
 

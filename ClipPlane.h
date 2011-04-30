@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 typedef enum {
     CM_FRONT,
@@ -15,38 +16,28 @@ typedef enum {
 } EClipMode;
 
 @class PickingHitList;
-@class Vector3i;
 @class MutableFace;
 @protocol Face;
 @protocol Brush;
 
 @interface ClipPlane : NSObject {
-    Vector3i* point1;
-    Vector3i* point2;
-    Vector3i* point3;
-    PickingHitList* hitList1;
-    PickingHitList* hitList2;
-    PickingHitList* hitList3;
+    TVector3i points[3];
+    PickingHitList* hitLists[3];
+    int numPoints;
     EClipMode clipMode;
 }
 
-- (void)setPoint1:(Vector3i *)thePoint1;
-- (void)setPoint2:(Vector3i *)thePoint2;
-- (void)setPoint3:(Vector3i *)thePoint3;
-- (void)setHitList1:(PickingHitList *)theHitList1;
-- (void)setHitList2:(PickingHitList *)theHitList2;
-- (void)setHitList3:(PickingHitList *)theHitList3;
+- (void)addPoint:(TVector3i *)thePoint hitList:(PickingHitList *)theHitList;
+- (void)updatePoint:(int)index x:(int)x y:(int)y z:(int)z;
+- (void)removeLastPoint;
+- (int)numPoints;
+- (TVector3i *)point:(int)index;
+- (PickingHitList *)hitList:(int)index;
+
 - (void)setClipMode:(EClipMode)theClipMode;
-
-- (Vector3i *)point1;
-- (Vector3i *)point2;
-- (Vector3i *)point3;
-- (PickingHitList *)hitList1;
-- (PickingHitList *)hitList2;
-- (PickingHitList *)hitList3;
 - (EClipMode)clipMode;
-- (MutableFace *)face:(BOOL)front;
 
+- (MutableFace *)face:(BOOL)front;
 - (void)clipBrush:(id <Brush>)brush firstResult:(id <Brush>*)firstResult secondResult:(id <Brush>*)secondResult;
 - (void)reset;
 

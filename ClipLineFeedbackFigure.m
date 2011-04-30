@@ -7,17 +7,13 @@
 //
 
 #import "ClipLineFeedbackFigure.h"
-#import "Vector3i.h"
 
 @implementation ClipLineFeedbackFigure
 
-- (id)initWithStartPoint:(Vector3i *)theStartPoint endPoint:(Vector3i *)theEndPoint {
-    NSAssert(theStartPoint != nil, @"start point must not be nil");
-    NSAssert(theEndPoint != nil, @"end point must not be nil");
-    
+- (id)initWithStartPoint:(TVector3i *)theStartPoint endPoint:(TVector3i *)theEndPoint {
     if (self = [self init]) {
-        startPoint = [theStartPoint retain];
-        endPoint = [theEndPoint retain];
+        startPoint = *theStartPoint;
+        endPoint = *theEndPoint;
     }
     
     return self;
@@ -26,15 +22,9 @@
 - (void)render {
     glColor4f(0, 1, 0, 1);
     glBegin(GL_LINES);
-    glVertex3f([startPoint x], [startPoint y], [startPoint z]);
-    glVertex3f([endPoint x], [endPoint y], [endPoint z]);
+    glVertex3f(startPoint.x, startPoint.y, startPoint.z);
+    glVertex3f(endPoint.x, endPoint.y, endPoint.z);
     glEnd();
-}
-
-- (void)dealloc {
-    [startPoint release];
-    [endPoint release];
-    [super dealloc];
 }
 
 @end

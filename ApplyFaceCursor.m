@@ -7,10 +7,8 @@
 //
 
 #import "ApplyFaceCursor.h"
-#import "Vector3f.h"
 #import "Matrix4f.h"
 #import "Face.h"
-#import "Math.h"
 
 @implementation ApplyFaceCursor
 
@@ -21,7 +19,7 @@
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     
-    glTranslatef([position x] - [center x], [position y] - [center y], [position z] - [center z]);
+    glTranslatef(position.x - center.x, position.y - center.y, position.z - center.z);
     glMultMatrixf([matrix columnMajor]);
 
     glLineWidth(2);
@@ -63,23 +61,19 @@
 - (void)setFace:(id <Face>)theFace {
     [matrix release];
     matrix = [[theFace surfaceToWorldMatrix] retain];
-    [center release];
-    center = [[theFace center] retain];
+    center = *[theFace center];
 }
 
 - (void)setApplyFlags:(BOOL)doApplyFlags {
     applyFlags = doApplyFlags;
 }
 
-- (void)update:(Vector3f *)thePosition {
-    [position release];
-    position = [thePosition retain];
+- (void)update:(TVector3f *)thePosition {
+    position = *thePosition;
 }
 
 - (void)dealloc {
-    [position release];
     [matrix release];
-    [center release];
     [super dealloc];
 }
 

@@ -7,95 +7,92 @@
 //
 
 #import "GridFeedbackFigure.h"
-#import "Vector3f.h"
 #import "Grid.h"
-#import "BoundingBox.h"
 #import "PickingHit.h"
 #import "Face.h"
 #import "Brush.h"
-#import "Plane3D.h"
-#import "Ray3D.h"
 
 static int G = 2;
 
 @implementation GridFeedbackFigure
 
-- (id)initWithGrid:(Grid *)grid pickingHit:(PickingHit *)pickingHit ray:(Ray3D *)ray {
+- (id)initWithGrid:(Grid *)grid pickingHit:(PickingHit *)pickingHit ray:(TRay *)ray {
     NSAssert(grid != nil, @"grid must not be nil");
     NSAssert(pickingHit != nil, @"hit must not be nil");
     NSAssert([pickingHit type] == HT_FACE, @"hit type must be face");
+    NSAssert(ray != NULL, @"ray must not be NULL");
     
     if (self = [self init]) {
         id <Face> face = [pickingHit object];
         id <Brush> brush = [face brush]; 
         
-        Plane3D* boundary = [face boundary];
-        Vector3f* hitPoint = [ray pointAtDistance:[boundary intersectWithRay:ray]];
+        TPlane* boundary = [face boundary];
+        TVector3f* hitPoint = [pickingHit hitPoint];
 
-        BoundingBox* largeBounds = [[BoundingBox alloc] initWithBounds:[brush bounds]];
-        [largeBounds mergePoint:hitPoint];
-        [largeBounds expandToGrid:grid];
-        [largeBounds expandBy:G * [grid actualSize]];
+        TBoundingBox largeBounds = *[brush bounds];
+        mergeBoundsWithPoint(&largeBounds, hitPoint, &largeBounds);
+        [grid snapDownToGrid:&largeBounds.min result:&largeBounds.min];
+        [grid snapUpToGrid:&largeBounds.max result:&largeBounds.max];
+        expandBounds(&largeBounds, G * [grid actualSize], &largeBounds);
         
-        Vector3f* min = [largeBounds min];
-        Vector3f* max = [largeBounds max];
-        Vector3f* size = [largeBounds size];
+        TVector3f* min = &largeBounds.min;
+        TVector3f* max = &largeBounds.max;
+        TVector3f size;
+        sizeOfBounds(&largeBounds, &size);
         
-        switch ([[face norm] largestComponent]) {
-            case VC_Z:
-                cols = [size x] / [grid actualSize];
-                rows = [size y] / [grid actualSize];
+        switch (largestComponentV3f([face norm])) {
+            case A_Z:
+                cols = size.x / [grid actualSize];
+                rows = size.y / [grid actualSize];
                 
-                gridPoints[0][0][0] = [min x];
-                gridPoints[0][0][1] = [min y];
-                gridPoints[0][0][2] = [boundary zAtX:[min x] y:[min y]];
-                gridPoints[0][1][0] = [max x];
-                gridPoints[0][1][1] = [min y];
-                gridPoints[0][1][2] = [boundary zAtX:[max x] y:[min y]];
-                gridPoints[1][0][0] = [min x];
-                gridPoints[1][0][1] = [max y];
-                gridPoints[1][0][2] = [boundary zAtX:[min x] y:[max y]];
-                gridPoints[1][1][0] = [max x];
-                gridPoints[1][1][1] = [max y];
-                gridPoints[1][1][2] = [boundary zAtX:[max x] y:[max y]];
+                gridPoints[0][0][0] = min->x;
+                gridPoints[0][0][1] = min->y;
+                gridPoints[0][0][2] = planeZ(boundary, min->x, min->y);
+                gridPoints[0][1][0] = max->x;
+                gridPoints[0][1][1] = min->y;
+                gridPoints[0][1][2] = planeZ(boundary, max->x, min->y);
+                gridPoints[1][0][0] = min->x;
+                gridPoints[1][0][1] = max->y;
+                gridPoints[1][0][2] = planeZ(boundary, min->x, max->y);
+                gridPoints[1][1][0] = max->x;
+                gridPoints[1][1][1] = max->y;
+                gridPoints[1][1][2] = planeZ(boundary, max->x, max->y);
                 break;
-            case VC_X:
-                cols = [size y] / [grid actualSize];
-                rows = [size z] / [grid actualSize];
+            case A_X:
+                cols = size.y / [grid actualSize];
+                rows = size.z / [grid actualSize];
                 
-                gridPoints[0][0][0] = [boundary xAtY:[min y] z:[min z]];
-                gridPoints[0][0][1] = [min y];
-                gridPoints[0][0][2] = [min z];
-                gridPoints[0][1][0] = [boundary xAtY:[max y] z:[min z]];
-                gridPoints[0][1][1] = [max y];
-                gridPoints[0][1][2] = [min z];
-                gridPoints[1][0][0] = [boundary xAtY:[min y] z:[max z]];
-                gridPoints[1][0][1] = [min y];
-                gridPoints[1][0][2] = [max z];
-                gridPoints[1][1][0] = [boundary xAtY:[max y] z:[max z]];
-                gridPoints[1][1][1] = [max y];
-                gridPoints[1][1][2] = [max z];
+                gridPoints[0][0][0] = planeX(boundary, min->y, min->z);
+                gridPoints[0][0][1] = min->y;
+                gridPoints[0][0][2] = min->z;
+                gridPoints[0][1][0] = planeX(boundary, max->y, min->z);
+                gridPoints[0][1][1] = max->y;
+                gridPoints[0][1][2] = min->z;
+                gridPoints[1][0][0] = planeX(boundary, min->y, max->z);
+                gridPoints[1][0][1] = min->y;
+                gridPoints[1][0][2] = max->z;
+                gridPoints[1][1][0] = planeX(boundary, max->y, max->z);
+                gridPoints[1][1][1] = max->y;
+                gridPoints[1][1][2] = max->z;
                 break;
             default:
-                cols = [size x] / [grid actualSize];
-                rows = [size z] / [grid actualSize];
+                cols = size.x / [grid actualSize];
+                rows = size.z / [grid actualSize];
                 
-                gridPoints[0][0][0] = [min x];
-                gridPoints[0][0][1] = [boundary yAtX:[min x] z:[min z]];
-                gridPoints[0][0][2] = [min z];
-                gridPoints[0][1][0] = [max x];
-                gridPoints[0][1][1] = [boundary yAtX:[max x] z:[min z]];
-                gridPoints[0][1][2] = [min z];
-                gridPoints[1][0][0] = [min x];
-                gridPoints[1][0][1] = [boundary yAtX:[min x] z:[max z]];
-                gridPoints[1][0][2] = [max z];
-                gridPoints[1][1][0] = [max x];
-                gridPoints[1][1][1] = [boundary yAtX:[max x] z:[max z]];
-                gridPoints[1][1][2] = [max z];
+                gridPoints[0][0][0] = min->x;
+                gridPoints[0][0][1] = planeY(boundary, min->x, min->z);
+                gridPoints[0][0][2] = min->z;
+                gridPoints[0][1][0] = max->x;
+                gridPoints[0][1][1] = planeY(boundary, max->x, min->z);
+                gridPoints[0][1][2] = min->z;
+                gridPoints[1][0][0] = min->x;
+                gridPoints[1][0][1] = planeY(boundary, min->x, max->z);
+                gridPoints[1][0][2] = max->z;
+                gridPoints[1][1][0] = max->x;
+                gridPoints[1][1][1] = planeY(boundary, max->x, max->z);
+                gridPoints[1][1][2] = max->z;
                 break;
         }
-        
-        [largeBounds release];
     }
     
     return self;
@@ -112,7 +109,7 @@ static int G = 2;
             0.0, 1.0,  /* V ranges 0..1 */
             2 * 3,     /* V stride, row is 2 coords, 3 floats per coord */
             2,         /* V is 2nd order, ie linear */
-            gridPoints);  /* control points */
+            (const GLfloat*)gridPoints);  /* control points */
     glMapGrid2f(
                 cols, 0.0, 1.0,
                 rows, 0.0, 1.0);

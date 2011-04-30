@@ -10,7 +10,7 @@
 
 @implementation BrushToolCursor
 
-- (void)setPlaneNormal:(EVectorComponent)thePlaneNormal {
+- (void)setPlaneNormal:(EAxis)thePlaneNormal {
     planeNormal = thePlaneNormal;
 }
 
@@ -47,24 +47,24 @@
     glMatrixMode(GL_MODELVIEW);
 
     glPushMatrix();
-    glTranslatef([position x], [position y], [position z]);
+    glTranslatef(position.x, position.y, position.z);
     
     glColor4f(1, 1, 0, 1);
-    if (planeNormal != VC_X) {
+    if (planeNormal != A_X) {
         glPushMatrix();
         glRotatef(90, 0, 1, 0);
         [self renderArm];
         glPopMatrix();
     }
     
-    if (planeNormal != VC_Y) {
+    if (planeNormal != A_Y) {
         glPushMatrix();
         glRotatef(270, 1, 0, 0);
         [self renderArm];
         glPopMatrix();
     }
     
-    if (planeNormal != VC_Z) {
+    if (planeNormal != A_Z) {
         glPushMatrix();
         [self renderArm];
         glPopMatrix();
@@ -74,9 +74,8 @@
     glFrontFace(GL_CW);
 }
 
-- (void)update:(Vector3f *)thePosition {
-    [position release];
-    position = [thePosition retain];
+- (void)update:(TVector3f *)thePosition {
+    position = *thePosition;
 }
 
 - (void)dealloc {
@@ -84,7 +83,6 @@
         gluDeleteQuadric(arms);
         gluDeleteQuadric(disks);
     }
-    [position release];
     [super dealloc];
 }
 

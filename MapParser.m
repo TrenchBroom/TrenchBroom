@@ -13,20 +13,10 @@
 #import "MutableFace.h"
 #import "MapTokenizer.h"
 #import "MapToken.h"
-#import "Vector3i.h"
 
 static NSString* InvalidTokenException = @"InvalidTokenException";
 
 @implementation MapParser
-- (id)init {
-    if (self = [super init]) {
-        p1 = [[Vector3i alloc] init];
-        p2 = [[Vector3i alloc] init];
-        p3 = [[Vector3i alloc] init];
-    }
-    
-    return self;
-}
 
 - (id)initWithData:(NSData *)someData {
     if (self = [self init]) {
@@ -55,15 +45,15 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
 - (void)parseFace {
     MapToken* token = [self nextToken];
     [self expect:TT_DEC actual:token];
-    [p1 setX:[[token data] intValue]];
+    p1.x = [[token data] intValue];
     
     token = [self nextToken];
     [self expect:TT_DEC actual:token];
-    [p1 setY:[[token data] intValue]];
+    p1.y = [[token data] intValue];
     
     token = [self nextToken];
     [self expect:TT_DEC actual:token];
-    [p1 setZ:[[token data] intValue]];
+    p1.z = [[token data] intValue];
     
     token = [self nextToken];
     [self expect:TT_B_C actual:token];
@@ -73,15 +63,15 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     
     token = [self nextToken];
     [self expect:TT_DEC actual:token];
-    [p2 setX:[[token data] intValue]];
+    p2.x = [[token data] intValue];
     
     token = [self nextToken];
     [self expect:TT_DEC actual:token];
-    [p2 setY:[[token data] intValue]];
+    p2.y = [[token data] intValue];
     
     token = [self nextToken];
     [self expect:TT_DEC actual:token];
-    [p2 setZ:[[token data] intValue]];
+    p2.z = [[token data] intValue];
     
     token = [self nextToken];
     [self expect:TT_B_C actual:token];
@@ -91,15 +81,15 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     
     token = [self nextToken];
     [self expect:TT_DEC actual:token];
-    [p3 setX:[[token data] intValue]];
+    p3.x = [[token data] intValue];
     
     token = [self nextToken];
     [self expect:TT_DEC actual:token];
-    [p3 setY:[[token data] intValue]];
+    p3.y = [[token data] intValue];
     
     token = [self nextToken];
     [self expect:TT_DEC actual:token];
-    [p3 setZ:[[token data] intValue]];
+    p3.z = [[token data] intValue];
     
     token = [self nextToken];
     [self expect:TT_B_C actual:token];
@@ -129,7 +119,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     float yScale = [[token data] floatValue];
     
     MutableFace* face = [[MutableFace alloc] init];
-    [face setPoint1:p1 point2:p2 point3:p3];
+    [face setPoint1:&p1 point2:&p2 point3:&p3];
     [face setTexture:texture];
     [face setXOffset:xOffset];
     [face setYOffset:yOffset];
@@ -228,10 +218,6 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
 }
 
 - (void)dealloc {
-    [p1 release];
-    [p2 release];
-    [p3 release];
-    
     [tokenizer release];
     [map release];
     [super dealloc];

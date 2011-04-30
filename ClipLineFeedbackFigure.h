@@ -10,14 +10,13 @@
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
 #import "Figure.h"
-
-@class Vector3i;
+#import "Math.h"
 
 @interface ClipLineFeedbackFigure : NSObject <Figure> {
-    Vector3i* startPoint;
-    Vector3i* endPoint;
+    TVector3i startPoint;
+    TVector3i endPoint;
 }
 
-- (id)initWithStartPoint:(Vector3i *)theStartPoint endPoint:(Vector3i *)theEndPoint;
+- (id)initWithStartPoint:(TVector3i *)theStartPoint endPoint:(TVector3i *)theEndPoint;
 
 @end

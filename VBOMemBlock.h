@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 typedef enum {
     BS_FREE, // memory block is free
@@ -15,8 +16,6 @@ typedef enum {
 } EVBOMemBlockState;
 
 @class VBOBuffer;
-@class Vector3f;
-@class Vector2f;
 
 @interface VBOMemBlock : NSObject {
     @private
@@ -44,8 +43,8 @@ typedef enum {
 
 - (int)writeBuffer:(const void*)theBuffer offset:(int)theOffset count:(int)theCount;
 - (int)writeFloat:(float)theFloat offset:(int)theOffset;
-- (int)writeVector3f:(Vector3f *)theVector offset:(int)theOffset;
-- (int)writeVector2f:(Vector2f *)theVector offset:(int)theOffset;
+- (int)writeVector3f:(TVector3f *)theVector offset:(int)theOffset;
+- (int)writeVector2f:(TVector2f *)theVector offset:(int)theOffset;
 
 - (VBOMemBlock *)previous;
 - (VBOMemBlock *)next;

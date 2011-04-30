@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 typedef enum {
     VM_DROP,
@@ -17,26 +18,22 @@ typedef enum {
 } EVertexMark;
 
 @class Edge;
-@class Vector3f;
-@class Vector3i;
 @class PickingHit;
-@class Ray3D;
 
 @interface Vertex : NSObject {
     @private
-    Vector3f* vector;
+    TVector3f vector;
     NSMutableSet* edges;
     EVertexMark mark;
 }
 
-- (id)initWithVector:(Vector3f *)theVector;
+- (id)initWithVector:(TVector3f *)theVector;
+- (id)initWithX:(float)x y:(float)y z:(float)z;
 
-- (Vector3f *)vector;
+- (TVector3f *)vector;
 - (void)addEdge:(Edge *)theEdge;
 - (NSSet *)edges;
 
 - (EVertexMark)mark;
 - (void)setMark:(EVertexMark)theMark;
-
-- (PickingHit *)pickWithRay:(Ray3D *)theRay;
 @end

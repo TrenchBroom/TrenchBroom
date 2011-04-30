@@ -8,8 +8,6 @@
 
 #import "Octree.h"
 #import "OctreeNode.h"
-#import "Vector3i.h"
-#import "Ray3D.h"
 #import "MapDocument.h"
 #import "Entity.h"
 #import "Brush.h"
@@ -20,13 +18,13 @@
 - (void)brushAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
-    [root addObject:brush bounds:[brush pickingBounds]];
+    [root addObject:brush bounds:[brush bounds]];
 }
 
 - (void)brushWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
-    if (![root removeObject:brush bounds:[brush pickingBounds]])
+    if (![root removeObject:brush bounds:[brush bounds]])
         [NSException raise:NSInvalidArgumentException format:@"Brush %@ was not removed from octree", brush];
 }
 
@@ -34,14 +32,14 @@
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
 
-    [root removeObject:brush bounds:[brush pickingBounds]];
+    [root removeObject:brush bounds:[brush bounds]];
 }
 
 - (void)brushDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Brush> brush = [userInfo objectForKey:BrushKey];
     
-    [root addObject:brush bounds:[brush pickingBounds]];
+    [root addObject:brush bounds:[brush bounds]];
 }
 
 - (id)initWithDocument:(MapDocument *)theDocument minSize:(int)theMinSize {
@@ -49,13 +47,10 @@
         map = [theDocument retain];
         
         int w = [map worldSize] / 2;
-        Vector3i* min = [[Vector3i alloc] initWithIntX:-w y:-w z:-w];
-        Vector3i* max = [[Vector3i alloc] initWithIntX:+w y:+w z:+w];
+        TVector3i min = {-w, -w, -w};
+        TVector3i max = {+w, +w, +w};
 
-        root = [[OctreeNode alloc] initWithMin:min max:max minSize:theMinSize];
-        
-        [min release];
-        [max release];
+        root = [[OctreeNode alloc] initWithMin:&min max:&max minSize:theMinSize];
         
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
         id <Entity> entity;
@@ -63,7 +58,7 @@
             NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
             id <Brush> brush;
             while ((brush = [brushEn nextObject]))
-                [root addObject:brush bounds:[brush pickingBounds]];
+                [root addObject:brush bounds:[brush bounds]];
         }
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -76,7 +71,7 @@
     return self;
 }
 
-- (NSArray *)pickObjectsWithRay:(Ray3D *)ray {
+- (NSArray *)pickObjectsWithRay:(TRay *)ray {
     NSMutableArray* result = [[NSMutableArray alloc] init];
     [root addObjectsForRay:ray to:result];
     return [result autorelease];

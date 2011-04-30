@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 extern NSString* const SelectionAdded;
 extern NSString* const SelectionRemoved;
@@ -27,7 +28,6 @@ typedef enum {
 
 @class Edge;
 @class Vertex;
-@class Vector3f;
 
 @interface SelectionManager : NSObject {
     @private
@@ -59,7 +59,7 @@ typedef enum {
 - (NSSet *)selectedBrushes;
 - (NSSet *)selectedFaces;
 - (NSSet *)selectedBrushFaces;
-- (Vector3f *)selectionCenter;
+- (BOOL)selectionCenter:(TVector3f *)result;
 
 - (BOOL)hasSelection;
 - (BOOL)hasSelectedEntities;

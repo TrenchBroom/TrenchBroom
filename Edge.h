@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 typedef enum {
     EM_KEEP,
@@ -51,10 +52,7 @@ typedef enum {
 - (void)setRightSide:(Side *)theRightSide;
 - (void)flip;
 
-- (Vertex *)splitAt:(Plane3D *)plane;
-
-- (PickingHit *)pickWithRay:(Ray3D *)theRay;
-- (void)expandBounds:(BoundingBox *)theBounds;
+- (Vertex *)splitAt:(TPlane *)plane;
 
 - (EEdgeMark)mark;
 - (void)updateMark;

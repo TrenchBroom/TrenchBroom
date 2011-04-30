@@ -11,19 +11,11 @@
 #import "Vertex.h"
 #import "Face.h"
 #import "MutableFace.h"
-#import "Line3D.h"
-#import "Plane3D.h"
-#import "Ray3D.h"
-#import "Vector3f.h"
-#import "Math.h"
-#import "BoundingBox.h"
 #import "RenderContext.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "IntData.h"
 #import "PickingHit.h"
-
-static float HANDLE_RADIUS = 2.0f;
 
 @implementation Edge
 - (id)init {
@@ -108,14 +100,17 @@ static float HANDLE_RADIUS = 2.0f;
     endVertex = tempVertex;
 }
 
-- (Vertex *)splitAt:(Plane3D *)plane {
+- (Vertex *)splitAt:(TPlane *)plane {
     NSAssert(mark == EM_SPLIT, @"cannot split edge that is not marked with EM_SPLIT");
 
-    Line3D* line = [[Line3D alloc] initWithPoint1:[startVertex vector] point2:[endVertex vector]];
-    Vector3f* newVector = [line pointAtDistance:[plane intersectWithLine:line]];
-    [line release];
+    TLine line;
+    setLinePoints(&line, [startVertex vector], [endVertex vector]);
+
+    TVector3f newVector;
+    float dist = intersectPlaneWithLine(plane, &line);
+    linePointAtDistance(&line, dist, &newVector);
     
-    Vertex* newVertex = [[Vertex alloc] initWithVector:newVector];
+    Vertex* newVertex = [[Vertex alloc] initWithVector:&newVector];
     [newVertex addEdge:self];
 
     if ([startVertex mark] == VM_DROP) {
@@ -125,103 +120,6 @@ static float HANDLE_RADIUS = 2.0f;
     }
     
     return [newVertex autorelease];
-}
-
-- (PickingHit *)pickWithRay:(Ray3D *)theRay {
-    Vector3f* u = [[Vector3f alloc] initWithFloatVector:[endVertex vector]];
-    Vector3f* v = [[Vector3f alloc] initWithFloatVector:[theRay direction]];
-    Vector3f* w = [[Vector3f alloc] initWithFloatVector:[startVertex vector]];
-    [u sub:[startVertex vector]];
-    [w sub:[theRay origin]];
-    
-    float a = [u dot:u];
-    float b = [u dot:v];
-    float c = [v dot:v];
-    float d = [u dot:w];
-    float e = [v dot:w];
-    float D = a * c - b * b;
-    float ec, eN;
-    float eD = D;
-    float rc, rN;
-    float rD = D;
-    
-    if (fzero(D)) {
-        eN = 0;
-        eD = 1;
-        rN = e;
-        rD = c;
-    } else {
-        eN = b * e - c * d;
-        rN = a * e - b * d;
-        if (fneg(eN)) { // point is beyond the start point of this edge
-            eN = 0;
-            rN = e;
-            rD = c;
-        } else if (fgt(eN, eD)) { // point is beyond the end point of this edge
-            eN = eD;
-            rN = e + b;
-            rD = c;
-        }
-    }
-    
-    if (fneg(rN)) { // point before ray origin
-        rN = 0;
-        if (fneg(-d)) {
-            eN = 0;
-        } else if (fgt(-d, a)) {
-            eN = eD;
-        } else {
-            eN = -d;
-            eD = a;
-        }
-    }
-    
-    ec = fzero(eN) ? 0 : eN / eD;
-    rc = fzero(rN) ? 0 : rN / rD;
-    
-    [u scale:ec];
-    [v scale:rc];
-    
-    [w add:u];
-    [w sub:v];
-    
-    float wls = [w lengthSquared];
-    [u release];
-    [v release];
-    [w release];
-    
-    if (flte(wls, HANDLE_RADIUS * HANDLE_RADIUS)) {
-        Vector3f* is = [theRay pointAtDistance:rc];
-        return [[[PickingHit alloc] initWithObject:self type:HT_EDGE hitPoint:is distance:rc] autorelease];
-    }
-    
-    return nil;
-}
-
-- (void)expandBounds:(BoundingBox *)theBounds {
-    Vector3f* s = [startVertex vector];
-    Vector3f* e = [endVertex vector];
-    
-    Vector3f* t = [[Vector3f alloc] initWithFloatVector:s];
-    Vector3f* r = [[Vector3f alloc] initWithFloatX:HANDLE_RADIUS y:HANDLE_RADIUS z:HANDLE_RADIUS];
-
-    [t sub:r];
-    [theBounds mergePoint:t];
-    
-    [t setFloat:s];
-    [t add:r];
-    [theBounds mergePoint:t];
-    
-    [t setFloat:e];
-    [t sub:r];
-    [theBounds mergePoint:t];
-    
-    [t setFloat:e];
-    [t add:r];
-    [theBounds mergePoint:t];
-    
-    [t release];
-    [r release];
 }
 
 - (EEdgeMark)mark {

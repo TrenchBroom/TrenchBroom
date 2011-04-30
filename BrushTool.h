@@ -8,17 +8,16 @@
 
 #import <Cocoa/Cocoa.h>
 #import "DefaultTool.h"
+#import "Math.h"
 
 @class MapWindowController;
-@class Plane3D;
-@class Vector3f;
 @class BrushToolCursor;
 
 @interface BrushTool : DefaultTool {
     @private
     MapWindowController* windowController;
-    Plane3D* plane;
-    Vector3f* lastPoint;
+    TPlane plane;
+    TVector3f lastPoint;
     BrushToolCursor* cursor;
     BOOL drag;
 }

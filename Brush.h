@@ -7,12 +7,10 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 @protocol Entity;
-@class BoundingBox;
-@class Vector3f;
 @class PickingHit;
-@class Ray3D;
 @class PickingHitList;
 
 @protocol Brush <NSObject>
@@ -25,10 +23,9 @@
 - (NSArray *)edges;
 
 - (float *)flatColor;
-- (BoundingBox *)bounds;
-- (Vector3f *)center;
+- (TBoundingBox *)bounds;
+- (TVector3f *)center;
 
-- (void)pick:(Ray3D *)theRay hitList:(PickingHitList *)theHitList;
-- (BoundingBox *)pickingBounds;
+- (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
 
 @end

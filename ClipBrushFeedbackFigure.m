@@ -11,7 +11,6 @@
 #import "MutableBrush.h"
 #import "Edge.h"
 #import "Vertex.h"
-#import "Vector3f.h"
 #import "ClipPlane.h"
 
 @implementation ClipBrushFeedbackFigure
@@ -44,20 +43,20 @@
             NSEnumerator* edgeEn = [[brush1 edges] objectEnumerator];
             Edge* edge;
             while ((edge = [edgeEn nextObject])) {
-                Vector3f* s = [[edge startVertex] vector];
-                Vector3f* e = [[edge endVertex] vector];
-                glVertex3f([s x], [s y], [s z]);
-                glVertex3f([e x], [e y], [e z]);
+                TVector3f* s = [[edge startVertex] vector];
+                TVector3f* e = [[edge endVertex] vector];
+                glVertex3f(s->x, s->y, s->z);
+                glVertex3f(e->x, e->y, e->z);
             }
         }
         if (brush2 != nil) {
             NSEnumerator* edgeEn = [[brush2 edges] objectEnumerator];
             Edge* edge;
             while ((edge = [edgeEn nextObject])) {
-                Vector3f* s = [[edge startVertex] vector];
-                Vector3f* e = [[edge endVertex] vector];
-                glVertex3f([s x], [s y], [s z]);
-                glVertex3f([e x], [e y], [e z]);
+                TVector3f* s = [[edge startVertex] vector];
+                TVector3f* e = [[edge endVertex] vector];
+                glVertex3f(s->x, s->y, s->z);
+                glVertex3f(e->x, e->y, e->z);
             }
         }
         glEnd();

@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "VertexData.h"
+#import "Math.h"
 
 typedef enum {
     SM_KEEP,
@@ -29,7 +30,6 @@ typedef enum {
     ESideMark mark;
     NSMutableArray* vertices;
     NSMutableArray* edges;
-    Vector3f* center;
 }
 
 - (id)initWithFace:(MutableFace *)theFace edges:(NSArray *)theEdges flipped:(BOOL*)flipped;
@@ -43,7 +43,5 @@ typedef enum {
 - (NSArray *)vertices;
 - (NSArray *)edges;
 - (MutableFace *)face;
-- (PickingHit *)pickWithRay:(Ray3D *)theRay;
-
-- (Vector3f *)center;
+- (PickingHit *)pickWithRay:(TRay *)theRay;
 @end

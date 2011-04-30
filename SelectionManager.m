@@ -11,7 +11,6 @@
 #import "Brush.h"
 #import "Face.h"
 #import "Edge.h"
-#import "Vector3f.h"
 
 NSString* const SelectionAdded = @"SelectionAdded";
 NSString* const SelectionRemoved = @"SelectionRemoved";
@@ -330,30 +329,30 @@ NSString* const SelectionFaces = @"SelectionFaces";
     return [result autorelease];
 }
 
-- (Vector3f *)selectionCenter {
+- (BOOL)selectionCenter:(TVector3f *)result {
     switch ([self mode]) {
         case SM_FACES: {
             NSEnumerator* faceEn = [faces objectEnumerator];
             id <Face> face = [faceEn nextObject];
-            Vector3f* center = [[Vector3f alloc] initWithFloatVector:[face center]];
+            *result = *[face center];
             while ((face = [faceEn nextObject]))
-                [center add:[face center]];
-            
-            [center scale:1.0f / [faces count]];
-            return [center autorelease];
+                addV3f(result, [face center], result);
+
+            scaleV3f(result, 1.0f / [faces count], result);
+            return YES;
         }
         case SM_GEOMETRY: {
             NSEnumerator* brushEn = [brushes objectEnumerator];
             id <Brush> brush = [brushEn nextObject];
-            Vector3f* center = [[Vector3f alloc] initWithFloatVector:[brush center]];
+            *result = *[brush center];
             while ((brush = [brushEn nextObject]))
-                [center add:[brush center]];
-            
-            [center scale:1.0f / [brushes count]];
-            return [center autorelease];
+                addV3f(result, [brush center], result);
+
+            scaleV3f(result, 1.0f / [brushes count], result);
+            return YES;
         }
     }
-    return nil;
+    return NO;
 }
 
 - (BOOL)hasSelection {

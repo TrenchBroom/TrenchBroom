@@ -7,7 +7,6 @@
 //
 
 #import "EntityDefinition.h"
-#import "BoundingBox.h"
 
 @implementation EntityDefinition
 
@@ -24,7 +23,7 @@
     return self;
 }
 
-- (id)initPointDefinitionWithName:(NSString *)theName color:(float *)theColor bounds:(BoundingBox *)theBounds flags:(NSArray *)theFlags properties:(NSArray *)theProperties description:(NSString *)theDescription {
+- (id)initPointDefinitionWithName:(NSString *)theName color:(float *)theColor bounds:(TBoundingBox *)theBounds flags:(NSArray *)theFlags properties:(NSArray *)theProperties description:(NSString *)theDescription {
     NSAssert(theName != nil, @"name must not be nil");
     NSAssert(theColor != NULL, @"color must not be null");
     NSAssert(theBounds != nil, @"bounds must not be nil");
@@ -32,7 +31,7 @@
     if (self = [self init]) {
         name = [theName retain];
         memcpy(color, theColor, 3 * sizeof(float));
-        bounds = [theBounds retain];
+        bounds = *theBounds;
         flags = [theFlags retain];
         properties = [theProperties retain];
         description = [theDescription retain];
@@ -70,8 +69,8 @@
     return color;
 }
 
-- (BoundingBox *)bounds {
-    return bounds;
+- (TBoundingBox *)bounds {
+    return &bounds;
 }
 
 - (NSArray *)flags {
@@ -92,7 +91,6 @@
 
 - (void)dealloc {
     [name release];
-    [bounds release];
     [flags release];
     [properties release];
     [description release];

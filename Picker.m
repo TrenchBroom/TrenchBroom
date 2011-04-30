@@ -8,7 +8,6 @@
 
 #import "Picker.h"
 #import "Octree.h"
-#import "Ray3D.h"
 #import "Brush.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
@@ -24,7 +23,7 @@
     return self;
 }
 
-- (PickingHitList *)pickObjects:(Ray3D *)ray filter:(id <Filter>)filter {
+- (PickingHitList *)pickObjects:(TRay *)ray filter:(id <Filter>)filter {
     PickingHitList* hitList = [[PickingHitList alloc] init];
     NSArray* objects = [octree pickObjectsWithRay:ray];
     
