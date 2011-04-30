@@ -18,8 +18,9 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
 
 @implementation MapParser
 
-- (id)initWithData:(NSData *)someData {
+- (id)initWithData:(NSData *)someData entityDefinitionManager:(EntityDefinitionManager *)theDefinitionManager {
     if (self = [self init]) {
+        definitionManager = [theDefinitionManager retain];
         size = [someData length];
         NSInputStream* stream = [[NSInputStream alloc] initWithData:someData];
         tokenizer = [[MapTokenizer alloc] initWithInputStream:stream];
@@ -27,6 +28,10 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     }
     
     return self;
+}
+
+- (id)initWithData:(NSData *)someData {
+    return [self initWithData:someData entityDefinitionManager:nil];
 }
 
 - (void)expect:(int)expectedType actual:(MapToken* )actualToken {
@@ -149,7 +154,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                 case PS_DEF:
                     [self expect:TT_CB_O actual:token];
                     state = PS_ENT;
-                    entity = [[MutableEntity alloc] init];
+                    entity = [[MutableEntity alloc] initWithEntityDefinitionManager:definitionManager];
                     break;
                 case PS_ENT:
                     switch ([token type]) {
@@ -218,6 +223,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
 }
 
 - (void)dealloc {
+    [definitionManager release];
     [tokenizer release];
     [map release];
     [super dealloc];

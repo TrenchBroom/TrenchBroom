@@ -25,7 +25,8 @@ extern NSString* const EntityKey;
 
 extern NSString* const PropertyAdded;
 extern NSString* const PropertyRemoved;
-extern NSString* const PropertyChanged;
+extern NSString* const PropertyWillChange;
+extern NSString* const PropertyDidChange;
 extern NSString* const PropertyKeyKey;
 extern NSString* const PropertyOldValueKey;
 extern NSString* const PropertyNewValueKey;

@@ -11,6 +11,10 @@
 #import "MutableBrush.h"
 #import "IdGenerator.h"
 #import "VBOMemBlock.h"
+#import "PickingHitList.h"
+#import "PickingHit.h"
+#import "EntityDefinition.h"
+#import "EntityDefinitionManager.h"
 
 @interface MutableEntity (private)
 
@@ -34,9 +38,21 @@
         
         scaleV3f(&center, 1.0f / [brushes count], &center);
     } else {
-        center = NullVector;
-        bounds.min = NullVector;
-        bounds.max = NullVector;
+        EntityDefinition* definition = [self entityDefinition];
+        NSString* originStr = [self propertyForKey:@"origin"];
+
+        if (originStr != nil && definition != nil && [definition type] == EDT_POINT) {
+            TVector3f origin;
+            parseV3f(originStr, NSMakeRange(0, [originStr length]), &origin);
+            bounds = *[definition bounds];
+
+            addV3f(&bounds.min, &origin, &bounds.min);
+            addV3f(&bounds.max, &origin, &bounds.max);
+        } else {
+            center = NullVector;
+            bounds.min = NullVector;
+            bounds.max = NullVector;
+        }
     }
 }
 
@@ -55,9 +71,26 @@
     return self;
 }
 
+- (id)initWithEntityDefinitionManager:(EntityDefinitionManager *)theDefinitionManager {
+    if (self = [self init]) {
+        definitionManager = [theDefinitionManager retain];
+    }
+    
+    return self;
+}
+
 - (id)initWithProperties:(NSDictionary *)theProperties {
     if (self = [self init]) {
         [properties addEntriesFromDictionary:theProperties];
+    }
+    
+    return self;
+}
+
+- (id)initWithProperties:(NSDictionary *)theProperties entityDefinitionManager:(EntityDefinitionManager *)theDefinitionManager {
+    if (self = [self init]) {
+        [properties addEntriesFromDictionary:theProperties];
+        definitionManager = [theDefinitionManager retain];
     }
     
     return self;
@@ -83,6 +116,7 @@
         return;
     
     [properties setObject:value forKey:key];
+    valid = NO;
 }
 
 - (void)removeProperty:(NSString *)key {
@@ -91,6 +125,7 @@
         return;
     
     [properties removeObjectForKey:key];
+    valid = NO;
 }
 
 - (void)setMap:(id <Map>)theMap {
@@ -102,6 +137,7 @@
 	[properties release];
 	[brushes release];
     [memBlocks release];
+    [definitionManager release];
 	[super dealloc];
 }
 
@@ -124,12 +160,16 @@
     return (NSString *)[properties objectForKey:key];
 }
 
+- (NSDictionary *)properties {
+    return properties;
+}
+
 - (NSString *)classname {
     return [self propertyForKey:@"classname"];
 }
 
-- (NSDictionary *)properties {
-    return properties;
+- (EntityDefinition *)entityDefinition {
+    return [definitionManager definitionForName:[self classname]];
 }
 
 - (BOOL)isWorldspawn {
@@ -148,6 +188,22 @@
         [self validate];
 
     return &center;
+}
+
+- (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList {
+    if ([self isWorldspawn])
+        return;
+    
+    float dist = intersectBoundsWithRay([self bounds], theRay);
+    if (isnan(dist))
+        return;
+    
+    TVector3f hitPoint;
+    rayPointAtDistance(theRay, dist, &hitPoint);
+
+    PickingHit* pickingHit = [[PickingHit alloc] initWithObject:self type:HT_ENTITY hitPoint:&hitPoint distance:dist];
+    [theHitList addHit:pickingHit];
+    [pickingHit release];
 }
 
 - (void)setMemBlock:(VBOMemBlock *)theBlock forKey:(id <NSCopying>)theKey {

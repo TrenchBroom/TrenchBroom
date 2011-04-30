@@ -40,7 +40,8 @@ NSString* const EntityKey           = @"Entity";
 
 NSString* const PropertyAdded       = @"PropertyAdded";
 NSString* const PropertyRemoved     = @"PropertyRemoved";
-NSString* const PropertyChanged     = @"PropertyChanged";
+NSString* const PropertyWillChange  = @"PropertyWillChange";
+NSString* const PropertyDidChange   = @"PropertyDidChange";
 NSString* const PropertyKeyKey      = @"PropertyKey";
 NSString* const PropertyOldValueKey = @"PropertyOldValue";
 NSString* const PropertyNewValueKey = @"PropertyNewValue";
@@ -120,7 +121,7 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     [[self undoManager] disableUndoRegistration];
     [self setPostNotifications:NO];
     
-    MapParser* parser = [[MapParser alloc] initWithData:data];
+    MapParser* parser = [[MapParser alloc] initWithData:data entityDefinitionManager:entityDefinitionManager];
     [parser parseMap:self withProgressIndicator:indicator];
     [parser release];
     
@@ -154,13 +155,13 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 }
 
 - (id <Entity>)createEntity {
-    MutableEntity* entity = [[MutableEntity alloc] init];
+    MutableEntity* entity = [[MutableEntity alloc] initWithEntityDefinitionManager:entityDefinitionManager];
     [self addEntity:entity];
     return [entity autorelease];
 }
 
 - (id <Entity>)createEntityWithProperties:(NSDictionary *)properties {
-    MutableEntity* entity = [[MutableEntity alloc] initWithProperties:properties];
+    MutableEntity* entity = [[MutableEntity alloc] initWithProperties:properties entityDefinitionManager:entityDefinitionManager];
     [self addEntity:entity];
     return [entity autorelease];
 }
@@ -211,6 +212,22 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     
     [[[self undoManager] prepareWithInvocationTarget:self] setEntity:entity propertyKey:key value:oldValue];
     
+    NSMutableDictionary* userInfo = nil;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:entity forKey:EntityKey];
+        [userInfo setObject:key forKey:PropertyKeyKey];
+        if (oldValue != nil)
+            [userInfo setObject:oldValue forKey:PropertyOldValueKey];
+        if (value != nil)
+            [userInfo setObject:value forKey:PropertyNewValueKey];
+
+        if (oldValue != nil && value != nil) {
+            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+            [center postNotificationName:PropertyWillChange object:self userInfo:userInfo];
+        }
+    }
+    
     MutableEntity* mutableEntity = (MutableEntity *)entity;
     if (value == nil)
         [mutableEntity removeProperty:key];
@@ -219,23 +236,15 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 
     if ([key isEqualToString:@"wad"])
         [self refreshWadFiles];
-
     
     if ([self postNotifications]) {
-        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:key forKey:PropertyKeyKey];
-        if (oldValue != nil)
-            [userInfo setObject:oldValue forKey:PropertyOldValueKey];
-        if (value != nil)
-            [userInfo setObject:value forKey:PropertyNewValueKey];
-
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         if (oldValue == nil && value != nil)
             [center postNotificationName:PropertyAdded object:self userInfo:userInfo];
         else if (oldValue != nil && value == nil)
             [center postNotificationName:PropertyRemoved object:self userInfo:userInfo];
         else
-            [center postNotificationName:PropertyChanged object:self userInfo:userInfo];
+            [center postNotificationName:PropertyDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }

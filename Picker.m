@@ -8,6 +8,7 @@
 
 #import "Picker.h"
 #import "Octree.h"
+#import "Entity.h"
 #import "Brush.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
@@ -34,6 +35,10 @@
             id <Brush> brush = (id <Brush>)object;
             if (filter == nil || [filter brushPasses:brush])
                 [brush pick:ray hitList:hitList];
+        } else if ([object conformsToProtocol:@protocol(Entity)]) {
+            id <Entity> entity = (id <Entity>)object;
+            if (filter == nil || [filter entityPasses:entity])
+                [entity pick:ray hitList:hitList];
         }
     }
 

@@ -14,11 +14,8 @@
 @protocol Entity;
 
 @interface EntityLayer : NSObject <Layer> {
-    EntityDefinitionManager* definitionManager;
     EntityBoundsRenderer* boundsRenderer;
 }
-
-- (id)initWithEntityDefinitionManager:(EntityDefinitionManager *)theDefinitionManager;
 
 - (void)addEntity:(id <Entity>)entity;
 - (void)removeEntity:(id <Entity>)entity;

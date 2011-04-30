@@ -13,9 +13,11 @@
 @protocol Map;
 @class MutableBrush;
 @class Face;
+@class EntityDefinitionManager;
 
 @interface MutableEntity : NSObject <Entity> {
     @private
+    EntityDefinitionManager* definitionManager;
     NSNumber* entityId;
     id <Map> map;
 	NSMutableArray* brushes;
@@ -26,7 +28,9 @@
     NSMutableDictionary* memBlocks;
 }
 
+- (id)initWithEntityDefinitionManager:(EntityDefinitionManager *)theDefinitionManager;
 - (id)initWithProperties:(NSDictionary *)theProperties;
+- (id)initWithProperties:(NSDictionary *)theProperties entityDefinitionManager:(EntityDefinitionManager *)theDefinitionManager;
 
 - (void)addBrush:(MutableBrush *)brush;
 - (void)removeBrush:(MutableBrush *)brush;

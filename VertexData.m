@@ -336,6 +336,9 @@
 }
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList {
+    if (isnan(intersectBoundsWithRay([self bounds], theRay)))
+        return;
+    
     NSEnumerator* sideEn = [sides objectEnumerator];
     Side* side;
     PickingHit* faceHit = nil;

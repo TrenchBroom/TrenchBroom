@@ -9,9 +9,11 @@
 #import <Cocoa/Cocoa.h>
 
 @protocol Brush;
+@protocol Entity;
 
 @protocol Filter <NSObject>
 
 - (BOOL)brushPasses:(id <Brush>)brush;
+- (BOOL)entityPasses:(id <Entity>)entity;
 
 @end

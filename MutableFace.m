@@ -194,8 +194,8 @@ static TVector3f baseAxes[18];
     baseAxes[ 3] = XAxisNeg; baseAxes[ 4] = YAxisPos; baseAxes[ 5] = ZAxisNeg;
     baseAxes[ 6] = YAxisPos; baseAxes[ 7] = XAxisPos; baseAxes[ 8] = ZAxisNeg;
     baseAxes[ 9] = YAxisNeg; baseAxes[10] = XAxisPos; baseAxes[11] = ZAxisNeg;
-    baseAxes[12] = ZAxisPos; baseAxes[13] = XAxisPos; baseAxes[14] = ZAxisNeg;
-    baseAxes[15] = ZAxisNeg; baseAxes[16] = XAxisPos; baseAxes[17] = ZAxisNeg;
+    baseAxes[12] = ZAxisPos; baseAxes[13] = XAxisPos; baseAxes[14] = YAxisNeg;
+    baseAxes[15] = ZAxisNeg; baseAxes[16] = XAxisPos; baseAxes[17] = YAxisNeg;
 }
 
 - (id)init {

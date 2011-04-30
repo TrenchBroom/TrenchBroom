@@ -516,6 +516,73 @@ void sizeOfBounds(const TBoundingBox* b, TVector3f* o) {
     subV3f(&b->max, &b->min, o);
 }
 
+float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray) {
+    TPlane plane;
+    float dist;
+    TVector3f point;
+    BOOL hit;
+    
+    if (ray->direction.x < 0) {
+        plane.point = b->max;
+        plane.norm = XAxisPos;
+        dist = intersectPlaneWithRay(&plane, ray);
+        if (!isnan(dist)) {
+            rayPointAtDistance(ray, dist, &point);
+            hit = point.y >= b->min.y && point.y <= b->max.y && point.z >= b->min.z && point.z <= b->max.z;
+        }
+    } else if (ray->direction.x > 0) {
+        plane.point = b->min;
+        plane.norm = XAxisNeg;
+        dist = intersectPlaneWithRay(&plane, ray);
+        if (!isnan(dist)) {
+            rayPointAtDistance(ray, dist, &point);
+            hit = point.y >= b->min.y && point.y <= b->max.y && point.z >= b->min.z && point.z <= b->max.z;
+        }
+    }
+    
+    if (!hit) {
+        if (ray->direction.y < 0) {
+            plane.point = b->max;
+            plane.norm = YAxisPos;
+            dist = intersectPlaneWithRay(&plane, ray);
+            if (!isnan(dist)) {
+                rayPointAtDistance(ray, dist, &point);
+                hit = point.x >= b->min.x && point.x <= b->max.x && point.z >= b->min.z && point.z <= b->max.z;
+            }
+        } else if (ray->direction.y > 0) {
+            plane.point = b->min;
+            plane.norm = YAxisNeg;
+            dist = intersectPlaneWithRay(&plane, ray);
+            if (!isnan(dist)) {
+                rayPointAtDistance(ray, dist, &point);
+                hit = point.x >= b->min.x && point.x <= b->max.x && point.z >= b->min.z && point.z <= b->max.z;
+            }
+        }
+    }
+    
+    if (!hit) {
+        if (ray->direction.z < 0) {
+            plane.point = b->max;
+            plane.norm = ZAxisPos;
+            dist = intersectPlaneWithRay(&plane, ray);
+            if (!isnan(dist)) {
+                rayPointAtDistance(ray, dist, &point);
+                hit = point.x >= b->min.x && point.x <= b->max.x && point.y >= b->min.y && point.y <= b->max.y;
+            }
+        } else if (ray->direction.z > 0) {
+            plane.point = b->min;
+            plane.norm = ZAxisNeg;
+            dist = intersectPlaneWithRay(&plane, ray);
+            if (!isnan(dist)) {
+                rayPointAtDistance(ray, dist, &point);
+                hit = point.x >= b->min.x && point.x <= b->max.x && point.y >= b->min.y && point.y <= b->max.y;
+            }
+        }
+    }
+
+    return dist;
+}
+
 # pragma mark TQuaternion functions
 
 void setQ(TQuaternion* l, const TQuaternion* r) {

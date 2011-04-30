@@ -455,7 +455,7 @@ NSString* const RendererChanged = @"RendererChanged";
         Grid* grid = [options grid];
 
         geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager options:options];
-        entityLayer = [[EntityLayer alloc] initWithEntityDefinitionManager:[map entityDefinitionManager]];
+        entityLayer = [[EntityLayer alloc] init];
         selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager options:options camera:camera fontManager:fontManager font:trackingFont];
         feedbackLayer = [[FigureLayer alloc] init];
 

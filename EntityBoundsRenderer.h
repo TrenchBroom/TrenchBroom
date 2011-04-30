@@ -8,14 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class EntityDefinitionManager;
 @class VBOBuffer;
 @protocol Entity;
 
 @interface EntityBoundsRenderer : NSObject {
-    EntityDefinitionManager* definitionManager;
     VBOBuffer* quads;
-    VBOBuffer* lines;
     NSMutableSet* addedEntities;
     NSMutableSet* removedEntities;
 }

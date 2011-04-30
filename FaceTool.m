@@ -154,6 +154,7 @@
     plane.point = lastPoint;
     
     crossV3f(&dragDir, &ray->direction, &plane.norm);
+    crossV3f(&plane.norm, &dragDir, &plane.norm);
     normalizeV3f(&plane.norm, &plane.norm);
     
     Grid* grid = [[windowController options] grid];
@@ -178,7 +179,7 @@
     Grid* grid = [[windowController options] grid];
     [grid snapToGrid:&point result:&point];
     
-    if (equalV3f(&point, &point))
+    if (equalV3f(&point, &lastPoint))
         return;
 
     TVector3f diff;

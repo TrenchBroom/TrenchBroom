@@ -63,10 +63,10 @@
             glLoadIdentity();
             gluLookAt(position.x,
                       position.y,
-                      position.y,
+                      position.z,
                       position.x + direction->x,
                       position.y + direction->y,
-                      position.y + direction->z,
+                      position.z + direction->z,
                       up->x,
                       up->y,
                       up->z);

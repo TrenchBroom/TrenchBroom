@@ -12,12 +12,9 @@
 
 @implementation EntityLayer
 
-- (id)initWithEntityDefinitionManager:(EntityDefinitionManager *)theDefinitionManager {
-    NSAssert(theDefinitionManager != nil, @"entity definition manager must not be nil");
-    
-    if (self = [self init]) {
-        definitionManager = [theDefinitionManager retain];
-        boundsRenderer = [[EntityBoundsRenderer alloc] initWithEntityDefinitionManager:definitionManager];
+- (id)init {
+    if (self = [super init]) {
+        boundsRenderer = [[EntityBoundsRenderer alloc] init];
     }
     
     return self;
@@ -42,7 +39,6 @@
 
 - (void)dealloc {
     [boundsRenderer release];
-    [definitionManager release];
     [super dealloc];
 }
 

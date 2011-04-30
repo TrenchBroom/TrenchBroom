@@ -139,6 +139,7 @@ void mergeBoundsWithPoint(const TBoundingBox* b, const TVector3f* p, TBoundingBo
 void mergeBoundsWithBounds(const TBoundingBox* b, const TBoundingBox* c, TBoundingBox* o);
 void expandBounds(const TBoundingBox* b, float f, TBoundingBox* o);
 void sizeOfBounds(const TBoundingBox* b, TVector3f* o);
+float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray);
 
 void setQ(TQuaternion* l, const TQuaternion* r);
 void setAngleAndAxisQ(TQuaternion* q, float a, const TVector3f* x);

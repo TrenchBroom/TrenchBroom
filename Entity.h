@@ -11,6 +11,8 @@
 
 @protocol Map;
 @class VBOMemBlock;
+@class EntityDefinition;
+@class PickingHitList;
 
 @protocol Entity <NSObject>
 
@@ -20,14 +22,16 @@
 - (NSArray *)brushes;
 
 - (NSString *)propertyForKey:(NSString *)key;
-- (NSString *)classname;
-
 - (NSDictionary *)properties;
 
+- (EntityDefinition *)entityDefinition;
 - (BOOL)isWorldspawn;
+- (NSString *)classname;
 
 - (TBoundingBox *)bounds;
 - (TVector3f *)center;
+
+- (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
 
 - (void)setMemBlock:(VBOMemBlock *)theBlock forKey:(id <NSCopying>)theKey;
 - (VBOMemBlock *)memBlockForKey:(id <NSCopying>)theKey;
