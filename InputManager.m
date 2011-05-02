@@ -28,6 +28,8 @@
 #import "Options.h"
 #import "CursorManager.h"
 #import "SelectionFilter.h"
+#import "EntityDefinitionManager.h"
+#import "EntityDefinition.h"
 
 @interface InputManager (private)
 
@@ -44,6 +46,7 @@
 - (void)updateCursorOwner;
 - (void)cameraViewChanged:(NSNotification *)notification;
 
+- (void)showContextMenu;
 @end
 
 @implementation InputManager (private)
@@ -156,6 +159,37 @@
     [self updateHits];
     [self updateCursorOwner];
     [self updateCursor];
+}
+
+- (void)showContextMenu {
+    EntityDefinitionManager* entityDefinitionManager = [[windowController document] entityDefinitionManager];
+
+    NSMenu* menu = [[NSMenu alloc] initWithTitle:@"3D View Context Menu"];
+
+    NSMenuItem* createPointEntityItem = [menu insertItemWithTitle:@"Create Point Entity" action:nil keyEquivalent:@"" atIndex:0];
+    NSMenu* pointEntityMenu = [[NSMenu alloc] initWithTitle:@"Create Point Entity"];
+    [menu setSubmenu:[pointEntityMenu autorelease] forItem:createPointEntityItem];
+    
+    NSArray* pointDefinitions = [entityDefinitionManager definitionsOfType:EDT_POINT];
+    for (int i = 0; i < [pointDefinitions count]; i++) {
+        EntityDefinition* definition = [pointDefinitions objectAtIndex:i];
+        NSMenuItem* definitionItem = [pointEntityMenu insertItemWithTitle:[definition name] action:@selector(createPointEntity:) keyEquivalent:@"" atIndex:i];
+        [definitionItem setTag:i];
+    }
+    
+    NSMenuItem* createBrushEntityItem = [menu insertItemWithTitle:@"Create Brush Entity" action:nil keyEquivalent:@"" atIndex:1];
+    NSMenu* brushEntityMenu = [[NSMenu alloc] initWithTitle:@"Create Brush Entity"];
+    [menu setSubmenu:[brushEntityMenu autorelease] forItem:createBrushEntityItem];
+    
+    NSArray* brushDefinitions = [entityDefinitionManager definitionsOfType:EDT_BRUSH];
+    for (int i = 0; i < [brushDefinitions count]; i++) {
+        EntityDefinition* definition = [brushDefinitions objectAtIndex:i];
+        NSMenuItem* definitionItem = [brushEntityMenu insertItemWithTitle:[definition name] action:@selector(createBrushEntity:) keyEquivalent:@"" atIndex:i];
+        [definitionItem setTag:i];
+    }
+    
+    menuPosition = [lastEvent locationInWindow];
+    [NSMenu popUpContextMenu:[menu autorelease] withEvent:lastEvent forView:[windowController view3D]];
 }
 
 @end
@@ -290,6 +324,7 @@
         [self updateCursor];
     } else {
         [activeTool handleRightMouseUp:lastEvent ray:&lastRay hits:lastHits];
+        [self showContextMenu];
     }
 }
 
@@ -315,6 +350,10 @@
 
 - (ClipTool *)clipTool {
     return clipTool;
+}
+
+- (NSPoint)menuPosition {
+    return menuPosition;
 }
 
 - (void)dealloc {

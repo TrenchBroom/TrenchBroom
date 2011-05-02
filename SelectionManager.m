@@ -315,6 +315,21 @@ NSString* const SelectionFaces = @"SelectionFaces";
     return [result autorelease];
 }
 
+- (id <Entity>)brushSelectionEntity {
+    if (mode != SM_BRUSHES)
+        return nil;
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    id <Brush> brush = [brushEn nextObject];
+    id <Entity> entity = [brush entity];
+    while ((brush = [brushEn nextObject])) {
+        if ([brush entity] != entity)
+            return nil;
+    }
+    
+    return entity;
+}
+
 - (BOOL)selectionCenter:(TVector3f *)result {
     switch ([self mode]) {
         case SM_FACES: {

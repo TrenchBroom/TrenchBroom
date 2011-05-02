@@ -25,6 +25,7 @@
     NSEvent* lastEvent;
     TRay lastRay;
     PickingHitList* lastHits;
+    NSPoint menuPosition;
     
     CameraTool* cameraTool;
     SelectionTool* selectionTool;
@@ -56,5 +57,6 @@
 - (void)handleMagnify:(NSEvent *)event sender:(id)sender;
 
 - (ClipTool *)clipTool;
+- (NSPoint)menuPosition;
 
 @end

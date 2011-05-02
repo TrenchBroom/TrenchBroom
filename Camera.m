@@ -239,11 +239,11 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 }
 
 
-- (TVector3f)unprojectX:(float)x y:(float)y {
+- (TVector3f)unprojectX:(float)x y:(float)y depth:(float)depth {
     GLint viewportInt[] = {NSMinX(viewport), NSMinY(viewport), NSWidth(viewport), NSHeight(viewport)};
     
     GLdouble rx, ry, rz;
-    gluUnProject(x, y, 0, modelview, projection, viewportInt, &rx, &ry, &rz);
+    gluUnProject(x, y, depth, modelview, projection, viewportInt, &rx, &ry, &rz);
     
     TVector3f r = {rx, ry, rz};
     return r;
@@ -257,13 +257,13 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     if (mode == CM_PERSPECTIVE) {
         TRay r;
         r.origin = position;
-        r.direction = [self unprojectX:x y:y];
+        r.direction = [self unprojectX:x y:y depth:0];
         subV3f(&r.direction, &position, &r.direction);
         normalizeV3f(&r.direction, &r.direction);
         return r;
     } else {
         TRay r;
-        r.origin = [self unprojectX:x y:y];
+        r.origin = [self unprojectX:x y:y depth:0];
         r.direction = direction;
         return r;
     }

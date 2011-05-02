@@ -34,7 +34,9 @@
 #import "CameraAnimation.h"
 #import "CursorManager.h"
 #import "ClipTool.h"
+#import "EntityDefinitionManager.h"
 #import "EntityDefinition.h"
+#import "math.h"
 
 static NSString* CameraDefaults = @"Camera";
 static NSString* CameraDefaultsFov = @"Field Of Vision";
@@ -107,17 +109,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     } else if (action == @selector(selectNone:)) {
         return [selectionManager hasSelection];
     } else if (action == @selector(selectEntity:)) {
-        if (![selectionManager mode] == SM_BRUSHES)
-            return NO;
-
-        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-        id <Brush> brush = [brushEn nextObject];
-        id <Entity> entity = [brush entity];
-        while ((brush = [brushEn nextObject])) {
-            if ([brush entity] != entity)
-                return NO;
-        }
-        
+        id <Entity> entity = [selectionManager brushSelectionEntity];
         return ![entity isWorldspawn] && [[selectionManager selectedBrushes] count] < [[entity brushes] count];
     } else if (action == @selector(copySelection:)) {
         return [selectionManager hasSelectedEntities] || [selectionManager hasSelectedBrushes];
@@ -181,6 +173,11 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         return [selectionManager hasSelectedBrushes];
     } else if (action == @selector(rotateZ90CCW:)) {
         return [selectionManager hasSelectedBrushes];
+    } else if (action == @selector(createPointEntity:)) {
+        return YES;
+    } else if (action == @selector(createBrushEntity:)) {
+        id <Entity> entity = [selectionManager brushSelectionEntity];
+        return [entity isWorldspawn];
     }
 
     return NO;
@@ -208,6 +205,36 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [camera release];
     [super dealloc];
 }
+
+#pragma mark Entity related actions
+
+- (IBAction)createPointEntity:(id)sender {
+    MapDocument* map = [self document];
+    EntityDefinitionManager* entityDefinitionManager = [map entityDefinitionManager];
+    
+    NSArray* pointDefinitions = [entityDefinitionManager definitionsOfType:EDT_POINT];
+    EntityDefinition* definition = [pointDefinitions objectAtIndex:[sender tag]];
+
+    NSPoint point = [inputManager menuPosition];
+    
+    TVector3f insertPoint = [camera unprojectX:point.x y:point.y depth:0.94f];
+    [[options grid] snapToGrid:&insertPoint result:&insertPoint];
+    
+    NSString* origin = [NSString stringWithFormat:@"%i %i %i", (int)insertPoint.x, (int)insertPoint.y, (int)insertPoint.z];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    id <Entity> entity = [map createEntityWithClassname:[definition name]];
+    [map setEntity:entity propertyKey:OriginKey value:origin];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Create Entity"];
+}
+
+- (IBAction)createBrushEntity:(id)sender {
+}
+
 
 #pragma mark Brush related actions
 

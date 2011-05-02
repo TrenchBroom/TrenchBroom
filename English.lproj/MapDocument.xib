@@ -2,17 +2,17 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.10">
 	<data>
 		<int key="IBDocument.SystemTarget">1060</int>
-		<string key="IBDocument.SystemVersion">10J567</string>
-		<string key="IBDocument.InterfaceBuilderVersion">823</string>
+		<string key="IBDocument.SystemVersion">10J869</string>
+		<string key="IBDocument.InterfaceBuilderVersion">851</string>
 		<string key="IBDocument.AppKitVersion">1038.35</string>
-		<string key="IBDocument.HIToolboxVersion">462.00</string>
+		<string key="IBDocument.HIToolboxVersion">461.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">823</string>
+			<string key="NS.object.0">851</string>
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="6"/>
+			<integer value="100051"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -458,9 +458,9 @@
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">AQAAAABBoAAAA</bytes>
 					</object>
-					<string>{{796, 337}, {1187, 725}}</string>
+					<string>{{422, 345}, {1187, 725}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{796, 337}, {1187, 725}}</string>
+					<string>{{422, 345}, {1187, 725}}</string>
 					<integer value="1"/>
 					<string>{{201, 387}, {507, 413}}</string>
 					<integer value="1"/>
@@ -485,7 +485,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">100261</int>
+			<int key="maxID">100270</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -505,27 +505,57 @@
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>clearSelection:</string>
 							<string>copySelection:</string>
+							<string>createPrefabFromSelection:</string>
 							<string>cutSelection:</string>
 							<string>deleteSelection:</string>
+							<string>duplicateSelection:</string>
+							<string>isolateSelection:</string>
 							<string>moveTextureDown:</string>
 							<string>moveTextureLeft:</string>
 							<string>moveTextureRight:</string>
 							<string>moveTextureUp:</string>
 							<string>pasteClipboard:</string>
+							<string>performClip:</string>
 							<string>rotateTextureLeft:</string>
 							<string>rotateTextureRight:</string>
+							<string>rotateZ90CCW:</string>
+							<string>rotateZ90CW:</string>
+							<string>selectAll:</string>
+							<string>selectEntity:</string>
+							<string>selectNone:</string>
 							<string>setGridSize:</string>
+							<string>showInspector:</string>
 							<string>shrinkTextureHorizontally:</string>
 							<string>shrinkTextureVertically:</string>
 							<string>stretchTextureHorizontally:</string>
 							<string>stretchTextureVertically:</string>
+							<string>switchToXYView:</string>
+							<string>switchToXZView:</string>
+							<string>switchToYZView:</string>
+							<string>toggleClipMode:</string>
+							<string>toggleClipTool:</string>
 							<string>toggleGrid:</string>
+							<string>toggleProjection:</string>
 							<string>toggleSnap:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -550,33 +580,48 @@
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>clearSelection:</string>
 							<string>copySelection:</string>
+							<string>createPrefabFromSelection:</string>
 							<string>cutSelection:</string>
 							<string>deleteSelection:</string>
+							<string>duplicateSelection:</string>
+							<string>isolateSelection:</string>
 							<string>moveTextureDown:</string>
 							<string>moveTextureLeft:</string>
 							<string>moveTextureRight:</string>
 							<string>moveTextureUp:</string>
 							<string>pasteClipboard:</string>
+							<string>performClip:</string>
 							<string>rotateTextureLeft:</string>
 							<string>rotateTextureRight:</string>
+							<string>rotateZ90CCW:</string>
+							<string>rotateZ90CW:</string>
+							<string>selectAll:</string>
+							<string>selectEntity:</string>
+							<string>selectNone:</string>
 							<string>setGridSize:</string>
+							<string>showInspector:</string>
 							<string>shrinkTextureHorizontally:</string>
 							<string>shrinkTextureVertically:</string>
 							<string>stretchTextureHorizontally:</string>
 							<string>stretchTextureVertically:</string>
+							<string>switchToXYView:</string>
+							<string>switchToXZView:</string>
+							<string>switchToYZView:</string>
+							<string>toggleClipMode:</string>
+							<string>toggleClipTool:</string>
 							<string>toggleGrid:</string>
+							<string>toggleProjection:</string>
 							<string>toggleSnap:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<object class="IBActionInfo">
-								<string key="name">clearSelection:</string>
+								<string key="name">copySelection:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
-								<string key="name">copySelection:</string>
+								<string key="name">createPrefabFromSelection:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
@@ -585,6 +630,14 @@
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">deleteSelection:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">duplicateSelection:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">isolateSelection:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
@@ -608,6 +661,10 @@
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
+								<string key="name">performClip:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
 								<string key="name">rotateTextureLeft:</string>
 								<string key="candidateClassName">id</string>
 							</object>
@@ -616,7 +673,31 @@
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
+								<string key="name">rotateZ90CCW:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">rotateZ90CW:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">selectAll:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">selectEntity:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">selectNone:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
 								<string key="name">setGridSize:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">showInspector:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
@@ -636,7 +717,31 @@
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
+								<string key="name">switchToXYView:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">switchToXZView:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">switchToYZView:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">toggleClipMode:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">toggleClipTool:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
 								<string key="name">toggleGrid:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">toggleProjection:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">

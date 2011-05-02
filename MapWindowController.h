@@ -53,6 +53,9 @@
 - (IBAction)rotateTextureLeft:(id)sender;
 - (IBAction)rotateTextureRight:(id)sender;
 
+- (IBAction)createPointEntity:(id)sender;
+- (IBAction)createBrushEntity:(id)sender;
+
 - (IBAction)rotateZ90CW:(id)sender;
 - (IBAction)rotateZ90CCW:(id)sender;
 - (IBAction)toggleClipTool:(id)sender;

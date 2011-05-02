@@ -7,7 +7,6 @@
 //
 
 #import "EntityDefinitionManager.h"
-#import "EntityDefinition.h"
 #import "EntityDefinitionParser.h"
 
 @implementation EntityDefinitionManager
@@ -46,6 +45,19 @@
 
 - (NSArray *)definitions {
     return definitionsByName;
+}
+
+- (NSArray *)definitionsOfType:(EEntityDefinitionType)type {
+    NSMutableArray* result = [[NSMutableArray alloc] init];
+    
+    NSEnumerator* definitionEn = [definitionsByName objectEnumerator];
+    EntityDefinition* definition;
+    while ((definition = [definitionEn nextObject])) {
+        if ([definition type] == type)
+            [result addObject:definition];
+    }
+    
+    return [result autorelease];
 }
 
 - (void)dealloc {

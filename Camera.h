@@ -65,7 +65,7 @@ extern NSString* const CameraViewChanged;
 
 - (void)updateView:(NSRect)theViewport;
 - (NSRect)viewport;
-- (TVector3f)unprojectX:(float)x y:(float)y;
+- (TVector3f)unprojectX:(float)x y:(float)y depth:(float)depth;
 - (TRay)pickRayX:(float)x y:(float)y;
 - (TVector3f)defaultPoint;
 @end

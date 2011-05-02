@@ -7,8 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-
-@class EntityDefinition;
+#import "EntityDefinition.h"
 
 @interface EntityDefinitionManager : NSObject {
     NSMutableDictionary* definitions;
@@ -19,5 +18,6 @@
 
 - (EntityDefinition *)definitionForName:(NSString *)name;
 - (NSArray *)definitions;
+- (NSArray *)definitionsOfType:(EEntityDefinitionType)type;
 
 @end
