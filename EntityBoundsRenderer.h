@@ -10,15 +10,19 @@
 
 @class VBOBuffer;
 @protocol Entity;
+@protocol Filter;
 
 @interface EntityBoundsRenderer : NSObject {
     VBOBuffer* quads;
-    NSMutableSet* addedEntities;
-    NSMutableSet* removedEntities;
+    NSMutableSet* entities;
+    BOOL valid;
+    id <Filter> filter;
 }
 
 - (void)addEntity:(id <Entity>)entity;
 - (void)removeEntity:(id <Entity>)entity;
 
-- (void)render;
+- (void)renderWithColor:(BOOL)doRenderWithColor;
+
+- (void)setFilter:(id <Filter>)theFilter;
 @end

@@ -89,6 +89,7 @@
 		488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 488868DA12FAFCBF00CAEA55 /* GLString.m */; };
 		4888732A13436206005FCE15 /* FloatData.m in Sources */ = {isa = PBXBuildFile; fileRef = 4888732913436206005FCE15 /* FloatData.m */; };
 		488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */ = {isa = PBXBuildFile; fileRef = 488C8EE012F6C3ED00F358E6 /* IntData.m */; };
+		488FE71E136E8FA300A0A47A /* DefaultEntityLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FE71D136E8FA300A0A47A /* DefaultEntityLayer.m */; };
 		488FEAF1131F9D1800010A04 /* MutablePrefabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */; };
 		488FEB5C131FC49A00010A04 /* PrefabLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB5B131FC49A00010A04 /* PrefabLayout.m */; };
 		488FEB64131FCBA700010A04 /* PrefabLayoutGroupRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB63131FCBA700010A04 /* PrefabLayoutGroupRow.m */; };
@@ -131,7 +132,6 @@
 		48FE9795136368D5009B31FD /* ModelProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE9794136368D5009B31FD /* ModelProperty.m */; };
 		48FE97BA13636AF8009B31FD /* DefaultProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE97B913636AF8009B31FD /* DefaultProperty.m */; };
 		48FE97BD13636B9A009B31FD /* BaseProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE97BC13636B9A009B31FD /* BaseProperty.m */; };
-		48FE9862136596C6009B31FD /* EntityLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE9861136596C6009B31FD /* EntityLayer.m */; };
 		48FE986513659869009B31FD /* EntityBoundsRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE986413659869009B31FD /* EntityBoundsRenderer.m */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
@@ -325,6 +325,8 @@
 		4888732913436206005FCE15 /* FloatData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FloatData.m; sourceTree = "<group>"; };
 		488C8EDF12F6C3ED00F358E6 /* IntData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntData.h; sourceTree = "<group>"; };
 		488C8EE012F6C3ED00F358E6 /* IntData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntData.m; sourceTree = "<group>"; };
+		488FE71C136E8FA300A0A47A /* DefaultEntityLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefaultEntityLayer.h; sourceTree = "<group>"; };
+		488FE71D136E8FA300A0A47A /* DefaultEntityLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DefaultEntityLayer.m; sourceTree = "<group>"; };
 		488FEAEF131F9D1800010A04 /* MutablePrefabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutablePrefabGroup.h; sourceTree = "<group>"; };
 		488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutablePrefabGroup.m; sourceTree = "<group>"; };
 		488FEAF2131F9D7200010A04 /* PrefabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabGroup.h; sourceTree = "<group>"; };
@@ -405,7 +407,6 @@
 		48FE97BB13636B9A009B31FD /* BaseProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseProperty.h; sourceTree = "<group>"; };
 		48FE97BC13636B9A009B31FD /* BaseProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseProperty.m; sourceTree = "<group>"; };
 		48FE9860136596C6009B31FD /* EntityLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityLayer.h; sourceTree = "<group>"; };
-		48FE9861136596C6009B31FD /* EntityLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityLayer.m; sourceTree = "<group>"; };
 		48FE986313659869009B31FD /* EntityBoundsRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityBoundsRenderer.h; sourceTree = "<group>"; };
 		48FE986413659869009B31FD /* EntityBoundsRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityBoundsRenderer.m; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* TrenchBroom-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "TrenchBroom-Info.plist"; sourceTree = "<group>"; };
@@ -529,6 +530,8 @@
 		4802513E133A11FA001C51F2 /* Layer */ = {
 			isa = PBXGroup;
 			children = (
+				488FE71C136E8FA300A0A47A /* DefaultEntityLayer.h */,
+				488FE71D136E8FA300A0A47A /* DefaultEntityLayer.m */,
 				487A7E39130071F300434806 /* GeometryLayer.h */,
 				487A7E3A130071F300434806 /* GeometryLayer.m */,
 				487A7E38130071DD00434806 /* BrushLayer.h */,
@@ -538,7 +541,6 @@
 				48325CB1135215ED00E703E0 /* FigureLayer.h */,
 				48325CB2135215ED00E703E0 /* FigureLayer.m */,
 				48FE9860136596C6009B31FD /* EntityLayer.h */,
-				48FE9861136596C6009B31FD /* EntityLayer.m */,
 			);
 			name = Layer;
 			sourceTree = "<group>";
@@ -1151,8 +1153,8 @@
 				48FE9795136368D5009B31FD /* ModelProperty.m in Sources */,
 				48FE97BA13636AF8009B31FD /* DefaultProperty.m in Sources */,
 				48FE97BD13636B9A009B31FD /* BaseProperty.m in Sources */,
-				48FE9862136596C6009B31FD /* EntityLayer.m in Sources */,
 				48FE986513659869009B31FD /* EntityBoundsRenderer.m in Sources */,
+				488FE71E136E8FA300A0A47A /* DefaultEntityLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

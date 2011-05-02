@@ -10,6 +10,7 @@
 
 @protocol Brush;
 @protocol Face;
+@protocol Filter;
 
 @protocol BrushLayer <Layer>
 
@@ -18,5 +19,7 @@
 
 - (void)addFace:(id <Face>)theFace;
 - (void)removeFace:(id <Face>)theFace;
+
+- (void)setFilter:(id <Filter>)theFilter;
 
 @end

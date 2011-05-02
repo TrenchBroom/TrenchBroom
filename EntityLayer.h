@@ -2,23 +2,21 @@
 //  EntityLayer.h
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 25.04.11.
+//  Created by Kristian Duske on 01.05.11.
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
 #import "Layer.h"
 
-@class EntityDefinitionManager;
-@class EntityBoundsRenderer;
 @protocol Entity;
+@protocol Filter;
 
-@interface EntityLayer : NSObject <Layer> {
-    EntityBoundsRenderer* boundsRenderer;
-}
+@protocol EntityLayer <Layer>
 
 - (void)addEntity:(id <Entity>)entity;
 - (void)removeEntity:(id <Entity>)entity;
 - (void)updateEntity:(id <Entity>)entity;
+
+- (void)setFilter:(id <Filter>)theFilter;
 
 @end

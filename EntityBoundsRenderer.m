@@ -11,9 +11,7 @@
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "EntityDefinition.h"
-
-static NSString* QuadsBlockKey = @"bounds quads";
-static NSString* LinesBlockKey = @"bounds lines";
+#import "Filter.h"
 
 @interface EntityBoundsRenderer (private)
 
@@ -24,35 +22,25 @@ static NSString* LinesBlockKey = @"bounds lines";
 @implementation EntityBoundsRenderer (private)
 
 - (void) validate {
-    if ([removedEntities count] > 0) {
-        NSEnumerator* entityEn = [removedEntities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
-            [entity setMemBlock:nil forKey:QuadsBlockKey];
-            [entity setMemBlock:nil forKey:LinesBlockKey];
-        }
-    }
+    if (!valid) {
+        [quads freeAllBlocks];
 
-    if ([addedEntities count] > 0) {
-        TVector3f c, t;
-        float defaultColor[] = {1, 1, 1};
-        
-        NSEnumerator* entityEn = [addedEntities objectEnumerator];
-        id <Entity> entity;
-        
         [quads activate];
         [quads mapBuffer];
+        
+        TVector3f c, t;
+        float defaultColor[] = {1, 1, 1};
+
+        NSEnumerator* entityEn = [entities objectEnumerator];
+        id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
-            VBOMemBlock* quadsBlock = [entity memBlockForKey:QuadsBlockKey];
-            if (quadsBlock == nil) {
-                quadsBlock = [quads allocMemBlock:6 * 4 * (3 + 3) * sizeof(float)];
-                [entity setMemBlock:quadsBlock forKey:QuadsBlockKey];
-            }
-            
-            if ([quadsBlock state] != BS_USED_VALID) {
+            if (filter == nil || [filter entityPasses:entity]) {
+                VBOMemBlock* quadsBlock = [quads allocMemBlock:6 * 4 * (3 + 3) * sizeof(float)];
+                
                 EntityDefinition* definition = [entity entityDefinition];
-                TBoundingBox* bounds = [entity bounds];
                 float* color = definition != nil ? [definition color] : defaultColor;
+                
+                TBoundingBox* bounds = [entity bounds];
                 
                 int offset = 0;
                 c.x = color[0];
@@ -63,15 +51,15 @@ static NSString* LinesBlockKey = @"bounds lines";
                 t = bounds->min;
                 offset = [quadsBlock writeVector3f:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
-
+                
                 t.x = bounds->max.x;
                 offset = [quadsBlock writeVector3f:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
-
+                
                 t.y = bounds->max.y;
                 offset = [quadsBlock writeVector3f:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
-
+                
                 t.x = bounds->min.x;
                 offset = [quadsBlock writeVector3f:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
@@ -80,7 +68,7 @@ static NSString* LinesBlockKey = @"bounds lines";
                 t = bounds->min;
                 offset = [quadsBlock writeVector3f:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
-
+                
                 t.z = bounds->max.z;
                 offset = [quadsBlock writeVector3f:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
@@ -88,7 +76,7 @@ static NSString* LinesBlockKey = @"bounds lines";
                 t.x = bounds->max.x;
                 offset = [quadsBlock writeVector3f:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
-
+                
                 t.z = bounds->min.z;
                 offset = [quadsBlock writeVector3f:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
@@ -97,7 +85,7 @@ static NSString* LinesBlockKey = @"bounds lines";
                 t = bounds->min;
                 offset = [quadsBlock writeVector3f:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
-
+                
                 t.y = bounds->max.y;
                 offset = [quadsBlock writeVector3f:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
@@ -114,7 +102,7 @@ static NSString* LinesBlockKey = @"bounds lines";
                 t = bounds->max;
                 offset = [quadsBlock writeVector3f:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
-
+                
                 t.y = bounds->min.y;
                 offset = [quadsBlock writeVector3f:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
@@ -164,9 +152,10 @@ static NSString* LinesBlockKey = @"bounds lines";
                 [quadsBlock setState:BS_USED_VALID];
             }
         }
-        [quads pack];
+        
         [quads unmapBuffer];
         [quads deactivate];
+        valid = YES;
     }
 }
 
@@ -177,9 +166,7 @@ static NSString* LinesBlockKey = @"bounds lines";
 - (id)init {
     if (self = [super init]) {
         quads = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
-        
-        addedEntities = [[NSMutableSet alloc] init];
-        removedEntities = [[NSMutableSet alloc] init];
+        entities = [[NSMutableSet alloc] init];
     }
     
     return self;
@@ -187,37 +174,46 @@ static NSString* LinesBlockKey = @"bounds lines";
 
 - (void)addEntity:(id <Entity>)entity {
     NSAssert(entity != nil, @"entity must not be nil");
-    [addedEntities addObject:entity];
+    [entities addObject:entity];
+    valid = NO;
 }
 
 - (void)removeEntity:(id <Entity>)entity {
     NSAssert(entity != nil, @"entity must not be nil");
-    
-    if ([addedEntities containsObject:entity])
-        [addedEntities removeObject:entity];
-    else
-        [removedEntities addObject:entity];
+    [entities removeObject:entity];
+    valid = NO;
 }
 
-- (void)render {
+- (void)renderWithColor:(BOOL)doRenderWithColor {
     [self validate];
-    
     
     int quadCount = ([quads totalCapacity] - [quads freeCapacity]) / (6 * sizeof(float));
     [quads activate];
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDisable(GL_CULL_FACE);
-    glInterleavedArrays(GL_C3F_V3F, 0, 0);
+    if (doRenderWithColor)
+        glInterleavedArrays(GL_C3F_V3F, 0, 0);
+    else
+        glVertexPointer(3, GL_FLOAT, 6 * sizeof(float), (const GLvoid *) (3 * sizeof(float)));
     glDrawArrays(GL_QUADS, 0, quadCount);
     glEnable(GL_CULL_FACE);
     [quads deactivate];
     
 }
 
+- (void)setFilter:(id <Filter>)theFilter {
+    if (filter == theFilter)
+        return;
+    
+    [filter release];
+    filter = [theFilter retain];
+    valid = NO;
+}
+
 - (void)dealloc {
+    [filter release];
     [quads release];
-    [addedEntities release];
-    [removedEntities release];
+    [entities release];
     [super dealloc];
 }
 

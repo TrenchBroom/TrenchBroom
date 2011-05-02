@@ -19,7 +19,9 @@ extern NSString* const SelectionFaces;
 typedef enum {
     SM_UNDEFINED,
     SM_FACES,
-    SM_GEOMETRY
+    SM_BRUSHES,
+    SM_ENTITIES,
+    SM_BRUSHES_ENTITIES
 } ESelectionMode;
 
 @protocol Face;
@@ -48,8 +50,6 @@ typedef enum {
 - (void)addEntities:(NSSet *)theEntities record:(BOOL)record;
 
 - (ESelectionMode)mode;
-- (BOOL)isVertexSelected:(Vertex *)vertex;
-- (BOOL)isEdgeSelected:(Edge *)edge;
 - (BOOL)isFaceSelected:(id <Face>)face;
 - (BOOL)isBrushSelected:(id <Brush>)brush;
 - (BOOL)isEntitySelected:(id <Entity>)entity;

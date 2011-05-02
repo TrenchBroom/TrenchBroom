@@ -7,13 +7,15 @@
 //
 
 #import "GeometryLayer.h"
+#import "DefaultEntityLayer.h"
 
 @class BrushBoundsRenderer;
 @class Camera;
 @class GLFontManager;
 
-@interface SelectionLayer : GeometryLayer {
-    BrushBoundsRenderer* boundsRenderer;
+@interface SelectionLayer : GeometryLayer <EntityLayer> {
+    BrushBoundsRenderer* brushBoundsRenderer;
+    EntityBoundsRenderer* entityBoundsRenderer;
 }
 
 - (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager options:(Options *)theOptions camera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;

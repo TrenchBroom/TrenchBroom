@@ -13,30 +13,33 @@
 @protocol Map;
 @class MutableBrush;
 @class Face;
-@class EntityDefinitionManager;
+@class EntityDefinition;
 
 @interface MutableEntity : NSObject <Entity> {
-    @private
-    EntityDefinitionManager* definitionManager;
+    EntityDefinition* entityDefinition;
     NSNumber* entityId;
     id <Map> map;
 	NSMutableArray* brushes;
 	NSMutableDictionary* properties;
     TVector3f center;
+    TVector3f origin;
     TBoundingBox bounds;
     BOOL valid;
-    NSMutableDictionary* memBlocks;
+    int filePosition;
 }
 
-- (id)initWithEntityDefinitionManager:(EntityDefinitionManager *)theDefinitionManager;
 - (id)initWithProperties:(NSDictionary *)theProperties;
-- (id)initWithProperties:(NSDictionary *)theProperties entityDefinitionManager:(EntityDefinitionManager *)theDefinitionManager;
 
 - (void)addBrush:(MutableBrush *)brush;
 - (void)removeBrush:(MutableBrush *)brush;
+- (void)brushChanged:(MutableBrush *)brush;
 
 - (void)setProperty:(NSString *)key value:(NSString *)value;
 - (void)removeProperty:(NSString *)key;
 
+- (void)setEntityDefinition:(EntityDefinition *)theEntityDefintion;
 - (void)setMap:(id <Map>)theMap;
+
+- (int)filePosition;
+- (void)setFilePosition:(int)theFilePosition;
 @end

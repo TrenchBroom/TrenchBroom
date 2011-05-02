@@ -34,6 +34,7 @@
 #import "CameraAnimation.h"
 #import "CursorManager.h"
 #import "ClipTool.h"
+#import "EntityDefinition.h"
 
 static NSString* CameraDefaults = @"Camera";
 static NSString* CameraDefaultsFov = @"Field Of Vision";
@@ -101,8 +102,23 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     SEL action = [menuItem action];
-    if (action == @selector(clearSelection:)) {
+    if (action == @selector(selectAll:)) {
+        return YES;
+    } else if (action == @selector(selectNone:)) {
         return [selectionManager hasSelection];
+    } else if (action == @selector(selectEntity:)) {
+        if (![selectionManager mode] == SM_BRUSHES)
+            return NO;
+
+        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+        id <Brush> brush = [brushEn nextObject];
+        id <Entity> entity = [brush entity];
+        while ((brush = [brushEn nextObject])) {
+            if ([brush entity] != entity)
+                return NO;
+        }
+        
+        return ![entity isWorldspawn] && [[selectionManager selectedBrushes] count] < [[entity brushes] count];
     } else if (action == @selector(copySelection:)) {
         return [selectionManager hasSelectedEntities] || [selectionManager hasSelectedBrushes];
     } else if (action == @selector(cutSelection:)) {
@@ -451,8 +467,39 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 
 #pragma mark Structure and selection
 
-- (IBAction)clearSelection:(id)sender {
+- (IBAction)selectAll:(id)sender {
     [selectionManager removeAll:NO];
+    
+    NSMutableSet* entities = [[NSMutableSet alloc] init];
+    NSMutableSet* brushes = [[NSMutableSet alloc] init];
+    
+    NSEnumerator* entityEn = [[[self document] entities] objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject])) {
+        if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
+            [entities addObject:entity];
+        else
+            [brushes addObjectsFromArray:[entity brushes]];
+    }
+    
+    [selectionManager addEntities:entities record:NO];
+    [selectionManager addBrushes:brushes record:NO];
+    
+    [entities release];
+    [brushes release];
+}
+
+- (IBAction)selectNone:(id)sender {
+    [selectionManager removeAll:NO];
+}
+
+- (IBAction)selectEntity:(id)sender {
+    id <Brush> brush = [[[selectionManager selectedBrushes] objectEnumerator] nextObject];
+    id <Entity> entity = [brush entity];
+    
+    [selectionManager removeAll:NO];
+    [selectionManager addEntity:entity record:NO];
+    [selectionManager addBrushes:[NSSet setWithArray:[entity brushes]] record:NO];
 }
 
 - (IBAction)copySelection:(id)sender {}
@@ -542,6 +589,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
             mapEntity = [map worldspawn:YES];
         } else {
             mapEntity = [map createEntityWithProperties:[prefabEntity properties]];
+            [map setEntityDefinition:mapEntity];
         }
         
         NSEnumerator* prefabBrushEn = [[prefabEntity brushes] objectEnumerator];

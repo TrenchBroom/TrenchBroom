@@ -42,6 +42,4 @@
 - (void)validateFaces:(NSSet *)invalidFaces;
 - (void)validate;
 
-- (void)setFilter:(id <Filter>)theFilter;
-
 @end

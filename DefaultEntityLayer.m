@@ -6,11 +6,11 @@
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "EntityLayer.h"
+#import "DefaultEntityLayer.h"
 #import "EntityBoundsRenderer.h"
 #import "Entity.h"
 
-@implementation EntityLayer
+@implementation DefaultEntityLayer
 
 - (id)init {
     if (self = [super init]) {
@@ -34,7 +34,11 @@
 }
 
 - (void)render:(RenderContext *)renderContext {
-    [boundsRenderer render];
+    [boundsRenderer renderWithColor:YES];
+}
+
+- (void)setFilter:(id <Filter>)theFilter {
+    [boundsRenderer setFilter:theFilter];
 }
 
 - (void)dealloc {

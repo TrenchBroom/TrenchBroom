@@ -13,14 +13,14 @@
 #import "MutableFace.h"
 #import "MapTokenizer.h"
 #import "MapToken.h"
+#import "EntityDefinitionManager.h"
 
 static NSString* InvalidTokenException = @"InvalidTokenException";
 
 @implementation MapParser
 
-- (id)initWithData:(NSData *)someData entityDefinitionManager:(EntityDefinitionManager *)theDefinitionManager {
+- (id)initWithData:(NSData *)someData {
     if (self = [self init]) {
-        definitionManager = [theDefinitionManager retain];
         size = [someData length];
         NSInputStream* stream = [[NSInputStream alloc] initWithData:someData];
         tokenizer = [[MapTokenizer alloc] initWithInputStream:stream];
@@ -28,10 +28,6 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     }
     
     return self;
-}
-
-- (id)initWithData:(NSData *)someData {
-    return [self initWithData:someData entityDefinitionManager:nil];
 }
 
 - (void)expect:(int)expectedType actual:(MapToken* )actualToken {
@@ -47,7 +43,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     return token;
 }
 
-- (void)parseFace {
+- (void)parseFace:(int)filePosition {
     MapToken* token = [self nextToken];
     [self expect:TT_DEC actual:token];
     p1.x = [[token data] intValue];
@@ -131,7 +127,8 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     [face setRotation:rotation];
     [face setXScale:xScale];
     [face setYScale:yScale];
-
+    [face setFilePosition:filePosition];
+    
     [brush addFace:face];
     
     [face release];
@@ -154,7 +151,8 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                 case PS_DEF:
                     [self expect:TT_CB_O actual:token];
                     state = PS_ENT;
-                    entity = [[MutableEntity alloc] initWithEntityDefinitionManager:definitionManager];
+                    entity = [[MutableEntity alloc] init];
+                    [entity setFilePosition:[token line]];
                     break;
                 case PS_ENT:
                     switch ([token type]) {
@@ -168,16 +166,19 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                             [value release];
                             break;
                         }
-                        case TT_CB_O:
+                        case TT_CB_O: {
                             state = PS_BRUSH;
                             brush = [[MutableBrush alloc] init];
+                            [brush setFilePosition:[token line]];
                             break;
-                        case TT_CB_C:
+                        }
+                        case TT_CB_C: {
                             [map addEntity:entity];
                             [entity release];
                             state = PS_DEF;
                             entity = nil;
                             break;
+                        }
                         default:
                             break;
                     }
@@ -185,7 +186,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                 case PS_BRUSH:
                     switch ([token type]) {
                         case TT_B_O:
-                            [self parseFace];
+                            [self parseFace:[token line]];
                             break;
                         case TT_CB_C:
                             [entity addBrush:brush];
@@ -223,7 +224,6 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
 }
 
 - (void)dealloc {
-    [definitionManager release];
     [tokenizer release];
     [map release];
     [super dealloc];

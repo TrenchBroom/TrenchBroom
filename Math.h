@@ -135,6 +135,7 @@ float planeY(TPlane* p, float x, float z);
 float planeZ(TPlane* p, float x, float y);
 
 void centerOfBounds(const TBoundingBox* b, TVector3f* o);
+void translateBounds(const TBoundingBox* b, const TVector3f* d, TBoundingBox* o);
 void mergeBoundsWithPoint(const TBoundingBox* b, const TVector3f* p, TBoundingBox* o);
 void mergeBoundsWithBounds(const TBoundingBox* b, const TBoundingBox* c, TBoundingBox* o);
 void expandBounds(const TBoundingBox* b, float f, TBoundingBox* o);

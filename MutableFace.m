@@ -202,6 +202,7 @@ static TVector3f baseAxes[18];
     if (self = [super init]) {
         faceId = [[[IdGenerator sharedGenerator] getId] retain];
         texture = [[NSMutableString alloc] init];
+        filePosition = -1;
     }
     
     return self;
@@ -430,6 +431,14 @@ static TVector3f baseAxes[18];
     edges = [theEdges retain];
     
     centerValid = NO;
+}
+
+- (int)filePosition {
+    return filePosition;
+}
+
+- (void)setFilePosition:(int)theFilePosition {
+    filePosition = theFilePosition;
 }
 
 - (NSString *)description {

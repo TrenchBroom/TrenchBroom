@@ -70,9 +70,10 @@ extern NSString* const PropertyNewValueKey;
 - (void)rotateZ90CCW:(NSSet *)brushes;
 - (void)deleteBrush:(id <Brush>)brush;
 
-- (id <Entity>)createEntity;
+- (id <Entity>)createEntityWithClassname:(NSString *)classname;
 - (id <Entity>)createEntityWithProperties:(NSDictionary *)properties;
 - (void)setEntity:(id <Entity>)entity propertyKey:(NSString *)key value:(NSString *)value;
+- (void)setEntityDefinition:(id <Entity>)entity;
 
 - (void)addTextureWad:(NSString *)wadPath;
 - (void)removeTextureWad:(NSString *)wadPath;

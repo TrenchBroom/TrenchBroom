@@ -25,35 +25,35 @@
 @implementation MutableEntity (private)
 
 - (void)validate {
-    if ([brushes count] > 0) {
-        NSEnumerator* brushEn = [brushes objectEnumerator];
-        MutableBrush* brush = [brushEn nextObject];
-        
-        bounds = *[brush bounds];
-        center = *[brush center];
-        while ((brush = [brushEn nextObject])) {
-            mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
-            addV3f(&center, [brush center], &center);
-        }
-        
-        scaleV3f(&center, 1.0f / [brushes count], &center);
-    } else {
-        EntityDefinition* definition = [self entityDefinition];
-        NSString* originStr = [self propertyForKey:@"origin"];
-
-        if (originStr != nil && definition != nil && [definition type] == EDT_POINT) {
-            TVector3f origin;
-            parseV3f(originStr, NSMakeRange(0, [originStr length]), &origin);
-            bounds = *[definition bounds];
-
-            addV3f(&bounds.min, &origin, &bounds.min);
-            addV3f(&bounds.max, &origin, &bounds.max);
+    if (entityDefinition == nil || [entityDefinition type] == EDT_BRUSH) {
+        if ([brushes count] > 0) {
+            NSEnumerator* brushEn = [brushes objectEnumerator];
+            MutableBrush* brush = [brushEn nextObject];
+            
+            bounds = *[brush bounds];
+            center = *[brush center];
+            while ((brush = [brushEn nextObject])) {
+                mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
+                addV3f(&center, [brush center], &center);
+            }
+            
+            scaleV3f(&center, 1.0f / [brushes count], &center);
         } else {
-            center = NullVector;
             bounds.min = NullVector;
             bounds.max = NullVector;
+            center = NullVector;
         }
+    } else if ([entityDefinition type] == EDT_POINT) {
+        bounds = *[entityDefinition bounds];
+        addV3f(&bounds.min, &origin, &bounds.min);
+        addV3f(&bounds.max, &origin, &bounds.max);
+    } else {
+        bounds.min = NullVector;
+        bounds.max = NullVector;
+        center = NullVector;
     }
+    
+    valid = YES;
 }
 
 @end
@@ -65,15 +65,8 @@
         entityId = [[[IdGenerator sharedGenerator] getId] retain];
 		properties = [[NSMutableDictionary alloc] init];
 		brushes = [[NSMutableArray alloc] init];
-        memBlocks = [[NSMutableDictionary alloc] init];
-    }
-    
-    return self;
-}
-
-- (id)initWithEntityDefinitionManager:(EntityDefinitionManager *)theDefinitionManager {
-    if (self = [self init]) {
-        definitionManager = [theDefinitionManager retain];
+        filePosition = -1;
+        origin = NullVector;
     }
     
     return self;
@@ -87,28 +80,47 @@
     return self;
 }
 
-- (id)initWithProperties:(NSDictionary *)theProperties entityDefinitionManager:(EntityDefinitionManager *)theDefinitionManager {
-    if (self = [self init]) {
-        [properties addEntriesFromDictionary:theProperties];
-        definitionManager = [theDefinitionManager retain];
-    }
-    
-    return self;
-}
-
 - (void)addBrush:(MutableBrush *)brush {
+    NSAssert(brush != nil, @"brush must not be nil");
+    
+    if (entityDefinition != nil && [entityDefinition type] != EDT_BRUSH)
+            [NSException raise:NSInternalInconsistencyException format:@"Cannot add brush to point or base entity"];
+    
+    
     [brushes addObject:brush];
     [brush setEntity:self];
     valid = NO;
 }
 
 - (void)removeBrush:(MutableBrush *)brush {
+    NSAssert(brush != nil, @"brush must not be nil");
+
+    if (entityDefinition != nil && [entityDefinition type] != EDT_BRUSH)
+            [NSException raise:NSInternalInconsistencyException format:@"Cannot remove brush from point or base entity"];
+    
     [brush setEntity:nil];
     [brushes removeObject:brush];
     valid = NO;
 }
 
+- (void)brushChanged:(MutableBrush *)brush {
+    valid = NO;
+}
+
 - (void)setProperty:(NSString *)key value:(NSString *)value {
+    NSAssert(key != nil, @"property key must not be nil");
+    
+    if ([key isEqualToString:ClassnameKey] && [self classname] != nil) {
+        NSLog(@"Cannot overwrite classname property");
+        return;
+    } else if ([key isEqualToString:OriginKey]) {
+        if (!parseV3f(value, NSMakeRange(0, [value length]), &origin)) {
+            NSLog(@"Invalid origin value: '&@'", value);
+            return;
+        }
+        valid = NO;
+    }
+    
     NSString* oldValue = [self propertyForKey:key];
     BOOL exists = oldValue != nil;
     
@@ -120,6 +132,16 @@
 }
 
 - (void)removeProperty:(NSString *)key {
+    NSAssert(key != nil, @"property key must not be nil");
+    
+    if ([key isEqualToString:ClassnameKey]) {
+        NSLog(@"Cannot delete classname property");
+        return;
+    } else if ([key isEqualToString:OriginKey]) {
+        NSLog(@"Cannot delete origin property");
+        return;
+    }
+
     NSString *oldValue = [self propertyForKey:key];
     if (oldValue == nil)
         return;
@@ -128,16 +150,30 @@
     valid = NO;
 }
 
+- (void)setEntityDefinition:(EntityDefinition *)theEntityDefinition {
+    NSAssert(theEntityDefinition != nil, @"entity definition must not be nil");
+    NSAssert(entityDefinition == nil, @"can't change entity definition");
+    
+    entityDefinition = [theEntityDefinition retain];
+}
+
 - (void)setMap:(id <Map>)theMap {
     map = theMap;
+}
+
+- (int)filePosition {
+    return filePosition;
+}
+
+- (void)setFilePosition:(int)theFilePosition {
+    filePosition = theFilePosition;
 }
 
 - (void) dealloc {
     [entityId release];
 	[properties release];
 	[brushes release];
-    [memBlocks release];
-    [definitionManager release];
+    [entityDefinition release];
 	[super dealloc];
 }
 
@@ -165,15 +201,15 @@
 }
 
 - (NSString *)classname {
-    return [self propertyForKey:@"classname"];
+    return [self propertyForKey:ClassnameKey];
 }
 
 - (EntityDefinition *)entityDefinition {
-    return [definitionManager definitionForName:[self classname]];
+    return entityDefinition;
 }
 
 - (BOOL)isWorldspawn {
-    return [[self classname] isEqualToString:@"worldspawn"];
+    return [[self classname] isEqualToString:WorldspawnClassname];
 }
 
 - (TBoundingBox *)bounds {
@@ -190,6 +226,13 @@
     return &center;
 }
 
+- (TVector3f *)origin {
+    if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
+        [NSException raise:NSInternalInconsistencyException format:@"Entity is not a point entity (ID %@)", entityId];
+    
+    return &origin;
+}
+
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList {
     if ([self isWorldspawn])
         return;
@@ -204,21 +247,6 @@
     PickingHit* pickingHit = [[PickingHit alloc] initWithObject:self type:HT_ENTITY hitPoint:&hitPoint distance:dist];
     [theHitList addHit:pickingHit];
     [pickingHit release];
-}
-
-- (void)setMemBlock:(VBOMemBlock *)theBlock forKey:(id <NSCopying>)theKey {
-    VBOMemBlock* oldBlock = [memBlocks objectForKey:theKey];
-    if (oldBlock != nil) {
-        [oldBlock free];
-        [memBlocks removeObjectForKey:theKey];
-    }
-        
-    if (theBlock != nil)
-        [memBlocks setObject:theBlock forKey:theKey];
-}
-
-- (VBOMemBlock *)memBlockForKey:(id <NSCopying>)theKey {
-    return [memBlocks objectForKey:theKey];
 }
 
 @end

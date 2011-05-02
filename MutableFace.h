@@ -53,6 +53,8 @@ typedef enum {
     Matrix4f* worldToSurfaceMatrix; // inverse of surface matrix
     
     VBOMemBlock* memBlock;
+    
+    int filePosition;
 }
 
 - (id)initWithPoint1:(TVector3i *)aPoint1 point2:(TVector3i *)aPoint2 point3:(TVector3i *)aPoint3 texture:(NSString *)aTexture;
@@ -75,4 +77,7 @@ typedef enum {
 
 - (void)setVertices:(NSArray *)theVertices;
 - (void)setEdges:(NSArray *)theEdges;
+
+- (int)filePosition;
+- (void)setFilePosition:(int)theFilePosition;
 @end

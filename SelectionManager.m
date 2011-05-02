@@ -51,7 +51,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
     if (record)
         [undoManager beginUndoGrouping];
     
-    if (mode != SM_FACES && ([entities count] > 0 || [brushes count] > 0)) {
+    if (mode != SM_FACES) {
         if ([entities count] > 0) {
             NSSet* removedEntities = [[NSSet alloc] initWithSet:entities];
             [self removeEntities:removedEntities record:record];
@@ -92,7 +92,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
     if (record)
         [undoManager beginUndoGrouping];
     
-    if (mode != SM_FACES && ([entities count] > 0 || [brushes count] > 0)) {
+    if (mode != SM_FACES) {
         if ([entities count] > 0) {
             NSSet* removedEntities = [[NSSet alloc] initWithSet:entities];
             [self removeEntities:removedEntities record:record];
@@ -129,12 +129,10 @@ NSString* const SelectionFaces = @"SelectionFaces";
     if (record)
         [undoManager beginUndoGrouping];
     
-    if (mode != SM_GEOMETRY && [faces count] > 0) {
-        if ([faces count] > 0) {
-            NSSet* removedFaces = [[NSSet alloc] initWithSet:faces];
-            [self removeFaces:removedFaces record:record];
-            [removedFaces release];
-        }
+    if (mode == SM_FACES) {
+        NSSet* removedFaces = [[NSSet alloc] initWithSet:faces];
+        [self removeFaces:removedFaces record:record];
+        [removedFaces release];
     }
     
     if (record) {
@@ -143,7 +141,10 @@ NSString* const SelectionFaces = @"SelectionFaces";
     }
     
     [brushes addObject:brush];
-    mode = SM_GEOMETRY;
+    if (mode == SM_ENTITIES)
+        mode = SM_BRUSHES_ENTITIES;
+    else
+        mode = SM_BRUSHES;
     
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:[NSSet setWithObject:brush] forKey:SelectionBrushes];
     
@@ -165,12 +166,10 @@ NSString* const SelectionFaces = @"SelectionFaces";
     if (record)
         [undoManager beginUndoGrouping];
     
-    if (mode != SM_GEOMETRY && [faces count] > 0) {
-        if ([faces count] > 0) {
-            NSSet* removedFaces = [[NSSet alloc] initWithSet:faces];
-            [self removeFaces:removedFaces record:record];
-            [removedFaces release];
-        }
+    if (mode == SM_FACES) {
+        NSSet* removedFaces = [[NSSet alloc] initWithSet:faces];
+        [self removeFaces:removedFaces record:record];
+        [removedFaces release];
     }
     
     if (record) {
@@ -179,7 +178,10 @@ NSString* const SelectionFaces = @"SelectionFaces";
     }
     
     [brushes unionSet:addedBrushes];
-    mode = SM_GEOMETRY;
+    if (mode == SM_ENTITIES)
+        mode = SM_BRUSHES_ENTITIES;
+    else
+        mode = SM_BRUSHES;
     
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:addedBrushes forKey:SelectionBrushes];
     [addedBrushes release];
@@ -197,12 +199,10 @@ NSString* const SelectionFaces = @"SelectionFaces";
     if (record)
         [undoManager beginUndoGrouping];
 
-    if (mode != SM_GEOMETRY && [faces count] > 0) {
-        if ([faces count] > 0) {
-            NSSet* removedFaces = [[NSSet alloc] initWithSet:faces];
-            [self removeFaces:removedFaces record:record];
-            [removedFaces release];
-        }
+    if (mode == SM_FACES) {
+        NSSet* removedFaces = [[NSSet alloc] initWithSet:faces];
+        [self removeFaces:removedFaces record:record];
+        [removedFaces release];
     }
     
     if (record) {
@@ -211,7 +211,10 @@ NSString* const SelectionFaces = @"SelectionFaces";
     }
 
     [entities addObject:entity];
-    mode = SM_GEOMETRY;
+    if (mode == SM_BRUSHES)
+        mode = SM_BRUSHES_ENTITIES;
+    else
+        mode = SM_ENTITIES;
     
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:[NSSet setWithObject:entity] forKey:SelectionEntities];
     
@@ -233,12 +236,10 @@ NSString* const SelectionFaces = @"SelectionFaces";
     if (record)
         [undoManager beginUndoGrouping];
     
-    if (mode != SM_GEOMETRY && [faces count] > 0) {
-        if ([faces count] > 0) {
-            NSSet* removedFaces = [[NSSet alloc] initWithSet:faces];
-            [self removeFaces:removedFaces record:record];
-            [removedFaces release];
-        }
+    if (mode == SM_FACES) {
+        NSSet* removedFaces = [[NSSet alloc] initWithSet:faces];
+        [self removeFaces:removedFaces record:record];
+        [removedFaces release];
     }
 
     if (record) {
@@ -247,7 +248,10 @@ NSString* const SelectionFaces = @"SelectionFaces";
     }
     
     [entities unionSet:addedEntities];
-    mode = SM_GEOMETRY;
+    if (mode == SM_BRUSHES)
+        mode = SM_BRUSHES_ENTITIES;
+    else
+        mode = SM_ENTITIES;
     
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:addedEntities forKey:SelectionEntities];
     [addedEntities release];
@@ -260,25 +264,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
     return mode;
 }
 
-- (BOOL)isVertexSelected:(Vertex *)vertex {
-    NSAssert(vertex != nil, @"vertex must not be nil");
-    NSEnumerator* edgeEn = [[vertex edges] objectEnumerator];
-    Edge* edge;
-    while ((edge = [edgeEn nextObject]))
-        if ([self isEdgeSelected:edge])
-            return YES;
-    
-    return NO;
-}
-
-- (BOOL)isEdgeSelected:(Edge *)edge {
-    NSAssert(edge != nil, @"edge must not be nil");
-    return [self isFaceSelected:[edge leftFace]] || [self isFaceSelected:[edge rightFace]];
-}
-
 - (BOOL)isFaceSelected:(id <Face>)face {
-    if (face == nil)
-        NSLog(@"asdf");
     NSAssert(face != nil, @"face must not be nil");
     return [faces containsObject:face] || [self isBrushSelected:[face brush]];
 }
@@ -341,7 +327,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
             scaleV3f(result, 1.0f / [faces count], result);
             return YES;
         }
-        case SM_GEOMETRY: {
+        case SM_BRUSHES: {
             NSEnumerator* brushEn = [brushes objectEnumerator];
             id <Brush> brush = [brushEn nextObject];
             *result = *[brush center];
@@ -349,6 +335,31 @@ NSString* const SelectionFaces = @"SelectionFaces";
                 addV3f(result, [brush center], result);
 
             scaleV3f(result, 1.0f / [brushes count], result);
+            return YES;
+        }
+        case SM_ENTITIES: {
+            NSEnumerator* entityEn = [entities objectEnumerator];
+            id <Entity> entity = [entityEn nextObject];
+            *result = *[entity center];
+            while ((entity = [entityEn nextObject]))
+                addV3f(result, [entity center], result);
+            
+            scaleV3f(result, 1.0f / [entities count], result);
+            return YES;
+        }
+        case SM_BRUSHES_ENTITIES: {
+            NSEnumerator* brushEn = [brushes objectEnumerator];
+            id <Brush> brush = [brushEn nextObject];
+            *result = *[brush center];
+            while ((brush = [brushEn nextObject]))
+                addV3f(result, [brush center], result);
+
+            NSEnumerator* entityEn = [entities objectEnumerator];
+            id <Entity> entity;
+            while ((entity = [entityEn nextObject]))
+                addV3f(result, [entity center], result);
+            
+            scaleV3f(result, 1.0f / ([brushes count] + [entities count]), result);
             return YES;
         }
     }
@@ -425,8 +436,13 @@ NSString* const SelectionFaces = @"SelectionFaces";
         [[undoManager prepareWithInvocationTarget:self] addBrush:brush record:record];
     
     [brushes removeObject:brush];
-    if ([brushes count] == 0 && [entities count] == 0)
-        mode = SM_UNDEFINED;
+    if ([brushes count] == 0) {
+        if ([entities count] == 0)
+            mode = SM_UNDEFINED;
+        else
+            mode = SM_ENTITIES;
+    }
+    
     
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:[NSSet setWithObject:brush] forKey:SelectionBrushes];
     
@@ -449,8 +465,12 @@ NSString* const SelectionFaces = @"SelectionFaces";
         [[undoManager prepareWithInvocationTarget:self] addBrushes:removedBrushes record:record];
     
     [brushes minusSet:removedBrushes];
-    if ([brushes count] == 0 && [entities count] == 0)
-        mode = SM_UNDEFINED;
+    if ([brushes count] == 0) {
+        if ([entities count] == 0)
+            mode = SM_UNDEFINED;
+        else
+            mode = SM_ENTITIES;
+    }
     
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:removedBrushes forKey:SelectionBrushes];
     [removedBrushes release];
@@ -460,17 +480,21 @@ NSString* const SelectionFaces = @"SelectionFaces";
 }
 
 - (void)removeEntity:(id <Entity>)entity record:(BOOL)record {
-    NSAssert(entity != nil, @"brush must not be nil");
+    NSAssert(entity != nil, @"entity must not be nil");
     
-    if (![entities containsObject:entity]);
+    if (![entities containsObject:entity])
         return;
         
     if (record)
         [[undoManager prepareWithInvocationTarget:self] addEntity:entity record:record];
     
     [entities removeObject:entity];
-    if ([brushes count] == 0 && [entities count] == 0)
-        mode = SM_UNDEFINED;
+    if ([entities count] == 0) {
+        if ([brushes count] == 0)
+            mode = SM_UNDEFINED;
+        else
+            mode = SM_BRUSHES;
+    }
     
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:[NSSet setWithObject:entity] forKey:SelectionEntities];
     
@@ -493,8 +517,12 @@ NSString* const SelectionFaces = @"SelectionFaces";
         [[undoManager prepareWithInvocationTarget:self] addEntities:removedEntities record:record];
     
     [entities minusSet:removedEntities];
-    if ([brushes count] == 0 && [entities count] == 0)
-        mode = SM_UNDEFINED;
+    if ([entities count] == 0) {
+        if ([brushes count] == 0)
+            mode = SM_UNDEFINED;
+        else
+            mode = SM_BRUSHES;
+    }
     
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:removedEntities forKey:SelectionEntities];
     [removedEntities release];

@@ -8,6 +8,7 @@
 
 #import "SelectionFilter.h"
 #import "SelectionManager.h"
+#import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
 
@@ -32,11 +33,15 @@
         return NO;
     }
     
-    if ([selectionManager mode] == SM_GEOMETRY) {
+    if ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_BRUSHES_ENTITIES) {
         return [selectionManager isBrushSelected:brush];
     }
     
     return NO;
+}
+
+- (BOOL)entityPasses:(id <Entity>)entity {
+    return [selectionManager isEntitySelected:entity];
 }
 
 - (void)dealloc {

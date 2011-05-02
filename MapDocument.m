@@ -121,10 +121,16 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     [[self undoManager] disableUndoRegistration];
     [self setPostNotifications:NO];
     
-    MapParser* parser = [[MapParser alloc] initWithData:data entityDefinitionManager:entityDefinitionManager];
+    MapParser* parser = [[MapParser alloc] initWithData:data];
     [parser parseMap:self withProgressIndicator:indicator];
     [parser release];
-    
+
+    // set the entity definitions
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    MutableEntity* entity;
+    while ((entity = [entityEn nextObject]))
+        [self setEntityDefinition:entity];
+
     [self setPostNotifications:YES];
     [[self undoManager] enableUndoRegistration];
     
@@ -146,22 +152,44 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
                 break;
     }
     
-    if (worldspawn == nil && create) {
-        worldspawn = [self createEntity];
-        [worldspawn setProperty:@"classname" value:@"worldspawn"];
-    }
+    if (worldspawn == nil && create)
+        worldspawn = [self createEntityWithClassname:WorldspawnClassname];
     
     return worldspawn;
 }
 
-- (id <Entity>)createEntity {
-    MutableEntity* entity = [[MutableEntity alloc] initWithEntityDefinitionManager:entityDefinitionManager];
+- (id <Entity>)createEntityWithClassname:(NSString *)classname {
+    NSAssert(classname != nil, @"class name must not be nil");
+    
+    EntityDefinition* entityDefinition = [entityDefinitionManager definitionForName:classname];
+    if (entityDefinition == nil) {
+        NSLog(@"No entity definition for class name '&@'", classname);
+        return nil;
+    }
+    
+    MutableEntity* entity = [[MutableEntity alloc] init];
+    [entity setProperty:ClassnameKey value:classname];
+    [entity setEntityDefinition:entityDefinition];
+
     [self addEntity:entity];
     return [entity autorelease];
 }
 
 - (id <Entity>)createEntityWithProperties:(NSDictionary *)properties {
-    MutableEntity* entity = [[MutableEntity alloc] initWithProperties:properties entityDefinitionManager:entityDefinitionManager];
+    NSAssert(properties != nil, @"property dictionary must not be nil");
+    
+    NSString* classname = [properties objectForKey:ClassnameKey];
+    NSAssert(classname != nil, @"property dictionary must contain classname property");
+    
+    EntityDefinition* entityDefinition = [entityDefinitionManager definitionForName:classname];
+    if (entityDefinition == nil) {
+        NSLog(@"No entity definition for class name '&@'", classname);
+        return nil;
+    }
+    
+    MutableEntity* entity = [[MutableEntity alloc] initWithProperties:properties];
+    [entity setEntityDefinition:entityDefinition];
+    
     [self addEntity:entity];
     return [entity autorelease];
 }
@@ -246,6 +274,22 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         else
             [center postNotificationName:PropertyDidChange object:self userInfo:userInfo];
         [userInfo release];
+    }
+}
+
+- (void)setEntityDefinition:(id <Entity>)entity {
+    MutableEntity* mutableEntity = (MutableEntity *)entity;
+
+    NSString* classname = [mutableEntity classname];
+    if (classname != nil) {
+        EntityDefinition* entityDefinition = [entityDefinitionManager definitionForName:classname];
+        if (entityDefinition != nil) {
+            [mutableEntity setEntityDefinition:entityDefinition];
+        } else {
+            NSLog(@"Warning: no entity definition found for entity with id %@ and classname '%@' (line %i)", [entity entityId], classname, [mutableEntity filePosition]);
+        }
+    } else {
+        NSLog(@"Warning: entity with id %@ is missing classname property (line %i)", [entity entityId], [mutableEntity filePosition]);
     }
 }
 
@@ -538,6 +582,9 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     
     MutableEntity* mutableEntity = (MutableEntity *)[brush entity];
     [mutableEntity removeBrush:brush];
+    
+    if (![mutableEntity isWorldspawn] && [[mutableEntity brushes] count] == 0)
+        [self removeEntity:mutableEntity];
 }
 
 - (void)translateBrush:(id <Brush>)brush xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {

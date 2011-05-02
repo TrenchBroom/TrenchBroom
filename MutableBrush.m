@@ -17,6 +17,33 @@
 #import "PickingHit.h"
 #import "PickingHitList.h"
 
+@interface MutableBrush (private)
+
+- (VertexData *)vertexData;
+
+@end
+
+@implementation MutableBrush (private)
+
+- (VertexData *)vertexData {
+    if (vertexData == nil) {
+        NSMutableSet* droppedFaces = nil;
+        vertexData = [[VertexData alloc] initWithFaces:faces droppedFaces:&droppedFaces];
+        if (droppedFaces != nil) {
+            NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
+            MutableFace* droppedFace;
+            while ((droppedFace = [droppedFacesEn nextObject])) {
+                [droppedFace setBrush:nil];
+                [faces removeObject:droppedFace];
+            }
+        }
+    }
+    
+    return vertexData;
+}
+
+@end
+
 @implementation MutableBrush
 
 - (id)init {
@@ -28,6 +55,8 @@
         flatColor[0] = 0.2f;
         flatColor[1] = 0.2f;
         flatColor[2] = 0.2f;
+        
+        filePosition = -1;
     }
     
     return self;
@@ -45,23 +74,6 @@
     }
     
     return self;
-}
-
-- (VertexData *)vertexData {
-    if (vertexData == nil) {
-        NSMutableSet* droppedFaces = nil;
-        vertexData = [[VertexData alloc] initWithFaces:faces droppedFaces:&droppedFaces];
-        if (droppedFaces != nil) {
-            NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
-            MutableFace* droppedFace;
-            while ((droppedFace = [droppedFacesEn nextObject])) {
-                [droppedFace setBrush:nil];
-                [faces removeObject:droppedFace];
-            }
-        }
-    }
-    
-    return vertexData;
 }
 
 - (BOOL)addFace:(MutableFace *)face {
@@ -89,6 +101,75 @@
     [vertexData release];
     vertexData = nil;
 }
+
+- (void)setEntity:(MutableEntity *)theEntity {
+    entity = theEntity;
+}
+
+- (void)translateBy:(TVector3i *)theDelta {
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face translateBy:theDelta];
+}
+
+- (void)rotateZ90CW:(TVector3i *)theCenter {
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face rotateZ90CW:theCenter];
+}
+
+- (void)rotateZ90CCW:(TVector3i *)theCenter {
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face rotateZ90CCW:theCenter];
+}
+
+- (void)faceGeometryChanged:(MutableFace *)face {
+    [vertexData release];
+    vertexData = nil;
+    [entity brushChanged:self];
+}
+
+- (BOOL)canDrag:(MutableFace *)face by:(float)dist {
+    NSMutableArray* testFaces = [[NSMutableArray alloc] initWithArray:faces];
+    [testFaces removeObject:face];
+
+    MutableFace* testFace = [[MutableFace alloc] initWithFaceTemplate:face];
+    [testFace dragBy:dist];
+    [testFaces addObject:testFace];
+    [testFace release];
+    
+    NSMutableSet* droppedFaces = nil;
+    VertexData* testData = [[VertexData alloc] initWithFaces:testFaces droppedFaces:&droppedFaces];
+    BOOL canDrag = testData != nil && (droppedFaces == nil || [droppedFaces count] == 0);
+    
+    [testFaces release];
+    [testData release];
+    
+    return canDrag;
+    
+}
+
+- (int)filePosition {
+    return filePosition;
+}
+
+- (void)setFilePosition:(int)theFilePosition {
+    filePosition = theFilePosition;
+}
+
+- (void)dealloc {
+    [brushId release];
+    [vertexData release];
+    [faces release];
+    [super dealloc];
+}
+
+# pragma mark -
+# pragma mark @implementation Brush
 
 - (NSNumber *)brushId {
     return brushId;
@@ -124,63 +205,6 @@
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList {
     [[self vertexData] pick:theRay hitList:theHitList];
-}
-
-- (void)setEntity:(MutableEntity *)theEntity {
-    entity = theEntity;
-}
-
-- (void)translateBy:(TVector3i *)theDelta {
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
-        [face translateBy:theDelta];
-}
-
-- (void)rotateZ90CW:(TVector3i *)theCenter {
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
-        [face rotateZ90CW:theCenter];
-}
-
-- (void)rotateZ90CCW:(TVector3i *)theCenter {
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
-        [face rotateZ90CCW:theCenter];
-}
-
-- (void)faceGeometryChanged:(MutableFace *)face {
-    [vertexData release];
-    vertexData = nil;
-}
-
-- (BOOL)canDrag:(MutableFace *)face by:(float)dist {
-    NSMutableArray* testFaces = [[NSMutableArray alloc] initWithArray:faces];
-    [testFaces removeObject:face];
-
-    MutableFace* testFace = [[MutableFace alloc] initWithFaceTemplate:face];
-    [testFace dragBy:dist];
-    [testFaces addObject:testFace];
-    [testFace release];
-    
-    NSMutableSet* droppedFaces = nil;
-    VertexData* testData = [[VertexData alloc] initWithFaces:testFaces droppedFaces:&droppedFaces];
-    BOOL canDrag = testData != nil && (droppedFaces == nil || [droppedFaces count] == 0);
-    
-    [testFaces release];
-    [testData release];
-    
-    return canDrag;
-    
-}
-
-- (void)dealloc {
-    [brushId release];
-    [vertexData release];
-    [faces release];
-    [super dealloc];
 }
 
 @end

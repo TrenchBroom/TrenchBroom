@@ -23,6 +23,7 @@
 	NSMutableArray* faces;
     VertexData* vertexData;
     float flatColor[3];
+    int filePosition;
 }
 
 - (id)initWithBrushTemplate:(id <Brush>)theTemplate;
@@ -37,4 +38,7 @@
 - (void)faceGeometryChanged:(MutableFace *)face;
 
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist;
+
+- (int)filePosition;
+- (void)setFilePosition:(int)theFilePosition;
 @end

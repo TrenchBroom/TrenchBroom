@@ -41,9 +41,27 @@
 
 - (void)handleLeftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     SelectionManager* selectionManager = [windowController selectionManager];
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    if (hit != nil) {
-        id <Face> face = [hit object];
+    PickingHit* entityHit = [hits firstHitOfType:HT_ENTITY ignoreOccluders:NO];
+    PickingHit* faceHit = [hits firstHitOfType:HT_FACE | HT_BRUSH ignoreOccluders:NO];
+    
+    if (entityHit != nil) {
+        id <Entity> entity = [entityHit object];
+
+        if ([selectionManager isEntitySelected:entity]) {
+            if ([self isMultiSelectionModifierPressed]) {
+                [selectionManager removeEntity:entity record:NO];
+            } else {
+                [selectionManager removeAll:NO];
+                [selectionManager addEntity:entity record:YES];
+            }
+        } else {
+            if (![self isMultiSelectionModifierPressed])
+                [selectionManager removeAll:NO];
+            [selectionManager addEntity:entity record:YES];
+            
+        }
+    } else if (faceHit != nil) {
+        id <Face> face = [faceHit object];
         id <Brush> brush = [face brush];
         
         if ([selectionManager mode] == SM_FACES) {

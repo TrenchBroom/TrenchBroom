@@ -175,6 +175,7 @@ BOOL parseV3f(NSString* s, NSRange r, TVector3f* o) {
     int comp = -1;
     BOOL dot = NO;
     int b, l;
+    float x, y, z;
     for (int i = r.location; i < r.location + r.length; i++) {
         char c = [s characterAtIndex:i];
         switch (c) {
@@ -214,13 +215,12 @@ BOOL parseV3f(NSString* s, NSRange r, TVector3f* o) {
             default:
                 if (comp > 0) {
                     NSString* p = [s substringWithRange:NSMakeRange(b, l)];
-                    float f = [p floatValue];
                     if (comp == 1)
-                        o->x = f;
+                        x = [p floatValue];
                     else if (comp == 2)
-                        o->y = f;
+                        y = [p floatValue];
                     else if (comp == 3)
-                        o->z = f;
+                        z = [p floatValue];
                     comp++;
                     comp *= -1;
                     dot = NO;
@@ -231,10 +231,14 @@ BOOL parseV3f(NSString* s, NSRange r, TVector3f* o) {
     
     if (comp == 3) {
         NSString* p = [s substringWithRange:NSMakeRange(b, l)];
-        o->z = [p floatValue];
+        z = [p floatValue];
     } else if (comp != -3) {
         return NO;
     }
+    
+    o->x = x;
+    o->y = y;
+    o->z = z;
     
     return YES;
 }
@@ -259,7 +263,7 @@ BOOL equalV3i(const TVector3i* l, const TVector3i* r) {
 
 BOOL parseV3i(NSString* s, NSRange r, TVector3i* o) {
     int comp = -1;
-    int b, l;
+    int b, l, x, y, z;
     for (int i = r.location; i < r.location + r.length; i++) {
         char c = [s characterAtIndex:i];
         switch (c) {
@@ -294,13 +298,12 @@ BOOL parseV3i(NSString* s, NSRange r, TVector3i* o) {
             default:
                 if (comp > 0) {
                     NSString* p = [s substringWithRange:NSMakeRange(b, l)];
-                    int f = [p intValue];
                     if (comp == 1)
-                        o->x = f;
+                        x = [p intValue];
                     else if (comp == 2)
-                        o->y = f;
+                        y = [p intValue];
                     else if (comp == 3)
-                        o->z = f;
+                        z = [p intValue];
                     comp++;
                     comp *= -1;
                 }
@@ -310,10 +313,14 @@ BOOL parseV3i(NSString* s, NSRange r, TVector3i* o) {
     
     if (comp == 3) {
         NSString* p = [s substringWithRange:NSMakeRange(b, l)];
-        o->z = [p floatValue];
+        z = [p floatValue];
     } else if (comp != -3) {
         return NO;
     }
+    
+    o->x = x;
+    o->y = y;
+    o->z = z;
     
     return YES;
 }
@@ -484,6 +491,11 @@ void centerOfBounds(const TBoundingBox* b, TVector3f* o) {
     addV3f(o, &b->min, o);
 }
 
+void translateBounds(const TBoundingBox* b, const TVector3f* d, TBoundingBox* o) {
+    addV3f(&b->min, d, &o->min);
+    addV3f(&b->max, d, &o->max);
+}
+
 void mergeBoundsWithPoint(const TBoundingBox* b, const TVector3f* p, TBoundingBox* o) {
     o->min.x = fmin(p->x, b->min.x);
     o->min.y = fmin(p->y, b->min.y);
@@ -580,6 +592,9 @@ float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray) {
         }
     }
 
+    if (!hit)
+        return NAN;
+    
     return dist;
 }
 

@@ -96,7 +96,7 @@
         activeTool = cameraTool;
     else if ([clipTool active])
         activeTool = clipTool;
-    else if (drag && [selectionManager mode] == SM_GEOMETRY)
+    else if (drag && [selectionManager mode] == SM_BRUSHES)
         activeTool = brushTool;
     else if ((drag && [selectionManager mode] == SM_FACES) || 
                ([selectionManager mode] == SM_FACES && [[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed])))
@@ -115,7 +115,7 @@
                 newOwner = cameraTool;
             } else if ([clipTool active]) {
                 newOwner = clipTool;
-            } else if ([selectionManager mode] == SM_GEOMETRY) {
+            } else if ([selectionManager mode] == SM_BRUSHES) {
                 PickingHit* hit = [lastHits firstHitOfType:HT_BRUSH ignoreOccluders:YES];
                 if (hit != nil) {
                     id <Brush> brush = [hit object];

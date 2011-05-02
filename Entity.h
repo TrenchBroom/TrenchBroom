@@ -14,6 +14,10 @@
 @class EntityDefinition;
 @class PickingHitList;
 
+static NSString* const ClassnameKey = @"classname";
+static NSString* const WorldspawnClassname = @"worldspawn";
+static NSString* const OriginKey = @"origin";
+
 @protocol Entity <NSObject>
 
 - (NSNumber *)entityId;
@@ -30,10 +34,8 @@
 
 - (TBoundingBox *)bounds;
 - (TVector3f *)center;
+- (TVector3f *)origin;
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
-
-- (void)setMemBlock:(VBOMemBlock *)theBlock forKey:(id <NSCopying>)theKey;
-- (VBOMemBlock *)memBlockForKey:(id <NSCopying>)theKey;
 
 @end

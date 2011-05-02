@@ -9,6 +9,7 @@
 #import "Octree.h"
 #import "OctreeNode.h"
 #import "MapDocument.h"
+#import "EntityDefinition.h"
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
@@ -18,31 +19,37 @@
 - (void)entityAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Entity> entity = [userInfo objectForKey:EntityKey];
-    [root addObject:entity bounds:[entity bounds]];
+    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
+        [root addObject:entity bounds:[entity bounds]];
 }
 
 - (void)entityRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Entity> entity = [userInfo objectForKey:EntityKey];
-    if (![root removeObject:entity bounds:[entity bounds]])
-        [NSException raise:NSInvalidArgumentException format:@"Entity %@ was not removed from octree", entity];
+    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
+        if (![root removeObject:entity bounds:[entity bounds]])
+            [NSException raise:NSInvalidArgumentException format:@"Entity %@ was not removed from octree", entity];
 }
 
 - (void)propertyWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSString* key = [userInfo objectForKey:PropertyKeyKey];
-    if ([key isEqualToString:@"classname"]) {
-        id <Entity> entity = [userInfo objectForKey:EntityKey];
-        [root removeObject:entity bounds:[entity bounds]];
+    id <Entity> entity = [userInfo objectForKey:EntityKey];
+    
+    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT) {
+        NSString* key = [userInfo objectForKey:PropertyKeyKey];
+        if ([key isEqualToString:OriginKey])
+            [root removeObject:entity bounds:[entity bounds]];
     }
 }
 
 - (void)propertyDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSString* key = [userInfo objectForKey:PropertyKeyKey];
-    if ([key isEqualToString:@"classname"]) {
-        id <Entity> entity = [userInfo objectForKey:EntityKey];
-        [root addObject:entity bounds:[entity bounds]];
+    id <Entity> entity = [userInfo objectForKey:EntityKey];
+    
+    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT) {
+        NSString* key = [userInfo objectForKey:PropertyKeyKey];
+        if ([key isEqualToString:OriginKey])
+            [root addObject:entity bounds:[entity bounds]];
     }
 }
 
@@ -84,7 +91,7 @@
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
-            if (![entity isWorldspawn])
+            if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
                 [root addObject:entity bounds:[entity bounds]];
             
             NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
