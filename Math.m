@@ -129,6 +129,33 @@ EAxis largestComponentV3f(const TVector3f* v) {
     return A_Z;
 }
 
+void closestAxisV3f(const TVector3f* v, TVector3f* o) {
+    if (equalV3f(v, &NullVector)) {
+        *o = NullVector;
+    } else {
+        float xa = fabs(v->x);
+        float ya = fabs(v->y);
+        float za = fabs(v->z);
+        
+        if (xa >= ya && xa >= za) {
+            if (v->x > 0)
+                *o = XAxisPos;
+            else
+                *o = XAxisNeg;
+        } else if (ya >= xa && ya >= za) {
+            if (v->y > 0)
+                *o = YAxisPos;
+            else
+                *o = YAxisNeg;
+        } else {
+            if (v->z > 0)
+                *o = ZAxisPos;
+            else
+                *o = ZAxisNeg;
+        }
+    }
+}
+
 float componentV3f(const TVector3f* v, EAxis a) {
     switch (a) {
         case A_X:
@@ -528,7 +555,7 @@ void sizeOfBounds(const TBoundingBox* b, TVector3f* o) {
     subV3f(&b->max, &b->min, o);
 }
 
-float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray) {
+float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray, TVector3f* n) {
     TPlane plane;
     float dist;
     TVector3f point;
@@ -541,6 +568,8 @@ float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray) {
         if (!isnan(dist)) {
             rayPointAtDistance(ray, dist, &point);
             hit = point.y >= b->min.y && point.y <= b->max.y && point.z >= b->min.z && point.z <= b->max.z;
+            if (hit && n != NULL)
+                *n = XAxisNeg;
         }
     } else if (ray->direction.x > 0) {
         plane.point = b->min;
@@ -549,6 +578,8 @@ float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray) {
         if (!isnan(dist)) {
             rayPointAtDistance(ray, dist, &point);
             hit = point.y >= b->min.y && point.y <= b->max.y && point.z >= b->min.z && point.z <= b->max.z;
+            if (hit && n != NULL)
+                *n = XAxisPos;
         }
     }
     
@@ -560,6 +591,8 @@ float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray) {
             if (!isnan(dist)) {
                 rayPointAtDistance(ray, dist, &point);
                 hit = point.x >= b->min.x && point.x <= b->max.x && point.z >= b->min.z && point.z <= b->max.z;
+                if (hit && n != NULL)
+                    *n = YAxisNeg;
             }
         } else if (ray->direction.y > 0) {
             plane.point = b->min;
@@ -568,6 +601,8 @@ float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray) {
             if (!isnan(dist)) {
                 rayPointAtDistance(ray, dist, &point);
                 hit = point.x >= b->min.x && point.x <= b->max.x && point.z >= b->min.z && point.z <= b->max.z;
+                if (hit && n != NULL)
+                    *n = YAxisPos;
             }
         }
     }
@@ -580,6 +615,8 @@ float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray) {
             if (!isnan(dist)) {
                 rayPointAtDistance(ray, dist, &point);
                 hit = point.x >= b->min.x && point.x <= b->max.x && point.y >= b->min.y && point.y <= b->max.y;
+                if (hit && n != NULL)
+                    *n = ZAxisNeg;
             }
         } else if (ray->direction.z > 0) {
             plane.point = b->min;
@@ -588,6 +625,8 @@ float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray) {
             if (!isnan(dist)) {
                 rayPointAtDistance(ray, dist, &point);
                 hit = point.x >= b->min.x && point.x <= b->max.x && point.y >= b->min.y && point.y <= b->max.y;
+                if (hit && n != NULL)
+                    *n = ZAxisPos;
             }
         }
     }

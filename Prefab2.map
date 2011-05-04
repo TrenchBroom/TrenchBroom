@@ -1,4 +1,5 @@
 {
+classname "worldspawn"
 "name" "Test Prefab 2"
 {
 ( -584 1280 -448 ) ( -776 1280 -448 ) ( -776 992 -448 ) c_mf_v3c -72 -32 0 1 1

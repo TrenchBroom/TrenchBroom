@@ -23,7 +23,7 @@
 		480F2F65132562CA00651FED /* Grid.m in Sources */ = {isa = PBXBuildFile; fileRef = 480F2F64132562CA00651FED /* Grid.m */; };
 		4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4814A02212F73F1E0082E05F /* ProgressWindow.xib */; };
 		4814A02712F740580082E05F /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4814A02612F740580082E05F /* ProgressWindowController.m */; };
-		4816144D132BE7C300CD66AF /* BrushTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4816144C132BE7C300CD66AF /* BrushTool.m */; };
+		4816144D132BE7C300CD66AF /* MoveTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4816144C132BE7C300CD66AF /* MoveTool.m */; };
 		4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4818202212FB4746002D9AAD /* SingleTextureView.m */; };
 		481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 481D300F12FAE5C0001CBD9E /* GLFontManager.m */; };
 		482B817E13169EB200F36EF5 /* GLException.m in Sources */ = {isa = PBXBuildFile; fileRef = 482B817D13169EB200F36EF5 /* GLException.m */; };
@@ -117,7 +117,7 @@
 		48D6B714134859890084F82E /* BrushBoundsRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B713134859890084F82E /* BrushBoundsRenderer.m */; };
 		48D6B903134B8DC90084F82E /* GLStringData.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B902134B8DC90084F82E /* GLStringData.m */; };
 		48D6C9391357379900AC6A4D /* CursorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6C9381357379900AC6A4D /* CursorManager.m */; };
-		48D6C94213574B4A00AC6A4D /* BrushToolCursor.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6C94113574B4A00AC6A4D /* BrushToolCursor.m */; };
+		48D6C94213574B4A00AC6A4D /* MoveCursor.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6C94113574B4A00AC6A4D /* MoveCursor.m */; };
 		48DB957812F0699600FB5483 /* InputManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB957712F0699600FB5483 /* InputManager.m */; };
 		48DBE7451341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */; };
 		48DBE74F1341CD8B00C0FDE7 /* ClipPlane.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */; };
@@ -191,8 +191,8 @@
 		4814A02212F73F1E0082E05F /* ProgressWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProgressWindow.xib; sourceTree = "<group>"; };
 		4814A02512F740580082E05F /* ProgressWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressWindowController.h; sourceTree = "<group>"; };
 		4814A02612F740580082E05F /* ProgressWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProgressWindowController.m; sourceTree = "<group>"; };
-		4816144B132BE7C300CD66AF /* BrushTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushTool.h; sourceTree = "<group>"; };
-		4816144C132BE7C300CD66AF /* BrushTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrushTool.m; sourceTree = "<group>"; };
+		4816144B132BE7C300CD66AF /* MoveTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveTool.h; sourceTree = "<group>"; };
+		4816144C132BE7C300CD66AF /* MoveTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoveTool.m; sourceTree = "<group>"; };
 		4818202112FB4746002D9AAD /* SingleTextureView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTextureView.h; sourceTree = "<group>"; };
 		4818202212FB4746002D9AAD /* SingleTextureView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SingleTextureView.m; sourceTree = "<group>"; };
 		481D300E12FAE5C0001CBD9E /* GLFontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFontManager.h; sourceTree = "<group>"; };
@@ -374,8 +374,8 @@
 		48D6C9371357379900AC6A4D /* CursorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CursorManager.h; sourceTree = "<group>"; };
 		48D6C9381357379900AC6A4D /* CursorManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CursorManager.m; sourceTree = "<group>"; };
 		48D6C93A135737C100AC6A4D /* Cursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cursor.h; sourceTree = "<group>"; };
-		48D6C94013574B4A00AC6A4D /* BrushToolCursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushToolCursor.h; sourceTree = "<group>"; };
-		48D6C94113574B4A00AC6A4D /* BrushToolCursor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrushToolCursor.m; sourceTree = "<group>"; };
+		48D6C94013574B4A00AC6A4D /* MoveCursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveCursor.h; sourceTree = "<group>"; };
+		48D6C94113574B4A00AC6A4D /* MoveCursor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoveCursor.m; sourceTree = "<group>"; };
 		48DB957612F0699600FB5483 /* InputManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputManager.h; sourceTree = "<group>"; };
 		48DB957712F0699600FB5483 /* InputManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InputManager.m; sourceTree = "<group>"; };
 		48DBE7431341CCD200C0FDE7 /* ClipBrushFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipBrushFeedbackFigure.h; sourceTree = "<group>"; };
@@ -596,10 +596,6 @@
 			children = (
 				485585221358A668005F8B2C /* ApplyFaceCursor.h */,
 				485585231358A668005F8B2C /* ApplyFaceCursor.m */,
-				4816144B132BE7C300CD66AF /* BrushTool.h */,
-				4816144C132BE7C300CD66AF /* BrushTool.m */,
-				48D6C94013574B4A00AC6A4D /* BrushToolCursor.h */,
-				48D6C94113574B4A00AC6A4D /* BrushToolCursor.m */,
 				485582111357874F005F8B2C /* CameraTool.h */,
 				485582121357874F005F8B2C /* CameraTool.m */,
 				48DBE7431341CCD200C0FDE7 /* ClipBrushFeedbackFigure.h */,
@@ -622,6 +618,10 @@
 				486928EB133F282100A0F098 /* FaceTool.m */,
 				48CE70AA134741C400886260 /* GridFeedbackFigure.h */,
 				48CE70AB134741C400886260 /* GridFeedbackFigure.m */,
+				48D6C94013574B4A00AC6A4D /* MoveCursor.h */,
+				48D6C94113574B4A00AC6A4D /* MoveCursor.m */,
+				4816144B132BE7C300CD66AF /* MoveTool.h */,
+				4816144C132BE7C300CD66AF /* MoveTool.m */,
 				4855821B135788B5005F8B2C /* SelectionTool.h */,
 				4855821C135788B5005F8B2C /* SelectionTool.m */,
 				486928E8133F27D300A0F098 /* Tool.h */,
@@ -1117,7 +1117,7 @@
 				484524A61323CCBD003B2855 /* MapWriter.m in Sources */,
 				484524D713240049003B2855 /* NSFileManager+AppSupportCategory.m in Sources */,
 				480F2F65132562CA00651FED /* Grid.m in Sources */,
-				4816144D132BE7C300CD66AF /* BrushTool.m in Sources */,
+				4816144D132BE7C300CD66AF /* MoveTool.m in Sources */,
 				48958209132E52EF00BB7D8F /* CameraAnimation.m in Sources */,
 				480D23201334A3A800D3B57B /* PickingHitList.m in Sources */,
 				48B016E0133CCCBB00E3AF90 /* SelectionLayer.m in Sources */,
@@ -1136,7 +1136,7 @@
 				48325CB3135215ED00E703E0 /* FigureLayer.m in Sources */,
 				48325D4713524F7000E703E0 /* CompassFigure.m in Sources */,
 				48D6C9391357379900AC6A4D /* CursorManager.m in Sources */,
-				48D6C94213574B4A00AC6A4D /* BrushToolCursor.m in Sources */,
+				48D6C94213574B4A00AC6A4D /* MoveCursor.m in Sources */,
 				4867430513577855009E7ABF /* DefaultTool.m in Sources */,
 				485582131357874F005F8B2C /* CameraTool.m in Sources */,
 				4855821D135788B5005F8B2C /* SelectionTool.m in Sources */,

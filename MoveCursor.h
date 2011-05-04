@@ -12,7 +12,7 @@
 #import "Cursor.h"
 #import "Math.h"
 
-@interface BrushToolCursor : NSObject <Cursor> {
+@interface MoveCursor : NSObject <Cursor> {
     TVector3f position;
     GLUquadric* arms;
     GLUquadric* disks;

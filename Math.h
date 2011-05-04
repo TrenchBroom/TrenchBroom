@@ -107,6 +107,7 @@ float lengthSquaredV3f(const TVector3f* v);
 void normalizeV3f(const TVector3f* v, TVector3f* o);
 BOOL equalV3f(const TVector3f* l, const TVector3f* r);
 EAxis largestComponentV3f(const TVector3f* v);
+void closestAxisV3f(const TVector3f* v, TVector3f* o);
 float componentV3f(const TVector3f* v, EAxis a);
 void setComponentV3f(TVector3f* v, EAxis a, float f);
 void roundV3f(const TVector3f* v, TVector3i* o);
@@ -140,7 +141,7 @@ void mergeBoundsWithPoint(const TBoundingBox* b, const TVector3f* p, TBoundingBo
 void mergeBoundsWithBounds(const TBoundingBox* b, const TBoundingBox* c, TBoundingBox* o);
 void expandBounds(const TBoundingBox* b, float f, TBoundingBox* o);
 void sizeOfBounds(const TBoundingBox* b, TVector3f* o);
-float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray);
+float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray, TVector3f* n);
 
 void setQ(TQuaternion* l, const TQuaternion* r);
 void setAngleAndAxisQ(TQuaternion* q, float a, const TVector3f* x);

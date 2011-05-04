@@ -10,7 +10,7 @@
 #import <OpenGL/glu.h>
 #import "CameraTool.h"
 #import "SelectionTool.h"
-#import "BrushTool.h"
+#import "MoveTool.h"
 #import "FaceTool.h"
 #import "ClipTool.h"
 #import "Camera.h"
@@ -23,7 +23,7 @@
 #import "Brush.h"
 #import "MapWindowController.h"
 #import "MapDocument.h"
-#import "BrushTool.h"
+#import "MoveTool.h"
 #import "FaceTool.h"
 #import "Options.h"
 #import "CursorManager.h"
@@ -99,8 +99,8 @@
         activeTool = cameraTool;
     else if ([clipTool active])
         activeTool = clipTool;
-    else if (drag && [selectionManager mode] == SM_BRUSHES)
-        activeTool = brushTool;
+    else if (drag && ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES))
+        activeTool = moveTool;
     else if ((drag && [selectionManager mode] == SM_FACES) || 
                ([selectionManager mode] == SM_FACES && [[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed])))
         activeTool = faceTool;
@@ -118,12 +118,30 @@
                 newOwner = cameraTool;
             } else if ([clipTool active]) {
                 newOwner = clipTool;
-            } else if ([selectionManager mode] == SM_BRUSHES) {
-                PickingHit* hit = [lastHits firstHitOfType:HT_BRUSH ignoreOccluders:YES];
+            } else if ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES) {
+                PickingHit* hit = [lastHits firstHitOfType:HT_ANY ignoreOccluders:NO];
                 if (hit != nil) {
-                    id <Brush> brush = [hit object];
-                    if ([selectionManager isBrushSelected:brush])
-                        newOwner = brushTool;
+                    switch ([hit type]) {
+                        case HT_ENTITY: {
+                            id <Entity> entity = [hit object];
+                            if ([selectionManager isEntitySelected:entity])
+                                newOwner = moveTool;
+                            break;
+                        }
+                        case HT_BRUSH: {
+                            id <Brush> brush = [hit object];
+                            if ([selectionManager isBrushSelected:brush])
+                                newOwner = moveTool;
+                            break;
+                        }
+                        case HT_FACE: {
+                            id <Face> face = [hit object];
+                            id <Brush> brush = [face brush];
+                            if ([selectionManager isBrushSelected:brush])
+                                newOwner = moveTool;
+                            break;
+                        }
+                    }
                 }
             } else if ([selectionManager mode] == SM_FACES) {
                 PickingHit* hit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
@@ -201,7 +219,7 @@
         
         cameraTool = [[CameraTool alloc] initWithWindowController:windowController];
         selectionTool = [[SelectionTool alloc] initWithWindowController:windowController];
-        brushTool = [[BrushTool alloc] initWithController:windowController];
+        moveTool = [[MoveTool alloc] initWithController:windowController];
         faceTool = [[FaceTool alloc] initWithController:windowController];
         clipTool = [[ClipTool alloc] initWithWindowController:windowController];
         
@@ -360,7 +378,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [cameraTool release];
     [selectionTool release];
-    [brushTool release];
+    [moveTool release];
     [faceTool release];
     [clipTool release];
     [lastEvent release];

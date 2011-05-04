@@ -13,7 +13,7 @@
 @class MapWindowController;
 @class CameraTool;
 @class SelectionTool;
-@class BrushTool;
+@class MoveTool;
 @class FaceTool;
 @class ClipTool;
 @protocol Tool;
@@ -29,7 +29,7 @@
     
     CameraTool* cameraTool;
     SelectionTool* selectionTool;
-    BrushTool* brushTool;
+    MoveTool* moveTool;
     FaceTool* faceTool;
     ClipTool* clipTool;
     id <Tool> activeTool;

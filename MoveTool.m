@@ -6,7 +6,7 @@
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "BrushTool.h"
+#import "MoveTool.h"
 #import "Grid.h"
 #import "Options.h"
 #import "Camera.h"
@@ -17,59 +17,63 @@
 #import "PickingHitList.h"
 #import "Face.h"
 #import "Brush.h"
+#import "Entity.h"
 #import "MutableBrush.h"
 #import "math.h"
 #import "Renderer.h"
 #import "MapView3D.h"
 #import "CursorManager.h"
-#import "BrushToolCursor.h"
+#import "MoveCursor.h"
 
-@interface BrushTool (private)
+@interface MoveTool (private)
 
 - (BOOL)isAltPlaneModifierPressed;
-- (EAxis)planeNormal:(id <Face>)face;
+- (void)actualPlaneNormal:(TVector3f *)norm result:(TVector3f *)result;
 
 @end
 
-@implementation BrushTool (private)
+@implementation MoveTool (private)
 
 - (BOOL)isAltPlaneModifierPressed {
     return [NSEvent modifierFlags] == NSAlternateKeyMask;
 }
 
-- (EAxis)planeNormal:(id <Face>)face {
-    EAxis planeNormal;
-    if (drag) {
-        planeNormal = largestComponentV3f(&plane.norm);
-    } else {
-        planeNormal = largestComponentV3f([face norm]);
-        if ([self isAltPlaneModifierPressed]) {
-            if (planeNormal == A_X) {
-                planeNormal = A_Y;
-            } else if (planeNormal == A_Y) {
-                planeNormal = A_X;
-            } else {
+- (void)actualPlaneNormal:(TVector3f *)norm result:(TVector3f *)result {
+    switch (largestComponentV3f(norm)) {
+        case A_X:
+            if ([self isAltPlaneModifierPressed])
+                *result = YAxisPos;
+            else
+                *result = XAxisPos;
+            break;
+        case A_Y:
+            if ([self isAltPlaneModifierPressed])
+                *result = XAxisPos;
+            else
+                *result = YAxisPos;
+            break;
+        default:
+            if ([self isAltPlaneModifierPressed]) {
                 Camera* camera = [windowController camera];
                 const TVector3f* cameraDir = [camera direction];
                 if (fabsf(cameraDir->x) > fabsf(cameraDir->y))
-                    planeNormal = A_X;
+                    *result = XAxisPos;
                 else
-                    planeNormal = A_Y;
+                    *result = YAxisPos;
+            } else {
+                *result = ZAxisPos;
             }
-        }
     }
-    
-    return planeNormal;
 }
 
 @end
 
-@implementation BrushTool
+@implementation MoveTool
 
 - (id)initWithController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
         windowController = [theWindowController retain];
-        cursor = [[BrushToolCursor alloc] init];
+        cursor = [[MoveCursor alloc] init];
     }
     return self;
 }
@@ -84,30 +88,36 @@
 # pragma mark @implementation Tool
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    PickingHit* faceHit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
-    if (faceHit == nil)
-        return;
-    
-    id <Face> face = [faceHit object];
-    id <Brush> brush = [face brush];
-
     SelectionManager* selectionManager = [windowController selectionManager];
-    if (![selectionManager isBrushSelected:brush])
-        return;
     
-    lastPoint = *[faceHit hitPoint];
-    plane.point = lastPoint;
-    
-    switch ([self planeNormal:face]) {
-        case A_X:
-            plane.norm = XAxisPos;
-            break;
-        case A_Y:
-            plane.norm = YAxisPos;
-            break;
-        default:
-            plane.norm = ZAxisPos;
-            break;
+    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
+    if (hit != nil) {
+        id <Face> face = [hit object];
+        id <Brush> brush = [face brush];
+        
+        if (![selectionManager isBrushSelected:brush])
+            return;
+        
+        lastPoint = *[hit hitPoint];
+        
+        plane.point = lastPoint;
+        [self actualPlaneNormal:[face norm] result:&plane.norm];
+    } else {
+        hit = [hits firstHitOfType:HT_ENTITY ignoreOccluders:NO];
+        if (hit != nil) {
+            id <Entity> entity = [hit object];
+            
+            if (![selectionManager isEntitySelected:entity])
+                return;
+            
+            lastPoint = *[hit hitPoint];
+
+            plane.point = lastPoint;
+            intersectBoundsWithRay([entity bounds], ray, &plane.norm);
+            [self actualPlaneNormal:&plane.norm result:&plane.norm];
+        } else {
+            return;
+        }
     }
     
     Grid* grid = [[windowController options] grid];
@@ -148,7 +158,15 @@
                      xDelta:x
                      yDelta:y
                      zDelta:z];
-
+    
+    NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject]))
+        [map translateEntity:entity
+                     xDelta:x
+                     yDelta:y
+                     zDelta:z];
+    
     lastPoint = point;
 }
 
@@ -166,11 +184,7 @@
     CursorManager* cursorManager = [windowController cursorManager];
     [cursorManager pushCursor:cursor];
 
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    id <Face> face = [hit object];
-
-    EAxis planeNormal = [self planeNormal:face];
-    [cursor setPlaneNormal:planeNormal];
+    [self updateCursor:event ray:ray hits:hits];
 }
 
 - (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -180,11 +194,27 @@
 
 - (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (!drag) {
-        PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-        id <Face> face = [hit object];
+        PickingHit* hit = [hits firstHitOfType:HT_FACE | HT_ENTITY ignoreOccluders:YES];
+        if (hit != nil) {
+            switch ([hit type]) {
+                case HT_ENTITY: {
+                    id <Entity> entity = [hit object];
+                    TVector3f norm;
+                    intersectBoundsWithRay([entity bounds], ray, &norm);
+                    [self actualPlaneNormal:&norm result:&norm];
+                    [cursor setPlaneNormal:largestComponentV3f(&norm)];
+                    break;
+                }
+                case HT_FACE: {
+                    id <Face> face = [hit object];
+                    TVector3f norm;
+                    [self actualPlaneNormal:[face norm] result:&norm];
+                    [cursor setPlaneNormal:largestComponentV3f(&norm)];
+                    break;
+                }
+            }
+        }
         
-        EAxis planeNormal = [self planeNormal:face];
-        [cursor setPlaneNormal:planeNormal];
         [cursor update:[hit hitPoint]];
     } else {
         float dist = intersectPlaneWithRay(&plane, ray);
@@ -195,7 +225,7 @@
 }
 
 - (NSString *)actionName {
-    return @"Move Brushes";
+    return @"Move Objects";
 }
 
 @end

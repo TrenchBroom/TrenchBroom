@@ -195,6 +195,9 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 }
 
 - (void)addEntity:(MutableEntity *)theEntity {
+    NSAssert(theEntity != nil, @"entity must not be nil");
+    NSAssert(worldspawn == nil || ![theEntity isWorldspawn], @"cannot overwrite worldspawn entity");
+    
     [[[self undoManager] prepareWithInvocationTarget:self] removeEntity:theEntity];
     
     [entities addObject:theEntity];
@@ -221,6 +224,8 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     
     [theEntity setMap:nil];
     [entities removeObject:theEntity];
+    if (worldspawn == theEntity)
+        worldspawn = nil;
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -290,6 +295,32 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         }
     } else {
         NSLog(@"Warning: entity with id %@ is missing classname property (line %i)", [entity entityId], [mutableEntity filePosition]);
+    }
+}
+
+- (void)translateEntity:(id <Entity>)entity xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {
+    NSAssert(entity != nil, @"entity must not be nil");
+    
+    EntityDefinition* entityDefinition = [entity entityDefinition];
+    if (entityDefinition == nil)
+        return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] translateEntity:entity xDelta:-xDelta yDelta:-yDelta zDelta:-zDelta];
+
+    if ([entityDefinition type] == EDT_POINT) {
+        TVector3i* origin = [entity origin];
+        NSString* newOrigin = [NSString stringWithFormat:@"%i %i %i", origin->x + xDelta, origin->y + yDelta, origin->z + zDelta];
+        [self setEntity:entity propertyKey:OriginKey value:newOrigin];
+    } else if ([entityDefinition type] == EDT_BRUSH) {
+        [undoManager beginUndoGrouping];
+        
+        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject]))
+            [self translateBrush:brush xDelta:xDelta yDelta:yDelta zDelta:zDelta];
+        
+        [undoManager endUndoGrouping];
     }
 }
 

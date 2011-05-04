@@ -45,8 +45,12 @@
         }
     } else if ([entityDefinition type] == EDT_POINT) {
         bounds = *[entityDefinition bounds];
-        addV3f(&bounds.min, &origin, &bounds.min);
-        addV3f(&bounds.max, &origin, &bounds.max);
+        
+        TVector3f of;
+        setV3f(&of, &origin);
+        
+        addV3f(&bounds.min, &of, &bounds.min);
+        addV3f(&bounds.max, &of, &bounds.max);
     } else {
         bounds.min = NullVector;
         bounds.max = NullVector;
@@ -66,7 +70,6 @@
 		properties = [[NSMutableDictionary alloc] init];
 		brushes = [[NSMutableArray alloc] init];
         filePosition = -1;
-        origin = NullVector;
     }
     
     return self;
@@ -114,7 +117,7 @@
         NSLog(@"Cannot overwrite classname property");
         return;
     } else if ([key isEqualToString:OriginKey]) {
-        if (!parseV3f(value, NSMakeRange(0, [value length]), &origin)) {
+        if (!parseV3i(value, NSMakeRange(0, [value length]), &origin)) {
             NSLog(@"Invalid origin value: '&@'", value);
             return;
         }
@@ -226,7 +229,7 @@
     return &center;
 }
 
-- (TVector3f *)origin {
+- (TVector3i *)origin {
     if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
         [NSException raise:NSInternalInconsistencyException format:@"Entity is not a point entity (ID %@)", entityId];
     
@@ -237,7 +240,7 @@
     if ([self isWorldspawn])
         return;
     
-    float dist = intersectBoundsWithRay([self bounds], theRay);
+    float dist = intersectBoundsWithRay([self bounds], theRay, NULL);
     if (isnan(dist))
         return;
     

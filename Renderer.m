@@ -174,8 +174,13 @@ NSString* const RendererChanged = @"RendererChanged";
     while ((brush = [brushEn nextObject]))
         [self addBrush:brush];
     
-    if (![entity isWorldspawn])
-        [entityLayer addEntity:entity];
+    if (![entity isWorldspawn]) {
+        SelectionManager* selectionManager = [windowController selectionManager];
+        if ([selectionManager isEntitySelected:entity])
+            [selectionLayer addEntity:entity];
+        else
+            [entityLayer addEntity:entity];
+    }
 }
 
 - (void)removeEntity:(id <Entity>)entity {
@@ -184,7 +189,11 @@ NSString* const RendererChanged = @"RendererChanged";
     while ((brush = [brushEn nextObject]))
         [self removeBrush:brush];
 
-    [entityLayer removeEntity:entity];
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager isEntitySelected:entity])
+        [selectionLayer removeEntity:entity];
+    else
+        [entityLayer removeEntity:entity];
 }
 
 - (void)faceWillChange:(NSNotification *)notification {

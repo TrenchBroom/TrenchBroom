@@ -11,14 +11,14 @@
 #import "Math.h"
 
 @class MapWindowController;
-@class BrushToolCursor;
+@class MoveCursor;
 
-@interface BrushTool : DefaultTool {
+@interface MoveTool : DefaultTool {
     @private
     MapWindowController* windowController;
     TPlane plane;
     TVector3f lastPoint;
-    BrushToolCursor* cursor;
+    MoveCursor* cursor;
     BOOL drag;
 }
 

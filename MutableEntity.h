@@ -22,7 +22,7 @@
 	NSMutableArray* brushes;
 	NSMutableDictionary* properties;
     TVector3f center;
-    TVector3f origin;
+    TVector3i origin;
     TBoundingBox bounds;
     BOOL valid;
     int filePosition;

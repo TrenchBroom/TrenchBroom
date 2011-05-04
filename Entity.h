@@ -34,7 +34,7 @@ static NSString* const OriginKey = @"origin";
 
 - (TBoundingBox *)bounds;
 - (TVector3f *)center;
-- (TVector3f *)origin;
+- (TVector3i *)origin;
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
 

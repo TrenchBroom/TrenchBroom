@@ -74,6 +74,7 @@ extern NSString* const PropertyNewValueKey;
 - (id <Entity>)createEntityWithProperties:(NSDictionary *)properties;
 - (void)setEntity:(id <Entity>)entity propertyKey:(NSString *)key value:(NSString *)value;
 - (void)setEntityDefinition:(id <Entity>)entity;
+- (void)translateEntity:(id <Entity>)entity xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta;
 
 - (void)addTextureWad:(NSString *)wadPath;
 - (void)removeTextureWad:(NSString *)wadPath;

@@ -6,9 +6,9 @@
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "BrushToolCursor.h"
+#import "MoveCursor.h"
 
-@implementation BrushToolCursor
+@implementation MoveCursor
 
 - (void)setPlaneNormal:(EAxis)thePlaneNormal {
     planeNormal = thePlaneNormal;
