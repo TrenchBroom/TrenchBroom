@@ -157,14 +157,14 @@
             }
         }
         
-        if (draggedPoint > 0 && ray != nil) {
+        if (draggedPoint > -1 && ray != nil) {
             Grid* grid = [[windowController options] grid];
             PickingHit* hit;
-            if (draggedPoint == 1)
+            if (draggedPoint == 0)
                 hit = [[clipPlane hitList:0] firstHitOfType:HT_FACE ignoreOccluders:YES];
-            else if (draggedPoint == 2)
+            else if (draggedPoint == 1)
                 hit = [[clipPlane hitList:1] firstHitOfType:HT_FACE ignoreOccluders:YES];
-            else if (draggedPoint == 3)
+            else if (draggedPoint == 2)
                 hit = [[clipPlane hitList:2] firstHitOfType:HT_FACE ignoreOccluders:YES];
                 
             gridFigure = [[GridFeedbackFigure alloc] initWithGrid:grid pickingHit:hit ray:ray];
@@ -228,7 +228,7 @@
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (draggedPoint > -1) {
-        PickingHit* hit = [[clipPlane hitList:0] firstHitOfType:HT_FACE ignoreOccluders:YES];
+        PickingHit* hit = [[clipPlane hitList:draggedPoint] firstHitOfType:HT_FACE ignoreOccluders:YES];
         id <Face> face = [hit object];
         
         TVector3f hitPoint;
@@ -294,10 +294,8 @@
         t.z = 0;
         [face transformToWorld:&t];
         
-        currentPoint = malloc(sizeof(TVector3f));
-        currentPoint->x = roundf(t.x);
-        currentPoint->y = roundf(t.y);
-        currentPoint->z = roundf(t.z);
+        currentPoint = malloc(sizeof(TVector3i));
+        roundV3f(&t, currentPoint);
         
         if ([self numPoints] < 3) {
             Renderer* renderer = [windowController renderer];

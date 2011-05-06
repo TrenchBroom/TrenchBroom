@@ -35,9 +35,9 @@
 - (void)removeLastPoint {
     NSAssert(numPoints > 0 && numPoints <= 3, @"number of points must be between 0 and 3");
 
+    numPoints--;
     [hitLists[numPoints] release];
     hitLists[numPoints] = nil;
-    numPoints--;
 }
 
 - (int)numPoints {
@@ -45,13 +45,13 @@
 }
 
 - (TVector3i *)point:(int)index {
-    NSAssert(index > 0 && index <= numPoints, @"index out of bounds");
+    NSAssert(index >= 0 && index <= numPoints, @"index out of bounds");
     
     return &points[index];
 }
 
 - (PickingHitList *)hitList:(int)index {
-    NSAssert(index > 0 && index <= numPoints, @"index out of bounds");
+    NSAssert(index >= 0 && index <= numPoints, @"index out of bounds");
     
     return hitLists[index];
 }
