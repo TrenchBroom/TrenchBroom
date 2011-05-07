@@ -216,22 +216,19 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 - (void)removeEntity:(MutableEntity *)theEntity {
     [[[self undoManager] prepareWithInvocationTarget:self] addEntity:theEntity];
     
-    NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
+        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
         [userInfo setObject:theEntity forKey:EntityKey];
+
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:EntityWillBeRemoved object:self userInfo:userInfo];
+        [userInfo release];
     }
     
     [theEntity setMap:nil];
     [entities removeObject:theEntity];
     if (worldspawn == theEntity)
         worldspawn = nil;
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:EntityAdded object:self userInfo:userInfo];
-        [userInfo release];
-    }
 }
 
 - (void)setEntity:(id <Entity>)entity propertyKey:(NSString *)key value:(NSString *)value {
@@ -322,6 +319,10 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         
         [undoManager endUndoGrouping];
     }
+}
+
+- (void)deleteEntity:(id <Entity>)entity {
+    [self removeEntity:entity];
 }
 
 - (void)addTextureWad:(NSString *)wadPath {

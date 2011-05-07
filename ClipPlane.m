@@ -107,7 +107,7 @@
         
         if (norm != NULL) {
             TVector3f t;
-            scaleV3f(norm, 10000, &t);
+            scaleV3f(norm, -10000, &t);
             
             p3 = malloc(sizeof(TVector3f));
             p3->x = roundf(t.x);

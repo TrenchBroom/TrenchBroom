@@ -22,6 +22,8 @@
 
 - (void)render {
     glFrontFace(GL_CCW);
+    glPolygonMode(GL_FRONT, GL_FILL);
+    
     glPushMatrix();
     glTranslatef(point.x, point.y, point.z);
     glColor4f(0, 1, 0, 1);

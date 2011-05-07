@@ -225,8 +225,12 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
+    [selectionManager removeAll:YES];
+    
     id <Entity> entity = [map createEntityWithClassname:[definition name]];
     [map setEntity:entity propertyKey:OriginKey value:origin];
+    
+    [selectionManager addEntity:entity record:YES];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Create Entity"];
@@ -541,15 +545,29 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         NSUndoManager* undoManager = [[self document] undoManager];
         [undoManager beginUndoGrouping];
         
-        NSSet* deletedBrushes = [[NSSet alloc] initWithSet:[selectionManager selectedBrushes]];
-        [selectionManager removeAll:YES];
+        if ([selectionManager hasSelectedEntities]) {
+            NSSet* deletedEntities = [[NSSet alloc] initWithSet:[selectionManager selectedEntities]];
+            [selectionManager removeEntities:deletedEntities record:YES];
+            
+            NSEnumerator* entityEn = [deletedEntities objectEnumerator];
+            id <Entity> entity;
+            while ((entity = [entityEn nextObject]))
+                [[self document] deleteEntity:entity];
+            
+            [deletedEntities release];
+        }
         
-        NSEnumerator* brushEn = [deletedBrushes objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject]))
-            [[self document] deleteBrush:brush];
-        
-        [deletedBrushes release];
+        if ([selectionManager hasSelectedBrushes]) {
+            NSSet* deletedBrushes = [[NSSet alloc] initWithSet:[selectionManager selectedBrushes]];
+            [selectionManager removeBrushes:deletedBrushes record:YES];
+            
+            NSEnumerator* brushEn = [deletedBrushes objectEnumerator];
+            id <Brush> brush;
+            while ((brush = [brushEn nextObject]))
+                [[self document] deleteBrush:brush];
+            
+            [deletedBrushes release];
+        }
         
         [undoManager endUndoGrouping];
         [undoManager setActionName:@"Delete Selection"];
@@ -586,7 +604,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     
     NSApplication* app = [NSApplication sharedApplication];
     [app beginSheet:prefabNameSheet modalForWindow:[self window] modalDelegate:self didEndSelector:@selector(prefabNameSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
-    
 }
 
 - (void)insertPrefab:(id <Prefab>)prefab {

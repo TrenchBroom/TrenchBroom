@@ -252,6 +252,8 @@
 			<key>Layout</key>
 			<array>
 				<dict>
+					<key>BecomeActive</key>
+					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -310,15 +312,12 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>24</integer>
-									<integer>8</integer>
-									<integer>6</integer>
-									<integer>1</integer>
+									<integer>137</integer>
 									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 0}, {258, 1237}}</string>
+							<string>{{0, 1806}, {258, 1237}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -353,7 +352,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>48A68F71114EE8550064732A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>ClipPlane.m</string>
+								<string>MapWindowController.m</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -361,11 +360,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>48A68F72114EE8550064732A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>ClipPlane.m</string>
+										<string>MapWindowController.m</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>485D8B3E137483460032A812</string>
+										<string>485D8B991375249E0032A812</string>
 										<key>history</key>
 										<array>
 											<string>485D2B491306E8D700CF73D8</string>
@@ -474,7 +473,6 @@
 											<string>48C68A08136C756E00EBABA2</string>
 											<string>48C68A0C136C756E00EBABA2</string>
 											<string>48C68A0E136C756E00EBABA2</string>
-											<string>48C68A0F136C756E00EBABA2</string>
 											<string>48C68AAF136C8E7000EBABA2</string>
 											<string>48C68AB0136C8E7000EBABA2</string>
 											<string>48C68AB1136C8E7000EBABA2</string>
@@ -489,7 +487,6 @@
 											<string>48C68AC4136C8E7000EBABA2</string>
 											<string>48C68AC5136C8E7000EBABA2</string>
 											<string>48C68AC7136C8E7000EBABA2</string>
-											<string>48C68ACA136C8E7000EBABA2</string>
 											<string>48C68ACB136C8E7000EBABA2</string>
 											<string>48C68ACC136C8E7000EBABA2</string>
 											<string>48C68ACE136C8E7000EBABA2</string>
@@ -519,7 +516,6 @@
 											<string>488FE7E5136EF00700A0A47A</string>
 											<string>488FE823136EF9D000A0A47A</string>
 											<string>488FE826136EF9D000A0A47A</string>
-											<string>488FE827136EF9D000A0A47A</string>
 											<string>488FE851136EFEA700A0A47A</string>
 											<string>488FE88C136F0A2B00A0A47A</string>
 											<string>488FE88D136F0A2B00A0A47A</string>
@@ -541,16 +537,12 @@
 											<string>48ED1AA31371CCEB004DD1C3</string>
 											<string>48ED1AA41371CCEB004DD1C3</string>
 											<string>48ED1AB31371CDD6004DD1C3</string>
-											<string>48ED1AB41371CDD6004DD1C3</string>
 											<string>48ED1AC21371DCE0004DD1C3</string>
 											<string>48ED1AF31371DEFD004DD1C3</string>
-											<string>48ED1B011371E21C004DD1C3</string>
 											<string>48ED1B401371E45B004DD1C3</string>
-											<string>48ED1B561371E505004DD1C3</string>
 											<string>48ED1B571371E505004DD1C3</string>
 											<string>48ED1B581371E505004DD1C3</string>
 											<string>48ED1B631371E56F004DD1C3</string>
-											<string>48ED1B691371E59D004DD1C3</string>
 											<string>48ED1B721371E5F3004DD1C3</string>
 											<string>48ED1B7E1371E624004DD1C3</string>
 											<string>48ED1B851371E655004DD1C3</string>
@@ -558,11 +550,18 @@
 											<string>48ED1B9A1371EE5B004DD1C3</string>
 											<string>4839B5A31373EFA30080867E</string>
 											<string>4839B5AC1373F0550080867E</string>
-											<string>4839B5BE1373F1040080867E</string>
 											<string>4839B5C01373F1040080867E</string>
 											<string>485D8B211374826D0032A812</string>
-											<string>485D8B39137483180032A812</string>
-											<string>485D8B3D1374833A0032A812</string>
+											<string>485D8B4A137484170032A812</string>
+											<string>485D8B53137484570032A812</string>
+											<string>485D8B54137484570032A812</string>
+											<string>485D8B55137484570032A812</string>
+											<string>485D8B5E137484AF0032A812</string>
+											<string>485D8B6D13748BA30032A812</string>
+											<string>485D8B7F13748E0E0032A812</string>
+											<string>485D8B8B13748E340032A812</string>
+											<string>485D8B971374AC800032A812</string>
+											<string>485D8B7E13748E0E0032A812</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -865,7 +864,7 @@
 	<key>StatusbarIsVisible</key>
 	<true/>
 	<key>TimeStamp</key>
-	<real>326402886.66316998</real>
+	<real>326444190.98262101</real>
 	<key>ToolbarConfigUserDefaultsMinorVersion</key>
 	<string>2</string>
 	<key>ToolbarDisplayMode</key>

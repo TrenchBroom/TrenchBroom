@@ -23,7 +23,7 @@
         [root addObject:entity bounds:[entity bounds]];
 }
 
-- (void)entityRemoved:(NSNotification *)notification {
+- (void)entityWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Entity> entity = [userInfo objectForKey:EntityKey];
     if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
