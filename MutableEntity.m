@@ -77,7 +77,12 @@
 
 - (id)initWithProperties:(NSDictionary *)theProperties {
     if (self = [self init]) {
-        [properties addEntriesFromDictionary:theProperties];
+        NSEnumerator* keyEn = [[theProperties allKeys] objectEnumerator];
+        NSString* key;
+        while ((key = [keyEn nextObject])) {
+            NSString* value = [theProperties objectForKey:key];
+            [self setProperty:key value:value];
+        }
     }
     
     return self;

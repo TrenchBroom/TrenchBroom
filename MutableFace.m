@@ -300,8 +300,7 @@ static TVector3f baseAxes[18];
     
     if (!texAxesValid)
         [self updateTexAxes];
-    
-    NSLog(@"best axis %i", bestAxis);
+
     switch (bestAxis) {
         case 0:
             xOffset += x;
@@ -312,7 +311,7 @@ static TVector3f baseAxes[18];
             yOffset += y;
             break;
         case 2:
-            xOffset += x;
+            xOffset -= x;
             yOffset += y;
             break;
         case 3:
@@ -328,7 +327,7 @@ static TVector3f baseAxes[18];
             yOffset += y;
             break;
         default:
-            break;
+        break;
     }
 }
 
@@ -537,7 +536,9 @@ static TVector3f baseAxes[18];
 }
 
 - (void)texCoords:(TVector2f *)texCoords forVertex:(TVector3f *)vertex {
-    [self updateTexAxes];
+    if (!texAxesValid)
+        [self updateTexAxes];
+    
     texCoords->x = dotV3f(vertex, &texAxisX) + xOffset;
     texCoords->y = dotV3f(vertex, &texAxisY) + yOffset;
 }

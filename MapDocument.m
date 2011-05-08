@@ -46,6 +46,49 @@ NSString* const PropertyKeyKey      = @"PropertyKey";
 NSString* const PropertyOldValueKey = @"PropertyOldValue";
 NSString* const PropertyNewValueKey = @"PropertyNewValue";
 
+@interface MapDocument (private)
+
+- (void)refreshWadFiles;
+
+@end
+
+@implementation MapDocument (private)
+
+- (void)refreshWadFiles {
+    NSBundle* mainBundle = [NSBundle mainBundle];
+    NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
+    NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
+    
+    TextureManager* textureManager = [glResources textureManager];
+    [textureManager removeAllTextureCollections];
+    
+    NSString* wads = [[self worldspawn:NO] propertyForKey:@"wad"];
+    if (wads != nil) {
+        NSArray* wadPaths = [wads componentsSeparatedByString:@";"];
+        for (int i = 0; i < [wadPaths count]; i++) {
+            NSString* wadPath = [[wadPaths objectAtIndex:i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            NSFileManager* fileManager = [NSFileManager defaultManager];
+            if ([fileManager fileExistsAtPath:wadPath]) {
+                int slashIndex = [wadPath rangeOfString:@"/" options:NSBackwardsSearch].location;
+                NSString* wadName = [wadPath substringFromIndex:slashIndex + 1];
+                
+                WadLoader* wadLoader = [[WadLoader alloc] init];
+                Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:wadPath] wadName:wadName];
+                [wadLoader release];
+                
+                TextureCollection* collection = [[TextureCollection alloc] initName:wadPath palette:palette wad:wad];
+                [textureManager addTextureCollection:collection];
+                [collection release];
+            }
+        }
+    }
+    [palette release];
+    
+    [self updateTextureUsageCounts];
+}
+
+@end
+
 @implementation MapDocument
 
 - (id)init {
@@ -74,39 +117,6 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError {
     return nil;
-}
-
-- (void)refreshWadFiles {
-    NSBundle* mainBundle = [NSBundle mainBundle];
-    NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
-    NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
-
-    TextureManager* textureManager = [glResources textureManager];
-    [textureManager removeAllTextureCollections];
-    
-    NSString* wads = [[self worldspawn:NO] propertyForKey:@"wad"];
-    if (wads != nil) {
-        NSArray* wadPaths = [wads componentsSeparatedByString:@";"];
-        for (int i = 0; i < [wadPaths count]; i++) {
-            NSString* wadPath = [[wadPaths objectAtIndex:i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-            NSFileManager* fileManager = [NSFileManager defaultManager];
-            if ([fileManager fileExistsAtPath:wadPath]) {
-                int slashIndex = [wadPath rangeOfString:@"/" options:NSBackwardsSearch].location;
-                NSString* wadName = [wadPath substringFromIndex:slashIndex + 1];
-                
-                WadLoader* wadLoader = [[WadLoader alloc] init];
-                Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:wadPath] wadName:wadName];
-                [wadLoader release];
-                
-                TextureCollection* collection = [[TextureCollection alloc] initName:wadPath palette:palette wad:wad];
-                [textureManager addTextureCollection:collection];
-                [collection release];
-            }
-        }
-    }
-    [palette release];
-    
-    [self updateTextureUsageCounts];
 }
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
@@ -144,19 +154,84 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     return YES;
 }
 
-- (id <Entity>)worldspawn:(BOOL)create {
-    if (worldspawn == nil || ![worldspawn isWorldspawn]) {
-        NSEnumerator* en = [entities objectEnumerator];
-        while ((worldspawn = [en nextObject]))
-            if ([worldspawn isWorldspawn])
-                break;
+# pragma mark Map related functions
+
+- (void)addTextureWad:(NSString *)wadPath {
+    NSAssert(wadPath != nil, @"wad path must not be nil");
+    
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:wadPath]) {
+        int slashIndex = [wadPath rangeOfString:@"/" options:NSBackwardsSearch].location;
+        NSString* wadName = [wadPath substringFromIndex:slashIndex + 1];
+        
+        WadLoader* wadLoader = [[WadLoader alloc] init];
+        Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:wadPath] wadName:wadName];
+        [wadLoader release];
+        
+        NSBundle* mainBundle = [NSBundle mainBundle];
+        NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
+        NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
+        
+        TextureCollection* collection = [[TextureCollection alloc] initName:wadPath palette:palette wad:wad];
+        [palette release];
+        
+        TextureManager* textureManager = [glResources textureManager];
+        [textureManager addTextureCollection:collection];
+        [collection release];
+        
+        MutableEntity* wc = [self worldspawn:YES];
+        [wc setProperty:@"wad" value:[textureManager wadProperty]];
+        
+        [self updateTextureUsageCounts];
     }
-    
-    if (worldspawn == nil && create)
-        worldspawn = [self createEntityWithClassname:WorldspawnClassname];
-    
-    return worldspawn;
 }
+
+- (void)removeTextureWad:(NSString *)wadPath {
+    NSAssert(wadPath != nil, @"wad path must not be nil");
+    
+    TextureManager* textureManager = [glResources textureManager];
+    [textureManager removeTextureCollection:wadPath];
+    
+    MutableEntity* wc = [self worldspawn:YES];
+    [wc setProperty:@"wad" value:[textureManager wadProperty]];
+    
+    [self updateTextureUsageCounts];
+}
+
+- (void)updateTextureUsageCounts {
+    TextureManager* textureManager = [glResources textureManager];
+    [textureManager resetUsageCounts];
+    
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject])) {
+        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+            id <Face> face;
+            while ((face = [faceEn nextObject])) {
+                Texture* texture = [textureManager textureForName:[face texture]];
+                if (texture != nil)
+                    [texture incUsageCount];
+            }
+        }
+    }
+}
+
+- (int)worldSize {
+    return worldSize;
+}
+
+- (BOOL)postNotifications {
+    return postNotifications;
+}
+
+- (void)setPostNotifications:(BOOL)value {
+    postNotifications = value;
+}
+
+# pragma mark Entity related functions
 
 - (id <Entity>)createEntityWithClassname:(NSString *)classname {
     NSAssert(classname != nil, @"class name must not be nil");
@@ -192,43 +267,6 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     
     [self addEntity:entity];
     return [entity autorelease];
-}
-
-- (void)addEntity:(MutableEntity *)theEntity {
-    NSAssert(theEntity != nil, @"entity must not be nil");
-    NSAssert(worldspawn == nil || ![theEntity isWorldspawn], @"cannot overwrite worldspawn entity");
-    
-    [[[self undoManager] prepareWithInvocationTarget:self] removeEntity:theEntity];
-    
-    [entities addObject:theEntity];
-    [theEntity setMap:self];
-    
-    if ([self postNotifications]) {
-        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theEntity forKey:EntityKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:EntityAdded object:self userInfo:userInfo];
-        [userInfo release];
-    }
-}
-
-- (void)removeEntity:(MutableEntity *)theEntity {
-    [[[self undoManager] prepareWithInvocationTarget:self] addEntity:theEntity];
-    
-    if ([self postNotifications]) {
-        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theEntity forKey:EntityKey];
-
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:EntityWillBeRemoved object:self userInfo:userInfo];
-        [userInfo release];
-    }
-    
-    [theEntity setMap:nil];
-    [entities removeObject:theEntity];
-    if (worldspawn == theEntity)
-        worldspawn = nil;
 }
 
 - (void)setEntity:(id <Entity>)entity propertyKey:(NSString *)key value:(NSString *)value {
@@ -321,76 +359,178 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     }
 }
 
+- (void)translateEntity:(id <Entity>)entity direction:(TVector3f *)dir delta:(int)delta {
+    TVector3f a;
+    TVector3i d;
+    closestAxisV3f(dir, &a);
+    scaleV3f(&a, delta, &a);
+    roundV3f(&a, &d);
+    
+    [self translateEntity:entity xDelta:d.x yDelta:d.y zDelta:d.z];
+}
+
 - (void)deleteEntity:(id <Entity>)entity {
     [self removeEntity:entity];
 }
 
-- (void)addTextureWad:(NSString *)wadPath {
-    NSAssert(wadPath != nil, @"wad path must not be nil");
-    
-    NSFileManager* fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:wadPath]) {
-        int slashIndex = [wadPath rangeOfString:@"/" options:NSBackwardsSearch].location;
-        NSString* wadName = [wadPath substringFromIndex:slashIndex + 1];
-        
-        WadLoader* wadLoader = [[WadLoader alloc] init];
-        Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:wadPath] wadName:wadName];
-        [wadLoader release];
-        
-        NSBundle* mainBundle = [NSBundle mainBundle];
-        NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
-        NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
-        
-        TextureCollection* collection = [[TextureCollection alloc] initName:wadPath palette:palette wad:wad];
-        [palette release];
+# pragma mark Brush related functions
 
-        TextureManager* textureManager = [glResources textureManager];
-        [textureManager addTextureCollection:collection];
-        [collection release];
+- (void)addBrushToEntity:(id <Entity>)theEntity brush:(id <Brush>)theBrush {
+    MutableBrush* mutableBrush = (MutableBrush *)theBrush;
+    
+    MutableEntity* mutableEntity = (MutableEntity *)theEntity;
+    [mutableEntity addBrush:mutableBrush];
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] deleteBrush:mutableBrush];
+    
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:mutableBrush forKey:BrushKey];
         
-        MutableEntity* wc = [self worldspawn:YES];
-        [wc setProperty:@"wad" value:[textureManager wadProperty]];
-        
-        [self updateTextureUsageCounts];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushAdded object:self userInfo:userInfo];
+        [userInfo release];
     }
 }
 
-- (void)removeTextureWad:(NSString *)wadPath {
-    NSAssert(wadPath != nil, @"wad path must not be nil");
-
-    TextureManager* textureManager = [glResources textureManager];
-    [textureManager removeTextureCollection:wadPath];
-    
-    MutableEntity* wc = [self worldspawn:YES];
-    [wc setProperty:@"wad" value:[textureManager wadProperty]];
-
-    [self updateTextureUsageCounts];
+- (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate {
+    id <Brush> brush = [[MutableBrush alloc] initWithBrushTemplate:theTemplate];
+    [self addBrushToEntity:theEntity brush:brush];
+    return [brush autorelease];
 }
 
-- (void)updateTextureUsageCounts {
-    TextureManager* textureManager = [glResources textureManager];
-    [textureManager resetUsageCounts];
+- (void)translateBrush:(id <Brush>)brush xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] translateBrush:brush xDelta:-xDelta yDelta:-yDelta zDelta:-zDelta];
     
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
-        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-        id <Brush> brush;
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:brush forKey:BrushKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
+    }
+    
+    TVector3i delta = {xDelta, yDelta, zDelta};
+    
+    MutableBrush* mutableBrush = (MutableBrush *)brush;
+    [mutableBrush translateBy:&delta];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
+- (void)translateBrush:(id <Brush>)brush direction:(TVector3f *)dir delta:(int)delta {
+    TVector3f a;
+    TVector3i d;
+    closestAxisV3f(dir, &a);
+    scaleV3f(&a, delta, &a);
+    roundV3f(&a, &d);
+    
+    [self translateBrush:brush xDelta:d.x yDelta:d.y zDelta:d.z];
+}
+
+- (void)rotateZ90CW:(NSSet *)brushes {
+    if ([brushes count] == 0)
+        return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] rotateZ90CCW:brushes];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    MutableBrush* brush = [brushEn nextObject];
+    
+    TBoundingBox bounds = *[brush bounds];
+    while ((brush = [brushEn nextObject]))
+        mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
+    
+    TVector3f rcf;
+    TVector3i rci;
+    centerOfBounds(&bounds, &rcf);
+    roundV3f(&rcf, &rci);
+    
+    brushEn = [brushes objectEnumerator];
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         while ((brush = [brushEn nextObject])) {
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            id <Face> face;
-            while ((face = [faceEn nextObject])) {
-                Texture* texture = [textureManager textureForName:[face texture]];
-                if (texture != nil)
-                    [texture incUsageCount];
-            }
+            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:brush forKey:BrushKey];
+            
+            [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
+            [brush rotateZ90CW:&rci];
+            [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
+            [userInfo release];
         }
+    } else {
+        while ((brush = [brushEn nextObject]))
+            [brush rotateZ90CW:&rci];
+    }
+    
+}
+
+- (void)rotateZ90CCW:(NSSet *)brushes {
+    if ([brushes count] == 0)
+        return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] rotateZ90CW:brushes];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    MutableBrush* brush = [brushEn nextObject];
+    
+    TBoundingBox bounds = *[brush bounds];
+    while ((brush = [brushEn nextObject]))
+        mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
+    
+    TVector3f rcf;
+    TVector3i rci;
+    centerOfBounds(&bounds, &rcf);
+    roundV3f(&rcf, &rci);
+    
+    brushEn = [brushes objectEnumerator];
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        while ((brush = [brushEn nextObject])) {
+            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:brush forKey:BrushKey];
+            
+            [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
+            [brush rotateZ90CCW:&rci];
+            [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
+            [userInfo release];
+        }
+    } else {
+        while ((brush = [brushEn nextObject]))
+            [brush rotateZ90CCW:&rci];
     }
 }
 
-- (NSArray *)entities {
-    return entities;
+- (void)deleteBrush:(id <Brush>)brush {
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] addBrushToEntity:[brush entity] brush:brush];
+    
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:brush forKey:BrushKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushWillBeRemoved object:self userInfo:userInfo];
+        [userInfo release];
+    }
+    
+    MutableEntity* mutableEntity = (MutableEntity *)[brush entity];
+    [mutableEntity removeBrush:brush];
+    
+    if (![mutableEntity isWorldspawn] && [[mutableEntity brushes] count] == 0)
+        [self removeEntity:mutableEntity];
 }
+
+# pragma mark Face related functions
 
 - (void)setFace:(id <Face>)face xOffset:(int)xOffset {
     NSUndoManager* undoManager = [self undoManager];
@@ -553,172 +693,6 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     }
 }
 
-- (id <Brush>)createBrushInEntity:(id <Entity>)theEntity {
-    MutableBrush* brush = [[MutableBrush alloc] init];
-    
-    MutableEntity* mutableEntity = (MutableEntity *)theEntity;
-    [mutableEntity addBrush:brush];
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] deleteBrush:brush];
-    
-    if ([self postNotifications]) {
-        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:brush forKey:BrushKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushAdded object:self userInfo:userInfo];
-        [userInfo release];
-    }
-    
-    return [brush autorelease];
-}
-
-- (void)addBrushToEntity:(id <Entity>)theEntity brush:(id <Brush>)theBrush {
-    MutableBrush* mutableBrush = (MutableBrush *)theBrush;
-    
-    MutableEntity* mutableEntity = (MutableEntity *)theEntity;
-    [mutableEntity addBrush:mutableBrush];
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] deleteBrush:mutableBrush];
-    
-    if ([self postNotifications]) {
-        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:mutableBrush forKey:BrushKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushAdded object:self userInfo:userInfo];
-        [userInfo release];
-    }
-}
-
-- (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate {
-    id <Brush> brush = [[MutableBrush alloc] initWithBrushTemplate:theTemplate];
-    [self addBrushToEntity:theEntity brush:brush];
-    return [brush autorelease];
-}
-
-- (void)deleteBrush:(id <Brush>)brush {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] addBrushToEntity:[brush entity] brush:brush];
-    
-    if ([self postNotifications]) {
-        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:brush forKey:BrushKey];
-
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushWillBeRemoved object:self userInfo:userInfo];
-        [userInfo release];
-    }
-    
-    MutableEntity* mutableEntity = (MutableEntity *)[brush entity];
-    [mutableEntity removeBrush:brush];
-    
-    if (![mutableEntity isWorldspawn] && [[mutableEntity brushes] count] == 0)
-        [self removeEntity:mutableEntity];
-}
-
-- (void)translateBrush:(id <Brush>)brush xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateBrush:brush xDelta:-xDelta yDelta:-yDelta zDelta:-zDelta];
-
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:brush forKey:BrushKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
-    }
-    
-    TVector3i delta = {xDelta, yDelta, zDelta};
-
-    MutableBrush* mutableBrush = (MutableBrush *)brush;
-    [mutableBrush translateBy:&delta];
-
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
-}
-
-- (void)rotateZ90CW:(NSSet *)brushes {
-    if ([brushes count] == 0)
-        return;
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateZ90CCW:brushes];
-    
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    MutableBrush* brush = [brushEn nextObject];
-    
-    TBoundingBox bounds = *[brush bounds];
-    while ((brush = [brushEn nextObject]))
-        mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
-    
-    TVector3f rcf;
-    TVector3i rci;
-    centerOfBounds(&bounds, &rcf);
-    roundV3f(&rcf, &rci);
-    
-    brushEn = [brushes objectEnumerator];
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        while ((brush = [brushEn nextObject])) {
-            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:brush forKey:BrushKey];
-            
-            [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
-            [brush rotateZ90CW:&rci];
-            [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
-            [userInfo release];
-        }
-    } else {
-        while ((brush = [brushEn nextObject]))
-            [brush rotateZ90CW:&rci];
-    }
-    
-}
-
-- (void)rotateZ90CCW:(NSSet *)brushes {
-    if ([brushes count] == 0)
-        return;
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateZ90CW:brushes];
-    
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    MutableBrush* brush = [brushEn nextObject];
-    
-    TBoundingBox bounds = *[brush bounds];
-    while ((brush = [brushEn nextObject]))
-        mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
-    
-    TVector3f rcf;
-    TVector3i rci;
-    centerOfBounds(&bounds, &rcf);
-    roundV3f(&rcf, &rci);
-    
-    brushEn = [brushes objectEnumerator];
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        while ((brush = [brushEn nextObject])) {
-            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:brush forKey:BrushKey];
-            
-            [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
-            [brush rotateZ90CCW:&rci];
-            [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
-            [userInfo release];
-        }
-    } else {
-        while ((brush = [brushEn nextObject]))
-            [brush rotateZ90CCW:&rci];
-    }
-}
-
 - (void)translateFace:(id <Face>)face xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] translateFace:face xDelta:-xDelta yDelta:-yDelta zDelta:-zDelta];
@@ -769,17 +743,7 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     }
 }
 
-- (int)worldSize {
-    return worldSize;
-}
-
-- (BOOL)postNotifications {
-    return postNotifications;
-}
-
-- (void)setPostNotifications:(BOOL)value {
-    postNotifications = value;
-}
+# pragma mark Getters
 
 - (Picker *)picker {
     return picker;
@@ -799,6 +763,63 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     [picker release];
     [glResources release];
     [super dealloc];
+}
+
+# pragma mark @implementation Map
+
+- (void)addEntity:(MutableEntity *)theEntity {
+    NSAssert(theEntity != nil, @"entity must not be nil");
+    NSAssert(worldspawn == nil || ![theEntity isWorldspawn], @"cannot overwrite worldspawn entity");
+    
+    [[[self undoManager] prepareWithInvocationTarget:self] removeEntity:theEntity];
+    
+    [entities addObject:theEntity];
+    [theEntity setMap:self];
+    
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theEntity forKey:EntityKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:EntityAdded object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
+- (void)removeEntity:(MutableEntity *)theEntity {
+    [[[self undoManager] prepareWithInvocationTarget:self] addEntity:theEntity];
+    
+    if ([self postNotifications]) {
+        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theEntity forKey:EntityKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:EntityWillBeRemoved object:self userInfo:userInfo];
+        [userInfo release];
+    }
+    
+    [theEntity setMap:nil];
+    [entities removeObject:theEntity];
+    if (worldspawn == theEntity)
+        worldspawn = nil;
+}
+
+- (id <Entity>)worldspawn:(BOOL)create {
+    if (worldspawn == nil || ![worldspawn isWorldspawn]) {
+        NSEnumerator* en = [entities objectEnumerator];
+        while ((worldspawn = [en nextObject]))
+            if ([worldspawn isWorldspawn])
+                break;
+    }
+    
+    if (worldspawn == nil && create)
+        worldspawn = [self createEntityWithClassname:WorldspawnClassname];
+    
+    return worldspawn;
+}
+
+- (NSArray *)entities {
+    return entities;
 }
 
 @end

@@ -42,10 +42,6 @@
 - (IBAction)switchToXZView:(id)sender;
 - (IBAction)switchToYZView:(id)sender;
 
-- (IBAction)moveTextureLeft:(id)sender;
-- (IBAction)moveTextureRight:(id)sender;
-- (IBAction)moveTextureUp:(id)sender;
-- (IBAction)moveTextureDown:(id)sender;
 - (IBAction)stretchTextureHorizontally:(id)sender;
 - (IBAction)shrinkTextureHorizontally:(id)sender;
 - (IBAction)stretchTextureVertically:(id)sender;

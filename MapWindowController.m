@@ -142,7 +142,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     } else if (action == @selector(rotateTextureRight:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
     } else if (action == @selector(duplicateSelection:)) {
-        return [selectionManager hasSelectedBrushes] && ![[inputManager clipTool] active];
+        return ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) && ![[inputManager clipTool] active];
     } else if (action == @selector(createPrefabFromSelection:)) {
         return [selectionManager hasSelectedBrushes];
     } else if (action == @selector(showInspector:)) {
@@ -274,66 +274,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 
 #pragma mark Face related actions
 
-- (IBAction)moveTextureLeft:(id)sender {
-    NSUndoManager* undoManager = [[self document] undoManager];
-    [undoManager beginUndoGrouping];
-    
-    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] actualSize];
-    
-    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [[self document] translateFaceOffset:face xDelta:d yDelta:0];
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Move Texture"];
-}
-
-- (IBAction)moveTextureRight:(id)sender {
-    NSUndoManager* undoManager = [[self document] undoManager];
-    [undoManager beginUndoGrouping];
-    
-    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] actualSize];
-    
-    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [[self document] translateFaceOffset:face xDelta:-d yDelta:0];
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Move Texture"];
-}
-
-- (IBAction)moveTextureUp:(id)sender {
-    NSUndoManager* undoManager = [[self document] undoManager];
-    [undoManager beginUndoGrouping];
-    
-    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] actualSize];
-    
-    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [[self document] translateFaceOffset:face xDelta:0 yDelta:d];
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Move Texture"];
-}
-
-- (IBAction)moveTextureDown:(id)sender {
-    NSUndoManager* undoManager = [[self document] undoManager];
-    [undoManager beginUndoGrouping];
-    
-    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : [[options grid] actualSize];
-    
-    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [[self document] translateFaceOffset:face xDelta:0 yDelta:-d];
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Move Texture"];
-}
-
 - (IBAction)stretchTextureHorizontally:(id)sender {
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
@@ -414,6 +354,131 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Rotate Texture Right"];
+}
+
+#pragma mark Shared actions
+
+- (void)moveLeft:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+    
+    if ([selectionManager hasSelectedFaces]) {
+        NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+        id <Face> face;
+        while ((face = [faceEn nextObject]))
+            [[self document] translateFaceOffset:face xDelta:[[options grid] actualSize] yDelta:0];
+    }
+    
+    if ([selectionManager hasSelectedBrushes]) {
+        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            if (![selectionManager isEntitySelected:[brush entity]])
+                [[self document] translateBrush:brush direction:[camera right] delta:-[[options grid] actualSize]];
+        }
+    }
+    
+    if ([selectionManager hasSelectedEntities]) {
+        NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject]))
+            [[self document] translateEntity:entity direction:[camera right] delta:-[[options grid] actualSize]];
+    }
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Move Objects"];
+}
+
+- (void)moveRight:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+    
+    if ([selectionManager hasSelectedFaces]) {
+        NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+        id <Face> face;
+        while ((face = [faceEn nextObject]))
+            [[self document] translateFaceOffset:face xDelta:-[[options grid] actualSize] yDelta:0];
+    }
+    
+    if ([selectionManager hasSelectedBrushes]) {
+        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            if (![selectionManager isEntitySelected:[brush entity]])
+                [[self document] translateBrush:brush direction:[camera right] delta:[[options grid] actualSize]];
+        }
+    }
+    
+    if ([selectionManager hasSelectedEntities]) {
+        NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject]))
+            [[self document] translateEntity:entity direction:[camera right] delta:[[options grid] actualSize]];
+    }
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Move Objects"];}
+
+- (void)moveUp:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+    
+    if ([selectionManager hasSelectedFaces]) {
+        NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+        id <Face> face;
+        while ((face = [faceEn nextObject]))
+            [[self document] translateFaceOffset:face xDelta:0 yDelta:[[options grid] actualSize]];
+    }
+    
+    if ([selectionManager hasSelectedBrushes]) {
+        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            if (![selectionManager isEntitySelected:[brush entity]])
+                [[self document] translateBrush:brush direction:[camera up] delta:[[options grid] actualSize]];
+        }
+    }
+    
+    if ([selectionManager hasSelectedEntities]) {
+        NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject]))
+            [[self document] translateEntity:entity direction:[camera up] delta:[[options grid] actualSize]];
+    }
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Move Objects"];
+}
+
+- (void)moveDown:(id)sender {
+    NSUndoManager* undoManager = [[self document] undoManager];
+    [undoManager beginUndoGrouping];
+    
+    if ([selectionManager hasSelectedFaces]) {
+        NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+        id <Face> face;
+        while ((face = [faceEn nextObject]))
+            [[self document] translateFaceOffset:face xDelta:0 yDelta:-[[options grid] actualSize]];
+    }
+    
+    if ([selectionManager hasSelectedBrushes]) {
+        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            if (![selectionManager isEntitySelected:[brush entity]])
+                [[self document] translateBrush:brush direction:[camera up] delta:-[[options grid] actualSize]];
+        }
+    }
+    
+    if ([selectionManager hasSelectedEntities]) {
+        NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject]))
+            [[self document] translateEntity:entity direction:[camera up] delta:-[[options grid] actualSize]];
+    }
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Move Objects"];
 }
 
 #pragma mark View related actions
@@ -577,20 +642,52 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 - (IBAction)duplicateSelection:(id)sender {
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
-    
-    id <Entity> worldspawn = [[self document] worldspawn:YES];
+
+    NSMutableSet* newEntities = [[NSMutableSet alloc] init];
     NSMutableSet* newBrushes = [[NSMutableSet alloc] init];
+
+    if ([selectionManager hasSelectedEntities]) {
+        NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            id <Entity> newEntity = [[self document] createEntityWithProperties:[entity properties]];
+            
+            if ([[entity entityDefinition] type] == EDT_POINT) {
+                [[self document] translateEntity:newEntity xDelta:[[options grid] actualSize] yDelta:[[options grid] actualSize] zDelta:0];
+            } else {
+                NSArray* brushes = [entity brushes];
+                if ([brushes count] > 0) {
+                    NSEnumerator* brushEn = [brushes objectEnumerator];
+                    id <Brush> brush;
+                    while ((brush = [brushEn nextObject])) {
+                        id <Brush> newBrush = [[self document] createBrushInEntity:newEntity fromTemplate:brush];
+                        [[self document] translateBrush:newBrush xDelta:[[options grid] actualSize] yDelta:[[options grid] actualSize] zDelta:0];
+                        [newBrushes addObject:newBrush];
+                        [selectionManager removeBrush:brush record:YES];
+                    }
+                }
+            }
+            [newEntities addObject:newEntity];
+        }
+    }
     
-    NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject])) {
-        id <Brush> newBrush = [[self document] createBrushInEntity:worldspawn fromTemplate:brush];
-        [[self document] translateBrush:newBrush xDelta:[[options grid] actualSize] yDelta:[[options grid] actualSize] zDelta:0];
-        [newBrushes addObject:newBrush];
+    if ([selectionManager hasSelectedBrushes]) {
+        id <Entity> worldspawn = [[self document] worldspawn:YES];
+        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            id <Brush> newBrush = [[self document] createBrushInEntity:worldspawn fromTemplate:brush];
+            [[self document] translateBrush:newBrush xDelta:[[options grid] actualSize] yDelta:[[options grid] actualSize] zDelta:0];
+            [newBrushes addObject:newBrush];
+        }
+        
     }
     
     [selectionManager removeAll:YES];
+    [selectionManager addEntities:newEntities record:YES];
     [selectionManager addBrushes:newBrushes record:YES];
+
+    [newEntities release];
     [newBrushes release];
     
     [undoManager endUndoGrouping];
