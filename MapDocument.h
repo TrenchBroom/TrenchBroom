@@ -46,7 +46,6 @@ extern NSString* const PropertyNewValueKey;
     @private
     EntityDefinitionManager* entityDefinitionManager;
     NSMutableArray* entities;
-    NSMutableArray* textureWads;
     MutableEntity* worldspawn;
     int worldSize;
     BOOL postNotifications;
@@ -54,9 +53,14 @@ extern NSString* const PropertyNewValueKey;
     GLResources* glResources;
 }
 
-- (void)addTextureWad:(NSString *)wadPath;
-- (void)removeTextureWad:(NSString *)wadPath;
+# pragma mark Texture wad management
+- (void)insertObject:(NSString *)theWadPath inTextureWadsAtIndex:(NSUInteger)theIndex;
+- (void)removeObjectFromTextureWadsAtIndex:(NSUInteger)theIndex;
+- (NSArray *)textureWads;
 - (void)updateTextureUsageCounts;
+
+# pragma mark Map related functions
+
 - (int)worldSize;
 - (NSArray *)entities;
 - (BOOL)postNotifications;

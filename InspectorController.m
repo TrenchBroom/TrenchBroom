@@ -454,30 +454,6 @@ static InspectorController* sharedInstance = nil;
     [mapWindowController insertPrefab:prefab];
 }
 
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {
-    if (mapWindowController == nil)
-        return 0;
-    
-    MapDocument* map = [mapWindowController document];
-    GLResources* glResources = [map glResources];
-    TextureManager* textureManager = [glResources textureManager];
-    
-    return [[textureManager textureCollections] count];
-}
-
-- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
-    if ([@"WadPath" isEqualToString:[aTableColumn identifier]]) {
-        MapDocument* map = [mapWindowController document];
-        GLResources* glResources = [map glResources];
-        TextureManager* textureManager = [glResources textureManager];
-
-        TextureCollection* collection = [[textureManager textureCollections] objectAtIndex:rowIndex];
-        return [collection name];
-    }
-    
-    return nil;
-}
-
 - (IBAction)addTextureWad:(id)sender {
     NSOpenPanel* openPanel = [NSOpenPanel openPanel];
     [openPanel setCanChooseFiles:YES];
@@ -490,24 +466,14 @@ static InspectorController* sharedInstance = nil;
     [openPanel setCanCreateDirectories:NO];
     
     if ([openPanel runModal] == NSFileHandlingPanelOKButton) {
-        MapDocument* map = [mapWindowController document];
         NSEnumerator* urlEn = [[openPanel URLs] objectEnumerator];
         NSURL* url;
         while ((url = [urlEn nextObject])) {
             NSString* wadPath = [url path];
             if (wadPath != nil)
-                [map addTextureWad:wadPath];
+                [wadArrayController addObject:wadPath];
         }
     }
-}
-
-- (IBAction)removeTextureWad:(id)sender {
-    MapDocument* map = [mapWindowController document];
-    GLResources* glResources = [map glResources];
-    TextureManager* textureManager = [glResources textureManager];
-    
-    TextureCollection* collection = [[textureManager textureCollections] objectAtIndex:[wadTableView selectedRow]];
-    [map removeTextureWad:[collection name]];
 }
 
 - (void)dealloc {

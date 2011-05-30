@@ -88,20 +88,29 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     return mode;
 }
 
-- (void)moveTo:(TVector3f *)thePosition {
+- (void)moveTo:(const TVector3f *)thePosition {
+    if (equalV3f(&position, thePosition))
+        return;
+    
     position = *thePosition;
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
-- (void)lookAt:(TVector3f *)thePoint up:(TVector3f *)theUpVector {
+- (void)lookAt:(const TVector3f *)thePoint up:(const TVector3f *)theUpVector {
     TVector3f d;
     subV3f(thePoint, &position, &d);
+    normalizeV3f(&d, &d);
+    
     [self setDirection:&d up:theUpVector];
 }
 
 - (void)setDirection:(TVector3f *)theDirection up:(TVector3f *)theUpVector {
-    normalizeV3f(theDirection, &direction);
-    normalizeV3f(theUpVector, &up);
+    if (equalV3f(theDirection, &direction) && equalV3f(theUpVector, &up))
+        return;
+    
+    direction = *theDirection;
+    up = *theUpVector;
+    
     crossV3f(&direction, &up, &right);
     normalizeV3f(&right, &right);
     
@@ -109,6 +118,9 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 }
 
 - (void)rotateYaw:(float)yaw pitch:(float)pitch {
+    if (yaw == 0 && pitch == 0)
+        return;
+    
     TQuaternion qy, qp;
     TVector3f d, u;
     
@@ -129,6 +141,9 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 }
 
 - (void)moveForward:(float)f right:(float)r up:(float)u {
+    if (f == 0 && r == 0 && u == 0)
+        return;
+    
     TVector3f t;
     
     scaleV3f(&direction, f, &t);
@@ -144,6 +159,9 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 }
 
 - (void)orbitCenter:(const TVector3f *)c hAngle:(float)h vAngle:(float)v {
+    if (h == 0 && v == 0)
+        return;
+    
     TQuaternion qv, qh;
     TVector3f d, u, p;
     
@@ -185,26 +203,41 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 }
 
 - (void)setFieldOfVision:(float)theFov {
+    if (fov == theFov)
+        return;
+    
     fov = theFov;
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
 - (void)setNearClippingPlane:(float)theNear {
+    if (near == theNear)
+        return;
+    
     near = theNear;
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
 - (void)setFarClippingPlane:(float)theFar {
+    if (far == theFar)
+        return;
+    
     far = theFar;
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
 - (void)setZoom:(float)theZoom {
+    if (zoom == theZoom)
+        return;
+    
     zoom = theZoom;
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
 
 - (void)setMode:(ECameraMode)theMode {
+    if (mode == theMode)
+        return;
+    
     mode = theMode;
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }

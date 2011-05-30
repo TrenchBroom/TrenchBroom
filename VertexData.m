@@ -24,23 +24,21 @@
 @implementation VertexData (private)
 
 - (void)validate {
-    if (!valid) {
-        NSEnumerator* vertexEn = [vertices objectEnumerator];
-        Vertex* vertex = [vertexEn nextObject];
-        
-        bounds.min = *[vertex vector];
-        bounds.max = *[vertex vector];        
-        center = *[vertex vector];
-        
-        while ((vertex = [vertexEn nextObject])) {
-            mergeBoundsWithPoint(&bounds, [vertex vector], &bounds);
-            addV3f(&center, [vertex vector], &center);
-        }
-        
-        scaleV3f(&center, 1.0f / [vertices count], &center);
-        
-        valid = YES;
+    NSEnumerator* vertexEn = [vertices objectEnumerator];
+    Vertex* vertex = [vertexEn nextObject];
+    
+    bounds.min = *[vertex vector];
+    bounds.max = *[vertex vector];        
+    center = *[vertex vector];
+    
+    while ((vertex = [vertexEn nextObject])) {
+        mergeBoundsWithPoint(&bounds, [vertex vector], &bounds);
+        addV3f(&center, [vertex vector], &center);
     }
+    
+    scaleV3f(&center, 1.0f / [vertices count], &center);
+    
+    valid = YES;
 }
 
 @end
@@ -272,7 +270,7 @@
         }
     }
     
-    // create new side from newly created edge
+    // create new side from newly created edges
     // first, sort the new edges to form a polygon in clockwise order
     for (int i = 0; i < [newEdges count] - 1; i++) {
         Edge* edge = [newEdges objectAtIndex:i];
@@ -322,12 +320,16 @@
 }
 
 - (TBoundingBox *)bounds {
-    [self validate];
+    if (!valid)
+        [self validate];
+
     return &bounds;
 }
 
 - (TVector3f *)center {
-    [self validate];
+    if (!valid)
+        [self validate];
+
     return &center;
 }
 

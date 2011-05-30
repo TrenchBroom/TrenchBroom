@@ -48,11 +48,11 @@ extern NSString* const CameraViewChanged;
 - (float)zoom;
 - (ECameraMode)mode;
 
-- (void)moveTo:(TVector3f *)thePosition;
+- (void)moveTo:(const TVector3f *)thePosition;
 - (void)moveForward:(float)f right:(float)r up:(float)u;
 
-- (void)lookAt:(TVector3f *)thePoint up:(TVector3f *)theUpVector;
-- (void)setDirection:(TVector3f *)theDirection up:(TVector3f *)theUpVector;
+- (void)lookAt:(const TVector3f *)thePoint up:(const TVector3f *)theUpVector;
+- (void)setDirection:(const TVector3f *)theDirection up:(const TVector3f *)theUpVector;
 
 - (void)rotateYaw:(float)yaw pitch:(float)pitch;
 - (void)orbitCenter:(const TVector3f *)c hAngle:(float)h vAngle:(float)v;

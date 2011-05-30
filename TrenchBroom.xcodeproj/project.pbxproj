@@ -40,6 +40,7 @@
 		483B1129122441060072EAFB /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
 		484524A61323CCBD003B2855 /* MapWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524A51323CCBD003B2855 /* MapWriter.m */; };
 		484524D713240049003B2855 /* NSFileManager+AppSupportCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */; };
+		48455A4B13800A520096FEA5 /* IO.m in Sources */ = {isa = PBXBuildFile; fileRef = 48455A4A13800A520096FEA5 /* IO.m */; };
 		484B9A4413620327003030D7 /* EntityDefinitionTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 484B9A4313620327003030D7 /* EntityDefinitionTokenizer.m */; };
 		484B9A47136203F8003030D7 /* EntityDefinitionToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 484B9A46136203F8003030D7 /* EntityDefinitionToken.m */; };
 		484B9A5813621004003030D7 /* EntityDefinitionParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 484B9A5713621004003030D7 /* EntityDefinitionParser.m */; };
@@ -232,6 +233,8 @@
 		484524A51323CCBD003B2855 /* MapWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapWriter.m; sourceTree = "<group>"; };
 		484524D513240049003B2855 /* NSFileManager+AppSupportCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+AppSupportCategory.h"; sourceTree = "<group>"; };
 		484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+AppSupportCategory.m"; sourceTree = "<group>"; };
+		48455A4913800A520096FEA5 /* IO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IO.h; sourceTree = "<group>"; };
+		48455A4A13800A520096FEA5 /* IO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IO.m; sourceTree = "<group>"; };
 		484B9A4213620327003030D7 /* EntityDefinitionTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionTokenizer.h; sourceTree = "<group>"; };
 		484B9A4313620327003030D7 /* EntityDefinitionTokenizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionTokenizer.m; sourceTree = "<group>"; };
 		484B9A45136203F8003030D7 /* EntityDefinitionToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionToken.h; sourceTree = "<group>"; };
@@ -632,10 +635,13 @@
 		487437FC135ED48A00F787E1 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				48770C59138C333F0067231C /* Pak */,
 				487437FE135ED49A00F787E1 /* Entity */,
 				487437FD135ED49300F787E1 /* Texture */,
 				48A68E93114E92730064732A /* Map */,
 				4881C74512E9CD69006BF922 /* Wad */,
+				48455A4913800A520096FEA5 /* IO.h */,
+				48455A4A13800A520096FEA5 /* IO.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -689,6 +695,13 @@
 			name = IO;
 			sourceTree = "<group>";
 		};
+		48770C59138C333F0067231C /* Pak */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Pak;
+			sourceTree = "<group>";
+		};
 		487E31F3114F741F0043A111 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
@@ -722,11 +735,12 @@
 		4881C74512E9CD69006BF922 /* Wad */ = {
 			isa = PBXGroup;
 			children = (
-				488C8EB912F69F7D00F358E6 /* IO */,
 				487FC64412E8B86B006FF29E /* Wad.h */,
 				487FC64512E8B86B006FF29E /* Wad.m */,
 				487FC64712E8BB53006FF29E /* WadEntry.h */,
 				487FC64812E8BB53006FF29E /* WadEntry.m */,
+				487FC65812E8BF60006FF29E /* WadLoader.h */,
+				487FC65912E8BF60006FF29E /* WadLoader.m */,
 				4881C74612E9CD88006BF922 /* WadTextureEntry.h */,
 				4881C74712E9CD88006BF922 /* WadTextureEntry.m */,
 				4881C74912E9CD8F006BF922 /* WadPaletteEntry.h */,
@@ -746,15 +760,6 @@
 				4877106D12E5DA55009B440B /* MapParser.m */,
 				484524A41323CCBD003B2855 /* MapWriter.h */,
 				484524A51323CCBD003B2855 /* MapWriter.m */,
-			);
-			name = IO;
-			sourceTree = "<group>";
-		};
-		488C8EB912F69F7D00F358E6 /* IO */ = {
-			isa = PBXGroup;
-			children = (
-				487FC65812E8BF60006FF29E /* WadLoader.h */,
-				487FC65912E8BF60006FF29E /* WadLoader.m */,
 			);
 			name = IO;
 			sourceTree = "<group>";
@@ -1155,6 +1160,7 @@
 				48FE97BD13636B9A009B31FD /* BaseProperty.m in Sources */,
 				48FE986513659869009B31FD /* EntityBoundsRenderer.m in Sources */,
 				488FE71E136E8FA300A0A47A /* DefaultEntityLayer.m in Sources */,
+				48455A4B13800A520096FEA5 /* IO.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

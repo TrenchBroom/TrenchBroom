@@ -7,6 +7,7 @@
 //
 
 #import "WadLoader.h"
+#import "IO.h"
 #import "Wad.h"
 #import "WadPaletteEntry.h"
 #import "WadTextureEntry.h"
@@ -33,48 +34,10 @@ int const WAD_TEX_MIP3_OFFSET = 36;
 
 @implementation WadLoader
 
-- (NSString *)readString:(NSData *)data range:(NSRange)range {
-    @try {
-        [data getBytes:buffer range:range];
-    }
-    @catch (NSException * e) {
-        [NSException raise:EndOfStreamException format:@"read past end of wad file"];
-    }
-    return [NSString stringWithCString:(char*)buffer encoding:NSASCIIStringEncoding];
-}
-
-- (unsigned int)readInt:(NSData *)data location:(int)location {
-    @try {
-        [data getBytes:buffer range:NSMakeRange(location, 4)];
-    }
-    @catch (NSException * e) {
-        [NSException raise:EndOfStreamException format:@"read past end of wad file"];
-    }
-    
-    unsigned int result = 0;
-    result |= buffer[3] << 3 * 8;
-    result |= buffer[2] << 2 * 8;
-    result |= buffer[1] << 1 * 8;
-    result |= buffer[0] << 0 * 8;
-    
-    return NSSwapLittleIntToHost(result);
-}
-
-- (char)readChar:(NSData *)data location:(int)location {
-    @try {
-        [data getBytes:buffer range:NSMakeRange(location, 1)];
-    }
-    @catch (NSException * e) {
-        [NSException raise:EndOfStreamException format:@"read past end of wad file"];
-    }
-    
-    return (char) buffer[0];
-}
-
 - (void)readEntry:(NSData *)data location:(unsigned int)location wad:(Wad *)wad {
-    unsigned int address = [self readInt:data location:location + WAD_DIR_ENTRY_ADDRESS_OFFSET];
-    char type = [self readChar:data location:location + WAD_DIR_ENTRY_TYPE_OFFSET];
-    NSString* name = [self readString:data range:NSMakeRange(location + WAD_DIR_ENTRY_NAME_OFFSET, 16)];
+    unsigned int address = readInt(data, location+ WAD_DIR_ENTRY_ADDRESS_OFFSET);
+    char type = readChar(data, location + WAD_DIR_ENTRY_TYPE_OFFSET);
+    NSString* name = readString(data, NSMakeRange(location + WAD_DIR_ENTRY_NAME_OFFSET, 16));
     
     switch (type) {
         case '@': {
@@ -85,12 +48,13 @@ int const WAD_TEX_MIP3_OFFSET = 36;
             break;
         }
         case 'D': {
-            unsigned int width = [self readInt:data location:address + WAD_TEX_WIDTH_OFFSET];
-            unsigned int height = [self readInt:data location:address + WAD_TEX_HEIGHT_OFFSET];
-            unsigned int mip0Offset = [self readInt:data location:address + WAD_TEX_MIP0_OFFSET];
-            unsigned int mip1Offset = [self readInt:data location:address + WAD_TEX_MIP1_OFFSET];
-            unsigned int mip2Offset = [self readInt:data location:address + WAD_TEX_MIP2_OFFSET];
-            unsigned int mip3Offset = [self readInt:data location:address + WAD_TEX_MIP3_OFFSET];
+            unsigned int width = readInt(data, address + WAD_TEX_WIDTH_OFFSET);
+            unsigned int height = readInt(data, address + WAD_TEX_HEIGHT_OFFSET);
+            unsigned int mip0Offset = readInt(data, address + WAD_TEX_MIP0_OFFSET);
+            unsigned int mip1Offset = readInt(data, address + WAD_TEX_MIP1_OFFSET);
+            unsigned int mip2Offset = readInt(data, address + WAD_TEX_MIP2_OFFSET);
+            unsigned int mip3Offset = readInt(data, address + WAD_TEX_MIP3_OFFSET);
+            
             NSData* mip0 = [data subdataWithRange:NSMakeRange(address + mip0Offset, width * height)];
             NSData* mip1 = [data subdataWithRange:NSMakeRange(address + mip1Offset, width * height / 4)];
             NSData* mip2 = [data subdataWithRange:NSMakeRange(address + mip2Offset, width * height / 16)];
@@ -115,12 +79,12 @@ int const WAD_TEX_MIP3_OFFSET = 36;
 
 - (Wad *)loadFromData:(NSData *)someData wadName:(NSString *)wadName {
     NSDate* startDate = [NSDate date];
-    NSString* fileType = [self readString:someData range:NSMakeRange(WAD_TYPE_ADDRESS, WAD_TYPE_LENGTH)];
+    NSString* fileType = readString(someData, NSMakeRange(WAD_TYPE_ADDRESS, WAD_TYPE_LENGTH));
     if (![fileType isEqualToString:@"WAD2"])
         [NSException raise:InvalidFileTypeException format:@"WAD file header is corrupt"];
-    
-    unsigned int numEntries = [self readInt:someData location:WAD_NUM_ENTRIES_ADDRESS];
-    unsigned int dirOffset = [self readInt:someData location:WAD_DIR_OFFSET_ADDRESS];
+
+    unsigned int numEntries = readInt(someData, WAD_NUM_ENTRIES_ADDRESS);
+    unsigned int dirOffset = readInt(someData, WAD_DIR_OFFSET_ADDRESS);
     
     Wad* wad = [[Wad alloc] initWithName:wadName];
     unsigned int address = dirOffset;

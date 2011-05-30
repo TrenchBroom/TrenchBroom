@@ -59,41 +59,19 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     return self;
 }
 
-- (void)addTextureCollection:(TextureCollection *)theCollection {
+- (void)addTextureCollection:(TextureCollection *)theCollection atIndex:(NSUInteger)theIndex {
     NSAssert(theCollection != nil, @"texture collection must not be nil");
-    [textureCollections addObject:theCollection];
+    [textureCollections insertObject:theCollection atIndex:theIndex];
     valid = NO;
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:TextureManagerChanged object:self];
 }
 
-- (void)removeTextureCollection:(NSString *)theName {
-    NSAssert(theName != nil, @"name must not be nil");
-    
-    int index;
-    for (index = 0; index < [textureCollections count]; index++) {
-        TextureCollection* collection = [textureCollections objectAtIndex:index];
-        if ([[collection name] isEqualToString:theName])
-            break;
-    }
-    
-    if (index < [textureCollections count]) {
-        [textureCollections removeObjectAtIndex:index];
-        valid = NO;
-
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:TextureManagerChanged object:self];
-    }
-}
-
-- (void)removeAllTextureCollections {
-    if ([textureCollections count] == 0)
-        return;
-    
-    [textureCollections removeAllObjects];
+- (void)removeTextureCollectionAtIndex:(NSUInteger)theIndex {
+    [textureCollections removeObjectAtIndex:theIndex];
     valid = NO;
-
+    
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:TextureManagerChanged object:self];
 }

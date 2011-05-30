@@ -45,6 +45,9 @@
     crossV3f(&d, &ZAxisPos, &u);
     crossV3f(&u, &d, &u);
     
+    normalizeV3f(&d, &d);
+    normalizeV3f(&u, &u);
+    
     [camera moveTo:&p];
     [camera setDirection:&d up:&u];
 }

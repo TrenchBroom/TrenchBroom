@@ -32,6 +32,7 @@
     IBOutlet PrefabView* prefabView;
     IBOutlet NSBox* textureControlBox;
     IBOutlet NSTableView* wadTableView;
+    IBOutlet NSArrayController* wadArrayController;
     IBOutlet NSScrollView* textureScrollView;
     MapWindowController* mapWindowController;
 }
@@ -54,8 +55,5 @@
 - (void)textureSelected:(Texture *)texture;
 - (void)prefabSelected:(id <Prefab>)prefab;
 
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView;
-- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
 - (IBAction)addTextureWad:(id)sender;
-- (IBAction)removeTextureWad:(id)sender;
 @end

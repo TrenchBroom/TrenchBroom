@@ -46,49 +46,6 @@ NSString* const PropertyKeyKey      = @"PropertyKey";
 NSString* const PropertyOldValueKey = @"PropertyOldValue";
 NSString* const PropertyNewValueKey = @"PropertyNewValue";
 
-@interface MapDocument (private)
-
-- (void)refreshWadFiles;
-
-@end
-
-@implementation MapDocument (private)
-
-- (void)refreshWadFiles {
-    NSBundle* mainBundle = [NSBundle mainBundle];
-    NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
-    NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
-    
-    TextureManager* textureManager = [glResources textureManager];
-    [textureManager removeAllTextureCollections];
-    
-    NSString* wads = [[self worldspawn:NO] propertyForKey:@"wad"];
-    if (wads != nil) {
-        NSArray* wadPaths = [wads componentsSeparatedByString:@";"];
-        for (int i = 0; i < [wadPaths count]; i++) {
-            NSString* wadPath = [[wadPaths objectAtIndex:i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-            NSFileManager* fileManager = [NSFileManager defaultManager];
-            if ([fileManager fileExistsAtPath:wadPath]) {
-                int slashIndex = [wadPath rangeOfString:@"/" options:NSBackwardsSearch].location;
-                NSString* wadName = [wadPath substringFromIndex:slashIndex + 1];
-                
-                WadLoader* wadLoader = [[WadLoader alloc] init];
-                Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:wadPath] wadName:wadName];
-                [wadLoader release];
-                
-                TextureCollection* collection = [[TextureCollection alloc] initName:wadPath palette:palette wad:wad];
-                [textureManager addTextureCollection:collection];
-                [collection release];
-            }
-        }
-    }
-    [palette release];
-    
-    [self updateTextureUsageCounts];
-}
-
-@end
-
 @implementation MapDocument
 
 - (id)init {
@@ -149,53 +106,71 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     
     [picker release];
     picker = [[Picker alloc] initWithDocument:self];
-    [self refreshWadFiles];
+
+    NSString* wads = [[self worldspawn:NO] propertyForKey:@"wad"];
+    if (wads != nil) {
+        NSArray* wadPaths = [wads componentsSeparatedByString:@";"];
+        for (int i = 0; i < [wadPaths count]; i++) {
+            NSString* wadPath = [[wadPaths objectAtIndex:i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            [self insertObject:wadPath inTextureWadsAtIndex:i];
+        }
+    }
     
     return YES;
 }
 
-# pragma mark Map related functions
-
-- (void)addTextureWad:(NSString *)wadPath {
-    NSAssert(wadPath != nil, @"wad path must not be nil");
+# pragma mark Texture wad management
+- (void)insertObject:(NSString *)theWadPath inTextureWadsAtIndex:(NSUInteger)theIndex {
+    NSAssert(theWadPath != nil, @"wad path must not be nil");
     
     NSFileManager* fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:wadPath]) {
-        int slashIndex = [wadPath rangeOfString:@"/" options:NSBackwardsSearch].location;
-        NSString* wadName = [wadPath substringFromIndex:slashIndex + 1];
-        
-        WadLoader* wadLoader = [[WadLoader alloc] init];
-        Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:wadPath] wadName:wadName];
-        [wadLoader release];
-        
-        NSBundle* mainBundle = [NSBundle mainBundle];
-        NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
-        NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
-        
-        TextureCollection* collection = [[TextureCollection alloc] initName:wadPath palette:palette wad:wad];
-        [palette release];
-        
-        TextureManager* textureManager = [glResources textureManager];
-        [textureManager addTextureCollection:collection];
-        [collection release];
-        
-        MutableEntity* wc = [self worldspawn:YES];
-        [wc setProperty:@"wad" value:[textureManager wadProperty]];
-        
-        [self updateTextureUsageCounts];
-    }
-}
-
-- (void)removeTextureWad:(NSString *)wadPath {
-    NSAssert(wadPath != nil, @"wad path must not be nil");
+    NSString* err = [NSString stringWithFormat:@"wad file must exist at %@", theWadPath];
+    NSAssert([fileManager fileExistsAtPath:theWadPath], err);
+    
+    int slashIndex = [theWadPath rangeOfString:@"/" options:NSBackwardsSearch].location;
+    NSString* wadName = [theWadPath substringFromIndex:slashIndex + 1];
+    
+    WadLoader* wadLoader = [[WadLoader alloc] init];
+    Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:theWadPath] wadName:wadName];
+    [wadLoader release];
+    
+    NSBundle* mainBundle = [NSBundle mainBundle];
+    NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
+    NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
+    
+    TextureCollection* collection = [[TextureCollection alloc] initName:theWadPath palette:palette wad:wad];
+    [palette release];
     
     TextureManager* textureManager = [glResources textureManager];
-    [textureManager removeTextureCollection:wadPath];
+    [textureManager addTextureCollection:collection atIndex:theIndex];
+    [collection release];
     
     MutableEntity* wc = [self worldspawn:YES];
     [wc setProperty:@"wad" value:[textureManager wadProperty]];
     
     [self updateTextureUsageCounts];
+}
+
+- (void)removeObjectFromTextureWadsAtIndex:(NSUInteger)theIndex {
+    TextureManager* textureManager = [glResources textureManager];
+    [textureManager removeTextureCollectionAtIndex:theIndex];
+    
+    MutableEntity* wc = [self worldspawn:YES];
+    [wc setProperty:@"wad" value:[textureManager wadProperty]];
+    
+    [self updateTextureUsageCounts];
+}
+
+- (NSArray *)textureWads {
+    NSMutableArray* textureWads = [[NSMutableArray alloc] init];
+
+    TextureManager* textureManager = [glResources textureManager];
+    NSEnumerator* collectionEn = [[textureManager textureCollections] objectEnumerator];
+    TextureCollection* collection;
+    while ((collection = [collectionEn nextObject]))
+        [textureWads addObject:[collection name]];
+    
+    return [textureWads autorelease];
 }
 
 - (void)updateTextureUsageCounts {
@@ -218,6 +193,8 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
         }
     }
 }
+
+# pragma mark Map related functions
 
 - (int)worldSize {
     return worldSize;
@@ -302,9 +279,6 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     else
         [mutableEntity setProperty:key value:value];
 
-    if ([key isEqualToString:@"wad"])
-        [self refreshWadFiles];
-    
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         if (oldValue == nil && value != nil)

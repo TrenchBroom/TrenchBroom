@@ -29,10 +29,10 @@ extern NSString* const MissingPaletteException;
     BOOL valid;
 }
 
-- (void)addTextureCollection:(TextureCollection *)theCollection;
-- (void)removeTextureCollection:(NSString *)theName;
-- (void)removeAllTextureCollections;
+- (void)addTextureCollection:(TextureCollection *)theCollection atIndex:(NSUInteger)theIndex;
+- (void)removeTextureCollectionAtIndex:(NSUInteger)theIndex;
 - (NSArray *)textureCollections;
+
 - (void)resetUsageCounts;
 
 - (Texture *)textureForName:(NSString *)name;
