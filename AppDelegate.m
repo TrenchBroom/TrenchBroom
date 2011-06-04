@@ -35,4 +35,8 @@
         [prefabManager loadPrefabsAtPath:userPrefabPath readOnly:NO];
 }
 
+- (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender {
+    return NO;
+}
+
 @end

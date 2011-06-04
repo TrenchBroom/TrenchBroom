@@ -441,7 +441,7 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
-        windowController = [theWindowController retain];
+        windowController = theWindowController;
 
         sharedVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
         invalidFaces = [[NSMutableSet alloc] init];
@@ -576,7 +576,6 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [compassFigure release];
-    [windowController release];
     [geometryLayer release];
     [selectionLayer release];
     [feedbackLayer release];

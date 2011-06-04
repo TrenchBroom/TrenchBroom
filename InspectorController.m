@@ -22,66 +22,121 @@
 #import "Brush.h"
 #import "Face.h"
 #import "PrefabView.h"
+#import "EntityPropertyTableDataSource.h"
 
 static InspectorController* sharedInstance = nil;
 
-@implementation InspectorController
+@interface InspectorController (private)
 
-+ (InspectorController *)sharedInspector {
-    @synchronized(self) {
-        if (sharedInstance == nil)
-            sharedInstance = [[self alloc] init];
-    }
-    return sharedInstance;
+- (void)propertyAdded:(NSNotification *)notification;
+- (void)propertyRemoved:(NSNotification *)notification;
+- (void)propertyDidChange:(NSNotification *)notification;
+- (void)faceDidChange:(NSNotification *)notification;
+- (void)selectionRemoved:(NSNotification *)notification;
+- (void)selectionAdded:(NSNotification *)notification;
+- (void)textureManagerChanged:(NSNotification *)notification;
+- (void)updateMapWindowController:(MapWindowController *)theMapWindowController;
+- (void)updateTextureControls;
+
+@end
+
+@implementation InspectorController (private)
+
+- (void)propertyAdded:(NSNotification *)notification {
+    [entityPropertyTableDataSource updateProperties];
+    [entityPropertyTableView reloadData];
 }
 
-+ (id)allocWithZone:(NSZone *)zone {
-    @synchronized(self) {
-        if (sharedInstance == nil) {
-            sharedInstance = [super allocWithZone:zone];
-            return sharedInstance;  // assignment and return on first allocation
-        }
-    }
-    return nil; // on subsequent allocation attempts return nil
+- (void)propertyRemoved:(NSNotification *)notification {
+    [entityPropertyTableDataSource updateProperties];
+    [entityPropertyTableView reloadData];
 }
 
-- (id)copyWithZone:(NSZone *)zone {
-    return self;
+- (void)propertyDidChange:(NSNotification *)notification {
+    [entityPropertyTableDataSource updateProperties];
+    [entityPropertyTableView reloadData];
 }
 
-- (id)retain {
-    return self;
-}
-
-- (NSUInteger)retainCount {
-    return UINT_MAX;  // denotes an object that cannot be released
-}
-
-- (void)release {
-    //do nothing
-}
-
-- (id)autorelease {
-    return self;
-}
-
-- (NSString *)windowNibName {
-    return @"Inspector";
-}
-
-- (void)windowDidLoad {
-    [super windowDidLoad];
-
-    MapDocument* map = [mapWindowController document];
-    GLResources* glResources = [map glResources];
-    NSOpenGLContext* context = [[NSOpenGLContext alloc] initWithFormat:[singleTextureView pixelFormat] shareContext:[glResources openGLContext]];
-    [singleTextureView setOpenGLContext:context];
-    [context release];
+- (void)faceDidChange:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    id <Face> face = [userInfo objectForKey:FaceKey];
     
-    [textureView setGLResources:glResources];
-    [prefabView setGLResources:glResources];
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+    if ([selectionManager isFaceSelected:face])
+        [self updateTextureControls];
+}
 
-    [self prefabsPerRowChanged:prefabsPerRowSlider];
+- (void)selectionRemoved:(NSNotification *)notification {
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+    [entityPropertyTableDataSource setEntities:[selectionManager selectedEntities]];
+    [self updateTextureControls];
+    [entityPropertyTableView reloadData];
+}
+
+- (void)selectionAdded:(NSNotification *)notification {
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+    [entityPropertyTableDataSource setEntities:[selectionManager selectedEntities]];
+    [self updateTextureControls];
+    [entityPropertyTableView reloadData];
+}
+
+- (void)textureManagerChanged:(NSNotification *)notification {
+    [wadTableView reloadData];
+}
+
+- (void)updateMapWindowController:(MapWindowController *)theMapWindowController {
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    
+    if (mapWindowController != nil) {
+        MapDocument* map = [mapWindowController document];
+        GLResources* glResources = [map glResources];
+        
+        TextureManager* textureManager = [glResources textureManager];
+        SelectionManager* selectionManager = [mapWindowController selectionManager];
+        [center removeObserver:self name:SelectionAdded object:selectionManager];
+        [center removeObserver:self name:SelectionRemoved object:selectionManager];
+        [center removeObserver:self name:PropertyAdded object:map];
+        [center removeObserver:self name:PropertyRemoved object:map];
+        [center removeObserver:self name:PropertyDidChange object:map];
+        [center removeObserver:self name:FaceDidChange object:map];
+        [center removeObserver:self name:TextureManagerChanged object:textureManager];
+        
+        [entityPropertyTableDataSource setMapWindowController:nil];
+        [entityPropertyTableDataSource setEntities:nil];
+        
+        [mapWindowController release];
+    }
+    
+    mapWindowController = [theMapWindowController retain];
+    
+    if (mapWindowController != nil) {
+        MapDocument* map = [mapWindowController document];
+        GLResources* glResources = [map glResources];
+        
+        [singleTextureView setGLResources:glResources];
+        [textureView setGLResources:glResources];
+        [prefabView setGLResources:glResources];
+        
+        TextureManager* textureManager = [glResources textureManager];
+        SelectionManager* selectionManager = [mapWindowController selectionManager];
+        [entityPropertyTableDataSource setMapWindowController:mapWindowController];
+        [entityPropertyTableDataSource setEntities:[selectionManager selectedEntities]];
+         
+        [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
+        [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
+        [center addObserver:self selector:@selector(propertyAdded:) name:PropertyAdded object:map];
+        [center addObserver:self selector:@selector(propertyRemoved:) name:PropertyRemoved object:map];
+        [center addObserver:self selector:@selector(propertyDidChange:) name:PropertyDidChange object:map];
+        [center addObserver:self selector:@selector(faceDidChange:) name:FaceDidChange object:map];
+        [center addObserver:self selector:@selector(textureManagerChanged:) name:TextureManagerChanged object:textureManager];
+    } else {
+        [singleTextureView setGLResources:nil];
+        [textureView setGLResources:nil];
+        [prefabView setGLResources:nil];
+    }
+    
+    [wadTableView reloadData];
+    [self updateTextureControls];
 }
 
 - (void)updateTextureControls {
@@ -91,7 +146,7 @@ static InspectorController* sharedInstance = nil;
     NSMutableSet* selectedTextureNames = nil;
     if ([selectedFaces count] > 0) {
         selectedTextureNames = [[NSMutableSet alloc] init];
-
+        
         [xOffsetField setEnabled:YES];
         [yOffsetField setEnabled:YES];
         [xScaleField setEnabled:YES];
@@ -165,15 +220,10 @@ static InspectorController* sharedInstance = nil;
         if (textureMultiple) {
             [[textureNameField cell] setPlaceholderString:@"multiple"];
             [textureNameField setStringValue:@""];
-            [singleTextureView setTexture:nil];
+            [singleTextureView setTextureName:nil];
         } else {
             [textureNameField setStringValue:textureName];
-            
-            MapDocument* document = [mapWindowController document];
-            GLResources* glResources = [document glResources];
-            TextureManager* textureManager = [glResources textureManager];
-            Texture* texture = [textureManager textureForName:textureName];
-            [singleTextureView setTexture:texture];
+            [singleTextureView setTextureName:textureName];
         }
     } else {
         [xOffsetField setEnabled:NO];
@@ -195,89 +245,76 @@ static InspectorController* sharedInstance = nil;
         [yScaleField setStringValue:@""];
         [rotationField setStringValue:@""];
         [textureNameField setStringValue:@""];
-        [singleTextureView setTexture:nil];
+        [singleTextureView setTextureName:nil];
     }
     
     [textureView setSelectedTextureNames:selectedTextureNames];
     [selectedTextureNames release];
 }
 
-- (void)faceDidChange:(NSNotification *)notification {
-    NSDictionary* userInfo = [notification userInfo];
-    NSSet* face = [userInfo objectForKey:FaceKey];
-    
-    SelectionManager* selectionManager = [mapWindowController selectionManager];
-    NSSet* selectedFaces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+@end
 
-    if ([selectedFaces containsObject:face])
-        [self updateTextureControls];
+@implementation InspectorController
+
++ (InspectorController *)sharedInspector {
+    @synchronized(self) {
+        if (sharedInstance == nil)
+            sharedInstance = [[self alloc] init];
+    }
+    return sharedInstance;
 }
 
-- (void)selectionRemoved:(NSNotification *)notification {
-    [self updateTextureControls];
++ (id)allocWithZone:(NSZone *)zone {
+    @synchronized(self) {
+        if (sharedInstance == nil) {
+            sharedInstance = [super allocWithZone:zone];
+            return sharedInstance;  // assignment and return on first allocation
+        }
+    }
+    return nil; // on subsequent allocation attempts return nil
 }
 
-- (void)selectionAdded:(NSNotification *)notification {
-    [self updateTextureControls];
+- (id)copyWithZone:(NSZone *)zone {
+    return self;
+}
+
+- (id)retain {
+    return self;
+}
+
+- (NSUInteger)retainCount {
+    return UINT_MAX;  // denotes an object that cannot be released
+}
+
+- (void)release {
+    //do nothing
+}
+
+- (id)autorelease {
+    return self;
+}
+
+- (NSString *)windowNibName {
+    return @"Inspector";
+}
+
+- (void)windowDidLoad {
+    [super windowDidLoad];
+    entityPropertyTableDataSource = [[EntityPropertyTableDataSource alloc] init];
+    [entityPropertyTableView setDataSource:entityPropertyTableDataSource];
+    [self updateMapWindowController:mapWindowController];
+    [self prefabsPerRowChanged:prefabsPerRowSlider];
 }
 
 - (void)setMapWindowController:(MapWindowController *)theMapWindowController {
     if (mapWindowController == theMapWindowController)
         return;
-    
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
 
-    if (mapWindowController != nil) {
-        MapDocument* map = [mapWindowController document];
-        GLResources* glResources = [map glResources];
-
-        TextureManager* textureManager = [glResources textureManager];
-        [center removeObserver:self name:TextureManagerChanged object:textureManager];
-        
-        SelectionManager* selectionManager = [mapWindowController selectionManager];
-        [center removeObserver:self name:SelectionAdded object:selectionManager];
-        [center removeObserver:self name:SelectionRemoved object:selectionManager];
-
-        [center removeObserver:self name:FaceDidChange object:map];
-        
-        [mapWindowController release];
-    }
-    
-    mapWindowController = [theMapWindowController retain];
-
-    if (mapWindowController != nil) {
-        MapDocument* map = [mapWindowController document];
-        GLResources* glResources = [map glResources];
-        NSOpenGLContext* context = [[NSOpenGLContext alloc] initWithFormat:[singleTextureView pixelFormat] shareContext:[glResources openGLContext]];
-        [singleTextureView setOpenGLContext:context];
-        [context release];
-
-        [textureView setGLResources:glResources];
-        [prefabView setGLResources:glResources];
-
-        TextureManager* textureManager = [glResources textureManager];
-        [center addObserver:self selector:@selector(textureManagerChanged:) name:TextureManagerChanged object:textureManager];
-
-        SelectionManager* selectionManager = [mapWindowController selectionManager];
-        [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
-        [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
-        
-        [center addObserver:self selector:@selector(faceDidChange:) name:FaceDidChange object:map];
-    } else {
-        [textureView setGLResources:nil];
-        [prefabView setGLResources:nil];
-    }
-
-    [wadTableView reloadData];
-    [self updateTextureControls];
+    [self updateMapWindowController:theMapWindowController];
 }
 
 - (MapWindowController *)mapWindowController {
     return mapWindowController;
-}
-
-- (void)textureManagerChanged:(NSNotification *)notification {
-    [wadTableView reloadData];
 }
 
 - (IBAction)xOffsetTextChanged:(id)sender {
@@ -478,6 +515,7 @@ static InspectorController* sharedInstance = nil;
 
 - (void)dealloc {
     [self setMapWindowController:nil];
+    [entityPropertyTableDataSource release];
     [super dealloc];
 }
 

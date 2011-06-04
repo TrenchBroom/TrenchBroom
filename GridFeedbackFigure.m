@@ -16,21 +16,26 @@ static int G = 2;
 
 @implementation GridFeedbackFigure
 
-- (id)initWithGrid:(Grid *)grid pickingHit:(PickingHit *)pickingHit ray:(TRay *)ray {
+- (id)initWithGrid:(Grid *)grid originalHit:(PickingHit *)originalHit ray:(TRay *)ray {
     NSAssert(grid != nil, @"grid must not be nil");
-    NSAssert(pickingHit != nil, @"hit must not be nil");
-    NSAssert([pickingHit type] == HT_FACE, @"hit type must be face");
+    NSAssert(originalHit != nil, @"hit must not be nil");
+    NSAssert([originalHit type] == HT_FACE, @"hit type must be face");
     NSAssert(ray != NULL, @"ray must not be NULL");
     
     if (self = [self init]) {
-        id <Face> face = [pickingHit object];
+        id <Face> face = [originalHit object];
         id <Brush> brush = [face brush]; 
         
         TPlane* boundary = [face boundary];
-        TVector3f* hitPoint = [pickingHit hitPoint];
+        TVector3f* originalPoint = [originalHit hitPoint];
+
+        TVector3f hitPoint;
+        float dist = intersectPlaneWithRay(boundary, ray);
+        rayPointAtDistance(ray, dist, &hitPoint);
 
         TBoundingBox largeBounds = *[brush bounds];
-        mergeBoundsWithPoint(&largeBounds, hitPoint, &largeBounds);
+        mergeBoundsWithPoint(&largeBounds, originalPoint, &largeBounds);
+        mergeBoundsWithPoint(&largeBounds, &hitPoint, &largeBounds);
         [grid snapDownToGrid:&largeBounds.min result:&largeBounds.min];
         [grid snapUpToGrid:&largeBounds.max result:&largeBounds.max];
         expandBounds(&largeBounds, G * [grid actualSize], &largeBounds);

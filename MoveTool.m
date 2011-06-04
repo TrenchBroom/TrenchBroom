@@ -72,7 +72,7 @@
 
 - (id)initWithController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
-        windowController = [theWindowController retain];
+        windowController = theWindowController;
         cursor = [[MoveCursor alloc] init];
     }
     return self;
@@ -80,7 +80,6 @@
 
 - (void)dealloc {
     [cursor release];
-    [windowController release];
     [super dealloc];
 }
 

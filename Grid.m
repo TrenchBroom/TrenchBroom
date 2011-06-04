@@ -49,7 +49,9 @@ NSString* const GridChanged = @"GridChanged";
     if (size == theSize)
         return;
     
+    [super willChangeValueForKey:@"actualSize"];
     size = theSize;
+    [super didChangeValueForKey:@"actualSize"];
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:GridChanged object:self];

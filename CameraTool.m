@@ -35,7 +35,7 @@
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
-        windowController = [theWindowController retain];
+        windowController = theWindowController;
     }
     
     return self;
@@ -117,11 +117,6 @@
         [camera setZoom:[camera zoom] - [event magnification] / 2];
     else
         [camera moveForward:160 * [event magnification] right:0 up:0];
-}
-
-- (void)dealloc {
-    [windowController release];
-    [super dealloc];
 }
 
 @end

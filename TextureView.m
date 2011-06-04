@@ -176,6 +176,8 @@
 
         [glResources release];
         glResources = nil;
+
+        [layout clear];
     }
     glResources = [theGLResources retain];
     

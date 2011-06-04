@@ -63,7 +63,7 @@
 
 - (id)initWithController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
-        windowController = [theWindowController retain];
+        windowController = theWindowController;
         dragFaceCursor = [[DragFaceCursor alloc] init];
         applyFaceCursor = [[ApplyFaceCursor alloc] init];
     }
@@ -74,7 +74,6 @@
 - (void)dealloc {
     [dragFaceCursor release];
     [applyFaceCursor release];
-    [windowController release];
     [super dealloc];
 }
 

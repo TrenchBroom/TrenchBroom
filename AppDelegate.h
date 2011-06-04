@@ -13,4 +13,6 @@
 
 }
 
+- (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender;
+
 @end

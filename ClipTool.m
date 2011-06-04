@@ -167,7 +167,7 @@
             else if (draggedPoint == 2)
                 hit = [[clipPlane hitList:2] firstHitOfType:HT_FACE ignoreOccluders:YES];
                 
-            gridFigure = [[GridFeedbackFigure alloc] initWithGrid:grid pickingHit:hit ray:ray];
+            gridFigure = [[GridFeedbackFigure alloc] initWithGrid:grid originalHit:hit ray:ray];
             [renderer addFeedbackFigure:gridFigure];
         }
     }
@@ -193,7 +193,7 @@
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
-        windowController = [theWindowController retain];
+        windowController = theWindowController;
     }
     
     return self;
@@ -419,7 +419,6 @@
         currentPoint = NULL;
     }
     [brushFigures release];
-    [windowController release];
     [super dealloc];
 }
 @end

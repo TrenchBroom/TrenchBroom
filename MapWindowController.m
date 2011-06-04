@@ -54,6 +54,11 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [inspector setMapWindowController:self];
 }
 
+- (void)windowWillClose:(NSNotification *)notification {
+    InspectorController* inspector = [InspectorController sharedInspector];
+    [inspector setMapWindowController:nil];
+}
+
 - (void)userDefaultsChanged:(NSNotification *)notification {
     NSDictionary* cameraDefaults = [[NSUserDefaults standardUserDefaults] dictionaryForKey:CameraDefaults];
     if (cameraDefaults == nil)
@@ -95,6 +100,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification object:[self window]];
+    [center addObserver:self selector:@selector(windowWillClose:) name:NSWindowWillCloseNotification object:[self window]];
     [center addObserver:self selector:@selector(userDefaultsChanged:) name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
     [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
     

@@ -432,12 +432,12 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         glDeleteBuffers(1, &vboId);
 
     [freeBlocksByCapacity release];
-    
-    VBOMemBlock* block = lastBlock;
+
+    VBOMemBlock* block = firstBlock;
     while (block != nil) {
-        block = [block previous];
-        if (block != nil)
-            [[block next] release];
+        VBOMemBlock* next = [block next];
+        [block release];
+        block = next;
     }
     
     [super dealloc];

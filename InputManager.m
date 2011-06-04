@@ -81,13 +81,15 @@
 }
 
 - (void)updateHits {
+    Picker* picker = [[windowController document] picker];
     SelectionManager* selectionManager = [windowController selectionManager];
     Options* options = [windowController options];
+
     id <Filter> filter = nil;
     if ([options isolationMode] != IM_NONE && [selectionManager mode] != SM_UNDEFINED)
         filter = [[SelectionFilter alloc] initWithSelectionManager:selectionManager];
 
-    Picker* picker = [[windowController document] picker];
+    [lastHits release];
     lastHits = [[picker pickObjects:&lastRay filter:filter] retain];
     [filter release];
 }
@@ -215,7 +217,7 @@
 @implementation InputManager
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
-        windowController = [theWindowController retain];
+        windowController = theWindowController; // do not retain
         
         cameraTool = [[CameraTool alloc] initWithWindowController:windowController];
         selectionTool = [[SelectionTool alloc] initWithWindowController:windowController];
@@ -384,7 +386,6 @@
     [clipTool release];
     [lastEvent release];
     [lastHits release];
-    [windowController release];
     [super dealloc];
 }
 

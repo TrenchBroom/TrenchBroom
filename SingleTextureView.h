@@ -8,13 +8,15 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class Texture;
+@class GLResources;
 
 @interface SingleTextureView : NSOpenGLView {
     @private
-    Texture* texture;
+    GLResources* glResources;
+    NSString* textureName;
 }
 
-- (void)setTexture:(Texture *)theTexture;
+- (void)setGLResources:(GLResources *)theGlResources;
+- (void)setTextureName:(NSString *)theTextureName;
 
 @end

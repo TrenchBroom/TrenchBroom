@@ -19,5 +19,5 @@
     int cols;
 }
 
-- (id)initWithGrid:(Grid *)grid pickingHit:(PickingHit *)pickingHit ray:(TRay *)ray;
+- (id)initWithGrid:(Grid *)grid originalHit:(PickingHit *)originalHit ray:(TRay *)ray;
 @end

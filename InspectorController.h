@@ -14,6 +14,7 @@
 @class PrefabView;
 @class Prefab;
 @class Texture;
+@class EntityPropertyTableDataSource;
 @protocol Prefab;
 
 @interface InspectorController : NSWindowController {
@@ -34,12 +35,15 @@
     IBOutlet NSTableView* wadTableView;
     IBOutlet NSArrayController* wadArrayController;
     IBOutlet NSScrollView* textureScrollView;
+    IBOutlet NSTableView* entityPropertyTableView;
+    EntityPropertyTableDataSource* entityPropertyTableDataSource;
     MapWindowController* mapWindowController;
 }
 
 + (InspectorController *)sharedInspector;
 
 - (void)setMapWindowController:(MapWindowController *)theMapWindowController;
+- (MapWindowController *)mapWindowController;
 
 - (IBAction)xOffsetTextChanged:(id)sender;
 - (IBAction)yOffsetTextChanged:(id)sender;

@@ -21,7 +21,7 @@
 
 - (id)initBlockIn:(VBOBuffer *)theVboBuffer at:(int)theAddress capacity:(int)theCapacity {
     if (self = [self init]) {
-        vboBuffer = [theVboBuffer retain];
+        vboBuffer = theVboBuffer;
         address = theAddress;
         capacity = theCapacity;
     }
@@ -121,11 +121,6 @@
 
 - (void)free {
     [vboBuffer freeMemBlock:self];
-}
-
-- (void)dealloc {
-    [vboBuffer release];
-    [super dealloc];
 }
 
 @end

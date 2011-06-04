@@ -33,7 +33,7 @@
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
-        windowController = [theWindowController retain];
+        windowController = theWindowController;
     }
     
     return self;
@@ -66,7 +66,10 @@
         
         if ([selectionManager mode] == SM_FACES) {
             if ([selectionManager isFaceSelected:face]) {
-                [selectionManager addBrush:brush record:NO];
+                if ([self isMultiSelectionModifierPressed])
+                    [selectionManager removeFace:face record:NO];
+                else
+                    [selectionManager addBrush:brush record:NO];
             } else {
                 if ([self isMultiSelectionModifierPressed]) {
                     [selectionManager addFace:face record:NO];
@@ -100,8 +103,4 @@
     }
 }
 
-- (void)dealloc {
-    [windowController release];
-    [super dealloc];
-}
 @end

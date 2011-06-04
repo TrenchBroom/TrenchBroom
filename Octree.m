@@ -80,7 +80,7 @@
 
 - (id)initWithDocument:(MapDocument *)theDocument minSize:(int)theMinSize {
     if (self = [self init]) {
-        map = [theDocument retain];
+        map = theDocument;
         
         int w = [map worldSize] / 2;
         TVector3i min = {-w, -w, -w};
@@ -123,7 +123,6 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [root release];
-    [map release];
     [super dealloc];
 }
 @end

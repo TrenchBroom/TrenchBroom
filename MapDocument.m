@@ -109,14 +109,31 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 
     NSString* wads = [[self worldspawn:NO] propertyForKey:@"wad"];
     if (wads != nil) {
+        TextureManager* textureManager = [glResources textureManager];
         NSArray* wadPaths = [wads componentsSeparatedByString:@";"];
         for (int i = 0; i < [wadPaths count]; i++) {
             NSString* wadPath = [[wadPaths objectAtIndex:i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-            [self insertObject:wadPath inTextureWadsAtIndex:i];
+            [self insertObject:wadPath inTextureWadsAtIndex:[[textureManager textureCollections] count]];
         }
     }
     
     return YES;
+}
+
+- (id)retain {
+    return [super retain];
+}
+
+- (void)release {
+    [super release];
+}
+
+- (void)dealloc {
+    [entityDefinitionManager release];
+    [entities release];
+    [picker release];
+    [glResources release];
+    [super dealloc];
 }
 
 # pragma mark Texture wad management
@@ -124,31 +141,32 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     NSAssert(theWadPath != nil, @"wad path must not be nil");
     
     NSFileManager* fileManager = [NSFileManager defaultManager];
-    NSString* err = [NSString stringWithFormat:@"wad file must exist at %@", theWadPath];
-    NSAssert([fileManager fileExistsAtPath:theWadPath], err);
-    
-    int slashIndex = [theWadPath rangeOfString:@"/" options:NSBackwardsSearch].location;
-    NSString* wadName = [theWadPath substringFromIndex:slashIndex + 1];
-    
-    WadLoader* wadLoader = [[WadLoader alloc] init];
-    Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:theWadPath] wadName:wadName];
-    [wadLoader release];
-    
-    NSBundle* mainBundle = [NSBundle mainBundle];
-    NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
-    NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
-    
-    TextureCollection* collection = [[TextureCollection alloc] initName:theWadPath palette:palette wad:wad];
-    [palette release];
-    
-    TextureManager* textureManager = [glResources textureManager];
-    [textureManager addTextureCollection:collection atIndex:theIndex];
-    [collection release];
-    
-    MutableEntity* wc = [self worldspawn:YES];
-    [wc setProperty:@"wad" value:[textureManager wadProperty]];
-    
-    [self updateTextureUsageCounts];
+    if ([fileManager fileExistsAtPath:theWadPath]) {
+        int slashIndex = [theWadPath rangeOfString:@"/" options:NSBackwardsSearch].location;
+        NSString* wadName = [theWadPath substringFromIndex:slashIndex + 1];
+        
+        WadLoader* wadLoader = [[WadLoader alloc] init];
+        Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:theWadPath] wadName:wadName];
+        [wadLoader release];
+        
+        NSBundle* mainBundle = [NSBundle mainBundle];
+        NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
+        NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
+        
+        TextureCollection* collection = [[TextureCollection alloc] initName:theWadPath palette:palette wad:wad];
+        [palette release];
+        
+        TextureManager* textureManager = [glResources textureManager];
+        [textureManager addTextureCollection:collection atIndex:theIndex];
+        [collection release];
+        
+        MutableEntity* wc = [self worldspawn:YES];
+        [wc setProperty:@"wad" value:[textureManager wadProperty]];
+        
+        [self updateTextureUsageCounts];
+    } else {
+        NSLog(@"wad file '%@' does not exist", theWadPath);
+    }
 }
 
 - (void)removeObjectFromTextureWadsAtIndex:(NSUInteger)theIndex {
@@ -729,14 +747,6 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 
 - (EntityDefinitionManager *)entityDefinitionManager {
     return entityDefinitionManager;
-}
-
-- (void)dealloc {
-    [entityDefinitionManager release];
-    [entities release];
-    [picker release];
-    [glResources release];
-    [super dealloc];
 }
 
 # pragma mark @implementation Map

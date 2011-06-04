@@ -103,17 +103,21 @@
 
 - (void)activate {
     if (textureId == 0) {
-        glGenTextures(1, &textureId);
-
-        glBindTexture(GL_TEXTURE_2D, textureId);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, [data bytes]);
-        [data release];
-        data = nil;
+        if (data != nil) {
+            glGenTextures(1, &textureId);
+            
+            glBindTexture(GL_TEXTURE_2D, textureId);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, [data bytes]);
+            [data release];
+            data = nil;
+        } else {
+            NSLog(@"Warning: cannot recreate texture '%@'", self);
+        }
     }
     
     glBindTexture(GL_TEXTURE_2D, textureId);
@@ -140,6 +144,7 @@
         glDeleteTextures(1, &textureId);
     [uniqueId release];
     [name release];
+    [data release];
     [super dealloc];
 }
 @end
