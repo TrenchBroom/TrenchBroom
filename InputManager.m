@@ -27,7 +27,7 @@
 #import "FaceTool.h"
 #import "Options.h"
 #import "CursorManager.h"
-#import "SelectionFilter.h"
+#import "DefaultFilter.h"
 #import "EntityDefinitionManager.h"
 #import "EntityDefinition.h"
 
@@ -82,16 +82,8 @@
 
 - (void)updateHits {
     Picker* picker = [[windowController document] picker];
-    SelectionManager* selectionManager = [windowController selectionManager];
-    Options* options = [windowController options];
-
-    id <Filter> filter = nil;
-    if ([options isolationMode] != IM_NONE && [selectionManager mode] != SM_UNDEFINED)
-        filter = [[SelectionFilter alloc] initWithSelectionManager:selectionManager];
-
     [lastHits release];
     lastHits = [[picker pickObjects:&lastRay filter:filter] retain];
-    [filter release];
 }
 
 - (void)updateActiveTool {
@@ -218,6 +210,10 @@
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
         windowController = theWindowController; // do not retain
+
+        SelectionManager* selectionManager = [windowController selectionManager];
+        Options* options = [windowController options];
+        filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager options:options];
         
         cameraTool = [[CameraTool alloc] initWithWindowController:windowController];
         selectionTool = [[SelectionTool alloc] initWithWindowController:windowController];
@@ -386,6 +382,7 @@
     [clipTool release];
     [lastEvent release];
     [lastHits release];
+    [filter release];
     [super dealloc];
 }
 

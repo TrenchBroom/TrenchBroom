@@ -9,11 +9,13 @@
 #import "DefaultEntityLayer.h"
 #import "EntityBoundsRenderer.h"
 #import "Entity.h"
+#import "Options.h"
 
 @implementation DefaultEntityLayer
 
-- (id)init {
-    if (self = [super init]) {
+- (id)initWithOptions:(Options *)theOptions {
+    if (self = [self init]) {
+        options = [theOptions retain];
         boundsRenderer = [[EntityBoundsRenderer alloc] init];
     }
     
@@ -33,8 +35,9 @@
     [boundsRenderer addEntity:entity];
 }
 
-- (void)render:(RenderContext *)renderContext {
-    [boundsRenderer renderWithColor:YES];
+- (void)render {
+    if ([options renderEntities])
+        [boundsRenderer renderWithColor:YES];
 }
 
 - (void)setFilter:(id <Filter>)theFilter {
@@ -43,6 +46,7 @@
 
 - (void)dealloc {
     [boundsRenderer release];
+    [options release];
     [super dealloc];
 }
 

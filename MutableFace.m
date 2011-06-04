@@ -20,7 +20,6 @@
 #import "VBOMemBlock.h"
 #import "TextureManager.h"
 #import "Texture.h"
-#import "RenderContext.h"
 #import "IntData.h"
 
 static TVector3f baseAxes[18];

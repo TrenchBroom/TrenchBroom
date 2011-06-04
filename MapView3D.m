@@ -16,7 +16,6 @@
 #import "SelectionManager.h"
 #import "MapWindowController.h"
 #import "MapDocument.h"
-#import "RenderContext.h"
 #import "Options.h"
 #import "Grid.h"
 

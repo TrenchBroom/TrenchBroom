@@ -9,12 +9,14 @@
 #import <Cocoa/Cocoa.h>
 #import "EntityLayer.h"
 
-@class EntityDefinitionManager;
 @class EntityBoundsRenderer;
-@protocol Entity;
+@class Options;
 
 @interface DefaultEntityLayer : NSObject <EntityLayer> {
+    Options* options;
     EntityBoundsRenderer* boundsRenderer;
 }
+
+- (id)initWithOptions:(Options *)theOptions;
 
 @end

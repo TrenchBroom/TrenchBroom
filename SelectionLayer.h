@@ -14,7 +14,6 @@
 @class GLFontManager;
 
 @interface SelectionLayer : GeometryLayer <EntityLayer> {
-    BrushBoundsRenderer* brushBoundsRenderer;
     EntityBoundsRenderer* entityBoundsRenderer;
 }
 

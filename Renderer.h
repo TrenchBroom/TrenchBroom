@@ -16,7 +16,6 @@ extern NSString* const RendererChanged;
 @class SelectionLayer;
 @class FigureLayer;
 @class CompassFigure;
-@class RenderContext;
 @class MapWindowController;
 @class TextureManager;
 @class EntityLayer;
@@ -42,7 +41,6 @@ extern NSString* const RendererChanged;
 - (void)addFeedbackFigure:(id <Figure>)theFigure;
 - (void)removeFeedbackFigure:(id <Figure>)theFigure;
 
-- (void)setFilter:(id <Filter>)theFilter;
 - (void)render;
 
 @end

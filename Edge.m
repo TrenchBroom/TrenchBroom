@@ -11,7 +11,6 @@
 #import "Vertex.h"
 #import "Face.h"
 #import "MutableFace.h"
-#import "RenderContext.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "IntData.h"

@@ -18,6 +18,9 @@ NSString* const OptionsChanged = @"OptionsChanged";
         grid = [[Grid alloc] init];
         renderMode = RM_TEXTURED;
         isolationMode = IM_NONE;
+        renderEntities = YES;
+        renderEntityClassnames = YES;
+        renderBrushes = YES;
     }
     
     return self;
@@ -54,6 +57,49 @@ NSString* const OptionsChanged = @"OptionsChanged";
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:OptionsChanged object:self];
 }
+
+- (BOOL)renderEntities {
+    return renderEntities;
+}
+
+- (void)setRenderEntities:(BOOL)doRenderEntities {
+    if (renderEntities == doRenderEntities)
+        return;
+    
+    renderEntities = doRenderEntities;
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:OptionsChanged object:self];
+}
+
+- (BOOL)renderEntityClassnames {
+    return renderEntityClassnames;
+}
+
+- (void)setRenderEntityClassnames:(BOOL)doRenderEntityClassnames {
+    if (renderEntityClassnames == doRenderEntityClassnames)
+        return;
+    
+    renderEntityClassnames = doRenderEntityClassnames;
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:OptionsChanged object:self];
+}
+
+- (BOOL)renderBrushes {
+    return renderBrushes;
+}
+
+- (void)setRenderBrushes:(BOOL)doRenderBrushes {
+    if (renderBrushes == doRenderBrushes)
+        return;
+    
+    renderBrushes = doRenderBrushes;
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:OptionsChanged object:self];
+}
+
 
 - (void)dealloc {
     [grid release];

@@ -29,13 +29,26 @@ extern NSString* const OptionsChanged;
     Grid* grid;
     ERenderMode renderMode;
     EIsolationMode isolationMode;
+    BOOL renderEntities;
+    BOOL renderEntityClassnames;
+    BOOL renderBrushes;
 }
 
 - (Grid *)grid;
-- (ERenderMode)renderMode;
-- (EIsolationMode)isolationMode;
 
+- (ERenderMode)renderMode;
 - (void)setRenderMode:(ERenderMode)theRenderMode;
+
+- (EIsolationMode)isolationMode;
 - (void)setIsolationMode:(EIsolationMode)theIsolationMode;
+
+- (BOOL)renderEntities;
+- (void)setRenderEntities:(BOOL)doRenderEntities;
+
+- (BOOL)renderEntityClassnames;
+- (void)setRenderEntityClassnames:(BOOL)doRenderEntityClassnames;
+
+- (BOOL)renderBrushes;
+- (void)setRenderBrushes:(BOOL)doRenderBrushes;
 
 @end

@@ -9,7 +9,6 @@
 #import <Cocoa/Cocoa.h>
 #import "BrushLayer.h"
 
-@class RenderContext;
 @class VBOBuffer;
 @class TextureManager;
 @class Options;
@@ -37,7 +36,7 @@
 - (BOOL)doRenderFaces;
 - (BOOL)doRenderEdges;
 
-- (void)render:(RenderContext *)renderContext;
+- (void)render;
 
 - (void)validateFaces:(NSSet *)invalidFaces;
 - (void)validate;

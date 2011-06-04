@@ -11,7 +11,6 @@
 #import "TextureManager.h"
 #import "Brush.h"
 #import "Face.h"
-#import "RenderContext.h"
 #import "Options.h"
 #import "Grid.h"
 #import "VBOBuffer.h"
@@ -188,28 +187,30 @@
     [self postRenderEdges];
 }
 
-- (void)render:(RenderContext *)renderContext {
-    [self validate];
-    [sharedVbo activate];
-    switch ([[renderContext options] renderMode]) {
-        case RM_TEXTURED:
-            if ([self doRenderFaces])
-                [self renderFaces:YES];
-            if ([self doRenderEdges])
-                [self renderEdges];
-            break;
-        case RM_FLAT:
-            if ([self doRenderFaces])
-                [self renderFaces:NO];
-            if ([self doRenderEdges])
-                [self renderEdges];
-            break;
-        case RM_WIREFRAME:
-            if ([self doRenderEdges])
-                [self renderEdges];
-            break;
+- (void)render {
+    if ([options renderBrushes]) {
+        [self validate];
+        [sharedVbo activate];
+        switch ([options renderMode]) {
+            case RM_TEXTURED:
+                if ([self doRenderFaces])
+                    [self renderFaces:YES];
+                if ([self doRenderEdges])
+                    [self renderEdges];
+                break;
+            case RM_FLAT:
+                if ([self doRenderFaces])
+                    [self renderFaces:NO];
+                if ([self doRenderEdges])
+                    [self renderEdges];
+                break;
+            case RM_WIREFRAME:
+                if ([self doRenderEdges])
+                    [self renderEdges];
+                break;
+        }
+        [sharedVbo deactivate];
     }
-    [sharedVbo deactivate];
 }
 
 - (void)validateFaces:(NSSet *)invalidFaces {

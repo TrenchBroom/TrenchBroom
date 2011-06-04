@@ -30,7 +30,7 @@
     [figures removeObject:theFigure];
 }
 
-- (void)render:(RenderContext *)renderContext {
+- (void)render {
     glDisable(GL_DEPTH_TEST);
     NSEnumerator* figureEn = [figures objectEnumerator];
     id <Figure> figure;

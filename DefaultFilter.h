@@ -10,11 +10,13 @@
 #import "Filter.h"
 
 @class SelectionManager;
+@class Options;
 
-@interface SelectionFilter : NSObject <Filter> {
+@interface DefaultFilter : NSObject <Filter> {
     SelectionManager* selectionManager;
+    Options* options;
 }
 
-- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager;
+- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager options:(Options *)theOptions;
 
 @end

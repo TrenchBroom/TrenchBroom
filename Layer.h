@@ -8,10 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class RenderContext;
-
 @protocol Layer <NSObject>
 
-- (void)render:(RenderContext *)renderContext;
+- (void)render;
 
 @end

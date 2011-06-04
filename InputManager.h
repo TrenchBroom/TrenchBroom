@@ -17,10 +17,12 @@
 @class FaceTool;
 @class ClipTool;
 @protocol Tool;
+@protocol Filter;
 
 @interface InputManager : NSObject {
     @private 
     MapWindowController* windowController;
+    id <Filter> filter;
 
     NSEvent* lastEvent;
     TRay lastRay;

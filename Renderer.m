@@ -22,7 +22,6 @@
 #import "CompassFigure.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
-#import "RenderContext.h"
 #import "SelectionManager.h"
 #import "Brush.h"
 #import "Face.h"
@@ -40,7 +39,7 @@
 #import "CursorManager.h"
 #import "Figure.h"
 #import "Filter.h"
-#import "SelectionFilter.h"
+#import "DefaultFilter.h"
 #import "EntityDefinition.h"
 
 NSString* const RendererChanged = @"RendererChanged";
@@ -332,12 +331,6 @@ NSString* const RendererChanged = @"RendererChanged";
         }
     }
     
-    Options* options = [windowController options];
-    if ([options isolationMode] != IM_DISCARD)
-        [self setFilter:nil];
-    else
-        [self setFilter:[[[SelectionFilter alloc] initWithSelectionManager:[windowController selectionManager]] autorelease]];
-    
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
@@ -373,13 +366,6 @@ NSString* const RendererChanged = @"RendererChanged";
             [geometryLayer addFace:face];
         }
     }
-    
-    Options* options = [windowController options];
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([options isolationMode] != IM_DISCARD || [selectionManager mode] == SM_UNDEFINED)
-        [self setFilter:nil];
-    else
-        [self setFilter:[[[SelectionFilter alloc] initWithSelectionManager:selectionManager] autorelease]];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -417,13 +403,6 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)optionsChanged:(NSNotification *)notification {
-    SelectionManager* selectionManager = [windowController selectionManager];
-    Options* options = [windowController options];
-    if ([options isolationMode] != IM_DISCARD || [selectionManager mode] == SM_UNDEFINED)
-        [self setFilter:nil];
-    else
-        [self setFilter:[[[SelectionFilter alloc] initWithSelectionManager:selectionManager] autorelease]];
-
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
@@ -458,10 +437,15 @@ NSString* const RendererChanged = @"RendererChanged";
         Grid* grid = [options grid];
 
         geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager options:options];
-        entityLayer = [[DefaultEntityLayer alloc] init];
+        entityLayer = [[DefaultEntityLayer alloc] initWithOptions:options];
         selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager options:options camera:camera fontManager:fontManager font:trackingFont];
         feedbackLayer = [[FigureLayer alloc] init];
 
+        filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager options:options];
+        [geometryLayer setFilter:filter];
+        [selectionLayer setFilter:filter];
+        [entityLayer setFilter:filter];
+        
         compassFigure = [[CompassFigure alloc] initWithCamera:camera];
         
         NSEnumerator* entityEn = [[map entities] objectEnumerator];
@@ -507,18 +491,6 @@ NSString* const RendererChanged = @"RendererChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
-- (void)setFilter:(id <Filter>)theFilter {
-    if (filter == theFilter)
-        return;
-    
-    [filter release];
-    filter = [theFilter retain];
-    
-    [geometryLayer setFilter:filter];
-    [selectionLayer setFilter:filter];
-    [entityLayer setFilter:filter];
-}
-
 - (void)render {
     [self validate];
     
@@ -529,13 +501,10 @@ NSString* const RendererChanged = @"RendererChanged";
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_FLAT);
     
-    Options* options = [windowController options];
-    
-    RenderContext* renderContext = [[RenderContext alloc] initWithOptions:options];
-    [geometryLayer render:renderContext];
-    [entityLayer render:renderContext];
-    [selectionLayer render:renderContext];
-    [feedbackLayer render:renderContext];
+    [geometryLayer render];
+    [entityLayer render];
+    [selectionLayer render];
+    [feedbackLayer render];
     
     // enable lighting for cursor and compass
     glEnable(GL_LIGHTING);
@@ -569,8 +538,6 @@ NSString* const RendererChanged = @"RendererChanged";
     glDisable(GL_LIGHT0);
     glDisable(GL_COLOR_MATERIAL);
     glDisable(GL_LIGHTING);
-
-    [renderContext release];
 }
 
 - (void)dealloc {
