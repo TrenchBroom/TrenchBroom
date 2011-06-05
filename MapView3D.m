@@ -54,6 +54,24 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
                                                  modifierFlags:[NSEvent modifierFlags] 
                                                      timestamp:timestamp windowNumber:[[self window] windowNumber] context:[[self window] graphicsContext] eventNumber:0 trackingNumber:0 userData:NULL]];
         }
+        [self setNeedsDisplay:YES];
+        return YES;
+    }
+    return NO;
+}
+
+- (BOOL)resignFirstResponder {
+    if ([super resignFirstResponder]) {
+        NSPoint base = [[self window] convertScreenToBase:[NSEvent mouseLocation]];
+        NSPoint point = [self convertPointFromBase:base];
+        if (NSPointInRect(point, [self visibleRect])) {
+            double timestamp = (double)(AbsoluteToDuration(UpTime())) / 1000.0;
+            [self mouseExited:[NSEvent enterExitEventWithType:NSMouseExited 
+                                                      location:base 
+                                                 modifierFlags:[NSEvent modifierFlags] 
+                                                     timestamp:timestamp windowNumber:[[self window] windowNumber] context:[[self window] graphicsContext] eventNumber:0 trackingNumber:0 userData:NULL]];
+        }
+        [self setNeedsDisplay:YES];
         return YES;
     }
     return NO;

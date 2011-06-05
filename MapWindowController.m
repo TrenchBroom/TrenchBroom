@@ -52,6 +52,11 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 - (void)windowDidBecomeKey:(NSNotification *)notification {
     InspectorController* inspector = [InspectorController sharedInspector];
     [inspector setMapWindowController:self];
+    [view3D becomeFirstResponder];
+}
+
+- (void)windowDidResignKey:(NSNotification *)notification {
+    [view3D resignFirstResponder];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
