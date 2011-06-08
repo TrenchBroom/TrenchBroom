@@ -196,6 +196,7 @@
     else
         glVertexPointer(3, GL_FLOAT, 6 * sizeof(float), (const GLvoid *) (3 * sizeof(float)));
     glDrawArrays(GL_QUADS, 0, quadCount);
+    glDisableClientState(GL_COLOR_ARRAY);
     glEnable(GL_CULL_FACE);
     [quads deactivate];
     

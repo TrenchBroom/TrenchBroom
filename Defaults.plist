@@ -2,20 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>Face Flags</key>
+	<key>Game</key>
 	<dict>
-		<key>Move Texture Left</key>
-		<integer>123</integer>
-		<key>Move Texture Right</key>
-		<integer>124</integer>
-		<key>Move Texture Up</key>
-		<integer>126</integer>
-		<key>Move Texture Down</key>
-		<integer>125</integer>
-		<key>Rotate Texture Clockwise</key>
-		<integer>15</integer>
-		<key>Rotate Texture Counterclockwise</key>
-		<integer>17</integer>
+		<key>Path</key>
+		<string>/Applications/Quake</string>
 	</dict>
 	<key>3D View</key>
 	<dict>

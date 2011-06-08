@@ -32,6 +32,9 @@
 		482FFF011340E10E00849BF5 /* ClipTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 482FFF001340E10E00849BF5 /* ClipTool.m */; };
 		482FFF181340E56000849BF5 /* ClipPointFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482FFF171340E56000849BF5 /* ClipPointFeedbackFigure.m */; };
 		483044A21398B3D3002CA97B /* EntityPropertyTableDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 483044A11398B3D3002CA97B /* EntityPropertyTableDataSource.m */; };
+		4830484C139B6EC2002CA97B /* PakDirectoryEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4830484B139B6EC2002CA97B /* PakDirectoryEntry.m */; };
+		48304863139B73FB002CA97B /* PakDirectory.m in Sources */ = {isa = PBXBuildFile; fileRef = 48304862139B73FB002CA97B /* PakDirectory.m */; };
+		4830488213A010FE002CA97B /* PakManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4830488113A010FE002CA97B /* PakManager.m */; };
 		48325CB3135215ED00E703E0 /* FigureLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48325CB2135215ED00E703E0 /* FigureLayer.m */; };
 		48325D4713524F7000E703E0 /* CompassFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48325D4613524F7000E703E0 /* CompassFigure.m */; };
 		4833C15F131953F600EB1B85 /* PrefabManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C15E131953F600EB1B85 /* PrefabManager.m */; };
@@ -211,6 +214,12 @@
 		482FFF171340E56000849BF5 /* ClipPointFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipPointFeedbackFigure.m; sourceTree = "<group>"; };
 		483044A01398B3D3002CA97B /* EntityPropertyTableDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityPropertyTableDataSource.h; sourceTree = "<group>"; };
 		483044A11398B3D3002CA97B /* EntityPropertyTableDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityPropertyTableDataSource.m; sourceTree = "<group>"; };
+		4830484A139B6EC2002CA97B /* PakDirectoryEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PakDirectoryEntry.h; sourceTree = "<group>"; };
+		4830484B139B6EC2002CA97B /* PakDirectoryEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PakDirectoryEntry.m; sourceTree = "<group>"; };
+		48304861139B73FB002CA97B /* PakDirectory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PakDirectory.h; sourceTree = "<group>"; };
+		48304862139B73FB002CA97B /* PakDirectory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PakDirectory.m; sourceTree = "<group>"; };
+		4830488013A010FE002CA97B /* PakManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PakManager.h; sourceTree = "<group>"; };
+		4830488113A010FE002CA97B /* PakManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PakManager.m; sourceTree = "<group>"; };
 		48325C9D1352152800E703E0 /* Layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Layer.h; sourceTree = "<group>"; };
 		48325CB1135215ED00E703E0 /* FigureLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FigureLayer.h; sourceTree = "<group>"; };
 		48325CB2135215ED00E703E0 /* FigureLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FigureLayer.m; sourceTree = "<group>"; };
@@ -698,6 +707,12 @@
 		48770C59138C333F0067231C /* Pak */ = {
 			isa = PBXGroup;
 			children = (
+				4830484A139B6EC2002CA97B /* PakDirectoryEntry.h */,
+				4830484B139B6EC2002CA97B /* PakDirectoryEntry.m */,
+				48304861139B73FB002CA97B /* PakDirectory.h */,
+				48304862139B73FB002CA97B /* PakDirectory.m */,
+				4830488013A010FE002CA97B /* PakManager.h */,
+				4830488113A010FE002CA97B /* PakManager.m */,
 			);
 			name = Pak;
 			sourceTree = "<group>";
@@ -1161,6 +1176,9 @@
 				488FE71E136E8FA300A0A47A /* DefaultEntityLayer.m in Sources */,
 				48455A4B13800A520096FEA5 /* IO.m in Sources */,
 				483044A21398B3D3002CA97B /* EntityPropertyTableDataSource.m in Sources */,
+				4830484C139B6EC2002CA97B /* PakDirectoryEntry.m in Sources */,
+				48304863139B73FB002CA97B /* PakDirectory.m in Sources */,
+				4830488213A010FE002CA97B /* PakManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
