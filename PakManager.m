@@ -12,6 +12,64 @@
 
 static PakManager* sharedInstance = nil;
 
+@interface PakManager (private)
+
+- (NSArray *)pakDirectoriesAtPath:(NSString *)thePath;
+
+@end
+
+@implementation PakManager (private)
+
+- (NSArray *)pakDirectoriesAtPath:(NSString *)thePath {
+    NSMutableArray* pakDirectories = [directories objectForKey:thePath];
+    if (pakDirectories == nil) {
+        NSFileManager* fileManager = [NSFileManager defaultManager];
+        BOOL isDir = NO;
+        BOOL exists = [fileManager fileExistsAtPath:thePath isDirectory:&isDir];
+        if (!exists || !isDir) {
+            NSLog(@"%@ does not exist or is not a directory", thePath);
+            return nil;
+        }
+        
+        NSArray* contents = [fileManager contentsOfDirectoryAtPath:thePath error:NULL];
+        if (contents == nil) {
+            NSLog(@"Warning: An error occured while accessing directory %@", thePath);
+            return nil;
+        }
+        
+        pakDirectories = [[NSMutableArray alloc] init];
+
+        NSEnumerator* contentEn = [contents objectEnumerator];
+        NSString* content;
+        while ((content = [contentEn nextObject])) {
+            NSString* pakFileName = [content lowercaseString];
+            if ([[pakFileName pathExtension] isEqualToString:@".pak"]) {
+                NSString* pakFilePath = [thePath stringByAppendingPathComponent:pakFileName];
+                if ([fileManager isReadableFileAtPath:pakFilePath]) {
+                    PakDirectory* pakDirectory = [[PakDirectory alloc] initWithPath:pakFilePath];
+                    [pakDirectories addObject:pakDirectory];
+                    [pakDirectory release];
+                }
+            }
+        }
+        
+        if ([pakDirectories count] == 0) {
+            [pakDirectories release];
+            NSLog(@"Warning: %@ does not contain any pak files", thePath);
+            return nil;
+        } else {
+            [pakDirectories sortUsingSelector:@selector(compareByName:)];
+            [directories setObject:pakDirectories forKey:thePath];
+        }
+        
+        [pakDirectories release];
+    }
+    
+    return pakDirectories;
+}
+
+@end
+
 @implementation PakManager
 
 + (PakManager *)sharedManager {
@@ -65,62 +123,27 @@ static PakManager* sharedInstance = nil;
     [super dealloc];
 }
 
-- (PakDirectoryEntry *)entryFromPakDir:(NSString *)thePakDir entryName:(NSString *)theEntryName {
-    NSMutableArray* directoriesInPakDir = [directories objectForKey:thePakDir];
-    if (directoriesInPakDir == nil) {
-        NSFileManager* fileManager = [NSFileManager defaultManager];
-        BOOL isDir = NO;
-        BOOL exists = [fileManager fileExistsAtPath:thePakDir isDirectory:&isDir];
-        if (!exists || !isDir) {
-            NSLog(@"Warning: Pak directory %@ does not exist", thePakDir);
-            return nil;
-        }
-        
-        NSArray* contents = [fileManager contentsOfDirectoryAtPath:thePakDir error:NULL];
-        if (contents == nil) {
-            NSLog(@"Warning: An error occured accessing pak directory %@", thePakDir);
-            return nil;
-        }
-
-        directoriesInPakDir = [[NSMutableArray alloc] init];
-        
-        NSEnumerator* contentsEn = [contents objectEnumerator];
-        NSString* content;
-        while ((content = [contentsEn nextObject])) {
-            if ([[content pathExtension] isEqualToString:@".pak"]) {
-                NSString* pakPath = [thePakDir stringByAppendingPathComponent:content];
-                if ([fileManager isReadableFileAtPath:pakPath]) {
-                    NSData* pakData = [[NSData alloc] initWithContentsOfMappedFile:pakPath];
-                    PakDirectory* pakDirectory = [[PakDirectory alloc] initWithName:content data:pakData];
-                    [directoriesInPakDir addObject:pakDirectory];
-                    
-                    [pakDirectory release];
-                    [pakData release];
-                }
+- (NSData *)entryWithName:(NSString *)theEntryName pakPaths:(NSArray *)thePakPaths {
+    NSAssert(theEntryName != nil, @"entry name must not be nil");
+    NSAssert(thePakPaths != nil, @"pak path array must not be nil");
+    NSAssert([thePakPaths count] > 0, @"pak path array must not be empty");
+    
+    NSEnumerator* pakPathEn = [thePakPaths reverseObjectEnumerator];
+    NSString* pakPath;
+    while ((pakPath = [pakPathEn nextObject])) {
+        NSArray* pakDirectories = [self pakDirectoriesAtPath:pakPath];
+        if (pakDirectories != nil) {
+            NSEnumerator* pakDirectoryEn = [pakDirectories reverseObjectEnumerator];
+            PakDirectory* pakDirectory;
+            while ((pakDirectory = [pakDirectoryEn nextObject])) {
+                NSData* entry = [pakDirectory entryForName:theEntryName];
+                if (entry != nil)
+                    return entry;
             }
         }
-        
-        if ([directoriesInPakDir count] == 0) {
-            [directoriesInPakDir release];
-            NSLog(@"Warning: Pak directory %@ does not contain any pak files", thePakDir);
-            return nil;
-        } else {
-            [directoriesInPakDir sortUsingSelector:@selector(compareByName:)];
-            [directories setObject:directoriesInPakDir forKey:thePakDir];
-        }
-        
-        [directoriesInPakDir release];
     }
     
-    NSEnumerator* directoryEn = [directoriesInPakDir objectEnumerator];
-    PakDirectory* directory;
-    while ((directory = [directoryEn nextObject])) {
-        PakDirectoryEntry* entry = [directory entryForName:theEntryName];
-        if (entry != nil)
-            return entry;
-    }
-    
-    NSLog(@"Warning: Pak directory %@ does not contain an entry with name @%", thePakDir, theEntryName);
+    NSLog(@"No entry with name %@ was found in pak paths %@", theEntryName, thePakPaths);
     return nil;
 }
 

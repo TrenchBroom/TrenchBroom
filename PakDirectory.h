@@ -11,15 +11,15 @@
 @class PakDirectoryEntry;
 
 @interface PakDirectory : NSObject {
-    NSString* name;
+    NSString* path;
+    NSFileHandle* handle;
     NSMutableDictionary* entries;
 }
 
-- (id)initWithName:(NSString *)theName data:(NSData *)theData;
+- (id)initWithPath:(NSString *)thePath;
 
-- (NSString *)name;
-- (void)addEntry:(PakDirectoryEntry *)theEntry;
-- (PakDirectoryEntry *)entryForName:(NSString *)theName;
+- (NSString *)path;
+- (NSData *)entryForName:(NSString *)theName;
 
 - (NSComparisonResult)compareByName:(PakDirectory *)other;
 @end

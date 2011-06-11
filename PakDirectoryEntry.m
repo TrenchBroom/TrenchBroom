@@ -32,8 +32,10 @@
     return name;
 }
 
-- (NSData *)entryDataFromFileData:(NSData *)theFileData {
-    return [theFileData subdataWithRange:NSMakeRange(address, size)];
+- (NSData *)entryDataFromHandle:(NSFileHandle *)theHandle {
+    NSAssert(theHandle != nil, @"handle must not be nil");
+    [theHandle seekToFileOffset:address];
+    return [theHandle readDataOfLength:size];
 }
 
 @end

@@ -13,7 +13,9 @@
 @interface PakManager : NSObject {
     NSMutableDictionary* directories;
 }
+
 + (PakManager *)sharedManager;
-- (PakDirectoryEntry *)entryFromPakDir:(NSString *)thePakDir entryName:(NSString *)theEntryName;
+
+- (NSData *)entryWithName:(NSString *)theEntryName pakPaths:(NSArray *)thePakPaths;
 
 @end

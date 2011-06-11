@@ -18,6 +18,6 @@
 - (id)initWithName:(NSString *)theName address:(int)theAddress size:(int)theSize;
 
 - (NSString *)name;
-- (NSData *)entryDataFromFileData:(NSData *)theFileData;
+- (NSData *)entryDataFromHandle:(NSFileHandle *)theHandle;
 
 @end
