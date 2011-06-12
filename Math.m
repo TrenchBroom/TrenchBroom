@@ -66,6 +66,18 @@ BOOL finii(float v, float b1, float b2) {
     return b1 < b2 ? fgte(v, b1) && flte(v, b2) : fgte(v, b2) && flte(v, b1);
 }
 
+int mini(int v1, int v2) {
+    if (v1 < v2)
+        return v1;
+    return v2;
+}
+
+int maxi(int v1, int v2) {
+    if (v1 > v2)
+        return v1;
+    return v2;
+}
+
 #pragma mark TVector3f functions
 
 void addV3f(const TVector3f* l, const TVector3f* r, TVector3f* o) {

@@ -91,7 +91,7 @@ NSString* const RendererChanged = @"RendererChanged";
     id <Face> face;
     while ((face = [faceEn nextObject])) {
         id <Brush> brush = [face brush];
-        if (filter == nil || [filter brushPasses:brush]) {
+        if (filter == nil || [filter isBrushRenderable:brush]) {
             NSArray* vertices = [face vertices];
             int vertexCount = [vertices count];
             
@@ -403,6 +403,16 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)optionsChanged:(NSNotification *)notification {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    Options* options = [windowController options];
+
+    [filter release];
+    filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager options:options];
+    
+    [geometryLayer setFilter:filter];
+    [selectionLayer setFilter:filter];
+    [entityLayer setFilter:filter];
+
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
@@ -419,7 +429,7 @@ NSString* const RendererChanged = @"RendererChanged";
 @implementation Renderer
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         windowController = theWindowController;
 
         sharedVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];

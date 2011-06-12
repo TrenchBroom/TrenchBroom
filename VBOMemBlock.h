@@ -43,8 +43,8 @@ typedef enum {
 
 - (int)writeBuffer:(const void*)theBuffer offset:(int)theOffset count:(int)theCount;
 - (int)writeFloat:(float)theFloat offset:(int)theOffset;
-- (int)writeVector3f:(TVector3f *)theVector offset:(int)theOffset;
-- (int)writeVector2f:(TVector2f *)theVector offset:(int)theOffset;
+- (int)writeVector3f:(const TVector3f *)theVector offset:(int)theOffset;
+- (int)writeVector2f:(const TVector2f *)theVector offset:(int)theOffset;
 
 - (VBOMemBlock *)previous;
 - (VBOMemBlock *)next;

@@ -94,6 +94,8 @@ BOOL finxx(float v, float b1, float b2);
 BOOL finxi(float v, float b1, float b2);
 BOOL finix(float v, float b1, float b2);
 BOOL finii(float v, float b1, float b2);
+int mini(int v1, int v2);
+int maxi(int v1, int v2);
 
 float dot3f(float lx, float ly, float lz, float rx, float ry, float rz);
 

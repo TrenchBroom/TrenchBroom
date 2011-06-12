@@ -17,7 +17,7 @@
 @implementation Picker
 
 - (id)initWithDocument:(MapDocument *)theDocument {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         octree = [[Octree alloc] initWithDocument:theDocument minSize:64];
     }
     
@@ -33,11 +33,11 @@
     while ((object = [objectEn nextObject])) {
         if ([object conformsToProtocol:@protocol(Brush)]) {
             id <Brush> brush = (id <Brush>)object;
-            if (filter == nil || [filter brushPasses:brush])
+            if (filter == nil || [filter isBrushPickable:brush])
                 [brush pick:ray hitList:hitList];
         } else if ([object conformsToProtocol:@protocol(Entity)]) {
             id <Entity> entity = (id <Entity>)object;
-            if (filter == nil || [filter entityPasses:entity])
+            if (filter == nil || [filter isEntityPickable:entity])
                 [entity pick:ray hitList:hitList];
         }
     }

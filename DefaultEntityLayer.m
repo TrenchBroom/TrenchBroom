@@ -8,46 +8,59 @@
 
 #import "DefaultEntityLayer.h"
 #import "EntityBoundsRenderer.h"
+#import "EntityAliasRenderer.h"
 #import "Entity.h"
 #import "Options.h"
 
 @implementation DefaultEntityLayer
 
 - (id)initWithOptions:(Options *)theOptions {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         options = [theOptions retain];
         boundsRenderer = [[EntityBoundsRenderer alloc] init];
+        aliasRenderer = [[EntityAliasRenderer alloc] init];
     }
     
     return self;
 }
 
+- (void)dealloc {
+    [boundsRenderer release];
+    [aliasRenderer release];
+    [options release];
+    [super dealloc];
+}
+
 - (void)addEntity:(id <Entity>)entity {
     [boundsRenderer addEntity:entity];
+    [aliasRenderer addEntity:entity];
 }
 
 - (void)removeEntity:(id <Entity>)entity {
     [boundsRenderer removeEntity:entity];
+    [aliasRenderer removeEntity:entity];
 }
 
 - (void)updateEntity:(id <Entity>)entity {
-    [boundsRenderer removeEntity:entity];
-    [boundsRenderer addEntity:entity];
+    [self removeEntity:entity];
+    [self addEntity:entity];
 }
 
 - (void)render {
-    if ([options renderEntities])
-        [boundsRenderer renderWithColor:YES];
+    if ([options renderEntities]) {
+        if ([options isolationMode] == IM_NONE) {
+            [boundsRenderer renderWithColor:YES];
+            [aliasRenderer render];
+        } else if ([options isolationMode] == IM_WIREFRAME) {
+            glColor4f(1, 1, 1, 0.6f);
+            [boundsRenderer renderWithColor:NO];
+        }
+    }
 }
 
 - (void)setFilter:(id <Filter>)theFilter {
     [boundsRenderer setFilter:theFilter];
-}
-
-- (void)dealloc {
-    [boundsRenderer release];
-    [options release];
-    [super dealloc];
+    [aliasRenderer setFilter:theFilter];
 }
 
 @end

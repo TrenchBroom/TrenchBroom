@@ -6,10 +6,10 @@
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "EntityModelSkin.h"
+#import "AliasSkin.h"
 
 
-@implementation EntityModelSkin
+@implementation AliasSkin
 - (id)initSingleSkin:(NSData *)thePicture width:(int)theWidth height:(int)theHeight {
     NSAssert(thePicture != nil, @"picture must not be nil");
     

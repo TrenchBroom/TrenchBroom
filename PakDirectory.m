@@ -52,6 +52,8 @@ int const PAK_ENTRY_SIZE_OFFSET = 0x3C;
         int dirSize = readInt(headerData, PAK_DIR_SIZE_OFFSET);
         int numEntries = dirSize / PAK_ENTRY_SIZE;
         
+        entries = [[NSMutableDictionary alloc] initWithCapacity:numEntries];
+
         [handle seekToFileOffset:dirOffset];
         NSData* directoryData = [handle readDataOfLength:dirSize];
         

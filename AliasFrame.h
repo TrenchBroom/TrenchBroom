@@ -7,10 +7,10 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "EntityModel.h"
+#import "Alias.h"
 #import "Math.h"
 
-@interface EntityModelFrame : NSObject {
+@interface AliasFrame : NSObject {
     NSString* name;
     TFrameTriangle* triangles;
     int triangleCount;
@@ -22,5 +22,6 @@
 - (NSString *)name;
 - (int)triangleCount;
 - (const TFrameTriangle *)triangleAtIndex:(int)theIndex;
+- (const TBoundingBox *)bounds;
 
 @end

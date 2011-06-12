@@ -6,11 +6,11 @@
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "EntityModel.h"
-#import "EntityModelSkin.h"
-#import "EntityNormals.h"
-#import "EntityModelFrame.h"
-#import "EntityModelFrameGroup.h"
+#import "Alias.h"
+#import "AliasSkin.h"
+#import "AliasNormals.h"
+#import "AliasFrame.h"
+#import "AliasFrameGroup.h"
 #import "IO.h"
 
 int const MDL_HEADER_SCALE = 0x8;
@@ -46,7 +46,7 @@ int const MDL_SINGLE_FRAME_MIN = 0x4;
 int const MDL_SINGLE_FRAME_MAX = 0x8;
 int const MDL_SINGLE_FRAME_NAME = 0xC;
 int const MDL_SINGLE_FRAME_NAME_SIZE = 0x10;
-int const MDL_SINGLE_FRAME_VERTICES = 0x22;
+int const MDL_SINGLE_FRAME_VERTICES = 0x1C;
 int const MDL_MULTI_FRAME_NUMFRAMES = 0x4;
 int const MDL_MULTI_FRAME_MIN = 0x8;
 int const MDL_MULTI_FRAME_MAX = 0xC;
@@ -63,17 +63,17 @@ void unpackFrameVertex(const TPackedFrameVertex* packedVertex, const TVector3f* 
     vertex->position.x = size->x * packedVertex->x + origin->x;
     vertex->position.y = size->y * packedVertex->y + origin->y;
     vertex->position.z = size->z * packedVertex->z + origin->z;
-    vertex->norm = EntityNormals[packedVertex->i];
+    vertex->norm = AliasNormals[packedVertex->i];
 }
 
-void setTexCoordinates(const TSkinVertex* skinVertex, BOOL front, int skinWidth, TFrameVertex* vertex) {
-    vertex->texCoords.x = skinVertex->s;
-    vertex->texCoords.y = skinVertex->t;
+void setTexCoordinates(const TSkinVertex* skinVertex, BOOL front, int skinWidth, int skinHeight, TFrameVertex* vertex) {
+    vertex->texCoords.x = (float)skinVertex->s / skinWidth;
+    vertex->texCoords.y = (float)skinVertex->t / skinHeight;
     if (skinVertex->onseam && !front)
-        vertex->texCoords.x += skinWidth / 2;
+        vertex->texCoords.x += 0.5f;
 }
 
-EntityModelFrame* readFrame(NSData* data, int address, TVector3f* origin, TVector3f* scale, int skinWidth, TSkinVertex* vertices, int vertexCount, TSkinTriangle* triangles, int triangleCount) {
+AliasFrame* readFrame(NSData* data, int address, TVector3f* origin, TVector3f* scale, int skinWidth, int skinHeight, TSkinVertex* vertices, int vertexCount, TSkinTriangle* triangles, int triangleCount) {
     NSString* name = readString(data, NSMakeRange(address + MDL_SINGLE_FRAME_NAME, MDL_SINGLE_FRAME_NAME_SIZE));
     
     TPackedFrameVertex packedFrameVertices[vertexCount];
@@ -85,21 +85,26 @@ EntityModelFrame* readFrame(NSData* data, int address, TVector3f* origin, TVecto
         for (int j = 0; j < 3; j++) {
             int index = triangles[i].vertices[j];
             unpackFrameVertex(&packedFrameVertices[index], origin, scale, &frameTriangles[i].vertices[j]);
-            setTexCoordinates(&vertices[index], triangles[i].front, skinWidth, &frameTriangles[i].vertices[j]);
+            setTexCoordinates(&vertices[index], triangles[i].front, skinWidth, skinHeight, &frameTriangles[i].vertices[j]);
         }
     }
     
-    return [[[EntityModelFrame alloc] initWithName:name triangles:frameTriangles triangleCount:triangleCount] autorelease];
+    return [[[AliasFrame alloc] initWithName:name triangles:frameTriangles triangleCount:triangleCount] autorelease];
 }
 
-@implementation EntityModel
+@implementation Alias
 
-- (id)initWithData:(NSData *)theData {
+- (id)initWithName:(NSString *)theName data:(NSData *)theData {
+    NSAssert(theName != nil, @"name must not be nil");
+    NSAssert(theData != nil, @"data must not be nil");
+    
     if (self = [self init]) {
+        name = [[NSString alloc] initWithString:theName];
+        
         TVector3f scale = readVector3f(theData, MDL_HEADER_SCALE);
         TVector3f origin = readVector3f(theData, MDL_HEADER_ORIGIN);
-        float radius = readFloat(theData, MDL_HEADER_RADIUS);
-        TVector3f offsets = readVector3f(theData, MDL_HEADER_OFFSETS);
+        // float radius = readFloat(theData, MDL_HEADER_RADIUS);
+        // TVector3f offsets = readVector3f(theData, MDL_HEADER_OFFSETS);
 
         int skinCount = readInt(theData, MDL_HEADER_NUMSKINS);
         int skinWidth = readInt(theData, MDL_HEADER_SKINWIDTH);
@@ -110,9 +115,9 @@ EntityModelFrame* readFrame(NSData* data, int address, TVector3f* origin, TVecto
         int triangleCount = readInt(theData, MDL_HEADER_NUMTRIS);
         int frameCount = readInt(theData, MDL_HEADER_NUMFRAMES);
 
-        int syncType = readInt(theData, MDL_HEADER_SYNCTYPE);
-        int flags = readInt(theData, MDL_HEADER_FLAGS);
-        float size = readFloat(theData, MDL_HEADER_SIZE);
+        // int syncType = readInt(theData, MDL_HEADER_SYNCTYPE);
+        // int flags = readInt(theData, MDL_HEADER_FLAGS);
+        // float size = readFloat(theData, MDL_HEADER_SIZE);
 
         skins = [[NSMutableArray alloc] initWithCapacity:skinCount];
         int address = MDL_SKINS;
@@ -120,7 +125,7 @@ EntityModelFrame* readFrame(NSData* data, int address, TVector3f* origin, TVecto
             int skinGroup = readInt(theData, address);
             if (skinGroup == 0) {
                 NSData* skinPicture = [theData subdataWithRange:NSMakeRange(address + MDL_SINGLE_SKIN, skinSize)];
-                EntityModelSkin* skin = [[EntityModelSkin alloc] initSingleSkin:skinPicture width:skinWidth height:skinHeight];
+                AliasSkin* skin = [[AliasSkin alloc] initSingleSkin:skinPicture width:skinWidth height:skinHeight];
                 [skins addObject:skin];
                 [skin release];
                 address += 4 + skinSize;
@@ -136,7 +141,7 @@ EntityModelFrame* readFrame(NSData* data, int address, TVector3f* origin, TVecto
                     [skinPicture release];
                 }
                 
-                EntityModelSkin* skin = [[EntityModelSkin alloc] initMultiSkin:skinPictures times:times width:skinWidth height:skinHeight];
+                AliasSkin* skin = [[AliasSkin alloc] initMultiSkin:skinPictures times:times width:skinWidth height:skinHeight];
                 [skins addObject:skin];
                 [skin release];
                 [skinPictures release];
@@ -164,12 +169,11 @@ EntityModelFrame* readFrame(NSData* data, int address, TVector3f* origin, TVecto
         }
         
         // now address points to the first frame
+        frames = [[NSMutableArray alloc] init];
         for (int i = 0; i < frameCount; i++) {
             int type = readInt(theData, address);
             if (type == 0) { // single frame
-                EntityModelFrame* frame = readFrame(theData, address, &origin, &scale, skinWidth, vertices, vertexCount, triangles, triangleCount);
-                [frames addObject:frame];
-                [frame release];
+                [frames addObject:readFrame(theData, address, &origin, &scale, skinWidth, skinHeight, vertices, vertexCount, triangles, triangleCount)];
             } else { // frame group
                 int groupFrameCount = readInt(theData, address + MDL_MULTI_FRAME_NUMFRAMES);
                 int timeAddress = address + MDL_MULTI_FRAME_TIMES;
@@ -181,13 +185,14 @@ EntityModelFrame* readFrame(NSData* data, int address, TVector3f* origin, TVecto
                     groupFrameTimes[j] = readFloat(theData, timeAddress);
                     timeAddress += 0x4;
                     
-                    [groupFrames addObject:readFrame(theData, frameAddress, &origin, &scale, skinWidth, vertices, vertexCount, triangles, triangleCount)];
+                    [groupFrames addObject:readFrame(theData, frameAddress, &origin, &scale, skinWidth, skinHeight, vertices, vertexCount, triangles, triangleCount)];
                     frameAddress += MDL_SINGLE_FRAME_NAME_SIZE + (vertexCount + 2) * MDL_FRAME_VERTEX_SIZE;
                 }
                 
-                EntityModelFrameGroup* frameGroup = [[EntityModelFrameGroup alloc] initWithFrames:groupFrames times:groupFrameTimes];
+                AliasFrameGroup* frameGroup = [[AliasFrameGroup alloc] initWithFrames:groupFrames times:groupFrameTimes];
                 [frames addObject:frameGroup];
                 [frameGroup release];
+                [groupFrames release];
             }
         }
     }
@@ -196,9 +201,27 @@ EntityModelFrame* readFrame(NSData* data, int address, TVector3f* origin, TVecto
 }
 
 - (void)dealloc {
+    [name release];
     [frames release];
     [skins release];
     [super dealloc];
 }
-                                                 
+
+- (NSString *)name {
+    return name;
+}
+
+- (AliasFrame *)firstFrame {
+    id frame = [frames objectAtIndex:0];
+    if ([frame isKindOfClass:[AliasFrame class]])
+        return frame;
+    
+    AliasFrameGroup* group = (AliasFrameGroup *)frame;
+    return [group frameAtIndex:0];
+}
+
+- (AliasSkin *)firstSkin {
+    return [skins objectAtIndex:0];
+}
+
 @end

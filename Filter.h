@@ -13,7 +13,9 @@
 
 @protocol Filter <NSObject>
 
-- (BOOL)brushPasses:(id <Brush>)brush;
-- (BOOL)entityPasses:(id <Entity>)entity;
+- (BOOL)isBrushRenderable:(id <Brush>)brush;
+- (BOOL)isEntityRenderable:(id <Entity>)entity;
+- (BOOL)isBrushPickable:(id <Brush>)brush;
+- (BOOL)isEntityPickable:(id <Entity>)entity;
 
 @end

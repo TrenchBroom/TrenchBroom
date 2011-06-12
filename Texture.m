@@ -9,33 +9,33 @@
 #import "Texture.h"
 #import "IdGenerator.h"
 #import "WadTextureEntry.h"
+#import "AliasSkin.h"
+#import "Math.h"
 
 @interface Texture (private)
 
-- (NSData *)convertTexture:(WadTextureEntry *)textureEntry palette:(NSData *)thePalette;
+- (NSData *)convertTexture:(NSData *)theTextureData width:(int)theWidth height:(int)theHeight palette:(NSData *)thePalette;
 
 @end
 
 @implementation Texture (private)
 
-- (NSData *)convertTexture:(WadTextureEntry *)textureEntry palette:(NSData *)thePalette {
+- (NSData *)convertTexture:(NSData *)theTextureData width:(int)theWidth height:(int)theHeight palette:(NSData *)thePalette {
     uint8_t pixelBuffer[32];
     uint8_t colorBuffer[3];
     
-    int w = [textureEntry width];
-    int h = [textureEntry height];
-    int size = w * h;
-    
-    NSData* textureData = [textureEntry mip0];
+    int size = theWidth * theHeight;
     NSMutableData* texture = [[NSMutableData alloc] initWithCapacity:size * 3];
     
-    for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
-            int pixelIndex = y * w + x;
+    for (int y = 0; y < theHeight; y++) {
+        for (int x = 0; x < theWidth; x++) {
+            int pixelIndex = y * theWidth + x;
+            if (pixelIndex == 57408)
+                NSLog(@"asdf");
             int pixelBufferIndex = pixelIndex % 32;
             if (pixelBufferIndex == 0) {
-                int length = fmin(32, size - (pixelBufferIndex * 32));
-                [textureData getBytes:pixelBuffer range:NSMakeRange(pixelIndex, length)];
+                int length = mini(32, size - pixelIndex);
+                [theTextureData getBytes:pixelBuffer range:NSMakeRange(pixelIndex, length)];
             }
             
             int paletteIndex = pixelBuffer[pixelBufferIndex];
@@ -54,15 +54,29 @@
 
 - (id)initWithWadEntry:(WadTextureEntry *)theEntry palette:(NSData *)thePalette {
     NSAssert(theEntry != nil, @"texture entry must not be nil");
-    NSAssert(thePalette != nil, @"palette must not be nil");
+    return [self initWithName:[theEntry name] image:[theEntry mip0] width:[theEntry width] height:[theEntry height] palette:thePalette];
+}
+
+- (id)initWithName:(NSString *)theName skin:(AliasSkin *)theSkin index:(int)theIndex palette:(NSData *)thePalette {
+    NSAssert(theSkin != nil, @"skin must not be nil");
+    return [self initWithName:theName image:[theSkin pictureAtIndex:theIndex] width:[theSkin width] height:[theSkin height] palette:thePalette];
+}
+
+- (id)initWithName:(NSString *)theName image:(NSData *)theImage width:(int)theWidth height:(int)theHeight palette:(NSData *)thePalette {
+    NSAssert(theName != nil, @"name must not be nil");
+    NSAssert(theImage != nil, @"image must not be nil");
+    NSAssert(theWidth > 0, @"width must be positive");
+    NSAssert(theHeight > 0, @"height must be positive");
+    NSAssert(thePalette != nil, @"palette must no be nil");
     
     if (self = [self init]) {
         uniqueId = [[[IdGenerator sharedGenerator] getId] retain];
         
-        name = [[theEntry name] retain];
-        data = [[self convertTexture:theEntry palette:thePalette] retain];
-        width = [theEntry width];
-        height = [theEntry height];
+        name = [[NSString alloc] initWithString:theName];
+        width = theWidth;
+        height = theHeight;
+        data = [[self convertTexture:theImage width:width height:height palette:thePalette] retain];
+        
         textureId = 0;
     }
     

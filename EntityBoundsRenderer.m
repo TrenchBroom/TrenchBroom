@@ -24,6 +24,7 @@
 - (void) validate {
     if (!valid) {
         [quads freeAllBlocks];
+        quadCount = 0;
 
         [quads activate];
         [quads mapBuffer];
@@ -34,7 +35,7 @@
         NSEnumerator* entityEn = [entities objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
-            if (filter == nil || [filter entityPasses:entity]) {
+            if (filter == nil || [filter isEntityRenderable:entity]) {
                 VBOMemBlock* quadsBlock = [quads allocMemBlock:6 * 4 * (3 + 3) * sizeof(float)];
                 
                 EntityDefinition* definition = [entity entityDefinition];
@@ -150,6 +151,7 @@
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 [quadsBlock setState:BS_USED_VALID];
+                quadCount += 6;
             }
         }
         
@@ -164,7 +166,7 @@
 @implementation EntityBoundsRenderer
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         quads = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
         entities = [[NSMutableSet alloc] init];
     }
@@ -187,7 +189,6 @@
 - (void)renderWithColor:(BOOL)doRenderWithColor {
     [self validate];
     
-    int quadCount = ([quads totalCapacity] - [quads freeCapacity]) / (6 * sizeof(float));
     [quads activate];
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDisable(GL_CULL_FACE);
@@ -195,7 +196,7 @@
         glInterleavedArrays(GL_C3F_V3F, 0, 0);
     else
         glVertexPointer(3, GL_FLOAT, 6 * sizeof(float), (const GLvoid *) (3 * sizeof(float)));
-    glDrawArrays(GL_QUADS, 0, quadCount);
+    glDrawArrays(GL_QUADS, 0, quadCount * 4);
     glDisableClientState(GL_COLOR_ARRAY);
     glEnable(GL_CULL_FACE);
     [quads deactivate];
@@ -203,9 +204,6 @@
 }
 
 - (void)setFilter:(id <Filter>)theFilter {
-    if (filter == theFilter)
-        return;
-    
     [filter release];
     filter = [theFilter retain];
     valid = NO;

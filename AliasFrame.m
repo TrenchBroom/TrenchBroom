@@ -6,14 +6,14 @@
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "EntityModelFrame.h"
+#import "AliasFrame.h"
 
-@implementation EntityModelFrame
+@implementation AliasFrame
 
 - (id)initWithName:(NSString *)theName triangles:(TFrameTriangle *)theTriangles triangleCount:(int)theTriangleCount {
     NSAssert(theName != nil, @"name must not be nil");
     NSAssert(theTriangles != NULL, @"triangle array must not be NULL");
-    NSAssert(triangleCount > 0, @"triangle count must be greater than 0");
+    NSAssert(theTriangleCount > 0, @"triangle count must be greater than 0");
     
     if (self = [self init]) {
         name = [[NSString alloc] initWithString:theName];
@@ -49,6 +49,10 @@
 - (const TFrameTriangle *)triangleAtIndex:(int)theIndex {
     NSAssert(theIndex >= 0 && theIndex < triangleCount, @"index out of bounds");
     return &triangles[theIndex];
+}
+
+- (const TBoundingBox *)bounds {
+    return &bounds;
 }
 
 @end

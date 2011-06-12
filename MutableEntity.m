@@ -127,6 +127,12 @@
             return;
         }
         valid = NO;
+    } else if ([key isEqualToString:AngleKey]) {
+        [angle release];
+        if (value != nil)
+            angle = [[NSNumber alloc] initWithInt:[value intValue]];
+        else
+            angle = nil;
     }
     
     NSString* oldValue = [self propertyForKey:key];
@@ -148,6 +154,9 @@
     } else if ([key isEqualToString:OriginKey]) {
         NSLog(@"Cannot delete origin property");
         return;
+    } else if ([key isEqualToString:AngleKey]) {
+        [angle release];
+        angle = nil;
     }
 
     NSString *oldValue = [self propertyForKey:key];
@@ -182,6 +191,7 @@
 	[properties release];
 	[brushes release];
     [entityDefinition release];
+    [angle release];
 	[super dealloc];
 }
 
@@ -239,6 +249,10 @@
         [NSException raise:NSInternalInconsistencyException format:@"Entity is not a point entity (ID %@)", entityId];
     
     return &origin;
+}
+
+- (NSNumber *)angle {
+    return angle;
 }
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList {

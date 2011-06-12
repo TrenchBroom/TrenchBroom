@@ -21,7 +21,7 @@
 @implementation GeometryLayer
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         faces = [[NSMutableSet alloc] init];
         addedFaces = [[NSMutableSet alloc] init];
         removedFaces = [[NSMutableSet alloc] init];
@@ -36,7 +36,7 @@
     NSAssert(theVbo != nil, @"VBO must not be nil");
     NSAssert(theTextureManager != nil, @"texture manager must not be nil");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         sharedVbo = [theVbo retain];
         textureManager = [theTextureManager retain];
         options = [theOptions retain];
@@ -95,7 +95,7 @@
     glActiveTexture(GL_TEXTURE0);
     if (textured) {
         glEnable(GL_TEXTURE_2D);
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+        [self setTextureMode];
         glClientActiveTexture(GL_TEXTURE0);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (2 * sizeof(float)));
@@ -103,8 +103,7 @@
         glDisable(GL_TEXTURE_2D);
     }
     
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(3, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (4 * sizeof(float)));
+    [self setFaceColorMode];
     glVertexPointer(3, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (7 * sizeof(float)));
     
     NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
@@ -156,6 +155,15 @@
 }
 
 - (void)postRenderEdges {
+}
+
+- (void)setTextureMode {
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+}
+
+- (void)setFaceColorMode {
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(3, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (4 * sizeof(float)));
 }
 
 - (BOOL)doRenderFaces {
@@ -218,7 +226,7 @@
     id <Face> face;
     while ((face = [faceEn nextObject])) {
         id <Brush> brush = [face brush];
-        if (filter == nil || [filter brushPasses:brush]) {
+        if (filter == nil || [filter isBrushRenderable:brush]) {
             VBOMemBlock* block = [face memBlock];
             NSAssert(block != nil, @"face must have VBO mem block");
             NSAssert([block state] == BS_USED_VALID, @"VBO mem block must be valid");
@@ -272,9 +280,6 @@
 }
 
 - (void)setFilter:(id <Filter>)theFilter {
-    if (filter == theFilter)
-        return;
-    
     [filter release];
     filter = [theFilter retain];
 

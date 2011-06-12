@@ -9,12 +9,19 @@
 #import <Cocoa/Cocoa.h>
 #import "Math.h"
 
-@interface EntityModelFrameGroup : NSObject {
+@class AliasFrame;
+
+@interface AliasFrameGroup : NSObject {
     float* times;
     NSArray* frames;
     TBoundingBox bounds;
 }
 
 - (id)initWithFrames:(NSArray *)theFrames times:(float *)theTimes;
+
+- (int)frameCount;
+- (float)timeAtIndex:(int)theIndex;
+- (AliasFrame *)frameAtIndex:(int)theIndex;
+- (const TBoundingBox *)bounds;
 
 @end

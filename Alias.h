@@ -9,6 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import "Math.h"
 
+@class AliasFrame;
+@class AliasSkin;
+
 typedef struct {
     BOOL onseam;
     int s;
@@ -34,11 +37,16 @@ typedef struct {
     TFrameVertex vertices[3];
 } TFrameTriangle;
 
-@interface EntityModel : NSObject {
+@interface Alias : NSObject {
+    NSString* name;
     NSMutableArray* frames;
     NSMutableArray* skins;
 }
 
-- (id)initWithData:(NSData *)theData;
+- (id)initWithName:(NSString *)theName data:(NSData *)theData;
+
+- (NSString *)name;
+- (AliasFrame *)firstFrame;
+- (AliasSkin *)firstSkin;
 
 @end

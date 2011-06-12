@@ -10,11 +10,13 @@
 #import "EntityLayer.h"
 
 @class EntityBoundsRenderer;
+@class EntityAliasRenderer;
 @class Options;
 
 @interface DefaultEntityLayer : NSObject <EntityLayer> {
     Options* options;
     EntityBoundsRenderer* boundsRenderer;
+    EntityAliasRenderer* aliasRenderer;
 }
 
 - (id)initWithOptions:(Options *)theOptions;

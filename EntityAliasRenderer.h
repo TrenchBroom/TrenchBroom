@@ -1,8 +1,8 @@
 //
-//  EntityBoundsRenderer.h
+//  AliasRenderer.h
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 25.04.11.
+//  Created by Kristian Duske on 12.06.11.
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
@@ -12,18 +12,19 @@
 @protocol Entity;
 @protocol Filter;
 
-@interface EntityBoundsRenderer : NSObject {
-    VBOBuffer* quads;
-    int quadCount;
+@interface EntityAliasRenderer : NSObject {
+    VBOBuffer* vbo;
     NSMutableSet* entities;
-    BOOL valid;
+    NSMutableDictionary* aliasRenderers;
+    NSMutableDictionary* entityRenderers;
+    NSData* palette;
     id <Filter> filter;
 }
 
 - (void)addEntity:(id <Entity>)entity;
 - (void)removeEntity:(id <Entity>)entity;
 
-- (void)renderWithColor:(BOOL)doRenderWithColor;
+- (void)render;
 
 - (void)setFilter:(id <Filter>)theFilter;
 @end

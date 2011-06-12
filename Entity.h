@@ -17,6 +17,7 @@
 static NSString* const ClassnameKey = @"classname";
 static NSString* const WorldspawnClassname = @"worldspawn";
 static NSString* const OriginKey = @"origin";
+static NSString* const AngleKey = @"angle";
 
 @protocol Entity <NSObject>
 
@@ -35,6 +36,7 @@ static NSString* const OriginKey = @"origin";
 - (TBoundingBox *)bounds;
 - (TVector3f *)center;
 - (TVector3i *)origin;
+- (NSNumber *)angle;
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
 

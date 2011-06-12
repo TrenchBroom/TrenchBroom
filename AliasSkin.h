@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface EntityModelSkin : NSObject {
+@interface AliasSkin : NSObject {
     int width;
     int height;
     float* times;

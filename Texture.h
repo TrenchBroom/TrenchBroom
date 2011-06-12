@@ -10,6 +10,7 @@
 #import <OpenGL/gl.h>
 
 @class WadTextureEntry;
+@class AliasSkin;
 
 @interface Texture : NSObject {
     NSString* name;
@@ -22,6 +23,8 @@
 }
 
 - (id)initWithWadEntry:(WadTextureEntry *)theEntry palette:(NSData *)thePalette;
+- (id)initWithName:(NSString *)theName skin:(AliasSkin *)theSkin index:(int)theIndex palette:(NSData *)thePalette;
+- (id)initWithName:(NSString *)theName image:(NSData *)theImage width:(int)theWidth height:(int)theHeight palette:(NSData *)thePalette;
 
 - (NSString *)name;
 - (NSNumber *)uniqueId;

@@ -23,6 +23,7 @@
 	NSMutableDictionary* properties;
     TVector3f center;
     TVector3i origin;
+    NSNumber* angle;
     TBoundingBox bounds;
     BOOL valid;
     int filePosition;

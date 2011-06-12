@@ -43,7 +43,7 @@ static PakManager* sharedInstance = nil;
         NSString* content;
         while ((content = [contentEn nextObject])) {
             NSString* pakFileName = [content lowercaseString];
-            if ([[pakFileName pathExtension] isEqualToString:@".pak"]) {
+            if ([[pakFileName pathExtension] isEqualToString:@"pak"]) {
                 NSString* pakFilePath = [thePath stringByAppendingPathComponent:pakFileName];
                 if ([fileManager isReadableFileAtPath:pakFilePath]) {
                     PakDirectory* pakDirectory = [[PakDirectory alloc] initWithPath:pakFilePath];
