@@ -24,7 +24,6 @@
         vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
         entities = [[NSMutableSet alloc] init];
         aliasRenderers = [[NSMutableDictionary alloc] init];
-        entityRenderers = [[NSMutableDictionary alloc] init];
 
         NSBundle* mainBundle = [NSBundle mainBundle];
         NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
@@ -37,7 +36,6 @@
 - (void)dealloc {
     [entities release];
     [aliasRenderers release];
-    [entityRenderers release];
     [vbo release];
     [palette release];
     [filter release];
@@ -48,41 +46,45 @@
     NSAssert(entity != nil, @"entity must no be nil");
     
     EntityDefinition* definition = [entity entityDefinition];
-    NSArray* properties = [definition properties];
-
-    NSEnumerator* propertyEn = [properties objectEnumerator];
-    id <EntityDefinitionProperty> property;
-    while ((property = [propertyEn nextObject]))
-        if ([property type] == EDP_MODEL)
-            break;
+    if (definition == nil)
+        return;
     
-    if (property != nil) {
-        ModelProperty* modelProperty = (ModelProperty *)property;
-        NSString* modelName = [[modelProperty modelPath] substringFromIndex:1];
-        AliasRenderer* aliasRenderer = [aliasRenderers objectForKey:modelName];
-        if (aliasRenderer == nil) {
-            NSArray* pakPaths = [NSArray arrayWithObject:@"/Applications/Quake/id1"];
-
-            AliasManager* aliasManager = [AliasManager sharedManager];
-            Alias* alias = [aliasManager aliasWithName:modelName paths:pakPaths];
-            
-            if (alias != nil) {
-                aliasRenderer = [[AliasRenderer alloc] initWithAlias:alias vbo:vbo palette:palette];
-                [aliasRenderers setObject:aliasRenderer forKey:modelName];
-                [aliasRenderer release];
+    NSString* definitionName = [definition name];
+    AliasRenderer* aliasRenderer = [aliasRenderers objectForKey:definitionName];
+    if (aliasRenderer == nil) {
+        NSArray* properties = [definition properties];
+        NSEnumerator* propertyEn = [properties objectEnumerator];
+        id <EntityDefinitionProperty> property;
+        while ((property = [propertyEn nextObject]))
+            if ([property type] == EDP_MODEL)
+                break;
+        
+        // TODO factor out model loading and load models for entity definitions that do not have a model key (e.g. health)
+        if (property != nil) {
+            ModelProperty* modelProperty = (ModelProperty *)property;
+            NSString* modelName = [[modelProperty modelPath] substringFromIndex:1];
+            AliasRenderer* aliasRenderer = [aliasRenderers objectForKey:modelName];
+            if (aliasRenderer == nil) {
+                NSArray* pakPaths = [NSArray arrayWithObject:@"/Applications/Quake/id1"];
+                
+                AliasManager* aliasManager = [AliasManager sharedManager];
+                Alias* alias = [aliasManager aliasWithName:modelName paths:pakPaths];
+                
+                if (alias != nil) {
+                    aliasRenderer = [[AliasRenderer alloc] initWithAlias:alias vbo:vbo palette:palette];
+                    [aliasRenderers setObject:aliasRenderer forKey:definitionName];
+                    [aliasRenderer release];
+                }
             }
         }
-        
-        if (aliasRenderer != nil) {
-            [entities addObject:entity];
-            [entityRenderers setObject:aliasRenderer forKey:[entity entityId]];
-        }
     }
+
+    if (aliasRenderer != nil)
+        [entities addObject:entity];
 }
 
 - (void)removeEntity:(id <Entity>)entity {
     [entities removeObject:entity];
-    [entityRenderers removeObjectForKey:[entity entityId]];
 }
 
 - (void)render {
@@ -94,7 +96,9 @@
     while ((entity = [entityEn nextObject])) {
         if (filter == nil || [filter isEntityRenderable:entity]) {
             glPushMatrix();
-            AliasRenderer* aliasRenderer = [entityRenderers objectForKey:[entity entityId]];
+            EntityDefinition* definition = [entity entityDefinition];
+            NSString* definitionName = [definition name];
+            AliasRenderer* aliasRenderer = [aliasRenderers objectForKey:definitionName];
             [aliasRenderer renderWithEntity:entity];
             glPopMatrix();
         }
