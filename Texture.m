@@ -30,8 +30,6 @@
     for (int y = 0; y < theHeight; y++) {
         for (int x = 0; x < theWidth; x++) {
             int pixelIndex = y * theWidth + x;
-            if (pixelIndex == 57408)
-                NSLog(@"asdf");
             int pixelBufferIndex = pixelIndex % 32;
             if (pixelBufferIndex == 0) {
                 int length = mini(32, size - pixelIndex);

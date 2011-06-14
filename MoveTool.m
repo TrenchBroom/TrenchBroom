@@ -71,7 +71,7 @@
 @implementation MoveTool
 
 - (id)initWithController:(MapWindowController *)theWindowController {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         windowController = theWindowController;
         cursor = [[MoveCursor alloc] init];
     }
@@ -130,6 +130,9 @@
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (!drag)
+        return;
+    
     float dist = intersectPlaneWithRay(&plane, ray);
     if (isnan(dist))
         return;
@@ -170,12 +173,15 @@
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (!drag)
+        return;
+    
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setActionName:[self actionName]];
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
-
+    
     drag = NO;
 }
 

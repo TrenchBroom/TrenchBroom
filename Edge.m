@@ -159,9 +159,6 @@
         mark = EM_DROP;
     else
         mark = EM_UNDECIDED;
-    
-    if (mark == EM_DROP && (s == VM_KEEP || e == VM_KEEP))
-        NSLog(@"asdf");
 }
 
 - (void)clearMark {
