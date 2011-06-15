@@ -30,6 +30,7 @@
 		481BF7A513A4B0880040580B /* EntityAliasRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 481BF7A413A4B0880040580B /* EntityAliasRenderer.m */; };
 		481BF7AC13A4B5220040580B /* AliasRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 481BF7AB13A4B5220040580B /* AliasRenderer.m */; };
 		481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 481D300F12FAE5C0001CBD9E /* GLFontManager.m */; };
+		482A2C1E13A8ACF7009FEFC2 /* Preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 482A2C1D13A8ACF7009FEFC2 /* Preferences.xib */; };
 		482B817E13169EB200F36EF5 /* GLException.m in Sources */ = {isa = PBXBuildFile; fileRef = 482B817D13169EB200F36EF5 /* GLException.m */; };
 		482F0050134107DC00849BF5 /* ClipLineFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482F004F134107DC00849BF5 /* ClipLineFeedbackFigure.m */; };
 		482F008213410F7400849BF5 /* ClipPlaneFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482F008113410F7400849BF5 /* ClipPlaneFeedbackFigure.m */; };
@@ -217,6 +218,7 @@
 		481BF7AB13A4B5220040580B /* AliasRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AliasRenderer.m; sourceTree = "<group>"; };
 		481D300E12FAE5C0001CBD9E /* GLFontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFontManager.h; sourceTree = "<group>"; };
 		481D300F12FAE5C0001CBD9E /* GLFontManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFontManager.m; sourceTree = "<group>"; };
+		482A2C1D13A8ACF7009FEFC2 /* Preferences.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Preferences.xib; sourceTree = "<group>"; };
 		482B817C13169EB200F36EF5 /* GLException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLException.h; sourceTree = "<group>"; };
 		482B817D13169EB200F36EF5 /* GLException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLException.m; sourceTree = "<group>"; };
 		482F004E134107DC00849BF5 /* ClipLineFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipLineFeedbackFigure.h; sourceTree = "<group>"; };
@@ -548,6 +550,7 @@
 				48B3255F12E2D760008748E2 /* Defaults.plist */,
 				48E4FFD513157C46004642CD /* Inspector.xib */,
 				48B5A18C131EE2DB0043FBD9 /* PrefabNameSheet.xib */,
+				482A2C1D13A8ACF7009FEFC2 /* Preferences.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1073,6 +1076,7 @@
 				48E4FFD613157C46004642CD /* Inspector.xib in Resources */,
 				48B5A18D131EE2DB0043FBD9 /* PrefabNameSheet.xib in Resources */,
 				48FE96091363279D009B31FD /* quake.def in Resources */,
+				482A2C1E13A8ACF7009FEFC2 /* Preferences.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

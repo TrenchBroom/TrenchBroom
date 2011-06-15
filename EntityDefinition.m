@@ -13,7 +13,7 @@
 - (id)initBaseDefinitionWithName:(NSString *)theName flags:(NSArray *)theFlags properties:(NSArray *)theProperties {
     NSAssert(theName != nil, @"name must not be nil");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         name = [theName retain];
         flags = [theFlags retain];
         properties = [theProperties retain];
@@ -28,7 +28,7 @@
     NSAssert(theColor != NULL, @"color must not be null");
     NSAssert(theBounds != nil, @"bounds must not be nil");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         name = [theName retain];
         memcpy(color, theColor, 3 * sizeof(float));
         bounds = *theBounds;
@@ -45,7 +45,7 @@
     NSAssert(theName != nil, @"name must not be nil");
     NSAssert(theColor != NULL, @"color must not be null");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         name = [theName retain];
         memcpy(color, theColor, 3 * sizeof(float));
         flags = [theFlags retain];
