@@ -2,6 +2,7 @@ build/*
 build/**/*
 
 /TrenchBroom.xcodeproj/project.xcworkspace/xcuserdata/**/*
+/TrenchBroom.xcodeproj/xcuserdata/**/*
 /TrenchBroom.xcodeproj/kristian.mode1v3
 /TrenchBroom.xcodeproj/kristian.pbxuser
 /TrenchBroom.xcodeproj/kristian.perspectivev3
