@@ -750,3 +750,24 @@ void makeRing(float innerRadius, float outerRadius, int segments, TVector3f* poi
     points[2 * segments] = points[0];
     points[2 * segments + 1] = points[1];
 }
+
+int makeOpenRing3D(float radius, float angle, float thickness, int angleSegments, int ringSegments, TVector3f** points) {
+    int quadCount = angleSegments * ringSegments;
+    *points = malloc(quadCount * 4 * sizeof(TVector3f));
+    
+    float angleStep = angle / angleSegments;
+    float ringStep = 2 * M_PI / ringSegments;
+    
+    float currentAngle = 0;
+    for (int i = 0; i < angleSegments; i++) {
+        float currentRing = 0;
+        for (int j = 0; j < ringSegments; j++) {
+            
+            
+            currentRing += ringStep;
+        }
+        currentAngle += angleStep;
+    }
+    
+    return quadCount;
+}

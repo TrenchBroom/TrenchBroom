@@ -548,6 +548,22 @@ NSString* const RendererChanged = @"RendererChanged";
     glDisable(GL_LIGHT0);
     glDisable(GL_COLOR_MATERIAL);
     glDisable(GL_LIGHTING);
+    
+    // brightness
+    /*
+    float brightness = 0.5f;
+    if( brightness > 1 )
+    {
+        glBlendFunc( GL_DST_COLOR, GL_ONE );
+        glColor3f( brightness-1, brightness-1, brightness-1 );
+    }
+    else
+    {
+        glBlendFunc( GL_ZERO, GL_SRC_COLOR );
+        glColor3f( brightness, brightness, brightness );
+    }
+    glEnable( GL_BLEND );
+     */
 }
 
 - (void)dealloc {

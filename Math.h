@@ -158,3 +158,4 @@ void projectOntoPlane(EPlane plane, const TVector3f* v, TVector3f* o);
 
 void makeCircle(float radius, int segments, TVector3f* points);
 void makeRing(float innerRadius, float outerRadius, int segments, TVector3f* points);
+int makeOpenRing3D(float radius, float angle, float thickness, int angleSegments, int ringSegments, TVector3f** points);
