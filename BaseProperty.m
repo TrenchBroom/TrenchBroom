@@ -14,7 +14,7 @@
 - (id)initWithBaseName:(NSString *)theBaseName {
     NSAssert(theBaseName != nil, @"base name must not be nil");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         baseName = [theBaseName retain];
     }
     
