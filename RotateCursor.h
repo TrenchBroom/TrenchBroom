@@ -11,8 +11,9 @@
 #import "Math.h"
 
 @interface RotateCursor : NSObject <Cursor> {
-    TVector3f* quads;
-    int quadCount;
+    TVector3f position;
+    EAxis planeNormal;
 }
 
+- (void)setPlaneNormal:(EAxis)thePlaneNormal;
 @end

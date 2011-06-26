@@ -61,7 +61,7 @@
 
 @implementation FaceTool
 
-- (id)initWithController:(MapWindowController *)theWindowController {
+- (id)initWithWindowController:(MapWindowController *)theWindowController {
     if (self = [self init]) {
         windowController = theWindowController;
         dragFaceCursor = [[DragFaceCursor alloc] init];

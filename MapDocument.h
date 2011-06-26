@@ -78,8 +78,9 @@ extern NSString* const PropertyNewValueKey;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate;
 - (void)translateBrush:(id <Brush>)brush xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta;
 - (void)translateBrush:(id <Brush>)brush direction:(const TVector3f *)dir delta:(int)delta;
-- (void)rotateZ90CW:(NSSet *)brushes;
-- (void)rotateZ90CCW:(NSSet *)brushes;
+- (void)rotateZ90CW:(NSSet *)theBrushes entities:(NSSet *)theEntities;
+- (void)rotateZ90CCW:(NSSet *)theBrushes entities:(NSSet *)theEntities;
+- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter brushes:(NSSet *)theBrushes;
 - (void)deleteBrush:(id <Brush>)brush;
 
 - (void)setFace:(id <Face>)face xOffset:(int)xOffset;

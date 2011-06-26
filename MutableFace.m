@@ -198,7 +198,7 @@ static TVector3f baseAxes[18];
 }
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         faceId = [[[IdGenerator sharedGenerator] getId] retain];
         texture = [[NSMutableString alloc] init];
         filePosition = -1;
@@ -208,7 +208,7 @@ static TVector3f baseAxes[18];
 }
 
 - (id)initWithPoint1:(TVector3i *)aPoint1 point2:(TVector3i *)aPoint2 point3:(TVector3i *)aPoint3 texture:(NSString *)aTexture {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         [self setPoint1:aPoint1 point2:aPoint2 point3:aPoint3];
         [self setTexture:aTexture];
         [self setXScale:1];
@@ -219,7 +219,7 @@ static TVector3f baseAxes[18];
 }
 
 - (id)initWithFaceTemplate:(id <Face>)theTemplate {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         [self setPoint1:[theTemplate point1] point2:[theTemplate point2] point3:[theTemplate point3]];
         [self setTexture:[theTemplate texture]];
         [self setXOffset:[theTemplate xOffset]];
@@ -230,6 +230,36 @@ static TVector3f baseAxes[18];
     }
     
     return self;
+}
+
+- (id)copyWithZone:(NSZone *)zone {
+    MutableFace* result = [[MutableFace allocWithZone:zone] init];
+    
+    [result->faceId release];
+    result->faceId = [faceId retain];
+    [result setPoint1:&point1 point2:&point2 point3:&point3];
+    [result setTexture:texture];
+    [result setXOffset:xOffset];
+    [result setYOffset:yOffset];
+    [result setXScale:xScale];
+    [result setYScale:yScale];
+    [result setRotation:rotation];
+    [result setFilePosition:filePosition];
+    [result setBrush:brush];
+    
+    return result;
+}
+
+- (void) dealloc {
+    [faceId release];
+	[texture release];
+    [surfaceToWorldMatrix release];
+    [worldToSurfaceMatrix release];
+    [memBlock free];
+    [memBlock release];
+    [vertices release];
+    [edges release];
+	[super dealloc];
 }
 
 - (void)setBrush:(MutableBrush *)theBrush {
@@ -405,6 +435,31 @@ static TVector3f baseAxes[18];
     [self geometryChanged];
 }
 
+- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter {
+    TVector3f p1, p2, p3;
+    setV3f(&p1, &point1);
+    setV3f(&p2, &point2);
+    setV3f(&p3, &point3);
+    
+    subV3f(&p1, theCenter, &p1);
+    subV3f(&p2, theCenter, &p2);
+    subV3f(&p3, theCenter, &p3);
+
+    rotateQ(theRotation, &p1, &p1);
+    rotateQ(theRotation, &p2, &p2);
+    rotateQ(theRotation, &p3, &p3);
+    
+    addV3f(&p1, theCenter, &p1);
+    addV3f(&p2, theCenter, &p2);
+    addV3f(&p3, theCenter, &p3);
+    
+    roundV3f(&p1, &point1);
+    roundV3f(&p2, &point2);
+    roundV3f(&p3, &point3);
+    
+    [self geometryChanged];
+}
+
 - (BOOL)canDragBy:(float)dist {
     return [brush canDrag:self by:dist];
 }
@@ -451,18 +506,6 @@ static TVector3f baseAxes[18];
             rotation, 
             xScale, 
             yScale];
-}
-
-- (void) dealloc {
-    [faceId release];
-	[texture release];
-    [surfaceToWorldMatrix release];
-    [worldToSurfaceMatrix release];
-    [memBlock free];
-    [memBlock release];
-    [vertices release];
-    [edges release];
-	[super dealloc];
 }
 
 # pragma mark -

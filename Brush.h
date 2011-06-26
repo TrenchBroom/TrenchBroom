@@ -13,10 +13,11 @@
 @class PickingHit;
 @class PickingHitList;
 
-@protocol Brush <NSObject>
+@protocol Brush <NSObject, NSCopying>
 
 - (NSNumber* )brushId;
 - (id <Entity>)entity;
+- (id)copy;
 
 - (NSArray *)faces;
 - (NSArray *)vertices;

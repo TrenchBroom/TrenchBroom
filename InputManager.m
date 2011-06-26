@@ -11,6 +11,7 @@
 #import "CameraTool.h"
 #import "SelectionTool.h"
 #import "MoveTool.h"
+#import "RotateTool.h"
 #import "FaceTool.h"
 #import "ClipTool.h"
 #import "Camera.h"
@@ -37,6 +38,7 @@
 - (BOOL)isCameraOrbitModifierPressed;
 - (BOOL)isApplyTextureModifierPressed;
 - (BOOL)isApplyTextureAndFlagsModifierPressed;
+- (BOOL)isRotateModifierPressed;
 
 - (void)updateEvent:(NSEvent *)event;
 - (void)updateRay;
@@ -67,6 +69,10 @@
     return [NSEvent modifierFlags] == (NSAlternateKeyMask | NSCommandKeyMask);
 }
 
+- (BOOL)isRotateModifierPressed {
+    return [NSEvent modifierFlags] == NSAlternateKeyMask;
+}
+
 - (void)updateEvent:(NSEvent *)event {
     [lastEvent release];
     lastEvent = [event retain];
@@ -89,17 +95,40 @@
 - (void)updateActiveTool {
     SelectionManager* selectionManager = [windowController selectionManager];
 
-    if ([self isCameraModifierPressed] || [self isCameraOrbitModifierPressed])
-        activeTool = cameraTool;
-    else if ([clipTool active])
-        activeTool = clipTool;
-    else if (drag && ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES))
-        activeTool = moveTool;
-    else if ((drag && [selectionManager mode] == SM_FACES) || 
-               ([selectionManager mode] == SM_FACES && [[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed])))
-        activeTool = faceTool;
-    else
-        activeTool = selectionTool;
+    id <Tool> newActiveTool = nil;
+    if ([self isCameraModifierPressed] || [self isCameraOrbitModifierPressed]) {
+        newActiveTool = cameraTool;
+    }
+    
+    if (newActiveTool == nil && [clipTool active]) {
+        newActiveTool = clipTool;
+    } 
+    
+    if (newActiveTool == nil && ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES)) {
+        if ([self isRotateModifierPressed])
+            newActiveTool = rotateTool;
+        else if (drag)
+            newActiveTool = moveTool;
+    } 
+    
+    if (newActiveTool == nil && (drag && [selectionManager mode] == SM_FACES) || 
+               ([selectionManager mode] == SM_FACES && [[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed]))) {
+        newActiveTool = faceTool;
+    }
+    
+    if (newActiveTool == nil) {
+        newActiveTool = selectionTool;
+    }
+    
+    if (newActiveTool != activeTool) {
+        if (activeTool != nil)
+            [activeTool deactivated:lastEvent ray:&lastRay hits:lastHits];
+        activeTool = newActiveTool;
+        if (activeTool != nil) {
+            [activeTool activated:lastEvent ray:&lastRay hits:lastHits];
+        }
+        NSLog(@"activated %@", activeTool);
+    }
 }
 
 - (void)updateCursorOwner {
@@ -113,27 +142,31 @@
             } else if ([clipTool active]) {
                 newOwner = clipTool;
             } else if ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES) {
-                PickingHit* hit = [lastHits firstHitOfType:HT_ANY ignoreOccluders:NO];
-                if (hit != nil) {
-                    switch ([hit type]) {
-                        case HT_ENTITY: {
-                            id <Entity> entity = [hit object];
-                            if ([selectionManager isEntitySelected:entity])
-                                newOwner = moveTool;
-                            break;
-                        }
-                        case HT_BRUSH: {
-                            id <Brush> brush = [hit object];
-                            if ([selectionManager isBrushSelected:brush])
-                                newOwner = moveTool;
-                            break;
-                        }
-                        case HT_FACE: {
-                            id <Face> face = [hit object];
-                            id <Brush> brush = [face brush];
-                            if ([selectionManager isBrushSelected:brush])
-                                newOwner = moveTool;
-                            break;
+                if ([self isRotateModifierPressed]) {
+                    newOwner = rotateTool;
+                } else {
+                    PickingHit* hit = [lastHits firstHitOfType:HT_ANY ignoreOccluders:NO];
+                    if (hit != nil) {
+                        switch ([hit type]) {
+                            case HT_ENTITY: {
+                                id <Entity> entity = [hit object];
+                                if ([selectionManager isEntitySelected:entity])
+                                    newOwner = moveTool;
+                                break;
+                            }
+                            case HT_BRUSH: {
+                                id <Brush> brush = [hit object];
+                                if ([selectionManager isBrushSelected:brush])
+                                    newOwner = moveTool;
+                                break;
+                            }
+                            case HT_FACE: {
+                                id <Face> face = [hit object];
+                                id <Brush> brush = [face brush];
+                                if ([selectionManager isBrushSelected:brush])
+                                    newOwner = moveTool;
+                                break;
+                            }
                         }
                     }
                 }
@@ -208,7 +241,7 @@
 
 @implementation InputManager
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         windowController = theWindowController; // do not retain
 
         SelectionManager* selectionManager = [windowController selectionManager];
@@ -217,8 +250,9 @@
         
         cameraTool = [[CameraTool alloc] initWithWindowController:windowController];
         selectionTool = [[SelectionTool alloc] initWithWindowController:windowController];
-        moveTool = [[MoveTool alloc] initWithController:windowController];
-        faceTool = [[FaceTool alloc] initWithController:windowController];
+        moveTool = [[MoveTool alloc] initWithWindowController:windowController];
+        rotateTool = [[RotateTool alloc] initWithWindowController:windowController];
+        faceTool = [[FaceTool alloc] initWithWindowController:windowController];
         clipTool = [[ClipTool alloc] initWithWindowController:windowController];
         
         Camera* camera = [windowController camera];
@@ -227,6 +261,21 @@
     }
     
     return self;
+}
+
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [cameraTool release];
+    [selectionTool release];
+    [moveTool release];
+    [rotateTool release];
+    [faceTool release];
+    [clipTool release];
+    [lastEvent release];
+    [lastHits release];
+    [filter release];
+    [super dealloc];
 }
 
 - (BOOL)handleKeyDown:(NSEvent *)event sender:(id)sender {
@@ -371,19 +420,6 @@
 
 - (NSPoint)menuPosition {
     return menuPosition;
-}
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [cameraTool release];
-    [selectionTool release];
-    [moveTool release];
-    [faceTool release];
-    [clipTool release];
-    [lastEvent release];
-    [lastHits release];
-    [filter release];
-    [super dealloc];
 }
 
 @end

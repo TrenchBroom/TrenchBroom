@@ -15,10 +15,11 @@
 @class PickingHit;
 @class VBOMemBlock;
 
-@protocol Face <NSObject>
+@protocol Face <NSObject, NSCopying>
 
 - (NSNumber *)faceId;
 - (id <Brush>)brush;
+- (id)copy;
 
 - (TVector3i *)point1;
 - (TVector3i *)point2;

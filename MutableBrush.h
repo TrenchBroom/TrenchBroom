@@ -35,6 +35,7 @@
 - (void)translateBy:(TVector3i *)theDelta;
 - (void)rotateZ90CW:(TVector3i *)theCenter;
 - (void)rotateZ90CCW:(TVector3i *)theCenter;
+- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter;
 - (void)faceGeometryChanged:(MutableFace *)face;
 
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist;

@@ -78,6 +78,41 @@ int maxi(int v1, int v2) {
     return v2;
 }
 
+#pragma mark TVector2f functions
+
+void addV2f(const TVector2f* l, const TVector2f* r, TVector2f* o) {
+    o->x = l->x + r->x;
+    o->y = l->y + r->y;
+}
+
+void subV2f(const TVector2f* l, const TVector2f* r, TVector2f* o) {
+    o->x = l->x - r->x;
+    o->y = r->y - r->y;
+}
+
+float dotV2f(const TVector2f* l, const TVector2f* r) {
+    return l->x * r->x + l->y * r->y;
+}
+
+void scaleV2f(const TVector2f* v, float f, TVector2f* r) {
+    r->x = f * v->x;
+    r->y = f * v->y;
+}
+
+float lengthSquaredV2f(const TVector2f* v) {
+    return dotV2f(v, v);
+}
+
+float lengthV2f(const TVector2f* v) {
+    return sqrt(lengthSquaredV2f(v));
+}
+
+void normalizeV2f(const TVector2f* v, TVector2f* r) {
+    float l = lengthV2f(v);
+    r->x = v->x / l;
+    r->y = v->y / l;
+}
+
 #pragma mark TVector3f functions
 
 void addV3f(const TVector3f* l, const TVector3f* r, TVector3f* o) {
@@ -296,6 +331,12 @@ void subV3i(const TVector3i* l, const TVector3i* r, TVector3i* o) {
     o->z = l->z - r->z;
 }
 
+void scaleV3i(const TVector3i* v, int i, TVector3i* o) {
+    o->x = v->x * i;
+    o->y = v->y * i;
+    o->z = v->z * i;
+}
+
 BOOL equalV3i(const TVector3i* l, const TVector3i* r) {
     return l->x == r->x && l->y == r->y && l->z == r->z;
 }
@@ -497,7 +538,7 @@ float intersectSphereWithRay(const TVector3f* c, float ra, const TRay* r) {
     TVector3f diff;
     subV3f(&r->origin, c, &diff);
     
-    float p = 2 * dotV3f(&r->direction, &diff);
+    float p = 2 * dotV3f(&diff, &r->direction);
     float q = lengthSquaredV3f(&diff) - ra * ra;
     
     float d = p * p - 4 * q;
@@ -505,14 +546,35 @@ float intersectSphereWithRay(const TVector3f* c, float ra, const TRay* r) {
         return NAN;
     
     float s = sqrt(d);
-    float t0 = -p + s;
-    float t1 = -p - s;
+    float t0 = (-p + s) / 2;
+    float t1 = (-p - s) / 2;
     
     if (t0 < 0 && t1 < 0)
         return NAN;
     if (t0 > 0 && t1 > 0)
         return fmin(t0, t1);
     return fmax(t0, t1);
+}
+
+float distanceOfPointAndRay(const TVector3f* c, const TRay* r) {
+    float d = closestPointOnRay(c, r);
+    if (isnan(d))
+        return NAN;
+    
+    TVector3f p, pc;
+    rayPointAtDistance(r, d, &p);
+    subV3f(c, &p, &pc);
+    return lengthV3f(&pc);
+}
+
+float closestPointOnRay(const TVector3f* c, const TRay* r) {
+    TVector3f oc;
+    subV3f(c, &r->origin, &oc);
+    
+    float d = dotV3f(&oc, &r->direction);
+    if (d <= 0)
+        return NAN;
+    return d;
 }
 
 void rayPointAtDistance(const TRay* r, float d, TVector3f* p) {
@@ -528,6 +590,12 @@ void centerOfBounds(const TBoundingBox* b, TVector3f* o) {
     subV3f(&b->max, &b->min, o);
     scaleV3f(o, 0.5f, o);
     addV3f(o, &b->min, o);
+}
+
+void roundedCenterOfBounds(const TBoundingBox* b, TVector3i* o) {
+    TVector3f centerf;
+    centerOfBounds(b, &centerf);
+    roundV3f(&centerf, o);
 }
 
 void translateBounds(const TBoundingBox* b, const TVector3f* d, TBoundingBox* o) {
@@ -565,6 +633,18 @@ void expandBounds(const TBoundingBox* b, float f, TBoundingBox* o) {
 
 void sizeOfBounds(const TBoundingBox* b, TVector3f* o) {
     subV3f(&b->max, &b->min, o);
+}
+
+void roundedSizeOfBounds(const TBoundingBox* b, TVector3i* o) {
+    TVector3f sizef;
+    sizeOfBounds(b, &sizef);
+    roundV3f(&sizef, o);
+}
+
+float radiusOfBounds(const TBoundingBox* b) {
+    TVector3f s;
+    sizeOfBounds(b, &s);
+    return sqrt(s.x * s.x + s.y * s.y + s.z * s.z);
 }
 
 float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray, TVector3f* n) {

@@ -34,6 +34,7 @@
     glEnable(GL_DEPTH_TEST);
 }
 
+/*
 - (void)setTextureMode {
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
@@ -41,6 +42,7 @@
 - (void)setFaceColorMode {
     glColor4f(1, 0, 0, 1);
 }
+*/
 
 - (BOOL)doRenderFaces {
     return YES;

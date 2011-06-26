@@ -72,6 +72,7 @@ typedef enum {
 - (void)translateBy:(TVector3i *)theDelta;
 - (void)rotateZ90CW:(TVector3i *)theCenter;
 - (void)rotateZ90CCW:(TVector3i *)theCenter;
+- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter;
 - (BOOL)canDragBy:(float)dist;
 - (void)dragBy:(float)dist;
 

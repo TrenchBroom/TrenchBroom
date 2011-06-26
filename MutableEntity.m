@@ -31,13 +31,10 @@
             MutableBrush* brush = [brushEn nextObject];
             
             bounds = *[brush bounds];
-            center = *[brush center];
-            while ((brush = [brushEn nextObject])) {
+            while ((brush = [brushEn nextObject]))
                 mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
-                addV3f(&center, [brush center], &center);
-            }
             
-            scaleV3f(&center, 1.0f / [brushes count], &center);
+            centerOfBounds(&bounds, &center);
         } else {
             bounds.min = NullVector;
             bounds.max = NullVector;
@@ -51,6 +48,7 @@
         
         addV3f(&bounds.min, &of, &bounds.min);
         addV3f(&bounds.max, &of, &bounds.max);
+        centerOfBounds(&bounds, &center);
     } else {
         bounds.min = NullVector;
         bounds.max = NullVector;
@@ -65,7 +63,7 @@
 @implementation MutableEntity
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         entityId = [[[IdGenerator sharedGenerator] getId] retain];
 		properties = [[NSMutableDictionary alloc] init];
 		brushes = [[NSMutableArray alloc] init];
@@ -76,7 +74,7 @@
 }
 
 - (id)initWithProperties:(NSDictionary *)theProperties {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         NSEnumerator* keyEn = [[theProperties allKeys] objectEnumerator];
         NSString* key;
         while ((key = [keyEn nextObject])) {
@@ -86,6 +84,37 @@
     }
     
     return self;
+}
+
+
+- (void) dealloc {
+    [entityId release];
+	[properties release];
+	[brushes release];
+    [entityDefinition release];
+    [angle release];
+	[super dealloc];
+}
+
+- (id)copyWithZone:(NSZone *)zone {
+    MutableEntity* result = [[MutableEntity allocWithZone:zone] initWithProperties:properties];
+    [result->entityId release];
+    result->entityId = [entityId retain];
+    
+    if (entityDefinition != nil)
+        [result setEntityDefinition:entityDefinition];
+    [result setMap:map];
+    [result setFilePosition:filePosition];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject])) {
+        id <Brush> brushCopy = (id <Brush>) [brush copy];
+        [result addBrush:brushCopy];
+        [brushCopy release];
+    }
+    
+    return result;
 }
 
 - (void)addBrush:(MutableBrush *)brush {
@@ -123,7 +152,7 @@
         return;
     } else if ([key isEqualToString:OriginKey]) {
         if (!parseV3i(value, NSMakeRange(0, [value length]), &origin)) {
-            NSLog(@"Invalid origin value: '&@'", value);
+            NSLog(@"Invalid origin value: '%@'", value);
             return;
         }
         valid = NO;
@@ -184,15 +213,6 @@
 
 - (void)setFilePosition:(int)theFilePosition {
     filePosition = theFilePosition;
-}
-
-- (void) dealloc {
-    [entityId release];
-	[properties release];
-	[brushes release];
-    [entityDefinition release];
-    [angle release];
-	[super dealloc];
 }
 
 #pragma mark -

@@ -19,10 +19,11 @@ static NSString* const WorldspawnClassname = @"worldspawn";
 static NSString* const OriginKey = @"origin";
 static NSString* const AngleKey = @"angle";
 
-@protocol Entity <NSObject>
+@protocol Entity <NSObject, NSCopying>
 
 - (NSNumber *)entityId;
 - (id <Map>)map;
+- (id)copy;
 
 - (NSArray *)brushes;
 

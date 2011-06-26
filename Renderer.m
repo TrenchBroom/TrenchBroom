@@ -281,18 +281,16 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)propertyWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Entity> entity = [userInfo objectForKey:EntityKey];
-    NSString* key = [userInfo objectForKey:PropertyKeyKey];
     
-    if ([key isEqualToString:OriginKey] && [entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
+    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
         [self removeEntity:entity];
 }
 
 - (void)propertyDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Entity> entity = [userInfo objectForKey:EntityKey];
-    NSString* key = [userInfo objectForKey:PropertyKeyKey];
     
-    if ([key isEqualToString:OriginKey] && [entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT) {
+    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT) {
         [self addEntity:entity];
         [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
     }
@@ -541,7 +539,7 @@ NSString* const RendererChanged = @"RendererChanged";
     
     CursorManager* cursorManager = [windowController cursorManager];
     [cursorManager render];
-
+    
     glClear(GL_DEPTH_BUFFER_BIT);
     [compassFigure render];
 

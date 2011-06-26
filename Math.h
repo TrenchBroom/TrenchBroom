@@ -97,6 +97,14 @@ BOOL finii(float v, float b1, float b2);
 int mini(int v1, int v2);
 int maxi(int v1, int v2);
 
+void addV2f(const TVector2f* l, const TVector2f* r, TVector2f* o);
+void subV2f(const TVector2f* l, const TVector2f* r, TVector2f* o);
+float dotV2f(const TVector2f* l, const TVector2f* r);
+void scaleV2f(const TVector2f* v, float f, TVector2f* r);
+float lengthSquaredV2f(const TVector2f* v);
+float lengthV2f(const TVector2f* v);
+void normalizeV2f(const TVector2f* v, TVector2f* r);
+
 float dot3f(float lx, float ly, float lz, float rx, float ry, float rz);
 
 void addV3f(const TVector3f* l, const TVector3f* r, TVector3f* o);
@@ -118,6 +126,7 @@ BOOL parseV3f(NSString* s, NSRange r, TVector3f* o);
 
 void addV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
 void subV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
+void scaleV3i(const TVector3i* v, int i, TVector3i* o);
 BOOL equalV3i(const TVector3i* l, const TVector3i* r);
 BOOL parseV3i(NSString* s, NSRange r, TVector3i* o);
 
@@ -138,11 +147,14 @@ float planeY(TPlane* p, float x, float z);
 float planeZ(TPlane* p, float x, float y);
 
 void centerOfBounds(const TBoundingBox* b, TVector3f* o);
+void roundedCenterOfBounds(const TBoundingBox* b, TVector3i* o);
 void translateBounds(const TBoundingBox* b, const TVector3f* d, TBoundingBox* o);
 void mergeBoundsWithPoint(const TBoundingBox* b, const TVector3f* p, TBoundingBox* o);
 void mergeBoundsWithBounds(const TBoundingBox* b, const TBoundingBox* c, TBoundingBox* o);
 void expandBounds(const TBoundingBox* b, float f, TBoundingBox* o);
 void sizeOfBounds(const TBoundingBox* b, TVector3f* o);
+void roundedSizeOfBounds(const TBoundingBox* b, TVector3i* o);
+float radiusOfBounds(const TBoundingBox* b);
 float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray, TVector3f* n);
 
 void setQ(TQuaternion* l, const TQuaternion* r);
@@ -152,6 +164,8 @@ void conjugateQ(const TQuaternion* q, TQuaternion* o);
 void rotateQ(const TQuaternion* q, const TVector3f* v, TVector3f* o);
 
 float intersectSphereWithRay(const TVector3f* c, float ra, const TRay* r);
+float distanceOfPointAndRay(const TVector3f* c, const TRay* r);
+float closestPointOnRay(const TVector3f* c, const TRay* r);
 void rayPointAtDistance(const TRay* r, float d, TVector3f* p);
 
 void projectOntoPlane(EPlane plane, const TVector3f* v, TVector3f* o);

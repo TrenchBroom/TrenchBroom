@@ -18,10 +18,10 @@
     MapWindowController* windowController;
     TPlane plane;
     TVector3f lastPoint;
-    MoveCursor* cursor;
+    MoveCursor* moveCursor;
     BOOL drag;
 }
 
-- (id)initWithController:(MapWindowController *)theWindowController;
+- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 @end

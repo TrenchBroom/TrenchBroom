@@ -27,6 +27,6 @@
     BOOL drag;
 }
 
-- (id)initWithController:(MapWindowController *)theWindowController;
+- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 @end

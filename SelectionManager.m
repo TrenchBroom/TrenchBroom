@@ -22,7 +22,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
 @implementation SelectionManager
 
 - (id) init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         faces = [[NSMutableSet alloc] init];
         brushes = [[NSMutableSet alloc] init];
         entities = [[NSMutableSet alloc] init];
@@ -35,7 +35,7 @@ NSString* const SelectionFaces = @"SelectionFaces";
 - (id)initWithUndoManager:(NSUndoManager *)theUndoManager {
     NSAssert(theUndoManager != nil, @"undo manager must not be nil");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         undoManager = [theUndoManager retain];
     }
     
@@ -379,6 +379,43 @@ NSString* const SelectionFaces = @"SelectionFaces";
         }
     }
     return NO;
+}
+
+- (BOOL)selectionBounds:(TBoundingBox *)result {
+    switch ([self mode]) {
+        case SM_BRUSHES: {
+            NSEnumerator* brushEn = [brushes objectEnumerator];
+            id <Brush> brush = [brushEn nextObject];
+            *result = *[brush bounds];
+            while ((brush = [brushEn nextObject]))
+                mergeBoundsWithBounds(result, [brush bounds], result);
+            return YES;
+        }
+        case SM_ENTITIES: {
+            NSEnumerator* entityEn = [entities objectEnumerator];
+            id <Entity> entity = [entityEn nextObject];
+            *result = *[entity bounds];
+            while ((entity = [entityEn nextObject]))
+                mergeBoundsWithBounds(result, [entity bounds], result);
+            return YES;
+        }
+        case SM_BRUSHES_ENTITIES: {
+            NSEnumerator* brushEn = [brushes objectEnumerator];
+            id <Brush> brush = [brushEn nextObject];
+            *result = *[brush bounds];
+            while ((brush = [brushEn nextObject]))
+                mergeBoundsWithBounds(result, [brush bounds], result);
+            
+            NSEnumerator* entityEn = [entities objectEnumerator];
+            id <Entity> entity;
+            while ((entity = [entityEn nextObject]))
+                mergeBoundsWithBounds(result, [entity bounds], result);
+            
+            return YES;
+        }
+        default:
+            return NO;
+    }
 }
 
 - (BOOL)hasSelection {

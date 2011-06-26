@@ -13,6 +13,9 @@
 
 @protocol Tool <NSObject>
 
+- (void)activated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+
 - (void)handleFlagsChanged:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
 
 - (void)handleLeftMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;

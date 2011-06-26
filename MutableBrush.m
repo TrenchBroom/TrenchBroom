@@ -47,7 +47,7 @@
 @implementation MutableBrush
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         brushId = [[[IdGenerator sharedGenerator] getId] retain];
         faces = [[NSMutableArray alloc] init];
         vertexData = [[VertexData alloc] init];
@@ -63,7 +63,7 @@
 }
 
 - (id)initWithBrushTemplate:(id <Brush>)theTemplate {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         NSEnumerator* faceEn = [[theTemplate faces] objectEnumerator];
         id <Face> faceTemplate;
         while ((faceTemplate = [faceEn nextObject])) {
@@ -74,6 +74,35 @@
     }
     
     return self;
+}
+
+- (id)copyWithZone:(NSZone *)zone {
+    MutableBrush* result = [[MutableBrush allocWithZone:zone] init];
+    [result->brushId release];
+    result->brushId = [brushId retain];
+    for (int i = 0; i < 3; i++)
+        result->flatColor[i] = flatColor[i];
+    
+    [result setEntity:entity];
+    [result setFilePosition:filePosition];
+
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject])) {
+        id <Face> faceCopy = [face copy];
+        [result addFace:faceCopy];
+        [faceCopy release];
+    }
+    
+    return result;
+
+}
+
+- (void)dealloc {
+    [brushId release];
+    [vertexData release];
+    [faces release];
+    [super dealloc];
 }
 
 - (BOOL)addFace:(MutableFace *)face {
@@ -127,6 +156,13 @@
         [face rotateZ90CCW:theCenter];
 }
 
+- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter {
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face rotate:theRotation center:theCenter];
+}
+
 - (void)faceGeometryChanged:(MutableFace *)face {
     [vertexData release];
     vertexData = nil;
@@ -159,13 +195,6 @@
 
 - (void)setFilePosition:(int)theFilePosition {
     filePosition = theFilePosition;
-}
-
-- (void)dealloc {
-    [brushId release];
-    [vertexData release];
-    [faces release];
-    [super dealloc];
 }
 
 # pragma mark -

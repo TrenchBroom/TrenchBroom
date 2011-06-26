@@ -60,6 +60,7 @@ typedef enum {
 - (NSSet *)selectedFaces;
 - (NSSet *)selectedBrushFaces;
 - (BOOL)selectionCenter:(TVector3f *)result;
+- (BOOL)selectionBounds:(TBoundingBox *)result;
 - (id <Entity>)brushSelectionEntity;
 
 - (BOOL)hasSelection;

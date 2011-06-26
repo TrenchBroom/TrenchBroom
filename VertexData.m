@@ -46,7 +46,7 @@
 @implementation VertexData
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         vertices = [[NSMutableArray alloc] init];
         edges = [[NSMutableArray alloc] init];
         sides = [[NSMutableArray alloc] init];
@@ -181,7 +181,7 @@
 }
 
 - (id)initWithFaces:(NSArray *)faces droppedFaces:(NSMutableSet **)droppedFaces {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         NSEnumerator* faceEn = [faces objectEnumerator];
         MutableFace * face;
         while ((face = [faceEn nextObject])) {

@@ -11,7 +11,7 @@
 @implementation ClipPlaneFeedbackFigure
 
 - (id)initWithPoint1:(TVector3i *)thePoint1 point2:(TVector3i *)thePoint2 point3:(TVector3i *)thePoint3 {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         point1 = *thePoint1;
         point2 = *thePoint2;
         point3 = *thePoint3;

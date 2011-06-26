@@ -79,6 +79,10 @@
 		486928EC133F282100A0F098 /* FaceTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 486928EB133F282100A0F098 /* FaceTool.m */; };
 		486A9C1C12F41FCA003D26FE /* Octree.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1B12F41FCA003D26FE /* Octree.m */; };
 		486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1E12F41FD1003D26FE /* OctreeNode.m */; };
+		486E08AF13B5EAE300E751A6 /* RotateTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08AE13B5EAE300E751A6 /* RotateTool.m */; };
+		486E08B313B5EF2C00E751A6 /* RotationFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B213B5EF2C00E751A6 /* RotationFeedbackFigure.m */; };
+		486E08B613B6772300E751A6 /* FaceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B513B6772200E751A6 /* FaceInfo.m */; };
+		486E08B913B67D8100E751A6 /* BrushInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B813B67D8000E751A6 /* BrushInfo.m */; };
 		4872C97712FF4DC200C5DD29 /* Matrix4f.m in Sources */ = {isa = PBXBuildFile; fileRef = 4872C97612FF4DC200C5DD29 /* Matrix4f.m */; };
 		487436A6135B5FD900F787E1 /* DefaultFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 487436A5135B5FD900F787E1 /* DefaultFilter.m */; };
 		4874387013601A5700F787E1 /* EntityDefinitionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4874386F13601A5700F787E1 /* EntityDefinitionManager.m */; };
@@ -317,6 +321,14 @@
 		486A9C1B12F41FCA003D26FE /* Octree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Octree.m; sourceTree = "<group>"; };
 		486A9C1D12F41FD1003D26FE /* OctreeNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OctreeNode.h; sourceTree = "<group>"; };
 		486A9C1E12F41FD1003D26FE /* OctreeNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OctreeNode.m; sourceTree = "<group>"; };
+		486E08AD13B5EAE300E751A6 /* RotateTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateTool.h; sourceTree = "<group>"; };
+		486E08AE13B5EAE300E751A6 /* RotateTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RotateTool.m; sourceTree = "<group>"; };
+		486E08B113B5EF2C00E751A6 /* RotationFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotationFeedbackFigure.h; sourceTree = "<group>"; };
+		486E08B213B5EF2C00E751A6 /* RotationFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RotationFeedbackFigure.m; sourceTree = "<group>"; };
+		486E08B413B6772100E751A6 /* FaceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceInfo.h; sourceTree = "<group>"; };
+		486E08B513B6772200E751A6 /* FaceInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceInfo.m; sourceTree = "<group>"; };
+		486E08B713B67D7F00E751A6 /* BrushInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushInfo.h; sourceTree = "<group>"; };
+		486E08B813B67D8000E751A6 /* BrushInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrushInfo.m; sourceTree = "<group>"; };
 		4872C97512FF4DC200C5DD29 /* Matrix4f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix4f.h; sourceTree = "<group>"; };
 		4872C97612FF4DC200C5DD29 /* Matrix4f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix4f.m; sourceTree = "<group>"; };
 		487436A4135B5FD900F787E1 /* DefaultFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefaultFilter.h; sourceTree = "<group>"; };
@@ -686,6 +698,10 @@
 				486928E8133F27D300A0F098 /* Tool.h */,
 				48CFCD4913B0BA560017AFD7 /* RotateCursor.h */,
 				48CFCD4A13B0BA560017AFD7 /* RotateCursor.m */,
+				486E08AD13B5EAE300E751A6 /* RotateTool.h */,
+				486E08AE13B5EAE300E751A6 /* RotateTool.m */,
+				486E08B113B5EF2C00E751A6 /* RotationFeedbackFigure.h */,
+				486E08B213B5EF2C00E751A6 /* RotationFeedbackFigure.m */,
 			);
 			name = Tool;
 			sourceTree = "<group>";
@@ -891,6 +907,10 @@
 				488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */,
 				488FEB08131FA02200010A04 /* Prefab.h */,
 				488FEAF2131F9D7200010A04 /* PrefabGroup.h */,
+				486E08B413B6772100E751A6 /* FaceInfo.h */,
+				486E08B513B6772200E751A6 /* FaceInfo.m */,
+				486E08B713B67D7F00E751A6 /* BrushInfo.h */,
+				486E08B813B67D8000E751A6 /* BrushInfo.m */,
 			);
 			name = Map;
 			sourceTree = "<group>";
@@ -1237,6 +1257,10 @@
 				481BF7A513A4B0880040580B /* EntityAliasRenderer.m in Sources */,
 				481BF7AC13A4B5220040580B /* AliasRenderer.m in Sources */,
 				48CFCD4B13B0BA560017AFD7 /* RotateCursor.m in Sources */,
+				486E08AF13B5EAE300E751A6 /* RotateTool.m in Sources */,
+				486E08B313B5EF2C00E751A6 /* RotationFeedbackFigure.m in Sources */,
+				486E08B613B6772300E751A6 /* FaceInfo.m in Sources */,
+				486E08B913B67D8100E751A6 /* BrushInfo.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -24,45 +24,26 @@
 #import "MapView3D.h"
 #import "CursorManager.h"
 #import "MoveCursor.h"
+#import "RotateCursor.h"
 
 @interface MoveTool (private)
 
-- (BOOL)isAltPlaneModifierPressed;
 - (void)actualPlaneNormal:(TVector3f *)norm result:(TVector3f *)result;
 
 @end
 
 @implementation MoveTool (private)
 
-- (BOOL)isAltPlaneModifierPressed {
-    return [NSEvent modifierFlags] == NSAlternateKeyMask;
-}
-
 - (void)actualPlaneNormal:(TVector3f *)norm result:(TVector3f *)result {
     switch (largestComponentV3f(norm)) {
         case A_X:
-            if ([self isAltPlaneModifierPressed])
-                *result = YAxisPos;
-            else
-                *result = XAxisPos;
+            *result = XAxisPos;
             break;
         case A_Y:
-            if ([self isAltPlaneModifierPressed])
-                *result = XAxisPos;
-            else
-                *result = YAxisPos;
+            *result = YAxisPos;
             break;
         default:
-            if ([self isAltPlaneModifierPressed]) {
-                Camera* camera = [windowController camera];
-                const TVector3f* cameraDir = [camera direction];
-                if (fabsf(cameraDir->x) > fabsf(cameraDir->y))
-                    *result = XAxisPos;
-                else
-                    *result = YAxisPos;
-            } else {
-                *result = ZAxisPos;
-            }
+            *result = ZAxisPos;
     }
 }
 
@@ -70,16 +51,16 @@
 
 @implementation MoveTool
 
-- (id)initWithController:(MapWindowController *)theWindowController {
+- (id)initWithWindowController:(MapWindowController *)theWindowController {
     if ((self = [self init])) {
         windowController = theWindowController;
-        cursor = [[MoveCursor alloc] init];
+        moveCursor = [[MoveCursor alloc] init];
     }
     return self;
 }
 
 - (void)dealloc {
-    [cursor release];
+    [moveCursor release];
     [super dealloc];
 }
 
@@ -187,7 +168,7 @@
 
 - (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager pushCursor:cursor];
+    [cursorManager pushCursor:moveCursor];
 
     [self updateCursor:event ray:ray hits:hits];
 }
@@ -207,25 +188,25 @@
                     TVector3f norm;
                     intersectBoundsWithRay([entity bounds], ray, &norm);
                     [self actualPlaneNormal:&norm result:&norm];
-                    [cursor setPlaneNormal:largestComponentV3f(&norm)];
+                    [moveCursor setPlaneNormal:largestComponentV3f(&norm)];
                     break;
                 }
                 case HT_FACE: {
                     id <Face> face = [hit object];
                     TVector3f norm;
                     [self actualPlaneNormal:[face norm] result:&norm];
-                    [cursor setPlaneNormal:largestComponentV3f(&norm)];
+                    [moveCursor setPlaneNormal:largestComponentV3f(&norm)];
                     break;
                 }
             }
         }
         
-        [cursor update:[hit hitPoint]];
+        [moveCursor update:[hit hitPoint]];
     } else {
         float dist = intersectPlaneWithRay(&plane, ray);
         TVector3f position;
         rayPointAtDistance(ray, dist, &position);
-        [cursor update:&position];
+        [moveCursor update:&position];
     }
 }
 

@@ -181,9 +181,9 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     } else if (action == @selector(performClip:)) {
         return [[inputManager clipTool] active] && [[inputManager clipTool] numPoints] > 1;
     } else if (action == @selector(rotateZ90CW:)) {
-        return [selectionManager hasSelectedBrushes];
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
     } else if (action == @selector(rotateZ90CCW:)) {
-        return [selectionManager hasSelectedBrushes];
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
     } else if (action == @selector(createPointEntity:)) {
         return YES;
     } else if (action == @selector(createBrushEntity:)) {
@@ -254,11 +254,11 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 #pragma mark Brush related actions
 
 - (IBAction)rotateZ90CW:(id)sender {
-    [[self document] rotateZ90CW:[selectionManager selectedBrushes]];
+    [[self document] rotateZ90CW:[selectionManager selectedBrushes] entities:[selectionManager selectedEntities]];
 }
 
 - (IBAction)rotateZ90CCW:(id)sender {
-    [[self document] rotateZ90CCW:[selectionManager selectedBrushes]];
+    [[self document] rotateZ90CCW:[selectionManager selectedBrushes] entities:[selectionManager selectedEntities]];
 }
 
 - (IBAction)toggleClipTool:(id)sender {
