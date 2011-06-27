@@ -35,6 +35,11 @@
 - (void)removeBrush:(MutableBrush *)brush;
 - (void)brushChanged:(MutableBrush *)brush;
 
+- (void)translateBy:(const TVector3i *)theDelta;
+- (void)rotateZ90CW:(const TVector3i *)theRotationCenter;
+- (void)rotateZ90CCW:(const TVector3i *)theRotationCenter;
+- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theRotationCenter;
+
 - (void)setProperty:(NSString *)key value:(NSString *)value;
 - (void)removeProperty:(NSString *)key;
 

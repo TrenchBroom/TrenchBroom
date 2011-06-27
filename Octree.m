@@ -31,26 +31,20 @@
             [NSException raise:NSInvalidArgumentException format:@"Entity %@ was not removed from octree", entity];
 }
 
-- (void)propertyWillChange:(NSNotification *)notification {
+- (void)propertiesWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Entity> entity = [userInfo objectForKey:EntityKey];
     
-    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT) {
-        NSString* key = [userInfo objectForKey:PropertyKeyKey];
-        if ([key isEqualToString:OriginKey])
-            [root removeObject:entity bounds:[entity bounds]];
-    }
+    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
+        [root removeObject:entity bounds:[entity bounds]];
 }
 
-- (void)propertyDidChange:(NSNotification *)notification {
+- (void)propertiesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Entity> entity = [userInfo objectForKey:EntityKey];
     
-    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT) {
-        NSString* key = [userInfo objectForKey:PropertyKeyKey];
-        if ([key isEqualToString:OriginKey])
-            [root addObject:entity bounds:[entity bounds]];
-    }
+    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
+        [root addObject:entity bounds:[entity bounds]];
 }
 
 - (void)brushAdded:(NSNotification *)notification {
@@ -79,7 +73,7 @@
 }
 
 - (id)initWithDocument:(MapDocument *)theDocument minSize:(int)theMinSize {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         map = theDocument;
         
         int w = [map worldSize] / 2;
@@ -103,8 +97,8 @@
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(entityAdded:) name:EntityAdded object:map];
         [center addObserver:self selector:@selector(entityWillBeRemoved:) name:EntityWillBeRemoved object:map];
-        [center addObserver:self selector:@selector(propertyWillChange:) name:PropertyWillChange object:map];
-        [center addObserver:self selector:@selector(propertyDidChange:) name:PropertyWillChange object:map];
+        [center addObserver:self selector:@selector(propertiesWillChange:) name:PropertiesWillChange object:map];
+        [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesWillChange object:map];
         [center addObserver:self selector:@selector(brushAdded:) name:BrushAdded object:map];
         [center addObserver:self selector:@selector(brushWillBeRemoved:) name:BrushWillBeRemoved object:map];
         [center addObserver:self selector:@selector(brushWillChange:) name:BrushWillChange object:map];

@@ -63,7 +63,7 @@
         if (property != nil) {
             ModelProperty* modelProperty = (ModelProperty *)property;
             NSString* modelName = [[modelProperty modelPath] substringFromIndex:1];
-            AliasRenderer* aliasRenderer = [aliasRenderers objectForKey:modelName];
+            aliasRenderer = [aliasRenderers objectForKey:modelName];
             if (aliasRenderer == nil) {
                 NSArray* pakPaths = [NSArray arrayWithObject:@"/Applications/Quake/id1"];
                 
@@ -71,9 +71,8 @@
                 Alias* alias = [aliasManager aliasWithName:modelName paths:pakPaths];
                 
                 if (alias != nil) {
-                    aliasRenderer = [[AliasRenderer alloc] initWithAlias:alias vbo:vbo palette:palette];
+                    aliasRenderer = [[[AliasRenderer alloc] initWithAlias:alias vbo:vbo palette:palette] autorelease];
                     [aliasRenderers setObject:aliasRenderer forKey:definitionName];
-                    [aliasRenderer release];
                 }
             }
         }

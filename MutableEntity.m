@@ -144,6 +144,82 @@
     valid = NO;
 }
 
+- (void)translateBy:(const TVector3i *)theDelta {
+    if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
+        return;
+    
+    if (!valid)
+        [self validate];
+    
+    TVector3i o;
+    addV3i([self origin], theDelta, &o);
+    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", origin.x, origin.y, origin.z]];
+}
+
+- (void)rotateZ90CW:(const TVector3i *)theRotationCenter {
+    if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
+        return;
+
+    if (!valid)
+        [self validate];
+    
+    TVector3i o, ci, d;
+    roundV3f(&center, &ci);
+    subV3i([self origin], &ci, &d);
+    subV3i(&ci, theRotationCenter, &ci);
+    
+    int x = ci.x;
+    ci.x = ci.y;
+    ci.y = -x;
+    
+    addV3i(&ci, theRotationCenter, &ci);
+    addV3i(&ci, &d, &o);
+    
+    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", origin.x, origin.y, origin.z]];
+    
+    if ([self angle] != nil) {
+        int a = [[self angle] intValue];
+        if (a >= 0) {
+            a = (a + 90) % 360;
+            [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
+        }
+    }
+}
+
+- (void)rotateZ90CCW:(const TVector3i *)theRotationCenter {
+    if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
+        return;
+
+    if (!valid)
+        [self validate];
+    
+    TVector3i o, ci, d;
+    roundV3f(&center, &ci);
+    subV3i([self origin], &ci, &d);
+    subV3i(&ci, theRotationCenter, &ci);
+    
+    int x = ci.x;
+    ci.x = -ci.y;
+    ci.y = x;
+    
+    addV3i(&ci, theRotationCenter, &ci);
+    addV3i(&ci, &d, &o);
+    
+    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", origin.x, origin.y, origin.z]];
+    
+    if ([self angle] != nil) {
+        int a = [[self angle] intValue];
+        if (a >= 0) {
+            a = (a + 270) % 360;
+            [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
+        }
+    }}
+
+- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theRotationCenter {
+    if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
+        return;
+}
+
 - (void)setProperty:(NSString *)key value:(NSString *)value {
     NSAssert(key != nil, @"property key must not be nil");
     

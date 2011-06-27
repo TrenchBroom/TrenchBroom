@@ -28,9 +28,7 @@ static InspectorController* sharedInstance = nil;
 
 @interface InspectorController (private)
 
-- (void)propertyAdded:(NSNotification *)notification;
-- (void)propertyRemoved:(NSNotification *)notification;
-- (void)propertyDidChange:(NSNotification *)notification;
+- (void)propertiesDidChange:(NSNotification *)notification;
 - (void)faceDidChange:(NSNotification *)notification;
 - (void)selectionRemoved:(NSNotification *)notification;
 - (void)selectionAdded:(NSNotification *)notification;
@@ -42,17 +40,7 @@ static InspectorController* sharedInstance = nil;
 
 @implementation InspectorController (private)
 
-- (void)propertyAdded:(NSNotification *)notification {
-    [entityPropertyTableDataSource updateProperties];
-    [entityPropertyTableView reloadData];
-}
-
-- (void)propertyRemoved:(NSNotification *)notification {
-    [entityPropertyTableDataSource updateProperties];
-    [entityPropertyTableView reloadData];
-}
-
-- (void)propertyDidChange:(NSNotification *)notification {
+- (void)propertiesDidChange:(NSNotification *)notification {
     [entityPropertyTableDataSource updateProperties];
     [entityPropertyTableView reloadData];
 }
@@ -95,9 +83,7 @@ static InspectorController* sharedInstance = nil;
         SelectionManager* selectionManager = [mapWindowController selectionManager];
         [center removeObserver:self name:SelectionAdded object:selectionManager];
         [center removeObserver:self name:SelectionRemoved object:selectionManager];
-        [center removeObserver:self name:PropertyAdded object:map];
-        [center removeObserver:self name:PropertyRemoved object:map];
-        [center removeObserver:self name:PropertyDidChange object:map];
+        [center removeObserver:self name:PropertiesDidChange object:map];
         [center removeObserver:self name:FaceDidChange object:map];
         [center removeObserver:self name:TextureManagerChanged object:textureManager];
         
@@ -124,9 +110,7 @@ static InspectorController* sharedInstance = nil;
          
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
         [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
-        [center addObserver:self selector:@selector(propertyAdded:) name:PropertyAdded object:map];
-        [center addObserver:self selector:@selector(propertyRemoved:) name:PropertyRemoved object:map];
-        [center addObserver:self selector:@selector(propertyDidChange:) name:PropertyDidChange object:map];
+        [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesDidChange object:map];
         [center addObserver:self selector:@selector(faceDidChange:) name:FaceDidChange object:map];
         [center addObserver:self selector:@selector(textureManagerChanged:) name:TextureManagerChanged object:textureManager];
     } else {

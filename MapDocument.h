@@ -24,13 +24,8 @@ extern NSString* const EntityAdded;
 extern NSString* const EntityWillBeRemoved;
 extern NSString* const EntityKey;
 
-extern NSString* const PropertyAdded;
-extern NSString* const PropertyRemoved;
-extern NSString* const PropertyWillChange;
-extern NSString* const PropertyDidChange;
-extern NSString* const PropertyKeyKey;
-extern NSString* const PropertyOldValueKey;
-extern NSString* const PropertyNewValueKey;
+extern NSString* const PropertiesWillChange;
+extern NSString* const PropertiesDidChange;
 
 @class EntityDefinitionManager;
 @class MutableEntity;

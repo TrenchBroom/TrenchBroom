@@ -40,69 +40,8 @@ NSString* const EntityAdded         = @"EntityAdded";
 NSString* const EntityWillBeRemoved = @"EntityWillBeRemoved";
 NSString* const EntityKey           = @"Entity";
 
-NSString* const PropertyAdded       = @"PropertyAdded";
-NSString* const PropertyRemoved     = @"PropertyRemoved";
-NSString* const PropertyWillChange  = @"PropertyWillChange";
-NSString* const PropertyDidChange   = @"PropertyDidChange";
-NSString* const PropertyKeyKey      = @"PropertyKey";
-NSString* const PropertyOldValueKey = @"PropertyOldValue";
-NSString* const PropertyNewValueKey = @"PropertyNewValue";
-
-@interface MapDocument (private)
-
-- (void)setEntity:(id <Entity>)entity propertyKey:(NSString *)key value:(NSString *)value undo:(BOOL)undo;
-
-@end
-
-@implementation MapDocument (private)
-
-- (void)setEntity:(id <Entity>)entity propertyKey:(NSString *)key value:(NSString *)value undo:(BOOL)undo {
-    NSString* oldValue = [entity propertyForKey:key];
-    
-    if (oldValue == nil) {
-        if (value == nil)
-            return;
-    } else if ([oldValue isEqualToString:value])
-        return;
-    
-    if (undo)
-        [[[self undoManager] prepareWithInvocationTarget:self] setEntity:entity propertyKey:key value:oldValue];
-    
-    NSMutableDictionary* userInfo = nil;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:entity forKey:EntityKey];
-        [userInfo setObject:key forKey:PropertyKeyKey];
-        if (oldValue != nil)
-            [userInfo setObject:oldValue forKey:PropertyOldValueKey];
-        if (value != nil)
-            [userInfo setObject:value forKey:PropertyNewValueKey];
-        
-        if (oldValue != nil && value != nil) {
-            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-            [center postNotificationName:PropertyWillChange object:self userInfo:userInfo];
-        }
-    }
-    
-    MutableEntity* mutableEntity = (MutableEntity *)entity;
-    if (value == nil)
-        [mutableEntity removeProperty:key];
-    else
-        [mutableEntity setProperty:key value:value];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        if (oldValue == nil && value != nil)
-            [center postNotificationName:PropertyAdded object:self userInfo:userInfo];
-        else if (oldValue != nil && value == nil)
-            [center postNotificationName:PropertyRemoved object:self userInfo:userInfo];
-        else
-            [center postNotificationName:PropertyDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
-}
-
-@end
+NSString* const PropertiesWillChange  = @"PropertiesWillChange";
+NSString* const PropertiesDidChange   = @"PropertiesDidChange";
 
 @implementation MapDocument
 
@@ -323,7 +262,36 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
 }
 
 - (void)setEntity:(id <Entity>)entity propertyKey:(NSString *)key value:(NSString *)value {
-    [self setEntity:entity propertyKey:key value:value undo:YES];
+    NSString* oldValue = [entity propertyForKey:key];
+    
+    if (oldValue == nil) {
+        if (value == nil)
+            return;
+    } else if ([oldValue isEqualToString:value])
+        return;
+    
+    [[[self undoManager] prepareWithInvocationTarget:self] setEntity:entity propertyKey:key value:oldValue];
+    
+    NSMutableDictionary* userInfo = nil;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:entity forKey:EntityKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
+    }
+    
+    MutableEntity* mutableEntity = (MutableEntity *)entity;
+    if (value == nil)
+        [mutableEntity removeProperty:key];
+    else
+        [mutableEntity setProperty:key value:value];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
 }
 
 - (void)setEntityDefinition:(id <Entity>)entity {
@@ -346,25 +314,29 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     NSAssert(entity != nil, @"entity must not be nil");
     
     EntityDefinition* entityDefinition = [entity entityDefinition];
-    if (entityDefinition == nil)
+    if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
         return;
     
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] translateEntity:entity xDelta:-xDelta yDelta:-yDelta zDelta:-zDelta];
 
-    if ([entityDefinition type] == EDT_POINT) {
-        TVector3i* origin = [entity origin];
-        NSString* newOrigin = [NSString stringWithFormat:@"%i %i %i", origin->x + xDelta, origin->y + yDelta, origin->z + zDelta];
-        [self setEntity:entity propertyKey:OriginKey value:newOrigin];
-    } else if ([entityDefinition type] == EDT_BRUSH) {
-        [undoManager beginUndoGrouping];
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:entity forKey:EntityKey];
         
-        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject]))
-            [self translateBrush:brush xDelta:xDelta yDelta:yDelta zDelta:zDelta];
-        
-        [undoManager endUndoGrouping];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
+    }
+    
+    MutableEntity* mutableEntity = (MutableEntity *)entity;
+    TVector3i delta = {xDelta, yDelta, zDelta};
+    [mutableEntity translateBy:&delta];
+
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
+        [userInfo release];
     }
 }
 
@@ -491,6 +463,9 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     centerOfBounds(&bounds, &rcf);
     roundV3f(&rcf, &rci);
     
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    MutableEntity* entity;
+
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     
@@ -505,37 +480,21 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
             [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
             [userInfo release];
         }
+
+        while ((entity = [entityEn nextObject])) {
+            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:entity forKey:EntityKey];
+            
+            [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
+            [entity rotateZ90CW:&rci];
+            [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
+            [userInfo release];
+        }
     } else {
         while ((brush = [brushEn nextObject]))
             [brush rotateZ90CW:&rci];
-    }
-    
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    MutableEntity* entity;
-    
-    while ((entity = [entityEn nextObject])) {
-        if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT) {
-            TVector3i origin = *[entity origin];
-            TVector3i center, diff;
-            roundedCenterOfBounds([entity bounds], &center);
-            subV3i(&origin, &center, &diff);
-            subV3i(&center, &rci, &center);
-            int x = center.x;
-            center.x = center.y;
-            center.y = -x;
-            addV3i(&center, &rci, &center);
-            addV3i(&center, &diff, &origin);
-            
-            [self setEntity:entity propertyKey:OriginKey value:[NSString stringWithFormat:@"%i %i %i", origin.x, origin.y, origin.z] undo:NO];
-            
-            if ([entity angle] != nil) {
-                int angle = [[entity angle] intValue];
-                if (angle >= 0) {
-                    angle = (angle + 90) % 360;
-                    [self setEntity:entity propertyKey:AngleKey value:[NSString stringWithFormat:@"%i", angle] undo:NO];
-                }
-            }
-        }
+        while ((entity = [entityEn nextObject]))
+            [entity rotateZ90CW:&rci];
     }
 }
 
@@ -553,6 +512,9 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
     centerOfBounds(&bounds, &rcf);
     roundV3f(&rcf, &rci);
     
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    MutableEntity* entity;
+    
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
 
@@ -567,37 +529,21 @@ NSString* const PropertyNewValueKey = @"PropertyNewValue";
             [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
             [userInfo release];
         }
+
+        while ((entity = [entityEn nextObject])) {
+            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:entity forKey:EntityKey];
+            
+            [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
+            [entity rotateZ90CCW:&rci];
+            [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
+            [userInfo release];
+        }
     } else {
         while ((brush = [brushEn nextObject]))
             [brush rotateZ90CCW:&rci];
-    }
-    
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    MutableEntity* entity;
-    
-    while ((entity = [entityEn nextObject])) {
-        if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT) {
-            TVector3i origin = *[entity origin];
-            TVector3i center, diff;
-            roundedCenterOfBounds([entity bounds], &center);
-            subV3i(&origin, &center, &diff);
-            subV3i(&center, &rci, &center);
-            int x = center.x;
-            center.x = -center.y;
-            center.y = x;
-            addV3i(&center, &rci, &center);
-            addV3i(&center, &diff, &origin);
-            
-            [self setEntity:entity propertyKey:OriginKey value:[NSString stringWithFormat:@"%i %i %i", origin.x, origin.y, origin.z] undo:NO];
-            
-            if ([entity angle] != nil) {
-                int angle = [[entity angle] intValue];
-                if (angle >= 0) {
-                    angle = (angle + 270) % 360;
-                    [self setEntity:entity propertyKey:AngleKey value:[NSString stringWithFormat:@"%i", angle] undo:NO];
-                }
-            }
-        }
+        while ((entity = [entityEn nextObject]))
+            [entity rotateZ90CCW:&rci];
     }
 }
 
