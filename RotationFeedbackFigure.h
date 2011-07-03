@@ -14,18 +14,16 @@
 
 @interface RotationFeedbackFigure : NSObject <Figure> {
 @private
-    GLUquadric* sphere;
-    BOOL initialized;
     TVector3f center;
-    TVector3f initialDragVector;
-    TVector3f currentDragVector;
+    EAxis vAxis;
+    float hAngle;
+    float vAngle;
     BOOL drag;
     float radius;
 }
 
-- (void)updateCenter:(TVector3f *)theCenter radius:(float)theRadius;
+- (void)updateCenter:(TVector3f *)theCenter radius:(float)theRadius verticalAxis:(EAxis)theVerticalAxis;
 - (void)setDragging:(BOOL)isDragging;
-- (void)updateInitialDragVector:(TVector3f *)theVector;
-- (void)updateCurrentDragVector:(TVector3f *)theVector;
+- (void)updateHorizontalAngle:(float)theHAngle verticalAngle:(float)theVAngle;
 
 @end

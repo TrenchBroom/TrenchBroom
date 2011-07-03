@@ -21,6 +21,8 @@
 #import "Camera.h"
 #import "Renderer.h"
 
+static float M_PI_12 = M_PI / 12;
+
 @implementation RotateTool
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
@@ -51,7 +53,12 @@
         centerOfBounds(&bounds, &center);
         radius = distanceOfPointAndRay(&center, ray);
 
-        [feedbackFigure updateCenter:&center radius:radius];
+        Camera* camera = [windowController camera];
+        TVector3f diff;
+        subV3f([camera position], &center, &diff);
+        vAxis = fabs(diff.x) < fabs(diff.y) ? A_X : A_Y;
+        
+        [feedbackFigure updateCenter:&center radius:radius verticalAxis:vAxis];
         
         Renderer* renderer = [windowController renderer];
         [renderer addFeedbackFigure:feedbackFigure];
@@ -70,7 +77,7 @@
         centerOfBounds(&bounds, &center);
         radius = distanceOfPointAndRay(&center, ray);
         
-        [feedbackFigure updateCenter:&center radius:radius];
+        [feedbackFigure updateCenter:&center radius:radius verticalAxis:vAxis];
     }
 }
 
@@ -79,14 +86,9 @@
     if (isnan(d))
         return;
     
-    rayPointAtDistance(ray, d, &initialVector);
-    subV3f(&initialVector, &center, &initialVector);
-    initialVector.z = 0;
-    normalizeV3f(&initialVector, &initialVector);
-    
     drag = YES;
     [feedbackFigure setDragging:YES];
-    [feedbackFigure updateInitialDragVector:&initialVector];
+    initialLocation = [NSEvent mouseLocation];
     
     NSUndoManager* undoManager = [[windowController document] undoManager];
     [undoManager setGroupsByEvent:NO];
@@ -96,49 +98,45 @@
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (!drag)
         return;
-    
-    float d = intersectSphereWithRay(&center, radius, ray);
-    if (isnan(d))
-        return;
-    
-    TVector3f vector;
-    rayPointAtDistance(ray, d, &vector);
-    subV3f(&vector, &center, &vector);
-    vector.z = 0;
-    normalizeV3f(&vector, &vector);
-    
-    float angle = acos(dotV3f(&initialVector, &vector));
-    if (isnan(angle))
-        return;
-    
-    int steps = angle / (M_PI / 12);
-    if (steps == 0)
-        return;
 
     NSUndoManager* undoManager = [[windowController document] undoManager];
     [undoManager endUndoGrouping];
     [undoManager undo];
     [undoManager beginUndoGrouping];
     
-    TVector3f cross;
-    crossV3f(&initialVector, &vector, &cross);
-
-    TQuaternion rotation;
-    if (cross.z < 0) {
-        setAngleAndAxisQ(&rotation, steps * M_PI / 12, &ZAxisNeg);
-    } else {
-        setAngleAndAxisQ(&rotation, steps * M_PI / 12, &ZAxisPos);
+    NSPoint currentLocation = [NSEvent mouseLocation];
+    float dx = currentLocation.x - initialLocation.x;
+    float dy = currentLocation.y - initialLocation.y;
+    
+    float hAngle = (dx / 6) / (M_PI * 2);
+    float vAngle = (-dy / 6) / (M_PI * 2);
+    
+    int hSteps = hAngle / M_PI_12;
+    int vSteps = vAngle / M_PI_12;
+    
+    [feedbackFigure updateHorizontalAngle:hSteps * M_PI_12 verticalAngle:vSteps * M_PI_12];
+    
+    if (hSteps != 0 || vSteps != 0) {
+        TQuaternion rotation;
+        if (hSteps != 0 && vSteps != 0) {
+            TQuaternion hRotation, vRotation;
+            setAngleAndAxisQ(&hRotation, hSteps * M_PI_12, &ZAxisPos);
+            setAngleAndAxisQ(&vRotation, vSteps * M_PI_12, vAxis == A_X ? &XAxisPos : &YAxisPos);
+            mulQ(&hRotation, &vRotation, &rotation);
+        } else if (hSteps != 0) {
+            setAngleAndAxisQ(&rotation, hSteps * M_PI_12, &ZAxisPos);
+        } else {
+            setAngleAndAxisQ(&rotation, vSteps * M_PI_12, vAxis == A_X ? &XAxisPos : &YAxisPos);
+        }
+        
+        SelectionManager* selectionManager = [windowController selectionManager];
+        //    NSSet* entities = [selectionManager selectedEntities];
+        NSSet* brushes = [selectionManager selectedBrushes];
+        
+        MapDocument* map = [windowController document];
+        //    [map rotateEntities:entities rotation:&rotation center:&center];
+        [map rotateBrushes:brushes rotation:&rotation center:&center];
     }
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-//    NSSet* entities = [selectionManager selectedEntities];
-    NSSet* brushes = [selectionManager selectedBrushes];
-    
-    MapDocument* map = [windowController document];
-//    [map rotateEntities:entities rotation:&rotation center:&center];
-    [map rotateBrushes:brushes rotation:&rotation center:&center];
-    
-    [feedbackFigure updateCurrentDragVector:&vector];
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

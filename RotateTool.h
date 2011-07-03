@@ -19,8 +19,9 @@
     RotationFeedbackFigure* feedbackFigure;
     BOOL drag;
     TVector3f center;
-    TVector3f initialVector;
+    EAxis vAxis;
     float radius;
+    NSPoint initialLocation;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

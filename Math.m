@@ -831,23 +831,27 @@ void makeRing(float innerRadius, float outerRadius, int segments, TVector3f* poi
     points[2 * segments + 1] = points[1];
 }
 
-int makeOpenRing3D(float radius, float angle, float thickness, int angleSegments, int ringSegments, TVector3f** points) {
-    int quadCount = angleSegments * ringSegments;
-    *points = malloc(quadCount * 4 * sizeof(TVector3f));
+void makeTorus(float innerRadius, float outerRadius, int innerSegments, int outerSegments, TVector3f* points) {
+    float dTheta = 2 * M_PI / innerSegments;
+    float dPhi = 2 * M_PI / outerSegments;
     
-    float angleStep = angle / angleSegments;
-    float ringStep = 2 * M_PI / ringSegments;
+    float theta = 0;
+    float phi = 0;
     
-    float currentAngle = 0;
-    for (int i = 0; i < angleSegments; i++) {
-        float currentRing = 0;
-        for (int j = 0; j < ringSegments; j++) {
+    for (int i = 0; i < innerSegments; i++) {
+        float sTheta = sin(theta);
+        float cTheta = cos(theta);
+        
+        for (int j = 0; j < outerSegments; j++) {
+            float sPhi = sin(phi);
+            float cPhi = cos(phi);
             
-            
-            currentRing += ringStep;
+            points[i * outerSegments + j].x = (innerRadius + outerRadius * sPhi) * cTheta;
+            points[i * outerSegments + j].y = (innerRadius + outerRadius * sPhi) * sTheta;
+            points[i * outerSegments + j].z = outerRadius * cPhi;
+
+            phi += dPhi;
         }
-        currentAngle += angleStep;
+        theta += dTheta;
     }
-    
-    return quadCount;
 }
