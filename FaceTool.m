@@ -28,8 +28,8 @@
 - (BOOL)isApplyTextureAndFlagsModifierPressed;
 - (BOOL)isApplyTextureModifierPressed;
 
-- (void)applyTextureFrom:(id <Face>)source to:(id <Face>)destination;
-- (void)applyFlagsFrom:(id <Face>)source to:(id <Face>)destination;
+- (void)applyTextureFrom:(id <Face>)source toFace:(id <Face>)destination;
+- (void)applyFlagsFrom:(id <Face>)source toFace:(id <Face>)destination;
 
 @end
 
@@ -43,18 +43,24 @@
     return [NSEvent modifierFlags] == NSAlternateKeyMask;
 }
 
-- (void)applyTextureFrom:(id <Face>)source to:(id <Face>)destination {
+- (void)applyTextureFrom:(id <Face>)source toFace:(id <Face>)destination {
     MapDocument* map = [windowController document];
-    [map setFace:destination texture:[source texture]];
+
+    NSSet* faceSet = [[NSSet alloc] initWithObjects:destination, nil];
+    [map setFaces:faceSet texture:[source texture]];
+    [faceSet release];
 }
 
-- (void)applyFlagsFrom:(id <Face>)source to:(id <Face>)destination {
+- (void)applyFlagsFrom:(id <Face>)source toFace:(id <Face>)destination {
     MapDocument* map = [windowController document];
-    [map setFace:destination xOffset:[source xOffset]];
-    [map setFace:destination yOffset:[source yOffset]];
-    [map setFace:destination xScale:[source xScale]];
-    [map setFace:destination yScale:[source yScale]];
-    [map setFace:destination rotation:[source rotation]];
+
+    NSSet* faceSet = [[NSSet alloc] initWithObjects:destination, nil];
+    [map setFaces:faceSet xOffset:[source xOffset]];
+    [map setFaces:faceSet yOffset:[source yOffset]];
+    [map setFaces:faceSet xScale:[source xScale]];
+    [map setFaces:faceSet yScale:[source yScale]];
+    [map setFaces:faceSet rotation:[source rotation]];
+    [faceSet release];
 }
 
 @end
@@ -62,7 +68,7 @@
 @implementation FaceTool
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         windowController = theWindowController;
         dragFaceCursor = [[DragFaceCursor alloc] init];
         applyFaceCursor = [[ApplyFaceCursor alloc] init];
@@ -89,52 +95,37 @@
     if (![selectedFaces count] == 1)
         return;
     
-    id <Face> source = [[selectedFaces objectEnumerator] nextObject];
-    
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    id <Face> destination = [hit object];
+    id <Face> target = [hit object];
+    NSMutableSet* targetSet = [[NSMutableSet alloc] init];
     
     if ([event clickCount] == 1) {
-        if ([self isApplyTextureAndFlagsModifierPressed]) {
-            MapDocument* map = [windowController document];
-            NSUndoManager* undoManager = [map undoManager];
-            [undoManager beginUndoGrouping];
-            [self applyTextureFrom:source to:destination];
-            [self applyFlagsFrom:source to:destination];
-            [undoManager endUndoGrouping];
-            [undoManager setActionName:@"Copy Face Attributes"];
-        } else {
-            [self applyTextureFrom:source to:destination];
-        }
+        [targetSet addObject:target];
     } else if ([event clickCount] == 2) {
+        id <Brush> brush = [target brush];
+        [targetSet addObjectsFromArray:[brush faces]];
+    }
+
+    if ([targetSet count] > 0) {
         MapDocument* map = [windowController document];
         NSUndoManager* undoManager = [map undoManager];
         [undoManager beginUndoGrouping];
+        
+        id <Face> source = [[selectedFaces objectEnumerator] nextObject];
+        [map setFaces:targetSet texture:[source texture]];
         if ([self isApplyTextureAndFlagsModifierPressed]) {
-            id <Face> face = destination;
-            id <Brush> brush = [face brush];
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            while (destination = [faceEn nextObject]) {
-                if (destination != face) {
-                    [self applyTextureFrom:source to:destination];
-                    [self applyFlagsFrom:source to:destination];
-                }
-            }
-            [undoManager endUndoGrouping];
-            [undoManager setActionName:@"Copy Face Attributes To Brush"];
-        } else {
-            id <Face> face = destination;
-            id <Brush> brush = [face brush];
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            while (destination = [faceEn nextObject]) {
-                if (destination != face) {
-                    [self applyTextureFrom:source to:destination];
-                }
-            }
-            [undoManager endUndoGrouping];
-            [undoManager setActionName:@"Copy Face Texture To Brush"];
+            [map setFaces:targetSet xOffset:[source xOffset]];
+            [map setFaces:targetSet yOffset:[source yOffset]];
+            [map setFaces:targetSet xScale:[source xScale]];
+            [map setFaces:targetSet yScale:[source yScale]];
+            [map setFaces:targetSet rotation:[source rotation]];
         }
+        
+        [undoManager setActionName:@"Copy Face"];
+        [undoManager endUndoGrouping];
     }
+            
+    [targetSet release];
 }
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -186,13 +177,9 @@
     dist = dotV3f(&diff, &dragDir);
     
     MapDocument* map = [windowController document];
-    
     SelectionManager* selectionManager = [windowController selectionManager];
-    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [map dragFace:face dist:dist];
 
+    [map dragFaces:[selectionManager selectedFaces] distance:dist];
     lastPoint = point;
 }
 

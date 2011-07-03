@@ -10,7 +10,20 @@
 
 @implementation RotationFeedbackFigure
 
+- (void)dealloc {
+    if (initialized)
+        gluDeleteQuadric(sphere);
+    [super dealloc];
+}
+
 - (void)render {
+    if (!initialized) {
+        sphere = gluNewQuadric();
+        gluQuadricDrawStyle(sphere, GLU_FILL);
+        gluQuadricNormals(sphere, GLU_SMOOTH);
+        initialized = YES;
+    }
+    
     int segments = radius * 15;
     TVector3f points[segments];
     makeCircle(radius, segments, points);
@@ -39,6 +52,10 @@
     for (int i = 0; i < segments; i++)
         glVertex3f(0, points[i].x, points[i].y);
     glEnd();
+    
+    glPolygonMode(GL_FRONT, GL_FILL);
+    glColor4f(0, 0, 1, 0.2f);
+    gluSphere(sphere, radius, radius * 1.2f, radius * 1.2f);
     
     if (drag) {
         glColor4f(1, 1, 0, 1);

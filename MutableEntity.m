@@ -153,7 +153,7 @@
     
     TVector3i o;
     addV3i([self origin], theDelta, &o);
-    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", origin.x, origin.y, origin.z]];
+    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", o.x, o.y, o.z]];
 }
 
 - (void)rotateZ90CW:(const TVector3i *)theRotationCenter {
@@ -175,7 +175,7 @@
     addV3i(&ci, theRotationCenter, &ci);
     addV3i(&ci, &d, &o);
     
-    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", origin.x, origin.y, origin.z]];
+    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", o.x, o.y, o.z]];
     
     if ([self angle] != nil) {
         int a = [[self angle] intValue];
@@ -205,7 +205,7 @@
     addV3i(&ci, theRotationCenter, &ci);
     addV3i(&ci, &d, &o);
     
-    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", origin.x, origin.y, origin.z]];
+    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", o.x, o.y, o.z]];
     
     if ([self angle] != nil) {
         int a = [[self angle] intValue];

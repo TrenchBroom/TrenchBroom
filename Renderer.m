@@ -55,13 +55,14 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)addEntity:(id <Entity>)entity;
 - (void)removeEntity:(id <Entity>)entity;
 
-- (void)faceDidChange:(NSNotification *)notification;
-- (void)brushWillChange:(NSNotification *)notification;
-- (void)brushDidChange:(NSNotification *)notification;
-- (void)brushAdded:(NSNotification *)notification;
-- (void)brushWillBeRemoved:(NSNotification *)notification;
-- (void)entityAdded:(NSNotification *)notification;
-- (void)entityWillBeRemoved:(NSNotification *)notification;
+- (void)facesWillChange:(NSNotification *)notification;
+- (void)facesDidChange:(NSNotification *)notification;
+- (void)brushesWillChange:(NSNotification *)notification;
+- (void)brushesDidChange:(NSNotification *)notification;
+- (void)brushesAdded:(NSNotification *)notification;
+- (void)brushesWillBeRemoved:(NSNotification *)notification;
+- (void)entitiesAdded:(NSNotification *)notification;
+- (void)entitiesWillBeRemoved:(NSNotification *)notification;
 - (void)propertiesWillChange:(NSNotification *)notification;
 - (void)propertiesDidChange:(NSNotification *)notification;
 
@@ -197,105 +198,146 @@ NSString* const RendererChanged = @"RendererChanged";
         [entityLayer removeEntity:entity];
 }
 
-- (void)faceWillChange:(NSNotification *)notification {
+- (void)facesWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Face> face = [userInfo objectForKey:FaceKey];
-
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager isFaceSelected:face]) {
-        [selectionLayer removeFace:face];
-    } else {
-        [geometryLayer removeFace:face];
+    NSSet* faces = [userInfo objectForKey:FacesKey];
+    
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject])) {
+        SelectionManager* selectionManager = [windowController selectionManager];
+        if ([selectionManager isFaceSelected:face]) {
+            [selectionLayer removeFace:face];
+        } else {
+            [geometryLayer removeFace:face];
+        }
     }
 }
 
-- (void)faceDidChange:(NSNotification *)notification {
+- (void)facesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Face> face = [userInfo objectForKey:FaceKey];
-    [invalidFaces addObject:face];
-
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager isFaceSelected:face]) {
-        [selectionLayer addFace:face];
-    } else {
-        [geometryLayer addFace:face];
+    NSSet* faces = [userInfo objectForKey:FacesKey];
+    
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject])) {
+        [invalidFaces addObject:face];
+        
+        SelectionManager* selectionManager = [windowController selectionManager];
+        if ([selectionManager isFaceSelected:face]) {
+            [selectionLayer addFace:face];
+        } else {
+            [geometryLayer addFace:face];
+        }
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
-- (void)brushWillChange:(NSNotification *)notification {
+- (void)brushesWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Brush> brush = [userInfo objectForKey:BrushKey];
-    id <Entity> entity = [brush entity];
-
-    if (![entity isWorldspawn])
-        [self removeEntity:entity];
-    else
-        [self removeBrush:brush];
+    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject])) {
+        id <Entity> entity = [brush entity];
+        
+        if (![entity isWorldspawn])
+            [self removeEntity:entity];
+        else
+            [self removeBrush:brush];
+    }
 }
 
-- (void)brushDidChange:(NSNotification *)notification {
+- (void)brushesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Brush> brush = [userInfo objectForKey:BrushKey];
-    id <Entity> entity = [brush entity];
+    NSSet* brushes = [userInfo objectForKey:BrushesKey];
     
-    if (![entity isWorldspawn])
-        [self addEntity:entity];
-    else
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject])) {
+        id <Entity> entity = [brush entity];
+        
+        if (![entity isWorldspawn])
+            [self addEntity:entity];
+        else
+            [self addBrush:brush];
+    }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+}
+
+- (void)brushesAdded:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject]))
         [self addBrush:brush];
-
-    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
-}
-
-- (void)brushAdded:(NSNotification *)notification {
-    NSDictionary* userInfo = [notification userInfo];
-    id <Brush> brush = [userInfo objectForKey:BrushKey];
-    [self addBrush:brush];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
-- (void)brushWillBeRemoved:(NSNotification *)notification {
+- (void)brushesWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Brush> brush = [userInfo objectForKey:BrushKey];
-    [self removeBrush:brush];
+    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject]))
+        [self removeBrush:brush];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
-- (void)entityAdded:(NSNotification *)notification {
+- (void)entitiesAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Entity> entity = [userInfo objectForKey:EntityKey];
-    [self addEntity:entity];
+    NSSet* entities = [userInfo objectForKey:EntitiesKey];
+    
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject]))
+        [self addEntity:entity];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
-- (void)entityWillBeRemoved:(NSNotification *)notification {
+- (void)entitiesWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Entity> entity = [userInfo objectForKey:EntityKey];
-    [self removeEntity:entity];
+    NSSet* entities = [userInfo objectForKey:EntitiesKey];
+    
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject]))
+        [self removeEntity:entity];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)propertiesWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Entity> entity = [userInfo objectForKey:EntityKey];
+    NSSet* entities = [userInfo objectForKey:EntitiesKey];
     
-    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
-        [self removeEntity:entity];
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject]))
+        if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
+            [self removeEntity:entity];
 }
 
 - (void)propertiesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Entity> entity = [userInfo objectForKey:EntityKey];
+    NSSet* entities = [userInfo objectForKey:EntitiesKey];
     
-    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT) {
-        [self addEntity:entity];
-        [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
-    }
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject]))
+        if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
+            [self addEntity:entity];
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)selectionAdded:(NSNotification *)notification {
@@ -465,16 +507,16 @@ NSString* const RendererChanged = @"RendererChanged";
 
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         
-        [center addObserver:self selector:@selector(entityAdded:) name:EntityAdded object:map];
-        [center addObserver:self selector:@selector(entityWillBeRemoved:) name:EntityWillBeRemoved object:map];
+        [center addObserver:self selector:@selector(entitiesAdded:) name:EntitiesAdded object:map];
+        [center addObserver:self selector:@selector(entitiesWillBeRemoved:) name:EntitiesWillBeRemoved object:map];
         [center addObserver:self selector:@selector(propertiesWillChange:) name:PropertiesWillChange object:map];
         [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesDidChange object:map];
-        [center addObserver:self selector:@selector(brushAdded:) name:BrushAdded object:map];
-        [center addObserver:self selector:@selector(brushWillBeRemoved:) name:BrushWillBeRemoved object:map];
-        [center addObserver:self selector:@selector(brushWillChange:) name:BrushWillChange object:map];
-        [center addObserver:self selector:@selector(brushDidChange:) name:BrushDidChange object:map];
-        [center addObserver:self selector:@selector(faceWillChange:) name:FaceWillChange object:map];
-        [center addObserver:self selector:@selector(faceDidChange:) name:FaceDidChange object:map];
+        [center addObserver:self selector:@selector(brushesAdded:) name:BrushesAdded object:map];
+        [center addObserver:self selector:@selector(brushesWillBeRemoved:) name:BrushesWillBeRemoved object:map];
+        [center addObserver:self selector:@selector(brushesWillChange:) name:BrushesWillChange object:map];
+        [center addObserver:self selector:@selector(brushesDidChange:) name:BrushesDidChange object:map];
+        [center addObserver:self selector:@selector(facesWillChange:) name:FacesWillChange object:map];
+        [center addObserver:self selector:@selector(facesDidChange:) name:FacesDidChange object:map];
         
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
         [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];

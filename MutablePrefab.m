@@ -89,7 +89,7 @@
 @implementation MutablePrefab
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         prefabId = [[[IdGenerator sharedGenerator] getId] retain];
         entities = [[NSMutableArray alloc] init];
     }
@@ -98,7 +98,7 @@
 }
 
 - (id)initWithName:(NSString *)theName group:(MutablePrefabGroup *)thePrefabGroup readOnly:(BOOL)isReadOnly {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         name = [theName retain];
         prefabGroup = [thePrefabGroup retain];
         readOnly = isReadOnly;
@@ -143,10 +143,32 @@
     return entities;
 }
 
+- (void)addEntities:(NSSet *)theEntities {
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    MutableEntity* entity;
+    while ((entity = [entityEn nextObject])) {
+        [entities addObject:entity];
+        [entity setMap:self];
+    }
+    
+    valid = NO;
+}
+
 - (void)addEntity:(MutableEntity *)theEntity {
     [entities addObject:theEntity];
     [theEntity setMap:self];
 
+    valid = NO;
+}
+
+- (void)removeEntities:(NSSet *)theEntities {
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    MutableEntity* entity;
+    while ((entity = [entityEn nextObject])) {
+        [entities removeObject:entity];
+        [entity setMap:nil];
+    }
+    
     valid = NO;
 }
 

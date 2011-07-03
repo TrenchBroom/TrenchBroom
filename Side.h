@@ -32,7 +32,7 @@ typedef enum {
     NSMutableArray* edges;
 }
 
-- (id)initWithFace:(MutableFace *)theFace edges:(NSArray *)theEdges flipped:(BOOL*)flipped;
+- (id)initWithEdges:(NSArray *)theEdges flipped:(BOOL*)flipped;
 - (id)initWithFace:(MutableFace *)theFace edges:(NSArray *)theEdges;
 
 - (Edge *)split;

@@ -13,7 +13,9 @@
 
 @protocol Map <NSObject>
 
+- (void)addEntities:(NSSet *)theEntities;
 - (void)addEntity:(MutableEntity *)theEntity;
+- (void)removeEntities:(NSSet *)theEntities;
 - (void)removeEntity:(MutableEntity *)theEntity;
 
 - (id <Entity>)worldspawn:(BOOL)create;

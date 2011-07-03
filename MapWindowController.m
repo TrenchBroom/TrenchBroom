@@ -43,6 +43,49 @@ static NSString* CameraDefaultsFov = @"Field Of Vision";
 static NSString* CameraDefaultsNear = @"Near Clipping Plane";
 static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 
+@interface MapWindowController (private)
+
+- (TBoundingBox)boundsOf:(NSSet *)theBrushes entities:(NSSet *)theEntities;
+
+@end
+
+@implementation MapWindowController (private)
+
+- (TBoundingBox)boundsOf:(NSSet *)theBrushes entities:(NSSet *)theEntities {
+    TBoundingBox bounds;
+    BOOL initialized = NO;
+    
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    id <Entity> entity = nil;
+    
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    id <Brush> brush = nil;
+    
+    while ((entity = [entityEn nextObject]) || (brush = [brushEn nextObject])) {
+        if (entity != nil && [entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT) {
+            if (!initialized) {
+                bounds = *[entity bounds];
+                initialized = YES;
+            } else {
+                mergeBoundsWithBounds(&bounds, [entity bounds], &bounds);
+            }
+        }
+        
+        if (brush != nil) {
+            if (!initialized) {
+                bounds = *[brush bounds];
+                initialized = YES;
+            } else {
+                mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
+            }
+        }
+    }
+    
+    return bounds;
+}
+
+@end
+
 @implementation MapWindowController
 
 - (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window {
@@ -254,11 +297,47 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 #pragma mark Brush related actions
 
 - (IBAction)rotateZ90CW:(id)sender {
-    [[self document] rotateZ90CW:[selectionManager selectedBrushes] entities:[selectionManager selectedEntities]];
+    NSSet* brushes = [selectionManager selectedBrushes];
+    NSSet* entities = [selectionManager selectedEntities];
+    
+    TVector3f centerf;
+    TVector3i centeri;
+    
+    TBoundingBox bounds = [self boundsOf:brushes entities:entities];
+    centerOfBounds(&bounds, &centerf);
+    roundV3f(&centerf, &centeri);
+    
+    MapDocument* map = [self document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+
+    [map rotateBrushesZ90CW:brushes center:&centeri];
+    [map rotateEntitiesZ90CW:entities center:&centeri];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Rotate Objects"];
 }
 
 - (IBAction)rotateZ90CCW:(id)sender {
-    [[self document] rotateZ90CCW:[selectionManager selectedBrushes] entities:[selectionManager selectedEntities]];
+    NSSet* brushes = [selectionManager selectedBrushes];
+    NSSet* entities = [selectionManager selectedEntities];
+    
+    TVector3f centerf;
+    TVector3i centeri;
+    
+    TBoundingBox bounds = [self boundsOf:brushes entities:entities];
+    centerOfBounds(&bounds, &centerf);
+    roundV3f(&centerf, &centeri);
+    
+    MapDocument* map = [self document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    [map rotateBrushesZ90CCW:brushes center:&centeri];
+    [map rotateEntitiesZ90CCW:entities center:&centeri];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Rotate Objects"];
 }
 
 - (IBAction)toggleClipTool:(id)sender {
@@ -288,11 +367,8 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 - (IBAction)stretchTextureHorizontally:(id)sender {
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
-    
-    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [[self document] setFace:face xScale:[face xScale] + 0.1f];
+
+    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:0.1f yFactor:0];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Stretch Texture Horizontally"];
@@ -302,10 +378,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [[self document] setFace:face xScale:[face xScale] - 0.1f];
+    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:-0.1f yFactor:0];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Shrink Texture Horizontally"];
@@ -315,23 +388,18 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [[self document] setFace:face yScale:[face yScale] + 0.1f];
+    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:0 yFactor:0.1f];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Stretch Texture Vertically"];
+
 }
 
 - (IBAction)shrinkTextureVertically:(id)sender {
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [[self document] setFace:face yScale:[face yScale] - 0.1f];
+    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:0 yFactor:0.1f];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Shrink Texture Vertically"];
@@ -341,12 +409,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
-    
-    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [[self document] setFace:face rotation:[face rotation] - d];
+    [[self document] rotateFaces:[selectionManager selectedFaces] angle:-15];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Rotate Texture Left"];
@@ -356,12 +419,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    int d = ![[options grid] snap] ^ ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0 ? 1 : 15;
-    
-    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [[self document] setFace:face rotation:[face rotation] + d];
+    [[self document] rotateFaces:[selectionManager selectedFaces] angle:15];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Rotate Texture Right"];
@@ -370,123 +428,83 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 #pragma mark Shared actions
 
 - (void)moveLeft:(id)sender {
-    NSUndoManager* undoManager = [[self document] undoManager];
+    MapDocument* map = [self document];
+    NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    if ([selectionManager hasSelectedFaces]) {
-        NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-        id <Face> face;
-        while ((face = [faceEn nextObject]))
-            [[self document] translateFaceOffset:face xDelta:[[options grid] actualSize] yDelta:0];
-    }
+    const TVector3f* direction = [camera right];
+    float delta = [[options grid] actualSize];
     
-    if ([selectionManager hasSelectedBrushes]) {
-        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            if (![selectionManager isEntitySelected:[brush entity]])
-                [[self document] translateBrush:brush direction:[camera right] delta:-[[options grid] actualSize]];
-        }
-    }
+    if ([selectionManager hasSelectedFaces])
+        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:delta yDelta:0];
     
-    if ([selectionManager hasSelectedEntities]) {
-        NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject]))
-            [[self document] translateEntity:entity direction:[camera right] delta:-[[options grid] actualSize]];
-    }
+    if ([selectionManager hasSelectedBrushes])
+        [map translateBrushes:[selectionManager selectedBrushes] direction:direction delta:-delta];
+    
+    if ([selectionManager hasSelectedEntities])
+        [map translateEntities:[selectionManager selectedEntities] direction:direction delta:-delta];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Objects"];
 }
 
 - (void)moveRight:(id)sender {
-    NSUndoManager* undoManager = [[self document] undoManager];
+    MapDocument* map = [self document];
+    NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    if ([selectionManager hasSelectedFaces]) {
-        NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-        id <Face> face;
-        while ((face = [faceEn nextObject]))
-            [[self document] translateFaceOffset:face xDelta:-[[options grid] actualSize] yDelta:0];
-    }
+    const TVector3f* direction = [camera right];
+    float delta = [[options grid] actualSize];
     
-    if ([selectionManager hasSelectedBrushes]) {
-        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            if (![selectionManager isEntitySelected:[brush entity]])
-                [[self document] translateBrush:brush direction:[camera right] delta:[[options grid] actualSize]];
-        }
-    }
+    if ([selectionManager hasSelectedFaces])
+        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:-delta yDelta:0];
     
-    if ([selectionManager hasSelectedEntities]) {
-        NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject]))
-            [[self document] translateEntity:entity direction:[camera right] delta:[[options grid] actualSize]];
-    }
+    if ([selectionManager hasSelectedBrushes])
+        [map translateBrushes:[selectionManager selectedBrushes] direction:direction delta:delta];
+    
+    if ([selectionManager hasSelectedEntities])
+        [map translateEntities:[selectionManager selectedEntities] direction:direction delta:delta];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Objects"];}
 
 - (void)moveUp:(id)sender {
-    NSUndoManager* undoManager = [[self document] undoManager];
+    MapDocument* map = [self document];
+    NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    if ([selectionManager hasSelectedFaces]) {
-        NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-        id <Face> face;
-        while ((face = [faceEn nextObject]))
-            [[self document] translateFaceOffset:face xDelta:0 yDelta:[[options grid] actualSize]];
-    }
+    const TVector3f* direction = [camera up];
+    float delta = [[options grid] actualSize];
     
-    if ([selectionManager hasSelectedBrushes]) {
-        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            if (![selectionManager isEntitySelected:[brush entity]])
-                [[self document] translateBrush:brush direction:[camera up] delta:[[options grid] actualSize]];
-        }
-    }
+    if ([selectionManager hasSelectedFaces])
+        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:0 yDelta:delta];
     
-    if ([selectionManager hasSelectedEntities]) {
-        NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject]))
-            [[self document] translateEntity:entity direction:[camera up] delta:[[options grid] actualSize]];
-    }
+    if ([selectionManager hasSelectedBrushes])
+        [map translateBrushes:[selectionManager selectedBrushes] direction:direction delta:delta];
     
+    if ([selectionManager hasSelectedEntities])
+        [map translateEntities:[selectionManager selectedEntities] direction:direction delta:delta];
+
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Objects"];
 }
 
 - (void)moveDown:(id)sender {
-    NSUndoManager* undoManager = [[self document] undoManager];
+    MapDocument* map = [self document];
+    NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    if ([selectionManager hasSelectedFaces]) {
-        NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-        id <Face> face;
-        while ((face = [faceEn nextObject]))
-            [[self document] translateFaceOffset:face xDelta:0 yDelta:-[[options grid] actualSize]];
-    }
+    const TVector3f* direction = [camera up];
+    float delta = [[options grid] actualSize];
     
-    if ([selectionManager hasSelectedBrushes]) {
-        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            if (![selectionManager isEntitySelected:[brush entity]])
-                [[self document] translateBrush:brush direction:[camera up] delta:-[[options grid] actualSize]];
-        }
-    }
+    if ([selectionManager hasSelectedFaces])
+        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:0 yDelta:-delta];
     
-    if ([selectionManager hasSelectedEntities]) {
-        NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject]))
-            [[self document] translateEntity:entity direction:[camera up] delta:-[[options grid] actualSize]];
-    }
+    if ([selectionManager hasSelectedBrushes])
+        [map translateBrushes:[selectionManager selectedBrushes] direction:direction delta:-delta];
+    
+    if ([selectionManager hasSelectedEntities])
+        [map translateEntities:[selectionManager selectedEntities] direction:direction delta:delta];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Objects"];
@@ -624,24 +642,14 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         if ([selectionManager hasSelectedEntities]) {
             NSSet* deletedEntities = [[NSSet alloc] initWithSet:[selectionManager selectedEntities]];
             [selectionManager removeEntities:deletedEntities record:YES];
-            
-            NSEnumerator* entityEn = [deletedEntities objectEnumerator];
-            id <Entity> entity;
-            while ((entity = [entityEn nextObject]))
-                [[self document] deleteEntity:entity];
-            
+            [[self document] deleteEntities:deletedEntities];
             [deletedEntities release];
         }
         
         if ([selectionManager hasSelectedBrushes]) {
             NSSet* deletedBrushes = [[NSSet alloc] initWithSet:[selectionManager selectedBrushes]];
             [selectionManager removeBrushes:deletedBrushes record:YES];
-            
-            NSEnumerator* brushEn = [deletedBrushes objectEnumerator];
-            id <Brush> brush;
-            while ((brush = [brushEn nextObject]))
-                [[self document] deleteBrush:brush];
-            
+            [[self document] deleteBrushes:deletedBrushes];
             [deletedBrushes release];
         }
         
@@ -657,24 +665,22 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSMutableSet* newEntities = [[NSMutableSet alloc] init];
     NSMutableSet* newBrushes = [[NSMutableSet alloc] init];
 
+    TVector3i delta = {[[options grid] actualSize], [[options grid] actualSize], 0};
+    
     if ([selectionManager hasSelectedEntities]) {
         NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
             id <Entity> newEntity = [[self document] createEntityWithProperties:[entity properties]];
             
-            if ([[entity entityDefinition] type] == EDT_POINT) {
-                [[self document] translateEntity:newEntity xDelta:[[options grid] actualSize] yDelta:[[options grid] actualSize] zDelta:0];
-            } else {
+            if ([[entity entityDefinition] type] != EDT_POINT) {
                 NSArray* brushes = [entity brushes];
                 if ([brushes count] > 0) {
                     NSEnumerator* brushEn = [brushes objectEnumerator];
                     id <Brush> brush;
                     while ((brush = [brushEn nextObject])) {
                         id <Brush> newBrush = [[self document] createBrushInEntity:newEntity fromTemplate:brush];
-                        [[self document] translateBrush:newBrush xDelta:[[options grid] actualSize] yDelta:[[options grid] actualSize] zDelta:0];
                         [newBrushes addObject:newBrush];
-                        [selectionManager removeBrush:brush record:YES];
                     }
                 }
             }
@@ -688,12 +694,14 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
             id <Brush> newBrush = [[self document] createBrushInEntity:worldspawn fromTemplate:brush];
-            [[self document] translateBrush:newBrush xDelta:[[options grid] actualSize] yDelta:[[options grid] actualSize] zDelta:0];
             [newBrushes addObject:newBrush];
         }
         
     }
     
+    [[self document] translateEntities:newEntities delta:&delta];
+    [[self document] translateBrushes:newBrushes delta:&delta];
+
     [selectionManager removeAll:YES];
     [selectionManager addEntities:newEntities record:YES];
     [selectionManager addBrushes:newBrushes record:YES];
@@ -731,6 +739,11 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     TVector3f dist;
     subV3f(&insertPos, [prefab center], &dist);
     
+    TVector3i delta;
+    roundV3f(&dist, &delta);
+    
+    NSMutableSet* newEntities = [[NSMutableSet alloc] init];
+    NSMutableSet* newBrushes = [[NSMutableSet alloc] init];
     MapDocument* map = [self document];
     
     NSEnumerator* entityEn = [[prefab entities] objectEnumerator];
@@ -742,17 +755,27 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         } else {
             mapEntity = [map createEntityWithProperties:[prefabEntity properties]];
             [map setEntityDefinition:mapEntity];
+            [newEntities addObject:mapEntity];
         }
         
         NSEnumerator* prefabBrushEn = [[prefabEntity brushes] objectEnumerator];
         id <Brush> prefabBrush;
         while ((prefabBrush = [prefabBrushEn nextObject])) {
             id <Brush> mapBrush = [map createBrushInEntity:mapEntity fromTemplate:prefabBrush];
-            [map translateBrush:mapBrush xDelta:roundf(dist.x) yDelta:roundf(dist.y) zDelta:roundf(dist.z)];
-            [selectionManager addBrush:mapBrush record:YES];
+            [newBrushes addObject:mapBrush];
         }
     }
     
+    [[self document] translateEntities:newEntities delta:&delta];
+    [[self document] translateBrushes:newBrushes delta:&delta];
+    
+    [selectionManager removeAll:YES];
+    [selectionManager addEntities:newEntities record:YES];
+    [selectionManager addBrushes:newBrushes record:YES];
+    
+    [newEntities release];
+    [newBrushes release];
+
     [undoManager endUndoGrouping];
     [undoManager setActionName:[NSString stringWithFormat:@"Insert Prefab '%@'", [prefab name]]];
 }

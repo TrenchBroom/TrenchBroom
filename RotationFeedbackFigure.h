@@ -9,9 +9,13 @@
 #import <Foundation/Foundation.h>
 #import "Figure.h"
 #import "Math.h"
+#import <OpenGL/gl.h>
+#import <OpenGL/glu.h>
 
 @interface RotationFeedbackFigure : NSObject <Figure> {
 @private
+    GLUquadric* sphere;
+    BOOL initialized;
     TVector3f center;
     TVector3f initialDragVector;
     TVector3f currentDragVector;

@@ -16,60 +16,90 @@
 
 @implementation Octree
 
-- (void)entityAdded:(NSNotification *)notification {
+- (void)entitiesAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Entity> entity = [userInfo objectForKey:EntityKey];
-    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
-        [root addObject:entity bounds:[entity bounds]];
+    NSSet* entities = [userInfo objectForKey:EntitiesKey];
+    
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject]))
+        if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
+            [root addObject:entity bounds:[entity bounds]];
 }
 
-- (void)entityWillBeRemoved:(NSNotification *)notification {
+- (void)entitiesWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Entity> entity = [userInfo objectForKey:EntityKey];
-    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
-        if (![root removeObject:entity bounds:[entity bounds]])
-            [NSException raise:NSInvalidArgumentException format:@"Entity %@ was not removed from octree", entity];
+    NSSet* entities = [userInfo objectForKey:EntitiesKey];
+    
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject]))
+        if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
+            if (![root removeObject:entity bounds:[entity bounds]])
+                [NSException raise:NSInvalidArgumentException format:@"Entity %@ was not removed from octree", entity];
 }
 
 - (void)propertiesWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Entity> entity = [userInfo objectForKey:EntityKey];
+    NSSet* entities = [userInfo objectForKey:EntitiesKey];
     
-    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
-        [root removeObject:entity bounds:[entity bounds]];
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject]))
+        if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
+            [root removeObject:entity bounds:[entity bounds]];
 }
 
 - (void)propertiesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Entity> entity = [userInfo objectForKey:EntityKey];
+    NSSet* entities = [userInfo objectForKey:EntitiesKey];
     
-    if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
-        [root addObject:entity bounds:[entity bounds]];
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject]))
+        if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
+            [root addObject:entity bounds:[entity bounds]];
 }
 
-- (void)brushAdded:(NSNotification *)notification {
+- (void)brushesAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Brush> brush = [userInfo objectForKey:BrushKey];
-    [root addObject:brush bounds:[brush bounds]];
+    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject]))
+        [root addObject:brush bounds:[brush bounds]];
 }
 
-- (void)brushWillBeRemoved:(NSNotification *)notification {
+- (void)brushesWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Brush> brush = [userInfo objectForKey:BrushKey];
-    if (![root removeObject:brush bounds:[brush bounds]])
-        [NSException raise:NSInvalidArgumentException format:@"Brush %@ was not removed from octree", brush];
+    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject]))
+        if (![root removeObject:brush bounds:[brush bounds]])
+            [NSException raise:NSInvalidArgumentException format:@"Brush %@ was not removed from octree", brush];
 }
 
-- (void)brushWillChange:(NSNotification *)notification {
+- (void)brushesWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Brush> brush = [userInfo objectForKey:BrushKey];
-    [root removeObject:brush bounds:[brush bounds]];
+    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject]))
+        [root removeObject:brush bounds:[brush bounds]];
 }
 
-- (void)brushDidChange:(NSNotification *)notification {
+- (void)brushesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Brush> brush = [userInfo objectForKey:BrushKey];
-    [root addObject:brush bounds:[brush bounds]];
+    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    
+    NSEnumerator* brushEn = [brushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject]))
+        [root addObject:brush bounds:[brush bounds]];
 }
 
 - (id)initWithDocument:(MapDocument *)theDocument minSize:(int)theMinSize {
@@ -95,14 +125,14 @@
         }
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center addObserver:self selector:@selector(entityAdded:) name:EntityAdded object:map];
-        [center addObserver:self selector:@selector(entityWillBeRemoved:) name:EntityWillBeRemoved object:map];
+        [center addObserver:self selector:@selector(entitiesAdded:) name:EntitiesAdded object:map];
+        [center addObserver:self selector:@selector(entitiesWillBeRemoved:) name:EntitiesWillBeRemoved object:map];
         [center addObserver:self selector:@selector(propertiesWillChange:) name:PropertiesWillChange object:map];
         [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesWillChange object:map];
-        [center addObserver:self selector:@selector(brushAdded:) name:BrushAdded object:map];
-        [center addObserver:self selector:@selector(brushWillBeRemoved:) name:BrushWillBeRemoved object:map];
-        [center addObserver:self selector:@selector(brushWillChange:) name:BrushWillChange object:map];
-        [center addObserver:self selector:@selector(brushDidChange:) name:BrushDidChange object:map];
+        [center addObserver:self selector:@selector(brushesAdded:) name:BrushesAdded object:map];
+        [center addObserver:self selector:@selector(brushesWillBeRemoved:) name:BrushesWillBeRemoved object:map];
+        [center addObserver:self selector:@selector(brushesWillChange:) name:BrushesWillChange object:map];
+        [center addObserver:self selector:@selector(brushesDidChange:) name:BrushesDidChange object:map];
     }
     
     return self;

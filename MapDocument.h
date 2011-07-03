@@ -10,19 +10,19 @@
 #import "Map.h"
 #import "Math.h"
 
-extern NSString* const FaceWillChange;
-extern NSString* const FaceDidChange;
-extern NSString* const FaceKey;
+extern NSString* const FacesWillChange;
+extern NSString* const FacesDidChange;
+extern NSString* const FacesKey;
 
-extern NSString* const BrushAdded;
-extern NSString* const BrushWillBeRemoved;
-extern NSString* const BrushWillChange;
-extern NSString* const BrushDidChange;
-extern NSString* const BrushKey;
+extern NSString* const BrushesAdded;
+extern NSString* const BrushesWillBeRemoved;
+extern NSString* const BrushesWillChange;
+extern NSString* const BrushesDidChange;
+extern NSString* const BrushesKey;
 
-extern NSString* const EntityAdded;
-extern NSString* const EntityWillBeRemoved;
-extern NSString* const EntityKey;
+extern NSString* const EntitiesAdded;
+extern NSString* const EntitiesWillBeRemoved;
+extern NSString* const EntitiesKey;
 
 extern NSString* const PropertiesWillChange;
 extern NSString* const PropertiesDidChange;
@@ -63,30 +63,34 @@ extern NSString* const PropertiesDidChange;
 
 - (id <Entity>)createEntityWithClassname:(NSString *)classname;
 - (id <Entity>)createEntityWithProperties:(NSDictionary *)properties;
-- (void)setEntity:(id <Entity>)entity propertyKey:(NSString *)key value:(NSString *)value;
+- (void)setEntity:(id <Entity>)theEntity propertyKey:(NSString *)theKey value:(NSString *)theValue;
 - (void)setEntityDefinition:(id <Entity>)entity;
-- (void)translateEntity:(id <Entity>)entity xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta;
-- (void)translateEntity:(id <Entity>)entity direction:(const TVector3f *)dir delta:(int)delta;
-- (void)deleteEntity:(id <Entity>)entity;
+- (void)translateEntities:(NSSet *)theEntities delta:(TVector3i *)theDelta;
+- (void)translateEntities:(NSSet *)theEntities direction:(const TVector3f *)theDirection delta:(int)theDelta;
+- (void)rotateEntitiesZ90CW:(NSSet *)theEntities center:(TVector3i *)theCenter;
+- (void)rotateEntitiesZ90CCW:(NSSet *)theEntities center:(TVector3i *)theCenter;
+- (void)deleteEntities:(NSSet *)theEntities;
 
-- (void)addBrushToEntity:(id <Entity>)theEntity brush:(id <Brush>)theBrush;
+- (void)addBrushesToEntity:(id <Entity>)theEntity brushes:(NSSet *)theBrushes;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate;
-- (void)translateBrush:(id <Brush>)brush xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta;
-- (void)translateBrush:(id <Brush>)brush direction:(const TVector3f *)dir delta:(int)delta;
-- (void)rotateZ90CW:(NSSet *)theBrushes entities:(NSSet *)theEntities;
-- (void)rotateZ90CCW:(NSSet *)theBrushes entities:(NSSet *)theEntities;
-- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter brushes:(NSSet *)theBrushes;
-- (void)deleteBrush:(id <Brush>)brush;
+- (void)translateBrushes:(NSSet *)theBrushes delta:(TVector3i *)theDelta;
+- (void)translateBrushes:(NSSet *)theBrushes direction:(const TVector3f *)theDirection delta:(int)theDelta;
+- (void)rotateBrushesZ90CW:(NSSet *)theBrushes center:(TVector3i *)theCenter;
+- (void)rotateBrushesZ90CCW:(NSSet *)theBrushes center:(TVector3i *)theCenter;
+- (void)rotateBrushes:(NSSet *)theBrushes rotation:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter;
+- (void)deleteBrushes:(NSSet *)theBrushes;
 
-- (void)setFace:(id <Face>)face xOffset:(int)xOffset;
-- (void)setFace:(id <Face>)face yOffset:(int)yOffset;
-- (void)translateFaceOffset:(id <Face>)face xDelta:(int)xDelta yDelta:(int)yDelta;
-- (void)setFace:(id <Face>)face xScale:(float)xScale;
-- (void)setFace:(id <Face>)face yScale:(float)yScale;
-- (void)setFace:(id <Face>)face rotation:(float)angle;
-- (void)setFace:(id <Face>)face texture:(NSString *)texture;
-- (void)translateFace:(id <Face>)face xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta;
-- (void)dragFace:(id <Face>)face dist:(float)dist;
+- (void)setFaces:(NSSet *)theFaces xOffset:(int)theXOffset;
+- (void)setFaces:(NSSet *)theFaces yOffset:(int)theYOffset;
+- (void)translateFaceOffsets:(NSSet *)theFaces xDelta:(int)theXDelta yDelta:(int)theYDelta;
+- (void)setFaces:(NSSet *)theFaces xScale:(float)theXScale;
+- (void)setFaces:(NSSet *)theFaces yScale:(float)theYScale;
+- (void)scaleFaces:(NSSet *)theFaces xFactor:(float)theXFactor yFactor:(float)theYFactor;
+- (void)setFaces:(NSSet *)theFaces rotation:(float)theAngle;
+- (void)rotateFaces:(NSSet *)theFaces angle:(float)theAngle;
+- (void)setFaces:(NSSet *)theFaces texture:(NSString *)theTexture;
+- (void)translateFaces:(NSSet *)theFaces delta:(TVector3i *)theDelta;
+- (void)dragFaces:(NSSet *)theFaces distance:(float)theDistance;
 
 - (Picker *)picker;
 - (GLResources *)glResources;

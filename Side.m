@@ -37,7 +37,7 @@
 @implementation Side
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         mark = SM_NEW;
         vertices = [[NSMutableArray alloc] init];
         edges = [[NSMutableArray alloc] init];
@@ -46,9 +46,13 @@
     return self;
 }
 
-- (id)initWithFace:(MutableFace *)theFace edges:(NSArray *)theEdges flipped:(BOOL*)flipped {
-    if (self = [self init]) {
-        face = [theFace retain];
+- (id)initWithEdges:(NSArray *)theEdges flipped:(BOOL*)flipped {
+    NSAssert(theEdges != nil, @"edge array must not be nil");
+    NSAssert([theEdges count] >= 3, @"edge array must contain at least three edges");
+    NSAssert(flipped != NULL, @"flip flags array must not be NULL");
+    
+    if ((self = [self init])) {
+        face = nil;
         for (int i = 0; i < [theEdges count]; i++) {
             Edge* edge = [theEdges objectAtIndex:i];
             if (!flipped[i])
@@ -58,16 +62,17 @@
             [edges addObject:edge];
             [vertices addObject:[edge startVertexForSide:self]];
         }
-
-        [face setVertices:vertices];
-        [face setEdges:edges];
     }
     
     return self;
 }
 
 - (id)initWithFace:(MutableFace *)theFace edges:(NSArray *)theEdges {
-    if (self = [self init]) {
+    NSAssert(theFace != nil, @"face must not be nil");
+    NSAssert(theEdges != nil, @"edge array must not be nil");
+    NSAssert([theEdges count] >= 3, @"edge array must contain at least three edges");
+
+    if ((self = [self init])) {
         face = [theFace retain];
         NSEnumerator* edgeEn = [theEdges objectEnumerator];
         Edge* edge;

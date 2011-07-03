@@ -127,28 +127,17 @@
     if (equalV3f(&point, &lastPoint))
         return;
     
-    int x = roundf(point.x - lastPoint.x);
-    int y = roundf(point.y - lastPoint.y);
-    int z = roundf(point.z - lastPoint.z);
+    TVector3f deltaf;
+    TVector3i deltai;
+    
+    subV3f(&point, &lastPoint, &deltaf);
+    roundV3f(&deltaf, &deltai);
     
     MapDocument* map = [windowController document];
     
     SelectionManager* selectionManager = [windowController selectionManager];
-    NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
-        [map translateBrush:brush 
-                     xDelta:x
-                     yDelta:y
-                     zDelta:z];
-    
-    NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject]))
-        [map translateEntity:entity
-                     xDelta:x
-                     yDelta:y
-                     zDelta:z];
+    [map translateBrushes:[selectionManager selectedBrushes] delta:&deltai];
+    [map translateEntities:[selectionManager selectedEntities] delta:&deltai];
     
     lastPoint = point;
 }

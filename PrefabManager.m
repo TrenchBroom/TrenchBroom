@@ -67,7 +67,7 @@ static PrefabManager* sharedInstance = nil;
 }
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         nameToPrefabGroup = [[NSMutableDictionary alloc] init];
         prefabGroups = [[NSMutableArray alloc] init];
     }
@@ -82,7 +82,7 @@ static PrefabManager* sharedInstance = nil;
     BOOL exists = [fileManager fileExistsAtPath:thePath isDirectory:&directory];
     
     if (!exists || !directory) {
-        NSLog(@"Cannot load prefabs because '%@' does not exist or is not a directory");
+        NSLog(@"Cannot load prefabs because '%@' does not exist or is not a directory", thePath);
         return;
     }
     

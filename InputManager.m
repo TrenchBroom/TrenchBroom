@@ -127,7 +127,6 @@
         if (activeTool != nil) {
             [activeTool activated:lastEvent ray:&lastRay hits:lastHits];
         }
-        NSLog(@"activated %@", activeTool);
     }
 }
 

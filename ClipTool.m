@@ -7,10 +7,10 @@
 //
 
 #import "ClipTool.h"
-#import "Picker.h";
+#import "Picker.h"
 #import "PickingHitList.h"
 #import "PickingHit.h"
-#import "Renderer.h";
+#import "Renderer.h"
 #import "Options.h"
 #import "Grid.h"
 #import "Face.h"
@@ -183,7 +183,7 @@
 @implementation ClipTool
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         brushFigures = [[NSMutableSet alloc] init];
         draggedPoint = -1;
     }
@@ -192,7 +192,7 @@
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         windowController = theWindowController;
     }
     
@@ -375,8 +375,6 @@
         [clipPlane clipBrush:brush firstResult:&firstResult secondResult:&secondResult];
         
         id <Entity> entity = [brush entity];
-        [map deleteBrush:brush];
-        
         if (firstResult != nil)
             [result addObject:[map createBrushInEntity:entity fromTemplate:firstResult]];
         
@@ -384,12 +382,14 @@
             [result addObject:[map createBrushInEntity:entity fromTemplate:secondResult]];
     }
     
+    [map deleteBrushes:brushes];
+    [brushes release];
+
     [selectionManager addBrushes:result record:YES];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:[brushes count] == 1 ? @"Clip Brush" : @"Clip Brushes"];
     
-    [brushes release];
     [clipPlane reset];
     if (currentPoint != NULL) {
         free(currentPoint);

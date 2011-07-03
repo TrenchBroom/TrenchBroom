@@ -29,7 +29,7 @@ static InspectorController* sharedInstance = nil;
 @interface InspectorController (private)
 
 - (void)propertiesDidChange:(NSNotification *)notification;
-- (void)faceDidChange:(NSNotification *)notification;
+- (void)facesDidChange:(NSNotification *)notification;
 - (void)selectionRemoved:(NSNotification *)notification;
 - (void)selectionAdded:(NSNotification *)notification;
 - (void)textureManagerChanged:(NSNotification *)notification;
@@ -45,13 +45,18 @@ static InspectorController* sharedInstance = nil;
     [entityPropertyTableView reloadData];
 }
 
-- (void)faceDidChange:(NSNotification *)notification {
+- (void)facesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    id <Face> face = [userInfo objectForKey:FaceKey];
+    NSSet* faces = [userInfo objectForKey:FacesKey];
     
     SelectionManager* selectionManager = [mapWindowController selectionManager];
-    if ([selectionManager isFaceSelected:face])
-        [self updateTextureControls];
+
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject])) {
+        if ([selectionManager isFaceSelected:face])
+            [self updateTextureControls];
+    }
 }
 
 - (void)selectionRemoved:(NSNotification *)notification {
@@ -84,7 +89,7 @@ static InspectorController* sharedInstance = nil;
         [center removeObserver:self name:SelectionAdded object:selectionManager];
         [center removeObserver:self name:SelectionRemoved object:selectionManager];
         [center removeObserver:self name:PropertiesDidChange object:map];
-        [center removeObserver:self name:FaceDidChange object:map];
+        [center removeObserver:self name:FacesDidChange object:map];
         [center removeObserver:self name:TextureManagerChanged object:textureManager];
         
         [entityPropertyTableDataSource setMapWindowController:nil];
@@ -111,7 +116,7 @@ static InspectorController* sharedInstance = nil;
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
         [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
         [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesDidChange object:map];
-        [center addObserver:self selector:@selector(faceDidChange:) name:FaceDidChange object:map];
+        [center addObserver:self selector:@selector(facesDidChange:) name:FacesDidChange object:map];
         [center addObserver:self selector:@selector(textureManagerChanged:) name:TextureManagerChanged object:textureManager];
     } else {
         [singleTextureView setGLResources:nil];
@@ -303,89 +308,74 @@ static InspectorController* sharedInstance = nil;
 
 - (IBAction)xOffsetTextChanged:(id)sender {
     MapDocument* map = [mapWindowController document];
-    
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    SelectionManager* selectionManager = [mapWindowController selectionManager];
     int xOffset = [xOffsetField intValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [map setFace:face xOffset:xOffset];
+    [map setFaces:faces xOffset:xOffset];
     
     [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Set Texture Horizontal Offset"];
+    [undoManager setActionName:@"Set Texture X Offset"];
 }
 
 - (IBAction)yOffsetTextChanged:(id)sender {
     MapDocument* map = [mapWindowController document];
-    
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    SelectionManager* selectionManager = [mapWindowController selectionManager];
     int yOffset = [yOffsetField intValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [map setFace:face yOffset:yOffset];
-    
+    [map setFaces:faces yOffset:yOffset];
+
     [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Set Texture Vertical Offset"];
+    [undoManager setActionName:@"Set Texture Y Offset"];
 }
 
 - (IBAction)xScaleTextChanged:(id)sender {
     MapDocument* map = [mapWindowController document];
-    
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    SelectionManager* selectionManager = [mapWindowController selectionManager];
     float xScale = [xScaleField floatValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [map setFace:face xScale:xScale];
+    [map setFaces:faces xScale:xScale];
     
     [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Set Texture Horizontal Scale"];
+    [undoManager setActionName:@"Set Texture X Scale"];
 }
 
 - (IBAction)yScaleTextChanged:(id)sender {
     MapDocument* map = [mapWindowController document];
-    
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    SelectionManager* selectionManager = [mapWindowController selectionManager];
     float yScale = [yScaleField floatValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [map setFace:face yScale:yScale];
+    [map setFaces:faces yScale:yScale];
     
     [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Set Texture Vertical Scale"];
+    [undoManager setActionName:@"Set Texture Y Scale"];
 }
 
 - (IBAction)rotationTextChanged:(id)sender {
     MapDocument* map = [mapWindowController document];
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
     
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    SelectionManager* selectionManager = [mapWindowController selectionManager];
     float rotation = [rotationField floatValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [map setFace:face rotation:rotation];
+    [map setFaces:faces rotation:rotation];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Set Texture Rotation"];
@@ -393,16 +383,13 @@ static InspectorController* sharedInstance = nil;
 
 - (void)textureSelected:(Texture *)texture {
     MapDocument* map = [mapWindowController document];
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
     
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    SelectionManager* selectionManager = [mapWindowController selectionManager];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [map setFace:face texture:[texture name]];
+    [map setFaces:faces texture:[texture name]];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Set Texture"];

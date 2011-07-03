@@ -107,8 +107,6 @@
     vector.z = 0;
     normalizeV3f(&vector, &vector);
     
-    NSLog(@"vector: %f %f %f", vector.x, vector.y, vector.z);
-
     float angle = acos(dotV3f(&initialVector, &vector));
     if (isnan(angle))
         return;
@@ -125,8 +123,6 @@
     TVector3f cross;
     crossV3f(&initialVector, &vector, &cross);
 
-    NSLog(@"angle: %f", angle);
-    
     TQuaternion rotation;
     if (cross.z < 0) {
         setAngleAndAxisQ(&rotation, steps * M_PI / 12, &ZAxisNeg);
@@ -135,10 +131,12 @@
     }
     
     SelectionManager* selectionManager = [windowController selectionManager];
+//    NSSet* entities = [selectionManager selectedEntities];
     NSSet* brushes = [selectionManager selectedBrushes];
     
     MapDocument* map = [windowController document];
-    [map rotate:&rotation center:&center brushes:brushes];
+//    [map rotateEntities:entities rotation:&rotation center:&center];
+    [map rotateBrushes:brushes rotation:&rotation center:&center];
     
     [feedbackFigure updateCurrentDragVector:&vector];
 }

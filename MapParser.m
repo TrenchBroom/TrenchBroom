@@ -20,7 +20,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
 @implementation MapParser
 
 - (id)initWithData:(NSData *)someData {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         size = [someData length];
         NSInputStream* stream = [[NSInputStream alloc] initWithData:someData];
         tokenizer = [[MapTokenizer alloc] initWithInputStream:stream];
@@ -45,15 +45,15 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
 
 - (void)parseFace:(int)filePosition {
     MapToken* token = [self nextToken];
-    [self expect:TT_DEC actual:token];
+    [self expect:TT_DEC | TT_FRAC actual:token];
     p1.x = [[token data] intValue];
     
     token = [self nextToken];
-    [self expect:TT_DEC actual:token];
+    [self expect:TT_DEC | TT_FRAC actual:token];
     p1.y = [[token data] intValue];
     
     token = [self nextToken];
-    [self expect:TT_DEC actual:token];
+    [self expect:TT_DEC | TT_FRAC actual:token];
     p1.z = [[token data] intValue];
     
     token = [self nextToken];
@@ -63,15 +63,15 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     [self expect:TT_B_O actual:token];
     
     token = [self nextToken];
-    [self expect:TT_DEC actual:token];
+    [self expect:TT_DEC | TT_FRAC actual:token];
     p2.x = [[token data] intValue];
     
     token = [self nextToken];
-    [self expect:TT_DEC actual:token];
+    [self expect:TT_DEC | TT_FRAC actual:token];
     p2.y = [[token data] intValue];
     
     token = [self nextToken];
-    [self expect:TT_DEC actual:token];
+    [self expect:TT_DEC | TT_FRAC actual:token];
     p2.z = [[token data] intValue];
     
     token = [self nextToken];
@@ -81,15 +81,15 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     [self expect:TT_B_O actual:token];
     
     token = [self nextToken];
-    [self expect:TT_DEC actual:token];
+    [self expect:TT_DEC | TT_FRAC actual:token];
     p3.x = [[token data] intValue];
     
     token = [self nextToken];
-    [self expect:TT_DEC actual:token];
+    [self expect:TT_DEC | TT_FRAC actual:token];
     p3.y = [[token data] intValue];
     
     token = [self nextToken];
-    [self expect:TT_DEC actual:token];
+    [self expect:TT_DEC | TT_FRAC actual:token];
     p3.z = [[token data] intValue];
     
     token = [self nextToken];
@@ -175,8 +175,8 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                         case TT_CB_C: {
                             [map addEntity:entity];
                             [entity release];
-                            state = PS_DEF;
                             entity = nil;
+                            state = PS_DEF;
                             break;
                         }
                         default:

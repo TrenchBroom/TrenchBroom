@@ -26,22 +26,76 @@
 #import "ProgressWindowController.h"
 #import "MapParser.h"
 
-NSString* const FaceWillChange      = @"FaceWillChange";
-NSString* const FaceDidChange       = @"FaceDidChange";
-NSString* const FaceKey             = @"Face";
+NSString* const FacesWillChange         = @"FacesWillChange";
+NSString* const FacesDidChange          = @"FacesDidChange";
+NSString* const FacesKey                = @"Faces";
 
-NSString* const BrushAdded          = @"BrushAdded";
-NSString* const BrushWillBeRemoved  = @"BrushWillBeRemoved";
-NSString* const BrushWillChange     = @"BrushWillChange";
-NSString* const BrushDidChange      = @"BrushDidChange";
-NSString* const BrushKey            = @"Brush";
+NSString* const BrushesAdded            = @"BrushesAdded";
+NSString* const BrushesWillBeRemoved    = @"BrushesWillBeRemoved";
+NSString* const BrushesWillChange       = @"BrushesWillChange";
+NSString* const BrushesDidChange        = @"BrushesDidChange";
+NSString* const BrushesKey              = @"Brushes";
 
-NSString* const EntityAdded         = @"EntityAdded";
-NSString* const EntityWillBeRemoved = @"EntityWillBeRemoved";
-NSString* const EntityKey           = @"Entity";
+NSString* const EntitiesAdded           = @"EntitiesAdded";
+NSString* const EntitiesWillBeRemoved   = @"EntitiesWillBeRemoved";
+NSString* const EntitiesKey             = @"Entities";
 
-NSString* const PropertiesWillChange  = @"PropertiesWillChange";
-NSString* const PropertiesDidChange   = @"PropertiesDidChange";
+NSString* const PropertiesWillChange    = @"PropertiesWillChange";
+NSString* const PropertiesDidChange     = @"PropertiesDidChange";
+
+@interface MapDocument (private)
+
+- (void)makeUndoSnapshot:(NSSet *)theFaces;
+- (void)restoreUndoSnapshot:(NSSet *)theFaces faceInfos:(NSDictionary *)theFaceInfos;
+
+@end
+
+@implementation MapDocument (private)
+
+- (void)makeUndoSnapshot:(NSSet *)theFaces {
+    NSMutableDictionary* faceInfos = [[NSMutableDictionary alloc] init];
+    
+    NSEnumerator* faceEn = [theFaces objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject])) {
+        FaceInfo* faceInfo = [[FaceInfo alloc] initWithFace:face];
+        [faceInfos setObject:faceInfo forKey:[face faceId]];
+        [faceInfo release];
+    }
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:theFaces faceInfos:faceInfos];
+
+    [faceInfos release];
+}
+
+- (void)restoreUndoSnapshot:(NSSet *)theFaces faceInfos:(NSDictionary *)theFaceInfos {
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theFaces forKey:FacesKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
+    }
+    
+    [self makeUndoSnapshot:theFaces];
+    
+    NSEnumerator* faceEn = [theFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject])) {
+        FaceInfo* faceInfo = [theFaceInfos objectForKey:[face faceId]];
+        [faceInfo updateFace:face];
+    }
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
+@end
 
 @implementation MapDocument
 
@@ -237,7 +291,7 @@ NSString* const PropertiesDidChange   = @"PropertiesDidChange";
     MutableEntity* entity = [[MutableEntity alloc] init];
     [entity setProperty:ClassnameKey value:classname];
     [entity setEntityDefinition:entityDefinition];
-
+    
     [self addEntity:entity];
     return [entity autorelease];
 }
@@ -261,31 +315,37 @@ NSString* const PropertiesDidChange   = @"PropertiesDidChange";
     return [entity autorelease];
 }
 
-- (void)setEntity:(id <Entity>)entity propertyKey:(NSString *)key value:(NSString *)value {
-    NSString* oldValue = [entity propertyForKey:key];
+- (void)setEntity:(id <Entity>)theEntity propertyKey:(NSString *)theKey value:(NSString *)theValue {
+    NSAssert(theEntity != nil, @"entity must not be nil");
+    NSAssert(theKey != nil, @"key must not be nil");
+    
+    NSString* oldValue = [theEntity propertyForKey:theKey];
     
     if (oldValue == nil) {
-        if (value == nil)
+        if (theValue == nil)
             return;
-    } else if ([oldValue isEqualToString:value])
+    } else if ([oldValue isEqualToString:theValue])
         return;
     
-    [[[self undoManager] prepareWithInvocationTarget:self] setEntity:entity propertyKey:key value:oldValue];
+    [[[self undoManager] prepareWithInvocationTarget:self] setEntity:theEntity propertyKey:theKey value:oldValue];
     
     NSMutableDictionary* userInfo = nil;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:entity forKey:EntityKey];
+        NSSet* userInfoEntities = [[NSSet alloc] initWithObjects:theEntity, nil];
+        
+        [userInfo setObject:userInfoEntities forKey:EntitiesKey];
+        [userInfoEntities release];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
     }
     
-    MutableEntity* mutableEntity = (MutableEntity *)entity;
-    if (value == nil)
-        [mutableEntity removeProperty:key];
+    MutableEntity* mutableEntity = (MutableEntity *)theEntity;
+    if (theValue == nil)
+        [mutableEntity removeProperty:theKey];
     else
-        [mutableEntity setProperty:key value:value];
+        [mutableEntity setProperty:theKey value:theValue];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -310,28 +370,32 @@ NSString* const PropertiesDidChange   = @"PropertiesDidChange";
     }
 }
 
-- (void)translateEntity:(id <Entity>)entity xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {
-    NSAssert(entity != nil, @"entity must not be nil");
+- (void)translateEntities:(NSSet *)theEntities delta:(TVector3i *)theDelta {
+    NSAssert(theEntities != nil, @"entity set must not be nil");
+    NSAssert(theDelta != NULL, @"delta must not be NULL");
     
-    EntityDefinition* entityDefinition = [entity entityDefinition];
-    if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
+    if ([theEntities count] == 0)
         return;
     
+    TVector3i inverse;
+    scaleV3i(theDelta, -1, &inverse);
+    
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateEntity:entity xDelta:-xDelta yDelta:-yDelta zDelta:-zDelta];
+    [[undoManager prepareWithInvocationTarget:self] translateEntities:theEntities delta:&inverse];
 
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:entity forKey:EntityKey];
+        [userInfo setObject:theEntities forKey:EntitiesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
     }
-    
-    MutableEntity* mutableEntity = (MutableEntity *)entity;
-    TVector3i delta = {xDelta, yDelta, zDelta};
-    [mutableEntity translateBy:&delta];
+
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    MutableEntity* entity;
+    while ((entity = [entityEn nextObject]))
+        [entity translateBy:theDelta];
 
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -340,518 +404,747 @@ NSString* const PropertiesDidChange   = @"PropertiesDidChange";
     }
 }
 
-- (void)translateEntity:(id <Entity>)entity direction:(const TVector3f *)dir delta:(int)delta {
+- (void)translateEntities:(NSSet *)theEntities direction:(const TVector3f *)theDirection delta:(int)theDelta {
+    NSAssert(theDirection != NULL, @"direction must not be NULL");
+    
     TVector3f a;
     TVector3i d;
-    closestAxisV3f(dir, &a);
-    scaleV3f(&a, delta, &a);
+    closestAxisV3f(theDirection, &a);
+    scaleV3f(&a, theDelta, &a);
     roundV3f(&a, &d);
     
-    [self translateEntity:entity xDelta:d.x yDelta:d.y zDelta:d.z];
+    [self translateEntities:theEntities delta:&d];
 }
 
-- (void)deleteEntity:(id <Entity>)entity {
-    [self removeEntity:entity];
+- (void)rotateEntitiesZ90CW:(NSSet *)theEntities center:(TVector3i *)theCenter {
+    NSAssert(theEntities != nil, @"entity set must not be nil");
+    NSAssert(theCenter != NULL, @"center must not be NULL");
+
+    if ([theEntities count] == 0)
+        return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] rotateEntitiesZ90CCW:theEntities center:theCenter];
+    
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theEntities forKey:EntitiesKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
+    }
+    
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    MutableEntity* entity;
+    while ((entity = [entityEn nextObject]))
+        [entity rotateZ90CW:theCenter];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
+- (void)rotateEntitiesZ90CCW:(NSSet *)theEntities center:(TVector3i *)theCenter {
+    NSAssert(theEntities != nil, @"entity set must not be nil");
+    NSAssert(theCenter != NULL, @"center must not be NULL");
+
+    if ([theEntities count] == 0)
+        return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] rotateEntitiesZ90CW:theEntities center:theCenter];
+    
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theEntities forKey:EntitiesKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
+    }
+    
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    MutableEntity* entity;
+    while ((entity = [entityEn nextObject]))
+        [entity rotateZ90CCW:theCenter];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
+- (void)deleteEntities:(NSSet *)theEntities {
+    [self removeEntities:theEntities];
 }
 
 # pragma mark Brush related functions
 
-- (void)addBrushToEntity:(id <Entity>)theEntity brush:(id <Brush>)theBrush {
-    MutableBrush* mutableBrush = (MutableBrush *)theBrush;
+- (void)addBrushesToEntity:(id <Entity>)theEntity brushes:(NSSet *)theBrushes {
+    NSAssert(theEntity != nil, @"entity must not be nil");
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+    
+    if ([theBrushes count] == 0)
+        return;
+
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] deleteBrushes:theBrushes];
     
     MutableEntity* mutableEntity = (MutableEntity *)theEntity;
-    [mutableEntity addBrush:mutableBrush];
     
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] deleteBrush:mutableBrush];
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    MutableBrush* brush;
+    while ((brush = [brushEn nextObject]))
+        [mutableEntity addBrush:brush];
     
     if ([self postNotifications]) {
         NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:mutableBrush forKey:BrushKey];
+        [userInfo setObject:theBrushes forKey:BrushesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushAdded object:self userInfo:userInfo];
+        [center postNotificationName:BrushesAdded object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate {
+    NSAssert(theEntity != nil, @"entity must not be nil");
+    NSAssert(theTemplate != nil, @"brush template must not be nil");
+    
     id <Brush> brush = [[MutableBrush alloc] initWithBrushTemplate:theTemplate];
-    [self addBrushToEntity:theEntity brush:brush];
+    
+    NSSet* brushSet = [[NSSet alloc] initWithObjects:brush, nil];
+    [self addBrushesToEntity:theEntity brushes:brushSet];
+    [brushSet release];
+    
     return [brush autorelease];
 }
 
-- (void)translateBrush:(id <Brush>)brush xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {
+- (void)translateBrushes:(NSSet *)theBrushes delta:(TVector3i *)theDelta {
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+    NSAssert(theDelta != NULL, @"delta must not be NULL");
+    
+    if ([theBrushes count] == 0)
+        return;
+    
+    TVector3i inverse;
+    scaleV3i(theDelta, -1, &inverse);
+    
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateBrush:brush xDelta:-xDelta yDelta:-yDelta zDelta:-zDelta];
+    [[undoManager prepareWithInvocationTarget:self] translateBrushes:theBrushes delta:&inverse];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:brush forKey:BrushKey];
+        [userInfo setObject:theBrushes forKey:BrushesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
+        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
     }
-    
-    TVector3i delta = {xDelta, yDelta, zDelta};
-    
-    MutableBrush* mutableBrush = (MutableBrush *)brush;
-    [mutableBrush translateBy:&delta];
+
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    MutableBrush* brush;
+    while ((brush = [brushEn nextObject]))
+        [brush translateBy:theDelta];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
+        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (void)translateBrush:(id <Brush>)brush direction:(const TVector3f *)dir delta:(int)delta {
+- (void)translateBrushes:(NSSet *)theBrushes direction:(const TVector3f *)theDirection delta:(int)theDelta {
+    NSAssert(theDirection != NULL, @"direction must not be NULL");
+    
     TVector3f a;
     TVector3i d;
-    closestAxisV3f(dir, &a);
-    scaleV3f(&a, delta, &a);
+    closestAxisV3f(theDirection, &a);
+    scaleV3f(&a, theDelta, &a);
     roundV3f(&a, &d);
     
-    [self translateBrush:brush xDelta:d.x yDelta:d.y zDelta:d.z];
+    [self translateBrushes:theBrushes delta:&d];
 }
 
-- (TBoundingBox)boundsOf:(NSSet *)theBrushes entities:(NSSet *)theEntities {
-    TBoundingBox bounds;
-    BOOL initialized = NO;
+- (void)rotateBrushesZ90CW:(NSSet *)theBrushes center:(TVector3i *)theCenter {
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+    NSAssert(theCenter != NULL, @"center must not be NULL");
     
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    id <Entity> entity = nil;
+    if ([theBrushes count] == 0)
+        return;
     
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    id <Brush> brush = nil;
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] rotateBrushesZ90CCW:theBrushes center:theCenter];
     
-    while ((entity = [entityEn nextObject]) || (brush = [brushEn nextObject])) {
-        if (entity != nil && [entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT) {
-            if (!initialized) {
-                bounds = *[entity bounds];
-                initialized = YES;
-            } else {
-                mergeBoundsWithBounds(&bounds, [entity bounds], &bounds);
-            }
-        }
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theBrushes forKey:BrushesKey];
         
-        if (brush != nil) {
-            if (!initialized) {
-                bounds = *[brush bounds];
-                initialized = YES;
-            } else {
-                mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
-            }
-        }
-    }
-    
-    return bounds;
-}
-
-- (void)rotateZ90CW:(NSSet *)theBrushes entities:(NSSet *)theEntities {
-    if ([theBrushes count] == 0 && [theEntities count] == 0)
-        return;
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateZ90CCW:theBrushes entities:theEntities];
-
-    TBoundingBox bounds = [self boundsOf:theBrushes entities:theEntities];
-    
-    TVector3f rcf;
-    TVector3i rci;
-    centerOfBounds(&bounds, &rcf);
-    roundV3f(&rcf, &rci);
-    
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    MutableEntity* entity;
-
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    MutableBrush* brush;
-    
-    if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        while ((brush = [brushEn nextObject])) {
-            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:brush forKey:BrushKey];
-            
-            [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
-            [brush rotateZ90CW:&rci];
-            [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
-            [userInfo release];
-        }
-
-        while ((entity = [entityEn nextObject])) {
-            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:entity forKey:EntityKey];
-            
-            [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
-            [entity rotateZ90CW:&rci];
-            [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
-            [userInfo release];
-        }
-    } else {
-        while ((brush = [brushEn nextObject]))
-            [brush rotateZ90CW:&rci];
-        while ((entity = [entityEn nextObject]))
-            [entity rotateZ90CW:&rci];
+        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
     }
-}
-
-- (void)rotateZ90CCW:(NSSet *)theBrushes entities:(NSSet *)theEntities {
-    if ([theBrushes count] == 0 && [theEntities count] == 0)
-        return;
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateZ90CW:theBrushes entities:theEntities];
-    
-    TBoundingBox bounds = [self boundsOf:theBrushes entities:theEntities];
-    
-    TVector3f rcf;
-    TVector3i rci;
-    centerOfBounds(&bounds, &rcf);
-    roundV3f(&rcf, &rci);
-    
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    MutableEntity* entity;
     
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
-
+    while ((brush = [brushEn nextObject]))
+        [brush rotateZ90CW:theCenter];
+    
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        while ((brush = [brushEn nextObject])) {
-            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:brush forKey:BrushKey];
-            
-            [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
-            [brush rotateZ90CCW:&rci];
-            [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
-            [userInfo release];
-        }
-
-        while ((entity = [entityEn nextObject])) {
-            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:entity forKey:EntityKey];
-            
-            [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
-            [entity rotateZ90CCW:&rci];
-            [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
-            [userInfo release];
-        }
-    } else {
-        while ((brush = [brushEn nextObject]))
-            [brush rotateZ90CCW:&rci];
-        while ((entity = [entityEn nextObject]))
-            [entity rotateZ90CCW:&rci];
-    }
-}
-
-- (void)setFace:(id <Face>)theFace toFaceInfo:(FaceInfo *)theFaceInfo {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setFace:theFace toFaceInfo:[FaceInfo faceInfoFor:theFace]];
-    
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    NSMutableDictionary* userInfo = nil;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:[theFace brush] forKey:BrushKey];
-        [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
-    }
-    
-    MutableFace* mutableFace = (MutableFace *)theFace;
-    [theFaceInfo updateFace:mutableFace];
-    
-    if ([self postNotifications]) {
-        [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
+        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (void)setBrush:(id <Brush>)theBrush toBrushInfo:(BrushInfo *)theBrushInfo {
+- (void)rotateBrushesZ90CCW:(NSSet *)theBrushes center:(TVector3i *)theCenter {
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+    NSAssert(theCenter != NULL, @"center must not be NULL");
+    
+    if ([theBrushes count] == 0)
+        return;
+    
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setBrush:theBrush toBrushInfo:[BrushInfo brushInfoFor:theBrush]];
+    [[undoManager prepareWithInvocationTarget:self] rotateBrushesZ90CW:theBrushes center:theCenter];
     
-    
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    NSMutableDictionary* userInfo = nil;
+    NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theBrush forKey:BrushKey];
-        [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
+        [userInfo setObject:theBrushes forKey:BrushesKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
     }
     
-    MutableBrush* mutableBrush = (MutableBrush *)theBrush;
-    [theBrushInfo updateBrush:mutableBrush];
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    MutableBrush* brush;
+    while ((brush = [brushEn nextObject]))
+        [brush rotateZ90CCW:theCenter];
     
     if ([self postNotifications]) {
-        [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter brushes:(NSSet *)theBrushes {
+- (void)setBrushes:(NSSet *)theBrushes toBrushInfos:(NSDictionary *)theBrushInfos {
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+    NSAssert(theBrushInfos != nil, @"brush info dictionary must not be nil");
+    NSAssert([theBrushes count] == [theBrushInfos count], @"brush set must be of the same size as brush info dictionary");
+    
+    if ([theBrushes count] == 0)
+        return;
+
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theBrushes forKey:BrushesKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
+    }
+    
+    NSMutableDictionary* undoInfos = [[NSMutableDictionary alloc] initWithCapacity:[theBrushInfos count]];
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    MutableBrush* brush;
+    while ((brush = [brushEn nextObject])) {
+        BrushInfo* undoInfo = [[BrushInfo alloc] initWithBrush:brush];
+        [undoInfos setObject:undoInfo forKey:[brush brushId]];
+        
+        BrushInfo* brushInfo = [theBrushInfos objectForKey:[brush brushId]];
+        [brushInfo updateBrush:brush];
+    }
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] setBrushes:theBrushes toBrushInfos:undoInfos];
+    [undoInfos release];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
+- (void)rotateBrushes:(NSSet *)theBrushes rotation:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter {
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+    NSAssert(theRotation != NULL, @"rotation must not be NULL");
+    NSAssert(theCenter != NULL, @"center must not be NULL");
+    
     if ([theBrushes count] == 0)
         return;
 
     NSUndoManager* undoManager = [self undoManager];
     [undoManager beginUndoGrouping];
     
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theBrushes forKey:BrushesKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
+    }
+    
+    NSMutableDictionary* undoInfos = [[NSMutableDictionary alloc] initWithCapacity:[theBrushes count]];
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
+    while ((brush = [brushEn nextObject])) {
+        BrushInfo* brushInfo = [[BrushInfo alloc] initWithBrush:brush];
+        [undoInfos setObject:brushInfo forKey:[brush brushId]];
+        [brushInfo release];
+        [brush rotate:theRotation center:theCenter];
+    }
+    
+    [[undoManager prepareWithInvocationTarget:self] setBrushes:theBrushes toBrushInfos:undoInfos];
+    [undoInfos release];
+    
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        while ((brush = [brushEn nextObject])) {
-            [[undoManager prepareWithInvocationTarget:self] setBrush:brush toBrushInfo:[BrushInfo brushInfoFor:brush]];
-            
-            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:brush forKey:BrushKey];
-            
-            [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
-            [brush rotate:theRotation center:theCenter];
-            [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
-            [userInfo release];
-        }
-    } else {
-        while ((brush = [brushEn nextObject])) {
-            [[undoManager prepareWithInvocationTarget:self] setBrush:brush toBrushInfo:[BrushInfo brushInfoFor:brush]];
-            [brush rotate:theRotation center:theCenter];
-        }
+        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
+        [userInfo release];
     }
     
     [undoManager endUndoGrouping];
 }
 
-- (void)deleteBrush:(id <Brush>)brush {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] addBrushToEntity:[brush entity] brush:brush];
+- (void)deleteBrushes:(NSSet *)theBrushes {
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
     
-    if ([self postNotifications]) {
-        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:brush forKey:BrushKey];
+    if ([theBrushes count] == 0)
+        return;
+    
+    NSMutableSet* affectedEntities = [[NSMutableSet alloc] init];
+    NSMutableDictionary* entityIdToBrushSet = [[NSMutableDictionary alloc] init];
+    
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    MutableBrush* brush;
+    while ((brush = [brushEn nextObject])) {
+        id <Entity> entity = [brush entity];
+        NSMutableSet* entityBrushes = [entityIdToBrushSet objectForKey:[entity entityId]];
+        if (entityBrushes == nil) {
+            entityBrushes = [[NSMutableSet alloc] init];
+            [entityIdToBrushSet setObject:entityBrushes forKey:[entity entityId]];
+            [entityBrushes release];
+            
+            [affectedEntities addObject:entity];
+        }
         
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushWillBeRemoved object:self userInfo:userInfo];
-        [userInfo release];
+        [entityBrushes addObject:brush];
     }
     
-    MutableEntity* mutableEntity = (MutableEntity *)[brush entity];
-    [mutableEntity removeBrush:brush];
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     
-    if (![mutableEntity isWorldspawn] && [[mutableEntity brushes] count] == 0)
-        [self removeEntity:mutableEntity];
+    NSMutableSet* emptyEntities = [[NSMutableSet alloc] init];
+    
+    NSEnumerator* entityEn = [affectedEntities objectEnumerator];
+    MutableEntity* entity;
+    while ((entity = [entityEn nextObject])) {
+        NSSet* entityBrushes = [entityIdToBrushSet objectForKey:[entity entityId]];
+        [[undoManager prepareWithInvocationTarget:self] addBrushesToEntity:entity brushes:entityBrushes];
+
+        if ([self postNotifications]) {
+            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:entityBrushes forKey:BrushesKey];
+            [center postNotificationName:BrushesWillBeRemoved object:self userInfo:userInfo];
+            [userInfo release];
+        }
+        
+        NSEnumerator* brushEn = [entityBrushes objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject]))
+            [entity removeBrush:brush];
+        
+        if (![entity isWorldspawn] && [[entity brushes] count] == 0)
+            [emptyEntities addObject:entity];
+    }
+    
+    [self removeEntities:emptyEntities];
+    [emptyEntities release];
+    [affectedEntities release];
+    [entityIdToBrushSet release];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Delete Brushes"];
 }
 
 # pragma mark Face related functions
 
-- (void)setFace:(id <Face>)face xOffset:(int)xOffset {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setFace:face xOffset:[face xOffset]];
+- (void)setFaces:(NSSet *)theFaces xOffset:(int)theXOffset {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    
+    if ([theFaces count] == 0)
+        return;
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:face forKey:FaceKey];
+        [userInfo setObject:theFaces forKey:FacesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceWillChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
 
-    MutableFace* mutableFace = (MutableFace *)face;
-    [mutableFace setXOffset:xOffset];
+    [self makeUndoSnapshot:theFaces];
+    
+    NSEnumerator* faceEn = [theFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face setXOffset:theXOffset];
 
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceDidChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (void)setFace:(id <Face>)face yOffset:(int)yOffset {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setFace:face yOffset:[face yOffset]];
+- (void)setFaces:(NSSet *)theFaces yOffset:(int)theYOffset {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    
+    if ([theFaces count] == 0)
+        return;
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:face forKey:FaceKey];
+        [userInfo setObject:theFaces forKey:FacesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceWillChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    MutableFace* mutableFace = (MutableFace *)face;
-    [mutableFace setYOffset:yOffset];
-
+    [self makeUndoSnapshot:theFaces];
+    
+    NSEnumerator* faceEn = [theFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face setXOffset:theYOffset];
+    
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceDidChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (void)translateFaceOffset:(id <Face>)face xDelta:(int)xDelta yDelta:(int)yDelta {
+- (void)translateFaceOffsets:(NSSet *)theFaces xDelta:(int)theXDelta yDelta:(int)theYDelta {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    
+    if ([theFaces count] == 0)
+        return;
+
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateFaceOffset:face xDelta:-xDelta yDelta:-yDelta];
+    [[undoManager prepareWithInvocationTarget:self] translateFaceOffsets:theFaces xDelta:-theXDelta yDelta:-theYDelta];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:face forKey:FaceKey];
+        [userInfo setObject:theFaces forKey:FacesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceWillChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    MutableFace* mutableFace = (MutableFace *)face;
-    [mutableFace translateOffsetsX:xDelta y:yDelta];
+    [self makeUndoSnapshot:theFaces];
+    
+    NSEnumerator* faceEn = [theFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face translateOffsetsX:theXDelta y:theYDelta];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceDidChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (void)setFace:(id <Face>)face xScale:(float)xScale {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setFace:face xScale:[face xScale]];
+- (void)setFaces:(NSSet *)theFaces xScale:(float)theXScale {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    
+    if ([theFaces count] == 0)
+        return;
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:face forKey:FaceKey];
+        [userInfo setObject:theFaces forKey:FacesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceWillChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    MutableFace* mutableFace = (MutableFace *)face;
-    [mutableFace setXScale:xScale];
+    [self makeUndoSnapshot:theFaces];
+    
+    NSEnumerator* faceEn = [theFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face setXScale:theXScale];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceDidChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (void)setFace:(id <Face>)face yScale:(float)yScale {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setFace:face yScale:[face yScale]];
+- (void)setFaces:(NSSet *)theFaces yScale:(float)theYScale {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    
+    if ([theFaces count] == 0)
+        return;
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:face forKey:FaceKey];
+        [userInfo setObject:theFaces forKey:FacesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceWillChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    MutableFace* mutableFace = (MutableFace *)face;
-    [mutableFace setYScale:yScale];
+    [self makeUndoSnapshot:theFaces];
+    
+    NSEnumerator* faceEn = [theFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face setYScale:theYScale];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceDidChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (void)setFace:(id <Face>)face rotation:(float)angle {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setFace:face rotation:[face rotation]];
+- (void)scaleFaces:(NSSet *)theFaces xFactor:(float)theXFactor yFactor:(float)theYFactor {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    
+    if ([theFaces count] == 0)
+        return;
+    
+    if (theXFactor == 0 && theYFactor == 0)
+        return;
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:face forKey:FaceKey];
+        [userInfo setObject:theFaces forKey:FacesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceWillChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    MutableFace* mutableFace = (MutableFace *)face;
-    [mutableFace setRotation:angle];
+    [self makeUndoSnapshot:theFaces];
+    
+    NSEnumerator* faceEn = [theFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject])) {
+        [face setXScale:theXFactor + [face xScale]];
+        [face setYScale:theYFactor + [face yScale]];
+    }
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceDidChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (void)setFace:(id <Face>)face texture:(NSString *)texture {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] setFace:face texture:[NSString stringWithString:[face texture]]];
+- (void)setFaces:(NSSet *)theFaces rotation:(float)theAngle {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    
+    if ([theFaces count] == 0)
+        return;
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:face forKey:FaceKey];
+        [userInfo setObject:theFaces forKey:FacesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceWillChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    MutableFace* mutableFace = (MutableFace *)face;
-    [mutableFace setTexture:texture];
+    [self makeUndoSnapshot:theFaces];
+    
+    NSEnumerator* faceEn = [theFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face setRotation:theAngle];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FaceDidChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (void)translateFace:(id <Face>)face xDelta:(int)xDelta yDelta:(int)yDelta zDelta:(int)zDelta {
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateFace:face xDelta:-xDelta yDelta:-yDelta zDelta:-zDelta];
+- (void)rotateFaces:(NSSet *)theFaces angle:(float)theAngle {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    
+    if ([theFaces count] == 0)
+        return;
+    
+    if (theAngle == 0)
+        return;
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:[face brush] forKey:BrushKey];
+        [userInfo setObject:theFaces forKey:FacesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    TVector3i delta = {xDelta, yDelta, zDelta};
-    MutableFace* mutableFace = (MutableFace *)face;
-    [mutableFace translateBy:&delta];
+    [self makeUndoSnapshot:theFaces];
+    
+    NSEnumerator* faceEn = [theFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face setRotation:[face rotation] + theAngle];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
+        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (void)dragFace:(id <Face>)face dist:(float)dist {
-    MutableFace* mutableFace = (MutableFace *)face;
-    if ([mutableFace canDragBy:dist]) {
-        NSUndoManager* undoManager = [self undoManager];
-        [[undoManager prepareWithInvocationTarget:self] dragFace:face dist:-dist];
+- (void)setFaces:(NSSet *)theFaces texture:(NSString *)theTexture {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    NSAssert(theTexture != nil, @"texture must not be nil");
+    
+    if ([theFaces count] == 0)
+        return;
+    
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theFaces forKey:FacesKey];
         
-        NSMutableDictionary* userInfo;
-        if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
+    }
+    
+    [self makeUndoSnapshot:theFaces];
+    
+    NSEnumerator* faceEn = [theFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face setTexture:theTexture];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
+
+- (void)translateFaces:(NSSet *)theFaces delta:(TVector3i *)theDelta {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    NSAssert(theDelta != NULL, @"delta must not be NULL");
+    
+    if ([theFaces count] == 0)
+        return;
+    
+    if (theDelta->x == 0 && theDelta->y == 0 && theDelta->z == 0)
+        return;
+    
+    TVector3i inverse;
+    scaleV3i(theDelta, -1, &inverse);
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] translateFaces:theFaces delta:&inverse];
+    
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        NSMutableSet* brushes = [[NSMutableSet alloc] init];
+        NSEnumerator* faceEn = [theFaces objectEnumerator];
+        id <Face> face;
+        while ((face = [faceEn nextObject]))
+            [brushes addObject:[face brush]];
+        
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:brushes forKey:BrushesKey];
+        [brushes release];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
+    }
+
+    NSEnumerator* faceEn = [theFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face translateBy:theDelta];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
+- (void)dragFaces:(NSSet *)theFaces distance:(float)theDistance {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    
+    if ([theFaces count] == 0)
+        return;
+    
+    if (theDistance == 0)
+        return;
+    
+    BOOL canDrag = YES;
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        NSMutableSet* brushes = [[NSMutableSet alloc] init];
+        NSEnumerator* faceEn = [theFaces objectEnumerator];
+        MutableFace* face;
+        while ((face = [faceEn nextObject]) && canDrag) {
+            [brushes addObject:[face brush]];
+            canDrag &= [face canDragBy:theDistance];
+        }
+        
+        if (canDrag) {
             userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:[face brush] forKey:BrushKey];
+            [userInfo setObject:brushes forKey:BrushesKey];
+            [brushes release];
             
             NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-            [center postNotificationName:BrushWillChange object:self userInfo:userInfo];
+            [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
         }
-        
-        MutableFace* mutableFace = (MutableFace *)face;
-        [mutableFace dragBy:(float)dist];
-        
-        if ([self postNotifications]) {
-            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-            [center postNotificationName:BrushDidChange object:self userInfo:userInfo];
-            [userInfo release];
-        }
+    } else {
+        NSEnumerator* faceEn = [theFaces objectEnumerator];
+        MutableFace* face;
+        while ((face = [faceEn nextObject]) && canDrag)
+            canDrag &= [face canDragBy:theDistance];
+    }
+
+    if (!canDrag)
+        return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] dragFaces:theFaces distance:-theDistance];
+
+    NSEnumerator* faceEn = [theFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face dragBy:theDistance];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
+        [userInfo release];
     }
 }
 
@@ -871,41 +1164,74 @@ NSString* const PropertiesDidChange   = @"PropertiesDidChange";
 
 # pragma mark @implementation Map
 
-- (void)addEntity:(MutableEntity *)theEntity {
-    NSAssert(theEntity != nil, @"entity must not be nil");
-    NSAssert(worldspawn == nil || ![theEntity isWorldspawn], @"cannot overwrite worldspawn entity");
+- (void)addEntities:(NSSet *)theEntities {
+    NSAssert(theEntities != nil, @"entity set must not be nil");
     
-    [[[self undoManager] prepareWithInvocationTarget:self] removeEntity:theEntity];
+    if ([theEntities count] == 0)
+        return;
     
-    [entities addObject:theEntity];
-    [theEntity setMap:self];
+    [[[self undoManager] prepareWithInvocationTarget:self] removeEntities:theEntities];
+
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    MutableEntity* entity;
+    while ((entity = [entityEn nextObject])) {
+        if (![entity isWorldspawn] || [self worldspawn:NO] == nil) {
+            [entities addObject:entity];
+            [entity setMap:self];
+        }
+    }
     
     if ([self postNotifications]) {
         NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theEntity forKey:EntityKey];
+        [userInfo setObject:theEntities forKey:EntitiesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:EntityAdded object:self userInfo:userInfo];
+        [center postNotificationName:EntitiesAdded object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (void)removeEntity:(MutableEntity *)theEntity {
-    [[[self undoManager] prepareWithInvocationTarget:self] addEntity:theEntity];
+- (void)addEntity:(MutableEntity *)theEntity {
+    NSAssert(theEntity != nil, @"entity must not be nil");
+    
+    NSSet* entitySet = [[NSSet alloc] initWithObjects:theEntity, nil];
+    [self addEntities:entitySet];
+    [entitySet release];
+}
+
+- (void)removeEntities:(NSSet *)theEntities {
+    NSAssert(theEntities != nil, @"entity set must not be nil");
+    
+    if ([theEntities count] == 0)
+        return;
+    
+    [[[self undoManager] prepareWithInvocationTarget:self] addEntities:theEntities];
     
     if ([self postNotifications]) {
         NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theEntity forKey:EntityKey];
+        [userInfo setObject:theEntities forKey:EntitiesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:EntityWillBeRemoved object:self userInfo:userInfo];
+        [center postNotificationName:EntitiesWillBeRemoved object:self userInfo:userInfo];
         [userInfo release];
     }
     
-    [theEntity setMap:nil];
-    [entities removeObject:theEntity];
-    if (worldspawn == theEntity)
-        worldspawn = nil;
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    MutableEntity* entity;
+    while ((entity = [entityEn nextObject])) {
+        [entity setMap:nil];
+        [entities removeObject:entity];
+        if (worldspawn == entity)
+            worldspawn = nil;
+    }
+}
+
+- (void)removeEntity:(MutableEntity *)theEntity {
+    NSAssert(theEntity != nil, @"entity must not be nil");
+    
+    NSSet* entitySet = [[NSSet alloc] initWithObjects:theEntity, nil];
+    [self removeEntities:entitySet];
+    [entitySet release];
 }
 
 - (id <Entity>)worldspawn:(BOOL)create {

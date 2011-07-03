@@ -136,42 +136,42 @@
         // create sides
         NSArray* southEdges = [[NSArray alloc] initWithObjects:esbwsb, estesb, wstest, wsbwst, nil];
         BOOL southFlipped[] = {YES, YES, YES, YES};
-        Side* southSide = [[Side alloc] initWithFace:nil edges:southEdges flipped:southFlipped];
+        Side* southSide = [[Side alloc] initWithEdges:southEdges flipped:southFlipped];
         [sides addObject:southSide];
         [southSide release];
         [southEdges release];
         
         NSArray* northEdges = [[NSArray alloc] initWithObjects:wnbenb, wntwnb, entwnt, enbent, nil];
         BOOL northFlipped[] = {YES, YES, YES, YES};
-        Side* northSide = [[Side alloc] initWithFace:nil edges:northEdges flipped:northFlipped];
+        Side* northSide = [[Side alloc] initWithEdges:northEdges flipped:northFlipped];
         [sides addObject:northSide];
         [northSide release];
         [northEdges release];
 
         NSArray* westEdges = [[NSArray alloc] initWithObjects:wsbwnb, wsbwst, wntwst, wntwnb, nil];
         BOOL westFlipped[] = {YES, NO, YES, NO};
-        Side* westSide = [[Side alloc] initWithFace:nil edges:westEdges flipped:westFlipped];
+        Side* westSide = [[Side alloc] initWithEdges:westEdges flipped:westFlipped];
         [sides addObject:westSide];
         [westSide release];
         [westEdges release];
         
         NSArray* eastEdges = [[NSArray alloc] initWithObjects:enbesb, enbent, estent, estesb, nil];
         BOOL eastFlipped[] = {YES, NO, YES, NO};
-        Side* eastSide = [[Side alloc] initWithFace:nil edges:eastEdges flipped:eastFlipped];
+        Side* eastSide = [[Side alloc] initWithEdges:eastEdges flipped:eastFlipped];
         [sides addObject:eastSide];
         [eastSide release];
         [eastEdges release];
         
         NSArray* topEdges = [[NSArray alloc] initWithObjects:wstest, estent, entwnt, wntwst, nil];
         BOOL topFlipped[] = {NO, NO, NO, NO};
-        Side* topSide = [[Side alloc] initWithFace:nil edges:topEdges flipped:topFlipped];
+        Side* topSide = [[Side alloc] initWithEdges:topEdges flipped:topFlipped];
         [sides addObject:topSide];
         [topSide release];
         [topEdges release];
         
         NSArray* bottomEdges = [[NSArray alloc] initWithObjects:esbwsb, wsbwnb, wnbenb, enbesb, nil];
         BOOL bottomFlipped[] = {NO, NO, NO, NO};
-        Side* bottomSide = [[Side alloc] initWithFace:nil edges:bottomEdges flipped:bottomFlipped];
+        Side* bottomSide = [[Side alloc] initWithEdges:bottomEdges flipped:bottomFlipped];
         [sides addObject:bottomSide];
         [bottomSide release];
         [bottomEdges release];
