@@ -2,18 +2,25 @@
 //  RotateCursor.h
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 21.06.11.
+//  Created by Kristian Duske on 04.07.11.
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import "Cursor.h"
-#import "Math.h"
 
 @interface RotateCursor : NSObject <Cursor> {
-    TVector3f position;
-    EAxis planeNormal;
+@private
+    TVector3f center;
+    EAxis vAxis;
+    float hAngle;
+    float vAngle;
+    BOOL drag;
+    float radius;
 }
 
-- (void)setPlaneNormal:(EAxis)thePlaneNormal;
+- (void)updateCenter:(TVector3f *)theCenter radius:(float)theRadius verticalAxis:(EAxis)theVerticalAxis;
+- (void)setDragging:(BOOL)isDragging;
+- (void)updateHorizontalAngle:(float)theHAngle verticalAngle:(float)theVAngle;
+
 @end

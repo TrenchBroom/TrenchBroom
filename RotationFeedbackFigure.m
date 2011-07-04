@@ -16,35 +16,159 @@
     glTranslatef(center.x, center.y, center.z);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glColor4f(1, 1, 0, 1);
     // glDisable(GL_CULL_FACE);
     // glEnable(GL_DEPTH_TEST);
 
+    glRotatef(hAngle * 360 / (2 * M_PI) + 270, 0, 0, 1);
+    glRotatef(vAngle * 360 / (2 * M_PI), 0, 1, 0);
+    
+    float length = 40 / radius;
+
     float innerRadius = radius;
     float outerRadius = 2;
-
-    int innerSegments = radius / 2;
+    
+    int innerSegments = radius / 16;
     if (innerSegments < 12)
         innerSegments = 12;
     int outerSegments = 12;
+    
+    TVector3f torus[(innerSegments + 1) * outerSegments];
+    makeTorusPart(innerRadius, outerRadius, innerSegments, outerSegments, 0, length, torus);
+    
+    int circleSegments = radius / 2;
+    if (circleSegments < 12)
+        circleSegments = 12;
+    TVector3f circle[circleSegments];
+    makeCircle(radius, circleSegments, circle);
 
-    TVector3f points[innerSegments * outerSegments];
-    makeTorus(innerRadius, outerRadius, innerSegments, outerSegments, points);
+    int coneSegments = 12;
+    TVector3f cone[coneSegments + 2];
+    makeCone(4, 10, coneSegments, cone);
+    
+    int capSegments = coneSegments;
+    TVector3f cap[capSegments];
+    makeCircle(4, capSegments, cap);
+    
+    glPushMatrix();
+    glRotatef(-length * 90 / M_PI + 90, 0, 0, 1);
+    glTranslatef(0, -radius, 0);
+    glRotatef(-90, 0, 1, 0);
 
+    glBegin(GL_TRIANGLE_FAN);
+    for (int i = 0; i < coneSegments + 2; i++)
+        glVertex3f(cone[i].x, cone[i].y, cone[i].z);
+    glEnd();
+    
+    glBegin(GL_TRIANGLE_FAN);
+    for (int i = capSegments - 1; i >= 0; i--)
+        glVertex3f(cap[i].x, cap[i].y, cap[i].z);
+    glEnd();
+    glPopMatrix();
+    
+    glPushMatrix();
+    glRotatef(length * 90 / M_PI + 90, 0, 0, 1);
+    glTranslatef(0, -radius, 0);
+    glRotatef(90, 0, 1, 0);
+    
+    glBegin(GL_TRIANGLE_FAN);
+    for (int i = 0; i < coneSegments + 2; i++)
+        glVertex3f(cone[i].x, cone[i].y, cone[i].z);
+    glEnd();
+
+    glBegin(GL_TRIANGLE_FAN);
+    for (int i = capSegments - 1; i >= 0; i--)
+        glVertex3f(cap[i].x, cap[i].y, cap[i].z);
+    glEnd();
+    glPopMatrix();
+    
+    
+    glPushMatrix();
+    glRotatef(90, 0, 0, 1);
+    glRotatef(90, 0, 1, 0);
+    glRotatef(-length * 90 / M_PI, 0, 0, 1);
+    glTranslatef(0, -radius, 0);
+    glRotatef(-90, 0, 1, 0);
+    
+    glBegin(GL_TRIANGLE_FAN);
+    for (int i = 0; i < coneSegments + 2; i++)
+        glVertex3f(cone[i].x, cone[i].y, cone[i].z);
+    glEnd();
+
+    glBegin(GL_TRIANGLE_FAN);
+    for (int i = capSegments - 1; i >= 0; i--)
+        glVertex3f(cap[i].x, cap[i].y, cap[i].z);
+    glEnd();
+    glPopMatrix();
+    
+    glPushMatrix();
+    glRotatef(90, 0, 0, 1);
+    glRotatef(90, 0, 1, 0);
+    glRotatef(length * 90 / M_PI, 0, 0, 1);
+    glTranslatef(0, -radius, 0);
+    glRotatef(90, 0, 1, 0);
+    
+    glBegin(GL_TRIANGLE_FAN);
+    for (int i = 0; i < coneSegments + 2; i++)
+        glVertex3f(cone[i].x, cone[i].y, cone[i].z);
+    glEnd();
+
+    glBegin(GL_TRIANGLE_FAN);
+    for (int i = capSegments - 1; i >= 0; i--)
+        glVertex3f(cap[i].x, cap[i].y, cap[i].z);
+    glEnd();
+    glPopMatrix();
+
+    glBegin(GL_LINES);
+    glVertex3f(0, 0, 0);
+    glVertex3f(radius, 0, 0);
+    glEnd();
+    
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < circleSegments; i++)
+        glVertex3f(circle[i].x, circle[i].y, circle[i].z);
+    glEnd();
+    
     for (int i = 0; i < innerSegments; i++) {
-        int p = (i + innerSegments - 1) % innerSegments;
+        int n = i + 1;
         
         glBegin(GL_QUAD_STRIP);
         for (int j = 0; j < outerSegments; j++) {
-            int pa = p * outerSegments + j;
             int ia = i * outerSegments + j;
-            glVertex3f(points[pa].x, points[pa].y, points[pa].z);
-            glVertex3f(points[ia].x, points[ia].y, points[ia].z);
+            int na = n * outerSegments + j;
+            glVertex3f(torus[ia].x, torus[ia].y, torus[ia].z);
+            glVertex3f(torus[na].x, torus[na].y, torus[na].z);
         }
         
-        int pa = p * outerSegments;
         int ia = i * outerSegments;
-        glVertex3f(points[pa].x, points[pa].y, points[pa].z);
-        glVertex3f(points[ia].x, points[ia].y, points[ia].z);
+        int na = n * outerSegments;
+        glVertex3f(torus[ia].x, torus[ia].y, torus[ia].z);
+        glVertex3f(torus[na].x, torus[na].y, torus[na].z);
+        glEnd();
+    }
+    
+    glRotatef(90, 1, 0, 0);
+    
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < circleSegments; i++)
+        glVertex3f(circle[i].x, circle[i].y, circle[i].z);
+    glEnd();
+    
+    for (int i = 0; i < innerSegments; i++) {
+        int n = i + 1;
+        
+        glBegin(GL_QUAD_STRIP);
+        for (int j = 0; j < outerSegments; j++) {
+            int ia = i * outerSegments + j;
+            int na = n * outerSegments + j;
+            glVertex3f(torus[ia].x, torus[ia].y, torus[ia].z);
+            glVertex3f(torus[na].x, torus[na].y, torus[na].z);
+        }
+        
+        int ia = i * outerSegments;
+        int na = n * outerSegments;
+        glVertex3f(torus[ia].x, torus[ia].y, torus[ia].z);
+        glVertex3f(torus[na].x, torus[na].y, torus[na].z);
         glEnd();
     }
     
@@ -119,7 +243,7 @@
     NSAssert(vAxis != A_Z, @"vertical axis must not be the Z axis");
     
     center = *theCenter;
-    radius = theRadius;
+    radius = fmax(30, theRadius);
     vAxis = theVerticalAxis;
 }
 

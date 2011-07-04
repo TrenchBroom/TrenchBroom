@@ -16,7 +16,6 @@
 @private
     MapWindowController* windowController;
     RotateCursor* rotateCursor;
-    RotationFeedbackFigure* feedbackFigure;
     BOOL drag;
     TVector3f center;
     EAxis vAxis;

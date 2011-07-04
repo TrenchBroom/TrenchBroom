@@ -8,7 +8,6 @@
 
 #import "RotateTool.h"
 #import "RotateCursor.h"
-#import "RotationFeedbackFigure.h"
 #import "MapWindowController.h"
 #import "MapDocument.h"
 #import "SelectionManager.h"
@@ -31,7 +30,6 @@ static float M_PI_12 = M_PI / 12;
     if ((self = [self init])) {
         windowController = theWindowController;
         rotateCursor = [[RotateCursor alloc] init];
-        feedbackFigure = [[RotationFeedbackFigure alloc] init];
     }
     
     return self;
@@ -39,7 +37,6 @@ static float M_PI_12 = M_PI / 12;
 
 - (void)dealloc {
     [rotateCursor release];
-    [feedbackFigure release];
     [super dealloc];
 }
 
@@ -58,16 +55,8 @@ static float M_PI_12 = M_PI / 12;
         subV3f([camera position], &center, &diff);
         vAxis = fabs(diff.x) < fabs(diff.y) ? A_X : A_Y;
         
-        [feedbackFigure updateCenter:&center radius:radius verticalAxis:vAxis];
-        
-        Renderer* renderer = [windowController renderer];
-        [renderer addFeedbackFigure:feedbackFigure];
+        [rotateCursor updateCenter:&center radius:radius verticalAxis:vAxis];
     }
-}
-
-- (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    Renderer* renderer = [windowController renderer];
-    [renderer removeFeedbackFigure:feedbackFigure];
 }
 
 - (void)handleMouseMoved:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -77,7 +66,7 @@ static float M_PI_12 = M_PI / 12;
         centerOfBounds(&bounds, &center);
         radius = distanceOfPointAndRay(&center, ray);
         
-        [feedbackFigure updateCenter:&center radius:radius verticalAxis:vAxis];
+        [rotateCursor updateCenter:&center radius:radius verticalAxis:vAxis];
     }
 }
 
@@ -87,7 +76,7 @@ static float M_PI_12 = M_PI / 12;
         return;
     
     drag = YES;
-    [feedbackFigure setDragging:YES];
+    [rotateCursor setDragging:YES];
     initialLocation = [NSEvent mouseLocation];
     
     NSUndoManager* undoManager = [[windowController document] undoManager];
@@ -114,7 +103,7 @@ static float M_PI_12 = M_PI / 12;
     int hSteps = hAngle / M_PI_12;
     int vSteps = vAngle / M_PI_12;
     
-    [feedbackFigure updateHorizontalAngle:hSteps * M_PI_12 verticalAngle:vSteps * M_PI_12];
+    [rotateCursor updateHorizontalAngle:hSteps * M_PI_12 verticalAngle:vSteps * M_PI_12];
     
     if (hSteps != 0 || vSteps != 0) {
         TQuaternion rotation;
@@ -144,7 +133,7 @@ static float M_PI_12 = M_PI / 12;
         return;
 
     drag = NO;
-    [feedbackFigure setDragging:NO];
+    [rotateCursor setDragging:NO];
 
     NSUndoManager* undoManager = [[windowController document] undoManager];
     [undoManager setActionName:[self actionName]];
@@ -155,4 +144,20 @@ static float M_PI_12 = M_PI / 12;
 - (NSString *)actionName {
     return @"Rotate Objects";
 }
+
+- (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager pushCursor:rotateCursor];
+    
+    [self updateCursor:event ray:ray hits:hits];
+}
+
+- (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager popCursor];
+}
+
+- (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+}
+
 @end

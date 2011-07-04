@@ -814,7 +814,7 @@ void makeCircle(float radius, int segments, TVector3f* points) {
 }
 
 void makeRing(float innerRadius, float outerRadius, int segments, TVector3f* points) {
-    float d = 2 * M_PI / (2 * segments);
+    float d = M_PI / segments;
     float a = 0;
     for (int i = 0; i < 2 * segments; i++) {
         float s = sin(a);
@@ -854,4 +854,38 @@ void makeTorus(float innerRadius, float outerRadius, int innerSegments, int oute
         }
         theta += dTheta;
     }
+}
+
+void makeTorusPart(float innerRadius, float outerRadius, int innerSegments, int outerSegments, float centerAngle, float angleLength, TVector3f* points) {
+    float dTheta = angleLength / innerSegments;
+    float dPhi = 2 * M_PI / outerSegments;
+    
+    float theta = centerAngle - angleLength / 2;
+    float phi = 0;
+    
+    for (int i = 0; i <= innerSegments; i++) {
+        float sTheta = sin(theta);
+        float cTheta = cos(theta);
+        
+        for (int j = 0; j < outerSegments; j++) {
+            float sPhi = sin(phi);
+            float cPhi = cos(phi);
+            
+            points[i * outerSegments + j].x = (innerRadius + outerRadius * sPhi) * cTheta;
+            points[i * outerSegments + j].y = (innerRadius + outerRadius * sPhi) * sTheta;
+            points[i * outerSegments + j].z = outerRadius * cPhi;
+            
+            phi += dPhi;
+        }
+        theta += dTheta;
+    }
+}
+
+void makeCone(float radius, float height, int segments, TVector3f* points) {
+    points[0].x = 0;
+    points[0].y = 0;
+    points[0].z = height;
+    
+    makeCircle(radius, segments, &points[1]);
+    points[segments + 1] = points[1];
 }
