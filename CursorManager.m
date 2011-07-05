@@ -15,7 +15,7 @@ NSString* const CursorChanged = @"CursorChanged";
 @implementation CursorManager
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         cursorStack = [[NSMutableArray alloc] init];
     }
     

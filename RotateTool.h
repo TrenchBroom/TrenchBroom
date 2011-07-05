@@ -10,17 +10,20 @@
 
 @class MapWindowController;
 @class RotateCursor;
-@class RotationFeedbackFigure;
+@class RotateFeedbackFigure;
 
 @interface RotateTool : DefaultTool {
 @private
     MapWindowController* windowController;
     RotateCursor* rotateCursor;
+    RotateFeedbackFigure* feedbackFigure;
     BOOL drag;
     TVector3f center;
     EAxis vAxis;
     float radius;
     NSPoint initialLocation;
+    float initialHAngle;
+    float initialVAngle;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

@@ -49,7 +49,6 @@
     glPushMatrix();
     glTranslatef(position.x, position.y, position.z);
     
-    glColor4f(1, 1, 0, 1);
     if (planeNormal != A_X) {
         glPushMatrix();
         glRotatef(90, 0, 1, 0);

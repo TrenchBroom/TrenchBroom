@@ -17,9 +17,11 @@
     float vAngle;
     BOOL drag;
     float radius;
+    float initialHAngle;
+    float initialVAngle;
 }
 
-- (void)updateCenter:(TVector3f *)theCenter radius:(float)theRadius verticalAxis:(EAxis)theVerticalAxis;
+- (void)updateCenter:(TVector3f *)theCenter radius:(float)theRadius verticalAxis:(EAxis)theVerticalAxis initialHAngle:(float)theInitialHAngle initialVAngle:(float)theInitialVAngle;
 - (void)setDragging:(BOOL)isDragging;
 - (void)updateHorizontalAngle:(float)theHAngle verticalAngle:(float)theVAngle;
 

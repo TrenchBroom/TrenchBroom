@@ -12,7 +12,7 @@
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
 
-@interface RotationFeedbackFigure : NSObject <Figure> {
+@interface RotateFeedbackFigure : NSObject <Figure> {
 @private
     TVector3f center;
     EAxis vAxis;
@@ -20,9 +20,11 @@
     float vAngle;
     BOOL drag;
     float radius;
+    float initialHAngle;
+    float initialVAngle;
 }
 
-- (void)updateCenter:(TVector3f *)theCenter radius:(float)theRadius verticalAxis:(EAxis)theVerticalAxis;
+- (void)updateCenter:(TVector3f *)theCenter radius:(float)theRadius verticalAxis:(EAxis)theVerticalAxis initialHAngle:(float)theInitialHAngle initialVAngle:(float)theInitialVAngle;
 - (void)setDragging:(BOOL)isDragging;
 - (void)updateHorizontalAngle:(float)theHAngle verticalAngle:(float)theVAngle;
 

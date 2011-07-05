@@ -8,6 +8,7 @@
 
 #import "RotateTool.h"
 #import "RotateCursor.h"
+#import "RotateFeedbackFigure.h"
 #import "MapWindowController.h"
 #import "MapDocument.h"
 #import "SelectionManager.h"
@@ -30,6 +31,7 @@ static float M_PI_12 = M_PI / 12;
     if ((self = [self init])) {
         windowController = theWindowController;
         rotateCursor = [[RotateCursor alloc] init];
+        feedbackFigure = [[RotateFeedbackFigure alloc] init];
     }
     
     return self;
@@ -37,6 +39,7 @@ static float M_PI_12 = M_PI / 12;
 
 - (void)dealloc {
     [rotateCursor release];
+    [feedbackFigure release];
     [super dealloc];
 }
 
@@ -54,9 +57,40 @@ static float M_PI_12 = M_PI / 12;
         TVector3f diff;
         subV3f([camera position], &center, &diff);
         vAxis = fabs(diff.x) < fabs(diff.y) ? A_X : A_Y;
+
+        EAxis comp = largestComponentV3f(&diff);
+        if (comp == A_X || (comp == A_Z && vAxis == A_Y)) {
+            if (diff.x > 0) {
+                initialHAngle = 0;
+                initialVAngle = 0;
+            } else {
+                initialHAngle = M_PI;
+                initialVAngle = 0;
+            }
+        } else {
+            if (diff.y > 0) {
+                initialHAngle = M_PI / 2;
+                initialVAngle = 0;
+            } else {
+                initialHAngle = 3 * M_PI / 2;
+                initialVAngle = 0;
+            }
+        }
+
+        [rotateCursor updateCenter:&center radius:radius verticalAxis:vAxis initialHAngle:initialHAngle initialVAngle:initialVAngle];
+        [rotateCursor updateHorizontalAngle:0 verticalAngle:0];
+
+        [feedbackFigure updateCenter:&center radius:radius verticalAxis:vAxis initialHAngle:initialHAngle initialVAngle:initialVAngle];
+        [feedbackFigure updateHorizontalAngle:0 verticalAngle:0];
         
-        [rotateCursor updateCenter:&center radius:radius verticalAxis:vAxis];
+        Renderer* renderer = [windowController renderer];
+        [renderer addFeedbackFigure:feedbackFigure];
     }
+}
+
+- (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    Renderer* renderer = [windowController renderer];
+    [renderer removeFeedbackFigure:feedbackFigure];
 }
 
 - (void)handleMouseMoved:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -66,7 +100,11 @@ static float M_PI_12 = M_PI / 12;
         centerOfBounds(&bounds, &center);
         radius = distanceOfPointAndRay(&center, ray);
         
-        [rotateCursor updateCenter:&center radius:radius verticalAxis:vAxis];
+        [rotateCursor updateCenter:&center radius:radius verticalAxis:vAxis initialHAngle:initialHAngle initialVAngle:initialVAngle];
+        [rotateCursor updateHorizontalAngle:0 verticalAngle:0];
+
+        [feedbackFigure updateCenter:&center radius:radius verticalAxis:vAxis initialHAngle:initialHAngle initialVAngle:initialVAngle];
+        [feedbackFigure updateHorizontalAngle:0 verticalAngle:0];
     }
 }
 
@@ -77,6 +115,7 @@ static float M_PI_12 = M_PI / 12;
     
     drag = YES;
     [rotateCursor setDragging:YES];
+    [feedbackFigure setDragging:YES];
     initialLocation = [NSEvent mouseLocation];
     
     NSUndoManager* undoManager = [[windowController document] undoManager];
@@ -104,6 +143,7 @@ static float M_PI_12 = M_PI / 12;
     int vSteps = vAngle / M_PI_12;
     
     [rotateCursor updateHorizontalAngle:hSteps * M_PI_12 verticalAngle:vSteps * M_PI_12];
+    [feedbackFigure updateHorizontalAngle:hSteps * M_PI_12 verticalAngle:vSteps * M_PI_12];
     
     if (hSteps != 0 || vSteps != 0) {
         TQuaternion rotation;
@@ -134,6 +174,7 @@ static float M_PI_12 = M_PI / 12;
 
     drag = NO;
     [rotateCursor setDragging:NO];
+    [feedbackFigure setDragging:NO];
 
     NSUndoManager* undoManager = [[windowController document] undoManager];
     [undoManager setActionName:[self actionName]];

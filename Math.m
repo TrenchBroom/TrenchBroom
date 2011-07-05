@@ -831,49 +831,69 @@ void makeRing(float innerRadius, float outerRadius, int segments, TVector3f* poi
     points[2 * segments + 1] = points[1];
 }
 
-void makeTorus(float innerRadius, float outerRadius, int innerSegments, int outerSegments, TVector3f* points) {
+void makeTorus(float innerRadius, float outerRadius, int innerSegments, int outerSegments, TVector3f* points, TVector3f* normals) {
     float dTheta = 2 * M_PI / innerSegments;
     float dPhi = 2 * M_PI / outerSegments;
     
     float theta = 0;
     float phi = 0;
     
+    TVector3f rc;
+    rc.z = 0;
+    
     for (int i = 0; i < innerSegments; i++) {
         float sTheta = sin(theta);
         float cTheta = cos(theta);
+        
+        rc.x = innerRadius * sTheta;
+        rc.y = innerRadius * cTheta;
         
         for (int j = 0; j < outerSegments; j++) {
             float sPhi = sin(phi);
             float cPhi = cos(phi);
             
-            points[i * outerSegments + j].x = (innerRadius + outerRadius * sPhi) * cTheta;
-            points[i * outerSegments + j].y = (innerRadius + outerRadius * sPhi) * sTheta;
-            points[i * outerSegments + j].z = outerRadius * cPhi;
+            int pa = i * outerSegments + j;
+            points[pa].x = (innerRadius + outerRadius * sPhi) * cTheta;
+            points[pa].y = (innerRadius + outerRadius * sPhi) * sTheta;
+            points[pa].z = outerRadius * cPhi;
 
+            subV3f(&points[pa], &rc, &normals[pa]);
+            normalizeV3f(&normals[pa], &normals[pa]);
+            
             phi += dPhi;
         }
         theta += dTheta;
     }
 }
 
-void makeTorusPart(float innerRadius, float outerRadius, int innerSegments, int outerSegments, float centerAngle, float angleLength, TVector3f* points) {
+void makeTorusPart(float innerRadius, float outerRadius, int innerSegments, int outerSegments, float centerAngle, float angleLength, TVector3f* points, TVector3f* normals) {
     float dTheta = angleLength / innerSegments;
     float dPhi = 2 * M_PI / outerSegments;
     
     float theta = centerAngle - angleLength / 2;
     float phi = 0;
     
+    TVector3f rc;
+    rc.z = 0;
+    
     for (int i = 0; i <= innerSegments; i++) {
         float sTheta = sin(theta);
         float cTheta = cos(theta);
+        
+        rc.x = innerRadius * sTheta;
+        rc.y = innerRadius * cTheta;
         
         for (int j = 0; j < outerSegments; j++) {
             float sPhi = sin(phi);
             float cPhi = cos(phi);
             
-            points[i * outerSegments + j].x = (innerRadius + outerRadius * sPhi) * cTheta;
-            points[i * outerSegments + j].y = (innerRadius + outerRadius * sPhi) * sTheta;
-            points[i * outerSegments + j].z = outerRadius * cPhi;
+            int pa = i * outerSegments + j;
+            points[pa].x = (innerRadius + outerRadius * sPhi) * cTheta;
+            points[pa].y = (innerRadius + outerRadius * sPhi) * sTheta;
+            points[pa].z = outerRadius * cPhi;
+            
+            subV3f(&points[pa], &rc, &normals[pa]);
+            normalizeV3f(&normals[pa], &normals[pa]);
             
             phi += dPhi;
         }
@@ -881,11 +901,36 @@ void makeTorusPart(float innerRadius, float outerRadius, int innerSegments, int 
     }
 }
 
-void makeCone(float radius, float height, int segments, TVector3f* points) {
+void makeCone(float radius, float height, int segments, TVector3f* points, TVector3f* normals) {
     points[0].x = 0;
     points[0].y = 0;
     points[0].z = height;
     
     makeCircle(radius, segments, &points[1]);
     points[segments + 1] = points[1];
+    
+    if (normals != NULL) {
+        normals[0] = ZAxisPos;
+        
+        TVector3f csn, psn, tp1, tp2;
+        subV3f(&points[segments + 1], &points[0], &tp1);
+        subV3f(&points[segments], &points[0], &tp2);
+        crossV3f(&tp1, &tp2, &psn);
+        normalizeV3f(&psn, &psn);
+        
+        for (int i = 1; i < segments + 1; i++) {
+            subV3f(&points[i + 1], &points[0], &tp1);
+            subV3f(&points[i], &points[0], &tp2);
+            crossV3f(&tp1, &tp2, &csn);
+            normalizeV3f(&csn, &csn);
+            
+            addV3f(&psn, &csn, &normals[i]);
+//            addV3f(&ZAxisNeg, &normals[i], &normals[i]);
+            scaleV3f(&normals[i], 0.5f, &normals[i]);
+            
+            psn = csn;
+        }
+        
+        normals[segments + 1] = normals[1];
+    }
 }

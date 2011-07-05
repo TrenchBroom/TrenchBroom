@@ -560,6 +560,7 @@ NSString* const RendererChanged = @"RendererChanged";
     
     // enable lighting for cursor and compass
     glEnable(GL_LIGHTING);
+    glShadeModel(GL_SMOOTH);
     
     Camera* camera = [windowController camera];
     
@@ -582,6 +583,13 @@ NSString* const RendererChanged = @"RendererChanged";
     glMateriali(GL_FRONT, GL_SHININESS, 96);
     
     CursorManager* cursorManager = [windowController cursorManager];
+
+    glDisable(GL_DEPTH_TEST);
+    glColor4f(1, 1, 0, 0.4f);
+    [cursorManager render];
+
+    glEnable(GL_DEPTH_TEST);
+    glColor4f(1, 1, 0, 1);
     [cursorManager render];
     
     glClear(GL_DEPTH_BUFFER_BIT);

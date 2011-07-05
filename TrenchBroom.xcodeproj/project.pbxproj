@@ -82,7 +82,7 @@
 		486A9C1C12F41FCA003D26FE /* Octree.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1B12F41FCA003D26FE /* Octree.m */; };
 		486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1E12F41FD1003D26FE /* OctreeNode.m */; };
 		486E08AF13B5EAE300E751A6 /* RotateTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08AE13B5EAE300E751A6 /* RotateTool.m */; };
-		486E08B313B5EF2C00E751A6 /* RotationFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B213B5EF2C00E751A6 /* RotationFeedbackFigure.m */; };
+		486E08B313B5EF2C00E751A6 /* RotateFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B213B5EF2C00E751A6 /* RotateFeedbackFigure.m */; };
 		486E08B613B6772300E751A6 /* FaceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B513B6772200E751A6 /* FaceInfo.m */; };
 		486E08B913B67D8100E751A6 /* BrushInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B813B67D8000E751A6 /* BrushInfo.m */; };
 		4872C97712FF4DC200C5DD29 /* Matrix4f.m in Sources */ = {isa = PBXBuildFile; fileRef = 4872C97612FF4DC200C5DD29 /* Matrix4f.m */; };
@@ -327,8 +327,8 @@
 		486A9C1E12F41FD1003D26FE /* OctreeNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OctreeNode.m; sourceTree = "<group>"; };
 		486E08AD13B5EAE300E751A6 /* RotateTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateTool.h; sourceTree = "<group>"; };
 		486E08AE13B5EAE300E751A6 /* RotateTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RotateTool.m; sourceTree = "<group>"; };
-		486E08B113B5EF2C00E751A6 /* RotationFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotationFeedbackFigure.h; sourceTree = "<group>"; };
-		486E08B213B5EF2C00E751A6 /* RotationFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RotationFeedbackFigure.m; sourceTree = "<group>"; };
+		486E08B113B5EF2C00E751A6 /* RotateFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateFeedbackFigure.h; sourceTree = "<group>"; };
+		486E08B213B5EF2C00E751A6 /* RotateFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RotateFeedbackFigure.m; sourceTree = "<group>"; };
 		486E08B413B6772100E751A6 /* FaceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceInfo.h; sourceTree = "<group>"; };
 		486E08B513B6772200E751A6 /* FaceInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceInfo.m; sourceTree = "<group>"; };
 		486E08B713B67D7F00E751A6 /* BrushInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushInfo.h; sourceTree = "<group>"; };
@@ -701,8 +701,8 @@
 				486928E8133F27D300A0F098 /* Tool.h */,
 				486E08AD13B5EAE300E751A6 /* RotateTool.h */,
 				486E08AE13B5EAE300E751A6 /* RotateTool.m */,
-				486E08B113B5EF2C00E751A6 /* RotationFeedbackFigure.h */,
-				486E08B213B5EF2C00E751A6 /* RotationFeedbackFigure.m */,
+				486E08B113B5EF2C00E751A6 /* RotateFeedbackFigure.h */,
+				486E08B213B5EF2C00E751A6 /* RotateFeedbackFigure.m */,
 				486A68C213C1B0CE00707AC1 /* RotateCursor.h */,
 				486A68C313C1B0CF00707AC1 /* RotateCursor.m */,
 			);
@@ -1261,7 +1261,7 @@
 				481BF7A513A4B0880040580B /* EntityAliasRenderer.m in Sources */,
 				481BF7AC13A4B5220040580B /* AliasRenderer.m in Sources */,
 				486E08AF13B5EAE300E751A6 /* RotateTool.m in Sources */,
-				486E08B313B5EF2C00E751A6 /* RotationFeedbackFigure.m in Sources */,
+				486E08B313B5EF2C00E751A6 /* RotateFeedbackFigure.m in Sources */,
 				486E08B613B6772300E751A6 /* FaceInfo.m in Sources */,
 				486E08B913B67D8100E751A6 /* BrushInfo.m in Sources */,
 				486A68C413C1B0CF00707AC1 /* RotateCursor.m in Sources */,
