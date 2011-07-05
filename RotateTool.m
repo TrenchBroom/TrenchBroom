@@ -150,12 +150,12 @@ static float M_PI_12 = M_PI / 12;
         if (hSteps != 0 && vSteps != 0) {
             TQuaternion hRotation, vRotation;
             setAngleAndAxisQ(&hRotation, hSteps * M_PI_12, &ZAxisPos);
-            setAngleAndAxisQ(&vRotation, vSteps * M_PI_12, vAxis == A_X ? &XAxisPos : &YAxisPos);
+            setAngleAndAxisQ(&vRotation, vSteps * M_PI_12, vAxis == A_X ? &XAxisPos : &YAxisNeg);
             mulQ(&hRotation, &vRotation, &rotation);
         } else if (hSteps != 0) {
             setAngleAndAxisQ(&rotation, hSteps * M_PI_12, &ZAxisPos);
         } else {
-            setAngleAndAxisQ(&rotation, vSteps * M_PI_12, vAxis == A_X ? &XAxisPos : &YAxisPos);
+            setAngleAndAxisQ(&rotation, vSteps * M_PI_12, vAxis == A_X ? &XAxisPos : &YAxisNeg);
         }
         
         SelectionManager* selectionManager = [windowController selectionManager];

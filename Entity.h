@@ -15,6 +15,7 @@
 @class PickingHitList;
 
 static NSString* const ClassnameKey = @"classname";
+static NSString* const SpawnFlagsKey = @"spawnflags";
 static NSString* const WorldspawnClassname = @"worldspawn";
 static NSString* const OriginKey = @"origin";
 static NSString* const AngleKey = @"angle";

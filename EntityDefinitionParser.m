@@ -16,13 +16,14 @@
 #import "ModelProperty.h"
 #import "DefaultProperty.h"
 #import "BaseProperty.h"
+#import "SpawnFlag.h"
 
 static NSString* InvalidTokenException = @"InvalidTokenException";
 
 @implementation EntityDefinitionParser
 
 - (id)initWithString:(NSString *)definitionString {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         tokenizer = [[EntityDefinitionTokenizer alloc] initWithDefinitionString:definitionString];
     }
     
@@ -102,18 +103,21 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     return bounds;
 }
 
-- (NSArray *)parseFlags {
+- (NSDictionary *)parseFlags {
     EntityDefinitionToken* token = [tokenizer peekToken];
     if ([token type] != TT_WORD)
         return nil;
         
-    NSMutableArray* flags = [[NSMutableArray alloc] init];
+    NSMutableDictionary* flags = [[NSMutableDictionary alloc] init];
     while ([token type] == TT_WORD) {
         token = [tokenizer nextToken];
         [self expect:TT_WORD actual:token];
         
-        NSString* flag = [token data];
-        [flags addObject:flag];
+        NSString* name = [token data];
+        int value = 1 << [flags count];
+        SpawnFlag* flag = [[SpawnFlag alloc] initWithName:name flag:value];
+        [flags setObject:flag forKey:name];
+        
         token = [tokenizer peekToken];
     }
     
@@ -184,11 +188,26 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
         [self expect:TT_STR actual:token];
         
         NSString* modelPath = [[token data] retain];
-        property = [[ModelProperty alloc] initWithModelPath:modelPath];
-        [modelPath release];
         
         token = [self nextTokenIgnoringNewlines];
-        [self expect:TT_B_C actual:token];
+        [self expect:TT_C | TT_B_C actual:token];
+        
+        if ([token type] == TT_C) {
+            token = [self nextTokenIgnoringNewlines];
+            [self expect:TT_STR actual:token];
+
+            NSString* flagName = [[token data] retain];
+            property = [[ModelProperty alloc] initWithFlagName:flagName modelPath:modelPath];
+
+            [flagName release];
+            [modelPath release];
+
+            token = [self nextTokenIgnoringNewlines];
+            [self expect:TT_B_C actual:token];
+        } else {
+            property = [[ModelProperty alloc] initWithModelPath:modelPath];
+            [modelPath release];
+        }
     } else if ([type isEqualToString:@"default"]) {
         token = [self nextTokenIgnoringNewlines];
         [self expect:TT_B_O actual:token];
@@ -266,7 +285,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     NSString* name = nil;
     float* color = NULL;
     TBoundingBox* bounds = NULL;
-    NSArray* flags = nil;
+    NSDictionary* flags = nil;
     NSArray* properties = nil;
     NSString* description = nil;
     

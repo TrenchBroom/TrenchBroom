@@ -14,24 +14,40 @@
 - (id)initWithModelPath:(NSString *)theModelPath {
     NSAssert(theModelPath != nil, @"model path must not be nil");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         modelPath = [theModelPath retain];
     }
     
     return self;
 }
 
-- (EEntityDefinitionPropertyType)type {
-    return EDP_MODEL;
-}
-
-- (NSString *)modelPath {
-    return modelPath;
+- (id)initWithFlagName:(NSString *)theFlagName modelPath:(NSString *)theModelPath {
+    NSAssert(theFlagName != nil, @"flag name must not be nil");
+    NSAssert(theModelPath != nil, @"model path must not be nil");
+    
+    if ((self = [self init])) {
+        flagName = [theFlagName retain];
+        modelPath = [theModelPath retain];
+    }
+    
+    return self;
 }
 
 - (void)dealloc {
     [modelPath release];
     [super dealloc];
+}
+
+- (EEntityDefinitionPropertyType)type {
+    return EDP_MODEL;
+}
+
+- (NSString *)flagName {
+    return flagName;
+}
+
+- (NSString *)modelPath {
+    return modelPath;
 }
 
 @end

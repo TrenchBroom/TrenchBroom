@@ -10,11 +10,14 @@
 #import "EntityDefinitionProperty.h"
 
 @interface ModelProperty : NSObject <EntityDefinitionProperty> {
+    NSString* flagName;
     NSString* modelPath;
 }
 
 - (id)initWithModelPath:(NSString *)theModelPath;
+- (id)initWithFlagName:(NSString *)theFlagName modelPath:(NSString *)theModelPath;
 
+- (NSString *)flagName;
 - (NSString *)modelPath;
 
 @end

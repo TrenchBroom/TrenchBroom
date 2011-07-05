@@ -60,6 +60,8 @@
                 break;
         
         // TODO factor out model loading and load models for entity definitions that do not have a model key (e.g. health)
+        
+        // see http://inside3d.com/browse.php?show=items.qc
         if (property != nil) {
             ModelProperty* modelProperty = (ModelProperty *)property;
             NSString* modelName = [[modelProperty modelPath] substringFromIndex:1];

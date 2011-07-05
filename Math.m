@@ -838,31 +838,51 @@ void makeTorus(float innerRadius, float outerRadius, int innerSegments, int oute
     float theta = 0;
     float phi = 0;
     
-    TVector3f rc;
-    rc.z = 0;
-    
-    for (int i = 0; i < innerSegments; i++) {
-        float sTheta = sin(theta);
-        float cTheta = cos(theta);
+    if (normals != NULL) {
+        TVector3f rc;
+        rc.z = 0;
         
-        rc.x = innerRadius * sTheta;
-        rc.y = innerRadius * cTheta;
-        
-        for (int j = 0; j < outerSegments; j++) {
-            float sPhi = sin(phi);
-            float cPhi = cos(phi);
+        for (int i = 0; i < innerSegments; i++) {
+            float sTheta = sin(theta);
+            float cTheta = cos(theta);
             
-            int pa = i * outerSegments + j;
-            points[pa].x = (innerRadius + outerRadius * sPhi) * cTheta;
-            points[pa].y = (innerRadius + outerRadius * sPhi) * sTheta;
-            points[pa].z = outerRadius * cPhi;
-
-            subV3f(&points[pa], &rc, &normals[pa]);
-            normalizeV3f(&normals[pa], &normals[pa]);
+            rc.x = innerRadius * sTheta;
+            rc.y = innerRadius * cTheta;
             
-            phi += dPhi;
+            for (int j = 0; j < outerSegments; j++) {
+                float sPhi = sin(phi);
+                float cPhi = cos(phi);
+                
+                int pa = i * outerSegments + j;
+                points[pa].x = (innerRadius + outerRadius * sPhi) * cTheta;
+                points[pa].y = (innerRadius + outerRadius * sPhi) * sTheta;
+                points[pa].z = outerRadius * cPhi;
+                
+                subV3f(&points[pa], &rc, &normals[pa]);
+                normalizeV3f(&normals[pa], &normals[pa]);
+                
+                phi += dPhi;
+            }
+            theta += dTheta;
         }
-        theta += dTheta;
+    } else {
+        for (int i = 0; i < innerSegments; i++) {
+            float sTheta = sin(theta);
+            float cTheta = cos(theta);
+            
+            for (int j = 0; j < outerSegments; j++) {
+                float sPhi = sin(phi);
+                float cPhi = cos(phi);
+                
+                int pa = i * outerSegments + j;
+                points[pa].x = (innerRadius + outerRadius * sPhi) * cTheta;
+                points[pa].y = (innerRadius + outerRadius * sPhi) * sTheta;
+                points[pa].z = outerRadius * cPhi;
+                
+                phi += dPhi;
+            }
+            theta += dTheta;
+        }
     }
 }
 
@@ -873,31 +893,51 @@ void makeTorusPart(float innerRadius, float outerRadius, int innerSegments, int 
     float theta = centerAngle - angleLength / 2;
     float phi = 0;
     
-    TVector3f rc;
-    rc.z = 0;
-    
-    for (int i = 0; i <= innerSegments; i++) {
-        float sTheta = sin(theta);
-        float cTheta = cos(theta);
+    if (normals != NULL) {
+        TVector3f rc;
+        rc.z = 0;
         
-        rc.x = innerRadius * sTheta;
-        rc.y = innerRadius * cTheta;
-        
-        for (int j = 0; j < outerSegments; j++) {
-            float sPhi = sin(phi);
-            float cPhi = cos(phi);
+        for (int i = 0; i <= innerSegments; i++) {
+            float sTheta = sin(theta);
+            float cTheta = cos(theta);
             
-            int pa = i * outerSegments + j;
-            points[pa].x = (innerRadius + outerRadius * sPhi) * cTheta;
-            points[pa].y = (innerRadius + outerRadius * sPhi) * sTheta;
-            points[pa].z = outerRadius * cPhi;
+            rc.x = innerRadius * sTheta;
+            rc.y = innerRadius * cTheta;
             
-            subV3f(&points[pa], &rc, &normals[pa]);
-            normalizeV3f(&normals[pa], &normals[pa]);
+            for (int j = 0; j < outerSegments; j++) {
+                float sPhi = sin(phi);
+                float cPhi = cos(phi);
+                
+                int pa = i * outerSegments + j;
+                points[pa].x = (innerRadius + outerRadius * sPhi) * cTheta;
+                points[pa].y = (innerRadius + outerRadius * sPhi) * sTheta;
+                points[pa].z = outerRadius * cPhi;
+                
+                subV3f(&points[pa], &rc, &normals[pa]);
+                normalizeV3f(&normals[pa], &normals[pa]);
+                
+                phi += dPhi;
+            }
+            theta += dTheta;
+        }    
+    } else {
+        for (int i = 0; i <= innerSegments; i++) {
+            float sTheta = sin(theta);
+            float cTheta = cos(theta);
             
-            phi += dPhi;
-        }
-        theta += dTheta;
+            for (int j = 0; j < outerSegments; j++) {
+                float sPhi = sin(phi);
+                float cPhi = cos(phi);
+                
+                int pa = i * outerSegments + j;
+                points[pa].x = (innerRadius + outerRadius * sPhi) * cTheta;
+                points[pa].y = (innerRadius + outerRadius * sPhi) * sTheta;
+                points[pa].z = outerRadius * cPhi;
+                
+                phi += dPhi;
+            }
+            theta += dTheta;
+        }    
     }
 }
 
@@ -925,8 +965,8 @@ void makeCone(float radius, float height, int segments, TVector3f* points, TVect
             normalizeV3f(&csn, &csn);
             
             addV3f(&psn, &csn, &normals[i]);
-//            addV3f(&ZAxisNeg, &normals[i], &normals[i]);
-            scaleV3f(&normals[i], 0.5f, &normals[i]);
+            addV3f(&ZAxisNeg, &normals[i], &normals[i]);
+            scaleV3f(&normals[i], 1 / 3.0f, &normals[i]);
             
             psn = csn;
         }

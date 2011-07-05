@@ -15,9 +15,8 @@
     glPushMatrix();
     glTranslatef(center.x, center.y, center.z);
     glEnable(GL_DEPTH_TEST);
-    
+
     glRotatef((initialHAngle + hAngle) * 360 / (2 * M_PI), 0, 0, 1);
-    glRotatef((initialVAngle + vAngle) * 360 / (2 * M_PI), 0, 1, 0);
     
     int circleSegments = 2 * radius;
     if (circleSegments < 12)
@@ -48,11 +47,6 @@
     glEnable(GL_DEPTH_TEST);
     glColor4f(1, 1, 0, 1);
 
-    glBegin(GL_LINES);
-    glVertex3f(0, 0, 0);
-    glVertex3f(radius, 0, 0);
-    glEnd();
-    
     glBegin(GL_LINE_LOOP);
     for (int i = 0; i < circleSegments; i++)
         glVertex3f(circle[i].x, circle[i].y, circle[i].z);
@@ -64,7 +58,6 @@
     for (int i = 0; i < circleSegments; i++)
         glVertex3f(circle[i].x, circle[i].y, circle[i].z);
     glEnd();
-
     
     glPopMatrix();
 }

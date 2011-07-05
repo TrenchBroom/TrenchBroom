@@ -201,6 +201,7 @@
     hAngle = theHAngle;
     vAngle = theVAngle;
 }
+
 - (void)update:(TVector3f *)thePosition {
 }
 
