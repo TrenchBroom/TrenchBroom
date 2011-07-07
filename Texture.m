@@ -67,7 +67,7 @@
     NSAssert(theHeight > 0, @"height must be positive");
     NSAssert(thePalette != nil, @"palette must no be nil");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         uniqueId = [[[IdGenerator sharedGenerator] getId] retain];
         
         name = [[NSString alloc] initWithString:theName];

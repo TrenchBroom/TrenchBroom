@@ -98,7 +98,7 @@ AliasFrame* readFrame(NSData* data, int address, TVector3f* origin, TVector3f* s
     NSAssert(theName != nil, @"name must not be nil");
     NSAssert(theData != nil, @"data must not be nil");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         name = [[NSString alloc] initWithString:theName];
         
         TVector3f scale = readVector3f(theData, MDL_HEADER_SCALE);

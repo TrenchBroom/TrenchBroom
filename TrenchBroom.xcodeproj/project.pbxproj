@@ -129,6 +129,9 @@
 		48B5A19F131EE8FD0043FBD9 /* Prefab1.map in Copy Brush Prefabs */ = {isa = PBXBuildFile; fileRef = 48F0EDAB131AD9A70088FA02 /* Prefab1.map */; };
 		48B5A1A0131EE8FD0043FBD9 /* Prefab2.map in Copy Brush Prefabs */ = {isa = PBXBuildFile; fileRef = 4833C15B131953D300EB1B85 /* Prefab2.map */; };
 		48B5A1DB131EEE440043FBD9 /* PrefabNameSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */; };
+		48C029B113C4EABD00FB8B71 /* BspModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C029B013C4EABD00FB8B71 /* BspModel.m */; };
+		48C029B513C4ED2800FB8B71 /* BspFace.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C029B413C4ED2800FB8B71 /* BspFace.m */; };
+		48C029B913C4EF0500FB8B71 /* Bsp.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C029B813C4EF0500FB8B71 /* Bsp.m */; };
 		48C3324413087D8600C23607 /* MenuDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C3324313087D8600C23607 /* MenuDelegate.m */; };
 		48CBDD9913170B330041F704 /* GLResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CBDD9813170B330041F704 /* GLResources.m */; };
 		48CE70AC134741C400886260 /* GridFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CE70AB134741C400886260 /* GridFeedbackFigure.m */; };
@@ -415,6 +418,12 @@
 		48B5A18C131EE2DB0043FBD9 /* PrefabNameSheet.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PrefabNameSheet.xib; sourceTree = "<group>"; };
 		48B5A1D9131EEE440043FBD9 /* PrefabNameSheetController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabNameSheetController.h; sourceTree = "<group>"; };
 		48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabNameSheetController.m; sourceTree = "<group>"; };
+		48C029B013C4EABD00FB8B71 /* BspModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BspModel.m; sourceTree = "<group>"; };
+		48C029B213C4EBBA00FB8B71 /* BspModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspModel.h; sourceTree = "<group>"; };
+		48C029B313C4ED2800FB8B71 /* BspFace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspFace.h; sourceTree = "<group>"; };
+		48C029B413C4ED2800FB8B71 /* BspFace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BspFace.m; sourceTree = "<group>"; };
+		48C029B713C4EF0500FB8B71 /* Bsp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Bsp.h; sourceTree = "<group>"; };
+		48C029B813C4EF0500FB8B71 /* Bsp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Bsp.m; sourceTree = "<group>"; };
 		48C3324213087D8600C23607 /* MenuDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuDelegate.h; sourceTree = "<group>"; };
 		48C3324313087D8600C23607 /* MenuDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MenuDelegate.m; sourceTree = "<group>"; };
 		48CBDD9713170B330041F704 /* GLResources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLResources.h; sourceTree = "<group>"; };
@@ -715,6 +724,7 @@
 		487437FC135ED48A00F787E1 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				48C029AD13C4EA9900FB8B71 /* Bsp */,
 				487437FE135ED49A00F787E1 /* Entity */,
 				48A68E93114E92730064732A /* Map */,
 				483048F913A13A8A002CA97B /* Alias */,
@@ -1009,6 +1019,19 @@
 			name = Math;
 			sourceTree = "<group>";
 		};
+		48C029AD13C4EA9900FB8B71 /* Bsp */ = {
+			isa = PBXGroup;
+			children = (
+				48C029B213C4EBBA00FB8B71 /* BspModel.h */,
+				48C029B013C4EABD00FB8B71 /* BspModel.m */,
+				48C029B313C4ED2800FB8B71 /* BspFace.h */,
+				48C029B413C4ED2800FB8B71 /* BspFace.m */,
+				48C029B713C4EF0500FB8B71 /* Bsp.h */,
+				48C029B813C4EF0500FB8B71 /* Bsp.m */,
+			);
+			name = Bsp;
+			sourceTree = "<group>";
+		};
 		48F0EC32131A999E0088FA02 /* Prefabs */ = {
 			isa = PBXGroup;
 			children = (
@@ -1271,6 +1294,9 @@
 				486E08B913B67D8100E751A6 /* BrushInfo.m in Sources */,
 				486A68C413C1B0CF00707AC1 /* RotateCursor.m in Sources */,
 				48973E2A13C368900067E10D /* SpawnFlag.m in Sources */,
+				48C029B113C4EABD00FB8B71 /* BspModel.m in Sources */,
+				48C029B513C4ED2800FB8B71 /* BspFace.m in Sources */,
+				48C029B913C4EF0500FB8B71 /* Bsp.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

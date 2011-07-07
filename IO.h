@@ -14,5 +14,6 @@ char readChar(NSData* data, int location);
 unsigned char readUChar(NSData* data, int location);
 NSString* readString(NSData* data, NSRange range);
 unsigned int readInt(NSData* data, int location);
+unsigned int readShort(NSData* data, int location);
 float readFloat(NSData* data, int location);
 TVector3f readVector3f(NSData* data, int location);

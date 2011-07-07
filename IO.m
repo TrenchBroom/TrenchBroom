@@ -30,6 +30,12 @@ unsigned int readInt(NSData* data, int location) {
     return NSSwapLittleIntToHost(result);
 }
 
+unsigned int readShort(NSData* data, int location) {
+    unsigned int result;
+    [data getBytes:(unsigned int *)&result range:NSMakeRange(location, 4)];
+    return NSSwapLittleIntToHost(result);
+}
+
 float readFloat(NSData* data, int location) {
     NSSwappedFloat result;
     [data getBytes:(NSSwappedFloat *)&result range:NSMakeRange(location, 4)];
