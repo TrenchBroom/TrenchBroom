@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "BspModel.h"
+#import "Bsp.h"
 
 @interface BspFace : NSObject {
 @private
@@ -17,5 +17,10 @@
 }
 
 - (id)initWithTextureInfo:(TTextureInfo *)theTextureInfo vertices:(TVector3f *)theVertices vertexCount:(int)theVertexCount;
+
+- (TTextureInfo *)textureInfo;
+- (TVector3f *)vertexAtIndex:(int)theIndex;
+- (int)vertexCount;
+- (void)texCoords:(TVector2f *)theTexCoords forVertex:(TVector3f *)theVertex;
 
 @end

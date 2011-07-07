@@ -9,14 +9,15 @@
 #import <Foundation/Foundation.h>
 #import "Math.h"
 
-@class Texture;
-
 @interface BspModel : NSObject {
 @private
     NSArray* faces;
-    NSArray* textures;
+    int vertexCount;
 }
 
-- (id)initWithFaces:(NSArray *)theFaces textures:(NSArray *)theTextures;
+- (id)initWithFaces:(NSArray *)theFaces vertexCount:(int)theVertexCount;
+
+- (NSArray *)faces;
+- (int)vertexCount;
 
 @end

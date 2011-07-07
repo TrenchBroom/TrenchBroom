@@ -19,15 +19,25 @@ typedef struct {
 } TTextureInfo;
 
 typedef struct {
-    TVector3f* vertex0;
-    TVector3f* vertex1;
+    int vertex0;
+    int vertex1;
 } TEdge;
+
+typedef struct {
+    int edgeIndex;
+    int edgeCount;
+    int textureInfoIndex;
+} TFace;
 
 @interface Bsp : NSObject {
 @private
+    NSString* name;
     NSMutableArray* models;
 }
 
-- (id)initWithData:(NSData *)theData palette:(NSData *)thePalette;
+- (id)initWithName:(NSString *)theName data:(NSData *)theData palette:(NSData *)thePalette;
+
+- (NSString *)name;
+- (NSArray *)models;
 
 @end

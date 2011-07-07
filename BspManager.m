@@ -1,28 +1,28 @@
 //
-//  AliasManager.m
+//  BspManager.m
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 12.06.11.
+//  Created by Kristian Duske on 07.07.11.
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "AliasManager.h"
-#import "Alias.h"
+#import "BspManager.h"
+#import "Bsp.h"
 #import "PakManager.h"
 
-static AliasManager* sharedInstance = nil;
+static BspManager* sharedInstance = nil;
 
-@interface AliasManager (private)
+@interface BspManager (private)
 
 - (NSString *)keyForName:(NSString *)theName paths:(NSArray *)thePaths;
 
 @end
 
-@implementation AliasManager (private)
+@implementation BspManager (private)
 
 - (NSString *)keyForName:(NSString *)theName paths:(NSArray *)thePaths {
     NSMutableString* key = [[NSMutableString alloc] init];
-
+    
     NSEnumerator* pathEn = [thePaths objectEnumerator];
     NSString* path;
     while ((path = [pathEn nextObject])) {
@@ -36,9 +36,9 @@ static AliasManager* sharedInstance = nil;
 
 @end
 
-@implementation AliasManager
+@implementation BspManager
 
-+ (AliasManager *)sharedManager {
++ (BspManager *)sharedManager {
     @synchronized(self) {
         if (sharedInstance == nil)
             sharedInstance = [[self alloc] init];
@@ -78,34 +78,38 @@ static AliasManager* sharedInstance = nil;
 
 - (id)init {
     if ((self = [super init])) {
-        aliases = [[NSMutableDictionary alloc] init];
+        bsps = [[NSMutableDictionary alloc] init];
+        NSBundle* mainBundle = [NSBundle mainBundle];
+        NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
+        palette = [[NSData alloc] initWithContentsOfFile:palettePath];
     }
     
     return self;
 }
 
 - (void)dealloc {
-    [aliases release];
+    [palette release];
+    [bsps release];
     [super dealloc];
 }
 
-- (Alias *)aliasWithName:(NSString *)theName paths:(NSArray *)thePaths {
+- (Bsp *)bspWithName:(NSString *)theName paths:(NSArray *)thePaths {
     NSAssert(theName != nil, @"name must not be nil");
     NSAssert(thePaths != nil, @"paths must not be nil");
     
     NSString* key = [self keyForName:theName paths:thePaths];
-    Alias* alias = [aliases objectForKey:key];
-    if (alias == nil) {
+    Bsp* bsp = [bsps objectForKey:key];
+    if (bsp == nil) {
         PakManager* pakManager = [PakManager sharedManager];
         NSData* entry = [pakManager entryWithName:theName pakPaths:thePaths];
         if (entry != nil) {
-            alias = [[Alias alloc] initWithName:theName data:entry];
-            [aliases setObject:alias forKey:key];
-            [alias release];
+            bsp = [[Bsp alloc] initWithName:theName data:entry palette:palette];
+            [bsps setObject:bsp forKey:key];
+            [bsp release];
         }
     }
     
-    return alias;
+    return bsp;
 }
 
 @end

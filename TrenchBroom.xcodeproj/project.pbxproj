@@ -114,6 +114,8 @@
 		4891E15612FC04B2007A3B93 /* InspectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4891E15512FC04B2007A3B93 /* InspectorController.m */; };
 		48958209132E52EF00BB7D8F /* CameraAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 48958208132E52EF00BB7D8F /* CameraAnimation.m */; };
 		48973E2A13C368900067E10D /* SpawnFlag.m in Sources */ = {isa = PBXBuildFile; fileRef = 48973E2913C3688F0067E10D /* SpawnFlag.m */; };
+		48A5FD4C13C5E7C6009D086C /* BspManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A5FD4B13C5E7C6009D086C /* BspManager.m */; };
+		48A5FD5013C5E9F8009D086C /* BspRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A5FD4F13C5E9F8009D086C /* BspRenderer.m */; };
 		48A68EB8114E96C00064732A /* MapWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68EB7114E96C00064732A /* MapWindowController.m */; };
 		48A68ECF114E9B0D0064732A /* MapView3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68ECE114E9B0D0064732A /* MapView3D.m */; };
 		48A68F0F114EA0420064732A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48A68F0E114EA0420064732A /* OpenGL.framework */; };
@@ -398,6 +400,11 @@
 		48958208132E52EF00BB7D8F /* CameraAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraAnimation.m; sourceTree = "<group>"; };
 		48973E2813C3688F0067E10D /* SpawnFlag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpawnFlag.h; sourceTree = "<group>"; };
 		48973E2913C3688F0067E10D /* SpawnFlag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpawnFlag.m; sourceTree = "<group>"; };
+		48A5FD4A13C5E7C6009D086C /* BspManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspManager.h; sourceTree = "<group>"; };
+		48A5FD4B13C5E7C6009D086C /* BspManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BspManager.m; sourceTree = "<group>"; };
+		48A5FD4D13C5E9BA009D086C /* EntityRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityRenderer.h; sourceTree = "<group>"; };
+		48A5FD4E13C5E9F7009D086C /* BspRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspRenderer.h; sourceTree = "<group>"; };
+		48A5FD4F13C5E9F8009D086C /* BspRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BspRenderer.m; sourceTree = "<group>"; };
 		48A68EB6114E96C00064732A /* MapWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWindowController.h; sourceTree = "<group>"; };
 		48A68EB7114E96C00064732A /* MapWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapWindowController.m; sourceTree = "<group>"; };
 		48A68ECD114E9B0D0064732A /* MapView3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapView3D.h; sourceTree = "<group>"; };
@@ -620,6 +627,9 @@
 				481BF7A413A4B0880040580B /* EntityAliasRenderer.m */,
 				481BF7AA13A4B5220040580B /* AliasRenderer.h */,
 				481BF7AB13A4B5220040580B /* AliasRenderer.m */,
+				48A5FD4D13C5E9BA009D086C /* EntityRenderer.h */,
+				48A5FD4E13C5E9F7009D086C /* BspRenderer.h */,
+				48A5FD4F13C5E9F8009D086C /* BspRenderer.m */,
 			);
 			name = PrimitiveRenderer;
 			sourceTree = "<group>";
@@ -1028,6 +1038,8 @@
 				48C029B413C4ED2800FB8B71 /* BspFace.m */,
 				48C029B713C4EF0500FB8B71 /* Bsp.h */,
 				48C029B813C4EF0500FB8B71 /* Bsp.m */,
+				48A5FD4A13C5E7C6009D086C /* BspManager.h */,
+				48A5FD4B13C5E7C6009D086C /* BspManager.m */,
 			);
 			name = Bsp;
 			sourceTree = "<group>";
@@ -1297,6 +1309,8 @@
 				48C029B113C4EABD00FB8B71 /* BspModel.m in Sources */,
 				48C029B513C4ED2800FB8B71 /* BspFace.m in Sources */,
 				48C029B913C4EF0500FB8B71 /* Bsp.m in Sources */,
+				48A5FD4C13C5E7C6009D086C /* BspManager.m in Sources */,
+				48A5FD5013C5E9F8009D086C /* BspRenderer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

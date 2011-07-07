@@ -7,14 +7,14 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "EntityRenderer.h"
 
 @class Alias;
 @class VBOBuffer;
 @class VBOMemBlock;
 @class Texture;
-@protocol Entity;
 
-@interface AliasRenderer : NSObject {
+@interface AliasRenderer : NSObject <EntityRenderer> {
     Alias* alias;
     VBOBuffer* vbo;
     VBOMemBlock* block;
@@ -24,6 +24,4 @@
 }
 
 - (id)initWithAlias:(Alias *)theAlias vbo:(VBOBuffer *)theVbo palette:(NSData *)thePalette;
-
-- (void)renderWithEntity:(id <Entity>)theEntity;
 @end

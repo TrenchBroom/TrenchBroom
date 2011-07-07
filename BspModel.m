@@ -11,15 +11,14 @@
 
 @implementation BspModel
 
-- (id)initWithFaces:(NSArray *)theFaces textures:(NSArray *)theTextures {
+- (id)initWithFaces:(NSArray *)theFaces vertexCount:(int)theVertexCount {
     NSAssert(theFaces != nil, @"face list must not be nil");
     NSAssert([theFaces count] >= 4, @"face list must contain at least 4 faces");
-    NSAssert(theTextures != nil, @"texture list must not be nil");
-    NSAssert([theTextures count] > 0, @"texture list must not be empty");
+    NSAssert(theVertexCount >= 12, @"model must have at least 12 vertices");
     
     if ((self = [self init])) {
         faces = [theFaces retain];
-        textures = [theTextures retain];
+        vertexCount = theVertexCount;
     }
     
     return self;
@@ -27,8 +26,15 @@
 
 - (void)dealloc {
     [faces release];
-    [textures release];
     [super dealloc];
+}
+
+- (NSArray *)faces {
+    return faces;
+}
+
+- (int)vertexCount {
+    return vertexCount;
 }
 
 @end

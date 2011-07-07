@@ -26,6 +26,27 @@
     return self;
 }
 
+- (TTextureInfo *)textureInfo {
+    return &textureInfo;
+}
+
+- (TVector3f *)vertexAtIndex:(int)theIndex {
+    NSAssert(theIndex >= 0 && theIndex < vertexCount, @"vertex index out of bounds");
+    return &vertices[theIndex];
+}
+
+- (int)vertexCount {
+    return vertexCount;
+}
+
+- (void)texCoords:(TVector2f *)theTexCoords forVertex:(TVector3f *)theVertex {
+    NSAssert(theTexCoords != NULL, @"texture coordinate vector must not be NULL");
+    NSAssert(theVertex != NULL, @"vertex must not be nil");
+    
+    theTexCoords->x = dotV3f(theVertex, &textureInfo.sAxis) + textureInfo.sOffset;
+    theTexCoords->y = dotV3f(theVertex, &textureInfo.tAxis) + textureInfo.tOffset;
+}
+
 - (void)dealloc {
     free(vertices);
     [super dealloc];

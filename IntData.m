@@ -11,7 +11,7 @@
 
 @implementation IntData
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         data = [[NSMutableData alloc] init];
         count = 0;
     }
@@ -20,7 +20,7 @@
 }
 
 - (id)initDataWithCapacity:(int)capacity {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         data = [[NSMutableData alloc] initWithLength:capacity * sizeof(float)];
         count = 0;
     }

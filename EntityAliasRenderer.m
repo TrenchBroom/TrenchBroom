@@ -24,6 +24,7 @@
         vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
         entities = [[NSMutableSet alloc] init];
         aliasRenderers = [[NSMutableDictionary alloc] init];
+        bspRenderers = [[NSMutableDictionary alloc] init];
 
         NSBundle* mainBundle = [NSBundle mainBundle];
         NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
@@ -36,6 +37,7 @@
 - (void)dealloc {
     [entities release];
     [aliasRenderers release];
+    [bspRenderers release];
     [vbo release];
     [palette release];
     [filter release];
@@ -65,17 +67,21 @@
         if (property != nil) {
             ModelProperty* modelProperty = (ModelProperty *)property;
             NSString* modelName = [[modelProperty modelPath] substringFromIndex:1];
-            aliasRenderer = [aliasRenderers objectForKey:modelName];
-            if (aliasRenderer == nil) {
-                NSArray* pakPaths = [NSArray arrayWithObject:@"/Applications/Quake/id1"];
-                
-                AliasManager* aliasManager = [AliasManager sharedManager];
-                Alias* alias = [aliasManager aliasWithName:modelName paths:pakPaths];
-                
-                if (alias != nil) {
-                    aliasRenderer = [[[AliasRenderer alloc] initWithAlias:alias vbo:vbo palette:palette] autorelease];
-                    [aliasRenderers setObject:aliasRenderer forKey:definitionName];
+            if ([[modelName pathExtension] isEqualToString:@"mdl"]) {
+                aliasRenderer = [aliasRenderers objectForKey:modelName];
+                if (aliasRenderer == nil) {
+                    NSArray* pakPaths = [NSArray arrayWithObject:@"/Applications/Quake/id1"];
+                    
+                    AliasManager* aliasManager = [AliasManager sharedManager];
+                    Alias* alias = [aliasManager aliasWithName:modelName paths:pakPaths];
+                    
+                    if (alias != nil) {
+                        aliasRenderer = [[[AliasRenderer alloc] initWithAlias:alias vbo:vbo palette:palette] autorelease];
+                        [aliasRenderers setObject:aliasRenderer forKey:definitionName];
+                    }
                 }
+            } else {
+                
             }
         }
     }

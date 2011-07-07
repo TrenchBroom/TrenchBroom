@@ -16,6 +16,7 @@
     VBOBuffer* vbo;
     NSMutableSet* entities;
     NSMutableDictionary* aliasRenderers;
+    NSMutableDictionary* bspRenderers;
     NSData* palette;
     id <Filter> filter;
 }
