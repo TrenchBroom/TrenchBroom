@@ -177,12 +177,13 @@
     
     [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", o.x, o.y, o.z]];
     
-    if ([self angle] != nil) {
-        int a = [[self angle] intValue];
-        if (a >= 0) {
-            a = (a + 90) % 360;
-            [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
-        }
+    if ([self angle] == nil)
+        [self setProperty:AngleKey value:@"0"];
+
+    int a = [[self angle] intValue];
+    if (a >= 0) {
+        a = (a + 90) % 360;
+        [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
     }
 }
 
@@ -207,17 +208,85 @@
     
     [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", o.x, o.y, o.z]];
     
-    if ([self angle] != nil) {
-        int a = [[self angle] intValue];
-        if (a >= 0) {
-            a = (a + 270) % 360;
-            [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
-        }
-    }}
+    if ([self angle] == nil)
+        [self setProperty:AngleKey value:@"0"];
+
+    int a = [[self angle] intValue];
+    if (a >= 0) {
+        a = (a + 270) % 360;
+        [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
+    }
+}
 
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theRotationCenter {
     if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
         return;
+    
+    if (!valid)
+        [self validate];
+
+    TVector3f originf, offset;
+    setV3f(&originf, [self origin]);
+    subV3f(&center, &originf, &offset);
+
+    subV3f(&center, theRotationCenter, &center);
+    rotateQ(theRotation, &center, &center);
+    addV3f(&center, theRotationCenter, &center);
+    subV3f(&center, &offset, &originf);
+
+    TVector3i newOrigin;
+    roundV3f(&originf, &newOrigin);
+    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", newOrigin.x, newOrigin.y, newOrigin.z]];
+    
+    if ([self angle] == nil)
+        [self setProperty:AngleKey value:@"0"];
+
+    int a = [[self angle] intValue];
+    TVector3f direction;
+    
+    if (a >= 0) {
+        direction.x = cos(a * M_PI / 180);
+        direction.y = sin(a * M_PI / 180);
+        direction.z = 0;
+    } else if (a == -1) {
+        direction = ZAxisPos;
+    } else if (a == -2) {
+        direction = ZAxisNeg;
+    } else {
+        return;
+    }
+    
+    rotateQ(theRotation, &direction, &direction);
+    if (direction.z > 0.9) {
+        [self setProperty:AngleKey value:@"-1"];
+    } else if (direction.z < -0.9) {
+        [self setProperty:AngleKey value:@"-2"];
+    } else {
+        if (direction.z != 0) {
+            direction.z = 0;
+            normalizeV3f(&direction, &direction);
+        }
+        a = roundf(acos(direction.x) * 180 / M_PI);
+        [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
+    }
+}
+
+- (void)replaceProperties:(NSDictionary *)theProperties {
+    NSAssert(theProperties != nil, @"properties must not be nil");
+    
+    NSString* newClassname = [theProperties objectForKey:ClassnameKey];
+    if (![[self classname] isEqualToString:newClassname])
+        [NSException raise:NSInvalidArgumentException format:@"new property set contains no or different classname"];
+    
+    [properties removeAllObjects];
+    valid = NO;
+    
+    NSEnumerator* keyEn = [theProperties keyEnumerator];
+    NSString* key;
+    while ((key = [keyEn nextObject])) {
+        NSString* value = [theProperties objectForKey:key];
+        [self setProperty:key value:value];
+    }
 }
 
 - (void)setProperty:(NSString *)key value:(NSString *)value {

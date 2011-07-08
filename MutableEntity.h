@@ -40,6 +40,7 @@
 - (void)rotateZ90CCW:(const TVector3i *)theRotationCenter;
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theRotationCenter;
 
+- (void)replaceProperties:(NSDictionary *)theProperties;
 - (void)setProperty:(NSString *)key value:(NSString *)value;
 - (void)removeProperty:(NSString *)key;
 

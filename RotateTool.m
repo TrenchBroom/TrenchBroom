@@ -159,11 +159,11 @@ static float M_PI_12 = M_PI / 12;
         }
         
         SelectionManager* selectionManager = [windowController selectionManager];
-        //    NSSet* entities = [selectionManager selectedEntities];
+        NSSet* entities = [selectionManager selectedEntities];
         NSSet* brushes = [selectionManager selectedBrushes];
         
         MapDocument* map = [windowController document];
-        //    [map rotateEntities:entities rotation:&rotation center:&center];
+        [map rotateEntities:entities rotation:&rotation center:&center];
         [map rotateBrushes:brushes rotation:&rotation center:&center];
     }
 }

@@ -69,6 +69,7 @@ extern NSString* const PropertiesDidChange;
 - (void)translateEntities:(NSSet *)theEntities direction:(const TVector3f *)theDirection delta:(int)theDelta;
 - (void)rotateEntitiesZ90CW:(NSSet *)theEntities center:(TVector3i *)theCenter;
 - (void)rotateEntitiesZ90CCW:(NSSet *)theEntities center:(TVector3i *)theCenter;
+- (void)rotateEntities:(NSSet *)theEntities rotation:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter;
 - (void)deleteEntities:(NSSet *)theEntities;
 
 - (void)addBrushesToEntity:(id <Entity>)theEntity brushes:(NSSet *)theBrushes;
