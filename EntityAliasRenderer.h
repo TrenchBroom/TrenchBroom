@@ -15,8 +15,7 @@
 @interface EntityAliasRenderer : NSObject {
     VBOBuffer* vbo;
     NSMutableSet* entities;
-    NSMutableDictionary* aliasRenderers;
-    NSMutableDictionary* bspRenderers;
+    NSMutableDictionary* entityRenderers;
     NSData* palette;
     id <Filter> filter;
 }

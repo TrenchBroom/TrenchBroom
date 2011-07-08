@@ -50,10 +50,10 @@ int const BSP_TEXTURE_NAME              = 0x0;
 int const BSP_TEXTURE_NAME_LENGTH       = 0x10;
 int const BSP_TEXTURE_WIDTH             = 0x10;
 int const BSP_TEXTURE_HEIGHT            = 0x14;
-int const BSP_TEXTURE_MIP0              = 0x1C;
-int const BSP_TEXTURE_MIP1              = 0x20;
-int const BSP_TEXTURE_MIP2              = 0x14;
-int const BSP_TEXTURE_MIP3              = 0x28;
+int const BSP_TEXTURE_MIP0              = 0x18;
+int const BSP_TEXTURE_MIP1              = 0x1C;
+int const BSP_TEXTURE_MIP2              = 0x20;
+int const BSP_TEXTURE_MIP3              = 0x24;
 
 int const BSP_VERTEX_SIZE               = 0xC;
 int const BSP_VERTEX_X                  = 0x0;
@@ -73,8 +73,8 @@ int const BSP_TEXINFO_SIZE              = 0x28;
 int const BSP_TEXINFO_S_AXIS            = 0x0;
 int const BSP_TEXINFO_S_OFFSET          = 0xC;
 int const BSP_TEXINFO_T_AXIS            = 0x10;
-int const BSP_TEXINFO_T_OFFSET          = 0x14;
-int const BSP_TEXINFO_TEXTURE           = 0x18;
+int const BSP_TEXINFO_T_OFFSET          = 0x1C;
+int const BSP_TEXINFO_TEXTURE           = 0x20;
 
 int const BSP_FACE_EDGE_SIZE            = 0x2;
 
@@ -102,13 +102,13 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
     NSMutableArray* textures = [[NSMutableArray alloc] initWithCapacity:count];
     for (int i = 0; i < count; i++) {
         int address = theAddress + readInt(theData, theAddress + BSP_TEXTURE_DIR_OFFSETS + i * 4);
-        NSString* name = readString(theData, NSMakeRange(address + BSP_TEXTURE_NAME, BSP_TEXTURE_NAME_LENGTH));
+        NSString* textureName = readString(theData, NSMakeRange(address + BSP_TEXTURE_NAME, BSP_TEXTURE_NAME_LENGTH));
         int width = readInt(theData, address + BSP_TEXTURE_WIDTH);
         int height = readInt(theData, address + BSP_TEXTURE_HEIGHT);
         int mip0Address = address + readInt(theData, address + BSP_TEXTURE_MIP0);
         NSData* image = [theData subdataWithRange:NSMakeRange(mip0Address, width * height)];
         
-        Texture* texture = [[Texture alloc] initWithName:name image:image width:width height:height palette:thePalette];
+        Texture* texture = [[Texture alloc] initWithName:textureName image:image width:width height:height palette:thePalette];
         [textures addObject:texture];
         [texture release];
     }
@@ -118,7 +118,7 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
 
 - (void)readVertices:(NSData *)theData address:(int)theAddress count:(int)theCount result:(TVector3f *)theResult {
     for (int i = 0; i < theCount; i++)
-        readVector3f(theData, theAddress + i * BSP_VERTEX_SIZE);
+        theResult[i] = readVector3f(theData, theAddress + i * BSP_VERTEX_SIZE);
 }
 
 - (void)readEdges:(NSData *)theData address:(int)theAddress count:(int)theCount result:(TEdge *)theResult {
@@ -181,27 +181,27 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
         
         int texInfosAddress = readInt(theData, BSP_DIR_TEXINFOS_ADDRESS);
         int texInfoCount = readInt(theData, BSP_DIR_TEXINFOS_SIZE) / BSP_TEXINFO_SIZE;
-        TTextureInfo texInfos[texInfoCount];
+        TTextureInfo* texInfos = malloc(texInfoCount * sizeof(TTextureInfo));
         [self readTexInfos:theData address:texInfosAddress count:texInfoCount textures:textures result:texInfos];
         
         int verticesAddress = readInt(theData, BSP_DIR_VERTICES_ADDRESS);
         int vertexCount = readInt(theData, BSP_DIR_VERTICES_SIZE) / BSP_VERTEX_SIZE;
-        TVector3f vertices[vertexCount];
+        TVector3f* vertices = malloc(vertexCount * sizeof(TVector3f));
         [self readVertices:theData address:verticesAddress count:vertexCount result:vertices];
         
         int edgesAddress = readInt(theData, BSP_DIR_EDGES_ADDRESS);
         int edgeCount = readInt(theData, BSP_DIR_EDGES_SIZE) / BSP_EDGE_SIZE;
-        TEdge edges[edgeCount];
+        TEdge* edges = malloc(edgeCount * sizeof(TEdge));
         [self readEdges:theData address:edgesAddress count:edgeCount result:edges];
         
         int facesAddress = readInt(theData, BSP_DIR_FACES_ADDRESS);
         int faceCount = readInt(theData, BSP_DIR_FACES_SIZE) / BSP_FACE_SIZE;
-        TFace faces[faceCount];
+        TFace* faces = malloc(faceCount * sizeof(TFace));
         [self readFaces:theData address:facesAddress count:faceCount result:faces];
         
         int faceEdgesAddress = readInt(theData, BSP_DIR_FACE_EDGES_ADDRESS);
         int faceEdgesCount = readInt(theData, BSP_DIR_FACE_EDGES_SIZE) / BSP_FACE_EDGE_SIZE;
-        int faceEdges[faceEdgesCount];
+        int* faceEdges = malloc(faceEdgesCount * sizeof(int));
         [self readFaceEdges:theData address:faceEdgesAddress count:faceEdgesCount result:faceEdges];
         
         int modelsAddress = readInt(theData, BSP_DIR_MODEL_ADDRESS);
@@ -217,20 +217,24 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
                 TFace* face = &faces[faceIndex + j];
                 TTextureInfo* texInfo = &texInfos[face->textureInfoIndex];
                 
-                TVector3f faceVertices[edgeCount];
+                int faceVertexCount = face->edgeCount;
+                TVector3f* faceVertices = malloc(faceVertexCount * sizeof(TVector3f));
                 for (int k = 0; k < face->edgeCount; k++) {
                     int faceEdgeIndex = faceEdges[face->edgeIndex + k];
+                    int vertexIndex;
                     if (faceEdgeIndex < 0)
-                        faceVertices[k] = vertices[edges[-faceEdgeIndex].vertex1];
+                        vertexIndex = edges[-faceEdgeIndex].vertex1;
                     else
-                        faceVertices[k] = vertices[edges[faceEdgeIndex].vertex0];
+                        vertexIndex = edges[faceEdgeIndex].vertex0;
+                    faceVertices[k] = vertices[vertexIndex];
                 }
                 
-                BspFace* bspFace = [[BspFace alloc] initWithTextureInfo:texInfo vertices:faceVertices vertexCount:edgeCount];
+                BspFace* bspFace = [[BspFace alloc] initWithTextureInfo:texInfo vertices:faceVertices vertexCount:faceVertexCount];
                 [bspFaces addObject:bspFace];
                 [bspFace release];
+                free(faceVertices);
                 
-                modelVertexCount += face->edgeCount;
+                modelVertexCount += faceVertexCount;
             }
             
             BspModel* bspModel = [[BspModel alloc] initWithFaces:bspFaces vertexCount:modelVertexCount];
@@ -239,6 +243,12 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
             [models addObject:bspModel];
             [bspModel release];
         }
+        
+        free(texInfos);
+        free(vertices);
+        free(edges);
+        free(faces);
+        free(faceEdges);
     }
     
     return self;

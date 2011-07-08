@@ -234,9 +234,9 @@ The next attack from the player will do 4x damage
 
 /*QUAKED item_health (0.3 0.3 1.0) (0 0 0) (32 32 32) rotten megahealth
 {
-    model(":progs/quaddama.mdl");
-    model(":progs/w_s_key.mdl","rotten");
-    model(":progs/h_mega.mdl","megahealth");
+    model(":maps/b_bh25.bsp");
+    model(":maps/b_bh10.bsp","rotten");
+    model(":maps/b_bh100","megahealth");
 }
 Health box. Normally gives 25 points.
 Rotten box heals 5-10 points,

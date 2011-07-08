@@ -24,15 +24,27 @@ NSString* readString(NSData* data, NSRange range) {
     return [NSString stringWithCString:[strData bytes] encoding:NSASCIIStringEncoding];
 }
 
-unsigned int readInt(NSData* data, int location) {
+unsigned int readUInt(NSData* data, int location) {
     unsigned int result;
     [data getBytes:(unsigned int *)&result range:NSMakeRange(location, 4)];
     return NSSwapLittleIntToHost(result);
 }
 
-unsigned int readShort(NSData* data, int location) {
+int readInt(NSData* data, int location) {
     unsigned int result;
     [data getBytes:(unsigned int *)&result range:NSMakeRange(location, 4)];
+    return NSSwapLittleIntToHost(result);
+}
+
+unsigned int readUShort(NSData* data, int location) {
+    unsigned int result;
+    [data getBytes:(unsigned int *)&result range:NSMakeRange(location, 2)];
+    return NSSwapLittleIntToHost(result);
+}
+
+int readShort(NSData* data, int location) {
+    unsigned int result;
+    [data getBytes:(unsigned int *)&result range:NSMakeRange(location, 2)];
     return NSSwapLittleIntToHost(result);
 }
 

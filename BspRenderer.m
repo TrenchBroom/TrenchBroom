@@ -49,7 +49,7 @@
         BspModel* model = [[bsp models] objectAtIndex:0];
         int modelVertexCount = [model vertexCount];
 
-        block = [vbo allocMemBlock:modelVertexCount * 5 * 4];
+        block = [vbo allocMemBlock:modelVertexCount * 5 * sizeof(float)];
         int offset = 0;
         
         NSEnumerator* faceEn = [[model faces] objectEnumerator];
@@ -73,7 +73,7 @@
             }
             
             [textures addObject:texture];
-            [indexBuffer appendInt:[block address] + offset];
+            [indexBuffer appendInt:([block address] + offset) / (5 * sizeof(float))];
             [countBuffer appendInt:[face vertexCount]];
             
             for (int i = 0; i < [face vertexCount]; i++) {
@@ -81,8 +81,8 @@
                 TVector2f texCoords;
                 [face texCoords:&texCoords forVertex:vertex];
                 
-                offset = [block writeVector3f:vertex offset:offset];
                 offset = [block writeVector2f:&texCoords offset:offset];
+                offset = [block writeVector3f:vertex offset:offset];
             }
         }
         
@@ -105,6 +105,7 @@
     
     glEnable(GL_TEXTURE_2D);
     glPolygonMode(GL_FRONT, GL_FILL);
+    glInterleavedArrays(GL_T2F_V3F, 0, (const GLvoid *)[block address]);
     
     NSEnumerator* textureEn = [textures objectEnumerator];
     Texture* texture;
