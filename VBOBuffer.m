@@ -46,7 +46,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 }
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         freeBlocksByCapacity = [[NSMutableArray alloc] initWithCapacity:10];
     }
          
@@ -54,7 +54,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 }
 
 - (id)initWithTotalCapacity:(int)capacity {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         totalCapacity = capacity;
         freeCapacity = capacity;
         firstBlock = [[VBOMemBlock alloc] initBlockIn:self at:0 capacity:capacity];
@@ -159,27 +159,39 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
 }
 
 - (void)writeBuffer:(const void*)theBuffer address:(int)theAddress count:(int)theCount {
-    if (buffer == NULL)
-        [NSException raise:BufferNotMappedException format:@"cannot write to unmapped buffer"];
-    
     memcpy(buffer + theAddress, theBuffer, theCount);
 }
 
+- (void)writeByte:(unsigned char)b address:(int)theAddress {
+    buffer[theAddress] = b;
+}
+
 - (void)writeFloat:(float)f address:(int)theAddress {
-    if (buffer == NULL)
-        [NSException raise:BufferNotMappedException format:@"cannot write to unmapped buffer"];
-    
     for (int i = 0; i < 4; i++)
         buffer[theAddress + i] = ((char *)&f)[i];
 }
 
-- (void)writeVector3f:(TVector3f *)theVector address:(int)theAddress {
+- (void)writeColor4fAsBytes:(const TVector4f *)theVector address:(int)theAddress {
+    [self writeByte:theVector->x * 0xFF address:theAddress];
+    [self writeByte:theVector->y * 0xFF address:theAddress + 1];
+    [self writeByte:theVector->z * 0xFF address:theAddress + 2];
+    [self writeByte:theVector->w * 0xFF address:theAddress + 3];
+}
+
+- (void)writeVector4f:(const TVector4f *)theVector address:(int)theAddress {
+    [self writeFloat:theVector->x address:theAddress];
+    [self writeFloat:theVector->y address:theAddress + sizeof(float)];
+    [self writeFloat:theVector->z address:theAddress + 2 * sizeof(float)];
+    [self writeFloat:theVector->w address:theAddress + 3 * sizeof(float)];
+}
+
+- (void)writeVector3f:(const TVector3f *)theVector address:(int)theAddress {
     [self writeFloat:theVector->x address:theAddress];
     [self writeFloat:theVector->y address:theAddress + sizeof(float)];
     [self writeFloat:theVector->z address:theAddress + 2 * sizeof(float)];
 }
 
-- (void)writeVector2f:(TVector2f *)theVector address:(int)theAddress {
+- (void)writeVector2f:(const TVector2f *)theVector address:(int)theAddress {
     [self writeFloat:theVector->x address:theAddress];
     [self writeFloat:theVector->y address:theAddress + sizeof(float)];
 }

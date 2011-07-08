@@ -50,4 +50,11 @@
     return modelPath;
 }
 
+- (NSString *)description {
+    NSMutableString* desc = [[NSMutableString alloc] initWithString:modelPath];
+    if (flagName != nil)
+        [desc appendString:flagName];
+    return [desc autorelease];
+}
+
 @end

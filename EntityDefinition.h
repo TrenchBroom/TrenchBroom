@@ -42,6 +42,7 @@ typedef enum {
 - (NSArray *)flagsForMask:(int)theMask;
 - (BOOL)isFlag:(NSString *)theFlagName setOnEntity:(id <Entity>)theEntity;
 - (NSArray *)properties;
+- (ModelProperty *)modelPropertyForEntity:(id <Entity>)theEntity;
 - (NSString *)description;
 
 - (NSComparisonResult)compareByName:(EntityDefinition *)definition;

@@ -236,7 +236,7 @@ The next attack from the player will do 4x damage
 {
     model(":maps/b_bh25.bsp");
     model(":maps/b_bh10.bsp","rotten");
-    model(":maps/b_bh100","megahealth");
+    model(":maps/b_bh100.bsp","megahealth");
 }
 Health box. Normally gives 25 points.
 Rotten box heals 5-10 points,

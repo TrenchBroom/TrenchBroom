@@ -29,14 +29,15 @@
         [quads activate];
         [quads mapBuffer];
         
-        TVector3f c, t;
-        float defaultColor[] = {1, 1, 1};
+        TVector3f t;
+        TVector4f c;
+        float defaultColor[] = {1, 1, 1, 0.5f};
 
         NSEnumerator* entityEn = [entities objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
             if (filter == nil || [filter isEntityRenderable:entity]) {
-                VBOMemBlock* quadsBlock = [quads allocMemBlock:6 * 4 * (3 + 3) * sizeof(float)];
+                VBOMemBlock* quadsBlock = [quads allocMemBlock:6 * 4 * (4 + 3 * sizeof(float))];
                 
                 EntityDefinition* definition = [entity entityDefinition];
                 float* color = definition != nil ? [definition color] : defaultColor;
@@ -47,107 +48,108 @@
                 c.x = color[0];
                 c.y = color[1];
                 c.z = color[2];
+                c.w = 0.5f;
                 
                 // bottom side
                 t = bounds->min;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.x = bounds->max.x;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.y = bounds->max.y;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.x = bounds->min.x;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 // south side
                 t = bounds->min;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.z = bounds->max.z;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.x = bounds->max.x;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.z = bounds->min.z;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 // west side
                 t = bounds->min;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.y = bounds->max.y;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.z = bounds->max.z;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.y = bounds->min.y;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 // top side
                 t = bounds->max;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.y = bounds->min.y;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.x = bounds->min.x;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.y = bounds->max.y;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 // north side
                 t = bounds->max;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.z = bounds->min.z;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.x = bounds->min.x;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.z = bounds->max.z;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 // east side
                 t = bounds->max;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.z = bounds->min.z;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.y = bounds->min.y;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 t.z = bounds->max.z;
-                offset = [quadsBlock writeVector3f:&c offset:offset];
+                offset = [quadsBlock writeColor4fAsBytes:&c offset:offset];
                 offset = [quadsBlock writeVector3f:&t offset:offset];
                 
                 [quadsBlock setState:BS_USED_VALID];
@@ -193,9 +195,9 @@
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDisable(GL_CULL_FACE);
     if (doRenderWithColor)
-        glInterleavedArrays(GL_C3F_V3F, 0, 0);
+        glInterleavedArrays(GL_C4UB_V3F, 0, 0);
     else
-        glVertexPointer(3, GL_FLOAT, 6 * sizeof(float), (const GLvoid *) (3 * sizeof(float)));
+        glVertexPointer(3, GL_FLOAT, 3 * sizeof(float) + 4, (const GLvoid *) 4);
     glDrawArrays(GL_QUADS, 0, quadCount * 4);
     glDisableClientState(GL_COLOR_ARRAY);
     glEnable(GL_CULL_FACE);

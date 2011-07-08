@@ -39,9 +39,12 @@ extern NSString* const BufferNotMappedException;
 - (BOOL)mapped;
 
 - (void)writeBuffer:(const void*)theBuffer address:(int)theAddress count:(int)theCount;
+- (void)writeByte:(unsigned char)b address:(int)theAddress;
 - (void)writeFloat:(float)f address:(int)theAddress;
-- (void)writeVector3f:(TVector3f *)theVector address:(int)theAddress;
-- (void)writeVector2f:(TVector2f *)theVector address:(int)theAddress;
+- (void)writeColor4fAsBytes:(const TVector4f *)theVector address:(int)theAddress;
+- (void)writeVector4f:(const TVector4f *)theVector address:(int)theAddress;
+- (void)writeVector3f:(const TVector3f *)theVector address:(int)theAddress;
+- (void)writeVector2f:(const TVector2f *)theVector address:(int)theAddress;
 
 - (VBOMemBlock *)allocMemBlock:(int)capacity;
 - (VBOMemBlock *)freeMemBlock:(VBOMemBlock *)memBlock;

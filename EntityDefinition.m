@@ -114,21 +114,23 @@
 - (ModelProperty *)modelPropertyForEntity:(id <Entity>)theEntity {
     NSAssert(theEntity != nil, @"entity must not be nil");
     
-    ModelProperty* result = nil;
+    ModelProperty* defaultProperty = nil;
+    ModelProperty* specificProperty = nil;
     
     NSEnumerator* propertyEn = [properties objectEnumerator];
     id <EntityDefinitionProperty> property;
-    while ((property = [propertyEn nextObject]) && (result == nil)) {
+    while ((property = [propertyEn nextObject]) && (specificProperty == nil)) {
         if ([property isKindOfClass:[ModelProperty class]]) {
             ModelProperty* modelProperty = (ModelProperty *)property;
             NSString* flagName = [modelProperty flagName];
-            
-            if (flagName == nil || [self isFlag:flagName setOnEntity:theEntity])
-                result = modelProperty;
+            if (flagName == nil)
+                defaultProperty = modelProperty;
+            else if ([self isFlag:flagName setOnEntity:theEntity])
+                specificProperty = modelProperty;
         }
     }
     
-    return result;
+    return specificProperty != nil ? specificProperty : defaultProperty;
 }
 
 - (NSString *)description {
