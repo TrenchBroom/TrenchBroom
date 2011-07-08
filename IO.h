@@ -13,8 +13,8 @@
 char readChar(NSData* data, int location);
 unsigned char readUChar(NSData* data, int location);
 NSString* readString(NSData* data, NSRange range);
-unsigned int readUInt(NSData* data, int location);
-int readInt(NSData* data, int location);
+unsigned int readULong(NSData* data, int location);
+int readLong(NSData* data, int location);
 unsigned int readUShort(NSData* data, int location);
 int readShort(NSData* data, int location);
 float readFloat(NSData* data, int location);

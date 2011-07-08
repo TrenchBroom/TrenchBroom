@@ -73,7 +73,7 @@
             }
             
             [textures addObject:texture];
-            [indexBuffer appendInt:([block address] + offset) / (5 * sizeof(float))];
+            [indexBuffer appendInt:offset / (5 * sizeof(float))];
             [countBuffer appendInt:[face vertexCount]];
             
             for (int i = 0; i < [face vertexCount]; i++) {

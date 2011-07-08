@@ -43,8 +43,8 @@
     NSAssert(theTexCoords != NULL, @"texture coordinate vector must not be NULL");
     NSAssert(theVertex != NULL, @"vertex must not be nil");
     
-    theTexCoords->x = dotV3f(theVertex, &textureInfo.sAxis) + textureInfo.sOffset;
-    theTexCoords->y = dotV3f(theVertex, &textureInfo.tAxis) + textureInfo.tOffset;
+    theTexCoords->x = (dotV3f(theVertex, &textureInfo.sAxis) + textureInfo.sOffset) / [textureInfo.texture width];
+    theTexCoords->y = (dotV3f(theVertex, &textureInfo.tAxis) + textureInfo.tOffset) / [textureInfo.texture height];
 }
 
 - (void)dealloc {

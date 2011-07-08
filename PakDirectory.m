@@ -28,7 +28,7 @@ int const PAK_ENTRY_SIZE_OFFSET = 0x3C;
 - (id)initWithPath:(NSString *)thePath {
     NSAssert(thePath != nil, @"pak file path must not be nil");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         path = [thePath retain];
         handle = [[NSFileHandle fileHandleForReadingAtPath:path] retain];
         
@@ -48,8 +48,8 @@ int const PAK_ENTRY_SIZE_OFFSET = 0x3C;
             return nil;
         }
         
-        int dirOffset = readInt(headerData, PAK_DIR_OFFSET_OFFSET);
-        int dirSize = readInt(headerData, PAK_DIR_SIZE_OFFSET);
+        int dirOffset = readLong(headerData, PAK_DIR_OFFSET_OFFSET);
+        int dirSize = readLong(headerData, PAK_DIR_SIZE_OFFSET);
         int numEntries = dirSize / PAK_ENTRY_SIZE;
         
         entries = [[NSMutableDictionary alloc] initWithCapacity:numEntries];
@@ -60,8 +60,8 @@ int const PAK_ENTRY_SIZE_OFFSET = 0x3C;
         for (int i = 0; i < numEntries; i++) {
             int entryOffset = i * PAK_ENTRY_SIZE;
             NSString* name = readString(directoryData, NSMakeRange(entryOffset + PAK_ENTRY_NAME_OFFSET, PAK_ENTRY_NAME_SIZE));
-            int entryAddress = readInt(directoryData, entryOffset + PAK_ENTRY_ADDRESS_OFFSET);
-            int entrySize = readInt(directoryData, entryOffset + PAK_ENTRY_SIZE_OFFSET);
+            int entryAddress = readLong(directoryData, entryOffset + PAK_ENTRY_ADDRESS_OFFSET);
+            int entrySize = readLong(directoryData, entryOffset + PAK_ENTRY_SIZE_OFFSET);
             
             PakDirectoryEntry* entry = [[PakDirectoryEntry alloc] initWithName:name address:entryAddress size:entrySize];
             [entries setObject:entry forKey:name];

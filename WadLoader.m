@@ -35,7 +35,7 @@ int const WAD_TEX_MIP3_OFFSET = 36;
 @implementation WadLoader
 
 - (void)readEntry:(NSData *)data location:(unsigned int)location wad:(Wad *)wad {
-    unsigned int address = readInt(data, location+ WAD_DIR_ENTRY_ADDRESS_OFFSET);
+    unsigned int address = readLong(data, location + WAD_DIR_ENTRY_ADDRESS_OFFSET);
     char type = readChar(data, location + WAD_DIR_ENTRY_TYPE_OFFSET);
     NSString* name = readString(data, NSMakeRange(location + WAD_DIR_ENTRY_NAME_OFFSET, 16));
     
@@ -48,12 +48,12 @@ int const WAD_TEX_MIP3_OFFSET = 36;
             break;
         }
         case 'D': {
-            unsigned int width = readInt(data, address + WAD_TEX_WIDTH_OFFSET);
-            unsigned int height = readInt(data, address + WAD_TEX_HEIGHT_OFFSET);
-            unsigned int mip0Offset = readInt(data, address + WAD_TEX_MIP0_OFFSET);
-            unsigned int mip1Offset = readInt(data, address + WAD_TEX_MIP1_OFFSET);
-            unsigned int mip2Offset = readInt(data, address + WAD_TEX_MIP2_OFFSET);
-            unsigned int mip3Offset = readInt(data, address + WAD_TEX_MIP3_OFFSET);
+            int width = readLong(data, address + WAD_TEX_WIDTH_OFFSET);
+            int height = readLong(data, address + WAD_TEX_HEIGHT_OFFSET);
+            int mip0Offset = readLong(data, address + WAD_TEX_MIP0_OFFSET);
+            int mip1Offset = readLong(data, address + WAD_TEX_MIP1_OFFSET);
+            int mip2Offset = readLong(data, address + WAD_TEX_MIP2_OFFSET);
+            int mip3Offset = readLong(data, address + WAD_TEX_MIP3_OFFSET);
             
             NSData* mip0 = [data subdataWithRange:NSMakeRange(address + mip0Offset, width * height)];
             NSData* mip1 = [data subdataWithRange:NSMakeRange(address + mip1Offset, width * height / 4)];
@@ -83,8 +83,8 @@ int const WAD_TEX_MIP3_OFFSET = 36;
     if (![fileType isEqualToString:@"WAD2"])
         [NSException raise:InvalidFileTypeException format:@"WAD file header is corrupt"];
 
-    unsigned int numEntries = readInt(someData, WAD_NUM_ENTRIES_ADDRESS);
-    unsigned int dirOffset = readInt(someData, WAD_DIR_OFFSET_ADDRESS);
+    int numEntries = readLong(someData, WAD_NUM_ENTRIES_ADDRESS);
+    int dirOffset = readLong(someData, WAD_DIR_OFFSET_ADDRESS);
     
     Wad* wad = [[Wad alloc] initWithName:wadName];
     unsigned int address = dirOffset;

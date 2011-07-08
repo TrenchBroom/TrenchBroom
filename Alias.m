@@ -103,26 +103,20 @@ AliasFrame* readFrame(NSData* data, int address, TVector3f* origin, TVector3f* s
         
         TVector3f scale = readVector3f(theData, MDL_HEADER_SCALE);
         TVector3f origin = readVector3f(theData, MDL_HEADER_ORIGIN);
-        // float radius = readFloat(theData, MDL_HEADER_RADIUS);
-        // TVector3f offsets = readVector3f(theData, MDL_HEADER_OFFSETS);
 
-        int skinCount = readInt(theData, MDL_HEADER_NUMSKINS);
-        int skinWidth = readInt(theData, MDL_HEADER_SKINWIDTH);
-        int skinHeight = readInt(theData, MDL_HEADER_SKINHEIGHT);
+        int skinCount = readLong(theData, MDL_HEADER_NUMSKINS);
+        int skinWidth = readLong(theData, MDL_HEADER_SKINWIDTH);
+        int skinHeight = readLong(theData, MDL_HEADER_SKINHEIGHT);
         int skinSize = skinWidth * skinHeight;
         
-        int vertexCount = readInt(theData, MDL_HEADER_NUMVERTS);
-        int triangleCount = readInt(theData, MDL_HEADER_NUMTRIS);
-        int frameCount = readInt(theData, MDL_HEADER_NUMFRAMES);
-
-        // int syncType = readInt(theData, MDL_HEADER_SYNCTYPE);
-        // int flags = readInt(theData, MDL_HEADER_FLAGS);
-        // float size = readFloat(theData, MDL_HEADER_SIZE);
+        int vertexCount = readLong(theData, MDL_HEADER_NUMVERTS);
+        int triangleCount = readLong(theData, MDL_HEADER_NUMTRIS);
+        int frameCount = readLong(theData, MDL_HEADER_NUMFRAMES);
 
         skins = [[NSMutableArray alloc] initWithCapacity:skinCount];
         int address = MDL_SKINS;
         for (int i = 0; i < skinCount; i++) {
-            int skinGroup = readInt(theData, address);
+            int skinGroup = readLong(theData, address);
             if (skinGroup == 0) {
                 NSData* skinPicture = [theData subdataWithRange:NSMakeRange(address + MDL_SINGLE_SKIN, skinSize)];
                 AliasSkin* skin = [[AliasSkin alloc] initSingleSkin:skinPicture width:skinWidth height:skinHeight];
@@ -130,7 +124,7 @@ AliasFrame* readFrame(NSData* data, int address, TVector3f* origin, TVector3f* s
                 [skin release];
                 address += 4 + skinSize;
             } else {
-                int numPics = readInt(theData, address + MDL_MULTI_SKIN_NUMPICS);
+                int numPics = readLong(theData, address + MDL_MULTI_SKIN_NUMPICS);
                 float times[numPics];
                 NSMutableArray* skinPictures = [[NSMutableArray alloc] initWithCapacity:numPics];
                 
@@ -153,29 +147,29 @@ AliasFrame* readFrame(NSData* data, int address, TVector3f* origin, TVector3f* s
         // now address points to the first skin vertex
         TSkinVertex vertices[vertexCount];
         for (int i = 0; i < vertexCount; i++) {
-            vertices[i].onseam = readInt(theData, address + MDL_VERTEX_ONSEAM) != 0;
-            vertices[i].s = readInt(theData, address + MDL_VERTEX_S);
-            vertices[i].t = readInt(theData, address + MDL_VERTEX_T);
+            vertices[i].onseam = readLong(theData, address + MDL_VERTEX_ONSEAM) != 0;
+            vertices[i].s = readLong(theData, address + MDL_VERTEX_S);
+            vertices[i].t = readLong(theData, address + MDL_VERTEX_T);
             address += MDL_VERTEX_SIZE;
         }
         
         // now address points to the first skin triangle
         TSkinTriangle triangles[triangleCount];
         for (int i = 0; i < triangleCount; i++) {
-            triangles[i].front = readInt(theData, address + MDL_TRI_FRONT);
+            triangles[i].front = readLong(theData, address + MDL_TRI_FRONT);
             for (int j = 0; j < 3; j++)
-                triangles[i].vertices[j] = readInt(theData, address + MDL_TRI_VERTICES + j * 4);
+                triangles[i].vertices[j] = readLong(theData, address + MDL_TRI_VERTICES + j * 4);
             address += MDL_TRI_SIZE;
         }
         
         // now address points to the first frame
         frames = [[NSMutableArray alloc] init];
         for (int i = 0; i < frameCount; i++) {
-            int type = readInt(theData, address);
+            int type = readLong(theData, address);
             if (type == 0) { // single frame
                 [frames addObject:readFrame(theData, address, &origin, &scale, skinWidth, skinHeight, vertices, vertexCount, triangles, triangleCount)];
             } else { // frame group
-                int groupFrameCount = readInt(theData, address + MDL_MULTI_FRAME_NUMFRAMES);
+                int groupFrameCount = readLong(theData, address + MDL_MULTI_FRAME_NUMFRAMES);
                 int timeAddress = address + MDL_MULTI_FRAME_TIMES;
                 int frameAddress = address + MDL_MULTI_FRAME_TIMES + groupFrameCount * 0x4;
                 

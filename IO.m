@@ -24,28 +24,32 @@ NSString* readString(NSData* data, NSRange range) {
     return [NSString stringWithCString:[strData bytes] encoding:NSASCIIStringEncoding];
 }
 
-unsigned int readUInt(NSData* data, int location) {
-    unsigned int result;
-    [data getBytes:(unsigned int *)&result range:NSMakeRange(location, 4)];
-    return NSSwapLittleIntToHost(result);
+unsigned int readULong(NSData* data, int location) {
+    uint32_t d;
+    [data getBytes:(uint32_t *)&d range:NSMakeRange(location, 4)];
+    uint32_t r = OSReadLittleInt32(&d, 0);
+    return r;
 }
 
-int readInt(NSData* data, int location) {
-    unsigned int result;
-    [data getBytes:(unsigned int *)&result range:NSMakeRange(location, 4)];
-    return NSSwapLittleIntToHost(result);
+int readLong(NSData* data, int location) {
+    int32_t d;
+    [data getBytes:(int32_t *)&d range:NSMakeRange(location, 4)];
+    int32_t r = OSReadLittleInt32(&d, 0);
+    return r;
 }
 
 unsigned int readUShort(NSData* data, int location) {
-    unsigned int result;
-    [data getBytes:(unsigned int *)&result range:NSMakeRange(location, 2)];
-    return NSSwapLittleIntToHost(result);
+    uint16_t d;
+    [data getBytes:(uint16_t *)&d range:NSMakeRange(location, 2)];
+    uint16_t r = OSReadLittleInt16(&d, 0);
+    return r;
 }
 
 int readShort(NSData* data, int location) {
-    unsigned int result;
-    [data getBytes:(unsigned int *)&result range:NSMakeRange(location, 2)];
-    return NSSwapLittleIntToHost(result);
+    int16_t d;
+    [data getBytes:(int16_t *)&d range:NSMakeRange(location, 2)];
+    int16_t r = OSReadLittleInt16(&d, 0);
+    return r;
 }
 
 float readFloat(NSData* data, int location) {
