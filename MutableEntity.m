@@ -266,7 +266,11 @@
             direction.z = 0;
             normalizeV3f(&direction, &direction);
         }
+
         a = roundf(acos(direction.x) * 180 / M_PI);
+        if (direction.y > 0)
+            a = 360 - a;
+        
         [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
     }
 }
@@ -280,6 +284,8 @@
     
     [properties removeAllObjects];
     valid = NO;
+    [angle release];
+    angle = nil;
     
     NSEnumerator* keyEn = [theProperties keyEnumerator];
     NSString* key;
@@ -358,6 +364,10 @@
 
 - (void)setFilePosition:(int)theFilePosition {
     filePosition = theFilePosition;
+}
+
+- (NSString *)description {
+    return [properties description];
 }
 
 #pragma mark -

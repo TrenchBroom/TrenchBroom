@@ -198,15 +198,15 @@ This is the destination marker for a teleporter.  It should have a "targetname" 
 */
 
 /*QUAKED item_armor1 (0.0 0.5 0.8) (-16 -16 0) (16 16 32)
-{ model(":progs/armor.mdl"); }
+{ model(":progs/armor.mdl:0"); }
 */
 
 /*QUAKED item_armor2 (0.0 0.5 0.8) (-16 -16 0) (16 16 32)
-{ model(":progs/armor.mdl"); }
+{ model(":progs/armor.mdl:1"); }
 */
 
 /*QUAKED item_armorInv (0.0 0.5 0.8) (-16 -16 0) (16 16 32)
-{ model(":progs/armor.mdl"); }
+{ model(":progs/armor.mdl:2"); }
 */
 
 /*QUAKED item_artifact_envirosuit (0.0 0.5 0.8) (-16 -16 -24) (16 16 32)
@@ -230,6 +230,10 @@ The next attack from the player will do 4x damage
 */
 
 /*QUAKED item_cells (0.0 0.5 0.8) (0 0 0) (32 32 32) big
+{
+model(":maps/b_batt0.bsp");
+model(":maps/b_batt1.bsp","big");
+}
 */
 
 /*QUAKED item_health (0.3 0.3 1.0) (0 0 0) (32 32 32) rotten megahealth
@@ -270,9 +274,17 @@ following:
 */
 
 /*QUAKED item_rockets (0.0 0.5 0.8) (0 0 0) (32 32 32) big
+{
+model(":maps/b_rock0.bsp");
+model(":maps/b_rock1.bsp","big");
+}
 */
 
 /*QUAKED item_shells (0.0 0.5 0.8) (0 0 0) (32 32 32) big
+{
+model(":maps/b_shell0.bsp");
+model(":maps/b_shell1.bsp","big");
+}
 */
 
 /*QUAKED item_sigil (0.0 0.5 0.8) (-16 -16 -24) (16 16 32) E1 E2 E3 E4
@@ -284,6 +296,10 @@ End of level sigil, pick up to end episode and return to jrstart. You MUST set o
 */
 
 /*QUAKED item_spikes (0.0 0.5 0.8) (0 0 0) (32 32 32) big
+{
+model(":maps/b_nail0.bsp");
+model(":maps/b_nail1.bsp","big");
+}
 */
 
 

@@ -47,6 +47,8 @@ typedef struct {
 
 - (NSString *)name;
 - (AliasFrame *)firstFrame;
+
 - (AliasSkin *)firstSkin;
+- (AliasSkin *)skinWithIndex:(int)theSkinIndex;
 
 @end

@@ -188,6 +188,18 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
         [self expect:TT_STR actual:token];
         
         NSString* modelPath = [[token data] retain];
+        int skinIndex = 0;
+        
+        NSCharacterSet* colonSet = [NSCharacterSet characterSetWithCharactersInString:@":"];
+        NSRange range = [modelPath rangeOfCharacterFromSet:colonSet options:0 range:NSMakeRange(1, [modelPath length] - 1)];
+        if (range.location != NSNotFound) {
+            NSString* skinIndexStr = [modelPath substringFromIndex:range.location + 1];
+            skinIndex = [skinIndexStr intValue];
+
+            NSString* cleanModelPath = [modelPath substringToIndex:range.location];
+            [modelPath release];
+            modelPath = [cleanModelPath retain];
+        }
         
         token = [self nextTokenIgnoringNewlines];
         [self expect:TT_C | TT_B_C actual:token];
@@ -197,7 +209,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
             [self expect:TT_STR actual:token];
 
             NSString* flagName = [[token data] retain];
-            property = [[ModelProperty alloc] initWithFlagName:flagName modelPath:modelPath];
+            property = [[ModelProperty alloc] initWithFlagName:flagName modelPath:modelPath skinIndex:skinIndex];
 
             [flagName release];
             [modelPath release];
@@ -205,7 +217,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
             token = [self nextTokenIgnoringNewlines];
             [self expect:TT_B_C actual:token];
         } else {
-            property = [[ModelProperty alloc] initWithModelPath:modelPath];
+            property = [[ModelProperty alloc] initWithModelPath:modelPath skinIndex:skinIndex];
             [modelPath release];
         }
     } else if ([type isEqualToString:@"default"]) {

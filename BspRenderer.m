@@ -97,10 +97,10 @@
         int intAngle = [angle intValue];
         if (intAngle == -1)
             glRotatef(90, 1, 0, 0);
-        else if (intAngle == 1)
+        else if (intAngle == -2)
             glRotatef(-90, 1, 0, 0);
         else
-            glRotatef(intAngle, 0, 0, 1);
+            glRotatef(-intAngle, 0, 0, 1);
     }
     
     glEnable(GL_TEXTURE_2D);

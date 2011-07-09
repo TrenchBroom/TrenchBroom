@@ -16,6 +16,7 @@
 
 @interface AliasRenderer : NSObject <EntityRenderer> {
     Alias* alias;
+    int skinIndex;
     VBOBuffer* vbo;
     VBOMemBlock* block;
     Texture* texture;
@@ -23,5 +24,5 @@
     int triangleCount;
 }
 
-- (id)initWithAlias:(Alias *)theAlias vbo:(VBOBuffer *)theVbo palette:(NSData *)thePalette;
+- (id)initWithAlias:(Alias *)theAlias skinIndex:(int)theSkinIndex vbo:(VBOBuffer *)theVbo palette:(NSData *)thePalette;
 @end

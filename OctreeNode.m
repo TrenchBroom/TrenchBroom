@@ -31,7 +31,7 @@
 @implementation OctreeNode
 
 - (id)initWithMin:(TVector3i *)theMin max:(TVector3i *)theMax minSize:(int)theMinSize {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         min = *theMin;
         max = *theMax;
         minSize = theMinSize;

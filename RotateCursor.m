@@ -15,6 +15,7 @@
     glPushMatrix();
     glTranslatef(center.x, center.y, center.z);
     
+    glDisable(GL_TEXTURE_2D);
     glPolygonMode(GL_FRONT, GL_FILL);
     
     glRotatef((initialHAngle + hAngle) * 360 / (2 * M_PI), 0, 0, 1);

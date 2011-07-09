@@ -33,6 +33,7 @@ typedef struct {
 @private
     NSString* name;
     NSMutableArray* models;
+    NSMutableArray* textures;
 }
 
 - (id)initWithName:(NSString *)theName data:(NSData *)theData palette:(NSData *)thePalette;

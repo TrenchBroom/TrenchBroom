@@ -31,7 +31,7 @@
 @implementation EntityAliasRenderer (private)
 
 - (id <NSCopying>)rendererKey:(ModelProperty *)theModelProperty {
-    return [NSString stringWithFormat:@"%@_%@", [theModelProperty modelPath], [theModelProperty flagName]];
+    return [NSString stringWithFormat:@"%@ %@ %i", [theModelProperty modelPath], [theModelProperty flagName], [theModelProperty skinIndex]];
 }
 
 @end
@@ -76,11 +76,16 @@
             NSString* modelName = [[modelProperty modelPath] substringFromIndex:1];
             NSArray* pakPaths = [NSArray arrayWithObject:@"/Applications/Quake/id1"];
             if ([[modelName pathExtension] isEqualToString:@"mdl"]) {
+                if ([modelName hasSuffix:@"armor.mdl"])
+                    NSLog(@"asdf");
+                
                 AliasManager* aliasManager = [AliasManager sharedManager];
                 Alias* alias = [aliasManager aliasWithName:modelName paths:pakPaths];
                 
                 if (alias != nil) {
-                    entityRenderer = [[AliasRenderer alloc] initWithAlias:alias vbo:vbo palette:palette];
+                    int skinIndex = [modelProperty skinIndex];
+                    
+                    entityRenderer = [[AliasRenderer alloc] initWithAlias:alias skinIndex:skinIndex vbo:vbo palette:palette];
                     [entityRenderers setObject:entityRenderer forKey:rendererKey];
                     [entityRenderer release];
                 }

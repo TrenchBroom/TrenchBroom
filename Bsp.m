@@ -85,7 +85,7 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
 
 @interface Bsp (private)
 
-- (NSArray *)readTextures:(NSData *)theData address:(int)theAddress palette:(NSData *)thePalette;
+- (void)readTextures:(NSData *)theData address:(int)theAddress palette:(NSData *)thePalette;
 - (void)readVertices:(NSData *)theData address:(int)theAddress count:(int)theCount result:(TVector3f *)theResult;
 - (void)readEdges:(NSData *)theData address:(int)theAddress count:(int)theCount result:(TEdge *)theResult;
 - (void)readFaces:(NSData *)theData address:(int)theAddress count:(int)theCount result:(TFace *)theResult;
@@ -96,10 +96,9 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
 
 @implementation Bsp (private)
 
-- (NSArray *)readTextures:(NSData *)theData address:(int)theAddress palette:(NSData *)thePalette {
+- (void)readTextures:(NSData *)theData address:(int)theAddress palette:(NSData *)thePalette {
     int count = readLong(theData, theAddress + BSP_TEXTURE_DIR_COUNT);
     
-    NSMutableArray* textures = [[NSMutableArray alloc] initWithCapacity:count];
     for (int i = 0; i < count; i++) {
         int address = theAddress + readLong(theData, theAddress + BSP_TEXTURE_DIR_OFFSETS + i * 4);
         NSString* textureName = readString(theData, NSMakeRange(address + BSP_TEXTURE_NAME, BSP_TEXTURE_NAME_LENGTH));
@@ -112,8 +111,6 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
         [textures addObject:texture];
         [texture release];
     }
-    
-    return [textures autorelease];
 }
 
 - (void)readVertices:(NSData *)theData address:(int)theAddress count:(int)theCount result:(TVector3f *)theResult {
@@ -163,6 +160,7 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
 - (id)init {
     if ((self = [super init])) {
         models = [[NSMutableArray alloc] init];
+        textures = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -177,7 +175,7 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
         name = [theName retain];
         
         int textureAddress = readLong(theData, BSP_DIR_TEXTURES_ADDRESS);
-        NSArray* textures = [self readTextures:theData address:textureAddress palette:thePalette];
+        [self readTextures:theData address:textureAddress palette:thePalette];
         
         int texInfosAddress = readLong(theData, BSP_DIR_TEXINFOS_ADDRESS);
         int texInfoCount = readLong(theData, BSP_DIR_TEXINFOS_SIZE) / BSP_TEXINFO_SIZE;
@@ -257,6 +255,7 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
 - (void)dealloc {
     [name release];
     [models release];
+    [textures release];
     [super dealloc];
 }
 

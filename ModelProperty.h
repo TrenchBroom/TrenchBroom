@@ -12,12 +12,16 @@
 @interface ModelProperty : NSObject <EntityDefinitionProperty> {
     NSString* flagName;
     NSString* modelPath;
+    int skinIndex;
 }
 
 - (id)initWithModelPath:(NSString *)theModelPath;
+- (id)initWithModelPath:(NSString *)theModelPath skinIndex:(int)theSkinIndex;
 - (id)initWithFlagName:(NSString *)theFlagName modelPath:(NSString *)theModelPath;
+- (id)initWithFlagName:(NSString *)theFlagName modelPath:(NSString *)theModelPath skinIndex:(int)theSkinIndex;
 
 - (NSString *)flagName;
 - (NSString *)modelPath;
+- (int)skinIndex;
 
 @end

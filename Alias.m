@@ -218,4 +218,9 @@ AliasFrame* readFrame(NSData* data, int address, TVector3f* origin, TVector3f* s
     return [skins objectAtIndex:0];
 }
 
+- (AliasSkin *)skinWithIndex:(int)theSkinIndex {
+    NSAssert(theSkinIndex >= 0 && theSkinIndex < [skins count], @"skin index out of range");
+    return [skins objectAtIndex:theSkinIndex];
+}
+
 @end

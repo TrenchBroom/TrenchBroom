@@ -18,13 +18,18 @@
 
 @implementation AliasRenderer
 
-- (id)initWithAlias:(Alias *)theAlias vbo:(VBOBuffer *)theVbo palette:(NSData *)thePalette {
+- (id)initWithAlias:(Alias *)theAlias skinIndex:(int)theSkinIndex vbo:(VBOBuffer *)theVbo palette:(NSData *)thePalette {
     NSAssert(theAlias != nil, @"alias must not be nil");
+    NSAssert(theSkinIndex >= 0, @"skin index must be at least 0");
     NSAssert(theVbo != nil, @"VBO must not be nil");
     NSAssert(thePalette != nil, @"palette must not be nil");
     
     if ((self = [self init])) {
+        if (skinIndex > 0)
+            NSLog(@"asf");
+        
         alias = [theAlias retain];
+        skinIndex = theSkinIndex;
         vbo = [theVbo retain];
         palette = [thePalette retain];
     }
@@ -43,7 +48,7 @@
 
 - (void)renderWithEntity:(id <Entity>)theEntity {
     if (block == nil) {
-        AliasSkin* skin = [alias firstSkin];
+        AliasSkin* skin = [alias skinWithIndex:skinIndex];
         texture = [[Texture alloc] initWithName:[alias name] skin:skin index:0 palette:palette];
         
         AliasFrame* frame = [alias firstFrame];
@@ -87,7 +92,7 @@
         else if (intAngle == 1)
             glRotatef(-90, 1, 0, 0);
         else
-            glRotatef(intAngle, 0, 0, 1);
+            glRotatef(-intAngle, 0, 0, 1);
     }
     
     glEnable(GL_TEXTURE_2D);

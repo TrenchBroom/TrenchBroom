@@ -117,6 +117,8 @@ static float M_PI_12 = M_PI / 12;
     [rotateCursor setDragging:YES];
     [feedbackFigure setDragging:YES];
     initialLocation = [NSEvent mouseLocation];
+    lastHSteps = 0;
+    lastVSteps = 0;
     
     NSUndoManager* undoManager = [[windowController document] undoManager];
     [undoManager setGroupsByEvent:NO];
@@ -127,11 +129,6 @@ static float M_PI_12 = M_PI / 12;
     if (!drag)
         return;
 
-    NSUndoManager* undoManager = [[windowController document] undoManager];
-    [undoManager endUndoGrouping];
-    [undoManager undo];
-    [undoManager beginUndoGrouping];
-    
     NSPoint currentLocation = [NSEvent mouseLocation];
     float dx = currentLocation.x - initialLocation.x;
     float dy = currentLocation.y - initialLocation.y;
@@ -145,7 +142,12 @@ static float M_PI_12 = M_PI / 12;
     [rotateCursor updateHorizontalAngle:hSteps * M_PI_12 verticalAngle:vSteps * M_PI_12];
     [feedbackFigure updateHorizontalAngle:hSteps * M_PI_12 verticalAngle:vSteps * M_PI_12];
     
-    if (hSteps != 0 || vSteps != 0) {
+    if (hSteps != lastHSteps || vSteps != lastVSteps) {
+        NSUndoManager* undoManager = [[windowController document] undoManager];
+        [undoManager endUndoGrouping];
+        [undoManager undo];
+        [undoManager beginUndoGrouping];
+        
         TQuaternion rotation;
         if (hSteps != 0 && vSteps != 0) {
             TQuaternion hRotation, vRotation;
@@ -165,6 +167,9 @@ static float M_PI_12 = M_PI / 12;
         MapDocument* map = [windowController document];
         [map rotateEntities:entities rotation:&rotation center:&center];
         [map rotateBrushes:brushes rotation:&rotation center:&center];
+        
+        lastHSteps = hSteps;
+        lastVSteps = vSteps;
     }
 }
 
