@@ -401,10 +401,16 @@ Default style is 0
 */
 
 /*QUAKED misc_explobox (0.0 0.5 0.8) (0 0 0) (32 32 64)
+{
+    model(":maps/b_explob.bsp");
+}
 Exploding box.
 */
 
 /*QUAKED misc_explobox2 (0.0 0.5 0.8) (0 0 0) (32 32 64)
+{
+    model(":maps/b_exbox2.bsp");
+}
 Smaller exploding box, REGISTERED ONLY
 */
 

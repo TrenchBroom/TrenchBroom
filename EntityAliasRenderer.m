@@ -76,9 +76,6 @@
             NSString* modelName = [[modelProperty modelPath] substringFromIndex:1];
             NSArray* pakPaths = [NSArray arrayWithObject:@"/Applications/Quake/id1"];
             if ([[modelName pathExtension] isEqualToString:@"mdl"]) {
-                if ([modelName hasSuffix:@"armor.mdl"])
-                    NSLog(@"asdf");
-                
                 AliasManager* aliasManager = [AliasManager sharedManager];
                 Alias* alias = [aliasManager aliasWithName:modelName paths:pakPaths];
                 

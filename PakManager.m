@@ -111,7 +111,7 @@ static PakManager* sharedInstance = nil;
 }
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         directories = [[NSMutableDictionary alloc] init];
     }
     

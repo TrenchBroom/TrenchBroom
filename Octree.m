@@ -128,7 +128,7 @@
         [center addObserver:self selector:@selector(entitiesAdded:) name:EntitiesAdded object:map];
         [center addObserver:self selector:@selector(entitiesWillBeRemoved:) name:EntitiesWillBeRemoved object:map];
         [center addObserver:self selector:@selector(propertiesWillChange:) name:PropertiesWillChange object:map];
-        [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesWillChange object:map];
+        [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesDidChange object:map];
         [center addObserver:self selector:@selector(brushesAdded:) name:BrushesAdded object:map];
         [center addObserver:self selector:@selector(brushesWillBeRemoved:) name:BrushesWillBeRemoved object:map];
         [center addObserver:self selector:@selector(brushesWillChange:) name:BrushesWillChange object:map];
