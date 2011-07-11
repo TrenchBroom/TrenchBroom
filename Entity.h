@@ -30,6 +30,7 @@ static NSString* const AngleKey = @"angle";
 
 - (NSString *)propertyForKey:(NSString *)key;
 - (NSDictionary *)properties;
+- (NSString *)spawnFlagsString;
 
 - (EntityDefinition *)entityDefinition;
 - (BOOL)isWorldspawn;

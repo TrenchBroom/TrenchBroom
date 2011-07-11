@@ -64,6 +64,7 @@ extern NSString* const PropertiesDidChange;
 - (id <Entity>)createEntityWithClassname:(NSString *)classname;
 - (id <Entity>)createEntityWithProperties:(NSDictionary *)properties;
 - (void)setEntity:(id <Entity>)theEntity propertyKey:(NSString *)theKey value:(NSString *)theValue;
+- (void)setEntities:(NSSet *)theEntities propertyKey:(NSString *)theKey value:(NSString *)theValue;
 - (void)setEntityDefinition:(id <Entity>)entity;
 - (void)translateEntities:(NSSet *)theEntities delta:(TVector3i *)theDelta;
 - (void)translateEntities:(NSSet *)theEntities direction:(const TVector3f *)theDirection delta:(int)theDelta;

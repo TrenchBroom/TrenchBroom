@@ -41,6 +41,7 @@
 #import "Filter.h"
 #import "DefaultFilter.h"
 #import "EntityDefinition.h"
+#import "GLUtils.h"
 
 NSString* const RendererChanged = @"RendererChanged";
 
@@ -552,10 +553,15 @@ NSString* const RendererChanged = @"RendererChanged";
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_FLAT);
+    glResetEdgeOffset();
     
     [geometryLayer render];
     [entityLayer render];
-    [selectionLayer render];
+    
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager hasSelection])
+        [selectionLayer render];
+    
     [feedbackLayer render];
     
     // enable lighting for cursor and compass

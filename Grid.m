@@ -120,7 +120,7 @@ NSString* const GridChanged = @"GridChanged";
         if (dim < 4)
             dim = 4;
         int texSize = 1 << 8; // 256 biggest grid size
-        char* pixel = malloc(texSize * texSize * 4);
+        char pixel[texSize * texSize * 4];
             for (int y = 0; y < texSize; y++)
                 for (int x = 0; x < texSize; x++) {
                     int i = (y * texSize + x) * 4;
@@ -128,7 +128,7 @@ NSString* const GridChanged = @"GridChanged";
                         pixel[i + 0] = 0xFF;
                         pixel[i + 1] = 0xFF;
                         pixel[i + 2] = 0xFF;
-                        pixel[i + 3] = 0x22;
+                        pixel[i + 3] = 0x1A;
                     } else {
                         pixel[i + 0] = 0x00;
                         pixel[i + 1] = 0x00;
@@ -144,7 +144,6 @@ NSString* const GridChanged = @"GridChanged";
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-        free(pixel);
     }
     else {
         glBindTexture(GL_TEXTURE_2D, texIds[size]);

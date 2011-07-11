@@ -10,6 +10,9 @@
 #import "Entity.h"
 #import "MapWindowController.h"
 #import "MapDocument.h"
+#import "EntityDefinition.h"
+#import "SpawnFlag.h"
+#import "Entity.h"
 
 @implementation EntityPropertyTableDataSource
 
@@ -37,6 +40,7 @@
         NSEnumerator* entityEn = [entities objectEnumerator];
         id <Entity> entity = [entityEn nextObject];
         NSMutableDictionary* mergedProperties = [[NSMutableDictionary alloc] initWithDictionary:[entity properties]];
+        [mergedProperties setObject:[entity spawnFlagsString] forKey:SpawnFlagsKey];
         
         while ((entity = [entityEn nextObject])) {
             NSSet* allKeys = [[NSSet alloc] initWithArray:[mergedProperties allKeys]];
@@ -52,7 +56,12 @@
             while ((key = [keyEn nextObject])) {
                 id oldValue = [mergedProperties objectForKey:key];
                 if (oldValue != NSMultipleValuesMarker) {
-                    NSString* newValue = [[entity properties] objectForKey:key];
+                    NSString* newValue;
+                    if (![SpawnFlagsKey isEqualToString:key])
+                        newValue = [[entity properties] objectForKey:key];
+                    else
+                        newValue = [entity spawnFlagsString];
+                    
                     if (![newValue isEqualToString:(NSString *)oldValue])
                         [mergedProperties setObject:NSMultipleValuesMarker forKey:key];
                 }
@@ -66,6 +75,13 @@
         properties = mergedProperties;
         sortedKeys = [[[properties allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)] retain];
     }
+}
+
+- (NSString *)propertyKeyAtIndex:(NSUInteger)theIndex {
+    if (properties == nil)
+        return nil;
+    
+    return [sortedKeys objectAtIndex:theIndex];
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {

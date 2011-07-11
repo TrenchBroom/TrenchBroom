@@ -484,6 +484,32 @@ static InspectorController* sharedInstance = nil;
     }
 }
 
+- (IBAction)removeProperty:(id)sender {
+    NSIndexSet* selectedRows = [entityPropertyTableView selectedRowIndexes];
+    if ([selectedRows count] == 0)
+        return;
+    
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+    NSSet* entities = [selectionManager selectedEntities];
+    
+    MapDocument* map = [mapWindowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    NSUInteger index = [selectedRows firstIndex];
+    do {
+        NSString* key = [entityPropertyTableDataSource propertyKeyAtIndex:index];
+        if (key != nil)
+            [map setEntities:entities propertyKey:key value:nil];
+    } while ((index = [selectedRows indexGreaterThanIndex:index]) != NSNotFound);
+    
+    [undoManager setActionName:@"Remove Entity Properties"];
+    [undoManager endUndoGrouping];
+}
+
+- (IBAction)addProperty:(id)sender {
+}
+
 - (void)dealloc {
     [self setMapWindowController:nil];
     [entityPropertyTableDataSource release];

@@ -94,6 +94,12 @@
     return [result autorelease];
 }
 
+- (NSArray *)allFlags {
+    NSMutableArray* result = [[NSMutableArray alloc] initWithArray:[flags allKeys]];
+    [result sortUsingSelector:@selector(compareByFlag:)];
+    return [result autorelease];
+}
+
 - (BOOL)isFlag:(NSString *)theFlagName setOnEntity:(id <Entity>)theEntity {
     SpawnFlag* flag = [self flagForName:theFlagName];
     if (flag == nil)

@@ -125,6 +125,7 @@
         }
     }
     
+    glDisable(GL_TEXTURE_2D);
     [vbo deactivate];
 }
 

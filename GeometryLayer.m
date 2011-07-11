@@ -17,6 +17,7 @@
 #import "VBOMemBlock.h"
 #import "IntData.h"
 #import "Filter.h"
+#import "GLUtils.h"
 
 @implementation GeometryLayer
 
@@ -77,8 +78,6 @@
 }
 
 - (void)renderFaces:(BOOL)textured {
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1.0, 1.0);
     glPolygonMode(GL_FRONT, GL_FILL);
     
     Grid* grid = [options grid];
@@ -144,6 +143,9 @@
         glDisable(GL_TEXTURE_2D);
         glClientActiveTexture(GL_TEXTURE1);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glClientActiveTexture(GL_TEXTURE0);
     }
     
     glDisableClientState(GL_COLOR_ARRAY);
@@ -151,10 +153,12 @@
 }
 
 - (void)preRenderEdges {
-    glColor4f(0.4f, 0.4f, 0.4f, 1);
+    glColor4f(0.4f, 0.4f, 0.4f, 0.4f);
+    glSetEdgeOffset(0.5f);
 }
 
 - (void)postRenderEdges {
+    glResetEdgeOffset();
 }
 
 - (void)setTextureMode {
@@ -192,6 +196,7 @@
         
         glMultiDrawArrays(GL_LINE_LOOP, indexBytes, countBytes, primCount);
     }
+
     [self postRenderEdges];
 }
 

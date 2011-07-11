@@ -393,6 +393,27 @@
     return properties;
 }
 
+- (NSString *)spawnFlagsString {
+    if (entityDefinition == nil)
+        return @"<missing entity definition>";
+    
+    NSString* raw = [properties objectForKey:SpawnFlagsKey];
+    if (raw == nil || raw == @"0")
+        return @"<none>";
+    
+    int mask = [raw intValue];
+    NSArray* spawnFlags = [entityDefinition flagsForMask:mask];
+    
+    NSEnumerator* spawnFlagEn = [spawnFlags objectEnumerator];
+    SpawnFlag* spawnFlag = [spawnFlagEn nextObject];
+    
+    NSMutableString* result = [[NSMutableString alloc] initWithString:[spawnFlag name]];
+    while ((spawnFlag = [spawnFlagEn nextObject]))
+        [result appendFormat:@" %@", [spawnFlag name]];
+    
+    return [result autorelease];
+}
+
 - (NSString *)classname {
     return [self propertyForKey:ClassnameKey];
 }

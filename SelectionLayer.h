@@ -16,6 +16,7 @@
 @interface SelectionLayer : GeometryLayer <EntityLayer> {
     EntityBoundsRenderer* entityBoundsRenderer;
     EntityAliasRenderer* entityAliasRenderer;
+    BOOL edgePass;
 }
 
 - (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager options:(Options *)theOptions camera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;

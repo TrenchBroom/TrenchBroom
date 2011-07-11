@@ -36,6 +36,8 @@
     IBOutlet NSArrayController* wadArrayController;
     IBOutlet NSScrollView* textureScrollView;
     IBOutlet NSTableView* entityPropertyTableView;
+    IBOutlet NSButton* removePropertyButton;
+    IBOutlet NSButton* addPropertyButton;
     EntityPropertyTableDataSource* entityPropertyTableDataSource;
     MapWindowController* mapWindowController;
 }
@@ -60,4 +62,7 @@
 - (void)prefabSelected:(id <Prefab>)prefab;
 
 - (IBAction)addTextureWad:(id)sender;
+
+- (IBAction)removeProperty:(id)sender;
+- (IBAction)addProperty:(id)sender;
 @end

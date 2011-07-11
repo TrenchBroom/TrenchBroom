@@ -14,7 +14,7 @@ NSString* const OptionsChanged = @"OptionsChanged";
 @implementation Options
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         grid = [[Grid alloc] init];
         renderMode = RM_TEXTURED;
         isolationMode = IM_NONE;

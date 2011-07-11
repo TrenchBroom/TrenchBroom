@@ -20,5 +20,6 @@
 - (void)setMapWindowController:(MapWindowController *)theMapWindowController;
 - (void)setEntities:(NSSet *)theEntities;
 - (void)updateProperties;
+- (NSString *)propertyKeyAtIndex:(NSUInteger)theIndex;
 
 @end

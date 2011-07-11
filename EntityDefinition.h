@@ -40,6 +40,7 @@ typedef enum {
 - (TBoundingBox *)bounds;
 - (SpawnFlag *)flagForName:(NSString *)theName;
 - (NSArray *)flagsForMask:(int)theMask;
+- (NSArray *)allFlags;
 - (BOOL)isFlag:(NSString *)theFlagName setOnEntity:(id <Entity>)theEntity;
 - (NSArray *)properties;
 - (ModelProperty *)modelPropertyForEntity:(id <Entity>)theEntity;

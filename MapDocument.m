@@ -435,6 +435,61 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
+- (void)setEntities:(NSSet *)theEntities propertyKey:(NSString *)theKey value:(NSString *)theValue {
+    NSAssert(theEntities != nil, @"entity set must not be nil");
+    NSAssert(theKey != nil, @"key must not be nil");
+    
+    if ([theEntities count] == 0)
+        return;
+    
+    NSMutableSet* changedEntities = [[NSMutableSet alloc] init];
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    id <Entity> entity;
+    
+    while ((entity = [entityEn nextObject])) {
+        NSString* oldValue = [entity propertyForKey:theKey];
+        if (oldValue == nil) {
+            if (theValue != nil)
+                [changedEntities addObject:entity];
+        } else if (![oldValue isEqualToString:theValue])
+            [changedEntities addObject:entity];
+    }
+    
+    
+    if ([changedEntities count] > 0) {
+        NSMutableDictionary* userInfo = nil;
+        if ([self postNotifications]) {
+            userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:changedEntities forKey:EntitiesKey];
+            
+            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+            [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
+        }
+
+        NSUndoManager* undoManager = [self undoManager];
+        id undoTarget = [undoManager prepareWithInvocationTarget:self];
+        
+        NSEnumerator* changedEntityEn = [changedEntities objectEnumerator];
+        MutableEntity* mutableEntity;
+        while ((mutableEntity = [changedEntityEn nextObject])) {
+            [undoTarget setEntity:mutableEntity propertyKey:theKey value:[mutableEntity propertyForKey:theKey]];
+            
+            if (theValue == nil)
+                [mutableEntity removeProperty:theKey];
+            else
+                [mutableEntity setProperty:theKey value:theValue];
+        }
+
+        if ([self postNotifications]) {
+            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+            [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
+            [userInfo release];
+        }
+    }
+    
+    [changedEntities release];
+}
+
 - (void)setEntityDefinition:(id <Entity>)entity {
     MutableEntity* mutableEntity = (MutableEntity *)entity;
 
