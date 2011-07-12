@@ -46,13 +46,11 @@
 }
 
 - (void)setTextureMode {
-    if ([options renderMode] == RM_TEXTURED)
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+//    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
 - (void)setFaceColorMode {
-    if ([options renderMode] == RM_TEXTURED)
-        glColor4f(1, 0, 0, 1);
+//    glColor4f(1, 0, 0, 1);
 }
 
 - (BOOL)doRenderFaces {
@@ -88,8 +86,8 @@
     [sharedVbo deactivate];
     
     if ([options renderEntities]) {
-        glColor4f(1, 0, 0, 1);
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+//        glColor4f(1, 0, 0, 1);
+//        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
         [entityAliasRenderer render];
 
         glSetEdgeOffset(0.5);

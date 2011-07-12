@@ -184,6 +184,7 @@ AliasFrame* readFrame(NSData* data, int address, TVector3f* origin, TVector3f* s
                 address += MDL_SIMPLE_FRAME_SIZE + vertexCount * MDL_FRAME_VERTEX_SIZE;
             } else { // frame group
                 int groupFrameCount = readLong(theData, address + MDL_MULTI_FRAME_NUMFRAMES);
+
                 int timeAddress = address + MDL_MULTI_FRAME_TIMES;
                 int frameAddress = address + MDL_MULTI_FRAME_TIMES + groupFrameCount * 0x4;
                 
@@ -201,6 +202,8 @@ AliasFrame* readFrame(NSData* data, int address, TVector3f* origin, TVector3f* s
                 [frames addObject:frameGroup];
                 [frameGroup release];
                 [groupFrames release];
+                
+                address = frameAddress;
             }
         }
     }

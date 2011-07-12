@@ -504,7 +504,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         [map translateBrushes:[selectionManager selectedBrushes] direction:direction delta:-delta];
     
     if ([selectionManager hasSelectedEntities])
-        [map translateEntities:[selectionManager selectedEntities] direction:direction delta:delta];
+        [map translateEntities:[selectionManager selectedEntities] direction:direction delta:-delta];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Objects"];
