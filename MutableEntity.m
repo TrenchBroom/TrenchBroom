@@ -393,12 +393,20 @@
     return properties;
 }
 
+- (BOOL)isPropertyDeletable:(NSString *)theKey {
+    return ![ClassnameKey isEqualToString:theKey] && ![OriginKey isEqualToString:theKey];
+}
+
+- (BOOL)isPropertyWritable:(NSString *)theKey {
+    return ![ClassnameKey isEqualToString:theKey];
+}
+
 - (NSString *)spawnFlagsString {
     if (entityDefinition == nil)
         return @"<missing entity definition>";
     
     NSString* raw = [properties objectForKey:SpawnFlagsKey];
-    if (raw == nil || raw == @"0")
+    if (raw == nil || [raw intValue] == 0)
         return @"<none>";
     
     int mask = [raw intValue];

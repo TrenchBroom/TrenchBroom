@@ -467,12 +467,11 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         }
 
         NSUndoManager* undoManager = [self undoManager];
-        id undoTarget = [undoManager prepareWithInvocationTarget:self];
-        
+
         NSEnumerator* changedEntityEn = [changedEntities objectEnumerator];
         MutableEntity* mutableEntity;
         while ((mutableEntity = [changedEntityEn nextObject])) {
-            [undoTarget setEntity:mutableEntity propertyKey:theKey value:[mutableEntity propertyForKey:theKey]];
+            [[undoManager prepareWithInvocationTarget:self] setEntity:mutableEntity propertyKey:theKey value:[mutableEntity propertyForKey:theKey]];
             
             if (theValue == nil)
                 [mutableEntity removeProperty:theKey];

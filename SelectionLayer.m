@@ -12,18 +12,85 @@
 #import "BrushBoundsRenderer.h"
 #import "EntityBoundsRenderer.h"
 #import "EntityAliasRenderer.h"
+#import "TextRenderer.h"
+#import "EntityClassnameAnchor.h"
 #import "Options.h"
 #import "GLUtils.h"
+
+@interface SelectionLayer (private)
+
+- (void)validateEntities;
+
+@end
+
+@implementation SelectionLayer (private)
+
+- (void)validateEntities {
+    if ([addedEntities count] > 0) {
+        NSEnumerator* entityEn = [addedEntities objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            [entityBoundsRenderer addEntity:entity];
+            [entityAliasRenderer addEntity:entity];
+        }
+        
+        [fontManager activate];
+        entityEn = [addedEntities objectEnumerator];
+        while ((entity = [entityEn nextObject])) {
+            NSString* classname = [entity classname];
+            EntityClassnameAnchor* anchor = [[EntityClassnameAnchor alloc] initWithEntity:entity];
+            [entityClassnameRenderer addString:classname forKey:[entity entityId] withFont:[NSFont systemFontOfSize:9] withAnchor:anchor];
+            [anchor release];
+        }
+        [fontManager deactivate];
+        
+        [addedEntities removeAllObjects];
+    }
+    
+    if ([removedEntities count] > 0) {
+        NSEnumerator* entityEn = [removedEntities objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            [entityBoundsRenderer removeEntity:entity];
+            [entityAliasRenderer removeEntity:entity];
+            [entityClassnameRenderer removeStringForKey:[entity entityId]];
+        }
+        
+        [removedEntities removeAllObjects];
+    }
+}
+
+
+@end
 
 @implementation SelectionLayer
 
 - (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager options:(Options *)theOptions camera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
     if ((self = [super initWithVbo:theVbo textureManager:theTextureManager options:theOptions])) {
+        camera = [theCamera retain];
+        fontManager = [theFontManager retain];
+        
         entityBoundsRenderer = [[EntityBoundsRenderer alloc] init];
         entityAliasRenderer = [[EntityAliasRenderer alloc] init];
+        entityClassnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:camera];
+        
+        addedEntities = [[NSMutableSet alloc] init];
+        removedEntities = [[NSMutableSet alloc] init];
     }
     
     return self;
+}
+
+
+- (void)dealloc {
+    [entityBoundsRenderer release];
+    [entityAliasRenderer release];
+    [entityClassnameRenderer release];
+    [addedEntities release];
+    [removedEntities release];
+    [fontManager release];
+    [camera release];
+    [super dealloc];
 }
 
 - (void)preRenderEdges {
@@ -62,14 +129,19 @@
 }
 
 - (void)addEntity:(id <Entity>)entity {
-    [entityBoundsRenderer addEntity:entity];
-    [entityAliasRenderer addEntity:entity];
+    if ([removedEntities containsObject:entity])
+        [removedEntities removeObject:entity];
+    else
+        [addedEntities addObject:entity];
 }
 
 - (void)removeEntity:(id <Entity>)entity {
-    [entityBoundsRenderer removeEntity:entity];
-    [entityAliasRenderer removeEntity:entity];
+    if ([addedEntities containsObject:entity])
+        [addedEntities removeObject:entity];
+    else
+        [removedEntities addObject:entity];
 }
+
 
 - (void)updateEntity:(id <Entity>)entity {
     [self removeEntity:entity];
@@ -86,9 +158,16 @@
     [sharedVbo deactivate];
     
     if ([options renderEntities]) {
+        [self validateEntities];
+        
 //        glColor4f(1, 0, 0, 1);
 //        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
         [entityAliasRenderer render];
+
+        glColor4f(1, 0, 0, 1);
+        [fontManager activate];
+        [entityClassnameRenderer render];
+        [fontManager deactivate];
 
         glSetEdgeOffset(0.5);
         glColor4f(1, 0, 0, 0.2f);
@@ -109,12 +188,6 @@
 - (void)setFilter:(id <Filter>)theFilter {
     [super setFilter:theFilter];
     [entityBoundsRenderer setFilter:theFilter];
-}
-
-- (void)dealloc {
-    [entityBoundsRenderer release];
-    [entityAliasRenderer release];
-    [super dealloc];
 }
 
 @end

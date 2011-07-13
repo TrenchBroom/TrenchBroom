@@ -9,14 +9,20 @@
 #import "GeometryLayer.h"
 #import "DefaultEntityLayer.h"
 
+@class TextRenderer;
 @class BrushBoundsRenderer;
 @class Camera;
 @class GLFontManager;
 
 @interface SelectionLayer : GeometryLayer <EntityLayer> {
+    NSMutableSet* addedEntities;
+    NSMutableSet* removedEntities;
     EntityBoundsRenderer* entityBoundsRenderer;
     EntityAliasRenderer* entityAliasRenderer;
-    BOOL edgePass;
+    TextRenderer* entityClassnameRenderer;
+    int edgePass;
+    GLFontManager* fontManager;
+    Camera* camera;
 }
 
 - (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager options:(Options *)theOptions camera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;

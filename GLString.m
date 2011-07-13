@@ -16,7 +16,7 @@
 @implementation GLString
 
 - (id)initWithVbo:(VBOBuffer *)theVbo data:(GLStringData *)theData size:(NSSize)theSize {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         size = theSize;
 
         FloatData* triangleSet = [theData triangleSet];

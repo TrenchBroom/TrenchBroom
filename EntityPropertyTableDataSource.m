@@ -40,7 +40,8 @@
         NSEnumerator* entityEn = [entities objectEnumerator];
         id <Entity> entity = [entityEn nextObject];
         NSMutableDictionary* mergedProperties = [[NSMutableDictionary alloc] initWithDictionary:[entity properties]];
-        [mergedProperties setObject:[entity spawnFlagsString] forKey:SpawnFlagsKey];
+        NSString* spawnFlagsString = [entity spawnFlagsString];
+        [mergedProperties setObject:spawnFlagsString forKey:SpawnFlagsKey];
         
         while ((entity = [entityEn nextObject])) {
             NSSet* allKeys = [[NSSet alloc] initWithArray:[mergedProperties allKeys]];
@@ -84,6 +85,34 @@
     return [sortedKeys objectAtIndex:theIndex];
 }
 
+- (BOOL)editingAllowed:(NSTableColumn *)theTableColumn rowIndex:(NSUInteger)theIndex {
+    if (properties == nil)
+        return NO;
+    
+    if (theIndex >= [properties count])
+        return NO;
+    
+    if ([@"Key" isEqualToString:[theTableColumn identifier]]) {
+        NSString* key = [sortedKeys objectAtIndex:theIndex];
+        
+        NSEnumerator* entityEn = [entities objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject]))
+            if (![entity isPropertyDeletable:key])
+                return NO;
+    } else if ([@"Value" isEqualToString:[theTableColumn identifier]]) {
+        NSString* key = [sortedKeys objectAtIndex:theIndex];
+        
+        NSEnumerator* entityEn = [entities objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject]))
+            if (![entity isPropertyWritable:key])
+                return NO;
+    }
+    
+    return YES;
+}
+
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {
     if (properties == nil)
         return 0;
@@ -118,6 +147,7 @@
     
     if ([@"Key" isEqualToString:[aTableColumn identifier]]) {
         MapDocument* map = [mapWindowController document];
+        
         NSUndoManager* undoManager = [map undoManager];
         [undoManager beginUndoGrouping];
         
@@ -142,10 +172,7 @@
         NSString* key = [sortedKeys objectAtIndex:rowIndex];
         NSString* newValue = (NSString *)anObject;
         
-        NSEnumerator* entityEn = [entities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject]))
-            [map setEntity:entity propertyKey:key value:newValue];
+        [map setEntities:entities propertyKey:key value:newValue];
         
         [undoManager endUndoGrouping];
         [undoManager setActionName:@"Change Property Value"];

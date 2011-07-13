@@ -1892,7 +1892,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="787823619"/>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
+				<string key="NSScreenRect">{{0, 0}, {2560, 1418}}</string>
 				<string key="NSMinSize">{527, 522}</string>
 				<string key="NSMaxSize">{1e+13, 1e+13}</string>
 			</object>
@@ -1905,9 +1905,6 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 				<bool key="NSSelectsInsertedObjects">YES</bool>
 				<bool key="NSFilterRestrictsInsertion">YES</bool>
 				<bool key="NSClearsFilterPredicateOnInsertion">YES</bool>
-			</object>
-			<object class="NSCustomObject" id="365709430">
-				<string key="NSClassName">EntityPropertyTableDelegate</string>
 			</object>
 		</object>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
@@ -2471,60 +2468,44 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 					<int key="connectionID">285</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">tableView</string>
-						<reference key="source" ref="365709430"/>
-						<reference key="destination" ref="68771768"/>
-					</object>
-					<int key="connectionID">291</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">removePropertyButton</string>
-						<reference key="source" ref="365709430"/>
+					<object class="IBActionConnection" key="connection">
+						<string key="label">removeEntityProperty:</string>
+						<reference key="source" ref="1001"/>
 						<reference key="destination" ref="230688519"/>
 					</object>
-					<int key="connectionID">292</int>
+					<int key="connectionID">298</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">addPropertyButton</string>
-						<reference key="source" ref="365709430"/>
+					<object class="IBActionConnection" key="connection">
+						<string key="label">addEntityProperty:</string>
+						<reference key="source" ref="1001"/>
 						<reference key="destination" ref="46611578"/>
 					</object>
-					<int key="connectionID">293</int>
+					<int key="connectionID">300</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">delegate</string>
 						<reference key="source" ref="68771768"/>
-						<reference key="destination" ref="365709430"/>
+						<reference key="destination" ref="1001"/>
 					</object>
-					<int key="connectionID">294</int>
+					<int key="connectionID">301</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">addPropertyButton</string>
+						<string key="label">addEntityPropertyButton</string>
 						<reference key="source" ref="1001"/>
 						<reference key="destination" ref="46611578"/>
 					</object>
-					<int key="connectionID">295</int>
+					<int key="connectionID">302</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">removePropertyButton</string>
+						<string key="label">removeEntityPropertyButton</string>
 						<reference key="source" ref="1001"/>
 						<reference key="destination" ref="230688519"/>
 					</object>
-					<int key="connectionID">296</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">removeProperty:</string>
-						<reference key="source" ref="1001"/>
-						<reference key="destination" ref="230688519"/>
-					</object>
-					<int key="connectionID">297</int>
+					<int key="connectionID">303</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -3463,11 +3444,6 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 						<reference key="object" ref="730229687"/>
 						<reference key="parent" ref="230688519"/>
 					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">290</int>
-						<reference key="object" ref="365709430"/>
-						<reference key="parent" ref="0"/>
-					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -3627,7 +3603,6 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 					<string>288.IBPluginDependency</string>
 					<string>289.IBPluginDependency</string>
 					<string>29.IBPluginDependency</string>
-					<string>290.IBPluginDependency</string>
 					<string>3.IBPluginDependency</string>
 					<string>3.IBViewBoundsToFrameTransform</string>
 					<string>30.IBNumberFormatterBehaviorMetadataKey</string>
@@ -3896,7 +3871,6 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAABAQAAAxEKAAA</bytes>
 					</object>
@@ -3955,58 +3929,11 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">297</int>
+			<int key="maxID">303</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
 				<bool key="EncodedWithXMLCoder">YES</bool>
-				<object class="IBPartialClassDescription">
-					<string key="className">EntityPropertyTableDelegate</string>
-					<string key="superclassName">NSObject</string>
-					<object class="NSMutableDictionary" key="outlets">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>addPropertyButton</string>
-							<string>removePropertyButton</string>
-							<string>tableView</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSTableView</string>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>addPropertyButton</string>
-							<string>removePropertyButton</string>
-							<string>tableView</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBToOneOutletInfo">
-								<string key="name">addPropertyButton</string>
-								<string key="candidateClassName">NSButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">removePropertyButton</string>
-								<string key="candidateClassName">NSButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">tableView</string>
-								<string key="candidateClassName">NSTableView</string>
-							</object>
-						</object>
-					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/EntityPropertyTableDelegate.h</string>
-					</object>
-				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">InspectorController</string>
 					<string key="superclassName">NSWindowController</string>
@@ -4014,10 +3941,10 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>addProperty:</string>
+							<string>addEntityProperty:</string>
 							<string>addTextureWad:</string>
 							<string>prefabsPerRowChanged:</string>
-							<string>removeProperty:</string>
+							<string>removeEntityProperty:</string>
 							<string>rotationTextChanged:</string>
 							<string>textureNameFilterTextChanged:</string>
 							<string>textureSortCriterionChanged:</string>
@@ -4049,10 +3976,10 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>addProperty:</string>
+							<string>addEntityProperty:</string>
 							<string>addTextureWad:</string>
 							<string>prefabsPerRowChanged:</string>
-							<string>removeProperty:</string>
+							<string>removeEntityProperty:</string>
 							<string>rotationTextChanged:</string>
 							<string>textureNameFilterTextChanged:</string>
 							<string>textureSortCriterionChanged:</string>
@@ -4066,7 +3993,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<object class="IBActionInfo">
-								<string key="name">addProperty:</string>
+								<string key="name">addEntityProperty:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
@@ -4078,7 +4005,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
-								<string key="name">removeProperty:</string>
+								<string key="name">removeEntityProperty:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
@@ -4123,11 +4050,11 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>addPropertyButton</string>
+							<string>addEntityPropertyButton</string>
 							<string>entityPropertyTableView</string>
 							<string>prefabView</string>
 							<string>prefabsPerRowSlider</string>
-							<string>removePropertyButton</string>
+							<string>removeEntityPropertyButton</string>
 							<string>rotationField</string>
 							<string>singleTextureView</string>
 							<string>textureControlBox</string>
@@ -4172,11 +4099,11 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>addPropertyButton</string>
+							<string>addEntityPropertyButton</string>
 							<string>entityPropertyTableView</string>
 							<string>prefabView</string>
 							<string>prefabsPerRowSlider</string>
-							<string>removePropertyButton</string>
+							<string>removeEntityPropertyButton</string>
 							<string>rotationField</string>
 							<string>singleTextureView</string>
 							<string>textureControlBox</string>
@@ -4196,7 +4123,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<object class="IBToOneOutletInfo">
-								<string key="name">addPropertyButton</string>
+								<string key="name">addEntityPropertyButton</string>
 								<string key="candidateClassName">NSButton</string>
 							</object>
 							<object class="IBToOneOutletInfo">
@@ -4212,7 +4139,7 @@ AGEAbABuAHkAIABwAHIAbwBmAGkAbAAgAHMAegBhAHIAbwFbAGMAaQ</bytes>
 								<string key="candidateClassName">NSSlider</string>
 							</object>
 							<object class="IBToOneOutletInfo">
-								<string key="name">removePropertyButton</string>
+								<string key="name">removeEntityPropertyButton</string>
 								<string key="candidateClassName">NSButton</string>
 							</object>
 							<object class="IBToOneOutletInfo">

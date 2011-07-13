@@ -19,6 +19,7 @@
 #import "TextureNameFilter.h"
 #import "TextureUsageFilter.h"
 #import "MapDocument.h"
+#import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
 #import "PrefabView.h"
@@ -35,6 +36,7 @@ static InspectorController* sharedInstance = nil;
 - (void)textureManagerChanged:(NSNotification *)notification;
 - (void)updateMapWindowController:(MapWindowController *)theMapWindowController;
 - (void)updateTextureControls;
+- (void)updateFilter;
 
 @end
 
@@ -241,6 +243,23 @@ static InspectorController* sharedInstance = nil;
     [selectedTextureNames release];
 }
 
+- (void)updateFilter {
+    id<TextureFilter> filter = nil;
+    NSString* pattern = [textureNameFilterField stringValue];
+    
+    if (pattern != nil && [pattern length] > 0)
+        filter = [[TextureNameFilter alloc] initWithPattern:pattern];
+    
+    if ([textureUsageFilterSC selectedSegment] == 1) {
+        id<TextureFilter> temp = [[TextureUsageFilter alloc] initWithFilter:filter];
+        [filter release];
+        filter = temp;
+    }
+    
+    [textureView setTextureFilter:filter];
+    [filter release];
+}
+
 @end
 
 @implementation InspectorController
@@ -283,6 +302,12 @@ static InspectorController* sharedInstance = nil;
     return self;
 }
 
+- (void)dealloc {
+    [self setMapWindowController:nil];
+    [entityPropertyTableDataSource release];
+    [super dealloc];
+}
+
 - (NSString *)windowNibName {
     return @"Inspector";
 }
@@ -305,6 +330,8 @@ static InspectorController* sharedInstance = nil;
 - (MapWindowController *)mapWindowController {
     return mapWindowController;
 }
+
+#pragma mark Texture controls
 
 - (IBAction)xOffsetTextChanged:(id)sender {
     MapDocument* map = [mapWindowController document];
@@ -395,23 +422,6 @@ static InspectorController* sharedInstance = nil;
     [undoManager setActionName:@"Set Texture"];
 }
 
-- (void)updateFilter {
-    id<TextureFilter> filter = nil;
-    NSString* pattern = [textureNameFilterField stringValue];
-    
-    if (pattern != nil && [pattern length] > 0)
-        filter = [[TextureNameFilter alloc] initWithPattern:pattern];
-    
-    if ([textureUsageFilterSC selectedSegment] == 1) {
-        id<TextureFilter> temp = [[TextureUsageFilter alloc] initWithFilter:filter];
-        [filter release];
-        filter = temp;
-    }
-    
-    [textureView setTextureFilter:filter];
-    [filter release];
-}
-
 - (IBAction)textureNameFilterTextChanged:(id)sender {
     [self updateFilter];
 }
@@ -429,37 +439,6 @@ static InspectorController* sharedInstance = nil;
             [textureView setSortCriterion:TS_USAGE];
             break;
     }
-}
-
-- (IBAction)prefabsPerRowChanged:(id)sender {
-    [prefabView setPrefabsPerRow:[prefabsPerRowSlider intValue]];
-}
-
-- (IBAction)toggleTextureControls:(id)sender {
-    NSRect boxFrame = [textureControlBox frame];
-    NSRect viewFrame = [textureScrollView frame];
-    NSRect newBoxFrame;
-    NSRect newViewFrame;
-    int a = 129;
-    if ([sender state] == NSOnState) {
-        newBoxFrame = NSMakeRect(NSMinX(boxFrame), NSMinY(boxFrame) - a, NSWidth(boxFrame), NSHeight(boxFrame) + a);
-        newViewFrame = NSMakeRect(NSMinX(viewFrame), NSMinY(viewFrame), NSWidth(viewFrame), NSHeight(viewFrame) - a);
-    } else {
-        newBoxFrame = NSMakeRect(NSMinX(boxFrame), NSMinY(boxFrame) + a, NSWidth(boxFrame), NSHeight(boxFrame) - a);
-        newViewFrame = NSMakeRect(NSMinX(viewFrame), NSMinY(viewFrame), NSWidth(viewFrame), NSHeight(viewFrame) + a);
-    }
-    
-    [textureControlBox setFrame:newBoxFrame];
-    [textureControlBox setNeedsDisplay:YES];
-
-    [textureScrollView setFrame:newViewFrame];
-    [textureScrollView setNeedsDisplay:YES];
-    
-    [[textureControlBox superview] setNeedsDisplay:YES];
-}
-
-- (void)prefabSelected:(id <Prefab>)prefab {
-    [mapWindowController insertPrefab:prefab];
 }
 
 - (IBAction)addTextureWad:(id)sender {
@@ -484,7 +463,56 @@ static InspectorController* sharedInstance = nil;
     }
 }
 
-- (IBAction)removeProperty:(id)sender {
+- (IBAction)toggleTextureControls:(id)sender {
+    NSRect boxFrame = [textureControlBox frame];
+    NSRect viewFrame = [textureScrollView frame];
+    NSRect newBoxFrame;
+    NSRect newViewFrame;
+    int a = 129;
+    if ([sender state] == NSOnState) {
+        newBoxFrame = NSMakeRect(NSMinX(boxFrame), NSMinY(boxFrame) - a, NSWidth(boxFrame), NSHeight(boxFrame) + a);
+        newViewFrame = NSMakeRect(NSMinX(viewFrame), NSMinY(viewFrame), NSWidth(viewFrame), NSHeight(viewFrame) - a);
+    } else {
+        newBoxFrame = NSMakeRect(NSMinX(boxFrame), NSMinY(boxFrame) + a, NSWidth(boxFrame), NSHeight(boxFrame) - a);
+        newViewFrame = NSMakeRect(NSMinX(viewFrame), NSMinY(viewFrame), NSWidth(viewFrame), NSHeight(viewFrame) + a);
+    }
+    
+    [textureControlBox setFrame:newBoxFrame];
+    [textureControlBox setNeedsDisplay:YES];
+    
+    [textureScrollView setFrame:newViewFrame];
+    [textureScrollView setNeedsDisplay:YES];
+    
+    [[textureControlBox superview] setNeedsDisplay:YES];
+}
+
+#pragma mark Prefab controls
+
+- (IBAction)prefabsPerRowChanged:(id)sender {
+    [prefabView setPrefabsPerRow:[prefabsPerRowSlider intValue]];
+}
+
+- (void)prefabSelected:(id <Prefab>)prefab {
+    [mapWindowController insertPrefab:prefab];
+}
+
+#pragma mark Entity controls
+
+- (IBAction)addEntityProperty:(id)sender {
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+    NSSet* entities = [selectionManager selectedEntities];
+    
+    MapDocument* map = [mapWindowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+
+    [map setEntities:entities propertyKey:@"new_property" value:@""];
+    
+    [undoManager setActionName:@"Add Entity Property"];
+    [undoManager endUndoGrouping];
+}
+
+- (IBAction)removeEntityProperty:(id)sender {
     NSIndexSet* selectedRows = [entityPropertyTableView selectedRowIndexes];
     if ([selectedRows count] == 0)
         return;
@@ -507,13 +535,33 @@ static InspectorController* sharedInstance = nil;
     [undoManager endUndoGrouping];
 }
 
-- (IBAction)addProperty:(id)sender {
+- (void)tableViewSelectionDidChange:(NSNotification *)notification {
+    NSIndexSet* selectedRows = [entityPropertyTableView selectedRowIndexes];
+    if ([selectedRows count] > 0) {
+        SelectionManager* selectionManager = [mapWindowController selectionManager];
+        NSSet* entities = [selectionManager selectedEntities];
+        
+        NSUInteger index = [selectedRows firstIndex];
+        do {
+            NSString* key = [entityPropertyTableDataSource propertyKeyAtIndex:index];
+            NSEnumerator* entityEn = [entities objectEnumerator];
+            id <Entity> entity;
+            while ((entity = [entityEn nextObject])) {
+                if (![entity isPropertyDeletable:key]) {
+                    [removeEntityPropertyButton setEnabled:NO];
+                    return;
+                }
+            }
+        } while ((index = [selectedRows indexGreaterThanIndex:index]) != NSNotFound);
+        
+        [removeEntityPropertyButton setEnabled:YES];
+    } else {
+        [removeEntityPropertyButton setEnabled:NO];
+    }
 }
 
-- (void)dealloc {
-    [self setMapWindowController:nil];
-    [entityPropertyTableDataSource release];
-    [super dealloc];
+- (BOOL)tableView:(NSTableView *)theTableView shouldEditTableColumn:(NSTableColumn *)theTableColumn row:(NSInteger)theRowIndex {
+    return [entityPropertyTableDataSource editingAllowed:theTableColumn rowIndex:theRowIndex];
 }
 
 @end

@@ -17,7 +17,7 @@
 @class EntityPropertyTableDataSource;
 @protocol Prefab;
 
-@interface InspectorController : NSWindowController {
+@interface InspectorController : NSWindowController <NSTableViewDelegate> {
     IBOutlet NSTextField* xOffsetField;
     IBOutlet NSTextField* yOffsetField;
     IBOutlet NSTextField* xScaleField;
@@ -36,8 +36,8 @@
     IBOutlet NSArrayController* wadArrayController;
     IBOutlet NSScrollView* textureScrollView;
     IBOutlet NSTableView* entityPropertyTableView;
-    IBOutlet NSButton* removePropertyButton;
-    IBOutlet NSButton* addPropertyButton;
+    IBOutlet NSButton* removeEntityPropertyButton;
+    IBOutlet NSButton* addEntityPropertyButton;
     EntityPropertyTableDataSource* entityPropertyTableDataSource;
     MapWindowController* mapWindowController;
 }
@@ -56,13 +56,12 @@
 - (IBAction)textureUsageFilterChanged:(id)sender;
 - (IBAction)textureSortCriterionChanged:(id)sender;
 - (IBAction)prefabsPerRowChanged:(id)sender;
+- (IBAction)addTextureWad:(id)sender;
 - (IBAction)toggleTextureControls:(id)sender;
 
 - (void)textureSelected:(Texture *)texture;
 - (void)prefabSelected:(id <Prefab>)prefab;
 
-- (IBAction)addTextureWad:(id)sender;
-
-- (IBAction)removeProperty:(id)sender;
-- (IBAction)addProperty:(id)sender;
+- (IBAction)removeEntityProperty:(id)sender;
+- (IBAction)addEntityProperty:(id)sender;
 @end

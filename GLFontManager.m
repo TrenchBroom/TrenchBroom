@@ -53,7 +53,7 @@ void gluTessEndData(GLStringData* data) {
 @implementation GLFontManager
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
         glStrings = [[NSMutableDictionary alloc] init];
         

@@ -68,4 +68,5 @@ extern NSString* const CameraViewChanged;
 - (TVector3f)unprojectX:(float)x y:(float)y depth:(float)depth;
 - (TRay)pickRayX:(float)x y:(float)y;
 - (TVector3f)defaultPoint;
+- (void)setBillboardMatrix:(TVector3f *)theCenter;
 @end

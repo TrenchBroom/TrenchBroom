@@ -30,6 +30,8 @@ static NSString* const AngleKey = @"angle";
 
 - (NSString *)propertyForKey:(NSString *)key;
 - (NSDictionary *)properties;
+- (BOOL)isPropertyDeletable:(NSString *)theKey;
+- (BOOL)isPropertyWritable:(NSString *)theKey;
 - (NSString *)spawnFlagsString;
 
 - (EntityDefinition *)entityDefinition;

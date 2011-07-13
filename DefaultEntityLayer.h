@@ -11,14 +11,22 @@
 
 @class EntityBoundsRenderer;
 @class EntityAliasRenderer;
+@class TextRenderer;
 @class Options;
+@class GLFontManager;
+@class Camera;
 
 @interface DefaultEntityLayer : NSObject <EntityLayer> {
     Options* options;
+    GLFontManager* fontManager;
     EntityBoundsRenderer* boundsRenderer;
     EntityAliasRenderer* aliasRenderer;
+    TextRenderer* classnameRenderer;
+    
+    NSMutableSet* addedEntities;
+    NSMutableSet* removedEntities;
 }
 
-- (id)initWithOptions:(Options *)theOptions;
+- (id)initWithFontManager:(GLFontManager *)theFontManager camera:(Camera *)theCamera options:(Options *)theOptions;
 
 @end

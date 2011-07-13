@@ -339,6 +339,7 @@
 
 - (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
+    [self updateRay];
     [self updateHits];
     [activeTool handleLeftMouseDown:lastEvent ray:&lastRay hits:lastHits];
 }

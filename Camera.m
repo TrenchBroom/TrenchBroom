@@ -15,7 +15,7 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 @implementation Camera
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         position = NullVector;
         direction = XAxisPos;
         up = ZAxisPos;
@@ -28,7 +28,7 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 }
 
 - (id)initWithFieldOfVision:(float)theFov nearClippingPlane:(float)theNear farClippingPlane:(float)theFar {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         fov = theFov;
         near = theNear;
         far = theFar;
@@ -38,7 +38,7 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 }
 
 - (id)initWithCamera:(Camera *)theCamera {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         position = *[theCamera position];
         direction = *[theCamera direction];
         up = *[theCamera up];
@@ -104,7 +104,7 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     [self setDirection:&d up:theUpVector];
 }
 
-- (void)setDirection:(TVector3f *)theDirection up:(TVector3f *)theUpVector {
+- (void)setDirection:(const TVector3f *)theDirection up:(const TVector3f *)theUpVector {
     if (equalV3f(theDirection, &direction) && equalV3f(theUpVector, &up))
         return;
     
@@ -308,6 +308,39 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     scaleV3f(&p, 256, &p);
     addV3f(&p, &position, &p);
     return p;
+}
+
+- (void)setBillboardMatrix:(TVector3f *)theCenter {
+    TVector3f bbLook, bbUp, bbRight, bbPos, bbDiff;
+    
+    scaleV3f(&direction, -1, &bbLook);
+    bbUp = up;
+    crossV3f(&bbUp, &bbLook, &bbRight);
+    bbPos = *theCenter;
+    
+    subV3f(&bbPos, &position, &bbDiff);
+    float dist = lengthV3f(&bbDiff);
+    
+    /*
+    subV3f(&position, theCenter, &bbLook);
+    normalizeV3f(&bbLook, &bbLook);
+    
+    if (feq(bbLook.z, 1)) {
+        bbUp = direction;
+        scaleV3f(&bbUp, 1 / (1 - direction.z * direction.z), &bbUp); // project onto XY plane
+        crossV3f(&bbUp, &bbLook, &bbRight);
+    } else if (feq(bbLook.z, -1)) {
+        scaleV3f(&bbUp, -1 / (1 - direction.z * direction.z), &bbUp); // project onto XY plane
+        crossV3f(&bbUp, &bbLook, &bbRight);
+    } else {
+        crossV3f(&ZAxisPos, &bbLook, &bbRight);
+        crossV3f(&bbLook, &bbRight, &bbUp);
+    }
+     */
+
+    float matrix[] = {bbRight.x, bbRight.y, bbRight.z, 0, bbUp.x, bbUp.y, bbUp.z, 0, bbLook.x, bbLook.y, bbLook.z, 0, bbPos.x, bbPos.y, bbPos.z, 1};
+    glMultMatrixf(matrix);
+    glScalef(dist / 300, dist / 300, 1);
 }
 
 - (void)dealloc {
