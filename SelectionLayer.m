@@ -165,8 +165,17 @@
         [entityAliasRenderer render];
 
         [fontManager activate];
-        float col[] = {1, 0, 0, 1};
+
+        glDisable(GL_DEPTH_TEST);
+        float col[] = {1, 0, 0, 0.5f};
         [entityClassnameRenderer renderColor:col];
+
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        col[3] = 1;
+        [entityClassnameRenderer renderColor:col];
+        glDepthFunc(GL_LESS);
+
         [fontManager deactivate];
 
         glSetEdgeOffset(0.5);

@@ -68,7 +68,7 @@
         float dist = [camera distanceTo:&position];
         if (dist <= 500) {
             if (dist >= 400) {
-                glColor4f(theColor[0], theColor[1], theColor[2], 1-theColor[3] * (dist - 400) / 100);
+                glColor4f(theColor[0], theColor[1], theColor[2], theColor[3] - theColor[3] * (dist - 400) / 100);
             } else {
                 glColor4f(theColor[0], theColor[1], theColor[2], theColor[3]);
             }
