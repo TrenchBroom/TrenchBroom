@@ -54,7 +54,7 @@
     [anchors removeObjectForKey:theKey];
 }
 
-- (void)render {
+- (void)renderColor:(float *)theColor {
     TVector3f position;
     
     
@@ -64,15 +64,26 @@
         GLString* glString = [strings objectForKey:key];
         id <TextAnchor> anchor = [anchors objectForKey:key];
         
-        glPushMatrix();
         [anchor position:&position];
-        NSSize size = [glString size];
-        
-//        glTranslatef(size.width / 2, size.height / 2, 0);
-        [camera setBillboardMatrix:&position];
-        glTranslatef(-size.width / 2, -size.height / 2, 0);
-        [glString render];
-        glPopMatrix();
+        float dist = [camera distanceTo:&position];
+        if (dist <= 500) {
+            if (dist >= 400) {
+                glColor4f(theColor[0], theColor[1], theColor[2], 1-theColor[3] * (dist - 400) / 100);
+            } else {
+                glColor4f(theColor[0], theColor[1], theColor[2], theColor[3]);
+            }
+            float factor = dist / 300;
+            
+            NSSize size = [glString size];
+
+            glPushMatrix();
+            glTranslatef(position.x, position.y, position.z);
+            [camera setBillboardMatrix];
+            glScalef(factor, factor, 0);
+            glTranslatef(-size.width / 2, 0, 0);
+            [glString render];
+            glPopMatrix();
+        }
     }
     
 }

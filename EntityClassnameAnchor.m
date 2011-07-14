@@ -34,8 +34,8 @@
     sizeOfBounds(b, &bs);
     
     *thePosition = *ec;
-    thePosition->z += bs.z;
-    thePosition += 10;
+    thePosition->z += bs.z / 2;
+    thePosition->z += 3;
 }
 
 @end

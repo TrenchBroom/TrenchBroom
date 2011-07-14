@@ -128,9 +128,9 @@
         }
         
         if ([options renderEntityClassnames]) {
-            glColor4f(1, 1, 1, 1);
             [fontManager activate];
-            [classnameRenderer render];
+            float col[] = {1, 1, 1, 1};
+            [classnameRenderer renderColor:col];
             [fontManager deactivate];
         }
     }

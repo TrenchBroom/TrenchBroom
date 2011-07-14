@@ -26,6 +26,6 @@
 - (void)addString:(NSString *)theString forKey:(id <NSCopying>)theKey withFont:(NSFont *)theFont withAnchor:(id <TextAnchor>)theAnchor;
 - (void)removeStringForKey:(id <NSCopying>)theKey;
 
-- (void)render;
+- (void)renderColor:(float *)theColor;
 
 @end

@@ -164,9 +164,9 @@
 //        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
         [entityAliasRenderer render];
 
-        glColor4f(1, 0, 0, 1);
         [fontManager activate];
-        [entityClassnameRenderer render];
+        float col[] = {1, 0, 0, 1};
+        [entityClassnameRenderer renderColor:col];
         [fontManager deactivate];
 
         glSetEdgeOffset(0.5);

@@ -15,4 +15,3 @@ void glVertexV3f(const TVector3f* v);
 void glSetEdgeOffset(float f);
 void glResetEdgeOffset();
 
-void glBillboard(const TVector3f* cp, const TVector3f* cu, const TVector3f* bp, NSSize bs, float br);

@@ -310,16 +310,17 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     return p;
 }
 
-- (void)setBillboardMatrix:(TVector3f *)theCenter {
-    TVector3f bbLook, bbUp, bbRight, bbPos, bbDiff;
-    
+- (float)distanceTo:(TVector3f *)thePoint {
+    TVector3f diff;
+    subV3f(thePoint, &position, &diff);
+    return lengthV3f(&diff);
+}
+
+- (void)setBillboardMatrix {
+    TVector3f bbLook, bbUp, bbRight;
     scaleV3f(&direction, -1, &bbLook);
     bbUp = up;
     crossV3f(&bbUp, &bbLook, &bbRight);
-    bbPos = *theCenter;
-    
-    subV3f(&bbPos, &position, &bbDiff);
-    float dist = lengthV3f(&bbDiff);
     
     /*
     subV3f(&position, theCenter, &bbLook);
@@ -338,9 +339,8 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     }
      */
 
-    float matrix[] = {bbRight.x, bbRight.y, bbRight.z, 0, bbUp.x, bbUp.y, bbUp.z, 0, bbLook.x, bbLook.y, bbLook.z, 0, bbPos.x, bbPos.y, bbPos.z, 1};
+    float matrix[] = {bbRight.x, bbRight.y, bbRight.z, 0, bbUp.x, bbUp.y, bbUp.z, 0, bbLook.x, bbLook.y, bbLook.z, 0, 0, 0, 0, 1};
     glMultMatrixf(matrix);
-    glScalef(dist / 300, dist / 300, 1);
 }
 
 - (void)dealloc {
