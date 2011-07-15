@@ -15,22 +15,19 @@
 @protocol Brush;
 
 @interface BoundsRenderer : NSObject {
-    NSMutableSet* brushes;
-    NSMutableDictionary* brushCounts;
     GLFontManager* fontManager;
-    NSFont* font;
     TBoundingBox bounds;
-    GLString* widthStr;
-    GLString* heightStr;
-    GLString* depthStr;
+    BOOL boundsSet;
     BOOL valid;
+    GLString* xStr;
+    GLString* yStr;
+    GLString* zStr;
     Camera* camera;
 }
 
-- (id)initWithCamera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;
+- (id)initWithCamera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager;
 
-- (void)addBrush:(id <Brush>)brush;
-- (void)removeBrush:(id <Brush>)brush;
+- (void)setBounds:(TBoundingBox *)theBounds;
 
 - (void)render;
 

@@ -16,6 +16,7 @@
 #import "EntityClassnameAnchor.h"
 #import "Options.h"
 #import "GLUtils.h"
+#import "SelectionManager.h"
 
 @interface SelectionLayer (private)
 
@@ -65,12 +66,13 @@
 
 @implementation SelectionLayer
 
-- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager options:(Options *)theOptions camera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
+- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager selectionManager:(SelectionManager *)theSelectionManager options:(Options *)theOptions camera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager {
     if ((self = [super initWithVbo:theVbo textureManager:theTextureManager options:theOptions])) {
+        selectionManager = [theSelectionManager retain];
         camera = [theCamera retain];
         fontManager = [theFontManager retain];
         
-        brushBoundsRenderer = [[BoundsRenderer alloc] initWithCamera:camera fontManager:fontManager font:theFont];
+        brushBoundsRenderer = [[BoundsRenderer alloc] initWithCamera:camera fontManager:fontManager];
         entityBoundsRenderer = [[EntityBoundsRenderer alloc] init];
         entityAliasRenderer = [[EntityAliasRenderer alloc] init];
         entityClassnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:camera];
@@ -92,6 +94,7 @@
     [removedEntities release];
     [fontManager release];
     [camera release];
+    [selectionManager release];
     [super dealloc];
 }
 
@@ -135,6 +138,14 @@
         [removedEntities removeObject:entity];
     else
         [addedEntities addObject:entity];
+    
+    if ([selectionManager mode] == SM_BRUSHES_ENTITIES) {
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        [brushBoundsRenderer setBounds:&bounds];
+    } else {
+        [brushBoundsRenderer setBounds:NULL];
+    }
 }
 
 - (void)removeEntity:(id <Entity>)entity {
@@ -142,16 +153,14 @@
         [addedEntities removeObject:entity];
     else
         [removedEntities addObject:entity];
-}
 
-- (void)addFace:(id<Face>)theFace {
-    [super addFace:theFace];
-    [brushBoundsRenderer addBrush:[theFace brush]];
-}
-
-- (void)removeFace:(id<Face>)theFace {
-    [super removeFace:theFace];
-    [brushBoundsRenderer removeBrush:[theFace brush]];
+    if ([selectionManager mode] == SM_BRUSHES_ENTITIES || [selectionManager mode] == SM_BRUSHES) {
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        [brushBoundsRenderer setBounds:&bounds];
+    } else {
+        [brushBoundsRenderer setBounds:NULL];
+    }
 }
 
 - (void)updateEntity:(id <Entity>)entity {
@@ -159,9 +168,31 @@
     [self addEntity:entity];
 }
 
-- (void)render {
-    [brushBoundsRenderer render];
+- (void)addBrush:(id<Brush>)theBrush {
+    [super addBrush:theBrush];
     
+    if ([selectionManager mode] == SM_BRUSHES_ENTITIES || [selectionManager mode] == SM_BRUSHES) {
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        [brushBoundsRenderer setBounds:&bounds];
+    } else {
+        [brushBoundsRenderer setBounds:NULL];
+    }
+}
+
+- (void)removeBrush:(id<Brush>)theBrush {
+    [super removeBrush:theBrush];
+
+    if ([selectionManager mode] == SM_BRUSHES_ENTITIES || [selectionManager mode] == SM_BRUSHES) {
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        [brushBoundsRenderer setBounds:&bounds];
+    } else {
+        [brushBoundsRenderer setBounds:NULL];
+    }
+}
+
+- (void)render {
     edgePass = 1;
     [super render];
     
@@ -170,6 +201,11 @@
     [super renderEdges];
     [sharedVbo deactivate];
     
+    glDisable(GL_DEPTH_TEST);
+    glColor4f(1, 0, 0, 1);
+    [brushBoundsRenderer render];
+    glEnable(GL_DEPTH_TEST);
+
     if ([options renderEntities]) {
         [self validateEntities];
         

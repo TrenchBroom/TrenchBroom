@@ -491,7 +491,7 @@ NSString* const RendererChanged = @"RendererChanged";
 
         geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager options:options];
         entityLayer = [[DefaultEntityLayer alloc] initWithFontManager:fontManager camera:camera options:options];
-        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager options:options camera:camera fontManager:fontManager font:trackingFont];
+        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager selectionManager:selectionManager options:options camera:camera fontManager:fontManager];
         feedbackLayer = [[FigureLayer alloc] init];
 
         filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager options:options];
