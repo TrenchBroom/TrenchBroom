@@ -622,6 +622,10 @@ NSString* const RendererChanged = @"RendererChanged";
      */
 }
 
+- (void)release {
+    [super release];
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [compassFigure release];

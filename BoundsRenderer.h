@@ -14,7 +14,7 @@
 @class Camera;
 @protocol Brush;
 
-@interface BrushBoundsRenderer : NSObject {
+@interface BoundsRenderer : NSObject {
     NSMutableSet* brushes;
     NSMutableDictionary* brushCounts;
     GLFontManager* fontManager;

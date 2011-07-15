@@ -141,7 +141,7 @@
 		48C3324413087D8600C23607 /* MenuDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C3324313087D8600C23607 /* MenuDelegate.m */; };
 		48CBDD9913170B330041F704 /* GLResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CBDD9813170B330041F704 /* GLResources.m */; };
 		48CE70AC134741C400886260 /* GridFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CE70AB134741C400886260 /* GridFeedbackFigure.m */; };
-		48D6B714134859890084F82E /* BrushBoundsRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B713134859890084F82E /* BrushBoundsRenderer.m */; };
+		48D6B714134859890084F82E /* BoundsRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B713134859890084F82E /* BoundsRenderer.m */; };
 		48D6B903134B8DC90084F82E /* GLStringData.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B902134B8DC90084F82E /* GLStringData.m */; };
 		48D6C9391357379900AC6A4D /* CursorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6C9381357379900AC6A4D /* CursorManager.m */; };
 		48D6C94213574B4A00AC6A4D /* MoveCursor.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6C94113574B4A00AC6A4D /* MoveCursor.m */; };
@@ -450,8 +450,8 @@
 		48CBDD9813170B330041F704 /* GLResources.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLResources.m; sourceTree = "<group>"; };
 		48CE70AA134741C400886260 /* GridFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridFeedbackFigure.h; sourceTree = "<group>"; };
 		48CE70AB134741C400886260 /* GridFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridFeedbackFigure.m; sourceTree = "<group>"; };
-		48D6B712134859890084F82E /* BrushBoundsRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushBoundsRenderer.h; sourceTree = "<group>"; };
-		48D6B713134859890084F82E /* BrushBoundsRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrushBoundsRenderer.m; sourceTree = "<group>"; };
+		48D6B712134859890084F82E /* BoundsRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; path = BoundsRenderer.h; sourceTree = "<group>"; };
+		48D6B713134859890084F82E /* BoundsRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundsRenderer.m; sourceTree = "<group>"; };
 		48D6B901134B8DC90084F82E /* GLStringData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLStringData.h; sourceTree = "<group>"; };
 		48D6B902134B8DC90084F82E /* GLStringData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLStringData.m; sourceTree = "<group>"; };
 		48D6C9371357379900AC6A4D /* CursorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CursorManager.h; sourceTree = "<group>"; };
@@ -632,8 +632,8 @@
 		48025140133A1211001C51F2 /* PrimitiveRenderer */ = {
 			isa = PBXGroup;
 			children = (
-				48D6B712134859890084F82E /* BrushBoundsRenderer.h */,
-				48D6B713134859890084F82E /* BrushBoundsRenderer.m */,
+				48D6B712134859890084F82E /* BoundsRenderer.h */,
+				48D6B713134859890084F82E /* BoundsRenderer.m */,
 				48FE986313659869009B31FD /* EntityBoundsRenderer.h */,
 				48FE986413659869009B31FD /* EntityBoundsRenderer.m */,
 				481BF7A313A4B0880040580B /* EntityAliasRenderer.h */,
@@ -1285,7 +1285,7 @@
 				48DBE74F1341CD8B00C0FDE7 /* ClipPlane.m in Sources */,
 				4888732A13436206005FCE15 /* FloatData.m in Sources */,
 				48CE70AC134741C400886260 /* GridFeedbackFigure.m in Sources */,
-				48D6B714134859890084F82E /* BrushBoundsRenderer.m in Sources */,
+				48D6B714134859890084F82E /* BoundsRenderer.m in Sources */,
 				48D6B903134B8DC90084F82E /* GLStringData.m in Sources */,
 				486526C5134F0BC20045A4B6 /* TextureCollection.m in Sources */,
 				48325CB3135215ED00E703E0 /* FigureLayer.m in Sources */,

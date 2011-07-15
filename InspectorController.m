@@ -96,11 +96,9 @@ static InspectorController* sharedInstance = nil;
         
         [entityPropertyTableDataSource setMapWindowController:nil];
         [entityPropertyTableDataSource setEntities:nil];
-        
-        [mapWindowController release];
     }
     
-    mapWindowController = [theMapWindowController retain];
+    mapWindowController = theMapWindowController;
     
     if (mapWindowController != nil) {
         MapDocument* map = [mapWindowController document];

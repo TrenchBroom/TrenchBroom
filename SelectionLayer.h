@@ -10,13 +10,14 @@
 #import "DefaultEntityLayer.h"
 
 @class TextRenderer;
-@class BrushBoundsRenderer;
+@class BoundsRenderer;
 @class Camera;
 @class GLFontManager;
 
 @interface SelectionLayer : GeometryLayer <EntityLayer> {
     NSMutableSet* addedEntities;
     NSMutableSet* removedEntities;
+    BoundsRenderer* brushBoundsRenderer;
     EntityBoundsRenderer* entityBoundsRenderer;
     EntityAliasRenderer* entityAliasRenderer;
     TextRenderer* entityClassnameRenderer;

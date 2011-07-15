@@ -24,6 +24,14 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 
 @implementation MapView3D
 
+- (id)retain {
+    return [super retain];
+}
+
+- (void)release {
+    [super release];
+}
+
 - (void)rendererChanged:(NSNotification *)notification {
     [self setNeedsDisplay:YES];
 }
@@ -181,14 +189,20 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 }
 
 - (void) drawRect:(NSRect)dirtyRect {
-	glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    Camera* camera = [[[self window] windowController] camera];
-    [camera updateView:[self visibleRect]];
-    [renderer render];
-    
-    [[self openGLContext] flushBuffer];
+    NSWindow* window = [self window];
+    if (window != nil) {
+        MapWindowController* windowController = [window windowController];
+        if (windowController != nil) {
+            glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            
+            Camera* camera = [windowController camera];
+            [camera updateView:[self visibleRect]];
+            [renderer render];
+            
+            [[self openGLContext] flushBuffer];
+        }
+    }
 }
 
 - (void)userDefaultsChanged:(NSNotification *)notification {

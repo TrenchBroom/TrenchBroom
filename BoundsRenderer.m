@@ -6,7 +6,7 @@
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "BrushBoundsRenderer.h"
+#import "BoundsRenderer.h"
 #import <OpenGL/gl.h>
 #import "Brush.h"
 #import "Camera.h"
@@ -14,10 +14,10 @@
 #import "GLString.h"
 #import "Matrix4f.h"
 
-@implementation BrushBoundsRenderer
+@implementation BoundsRenderer
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         brushes = [[NSMutableSet alloc] init];
         brushCounts = [[NSMutableDictionary alloc] init];
     }
@@ -30,7 +30,7 @@
     NSAssert(theFontManager != nil, @"font manager must not be nil");
     NSAssert(theFont != nil, @"font must not be nil");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         camera = [theCamera retain];
         fontManager = [theFontManager retain];
         font = [theFont retain];

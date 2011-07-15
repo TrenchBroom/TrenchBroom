@@ -9,7 +9,7 @@
 #import "SelectionLayer.h"
 #import "Face.h"
 #import "Entity.h"
-#import "BrushBoundsRenderer.h"
+#import "BoundsRenderer.h"
 #import "EntityBoundsRenderer.h"
 #import "EntityAliasRenderer.h"
 #import "TextRenderer.h"
@@ -70,6 +70,7 @@
         camera = [theCamera retain];
         fontManager = [theFontManager retain];
         
+        brushBoundsRenderer = [[BoundsRenderer alloc] initWithCamera:camera fontManager:fontManager font:theFont];
         entityBoundsRenderer = [[EntityBoundsRenderer alloc] init];
         entityAliasRenderer = [[EntityAliasRenderer alloc] init];
         entityClassnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:camera];
@@ -83,6 +84,7 @@
 
 
 - (void)dealloc {
+    [brushBoundsRenderer release];
     [entityBoundsRenderer release];
     [entityAliasRenderer release];
     [entityClassnameRenderer release];
@@ -142,6 +144,15 @@
         [removedEntities addObject:entity];
 }
 
+- (void)addFace:(id<Face>)theFace {
+    [super addFace:theFace];
+    [brushBoundsRenderer addBrush:[theFace brush]];
+}
+
+- (void)removeFace:(id<Face>)theFace {
+    [super removeFace:theFace];
+    [brushBoundsRenderer removeBrush:[theFace brush]];
+}
 
 - (void)updateEntity:(id <Entity>)entity {
     [self removeEntity:entity];
@@ -149,6 +160,8 @@
 }
 
 - (void)render {
+    [brushBoundsRenderer render];
+    
     edgePass = 1;
     [super render];
     
