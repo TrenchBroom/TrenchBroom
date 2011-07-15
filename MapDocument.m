@@ -505,18 +505,17 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)translateEntities:(NSSet *)theEntities delta:(TVector3i *)theDelta {
+- (void)translateEntities:(NSSet *)theEntities delta:(TVector3i)theDelta {
     NSAssert(theEntities != nil, @"entity set must not be nil");
-    NSAssert(theDelta != NULL, @"delta must not be NULL");
     
     if ([theEntities count] == 0)
         return;
     
     TVector3i inverse;
-    scaleV3i(theDelta, -1, &inverse);
+    scaleV3i(&theDelta, -1, &inverse);
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateEntities:theEntities delta:&inverse];
+    [[undoManager prepareWithInvocationTarget:self] translateEntities:theEntities delta:inverse];
 
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -530,7 +529,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     MutableEntity* entity;
     while ((entity = [entityEn nextObject]))
-        [entity translateBy:theDelta];
+        [entity translateBy:&theDelta];
 
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -539,21 +538,19 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)translateEntities:(NSSet *)theEntities direction:(const TVector3f *)theDirection delta:(int)theDelta {
-    NSAssert(theDirection != NULL, @"direction must not be NULL");
+- (void)translateEntities:(NSSet *)theEntities direction:(const TVector3f)theDirection delta:(int)theDelta {
     
     TVector3f a;
     TVector3i d;
-    closestAxisV3f(theDirection, &a);
+    closestAxisV3f(&theDirection, &a);
     scaleV3f(&a, theDelta, &a);
     roundV3f(&a, &d);
     
-    [self translateEntities:theEntities delta:&d];
+    [self translateEntities:theEntities delta:d];
 }
 
-- (void)rotateEntitiesZ90CW:(NSSet *)theEntities center:(TVector3i *)theCenter {
+- (void)rotateEntitiesZ90CW:(NSSet *)theEntities center:(TVector3i)theCenter {
     NSAssert(theEntities != nil, @"entity set must not be nil");
-    NSAssert(theCenter != NULL, @"center must not be NULL");
 
     if ([theEntities count] == 0)
         return;
@@ -573,7 +570,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     MutableEntity* entity;
     while ((entity = [entityEn nextObject]))
-        [entity rotateZ90CW:theCenter];
+        [entity rotateZ90CW:&theCenter];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -582,9 +579,8 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)rotateEntitiesZ90CCW:(NSSet *)theEntities center:(TVector3i *)theCenter {
+- (void)rotateEntitiesZ90CCW:(NSSet *)theEntities center:(TVector3i)theCenter {
     NSAssert(theEntities != nil, @"entity set must not be nil");
-    NSAssert(theCenter != NULL, @"center must not be NULL");
 
     if ([theEntities count] == 0)
         return;
@@ -604,7 +600,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     MutableEntity* entity;
     while ((entity = [entityEn nextObject]))
-        [entity rotateZ90CCW:theCenter];
+        [entity rotateZ90CCW:&theCenter];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -613,10 +609,8 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)rotateEntities:(NSSet *)theEntities rotation:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter {
+- (void)rotateEntities:(NSSet *)theEntities rotation:(TQuaternion)theRotation center:(TVector3f)theCenter {
     NSAssert(theEntities != nil, @"entity set must not be nil");
-    NSAssert(theRotation != NULL, @"rotation must not be NULL");
-    NSAssert(theCenter != NULL, @"center must not be NULL");
     
     if ([theEntities count] == 0)
         return;
@@ -640,7 +634,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         EntityInfo* entityInfo = [[EntityInfo alloc] initWithEntity:entity];
         [undoInfos setObject:entityInfo forKey:[entity entityId]];
         [entityInfo release];
-        [entity rotate:theRotation center:theCenter];
+        [entity rotate:&theRotation center:&theCenter];
     }
     
     [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:theEntities entityInfos:undoInfos];
@@ -701,18 +695,17 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     return [brush autorelease];
 }
 
-- (void)translateBrushes:(NSSet *)theBrushes delta:(TVector3i *)theDelta {
+- (void)translateBrushes:(NSSet *)theBrushes delta:(TVector3i)theDelta {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
-    NSAssert(theDelta != NULL, @"delta must not be NULL");
     
     if ([theBrushes count] == 0)
         return;
     
     TVector3i inverse;
-    scaleV3i(theDelta, -1, &inverse);
+    scaleV3i(&theDelta, -1, &inverse);
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateBrushes:theBrushes delta:&inverse];
+    [[undoManager prepareWithInvocationTarget:self] translateBrushes:theBrushes delta:inverse];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -726,7 +719,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     while ((brush = [brushEn nextObject]))
-        [brush translateBy:theDelta];
+        [brush translateBy:&theDelta];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -735,21 +728,18 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)translateBrushes:(NSSet *)theBrushes direction:(const TVector3f *)theDirection delta:(int)theDelta {
-    NSAssert(theDirection != NULL, @"direction must not be NULL");
-    
+- (void)translateBrushes:(NSSet *)theBrushes direction:(TVector3f)theDirection delta:(int)theDelta {
     TVector3f a;
     TVector3i d;
-    closestAxisV3f(theDirection, &a);
+    closestAxisV3f(&theDirection, &a);
     scaleV3f(&a, theDelta, &a);
     roundV3f(&a, &d);
     
-    [self translateBrushes:theBrushes delta:&d];
+    [self translateBrushes:theBrushes delta:d];
 }
 
-- (void)rotateBrushesZ90CW:(NSSet *)theBrushes center:(TVector3i *)theCenter {
+- (void)rotateBrushesZ90CW:(NSSet *)theBrushes center:(TVector3i)theCenter {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
-    NSAssert(theCenter != NULL, @"center must not be NULL");
     
     if ([theBrushes count] == 0)
         return;
@@ -769,7 +759,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     while ((brush = [brushEn nextObject]))
-        [brush rotateZ90CW:theCenter];
+        [brush rotateZ90CW:&theCenter];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -778,9 +768,8 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)rotateBrushesZ90CCW:(NSSet *)theBrushes center:(TVector3i *)theCenter {
+- (void)rotateBrushesZ90CCW:(NSSet *)theBrushes center:(TVector3i)theCenter {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
-    NSAssert(theCenter != NULL, @"center must not be NULL");
     
     if ([theBrushes count] == 0)
         return;
@@ -800,7 +789,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     while ((brush = [brushEn nextObject]))
-        [brush rotateZ90CCW:theCenter];
+        [brush rotateZ90CCW:&theCenter];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -809,10 +798,8 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)rotateBrushes:(NSSet *)theBrushes rotation:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter {
+- (void)rotateBrushes:(NSSet *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
-    NSAssert(theRotation != NULL, @"rotation must not be NULL");
-    NSAssert(theCenter != NULL, @"center must not be NULL");
     
     if ([theBrushes count] == 0)
         return;
@@ -836,7 +823,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         BrushInfo* brushInfo = [[BrushInfo alloc] initWithBrush:brush];
         [undoInfos setObject:brushInfo forKey:[brush brushId]];
         [brushInfo release];
-        [brush rotate:theRotation center:theCenter];
+        [brush rotate:&theRotation center:&theCenter];
     }
     
     [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:theBrushes brushInfos:undoInfos];
@@ -1189,21 +1176,20 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 }
 
 
-- (void)translateFaces:(NSSet *)theFaces delta:(TVector3i *)theDelta {
+- (void)translateFaces:(NSSet *)theFaces delta:(TVector3i)theDelta {
     NSAssert(theFaces != nil, @"face set must not be nil");
-    NSAssert(theDelta != NULL, @"delta must not be NULL");
-    
+
     if ([theFaces count] == 0)
         return;
     
-    if (theDelta->x == 0 && theDelta->y == 0 && theDelta->z == 0)
+    if (theDelta.x == 0 && theDelta.y == 0 && theDelta.z == 0)
         return;
     
     TVector3i inverse;
-    scaleV3i(theDelta, -1, &inverse);
+    scaleV3i(&theDelta, -1, &inverse);
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateFaces:theFaces delta:&inverse];
+    [[undoManager prepareWithInvocationTarget:self] translateFaces:theFaces delta:inverse];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -1224,7 +1210,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
-        [face translateBy:theDelta];
+        [face translateBy:&theDelta];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];

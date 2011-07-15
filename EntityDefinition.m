@@ -21,6 +21,8 @@
         flags = [theFlags retain];
         properties = [theProperties retain];
         type = EDT_BASE;
+        maxBounds.min = NullVector;
+        maxBounds.max = NullVector;
     }
     
     return self;
@@ -39,6 +41,17 @@
         properties = [theProperties retain];
         description = [theDescription retain];
         type = EDT_POINT;
+
+        TVector3f center, diff;
+        centerOfBounds(&bounds, &center);
+        
+        subV3f(&bounds.max, &center, &diff);
+        float dist = lengthV3f(&diff);
+        diff.x = dist;
+        diff.y = dist;
+        diff.z = dist;
+        subV3f(&center, &diff, &maxBounds.min);
+        addV3f(&center, &diff, &maxBounds.max);
     }
     
     return self;
@@ -55,6 +68,8 @@
         properties = [theProperties retain];
         description = [theDescription retain];
         type = EDT_BRUSH;
+        maxBounds.min = NullVector;
+        maxBounds.max = NullVector;
     }
     
     return self;
@@ -70,6 +85,10 @@
 
 - (float *)color {
     return color;
+}
+
+- (TBoundingBox *)maxBounds {
+    return &maxBounds;
 }
 
 - (TBoundingBox *)bounds {

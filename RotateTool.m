@@ -165,8 +165,8 @@ static float M_PI_12 = M_PI / 12;
         NSSet* brushes = [selectionManager selectedBrushes];
         
         MapDocument* map = [windowController document];
-        [map rotateEntities:entities rotation:&rotation center:&center];
-        [map rotateBrushes:brushes rotation:&rotation center:&center];
+        [map rotateEntities:entities rotation:rotation center:center];
+        [map rotateBrushes:brushes rotation:rotation center:center];
         
         lastHSteps = hSteps;
         lastVSteps = vSteps;

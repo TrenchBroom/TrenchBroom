@@ -84,7 +84,7 @@
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
-    if (self = [super initWithCoder:aDecoder]) {
+    if ((self = [super initWithCoder:aDecoder])) {
         prefabsPerRow = 1;
         cameras = [[NSMutableDictionary alloc] init];
         
@@ -333,6 +333,7 @@
     [layout setPrefabsPerRow:prefabsPerRow];
     [self reshape];
 }
+
 - (void)dealloc {
     [cameras release];
     [glResources release];

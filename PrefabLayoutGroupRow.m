@@ -16,7 +16,7 @@
 @implementation PrefabLayoutGroupRow
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         cells = [[NSMutableArray alloc] init];
     }
     
@@ -24,7 +24,7 @@
 }
 
 - (id)initWithPrefabGroup:(id <PrefabGroup>)thePrefabGroup prefabsPerRow:(int)thePrefabsPerRow atPos:(NSPoint)thePos width:(float)theWidth innerMargin:(float)innerMargin fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         prefabGroup = [thePrefabGroup retain];
         GLString* nameString = [theFontManager glStringFor:[prefabGroup name] font:theFont];
         NSSize nameSize = [nameString size];

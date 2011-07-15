@@ -35,10 +35,21 @@
                 mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
             
             centerOfBounds(&bounds, &center);
+
+            TVector3f diff;
+            subV3f(&bounds.max, &center, &diff);
+            float dist = lengthV3f(&diff);
+            diff.x = dist;
+            diff.y = dist;
+            diff.z = dist;
+            subV3f(&center, &diff, &maxBounds.min);
+            addV3f(&center, &diff, &maxBounds.max);
         } else {
             bounds.min = NullVector;
             bounds.max = NullVector;
             center = NullVector;
+            maxBounds.min = NullVector;
+            maxBounds.max = NullVector;
         }
     } else if ([entityDefinition type] == EDT_POINT) {
         bounds = *[entityDefinition bounds];
@@ -49,10 +60,21 @@
         addV3f(&bounds.min, &of, &bounds.min);
         addV3f(&bounds.max, &of, &bounds.max);
         centerOfBounds(&bounds, &center);
+
+        TVector3f diff;
+        subV3f(&bounds.max, &center, &diff);
+        float dist = lengthV3f(&diff);
+        diff.x = dist;
+        diff.y = dist;
+        diff.z = dist;
+        subV3f(&center, &diff, &maxBounds.min);
+        addV3f(&center, &diff, &maxBounds.max);
     } else {
         bounds.min = NullVector;
         bounds.max = NullVector;
         center = NullVector;
+        maxBounds.min = NullVector;
+        maxBounds.max = NullVector;
     }
     
     valid = YES;
@@ -432,6 +454,13 @@
 
 - (BOOL)isWorldspawn {
     return [[self classname] isEqualToString:WorldspawnClassname];
+}
+
+- (TBoundingBox *)maxBounds {
+    if (!valid)
+        [self validate];
+    
+    return &maxBounds;
 }
 
 - (TBoundingBox *)bounds {

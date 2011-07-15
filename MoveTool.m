@@ -136,8 +136,8 @@
     MapDocument* map = [windowController document];
     
     SelectionManager* selectionManager = [windowController selectionManager];
-    [map translateBrushes:[selectionManager selectedBrushes] delta:&deltai];
-    [map translateEntities:[selectionManager selectedEntities] delta:&deltai];
+    [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+    [map translateEntities:[selectionManager selectedEntities] delta:deltai];
     
     lastPoint = point;
 }

@@ -25,6 +25,7 @@
     TVector3i origin;
     NSNumber* angle;
     TBoundingBox bounds;
+    TBoundingBox maxBounds;
     BOOL valid;
     int filePosition;
 }

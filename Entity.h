@@ -38,6 +38,7 @@ static NSString* const AngleKey = @"angle";
 - (BOOL)isWorldspawn;
 - (NSString *)classname;
 
+- (TBoundingBox *)maxBounds;
 - (TBoundingBox *)bounds;
 - (TVector3f *)center;
 - (TVector3i *)origin;

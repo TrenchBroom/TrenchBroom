@@ -25,6 +25,7 @@ typedef enum {
     NSString* name;
     float color[3];
     TBoundingBox bounds;
+    TBoundingBox maxBounds;
     NSDictionary* flags;
     NSArray* properties;
     NSString* description;
@@ -38,6 +39,7 @@ typedef enum {
 - (NSString *)name;
 - (float *)color;
 - (TBoundingBox *)bounds;
+- (TBoundingBox *)maxBounds;
 - (SpawnFlag *)flagForName:(NSString *)theName;
 - (NSArray *)flagsForMask:(int)theMask;
 - (NSArray *)allFlags;

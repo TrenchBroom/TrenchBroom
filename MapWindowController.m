@@ -319,8 +319,8 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
 
-    [map rotateBrushesZ90CW:brushes center:&centeri];
-    [map rotateEntitiesZ90CW:entities center:&centeri];
+    [map rotateBrushesZ90CW:brushes center:centeri];
+    [map rotateEntitiesZ90CW:entities center:centeri];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Rotate Objects"];
@@ -341,8 +341,8 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    [map rotateBrushesZ90CCW:brushes center:&centeri];
-    [map rotateEntitiesZ90CCW:entities center:&centeri];
+    [map rotateBrushesZ90CCW:brushes center:centeri];
+    [map rotateEntitiesZ90CCW:entities center:centeri];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Rotate Objects"];
@@ -447,10 +447,10 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:delta yDelta:0];
     
     if ([selectionManager hasSelectedBrushes])
-        [map translateBrushes:[selectionManager selectedBrushes] direction:direction delta:-delta];
+        [map translateBrushes:[selectionManager selectedBrushes] direction:*direction delta:-delta];
     
     if ([selectionManager hasSelectedEntities])
-        [map translateEntities:[selectionManager selectedEntities] direction:direction delta:-delta];
+        [map translateEntities:[selectionManager selectedEntities] direction:*direction delta:-delta];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Objects"];
@@ -468,10 +468,10 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:-delta yDelta:0];
     
     if ([selectionManager hasSelectedBrushes])
-        [map translateBrushes:[selectionManager selectedBrushes] direction:direction delta:delta];
+        [map translateBrushes:[selectionManager selectedBrushes] direction:*direction delta:delta];
     
     if ([selectionManager hasSelectedEntities])
-        [map translateEntities:[selectionManager selectedEntities] direction:direction delta:delta];
+        [map translateEntities:[selectionManager selectedEntities] direction:*direction delta:delta];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Objects"];}
@@ -488,10 +488,10 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:0 yDelta:delta];
     
     if ([selectionManager hasSelectedBrushes])
-        [map translateBrushes:[selectionManager selectedBrushes] direction:direction delta:delta];
+        [map translateBrushes:[selectionManager selectedBrushes] direction:*direction delta:delta];
     
     if ([selectionManager hasSelectedEntities])
-        [map translateEntities:[selectionManager selectedEntities] direction:direction delta:delta];
+        [map translateEntities:[selectionManager selectedEntities] direction:*direction delta:delta];
 
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Objects"];
@@ -509,10 +509,10 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:0 yDelta:-delta];
     
     if ([selectionManager hasSelectedBrushes])
-        [map translateBrushes:[selectionManager selectedBrushes] direction:direction delta:-delta];
+        [map translateBrushes:[selectionManager selectedBrushes] direction:*direction delta:-delta];
     
     if ([selectionManager hasSelectedEntities])
-        [map translateEntities:[selectionManager selectedEntities] direction:direction delta:-delta];
+        [map translateEntities:[selectionManager selectedEntities] direction:*direction delta:-delta];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Objects"];
@@ -707,8 +707,8 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         
     }
     
-    [[self document] translateEntities:newEntities delta:&delta];
-    [[self document] translateBrushes:newBrushes delta:&delta];
+    [[self document] translateEntities:newEntities delta:delta];
+    [[self document] translateBrushes:newBrushes delta:delta];
 
     [selectionManager removeAll:YES];
     [selectionManager addEntities:newEntities record:YES];
@@ -774,8 +774,8 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
         }
     }
     
-    [[self document] translateEntities:newEntities delta:&delta];
-    [[self document] translateBrushes:newBrushes delta:&delta];
+    [[self document] translateEntities:newEntities delta:delta];
+    [[self document] translateBrushes:newBrushes delta:delta];
     
     [selectionManager removeAll:YES];
     [selectionManager addEntities:newEntities record:YES];

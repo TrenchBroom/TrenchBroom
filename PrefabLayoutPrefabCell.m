@@ -12,7 +12,7 @@
 @implementation PrefabLayoutPrefabCell
 
 - (id)initWithPrefab:(id <Prefab>)thePrefab atPos:(NSPoint)thePos width:(float)theWidth nameSize:(NSSize)theNameSize {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         prefab = [thePrefab retain];
         prefabBounds = NSMakeRect(thePos.x, thePos.y, theWidth, theWidth);
 

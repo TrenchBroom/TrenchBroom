@@ -15,7 +15,7 @@
 @implementation PrefabLayout
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         groupRows = [[NSMutableArray alloc] init];
     }
     
@@ -23,7 +23,7 @@
 }
 
 - (id)initWithPrefabManager:(PrefabManager *)thePrefabManager prefabsPerRow:(int)thePrefabsPerRow fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         prefabManager = [thePrefabManager retain];
         prefabsPerRow = thePrefabsPerRow;
         fontManager = [theFontManager retain];
