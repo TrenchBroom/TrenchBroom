@@ -143,8 +143,6 @@
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         [brushBoundsRenderer setBounds:&bounds];
-    } else {
-        [brushBoundsRenderer setBounds:NULL];
     }
 }
 
@@ -158,8 +156,6 @@
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         [brushBoundsRenderer setBounds:&bounds];
-    } else {
-        [brushBoundsRenderer setBounds:NULL];
     }
 }
 
@@ -171,13 +167,9 @@
 - (void)addBrush:(id<Brush>)theBrush {
     [super addBrush:theBrush];
     
-    if ([selectionManager mode] == SM_BRUSHES_ENTITIES || [selectionManager mode] == SM_BRUSHES) {
-        TBoundingBox bounds;
-        [selectionManager selectionBounds:&bounds];
-        [brushBoundsRenderer setBounds:&bounds];
-    } else {
-        [brushBoundsRenderer setBounds:NULL];
-    }
+    TBoundingBox bounds;
+    [selectionManager selectionBounds:&bounds];
+    [brushBoundsRenderer setBounds:&bounds];
 }
 
 - (void)removeBrush:(id<Brush>)theBrush {
@@ -187,8 +179,24 @@
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         [brushBoundsRenderer setBounds:&bounds];
-    } else {
-        [brushBoundsRenderer setBounds:NULL];
+    }
+}
+
+- (void)addFace:(id<Face>)theFace {
+    [super addFace:theFace];
+
+    TBoundingBox bounds;
+    [selectionManager selectionBounds:&bounds];
+    [brushBoundsRenderer setBounds:&bounds];
+}
+
+- (void)removeFace:(id<Face>)theFace {
+    [super removeFace:theFace];
+    
+    if ([selectionManager mode] == SM_FACES) {
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        [brushBoundsRenderer setBounds:&bounds];
     }
 }
 
@@ -202,9 +210,11 @@
     [sharedVbo deactivate];
     
     glDisable(GL_DEPTH_TEST);
-    glColor4f(1, 0, 0, 1);
-    [brushBoundsRenderer render];
+    float col[] = {1, 0, 0, 0.5f};
+    [brushBoundsRenderer renderColor:col];
     glEnable(GL_DEPTH_TEST);
+    col[3] = 1;
+    [brushBoundsRenderer renderColor:col];
 
     if ([options renderEntities]) {
         [self validateEntities];
@@ -216,7 +226,7 @@
         [fontManager activate];
 
         glDisable(GL_DEPTH_TEST);
-        float col[] = {1, 0, 0, 0.5f};
+        col[3] = 0.5f;
         [entityClassnameRenderer renderColor:col];
 
         glEnable(GL_DEPTH_TEST);

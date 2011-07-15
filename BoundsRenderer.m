@@ -36,12 +36,12 @@
         boundsSet = NO;
     } else {
         bounds = *theBounds;
-        valid = NO;
         boundsSet = YES;
     }
+    valid = NO;
 }
 
-- (void)render {
+- (void)renderColor:(float *)theColor {
     if (!boundsSet)
         return;
     
@@ -52,119 +52,167 @@
     subV3f(&center, &cPos, &diff);
 
     if (!valid) {
-        [xStr release];
-        xStr = nil;
-        [yStr release];
-        yStr = nil;
-        [zStr release];
-        zStr = nil;
-            
         NSFont* font = [NSFont systemFontOfSize:9];
-        xStr = [[fontManager glStringFor:[NSString stringWithFormat:@"%.0f", size.x] font:font] retain];
-        yStr = [[fontManager glStringFor:[NSString stringWithFormat:@"%.0f", size.y] font:font] retain];
-        zStr = [[fontManager glStringFor:[NSString stringWithFormat:@"%.0f", size.z] font:font] retain];
+        for (int i = 0; i < 3; i++) {
+            [glStrings[i] release];
+            glStrings[i] = nil;
+        }
+            
+        glStrings[0] = [[fontManager glStringFor:[NSString stringWithFormat:@"%.0f", size.x] font:font] retain];
+        glStrings[1] = [[fontManager glStringFor:[NSString stringWithFormat:@"%.0f", size.y] font:font] retain];
+        glStrings[2] = [[fontManager glStringFor:[NSString stringWithFormat:@"%.0f", size.z] font:font] retain];
         valid = YES;
     }
 
-    BOOL renderZ = YES;
-    TVector3f xStart, xMid, xEnd, yStart, yMid, yEnd, zStart, zMid, zEnd;
+    int maxi = 3;
+    TVector3f gv[3][4];
 
     // X guide
     if (diff.y >= 0) {
-        xStart = bounds.min;
-        xStart.y -= 10;
-        xEnd = xStart;
-        xEnd.x = bounds.max.x;
+        gv[0][0] = bounds.min;
+        gv[0][0].y -= 5;
+        gv[0][1] = gv[0][0];
+        gv[0][1].y -= 5;
+        gv[0][2] = gv[0][1];
+        gv[0][2].x = bounds.max.x;
+        gv[0][3] = gv[0][0];
+        gv[0][3].x = bounds.max.x;
     } else {
-        xStart = bounds.min;
-        xStart.y = bounds.max.y + 10;
-        xEnd = xStart;
-        xEnd.x = bounds.max.x;
+        gv[0][0] = bounds.min;
+        gv[0][0].y = bounds.max.y + 5;
+        gv[0][1] = gv[0][0];
+        gv[0][1].y += 5;
+        gv[0][2] = gv[0][1];
+        gv[0][2].x = bounds.max.x;
+        gv[0][3] = gv[0][0];
+        gv[0][3].x = bounds.max.x;
     }
     
     // Y guide
     if (diff.x >= 0) {
-        yStart = bounds.min;
-        yStart.x -= 10;
-        yEnd = yStart;
-        yEnd.y = bounds.max.y;
+        gv[1][0] = bounds.min;
+        gv[1][0].x -= 5;
+        gv[1][1] = gv[1][0];
+        gv[1][1].x -= 5;
+        gv[1][2] = gv[1][1];
+        gv[1][2].y = bounds.max.y;
+        gv[1][3] = gv[1][0];
+        gv[1][3].y = bounds.max.y;
     } else {
-        yStart = bounds.min;
-        yStart.x = bounds.max.x + 10;
-        yEnd = yStart;
-        yEnd.y = bounds.max.y;
+        gv[1][0] = bounds.min;
+        gv[1][0].x = bounds.max.x + 5;
+        gv[1][1] = gv[1][0];
+        gv[1][1].x += 5;
+        gv[1][2] = gv[1][1];
+        gv[1][2].y = bounds.max.y;
+        gv[1][3] = gv[1][0];
+        gv[1][3].y = bounds.max.y;
     }
     
-    if (diff.z >= 0) {
-        xStart.z = bounds.max.z;
-        xEnd.z = bounds.max.z;
-        yStart.z = bounds.max.z;
-        yEnd.z = bounds.max.z;
-    }
+    if (diff.z >= 0)
+        for (int i = 0; i < 2; i++)
+            for (int j = 0; j < 4; j++)
+                gv[i][j].z = bounds.max.z;
 
     // Z Guide
     if (cPos.x <= bounds.min.x && cPos.y <= bounds.max.y) {
-        zStart = bounds.min;
-        zStart.y = bounds.max.y;
-        zStart.x -= 10;
-        zStart.y += 10;
-        zEnd = zStart;
-        zEnd.z = bounds.max.z;
+        gv[2][0] = bounds.min;
+        gv[2][0].x -= 3.5f;
+        gv[2][0].y = bounds.max.y + 3.5f;
+        gv[2][1] = gv[2][0];
+        gv[2][1].x -= 3.5f;
+        gv[2][1].y += 3.5f;
+        gv[2][2] = gv[2][1];
+        gv[2][2].z = bounds.max.z;
+        gv[2][3] = gv[2][0];
+        gv[2][3].z = bounds.max.z;
     } else if (cPos.x <= bounds.max.x && cPos.y >= bounds.max.y) {
-        zStart = bounds.max;
-        zStart.x += 10;
-        zStart.y += 10;
-        zEnd = zStart;
-        zEnd.z = bounds.min.z;
+        gv[2][0] = bounds.max;
+        gv[2][0].x += 3.5f;
+        gv[2][0].y += 3.5f;
+        gv[2][1] = gv[2][0];
+        gv[2][1].x += 3.5f;
+        gv[2][1].y += 3.5f;
+        gv[2][2] = gv[2][1];
+        gv[2][2].z = bounds.min.z;
+        gv[2][3] = gv[2][0];
+        gv[2][3].z = bounds.min.z;
     } else if (cPos.x >= bounds.max.x && cPos.y >= bounds.min.y) {
-        zStart = bounds.max;
-        zStart.y = bounds.min.y;
-        zStart.x += 10;
-        zStart.y -= 10;
-        zEnd = zStart;
-        zEnd.z = bounds.min.z;
+        gv[2][0] = bounds.max;
+        gv[2][0].y = bounds.min.y;
+        gv[2][0].x += 3.5f;
+        gv[2][0].y -= 3.5f;
+        gv[2][1] = gv[2][0];
+        gv[2][1].x += 3.5f;
+        gv[2][1].y -= 3.5f;
+        gv[2][2] = gv[2][1];
+        gv[2][2].z = bounds.min.z;
+        gv[2][3] = gv[2][0];
+        gv[2][3].z = bounds.min.z;
     } else if (cPos.x >= bounds.min.x && cPos.y <= bounds.min.y) {
-        zStart = bounds.min;
-        zStart.x -= 10;
-        zStart.y -= 10;
-        zEnd = zStart;
-        zEnd.z = bounds.max.z;
+        gv[2][0] = bounds.min;
+        gv[2][0].x -= 3.5f;
+        gv[2][0].y -= 3.5f;
+        gv[2][1] = gv[2][0];
+        gv[2][1].x -= 3.5f;
+        gv[2][1].y -= 3.5f;
+        gv[2][2] = gv[2][1];
+        gv[2][2].z = bounds.max.z;
+        gv[2][3] = gv[2][0];
+        gv[2][3].z = bounds.max.z;
     } else {
         // above, inside or below, don't render Z guide
-        renderZ = NO;
+        maxi = 2;
     }
     
-    subV3f(&xEnd, &xStart, &xMid);
-    scaleV3f(&xMid, 0.5f, &xMid);
-    addV3f(&xMid, &xStart, &xMid);
-    
-    subV3f(&yEnd, &yStart, &yMid);
-    scaleV3f(&yMid, 0.5f, &yMid);
-    addV3f(&yMid, &yStart, &yMid);
-    
-    subV3f(&zEnd, &zStart, &zMid);
-    scaleV3f(&zMid, 0.5f, &zMid);
-    addV3f(&zMid, &zStart, &zMid);
-    
-    glEnable(GL_LINE_STIPPLE);
-    glLineStipple(5, 0x5555);
-    glBegin(GL_LINES);
-    glVertexV3f(&xStart);
-    glVertexV3f(&xEnd);
-    glVertexV3f(&yStart);
-    glVertexV3f(&yEnd);
-    if (renderZ) {
-        glVertexV3f(&zStart);
-        glVertexV3f(&zEnd);
+    TVector3f p[3];
+    for (int i = 0; i < 3; i++) {
+        subV3f(&gv[i][2], &gv[i][1], &p[i]);
+        scaleV3f(&p[i], 0.5f, &p[i]);
+        addV3f(&gv[i][1], &p[i], &p[i]);
+
+        float dist = [camera distanceTo:&p[i]];
+        if (dist <= 500) {
+            if (dist >= 400) {
+                glColor4f(theColor[0], theColor[1], theColor[2], theColor[3] - theColor[3] * (dist - 400) / 100);
+            } else {
+                glColor4f(theColor[0], theColor[1], theColor[2], theColor[3]);
+            }
+            
+            glBegin(GL_LINE_STRIP);
+            for (int j = 0; j < 4; j++)
+                glVertexV3f(&gv[i][j]);
+            glEnd();
+        }
     }
-    glEnd();
-    glDisable(GL_LINE_STIPPLE);
+    
+    [fontManager activate];
+    for (int i = 0; i < maxi; i++) {
+        float dist = [camera distanceTo:&p[i]];
+        if (dist <= 500) {
+            if (dist >= 400) {
+                glColor4f(theColor[0], theColor[1], theColor[2], theColor[3] - theColor[3] * (dist - 400) / 100);
+            } else {
+                glColor4f(theColor[0], theColor[1], theColor[2], theColor[3]);
+            }
+            float factor = dist / 300;
+            NSSize size = [glStrings[i] size];
+            
+            glPushMatrix();
+            glTranslatef(p[i].x, p[i].y, p[i].z);
+            [camera setBillboardMatrix];
+            glScalef(factor, factor, 0);
+            glTranslatef(-size.width / 2, 0, 0);
+            [glStrings[i] render];
+            glPopMatrix();
+        }
+    }
+    [fontManager deactivate];
 }
 
 - (void)dealloc {
-    [xStr release];
-    [yStr release];
-    [zStr release];
+    for (int i = 0; i < 3; i++)
+        [glStrings[i] release];
 
     [fontManager release];
     [camera release];

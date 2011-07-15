@@ -377,8 +377,9 @@ NSString* const SelectionFaces = @"SelectionFaces";
             scaleV3f(result, 1.0f / ([brushes count] + [entities count]), result);
             return YES;
         }
+        default:
+            return NO;
     }
-    return NO;
 }
 
 - (BOOL)selectionBounds:(TBoundingBox *)result {
@@ -410,6 +411,15 @@ NSString* const SelectionFaces = @"SelectionFaces";
             id <Entity> entity;
             while ((entity = [entityEn nextObject]))
                 mergeBoundsWithBounds(result, [entity bounds], result);
+            
+            return YES;
+        }
+        case SM_FACES: {
+            NSEnumerator* faceEn = [faces objectEnumerator];
+            id <Face> face = [faceEn nextObject];
+            *result = *[[face brush] bounds];
+            while ((face = [faceEn nextObject]))
+                mergeBoundsWithBounds(result, [[face brush] bounds], result);
             
             return YES;
         }

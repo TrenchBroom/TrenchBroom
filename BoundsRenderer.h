@@ -19,9 +19,7 @@
     TBoundingBox bounds;
     BOOL boundsSet;
     BOOL valid;
-    GLString* xStr;
-    GLString* yStr;
-    GLString* zStr;
+    GLString* glStrings[3];
     Camera* camera;
 }
 
@@ -29,6 +27,6 @@
 
 - (void)setBounds:(TBoundingBox *)theBounds;
 
-- (void)render;
+- (void)renderColor:(float *)theColor;
 
 @end
