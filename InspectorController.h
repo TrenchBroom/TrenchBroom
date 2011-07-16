@@ -15,6 +15,7 @@
 @class Prefab;
 @class Texture;
 @class EntityPropertyTableDataSource;
+@class EntityView;
 @protocol Prefab;
 
 @interface InspectorController : NSWindowController <NSTableViewDelegate> {
@@ -29,16 +30,20 @@
     IBOutlet NSSegmentedControl* textureSortCriterionSC;
     IBOutlet SingleTextureView* singleTextureView;
     IBOutlet TextureView* textureView;
+    IBOutlet NSScrollView* textureScrollView;
+    IBOutlet NSTableView* wadTableView;
+    IBOutlet NSArrayController* wadArrayController;
+
     IBOutlet NSSlider* prefabsPerRowSlider;
     IBOutlet PrefabView* prefabView;
     IBOutlet NSBox* textureControlBox;
-    IBOutlet NSTableView* wadTableView;
-    IBOutlet NSArrayController* wadArrayController;
-    IBOutlet NSScrollView* textureScrollView;
+    
     IBOutlet NSTableView* entityPropertyTableView;
     IBOutlet NSButton* removeEntityPropertyButton;
     IBOutlet NSButton* addEntityPropertyButton;
     EntityPropertyTableDataSource* entityPropertyTableDataSource;
+    IBOutlet EntityView* entityView;
+    
     MapWindowController* mapWindowController;
 }
 

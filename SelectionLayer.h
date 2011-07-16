@@ -12,6 +12,7 @@
 @class TextRenderer;
 @class BoundsRenderer;
 @class Camera;
+@class GLResources;
 @class GLFontManager;
 @class SelectionManager;
 
@@ -28,6 +29,6 @@
     SelectionManager* selectionManager;
 }
 
-- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager selectionManager:(SelectionManager *)theSelectionManager options:(Options *)theOptions camera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager;
+- (id)initWithVbo:(VBOBuffer *)theVbo glResources:(GLResources *)theGLResources selectionManager:(SelectionManager *)theSelectionManager options:(Options *)theOptions camera:(Camera *)theCamera;
 
 @end

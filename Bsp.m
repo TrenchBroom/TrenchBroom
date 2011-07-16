@@ -85,7 +85,7 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
 
 @interface Bsp (private)
 
-- (void)readTextures:(NSData *)theData address:(int)theAddress palette:(NSData *)thePalette;
+- (void)readTextures:(NSData *)theData address:(int)theAddress;
 - (void)readVertices:(NSData *)theData address:(int)theAddress count:(int)theCount result:(TVector3f *)theResult;
 - (void)readEdges:(NSData *)theData address:(int)theAddress count:(int)theCount result:(TEdge *)theResult;
 - (void)readFaces:(NSData *)theData address:(int)theAddress count:(int)theCount result:(TFace *)theResult;
@@ -96,7 +96,7 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
 
 @implementation Bsp (private)
 
-- (void)readTextures:(NSData *)theData address:(int)theAddress palette:(NSData *)thePalette {
+- (void)readTextures:(NSData *)theData address:(int)theAddress {
     int count = readLong(theData, theAddress + BSP_TEXTURE_DIR_COUNT);
     
     for (int i = 0; i < count; i++) {
@@ -107,7 +107,7 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
         int mip0Address = address + readULong(theData, address + BSP_TEXTURE_MIP0);
         NSData* image = [theData subdataWithRange:NSMakeRange(mip0Address, width * height)];
         
-        Texture* texture = [[Texture alloc] initWithName:textureName image:image width:width height:height palette:thePalette];
+        BspTexture* texture = [[BspTexture alloc] initWithName:textureName image:image width:width height:height];
         [textures addObject:texture];
         [texture release];
     }
@@ -166,16 +166,15 @@ int const BSP_MODEL_FACE_COUNT          = 0x3C;
     return self;
 }
 
-- (id)initWithName:(NSString *)theName data:(NSData *)theData palette:(NSData *)thePalette {
+- (id)initWithName:(NSString *)theName data:(NSData *)theData {
     NSAssert(theName != nil, @"name must not be nil");
     NSAssert(theData != nil, @"data must not be nil");
-    NSAssert(thePalette != nil, @"palette must not be nil");
     
     if ((self = [self init])) {
         name = [theName retain];
         
         int textureAddress = readLong(theData, BSP_DIR_TEXTURES_ADDRESS);
-        [self readTextures:theData address:textureAddress palette:thePalette];
+        [self readTextures:theData address:textureAddress];
         
         int texInfosAddress = readLong(theData, BSP_DIR_TEXINFOS_ADDRESS);
         int texInfoCount = readLong(theData, BSP_DIR_TEXINFOS_SIZE) / BSP_TEXINFO_SIZE;

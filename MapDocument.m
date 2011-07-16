@@ -191,8 +191,11 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         worldSize = 8192;
         postNotifications = YES;
 
+        NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
+        NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
+        glResources = [[GLResources alloc] initWithPalette:palette];
+
         picker = [[Picker alloc] initWithDocument:self];
-        glResources = [[GLResources alloc] init];
     }
     
     return self;
@@ -281,9 +284,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         Wad* wad = [wadLoader loadFromData:[NSData dataWithContentsOfMappedFile:theWadPath] wadName:wadName];
         [wadLoader release];
         
-        NSBundle* mainBundle = [NSBundle mainBundle];
-        NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
-        NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
+        NSData* palette = [glResources palette];
         
         TextureCollection* collection = [[TextureCollection alloc] initName:theWadPath palette:palette wad:wad];
         [palette release];

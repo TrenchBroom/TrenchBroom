@@ -50,7 +50,7 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
 @implementation TextureManager
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         textureCollections = [[NSMutableArray alloc] init];
         textures = [[NSMutableDictionary alloc] init];
         texturesByName = [[NSMutableArray alloc] init];

@@ -129,6 +129,8 @@
 		48AF852813D0D79400B62317 /* EntityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF852713D0D79400B62317 /* EntityView.m */; };
 		48AF852B13D0DCFD00B62317 /* EntityDefinitionLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF852A13D0DCFD00B62317 /* EntityDefinitionLayout.m */; };
 		48AF852E13D0DFF500B62317 /* EntityDefinitionLayoutCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF852D13D0DFF500B62317 /* EntityDefinitionLayoutCell.m */; };
+		48AF853113D180D100B62317 /* EntityRendererManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF853013D180D000B62317 /* EntityRendererManager.m */; };
+		48AF853413D190AC00B62317 /* BspTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF853313D190AC00B62317 /* BspTexture.m */; };
 		48B016E0133CCCBB00E3AF90 /* SelectionLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B016DF133CCCBB00E3AF90 /* SelectionLayer.m */; };
 		48B3243C12E1C6B8008748E2 /* Camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3243B12E1C6B8008748E2 /* Camera.m */; };
 		48B324C112E1F455008748E2 /* Camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3243B12E1C6B8008748E2 /* Camera.m */; };
@@ -437,6 +439,10 @@
 		48AF852A13D0DCFD00B62317 /* EntityDefinitionLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionLayout.m; sourceTree = "<group>"; };
 		48AF852C13D0DFF500B62317 /* EntityDefinitionLayoutCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionLayoutCell.h; sourceTree = "<group>"; };
 		48AF852D13D0DFF500B62317 /* EntityDefinitionLayoutCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionLayoutCell.m; sourceTree = "<group>"; };
+		48AF852F13D180CE00B62317 /* EntityRendererManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityRendererManager.h; sourceTree = "<group>"; };
+		48AF853013D180D000B62317 /* EntityRendererManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityRendererManager.m; sourceTree = "<group>"; };
+		48AF853213D190AB00B62317 /* BspTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspTexture.h; sourceTree = "<group>"; };
+		48AF853313D190AC00B62317 /* BspTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BspTexture.m; sourceTree = "<group>"; };
 		48B016DE133CCCBB00E3AF90 /* SelectionLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionLayer.h; sourceTree = "<group>"; };
 		48B016DF133CCCBB00E3AF90 /* SelectionLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectionLayer.m; sourceTree = "<group>"; };
 		48B3243A12E1C6B8008748E2 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
@@ -657,6 +663,8 @@
 				48150C9213CDEECA009D16B9 /* TextAnchor.h */,
 				48150C9313CDF1E1009D16B9 /* EntityClassnameAnchor.h */,
 				48150C9413CDF1E1009D16B9 /* EntityClassnameAnchor.m */,
+				48AF852F13D180CE00B62317 /* EntityRendererManager.h */,
+				48AF853013D180D000B62317 /* EntityRendererManager.m */,
 			);
 			name = PrimitiveRenderer;
 			sourceTree = "<group>";
@@ -1109,6 +1117,8 @@
 				48C029B813C4EF0500FB8B71 /* Bsp.m */,
 				48A5FD4A13C5E7C6009D086C /* BspManager.h */,
 				48A5FD4B13C5E7C6009D086C /* BspManager.m */,
+				48AF853213D190AB00B62317 /* BspTexture.h */,
+				48AF853313D190AC00B62317 /* BspTexture.m */,
 			);
 			name = Bsp;
 			sourceTree = "<group>";
@@ -1387,6 +1397,8 @@
 				48AF852813D0D79400B62317 /* EntityView.m in Sources */,
 				48AF852B13D0DCFD00B62317 /* EntityDefinitionLayout.m in Sources */,
 				48AF852E13D0DFF500B62317 /* EntityDefinitionLayoutCell.m in Sources */,
+				48AF853113D180D100B62317 /* EntityRendererManager.m in Sources */,
+				48AF853413D190AC00B62317 /* BspTexture.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

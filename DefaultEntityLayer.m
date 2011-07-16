@@ -66,8 +66,8 @@
 
 @implementation DefaultEntityLayer
 
-- (id)initWithFontManager:(GLFontManager *)theFontManager camera:(Camera *)theCamera options:(Options *)theOptions {
-    NSAssert(theFontManager != nil, @"font manager must not be nil");
+- (id)initWithGLResources:(GLResources *)theGLResources camera:(Camera *)theCamera options:(Options *)theOptions {
+    NSAssert(theGLResources != nil, @"GL resources must not be nil");
     NSAssert(theCamera != nil, @"camera must not be nil");
     NSAssert(theOptions != nil, @"options must not be nil");
     
@@ -76,9 +76,9 @@
         removedEntities = [[NSMutableSet alloc] init];
         
         options = [theOptions retain];
-        fontManager = [theFontManager retain];
+        fontManager = [[theGLResources fontManager] retain];
         boundsRenderer = [[EntityBoundsRenderer alloc] init];
-        aliasRenderer = [[EntityAliasRenderer alloc] init];
+        aliasRenderer = [[EntityAliasRenderer alloc] initWithEntityRendererManager:[theGLResources entityRendererManager]];
         classnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:theCamera];
     }
     

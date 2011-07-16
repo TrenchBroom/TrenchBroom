@@ -18,7 +18,6 @@
     EntityDefinitionManager* entityDefinitionManager;
     GLFontManager* fontManager;
     NSFont* font;
-    int entityDefinitionsPerRow;
     float outerMargin;
     float innerMargin;
     float width;
@@ -26,14 +25,13 @@
     BOOL valid;
 }
 
-- (id)initWithEntityDefinitionManager:(EntityDefinitionManager *)theEntityDefinitionManager entityDefinitionsPerRow:(int)theEntityDefinitionsPerRow fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;
+- (id)initWithEntityDefinitionManager:(EntityDefinitionManager *)theEntityDefinitionManager fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;
 
 - (NSArray *)rows;
 - (float)height;
 
 - (EntityDefinition *)entityDefinitionAt:(NSPoint)pos;
 
-- (void)setEntityDefinitionsPerRow:(int)theEntityDefinitionsPerRow;
 - (void)setWidth:(float)width;
 - (void)invalidate;
 

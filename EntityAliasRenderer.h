@@ -8,17 +8,18 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class VBOBuffer;
+@class EntityRendererManager;
 @protocol Entity;
 @protocol Filter;
 
 @interface EntityAliasRenderer : NSObject {
-    VBOBuffer* vbo;
+    EntityRendererManager* entityRendererManager;
     NSMutableSet* entities;
     NSMutableDictionary* entityRenderers;
-    NSData* palette;
     id <Filter> filter;
 }
+
+- (id)initWithEntityRendererManager:(EntityRendererManager *)theEntityRendererManager;
 
 - (void)addEntity:(id <Entity>)entity;
 - (void)removeEntity:(id <Entity>)entity;

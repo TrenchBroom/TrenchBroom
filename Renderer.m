@@ -480,8 +480,6 @@ NSString* const RendererChanged = @"RendererChanged";
         
         MapDocument* map = [windowController document];
         GLResources* glResources = [map glResources];
-        GLFontManager* fontManager = [glResources fontManager];
-        NSFont* trackingFont = [NSFont systemFontOfSize:11];
         textureManager = [[glResources textureManager] retain];
         
         SelectionManager* selectionManager = [windowController selectionManager];
@@ -490,8 +488,8 @@ NSString* const RendererChanged = @"RendererChanged";
         Grid* grid = [options grid];
 
         geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager options:options];
-        entityLayer = [[DefaultEntityLayer alloc] initWithFontManager:fontManager camera:camera options:options];
-        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo textureManager:textureManager selectionManager:selectionManager options:options camera:camera fontManager:fontManager];
+        entityLayer = [[DefaultEntityLayer alloc] initWithGLResources:glResources camera:camera options:options];
+        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo glResources:glResources selectionManager:selectionManager options:options camera:camera];
         feedbackLayer = [[FigureLayer alloc] init];
 
         filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager options:options];

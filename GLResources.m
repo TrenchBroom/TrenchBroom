@@ -10,27 +10,43 @@
 #import "GLFontManager.h"
 #import "TextureManager.h"
 #import "VBOBuffer.h"
+#import "EntityRendererManager.h"
 
 @implementation GLResources
 
-- (id)init {
-    if (self = [super init]) {
+- (id)initWithPalette:(NSData *)thePalette {
+    NSAssert(thePalette != nil, @"palette must not be nil");
+    
+    if ((self = [super init])) {
         NSOpenGLPixelFormatAttribute attrs[] = {0};
         NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
         openGLContext = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
         [pixelFormat release];
-
-        fontManager = [[GLFontManager alloc] init];
-        vbos = [[NSMutableDictionary alloc] init];
         
+        palette = [thePalette retain];
+        fontManager = [[GLFontManager alloc] init];
         textureManager = [[TextureManager alloc] init];
+        entityRendererManager = [[EntityRendererManager alloc] initWithPalette:palette];
     }
     
     return self;
 }
 
+- (void)dealloc {
+    [entityRendererManager release];
+    [fontManager release];
+    [textureManager release];
+    [palette release];
+    [openGLContext release];
+    [super dealloc];
+}
+
 - (NSOpenGLContext *)openGLContext {
     return openGLContext;
+}
+
+- (NSData *)palette {
+    return palette;
 }
 
 - (GLFontManager *)fontManager {
@@ -41,23 +57,8 @@
     return textureManager;
 }
 
-- (VBOBuffer *)vboForKey:(id <NSCopying>)theKey {
-    VBOBuffer* vbo = [vbos objectForKey:theKey];
-    if (vbo == nil) {
-        vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
-        [vbos setObject:vbo forKey:theKey];
-        [vbo release];
-    }
-    
-    return vbo;
-}
-
-- (void)dealloc {
-    [fontManager release];
-    [textureManager release];
-    [vbos release];
-    [openGLContext release];
-    [super dealloc];
+- (EntityRendererManager *)entityRendererManager {
+    return entityRendererManager;
 }
 
 @end

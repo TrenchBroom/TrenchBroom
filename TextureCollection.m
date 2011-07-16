@@ -20,7 +20,7 @@
     NSAssert(thePalette != nil, @"palette must not be nil");
     NSAssert(theWad != nil, @"wad must not be nil");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         name = [theName retain];
 
         NSArray* textureEntries = [theWad textureEntries];

@@ -158,6 +158,21 @@
     return specificProperty != nil ? specificProperty : defaultProperty;
 }
 
+- (ModelProperty *)defaultModelProperty {
+    NSEnumerator* propertyEn = [properties objectEnumerator];
+    id <EntityDefinitionProperty> property;
+    while ((property = [propertyEn nextObject])) {
+        if ([property isKindOfClass:[ModelProperty class]]) {
+            ModelProperty* modelProperty = (ModelProperty *)property;
+            NSString* flagName = [modelProperty flagName];
+            if (flagName == nil)
+                return modelProperty;
+        }
+    }
+    
+    return nil;
+}
+
 - (NSString *)description {
     return description;
 }

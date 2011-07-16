@@ -19,11 +19,9 @@
     EntityDefinitionManager* entityDefinitionManager;
     GLResources* glResources;
     EntityDefinitionLayout* layout;
-    int entityDefinitionsPerRow;
     IBOutlet id target;
 }
 
 - (void)setGLResources:(GLResources *)theGLResources entityDefinitionManager:(EntityDefinitionManager *)theEntityDefinitionManager;
-- (void)setEntityDefinitionsPerRow:(int)theEntityDefinitionsPerRow;
 
 @end

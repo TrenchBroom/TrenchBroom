@@ -10,6 +10,7 @@
 #import "IdGenerator.h"
 #import "WadTextureEntry.h"
 #import "AliasSkin.h"
+#import "BspTexture.h"
 #import "Math.h"
 
 @interface Texture (private)
@@ -58,6 +59,11 @@
 - (id)initWithName:(NSString *)theName skin:(AliasSkin *)theSkin index:(int)theIndex palette:(NSData *)thePalette {
     NSAssert(theSkin != nil, @"skin must not be nil");
     return [self initWithName:theName image:[theSkin pictureAtIndex:theIndex] width:[theSkin width] height:[theSkin height] palette:thePalette];
+}
+
+- (id)initWithBspTexture:(BspTexture *)theBspTexture palette:(NSData *)thePalette {
+    NSAssert(theBspTexture != nil, @"BSP texture must not be nil");
+    return [self initWithName:[theBspTexture name] image:[theBspTexture image] width:[theBspTexture width] height:[theBspTexture height] palette:thePalette];
 }
 
 - (id)initWithName:(NSString *)theName image:(NSData *)theImage width:(int)theWidth height:(int)theHeight palette:(NSData *)thePalette {

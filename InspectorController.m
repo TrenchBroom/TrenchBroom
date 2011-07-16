@@ -24,6 +24,8 @@
 #import "Face.h"
 #import "PrefabView.h"
 #import "EntityPropertyTableDataSource.h"
+#import "EntityView.h"
+#import "EntityDefinitionManager.h"
 
 static InspectorController* sharedInstance = nil;
 
@@ -103,10 +105,12 @@ static InspectorController* sharedInstance = nil;
     if (mapWindowController != nil) {
         MapDocument* map = [mapWindowController document];
         GLResources* glResources = [map glResources];
+        EntityDefinitionManager* entityDefinitionManager = [map entityDefinitionManager];
         
         [singleTextureView setGLResources:glResources];
         [textureView setGLResources:glResources];
         [prefabView setGLResources:glResources];
+        [entityView setGLResources:glResources entityDefinitionManager:entityDefinitionManager];
         
         TextureManager* textureManager = [glResources textureManager];
         SelectionManager* selectionManager = [mapWindowController selectionManager];
@@ -122,6 +126,7 @@ static InspectorController* sharedInstance = nil;
         [singleTextureView setGLResources:nil];
         [textureView setGLResources:nil];
         [prefabView setGLResources:nil];
+        [entityView setGLResources:nil entityDefinitionManager:nil];
     }
     
     [wadTableView reloadData];

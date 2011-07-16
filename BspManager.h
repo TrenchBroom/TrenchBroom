@@ -13,7 +13,6 @@
 @interface BspManager : NSObject {
 @private
     NSMutableDictionary* bsps;
-    NSData* palette;
 }
 
 + (BspManager *)sharedManager;

@@ -17,6 +17,7 @@
 #import "Options.h"
 #import "GLUtils.h"
 #import "SelectionManager.h"
+#import "GLResources.h"
 
 @interface SelectionLayer (private)
 
@@ -66,15 +67,21 @@
 
 @implementation SelectionLayer
 
-- (id)initWithVbo:(VBOBuffer *)theVbo textureManager:(TextureManager *)theTextureManager selectionManager:(SelectionManager *)theSelectionManager options:(Options *)theOptions camera:(Camera *)theCamera fontManager:(GLFontManager *)theFontManager {
-    if ((self = [super initWithVbo:theVbo textureManager:theTextureManager options:theOptions])) {
+- (id)initWithVbo:(VBOBuffer *)theVbo glResources:(GLResources *)theGLResources selectionManager:(SelectionManager *)theSelectionManager options:(Options *)theOptions camera:(Camera *)theCamera {
+    NSAssert(theVbo != nil, @"VBO must not be nil");
+    NSAssert(theGLResources != nil, @"GL resources must not be nil");
+    NSAssert(theSelectionManager != nil, @"selection manager must not be nil");
+    NSAssert(theOptions != nil, @"options must not be nil");
+    NSAssert(theCamera != nil, @"camera must not be nil");
+    
+    if ((self = [super initWithVbo:theVbo textureManager:[theGLResources textureManager] options:theOptions])) {
         selectionManager = [theSelectionManager retain];
         camera = [theCamera retain];
-        fontManager = [theFontManager retain];
+        fontManager = [[theGLResources fontManager] retain];
         
         brushBoundsRenderer = [[BoundsRenderer alloc] initWithCamera:camera fontManager:fontManager];
         entityBoundsRenderer = [[EntityBoundsRenderer alloc] init];
-        entityAliasRenderer = [[EntityAliasRenderer alloc] init];
+        entityAliasRenderer = [[EntityAliasRenderer alloc] initWithEntityRendererManager:[theGLResources entityRendererManager]];
         entityClassnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:camera];
         
         addedEntities = [[NSMutableSet alloc] init];

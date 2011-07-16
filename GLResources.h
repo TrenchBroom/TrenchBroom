@@ -11,18 +11,23 @@
 @class GLFontManager;
 @class TextureManager;
 @class VBOBuffer;
+@class EntityRendererManager;
 
 @interface GLResources : NSObject {
     @private
     NSOpenGLContext* openGLContext;
     GLFontManager* fontManager;
     TextureManager* textureManager;
-    NSMutableDictionary* vbos;
+    EntityRendererManager* entityRendererManager;
+    NSData* palette;
 }
 
+- (id)initWithPalette:(NSData *)thePalette;
+
 - (NSOpenGLContext *)openGLContext;
+- (NSData *)palette;
 - (GLFontManager *)fontManager;
 - (TextureManager *)textureManager;
-- (VBOBuffer *)vboForKey:(id <NSCopying>)theKey;
+- (EntityRendererManager *)entityRendererManager;
 
 @end

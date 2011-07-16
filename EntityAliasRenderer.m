@@ -8,55 +8,30 @@
 
 #import "EntityAliasRenderer.h"
 #import "Entity.h"
-#import "EntityDefinition.h"
-#import "EntityDefinitionProperty.h"
-#import "ModelProperty.h"
-#import "AliasManager.h"
-#import "Alias.h"
-#import "BspManager.h"
-#import "Bsp.h"
-#import "BspModel.h"
+#import "EntityRendererManager.h"
 #import "EntityRenderer.h"
 #import "BspRenderer.h"
 #import "AliasRenderer.h"
-#import "VBOBuffer.h"
 #import "Filter.h"
-
-@interface EntityAliasRenderer (private)
-
-- (id <NSCopying>)rendererKey:(ModelProperty *)theModelProperty;
-
-@end
-
-@implementation EntityAliasRenderer (private)
-
-- (id <NSCopying>)rendererKey:(ModelProperty *)theModelProperty {
-    return [NSString stringWithFormat:@"%@ %@ %i", [theModelProperty modelPath], [theModelProperty flagName], [theModelProperty skinIndex]];
-}
-
-@end
 
 @implementation EntityAliasRenderer
 
-- (id)init {
+- (id)initWithEntityRendererManager:(EntityRendererManager *)theEntityRendererManager {
+    NSAssert(theEntityRendererManager != nil, @"entity renderer manager must not be nil");
+    
     if ((self = [super init])) {
-        vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
+        entityRendererManager = [theEntityRendererManager retain];
         entities = [[NSMutableSet alloc] init];
         entityRenderers = [[NSMutableDictionary alloc] init];
-
-        NSBundle* mainBundle = [NSBundle mainBundle];
-        NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
-        palette = [[NSData alloc] initWithContentsOfFile:palettePath];
     }
     
     return self;
 }
 
 - (void)dealloc {
+    [entityRendererManager release];
     [entities release];
     [entityRenderers release];
-    [vbo release];
-    [palette release];
     [filter release];
     [super dealloc];
 }
@@ -64,60 +39,27 @@
 - (void)addEntity:(id <Entity>)entity {
     NSAssert(entity != nil, @"entity must no be nil");
     
-    EntityDefinition* definition = [entity entityDefinition];
-    if (definition == nil)
-        return;
-    
-    ModelProperty* modelProperty = [definition modelPropertyForEntity:entity];
-    if (modelProperty != nil) {
-        id <NSCopying> rendererKey = [self rendererKey:modelProperty];
-        id <EntityRenderer> entityRenderer = [entityRenderers objectForKey:rendererKey];
-        if (entityRenderer == nil) {
-            NSString* modelName = [[modelProperty modelPath] substringFromIndex:1];
-            NSArray* pakPaths = [NSArray arrayWithObject:@"/Applications/Quake/id1"];
-            if ([[modelName pathExtension] isEqualToString:@"mdl"]) {
-                AliasManager* aliasManager = [AliasManager sharedManager];
-                Alias* alias = [aliasManager aliasWithName:modelName paths:pakPaths];
-                
-                if (alias != nil) {
-                    int skinIndex = [modelProperty skinIndex];
-                    
-                    entityRenderer = [[AliasRenderer alloc] initWithAlias:alias skinIndex:skinIndex vbo:vbo palette:palette];
-                    [entityRenderers setObject:entityRenderer forKey:rendererKey];
-                    [entityRenderer release];
-                }
-            } else if ([[modelName pathExtension] isEqualToString:@"bsp"]) {
-                BspManager* bspManager = [BspManager sharedManager];
-                Bsp* bsp = [bspManager bspWithName:modelName paths:pakPaths];
-                
-                if (bsp != nil) {
-                    entityRenderer = [[BspRenderer alloc] initWithBsp:bsp vbo:vbo];
-                    [entityRenderers setObject:entityRenderer forKey:rendererKey];
-                    [entityRenderer release];
-                }
-            }
-        }
-        if (entityRenderer != nil)
-            [entities addObject:entity];
+    id <EntityRenderer> renderer = [entityRendererManager entityRendererForEntity:entity];
+    if (renderer != nil) {
+        [entities addObject:entity];
+        [entityRenderers setObject:renderer forKey:[entity entityId]];
     }
 }
 
 - (void)removeEntity:(id <Entity>)entity {
+    [entityRenderers removeObjectForKey:[entity entityId]];
     [entities removeObject:entity];
 }
 
 - (void)render {
-    [vbo activate];
+    [entityRendererManager activate];
     
     glMatrixMode(GL_MODELVIEW);
     NSEnumerator* entityEn = [entities objectEnumerator];
     id <Entity> entity;
     while ((entity = [entityEn nextObject])) {
         if (filter == nil || [filter isEntityRenderable:entity]) {
-            EntityDefinition* definition = [entity entityDefinition];
-            ModelProperty* modelProperty = [definition modelPropertyForEntity:entity];
-            id <NSCopying> rendererKey = [self rendererKey:modelProperty];
-            id <EntityRenderer> entityRenderer = [entityRenderers objectForKey:rendererKey];
+            id <EntityRenderer> entityRenderer = [entityRenderers objectForKey:[entity entityId]];
 
             glPushMatrix();
             [entityRenderer renderWithEntity:entity];
@@ -126,7 +68,7 @@
     }
     
     glDisable(GL_TEXTURE_2D);
-    [vbo deactivate];
+    [entityRendererManager deactivate];
 }
 
 - (void)setFilter:(id <Filter>)theFilter {

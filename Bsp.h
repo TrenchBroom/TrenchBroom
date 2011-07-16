@@ -8,14 +8,14 @@
 
 #import <Foundation/Foundation.h>
 #import "Math.h"
-#import "Texture.h"
+#import "BspTexture.h"
 
 typedef struct {
     TVector3f sAxis;
     TVector3f tAxis;
     float sOffset;
     float tOffset;
-    Texture* texture;
+    BspTexture* texture;
 } TTextureInfo;
 
 typedef struct {
@@ -36,7 +36,7 @@ typedef struct {
     NSMutableArray* textures;
 }
 
-- (id)initWithName:(NSString *)theName data:(NSData *)theData palette:(NSData *)thePalette;
+- (id)initWithName:(NSString *)theName data:(NSData *)theData;
 
 - (NSString *)name;
 - (NSArray *)models;

@@ -25,9 +25,6 @@
     NSAssert(thePalette != nil, @"palette must not be nil");
     
     if ((self = [self init])) {
-        if (skinIndex > 0)
-            NSLog(@"asf");
-        
         alias = [theAlias retain];
         skinIndex = theSkinIndex;
         vbo = [theVbo retain];
@@ -46,7 +43,11 @@
     [super dealloc];
 }
 
-- (void)renderWithEntity:(id <Entity>)theEntity {
+- (void)renderWithEntity:(id<Entity>)theEntity {
+    [self renderAtOrigin:[theEntity origin] angle:[theEntity angle]];
+}
+
+- (void)renderAtOrigin:(TVector3i *)theOrigin angle:(NSNumber *)theAngle {
     if (block == nil) {
         AliasSkin* skin = [alias skinWithIndex:skinIndex];
         texture = [[Texture alloc] initWithName:[alias name] skin:skin index:0 palette:palette];
@@ -70,23 +71,12 @@
         }
         
         [vbo unmapBuffer];
-        
-        [vbo release];
-        vbo = nil;
-        
-        [alias release];
-        alias = nil;
-        
-        [palette release];
-        palette = nil;
     }
     
-    TVector3i* origin = [theEntity origin];
-    glTranslatef(origin->x, origin->y, origin->z);
+    glTranslatef(theOrigin->x, theOrigin->y, theOrigin->z);
     
-    NSNumber* angle = [theEntity angle];
-    if (angle != nil) {
-        int intAngle = [angle intValue];
+    if (theAngle != nil) {
+        int intAngle = [theAngle intValue];
         if (intAngle == -1)
             glRotatef(90, 1, 0, 0);
         else if (intAngle == 1)

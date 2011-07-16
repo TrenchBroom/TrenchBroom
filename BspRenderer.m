@@ -14,17 +14,21 @@
 #import "VBOMemBlock.h"
 #import "IntData.h"
 #import "Entity.h"
+#import "BspTexture.h"
+#import "Texture.h"
 
 @implementation BspRenderer
 
-- (id)initWithBsp:(Bsp *)theBsp vbo:(VBOBuffer *)theVbo {
+- (id)initWithBsp:(Bsp *)theBsp vbo:(VBOBuffer *)theVbo palette:(NSData *)thePalette {
     NSAssert(theBsp != nil, @"BSP must not be nil");
     NSAssert(theVbo != nil, @"VBO must not be nil");
+    NSAssert(thePalette != nil, @"palette must not be nil");
     
     if ((self = [self init])) {
         bsp = [theBsp retain];
         vbo = [theVbo retain];
-        textures = [[NSMutableSet alloc] init];
+        palette = [thePalette retain];
+        textures = [[NSMutableDictionary alloc] init];
         indices = [[NSMutableDictionary alloc] init];
         counts = [[NSMutableDictionary alloc] init];
     }
@@ -33,6 +37,7 @@
 }
 
 - (void)dealloc {
+    [palette release];
     [bsp release];
     [block free];
     [vbo release];
@@ -43,6 +48,10 @@
 }
 
 - (void)renderWithEntity:(id<Entity>)theEntity {
+    [self renderAtOrigin:[theEntity origin] angle:[theEntity angle]];
+}
+
+- (void)renderAtOrigin:(TVector3i *)theOrigin angle:(NSNumber *)theAngle {
     if (block == nil) {
         [vbo mapBuffer];
         
@@ -56,7 +65,13 @@
         BspFace* face;
         while ((face = [faceEn nextObject])) {
             TTextureInfo* texInfo = [face textureInfo];
-            Texture* texture = texInfo->texture;
+            BspTexture* bspTexture = texInfo->texture;
+            Texture* texture = [textures objectForKey:[bspTexture name]];
+            if (texture == nil) {
+                texture = [[Texture alloc] initWithBspTexture:bspTexture palette:palette];
+                [textures setObject:texture forKey:[bspTexture name]];
+                [texture release];
+            }
             
             IntData* indexBuffer = [indices objectForKey:[texture name]];
             if (indexBuffer == nil) {
@@ -72,7 +87,6 @@
                 [countBuffer release];
             }
             
-            [textures addObject:texture];
             [indexBuffer appendInt:offset / (5 * sizeof(float))];
             [countBuffer appendInt:[face vertexCount]];
             
@@ -89,12 +103,10 @@
         [vbo unmapBuffer];
     }
     
-    TVector3i* origin = [theEntity origin];
-    glTranslatef(origin->x, origin->y, origin->z);
+    glTranslatef(theOrigin->x, theOrigin->y, theOrigin->z);
     
-    NSNumber* angle = [theEntity angle];
-    if (angle != nil) {
-        int intAngle = [angle intValue];
+    if (theAngle != nil) {
+        int intAngle = [theAngle intValue];
         if (intAngle == -1)
             glRotatef(90, 1, 0, 0);
         else if (intAngle == -2)

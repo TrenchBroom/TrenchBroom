@@ -79,16 +79,12 @@ static BspManager* sharedInstance = nil;
 - (id)init {
     if ((self = [super init])) {
         bsps = [[NSMutableDictionary alloc] init];
-        NSBundle* mainBundle = [NSBundle mainBundle];
-        NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
-        palette = [[NSData alloc] initWithContentsOfFile:palettePath];
     }
     
     return self;
 }
 
 - (void)dealloc {
-    [palette release];
     [bsps release];
     [super dealloc];
 }
@@ -103,7 +99,7 @@ static BspManager* sharedInstance = nil;
         PakManager* pakManager = [PakManager sharedManager];
         NSData* entry = [pakManager entryWithName:theName pakPaths:thePaths];
         if (entry != nil) {
-            bsp = [[Bsp alloc] initWithName:theName data:entry palette:palette];
+            bsp = [[Bsp alloc] initWithName:theName data:entry];
             [bsps setObject:bsp forKey:key];
             [bsp release];
         }

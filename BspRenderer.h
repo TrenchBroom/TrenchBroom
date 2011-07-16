@@ -16,13 +16,14 @@
 @interface BspRenderer : NSObject <EntityRenderer> {
 @private
     Bsp* bsp;
+    NSData* palette;
     VBOBuffer* vbo;
     VBOMemBlock* block;
-    NSMutableSet* textures;
+    NSMutableDictionary* textures;
     NSMutableDictionary* indices;
     NSMutableDictionary* counts;
 }
 
-- (id)initWithBsp:(Bsp *)theBsp vbo:(VBOBuffer *)theVbo;
+- (id)initWithBsp:(Bsp *)theBsp vbo:(VBOBuffer *)theVbo palette:(NSData *)thePalette;
 
 @end

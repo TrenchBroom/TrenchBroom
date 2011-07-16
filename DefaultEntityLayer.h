@@ -13,6 +13,7 @@
 @class EntityAliasRenderer;
 @class TextRenderer;
 @class Options;
+@class GLResources;
 @class GLFontManager;
 @class Camera;
 
@@ -27,6 +28,6 @@
     NSMutableSet* removedEntities;
 }
 
-- (id)initWithFontManager:(GLFontManager *)theFontManager camera:(Camera *)theCamera options:(Options *)theOptions;
+- (id)initWithGLResources:(GLResources *)theGLResources camera:(Camera *)theCamera options:(Options *)theOptions;
 
 @end

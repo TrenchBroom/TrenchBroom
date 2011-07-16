@@ -7,11 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Math.h"
 
 @protocol Entity;
 
 @protocol EntityRenderer <NSObject>
 
 - (void)renderWithEntity:(id <Entity>)theEntity;
+- (void)renderAtOrigin:(TVector3i *)theOrigin angle:(NSNumber *)theAngle;
 
 @end

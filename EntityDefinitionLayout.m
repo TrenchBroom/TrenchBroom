@@ -23,10 +23,9 @@
     return self;
 }
 
-- (id)initWithEntityDefinitionManager:(EntityDefinitionManager *)theEntityDefinitionManager entityDefinitionsPerRow:(int)theEntityDefinitionsPerRow fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
+- (id)initWithEntityDefinitionManager:(EntityDefinitionManager *)theEntityDefinitionManager fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
     if ((self = [self init])) {
         entityDefinitionManager = [theEntityDefinitionManager retain];
-        entityDefinitionsPerRow = theEntityDefinitionsPerRow;
         fontManager = [theFontManager retain];
         font = [theFont retain];
         outerMargin = 10;
@@ -41,30 +40,39 @@
     
     NSEnumerator* definitionEn = [[entityDefinitionManager definitionsOfType:EDT_POINT] objectEnumerator];
     EntityDefinition* definition;
-    int x;
-    int y = outerMargin;
+    float x = width; // to force creation of first row
+    float y = outerMargin;
+    float yd = 0;
     int i = 0;
-    int yd;
-    float cellWidth = (width - 2 * outerMargin) / entityDefinitionsPerRow - (entityDefinitionsPerRow - 1) * innerMargin;
+    
+    float maxWidth = 200;
 
     NSMutableArray* row;
     while ((definition = [definitionEn nextObject])) {
-        if (i % entityDefinitionsPerRow == 0) {
-            row = [[NSMutableArray alloc] initWithCapacity:entityDefinitionsPerRow];
+        GLString* nameString = [fontManager glStringFor:[definition name] font:font];
+        float cellWidth = fmax(maxWidth, [nameString size].width);
+        
+        if (x + cellWidth + outerMargin > width) {
+            row = [[NSMutableArray alloc] init];
             [rows addObject:row];
             [row release];
             x = outerMargin;
-            y += yd;
+            y += yd + innerMargin;
             yd = 0;
         }
-        
-        GLString* nameString = [fontManager glStringFor:[definition name] font:font];
-        EntityDefinitionLayoutCell* cell = [[EntityDefinitionLayoutCell alloc] initWithEntityDefinition:definition atPos:NSMakePoint(x, y) width:cellWidth nameSize:[nameString size]];
+
+        EntityDefinitionLayoutCell* cell = [[EntityDefinitionLayoutCell alloc] initWithEntityDefinition:definition atPos:NSMakePoint(x, y) width:cellWidth nameString:nameString];
         [row addObject:cell];
         [cell release];
+        
+        NSRect cellBounds = [cell bounds];
+        x += cellBounds.size.width + innerMargin;
+        if (cellBounds.size.height > yd)
+            yd = cellBounds.size.height;
+        i++;
     }
 
-    height = y + outerMargin;
+    height = y + yd + outerMargin;
     valid = YES;
 }
 
@@ -98,11 +106,6 @@
     }
     
     return nil;
-}
-
-- (void)setEntityDefinitionsPerRow:(int)theEntityDefinitionsPerRow {
-    entityDefinitionsPerRow = theEntityDefinitionsPerRow;
-    [self invalidate];
 }
 
 - (void)setWidth:(float)theWidth {

@@ -46,6 +46,7 @@ typedef enum {
 - (BOOL)isFlag:(NSString *)theFlagName setOnEntity:(id <Entity>)theEntity;
 - (NSArray *)properties;
 - (ModelProperty *)modelPropertyForEntity:(id <Entity>)theEntity;
+- (ModelProperty *)defaultModelProperty;
 - (NSString *)description;
 
 - (NSComparisonResult)compareByName:(EntityDefinition *)definition;
