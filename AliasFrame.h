@@ -14,14 +14,18 @@
     NSString* name;
     TFrameTriangle* triangles;
     int triangleCount;
+    TVector3f center;
     TBoundingBox bounds;
+    TBoundingBox maxBounds;
 }
 
-- (id)initWithName:(NSString *)theName triangles:(TFrameTriangle *)theTriangles triangleCount:(int)theTriangleCount;
+- (id)initWithName:(NSString *)theName triangles:(TFrameTriangle *)theTriangles triangleCount:(int)theTriangleCount center:(TVector3f *)theCenter bounds:(TBoundingBox *)theBounds maxBounds:(TBoundingBox *)theMaxBounds;
 
 - (NSString *)name;
 - (int)triangleCount;
 - (const TFrameTriangle *)triangleAtIndex:(int)theIndex;
+- (const TVector3f *)center;
 - (const TBoundingBox *)bounds;
+- (const TBoundingBox *)maxBounds;
 
 @end

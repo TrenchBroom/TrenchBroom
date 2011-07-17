@@ -89,10 +89,22 @@
     glPolygonMode(GL_FRONT, GL_FILL);
     [texture activate];
     
-    glInterleavedArrays(GL_T2F_N3F_V3F, 0, (const GLvoid *)[block address]);
+    glInterleavedArrays(GL_T2F_N3F_V3F, 0, (const GLvoid *)(long)[block address]);
     glDrawArrays(GL_TRIANGLES, 0, triangleCount * 3);
     
     [texture deactivate];
+}
+
+- (const TVector3f *)center {
+    return [[alias firstFrame] center];
+}
+
+- (const TBoundingBox *)bounds {
+    return [[alias firstFrame] bounds];
+}
+
+- (const TBoundingBox *)maxBounds {
+    return [[alias firstFrame] maxBounds];
 }
 
 @end

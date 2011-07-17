@@ -90,8 +90,9 @@
             [indexBuffer appendInt:offset / (5 * sizeof(float))];
             [countBuffer appendInt:[face vertexCount]];
             
+            TVector3f* faceVertices = [face vertices];
             for (int i = 0; i < [face vertexCount]; i++) {
-                TVector3f* vertex = [face vertexAtIndex:i];
+                TVector3f* vertex = &faceVertices[i];
                 TVector2f texCoords;
                 [face texCoords:&texCoords forVertex:vertex];
                 
@@ -117,7 +118,7 @@
     
     glEnable(GL_TEXTURE_2D);
     glPolygonMode(GL_FRONT, GL_FILL);
-    glInterleavedArrays(GL_T2F_V3F, 0, (const GLvoid *)[block address]);
+    glInterleavedArrays(GL_T2F_V3F, 0, (const GLvoid *)(long)[block address]);
     
     NSEnumerator* textureEn = [textures objectEnumerator];
     Texture* texture;
@@ -127,11 +128,27 @@
         
         const void* indexBytes = [indexBuffer bytes];
         const void* countBytes = [countBuffer bytes];
-        int primCount = [indexBuffer count];
+        long primCount = [indexBuffer count];
         
         [texture activate];
         glMultiDrawArrays(GL_POLYGON, indexBytes, countBytes, primCount);
 
     }
+}
+
+
+- (const TVector3f *)center {
+    BspModel* bspModel = [[bsp models] objectAtIndex:0];
+    return [bspModel center];
+}
+
+- (const TBoundingBox *)bounds {
+    BspModel* bspModel = [[bsp models] objectAtIndex:0];
+    return [bspModel bounds];
+}
+
+- (const TBoundingBox *)maxBounds {
+    BspModel* bspModel = [[bsp models] objectAtIndex:0];
+    return [bspModel maxBounds];
 }
 @end

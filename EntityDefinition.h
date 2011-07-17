@@ -24,6 +24,7 @@ typedef enum {
     EEntityDefinitionType type;
     NSString* name;
     float color[3];
+    TVector3f center;
     TBoundingBox bounds;
     TBoundingBox maxBounds;
     NSDictionary* flags;
@@ -38,8 +39,9 @@ typedef enum {
 - (EEntityDefinitionType)type;
 - (NSString *)name;
 - (float *)color;
-- (TBoundingBox *)bounds;
-- (TBoundingBox *)maxBounds;
+- (const TVector3f *)center;
+- (const TBoundingBox *)bounds;
+- (const TBoundingBox *)maxBounds;
 - (SpawnFlag *)flagForName:(NSString *)theName;
 - (NSArray *)flagsForMask:(int)theMask;
 - (NSArray *)allFlags;

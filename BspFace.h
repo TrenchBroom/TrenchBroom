@@ -11,6 +11,7 @@
 
 @interface BspFace : NSObject {
 @private
+    TBoundingBox bounds;
     TTextureInfo textureInfo;
     TVector3f* vertices;
     int vertexCount;
@@ -18,8 +19,9 @@
 
 - (id)initWithTextureInfo:(TTextureInfo *)theTextureInfo vertices:(TVector3f *)theVertices vertexCount:(int)theVertexCount;
 
+- (TBoundingBox *)bounds;
 - (TTextureInfo *)textureInfo;
-- (TVector3f *)vertexAtIndex:(int)theIndex;
+- (TVector3f *)vertices;
 - (int)vertexCount;
 - (void)texCoords:(TVector2f *)theTexCoords forVertex:(TVector3f *)theVertex;
 

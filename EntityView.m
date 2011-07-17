@@ -22,15 +22,27 @@
 @implementation EntityView
 
 - (void)resetCamera:(Camera *)camera forEntityDefinition:(EntityDefinition *)entityDefinition {
-    TBoundingBox* maxBounds = [entityDefinition maxBounds];
-    TVector3f s, p, d, u, c;
-    centerOfBounds(maxBounds, &c);
+    const TBoundingBox* maxBounds;
+    const TVector3f* center;
+
+    EntityRendererManager* entityRendererManager = [glResources entityRendererManager];
+    id <EntityRenderer> renderer = [entityRendererManager entityRendererForDefinition:entityDefinition];
+    if (renderer != nil) {
+        maxBounds = [renderer maxBounds];
+        center = [renderer center];
+    } else {
+        maxBounds = [entityDefinition maxBounds];
+        center = [entityDefinition center];
+    }
+    
+    
+    TVector3f s, p, d, u;
     sizeOfBounds(maxBounds, &s);
     
     scaleV3f(&s, 0.5f, &p);
-    addV3f(&p, &c, &p);
+    addV3f(&p, center, &p);
     
-    subV3f(&c, &p, &d);
+    subV3f(center, &p, &d);
     
     crossV3f(&d, &ZAxisPos, &u);
     crossV3f(&u, &d, &u);

@@ -121,6 +121,11 @@ void addV3f(const TVector3f* l, const TVector3f* r, TVector3f* o) {
     o->z = l->z + r->z;
 }
 
+void sumV3f(const TVector3f* v, int c, TVector3f* o) {
+    for (int i = 0; i < c; i++)
+        addV3f(o, &v[i], o);
+}
+
 void subV3f(const TVector3f* l, const TVector3f* r, TVector3f* o) {
     o->x = l->x - r->x;
     o->y = l->y - r->y;

@@ -108,6 +108,7 @@ void normalizeV2f(const TVector2f* v, TVector2f* r);
 float dot3f(float lx, float ly, float lz, float rx, float ry, float rz);
 
 void addV3f(const TVector3f* l, const TVector3f* r, TVector3f* o);
+void sumV3f(const TVector3f* v, int c, TVector3f* o);
 void subV3f(const TVector3f* l, const TVector3f* r, TVector3f* o);
 float dotV3f(const TVector3f* l, const TVector3f* r);
 void crossV3f(const TVector3f* l, const TVector3f* r, TVector3f* o);

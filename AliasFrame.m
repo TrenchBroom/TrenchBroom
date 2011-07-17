@@ -10,23 +10,22 @@
 
 @implementation AliasFrame
 
-- (id)initWithName:(NSString *)theName triangles:(TFrameTriangle *)theTriangles triangleCount:(int)theTriangleCount {
+- (id)initWithName:(NSString *)theName triangles:(TFrameTriangle *)theTriangles triangleCount:(int)theTriangleCount center:(TVector3f *)theCenter bounds:(TBoundingBox *)theBounds maxBounds:(TBoundingBox *)theMaxBounds {
     NSAssert(theName != nil, @"name must not be nil");
     NSAssert(theTriangles != NULL, @"triangle array must not be NULL");
     NSAssert(theTriangleCount > 0, @"triangle count must be greater than 0");
+    NSAssert(theCenter != NULL, @"center must not be NULL");
+    NSAssert(theBounds != NULL, @"bounds must not be NULL");
+    NSAssert(theMaxBounds != NULL, @"max bounds must not be NULL");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         name = [[NSString alloc] initWithString:theName];
         triangleCount = theTriangleCount;
         triangles = malloc(triangleCount * sizeof(TFrameTriangle));
         memcpy(triangles, theTriangles, triangleCount * sizeof(TFrameTriangle));
-        
-        bounds.min = triangles[0].vertices[0].position;
-        bounds.max = bounds.min;
-        
-        for (int i = 0; i < triangleCount; i++)
-            for (int j = 0; j < 3; j++)
-                mergeBoundsWithPoint(&bounds, &triangles[i].vertices[j].position, &bounds);
+        center = *theCenter;
+        bounds = *theBounds;
+        maxBounds = *theMaxBounds;
     }
     
     return self;
@@ -51,8 +50,16 @@
     return &triangles[theIndex];
 }
 
+- (const TVector3f *)center {
+    return &center;
+}
+
 - (const TBoundingBox *)bounds {
     return &bounds;
+}
+
+- (const TBoundingBox *)maxBounds {
+    return &maxBounds;
 }
 
 @end

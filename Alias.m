@@ -71,11 +71,10 @@ void readFrameVertex(NSData* data, int address, TPackedFrameVertex* vertex) {
     vertex->i = readUChar(data, address + 3);
 }
 
-void unpackFrameVertex(const TPackedFrameVertex* packedVertex, const TVector3f* origin, const TVector3f* size, TFrameVertex* vertex) {
-    vertex->position.x = size->x * packedVertex->x + origin->x;
-    vertex->position.y = size->y * packedVertex->y + origin->y;
-    vertex->position.z = size->z * packedVertex->z + origin->z;
-    vertex->norm = AliasNormals[packedVertex->i];
+void unpackFrameVertex(const TPackedFrameVertex* packedVertex, const TVector3f* origin, const TVector3f* size, TVector3f* result) {
+    result->x = size->x * packedVertex->x + origin->x;
+    result->y = size->y * packedVertex->y + origin->y;
+    result->z = size->z * packedVertex->z + origin->z;
 }
 
 void setTexCoordinates(const TSkinVertex* skinVertex, BOOL front, int skinWidth, int skinHeight, TFrameVertex* vertex) {
@@ -92,16 +91,53 @@ AliasFrame* readFrame(NSData* data, int address, TVector3f* origin, TVector3f* s
     for (int i = 0; i < vertexCount; i++)
         readFrameVertex(data, address + MDL_SIMPLE_FRAME_VERTICES + i * MDL_FRAME_VERTEX_SIZE, &packedFrameVertices[i]);
     
+    TVector3f frameVertices[vertexCount];
+    TVector3f center;
+    TBoundingBox bounds;
+
+    unpackFrameVertex(&packedFrameVertices[0], origin, scale, &frameVertices[0]);
+    center = frameVertices[0];
+    bounds.min = frameVertices[0];
+    bounds.max = frameVertices[0];
+    
+    for (int i = 1; i < vertexCount; i++) {
+        unpackFrameVertex(&packedFrameVertices[i], origin, scale, &frameVertices[i]);
+        addV3f(&center, &frameVertices[i], &center);
+        mergeBoundsWithPoint(&bounds, &frameVertices[i], &bounds);
+    }
+    
+    scaleV3f(&center, 1.0f / vertexCount, &center);
+
+    TVector3f diff;
+    float distSquared;
+    for (int i = 0; i < vertexCount; i++) {
+        subV3f(&frameVertices[i], &center, &diff);
+        distSquared = fmax(distSquared, lengthSquaredV3f(&diff));
+    }
+    
+    float dist = sqrt(distSquared);
+    
+    TBoundingBox maxBounds;
+    maxBounds.min = center;
+    maxBounds.min.x -= dist;
+    maxBounds.min.y -= dist;
+    maxBounds.min.z -= dist;
+    maxBounds.max = center;
+    maxBounds.max.x += dist;
+    maxBounds.max.y += dist;
+    maxBounds.max.z += dist;
+    
     TFrameTriangle frameTriangles[triangleCount];
     for (int i = 0; i < triangleCount; i++) {
         for (int j = 0; j < 3; j++) {
             int index = triangles[i].vertices[j];
-            unpackFrameVertex(&packedFrameVertices[index], origin, scale, &frameTriangles[i].vertices[j]);
+            frameTriangles[i].vertices[j].position = frameVertices[index];
+            frameTriangles[i].vertices[j].norm = AliasNormals[packedFrameVertices[index].i];
             setTexCoordinates(&vertices[index], triangles[i].front, skinWidth, skinHeight, &frameTriangles[i].vertices[j]);
         }
     }
     
-    return [[[AliasFrame alloc] initWithName:name triangles:frameTriangles triangleCount:triangleCount] autorelease];
+    return [[[AliasFrame alloc] initWithName:name triangles:frameTriangles triangleCount:triangleCount center:&center bounds:&bounds maxBounds:&maxBounds] autorelease];
 }
 
 @implementation Alias

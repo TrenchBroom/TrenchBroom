@@ -15,5 +15,8 @@
 
 - (void)renderWithEntity:(id <Entity>)theEntity;
 - (void)renderAtOrigin:(TVector3i *)theOrigin angle:(NSNumber *)theAngle;
+- (const TVector3f *)center;
+- (const TBoundingBox *)bounds;
+- (const TBoundingBox *)maxBounds;
 
 @end

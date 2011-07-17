@@ -21,18 +21,27 @@
         vertexCount = theVertexCount;
         vertices = malloc(vertexCount * sizeof(TVector3f));
         memcpy(vertices, theVertices, vertexCount * sizeof(TVector3f));
+        
+        bounds.min = vertices[0];
+        bounds.max = vertices[0];
+        
+        for (int i = 1; i < vertexCount; i++)
+            mergeBoundsWithPoint(&bounds, &vertices[i], &bounds);
     }
     
     return self;
+}
+
+- (TBoundingBox *)bounds {
+    return &bounds;
 }
 
 - (TTextureInfo *)textureInfo {
     return &textureInfo;
 }
 
-- (TVector3f *)vertexAtIndex:(int)theIndex {
-    NSAssert(theIndex >= 0 && theIndex < vertexCount, @"vertex index out of bounds");
-    return &vertices[theIndex];
+- (TVector3f *)vertices {
+    return vertices;
 }
 
 - (int)vertexCount {
