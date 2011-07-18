@@ -414,6 +414,42 @@
     [activeTool handleMagnify:lastEvent ray:&lastRay hits:lastHits];
 }
 
+- (NSDragOperation)handleDraggingEntered:(id <NSDraggingInfo>)sender {
+    NSPasteboard* pasteboard = [sender draggingPasteboard];
+    NSString* type = [pasteboard availableTypeFromArray:[NSArray arrayWithObject:EntityDefinitionType]];
+    if (type == nil)
+        return NSDragOperationNone;
+
+    return NSDragOperationCopy;
+}
+
+- (NSDragOperation)handleDraggingUpdated:(id <NSDraggingInfo>)sender {
+    NSPasteboard* pasteboard = [sender draggingPasteboard];
+    NSString* type = [pasteboard availableTypeFromArray:[NSArray arrayWithObject:EntityDefinitionType]];
+    if (type == nil)
+        return NSDragOperationNone;
+    
+    return NSDragOperationCopy;
+}
+
+- (void)handleDraggingEnded:(id <NSDraggingInfo>)sender {
+}
+
+- (void)handleDraggingExited:(id <NSDraggingInfo>)sender {
+}
+
+- (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)sender {
+    return NO;
+}
+
+- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
+    return NO;
+}
+
+- (void)concludeDragOperation:(id <NSDraggingInfo>)sender {
+}
+
+
 - (ClipTool *)clipTool {
     return clipTool;
 }

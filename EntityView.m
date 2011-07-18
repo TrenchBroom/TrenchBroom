@@ -19,48 +19,48 @@
 #import "EntityRendererManager.h"
 #import "EntityRenderer.h"
 
+@interface EntityView (private)
+
+- (NSImage *)dragImageWithBounds:(NSRect)theBounds;
+
+@end
+
+@implementation EntityView (private)
+
+- (NSImage *)dragImageWithBounds:(NSRect)theBounds {
+    int byteWidth = NSWidth(theBounds) * 4;
+    byteWidth = (byteWidth + 3) & ~3;
+    
+    NSBitmapImageRep* bitmap = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
+                                                                       pixelsWide:NSWidth(theBounds)
+                                                                       pixelsHigh:NSHeight(theBounds)
+                                                                    bitsPerSample:8
+                                                                  samplesPerPixel:4
+                                                                         hasAlpha:YES
+                                                                         isPlanar:NO
+                                                                   colorSpaceName:NSDeviceRGBColorSpace
+                                                                      bytesPerRow:byteWidth
+                                                                     bitsPerPixel:8 * 4];
+    
+    glPixelStorei(GL_PACK_ALIGNMENT, 4);	/* Force 4-byte alignment */
+    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_PACK_SKIP_ROWS, 0);
+    glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
+    
+    glReadPixels(NSMinX(theBounds), NSMinY(theBounds), NSWidth(theBounds), NSHeight(theBounds), GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, [bitmap bitmapData]);
+
+    NSImage* image = [[NSImage alloc] initWithSize:theBounds.size];
+    [image lockFocusFlipped:YES];
+    [bitmap draw];
+    [image unlockFocus];
+    
+    [bitmap release];
+    return [image autorelease];
+}
+
+@end
+
 @implementation EntityView
-
-- (void)resetCamera:(Camera *)camera forEntityDefinition:(EntityDefinition *)entityDefinition {
-    const TBoundingBox* maxBounds;
-    const TVector3f* center;
-
-    EntityRendererManager* entityRendererManager = [glResources entityRendererManager];
-    id <EntityRenderer> renderer = [entityRendererManager entityRendererForDefinition:entityDefinition];
-    if (renderer != nil) {
-        maxBounds = [renderer maxBounds];
-        center = [renderer center];
-    } else {
-        maxBounds = [entityDefinition maxBounds];
-        center = [entityDefinition center];
-    }
-    
-    
-    TVector3f s, p, d, u;
-    sizeOfBounds(maxBounds, &s);
-    
-    scaleV3f(&s, 0.5f, &p);
-    addV3f(&p, center, &p);
-    
-    subV3f(center, &p, &d);
-    
-    crossV3f(&d, &ZAxisPos, &u);
-    crossV3f(&u, &d, &u);
-    
-    normalizeV3f(&d, &d);
-    normalizeV3f(&u, &u);
-    
-    [camera moveTo:&p];
-    [camera setDirection:&d up:&u];
-}
-
-- (id)initWithCoder:(NSCoder *)aDecoder {
-    if ((self = [super initWithCoder:aDecoder])) {
-        cameras = [[NSMutableDictionary alloc] init];
-    }
-    
-    return self;
-}
 
 - (BOOL)isFlipped {
     return YES;
@@ -90,8 +90,31 @@
 
 - (void)mouseDown:(NSEvent *)theEvent {
     NSPoint clickPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-    if ([theEvent clickCount] == 1 && [self isCameraModifierPressed:theEvent]) {
-        draggedEntityDefinition = [layout entityDefinitionAt:clickPoint];
+    if ([theEvent clickCount] == 1) {
+        if ([self isCameraModifierPressed:theEvent]) {
+            draggedEntityDefinition = [layout entityDefinitionAt:clickPoint];
+            dragDistance.x = 0;
+            dragDistance.y = 0;
+        } else {
+            EntityDefinitionLayoutCell* cell = [layout cellAt:clickPoint];
+            EntityDefinition* definition = [cell entityDefinition];
+            
+            NSRect visibleRect = [self visibleRect];
+            NSRect definitionBounds = [cell entityDefinitionBounds];
+            NSRect imageBounds = NSMakeRect(NSMinX(definitionBounds), NSHeight(visibleRect) - NSMaxY(definitionBounds) + NSMinY(visibleRect), NSWidth(definitionBounds), NSHeight(definitionBounds));
+        
+            NSImage* dragImage = [self dragImageWithBounds:imageBounds];
+            NSPasteboard* pasteboard = [NSPasteboard pasteboardWithName:NSDragPboard];
+
+            NSString* definitionName = [definition name];
+            [pasteboard declareTypes:[NSArray arrayWithObject:EntityDefinitionType] owner:nil];
+            [pasteboard setData:[definitionName dataUsingEncoding:NSUTF8StringEncoding] forType:EntityDefinitionType];
+            
+            NSPoint imageLocation = definitionBounds.origin;
+            imageLocation.y += NSHeight(definitionBounds);
+            
+            [self dragImage:dragImage at:imageLocation offset:NSMakeSize(0, 0) event:theEvent pasteboard:pasteboard source:self slideBack:YES];
+        }
     } else if ([theEvent clickCount] == 2) {
         EntityDefinition* entityDefinition = [layout entityDefinitionAt:clickPoint];
         if (entityDefinition != nil)
@@ -101,21 +124,17 @@
 
 - (void)mouseDragged:(NSEvent *)theEvent {
     if (draggedEntityDefinition != nil) {
-        Camera* camera = [cameras objectForKey:[draggedEntityDefinition name]];
-        
-        TVector3f center;
-        centerOfBounds([draggedEntityDefinition bounds], &center);
-        
-        [camera orbitCenter:&center hAngle:[theEvent deltaX] / 70 vAngle:[theEvent deltaY] / 70];
+        dragDistance.x += [theEvent deltaX];
+        dragDistance.y += [theEvent deltaY];
         [self setNeedsDisplay:YES];
     }
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
     if (draggedEntityDefinition != nil) {
-        Camera* camera = [cameras objectForKey:[draggedEntityDefinition name]];
-        [self resetCamera:camera forEntityDefinition:draggedEntityDefinition];
         draggedEntityDefinition = nil;
+        dragDistance.x = 0;
+        dragDistance.y = 0;
         [self setNeedsDisplay:YES];
     }
 }
@@ -125,7 +144,7 @@
 - (void)drawRect:(NSRect)dirtyRect {
     NSRect visibleRect = [self visibleRect];
     
-	glClearColor(0, 0, 0, 1);
+	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     if (glResources != nil) {
@@ -151,17 +170,83 @@
             EntityDefinitionLayoutCell* cell;
             while ((cell = [cellEn nextObject])) {
                 EntityDefinition* definition = [cell entityDefinition];
-                NSRect definitionBounds = [cell entityDefinitionBounds];
-
-                NSRect cameraBounds = NSMakeRect(NSMinX(definitionBounds), NSHeight(visibleRect) - NSMaxY(definitionBounds) + NSMinY(visibleRect), NSWidth(definitionBounds), NSHeight(definitionBounds));
-                
-                Camera* camera = [cameras objectForKey:[definition name]];
-                [camera updateView:cameraBounds];
-                
                 id <EntityRenderer> renderer = [entityRendererManager entityRendererForDefinition:definition];
-                glPushMatrix();
-                [renderer renderAtOrigin:&origin angle:nil];
-                glPopMatrix();
+                
+                const TVector3f* center;
+                const TBoundingBox* maxBounds;
+                
+                if (renderer != nil) {
+                    center = [renderer center];
+                    maxBounds = [renderer maxBounds];
+                } else {
+                    center = [definition center];
+                    maxBounds = [definition maxBounds];
+                }
+                
+                NSRect definitionBounds = [cell entityDefinitionBounds];
+                NSRect cameraBounds = NSMakeRect(NSMinX(definitionBounds), NSHeight(visibleRect) - NSMaxY(definitionBounds) + NSMinY(visibleRect), NSWidth(definitionBounds), NSHeight(definitionBounds));
+                glViewport(NSMinX(cameraBounds), NSMinY(cameraBounds), NSWidth(cameraBounds), NSHeight(cameraBounds));
+                
+                glMatrixMode(GL_PROJECTION);
+                glLoadIdentity();
+                gluPerspective(90, NSWidth(cameraBounds) / NSHeight(cameraBounds), 0.01f, 1000);
+                
+                TVector3f pos = maxBounds->max;
+                subV3f(&pos, center, &pos);
+                
+                glMatrixMode(GL_MODELVIEW);
+                glLoadIdentity();
+                gluLookAt(pos.x,
+                          pos.y,
+                          pos.z,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          1);
+                
+                if (definition == draggedEntityDefinition) {
+                    glRotatef(dragDistance.y, 1, -1, 0);
+                    glRotatef(dragDistance.x + 20, 0, 0, 1);
+                } else {
+                    glRotatef(15, 0, 0, 1);
+                }
+                
+                glTranslatef(-center->x, -center->y, -center->z);
+                
+                if (renderer != nil) {
+                    [renderer renderAtOrigin:&origin angle:nil];
+                } else {
+                    float* color = [definition color];
+                    glColor4f(color[0], color[1], color[2], 1);
+                    
+                    TVector3f size;
+                    sizeOfBounds([definition bounds], &size);
+                    glScalef(size.x, size.y, size.z);
+                    
+                    glBegin(GL_LINE_LOOP);
+                    glVertex3f(-0.5, -0.5, -0.5);
+                    glVertex3f(+0.5, -0.5, -0.5);
+                    glVertex3f(+0.5, -0.5, +0.5);
+                    glVertex3f(-0.5, -0.5, +0.5);
+                    glVertex3f(-0.5, +0.5, +0.5);
+                    glVertex3f(+0.5, +0.5, +0.5);
+                    glVertex3f(+0.5, +0.5, -0.5);
+                    glVertex3f(-0.5, +0.5, -0.5);
+                    glEnd();
+                    
+                    glBegin(GL_LINES);
+                    glVertex3f(-0.5, -0.5, -0.5);
+                    glVertex3f(-0.5, -0.5, +0.5);
+                    glVertex3f(-0.5, +0.5, -0.5);
+                    glVertex3f(-0.5, +0.5, +0.5);
+                    glVertex3f(+0.5, -0.5, -0.5);
+                    glVertex3f(+0.5, +0.5, -0.5);
+                    glVertex3f(+0.5, -0.5, +0.5);
+                    glVertex3f(+0.5, +0.5, +0.5);
+                    glEnd();
+                }
             }
         }
         
@@ -215,7 +300,6 @@
     [glResources release];
     glResources = [theGLResources retain];
     
-    [cameras removeAllObjects];
     [entityDefinitionManager release];
     entityDefinitionManager = [theEntityDefinitionManager retain];
     
@@ -229,22 +313,12 @@
         GLFontManager* fontManager = [glResources fontManager];
         NSFont* font = [NSFont systemFontOfSize:13];
         layout = [[EntityDefinitionLayout alloc] initWithEntityDefinitionManager:entityDefinitionManager fontManager:fontManager font:font];
-        
-        NSEnumerator* definitionEn = [[entityDefinitionManager definitionsOfType:EDT_POINT] objectEnumerator];
-        EntityDefinition* definition;
-        while ((definition = [definitionEn nextObject])) {
-            Camera* camera = [[Camera alloc] initWithFieldOfVision:90 nearClippingPlane:10 farClippingPlane:1000];
-            [self resetCamera:camera forEntityDefinition:definition];
-            [cameras setObject:camera forKey:[definition name]];
-            [camera release];
-        }
     }
     
     [self reshape];
 }
 
 - (void)dealloc {
-    [cameras release];
     [glResources release];
     [entityDefinitionManager release];
     [layout release];

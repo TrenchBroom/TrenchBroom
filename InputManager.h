@@ -60,6 +60,14 @@
 - (void)handleEndGesture:(NSEvent *)event sender:(id)sender;
 - (void)handleMagnify:(NSEvent *)event sender:(id)sender;
 
+- (NSDragOperation)handleDraggingEntered:(id <NSDraggingInfo>)sender;
+- (NSDragOperation)handleDraggingUpdated:(id <NSDraggingInfo>)sender;
+- (void)handleDraggingEnded:(id <NSDraggingInfo>)sender;
+- (void)handleDraggingExited:(id <NSDraggingInfo>)sender;
+- (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)sender;
+- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender;
+- (void)concludeDragOperation:(id <NSDraggingInfo>)sender;
+
 - (ClipTool *)clipTool;
 - (NSPoint)menuPosition;
 

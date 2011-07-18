@@ -18,18 +18,46 @@
 #import "MapDocument.h"
 #import "Options.h"
 #import "Grid.h"
+#import "EntityDefinition.h"
 
 static NSString* MapView3DDefaults = @"3D View";
 static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 
 @implementation MapView3D
 
-- (id)retain {
-    return [super retain];
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    return [inputManager handleDraggingEntered:sender];
 }
 
-- (void)release {
-    [super release];
+- (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    return [inputManager handleDraggingUpdated:sender];
+}
+
+- (void)draggingEnded:(id<NSDraggingInfo>)sender {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    [inputManager handleDraggingEnded:sender];
+}
+
+- (void)draggingExited:(id<NSDraggingInfo>)sender {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    [inputManager handleDraggingExited:sender];
+}
+
+- (BOOL)prepareForDragOperation:(id<NSDraggingInfo>)sender {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    return [inputManager prepareForDragOperation:sender];
+}
+
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    return [inputManager performDragOperation:sender];
+}
+
+- (void)concludeDragOperation:(id<NSDraggingInfo>)sender {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    [inputManager concludeDragOperation:sender];
 }
 
 - (void)rendererChanged:(NSNotification *)notification {
@@ -49,6 +77,7 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
                                                object:[NSUserDefaults standardUserDefaults]];
     
     [self userDefaultsChanged:nil];
+    [self registerForDraggedTypes:[NSArray arrayWithObject:EntityDefinitionType]];
 }
 
 - (BOOL)becomeFirstResponder {

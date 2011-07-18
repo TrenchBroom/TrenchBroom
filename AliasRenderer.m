@@ -87,6 +87,7 @@
     
     glEnable(GL_TEXTURE_2D);
     glPolygonMode(GL_FRONT, GL_FILL);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     [texture activate];
     
     glInterleavedArrays(GL_T2F_N3F_V3F, 0, (const GLvoid *)(long)[block address]);

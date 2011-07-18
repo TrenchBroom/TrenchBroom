@@ -90,7 +90,7 @@
     return height;
 }
 
-- (EntityDefinition *)entityDefinitionAt:(NSPoint)pos {
+- (EntityDefinitionLayoutCell *)cellAt:(NSPoint)pos {
     if (!valid)
         [self validate];
     
@@ -101,11 +101,19 @@
         EntityDefinitionLayoutCell* cell;
         while ((cell = [cellEn nextObject])) {
             if (NSPointInRect(pos, [cell bounds]))
-                return [cell entityDefinition];
+                return cell;
         }
     }
     
     return nil;
+}
+
+- (EntityDefinition *)entityDefinitionAt:(NSPoint)pos {
+    EntityDefinitionLayoutCell* cell = [self cellAt:pos];
+    if (cell == nil)
+        return nil;
+    
+    return [cell entityDefinition];
 }
 
 - (void)setWidth:(float)theWidth {

@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+@class EntityDefinitionLayoutCell;
 @class EntityDefinitionManager;
 @class EntityDefinition;
 @class GLFontManager;
@@ -30,6 +31,7 @@
 - (NSArray *)rows;
 - (float)height;
 
+- (EntityDefinitionLayoutCell *)cellAt:(NSPoint)pos;
 - (EntityDefinition *)entityDefinitionAt:(NSPoint)pos;
 
 - (void)setWidth:(float)width;

@@ -15,6 +15,8 @@ typedef enum {
     EDT_BASE
 } EEntityDefinitionType;
 
+static NSString* const EntityDefinitionType = @"EntityDefinition";
+
 @class SpawnFlag;
 @class ModelProperty;
 @protocol Entity;

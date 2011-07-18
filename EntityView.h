@@ -14,7 +14,7 @@
 @class EntityDefinition;
 
 @interface EntityView : NSOpenGLView {
-    NSMutableDictionary* cameras;
+    NSPoint dragDistance;
     EntityDefinition* draggedEntityDefinition;
     EntityDefinitionManager* entityDefinitionManager;
     GLResources* glResources;
