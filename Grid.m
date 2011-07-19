@@ -133,6 +133,22 @@ NSString* const GridChanged = @"GridChanged";
     result->z = actualSize * floorf(vector->z / (float)actualSize);
 }
 
+- (void)snapToGridV3i:(const TVector3i *)vector direction:(TVector3f *)direction result:(TVector3i *)result {
+    int actualSize = [self actualSize];
+    if (direction->x >= 0)
+        result->x = actualSize * ceilf(vector->x / (float)actualSize);
+    else
+        result->x = actualSize * floorf(vector->x / (float)actualSize);
+    if (direction->y >= 0)
+        result->y = actualSize * ceilf(vector->y / (float)actualSize);
+    else
+        result->y = actualSize * floorf(vector->y / (float)actualSize);
+    if (direction->z >= 0)
+        result->z = actualSize * ceilf(vector->z / (float)actualSize);
+    else
+        result->z = actualSize * floorf(vector->z / (float)actualSize);
+}
+
 - (void)gridOffsetV3i:(const TVector3i *)vector result:(TVector3i *)result {
     TVector3i snapped;
     [self snapToGridV3i:vector result:&snapped];

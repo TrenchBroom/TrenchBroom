@@ -30,6 +30,8 @@
 - (TVector3i)entityPosition:(id <NSDraggingInfo>)sender hits:(PickingHitList *)hits {
     TVector3i posi;
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    Grid* grid = [[windowController options] grid];
+
     if (hit != nil) {
         const TVector3f* hitPoint = [hit hitPoint];
         TVector3f size;
@@ -40,24 +42,23 @@
         if (faceNorm->x >= 0)
             posi.x = hitPoint->x;
         else
-            posi.x = hitPoint->x + size.x;
+            posi.x = hitPoint->x - size.x;
         if (faceNorm->y >= 0)
             posi.y = hitPoint->y;
         else
-            posi.y = hitPoint->y + size.y;
+            posi.y = hitPoint->y - size.y;
         if (faceNorm->z >= 0)
             posi.z = hitPoint->z;
         else
-            posi.z = hitPoint->z + size.z;
+            posi.z = hitPoint->z - size.z;
+        [grid snapToGridV3i:&posi direction:faceNorm result:&posi];
     } else {
         Camera* camera = [windowController camera];
         NSPoint location = [sender draggingLocation];
         TVector3f posf = [camera unprojectX:location.x y:location.y depth:0.94f];
         roundV3f(&posf, &posi);
+        [grid snapToGridV3i:&posi result:&posi];
     }
-    
-    Grid* grid = [[windowController options] grid];
-    [grid snapDownToGridV3i:&posi result:&posi];
     
     return posi;
 }
