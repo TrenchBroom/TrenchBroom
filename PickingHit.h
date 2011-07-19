@@ -25,12 +25,12 @@ typedef enum {
     float distance;
 }
 
-- (id)initWithObject:(id)theObject type:(EHitType)theType hitPoint:(TVector3f *)theHitPoint distance:(float)theDistance;
+- (id)initWithObject:(id)theObject type:(EHitType)theType hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance;
 
 - (id)object;
 - (EHitType)type;
 - (BOOL)isType:(EHitType)theTypeMask;
-- (TVector3f *)hitPoint;
+- (const TVector3f *)hitPoint;
 - (float)distance;
 
 - (NSComparisonResult)compareTo:(PickingHit *)other;

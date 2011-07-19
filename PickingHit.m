@@ -10,8 +10,8 @@
 
 @implementation PickingHit
 
-- (id)initWithObject:(id)theObject type:(EHitType)theType hitPoint:(TVector3f *)theHitPoint distance:(float)theDistance {
-    if (self = [self init]) {
+- (id)initWithObject:(id)theObject type:(EHitType)theType hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance {
+    if ((self = [self init])) {
         object = [theObject retain];
         type = theType;
         hitPoint = *theHitPoint;
@@ -33,7 +33,7 @@
     return (theTypeMask & type) != 0;
 }
 
-- (TVector3f *)hitPoint {
+- (const TVector3f *)hitPoint {
     return &hitPoint;
 }
 

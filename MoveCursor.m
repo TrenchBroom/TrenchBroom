@@ -73,7 +73,7 @@
     glFrontFace(GL_CW);
 }
 
-- (void)update:(TVector3f *)thePosition {
+- (void)update:(const TVector3f *)thePosition {
     position = *thePosition;
 }
 

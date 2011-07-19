@@ -22,12 +22,12 @@ static int G = 2;
     NSAssert([originalHit type] == HT_FACE, @"hit type must be face");
     NSAssert(ray != NULL, @"ray must not be NULL");
     
-    if (self = [self init]) {
+    if ((self = [self init])) {
         id <Face> face = [originalHit object];
         id <Brush> brush = [face brush]; 
         
         TPlane* boundary = [face boundary];
-        TVector3f* originalPoint = [originalHit hitPoint];
+        const TVector3f* originalPoint = [originalHit hitPoint];
 
         TVector3f hitPoint;
         float dist = intersectPlaneWithRay(boundary, ray);
@@ -36,8 +36,8 @@ static int G = 2;
         TBoundingBox largeBounds = *[brush bounds];
         mergeBoundsWithPoint(&largeBounds, originalPoint, &largeBounds);
         mergeBoundsWithPoint(&largeBounds, &hitPoint, &largeBounds);
-        [grid snapDownToGrid:&largeBounds.min result:&largeBounds.min];
-        [grid snapUpToGrid:&largeBounds.max result:&largeBounds.max];
+        [grid snapDownToGridV3f:&largeBounds.min result:&largeBounds.min];
+        [grid snapUpToGridV3f:&largeBounds.max result:&largeBounds.max];
         expandBounds(&largeBounds, G * [grid actualSize], &largeBounds);
         
         TVector3f* min = &largeBounds.min;

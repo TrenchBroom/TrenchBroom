@@ -148,7 +148,7 @@
     normalizeV3f(&plane.norm, &plane.norm);
     
     Grid* grid = [[windowController options] grid];
-    [grid snapToGrid:&lastPoint result:&lastPoint];
+    [grid snapToGridV3f:&lastPoint result:&lastPoint];
 
     drag = YES;
     
@@ -167,7 +167,7 @@
     rayPointAtDistance(ray, dist, &point);
     
     Grid* grid = [[windowController options] grid];
-    [grid snapToGrid:&point result:&point];
+    [grid snapToGridV3f:&point result:&point];
     
     if (equalV3f(&point, &lastPoint))
         return;

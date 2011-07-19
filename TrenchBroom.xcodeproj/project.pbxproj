@@ -124,7 +124,6 @@
 		48A68EB8114E96C00064732A /* MapWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68EB7114E96C00064732A /* MapWindowController.m */; };
 		48A68ECF114E9B0D0064732A /* MapView3D.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68ECE114E9B0D0064732A /* MapView3D.m */; };
 		48A68F0F114EA0420064732A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48A68F0E114EA0420064732A /* OpenGL.framework */; };
-		48A68F18114EA76E0064732A /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48A68F17114EA76E0064732A /* Accelerate.framework */; };
 		48A68F27114EDF360064732A /* MutableEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* MutableEntity.m */; };
 		48A68F70114EE6DC0064732A /* MapDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* MapDocument.m */; };
 		48AF852813D0D79400B62317 /* EntityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF852713D0D79400B62317 /* EntityView.m */; };
@@ -288,8 +287,8 @@
 		4838DFB312EF4E86008ADB71 /* VertexData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexData.m; sourceTree = "<group>"; };
 		4838DFB512EF4E94008ADB71 /* Vertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vertex.h; sourceTree = "<group>"; };
 		4838DFB612EF4E94008ADB71 /* Vertex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vertex.m; sourceTree = "<group>"; };
-		483A65A913D48CEE009EB9E7 /* DndTool.h */ = {isa = PBXFileReference; fileEncoding = 4; path = DndTool.h; sourceTree = "<group>"; };
-		483A65AA13D48D95009EB9E7 /* EntityDefinitionDndTool.h */ = {isa = PBXFileReference; fileEncoding = 4; path = EntityDefinitionDndTool.h; sourceTree = "<group>"; };
+		483A65A913D48CEE009EB9E7 /* DndTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DndTool.h; sourceTree = "<group>"; };
+		483A65AA13D48D95009EB9E7 /* EntityDefinitionDndTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionDndTool.h; sourceTree = "<group>"; };
 		483A65AB13D48D95009EB9E7 /* EntityDefinitionDndTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionDndTool.m; sourceTree = "<group>"; };
 		483B1127122441060072EAFB /* Math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		483B1128122441060072EAFB /* Math.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math.m; sourceTree = "<group>"; };
@@ -530,7 +529,6 @@
 			files = (
 				8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */,
 				48A68F0F114EA0420064732A /* OpenGL.framework in Frameworks */,
-				48A68F18114EA76E0064732A /* Accelerate.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

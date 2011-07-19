@@ -280,7 +280,7 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSPoint point = [inputManager menuPosition];
     
     TVector3f insertPoint = [camera unprojectX:point.x y:point.y depth:0.94f];
-    [[options grid] snapToGrid:&insertPoint result:&insertPoint];
+    [[options grid] snapToGridV3f:&insertPoint result:&insertPoint];
     
     NSString* origin = [NSString stringWithFormat:@"%i %i %i", (int)insertPoint.x, (int)insertPoint.y, (int)insertPoint.z];
     
@@ -737,10 +737,10 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [undoManager beginUndoGrouping];
     
     TVector3f insertPos = [camera defaultPoint];
-    [[options grid] snapToGrid:&insertPos result:&insertPos];
+    [[options grid] snapToGridV3f:&insertPos result:&insertPos];
 
     TVector3f offset;
-    [[options grid] gridOffsetOf:[prefab center] result:&offset];
+    [[options grid] gridOffsetV3f:[prefab center] result:&offset];
     
     addV3f(&insertPos, &offset, &insertPos);
 

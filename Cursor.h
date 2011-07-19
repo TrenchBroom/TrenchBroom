@@ -12,6 +12,6 @@
 @protocol Cursor <NSObject>
 
 - (void)render;
-- (void)update:(TVector3f *)thePosition;
+- (void)update:(const TVector3f *)thePosition;
 
 @end

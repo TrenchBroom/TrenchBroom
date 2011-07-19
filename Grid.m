@@ -15,7 +15,7 @@ NSString* const GridChanged = @"GridChanged";
 @implementation Grid
 
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         size = 4;
         draw = YES;
         snap = YES;
@@ -85,31 +85,58 @@ NSString* const GridChanged = @"GridChanged";
     [self setSnap:![self snap]];
 }
 
-- (void)snapToGrid:(TVector3f *)vector result:(TVector3f *)result {
+- (void)snapToGridV3f:(const TVector3f *)vector result:(TVector3f *)result {
     int actualSize = [self actualSize];
     result->x = actualSize * roundf(vector->x / actualSize);
     result->y = actualSize * roundf(vector->y / actualSize);
     result->z = actualSize * roundf(vector->z / actualSize);
 }
 
-- (void)snapUpToGrid:(TVector3f *)vector result:(TVector3f *)result {
+- (void)snapUpToGridV3f:(const TVector3f *)vector result:(TVector3f *)result {
     int actualSize = [self actualSize];
     result->x = actualSize * ceilf(vector->x / actualSize);
     result->y = actualSize * ceilf(vector->y / actualSize);
     result->z = actualSize * ceilf(vector->z / actualSize);
 }
 
-- (void)snapDownToGrid:(TVector3f *)vector result:(TVector3f *)result {
+- (void)snapDownToGridV3f:(const TVector3f *)vector result:(TVector3f *)result {
     int actualSize = [self actualSize];
     result->x = actualSize * floorf(vector->x / actualSize);
     result->y = actualSize * floorf(vector->y / actualSize);
     result->z = actualSize * floorf(vector->z / actualSize);
 }
 
-- (void)gridOffsetOf:(TVector3f *)vector result:(TVector3f *)result {
+- (void)gridOffsetV3f:(const TVector3f *)vector result:(TVector3f *)result {
     TVector3f snapped;
-    [self snapToGrid:vector result:&snapped];
+    [self snapToGridV3f:vector result:&snapped];
     subV3f(vector, &snapped, result);
+}
+
+- (void)snapToGridV3i:(const TVector3i *)vector result:(TVector3i *)result {
+    int actualSize = [self actualSize];
+    result->x = actualSize * roundf(vector->x / (float)actualSize);
+    result->y = actualSize * roundf(vector->y / (float)actualSize);
+    result->z = actualSize * roundf(vector->z / (float)actualSize);
+}
+
+- (void)snapUpToGridV3i:(const TVector3i *)vector result:(TVector3i *)result {
+    int actualSize = [self actualSize];
+    result->x = actualSize * ceilf(vector->x / (float)actualSize);
+    result->y = actualSize * ceilf(vector->y / (float)actualSize);
+    result->z = actualSize * ceilf(vector->z / (float)actualSize);
+}
+
+- (void)snapDownToGridV3i:(const TVector3i *)vector result:(TVector3i *)result {
+    int actualSize = [self actualSize];
+    result->x = actualSize * floorf(vector->x / (float)actualSize);
+    result->y = actualSize * floorf(vector->y / (float)actualSize);
+    result->z = actualSize * floorf(vector->z / (float)actualSize);
+}
+
+- (void)gridOffsetV3i:(const TVector3i *)vector result:(TVector3i *)result {
+    TVector3i snapped;
+    [self snapToGridV3i:vector result:&snapped];
+    subV3i(vector, &snapped, result);
 }
 
 - (void)activateTexture {

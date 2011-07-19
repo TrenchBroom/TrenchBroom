@@ -31,10 +31,15 @@ extern NSString* const GridChanged;
 - (void)toggleDraw;
 - (void)toggleSnap;
 
-- (void)snapToGrid:(TVector3f *)vector result:(TVector3f *)result;
-- (void)snapUpToGrid:(TVector3f *)vector result:(TVector3f *)result;
-- (void)snapDownToGrid:(TVector3f *)vector result:(TVector3f *)result;
-- (void)gridOffsetOf:(TVector3f *)vector result:(TVector3f *)result;
+- (void)snapToGridV3f:(const TVector3f *)vector result:(TVector3f *)result;
+- (void)snapUpToGridV3f:(const TVector3f *)vector result:(TVector3f *)result;
+- (void)snapDownToGridV3f:(const TVector3f *)vector result:(TVector3f *)result;
+- (void)gridOffsetV3f:(const TVector3f *)vector result:(TVector3f *)result;
+
+- (void)snapToGridV3i:(const TVector3i *)vector result:(TVector3i *)result;
+- (void)snapUpToGridV3i:(const TVector3i *)vector result:(TVector3i *)result;
+- (void)snapDownToGridV3i:(const TVector3i *)vector result:(TVector3i *)result;
+- (void)gridOffsetV3i:(const TVector3i *)vector result:(TVector3i *)result;
 
 - (void)activateTexture;
 - (void)deactivateTexture;

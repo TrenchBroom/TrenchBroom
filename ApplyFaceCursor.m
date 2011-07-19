@@ -68,7 +68,7 @@
     applyFlags = doApplyFlags;
 }
 
-- (void)update:(TVector3f *)thePosition {
+- (void)update:(const TVector3f *)thePosition {
     position = *thePosition;
 }
 

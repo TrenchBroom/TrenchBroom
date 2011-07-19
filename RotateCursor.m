@@ -203,7 +203,7 @@
     vAngle = theVAngle;
 }
 
-- (void)update:(TVector3f *)thePosition {
+- (void)update:(const TVector3f *)thePosition {
 }
 
 @end

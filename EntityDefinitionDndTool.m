@@ -13,6 +13,56 @@
 #import "Entity.h"
 #import "Camera.h"
 #import "SelectionManager.h"
+#import "PickingHitList.h"
+#import "PickingHit.h"
+#import "Face.h"
+#import "Grid.h"
+#import "Options.h"
+
+@interface EntityDefinitionDndTool (private)
+
+- (TVector3i)entityPosition:(id <NSDraggingInfo>)sender hits:(PickingHitList *)hits;
+
+@end
+
+@implementation EntityDefinitionDndTool (private)
+
+- (TVector3i)entityPosition:(id <NSDraggingInfo>)sender hits:(PickingHitList *)hits {
+    TVector3i posi;
+    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    if (hit != nil) {
+        const TVector3f* hitPoint = [hit hitPoint];
+        TVector3f size;
+        sizeOfBounds([entity bounds], &size);
+        
+        id <Face> face = [hit object];
+        TVector3f* faceNorm = [face norm];
+        if (faceNorm->x >= 0)
+            posi.x = hitPoint->x;
+        else
+            posi.x = hitPoint->x + size.x;
+        if (faceNorm->y >= 0)
+            posi.y = hitPoint->y;
+        else
+            posi.y = hitPoint->y + size.y;
+        if (faceNorm->z >= 0)
+            posi.z = hitPoint->z;
+        else
+            posi.z = hitPoint->z + size.z;
+    } else {
+        Camera* camera = [windowController camera];
+        NSPoint location = [sender draggingLocation];
+        TVector3f posf = [camera unprojectX:location.x y:location.y depth:0.94f];
+        roundV3f(&posf, &posi);
+    }
+    
+    Grid* grid = [[windowController options] grid];
+    [grid snapDownToGridV3i:&posi result:&posi];
+    
+    return posi;
+}
+
+@end
 
 @implementation EntityDefinitionDndTool
 
@@ -37,16 +87,11 @@
     SelectionManager* selectionManager = [windowController selectionManager];
     [selectionManager removeAll:YES];
     [selectionManager addEntity:entity record:YES];
-    
-    Camera* camera = [windowController camera];
-    NSPoint location = [sender draggingLocation];
-    TVector3f posf = [camera unprojectX:location.x y:location.y depth:0.94f];
-    
-    TVector3i posi, delta;
-    roundV3f(&posf, &posi);
-    
+
+    TVector3i delta;
+    TVector3i position = [self entityPosition:sender hits:hits];
     TVector3i* origin = [entity origin];
-    subV3i(&posi, origin, &delta);
+    subV3i(&position, origin, &delta);
     
     [map translateEntities:[NSSet setWithObject:entity] delta:delta];
     
@@ -54,15 +99,10 @@
 }
 
 - (NSDragOperation)handleDraggingUpdated:(id <NSDraggingInfo>)sender ray:(TRay *)ray hits:(PickingHitList *)hits {
-    Camera* camera = [windowController camera];
-    NSPoint location = [sender draggingLocation];
-    TVector3f posf = [camera unprojectX:location.x y:location.y depth:0.94f];
-    
-    TVector3i posi, delta;
-    roundV3f(&posf, &posi);
-    
+    TVector3i delta;
+    TVector3i position = [self entityPosition:sender hits:hits];
     TVector3i* origin = [entity origin];
-    subV3i(&posi, origin, &delta);
+    subV3i(&position, origin, &delta);
     
     MapDocument* map = [windowController document];
     [map translateEntities:[NSSet setWithObject:entity] delta:delta];

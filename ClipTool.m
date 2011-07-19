@@ -236,7 +236,7 @@
         rayPointAtDistance(ray, diff, &hitPoint);
         
         Grid* grid = [[windowController options] grid];
-        [grid snapToGrid:&hitPoint result:&hitPoint];
+        [grid snapToGridV3f:&hitPoint result:&hitPoint];
         
         [face transformToSurface:&hitPoint];
         hitPoint.z = 0;
@@ -287,7 +287,7 @@
         TVector3f t;
         
         Grid* grid = [[windowController options] grid];
-        [grid snapToGrid:[hit hitPoint] result:&t];
+        [grid snapToGridV3f:[hit hitPoint] result:&t];
         
         id <Face> face = [hit object];
         [face transformToSurface:&t];
