@@ -274,6 +274,8 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 
 - (TVector3f)unprojectX:(float)x y:(float)y depth:(float)depth {
     GLint viewportInt[] = {NSMinX(viewport), NSMinY(viewport), NSWidth(viewport), NSHeight(viewport)};
+    glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+    glGetDoublev(GL_PROJECTION_MATRIX, projection);
     
     GLdouble rx, ry, rz;
     gluUnProject(x, y, depth, modelview, projection, viewportInt, &rx, &ry, &rz);

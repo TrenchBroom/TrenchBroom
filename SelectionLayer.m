@@ -28,6 +28,18 @@
 @implementation SelectionLayer (private)
 
 - (void)validateEntities {
+    if ([removedEntities count] > 0) {
+        NSEnumerator* entityEn = [removedEntities objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            [entityBoundsRenderer removeEntity:entity];
+            [entityAliasRenderer removeEntity:entity];
+            [entityClassnameRenderer removeStringForKey:[entity entityId]];
+        }
+        
+        [removedEntities removeAllObjects];
+    }
+
     if ([addedEntities count] > 0) {
         NSEnumerator* entityEn = [addedEntities objectEnumerator];
         id <Entity> entity;
@@ -47,18 +59,6 @@
         [fontManager deactivate];
         
         [addedEntities removeAllObjects];
-    }
-    
-    if ([removedEntities count] > 0) {
-        NSEnumerator* entityEn = [removedEntities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
-            [entityBoundsRenderer removeEntity:entity];
-            [entityAliasRenderer removeEntity:entity];
-            [entityClassnameRenderer removeStringForKey:[entity entityId]];
-        }
-        
-        [removedEntities removeAllObjects];
     }
 }
 
@@ -141,10 +141,7 @@
 }
 
 - (void)addEntity:(id <Entity>)entity {
-    if ([removedEntities containsObject:entity])
-        [removedEntities removeObject:entity];
-    else
-        [addedEntities addObject:entity];
+    [addedEntities addObject:entity];
     
     if ([selectionManager mode] == SM_BRUSHES_ENTITIES) {
         TBoundingBox bounds;

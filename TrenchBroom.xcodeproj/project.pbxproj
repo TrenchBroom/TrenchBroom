@@ -51,6 +51,7 @@
 		4833C1BD13196CFB00EB1B85 /* MutablePrefab.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C1BC13196CFB00EB1B85 /* MutablePrefab.m */; };
 		4838DFB412EF4E86008ADB71 /* VertexData.m in Sources */ = {isa = PBXBuildFile; fileRef = 4838DFB312EF4E86008ADB71 /* VertexData.m */; };
 		4838DFB712EF4E94008ADB71 /* Vertex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4838DFB612EF4E94008ADB71 /* Vertex.m */; };
+		483A65AC13D48D96009EB9E7 /* EntityDefinitionDndTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 483A65AB13D48D95009EB9E7 /* EntityDefinitionDndTool.m */; };
 		483B1129122441060072EAFB /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
 		484524A61323CCBD003B2855 /* MapWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524A51323CCBD003B2855 /* MapWriter.m */; };
 		484524D713240049003B2855 /* NSFileManager+AppSupportCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */; };
@@ -287,6 +288,9 @@
 		4838DFB312EF4E86008ADB71 /* VertexData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexData.m; sourceTree = "<group>"; };
 		4838DFB512EF4E94008ADB71 /* Vertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vertex.h; sourceTree = "<group>"; };
 		4838DFB612EF4E94008ADB71 /* Vertex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vertex.m; sourceTree = "<group>"; };
+		483A65A913D48CEE009EB9E7 /* DndTool.h */ = {isa = PBXFileReference; fileEncoding = 4; path = DndTool.h; sourceTree = "<group>"; };
+		483A65AA13D48D95009EB9E7 /* EntityDefinitionDndTool.h */ = {isa = PBXFileReference; fileEncoding = 4; path = EntityDefinitionDndTool.h; sourceTree = "<group>"; };
+		483A65AB13D48D95009EB9E7 /* EntityDefinitionDndTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionDndTool.m; sourceTree = "<group>"; };
 		483B1127122441060072EAFB /* Math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		483B1128122441060072EAFB /* Math.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math.m; sourceTree = "<group>"; };
 		484524A41323CCBD003B2855 /* MapWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWriter.h; sourceTree = "<group>"; };
@@ -702,6 +706,16 @@
 			name = Alias;
 			sourceTree = "<group>";
 		};
+		483A65A713D48CA8009EB9E7 /* Drag And Drop */ = {
+			isa = PBXGroup;
+			children = (
+				483A65A913D48CEE009EB9E7 /* DndTool.h */,
+				483A65AA13D48D95009EB9E7 /* EntityDefinitionDndTool.h */,
+				483A65AB13D48D95009EB9E7 /* EntityDefinitionDndTool.m */,
+			);
+			name = "Drag And Drop";
+			sourceTree = "<group>";
+		};
 		484D092C1361C2BF004D6961 /* Misc */ = {
 			isa = PBXGroup;
 			children = (
@@ -983,6 +997,7 @@
 		48A68E96114E93840064732A /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				483A65A713D48CA8009EB9E7 /* Drag And Drop */,
 				488C8EBA12F69F9300F358E6 /* Picking */,
 				486928E9133F27D900A0F098 /* Tool */,
 				48B325E312E3788D008748E2 /* AppDelegate.h */,
@@ -1399,6 +1414,7 @@
 				48AF852E13D0DFF500B62317 /* EntityDefinitionLayoutCell.m in Sources */,
 				48AF853113D180D100B62317 /* EntityRendererManager.m in Sources */,
 				48AF853413D190AC00B62317 /* BspTexture.m in Sources */,
+				483A65AC13D48D96009EB9E7 /* EntityDefinitionDndTool.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

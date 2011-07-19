@@ -34,7 +34,7 @@
 @implementation CameraTool
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
-    if (self = [self init]) {
+    if ((self = [self init])) {
         windowController = theWindowController;
     }
     

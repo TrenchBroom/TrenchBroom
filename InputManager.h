@@ -17,7 +17,9 @@
 @class RotateTool;
 @class FaceTool;
 @class ClipTool;
+@class EntityDefinitionDndTool;
 @protocol Tool;
+@protocol DndTool;
 @protocol Filter;
 
 @interface InputManager : NSObject {
@@ -40,6 +42,9 @@
     id <Tool> cursorOwner;
     BOOL drag;
     BOOL hasMouse;
+    
+    id <DndTool> activeDndTool;
+    EntityDefinitionDndTool* entityDefinitionDndTool;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

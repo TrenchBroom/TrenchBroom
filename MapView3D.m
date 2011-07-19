@@ -25,12 +25,20 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 
 @implementation MapView3D
 
+- (BOOL)wantsPeriodicDraggingUpdates {
+    return NO;
+}
+
 - (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender {
+    [[self openGLContext] makeCurrentContext];
+    
     InputManager* inputManager = [[[self window] windowController] inputManager];
     return [inputManager handleDraggingEntered:sender];
 }
 
 - (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender {
+    [[self openGLContext] makeCurrentContext];
+
     InputManager* inputManager = [[[self window] windowController] inputManager];
     return [inputManager handleDraggingUpdated:sender];
 }

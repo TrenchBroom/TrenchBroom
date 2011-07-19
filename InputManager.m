@@ -29,8 +29,11 @@
 #import "Options.h"
 #import "CursorManager.h"
 #import "DefaultFilter.h"
+#import "DndTool.h"
+#import "EntityDefinitionDndTool.h"
 #import "EntityDefinitionManager.h"
 #import "EntityDefinition.h"
+#import "Entity.h"
 
 @interface InputManager (private)
 
@@ -253,6 +256,7 @@
         rotateTool = [[RotateTool alloc] initWithWindowController:windowController];
         faceTool = [[FaceTool alloc] initWithWindowController:windowController];
         clipTool = [[ClipTool alloc] initWithWindowController:windowController];
+        entityDefinitionDndTool = [[EntityDefinitionDndTool alloc] initWithWindowController:windowController];
         
         Camera* camera = [windowController camera];
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -265,6 +269,7 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [entityDefinitionDndTool release];
     [cameraTool release];
     [selectionTool release];
     [moveTool release];
@@ -420,19 +425,39 @@
     if (type == nil)
         return NSDragOperationNone;
 
-    return NSDragOperationCopy;
+    if ([EntityDefinitionType isEqualToString:type])
+        activeDndTool = entityDefinitionDndTool;
+    
+    if (activeDndTool != nil) {
+        Camera* camera = [windowController camera];
+        NSPoint location = [sender draggingLocation];
+        TRay ray = [camera pickRayX:location.x y:location.y];
+        
+        Picker* picker = [[windowController document] picker];
+        PickingHitList* hitList = [picker pickObjects:&ray filter:filter];
+        
+        return [activeDndTool handleDraggingEntered:sender ray:&ray hits:hitList];
+    }
+    
+    return NSDragOperationNone;
 }
 
 - (NSDragOperation)handleDraggingUpdated:(id <NSDraggingInfo>)sender {
-    NSPasteboard* pasteboard = [sender draggingPasteboard];
-    NSString* type = [pasteboard availableTypeFromArray:[NSArray arrayWithObject:EntityDefinitionType]];
-    if (type == nil)
+    if (activeDndTool == nil)
         return NSDragOperationNone;
     
-    return NSDragOperationCopy;
+    Camera* camera = [windowController camera];
+    NSPoint location = [sender draggingLocation];
+    TRay ray = [camera pickRayX:location.x y:location.y];
+    
+    Picker* picker = [[windowController document] picker];
+    PickingHitList* hitList = [picker pickObjects:&ray filter:filter];
+    
+    return [activeDndTool handleDraggingUpdated:sender ray:&ray hits:hitList];
 }
 
 - (void)handleDraggingEnded:(id <NSDraggingInfo>)sender {
+    activeDndTool = nil;
 }
 
 - (void)handleDraggingExited:(id <NSDraggingInfo>)sender {
