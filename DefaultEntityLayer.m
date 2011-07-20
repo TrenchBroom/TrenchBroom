@@ -122,16 +122,16 @@
         if ([options isolationMode] == IM_NONE) {
             [boundsRenderer renderWithColor:YES];
             [aliasRenderer render];
+
+            if ([options renderEntityClassnames]) {
+                [fontManager activate];
+                float col[] = {1, 1, 1, 1};
+                [classnameRenderer renderColor:col];
+                [fontManager deactivate];
+            }
         } else if ([options isolationMode] == IM_WIREFRAME) {
             glColor4f(1, 1, 1, 0.6f);
             [boundsRenderer renderWithColor:NO];
-        }
-        
-        if ([options renderEntityClassnames]) {
-            [fontManager activate];
-            float col[] = {1, 1, 1, 1};
-            [classnameRenderer renderColor:col];
-            [fontManager deactivate];
         }
     }
 }
