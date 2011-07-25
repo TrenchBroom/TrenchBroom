@@ -34,31 +34,56 @@
 
     if (hit != nil) {
         const TVector3f* hitPoint = [hit hitPoint];
+        const TBoundingBox* bounds = [[entity entityDefinition] bounds];
         TVector3f size;
-        sizeOfBounds([entity bounds], &size);
+        sizeOfBounds(bounds, &size);
         
         id <Face> face = [hit object];
         TVector3f* faceNorm = [face norm];
-        if (faceNorm->x >= 0)
-            posi.x = hitPoint->x;
-        else
-            posi.x = hitPoint->x - size.x;
-        if (faceNorm->y >= 0)
-            posi.y = hitPoint->y;
-        else
-            posi.y = hitPoint->y - size.y;
-        if (faceNorm->z >= 0)
-            posi.z = hitPoint->z;
-        else
-            posi.z = hitPoint->z - size.z;
-        [grid snapToGridV3i:&posi direction:faceNorm result:&posi];
+        
+        EAxis lc = largestComponentV3f(faceNorm);
+        switch (lc) {
+            case A_X:
+                if (faceNorm->x >= 0) {
+                    posi.x = hitPoint->x - bounds->min.x;
+                    posi.y = hitPoint->y - bounds->min.y - size.y / 2;
+                    posi.z = hitPoint->z - bounds->min.z - size.z / 2;
+                } else {
+                    posi.x = hitPoint->x - size.x - bounds->min.x;
+                    posi.y = hitPoint->y - bounds->min.y - size.y / 2;
+                    posi.z = hitPoint->z - bounds->min.z - size.z / 2;
+                }
+                break;
+            case A_Y:
+                if (faceNorm->y >= 0) {
+                    posi.x = hitPoint->x - bounds->min.x - size.x / 2;
+                    posi.y = hitPoint->y - bounds->min.y;
+                    posi.z = hitPoint->z - bounds->min.z - size.z / 2;
+                } else {
+                    posi.x = hitPoint->x - bounds->min.x - size.x / 2;
+                    posi.y = hitPoint->y - size.y - bounds->min.y;
+                    posi.z = hitPoint->z - bounds->min.z - size.z / 2;
+                }
+                break;
+            case A_Z:
+                if (faceNorm->z >= 0) {
+                    posi.x = hitPoint->x - bounds->min.x - size.x / 2;
+                    posi.y = hitPoint->y - bounds->min.y - size.y / 2;
+                    posi.z = hitPoint->z - bounds->min.z;
+                } else {
+                    posi.x = hitPoint->x - bounds->min.x - size.x / 2;
+                    posi.y = hitPoint->y - bounds->min.y - size.y / 2;
+                    posi.z = hitPoint->z - size.z - bounds->min.z;
+                }
+                break;
+        }
     } else {
         Camera* camera = [windowController camera];
         NSPoint location = [sender draggingLocation];
         TVector3f posf = [camera unprojectX:location.x y:location.y depth:0.94f];
         roundV3f(&posf, &posi);
-        [grid snapToGridV3i:&posi result:&posi];
     }
+//    [grid snapToGridV3i:&posi result:&posi];
     
     return posi;
 }
@@ -89,24 +114,16 @@
     [selectionManager removeAll:YES];
     [selectionManager addEntity:entity record:YES];
 
-    TVector3i delta;
     TVector3i position = [self entityPosition:sender hits:hits];
-    TVector3i* origin = [entity origin];
-    subV3i(&position, origin, &delta);
-    
-    [map translateEntities:[NSSet setWithObject:entity] delta:delta];
+    [map setEntity:entity propertyKey:OriginKey value:[NSString stringWithFormat:@"%i %i %i", position.x, position.y, position.z]];
     
     return NSDragOperationCopy;
 }
 
 - (NSDragOperation)handleDraggingUpdated:(id <NSDraggingInfo>)sender ray:(TRay *)ray hits:(PickingHitList *)hits {
-    TVector3i delta;
-    TVector3i position = [self entityPosition:sender hits:hits];
-    TVector3i* origin = [entity origin];
-    subV3i(&position, origin, &delta);
-    
     MapDocument* map = [windowController document];
-    [map translateEntities:[NSSet setWithObject:entity] delta:delta];
+    TVector3i position = [self entityPosition:sender hits:hits];
+    [map setEntity:entity propertyKey:OriginKey value:[NSString stringWithFormat:@"%i %i %i", position.x, position.y, position.z]];
     return NSDragOperationCopy;
 }
 
