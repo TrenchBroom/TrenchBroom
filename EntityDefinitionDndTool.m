@@ -44,7 +44,7 @@
         EAxis lc = largestComponentV3f(faceNorm);
         switch (lc) {
             case A_X:
-                if (faceNorm->x >= 0) {
+                if (faceNorm->x > 0) {
                     posi.x = hitPoint->x - bounds->min.x;
                     posi.y = hitPoint->y - bounds->min.y - size.y / 2;
                     posi.z = hitPoint->z - bounds->min.z - size.z / 2;
@@ -55,7 +55,7 @@
                 }
                 break;
             case A_Y:
-                if (faceNorm->y >= 0) {
+                if (faceNorm->y > 0) {
                     posi.x = hitPoint->x - bounds->min.x - size.x / 2;
                     posi.y = hitPoint->y - bounds->min.y;
                     posi.z = hitPoint->z - bounds->min.z - size.z / 2;
@@ -66,7 +66,7 @@
                 }
                 break;
             case A_Z:
-                if (faceNorm->z >= 0) {
+                if (faceNorm->z > 0) {
                     posi.x = hitPoint->x - bounds->min.x - size.x / 2;
                     posi.y = hitPoint->y - bounds->min.y - size.y / 2;
                     posi.z = hitPoint->z - bounds->min.z;
@@ -83,7 +83,7 @@
         TVector3f posf = [camera unprojectX:location.x y:location.y depth:0.94f];
         roundV3f(&posf, &posi);
     }
-//    [grid snapToGridV3i:&posi result:&posi];
+    [grid snapToGridV3i:&posi result:&posi];
     
     return posi;
 }

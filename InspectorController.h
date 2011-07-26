@@ -36,7 +36,6 @@
 
     IBOutlet NSSlider* prefabsPerRowSlider;
     IBOutlet PrefabView* prefabView;
-    IBOutlet NSBox* textureControlBox;
     
     IBOutlet NSTableView* entityPropertyTableView;
     IBOutlet NSButton* removeEntityPropertyButton;
@@ -62,7 +61,6 @@
 - (IBAction)textureSortCriterionChanged:(id)sender;
 - (IBAction)prefabsPerRowChanged:(id)sender;
 - (IBAction)addTextureWad:(id)sender;
-- (IBAction)toggleTextureControls:(id)sender;
 
 - (void)textureSelected:(Texture *)texture;
 - (void)prefabSelected:(id <Prefab>)prefab;

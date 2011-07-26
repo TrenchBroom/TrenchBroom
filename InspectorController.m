@@ -466,29 +466,6 @@ static InspectorController* sharedInstance = nil;
     }
 }
 
-- (IBAction)toggleTextureControls:(id)sender {
-    NSRect boxFrame = [textureControlBox frame];
-    NSRect viewFrame = [textureScrollView frame];
-    NSRect newBoxFrame;
-    NSRect newViewFrame;
-    int a = 129;
-    if ([sender state] == NSOnState) {
-        newBoxFrame = NSMakeRect(NSMinX(boxFrame), NSMinY(boxFrame) - a, NSWidth(boxFrame), NSHeight(boxFrame) + a);
-        newViewFrame = NSMakeRect(NSMinX(viewFrame), NSMinY(viewFrame), NSWidth(viewFrame), NSHeight(viewFrame) - a);
-    } else {
-        newBoxFrame = NSMakeRect(NSMinX(boxFrame), NSMinY(boxFrame) + a, NSWidth(boxFrame), NSHeight(boxFrame) - a);
-        newViewFrame = NSMakeRect(NSMinX(viewFrame), NSMinY(viewFrame), NSWidth(viewFrame), NSHeight(viewFrame) + a);
-    }
-    
-    [textureControlBox setFrame:newBoxFrame];
-    [textureControlBox setNeedsDisplay:YES];
-    
-    [textureScrollView setFrame:newViewFrame];
-    [textureScrollView setNeedsDisplay:YES];
-    
-    [[textureControlBox superview] setNeedsDisplay:YES];
-}
-
 #pragma mark Prefab controls
 
 - (IBAction)prefabsPerRowChanged:(id)sender {
