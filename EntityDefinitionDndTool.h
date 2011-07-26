@@ -10,12 +10,14 @@
 #import "DndTool.h"
 
 @class MapWindowController;
+@class EntityDefinitionDndFeedbackFigure;
 @protocol Entity;
 
 @interface EntityDefinitionDndTool : NSObject <DndTool> {
 @private
     MapWindowController* windowController;
     id <Entity> entity;
+    EntityDefinitionDndFeedbackFigure* feedbackFigure;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

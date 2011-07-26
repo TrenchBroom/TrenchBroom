@@ -137,6 +137,7 @@
 		48C3324413087D8600C23607 /* MenuDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C3324313087D8600C23607 /* MenuDelegate.m */; };
 		48CBDD9913170B330041F704 /* GLResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CBDD9813170B330041F704 /* GLResources.m */; };
 		48CE70AC134741C400886260 /* GridFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CE70AB134741C400886260 /* GridFeedbackFigure.m */; };
+		48D2A31B13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D2A31A13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m */; };
 		48D6B714134859890084F82E /* BoundsRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B713134859890084F82E /* BoundsRenderer.m */; };
 		48D6B903134B8DC90084F82E /* GLStringData.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B902134B8DC90084F82E /* GLStringData.m */; };
 		48D6C9391357379900AC6A4D /* CursorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6C9381357379900AC6A4D /* CursorManager.m */; };
@@ -453,6 +454,8 @@
 		48CBDD9813170B330041F704 /* GLResources.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLResources.m; sourceTree = "<group>"; };
 		48CE70AA134741C400886260 /* GridFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridFeedbackFigure.h; sourceTree = "<group>"; };
 		48CE70AB134741C400886260 /* GridFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridFeedbackFigure.m; sourceTree = "<group>"; };
+		48D2A31913DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionDndFeedbackFigure.h; sourceTree = "<group>"; };
+		48D2A31A13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionDndFeedbackFigure.m; sourceTree = "<group>"; };
 		48D6B712134859890084F82E /* BoundsRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundsRenderer.h; sourceTree = "<group>"; };
 		48D6B713134859890084F82E /* BoundsRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundsRenderer.m; sourceTree = "<group>"; };
 		48D6B901134B8DC90084F82E /* GLStringData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLStringData.h; sourceTree = "<group>"; };
@@ -686,6 +689,8 @@
 				483A65A913D48CEE009EB9E7 /* DndTool.h */,
 				483A65AA13D48D95009EB9E7 /* EntityDefinitionDndTool.h */,
 				483A65AB13D48D95009EB9E7 /* EntityDefinitionDndTool.m */,
+				48D2A31913DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.h */,
+				48D2A31A13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m */,
 			);
 			name = "Drag And Drop";
 			sourceTree = "<group>";
@@ -1339,6 +1344,7 @@
 				483A65AC13D48D96009EB9E7 /* EntityDefinitionDndTool.m in Sources */,
 				488D527E13DEDF91006FE818 /* EntityDefinitionNameFilter.m in Sources */,
 				488D528113DEE181006FE818 /* EntityDefinitionUsageFilter.m in Sources */,
+				48D2A31B13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
