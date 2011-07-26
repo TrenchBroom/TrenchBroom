@@ -32,6 +32,7 @@ static NSString* const EntityDefinitionType = @"EntityDefinition";
     NSDictionary* flags;
     NSArray* properties;
     NSString* description;
+    int usageCount;
 }
 
 - (id)initBaseDefinitionWithName:(NSString *)theName flags:(NSDictionary *)theFlags properties:(NSArray *)theProperties;
@@ -53,6 +54,11 @@ static NSString* const EntityDefinitionType = @"EntityDefinition";
 - (ModelProperty *)defaultModelProperty;
 - (NSString *)description;
 
+- (void)incUsageCount;
+- (void)decUsageCount;
+- (int)usageCount;
+
 - (NSComparisonResult)compareByName:(EntityDefinition *)definition;
+- (NSComparisonResult)compareByUsageCount:(EntityDefinition *)definition;
 
 @end

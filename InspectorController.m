@@ -16,6 +16,7 @@
 #import "GLFontManager.h"
 #import "TextureView.h"
 #import "SingleTextureView.h"
+#import "TextureFilter.h"
 #import "TextureNameFilter.h"
 #import "TextureUsageFilter.h"
 #import "MapDocument.h"
@@ -26,6 +27,9 @@
 #import "EntityPropertyTableDataSource.h"
 #import "EntityView.h"
 #import "EntityDefinitionManager.h"
+#import "EntityDefinitionFilter.h"
+#import "EntityDefinitionNameFilter.h"
+#import "EntityDefinitionUsageFilter.h"
 
 static InspectorController* sharedInstance = nil;
 
@@ -38,7 +42,8 @@ static InspectorController* sharedInstance = nil;
 - (void)textureManagerChanged:(NSNotification *)notification;
 - (void)updateMapWindowController:(MapWindowController *)theMapWindowController;
 - (void)updateTextureControls;
-- (void)updateFilter;
+- (void)updateTextureFilter;
+- (void)updateEntityDefinitionFilter;
 
 @end
 
@@ -246,7 +251,7 @@ static InspectorController* sharedInstance = nil;
     [selectedTextureNames release];
 }
 
-- (void)updateFilter {
+- (void)updateTextureFilter {
     id<TextureFilter> filter = nil;
     NSString* pattern = [textureNameFilterField stringValue];
     
@@ -260,6 +265,23 @@ static InspectorController* sharedInstance = nil;
     }
     
     [textureView setTextureFilter:filter];
+    [filter release];
+}
+
+- (void)updateEntityDefinitionFilter {
+    id <EntityDefinitionFilter> filter = nil;
+    NSString* pattern = [entityNameFilterField stringValue];
+    
+    if (pattern != nil && [pattern length] > 0)
+        filter = [[EntityDefinitionNameFilter alloc] initWithPattern:pattern];
+    
+    if ([entityUsageFilterSC selectedSegment] == 1) {
+        id <EntityDefinitionFilter> temp = [[EntityDefinitionUsageFilter alloc] initWithFilter:filter];
+        [filter release];
+        filter = temp;
+    }
+    
+    [entityView setEntityDefinitionFilter:filter];
     [filter release];
 }
 
@@ -426,11 +448,11 @@ static InspectorController* sharedInstance = nil;
 }
 
 - (IBAction)textureNameFilterTextChanged:(id)sender {
-    [self updateFilter];
+    [self updateTextureFilter];
 }
 
 - (IBAction)textureUsageFilterChanged:(id)sender {
-    [self updateFilter];
+    [self updateTextureFilter];
 }
 
 - (IBAction)textureSortCriterionChanged:(id)sender {
@@ -513,6 +535,25 @@ static InspectorController* sharedInstance = nil;
     
     [undoManager setActionName:@"Remove Entity Properties"];
     [undoManager endUndoGrouping];
+}
+
+- (IBAction)entityNameFilterTextChanged:(id)sender {
+    [self updateEntityDefinitionFilter];
+}
+
+- (IBAction)entityUsageFilterChanged:(id)sender {
+    [self updateEntityDefinitionFilter];
+}
+
+- (IBAction)entitySortCriterionChanged:(id)sender {
+    switch ([entitySortCriterionSC selectedSegment]) {
+        case 0:
+            [entityView setSortCriterion:ES_NAME];
+            break;
+        default:
+            [entityView setSortCriterion:ES_USAGE];
+            break;
+    }
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification {

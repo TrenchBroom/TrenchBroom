@@ -9,7 +9,6 @@
 #import "EntityView.h"
 #import "Math.h"
 #import "Camera.h"
-#import "EntityDefinitionManager.h"
 #import "EntityDefinition.h"
 #import "GLResources.h"
 #import "GLFontManager.h"
@@ -312,10 +311,26 @@
         
         GLFontManager* fontManager = [glResources fontManager];
         NSFont* font = [NSFont systemFontOfSize:13];
-        layout = [[EntityDefinitionLayout alloc] initWithEntityDefinitionManager:entityDefinitionManager fontManager:fontManager font:font];
+        layout = [[EntityDefinitionLayout alloc] initWithFontManager:fontManager font:font];
+        [layout setEntityDefinitions:[entityDefinitionManager definitionsOfType:EDT_POINT sortCriterion:sortCriterion]];
     }
     
     [self reshape];
+}
+
+- (void)setEntityDefinitionFilter:(id <EntityDefinitionFilter>)theFilter {
+    if (layout != nil) {
+        [layout setEntityDefinitionFilter:theFilter];
+        [self reshape];
+    }
+}
+
+- (void)setSortCriterion:(EEntityDefinitionSortCriterion)criterion {
+    sortCriterion = criterion;
+    if (layout != nil) {
+        [layout setEntityDefinitions:[entityDefinitionManager definitionsOfType:EDT_POINT sortCriterion:sortCriterion]];
+        [self reshape];
+    }
 }
 
 - (void)dealloc {

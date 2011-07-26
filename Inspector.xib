@@ -133,7 +133,6 @@
 												<int key="NSvFlags">289</int>
 												<string key="NSFrame">{{389, 16}, {96, 23}}</string>
 												<reference key="NSSuperview" ref="425344334"/>
-												<reference key="NSNextKeyView"/>
 												<bool key="NSEnabled">YES</bool>
 												<object class="NSButtonCell" key="NSCell" id="77572514">
 													<int key="NSCellFlags">-2080244224</int>
@@ -185,7 +184,7 @@
 																<int key="NSvFlags">256</int>
 																<string key="NSFrameSize">{466, 58}</string>
 																<reference key="NSSuperview" ref="747013075"/>
-																<reference key="NSNextKeyView" ref="1037520829"/>
+																<reference key="NSNextKeyView" ref="431676447"/>
 																<bool key="NSEnabled">YES</bool>
 																<object class="_NSCornerView" key="NSCornerView">
 																	<nil key="NSNextResponder"/>
@@ -305,7 +304,7 @@
 												</object>
 												<string key="NSFrame">{{17, 46}, {468, 60}}</string>
 												<reference key="NSSuperview" ref="425344334"/>
-												<reference key="NSNextKeyView" ref="431676447"/>
+												<reference key="NSNextKeyView" ref="747013075"/>
 												<int key="NSsFlags">133650</int>
 												<reference key="NSVScroller" ref="1037520829"/>
 												<reference key="NSHScroller" ref="431676447"/>
@@ -987,7 +986,7 @@
 																<object class="NSPSMatrix" key="NSDrawMatrix"/>
 																<string key="NSFrameSize">{466, 412}</string>
 																<reference key="NSSuperview" ref="999772963"/>
-																<reference key="NSNextKeyView" ref="765351916"/>
+																<reference key="NSNextKeyView" ref="351373474"/>
 																<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 																	<object class="NSMutableData" key="NSPixelAttributes">
 																		<bytes key="NS.bytes">AAAABQAAADsAAABgAAAACAAAAA8AAAALAAAACAAAAAwAAAAYAAAAOAAAAAQAAAA3AAAAAQAAAAA</bytes>
@@ -1027,7 +1026,7 @@
 												</object>
 												<string key="NSFrame">{{17, 123}, {468, 414}}</string>
 												<reference key="NSSuperview" ref="425344334"/>
-												<reference key="NSNextKeyView" ref="351373474"/>
+												<reference key="NSNextKeyView" ref="999772963"/>
 												<int key="NSsFlags">133138</int>
 												<reference key="NSVScroller" ref="765351916"/>
 												<reference key="NSHScroller" ref="351373474"/>
@@ -1086,7 +1085,7 @@
 																<object class="NSPSMatrix" key="NSDrawMatrix"/>
 																<string key="NSFrameSize">{466, 690}</string>
 																<reference key="NSSuperview" ref="925467617"/>
-																<reference key="NSNextKeyView" ref="50004003"/>
+																<reference key="NSNextKeyView" ref="400158767"/>
 																<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 																	<object class="NSMutableData" key="NSPixelAttributes">
 																		<bytes key="NS.bytes">AAAABQAAADsAAABgAAAACAAAAA8AAAALAAAACAAAAAwAAAAYAAAAOAAAAAQAAAA3AAAAAQAAAAA</bytes>
@@ -1106,7 +1105,6 @@
 														<int key="NSvFlags">256</int>
 														<string key="NSFrame">{{452, 1}, {15, 690}}</string>
 														<reference key="NSSuperview" ref="214001097"/>
-														<reference key="NSNextKeyView"/>
 														<reference key="NSTarget" ref="214001097"/>
 														<string key="NSAction">_doScroller:</string>
 														<double key="NSCurValue">1</double>
@@ -1126,7 +1124,7 @@
 												</object>
 												<string key="NSFrame">{{17, 17}, {468, 692}}</string>
 												<reference key="NSSuperview" ref="565015667"/>
-												<reference key="NSNextKeyView" ref="400158767"/>
+												<reference key="NSNextKeyView" ref="925467617"/>
 												<int key="NSsFlags">133138</int>
 												<reference key="NSVScroller" ref="50004003"/>
 												<reference key="NSHScroller" ref="400158767"/>
@@ -1452,7 +1450,7 @@
 																<string key="NSFrame">{{-2, 508}, {123, 24}}</string>
 																<reference key="NSSuperview" ref="679702629"/>
 																<reference key="NSWindow"/>
-																<reference key="NSNextKeyView"/>
+																<reference key="NSNextKeyView" ref="55935979"/>
 																<bool key="NSEnabled">YES</bool>
 																<object class="NSSegmentedCell" key="NSCell" id="914010871">
 																	<int key="NSCellFlags">67239424</int>
@@ -1547,7 +1545,7 @@
 																		<string key="NSFrame">{{451, 1}, {15, 501}}</string>
 																		<reference key="NSSuperview" ref="396027170"/>
 																		<reference key="NSWindow"/>
-																		<reference key="NSNextKeyView" ref="539665340"/>
+																		<reference key="NSNextKeyView"/>
 																		<reference key="NSTarget" ref="396027170"/>
 																		<string key="NSAction">_doScroller:</string>
 																		<double key="NSCurValue">1</double>
@@ -1579,7 +1577,7 @@
 														<string key="NSFrame">{{0, 175}, {468, 540}}</string>
 														<reference key="NSSuperview" ref="394530328"/>
 														<reference key="NSWindow"/>
-														<reference key="NSNextKeyView" ref="55935979"/>
+														<reference key="NSNextKeyView" ref="539665340"/>
 														<string key="NSReuseIdentifierKey">_NS:549</string>
 														<string key="NSClassName">NSView</string>
 													</object>
@@ -2692,20 +2690,52 @@
 					<int key="connectionID">348</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">textureSortCriterionChanged:</string>
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">entityNameFilterField</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="609780853"/>
+					</object>
+					<int key="connectionID">368</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">entitySortCriterionSC</string>
 						<reference key="source" ref="1001"/>
 						<reference key="destination" ref="539665340"/>
 					</object>
-					<int key="connectionID">366</int>
+					<int key="connectionID">369</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">textureUsageFilterChanged:</string>
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">entityUsageFilterSC</string>
 						<reference key="source" ref="1001"/>
 						<reference key="destination" ref="55935979"/>
 					</object>
-					<int key="connectionID">367</int>
+					<int key="connectionID">370</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">entitySortCriterionChanged:</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="539665340"/>
+					</object>
+					<int key="connectionID">371</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">entityUsageFilterChanged:</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="55935979"/>
+					</object>
+					<int key="connectionID">372</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">entityNameFilterTextChanged:</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="609780853"/>
+					</object>
+					<int key="connectionID">373</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -4058,7 +4088,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">367</int>
+			<int key="maxID">373</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -4091,6 +4121,9 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>addEntityProperty:</string>
 							<string>addTextureWad:</string>
+							<string>entityNameFilterTextChanged:</string>
+							<string>entitySortCriterionChanged:</string>
+							<string>entityUsageFilterChanged:</string>
 							<string>prefabsPerRowChanged:</string>
 							<string>removeEntityProperty:</string>
 							<string>rotationTextChanged:</string>
@@ -4104,6 +4137,9 @@
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -4124,6 +4160,9 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>addEntityProperty:</string>
 							<string>addTextureWad:</string>
+							<string>entityNameFilterTextChanged:</string>
+							<string>entitySortCriterionChanged:</string>
+							<string>entityUsageFilterChanged:</string>
 							<string>prefabsPerRowChanged:</string>
 							<string>removeEntityProperty:</string>
 							<string>rotationTextChanged:</string>
@@ -4143,6 +4182,18 @@
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">addTextureWad:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">entityNameFilterTextChanged:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">entitySortCriterionChanged:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">entityUsageFilterChanged:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
@@ -4192,7 +4243,10 @@
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>addEntityPropertyButton</string>
+							<string>entityNameFilterField</string>
 							<string>entityPropertyTableView</string>
+							<string>entitySortCriterionSC</string>
+							<string>entityUsageFilterSC</string>
 							<string>entityView</string>
 							<string>prefabView</string>
 							<string>prefabsPerRowSlider</string>
@@ -4215,7 +4269,10 @@
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>NSButton</string>
+							<string>NSSearchField</string>
 							<string>NSTableView</string>
+							<string>NSSegmentedControl</string>
+							<string>NSSegmentedControl</string>
 							<string>EntityView</string>
 							<string>PrefabView</string>
 							<string>NSSlider</string>
@@ -4241,7 +4298,10 @@
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>addEntityPropertyButton</string>
+							<string>entityNameFilterField</string>
 							<string>entityPropertyTableView</string>
+							<string>entitySortCriterionSC</string>
+							<string>entityUsageFilterSC</string>
 							<string>entityView</string>
 							<string>prefabView</string>
 							<string>prefabsPerRowSlider</string>
@@ -4268,8 +4328,20 @@
 								<string key="candidateClassName">NSButton</string>
 							</object>
 							<object class="IBToOneOutletInfo">
+								<string key="name">entityNameFilterField</string>
+								<string key="candidateClassName">NSSearchField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
 								<string key="name">entityPropertyTableView</string>
 								<string key="candidateClassName">NSTableView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">entitySortCriterionSC</string>
+								<string key="candidateClassName">NSSegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">entityUsageFilterSC</string>
+								<string key="candidateClassName">NSSegmentedControl</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">entityView</string>

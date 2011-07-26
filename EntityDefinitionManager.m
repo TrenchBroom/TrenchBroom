@@ -33,7 +33,7 @@
         [parser release];
     }
     
-    NSLog(@"Found %i entity definitions", [definitions count]);
+    NSLog(@"Found %lu entity definitions", [definitions count]);
 
     return self;
 }
@@ -48,6 +48,10 @@
 }
 
 - (NSArray *)definitionsOfType:(EEntityDefinitionType)type {
+    return [self definitionsOfType:type sortCriterion:ES_NAME];
+}
+
+- (NSArray *)definitionsOfType:(EEntityDefinitionType)type sortCriterion:(EEntityDefinitionSortCriterion)criterion {
     NSMutableArray* result = [[NSMutableArray alloc] init];
     
     NSEnumerator* definitionEn = [definitionsByName objectEnumerator];
@@ -56,6 +60,9 @@
         if ([definition type] == type)
             [result addObject:definition];
     }
+    
+    if (criterion == ES_USAGE)
+        [result sortUsingSelector:@selector(compareByUsageCount:)];
     
     return [result autorelease];
 }

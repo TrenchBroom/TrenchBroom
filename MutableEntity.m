@@ -113,6 +113,7 @@
     [entityId release];
 	[properties release];
 	[brushes release];
+    [entityDefinition decUsageCount];
     [entityDefinition release];
     [angle release];
 	[super dealloc];
@@ -374,6 +375,7 @@
     NSAssert(entityDefinition == nil, @"can't change entity definition");
     
     entityDefinition = [theEntityDefinition retain];
+    [entityDefinition incUsageCount];
 }
 
 - (void)setMap:(id <Map>)theMap {

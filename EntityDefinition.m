@@ -183,12 +183,32 @@
     return nil;
 }
 
+- (void)incUsageCount {
+    usageCount++;
+}
+
+- (void)decUsageCount {
+    usageCount--;
+}
+    
+- (int)usageCount {
+    return usageCount;
+}
+
 - (NSString *)description {
     return description;
 }
 
 - (NSComparisonResult)compareByName:(EntityDefinition *)definition {
     return [name compare:[definition name]];
+}
+
+- (NSComparisonResult)compareByUsageCount:(EntityDefinition *)definition {
+    if (usageCount > [definition usageCount])
+        return NSOrderedAscending;
+    if (usageCount < [definition usageCount])
+        return NSOrderedDescending;
+    return [self compareByName:definition];
 }
 
 - (void)dealloc {

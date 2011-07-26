@@ -42,6 +42,9 @@
     IBOutlet NSButton* addEntityPropertyButton;
     EntityPropertyTableDataSource* entityPropertyTableDataSource;
     IBOutlet EntityView* entityView;
+    IBOutlet NSSegmentedControl* entitySortCriterionSC;
+    IBOutlet NSSegmentedControl* entityUsageFilterSC;
+    IBOutlet NSSearchField* entityNameFilterField;
     
     MapWindowController* mapWindowController;
 }
@@ -67,4 +70,7 @@
 
 - (IBAction)removeEntityProperty:(id)sender;
 - (IBAction)addEntityProperty:(id)sender;
+- (IBAction)entityNameFilterTextChanged:(id)sender;
+- (IBAction)entityUsageFilterChanged:(id)sender;
+- (IBAction)entitySortCriterionChanged:(id)sender;
 @end
