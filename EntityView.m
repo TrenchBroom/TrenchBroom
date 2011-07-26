@@ -27,6 +27,8 @@
 @implementation EntityView (private)
 
 - (NSImage *)dragImageWithBounds:(NSRect)theBounds {
+    [[self openGLContext] makeCurrentContext];
+    
     int byteWidth = NSWidth(theBounds) * 4;
     byteWidth = (byteWidth + 3) & ~3;
     
