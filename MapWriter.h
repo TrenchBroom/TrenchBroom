@@ -20,5 +20,6 @@
 
 - (void)writeToStream:(NSOutputStream *)theStream;
 - (void)writeToFileAtPath:(NSString *)thePath;
+- (void)writeToFileAtUrl:(NSURL *)theUrl;
 
 @end

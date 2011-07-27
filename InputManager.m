@@ -457,21 +457,76 @@
 }
 
 - (void)handleDraggingEnded:(id <NSDraggingInfo>)sender {
+    if (activeDndTool == nil)
+        return;
+    
+    Camera* camera = [windowController camera];
+    NSPoint location = [sender draggingLocation];
+    TRay ray = [camera pickRayX:location.x y:location.y];
+    
+    Picker* picker = [[windowController document] picker];
+    PickingHitList* hitList = [picker pickObjects:&ray filter:filter];
+    
+    [activeDndTool handleDraggingEnded:sender ray:&ray hits:hitList];
     activeDndTool = nil;
 }
 
 - (void)handleDraggingExited:(id <NSDraggingInfo>)sender {
+    if (activeDndTool == nil)
+        return;
+    
+    Camera* camera = [windowController camera];
+    NSPoint location = [sender draggingLocation];
+    TRay ray = [camera pickRayX:location.x y:location.y];
+    
+    Picker* picker = [[windowController document] picker];
+    PickingHitList* hitList = [picker pickObjects:&ray filter:filter];
+    
+    [activeDndTool handleDraggingExited:sender ray:&ray hits:hitList];
+    activeDndTool = nil;
 }
 
 - (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)sender {
-    return NO;
+    if (activeDndTool == nil)
+        return NO;
+    
+    Camera* camera = [windowController camera];
+    NSPoint location = [sender draggingLocation];
+    TRay ray = [camera pickRayX:location.x y:location.y];
+    
+    Picker* picker = [[windowController document] picker];
+    PickingHitList* hitList = [picker pickObjects:&ray filter:filter];
+    
+    return [activeDndTool prepareForDragOperation:sender ray:&ray hits:hitList];
 }
 
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
-    return NO;
+    if (activeDndTool == nil)
+        return NO;
+    
+    Camera* camera = [windowController camera];
+    NSPoint location = [sender draggingLocation];
+    TRay ray = [camera pickRayX:location.x y:location.y];
+    
+    Picker* picker = [[windowController document] picker];
+    PickingHitList* hitList = [picker pickObjects:&ray filter:filter];
+    
+    return [activeDndTool performDragOperation:sender ray:&ray hits:hitList];
 }
 
 - (void)concludeDragOperation:(id <NSDraggingInfo>)sender {
+    if (activeDndTool == nil)
+        return;
+    
+    Camera* camera = [windowController camera];
+    NSPoint location = [sender draggingLocation];
+    TRay ray = [camera pickRayX:location.x y:location.y];
+    
+    Picker* picker = [[windowController document] picker];
+    PickingHitList* hitList = [picker pickObjects:&ray filter:filter];
+    
+    [activeDndTool concludeDragOperation:sender ray:&ray hits:hitList];
+    activeDndTool = nil;
 }
 
 

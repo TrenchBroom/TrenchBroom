@@ -26,6 +26,7 @@
 #import "MapWindowController.h"
 #import "ProgressWindowController.h"
 #import "MapParser.h"
+#import "MapWriter.h"
 
 NSString* const FacesWillChange         = @"FacesWillChange";
 NSString* const FacesDidChange          = @"FacesDidChange";
@@ -255,12 +256,12 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     return YES;
 }
 
-- (id)retain {
-    return [super retain];
-}
-
-- (void)release {
-    [super release];
+- (BOOL)writeToURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError {
+    MapWriter* mapWriter = [[MapWriter alloc] initWithMap:self];
+    [mapWriter writeToFileAtUrl:absoluteURL];
+    [mapWriter release];
+    
+    return YES;
 }
 
 - (void)dealloc {
@@ -1329,7 +1330,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     
     if ([theEntities count] == 0)
         return;
-    
+
     [[[self undoManager] prepareWithInvocationTarget:self] addEntities:theEntities];
     
     if ([self postNotifications]) {

@@ -131,6 +131,8 @@
 }
 
 - (NSDragOperation)handleDraggingEntered:(id <NSDraggingInfo>)sender ray:(TRay *)ray hits:(PickingHitList *)hits {
+    NSLog(@"dragging entered");
+    
     NSPasteboard* pasteboard = [sender draggingPasteboard];
     NSString* type = [pasteboard availableTypeFromArray:[NSArray arrayWithObject:EntityDefinitionType]];
 
@@ -158,6 +160,15 @@
         [feedbackFigure release];
         feedbackFigure = nil;
     }
+    
+    if (entity != nil) {
+        SelectionManager* selectionManager = [windowController selectionManager];
+        [selectionManager removeAll:YES];
+        
+        MapDocument* map = [windowController document];
+        [map deleteEntities:[NSSet setWithObject:entity]];
+        entity = nil;
+    }
 }
 
 - (void)handleDraggingExited:(id <NSDraggingInfo>)sender ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -166,6 +177,15 @@
         [renderer removeFeedbackFigure:feedbackFigure];
         [feedbackFigure release];
         feedbackFigure = nil;
+    }
+ 
+    if (entity != nil) {
+        SelectionManager* selectionManager = [windowController selectionManager];
+        [selectionManager removeAll:YES];
+        
+        MapDocument* map = [windowController document];
+        [map deleteEntities:[NSSet setWithObject:entity]];
+        entity = nil;
     }
 }
 

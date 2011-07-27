@@ -250,14 +250,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     [pns release];
 }
 
-- (id)retain {
-    return [super retain];
-}
-
-- (void)release {
-    [super release];
-}
-
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [options release];

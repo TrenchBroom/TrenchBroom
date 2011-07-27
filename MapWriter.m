@@ -114,6 +114,14 @@ static int BUF_SIZE = 16;
     [stream release];
 }
 
+- (void)writeToFileAtUrl:(NSURL *)theUrl {
+    NSOutputStream* stream = [[NSOutputStream alloc] initWithURL:theUrl append:NO];
+    [stream open];
+    [self writeToStream:stream];
+    [stream close];
+    [stream release];
+}
+
 - (void)dealloc {
     [map release];
     free(buffer);

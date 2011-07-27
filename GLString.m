@@ -97,7 +97,6 @@
 
 - (void)dealloc {
     [memBlock free];
-    [memBlock release];
     [triangleStripIndices release];
     [triangleStripCounts release];
     [triangleFanIndices release];

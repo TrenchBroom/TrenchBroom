@@ -28,14 +28,30 @@
 @implementation DefaultEntityLayer (private)
 
 - (void)validate {
+    if ([removedEntities count] > 0) {
+        NSLog(@"removing %lu entities", [removedEntities count]);
+        
+        NSEnumerator* entityEn = [removedEntities objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            [boundsRenderer removeEntity:entity];
+            [aliasRenderer removeEntity:entity];
+            [classnameRenderer removeStringForKey:[entity entityId]];
+        }
+        
+        [removedEntities removeAllObjects];
+    }
+
     if ([addedEntities count] > 0) {
+        NSLog(@"adding %lu entities", [addedEntities count]);
+
         NSEnumerator* entityEn = [addedEntities objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
             [boundsRenderer addEntity:entity];
             [aliasRenderer addEntity:entity];
         }
-
+        
         [fontManager activate];
         entityEn = [addedEntities objectEnumerator];
         while ((entity = [entityEn nextObject])) {
@@ -47,18 +63,6 @@
         [fontManager deactivate];
         
         [addedEntities removeAllObjects];
-    }
-    
-    if ([removedEntities count] > 0) {
-        NSEnumerator* entityEn = [removedEntities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
-            [boundsRenderer removeEntity:entity];
-            [aliasRenderer removeEntity:entity];
-            [classnameRenderer removeStringForKey:[entity entityId]];
-        }
-        
-        [removedEntities removeAllObjects];
     }
 }
 
@@ -97,10 +101,7 @@
 }
 
 - (void)addEntity:(id <Entity>)entity {
-    if ([removedEntities containsObject:entity])
-        [removedEntities removeObject:entity];
-    else
-        [addedEntities addObject:entity];
+    [addedEntities addObject:entity];
 }
 
 - (void)removeEntity:(id <Entity>)entity {
