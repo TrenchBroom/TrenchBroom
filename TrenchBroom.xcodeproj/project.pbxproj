@@ -111,6 +111,7 @@
 		48973E2A13C368900067E10D /* SpawnFlag.m in Sources */ = {isa = PBXBuildFile; fileRef = 48973E2913C3688F0067E10D /* SpawnFlag.m */; };
 		4898D9B713E1718C00B9C8F1 /* DragImageWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4898D9B613E1718C00B9C8F1 /* DragImageWindow.xib */; };
 		4898D9C013E172FE00B9C8F1 /* DragImageWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9BF13E172FE00B9C8F1 /* DragImageWindowController.m */; };
+		4898D9C813E199F800B9C8F1 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9C713E199F800B9C8F1 /* PreferencesController.m */; };
 		489C061913C9EBA400D9D693 /* GLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 489C061813C9EBA400D9D693 /* GLUtils.m */; };
 		48A269E313C73BFA00703BC1 /* EntityInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A269E213C73BFA00703BC1 /* EntityInfo.m */; };
 		48A5FD4C13C5E7C6009D086C /* BspManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A5FD4B13C5E7C6009D086C /* BspManager.m */; };
@@ -410,6 +411,8 @@
 		4898D9B613E1718C00B9C8F1 /* DragImageWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DragImageWindow.xib; sourceTree = "<group>"; };
 		4898D9BE13E172FE00B9C8F1 /* DragImageWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragImageWindowController.h; sourceTree = "<group>"; };
 		4898D9BF13E172FE00B9C8F1 /* DragImageWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragImageWindowController.m; sourceTree = "<group>"; };
+		4898D9C613E199F800B9C8F1 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; path = PreferencesController.h; sourceTree = "<group>"; };
+		4898D9C713E199F800B9C8F1 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesController.m; sourceTree = "<group>"; };
 		489C061713C9EBA400D9D693 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLUtils.h; sourceTree = "<group>"; };
 		489C061813C9EBA400D9D693 /* GLUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLUtils.m; sourceTree = "<group>"; };
 		48A269E113C73BFA00703BC1 /* EntityInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityInfo.h; sourceTree = "<group>"; };
@@ -698,6 +701,8 @@
 		483A65A713D48CA8009EB9E7 /* Drag And Drop */ = {
 			isa = PBXGroup;
 			children = (
+				4898D9BE13E172FE00B9C8F1 /* DragImageWindowController.h */,
+				4898D9BF13E172FE00B9C8F1 /* DragImageWindowController.m */,
 				483A65A913D48CEE009EB9E7 /* DndTool.h */,
 				483A65AA13D48D95009EB9E7 /* EntityDefinitionDndTool.h */,
 				483A65AB13D48D95009EB9E7 /* EntityDefinitionDndTool.m */,
@@ -779,6 +784,7 @@
 				48A68E93114E92730064732A /* Map */,
 				483048F913A13A8A002CA97B /* Alias */,
 				48770C59138C333F0067231C /* Pak */,
+				4898D9C113E1989D00B9C8F1 /* Prefab */,
 				487437FD135ED49300F787E1 /* Texture */,
 				4881C74512E9CD69006BF922 /* Wad */,
 				48455A4913800A520096FEA5 /* IO.h */,
@@ -857,8 +863,6 @@
 				4802513E133A11FA001C51F2 /* Layer */,
 				48025140133A1211001C51F2 /* PrimitiveRenderer */,
 				489DC65D12F9EBF500053092 /* Text */,
-				48B3243A12E1C6B8008748E2 /* Camera.h */,
-				48B3243B12E1C6B8008748E2 /* Camera.m */,
 				48325D4513524F7000E703E0 /* CompassFigure.h */,
 				48325D4613524F7000E703E0 /* CompassFigure.m */,
 				48D6C93A135737C100AC6A4D /* Cursor.h */,
@@ -937,6 +941,64 @@
 			name = 2D;
 			sourceTree = "<group>";
 		};
+		4898D9C113E1989D00B9C8F1 /* Prefab */ = {
+			isa = PBXGroup;
+			children = (
+				4833C15D131953F600EB1B85 /* PrefabManager.h */,
+				4833C15E131953F600EB1B85 /* PrefabManager.m */,
+				4833C1BB13196CFB00EB1B85 /* MutablePrefab.h */,
+				4833C1BC13196CFB00EB1B85 /* MutablePrefab.m */,
+				488FEAEF131F9D1800010A04 /* MutablePrefabGroup.h */,
+				488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */,
+				488FEB08131FA02200010A04 /* Prefab.h */,
+				488FEAF2131F9D7200010A04 /* PrefabGroup.h */,
+			);
+			name = Prefab;
+			sourceTree = "<group>";
+		};
+		4898D9C413E1993100B9C8F1 /* Inspector */ = {
+			isa = PBXGroup;
+			children = (
+				4891E15412FC04B2007A3B93 /* InspectorController.h */,
+				4891E15512FC04B2007A3B93 /* InspectorController.m */,
+				483044A01398B3D3002CA97B /* EntityPropertyTableDataSource.h */,
+				483044A11398B3D3002CA97B /* EntityPropertyTableDataSource.m */,
+			);
+			name = Inspector;
+			sourceTree = "<group>";
+		};
+		4898D9C513E1998900B9C8F1 /* MapWindow */ = {
+			isa = PBXGroup;
+			children = (
+				48B3243A12E1C6B8008748E2 /* Camera.h */,
+				48B3243B12E1C6B8008748E2 /* Camera.m */,
+				48958207132E52EF00BB7D8F /* CameraAnimation.h */,
+				48958208132E52EF00BB7D8F /* CameraAnimation.m */,
+				480F2F63132562CA00651FED /* Grid.h */,
+				480F2F64132562CA00651FED /* Grid.m */,
+				48DB957612F0699600FB5483 /* InputManager.h */,
+				48DB957712F0699600FB5483 /* InputManager.m */,
+				48A68EB6114E96C00064732A /* MapWindowController.h */,
+				48A68EB7114E96C00064732A /* MapWindowController.m */,
+				48C3324213087D8600C23607 /* MenuDelegate.h */,
+				48C3324313087D8600C23607 /* MenuDelegate.m */,
+				48B5A1D9131EEE440043FBD9 /* PrefabNameSheetController.h */,
+				48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */,
+				48E1806312F5F07D007995FE /* SelectionManager.h */,
+				48E1806412F5F07D007995FE /* SelectionManager.m */,
+			);
+			name = MapWindow;
+			sourceTree = "<group>";
+		};
+		4898D9C913E19B4F00B9C8F1 /* Preferences */ = {
+			isa = PBXGroup;
+			children = (
+				4898D9C613E199F800B9C8F1 /* PreferencesController.h */,
+				4898D9C713E199F800B9C8F1 /* PreferencesController.m */,
+			);
+			name = Preferences;
+			sourceTree = "<group>";
+		};
 		489DC65D12F9EBF500053092 /* Text */ = {
 			isa = PBXGroup;
 			children = (
@@ -969,12 +1031,6 @@
 				48A68F26114EDF360064732A /* MutableEntity.m */,
 				48527F3611148D5C00CD6043 /* MutableFace.h */,
 				48527F3711148D5C00CD6043 /* MutableFace.m */,
-				4833C1BB13196CFB00EB1B85 /* MutablePrefab.h */,
-				4833C1BC13196CFB00EB1B85 /* MutablePrefab.m */,
-				488FEAEF131F9D1800010A04 /* MutablePrefabGroup.h */,
-				488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */,
-				488FEB08131FA02200010A04 /* Prefab.h */,
-				488FEAF2131F9D7200010A04 /* PrefabGroup.h */,
 				486E08B413B6772100E751A6 /* FaceInfo.h */,
 				486E08B513B6772200E751A6 /* FaceInfo.m */,
 				486E08B713B67D7F00E751A6 /* BrushInfo.h */,
@@ -989,41 +1045,22 @@
 			isa = PBXGroup;
 			children = (
 				483A65A713D48CA8009EB9E7 /* Drag And Drop */,
+				4898D9C413E1993100B9C8F1 /* Inspector */,
+				4898D9C513E1998900B9C8F1 /* MapWindow */,
 				488C8EBA12F69F9300F358E6 /* Picking */,
+				4898D9C913E19B4F00B9C8F1 /* Preferences */,
 				486928E9133F27D900A0F098 /* Tool */,
 				48B325E312E3788D008748E2 /* AppDelegate.h */,
 				48B325E412E3788D008748E2 /* AppDelegate.m */,
-				48958207132E52EF00BB7D8F /* CameraAnimation.h */,
-				48958208132E52EF00BB7D8F /* CameraAnimation.m */,
-				4864F8C3135B564600511696 /* Filter.h */,
-				480F2F63132562CA00651FED /* Grid.h */,
-				480F2F64132562CA00651FED /* Grid.m */,
-				48DB957612F0699600FB5483 /* InputManager.h */,
-				48DB957712F0699600FB5483 /* InputManager.m */,
-				4891E15412FC04B2007A3B93 /* InspectorController.h */,
-				4891E15512FC04B2007A3B93 /* InspectorController.m */,
-				48A68EB6114E96C00064732A /* MapWindowController.h */,
-				48A68EB7114E96C00064732A /* MapWindowController.m */,
-				48C3324213087D8600C23607 /* MenuDelegate.h */,
-				48C3324313087D8600C23607 /* MenuDelegate.m */,
 				485D2EAD1308624900CF73D8 /* Options.h */,
 				485D2EAE1308624900CF73D8 /* Options.m */,
-				4833C15D131953F600EB1B85 /* PrefabManager.h */,
-				4833C15E131953F600EB1B85 /* PrefabManager.m */,
-				48B5A1D9131EEE440043FBD9 /* PrefabNameSheetController.h */,
-				48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */,
 				4814A02512F740580082E05F /* ProgressWindowController.h */,
 				4814A02612F740580082E05F /* ProgressWindowController.m */,
+				4864F8C3135B564600511696 /* Filter.h */,
 				487436A4135B5FD900F787E1 /* DefaultFilter.h */,
 				487436A5135B5FD900F787E1 /* DefaultFilter.m */,
-				48E1806312F5F07D007995FE /* SelectionManager.h */,
-				48E1806412F5F07D007995FE /* SelectionManager.m */,
-				483044A01398B3D3002CA97B /* EntityPropertyTableDataSource.h */,
-				483044A11398B3D3002CA97B /* EntityPropertyTableDataSource.m */,
 				48F5C3D913E1578A00B1A720 /* ControllerUtils.h */,
 				48F5C3DA13E1578A00B1A720 /* ControllerUtils.m */,
-				4898D9BE13E172FE00B9C8F1 /* DragImageWindowController.h */,
-				4898D9BF13E172FE00B9C8F1 /* DragImageWindowController.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -1365,6 +1402,7 @@
 				48D2A31B13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m in Sources */,
 				48F5C3DB13E1578A00B1A720 /* ControllerUtils.m in Sources */,
 				4898D9C013E172FE00B9C8F1 /* DragImageWindowController.m in Sources */,
+				4898D9C813E199F800B9C8F1 /* PreferencesController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

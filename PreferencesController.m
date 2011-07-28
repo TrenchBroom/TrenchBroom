@@ -6,25 +6,73 @@
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "PreferencesWindowController.h"
+#import "PreferencesController.h"
 
-@implementation PreferencesWindowController
+static PreferencesController* sharedInstance = nil;
 
-- (id)initWithWindow:(NSWindow *)window
-{
-    self = [super initWithWindow:window];
-    if (self) {
-        // Initialization code here.
+@implementation PreferencesController
+
++ (PreferencesController *)sharedPreferences {
+    @synchronized(self) {
+        if (sharedInstance == nil)
+            sharedInstance = [[self alloc] init];
     }
-    
+    return sharedInstance;
+}
+
++ (id)allocWithZone:(NSZone *)zone {
+    @synchronized(self) {
+        if (sharedInstance == nil) {
+            sharedInstance = [super allocWithZone:zone];
+            return sharedInstance;  // assignment and return on first allocation
+        }
+    }
+    return nil; // on subsequent allocation attempts return nil
+}
+
+- (id)copyWithZone:(NSZone *)zone {
     return self;
 }
 
-- (void)windowDidLoad
-{
-    [super windowDidLoad];
+- (id)retain {
+    return self;
+}
+
+- (NSUInteger)retainCount {
+    return UINT_MAX;  // denotes an object that cannot be released
+}
+
+- (oneway void)release {
+    //do nothing
+}
+
+- (id)autorelease {
+    return self;
+}
+
+- (NSString *)windowNibName {
+    return @"Preferences";
+}
+
+- (IBAction)chooseQuakePath:(id)sender {
+    NSOpenPanel* openPanel = [NSOpenPanel openPanel];
+    [openPanel setCanChooseFiles:NO];
+    [openPanel setCanChooseDirectories:YES];
+    [openPanel setAllowsMultipleSelection:NO];
+    [openPanel setAllowsOtherFileTypes:NO];
+    [openPanel setTitle:@"Choose Quake Path"];
+    [openPanel setNameFieldLabel:@"Quake Path"];
+    [openPanel setCanCreateDirectories:NO];
     
-    // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
+    if ([openPanel runModal] == NSFileHandlingPanelOKButton) {
+        NSEnumerator* urlEn = [[openPanel URLs] objectEnumerator];
+        NSURL* url;
+        while ((url = [urlEn nextObject])) {
+            NSString* quakePath = [url path];
+            if (quakePath != nil)
+                [quakePathTextField setStringValue:quakePath];
+        }
+    }
 }
 
 @end

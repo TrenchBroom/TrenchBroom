@@ -38,6 +38,7 @@
 #import "EntityDefinition.h"
 #import "math.h"
 #import "ControllerUtils.h"
+#import "PreferencesController.h"
 
 static NSString* CameraDefaults = @"Camera";
 static NSString* CameraDefaultsFov = @"Field Of Vision";
@@ -233,6 +234,8 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     } else if (action == @selector(createBrushEntity:)) {
         id <Entity> entity = [selectionManager brushSelectionEntity];
         return [entity isWorldspawn];
+    } else if (action == @selector(showPreferences:)) {
+        return YES;
     }
 
     return NO;
@@ -783,6 +786,14 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 
     [undoManager endUndoGrouping];
     [undoManager setActionName:[NSString stringWithFormat:@"Insert Prefab '%@'", [prefab name]]];
+}
+
+#pragma mark -
+#pragma mark Misc. actions
+
+- (IBAction)showPreferences:(id)sender {
+    PreferencesController* preferencesController = [PreferencesController sharedPreferences];
+    [[preferencesController window] makeKeyAndOrderFront:self];
 }
 
 #pragma mark -

@@ -8,6 +8,12 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface PreferencesWindowController : NSWindowController
+@interface PreferencesController : NSWindowController {
+    IBOutlet NSTextField* quakePathTextField;
+}
+
++ (PreferencesController *)sharedPreferences;
+
+- (IBAction)chooseQuakePath:(id)sender;
 
 @end
