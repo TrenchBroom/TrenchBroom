@@ -17,6 +17,7 @@
 #import "EntityDefinitionLayoutCell.h"
 #import "EntityRendererManager.h"
 #import "EntityRenderer.h"
+#import "DragImageWindowController.h"
 
 @interface EntityView (private)
 
@@ -64,12 +65,15 @@
 @implementation EntityView
 
 - (void)draggedImage:(NSImage *)image beganAt:(NSPoint)screenPoint {
+    [dragImageWindowController beginDrag:dragImage mouseLocation:screenPoint];
 }
 
 - (void)draggedImage:(NSImage *)image movedTo:(NSPoint)screenPoint {
+    [dragImageWindowController dragTo:screenPoint];
 }
 
 - (void)draggedImage:(NSImage *)image endedAt:(NSPoint)screenPoint operation:(NSDragOperation)operation {
+    [dragImageWindowController endDragWithOperation:operation];
     [dragImage release];
 }
 
@@ -78,6 +82,8 @@
     
     NSString* dragPlaceholderPath = [[NSBundle mainBundle] pathForResource:@"DragPlaceholder" ofType:@"png"];
     dragPlaceholder = [[NSImage alloc] initWithContentsOfFile:dragPlaceholderPath];
+    
+    dragImageWindowController = [[DragImageWindowController alloc] initWithWindowNibName:@"DragImageWindow"];
 }
 
 - (BOOL)isFlipped {
@@ -127,11 +133,13 @@
             NSString* definitionName = [definition name];
             [pasteboard declareTypes:[NSArray arrayWithObject:EntityDefinitionType] owner:nil];
             [pasteboard setData:[definitionName dataUsingEncoding:NSUTF8StringEncoding] forType:EntityDefinitionType];
+
+            imageOffset = NSMakeSize(clickPoint.x - NSMinX(definitionBounds), clickPoint.y - NSMinY(definitionBounds));
             
             NSPoint imageLocation = definitionBounds.origin;
             imageLocation.y += NSHeight(definitionBounds);
             
-            [self dragImage:dragPlaceholder at:imageLocation offset:NSMakeSize(0, 0) event:theEvent pasteboard:pasteboard source:self slideBack:YES];
+            [self dragImage:dragPlaceholder at:imageLocation offset:NSMakeSize(0, 0) event:theEvent pasteboard:pasteboard source:self slideBack:NO];
         }
     } else if ([theEvent clickCount] == 2) {
         EntityDefinition* entityDefinition = [layout entityDefinitionAt:clickPoint];
@@ -353,6 +361,7 @@
 }
 
 - (void)dealloc {
+    [dragImageWindowController release];
     [dragPlaceholder release];
     [glResources release];
     [entityDefinitionManager release];

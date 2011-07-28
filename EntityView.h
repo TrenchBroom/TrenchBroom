@@ -12,6 +12,7 @@
 @class GLResources;
 @class EntityDefinitionLayout;
 @class EntityDefinition;
+@class DragImageWindowController;
 @protocol EntityDefinitionFilter;
 
 @interface EntityView : NSOpenGLView {
@@ -24,8 +25,10 @@
     id <EntityDefinitionFilter> filter;
     EEntityDefinitionSortCriterion sortCriterion;
     
+    DragImageWindowController* dragImageWindowController;
     NSImage* dragPlaceholder;
     NSImage* dragImage;
+    NSSize imageOffset;
 }
 
 - (void)setGLResources:(GLResources *)theGLResources entityDefinitionManager:(EntityDefinitionManager *)theEntityDefinitionManager;
