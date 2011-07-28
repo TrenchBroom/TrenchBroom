@@ -112,6 +112,7 @@
 		4898D9B713E1718C00B9C8F1 /* DragImageWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4898D9B613E1718C00B9C8F1 /* DragImageWindow.xib */; };
 		4898D9C013E172FE00B9C8F1 /* DragImageWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9BF13E172FE00B9C8F1 /* DragImageWindowController.m */; };
 		4898D9C813E199F800B9C8F1 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9C713E199F800B9C8F1 /* PreferencesController.m */; };
+		4898D9CC13E1A2A200B9C8F1 /* QuakePathFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */; };
 		489C061913C9EBA400D9D693 /* GLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 489C061813C9EBA400D9D693 /* GLUtils.m */; };
 		48A269E313C73BFA00703BC1 /* EntityInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A269E213C73BFA00703BC1 /* EntityInfo.m */; };
 		48A5FD4C13C5E7C6009D086C /* BspManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A5FD4B13C5E7C6009D086C /* BspManager.m */; };
@@ -411,8 +412,10 @@
 		4898D9B613E1718C00B9C8F1 /* DragImageWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DragImageWindow.xib; sourceTree = "<group>"; };
 		4898D9BE13E172FE00B9C8F1 /* DragImageWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragImageWindowController.h; sourceTree = "<group>"; };
 		4898D9BF13E172FE00B9C8F1 /* DragImageWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragImageWindowController.m; sourceTree = "<group>"; };
-		4898D9C613E199F800B9C8F1 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; path = PreferencesController.h; sourceTree = "<group>"; };
+		4898D9C613E199F800B9C8F1 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesController.h; sourceTree = "<group>"; };
 		4898D9C713E199F800B9C8F1 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesController.m; sourceTree = "<group>"; };
+		4898D9CA13E1A2A200B9C8F1 /* QuakePathFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuakePathFormatter.h; sourceTree = "<group>"; };
+		4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuakePathFormatter.m; sourceTree = "<group>"; };
 		489C061713C9EBA400D9D693 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLUtils.h; sourceTree = "<group>"; };
 		489C061813C9EBA400D9D693 /* GLUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLUtils.m; sourceTree = "<group>"; };
 		48A269E113C73BFA00703BC1 /* EntityInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityInfo.h; sourceTree = "<group>"; };
@@ -995,6 +998,8 @@
 			children = (
 				4898D9C613E199F800B9C8F1 /* PreferencesController.h */,
 				4898D9C713E199F800B9C8F1 /* PreferencesController.m */,
+				4898D9CA13E1A2A200B9C8F1 /* QuakePathFormatter.h */,
+				4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */,
 			);
 			name = Preferences;
 			sourceTree = "<group>";
@@ -1403,6 +1408,7 @@
 				48F5C3DB13E1578A00B1A720 /* ControllerUtils.m in Sources */,
 				4898D9C013E172FE00B9C8F1 /* DragImageWindowController.m in Sources */,
 				4898D9C813E199F800B9C8F1 /* PreferencesController.m in Sources */,
+				4898D9CC13E1A2A200B9C8F1 /* QuakePathFormatter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
