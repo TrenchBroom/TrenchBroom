@@ -63,6 +63,23 @@
 
 @implementation EntityView
 
+- (void)draggedImage:(NSImage *)image beganAt:(NSPoint)screenPoint {
+}
+
+- (void)draggedImage:(NSImage *)image movedTo:(NSPoint)screenPoint {
+}
+
+- (void)draggedImage:(NSImage *)image endedAt:(NSPoint)screenPoint operation:(NSDragOperation)operation {
+    [dragImage release];
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    NSString* dragPlaceholderPath = [[NSBundle mainBundle] pathForResource:@"DragPlaceholder" ofType:@"png"];
+    dragPlaceholder = [[NSImage alloc] initWithContentsOfFile:dragPlaceholderPath];
+}
+
 - (BOOL)isFlipped {
     return YES;
 }
@@ -104,7 +121,7 @@
             NSRect definitionBounds = [cell entityDefinitionBounds];
             NSRect imageBounds = NSMakeRect(NSMinX(definitionBounds), NSHeight(visibleRect) - NSMaxY(definitionBounds) + NSMinY(visibleRect), NSWidth(definitionBounds), NSHeight(definitionBounds));
         
-            NSImage* dragImage = [self dragImageWithBounds:imageBounds];
+            dragImage = [[self dragImageWithBounds:imageBounds] retain];
             NSPasteboard* pasteboard = [NSPasteboard pasteboardWithName:NSDragPboard];
 
             NSString* definitionName = [definition name];
@@ -114,7 +131,7 @@
             NSPoint imageLocation = definitionBounds.origin;
             imageLocation.y += NSHeight(definitionBounds);
             
-            [self dragImage:dragImage at:imageLocation offset:NSMakeSize(0, 0) event:theEvent pasteboard:pasteboard source:self slideBack:YES];
+            [self dragImage:dragPlaceholder at:imageLocation offset:NSMakeSize(0, 0) event:theEvent pasteboard:pasteboard source:self slideBack:YES];
         }
     } else if ([theEvent clickCount] == 2) {
         EntityDefinition* entityDefinition = [layout entityDefinitionAt:clickPoint];
@@ -336,6 +353,7 @@
 }
 
 - (void)dealloc {
+    [dragPlaceholder release];
     [glResources release];
     [entityDefinitionManager release];
     [layout release];
