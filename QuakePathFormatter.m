@@ -11,7 +11,9 @@
 @implementation QuakePathFormatter
 
 - (NSString *)stringForObjectValue:(id)obj {
-    return (NSString *)obj;
+    if ([obj isKindOfClass:[NSString class]])
+        return [NSString stringWithString:obj];
+    return nil;
 }
 
 - (BOOL)getObjectValue:(id *)obj forString:(NSString *)string errorDescription:(NSString **)error {
@@ -19,16 +21,18 @@
     BOOL directory;
     BOOL exists = [fileManager fileExistsAtPath:string isDirectory:&directory];
     if (!exists) {
-        *error = [NSString stringWithFormat:@"%@ does not exist", string];
+        if (error)
+            *error = [NSString stringWithFormat:@"%@ does not exist", string];
         return NO;
     }
     
     if (!directory) {
-        *error = [NSString stringWithFormat:@"%@ is not a directory", string];
+        if (error)
+            *error = [NSString stringWithFormat:@"%@ is not a directory", string];
         return NO;
     }
     
-    *obj = string;
+    *obj = [NSString stringWithString:string];
     return YES;
 }
 

@@ -7,6 +7,7 @@
 //
 
 #import "PreferencesController.h"
+#import "QuakePathFormatter.h"
 
 static PreferencesController* sharedInstance = nil;
 
