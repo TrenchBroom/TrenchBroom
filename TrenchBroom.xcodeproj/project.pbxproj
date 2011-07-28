@@ -118,6 +118,8 @@
 		48A68F0F114EA0420064732A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48A68F0E114EA0420064732A /* OpenGL.framework */; };
 		48A68F27114EDF360064732A /* MutableEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* MutableEntity.m */; };
 		48A68F70114EE6DC0064732A /* MapDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* MapDocument.m */; };
+		48ACEC9913E162A900FEB81B /* DragPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 48ACEC9813E162A900FEB81B /* DragPlaceholder.png */; };
+		48ACEC9B13E164AD00FEB81B /* DragImageWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48ACEC9A13E164AD00FEB81B /* DragImageWindow.xib */; };
 		48AF852813D0D79400B62317 /* EntityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF852713D0D79400B62317 /* EntityView.m */; };
 		48AF852B13D0DCFD00B62317 /* EntityDefinitionLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF852A13D0DCFD00B62317 /* EntityDefinitionLayout.m */; };
 		48AF852E13D0DFF500B62317 /* EntityDefinitionLayoutCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF852D13D0DFF500B62317 /* EntityDefinitionLayoutCell.m */; };
@@ -423,6 +425,8 @@
 		48A68F26114EDF360064732A /* MutableEntity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutableEntity.m; sourceTree = "<group>"; };
 		48A68F6E114EE6DC0064732A /* MapDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapDocument.h; sourceTree = "<group>"; };
 		48A68F6F114EE6DC0064732A /* MapDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapDocument.m; sourceTree = "<group>"; };
+		48ACEC9813E162A900FEB81B /* DragPlaceholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DragPlaceholder.png; sourceTree = "<group>"; };
+		48ACEC9A13E164AD00FEB81B /* DragImageWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DragImageWindow.xib; sourceTree = "<group>"; };
 		48AF852613D0D79400B62317 /* EntityView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityView.h; sourceTree = "<group>"; };
 		48AF852713D0D79400B62317 /* EntityView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityView.m; sourceTree = "<group>"; };
 		48AF852913D0DCFD00B62317 /* EntityDefinitionLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionLayout.h; sourceTree = "<group>"; };
@@ -585,6 +589,7 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				48ACEC9813E162A900FEB81B /* DragPlaceholder.png */,
 				48FE96081363279D009B31FD /* quake.def */,
 				48639BF312EA227100808576 /* QuakePalette.lmp */,
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
@@ -597,6 +602,7 @@
 				48E4FFD513157C46004642CD /* Inspector.xib */,
 				48B5A18C131EE2DB0043FBD9 /* PrefabNameSheet.xib */,
 				482A2C1D13A8ACF7009FEFC2 /* Preferences.xib */,
+				48ACEC9A13E164AD00FEB81B /* DragImageWindow.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1201,6 +1207,8 @@
 				48B5A18D131EE2DB0043FBD9 /* PrefabNameSheet.xib in Resources */,
 				48FE96091363279D009B31FD /* quake.def in Resources */,
 				482A2C1E13A8ACF7009FEFC2 /* Preferences.xib in Resources */,
+				48ACEC9913E162A900FEB81B /* DragPlaceholder.png in Resources */,
+				48ACEC9B13E164AD00FEB81B /* DragImageWindow.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

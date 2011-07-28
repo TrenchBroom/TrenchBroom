@@ -23,6 +23,9 @@
     IBOutlet id target;
     id <EntityDefinitionFilter> filter;
     EEntityDefinitionSortCriterion sortCriterion;
+    
+    NSImage* dragPlaceholder;
+    NSImage* dragImage;
 }
 
 - (void)setGLResources:(GLResources *)theGLResources entityDefinitionManager:(EntityDefinitionManager *)theEntityDefinitionManager;
