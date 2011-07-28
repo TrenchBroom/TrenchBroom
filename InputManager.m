@@ -538,4 +538,8 @@
     return menuPosition;
 }
 
+- (PickingHitList *)currentHitList {
+    return lastHits;
+}
+
 @end

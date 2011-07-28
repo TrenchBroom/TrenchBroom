@@ -75,5 +75,6 @@
 
 - (ClipTool *)clipTool;
 - (NSPoint)menuPosition;
+- (PickingHitList *)currentHitList;
 
 @end

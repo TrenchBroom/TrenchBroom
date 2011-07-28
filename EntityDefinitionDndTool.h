@@ -17,7 +17,6 @@
 @private
     MapWindowController* windowController;
     id <Entity> entity;
-    EntityDefinitionDndFeedbackFigure* feedbackFigure;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

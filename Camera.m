@@ -312,6 +312,15 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     return p;
 }
 
+- (TVector3f)defaultPointAtX:(float)x y:(float)y {
+    TVector3f p = [self unprojectX:x y:y depth:0.5f];
+    subV3f(&p, &position, &p);
+    normalizeV3f(&p, &p);
+    scaleV3f(&p, 256, &p);
+    addV3f(&p, &position, &p);
+    return p;
+}
+
 - (float)distanceTo:(TVector3f *)thePoint {
     TVector3f diff;
     subV3f(thePoint, &position, &diff);

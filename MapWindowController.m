@@ -37,6 +37,7 @@
 #import "EntityDefinitionManager.h"
 #import "EntityDefinition.h"
 #import "math.h"
+#import "ControllerUtils.h"
 
 static NSString* CameraDefaults = @"Camera";
 static NSString* CameraDefaultsFov = @"Field Of Vision";
@@ -269,12 +270,16 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     NSArray* pointDefinitions = [entityDefinitionManager definitionsOfType:EDT_POINT];
     EntityDefinition* definition = [pointDefinitions objectAtIndex:[sender tag]];
 
-    NSPoint point = [inputManager menuPosition];
+    NSPoint mousePos = [inputManager menuPosition];
+    PickingHitList* hits = [inputManager currentHitList];
     
-    TVector3f insertPoint = [camera unprojectX:point.x y:point.y depth:0.94f];
-    [[options grid] snapToGridV3f:&insertPoint result:&insertPoint];
+    TVector3i insertPoint;
+    calculateEntityOrigin(definition, hits, mousePos, camera, &insertPoint);
+
+    Grid* grid = [options grid];
+    [grid snapToGridV3i:&insertPoint result:&insertPoint];
     
-    NSString* origin = [NSString stringWithFormat:@"%i %i %i", (int)insertPoint.x, (int)insertPoint.y, (int)insertPoint.z];
+    NSString* origin = [NSString stringWithFormat:@"%i %i %i", insertPoint.x, insertPoint.y, insertPoint.z];
     
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];

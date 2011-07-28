@@ -150,6 +150,7 @@
 		48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E400AE1315A7DA004642CD /* TextureUsageFilter.m */; };
 		48E4FFD613157C46004642CD /* Inspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48E4FFD513157C46004642CD /* Inspector.xib */; };
 		48F0EC52131A9CCD0088FA02 /* PrefabView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F0EC51131A9CCD0088FA02 /* PrefabView.m */; };
+		48F5C3DB13E1578A00B1A720 /* ControllerUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F5C3DA13E1578A00B1A720 /* ControllerUtils.m */; };
 		48FE96091363279D009B31FD /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48FE96081363279D009B31FD /* quake.def */; };
 		48FE96FD13636059009B31FD /* ChoiceProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE96FC13636059009B31FD /* ChoiceProperty.m */; };
 		48FE9701136360C8009B31FD /* ChoiceArgument.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE9700136360C8009B31FD /* ChoiceArgument.m */; };
@@ -483,6 +484,8 @@
 		48F0EC50131A9CCD0088FA02 /* PrefabView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabView.h; sourceTree = "<group>"; };
 		48F0EC51131A9CCD0088FA02 /* PrefabView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabView.m; sourceTree = "<group>"; };
 		48F0EDAB131AD9A70088FA02 /* Prefab1.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prefab1.map; sourceTree = "<group>"; };
+		48F5C3D913E1578A00B1A720 /* ControllerUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerUtils.h; sourceTree = "<group>"; };
+		48F5C3DA13E1578A00B1A720 /* ControllerUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ControllerUtils.m; sourceTree = "<group>"; };
 		48FE96081363279D009B31FD /* quake.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = quake.def; sourceTree = "<group>"; };
 		48FE96FB13636059009B31FD /* ChoiceProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChoiceProperty.h; sourceTree = "<group>"; };
 		48FE96FC13636059009B31FD /* ChoiceProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChoiceProperty.m; sourceTree = "<group>"; };
@@ -1008,6 +1011,8 @@
 				48E1806412F5F07D007995FE /* SelectionManager.m */,
 				483044A01398B3D3002CA97B /* EntityPropertyTableDataSource.h */,
 				483044A11398B3D3002CA97B /* EntityPropertyTableDataSource.m */,
+				48F5C3D913E1578A00B1A720 /* ControllerUtils.h */,
+				48F5C3DA13E1578A00B1A720 /* ControllerUtils.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -1345,6 +1350,7 @@
 				488D527E13DEDF91006FE818 /* EntityDefinitionNameFilter.m in Sources */,
 				488D528113DEE181006FE818 /* EntityDefinitionUsageFilter.m in Sources */,
 				48D2A31B13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m in Sources */,
+				48F5C3DB13E1578A00B1A720 /* ControllerUtils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
