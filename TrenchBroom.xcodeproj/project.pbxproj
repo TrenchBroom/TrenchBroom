@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1DDD582C0DA1D0D100B32029 /* MapDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58280DA1D0D100B32029 /* MapDocument.xib */; };
 		1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD582A0DA1D0D100B32029 /* MainMenu.xib */; };
+		4809A10F13E2A2E300AF6557 /* InspectorView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4809A10E13E2A2E300AF6557 /* InspectorView.xib */; };
 		480AD8B612ED78FA009B5970 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B512ED78FA009B5970 /* Edge.m */; };
 		480AD8D612ED9E4A009B5970 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
 		480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 480BB4711302ED1C005E3492 /* Matrix2f.m */; };
@@ -106,9 +107,11 @@
 		488FEB5C131FC49A00010A04 /* PrefabLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB5B131FC49A00010A04 /* PrefabLayout.m */; };
 		488FEB64131FCBA700010A04 /* PrefabLayoutGroupRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB63131FCBA700010A04 /* PrefabLayoutGroupRow.m */; };
 		488FEB67131FD49C00010A04 /* PrefabLayoutPrefabCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB66131FD49C00010A04 /* PrefabLayoutPrefabCell.m */; };
-		4891E15612FC04B2007A3B93 /* InspectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4891E15512FC04B2007A3B93 /* InspectorController.m */; };
 		48958209132E52EF00BB7D8F /* CameraAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 48958208132E52EF00BB7D8F /* CameraAnimation.m */; };
 		48973E2A13C368900067E10D /* SpawnFlag.m in Sources */ = {isa = PBXBuildFile; fileRef = 48973E2913C3688F0067E10D /* SpawnFlag.m */; };
+		48976C7313E2BA63005AB1EA /* InspectorWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48976C7213E2BA63005AB1EA /* InspectorWindow.xib */; };
+		48976C8013E2BF15005AB1EA /* InspectorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48976C7E13E2BF15005AB1EA /* InspectorViewController.m */; };
+		48976C8413E2BFC5005AB1EA /* InspectorWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48976C8313E2BFC5005AB1EA /* InspectorWindowController.m */; };
 		4898D9B713E1718C00B9C8F1 /* DragImageWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4898D9B613E1718C00B9C8F1 /* DragImageWindow.xib */; };
 		4898D9C013E172FE00B9C8F1 /* DragImageWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9BF13E172FE00B9C8F1 /* DragImageWindowController.m */; };
 		4898D9C813E199F800B9C8F1 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9C713E199F800B9C8F1 /* PreferencesController.m */; };
@@ -153,7 +156,6 @@
 		48E1806512F5F07D007995FE /* SelectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1806412F5F07D007995FE /* SelectionManager.m */; };
 		48E4006D13159E7E004642CD /* TextureNameFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E4006C13159E7E004642CD /* TextureNameFilter.m */; };
 		48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E400AE1315A7DA004642CD /* TextureUsageFilter.m */; };
-		48E4FFD613157C46004642CD /* Inspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48E4FFD513157C46004642CD /* Inspector.xib */; };
 		48F0EC52131A9CCD0088FA02 /* PrefabView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F0EC51131A9CCD0088FA02 /* PrefabView.m */; };
 		48F5C3DB13E1578A00B1A720 /* ControllerUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F5C3DA13E1578A00B1A720 /* ControllerUtils.m */; };
 		48FE96091363279D009B31FD /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48FE96081363279D009B31FD /* quake.def */; };
@@ -195,6 +197,7 @@
 		2A37F4BAFDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		4809A10E13E2A2E300AF6557 /* InspectorView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = InspectorView.xib; sourceTree = "<group>"; };
 		480AD8B412ED78FA009B5970 /* Edge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Edge.h; sourceTree = "<group>"; };
 		480AD8B512ED78FA009B5970 /* Edge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Edge.m; sourceTree = "<group>"; };
 		480AD8D412ED9E4A009B5970 /* Side.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Side.h; sourceTree = "<group>"; };
@@ -361,6 +364,9 @@
 		487A645712EA397C00A43289 /* TextureView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureView.m; sourceTree = "<group>"; };
 		487A646A12EA3A7E00A43289 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture.h; sourceTree = "<group>"; };
 		487A646B12EA3A7E00A43289 /* Texture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Texture.m; sourceTree = "<group>"; };
+		487A77EB13E308A000D44790 /* PrefabViewTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabViewTarget.h; sourceTree = "<group>"; };
+		487A77EC13E308FE00D44790 /* TextureViewTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewTarget.h; sourceTree = "<group>"; };
+		487A77ED13E3095800D44790 /* EntityDefinitionViewTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionViewTarget.h; sourceTree = "<group>"; };
 		487A7E38130071DD00434806 /* BrushLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushLayer.h; sourceTree = "<group>"; };
 		487A7E39130071F300434806 /* GeometryLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryLayer.h; sourceTree = "<group>"; };
 		487A7E3A130071F300434806 /* GeometryLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeometryLayer.m; sourceTree = "<group>"; };
@@ -403,12 +409,15 @@
 		488FEB63131FCBA700010A04 /* PrefabLayoutGroupRow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabLayoutGroupRow.m; sourceTree = "<group>"; };
 		488FEB65131FD49C00010A04 /* PrefabLayoutPrefabCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabLayoutPrefabCell.h; sourceTree = "<group>"; };
 		488FEB66131FD49C00010A04 /* PrefabLayoutPrefabCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabLayoutPrefabCell.m; sourceTree = "<group>"; };
-		4891E15412FC04B2007A3B93 /* InspectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorController.h; sourceTree = "<group>"; };
-		4891E15512FC04B2007A3B93 /* InspectorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectorController.m; sourceTree = "<group>"; };
 		48958207132E52EF00BB7D8F /* CameraAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraAnimation.h; sourceTree = "<group>"; };
 		48958208132E52EF00BB7D8F /* CameraAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraAnimation.m; sourceTree = "<group>"; };
 		48973E2813C3688F0067E10D /* SpawnFlag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpawnFlag.h; sourceTree = "<group>"; };
 		48973E2913C3688F0067E10D /* SpawnFlag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpawnFlag.m; sourceTree = "<group>"; };
+		48976C7213E2BA63005AB1EA /* InspectorWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = InspectorWindow.xib; sourceTree = "<group>"; };
+		48976C7D13E2BF15005AB1EA /* InspectorViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorViewController.h; sourceTree = "<group>"; };
+		48976C7E13E2BF15005AB1EA /* InspectorViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectorViewController.m; sourceTree = "<group>"; };
+		48976C8213E2BFC4005AB1EA /* InspectorWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorWindowController.h; sourceTree = "<group>"; };
+		48976C8313E2BFC5005AB1EA /* InspectorWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectorWindowController.m; sourceTree = "<group>"; };
 		4898D9B613E1718C00B9C8F1 /* DragImageWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DragImageWindow.xib; sourceTree = "<group>"; };
 		4898D9BE13E172FE00B9C8F1 /* DragImageWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragImageWindowController.h; sourceTree = "<group>"; };
 		4898D9BF13E172FE00B9C8F1 /* DragImageWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragImageWindowController.m; sourceTree = "<group>"; };
@@ -492,7 +501,6 @@
 		48E4006C13159E7E004642CD /* TextureNameFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureNameFilter.m; sourceTree = "<group>"; };
 		48E400AD1315A7DA004642CD /* TextureUsageFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureUsageFilter.h; sourceTree = "<group>"; };
 		48E400AE1315A7DA004642CD /* TextureUsageFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureUsageFilter.m; sourceTree = "<group>"; };
-		48E4FFD513157C46004642CD /* Inspector.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Inspector.xib; sourceTree = "<group>"; };
 		48EEE9041153D816001A4D7C /* Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Test-Info.plist"; sourceTree = "<group>"; };
 		48F0EC50131A9CCD0088FA02 /* PrefabView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabView.h; sourceTree = "<group>"; };
 		48F0EC51131A9CCD0088FA02 /* PrefabView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabView.m; sourceTree = "<group>"; };
@@ -608,10 +616,11 @@
 				1DDD582A0DA1D0D100B32029 /* MainMenu.xib */,
 				4814A02212F73F1E0082E05F /* ProgressWindow.xib */,
 				48B3255F12E2D760008748E2 /* Defaults.plist */,
-				48E4FFD513157C46004642CD /* Inspector.xib */,
 				48B5A18C131EE2DB0043FBD9 /* PrefabNameSheet.xib */,
 				482A2C1D13A8ACF7009FEFC2 /* Preferences.xib */,
 				4898D9B613E1718C00B9C8F1 /* DragImageWindow.xib */,
+				4809A10E13E2A2E300AF6557 /* InspectorView.xib */,
+				48976C7213E2BA63005AB1EA /* InspectorWindow.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -962,10 +971,12 @@
 		4898D9C413E1993100B9C8F1 /* Inspector */ = {
 			isa = PBXGroup;
 			children = (
-				4891E15412FC04B2007A3B93 /* InspectorController.h */,
-				4891E15512FC04B2007A3B93 /* InspectorController.m */,
 				483044A01398B3D3002CA97B /* EntityPropertyTableDataSource.h */,
 				483044A11398B3D3002CA97B /* EntityPropertyTableDataSource.m */,
+				48976C7D13E2BF15005AB1EA /* InspectorViewController.h */,
+				48976C7E13E2BF15005AB1EA /* InspectorViewController.m */,
+				48976C8213E2BFC4005AB1EA /* InspectorWindowController.h */,
+				48976C8313E2BFC5005AB1EA /* InspectorWindowController.m */,
 			);
 			name = Inspector;
 			sourceTree = "<group>";
@@ -1126,6 +1137,7 @@
 				4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */,
 				4866F3BC12EACD2B009B345C /* TextureViewLayoutRow.h */,
 				4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */,
+				487A77EC13E308FE00D44790 /* TextureViewTarget.h */,
 			);
 			name = Face;
 			sourceTree = "<group>";
@@ -1141,6 +1153,7 @@
 				488FEB63131FCBA700010A04 /* PrefabLayoutGroupRow.m */,
 				488FEB65131FD49C00010A04 /* PrefabLayoutPrefabCell.h */,
 				488FEB66131FD49C00010A04 /* PrefabLayoutPrefabCell.m */,
+				487A77EB13E308A000D44790 /* PrefabViewTarget.h */,
 			);
 			name = Brush;
 			sourceTree = "<group>";
@@ -1159,6 +1172,7 @@
 				488D527D13DEDF91006FE818 /* EntityDefinitionNameFilter.m */,
 				488D527F13DEE181006FE818 /* EntityDefinitionUsageFilter.h */,
 				488D528013DEE181006FE818 /* EntityDefinitionUsageFilter.m */,
+				487A77ED13E3095800D44790 /* EntityDefinitionViewTarget.h */,
 			);
 			name = Entity;
 			sourceTree = "<group>";
@@ -1250,12 +1264,13 @@
 				48B3256012E2D760008748E2 /* Defaults.plist in Resources */,
 				48639BF412EA227100808576 /* QuakePalette.lmp in Resources */,
 				4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */,
-				48E4FFD613157C46004642CD /* Inspector.xib in Resources */,
 				48B5A18D131EE2DB0043FBD9 /* PrefabNameSheet.xib in Resources */,
 				48FE96091363279D009B31FD /* quake.def in Resources */,
 				482A2C1E13A8ACF7009FEFC2 /* Preferences.xib in Resources */,
 				48ACEC9913E162A900FEB81B /* DragPlaceholder.png in Resources */,
 				4898D9B713E1718C00B9C8F1 /* DragImageWindow.xib in Resources */,
+				4809A10F13E2A2E300AF6557 /* InspectorView.xib in Resources */,
+				48976C7313E2BA63005AB1EA /* InspectorWindow.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1308,7 +1323,6 @@
 				481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */,
 				488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */,
 				4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */,
-				4891E15612FC04B2007A3B93 /* InspectorController.m in Sources */,
 				4872C97712FF4DC200C5DD29 /* Matrix4f.m in Sources */,
 				487A7E3B130071F300434806 /* GeometryLayer.m in Sources */,
 				487A7E651300801A00434806 /* Renderer.m in Sources */,
@@ -1409,6 +1423,8 @@
 				4898D9C013E172FE00B9C8F1 /* DragImageWindowController.m in Sources */,
 				4898D9C813E199F800B9C8F1 /* PreferencesController.m in Sources */,
 				4898D9CC13E1A2A200B9C8F1 /* QuakePathFormatter.m in Sources */,
+				48976C8013E2BF15005AB1EA /* InspectorViewController.m in Sources */,
+				48976C8413E2BFC5005AB1EA /* InspectorWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

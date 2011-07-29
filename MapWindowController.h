@@ -21,10 +21,13 @@
 @class CursorManager;
 @class ClipTool;
 @class Renderer;
+@class InspectorViewController;
 @protocol Prefab;
 
 @interface MapWindowController : NSWindowController {
+    IBOutlet NSSplitView* splitView;
 	IBOutlet MapView3D* view3D;
+    InspectorViewController* inspectorViewController;
     Camera* camera;
     SelectionManager* selectionManager;
     InputManager* inputManager;

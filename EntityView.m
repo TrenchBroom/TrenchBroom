@@ -18,6 +18,7 @@
 #import "EntityRendererManager.h"
 #import "EntityRenderer.h"
 #import "DragImageWindowController.h"
+#import "EntityDefinitionViewTarget.h"
 
 @interface EntityView (private)
 

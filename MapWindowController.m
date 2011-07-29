@@ -24,7 +24,8 @@
 #import "Picker.h"
 #import "SelectionManager.h"
 #import "GLFontManager.h"
-#import "InspectorController.h"
+#import "InspectorViewController.h"
+#import "InspectorWindowController.h"
 #import "Options.h"
 #import "Grid.h"
 #import "PrefabManager.h"
@@ -40,10 +41,11 @@
 #import "ControllerUtils.h"
 #import "PreferencesController.h"
 
-static NSString* CameraDefaults = @"Camera";
-static NSString* CameraDefaultsFov = @"Field Of Vision";
-static NSString* CameraDefaultsNear = @"Near Clipping Plane";
-static NSString* CameraDefaultsFar = @"Far Clipping Plane";
+static NSString* DefaultsCameraFov = @"CameraFov";
+static NSString* DefaultsCameraNear = @"CameraNearClippingPlane";
+static NSString* DefaultsCameraFar = @"CameraFarClippingPlane";
+static NSString* DefaultsInspectorSeparate = @"InspectorSeparateWindow";
+static NSString* DefaultsInspectorVisible = @"InspectorVisible";
 
 @interface MapWindowController (private)
 
@@ -95,32 +97,94 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
-    InspectorController* inspector = [InspectorController sharedInspector];
-    [inspector setMapWindowController:self];
+    BOOL inspectorSeparate = [[NSUserDefaults standardUserDefaults] boolForKey:DefaultsInspectorSeparate];
+    if (inspectorSeparate) {
+        InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
+        [inspector setMapWindowController:self];
+    }
     [view3D becomeFirstResponder];
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification {
+    BOOL inspectorSeparate = [[NSUserDefaults standardUserDefaults] boolForKey:DefaultsInspectorSeparate];
+    if (inspectorSeparate) {
+        InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
+        [inspector setMapWindowController:nil];
+    }
     [view3D resignFirstResponder];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
-    InspectorController* inspector = [InspectorController sharedInspector];
-    [inspector setMapWindowController:nil];
+    BOOL inspectorSeparate = [[NSUserDefaults standardUserDefaults] boolForKey:DefaultsInspectorSeparate];
+    if (inspectorSeparate) {
+        InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
+        [inspector setMapWindowController:nil];
+    }
+}
+
+- (CGFloat)splitView:(NSSplitView *)theSplitView constrainMaxCoordinate:(CGFloat)theProposedMax ofSubviewAt:(NSInteger)theDividerIndex {
+    float width = [splitView frame].size.width;
+    return width - 402;
 }
 
 - (void)userDefaultsChanged:(NSNotification *)notification {
-    NSDictionary* cameraDefaults = [[NSUserDefaults standardUserDefaults] dictionaryForKey:CameraDefaults];
-    if (cameraDefaults == nil)
-        return;
-    
-    float fov = [[cameraDefaults objectForKey:CameraDefaultsFov] floatValue];
-    float near = [[cameraDefaults objectForKey:CameraDefaultsNear] floatValue];
-    float far = [[cameraDefaults objectForKey:CameraDefaultsFar] floatValue];
-    
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    float fov = [defaults floatForKey:DefaultsCameraFov];
+    float near = [defaults floatForKey:DefaultsCameraNear];
+    float far = [defaults floatForKey:DefaultsCameraFar];
+
     [camera setFieldOfVision:fov];
     [camera setNearClippingPlane:near];
     [camera setFarClippingPlane:far];
+
+    BOOL inspectorVisible = [defaults boolForKey:DefaultsInspectorVisible];
+    BOOL inspectorSeparate = [defaults boolForKey:DefaultsInspectorSeparate];
+
+    if (inspectorSeparate) {
+        if (inspectorViewController != nil) {
+            NSView* inspectorView = [inspectorViewController view];
+            [inspectorView removeFromSuperview];
+            [inspectorViewController release];
+            inspectorViewController = nil;
+            [defaults setBool:YES forKey:DefaultsInspectorVisible];
+
+            InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
+            [inspector setMapWindowController:self];
+            [[inspector window] makeKeyAndOrderFront:self];
+        } else {
+            InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
+            [inspector setMapWindowController:self];
+            
+            if (inspectorVisible)
+                [[inspector window] makeKeyAndOrderFront:self];
+            else
+                [[inspector window] orderOut:self];
+        }
+    } else {
+        if (inspectorViewController == nil) {
+            InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
+            [inspector setMapWindowController:nil];
+            NSWindow* inspectorWindow = [inspector window];
+            [inspectorWindow close];
+
+            inspectorViewController = [[InspectorViewController alloc] initWithNibName:@"InspectorView" bundle:nil];
+            [inspectorViewController setMapWindowController:self];
+            [defaults setBool:YES forKey:DefaultsInspectorVisible];
+        }
+
+        if (inspectorVisible) {
+            NSView* inspectorView = [inspectorViewController view];
+            [splitView addSubview:inspectorView];
+            [splitView adjustSubviews];
+            
+            float width = [splitView frame].size.width;
+            float pos = width - 402;
+            [splitView setPosition:pos ofDividerAtIndex:0];
+        } else {
+            NSView* inspectorView = [inspectorViewController view];
+            [inspectorView removeFromSuperview];
+        }
+    }
 }
 
 - (void)selectionRemoved:(NSNotification *)notification {
@@ -145,9 +209,6 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
     
     [view3D setup];
     
-    InspectorController* inspector = [InspectorController sharedInspector];
-    [inspector setMapWindowController:self];
-
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification object:[self window]];
     [center addObserver:self selector:@selector(windowWillClose:) name:NSWindowWillCloseNotification object:[self window]];
@@ -521,8 +582,10 @@ static NSString* CameraDefaultsFar = @"Far Clipping Plane";
 #pragma mark View related actions
 
 - (IBAction)showInspector:(id)sender {
-    InspectorController* inspector = [InspectorController sharedInspector];
-    [[inspector window] makeKeyAndOrderFront:nil];
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    
+    BOOL inspectorVisible = [defaults boolForKey:DefaultsInspectorVisible];
+    [defaults setBool:!inspectorVisible forKey:DefaultsInspectorVisible];
 }
 
 - (IBAction)toggleGrid:(id)sender {

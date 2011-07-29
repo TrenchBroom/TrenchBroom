@@ -47,7 +47,7 @@
     float yd = 0;
     int i = 0;
     
-    float maxWidth = 200;
+    float maxWidth = 150;
 
     NSMutableArray* row;
     while ((definition = [definitionEn nextObject])) {

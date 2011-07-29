@@ -20,7 +20,6 @@
 #import "GLResources.h"
 #import "TextureManager.h"
 #import "Texture.h"
-#import "InspectorController.h"
 #import "Camera.h"
 #import "PrefabGroup.h"
 #import "PrefabLayout.h"
@@ -29,6 +28,7 @@
 #import "GLFontManager.h"
 #import "GLFontManager.h"
 #import "GLString.h"
+#import "PrefabViewTarget.h"
 
 @implementation PrefabView
 
@@ -326,6 +326,10 @@
     }
 
     [self reshape];
+}
+
+- (void)setTarget:(id <PrefabViewTarget>)theTarget {
+    target = theTarget;
 }
 
 - (void)setPrefabsPerRow:(int)thePrefabsPerRow {

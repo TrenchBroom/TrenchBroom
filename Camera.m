@@ -243,6 +243,8 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 }
 
 - (void)updateView:(NSRect)theViewport {
+    BOOL changed = !NSEqualRects(viewport, theViewport);
+    
     viewport = theViewport;
     glViewport(NSMinX(viewport), NSMinY(viewport), NSWidth(viewport), NSHeight(viewport));
 
@@ -268,7 +270,8 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:CameraViewChanged object:self];
+    if (changed)
+        [[NSNotificationCenter defaultCenter] postNotificationName:CameraViewChanged object:self];
 }
 
 
@@ -292,13 +295,13 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     if (mode == CM_PERSPECTIVE) {
         TRay r;
         r.origin = position;
-        r.direction = [self unprojectX:x y:y depth:0];
+        r.direction = [self unprojectX:x y:y depth:0.5f];
         subV3f(&r.direction, &position, &r.direction);
         normalizeV3f(&r.direction, &r.direction);
         return r;
     } else {
         TRay r;
-        r.origin = [self unprojectX:x y:y depth:0];
+        r.origin = [self unprojectX:x y:y depth:0.5f];
         r.direction = direction;
         return r;
     }

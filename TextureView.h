@@ -12,12 +12,13 @@
 
 @class TextureViewLayout;
 @class GLResources;
+@protocol TextureViewTarget;
 
 @interface TextureView : NSOpenGLView {
     @private
     TextureViewLayout* layout;
     NSSet* selectedTextureNames;
-    IBOutlet id target;
+    IBOutlet id <TextureViewTarget> target;
     GLResources* glResources;
     ETextureSortCriterion sortCriterion;
 }

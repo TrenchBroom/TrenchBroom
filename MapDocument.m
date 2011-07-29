@@ -953,7 +953,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
-        [face setXOffset:theYOffset];
+        [face setYOffset:theYOffset];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];

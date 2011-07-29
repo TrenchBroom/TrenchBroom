@@ -1,24 +1,26 @@
 //
-//  FaceInspectorController.h
+//  InspectorViewController.h
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 04.02.11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Created by Kristian Duske on 29.07.11.
+//  Copyright 2011 TU Berlin. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
+#import "PrefabViewTarget.h"
+#import "TextureViewTarget.h"
+#import "EntityDefinitionViewTarget.h"
 
 @class MapWindowController;
-@class TextureView;
 @class SingleTextureView;
+@class TextureView;
 @class PrefabView;
-@class Prefab;
-@class Texture;
 @class EntityPropertyTableDataSource;
 @class EntityView;
+@class Texture;
 @protocol Prefab;
 
-@interface InspectorController : NSWindowController <NSTableViewDelegate> {
+@interface InspectorViewController : NSViewController <PrefabViewTarget, TextureViewTarget, EntityDefinitionViewTarget> {
     IBOutlet NSTextField* xOffsetField;
     IBOutlet NSTextField* yOffsetField;
     IBOutlet NSTextField* xScaleField;
@@ -33,7 +35,7 @@
     IBOutlet NSScrollView* textureScrollView;
     IBOutlet NSTableView* wadTableView;
     IBOutlet NSArrayController* wadArrayController;
-
+    
     IBOutlet NSSlider* prefabsPerRowSlider;
     IBOutlet PrefabView* prefabView;
     
@@ -49,8 +51,6 @@
     MapWindowController* mapWindowController;
 }
 
-+ (InspectorController *)sharedInspector;
-
 - (void)setMapWindowController:(MapWindowController *)theMapWindowController;
 - (MapWindowController *)mapWindowController;
 
@@ -64,9 +64,6 @@
 - (IBAction)textureSortCriterionChanged:(id)sender;
 - (IBAction)prefabsPerRowChanged:(id)sender;
 - (IBAction)addTextureWad:(id)sender;
-
-- (void)textureSelected:(Texture *)texture;
-- (void)prefabSelected:(id <Prefab>)prefab;
 
 - (IBAction)removeEntityProperty:(id)sender;
 - (IBAction)addEntityProperty:(id)sender;

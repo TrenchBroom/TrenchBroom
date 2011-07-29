@@ -84,6 +84,7 @@
 - (void)updateRay {
     MapView3D* mapView3D = [windowController view3D];
     Camera* camera = [windowController camera];
+    [[mapView3D openGLContext] makeCurrentContext];
     
     NSPoint m = [mapView3D convertPointFromBase:[lastEvent locationInWindow]];
     lastRay = [camera pickRayX:m.x y:m.y];
@@ -114,7 +115,7 @@
             newActiveTool = moveTool;
     } 
     
-    if (newActiveTool == nil && (drag && [selectionManager mode] == SM_FACES) || 
+    if ((newActiveTool == nil && (drag && [selectionManager mode] == SM_FACES)) || 
                ([selectionManager mode] == SM_FACES && [[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed]))) {
         newActiveTool = faceTool;
     }
@@ -355,12 +356,11 @@
         [activeTool endLeftDrag:lastEvent ray:&lastRay hits:lastHits];
         drag = NO;
         [self updateActiveTool];
-
-        [self updateCursorOwner];
-        [self updateCursor];
     } else {
         [activeTool handleLeftMouseUp:lastEvent ray:&lastRay hits:lastHits];
     }
+    [self updateCursorOwner];
+    [self updateCursor];
 }
 
 - (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender {

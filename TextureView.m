@@ -17,6 +17,7 @@
 #import "GLFontManager.h"
 #import "GLString.h"
 #import "GLResources.h"
+#import "TextureViewTarget.h"
 
 @implementation TextureView
 

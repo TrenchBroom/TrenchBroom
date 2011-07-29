@@ -2,28 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>Game</key>
-	<dict>
-		<key>Path</key>
-		<string>/Applications/Quake</string>
-	</dict>
-	<key>3D View</key>
-	<dict>
-		<key>Background Color</key>
-		<array>
-			<real>0.3</real>
-			<real>0.3</real>
-			<real>0.3</real>
-		</array>
-	</dict>
-	<key>Camera</key>
-	<dict>
-		<key>Field Of Vision</key>
-		<integer>90</integer>
-		<key>Near Clipping Plane</key>
-		<integer>10</integer>
-		<key>Far Clipping Plane</key>
-		<integer>10000</integer>
-	</dict>
+	<key>GamePath</key>
+	<string>/Applications/Quake</string>
+	<key>InspectorSeparateWindow</key>
+	<false/>
+	<key>InspectorVisible</key>
+	<true/>
+	<key>CameraNearClippingPlane</key>
+	<integer>10</integer>
+	<key>CameraFarClippingPlane</key>
+	<integer>10000</integer>
+	<key>CameraFov</key>
+	<integer>90</integer>
 </dict>
 </plist>

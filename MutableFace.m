@@ -365,29 +365,6 @@ static TVector3f baseAxes[18];
     addV3i(&point2, theDelta, &point2);
     addV3i(&point3, theDelta, &point3);
     
-    if (!texAxesValid)
-        [self updateTexAxes];
-    
-    switch (bestAxis) {
-        case 0:
-        case 1:
-            xOffset -= theDelta->y;
-            yOffset += theDelta->z;
-            break;
-        case 2:
-        case 3:
-            xOffset -= theDelta->x;
-            yOffset += theDelta->z;
-            break;
-        case 4:
-        case 5:
-            xOffset -= theDelta->x;
-            yOffset += theDelta->y;
-            break;
-        default:
-            break;
-    }
-    
     [self geometryChanged];
 }
 

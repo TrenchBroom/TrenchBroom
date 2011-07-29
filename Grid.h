@@ -15,17 +15,21 @@ extern NSString* const GridChanged;
 @interface Grid : NSObject {
     @private
     int size;
+    float alpha;
     BOOL draw;
     BOOL snap;
     GLuint texIds[9];
+    BOOL valid[9];
 }
 
 - (int)size;
+- (float)alpha;
 - (int)actualSize;
 - (BOOL)draw;
 - (BOOL)snap;
 
 - (void)setSize:(int)theSize;
+- (void)setAlpha:(float)theAlpha;
 - (void)setDraw:(BOOL)isDrawEnabled;
 - (void)setSnap:(BOOL)isSnapEnabled;
 - (void)toggleDraw;

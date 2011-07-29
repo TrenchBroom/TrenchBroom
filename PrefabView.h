@@ -12,6 +12,7 @@
 @class Camera;
 @class GLResources;
 @class PrefabLayout;
+@protocol PrefabViewTarget;
 
 @interface PrefabView : NSOpenGLView {
     NSMutableDictionary* cameras;
@@ -19,7 +20,7 @@
     GLResources* glResources;
     PrefabLayout* layout;
     int prefabsPerRow;
-    IBOutlet id target;
+    IBOutlet id <PrefabViewTarget> target;
 }
 
 - (void)setGLResources:(GLResources *)theGLResources;

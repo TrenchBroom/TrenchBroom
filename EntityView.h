@@ -14,6 +14,7 @@
 @class EntityDefinition;
 @class DragImageWindowController;
 @protocol EntityDefinitionFilter;
+@protocol EntityDefinitionViewTarget;
 
 @interface EntityView : NSOpenGLView {
     NSPoint dragDistance;
@@ -21,7 +22,7 @@
     EntityDefinitionManager* entityDefinitionManager;
     GLResources* glResources;
     EntityDefinitionLayout* layout;
-    IBOutlet id target;
+    IBOutlet id <EntityDefinitionViewTarget> target;
     id <EntityDefinitionFilter> filter;
     EEntityDefinitionSortCriterion sortCriterion;
     

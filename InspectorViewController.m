@@ -1,39 +1,34 @@
 //
-//  FaceInspectorController.m
+//  InspectorViewController.m
 //  TrenchBroom
 //
-//  Created by Kristian Duske on 04.02.11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Created by Kristian Duske on 29.07.11.
+//  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "InspectorController.h"
-#import "MapWindowController.h"
+#import "InspectorViewController.h"
 #import "MapDocument.h"
-#import "GLResources.h"
-#import "SelectionManager.h"
-#import "TextureManager.h"
-#import "TextureCollection.h"
-#import "GLFontManager.h"
-#import "TextureView.h"
-#import "SingleTextureView.h"
-#import "TextureFilter.h"
-#import "TextureNameFilter.h"
-#import "TextureUsageFilter.h"
-#import "MapDocument.h"
+#import "Prefab.h"
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
-#import "PrefabView.h"
-#import "EntityPropertyTableDataSource.h"
-#import "EntityView.h"
-#import "EntityDefinitionManager.h"
+#import "GLResources.h"
+#import "MapWindowController.h"
+#import "SelectionManager.h"
+#import "TextureManager.h"
+#import "TextureFilter.h"
+#import "TextureNameFilter.h"
+#import "TextureUsageFilter.h"
 #import "EntityDefinitionFilter.h"
 #import "EntityDefinitionNameFilter.h"
 #import "EntityDefinitionUsageFilter.h"
+#import "SingleTextureView.h"
+#import "TextureView.h"
+#import "PrefabView.h"
+#import "EntityView.h"
+#import "EntityPropertyTableDataSource.h"
 
-static InspectorController* sharedInstance = nil;
-
-@interface InspectorController (private)
+@interface InspectorViewController (private)
 
 - (void)propertiesDidChange:(NSNotification *)notification;
 - (void)facesDidChange:(NSNotification *)notification;
@@ -47,7 +42,7 @@ static InspectorController* sharedInstance = nil;
 
 @end
 
-@implementation InspectorController (private)
+@implementation InspectorViewController (private)
 
 - (void)propertiesDidChange:(NSNotification *)notification {
     [entityPropertyTableDataSource updateProperties];
@@ -59,7 +54,7 @@ static InspectorController* sharedInstance = nil;
     NSSet* faces = [userInfo objectForKey:FacesKey];
     
     SelectionManager* selectionManager = [mapWindowController selectionManager];
-
+    
     NSEnumerator* faceEn = [faces objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject])) {
@@ -121,7 +116,7 @@ static InspectorController* sharedInstance = nil;
         SelectionManager* selectionManager = [mapWindowController selectionManager];
         [entityPropertyTableDataSource setMapWindowController:mapWindowController];
         [entityPropertyTableDataSource setEntities:[selectionManager selectedEntities]];
-         
+        
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
         [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
         [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesDidChange object:map];
@@ -134,6 +129,7 @@ static InspectorController* sharedInstance = nil;
         [entityView setGLResources:nil entityDefinitionManager:nil];
     }
     
+    [entityPropertyTableView reloadData];
     [wadTableView reloadData];
     [self updateTextureControls];
 }
@@ -287,45 +283,7 @@ static InspectorController* sharedInstance = nil;
 
 @end
 
-@implementation InspectorController
-
-+ (InspectorController *)sharedInspector {
-    @synchronized(self) {
-        if (sharedInstance == nil)
-            sharedInstance = [[self alloc] init];
-    }
-    return sharedInstance;
-}
-
-+ (id)allocWithZone:(NSZone *)zone {
-    @synchronized(self) {
-        if (sharedInstance == nil) {
-            sharedInstance = [super allocWithZone:zone];
-            return sharedInstance;  // assignment and return on first allocation
-        }
-    }
-    return nil; // on subsequent allocation attempts return nil
-}
-
-- (id)copyWithZone:(NSZone *)zone {
-    return self;
-}
-
-- (id)retain {
-    return self;
-}
-
-- (NSUInteger)retainCount {
-    return UINT_MAX;  // denotes an object that cannot be released
-}
-
-- (oneway void)release {
-    //do nothing
-}
-
-- (id)autorelease {
-    return self;
-}
+@implementation InspectorViewController
 
 - (void)dealloc {
     [self setMapWindowController:nil];
@@ -333,12 +291,9 @@ static InspectorController* sharedInstance = nil;
     [super dealloc];
 }
 
-- (NSString *)windowNibName {
-    return @"Inspector";
-}
-
-- (void)windowDidLoad {
-    [super windowDidLoad];
+- (void)loadView {
+    [super loadView];
+    
     entityPropertyTableDataSource = [[EntityPropertyTableDataSource alloc] init];
     [entityPropertyTableView setDataSource:entityPropertyTableDataSource];
     [self updateMapWindowController:mapWindowController];
@@ -348,7 +303,7 @@ static InspectorController* sharedInstance = nil;
 - (void)setMapWindowController:(MapWindowController *)theMapWindowController {
     if (mapWindowController == theMapWindowController)
         return;
-
+    
     [self updateMapWindowController:theMapWindowController];
 }
 
@@ -361,7 +316,7 @@ static InspectorController* sharedInstance = nil;
 - (IBAction)xOffsetTextChanged:(id)sender {
     MapDocument* map = [mapWindowController document];
     SelectionManager* selectionManager = [mapWindowController selectionManager];
-
+    
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
@@ -369,29 +324,29 @@ static InspectorController* sharedInstance = nil;
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces xOffset:xOffset];
     
-    [undoManager endUndoGrouping];
     [undoManager setActionName:@"Set Texture X Offset"];
+    [undoManager endUndoGrouping];
 }
 
 - (IBAction)yOffsetTextChanged:(id)sender {
     MapDocument* map = [mapWindowController document];
     SelectionManager* selectionManager = [mapWindowController selectionManager];
-
+    
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
     int yOffset = [yOffsetField intValue];
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces yOffset:yOffset];
-
-    [undoManager endUndoGrouping];
+    
     [undoManager setActionName:@"Set Texture Y Offset"];
+    [undoManager endUndoGrouping];
 }
 
 - (IBAction)xScaleTextChanged:(id)sender {
     MapDocument* map = [mapWindowController document];
     SelectionManager* selectionManager = [mapWindowController selectionManager];
-
+    
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
@@ -399,14 +354,14 @@ static InspectorController* sharedInstance = nil;
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces xScale:xScale];
     
-    [undoManager endUndoGrouping];
     [undoManager setActionName:@"Set Texture X Scale"];
+    [undoManager endUndoGrouping];
 }
 
 - (IBAction)yScaleTextChanged:(id)sender {
     MapDocument* map = [mapWindowController document];
     SelectionManager* selectionManager = [mapWindowController selectionManager];
-
+    
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
@@ -414,8 +369,8 @@ static InspectorController* sharedInstance = nil;
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces yScale:yScale];
     
-    [undoManager endUndoGrouping];
     [undoManager setActionName:@"Set Texture Y Scale"];
+    [undoManager endUndoGrouping];
 }
 
 - (IBAction)rotationTextChanged:(id)sender {
@@ -429,8 +384,8 @@ static InspectorController* sharedInstance = nil;
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces rotation:rotation];
     
-    [undoManager endUndoGrouping];
     [undoManager setActionName:@"Set Texture Rotation"];
+    [undoManager endUndoGrouping];
 }
 
 - (void)textureSelected:(Texture *)texture {
@@ -443,8 +398,8 @@ static InspectorController* sharedInstance = nil;
     NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces texture:[texture name]];
     
-    [undoManager endUndoGrouping];
     [undoManager setActionName:@"Set Texture"];
+    [undoManager endUndoGrouping];
 }
 
 - (IBAction)textureNameFilterTextChanged:(id)sender {
@@ -507,7 +462,7 @@ static InspectorController* sharedInstance = nil;
     MapDocument* map = [mapWindowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
-
+    
     [map setEntities:entities propertyKey:@"new_property" value:@""];
     
     [undoManager setActionName:@"Add Entity Property"];
@@ -583,6 +538,10 @@ static InspectorController* sharedInstance = nil;
 
 - (BOOL)tableView:(NSTableView *)theTableView shouldEditTableColumn:(NSTableColumn *)theTableColumn row:(NSInteger)theRowIndex {
     return [entityPropertyTableDataSource editingAllowed:theTableColumn rowIndex:theRowIndex];
+}
+
+- (void)entityDefinitionSelected:(EntityDefinition *)theDefinition {
+    NSLog(@"entityDefinitionSelected:(EntityDefinition *)theDefinition not implemented");
 }
 
 @end

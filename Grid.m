@@ -17,6 +17,7 @@ NSString* const GridChanged = @"GridChanged";
 - (id)init {
     if ((self = [super init])) {
         size = 4;
+        alpha = 0.2f;
         draw = YES;
         snap = YES;
         for (int i = 0; i < 9; i++)
@@ -28,6 +29,10 @@ NSString* const GridChanged = @"GridChanged";
 
 - (int)size {
     return size;
+}
+
+- (float)alpha {
+    return alpha;
 }
 
 - (int)actualSize {
@@ -52,6 +57,18 @@ NSString* const GridChanged = @"GridChanged";
     [super willChangeValueForKey:@"actualSize"];
     size = theSize;
     [super didChangeValueForKey:@"actualSize"];
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:GridChanged object:self];
+}
+
+- (void)setAlpha:(float)theAlpha {
+    if (alpha == theAlpha)
+        return;
+    
+    alpha = theAlpha;
+    for (int i = 0; i < 9; i++)
+        valid[i] = NO;
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:GridChanged object:self];
@@ -156,8 +173,9 @@ NSString* const GridChanged = @"GridChanged";
 }
 
 - (void)activateTexture {
-    if (texIds[size] == 0) {
-        glGenTextures(1, &texIds[size]);
+    if (!valid[size]) {
+        if (texIds[size] == 0)
+            glGenTextures(1, &texIds[size]);
         
         int dim = [self actualSize];
         if (dim < 4)
@@ -171,7 +189,7 @@ NSString* const GridChanged = @"GridChanged";
                         pixel[i + 0] = 0xFF;
                         pixel[i + 1] = 0xFF;
                         pixel[i + 2] = 0xFF;
-                        pixel[i + 3] = 0x1A;
+                        pixel[i + 3] = 0xFF * alpha;
                     } else {
                         pixel[i + 0] = 0x00;
                         pixel[i + 1] = 0x00;
@@ -187,8 +205,8 @@ NSString* const GridChanged = @"GridChanged";
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-    }
-    else {
+        valid[size] = YES;
+    } else {
         glBindTexture(GL_TEXTURE_2D, texIds[size]);
     }
 }
@@ -199,7 +217,8 @@ NSString* const GridChanged = @"GridChanged";
 
 - (void)dealloc {
     for (int i = 0; i < 9; i++)
-        glDeleteTextures(1, &texIds[i]);
+        if (texIds[i] != 0)
+            glDeleteTextures(1, &texIds[i]);
     [super dealloc];
 }
 
