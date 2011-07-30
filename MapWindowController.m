@@ -41,6 +41,7 @@
 #import "ControllerUtils.h"
 #import "PreferencesController.h"
 #import "PreferencesManager.h"
+#import "MapCompiler.h"
 
 
 @interface MapWindowController (private)
@@ -307,6 +308,14 @@
     [pns release];
 }
 
+- (id)retain {
+    return [super retain];
+}
+
+- (oneway void)release {
+    [super release];
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [options release];
@@ -314,6 +323,7 @@
     [inputManager release];
     [cursorManager release];
     [camera release];
+    [inspectorViewController release];
     [super dealloc];
 }
 
@@ -845,33 +855,92 @@
 #pragma mark Compile & Run
 
 - (IBAction)compile:(id)sender {
-    MapDocument* document = [self document];
-    [document saveDocument:self];
+    MapDocument* map = [self document];
+    [map saveDocument:self];
     
-    NSURL* mapFileUrl = [document fileURL];
+    NSURL* mapFileUrl = [map fileURL];
+    
+    MapCompiler* compiler = [[MapCompiler alloc] initWithMapFileUrl:mapFileUrl standardOutput:console];
+    [compiler compile];
+}
+
+- (IBAction)run:(id)sender {
+    MapDocument* map = [self document];
+    NSURL* mapFileUrl = [map fileURL];
+    if (mapFileUrl == nil) {
+        NSLog(@"map must be saved and compiled first");
+        return;
+    }
+
+    NSError* error;
+    
     NSString* mapFilePath = [mapFileUrl path];
     NSString* mapDirPath = [mapFilePath stringByDeletingLastPathComponent];
     NSString* mapFileName = [mapFilePath lastPathComponent];
     NSString* baseFileName = [mapFileName stringByDeletingPathExtension];
     NSString* bspFileName = [baseFileName stringByAppendingPathExtension:@"bsp"];
+    NSString* bspFilePath = [mapDirPath stringByAppendingPathComponent:bspFileName];
     
-    NSBundle* mainBundle = [NSBundle mainBundle];
-    NSString* resourcePath = [mainBundle resourcePath];
-    NSString* compilersPath = [NSString pathWithComponents:[NSArray arrayWithObjects:resourcePath, @"Compilers", nil]];
-    
-    NSString* bspPath = [compilersPath stringByAppendingPathComponent:@"TreeQBSP"];
-    NSString* visPath = [compilersPath stringByAppendingPathComponent:@"Vis"];
-    NSString* lightPath = [compilersPath stringByAppendingPathComponent:@"Light"];
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:bspFilePath]) {
+        NSLog(@"could not find BSP file at '%@'", bspFilePath);
+        return;
+    }
 
-    NSTask* bspTask = [[NSTask alloc] init];
-    [bspTask setCurrentDirectoryPath:mapDirPath];
-    [bspTask setLaunchPath:bspPath];
-    [bspTask setArguments:[NSArray arrayWithObjects:mapFileName, bspFileName, nil]];
+    NSString* quakePath = [[PreferencesManager sharedManager] quakePath];
+    if (quakePath == nil) {
+        NSLog(@"Quake path not defined");
+        return;
+    }
     
-    [bspTask launch];
-}
-
-- (IBAction)run:(id)sender {
+    NSArray* modList = modListFromWorldspawn([map worldspawn:YES]);
+    NSString* modPath = [quakePath stringByAppendingPathComponent:[modList lastObject]];
+    
+    BOOL directory;
+    BOOL exists = [fileManager fileExistsAtPath:modPath isDirectory:&directory];
+    if (!exists || !directory) {
+        NSLog(@"mod path '%@' does not exist or is not a directory", modPath);
+        return;
+    }
+        
+    NSString* modMapsDirPath = [modPath stringByAppendingPathComponent:@"maps"];
+    exists = [fileManager fileExistsAtPath:modMapsDirPath isDirectory:&directory];
+    if (exists && !directory) {
+        NSLog(@"mod maps directory path '%@' does is not a directory", modMapsDirPath);
+        return;
+    }
+    
+    if (!exists) {
+        NSLog(@"creating mod maps directory at '%@'", modMapsDirPath);
+        if (![fileManager createDirectoryAtPath:modMapsDirPath withIntermediateDirectories:NO attributes:nil error:&error]) {
+            NSLog(@"failed to create mod maps directory at '%@': %@", modMapsDirPath, [error localizedDescription]);
+            return;
+        }
+    }
+    
+    NSString* targetBspPath = [modMapsDirPath stringByAppendingPathComponent:bspFileName];
+    if ([fileManager fileExistsAtPath:targetBspPath]) {
+        NSLog(@"removing existing BSP file from '%@'", targetBspPath);
+        if (![fileManager removeItemAtPath:targetBspPath error:&error]) {
+            NSLog(@"failed to remove existing BSP file from '%@': %@", targetBspPath, [error localizedDescription]);
+            return;
+        }
+    }
+    
+    if (![fileManager copyItemAtPath:bspFilePath toPath:targetBspPath error:&error]) {
+        NSLog(@"failed to copy BSP file from '%@' to '%@': %@", bspFilePath, targetBspPath, [error localizedDescription]);
+        return;
+    }
+    
+    NSString* quakeExecutable = [[PreferencesManager sharedManager] quakeExecutable];
+    NSString* appPath = [quakePath stringByAppendingPathComponent:quakeExecutable];
+    appPath = [appPath stringByAppendingPathExtension:@"app"];
+    NSURL* appUrl = [NSURL URLWithString:appPath];
+    
+    NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
+    
+    NSDictionary *config = [NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:@"-nolauncher", @"+map", baseFileName, nil], NSWorkspaceLaunchConfigurationArguments, nil];
+    [workspace launchApplicationAtURL:appUrl options:NSWorkspaceLaunchNewInstance | NSWorkspaceLaunchDefault configuration:config error:&error];
 }
 
 #pragma mark -

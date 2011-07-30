@@ -17,8 +17,7 @@
 @implementation EntityPropertyTableDataSource
 
 - (void)setMapWindowController:(MapWindowController *)theMapWindowController {
-    [mapWindowController release];
-    mapWindowController = [theMapWindowController retain];
+    mapWindowController = theMapWindowController;
 }
 
 - (void)setEntities:(NSSet *)theEntities {
@@ -180,7 +179,6 @@
 }
 
 - (void)dealloc {
-    [mapWindowController release];
     [entities release];
     [properties release];
     [sortedKeys release];

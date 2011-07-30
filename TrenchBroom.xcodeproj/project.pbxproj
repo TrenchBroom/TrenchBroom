@@ -68,6 +68,8 @@
 		4855821D135788B5005F8B2C /* SelectionTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4855821C135788B5005F8B2C /* SelectionTool.m */; };
 		485583CA13580B34005F8B2C /* DragFaceCursor.m in Sources */ = {isa = PBXBuildFile; fileRef = 485583C913580B34005F8B2C /* DragFaceCursor.m */; };
 		485585241358A668005F8B2C /* ApplyFaceCursor.m in Sources */ = {isa = PBXBuildFile; fileRef = 485585231358A668005F8B2C /* ApplyFaceCursor.m */; };
+		4856F97E13E482C6004CFABE /* BJMHLight in Resources */ = {isa = PBXBuildFile; fileRef = 4856F97D13E482C6004CFABE /* BJMHLight */; };
+		4856F98013E482D8004CFABE /* BJMHLight in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4856F97D13E482C6004CFABE /* BJMHLight */; };
 		485AE8A712F4B9BA00CDBD6A /* Picker.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8A612F4B9BA00CDBD6A /* Picker.m */; };
 		485AE8D712F4C5BD00CDBD6A /* PickingHit.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8D612F4C5BD00CDBD6A /* PickingHit.m */; };
 		485D2EAF1308624900CF73D8 /* Options.m in Sources */ = {isa = PBXBuildFile; fileRef = 485D2EAE1308624900CF73D8 /* Options.m */; };
@@ -134,6 +136,7 @@
 		48AC3E6313E3D00C008F4BF8 /* PreferencesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AC3E6213E3D00C008F4BF8 /* PreferencesManager.m */; };
 		48AC3E6B13E3FA8D008F4BF8 /* TreeQBSP in Resources */ = {isa = PBXBuildFile; fileRef = 48AC3E6A13E3FA8D008F4BF8 /* TreeQBSP */; };
 		48AC3E6C13E3FA99008F4BF8 /* TreeQBSP in CopyFiles */ = {isa = PBXBuildFile; fileRef = 48AC3E6A13E3FA8D008F4BF8 /* TreeQBSP */; };
+		48AC3E6F13E418AC008F4BF8 /* MapCompiler.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AC3E6E13E418AC008F4BF8 /* MapCompiler.m */; };
 		48ACEC9913E162A900FEB81B /* DragPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 48ACEC9813E162A900FEB81B /* DragPlaceholder.png */; };
 		48AF852813D0D79400B62317 /* EntityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF852713D0D79400B62317 /* EntityView.m */; };
 		48AF852B13D0DCFD00B62317 /* EntityDefinitionLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF852A13D0DCFD00B62317 /* EntityDefinitionLayout.m */; };
@@ -187,6 +190,7 @@
 			dstPath = Compilers;
 			dstSubfolderSpec = 7;
 			files = (
+				4856F98013E482D8004CFABE /* BJMHLight in CopyFiles */,
 				48AC3E6C13E3FA99008F4BF8 /* TreeQBSP in CopyFiles */,
 				4846A7B713E35D870088E122 /* Light in CopyFiles */,
 				4846A7B813E35D870088E122 /* QBSP in CopyFiles */,
@@ -335,6 +339,7 @@
 		485583C913580B34005F8B2C /* DragFaceCursor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragFaceCursor.m; sourceTree = "<group>"; };
 		485585221358A668005F8B2C /* ApplyFaceCursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApplyFaceCursor.h; sourceTree = "<group>"; };
 		485585231358A668005F8B2C /* ApplyFaceCursor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ApplyFaceCursor.m; sourceTree = "<group>"; };
+		4856F97D13E482C6004CFABE /* BJMHLight */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = BJMHLight; sourceTree = "<group>"; };
 		485AE8A512F4B9BA00CDBD6A /* Picker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Picker.h; sourceTree = "<group>"; };
 		485AE8A612F4B9BA00CDBD6A /* Picker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Picker.m; sourceTree = "<group>"; };
 		485AE8D512F4C5BD00CDBD6A /* PickingHit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PickingHit.h; sourceTree = "<group>"; };
@@ -472,6 +477,8 @@
 		48AC3E6113E3D00C008F4BF8 /* PreferencesManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesManager.h; sourceTree = "<group>"; };
 		48AC3E6213E3D00C008F4BF8 /* PreferencesManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesManager.m; sourceTree = "<group>"; };
 		48AC3E6A13E3FA8D008F4BF8 /* TreeQBSP */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = TreeQBSP; sourceTree = "<group>"; };
+		48AC3E6D13E418AB008F4BF8 /* MapCompiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapCompiler.h; sourceTree = "<group>"; };
+		48AC3E6E13E418AC008F4BF8 /* MapCompiler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapCompiler.m; sourceTree = "<group>"; };
 		48ACEC9813E162A900FEB81B /* DragPlaceholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DragPlaceholder.png; sourceTree = "<group>"; };
 		48AF852613D0D79400B62317 /* EntityView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityView.h; sourceTree = "<group>"; };
 		48AF852713D0D79400B62317 /* EntityView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityView.m; sourceTree = "<group>"; };
@@ -756,6 +763,7 @@
 		483C514F13E3281C0082C296 /* Compilers */ = {
 			isa = PBXGroup;
 			children = (
+				4856F97D13E482C6004CFABE /* BJMHLight */,
 				48AC3E6A13E3FA8D008F4BF8 /* TreeQBSP */,
 				483C515013E3284E0082C296 /* Light */,
 				483C515113E3284E0082C296 /* QBSP */,
@@ -1119,6 +1127,8 @@
 				487436A5135B5FD900F787E1 /* DefaultFilter.m */,
 				48F5C3D913E1578A00B1A720 /* ControllerUtils.h */,
 				48F5C3DA13E1578A00B1A720 /* ControllerUtils.m */,
+				48AC3E6D13E418AB008F4BF8 /* MapCompiler.h */,
+				48AC3E6E13E418AC008F4BF8 /* MapCompiler.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -1318,6 +1328,7 @@
 				483C515413E3284E0082C296 /* QBSP in Resources */,
 				483C515513E3284E0082C296 /* Vis in Resources */,
 				48AC3E6B13E3FA8D008F4BF8 /* TreeQBSP in Resources */,
+				4856F97E13E482C6004CFABE /* BJMHLight in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1473,6 +1484,7 @@
 				48976C8013E2BF15005AB1EA /* InspectorViewController.m in Sources */,
 				48976C8413E2BFC5005AB1EA /* InspectorWindowController.m in Sources */,
 				48AC3E6313E3D00C008F4BF8 /* PreferencesManager.m in Sources */,
+				48AC3E6F13E418AC008F4BF8 /* MapCompiler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

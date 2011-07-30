@@ -27,6 +27,7 @@
 @interface MapWindowController : NSWindowController {
     IBOutlet NSSplitView* splitView;
 	IBOutlet MapView3D* view3D;
+    IBOutlet NSTextView* console;
     InspectorViewController* inspectorViewController;
     Camera* camera;
     SelectionManager* selectionManager;

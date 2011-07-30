@@ -318,7 +318,6 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [self setMapWindowController:nil];
     [entityPropertyTableDataSource release];
     [super dealloc];
 }
