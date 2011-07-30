@@ -859,14 +859,14 @@
     NSString* resourcePath = [mainBundle resourcePath];
     NSString* compilersPath = [NSString pathWithComponents:[NSArray arrayWithObjects:resourcePath, @"Compilers", nil]];
     
-    NSString* bspPath = [compilersPath stringByAppendingPathComponent:@"QBSP"];
+    NSString* bspPath = [compilersPath stringByAppendingPathComponent:@"TreeQBSP"];
     NSString* visPath = [compilersPath stringByAppendingPathComponent:@"Vis"];
     NSString* lightPath = [compilersPath stringByAppendingPathComponent:@"Light"];
 
     NSTask* bspTask = [[NSTask alloc] init];
     [bspTask setCurrentDirectoryPath:mapDirPath];
     [bspTask setLaunchPath:bspPath];
-    [bspTask setArguments:[NSArray arrayWithObjects:mapFilePath, bspFileName, nil]];
+    [bspTask setArguments:[NSArray arrayWithObjects:mapFileName, bspFileName, nil]];
     
     [bspTask launch];
 }

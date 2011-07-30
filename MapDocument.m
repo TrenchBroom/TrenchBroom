@@ -288,9 +288,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [wadLoader release];
         
         NSData* palette = [glResources palette];
-        
         TextureCollection* collection = [[TextureCollection alloc] initName:theWadPath palette:palette wad:wad];
-        [palette release];
         
         TextureManager* textureManager = [glResources textureManager];
         [textureManager addTextureCollection:collection atIndex:theIndex];
