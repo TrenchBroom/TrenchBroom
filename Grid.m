@@ -17,7 +17,7 @@ NSString* const GridChanged = @"GridChanged";
 - (id)init {
     if ((self = [super init])) {
         size = 4;
-        alpha = 0.2f;
+        alpha = 0.1f;
         draw = YES;
         snap = YES;
         for (int i = 0; i < 9; i++)

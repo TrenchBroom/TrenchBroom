@@ -262,4 +262,12 @@
     [entityBoundsRenderer setFilter:theFilter];
 }
 
+- (void)setMods:(NSArray *)theMods {
+    [entityAliasRenderer setMods:theMods];
+}
+
+- (void)refreshRendererCache {
+    [entityAliasRenderer refreshRendererCache];
+}
+
 @end

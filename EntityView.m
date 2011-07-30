@@ -85,6 +85,7 @@
     dragPlaceholder = [[NSImage alloc] initWithContentsOfFile:dragPlaceholderPath];
     
     dragImageWindowController = [[DragImageWindowController alloc] initWithWindowNibName:@"DragImageWindow"];
+    mods = [[NSArray alloc] init];
 }
 
 - (BOOL)isFlipped {
@@ -166,8 +167,6 @@
     }
 }
 
-
-
 - (void)drawRect:(NSRect)dirtyRect {
     NSRect visibleRect = [self visibleRect];
     
@@ -197,7 +196,7 @@
             EntityDefinitionLayoutCell* cell;
             while ((cell = [cellEn nextObject])) {
                 EntityDefinition* definition = [cell entityDefinition];
-                id <EntityRenderer> renderer = [entityRendererManager entityRendererForDefinition:definition];
+                id <EntityRenderer> renderer = [entityRendererManager entityRendererForDefinition:definition mods:mods];
                 
                 const TVector3f* center;
                 const TBoundingBox* maxBounds;
@@ -346,6 +345,12 @@
     [self reshape];
 }
 
+- (void)setMods:(NSArray *)theMods {
+    [mods release];
+    mods = [theMods retain];
+    [self setNeedsDisplay:YES];
+}
+
 - (void)setEntityDefinitionFilter:(id <EntityDefinitionFilter>)theFilter {
     if (layout != nil) {
         [layout setEntityDefinitionFilter:theFilter];
@@ -362,11 +367,13 @@
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [dragImageWindowController release];
     [dragPlaceholder release];
     [glResources release];
     [entityDefinitionManager release];
     [layout release];
+    [mods release];
     [super dealloc];
 }
 

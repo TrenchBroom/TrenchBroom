@@ -11,6 +11,7 @@
 #import "SelectionManager.h"
 #import "Options.h"
 #import "Grid.h"
+#import "PreferencesController.h"
 
 @implementation MenuDelegate
 
@@ -71,6 +72,11 @@
     }
     
     
+}
+
+- (IBAction)showPreferences:(id)sender {
+    PreferencesController* preferencesController = [PreferencesController sharedPreferences];
+    [[preferencesController window] makeKeyAndOrderFront:self];
 }
 
 @end

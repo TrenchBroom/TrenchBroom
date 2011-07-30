@@ -18,7 +18,7 @@ extern NSString* const RendererChanged;
 @class CompassFigure;
 @class MapWindowController;
 @class TextureManager;
-@class EntityLayer;
+@protocol EntityLayer;
 @protocol Figure;
 @protocol Filter;
 
@@ -31,7 +31,7 @@ extern NSString* const RendererChanged;
     GeometryLayer* geometryLayer;
     SelectionLayer* selectionLayer;
     FigureLayer* feedbackLayer;
-    EntityLayer* entityLayer;
+    id <EntityLayer> entityLayer;
     CompassFigure* compassFigure;
     id <Filter> filter;
 }

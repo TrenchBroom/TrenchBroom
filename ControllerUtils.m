@@ -71,3 +71,23 @@ BOOL calculateEntityOrigin(EntityDefinition* entityDefinition, PickingHitList* h
         return NO;
     }
 }
+
+NSArray* modListFromWorldspawn(id <Entity> worldspawn) {
+    if (![worldspawn isWorldspawn])
+        return nil;
+    
+    NSString* modsStr = [worldspawn propertyForKey:ModsKey];
+    NSMutableArray* mods = [[NSMutableArray alloc] init];
+    [mods addObject:@"id1"];
+    if (modsStr != nil) {
+        NSEnumerator* modStrEn = [[modsStr componentsSeparatedByString:@";"] objectEnumerator];
+        NSString* mod;
+        while ((mod = [modStrEn nextObject])) {
+            NSString* cleaned = [mod stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            if ([cleaned length] > 0)
+                [mods addObject:cleaned];
+        }
+    }
+    
+    return [mods autorelease];
+}

@@ -15,8 +15,11 @@
 @interface EntityAliasRenderer : NSObject {
     EntityRendererManager* entityRendererManager;
     NSMutableSet* entities;
+    NSMutableSet* invalidEntities;
     NSMutableDictionary* entityRenderers;
     id <Filter> filter;
+    NSArray* mods;
+    BOOL cacheValid;
 }
 
 - (id)initWithEntityRendererManager:(EntityRendererManager *)theEntityRendererManager;
@@ -27,4 +30,6 @@
 - (void)render;
 
 - (void)setFilter:(id <Filter>)theFilter;
+- (void)setMods:(NSArray *)theMods;
+- (void)refreshRendererCache;
 @end

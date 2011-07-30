@@ -40,12 +40,8 @@
 #import "math.h"
 #import "ControllerUtils.h"
 #import "PreferencesController.h"
+#import "PreferencesManager.h"
 
-static NSString* DefaultsCameraFov = @"CameraFov";
-static NSString* DefaultsCameraNear = @"CameraNearClippingPlane";
-static NSString* DefaultsCameraFar = @"CameraFarClippingPlane";
-static NSString* DefaultsInspectorSeparate = @"InspectorSeparateWindow";
-static NSString* DefaultsInspectorVisible = @"InspectorVisible";
 
 @interface MapWindowController (private)
 
@@ -97,8 +93,7 @@ static NSString* DefaultsInspectorVisible = @"InspectorVisible";
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
-    BOOL inspectorSeparate = [[NSUserDefaults standardUserDefaults] boolForKey:DefaultsInspectorSeparate];
-    if (inspectorSeparate) {
+    if ([[PreferencesManager sharedManager] inspectorSeparate]) {
         InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
         [inspector setMapWindowController:self];
     }
@@ -106,8 +101,7 @@ static NSString* DefaultsInspectorVisible = @"InspectorVisible";
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification {
-    BOOL inspectorSeparate = [[NSUserDefaults standardUserDefaults] boolForKey:DefaultsInspectorSeparate];
-    if (inspectorSeparate) {
+    if ([[PreferencesManager sharedManager] inspectorSeparate]) {
         InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
         [inspector setMapWindowController:nil];
     }
@@ -115,8 +109,7 @@ static NSString* DefaultsInspectorVisible = @"InspectorVisible";
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
-    BOOL inspectorSeparate = [[NSUserDefaults standardUserDefaults] boolForKey:DefaultsInspectorSeparate];
-    if (inspectorSeparate) {
+    if ([[PreferencesManager sharedManager] inspectorSeparate]) {
         InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
         [inspector setMapWindowController:nil];
     }
@@ -127,18 +120,15 @@ static NSString* DefaultsInspectorVisible = @"InspectorVisible";
     return width - 402;
 }
 
-- (void)userDefaultsChanged:(NSNotification *)notification {
-    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    float fov = [defaults floatForKey:DefaultsCameraFov];
-    float near = [defaults floatForKey:DefaultsCameraNear];
-    float far = [defaults floatForKey:DefaultsCameraFar];
+- (void)preferencesDidChange:(NSNotification *)notification {
+    PreferencesManager* preferences = [PreferencesManager sharedManager];
 
-    [camera setFieldOfVision:fov];
-    [camera setNearClippingPlane:near];
-    [camera setFarClippingPlane:far];
+    [camera setFieldOfVision:[preferences cameraFov]];
+    [camera setNearClippingPlane:[preferences cameraNear]];
+    [camera setFarClippingPlane:[preferences cameraFar]];
 
-    BOOL inspectorVisible = [defaults boolForKey:DefaultsInspectorVisible];
-    BOOL inspectorSeparate = [defaults boolForKey:DefaultsInspectorSeparate];
+    BOOL inspectorVisible = [preferences inspectorVisible];
+    BOOL inspectorSeparate = [preferences inspectorSeparate];
 
     if (inspectorSeparate) {
         if (inspectorViewController != nil) {
@@ -146,7 +136,7 @@ static NSString* DefaultsInspectorVisible = @"InspectorVisible";
             [inspectorView removeFromSuperview];
             [inspectorViewController release];
             inspectorViewController = nil;
-            [defaults setBool:YES forKey:DefaultsInspectorVisible];
+            [preferences setInspectorVisible:YES];
 
             InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
             [inspector setMapWindowController:self];
@@ -169,7 +159,7 @@ static NSString* DefaultsInspectorVisible = @"InspectorVisible";
 
             inspectorViewController = [[InspectorViewController alloc] initWithNibName:@"InspectorView" bundle:nil];
             [inspectorViewController setMapWindowController:self];
-            [defaults setBool:YES forKey:DefaultsInspectorVisible];
+            [preferences setInspectorVisible:YES];
         }
 
         if (inspectorVisible) {
@@ -201,7 +191,7 @@ static NSString* DefaultsInspectorVisible = @"InspectorVisible";
     
     options = [[Options alloc] init];
     camera = [[Camera alloc] init];
-    [self userDefaultsChanged:nil];
+    [self preferencesDidChange:nil];
     
     selectionManager = [[SelectionManager alloc] initWithUndoManager:[[self document] undoManager]];
     inputManager = [[InputManager alloc] initWithWindowController:self];
@@ -212,7 +202,7 @@ static NSString* DefaultsInspectorVisible = @"InspectorVisible";
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification object:[self window]];
     [center addObserver:self selector:@selector(windowWillClose:) name:NSWindowWillCloseNotification object:[self window]];
-    [center addObserver:self selector:@selector(userDefaultsChanged:) name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
+    [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:[PreferencesManager sharedManager]];
     [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
     
     [[self window] setAcceptsMouseMovedEvents:YES];
@@ -295,7 +285,9 @@ static NSString* DefaultsInspectorVisible = @"InspectorVisible";
     } else if (action == @selector(createBrushEntity:)) {
         id <Entity> entity = [selectionManager brushSelectionEntity];
         return [entity isWorldspawn];
-    } else if (action == @selector(showPreferences:)) {
+    } else if (action == @selector(compile:)) {
+        return YES;
+    } else if (action == @selector(run:)) {
         return YES;
     }
 
@@ -582,10 +574,8 @@ static NSString* DefaultsInspectorVisible = @"InspectorVisible";
 #pragma mark View related actions
 
 - (IBAction)showInspector:(id)sender {
-    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    
-    BOOL inspectorVisible = [defaults boolForKey:DefaultsInspectorVisible];
-    [defaults setBool:!inspectorVisible forKey:DefaultsInspectorVisible];
+    PreferencesManager* preferences = [PreferencesManager sharedManager];
+    [preferences setInspectorVisible:![preferences inspectorVisible]];
 }
 
 - (IBAction)toggleGrid:(id)sender {
@@ -852,11 +842,36 @@ static NSString* DefaultsInspectorVisible = @"InspectorVisible";
 }
 
 #pragma mark -
-#pragma mark Misc. actions
+#pragma mark Compile & Run
 
-- (IBAction)showPreferences:(id)sender {
-    PreferencesController* preferencesController = [PreferencesController sharedPreferences];
-    [[preferencesController window] makeKeyAndOrderFront:self];
+- (IBAction)compile:(id)sender {
+    MapDocument* document = [self document];
+    [document saveDocument:self];
+    
+    NSURL* mapFileUrl = [document fileURL];
+    NSString* mapFilePath = [mapFileUrl path];
+    NSString* mapDirPath = [mapFilePath stringByDeletingLastPathComponent];
+    NSString* mapFileName = [mapFilePath lastPathComponent];
+    NSString* baseFileName = [mapFileName stringByDeletingPathExtension];
+    NSString* bspFileName = [baseFileName stringByAppendingPathExtension:@"bsp"];
+    
+    NSBundle* mainBundle = [NSBundle mainBundle];
+    NSString* resourcePath = [mainBundle resourcePath];
+    NSString* compilersPath = [NSString pathWithComponents:[NSArray arrayWithObjects:resourcePath, @"Compilers", nil]];
+    
+    NSString* bspPath = [compilersPath stringByAppendingPathComponent:@"QBSP"];
+    NSString* visPath = [compilersPath stringByAppendingPathComponent:@"Vis"];
+    NSString* lightPath = [compilersPath stringByAppendingPathComponent:@"Light"];
+
+    NSTask* bspTask = [[NSTask alloc] init];
+    [bspTask setCurrentDirectoryPath:mapDirPath];
+    [bspTask setLaunchPath:bspPath];
+    [bspTask setArguments:[NSArray arrayWithObjects:mapFilePath, bspFileName, nil]];
+    
+    [bspTask launch];
+}
+
+- (IBAction)run:(id)sender {
 }
 
 #pragma mark -

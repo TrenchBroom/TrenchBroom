@@ -6,6 +6,8 @@
 	<string>/Applications/Quake</string>
 	<key>InspectorSeparateWindow</key>
 	<false/>
+	<key>GameExecutable</key>
+	<string>QuakeSpasm</string>
 	<key>InspectorVisible</key>
 	<true/>
 	<key>CameraNearClippingPlane</key>

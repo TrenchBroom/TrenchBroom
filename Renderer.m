@@ -42,6 +42,8 @@
 #import "DefaultFilter.h"
 #import "EntityDefinition.h"
 #import "GLUtils.h"
+#import "ControllerUtils.h"
+#import "PreferencesManager.h"
 
 NSString* const RendererChanged = @"RendererChanged";
 
@@ -75,6 +77,7 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)optionsChanged:(NSNotification *)notification;
 - (void)gridChanged:(NSNotification *)notification;
 - (void)cursorChanged:(NSNotification *)notification;
+- (void)preferencesDidChange:(NSNotification *)notification;
 
 @end
 
@@ -183,6 +186,10 @@ NSString* const RendererChanged = @"RendererChanged";
             [selectionLayer addEntity:entity];
         else
             [entityLayer addEntity:entity];
+    } else {
+        NSArray* mods = modListFromWorldspawn(entity);
+        [entityLayer setMods:mods];
+        [selectionLayer setMods:mods];
     }
 }
 
@@ -334,9 +341,15 @@ NSString* const RendererChanged = @"RendererChanged";
     
     NSEnumerator* entityEn = [entities objectEnumerator];
     id <Entity> entity;
-    while ((entity = [entityEn nextObject]))
+    while ((entity = [entityEn nextObject])) {
         if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
             [self addEntity:entity];
+        if ([entity isWorldspawn]) {
+            NSArray* mods = modListFromWorldspawn(entity);
+            [entityLayer setMods:mods];
+            [selectionLayer setMods:mods];
+        }
+    }
 
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -351,8 +364,10 @@ NSString* const RendererChanged = @"RendererChanged";
         NSEnumerator* entityEn = [entities objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
-            [entityLayer removeEntity:entity];
-            [selectionLayer addEntity:entity];
+            if (![entity isWorldspawn]) {
+                [entityLayer removeEntity:entity];
+                [selectionLayer addEntity:entity];
+            }
         }
     }
     
@@ -387,8 +402,10 @@ NSString* const RendererChanged = @"RendererChanged";
         NSEnumerator* entityEn = [entities objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
-            [selectionLayer removeEntity:entity];
-            [entityLayer addEntity:entity];
+            if (![entity isWorldspawn]) {
+                [selectionLayer removeEntity:entity];
+                [entityLayer addEntity:entity];
+            }
         }
     }
     
@@ -467,6 +484,15 @@ NSString* const RendererChanged = @"RendererChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
+- (void)preferencesDidChange:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    if (DefaultsQuakePath != [userInfo objectForKey:DefaultsKey])
+        return;
+    
+    [entityLayer refreshRendererCache];
+    [selectionLayer refreshRendererCache];
+}
+
 @end
 
 @implementation Renderer
@@ -527,9 +553,26 @@ NSString* const RendererChanged = @"RendererChanged";
         
         CursorManager* cursorManager = [windowController cursorManager];
         [center addObserver:self selector:@selector(cursorChanged:) name:CursorChanged object:cursorManager];
+
+        PreferencesManager* preferences = [PreferencesManager sharedManager];
+        [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:preferences];
     }
     
     return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [compassFigure release];
+    [geometryLayer release];
+    [selectionLayer release];
+    [feedbackLayer release];
+    [entityLayer release];
+    [textureManager release];
+    [sharedVbo release];
+    [invalidFaces release];
+    [filter release];
+    [super dealloc];
 }
 
 - (void)addFeedbackFigure:(id <Figure>)theFigure {
@@ -618,24 +661,6 @@ NSString* const RendererChanged = @"RendererChanged";
     }
     glEnable( GL_BLEND );
      */
-}
-
-- (void)release {
-    [super release];
-}
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [compassFigure release];
-    [geometryLayer release];
-    [selectionLayer release];
-    [feedbackLayer release];
-    [entityLayer release];
-    [textureManager release];
-    [sharedVbo release];
-    [invalidFaces release];
-    [filter release];
-    [super dealloc];
 }
 
 @end

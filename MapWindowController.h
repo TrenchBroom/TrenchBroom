@@ -72,7 +72,8 @@
 - (IBAction)createPrefabFromSelection:(id)sender;
 - (void)insertPrefab:(id <Prefab>)prefab;
 
-- (IBAction)showPreferences:(id)sender;
+- (IBAction)compile:(id)sender;
+- (IBAction)run:(id)sender;
 
 - (Camera *)camera;
 - (SelectionManager *)selectionManager;

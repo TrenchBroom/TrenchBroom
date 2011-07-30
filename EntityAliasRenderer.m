@@ -22,6 +22,7 @@
     if ((self = [super init])) {
         entityRendererManager = [theEntityRendererManager retain];
         entities = [[NSMutableSet alloc] init];
+        invalidEntities = [[NSMutableSet alloc] init];
         entityRenderers = [[NSMutableDictionary alloc] init];
     }
     
@@ -29,29 +30,41 @@
 }
 
 - (void)dealloc {
+    [invalidEntities release];
     [entityRendererManager release];
     [entities release];
     [entityRenderers release];
     [filter release];
+    [mods release];
     [super dealloc];
 }
 
 - (void)addEntity:(id <Entity>)entity {
     NSAssert(entity != nil, @"entity must no be nil");
-    
-    id <EntityRenderer> renderer = [entityRendererManager entityRendererForEntity:entity];
-    if (renderer != nil) {
-        [entities addObject:entity];
-        [entityRenderers setObject:renderer forKey:[entity entityId]];
-    }
+    [invalidEntities addObject:entity];
 }
 
 - (void)removeEntity:(id <Entity>)entity {
     [entityRenderers removeObjectForKey:[entity entityId]];
     [entities removeObject:entity];
+    [invalidEntities removeObject:entity];
 }
 
 - (void)render {
+    if ([invalidEntities count] > 0) {
+        NSEnumerator* entityEn = [invalidEntities objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            id <EntityRenderer> renderer = [entityRendererManager entityRendererForEntity:entity mods:mods];
+            if (renderer != nil) {
+                [entities addObject:entity];
+                [entityRenderers setObject:renderer forKey:[entity entityId]];
+            }
+        }
+        
+        [invalidEntities removeAllObjects];
+    }
+    
     [entityRendererManager activate];
     
     glMatrixMode(GL_MODELVIEW);
@@ -74,6 +87,22 @@
 - (void)setFilter:(id <Filter>)theFilter {
     [filter release];
     filter = [theFilter retain];
+}
+
+- (void)setMods:(NSArray *)theMods {
+    NSAssert(theMods != nil, @"mod list must not be nil");
+    
+    if ([theMods isEqualToArray:mods])
+        return;
+    
+    [mods release];
+    mods = [theMods retain];
+    [self refreshRendererCache];
+}
+
+- (void)refreshRendererCache {
+    [entityRenderers removeAllObjects];
+    [invalidEntities setSet:entities];
 }
 
 @end

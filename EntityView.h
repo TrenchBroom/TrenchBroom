@@ -30,9 +30,12 @@
     NSImage* dragPlaceholder;
     NSImage* dragImage;
     NSSize imageOffset;
+    
+    NSArray* mods;
 }
 
 - (void)setGLResources:(GLResources *)theGLResources entityDefinitionManager:(EntityDefinitionManager *)theEntityDefinitionManager;
+- (void)setMods:(NSArray *)theMods;
 - (void)setEntityDefinitionFilter:(id <EntityDefinitionFilter>)theFilter;
 - (void)setSortCriterion:(EEntityDefinitionSortCriterion)criterion;
 

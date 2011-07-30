@@ -142,4 +142,13 @@
     [aliasRenderer setFilter:theFilter];
 }
 
+- (void)setMods:(NSArray *)theMods {
+    [aliasRenderer setMods:theMods];
+}
+
+- (void)refreshRendererCache {
+    [aliasRenderer refreshRendererCache];
+}
+
+
 @end

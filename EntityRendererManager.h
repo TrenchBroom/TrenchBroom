@@ -22,8 +22,8 @@
 
 - (id)initWithPalette:(NSData *)thePalette;
 
-- (id <EntityRenderer>)entityRendererForDefinition:(EntityDefinition *)theDefinition;
-- (id <EntityRenderer>)entityRendererForEntity:(id <Entity>)theEntity;
+- (id <EntityRenderer>)entityRendererForDefinition:(EntityDefinition *)theDefinition mods:(NSArray *)theMods;
+- (id <EntityRenderer>)entityRendererForEntity:(id <Entity>)theEntity mods:(NSArray *)theMods;
 
 - (void)activate;
 - (void)deactivate;

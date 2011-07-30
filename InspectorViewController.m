@@ -27,26 +27,48 @@
 #import "PrefabView.h"
 #import "EntityView.h"
 #import "EntityPropertyTableDataSource.h"
+#import "ControllerUtils.h"
+#import "PreferencesManager.h"
 
 @interface InspectorViewController (private)
 
+- (void)preferencesDidChange:(NSNotification *)notification;
 - (void)propertiesDidChange:(NSNotification *)notification;
 - (void)facesDidChange:(NSNotification *)notification;
-- (void)selectionRemoved:(NSNotification *)notification;
-- (void)selectionAdded:(NSNotification *)notification;
+- (void)selectionChanged:(NSNotification *)notification;
 - (void)textureManagerChanged:(NSNotification *)notification;
 - (void)updateMapWindowController:(MapWindowController *)theMapWindowController;
 - (void)updateTextureControls;
 - (void)updateTextureFilter;
 - (void)updateEntityDefinitionFilter;
+- (void)updateEntityPropertyTable;
 
 @end
 
 @implementation InspectorViewController (private)
 
+- (void)preferencesDidChange:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    if (DefaultsQuakePath != [userInfo objectForKey:DefaultsKey])
+        return;
+    
+    [entityView setNeedsDisplay:YES];
+}
+
 - (void)propertiesDidChange:(NSNotification *)notification {
     [entityPropertyTableDataSource updateProperties];
     [entityPropertyTableView reloadData];
+    
+    NSDictionary* userInfo = [notification userInfo];
+    NSSet* entities = [userInfo objectForKey:EntitiesKey];
+    NSEnumerator* entityEn = [entities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject])) {
+        if ([entity isWorldspawn]) {
+            [entityView setMods:modListFromWorldspawn(entity)];
+            break;
+        }
+    }
 }
 
 - (void)facesDidChange:(NSNotification *)notification {
@@ -63,18 +85,9 @@
     }
 }
 
-- (void)selectionRemoved:(NSNotification *)notification {
-    SelectionManager* selectionManager = [mapWindowController selectionManager];
-    [entityPropertyTableDataSource setEntities:[selectionManager selectedEntities]];
+- (void)selectionChanged:(NSNotification *)notification {
+    [self updateEntityPropertyTable];
     [self updateTextureControls];
-    [entityPropertyTableView reloadData];
-}
-
-- (void)selectionAdded:(NSNotification *)notification {
-    SelectionManager* selectionManager = [mapWindowController selectionManager];
-    [entityPropertyTableDataSource setEntities:[selectionManager selectedEntities]];
-    [self updateTextureControls];
-    [entityPropertyTableView reloadData];
 }
 
 - (void)textureManagerChanged:(NSNotification *)notification {
@@ -97,7 +110,6 @@
         [center removeObserver:self name:TextureManagerChanged object:textureManager];
         
         [entityPropertyTableDataSource setMapWindowController:nil];
-        [entityPropertyTableDataSource setEntities:nil];
     }
     
     mapWindowController = theMapWindowController;
@@ -111,14 +123,14 @@
         [textureView setGLResources:glResources];
         [prefabView setGLResources:glResources];
         [entityView setGLResources:glResources entityDefinitionManager:entityDefinitionManager];
+        [entityView setMods:modListFromWorldspawn([map worldspawn:YES])];
         
         TextureManager* textureManager = [glResources textureManager];
         SelectionManager* selectionManager = [mapWindowController selectionManager];
         [entityPropertyTableDataSource setMapWindowController:mapWindowController];
-        [entityPropertyTableDataSource setEntities:[selectionManager selectedEntities]];
         
-        [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
-        [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
+        [center addObserver:self selector:@selector(selectionChanged:) name:SelectionAdded object:selectionManager];
+        [center addObserver:self selector:@selector(selectionChanged:) name:SelectionRemoved object:selectionManager];
         [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesDidChange object:map];
         [center addObserver:self selector:@selector(facesDidChange:) name:FacesDidChange object:map];
         [center addObserver:self selector:@selector(textureManagerChanged:) name:TextureManagerChanged object:textureManager];
@@ -127,9 +139,10 @@
         [textureView setGLResources:nil];
         [prefabView setGLResources:nil];
         [entityView setGLResources:nil entityDefinitionManager:nil];
+        [entityView setMods:nil];
     }
-    
-    [entityPropertyTableView reloadData];
+
+    [self updateEntityPropertyTable];
     [wadTableView reloadData];
     [self updateTextureControls];
 }
@@ -281,11 +294,30 @@
     [filter release];
 }
 
+- (void)updateEntityPropertyTable {
+    if (mapWindowController != nil) {
+        SelectionManager* selectionManager = [mapWindowController selectionManager];
+        NSSet* selectedEntities = [selectionManager selectedEntities];
+        if ([selectedEntities count] == 0) {
+            id <Map> map = [mapWindowController document];
+            id <Entity> worldspawn = [map worldspawn:YES];
+            [entityPropertyTableDataSource setEntities:[NSSet setWithObject:worldspawn]];
+        } else {
+            [entityPropertyTableDataSource setEntities:selectedEntities];
+        }
+    } else {
+        [entityPropertyTableDataSource setEntities:nil];
+    }
+
+    [entityPropertyTableView reloadData];
+}
+
 @end
 
 @implementation InspectorViewController
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self setMapWindowController:nil];
     [entityPropertyTableDataSource release];
     [super dealloc];
@@ -298,6 +330,10 @@
     [entityPropertyTableView setDataSource:entityPropertyTableDataSource];
     [self updateMapWindowController:mapWindowController];
     [self prefabsPerRowChanged:prefabsPerRowSlider];
+    
+    PreferencesManager* preferences = [PreferencesManager sharedManager];
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:preferences];
 }
 
 - (void)setMapWindowController:(MapWindowController *)theMapWindowController {
@@ -456,10 +492,13 @@
 #pragma mark Entity controls
 
 - (IBAction)addEntityProperty:(id)sender {
+    MapDocument* map = [mapWindowController document];
     SelectionManager* selectionManager = [mapWindowController selectionManager];
     NSSet* entities = [selectionManager selectedEntities];
     
-    MapDocument* map = [mapWindowController document];
+    if ([entities count] == 0)
+        entities = [NSSet setWithObject:[map worldspawn:YES]];
+    
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
@@ -474,10 +513,13 @@
     if ([selectedRows count] == 0)
         return;
     
+    MapDocument* map = [mapWindowController document];
     SelectionManager* selectionManager = [mapWindowController selectionManager];
     NSSet* entities = [selectionManager selectedEntities];
     
-    MapDocument* map = [mapWindowController document];
+    if ([entities count] == 0)
+        entities = [NSSet setWithObject:[map worldspawn:YES]];
+
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     

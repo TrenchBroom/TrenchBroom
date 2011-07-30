@@ -27,6 +27,7 @@
 #import "ProgressWindowController.h"
 #import "MapParser.h"
 #import "MapWriter.h"
+#import "EntityRendererManager.h"
 
 NSString* const FacesWillChange         = @"FacesWillChange";
 NSString* const FacesDidChange          = @"FacesDidChange";
@@ -202,6 +203,15 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     return self;
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [entityDefinitionManager release];
+    [entities release];
+    [picker release];
+    [glResources release];
+    [super dealloc];
+}
+
 - (void)makeWindowControllers {
 	MapWindowController* controller = [[MapWindowController alloc] initWithWindowNibName:@"MapDocument"];
 	[self addWindowController:controller];
@@ -264,14 +274,6 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     return YES;
 }
 
-- (void)dealloc {
-    [entityDefinitionManager release];
-    [entities release];
-    [picker release];
-    [glResources release];
-    [super dealloc];
-}
-
 # pragma mark Texture wad management
 - (void)insertObject:(NSString *)theWadPath inTextureWadsAtIndex:(NSUInteger)theIndex {
     NSAssert(theWadPath != nil, @"wad path must not be nil");
@@ -294,9 +296,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [textureManager addTextureCollection:collection atIndex:theIndex];
         [collection release];
         
-        MutableEntity* wc = [self worldspawn:YES];
-        [wc setProperty:@"wad" value:[textureManager wadProperty]];
-        
+        [self setEntity:[self worldspawn:YES] propertyKey:@"wad" value:[textureManager wadProperty]];
         [self updateTextureUsageCounts];
     } else {
         NSLog(@"wad file '%@' does not exist", theWadPath);

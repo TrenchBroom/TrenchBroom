@@ -9,16 +9,26 @@
 #import "AliasManager.h"
 #import "Alias.h"
 #import "PakManager.h"
+#import "PreferencesManager.h"
 
 static AliasManager* sharedInstance = nil;
 
 @interface AliasManager (private)
 
+- (void)preferencesDidChange:(NSNotification *)notification;
 - (NSString *)keyForName:(NSString *)theName paths:(NSArray *)thePaths;
 
 @end
 
 @implementation AliasManager (private)
+
+- (void)preferencesDidChange:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    if (DefaultsQuakePath != [userInfo objectForKey:DefaultsKey])
+        return;
+    
+    [aliases removeAllObjects];
+}
 
 - (NSString *)keyForName:(NSString *)theName paths:(NSArray *)thePaths {
     NSMutableString* key = [[NSMutableString alloc] init];
@@ -68,7 +78,7 @@ static AliasManager* sharedInstance = nil;
     return UINT_MAX;  // denotes an object that cannot be released
 }
 
-- (void)release {
+- (oneway void)release {
     //do nothing
 }
 
@@ -79,12 +89,17 @@ static AliasManager* sharedInstance = nil;
 - (id)init {
     if ((self = [super init])) {
         aliases = [[NSMutableDictionary alloc] init];
+        
+        PreferencesManager* preferences = [PreferencesManager sharedManager];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:preferences];
     }
     
     return self;
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [aliases release];
     [super dealloc];
 }

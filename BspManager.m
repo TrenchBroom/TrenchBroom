@@ -9,6 +9,7 @@
 #import "BspManager.h"
 #import "Bsp.h"
 #import "PakManager.h"
+#import "PreferencesManager.h"
 
 static BspManager* sharedInstance = nil;
 
@@ -19,6 +20,14 @@ static BspManager* sharedInstance = nil;
 @end
 
 @implementation BspManager (private)
+
+- (void)preferencesDidChange:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    if (DefaultsQuakePath != [userInfo objectForKey:DefaultsKey])
+        return;
+    
+    [bsps removeAllObjects];
+}
 
 - (NSString *)keyForName:(NSString *)theName paths:(NSArray *)thePaths {
     NSMutableString* key = [[NSMutableString alloc] init];
@@ -68,7 +77,7 @@ static BspManager* sharedInstance = nil;
     return UINT_MAX;  // denotes an object that cannot be released
 }
 
-- (void)release {
+- (oneway void)release {
     //do nothing
 }
 
@@ -79,12 +88,16 @@ static BspManager* sharedInstance = nil;
 - (id)init {
     if ((self = [super init])) {
         bsps = [[NSMutableDictionary alloc] init];
+        PreferencesManager* preferences = [PreferencesManager sharedManager];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:preferences];
     }
     
     return self;
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [bsps release];
     [super dealloc];
 }

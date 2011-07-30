@@ -37,4 +37,7 @@
     IBOutlet NSMenuItem* duplicateItem;
 }
 
+- (IBAction)showPreferences:(id)sender;
+
+
 @end

@@ -12,5 +12,7 @@
 #import "PickingHitList.h"
 #import "Camera.h"
 #import "Grid.h"
+#import "Entity.h"
 
 BOOL calculateEntityOrigin(EntityDefinition* entityDefinition, PickingHitList* hits, NSPoint mousePos, Camera* camera, TVector3i* result);
+NSArray* modListFromWorldspawn(id <Entity> worldspawn);

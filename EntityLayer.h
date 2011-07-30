@@ -18,5 +18,7 @@
 - (void)updateEntity:(id <Entity>)entity;
 
 - (void)setFilter:(id <Filter>)theFilter;
+- (void)setMods:(NSArray *)theMods;
+- (void)refreshRendererCache;
 
 @end

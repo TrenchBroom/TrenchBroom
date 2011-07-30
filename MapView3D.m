@@ -19,9 +19,21 @@
 #import "Options.h"
 #import "Grid.h"
 #import "EntityDefinition.h"
+#import "PreferencesManager.h"
 
-static NSString* MapView3DDefaults = @"3D View";
-static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
+@interface MapView3D (private)
+
+- (void)preferencesDidChange:(NSNotification *)notification;
+
+@end
+
+@implementation MapView3D (private)
+
+- (void)preferencesDidChange:(NSNotification *)notification {
+    [self setNeedsDisplay:YES];
+}
+
+@end
 
 @implementation MapView3D
 
@@ -79,12 +91,10 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
 - (void)awakeFromNib {
     [super awakeFromNib];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-                                             selector:@selector(userDefaultsChanged:) 
-                                                 name:NSUserDefaultsDidChangeNotification 
-                                               object:[NSUserDefaults standardUserDefaults]];
+    PreferencesManager* preferences = [PreferencesManager sharedManager];
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:preferences];
     
-    [self userDefaultsChanged:nil];
     [self registerForDraggedTypes:[NSArray arrayWithObject:EntityDefinitionType]];
 }
 
@@ -240,19 +250,6 @@ static NSString* MapView3DDefaultsBackgroundColor = @"Background Color";
             [[self openGLContext] flushBuffer];
         }
     }
-}
-
-- (void)userDefaultsChanged:(NSNotification *)notification {
-    NSDictionary* viewDefaults = [[NSUserDefaults standardUserDefaults] dictionaryForKey:MapView3DDefaults];
-    if (viewDefaults == nil)
-        return;
-    
-    NSArray* backgroundColorArray = [viewDefaults objectForKey:MapView3DDefaultsBackgroundColor];
-    if (backgroundColorArray != nil && [backgroundColorArray count] == 3)
-        for (int i = 0; i < 3; i++)
-            backgroundColor[i] = [[backgroundColorArray objectAtIndex:i] floatValue];
-
-    [self setNeedsDisplay:YES];
 }
 
 - (Renderer *)renderer {
