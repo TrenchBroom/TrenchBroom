@@ -8,8 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
+@class Console;
+
 @interface MapCompiler : NSObject {
-    NSTextView* standardOutput;
+    Console* console;
     NSString* mapDirPath;
     NSString* mapFileName;
     NSString* bspFileName;
@@ -18,7 +20,7 @@
     NSString* visPath;
 }
 
-- (id)initWithMapFileUrl:(NSURL *)theMapFileUrl standardOutput:(NSTextView *)theStandardOutput;
+- (id)initWithMapFileUrl:(NSURL *)theMapFileUrl console:(Console *)theConsole;
 
 - (void)compile;
 

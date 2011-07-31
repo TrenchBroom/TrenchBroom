@@ -7,9 +7,11 @@
 //
 
 #import "MapCompiler.h"
+#import "Console.h"
 
 @interface MapCompiler (private)
 
+- (void)log:(NSData *)theData;
 - (void)stdOutReadCompleted:(NSNotification *)notification;
 - (void)bspTaskFinished:(NSNotification *)notification;
 - (void)lightTaskFinished:(NSNotification *)notification;
@@ -23,18 +25,15 @@
 
 @implementation MapCompiler (private)
 
+- (void)log:(NSData *)theData {
+    NSString* string = [[NSString alloc] initWithData:theData encoding:NSASCIIStringEncoding];
+    [console log:string];
+    [string release];
+}
+
 - (void)stdOutReadCompleted:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSData* data = [userInfo objectForKey:NSFileHandleNotificationDataItem];
-    
-    NSString* string = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
-    NSAttributedString* attributedString = [[NSAttributedString alloc] initWithString:string attributes:[NSDictionary dictionaryWithObject:[NSFont fontWithName:@"Monaco" size:10] forKey:NSFontAttributeName]];
-    
-    [[standardOutput textStorage] appendAttributedString:attributedString];
-    [standardOutput scrollToEndOfDocument:self];
-    
-    [string release];
-    [attributedString release];
+    [self log:[userInfo objectForKey:NSFileHandleNotificationDataItem]];
     
     NSFileHandle* stdOutHandle = [notification object];
     [stdOutHandle readInBackgroundAndNotify];
@@ -43,18 +42,22 @@
 - (void)bspTaskFinished:(NSNotification *)notification {
     NSTask* task = [notification object];
     NSFileHandle* stdOutHandle = [[task standardOutput] fileHandleForReading];
+    [self log:[stdOutHandle readDataToEndOfFile]];
+    
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     
     [center removeObserver:self name:NSFileHandleReadCompletionNotification object:stdOutHandle];
     [center removeObserver:self name:NSTaskDidTerminateNotification object:task];
     [task release];
     
-    [self launchLight];
+    [self launchVis];
 }
 
 - (void)lightTaskFinished:(NSNotification *)notification {
     NSTask* task = [notification object];
     NSFileHandle* stdOutHandle = [[task standardOutput] fileHandleForReading];
+    [self log:[stdOutHandle readDataToEndOfFile]];
+    
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     
     [center removeObserver:self name:NSFileHandleReadCompletionNotification object:stdOutHandle];
@@ -67,6 +70,8 @@
 - (void)visTaskFinished:(NSNotification *)notification {
     NSTask* task = [notification object];
     NSFileHandle* stdOutHandle = [[task standardOutput] fileHandleForReading];
+    [self log:[stdOutHandle readDataToEndOfFile]];
+    
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     
     [center removeObserver:self name:NSFileHandleReadCompletionNotification object:stdOutHandle];
@@ -91,6 +96,8 @@
     [center addObserver:self selector:@selector(stdOutReadCompleted:) name:NSFileHandleReadCompletionNotification object:stdOutHandle];
     [center addObserver:self selector:@selector(bspTaskFinished:) name:NSTaskDidTerminateNotification object:bspTask];
 
+    [console logBold:@"\n========== Launching QBSP ===========\n\n"];
+    
     [stdOutHandle readInBackgroundAndNotify];
     [bspTask launch];
 }
@@ -99,7 +106,7 @@
     NSTask* lightTask = [[NSTask alloc] init];
     [lightTask setCurrentDirectoryPath:mapDirPath];
     [lightTask setLaunchPath:lightPath];
-    [lightTask setArguments:[NSArray arrayWithObjects:@"-threads", @"4", @"-extra", bspFileName, nil]];
+    [lightTask setArguments:[NSArray arrayWithObjects:@"-threads", @"2", @"-extra", bspFileName, nil]];
     
     NSPipe* stdOutPipe = [[NSPipe alloc] init];
     NSFileHandle* stdOutHandle = [stdOutPipe fileHandleForReading];
@@ -110,6 +117,8 @@
     [center addObserver:self selector:@selector(stdOutReadCompleted:) name:NSFileHandleReadCompletionNotification object:stdOutHandle];
     [center addObserver:self selector:@selector(lightTaskFinished:) name:NSTaskDidTerminateNotification object:lightTask];
 
+    [console logBold:@"\n========== Launching Light ===========\n\n"];
+    
     [stdOutHandle readInBackgroundAndNotify];
     [lightTask launch];
 }
@@ -119,7 +128,7 @@
     NSTask* visTask = [[NSTask alloc] init];
     [visTask setCurrentDirectoryPath:mapDirPath];
     [visTask setLaunchPath:visPath];
-    [visTask setArguments:[NSArray arrayWithObjects:@"-threads", @"4", @"-level", @"4", bspFileName, nil]];
+    [visTask setArguments:[NSArray arrayWithObjects:@"-threads", @"2", @"-level", @"4", bspFileName, nil]];
     
     NSPipe* stdOutPipe = [[NSPipe alloc] init];
     NSFileHandle* stdOutHandle = [stdOutPipe fileHandleForReading];
@@ -130,6 +139,8 @@
     [center addObserver:self selector:@selector(stdOutReadCompleted:) name:NSFileHandleReadCompletionNotification object:stdOutHandle];
     [center addObserver:self selector:@selector(visTaskFinished:) name:NSTaskDidTerminateNotification object:visTask];
     
+    [console logBold:@"\n========== Launching Vis ===========\n\n"];
+    
     [stdOutHandle readInBackgroundAndNotify];
     [visTask launch];
 }
@@ -138,12 +149,12 @@
 
 @implementation MapCompiler
 
-- (id)initWithMapFileUrl:(NSURL *)theMapFileUrl standardOutput:(NSTextView *)theStandardOutput {
+- (id)initWithMapFileUrl:(NSURL *)theMapFileUrl console:(Console *)theConsole {
     NSAssert(theMapFileUrl != nil, @"map file URL must not be nil");
-    NSAssert(theStandardOutput != nil, @"standard output must not be nil");
+    NSAssert(theConsole != nil, @"console must not be nil");
     
     if ((self = [self init])) {
-        standardOutput = [theStandardOutput retain];
+        console = [theConsole retain];
         
         NSString* mapFilePath = [theMapFileUrl path];
         mapDirPath = [[mapFilePath stringByDeletingLastPathComponent] retain];
@@ -170,7 +181,7 @@
     [bspPath release];
     [visPath release];
     [lightPath release];
-    [standardOutput release];
+    [console release];
     [super dealloc];
 }
 

@@ -39,7 +39,7 @@
     return self;
 }
 
-- (void)handleLeftMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (void)handleLeftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     SelectionManager* selectionManager = [windowController selectionManager];
     PickingHit* entityHit = [hits firstHitOfType:HT_ENTITY ignoreOccluders:NO];
     PickingHit* faceHit = [hits firstHitOfType:HT_FACE | HT_BRUSH ignoreOccluders:NO];

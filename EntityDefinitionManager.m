@@ -8,6 +8,7 @@
 
 #import "EntityDefinitionManager.h"
 #import "EntityDefinitionParser.h"
+#import "Console.h"
 
 @implementation EntityDefinitionManager
 
@@ -16,7 +17,8 @@
     NSString* definitionsString = [NSString stringWithContentsOfFile:thePath encoding:NSASCIIStringEncoding error:NULL];
     NSAssert(definitionsString != nil, @"definitions file must be readable");
     
-    NSLog(@"Loading entity definitions from '%@'", thePath);
+    Console* console = [Console sharedConsole];
+    [console log:[NSString stringWithFormat:@"Loading entity definitions from '%@'", thePath]];
     
     if (self = [self init]) {
         definitions = [[NSMutableDictionary alloc] init];
@@ -33,7 +35,7 @@
         [parser release];
     }
     
-    NSLog(@"Found %lu entity definitions", [definitions count]);
+    [console log:[NSString stringWithFormat:@"Found %lu entity definitions", [definitions count]]];
 
     return self;
 }

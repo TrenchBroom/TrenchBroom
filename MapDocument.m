@@ -1366,8 +1366,27 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
                 break;
     }
     
-    if (worldspawn == nil && create)
-        worldspawn = [self createEntityWithClassname:WorldspawnClassname];
+    if (worldspawn == nil && create) {
+        EntityDefinition* entityDefinition = [entityDefinitionManager definitionForName:WorldspawnClassname];
+        
+        MutableEntity* entity = [[MutableEntity alloc] init];
+        [entity setProperty:ClassnameKey value:WorldspawnClassname];
+        [entity setEntityDefinition:entityDefinition];
+        [entities addObject:entity];
+        [entity setMap:self];
+
+        if ([self postNotifications]) {
+            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:[NSSet setWithObject:entity] forKey:EntitiesKey];
+            
+            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+            [center postNotificationName:EntitiesAdded object:self userInfo:userInfo];
+            [userInfo release];
+        }        
+        
+        worldspawn = entity;
+        [entity release];
+    }
     
     return worldspawn;
 }

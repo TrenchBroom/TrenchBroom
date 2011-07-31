@@ -29,8 +29,6 @@
 
 - (void)validate {
     if ([removedEntities count] > 0) {
-        NSLog(@"removing %lu entities", [removedEntities count]);
-        
         NSEnumerator* entityEn = [removedEntities objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
@@ -43,8 +41,6 @@
     }
 
     if ([addedEntities count] > 0) {
-        NSLog(@"adding %lu entities", [addedEntities count]);
-
         NSEnumerator* entityEn = [addedEntities objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {

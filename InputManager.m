@@ -348,8 +348,6 @@
     [self updateRay];
     [self updateHits];
     [activeTool handleLeftMouseDown:lastEvent ray:&lastRay hits:lastHits];
-    [self updateCursorOwner];
-    [self updateCursor];
 }
 
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {

@@ -42,7 +42,7 @@
 #import "PreferencesController.h"
 #import "PreferencesManager.h"
 #import "MapCompiler.h"
-
+#import "Console.h"
 
 @interface MapWindowController (private)
 
@@ -184,6 +184,8 @@
 }
 
 - (void)windowDidLoad {
+    console = [[Console alloc] initWithTextView:consoleTextView];
+    
     GLResources* glResources = [[self document] glResources];
     NSOpenGLContext* sharedContext = [glResources openGLContext];
     NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[view3D pixelFormat] shareContext:sharedContext];
@@ -324,6 +326,7 @@
     [cursorManager release];
     [camera release];
     [inspectorViewController release];
+    [console release];
     [super dealloc];
 }
 
@@ -860,7 +863,7 @@
     
     NSURL* mapFileUrl = [map fileURL];
     
-    MapCompiler* compiler = [[MapCompiler alloc] initWithMapFileUrl:mapFileUrl standardOutput:console];
+    MapCompiler* compiler = [[MapCompiler alloc] initWithMapFileUrl:mapFileUrl console:console];
     [compiler compile];
 }
 
@@ -868,7 +871,7 @@
     MapDocument* map = [self document];
     NSURL* mapFileUrl = [map fileURL];
     if (mapFileUrl == nil) {
-        NSLog(@"map must be saved and compiled first");
+        [console log:@"Map must be saved and compiled first"];
         return;
     }
 
@@ -883,13 +886,13 @@
     
     NSFileManager* fileManager = [NSFileManager defaultManager];
     if (![fileManager fileExistsAtPath:bspFilePath]) {
-        NSLog(@"could not find BSP file at '%@'", bspFilePath);
+        [console logBold:[NSString stringWithFormat:@"Could not find BSP file at '%@'\n", bspFilePath]];
         return;
     }
 
     NSString* quakePath = [[PreferencesManager sharedManager] quakePath];
     if (quakePath == nil) {
-        NSLog(@"Quake path not defined");
+        [console logBold:@"Quake path not defined"];
         return;
     }
     
@@ -899,36 +902,36 @@
     BOOL directory;
     BOOL exists = [fileManager fileExistsAtPath:modPath isDirectory:&directory];
     if (!exists || !directory) {
-        NSLog(@"mod path '%@' does not exist or is not a directory", modPath);
+        [console logBold:[NSString stringWithFormat:@"Mod path '%@' does not exist or is not a directory\n", modPath]];
         return;
     }
         
     NSString* modMapsDirPath = [modPath stringByAppendingPathComponent:@"maps"];
     exists = [fileManager fileExistsAtPath:modMapsDirPath isDirectory:&directory];
     if (exists && !directory) {
-        NSLog(@"mod maps directory path '%@' does is not a directory", modMapsDirPath);
+        [console logBold:[NSString stringWithFormat:@"Mod maps path '%@' is not a directory\n", modMapsDirPath]];
         return;
     }
     
     if (!exists) {
-        NSLog(@"creating mod maps directory at '%@'", modMapsDirPath);
+        [console log:[NSString stringWithFormat:@"creating mod maps directory at '%@'\n", modMapsDirPath]];
         if (![fileManager createDirectoryAtPath:modMapsDirPath withIntermediateDirectories:NO attributes:nil error:&error]) {
-            NSLog(@"failed to create mod maps directory at '%@': %@", modMapsDirPath, [error localizedDescription]);
+            [console logBold:[NSString stringWithFormat:@"Failed to create mod maps directory at '%@': %@\n", modMapsDirPath, [error localizedDescription]]];
             return;
         }
     }
     
     NSString* targetBspPath = [modMapsDirPath stringByAppendingPathComponent:bspFileName];
     if ([fileManager fileExistsAtPath:targetBspPath]) {
-        NSLog(@"removing existing BSP file from '%@'", targetBspPath);
+        [console log:[NSString stringWithFormat:@"Removing existing BSP file '%@'\n", targetBspPath]];
         if (![fileManager removeItemAtPath:targetBspPath error:&error]) {
-            NSLog(@"failed to remove existing BSP file from '%@': %@", targetBspPath, [error localizedDescription]);
+            [console logBold:[NSString stringWithFormat:@"Failed to remove existing BSP file from '%@': %@\n", targetBspPath, [error localizedDescription]]];
             return;
         }
     }
     
     if (![fileManager copyItemAtPath:bspFilePath toPath:targetBspPath error:&error]) {
-        NSLog(@"failed to copy BSP file from '%@' to '%@': %@", bspFilePath, targetBspPath, [error localizedDescription]);
+        [console logBold:[NSString stringWithFormat:@"Failed to copy BSP file from '%@' to '%@': %@\n", bspFilePath, targetBspPath, [error localizedDescription]]];
         return;
     }
     
@@ -973,4 +976,9 @@
 - (MapView3D *)view3D {
     return view3D;
 }
+
+- (Console *)console {
+    return console;
+}
+
 @end
