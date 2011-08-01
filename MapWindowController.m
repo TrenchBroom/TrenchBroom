@@ -641,7 +641,7 @@
     
     subV3f(&center, [camera position], &diff);
     position = center;
-    position.z -= lengthV3f(&diff);
+    position.y -= lengthV3f(&diff);
 
     CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetDirection:&YAxisPos targetUp:&ZAxisPos duration:0.5];
     [animation startAnimation];

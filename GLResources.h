@@ -19,6 +19,7 @@
     GLFontManager* fontManager;
     TextureManager* textureManager;
     EntityRendererManager* entityRendererManager;
+    VBOBuffer* geometryVbo;
     NSData* palette;
 }
 
@@ -29,5 +30,6 @@
 - (GLFontManager *)fontManager;
 - (TextureManager *)textureManager;
 - (EntityRendererManager *)entityRendererManager;
+- (VBOBuffer *)geometryVbo;
 
 @end

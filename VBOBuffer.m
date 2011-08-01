@@ -11,19 +11,6 @@
 
 NSString* const BufferNotMappedException = @"BufferNotMappedException";
 
-CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *context) {
-    VBOMemBlock *block1 = (VBOMemBlock *)val1;
-    VBOMemBlock *block2 = (VBOMemBlock *)val2;
-    
-    if ([block1 capacity] < [block2 capacity])
-        return kCFCompareLessThan;
-    
-    if ([block1 capacity] > [block2 capacity])
-        return kCFCompareGreaterThan;
-    
-    return kCFCompareEqualTo;
-}
-
 @implementation VBOBuffer
 
 - (void)checkChain {
@@ -73,19 +60,36 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     return freeCapacity;
 }
 
-- (unsigned)findMemBlock:(VBOMemBlock *)query {
-    return (unsigned)CFArrayBSearchValues((CFArrayRef)freeBlocksByCapacity, 
-                                          CFRangeMake(0, CFArrayGetCount((CFArrayRef)freeBlocksByCapacity)),
-                                          query,
-                                          (CFComparatorFunction)compareMemBlocks,
-                                          NULL);
+- (unsigned int)findMemBlockWithMinimalCapacity:(int)capacity inRange:(NSRange)range {
+    if (range.length == 1) {
+        VBOMemBlock* block = [freeBlocksByCapacity objectAtIndex:range.location];
+        if ([block capacity] >= capacity)
+            return range.location;
+        else
+            return [freeBlocksByCapacity count];
+    } else {
+        int s = range.length / 2;
+        int l = [self findMemBlockWithMinimalCapacity:capacity 
+                                              inRange:NSMakeRange(range.location, s)];
+        int r = [self findMemBlockWithMinimalCapacity:capacity 
+                                              inRange:NSMakeRange(range.location + s, range.length - s)];
+        if (l < [freeBlocksByCapacity count])
+            return l;
+        return r;
+    }
+}
+
+- (unsigned int)findMemBlockWithMinimalCapacity:(int)capacity {
+    if ([freeBlocksByCapacity count] == 0)
+        return 0;
+    return [self findMemBlockWithMinimalCapacity:capacity inRange:NSMakeRange(0, [freeBlocksByCapacity count])];
 }
 
 - (void)insertFreeMemBlock:(VBOMemBlock *)memBlock {
     if ([memBlock state] != BS_FREE)
         return;
     
-    unsigned index = [self findMemBlock:memBlock];
+    unsigned index = [self findMemBlockWithMinimalCapacity:[memBlock capacity]];
     if (index >= [freeBlocksByCapacity count])
         [freeBlocksByCapacity addObject:memBlock];
     else
@@ -96,7 +100,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
     if ([memBlock state] != BS_FREE)
         return;
     
-    unsigned index = [self findMemBlock:memBlock];
+    unsigned index = [self findMemBlockWithMinimalCapacity:[memBlock capacity]];
     VBOMemBlock* candidate = [freeBlocksByCapacity objectAtIndex:index];
     int i = index;
     
@@ -271,9 +275,7 @@ CFComparisonResult compareMemBlocks(const void *val1, const void *val2, void *co
         return [self allocMemBlock:capacity];
     }
     
-    VBOMemBlock* query = [[VBOMemBlock alloc]initBlockIn:self at:0 capacity:capacity];
-    unsigned index = [self findMemBlock:query];
-    [query release];
+    unsigned index = [self findMemBlockWithMinimalCapacity:capacity];
     
     // todo try to rearrange memory?
     if (index >= [freeBlocksByCapacity count]) {

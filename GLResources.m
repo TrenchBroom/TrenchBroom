@@ -37,6 +37,7 @@
     [fontManager release];
     [textureManager release];
     [palette release];
+    [geometryVbo release];
     [openGLContext release];
     [super dealloc];
 }
@@ -59,6 +60,13 @@
 
 - (EntityRendererManager *)entityRendererManager {
     return entityRendererManager;
+}
+
+- (VBOBuffer *)geometryVbo {
+    if (geometryVbo == nil)
+        geometryVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
+    
+    return geometryVbo;
 }
 
 @end

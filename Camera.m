@@ -301,7 +301,7 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
         return r;
     } else {
         TRay r;
-        r.origin = [self unprojectX:x y:y depth:0.5f];
+        r.origin = [self unprojectX:x y:y depth:0];
         r.direction = direction;
         return r;
     }

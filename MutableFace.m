@@ -256,7 +256,6 @@ static TVector3f baseAxes[18];
     [surfaceToWorldMatrix release];
     [worldToSurfaceMatrix release];
     [memBlock free];
-    [memBlock release];
     [vertices release];
     [edges release];
 	[super dealloc];
@@ -609,8 +608,7 @@ static TVector3f baseAxes[18];
 
 - (void)setMemBlock:(VBOMemBlock *)theBlock {
     [memBlock free];
-    [memBlock release];
-    memBlock = [theBlock retain];
+    memBlock = theBlock;
 }
 
 - (VBOMemBlock *)memBlock {

@@ -289,7 +289,7 @@
 											<object class="NSPSMatrix" key="NSDrawMatrix"/>
 											<string key="NSFrameSize">{1187, 603}</string>
 											<reference key="NSSuperview" ref="332241153"/>
-											<reference key="NSWindow"/>
+											<reference key="NSNextKeyView" ref="680094673"/>
 											<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 												<object class="NSMutableData" key="NSPixelAttributes">
 													<bytes key="NS.bytes">AAAABQAAADsAAABgAAAACAAAAA8AAAALAAAACAAAAAwAAAAYAAAAOAAAAAQAAAA3AAAAAQAAAAA</bytes>
@@ -311,8 +311,7 @@
 															<int key="NSvFlags">2322</int>
 															<string key="NSFrameSize">{1170, 110}</string>
 															<reference key="NSSuperview" ref="590303272"/>
-															<reference key="NSWindow"/>
-															<reference key="NSNextKeyView" ref="1056691606"/>
+															<reference key="NSNextKeyView" ref="751725809"/>
 															<string key="NSReuseIdentifierKey">_NS:3760</string>
 															<object class="NSTextContainer" key="NSTextContainer" id="856376883">
 																<object class="NSLayoutManager" key="NSLayoutManager">
@@ -404,7 +403,6 @@
 													</object>
 													<string key="NSFrame">{{1, 1}, {1170, 110}}</string>
 													<reference key="NSSuperview" ref="680094673"/>
-													<reference key="NSWindow"/>
 													<reference key="NSNextKeyView" ref="584955349"/>
 													<string key="NSReuseIdentifierKey">_NS:3758</string>
 													<reference key="NSDocView" ref="584955349"/>
@@ -442,7 +440,7 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 													<int key="NSvFlags">256</int>
 													<string key="NSFrame">{{1171, 1}, {15, 110}}</string>
 													<reference key="NSSuperview" ref="680094673"/>
-													<reference key="NSWindow"/>
+													<reference key="NSNextKeyView"/>
 													<string key="NSReuseIdentifierKey">_NS:3774</string>
 													<reference key="NSTarget" ref="680094673"/>
 													<string key="NSAction">_doScroller:</string>
@@ -454,7 +452,6 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 													<int key="NSvFlags">-2147483392</int>
 													<string key="NSFrame">{{-100, -100}, {87, 18}}</string>
 													<reference key="NSSuperview" ref="680094673"/>
-													<reference key="NSWindow"/>
 													<reference key="NSNextKeyView" ref="590303272"/>
 													<string key="NSReuseIdentifierKey">_NS:3762</string>
 													<int key="NSsFlags">1</int>
@@ -466,8 +463,7 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 											</object>
 											<string key="NSFrame">{{0, 613}, {1187, 112}}</string>
 											<reference key="NSSuperview" ref="332241153"/>
-											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView" ref="590303272"/>
+											<reference key="NSNextKeyView" ref="1056691606"/>
 											<string key="NSReuseIdentifierKey">_NS:148</string>
 											<int key="NSsFlags">133138</int>
 											<reference key="NSVScroller" ref="751725809"/>
@@ -477,7 +473,6 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 									</object>
 									<string key="NSFrameSize">{1187, 725}</string>
 									<reference key="NSSuperview" ref="636683971"/>
-									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="89083178"/>
 									<string key="NSReuseIdentifierKey">_NS:545</string>
 									<int key="NSDividerStyle">3</int>
@@ -485,7 +480,6 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							</object>
 							<string key="NSFrameSize">{1187, 725}</string>
 							<reference key="NSSuperview" ref="568628114"/>
-							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="332241153"/>
 							<string key="NSReuseIdentifierKey">_NS:597</string>
 							<bool key="NSIsVertical">YES</bool>
@@ -494,13 +488,12 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					</object>
 					<string key="NSFrameSize">{1187, 725}</string>
 					<reference key="NSSuperview"/>
-					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="636683971"/>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {2560, 1418}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMinSize">{94, 164}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
-				<bool key="NSWindowIsRestorable">YES</bool>
+				<bool key="NSWindowIsRestorable">NO</bool>
 			</object>
 			<object class="NSCustomObject" id="796877042">
 				<string key="NSClassName">NSApplication</string>
@@ -775,315 +768,7 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 			<nil key="sourceID"/>
 			<int key="maxID">100298</int>
 		</object>
-		<object class="IBClassDescriber" key="IBDocument.Classes">
-			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
-				<bool key="EncodedWithXMLCoder">YES</bool>
-				<object class="IBPartialClassDescription">
-					<string key="className">MapView3D</string>
-					<string key="superclassName">NSOpenGLView</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/MapView3D.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">MapWindowController</string>
-					<string key="superclassName">NSWindowController</string>
-					<object class="NSMutableDictionary" key="actions">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>compile:</string>
-							<string>copySelection:</string>
-							<string>createBrushEntity:</string>
-							<string>createPointEntity:</string>
-							<string>createPrefabFromSelection:</string>
-							<string>cutSelection:</string>
-							<string>deleteSelection:</string>
-							<string>duplicateSelection:</string>
-							<string>isolateSelection:</string>
-							<string>pasteClipboard:</string>
-							<string>performClip:</string>
-							<string>rotateTextureLeft:</string>
-							<string>rotateTextureRight:</string>
-							<string>rotateZ90CCW:</string>
-							<string>rotateZ90CW:</string>
-							<string>run:</string>
-							<string>selectAll:</string>
-							<string>selectEntity:</string>
-							<string>selectNone:</string>
-							<string>setGridSize:</string>
-							<string>showInspector:</string>
-							<string>shrinkTextureHorizontally:</string>
-							<string>shrinkTextureVertically:</string>
-							<string>stretchTextureHorizontally:</string>
-							<string>stretchTextureVertically:</string>
-							<string>switchToXYView:</string>
-							<string>switchToXZView:</string>
-							<string>switchToYZView:</string>
-							<string>toggleClipMode:</string>
-							<string>toggleClipTool:</string>
-							<string>toggleGrid:</string>
-							<string>toggleProjection:</string>
-							<string>toggleSnap:</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="actionInfosByName">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>compile:</string>
-							<string>copySelection:</string>
-							<string>createBrushEntity:</string>
-							<string>createPointEntity:</string>
-							<string>createPrefabFromSelection:</string>
-							<string>cutSelection:</string>
-							<string>deleteSelection:</string>
-							<string>duplicateSelection:</string>
-							<string>isolateSelection:</string>
-							<string>pasteClipboard:</string>
-							<string>performClip:</string>
-							<string>rotateTextureLeft:</string>
-							<string>rotateTextureRight:</string>
-							<string>rotateZ90CCW:</string>
-							<string>rotateZ90CW:</string>
-							<string>run:</string>
-							<string>selectAll:</string>
-							<string>selectEntity:</string>
-							<string>selectNone:</string>
-							<string>setGridSize:</string>
-							<string>showInspector:</string>
-							<string>shrinkTextureHorizontally:</string>
-							<string>shrinkTextureVertically:</string>
-							<string>stretchTextureHorizontally:</string>
-							<string>stretchTextureVertically:</string>
-							<string>switchToXYView:</string>
-							<string>switchToXZView:</string>
-							<string>switchToYZView:</string>
-							<string>toggleClipMode:</string>
-							<string>toggleClipTool:</string>
-							<string>toggleGrid:</string>
-							<string>toggleProjection:</string>
-							<string>toggleSnap:</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBActionInfo">
-								<string key="name">compile:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">copySelection:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">createBrushEntity:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">createPointEntity:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">createPrefabFromSelection:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">cutSelection:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">deleteSelection:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">duplicateSelection:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">isolateSelection:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">pasteClipboard:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">performClip:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">rotateTextureLeft:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">rotateTextureRight:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">rotateZ90CCW:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">rotateZ90CW:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">run:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">selectAll:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">selectEntity:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">selectNone:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">setGridSize:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">showInspector:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">shrinkTextureHorizontally:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">shrinkTextureVertically:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">stretchTextureHorizontally:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">stretchTextureVertically:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">switchToXYView:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">switchToXZView:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">switchToYZView:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">toggleClipMode:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">toggleClipTool:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">toggleGrid:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">toggleProjection:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">toggleSnap:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="outlets">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>consoleTextView</string>
-							<string>splitView</string>
-							<string>view3D</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSTextView</string>
-							<string>NSSplitView</string>
-							<string>MapView3D</string>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>consoleTextView</string>
-							<string>splitView</string>
-							<string>view3D</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBToOneOutletInfo">
-								<string key="name">consoleTextView</string>
-								<string key="candidateClassName">NSTextView</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">splitView</string>
-								<string key="candidateClassName">NSSplitView</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">view3D</string>
-								<string key="candidateClassName">MapView3D</string>
-							</object>
-						</object>
-					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/MapWindowController.h</string>
-					</object>
-				</object>
-			</object>
-		</object>
+		<object class="IBClassDescriber" key="IBDocument.Classes"/>
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDependencyDefaults">

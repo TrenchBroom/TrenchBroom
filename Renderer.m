@@ -501,11 +501,11 @@ NSString* const RendererChanged = @"RendererChanged";
     if ((self = [self init])) {
         windowController = theWindowController;
 
-        sharedVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
         invalidFaces = [[NSMutableSet alloc] init];
         
         MapDocument* map = [windowController document];
         GLResources* glResources = [map glResources];
+        sharedVbo = [[glResources geometryVbo] retain];
         textureManager = [[glResources textureManager] retain];
         
         SelectionManager* selectionManager = [windowController selectionManager];

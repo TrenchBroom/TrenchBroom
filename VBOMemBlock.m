@@ -138,4 +138,12 @@
     [vboBuffer freeMemBlock:self];
 }
 
+- (id)retain {
+    return [super retain];
+}
+
+- (oneway void)release {
+    [super release];
+}
+
 @end
