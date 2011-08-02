@@ -14,8 +14,14 @@
 
 @protocol BrushLayer <Layer>
 
+- (void)addBrushes:(NSSet *)theBrushes;
+- (void)removeBrushes:(NSSet *)theBrushes;
+
 - (void)addBrush:(id <Brush>)theBrush;
 - (void)removeBrush:(id <Brush>)theBrush;
+
+- (void)addFaces:(NSSet *)theFaces;
+- (void)removeFaces:(NSSet *)theFaces;
 
 - (void)addFace:(id <Face>)theFace;
 - (void)removeFace:(id <Face>)theFace;

@@ -11,7 +11,6 @@
 #import "TextureViewLayoutCell.h"
 #import "GLFontManager.h"
 #import "GLString.h"
-#import "math.h"
 
 @implementation TextureViewLayout
 

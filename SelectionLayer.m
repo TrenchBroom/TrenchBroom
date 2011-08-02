@@ -140,6 +140,67 @@
     return YES;
 }
 
+- (void)addEntities:(NSSet *)theEntities {
+    NSAssert(theEntities != nil, @"entity set must not be nil");
+    [addedEntities unionSet:theEntities];
+
+    if ([selectionManager mode] == SM_BRUSHES_ENTITIES) {
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        [brushBoundsRenderer setBounds:&bounds];
+    }
+}
+
+- (void)removeEntities:(NSSet *)theEntities {
+    NSAssert(theEntities != nil, @"entity set must not be nil");
+    
+    NSMutableSet* remove = [[NSMutableSet alloc] initWithSet:theEntities];
+    [remove minusSet:addedEntities];
+    [addedEntities minusSet:remove];
+    [removedEntities unionSet:remove];
+    [remove release];
+
+    if ([selectionManager mode] == SM_BRUSHES_ENTITIES || [selectionManager mode] == SM_BRUSHES) {
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        [brushBoundsRenderer setBounds:&bounds];
+    }
+}
+
+- (void)addBrushes:(NSSet *)theBrushes {
+    [super addBrushes:theBrushes];
+    
+    TBoundingBox bounds;
+    [selectionManager selectionBounds:&bounds];
+    [brushBoundsRenderer setBounds:&bounds];
+}
+
+- (void)removeBrushes:(NSSet *)theBrushes {
+    [super removeBrushes:theBrushes];
+    
+    if ([selectionManager mode] == SM_BRUSHES_ENTITIES || [selectionManager mode] == SM_BRUSHES) {
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        [brushBoundsRenderer setBounds:&bounds];
+    }
+}
+
+- (void)addFaces:(NSSet *)theFaces {
+    [super addFaces:theFaces];
+    
+    TBoundingBox bounds;
+    [selectionManager selectionBounds:&bounds];
+    [brushBoundsRenderer setBounds:&bounds];
+}
+
+- (void)removeFaces:(NSSet *)theFaces {
+    [super removeFaces:theFaces];
+    
+    TBoundingBox bounds;
+    [selectionManager selectionBounds:&bounds];
+    [brushBoundsRenderer setBounds:&bounds];
+}
+
 - (void)addEntity:(id <Entity>)entity {
     [addedEntities addObject:entity];
     

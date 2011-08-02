@@ -51,6 +51,12 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)validate;
 
+- (void)addFaces:(NSSet *)theFaces;
+- (void)removeFaces:(NSSet *)theFaces;
+- (void)addBrushes:(NSSet *)theBrushes;
+- (void)removeBrushes:(NSSet *)theBrushes;
+- (void)addEntities:(NSSet *)theEntities;
+- (void)removeEntities:(NSSet *)theEntities;
 - (void)addFace:(id <Face>)face;
 - (void)removeFace:(id <Face>)face;
 - (void)addBrush:(id <Brush>)brush;
@@ -140,6 +146,130 @@ NSString* const RendererChanged = @"RendererChanged";
     [sharedVbo deactivate];
 }
 
+- (void)addFaces:(NSSet *)theFaces {
+    [invalidFaces unionSet:theFaces];
+    
+    SelectionManager* selectionManager = [windowController selectionManager];
+    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedFaces]];
+    [selected unionSet:[selectionManager selectedBrushFaces]];
+
+    [selected intersectSet:theFaces];
+    if ([selected count] > 0) {
+        [selectionLayer addFaces:selected];
+        NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theFaces];
+        [unselected minusSet:selected];
+        [geometryLayer addFaces:unselected];
+        [unselected release];
+    } else {
+        [geometryLayer addFaces:theFaces];
+    }
+    
+    [selected release];
+}
+
+- (void)removeFaces:(NSSet *)theFaces {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedFaces]];
+    [selected unionSet:[selectionManager selectedBrushFaces]];
+    
+    [selected intersectSet:theFaces];
+    if ([selected count] > 0) {
+        [selectionLayer removeFaces:selected];
+        NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theFaces];
+        [unselected minusSet:selected];
+        [geometryLayer removeFaces:unselected];
+        [unselected release];
+    } else {
+        [geometryLayer removeFaces:theFaces];
+    }
+    
+    [selected release];
+}
+
+- (void)addBrushes:(NSSet *)theBrushes {
+    NSMutableSet* faces = [[NSMutableSet alloc] init];
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject]))
+        [faces addObjectsFromArray:[brush faces]];
+    [self addFaces:faces];
+    [faces release];
+}
+
+- (void)removeBrushes:(NSSet *)theBrushes {
+    NSMutableSet* faces = [[NSMutableSet alloc] init];
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject]))
+        [faces addObjectsFromArray:[brush faces]];
+    [self removeFaces:faces];
+    [faces release];
+}
+
+- (void)addEntities:(NSSet *)theEntities {
+    id <Entity> worldspawn = nil;
+    NSMutableSet* brushes = [[NSMutableSet alloc] init];
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject])) {
+        [brushes addObjectsFromArray:[entity brushes]];
+        if ([entity isWorldspawn])
+            worldspawn = entity;
+    }
+
+    [self addBrushes:brushes];
+    [brushes release];
+
+    SelectionManager* selectionManager = [windowController selectionManager];
+    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedEntities]];
+    [selected intersectSet:theEntities];
+    if (worldspawn != nil)
+        [selected removeObject:worldspawn];
+    
+    if ([selected count] > 0) {
+        [selectionLayer addEntities:selected];
+        NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theEntities];
+        [unselected minusSet:selected];
+        if (worldspawn != nil)
+            [unselected removeObject:worldspawn];
+        
+        [entityLayer addEntities:unselected];
+        [unselected release];
+    } else {
+        [entityLayer addEntities:theEntities];
+    }
+
+    if (worldspawn != nil) {
+        NSArray* mods = modListFromWorldspawn(worldspawn);
+        [entityLayer setMods:mods];
+        [selectionLayer setMods:mods];
+    }
+}
+
+- (void)removeEntities:(NSSet *)theEntities {
+    NSMutableSet* brushes = [[NSMutableSet alloc] init];
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject]))
+        [brushes addObjectsFromArray:[entity brushes]];
+    
+    [self removeBrushes:brushes];
+    [brushes release];
+    
+    SelectionManager* selectionManager = [windowController selectionManager];
+    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedEntities]];
+    [selected intersectSet:theEntities];
+    if ([selected count] > 0) {
+        [selectionLayer removeEntities:selected];
+        NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theEntities];
+        [unselected minusSet:selected];
+        [entityLayer removeEntities:unselected];
+        [unselected release];
+    } else {
+        [entityLayer removeEntities:theEntities];
+    }
+}
+
 - (void)addFace:(id <Face>)face {
     [invalidFaces addObject:face];
      
@@ -161,24 +291,21 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)addBrush:(id <Brush>)brush {
-    NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [self addFace:face];
+    NSSet* faces = [[NSMutableSet alloc] initWithArray:[brush faces]];
+    [self addFaces:faces];
+    [faces release];
 }
 
 - (void)removeBrush:(id <Brush>)brush {
-    NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [self removeFace:face];
+    NSSet* faces = [[NSMutableSet alloc] initWithArray:[brush faces]];
+    [self removeFaces:faces];
+    [faces release];
 }
 
 - (void)addEntity:(id <Entity>)entity {
-    NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
-        [self addBrush:brush];
+    NSSet* brushes = [[NSSet alloc] initWithArray:[entity brushes]];
+    [self addBrushes:brushes];
+    [brushes release];
     
     if (![entity isWorldspawn]) {
         SelectionManager* selectionManager = [windowController selectionManager];
@@ -194,11 +321,10 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)removeEntity:(id <Entity>)entity {
-    NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
-        [self removeBrush:brush];
-
+    NSSet* brushes = [[NSSet alloc] initWithArray:[entity brushes]];
+    [self removeBrushes:brushes];
+    [brushes release];
+    
     SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager isEntitySelected:entity])
         [selectionLayer removeEntity:entity];
@@ -209,35 +335,13 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)facesWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* faces = [userInfo objectForKey:FacesKey];
-    
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
-        SelectionManager* selectionManager = [windowController selectionManager];
-        if ([selectionManager isFaceSelected:face]) {
-            [selectionLayer removeFace:face];
-        } else {
-            [geometryLayer removeFace:face];
-        }
-    }
+    [self removeFaces:faces];
 }
 
 - (void)facesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* faces = [userInfo objectForKey:FacesKey];
-    
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
-        [invalidFaces addObject:face];
-        
-        SelectionManager* selectionManager = [windowController selectionManager];
-        if ([selectionManager isFaceSelected:face]) {
-            [selectionLayer addFace:face];
-        } else {
-            [geometryLayer addFace:face];
-        }
-    }
+    [self addFaces:faces];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -245,7 +349,9 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)brushesWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* brushes = [userInfo objectForKey:BrushesKey];
-    
+    [self removeBrushes:brushes];
+
+    /*
     NSEnumerator* brushEn = [brushes objectEnumerator];
     id <Brush> brush;
     while ((brush = [brushEn nextObject])) {
@@ -256,12 +362,15 @@ NSString* const RendererChanged = @"RendererChanged";
         else
             [self removeBrush:brush];
     }
+     */
 }
 
 - (void)brushesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    [self addBrushes:brushes];
     
+    /*
     NSEnumerator* brushEn = [brushes objectEnumerator];
     id <Brush> brush;
     while ((brush = [brushEn nextObject])) {
@@ -272,6 +381,7 @@ NSString* const RendererChanged = @"RendererChanged";
         else
             [self addBrush:brush];
     }
+     */
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -279,23 +389,15 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)brushesAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* brushes = [userInfo objectForKey:BrushesKey];
-    
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
-        [self addBrush:brush];
-    
+    [self addBrushes:brushes];
+
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)brushesWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* brushes = [userInfo objectForKey:BrushesKey];
-    
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
-        [self removeBrush:brush];
+    [self removeBrushes:brushes];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -303,11 +405,7 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)entitiesAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* entities = [userInfo objectForKey:EntitiesKey];
-    
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject]))
-        [self addEntity:entity];
+    [self addEntities:entities];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -315,11 +413,7 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)entitiesWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* entities = [userInfo objectForKey:EntitiesKey];
-    
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject]))
-        [self removeEntity:entity];
+    [self removeEntities:entities];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -361,32 +455,18 @@ NSString* const RendererChanged = @"RendererChanged";
     NSSet* faces = [userInfo objectForKey:SelectionFaces];
     
     if (entities != nil) {
-        NSEnumerator* entityEn = [entities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
-            if (![entity isWorldspawn]) {
-                [entityLayer removeEntity:entity];
-                [selectionLayer addEntity:entity];
-            }
-        }
+        [entityLayer removeEntities:entities];
+        [selectionLayer addEntities:entities];
     }
     
     if (brushes != nil) {
-        NSEnumerator* brushEn = [brushes objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            [geometryLayer removeBrush:brush];
-            [selectionLayer addBrush:brush];
-        }
+        [geometryLayer removeBrushes:brushes];
+        [selectionLayer addBrushes:brushes];
     }
     
     if (faces != nil) {
-        NSEnumerator* faceEn = [faces objectEnumerator];
-        id <Face> face;
-        while ((face = [faceEn nextObject])) {
-            [geometryLayer removeFace:face];
-            [selectionLayer addFace:face];
-        }
+        [geometryLayer removeFaces:faces];
+        [selectionLayer addFaces:faces];
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -399,32 +479,18 @@ NSString* const RendererChanged = @"RendererChanged";
     NSSet* faces = [userInfo objectForKey:SelectionFaces];
     
     if (entities != nil) {
-        NSEnumerator* entityEn = [entities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
-            if (![entity isWorldspawn]) {
-                [selectionLayer removeEntity:entity];
-                [entityLayer addEntity:entity];
-            }
-        }
+        [selectionLayer removeEntities:entities];
+        [entityLayer addEntities:entities];
     }
     
     if (brushes != nil) {
-        NSEnumerator* brushEn = [brushes objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            [selectionLayer removeBrush:brush];
-            [geometryLayer addBrush:brush];
-        }
+        [selectionLayer removeBrushes:brushes];
+        [geometryLayer addBrushes:brushes];
     }
     
     if (faces != nil) {
-        NSEnumerator* faceEn = [faces objectEnumerator];
-        id <Face> face;
-        while ((face = [faceEn nextObject])) {
-            [selectionLayer removeFace:face];
-            [geometryLayer addFace:face];
-        }
+        [selectionLayer removeFaces:faces];
+        [geometryLayer addFaces:faces];
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];

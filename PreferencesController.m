@@ -107,7 +107,7 @@ static PreferencesController* sharedInstance = nil;
 }
 
 - (NSString *)windowNibName {
-    return @"Preferences";
+    return @"PreferencesWindow";
 }
 
 - (void)windowDidLoad {

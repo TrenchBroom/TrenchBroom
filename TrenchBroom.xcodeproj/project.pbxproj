@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1DDD582C0DA1D0D100B32029 /* MapDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58280DA1D0D100B32029 /* MapDocument.xib */; };
+		1DDD582C0DA1D0D100B32029 /* MapDocumentWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58280DA1D0D100B32029 /* MapDocumentWindow.xib */; };
 		1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD582A0DA1D0D100B32029 /* MainMenu.xib */; };
 		4809A10F13E2A2E300AF6557 /* InspectorView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4809A10E13E2A2E300AF6557 /* InspectorView.xib */; };
 		480AD8B612ED78FA009B5970 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B512ED78FA009B5970 /* Edge.m */; };
@@ -27,7 +27,7 @@
 		481BF7A513A4B0880040580B /* EntityAliasRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 481BF7A413A4B0880040580B /* EntityAliasRenderer.m */; };
 		481BF7AC13A4B5220040580B /* AliasRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 481BF7AB13A4B5220040580B /* AliasRenderer.m */; };
 		481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 481D300F12FAE5C0001CBD9E /* GLFontManager.m */; };
-		482A2C1E13A8ACF7009FEFC2 /* Preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 482A2C1D13A8ACF7009FEFC2 /* Preferences.xib */; };
+		482A2C1E13A8ACF7009FEFC2 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 482A2C1D13A8ACF7009FEFC2 /* PreferencesWindow.xib */; };
 		482B817E13169EB200F36EF5 /* GLException.m in Sources */ = {isa = PBXBuildFile; fileRef = 482B817D13169EB200F36EF5 /* GLException.m */; };
 		482F0050134107DC00849BF5 /* ClipLineFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482F004F134107DC00849BF5 /* ClipLineFeedbackFigure.m */; };
 		482F008213410F7400849BF5 /* ClipPlaneFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482F008113410F7400849BF5 /* ClipPlaneFeedbackFigure.m */; };
@@ -217,7 +217,7 @@
 		089C1660FE840EACC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FBA07B3F13500E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
-		1DDD58290DA1D0D100B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MapDocument.xib; sourceTree = "<group>"; };
+		1DDD58290DA1D0D100B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MapDocumentWindow.xib; sourceTree = "<group>"; };
 		1DDD582B0DA1D0D100B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		2564AD2C0F5327BB00F57823 /* TrenchBroom_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroom_Prefix.pch; sourceTree = "<group>"; };
 		2A37F4B0FDCFA73011CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -260,7 +260,7 @@
 		481BF7AB13A4B5220040580B /* AliasRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AliasRenderer.m; sourceTree = "<group>"; };
 		481D300E12FAE5C0001CBD9E /* GLFontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFontManager.h; sourceTree = "<group>"; };
 		481D300F12FAE5C0001CBD9E /* GLFontManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLFontManager.m; sourceTree = "<group>"; };
-		482A2C1D13A8ACF7009FEFC2 /* Preferences.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Preferences.xib; sourceTree = "<group>"; };
+		482A2C1D13A8ACF7009FEFC2 /* PreferencesWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindow.xib; sourceTree = "<group>"; };
 		482B817C13169EB200F36EF5 /* GLException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLException.h; sourceTree = "<group>"; };
 		482B817D13169EB200F36EF5 /* GLException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLException.m; sourceTree = "<group>"; };
 		482F004E134107DC00849BF5 /* ClipLineFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipLineFeedbackFigure.h; sourceTree = "<group>"; };
@@ -651,12 +651,12 @@
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
 				8D15AC360486D014006FF6A4 /* TrenchBroom-Info.plist */,
 				089C165FFE840EACC02AAC07 /* InfoPlist.strings */,
-				1DDD58280DA1D0D100B32029 /* MapDocument.xib */,
+				1DDD58280DA1D0D100B32029 /* MapDocumentWindow.xib */,
 				1DDD582A0DA1D0D100B32029 /* MainMenu.xib */,
 				4814A02212F73F1E0082E05F /* ProgressWindow.xib */,
 				48B3255F12E2D760008748E2 /* Defaults.plist */,
 				48B5A18C131EE2DB0043FBD9 /* PrefabNameSheet.xib */,
-				482A2C1D13A8ACF7009FEFC2 /* Preferences.xib */,
+				482A2C1D13A8ACF7009FEFC2 /* PreferencesWindow.xib */,
 				4898D9B613E1718C00B9C8F1 /* DragImageWindow.xib */,
 				4809A10E13E2A2E300AF6557 /* InspectorView.xib */,
 				48976C7213E2BA63005AB1EA /* InspectorWindow.xib */,
@@ -1317,14 +1317,14 @@
 			files = (
 				8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */,
 				8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */,
-				1DDD582C0DA1D0D100B32029 /* MapDocument.xib in Resources */,
+				1DDD582C0DA1D0D100B32029 /* MapDocumentWindow.xib in Resources */,
 				1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */,
 				48B3256012E2D760008748E2 /* Defaults.plist in Resources */,
 				48639BF412EA227100808576 /* QuakePalette.lmp in Resources */,
 				4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */,
 				48B5A18D131EE2DB0043FBD9 /* PrefabNameSheet.xib in Resources */,
 				48FE96091363279D009B31FD /* quake.def in Resources */,
-				482A2C1E13A8ACF7009FEFC2 /* Preferences.xib in Resources */,
+				482A2C1E13A8ACF7009FEFC2 /* PreferencesWindow.xib in Resources */,
 				48ACEC9913E162A900FEB81B /* DragPlaceholder.png in Resources */,
 				4898D9B713E1718C00B9C8F1 /* DragImageWindow.xib in Resources */,
 				4809A10F13E2A2E300AF6557 /* InspectorView.xib in Resources */,
@@ -1505,12 +1505,12 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		1DDD58280DA1D0D100B32029 /* MapDocument.xib */ = {
+		1DDD58280DA1D0D100B32029 /* MapDocumentWindow.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
 				1DDD58290DA1D0D100B32029 /* English */,
 			);
-			name = MapDocument.xib;
+			name = MapDocumentWindow.xib;
 			sourceTree = "<group>";
 		};
 		1DDD582A0DA1D0D100B32029 /* MainMenu.xib */ = {

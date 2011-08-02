@@ -96,6 +96,21 @@
     [super dealloc];
 }
 
+- (void)addEntities:(NSSet *)theEntities {
+    NSAssert(theEntities != nil, @"entity set must not be nil");
+    [addedEntities unionSet:theEntities];
+}
+
+- (void)removeEntities:(NSSet *)theEntities {
+    NSAssert(theEntities != nil, @"entity set must not be nil");
+    
+    NSMutableSet* remove = [[NSMutableSet alloc] initWithSet:theEntities];
+    [remove minusSet:addedEntities];
+    [addedEntities minusSet:remove];
+    [removedEntities unionSet:remove];
+    [remove release];
+}
+
 - (void)addEntity:(id <Entity>)entity {
     [addedEntities addObject:entity];
 }

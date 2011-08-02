@@ -213,7 +213,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 }
 
 - (void)makeWindowControllers {
-	MapWindowController* controller = [[MapWindowController alloc] initWithWindowNibName:@"MapDocument"];
+	MapWindowController* controller = [[MapWindowController alloc] initWithWindowNibName:@"MapDocumentWindow"];
 	[self addWindowController:controller];
     [controller release];
 }

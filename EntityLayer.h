@@ -13,6 +13,9 @@
 
 @protocol EntityLayer <Layer>
 
+- (void)addEntities:(NSSet *)theEntities;
+- (void)removeEntities:(NSSet *)theEntities;
+
 - (void)addEntity:(id <Entity>)entity;
 - (void)removeEntity:(id <Entity>)entity;
 - (void)updateEntity:(id <Entity>)entity;

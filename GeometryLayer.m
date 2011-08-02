@@ -46,22 +46,64 @@
     return self;
 }
 
+- (void)addBrushes:(NSSet *)theBrushes {
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+
+    if ([theBrushes count] == 0)
+        return;
+    
+    NSMutableSet* add = [[NSMutableSet alloc] init];
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject]))
+        [add addObjectsFromArray:[brush faces]];
+    
+    [self addFaces:add];
+    [add release];
+}
+
+- (void)removeBrushes:(NSSet *)theBrushes {
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+    
+    if ([theBrushes count] == 0)
+        return;
+    
+    NSMutableSet* remove = [[NSMutableSet alloc] init];
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject]))
+        [remove addObjectsFromArray:[brush faces]];
+    
+    [self removeFaces:remove];
+    [remove release];
+}
+
 - (void)addBrush:(id <Brush>)theBrush {
     NSAssert(theBrush != nil, @"brush must not be nil");
-    
-    NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [self addFace:face];
+    NSSet* add = [[NSSet alloc] initWithArray:[theBrush faces]];
+    [self addFaces:add];
+    [add release];
 }
 
 - (void)removeBrush:(id <Brush>)theBrush {
     NSAssert(theBrush != nil, @"brush must not be nil");
-    
-    NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [self removeFace:face];
+    NSSet* remove = [[NSSet alloc] initWithArray:[theBrush faces]];
+    [self removeFaces:remove];
+    [remove release];
+}
+
+- (void)addFaces:(NSSet *)theFaces {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    [addedFaces unionSet:theFaces];
+}
+
+- (void)removeFaces:(NSSet *)theFaces {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    NSMutableSet* remaining = [[NSMutableSet alloc] initWithSet:theFaces];
+    [remaining minusSet:addedFaces];
+    [addedFaces minusSet:theFaces];
+    [removedFaces unionSet:remaining];
+    [remaining release];
 }
 
 - (void)addFace:(id <Face>)theFace {
