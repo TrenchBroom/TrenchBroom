@@ -13,6 +13,12 @@
     @private
     NSMutableArray* hitList;
     BOOL sorted;
+    BOOL cachedHitValid[2][HT_ANY];
+    BOOL cachedHitListValid[HT_ANY];
+    BOOL cachedObjectSetValid[HT_ANY];
+    PickingHit* cachedHit[2][HT_ANY];
+    NSArray* cachedHitList[HT_ANY];
+    NSSet* cachedObjectSet[HT_ANY];
 }
 
 - (void)addHit:(PickingHit *)theHit;

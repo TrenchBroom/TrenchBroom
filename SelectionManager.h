@@ -15,6 +15,7 @@ extern NSString* const SelectionRemoved;
 extern NSString* const SelectionEntities;
 extern NSString* const SelectionBrushes;
 extern NSString* const SelectionFaces;
+extern NSString* const SelectionVertices;
 
 typedef enum {
     SM_UNDEFINED,
@@ -28,13 +29,11 @@ typedef enum {
 @protocol Brush;
 @protocol Entity;
 
-@class Edge;
-@class Vertex;
-
 @interface SelectionManager : NSObject {
     @private
     NSUndoManager* undoManager;
     NSMutableSet* faces;
+    NSMutableSet* partialBrushes;
     NSMutableSet* brushes;
     NSMutableSet* entities;
     ESelectionMode mode;
@@ -53,12 +52,13 @@ typedef enum {
 - (BOOL)isFaceSelected:(id <Face>)face;
 - (BOOL)isBrushSelected:(id <Brush>)brush;
 - (BOOL)isEntitySelected:(id <Entity>)entity;
-- (BOOL)hasSelectedFaces:(id <Brush>)brush;
+- (BOOL)isBrushPartiallySelected:(id <Brush>)brush;
 
 - (NSSet *)selectedEntities;
 - (NSSet *)selectedBrushes;
 - (NSSet *)selectedFaces;
 - (NSSet *)selectedBrushFaces;
+- (NSSet *)partiallySelectedBrushes;
 - (BOOL)selectionCenter:(TVector3f *)result;
 - (BOOL)selectionBounds:(TBoundingBox *)result;
 - (id <Entity>)brushSelectionEntity;

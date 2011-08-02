@@ -126,6 +126,8 @@
 		4898D9C813E199F800B9C8F1 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9C713E199F800B9C8F1 /* PreferencesController.m */; };
 		4898D9CC13E1A2A200B9C8F1 /* QuakePathFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */; };
 		489C061913C9EBA400D9D693 /* GLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 489C061813C9EBA400D9D693 /* GLUtils.m */; };
+		48A023CA13E8251F004F34A4 /* VertexRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A023C913E8251F004F34A4 /* VertexRenderer.m */; };
+		48A023CE13E83514004F34A4 /* VertexTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A023CD13E83514004F34A4 /* VertexTool.m */; };
 		48A269E313C73BFA00703BC1 /* EntityInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A269E213C73BFA00703BC1 /* EntityInfo.m */; };
 		48A5FD4C13C5E7C6009D086C /* BspManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A5FD4B13C5E7C6009D086C /* BspManager.m */; };
 		48A5FD5013C5E9F8009D086C /* BspRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A5FD4F13C5E9F8009D086C /* BspRenderer.m */; };
@@ -460,6 +462,10 @@
 		4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuakePathFormatter.m; sourceTree = "<group>"; };
 		489C061713C9EBA400D9D693 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLUtils.h; sourceTree = "<group>"; };
 		489C061813C9EBA400D9D693 /* GLUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLUtils.m; sourceTree = "<group>"; };
+		48A023C813E8251F004F34A4 /* VertexRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexRenderer.h; sourceTree = "<group>"; };
+		48A023C913E8251F004F34A4 /* VertexRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexRenderer.m; sourceTree = "<group>"; };
+		48A023CC13E83514004F34A4 /* VertexTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexTool.h; sourceTree = "<group>"; };
+		48A023CD13E83514004F34A4 /* VertexTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexTool.m; sourceTree = "<group>"; };
 		48A269E113C73BFA00703BC1 /* EntityInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityInfo.h; sourceTree = "<group>"; };
 		48A269E213C73BFA00703BC1 /* EntityInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityInfo.m; sourceTree = "<group>"; };
 		48A5FD4A13C5E7C6009D086C /* BspManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspManager.h; sourceTree = "<group>"; };
@@ -712,6 +718,8 @@
 				48150C9413CDF1E1009D16B9 /* EntityClassnameAnchor.m */,
 				48AF852F13D180CE00B62317 /* EntityRendererManager.h */,
 				48AF853013D180D000B62317 /* EntityRendererManager.m */,
+				48A023C813E8251F004F34A4 /* VertexRenderer.h */,
+				48A023C913E8251F004F34A4 /* VertexRenderer.m */,
 			);
 			name = PrimitiveRenderer;
 			sourceTree = "<group>";
@@ -835,6 +843,8 @@
 				486E08B213B5EF2C00E751A6 /* RotateFeedbackFigure.m */,
 				486A68C213C1B0CE00707AC1 /* RotateCursor.h */,
 				486A68C313C1B0CF00707AC1 /* RotateCursor.m */,
+				48A023CC13E83514004F34A4 /* VertexTool.h */,
+				48A023CD13E83514004F34A4 /* VertexTool.m */,
 			);
 			name = Tool;
 			sourceTree = "<group>";
@@ -1491,6 +1501,8 @@
 				48AC3E6313E3D00C008F4BF8 /* PreferencesManager.m in Sources */,
 				48AC3E6F13E418AC008F4BF8 /* MapCompiler.m in Sources */,
 				4893189D13E5695D00713E5F /* Console.m in Sources */,
+				48A023CA13E8251F004F34A4 /* VertexRenderer.m in Sources */,
+				48A023CE13E83514004F34A4 /* VertexTool.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

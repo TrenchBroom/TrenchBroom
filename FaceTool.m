@@ -133,11 +133,17 @@
     if (hit == nil)
         return;
     
-    id <Face> face = [hit object];
+    MapDocument* map = [windowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager setGroupsByEvent:NO];
+    [undoManager beginUndoGrouping];
 
+    id <Face> face = [hit object];
     SelectionManager* selectionManager = [windowController selectionManager];
-    if (![selectionManager isFaceSelected:face])
-        return;
+    if (![selectionManager isFaceSelected:face]) {
+        [selectionManager removeAll:YES];
+        [selectionManager addFace:face record:YES];
+    }
     
     dragDir = *[face norm];
     lastPoint = *[hit hitPoint];
@@ -151,11 +157,6 @@
     [grid snapToGridV3f:&lastPoint result:&lastPoint];
 
     drag = YES;
-    
-    MapDocument* map = [windowController document];
-    NSUndoManager* undoManager = [map undoManager];
-    [undoManager setGroupsByEvent:NO];
-    [undoManager beginUndoGrouping];
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

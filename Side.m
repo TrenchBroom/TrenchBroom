@@ -99,9 +99,10 @@
     int splitIndex1 = -2;
     int splitIndex2 = -2;
 
-    EEdgeMark lastMark = [[edges lastObject] mark];
+    Edge* edge = [edges lastObject];
+    EEdgeMark lastMark = [edge mark];
     for (int i = 0; i < [edges count]; i++) {
-        Edge* edge = [edges objectAtIndex:i];
+        edge = [edges objectAtIndex:i];
         EEdgeMark currentMark = [edge mark];
         if (currentMark == EM_SPLIT) {
             if ([[edge startVertexForSide:self] mark] == VM_KEEP)
@@ -163,7 +164,6 @@
 
     [vertices removeAllObjects];
     NSEnumerator* edgeEn = [edges objectEnumerator];
-    Edge* edge;
     while ((edge = [edgeEn nextObject]))
         [vertices addObject:[edge startVertexForSide:self]];
     

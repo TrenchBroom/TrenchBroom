@@ -90,6 +90,14 @@ NSString* const RendererChanged = @"RendererChanged";
 @implementation Renderer (private)
 
 - (void)validate {
+    if ([invalidBrushes count] > 0) {
+        NSEnumerator* brushEn = [invalidBrushes objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject]))
+            [invalidFaces addObjectsFromArray:[brush faces]];
+        [invalidBrushes removeAllObjects];
+    }
+    
     if ([invalidFaces count] == 0)
         return;
     
@@ -146,66 +154,6 @@ NSString* const RendererChanged = @"RendererChanged";
     [sharedVbo deactivate];
 }
 
-- (void)addFaces:(NSSet *)theFaces {
-    [invalidFaces unionSet:theFaces];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedFaces]];
-    [selected unionSet:[selectionManager selectedBrushFaces]];
-
-    [selected intersectSet:theFaces];
-    if ([selected count] > 0) {
-        [selectionLayer addFaces:selected];
-        NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theFaces];
-        [unselected minusSet:selected];
-        [geometryLayer addFaces:unselected];
-        [unselected release];
-    } else {
-        [geometryLayer addFaces:theFaces];
-    }
-    
-    [selected release];
-}
-
-- (void)removeFaces:(NSSet *)theFaces {
-    SelectionManager* selectionManager = [windowController selectionManager];
-    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedFaces]];
-    [selected unionSet:[selectionManager selectedBrushFaces]];
-    
-    [selected intersectSet:theFaces];
-    if ([selected count] > 0) {
-        [selectionLayer removeFaces:selected];
-        NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theFaces];
-        [unselected minusSet:selected];
-        [geometryLayer removeFaces:unselected];
-        [unselected release];
-    } else {
-        [geometryLayer removeFaces:theFaces];
-    }
-    
-    [selected release];
-}
-
-- (void)addBrushes:(NSSet *)theBrushes {
-    NSMutableSet* faces = [[NSMutableSet alloc] init];
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
-        [faces addObjectsFromArray:[brush faces]];
-    [self addFaces:faces];
-    [faces release];
-}
-
-- (void)removeBrushes:(NSSet *)theBrushes {
-    NSMutableSet* faces = [[NSMutableSet alloc] init];
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
-        [faces addObjectsFromArray:[brush faces]];
-    [self removeFaces:faces];
-    [faces release];
-}
-
 - (void)addEntities:(NSSet *)theEntities {
     id <Entity> worldspawn = nil;
     NSMutableSet* brushes = [[NSMutableSet alloc] init];
@@ -216,10 +164,10 @@ NSString* const RendererChanged = @"RendererChanged";
         if ([entity isWorldspawn])
             worldspawn = entity;
     }
-
+    
     [self addBrushes:brushes];
     [brushes release];
-
+    
     SelectionManager* selectionManager = [windowController selectionManager];
     NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedEntities]];
     [selected intersectSet:theEntities];
@@ -238,7 +186,7 @@ NSString* const RendererChanged = @"RendererChanged";
     } else {
         [entityLayer addEntities:theEntities];
     }
-
+    
     if (worldspawn != nil) {
         NSArray* mods = modListFromWorldspawn(worldspawn);
         [entityLayer setMods:mods];
@@ -269,6 +217,113 @@ NSString* const RendererChanged = @"RendererChanged";
         [entityLayer removeEntities:theEntities];
     }
 }
+- (void)addFaces:(NSSet *)theFaces {
+    [invalidFaces unionSet:theFaces];
+    
+    SelectionManager* selectionManager = [windowController selectionManager];
+    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedFaces]];
+    [selected unionSet:[selectionManager selectedBrushFaces]];
+
+    [selected intersectSet:theFaces];
+    if ([selected count] > 0) {
+        [selectionLayer addFaces:selected];
+        NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theFaces];
+        [unselected minusSet:selected];
+        [geometryLayer addFaces:unselected];
+        [unselected release];
+    } else {
+        [geometryLayer addFaces:theFaces];
+    }
+    
+    [selected release];
+}
+
+- (void)removeFaces:(NSSet *)theFaces {
+    [invalidFaces minusSet:theFaces];
+    
+    SelectionManager* selectionManager = [windowController selectionManager];
+    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedFaces]];
+    [selected unionSet:[selectionManager selectedBrushFaces]];
+    
+    [selected intersectSet:theFaces];
+    if ([selected count] > 0) {
+        [selectionLayer removeFaces:selected];
+        NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theFaces];
+        [unselected minusSet:selected];
+        [geometryLayer removeFaces:unselected];
+        [unselected release];
+    } else {
+        [geometryLayer removeFaces:theFaces];
+    }
+    
+    [selected release];
+}
+
+- (void)addBrushes:(NSSet *)theBrushes {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedBrushes]];
+    NSMutableSet* partial = [[NSMutableSet alloc] initWithSet:[selectionManager partiallySelectedBrushes]];
+    NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theBrushes];
+    
+    [selected intersectSet:theBrushes];
+    [partial intersectSet:theBrushes];
+    [unselected minusSet:selected];
+    [unselected minusSet:partial];
+    
+    [selectionLayer addBrushes:selected];
+    [geometryLayer addBrushes:unselected];
+
+    [invalidBrushes unionSet:selected];
+    [invalidBrushes unionSet:unselected];
+
+    [selected release];
+    [unselected release];
+    
+    if ([partial count] > 0) {
+        NSMutableSet* faces = [[NSMutableSet alloc] init];
+        NSEnumerator* brushEn = [partial objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject]))
+            [faces addObjectsFromArray:[brush faces]];
+        [self addFaces:faces];
+        [faces release];
+    }
+
+    [partial release];
+}
+
+- (void)removeBrushes:(NSSet *)theBrushes {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedBrushes]];
+    NSMutableSet* partial = [[NSMutableSet alloc] initWithSet:[selectionManager partiallySelectedBrushes]];
+    NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theBrushes];
+    
+    [selected intersectSet:theBrushes];
+    [partial intersectSet:theBrushes];
+    [unselected minusSet:selected];
+    [unselected minusSet:partial];
+    
+    [selectionLayer removeBrushes:selected];
+    [geometryLayer removeBrushes:unselected];
+    
+    [invalidBrushes minusSet:selected];
+    [invalidBrushes minusSet:unselected];
+    
+    [selected release];
+    [unselected release];
+    
+    if ([partial count] > 0) {
+        NSMutableSet* faces = [[NSMutableSet alloc] init];
+        NSEnumerator* brushEn = [partial objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject]))
+            [faces addObjectsFromArray:[brush faces]];
+        [self removeFaces:faces];
+        [faces release];
+    }
+    
+    [partial release];
+}
 
 - (void)addFace:(id <Face>)face {
     [invalidFaces addObject:face];
@@ -281,6 +336,8 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)removeFace:(id <Face>)face {
+    [invalidFaces removeObject:face];
+    
     SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager isFaceSelected:face])
         [selectionLayer removeFace:face];
@@ -291,15 +348,33 @@ NSString* const RendererChanged = @"RendererChanged";
 }
 
 - (void)addBrush:(id <Brush>)brush {
-    NSSet* faces = [[NSMutableSet alloc] initWithArray:[brush faces]];
-    [self addFaces:faces];
-    [faces release];
+    [invalidBrushes addObject:brush];
+
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager isBrushSelected:brush]) {
+        [selectionLayer addBrush:brush];
+    } else if ([selectionManager isBrushPartiallySelected:brush]) {
+        NSSet* faces = [[NSMutableSet alloc] initWithArray:[brush faces]];
+        [self addFaces:faces];
+        [faces release];
+    } else {
+        [geometryLayer addBrush:brush];
+    }
 }
 
 - (void)removeBrush:(id <Brush>)brush {
-    NSSet* faces = [[NSMutableSet alloc] initWithArray:[brush faces]];
-    [self removeFaces:faces];
-    [faces release];
+    [invalidBrushes removeObject:brush];
+    
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager isBrushSelected:brush]) {
+        [selectionLayer removeBrush:brush];
+    } else if ([selectionManager isBrushPartiallySelected:brush]) {
+        NSSet* faces = [[NSMutableSet alloc] initWithArray:[brush faces]];
+        [self removeFaces:faces];
+        [faces release];
+    } else {
+        [geometryLayer removeBrush:brush];
+    }
 }
 
 - (void)addEntity:(id <Entity>)entity {
@@ -568,6 +643,7 @@ NSString* const RendererChanged = @"RendererChanged";
         windowController = theWindowController;
 
         invalidFaces = [[NSMutableSet alloc] init];
+        invalidBrushes = [[NSMutableSet alloc] init];
         
         MapDocument* map = [windowController document];
         GLResources* glResources = [map glResources];
@@ -637,6 +713,7 @@ NSString* const RendererChanged = @"RendererChanged";
     [textureManager release];
     [sharedVbo release];
     [invalidFaces release];
+    [invalidBrushes release]; 
     [filter release];
     [super dealloc];
 }

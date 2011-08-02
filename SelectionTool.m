@@ -74,7 +74,7 @@
                 if ([self isMultiSelectionModifierPressed]) {
                     [selectionManager addFace:face record:NO];
                 } else if ([NSEvent modifierFlags] == 0) {
-                    if ([selectionManager hasSelectedFaces:brush]) {
+                    if ([selectionManager isBrushPartiallySelected:brush]) {
                         [selectionManager removeAll:NO];
                         [selectionManager addFace:face record:NO];
                     } else {

@@ -105,7 +105,6 @@
     NSAssert(theEntities != nil, @"entity set must not be nil");
     
     NSMutableSet* remove = [[NSMutableSet alloc] initWithSet:theEntities];
-    [remove minusSet:addedEntities];
     [addedEntities minusSet:remove];
     [removedEntities unionSet:remove];
     [remove release];

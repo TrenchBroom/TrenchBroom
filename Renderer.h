@@ -28,6 +28,7 @@ extern NSString* const RendererChanged;
     TextureManager* textureManager;
     VBOBuffer* sharedVbo;
     NSMutableSet* invalidFaces;
+    NSMutableSet* invalidBrushes;
     GeometryLayer* geometryLayer;
     SelectionLayer* selectionLayer;
     FigureLayer* feedbackLayer;

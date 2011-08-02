@@ -115,7 +115,7 @@
             newActiveTool = moveTool;
     } 
     
-    if ((newActiveTool == nil && (drag && [selectionManager mode] == SM_FACES)) || 
+    if ((newActiveTool == nil && (drag && ([selectionManager mode] == SM_FACES || [selectionManager mode] == SM_UNDEFINED))) || 
                ([selectionManager mode] == SM_FACES && [[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed]))) {
         newActiveTool = faceTool;
     }

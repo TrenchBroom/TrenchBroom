@@ -129,6 +129,7 @@ void addV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
 void subV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
 void scaleV3i(const TVector3i* v, int i, TVector3i* o);
 BOOL equalV3i(const TVector3i* l, const TVector3i* r);
+BOOL nullV3i(const TVector3i* v);
 BOOL parseV3i(NSString* s, NSRange r, TVector3i* o);
 
 TVector3fList* newVector3fList(int c);

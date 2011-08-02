@@ -346,6 +346,10 @@ BOOL equalV3i(const TVector3i* l, const TVector3i* r) {
     return l->x == r->x && l->y == r->y && l->z == r->z;
 }
 
+BOOL nullV3i(const TVector3i* v) {
+    return v->x == 0 && v->y == 0 && v->z == 0;
+}
+
 BOOL parseV3i(NSString* s, NSRange r, TVector3i* o) {
     int comp = -1;
     int b, l, x, y, z;
