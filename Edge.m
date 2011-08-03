@@ -59,6 +59,18 @@
     return [rightSide face];
 }
 
+- (id <Face>)frontFaceForRay:(TRay *)theRay {
+    id <Face> leftFace = [leftSide face];
+    id <Face> rightFace = [rightSide face];
+    return dotV3f([leftFace norm], &theRay->direction) >= 0 ? rightFace : leftFace;
+}
+
+- (id <Face>)backFaceForRay:(TRay *)theRay {
+    id <Face> leftFace = [leftSide face];
+    id <Face> rightFace = [rightSide face];
+    return dotV3f([leftFace norm], &theRay->direction) >= 0 ? leftFace : rightFace;
+}
+
 - (Side *)leftSide {
     return leftSide;
 }

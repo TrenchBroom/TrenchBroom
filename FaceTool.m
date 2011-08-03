@@ -22,11 +22,13 @@
 #import "DragFaceCursor.h"
 #import "ApplyFaceCursor.h"
 #import "Cursor.h"
+#import "Edge.h"
 
 @interface FaceTool (private)
 
 - (BOOL)isApplyTextureAndFlagsModifierPressed;
 - (BOOL)isApplyTextureModifierPressed;
+- (BOOL)isFrontFaceModifierPressed;
 
 - (void)applyTextureFrom:(id <Face>)source toFace:(id <Face>)destination;
 - (void)applyFlagsFrom:(id <Face>)source toFace:(id <Face>)destination;
@@ -41,6 +43,10 @@
 
 - (BOOL)isApplyTextureModifierPressed {
     return [NSEvent modifierFlags] == NSAlternateKeyMask;
+}
+
+- (BOOL)isFrontFaceModifierPressed {
+    return [NSEvent modifierFlags] == NSCommandKeyMask;
 }
 
 - (void)applyTextureFrom:(id <Face>)source toFace:(id <Face>)destination {
@@ -135,47 +141,37 @@
     NSUndoManager* undoManager = [map undoManager];
     SelectionManager* selectionManager = [windowController selectionManager];
 
-    id <Face> face = nil;
-    
-    if ([selectionManager mode] == SM_BRUSHES) {
-        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-        id <Brush> brush;
-        float dist;
-        while (face == nil && (brush = [brushEn nextObject]))
-            dist = [brush pickHotFace:ray maxDistance:10 hit:&face];
-
-        if (face != nil) {
-            [undoManager setGroupsByEvent:NO];
-            [undoManager beginUndoGrouping];
-
-            dragDir = *[face norm];
-            rayPointAtDistance(ray, dist, &lastPoint);
-            plane.point = lastPoint;
-            [dragFaces addObject:face];
-        }
-    } 
-    
-    if (face == nil) {
-        PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
+    PickingHit* hit = [hits firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:NO];
+    id <Face> face;
+    if (hit != nil) {
+        Edge* edge = [hit object];
+        face = [self isFrontFaceModifierPressed] ? [edge frontFaceForRay:ray] : [edge backFaceForRay:ray];
+        [dragFaces addObject:face];
+        
+        [undoManager setGroupsByEvent:NO];
+        [undoManager beginUndoGrouping];
+    } else {
+        hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
         if (hit == nil)
             return;
         
         [undoManager setGroupsByEvent:NO];
         [undoManager beginUndoGrouping];
         
-        id <Face> face = [hit object];
+        face = [hit object];
         if (![selectionManager isFaceSelected:face]) {
             [selectionManager removeAll:YES];
             [selectionManager addFace:face record:YES];
         }
-
-        dragDir = *[face norm];
-        lastPoint = *[hit hitPoint];
-        plane.point = lastPoint;
+        
         [dragFaces unionSet:[selectionManager selectedFaces]];
     }    
     
     
+    dragDir = *[face norm];
+    lastPoint = *[hit hitPoint];
+    plane.point = lastPoint;
+
     crossV3f(&dragDir, &ray->direction, &plane.norm);
     crossV3f(&plane.norm, &dragDir, &plane.norm);
     normalizeV3f(&plane.norm, &plane.norm);

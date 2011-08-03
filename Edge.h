@@ -45,6 +45,8 @@ typedef enum {
 
 - (id <Face>)leftFace;
 - (id <Face>)rightFace;
+- (id <Face>)frontFaceForRay:(TRay *)theRay;
+- (id <Face>)backFaceForRay:(TRay *)theRay;
 - (Side *)leftSide;
 - (Side *)rightSide;
 - (Vertex *)startVertexForSide:(Side *)theSide;

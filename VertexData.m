@@ -355,7 +355,7 @@
     }
 }
 
-- (float)pickHotFace:(TRay *)theRay maxDistance:(float)theMaxDist hit:(id <Face> *)theHit {
+- (void)pickEdgeClosestToRay:(TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList {
     NSEnumerator* edgeEn = [edges objectEnumerator];
     Edge* edge;
     Edge* closestEdge = nil;
@@ -372,17 +372,14 @@
     }
     
     if (closestDist2 > theMaxDist * theMaxDist)
-        return NAN;
+        return;
     
-    MutableFace* left = [closestEdge leftFace];
-    MutableFace* right = [closestEdge rightFace];
+    TVector3f hitPoint;
+    rayPointAtDistance(theRay, closestRayDist, &hitPoint);
     
-    if (dotV3f([left norm], &theRay->direction) >= 0)
-        *theHit = left;
-    else
-        *theHit = right;
-    
-    return closestRayDist;
+    PickingHit* hit = [[PickingHit alloc] initWithObject:closestEdge type:HT_CLOSE_EDGE hitPoint:&hitPoint distance:closestRayDist];
+    [theHitList addHit:hit];
+    [hit release];
 }
 
 - (void)dealloc {

@@ -94,6 +94,17 @@
     Picker* picker = [[windowController document] picker];
     [lastHits release];
     lastHits = [[picker pickObjects:&lastRay filter:filter] retain];
+
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager mode] == SM_BRUSHES) {
+        PickingHit* brushHit = [lastHits firstHitOfType:HT_BRUSH ignoreOccluders:NO];
+        if (brushHit == nil) {
+            NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+            id <Brush> brush;
+            while ((brush = [brushEn nextObject]))
+                [brush pickEdgeClosestToRay:&lastRay maxDistance:10 hitList:lastHits];
+        }
+    }
 }
 
 - (void)updateActiveTool {
@@ -112,20 +123,9 @@
         if ([self isRotateModifierPressed]) {
             newActiveTool = rotateTool;
         } else if (drag) {
-            if ([selectionManager mode] == SM_BRUSHES) {
-                PickingHit* brushHit = [lastHits firstHitOfType:HT_BRUSH ignoreOccluders:NO];
-                if (brushHit == nil) {
-                    NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-                    id <Brush> brush;
-                    while (newActiveTool == nil && (brush = [brushEn nextObject])) {
-                        id <Face> face;
-                        if (!isnan([brush pickHotFace:&lastRay maxDistance:10 hit:&face]))
-                            if (face != nil)
-                                newActiveTool = faceTool;
-                    }
-                }
-            }
-            if (newActiveTool == nil)
+            if ([lastHits firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:NO] != nil)
+                newActiveTool = faceTool;
+            else
                 newActiveTool = moveTool;
         }
     } 

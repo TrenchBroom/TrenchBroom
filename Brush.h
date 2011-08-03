@@ -29,6 +29,6 @@
 - (TVector3f *)center;
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
-- (float)pickHotFace:(TRay *)theRay maxDistance:(float)theMaxDistance hit:(id <Face> *)theHit;
+- (void)pickEdgeClosestToRay:(TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList;
 
 @end
