@@ -41,6 +41,7 @@ typedef enum {
 
 - (Vertex *)startVertex;
 - (Vertex *)endVertex;
+- (Vertex *)opposingVertex:(Vertex *)theVertex;
 
 - (id <Face>)leftFace;
 - (id <Face>)rightFace;

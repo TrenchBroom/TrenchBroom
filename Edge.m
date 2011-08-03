@@ -45,6 +45,12 @@
     return endVertex;
 }
 
+- (Vertex *)opposingVertex:(Vertex *)theVertex {
+    if (theVertex == startVertex)
+        return endVertex;
+    return startVertex;
+}
+
 - (id <Face>)leftFace {
     return [leftSide face];
 }

@@ -586,6 +586,60 @@ float closestPointOnRay(const TVector3f* c, const TRay* r) {
     return d;
 }
 
+float distanceOfSegmentAndRaySquared(const TVector3f* ss, const TVector3f* se, const TRay* r, float* rd) {
+    TVector3f u, v, w;
+    subV3f(se, ss, &u);
+    v = r->direction;
+    subV3f(ss, &r->origin, &w);
+    
+    float a = dotV3f(&u, &u);
+    float b = dotV3f(&u, &v);
+    float c = dotV3f(&v, &v);
+    float d = dotV3f(&u, &w);
+    float e = dotV3f(&v, &w);
+    float D = a * c - b * b;
+    float sN, sD = D;
+    float tN, tD = D;
+    
+    if (fzero(D)) {
+        sN = 0;
+        sD = 1;
+        tN = e;
+        tD = c;
+    } else {
+        sN = (b * e - c * d);
+        tN = (a * e - b * d);
+        if (sN < 0) {
+            sN = 0;
+            tN = e;
+            tD = c;
+        } else if (sN > sD) {
+            sN = sD;
+            tN = e + b;
+            tD = c;
+        }
+    }
+    
+    if (tN < 0)
+        return NAN;
+    
+    float sc = fzero(sN) ? 0.0 : sN / sD;
+    float tc = fzero(tN) ? 0.0 : tN / tD;
+    
+    TVector3f dP;
+    scaleV3f(&u, sc, &u);
+    scaleV3f(&v, tc, &v);
+    addV3f(&w, &u, &w);
+    subV3f(&w, &v, &dP);
+
+    *rd = tc;
+    return lengthSquaredV3f(&dP);
+}
+
+float distanceOfSegmentAndRay(const TVector3f* ss, const TVector3f* se, const TRay* r, float* rd) {
+    return sqrt(distanceOfSegmentAndRaySquared(ss, se, r, rd));
+}
+
 void rayPointAtDistance(const TRay* r, float d, TVector3f* p) {
     scaleV3f(&r->direction, d, p);
     addV3f(p, &r->origin, p);

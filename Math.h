@@ -168,6 +168,8 @@ void rotateQ(const TQuaternion* q, const TVector3f* v, TVector3f* o);
 float intersectSphereWithRay(const TVector3f* c, float ra, const TRay* r);
 float distanceOfPointAndRay(const TVector3f* c, const TRay* r);
 float closestPointOnRay(const TVector3f* c, const TRay* r);
+float distanceOfSegmentAndRay(const TVector3f* ss, const TVector3f* se, const TRay* r, float* rd);
+float distanceOfSegmentAndRaySquared(const TVector3f* ss, const TVector3f* se, const TRay* r, float* rd);
 void rayPointAtDistance(const TRay* r, float d, TVector3f* p);
 
 void projectOntoPlane(EPlane plane, const TVector3f* v, TVector3f* o);

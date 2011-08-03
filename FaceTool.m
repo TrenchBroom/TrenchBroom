@@ -72,12 +72,14 @@
         windowController = theWindowController;
         dragFaceCursor = [[DragFaceCursor alloc] init];
         applyFaceCursor = [[ApplyFaceCursor alloc] init];
+        dragFaces = [[NSMutableSet alloc] init];
     }
     
     return self;
 }
 
 - (void)dealloc {
+    [dragFaces release];
     [dragFaceCursor release];
     [applyFaceCursor release];
     [super dealloc];
@@ -129,25 +131,50 @@
 }
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
-    if (hit == nil)
-        return;
-    
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
-    [undoManager setGroupsByEvent:NO];
-    [undoManager beginUndoGrouping];
-
-    id <Face> face = [hit object];
     SelectionManager* selectionManager = [windowController selectionManager];
-    if (![selectionManager isFaceSelected:face]) {
-        [selectionManager removeAll:YES];
-        [selectionManager addFace:face record:YES];
-    }
+
+    id <Face> face = nil;
     
-    dragDir = *[face norm];
-    lastPoint = *[hit hitPoint];
-    plane.point = lastPoint;
+    if ([selectionManager mode] == SM_BRUSHES) {
+        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+        id <Brush> brush;
+        float dist;
+        while (face == nil && (brush = [brushEn nextObject]))
+            dist = [brush pickHotFace:ray maxDistance:10 hit:&face];
+
+        if (face != nil) {
+            [undoManager setGroupsByEvent:NO];
+            [undoManager beginUndoGrouping];
+
+            dragDir = *[face norm];
+            rayPointAtDistance(ray, dist, &lastPoint);
+            plane.point = lastPoint;
+            [dragFaces addObject:face];
+        }
+    } 
+    
+    if (face == nil) {
+        PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
+        if (hit == nil)
+            return;
+        
+        [undoManager setGroupsByEvent:NO];
+        [undoManager beginUndoGrouping];
+        
+        id <Face> face = [hit object];
+        if (![selectionManager isFaceSelected:face]) {
+            [selectionManager removeAll:YES];
+            [selectionManager addFace:face record:YES];
+        }
+
+        dragDir = *[face norm];
+        lastPoint = *[hit hitPoint];
+        plane.point = lastPoint;
+        [dragFaces unionSet:[selectionManager selectedFaces]];
+    }    
+    
     
     crossV3f(&dragDir, &ray->direction, &plane.norm);
     crossV3f(&plane.norm, &dragDir, &plane.norm);
@@ -178,9 +205,7 @@
     dist = dotV3f(&diff, &dragDir);
     
     MapDocument* map = [windowController document];
-    SelectionManager* selectionManager = [windowController selectionManager];
-
-    [map dragFaces:[selectionManager selectedFaces] distance:dist];
+    [map dragFaces:dragFaces distance:dist];
     lastPoint = point;
 }
 
@@ -192,6 +217,7 @@
     [undoManager setGroupsByEvent:YES];
 
     drag = NO;
+    [dragFaces removeAllObjects];
 }
 
 - (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

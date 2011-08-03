@@ -236,4 +236,8 @@
     [[self vertexData] pick:theRay hitList:theHitList];
 }
 
+- (float)pickHotFace:(TRay *)theRay maxDistance:(float)theMaxDistance hit:(id <Face> *)theHit {
+    return [[self vertexData] pickHotFace:theRay maxDistance:theMaxDistance hit:theHit];
+}
+
 @end

@@ -109,10 +109,25 @@
     } 
     
     if (newActiveTool == nil && ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES)) {
-        if ([self isRotateModifierPressed])
+        if ([self isRotateModifierPressed]) {
             newActiveTool = rotateTool;
-        else if (drag)
-            newActiveTool = moveTool;
+        } else if (drag) {
+            if ([selectionManager mode] == SM_BRUSHES) {
+                PickingHit* brushHit = [lastHits firstHitOfType:HT_BRUSH ignoreOccluders:NO];
+                if (brushHit == nil) {
+                    NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+                    id <Brush> brush;
+                    while (newActiveTool == nil && (brush = [brushEn nextObject])) {
+                        id <Face> face;
+                        if (!isnan([brush pickHotFace:&lastRay maxDistance:10 hit:&face]))
+                            if (face != nil)
+                                newActiveTool = faceTool;
+                    }
+                }
+            }
+            if (newActiveTool == nil)
+                newActiveTool = moveTool;
+        }
     } 
     
     if ((newActiveTool == nil && (drag && ([selectionManager mode] == SM_FACES || [selectionManager mode] == SM_UNDEFINED))) || 

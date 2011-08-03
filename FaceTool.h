@@ -24,6 +24,7 @@
     DragFaceCursor* dragFaceCursor;
     ApplyFaceCursor* applyFaceCursor;
     id <Cursor> currentCursor;
+    NSMutableSet* dragFaces;
     BOOL drag;
 }
 

@@ -12,6 +12,8 @@
 @class MutableFace;
 @class BoundingBox;
 @class PickingHitList;
+@class PickingHit;
+@protocol Face;
 
 @interface VertexData : NSObject {
     @private
@@ -33,5 +35,5 @@
 - (TVector3f *)center;
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
-
+- (float)pickHotFace:(TRay *)theRay maxDistance:(float)theMaxDist hit:(id <Face> *)theHit;
 @end

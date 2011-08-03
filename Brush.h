@@ -12,6 +12,7 @@
 @protocol Entity;
 @class PickingHit;
 @class PickingHitList;
+@protocol Face;
 
 @protocol Brush <NSObject, NSCopying>
 
@@ -28,5 +29,6 @@
 - (TVector3f *)center;
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
+- (float)pickHotFace:(TRay *)theRay maxDistance:(float)theMaxDistance hit:(id <Face> *)theHit;
 
 @end
