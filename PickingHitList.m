@@ -39,8 +39,14 @@
     
     if (!cachedHitValid[ignoreOccluders][theTypeMask - 1]) {
         if (!ignoreOccluders) {
-            PickingHit* hit = [[self hits] objectAtIndex:0];
-            if ([hit isType:theTypeMask])
+            PickingHit* hit;
+            if ((theTypeMask & HT_CLOSE_EDGE) == 0) {
+                NSEnumerator* hitEn = [[self hits] objectEnumerator];
+                while ((hit = [hitEn nextObject]) && [hit isType:HT_CLOSE_EDGE]);
+            } else {
+                hit = [[self hits] objectAtIndex:0];
+            }
+            if (hit != nil && [hit isType:theTypeMask])
                 cachedHit[NO][theTypeMask - 1] = hit;
             cachedHitValid[NO][theTypeMask - 1] = YES;
         } else {

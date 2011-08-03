@@ -158,7 +158,6 @@
 - (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     CursorManager* cursorManager = [windowController cursorManager];
     [cursorManager pushCursor:moveCursor];
-
     [self updateCursor:event ray:ray hits:hits];
 }
 
@@ -187,6 +186,8 @@
                     [moveCursor setPlaneNormal:largestComponentV3f(&norm)];
                     break;
                 }
+                default:
+                    break;
             }
         }
         

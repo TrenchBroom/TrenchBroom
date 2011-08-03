@@ -185,6 +185,10 @@
                                     newOwner = moveTool;
                                 break;
                             }
+                            default: {
+                                NSLog(@"unknown hit type: %i", [hit type]);
+                                break;
+                            }
                         }
                     }
                 }

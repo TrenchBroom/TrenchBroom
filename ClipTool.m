@@ -383,13 +383,12 @@
     }
     
     [map deleteBrushes:brushes];
-    [brushes release];
-
     [selectionManager addBrushes:result record:YES];
     
-    [undoManager endUndoGrouping];
     [undoManager setActionName:[brushes count] == 1 ? @"Clip Brush" : @"Clip Brushes"];
+    [undoManager endUndoGrouping];
     
+    [brushes release];
     [clipPlane reset];
     if (currentPoint != NULL) {
         free(currentPoint);
