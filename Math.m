@@ -169,6 +169,10 @@ BOOL equalV3f(const TVector3f* l, const TVector3f* r) {
     return feq(l->x, r->x) && feq(l->y, r->y) && feq(l->z, r->z);
 }
 
+BOOL nullV3f(const TVector3f* v) {
+    return equalV3f(v, &NullVector);
+}
+
 EAxis largestComponentV3f(const TVector3f* v) {
     float xa = fabs(v->x);
     float ya = fabs(v->y);
@@ -177,6 +181,18 @@ EAxis largestComponentV3f(const TVector3f* v) {
     if (xa >= ya && xa >= za)
         return A_X;
     if (ya >= xa && ya >= za)
+        return A_Y;
+    return A_Z;
+}
+
+EAxis smallestComponentV3f(const TVector3f* v) {
+    float xa = fabs(v->x);
+    float ya = fabs(v->y);
+    float za = fabs(v->z);
+    
+    if (xa <= ya && xa <= za)
+        return A_X;
+    if (ya <= xa && ya <= za)
         return A_Y;
     return A_Z;
 }
@@ -542,6 +558,17 @@ float planeZ(TPlane* p, float x, float y) {
 }
 
 #pragma mark TCubicBezierCurve functions
+
+void pointOnQuadraticBezierCurve(const TQuadraticBezierCurve* c, float t, TVector3f* r) {
+    TVector3f v;
+    float tc = 1 - t;
+    
+    scaleV3f(&c->start, tc * tc, r);
+    scaleV3f(&c->control, 2 * tc * t, &v);
+    addV3f(r, &v, r);
+    scaleV3f(&c->end, t * t, &v);
+    addV3f(r, &v, r);
+}
 
 void pointOnCubicBezierCurve(const TCubicBezierCurve* c, float t, TVector3f* r) {
     TVector3f v;

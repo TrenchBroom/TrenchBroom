@@ -76,6 +76,12 @@ typedef struct {
 typedef struct {
     TVector3f start;
     TVector3f end;
+    TVector3f control;
+} TQuadraticBezierCurve;
+
+typedef struct {
+    TVector3f start;
+    TVector3f end;
     TVector3f startControl;
     TVector3f endControl;
 } TCubicBezierCurve;
@@ -124,7 +130,9 @@ float lengthV3f(const TVector3f* v);
 float lengthSquaredV3f(const TVector3f* v);
 void normalizeV3f(const TVector3f* v, TVector3f* o);
 BOOL equalV3f(const TVector3f* l, const TVector3f* r);
+BOOL nullV3f(const TVector3f* v);
 EAxis largestComponentV3f(const TVector3f* v);
+EAxis smallestComponentV3f(const TVector3f* v);
 void closestAxisV3f(const TVector3f* v, TVector3f* o);
 float componentV3f(const TVector3f* v, EAxis a);
 void setComponentV3f(TVector3f* v, EAxis a, float f);
@@ -172,6 +180,7 @@ void mulQ(const TQuaternion* l, const TQuaternion* r, TQuaternion* o);
 void conjugateQ(const TQuaternion* q, TQuaternion* o);
 void rotateQ(const TQuaternion* q, const TVector3f* v, TVector3f* o);
 
+void pointOnQuadraticBezierCurve(const TQuadraticBezierCurve* c, float t, TVector3f* r);
 void pointOnCubicBezierCurve(const TCubicBezierCurve* c, float t, TVector3f* r);
 
 float intersectSphereWithRay(const TVector3f* c, float ra, const TRay* r);

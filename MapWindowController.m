@@ -626,7 +626,7 @@
     position = center;
     position.z += lengthV3f(&diff);
     
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetDirection:&ZAxisNeg targetUp:&YAxisPos duration:0.5];
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
     [animation startAnimation];
 }
 
@@ -643,7 +643,7 @@
     position = center;
     position.y -= lengthV3f(&diff);
 
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetDirection:&YAxisPos targetUp:&ZAxisPos duration:0.5];
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
     [animation startAnimation];
 }
 
@@ -660,7 +660,7 @@
     position = center;
     position.x += lengthV3f(&diff);
     
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetDirection:&XAxisNeg targetUp:&ZAxisPos duration:0.5];
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
     [animation startAnimation];
 }
 
@@ -950,6 +950,23 @@
 }
 
 - (void)makeBrushVisible:(id <Brush>)theBrush {
+    [selectionManager removeAll:NO];
+    [selectionManager addBrush:theBrush record:NO];
+    [options setIsolationMode:IM_WIREFRAME];
+    
+    TVector3f size;
+    TBoundingBox* bounds = [theBrush bounds];
+    sizeOfBounds(bounds, &size);
+    float l = fmaxf(size.x, fmaxf(size.y, size.z));
+    
+    TVector3f* center = [theBrush center];
+    TVector3f position = *center;
+    position.x -= l;
+    position.y -= l;
+    position.z += l;
+    
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:center duration:0.5];
+    [animation startAnimation];
 }
 
 - (void)makeFaceVisible:(id <Face>)theFace {
@@ -957,18 +974,12 @@
     [selectionManager addBrush:[theFace brush] record:NO];
     [options setIsolationMode:IM_WIREFRAME];
     
-    TVector3f position, direction, up;
+    TVector3f position, direction;
     scaleV3f([theFace norm], 150, &position);
     addV3f([theFace center], &position, &position);
     scaleV3f([theFace norm], -1, &direction);
     
-    if (direction.z == 1 || direction.z == -1)
-        up = YAxisPos;
-    else
-        up = ZAxisPos;
-    
-    
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetDirection:&direction targetUp:&up duration:0.5];
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:[theFace center] duration:0.5];
     [animation startAnimation];
 }
 

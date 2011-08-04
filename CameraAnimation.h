@@ -14,14 +14,16 @@
 @interface CameraAnimation : NSAnimation <NSAnimationDelegate> {
     @private
     Camera* camera;
+    TCubicBezierCurve positionCurve;
     TVector3f initialPosition;
     TVector3f initialDirection;
-    TVector3f initialUpVector;
+    TVector3f initialUp;
     TVector3f targetPosition;
-    TVector3f targetDirection;
-    TVector3f targetUpVector;
+    TVector3f targetLookAt;
+    TVector3f targetUp;
+    float hAngle, vAngle;
 }
 
-- (id)initWithCamera:(Camera *)theCamera targetPosition:(const TVector3f *)thePosition targetDirection:(const TVector3f *)theDirection targetUp:(const TVector3f *)theUpVector duration:(NSTimeInterval)duration;
+- (id)initWithCamera:(Camera *)theCamera targetPosition:(const TVector3f *)thePosition targetLookAt:(TVector3f *)theLookAt duration:(NSTimeInterval)duration;
 
 @end
