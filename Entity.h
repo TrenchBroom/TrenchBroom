@@ -19,6 +19,7 @@ static NSString* const SpawnFlagsKey = @"spawnflags";
 static NSString* const WorldspawnClassname = @"worldspawn";
 static NSString* const OriginKey = @"origin";
 static NSString* const AngleKey = @"angle";
+static NSString* const MessageKey = @"message";
 static NSString* const ModsKey = @"_mods";
 
 @protocol Entity <NSObject, NSCopying>

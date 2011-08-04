@@ -35,12 +35,14 @@ NSString* const FacesKey                = @"Faces";
 
 NSString* const BrushesAdded            = @"BrushesAdded";
 NSString* const BrushesWillBeRemoved    = @"BrushesWillBeRemoved";
+NSString* const BrushesWereRemoved      = @"BrushesWereRemoved";
 NSString* const BrushesWillChange       = @"BrushesWillChange";
 NSString* const BrushesDidChange        = @"BrushesDidChange";
 NSString* const BrushesKey              = @"Brushes";
 
 NSString* const EntitiesAdded           = @"EntitiesAdded";
 NSString* const EntitiesWillBeRemoved   = @"EntitiesWillBeRemoved";
+NSString* const EntitiesWereRemoved     = @"EntitiesWereRemoved";
 NSString* const EntitiesKey             = @"Entities";
 
 NSString* const PropertiesWillChange    = @"PropertiesWillChange";
@@ -875,11 +877,11 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         NSSet* entityBrushes = [entityIdToBrushSet objectForKey:[entity entityId]];
         [[undoManager prepareWithInvocationTarget:self] addBrushesToEntity:entity brushes:entityBrushes];
 
+        NSMutableDictionary* userInfo;
         if ([self postNotifications]) {
-            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+            userInfo = [[NSMutableDictionary alloc] init];
             [userInfo setObject:entityBrushes forKey:BrushesKey];
             [center postNotificationName:BrushesWillBeRemoved object:self userInfo:userInfo];
-            [userInfo release];
         }
         
         NSEnumerator* brushEn = [entityBrushes objectEnumerator];
@@ -887,6 +889,11 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         while ((brush = [brushEn nextObject]))
             [entity removeBrush:brush];
         
+        if ([self postNotifications]) {
+            [center postNotificationName:BrushesWereRemoved object:self userInfo:userInfo];
+            [userInfo release];
+        }
+
         if (![entity isWorldspawn] && [[entity brushes] count] == 0)
             [emptyEntities addObject:entity];
     }
@@ -1331,13 +1338,13 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 
     [[[self undoManager] prepareWithInvocationTarget:self] addEntities:theEntities];
     
+    NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
-        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+        userInfo = [[NSMutableDictionary alloc] init];
         [userInfo setObject:theEntities forKey:EntitiesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:EntitiesWillBeRemoved object:self userInfo:userInfo];
-        [userInfo release];
     }
     
     NSEnumerator* entityEn = [theEntities objectEnumerator];
@@ -1347,6 +1354,12 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [entities removeObject:entity];
         if (worldspawn == entity)
             worldspawn = nil;
+    }
+
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:EntitiesWereRemoved object:self userInfo:userInfo];
+        [userInfo release];
     }
 }
 

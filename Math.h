@@ -73,6 +73,13 @@ typedef struct {
     TVector3f vector;
 } TQuaternion;
 
+typedef struct {
+    TVector3f start;
+    TVector3f end;
+    TVector3f startControl;
+    TVector3f endControl;
+} TCubicBezierCurve;
+
 extern float const AlmostZero;
 extern TVector3f const XAxisPos;
 extern TVector3f const XAxisNeg;
@@ -164,6 +171,8 @@ void setAngleAndAxisQ(TQuaternion* q, float a, const TVector3f* x);
 void mulQ(const TQuaternion* l, const TQuaternion* r, TQuaternion* o);
 void conjugateQ(const TQuaternion* q, TQuaternion* o);
 void rotateQ(const TQuaternion* q, const TVector3f* v, TVector3f* o);
+
+void pointOnCubicBezierCurve(const TCubicBezierCurve* c, float t, TVector3f* r);
 
 float intersectSphereWithRay(const TVector3f* c, float ra, const TRay* r);
 float distanceOfPointAndRay(const TVector3f* c, const TRay* r);

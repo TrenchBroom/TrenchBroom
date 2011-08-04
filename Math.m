@@ -541,6 +541,22 @@ float planeZ(TPlane* p, float x, float y) {
     return (l - p->norm.x * x - p->norm.y * y) / p->norm.z;
 }
 
+#pragma mark TCubicBezierCurve functions
+
+void pointOnCubicBezierCurve(const TCubicBezierCurve* c, float t, TVector3f* r) {
+    TVector3f v;
+    float tc = 1 - t;
+    
+    scaleV3f(&c->start, tc * tc * tc, r);
+    scaleV3f(&c->startControl, 3 * tc * tc * t, &v);
+    addV3f(r, &v, r);
+    scaleV3f(&c->endControl, 3 * tc * t * t, &v);
+    addV3f(r, &v, r);
+    scaleV3f(&c->end, t * t * t, &v);
+    addV3f(r, &v, r);
+}
+
+
 #pragma mark TRay functions
 
 float intersectSphereWithRay(const TVector3f* c, float ra, const TRay* r) {

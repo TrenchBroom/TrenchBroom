@@ -27,13 +27,17 @@
 #import "PrefabView.h"
 #import "EntityView.h"
 #import "EntityPropertyTableDataSource.h"
+#import "MapBrowserDataSource.h"
 #import "ControllerUtils.h"
 #import "PreferencesManager.h"
 
 @interface InspectorViewController (private)
 
 - (void)preferencesDidChange:(NSNotification *)notification;
+- (void)entityCountChanged:(NSNotification *)notification;
 - (void)propertiesDidChange:(NSNotification *)notification;
+- (void)brushCountChanged:(NSNotification *)notification;
+- (void)brushesDidChange:(NSNotification *)notification;
 - (void)facesDidChange:(NSNotification *)notification;
 - (void)selectionChanged:(NSNotification *)notification;
 - (void)textureManagerChanged:(NSNotification *)notification;
@@ -55,9 +59,14 @@
     [entityView setNeedsDisplay:YES];
 }
 
+- (void)entityCountChanged:(NSNotification *)notification {
+    [mapBrowserView reloadData];
+}
+
 - (void)propertiesDidChange:(NSNotification *)notification {
     [entityPropertyTableDataSource updateProperties];
     [entityPropertyTableView reloadData];
+    [mapBrowserView reloadData];
     
     NSDictionary* userInfo = [notification userInfo];
     NSSet* entities = [userInfo objectForKey:EntitiesKey];
@@ -69,6 +78,14 @@
             break;
         }
     }
+}
+
+- (void)brushCountChanged:(NSNotification *)notification {
+    [mapBrowserView reloadData];
+}
+
+- (void)brushesDidChange:(NSNotification *)notification {
+    [mapBrowserView reloadData];
 }
 
 - (void)facesDidChange:(NSNotification *)notification {
@@ -83,6 +100,8 @@
         if ([selectionManager isFaceSelected:face])
             [self updateTextureControls];
     }
+
+    [mapBrowserView reloadData];
 }
 
 - (void)selectionChanged:(NSNotification *)notification {
@@ -105,11 +124,17 @@
         SelectionManager* selectionManager = [mapWindowController selectionManager];
         [center removeObserver:self name:SelectionAdded object:selectionManager];
         [center removeObserver:self name:SelectionRemoved object:selectionManager];
+        [center removeObserver:self name:EntitiesAdded object:map];
+        [center removeObserver:self name:EntitiesWereRemoved object:map];
         [center removeObserver:self name:PropertiesDidChange object:map];
+        [center removeObserver:self name:BrushesAdded object:map];
+        [center removeObserver:self name:BrushesWereRemoved object:map];
+        [center removeObserver:self name:BrushesDidChange object:map];
         [center removeObserver:self name:FacesDidChange object:map];
         [center removeObserver:self name:TextureManagerChanged object:textureManager];
         
         [entityPropertyTableDataSource setMapWindowController:nil];
+        [mapBrowserDataSource setMapWindowController:nil];
     }
     
     mapWindowController = theMapWindowController;
@@ -128,10 +153,16 @@
         TextureManager* textureManager = [glResources textureManager];
         SelectionManager* selectionManager = [mapWindowController selectionManager];
         [entityPropertyTableDataSource setMapWindowController:mapWindowController];
+        [mapBrowserDataSource setMapWindowController:mapWindowController];
         
         [center addObserver:self selector:@selector(selectionChanged:) name:SelectionAdded object:selectionManager];
         [center addObserver:self selector:@selector(selectionChanged:) name:SelectionRemoved object:selectionManager];
+        [center addObserver:self selector:@selector(entityCountChanged:) name:EntitiesAdded object:map];
+        [center addObserver:self selector:@selector(entityCountChanged:) name:EntitiesWereRemoved object:map];
         [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesDidChange object:map];
+        [center addObserver:self selector:@selector(brushCountChanged:) name:BrushesAdded object:map];
+        [center addObserver:self selector:@selector(brushCountChanged:) name:BrushesWereRemoved object:map];
+        [center addObserver:self selector:@selector(brushesDidChange:) name:BrushesDidChange object:map];
         [center addObserver:self selector:@selector(facesDidChange:) name:FacesDidChange object:map];
         [center addObserver:self selector:@selector(textureManagerChanged:) name:TextureManagerChanged object:textureManager];
     } else {
@@ -143,6 +174,7 @@
     }
 
     [self updateEntityPropertyTable];
+    [mapBrowserView reloadData];
     [wadTableView reloadData];
     [self updateTextureControls];
 }
@@ -319,6 +351,7 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [entityPropertyTableDataSource release];
+    [mapBrowserDataSource release];
     [super dealloc];
 }
 
@@ -327,6 +360,10 @@
     
     entityPropertyTableDataSource = [[EntityPropertyTableDataSource alloc] init];
     [entityPropertyTableView setDataSource:entityPropertyTableDataSource];
+    
+    mapBrowserDataSource = [[MapBrowserDataSource alloc] init];
+    [mapBrowserView setDataSource:mapBrowserDataSource];
+    
     [self updateMapWindowController:mapWindowController];
     [self prefabsPerRowChanged:prefabsPerRowSlider];
     
@@ -585,4 +622,21 @@
     NSLog(@"entityDefinitionSelected:(EntityDefinition *)theDefinition not implemented");
 }
 
+- (IBAction)mapBrowserClicked:(id)sender {
+    int row = [mapBrowserView selectedRow];
+    if (row > -1) {
+        id item = [mapBrowserView itemAtRow:row];
+        if ([item conformsToProtocol:@protocol(Map)]) {
+        } else if ([item conformsToProtocol:@protocol(Entity)]) {
+            id <Entity> entity = item;
+            [mapWindowController makeEntityVisible:entity];
+        } else if ([item conformsToProtocol:@protocol(Brush)]) {
+            id <Brush> brush = item;
+            [mapWindowController makeBrushVisible:brush];
+        } else if ([item conformsToProtocol:@protocol(Face)]) {
+            id <Face> face = item;
+            [mapWindowController makeFaceVisible:face];
+        }
+    }
+}
 @end

@@ -946,6 +946,32 @@
     [workspace launchApplicationAtURL:appUrl options:NSWorkspaceLaunchNewInstance | NSWorkspaceLaunchDefault configuration:config error:&error];
 }
 
+- (void)makeEntityVisible:(id <Entity>)theEntity {
+}
+
+- (void)makeBrushVisible:(id <Brush>)theBrush {
+}
+
+- (void)makeFaceVisible:(id <Face>)theFace {
+    [selectionManager removeAll:NO];
+    [selectionManager addBrush:[theFace brush] record:NO];
+    [options setIsolationMode:IM_WIREFRAME];
+    
+    TVector3f position, direction, up;
+    scaleV3f([theFace norm], 150, &position);
+    addV3f([theFace center], &position, &position);
+    scaleV3f([theFace norm], -1, &direction);
+    
+    if (direction.z == 1 || direction.z == -1)
+        up = YAxisPos;
+    else
+        up = ZAxisPos;
+    
+    
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetDirection:&direction targetUp:&up duration:0.5];
+    [animation startAnimation];
+}
+
 #pragma mark -
 #pragma mark Getters
 

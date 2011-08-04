@@ -172,6 +172,7 @@
 		48E4006D13159E7E004642CD /* TextureNameFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E4006C13159E7E004642CD /* TextureNameFilter.m */; };
 		48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E400AE1315A7DA004642CD /* TextureUsageFilter.m */; };
 		48F0EC52131A9CCD0088FA02 /* PrefabView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F0EC51131A9CCD0088FA02 /* PrefabView.m */; };
+		48F56F5213E9CDEC008DF954 /* MapBrowserDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F56F5113E9CDEC008DF954 /* MapBrowserDataSource.m */; };
 		48F5C3DB13E1578A00B1A720 /* ControllerUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F5C3DA13E1578A00B1A720 /* ControllerUtils.m */; };
 		48FE96091363279D009B31FD /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48FE96081363279D009B31FD /* quake.def */; };
 		48FE96FD13636059009B31FD /* ChoiceProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE96FC13636059009B31FD /* ChoiceProperty.m */; };
@@ -549,6 +550,8 @@
 		48F0EC50131A9CCD0088FA02 /* PrefabView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabView.h; sourceTree = "<group>"; };
 		48F0EC51131A9CCD0088FA02 /* PrefabView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabView.m; sourceTree = "<group>"; };
 		48F0EDAB131AD9A70088FA02 /* Prefab1.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prefab1.map; sourceTree = "<group>"; };
+		48F56F5013E9CDEC008DF954 /* MapBrowserDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapBrowserDataSource.h; sourceTree = "<group>"; };
+		48F56F5113E9CDEC008DF954 /* MapBrowserDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapBrowserDataSource.m; sourceTree = "<group>"; };
 		48F5C3D913E1578A00B1A720 /* ControllerUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerUtils.h; sourceTree = "<group>"; };
 		48F5C3DA13E1578A00B1A720 /* ControllerUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ControllerUtils.m; sourceTree = "<group>"; };
 		48FE96081363279D009B31FD /* quake.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = quake.def; sourceTree = "<group>"; };
@@ -1038,6 +1041,8 @@
 				48976C7E13E2BF15005AB1EA /* InspectorViewController.m */,
 				48976C8213E2BFC4005AB1EA /* InspectorWindowController.h */,
 				48976C8313E2BFC5005AB1EA /* InspectorWindowController.m */,
+				48F56F5013E9CDEC008DF954 /* MapBrowserDataSource.h */,
+				48F56F5113E9CDEC008DF954 /* MapBrowserDataSource.m */,
 			);
 			name = Inspector;
 			sourceTree = "<group>";
@@ -1179,6 +1184,7 @@
 		48AF852213D0D50900B62317 /* Inspector */ = {
 			isa = PBXGroup;
 			children = (
+				48F56F4E13E9CD43008DF954 /* Map */,
 				48AF852513D0D53300B62317 /* Entity */,
 				48AF852413D0D51F00B62317 /* Brush */,
 				48AF852313D0D51700B62317 /* Face */,
@@ -1268,6 +1274,13 @@
 				4833C15B131953D300EB1B85 /* Prefab2.map */,
 			);
 			name = Prefabs;
+			sourceTree = "<group>";
+		};
+		48F56F4E13E9CD43008DF954 /* Map */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Map;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1503,6 +1516,7 @@
 				4893189D13E5695D00713E5F /* Console.m in Sources */,
 				48A023CA13E8251F004F34A4 /* VertexRenderer.m in Sources */,
 				48A023CE13E83514004F34A4 /* VertexTool.m in Sources */,
+				48F56F5213E9CDEC008DF954 /* MapBrowserDataSource.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

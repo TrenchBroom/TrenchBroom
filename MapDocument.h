@@ -16,12 +16,14 @@ extern NSString* const FacesKey;
 
 extern NSString* const BrushesAdded;
 extern NSString* const BrushesWillBeRemoved;
+extern NSString* const BrushesWereRemoved;
 extern NSString* const BrushesWillChange;
 extern NSString* const BrushesDidChange;
 extern NSString* const BrushesKey;
 
 extern NSString* const EntitiesAdded;
 extern NSString* const EntitiesWillBeRemoved;
+extern NSString* const EntitiesWereRemoved;
 extern NSString* const EntitiesKey;
 
 extern NSString* const PropertiesWillChange;

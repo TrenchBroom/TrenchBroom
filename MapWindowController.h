@@ -24,6 +24,9 @@
 @class InspectorViewController;
 @class Console;
 @protocol Prefab;
+@protocol Entity;
+@protocol Brush;
+@protocol Face;
 
 @interface MapWindowController : NSWindowController {
     IBOutlet NSSplitView* splitView;
@@ -77,6 +80,10 @@
 
 - (IBAction)compile:(id)sender;
 - (IBAction)run:(id)sender;
+
+- (void)makeEntityVisible:(id <Entity>)theEntity;
+- (void)makeBrushVisible:(id <Brush>)theBrush;
+- (void)makeFaceVisible:(id <Face>)theFace;
 
 - (Camera *)camera;
 - (SelectionManager *)selectionManager;

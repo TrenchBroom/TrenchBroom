@@ -18,6 +18,7 @@
 @class EntityPropertyTableDataSource;
 @class EntityView;
 @class Texture;
+@class MapBrowserDataSource;
 @protocol Prefab;
 
 @interface InspectorViewController : NSViewController <PrefabViewTarget, TextureViewTarget, EntityDefinitionViewTarget> {
@@ -48,6 +49,9 @@
     IBOutlet NSSegmentedControl* entityUsageFilterSC;
     IBOutlet NSSearchField* entityNameFilterField;
     
+    IBOutlet NSOutlineView* mapBrowserView;
+    MapBrowserDataSource* mapBrowserDataSource;
+    
     MapWindowController* mapWindowController;
 }
 
@@ -70,4 +74,6 @@
 - (IBAction)entityNameFilterTextChanged:(id)sender;
 - (IBAction)entityUsageFilterChanged:(id)sender;
 - (IBAction)entitySortCriterionChanged:(id)sender;
+
+- (IBAction)mapBrowserClicked:(id)sender;
 @end
