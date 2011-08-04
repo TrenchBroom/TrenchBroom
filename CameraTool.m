@@ -64,12 +64,12 @@
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     Camera* camera = [windowController camera];
     if (orbit) {
-        float h = -[event deltaX] / 70;
-        float v = [event deltaY] / 70;
+        float h = -[event deltaX] / 90;
+        float v = [event deltaY] / 90;
         [camera orbitCenter:&orbitCenter hAngle:h vAngle:v];
     } else {
-        float yaw = -[event deltaX] / 70;
-        float pitch = [event deltaY] / 70;
+        float yaw = -[event deltaX] / 90;
+        float pitch = [event deltaY] / 90;
         [camera rotateYaw:yaw pitch:pitch];
     }
 }
@@ -79,7 +79,7 @@
         return;
     
     Camera* camera = [windowController camera];
-    [camera moveForward:0 right:6 * [event deltaX] up:-6 * [event deltaY]];
+    [camera moveForward:0 right:[event deltaX] up:-[event deltaY]];
 }
 
 - (void)handleBeginGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

@@ -947,6 +947,25 @@
 }
 
 - (void)makeEntityVisible:(id <Entity>)theEntity {
+    [selectionManager removeAll:NO];
+    [selectionManager addEntity:theEntity record:NO];
+    [selectionManager addBrushes:[NSSet setWithArray:[theEntity brushes]] record:NO];
+    [options setIsolationMode:IM_WIREFRAME];
+    
+    TVector3f center, size;
+    TBoundingBox bounds;
+    [selectionManager selectionBounds:&bounds];
+    [selectionManager selectionCenter:&center];
+    sizeOfBounds(&bounds, &size);
+    float l = fmaxf(size.x, fmaxf(size.y, size.z));
+    
+    TVector3f position = center;
+    position.x -= l;
+    position.y -= l;
+    position.z += l;
+    
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
+    [animation startAnimation];
 }
 
 - (void)makeBrushVisible:(id <Brush>)theBrush {
@@ -954,18 +973,19 @@
     [selectionManager addBrush:theBrush record:NO];
     [options setIsolationMode:IM_WIREFRAME];
     
-    TVector3f size;
-    TBoundingBox* bounds = [theBrush bounds];
-    sizeOfBounds(bounds, &size);
+    TVector3f center, size;
+    TBoundingBox bounds;
+    [selectionManager selectionBounds:&bounds];
+    [selectionManager selectionCenter:&center];
+    sizeOfBounds(&bounds, &size);
     float l = fmaxf(size.x, fmaxf(size.y, size.z));
     
-    TVector3f* center = [theBrush center];
-    TVector3f position = *center;
+    TVector3f position = center;
     position.x -= l;
     position.y -= l;
     position.z += l;
     
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:center duration:0.5];
+    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
     [animation startAnimation];
 }
 
