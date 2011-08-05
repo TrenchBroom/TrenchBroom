@@ -17,8 +17,7 @@
     NSString* definitionsString = [NSString stringWithContentsOfFile:thePath encoding:NSASCIIStringEncoding error:NULL];
     NSAssert(definitionsString != nil, @"definitions file must be readable");
     
-    Console* console = [Console sharedConsole];
-    [console log:[NSString stringWithFormat:@"Loading entity definitions from '%@'", thePath]];
+    NSLog(@"Loading entity definitions from '%@'", thePath);
     
     if (self = [self init]) {
         definitions = [[NSMutableDictionary alloc] init];
@@ -35,7 +34,7 @@
         [parser release];
     }
     
-    [console log:[NSString stringWithFormat:@"Found %lu entity definitions", [definitions count]]];
+    NSLog(@"Found %lu entity definitions", [definitions count]);
 
     return self;
 }

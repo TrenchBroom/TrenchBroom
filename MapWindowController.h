@@ -22,7 +22,7 @@
 @class ClipTool;
 @class Renderer;
 @class InspectorViewController;
-@class Console;
+@class ConsoleWindowController;
 @protocol Prefab;
 @protocol Entity;
 @protocol Brush;
@@ -31,14 +31,13 @@
 @interface MapWindowController : NSWindowController {
     IBOutlet NSSplitView* splitView;
 	IBOutlet MapView3D* view3D;
-    IBOutlet NSTextView* consoleTextView;
     InspectorViewController* inspectorViewController;
     Camera* camera;
     SelectionManager* selectionManager;
     InputManager* inputManager;
     CursorManager* cursorManager;
     Options* options;
-    Console* console;
+    ConsoleWindowController* console;
 }
 
 - (IBAction)showInspector:(id)sender;
@@ -92,5 +91,5 @@
 - (Options *)options;
 - (Renderer *)renderer;
 - (MapView3D *)view3D;
-- (Console *)console;
+- (ConsoleWindowController *)console;
 @end

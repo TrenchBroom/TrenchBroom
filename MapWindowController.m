@@ -42,7 +42,7 @@
 #import "PreferencesController.h"
 #import "PreferencesManager.h"
 #import "MapCompiler.h"
-#import "Console.h"
+#import "ConsoleWindowController.h"
 
 @interface MapWindowController (private)
 
@@ -184,7 +184,7 @@
 }
 
 - (void)windowDidLoad {
-    console = [[Console alloc] initWithTextView:consoleTextView];
+    console = [[ConsoleWindowController alloc] initWithWindowNibName:@"ConsoleWindow"];
     
     GLResources* glResources = [[self document] glResources];
     NSOpenGLContext* sharedContext = [glResources openGLContext];
@@ -864,6 +864,7 @@
     NSURL* mapFileUrl = [map fileURL];
     
     MapCompiler* compiler = [[MapCompiler alloc] initWithMapFileUrl:mapFileUrl console:console];
+    [[console window] makeKeyAndOrderFront:self];
     [compiler compile];
 }
 
@@ -1034,7 +1035,7 @@
     return view3D;
 }
 
-- (Console *)console {
+- (ConsoleWindowController *)console {
     return console;
 }
 

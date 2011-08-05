@@ -115,7 +115,6 @@
 		488FEB5C131FC49A00010A04 /* PrefabLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB5B131FC49A00010A04 /* PrefabLayout.m */; };
 		488FEB64131FCBA700010A04 /* PrefabLayoutGroupRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB63131FCBA700010A04 /* PrefabLayoutGroupRow.m */; };
 		488FEB67131FD49C00010A04 /* PrefabLayoutPrefabCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB66131FD49C00010A04 /* PrefabLayoutPrefabCell.m */; };
-		4893189D13E5695D00713E5F /* Console.m in Sources */ = {isa = PBXBuildFile; fileRef = 4893189C13E5695D00713E5F /* Console.m */; };
 		48958209132E52EF00BB7D8F /* CameraAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 48958208132E52EF00BB7D8F /* CameraAnimation.m */; };
 		48973E2A13C368900067E10D /* SpawnFlag.m in Sources */ = {isa = PBXBuildFile; fileRef = 48973E2913C3688F0067E10D /* SpawnFlag.m */; };
 		48976C7313E2BA63005AB1EA /* InspectorWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48976C7213E2BA63005AB1EA /* InspectorWindow.xib */; };
@@ -154,6 +153,8 @@
 		48B5A19F131EE8FD0043FBD9 /* Prefab1.map in Copy Brush Prefabs */ = {isa = PBXBuildFile; fileRef = 48F0EDAB131AD9A70088FA02 /* Prefab1.map */; };
 		48B5A1A0131EE8FD0043FBD9 /* Prefab2.map in Copy Brush Prefabs */ = {isa = PBXBuildFile; fileRef = 4833C15B131953D300EB1B85 /* Prefab2.map */; };
 		48B5A1DB131EEE440043FBD9 /* PrefabNameSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */; };
+		48BC2E6713EBEF7C003657D6 /* ConsoleWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48BC2E6613EBEF7C003657D6 /* ConsoleWindow.xib */; };
+		48BC2E6B13EBF036003657D6 /* ConsoleWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48BC2E6A13EBF036003657D6 /* ConsoleWindowController.m */; };
 		48C029B113C4EABD00FB8B71 /* BspModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C029B013C4EABD00FB8B71 /* BspModel.m */; };
 		48C029B513C4ED2800FB8B71 /* BspFace.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C029B413C4ED2800FB8B71 /* BspFace.m */; };
 		48C029B913C4EF0500FB8B71 /* Bsp.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C029B813C4EF0500FB8B71 /* Bsp.m */; };
@@ -443,8 +444,6 @@
 		488FEB63131FCBA700010A04 /* PrefabLayoutGroupRow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabLayoutGroupRow.m; sourceTree = "<group>"; };
 		488FEB65131FD49C00010A04 /* PrefabLayoutPrefabCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabLayoutPrefabCell.h; sourceTree = "<group>"; };
 		488FEB66131FD49C00010A04 /* PrefabLayoutPrefabCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabLayoutPrefabCell.m; sourceTree = "<group>"; };
-		4893189B13E5695D00713E5F /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Console.h; sourceTree = "<group>"; };
-		4893189C13E5695D00713E5F /* Console.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Console.m; sourceTree = "<group>"; };
 		48958207132E52EF00BB7D8F /* CameraAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraAnimation.h; sourceTree = "<group>"; };
 		48958208132E52EF00BB7D8F /* CameraAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraAnimation.m; sourceTree = "<group>"; };
 		48973E2813C3688F0067E10D /* SpawnFlag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpawnFlag.h; sourceTree = "<group>"; };
@@ -510,6 +509,9 @@
 		48B5A18C131EE2DB0043FBD9 /* PrefabNameSheet.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PrefabNameSheet.xib; sourceTree = "<group>"; };
 		48B5A1D9131EEE440043FBD9 /* PrefabNameSheetController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabNameSheetController.h; sourceTree = "<group>"; };
 		48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabNameSheetController.m; sourceTree = "<group>"; };
+		48BC2E6613EBEF7C003657D6 /* ConsoleWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConsoleWindow.xib; sourceTree = "<group>"; };
+		48BC2E6913EBF036003657D6 /* ConsoleWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConsoleWindowController.h; sourceTree = "<group>"; };
+		48BC2E6A13EBF036003657D6 /* ConsoleWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConsoleWindowController.m; sourceTree = "<group>"; };
 		48C029B013C4EABD00FB8B71 /* BspModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BspModel.m; sourceTree = "<group>"; };
 		48C029B213C4EBBA00FB8B71 /* BspModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspModel.h; sourceTree = "<group>"; };
 		48C029B313C4ED2800FB8B71 /* BspFace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspFace.h; sourceTree = "<group>"; };
@@ -669,6 +671,7 @@
 				4898D9B613E1718C00B9C8F1 /* DragImageWindow.xib */,
 				4809A10E13E2A2E300AF6557 /* InspectorView.xib */,
 				48976C7213E2BA63005AB1EA /* InspectorWindow.xib */,
+				48BC2E6613EBEF7C003657D6 /* ConsoleWindow.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1128,6 +1131,7 @@
 		48A68E96114E93840064732A /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				48BC2E6813EBF01E003657D6 /* ConsoleWindow */,
 				483A65A713D48CA8009EB9E7 /* Drag And Drop */,
 				4898D9C413E1993100B9C8F1 /* Inspector */,
 				4898D9C513E1998900B9C8F1 /* MapWindow */,
@@ -1147,8 +1151,6 @@
 				48F5C3DA13E1578A00B1A720 /* ControllerUtils.m */,
 				48AC3E6D13E418AB008F4BF8 /* MapCompiler.h */,
 				48AC3E6E13E418AC008F4BF8 /* MapCompiler.m */,
-				4893189B13E5695D00713E5F /* Console.h */,
-				4893189C13E5695D00713E5F /* Console.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -1248,6 +1250,15 @@
 				487A77ED13E3095800D44790 /* EntityDefinitionViewTarget.h */,
 			);
 			name = Entity;
+			sourceTree = "<group>";
+		};
+		48BC2E6813EBF01E003657D6 /* ConsoleWindow */ = {
+			isa = PBXGroup;
+			children = (
+				48BC2E6913EBF036003657D6 /* ConsoleWindowController.h */,
+				48BC2E6A13EBF036003657D6 /* ConsoleWindowController.m */,
+			);
+			name = ConsoleWindow;
 			sourceTree = "<group>";
 		};
 		48C029AD13C4EA9900FB8B71 /* Bsp */ = {
@@ -1357,6 +1368,7 @@
 				483C515513E3284E0082C296 /* Vis in Resources */,
 				48AC3E6B13E3FA8D008F4BF8 /* TreeQBSP in Resources */,
 				4856F97E13E482C6004CFABE /* BJMHLight in Resources */,
+				48BC2E6713EBEF7C003657D6 /* ConsoleWindow.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1513,10 +1525,10 @@
 				48976C8413E2BFC5005AB1EA /* InspectorWindowController.m in Sources */,
 				48AC3E6313E3D00C008F4BF8 /* PreferencesManager.m in Sources */,
 				48AC3E6F13E418AC008F4BF8 /* MapCompiler.m in Sources */,
-				4893189D13E5695D00713E5F /* Console.m in Sources */,
 				48A023CA13E8251F004F34A4 /* VertexRenderer.m in Sources */,
 				48A023CE13E83514004F34A4 /* VertexTool.m in Sources */,
 				48F56F5213E9CDEC008DF954 /* MapBrowserDataSource.m in Sources */,
+				48BC2E6B13EBF036003657D6 /* ConsoleWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

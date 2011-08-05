@@ -7,7 +7,7 @@
 //
 
 #import "MapCompiler.h"
-#import "Console.h"
+#import "ConsoleWindowController.h"
 
 @interface MapCompiler (private)
 
@@ -149,7 +149,7 @@
 
 @implementation MapCompiler
 
-- (id)initWithMapFileUrl:(NSURL *)theMapFileUrl console:(Console *)theConsole {
+- (id)initWithMapFileUrl:(NSURL *)theMapFileUrl console:(ConsoleWindowController *)theConsole {
     NSAssert(theMapFileUrl != nil, @"map file URL must not be nil");
     NSAssert(theConsole != nil, @"console must not be nil");
     
