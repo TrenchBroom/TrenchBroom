@@ -34,6 +34,7 @@
 #import "EntityDefinitionManager.h"
 #import "EntityDefinition.h"
 #import "Entity.h"
+#import "CreateBrushTool.h"
 
 @interface InputManager (private)
 
@@ -135,6 +136,10 @@
         newActiveTool = faceTool;
     }
     
+    if (newActiveTool == nil && drag) {
+        newActiveTool = createBrushTool;
+    }
+    
     if (newActiveTool == nil) {
         newActiveTool = selectionTool;
     }
@@ -174,6 +179,8 @@
                             }
                             case HT_BRUSH: {
                                 id <Brush> brush = [hit object];
+                                if (brush == nil)
+                                    NSLog(@"asdf");
                                 if ([selectionManager isBrushSelected:brush])
                                     newOwner = moveTool;
                                 break;
@@ -254,38 +261,6 @@
     
 
     [NSMenu popUpContextMenu:popupMenu withEvent:lastEvent forView:[windowController view3D]];
-    
-    
-/*
-    EntityDefinitionManager* entityDefinitionManager = [[windowController document] entityDefinitionManager];
-
-    NSMenu* menu = [[NSMenu alloc] initWithTitle:@"3D View Context Menu"];
-
-    NSMenuItem* createPointEntityItem = [menu insertItemWithTitle:@"Create Point Entity" action:nil keyEquivalent:@"" atIndex:0];
-    NSMenu* pointEntityMenu = [[NSMenu alloc] initWithTitle:@"Create Point Entity"];
-    [menu setSubmenu:[pointEntityMenu autorelease] forItem:createPointEntityItem];
-    
-    NSArray* pointDefinitions = [entityDefinitionManager definitionsOfType:EDT_POINT];
-    for (int i = 0; i < [pointDefinitions count]; i++) {
-        EntityDefinition* definition = [pointDefinitions objectAtIndex:i];
-        NSMenuItem* definitionItem = [pointEntityMenu insertItemWithTitle:[definition name] action:@selector(createPointEntity:) keyEquivalent:@"" atIndex:i];
-        [definitionItem setTag:i];
-    }
-    
-    NSMenuItem* createBrushEntityItem = [menu insertItemWithTitle:@"Create Brush Entity" action:nil keyEquivalent:@"" atIndex:1];
-    NSMenu* brushEntityMenu = [[NSMenu alloc] initWithTitle:@"Create Brush Entity"];
-    [menu setSubmenu:[brushEntityMenu autorelease] forItem:createBrushEntityItem];
-    
-    NSArray* brushDefinitions = [entityDefinitionManager definitionsOfType:EDT_BRUSH];
-    for (int i = 0; i < [brushDefinitions count]; i++) {
-        EntityDefinition* definition = [brushDefinitions objectAtIndex:i];
-        NSMenuItem* definitionItem = [brushEntityMenu insertItemWithTitle:[definition name] action:@selector(createBrushEntity:) keyEquivalent:@"" atIndex:i];
-        [definitionItem setTag:i];
-    }
-    
-    menuPosition = [lastEvent locationInWindow];
-    [NSMenu popUpContextMenu:[menu autorelease] withEvent:lastEvent forView:[windowController view3D]];
- */
 }
 
 @end
@@ -302,6 +277,7 @@
         cameraTool = [[CameraTool alloc] initWithWindowController:windowController];
         selectionTool = [[SelectionTool alloc] initWithWindowController:windowController];
         moveTool = [[MoveTool alloc] initWithWindowController:windowController];
+        createBrushTool = [[CreateBrushTool alloc] initWithWindowController:windowController];
         rotateTool = [[RotateTool alloc] initWithWindowController:windowController];
         faceTool = [[FaceTool alloc] initWithWindowController:windowController];
         clipTool = [[ClipTool alloc] initWithWindowController:windowController];
@@ -322,6 +298,7 @@
     [cameraTool release];
     [selectionTool release];
     [moveTool release];
+    [createBrushTool release];
     [rotateTool release];
     [faceTool release];
     [clipTool release];

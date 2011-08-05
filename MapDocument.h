@@ -77,6 +77,7 @@ extern NSString* const PropertiesDidChange;
 
 - (void)addBrushesToEntity:(id <Entity>)theEntity brushes:(NSSet *)theBrushes;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate;
+- (id <Brush>)createBrushInEntity:(id <Entity>)theEntity withBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture;
 - (void)translateBrushes:(NSSet *)theBrushes delta:(TVector3i)theDelta;
 - (void)translateBrushes:(NSSet *)theBrushes direction:(TVector3f)theDirection delta:(int)theDelta;
 - (void)rotateBrushesZ90CW:(NSSet *)theBrushes center:(TVector3i)theCenter;

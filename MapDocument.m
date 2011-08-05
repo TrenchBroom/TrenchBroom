@@ -50,7 +50,8 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 
 @interface MapDocument (private)
 
-- (void)makeUndoSnapshot:(NSSet *)theFaces;
+- (void)makeUndoSnapshotOfFaces:(NSSet *)theFaces;
+- (void)makeUndoSnapshotOfBrushes:(NSSet *)theBrushes;
 - (void)restoreUndoSnapshot:(NSSet *)theFaces faceInfos:(NSDictionary *)theFaceInfos;
 - (void)restoreUndoSnapshot:(NSSet *)theBrushes brushInfos:(NSDictionary *)theBrushInfos;
 - (void)restoreUndoSnapshot:(NSSet *)theEntities entityInfos:(NSDictionary *)theEntityInfos;
@@ -59,7 +60,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 
 @implementation MapDocument (private)
 
-- (void)makeUndoSnapshot:(NSSet *)theFaces {
+- (void)makeUndoSnapshotOfFaces:(NSSet *)theFaces {
     NSMutableDictionary* faceInfos = [[NSMutableDictionary alloc] init];
     
     NSEnumerator* faceEn = [theFaces objectEnumerator];
@@ -76,6 +77,23 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     [faceInfos release];
 }
 
+- (void)makeUndoSnapshotOfBrushes:(NSSet *)theBrushes {
+    NSMutableDictionary* brushInfos = [[NSMutableDictionary alloc] initWithCapacity:[theBrushes count]];
+
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    MutableBrush* brush;
+    while ((brush = [brushEn nextObject])) {
+        BrushInfo* brushInfo = [[BrushInfo alloc] initWithBrush:brush];
+        [brushInfos setObject:brushInfo forKey:[brush brushId]];
+        [brushInfo release];
+    }
+
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:theBrushes brushInfos:brushInfos];
+    
+    [brushInfos release];
+}
+
 - (void)restoreUndoSnapshot:(NSSet *)theFaces faceInfos:(NSDictionary *)theFaceInfos {
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -85,8 +103,8 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
-    
-    [self makeUndoSnapshot:theFaces];
+
+    [self makeUndoSnapshotOfFaces:theFaces];
     
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
@@ -118,21 +136,15 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
     }
+
+    [self makeUndoSnapshotOfBrushes:theBrushes];
     
-    NSMutableDictionary* undoInfos = [[NSMutableDictionary alloc] initWithCapacity:[theBrushInfos count]];
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     while ((brush = [brushEn nextObject])) {
-        BrushInfo* undoInfo = [[BrushInfo alloc] initWithBrush:brush];
-        [undoInfos setObject:undoInfo forKey:[brush brushId]];
-        
         BrushInfo* brushInfo = [theBrushInfos objectForKey:[brush brushId]];
         [brushInfo updateBrush:brush];
     }
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:theBrushes brushInfos:undoInfos];
-    [undoInfos release];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -697,6 +709,21 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     return [brush autorelease];
 }
 
+- (id <Brush>)createBrushInEntity:(id <Entity>)theEntity withBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture {
+    NSAssert(theEntity != nil, @"entity must not be nil");
+    NSAssert(theBounds != NULL, @"brush bounds must not be NULL");
+    NSAssert(theTexture != nil, @"brush texture must not be nil");
+    
+    id <Brush> brush = [[MutableBrush alloc] initWithBounds:theBounds texture:theTexture];
+    
+    NSSet* brushSet = [[NSSet alloc] initWithObjects:brush, nil];
+    [self addBrushesToEntity:theEntity brushes:brushSet];
+    [brushSet release];
+    
+    return [brush autorelease];
+}
+             
+
 - (void)translateBrushes:(NSSet *)theBrushes delta:(TVector3i)theDelta {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
@@ -818,18 +845,12 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
     }
     
-    NSMutableDictionary* undoInfos = [[NSMutableDictionary alloc] initWithCapacity:[theBrushes count]];
+    [self makeUndoSnapshotOfBrushes:[theBrushes copy]];
+    
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
-    while ((brush = [brushEn nextObject])) {
-        BrushInfo* brushInfo = [[BrushInfo alloc] initWithBrush:brush];
-        [undoInfos setObject:brushInfo forKey:[brush brushId]];
-        [brushInfo release];
+    while ((brush = [brushEn nextObject]))
         [brush rotate:&theRotation center:&theCenter];
-    }
-    
-    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:[theBrushes copy] brushInfos:undoInfos];
-    [undoInfos release];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -924,7 +945,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
 
-    [self makeUndoSnapshot:theFaces];
+    [self makeUndoSnapshotOfFaces:[theFaces copy]];
     
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
@@ -953,7 +974,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    [self makeUndoSnapshot:theFaces];
+    [self makeUndoSnapshotOfFaces:[theFaces copy]];
     
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
@@ -985,7 +1006,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    [self makeUndoSnapshot:theFaces];
+    [self makeUndoSnapshotOfFaces:[theFaces copy]];
     
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
@@ -1014,7 +1035,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    [self makeUndoSnapshot:theFaces];
+    [self makeUndoSnapshotOfFaces:[theFaces copy]];
     
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
@@ -1043,7 +1064,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    [self makeUndoSnapshot:theFaces];
+    [self makeUndoSnapshotOfFaces:[theFaces copy]];
     
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
@@ -1075,7 +1096,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    [self makeUndoSnapshot:theFaces];
+    [self makeUndoSnapshotOfFaces:[theFaces copy]];
     
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
@@ -1106,7 +1127,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    [self makeUndoSnapshot:theFaces];
+    [self makeUndoSnapshotOfFaces:[theFaces copy]];
     
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
@@ -1138,7 +1159,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    [self makeUndoSnapshot:theFaces];
+    [self makeUndoSnapshotOfFaces:[theFaces copy]];
     
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
@@ -1168,7 +1189,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
     
-    [self makeUndoSnapshot:theFaces];
+    [self makeUndoSnapshotOfFaces:[theFaces copy]];
     
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;

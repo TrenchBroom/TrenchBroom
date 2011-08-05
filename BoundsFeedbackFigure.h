@@ -7,7 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Figure.h"
+#import "Math.h"
 
-@interface BoundsFeedbackFigure : NSObject
+@interface BoundsFeedbackFigure : NSObject <Figure> {
+    TBoundingBox bounds;
+}
+
+- (void)setBounds:(TBoundingBox *)theBounds;
 
 @end

@@ -63,6 +63,8 @@
 }
 
 - (id)initWithBrushTemplate:(id <Brush>)theTemplate {
+    NSAssert(theTemplate != nil, @"brush template must not be nil");
+    
     if ((self = [self init])) {
         NSEnumerator* faceEn = [[theTemplate faces] objectEnumerator];
         id <Face> faceTemplate;
@@ -71,6 +73,73 @@
             [self addFace:face];
             [face release];
         }
+    }
+    
+    return self;
+}
+
+- (id)initWithBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture {
+    NSAssert(theBounds != NULL, @"brush bounds must not be NULL");
+    
+    if ((self = [self init])) {
+        TVector3i min, max, p1, p2, p3;
+        
+        roundV3f(&theBounds->min, &min);
+        roundV3f(&theBounds->max, &max);
+        
+        p1 = min;
+        p2 = min;
+        p2.z = max.z;
+        p3 = min;
+        p3.x = max.x;
+        MutableFace* frontFace = [[MutableFace alloc] initWithPoint1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+        [self addFace:frontFace];
+        [frontFace release];
+        
+        p1 = min;
+        p2 = min;
+        p2.y = max.y;
+        p3 = min;
+        p3.z = max.z;
+        MutableFace* leftFace = [[MutableFace alloc] initWithPoint1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+        [self addFace:leftFace];
+        [leftFace release];
+        
+        p1 = min;
+        p2 = min;
+        p2.x = max.x;
+        p3 = min;
+        p3.y = max.y;
+        MutableFace* bottomFace = [[MutableFace alloc] initWithPoint1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+        [self addFace:bottomFace];
+        [bottomFace release];
+        
+        p1 = max;
+        p2 = max;
+        p2.x = min.x;
+        p3 = max;
+        p3.z = min.z;
+        MutableFace* backFace = [[MutableFace alloc] initWithPoint1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+        [self addFace:backFace];
+        [backFace release];
+        
+        p1 = max;
+        p2 = max;
+        p2.z = min.z;
+        p3 = max;
+        p3.y = min.y;
+        MutableFace* rightFace = [[MutableFace alloc] initWithPoint1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+        [self addFace:rightFace];
+        [rightFace release];
+        
+        p1 = max;
+        p2 = max;
+        p2.y = min.y;
+        p3 = max;
+        p3.x = min.x;
+        MutableFace* topFace = [[MutableFace alloc] initWithPoint1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+        [self addFace:topFace];
+        [topFace release];
     }
     
     return self;

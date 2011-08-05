@@ -159,6 +159,8 @@
 		48C029B513C4ED2800FB8B71 /* BspFace.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C029B413C4ED2800FB8B71 /* BspFace.m */; };
 		48C029B913C4EF0500FB8B71 /* Bsp.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C029B813C4EF0500FB8B71 /* Bsp.m */; };
 		48C3324413087D8600C23607 /* MenuDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C3324313087D8600C23607 /* MenuDelegate.m */; };
+		48CB060913EC19B70051640E /* CreateBrushTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CB060813EC19B70051640E /* CreateBrushTool.m */; };
+		48CB060D13EC2E690051640E /* BoundsFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CB060C13EC2E680051640E /* BoundsFeedbackFigure.m */; };
 		48CBDD9913170B330041F704 /* GLResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CBDD9813170B330041F704 /* GLResources.m */; };
 		48CE70AC134741C400886260 /* GridFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CE70AB134741C400886260 /* GridFeedbackFigure.m */; };
 		48D2A31B13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D2A31A13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m */; };
@@ -520,6 +522,10 @@
 		48C029B813C4EF0500FB8B71 /* Bsp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Bsp.m; sourceTree = "<group>"; };
 		48C3324213087D8600C23607 /* MenuDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuDelegate.h; sourceTree = "<group>"; };
 		48C3324313087D8600C23607 /* MenuDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MenuDelegate.m; sourceTree = "<group>"; };
+		48CB060713EC19B70051640E /* CreateBrushTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateBrushTool.h; sourceTree = "<group>"; };
+		48CB060813EC19B70051640E /* CreateBrushTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CreateBrushTool.m; sourceTree = "<group>"; };
+		48CB060B13EC2E680051640E /* BoundsFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundsFeedbackFigure.h; sourceTree = "<group>"; };
+		48CB060C13EC2E680051640E /* BoundsFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundsFeedbackFigure.m; sourceTree = "<group>"; };
 		48CBDD9713170B330041F704 /* GLResources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLResources.h; sourceTree = "<group>"; };
 		48CBDD9813170B330041F704 /* GLResources.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLResources.m; sourceTree = "<group>"; };
 		48CE70AA134741C400886260 /* GridFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridFeedbackFigure.h; sourceTree = "<group>"; };
@@ -851,6 +857,10 @@
 				486A68C313C1B0CF00707AC1 /* RotateCursor.m */,
 				48A023CC13E83514004F34A4 /* VertexTool.h */,
 				48A023CD13E83514004F34A4 /* VertexTool.m */,
+				48CB060713EC19B70051640E /* CreateBrushTool.h */,
+				48CB060813EC19B70051640E /* CreateBrushTool.m */,
+				48CB060B13EC2E680051640E /* BoundsFeedbackFigure.h */,
+				48CB060C13EC2E680051640E /* BoundsFeedbackFigure.m */,
 			);
 			name = Tool;
 			sourceTree = "<group>";
@@ -1529,6 +1539,8 @@
 				48A023CE13E83514004F34A4 /* VertexTool.m in Sources */,
 				48F56F5213E9CDEC008DF954 /* MapBrowserDataSource.m in Sources */,
 				48BC2E6B13EBF036003657D6 /* ConsoleWindowController.m in Sources */,
+				48CB060913EC19B70051640E /* CreateBrushTool.m in Sources */,
+				48CB060D13EC2E690051640E /* BoundsFeedbackFigure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

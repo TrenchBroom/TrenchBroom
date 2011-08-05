@@ -14,6 +14,7 @@
 @class CameraTool;
 @class SelectionTool;
 @class MoveTool;
+@class CreateBrushTool;
 @class RotateTool;
 @class FaceTool;
 @class ClipTool;
@@ -34,6 +35,7 @@
     
     CameraTool* cameraTool;
     SelectionTool* selectionTool;
+    CreateBrushTool* createBrushTool;
     MoveTool* moveTool;
     RotateTool* rotateTool;
     FaceTool* faceTool;

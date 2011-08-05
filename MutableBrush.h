@@ -27,6 +27,7 @@
 }
 
 - (id)initWithBrushTemplate:(id <Brush>)theTemplate;
+- (id)initWithBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture;
 
 - (BOOL)addFace:(MutableFace *)face;
 - (void)removeFace:(MutableFace *)face;

@@ -8,6 +8,18 @@
 
 #import "DefaultTool.h"
 
-@interface CreateBrushTool : DefaultTool
+@protocol Brush;
+@class MapWindowController;
+@class BoundsFeedbackFigure;
+
+@interface CreateBrushTool : DefaultTool {
+    MapWindowController* windowController;
+    TPlane plane;
+    TBoundingBox bounds;
+    TVector3f lastPoint;
+    id <Brush> brush;
+}
+
+- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 @end
