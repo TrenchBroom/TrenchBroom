@@ -130,7 +130,7 @@
         }
     } 
     
-    if ((newActiveTool == nil && (drag && ([selectionManager mode] == SM_FACES || [selectionManager mode] == SM_UNDEFINED))) || 
+    if ((newActiveTool == nil && (drag && [selectionManager mode] == SM_FACES)) || 
                ([selectionManager mode] == SM_FACES && [[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed]))) {
         newActiveTool = faceTool;
     }

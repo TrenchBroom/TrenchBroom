@@ -137,8 +137,6 @@
 }
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    MapDocument* map = [windowController document];
-    NSUndoManager* undoManager = [map undoManager];
     SelectionManager* selectionManager = [windowController selectionManager];
 
     PickingHit* hit = [hits firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:NO];
@@ -147,26 +145,22 @@
         Edge* edge = [hit object];
         face = [self isFrontFaceModifierPressed] ? [edge frontFaceForRay:ray] : [edge backFaceForRay:ray];
         [dragFaces addObject:face];
-        
-        [undoManager setGroupsByEvent:NO];
-        [undoManager beginUndoGrouping];
     } else {
         hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
         if (hit == nil)
             return;
         
-        [undoManager setGroupsByEvent:NO];
-        [undoManager beginUndoGrouping];
-        
         face = [hit object];
-        if (![selectionManager isFaceSelected:face]) {
-            [selectionManager removeAll:YES];
-            [selectionManager addFace:face record:YES];
-        }
+        if (![selectionManager isFaceSelected:face])
+            return;
         
         [dragFaces unionSet:[selectionManager selectedFaces]];
     }    
     
+    MapDocument* map = [windowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager setGroupsByEvent:NO];
+    [undoManager beginUndoGrouping];
     
     dragDir = *[face norm];
     lastPoint = *[hit hitPoint];
