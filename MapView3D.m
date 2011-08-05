@@ -240,6 +240,8 @@
     if (window != nil) {
         MapWindowController* windowController = [window windowController];
         if (windowController != nil) {
+            NSAssert([self openGLContext] == [NSOpenGLContext currentContext], @"open GL context is not current");
+            
             glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
@@ -258,6 +260,7 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[self openGLContext] makeCurrentContext]; // make sure we don't delete OpenGL objects that are not ours
     [renderer release];
     [options release];
     if (mouseTracker != nil) {

@@ -108,6 +108,14 @@
     return self;
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [cameras release];
+    [glResources release];
+    [layout release];
+    [super dealloc];
+}
+
 - (BOOL)isFlipped {
     return YES;
 }
@@ -336,13 +344,6 @@
     prefabsPerRow = thePrefabsPerRow;
     [layout setPrefabsPerRow:prefabsPerRow];
     [self reshape];
-}
-
-- (void)dealloc {
-    [cameras release];
-    [glResources release];
-    [layout release];
-    [super dealloc];
 }
 
 @end
