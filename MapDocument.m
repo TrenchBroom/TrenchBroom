@@ -517,7 +517,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     scaleV3i(&theDelta, -1, &inverse);
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateEntities:theEntities delta:inverse];
+    [[undoManager prepareWithInvocationTarget:self] translateEntities:[theEntities copy] delta:inverse];
 
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -558,7 +558,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateEntitiesZ90CCW:theEntities center:theCenter];
+    [[undoManager prepareWithInvocationTarget:self] rotateEntitiesZ90CCW:[theEntities copy] center:theCenter];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -588,7 +588,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateEntitiesZ90CW:theEntities center:theCenter];
+    [[undoManager prepareWithInvocationTarget:self] rotateEntitiesZ90CW:[theEntities copy] center:theCenter];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -639,7 +639,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [entity rotate:&theRotation center:&theCenter];
     }
     
-    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:theEntities entityInfos:undoInfos];
+    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:[theEntities copy] entityInfos:undoInfos];
     [undoInfos release];
     
     if ([self postNotifications]) {
@@ -665,7 +665,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         return;
 
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] deleteBrushes:theBrushes];
+    [[undoManager prepareWithInvocationTarget:self] deleteBrushes:[theBrushes copy]];
     
     MutableEntity* mutableEntity = (MutableEntity *)theEntity;
     
@@ -707,7 +707,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     scaleV3i(&theDelta, -1, &inverse);
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateBrushes:theBrushes delta:inverse];
+    [[undoManager prepareWithInvocationTarget:self] translateBrushes:[theBrushes copy] delta:inverse];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -747,7 +747,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateBrushesZ90CCW:theBrushes center:theCenter];
+    [[undoManager prepareWithInvocationTarget:self] rotateBrushesZ90CCW:[theBrushes copy] center:theCenter];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -777,7 +777,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateBrushesZ90CW:theBrushes center:theCenter];
+    [[undoManager prepareWithInvocationTarget:self] rotateBrushesZ90CW:[theBrushes copy] center:theCenter];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -828,7 +828,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [brush rotate:&theRotation center:&theCenter];
     }
     
-    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:theBrushes brushInfos:undoInfos];
+    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:[theBrushes copy] brushInfos:undoInfos];
     [undoInfos release];
     
     if ([self postNotifications]) {
@@ -875,7 +875,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     MutableEntity* entity;
     while ((entity = [entityEn nextObject])) {
         NSSet* entityBrushes = [entityIdToBrushSet objectForKey:[entity entityId]];
-        [[undoManager prepareWithInvocationTarget:self] addBrushesToEntity:entity brushes:entityBrushes];
+        [[undoManager prepareWithInvocationTarget:self] addBrushesToEntity:entity brushes:[entityBrushes copy]];
 
         NSMutableDictionary* userInfo;
         if ([self postNotifications]) {
@@ -974,7 +974,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         return;
 
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateFaceOffsets:theFaces xDelta:-theXDelta yDelta:-theYDelta];
+    [[undoManager prepareWithInvocationTarget:self] translateFaceOffsets:[theFaces copy] xDelta:-theXDelta yDelta:-theYDelta];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -1196,7 +1196,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     scaleV3i(&theDelta, -1, &inverse);
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateFaces:theFaces delta:inverse];
+    [[undoManager prepareWithInvocationTarget:self] translateFaces:[theFaces copy] delta:inverse];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -1265,7 +1265,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] dragFaces:theFaces distance:-theDistance];
+    [[undoManager prepareWithInvocationTarget:self] dragFaces:[theFaces copy] distance:-theDistance];
 
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
@@ -1301,7 +1301,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     if ([theEntities count] == 0)
         return;
     
-    [[[self undoManager] prepareWithInvocationTarget:self] removeEntities:theEntities];
+    [[[self undoManager] prepareWithInvocationTarget:self] removeEntities:[theEntities copy]];
 
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     MutableEntity* entity;
@@ -1336,7 +1336,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     if ([theEntities count] == 0)
         return;
 
-    [[[self undoManager] prepareWithInvocationTarget:self] addEntities:theEntities];
+    [[[self undoManager] prepareWithInvocationTarget:self] addEntities:[theEntities copy]];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {

@@ -52,12 +52,12 @@
                 [selectionManager removeEntity:entity record:NO];
             } else {
                 [selectionManager removeAll:NO];
-                [selectionManager addEntity:entity record:YES];
+                [selectionManager addEntity:entity record:NO];
             }
         } else {
             if (![self isMultiSelectionModifierPressed])
                 [selectionManager removeAll:NO];
-            [selectionManager addEntity:entity record:YES];
+            [selectionManager addEntity:entity record:NO];
             
         }
     } else if (faceHit != nil) {

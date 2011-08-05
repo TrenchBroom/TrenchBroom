@@ -197,7 +197,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
     }
     
     if (record) {
-        [[undoManager prepareWithInvocationTarget:self] removeBrushes:theBrushes record:record];
+        [[undoManager prepareWithInvocationTarget:self] removeBrushes:addedBrushes record:record];
         [undoManager endUndoGrouping];
     }
     
@@ -273,7 +273,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
     }
 
     if (record) {
-        [[undoManager prepareWithInvocationTarget:self] removeEntities:theEntities record:record];
+        [[undoManager prepareWithInvocationTarget:self] removeEntities:addedEntities record:record];
         [undoManager endUndoGrouping];
     }
     

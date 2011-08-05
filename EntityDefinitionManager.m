@@ -8,7 +8,6 @@
 
 #import "EntityDefinitionManager.h"
 #import "EntityDefinitionParser.h"
-#import "Console.h"
 
 @implementation EntityDefinitionManager
 
