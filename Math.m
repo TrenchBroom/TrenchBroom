@@ -79,7 +79,8 @@ int maxi(int v1, int v2) {
 }
 
 BOOL segmentIntersectsSegment(float s11, float s12, float s21, float s22) {
-    return (s21 >= s11 && s21 <= s12) || (s22 >= s11 && s22 <= s12) || segmentIntersectsSegment(s21, s22, s11, s12);
+    return (s21 >= s11 && s21 <= s12) || (s22 >= s11 && s22 <= s12) || 
+           (s11 >= s21 && s11 <= s22);
 }
 
 BOOL segmentContainsSegment(float s11, float s12, float s21, float s22) {
