@@ -15,7 +15,7 @@
 @interface CreateBrushTool : DefaultTool {
     MapWindowController* windowController;
     TPlane plane;
-    TBoundingBox bounds;
+    TBoundingBox initialBounds;
     TVector3f lastPoint;
     id <Brush> brush;
 }
