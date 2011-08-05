@@ -42,6 +42,7 @@ typedef enum {
 - (Vertex *)startVertex;
 - (Vertex *)endVertex;
 - (Vertex *)opposingVertex:(Vertex *)theVertex;
+- (void)asVector:(TVector3f *)theDirection;
 
 - (id <Face>)leftFace;
 - (id <Face>)rightFace;

@@ -21,6 +21,7 @@
 
 - (void)validate;
 - (BOOL)containsPoint:(const TVector3f *)point;
+- (EPointStatus)statusOfPoints:(NSArray *)points origin:(TVector3f *)origin direction:(TVector3f *)direction;
 
 @end
 
@@ -49,11 +50,29 @@
     Side* side;
     while ((side = [sideEn nextObject])) {
         TPlane* plane = [[side face] boundary];
-        if (pointStatus(plane, point) == PS_ABOVE)
+        if (pointStatusFromPlane(plane, point) == PS_ABOVE)
             return NO;
     }
     
     return YES;
+}
+
+- (EPointStatus)statusOfPoints:(NSArray *)points origin:(TVector3f *)origin direction:(TVector3f *)direction {
+    int above, below;
+    
+    NSEnumerator* pointEn = [points objectEnumerator];
+    Vertex* point;
+    while ((point = [pointEn nextObject])) {
+        EPointStatus pointStatus =pointStatusFromRay(origin, direction, [point vector]);
+        if (pointStatus == PS_ABOVE)
+            above++;
+        else if (pointStatus == PS_BELOW)
+            below++;
+        if (above > 0 && below > 0)
+            return PS_INSIDE;
+    }
+    
+    return above > 0 ? PS_ABOVE : PS_BELOW;
 }
 
 @end
@@ -221,7 +240,7 @@
     NSEnumerator* vEn = [vertices objectEnumerator];
     Vertex* vertex;
     while ((vertex = [vEn nextObject])) {
-        EPointStatus vertexStatus = pointStatus(plane, [vertex vector]);
+        EPointStatus vertexStatus = pointStatusFromPlane(plane, [vertex vector]);
         EVertexMark vertexMark;
         if (vertexStatus == PS_ABOVE) {
             vertexMark = VM_DROP;
@@ -398,13 +417,50 @@
 }
 
 - (BOOL)intersectsBrush:(id <Brush>)theBrush {
-    NSEnumerator* vertexEn = [[theBrush vertices] objectEnumerator];
-    Vertex* vertex;
-    while ((vertex = [vertexEn nextObject]))
-        if ([self containsPoint:[vertex vector]])
-            return YES;
+    // separating axis theorem
+    // http://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf
     
-    return NO;
+    NSEnumerator* sideEn = [sides objectEnumerator];
+    Side* side;
+    while ((side = [sideEn nextObject])) {
+        TVector3f* direction = [[side face] norm];
+        TVector3f* origin = [[[[side face] vertices] objectAtIndex:0] vector];
+        if ([self statusOfPoints:[theBrush vertices] origin:origin direction:direction] == PS_ABOVE)
+            return NO;
+    }
+    
+    NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject])) {
+        TVector3f* direction = [face norm];
+        TVector3f* origin = [[[face vertices] objectAtIndex:0] vector];
+        if ([self statusOfPoints:vertices origin:origin direction:direction] == PS_ABOVE)
+            return NO;
+    }
+    
+    NSEnumerator* myEdgeEn = [edges objectEnumerator];
+    Edge* myEdge;
+    while ((myEdge = [myEdgeEn nextObject])) {
+        NSEnumerator* theirEdgeEn = [[theBrush edges] objectEnumerator];
+        Edge* theirEdge;
+        while ((theirEdge = [theirEdgeEn nextObject])) {
+            TVector3f myEdgeVec, theirEdgeVec, cross;
+            [myEdge asVector:&myEdgeVec];
+            [theirEdge asVector:&theirEdgeVec];
+            crossV3f(&myEdgeVec, &theirEdgeVec, &cross);
+            
+            EPointStatus myStatus = [self statusOfPoints:vertices origin:[[myEdge startVertex] vector] direction:&cross];
+            if (myStatus != PS_INSIDE) {
+                EPointStatus theirStatus = [self statusOfPoints:[theBrush vertices] origin:[[myEdge startVertex] vector] direction:&cross];
+                if (theirStatus != PS_INSIDE) {
+                    if (myStatus != theirStatus)
+                        return NO;
+                }
+            }
+        }
+    }
+    
+    return YES;
 }
 
 - (BOOL)containsBrush:(id <Brush>)theBrush {
@@ -418,6 +474,8 @@
 }
 
 - (BOOL)intersectsEntity:(id <Entity>)theEntity {
+    // todo this is not entirely correct, what if the brush passes through the entity?
+    
     TBoundingBox* entityBounds = [theEntity bounds];
 
     TVector3f p = entityBounds->min;

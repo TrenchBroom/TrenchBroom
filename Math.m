@@ -79,7 +79,7 @@ int maxi(int v1, int v2) {
 }
 
 BOOL segmentIntersectsSegment(float s11, float s12, float s21, float s22) {
-    return (s21 >= s11 && s21 <= s12) || (s22 >= s11 && s22 <= s12);
+    return (s21 >= s11 && s21 <= s12) || (s22 >= s11 && s22 <= s12) || segmentIntersectsSegment(s21, s22, s11, s12);
 }
 
 BOOL segmentContainsSegment(float s11, float s12, float s21, float s22) {
@@ -512,15 +512,19 @@ void setPlanePoints(TPlane* p, const TVector3i* p1, const TVector3i* p2, const T
     normalizeV3f(&p->norm, &p->norm);
 }
 
-EPointStatus pointStatus(const TPlane* p, const TVector3f* v) {
-    TVector3f t;
+EPointStatus pointStatusFromPlane(const TPlane* p, const TVector3f* v) {
+    return pointStatusFromRay(&p->point, &p->norm, v);
+}
 
-    subV3f(v, &p->point, &t);
-    float d = dotV3f(&p->norm, &t);
-    if (fpos(d))
+EPointStatus pointStatusFromRay(const TVector3f* o, const TVector3f* d, const TVector3f* v) {
+    TVector3f t;
+    
+    subV3f(v, o, &t);
+    float c = dotV3f(d, &t);
+    if (fpos(c))
         return PS_ABOVE;
     
-    if (fneg(d))
+    if (fneg(c))
         return PS_BELOW;
     
     return PS_INSIDE;

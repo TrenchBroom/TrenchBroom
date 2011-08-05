@@ -189,9 +189,8 @@
                 default:
                     break;
             }
+            [moveCursor update:[hit hitPoint]];
         }
-        
-        [moveCursor update:[hit hitPoint]];
     } else {
         float dist = intersectPlaneWithRay(&plane, ray);
         TVector3f position;

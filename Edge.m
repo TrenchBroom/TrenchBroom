@@ -51,6 +51,10 @@
     return startVertex;
 }
 
+- (void)asVector:(TVector3f *)theDirection {
+    subV3f([endVertex vector], [startVertex vector], theDirection);
+}
+
 - (id <Face>)leftFace {
     return [leftSide face];
 }

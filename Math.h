@@ -158,7 +158,9 @@ void setLinePoints(TLine* l, TVector3f* p1, TVector3f* p2);
 void linePointAtDistance(TLine* l, float d, TVector3f* p);
 
 void setPlanePoints(TPlane* p, const TVector3i* p1, const TVector3i* p2, const TVector3i* p3);
-EPointStatus pointStatus(const TPlane* p, const TVector3f* v);
+EPointStatus pointStatusFromPlane(const TPlane* p, const TVector3f* v);
+EPointStatus pointStatusFromRay(const TVector3f* o, const TVector3f* d, const TVector3f* v);
+
 float intersectPlaneWithRay(const TPlane* p, const TRay* r);
 float intersectPlaneWithLine(const TPlane* p, const TLine* l);
 float planeX(TPlane* p, float y, float z);

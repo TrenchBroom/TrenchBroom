@@ -15,6 +15,8 @@
 #import "BoundsFeedbackFigure.h"
 #import "Renderer.h"
 #import "SelectionManager.h"
+#import "PickingHit.h"
+#import "PickingHitList.h"
 
 @implementation CreateBrushTool
 
@@ -27,13 +29,25 @@
 }
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    Camera* camera = [windowController camera];
-    lastPoint = [camera defaultPointOnRay:ray];
+    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
+    if (hit != nil) {
+        lastPoint = *[hit hitPoint];
+    } else {
+        Camera* camera = [windowController camera];
+        lastPoint = [camera defaultPointOnRay:ray];
+    }
 
     Grid* grid = [[windowController options] grid];
     [grid snapDownToGridV3f:&lastPoint result:&initialBounds.min];
     [grid snapUpToGridV3f:&lastPoint result:&initialBounds.max];
     [grid snapToGridV3f:&lastPoint result:&lastPoint];
+    
+    if (initialBounds.min.x == initialBounds.max.x)
+        initialBounds.max.x += [grid actualSize];
+    if (initialBounds.min.y == initialBounds.max.y)
+        initialBounds.max.y += [grid actualSize];
+    if (initialBounds.min.z == initialBounds.max.z)
+        initialBounds.max.z += [grid actualSize];
 
     switch (largestComponentV3f(&ray->direction)) {
         case A_X:
@@ -122,17 +136,17 @@
     float delta = [grid actualSize] * ([event deltaY] / fabsf([event deltaY]));
     
     if (equalV3f(&plane.norm, &XAxisPos)) {
-        initialBounds.max.x = fmaxf(initialBounds.max.x + delta, [grid actualSize]);
+        initialBounds.max.x = fmaxf(initialBounds.max.x + delta, initialBounds.min.x + [grid actualSize]);
     } else if (equalV3f(&plane.norm, &XAxisNeg)) {
-        initialBounds.min.x = fmaxf(initialBounds.min.x - delta, [grid actualSize]);
+        initialBounds.min.x = fminf(initialBounds.min.x - delta, initialBounds.max.x - [grid actualSize]);
     } else if (equalV3f(&plane.norm, &YAxisPos)) {
-        initialBounds.max.y = fmaxf(initialBounds.max.y + delta, [grid actualSize]);
+        initialBounds.max.y = fmaxf(initialBounds.max.y + delta, initialBounds.min.y + [grid actualSize]);
     } else if (equalV3f(&plane.norm, &YAxisNeg)) {
-        initialBounds.min.y = fmaxf(initialBounds.min.y - delta, [grid actualSize]);
+        initialBounds.min.y = fminf(initialBounds.min.y - delta, initialBounds.max.y - [grid actualSize]);
     } else if (equalV3f(&plane.norm, &ZAxisPos)) {
-        initialBounds.min.z = fmaxf(initialBounds.min.z + delta, [grid actualSize]);
+        initialBounds.min.z = fmaxf(initialBounds.min.z + delta, initialBounds.min.z + [grid actualSize]);
     } else if (equalV3f(&plane.norm, &ZAxisNeg)) {
-        initialBounds.min.z = fmaxf(initialBounds.min.z - delta, [grid actualSize]);
+        initialBounds.min.z = fminf(initialBounds.min.z - delta, initialBounds.max.z - [grid actualSize]);
     }
 
     TBoundingBox bounds = initialBounds;
