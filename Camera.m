@@ -17,6 +17,9 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 - (id)init {
     if ((self = [super init])) {
         position = NullVector;
+        position.x -= 64;
+        position.y -= 64;
+        position.z += 64;
         direction = XAxisPos;
         up = ZAxisPos;
         right = YAxisNeg;

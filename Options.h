@@ -32,6 +32,7 @@ extern NSString* const OptionsChanged;
     BOOL renderEntities;
     BOOL renderEntityClassnames;
     BOOL renderBrushes;
+    BOOL renderOrigin;
 }
 
 - (Grid *)grid;
@@ -50,5 +51,8 @@ extern NSString* const OptionsChanged;
 
 - (BOOL)renderBrushes;
 - (void)setRenderBrushes:(BOOL)doRenderBrushes;
+
+- (BOOL)renderOrigin;
+- (void)setRenderOrigin:(BOOL)doRenderOrigin;
 
 @end

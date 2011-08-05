@@ -739,6 +739,20 @@ NSString* const RendererChanged = @"RendererChanged";
     glShadeModel(GL_FLAT);
     glResetEdgeOffset();
     
+    if ([[windowController options] renderOrigin]) {
+        glBegin(GL_LINES);
+        glColor4f(1, 0, 0, 0.5f);
+        glVertex3f(-64, 0, 0);
+        glVertex3f(64, 0, 0);
+        glColor4f(0, 1, 0, 0.5f);
+        glVertex3f(0, -64, 0);
+        glVertex3f(0, 64, 0);
+        glColor4f(0, 0, 1, 0.5f);
+        glVertex3f(0, 0, -64);
+        glVertex3f(0, 0, 64);
+        glEnd();
+    }
+    
     [geometryLayer render];
     [entityLayer render];
     

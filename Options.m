@@ -21,6 +21,7 @@ NSString* const OptionsChanged = @"OptionsChanged";
         renderEntities = YES;
         renderEntityClassnames = YES;
         renderBrushes = YES;
+        renderOrigin = YES;
     }
     
     return self;
@@ -100,6 +101,19 @@ NSString* const OptionsChanged = @"OptionsChanged";
     [center postNotificationName:OptionsChanged object:self];
 }
 
+- (BOOL)renderOrigin {
+    return renderOrigin;
+}
+
+- (void)setRenderOrigin:(BOOL)doRenderOrigin {
+    if (renderOrigin == doRenderOrigin)
+        return;
+    
+    renderOrigin = doRenderOrigin;
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:OptionsChanged object:self];
+}
 
 - (void)dealloc {
     [grid release];
