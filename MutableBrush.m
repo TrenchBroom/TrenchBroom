@@ -309,4 +309,40 @@
     [[self vertexData] pickEdgeClosestToRay:theRay maxDistance:theMaxDist hitList:theHitList];
 }
 
+- (BOOL)intersectsBrush:(id <Brush>)theBrush {
+    NSAssert(theBrush != nil, @"brush must not be nil");
+    
+    if (!boundsIntersectWithBounds([self bounds], [theBrush bounds]))
+        return NO;
+    
+    return [[self vertexData] intersectsBrush:(id <Brush>)theBrush];
+}
+
+- (BOOL)containsBrush:(id <Brush>)theBrush {
+    NSAssert(theBrush != nil, @"brush must not be nil");
+    
+    if (!boundsContainBounds([self bounds], [theBrush bounds]))
+        return NO;
+    
+    return [[self vertexData] containsBrush:(id <Brush>)theBrush];
+}
+
+- (BOOL)intersectsEntity:(id <Entity>)theEntity {
+    NSAssert(theEntity != nil, @"entity must not be nil");
+    
+    if (!boundsIntersectWithBounds([self bounds], [theEntity bounds]))
+        return NO;
+    
+    return [[self vertexData] intersectsEntity:(id <Entity>)theEntity];
+}
+
+- (BOOL)containsEntity:(id <Entity>)theEntity {
+    NSAssert(theEntity != nil, @"entity must not be nil");
+    
+    if (!boundsContainBounds([self bounds], [theEntity bounds]))
+        return NO;
+    
+    return [[self vertexData] containsEntity:theEntity];
+}
+
 @end

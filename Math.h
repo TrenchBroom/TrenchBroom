@@ -119,6 +119,8 @@ float lengthV2f(const TVector2f* v);
 void normalizeV2f(const TVector2f* v, TVector2f* r);
 
 float dot3f(float lx, float ly, float lz, float rx, float ry, float rz);
+BOOL segmentIntersectsSegment(float s11, float s12, float s21, float s22);
+
 
 void addV3f(const TVector3f* l, const TVector3f* r, TVector3f* o);
 void sumV3f(const TVector3f* v, int c, TVector3f* o);
@@ -173,6 +175,8 @@ void sizeOfBounds(const TBoundingBox* b, TVector3f* o);
 void roundedSizeOfBounds(const TBoundingBox* b, TVector3i* o);
 float radiusOfBounds(const TBoundingBox* b);
 float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray, TVector3f* n);
+BOOL boundsIntersectWithBounds(const TBoundingBox* b1, const TBoundingBox* b2);
+BOOL boundsContainBounds(const TBoundingBox* b1, const TBoundingBox *b2);
 
 void setQ(TQuaternion* l, const TQuaternion* r);
 void setAngleAndAxisQ(TQuaternion* q, float a, const TVector3f* x);

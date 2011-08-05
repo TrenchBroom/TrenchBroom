@@ -14,10 +14,13 @@
 #import "PickingHit.h"
 #import "PickingHitList.h"
 #import "Side.h"
+#import "Brush.h"
+#import "Entity.h"
 
 @interface VertexData (private)
 
 - (void)validate;
+- (BOOL)containsPoint:(const TVector3f *)point;
 
 @end
 
@@ -39,6 +42,18 @@
     scaleV3f(&center, 1.0f / [vertices count], &center);
     
     valid = YES;
+}
+
+- (BOOL)containsPoint:(const TVector3f *)point {
+    NSEnumerator* sideEn = [sides objectEnumerator];
+    Side* side;
+    while ((side = [sideEn nextObject])) {
+        TPlane* plane = [[side face] boundary];
+        if (pointStatus(plane, point) == PS_ABOVE)
+            return NO;
+    }
+    
+    return YES;
 }
 
 @end
@@ -380,6 +395,102 @@
     PickingHit* hit = [[PickingHit alloc] initWithObject:closestEdge type:HT_CLOSE_EDGE hitPoint:&hitPoint distance:closestRayDist];
     [theHitList addHit:hit];
     [hit release];
+}
+
+- (BOOL)intersectsBrush:(id <Brush>)theBrush {
+    NSEnumerator* vertexEn = [[theBrush vertices] objectEnumerator];
+    Vertex* vertex;
+    while ((vertex = [vertexEn nextObject]))
+        if ([self containsPoint:[vertex vector]])
+            return YES;
+    
+    return NO;
+}
+
+- (BOOL)containsBrush:(id <Brush>)theBrush {
+    NSEnumerator* vertexEn = [[theBrush vertices] objectEnumerator];
+    Vertex* vertex;
+    while ((vertex = [vertexEn nextObject]))
+        if (![self containsPoint:[vertex vector]])
+            return NO;
+    
+    return YES;
+}
+
+- (BOOL)intersectsEntity:(id <Entity>)theEntity {
+    TBoundingBox* entityBounds = [theEntity bounds];
+
+    TVector3f p = entityBounds->min;
+    if ([self containsPoint:&p])
+        return YES;
+
+    p.x = entityBounds->max.x;
+    if ([self containsPoint:&p])
+        return YES;
+
+    p.y = entityBounds->max.y;
+    if ([self containsPoint:&p])
+        return YES;
+
+    p.x = entityBounds->min.x;
+    if ([self containsPoint:&p])
+        return YES;
+
+    p = entityBounds->max;
+    if ([self containsPoint:&p])
+        return YES;
+
+    p.x = entityBounds->min.x;
+    if ([self containsPoint:&p])
+        return YES;
+    
+    p.y = entityBounds->min.y;
+    if ([self containsPoint:&p])
+        return YES;
+
+    p.x = entityBounds->max.x;
+    if ([self containsPoint:&p])
+        return YES;
+
+    return NO;
+}
+
+- (BOOL)containsEntity:(id <Entity>)theEntity {
+    TBoundingBox* entityBounds = [theEntity bounds];
+    
+    TVector3f p = entityBounds->min;
+    if (![self containsPoint:&p])
+        return NO;
+    
+    p.x = entityBounds->max.x;
+    if (![self containsPoint:&p])
+        return NO;
+    
+    p.y = entityBounds->max.y;
+    if (![self containsPoint:&p])
+        return NO;
+    
+    p.x = entityBounds->min.x;
+    if (![self containsPoint:&p])
+        return NO;
+    
+    p = entityBounds->max;
+    if (![self containsPoint:&p])
+        return NO;
+    
+    p.x = entityBounds->min.x;
+    if (![self containsPoint:&p])
+        return NO;
+    
+    p.y = entityBounds->min.y;
+    if (![self containsPoint:&p])
+        return NO;
+    
+    p.x = entityBounds->max.x;
+    if (![self containsPoint:&p])
+        return NO;
+    
+    return YES;
 }
 
 - (void)dealloc {

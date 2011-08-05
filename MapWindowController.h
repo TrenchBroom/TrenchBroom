@@ -69,6 +69,7 @@
 - (IBAction)selectAll:(id)sender;
 - (IBAction)selectNone:(id)sender;
 - (IBAction)selectEntity:(id)sender;
+- (IBAction)selectAllTouchingBrush:(id)sender;
 - (IBAction)copySelection:(id)sender;
 - (IBAction)cutSelection:(id)sender;
 - (IBAction)pasteClipboard:(id)sender;

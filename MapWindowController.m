@@ -221,6 +221,8 @@
     } else if (action == @selector(selectEntity:)) {
         id <Entity> entity = [selectionManager brushSelectionEntity];
         return ![entity isWorldspawn] && [[selectionManager selectedBrushes] count] < [[entity brushes] count];
+    } else if (action == @selector(selectAllTouchingBrush:)) {
+        return [selectionManager mode] == SM_BRUSHES && [[selectionManager selectedBrushes] count] == 1; 
     } else if (action == @selector(copySelection:)) {
         return [selectionManager hasSelectedEntities] || [selectionManager hasSelectedBrushes];
     } else if (action == @selector(cutSelection:)) {
@@ -699,6 +701,41 @@
     [selectionManager removeAll:NO];
     [selectionManager addEntity:entity record:NO];
     [selectionManager addBrushes:[NSSet setWithArray:[entity brushes]] record:NO];
+}
+
+- (IBAction)selectAllTouchingBrush:(id)sender {
+    MapDocument* map = [self document];
+    id <Brush> selectionBrush = [[[selectionManager selectedBrushes] objectEnumerator] nextObject];
+
+    NSMutableSet* touchingEntities = [[NSMutableSet alloc] init];
+    NSMutableSet* touchingBrushes = [[NSMutableSet alloc] init];
+    
+    NSEnumerator* entityEn = [[map entities] objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject])) {
+        if (![entity isWorldspawn] && [selectionBrush intersectsEntity:entity])
+            [touchingEntities addObject:entity];
+        
+        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject]))
+            if (selectionBrush != brush && [selectionBrush intersectsBrush:brush])
+                [touchingBrushes addObject:brush];
+    }
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    [selectionManager removeAll:YES];
+    [map deleteBrushes:[NSSet setWithObject:selectionBrush]];
+    
+    if ([touchingEntities count] > 0)
+        [selectionManager addEntities:touchingEntities record:YES];
+    if ([touchingBrushes count] > 0)
+        [selectionManager addBrushes:touchingBrushes record:YES];
+    
+    [undoManager setActionName:@"Select Touching"];
+    [undoManager endUndoGrouping];
 }
 
 - (IBAction)copySelection:(id)sender {}

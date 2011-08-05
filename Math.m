@@ -78,6 +78,14 @@ int maxi(int v1, int v2) {
     return v2;
 }
 
+BOOL segmentIntersectsSegment(float s11, float s12, float s21, float s22) {
+    return (s21 >= s11 && s21 <= s12) || (s22 >= s11 && s22 <= s12);
+}
+
+BOOL segmentContainsSegment(float s11, float s12, float s21, float s22) {
+    return s21 >= s11 && s22 <= s12;
+}
+
 #pragma mark TVector2f functions
 
 void addV2f(const TVector2f* l, const TVector2f* r, TVector2f* o) {
@@ -583,7 +591,6 @@ void pointOnCubicBezierCurve(const TCubicBezierCurve* c, float t, TVector3f* r) 
     addV3f(r, &v, r);
 }
 
-
 #pragma mark TRay functions
 
 float intersectSphereWithRay(const TVector3f* c, float ra, const TRay* r) {
@@ -833,6 +840,18 @@ float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray, TVector3f* 
         return NAN;
     
     return dist;
+}
+
+BOOL boundsIntersectWithBounds(const TBoundingBox* b1, const TBoundingBox* b2) {
+    return segmentIntersectsSegment(b1->min.x, b1->max.x, b2->min.x, b2->max.x) &&
+           segmentIntersectsSegment(b1->min.y, b1->max.y, b2->min.y, b2->max.y) &&
+           segmentIntersectsSegment(b1->min.z, b1->max.z, b2->min.z, b2->max.z);
+}
+
+BOOL boundsContainBounds(const TBoundingBox* b1, const TBoundingBox *b2) {
+    return segmentContainsSegment(b1->min.x, b1->max.x, b2->min.x, b2->max.x) &&
+           segmentContainsSegment(b1->min.y, b1->max.y, b2->min.y, b2->max.y) &&
+           segmentContainsSegment(b1->min.z, b1->max.z, b2->min.z, b2->max.z);
 }
 
 # pragma mark TQuaternion functions

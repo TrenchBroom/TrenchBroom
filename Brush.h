@@ -31,4 +31,8 @@
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
 - (void)pickEdgeClosestToRay:(TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList;
 
+- (BOOL)intersectsBrush:(id <Brush>)theBrush;
+- (BOOL)containsBrush:(id <Brush>)theBrush;
+- (BOOL)intersectsEntity:(id <Entity>)theEntity;
+- (BOOL)containsEntity:(id <Entity>)theEntity;
 @end
