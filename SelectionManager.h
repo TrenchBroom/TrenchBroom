@@ -36,6 +36,8 @@ typedef enum {
     NSMutableSet* partialBrushes;
     NSMutableSet* brushes;
     NSMutableSet* entities;
+    id <Entity> brushSelectionEntity;
+    BOOL brushSelectionEntityValid;
     ESelectionMode mode;
 }
 

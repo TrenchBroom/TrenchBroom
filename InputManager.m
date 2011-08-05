@@ -229,6 +229,34 @@
 }
 
 - (void)showContextMenu {
+    if (popupMenu == nil) {
+        popupMenu = [[windowController view3D] menu];
+        
+        NSMenu* pointEntityMenu = [[windowController view3D] pointEntityMenu];
+        NSMenu* brushEntityMenu = [[windowController view3D] brushEntityMenu];
+        
+        EntityDefinitionManager* entityDefinitionManager = [[windowController document] entityDefinitionManager];
+        
+        NSArray* pointDefinitions = [entityDefinitionManager definitionsOfType:EDT_POINT];
+        for (int i = 0; i < [pointDefinitions count]; i++) {
+            EntityDefinition* definition = [pointDefinitions objectAtIndex:i];
+            NSMenuItem* definitionItem = [pointEntityMenu insertItemWithTitle:[definition name] action:@selector(createPointEntity:) keyEquivalent:@"" atIndex:i];
+            [definitionItem setTag:i];
+        }
+        
+        NSArray* brushDefinitions = [entityDefinitionManager definitionsOfType:EDT_BRUSH];
+        for (int i = 0; i < [brushDefinitions count]; i++) {
+            EntityDefinition* definition = [brushDefinitions objectAtIndex:i];
+            NSMenuItem* definitionItem = [brushEntityMenu insertItemWithTitle:[definition name] action:@selector(createBrushEntity:) keyEquivalent:@"" atIndex:i];
+            [definitionItem setTag:i];
+        }
+    }
+    
+
+    [NSMenu popUpContextMenu:popupMenu withEvent:lastEvent forView:[windowController view3D]];
+    
+    
+/*
     EntityDefinitionManager* entityDefinitionManager = [[windowController document] entityDefinitionManager];
 
     NSMenu* menu = [[NSMenu alloc] initWithTitle:@"3D View Context Menu"];
@@ -257,6 +285,7 @@
     
     menuPosition = [lastEvent locationInWindow];
     [NSMenu popUpContextMenu:[menu autorelease] withEvent:lastEvent forView:[windowController view3D]];
+ */
 }
 
 @end

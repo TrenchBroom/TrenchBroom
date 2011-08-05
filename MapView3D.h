@@ -18,9 +18,15 @@
     Renderer* renderer;
     Options* options;
     NSTrackingArea* mouseTracker;
+    BOOL menuValid;
+    IBOutlet NSMenu* pointEntityMenu;
+    IBOutlet NSMenu* brushEntityMenu;
 }
 
 - (void)setup;
 - (Renderer *)renderer;
+
+- (NSMenu *)pointEntityMenu;
+- (NSMenu *)brushEntityMenu;
 
 @end

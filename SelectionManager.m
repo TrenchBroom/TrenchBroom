@@ -165,6 +165,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
         mode = SM_BRUSHES_ENTITIES;
     else
         mode = SM_BRUSHES;
+    brushSelectionEntityValid = NO;
     
     NSSet* brushSet = [[NSSet alloc] initWithObjects:brush, nil];
     NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:brushSet, SelectionBrushes, nil];
@@ -205,6 +206,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
         mode = SM_BRUSHES_ENTITIES;
     else
         mode = SM_BRUSHES;
+    brushSelectionEntityValid = NO;
     
     NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:addedBrushes, SelectionBrushes, nil];
     [addedBrushes release];
@@ -239,6 +241,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
         mode = SM_BRUSHES_ENTITIES;
     else
         mode = SM_ENTITIES;
+    brushSelectionEntityValid = NO;
     
     NSSet* entitySet = [[NSSet alloc] initWithObjects:entity, nil];
     NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:entitySet, SelectionEntities, nil];
@@ -279,6 +282,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
         mode = SM_BRUSHES_ENTITIES;
     else
         mode = SM_ENTITIES;
+    brushSelectionEntityValid = NO;
     
     NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:addedEntities, SelectionEntities, nil];
     [addedEntities release];
@@ -344,16 +348,20 @@ NSString* const SelectionVertices = @"SelectionVertices";
 - (id <Entity>)brushSelectionEntity {
     if (mode != SM_BRUSHES)
         return nil;
-    
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    id <Brush> brush = [brushEn nextObject];
-    id <Entity> entity = [brush entity];
-    while ((brush = [brushEn nextObject])) {
-        if ([brush entity] != entity)
-            return nil;
+
+    if (!brushSelectionEntityValid) {
+        NSEnumerator* brushEn = [brushes objectEnumerator];
+        id <Brush> brush = [brushEn nextObject];
+        brushSelectionEntity = [brush entity];
+        while ((brush = [brushEn nextObject]) && brushSelectionEntity != nil) {
+            if ([brush entity] != brushSelectionEntity)
+                brushSelectionEntity = nil;
+            
+        }
+        brushSelectionEntityValid = YES;
     }
     
-    return entity;
+    return brushSelectionEntity;
 }
 
 - (BOOL)selectionCenter:(TVector3f *)result {
@@ -555,6 +563,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
             mode = SM_ENTITIES;
         }
     }
+    brushSelectionEntityValid = NO;
     
     if (record)
         [[undoManager prepareWithInvocationTarget:self] addBrush:brush record:record];
@@ -586,6 +595,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
         else
             mode = SM_ENTITIES;
     }
+    brushSelectionEntityValid = NO;
     
     if (record)
         [[undoManager prepareWithInvocationTarget:self] addBrushes:removedBrushes record:record];

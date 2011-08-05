@@ -45,6 +45,8 @@
     
     id <DndTool> activeDndTool;
     EntityDefinitionDndTool* entityDefinitionDndTool;
+    
+    NSMenu* popupMenu;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

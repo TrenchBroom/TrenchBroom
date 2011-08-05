@@ -18,6 +18,7 @@
 #import "MapDocument.h"
 #import "Options.h"
 #import "Grid.h"
+#import "EntityDefinitionManager.h"
 #import "EntityDefinition.h"
 #import "PreferencesManager.h"
 
@@ -257,6 +258,15 @@
 - (Renderer *)renderer {
     return renderer;
 }
+
+- (NSMenu *)pointEntityMenu {
+    return pointEntityMenu;
+}
+
+- (NSMenu *)brushEntityMenu {
+    return brushEntityMenu;
+}
+
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
