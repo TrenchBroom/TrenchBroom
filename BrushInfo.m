@@ -24,8 +24,6 @@
     
     if ((self = [self init])) {
         brushId = [[theBrush brushId] retain];
-        for (int i = 0; i < 3; i++)
-            flatColor[i] = [theBrush flatColor][i];
         
         NSArray* faces = [theBrush faces];
         faceInfos = [[NSMutableArray alloc] initWithCapacity:[faces count]];

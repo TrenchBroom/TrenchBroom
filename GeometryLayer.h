@@ -34,7 +34,6 @@
 - (void)preRenderEdges;
 - (void)postRenderEdges;
 - (void)setTextureMode;
-- (void)setFaceColorMode;
 - (BOOL)doRenderFaces;
 - (BOOL)doRenderEdges;
 

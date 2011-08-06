@@ -14,7 +14,6 @@
 @interface BrushInfo : NSObject {
 @private
     NSNumber* brushId;
-    float flatColor[3];
     NSMutableArray* faceInfos;
 }
 

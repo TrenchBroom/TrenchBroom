@@ -24,7 +24,6 @@
 - (NSArray *)vertices;
 - (NSArray *)edges;
 
-- (float *)flatColor;
 - (TBoundingBox *)bounds;
 - (TVector3f *)center;
 

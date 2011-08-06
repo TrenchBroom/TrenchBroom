@@ -130,7 +130,7 @@
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
         glClientActiveTexture(GL_TEXTURE1);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (0 * sizeof(float)));
+        glTexCoordPointer(2, GL_FLOAT, 7 * sizeof(float), (const GLvoid *) (0 * sizeof(float)));
     }
      
     glActiveTexture(GL_TEXTURE0);
@@ -139,13 +139,13 @@
         [self setTextureMode];
         glClientActiveTexture(GL_TEXTURE0);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (2 * sizeof(float)));
+        glTexCoordPointer(2, GL_FLOAT, 7 * sizeof(float), (const GLvoid *) (2 * sizeof(float)));
     } else {
         glDisable(GL_TEXTURE_2D);
     }
-    
-    [self setFaceColorMode];
-    glVertexPointer(3, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (7 * sizeof(float)));
+
+    glColor4f(0.2, 0.2, 0.2, 1);
+    glVertexPointer(3, GL_FLOAT, 7 * sizeof(float), (const GLvoid *) (4 * sizeof(float)));
     
     NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
     NSString* textureName;
@@ -207,11 +207,6 @@
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 }
 
-- (void)setFaceColorMode {
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(3, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (4 * sizeof(float)));
-}
-
 - (BOOL)doRenderFaces {
     return [options isolationMode] == IM_NONE;
 }
@@ -224,7 +219,7 @@
     [self preRenderEdges];
     glDisable(GL_TEXTURE_2D);
 
-    glVertexPointer(3, GL_FLOAT, 10 * sizeof(float), (const GLvoid *) (7 * sizeof(float)));
+    glVertexPointer(3, GL_FLOAT, 7 * sizeof(float), (const GLvoid *) (4 * sizeof(float)));
     
     NSEnumerator* textureNameEn = [indexBuffers keyEnumerator];
     NSString* textureName;
@@ -294,7 +289,7 @@
                 [countBuffer release];
             }
             
-            int index = [block address] / (10 * sizeof(float));
+            int index = [block address] / (7 * sizeof(float));
             int count = [[face vertices] count];
             [indexBuffer appendInt:index];
             [countBuffer appendInt:count];

@@ -104,8 +104,7 @@ NSString* const RendererChanged = @"RendererChanged";
     [sharedVbo activate];
     [sharedVbo mapBuffer];
     
-    int vertexSize = 10 * sizeof(float);
-    TVector3f color;
+    int vertexSize = 7 * sizeof(float);
     TVector2f gridCoords, texCoords;
     
     NSEnumerator* faceEn = [invalidFaces objectEnumerator];
@@ -122,10 +121,6 @@ NSString* const RendererChanged = @"RendererChanged";
                 [face setMemBlock:block];
             }
             
-            color.x = [brush flatColor][0];
-            color.y = [brush flatColor][1];
-            color.z = [brush flatColor][2];
-            
             Texture* texture = [textureManager textureForName:[face texture]];
             int width = texture != nil ? [texture width] : 1;
             int height = texture != nil ? [texture height] : 1;
@@ -141,7 +136,6 @@ NSString* const RendererChanged = @"RendererChanged";
                 
                 offset = [block writeVector2f:&gridCoords offset:offset];
                 offset = [block writeVector2f:&texCoords offset:offset];
-                offset = [block writeVector3f:&color offset:offset];
                 offset = [block writeVector3f:[vertex vector] offset:offset];
             }
             

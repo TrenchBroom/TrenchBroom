@@ -52,10 +52,6 @@
         faces = [[NSMutableArray alloc] init];
         vertexData = [[VertexData alloc] init];
         
-        flatColor[0] = 0.2f;
-        flatColor[1] = 0.2f;
-        flatColor[2] = 0.2f;
-        
         filePosition = -1;
     }
     
@@ -149,8 +145,6 @@
     MutableBrush* result = [[MutableBrush allocWithZone:zone] init];
     [result->brushId release];
     result->brushId = [brushId retain];
-    for (int i = 0; i < 3; i++)
-        result->flatColor[i] = flatColor[i];
     
     [result setEntity:entity];
     [result setFilePosition:filePosition];
@@ -287,10 +281,6 @@
 
 - (NSArray *)edges {
     return [[self vertexData] edges];
-}
-
-- (float *)flatColor {
-    return flatColor;
 }
 
 - (TBoundingBox *)bounds {

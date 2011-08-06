@@ -22,7 +22,6 @@
     MutableEntity* entity;
 	NSMutableArray* faces;
     VertexData* vertexData;
-    float flatColor[3];
     int filePosition;
 }
 
