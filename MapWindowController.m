@@ -373,47 +373,63 @@
 #pragma mark Brush related actions
 
 - (IBAction)rotateZ90CW:(id)sender {
-    NSSet* brushes = [selectionManager selectedBrushes];
-    NSSet* entities = [selectionManager selectedEntities];
+    MapDocument* map = [self document];
     
     TVector3f centerf;
-    TVector3i centeri;
-    
-    TBoundingBox bounds = [self boundsOf:brushes entities:entities];
-    centerOfBounds(&bounds, &centerf);
-    roundV3f(&centerf, &centeri);
-    
-    MapDocument* map = [self document];
-    NSUndoManager* undoManager = [map undoManager];
-    [undoManager beginUndoGrouping];
+    TBoundingBox bounds;
 
-    [map rotateBrushesZ90CW:brushes center:centeri];
-    [map rotateEntitiesZ90CW:entities center:centeri];
+    [selectionManager selectionBounds:&bounds];
+    centerOfBounds(&bounds, &centerf);
+
+    subV3f(&bounds.min, &centerf, &bounds.min);
+    subV3f(&bounds.max, &centerf, &bounds.max);
+    rotateBoundsZ90CW(&bounds, &bounds);
+    addV3f(&bounds.min, &centerf, &bounds.min);
+    addV3f(&bounds.max, &centerf, &bounds.max);
     
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Rotate Objects"];
+    if (boundsContainBounds([map worldBounds], &bounds)) {
+        TVector3i centeri;
+        roundV3f(&centerf, &centeri);
+        
+        NSUndoManager* undoManager = [map undoManager];
+        [undoManager beginUndoGrouping];
+        
+        [map rotateBrushesZ90CW:[selectionManager selectedBrushes] center:centeri];
+        [map rotateEntitiesZ90CW:[selectionManager selectedEntities] center:centeri];
+        
+        [undoManager endUndoGrouping];
+        [undoManager setActionName:@"Rotate Objects"];
+    }
 }
 
 - (IBAction)rotateZ90CCW:(id)sender {
-    NSSet* brushes = [selectionManager selectedBrushes];
-    NSSet* entities = [selectionManager selectedEntities];
+    MapDocument* map = [self document];
     
     TVector3f centerf;
-    TVector3i centeri;
+    TBoundingBox bounds;
     
-    TBoundingBox bounds = [self boundsOf:brushes entities:entities];
+    [selectionManager selectionBounds:&bounds];
     centerOfBounds(&bounds, &centerf);
-    roundV3f(&centerf, &centeri);
     
-    MapDocument* map = [self document];
-    NSUndoManager* undoManager = [map undoManager];
-    [undoManager beginUndoGrouping];
+    subV3f(&bounds.min, &centerf, &bounds.min);
+    subV3f(&bounds.max, &centerf, &bounds.max);
+    rotateBoundsZ90CCW(&bounds, &bounds);
+    addV3f(&bounds.min, &centerf, &bounds.min);
+    addV3f(&bounds.max, &centerf, &bounds.max);
     
-    [map rotateBrushesZ90CCW:brushes center:centeri];
-    [map rotateEntitiesZ90CCW:entities center:centeri];
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Rotate Objects"];
+    if (boundsContainBounds([map worldBounds], &bounds)) {
+        TVector3i centeri;
+        roundV3f(&centerf, &centeri);
+        
+        NSUndoManager* undoManager = [map undoManager];
+        [undoManager beginUndoGrouping];
+        
+        [map rotateBrushesZ90CCW:[selectionManager selectedBrushes] center:centeri];
+        [map rotateEntitiesZ90CCW:[selectionManager selectedEntities] center:centeri];
+        
+        [undoManager endUndoGrouping];
+        [undoManager setActionName:@"Rotate Objects"];
+    }
 }
 
 - (IBAction)toggleClipTool:(id)sender {
@@ -508,17 +524,27 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    const TVector3f* direction = [camera right];
     float delta = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedFaces])
         [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:delta yDelta:0];
     
-    if ([selectionManager hasSelectedBrushes])
-        [map translateBrushes:[selectionManager selectedBrushes] direction:*direction delta:-delta];
-    
-    if ([selectionManager hasSelectedEntities])
-        [map translateEntities:[selectionManager selectedEntities] direction:*direction delta:-delta];
+    if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
+        TVector3f deltaf;
+        closestAxisV3f([camera right], &deltaf);
+        scaleV3f(&deltaf, -delta, &deltaf);
+        
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        translateBounds(&bounds, &deltaf, &bounds);
+        if (boundsContainBounds([map worldBounds], &bounds)) {
+            TVector3i deltai;
+            roundV3f(&deltaf, &deltai);
+            
+            [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+            [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+        }
+    }
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Objects"];
@@ -529,17 +555,27 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    const TVector3f* direction = [camera right];
     float delta = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedFaces])
         [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:-delta yDelta:0];
     
-    if ([selectionManager hasSelectedBrushes])
-        [map translateBrushes:[selectionManager selectedBrushes] direction:*direction delta:delta];
-    
-    if ([selectionManager hasSelectedEntities])
-        [map translateEntities:[selectionManager selectedEntities] direction:*direction delta:delta];
+    if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
+        TVector3f deltaf;
+        closestAxisV3f([camera right], &deltaf);
+        scaleV3f(&deltaf, delta, &deltaf);
+        
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        translateBounds(&bounds, &deltaf, &bounds);
+        if (boundsContainBounds([map worldBounds], &bounds)) {
+            TVector3i deltai;
+            roundV3f(&deltaf, &deltai);
+            
+            [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+            [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+        }    
+    }
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Objects"];}
@@ -549,18 +585,28 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    const TVector3f* direction = [camera up];
     float delta = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedFaces])
         [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:0 yDelta:delta];
     
-    if ([selectionManager hasSelectedBrushes])
-        [map translateBrushes:[selectionManager selectedBrushes] direction:*direction delta:delta];
+    if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
+        TVector3f deltaf;
+        closestAxisV3f([camera up], &deltaf);
+        scaleV3f(&deltaf, delta, &deltaf);
+        
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        translateBounds(&bounds, &deltaf, &bounds);
+        if (boundsContainBounds([map worldBounds], &bounds)) {
+            TVector3i deltai;
+            roundV3f(&deltaf, &deltai);
+            
+            [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+            [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+        }    
+    }
     
-    if ([selectionManager hasSelectedEntities])
-        [map translateEntities:[selectionManager selectedEntities] direction:*direction delta:delta];
-
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Objects"];
 }
@@ -570,17 +616,27 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    const TVector3f* direction = [camera up];
     float delta = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedFaces])
         [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:0 yDelta:-delta];
     
-    if ([selectionManager hasSelectedBrushes])
-        [map translateBrushes:[selectionManager selectedBrushes] direction:*direction delta:-delta];
-    
-    if ([selectionManager hasSelectedEntities])
-        [map translateEntities:[selectionManager selectedEntities] direction:*direction delta:-delta];
+    if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
+        TVector3f deltaf;
+        closestAxisV3f([camera up], &deltaf);
+        scaleV3f(&deltaf, -delta, &deltaf);
+        
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        translateBounds(&bounds, &deltaf, &bounds);
+        if (boundsContainBounds([map worldBounds], &bounds)) {
+            TVector3i deltai;
+            roundV3f(&deltaf, &deltai);
+            
+            [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+            [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+        }    
+    }
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Move Objects"];
@@ -770,19 +826,40 @@
 }
 
 - (IBAction)duplicateSelection:(id)sender {
-    NSUndoManager* undoManager = [[self document] undoManager];
-    [undoManager beginUndoGrouping];
+    MapDocument* map = [self document];
 
     NSMutableSet* newEntities = [[NSMutableSet alloc] init];
     NSMutableSet* newBrushes = [[NSMutableSet alloc] init];
 
-    TVector3i delta = {[[options grid] actualSize], [[options grid] actualSize], 0};
+    Grid* grid = [options grid];
+    
+    TVector3f deltaf = *[camera direction];
+    setComponentV3f(&deltaf, weakestComponentV3f(&deltaf), 0);
+    normalizeV3f(&deltaf, &deltaf);
+    scaleV3f(&deltaf, -[grid actualSize], &deltaf);
+    [grid snapToFarthestGridV3f:&deltaf result:&deltaf];
+
+    TBoundingBox* worldBounds = [map worldBounds];
+    TBoundingBox bounds;
+    [selectionManager selectionBounds:&bounds];
+    if (bounds.max.x + deltaf.x > worldBounds->max.x || bounds.min.x + deltaf.x < worldBounds->min.x)
+        deltaf.x *= -1;
+    if (bounds.max.y + deltaf.y > worldBounds->max.y || bounds.min.y + deltaf.y < worldBounds->min.y)
+        deltaf.y *= -1;
+    if (bounds.max.z + deltaf.z > worldBounds->max.z || bounds.min.z + deltaf.z < worldBounds->min.z)
+        deltaf.z *= -1;
+    
+    TVector3i deltai;
+    roundV3f(&deltaf, &deltai);
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
     
     if ([selectionManager hasSelectedEntities]) {
         NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
-            id <Entity> newEntity = [[self document] createEntityWithProperties:[entity properties]];
+            id <Entity> newEntity = [map createEntityWithProperties:[entity properties]];
             
             if ([[entity entityDefinition] type] != EDT_POINT) {
                 NSArray* brushes = [entity brushes];
@@ -790,7 +867,7 @@
                     NSEnumerator* brushEn = [brushes objectEnumerator];
                     id <Brush> brush;
                     while ((brush = [brushEn nextObject])) {
-                        id <Brush> newBrush = [[self document] createBrushInEntity:newEntity fromTemplate:brush];
+                        id <Brush> newBrush = [map createBrushInEntity:newEntity fromTemplate:brush];
                         [newBrushes addObject:newBrush];
                     }
                 }
@@ -800,18 +877,18 @@
     }
     
     if ([selectionManager hasSelectedBrushes]) {
-        id <Entity> worldspawn = [[self document] worldspawn:YES];
+        id <Entity> worldspawn = [map worldspawn:YES];
         NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
         id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
-            id <Brush> newBrush = [[self document] createBrushInEntity:worldspawn fromTemplate:brush];
+            id <Brush> newBrush = [map createBrushInEntity:worldspawn fromTemplate:brush];
             [newBrushes addObject:newBrush];
         }
         
     }
     
-    [[self document] translateEntities:newEntities delta:delta];
-    [[self document] translateBrushes:newBrushes delta:delta];
+    [map translateEntities:newEntities delta:deltai];
+    [map translateBrushes:newBrushes delta:deltai];
 
     [selectionManager removeAll:YES];
     [selectionManager addEntities:newEntities record:YES];

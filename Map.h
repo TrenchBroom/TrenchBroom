@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 @class MutableEntity;
 @protocol Entity;
@@ -18,6 +19,7 @@
 - (void)removeEntities:(NSSet *)theEntities;
 - (void)removeEntity:(MutableEntity *)theEntity;
 
+- (TBoundingBox *)worldBounds;
 - (id <Entity>)worldspawn:(BOOL)create;
 - (NSArray *)entities;
 

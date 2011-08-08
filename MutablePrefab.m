@@ -88,20 +88,14 @@
 
 @implementation MutablePrefab
 
-- (id)init {
-    if ((self = [super init])) {
-        prefabId = [[[IdGenerator sharedGenerator] getId] retain];
-        entities = [[NSMutableArray alloc] init];
-    }
-    
-    return self;
-}
-
-- (id)initWithName:(NSString *)theName group:(MutablePrefabGroup *)thePrefabGroup readOnly:(BOOL)isReadOnly {
+- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds name:(NSString *)theName group:(MutablePrefabGroup *)thePrefabGroup readOnly:(BOOL)isReadOnly {
     if ((self = [self init])) {
+        worldBounds = theWorldBounds;
         name = [theName retain];
         prefabGroup = [thePrefabGroup retain];
         readOnly = isReadOnly;
+        prefabId = [[[IdGenerator sharedGenerator] getId] retain];
+        entities = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -121,6 +115,10 @@
 
 - (BOOL)readOnly {
     return readOnly;
+}
+
+- (TBoundingBox *)worldBounds {
+    return worldBounds;
 }
 
 - (id <Entity>)worldspawn:(BOOL)create {

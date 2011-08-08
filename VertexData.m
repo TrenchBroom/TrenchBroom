@@ -79,42 +79,47 @@
 
 @implementation VertexData
 
-- (id)init {
+- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds {
+    NSAssert(theWorldBounds != NULL, @"world bounds must not be NULL");
+    
     if ((self = [super init])) {
         vertices = [[NSMutableArray alloc] init];
         edges = [[NSMutableArray alloc] init];
         sides = [[NSMutableArray alloc] init];
         
+        TVector3f* min = &theWorldBounds->min;
+        TVector3f* max = &theWorldBounds->max;
+        
         // initialize as huge cube
-        Vertex* esb = [[Vertex alloc] initWithX:-4096 y:-4096 z:-4096];
+        Vertex* esb = [[Vertex alloc] initWithX:min->x - 1 y:min->y - 1 z:min->z - 1];
         [vertices addObject:esb];
         [esb release];
         
-        Vertex* est = [[Vertex alloc] initWithX:-4096 y:-4096 z:+4096];
+        Vertex* est = [[Vertex alloc] initWithX:min->x - 1 y:min->y - 1 z:max->z + 1];
         [vertices addObject:est];
         [est release];
         
-        Vertex* enb = [[Vertex alloc] initWithX:-4096 y:+4096 z:-4096];
+        Vertex* enb = [[Vertex alloc] initWithX:min->x - 1 y:max->y + 1 z:min->z - 1];
         [vertices addObject:enb];
         [enb release];
         
-        Vertex* ent = [[Vertex alloc] initWithX:-4096 y:+4096 z:+4096];
+        Vertex* ent = [[Vertex alloc] initWithX:min->x - 1 y:max->y + 1 z:max->z + 1];
         [vertices addObject:ent];
         [ent release];
         
-        Vertex* wsb = [[Vertex alloc] initWithX:+4096 y:-4096 z:-4096];
+        Vertex* wsb = [[Vertex alloc] initWithX:max->x + 1 y:min->y - 1 z:min->z - 1];
         [vertices addObject:wsb];
         [wsb release];
         
-        Vertex* wst = [[Vertex alloc] initWithX:+4096 y:-4096 z:+4096];
+        Vertex* wst = [[Vertex alloc] initWithX:max->x + 1 y:min->y - 1 z:max->z + 1];
         [vertices addObject:wst];
         [wst release];
         
-        Vertex* wnb = [[Vertex alloc] initWithX:+4096 y:+4096 z:-4096];
+        Vertex* wnb = [[Vertex alloc] initWithX:max->x + 1 y:max->y + 1 z:min->z - 1];
         [vertices addObject:wnb];
         [wnb release];
         
-        Vertex* wnt = [[Vertex alloc] initWithX:+4096 y:+4096 z:+4096];
+        Vertex* wnt = [[Vertex alloc] initWithX:max->x + 1 y:max->y + 1 z:max->z + 1];
         [vertices addObject:wnt];
         [wnt release];
         
@@ -214,8 +219,10 @@
     return self;
 }
 
-- (id)initWithFaces:(NSArray *)faces droppedFaces:(NSMutableSet **)droppedFaces {
-    if ((self = [self init])) {
+- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds faces:(NSArray *)faces droppedFaces:(NSMutableSet **)droppedFaces {
+    NSAssert(faces != nil, @"face list must not be nil");
+    
+    if ((self = [self initWithWorldBounds:theWorldBounds])) {
         NSEnumerator* faceEn = [faces objectEnumerator];
         MutableFace * face;
         while ((face = [faceEn nextObject])) {

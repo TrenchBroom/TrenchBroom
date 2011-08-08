@@ -22,7 +22,7 @@
 
 - (EPlane)projectionPlane {
     TVector3f* norm = [face norm];
-    switch (largestComponentV3f(norm)) {
+    switch (strongestComponentV3f(norm)) {
         case A_X:
             return P_YZ;
         case A_Y:

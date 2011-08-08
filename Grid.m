@@ -109,6 +109,15 @@ NSString* const GridChanged = @"GridChanged";
     result->z = actualSize * roundf(vector->z / actualSize);
 }
 
+- (void)snapToFarthestGridV3f:(const TVector3f *)vector result:(TVector3f *)result {
+    TVector3f rounded;
+    [self snapToGridV3f:vector result:&rounded];
+
+    result->x = rounded.x > vector->x ? rounded.x - 1 : rounded.x + 1;
+    result->y = rounded.y > vector->y ? rounded.y - 1 : rounded.y + 1;
+    result->z = rounded.z > vector->z ? rounded.z - 1 : rounded.z + 1;
+}
+
 - (void)snapUpToGridV3f:(const TVector3f *)vector result:(TVector3f *)result {
     int actualSize = [self actualSize];
     result->x = actualSize * ceilf(vector->x / actualSize);

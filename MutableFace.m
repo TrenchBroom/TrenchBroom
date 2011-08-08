@@ -281,6 +281,9 @@ static TVector3f baseAxes[18];
 
 - (void)setTexture:(NSString *)name {
     NSAssert(name != nil, @"texture name must not be nil");
+    NSString* trimmed = [name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSAssert([trimmed length] > 0, @"texture name must not be empty");
+    
     [texture setString:name];
 }
 
@@ -369,21 +372,15 @@ static TVector3f baseAxes[18];
 
 - (void)rotateZ90CW:(TVector3i *)theCenter {
     subV3i(&point1, theCenter, &point1);
-    int x = point1.x;
-    point1.x = point1.y;
-    point1.y = -x;
+    rotateZ90CWV3i(&point1, &point1);
     addV3i(&point1, theCenter, &point1);
-    
-    subV3i(&point2, theCenter, &point2);
-    x = point2.x;
-    point2.x = point2.y;
-    point2.y = -x;
-    addV3i(&point2, theCenter, &point2);
 
+    subV3i(&point2, theCenter, &point2);
+    rotateZ90CWV3i(&point2, &point2);
+    addV3i(&point2, theCenter, &point2);
+    
     subV3i(&point3, theCenter, &point3);
-    x = point3.x;
-    point3.x = point3.y;
-    point3.y = -x;
+    rotateZ90CWV3i(&point3, &point3);
     addV3i(&point3, theCenter, &point3);
     
     [self geometryChanged];
@@ -391,21 +388,15 @@ static TVector3f baseAxes[18];
 
 - (void)rotateZ90CCW:(TVector3i *)theCenter {
     subV3i(&point1, theCenter, &point1);
-    int x = point1.x;
-    point1.x = -point1.y;
-    point1.y = x;
+    rotateZ90CCWV3i(&point1, &point1);
     addV3i(&point1, theCenter, &point1);
     
     subV3i(&point2, theCenter, &point2);
-    x = point2.x;
-    point2.x = -point2.y;
-    point2.y = x;
+    rotateZ90CCWV3i(&point2, &point2);
     addV3i(&point2, theCenter, &point2);
     
     subV3i(&point3, theCenter, &point3);
-    x = point3.x;
-    point3.x = -point3.y;
-    point3.y = x;
+    rotateZ90CCWV3i(&point3, &point3);
     addV3i(&point3, theCenter, &point3);
 
     [self geometryChanged];
@@ -562,7 +553,7 @@ static TVector3f baseAxes[18];
 }
 
 - (void)gridCoords:(TVector2f *)gridCoords forVertex:(TVector3f *)vertex {
-    switch (largestComponentV3f([self norm])) {
+    switch (strongestComponentV3f([self norm])) {
         case A_X:
             gridCoords->x = (vertex->y + 0.5f) / 256;
             gridCoords->y = (vertex->z + 0.5f) / 256;

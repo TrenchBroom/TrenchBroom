@@ -45,7 +45,7 @@ static int G = 2;
         TVector3f size;
         sizeOfBounds(&largeBounds, &size);
         
-        switch (largestComponentV3f([face norm])) {
+        switch (strongestComponentV3f([face norm])) {
             case A_Z:
                 cols = size.x / [grid actualSize];
                 rows = size.y / [grid actualSize];

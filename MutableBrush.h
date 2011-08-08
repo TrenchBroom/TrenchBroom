@@ -23,10 +23,12 @@
 	NSMutableArray* faces;
     VertexData* vertexData;
     int filePosition;
+    TBoundingBox* worldBounds;
 }
 
-- (id)initWithBrushTemplate:(id <Brush>)theTemplate;
-- (id)initWithBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture;
+- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds;
+- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds brushTemplate:(id <Brush>)theTemplate;
+- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds brushBounds:(TBoundingBox *)theBrushBounds texture:(NSString *)theTexture;
 
 - (BOOL)addFace:(MutableFace *)face;
 - (void)removeFace:(MutableFace *)face;

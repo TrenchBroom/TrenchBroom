@@ -70,6 +70,12 @@ static PrefabManager* sharedInstance = nil;
     if ((self = [super init])) {
         nameToPrefabGroup = [[NSMutableDictionary alloc] init];
         prefabGroups = [[NSMutableArray alloc] init];
+        worldBounds.min.x = -0x8000;
+        worldBounds.min.y = -0x8000;
+        worldBounds.min.z = -0x8000;
+        worldBounds.max.x = +0x8000;
+        worldBounds.max.y = +0x8000;
+        worldBounds.max.z = +0x8000;
     }
     
     return self;
@@ -144,7 +150,7 @@ static PrefabManager* sharedInstance = nil;
 
 - (id <Prefab>)createPrefabFromData:(NSData *)prefabData name:(NSString *)prefabName group:(id <PrefabGroup>)prefabGroup readOnly:(BOOL)readOnly {
     MapParser* parser = [[MapParser alloc] initWithData:prefabData];
-    MutablePrefab* prefab = [[MutablePrefab alloc] initWithName:prefabName group:prefabGroup readOnly:readOnly];
+    MutablePrefab* prefab = [[MutablePrefab alloc] initWithWorldBounds:&worldBounds name:prefabName group:prefabGroup readOnly:readOnly];
     
     [parser parseMap:prefab withProgressIndicator:nil];
     [parser release];
@@ -173,7 +179,7 @@ static PrefabManager* sharedInstance = nil;
     if ([brushTemplates count] == 0)
         return nil;
     
-    MutablePrefab* prefab = [[MutablePrefab alloc] initWithName:prefabName group:prefabGroup readOnly:NO];
+    MutablePrefab* prefab = [[MutablePrefab alloc] initWithWorldBounds:&worldBounds name:prefabName group:prefabGroup readOnly:NO];
     NSMutableDictionary* entities = [[NSMutableDictionary alloc] init];
     
     NSEnumerator* brushEn = [brushTemplates objectEnumerator];
@@ -193,7 +199,7 @@ static PrefabManager* sharedInstance = nil;
             [newEntity release];
         }
         
-        id <Brush> newBrush = [[MutableBrush alloc] initWithBrushTemplate:brush];
+        id <Brush> newBrush = [[MutableBrush alloc] initWithWorldBounds:&worldBounds brushTemplate:brush];
         [newEntity addBrush:newBrush];
         [newBrush release];
     }

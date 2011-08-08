@@ -198,13 +198,19 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 
 - (id)init {
     if ((self = [super init])) {
+        worldBounds.min.x = -0x1000;
+        worldBounds.min.y = -0x1000;
+        worldBounds.min.z = -0x1000;
+        worldBounds.max.x = +0x1000;
+        worldBounds.max.y = +0x1000;
+        worldBounds.max.z = +0x1000;
+        
         NSBundle* mainBundle = [NSBundle mainBundle];
         NSString* definitionPath = [mainBundle pathForResource:@"quake" ofType:@"def"];
         entityDefinitionManager = [[EntityDefinitionManager alloc] initWithDefinitionFile:definitionPath];
 
         entities = [[NSMutableArray alloc] init];
         worldspawn = nil;
-        worldSize = 8192;
         postNotifications = YES;
 
         NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
@@ -360,8 +366,8 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 
 # pragma mark Map related functions
 
-- (int)worldSize {
-    return worldSize;
+- (TBoundingBox *)worldBounds {
+    return &worldBounds;
 }
 
 - (BOOL)postNotifications {
@@ -524,7 +530,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     
     if ([theEntities count] == 0)
         return;
-    
+
     TVector3i inverse;
     scaleV3i(&theDelta, -1, &inverse);
     
@@ -550,17 +556,6 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
-}
-
-- (void)translateEntities:(NSSet *)theEntities direction:(const TVector3f)theDirection delta:(int)theDelta {
-    
-    TVector3f a;
-    TVector3i d;
-    closestAxisV3f(&theDirection, &a);
-    scaleV3f(&a, theDelta, &a);
-    roundV3f(&a, &d);
-    
-    [self translateEntities:theEntities delta:d];
 }
 
 - (void)rotateEntitiesZ90CW:(NSSet *)theEntities center:(TVector3i)theCenter {
@@ -700,7 +695,12 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     NSAssert(theEntity != nil, @"entity must not be nil");
     NSAssert(theTemplate != nil, @"brush template must not be nil");
     
-    id <Brush> brush = [[MutableBrush alloc] initWithBrushTemplate:theTemplate];
+    if (!boundsContainBounds(&worldBounds, [theTemplate bounds])) {
+        NSLog(@"brush template is not within world bounds");
+        return nil;
+    }
+    
+    id <Brush> brush = [[MutableBrush alloc] initWithWorldBounds:&worldBounds brushTemplate:theTemplate];
     
     NSSet* brushSet = [[NSSet alloc] initWithObjects:brush, nil];
     [self addBrushesToEntity:theEntity brushes:brushSet];
@@ -714,7 +714,12 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     NSAssert(theBounds != NULL, @"brush bounds must not be NULL");
     NSAssert(theTexture != nil, @"brush texture must not be nil");
     
-    id <Brush> brush = [[MutableBrush alloc] initWithBounds:theBounds texture:theTexture];
+    if (!boundsContainBounds(&worldBounds, theBounds)) {
+        NSLog(@"bounds are not within world bounds");
+        return nil;
+    }
+    
+    id <Brush> brush = [[MutableBrush alloc] initWithWorldBounds:&worldBounds brushBounds:theBounds texture:theTexture];
     
     NSSet* brushSet = [[NSSet alloc] initWithObjects:brush, nil];
     [self addBrushesToEntity:theEntity brushes:brushSet];
@@ -722,14 +727,13 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     
     return [brush autorelease];
 }
-             
 
 - (void)translateBrushes:(NSSet *)theBrushes delta:(TVector3i)theDelta {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
         return;
-    
+
     TVector3i inverse;
     scaleV3i(&theDelta, -1, &inverse);
     
@@ -755,16 +759,6 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
-}
-
-- (void)translateBrushes:(NSSet *)theBrushes direction:(TVector3f)theDirection delta:(int)theDelta {
-    TVector3f a;
-    TVector3i d;
-    closestAxisV3f(&theDirection, &a);
-    scaleV3f(&a, theDelta, &a);
-    roundV3f(&a, &d);
-    
-    [self translateBrushes:theBrushes delta:d];
 }
 
 - (void)rotateBrushesZ90CW:(NSSet *)theBrushes center:(TVector3i)theCenter {

@@ -20,7 +20,7 @@ BOOL calculateEntityOrigin(EntityDefinition* entityDefinition, PickingHitList* h
         id <Face> face = [hit object];
         TVector3f* faceNorm = [face norm];
         
-        EAxis lc = largestComponentV3f(faceNorm);
+        EAxis lc = strongestComponentV3f(faceNorm);
         BOOL d;
         switch (lc) {
             case A_X:

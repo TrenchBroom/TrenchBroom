@@ -168,7 +168,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                         }
                         case TT_CB_O: {
                             state = PS_BRUSH;
-                            brush = [[MutableBrush alloc] init];
+                            brush = [[MutableBrush alloc] initWithWorldBounds:[map worldBounds]];
                             [brush setFilePosition:[token line]];
                             break;
                         }

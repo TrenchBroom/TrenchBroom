@@ -35,7 +35,7 @@
 @implementation MoveTool (private)
 
 - (void)actualPlaneNormal:(TVector3f *)norm result:(TVector3f *)result {
-    switch (largestComponentV3f(norm)) {
+    switch (strongestComponentV3f(norm)) {
         case A_X:
             *result = XAxisPos;
             break;
@@ -126,20 +126,55 @@
     
     if (equalV3f(&point, &lastPoint))
         return;
+
+    MapDocument* map = [windowController document];
+    TBoundingBox* worldBounds = [map worldBounds];
     
     TVector3f deltaf;
-    TVector3i deltai;
-    
     subV3f(&point, &lastPoint, &deltaf);
-    roundV3f(&deltaf, &deltai);
-    
-    MapDocument* map = [windowController document];
     
     SelectionManager* selectionManager = [windowController selectionManager];
+    
+    TBoundingBox bounds, translatedBounds;
+    [selectionManager selectionBounds:&bounds];
+    
+    addV3f(&bounds.min, &deltaf, &translatedBounds.min);
+    addV3f(&bounds.max, &deltaf, &translatedBounds.max);
+    
+    if (translatedBounds.max.x > worldBounds->max.x) {
+        deltaf.x = worldBounds->max.x - bounds.max.x;
+        deltaf.y = 0;
+        deltaf.z = 0;
+    } else if (translatedBounds.min.x < worldBounds->min.x) {
+        deltaf.x = worldBounds->min.x - bounds.min.x;
+        deltaf.y = 0;
+        deltaf.z = 0;
+    } else if (translatedBounds.max.y > worldBounds->max.y) {
+        deltaf.x = 0;
+        deltaf.y = worldBounds->max.y - bounds.max.y;
+        deltaf.z = 0;
+    } else if (translatedBounds.min.y < worldBounds->min.y) {
+        deltaf.x = 0;
+        deltaf.y = worldBounds->min.y - bounds.min.y;
+        deltaf.z = 0;
+    } else if (translatedBounds.max.z > worldBounds->max.z) {
+        deltaf.x = 0;
+        deltaf.y = 0;
+        deltaf.z = worldBounds->max.z - bounds.max.z;
+    } else if (translatedBounds.min.z < worldBounds->min.z) {
+        deltaf.x = 0;
+        deltaf.y = 0;
+        deltaf.z = worldBounds->min.z - bounds.min.z;
+    }
+    
+    TVector3i deltai;
+    roundV3f(&deltaf, &deltai);
+    
     [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
     [map translateEntities:[selectionManager selectedEntities] delta:deltai];
     
-    lastPoint = point;
+    if (boundsContainBounds(worldBounds, &translatedBounds))
+        lastPoint = point;
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -176,14 +211,14 @@
                     TVector3f norm;
                     intersectBoundsWithRay([entity bounds], ray, &norm);
                     [self actualPlaneNormal:&norm result:&norm];
-                    [moveCursor setPlaneNormal:largestComponentV3f(&norm)];
+                    [moveCursor setPlaneNormal:strongestComponentV3f(&norm)];
                     break;
                 }
                 case HT_FACE: {
                     id <Face> face = [hit object];
                     TVector3f norm;
                     [self actualPlaneNormal:[face norm] result:&norm];
-                    [moveCursor setPlaneNormal:largestComponentV3f(&norm)];
+                    [moveCursor setPlaneNormal:strongestComponentV3f(&norm)];
                     break;
                 }
                 default:

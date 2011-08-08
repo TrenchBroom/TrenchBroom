@@ -44,7 +44,7 @@ extern NSString* const PropertiesDidChange;
     EntityDefinitionManager* entityDefinitionManager;
     NSMutableArray* entities;
     MutableEntity* worldspawn;
-    int worldSize;
+    TBoundingBox worldBounds;
     BOOL postNotifications;
     Picker* picker;
     GLResources* glResources;
@@ -58,7 +58,6 @@ extern NSString* const PropertiesDidChange;
 
 # pragma mark Map related functions
 
-- (int)worldSize;
 - (NSArray *)entities;
 - (BOOL)postNotifications;
 - (void)setPostNotifications:(BOOL)value;
@@ -69,7 +68,6 @@ extern NSString* const PropertiesDidChange;
 - (void)setEntities:(NSSet *)theEntities propertyKey:(NSString *)theKey value:(NSString *)theValue;
 - (void)setEntityDefinition:(id <Entity>)entity;
 - (void)translateEntities:(NSSet *)theEntities delta:(TVector3i)theDelta;
-- (void)translateEntities:(NSSet *)theEntities direction:(TVector3f)theDirection delta:(int)theDelta;
 - (void)rotateEntitiesZ90CW:(NSSet *)theEntities center:(TVector3i)theCenter;
 - (void)rotateEntitiesZ90CCW:(NSSet *)theEntities center:(TVector3i)theCenter;
 - (void)rotateEntities:(NSSet *)theEntities rotation:(TQuaternion)theRotation center:(TVector3f)theCenter;
@@ -79,7 +77,6 @@ extern NSString* const PropertiesDidChange;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity withBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture;
 - (void)translateBrushes:(NSSet *)theBrushes delta:(TVector3i)theDelta;
-- (void)translateBrushes:(NSSet *)theBrushes direction:(TVector3f)theDirection delta:(int)theDelta;
 - (void)rotateBrushesZ90CW:(NSSet *)theBrushes center:(TVector3i)theCenter;
 - (void)rotateBrushesZ90CCW:(NSSet *)theBrushes center:(TVector3i)theCenter;
 - (void)rotateBrushes:(NSSet *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter;

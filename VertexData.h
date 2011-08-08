@@ -27,7 +27,8 @@
     BOOL valid;
 }
 
-- (id)initWithFaces:(NSArray *)faces droppedFaces:(NSMutableSet **)droppedFaces;
+- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds;
+- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds faces:(NSArray *)faces droppedFaces:(NSMutableSet **)droppedFaces;
 
 - (BOOL)cutWithFace:(MutableFace *)face droppedFaces:(NSMutableSet **)droppedFaces;
 - (NSArray *)vertices;

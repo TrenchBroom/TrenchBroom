@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Math.h"
 
 extern NSString* const PrefabAdded;
 extern NSString* const PrefabRemoved;
@@ -24,6 +25,7 @@ extern NSString* const PrefabGroupKey;
     NSMutableDictionary* nameToPrefabGroup;
     NSMutableArray* prefabGroups;
     BOOL sorted;
+    TBoundingBox worldBounds;
 }
 
 + (PrefabManager *)sharedPrefabManager;

@@ -22,11 +22,12 @@
     NSMutableArray* entities;
     TBoundingBox bounds;
     TBoundingBox maxBounds;
+    TBoundingBox* worldBounds;
     TVector3f center;
     BOOL valid;
 }
 
-- (id)initWithName:(NSString *)theName group:(MutablePrefabGroup *)thePrefabGroup readOnly:(BOOL)isReadOnly;
+- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds name:(NSString *)theName group:(MutablePrefabGroup *)thePrefabGroup readOnly:(BOOL)isReadOnly;
 
 - (void)setPrefabGroup:(MutablePrefabGroup *)thePrefabGroup;
 @end

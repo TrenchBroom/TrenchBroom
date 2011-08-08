@@ -58,7 +58,7 @@ static float M_PI_12 = M_PI / 12;
         subV3f([camera position], &center, &diff);
         vAxis = fabs(diff.x) < fabs(diff.y) ? A_X : A_Y;
 
-        EAxis comp = largestComponentV3f(&diff);
+        EAxis comp = strongestComponentV3f(&diff);
         if (comp == A_X || (comp == A_Z && vAxis == A_Y)) {
             if (diff.x > 0) {
                 initialHAngle = 0;
@@ -143,11 +143,6 @@ static float M_PI_12 = M_PI / 12;
     [feedbackFigure updateHorizontalAngle:hSteps * M_PI_12 verticalAngle:vSteps * M_PI_12];
     
     if (hSteps != lastHSteps || vSteps != lastVSteps) {
-        NSUndoManager* undoManager = [[windowController document] undoManager];
-        [undoManager endUndoGrouping];
-        [undoManager undo];
-        [undoManager beginUndoGrouping];
-        
         TQuaternion rotation;
         if (hSteps != 0 && vSteps != 0) {
             TQuaternion hRotation, vRotation;
@@ -160,16 +155,29 @@ static float M_PI_12 = M_PI / 12;
             setAngleAndAxisQ(&rotation, vSteps * M_PI_12, vAxis == A_X ? &XAxisPos : &YAxisNeg);
         }
         
-        SelectionManager* selectionManager = [windowController selectionManager];
-        NSSet* entities = [selectionManager selectedEntities];
-        NSSet* brushes = [selectionManager selectedBrushes];
-        
         MapDocument* map = [windowController document];
-        [map rotateEntities:entities rotation:rotation center:center];
-        [map rotateBrushes:brushes rotation:rotation center:center];
+        SelectionManager* selectionManager = [windowController selectionManager];
         
-        lastHSteps = hSteps;
-        lastVSteps = vSteps;
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        subV3f(&bounds.min, &center, &bounds.min);
+        subV3f(&bounds.max, &center, &bounds.max);
+        rotateBounds(&bounds, &rotation, &bounds);
+        addV3f(&bounds.min, &center, &bounds.min);
+        addV3f(&bounds.max, &center, &bounds.max);
+        
+        if (boundsContainBounds([map worldBounds], &bounds)) {
+            NSUndoManager* undoManager = [map undoManager];
+            [undoManager endUndoGrouping];
+            [undoManager undo];
+            [undoManager beginUndoGrouping];
+            
+            [map rotateEntities:[selectionManager selectedEntities] rotation:rotation center:center];
+            [map rotateBrushes:[selectionManager selectedBrushes] rotation:rotation center:center];
+
+            lastHSteps = hSteps;
+            lastVSteps = vSteps;
+        }
     }
 }
 

@@ -120,7 +120,8 @@ void normalizeV2f(const TVector2f* v, TVector2f* r);
 
 float dot3f(float lx, float ly, float lz, float rx, float ry, float rz);
 BOOL segmentIntersectsSegment(float s11, float s12, float s21, float s22);
-
+BOOL segmentContainsSegment(float s11, float s12, float s21, float s22);
+BOOL segmentContainsPoint(float s11, float s12, float p);
 
 void addV3f(const TVector3f* l, const TVector3f* r, TVector3f* o);
 void sumV3f(const TVector3f* v, int c, TVector3f* o);
@@ -133,13 +134,15 @@ float lengthSquaredV3f(const TVector3f* v);
 void normalizeV3f(const TVector3f* v, TVector3f* o);
 BOOL equalV3f(const TVector3f* l, const TVector3f* r);
 BOOL nullV3f(const TVector3f* v);
-EAxis largestComponentV3f(const TVector3f* v);
-EAxis smallestComponentV3f(const TVector3f* v);
+EAxis strongestComponentV3f(const TVector3f* v);
+EAxis weakestComponentV3f(const TVector3f* v);
 void closestAxisV3f(const TVector3f* v, TVector3f* o);
 float componentV3f(const TVector3f* v, EAxis a);
 void setComponentV3f(TVector3f* v, EAxis a, float f);
 void roundV3f(const TVector3f* v, TVector3i* o);
 void setV3f(TVector3f* l, const TVector3i* r);
+void rotateZ90CWV3f(const TVector3f* v, TVector3f *o);
+void rotateZ90CCWV3f(const TVector3f* v, TVector3f *o);
 BOOL parseV3f(NSString* s, NSRange r, TVector3f* o);
 
 void addV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
@@ -147,6 +150,8 @@ void subV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
 void scaleV3i(const TVector3i* v, int i, TVector3i* o);
 BOOL equalV3i(const TVector3i* l, const TVector3i* r);
 BOOL nullV3i(const TVector3i* v);
+void rotateZ90CWV3i(const TVector3i* v, TVector3i *o);
+void rotateZ90CCWV3i(const TVector3i* v, TVector3i *o);
 BOOL parseV3i(NSString* s, NSRange r, TVector3i* o);
 
 TVector3fList* newVector3fList(int c);
@@ -170,6 +175,9 @@ float planeZ(TPlane* p, float x, float y);
 void centerOfBounds(const TBoundingBox* b, TVector3f* o);
 void roundedCenterOfBounds(const TBoundingBox* b, TVector3i* o);
 void translateBounds(const TBoundingBox* b, const TVector3f* d, TBoundingBox* o);
+void rotateBounds(const TBoundingBox* b, const TQuaternion* q, TBoundingBox* o);
+void rotateBoundsZ90CW(const TBoundingBox* b, TBoundingBox* o);
+void rotateBoundsZ90CCW(const TBoundingBox* b, TBoundingBox* o);
 void mergeBoundsWithPoint(const TBoundingBox* b, const TVector3f* p, TBoundingBox* o);
 void mergeBoundsWithBounds(const TBoundingBox* b, const TBoundingBox* c, TBoundingBox* o);
 void expandBounds(const TBoundingBox* b, float f, TBoundingBox* o);
@@ -177,6 +185,7 @@ void sizeOfBounds(const TBoundingBox* b, TVector3f* o);
 void roundedSizeOfBounds(const TBoundingBox* b, TVector3i* o);
 float radiusOfBounds(const TBoundingBox* b);
 float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray, TVector3f* n);
+BOOL boundsContainPoint(const TBoundingBox* b, const TVector3f* p);
 BOOL boundsIntersectWithBounds(const TBoundingBox* b1, const TBoundingBox* b2);
 BOOL boundsContainBounds(const TBoundingBox* b1, const TBoundingBox *b2);
 

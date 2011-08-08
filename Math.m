@@ -78,9 +78,14 @@ int maxi(int v1, int v2) {
     return v2;
 }
 
+BOOL segmentContainsPoint(float s11, float s12, float p) {
+    return p >= s11 && p <= s12;
+}
+
 BOOL segmentIntersectsSegment(float s11, float s12, float s21, float s22) {
-    return (s21 >= s11 && s21 <= s12) || (s22 >= s11 && s22 <= s12) || 
-           (s11 >= s21 && s11 <= s22);
+    return segmentContainsPoint(s11, s12, s21) ||
+           segmentContainsPoint(s11, s12, s22) ||
+           segmentContainsPoint(s21, s22, s11);
 }
 
 BOOL segmentContainsSegment(float s11, float s12, float s21, float s22) {
@@ -182,7 +187,7 @@ BOOL nullV3f(const TVector3f* v) {
     return equalV3f(v, &NullVector);
 }
 
-EAxis largestComponentV3f(const TVector3f* v) {
+EAxis strongestComponentV3f(const TVector3f* v) {
     float xa = fabs(v->x);
     float ya = fabs(v->y);
     float za = fabs(v->z);
@@ -194,7 +199,7 @@ EAxis largestComponentV3f(const TVector3f* v) {
     return A_Z;
 }
 
-EAxis smallestComponentV3f(const TVector3f* v) {
+EAxis weakestComponentV3f(const TVector3f* v) {
     float xa = fabs(v->x);
     float ya = fabs(v->y);
     float za = fabs(v->z);
@@ -273,6 +278,20 @@ void setV3f(TVector3f* l, const TVector3i* r) {
     l->x = r->x;
     l->y = r->y;
     l->z = r->z;
+}
+
+void rotateZ90CWV3f(const TVector3f* v, TVector3f *o) {
+    float x = v->x;
+    o->x = v->y;
+    o->y = -x;
+    o->z = v->z;
+}
+
+void rotateZ90CCWV3f(const TVector3f* v, TVector3f *o) {
+    float x = v->x;
+    o->x = -v->y;
+    o->y = x;
+    o->z = v->z;
 }
 
 BOOL parseV3f(NSString* s, NSRange r, TVector3f* o) {
@@ -374,6 +393,21 @@ BOOL equalV3i(const TVector3i* l, const TVector3i* r) {
 BOOL nullV3i(const TVector3i* v) {
     return v->x == 0 && v->y == 0 && v->z == 0;
 }
+
+void rotateZ90CWV3i(const TVector3i* v, TVector3i *o) {
+    int x = v->x;
+    o->x = v->y;
+    o->y = -x;
+    o->z = v->z;
+}
+
+void rotateZ90CCWV3i(const TVector3i* v, TVector3i *o) {
+    int x = v->x;
+    o->x = -v->y;
+    o->y = x;
+    o->z = v->z;
+}
+
 
 BOOL parseV3i(NSString* s, NSRange r, TVector3i* o) {
     int comp = -1;
@@ -721,6 +755,46 @@ void translateBounds(const TBoundingBox* b, const TVector3f* d, TBoundingBox* o)
     addV3f(&b->max, d, &o->max);
 }
 
+void rotateBoundsZ90CW(const TBoundingBox* b, TBoundingBox* o) {
+    TBoundingBox rotated;
+    rotateZ90CWV3f(&b->min, &rotated.min);
+    rotateZ90CWV3f(&b->max, &rotated.max);
+
+    o->min.x = fminf(rotated.min.x, rotated.max.x);
+    o->min.y = fminf(rotated.min.y, rotated.max.y);
+    o->min.z = fminf(rotated.min.z, rotated.max.z);
+    o->max.x = fmaxf(rotated.min.x, rotated.max.x);
+    o->max.y = fmaxf(rotated.min.y, rotated.max.y);
+    o->max.z = fmaxf(rotated.min.z, rotated.max.z);
+}
+
+void rotateBoundsZ90CCW(const TBoundingBox* b, TBoundingBox* o) {
+    TBoundingBox rotated;
+    rotateZ90CCWV3f(&b->min, &rotated.min);
+    rotateZ90CCWV3f(&b->max, &rotated.max);
+    
+    o->min.x = fminf(rotated.min.x, rotated.max.x);
+    o->min.y = fminf(rotated.min.y, rotated.max.y);
+    o->min.z = fminf(rotated.min.z, rotated.max.z);
+    o->max.x = fmaxf(rotated.min.x, rotated.max.x);
+    o->max.y = fmaxf(rotated.min.y, rotated.max.y);
+    o->max.z = fmaxf(rotated.min.z, rotated.max.z);
+}
+
+void rotateBounds(const TBoundingBox* b, const TQuaternion* q, TBoundingBox* o) {
+    TBoundingBox rotated;
+    rotateQ(q, &b->min, &rotated.min);
+    rotateQ(q, &b->max, &rotated.max);
+    
+    o->min.x = fminf(rotated.min.x, rotated.max.x);
+    o->min.y = fminf(rotated.min.y, rotated.max.y);
+    o->min.z = fminf(rotated.min.z, rotated.max.z);
+    o->max.x = fmaxf(rotated.min.x, rotated.max.x);
+    o->max.y = fmaxf(rotated.min.y, rotated.max.y);
+    o->max.z = fmaxf(rotated.min.z, rotated.max.z);
+    
+}
+
 void mergeBoundsWithPoint(const TBoundingBox* b, const TVector3f* p, TBoundingBox* o) {
     o->min.x = fmin(p->x, b->min.x);
     o->min.y = fmin(p->y, b->min.y);
@@ -845,6 +919,12 @@ float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray, TVector3f* 
         return NAN;
     
     return dist;
+}
+
+BOOL boundsContainPoint(const TBoundingBox* b, const TVector3f* p) {
+    return segmentContainsPoint(b->min.x, b->max.x, p->x) &&
+           segmentContainsPoint(b->min.y, b->max.y, p->y) &&
+           segmentContainsPoint(b->min.z, b->max.z, p->z);
 }
 
 BOOL boundsIntersectWithBounds(const TBoundingBox* b1, const TBoundingBox* b2) {

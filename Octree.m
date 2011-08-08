@@ -106,9 +106,9 @@
     if ((self = [self init])) {
         map = theDocument;
         
-        int w = [map worldSize] / 2;
-        TVector3i min = {-w, -w, -w};
-        TVector3i max = {+w, +w, +w};
+        TVector3i min, max;
+        roundV3f(&[theDocument worldBounds]->min, &min);
+        roundV3f(&[theDocument worldBounds]->max, &max);
 
         root = [[OctreeNode alloc] initWithMin:&min max:&max minSize:theMinSize];
         

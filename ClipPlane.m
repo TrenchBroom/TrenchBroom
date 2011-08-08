@@ -7,6 +7,8 @@
 //
 
 #import "ClipPlane.h"
+#import "Map.h"
+#import "Entity.h"
 #import "Face.h"
 #import "MutableFace.h"
 #import "Brush.h"
@@ -145,7 +147,8 @@
 - (void)clipBrush:(id <Brush>)brush firstResult:(id <Brush>*)firstResult secondResult:(id <Brush>*)secondResult {
     MutableFace* clipFace = clipMode == CM_BACK ? [self face:NO] : [self face:YES];
     if (clipFace != nil) {
-        MutableBrush* newBrush = [[MutableBrush alloc] initWithBrushTemplate:brush];
+        id <Map> map = [[brush entity] map];
+        MutableBrush* newBrush = [[MutableBrush alloc] initWithWorldBounds:[map worldBounds] brushTemplate:brush];
 
         if (![newBrush addFace:clipFace]) {
             [newBrush release];
@@ -158,7 +161,7 @@
         if (clipMode == CM_SPLIT) {
             clipFace = [self face:NO];
             if (clipFace != nil) {
-                newBrush = [[MutableBrush alloc] initWithBrushTemplate:brush];
+                newBrush = [[MutableBrush alloc] initWithWorldBounds:[map worldBounds] brushTemplate:brush];
                 if (![newBrush addFace:clipFace]) {
                     [newBrush release];
                     newBrush = nil;

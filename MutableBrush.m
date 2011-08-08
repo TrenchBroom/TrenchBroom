@@ -28,7 +28,7 @@
 - (VertexData *)vertexData {
     if (vertexData == nil) {
         NSMutableSet* droppedFaces = nil;
-        vertexData = [[VertexData alloc] initWithFaces:faces droppedFaces:&droppedFaces];
+        vertexData = [[VertexData alloc] initWithWorldBounds:worldBounds faces:faces droppedFaces:&droppedFaces];
         if (droppedFaces != nil) {
             NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
             MutableFace* droppedFace;
@@ -46,11 +46,13 @@
 
 @implementation MutableBrush
 
-- (id)init {
+- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds {
+    NSAssert(theWorldBounds != NULL, @"world bounds must not be NULL");
+
     if ((self = [super init])) {
+        worldBounds = theWorldBounds;
         brushId = [[[IdGenerator sharedGenerator] getId] retain];
         faces = [[NSMutableArray alloc] init];
-        vertexData = [[VertexData alloc] init];
         
         filePosition = -1;
     }
@@ -58,10 +60,10 @@
     return self;
 }
 
-- (id)initWithBrushTemplate:(id <Brush>)theTemplate {
+- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds brushTemplate:(id <Brush>)theTemplate {
     NSAssert(theTemplate != nil, @"brush template must not be nil");
     
-    if ((self = [self init])) {
+    if ((self = [self initWithWorldBounds:theWorldBounds])) {
         NSEnumerator* faceEn = [[theTemplate faces] objectEnumerator];
         id <Face> faceTemplate;
         while ((faceTemplate = [faceEn nextObject])) {
@@ -74,14 +76,14 @@
     return self;
 }
 
-- (id)initWithBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture {
-    NSAssert(theBounds != NULL, @"brush bounds must not be NULL");
+- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds brushBounds:(TBoundingBox *)theBrushBounds texture:(NSString *)theTexture {
+    NSAssert(theBrushBounds != NULL, @"brush bounds must not be NULL");
     
-    if ((self = [self init])) {
+    if ((self = [self initWithWorldBounds:theWorldBounds])) {
         TVector3i min, max, p1, p2, p3;
         
-        roundV3f(&theBounds->min, &min);
-        roundV3f(&theBounds->max, &max);
+        roundV3f(&theBrushBounds->min, &min);
+        roundV3f(&theBrushBounds->max, &max);
         
         p1 = min;
         p2 = min;
@@ -242,9 +244,9 @@
     [testFace release];
     
     NSMutableSet* droppedFaces = nil;
-    VertexData* testData = [[VertexData alloc] initWithFaces:testFaces droppedFaces:&droppedFaces];
-    BOOL canDrag = testData != nil && (droppedFaces == nil || [droppedFaces count] == 0);
-    
+    VertexData* testData = [[VertexData alloc] initWithWorldBounds:worldBounds faces:testFaces droppedFaces:&droppedFaces];
+    BOOL canDrag = testData != nil && (droppedFaces == nil || [droppedFaces count] == 0) && boundsContainBounds(worldBounds, [testData bounds]);
+
     [testFaces release];
     [testData release];
     

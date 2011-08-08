@@ -49,7 +49,7 @@
     if (initialBounds.min.z == initialBounds.max.z)
         initialBounds.max.z += [grid actualSize];
 
-    switch (largestComponentV3f(&ray->direction)) {
+    switch (strongestComponentV3f(&ray->direction)) {
         case A_X:
             if (ray->direction.x > 0) {
                 plane.point = initialBounds.min;
@@ -85,7 +85,7 @@
     [undoManager setGroupsByEvent:NO];
     [undoManager beginUndoGrouping];
     
-    brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&initialBounds texture:@""];
+    brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&initialBounds texture:@"none"];
     
     SelectionManager* selectionManager = [windowController selectionManager];
     [selectionManager addBrush:brush record:YES];
@@ -115,7 +115,7 @@
     [undoManager undo];
     [undoManager beginUndoGrouping];
     
-    brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&bounds texture:@""];
+    brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&bounds texture:@"none"];
     
     SelectionManager* selectionManager = [windowController selectionManager];
     [selectionManager addBrush:brush record:YES];
@@ -158,7 +158,7 @@
     [undoManager undo];
     [undoManager beginUndoGrouping];
     
-    brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&bounds texture:@""];
+    brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&bounds texture:@"none"];
     
     SelectionManager* selectionManager = [windowController selectionManager];
     [selectionManager addBrush:brush record:YES];
