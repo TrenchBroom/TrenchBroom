@@ -84,6 +84,15 @@
     return size;
 }
 
+- (void)renderBackground {
+    glBegin(GL_QUADS);
+    glVertex3f(-1, -1, 0);
+    glVertex3f(-1, size.height + 1, 0);
+    glVertex3f(size.width + 1, size.height + 1, 0);
+    glVertex3f(size.width + 1, -1, 0);
+    glEnd();
+}
+
 - (void)render {
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);

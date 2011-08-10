@@ -165,12 +165,44 @@
         maxi = 2;
     }
     
+    // initialize the stencil buffer to cancel out the guides in those areas where the strings will be rendered
+    glClear(GL_STENCIL_BUFFER_BIT);
+    glColorMask(NO, NO, NO, NO);
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_ALWAYS, 1, 1);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    
+    BOOL depth = glIsEnabled(GL_DEPTH_TEST);
+    if (depth)
+        glDisable(GL_DEPTH_TEST);
+    
     TVector3f p[3];
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < maxi; i++) {
         subV3f(&gv[i][2], &gv[i][1], &p[i]);
         scaleV3f(&p[i], 0.5f, &p[i]);
         addV3f(&gv[i][1], &p[i], &p[i]);
 
+        float dist = [camera distanceTo:&p[i]];
+        float factor = dist / 300;
+        NSSize size = [glStrings[i] size];
+        
+        glPushMatrix();
+        glTranslatef(p[i].x, p[i].y, p[i].z);
+        [camera setBillboardMatrix];
+        glScalef(factor, factor, 0);
+        glTranslatef(-size.width / 2, -size.height / 2, 0);
+        [glStrings[i] renderBackground];
+        glPopMatrix();
+    }
+    
+    glColorMask(YES, YES, YES, YES);
+    glStencilFunc(GL_NOTEQUAL, 1, 1);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    
+    if (depth)
+        glEnable(GL_DEPTH_TEST);
+    
+    for (int i = 0; i < 3; i++) {
         float dist = [camera distanceTo:&p[i]];
         if (dist <= 500) {
             if (dist >= 400) {
@@ -185,6 +217,8 @@
             glEnd();
         }
     }
+
+    glDisable(GL_STENCIL_TEST);
     
     [fontManager activate];
     for (int i = 0; i < maxi; i++) {
@@ -202,7 +236,7 @@
             glTranslatef(p[i].x, p[i].y, p[i].z);
             [camera setBillboardMatrix];
             glScalef(factor, factor, 0);
-            glTranslatef(-size.width / 2, 0, 0);
+            glTranslatef(-size.width / 2, -size.height / 2, 0);
             [glStrings[i] render];
             glPopMatrix();
         }

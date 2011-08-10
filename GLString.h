@@ -32,5 +32,6 @@
 
 - (NSSize)size;
 
+- (void)renderBackground;
 - (void)render;
 @end

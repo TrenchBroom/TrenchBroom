@@ -66,9 +66,11 @@
 									<string key="NSFrameSize">{1187, 725}</string>
 									<reference key="NSSuperview" ref="636683971"/>
 									<reference key="NSWindow"/>
+									<reference key="NSNextKeyView"/>
 									<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 										<object class="NSMutableData" key="NSPixelAttributes">
-											<bytes key="NS.bytes">AAAABQAAADsAAABgAAAACAAAAA8AAAALAAAACAAAAAwAAAAYAAAAOAAAAAQAAAA3AAAAAQAAAAA</bytes>
+											<bytes key="NS.bytes">AAAABQAAADsAAABgAAAACAAAAA8AAAALAAAACAAAAAwAAAAYAAAADQAAAAgAAAA4AAAABAAAADcAAAAB
+AAAAAA</bytes>
 										</object>
 									</object>
 								</object>
@@ -459,6 +461,7 @@
 							<string>rotateZ90CW:</string>
 							<string>run:</string>
 							<string>selectAll:</string>
+							<string>selectAllTouchingBrush:</string>
 							<string>selectEntity:</string>
 							<string>selectNone:</string>
 							<string>setGridSize:</string>
@@ -478,6 +481,7 @@
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -534,6 +538,7 @@
 							<string>rotateZ90CW:</string>
 							<string>run:</string>
 							<string>selectAll:</string>
+							<string>selectAllTouchingBrush:</string>
 							<string>selectEntity:</string>
 							<string>selectNone:</string>
 							<string>setGridSize:</string>
@@ -619,6 +624,10 @@
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">selectAll:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">selectAllTouchingBrush:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 							<object class="IBActionInfo">
