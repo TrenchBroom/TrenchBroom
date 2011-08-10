@@ -64,6 +64,7 @@ extern NSString* const PropertiesDidChange;
 
 - (id <Entity>)createEntityWithClassname:(NSString *)classname;
 - (id <Entity>)createEntityWithProperties:(NSDictionary *)properties;
+- (void)duplicateEntities:(NSSet *)theEntities newEntities:(NSMutableSet *)theNewEntities newBrushes:(NSMutableSet *)theNewBrushes;
 - (void)setEntity:(id <Entity>)theEntity propertyKey:(NSString *)theKey value:(NSString *)theValue;
 - (void)setEntities:(NSSet *)theEntities propertyKey:(NSString *)theKey value:(NSString *)theValue;
 - (void)setEntityDefinition:(id <Entity>)entity;
@@ -76,6 +77,7 @@ extern NSString* const PropertiesDidChange;
 - (void)addBrushesToEntity:(id <Entity>)theEntity brushes:(NSSet *)theBrushes;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity withBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture;
+- (void)duplicateBrushes:(NSSet *)theBrushes newBrushes:(NSMutableSet *)theNewBrushes;
 - (void)translateBrushes:(NSSet *)theBrushes delta:(TVector3i)theDelta;
 - (void)rotateBrushesZ90CW:(NSSet *)theBrushes center:(TVector3i)theCenter;
 - (void)rotateBrushesZ90CCW:(NSSet *)theBrushes center:(TVector3i)theCenter;

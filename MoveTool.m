@@ -29,6 +29,7 @@
 @interface MoveTool (private)
 
 - (void)actualPlaneNormal:(TVector3f *)norm result:(TVector3f *)result;
+- (BOOL)isDuplicateModifierPressed;
 
 @end
 
@@ -45,6 +46,10 @@
         default:
             *result = ZAxisPos;
     }
+}
+
+- (BOOL)isDuplicateModifierPressed {
+    return [NSEvent modifierFlags] == NSCommandKeyMask;
 }
 
 @end
@@ -103,6 +108,7 @@
     Grid* grid = [[windowController options] grid];
     [grid snapToGridV3f:&lastPoint result:&lastPoint];
     drag = YES;
+    duplicate = [self isDuplicateModifierPressed];
     
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
@@ -169,6 +175,22 @@
     
     TVector3i deltai;
     roundV3f(&deltaf, &deltai);
+    
+    if (duplicate) {
+        NSMutableSet* newEntities = [[NSMutableSet alloc] init];
+        NSMutableSet* newBrushes = [[NSMutableSet alloc] init];
+        [map duplicateEntities:[selectionManager selectedEntities] newEntities:newEntities newBrushes:newBrushes];
+        [map duplicateBrushes:[selectionManager selectedBrushes] newBrushes:newBrushes];
+        
+        [selectionManager removeAll:YES];
+        [selectionManager addEntities:newEntities record:YES];
+        [selectionManager addBrushes:newBrushes record:YES];
+        
+        [newEntities release];
+        [newBrushes release];
+        
+        duplicate = NO;
+    }
     
     [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
     [map translateEntities:[selectionManager selectedEntities] delta:deltai];

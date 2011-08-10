@@ -416,6 +416,34 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     return [entity autorelease];
 }
 
+- (void)duplicateEntities:(NSSet *)theEntities newEntities:(NSMutableSet *)theNewEntities newBrushes:(NSMutableSet *)theNewBrushes {
+    NSAssert(theEntities != nil, @"entity set must not be nil");
+    NSAssert(theNewEntities != nil, @"new entitiy set must not be nil");
+    NSAssert(theNewBrushes != nil, @"new brush set must not be nil");
+    
+    if ([theEntities count] == 0)
+        return;
+    
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject])) {
+        id <Entity> newEntity = [self createEntityWithProperties:[entity properties]];
+        
+        if ([[entity entityDefinition] type] != EDT_POINT) {
+            NSArray* brushes = [entity brushes];
+            if ([brushes count] > 0) {
+                NSEnumerator* brushEn = [brushes objectEnumerator];
+                id <Brush> brush;
+                while ((brush = [brushEn nextObject])) {
+                    id <Brush> newBrush = [self createBrushInEntity:newEntity fromTemplate:brush];
+                    [theNewBrushes addObject:newBrush];
+                }
+            }
+        }
+        [theNewEntities addObject:newEntity];
+    }
+}
+
 - (void)setEntity:(id <Entity>)theEntity propertyKey:(NSString *)theKey value:(NSString *)theValue {
     NSAssert(theEntity != nil, @"entity must not be nil");
     NSAssert(theKey != nil, @"key must not be nil");
@@ -726,6 +754,21 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     [brushSet release];
     
     return [brush autorelease];
+}
+
+- (void)duplicateBrushes:(NSSet *)theBrushes newBrushes:(NSMutableSet *)theNewBrushes {
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+    NSAssert(theNewBrushes != nil, @"new brush set must not be nil");
+    
+    if ([theBrushes count] == 0)
+        return;
+    
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject])) {
+        id <Brush> newBrush = [self createBrushInEntity:[self worldspawn:YES] fromTemplate:brush];
+        [theNewBrushes addObject:newBrush];
+    }
 }
 
 - (void)translateBrushes:(NSSet *)theBrushes delta:(TVector3i)theDelta {

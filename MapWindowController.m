@@ -854,46 +854,17 @@
     
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
-    
-    if ([selectionManager hasSelectedEntities]) {
-        NSEnumerator* entityEn = [[selectionManager selectedEntities] objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
-            id <Entity> newEntity = [map createEntityWithProperties:[entity properties]];
-            
-            if ([[entity entityDefinition] type] != EDT_POINT) {
-                NSArray* brushes = [entity brushes];
-                if ([brushes count] > 0) {
-                    NSEnumerator* brushEn = [brushes objectEnumerator];
-                    id <Brush> brush;
-                    while ((brush = [brushEn nextObject])) {
-                        id <Brush> newBrush = [map createBrushInEntity:newEntity fromTemplate:brush];
-                        [newBrushes addObject:newBrush];
-                    }
-                }
-            }
-            [newEntities addObject:newEntity];
-        }
-    }
-    
-    if ([selectionManager hasSelectedBrushes]) {
-        id <Entity> worldspawn = [map worldspawn:YES];
-        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            id <Brush> newBrush = [map createBrushInEntity:worldspawn fromTemplate:brush];
-            [newBrushes addObject:newBrush];
-        }
-        
-    }
-    
-    [map translateEntities:newEntities delta:deltai];
-    [map translateBrushes:newBrushes delta:deltai];
 
+    [map duplicateEntities:[selectionManager selectedEntities] newEntities:newEntities newBrushes:newBrushes];
+    [map duplicateBrushes:[selectionManager selectedBrushes] newBrushes:newBrushes];
+    
     [selectionManager removeAll:YES];
     [selectionManager addEntities:newEntities record:YES];
     [selectionManager addBrushes:newBrushes record:YES];
 
+    [map translateEntities:newEntities delta:deltai];
+    [map translateBrushes:newBrushes delta:deltai];
+    
     [newEntities release];
     [newBrushes release];
     
