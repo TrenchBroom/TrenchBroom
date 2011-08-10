@@ -94,6 +94,8 @@
 		48770FF312E5BE66009B440B /* MapTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF212E5BE66009B440B /* MapTokenizer.m */; };
 		48770FF612E5BF28009B440B /* MapToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF512E5BF28009B440B /* MapToken.m */; };
 		4877106E12E5DA55009B440B /* MapParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4877106D12E5DA55009B440B /* MapParser.m */; };
+		487799C613F308ED001F9335 /* QuickBarWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 487799C513F308ED001F9335 /* QuickBarWindow.xib */; };
+		487799CA13F30990001F9335 /* QuickBarWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 487799C913F30990001F9335 /* QuickBarWindowController.m */; };
 		487A645812EA397C00A43289 /* TextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A645712EA397C00A43289 /* TextureView.m */; };
 		487A646C12EA3A7E00A43289 /* Texture.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A646B12EA3A7E00A43289 /* Texture.m */; };
 		487A7E3B130071F300434806 /* GeometryLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A7E3A130071F300434806 /* GeometryLayer.m */; };
@@ -398,6 +400,9 @@
 		48770FF512E5BF28009B440B /* MapToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapToken.m; sourceTree = "<group>"; };
 		4877106C12E5DA55009B440B /* MapParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapParser.h; sourceTree = "<group>"; };
 		4877106D12E5DA55009B440B /* MapParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapParser.m; sourceTree = "<group>"; };
+		487799C513F308ED001F9335 /* QuickBarWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = QuickBarWindow.xib; sourceTree = "<group>"; };
+		487799C813F30990001F9335 /* QuickBarWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickBarWindowController.h; sourceTree = "<group>"; };
+		487799C913F30990001F9335 /* QuickBarWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuickBarWindowController.m; sourceTree = "<group>"; };
 		487A645612EA397C00A43289 /* TextureView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureView.h; sourceTree = "<group>"; };
 		487A645712EA397C00A43289 /* TextureView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureView.m; sourceTree = "<group>"; };
 		487A646A12EA3A7E00A43289 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture.h; sourceTree = "<group>"; };
@@ -681,6 +686,7 @@
 				4809A10E13E2A2E300AF6557 /* InspectorView.xib */,
 				48976C7213E2BA63005AB1EA /* InspectorWindow.xib */,
 				48BC2E6613EBEF7C003657D6 /* ConsoleWindow.xib */,
+				487799C513F308ED001F9335 /* QuickBarWindow.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1082,6 +1088,8 @@
 				48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */,
 				48E1806312F5F07D007995FE /* SelectionManager.h */,
 				48E1806412F5F07D007995FE /* SelectionManager.m */,
+				487799C813F30990001F9335 /* QuickBarWindowController.h */,
+				487799C913F30990001F9335 /* QuickBarWindowController.m */,
 			);
 			name = MapWindow;
 			sourceTree = "<group>";
@@ -1384,6 +1392,7 @@
 				48AC3E6B13E3FA8D008F4BF8 /* TreeQBSP in Resources */,
 				4856F97E13E482C6004CFABE /* BJMHLight in Resources */,
 				48BC2E6713EBEF7C003657D6 /* ConsoleWindow.xib in Resources */,
+				487799C613F308ED001F9335 /* QuickBarWindow.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1547,6 +1556,7 @@
 				48CB060913EC19B70051640E /* CreateBrushTool.m in Sources */,
 				48CB060D13EC2E690051640E /* BoundsFeedbackFigure.m in Sources */,
 				4893347613F2DA3D00AB179F /* CompassView.m in Sources */,
+				487799CA13F30990001F9335 /* QuickBarWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

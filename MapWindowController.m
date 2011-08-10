@@ -43,111 +43,23 @@
 #import "PreferencesManager.h"
 #import "MapCompiler.h"
 #import "ConsoleWindowController.h"
-#import "CompassView.h"
+#import "QuickBarWindowController.h"
 
 @interface MapWindowController (private)
 
-- (TBoundingBox)boundsOf:(NSSet *)theBrushes entities:(NSSet *)theEntities;
-- (void)updateSelectionBoundsInspector;
-- (void)selectionAdded:(NSNotification *)notification;
 - (void)selectionRemoved:(NSNotification *)notification;
-- (void)propertiesDidChange:(NSNotification *)notification;
-- (void)brushesDidChange:(NSNotification *)notification;
-- (void)updateCameraInspector;
-- (void)cameraChanged:(NSNotification *)notification;
+- (void)windowDidBecomeKey:(NSNotification *)notification;
+- (void)windowDidResignKey:(NSNotification *)notification;
+- (void)windowWillClose:(NSNotification *)notification;
+- (void)windowDidResize:(NSNotification *)notification;
 
 @end
 
 @implementation MapWindowController (private)
 
-- (TBoundingBox)boundsOf:(NSSet *)theBrushes entities:(NSSet *)theEntities {
-    TBoundingBox bounds;
-    BOOL initialized = NO;
-    
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    id <Entity> entity = nil;
-    
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    id <Brush> brush = nil;
-    
-    while ((entity = [entityEn nextObject]) || (brush = [brushEn nextObject])) {
-        if (entity != nil && [entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT) {
-            if (!initialized) {
-                bounds = *[entity bounds];
-                initialized = YES;
-            } else {
-                mergeBoundsWithBounds(&bounds, [entity bounds], &bounds);
-            }
-        }
-        
-        if (brush != nil) {
-            if (!initialized) {
-                bounds = *[brush bounds];
-                initialized = YES;
-            } else {
-                mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
-            }
-        }
-    }
-    
-    return bounds;
-}
-
-- (void)updateSelectionBoundsInspector {
-    TBoundingBox bounds;
-    [selectionManager selectionBounds:&bounds];
-    
-    TVector3f size;
-    sizeOfBounds(&bounds, &size);
-    
-    [selectionOriginXField setFloatValue:bounds.min.x];
-    [selectionOriginYField setFloatValue:bounds.min.y];
-    [selectionOriginZField setFloatValue:bounds.min.z];
-    [selectionSizeXField setFloatValue:size.x];
-    [selectionSizeYField setFloatValue:size.y];
-    [selectionSizeZField setFloatValue:size.z];
-}
-
-- (void)selectionAdded:(NSNotification *)notification {
-    [self updateSelectionBoundsInspector];
-}
-
 - (void)selectionRemoved:(NSNotification *)notification {
-    [self updateSelectionBoundsInspector];
     if ([selectionManager mode] == SM_UNDEFINED)
         [options setIsolationMode:IM_NONE];
-}
-
-- (void)propertiesDidChange:(NSNotification *)notification {
-    [self updateSelectionBoundsInspector];
-}
-
-- (void)brushesDidChange:(NSNotification *)notification {
-    [self updateSelectionBoundsInspector];
-}
-
-- (void)updateCameraInspector {
-    const TVector3f* pos = [camera position];
-    const TVector3f* dir = [camera direction];
-    
-    [cameraPosXField setFloatValue:pos->x];
-    [cameraPosYField setFloatValue:pos->y];
-    [cameraPosZField setFloatValue:pos->z];
-    [cameraDirXField setFloatValue:dir->x];
-    [cameraDirYField setFloatValue:dir->y];
-    [cameraDirZField setFloatValue:dir->z];
-}
-
-- (void)cameraChanged:(NSNotification *)notification {
-    [self updateCameraInspector];
-}
-
-@end
-
-@implementation MapWindowController
-
-- (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window {
-    return [[self document] undoManager];
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
@@ -171,6 +83,21 @@
         InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
         [inspector setMapWindowController:nil];
     }
+}
+
+
+- (void)windowDidResize:(NSNotification *)notification {
+    NSRect mapWindowFrame = [[self window] frame];
+    NSPoint quickBarOrigin = NSMakePoint(NSMinX(mapWindowFrame) + 10, NSMinY(mapWindowFrame) + 10);
+    [[quickBar window] setFrameOrigin:quickBarOrigin];
+}
+
+@end
+
+@implementation MapWindowController
+
+- (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window {
+    return [[self document] undoManager];
 }
 
 - (CGFloat)splitView:(NSSplitView *)theSplitView constrainMaxCoordinate:(CGFloat)theProposedMax ofSubviewAt:(NSInteger)theDividerIndex {
@@ -253,21 +180,27 @@
     cursorManager = [[CursorManager alloc] init];
     
     [view3D setup];
-    [compassView setCamera:camera];
-    [self updateCameraInspector];
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification object:[self window]];
     [center addObserver:self selector:@selector(windowWillClose:) name:NSWindowWillCloseNotification object:[self window]];
+    [center addObserver:self selector:@selector(windowDidResize:) name:NSWindowDidResizeNotification object:[self window]];
     [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:[PreferencesManager sharedManager]];
-    [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
     [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
-    [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesDidChange object:[self document]];
-    [center addObserver:self selector:@selector(brushesDidChange:) name:BrushesDidChange object:[self document]];
-    [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
     
     [[self window] setAcceptsMouseMovedEvents:YES];
     [[self window] makeKeyAndOrderFront:nil];
+
+    quickBar = [[QuickBarWindowController alloc] initWithWindowNibName:@"QuickBarWindow"];
+    [quickBar setMapWindowController:self];
+    [[self window] addChildWindow:[quickBar window] ordered:NSWindowAbove];
+    
+    NSRect mapWindowFrame = [[self window] frame];
+    NSPoint quickBarOrigin = NSMakePoint(NSMinX(mapWindowFrame) + 10, NSMinY(mapWindowFrame) + 10);
+    
+    [[quickBar window] setFrameOrigin:quickBarOrigin];
+    [[quickBar window] orderFront:self];
+    
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
