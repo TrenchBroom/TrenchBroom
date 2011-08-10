@@ -789,9 +789,6 @@ NSString* const RendererChanged = @"RendererChanged";
     glEnable(GL_DEPTH_TEST);
     glColor4f(1, 1, 0, 1);
     [cursorManager render];
-    
-    glClear(GL_DEPTH_BUFFER_BIT);
-    [compassFigure render];
 
     glDisable(GL_LIGHT0);
     glDisable(GL_COLOR_MATERIAL);

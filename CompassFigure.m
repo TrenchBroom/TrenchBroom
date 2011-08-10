@@ -20,12 +20,12 @@
 }
 
 - (void)renderArm {
-    glTranslatef(0, 0, -30);
-    gluCylinder(arms, 4, 4, 60, 10, 1);
-    gluDisk(disks, 0, 4, 10, 1);
-    glTranslatef(0, 0, 60);
-    gluCylinder(arms, 8, 0, 12, 10, 5);
-    gluDisk(disks, 0, 8, 10, 1);
+    glTranslatef(0, 0, -10);
+    gluCylinder(arms, 1, 1, 20, 10, 1);
+    gluDisk(disks, 0, 1, 10, 1);
+    glTranslatef(0, 0, 20);
+    gluCylinder(arms, 2, 0, 3, 10, 5);
+    gluDisk(disks, 0, 2, 10, 1);
 }
 
 - (void)render {
@@ -40,62 +40,24 @@
         initialized = YES;
     }
     
-    glDisable(GL_TEXTURE_2D);
     glPolygonMode(GL_FRONT, GL_FILL);
-    glFrontFace(GL_CCW);
     
-    glPushAttrib(GL_VIEWPORT_BIT);
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix(); {
-        glViewport(0, 0, 100, 100);
-        glLoadIdentity();
-        // gluPerspective([camera fieldOfVision], 1, 1, 100);
-        glOrtho(-50, 50, -50, 50, 1, 100);
-        
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix(); {
-            TVector3f position;
-            const TVector3f* direction = [camera direction];
-            const TVector3f* up = [camera up];
-            
-            scaleV3f(direction, -50, &position);
-
-            glLoadIdentity();
-            gluLookAt(position.x,
-                      position.y,
-                      position.z,
-                      position.x + direction->x,
-                      position.y + direction->y,
-                      position.z + direction->z,
-                      up->x,
-                      up->y,
-                      up->z);
-
-            glColor4f(1, 0, 0, 1);
-            glPushMatrix();
-            glRotatef(90, 0, 1, 0);
-            [self renderArm];
-            glPopMatrix();
-            
-            glColor4f(0, 1, 0, 1);
-            glPushMatrix();
-            glRotatef(270, 1, 0, 0);
-            [self renderArm];
-            glPopMatrix();
-            
-            glColor4f(0, 0, 1, 1);
-            glPushMatrix();
-            [self renderArm];
-            glPopMatrix();
-        }
-        glPopMatrix();
-    }
-    glMatrixMode(GL_PROJECTION);
+    glColor4f(1, 0, 0, 1);
+    glPushMatrix();
+    glRotatef(90, 0, 1, 0);
+    [self renderArm];
     glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPopAttrib();
-
-    glFrontFace(GL_CW);
+    
+    glColor4f(0, 1, 0, 1);
+    glPushMatrix();
+    glRotatef(270, 1, 0, 0);
+    [self renderArm];
+    glPopMatrix();
+    
+    glColor4f(0, 0, 1, 1);
+    glPushMatrix();
+    [self renderArm];
+    glPopMatrix();
 }
 
 - (void)dealloc {

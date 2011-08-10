@@ -23,6 +23,7 @@
 @class Renderer;
 @class InspectorViewController;
 @class ConsoleWindowController;
+@class CompassView;
 @protocol Prefab;
 @protocol Entity;
 @protocol Brush;
@@ -31,6 +32,19 @@
 @interface MapWindowController : NSWindowController {
     IBOutlet NSSplitView* splitView;
 	IBOutlet MapView3D* view3D;
+    IBOutlet NSTextField* selectionOriginXField;
+    IBOutlet NSTextField* selectionOriginYField;
+    IBOutlet NSTextField* selectionOriginZField;
+    IBOutlet NSTextField* selectionSizeXField;
+    IBOutlet NSTextField* selectionSizeYField;
+    IBOutlet NSTextField* selectionSizeZField;
+    IBOutlet NSTextField* cameraPosXField;
+    IBOutlet NSTextField* cameraPosYField;
+    IBOutlet NSTextField* cameraPosZField;
+    IBOutlet NSTextField* cameraDirXField;
+    IBOutlet NSTextField* cameraDirYField;
+    IBOutlet NSTextField* cameraDirZField;
+    IBOutlet CompassView* compassView;
     InspectorViewController* inspectorViewController;
     Camera* camera;
     SelectionManager* selectionManager;

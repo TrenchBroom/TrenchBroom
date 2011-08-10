@@ -43,10 +43,18 @@
 #import "PreferencesManager.h"
 #import "MapCompiler.h"
 #import "ConsoleWindowController.h"
+#import "CompassView.h"
 
 @interface MapWindowController (private)
 
 - (TBoundingBox)boundsOf:(NSSet *)theBrushes entities:(NSSet *)theEntities;
+- (void)updateSelectionBoundsInspector;
+- (void)selectionAdded:(NSNotification *)notification;
+- (void)selectionRemoved:(NSNotification *)notification;
+- (void)propertiesDidChange:(NSNotification *)notification;
+- (void)brushesDidChange:(NSNotification *)notification;
+- (void)updateCameraInspector;
+- (void)cameraChanged:(NSNotification *)notification;
 
 @end
 
@@ -83,6 +91,55 @@
     }
     
     return bounds;
+}
+
+- (void)updateSelectionBoundsInspector {
+    TBoundingBox bounds;
+    [selectionManager selectionBounds:&bounds];
+    
+    TVector3f size;
+    sizeOfBounds(&bounds, &size);
+    
+    [selectionOriginXField setFloatValue:bounds.min.x];
+    [selectionOriginYField setFloatValue:bounds.min.y];
+    [selectionOriginZField setFloatValue:bounds.min.z];
+    [selectionSizeXField setFloatValue:size.x];
+    [selectionSizeYField setFloatValue:size.y];
+    [selectionSizeZField setFloatValue:size.z];
+}
+
+- (void)selectionAdded:(NSNotification *)notification {
+    [self updateSelectionBoundsInspector];
+}
+
+- (void)selectionRemoved:(NSNotification *)notification {
+    [self updateSelectionBoundsInspector];
+    if ([selectionManager mode] == SM_UNDEFINED)
+        [options setIsolationMode:IM_NONE];
+}
+
+- (void)propertiesDidChange:(NSNotification *)notification {
+    [self updateSelectionBoundsInspector];
+}
+
+- (void)brushesDidChange:(NSNotification *)notification {
+    [self updateSelectionBoundsInspector];
+}
+
+- (void)updateCameraInspector {
+    const TVector3f* pos = [camera position];
+    const TVector3f* dir = [camera direction];
+    
+    [cameraPosXField setFloatValue:pos->x];
+    [cameraPosYField setFloatValue:pos->y];
+    [cameraPosZField setFloatValue:pos->z];
+    [cameraDirXField setFloatValue:dir->x];
+    [cameraDirYField setFloatValue:dir->y];
+    [cameraDirZField setFloatValue:dir->z];
+}
+
+- (void)cameraChanged:(NSNotification *)notification {
+    [self updateCameraInspector];
 }
 
 @end
@@ -178,11 +235,6 @@
     }
 }
 
-- (void)selectionRemoved:(NSNotification *)notification {
-    if ([selectionManager mode] == SM_UNDEFINED)
-        [options setIsolationMode:IM_NONE];
-}
-
 - (void)windowDidLoad {
     console = [[ConsoleWindowController alloc] initWithWindowNibName:@"ConsoleWindow"];
     
@@ -201,12 +253,18 @@
     cursorManager = [[CursorManager alloc] init];
     
     [view3D setup];
+    [compassView setCamera:camera];
+    [self updateCameraInspector];
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification object:[self window]];
     [center addObserver:self selector:@selector(windowWillClose:) name:NSWindowWillCloseNotification object:[self window]];
     [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:[PreferencesManager sharedManager]];
+    [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
     [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
+    [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesDidChange object:[self document]];
+    [center addObserver:self selector:@selector(brushesDidChange:) name:BrushesDidChange object:[self document]];
+    [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
     
     [[self window] setAcceptsMouseMovedEvents:YES];
     [[self window] makeKeyAndOrderFront:nil];
