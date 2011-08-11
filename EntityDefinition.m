@@ -124,7 +124,7 @@
 }
 
 - (NSArray *)allFlags {
-    NSMutableArray* result = [[NSMutableArray alloc] initWithArray:[flags allKeys]];
+    NSMutableArray* result = [[NSMutableArray alloc] initWithArray:[flags allValues]];
     [result sortUsingSelector:@selector(compareByFlag:)];
     return [result autorelease];
 }
