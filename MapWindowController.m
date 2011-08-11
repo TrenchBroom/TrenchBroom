@@ -51,7 +51,6 @@
 - (void)windowDidBecomeKey:(NSNotification *)notification;
 - (void)windowDidResignKey:(NSNotification *)notification;
 - (void)windowWillClose:(NSNotification *)notification;
-- (void)windowDidResize:(NSNotification *)notification;
 
 @end
 
@@ -83,13 +82,6 @@
         InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
         [inspector setMapWindowController:nil];
     }
-}
-
-
-- (void)windowDidResize:(NSNotification *)notification {
-    NSRect mapWindowFrame = [[self window] frame];
-    NSPoint quickBarOrigin = NSMakePoint(NSMinX(mapWindowFrame) + 10, NSMinY(mapWindowFrame) + 10);
-    [[quickBar window] setFrameOrigin:quickBarOrigin];
 }
 
 @end
@@ -184,7 +176,6 @@
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification object:[self window]];
     [center addObserver:self selector:@selector(windowWillClose:) name:NSWindowWillCloseNotification object:[self window]];
-    [center addObserver:self selector:@selector(windowDidResize:) name:NSWindowDidResizeNotification object:[self window]];
     [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:[PreferencesManager sharedManager]];
     [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
     

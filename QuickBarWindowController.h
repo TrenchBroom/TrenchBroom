@@ -25,6 +25,14 @@
     IBOutlet NSTextField* cameraDirYField;
     IBOutlet NSTextField* cameraDirZField;
     IBOutlet CompassView* compassView;
+    IBOutlet NSTextField* entityClassnameField;
+    IBOutlet NSTextField* entitySpawnFlagsField;
+    IBOutlet NSTextField* faceXOffsetField;
+    IBOutlet NSTextField* faceYOffsetField;
+    IBOutlet NSTextField* faceXScaleField;
+    IBOutlet NSTextField* faceYScaleField;
+    IBOutlet NSTextField* faceRotationField;
+    IBOutlet NSTextField* faceTextureField;
     MapWindowController* mapWindowController;
 }
 
