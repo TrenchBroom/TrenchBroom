@@ -458,6 +458,8 @@ NSString* const SelectionVertices = @"SelectionVertices";
             return YES;
         }
         default:
+            result->min = NullVector;
+            result->max = NullVector;
             return NO;
     }
 }

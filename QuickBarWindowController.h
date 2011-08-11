@@ -11,7 +11,7 @@
 @class CompassView;
 @class MapWindowController;
 
-@interface QuickBarWindowController : NSWindowController {
+@interface QuickBarWindowController : NSWindowController <NSWindowDelegate> {
     IBOutlet NSTextField* selectionOriginXField;
     IBOutlet NSTextField* selectionOriginYField;
     IBOutlet NSTextField* selectionOriginZField;
@@ -29,5 +29,13 @@
 }
 
 - (void)setMapWindowController:(MapWindowController *)theMapWindowController;
+
+- (IBAction)switchToXYView:(id)sender;
+- (IBAction)switchToXZView:(id)sender;
+- (IBAction)switchToYZView:(id)sender;
+
+- (IBAction)selectAll:(id)sender;
+- (IBAction)selectNone:(id)sender;
+- (IBAction)selectEntity:(id)sender;
 
 @end

@@ -194,11 +194,6 @@
     quickBar = [[QuickBarWindowController alloc] initWithWindowNibName:@"QuickBarWindow"];
     [quickBar setMapWindowController:self];
     [[self window] addChildWindow:[quickBar window] ordered:NSWindowAbove];
-    
-    NSRect mapWindowFrame = [[self window] frame];
-    NSPoint quickBarOrigin = NSMakePoint(NSMinX(mapWindowFrame) + 10, NSMinY(mapWindowFrame) + 10);
-    
-    [[quickBar window] setFrameOrigin:quickBarOrigin];
     [[quickBar window] orderFront:self];
     
 }

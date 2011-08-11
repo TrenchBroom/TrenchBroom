@@ -177,6 +177,8 @@
 		48E1806512F5F07D007995FE /* SelectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1806412F5F07D007995FE /* SelectionManager.m */; };
 		48E4006D13159E7E004642CD /* TextureNameFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E4006C13159E7E004642CD /* TextureNameFilter.m */; };
 		48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E400AE1315A7DA004642CD /* TextureUsageFilter.m */; };
+		48E725AD13F3D26900828C0B /* QuickBarWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E725AC13F3D26900828C0B /* QuickBarWindow.m */; };
+		48E725B313F3D75A00828C0B /* QuickBarContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E725B213F3D75A00828C0B /* QuickBarContentView.m */; };
 		48F0EC52131A9CCD0088FA02 /* PrefabView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F0EC51131A9CCD0088FA02 /* PrefabView.m */; };
 		48F56F5213E9CDEC008DF954 /* MapBrowserDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F56F5113E9CDEC008DF954 /* MapBrowserDataSource.m */; };
 		48F5C3DB13E1578A00B1A720 /* ControllerUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F5C3DA13E1578A00B1A720 /* ControllerUtils.m */; };
@@ -562,6 +564,10 @@
 		48E4006C13159E7E004642CD /* TextureNameFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureNameFilter.m; sourceTree = "<group>"; };
 		48E400AD1315A7DA004642CD /* TextureUsageFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureUsageFilter.h; sourceTree = "<group>"; };
 		48E400AE1315A7DA004642CD /* TextureUsageFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureUsageFilter.m; sourceTree = "<group>"; };
+		48E725AB13F3D26900828C0B /* QuickBarWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickBarWindow.h; sourceTree = "<group>"; };
+		48E725AC13F3D26900828C0B /* QuickBarWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuickBarWindow.m; sourceTree = "<group>"; };
+		48E725B113F3D75A00828C0B /* QuickBarContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickBarContentView.h; sourceTree = "<group>"; };
+		48E725B213F3D75A00828C0B /* QuickBarContentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuickBarContentView.m; sourceTree = "<group>"; };
 		48EEE9041153D816001A4D7C /* Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Test-Info.plist"; sourceTree = "<group>"; };
 		48F0EC50131A9CCD0088FA02 /* PrefabView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabView.h; sourceTree = "<group>"; };
 		48F0EC51131A9CCD0088FA02 /* PrefabView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabView.m; sourceTree = "<group>"; };
@@ -1088,8 +1094,7 @@
 				48B5A1DA131EEE440043FBD9 /* PrefabNameSheetController.m */,
 				48E1806312F5F07D007995FE /* SelectionManager.h */,
 				48E1806412F5F07D007995FE /* SelectionManager.m */,
-				487799C813F30990001F9335 /* QuickBarWindowController.h */,
-				487799C913F30990001F9335 /* QuickBarWindowController.m */,
+				48E725B013F3D74000828C0B /* QuickBar */,
 			);
 			name = MapWindow;
 			sourceTree = "<group>";
@@ -1299,6 +1304,19 @@
 				48AF853313D190AC00B62317 /* BspTexture.m */,
 			);
 			name = Bsp;
+			sourceTree = "<group>";
+		};
+		48E725B013F3D74000828C0B /* QuickBar */ = {
+			isa = PBXGroup;
+			children = (
+				487799C813F30990001F9335 /* QuickBarWindowController.h */,
+				487799C913F30990001F9335 /* QuickBarWindowController.m */,
+				48E725AB13F3D26900828C0B /* QuickBarWindow.h */,
+				48E725AC13F3D26900828C0B /* QuickBarWindow.m */,
+				48E725B113F3D75A00828C0B /* QuickBarContentView.h */,
+				48E725B213F3D75A00828C0B /* QuickBarContentView.m */,
+			);
+			name = QuickBar;
 			sourceTree = "<group>";
 		};
 		48F0EC32131A999E0088FA02 /* Prefabs */ = {
@@ -1557,6 +1575,8 @@
 				48CB060D13EC2E690051640E /* BoundsFeedbackFigure.m in Sources */,
 				4893347613F2DA3D00AB179F /* CompassView.m in Sources */,
 				487799CA13F30990001F9335 /* QuickBarWindowController.m in Sources */,
+				48E725AD13F3D26900828C0B /* QuickBarWindow.m in Sources */,
+				48E725B313F3D75A00828C0B /* QuickBarContentView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

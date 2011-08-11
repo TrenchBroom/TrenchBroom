@@ -80,6 +80,9 @@
 
 - (void)windowDidLoad {
     [super windowDidLoad];
+    if (mapWindowController != nil)
+        [compassView setCamera:[mapWindowController camera]];
+    [[self window] setDelegate:self];
 }
 
 - (void)dealloc {
@@ -92,6 +95,7 @@
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center removeObserver:self];
+    
     mapWindowController = theMapWindowController;
     
     SelectionManager* selectionManager = [mapWindowController selectionManager];
@@ -100,10 +104,39 @@
     
     Camera* camera = [mapWindowController camera];
     [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
+    [compassView setCamera:camera];
     
     MapDocument* map = [mapWindowController document];
     [center addObserver:self selector:@selector(propertiesChanged:) name:PropertiesDidChange object:map];
     [center addObserver:self selector:@selector(brushesDidChange:) name:BrushesDidChange object:map];
+
+    NSRect mapWindowFrame = [[mapWindowController window] frame];
+    NSPoint quickBarOrigin = NSMakePoint(NSMinX(mapWindowFrame) + 10, NSMinY(mapWindowFrame) + 10);
+    
+    [[self window] setFrameOrigin:quickBarOrigin];
+}
+
+- (IBAction)switchToXYView:(id)sender {
+    [mapWindowController switchToXYView:sender];
+}
+
+- (IBAction)switchToXZView:(id)sender {
+    [mapWindowController switchToXZView:sender];
+}
+- (IBAction)switchToYZView:(id)sender {
+    [mapWindowController switchToYZView:sender];
+}
+
+- (IBAction)selectAll:(id)sender {
+    [mapWindowController selectAll:sender];
+}
+
+- (IBAction)selectNone:(id)sender {
+    [mapWindowController selectNone:sender];
+}
+
+- (IBAction)selectEntity:(id)sender {
+    [mapWindowController selectEntity:sender];
 }
 
 @end
