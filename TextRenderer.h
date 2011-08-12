@@ -11,6 +11,7 @@
 
 @class Camera;
 @class GLFontManager;
+@class GLString;
 @protocol TextAnchor;
 
 @interface TextRenderer : NSObject {
@@ -26,6 +27,9 @@
 - (void)addString:(NSString *)theString forKey:(id <NSCopying>)theKey withFont:(NSFont *)theFont withAnchor:(id <TextAnchor>)theAnchor;
 - (void)removeStringForKey:(id <NSCopying>)theKey;
 
-- (void)renderColor:(float *)theColor;
+- (void)addString:(GLString *)theString forKey:(id <NSCopying>)theKey withAnchor:(id <TextAnchor>)theAnchor;
+- (void)moveStringWithKey:(id <NSCopying>)theKey toTextRenderer:(TextRenderer *)theTextRenderer;
+
+- (void)renderColor:(const TVector4f *)theColor;
 
 @end

@@ -27,6 +27,6 @@
 
 - (void)setBounds:(TBoundingBox *)theBounds;
 
-- (void)renderColor:(float *)theColor;
+- (void)renderColor:(const TVector4f *)theColor;
 
 @end

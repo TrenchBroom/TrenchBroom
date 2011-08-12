@@ -24,6 +24,7 @@
         [pixelFormat release];
         
         palette = [thePalette retain];
+        vbos = [[NSMutableDictionary alloc] init];
         fontManager = [[GLFontManager alloc] init];
         textureManager = [[TextureManager alloc] init];
         entityRendererManager = [[EntityRendererManager alloc] initWithPalette:palette];
@@ -37,7 +38,7 @@
     [fontManager release];
     [textureManager release];
     [palette release];
-    [geometryVbo release];
+    [vbos release];
     [openGLContext release];
     [super dealloc];
 }
@@ -62,11 +63,15 @@
     return entityRendererManager;
 }
 
-- (VBOBuffer *)geometryVbo {
-    if (geometryVbo == nil)
-        geometryVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
+- (VBOBuffer *)vboForKey:(id <NSCopying>)theKey {
+    VBOBuffer* vbo = [vbos objectForKey:theKey];
+    if (vbo == nil) {
+        vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
+        [vbos setObject:vbo forKey:theKey];
+        [vbo release];
+    }
     
-    return geometryVbo;
+    return vbo;
 }
 
 @end

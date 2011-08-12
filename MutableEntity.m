@@ -435,6 +435,8 @@
     
     int mask = [raw intValue];
     NSArray* spawnFlags = [entityDefinition flagsForMask:mask];
+    if ([spawnFlags count] == 0)
+        return @"<none>";
     
     NSEnumerator* spawnFlagEn = [spawnFlags objectEnumerator];
     SpawnFlag* spawnFlag = [spawnFlagEn nextObject];
@@ -504,6 +506,15 @@
     PickingHit* pickingHit = [[PickingHit alloc] initWithObject:self type:HT_ENTITY hitPoint:&hitPoint distance:dist];
     [theHitList addHit:pickingHit];
     [pickingHit release];
+}
+
+- (VBOMemBlock *)boundsMemBlock {
+    return boundsMemBlock;
+}
+
+- (void)setBoundsMemBlock:(VBOMemBlock *)theBoundsMemBlock {
+    [boundsMemBlock free];
+    boundsMemBlock = theBoundsMemBlock;
 }
 
 @end

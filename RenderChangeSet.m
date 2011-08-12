@@ -18,6 +18,13 @@
         addedBrushes = [[NSMutableSet alloc] init];
         removedBrushes = [[NSMutableSet alloc] init];
         changedBrushes = [[NSMutableSet alloc] init];
+        changedFaces = [[NSMutableSet alloc] init];
+        selectedEntities = [[NSMutableSet alloc] init];
+        deselectedEntities = [[NSMutableSet alloc] init];
+        selectedBrushes = [[NSMutableSet alloc] init];
+        deselectedBrushes = [[NSMutableSet alloc] init];
+        selectedFaces = [[NSMutableSet alloc] init];
+        deselectedFaces = [[NSMutableSet alloc] init];
     }
     
     return self;
@@ -30,6 +37,13 @@
     [addedBrushes release];
     [removedBrushes release];
     [changedBrushes release];
+    [changedFaces release];
+    [selectedEntities release];
+    [deselectedEntities release];
+    [selectedBrushes release];
+    [deselectedBrushes release];
+    [selectedFaces release];
+    [deselectedFaces release];
     [super dealloc];
 }
 
@@ -57,6 +71,34 @@
     [changedBrushes unionSet:theBrushes];
 }
 
+- (void)facesChanged:(NSSet *)theFaces {
+    [changedFaces unionSet:theFaces];
+}
+
+- (void)entitiesSelected:(NSSet *)theEntities {
+    [selectedEntities unionSet:theEntities];
+}
+
+- (void)entitiesDeselected:(NSSet *)theEntities {
+    [deselectedEntities unionSet:theEntities];
+}
+
+- (void)brushesSelected:(NSSet *)theBrushes {
+    [selectedBrushes unionSet:theBrushes];
+}
+
+- (void)brushesDeselected:(NSSet *)theBrushes {
+    [deselectedBrushes unionSet:theBrushes];
+}
+
+- (void)facesSelected:(NSSet *)theFaces {
+    [selectedFaces unionSet:theFaces];
+}
+
+- (void)facesDeselected:(NSSet *)theFaces {
+    [deselectedFaces unionSet:theFaces];
+}
+
 - (void)clear {
     [addedEntities removeAllObjects];
     [removedEntities removeAllObjects];
@@ -64,6 +106,13 @@
     [addedBrushes removeAllObjects];
     [removedBrushes removeAllObjects];
     [changedBrushes removeAllObjects];
+    [changedFaces removeAllObjects];
+    [selectedEntities removeAllObjects];
+    [deselectedEntities removeAllObjects];
+    [selectedBrushes removeAllObjects];
+    [deselectedBrushes removeAllObjects];
+    [selectedFaces removeAllObjects];
+    [deselectedFaces removeAllObjects];
 }
 
 - (NSSet *)addedEntities {
@@ -79,7 +128,7 @@
 }
 
 - (NSSet *)addedBrushes {
-    return addedEntities;
+    return addedBrushes;
 }
 
 - (NSSet *)removedBrushes {
@@ -88,6 +137,34 @@
 
 - (NSSet *)changedBrushes {
     return changedBrushes;
+}
+
+- (NSSet *)changedFaces {
+    return changedFaces;
+}
+
+- (NSSet *)selectedEntities {
+    return selectedEntities;
+}
+
+- (NSSet *)deselectedEntities {
+    return deselectedEntities;
+}
+
+- (NSSet *)selectedBrushes {
+    return selectedBrushes;
+}
+
+- (NSSet *)deselectedBrushes {
+    return deselectedBrushes;
+}
+
+- (NSSet *)selectedFaces {
+    return selectedFaces;
+}
+
+- (NSSet *)deselectedFaces {
+    return deselectedFaces;
 }
 
 @end

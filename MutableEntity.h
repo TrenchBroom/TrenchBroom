@@ -14,6 +14,7 @@
 @class MutableBrush;
 @class Face;
 @class EntityDefinition;
+@class VBOMemBlock;
 
 @interface MutableEntity : NSObject <Entity> {
     EntityDefinition* entityDefinition;
@@ -28,6 +29,8 @@
     TBoundingBox maxBounds;
     BOOL valid;
     int filePosition;
+    
+    VBOMemBlock* boundsMemBlock;
 }
 
 - (id)initWithProperties:(NSDictionary *)theProperties;

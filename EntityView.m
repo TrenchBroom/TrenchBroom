@@ -244,8 +244,8 @@
                 if (renderer != nil) {
                     [renderer renderAtOrigin:&origin angle:nil];
                 } else {
-                    float* color = [definition color];
-                    glColor4f(color[0], color[1], color[2], 1);
+                    const TVector4f* color = [definition color];
+                    glColor4f(color->x, color->y, color->z, 1);
                     
                     TVector3f size;
                     sizeOfBounds([definition bounds], &size);

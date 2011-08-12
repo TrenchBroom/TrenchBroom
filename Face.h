@@ -45,7 +45,8 @@
 - (Matrix4f *)surfaceToWorldMatrix;
 - (Matrix4f *)worldToSurfaceMatrix;
 
-- (void)setMemBlock:(VBOMemBlock *)theBlock;
+
 - (VBOMemBlock *)memBlock;
+- (void)setMemBlock:(VBOMemBlock *)theMemBlock;
 
 @end

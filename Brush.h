@@ -9,9 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import "Math.h"
 
-@protocol Entity;
 @class PickingHit;
 @class PickingHitList;
+@protocol Entity;
 @protocol Face;
 
 @protocol Brush <NSObject, NSCopying>
@@ -34,4 +34,5 @@
 - (BOOL)containsBrush:(id <Brush>)theBrush;
 - (BOOL)intersectsEntity:(id <Entity>)theEntity;
 - (BOOL)containsEntity:(id <Entity>)theEntity;
+
 @end

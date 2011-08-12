@@ -35,27 +35,28 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
         [NSException raise:InvalidTokenException format:@"invalid token: %@, expected %@", actualToken, [EntityDefinitionToken typeName:expectedType]];
 }
 
-- (float *)parseColor {
-    float* color = malloc(3 * sizeof(float));
+- (TVector4f)parseColor {
+    TVector4f color;
     
     EntityDefinitionToken* token = [tokenizer nextToken];
     [self expect:TT_B_O actual:token];
 
     token = [tokenizer nextToken];
     [self expect:TT_FRAC actual:token];
-    color[0] = [[token data] floatValue];
+    color.x = [[token data] floatValue];
     
     token = [tokenizer nextToken];
     [self expect:TT_FRAC actual:token];
-    color[1] = [[token data] floatValue];
+    color.y = [[token data] floatValue];
 
     token = [tokenizer nextToken];
     [self expect:TT_FRAC actual:token];
-    color[2] = [[token data] floatValue];
+    color.z = [[token data] floatValue];
     
     token = [tokenizer nextToken];
     [self expect:TT_B_C actual:token];
-    
+
+    color.w = 1;
     return color;
 }
 
@@ -295,7 +296,8 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     [self expect:TT_ED_O actual:token];
 
     NSString* name = nil;
-    float* color = NULL;
+    TVector4f color;
+    BOOL hasColor = NO;
     TBoundingBox* bounds = NULL;
     NSDictionary* flags = nil;
     NSArray* properties = nil;
@@ -311,6 +313,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     
     if ([token type] == TT_B_O) {
         color = [self parseColor];
+        hasColor = YES;
         bounds = [self parseBounds];
         flags = [self parseFlags];
     }
@@ -325,16 +328,14 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     [self expect:TT_ED_C actual:token];
 
     EntityDefinition* definition;
-    if (color == NULL)
+    if (!hasColor)
         definition = [[EntityDefinition alloc] initBaseDefinitionWithName:name flags:flags properties:properties];
     else if (bounds != NULL)
-        definition = [[EntityDefinition alloc] initPointDefinitionWithName:name color:color bounds:bounds flags:flags properties:properties description:description];
+        definition = [[EntityDefinition alloc] initPointDefinitionWithName:name color:&color bounds:bounds flags:flags properties:properties description:description];
     else
-        definition = [[EntityDefinition alloc] initBrushDefinitionWithName:name color:color flags:flags properties:properties description:description];
+        definition = [[EntityDefinition alloc] initBrushDefinitionWithName:name color:&color flags:flags properties:properties description:description];
     
     [name release];
-    if (color != NULL)
-        free(color);
     if (bounds != NULL)
         free(bounds);
     

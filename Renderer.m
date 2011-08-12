@@ -13,18 +13,10 @@
 #import "MutableEntity.h"
 #import "Brush.h"
 #import "Face.h"
-#import "Edge.h"
 #import "Vertex.h"
-#import "GeometryLayer.h"
-#import "SelectionLayer.h"
-#import "FigureLayer.h"
-#import "DefaultEntityLayer.h"
-#import "CompassFigure.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "SelectionManager.h"
-#import "Brush.h"
-#import "Face.h"
 #import "MutableFace.h"
 #import "Camera.h"
 #import "Options.h"
@@ -35,7 +27,6 @@
 #import "TextureManager.h"
 #import "GLFontManager.h"
 #import "Texture.h"
-#import "CompassFigure.h"
 #import "CursorManager.h"
 #import "Figure.h"
 #import "Filter.h"
@@ -44,40 +35,68 @@
 #import "GLUtils.h"
 #import "ControllerUtils.h"
 #import "PreferencesManager.h"
+#import "RenderChangeSet.h"
+#import "IntData.h"
+#import "EntityRenderer.h"
+#import "EntityRendererManager.h"
+#import "TextRenderer.h"
+#import "BoundsRenderer.h"
+#import "EntityClassnameAnchor.h"
 
 NSString* const RendererChanged = @"RendererChanged";
+NSString* const FaceVboKey = @"FaceVbo";
+NSString* const EntityBoundsVboKey = @"EntityBoundsVbo";
+NSString* const SelectedEntityBoundsVboKey = @"SelectedEntityBoundsVbo";
+TVector4f const EntityBoundsDefaultColor = {1, 1, 1, 0.5f};
+TVector4f const EntityBoundsWireframeColor = {1, 1, 1, 0.6f};
+TVector4f const EntityClassnameColor = {1, 1, 1, 1};
+TVector4f const EdgeDefaultColor = {0.4f, 0.4f, 0.4f, 0.4f};
+TVector4f const FaceDefaultColor = {0.2f, 0.2f, 0.2f, 1};
+TVector4f const SelectionColor = {1, 0, 0, 1};
+TVector4f const SelectionColor2 = {1, 0, 0, 0.2f};
+TVector4f const SelectionColor3 = {1, 0, 0, 0.5f};
+int const VertexSize = 3 * sizeof(float);
+int const ColorSize = 4;
+int const TexCoordSize = 2 * sizeof(float);
 
 @interface Renderer (private)
 
+- (void)writeEntityBounds:(id <Entity>)theEntity toBlock:(VBOMemBlock *)theBlock;
+- (void)writeFace:(id <Face>)theFace toBlock:(VBOMemBlock *)theBlock;
+- (void)writeFace:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer;
+
+- (void)validateEntityRendererCache;
+- (void)validateDeselection;
+- (void)validateSelection;
+- (void)validateAddedEntities;
+- (void)validateChangedEntities;
+- (void)validateAddedBrushes;
+- (void)validateChangedBrushes;
+- (void)validateChangedFaces;
+- (void)validateRemovedBrushes;
+- (void)rebuildFaceIndexBuffers;
 - (void)validate;
 
-- (void)addFaces:(NSSet *)theFaces;
-- (void)removeFaces:(NSSet *)theFaces;
+- (void)renderEntityModels:(NSSet *)theEntities;
+- (void)renderEntityBounds:(const TVector4f *)color vertexCount:(int)theVertexCount;
+- (void)renderEdges:(const TVector4f *)color indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers;
+- (void)renderFaces:(BOOL)textured;
+
 - (void)addBrushes:(NSSet *)theBrushes;
 - (void)removeBrushes:(NSSet *)theBrushes;
 - (void)addEntities:(NSSet *)theEntities;
 - (void)removeEntities:(NSSet *)theEntities;
-- (void)addFace:(id <Face>)face;
-- (void)removeFace:(id <Face>)face;
-- (void)addBrush:(id <Brush>)brush;
-- (void)removeBrush:(id <Brush>)brush;
-- (void)addEntity:(id <Entity>)entity;
-- (void)removeEntity:(id <Entity>)entity;
 
-- (void)facesWillChange:(NSNotification *)notification;
 - (void)facesDidChange:(NSNotification *)notification;
-- (void)brushesWillChange:(NSNotification *)notification;
 - (void)brushesDidChange:(NSNotification *)notification;
 - (void)brushesAdded:(NSNotification *)notification;
 - (void)brushesWillBeRemoved:(NSNotification *)notification;
 - (void)entitiesAdded:(NSNotification *)notification;
 - (void)entitiesWillBeRemoved:(NSNotification *)notification;
-- (void)propertiesWillChange:(NSNotification *)notification;
 - (void)propertiesDidChange:(NSNotification *)notification;
 
 - (void)selectionAdded:(NSNotification *)notification;
 - (void)selectionRemoved:(NSNotification *)notification;
-- (void)trackedObjectChanged:(NSNotification *)notification;
 - (void)textureManagerChanged:(NSNotification *)notification;
 - (void)cameraChanged:(NSNotification *)notification;
 - (void)optionsChanged:(NSNotification *)notification;
@@ -89,106 +108,723 @@ NSString* const RendererChanged = @"RendererChanged";
 
 @implementation Renderer (private)
 
-- (void)validate {
-    if ([invalidBrushes count] > 0) {
-        NSEnumerator* brushEn = [invalidBrushes objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject]))
-            [invalidFaces addObjectsFromArray:[brush faces]];
-        [invalidBrushes removeAllObjects];
+- (void)writeEntityBounds:(id <Entity>)theEntity toBlock:(VBOMemBlock *)theBlock {
+    TVector3f t;
+    TBoundingBox* bounds = [theEntity bounds];
+    EntityDefinition* definition = [theEntity entityDefinition];
+    TVector4f color = definition != nil ? *[definition color] : EntityBoundsDefaultColor;
+    color.w = EntityBoundsDefaultColor.w;
+    
+    int offset = 0;
+    
+    // bottom side
+    t = bounds->min;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.x = bounds->max.x;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.y = bounds->max.y;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.x = bounds->min.x;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    // south side
+    t = bounds->min;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.z = bounds->max.z;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.x = bounds->max.x;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.z = bounds->min.z;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    // west side
+    t = bounds->min;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.y = bounds->max.y;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.z = bounds->max.z;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.y = bounds->min.y;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    // top side
+    t = bounds->max;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.y = bounds->min.y;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.x = bounds->min.x;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.y = bounds->max.y;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    // north side
+    t = bounds->max;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.z = bounds->min.z;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.x = bounds->min.x;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.z = bounds->max.z;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    // east side
+    t = bounds->max;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.z = bounds->min.z;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.y = bounds->min.y;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    t.z = bounds->max.z;
+    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
+    offset = [theBlock writeVector3f:&t offset:offset];
+    
+    [theBlock setState:BS_USED_VALID];
+}
+
+- (void)writeFace:(id <Face>)theFace toBlock:(VBOMemBlock *)theBlock {
+    TVector2f texCoords, gridCoords;
+    
+    NSString* textureName = [theFace texture];
+    Texture* texture = [textureManager textureForName:textureName];
+    int width = texture != nil ? [texture width] : 1;
+    int height = texture != nil ? [texture height] : 1;
+    int offset = 0;
+    
+    NSEnumerator* vertexEn = [[theFace vertices] objectEnumerator];
+    Vertex* vertex;
+    while ((vertex = [vertexEn nextObject])) {
+        [theFace gridCoords:&gridCoords forVertex:[vertex vector]];
+        [theFace texCoords:&texCoords forVertex:[vertex vector]];
+        texCoords.x /= width;
+        texCoords.y /= height;
+        
+        offset = [theBlock writeVector2f:&gridCoords offset:offset];
+        offset = [theBlock writeVector2f:&texCoords offset:offset];
+        offset = [theBlock writeColor4fAsBytes:&EdgeDefaultColor offset:offset];
+        offset = [theBlock writeColor4fAsBytes:&FaceDefaultColor offset:offset];
+        offset = [theBlock writeVector3f:[vertex vector] offset:offset];
     }
     
-    if ([invalidFaces count] == 0)
-        return;
+    [theBlock setState:BS_USED_VALID];
+}
+
+- (void)writeFace:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer {
+    int index = [[theFace memBlock] address] / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+    int count = [[theFace vertices] count];
     
-    [sharedVbo activate];
-    [sharedVbo mapBuffer];
-    
-    int vertexSize = 7 * sizeof(float);
-    TVector2f gridCoords, texCoords;
-    
-    NSEnumerator* faceEn = [invalidFaces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
-        id <Brush> brush = [face brush];
-        if (filter == nil || [filter isBrushRenderable:brush]) {
-            NSArray* vertices = [face vertices];
-            int vertexCount = [vertices count];
+    [theIndexBuffer appendInt:index];
+    [theCountBuffer appendInt:count];
+}
+
+- (void)validateEntityRendererCache {
+    if (!entityRendererCacheValid) {
+        [entityRenderers removeAllObjects];
+
+        NSSet* modelEntitiesCopy = [modelEntities copy];
+        NSEnumerator* entityEn = [modelEntitiesCopy objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            id <EntityRenderer> renderer = [entityRendererManager entityRendererForEntity:entity mods:mods];
+            if (renderer != nil)
+                [entityRenderers setObject:renderer forKey:[entity entityId]];
+            else
+                [modelEntities removeObject:entity];
+        }
+
+        NSSet* selectedModelEntitiesCopy = [selectedModelEntities copy];
+        entityEn = [selectedModelEntitiesCopy objectEnumerator];
+        while ((entity = [entityEn nextObject])) {
+            id <EntityRenderer> renderer = [entityRendererManager entityRendererForEntity:entity mods:mods];
+            if (renderer != nil)
+                [entityRenderers setObject:renderer forKey:[entity entityId]];
+            else
+                [selectedModelEntities removeObject:entity];
+        }
+
+        entityRendererCacheValid = YES;
+    }
+}
+
+- (void)validateDeselection {
+    NSSet* deselectedEntities = [changeSet deselectedEntities];
+    if ([deselectedEntities count] > 0) {
+        [entityBoundsVbo activate];
+        [entityBoundsVbo mapBuffer];
+        
+        NSEnumerator* entityEn = [deselectedEntities objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            VBOMemBlock* block = [entityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
+            [self writeEntityBounds:entity toBlock:block];
+            [entity setBoundsMemBlock:block];
+            [block setState:BS_USED_VALID];
             
+            if (![entity isWorldspawn])
+                [selectedClassnameRenderer moveStringWithKey:[entity entityId] toTextRenderer:classnameRenderer];
+        }
+        
+        [entityBoundsVbo unmapBuffer];
+        [entityBoundsVbo deactivate];
+
+        entityBoundsVertexCount += 6 * 4 * [deselectedEntities count];
+        selectedEntityBoundsVertexCount -= 6 * 4 * [deselectedEntities count];
+
+        [selectedEntityBoundsVbo activate];
+        [selectedEntityBoundsVbo mapBuffer];
+        [selectedEntityBoundsVbo pack];
+        [selectedEntityBoundsVbo unmapBuffer];
+        [selectedEntityBoundsVbo deactivate];
+        
+        NSMutableSet* unselectedModelEntities = [[NSMutableSet alloc] initWithSet:selectedModelEntities];
+        [unselectedModelEntities intersectSet:deselectedEntities];
+        [selectedModelEntities minusSet:unselectedModelEntities];
+        [modelEntities unionSet:unselectedModelEntities];
+        [unselectedModelEntities release];
+    }
+}
+
+- (void)validateSelection {
+    NSSet* selectedEntities = [changeSet selectedEntities];
+    if ([selectedEntities count] > 0) {
+        [selectedEntityBoundsVbo activate];
+        [selectedEntityBoundsVbo mapBuffer];
+        
+        NSEnumerator* entityEn = [selectedEntities objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            VBOMemBlock* block = [selectedEntityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
+            [self writeEntityBounds:entity toBlock:block];
+            [entity setBoundsMemBlock:block];
+            [block setState:BS_USED_VALID];
+
+            if (![entity isWorldspawn])
+                [classnameRenderer moveStringWithKey:[entity entityId] toTextRenderer:selectedClassnameRenderer];
+        }
+        
+        [selectedEntityBoundsVbo unmapBuffer];
+        [selectedEntityBoundsVbo deactivate];
+
+        entityBoundsVertexCount -= 6 * 4 * [selectedEntities count];
+        selectedEntityBoundsVertexCount += 6 * 4 * [selectedEntities count];
+
+        [entityBoundsVbo activate];
+        [entityBoundsVbo mapBuffer];
+        [entityBoundsVbo pack];
+        [entityBoundsVbo unmapBuffer];
+        [entityBoundsVbo deactivate];
+
+        NSMutableSet* newlySelectedModelEntities = [[NSMutableSet alloc] initWithSet:modelEntities];
+        [newlySelectedModelEntities intersectSet:selectedEntities];
+        [modelEntities minusSet:newlySelectedModelEntities];
+        [selectedModelEntities unionSet:newlySelectedModelEntities];
+        [newlySelectedModelEntities release];
+    }
+}
+
+- (void)validateAddedEntities {
+    NSSet* addedEntities = [changeSet addedEntities];
+    if ([addedEntities count] > 0) {
+        [entityBoundsVbo activate];
+        [entityBoundsVbo mapBuffer];
+
+        NSEnumerator* entityEn = [addedEntities objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            VBOMemBlock* block = [entityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
+            [self writeEntityBounds:entity toBlock:block];
+            [entity setBoundsMemBlock:block];
+
+            id <EntityRenderer> renderer = [entityRendererManager entityRendererForEntity:entity mods:mods];
+            if (renderer != nil) {
+                [entityRenderers setObject:renderer forKey:[entity entityId]];
+                [modelEntities addObject:entity];
+            }
+        }
+        
+        entityBoundsVertexCount += 6 * 4 * [addedEntities count];
+
+        [entityBoundsVbo unmapBuffer];
+        [entityBoundsVbo deactivate];
+        
+        [fontManager activate];
+        entityEn = [addedEntities objectEnumerator];
+        while ((entity = [entityEn nextObject])) {
+            if (![entity isWorldspawn]) {
+                NSString* classname = [entity classname];
+                EntityClassnameAnchor* anchor = [[EntityClassnameAnchor alloc] initWithEntity:entity];
+                [classnameRenderer addString:classname forKey:[entity entityId] withFont:[NSFont systemFontOfSize:9] withAnchor:anchor];
+                [anchor release];
+            }
+        }
+        [fontManager deactivate];
+    }
+}
+
+- (void)validateChangedEntities {
+    NSSet* changedEntities = [changeSet changedEntities];
+    if ([changedEntities count] > 0) {
+        [entityBoundsVbo activate];
+        [entityBoundsVbo mapBuffer];
+        
+        NSEnumerator* entityEn = [changedEntities objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            VBOMemBlock* block = [entity boundsMemBlock];
+            [self writeEntityBounds:entity toBlock:block];
+        }
+
+        [entityBoundsVbo unmapBuffer];
+        [entityBoundsVbo deactivate];
+    }
+}
+
+- (void)validateRemovedEntities {
+    NSSet* removedEntities = [changeSet removedEntities];
+    if ([removedEntities count] > 0) {
+        [entityBoundsVbo activate];
+        [entityBoundsVbo mapBuffer];
+        
+        NSEnumerator* entityEn = [removedEntities objectEnumerator];
+        id <Entity> entity;
+        while ((entity = [entityEn nextObject])) {
+            [entity setBoundsMemBlock:nil];
+            [entityRenderers removeObjectForKey:[entity entityId]];
+            [modelEntities removeObject:entity];
+        }
+
+        [entityBoundsVbo pack];
+        entityBoundsVertexCount -= 6 * 4 * [removedEntities count];
+
+        [entityBoundsVbo unmapBuffer];
+        [entityBoundsVbo deactivate];
+
+        [fontManager activate];
+        entityEn = [removedEntities objectEnumerator];
+        while ((entity = [entityEn nextObject]))
+            if (![entity isWorldspawn])
+                [classnameRenderer removeStringForKey:[entity entityId]];
+        [fontManager deactivate];
+    }
+}
+
+- (void)validateAddedBrushes {
+    NSSet* addedBrushes = [changeSet addedBrushes];
+    if ([addedBrushes count] > 0) {
+        NSEnumerator* brushEn = [addedBrushes objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+            id <Face> face;
+            while ((face = [faceEn nextObject])) {
+                NSArray* vertices = [face vertices];
+                VBOMemBlock* block = [faceVbo allocMemBlock:[vertices count] * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize)];
+                [self writeFace:face toBlock:block];
+                [face setMemBlock:block];
+            }
+        }
+    }
+}
+
+- (void)validateChangedBrushes {
+    NSSet* changedBrushes = [changeSet changedBrushes];
+    if ([changedBrushes count] > 0) {
+        NSEnumerator* brushEn = [changedBrushes objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+            id <Face> face;
+            while ((face = [faceEn nextObject])) {
+                NSArray* vertices = [face vertices];
+                int blockSize = [vertices count] * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+                VBOMemBlock* block = [face memBlock];
+                if ([block capacity] != blockSize) {
+                    block = [faceVbo allocMemBlock:blockSize];
+                    [face setMemBlock:block];
+                }
+                
+                [self writeFace:face toBlock:block];
+            }
+        }
+    }
+}
+
+- (void)validateChangedFaces {
+    NSSet* changedFaces = [changeSet changedFaces];
+    if ([changedFaces count] > 0) {
+        NSEnumerator* faceEn = [changedFaces objectEnumerator];
+        id <Face> face;
+        while ((face = [faceEn nextObject])) {
+            NSArray* vertices = [face vertices];
+            int blockSize = [vertices count] * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
             VBOMemBlock* block = [face memBlock];
-            if (block == nil || [block capacity] != vertexCount * vertexSize) {
-                block = [sharedVbo allocMemBlock:vertexCount * vertexSize];
+            if ([block capacity] != blockSize) {
+                block = [faceVbo allocMemBlock:blockSize];
                 [face setMemBlock:block];
             }
             
-            Texture* texture = [textureManager textureForName:[face texture]];
-            int width = texture != nil ? [texture width] : 1;
-            int height = texture != nil ? [texture height] : 1;
-            
-            int offset = 0;
-            NSEnumerator* vertexEn = [vertices objectEnumerator];
-            Vertex* vertex;
-            while ((vertex = [vertexEn nextObject])) {
-                [face gridCoords:&gridCoords forVertex:[vertex vector]];
-                [face texCoords:&texCoords forVertex:[vertex vector]];
-                texCoords.x /= width;
-                texCoords.y /= height;
-                
-                offset = [block writeVector2f:&gridCoords offset:offset];
-                offset = [block writeVector2f:&texCoords offset:offset];
-                offset = [block writeVector3f:[vertex vector] offset:offset];
-            }
-            
-            [block setState:BS_USED_VALID];
+            [self writeFace:face toBlock:block];
         }
     }
-    [invalidFaces removeAllObjects];
-    
-    [sharedVbo unmapBuffer];
-    [sharedVbo deactivate];
 }
 
-- (void)addEntities:(NSSet *)theEntities {
-    id <Entity> worldspawn = nil;
-    NSMutableSet* brushes = [[NSMutableSet alloc] init];
+- (void)validateRemovedBrushes {
+    NSSet* removedBrushes = [changeSet removedBrushes];
+    if ([removedBrushes count] > 0) {
+        NSEnumerator* brushEn = [removedBrushes objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+            id <Face> face;
+            while ((face = [faceEn nextObject]))
+                [face setMemBlock:nil];
+        }
+    }
+}
+
+- (void)rebuildFaceIndexBuffers {
+    [faceIndexBuffers removeAllObjects];
+    [faceCountBuffers removeAllObjects];
+    
+    MapDocument* map = [windowController document];
+    NSEnumerator* entityEn = [[map entities] objectEnumerator];
+    id <Entity> entity;
+    while  ((entity = [entityEn nextObject])) {
+        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+            id <Face> face;
+            while ((face = [faceEn nextObject])) {
+                NSString* textureName = [face texture];
+                IntData* indexBuffer = [faceIndexBuffers objectForKey:textureName];
+                if (indexBuffer == nil) {
+                    indexBuffer = [[IntData alloc] init];
+                    [faceIndexBuffers setObject:indexBuffer forKey:textureName];
+                    [indexBuffer release];
+                }
+                
+                IntData* countBuffer = [faceCountBuffers objectForKey:textureName];
+                if (countBuffer == nil) {
+                    countBuffer = [[IntData alloc] init];
+                    [faceCountBuffers setObject:countBuffer forKey:textureName];
+                    [countBuffer release];
+                }
+                
+                [self writeFace:face toIndexBuffer:indexBuffer countBuffer:countBuffer];
+            }
+        }
+    }
+}
+
+- (void)rebuildSelectedFaceIndexBuffers {
+    [selectedFaceIndexBuffers removeAllObjects];
+    [selectedFaceCountBuffers removeAllObjects];
+    
+    MapDocument* map = [windowController document];
+    SelectionManager* selectionManager = [map selectionManager];
+    
+    NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject])) {
+        NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+        id <Face> face;
+        while ((face = [faceEn nextObject])) {
+            NSString* textureName = [face texture];
+            IntData* indexBuffer = [selectedFaceIndexBuffers objectForKey:textureName];
+            if (indexBuffer == nil) {
+                indexBuffer = [[IntData alloc] init];
+                [selectedFaceIndexBuffers setObject:indexBuffer forKey:textureName];
+                [indexBuffer release];
+            }
+            
+            IntData* countBuffer = [selectedFaceCountBuffers objectForKey:textureName];
+            if (countBuffer == nil) {
+                countBuffer = [[IntData alloc] init];
+                [selectedFaceCountBuffers setObject:countBuffer forKey:textureName];
+                [countBuffer release];
+            }
+            
+            [self writeFace:face toIndexBuffer:indexBuffer countBuffer:countBuffer];
+        }
+    }
+    
+    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject])) {
+        NSString* textureName = [face texture];
+        IntData* indexBuffer = [selectedFaceIndexBuffers objectForKey:textureName];
+        if (indexBuffer == nil) {
+            indexBuffer = [[IntData alloc] init];
+            [selectedFaceIndexBuffers setObject:indexBuffer forKey:textureName];
+            [indexBuffer release];
+        }
+        
+        IntData* countBuffer = [selectedFaceCountBuffers objectForKey:textureName];
+        if (countBuffer == nil) {
+            countBuffer = [[IntData alloc] init];
+            [selectedFaceCountBuffers setObject:countBuffer forKey:textureName];
+            [countBuffer release];
+        }
+        
+        [self writeFace:face toIndexBuffer:indexBuffer countBuffer:countBuffer];
+    }
+}
+
+- (void)validate {
+    [self validateEntityRendererCache];
+    
+    [self validateDeselection];
+    
+    if ([[changeSet addedEntities] count] > 0 || 
+        [[changeSet changedEntities] count] > 0 || 
+        [[changeSet removedEntities] count] > 0) {
+        
+        [self validateAddedEntities];
+        [self validateChangedEntities];
+        [self validateRemovedEntities];
+    }
+    
+    if ([[changeSet addedBrushes] count] > 0 ||
+        [[changeSet changedBrushes] count] > 0 ||
+        [[changeSet changedFaces] count] > 0 ||
+        [[changeSet removedBrushes] count] > 0) {
+        
+        [faceVbo activate];
+        [faceVbo mapBuffer];
+        [self validateAddedBrushes];
+        [self validateChangedBrushes];
+        [self validateChangedFaces];
+        [self validateRemovedBrushes];
+        [faceVbo unmapBuffer];
+        [faceVbo deactivate];
+    }
+    
+    [self validateSelection];
+    
+    if ([[changeSet addedBrushes] count] > 0 ||
+        [[changeSet changedBrushes] count] > 0 ||
+        [[changeSet changedFaces] count] > 0 ||
+        [[changeSet removedBrushes] count] > 0 ||
+        [[changeSet selectedBrushes] count] > 0 ||
+        [[changeSet deselectedBrushes] count] > 0 ||
+        [[changeSet selectedFaces] count] > 0 ||
+        [[changeSet deselectedFaces] count] > 0) {
+        
+        [self rebuildFaceIndexBuffers];
+        [self rebuildSelectedFaceIndexBuffers];
+    }
+    
+    TBoundingBox selectionBounds;
+    SelectionManager* selectionManager = [windowController selectionManager];
+    [selectionManager selectionBounds:&selectionBounds];
+    [selectionBoundsRenderer setBounds:&selectionBounds];
+    
+    [changeSet clear];
+}
+
+- (void)renderEntityModels:(NSSet *)theEntities {
+    [entityRendererManager activate];
+    
+    glMatrixMode(GL_MODELVIEW);
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     id <Entity> entity;
     while ((entity = [entityEn nextObject])) {
-        [brushes addObjectsFromArray:[entity brushes]];
-        if ([entity isWorldspawn])
-            worldspawn = entity;
+        if (filter == nil || [filter isEntityRenderable:entity]) {
+            id <EntityRenderer> entityRenderer = [entityRenderers objectForKey:[entity entityId]];
+            
+            glPushMatrix();
+            [entityRenderer renderWithEntity:entity];
+            glPopMatrix();
+        }
     }
+    
+    glDisable(GL_TEXTURE_2D);
+    [entityRendererManager deactivate];
+}
+
+- (void)renderEntityBounds:(const TVector4f *)color vertexCount:(int)theVertexCount {
+    glSetEdgeOffset(0.5f);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glDisable(GL_CULL_FACE);
+    
+    if (color != NULL) {
+        glColor4f(color->x, color->y, color->z, color->w);
+        glVertexPointer(3, GL_FLOAT, ColorSize + VertexSize, (const GLvoid *)(long)ColorSize);
+    } else {
+        glInterleavedArrays(GL_C4UB_V3F, 0, 0);
+    }
+
+    glDrawArrays(GL_QUADS, 0, theVertexCount);
+    if (color == NULL)
+        glDisableClientState(GL_COLOR_ARRAY);
+    glEnable(GL_CULL_FACE);
+    glResetEdgeOffset();
+}
+
+- (void)renderEdges:(const TVector4f *)color indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers {
+    glSetEdgeOffset(0.5f);
+    glDisable(GL_TEXTURE_2D);
+    
+    if (color != NULL) {
+        glColor4f(color->x, color->y, color->z, color->w);
+        glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
+    } else {
+        glEnableClientState(GL_COLOR_ARRAY);
+        glColorPointer(4, GL_UNSIGNED_BYTE, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize));
+        glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
+    }
+    
+    NSEnumerator* textureNameEn = [theIndexBuffers keyEnumerator];
+    NSString* textureName;
+    while ((textureName = [textureNameEn nextObject])) {
+        IntData* indexBuffer = [theIndexBuffers objectForKey:textureName];
+        IntData* countBuffer = [theCountBuffers objectForKey:textureName];
+        
+        const void* indexBytes = [indexBuffer bytes];
+        const void* countBytes = [countBuffer bytes];
+        int primCount = [indexBuffer count];
+        
+        glMultiDrawArrays(GL_LINE_LOOP, indexBytes, countBytes, primCount);
+    }
+    
+    if (color == NULL)
+        glDisableClientState(GL_COLOR_ARRAY);
+    glResetEdgeOffset();
+}
+
+- (void)renderFaces:(BOOL)textured {
+    glPolygonMode(GL_FRONT, GL_FILL);
+    
+    Grid* grid = [[windowController options] grid];
+    if ([grid draw]) {
+        glActiveTexture(GL_TEXTURE1);
+        glEnable(GL_TEXTURE_2D);
+        [grid activateTexture];
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+        glClientActiveTexture(GL_TEXTURE1);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glTexCoordPointer(2, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)0);
+    }
+    
+    glActiveTexture(GL_TEXTURE0);
+    if (textured) {
+        glEnable(GL_TEXTURE_2D);
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+        glClientActiveTexture(GL_TEXTURE0);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glTexCoordPointer(2, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)TexCoordSize);
+    } else {
+        glDisable(GL_TEXTURE_2D);
+    }
+    
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(4, GL_UNSIGNED_BYTE, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)TexCoordSize + TexCoordSize + ColorSize);
+    glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
+    
+    NSEnumerator* textureNameEn = [faceIndexBuffers keyEnumerator];
+    NSString* textureName;
+    while ((textureName = [textureNameEn nextObject])) {
+        Texture* texture = [textureManager textureForName:textureName];
+        if (textured) {
+            if (texture != nil)
+                [texture activate];
+            else
+                glDisable(GL_TEXTURE_2D);
+        }
+        
+        IntData* indexBuffer = [faceIndexBuffers objectForKey:textureName];
+        IntData* countBuffer = [faceCountBuffers objectForKey:textureName];
+        
+        const void* indexBytes = [indexBuffer bytes];
+        const void* countBytes = [countBuffer bytes];
+        int primCount = [indexBuffer count];
+        
+        glMultiDrawArrays(GL_POLYGON, indexBytes, countBytes, primCount);
+        
+        if (textured) {
+            if (texture != nil)
+                [texture deactivate];
+            else
+                glEnable(GL_TEXTURE_2D);
+        }
+    }
+    
+    if (textured) {
+        glDisable(GL_TEXTURE_2D);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
+    
+    if ([grid draw]) {
+        glActiveTexture(GL_TEXTURE1);
+        glDisable(GL_TEXTURE_2D);
+        glClientActiveTexture(GL_TEXTURE1);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glClientActiveTexture(GL_TEXTURE0);
+    }
+    
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisable(GL_POLYGON_OFFSET_FILL);
+}
+
+- (void)addEntities:(NSSet *)theEntities {
+    [changeSet entitiesAdded:theEntities];
+    
+    NSMutableSet* brushes = [[NSMutableSet alloc] init];
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject]))
+        [brushes addObjectsFromArray:[entity brushes]];
     
     [self addBrushes:brushes];
     [brushes release];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedEntities]];
-    [selected intersectSet:theEntities];
-    if (worldspawn != nil)
-        [selected removeObject:worldspawn];
-    
-    if ([selected count] > 0) {
-        [selectionLayer addEntities:selected];
-        NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theEntities];
-        [unselected minusSet:selected];
-        if (worldspawn != nil)
-            [unselected removeObject:worldspawn];
-        
-        [entityLayer addEntities:unselected];
-        [unselected release];
-    } else {
-        [entityLayer addEntities:theEntities];
-    }
-    
-    if (worldspawn != nil) {
-        NSArray* mods = modListFromWorldspawn(worldspawn);
-        [entityLayer setMods:mods];
-        [selectionLayer setMods:mods];
-    }
 }
 
 - (void)removeEntities:(NSSet *)theEntities {
+    [changeSet entitiesRemoved:theEntities];
+    
     NSMutableSet* brushes = [[NSMutableSet alloc] init];
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     id <Entity> entity;
@@ -197,260 +833,28 @@ NSString* const RendererChanged = @"RendererChanged";
     
     [self removeBrushes:brushes];
     [brushes release];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedEntities]];
-    [selected intersectSet:theEntities];
-    if ([selected count] > 0) {
-        [selectionLayer removeEntities:selected];
-        NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theEntities];
-        [unselected minusSet:selected];
-        [entityLayer removeEntities:unselected];
-        [unselected release];
-    } else {
-        [entityLayer removeEntities:theEntities];
-    }
-}
-- (void)addFaces:(NSSet *)theFaces {
-    [invalidFaces unionSet:theFaces];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedFaces]];
-    [selected unionSet:[selectionManager selectedBrushFaces]];
-
-    [selected intersectSet:theFaces];
-    if ([selected count] > 0) {
-        [selectionLayer addFaces:selected];
-        NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theFaces];
-        [unselected minusSet:selected];
-        [geometryLayer addFaces:unselected];
-        [unselected release];
-    } else {
-        [geometryLayer addFaces:theFaces];
-    }
-    
-    [selected release];
-}
-
-- (void)removeFaces:(NSSet *)theFaces {
-    [invalidFaces minusSet:theFaces];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedFaces]];
-    [selected unionSet:[selectionManager selectedBrushFaces]];
-    
-    [selected intersectSet:theFaces];
-    if ([selected count] > 0) {
-        [selectionLayer removeFaces:selected];
-        NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theFaces];
-        [unselected minusSet:selected];
-        [geometryLayer removeFaces:unselected];
-        [unselected release];
-    } else {
-        [geometryLayer removeFaces:theFaces];
-    }
-    
-    [selected release];
 }
 
 - (void)addBrushes:(NSSet *)theBrushes {
-    SelectionManager* selectionManager = [windowController selectionManager];
-    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedBrushes]];
-    NSMutableSet* partial = [[NSMutableSet alloc] initWithSet:[selectionManager partiallySelectedBrushes]];
-    NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theBrushes];
-    
-    [selected intersectSet:theBrushes];
-    [partial intersectSet:theBrushes];
-    [unselected minusSet:selected];
-    [unselected minusSet:partial];
-    
-    [selectionLayer addBrushes:selected];
-    [geometryLayer addBrushes:unselected];
-
-    [invalidBrushes unionSet:selected];
-    [invalidBrushes unionSet:unselected];
-
-    [selected release];
-    [unselected release];
-    
-    if ([partial count] > 0) {
-        NSMutableSet* faces = [[NSMutableSet alloc] init];
-        NSEnumerator* brushEn = [partial objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject]))
-            [faces addObjectsFromArray:[brush faces]];
-        [self addFaces:faces];
-        [faces release];
-    }
-
-    [partial release];
+    [changeSet brushesAdded:theBrushes];
 }
 
 - (void)removeBrushes:(NSSet *)theBrushes {
-    SelectionManager* selectionManager = [windowController selectionManager];
-    NSMutableSet* selected = [[NSMutableSet alloc] initWithSet:[selectionManager selectedBrushes]];
-    NSMutableSet* partial = [[NSMutableSet alloc] initWithSet:[selectionManager partiallySelectedBrushes]];
-    NSMutableSet* unselected = [[NSMutableSet alloc] initWithSet:theBrushes];
-    
-    [selected intersectSet:theBrushes];
-    [partial intersectSet:theBrushes];
-    [unselected minusSet:selected];
-    [unselected minusSet:partial];
-    
-    [selectionLayer removeBrushes:selected];
-    [geometryLayer removeBrushes:unselected];
-    
-    [invalidBrushes minusSet:selected];
-    [invalidBrushes minusSet:unselected];
-    
-    [selected release];
-    [unselected release];
-    
-    if ([partial count] > 0) {
-        NSMutableSet* faces = [[NSMutableSet alloc] init];
-        NSEnumerator* brushEn = [partial objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject]))
-            [faces addObjectsFromArray:[brush faces]];
-        [self removeFaces:faces];
-        [faces release];
-    }
-    
-    [partial release];
-}
-
-- (void)addFace:(id <Face>)face {
-    [invalidFaces addObject:face];
-     
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager isFaceSelected:face])
-        [selectionLayer addFace:face];
-    else 
-        [geometryLayer addFace:face];
-}
-
-- (void)removeFace:(id <Face>)face {
-    [invalidFaces removeObject:face];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager isFaceSelected:face])
-        [selectionLayer removeFace:face];
-    else
-        [geometryLayer removeFace:face];
-
-    [face setMemBlock:nil];
-}
-
-- (void)addBrush:(id <Brush>)brush {
-    [invalidBrushes addObject:brush];
-
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager isBrushSelected:brush]) {
-        [selectionLayer addBrush:brush];
-    } else if ([selectionManager isBrushPartiallySelected:brush]) {
-        NSSet* faces = [[NSMutableSet alloc] initWithArray:[brush faces]];
-        [self addFaces:faces];
-        [faces release];
-    } else {
-        [geometryLayer addBrush:brush];
-    }
-}
-
-- (void)removeBrush:(id <Brush>)brush {
-    [invalidBrushes removeObject:brush];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager isBrushSelected:brush]) {
-        [selectionLayer removeBrush:brush];
-    } else if ([selectionManager isBrushPartiallySelected:brush]) {
-        NSSet* faces = [[NSMutableSet alloc] initWithArray:[brush faces]];
-        [self removeFaces:faces];
-        [faces release];
-    } else {
-        [geometryLayer removeBrush:brush];
-    }
-}
-
-- (void)addEntity:(id <Entity>)entity {
-    NSSet* brushes = [[NSSet alloc] initWithArray:[entity brushes]];
-    [self addBrushes:brushes];
-    [brushes release];
-    
-    if (![entity isWorldspawn]) {
-        SelectionManager* selectionManager = [windowController selectionManager];
-        if ([selectionManager isEntitySelected:entity])
-            [selectionLayer addEntity:entity];
-        else
-            [entityLayer addEntity:entity];
-    } else {
-        NSArray* mods = modListFromWorldspawn(entity);
-        [entityLayer setMods:mods];
-        [selectionLayer setMods:mods];
-    }
-}
-
-- (void)removeEntity:(id <Entity>)entity {
-    NSSet* brushes = [[NSSet alloc] initWithArray:[entity brushes]];
-    [self removeBrushes:brushes];
-    [brushes release];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager isEntitySelected:entity])
-        [selectionLayer removeEntity:entity];
-    else
-        [entityLayer removeEntity:entity];
-}
-
-- (void)facesWillChange:(NSNotification *)notification {
-    NSDictionary* userInfo = [notification userInfo];
-    NSSet* faces = [userInfo objectForKey:FacesKey];
-    [self removeFaces:faces];
+    [changeSet brushesRemoved:theBrushes];
 }
 
 - (void)facesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* faces = [userInfo objectForKey:FacesKey];
-    [self addFaces:faces];
+    [changeSet facesChanged:faces];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
-}
-
-- (void)brushesWillChange:(NSNotification *)notification {
-    NSDictionary* userInfo = [notification userInfo];
-    NSSet* brushes = [userInfo objectForKey:BrushesKey];
-    [self removeBrushes:brushes];
-
-    /*
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject])) {
-        id <Entity> entity = [brush entity];
-        
-        if (![entity isWorldspawn])
-            [self removeEntity:entity];
-        else
-            [self removeBrush:brush];
-    }
-     */
 }
 
 - (void)brushesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* brushes = [userInfo objectForKey:BrushesKey];
-    [self addBrushes:brushes];
-    
-    /*
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject])) {
-        id <Entity> entity = [brush entity];
-        
-        if (![entity isWorldspawn])
-            [self addEntity:entity];
-        else
-            [self addBrush:brush];
-    }
-     */
+    [changeSet brushesChanged:brushes];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -459,7 +863,7 @@ NSString* const RendererChanged = @"RendererChanged";
     NSDictionary* userInfo = [notification userInfo];
     NSSet* brushes = [userInfo objectForKey:BrushesKey];
     [self addBrushes:brushes];
-
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
@@ -487,33 +891,21 @@ NSString* const RendererChanged = @"RendererChanged";
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
-- (void)propertiesWillChange:(NSNotification *)notification {
-    NSDictionary* userInfo = [notification userInfo];
-    NSSet* entities = [userInfo objectForKey:EntitiesKey];
-    
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject]))
-        if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
-            [self removeEntity:entity];
-}
-
 - (void)propertiesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSSet* entities = [userInfo objectForKey:EntitiesKey];
-    
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
-        if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
-            [self addEntity:entity];
-        if ([entity isWorldspawn]) {
-            NSArray* mods = modListFromWorldspawn(entity);
-            [entityLayer setMods:mods];
-            [selectionLayer setMods:mods];
+    [changeSet entitiesChanged:entities];
+
+    id <Entity> worldspawn = [[windowController document] worldspawn:YES];
+    if ([entities containsObject:worldspawn]) {
+        NSArray* newMods = modListFromWorldspawn(worldspawn);
+        if (![newMods isEqualToArray:mods]) {
+            entityRendererCacheValid = NO;
+            [mods release];
+            mods = [newMods retain];
         }
     }
-
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
@@ -523,20 +915,14 @@ NSString* const RendererChanged = @"RendererChanged";
     NSSet* brushes = [userInfo objectForKey:SelectionBrushes];
     NSSet* faces = [userInfo objectForKey:SelectionFaces];
     
-    if (entities != nil) {
-        [entityLayer removeEntities:entities];
-        [selectionLayer addEntities:entities];
-    }
+    if (entities != nil)
+        [changeSet entitiesSelected:entities];
     
-    if (brushes != nil) {
-        [geometryLayer removeBrushes:brushes];
-        [selectionLayer addBrushes:brushes];
-    }
+    if (brushes != nil)
+        [changeSet brushesSelected:brushes];
     
-    if (faces != nil) {
-        [geometryLayer removeFaces:faces];
-        [selectionLayer addFaces:faces];
-    }
+    if (faces != nil)
+        [changeSet facesSelected:faces];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -547,46 +933,16 @@ NSString* const RendererChanged = @"RendererChanged";
     NSSet* brushes = [userInfo objectForKey:SelectionBrushes];
     NSSet* faces = [userInfo objectForKey:SelectionFaces];
     
-    if (entities != nil) {
-        [selectionLayer removeEntities:entities];
-        [entityLayer addEntities:entities];
-    }
+    if (entities != nil)
+        [changeSet entitiesDeselected:entities];
     
-    if (brushes != nil) {
-        [selectionLayer removeBrushes:brushes];
-        [geometryLayer addBrushes:brushes];
-    }
+    if (brushes != nil)
+        [changeSet brushesDeselected:brushes];
     
-    if (faces != nil) {
-        [selectionLayer removeFaces:faces];
-        [geometryLayer addFaces:faces];
-    }
+    if (faces != nil)
+        [changeSet facesDeselected:faces];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
-}
-
-- (void)trackedObjectChanged:(NSNotification *)notification {
-    /*
-    NSDictionary* userInfo = [notification userInfo];
-    id untrackedObject = [userInfo objectForKey:UntrackedObjectKey];
-    id trackedObject = [userInfo objectForKey:TrackedObjectKey];
-    
-    if (untrackedObject != nil) {
-        if ([untrackedObject conformsToProtocol:@protocol(Brush)]) {
-            id <Brush> brush = (id <Brush>)untrackedObject;
-            [trackingLayer removeBrush:brush];
-        }
-    }
-
-    if (trackedObject != nil) {
-        if ([trackedObject conformsToProtocol:@protocol(Brush)]) {
-            id <Brush> brush = (id <Brush>)trackedObject;
-            [trackingLayer addBrush:brush];
-        }
-    }
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
-     */
 }
 
 - (void)textureManagerChanged:(NSNotification *)notification {
@@ -600,14 +956,10 @@ NSString* const RendererChanged = @"RendererChanged";
 - (void)optionsChanged:(NSNotification *)notification {
     SelectionManager* selectionManager = [windowController selectionManager];
     Options* options = [windowController options];
-
+    
     [filter release];
     filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager options:options];
     
-    [geometryLayer setFilter:filter];
-    [selectionLayer setFilter:filter];
-    [entityLayer setFilter:filter];
-
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
@@ -624,8 +976,10 @@ NSString* const RendererChanged = @"RendererChanged";
     if (DefaultsQuakePath != [userInfo objectForKey:DefaultsKey])
         return;
     
-    [entityLayer refreshRendererCache];
-    [selectionLayer refreshRendererCache];
+    /*
+     [entityLayer refreshRendererCache];
+     [selectionLayer refreshRendererCache];
+     */
 }
 
 @end
@@ -635,48 +989,52 @@ NSString* const RendererChanged = @"RendererChanged";
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if ((self = [self init])) {
         windowController = theWindowController;
-
-        invalidFaces = [[NSMutableSet alloc] init];
-        invalidBrushes = [[NSMutableSet alloc] init];
+        
+        changeSet = [[RenderChangeSet alloc] init];
+        feedbackFigures = [[NSMutableSet alloc] init];
         
         MapDocument* map = [windowController document];
         GLResources* glResources = [map glResources];
-        sharedVbo = [[glResources geometryVbo] retain];
-        textureManager = [[glResources textureManager] retain];
+        entityRendererManager = [glResources entityRendererManager];
+        textureManager = [glResources textureManager];
+        fontManager = [glResources fontManager];
+        
+        mods = [modListFromWorldspawn([map worldspawn:YES]) retain];
+        entityRendererCacheValid = YES;
+        
+        faceVbo = [glResources vboForKey:FaceVboKey];
+        entityBoundsVbo = [glResources vboForKey:EntityBoundsVboKey];
+        selectedEntityBoundsVbo = [glResources vboForKey:SelectedEntityBoundsVboKey];
+        faceIndexBuffers = [[NSMutableDictionary alloc] init];
+        faceCountBuffers = [[NSMutableDictionary alloc] init];
+        selectedFaceIndexBuffers = [[NSMutableDictionary alloc] init];
+        selectedFaceCountBuffers = [[NSMutableDictionary alloc] init];
+        classnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:[windowController camera]];
+        selectedClassnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:[windowController camera]];
+        entityRenderers = [[NSMutableDictionary alloc] init];
+        modelEntities = [[NSMutableSet alloc] init];
+        selectedModelEntities = [[NSMutableSet alloc] init];
+        selectionBoundsRenderer = [[BoundsRenderer alloc] initWithCamera:[windowController camera] fontManager:fontManager];
         
         SelectionManager* selectionManager = [windowController selectionManager];
         Camera* camera = [windowController camera];
         Options* options = [windowController options];
         Grid* grid = [options grid];
-
-        geometryLayer = [[GeometryLayer alloc] initWithVbo:sharedVbo textureManager:textureManager options:options];
-        entityLayer = [[DefaultEntityLayer alloc] initWithGLResources:glResources camera:camera options:options];
-        selectionLayer = [[SelectionLayer alloc] initWithVbo:sharedVbo glResources:glResources selectionManager:selectionManager options:options camera:camera];
-        feedbackLayer = [[FigureLayer alloc] init];
-
+        
         filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager options:options];
-        [geometryLayer setFilter:filter];
-        [selectionLayer setFilter:filter];
-        [entityLayer setFilter:filter];
         
-        compassFigure = [[CompassFigure alloc] initWithCamera:camera];
+        NSSet* entitySet = [[NSSet alloc] initWithArray:[map entities]];
+        [self addEntities:entitySet];
+        [entitySet release];
         
-        NSEnumerator* entityEn = [[map entities] objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject]))
-            [self addEntity:entity];
-
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         
         [center addObserver:self selector:@selector(entitiesAdded:) name:EntitiesAdded object:map];
         [center addObserver:self selector:@selector(entitiesWillBeRemoved:) name:EntitiesWillBeRemoved object:map];
-        [center addObserver:self selector:@selector(propertiesWillChange:) name:PropertiesWillChange object:map];
         [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesDidChange object:map];
         [center addObserver:self selector:@selector(brushesAdded:) name:BrushesAdded object:map];
         [center addObserver:self selector:@selector(brushesWillBeRemoved:) name:BrushesWillBeRemoved object:map];
-        [center addObserver:self selector:@selector(brushesWillChange:) name:BrushesWillChange object:map];
         [center addObserver:self selector:@selector(brushesDidChange:) name:BrushesDidChange object:map];
-        [center addObserver:self selector:@selector(facesWillChange:) name:FacesWillChange object:map];
         [center addObserver:self selector:@selector(facesDidChange:) name:FacesDidChange object:map];
         
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
@@ -689,7 +1047,7 @@ NSString* const RendererChanged = @"RendererChanged";
         
         CursorManager* cursorManager = [windowController cursorManager];
         [center addObserver:self selector:@selector(cursorChanged:) name:CursorChanged object:cursorManager];
-
+        
         PreferencesManager* preferences = [PreferencesManager sharedManager];
         [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:preferences];
     }
@@ -699,26 +1057,30 @@ NSString* const RendererChanged = @"RendererChanged";
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [compassFigure release];
-    [geometryLayer release];
-    [selectionLayer release];
-    [feedbackLayer release];
-    [entityLayer release];
-    [textureManager release];
-    [sharedVbo release];
-    [invalidFaces release];
-    [invalidBrushes release]; 
+    [feedbackFigures release];
+    [changeSet release];
+    [faceIndexBuffers release];
+    [faceCountBuffers release];
+    [selectedFaceIndexBuffers release];
+    [selectedFaceCountBuffers release];
+    [classnameRenderer release];
+    [selectedClassnameRenderer release];
+    [entityRenderers release];
+    [modelEntities release];
+    [selectedModelEntities release];
+    [selectionBoundsRenderer release];
     [filter release];
+    [mods release];
     [super dealloc];
 }
 
 - (void)addFeedbackFigure:(id <Figure>)theFigure {
-    [feedbackLayer addFigure:theFigure];
+    [feedbackFigures addObject:theFigure];
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
 - (void)removeFeedbackFigure:(id <Figure>)theFigure {
-    [feedbackLayer removeFigure:theFigure];
+    [feedbackFigures removeObject:theFigure];
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
@@ -733,7 +1095,8 @@ NSString* const RendererChanged = @"RendererChanged";
     glShadeModel(GL_FLAT);
     glResetEdgeOffset();
     
-    if ([[windowController options] renderOrigin]) {
+    Options* options = [windowController options];
+    if ([options renderOrigin]) {
         glBegin(GL_LINES);
         glColor4f(1, 0, 0, 0.5f);
         glVertex3f(-64, 0, 0);
@@ -747,14 +1110,86 @@ NSString* const RendererChanged = @"RendererChanged";
         glEnd();
     }
     
-    [geometryLayer render];
-    [entityLayer render];
+    if ([options renderBrushes]) {
+        [faceVbo activate];
+        switch ([options renderMode]) {
+            case RM_TEXTURED:
+                [self renderFaces:YES];
+                break;
+            case RM_FLAT:
+                [self renderFaces:NO];
+                break;
+            case RM_WIREFRAME:
+                break;
+        }
+        
+        [self renderEdges:NULL indexBuffers:faceIndexBuffers countBuffers:faceCountBuffers];
+        
+        if ([[windowController selectionManager] hasSelection]) {
+            glDisable(GL_DEPTH_TEST);
+            [self renderEdges:&SelectionColor2 indexBuffers:selectedFaceIndexBuffers countBuffers:selectedFaceCountBuffers];
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LEQUAL);
+            [self renderEdges:&SelectionColor indexBuffers:selectedFaceIndexBuffers countBuffers:selectedFaceCountBuffers];
+            glDepthFunc(GL_LESS);
+        }
+        
+        [faceVbo deactivate];
+    }
     
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager hasSelection])
-        [selectionLayer render];
+    if ([options renderEntities]) {
+        if ([options isolationMode] == IM_NONE) {
+            [entityBoundsVbo activate];
+            [self renderEntityBounds:NULL vertexCount:entityBoundsVertexCount];
+            [entityBoundsVbo deactivate];
+            [self renderEntityModels:modelEntities];
+            
+            if ([options renderEntityClassnames]) {
+                [fontManager activate];
+                [classnameRenderer renderColor:&EntityClassnameColor];
+                [fontManager deactivate];
+            }
+        } else if ([options isolationMode] == IM_WIREFRAME) {
+            [entityBoundsVbo activate];
+            [self renderEntityBounds:&EntityBoundsWireframeColor vertexCount:entityBoundsVertexCount];
+            [entityBoundsVbo deactivate];
+        }
+        
+        if ([[windowController selectionManager] hasSelection]) {
+            [fontManager activate];
+            [selectedClassnameRenderer renderColor:&SelectionColor];
+            [fontManager deactivate];
+
+            [selectedEntityBoundsVbo activate];
+            glDisable(GL_DEPTH_TEST);
+            [self renderEntityBounds:&SelectionColor2 vertexCount:selectedEntityBoundsVertexCount];
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LEQUAL);
+            [self renderEntityBounds:&SelectionColor vertexCount:selectedEntityBoundsVertexCount];
+            glDepthFunc(GL_LESS);
+            [selectedEntityBoundsVbo deactivate];
+            
+            [self renderEntityModels:selectedModelEntities];
+        }
+    }
     
-    [feedbackLayer render];
+    if ([[windowController selectionManager] hasSelection]) {
+        glDisable(GL_DEPTH_TEST);
+        [selectionBoundsRenderer renderColor:&SelectionColor3];
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        [selectionBoundsRenderer renderColor:&SelectionColor];
+        glDepthFunc(GL_LESS);
+    }
+    
+    if ([feedbackFigures count] > 0) {
+        glDisable(GL_DEPTH_TEST);
+        NSEnumerator* figureEn = [feedbackFigures objectEnumerator];
+        id <Figure> figure;
+        while ((figure = [figureEn nextObject]))
+            [figure render];
+        glEnable(GL_DEPTH_TEST);
+    }
     
     // enable lighting for cursor and compass
     glEnable(GL_LIGHTING);
@@ -781,33 +1216,33 @@ NSString* const RendererChanged = @"RendererChanged";
     glMateriali(GL_FRONT, GL_SHININESS, 96);
     
     CursorManager* cursorManager = [windowController cursorManager];
-
+    
     glDisable(GL_DEPTH_TEST);
     glColor4f(1, 1, 0, 0.4f);
     [cursorManager render];
-
+    
     glEnable(GL_DEPTH_TEST);
     glColor4f(1, 1, 0, 1);
     [cursorManager render];
-
+    
     glDisable(GL_LIGHT0);
     glDisable(GL_COLOR_MATERIAL);
     glDisable(GL_LIGHTING);
     
     // brightness
     /*
-    float brightness = 0.5f;
-    if( brightness > 1 )
-    {
-        glBlendFunc( GL_DST_COLOR, GL_ONE );
-        glColor3f( brightness-1, brightness-1, brightness-1 );
-    }
-    else
-    {
-        glBlendFunc( GL_ZERO, GL_SRC_COLOR );
-        glColor3f( brightness, brightness, brightness );
-    }
-    glEnable( GL_BLEND );
+     float brightness = 0.5f;
+     if( brightness > 1 )
+     {
+     glBlendFunc( GL_DST_COLOR, GL_ONE );
+     glColor3f( brightness-1, brightness-1, brightness-1 );
+     }
+     else
+     {
+     glBlendFunc( GL_ZERO, GL_SRC_COLOR );
+     glColor3f( brightness, brightness, brightness );
+     }
+     glEnable( GL_BLEND );
      */
 }
 

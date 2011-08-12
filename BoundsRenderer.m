@@ -41,7 +41,7 @@
     valid = NO;
 }
 
-- (void)renderColor:(float *)theColor {
+- (void)renderColor:(const TVector4f *)theColor {
     if (!boundsSet)
         return;
     
@@ -166,6 +166,7 @@
     }
     
     // initialize the stencil buffer to cancel out the guides in those areas where the strings will be rendered
+    glPolygonMode(GL_FRONT, GL_FILL);
     glClear(GL_STENCIL_BUFFER_BIT);
     glColorMask(NO, NO, NO, NO);
     glEnable(GL_STENCIL_TEST);
@@ -206,9 +207,9 @@
         float dist = [camera distanceTo:&p[i]];
         if (dist <= 500) {
             if (dist >= 400) {
-                glColor4f(theColor[0], theColor[1], theColor[2], theColor[3] - theColor[3] * (dist - 400) / 100);
+                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w - theColor->w * (dist - 400) / 100);
             } else {
-                glColor4f(theColor[0], theColor[1], theColor[2], theColor[3]);
+                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w);
             }
             
             glBegin(GL_LINE_STRIP);
@@ -225,10 +226,11 @@
         float dist = [camera distanceTo:&p[i]];
         if (dist <= 500) {
             if (dist >= 400) {
-                glColor4f(theColor[0], theColor[1], theColor[2], theColor[3] - theColor[3] * (dist - 400) / 100);
+                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w - theColor->w * (dist - 400) / 100);
             } else {
-                glColor4f(theColor[0], theColor[1], theColor[2], theColor[3]);
+                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w);
             }
+            
             float factor = dist / 300;
             NSSize size = [glStrings[i] size];
             

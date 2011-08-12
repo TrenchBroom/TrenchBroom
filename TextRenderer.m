@@ -54,10 +54,32 @@
     [anchors removeObjectForKey:theKey];
 }
 
-- (void)renderColor:(float *)theColor {
+- (void)addString:(GLString *)theString forKey:(id <NSCopying>)theKey withAnchor:(id <TextAnchor>)theAnchor {
+    NSAssert(theString != nil, @"string must not be nil");
+    NSAssert(theKey != nil, @"key must not be nil");
+    NSAssert(theAnchor != nil, @"anchor must not be nil");
+    
+    [strings setObject:theString forKey:theKey];
+    [anchors setObject:theAnchor forKey:theKey];
+}
+
+- (void)moveStringWithKey:(id <NSCopying>)theKey toTextRenderer:(TextRenderer *)theTextRenderer {
+    NSAssert(theKey != nil, @"key must not be nil");
+    NSAssert(theTextRenderer != nil, @"text renderer must not be nil");
+
+    GLString* string = [strings objectForKey:theKey];
+    id <TextAnchor> anchor = [anchors objectForKey:theKey];
+    
+    [theTextRenderer addString:string forKey:theKey withAnchor:anchor];
+    [self removeStringForKey:theKey];
+}
+
+
+- (void)renderColor:(const TVector4f *)theColor {
+    glPolygonMode(GL_FRONT, GL_FILL);
+
     TVector3f position;
-    
-    
+
     NSEnumerator* keyEn = [strings keyEnumerator];
     id <NSCopying> key;
     while ((key = [keyEn nextObject])) {
@@ -68,9 +90,9 @@
         float dist = [camera distanceTo:&position];
         if (dist <= 500) {
             if (dist >= 400) {
-                glColor4f(theColor[0], theColor[1], theColor[2], theColor[3] - theColor[3] * (dist - 400) / 100);
+                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w - theColor->w * (dist - 400) / 100);
             } else {
-                glColor4f(theColor[0], theColor[1], theColor[2], theColor[3]);
+                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w);
             }
             float factor = dist / 300;
             

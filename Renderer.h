@@ -7,17 +7,17 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "BrushLayer.h"
 
 extern NSString* const RendererChanged;
 
 @class VBOBuffer;
-@class GeometryLayer;
-@class SelectionLayer;
-@class FigureLayer;
-@class CompassFigure;
 @class MapWindowController;
 @class TextureManager;
+@class GLFontManager;
+@class RenderChangeSet;
+@class EntityRendererManager;
+@class TextRenderer;
+@class BoundsRenderer;
 @protocol EntityLayer;
 @protocol Figure;
 @protocol Filter;
@@ -26,14 +26,30 @@ extern NSString* const RendererChanged;
     @private
     MapWindowController* windowController;
     TextureManager* textureManager;
-    VBOBuffer* sharedVbo;
-    NSMutableSet* invalidFaces;
-    NSMutableSet* invalidBrushes;
-    GeometryLayer* geometryLayer;
-    SelectionLayer* selectionLayer;
-    FigureLayer* feedbackLayer;
-    id <EntityLayer> entityLayer;
-    CompassFigure* compassFigure;
+    GLFontManager* fontManager;
+    VBOBuffer* faceVbo;
+    NSMutableDictionary* faceIndexBuffers;
+    NSMutableDictionary* faceCountBuffers;
+    NSMutableDictionary* selectedFaceIndexBuffers;
+    NSMutableDictionary* selectedFaceCountBuffers;
+    VBOBuffer* entityBoundsVbo;
+    VBOBuffer* selectedEntityBoundsVbo;
+    int entityBoundsVertexCount;
+    int selectedEntityBoundsVertexCount;
+
+    TextRenderer* classnameRenderer;
+    TextRenderer* selectedClassnameRenderer;
+    EntityRendererManager* entityRendererManager;
+    NSMutableSet* modelEntities;
+    NSMutableSet* selectedModelEntities;
+    NSMutableDictionary* entityRenderers;
+    BOOL entityRendererCacheValid;
+    NSArray* mods;
+    
+    BoundsRenderer* selectionBoundsRenderer;
+    
+    RenderChangeSet* changeSet;
+    NSMutableSet* feedbackFigures;
     id <Filter> filter;
 }
 

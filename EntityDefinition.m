@@ -31,14 +31,14 @@
     return self;
 }
 
-- (id)initPointDefinitionWithName:(NSString *)theName color:(float *)theColor bounds:(TBoundingBox *)theBounds flags:(NSDictionary *)theFlags properties:(NSArray *)theProperties description:(NSString *)theDescription {
+- (id)initPointDefinitionWithName:(NSString *)theName color:(TVector4f *)theColor bounds:(TBoundingBox *)theBounds flags:(NSDictionary *)theFlags properties:(NSArray *)theProperties description:(NSString *)theDescription {
     NSAssert(theName != nil, @"name must not be nil");
     NSAssert(theColor != NULL, @"color must not be null");
     NSAssert(theBounds != nil, @"bounds must not be nil");
     
     if ((self = [self init])) {
         name = [theName retain];
-        memcpy(color, theColor, 3 * sizeof(float));
+        color = *theColor;
         bounds = *theBounds;
         flags = [theFlags retain];
         properties = [theProperties retain];
@@ -60,13 +60,13 @@
     return self;
 }
 
-- (id)initBrushDefinitionWithName:(NSString *)theName color:(float *)theColor flags:(NSDictionary *)theFlags properties:(NSArray *)theProperties description:(NSString *)theDescription {
+- (id)initBrushDefinitionWithName:(NSString *)theName color:(TVector4f *)theColor flags:(NSDictionary *)theFlags properties:(NSArray *)theProperties description:(NSString *)theDescription {
     NSAssert(theName != nil, @"name must not be nil");
     NSAssert(theColor != NULL, @"color must not be null");
     
     if ((self = [self init])) {
         name = [theName retain];
-        memcpy(color, theColor, 3 * sizeof(float));
+        color = *theColor;
         flags = [theFlags retain];
         properties = [theProperties retain];
         description = [theDescription retain];
@@ -89,8 +89,8 @@
     return name;
 }
 
-- (float *)color {
-    return color;
+- (const TVector4f *)color {
+    return &color;
 }
 
 - (const TVector3f *)center {

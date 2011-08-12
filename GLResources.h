@@ -19,7 +19,7 @@
     GLFontManager* fontManager;
     TextureManager* textureManager;
     EntityRendererManager* entityRendererManager;
-    VBOBuffer* geometryVbo;
+    NSMutableDictionary* vbos;
     NSData* palette;
 }
 
@@ -30,6 +30,6 @@
 - (GLFontManager *)fontManager;
 - (TextureManager *)textureManager;
 - (EntityRendererManager *)entityRendererManager;
-- (VBOBuffer *)geometryVbo;
+- (VBOBuffer *)vboForKey:(id <NSCopying>)theKey;
 
 @end

@@ -25,7 +25,7 @@ static NSString* const EntityDefinitionType = @"EntityDefinition";
     @private
     EEntityDefinitionType type;
     NSString* name;
-    float color[3];
+    TVector4f color;
     TVector3f center;
     TBoundingBox bounds;
     TBoundingBox maxBounds;
@@ -36,12 +36,12 @@ static NSString* const EntityDefinitionType = @"EntityDefinition";
 }
 
 - (id)initBaseDefinitionWithName:(NSString *)theName flags:(NSDictionary *)theFlags properties:(NSArray *)theProperties;
-- (id)initPointDefinitionWithName:(NSString *)theName color:(float *)theColor bounds:(TBoundingBox *)theBounds flags:(NSDictionary *)theFlags properties:(NSArray *)theProperties description:(NSString *)theDescription;
-- (id)initBrushDefinitionWithName:(NSString *)theName color:(float *)theColor flags:(NSDictionary *)theFlags properties:(NSArray *)theProperties description:(NSString *)theDescription;
+- (id)initPointDefinitionWithName:(NSString *)theName color:(TVector4f *)theColor bounds:(TBoundingBox *)theBounds flags:(NSDictionary *)theFlags properties:(NSArray *)theProperties description:(NSString *)theDescription;
+- (id)initBrushDefinitionWithName:(NSString *)theName color:(TVector4f *)theColor flags:(NSDictionary *)theFlags properties:(NSArray *)theProperties description:(NSString *)theDescription;
 
 - (EEntityDefinitionType)type;
 - (NSString *)name;
-- (float *)color;
+- (const TVector4f *)color;
 - (const TVector3f *)center;
 - (const TBoundingBox *)bounds;
 - (const TBoundingBox *)maxBounds;

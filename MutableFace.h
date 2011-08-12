@@ -52,9 +52,9 @@ typedef enum {
     Matrix4f* surfaceToWorldMatrix;
     Matrix4f* worldToSurfaceMatrix; // inverse of surface matrix
     
-    VBOMemBlock* memBlock;
-    
     int filePosition;
+    
+    VBOMemBlock* memBlock;
 }
 
 - (id)initWithPoint1:(TVector3i *)aPoint1 point2:(TVector3i *)aPoint2 point3:(TVector3i *)aPoint3 texture:(NSString *)aTexture;

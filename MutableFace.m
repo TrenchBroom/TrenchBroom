@@ -16,11 +16,9 @@
 #import "Matrix4f.h"
 #import "Matrix3f.h"
 #import "PickingHit.h"
-#import "VBOBuffer.h"
-#import "VBOMemBlock.h"
 #import "TextureManager.h"
 #import "Texture.h"
-#import "IntData.h"
+#import "VBOMemBlock.h"
 
 static TVector3f baseAxes[18];
 
@@ -597,13 +595,14 @@ static TVector3f baseAxes[18];
     return worldToSurfaceMatrix;
 }
 
-- (void)setMemBlock:(VBOMemBlock *)theBlock {
-    [memBlock free];
-    memBlock = theBlock;
-}
 
 - (VBOMemBlock *)memBlock {
     return memBlock;
+}
+
+- (void)setMemBlock:(VBOMemBlock *)theMemBlock {
+    [memBlock free];
+    memBlock = theMemBlock;
 }
 
 @end

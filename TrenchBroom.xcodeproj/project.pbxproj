@@ -24,7 +24,6 @@
 		4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4818202212FB4746002D9AAD /* SingleTextureView.m */; };
 		481BF6B013A352660040580B /* AliasFrameGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 481BF6AF13A352660040580B /* AliasFrameGroup.m */; };
 		481BF79613A4ACB10040580B /* AliasManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 481BF79513A4ACB10040580B /* AliasManager.m */; };
-		481BF7A513A4B0880040580B /* EntityAliasRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 481BF7A413A4B0880040580B /* EntityAliasRenderer.m */; };
 		481BF7AC13A4B5220040580B /* AliasRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 481BF7AB13A4B5220040580B /* AliasRenderer.m */; };
 		481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 481D300F12FAE5C0001CBD9E /* GLFontManager.m */; };
 		482A2C1E13A8ACF7009FEFC2 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 482A2C1D13A8ACF7009FEFC2 /* PreferencesWindow.xib */; };
@@ -40,7 +39,6 @@
 		4830490413A1FAD7002CA97B /* Alias.m in Sources */ = {isa = PBXBuildFile; fileRef = 4830490313A1FAD7002CA97B /* Alias.m */; };
 		4830492313A2A58C002CA97B /* AliasSkin.m in Sources */ = {isa = PBXBuildFile; fileRef = 4830492213A2A58C002CA97B /* AliasSkin.m */; };
 		4830494613A2AAED002CA97B /* AliasFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 4830494513A2AAED002CA97B /* AliasFrame.m */; };
-		48325CB3135215ED00E703E0 /* FigureLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48325CB2135215ED00E703E0 /* FigureLayer.m */; };
 		48325D4713524F7000E703E0 /* CompassFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48325D4613524F7000E703E0 /* CompassFigure.m */; };
 		4833C15F131953F600EB1B85 /* PrefabManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C15E131953F600EB1B85 /* PrefabManager.m */; };
 		4833C1BD13196CFB00EB1B85 /* MutablePrefab.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C1BC13196CFB00EB1B85 /* MutablePrefab.m */; };
@@ -98,7 +96,6 @@
 		487799CA13F30990001F9335 /* QuickBarWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 487799C913F30990001F9335 /* QuickBarWindowController.m */; };
 		487A645812EA397C00A43289 /* TextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A645712EA397C00A43289 /* TextureView.m */; };
 		487A646C12EA3A7E00A43289 /* Texture.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A646B12EA3A7E00A43289 /* Texture.m */; };
-		487A7E3B130071F300434806 /* GeometryLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A7E3A130071F300434806 /* GeometryLayer.m */; };
 		487A7E651300801A00434806 /* Renderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A7E641300801A00434806 /* Renderer.m */; };
 		487E1E9412E495060001C150 /* IdGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E1E9312E495060001C150 /* IdGenerator.m */; };
 		487FC64612E8B86B006FF29E /* Wad.m in Sources */ = {isa = PBXBuildFile; fileRef = 487FC64512E8B86B006FF29E /* Wad.m */; };
@@ -113,7 +110,6 @@
 		488D527E13DEDF91006FE818 /* EntityDefinitionNameFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 488D527D13DEDF91006FE818 /* EntityDefinitionNameFilter.m */; };
 		488D528113DEE181006FE818 /* EntityDefinitionUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 488D528013DEE181006FE818 /* EntityDefinitionUsageFilter.m */; };
 		488F853C13F51FAE00DA0403 /* RenderChangeSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F853B13F51FAE00DA0403 /* RenderChangeSet.m */; };
-		488FE71E136E8FA300A0A47A /* DefaultEntityLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FE71D136E8FA300A0A47A /* DefaultEntityLayer.m */; };
 		488FEAF1131F9D1800010A04 /* MutablePrefabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */; };
 		488FEB5C131FC49A00010A04 /* PrefabLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB5B131FC49A00010A04 /* PrefabLayout.m */; };
 		488FEB64131FCBA700010A04 /* PrefabLayoutGroupRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB63131FCBA700010A04 /* PrefabLayoutGroupRow.m */; };
@@ -129,7 +125,6 @@
 		4898D9C813E199F800B9C8F1 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9C713E199F800B9C8F1 /* PreferencesController.m */; };
 		4898D9CC13E1A2A200B9C8F1 /* QuakePathFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */; };
 		489C061913C9EBA400D9D693 /* GLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 489C061813C9EBA400D9D693 /* GLUtils.m */; };
-		48A023CA13E8251F004F34A4 /* VertexRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A023C913E8251F004F34A4 /* VertexRenderer.m */; };
 		48A023CE13E83514004F34A4 /* VertexTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A023CD13E83514004F34A4 /* VertexTool.m */; };
 		48A269E313C73BFA00703BC1 /* EntityInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A269E213C73BFA00703BC1 /* EntityInfo.m */; };
 		48A5FD4C13C5E7C6009D086C /* BspManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A5FD4B13C5E7C6009D086C /* BspManager.m */; };
@@ -149,7 +144,6 @@
 		48AF852E13D0DFF500B62317 /* EntityDefinitionLayoutCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF852D13D0DFF500B62317 /* EntityDefinitionLayoutCell.m */; };
 		48AF853113D180D100B62317 /* EntityRendererManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF853013D180D000B62317 /* EntityRendererManager.m */; };
 		48AF853413D190AC00B62317 /* BspTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AF853313D190AC00B62317 /* BspTexture.m */; };
-		48B016E0133CCCBB00E3AF90 /* SelectionLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B016DF133CCCBB00E3AF90 /* SelectionLayer.m */; };
 		48B324C112E1F455008748E2 /* Camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B3243B12E1C6B8008748E2 /* Camera.m */; };
 		48B3256012E2D760008748E2 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 48B3255F12E2D760008748E2 /* Defaults.plist */; };
 		48B325E512E3788D008748E2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B325E412E3788D008748E2 /* AppDelegate.m */; };
@@ -189,7 +183,6 @@
 		48FE9795136368D5009B31FD /* ModelProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE9794136368D5009B31FD /* ModelProperty.m */; };
 		48FE97BA13636AF8009B31FD /* DefaultProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE97B913636AF8009B31FD /* DefaultProperty.m */; };
 		48FE97BD13636B9A009B31FD /* BaseProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE97BC13636B9A009B31FD /* BaseProperty.m */; };
-		48FE986513659869009B31FD /* EntityBoundsRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48FE986413659869009B31FD /* EntityBoundsRenderer.m */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
 		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -266,8 +259,6 @@
 		481BF6E213A35B700040580B /* AliasNormals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AliasNormals.h; sourceTree = "<group>"; };
 		481BF79413A4ACB10040580B /* AliasManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AliasManager.h; sourceTree = "<group>"; };
 		481BF79513A4ACB10040580B /* AliasManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AliasManager.m; sourceTree = "<group>"; };
-		481BF7A313A4B0880040580B /* EntityAliasRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityAliasRenderer.h; sourceTree = "<group>"; };
-		481BF7A413A4B0880040580B /* EntityAliasRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityAliasRenderer.m; sourceTree = "<group>"; };
 		481BF7AA13A4B5220040580B /* AliasRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AliasRenderer.h; sourceTree = "<group>"; };
 		481BF7AB13A4B5220040580B /* AliasRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AliasRenderer.m; sourceTree = "<group>"; };
 		481D300E12FAE5C0001CBD9E /* GLFontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFontManager.h; sourceTree = "<group>"; };
@@ -298,9 +289,6 @@
 		4830492213A2A58C002CA97B /* AliasSkin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AliasSkin.m; sourceTree = "<group>"; };
 		4830494413A2AAED002CA97B /* AliasFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AliasFrame.h; sourceTree = "<group>"; };
 		4830494513A2AAED002CA97B /* AliasFrame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AliasFrame.m; sourceTree = "<group>"; };
-		48325C9D1352152800E703E0 /* Layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Layer.h; sourceTree = "<group>"; };
-		48325CB1135215ED00E703E0 /* FigureLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FigureLayer.h; sourceTree = "<group>"; };
-		48325CB2135215ED00E703E0 /* FigureLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FigureLayer.m; sourceTree = "<group>"; };
 		48325D4513524F7000E703E0 /* CompassFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompassFigure.h; sourceTree = "<group>"; };
 		48325D4613524F7000E703E0 /* CompassFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompassFigure.m; sourceTree = "<group>"; };
 		4833C15B131953D300EB1B85 /* Prefab2.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prefab2.map; sourceTree = "<group>"; };
@@ -413,9 +401,6 @@
 		487A77EB13E308A000D44790 /* PrefabViewTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabViewTarget.h; sourceTree = "<group>"; };
 		487A77EC13E308FE00D44790 /* TextureViewTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewTarget.h; sourceTree = "<group>"; };
 		487A77ED13E3095800D44790 /* EntityDefinitionViewTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionViewTarget.h; sourceTree = "<group>"; };
-		487A7E38130071DD00434806 /* BrushLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushLayer.h; sourceTree = "<group>"; };
-		487A7E39130071F300434806 /* GeometryLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryLayer.h; sourceTree = "<group>"; };
-		487A7E3A130071F300434806 /* GeometryLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeometryLayer.m; sourceTree = "<group>"; };
 		487A7E631300801A00434806 /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
 		487A7E641300801A00434806 /* Renderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Renderer.m; sourceTree = "<group>"; };
 		487E1E9212E495060001C150 /* IdGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IdGenerator.h; sourceTree = "<group>"; };
@@ -445,8 +430,6 @@
 		488D528013DEE181006FE818 /* EntityDefinitionUsageFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionUsageFilter.m; sourceTree = "<group>"; };
 		488F853A13F51FAE00DA0403 /* RenderChangeSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderChangeSet.h; sourceTree = "<group>"; };
 		488F853B13F51FAE00DA0403 /* RenderChangeSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderChangeSet.m; sourceTree = "<group>"; };
-		488FE71C136E8FA300A0A47A /* DefaultEntityLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefaultEntityLayer.h; sourceTree = "<group>"; };
-		488FE71D136E8FA300A0A47A /* DefaultEntityLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DefaultEntityLayer.m; sourceTree = "<group>"; };
 		488FEAEF131F9D1800010A04 /* MutablePrefabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutablePrefabGroup.h; sourceTree = "<group>"; };
 		488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutablePrefabGroup.m; sourceTree = "<group>"; };
 		488FEAF2131F9D7200010A04 /* PrefabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabGroup.h; sourceTree = "<group>"; };
@@ -477,8 +460,6 @@
 		4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuakePathFormatter.m; sourceTree = "<group>"; };
 		489C061713C9EBA400D9D693 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLUtils.h; sourceTree = "<group>"; };
 		489C061813C9EBA400D9D693 /* GLUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLUtils.m; sourceTree = "<group>"; };
-		48A023C813E8251F004F34A4 /* VertexRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexRenderer.h; sourceTree = "<group>"; };
-		48A023C913E8251F004F34A4 /* VertexRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexRenderer.m; sourceTree = "<group>"; };
 		48A023CC13E83514004F34A4 /* VertexTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexTool.h; sourceTree = "<group>"; };
 		48A023CD13E83514004F34A4 /* VertexTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexTool.m; sourceTree = "<group>"; };
 		48A269E113C73BFA00703BC1 /* EntityInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityInfo.h; sourceTree = "<group>"; };
@@ -514,8 +495,6 @@
 		48AF853013D180D000B62317 /* EntityRendererManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityRendererManager.m; sourceTree = "<group>"; };
 		48AF853213D190AB00B62317 /* BspTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspTexture.h; sourceTree = "<group>"; };
 		48AF853313D190AC00B62317 /* BspTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BspTexture.m; sourceTree = "<group>"; };
-		48B016DE133CCCBB00E3AF90 /* SelectionLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionLayer.h; sourceTree = "<group>"; };
-		48B016DF133CCCBB00E3AF90 /* SelectionLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectionLayer.m; sourceTree = "<group>"; };
 		48B3243A12E1C6B8008748E2 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		48B3243B12E1C6B8008748E2 /* Camera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Camera.m; sourceTree = "<group>"; };
 		48B3255F12E2D760008748E2 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
@@ -591,9 +570,6 @@
 		48FE97B913636AF8009B31FD /* DefaultProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DefaultProperty.m; sourceTree = "<group>"; };
 		48FE97BB13636B9A009B31FD /* BaseProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseProperty.h; sourceTree = "<group>"; };
 		48FE97BC13636B9A009B31FD /* BaseProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseProperty.m; sourceTree = "<group>"; };
-		48FE9860136596C6009B31FD /* EntityLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityLayer.h; sourceTree = "<group>"; };
-		48FE986313659869009B31FD /* EntityBoundsRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityBoundsRenderer.h; sourceTree = "<group>"; };
-		48FE986413659869009B31FD /* EntityBoundsRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityBoundsRenderer.m; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* TrenchBroom-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "TrenchBroom-Info.plist"; sourceTree = "<group>"; };
 		8D15AC370486D014006FF6A4 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -709,33 +685,11 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		4802513E133A11FA001C51F2 /* Layer */ = {
-			isa = PBXGroup;
-			children = (
-				488FE71C136E8FA300A0A47A /* DefaultEntityLayer.h */,
-				488FE71D136E8FA300A0A47A /* DefaultEntityLayer.m */,
-				487A7E39130071F300434806 /* GeometryLayer.h */,
-				487A7E3A130071F300434806 /* GeometryLayer.m */,
-				487A7E38130071DD00434806 /* BrushLayer.h */,
-				48B016DE133CCCBB00E3AF90 /* SelectionLayer.h */,
-				48B016DF133CCCBB00E3AF90 /* SelectionLayer.m */,
-				48325C9D1352152800E703E0 /* Layer.h */,
-				48325CB1135215ED00E703E0 /* FigureLayer.h */,
-				48325CB2135215ED00E703E0 /* FigureLayer.m */,
-				48FE9860136596C6009B31FD /* EntityLayer.h */,
-			);
-			name = Layer;
-			sourceTree = "<group>";
-		};
 		48025140133A1211001C51F2 /* PrimitiveRenderer */ = {
 			isa = PBXGroup;
 			children = (
 				48D6B712134859890084F82E /* BoundsRenderer.h */,
 				48D6B713134859890084F82E /* BoundsRenderer.m */,
-				48FE986313659869009B31FD /* EntityBoundsRenderer.h */,
-				48FE986413659869009B31FD /* EntityBoundsRenderer.m */,
-				481BF7A313A4B0880040580B /* EntityAliasRenderer.h */,
-				481BF7A413A4B0880040580B /* EntityAliasRenderer.m */,
 				481BF7AA13A4B5220040580B /* AliasRenderer.h */,
 				481BF7AB13A4B5220040580B /* AliasRenderer.m */,
 				48A5FD4D13C5E9BA009D086C /* EntityRenderer.h */,
@@ -748,8 +702,6 @@
 				48150C9413CDF1E1009D16B9 /* EntityClassnameAnchor.m */,
 				48AF852F13D180CE00B62317 /* EntityRendererManager.h */,
 				48AF853013D180D000B62317 /* EntityRendererManager.m */,
-				48A023C813E8251F004F34A4 /* VertexRenderer.h */,
-				48A023C913E8251F004F34A4 /* VertexRenderer.m */,
 			);
 			name = PrimitiveRenderer;
 			sourceTree = "<group>";
@@ -967,7 +919,6 @@
 		487E31F3114F741F0043A111 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
-				4802513E133A11FA001C51F2 /* Layer */,
 				48025140133A1211001C51F2 /* PrimitiveRenderer */,
 				489DC65D12F9EBF500053092 /* Text */,
 				48325D4513524F7000E703E0 /* CompassFigure.h */,
@@ -1469,7 +1420,6 @@
 				488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */,
 				4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */,
 				4872C97712FF4DC200C5DD29 /* Matrix4f.m in Sources */,
-				487A7E3B130071F300434806 /* GeometryLayer.m in Sources */,
 				487A7E651300801A00434806 /* Renderer.m in Sources */,
 				480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */,
 				480BB50A13031A9D005E3492 /* Matrix3f.m in Sources */,
@@ -1493,7 +1443,6 @@
 				4816144D132BE7C300CD66AF /* MoveTool.m in Sources */,
 				48958209132E52EF00BB7D8F /* CameraAnimation.m in Sources */,
 				480D23201334A3A800D3B57B /* PickingHitList.m in Sources */,
-				48B016E0133CCCBB00E3AF90 /* SelectionLayer.m in Sources */,
 				486928EC133F282100A0F098 /* FaceTool.m in Sources */,
 				482FFF011340E10E00849BF5 /* ClipTool.m in Sources */,
 				482FFF181340E56000849BF5 /* ClipPointFeedbackFigure.m in Sources */,
@@ -1506,7 +1455,6 @@
 				48D6B714134859890084F82E /* BoundsRenderer.m in Sources */,
 				48D6B903134B8DC90084F82E /* GLStringData.m in Sources */,
 				486526C5134F0BC20045A4B6 /* TextureCollection.m in Sources */,
-				48325CB3135215ED00E703E0 /* FigureLayer.m in Sources */,
 				48325D4713524F7000E703E0 /* CompassFigure.m in Sources */,
 				48D6C9391357379900AC6A4D /* CursorManager.m in Sources */,
 				48D6C94213574B4A00AC6A4D /* MoveCursor.m in Sources */,
@@ -1526,8 +1474,6 @@
 				48FE9795136368D5009B31FD /* ModelProperty.m in Sources */,
 				48FE97BA13636AF8009B31FD /* DefaultProperty.m in Sources */,
 				48FE97BD13636B9A009B31FD /* BaseProperty.m in Sources */,
-				48FE986513659869009B31FD /* EntityBoundsRenderer.m in Sources */,
-				488FE71E136E8FA300A0A47A /* DefaultEntityLayer.m in Sources */,
 				48455A4B13800A520096FEA5 /* IO.m in Sources */,
 				483044A21398B3D3002CA97B /* EntityPropertyTableDataSource.m in Sources */,
 				4830484C139B6EC2002CA97B /* PakDirectoryEntry.m in Sources */,
@@ -1538,7 +1484,6 @@
 				4830494613A2AAED002CA97B /* AliasFrame.m in Sources */,
 				481BF6B013A352660040580B /* AliasFrameGroup.m in Sources */,
 				481BF79613A4ACB10040580B /* AliasManager.m in Sources */,
-				481BF7A513A4B0880040580B /* EntityAliasRenderer.m in Sources */,
 				481BF7AC13A4B5220040580B /* AliasRenderer.m in Sources */,
 				486E08AF13B5EAE300E751A6 /* RotateTool.m in Sources */,
 				486E08B313B5EF2C00E751A6 /* RotateFeedbackFigure.m in Sources */,
@@ -1572,7 +1517,6 @@
 				48976C8413E2BFC5005AB1EA /* InspectorWindowController.m in Sources */,
 				48AC3E6313E3D00C008F4BF8 /* PreferencesManager.m in Sources */,
 				48AC3E6F13E418AC008F4BF8 /* MapCompiler.m in Sources */,
-				48A023CA13E8251F004F34A4 /* VertexRenderer.m in Sources */,
 				48A023CE13E83514004F34A4 /* VertexTool.m in Sources */,
 				48F56F5213E9CDEC008DF954 /* MapBrowserDataSource.m in Sources */,
 				48BC2E6B13EBF036003657D6 /* ConsoleWindowController.m in Sources */,

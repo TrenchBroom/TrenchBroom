@@ -937,6 +937,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     MutableEntity* entity;
     while ((entity = [entityEn nextObject])) {
         NSSet* entityBrushes = [entityIdToBrushSet objectForKey:[entity entityId]];
+        [selectionManager removeBrushes:entityBrushes record:YES];
         [[undoManager prepareWithInvocationTarget:self] addBrushesToEntity:entity brushes:[entityBrushes copy]];
 
         NSMutableDictionary* userInfo;
@@ -1402,6 +1403,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     if ([theEntities count] == 0)
         return;
 
+    [[self selectionManager] removeEntities:theEntities record:YES];
     [[[self undoManager] prepareWithInvocationTarget:self] addEntities:[theEntities copy]];
     
     NSMutableDictionary* userInfo;

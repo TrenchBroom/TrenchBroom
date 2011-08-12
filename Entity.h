@@ -48,4 +48,7 @@ static NSString* const ModsKey = @"_mods";
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
 
+- (VBOMemBlock *)boundsMemBlock;
+- (void)setBoundsMemBlock:(VBOMemBlock *)theBoundsMemBlock;
+
 @end
