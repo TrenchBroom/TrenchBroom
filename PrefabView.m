@@ -15,7 +15,6 @@
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
-#import "Vertex.h"
 #import "math.h"
 #import "GLResources.h"
 #import "TextureManager.h"
@@ -29,6 +28,8 @@
 #import "GLFontManager.h"
 #import "GLString.h"
 #import "PrefabViewTarget.h"
+#import "VertexData2.h"
+#import "GLUtils.h"
 
 @implementation PrefabView
 
@@ -181,17 +182,15 @@
     float width = texture != nil ? [texture width] : 1;
     float height = texture != nil ? [texture height] : 1;
     
-    NSEnumerator* vertexEn = [[face vertices] objectEnumerator];
-    Vertex* vertex;
     glBegin(GL_POLYGON);
-    while ((vertex = [vertexEn nextObject])) {
-        TVector3f* vector = [vertex vector];
+    TVertex** vertices = [face vertices];
+    for (int i = 0; i < [face vertexCount]; i++) {
         if (texture != nil) {
-            [face texCoords:&t forVertex:vector];
+            [face texCoords:&t forVertex:&vertices[i]->vector];
             glTexCoord2f(t.x / width, t.y / height);
         }
         
-        glVertex3f(vector->x, vector->y, vector->z);
+        glVertexV3f(&vertices[i]->vector);
         
     }
     glEnd();

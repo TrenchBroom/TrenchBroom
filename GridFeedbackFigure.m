@@ -26,7 +26,7 @@ static int G = 2;
         id <Face> face = [originalHit object];
         id <Brush> brush = [face brush]; 
         
-        TPlane* boundary = [face boundary];
+        const TPlane* boundary = [face boundary];
         const TVector3f* originalPoint = [originalHit hitPoint];
 
         TVector3f hitPoint;

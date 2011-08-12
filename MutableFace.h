@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import "Face.h"
 #import "Math.h"
+#import "VertexData2.h"
 
 typedef enum {
     XY, XZ, YZ
@@ -40,8 +41,7 @@ typedef enum {
     TVector3f center;
     BOOL centerValid;
 
-    NSArray* vertices;
-    NSArray* edges;
+    TSide* side;
     
     int bestAxis;
     TVector3f texAxisX;
@@ -76,8 +76,7 @@ typedef enum {
 - (BOOL)canDragBy:(float)dist;
 - (void)dragBy:(float)dist;
 
-- (void)setVertices:(NSArray *)theVertices;
-- (void)setEdges:(NSArray *)theEdges;
+- (void)setSide:(TSide *)theSide;
 
 - (int)filePosition;
 - (void)setFilePosition:(int)theFilePosition;

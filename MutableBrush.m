@@ -13,33 +13,37 @@
 #import "Entity.h"
 #import "MutableEntity.h"
 #import "IdGenerator.h"
-#import "VertexData.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
 
 @interface MutableBrush (private)
 
-- (VertexData *)vertexData;
+- (TVertexData *)vertexData;
 
 @end
 
 @implementation MutableBrush (private)
 
-- (VertexData *)vertexData {
-    if (vertexData == nil) {
+- (TVertexData *)vertexData {
+    if (!vertexDataValid) {
         NSMutableSet* droppedFaces = nil;
-        vertexData = [[VertexData alloc] initWithWorldBounds:worldBounds faces:faces droppedFaces:&droppedFaces];
-        if (droppedFaces != nil) {
-            NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
-            MutableFace* droppedFace;
-            while ((droppedFace = [droppedFacesEn nextObject])) {
-                [droppedFace setBrush:nil];
-                [faces removeObject:droppedFace];
+        if (!initVertexDataWithFaces(&vertexData, worldBounds, faces, &droppedFaces)) {
+            if (droppedFaces != nil) {
+                NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
+                MutableFace* droppedFace;
+                while ((droppedFace = [droppedFacesEn nextObject])) {
+                    [droppedFace setBrush:nil];
+                    [faces removeObject:droppedFace];
+                }
             }
+            freeVertexData(&vertexData);
+            return NULL;
+        } else {
+            vertexDataValid = YES;
         }
     }
     
-    return vertexData;
+    return &vertexData;
 }
 
 @end
@@ -165,14 +169,14 @@
 
 - (void)dealloc {
     [brushId release];
-    [vertexData release];
     [faces release];
+    freeVertexData(&vertexData);
     [super dealloc];
 }
 
 - (BOOL)addFace:(MutableFace *)face {
     NSMutableSet* droppedFaces = nil;
-    if (![[self vertexData] cutWithFace:face droppedFaces:&droppedFaces])
+    if (!cutVertexData([self vertexData], face, &droppedFaces))
         return NO;
     
     if (droppedFaces != nil) {
@@ -192,8 +196,10 @@
 - (void)removeFace:(MutableFace *)face {
     [face setBrush:nil];
     [faces removeObject:face];
-    [vertexData release];
-    vertexData = nil;
+    if (vertexDataValid) {
+        freeVertexData(&vertexData);
+        vertexDataValid = NO;
+    }
 }
 
 - (void)setEntity:(MutableEntity *)theEntity {
@@ -229,8 +235,10 @@
 }
 
 - (void)faceGeometryChanged:(MutableFace *)face {
-    [vertexData release];
-    vertexData = nil;
+    if (vertexDataValid) {
+        freeVertexData(&vertexData);
+        vertexDataValid = NO;
+    }
     [entity brushChanged:self];
 }
 
@@ -244,12 +252,12 @@
     [testFace release];
     
     NSMutableSet* droppedFaces = nil;
-    VertexData* testData = [[VertexData alloc] initWithWorldBounds:worldBounds faces:testFaces droppedFaces:&droppedFaces];
-    BOOL canDrag = testData != nil && (droppedFaces == nil || [droppedFaces count] == 0) && boundsContainBounds(worldBounds, [testData bounds]);
-
-    [testFaces release];
-    [testData release];
+    TVertexData testData;
+    BOOL canDrag = initVertexDataWithFaces(&testData, worldBounds, testFaces, &droppedFaces) && 
+                   (droppedFaces == nil || [droppedFaces count] == 0) && 
+                   boundsContainBounds(worldBounds, vertexDataBounds(&testData));
     
+    freeVertexData(&testData);
     return canDrag;
     
 }
@@ -277,28 +285,94 @@
     return faces;
 }
 
-- (NSArray *)vertices {
-    return [[self vertexData] vertices];
+- (const TVertex *)vertices {
+    return [self vertexData]->vertices;
 }
 
-- (NSArray *)edges {
-    return [[self vertexData] edges];
+- (int)vertexCount {
+    return [self vertexData]->vertexCount;
 }
 
-- (TBoundingBox *)bounds {
-    return [[self vertexData] bounds];
+- (const TEdge *)edges {
+    return [self vertexData]->edges;
 }
 
-- (TVector3f *)center {
-    return [[self vertexData] center];
+- (int)edgeCount {
+    return [self vertexData]->edgeCount;
+}
+
+- (const TBoundingBox *)bounds {
+    return vertexDataBounds([self vertexData]);
+}
+
+- (const TVector3f *)center {
+    return vertexDataCenter([self vertexData]);
 }
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList {
-    [[self vertexData] pick:theRay hitList:theHitList];
+    TVertexData* vd = [self vertexData];
+    if (isnan(intersectBoundsWithRay(vertexDataBounds(vd), theRay, NULL)))
+        return;
+
+    float dist = NAN;
+    TVector3f hitPoint;
+    TSide* side;
+    for (int i = 0; i < vd->sideCount && isnan(dist); i++) {
+        side = &vd->sides[i];
+        pickSide(side, theRay, &hitPoint);
+    }
+
+    if (!isnan(dist)) {
+        PickingHit* faceHit = [[PickingHit alloc] initWithObject:side->face type:HT_FACE hitPoint:&hitPoint distance:dist];
+        PickingHit* brushHit = [[PickingHit alloc] initWithObject:[side->face brush] type:HT_BRUSH hitPoint:&hitPoint distance:dist];
+        [theHitList addHit:faceHit];
+        [theHitList addHit:brushHit];
+        [faceHit release];
+        [brushHit release];
+    }
 }
 
-- (void)pickEdgeClosestToRay:(TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList {
-    [[self vertexData] pickEdgeClosestToRay:theRay maxDistance:theMaxDist hitList:theHitList];
+- (void)pickFace:(TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList {
+    TVertexData* vd = [self vertexData];
+
+    TEdge* edge;
+    TEdge* closestEdge = nil;
+    float closestRayDist;
+    float closestDist2 = theMaxDist * theMaxDist + 1;
+    for (int i = 0; i < vd->edgeCount; i++) {
+        edge = &vd->edges[i];
+        float rayDist;
+        float dist2 = distanceOfSegmentAndRaySquared(&edge->startVertex->vector, &edge->endVertex->vector, theRay, &rayDist);
+        if (dist2 < closestDist2) {
+            closestRayDist = rayDist;
+            closestDist2 = dist2;
+            closestEdge = edge;
+        }
+    }
+    
+    if (closestDist2 > theMaxDist * theMaxDist)
+        return;
+
+    TVector3f hitPoint;
+    float leftDist = pickSide(closestEdge->leftSide, theRay, &hitPoint);
+    float rightDist = pickSide(closestEdge->rightSide, theRay, &hitPoint);
+
+    PickingHit* hit;
+    if (!isnan(leftDist)) {
+        hit = [[PickingHit alloc] initWithObject:closestEdge->leftSide->face type:HT_CLOSE_EDGE hitPoint:&hitPoint distance:leftDist];
+    } else if (!isnan(rightDist)) {
+        hit = [[PickingHit alloc] initWithObject:closestEdge->rightSide->face type:HT_CLOSE_EDGE hitPoint:&hitPoint distance:rightDist];
+    } else {
+        rayPointAtDistance(theRay, closestRayDist, &hitPoint);
+        if (dotV3f([closestEdge->leftSide->face norm], &theRay->direction) < 0) {
+            hit = [[PickingHit alloc] initWithObject:closestEdge->leftSide->face type:HT_CLOSE_EDGE hitPoint:&hitPoint distance:closestRayDist];
+        } else {
+            hit = [[PickingHit alloc] initWithObject:closestEdge->rightSide->face type:HT_CLOSE_EDGE hitPoint:&hitPoint distance:closestRayDist];
+        }
+    }
+    
+    [theHitList addHit:hit];
+    [hit release];
 }
 
 - (BOOL)intersectsBrush:(id <Brush>)theBrush {
@@ -307,7 +381,8 @@
     if (!boundsIntersectWithBounds([self bounds], [theBrush bounds]))
         return NO;
     
-    return [[self vertexData] intersectsBrush:(id <Brush>)theBrush];
+    // return [[self vertexData] intersectsBrush:(id <Brush>)theBrush];
+    return NO;
 }
 
 - (BOOL)containsBrush:(id <Brush>)theBrush {
@@ -316,7 +391,8 @@
     if (!boundsContainBounds([self bounds], [theBrush bounds]))
         return NO;
     
-    return [[self vertexData] containsBrush:(id <Brush>)theBrush];
+//    return [[self vertexData] containsBrush:(id <Brush>)theBrush];
+    return NO;
 }
 
 - (BOOL)intersectsEntity:(id <Entity>)theEntity {
@@ -325,7 +401,8 @@
     if (!boundsIntersectWithBounds([self bounds], [theEntity bounds]))
         return NO;
     
-    return [[self vertexData] intersectsEntity:(id <Entity>)theEntity];
+    // return [[self vertexData] intersectsEntity:(id <Entity>)theEntity];
+    return NO;
 }
 
 - (BOOL)containsEntity:(id <Entity>)theEntity {
@@ -334,7 +411,8 @@
     if (!boundsContainBounds([self bounds], [theEntity bounds]))
         return NO;
     
-    return [[self vertexData] containsEntity:theEntity];
+    // return [[self vertexData] containsEntity:theEntity];
+    return NO;
 }
 
 @end

@@ -11,10 +11,10 @@
 #import "Brush.h"
 #import "MutableEntity.h"
 #import "MutableBrush.h"
-#import "Vertex.h"
 #import "IdGenerator.h"
 #import "MutablePrefabGroup.h"
 #import "MapDocument.h"
+#import "VertexData2.h"
 
 @interface MutablePrefab (private)
 
@@ -47,10 +47,9 @@
             NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
             id <Brush> brush;
             while ((brush = [brushEn nextObject])) {
-                NSEnumerator* vertexEn = [[brush vertices] objectEnumerator];
-                Vertex* vertex;
-                while ((vertex = [vertexEn nextObject])) {
-                    subV3f([vertex vector], &center, &diff);
+                const TVertex* vertices = [brush vertices];
+                for (int i = 0; i < [brush vertexCount]; i++) {
+                    subV3f(&vertices[i].vector, &center, &diff);
                     float lengthSquared = lengthSquaredV3f(&diff);
                     if (lengthSquared > distSquared)
                         distSquared = lengthSquared;

@@ -22,6 +22,6 @@
     
 }
 
-- (void)setDragDir:(TVector3f *)theDragDir;
+- (void)setDragDir:(const TVector3f *)theDragDir;
 
 @end

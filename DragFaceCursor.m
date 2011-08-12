@@ -43,7 +43,7 @@
     glFrontFace(GL_CW);
 }
 
-- (void)setDragDir:(TVector3f *)theDragDir {
+- (void)setDragDir:(const TVector3f *)theDragDir {
     float cos = dotV3f(&ZAxisPos, theDragDir);
     
     if (feq(1, cos)) {

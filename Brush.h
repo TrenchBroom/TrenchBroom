@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Math.h"
+#import "VertexData2.h"
 
 @class PickingHit;
 @class PickingHitList;
@@ -21,14 +22,16 @@
 - (id)copy;
 
 - (NSArray *)faces;
-- (NSArray *)vertices;
-- (NSArray *)edges;
+- (const TVertex *)vertices;
+- (int)vertexCount;
+- (const TEdge *)edges;
+- (int)edgeCount;
 
-- (TBoundingBox *)bounds;
-- (TVector3f *)center;
+- (const TBoundingBox *)bounds;
+- (const TVector3f *)center;
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
-- (void)pickEdgeClosestToRay:(TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList;
+- (void)pickFace:(TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList;
 
 - (BOOL)intersectsBrush:(id <Brush>)theBrush;
 - (BOOL)containsBrush:(id <Brush>)theBrush;

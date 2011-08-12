@@ -13,7 +13,7 @@
 #import "MutableEntity.h"
 #import "Brush.h"
 #import "Face.h"
-#import "Vertex.h"
+#import "VertexData2.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "SelectionManager.h"
@@ -230,12 +230,12 @@ int const TexCoordSize = 2 * sizeof(float);
     int width = texture != nil ? [texture width] : 1;
     int height = texture != nil ? [texture height] : 1;
     int offset = 0;
-    
-    NSEnumerator* vertexEn = [[theFace vertices] objectEnumerator];
-    Vertex* vertex;
-    while ((vertex = [vertexEn nextObject])) {
-        [theFace gridCoords:&gridCoords forVertex:[vertex vector]];
-        [theFace texCoords:&texCoords forVertex:[vertex vector]];
+
+    TVertex** vertices = [theFace vertices];
+    for (int i = 0; i < [theFace vertexCount]; i++) {
+        TVertex* vertex = vertices[i];
+        [theFace gridCoords:&gridCoords forVertex:&vertex->vector];
+        [theFace texCoords:&texCoords forVertex:&vertex->vector];
         texCoords.x /= width;
         texCoords.y /= height;
         
@@ -243,7 +243,7 @@ int const TexCoordSize = 2 * sizeof(float);
         offset = [theBlock writeVector2f:&texCoords offset:offset];
         offset = [theBlock writeColor4fAsBytes:&EdgeDefaultColor offset:offset];
         offset = [theBlock writeColor4fAsBytes:&FaceDefaultColor offset:offset];
-        offset = [theBlock writeVector3f:[vertex vector] offset:offset];
+        offset = [theBlock writeVector3f:&vertex->vector offset:offset];
     }
     
     [theBlock setState:BS_USED_VALID];
@@ -251,7 +251,7 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)writeFace:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer {
     int index = [[theFace memBlock] address] / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
-    int count = [[theFace vertices] count];
+    int count = [theFace vertexCount];
     
     [theIndexBuffer appendInt:index];
     [theCountBuffer appendInt:count];
@@ -457,8 +457,7 @@ int const TexCoordSize = 2 * sizeof(float);
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
             id <Face> face;
             while ((face = [faceEn nextObject])) {
-                NSArray* vertices = [face vertices];
-                VBOMemBlock* block = [faceVbo allocMemBlock:[vertices count] * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize)];
+                VBOMemBlock* block = [faceVbo allocMemBlock:[face vertexCount] * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize)];
                 [self writeFace:face toBlock:block];
                 [face setMemBlock:block];
             }
@@ -475,8 +474,7 @@ int const TexCoordSize = 2 * sizeof(float);
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
             id <Face> face;
             while ((face = [faceEn nextObject])) {
-                NSArray* vertices = [face vertices];
-                int blockSize = [vertices count] * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+                int blockSize = [face vertexCount] * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
                 VBOMemBlock* block = [face memBlock];
                 if ([block capacity] != blockSize) {
                     block = [faceVbo allocMemBlock:blockSize];
@@ -495,8 +493,7 @@ int const TexCoordSize = 2 * sizeof(float);
         NSEnumerator* faceEn = [changedFaces objectEnumerator];
         id <Face> face;
         while ((face = [faceEn nextObject])) {
-            NSArray* vertices = [face vertices];
-            int blockSize = [vertices count] * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+            int blockSize = [face vertexCount] * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
             VBOMemBlock* block = [face memBlock];
             if ([block capacity] != blockSize) {
                 block = [faceVbo allocMemBlock:blockSize];

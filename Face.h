@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Math.h"
+#import "VertexData2.h"
 
 @protocol Brush;
 @class Vertex;
@@ -32,11 +33,13 @@
 - (float)xScale;
 - (float)yScale;
 
-- (TVector3f *)norm;
-- (TVector3f *)center;
-- (TPlane *)boundary;
-- (NSArray *)vertices;
-- (NSArray *)edges;
+- (const TVector3f *)norm;
+- (const TVector3f *)center;
+- (const TPlane *)boundary;
+- (TVertex **)vertices;
+- (int)vertexCount;
+- (TEdge **)edges;
+- (int)edgeCount;
 
 - (void)texCoords:(TVector2f *)texCoords forVertex:(TVector3f *)vertex;
 - (void)gridCoords:(TVector2f *)gridCoords forVertex:(TVector3f *)vertex;

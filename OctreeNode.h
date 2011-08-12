@@ -32,8 +32,8 @@ typedef enum {
 
 - (id)initWithMin:(TVector3i *)theMin max:(TVector3i *)theMax minSize:(int)theMinSize;
 
-- (BOOL)addObject:(id)theObject bounds:(TBoundingBox *)theBounds;
-- (BOOL)removeObject:(id)theObject bounds:(TBoundingBox *)theBounds;
+- (BOOL)addObject:(id)theObject bounds:(const TBoundingBox *)theBounds;
+- (BOOL)removeObject:(id)theObject bounds:(const TBoundingBox *)theBounds;
 
 - (void)addObjectsForRay:(TRay *)ray to:(NSMutableArray *)list;
 

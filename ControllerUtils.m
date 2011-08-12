@@ -18,7 +18,7 @@ BOOL calculateEntityOrigin(EntityDefinition* entityDefinition, PickingHitList* h
         sizeOfBounds(bounds, &size);
         
         id <Face> face = [hit object];
-        TVector3f* faceNorm = [face norm];
+        const TVector3f* faceNorm = [face norm];
         
         EAxis lc = strongestComponentV3f(faceNorm);
         BOOL d;

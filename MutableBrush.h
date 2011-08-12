@@ -9,11 +9,11 @@
 #import <Cocoa/Cocoa.h>
 #import "Brush.h"
 #import "Math.h"
+#import "VertexData2.h"
 
 @class MutableEntity;
 @class MutableFace;
 @class Face;
-@class VertexData;
 @class PickingHit;
 
 @interface MutableBrush : NSObject <Brush> {
@@ -21,7 +21,8 @@
     NSNumber* brushId;
     MutableEntity* entity;
 	NSMutableArray* faces;
-    VertexData* vertexData;
+    TVertexData vertexData;
+    BOOL vertexDataValid;
     int filePosition;
     TBoundingBox* worldBounds;
 }

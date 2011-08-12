@@ -168,9 +168,9 @@ EPointStatus pointStatusFromRay(const TVector3f* o, const TVector3f* d, const TV
 
 float intersectPlaneWithRay(const TPlane* p, const TRay* r);
 float intersectPlaneWithLine(const TPlane* p, const TLine* l);
-float planeX(TPlane* p, float y, float z);
-float planeY(TPlane* p, float x, float z);
-float planeZ(TPlane* p, float x, float y);
+float planeX(const TPlane* p, float y, float z);
+float planeY(const TPlane* p, float x, float z);
+float planeZ(const TPlane* p, float x, float y);
 
 void centerOfBounds(const TBoundingBox* b, TVector3f* o);
 void roundedCenterOfBounds(const TBoundingBox* b, TVector3i* o);

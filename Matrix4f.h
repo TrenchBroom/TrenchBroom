@@ -31,8 +31,8 @@
 - (void)transpose;
 
 - (void)setColumn:(int)col row:(int)row value:(float)value;
-- (void)setColumn:(int)col values:(TVector3f *)vector;
-- (void)setRow:(int)row values:(TVector3f *)vector;
+- (void)setColumn:(int)col values:(const TVector3f *)vector;
+- (void)setRow:(int)row values:(const TVector3f *)vector;
 - (void)embed:(Matrix3f *)matrix;
 
 - (void)transformVector3f:(TVector3f *)vector;

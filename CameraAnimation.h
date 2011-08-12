@@ -24,6 +24,6 @@
     float hAngle, vAngle;
 }
 
-- (id)initWithCamera:(Camera *)theCamera targetPosition:(const TVector3f *)thePosition targetLookAt:(TVector3f *)theLookAt duration:(NSTimeInterval)duration;
+- (id)initWithCamera:(Camera *)theCamera targetPosition:(const TVector3f *)thePosition targetLookAt:(const TVector3f *)theLookAt duration:(NSTimeInterval)duration;
 
 @end

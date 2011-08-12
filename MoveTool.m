@@ -28,14 +28,14 @@
 
 @interface MoveTool (private)
 
-- (void)actualPlaneNormal:(TVector3f *)norm result:(TVector3f *)result;
+- (void)actualPlaneNormal:(const TVector3f *)norm result:(TVector3f *)result;
 - (BOOL)isDuplicateModifierPressed;
 
 @end
 
 @implementation MoveTool (private)
 
-- (void)actualPlaneNormal:(TVector3f *)norm result:(TVector3f *)result {
+- (void)actualPlaneNormal:(const TVector3f *)norm result:(TVector3f *)result {
     switch (strongestComponentV3f(norm)) {
         case A_X:
             *result = XAxisPos;

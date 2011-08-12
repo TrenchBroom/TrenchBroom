@@ -11,13 +11,13 @@
 
 @interface OctreeNode (private)
 
-- (BOOL)bounds:(TBoundingBox *)theBounds containedInMin:(TVector3i *)theMin max:(TVector3i *)theMax;
+- (BOOL)bounds:(const TBoundingBox *)theBounds containedInMin:(TVector3i *)theMin max:(TVector3i *)theMax;
 
 @end
 
 @implementation OctreeNode (private)
 
-- (BOOL)bounds:(TBoundingBox *)theBounds containedInMin:(TVector3i *)theMin max:(TVector3i *)theMax {
+- (BOOL)bounds:(const TBoundingBox *)theBounds containedInMin:(TVector3i *)theMin max:(TVector3i *)theMax {
     return fgte(theBounds->min.x, theMin->x)
     && fgte(theBounds->min.y, theMin->y)
     && fgte(theBounds->min.z, theMin->z)
@@ -41,7 +41,7 @@
     return self;
 }
 
-- (BOOL)addObject:(id)theObject bounds:(TBoundingBox *)theBounds toChild:(int)theIndex {
+- (BOOL)addObject:(id)theObject bounds:(const TBoundingBox *)theBounds toChild:(int)theIndex {
     if (children[theIndex] == nil) {
         TVector3i childMin, childMax;
         switch (theIndex) {
@@ -117,7 +117,7 @@
     return [children[theIndex] addObject:theObject bounds:theBounds];
 }
 
-- (BOOL)addObject:(id)theObject bounds:(TBoundingBox *)theBounds {
+- (BOOL)addObject:(id)theObject bounds:(const TBoundingBox *)theBounds {
     if (![self bounds:theBounds containedInMin:&min max:&max])
         return NO;
     
@@ -130,7 +130,7 @@
     return YES;
 }
 
-- (BOOL)removeObject:(id)theObject bounds:(TBoundingBox *)theBounds {
+- (BOOL)removeObject:(id)theObject bounds:(const TBoundingBox *)theBounds {
     if (![self bounds:theBounds containedInMin:&min max:&max])
         return NO;
     

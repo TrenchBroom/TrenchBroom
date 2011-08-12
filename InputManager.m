@@ -103,7 +103,7 @@
             NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
             id <Brush> brush;
             while ((brush = [brushEn nextObject]))
-                [brush pickEdgeClosestToRay:&lastRay maxDistance:10 hitList:lastHits];
+                [brush pickFace:&lastRay maxDistance:10 hitList:lastHits];
         }
     }
 }

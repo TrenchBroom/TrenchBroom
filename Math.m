@@ -589,17 +589,17 @@ float intersectPlaneWithRay(const TPlane* p, const TRay* r) {
     return s;
 }
 
-float planeX(TPlane* p, float y, float z) {
+float planeX(const TPlane* p, float y, float z) {
     float l = dotV3f(&p->norm, &p->point);
     return (l - p->norm.y * y - p->norm.z * z) / p->norm.x;
 }
 
-float planeY(TPlane* p, float x, float z) {
+float planeY(const TPlane* p, float x, float z) {
     float l = dotV3f(&p->norm, &p->point);
     return (l - p->norm.x * x - p->norm.z * z) / p->norm.y;
 }
 
-float planeZ(TPlane* p, float x, float y) {
+float planeZ(const TPlane* p, float x, float y) {
     float l = dotV3f(&p->norm, &p->point);
     return (l - p->norm.x * x - p->norm.y * y) / p->norm.z;
 }

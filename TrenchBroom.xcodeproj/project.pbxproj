@@ -10,8 +10,6 @@
 		1DDD582C0DA1D0D100B32029 /* MapDocumentWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58280DA1D0D100B32029 /* MapDocumentWindow.xib */; };
 		1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD582A0DA1D0D100B32029 /* MainMenu.xib */; };
 		4809A10F13E2A2E300AF6557 /* InspectorView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4809A10E13E2A2E300AF6557 /* InspectorView.xib */; };
-		480AD8B612ED78FA009B5970 /* Edge.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8B512ED78FA009B5970 /* Edge.m */; };
-		480AD8D612ED9E4A009B5970 /* Side.m in Sources */ = {isa = PBXBuildFile; fileRef = 480AD8D512ED9E4A009B5970 /* Side.m */; };
 		480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 480BB4711302ED1C005E3492 /* Matrix2f.m */; };
 		480BB50A13031A9D005E3492 /* Matrix3f.m in Sources */ = {isa = PBXBuildFile; fileRef = 480BB50913031A9D005E3492 /* Matrix3f.m */; };
 		480D23201334A3A800D3B57B /* PickingHitList.m in Sources */ = {isa = PBXBuildFile; fileRef = 480D231F1334A3A800D3B57B /* PickingHitList.m */; };
@@ -42,8 +40,6 @@
 		48325D4713524F7000E703E0 /* CompassFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48325D4613524F7000E703E0 /* CompassFigure.m */; };
 		4833C15F131953F600EB1B85 /* PrefabManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C15E131953F600EB1B85 /* PrefabManager.m */; };
 		4833C1BD13196CFB00EB1B85 /* MutablePrefab.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C1BC13196CFB00EB1B85 /* MutablePrefab.m */; };
-		4838DFB412EF4E86008ADB71 /* VertexData.m in Sources */ = {isa = PBXBuildFile; fileRef = 4838DFB312EF4E86008ADB71 /* VertexData.m */; };
-		4838DFB712EF4E94008ADB71 /* Vertex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4838DFB612EF4E94008ADB71 /* Vertex.m */; };
 		483A65AC13D48D96009EB9E7 /* EntityDefinitionDndTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 483A65AB13D48D95009EB9E7 /* EntityDefinitionDndTool.m */; };
 		483B1129122441060072EAFB /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
 		483C515313E3284E0082C296 /* Light in Resources */ = {isa = PBXBuildFile; fileRef = 483C515013E3284E0082C296 /* Light */; };
@@ -110,6 +106,7 @@
 		488D527E13DEDF91006FE818 /* EntityDefinitionNameFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 488D527D13DEDF91006FE818 /* EntityDefinitionNameFilter.m */; };
 		488D528113DEE181006FE818 /* EntityDefinitionUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 488D528013DEE181006FE818 /* EntityDefinitionUsageFilter.m */; };
 		488F853C13F51FAE00DA0403 /* RenderChangeSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F853B13F51FAE00DA0403 /* RenderChangeSet.m */; };
+		488F854013F583B900DA0403 /* VertexData2.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F853F13F583B900DA0403 /* VertexData2.m */; };
 		488FEAF1131F9D1800010A04 /* MutablePrefabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */; };
 		488FEB5C131FC49A00010A04 /* PrefabLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB5B131FC49A00010A04 /* PrefabLayout.m */; };
 		488FEB64131FCBA700010A04 /* PrefabLayoutGroupRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB63131FCBA700010A04 /* PrefabLayoutGroupRow.m */; };
@@ -125,7 +122,6 @@
 		4898D9C813E199F800B9C8F1 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9C713E199F800B9C8F1 /* PreferencesController.m */; };
 		4898D9CC13E1A2A200B9C8F1 /* QuakePathFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */; };
 		489C061913C9EBA400D9D693 /* GLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 489C061813C9EBA400D9D693 /* GLUtils.m */; };
-		48A023CE13E83514004F34A4 /* VertexTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A023CD13E83514004F34A4 /* VertexTool.m */; };
 		48A269E313C73BFA00703BC1 /* EntityInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A269E213C73BFA00703BC1 /* EntityInfo.m */; };
 		48A5FD4C13C5E7C6009D086C /* BspManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A5FD4B13C5E7C6009D086C /* BspManager.m */; };
 		48A5FD5013C5E9F8009D086C /* BspRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A5FD4F13C5E9F8009D086C /* BspRenderer.m */; };
@@ -230,10 +226,6 @@
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		4809A10E13E2A2E300AF6557 /* InspectorView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = InspectorView.xib; sourceTree = "<group>"; };
-		480AD8B412ED78FA009B5970 /* Edge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Edge.h; sourceTree = "<group>"; };
-		480AD8B512ED78FA009B5970 /* Edge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Edge.m; sourceTree = "<group>"; };
-		480AD8D412ED9E4A009B5970 /* Side.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Side.h; sourceTree = "<group>"; };
-		480AD8D512ED9E4A009B5970 /* Side.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Side.m; sourceTree = "<group>"; };
 		480BB4701302ED1C005E3492 /* Matrix2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix2f.h; sourceTree = "<group>"; };
 		480BB4711302ED1C005E3492 /* Matrix2f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix2f.m; sourceTree = "<group>"; };
 		480BB50813031A9D005E3492 /* Matrix3f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix3f.h; sourceTree = "<group>"; };
@@ -300,10 +292,6 @@
 		48379C6A131B940400F53DFA /* Face.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Face.h; sourceTree = "<group>"; };
 		48379C6B131B949A00F53DFA /* Brush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Brush.h; sourceTree = "<group>"; };
 		48379C6C131B956B00F53DFA /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Entity.h; sourceTree = "<group>"; };
-		4838DFB212EF4E86008ADB71 /* VertexData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexData.h; sourceTree = "<group>"; };
-		4838DFB312EF4E86008ADB71 /* VertexData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexData.m; sourceTree = "<group>"; };
-		4838DFB512EF4E94008ADB71 /* Vertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vertex.h; sourceTree = "<group>"; };
-		4838DFB612EF4E94008ADB71 /* Vertex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vertex.m; sourceTree = "<group>"; };
 		483A65A913D48CEE009EB9E7 /* DndTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DndTool.h; sourceTree = "<group>"; };
 		483A65AA13D48D95009EB9E7 /* EntityDefinitionDndTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionDndTool.h; sourceTree = "<group>"; };
 		483A65AB13D48D95009EB9E7 /* EntityDefinitionDndTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionDndTool.m; sourceTree = "<group>"; };
@@ -430,6 +418,8 @@
 		488D528013DEE181006FE818 /* EntityDefinitionUsageFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionUsageFilter.m; sourceTree = "<group>"; };
 		488F853A13F51FAE00DA0403 /* RenderChangeSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderChangeSet.h; sourceTree = "<group>"; };
 		488F853B13F51FAE00DA0403 /* RenderChangeSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderChangeSet.m; sourceTree = "<group>"; };
+		488F853E13F583B900DA0403 /* VertexData2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexData2.h; sourceTree = "<group>"; };
+		488F853F13F583B900DA0403 /* VertexData2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexData2.m; sourceTree = "<group>"; };
 		488FEAEF131F9D1800010A04 /* MutablePrefabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutablePrefabGroup.h; sourceTree = "<group>"; };
 		488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutablePrefabGroup.m; sourceTree = "<group>"; };
 		488FEAF2131F9D7200010A04 /* PrefabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabGroup.h; sourceTree = "<group>"; };
@@ -460,8 +450,6 @@
 		4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuakePathFormatter.m; sourceTree = "<group>"; };
 		489C061713C9EBA400D9D693 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLUtils.h; sourceTree = "<group>"; };
 		489C061813C9EBA400D9D693 /* GLUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLUtils.m; sourceTree = "<group>"; };
-		48A023CC13E83514004F34A4 /* VertexTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexTool.h; sourceTree = "<group>"; };
-		48A023CD13E83514004F34A4 /* VertexTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexTool.m; sourceTree = "<group>"; };
 		48A269E113C73BFA00703BC1 /* EntityInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityInfo.h; sourceTree = "<group>"; };
 		48A269E213C73BFA00703BC1 /* EntityInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityInfo.m; sourceTree = "<group>"; };
 		48A5FD4A13C5E7C6009D086C /* BspManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspManager.h; sourceTree = "<group>"; };
@@ -709,14 +697,8 @@
 		480AD8B312ED78E7009B5970 /* VertexData */ = {
 			isa = PBXGroup;
 			children = (
-				480AD8B412ED78FA009B5970 /* Edge.h */,
-				480AD8B512ED78FA009B5970 /* Edge.m */,
-				480AD8D412ED9E4A009B5970 /* Side.h */,
-				480AD8D512ED9E4A009B5970 /* Side.m */,
-				4838DFB512EF4E94008ADB71 /* Vertex.h */,
-				4838DFB612EF4E94008ADB71 /* Vertex.m */,
-				4838DFB212EF4E86008ADB71 /* VertexData.h */,
-				4838DFB312EF4E86008ADB71 /* VertexData.m */,
+				488F853E13F583B900DA0403 /* VertexData2.h */,
+				488F853F13F583B900DA0403 /* VertexData2.m */,
 			);
 			name = VertexData;
 			sourceTree = "<group>";
@@ -825,8 +807,6 @@
 				486E08B213B5EF2C00E751A6 /* RotateFeedbackFigure.m */,
 				486A68C213C1B0CE00707AC1 /* RotateCursor.h */,
 				486A68C313C1B0CF00707AC1 /* RotateCursor.m */,
-				48A023CC13E83514004F34A4 /* VertexTool.h */,
-				48A023CD13E83514004F34A4 /* VertexTool.m */,
 				48CB060713EC19B70051640E /* CreateBrushTool.h */,
 				48CB060813EC19B70051640E /* CreateBrushTool.m */,
 				48CB060B13EC2E680051640E /* BoundsFeedbackFigure.h */,
@@ -1404,10 +1384,6 @@
 				4866F3B112EAC9FA009B345C /* TextureViewLayout.m in Sources */,
 				4866F3BE12EACD2B009B345C /* TextureViewLayoutRow.m in Sources */,
 				4866F3C412EACE73009B345C /* TextureViewLayoutCell.m in Sources */,
-				480AD8B612ED78FA009B5970 /* Edge.m in Sources */,
-				480AD8D612ED9E4A009B5970 /* Side.m in Sources */,
-				4838DFB412EF4E86008ADB71 /* VertexData.m in Sources */,
-				4838DFB712EF4E94008ADB71 /* Vertex.m in Sources */,
 				48DB957812F0699600FB5483 /* InputManager.m in Sources */,
 				486A9C1C12F41FCA003D26FE /* Octree.m in Sources */,
 				486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */,
@@ -1517,7 +1493,6 @@
 				48976C8413E2BFC5005AB1EA /* InspectorWindowController.m in Sources */,
 				48AC3E6313E3D00C008F4BF8 /* PreferencesManager.m in Sources */,
 				48AC3E6F13E418AC008F4BF8 /* MapCompiler.m in Sources */,
-				48A023CE13E83514004F34A4 /* VertexTool.m in Sources */,
 				48F56F5213E9CDEC008DF954 /* MapBrowserDataSource.m in Sources */,
 				48BC2E6B13EBF036003657D6 /* ConsoleWindowController.m in Sources */,
 				48CB060913EC19B70051640E /* CreateBrushTool.m in Sources */,
@@ -1527,6 +1502,7 @@
 				48E725AD13F3D26900828C0B /* QuickBarWindow.m in Sources */,
 				48E725B313F3D75A00828C0B /* QuickBarContentView.m in Sources */,
 				488F853C13F51FAE00DA0403 /* RenderChangeSet.m in Sources */,
+				488F854013F583B900DA0403 /* VertexData2.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

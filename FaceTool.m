@@ -22,7 +22,6 @@
 #import "DragFaceCursor.h"
 #import "ApplyFaceCursor.h"
 #import "Cursor.h"
-#import "Edge.h"
 
 @interface FaceTool (private)
 
@@ -142,8 +141,7 @@
     PickingHit* hit = [hits firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:NO];
     id <Face> face;
     if (hit != nil) {
-        Edge* edge = [hit object];
-        face = [self isFrontFaceModifierPressed] ? [edge frontFaceForRay:ray] : [edge backFaceForRay:ray];
+        face = [hit object];
         [dragFaces addObject:face];
     } else {
         hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];

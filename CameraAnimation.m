@@ -33,7 +33,7 @@ float horizontalAngle(const TVector3f* f, const TVector3f* t) {
     animations = [[NSMutableSet alloc] init];
 }
 
-- (id)initWithCamera:(Camera *)theCamera targetPosition:(const TVector3f *)thePosition targetLookAt:(TVector3f *)theLookAt duration:(NSTimeInterval)duration {
+- (id)initWithCamera:(Camera *)theCamera targetPosition:(const TVector3f *)thePosition targetLookAt:(const TVector3f *)theLookAt duration:(NSTimeInterval)duration {
     if (self = [super initWithDuration:duration animationCurve:NSAnimationEaseInOut]) {
         camera = [theCamera retain];
         initialPosition = *[camera position];

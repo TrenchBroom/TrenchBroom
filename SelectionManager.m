@@ -10,7 +10,6 @@
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
-#import "Edge.h"
 
 NSString* const SelectionAdded = @"SelectionAdded";
 NSString* const SelectionRemoved = @"SelectionRemoved";

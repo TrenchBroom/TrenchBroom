@@ -9,9 +9,9 @@
 #import "ClipBrushFeedbackFigure.h"
 #import "Brush.h"
 #import "MutableBrush.h"
-#import "Edge.h"
-#import "Vertex.h"
 #import "ClipPlane.h"
+#import "VertexData2.h"
+#import "GLUtils.h"
 
 @implementation ClipBrushFeedbackFigure
 
@@ -40,23 +40,17 @@
         glColor4f(0, 1, 0, 1);
         glBegin(GL_LINES);
         if (brush1 != nil) {
-            NSEnumerator* edgeEn = [[brush1 edges] objectEnumerator];
-            Edge* edge;
-            while ((edge = [edgeEn nextObject])) {
-                TVector3f* s = [[edge startVertex] vector];
-                TVector3f* e = [[edge endVertex] vector];
-                glVertex3f(s->x, s->y, s->z);
-                glVertex3f(e->x, e->y, e->z);
+            const TEdge* edges = [brush1 edges];
+            for (int i = 0; i < [brush1 edgeCount]; i++) {
+                glVertexV3f(&edges[i].startVertex->vector);
+                glVertexV3f(&edges[i].endVertex->vector);
             }
         }
         if (brush2 != nil) {
-            NSEnumerator* edgeEn = [[brush2 edges] objectEnumerator];
-            Edge* edge;
-            while ((edge = [edgeEn nextObject])) {
-                TVector3f* s = [[edge startVertex] vector];
-                TVector3f* e = [[edge endVertex] vector];
-                glVertex3f(s->x, s->y, s->z);
-                glVertex3f(e->x, e->y, e->z);
+            const TEdge* edges = [brush2 edges];
+            for (int i = 0; i < [brush2 edgeCount]; i++) {
+                glVertexV3f(&edges[i].startVertex->vector);
+                glVertexV3f(&edges[i].endVertex->vector);
             }
         }
         glEnd();

@@ -9,7 +9,6 @@
 #import "MutableFace.h"
 #import "MutableBrush.h"
 #import "IdGenerator.h"
-#import "Vertex.h"
 #import "math.h"
 #import "Math.h"
 #import "Brush.h"
@@ -164,14 +163,13 @@ static TVector3f baseAxes[18];
 }
 
 - (void)validate {
-    if (!centerValid && vertices != nil) {
-        NSEnumerator* vertexEn = [vertices objectEnumerator];
-        Vertex* vertex = [vertexEn nextObject];
-        center = *[vertex vector];
-        while ((vertex = [vertexEn nextObject]))
-            addV3f(&center, [vertex vector], &center);
-        scaleV3f(&center, 1.0f / [vertices count], &center);
-
+    if (!centerValid && side != NULL) {
+        center = side->vertices[0]->vector;
+        for (int i = 1; i < side->edgeCount; i++) {
+            addV3f(&center, &side->vertices[i]->vector, &center);
+        }
+        
+        scaleV3f(&center, 1.0f / side->edgeCount, &center);
         centerValid = YES;
     }
     
@@ -254,8 +252,6 @@ static TVector3f baseAxes[18];
     [surfaceToWorldMatrix release];
     [worldToSurfaceMatrix release];
     [memBlock free];
-    [vertices release];
-    [edges release];
 	[super dealloc];
 }
 
@@ -437,18 +433,8 @@ static TVector3f baseAxes[18];
     [self translateBy:&delta];
 }
 
-- (void)setVertices:(NSArray *)theVertices {
-    [vertices release];
-    vertices = [theVertices retain];
-    
-    centerValid = NO;
-}
-
-- (void)setEdges:(NSArray *)theEdges {
-    [edges release];
-    edges = [theEdges retain];
-    
-    centerValid = NO;
+- (void)setSide:(TSide *)theSide {
+    side = theSide;
 }
 
 - (int)filePosition {
@@ -520,26 +506,34 @@ static TVector3f baseAxes[18];
 	return yScale;
 }
 
-- (TVector3f *)norm {
+- (const TVector3f *)norm {
     return &[self boundary]->norm;
 }
 
-- (TVector3f *)center {
+- (const TVector3f *)center {
     [self validate];
     return &center;
 }
 
-- (TPlane *)boundary {
+- (const TPlane *)boundary {
     [self validate];
     return &boundary;
 }
 
-- (NSArray *)vertices {
-    return vertices;
+- (TVertex **)vertices {
+    return side->vertices;
 }
 
-- (NSArray *)edges {
-    return edges;
+- (int)vertexCount {
+    return side->edgeCount;
+}
+
+- (TEdge **)edges {
+    return side->edges;
+}
+
+- (int)edgeCount {
+    return side->edgeCount;
 }
 
 - (void)texCoords:(TVector2f *)texCoords forVertex:(TVector3f *)vertex {
