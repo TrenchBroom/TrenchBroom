@@ -35,12 +35,14 @@ extern NSString* const PropertiesDidChange;
 @class GLResources;
 @class Vector3i;
 @class Vector3f;
+@class SelectionManager;
 @protocol Entity;
 @protocol Brush;
 @protocol Face;
 
 @interface MapDocument : NSDocument <Map> {
     @private
+    SelectionManager* selectionManager;
     EntityDefinitionManager* entityDefinitionManager;
     NSMutableArray* entities;
     MutableEntity* worldspawn;
@@ -99,4 +101,5 @@ extern NSString* const PropertiesDidChange;
 - (Picker *)picker;
 - (GLResources *)glResources;
 - (EntityDefinitionManager *)entityDefinitionManager;
+- (SelectionManager *)selectionManager;
 @end

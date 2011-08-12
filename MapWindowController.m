@@ -57,7 +57,7 @@
 @implementation MapWindowController (private)
 
 - (void)selectionRemoved:(NSNotification *)notification {
-    if ([selectionManager mode] == SM_UNDEFINED)
+    if ([[self selectionManager] mode] == SM_UNDEFINED)
         [options setIsolationMode:IM_NONE];
 }
 
@@ -167,7 +167,6 @@
     camera = [[Camera alloc] init];
     [self preferencesDidChange:nil];
     
-    selectionManager = [[SelectionManager alloc] initWithUndoManager:[[self document] undoManager]];
     inputManager = [[InputManager alloc] initWithWindowController:self];
     cursorManager = [[CursorManager alloc] init];
     
@@ -177,7 +176,7 @@
     [center addObserver:self selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification object:[self window]];
     [center addObserver:self selector:@selector(windowWillClose:) name:NSWindowWillCloseNotification object:[self window]];
     [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:[PreferencesManager sharedManager]];
-    [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];
+    [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:[self selectionManager]];
     
     [[self window] setAcceptsMouseMovedEvents:YES];
     [[self window] makeKeyAndOrderFront:nil];
@@ -191,6 +190,8 @@
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     SEL action = [menuItem action];
+    SelectionManager* selectionManager = [self selectionManager];
+    
     if (action == @selector(selectAll:)) {
         return YES;
     } else if (action == @selector(selectNone:)) {
@@ -282,6 +283,7 @@
         NSString* prefabName = [pns prefabName];
         NSString* prefabGroupName = [pns prefabGroup];
         
+        SelectionManager* selectionManager = [self selectionManager];
         PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
         id <PrefabGroup> prefabGroup = [prefabManager prefabGroupWithName:prefabGroupName create:YES];
         [prefabManager createPrefabFromBrushTemplates:[selectionManager selectedBrushes] name:prefabName group:prefabGroup];
@@ -300,7 +302,6 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [options release];
-    [selectionManager release];
     [inputManager release];
     [cursorManager release];
     [camera release];
@@ -314,6 +315,7 @@
 - (IBAction)createPointEntity:(id)sender {
     MapDocument* map = [self document];
     EntityDefinitionManager* entityDefinitionManager = [map entityDefinitionManager];
+    SelectionManager* selectionManager = [self selectionManager];
     
     NSArray* pointDefinitions = [entityDefinitionManager definitionsOfType:EDT_POINT];
     EntityDefinition* definition = [pointDefinitions objectAtIndex:[sender tag]];
@@ -351,6 +353,7 @@
 
 - (IBAction)rotateZ90CW:(id)sender {
     MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
     
     TVector3f centerf;
     TBoundingBox bounds;
@@ -381,6 +384,7 @@
 
 - (IBAction)rotateZ90CCW:(id)sender {
     MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
     
     TVector3f centerf;
     TBoundingBox bounds;
@@ -434,6 +438,7 @@
 #pragma mark Face related actions
 
 - (IBAction)stretchTextureHorizontally:(id)sender {
+    SelectionManager* selectionManager = [self selectionManager];
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
 
@@ -444,6 +449,7 @@
 }
 
 - (IBAction)shrinkTextureHorizontally:(id)sender {
+    SelectionManager* selectionManager = [self selectionManager];
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
@@ -454,6 +460,7 @@
 }
 
 - (IBAction)stretchTextureVertically:(id)sender {
+    SelectionManager* selectionManager = [self selectionManager];
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
@@ -465,6 +472,7 @@
 }
 
 - (IBAction)shrinkTextureVertically:(id)sender {
+    SelectionManager* selectionManager = [self selectionManager];
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
@@ -475,6 +483,7 @@
 }
 
 - (IBAction)rotateTextureLeft:(id)sender {
+    SelectionManager* selectionManager = [self selectionManager];
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
@@ -485,6 +494,7 @@
 }
 
 - (IBAction)rotateTextureRight:(id)sender {
+    SelectionManager* selectionManager = [self selectionManager];
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
@@ -498,6 +508,7 @@
 
 - (void)moveLeft:(id)sender {
     MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
@@ -529,6 +540,7 @@
 
 - (void)moveRight:(id)sender {
     MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
@@ -559,6 +571,7 @@
 
 - (void)moveUp:(id)sender {
     MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
@@ -590,6 +603,7 @@
 
 - (void)moveDown:(id)sender {
     MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
@@ -649,6 +663,7 @@
 }
 
 - (IBAction)switchToXYView:(id)sender {
+    SelectionManager* selectionManager = [self selectionManager];
     TVector3f center, diff, position;
     
     if (![selectionManager selectionCenter:&center]) {
@@ -666,6 +681,7 @@
 }
 
 - (IBAction)switchToXZView:(id)sender {
+    SelectionManager* selectionManager = [self selectionManager];
     TVector3f center, diff, position;
     
     if (![selectionManager selectionCenter:&center]) {
@@ -683,6 +699,7 @@
 }
 
 - (IBAction)switchToYZView:(id)sender {
+    SelectionManager* selectionManager = [self selectionManager];
     TVector3f center, diff, position;
     
     if (![selectionManager selectionCenter:&center]) {
@@ -702,6 +719,7 @@
 #pragma mark Structure and selection
 
 - (IBAction)selectAll:(id)sender {
+    SelectionManager* selectionManager = [self selectionManager];
     [selectionManager removeAll:NO];
     
     NSMutableSet* entities = [[NSMutableSet alloc] init];
@@ -724,10 +742,12 @@
 }
 
 - (IBAction)selectNone:(id)sender {
+    SelectionManager* selectionManager = [self selectionManager];
     [selectionManager removeAll:NO];
 }
 
 - (IBAction)selectEntity:(id)sender {
+    SelectionManager* selectionManager = [self selectionManager];
     id <Brush> brush = [[[selectionManager selectedBrushes] objectEnumerator] nextObject];
     id <Entity> entity = [brush entity];
     
@@ -738,6 +758,7 @@
 
 - (IBAction)selectAllTouchingBrush:(id)sender {
     MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
     id <Brush> selectionBrush = [[[selectionManager selectedBrushes] objectEnumerator] nextObject];
 
     NSMutableSet* touchingEntities = [[NSMutableSet alloc] init];
@@ -776,6 +797,7 @@
 - (IBAction)pasteClipboard:(id)sender {}
 
 - (IBAction)deleteSelection:(id)sender {
+    SelectionManager* selectionManager = [self selectionManager];
     ClipTool* clipTool = [inputManager clipTool];
     if ([clipTool active] && [clipTool numPoints] > 0) {
         [clipTool deleteLastPoint];
@@ -804,6 +826,7 @@
 
 - (IBAction)duplicateSelection:(id)sender {
     MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
 
     NSMutableSet* newEntities = [[NSMutableSet alloc] init];
     NSMutableSet* newBrushes = [[NSMutableSet alloc] init];
@@ -859,6 +882,7 @@
 }
 
 - (void)insertPrefab:(id <Prefab>)prefab {
+    SelectionManager* selectionManager = [self selectionManager];
     [selectionManager removeAll:YES];
     
     NSUndoManager* undoManager = [[self document] undoManager];
@@ -1010,6 +1034,7 @@
 }
 
 - (void)makeEntityVisible:(id <Entity>)theEntity {
+    SelectionManager* selectionManager = [self selectionManager];
     [selectionManager removeAll:NO];
     [selectionManager addEntity:theEntity record:NO];
     [selectionManager addBrushes:[NSSet setWithArray:[theEntity brushes]] record:NO];
@@ -1032,6 +1057,7 @@
 }
 
 - (void)makeBrushVisible:(id <Brush>)theBrush {
+    SelectionManager* selectionManager = [self selectionManager];
     [selectionManager removeAll:NO];
     [selectionManager addBrush:theBrush record:NO];
     [options setIsolationMode:IM_WIREFRAME];
@@ -1053,6 +1079,7 @@
 }
 
 - (void)makeFaceVisible:(id <Face>)theFace {
+    SelectionManager* selectionManager = [self selectionManager];
     [selectionManager removeAll:NO];
     [selectionManager addBrush:[theFace brush] record:NO];
     [options setIsolationMode:IM_WIREFRAME];
@@ -1074,7 +1101,7 @@
 }
 
 - (SelectionManager *)selectionManager {
-    return selectionManager;
+    return [[self document] selectionManager];
 }
 
 - (InputManager *)inputManager {

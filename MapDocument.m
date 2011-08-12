@@ -28,6 +28,7 @@
 #import "MapParser.h"
 #import "MapWriter.h"
 #import "EntityRendererManager.h"
+#import "SelectionManager.h"
 
 NSString* const FacesWillChange         = @"FacesWillChange";
 NSString* const FacesDidChange          = @"FacesDidChange";
@@ -198,6 +199,8 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 
 - (id)init {
     if ((self = [super init])) {
+        selectionManager = [[SelectionManager alloc] init];
+        
         worldBounds.min.x = -0x1000;
         worldBounds.min.y = -0x1000;
         worldBounds.min.z = -0x1000;
@@ -229,6 +232,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     [entities release];
     [picker release];
     [glResources release];
+    [selectionManager release];
     [super dealloc];
 }
 
@@ -1349,6 +1353,10 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 
 - (EntityDefinitionManager *)entityDefinitionManager {
     return entityDefinitionManager;
+}
+
+- (SelectionManager *)selectionManager {
+    return selectionManager;
 }
 
 # pragma mark @implementation Map

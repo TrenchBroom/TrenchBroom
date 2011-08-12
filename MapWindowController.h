@@ -34,7 +34,6 @@
 	IBOutlet MapView3D* view3D;
     InspectorViewController* inspectorViewController;
     Camera* camera;
-    SelectionManager* selectionManager;
     InputManager* inputManager;
     CursorManager* cursorManager;
     Options* options;
