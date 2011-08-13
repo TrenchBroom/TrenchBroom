@@ -1,12 +1,12 @@
 //
-//  VertexData2.m
+//  VertexData.m
 //  TrenchBroom
 //
 //  Created by Kristian Duske on 12.08.11.
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-#import "VertexData2.h"
+#import "VertexData.h"
 #import "Face.h"
 #import "MutableFace.h"
 #import "assert.h"

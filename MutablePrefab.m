@@ -14,7 +14,7 @@
 #import "IdGenerator.h"
 #import "MutablePrefabGroup.h"
 #import "MapDocument.h"
-#import "VertexData2.h"
+#import "VertexData.h"
 
 @interface MutablePrefab (private)
 

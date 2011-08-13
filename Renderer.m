@@ -13,7 +13,7 @@
 #import "MutableEntity.h"
 #import "Brush.h"
 #import "Face.h"
-#import "VertexData2.h"
+#import "VertexData.h"
 #import "VBOBuffer.h"
 #import "VBOMemBlock.h"
 #import "SelectionManager.h"

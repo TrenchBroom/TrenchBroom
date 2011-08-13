@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import "Brush.h"
 #import "Math.h"
-#import "VertexData2.h"
+#import "VertexData.h"
 
 @class MutableEntity;
 @class MutableFace;

@@ -106,7 +106,7 @@
 		488D527E13DEDF91006FE818 /* EntityDefinitionNameFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 488D527D13DEDF91006FE818 /* EntityDefinitionNameFilter.m */; };
 		488D528113DEE181006FE818 /* EntityDefinitionUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 488D528013DEE181006FE818 /* EntityDefinitionUsageFilter.m */; };
 		488F853C13F51FAE00DA0403 /* RenderChangeSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F853B13F51FAE00DA0403 /* RenderChangeSet.m */; };
-		488F854013F583B900DA0403 /* VertexData2.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F853F13F583B900DA0403 /* VertexData2.m */; };
+		488F854013F583B900DA0403 /* VertexData.m in Sources */ = {isa = PBXBuildFile; fileRef = 488F853F13F583B900DA0403 /* VertexData.m */; };
 		488FEAF1131F9D1800010A04 /* MutablePrefabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */; };
 		488FEB5C131FC49A00010A04 /* PrefabLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB5B131FC49A00010A04 /* PrefabLayout.m */; };
 		488FEB64131FCBA700010A04 /* PrefabLayoutGroupRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 488FEB63131FCBA700010A04 /* PrefabLayoutGroupRow.m */; };
@@ -418,8 +418,8 @@
 		488D528013DEE181006FE818 /* EntityDefinitionUsageFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionUsageFilter.m; sourceTree = "<group>"; };
 		488F853A13F51FAE00DA0403 /* RenderChangeSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderChangeSet.h; sourceTree = "<group>"; };
 		488F853B13F51FAE00DA0403 /* RenderChangeSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderChangeSet.m; sourceTree = "<group>"; };
-		488F853E13F583B900DA0403 /* VertexData2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexData2.h; sourceTree = "<group>"; };
-		488F853F13F583B900DA0403 /* VertexData2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexData2.m; sourceTree = "<group>"; };
+		488F853E13F583B900DA0403 /* VertexData.h */ = {isa = PBXFileReference; fileEncoding = 4; path = VertexData.h; sourceTree = "<group>"; };
+		488F853F13F583B900DA0403 /* VertexData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexData.m; sourceTree = "<group>"; };
 		488FEAEF131F9D1800010A04 /* MutablePrefabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutablePrefabGroup.h; sourceTree = "<group>"; };
 		488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutablePrefabGroup.m; sourceTree = "<group>"; };
 		488FEAF2131F9D7200010A04 /* PrefabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabGroup.h; sourceTree = "<group>"; };
@@ -697,8 +697,8 @@
 		480AD8B312ED78E7009B5970 /* VertexData */ = {
 			isa = PBXGroup;
 			children = (
-				488F853E13F583B900DA0403 /* VertexData2.h */,
-				488F853F13F583B900DA0403 /* VertexData2.m */,
+				488F853E13F583B900DA0403 /* VertexData.h */,
+				488F853F13F583B900DA0403 /* VertexData.m */,
 			);
 			name = VertexData;
 			sourceTree = "<group>";
@@ -1502,7 +1502,7 @@
 				48E725AD13F3D26900828C0B /* QuickBarWindow.m in Sources */,
 				48E725B313F3D75A00828C0B /* QuickBarContentView.m in Sources */,
 				488F853C13F51FAE00DA0403 /* RenderChangeSet.m in Sources */,
-				488F854013F583B900DA0403 /* VertexData2.m in Sources */,
+				488F854013F583B900DA0403 /* VertexData.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

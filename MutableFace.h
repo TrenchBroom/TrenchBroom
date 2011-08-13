@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import "Face.h"
 #import "Math.h"
-#import "VertexData2.h"
+#import "VertexData.h"
 
 typedef enum {
     XY, XZ, YZ

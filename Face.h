@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Math.h"
-#import "VertexData2.h"
+#import "VertexData.h"
 
 @protocol Brush;
 @class Vertex;

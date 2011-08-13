@@ -1,5 +1,5 @@
 //
-//  VertexData2.h
+//  VertexData.h
 //  TrenchBroom
 //
 //  Created by Kristian Duske on 12.08.11.

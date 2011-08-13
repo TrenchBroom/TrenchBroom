@@ -28,7 +28,7 @@
 #import "GLFontManager.h"
 #import "GLString.h"
 #import "PrefabViewTarget.h"
-#import "VertexData2.h"
+#import "VertexData.h"
 #import "GLUtils.h"
 
 @implementation PrefabView

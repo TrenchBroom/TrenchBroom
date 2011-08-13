@@ -10,7 +10,7 @@
 #import "Brush.h"
 #import "MutableBrush.h"
 #import "ClipPlane.h"
-#import "VertexData2.h"
+#import "VertexData.h"
 #import "GLUtils.h"
 
 @implementation ClipBrushFeedbackFigure
