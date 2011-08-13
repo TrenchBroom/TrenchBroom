@@ -252,6 +252,8 @@ static TVector3f baseAxes[18];
     [surfaceToWorldMatrix release];
     [worldToSurfaceMatrix release];
     [memBlock free];
+    if (side != NULL)
+        side->face = nil;
 	[super dealloc];
 }
 
@@ -521,26 +523,18 @@ static TVector3f baseAxes[18];
 }
 
 - (TVertex **)vertices {
-    if (side == NULL)
-        NSLog(@"asdf");
     return side->vertices;
 }
 
 - (int)vertexCount {
-    if (side == NULL)
-        NSLog(@"asdf");
     return side->edgeCount;
 }
 
 - (TEdge **)edges {
-    if (side == NULL)
-        NSLog(@"asdf");
     return side->edges;
 }
 
 - (int)edgeCount {
-    if (side == NULL)
-        NSLog(@"asdf");
     return side->edgeCount;
 }
 

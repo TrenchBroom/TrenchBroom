@@ -9,6 +9,14 @@
 #import <Cocoa/Cocoa.h>
 #import "Math.h"
 
+int writeBuffer(const uint8_t* buffer, uint8_t* vbo, int address, int count);
+int writeByte(unsigned char b, uint8_t* vbo, int address);
+int writeFloat(float f, uint8_t* vbo, int address);
+int writeColor4fAsBytes(const TVector4f* color, uint8_t* vbo, int address);
+int writeVector4f(const TVector4f* vector, uint8_t* vbo, int address);
+int writeVector3f(const TVector3f* vector, uint8_t* vbo, int address);
+int writeVector2f(const TVector2f* vector, uint8_t* vbo, int address);
+
 extern NSString* const BufferNotMappedException;
 
 @class VBOMemBlock;
@@ -37,14 +45,7 @@ extern NSString* const BufferNotMappedException;
 - (void)mapBuffer;
 - (void)unmapBuffer;
 - (BOOL)mapped;
-
-- (void)writeBuffer:(const void*)theBuffer address:(int)theAddress count:(int)theCount;
-- (void)writeByte:(unsigned char)b address:(int)theAddress;
-- (void)writeFloat:(float)f address:(int)theAddress;
-- (void)writeColor4fAsBytes:(const TVector4f *)theVector address:(int)theAddress;
-- (void)writeVector4f:(const TVector4f *)theVector address:(int)theAddress;
-- (void)writeVector3f:(const TVector3f *)theVector address:(int)theAddress;
-- (void)writeVector2f:(const TVector2f *)theVector address:(int)theAddress;
+- (uint8_t *)buffer;
 
 - (VBOMemBlock *)allocMemBlock:(int)capacity;
 - (VBOMemBlock *)freeMemBlock:(VBOMemBlock *)memBlock;

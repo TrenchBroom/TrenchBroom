@@ -166,9 +166,11 @@ void freeSide(TSide* s) {
         s->edges = NULL;
     }
     s->edgeCount = 0;
-    [s->face setSide:NULL];
-    s->face = nil;
     s->mark = SM_UNKNOWN;
+    if (s->face != nil) {
+        [s->face setSide:NULL];
+        s->face = nil;
+    }
 }
 
 TEdge* splitSide(TSide* s) {

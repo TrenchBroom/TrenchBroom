@@ -11,6 +11,56 @@
 
 NSString* const BufferNotMappedException = @"BufferNotMappedException";
 
+int writeBuffer(const uint8_t* buffer, uint8_t* vbo, int address, int count) {
+    memcpy(vbo + address, buffer, count);
+    return address + count;
+}
+
+int writeByte(unsigned char b, uint8_t* vbo, int address){
+    vbo[address] = b;
+    return address + 1;
+}
+
+int writeFloat(float f, uint8_t* vbo, int address) {
+    for (int i = 0; i < 4; i++)
+        vbo[address + i] = ((char *)&f)[i];
+    return address + sizeof(float);
+}
+
+int writeColor4fAsBytes(const TVector4f* color, uint8_t* vbo, int address) {
+    int a = address;
+    a = writeByte(color->x * 0xFF, vbo, a);
+    a = writeByte(color->y * 0xFF, vbo, a);
+    a = writeByte(color->z * 0xFF, vbo, a);
+    a = writeByte(color->w * 0xFF, vbo, a);
+    return a;
+}
+
+int writeVector4f(const TVector4f* vector, uint8_t* vbo, int address) {
+    int a = address;
+    a = writeFloat(vector->x, vbo, a);
+    a = writeFloat(vector->y, vbo, a);
+    a = writeFloat(vector->z, vbo, a);
+    a = writeFloat(vector->w, vbo, a);
+    return a;
+}
+
+int writeVector3f(const TVector3f* vector, uint8_t* vbo, int address) {
+    int a = address;
+    a = writeFloat(vector->x, vbo, a);
+    a = writeFloat(vector->y, vbo, a);
+    a = writeFloat(vector->z, vbo, a);
+    return a;
+}
+
+int writeVector2f(const TVector2f* vector, uint8_t* vbo, int address) {
+    int a = address;
+    a = writeFloat(vector->x, vbo, a);
+    a = writeFloat(vector->y, vbo, a);
+    return a;
+}
+
+
 @implementation VBOBuffer
 
 - (void)checkChain {
@@ -162,44 +212,9 @@ NSString* const BufferNotMappedException = @"BufferNotMappedException";
     return buffer != NULL;
 }
 
-- (void)writeBuffer:(const void*)theBuffer address:(int)theAddress count:(int)theCount {
-    memcpy(buffer + theAddress, theBuffer, theCount);
+- (uint8_t *)buffer {
+    return buffer;
 }
-
-- (void)writeByte:(unsigned char)b address:(int)theAddress {
-    buffer[theAddress] = b;
-}
-
-- (void)writeFloat:(float)f address:(int)theAddress {
-    for (int i = 0; i < 4; i++)
-        buffer[theAddress + i] = ((char *)&f)[i];
-}
-
-- (void)writeColor4fAsBytes:(const TVector4f *)theVector address:(int)theAddress {
-    [self writeByte:theVector->x * 0xFF address:theAddress];
-    [self writeByte:theVector->y * 0xFF address:theAddress + 1];
-    [self writeByte:theVector->z * 0xFF address:theAddress + 2];
-    [self writeByte:theVector->w * 0xFF address:theAddress + 3];
-}
-
-- (void)writeVector4f:(const TVector4f *)theVector address:(int)theAddress {
-    [self writeFloat:theVector->x address:theAddress];
-    [self writeFloat:theVector->y address:theAddress + sizeof(float)];
-    [self writeFloat:theVector->z address:theAddress + 2 * sizeof(float)];
-    [self writeFloat:theVector->w address:theAddress + 3 * sizeof(float)];
-}
-
-- (void)writeVector3f:(const TVector3f *)theVector address:(int)theAddress {
-    [self writeFloat:theVector->x address:theAddress];
-    [self writeFloat:theVector->y address:theAddress + sizeof(float)];
-    [self writeFloat:theVector->z address:theAddress + 2 * sizeof(float)];
-}
-
-- (void)writeVector2f:(const TVector2f *)theVector address:(int)theAddress {
-    [self writeFloat:theVector->x address:theAddress];
-    [self writeFloat:theVector->y address:theAddress + sizeof(float)];
-}
-
 
 - (void)resizeMemBlock:(VBOMemBlock *)memBlock toCapacity:(int)capacity {
     if (capacity == [memBlock capacity])

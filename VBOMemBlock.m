@@ -65,41 +65,6 @@
     [vboBuffer deactivate];
 }
 
-- (int)writeBuffer:(const void*)theBuffer offset:(int)theOffset count:(int)theCount {
-    [vboBuffer writeBuffer:theBuffer address:address + theOffset count:theCount];
-    return theOffset + theCount;
-}
-
-- (int)writeByte:(unsigned char)theByte offset:(int)theOffset {
-    [vboBuffer writeByte:theByte address:address + theOffset];
-    return theOffset + 1;
-}
-
-- (int)writeFloat:(float)theFloat offset:(int)theOffset {
-    [vboBuffer writeFloat:theFloat address:address + theOffset];
-    return theOffset + sizeof(float);
-}
-
-- (int)writeColor4fAsBytes:(const TVector4f *)theVector offset:(int)theOffset {
-    [vboBuffer writeColor4fAsBytes:theVector address:address + theOffset];
-    return theOffset + 4;
-}
-
-- (int)writeVector4f:(const TVector4f *)theVector offset:(int)theOffset {
-    [vboBuffer writeVector4f:theVector address:address + theOffset];
-    return theOffset + 4 * sizeof(float);
-}
-
-- (int)writeVector3f:(const TVector3f *)theVector offset:(int)theOffset {
-    [vboBuffer writeVector3f:theVector address:address + theOffset];
-    return theOffset + 3 * sizeof(float);
-}
-
-- (int)writeVector2f:(const TVector2f *)theVector offset:(int)theOffset {
-    [vboBuffer writeVector2f:theVector address:address + theOffset];
-    return theOffset + 2 * sizeof(float);
-}
-
 - (VBOMemBlock *)previous {
     return previous;
 }

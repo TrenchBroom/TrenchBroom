@@ -58,15 +58,17 @@
         block = [vbo allocMemBlock:triangleCount * vertexSize * sizeof(float)];
         [vbo mapBuffer];
         
-        int offset = 0;
+        int address = [block address];
+        uint8_t* vboBuffer = [vbo buffer];
+        
         for (int i = 0; i < triangleCount; i++) {
             const TFrameTriangle* triangle = [frame triangleAtIndex:i];
             for (int j = 0; j < 3; j++) {
                 const TFrameVertex* vertex = &triangle->vertices[j];
                 // GL_T2F_N3F_V3F format
-                offset = [block writeVector2f:&vertex->texCoords offset:offset];
-                offset = [block writeVector3f:&vertex->norm offset:offset];
-                offset = [block writeVector3f:&vertex->position offset:offset];
+                address = writeVector2f(&vertex->texCoords, vboBuffer, address);
+                address = writeVector3f(&vertex->norm, vboBuffer, address);
+                address = writeVector3f(&vertex->position, vboBuffer, address);
             }
         }
         

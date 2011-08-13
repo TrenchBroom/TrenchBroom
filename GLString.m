@@ -37,12 +37,14 @@
         if (!wasMapped)
             [theVbo mapBuffer];
         
-        int offset = 0;
+        int address = [memBlock address];
+        uint8_t* vboBuffer = [theVbo buffer];
+        
         if (hasTriangleSet) {
             triangleSetIndex = [memBlock address] / (2 * sizeof(float));
             triangleSetCount = [triangleSet count] / 2;
             const void* buffer = [triangleSet bytes];
-            offset = [memBlock writeBuffer:buffer offset:offset count:[triangleSet count] * sizeof(float)];
+            address = writeBuffer(buffer, vboBuffer, address, [triangleSet count] * sizeof(float));
         }
         
         if (hasTriangleStrips) {
@@ -51,10 +53,10 @@
             NSEnumerator* stripEn = [triangleStrips objectEnumerator];
             FloatData* strip;
             while ((strip = [stripEn nextObject])) {
-                [triangleStripIndices appendInt:([memBlock address] + offset) / (2 * sizeof(float))];
+                [triangleStripIndices appendInt:address / (2 * sizeof(float))];
                 [triangleStripCounts appendInt:[strip count] / 2];
                 const void* buffer = [strip bytes];
-                offset = [memBlock writeBuffer:buffer offset:offset count:[strip count] * sizeof(float)];
+                address = writeBuffer(buffer, vboBuffer, address, [strip count] * sizeof(float));
             }
         }
         
@@ -64,10 +66,10 @@
             NSEnumerator* fanEn = [triangleFans objectEnumerator];
             FloatData* fan;
             while ((fan = [fanEn nextObject])) {
-                [triangleFanIndices appendInt:([memBlock address] + offset) / (2 * sizeof(float))];
+                [triangleFanIndices appendInt:address / (2 * sizeof(float))];
                 [triangleFanCounts appendInt:[fan count] / 2];
                 const void* buffer = [fan bytes];
-                offset = [memBlock writeBuffer:buffer offset:offset count:[fan count] * sizeof(float)];
+                address = writeBuffer(buffer, vboBuffer, address, [fan count] * sizeof(float));
             }
         }
         

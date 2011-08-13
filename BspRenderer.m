@@ -59,7 +59,8 @@
         int modelVertexCount = [model vertexCount];
 
         block = [vbo allocMemBlock:modelVertexCount * 5 * sizeof(float)];
-        int offset = 0;
+        int address = [block address];
+        uint8_t* vboBuffer = [vbo buffer];
         
         NSEnumerator* faceEn = [[model faces] objectEnumerator];
         BspFace* face;
@@ -87,7 +88,7 @@
                 [countBuffer release];
             }
             
-            [indexBuffer appendInt:offset / (5 * sizeof(float))];
+            [indexBuffer appendInt:(address - [block address]) / (5 * sizeof(float))];
             [countBuffer appendInt:[face vertexCount]];
             
             TVector3f* faceVertices = [face vertices];
@@ -96,8 +97,8 @@
                 TVector2f texCoords;
                 [face texCoords:&texCoords forVertex:vertex];
                 
-                offset = [block writeVector2f:&texCoords offset:offset];
-                offset = [block writeVector3f:vertex offset:offset];
+                address = writeVector2f(&texCoords, vboBuffer, address);
+                address = writeVector3f(vertex, vboBuffer, address);
             }
         }
         

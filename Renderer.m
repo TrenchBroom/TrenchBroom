@@ -115,109 +115,110 @@ int const TexCoordSize = 2 * sizeof(float);
     TVector4f color = definition != nil ? *[definition color] : EntityBoundsDefaultColor;
     color.w = EntityBoundsDefaultColor.w;
     
-    int offset = 0;
+    int address = [theBlock address];
+    uint8_t* vboBuffer = [[theBlock vbo] buffer];
     
     // bottom side
     t = bounds->min;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.x = bounds->max.x;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.y = bounds->max.y;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.x = bounds->min.x;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     // south side
     t = bounds->min;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.z = bounds->max.z;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.x = bounds->max.x;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.z = bounds->min.z;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     // west side
     t = bounds->min;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.y = bounds->max.y;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.z = bounds->max.z;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.y = bounds->min.y;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     // top side
     t = bounds->max;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.y = bounds->min.y;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.x = bounds->min.x;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.y = bounds->max.y;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     // north side
     t = bounds->max;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.z = bounds->min.z;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.x = bounds->min.x;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.z = bounds->max.z;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     // east side
     t = bounds->max;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.z = bounds->min.z;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.y = bounds->min.y;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     t.z = bounds->max.z;
-    offset = [theBlock writeColor4fAsBytes:&color offset:offset];
-    offset = [theBlock writeVector3f:&t offset:offset];
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
     
     [theBlock setState:BS_USED_VALID];
 }
@@ -229,7 +230,9 @@ int const TexCoordSize = 2 * sizeof(float);
     Texture* texture = [textureManager textureForName:textureName];
     int width = texture != nil ? [texture width] : 1;
     int height = texture != nil ? [texture height] : 1;
-    int offset = 0;
+
+    int address = [theBlock address];
+    uint8_t* vboBuffer = [[theBlock vbo] buffer];
 
     TVertex** vertices = [theFace vertices];
     for (int i = 0; i < [theFace vertexCount]; i++) {
@@ -239,11 +242,11 @@ int const TexCoordSize = 2 * sizeof(float);
         texCoords.x /= width;
         texCoords.y /= height;
         
-        offset = [theBlock writeVector2f:&gridCoords offset:offset];
-        offset = [theBlock writeVector2f:&texCoords offset:offset];
-        offset = [theBlock writeColor4fAsBytes:&EdgeDefaultColor offset:offset];
-        offset = [theBlock writeColor4fAsBytes:&FaceDefaultColor offset:offset];
-        offset = [theBlock writeVector3f:&vertex->vector offset:offset];
+        address = writeVector2f(&gridCoords, vboBuffer, address);
+        address = writeVector2f(&texCoords, vboBuffer, address);
+        address = writeColor4fAsBytes(&EdgeDefaultColor, vboBuffer, address);
+        address = writeColor4fAsBytes(&FaceDefaultColor, vboBuffer, address);
+        address = writeVector3f(&vertex->vector, vboBuffer, address);
     }
     
     [theBlock setState:BS_USED_VALID];
