@@ -51,17 +51,17 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 
 @interface MapDocument (private)
 
-- (void)makeUndoSnapshotOfFaces:(NSSet *)theFaces;
-- (void)makeUndoSnapshotOfBrushes:(NSSet *)theBrushes;
-- (void)restoreUndoSnapshot:(NSSet *)theFaces faceInfos:(NSDictionary *)theFaceInfos;
-- (void)restoreUndoSnapshot:(NSSet *)theBrushes brushInfos:(NSDictionary *)theBrushInfos;
-- (void)restoreUndoSnapshot:(NSSet *)theEntities entityInfos:(NSDictionary *)theEntityInfos;
+- (void)makeUndoSnapshotOfFaces:(NSArray *)theFaces;
+- (void)makeUndoSnapshotOfBrushes:(NSArray *)theBrushes;
+- (void)restoreUndoSnapshot:(NSArray *)theFaces faceInfos:(NSDictionary *)theFaceInfos;
+- (void)restoreUndoSnapshot:(NSArray *)theBrushes brushInfos:(NSDictionary *)theBrushInfos;
+- (void)restoreUndoSnapshot:(NSArray *)theEntities entityInfos:(NSDictionary *)theEntityInfos;
 
 @end
 
 @implementation MapDocument (private)
 
-- (void)makeUndoSnapshotOfFaces:(NSSet *)theFaces {
+- (void)makeUndoSnapshotOfFaces:(NSArray *)theFaces {
     NSMutableDictionary* faceInfos = [[NSMutableDictionary alloc] init];
     
     NSEnumerator* faceEn = [theFaces objectEnumerator];
@@ -78,7 +78,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     [faceInfos release];
 }
 
-- (void)makeUndoSnapshotOfBrushes:(NSSet *)theBrushes {
+- (void)makeUndoSnapshotOfBrushes:(NSArray *)theBrushes {
     NSMutableDictionary* brushInfos = [[NSMutableDictionary alloc] initWithCapacity:[theBrushes count]];
 
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
@@ -95,7 +95,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     [brushInfos release];
 }
 
-- (void)restoreUndoSnapshot:(NSSet *)theFaces faceInfos:(NSDictionary *)theFaceInfos {
+- (void)restoreUndoSnapshot:(NSArray *)theFaces faceInfos:(NSDictionary *)theFaceInfos {
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
@@ -121,7 +121,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)restoreUndoSnapshot:(NSSet *)theBrushes brushInfos:(NSDictionary *)theBrushInfos {
+- (void)restoreUndoSnapshot:(NSArray *)theBrushes brushInfos:(NSDictionary *)theBrushInfos {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     NSAssert(theBrushInfos != nil, @"brush info dictionary must not be nil");
     NSAssert([theBrushes count] == [theBrushInfos count], @"brush set must be of the same size as brush info dictionary");
@@ -154,7 +154,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)restoreUndoSnapshot:(NSSet *)theEntities entityInfos:(NSDictionary *)theEntityInfos {
+- (void)restoreUndoSnapshot:(NSArray *)theEntities entityInfos:(NSDictionary *)theEntityInfos {
     NSAssert(theEntities != nil, @"entity set must not be nil");
     NSAssert(theEntityInfos != nil, @"entity info dictionary must not be nil");
     NSAssert([theEntities count] == [theEntityInfos count], @"entity set must be of the same size as entity info dictionary");
@@ -421,7 +421,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     return [entity autorelease];
 }
 
-- (void)duplicateEntities:(NSSet *)theEntities newEntities:(NSMutableSet *)theNewEntities newBrushes:(NSMutableSet *)theNewBrushes {
+- (void)duplicateEntities:(NSArray *)theEntities newEntities:(NSMutableArray *)theNewEntities newBrushes:(NSMutableArray *)theNewBrushes {
     NSAssert(theEntities != nil, @"entity set must not be nil");
     NSAssert(theNewEntities != nil, @"new entitiy set must not be nil");
     NSAssert(theNewBrushes != nil, @"new brush set must not be nil");
@@ -466,7 +466,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     NSMutableDictionary* userInfo = nil;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
-        NSSet* userInfoEntities = [[NSSet alloc] initWithObjects:theEntity, nil];
+        NSArray* userInfoEntities = [[NSArray alloc] initWithObjects:theEntity, nil];
         
         [userInfo setObject:userInfoEntities forKey:EntitiesKey];
         [userInfoEntities release];
@@ -488,14 +488,14 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)setEntities:(NSSet *)theEntities propertyKey:(NSString *)theKey value:(NSString *)theValue {
+- (void)setEntities:(NSArray *)theEntities propertyKey:(NSString *)theKey value:(NSString *)theValue {
     NSAssert(theEntities != nil, @"entity set must not be nil");
     NSAssert(theKey != nil, @"key must not be nil");
     
     if ([theEntities count] == 0)
         return;
     
-    NSMutableSet* changedEntities = [[NSMutableSet alloc] init];
+    NSMutableArray* changedEntities = [[NSMutableArray alloc] init];
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     id <Entity> entity;
     
@@ -558,7 +558,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)translateEntities:(NSSet *)theEntities delta:(TVector3i)theDelta {
+- (void)translateEntities:(NSArray *)theEntities delta:(TVector3i)theDelta {
     NSAssert(theEntities != nil, @"entity set must not be nil");
     
     if ([theEntities count] == 0)
@@ -591,7 +591,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)rotateEntitiesZ90CW:(NSSet *)theEntities center:(TVector3i)theCenter {
+- (void)rotateEntitiesZ90CW:(NSArray *)theEntities center:(TVector3i)theCenter {
     NSAssert(theEntities != nil, @"entity set must not be nil");
 
     if ([theEntities count] == 0)
@@ -621,7 +621,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)rotateEntitiesZ90CCW:(NSSet *)theEntities center:(TVector3i)theCenter {
+- (void)rotateEntitiesZ90CCW:(NSArray *)theEntities center:(TVector3i)theCenter {
     NSAssert(theEntities != nil, @"entity set must not be nil");
 
     if ([theEntities count] == 0)
@@ -651,7 +651,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)rotateEntities:(NSSet *)theEntities rotation:(TQuaternion)theRotation center:(TVector3f)theCenter {
+- (void)rotateEntities:(NSArray *)theEntities rotation:(TQuaternion)theRotation center:(TVector3f)theCenter {
     NSAssert(theEntities != nil, @"entity set must not be nil");
     
     if ([theEntities count] == 0)
@@ -691,13 +691,13 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     [undoManager endUndoGrouping];
 }
 
-- (void)deleteEntities:(NSSet *)theEntities {
+- (void)deleteEntities:(NSArray *)theEntities {
     [self removeEntities:theEntities];
 }
 
 # pragma mark Brush related functions
 
-- (void)addBrushesToEntity:(id <Entity>)theEntity brushes:(NSSet *)theBrushes {
+- (void)addBrushesToEntity:(id <Entity>)theEntity brushes:(NSArray *)theBrushes {
     NSAssert(theEntity != nil, @"entity must not be nil");
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
@@ -735,9 +735,9 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     
     id <Brush> brush = [[MutableBrush alloc] initWithWorldBounds:&worldBounds brushTemplate:theTemplate];
     
-    NSSet* brushSet = [[NSSet alloc] initWithObjects:brush, nil];
-    [self addBrushesToEntity:theEntity brushes:brushSet];
-    [brushSet release];
+    NSArray* brushArray = [[NSArray alloc] initWithObjects:brush, nil];
+    [self addBrushesToEntity:theEntity brushes:brushArray];
+    [brushArray release];
     
     return [brush autorelease];
 }
@@ -754,14 +754,14 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     
     id <Brush> brush = [[MutableBrush alloc] initWithWorldBounds:&worldBounds brushBounds:theBounds texture:theTexture];
     
-    NSSet* brushSet = [[NSSet alloc] initWithObjects:brush, nil];
-    [self addBrushesToEntity:theEntity brushes:brushSet];
-    [brushSet release];
+    NSArray* brushArray = [[NSArray alloc] initWithObjects:brush, nil];
+    [self addBrushesToEntity:theEntity brushes:brushArray];
+    [brushArray release];
     
     return [brush autorelease];
 }
 
-- (void)duplicateBrushes:(NSSet *)theBrushes newBrushes:(NSMutableSet *)theNewBrushes {
+- (void)duplicateBrushes:(NSArray *)theBrushes newBrushes:(NSMutableArray *)theNewBrushes {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     NSAssert(theNewBrushes != nil, @"new brush set must not be nil");
     
@@ -776,7 +776,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)translateBrushes:(NSSet *)theBrushes delta:(TVector3i)theDelta {
+- (void)translateBrushes:(NSArray *)theBrushes delta:(TVector3i)theDelta {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
@@ -809,7 +809,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)rotateBrushesZ90CW:(NSSet *)theBrushes center:(TVector3i)theCenter {
+- (void)rotateBrushesZ90CW:(NSArray *)theBrushes center:(TVector3i)theCenter {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
@@ -839,7 +839,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)rotateBrushesZ90CCW:(NSSet *)theBrushes center:(TVector3i)theCenter {
+- (void)rotateBrushesZ90CCW:(NSArray *)theBrushes center:(TVector3i)theCenter {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
@@ -869,7 +869,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)rotateBrushes:(NSSet *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter {
+- (void)rotateBrushes:(NSArray *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
@@ -903,22 +903,22 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     [undoManager endUndoGrouping];
 }
 
-- (void)deleteBrushes:(NSSet *)theBrushes {
+- (void)deleteBrushes:(NSArray *)theBrushes {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
         return;
     
-    NSMutableSet* affectedEntities = [[NSMutableSet alloc] init];
+    NSMutableArray* affectedEntities = [[NSMutableArray alloc] init];
     NSMutableDictionary* entityIdToBrushSet = [[NSMutableDictionary alloc] init];
     
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     while ((brush = [brushEn nextObject])) {
         id <Entity> entity = [brush entity];
-        NSMutableSet* entityBrushes = [entityIdToBrushSet objectForKey:[entity entityId]];
+        NSMutableArray* entityBrushes = [entityIdToBrushSet objectForKey:[entity entityId]];
         if (entityBrushes == nil) {
-            entityBrushes = [[NSMutableSet alloc] init];
+            entityBrushes = [[NSMutableArray alloc] init];
             [entityIdToBrushSet setObject:entityBrushes forKey:[entity entityId]];
             [entityBrushes release];
             
@@ -932,12 +932,12 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     NSUndoManager* undoManager = [self undoManager];
     [undoManager beginUndoGrouping];
     
-    NSMutableSet* emptyEntities = [[NSMutableSet alloc] init];
+    NSMutableArray* emptyEntities = [[NSMutableArray alloc] init];
     
     NSEnumerator* entityEn = [affectedEntities objectEnumerator];
     MutableEntity* entity;
     while ((entity = [entityEn nextObject])) {
-        NSSet* entityBrushes = [entityIdToBrushSet objectForKey:[entity entityId]];
+        NSArray* entityBrushes = [entityIdToBrushSet objectForKey:[entity entityId]];
         [selectionManager removeBrushes:entityBrushes record:YES];
         [[undoManager prepareWithInvocationTarget:self] addBrushesToEntity:entity brushes:[[entityBrushes copy] autorelease]];
 
@@ -973,7 +973,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 
 # pragma mark Face related functions
 
-- (void)setFaces:(NSSet *)theFaces xOffset:(int)theXOffset {
+- (void)setFaces:(NSArray *)theFaces xOffset:(int)theXOffset {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
     if ([theFaces count] == 0)
@@ -1002,7 +1002,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)setFaces:(NSSet *)theFaces yOffset:(int)theYOffset {
+- (void)setFaces:(NSArray *)theFaces yOffset:(int)theYOffset {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
     if ([theFaces count] == 0)
@@ -1031,7 +1031,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)translateFaceOffsets:(NSSet *)theFaces xDelta:(int)theXDelta yDelta:(int)theYDelta {
+- (void)translateFaceOffsets:(NSArray *)theFaces xDelta:(int)theXDelta yDelta:(int)theYDelta {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
     if ([theFaces count] == 0)
@@ -1063,7 +1063,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)setFaces:(NSSet *)theFaces xScale:(float)theXScale {
+- (void)setFaces:(NSArray *)theFaces xScale:(float)theXScale {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
     if ([theFaces count] == 0)
@@ -1092,7 +1092,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)setFaces:(NSSet *)theFaces yScale:(float)theYScale {
+- (void)setFaces:(NSArray *)theFaces yScale:(float)theYScale {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
     if ([theFaces count] == 0)
@@ -1121,7 +1121,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)scaleFaces:(NSSet *)theFaces xFactor:(float)theXFactor yFactor:(float)theYFactor {
+- (void)scaleFaces:(NSArray *)theFaces xFactor:(float)theXFactor yFactor:(float)theYFactor {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
     if ([theFaces count] == 0)
@@ -1155,7 +1155,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)setFaces:(NSSet *)theFaces rotation:(float)theAngle {
+- (void)setFaces:(NSArray *)theFaces rotation:(float)theAngle {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
     if ([theFaces count] == 0)
@@ -1184,7 +1184,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)rotateFaces:(NSSet *)theFaces angle:(float)theAngle {
+- (void)rotateFaces:(NSArray *)theFaces angle:(float)theAngle {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
     if ([theFaces count] == 0)
@@ -1216,7 +1216,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)setFaces:(NSSet *)theFaces texture:(NSString *)theTexture {
+- (void)setFaces:(NSArray *)theFaces texture:(NSString *)theTexture {
     NSAssert(theFaces != nil, @"face set must not be nil");
     NSAssert(theTexture != nil, @"texture must not be nil");
     
@@ -1247,7 +1247,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 }
 
 
-- (void)translateFaces:(NSSet *)theFaces delta:(TVector3i)theDelta {
+- (void)translateFaces:(NSArray *)theFaces delta:(TVector3i)theDelta {
     NSAssert(theFaces != nil, @"face set must not be nil");
 
     if ([theFaces count] == 0)
@@ -1264,7 +1264,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
-        NSMutableSet* brushes = [[NSMutableSet alloc] init];
+        NSMutableArray* brushes = [[NSMutableArray alloc] init];
         NSEnumerator* faceEn = [theFaces objectEnumerator];
         id <Face> face;
         while ((face = [faceEn nextObject]))
@@ -1290,7 +1290,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     }
 }
 
-- (void)dragFaces:(NSSet *)theFaces distance:(float)theDistance {
+- (void)dragFaces:(NSArray *)theFaces distance:(float)theDistance {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
     if ([theFaces count] == 0)
@@ -1302,7 +1302,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     BOOL canDrag = YES;
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
-        NSMutableSet* brushes = [[NSMutableSet alloc] init];
+        NSMutableArray* brushes = [[NSMutableArray alloc] init];
         NSEnumerator* faceEn = [theFaces objectEnumerator];
         MutableFace* face;
         while ((face = [faceEn nextObject]) && canDrag) {
@@ -1363,7 +1363,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 
 # pragma mark @implementation Map
 
-- (void)addEntities:(NSSet *)theEntities {
+- (void)addEntities:(NSArray *)theEntities {
     NSAssert(theEntities != nil, @"entity set must not be nil");
     
     if ([theEntities count] == 0)
@@ -1393,12 +1393,12 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 - (void)addEntity:(MutableEntity *)theEntity {
     NSAssert(theEntity != nil, @"entity must not be nil");
     
-    NSSet* entitySet = [[NSSet alloc] initWithObjects:theEntity, nil];
-    [self addEntities:entitySet];
-    [entitySet release];
+    NSArray* entityArray = [[NSArray alloc] initWithObjects:theEntity, nil];
+    [self addEntities:entityArray];
+    [entityArray release];
 }
 
-- (void)removeEntities:(NSSet *)theEntities {
+- (void)removeEntities:(NSArray *)theEntities {
     NSAssert(theEntities != nil, @"entity set must not be nil");
     
     if ([theEntities count] == 0)
@@ -1435,9 +1435,9 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 - (void)removeEntity:(MutableEntity *)theEntity {
     NSAssert(theEntity != nil, @"entity must not be nil");
     
-    NSSet* entitySet = [[NSSet alloc] initWithObjects:theEntity, nil];
-    [self removeEntities:entitySet];
-    [entitySet release];
+    NSArray* entityArray = [[NSArray alloc] initWithObjects:theEntity, nil];
+    [self removeEntities:entityArray];
+    [entityArray release];
 }
 
 - (id <Entity>)worldspawn:(BOOL)create {
@@ -1459,7 +1459,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 
         if ([self postNotifications]) {
             NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:[NSSet setWithObject:entity] forKey:EntitiesKey];
+            [userInfo setObject:[NSArray arrayWithObject:entity] forKey:EntitiesKey];
             
             NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
             [center postNotificationName:EntitiesAdded object:self userInfo:userInfo];

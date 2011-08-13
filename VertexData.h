@@ -96,7 +96,7 @@ float pickSide(const TSide* s, const TRay* r, TVector3f* h);
 
 void initVertexData(TVertexData* vd);
 void initVertexDataWithBounds(TVertexData* vd, const TBoundingBox* b);
-BOOL initVertexDataWithFaces(TVertexData* vd, const TBoundingBox* b, NSArray* f, NSMutableSet** d);
+BOOL initVertexDataWithFaces(TVertexData* vd, const TBoundingBox* b, NSArray* f, NSMutableArray** d);
 void freeVertexData(TVertexData* vd);
 void addVertex(TVertexData* vd, TVertex* v);
 void deleteVertex(TVertexData* vd, int v);
@@ -104,6 +104,6 @@ void addEdge(TVertexData* vd, TEdge* e);
 void deleteEdge(TVertexData* vd, int e);
 void addSide(TVertexData* vd, TSide* s);
 void deleteSide(TVertexData* vd, int s);
-BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableSet** d);
+BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d);
 const TBoundingBox* vertexDataBounds(TVertexData* vd);
 const TVector3f* vertexDataCenter(TVertexData* vd);

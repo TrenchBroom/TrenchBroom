@@ -590,7 +590,7 @@ void initVertexDataWithBounds(TVertexData* vd, const TBoundingBox* b) {
     vd->valid = NO;
 }
 
-BOOL initVertexDataWithFaces(TVertexData* vd, const TBoundingBox* b, NSArray* f, NSMutableSet** d) {
+BOOL initVertexDataWithFaces(TVertexData* vd, const TBoundingBox* b, NSArray* f, NSMutableArray** d) {
     initVertexDataWithBounds(vd, b);
     
     NSEnumerator* faceEn = [f objectEnumerator];
@@ -720,7 +720,7 @@ void deleteSide(TVertexData* vd, int s) {
     vd->sides[vd->sideCount] = NULL;
 }
 
-BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableSet** d) {
+BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
     const TPlane* p = [f boundary];
     
     int keep = 0;
@@ -745,7 +745,7 @@ BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableSet** d) {
     
     if (keep + undecided == vd->vertexCount) {
         if (*d == nil)
-            *d = [NSMutableSet set];
+            *d = [NSMutableArray array];
         [*d addObject:f];
         return YES;
     }
@@ -773,7 +773,7 @@ BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableSet** d) {
         if (side->mark == SM_DROP) {
             if (side->face != nil) {
                 if (*d == nil)
-                    *d = [NSMutableSet set];
+                    *d = [NSMutableArray array];
                 [*d addObject:side->face];
                 [side->face setSide:NULL];
             }

@@ -20,7 +20,7 @@
     mapWindowController = theMapWindowController;
 }
 
-- (void)setEntities:(NSSet *)theEntities {
+- (void)setEntities:(NSArray *)theEntities {
     [entities release];
     [properties release];
     properties = nil;

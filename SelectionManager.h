@@ -32,10 +32,10 @@ typedef enum {
 @interface SelectionManager : NSObject {
     @private
     NSUndoManager* undoManager;
-    NSMutableSet* faces;
-    NSMutableSet* partialBrushes;
-    NSMutableSet* brushes;
-    NSMutableSet* entities;
+    NSMutableArray* faces;
+    NSMutableArray* partialBrushes;
+    NSMutableArray* brushes;
+    NSMutableArray* entities;
     id <Entity> brushSelectionEntity;
     BOOL brushSelectionEntityValid;
     ESelectionMode mode;
@@ -44,11 +44,11 @@ typedef enum {
 - (id)initWithUndoManager:(NSUndoManager *)theUndoManager;
 
 - (void)addFace:(id <Face>)face record:(BOOL)record;
-- (void)addFaces:(NSSet *)theFaces record:(BOOL)record;
+- (void)addFaces:(NSArray *)theFaces record:(BOOL)record;
 - (void)addBrush:(id <Brush>)brush record:(BOOL)record;
-- (void)addBrushes:(NSSet *)theBrushes record:(BOOL)record;
+- (void)addBrushes:(NSArray *)theBrushes record:(BOOL)record;
 - (void)addEntity:(id <Entity>)entity record:(BOOL)record;
-- (void)addEntities:(NSSet *)theEntities record:(BOOL)record;
+- (void)addEntities:(NSArray *)theEntities record:(BOOL)record;
 
 - (ESelectionMode)mode;
 - (BOOL)isFaceSelected:(id <Face>)face;
@@ -56,11 +56,11 @@ typedef enum {
 - (BOOL)isEntitySelected:(id <Entity>)entity;
 - (BOOL)isBrushPartiallySelected:(id <Brush>)brush;
 
-- (NSSet *)selectedEntities;
-- (NSSet *)selectedBrushes;
-- (NSSet *)selectedFaces;
-- (NSSet *)selectedBrushFaces;
-- (NSSet *)partiallySelectedBrushes;
+- (NSArray *)selectedEntities;
+- (NSArray *)selectedBrushes;
+- (NSArray *)selectedFaces;
+- (NSArray *)selectedBrushFaces;
+- (NSArray *)partiallySelectedBrushes;
 - (BOOL)selectionCenter:(TVector3f *)result;
 - (BOOL)selectionBounds:(TBoundingBox *)result;
 - (id <Entity>)brushSelectionEntity;
@@ -71,11 +71,11 @@ typedef enum {
 - (BOOL)hasSelectedFaces;
 
 - (void)removeFace:(id <Face>)face record:(BOOL)record;
-- (void)removeFaces:(NSSet *)theFaces record:(BOOL)record;
+- (void)removeFaces:(NSArray *)theFaces record:(BOOL)record;
 - (void)removeBrush:(id <Brush>)brush record:(BOOL)record;
-- (void)removeBrushes:(NSSet *)theBrushes record:(BOOL)record;
+- (void)removeBrushes:(NSArray *)theBrushes record:(BOOL)record;
 - (void)removeEntity:(id <Entity>)entity record:(BOOL)record;
-- (void)removeEntities:(NSSet *)theEntities record:(BOOL)record;
+- (void)removeEntities:(NSArray *)theEntities record:(BOOL)record;
 
 - (void)removeAll:(BOOL)record;
 

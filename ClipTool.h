@@ -32,7 +32,7 @@
     ClipLineFeedbackFigure* line2Figure;
     ClipLineFeedbackFigure* line3Figure;
     ClipPlaneFeedbackFigure* planeFigure;
-    NSMutableSet* brushFigures;
+    NSMutableArray* brushFigures;
     TVector3i* currentPoint;
     ClipPointFeedbackFigure* currentFigure;
     int draggedPoint;
@@ -46,7 +46,7 @@
 - (BOOL)active;
 
 - (void)toggleClipMode;
-- (NSSet *)performClip:(MapDocument* )map;
+- (NSArray *)performClip:(MapDocument* )map;
 - (void)cancel;
 
 - (void)deleteLastPoint;

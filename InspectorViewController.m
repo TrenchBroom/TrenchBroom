@@ -69,7 +69,7 @@
     [mapBrowserView reloadData];
     
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* entities = [userInfo objectForKey:EntitiesKey];
+    NSArray* entities = [userInfo objectForKey:EntitiesKey];
     NSEnumerator* entityEn = [entities objectEnumerator];
     id <Entity> entity;
     while ((entity = [entityEn nextObject])) {
@@ -90,7 +90,7 @@
 
 - (void)facesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* faces = [userInfo objectForKey:FacesKey];
+    NSArray* faces = [userInfo objectForKey:FacesKey];
     
     SelectionManager* selectionManager = [mapWindowController selectionManager];
     
@@ -181,7 +181,7 @@
 
 - (void)updateTextureControls {
     SelectionManager* selectionManager = [mapWindowController selectionManager];
-    NSSet* selectedFaces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    NSArray* selectedFaces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     
     NSMutableSet* selectedTextureNames = nil;
     if ([selectedFaces count] > 0) {
@@ -329,11 +329,11 @@
 - (void)updateEntityPropertyTable {
     if (mapWindowController != nil) {
         SelectionManager* selectionManager = [mapWindowController selectionManager];
-        NSSet* selectedEntities = [selectionManager selectedEntities];
+        NSArray* selectedEntities = [selectionManager selectedEntities];
         if ([selectedEntities count] == 0) {
             id <Map> map = [mapWindowController document];
             id <Entity> worldspawn = [map worldspawn:YES];
-            [entityPropertyTableDataSource setEntities:[NSSet setWithObject:worldspawn]];
+            [entityPropertyTableDataSource setEntities:[NSArray arrayWithObject:worldspawn]];
         } else {
             [entityPropertyTableDataSource setEntities:selectedEntities];
         }
@@ -393,7 +393,7 @@
     [undoManager beginUndoGrouping];
     
     int xOffset = [xOffsetField intValue];
-    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces xOffset:xOffset];
     
     [undoManager setActionName:@"Set Texture X Offset"];
@@ -408,7 +408,7 @@
     [undoManager beginUndoGrouping];
     
     int yOffset = [yOffsetField intValue];
-    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces yOffset:yOffset];
     
     [undoManager setActionName:@"Set Texture Y Offset"];
@@ -423,7 +423,7 @@
     [undoManager beginUndoGrouping];
     
     float xScale = [xScaleField floatValue];
-    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces xScale:xScale];
     
     [undoManager setActionName:@"Set Texture X Scale"];
@@ -438,7 +438,7 @@
     [undoManager beginUndoGrouping];
     
     float yScale = [yScaleField floatValue];
-    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces yScale:yScale];
     
     [undoManager setActionName:@"Set Texture Y Scale"];
@@ -453,7 +453,7 @@
     [undoManager beginUndoGrouping];
     
     float rotation = [rotationField floatValue];
-    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces rotation:rotation];
     
     [undoManager setActionName:@"Set Texture Rotation"];
@@ -467,7 +467,7 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    NSSet* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces texture:[texture name]];
     
     [undoManager setActionName:@"Set Texture"];
@@ -530,10 +530,10 @@
 - (IBAction)addEntityProperty:(id)sender {
     MapDocument* map = [mapWindowController document];
     SelectionManager* selectionManager = [mapWindowController selectionManager];
-    NSSet* entities = [selectionManager selectedEntities];
+    NSArray* entities = [selectionManager selectedEntities];
     
     if ([entities count] == 0)
-        entities = [NSSet setWithObject:[map worldspawn:YES]];
+        entities = [NSArray arrayWithObject:[map worldspawn:YES]];
     
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
@@ -551,10 +551,10 @@
     
     MapDocument* map = [mapWindowController document];
     SelectionManager* selectionManager = [mapWindowController selectionManager];
-    NSSet* entities = [selectionManager selectedEntities];
+    NSArray* entities = [selectionManager selectedEntities];
     
     if ([entities count] == 0)
-        entities = [NSSet setWithObject:[map worldspawn:YES]];
+        entities = [NSArray arrayWithObject:[map worldspawn:YES]];
 
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
@@ -593,7 +593,7 @@
     NSIndexSet* selectedRows = [entityPropertyTableView selectedRowIndexes];
     if ([selectedRows count] > 0) {
         SelectionManager* selectionManager = [mapWindowController selectionManager];
-        NSSet* entities = [selectionManager selectedEntities];
+        NSArray* entities = [selectionManager selectedEntities];
         
         NSUInteger index = [selectedRows firstIndex];
         do {

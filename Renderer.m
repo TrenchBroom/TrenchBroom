@@ -77,15 +77,15 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)rebuildFaceIndexBuffers;
 - (void)validate;
 
-- (void)renderEntityModels:(NSSet *)theEntities;
+- (void)renderEntityModels:(NSArray *)theEntities;
 - (void)renderEntityBounds:(const TVector4f *)color vertexCount:(int)theVertexCount;
 - (void)renderEdges:(const TVector4f *)color indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers;
 - (void)renderFaces:(BOOL)textured;
 
-- (void)addBrushes:(NSSet *)theBrushes;
-- (void)removeBrushes:(NSSet *)theBrushes;
-- (void)addEntities:(NSSet *)theEntities;
-- (void)removeEntities:(NSSet *)theEntities;
+- (void)addBrushes:(NSArray *)theBrushes;
+- (void)removeBrushes:(NSArray *)theBrushes;
+- (void)addEntities:(NSArray *)theEntities;
+- (void)removeEntities:(NSArray *)theEntities;
 
 - (void)facesDidChange:(NSNotification *)notification;
 - (void)brushesDidChange:(NSNotification *)notification;
@@ -264,7 +264,7 @@ int const TexCoordSize = 2 * sizeof(float);
     if (!entityRendererCacheValid) {
         [entityRenderers removeAllObjects];
 
-        NSSet* modelEntitiesCopy = [modelEntities copy];
+        NSArray* modelEntitiesCopy = [modelEntities copy];
         NSEnumerator* entityEn = [modelEntitiesCopy objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
@@ -275,7 +275,7 @@ int const TexCoordSize = 2 * sizeof(float);
                 [modelEntities removeObject:entity];
         }
 
-        NSSet* selectedModelEntitiesCopy = [selectedModelEntities copy];
+        NSArray* selectedModelEntitiesCopy = [selectedModelEntities copy];
         entityEn = [selectedModelEntitiesCopy objectEnumerator];
         while ((entity = [entityEn nextObject])) {
             id <EntityRenderer> renderer = [entityRendererManager entityRendererForEntity:entity mods:mods];
@@ -293,7 +293,7 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)validateDeselection {
-    NSSet* deselectedEntities = [changeSet deselectedEntities];
+    NSArray* deselectedEntities = [changeSet deselectedEntities];
     if ([deselectedEntities count] > 0) {
         [entityBoundsVbo activate];
         [entityBoundsVbo mapBuffer];
@@ -308,6 +308,12 @@ int const TexCoordSize = 2 * sizeof(float);
                 [block setState:BS_USED_VALID];
                 
                 [selectedClassnameRenderer moveStringWithKey:[entity entityId] toTextRenderer:classnameRenderer];
+
+                int NSInteger = [selectedModelEntities indexOfObjectIdenticalTo:entity];
+                if (index != NSNotFound) {
+                    [selectedModelEntities removeObjectAtIndex:index];
+                    [modelEntities addObject:entity];
+                }
             }
         }
         
@@ -322,17 +328,11 @@ int const TexCoordSize = 2 * sizeof(float);
         [selectedEntityBoundsVbo pack];
         [selectedEntityBoundsVbo unmapBuffer];
         [selectedEntityBoundsVbo deactivate];
-        
-        NSMutableSet* unselectedModelEntities = [[NSMutableSet alloc] initWithSet:selectedModelEntities];
-        [unselectedModelEntities intersectSet:deselectedEntities];
-        [selectedModelEntities minusSet:unselectedModelEntities];
-        [modelEntities unionSet:unselectedModelEntities];
-        [unselectedModelEntities release];
     }
 }
 
 - (void)validateSelection {
-    NSSet* selectedEntities = [changeSet selectedEntities];
+    NSArray* selectedEntities = [changeSet selectedEntities];
     if ([selectedEntities count] > 0) {
         [selectedEntityBoundsVbo activate];
         [selectedEntityBoundsVbo mapBuffer];
@@ -347,6 +347,12 @@ int const TexCoordSize = 2 * sizeof(float);
                 [block setState:BS_USED_VALID];
                 
                 [classnameRenderer moveStringWithKey:[entity entityId] toTextRenderer:selectedClassnameRenderer];
+                
+                NSInteger index = [modelEntities indexOfObjectIdenticalTo:entity];
+                if (index != NSNotFound) {
+                    [modelEntities removeObjectAtIndex:index];
+                    [selectedModelEntities addObject:entity];
+                }
             }
         }
         
@@ -361,17 +367,11 @@ int const TexCoordSize = 2 * sizeof(float);
         [entityBoundsVbo pack];
         [entityBoundsVbo unmapBuffer];
         [entityBoundsVbo deactivate];
-
-        NSMutableSet* newlySelectedModelEntities = [[NSMutableSet alloc] initWithSet:modelEntities];
-        [newlySelectedModelEntities intersectSet:selectedEntities];
-        [modelEntities minusSet:newlySelectedModelEntities];
-        [selectedModelEntities unionSet:newlySelectedModelEntities];
-        [newlySelectedModelEntities release];
     }
 }
 
 - (void)validateAddedEntities {
-    NSSet* addedEntities = [changeSet addedEntities];
+    NSArray* addedEntities = [changeSet addedEntities];
     if ([addedEntities count] > 0) {
         [entityBoundsVbo activate];
         [entityBoundsVbo mapBuffer];
@@ -412,7 +412,7 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)validateChangedEntities {
-    NSSet* changedEntities = [changeSet changedEntities];
+    NSArray* changedEntities = [changeSet changedEntities];
     if ([changedEntities count] > 0) {
         [selectedEntityBoundsVbo activate];
         [selectedEntityBoundsVbo mapBuffer];
@@ -432,7 +432,7 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)validateRemovedEntities {
-    NSSet* removedEntities = [changeSet removedEntities];
+    NSArray* removedEntities = [changeSet removedEntities];
     if ([removedEntities count] > 0) {
         [entityBoundsVbo activate];
         [entityBoundsVbo mapBuffer];
@@ -463,7 +463,7 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)validateAddedBrushes {
-    NSSet* addedBrushes = [changeSet addedBrushes];
+    NSArray* addedBrushes = [changeSet addedBrushes];
     if ([addedBrushes count] > 0) {
         NSEnumerator* brushEn = [addedBrushes objectEnumerator];
         id <Brush> brush;
@@ -480,7 +480,7 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)validateChangedBrushes {
-    NSSet* changedBrushes = [changeSet changedBrushes];
+    NSArray* changedBrushes = [changeSet changedBrushes];
     if ([changedBrushes count] > 0) {
         NSEnumerator* brushEn = [changedBrushes objectEnumerator];
         id <Brush> brush;
@@ -502,7 +502,7 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)validateChangedFaces {
-    NSSet* changedFaces = [changeSet changedFaces];
+    NSArray* changedFaces = [changeSet changedFaces];
     if ([changedFaces count] > 0) {
         NSEnumerator* faceEn = [changedFaces objectEnumerator];
         id <Face> face;
@@ -520,7 +520,7 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)validateRemovedBrushes {
-    NSSet* removedBrushes = [changeSet removedBrushes];
+    NSArray* removedBrushes = [changeSet removedBrushes];
     if ([removedBrushes count] > 0) {
         NSEnumerator* brushEn = [removedBrushes objectEnumerator];
         id <Brush> brush;
@@ -679,7 +679,7 @@ int const TexCoordSize = 2 * sizeof(float);
     [changeSet clear];
 }
 
-- (void)renderEntityModels:(NSSet *)theEntities {
+- (void)renderEntityModels:(NSArray *)theEntities {
     [entityRendererManager activate];
     
     glMatrixMode(GL_MODELVIEW);
@@ -825,10 +825,10 @@ int const TexCoordSize = 2 * sizeof(float);
     glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
-- (void)addEntities:(NSSet *)theEntities {
+- (void)addEntities:(NSArray *)theEntities {
     [changeSet entitiesAdded:theEntities];
     
-    NSMutableSet* brushes = [[NSMutableSet alloc] init];
+    NSMutableArray* brushes = [[NSMutableArray alloc] init];
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     id <Entity> entity;
     while ((entity = [entityEn nextObject]))
@@ -838,10 +838,10 @@ int const TexCoordSize = 2 * sizeof(float);
     [brushes release];
 }
 
-- (void)removeEntities:(NSSet *)theEntities {
+- (void)removeEntities:(NSArray *)theEntities {
     [changeSet entitiesRemoved:theEntities];
     
-    NSMutableSet* brushes = [[NSMutableSet alloc] init];
+    NSMutableArray* brushes = [[NSMutableArray alloc] init];
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     id <Entity> entity;
     while ((entity = [entityEn nextObject]))
@@ -851,17 +851,17 @@ int const TexCoordSize = 2 * sizeof(float);
     [brushes release];
 }
 
-- (void)addBrushes:(NSSet *)theBrushes {
+- (void)addBrushes:(NSArray *)theBrushes {
     [changeSet brushesAdded:theBrushes];
 }
 
-- (void)removeBrushes:(NSSet *)theBrushes {
+- (void)removeBrushes:(NSArray *)theBrushes {
     [changeSet brushesRemoved:theBrushes];
 }
 
 - (void)facesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* faces = [userInfo objectForKey:FacesKey];
+    NSArray* faces = [userInfo objectForKey:FacesKey];
     [changeSet facesChanged:faces];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -869,7 +869,7 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)brushesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    NSArray* brushes = [userInfo objectForKey:BrushesKey];
     [changeSet brushesChanged:brushes];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -877,7 +877,7 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)brushesAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    NSArray* brushes = [userInfo objectForKey:BrushesKey];
     [self addBrushes:brushes];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -885,7 +885,7 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)brushesWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    NSArray* brushes = [userInfo objectForKey:BrushesKey];
     [self removeBrushes:brushes];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -893,7 +893,7 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)entitiesAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* entities = [userInfo objectForKey:EntitiesKey];
+    NSArray* entities = [userInfo objectForKey:EntitiesKey];
     [self addEntities:entities];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -901,7 +901,7 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)entitiesWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* entities = [userInfo objectForKey:EntitiesKey];
+    NSArray* entities = [userInfo objectForKey:EntitiesKey];
     [self removeEntities:entities];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -909,7 +909,7 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)propertiesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* entities = [userInfo objectForKey:EntitiesKey];
+    NSArray* entities = [userInfo objectForKey:EntitiesKey];
     [changeSet entitiesChanged:entities];
 
     id <Entity> worldspawn = [[windowController document] worldspawn:YES];
@@ -927,9 +927,9 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)selectionAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* entities = [userInfo objectForKey:SelectionEntities];
-    NSSet* brushes = [userInfo objectForKey:SelectionBrushes];
-    NSSet* faces = [userInfo objectForKey:SelectionFaces];
+    NSArray* entities = [userInfo objectForKey:SelectionEntities];
+    NSArray* brushes = [userInfo objectForKey:SelectionBrushes];
+    NSArray* faces = [userInfo objectForKey:SelectionFaces];
     
     if (entities != nil)
         [changeSet entitiesSelected:entities];
@@ -945,9 +945,9 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)selectionRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* entities = [userInfo objectForKey:SelectionEntities];
-    NSSet* brushes = [userInfo objectForKey:SelectionBrushes];
-    NSSet* faces = [userInfo objectForKey:SelectionFaces];
+    NSArray* entities = [userInfo objectForKey:SelectionEntities];
+    NSArray* brushes = [userInfo objectForKey:SelectionBrushes];
+    NSArray* faces = [userInfo objectForKey:SelectionFaces];
     
     if (entities != nil)
         [changeSet entitiesDeselected:entities];
@@ -1008,7 +1008,7 @@ int const TexCoordSize = 2 * sizeof(float);
         windowController = theWindowController;
         
         changeSet = [[RenderChangeSet alloc] init];
-        feedbackFigures = [[NSMutableSet alloc] init];
+        feedbackFigures = [[NSMutableArray alloc] init];
         
         MapDocument* map = [windowController document];
         GLResources* glResources = [map glResources];
@@ -1029,8 +1029,8 @@ int const TexCoordSize = 2 * sizeof(float);
         classnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:[windowController camera]];
         selectedClassnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:[windowController camera]];
         entityRenderers = [[NSMutableDictionary alloc] init];
-        modelEntities = [[NSMutableSet alloc] init];
-        selectedModelEntities = [[NSMutableSet alloc] init];
+        modelEntities = [[NSMutableArray alloc] init];
+        selectedModelEntities = [[NSMutableArray alloc] init];
         selectionBoundsRenderer = [[BoundsRenderer alloc] initWithCamera:[windowController camera] fontManager:fontManager];
         
         SelectionManager* selectionManager = [windowController selectionManager];
@@ -1040,9 +1040,7 @@ int const TexCoordSize = 2 * sizeof(float);
         
         filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager options:options];
         
-        NSSet* entitySet = [[NSSet alloc] initWithArray:[map entities]];
-        [self addEntities:entitySet];
-        [entitySet release];
+        [self addEntities:[map entities]];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         
@@ -1097,7 +1095,7 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)removeFeedbackFigure:(id <Figure>)theFigure {
-    [feedbackFigures removeObject:theFigure];
+    [feedbackFigures removeObjectIdenticalTo:theFigure];
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 

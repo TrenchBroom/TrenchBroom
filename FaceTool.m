@@ -51,21 +51,21 @@
 - (void)applyTextureFrom:(id <Face>)source toFace:(id <Face>)destination {
     MapDocument* map = [windowController document];
 
-    NSSet* faceSet = [[NSSet alloc] initWithObjects:destination, nil];
-    [map setFaces:faceSet texture:[source texture]];
-    [faceSet release];
+    NSArray* faceArray = [[NSArray alloc] initWithObjects:destination, nil];
+    [map setFaces:faceArray texture:[source texture]];
+    [faceArray release];
 }
 
 - (void)applyFlagsFrom:(id <Face>)source toFace:(id <Face>)destination {
     MapDocument* map = [windowController document];
 
-    NSSet* faceSet = [[NSSet alloc] initWithObjects:destination, nil];
-    [map setFaces:faceSet xOffset:[source xOffset]];
-    [map setFaces:faceSet yOffset:[source yOffset]];
-    [map setFaces:faceSet xScale:[source xScale]];
-    [map setFaces:faceSet yScale:[source yScale]];
-    [map setFaces:faceSet rotation:[source rotation]];
-    [faceSet release];
+    NSArray* faceArray = [[NSArray alloc] initWithObjects:destination, nil];
+    [map setFaces:faceArray xOffset:[source xOffset]];
+    [map setFaces:faceArray yOffset:[source yOffset]];
+    [map setFaces:faceArray xScale:[source xScale]];
+    [map setFaces:faceArray yScale:[source yScale]];
+    [map setFaces:faceArray rotation:[source rotation]];
+    [faceArray release];
 }
 
 @end
@@ -77,7 +77,7 @@
         windowController = theWindowController;
         dragFaceCursor = [[DragFaceCursor alloc] init];
         applyFaceCursor = [[ApplyFaceCursor alloc] init];
-        dragFaces = [[NSMutableSet alloc] init];
+        dragFaces = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -98,41 +98,41 @@
         return;
     
     SelectionManager* selectionManager = [windowController selectionManager];
-    NSSet* selectedFaces = [selectionManager selectedFaces];
+    NSArray* selectedFaces = [selectionManager selectedFaces];
     if (![selectedFaces count] == 1)
         return;
     
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
     id <Face> target = [hit object];
-    NSMutableSet* targetSet = [[NSMutableSet alloc] init];
+    NSMutableArray* targetArray = [[NSMutableArray alloc] init];
     
     if ([event clickCount] == 1) {
-        [targetSet addObject:target];
+        [targetArray addObject:target];
     } else if ([event clickCount] == 2) {
         id <Brush> brush = [target brush];
-        [targetSet addObjectsFromArray:[brush faces]];
+        [targetArray addObjectsFromArray:[brush faces]];
     }
 
-    if ([targetSet count] > 0) {
+    if ([targetArray count] > 0) {
         MapDocument* map = [windowController document];
         NSUndoManager* undoManager = [map undoManager];
         [undoManager beginUndoGrouping];
         
         id <Face> source = [[selectedFaces objectEnumerator] nextObject];
-        [map setFaces:targetSet texture:[source texture]];
+        [map setFaces:targetArray texture:[source texture]];
         if ([self isApplyTextureAndFlagsModifierPressed]) {
-            [map setFaces:targetSet xOffset:[source xOffset]];
-            [map setFaces:targetSet yOffset:[source yOffset]];
-            [map setFaces:targetSet xScale:[source xScale]];
-            [map setFaces:targetSet yScale:[source yScale]];
-            [map setFaces:targetSet rotation:[source rotation]];
+            [map setFaces:targetArray xOffset:[source xOffset]];
+            [map setFaces:targetArray yOffset:[source yOffset]];
+            [map setFaces:targetArray xScale:[source xScale]];
+            [map setFaces:targetArray yScale:[source yScale]];
+            [map setFaces:targetArray rotation:[source rotation]];
         }
         
         [undoManager setActionName:@"Copy Face"];
         [undoManager endUndoGrouping];
     }
             
-    [targetSet release];
+    [targetArray release];
 }
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -152,7 +152,7 @@
         if (![selectionManager isFaceSelected:face])
             return;
         
-        [dragFaces unionSet:[selectionManager selectedFaces]];
+        [dragFaces addObjectsFromArray:[selectionManager selectedFaces]];
     }    
     
     MapDocument* map = [windowController document];

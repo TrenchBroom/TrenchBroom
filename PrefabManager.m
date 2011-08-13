@@ -175,7 +175,7 @@ static PrefabManager* sharedInstance = nil;
     [mapWriter release];
 }
 
-- (id <Prefab>)createPrefabFromBrushTemplates:(NSSet *)brushTemplates name:(NSString *)prefabName group:(id <PrefabGroup>)prefabGroup {
+- (id <Prefab>)createPrefabFromBrushTemplates:(NSArray *)brushTemplates name:(NSString *)prefabName group:(id <PrefabGroup>)prefabGroup {
     if ([brushTemplates count] == 0)
         return nil;
     

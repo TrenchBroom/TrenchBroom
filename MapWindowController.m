@@ -722,8 +722,8 @@
     SelectionManager* selectionManager = [self selectionManager];
     [selectionManager removeAll:NO];
     
-    NSMutableSet* entities = [[NSMutableSet alloc] init];
-    NSMutableSet* brushes = [[NSMutableSet alloc] init];
+    NSMutableArray* entities = [[NSMutableArray alloc] init];
+    NSMutableArray* brushes = [[NSMutableArray alloc] init];
     
     NSEnumerator* entityEn = [[[self document] entities] objectEnumerator];
     id <Entity> entity;
@@ -753,7 +753,7 @@
     
     [selectionManager removeAll:NO];
     [selectionManager addEntity:entity record:NO];
-    [selectionManager addBrushes:[NSSet setWithArray:[entity brushes]] record:NO];
+    [selectionManager addBrushes:[entity brushes] record:NO];
 }
 
 - (IBAction)selectAllTouchingBrush:(id)sender {
@@ -761,8 +761,8 @@
     SelectionManager* selectionManager = [self selectionManager];
     id <Brush> selectionBrush = [[[selectionManager selectedBrushes] objectEnumerator] nextObject];
 
-    NSMutableSet* touchingEntities = [[NSMutableSet alloc] init];
-    NSMutableSet* touchingBrushes = [[NSMutableSet alloc] init];
+    NSMutableArray* touchingEntities = [[NSMutableArray alloc] init];
+    NSMutableArray* touchingBrushes = [[NSMutableArray alloc] init];
     
     NSEnumerator* entityEn = [[map entities] objectEnumerator];
     id <Entity> entity;
@@ -806,14 +806,14 @@
         [undoManager beginUndoGrouping];
         
         if ([selectionManager hasSelectedEntities]) {
-            NSSet* deletedEntities = [[NSSet alloc] initWithSet:[selectionManager selectedEntities]];
+            NSArray* deletedEntities = [[NSArray alloc] initWithArray:[selectionManager selectedEntities]];
             [selectionManager removeEntities:deletedEntities record:YES];
             [[self document] deleteEntities:deletedEntities];
             [deletedEntities release];
         }
         
         if ([selectionManager hasSelectedBrushes]) {
-            NSSet* deletedBrushes = [[NSSet alloc] initWithSet:[selectionManager selectedBrushes]];
+            NSArray* deletedBrushes = [[NSArray alloc] initWithArray:[selectionManager selectedBrushes]];
             [selectionManager removeBrushes:deletedBrushes record:YES];
             [[self document] deleteBrushes:deletedBrushes];
             [deletedBrushes release];
@@ -828,8 +828,8 @@
     MapDocument* map = [self document];
     SelectionManager* selectionManager = [self selectionManager];
 
-    NSMutableSet* newEntities = [[NSMutableSet alloc] init];
-    NSMutableSet* newBrushes = [[NSMutableSet alloc] init];
+    NSMutableArray* newEntities = [[NSMutableArray alloc] init];
+    NSMutableArray* newBrushes = [[NSMutableArray alloc] init];
 
     Grid* grid = [options grid];
     
@@ -902,8 +902,8 @@
     TVector3i delta;
     roundV3f(&dist, &delta);
     
-    NSMutableSet* newEntities = [[NSMutableSet alloc] init];
-    NSMutableSet* newBrushes = [[NSMutableSet alloc] init];
+    NSMutableArray* newEntities = [[NSMutableArray alloc] init];
+    NSMutableArray* newBrushes = [[NSMutableArray alloc] init];
     MapDocument* map = [self document];
     
     NSEnumerator* entityEn = [[prefab entities] objectEnumerator];
@@ -1037,7 +1037,7 @@
     SelectionManager* selectionManager = [self selectionManager];
     [selectionManager removeAll:NO];
     [selectionManager addEntity:theEntity record:NO];
-    [selectionManager addBrushes:[NSSet setWithArray:[theEntity brushes]] record:NO];
+    [selectionManager addBrushes:[theEntity brushes] record:NO];
     [options setIsolationMode:IM_WIREFRAME];
     
     TVector3f center, size;

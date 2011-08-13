@@ -12,13 +12,13 @@
 
 @interface EntityPropertyTableDataSource : NSObject <NSTableViewDataSource> {
     MapWindowController* mapWindowController;
-    NSSet* entities;
+    NSArray* entities;
     NSDictionary* properties;
     NSArray* sortedKeys;
 }
 
 - (void)setMapWindowController:(MapWindowController *)theMapWindowController;
-- (void)setEntities:(NSSet *)theEntities;
+- (void)setEntities:(NSArray *)theEntities;
 - (void)updateProperties;
 - (NSString *)propertyKeyAtIndex:(NSUInteger)theIndex;
 - (BOOL)editingAllowed:(NSTableColumn *)theTableColumn rowIndex:(NSUInteger)theIndex;

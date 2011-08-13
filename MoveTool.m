@@ -177,8 +177,8 @@
     roundV3f(&deltaf, &deltai);
     
     if (duplicate) {
-        NSMutableSet* newEntities = [[NSMutableSet alloc] init];
-        NSMutableSet* newBrushes = [[NSMutableSet alloc] init];
+        NSMutableArray* newEntities = [[NSMutableArray alloc] init];
+        NSMutableArray* newBrushes = [[NSMutableArray alloc] init];
         [map duplicateEntities:[selectionManager selectedEntities] newEntities:newEntities newBrushes:newBrushes];
         [map duplicateBrushes:[selectionManager selectedBrushes] newBrushes:newBrushes];
         

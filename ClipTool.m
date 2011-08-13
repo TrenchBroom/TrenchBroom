@@ -184,7 +184,7 @@
 
 - (id)init {
     if ((self = [super init])) {
-        brushFigures = [[NSMutableSet alloc] init];
+        brushFigures = [[NSMutableArray alloc] init];
         draggedPoint = -1;
     }
     
@@ -357,14 +357,14 @@
     return [clipPlane numPoints];
 }
 
-- (NSSet *)performClip:(MapDocument* )map {
+- (NSArray *)performClip:(MapDocument* )map {
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
 
-    NSMutableSet* result = [[NSMutableSet alloc] init];
+    NSMutableArray* result = [[NSMutableArray alloc] init];
     SelectionManager* selectionManager = [windowController selectionManager];
     
-    NSSet* brushes = [[NSSet alloc] initWithSet:[selectionManager selectedBrushes]];
+    NSArray* brushes = [[NSArray alloc] initWithArray:[selectionManager selectedBrushes]];
     [selectionManager removeAll:YES];
     
     NSEnumerator* brushEn = [brushes objectEnumerator];

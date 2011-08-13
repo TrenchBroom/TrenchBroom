@@ -40,8 +40,8 @@ extern NSString* const RendererChanged;
     TextRenderer* classnameRenderer;
     TextRenderer* selectedClassnameRenderer;
     EntityRendererManager* entityRendererManager;
-    NSMutableSet* modelEntities;
-    NSMutableSet* selectedModelEntities;
+    NSMutableArray* modelEntities;
+    NSMutableArray* selectedModelEntities;
     NSMutableDictionary* entityRenderers;
     BOOL entityRendererCacheValid;
     NSArray* mods;
@@ -49,7 +49,7 @@ extern NSString* const RendererChanged;
     BoundsRenderer* selectionBoundsRenderer;
     
     RenderChangeSet* changeSet;
-    NSMutableSet* feedbackFigures;
+    NSMutableArray* feedbackFigures;
     id <Filter> filter;
 }
 

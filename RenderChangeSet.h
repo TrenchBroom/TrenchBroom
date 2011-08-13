@@ -9,51 +9,51 @@
 #import <Foundation/Foundation.h>
 
 @interface RenderChangeSet : NSObject {
-    NSMutableSet* addedEntities;
-    NSMutableSet* removedEntities;
-    NSMutableSet* changedEntities;
-    NSMutableSet* addedBrushes;
-    NSMutableSet* removedBrushes;
-    NSMutableSet* changedBrushes;
-    NSMutableSet* changedFaces;
-    NSMutableSet* selectedEntities;
-    NSMutableSet* deselectedEntities;
-    NSMutableSet* selectedBrushes;
-    NSMutableSet* deselectedBrushes;
-    NSMutableSet* selectedFaces;
-    NSMutableSet* deselectedFaces;
+    NSMutableArray* addedEntities;
+    NSMutableArray* removedEntities;
+    NSMutableArray* changedEntities;
+    NSMutableArray* addedBrushes;
+    NSMutableArray* removedBrushes;
+    NSMutableArray* changedBrushes;
+    NSMutableArray* changedFaces;
+    NSMutableArray* selectedEntities;
+    NSMutableArray* deselectedEntities;
+    NSMutableArray* selectedBrushes;
+    NSMutableArray* deselectedBrushes;
+    NSMutableArray* selectedFaces;
+    NSMutableArray* deselectedFaces;
     BOOL filterChanged;
 }
 
-- (void)entitiesAdded:(NSSet *)theEntities;
-- (void)entitiesRemoved:(NSSet *)theEntities;
-- (void)entitiesChanged:(NSSet *)theEntities;
-- (void)brushesAdded:(NSSet *)theBrushes;
-- (void)brushesRemoved:(NSSet *)theBrushes;
-- (void)brushesChanged:(NSSet *)theBrushes;
-- (void)facesChanged:(NSSet *)theFaces;
-- (void)entitiesSelected:(NSSet *)theEntities;
-- (void)entitiesDeselected:(NSSet *)theEntities;
-- (void)brushesSelected:(NSSet *)theBrushes;
-- (void)brushesDeselected:(NSSet *)theBrushes;
-- (void)facesSelected:(NSSet *)theFaces;
-- (void)facesDeselected:(NSSet *)theFaces;
+- (void)entitiesAdded:(NSArray *)theEntities;
+- (void)entitiesRemoved:(NSArray *)theEntities;
+- (void)entitiesChanged:(NSArray *)theEntities;
+- (void)brushesAdded:(NSArray *)theBrushes;
+- (void)brushesRemoved:(NSArray *)theBrushes;
+- (void)brushesChanged:(NSArray *)theBrushes;
+- (void)facesChanged:(NSArray *)theFaces;
+- (void)entitiesSelected:(NSArray *)theEntities;
+- (void)entitiesDeselected:(NSArray *)theEntities;
+- (void)brushesSelected:(NSArray *)theBrushes;
+- (void)brushesDeselected:(NSArray *)theBrushes;
+- (void)facesSelected:(NSArray *)theFaces;
+- (void)facesDeselected:(NSArray *)theFaces;
 - (void)setFilterChanged:(BOOL)isFilterChanged;
 - (void)clear;
 
-- (NSSet *)addedEntities;
-- (NSSet *)removedEntities;
-- (NSSet *)changedEntities;
-- (NSSet *)addedBrushes;
-- (NSSet *)removedBrushes;
-- (NSSet *)changedBrushes;
-- (NSSet *)changedFaces;
-- (NSSet *)selectedEntities;
-- (NSSet *)deselectedEntities;
-- (NSSet *)selectedBrushes;
-- (NSSet *)deselectedBrushes;
-- (NSSet *)selectedFaces;
-- (NSSet *)deselectedFaces;
+- (NSArray *)addedEntities;
+- (NSArray *)removedEntities;
+- (NSArray *)changedEntities;
+- (NSArray *)addedBrushes;
+- (NSArray *)removedBrushes;
+- (NSArray *)changedBrushes;
+- (NSArray *)changedFaces;
+- (NSArray *)selectedEntities;
+- (NSArray *)deselectedEntities;
+- (NSArray *)selectedBrushes;
+- (NSArray *)deselectedBrushes;
+- (NSArray *)selectedFaces;
+- (NSArray *)deselectedFaces;
 - (BOOL)filterChanged;
 
 @end

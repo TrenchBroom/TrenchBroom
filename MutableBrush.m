@@ -27,7 +27,7 @@
 - (TVertexData *)vertexData {
     if (!vertexDataValid) {
         initVertexData(&vertexData);
-        NSMutableSet* droppedFaces = nil;
+        NSMutableArray* droppedFaces = nil;
         if (!initVertexDataWithFaces(&vertexData, worldBounds, faces, &droppedFaces)) {
             if (droppedFaces != nil) {
                 NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
@@ -183,7 +183,7 @@
 }
 
 - (BOOL)addFace:(MutableFace *)face {
-    NSMutableSet* droppedFaces = nil;
+    NSMutableArray* droppedFaces = nil;
     if (!cutVertexData([self vertexData], face, &droppedFaces))
         return NO;
     
@@ -259,7 +259,7 @@
     [testFaces addObject:testFace];
     [testFace release];
     
-    NSMutableSet* droppedFaces = nil;
+    NSMutableArray* droppedFaces = nil;
     TVertexData testData;
     initVertexData(&testData);
     

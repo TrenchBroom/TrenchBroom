@@ -12,19 +12,19 @@
 
 - (id)init {
     if ((self = [super init])) {
-        addedEntities = [[NSMutableSet alloc] init];
-        removedEntities = [[NSMutableSet alloc] init];
-        changedEntities = [[NSMutableSet alloc] init];
-        addedBrushes = [[NSMutableSet alloc] init];
-        removedBrushes = [[NSMutableSet alloc] init];
-        changedBrushes = [[NSMutableSet alloc] init];
-        changedFaces = [[NSMutableSet alloc] init];
-        selectedEntities = [[NSMutableSet alloc] init];
-        deselectedEntities = [[NSMutableSet alloc] init];
-        selectedBrushes = [[NSMutableSet alloc] init];
-        deselectedBrushes = [[NSMutableSet alloc] init];
-        selectedFaces = [[NSMutableSet alloc] init];
-        deselectedFaces = [[NSMutableSet alloc] init];
+        addedEntities = [[NSMutableArray alloc] init];
+        removedEntities = [[NSMutableArray alloc] init];
+        changedEntities = [[NSMutableArray alloc] init];
+        addedBrushes = [[NSMutableArray alloc] init];
+        removedBrushes = [[NSMutableArray alloc] init];
+        changedBrushes = [[NSMutableArray alloc] init];
+        changedFaces = [[NSMutableArray alloc] init];
+        selectedEntities = [[NSMutableArray alloc] init];
+        deselectedEntities = [[NSMutableArray alloc] init];
+        selectedBrushes = [[NSMutableArray alloc] init];
+        deselectedBrushes = [[NSMutableArray alloc] init];
+        selectedFaces = [[NSMutableArray alloc] init];
+        deselectedFaces = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -47,56 +47,56 @@
     [super dealloc];
 }
 
-- (void)entitiesAdded:(NSSet *)theEntities {
-    [addedEntities unionSet:theEntities];
+- (void)entitiesAdded:(NSArray *)theEntities {
+    [addedEntities addObjectsFromArray:theEntities];
 }
 
-- (void)entitiesRemoved:(NSSet *)theEntities {
-    [removedEntities unionSet:theEntities];
+- (void)entitiesRemoved:(NSArray *)theEntities {
+    [removedEntities addObjectsFromArray:theEntities];
 }
 
-- (void)entitiesChanged:(NSSet *)theEntities {
-    [changedEntities unionSet:theEntities];
+- (void)entitiesChanged:(NSArray *)theEntities {
+    [changedEntities addObjectsFromArray:theEntities];
 }
 
-- (void)brushesAdded:(NSSet *)theBrushes {
-    [addedBrushes unionSet:theBrushes];
+- (void)brushesAdded:(NSArray *)theBrushes {
+    [addedBrushes addObjectsFromArray:theBrushes];
 }
 
-- (void)brushesRemoved:(NSSet *)theBrushes {
-    [removedBrushes unionSet:theBrushes];
+- (void)brushesRemoved:(NSArray *)theBrushes {
+    [removedBrushes addObjectsFromArray:theBrushes];
 }
 
-- (void)brushesChanged:(NSSet *)theBrushes {
-    [changedBrushes unionSet:theBrushes];
+- (void)brushesChanged:(NSArray *)theBrushes {
+    [changedBrushes addObjectsFromArray:theBrushes];
 }
 
-- (void)facesChanged:(NSSet *)theFaces {
-    [changedFaces unionSet:theFaces];
+- (void)facesChanged:(NSArray *)theFaces {
+    [changedFaces addObjectsFromArray:theFaces];
 }
 
-- (void)entitiesSelected:(NSSet *)theEntities {
-    [selectedEntities unionSet:theEntities];
+- (void)entitiesSelected:(NSArray *)theEntities {
+    [selectedEntities addObjectsFromArray:theEntities];
 }
 
-- (void)entitiesDeselected:(NSSet *)theEntities {
-    [deselectedEntities unionSet:theEntities];
+- (void)entitiesDeselected:(NSArray *)theEntities {
+    [deselectedEntities addObjectsFromArray:theEntities];
 }
 
-- (void)brushesSelected:(NSSet *)theBrushes {
-    [selectedBrushes unionSet:theBrushes];
+- (void)brushesSelected:(NSArray *)theBrushes {
+    [selectedBrushes addObjectsFromArray:theBrushes];
 }
 
-- (void)brushesDeselected:(NSSet *)theBrushes {
-    [deselectedBrushes unionSet:theBrushes];
+- (void)brushesDeselected:(NSArray *)theBrushes {
+    [deselectedBrushes addObjectsFromArray:theBrushes];
 }
 
-- (void)facesSelected:(NSSet *)theFaces {
-    [selectedFaces unionSet:theFaces];
+- (void)facesSelected:(NSArray *)theFaces {
+    [selectedFaces addObjectsFromArray:theFaces];
 }
 
-- (void)facesDeselected:(NSSet *)theFaces {
-    [deselectedFaces unionSet:theFaces];
+- (void)facesDeselected:(NSArray *)theFaces {
+    [deselectedFaces addObjectsFromArray:theFaces];
 }
 
 - (void)setFilterChanged:(BOOL)isFilterChanged {
@@ -120,55 +120,55 @@
     filterChanged = NO;
 }
 
-- (NSSet *)addedEntities {
+- (NSArray *)addedEntities {
     return addedEntities;
 }
 
-- (NSSet *)removedEntities {
+- (NSArray *)removedEntities {
     return removedEntities;
 }
 
-- (NSSet *)changedEntities {
+- (NSArray *)changedEntities {
     return changedEntities;
 }
 
-- (NSSet *)addedBrushes {
+- (NSArray *)addedBrushes {
     return addedBrushes;
 }
 
-- (NSSet *)removedBrushes {
+- (NSArray *)removedBrushes {
     return removedBrushes;
 }
 
-- (NSSet *)changedBrushes {
+- (NSArray *)changedBrushes {
     return changedBrushes;
 }
 
-- (NSSet *)changedFaces {
+- (NSArray *)changedFaces {
     return changedFaces;
 }
 
-- (NSSet *)selectedEntities {
+- (NSArray *)selectedEntities {
     return selectedEntities;
 }
 
-- (NSSet *)deselectedEntities {
+- (NSArray *)deselectedEntities {
     return deselectedEntities;
 }
 
-- (NSSet *)selectedBrushes {
+- (NSArray *)selectedBrushes {
     return selectedBrushes;
 }
 
-- (NSSet *)deselectedBrushes {
+- (NSArray *)deselectedBrushes {
     return deselectedBrushes;
 }
 
-- (NSSet *)selectedFaces {
+- (NSArray *)selectedFaces {
     return selectedFaces;
 }
 
-- (NSSet *)deselectedFaces {
+- (NSArray *)deselectedFaces {
     return deselectedFaces;
 }
 

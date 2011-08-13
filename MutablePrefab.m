@@ -140,7 +140,7 @@
     return entities;
 }
 
-- (void)addEntities:(NSSet *)theEntities {
+- (void)addEntities:(NSArray *)theEntities {
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     MutableEntity* entity;
     while ((entity = [entityEn nextObject])) {
@@ -158,7 +158,7 @@
     valid = NO;
 }
 
-- (void)removeEntities:(NSSet *)theEntities {
+- (void)removeEntities:(NSArray *)theEntities {
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     MutableEntity* entity;
     while ((entity = [entityEn nextObject])) {

@@ -18,7 +18,7 @@
 
 - (void)entitiesAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* entities = [userInfo objectForKey:EntitiesKey];
+    NSArray* entities = [userInfo objectForKey:EntitiesKey];
     
     NSEnumerator* entityEn = [entities objectEnumerator];
     id <Entity> entity;
@@ -29,7 +29,7 @@
 
 - (void)entitiesWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* entities = [userInfo objectForKey:EntitiesKey];
+    NSArray* entities = [userInfo objectForKey:EntitiesKey];
     
     NSEnumerator* entityEn = [entities objectEnumerator];
     id <Entity> entity;
@@ -41,7 +41,7 @@
 
 - (void)propertiesWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* entities = [userInfo objectForKey:EntitiesKey];
+    NSArray* entities = [userInfo objectForKey:EntitiesKey];
     
     NSEnumerator* entityEn = [entities objectEnumerator];
     id <Entity> entity;
@@ -52,7 +52,7 @@
 
 - (void)propertiesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* entities = [userInfo objectForKey:EntitiesKey];
+    NSArray* entities = [userInfo objectForKey:EntitiesKey];
     
     NSEnumerator* entityEn = [entities objectEnumerator];
     id <Entity> entity;
@@ -63,7 +63,7 @@
 
 - (void)brushesAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    NSArray* brushes = [userInfo objectForKey:BrushesKey];
     
     NSEnumerator* brushEn = [brushes objectEnumerator];
     id <Brush> brush;
@@ -73,7 +73,7 @@
 
 - (void)brushesWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    NSArray* brushes = [userInfo objectForKey:BrushesKey];
     
     NSEnumerator* brushEn = [brushes objectEnumerator];
     id <Brush> brush;
@@ -84,7 +84,7 @@
 
 - (void)brushesWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    NSArray* brushes = [userInfo objectForKey:BrushesKey];
     
     NSEnumerator* brushEn = [brushes objectEnumerator];
     id <Brush> brush;
@@ -94,7 +94,7 @@
 
 - (void)brushesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
-    NSSet* brushes = [userInfo objectForKey:BrushesKey];
+    NSArray* brushes = [userInfo objectForKey:BrushesKey];
     
     NSEnumerator* brushEn = [brushes objectEnumerator];
     id <Brush> brush;

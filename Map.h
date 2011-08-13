@@ -14,9 +14,9 @@
 
 @protocol Map <NSObject>
 
-- (void)addEntities:(NSSet *)theEntities;
+- (void)addEntities:(NSArray *)theEntities;
 - (void)addEntity:(MutableEntity *)theEntity;
-- (void)removeEntities:(NSSet *)theEntities;
+- (void)removeEntities:(NSArray *)theEntities;
 - (void)removeEntity:(MutableEntity *)theEntity;
 
 - (TBoundingBox *)worldBounds;
