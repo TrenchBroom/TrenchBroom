@@ -162,7 +162,8 @@ void removeVector3fFromList(int idx, TVector3fList* l);
 void setLinePoints(TLine* l, TVector3f* p1, TVector3f* p2);
 void linePointAtDistance(TLine* l, float d, TVector3f* p);
 
-void setPlanePoints(TPlane* p, const TVector3i* p1, const TVector3i* p2, const TVector3i* p3);
+void setPlanePointsV3i(TPlane* p, const TVector3i* p1, const TVector3i* p2, const TVector3i* p3);
+void setPlanePointsV3f(TPlane* p, const TVector3f* p1, const TVector3f* p2, const TVector3f* p3);
 EPointStatus pointStatusFromPlane(const TPlane* p, const TVector3f* v);
 EPointStatus pointStatusFromRay(const TVector3f* o, const TVector3f* d, const TVector3f* v);
 

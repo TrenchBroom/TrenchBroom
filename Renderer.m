@@ -404,8 +404,8 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)validateChangedEntities {
     NSSet* changedEntities = [changeSet changedEntities];
     if ([changedEntities count] > 0) {
-        [entityBoundsVbo activate];
-        [entityBoundsVbo mapBuffer];
+        [selectedEntityBoundsVbo activate];
+        [selectedEntityBoundsVbo mapBuffer];
         
         NSEnumerator* entityEn = [changedEntities objectEnumerator];
         id <Entity> entity;
@@ -414,8 +414,8 @@ int const TexCoordSize = 2 * sizeof(float);
             [self writeEntityBounds:entity toBlock:block];
         }
 
-        [entityBoundsVbo unmapBuffer];
-        [entityBoundsVbo deactivate];
+        [selectedEntityBoundsVbo unmapBuffer];
+        [selectedEntityBoundsVbo deactivate];
     }
 }
 

@@ -47,9 +47,9 @@
             NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
             id <Brush> brush;
             while ((brush = [brushEn nextObject])) {
-                const TVertex* vertices = [brush vertices];
+                TVertex** vertices = [brush vertices];
                 for (int i = 0; i < [brush vertexCount]; i++) {
-                    subV3f(&vertices[i].vector, &center, &diff);
+                    subV3f(&vertices[i]->vector, &center, &diff);
                     float lengthSquared = lengthSquaredV3f(&diff);
                     if (lengthSquared > distSquared)
                         distSquared = lengthSquared;

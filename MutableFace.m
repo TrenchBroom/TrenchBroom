@@ -174,7 +174,7 @@ static TVector3f baseAxes[18];
     }
     
     if (!boundaryValid) {
-        setPlanePoints(&boundary, &point1, &point2, &point3);
+        setPlanePointsV3i(&boundary, &point1, &point2, &point3);
         boundaryValid = YES;
     }
 }
@@ -521,18 +521,26 @@ static TVector3f baseAxes[18];
 }
 
 - (TVertex **)vertices {
+    if (side == NULL)
+        NSLog(@"asdf");
     return side->vertices;
 }
 
 - (int)vertexCount {
+    if (side == NULL)
+        NSLog(@"asdf");
     return side->edgeCount;
 }
 
 - (TEdge **)edges {
+    if (side == NULL)
+        NSLog(@"asdf");
     return side->edges;
 }
 
 - (int)edgeCount {
+    if (side == NULL)
+        NSLog(@"asdf");
     return side->edgeCount;
 }
 

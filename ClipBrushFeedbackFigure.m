@@ -40,17 +40,17 @@
         glColor4f(0, 1, 0, 1);
         glBegin(GL_LINES);
         if (brush1 != nil) {
-            const TEdge* edges = [brush1 edges];
+            TEdge** edges = [brush1 edges];
             for (int i = 0; i < [brush1 edgeCount]; i++) {
-                glVertexV3f(&edges[i].startVertex->vector);
-                glVertexV3f(&edges[i].endVertex->vector);
+                glVertexV3f(&edges[i]->startVertex->vector);
+                glVertexV3f(&edges[i]->endVertex->vector);
             }
         }
         if (brush2 != nil) {
-            const TEdge* edges = [brush2 edges];
+            TEdge** edges = [brush2 edges];
             for (int i = 0; i < [brush2 edgeCount]; i++) {
-                glVertexV3f(&edges[i].startVertex->vector);
-                glVertexV3f(&edges[i].endVertex->vector);
+                glVertexV3f(&edges[i]->startVertex->vector);
+                glVertexV3f(&edges[i]->endVertex->vector);
             }
         }
         glEnd();

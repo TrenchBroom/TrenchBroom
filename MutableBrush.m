@@ -285,7 +285,7 @@
     return faces;
 }
 
-- (const TVertex *)vertices {
+- (TVertex **)vertices {
     return [self vertexData]->vertices;
 }
 
@@ -293,7 +293,7 @@
     return [self vertexData]->vertexCount;
 }
 
-- (const TEdge *)edges {
+- (TEdge **)edges {
     return [self vertexData]->edges;
 }
 
@@ -318,8 +318,8 @@
     TVector3f hitPoint;
     TSide* side;
     for (int i = 0; i < vd->sideCount && isnan(dist); i++) {
-        side = &vd->sides[i];
-        pickSide(side, theRay, &hitPoint);
+        side = vd->sides[i];
+        dist = pickSide(side, theRay, &hitPoint);
     }
 
     if (!isnan(dist)) {
@@ -340,7 +340,7 @@
     float closestRayDist;
     float closestDist2 = theMaxDist * theMaxDist + 1;
     for (int i = 0; i < vd->edgeCount; i++) {
-        edge = &vd->edges[i];
+        edge = vd->edges[i];
         float rayDist;
         float dist2 = distanceOfSegmentAndRaySquared(&edge->startVertex->vector, &edge->endVertex->vector, theRay, &rayDist);
         if (dist2 < closestDist2) {

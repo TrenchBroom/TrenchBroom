@@ -9,6 +9,14 @@
 #import "VertexData2.h"
 #import "Face.h"
 #import "MutableFace.h"
+#import "assert.h"
+
+void centerOfVertices(TVertex** v, int n, TVector3f* c) {
+    *c = v[0]->vector;
+    for (int i = 1; i < n; i++)
+        addV3f(c, &v[i]->vector, c);
+    scaleV3f(c, 1.0f / n, c);
+}
 
 void edgeVector(const TEdge* e, TVector3f* v) {
     subV3f(&e->endVertex->vector, &e->startVertex->vector, v);
@@ -30,17 +38,17 @@ id <Face> backFaceOfEdge(const TEdge* e, const TRay* r) {
 
 TVertex* startVertexOfEdge(const TEdge* e, const TSide* s) {
     if (e->leftSide == s)
-        return e->startVertex;
-    else if (e->rightSide == s)
         return e->endVertex;
+    else if (e->rightSide == s)
+        return e->startVertex;
     return NULL;
 }
 
 TVertex* endVertexOfEdge(const TEdge* e, const TSide* s) {
     if (e->leftSide == s)
-        return e->endVertex;
-    else if (e->rightSide == s)
         return e->startVertex;
+    else if (e->rightSide == s)
+        return e->endVertex;
     return NULL;
 }
 
@@ -54,17 +62,23 @@ void flipEdge(TEdge* e) {
     e->endVertex = tv;
 }
 
-void splitEdge(const TPlane* p, TEdge* e, TVertex* v) {
-    TLine l;
-    setLinePoints(&l, &e->startVertex->vector, &e->endVertex->vector);
+TVertex* splitEdge(const TPlane* p, TEdge* e) {
+    assert(e->startVertex->mark == VM_DROP || e->endVertex->mark == VM_DROP);
     
-    float dist = intersectPlaneWithLine(p, &l);
-    linePointAtDistance(&l, dist, &v->vector);
+    TVertex* newVertex = malloc(sizeof(TVertex));
+    TLine line;
+    setLinePoints(&line, &e->startVertex->vector, &e->endVertex->vector);
+    
+    float dist = intersectPlaneWithLine(p, &line);
+    linePointAtDistance(&line, dist, &newVertex->vector);
+    newVertex->mark = VM_NEW;
     
     if (e->startVertex->mark == VM_DROP)
-        e->startVertex = v;
+        e->startVertex = newVertex;
     else
-        e->endVertex = v;
+        e->endVertex = newVertex;
+    
+    return newVertex;
 }
 
 void updateEdgeMark(TEdge* e) {
@@ -107,6 +121,7 @@ void initSideWithEdges(TEdge** e, BOOL* f, int c, TSide* s) {
     s->edges = malloc(c * sizeof(TEdge *));
     s->vertices = malloc(c * sizeof(TVertex *));
 
+    s->edgeCount = c;
     for (int i = 0; i < c; i++) {
         if (!f[i])
             e[i]->rightSide = s;
@@ -116,11 +131,11 @@ void initSideWithEdges(TEdge** e, BOOL* f, int c, TSide* s) {
         s->vertices[i] = startVertexOfEdge(e[i], s);
     }
     
-    s->edgeCount = c;
+    s->face = nil;
+    s->mark = SM_UNKNOWN;
 }
 
 void initSideWithFace(MutableFace* f, TEdge** e, int c, TSide* s) {
-    s->face = f;
     if (s->edges != NULL)
         free(s->edges);
     if (s->vertices != NULL)
@@ -129,14 +144,16 @@ void initSideWithFace(MutableFace* f, TEdge** e, int c, TSide* s) {
     s->edges = malloc(c * sizeof(TEdge *));
     s->vertices = malloc(c * sizeof(TVertex *));
 
+    s->edgeCount = c;
     for (int i = 0; i < c; i++) {
         e[i]->leftSide = s;
         s->edges[i] = e[i];
         s->vertices[i] = startVertexOfEdge(e[i], s);
     }
     
-    s->edgeCount = c;
+    s->face = f;
     [f setSide:s];
+    s->mark = SM_UNKNOWN;
 }
 
 void freeSide(TSide* s) {
@@ -149,11 +166,12 @@ void freeSide(TSide* s) {
         s->edges = NULL;
     }
     s->edgeCount = 0;
+    [s->face setSide:NULL];
     s->face = nil;
     s->mark = SM_UNKNOWN;
 }
 
-BOOL splitSide(TSide* s, TEdge* e) {
+TEdge* splitSide(TSide* s) {
     int keep = 0;
     int drop = 0;
     int split = 0;
@@ -192,26 +210,28 @@ BOOL splitSide(TSide* s, TEdge* e) {
     
     if (keep == s->edgeCount) {
         s->mark = SM_KEEP;
-        return NO;
+        return NULL;
     }
     
     if (undecided == 1 && keep == s->edgeCount - 1) {
         s->mark = SM_KEEP;
-        e = undecidedEdge;
-        return YES;
+        return undecidedEdge;
     }
     
     if (drop + undecided == s->edgeCount) {
-        s->mark = drop;
-        return NO;
+        s->mark = SM_DROP;
+        return NULL;
     }
     
+    assert(splitIndex1 >= 0 && splitIndex2 >= 0);
     s->mark = SM_SPLIT;
     
-    e->startVertex = endVertexOfEdge(s->edges[splitIndex1], s);
-    e->endVertex = startVertexOfEdge(s->edges[splitIndex2], s);
-    e->rightSide = s;
-    e->mark = EM_NEW;
+    TEdge* newEdge = malloc(sizeof(TEdge));
+    newEdge->startVertex = endVertexOfEdge(s->edges[splitIndex1], s);
+    newEdge->endVertex = startVertexOfEdge(s->edges[splitIndex2], s);
+    newEdge->leftSide = NULL;
+    newEdge->rightSide = s;
+    newEdge->mark = EM_NEW;
 
     int newEdgeCount;
     TEdge** newEdges;
@@ -220,6 +240,7 @@ BOOL splitSide(TSide* s, TEdge* e) {
     if (splitIndex2 > splitIndex1) {
         newEdgeCount = s->edgeCount - (splitIndex2 - splitIndex1 - 1) + 1;
         newEdges = malloc(newEdgeCount * sizeof(TEdge *));
+        newVertices = malloc(newEdgeCount * sizeof(TVertex *));
         
         int j = 0;
         for (int i = 0; i <= splitIndex1; i++, j++) {
@@ -227,25 +248,26 @@ BOOL splitSide(TSide* s, TEdge* e) {
             newVertices[j] = startVertexOfEdge(s->edges[i], s);
         }
         
-        newEdges[j] = e;
-        newVertices[j] = startVertexOfEdge(e, s);
+        newEdges[j] = newEdge;
+        newVertices[j] = startVertexOfEdge(newEdge, s);
         j++;
         
         for (int i = splitIndex2; i < s->edgeCount; i++, j++) {
-            newEdges[j++] = s->edges[i];
+            newEdges[j] = s->edges[i];
             newVertices[j] = startVertexOfEdge(s->edges[i], s);
         }
     } else {
         newEdgeCount = splitIndex1 - splitIndex2 + 2;
         newEdges = malloc(newEdgeCount * sizeof(TEdge *));
+        newVertices = malloc(newEdgeCount * sizeof(TVertex *));
         
         int j = 0;
         for (int i = splitIndex2; i <= splitIndex1; i++, j++) {
-            newEdges[j++] = s->edges[i];
+            newEdges[j] = s->edges[i];
             newVertices[j] = startVertexOfEdge(s->edges[i], s);
         }
-        newEdges[j] = e;
-        newVertices[j] = startVertexOfEdge(e, s);
+        newEdges[j] = newEdge;
+        newVertices[j] = startVertexOfEdge(newEdge, s);
     }
 
     free(s->vertices);
@@ -254,7 +276,7 @@ BOOL splitSide(TSide* s, TEdge* e) {
     s->edges = newEdges;
     s->edgeCount = newEdgeCount;
     
-    return YES;
+    return newEdge;
 }
 
 float pickSide(const TSide* s, const TRay* r, TVector3f* h) {
@@ -342,151 +364,209 @@ float pickSide(const TSide* s, const TRay* r, TVector3f* h) {
 }
 
 void initVertexDataWithBounds(TVertexData* vd, const TBoundingBox* b) {
-    freeVertexData(vd);
-    vd->vertexCount = 8;
-    vd->vertices = malloc(vd->vertexCount * sizeof(TVertex));
-    vd->vertexCapacity = vd->vertexCount;
-    vd->edgeCount = 12;
-    vd->edges = malloc(vd->edgeCount * sizeof(TEdge));
-    vd->edgeCapacity = vd->edgeCount;
-    vd->sideCount = 6;
-    vd->sides = malloc(vd->sideCount * sizeof(TSide));
-    vd->sideCapacity = vd->sideCount;
+    vd->vertexCapacity = 8;
+    vd->vertices = malloc(vd->vertexCapacity * sizeof(TVertex *));
+    vd->vertexCount = 0;
+    vd->edgeCapacity = 12;
+    vd->edges = malloc(vd->edgeCapacity * sizeof(TEdge *));
+    vd->edgeCount = 0;
+    vd->sideCapacity = 6;
+    vd->sides = malloc(vd->sideCapacity * sizeof(TSide *));
+    vd->sideCount = 0;
+    vd->bounds.min = NullVector;
+    vd->bounds.max = NullVector;
+    vd->valid = NO;
     
     const TVector3f* min = &b->min;
     const TVector3f* max = &b->max;
 
-    int esb = 0;
-    vd->vertices[esb].vector.x  = min->x - 1;
-    vd->vertices[esb].vector.y  = min->y - 1;
-    vd->vertices[esb].vector.z  = min->z - 1;
-    vd->vertices[esb].mark      = VM_UNKNOWN;
+    TVertex* esb = malloc(sizeof(TVertex));
+    esb->vector.x  = min->x - 1;
+    esb->vector.y  = min->y - 1;
+    esb->vector.z  = min->z - 1;
+    esb->mark      = VM_UNKNOWN;
+    addVertex(vd, esb);
     
-    int est = 1;
-    vd->vertices[est].vector.x  = min->x - 1;
-    vd->vertices[est].vector.y  = min->y - 1;
-    vd->vertices[est].vector.z  = max->z + 1;
-    vd->vertices[est].mark      = VM_UNKNOWN;
+    TVertex* est = malloc(sizeof(TVertex));
+    est->vector.x  = min->x - 1;
+    est->vector.y  = min->y - 1;
+    est->vector.z  = max->z + 1;
+    est->mark      = VM_UNKNOWN;
+    addVertex(vd, est);
     
-    int enb = 2;
-    vd->vertices[enb].vector.x  = min->x - 1;
-    vd->vertices[enb].vector.y  = max->y + 1;
-    vd->vertices[enb].vector.z  = min->z - 1;
-    vd->vertices[enb].mark      = VM_UNKNOWN;
+    TVertex* enb = malloc(sizeof(TVertex));
+    enb->vector.x  = min->x - 1;
+    enb->vector.y  = max->y + 1;
+    enb->vector.z  = min->z - 1;
+    enb->mark      = VM_UNKNOWN;
+    addVertex(vd, enb);
     
-    int ent = 3;
-    vd->vertices[ent].vector.x  = min->x - 1;
-    vd->vertices[ent].vector.y  = max->y + 1;
-    vd->vertices[ent].vector.z  = max->z + 1;
-    vd->vertices[ent].mark      = VM_UNKNOWN;
+    TVertex* ent = malloc(sizeof(TVertex));
+    ent->vector.x  = min->x - 1;
+    ent->vector.y  = max->y + 1;
+    ent->vector.z  = max->z + 1;
+    ent->mark      = VM_UNKNOWN;
+    addVertex(vd, ent);
 
-    int wsb = 4;
-    vd->vertices[wsb].vector.x  = max->x + 1;
-    vd->vertices[wsb].vector.y  = min->y - 1;
-    vd->vertices[wsb].vector.z  = min->z - 1;
-    vd->vertices[wsb].mark      = VM_UNKNOWN;
+    TVertex* wsb = malloc(sizeof(TVertex));
+    wsb->vector.x  = max->x + 1;
+    wsb->vector.y  = min->y - 1;
+    wsb->vector.z  = min->z - 1;
+    wsb->mark      = VM_UNKNOWN;
+    addVertex(vd, wsb);
 
-    int wst = 5;
-    vd->vertices[wst].vector.x  = max->x + 1;
-    vd->vertices[wst].vector.y  = min->y - 1;
-    vd->vertices[wst].vector.z  = max->z + 1;
-    vd->vertices[wst].mark      = VM_UNKNOWN;
+    TVertex* wst = malloc(sizeof(TVertex));
+    wst->vector.x  = max->x + 1;
+    wst->vector.y  = min->y - 1;
+    wst->vector.z  = max->z + 1;
+    wst->mark      = VM_UNKNOWN;
+    addVertex(vd, wst);
     
-    int wnb = 6;
-    vd->vertices[wnb].vector.x  = max->x + 1;
-    vd->vertices[wnb].vector.y  = max->y + 1;
-    vd->vertices[wnb].vector.z  = min->z - 1;
-    vd->vertices[wnb].mark      = VM_UNKNOWN;
+    TVertex* wnb = malloc(sizeof(TVertex));
+    wnb->vector.x  = max->x + 1;
+    wnb->vector.y  = max->y + 1;
+    wnb->vector.z  = min->z - 1;
+    wnb->mark      = VM_UNKNOWN;
+    addVertex(vd, wnb);
     
-    int wnt = 7;
-    vd->vertices[wnt].vector.x  = max->x + 1;
-    vd->vertices[wnt].vector.y  = max->y + 1;
-    vd->vertices[wnt].vector.z  = max->z + 1;
-    vd->vertices[wnt].mark      = VM_UNKNOWN;
+    TVertex* wnt = malloc(sizeof(TVertex));
+    wnt->vector.x  = max->x + 1;
+    wnt->vector.y  = max->y + 1;
+    wnt->vector.z  = max->z + 1;
+    wnt->mark      = VM_UNKNOWN;
+    addVertex(vd, wnt);
     
-    int esbwsb = 0;
-    vd->edges[esbwsb].startVertex   = &vd->vertices[esb];
-    vd->edges[esbwsb].endVertex     = &vd->vertices[wsb];
-    vd->edges[esbwsb].mark          = EM_UNKNOWN;
+    TEdge* esbwsb = malloc(sizeof(TEdge));
+    esbwsb->startVertex     = esb;
+    esbwsb->endVertex       = wsb;
+    esbwsb->leftSide        = NULL;
+    esbwsb->rightSide       = NULL;
+    esbwsb->mark            = EM_UNKNOWN;
+    addEdge(vd, esbwsb);
 
-    int wsbwst = 1;
-    vd->edges[wsbwst].startVertex   = &vd->vertices[wsb];
-    vd->edges[wsbwst].endVertex     = &vd->vertices[wst];
-    vd->edges[wsbwst].mark          = EM_UNKNOWN;
+    TEdge* wsbwst = malloc(sizeof(TEdge));
+    wsbwst->startVertex     = wsb;
+    wsbwst->endVertex       = wst;
+    wsbwst->leftSide        = NULL;
+    wsbwst->rightSide       = NULL;
+    wsbwst->mark            = EM_UNKNOWN;
+    addEdge(vd, wsbwst);
+
+    TEdge* wstest = malloc(sizeof(TEdge));
+    wstest->startVertex     = wst;
+    wstest->endVertex       = est;
+    wstest->leftSide        = NULL;
+    wstest->rightSide       = NULL;
+    wstest->mark            = EM_UNKNOWN;
+    addEdge(vd, wstest);
+
+    TEdge* estesb = malloc(sizeof(TEdge));
+    estesb->startVertex     = est;
+    estesb->endVertex       = esb;
+    estesb->leftSide        = NULL;
+    estesb->rightSide       = NULL;
+    estesb->mark            = EM_UNKNOWN;
+    addEdge(vd, estesb);
+
+    TEdge* wnbenb = malloc(sizeof(TEdge));
+    wnbenb->startVertex     = wnb;
+    wnbenb->endVertex       = enb;
+    wnbenb->leftSide        = NULL;
+    wnbenb->rightSide       = NULL;
+    wnbenb->mark            = EM_UNKNOWN;
+    addEdge(vd, wnbenb);
+
+    TEdge* enbent = malloc(sizeof(TEdge));
+    enbent->startVertex     = enb;
+    enbent->endVertex       = ent;
+    enbent->leftSide        = NULL;
+    enbent->rightSide       = NULL;
+    enbent->mark            = EM_UNKNOWN;
+    addEdge(vd, enbent);
     
-    int wstest = 2;
-    vd->edges[wstest].startVertex   = &vd->vertices[wst];
-    vd->edges[wstest].endVertex     = &vd->vertices[est];
-    vd->edges[wstest].mark          = EM_UNKNOWN;
+    TEdge* entwnt = malloc(sizeof(TEdge));
+    entwnt->startVertex     = ent;
+    entwnt->endVertex       = wnt;
+    entwnt->leftSide        = NULL;
+    entwnt->rightSide       = NULL;
+    entwnt->mark            = EM_UNKNOWN;
+    addEdge(vd, entwnt);
     
-    int estesb = 3;
-    vd->edges[estesb].startVertex   = &vd->vertices[est];
-    vd->edges[estesb].endVertex     = &vd->vertices[esb];
-    vd->edges[estesb].mark          = EM_UNKNOWN;
+    TEdge* wntwnb = malloc(sizeof(TEdge));
+    wntwnb->startVertex     = wnt;
+    wntwnb->endVertex       = wnb;
+    wntwnb->leftSide        = NULL;
+    wntwnb->rightSide       = NULL;
+    wntwnb->mark            = EM_UNKNOWN;
+    addEdge(vd, wntwnb);
     
-    int wnbenb = 4;
-    vd->edges[wnbenb].startVertex   = &vd->vertices[wnb];
-    vd->edges[wnbenb].endVertex     = &vd->vertices[enb];
-    vd->edges[wnbenb].mark          = EM_UNKNOWN;
+    TEdge* enbesb = malloc(sizeof(TEdge));
+    enbesb->startVertex     = enb;
+    enbesb->endVertex       = esb;
+    enbesb->leftSide        = NULL;
+    enbesb->rightSide       = NULL;
+    enbesb->mark            = EM_UNKNOWN;
+    addEdge(vd, enbesb);
     
-    int enbent = 5;
-    vd->edges[enbent].startVertex   = &vd->vertices[enb];
-    vd->edges[enbent].endVertex     = &vd->vertices[ent];
-    vd->edges[enbent].mark          = EM_UNKNOWN;
+    TEdge* estent = malloc(sizeof(TEdge));
+    estent->startVertex     = est;
+    estent->endVertex       = ent;
+    estent->leftSide        = NULL;
+    estent->rightSide       = NULL;
+    estent->mark            = EM_UNKNOWN;
+    addEdge(vd, estent);
+
+    TEdge* wsbwnb = malloc(sizeof(TEdge));
+    wsbwnb->startVertex     = wsb;
+    wsbwnb->endVertex       = wnb;
+    wsbwnb->leftSide        = NULL;
+    wsbwnb->rightSide       = NULL;
+    wsbwnb->mark            = EM_UNKNOWN;
+    addEdge(vd, wsbwnb);
     
-    int entwnt = 6;
-    vd->edges[entwnt].startVertex   = &vd->vertices[ent];
-    vd->edges[entwnt].endVertex     = &vd->vertices[wnt];
-    vd->edges[entwnt].mark          = EM_UNKNOWN;
+    TEdge* wntwst = malloc(sizeof(TEdge));
+    wntwst->startVertex     = wnt;
+    wntwst->endVertex       = wst;
+    wntwst->leftSide        = NULL;
+    wntwst->rightSide       = NULL;
+    wntwst->mark            = EM_UNKNOWN;
+    addEdge(vd, wntwst);
     
-    int wntwnb = 7;
-    vd->edges[wntwnb].startVertex   = &vd->vertices[wnt];
-    vd->edges[wntwnb].endVertex     = &vd->vertices[wnb];
-    vd->edges[wntwnb].mark          = EM_UNKNOWN;
-    
-    int enbesb = 8;
-    vd->edges[enbesb].startVertex   = &vd->vertices[enb];
-    vd->edges[enbesb].endVertex     = &vd->vertices[esb];
-    vd->edges[enbesb].mark          = EM_UNKNOWN;
-    
-    int estent = 9;
-    vd->edges[estent].startVertex   = &vd->vertices[est];
-    vd->edges[estent].endVertex     = &vd->vertices[ent];
-    vd->edges[estent].mark          = EM_UNKNOWN;
-    
-    int wsbwnb = 10;
-    vd->edges[wsbwnb].startVertex   = &vd->vertices[wsb];
-    vd->edges[wsbwnb].endVertex     = &vd->vertices[wnb];
-    vd->edges[wsbwnb].mark          = EM_UNKNOWN;
-    
-    int wntwst = 11;
-    vd->edges[wntwst].startVertex   = &vd->vertices[wnt];
-    vd->edges[wntwst].endVertex     = &vd->vertices[wst];
-    vd->edges[wntwst].mark          = EM_UNKNOWN;
-    
-    TEdge* southEdges[] = {&vd->edges[esbwsb], &vd->edges[estesb], &vd->edges[wstest], &vd->edges[wsbwst]};
+    TSide* south = malloc(sizeof(TSide));
+    TEdge* southEdges[] = {esbwsb, estesb, wstest, wsbwst};
     BOOL southFlipped[] = {YES, YES, YES, YES};
-    initSideWithEdges(southEdges, southFlipped, 4, &vd->sides[0]);
+    initSideWithEdges(southEdges, southFlipped, 4, south);
+    addSide(vd, south);
     
-    TEdge* northEdges[] = {&vd->edges[wnbenb], &vd->edges[wntwnb], &vd->edges[entwnt], &vd->edges[enbent]};
+    TSide* north = malloc(sizeof(TSide));
+    TEdge* northEdges[] = {wnbenb, wntwnb, entwnt, enbent};
     BOOL northFlipped[] = {YES, YES, YES, YES};
-    initSideWithEdges(northEdges, northFlipped, 4, &vd->sides[1]);
+    initSideWithEdges(northEdges, northFlipped, 4, north);
+    addSide(vd, north);
     
-    TEdge* westEdges[] = {&vd->edges[wsbwnb], &vd->edges[wsbwst], &vd->edges[wntwst], &vd->edges[wntwnb]};
+    TSide* west = malloc(sizeof(TSide));
+    TEdge* westEdges[] = {wsbwnb, wsbwst, wntwst, wntwnb};
     BOOL westFlipped[] = {YES, NO, YES, NO};
-    initSideWithEdges(westEdges, westFlipped, 4, &vd->sides[2]);
+    initSideWithEdges(westEdges, westFlipped, 4, west);
+    addSide(vd, west);
     
-    TEdge* eastEdges[] = {&vd->edges[enbesb], &vd->edges[enbent], &vd->edges[estent], &vd->edges[estesb]};
+    TSide* east = malloc(sizeof(TSide));
+    TEdge* eastEdges[] = {enbesb, enbent, estent, estesb};
     BOOL eastFlipped[] = {YES, NO, YES, NO};
-    initSideWithEdges(eastEdges, eastFlipped, 4, &vd->sides[3]);
+    initSideWithEdges(eastEdges, eastFlipped, 4, east);
+    addSide(vd, east);
     
-    TEdge* topEdges[] = {&vd->edges[wstest], &vd->edges[estent], &vd->edges[entwnt], &vd->edges[wntwst]};
+    TSide* top = malloc(sizeof(TSide));
+    TEdge* topEdges[] = {wstest, estent, entwnt, wntwst};
     BOOL topFlipped[] = {NO, NO, NO, NO};
-    initSideWithEdges(topEdges, topFlipped, 4, &vd->sides[4]);
+    initSideWithEdges(topEdges, topFlipped, 4, top);
+    addSide(vd, top);
 
-    TEdge* bottomEdges[] = {&vd->edges[esbwsb], &vd->edges[wsbwnb], &vd->edges[wnbenb], &vd->edges[enbesb]};
+    TSide* bottom = malloc(sizeof(TSide));
+    TEdge* bottomEdges[] = {esbwsb, wsbwnb, wnbenb, enbesb};
     BOOL bottomFlipped[] = {NO, NO, NO, NO};
-    initSideWithEdges(bottomEdges, bottomFlipped, 4, &vd->sides[5]);
+    initSideWithEdges(bottomEdges, bottomFlipped, 4, bottom);
+    addSide(vd, bottom);
     
     vd->valid = NO;
 }
@@ -508,64 +588,117 @@ BOOL initVertexDataWithFaces(TVertexData* vd, const TBoundingBox* b, NSArray* f,
 
 void freeVertexData(TVertexData* vd) {
     if (vd->vertices != NULL) {
+        for (int i = 0; i < vd->vertexCount; i++)
+            free(vd->vertices[i]);
         free(vd->vertices);
         vd->vertices = NULL;
+        vd->vertexCount = 0;
+        vd->vertexCapacity = 0;
     }
     if (vd->edges != NULL) {
+        for (int i = 0; i < vd->edgeCount; i++)
+            free(vd->edges[i]);
         free(vd->edges);
         vd->edges = NULL;
+        vd->edgeCount = 0;
+        vd->edgeCapacity = 0;
     }
     if (vd->sides != NULL) {
-        for (int i = 0; i < vd->sideCount; i++)
-             freeSide(&vd->sides[i]);
+        for (int i = 0; i < vd->sideCount; i++) {
+            freeSide(vd->sides[i]);
+            free(vd->sides[i]);
+        }
         free(vd->sides);
         vd->sides = NULL;
+        vd->sideCount = 0;
+        vd->sideCapacity = 0;
     }
     vd->valid = NO;
 }
 
 void addVertex(TVertexData* vd, TVertex* v) {
+    assert(vd != NULL);
+    assert(v != NULL);
+    
     if (vd->vertexCount == vd->vertexCapacity) {
-        TVertex* vt = vd->vertices;
+        TVertex** vt = vd->vertices;
         
         vd->vertexCapacity *= 2;
-        vd->vertices = malloc(vd->vertexCapacity * sizeof(TVertex));
-        memcpy(&vd->vertices, &vt, vd->vertexCount);
+        vd->vertices = malloc(vd->vertexCapacity * sizeof(TVertex *));
+        memcpy(vd->vertices, vt, vd->vertexCount * sizeof(TVertex *));
         free(vt);
     }
     
-    vd->vertices[vd->vertexCount++] = *v;
+    vd->vertices[vd->vertexCount++] = v;
+}
+
+void deleteVertex(TVertexData* vd, int v) {
+    assert(vd != NULL);
+    assert(v >= 0 && v < vd->vertexCount);
+    
+    free(vd->vertices[v]);
+    if (v < vd->vertexCount - 1)
+        memcpy(&vd->vertices[v], &vd->vertices[v + 1], (vd->vertexCount - v - 1) * sizeof(TVertex *));
+    
+    vd->vertexCount--;
+    vd->vertices[vd->vertexCount] = NULL;
 }
 
 void addEdge(TVertexData* vd, TEdge* e) {
+    assert(vd != NULL);
+    assert(e != NULL);
+    
     if (vd->edgeCount == vd->edgeCapacity) {
-        TEdge* et = vd->edges;
+        TEdge** et = vd->edges;
         
         vd->edgeCapacity *= 2;
-        vd->edges = malloc(vd->edgeCapacity * sizeof(TEdge));
-        memcpy(&vd->edges, &et, vd->edgeCount);
+        vd->edges = malloc(vd->edgeCapacity * sizeof(TEdge *));
+        memcpy(vd->edges, et, vd->edgeCount * sizeof(TEdge *));
         free(et);
     }
     
-    vd->edges[vd->edgeCount++] = *e;
+    vd->edges[vd->edgeCount++] = e;
+}
+
+void deleteEdge(TVertexData* vd, int e) {
+    assert(vd != NULL);
+    assert(e >= 0 && e < vd->edgeCount);
+    
+    free(vd->edges[e]);
+    if (e < vd->edgeCount - 1)
+        memcpy(&vd->edges[e], &vd->edges[e + 1], (vd->edgeCount - e - 1) * sizeof(TEdge *));
+
+    vd->edgeCount--;
+    vd->edges[vd->edgeCount] = NULL;
 }
 
 void addSide(TVertexData* vd, TSide* s) {
+    assert(vd != NULL);
+    assert(s != NULL);
+    
     if (vd->sideCount == vd->sideCapacity) {
-        TSide* st = vd->sides;
+        TSide** st = vd->sides;
         
         vd->sideCapacity *= 2;
-        vd->sides = malloc(vd->sideCapacity * sizeof(TSide));
-        memcpy(&vd->sides, &st, vd->sideCount);
+        vd->sides = malloc(vd->sideCapacity * sizeof(TSide *));
+        memcpy(vd->sides, st, vd->sideCount * sizeof(TSide *));
         free(st);
     }
     
-    vd->sides[vd->sideCount++] = *s;
+    vd->sides[vd->sideCount++] = s;
 }
 
-void removeSide(TVertexData* vd, int s) {
-    for (int i = s; i < vd->sideCount - 1; i++)
-        vd->sides[i] = vd->sides[i + 1];
+void deleteSide(TVertexData* vd, int s) {
+    assert(vd != NULL);
+    assert(s >= 0 && s < vd->sideCount);
+    
+    freeSide(vd->sides[s]);
+    free(vd->sides[s]);
+    if (s < vd->sideCount - 1)
+        memcpy(&vd->sides[s], &vd->sides[s + 1], (vd->sideCount - s - 1) * sizeof(TSide *));
+
+    vd->sideCount--;
+    vd->sides[vd->sideCount] = NULL;
 }
 
 BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableSet** d) {
@@ -577,7 +710,7 @@ BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableSet** d) {
     
     // mark vertices
     for (int i = 0; i < vd->vertexCount; i++) {
-        TVertex* v = &vd->vertices[i];
+        TVertex* v = vd->vertices[i];
         EPointStatus vs = pointStatusFromPlane(p, &v->vector);
         if (vs == PS_ABOVE) {
             v->mark = VM_DROP;
@@ -602,112 +735,84 @@ BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableSet** d) {
         return NO;
     
     // mark and split edges
-    int ec = 0;
     for (int i = 0; i < vd->edgeCount; i++) {
-        TEdge* e = &vd->edges[i];
-        updateEdgeMark(e);
-        if (e->mark == EM_SPLIT) {
-            TVertex v;
-            v.mark = VM_UNKNOWN;
-            
-            splitEdge(p, e, &v);
-            addVertex(vd, &v);
-            ec++;
+        TEdge* edge = vd->edges[i];
+        updateEdgeMark(edge);
+        if (edge->mark == EM_SPLIT) {
+            TVertex* newVertex = splitEdge(p, edge);
+            addVertex(vd, newVertex);
         }
     }
     
     // mark, split and drop sides
-    TEdge* es = malloc(ec * sizeof(TEdge));
-    int j = 0;
+    int newEdgeCount = 0;
+    TEdge** newEdges = malloc(vd->sideCount * sizeof(TEdge *)); // alloc enough space for new edges
     for (int i = 0; i < vd->sideCount; i++) {
-        TSide* s = &vd->sides[i];
-        TEdge e;
-        BOOL ex = splitSide(s, &e);
+        TSide* side = vd->sides[i];
+        TEdge* newEdge = splitSide(side);
         
-        if (s->mark == SM_DROP) {
-            if (s->face != nil) {
+        if (side->mark == SM_DROP) {
+            if (side->face != nil) {
                 if (*d == nil)
                     *d = [NSMutableSet set];
-                [*d addObject:s->face];
-                [s->face setSide:NULL];
+                [*d addObject:side->face];
+                [side->face setSide:NULL];
             }
-            freeSide(s);
-            removeSide(vd, i--);
-        } else if (s->mark == SM_SPLIT) {
-            addEdge(vd, &e);
-            es[j++] = e;
-            s->mark = SM_UNKNOWN;
-        } else if (s->mark == SM_KEEP && ex) {
+            deleteSide(vd, i--);
+        } else if (side->mark == SM_SPLIT) {
+            addEdge(vd, newEdge);
+            newEdges[newEdgeCount++] = newEdge;
+            side->mark = SM_UNKNOWN;
+        } else if (side->mark == SM_KEEP && newEdge != NULL) {
             // the edge is an undecided edge, so it needs to be flipped in order to act as a new edge
-            if (e.rightSide != s)
-                flipEdge(&e);
-            es[j++] = e;
-            s->mark = SM_UNKNOWN;
+            if (newEdge->rightSide != side)
+                flipEdge(newEdge);
+            newEdges[newEdgeCount++] = newEdge;
+            side->mark = SM_UNKNOWN;
         } else {
-            s->mark = SM_UNKNOWN;
+            side->mark = SM_UNKNOWN;
         }
     }
     
     // create new side from newly created edges
     // first, sort the new edges to form a polygon in clockwise order
-    for (int i = 0; i < ec - 1; i++) {
-        TEdge* e = &es[i];
-        for (int j = i + 2; j < ec; j++) {
-            TEdge* c = &es[j];
-            if (e->startVertex == c->endVertex) {
-                TEdge t = es[j];
-                es[j] = es[i + 1];
-                es[i + 1] = t;
+    for (int i = 0; i < newEdgeCount - 1; i++) {
+        TEdge* edge = newEdges[i];
+        for (int j = i + 2; j < newEdgeCount; j++) {
+            TEdge* candidate = newEdges[j];
+            if (edge->startVertex == candidate->endVertex) {
+                TEdge* t = newEdges[j];
+                newEdges[j] = newEdges[i + 1];
+                newEdges[i + 1] = t;
             }
         }
     }
     
     // now create the new side
-    TSide side;
-    initSideWithFace(f, &es, ec, &side);
-    addSide(vd, &side);
-    free(es);
+    TSide* newSide = malloc(sizeof(TSide));
+    newSide->face = nil;
+    newSide->vertices = NULL;
+    newSide->edges = NULL;
+    newSide->edgeCount = 0;
+    newSide->mark = SM_NEW;
+
+    initSideWithFace(f, newEdges, newEdgeCount, newSide);
+    addSide(vd, newSide);
     
     // clean up
     // delete dropped vertices
-    int l = -1;
-    int lc = 0;
-    for (int i = 0; i < vd->vertexCount; i++) {
-        if (vd->vertices[i].mark == VM_DROP) {
-            if (l >= 0) {
-                memcpy(&vd->vertices[l - lc], &vd->vertices[l + 1], (i - l - 1) * sizeof(TVertex));
-                lc++;
-            }
-            l = i;
-        } else {
-            vd->vertices[i].mark = VM_UNKNOWN;
-        }
-    }
-    
-    if (l >= 0) {
-        memcpy(&vd->vertices[l - lc], &vd->vertices[l + 1], (vd->vertexCount - l - 1) * sizeof(TVertex));
-        vd->vertexCount -= ++lc;
-    }
+    for (int i = 0; i < vd->vertexCount; i++)
+        if (vd->vertices[i]->mark == VM_DROP)
+            deleteVertex(vd, i--);
+        else
+            vd->vertices[i]->mark = VM_UNDECIDED;
     
     // delete dropped edges
-    l = -1;
-    lc = 0;
-    for (int i = 0; i < vd->edgeCount; i++) {
-        if (vd->edges[i].mark == EM_DROP) {
-            if (l >= 0) {
-                memcpy(&vd->edges[l - lc], &vd->edges[l + 1], (i - l - 1) * sizeof(TEdge));
-                lc++;
-            }
-            l = i;
-        } else {
-            vd->edges[i].mark = EM_UNKNOWN;
-        }
-    }
-    
-    if (l >= 0) {
-        memcpy(&vd->edges[l - lc], &vd->edges[l + 1], (vd->edgeCount - l - 1) * sizeof(TEdge));
-        vd->edgeCount -= ++lc;
-    }
+    for (int i = 0; i < vd->edgeCount; i++)
+        if (vd->edges[i]->mark == EM_DROP)
+            deleteEdge(vd, i--);
+        else
+            vd->edges[i]->mark = EM_UNDECIDED;
     
     vd->valid = NO;
     return YES;
@@ -715,13 +820,13 @@ BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableSet** d) {
 
 void validateVertexData(TVertexData* vd) {
     if (!vd->valid) {
-        vd->bounds.min = vd->vertices[0].vector;
-        vd->bounds.max = vd->vertices[0].vector;
-        vd->center = vd->vertices[0].vector;
+        vd->bounds.min = vd->vertices[0]->vector;
+        vd->bounds.max = vd->vertices[0]->vector;
+        vd->center = vd->vertices[0]->vector;
         
         for  (int i = 1; i < vd->vertexCount; i++) {
-            mergeBoundsWithPoint(&vd->bounds, &vd->vertices[i].vector, &vd->bounds);
-            addV3f(&vd->center, &vd->vertices[i].vector, &vd->center);
+            mergeBoundsWithPoint(&vd->bounds, &vd->vertices[i]->vector, &vd->bounds);
+            addV3f(&vd->center, &vd->vertices[i]->vector, &vd->center);
         }
         
         scaleV3f(&vd->center, 1.0f / vd->vertexCount, &vd->center);

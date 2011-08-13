@@ -530,7 +530,7 @@ void linePointAtDistance(TLine* l, float d, TVector3f* p) {
 
 # pragma mark TPlane functions
 
-void setPlanePoints(TPlane* p, const TVector3i* p1, const TVector3i* p2, const TVector3i* p3) {
+void setPlanePointsV3i(TPlane* p, const TVector3i* p1, const TVector3i* p2, const TVector3i* p3) {
     TVector3f v1, v2;
     
     setV3f(&p->point, p1);
@@ -542,6 +542,17 @@ void setPlanePoints(TPlane* p, const TVector3i* p1, const TVector3i* p2, const T
     v2.x = p3->x - p1->x;
     v2.y = p3->y - p1->y;
     v2.z = p3->z - p1->z;
+    
+    crossV3f(&v2, &v1, &p->norm);
+    normalizeV3f(&p->norm, &p->norm);
+}
+
+void setPlanePointsV3f(TPlane* p, const TVector3f* p1, const TVector3f* p2, const TVector3f* p3) {
+    TVector3f v1, v2;
+    p->point = *p1;
+
+    subV3f(p2, p1, &v1);
+    subV3f(p3, p1, &v2);
     
     crossV3f(&v2, &v1, &p->norm);
     normalizeV3f(&p->norm, &p->norm);

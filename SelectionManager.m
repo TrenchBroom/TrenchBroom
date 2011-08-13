@@ -601,7 +601,8 @@ NSString* const SelectionVertices = @"SelectionVertices";
     if (record)
         [[undoManager prepareWithInvocationTarget:self] addBrushes:removedBrushes record:record];
     
-    NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:theBrushes, SelectionBrushes, nil];
+    NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:removedBrushes, SelectionBrushes, nil];
+    [removedBrushes release];
 
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:SelectionRemoved object:self userInfo:userInfo];
@@ -658,6 +659,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
     }
     
     NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:removedEntities, SelectionEntities, nil];
+    [removedEntities release];
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:SelectionRemoved object:self userInfo:userInfo];

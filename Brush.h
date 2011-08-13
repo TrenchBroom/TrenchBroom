@@ -22,9 +22,9 @@
 - (id)copy;
 
 - (NSArray *)faces;
-- (const TVertex *)vertices;
+- (TVertex **)vertices;
 - (int)vertexCount;
-- (const TEdge *)edges;
+- (TEdge **)edges;
 - (int)edgeCount;
 
 - (const TBoundingBox *)bounds;

@@ -219,6 +219,7 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
         NSData* palette = [[NSData alloc] initWithContentsOfFile:palettePath];
         glResources = [[GLResources alloc] initWithPalette:palette];
+        [palette release];
 
         picker = [[Picker alloc] initWithDocument:self];
     }
