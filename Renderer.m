@@ -301,13 +301,14 @@ int const TexCoordSize = 2 * sizeof(float);
         NSEnumerator* entityEn = [deselectedEntities objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
-            VBOMemBlock* block = [entityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
-            [self writeEntityBounds:entity toBlock:block];
-            [entity setBoundsMemBlock:block];
-            [block setState:BS_USED_VALID];
-            
-            if (![entity isWorldspawn])
+            if (![entity isWorldspawn]) {
+                VBOMemBlock* block = [entityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
+                [self writeEntityBounds:entity toBlock:block];
+                [entity setBoundsMemBlock:block];
+                [block setState:BS_USED_VALID];
+                
                 [selectedClassnameRenderer moveStringWithKey:[entity entityId] toTextRenderer:classnameRenderer];
+            }
         }
         
         [entityBoundsVbo unmapBuffer];
@@ -339,13 +340,14 @@ int const TexCoordSize = 2 * sizeof(float);
         NSEnumerator* entityEn = [selectedEntities objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
-            VBOMemBlock* block = [selectedEntityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
-            [self writeEntityBounds:entity toBlock:block];
-            [entity setBoundsMemBlock:block];
-            [block setState:BS_USED_VALID];
-
-            if (![entity isWorldspawn])
+            if (![entity isWorldspawn]) {
+                VBOMemBlock* block = [selectedEntityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
+                [self writeEntityBounds:entity toBlock:block];
+                [entity setBoundsMemBlock:block];
+                [block setState:BS_USED_VALID];
+                
                 [classnameRenderer moveStringWithKey:[entity entityId] toTextRenderer:selectedClassnameRenderer];
+            }
         }
         
         [selectedEntityBoundsVbo unmapBuffer];
@@ -377,14 +379,16 @@ int const TexCoordSize = 2 * sizeof(float);
         NSEnumerator* entityEn = [addedEntities objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
-            VBOMemBlock* block = [entityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
-            [self writeEntityBounds:entity toBlock:block];
-            [entity setBoundsMemBlock:block];
-
-            id <EntityRenderer> renderer = [entityRendererManager entityRendererForEntity:entity mods:mods];
-            if (renderer != nil) {
-                [entityRenderers setObject:renderer forKey:[entity entityId]];
-                [modelEntities addObject:entity];
+            if (![entity isWorldspawn]) {
+                VBOMemBlock* block = [entityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
+                [self writeEntityBounds:entity toBlock:block];
+                [entity setBoundsMemBlock:block];
+                
+                id <EntityRenderer> renderer = [entityRendererManager entityRendererForEntity:entity mods:mods];
+                if (renderer != nil) {
+                    [entityRenderers setObject:renderer forKey:[entity entityId]];
+                    [modelEntities addObject:entity];
+                }
             }
         }
         
@@ -416,8 +420,10 @@ int const TexCoordSize = 2 * sizeof(float);
         NSEnumerator* entityEn = [changedEntities objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
-            VBOMemBlock* block = [entity boundsMemBlock];
-            [self writeEntityBounds:entity toBlock:block];
+            if (![entity isWorldspawn]) {
+                VBOMemBlock* block = [entity boundsMemBlock];
+                [self writeEntityBounds:entity toBlock:block];
+            }
         }
 
         [selectedEntityBoundsVbo unmapBuffer];
@@ -434,9 +440,11 @@ int const TexCoordSize = 2 * sizeof(float);
         NSEnumerator* entityEn = [removedEntities objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
-            [entity setBoundsMemBlock:nil];
-            [entityRenderers removeObjectForKey:[entity entityId]];
-            [modelEntities removeObject:entity];
+            if (![entity isWorldspawn]) {
+                [entity setBoundsMemBlock:nil];
+                [entityRenderers removeObjectForKey:[entity entityId]];
+                [modelEntities removeObject:entity];
+            }
         }
 
         [entityBoundsVbo pack];
@@ -533,28 +541,32 @@ int const TexCoordSize = 2 * sizeof(float);
     NSEnumerator* entityEn = [[map entities] objectEnumerator];
     id <Entity> entity;
     while  ((entity = [entityEn nextObject])) {
-        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            id <Face> face;
-            while ((face = [faceEn nextObject])) {
-                NSString* textureName = [face texture];
-                IntData* indexBuffer = [faceIndexBuffers objectForKey:textureName];
-                if (indexBuffer == nil) {
-                    indexBuffer = [[IntData alloc] init];
-                    [faceIndexBuffers setObject:indexBuffer forKey:textureName];
-                    [indexBuffer release];
+        if ([filter isEntityRenderable:entity]) {
+            NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+            id <Brush> brush;
+            while ((brush = [brushEn nextObject])) {
+                if ([filter isBrushRenderable:brush]) {
+                    NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+                    id <Face> face;
+                    while ((face = [faceEn nextObject])) {
+                        NSString* textureName = [face texture];
+                        IntData* indexBuffer = [faceIndexBuffers objectForKey:textureName];
+                        if (indexBuffer == nil) {
+                            indexBuffer = [[IntData alloc] init];
+                            [faceIndexBuffers setObject:indexBuffer forKey:textureName];
+                            [indexBuffer release];
+                        }
+                        
+                        IntData* countBuffer = [faceCountBuffers objectForKey:textureName];
+                        if (countBuffer == nil) {
+                            countBuffer = [[IntData alloc] init];
+                            [faceCountBuffers setObject:countBuffer forKey:textureName];
+                            [countBuffer release];
+                        }
+                        
+                        [self writeFace:face toIndexBuffer:indexBuffer countBuffer:countBuffer];
+                    }
                 }
-                
-                IntData* countBuffer = [faceCountBuffers objectForKey:textureName];
-                if (countBuffer == nil) {
-                    countBuffer = [[IntData alloc] init];
-                    [faceCountBuffers setObject:countBuffer forKey:textureName];
-                    [countBuffer release];
-                }
-                
-                [self writeFace:face toIndexBuffer:indexBuffer countBuffer:countBuffer];
             }
         }
     }
@@ -652,7 +664,8 @@ int const TexCoordSize = 2 * sizeof(float);
         [[changeSet selectedBrushes] count] > 0 ||
         [[changeSet deselectedBrushes] count] > 0 ||
         [[changeSet selectedFaces] count] > 0 ||
-        [[changeSet deselectedFaces] count] > 0) {
+        [[changeSet deselectedFaces] count] > 0 ||
+        [changeSet filterChanged]) {
         
         [self rebuildFaceIndexBuffers];
         [self rebuildSelectedFaceIndexBuffers];
@@ -962,6 +975,7 @@ int const TexCoordSize = 2 * sizeof(float);
     
     [filter release];
     filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager options:options];
+    [changeSet setFilterChanged:YES];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -1117,10 +1131,12 @@ int const TexCoordSize = 2 * sizeof(float);
         [faceVbo activate];
         switch ([options renderMode]) {
             case RM_TEXTURED:
-                [self renderFaces:YES];
+                if ([options isolationMode] == IM_NONE)
+                    [self renderFaces:YES];
                 break;
             case RM_FLAT:
-                [self renderFaces:NO];
+                if ([options isolationMode] == IM_NONE)
+                    [self renderFaces:NO];
                 break;
             case RM_WIREFRAME:
                 break;

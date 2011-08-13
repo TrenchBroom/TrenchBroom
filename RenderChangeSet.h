@@ -22,6 +22,7 @@
     NSMutableSet* deselectedBrushes;
     NSMutableSet* selectedFaces;
     NSMutableSet* deselectedFaces;
+    BOOL filterChanged;
 }
 
 - (void)entitiesAdded:(NSSet *)theEntities;
@@ -37,6 +38,7 @@
 - (void)brushesDeselected:(NSSet *)theBrushes;
 - (void)facesSelected:(NSSet *)theFaces;
 - (void)facesDeselected:(NSSet *)theFaces;
+- (void)setFilterChanged:(BOOL)isFilterChanged;
 - (void)clear;
 
 - (NSSet *)addedEntities;
@@ -52,5 +54,6 @@
 - (NSSet *)deselectedBrushes;
 - (NSSet *)selectedFaces;
 - (NSSet *)deselectedFaces;
+- (BOOL)filterChanged;
 
 @end

@@ -99,6 +99,10 @@
     [deselectedFaces unionSet:theFaces];
 }
 
+- (void)setFilterChanged:(BOOL)isFilterChanged {
+    filterChanged = isFilterChanged;
+}
+
 - (void)clear {
     [addedEntities removeAllObjects];
     [removedEntities removeAllObjects];
@@ -113,6 +117,7 @@
     [deselectedBrushes removeAllObjects];
     [selectedFaces removeAllObjects];
     [deselectedFaces removeAllObjects];
+    filterChanged = NO;
 }
 
 - (NSSet *)addedEntities {
@@ -165,6 +170,10 @@
 
 - (NSSet *)deselectedFaces {
     return deselectedFaces;
+}
+
+- (BOOL)filterChanged {
+    return filterChanged;
 }
 
 @end
