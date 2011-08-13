@@ -363,6 +363,22 @@ float pickSide(const TSide* s, const TRay* r, TVector3f* h) {
     return dist;
 }
 
+void initVertexData(TVertexData* vd) {
+    vd->vertexCapacity = 0;
+    vd->vertexCount = 0;
+    vd->vertices = NULL;
+    vd->edgeCapacity = 0;
+    vd->edgeCount = 0;
+    vd->edges = NULL;
+    vd->sideCapacity = 0;
+    vd->sideCount = 0;
+    vd->sides = NULL;
+    vd->bounds.min = NullVector;
+    vd->bounds.max = NullVector;
+    vd->center = NullVector;
+    vd->valid = NO;
+}
+
 void initVertexDataWithBounds(TVertexData* vd, const TBoundingBox* b) {
     vd->vertexCapacity = 8;
     vd->vertices = malloc(vd->vertexCapacity * sizeof(TVertex *));
@@ -375,6 +391,7 @@ void initVertexDataWithBounds(TVertexData* vd, const TBoundingBox* b) {
     vd->sideCount = 0;
     vd->bounds.min = NullVector;
     vd->bounds.max = NullVector;
+    vd->center = NullVector;
     vd->valid = NO;
     
     const TVector3f* min = &b->min;
@@ -798,6 +815,7 @@ BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableSet** d) {
 
     initSideWithFace(f, newEdges, newEdgeCount, newSide);
     addSide(vd, newSide);
+    free(newEdges);
     
     // clean up
     // delete dropped vertices

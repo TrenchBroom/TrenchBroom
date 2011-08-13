@@ -26,6 +26,7 @@
 
 - (TVertexData *)vertexData {
     if (!vertexDataValid) {
+        initVertexData(&vertexData);
         NSMutableSet* droppedFaces = nil;
         if (!initVertexDataWithFaces(&vertexData, worldBounds, faces, &droppedFaces)) {
             if (droppedFaces != nil) {
@@ -50,15 +51,22 @@
 
 @implementation MutableBrush
 
+- (id)init {
+    if ((self = [super init])) {
+        brushId = [[[IdGenerator sharedGenerator] getId] retain];
+        faces = [[NSMutableArray alloc] init];
+        initVertexData(&vertexData);
+        
+        filePosition = -1;
+    }
+    return self;
+}
+
 - (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds {
     NSAssert(theWorldBounds != NULL, @"world bounds must not be NULL");
 
-    if ((self = [super init])) {
+    if ((self = [self init])) {
         worldBounds = theWorldBounds;
-        brushId = [[[IdGenerator sharedGenerator] getId] retain];
-        faces = [[NSMutableArray alloc] init];
-        
-        filePosition = -1;
     }
     
     return self;
@@ -253,6 +261,8 @@
     
     NSMutableSet* droppedFaces = nil;
     TVertexData testData;
+    initVertexData(&testData);
+    
     BOOL canDrag = initVertexDataWithFaces(&testData, worldBounds, testFaces, &droppedFaces) && 
                    (droppedFaces == nil || [droppedFaces count] == 0) && 
                    boundsContainBounds(worldBounds, vertexDataBounds(&testData));
@@ -364,7 +374,7 @@
         hit = [[PickingHit alloc] initWithObject:closestEdge->rightSide->face type:HT_CLOSE_EDGE hitPoint:&hitPoint distance:rightDist];
     } else {
         rayPointAtDistance(theRay, closestRayDist, &hitPoint);
-        if (dotV3f([closestEdge->leftSide->face norm], &theRay->direction) < 0) {
+        if (dotV3f([closestEdge->leftSide->face norm], &theRay->direction) >= 0) {
             hit = [[PickingHit alloc] initWithObject:closestEdge->leftSide->face type:HT_CLOSE_EDGE hitPoint:&hitPoint distance:closestRayDist];
         } else {
             hit = [[PickingHit alloc] initWithObject:closestEdge->rightSide->face type:HT_CLOSE_EDGE hitPoint:&hitPoint distance:closestRayDist];

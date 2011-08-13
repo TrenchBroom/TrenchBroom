@@ -418,7 +418,7 @@
 		488D528013DEE181006FE818 /* EntityDefinitionUsageFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionUsageFilter.m; sourceTree = "<group>"; };
 		488F853A13F51FAE00DA0403 /* RenderChangeSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderChangeSet.h; sourceTree = "<group>"; };
 		488F853B13F51FAE00DA0403 /* RenderChangeSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RenderChangeSet.m; sourceTree = "<group>"; };
-		488F853E13F583B900DA0403 /* VertexData.h */ = {isa = PBXFileReference; fileEncoding = 4; path = VertexData.h; sourceTree = "<group>"; };
+		488F853E13F583B900DA0403 /* VertexData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexData.h; sourceTree = "<group>"; };
 		488F853F13F583B900DA0403 /* VertexData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexData.m; sourceTree = "<group>"; };
 		488FEAEF131F9D1800010A04 /* MutablePrefabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutablePrefabGroup.h; sourceTree = "<group>"; };
 		488FEAF0131F9D1800010A04 /* MutablePrefabGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutablePrefabGroup.m; sourceTree = "<group>"; };

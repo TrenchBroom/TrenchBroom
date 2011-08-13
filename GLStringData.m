@@ -11,6 +11,13 @@
 
 @implementation GLStringData
 
+- (void)dealloc {
+    [triangleSet release];
+    [triangleStrips release];
+    [triangleFans release];
+    [super dealloc];
+}
+
 - (void)begin:(GLenum)theType {
     type = theType;
     

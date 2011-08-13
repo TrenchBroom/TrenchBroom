@@ -94,6 +94,7 @@ void freeSide(TSide* s);
 TEdge* splitSide(TSide* s);
 float pickSide(const TSide* s, const TRay* r, TVector3f* h);
 
+void initVertexData(TVertexData* vd);
 void initVertexDataWithBounds(TVertexData* vd, const TBoundingBox* b);
 BOOL initVertexDataWithFaces(TVertexData* vd, const TBoundingBox* b, NSArray* f, NSMutableSet** d);
 void freeVertexData(TVertexData* vd);

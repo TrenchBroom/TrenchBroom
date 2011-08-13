@@ -281,6 +281,9 @@ int const TexCoordSize = 2 * sizeof(float);
             else
                 [selectedModelEntities removeObject:entity];
         }
+        
+        [modelEntitiesCopy release];
+        [selectedModelEntitiesCopy release];
 
         entityRendererCacheValid = YES;
     }
