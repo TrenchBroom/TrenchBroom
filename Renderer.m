@@ -309,7 +309,7 @@ int const TexCoordSize = 2 * sizeof(float);
                 
                 [selectedClassnameRenderer moveStringWithKey:[entity entityId] toTextRenderer:classnameRenderer];
 
-                int NSInteger = [selectedModelEntities indexOfObjectIdenticalTo:entity];
+                NSInteger index = [selectedModelEntities indexOfObjectIdenticalTo:entity];
                 if (index != NSNotFound) {
                     [selectedModelEntities removeObjectAtIndex:index];
                     [modelEntities addObject:entity];
