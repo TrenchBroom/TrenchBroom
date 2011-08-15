@@ -107,3 +107,5 @@ void deleteSide(TVertexData* vd, int s);
 BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d);
 const TBoundingBox* vertexDataBounds(TVertexData* vd);
 const TVector3f* vertexDataCenter(TVertexData* vd);
+BOOL vertexDataContainsPoint(TVertexData* vd, TVector3f* p);
+EPointStatus vertexStatusFromRay(const TVector3f* o, const TVector3f* d, TVertex** ps, int c);

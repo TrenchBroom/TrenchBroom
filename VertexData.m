@@ -863,3 +863,27 @@ const TVector3f* vertexDataCenter(TVertexData* vd) {
     validateVertexData(vd);
     return &vd->center;
 }
+
+BOOL vertexDataContainsPoint(TVertexData* vd, TVector3f* p) {
+    for (int i = 0; i < vd->sideCount; i++)
+        if (pointStatusFromPlane([vd->sides[i]->face boundary], p) == PS_ABOVE)
+            return NO;
+    return YES;
+}
+
+EPointStatus vertexStatusFromRay(const TVector3f* o, const TVector3f* d, TVertex** ps, int c) {
+    int above = 0;
+    int below = 0;
+    for (int i = 0; i < c; i++) {
+        EPointStatus status = pointStatusFromRay(o, d, &ps[i]->vector);
+        if (status == PS_ABOVE)
+            above++;
+        else if (status == PS_BELOW)
+            below++;
+        if (above > 0 && below > 0)
+            return PS_INSIDE;
+    }
+    
+    return above > 0 ? PS_ABOVE : PS_BELOW;
+}
+

@@ -391,8 +391,62 @@
     if (!boundsIntersectWithBounds([self bounds], [theBrush bounds]))
         return NO;
     
-    // return [[self vertexData] intersectsBrush:(id <Brush>)theBrush];
-    return NO;
+    // separating axis theorem
+    // http://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf
+    
+    TVertex** theirVertices = [theBrush vertices];
+    int theirVertexCount = [theBrush vertexCount];
+    
+    NSEnumerator* myFaceEn = [faces objectEnumerator];
+    id <Face> myFace;
+    while ((myFace = [myFaceEn nextObject])) {
+        const TVector3f* origin = &[myFace vertices][0]->vector;
+        const TVector3f* direction = [myFace norm];
+        if (vertexStatusFromRay(origin, direction, theirVertices, theirVertexCount) == PS_ABOVE)
+            return NO;
+    }
+    
+    TVertex** myVertices = [self vertices];
+    int myVertexCount = [self vertexCount];
+    
+    NSEnumerator* theirFaceEn = [[theBrush faces] objectEnumerator];
+    id <Face> theirFace;
+    while ((theirFace = [theirFaceEn nextObject])) {
+        TVector3f* origin = &[theirFace vertices][0]->vector;
+        const TVector3f* direction = [theirFace norm];
+        if (vertexStatusFromRay(origin, direction, myVertices, myVertexCount) == PS_ABOVE)
+            return NO;
+    }
+
+    TEdge** myEdges = [self edges];
+    int myEdgeCount = [self edgeCount];
+    
+    TEdge** theirEdges = [theBrush edges];
+    int theirEdgeCount = [theBrush edgeCount];
+
+    for (int i = 0; i < myEdgeCount; i++) {
+        TEdge* myEdge = myEdges[i];
+        for (int j = 0; j < theirEdgeCount; j++) {
+            TEdge* theirEdge = theirEdges[j];
+            TVector3f myEdgeVec, theirEdgeVec, direction;
+            edgeVector(myEdge, &myEdgeVec);
+            edgeVector(theirEdge, &theirEdgeVec);
+            
+            crossV3f(&myEdgeVec, &theirEdgeVec, &direction);
+            TVector3f* origin = &myEdge->startVertex->vector;
+            
+            EPointStatus myStatus = vertexStatusFromRay(origin, &direction, myVertices, myVertexCount);
+            if (myStatus != PS_INSIDE) {
+                EPointStatus theirStatus = vertexStatusFromRay(origin, &direction, theirVertices, theirVertexCount);
+                if (theirStatus != PS_INSIDE) {
+                    if (myStatus != theirStatus)
+                        return NO;
+                }
+            }
+        }
+    }
+    
+    return YES;
 }
 
 - (BOOL)containsBrush:(id <Brush>)theBrush {
@@ -400,9 +454,16 @@
     
     if (!boundsContainBounds([self bounds], [theBrush bounds]))
         return NO;
+
+    TVertexData* myVertexData = [self vertexData];
+    TVertex** theirVertices = [theBrush vertices];
+    int theirVertexCount = [theBrush vertexCount];
     
-//    return [[self vertexData] containsBrush:(id <Brush>)theBrush];
-    return NO;
+    for (int i = 0; i < theirVertexCount; i++)
+        if (!vertexDataContainsPoint(myVertexData, &theirVertices[i]->vector))
+            return NO;
+    
+    return YES;
 }
 
 - (BOOL)intersectsEntity:(id <Entity>)theEntity {
@@ -411,7 +472,41 @@
     if (!boundsIntersectWithBounds([self bounds], [theEntity bounds]))
         return NO;
     
-    // return [[self vertexData] intersectsEntity:(id <Entity>)theEntity];
+    TBoundingBox* entityBounds = [theEntity bounds];
+    TVertexData* myVertexData = [self vertexData];
+    
+    TVector3f p = entityBounds->min;
+    if (vertexDataContainsPoint(myVertexData, &p))
+        return YES;
+    
+    p.x = entityBounds->max.x;
+    if (vertexDataContainsPoint(myVertexData, &p))
+        return YES;
+    
+    p.y = entityBounds->max.y;
+    if (vertexDataContainsPoint(myVertexData, &p))
+        return YES;
+    
+    p.x = entityBounds->min.x;
+    if (vertexDataContainsPoint(myVertexData, &p))
+        return YES;
+    
+    p = entityBounds->max;
+    if (vertexDataContainsPoint(myVertexData, &p))
+        return YES;
+    
+    p.x = entityBounds->min.x;
+    if (vertexDataContainsPoint(myVertexData, &p))
+        return YES;
+    
+    p.y = entityBounds->min.y;
+    if (vertexDataContainsPoint(myVertexData, &p))
+        return YES;
+    
+    p.x = entityBounds->max.x;
+    if (vertexDataContainsPoint(myVertexData, &p))
+        return YES;
+    
     return NO;
 }
 
@@ -421,8 +516,42 @@
     if (!boundsContainBounds([self bounds], [theEntity bounds]))
         return NO;
     
-    // return [[self vertexData] containsEntity:theEntity];
-    return NO;
+    TBoundingBox* entityBounds = [theEntity bounds];
+    TVertexData* myVertexData = [self vertexData];
+    
+    TVector3f p = entityBounds->min;
+    if (!vertexDataContainsPoint(myVertexData, &p))
+        return NO;
+    
+    p.x = entityBounds->max.x;
+    if (!vertexDataContainsPoint(myVertexData, &p))
+        return NO;
+    
+    p.y = entityBounds->max.y;
+    if (!vertexDataContainsPoint(myVertexData, &p))
+        return NO;
+    
+    p.x = entityBounds->min.x;
+    if (!vertexDataContainsPoint(myVertexData, &p))
+        return NO;
+    
+    p = entityBounds->max;
+    if (!vertexDataContainsPoint(myVertexData, &p))
+        return NO;
+    
+    p.x = entityBounds->min.x;
+    if (!vertexDataContainsPoint(myVertexData, &p))
+        return NO;
+    
+    p.y = entityBounds->min.y;
+    if (!vertexDataContainsPoint(myVertexData, &p))
+        return NO;
+    
+    p.x = entityBounds->max.x;
+    if (!vertexDataContainsPoint(myVertexData, &p))
+        return NO;
+    
+    return YES;
 }
 
 @end

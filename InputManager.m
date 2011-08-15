@@ -179,8 +179,6 @@
                             }
                             case HT_BRUSH: {
                                 id <Brush> brush = [hit object];
-                                if (brush == nil)
-                                    NSLog(@"asdf");
                                 if ([selectionManager isBrushSelected:brush])
                                     newOwner = moveTool;
                                 break;

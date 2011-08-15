@@ -780,7 +780,6 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    [selectionManager removeAll:YES];
     [map deleteBrushes:[NSSet setWithObject:selectionBrush]];
     
     if ([touchingEntities count] > 0)

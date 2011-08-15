@@ -270,6 +270,8 @@ NSString* const SelectionVertices = @"SelectionVertices";
 }
 
 - (BOOL)isEntitySelected:(id <Entity>)entity {
+    if (entity == nil)
+        NSLog(@"asdf");
     NSAssert(entity != nil, @"entity must not be nil");
     return [entities indexOfObjectIdenticalTo:entity] != NSNotFound;
 }
