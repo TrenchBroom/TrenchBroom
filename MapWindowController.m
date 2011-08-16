@@ -321,7 +321,7 @@
     EntityDefinition* definition = [pointDefinitions objectAtIndex:[sender tag]];
 
     NSPoint mousePos = [inputManager menuPosition];
-    PickingHitList* hits = [inputManager currentHitList];
+    PickingHitList* hits = [inputManager currentHits];
     
     TVector3i insertPoint;
     calculateEntityOrigin(definition, hits, mousePos, camera, &insertPoint);

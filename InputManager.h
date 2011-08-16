@@ -30,7 +30,7 @@
 
     NSEvent* lastEvent;
     TRay lastRay;
-    PickingHitList* lastHits;
+    PickingHitList* currentHits;
     NSPoint menuPosition;
     
     CameraTool* cameraTool;
@@ -79,6 +79,6 @@
 
 - (ClipTool *)clipTool;
 - (NSPoint)menuPosition;
-- (PickingHitList *)currentHitList;
+- (PickingHitList *)currentHits;
 
 @end

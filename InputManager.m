@@ -46,11 +46,11 @@
 
 - (void)updateEvent:(NSEvent *)event;
 - (void)updateRay;
-- (void)updateHits;
 - (void)updateActiveTool;
 - (void)updateCursor;
 - (void)updateCursorOwner;
 - (void)cameraViewChanged:(NSNotification *)notification;
+- (void)mapChanged:(NSNotification *)notification;
 
 - (void)showContextMenu;
 @end
@@ -89,23 +89,9 @@
     
     NSPoint m = [mapView3D convertPointFromBase:[lastEvent locationInWindow]];
     lastRay = [camera pickRayX:m.x y:m.y];
-}
-
-- (void)updateHits {
-    Picker* picker = [[windowController document] picker];
-    [lastHits release];
-    lastHits = [[picker pickObjects:&lastRay filter:filter] retain];
-
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager mode] == SM_BRUSHES) {
-        PickingHit* brushHit = [lastHits firstHitOfType:HT_BRUSH ignoreOccluders:NO];
-        if (brushHit == nil) {
-            NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-            id <Brush> brush;
-            while ((brush = [brushEn nextObject]))
-                [brush pickFace:&lastRay maxDistance:10 hitList:lastHits];
-        }
-    }
+    
+    [currentHits release];
+    currentHits = nil;
 }
 
 - (void)updateActiveTool {
@@ -124,7 +110,7 @@
         if ([self isRotateModifierPressed]) {
             newActiveTool = rotateTool;
         } else if (drag) {
-            if ([lastHits firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:NO] != nil)
+            if ([[self currentHits] firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:NO] != nil)
                 newActiveTool = faceTool;
             else
                 newActiveTool = moveTool;
@@ -146,10 +132,10 @@
     
     if (newActiveTool != activeTool) {
         if (activeTool != nil)
-            [activeTool deactivated:lastEvent ray:&lastRay hits:lastHits];
+            [activeTool deactivated:lastEvent ray:&lastRay hits:[self currentHits]];
         activeTool = newActiveTool;
         if (activeTool != nil) {
-            [activeTool activated:lastEvent ray:&lastRay hits:lastHits];
+            [activeTool activated:lastEvent ray:&lastRay hits:[self currentHits]];
         }
     }
 }
@@ -168,7 +154,7 @@
                 if ([self isRotateModifierPressed]) {
                     newOwner = rotateTool;
                 } else {
-                    PickingHit* hit = [lastHits firstHitOfType:HT_ANY ignoreOccluders:NO];
+                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_ANY ignoreOccluders:NO];
                     if (hit != nil) {
                         switch ([hit type]) {
                             case HT_ENTITY: {
@@ -198,7 +184,7 @@
                     }
                 }
             } else if ([selectionManager mode] == SM_FACES) {
-                PickingHit* hit = [lastHits firstHitOfType:HT_FACE ignoreOccluders:YES];
+                PickingHit* hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
                 if (hit != nil) {
                     id <Face> face = [hit object];
                     if ([selectionManager isFaceSelected:face] || ([[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed])))
@@ -209,17 +195,17 @@
         
         if (newOwner != cursorOwner) {
             if (cursorOwner != nil)
-                [cursorOwner unsetCursor:lastEvent ray:&lastRay hits:lastHits];
+                [cursorOwner unsetCursor:lastEvent ray:&lastRay hits:[self currentHits]];
             cursorOwner = newOwner;
             if (cursorOwner != nil)
-                [cursorOwner setCursor:lastEvent ray:&lastRay hits:lastHits];
+                [cursorOwner setCursor:lastEvent ray:&lastRay hits:[self currentHits]];
         }
     }
 }
 
 - (void)updateCursor {
     if (cursorOwner != nil) {
-        [cursorOwner updateCursor:lastEvent ray:&lastRay hits:lastHits];
+        [cursorOwner updateCursor:lastEvent ray:&lastRay hits:[self currentHits]];
 
         MapView3D* view3D = [windowController view3D];
         [view3D setNeedsDisplay:YES];
@@ -228,10 +214,15 @@
 
 - (void)cameraViewChanged:(NSNotification *)notification {
     [self updateRay];
-    [self updateHits];
     [self updateCursorOwner];
     [self updateCursor];
 }
+
+- (void)mapChanged:(NSNotification *)notification {
+    [currentHits release];
+    currentHits = nil;
+}
+
 
 - (void)showContextMenu {
     if (popupMenu == nil) {
@@ -282,8 +273,17 @@
         entityDefinitionDndTool = [[EntityDefinitionDndTool alloc] initWithWindowController:windowController];
         
         Camera* camera = [windowController camera];
+        MapDocument* map = [windowController document];
+        
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(cameraViewChanged:) name:CameraViewChanged object:camera];
+        [center addObserver:self selector:@selector(mapChanged:) name:EntitiesAdded object:map];
+        [center addObserver:self selector:@selector(mapChanged:) name:EntitiesWereRemoved object:map];
+        [center addObserver:self selector:@selector(mapChanged:) name:PropertiesDidChange object:map];
+        [center addObserver:self selector:@selector(mapChanged:) name:BrushesAdded object:map];
+        [center addObserver:self selector:@selector(mapChanged:) name:BrushesWereRemoved object:map];
+        [center addObserver:self selector:@selector(mapChanged:) name:BrushesDidChange object:map];
+        [center addObserver:self selector:@selector(mapChanged:) name:FacesDidChange object:map];
     }
     
     return self;
@@ -301,7 +301,7 @@
     [faceTool release];
     [clipTool release];
     [lastEvent release];
-    [lastHits release];
+    [currentHits release];
     [filter release];
     [super dealloc];
 }
@@ -324,7 +324,7 @@
 
 - (void)handleFlagsChanged:(NSEvent *)event sender:(id)sender {
     [self updateActiveTool];
-    [activeTool handleFlagsChanged:event ray:&lastRay hits:lastHits];
+    [activeTool handleFlagsChanged:event ray:&lastRay hits:[self currentHits]];
     
     [self updateCursorOwner];
     [self updateCursor];
@@ -334,25 +334,23 @@
     if (!drag) {
         drag = YES;
         [self updateActiveTool];
-        [activeTool beginLeftDrag:lastEvent ray:&lastRay hits:lastHits];
+        [activeTool beginLeftDrag:lastEvent ray:&lastRay hits:[self currentHits]];
 
         [self updateCursorOwner];
     }
 
     [self updateEvent:event];
     [self updateRay];
-    [self updateHits];
-    [activeTool leftDrag:lastEvent ray:&lastRay hits:lastHits];
+    [activeTool leftDrag:lastEvent ray:&lastRay hits:[self currentHits]];
     [self updateCursor];
 }
 
 - (void)handleMouseMoved:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
     [self updateRay];
-    [self updateHits];
 
     [self updateActiveTool];
-    [activeTool handleMouseMoved:lastEvent ray:&lastRay hits:lastHits];
+    [activeTool handleMouseMoved:lastEvent ray:&lastRay hits:[self currentHits]];
 
     [self updateCursorOwner];
     [self updateCursor];
@@ -369,18 +367,17 @@
 - (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
     [self updateRay];
-    [self updateHits];
-    [activeTool handleLeftMouseDown:lastEvent ray:&lastRay hits:lastHits];
+    [activeTool handleLeftMouseDown:lastEvent ray:&lastRay hits:[self currentHits]];
 }
 
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
     if (drag) {
-        [activeTool endLeftDrag:lastEvent ray:&lastRay hits:lastHits];
+        [activeTool endLeftDrag:lastEvent ray:&lastRay hits:[self currentHits]];
         drag = NO;
         [self updateActiveTool];
     } else {
-        [activeTool handleLeftMouseUp:lastEvent ray:&lastRay hits:lastHits];
+        [activeTool handleLeftMouseUp:lastEvent ray:&lastRay hits:[self currentHits]];
     }
     [self updateCursorOwner];
     [self updateCursor];
@@ -390,56 +387,55 @@
     if (!drag) {
         drag = YES;
         [self updateActiveTool];
-        [activeTool beginRightDrag:lastEvent ray:&lastRay hits:lastHits];
+        [activeTool beginRightDrag:lastEvent ray:&lastRay hits:[self currentHits]];
 
         [self updateCursorOwner];
     }
     
     [self updateEvent:event];
     [self updateRay];
-    [self updateHits];
-    [activeTool rightDrag:lastEvent ray:&lastRay hits:lastHits];
+    [activeTool rightDrag:lastEvent ray:&lastRay hits:[self currentHits]];
     [self updateCursor];
 }
 
 - (void)handleRightMouseDown:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
-    [activeTool handleRightMouseDown:lastEvent ray:&lastRay hits:lastHits];
+    [activeTool handleRightMouseDown:lastEvent ray:&lastRay hits:[self currentHits]];
 }
 
 - (void)handleRightMouseUp:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
     if (drag) {
-        [activeTool endRightDrag:lastEvent ray:&lastRay hits:lastHits];
+        [activeTool endRightDrag:lastEvent ray:&lastRay hits:[self currentHits]];
         drag = NO;
         [self updateActiveTool];
 
         [self updateCursorOwner];
         [self updateCursor];
     } else {
-        [activeTool handleRightMouseUp:lastEvent ray:&lastRay hits:lastHits];
+        [activeTool handleRightMouseUp:lastEvent ray:&lastRay hits:[self currentHits]];
         [self showContextMenu];
     }
 }
 
 - (void)handleScrollWheel:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
-    [activeTool handleScrollWheel:lastEvent ray:&lastRay hits:lastHits];
+    [activeTool handleScrollWheel:lastEvent ray:&lastRay hits:[self currentHits]];
 }
 
 - (void)handleBeginGesture:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
-    [activeTool handleBeginGesture:lastEvent ray:&lastRay hits:lastHits];
+    [activeTool handleBeginGesture:lastEvent ray:&lastRay hits:[self currentHits]];
 }
 
 - (void)handleEndGesture:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
-    [activeTool handleEndGesture:lastEvent ray:&lastRay hits:lastHits];
+    [activeTool handleEndGesture:lastEvent ray:&lastRay hits:[self currentHits]];
 }
 
 - (void)handleMagnify:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
-    [activeTool handleMagnify:lastEvent ray:&lastRay hits:lastHits];
+    [activeTool handleMagnify:lastEvent ray:&lastRay hits:[self currentHits]];
 }
 
 - (NSDragOperation)handleDraggingEntered:(id <NSDraggingInfo>)sender {
@@ -561,8 +557,24 @@
     return menuPosition;
 }
 
-- (PickingHitList *)currentHitList {
-    return lastHits;
+- (PickingHitList *)currentHits {
+    if (currentHits == nil) {
+        Picker* picker = [[windowController document] picker];
+        currentHits = [[picker pickObjects:&lastRay filter:filter] retain];
+        
+        SelectionManager* selectionManager = [windowController selectionManager];
+        if ([selectionManager mode] == SM_BRUSHES) {
+            PickingHit* brushHit = [currentHits firstHitOfType:HT_BRUSH ignoreOccluders:NO];
+            if (brushHit == nil) {
+                NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+                id <Brush> brush;
+                while ((brush = [brushEn nextObject]))
+                    [brush pickFace:&lastRay maxDistance:10 hitList:currentHits];
+            }
+        }
+    } 
+    
+    return currentHits;
 }
 
 @end
