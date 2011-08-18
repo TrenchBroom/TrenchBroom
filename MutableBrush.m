@@ -221,8 +221,9 @@
         [face translateBy:theDelta];
 
     if (vertexDataValid) {
-        freeVertexData(&vertexData);
-        vertexDataValid = NO;
+        TVector3f deltaf;
+        setV3f(&deltaf, theDelta);
+        translateVertexData(&vertexData, &deltaf);
     }
 }
 
@@ -233,8 +234,9 @@
         [face rotateZ90CW:theCenter];
 
     if (vertexDataValid) {
-        freeVertexData(&vertexData);
-        vertexDataValid = NO;
+        TVector3f centerf;
+        setV3f(&centerf, theCenter);
+        rotateVertexDataZ90CW(&vertexData, &centerf);
     }
 }
 
@@ -245,8 +247,9 @@
         [face rotateZ90CCW:theCenter];
 
     if (vertexDataValid) {
-        freeVertexData(&vertexData);
-        vertexDataValid = NO;
+        TVector3f centerf;
+        setV3f(&centerf, theCenter);
+        rotateVertexDataZ90CCW(&vertexData, &centerf);
     }
 }
 

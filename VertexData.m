@@ -838,6 +838,27 @@ BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
     return YES;
 }
 
+void translateVertexData(TVertexData* vd, const TVector3f* d) {
+    for (int i = 0; i < vd->vertexCount; i++)
+        addV3f(&vd->vertices[i]->vector, d, &vd->vertices[i]->vector);
+}
+
+void rotateVertexDataZ90CW(TVertexData* vd, const TVector3f* c) {
+    for (int i = 0; i < vd->vertexCount; i++) {
+        subV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
+        rotateZ90CWV3f(&vd->vertices[i]->vector, &vd->vertices[i]->vector);
+        addV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
+    }
+}
+
+void rotateVertexDataZ90CCW(TVertexData* vd, const TVector3f* c) {
+    for (int i = 0; i < vd->vertexCount; i++) {
+        subV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
+        rotateZ90CCWV3f(&vd->vertices[i]->vector, &vd->vertices[i]->vector);
+        addV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
+    }
+}
+
 void validateVertexData(TVertexData* vd) {
     if (!vd->valid) {
         vd->bounds.min = vd->vertices[0]->vector;
