@@ -219,6 +219,11 @@
     MutableFace* face;
     while ((face = [faceEn nextObject]))
         [face translateBy:theDelta];
+
+    if (vertexDataValid) {
+        freeVertexData(&vertexData);
+        vertexDataValid = NO;
+    }
 }
 
 - (void)rotateZ90CW:(TVector3i *)theCenter {
@@ -226,6 +231,11 @@
     MutableFace* face;
     while ((face = [faceEn nextObject]))
         [face rotateZ90CW:theCenter];
+
+    if (vertexDataValid) {
+        freeVertexData(&vertexData);
+        vertexDataValid = NO;
+    }
 }
 
 - (void)rotateZ90CCW:(TVector3i *)theCenter {
@@ -233,6 +243,11 @@
     MutableFace* face;
     while ((face = [faceEn nextObject]))
         [face rotateZ90CCW:theCenter];
+
+    if (vertexDataValid) {
+        freeVertexData(&vertexData);
+        vertexDataValid = NO;
+    }
 }
 
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter {
@@ -240,14 +255,20 @@
     MutableFace* face;
     while ((face = [faceEn nextObject]))
         [face rotate:theRotation center:theCenter];
-}
 
-- (void)faceGeometryChanged:(MutableFace *)face {
     if (vertexDataValid) {
         freeVertexData(&vertexData);
         vertexDataValid = NO;
     }
-    [entity brushChanged:self];
+}
+
+- (void)drag:(MutableFace *)face by:(float)dist {
+    [face dragBy:dist];
+
+    if (vertexDataValid) {
+        freeVertexData(&vertexData);
+        vertexDataValid = NO;
+    }
 }
 
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist {

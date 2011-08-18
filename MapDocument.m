@@ -1306,8 +1306,9 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
         NSEnumerator* faceEn = [theFaces objectEnumerator];
         MutableFace* face;
         while ((face = [faceEn nextObject]) && canDrag) {
-            [brushes addObject:[face brush]];
-            canDrag &= [face canDragBy:theDistance];
+            MutableBrush* brush = [face brush];
+            [brushes addObject:brush];
+            canDrag &= [brush canDrag:face by:theDistance];
         }
         
         if (canDrag) {
@@ -1321,8 +1322,10 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     } else {
         NSEnumerator* faceEn = [theFaces objectEnumerator];
         MutableFace* face;
-        while ((face = [faceEn nextObject]) && canDrag)
-            canDrag &= [face canDragBy:theDistance];
+        while ((face = [faceEn nextObject]) && canDrag) {
+            MutableBrush* brush = [face brush];
+            canDrag &= [brush canDrag:face by:theDistance];
+        }
     }
 
     if (!canDrag)
@@ -1333,8 +1336,10 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
-    while ((face = [faceEn nextObject]))
-        [face dragBy:theDistance];
+    while ((face = [faceEn nextObject])) {
+        MutableBrush* brush = [face brush];
+        [brush drag:face by:theDistance];
+    }
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];

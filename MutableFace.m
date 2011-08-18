@@ -158,8 +158,6 @@ static TVector3f baseAxes[18];
     boundaryValid = NO;
     centerValid = NO;
     texAxesValid = NO;
-    
-    [brush faceGeometryChanged:self];
 }
 
 - (void)validate {
@@ -421,10 +419,6 @@ static TVector3f baseAxes[18];
     roundV3f(&p3, &point3);
     
     [self geometryChanged];
-}
-
-- (BOOL)canDragBy:(float)dist {
-    return [brush canDrag:self by:dist];
 }
 
 - (void)dragBy:(float)dist {
