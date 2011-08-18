@@ -36,6 +36,7 @@ typedef enum {
     NSMutableArray* partialBrushes;
     NSMutableArray* brushes;
     NSMutableArray* entities;
+    NSMutableArray* textureMRU;
     id <Entity> brushSelectionEntity;
     BOOL brushSelectionEntityValid;
     ESelectionMode mode;
@@ -43,6 +44,7 @@ typedef enum {
 
 - (id)initWithUndoManager:(NSUndoManager *)theUndoManager;
 
+- (void)addTexture:(NSString *)texture;
 - (void)addFace:(id <Face>)face record:(BOOL)record;
 - (void)addFaces:(NSArray *)theFaces record:(BOOL)record;
 - (void)addBrush:(id <Brush>)brush record:(BOOL)record;
@@ -56,11 +58,12 @@ typedef enum {
 - (BOOL)isEntitySelected:(id <Entity>)entity;
 - (BOOL)isBrushPartiallySelected:(id <Brush>)brush;
 
-- (NSArray *)selectedEntities;
-- (NSArray *)selectedBrushes;
+- (NSArray *)textureMRU;
 - (NSArray *)selectedFaces;
 - (NSArray *)selectedBrushFaces;
+- (NSArray *)selectedBrushes;
 - (NSArray *)partiallySelectedBrushes;
+- (NSArray *)selectedEntities;
 - (BOOL)selectionCenter:(TVector3f *)result;
 - (BOOL)selectionBounds:(TBoundingBox *)result;
 - (id <Entity>)brushSelectionEntity;

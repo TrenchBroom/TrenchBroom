@@ -18,6 +18,24 @@
 #import "GLString.h"
 #import "GLResources.h"
 #import "TextureViewTarget.h"
+#import "SelectionManager.h"
+
+@interface TextureView (private)
+
+- (void)selectionAdded:(NSNotification *)notification;
+
+@end
+
+@implementation TextureView (private)
+
+- (void)selectionAdded:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    NSArray* faces = [userInfo objectForKey:SelectionFaces];
+    if (faces != nil)
+        [self setNeedsDisplay:YES];
+}
+
+@end
 
 @implementation TextureView
 
@@ -34,11 +52,13 @@
         NSPoint clickPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
         
         Texture* texture = [layout textureAt:clickPoint];
-        if (texture != nil)
+        if (texture != nil) {
             [target textureSelected:texture];
+            [selectionManager addTexture:[texture name]];
+            [self setNeedsDisplay:YES];
+        }
     }
 }
-
 
 - (void)drawRect:(NSRect)dirtyRect {
     [layout layout];
@@ -78,6 +98,7 @@
         GLFontManager* fontManager = [glResources fontManager];
         NSFont* font = [NSFont systemFontOfSize:12];
         
+        NSString* mruTexture = [[selectionManager textureMRU] lastObject];
         [fontManager activate];
         
         while ((row = [rowEn nextObject])) {
@@ -108,8 +129,8 @@
                 [texture deactivate];
                 glDisable(GL_TEXTURE_2D);
                 
-                if (selectedTextureNames != nil && [selectedTextureNames containsObject:[texture name]]) {
-                    glColor4f(0.6, 0, 0, 1);
+                if (mruTexture != nil && [mruTexture isEqualToString:[texture name]]) {
+                    glColor4f(1, 0, 0, 0.6f);
                     glBegin(GL_LINE_LOOP);
                     glVertex3f(tx  - 0.5, ty  - 0.5, 0);
                     glVertex3f(tx2 + 0.5, ty  - 0.5, 0);
@@ -204,6 +225,20 @@
     [self setNeedsDisplay:YES];
 }
 
+- (void)setSelectionManager:(SelectionManager *)theSelectionManager {
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    if (selectionManager != nil) {
+        [center removeObserver:self name:SelectionAdded object:selectionManager];
+        [selectionManager release];
+    }
+    
+    selectionManager = [theSelectionManager retain];
+    
+    if (selectionManager != nil) {
+        [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
+    }
+}
+
 - (void)setTextureFilter:(id <TextureFilter>)theFilter {
     if (layout != nil) {
         [layout setTextureFilter:theFilter];
@@ -220,14 +255,10 @@
     [self reshape];
 }
 
-- (void)setSelectedTextureNames:(NSSet *)theNames {
-    [selectedTextureNames release];
-    selectedTextureNames = [theNames retain];
-    [self setNeedsDisplay:YES];
-}
-
 - (void)dealloc {
-    [selectedTextureNames release];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [selectionManager release];
+    [layout release];
     [super dealloc];
 }
 

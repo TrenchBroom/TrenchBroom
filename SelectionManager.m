@@ -27,6 +27,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
         partialBrushes = [[NSMutableArray alloc] init];
         brushes = [[NSMutableArray alloc] init];
         entities = [[NSMutableArray alloc] init];
+        textureMRU = [[NSMutableArray alloc] init];
         mode = SM_UNDEFINED;
     }
     
@@ -49,7 +50,15 @@ NSString* const SelectionVertices = @"SelectionVertices";
     [brushes release];
     [faces release];
     [partialBrushes release];
+    [textureMRU release];
     [super dealloc];
+}
+
+- (void)addTexture:(NSString *)texture {
+    NSInteger index = [textureMRU indexOfObject:texture];
+    if (index != NSNotFound)
+        [textureMRU removeObjectAtIndex:index];
+    [textureMRU addObject:texture];
 }
 
 - (void)addFace:(id <Face>)face record:(BOOL)record {
@@ -80,7 +89,9 @@ NSString* const SelectionVertices = @"SelectionVertices";
     }
     
     [faces addObject:face];
-    [partialBrushes addObject:[face brush]];
+    if ([partialBrushes indexOfObjectIdenticalTo:[face brush]] == NSNotFound)
+        [partialBrushes addObject:[face brush]];
+    [self addTexture:[face texture]];
     mode = SM_FACES;
     
     NSArray* faceArray = [[NSArray alloc] initWithObjects:face, nil];
@@ -119,8 +130,11 @@ NSString* const SelectionVertices = @"SelectionVertices";
     [faces addObjectsFromArray:theFaces];
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     id <Face> face;
-    while ((face = [faceEn nextObject]))
-        [partialBrushes addObject:[face brush]];
+    while ((face = [faceEn nextObject])) {
+        if ([partialBrushes indexOfObjectIdenticalTo:[face brush]] == NSNotFound)
+            [partialBrushes addObject:[face brush]];
+        [self addTexture:[face texture]];
+    }
     mode = SM_FACES;
     
     NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:theFaces, SelectionFaces, nil];
@@ -270,8 +284,6 @@ NSString* const SelectionVertices = @"SelectionVertices";
 }
 
 - (BOOL)isEntitySelected:(id <Entity>)entity {
-    if (entity == nil)
-        NSLog(@"asdf");
     NSAssert(entity != nil, @"entity must not be nil");
     return [entities indexOfObjectIdenticalTo:entity] != NSNotFound;
 }
@@ -285,12 +297,8 @@ NSString* const SelectionVertices = @"SelectionVertices";
     return [partialBrushes indexOfObjectIdenticalTo:brush] != NSNotFound;
 }
 
-- (NSArray *)selectedEntities {
-    return entities;
-}
-
-- (NSArray *)selectedBrushes {
-    return brushes;
+- (NSArray *)textureMRU {
+    return textureMRU;
 }
 
 - (NSArray *)selectedFaces {
@@ -306,8 +314,16 @@ NSString* const SelectionVertices = @"SelectionVertices";
     return [result autorelease];
 }
 
+- (NSArray *)selectedBrushes {
+    return brushes;
+}
+
 - (NSArray *)partiallySelectedBrushes {
     return partialBrushes;
+}
+
+- (NSArray *)selectedEntities {
+    return entities;
 }
 
 - (id <Entity>)brushSelectionEntity {

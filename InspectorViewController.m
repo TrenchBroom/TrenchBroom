@@ -141,17 +141,18 @@
     
     if (mapWindowController != nil) {
         MapDocument* map = [mapWindowController document];
+        SelectionManager* selectionManager = [map selectionManager];
         GLResources* glResources = [map glResources];
         EntityDefinitionManager* entityDefinitionManager = [map entityDefinitionManager];
         
         [singleTextureView setGLResources:glResources];
         [textureView setGLResources:glResources];
+        [textureView setSelectionManager:selectionManager];
         [prefabView setGLResources:glResources];
         [entityView setGLResources:glResources entityDefinitionManager:entityDefinitionManager];
         [entityView setMods:modListFromWorldspawn([map worldspawn:YES])];
         
         TextureManager* textureManager = [glResources textureManager];
-        SelectionManager* selectionManager = [mapWindowController selectionManager];
         [entityPropertyTableDataSource setMapWindowController:mapWindowController];
         [mapBrowserDataSource setMapWindowController:mapWindowController];
         
@@ -168,6 +169,7 @@
     } else {
         [singleTextureView setGLResources:nil];
         [textureView setGLResources:nil];
+        [textureView setSelectionManager:nil];
         [prefabView setGLResources:nil];
         [entityView setGLResources:nil entityDefinitionManager:nil];
         [entityView setMods:nil];
@@ -183,10 +185,7 @@
     SelectionManager* selectionManager = [mapWindowController selectionManager];
     NSArray* selectedFaces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     
-    NSMutableSet* selectedTextureNames = nil;
     if ([selectedFaces count] > 0) {
-        selectedTextureNames = [[NSMutableSet alloc] init];
-        
         [xOffsetField setEnabled:YES];
         [yOffsetField setEnabled:YES];
         [xScaleField setEnabled:YES];
@@ -203,8 +202,6 @@
         float rotation = [face rotation];
         NSString* textureName = [face texture];
         
-        [selectedTextureNames addObject:textureName];
-        
         BOOL xOffsetMultiple = NO;
         BOOL yOffsetMultiple = NO;
         BOOL xScaleMultiple = NO;
@@ -219,7 +216,6 @@
             yScaleMultiple   |= yScale   != [face yScale];
             rotationMultiple |= rotation != [face rotation];
             textureMultiple  |= ![textureName isEqualToString:[face texture]];
-            [selectedTextureNames addObject:[face texture]];
         }
         
         if (xOffsetMultiple) {
@@ -287,9 +283,6 @@
         [textureNameField setStringValue:@""];
         [singleTextureView setTextureName:nil];
     }
-    
-    [textureView setSelectedTextureNames:selectedTextureNames];
-    [selectedTextureNames release];
 }
 
 - (void)updateTextureFilter {

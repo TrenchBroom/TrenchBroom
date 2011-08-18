@@ -85,9 +85,11 @@
     [undoManager setGroupsByEvent:NO];
     [undoManager beginUndoGrouping];
     
-    brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&initialBounds texture:@"none"];
-    
     SelectionManager* selectionManager = [windowController selectionManager];
+    NSArray* textureMRU = [selectionManager textureMRU];
+    NSString* texture = [textureMRU count] > 0 ? [textureMRU lastObject] : @"none";
+
+    brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&initialBounds texture:texture];
     [selectionManager addBrush:brush record:YES];
 }
 
@@ -115,9 +117,11 @@
     [undoManager undo];
     [undoManager beginUndoGrouping];
     
-    brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&bounds texture:@"none"];
-    
     SelectionManager* selectionManager = [windowController selectionManager];
+    NSArray* textureMRU = [selectionManager textureMRU];
+    NSString* texture = [textureMRU count] > 0 ? [textureMRU lastObject] : @"none";
+    
+    brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&bounds texture:texture];
     [selectionManager addBrush:brush record:YES];
 }
 

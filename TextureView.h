@@ -12,12 +12,13 @@
 
 @class TextureViewLayout;
 @class GLResources;
+@class SelectionManager;
 @protocol TextureViewTarget;
 
 @interface TextureView : NSOpenGLView {
     @private
+    SelectionManager* selectionManager;
     TextureViewLayout* layout;
-    NSSet* selectedTextureNames;
     IBOutlet id <TextureViewTarget> target;
     GLResources* glResources;
     ETextureSortCriterion sortCriterion;
@@ -25,7 +26,7 @@
 
 - (void)setTextureFilter:(id <TextureFilter>)theFilter;
 - (void)setSortCriterion:(ETextureSortCriterion)criterion;
-- (void)setSelectedTextureNames:(NSSet *)theNames;
 - (void)setGLResources:(GLResources *)theGLResources;
+- (void)setSelectionManager:(SelectionManager *)theSelectionManager;
 
 @end
