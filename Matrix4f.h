@@ -25,6 +25,7 @@
 
 - (void)rotateAbout:(TVector3f *)axis angle:(float)a;
 - (void)translate:(TVector3f *)offset;
+- (void)scaleV3f:(TVector3f *)factors;
 - (BOOL)invert;
 - (void)adjugate;
 - (float)determinant;

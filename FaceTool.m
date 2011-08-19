@@ -144,16 +144,36 @@
         face = [hit object];
         [dragFaces addObject:face];
     } else {
-        hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
+        hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
         if (hit == nil)
             return;
         
         face = [hit object];
         if (![selectionManager isFaceSelected:face])
             return;
+
+        if ([selectionManager mode] == SM_FACES) {
+            [dragFaces addObjectsFromArray:[selectionManager selectedFaces]];
+        } else {
+            [dragFaces addObject:face];
+        }
+    }
+    
+    if ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_BRUSHES_ENTITIES) {
+        id <Face> dragFace = [dragFaces objectAtIndex:0];
+        const TPlane* boundary = [dragFace boundary];
         
-        [dragFaces addObjectsFromArray:[selectionManager selectedFaces]];
-    }    
+        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+            id <Face> face;
+            while ((face = [faceEn nextObject])) {
+                if (face != dragFace && equalV3f([dragFace norm], [face norm]) && pointStatusFromPlane(boundary, &[face boundary]->point) == PS_INSIDE)
+                    [dragFaces addObject:face];
+            }
+        }
+    }
     
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
@@ -209,9 +229,12 @@
 }
 
 - (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    PickingHit* hit = [hits firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:YES];
+    if (hit == nil)
+        hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    
     id <Face> face = [hit object];
-
+    
     SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager isFaceSelected:face]) {
         CursorManager* cursorManager = [windowController cursorManager];
@@ -235,7 +258,10 @@
 
 - (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (!drag) {
-        PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+        PickingHit* hit = [hits firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:YES];
+        if (hit == nil)
+            hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+        
         id <Face> face = [hit object];
         
         CursorManager* cursorManager = [windowController cursorManager];

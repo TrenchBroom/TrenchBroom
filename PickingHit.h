@@ -13,10 +13,8 @@ typedef enum {
     HT_ENTITY       = 1 << 0,
     HT_BRUSH        = 1 << 1,
     HT_FACE         = 1 << 2,
-    HT_EDGE         = 1 << 3,
-    HT_VERTEX       = 1 << 4,
-    HT_CLOSE_EDGE   = 1 << 5,
-    HT_ANY          = HT_ENTITY | HT_BRUSH | HT_FACE | HT_EDGE | HT_VERTEX
+    HT_CLOSE_EDGE   = 1 << 3,
+    HT_ANY          = HT_ENTITY | HT_BRUSH | HT_FACE
 } EHitType;
 
 @interface PickingHit : NSObject {

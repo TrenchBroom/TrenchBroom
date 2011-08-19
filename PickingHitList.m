@@ -13,16 +13,6 @@
 - (id)init {
     if (self = [super init]) {
         hitList = [[NSMutableArray alloc] init];
-        for (int i = 0; i < HT_ANY; i++) {
-            cachedHitValid[NO][i] = NO;
-            cachedHitValid[YES][i] = NO;
-            cachedHitListValid[i] = NO;
-            cachedObjectSetValid[i] = NO;
-            cachedHit[NO][i] = nil;
-            cachedHit[YES][i] = nil;
-            cachedHitList[i] = nil;
-            cachedObjectSet[i] = nil;
-        }
     }
     
     return self;
@@ -37,72 +27,47 @@
     if ([hitList count] == 0)
         return nil;
     
-    if (!cachedHitValid[ignoreOccluders][theTypeMask - 1]) {
-        if (!ignoreOccluders) {
-            PickingHit* hit;
-            if ((theTypeMask & HT_CLOSE_EDGE) == 0) {
-                NSEnumerator* hitEn = [[self hits] objectEnumerator];
-                while ((hit = [hitEn nextObject]) && [hit isType:HT_CLOSE_EDGE]);
-            } else {
-                hit = [[self hits] objectAtIndex:0];
-            }
-            if (hit != nil && [hit isType:theTypeMask])
-                cachedHit[NO][theTypeMask - 1] = hit;
-            cachedHitValid[NO][theTypeMask - 1] = YES;
-        } else {
-            NSEnumerator* hitEn = [[self hits] objectEnumerator];
-            PickingHit* hit;
-            while ((hit = [hitEn nextObject]))
-                if ([hit isType:theTypeMask]) {
-                    cachedHit[YES][theTypeMask - 1] = hit;
-                    break;
-                }
-            cachedHitValid[YES][theTypeMask - 1] = YES;
-        }
+    PickingHit* hit = nil;
+    if (!ignoreOccluders) {
+        hit = [[self hits] objectAtIndex:0];
+        if (![hit isType:theTypeMask])
+            hit = nil;
+    } else {
+        NSEnumerator* hitEn = [[self hits] objectEnumerator];
+        while ((hit = [hitEn nextObject]) && ![hit isType:theTypeMask]);
     }
     
-    return cachedHit[ignoreOccluders][theTypeMask - 1];
+    return hit;
 }
 
 - (NSArray *)hitsOfType:(EHitType)theTypeMask {
     if ([hitList count] == 0)
         return [NSArray array];
     
-    if (!cachedHitListValid[theTypeMask - 1]) {
-        NSMutableArray* result = [[NSMutableArray alloc] init];
-        
-        NSEnumerator* hitEn = [[self hits] objectEnumerator];
-        PickingHit* hit;
-        while ((hit = [hitEn nextObject]))
-            if ([hit isType:theTypeMask])
-                [result addObject:hit];
-        
-        cachedHitList[theTypeMask - 1] = result;
-        cachedHitListValid[theTypeMask - 1] = YES;
-    }
+    NSMutableArray* result = [[NSMutableArray alloc] init];
     
-    return cachedHitList[theTypeMask - 1];
+    NSEnumerator* hitEn = [[self hits] objectEnumerator];
+    PickingHit* hit;
+    while ((hit = [hitEn nextObject]))
+        if ([hit isType:theTypeMask])
+            [result addObject:hit];
+    
+    return [result autorelease];
 }
 
 - (NSSet *)objectsOfType:(EHitType)theTypeMask {
     if ([hitList count] == 0)
         return [NSSet set];
     
-    if (!cachedObjectSetValid[theTypeMask - 1]) {
-        NSMutableSet* result = [[NSMutableSet alloc] init];
-        
-        NSEnumerator* hitEn = [[self hitsOfType:theTypeMask] objectEnumerator];
-        PickingHit* hit;
-        while ((hit = [hitEn nextObject]))
-            if ([hit isType:theTypeMask])
-                [result addObject:[hit object]];
-
-        cachedObjectSet[theTypeMask - 1] = result;
-        cachedObjectSetValid[theTypeMask - 1] = YES;
-    }
+    NSMutableSet* result = [[NSMutableSet alloc] init];
     
-    return cachedObjectSet[theTypeMask - 1];
+    NSEnumerator* hitEn = [[self hitsOfType:theTypeMask] objectEnumerator];
+    PickingHit* hit;
+    while ((hit = [hitEn nextObject]))
+        if ([hit isType:theTypeMask])
+            [result addObject:[hit object]];
     
+    return [result autorelease];
 }
 
 - (NSArray *)hits {
@@ -115,10 +80,6 @@
 }
 
 - (void)dealloc {
-    for (int i = 0; i < HT_ANY; i++) {
-        [cachedHitList[i] release];
-        [cachedObjectSet[i] release];
-    }
     [hitList release];
     [super dealloc];
 }

@@ -213,3 +213,4 @@ void makeRing(float innerRadius, float outerRadius, int segments, TVector3f* poi
 void makeTorus(float innerRadius, float outerRadius, int innerSegments, int outerSegments, TVector3f* points, TVector3f* normals);
 void makeTorusPart(float innerRadius, float outerRadius, int innerSegments, int outerSegments, float centerAngle, float angleLength, TVector3f* points, TVector3f* normals);
 void makeCone(float radius, float height, int segments, TVector3f* points, TVector3f* normals);
+void makeCylinder(int segments, TVector3f* points, TVector3f* normals);
