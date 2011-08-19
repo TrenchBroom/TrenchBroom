@@ -144,15 +144,19 @@
         face = [hit object];
         [dragFaces addObject:face];
     } else {
-        hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
+        hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
         if (hit == nil)
             return;
         
         face = [hit object];
         if (![selectionManager isFaceSelected:face])
             return;
-        
-        [dragFaces addObjectsFromArray:[selectionManager selectedFaces]];
+
+        if ([selectionManager mode] == SM_FACES) {
+            [dragFaces addObjectsFromArray:[selectionManager selectedFaces]];
+        } else {
+            [dragFaces addObject:face];
+        }
     }    
     
     MapDocument* map = [windowController document];
@@ -209,9 +213,12 @@
 }
 
 - (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    PickingHit* hit = [hits firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:YES];
+    if (hit == nil)
+        hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    
     id <Face> face = [hit object];
-
+    
     SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager isFaceSelected:face]) {
         CursorManager* cursorManager = [windowController cursorManager];
@@ -235,7 +242,10 @@
 
 - (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (!drag) {
-        PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+        PickingHit* hit = [hits firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:YES];
+        if (hit == nil)
+            hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+        
         id <Face> face = [hit object];
         
         CursorManager* cursorManager = [windowController cursorManager];

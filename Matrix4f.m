@@ -139,6 +139,24 @@
     values[14] += offset->z;
 }
 
+- (void)scaleV3f:(TVector3f *)factors {
+    values[ 0] *= factors->x;
+    values[ 1] *= factors->y;
+    values[ 2] *= factors->z;
+    
+    values[ 4] *= factors->x;
+    values[ 5] *= factors->y;
+    values[ 6] *= factors->z;
+    
+    values[ 8] *= factors->x;
+    values[ 9] *= factors->y;
+    values[10] *= factors->z;
+    
+    values[12] *= factors->x;
+    values[13] *= factors->y;
+    values[14] *= factors->z;
+}
+
 - (BOOL)invert {
     float det = [self determinant];
     if (fzero(det))

@@ -1215,3 +1215,34 @@ void makeCone(float radius, float height, int segments, TVector3f* points, TVect
         normals[segments + 1] = normals[1];
     }
 }
+
+void makeCylinder(int segments, TVector3f* points, TVector3f* normals) {
+    float d = 2 * M_PI / segments;
+    float a = 0;
+    for (int i = 0; i < segments; i++) {
+        float s = sin(a);
+        float c = cos(a);
+        
+        points[2 * i].x = s;
+        points[2 * i].y = c;
+        points[2 * i].z = 0;
+        points[2 * i + 1].x = s;
+        points[2 * i + 1].y = c;
+        points[2 * i + 1].z = 1;
+        
+        if (normals != NULL) {
+            normals[2 * i].x = normals[2 * i + 1].x = s;
+            normals[2 * i].y = normals[2 * i + 1].y = c;
+            normals[2 * i].z = normals[2 * i + 1].z = 0;
+        }
+        
+        a += d;
+    }
+    
+    points[2 * segments] = points[0];
+    points[2 * segments + 1] = points[1];
+    if (normals != NULL) {
+        normals[2 * segments] = normals[0];
+        normals[2 * segments + 1] = normals[1];
+    }
+}

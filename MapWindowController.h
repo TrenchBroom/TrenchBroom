@@ -29,7 +29,7 @@
 @protocol Brush;
 @protocol Face;
 
-@interface MapWindowController : NSWindowController {
+@interface MapWindowController : NSWindowController <NSWindowDelegate> {
     IBOutlet NSSplitView* splitView;
 	IBOutlet MapView3D* view3D;
     InspectorViewController* inspectorViewController;
@@ -39,6 +39,7 @@
     Options* options;
     ConsoleWindowController* console;
     QuickBarWindowController* quickBar;
+    BOOL view3DWasFirstResponder;
 }
 
 - (IBAction)showInspector:(id)sender;

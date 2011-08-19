@@ -43,6 +43,7 @@
 - (BOOL)isApplyTextureModifierPressed;
 - (BOOL)isApplyTextureAndFlagsModifierPressed;
 - (BOOL)isRotateModifierPressed;
+- (BOOL)isFaceDragModifierPressed;
 
 - (void)updateEvent:(NSEvent *)event;
 - (void)updateRay;
@@ -75,6 +76,10 @@
 
 - (BOOL)isRotateModifierPressed {
     return [NSEvent modifierFlags] == NSAlternateKeyMask;
+}
+
+- (BOOL)isFaceDragModifierPressed {
+    return [NSEvent modifierFlags] == NSCommandKeyMask;
 }
 
 - (void)updateEvent:(NSEvent *)event {
@@ -110,10 +115,21 @@
         if ([self isRotateModifierPressed]) {
             newActiveTool = rotateTool;
         } else if (drag) {
-            if ([[self currentHits] firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:NO] != nil)
-                newActiveTool = faceTool;
-            else
+            if ([self isFaceDragModifierPressed]) {
+                PickingHit* hit = [[self currentHits] firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:NO];
+                if (hit != nil) {
+                    newActiveTool = faceTool;
+                } else {
+                    hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
+                    if (hit != nil) {
+                        id <Face> face = [hit object];
+                        if ([selectionManager isFaceSelected:face])
+                            newActiveTool = faceTool;
+                    }
+                }
+            } else {
                 newActiveTool = moveTool;
+            }
         }
     } 
     
@@ -153,8 +169,18 @@
             } else if ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES) {
                 if ([self isRotateModifierPressed]) {
                     newOwner = rotateTool;
+                } else if ([self isFaceDragModifierPressed]) {
+                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:NO];
+                    if (hit != nil) {
+                        newOwner = faceTool;
+                    } else {
+                        hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
+                        if (hit != nil) {
+                            newOwner = faceTool;
+                        }
+                    }
                 } else {
-                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_ANY ignoreOccluders:NO];
+                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_ENTITY | HT_BRUSH ignoreOccluders:YES];
                     if (hit != nil) {
                         switch ([hit type]) {
                             case HT_ENTITY: {
@@ -165,13 +191,6 @@
                             }
                             case HT_BRUSH: {
                                 id <Brush> brush = [hit object];
-                                if ([selectionManager isBrushSelected:brush])
-                                    newOwner = moveTool;
-                                break;
-                            }
-                            case HT_FACE: {
-                                id <Face> face = [hit object];
-                                id <Brush> brush = [face brush];
                                 if ([selectionManager isBrushSelected:brush])
                                     newOwner = moveTool;
                                 break;
@@ -199,6 +218,7 @@
             cursorOwner = newOwner;
             if (cursorOwner != nil)
                 [cursorOwner setCursor:lastEvent ray:&lastRay hits:[self currentHits]];
+            NSLog(@"owner: %@", cursorOwner);
         }
     }
 }
@@ -358,10 +378,15 @@
 
 - (void)handleMouseEntered:(NSEvent *)event sender:(id)sender {
     hasMouse = YES;
+    [self updateEvent:event];
+    [self updateRay];
+    [self updateCursorOwner];
+    [self updateCursor];
 }
 
 - (void)handleMouseExited:(NSEvent *)event sender:(id)sender {
     hasMouse = NO;
+    [self updateCursorOwner];
 }
 
 - (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender {

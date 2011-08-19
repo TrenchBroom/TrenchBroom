@@ -88,6 +88,18 @@
 
 @implementation MapWindowController
 
+- (void)windowWillBeginSheet:(NSNotification *)notification {
+    view3DWasFirstResponder = [[self window] firstResponder] == view3D;
+    if (view3DWasFirstResponder)
+        [view3D resignFirstResponder];
+}
+
+- (void)windowDidEndSheet:(NSNotification *)notification {
+    if (view3DWasFirstResponder)
+        [view3D becomeFirstResponder];
+    view3DWasFirstResponder = NO;
+}
+
 - (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window {
     return [[self document] undoManager];
 }
@@ -178,8 +190,9 @@
     [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:[PreferencesManager sharedManager]];
     [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:[self selectionManager]];
     
+    [[self window] setDelegate:self];
     [[self window] setAcceptsMouseMovedEvents:YES];
-    [[self window] makeKeyAndOrderFront:nil];
+    [[self window] makeKeyAndOrderFront:self];
 
     quickBar = [[QuickBarWindowController alloc] initWithWindowNibName:@"QuickBarWindow"];
     [quickBar setMapWindowController:self];

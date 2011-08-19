@@ -75,7 +75,7 @@
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     SelectionManager* selectionManager = [windowController selectionManager];
     
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
+    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
     if (hit != nil) {
         id <Face> face = [hit object];
         id <Brush> brush = [face brush];
@@ -88,7 +88,7 @@
         plane.point = lastPoint;
         [self actualPlaneNormal:[face norm] result:&plane.norm];
     } else {
-        hit = [hits firstHitOfType:HT_ENTITY ignoreOccluders:NO];
+        hit = [hits firstHitOfType:HT_ENTITY ignoreOccluders:YES];
         if (hit != nil) {
             id <Entity> entity = [hit object];
             

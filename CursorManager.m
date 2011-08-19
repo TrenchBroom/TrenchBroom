@@ -25,7 +25,7 @@ NSString* const CursorChanged = @"CursorChanged";
 - (void)pushCursor:(id <Cursor>)cursor {
     NSAssert(cursor != nil, @"cursor must not be nil");
     [cursorStack addObject:cursor];
-//    [NSCursor hide];
+    [NSCursor hide];
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:CursorChanged object:self];
@@ -36,8 +36,8 @@ NSString* const CursorChanged = @"CursorChanged";
         [NSException raise:NSInternalInconsistencyException format:@"cannot pop from empty cursor stack"];
     
     [cursorStack removeLastObject];
-//    if ([cursorStack count] == 0)
-//        [NSCursor unhide];
+    if ([cursorStack count] == 0)
+        [NSCursor unhide];
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:CursorChanged object:self];
