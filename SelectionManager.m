@@ -106,6 +106,9 @@ NSString* const SelectionVertices = @"SelectionVertices";
 - (void)addFaces:(NSArray *)theFaces record:(BOOL)record {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
+    if ([theFaces count] == 0)
+        return;
+    
     if (record)
         [undoManager beginUndoGrouping];
     
@@ -179,6 +182,9 @@ NSString* const SelectionVertices = @"SelectionVertices";
 - (void)addBrushes:(NSArray *)theBrushes record:(BOOL)record {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
+    if ([theBrushes count] == 0)
+        return;
+    
     if (record)
         [undoManager beginUndoGrouping];
     
@@ -241,6 +247,9 @@ NSString* const SelectionVertices = @"SelectionVertices";
 
 - (void)addEntities:(NSArray *)theEntities record:(BOOL)record {
     NSAssert(theEntities != nil, @"entity set must not be nil");
+    
+    if ([theEntities count] == 0)
+        return;
     
     if (record)
         [undoManager beginUndoGrouping];
@@ -494,6 +503,9 @@ NSString* const SelectionVertices = @"SelectionVertices";
 - (void)removeFaces:(NSArray *)theFaces record:(BOOL)record {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
+    if ([theFaces count] == 0)
+        return;
+    
     if (record)
         [[undoManager prepareWithInvocationTarget:self] addFaces:theFaces record:record];
 
@@ -549,6 +561,9 @@ NSString* const SelectionVertices = @"SelectionVertices";
 - (void)removeBrushes:(NSArray *)theBrushes record:(BOOL)record {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
 
+    if ([theBrushes count] == 0)
+        return;
+    
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     id <Brush> brush;
     while ((brush = [brushEn nextObject]))
@@ -597,6 +612,9 @@ NSString* const SelectionVertices = @"SelectionVertices";
 
 - (void)removeEntities:(NSArray *)theEntities record:(BOOL)record {
     NSAssert(theEntities != nil, @"entity set must not be nil");
+
+    if ([theEntities count] == 0)
+        return;
     
     if (record)
         [[undoManager prepareWithInvocationTarget:self] addEntities:theEntities record:record];

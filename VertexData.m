@@ -841,6 +841,10 @@ BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
 void translateVertexData(TVertexData* vd, const TVector3f* d) {
     for (int i = 0; i < vd->vertexCount; i++)
         addV3f(&vd->vertices[i]->vector, d, &vd->vertices[i]->vector);
+    if (vd->valid) {
+        translateBounds(&vd->bounds, d, &vd->bounds);
+        addV3f(&vd->center, d, &vd->center);
+    }
 }
 
 void rotateVertexDataZ90CW(TVertexData* vd, const TVector3f* c) {
@@ -849,6 +853,11 @@ void rotateVertexDataZ90CW(TVertexData* vd, const TVector3f* c) {
         rotateZ90CWV3f(&vd->vertices[i]->vector, &vd->vertices[i]->vector);
         addV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
     }
+
+    if (vd->valid) {
+        rotateBoundsZ90CW(&vd->bounds, c, &vd->bounds);
+        centerOfBounds(&vd->bounds, &vd->center);
+    }
 }
 
 void rotateVertexDataZ90CCW(TVertexData* vd, const TVector3f* c) {
@@ -856,6 +865,11 @@ void rotateVertexDataZ90CCW(TVertexData* vd, const TVector3f* c) {
         subV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
         rotateZ90CCWV3f(&vd->vertices[i]->vector, &vd->vertices[i]->vector);
         addV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
+    }
+    
+    if (vd->valid) {
+        rotateBoundsZ90CCW(&vd->bounds, c, &vd->bounds);
+        centerOfBounds(&vd->bounds, &vd->center);
     }
 }
 

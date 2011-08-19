@@ -160,11 +160,7 @@ static float M_PI_12 = M_PI / 12;
         
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
-        subV3f(&bounds.min, &center, &bounds.min);
-        subV3f(&bounds.max, &center, &bounds.max);
-        rotateBounds(&bounds, &rotation, &bounds);
-        addV3f(&bounds.min, &center, &bounds.min);
-        addV3f(&bounds.max, &center, &bounds.max);
+        rotateBounds(&bounds, &rotation, &center, &bounds);
         
         if (boundsContainBounds([map worldBounds], &bounds)) {
             NSUndoManager* undoManager = [map undoManager];

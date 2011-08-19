@@ -360,12 +360,7 @@
 
     [selectionManager selectionBounds:&bounds];
     centerOfBounds(&bounds, &centerf);
-
-    subV3f(&bounds.min, &centerf, &bounds.min);
-    subV3f(&bounds.max, &centerf, &bounds.max);
-    rotateBoundsZ90CW(&bounds, &bounds);
-    addV3f(&bounds.min, &centerf, &bounds.min);
-    addV3f(&bounds.max, &centerf, &bounds.max);
+    rotateBoundsZ90CW(&bounds, &centerf, &bounds);
     
     if (boundsContainBounds([map worldBounds], &bounds)) {
         TVector3i centeri;
@@ -391,12 +386,7 @@
     
     [selectionManager selectionBounds:&bounds];
     centerOfBounds(&bounds, &centerf);
-    
-    subV3f(&bounds.min, &centerf, &bounds.min);
-    subV3f(&bounds.max, &centerf, &bounds.max);
-    rotateBoundsZ90CCW(&bounds, &bounds);
-    addV3f(&bounds.min, &centerf, &bounds.min);
-    addV3f(&bounds.max, &centerf, &bounds.max);
+    rotateBoundsZ90CCW(&bounds, &centerf, &bounds);
     
     if (boundsContainBounds([map worldBounds], &bounds)) {
         TVector3i centeri;

@@ -766,10 +766,14 @@ void translateBounds(const TBoundingBox* b, const TVector3f* d, TBoundingBox* o)
     addV3f(&b->max, d, &o->max);
 }
 
-void rotateBoundsZ90CW(const TBoundingBox* b, TBoundingBox* o) {
+void rotateBoundsZ90CW(const TBoundingBox* b, const TVector3f* c, TBoundingBox* o) {
     TBoundingBox rotated;
-    rotateZ90CWV3f(&b->min, &rotated.min);
-    rotateZ90CWV3f(&b->max, &rotated.max);
+
+    subV3f(&b->min, c, &rotated.min);
+    subV3f(&b->max, c, &rotated.max);
+    
+    rotateZ90CWV3f(&rotated.min, &rotated.min);
+    rotateZ90CWV3f(&rotated.max, &rotated.max);
 
     o->min.x = fminf(rotated.min.x, rotated.max.x);
     o->min.y = fminf(rotated.min.y, rotated.max.y);
@@ -777,12 +781,19 @@ void rotateBoundsZ90CW(const TBoundingBox* b, TBoundingBox* o) {
     o->max.x = fmaxf(rotated.min.x, rotated.max.x);
     o->max.y = fmaxf(rotated.min.y, rotated.max.y);
     o->max.z = fmaxf(rotated.min.z, rotated.max.z);
+    
+    addV3f(&o->min, c, &o->min);
+    addV3f(&o->max, c, &o->max);
 }
 
-void rotateBoundsZ90CCW(const TBoundingBox* b, TBoundingBox* o) {
+void rotateBoundsZ90CCW(const TBoundingBox* b, const TVector3f* c, TBoundingBox* o) {
     TBoundingBox rotated;
-    rotateZ90CCWV3f(&b->min, &rotated.min);
-    rotateZ90CCWV3f(&b->max, &rotated.max);
+    
+    subV3f(&b->min, c, &rotated.min);
+    subV3f(&b->max, c, &rotated.max);
+
+    rotateZ90CCWV3f(&rotated.min, &rotated.min);
+    rotateZ90CCWV3f(&rotated.max, &rotated.max);
     
     o->min.x = fminf(rotated.min.x, rotated.max.x);
     o->min.y = fminf(rotated.min.y, rotated.max.y);
@@ -790,12 +801,19 @@ void rotateBoundsZ90CCW(const TBoundingBox* b, TBoundingBox* o) {
     o->max.x = fmaxf(rotated.min.x, rotated.max.x);
     o->max.y = fmaxf(rotated.min.y, rotated.max.y);
     o->max.z = fmaxf(rotated.min.z, rotated.max.z);
+    
+    addV3f(&o->min, c, &o->min);
+    addV3f(&o->max, c, &o->max);
 }
 
-void rotateBounds(const TBoundingBox* b, const TQuaternion* q, TBoundingBox* o) {
+void rotateBounds(const TBoundingBox* b, const TQuaternion* q, const TVector3f* c, TBoundingBox* o) {
     TBoundingBox rotated;
-    rotateQ(q, &b->min, &rotated.min);
-    rotateQ(q, &b->max, &rotated.max);
+    
+    subV3f(&b->min, c, &rotated.min);
+    subV3f(&b->max, c, &rotated.max);
+    
+    rotateQ(q, &rotated.min, &rotated.min);
+    rotateQ(q, &rotated.max, &rotated.max);
     
     o->min.x = fminf(rotated.min.x, rotated.max.x);
     o->min.y = fminf(rotated.min.y, rotated.max.y);
@@ -804,6 +822,8 @@ void rotateBounds(const TBoundingBox* b, const TQuaternion* q, TBoundingBox* o) 
     o->max.y = fmaxf(rotated.min.y, rotated.max.y);
     o->max.z = fmaxf(rotated.min.z, rotated.max.z);
     
+    addV3f(&o->min, c, &o->min);
+    addV3f(&o->min, c, &o->min);
 }
 
 void mergeBoundsWithPoint(const TBoundingBox* b, const TVector3f* p, TBoundingBox* o) {
