@@ -18,6 +18,7 @@
     TBoundingBox initialBounds;
     TVector3f lastPoint;
     id <Brush> brush;
+    BOOL drag;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

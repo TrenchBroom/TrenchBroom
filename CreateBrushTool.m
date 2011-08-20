@@ -23,6 +23,7 @@
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if ((self = [self init])) {
         windowController = theWindowController;
+        drag = NO;
     }
     
     return self;
@@ -42,12 +43,24 @@
     [grid snapUpToGridV3f:&lastPoint result:&initialBounds.max];
     [grid snapToGridV3f:&lastPoint result:&lastPoint];
     
-    if (initialBounds.min.x == initialBounds.max.x)
-        initialBounds.max.x += [grid actualSize];
-    if (initialBounds.min.y == initialBounds.max.y)
-        initialBounds.max.y += [grid actualSize];
-    if (initialBounds.min.z == initialBounds.max.z)
-        initialBounds.max.z += [grid actualSize];
+    if (initialBounds.min.x == initialBounds.max.x) {
+        if (ray->direction.x > 0)
+            initialBounds.min.x -= [grid actualSize];
+        else
+            initialBounds.max.x += [grid actualSize];
+    }
+    if (initialBounds.min.y == initialBounds.max.y) {
+        if (ray->direction.y > 0)
+            initialBounds.min.y -= [grid actualSize];
+        else
+            initialBounds.max.y += [grid actualSize];
+    }
+    if (initialBounds.min.z == initialBounds.max.z) {
+        if (ray->direction.z > 0)
+            initialBounds.min.z -= [grid actualSize];
+        else
+            initialBounds.max.z += [grid actualSize];
+    }
 
     switch (strongestComponentV3f(&ray->direction)) {
         case A_X:
@@ -91,9 +104,14 @@
 
     brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&initialBounds texture:texture];
     [selectionManager addBrush:brush record:YES];
+    
+    drag = YES;
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (!drag)
+        return;
+    
     float dist = intersectPlaneWithRay(&plane, ray);
     if (isnan(dist))
         return;
@@ -126,6 +144,9 @@
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (!drag)
+        return;
+    
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setActionName:[self actionName]];
@@ -133,9 +154,13 @@
     [undoManager setGroupsByEvent:YES];
     
     brush = nil;
+    drag = NO;
 }
 
 - (void)handleScrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (!drag)
+        return;
+    
     Grid* grid = [[windowController options] grid];
     float delta = [grid actualSize] * ([event deltaY] / fabsf([event deltaY]));
     
