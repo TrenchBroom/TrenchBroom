@@ -116,7 +116,7 @@
             newActiveTool = rotateTool;
         } else if (drag) {
             if ([self isFaceDragModifierPressed]) {
-                PickingHit* hit = [[self currentHits] firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:NO];
+                PickingHit* hit = [[self currentHits] edgeDragHit];
                 if (hit != nil) {
                     newActiveTool = faceTool;
                 } else {
@@ -170,7 +170,7 @@
                 if ([self isRotateModifierPressed]) {
                     newOwner = rotateTool;
                 } else if ([self isFaceDragModifierPressed]) {
-                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:NO];
+                    PickingHit* hit = [[self currentHits] edgeDragHit];
                     if (hit != nil) {
                         newOwner = faceTool;
                     } else {

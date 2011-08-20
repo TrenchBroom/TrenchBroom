@@ -138,7 +138,7 @@
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     SelectionManager* selectionManager = [windowController selectionManager];
 
-    PickingHit* hit = [hits firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:NO];
+    PickingHit* hit = [hits edgeDragHit];
     id <Face> face;
     if (hit != nil) {
         face = [hit object];
@@ -258,7 +258,7 @@
 
 - (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (!drag) {
-        PickingHit* hit = [hits firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:YES];
+        PickingHit* hit = [hits edgeDragHit];
         if (hit == nil)
             hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
         

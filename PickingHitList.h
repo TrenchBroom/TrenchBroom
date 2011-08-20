@@ -20,5 +20,6 @@
 - (NSArray *)hitsOfType:(EHitType)theTypeMask;
 - (NSSet *)objectsOfType:(EHitType)theTypeMask;
 - (NSArray *)hits;
+- (PickingHit *)edgeDragHit;
 
 @end

@@ -110,12 +110,13 @@ NSString* const GridChanged = @"GridChanged";
 }
 
 - (void)snapToFarthestGridV3f:(const TVector3f *)vector result:(TVector3f *)result {
-    TVector3f rounded;
-    [self snapToGridV3f:vector result:&rounded];
+    TVector3f ceil, floor;
+    [self snapUpToGridV3f:vector result:&ceil];
+    [self snapDownToGridV3f:vector result:&floor];
 
-    result->x = rounded.x > vector->x ? rounded.x - 1 : rounded.x + 1;
-    result->y = rounded.y > vector->y ? rounded.y - 1 : rounded.y + 1;
-    result->z = rounded.z > vector->z ? rounded.z - 1 : rounded.z + 1;
+    result->x = vector->x < 0 ? floor.x : ceil.x;
+    result->y = vector->y < 0 ? floor.y : ceil.y;
+    result->z = vector->z < 0 ? floor.z : ceil.z;
 }
 
 - (void)snapUpToGridV3f:(const TVector3f *)vector result:(TVector3f *)result {
