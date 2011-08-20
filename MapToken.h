@@ -31,6 +31,8 @@ typedef enum {
 
 + (NSString *)typeName:(int)aType;
 
+- (id)initWithToken:(MapToken *)theToken;
+
 - (ETokenType)type;
 - (id)data;
 

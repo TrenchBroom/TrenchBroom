@@ -15,6 +15,13 @@ typedef enum {
     PS_BRUSH, // currently parsing a brush
 } EParserState;
 
+typedef enum {
+    CC_UNDEFINED,
+    CC_ENT,
+    CC_BRUSH,
+    CC_FACE
+} EClipboardContents;
+
 @protocol Map;
 @class EntityDefinitionManager;
 @class MapTokenizer;
@@ -26,14 +33,12 @@ typedef enum {
     int size;
     MapTokenizer* tokenizer;
     id<Map> map;
-    MutableEntity* entity;
-    MutableBrush* brush;
-    EParserState state;
-    TVector3i p1, p2, p3;
+    NSMutableArray* tokens;
 }
 
 - (id)initWithData:(NSData *)someData;
 - (id)initWithData:(NSData *)someData;
 - (void)parseMap:(id<Map>)theMap withProgressIndicator:(NSProgressIndicator *)theIndicator;
+- (EClipboardContents)parseClipboard:(NSMutableArray *)result worldBounds:(TBoundingBox *)theWorldBounds;
 
 @end

@@ -44,6 +44,7 @@
 #import "MapCompiler.h"
 #import "ConsoleWindowController.h"
 #import "QuickBarWindowController.h"
+#import "MapParser.h"
 
 @interface MapWindowController (private)
 
@@ -214,12 +215,12 @@
         return ![entity isWorldspawn] && [[selectionManager selectedBrushes] count] < [[entity brushes] count];
     } else if (action == @selector(selectAllTouchingBrush:)) {
         return [selectionManager mode] == SM_BRUSHES && [[selectionManager selectedBrushes] count] == 1; 
-    } else if (action == @selector(copySelection:)) {
-        return [selectionManager hasSelectedEntities] || [selectionManager hasSelectedBrushes];
-    } else if (action == @selector(cutSelection:)) {
-        return [selectionManager hasSelectedEntities] || [selectionManager hasSelectedBrushes];
-    } else if (action == @selector(pasteClipboard:)) {
-        return NO;
+    } else if (action == @selector(copy:)) {
+        return [selectionManager hasSelection];
+    } else if (action == @selector(cut:)) {
+        return [selectionManager hasSelection];
+    } else if (action == @selector(paste:)) {
+        return YES;
     } else if (action == @selector(deleteSelection:)) {
         return [selectionManager hasSelectedEntities] || [selectionManager hasSelectedBrushes] || ([[inputManager clipTool] active] && [[inputManager clipTool] numPoints] > 0);
     } else if (action == @selector(moveTextureLeft:)) {
@@ -302,14 +303,6 @@
         [prefabManager createPrefabFromBrushTemplates:[selectionManager selectedBrushes] name:prefabName group:prefabGroup];
     }
     [pns release];
-}
-
-- (id)retain {
-    return [super retain];
-}
-
-- (oneway void)release {
-    [super release];
 }
 
 - (void)dealloc {
@@ -794,9 +787,45 @@
     [undoManager endUndoGrouping];
 }
 
-- (IBAction)copySelection:(id)sender {}
-- (IBAction)cutSelection:(id)sender {}
-- (IBAction)pasteClipboard:(id)sender {}
+- (void)copy:(id)sender {
+    SelectionManager* selectionManager = [[self document] selectionManager];
+    NSOutputStream* stream = [NSOutputStream outputStreamToMemory];
+
+    MapWriter* mapWriter = [[MapWriter alloc] initWithSelection:selectionManager];
+    [stream open];
+    [mapWriter writeToStream:stream];
+    [stream close];
+    [mapWriter release];
+    
+    NSData* streamData = [stream propertyForKey:NSStreamDataWrittenToMemoryStreamKey];
+    NSString* string = [[NSString alloc] initWithData:streamData encoding:NSASCIIStringEncoding];
+    
+    NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+    [pasteboard clearContents];
+    
+    NSArray* pasteboardObjects = [[NSArray alloc] initWithObjects:string, nil];
+    [pasteboard writeObjects:pasteboardObjects];
+    [pasteboardObjects release];
+}
+
+- (void)cut:(id)sender {
+    [self copy:sender];
+    [self deleteSelection:sender];
+}
+
+- (void)paste:(id)sender {
+    NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+    NSArray* objects = [pasteboard readObjectsForClasses:[NSArray arrayWithObject:[NSString class]] options:nil];
+    NSString* string = [objects objectAtIndex:0];
+    NSData* stringData = [string dataUsingEncoding:NSASCIIStringEncoding];
+    
+    MapParser* mapParser = [[MapParser alloc] initWithData:stringData];
+    NSMutableArray* mapObjects = [[NSMutableArray alloc] init];
+    
+    EClipboardContents contents = [mapParser parseClipboard:mapObjects worldBounds:[[self document] worldBounds]];
+    [mapParser release];
+    [mapObjects release];
+}
 
 - (IBAction)deleteSelection:(id)sender {
     SelectionManager* selectionManager = [self selectionManager];

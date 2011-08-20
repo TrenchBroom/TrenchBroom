@@ -25,6 +25,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
         NSInputStream* stream = [[NSInputStream alloc] initWithData:someData];
         tokenizer = [[MapTokenizer alloc] initWithInputStream:stream];
         [stream release];
+        tokens = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -36,14 +37,28 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
 }
 
 - (MapToken *)nextToken {
-    MapToken* token = [tokenizer nextToken];
-    while (token != nil && [token type] == TT_COM)
+    MapToken* token;
+    if ([tokens count] > 0) {
+        token = [tokens lastObject];
+        [token retain];
+        [tokens removeLastObject];
+        [token autorelease];
+    } else {
         token = [tokenizer nextToken];
+        while (token != nil && [token type] == TT_COM)
+            token = [tokenizer nextToken];
+    }
     
     return token;
 }
 
-- (void)parseFace:(int)filePosition {
+- (void)pushToken:(MapToken *)theToken {
+    [tokens addObject:theToken];
+}
+
+- (MutableFace *)parseFace:(int)filePosition {
+    TVector3i p1, p2, p3;
+    
     MapToken* token = [self nextToken];
     [self expect:TT_DEC | TT_FRAC actual:token];
     p1.x = [[token data] intValue];
@@ -129,10 +144,8 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     [face setYScale:yScale];
     [face setFilePosition:filePosition];
     
-    [brush addFace:face];
-    
-    [face release];
     [texture release];
+    return [face autorelease];
 }
 
 - (void)parseMap:(id<Map>)theMap withProgressIndicator:(NSProgressIndicator *)theIndicator {
@@ -140,9 +153,12 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
         [theIndicator setMaxValue:100];
     
     NSDate* startDate = [NSDate date];
-    state = PS_DEF;
-    map = [theMap retain];
+    EParserState state = PS_DEF;
+    map = theMap;
     int progress = 0;
+    
+    MutableEntity* entity;
+    MutableBrush* brush;
     
     MapToken* token;
     while ((token = [self nextToken])) {
@@ -185,9 +201,11 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                     break;
                 case PS_BRUSH:
                     switch ([token type]) {
-                        case TT_B_O:
-                            [self parseFace:[token line]];
+                        case TT_B_O: {
+                            MutableFace* face = [self parseFace:[token line]];
+                            [brush addFace:face];
                             break;
+                        }
                         case TT_CB_C:
                             [entity addBrush:brush];
                             [brush release];
@@ -223,9 +241,115 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     NSLog(@"Loaded map file in %f seconds", -duration);
 }
 
+- (EClipboardContents)parseClipboard:(NSMutableArray *)result worldBounds:(TBoundingBox *)theWorldBounds {
+    EClipboardContents contents = CC_UNDEFINED;
+    MapToken* token = [[MapToken alloc] initWithToken:[self nextToken]];
+    [self expect:TT_B_O | TT_CB_O actual:token];
+    if ([token type] == TT_CB_O) {
+        MapToken* nextToken = [[MapToken alloc] initWithToken:[self nextToken]];
+        if ([nextToken type] == TT_CB_O || TT_STR) {
+            contents = CC_ENT;
+        } else {
+            contents = CC_BRUSH;
+        }
+        [self pushToken:nextToken];
+        [nextToken release];
+    } else {
+        contents = CC_FACE;
+    }
+    [self pushToken:token];
+    [token release];
+    
+    EParserState state = PS_DEF;
+    MutableEntity* entity;
+    MutableBrush* brush;
+    
+    while ((token = [self nextToken])) {
+        if ([token type] != TT_COM) {
+            switch (state) {
+                case PS_DEF:
+                    switch (contents) {
+                        case CC_ENT:
+                            [self expect:TT_CB_O actual:token];
+                            state = PS_ENT;
+                            entity = [[MutableEntity alloc] init];
+                            [entity setFilePosition:[token line]];
+                            break;
+                        case CC_BRUSH:
+                            [self expect:TT_CB_O actual:token];
+                            state = PS_BRUSH;
+                            entity = [[MutableEntity alloc] init];
+                            [entity setFilePosition:[token line]];
+                            break;
+                        case CC_FACE:
+                            [self expect:TT_B_O actual:token];
+                            [result addObject:[self parseFace:[token line]]];
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case PS_ENT:
+                    switch ([token type]) {
+                        case TT_STR: {
+                            NSString* key = [[token data] retain];
+                            token = [self nextToken];
+                            [self expect:TT_STR actual:token];
+                            NSString* value = [[token data] retain];
+                            [entity setProperty:key value:value];
+                            [key release];
+                            [value release];
+                            break;
+                        }
+                        case TT_CB_O: {
+                            state = PS_BRUSH;
+                            brush = [[MutableBrush alloc] initWithWorldBounds:theWorldBounds];
+                            [brush setFilePosition:[token line]];
+                            break;
+                        }
+                        case TT_CB_C: {
+                            [result addObject:entity];
+                            [entity release];
+                            entity = nil;
+                            state = PS_DEF;
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                    break;
+                case PS_BRUSH:
+                    switch ([token type]) {
+                        case TT_B_O:
+                            [self parseFace:[token line]];
+                            break;
+                        case TT_CB_C:
+                            if (contents == CC_BRUSH)
+                                [result addObject:brush];
+                            else
+                                [entity addBrush:brush];
+                            [brush release];
+                            state = PS_ENT;
+                            brush = nil;
+                            break;
+                        default:
+                            [self expect:TT_B_O | TT_CB_C actual:token];
+                            break;
+                    }
+                    
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    
+    return contents;
+}
+
 - (void)dealloc {
     [tokenizer release];
-    [map release];
+    [tokens release];
     [super dealloc];
 }
 

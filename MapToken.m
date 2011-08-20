@@ -10,6 +10,7 @@
 
 
 @implementation MapToken
+
 + (NSString *)typeName:(int)aType {
     NSMutableString* result = [[NSMutableString alloc] init];
     if ((aType & TT_FRAC) != 0)
@@ -37,6 +38,16 @@
         [result deleteCharactersInRange:NSMakeRange([result length] - 2, 2)];
     
     return [result autorelease];
+}
+
+- (id)initWithToken:(MapToken *)theToken {
+    NSAssert(theToken != nil, @"token must not be nil");
+    
+    if ((self = [self init])) {
+        [self setType:[theToken type] data:[theToken data] line:[theToken line] column:[theToken column] charsRead:[theToken charsRead]];
+    }
+    
+    return self;
 }
 
 - (ETokenType)type {
