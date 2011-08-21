@@ -824,6 +824,85 @@
     
     EClipboardContents contents = [mapParser parseClipboard:mapObjects worldBounds:[[self document] worldBounds]];
     [mapParser release];
+    
+    if (contents == CC_UNDEFINED)
+        return;
+    
+    MapDocument* map = [self document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+
+    SelectionManager* selectionManager = [map selectionManager];
+    [selectionManager removeAll:YES];
+    
+    NSMutableArray* newEntities = [[NSMutableArray alloc] init];
+    NSMutableArray* newBrushes = [[NSMutableArray alloc] init];
+    
+    switch (contents) {
+        case CC_ENT: {
+            NSEnumerator* entityEn = [mapObjects objectEnumerator];
+            id <Entity> entity;
+            while ((entity = [entityEn nextObject])) {
+                id <Entity> targetEntity;
+                if ([entity isWorldspawn]) {
+                    targetEntity = [map worldspawn:YES];
+                } else {
+                    targetEntity = [map createEntityWithProperties:[entity properties]];
+                    [newEntities addObject:targetEntity];
+                }
+                
+                NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
+                id <Brush> brush;
+                while ((brush = [brushEn nextObject])) {
+                    id <Brush> newBrush = [map createBrushInEntity:targetEntity fromTemplate:brush];
+                    [newBrushes addObject:newBrush];
+                }
+            }
+            break;
+        }
+        case CC_BRUSH: {
+            id <Entity> worldspawn = [map worldspawn:YES];
+            NSEnumerator* brushEn = [mapObjects objectEnumerator];
+            id <Brush> brush;
+            while ((brush = [brushEn nextObject])) {
+                id <Brush> newBrush = [map createBrushInEntity:worldspawn fromTemplate:brush];
+                [newBrushes addObject:newBrush];
+            }
+            break;
+        }
+        case CC_FACE: {
+            break;
+        }
+            
+        default:
+            break;
+    }
+    
+    [selectionManager addEntities:newEntities record:YES];
+    [selectionManager addBrushes:newBrushes record:YES];
+    
+    if (([NSEvent modifierFlags] & NSAlternateKeyMask) == 0) {
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        
+        TVector3f oldCenter;
+        centerOfBounds(&bounds, &oldCenter);
+        
+        TVector3f newCenter = [camera defaultPoint];
+        [[options grid] snapToGridV3f:&newCenter result:&newCenter];
+        
+        TVector3f deltaf;
+        subV3f(&newCenter, &oldCenter, &deltaf);
+        
+        TVector3i deltai;
+        roundV3f(&deltaf, &deltai);
+        
+        [map translateEntities:newEntities delta:deltai];
+        [map translateBrushes:newBrushes delta:deltai];
+    }
+    
+    [undoManager setActionName:@"Paste Objects"];
+    [undoManager endUndoGrouping];
     [mapObjects release];
 }
 

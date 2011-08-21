@@ -369,6 +369,16 @@
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
 								</object>
+								<object class="NSMenuItem" id="453574053">
+									<reference key="NSMenu" ref="789758025"/>
+									<bool key="NSIsAlternate">YES</bool>
+									<string key="NSTitle">Paste at Original Position</string>
+									<string key="NSKeyEquiv">v</string>
+									<int key="NSKeyEquivModMask">1572864</int>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="1033313550"/>
+									<reference key="NSMixedImage" ref="310636482"/>
+								</object>
 								<object class="NSMenuItem" id="189026083">
 									<reference key="NSMenu" ref="789758025"/>
 									<string key="NSTitle">Duplicate</string>
@@ -1788,6 +1798,14 @@
 					</object>
 					<int key="connectionID">836</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">paste:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="453574053"/>
+					</object>
+					<int key="connectionID">838</int>
+				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<array key="orderedObjects">
@@ -1978,6 +1996,7 @@
 							<reference ref="808138970"/>
 							<reference ref="211489393"/>
 							<reference ref="158651509"/>
+							<reference ref="453574053"/>
 						</array>
 						<reference key="parent" ref="952259628"/>
 					</object>
@@ -2586,6 +2605,11 @@
 						<reference key="object" ref="158651509"/>
 						<reference key="parent" ref="789758025"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">837</int>
+						<reference key="object" ref="453574053"/>
+						<reference key="parent" ref="789758025"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -2719,15 +2743,578 @@
 					</object>
 				</object>
 				<string key="835.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="837.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="92.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">836</int>
+			<int key="maxID">838</int>
 		</object>
-		<object class="IBClassDescriber" key="IBDocument.Classes"/>
+		<object class="IBClassDescriber" key="IBDocument.Classes">
+			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
+				<object class="IBPartialClassDescription">
+					<string key="className">AppDelegate</string>
+					<string key="superclassName">NSObject</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/AppDelegate.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">CompassView</string>
+					<string key="superclassName">NSOpenGLView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/CompassView.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">MapView3D</string>
+					<string key="superclassName">NSOpenGLView</string>
+					<dictionary class="NSMutableDictionary" key="outlets">
+						<string key="brushEntityMenu">NSMenu</string>
+						<string key="pointEntityMenu">NSMenu</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<object class="IBToOneOutletInfo" key="brushEntityMenu">
+							<string key="name">brushEntityMenu</string>
+							<string key="candidateClassName">NSMenu</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="pointEntityMenu">
+							<string key="name">pointEntityMenu</string>
+							<string key="candidateClassName">NSMenu</string>
+						</object>
+					</dictionary>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/MapView3D.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">MapWindowController</string>
+					<string key="superclassName">NSWindowController</string>
+					<dictionary class="NSMutableDictionary" key="actions">
+						<string key="compile:">id</string>
+						<string key="createBrushEntity:">id</string>
+						<string key="createPointEntity:">id</string>
+						<string key="createPrefabFromSelection:">id</string>
+						<string key="deleteSelection:">id</string>
+						<string key="duplicateSelection:">id</string>
+						<string key="isolateSelection:">id</string>
+						<string key="performClip:">id</string>
+						<string key="rotateTextureLeft:">id</string>
+						<string key="rotateTextureRight:">id</string>
+						<string key="rotateZ90CCW:">id</string>
+						<string key="rotateZ90CW:">id</string>
+						<string key="run:">id</string>
+						<string key="selectAll:">id</string>
+						<string key="selectAllTouchingBrush:">id</string>
+						<string key="selectEntity:">id</string>
+						<string key="selectNone:">id</string>
+						<string key="setGridSize:">id</string>
+						<string key="showInspector:">id</string>
+						<string key="shrinkTextureHorizontally:">id</string>
+						<string key="shrinkTextureVertically:">id</string>
+						<string key="stretchTextureHorizontally:">id</string>
+						<string key="stretchTextureVertically:">id</string>
+						<string key="switchToXYView:">id</string>
+						<string key="switchToXZView:">id</string>
+						<string key="switchToYZView:">id</string>
+						<string key="toggleClipMode:">id</string>
+						<string key="toggleClipTool:">id</string>
+						<string key="toggleGrid:">id</string>
+						<string key="toggleProjection:">id</string>
+						<string key="toggleSnap:">id</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="compile:">
+							<string key="name">compile:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="createBrushEntity:">
+							<string key="name">createBrushEntity:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="createPointEntity:">
+							<string key="name">createPointEntity:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="createPrefabFromSelection:">
+							<string key="name">createPrefabFromSelection:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="deleteSelection:">
+							<string key="name">deleteSelection:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="duplicateSelection:">
+							<string key="name">duplicateSelection:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="isolateSelection:">
+							<string key="name">isolateSelection:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="performClip:">
+							<string key="name">performClip:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="rotateTextureLeft:">
+							<string key="name">rotateTextureLeft:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="rotateTextureRight:">
+							<string key="name">rotateTextureRight:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="rotateZ90CCW:">
+							<string key="name">rotateZ90CCW:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="rotateZ90CW:">
+							<string key="name">rotateZ90CW:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="run:">
+							<string key="name">run:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="selectAll:">
+							<string key="name">selectAll:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="selectAllTouchingBrush:">
+							<string key="name">selectAllTouchingBrush:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="selectEntity:">
+							<string key="name">selectEntity:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="selectNone:">
+							<string key="name">selectNone:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="setGridSize:">
+							<string key="name">setGridSize:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="showInspector:">
+							<string key="name">showInspector:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="shrinkTextureHorizontally:">
+							<string key="name">shrinkTextureHorizontally:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="shrinkTextureVertically:">
+							<string key="name">shrinkTextureVertically:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="stretchTextureHorizontally:">
+							<string key="name">stretchTextureHorizontally:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="stretchTextureVertically:">
+							<string key="name">stretchTextureVertically:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="switchToXYView:">
+							<string key="name">switchToXYView:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="switchToXZView:">
+							<string key="name">switchToXZView:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="switchToYZView:">
+							<string key="name">switchToYZView:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="toggleClipMode:">
+							<string key="name">toggleClipMode:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="toggleClipTool:">
+							<string key="name">toggleClipTool:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="toggleGrid:">
+							<string key="name">toggleGrid:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="toggleProjection:">
+							<string key="name">toggleProjection:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="toggleSnap:">
+							<string key="name">toggleSnap:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="outlets">
+						<string key="splitView">NSSplitView</string>
+						<string key="view3D">MapView3D</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<object class="IBToOneOutletInfo" key="splitView">
+							<string key="name">splitView</string>
+							<string key="candidateClassName">NSSplitView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="view3D">
+							<string key="name">view3D</string>
+							<string key="candidateClassName">MapView3D</string>
+						</object>
+					</dictionary>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/MapWindowController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">MenuDelegate</string>
+					<string key="superclassName">NSObject</string>
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">showPreferences:</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">showPreferences:</string>
+						<object class="IBActionInfo" key="NS.object.0">
+							<string key="name">showPreferences:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</object>
+					<dictionary class="NSMutableDictionary" key="outlets">
+						<string key="duplicateItem">NSMenuItem</string>
+						<string key="gridSize128Item">NSMenuItem</string>
+						<string key="gridSize16Item">NSMenuItem</string>
+						<string key="gridSize256Item">NSMenuItem</string>
+						<string key="gridSize32Item">NSMenuItem</string>
+						<string key="gridSize64Item">NSMenuItem</string>
+						<string key="gridSize8Item">NSMenuItem</string>
+						<string key="moveFaceDownAltItem">NSMenuItem</string>
+						<string key="moveFaceDownItem">NSMenuItem</string>
+						<string key="moveFaceLeftAltItem">NSMenuItem</string>
+						<string key="moveFaceLeftItem">NSMenuItem</string>
+						<string key="moveFaceRightAltItem">NSMenuItem</string>
+						<string key="moveFaceRightItem">NSMenuItem</string>
+						<string key="moveFaceUpAltItem">NSMenuItem</string>
+						<string key="moveFaceUpItem">NSMenuItem</string>
+						<string key="rotateFaceLeftAltItem">NSMenuItem</string>
+						<string key="rotateFaceLeftItem">NSMenuItem</string>
+						<string key="rotateFaceRightAltItem">NSMenuItem</string>
+						<string key="rotateFaceRightItem">NSMenuItem</string>
+						<string key="showGridItem">NSMenuItem</string>
+						<string key="shrinkFaceHorizontallyItem">NSMenuItem</string>
+						<string key="shrinkFaceVerticallyItem">NSMenuItem</string>
+						<string key="snapToGridItem">NSMenuItem</string>
+						<string key="stretchFaceHorizontallyItem">NSMenuItem</string>
+						<string key="stretchFaceVerticallyItem">NSMenuItem</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<object class="IBToOneOutletInfo" key="duplicateItem">
+							<string key="name">duplicateItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="gridSize128Item">
+							<string key="name">gridSize128Item</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="gridSize16Item">
+							<string key="name">gridSize16Item</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="gridSize256Item">
+							<string key="name">gridSize256Item</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="gridSize32Item">
+							<string key="name">gridSize32Item</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="gridSize64Item">
+							<string key="name">gridSize64Item</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="gridSize8Item">
+							<string key="name">gridSize8Item</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="moveFaceDownAltItem">
+							<string key="name">moveFaceDownAltItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="moveFaceDownItem">
+							<string key="name">moveFaceDownItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="moveFaceLeftAltItem">
+							<string key="name">moveFaceLeftAltItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="moveFaceLeftItem">
+							<string key="name">moveFaceLeftItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="moveFaceRightAltItem">
+							<string key="name">moveFaceRightAltItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="moveFaceRightItem">
+							<string key="name">moveFaceRightItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="moveFaceUpAltItem">
+							<string key="name">moveFaceUpAltItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="moveFaceUpItem">
+							<string key="name">moveFaceUpItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="rotateFaceLeftAltItem">
+							<string key="name">rotateFaceLeftAltItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="rotateFaceLeftItem">
+							<string key="name">rotateFaceLeftItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="rotateFaceRightAltItem">
+							<string key="name">rotateFaceRightAltItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="rotateFaceRightItem">
+							<string key="name">rotateFaceRightItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="showGridItem">
+							<string key="name">showGridItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="shrinkFaceHorizontallyItem">
+							<string key="name">shrinkFaceHorizontallyItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="shrinkFaceVerticallyItem">
+							<string key="name">shrinkFaceVerticallyItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="snapToGridItem">
+							<string key="name">snapToGridItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="stretchFaceHorizontallyItem">
+							<string key="name">stretchFaceHorizontallyItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="stretchFaceVerticallyItem">
+							<string key="name">stretchFaceVerticallyItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+					</dictionary>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/MenuDelegate.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">NSDocument</string>
+					<dictionary class="NSMutableDictionary" key="actions">
+						<string key="printDocument:">id</string>
+						<string key="revertDocumentToSaved:">id</string>
+						<string key="runPageLayout:">id</string>
+						<string key="saveDocument:">id</string>
+						<string key="saveDocumentAs:">id</string>
+						<string key="saveDocumentTo:">id</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="printDocument:">
+							<string key="name">printDocument:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="revertDocumentToSaved:">
+							<string key="name">revertDocumentToSaved:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="runPageLayout:">
+							<string key="name">runPageLayout:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="saveDocument:">
+							<string key="name">saveDocument:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="saveDocumentAs:">
+							<string key="name">saveDocumentAs:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="saveDocumentTo:">
+							<string key="name">saveDocumentTo:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</dictionary>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/NSDocument.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">QuickBarWindowController</string>
+					<string key="superclassName">NSWindowController</string>
+					<dictionary class="NSMutableDictionary" key="actions">
+						<string key="selectAll:">id</string>
+						<string key="selectEntity:">id</string>
+						<string key="selectNone:">id</string>
+						<string key="switchToXYView:">id</string>
+						<string key="switchToXZView:">id</string>
+						<string key="switchToYZView:">id</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="selectAll:">
+							<string key="name">selectAll:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="selectEntity:">
+							<string key="name">selectEntity:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="selectNone:">
+							<string key="name">selectNone:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="switchToXYView:">
+							<string key="name">switchToXYView:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="switchToXZView:">
+							<string key="name">switchToXZView:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="switchToYZView:">
+							<string key="name">switchToYZView:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="outlets">
+						<string key="cameraDirXField">NSTextField</string>
+						<string key="cameraDirYField">NSTextField</string>
+						<string key="cameraDirZField">NSTextField</string>
+						<string key="cameraPosXField">NSTextField</string>
+						<string key="cameraPosYField">NSTextField</string>
+						<string key="cameraPosZField">NSTextField</string>
+						<string key="compassView">CompassView</string>
+						<string key="entityClassnameField">NSTextField</string>
+						<string key="entitySpawnFlagsField">NSTextField</string>
+						<string key="faceRotationField">NSTextField</string>
+						<string key="faceTextureField">NSTextField</string>
+						<string key="faceXOffsetField">NSTextField</string>
+						<string key="faceXScaleField">NSTextField</string>
+						<string key="faceYOffsetField">NSTextField</string>
+						<string key="faceYScaleField">NSTextField</string>
+						<string key="selectionOriginXField">NSTextField</string>
+						<string key="selectionOriginYField">NSTextField</string>
+						<string key="selectionOriginZField">NSTextField</string>
+						<string key="selectionSizeXField">NSTextField</string>
+						<string key="selectionSizeYField">NSTextField</string>
+						<string key="selectionSizeZField">NSTextField</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<object class="IBToOneOutletInfo" key="cameraDirXField">
+							<string key="name">cameraDirXField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="cameraDirYField">
+							<string key="name">cameraDirYField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="cameraDirZField">
+							<string key="name">cameraDirZField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="cameraPosXField">
+							<string key="name">cameraPosXField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="cameraPosYField">
+							<string key="name">cameraPosYField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="cameraPosZField">
+							<string key="name">cameraPosZField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="compassView">
+							<string key="name">compassView</string>
+							<string key="candidateClassName">CompassView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="entityClassnameField">
+							<string key="name">entityClassnameField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="entitySpawnFlagsField">
+							<string key="name">entitySpawnFlagsField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="faceRotationField">
+							<string key="name">faceRotationField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="faceTextureField">
+							<string key="name">faceTextureField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="faceXOffsetField">
+							<string key="name">faceXOffsetField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="faceXScaleField">
+							<string key="name">faceXScaleField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="faceYOffsetField">
+							<string key="name">faceYOffsetField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="faceYScaleField">
+							<string key="name">faceYScaleField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="selectionOriginXField">
+							<string key="name">selectionOriginXField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="selectionOriginYField">
+							<string key="name">selectionOriginYField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="selectionOriginZField">
+							<string key="name">selectionOriginZField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="selectionSizeXField">
+							<string key="name">selectionSizeXField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="selectionSizeYField">
+							<string key="name">selectionSizeYField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="selectionSizeZField">
+							<string key="name">selectionSizeZField</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+					</dictionary>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/QuickBarWindowController.h</string>
+					</object>
+				</object>
+			</array>
+		</object>
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDependencyDefaults">

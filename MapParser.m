@@ -321,7 +321,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                 case PS_BRUSH:
                     switch ([token type]) {
                         case TT_B_O:
-                            [self parseFace:[token line]];
+                            [brush addFace:[self parseFace:[token line]]];
                             break;
                         case TT_CB_C:
                             if (contents == CC_BRUSH)
