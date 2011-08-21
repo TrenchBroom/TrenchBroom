@@ -92,7 +92,7 @@ static PrefabManager* sharedInstance = nil;
         return;
     }
     
-    NSArray* groupNames = [fileManager contentsOfDirectoryAtPath:thePath error:NULL];
+    NSArray* groupNames = [[fileManager contentsOfDirectoryAtPath:thePath error:NULL] sortedArrayUsingSelector:@selector(localizedStandardCompare:)];
     if (groupNames != nil) {
         NSEnumerator* groupNameEn = [groupNames objectEnumerator];
         NSString* groupName;
@@ -100,7 +100,8 @@ static PrefabManager* sharedInstance = nil;
             NSLog(@"Loading group '%@'", groupName);
             NSString* groupPath = [NSString pathWithComponents:[NSArray arrayWithObjects:thePath, groupName, nil]];
             
-            NSArray* prefabNames = [fileManager contentsOfDirectoryAtPath:groupPath error:NULL];
+            NSArray* prefabNames = [[fileManager contentsOfDirectoryAtPath:groupPath error:NULL] sortedArrayUsingSelector:@selector(localizedStandardCompare:)];
+            
             NSEnumerator* prefabNameEn = [prefabNames objectEnumerator];
             NSString* prefabName;
             while ((prefabName = [prefabNameEn nextObject])) {
