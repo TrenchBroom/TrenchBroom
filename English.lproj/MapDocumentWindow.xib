@@ -54,7 +54,6 @@
 									<object class="NSPSMatrix" key="NSDrawMatrix"/>
 									<string key="NSFrameSize">{1187, 725}</string>
 									<reference key="NSSuperview" ref="636683971"/>
-									<reference key="NSNextKeyView"/>
 									<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 										<object class="NSMutableData" key="NSPixelAttributes">
 											<bytes key="NS.bytes">AAAABQAAADsAAABgAAAACAAAAA8AAAALAAAACAAAAAwAAAAYAAAADQAAAAgAAAA4AAAABAAAADcAAAAB

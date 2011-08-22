@@ -17,6 +17,7 @@
 @interface PrefabView : NSOpenGLView {
     NSMutableDictionary* cameras;
     id <Prefab> draggedPrefab;
+    id <Prefab> selectedPrefab;
     GLResources* glResources;
     PrefabLayout* layout;
     int prefabsPerRow;
@@ -25,5 +26,9 @@
 
 - (void)setGLResources:(GLResources *)theGLResources;
 - (void)setPrefabsPerRow:(int)thePrefabsPerRow;
+
+- (IBAction)insertPrefabIntoMap:(id)sender;
+- (IBAction)renamePrefab:(id)sender;
+- (IBAction)deletePrefab:(id)sender;
 
 @end

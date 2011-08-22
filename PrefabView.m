@@ -30,8 +30,25 @@
 #import "PrefabViewTarget.h"
 #import "VertexData.h"
 #import "GLUtils.h"
+#import "PrefabNameSheetController.h"
 
-@implementation PrefabView
+@interface PrefabView (private)
+
+- (BOOL)isCameraModifierPressed:(NSEvent *)event;
+- (void)resetCamera:(Camera *)camera forPrefab:(id <Prefab>)prefab;
+- (void)addPrefab:(id <Prefab>)prefab;
+- (void)prefabAdded:(NSNotification *)notification;
+- (void)prefabRemoved:(NSNotification *)notification;
+- (void)prefabGroupChanged:(NSNotification *)notification;
+- (void)prefabNameSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
+
+@end
+
+@implementation PrefabView (private)
+
+- (BOOL)isCameraModifierPressed:(NSEvent *)event {
+    return ([event modifierFlags] & NSShiftKeyMask) != 0;
+}
 
 - (void)resetCamera:(Camera *)camera forPrefab:(id <Prefab>)prefab {
     TBoundingBox* maxBounds = [prefab maxBounds];
@@ -42,7 +59,7 @@
     addV3f(&p, [prefab center], &p);
     
     subV3f([prefab center], &p, &d);
-
+    
     crossV3f(&d, &ZAxisPos, &u);
     crossV3f(&u, &d, &u);
     
@@ -56,7 +73,7 @@
 - (void)addPrefab:(id <Prefab>)prefab {
     Camera* camera = [[Camera alloc] initWithFieldOfVision:90 nearClippingPlane:10 farClippingPlane:1000];
     [self resetCamera:camera forPrefab:prefab];
-
+    
     [cameras setObject:camera forKey:[prefab prefabId]];
     [camera release];
     
@@ -83,6 +100,22 @@
     [layout invalidate];
     [self setNeedsDisplay:YES];
 }
+
+- (void)prefabNameSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
+    PrefabNameSheetController* pns = [sheet windowController];
+    if (returnCode == NSOKButton) {
+        NSString* prefabName = [pns prefabName];
+        NSString* prefabGroupName = [pns prefabGroup];
+        
+        PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
+        [prefabManager renamePrefab:selectedPrefab newName:prefabName newPrefabGroupName:prefabGroupName];
+    }
+    [pns release];
+}
+
+@end
+
+@implementation PrefabView
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
     if ((self = [super initWithCoder:aDecoder])) {
@@ -117,6 +150,57 @@
     [super dealloc];
 }
 
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    SEL action = [menuItem action];
+    if (action == @selector(insertPrefabIntoMap:)) {
+        return selectedPrefab != nil;
+    } else if (action == @selector(renamePrefab:)) {
+        return selectedPrefab != nil && ![selectedPrefab readOnly];
+    } else if (action == @selector(deletePrefab:)) {
+        return selectedPrefab != nil && ![selectedPrefab readOnly];
+    }
+    
+    return NO;
+}
+
+- (void)mouseDown:(NSEvent *)theEvent {
+    NSPoint clickPoint = [self convertPointFromBase:[theEvent locationInWindow]];
+    selectedPrefab = [layout prefabAt:clickPoint];
+    [self setNeedsDisplay:YES];
+    
+    if ([theEvent clickCount] == 1 && [self isCameraModifierPressed:theEvent]) {
+        draggedPrefab = selectedPrefab;
+    } else if ([theEvent clickCount] == 2) {
+        if (selectedPrefab != nil)
+            [target prefabSelected:selectedPrefab];
+    }
+}
+
+- (void)rightMouseDown:(NSEvent *)theEvent {
+    NSPoint clickPoint = [self convertPointFromBase:[theEvent locationInWindow]];
+    selectedPrefab = [layout prefabAt:clickPoint];
+    [self setNeedsDisplay:YES];
+
+    [super rightMouseDown:theEvent];
+}
+
+- (void)mouseDragged:(NSEvent *)theEvent {
+    if (draggedPrefab != nil) {
+        Camera* camera = [cameras objectForKey:[draggedPrefab prefabId]];
+        [camera orbitCenter:[draggedPrefab center] hAngle:[theEvent deltaX] / 70 vAngle:[theEvent deltaY] / 70];
+        [self setNeedsDisplay:YES];
+    }
+}
+
+- (void)mouseUp:(NSEvent *)theEvent {
+    if (draggedPrefab != nil) {
+        Camera* camera = [cameras objectForKey:[draggedPrefab prefabId]];
+        [self resetCamera:camera forPrefab:draggedPrefab];
+        draggedPrefab = nil;
+        [self setNeedsDisplay:YES];
+    }
+}
+
 - (BOOL)isFlipped {
     return YES;
 }
@@ -135,38 +219,6 @@
         
         [[self superview] setNeedsDisplay:YES];
         [self setFrameSize:NSMakeSize(NSWidth(frame), h)];
-        [self setNeedsDisplay:YES];
-    }
-}
-
-- (BOOL)isCameraModifierPressed:(NSEvent *)event {
-    return ([event modifierFlags] & NSShiftKeyMask) != 0;
-}
-
-- (void)mouseDown:(NSEvent *)theEvent {
-    NSPoint clickPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-    if ([theEvent clickCount] == 1 && [self isCameraModifierPressed:theEvent]) {
-        draggedPrefab = [layout prefabAt:clickPoint];
-    } else if ([theEvent clickCount] == 2) {
-        id <Prefab> prefab = [layout prefabAt:clickPoint];
-        if (prefab != nil)
-            [target prefabSelected:prefab];
-    }
-}
-
-- (void)mouseDragged:(NSEvent *)theEvent {
-    if (draggedPrefab != nil) {
-        Camera* camera = [cameras objectForKey:[draggedPrefab prefabId]];
-        [camera orbitCenter:[draggedPrefab center] hAngle:[theEvent deltaX] / 70 vAngle:[theEvent deltaY] / 70];
-        [self setNeedsDisplay:YES];
-    }
-}
-
-- (void)mouseUp:(NSEvent *)theEvent {
-    if (draggedPrefab != nil) {
-        Camera* camera = [cameras objectForKey:[draggedPrefab prefabId]];
-        [self resetCamera:camera forPrefab:draggedPrefab];
-        draggedPrefab = nil;
         [self setNeedsDisplay:YES];
     }
 }
@@ -246,7 +298,10 @@
                         
                         glDisable(GL_TEXTURE_2D);
                         glPolygonMode(GL_FRONT, GL_LINE);
-                        glColor4f(1, 1, 1, 0.5);
+                        if (selectedPrefab == prefab)
+                            glColor4f(1, 0, 0, 1);
+                        else
+                            glColor4f(1, 1, 1, 0.5f);
                         [self renderFace:face];
                     }
                 }
@@ -303,7 +358,11 @@
             glPushMatrix();
             NSRect nameBounds = [cell nameBounds];
             glTranslatef(NSMinX(nameBounds),  NSHeight(visibleRect) - NSMaxY(nameBounds), 0);
-            glColor4f(1, 1, 1, 1);
+            
+            if (selectedPrefab == prefab)
+                glColor4f(1, 0, 0, 1);
+            else
+                glColor4f(1, 1, 1, 1);
             [prefabNameString render];
             glPopMatrix();
         }
@@ -343,6 +402,30 @@
     prefabsPerRow = thePrefabsPerRow;
     [layout setPrefabsPerRow:prefabsPerRow];
     [self reshape];
+}
+
+- (IBAction)insertPrefabIntoMap:(id)sender {
+    if (selectedPrefab != nil)
+        [target prefabSelected:selectedPrefab];
+}
+
+- (IBAction)renamePrefab:(id)sender {
+    PrefabNameSheetController* pns = [[PrefabNameSheetController alloc] init];
+    NSWindow* prefabNameSheet = [pns window];
+    
+    [pns setPrefabName:[selectedPrefab name]];
+    [pns setPrefabGroup:[[selectedPrefab prefabGroup] name]];
+    
+    NSApplication* app = [NSApplication sharedApplication];
+    [app beginSheet:prefabNameSheet modalForWindow:[self window] modalDelegate:self didEndSelector:@selector(prefabNameSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
+}
+
+- (IBAction)deletePrefab:(id)sender {
+    if (selectedPrefab == nil)
+        return;
+    
+    PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
+    [prefabManager removePrefab:selectedPrefab];
 }
 
 @end

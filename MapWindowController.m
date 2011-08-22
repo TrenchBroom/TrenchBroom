@@ -943,8 +943,10 @@
 
     Grid* grid = [options grid];
     
-    TVector3f deltaf = *[camera direction];
-    setComponentV3f(&deltaf, weakestComponentV3f(&deltaf), 0);
+    TVector3f deltaf = NullVector;
+    const TVector3f* cameraDirection = [camera direction];
+    EAxis strongestComponent = strongestComponentV3f(cameraDirection);
+    setComponentV3f(&deltaf, strongestComponent, componentV3f(cameraDirection, strongestComponent));
     normalizeV3f(&deltaf, &deltaf);
     scaleV3f(&deltaf, -[grid actualSize], &deltaf);
     [grid snapToFarthestGridV3f:&deltaf result:&deltaf];
@@ -965,10 +967,11 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
 
+    [selectionManager removeAll:YES];
+
     [map duplicateEntities:[selectionManager selectedEntities] newEntities:newEntities newBrushes:newBrushes];
     [map duplicateBrushes:[selectionManager selectedBrushes] newBrushes:newBrushes];
     
-    [selectionManager removeAll:YES];
     [selectionManager addEntities:newEntities record:YES];
     [selectionManager addBrushes:newBrushes record:YES];
 

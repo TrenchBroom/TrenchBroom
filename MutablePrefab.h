@@ -29,5 +29,6 @@
 
 - (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds name:(NSString *)theName group:(MutablePrefabGroup *)thePrefabGroup readOnly:(BOOL)isReadOnly;
 
+- (void)setName:(NSString *)theName;
 - (void)setPrefabGroup:(MutablePrefabGroup *)thePrefabGroup;
 @end

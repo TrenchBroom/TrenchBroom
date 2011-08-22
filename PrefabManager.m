@@ -176,6 +176,37 @@ static PrefabManager* sharedInstance = nil;
     [mapWriter release];
 }
 
+- (void)deletePrefab:(MutablePrefab *)prefab {
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    NSString* appSupportPath = [fileManager findApplicationSupportFolder];
+    NSString* groupName = [[prefab prefabGroup] name];
+    NSString* fileName = [NSString stringWithFormat:@"%@.map", [prefab name]];
+    
+    NSString* filePath = [NSString pathWithComponents:[NSArray arrayWithObjects:appSupportPath, @"Prefabs", groupName, fileName, nil]];
+    
+    BOOL directory;
+    BOOL exists = [fileManager fileExistsAtPath:filePath isDirectory:&directory];
+    if (!exists || directory)
+        return;
+    
+    [fileManager removeItemAtPath:filePath error:NULL];
+}
+
+- (void)deletePrefabGroup:(MutablePrefabGroup *)prefabGroup {
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    NSString* appSupportPath = [fileManager findApplicationSupportFolder];
+    NSString* groupName = [prefabGroup name];
+    
+    NSString* directoryPath = [NSString pathWithComponents:[NSArray arrayWithObjects:appSupportPath, @"Prefabs", groupName, nil]];
+    
+    BOOL directory;
+    BOOL exists = [fileManager fileExistsAtPath:directoryPath isDirectory:&directory];
+    if (!exists || !directory)
+        return;
+    
+    [fileManager removeItemAtPath:directoryPath error:NULL];
+}
+
 - (id <Prefab>)createPrefabFromBrushTemplates:(NSArray *)brushTemplates name:(NSString *)prefabName group:(id <PrefabGroup>)prefabGroup {
     if ([brushTemplates count] == 0)
         return nil;
@@ -212,6 +243,24 @@ static PrefabManager* sharedInstance = nil;
     return [prefab autorelease];
 }
 
+- (void)renamePrefab:(id <Prefab>)prefab newName:(NSString *)prefabName newPrefabGroupName:(NSString *)prefabGroupName {
+    if ([prefab readOnly])
+        [NSException raise:NSInvalidArgumentException format:@"cannot remove read only prefab"];
+    
+    [prefab retain];
+
+    MutablePrefab* mutablePrefab = (MutablePrefab *)prefab;
+    [self removePrefab:mutablePrefab];
+    
+    [mutablePrefab setName:prefabName];
+    id <PrefabGroup> prefabGroup = [self prefabGroupWithName:prefabGroupName create:YES];
+
+    [self addPrefab:(MutablePrefab *)prefab group:(MutablePrefabGroup *)prefabGroup];
+    [self writePrefab:(MutablePrefab *)prefab];
+    
+    [prefab release];
+}
+
 - (void)removePrefab:(id <Prefab>)prefab {
     if ([prefab readOnly])
         [NSException raise:NSInvalidArgumentException format:@"cannot remove read only prefab"];
@@ -222,6 +271,7 @@ static PrefabManager* sharedInstance = nil;
     [userInfo setObject:prefab forKey:PrefabKey];
     [userInfo setObject:prefabGroup forKey:PrefabGroupKey];
 
+    [self deletePrefab:(MutablePrefab *)prefab];
     [prefabGroup removePrefab:(MutablePrefab *)prefab];
 
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -232,6 +282,7 @@ static PrefabManager* sharedInstance = nil;
         userInfo = [[NSMutableDictionary alloc] init];
         [userInfo setObject:prefabGroup forKey:PrefabGroupKey];
         
+        [self deletePrefabGroup:prefabGroup];
         [prefabGroups removeObject:prefabGroup];
         [nameToPrefabGroup removeObjectForKey:[[prefabGroup name] lowercaseString]];
 

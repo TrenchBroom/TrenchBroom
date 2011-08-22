@@ -197,6 +197,11 @@
     return &center;
 }
 
+- (void)setName:(NSString *)theName {
+    [name release];
+    name = [theName retain];
+}
+
 - (void)setPrefabGroup:(MutablePrefabGroup *)thePrefabGroup {
     [prefabGroup release];
     prefabGroup = [thePrefabGroup retain];

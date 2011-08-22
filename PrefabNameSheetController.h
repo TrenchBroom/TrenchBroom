@@ -23,4 +23,6 @@
 - (NSString *)prefabName;
 - (NSString *)prefabGroup;
 
+- (void)setPrefabName:(NSString *)thePrefabName;
+- (void)setPrefabGroup:(NSString *)thePrefabGroup;
 @end

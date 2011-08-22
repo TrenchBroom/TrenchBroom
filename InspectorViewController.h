@@ -39,6 +39,7 @@
     
     IBOutlet NSSlider* prefabsPerRowSlider;
     IBOutlet PrefabView* prefabView;
+    IBOutlet NSMenu* prefabViewPopupMenu;
     
     IBOutlet NSTableView* entityPropertyTableView;
     IBOutlet NSButton* removeEntityPropertyButton;

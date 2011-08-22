@@ -107,4 +107,12 @@
     return [[prefabGroupField stringValue] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
+- (void)setPrefabName:(NSString *)thePrefabName {
+    [prefabNameField setStringValue:thePrefabName];
+}
+
+- (void)setPrefabGroup:(NSString *)thePrefabGroup {
+    [prefabGroupField setStringValue:thePrefabGroup];
+}
+
 @end

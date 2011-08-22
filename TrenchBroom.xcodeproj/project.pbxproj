@@ -93,12 +93,12 @@
 		487A645812EA397C00A43289 /* TextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A645712EA397C00A43289 /* TextureView.m */; };
 		487A646C12EA3A7E00A43289 /* Texture.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A646B12EA3A7E00A43289 /* Texture.m */; };
 		487A7E651300801A00434806 /* Renderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A7E641300801A00434806 /* Renderer.m */; };
-		487D2A5A1401324500F2673B /* 128 x 128 x 128.map in Resources */ = {isa = PBXBuildFile; fileRef = 487D2A571401324500F2673B /* 128 x 128 x 128.map */; };
-		487D2A5B1401324500F2673B /* 32 x 32 x 32.map in Resources */ = {isa = PBXBuildFile; fileRef = 487D2A581401324500F2673B /* 32 x 32 x 32.map */; };
-		487D2A5C1401324500F2673B /* 64 x 64 x 64.map in Resources */ = {isa = PBXBuildFile; fileRef = 487D2A591401324500F2673B /* 64 x 64 x 64.map */; };
-		487D2A5D1401327100F2673B /* 128 x 128 x 128.map in Copy Prefabs (Cubes) */ = {isa = PBXBuildFile; fileRef = 487D2A571401324500F2673B /* 128 x 128 x 128.map */; };
-		487D2A5E1401327100F2673B /* 32 x 32 x 32.map in Copy Prefabs (Cubes) */ = {isa = PBXBuildFile; fileRef = 487D2A581401324500F2673B /* 32 x 32 x 32.map */; };
-		487D2A5F1401327100F2673B /* 64 x 64 x 64.map in Copy Prefabs (Cubes) */ = {isa = PBXBuildFile; fileRef = 487D2A591401324500F2673B /* 64 x 64 x 64.map */; };
+		487D2A5A1401324500F2673B /* 128.map in Resources */ = {isa = PBXBuildFile; fileRef = 487D2A571401324500F2673B /* 128.map */; };
+		487D2A5B1401324500F2673B /* 32.map in Resources */ = {isa = PBXBuildFile; fileRef = 487D2A581401324500F2673B /* 32.map */; };
+		487D2A5C1401324500F2673B /* 64.map in Resources */ = {isa = PBXBuildFile; fileRef = 487D2A591401324500F2673B /* 64.map */; };
+		487D2A5D1401327100F2673B /* 128.map in Copy Prefabs (Cubes) */ = {isa = PBXBuildFile; fileRef = 487D2A571401324500F2673B /* 128.map */; };
+		487D2A5E1401327100F2673B /* 32.map in Copy Prefabs (Cubes) */ = {isa = PBXBuildFile; fileRef = 487D2A581401324500F2673B /* 32.map */; };
+		487D2A5F1401327100F2673B /* 64.map in Copy Prefabs (Cubes) */ = {isa = PBXBuildFile; fileRef = 487D2A591401324500F2673B /* 64.map */; };
 		487E1E9412E495060001C150 /* IdGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 487E1E9312E495060001C150 /* IdGenerator.m */; };
 		487FC64612E8B86B006FF29E /* Wad.m in Sources */ = {isa = PBXBuildFile; fileRef = 487FC64512E8B86B006FF29E /* Wad.m */; };
 		487FC64912E8BB53006FF29E /* WadEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 487FC64812E8BB53006FF29E /* WadEntry.m */; };
@@ -211,9 +211,9 @@
 			dstPath = Prefabs/Cubes;
 			dstSubfolderSpec = 7;
 			files = (
-				487D2A5D1401327100F2673B /* 128 x 128 x 128.map in Copy Prefabs (Cubes) */,
-				487D2A5E1401327100F2673B /* 32 x 32 x 32.map in Copy Prefabs (Cubes) */,
-				487D2A5F1401327100F2673B /* 64 x 64 x 64.map in Copy Prefabs (Cubes) */,
+				487D2A5D1401327100F2673B /* 128.map in Copy Prefabs (Cubes) */,
+				487D2A5E1401327100F2673B /* 32.map in Copy Prefabs (Cubes) */,
+				487D2A5F1401327100F2673B /* 64.map in Copy Prefabs (Cubes) */,
 			);
 			name = "Copy Prefabs (Cubes)";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -396,9 +396,9 @@
 		487A77ED13E3095800D44790 /* EntityDefinitionViewTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionViewTarget.h; sourceTree = "<group>"; };
 		487A7E631300801A00434806 /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
 		487A7E641300801A00434806 /* Renderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Renderer.m; sourceTree = "<group>"; };
-		487D2A571401324500F2673B /* 128 x 128 x 128.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "128 x 128 x 128.map"; sourceTree = "<group>"; };
-		487D2A581401324500F2673B /* 32 x 32 x 32.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "32 x 32 x 32.map"; sourceTree = "<group>"; };
-		487D2A591401324500F2673B /* 64 x 64 x 64.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "64 x 64 x 64.map"; sourceTree = "<group>"; };
+		487D2A571401324500F2673B /* 128.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 128.map; sourceTree = "<group>"; };
+		487D2A581401324500F2673B /* 32.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 32.map; sourceTree = "<group>"; };
+		487D2A591401324500F2673B /* 64.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 64.map; sourceTree = "<group>"; };
 		487E1E9212E495060001C150 /* IdGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IdGenerator.h; sourceTree = "<group>"; };
 		487E1E9312E495060001C150 /* IdGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IdGenerator.m; sourceTree = "<group>"; };
 		487FC64412E8B86B006FF29E /* Wad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Wad.h; sourceTree = "<group>"; };
@@ -906,9 +906,9 @@
 		487D2A561401324500F2673B /* Cubes */ = {
 			isa = PBXGroup;
 			children = (
-				487D2A571401324500F2673B /* 128 x 128 x 128.map */,
-				487D2A591401324500F2673B /* 64 x 64 x 64.map */,
-				487D2A581401324500F2673B /* 32 x 32 x 32.map */,
+				487D2A571401324500F2673B /* 128.map */,
+				487D2A591401324500F2673B /* 64.map */,
+				487D2A581401324500F2673B /* 32.map */,
 			);
 			name = Cubes;
 			path = Prefabs/Cubes;
@@ -1364,9 +1364,9 @@
 				4856F97E13E482C6004CFABE /* BJMHLight in Resources */,
 				48BC2E6713EBEF7C003657D6 /* ConsoleWindow.xib in Resources */,
 				487799C613F308ED001F9335 /* QuickBarWindow.xib in Resources */,
-				487D2A5A1401324500F2673B /* 128 x 128 x 128.map in Resources */,
-				487D2A5B1401324500F2673B /* 32 x 32 x 32.map in Resources */,
-				487D2A5C1401324500F2673B /* 64 x 64 x 64.map in Resources */,
+				487D2A5A1401324500F2673B /* 128.map in Resources */,
+				487D2A5B1401324500F2673B /* 32.map in Resources */,
+				487D2A5C1401324500F2673B /* 64.map in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
