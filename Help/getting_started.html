@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>TrenchBroom Help - Getting Started</title>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta name="author" content="Kristian Duske">
+</head>
+<body>
+	<div id="container">
+		<h3>Getting Started</h3>
+		<p>In this section, you will learn how to <a href="#setting_the_quake_path">set the path to your Quake installation</a>, how to <a href="#creating_opening_and_saving_a_map_file">create, open and save maps</a> and how to <a href="#compiling_and_running">compile and run</a> your maps.</p>
+		<a name="setting_the_quake_path"></a><h4>Setting the Quake Path</h4>
+		<p>To allow TrenchBroom to find entity models and to place the compiled maps into the correct folder, the path to the Quake folder must be set in the preferences window. Bring up the preference window (<b>TrenchBroom &raquo; Preferences</b> or <b>&#8984;,</b>) and set the Quake path by clicking on the <b>Choose</b> button.</p>
+		<img src="images/screenshots/setting_the_quake_path.png" width="680" height="292" alt="Preference window screenshot">
+		<p>Once you have selected the Quake folder, you can choose a Quake executable from the popup list. This is the executable that will be used when you <a href="#compiling_and_running">compile and run</a> your maps.</p>
+		
+		<a name="creating_opening_and_saving_a_map_file"></a><h4>Creating, Opening and Saving Maps</h4>
+		<p>To create a new, empty map file, choose <b>File &raquo; New</b> from the menu or hit <b>&#8984;N</b>. This will create a new empty map file and open a new editor window.</p>
+		<p>You can open an existing map file by choosing <b>File &raquo; Open</b> from the menu or hitting <b>&#8984;O.</b></p>
+		<p>To save your map file, choose <b>File &raquo; Save</b> or hit <b>&#8984;S</b>. If you want to save your map under with a different file name, choose <b>File &raquo; Save as...</b> or hit <b>&#8679;&#8984;S</b>.</p>
+
+		<a name="compiling_and_running"></a><h4>Compiling and Running</h4>
+		<p>To compile your maps, simple choose <b>Run &raquo; Compile</b> from the menu. Currently, TrenchBroom does not allow you to specify parameters for the compilers. This is going to be addressed in a future release.</p>
+		<p>TrenchBroom runs builtin versions of qbsp, vis and light in that order. The builtin versions are ports of the following tools:</p>
+		<ul>
+			<li>Bengt Jardrup's TreeQBSP, version 2.05 (<a href="http://user.tninet.se/~xir870k/" target="_blank">user.tninet.se/~xir870k</a>)</li>
+			<li>Bengt Jardrup's and MH's multithreaded colored light, release 2 (<a href="http://mhquake.blogspot.com/" target="_blank">mhquake.blogspot.com</a>)</li>
+			<li>Willem's multithreaded vis (<a href="http://www.wantonhubris.com/toetag/ToeTag.html" target="_blank">wantonhubris.com/toetag</a>)</li>
+		</ul>
+		<p>Once compilation is started, a console window is opened which will show the output of the compiler programs. TrenchBroom extracts the correct directory for the compiled bsp from the Quake path and the mod you are working for (mods are currently not properly configurable, so don't bother with this) and copies the bsp file to that directory.</p>
+		<p>If the map compiled successfully, you can launch your preferred Quake executable by choosing <b>Run &raquo; Run</b> from the menu.</p>
+		
+	</div>
+</body>
+</html>

@@ -4,9 +4,114 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<title>TrenchBroom Help</title>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta name="author" content="Kristian Duske">
 </head>
 	<body>
-		<h1>TrenchBroom Help</h1>
-		<p>TrenchBroom allows you to create and edit Quake 1 maps entirely in 3D. Many advanced features make editing geometry and entities as well as camera navigation easier than ever before. Find out more about TrenchBroom's features by browsing this document.</p>
+		<div id="container">
+			<h3>TrenchBroom Help</h3>
+			<p>TrenchBroom allows you to create and edit Quake 1 maps entirely in 3D. Many advanced features make editing geometry and entities as well as camera navigation easier than ever before. Find out more about TrenchBroom's features by browsing this document.</p>
+			<div id="menu">
+				<ul class="menu">
+					<li class="header">Common Tasks</li>
+					<li class="active" id="menu_link_getting_started">Getting started</li>
+					<li class="inactive" id="menu_link_camera_navigation">Camera navigation</li>
+					<li class="inactive" id="menu_link_selecting_objects">Selecting objects</li>
+					<li class="inactive" id="menu_link_creating_new_objects">Creating new objects</li>
+					<li class="inactive" id="menu_link_editing_objects">Editing objects</li>
+					<li class="header">User Interface</li>
+					<li class="inactive" id="menu_link_the_main_window">The main window</li>
+					<li class="inactive" id="menu_link_the_inspector">The inspector</li>
+					<li class="inactive" id="menu_link_the_main_menu">The main menu</li>
+					<li class="inactive" id="menu_link_the_controls">Keyboard and mouse controls</li>
+				</ul>
+			</div>
+			<div id="submenu">
+				<ul class="submenu" style="display:inline;" id="submenu_getting_started">
+					<li><a href="getting_started.html#setting_the_quake_path">Setting the Quake path</a></li>
+					<li><a href="getting_started.html#creating_opening_and_saving_a_map_file">Creating, opening and saving a map file</a></li>
+					<li><a href="getting_started.html#loading_textures">Loading textures</li>
+					<li><a href="getting_started.html#compiling_and_running">Compiling and running</a></li>
+				</ul>
+				<ul class="submenu" id="submenu_camera_navigation">
+					<li><a href="camera_navigation.html#controlling_the_camera">Controlling the camera</a></li>
+					<li><a href="camera_navigation.html#orbiting_the_camera">Orbiting the camera</a></li>
+					<li><a href="camera_navigation.html#predefined_camera_views">Predefined camera views</a></li>
+					<li><a href="camera_navigation.html#navigating_to_arbitrary_objects">Navigating to arbitrary objects</a></li>
+				</ul>
+				<ul class="submenu" id="submenu_selecting_objects">
+					<li><a href="#">Selecting objects in the 3D view</a></li>
+					<li><a href="#">Selecting multiple objects at once using selection brushes</a></li>
+					<li><a href="#">Other selection commands</a></li>
+				</ul>
+				<ul class="submenu" id="submenu_creating_new_objects">
+					<li><a href="#">Drawing new brushes using the mouse</a></li>
+					<li><a href="#">Inserting prefabs</a></li>
+					<li><a href="#">Dragging entities from the entity browser</a></li>
+					<li><a href="#">Creating point and brush entities</a></li>
+					<li><a href="#">Duplicating objects</a></li>
+					<li><a href="#">Copy and paste</a></li>
+				</ul>
+				<ul class="submenu" id="submenu_editing_objects">
+					<li><a href="#">Moving objects</a></li>
+					<li><a href="#">Rotating objects</a></li>
+					<li><a href="#">Changing the shapes of brushes</a></li>
+					<li><a href="#">Applying textures</a></li>
+					<li><a href="#">Changing face flags</a></li>
+					<li><a href="#">Using the entity property editor</a></li>
+					<li><a href="#">Deleting objects</a></li>
+				</ul>
+				<ul class="submenu" id="submenu_the_main_window">
+					<li><a href="#">The 3D view</a></li>
+					<li><a href="#">3D mouse cursors</a></li>
+					<li><a href="#">The quick info bar</a></li>
+					<li><a href="#">The compass</a></li>
+				</ul>
+				<ul class="submenu" id="submenu_the_inspector">
+					<li><a href="#">General info</a></li>
+					<li><a href="#">The map tab</a></li>
+					<li><a href="#">The entity tab</a></li>
+					<li><a href="#">The brush tab</a></li>
+					<li><a href="#">The face tab</a></li>
+					<li><a href="#">The view tab</a></li>
+				</ul>
+				<ul class="submenu" id="submenu_the_main_menu">
+					<li><a href="#">The TrenchBroom menu</a></li>
+					<li><a href="#">The File menu</a></li>
+					<li><a href="#">The Edit menu</a></li>
+					<li><a href="#">The View menu</a></li>
+					<li><a href="#">The Run menu</a></li>
+					<li><a href="#">The Window menu</a></li>
+					<li><a href="#">The Help menu</a></li>
+				</ul>
+				<ul class="submenu" id="submenu_the_controls">
+					<li><a href="#">Navigation controls</a></li>
+					<li><a href="#">Editing controls</a></li>
+					<li><a href="#">Other controls</a></li>
+				</ul>
+			</div>
+		</div>
+		<script src="jquery.js"></script>
+		<script>
+		menu_link_callback = function(event, menu_name) {
+			$("ul.menu li[class='active']").removeClass("active").addClass("inactive");
+			$("#menu_link_" + menu_name).removeClass("inactive").addClass("active");
+			$("ul.submenu").hide();
+			$("#submenu_" + menu_name).fadeIn();
+			event.preventDefault();
+		};
+		
+		$(document).ready(function() {
+			$("#menu_link_getting_started").click(function(event) {menu_link_callback(event, "getting_started")});
+			$("#menu_link_camera_navigation").click(function(event) {menu_link_callback(event, "camera_navigation")});
+			$("#menu_link_selecting_objects").click(function(event) {menu_link_callback(event, "selecting_objects")});
+			$("#menu_link_creating_new_objects").click(function(event) {menu_link_callback(event, "creating_new_objects")});
+			$("#menu_link_editing_objects").click(function(event) {menu_link_callback(event, "editing_objects")});
+			$("#menu_link_the_main_window").click(function(event) {menu_link_callback(event, "the_main_window")});
+			$("#menu_link_the_inspector").click(function(event) {menu_link_callback(event, "the_inspector")});
+			$("#menu_link_the_main_menu").click(function(event) {menu_link_callback(event, "the_main_menu")});
+			$("#menu_link_the_controls").click(function(event) {menu_link_callback(event, "the_controls")});
+		});
+		</script>
 	</body>
 </html>

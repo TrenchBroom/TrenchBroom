@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>TrenchBroom Help - Camera Navigation</title>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta name="author" content="Kristian Duske">
+</head>
+<body>
+	<div id="container">
+		<h3>Camera Navigation</h3>
+		<p>The camera navigation in TrenchBroom is quite simple and straightforward. However, there are subtle differences between using a trackpad and using a mouse. These differences will be explained below. Generally, you always have to press and hold the <b>shift key &#8679;</b> to navigate the camera in the 3D view. Just like in Quake, the camera cannot be rolled - in other words, up is always in the positive Z direction and down is always in the negative Z direction.</p>
+		<img src="images/screenshots/camera_navigation_quick_info.png" width="513" height="97" alt="Quick info">
+		<p>To help you keep your orientation, the quick info bar at the bottom of the 3D view (see screenshot) always displays information about the current camera location and direction.</p>
+		<a name="controlling_the_camera"></a><h4>Controlling the Camera</h4>
+		<h5>Looking Around</h5>
+		<p>You can look around by holding the <b>shift key &#8679;</b> while clicking and dragging with the <b>left mouse button</b>.</p>
+		<h5>Moving Around</h5>
+		<p>To move the camera foward and backward, hold the <b>shift key &#8679;</b> and use the scroll wheel on your mouse. To move the camera sideways and up / down, hold the <b>shift key &#8679;</b> while clicking and dragging with the <b>right mouse button</b>. If you are using a trackpad, you can move the camera forward and backward by using the <b>three-finger zoom gesture</b> while holding the <b>shift key &#8679;</b> and you can move the camera sideways and up / down by using the <b>two-finger scrolling gesture</b> while holding the <b>shift key &#8679;</b>.</p>
+		
+		<a name="orbiting_the_camera"></a><h4>Orbiting the Camera</h4>
+		<p>The camera orbit mode allows you to rotate the camera about a selectable point. To get an idea as to what this means, imagine that you define a point in the map by clicking on a brush. The point where you clicked will be the center of your camera orbit. Now image a sphere whose center is the point where you just clicked and whose radius is the distance between the camera and the point. Orbiting will move the camera on the surface of that sphere while adjusting the camera's direction so that you keep looking at the same point. Visually, this is the same as rotating the entire map about the orbit center. Of course, you are not actually rotating anything - only the camera's position and direction are modified. However, since up and down are always fixed, you cannot cross the north and south poles of the orbit sphere.</p>
+		<p>Camera orbit mode is very useful if you are editing a brush because it allows you to view this brush from all sides where quickly. Its best to try it and see for yourself how useful it is. To invoke the orbit mode, click and drag with the <b>left mouse button</b> while holding the <b>shift and command keys &#8679;&#8984;</b>. The orbit center is the point in the map which you initially clicked. Dragging sideways will orbit the camera horizontally and dragging up and down will orbit the camera vertically.</p>
+
+		<a name="predefined_camera_views"></a><h4>Predefined Camera Views</h4>
+		<p>If you looked closely at the screenshot of the quick info bar above, you saw three buttons below the camera location and direction info fields. These buttons are labeled <i>XY</i>, <i>XZ</i> and <i>YZ</i> and their function is to take the camera to one of three predefined views using smooth camera tracks:</p>
+		<ul>
+			<li><b>XY view</b> The camera will move so that it looks down onto the top of the current selection (keyboard shortcut: <b>&#8679;1</b>).</li>
+			<li><b>XZ view</b> The camera will move so that it looks at front of the current selection, in the direction of the positive Y axis (keyboard shortcut: <b>&#8679;2</b>).</li>
+			<li><b>YZ view</b> The camera will move so that it looks sideways at the the current selection, in the direction of the negative X axis (keyboard shortcut: <b>&#8679;3</b>).</li>
+		</ul>
+		<p>The camera will always be positioned so that it looks straight at the center of the current selection. If nothing is selected, it will look at a default point in front of the camera.</p>
+
+		<a name="navigating_to_arbitrary_objects"></a><h4>Navigating to Arbitrary Objects</h4>
+		<img src="images/screenshots/navigating_to_arbitrary_objects.png" width="393" height="319" alt"Map browser">
+		<p>To navigate to any object in the map, simply select it in the Map browser, located in the Map tab of the inspector. The camera will quickly be moved to the selected object.</p>
+	</div>
+</body>
+</html>
