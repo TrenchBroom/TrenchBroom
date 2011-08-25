@@ -91,3 +91,89 @@ NSArray* modListFromWorldspawn(id <Entity> worldspawn) {
     
     return [mods autorelease];
 }
+
+void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingBox* worldBounds, TVector3f* deltaf, TVector3f* lastPoint, TVector3f* point) {
+    if (deltaf->x > 0) {
+        deltaf->x = [grid snapDownToGridf:bounds->max.x + deltaf->x] - bounds->max.x;
+        if (deltaf->x <= 0) {
+            deltaf->x = 0;
+        } else {
+            if (bounds->max.x + deltaf->x > worldBounds->max.x) {
+                deltaf->x = worldBounds->max.x - bounds->max.x;
+                deltaf->y = 0;
+                deltaf->z = 0;
+            } else if (lastPoint != NULL && point != NULL) {
+                lastPoint->x = point->x;
+            }
+        }
+    } else if (deltaf->x < 0) {
+        deltaf->x = [grid snapUpToGridf:bounds->min.x + deltaf->x] - bounds->min.x;
+        if (deltaf->x >= 0) {
+            deltaf->x = 0;
+        } else {
+            if (bounds->min.x + deltaf->x < worldBounds->min.x) {
+                deltaf->x = worldBounds->min.x - bounds->min.x;
+                deltaf->y = 0;
+                deltaf->z = 0;
+            } else if (lastPoint != NULL && point != NULL) {
+                lastPoint->x = point->x;
+            }
+        }
+    }
+    
+    if (deltaf->y > 0) {
+        deltaf->y = [grid snapDownToGridf:bounds->max.y + deltaf->y] - bounds->max.y;
+        if (deltaf->y <= 0) {
+            deltaf->y = 0;
+        } else {
+            if (bounds->max.y + deltaf->y > worldBounds->max.y) {
+                deltaf->x = 0;
+                deltaf->y = worldBounds->max.y - bounds->max.y;
+                deltaf->z = 0;
+            } else if (lastPoint != NULL && point != NULL) {
+                lastPoint->y = point->y;
+            }
+        }
+    } else if (deltaf->y < 0) {
+        deltaf->y = [grid snapUpToGridf:bounds->min.y + deltaf->y] - bounds->min.y;
+        if (deltaf->y >= 0) {
+            deltaf->y = 0;
+        } else {
+            if (bounds->min.y + deltaf->y < worldBounds->min.y) {
+                deltaf->x = 0;
+                deltaf->y = worldBounds->min.y - bounds->min.y;
+                deltaf->z = 0;
+            } else if (lastPoint != NULL && point != NULL) {
+                lastPoint->y = point->y;
+            }
+        }
+    }
+    
+    if (deltaf->z > 0) {
+        deltaf->z = [grid snapDownToGridf:bounds->max.z + deltaf->z] - bounds->max.z;
+        if (deltaf->z <= 0) {
+            deltaf->z = 0;
+        } else {
+            if (bounds->max.z + deltaf->z > worldBounds->max.z) {
+                deltaf->x = 0;
+                deltaf->y = 0;
+                deltaf->z = worldBounds->max.z - bounds->max.z;
+            } else if (lastPoint != NULL && point != NULL) {
+                lastPoint->z = point->z;
+            }
+        }
+    } else if (deltaf->z < 0) {
+        deltaf->z = [grid snapUpToGridf:bounds->min.z + deltaf->z] - bounds->min.z;
+        if (deltaf->z >= 0) {
+            deltaf->z = 0;
+        } else {
+            if (bounds->min.z + deltaf->z < worldBounds->min.z) {
+                deltaf->x = 0;
+                deltaf->y = 0;
+                deltaf->z = worldBounds->min.z < bounds->min.z;
+            } else if (lastPoint != NULL && point != NULL) {
+                lastPoint->z = point->z;
+            }
+        }
+    }
+}

@@ -102,6 +102,21 @@ NSString* const GridChanged = @"GridChanged";
     [self setSnap:![self snap]];
 }
 
+- (float)snapToGridf:(float)f {
+    int actualSize = [self actualSize];
+    return actualSize * roundf(f / actualSize);
+}
+
+- (float)snapUpToGridf:(float)f {
+    int actualSize = [self actualSize];
+    return actualSize * ceilf(f / actualSize);
+}
+
+- (float)snapDownToGridf:(float)f {
+    int actualSize = [self actualSize];
+    return actualSize * floorf(f / actualSize);
+}
+
 - (void)snapToGridV3f:(const TVector3f *)vector result:(TVector3f *)result {
     int actualSize = [self actualSize];
     result->x = actualSize * roundf(vector->x / actualSize);

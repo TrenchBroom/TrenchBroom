@@ -517,17 +517,20 @@
         TVector3f deltaf;
         closestAxisV3f([camera right], &deltaf);
         scaleV3f(&deltaf, -delta, &deltaf);
-        
+
+        TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
-        translateBounds(&bounds, &deltaf, &bounds);
-        if (boundsContainBounds([map worldBounds], &bounds)) {
-            TVector3i deltai;
-            roundV3f(&deltaf, &deltai);
-            
-            [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
-            [map translateEntities:[selectionManager selectedEntities] delta:deltai];
-        }
+        
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL, NULL);
+        if (nullV3f(&deltaf))
+            return;
+
+        TVector3i deltai;
+        roundV3f(&deltaf, &deltai);
+        
+        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+        [map translateEntities:[selectionManager selectedEntities] delta:deltai];
     }
     
     [undoManager endUndoGrouping];
@@ -550,16 +553,19 @@
         closestAxisV3f([camera right], &deltaf);
         scaleV3f(&deltaf, delta, &deltaf);
         
+        TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
-        translateBounds(&bounds, &deltaf, &bounds);
-        if (boundsContainBounds([map worldBounds], &bounds)) {
-            TVector3i deltai;
-            roundV3f(&deltaf, &deltai);
-            
-            [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
-            [map translateEntities:[selectionManager selectedEntities] delta:deltai];
-        }    
+        
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL, NULL);
+        if (nullV3f(&deltaf))
+            return;
+
+        TVector3i deltai;
+        roundV3f(&deltaf, &deltai);
+        
+        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+        [map translateEntities:[selectionManager selectedEntities] delta:deltai];
     }
     
     [undoManager endUndoGrouping];
@@ -581,16 +587,19 @@
         closestAxisV3f([camera up], &deltaf);
         scaleV3f(&deltaf, delta, &deltaf);
         
+        TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
-        translateBounds(&bounds, &deltaf, &bounds);
-        if (boundsContainBounds([map worldBounds], &bounds)) {
-            TVector3i deltai;
-            roundV3f(&deltaf, &deltai);
-            
-            [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
-            [map translateEntities:[selectionManager selectedEntities] delta:deltai];
-        }    
+        
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL, NULL);
+        if (nullV3f(&deltaf))
+            return;
+
+        TVector3i deltai;
+        roundV3f(&deltaf, &deltai);
+        
+        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+        [map translateEntities:[selectionManager selectedEntities] delta:deltai];
     }
     
     [undoManager endUndoGrouping];
@@ -613,16 +622,19 @@
         closestAxisV3f([camera up], &deltaf);
         scaleV3f(&deltaf, -delta, &deltaf);
         
+        TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
-        translateBounds(&bounds, &deltaf, &bounds);
-        if (boundsContainBounds([map worldBounds], &bounds)) {
-            TVector3i deltai;
-            roundV3f(&deltaf, &deltai);
-            
-            [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
-            [map translateEntities:[selectionManager selectedEntities] delta:deltai];
-        }    
+        
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL, NULL);
+        if (nullV3f(&deltaf))
+            return;
+
+        TVector3i deltai;
+        roundV3f(&deltaf, &deltai);
+        
+        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+        [map translateEntities:[selectionManager selectedEntities] delta:deltai];
     }
     
     [undoManager endUndoGrouping];

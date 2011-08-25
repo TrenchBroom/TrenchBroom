@@ -16,3 +16,4 @@
 
 BOOL calculateEntityOrigin(EntityDefinition* entityDefinition, PickingHitList* hits, NSPoint mousePos, Camera* camera, TVector3i* result);
 NSArray* modListFromWorldspawn(id <Entity> worldspawn);
+void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingBox* worldBounds, TVector3f* deltaf, TVector3f* lastPoint, TVector3f* point);

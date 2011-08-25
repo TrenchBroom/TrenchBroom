@@ -25,6 +25,7 @@
 #import "CursorManager.h"
 #import "MoveCursor.h"
 #import "RotateCursor.h"
+#import "ControllerUtils.h"
 
 @interface MoveTool (private)
 
@@ -105,8 +106,6 @@
         }
     }
     
-    Grid* grid = [[windowController options] grid];
-    [grid snapToGridV3f:&lastPoint result:&lastPoint];
     drag = YES;
     duplicate = [self isDuplicateModifierPressed];
     
@@ -127,51 +126,21 @@
     TVector3f point;
     rayPointAtDistance(ray, dist, &point);
     
-    Grid* grid = [[windowController options] grid];
-    [grid snapToGridV3f:&point result:&point];
-    
-    if (equalV3f(&point, &lastPoint))
-        return;
-
-    MapDocument* map = [windowController document];
-    TBoundingBox* worldBounds = [map worldBounds];
-    
     TVector3f deltaf;
     subV3f(&point, &lastPoint, &deltaf);
+
+    Grid* grid = [[windowController options] grid];
     
-    SelectionManager* selectionManager = [windowController selectionManager];
-    
-    TBoundingBox bounds, translatedBounds;
+    MapDocument* map = [windowController document];
+    TBoundingBox* worldBounds = [map worldBounds];
+
+    TBoundingBox bounds;
+    SelectionManager* selectionManager = [map selectionManager];
     [selectionManager selectionBounds:&bounds];
-    
-    addV3f(&bounds.min, &deltaf, &translatedBounds.min);
-    addV3f(&bounds.max, &deltaf, &translatedBounds.max);
-    
-    if (translatedBounds.max.x > worldBounds->max.x) {
-        deltaf.x = worldBounds->max.x - bounds.max.x;
-        deltaf.y = 0;
-        deltaf.z = 0;
-    } else if (translatedBounds.min.x < worldBounds->min.x) {
-        deltaf.x = worldBounds->min.x - bounds.min.x;
-        deltaf.y = 0;
-        deltaf.z = 0;
-    } else if (translatedBounds.max.y > worldBounds->max.y) {
-        deltaf.x = 0;
-        deltaf.y = worldBounds->max.y - bounds.max.y;
-        deltaf.z = 0;
-    } else if (translatedBounds.min.y < worldBounds->min.y) {
-        deltaf.x = 0;
-        deltaf.y = worldBounds->min.y - bounds.min.y;
-        deltaf.z = 0;
-    } else if (translatedBounds.max.z > worldBounds->max.z) {
-        deltaf.x = 0;
-        deltaf.y = 0;
-        deltaf.z = worldBounds->max.z - bounds.max.z;
-    } else if (translatedBounds.min.z < worldBounds->min.z) {
-        deltaf.x = 0;
-        deltaf.y = 0;
-        deltaf.z = worldBounds->min.z - bounds.min.z;
-    }
+
+    calculateMoveDelta(grid, &bounds, worldBounds, &deltaf, &lastPoint, &point);
+    if (nullV3f(&deltaf))
+        return;
     
     TVector3i deltai;
     roundV3f(&deltaf, &deltai);
@@ -195,8 +164,10 @@
     [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
     [map translateEntities:[selectionManager selectedEntities] delta:deltai];
     
+    /*
     if (boundsContainBounds(worldBounds, &translatedBounds))
         lastPoint = point;
+     */
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
