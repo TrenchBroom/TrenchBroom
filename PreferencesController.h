@@ -13,6 +13,12 @@
 @interface PreferencesController : NSWindowController {
     IBOutlet NSTextField* quakePathTextField;
     IBOutlet NSPopUpButton* quakeExecutablePopUp;
+    IBOutlet NSToolbar* toolbar;
+    IBOutlet NSToolbarItem* generalToolbarItem;
+    IBOutlet NSToolbarItem* compilerToolbarItem;
+    IBOutlet NSView* generalView;
+    IBOutlet NSView* compilerView;
+    NSMutableDictionary* toolbarItemToViewMap;
 }
 
 + (PreferencesController *)sharedPreferences;
@@ -20,4 +26,6 @@
 - (IBAction)chooseQuakePath:(id)sender;
 - (PreferencesManager *)preferences;
 
+- (IBAction)generalToolbarItemSelected:(id)sender;
+- (IBAction)compilerToolbarItemSelected:(id)sender;
 @end

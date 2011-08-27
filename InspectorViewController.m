@@ -9,6 +9,7 @@
 #import "InspectorViewController.h"
 #import "MapDocument.h"
 #import "Prefab.h"
+#import "PrefabGroup.h"
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
@@ -30,6 +31,8 @@
 #import "MapBrowserDataSource.h"
 #import "ControllerUtils.h"
 #import "PreferencesManager.h"
+#import "PrefabNameSheetController.h"
+#import "PrefabManager.h"
 
 @interface InspectorViewController (private)
 
@@ -40,12 +43,14 @@
 - (void)brushesDidChange:(NSNotification *)notification;
 - (void)facesDidChange:(NSNotification *)notification;
 - (void)selectionChanged:(NSNotification *)notification;
+- (void)prefabSelectionDidChange:(NSNotification *)notification;
 - (void)textureManagerChanged:(NSNotification *)notification;
 - (void)updateMapWindowController:(MapWindowController *)theMapWindowController;
 - (void)updateTextureControls;
 - (void)updateTextureFilter;
 - (void)updateEntityDefinitionFilter;
 - (void)updateEntityPropertyTable;
+- (void)prefabNameSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 
 @end
 
@@ -107,6 +112,15 @@
 - (void)selectionChanged:(NSNotification *)notification {
     [self updateEntityPropertyTable];
     [self updateTextureControls];
+    
+    SelectionManager* selectionManager = [[mapWindowController document] selectionManager];
+    [addPrefabButton setEnabled:[selectionManager hasSelectedBrushes]];
+}
+
+- (void)prefabSelectionDidChange:(NSNotification *)notification {
+    id <Prefab> prefab = [prefabView selectedPrefab];
+    [editPrefabButton setEnabled:prefab != nil && ![prefab readOnly]];
+    [removePrefabButton setEnabled:prefab != nil && ![prefab readOnly]];
 }
 
 - (void)textureManagerChanged:(NSNotification *)notification {
@@ -337,6 +351,20 @@
     [entityPropertyTableView reloadData];
 }
 
+- (void)prefabNameSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
+    PrefabNameSheetController* pns = [sheet windowController];
+    if (returnCode == NSOKButton) {
+        id <Prefab> prefab = [prefabView selectedPrefab];
+        if (prefab != nil) {
+        PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
+            NSString* prefabName = [pns prefabName];
+            NSString* prefabGroupName = [pns prefabGroup];
+            [prefabManager renamePrefab:prefab newName:prefabName newPrefabGroupName:prefabGroupName];
+        }
+    }
+    [pns release];
+}
+
 @end
 
 @implementation InspectorViewController
@@ -363,6 +391,7 @@
     PreferencesManager* preferences = [PreferencesManager sharedManager];
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:preferences];
+    [center addObserver:self selector:@selector(prefabSelectionDidChange:) name:PrefabSelectionDidChange object:prefabView];
 }
 
 - (void)setMapWindowController:(MapWindowController *)theMapWindowController {
@@ -535,7 +564,40 @@
     
     [undoManager setActionName:@"Add Entity Property"];
     [undoManager endUndoGrouping];
+
+    [entityPropertyTableView deselectAll:self];
+    NSUInteger row = [entityPropertyTableDataSource indexOfPropertyWithKey:@"new_property"];
+    if (row != NSNotFound)
+        [entityPropertyTableView editColumn:0 row:row withEvent:nil select:YES];
 }
+
+- (IBAction)addPrefab:(id)sender {
+    [mapWindowController createPrefabFromSelection:sender];
+}
+
+- (IBAction)editPrefab:(id)sender {
+    id <Prefab> prefab = [prefabView selectedPrefab];
+    if (prefab != nil) {
+        PrefabNameSheetController* pns = [[PrefabNameSheetController alloc] init];
+        NSWindow* prefabNameSheet = [pns window];
+        
+        [pns setPrefabName:[prefab name]];
+        [pns setPrefabGroup:[[prefab prefabGroup] name]];
+        
+        NSApplication* app = [NSApplication sharedApplication];
+        [app beginSheet:prefabNameSheet modalForWindow:[[self view] window] modalDelegate:self didEndSelector:@selector(prefabNameSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
+    }
+}
+
+- (IBAction)removePrefab:(id)sender {
+    id <Prefab> prefab = [prefabView selectedPrefab];
+    if (prefab != nil) {
+        PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
+        [prefabManager removePrefab:prefab];
+    }
+}
+
+
 
 - (IBAction)removeEntityProperty:(id)sender {
     NSIndexSet* selectedRows = [entityPropertyTableView selectedRowIndexes];
@@ -583,32 +645,40 @@
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification {
-    NSIndexSet* selectedRows = [entityPropertyTableView selectedRowIndexes];
-    if ([selectedRows count] > 0) {
-        SelectionManager* selectionManager = [mapWindowController selectionManager];
-        NSArray* entities = [selectionManager selectedEntities];
-        
-        NSUInteger index = [selectedRows firstIndex];
-        do {
-            NSString* key = [entityPropertyTableDataSource propertyKeyAtIndex:index];
-            NSEnumerator* entityEn = [entities objectEnumerator];
-            id <Entity> entity;
-            while ((entity = [entityEn nextObject])) {
-                if (![entity isPropertyDeletable:key]) {
-                    [removeEntityPropertyButton setEnabled:NO];
-                    return;
+    if ([notification object] == entityPropertyTableView) {
+        NSIndexSet* selectedRows = [entityPropertyTableView selectedRowIndexes];
+        if ([selectedRows count] > 0) {
+            MapDocument* map = [mapWindowController document];
+            SelectionManager* selectionManager = [map selectionManager];
+            NSArray* entities = [selectionManager selectedEntities];
+            
+            if ([entities count] == 0)
+                entities = [NSArray arrayWithObject:[map worldspawn:YES]];
+            
+            NSUInteger index = [selectedRows firstIndex];
+            do {
+                NSString* key = [entityPropertyTableDataSource propertyKeyAtIndex:index];
+                NSEnumerator* entityEn = [entities objectEnumerator];
+                id <Entity> entity;
+                while ((entity = [entityEn nextObject])) {
+                    if (![entity isPropertyDeletable:key]) {
+                        [removeEntityPropertyButton setEnabled:NO];
+                        return;
+                    }
                 }
-            }
-        } while ((index = [selectedRows indexGreaterThanIndex:index]) != NSNotFound);
-        
-        [removeEntityPropertyButton setEnabled:YES];
-    } else {
-        [removeEntityPropertyButton setEnabled:NO];
+            } while ((index = [selectedRows indexGreaterThanIndex:index]) != NSNotFound);
+            
+            [removeEntityPropertyButton setEnabled:YES];
+        } else {
+            [removeEntityPropertyButton setEnabled:NO];
+        }
     }
 }
 
 - (BOOL)tableView:(NSTableView *)theTableView shouldEditTableColumn:(NSTableColumn *)theTableColumn row:(NSInteger)theRowIndex {
-    return [entityPropertyTableDataSource editingAllowed:theTableColumn rowIndex:theRowIndex];
+    if (theTableView == entityPropertyTableView)
+        return [entityPropertyTableDataSource editingAllowed:theTableColumn rowIndex:theRowIndex];
+    return NO;
 }
 
 - (void)entityDefinitionSelected:(EntityDefinition *)theDefinition {

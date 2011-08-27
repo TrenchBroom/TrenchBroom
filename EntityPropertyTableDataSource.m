@@ -16,6 +16,13 @@
 
 @implementation EntityPropertyTableDataSource
 
+- (void)dealloc {
+    [entities release];
+    [properties release];
+    [sortedKeys release];
+    [super dealloc];
+}
+
 - (void)setMapWindowController:(MapWindowController *)theMapWindowController {
     mapWindowController = theMapWindowController;
 }
@@ -82,6 +89,10 @@
         return nil;
     
     return [sortedKeys objectAtIndex:theIndex];
+}
+
+- (NSUInteger)indexOfPropertyWithKey:(NSString *)theKey {
+    return [sortedKeys indexOfObject:theKey];
 }
 
 - (BOOL)editingAllowed:(NSTableColumn *)theTableColumn rowIndex:(NSUInteger)theIndex {
@@ -178,11 +189,5 @@
     }
 }
 
-- (void)dealloc {
-    [entities release];
-    [properties release];
-    [sortedKeys release];
-    [super dealloc];
-}
 
 @end

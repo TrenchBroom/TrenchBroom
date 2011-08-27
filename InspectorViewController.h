@@ -21,7 +21,7 @@
 @class MapBrowserDataSource;
 @protocol Prefab;
 
-@interface InspectorViewController : NSViewController <PrefabViewTarget, TextureViewTarget, EntityDefinitionViewTarget> {
+@interface InspectorViewController : NSViewController <NSTableViewDelegate, PrefabViewTarget, TextureViewTarget, EntityDefinitionViewTarget> {
     IBOutlet NSTextField* xOffsetField;
     IBOutlet NSTextField* yOffsetField;
     IBOutlet NSTextField* xScaleField;
@@ -37,9 +37,11 @@
     IBOutlet NSTableView* wadTableView;
     IBOutlet NSArrayController* wadArrayController;
     
-    IBOutlet NSSlider* prefabsPerRowSlider;
     IBOutlet PrefabView* prefabView;
-    IBOutlet NSMenu* prefabViewPopupMenu;
+    IBOutlet NSSlider* prefabsPerRowSlider;
+    IBOutlet NSButton* addPrefabButton;
+    IBOutlet NSButton* editPrefabButton;
+    IBOutlet NSButton* removePrefabButton;
     
     IBOutlet NSTableView* entityPropertyTableView;
     IBOutlet NSButton* removeEntityPropertyButton;
@@ -69,6 +71,10 @@
 - (IBAction)textureSortCriterionChanged:(id)sender;
 - (IBAction)prefabsPerRowChanged:(id)sender;
 - (IBAction)addTextureWad:(id)sender;
+
+- (IBAction)addPrefab:(id)sender;
+- (IBAction)editPrefab:(id)sender;
+- (IBAction)removePrefab:(id)sender;
 
 - (IBAction)removeEntityProperty:(id)sender;
 - (IBAction)addEntityProperty:(id)sender;

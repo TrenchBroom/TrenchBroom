@@ -418,7 +418,7 @@
 }
 
 - (BOOL)isPropertyDeletable:(NSString *)theKey {
-    return ![ClassnameKey isEqualToString:theKey] && ![OriginKey isEqualToString:theKey];
+    return ![ClassnameKey isEqualToString:theKey] && ![OriginKey isEqualToString:theKey] && ![SpawnFlagsKey isEqualToString:theKey];
 }
 
 - (BOOL)isPropertyWritable:(NSString *)theKey {

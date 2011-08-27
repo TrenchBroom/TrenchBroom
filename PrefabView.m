@@ -40,7 +40,7 @@
 - (void)prefabAdded:(NSNotification *)notification;
 - (void)prefabRemoved:(NSNotification *)notification;
 - (void)prefabGroupChanged:(NSNotification *)notification;
-- (void)prefabNameSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
+- (void)selectPrefab:(id <Prefab>)thePrefab;
 
 @end
 
@@ -78,7 +78,7 @@
     [camera release];
     
     [layout invalidate];
-    [self setNeedsDisplay:YES];
+    [self selectPrefab:prefab];
 }
 
 - (void)prefabAdded:(NSNotification *)notification {
@@ -90,6 +90,8 @@
 - (void)prefabRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     id <Prefab> prefab = [userInfo objectForKey:PrefabKey];
+    if (selectedPrefab == prefab)
+        [self selectPrefab:nil];
     
     [cameras removeObjectForKey:[prefab prefabId]];
     [layout invalidate];
@@ -101,16 +103,15 @@
     [self setNeedsDisplay:YES];
 }
 
-- (void)prefabNameSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
-    PrefabNameSheetController* pns = [sheet windowController];
-    if (returnCode == NSOKButton) {
-        NSString* prefabName = [pns prefabName];
-        NSString* prefabGroupName = [pns prefabGroup];
+- (void)selectPrefab:(id <Prefab>)thePrefab {
+    if (selectedPrefab != thePrefab) {
+        selectedPrefab = thePrefab;
         
-        PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-        [prefabManager renamePrefab:selectedPrefab newName:prefabName newPrefabGroupName:prefabGroupName];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PrefabSelectionDidChange object:self];
+        
+        [self setNeedsDisplay:YES];
     }
-    [pns release];
 }
 
 @end
@@ -165,8 +166,7 @@
 
 - (void)mouseDown:(NSEvent *)theEvent {
     NSPoint clickPoint = [self convertPointFromBase:[theEvent locationInWindow]];
-    selectedPrefab = [layout prefabAt:clickPoint];
-    [self setNeedsDisplay:YES];
+    [self selectPrefab:[layout prefabAt:clickPoint]];
     
     if ([theEvent clickCount] == 1 && [self isCameraModifierPressed:theEvent]) {
         draggedPrefab = selectedPrefab;
@@ -178,9 +178,7 @@
 
 - (void)rightMouseDown:(NSEvent *)theEvent {
     NSPoint clickPoint = [self convertPointFromBase:[theEvent locationInWindow]];
-    selectedPrefab = [layout prefabAt:clickPoint];
-    [self setNeedsDisplay:YES];
-
+    [self selectPrefab:[layout prefabAt:clickPoint]];
     [super rightMouseDown:theEvent];
 }
 
@@ -374,6 +372,8 @@
 }
 
 - (void)setGLResources:(GLResources *)theGLResources {
+    [self selectPrefab:nil];
+    
     [glResources release];
     glResources = [theGLResources retain];
     
@@ -409,23 +409,8 @@
         [target prefabSelected:selectedPrefab];
 }
 
-- (IBAction)renamePrefab:(id)sender {
-    PrefabNameSheetController* pns = [[PrefabNameSheetController alloc] init];
-    NSWindow* prefabNameSheet = [pns window];
-    
-    [pns setPrefabName:[selectedPrefab name]];
-    [pns setPrefabGroup:[[selectedPrefab prefabGroup] name]];
-    
-    NSApplication* app = [NSApplication sharedApplication];
-    [app beginSheet:prefabNameSheet modalForWindow:[self window] modalDelegate:self didEndSelector:@selector(prefabNameSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
-}
-
-- (IBAction)deletePrefab:(id)sender {
-    if (selectedPrefab == nil)
-        return;
-    
-    PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-    [prefabManager removePrefab:selectedPrefab];
+- (id<Prefab>)selectedPrefab {
+    return selectedPrefab;
 }
 
 @end

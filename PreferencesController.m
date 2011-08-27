@@ -11,12 +11,16 @@
 #import "MapWindowController.h"
 #import "PreferencesManager.h"
 
+static NSString* const GeneralToolbarItemIdentifier    = @"GeneralToolbarItem";
+static NSString* const CompilerToolbarItemIdentifier   = @"CompilerToolbarItem";
+
 static PreferencesController* sharedInstance = nil;
 
 @interface PreferencesController (private)
 
 - (void)updateExecutableList;
 - (void)preferencesDidChange:(NSNotification *)notification;
+- (void)activateToolbarItemWithId:(NSString *)toolbarItemIdentifier view:(NSView *)view animate:(BOOL)animate;
 
 @end
 
@@ -64,6 +68,29 @@ static PreferencesController* sharedInstance = nil;
     [self updateExecutableList];
 }
 
+- (void)activateToolbarItemWithId:(NSString *)toolbarItemIdentifier view:(NSView *)newView animate:(BOOL)animate {
+    NSView* contentView = [[self window] contentView];
+    NSView* oldView = [[contentView subviews] count] > 0 ? [[contentView subviews] objectAtIndex:0] : nil;
+    
+    NSRect oldWindowFrame = [[self window] frame];
+    NSRect newViewFrame = [newView frame];
+    
+    float rest = NSHeight(oldWindowFrame) - NSHeight([contentView frame]);
+    float heightDiff = NSHeight(newViewFrame) - NSHeight([contentView frame]);
+    
+    NSRect newFrame = NSMakeRect(NSMinX(oldWindowFrame), NSMinY(oldWindowFrame) - heightDiff, NSWidth(newViewFrame), NSHeight(newViewFrame) + rest);
+    [[self window] setFrame:newFrame display:YES animate:animate];
+
+    newViewFrame.origin.y = 0;
+    [newView setFrame:newViewFrame];
+
+    [contentView addSubview:newView];
+    [oldView removeFromSuperview];
+    [contentView setNeedsDisplay:YES];
+    
+    [toolbar setSelectedItemIdentifier:toolbarItemIdentifier];
+}
+
 @end
 
 @implementation PreferencesController
@@ -106,15 +133,33 @@ static PreferencesController* sharedInstance = nil;
     return self;
 }
 
+- (id)init {
+    if ((self = [super init])) {
+        toolbarItemToViewMap = [[NSMutableDictionary alloc] init];
+    }
+    
+    
+    return self;
+}
+
+- (void)dealloc {
+    [toolbarItemToViewMap release];
+    [super dealloc];
+}
+
 - (NSString *)windowNibName {
     return @"PreferencesWindow";
 }
 
 - (void)windowDidLoad {
+    [toolbarItemToViewMap setObject:generalView forKey:GeneralToolbarItemIdentifier];
+    [toolbarItemToViewMap setObject:compilerView forKey:CompilerToolbarItemIdentifier];
+    
     PreferencesManager* preferences = [PreferencesManager sharedManager];
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:preferences];
     [self updateExecutableList];
+    [self activateToolbarItemWithId:GeneralToolbarItemIdentifier view:generalView animate:NO];
 }
 
 - (IBAction)chooseQuakePath:(id)sender {
@@ -142,6 +187,14 @@ static PreferencesController* sharedInstance = nil;
 
 - (PreferencesManager *)preferences {
     return [PreferencesManager sharedManager];
+}
+
+- (IBAction)generalToolbarItemSelected:(id)sender {
+    [self activateToolbarItemWithId:GeneralToolbarItemIdentifier view:generalView animate:YES];
+}
+
+- (IBAction)compilerToolbarItemSelected:(id)sender {
+    [self activateToolbarItemWithId:CompilerToolbarItemIdentifier view:compilerView animate:YES];
 }
 
 @end

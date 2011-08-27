@@ -21,6 +21,7 @@
 - (void)setEntities:(NSArray *)theEntities;
 - (void)updateProperties;
 - (NSString *)propertyKeyAtIndex:(NSUInteger)theIndex;
+- (NSUInteger)indexOfPropertyWithKey:(NSString *)theKey;
 - (BOOL)editingAllowed:(NSTableColumn *)theTableColumn rowIndex:(NSUInteger)theIndex;
 
 @end

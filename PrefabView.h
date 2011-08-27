@@ -14,6 +14,8 @@
 @class PrefabLayout;
 @protocol PrefabViewTarget;
 
+static NSString* const PrefabSelectionDidChange = @"PrefabSelectionDidChange";
+
 @interface PrefabView : NSOpenGLView {
     NSMutableDictionary* cameras;
     id <Prefab> draggedPrefab;
@@ -27,8 +29,5 @@
 - (void)setGLResources:(GLResources *)theGLResources;
 - (void)setPrefabsPerRow:(int)thePrefabsPerRow;
 
-- (IBAction)insertPrefabIntoMap:(id)sender;
-- (IBAction)renamePrefab:(id)sender;
-- (IBAction)deletePrefab:(id)sender;
-
+- (id <Prefab>)selectedPrefab;
 @end
