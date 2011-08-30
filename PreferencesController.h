@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class PreferencesManager;
+@class CompilerManager;
 
 @interface PreferencesController : NSWindowController {
     IBOutlet NSTextField* quakePathTextField;
@@ -25,6 +26,7 @@
 
 - (IBAction)chooseQuakePath:(id)sender;
 - (PreferencesManager *)preferences;
+- (CompilerManager *)compilerManager;
 
 - (IBAction)generalToolbarItemSelected:(id)sender;
 - (IBAction)compilerToolbarItemSelected:(id)sender;

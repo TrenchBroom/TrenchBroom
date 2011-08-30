@@ -10,6 +10,7 @@
 #import "QuakePathFormatter.h"
 #import "MapWindowController.h"
 #import "PreferencesManager.h"
+#import "CompilerManager.h"
 
 static NSString* const GeneralToolbarItemIdentifier    = @"GeneralToolbarItem";
 static NSString* const CompilerToolbarItemIdentifier   = @"CompilerToolbarItem";
@@ -187,6 +188,10 @@ static PreferencesController* sharedInstance = nil;
 
 - (PreferencesManager *)preferences {
     return [PreferencesManager sharedManager];
+}
+
+- (CompilerManager *)compilerManager {
+    return [CompilerManager sharedManager];
 }
 
 - (IBAction)generalToolbarItemSelected:(id)sender {

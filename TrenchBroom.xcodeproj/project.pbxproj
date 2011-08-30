@@ -127,6 +127,9 @@
 		4898D9C013E172FE00B9C8F1 /* DragImageWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9BF13E172FE00B9C8F1 /* DragImageWindowController.m */; };
 		4898D9C813E199F800B9C8F1 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9C713E199F800B9C8F1 /* PreferencesController.m */; };
 		4898D9CC13E1A2A200B9C8F1 /* QuakePathFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */; };
+		4899FF52140A66B100E854BE /* CompilerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4899FF51140A66B100E854BE /* CompilerManager.m */; };
+		4899FF55140A765000E854BE /* CompilerTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4899FF54140A765000E854BE /* CompilerTool.m */; };
+		4899FF61140BBE5900E854BE /* ActivatingTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4899FF60140BBE5900E854BE /* ActivatingTableView.m */; };
 		489C061913C9EBA400D9D693 /* GLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 489C061813C9EBA400D9D693 /* GLUtils.m */; };
 		48A269E313C73BFA00703BC1 /* EntityInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A269E213C73BFA00703BC1 /* EntityInfo.m */; };
 		48A5FD4C13C5E7C6009D086C /* BspManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A5FD4B13C5E7C6009D086C /* BspManager.m */; };
@@ -456,6 +459,12 @@
 		4898D9C713E199F800B9C8F1 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesController.m; sourceTree = "<group>"; };
 		4898D9CA13E1A2A200B9C8F1 /* QuakePathFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuakePathFormatter.h; sourceTree = "<group>"; };
 		4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuakePathFormatter.m; sourceTree = "<group>"; };
+		4899FF50140A66B100E854BE /* CompilerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompilerManager.h; sourceTree = "<group>"; };
+		4899FF51140A66B100E854BE /* CompilerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompilerManager.m; sourceTree = "<group>"; };
+		4899FF53140A765000E854BE /* CompilerTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompilerTool.h; sourceTree = "<group>"; };
+		4899FF54140A765000E854BE /* CompilerTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompilerTool.m; sourceTree = "<group>"; };
+		4899FF5F140BBE5900E854BE /* ActivatingTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; path = ActivatingTableView.h; sourceTree = "<group>"; };
+		4899FF60140BBE5900E854BE /* ActivatingTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActivatingTableView.m; sourceTree = "<group>"; };
 		489C061713C9EBA400D9D693 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLUtils.h; sourceTree = "<group>"; };
 		489C061813C9EBA400D9D693 /* GLUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLUtils.m; sourceTree = "<group>"; };
 		48A269E113C73BFA00703BC1 /* EntityInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityInfo.h; sourceTree = "<group>"; };
@@ -825,6 +834,7 @@
 		487437FC135ED48A00F787E1 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				4899FF4E140A669600E854BE /* Compiler */,
 				48C029AD13C4EA9900FB8B71 /* Bsp */,
 				487437FE135ED49A00F787E1 /* Entity */,
 				48A68E93114E92730064732A /* Map */,
@@ -1066,6 +1076,17 @@
 			name = Preferences;
 			sourceTree = "<group>";
 		};
+		4899FF4E140A669600E854BE /* Compiler */ = {
+			isa = PBXGroup;
+			children = (
+				4899FF50140A66B100E854BE /* CompilerManager.h */,
+				4899FF51140A66B100E854BE /* CompilerManager.m */,
+				4899FF53140A765000E854BE /* CompilerTool.h */,
+				4899FF54140A765000E854BE /* CompilerTool.m */,
+			);
+			name = Compiler;
+			sourceTree = "<group>";
+		};
 		489DC65D12F9EBF500053092 /* Text */ = {
 			isa = PBXGroup;
 			children = (
@@ -1150,6 +1171,8 @@
 				489C061813C9EBA400D9D693 /* GLUtils.m */,
 				4893347413F2DA3D00AB179F /* CompassView.h */,
 				4893347513F2DA3D00AB179F /* CompassView.m */,
+				4899FF5F140BBE5900E854BE /* ActivatingTableView.h */,
+				4899FF60140BBE5900E854BE /* ActivatingTableView.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -1523,6 +1546,9 @@
 				48E725B313F3D75A00828C0B /* QuickBarContentView.m in Sources */,
 				488F853C13F51FAE00DA0403 /* RenderChangeSet.m in Sources */,
 				488F854013F583B900DA0403 /* VertexData.m in Sources */,
+				4899FF52140A66B100E854BE /* CompilerManager.m in Sources */,
+				4899FF55140A765000E854BE /* CompilerTool.m in Sources */,
+				4899FF61140BBE5900E854BE /* ActivatingTableView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
