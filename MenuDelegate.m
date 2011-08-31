@@ -12,6 +12,10 @@
 #import "Options.h"
 #import "Grid.h"
 #import "PreferencesController.h"
+#import "CompilerProfileManager.h"
+#import "CompilerProfile.h"
+#import "ControllerUtils.h"
+#import "PreferencesManager.h"
 
 @implementation MenuDelegate
 
@@ -71,7 +75,45 @@
         [gridSize256Item setState:NSOffState];
     }
     
+    // build compile menu
+    [compileMenu removeAllItems];
+    CompilerProfileManager* profileManager = [CompilerProfileManager sharedManager];
     
+    NSEnumerator* profileEn = [[profileManager profiles] objectEnumerator];
+    CompilerProfile* profile;
+    int index = 0;
+    while ((profile = [profileEn nextObject])) {
+        if ([profile name] != nil) {
+            NSMenuItem* profileMenuItem = [[NSMenuItem alloc] initWithTitle:[profile name] action:@selector(compile:) keyEquivalent:@""];
+            [profileMenuItem setTag:index];
+            [compileMenu addItem:profileMenuItem];
+            [profileMenuItem release];
+        }
+        
+        index += 1;
+    }
+    
+    // build run menu
+    [runMenu removeAllItems];
+    updateMenuWithExecutables(runMenu, NO, @selector(run:));
+    
+    // set default item titles
+    PreferencesManager* preferences = [PreferencesManager sharedManager];
+    int lastCompilerProfileIndex = [preferences lastCompilerProfileIndex];
+    if (lastCompilerProfileIndex >= 0 && lastCompilerProfileIndex < [[profileManager profiles] count]) {
+        CompilerProfile* lastProfile = [[profileManager profiles] objectAtIndex:lastCompilerProfileIndex];
+        [compileLastMenuItem setTitle:[NSString stringWithFormat:@"Compile %@", [lastProfile name]]];
+    } else {
+        [compileLastMenuItem setTitle:@"Compile Last Profile"];
+    }
+    
+    NSString* quakePath = [preferences quakePath];
+    NSString* quakeExecutable = [preferences quakeExecutable];
+    if (quakePath != nil && quakeExecutable != nil) {
+        [runDefaultMenuItem setTitle:[NSString stringWithFormat:@"Run %@", [quakeExecutable stringByDeletingPathExtension]]];
+    } else {
+        [runDefaultMenuItem setTitle:@"Run Default Engine"];
+    }
 }
 
 - (IBAction)showPreferences:(id)sender {

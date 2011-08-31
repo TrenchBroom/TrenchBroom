@@ -45,6 +45,8 @@
 #import "ConsoleWindowController.h"
 #import "QuickBarWindowController.h"
 #import "MapParser.h"
+#import "CompilerProfileManager.h"
+#import "CompilerProfile.h"
 
 @interface MapWindowController (private)
 
@@ -52,6 +54,7 @@
 - (void)windowDidBecomeKey:(NSNotification *)notification;
 - (void)windowDidResignKey:(NSNotification *)notification;
 - (void)windowWillClose:(NSNotification *)notification;
+- (void)runQuake:(NSString *)appPath;
 
 @end
 
@@ -83,6 +86,84 @@
         InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
         [inspector setMapWindowController:nil];
     }
+}
+
+- (void)runQuake:(NSString *)appPath {
+    MapDocument* map = [self document];
+    NSURL* mapFileUrl = [map fileURL];
+    if (mapFileUrl == nil) {
+        [console log:@"Map must be saved and compiled first"];
+        return;
+    }
+    
+    NSError* error;
+    
+    NSString* mapFilePath = [mapFileUrl path];
+    NSString* mapDirPath = [mapFilePath stringByDeletingLastPathComponent];
+    NSString* mapFileName = [mapFilePath lastPathComponent];
+    NSString* baseFileName = [mapFileName stringByDeletingPathExtension];
+    NSString* bspFileName = [baseFileName stringByAppendingPathExtension:@"bsp"];
+    NSString* bspFilePath = [mapDirPath stringByAppendingPathComponent:bspFileName];
+    
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:bspFilePath]) {
+        [console logBold:[NSString stringWithFormat:@"Could not find BSP file at '%@'\n", bspFilePath]];
+        return;
+    }
+    
+    NSString* quakePath = [[PreferencesManager sharedManager] quakePath];
+    if (quakePath == nil) {
+        [console logBold:@"Quake path not defined"];
+        return;
+    }
+    
+    NSArray* modList = modListFromWorldspawn([map worldspawn:YES]);
+    NSString* modPath = [quakePath stringByAppendingPathComponent:[modList lastObject]];
+    
+    BOOL directory;
+    BOOL exists = [fileManager fileExistsAtPath:modPath isDirectory:&directory];
+    if (!exists || !directory) {
+        [console logBold:[NSString stringWithFormat:@"Mod path '%@' does not exist or is not a directory\n", modPath]];
+        return;
+    }
+    
+    NSString* modMapsDirPath = [modPath stringByAppendingPathComponent:@"maps"];
+    exists = [fileManager fileExistsAtPath:modMapsDirPath isDirectory:&directory];
+    if (exists && !directory) {
+        [console logBold:[NSString stringWithFormat:@"Mod maps path '%@' is not a directory\n", modMapsDirPath]];
+        return;
+    }
+    
+    if (!exists) {
+        [console log:[NSString stringWithFormat:@"creating mod maps directory at '%@'\n", modMapsDirPath]];
+        if (![fileManager createDirectoryAtPath:modMapsDirPath withIntermediateDirectories:NO attributes:nil error:&error]) {
+            [console logBold:[NSString stringWithFormat:@"Failed to create mod maps directory at '%@': %@\n", modMapsDirPath, [error localizedDescription]]];
+            return;
+        }
+    }
+    
+    NSString* targetBspPath = [modMapsDirPath stringByAppendingPathComponent:bspFileName];
+    if ([fileManager fileExistsAtPath:targetBspPath]) {
+        [console log:[NSString stringWithFormat:@"Removing existing BSP file '%@'\n", targetBspPath]];
+        if (![fileManager removeItemAtPath:targetBspPath error:&error]) {
+            [console logBold:[NSString stringWithFormat:@"Failed to remove existing BSP file from '%@': %@\n", targetBspPath, [error localizedDescription]]];
+            return;
+        }
+    }
+    
+    if (![fileManager copyItemAtPath:bspFilePath toPath:targetBspPath error:&error]) {
+        [console logBold:[NSString stringWithFormat:@"Failed to copy BSP file from '%@' to '%@': %@\n", bspFilePath, targetBspPath, [error localizedDescription]]];
+        return;
+    }
+    
+    NSURL* appUrl = [NSURL fileURLWithPath:appPath];
+    NSDictionary *config = [NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:@"-nolauncher", @"+map", baseFileName, nil], NSWorkspaceLaunchConfigurationArguments, nil];
+
+    NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
+    if ([workspace launchApplicationAtURL:appUrl options:NSWorkspaceLaunchNewInstance | NSWorkspaceLaunchDefault configuration:config error:&error] != nil)
+        [[PreferencesManager sharedManager] setLastExecutablePath:appPath];
+    else
+        [console logBold:[NSString stringWithFormat:@"Failed to launch executable '%@‘: %@\n", appPath, [error localizedDescription]]];
 }
 
 @end
@@ -286,6 +367,12 @@
         return YES;
     } else if (action == @selector(run:)) {
         return YES;
+    } else if (action == @selector(compileMostRecent:)) {
+        int index = [[PreferencesManager sharedManager] lastCompilerProfileIndex];
+        CompilerProfileManager* profileManager = [CompilerProfileManager sharedManager];
+        return index >= 0 && index < [[profileManager profiles] count];
+    } else if (action == @selector(runDefaultEngine:)) {
+        return [[PreferencesManager sharedManager] quakeExecutable] != nil;
     }
 
     return NO;
@@ -1069,93 +1156,65 @@
 #pragma mark Compile & Run
 
 - (IBAction)compile:(id)sender {
+    NSMenuItem* item = (NSMenuItem *)sender;
+    int index = [item tag];
+
+    CompilerProfileManager* profileManager = [CompilerProfileManager sharedManager];
+    if (index < 0 && index >= [[profileManager profiles] count])
+        return;
+    
     MapDocument* map = [self document];
     [map saveDocument:self];
     
+    CompilerProfile* profile = [[profileManager profiles] objectAtIndex:index];
     NSURL* mapFileUrl = [map fileURL];
     
-    MapCompiler* compiler = [[MapCompiler alloc] initWithMapFileUrl:mapFileUrl console:console];
+    MapCompiler* compiler = [[MapCompiler alloc] initWithMapFileUrl:mapFileUrl profile:profile console:console];
     [[console window] makeKeyAndOrderFront:self];
     [compiler compile];
+    [compiler release];
+    
+    [[PreferencesManager sharedManager] setLastCompilerProfileIndex:index];
 }
 
 - (IBAction)run:(id)sender {
+    NSMenuItem* menuItem = (NSMenuItem *)sender;
+    int index = [menuItem tag];
+    
+    NSString* appPath = [[[PreferencesManager sharedManager] availableExecutables] objectAtIndex:index];
+    [self runQuake:appPath];
+}
+
+- (IBAction)compileMostRecent:(id)sender {
+    int index = [[PreferencesManager sharedManager] lastCompilerProfileIndex];
+    CompilerProfileManager* profileManager = [CompilerProfileManager sharedManager];
+    if (index < 0 && index >= [[profileManager profiles] count])
+        return;
+    
     MapDocument* map = [self document];
+    [map saveDocument:self];
+    
+    CompilerProfile* profile = [[profileManager profiles] objectAtIndex:index];
     NSURL* mapFileUrl = [map fileURL];
-    if (mapFileUrl == nil) {
-        [console log:@"Map must be saved and compiled first"];
-        return;
-    }
+    
+    MapCompiler* compiler = [[MapCompiler alloc] initWithMapFileUrl:mapFileUrl profile:profile console:console];
+    [[console window] makeKeyAndOrderFront:self];
+    [compiler compile];
+    [compiler release];
+}
 
-    NSError* error;
-    
-    NSString* mapFilePath = [mapFileUrl path];
-    NSString* mapDirPath = [mapFilePath stringByDeletingLastPathComponent];
-    NSString* mapFileName = [mapFilePath lastPathComponent];
-    NSString* baseFileName = [mapFileName stringByDeletingPathExtension];
-    NSString* bspFileName = [baseFileName stringByAppendingPathExtension:@"bsp"];
-    NSString* bspFilePath = [mapDirPath stringByAppendingPathComponent:bspFileName];
-    
-    NSFileManager* fileManager = [NSFileManager defaultManager];
-    if (![fileManager fileExistsAtPath:bspFilePath]) {
-        [console logBold:[NSString stringWithFormat:@"Could not find BSP file at '%@'\n", bspFilePath]];
+- (IBAction)runDefaultEngine:(id)sender {
+    PreferencesManager* preferences = [PreferencesManager sharedManager];
+    NSString* quakePath = [preferences quakePath];
+    if (quakePath == nil)
         return;
-    }
-
-    NSString* quakePath = [[PreferencesManager sharedManager] quakePath];
-    if (quakePath == nil) {
-        [console logBold:@"Quake path not defined"];
+    NSString* quakeExecutable = [preferences quakeExecutable];
+    if (quakeExecutable == nil)
         return;
-    }
-    
-    NSArray* modList = modListFromWorldspawn([map worldspawn:YES]);
-    NSString* modPath = [quakePath stringByAppendingPathComponent:[modList lastObject]];
-    
-    BOOL directory;
-    BOOL exists = [fileManager fileExistsAtPath:modPath isDirectory:&directory];
-    if (!exists || !directory) {
-        [console logBold:[NSString stringWithFormat:@"Mod path '%@' does not exist or is not a directory\n", modPath]];
-        return;
-    }
-        
-    NSString* modMapsDirPath = [modPath stringByAppendingPathComponent:@"maps"];
-    exists = [fileManager fileExistsAtPath:modMapsDirPath isDirectory:&directory];
-    if (exists && !directory) {
-        [console logBold:[NSString stringWithFormat:@"Mod maps path '%@' is not a directory\n", modMapsDirPath]];
-        return;
-    }
-    
-    if (!exists) {
-        [console log:[NSString stringWithFormat:@"creating mod maps directory at '%@'\n", modMapsDirPath]];
-        if (![fileManager createDirectoryAtPath:modMapsDirPath withIntermediateDirectories:NO attributes:nil error:&error]) {
-            [console logBold:[NSString stringWithFormat:@"Failed to create mod maps directory at '%@': %@\n", modMapsDirPath, [error localizedDescription]]];
-            return;
-        }
-    }
-    
-    NSString* targetBspPath = [modMapsDirPath stringByAppendingPathComponent:bspFileName];
-    if ([fileManager fileExistsAtPath:targetBspPath]) {
-        [console log:[NSString stringWithFormat:@"Removing existing BSP file '%@'\n", targetBspPath]];
-        if (![fileManager removeItemAtPath:targetBspPath error:&error]) {
-            [console logBold:[NSString stringWithFormat:@"Failed to remove existing BSP file from '%@': %@\n", targetBspPath, [error localizedDescription]]];
-            return;
-        }
-    }
-    
-    if (![fileManager copyItemAtPath:bspFilePath toPath:targetBspPath error:&error]) {
-        [console logBold:[NSString stringWithFormat:@"Failed to copy BSP file from '%@' to '%@': %@\n", bspFilePath, targetBspPath, [error localizedDescription]]];
-        return;
-    }
-    
-    NSString* quakeExecutable = [[PreferencesManager sharedManager] quakeExecutable];
     NSString* appPath = [quakePath stringByAppendingPathComponent:quakeExecutable];
     appPath = [appPath stringByAppendingPathExtension:@"app"];
-    NSURL* appUrl = [NSURL URLWithString:appPath];
     
-    NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
-    
-    NSDictionary *config = [NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:@"-nolauncher", @"+map", baseFileName, nil], NSWorkspaceLaunchConfigurationArguments, nil];
-    [workspace launchApplicationAtURL:appUrl options:NSWorkspaceLaunchNewInstance | NSWorkspaceLaunchDefault configuration:config error:&error];
+    [self runQuake:appPath];
 }
 
 - (void)makeEntityVisible:(id <Entity>)theEntity {

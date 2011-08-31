@@ -6,25 +6,18 @@
 //  Copyright 2011 TU Berlin. All rights reserved.
 //
 
-@class CompilerTool;
 @class CompilerProfile;
 
-@interface CompilerManager : NSObject {
-    NSMutableArray* tools;
+@interface CompilerProfileManager : NSObject {
     NSMutableArray* profiles;
 }
 
-+ (CompilerManager *)sharedManager;
++ (CompilerProfileManager *)sharedManager;
 
 - (void)updateDefaults;
 
-- (NSArray *)tools;
-- (void)insertObject:(CompilerTool *)theTool inToolsAtIndex:(NSUInteger)theIndex;
-- (void)removeObjectFromToolsAtIndex:(NSUInteger)theIndex;
-
-/*
 - (NSArray *)profiles;
 - (void)insertObject:(CompilerProfile *)theProfile inProfilesAtIndex:(NSUInteger)theIndex;
 - (void)removeObjectFromProfilesAtIndex:(NSUInteger)theIndex;
-*/
+
 @end

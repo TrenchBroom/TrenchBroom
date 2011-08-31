@@ -79,6 +79,8 @@
 
 - (IBAction)compile:(id)sender;
 - (IBAction)run:(id)sender;
+- (IBAction)compileMostRecent:(id)sender;
+- (IBAction)runDefaultEngine:(id)sender;
 
 - (void)makeEntityVisible:(id <Entity>)theEntity;
 - (void)makeBrushVisible:(id <Brush>)theBrush;

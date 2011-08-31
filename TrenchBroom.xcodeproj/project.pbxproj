@@ -68,6 +68,8 @@
 		485AE8D712F4C5BD00CDBD6A /* PickingHit.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8D612F4C5BD00CDBD6A /* PickingHit.m */; };
 		485D2EAF1308624900CF73D8 /* Options.m in Sources */ = {isa = PBXBuildFile; fileRef = 485D2EAE1308624900CF73D8 /* Options.m */; };
 		48639BF412EA227100808576 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48639BF312EA227100808576 /* QuakePalette.lmp */; };
+		4864E2BD140D1840000DE923 /* CompilerProfileCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 4864E2BC140D1840000DE923 /* CompilerProfileCommand.m */; };
+		4864E2C1140E2682000DE923 /* CompilerProfileRunner.m in Sources */ = {isa = PBXBuildFile; fileRef = 4864E2C0140E2682000DE923 /* CompilerProfileRunner.m */; };
 		486526C5134F0BC20045A4B6 /* TextureCollection.m in Sources */ = {isa = PBXBuildFile; fileRef = 486526C4134F0BC20045A4B6 /* TextureCollection.m */; };
 		4866F3B112EAC9FA009B345C /* TextureViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3B012EAC9FA009B345C /* TextureViewLayout.m */; };
 		4866F3BE12EACD2B009B345C /* TextureViewLayoutRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */; };
@@ -127,9 +129,8 @@
 		4898D9C013E172FE00B9C8F1 /* DragImageWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9BF13E172FE00B9C8F1 /* DragImageWindowController.m */; };
 		4898D9C813E199F800B9C8F1 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9C713E199F800B9C8F1 /* PreferencesController.m */; };
 		4898D9CC13E1A2A200B9C8F1 /* QuakePathFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */; };
-		4899FF52140A66B100E854BE /* CompilerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4899FF51140A66B100E854BE /* CompilerManager.m */; };
-		4899FF55140A765000E854BE /* CompilerTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4899FF54140A765000E854BE /* CompilerTool.m */; };
-		4899FF61140BBE5900E854BE /* ActivatingTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4899FF60140BBE5900E854BE /* ActivatingTableView.m */; };
+		4899FF52140A66B100E854BE /* CompilerProfileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4899FF51140A66B100E854BE /* CompilerProfileManager.m */; };
+		4899FF55140A765000E854BE /* CompilerProfile.m in Sources */ = {isa = PBXBuildFile; fileRef = 4899FF54140A765000E854BE /* CompilerProfile.m */; };
 		489C061913C9EBA400D9D693 /* GLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 489C061813C9EBA400D9D693 /* GLUtils.m */; };
 		48A269E313C73BFA00703BC1 /* EntityInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A269E213C73BFA00703BC1 /* EntityInfo.m */; };
 		48A5FD4C13C5E7C6009D086C /* BspManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A5FD4B13C5E7C6009D086C /* BspManager.m */; };
@@ -344,6 +345,10 @@
 		485D2EAD1308624900CF73D8 /* Options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Options.h; sourceTree = "<group>"; };
 		485D2EAE1308624900CF73D8 /* Options.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Options.m; sourceTree = "<group>"; };
 		48639BF312EA227100808576 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; path = QuakePalette.lmp; sourceTree = "<group>"; };
+		4864E2BB140D1840000DE923 /* CompilerProfileCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompilerProfileCommand.h; sourceTree = "<group>"; };
+		4864E2BC140D1840000DE923 /* CompilerProfileCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompilerProfileCommand.m; sourceTree = "<group>"; };
+		4864E2BF140E2681000DE923 /* CompilerProfileRunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompilerProfileRunner.h; sourceTree = "<group>"; };
+		4864E2C0140E2682000DE923 /* CompilerProfileRunner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompilerProfileRunner.m; sourceTree = "<group>"; };
 		4864F8C3135B564600511696 /* Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Filter.h; sourceTree = "<group>"; };
 		486526C3134F0BC20045A4B6 /* TextureCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureCollection.h; sourceTree = "<group>"; };
 		486526C4134F0BC20045A4B6 /* TextureCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureCollection.m; sourceTree = "<group>"; };
@@ -459,12 +464,10 @@
 		4898D9C713E199F800B9C8F1 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesController.m; sourceTree = "<group>"; };
 		4898D9CA13E1A2A200B9C8F1 /* QuakePathFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuakePathFormatter.h; sourceTree = "<group>"; };
 		4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuakePathFormatter.m; sourceTree = "<group>"; };
-		4899FF50140A66B100E854BE /* CompilerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompilerManager.h; sourceTree = "<group>"; };
-		4899FF51140A66B100E854BE /* CompilerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompilerManager.m; sourceTree = "<group>"; };
-		4899FF53140A765000E854BE /* CompilerTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompilerTool.h; sourceTree = "<group>"; };
-		4899FF54140A765000E854BE /* CompilerTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompilerTool.m; sourceTree = "<group>"; };
-		4899FF5F140BBE5900E854BE /* ActivatingTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; path = ActivatingTableView.h; sourceTree = "<group>"; };
-		4899FF60140BBE5900E854BE /* ActivatingTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActivatingTableView.m; sourceTree = "<group>"; };
+		4899FF50140A66B100E854BE /* CompilerProfileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompilerProfileManager.h; sourceTree = "<group>"; };
+		4899FF51140A66B100E854BE /* CompilerProfileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompilerProfileManager.m; sourceTree = "<group>"; };
+		4899FF53140A765000E854BE /* CompilerProfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompilerProfile.h; sourceTree = "<group>"; };
+		4899FF54140A765000E854BE /* CompilerProfile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompilerProfile.m; sourceTree = "<group>"; };
 		489C061713C9EBA400D9D693 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLUtils.h; sourceTree = "<group>"; };
 		489C061813C9EBA400D9D693 /* GLUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLUtils.m; sourceTree = "<group>"; };
 		48A269E113C73BFA00703BC1 /* EntityInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityInfo.h; sourceTree = "<group>"; };
@@ -1079,10 +1082,14 @@
 		4899FF4E140A669600E854BE /* Compiler */ = {
 			isa = PBXGroup;
 			children = (
-				4899FF50140A66B100E854BE /* CompilerManager.h */,
-				4899FF51140A66B100E854BE /* CompilerManager.m */,
-				4899FF53140A765000E854BE /* CompilerTool.h */,
-				4899FF54140A765000E854BE /* CompilerTool.m */,
+				4899FF50140A66B100E854BE /* CompilerProfileManager.h */,
+				4899FF51140A66B100E854BE /* CompilerProfileManager.m */,
+				4899FF53140A765000E854BE /* CompilerProfile.h */,
+				4899FF54140A765000E854BE /* CompilerProfile.m */,
+				4864E2BB140D1840000DE923 /* CompilerProfileCommand.h */,
+				4864E2BC140D1840000DE923 /* CompilerProfileCommand.m */,
+				4864E2BF140E2681000DE923 /* CompilerProfileRunner.h */,
+				4864E2C0140E2682000DE923 /* CompilerProfileRunner.m */,
 			);
 			name = Compiler;
 			sourceTree = "<group>";
@@ -1171,8 +1178,6 @@
 				489C061813C9EBA400D9D693 /* GLUtils.m */,
 				4893347413F2DA3D00AB179F /* CompassView.h */,
 				4893347513F2DA3D00AB179F /* CompassView.m */,
-				4899FF5F140BBE5900E854BE /* ActivatingTableView.h */,
-				4899FF60140BBE5900E854BE /* ActivatingTableView.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -1546,9 +1551,10 @@
 				48E725B313F3D75A00828C0B /* QuickBarContentView.m in Sources */,
 				488F853C13F51FAE00DA0403 /* RenderChangeSet.m in Sources */,
 				488F854013F583B900DA0403 /* VertexData.m in Sources */,
-				4899FF52140A66B100E854BE /* CompilerManager.m in Sources */,
-				4899FF55140A765000E854BE /* CompilerTool.m in Sources */,
-				4899FF61140BBE5900E854BE /* ActivatingTableView.m in Sources */,
+				4899FF52140A66B100E854BE /* CompilerProfileManager.m in Sources */,
+				4899FF55140A765000E854BE /* CompilerProfile.m in Sources */,
+				4864E2BD140D1840000DE923 /* CompilerProfileCommand.m in Sources */,
+				4864E2C1140E2682000DE923 /* CompilerProfileRunner.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

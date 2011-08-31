@@ -9,18 +9,14 @@
 #import <Foundation/Foundation.h>
 
 @class ConsoleWindowController;
+@class CompilerProfile;
+@class CompilerProfileRunner;
 
 @interface MapCompiler : NSObject {
-    ConsoleWindowController* console;
-    NSString* mapDirPath;
-    NSString* mapFileName;
-    NSString* bspFileName;
-    NSString* bspPath;
-    NSString* lightPath;
-    NSString* visPath;
+    CompilerProfileRunner* profileRunner;
 }
 
-- (id)initWithMapFileUrl:(NSURL *)theMapFileUrl console:(ConsoleWindowController *)theConsole;
+- (id)initWithMapFileUrl:(NSURL *)theMapFileUrl profile:(CompilerProfile *)theProfile console:(ConsoleWindowController *)theConsole;
 
 - (void)compile;
 

@@ -8,18 +8,20 @@
 
 #import <Foundation/Foundation.h>
 
-static NSString* const DefaultsQuakePath            = @"GamePath";
-static NSString* const DefaultsQuakeExecutable      = @"GameExecutable";
-static NSString* const DefaultsCameraFov            = @"CameraFov";
-static NSString* const DefaultsCameraNear           = @"CameraNearClippingPlane";
-static NSString* const DefaultsCameraFar            = @"CameraFarClippingPlane";
-static NSString* const DefaultsInspectorSeparate    = @"InspectorSeparateWindow";
-static NSString* const DefaultsInspectorVisible     = @"InspectorVisible";
+static NSString* const DefaultsQuakePath                = @"GamePath";
+static NSString* const DefaultsQuakeExecutable          = @"GameExecutable";
+static NSString* const DefaultsLastExecutablePath       = @"LastExecutablePath";
+static NSString* const DefaultsLastCompilerProfileIndex = @"LastCompilerProfileIndex";
+static NSString* const DefaultsCameraFov                = @"CameraFov";
+static NSString* const DefaultsCameraNear               = @"CameraNearClippingPlane";
+static NSString* const DefaultsCameraFar                = @"CameraFarClippingPlane";
+static NSString* const DefaultsInspectorSeparate        = @"InspectorSeparateWindow";
+static NSString* const DefaultsInspectorVisible         = @"InspectorVisible";
 
-static NSString* const DefaultsKey                  = @"Key";
-static NSString* const DefaultsOldValue             = @"OldValue";
-static NSString* const DefaultsNewValue             = @"NewValue";
-static NSString* const DefaultsDidChange            = @"DefaultsDidChangeNotification";
+static NSString* const DefaultsKey                      = @"Key";
+static NSString* const DefaultsOldValue                 = @"OldValue";
+static NSString* const DefaultsNewValue                 = @"NewValue";
+static NSString* const DefaultsDidChange                = @"DefaultsDidChangeNotification";
 
 @interface PreferencesManager : NSObject
 
@@ -30,6 +32,14 @@ static NSString* const DefaultsDidChange            = @"DefaultsDidChangeNotific
 
 - (NSString *)quakeExecutable;
 - (void)setQuakeExecutable:(NSString*)theQuakeExecutable;
+
+- (NSString *)lastExecutablePath;
+- (void)setLastExecutablePath:(NSString *)theQuakePath;
+
+- (NSArray *)availableExecutables;
+
+- (int)lastCompilerProfileIndex;
+- (void)setLastCompilerProfileIndex:(int)theIndex;
 
 - (float)cameraFov;
 - (void)setCameraFov:(float)theCameraFov;

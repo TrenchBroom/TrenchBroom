@@ -67,6 +67,8 @@ static PreferencesManager* sharedInstance = nil;
     [[NSUserDefaults standardUserDefaults] setValue:theQuakePath forKey:DefaultsQuakePath];
     [[NSNotificationCenter defaultCenter] postNotificationName:DefaultsDidChange object:self userInfo:userInfo];
     [userInfo release];
+    
+    [self setLastExecutablePath:nil];
 }
 
 - (NSString *)quakeExecutable {
@@ -84,6 +86,69 @@ static PreferencesManager* sharedInstance = nil;
     [userInfo setObject:theQuakeExecutable forKey:DefaultsNewValue];
     
     [[NSUserDefaults standardUserDefaults] setValue:theQuakeExecutable forKey:DefaultsQuakeExecutable];
+    [[NSNotificationCenter defaultCenter] postNotificationName:DefaultsDidChange object:self userInfo:userInfo];
+    [userInfo release];
+}
+
+- (NSString *)lastExecutablePath {
+    return [[NSUserDefaults standardUserDefaults] stringForKey:DefaultsLastExecutablePath];
+}
+
+- (void)setLastExecutablePath:(NSString *)theQuakePath {
+    NSString* currentLastExecutablePath = [self lastExecutablePath];
+    if ([currentLastExecutablePath isEqualToString:theQuakePath])
+        return;
+    
+    NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:DefaultsLastExecutablePath forKey:DefaultsKey];
+    if (currentLastExecutablePath != nil)
+        [userInfo setObject:currentLastExecutablePath forKey:DefaultsOldValue];
+    [userInfo setObject:theQuakePath forKey:DefaultsNewValue];
+    
+    [[NSUserDefaults standardUserDefaults] setValue:theQuakePath forKey:DefaultsLastExecutablePath];
+    [[NSNotificationCenter defaultCenter] postNotificationName:DefaultsDidChange object:self userInfo:userInfo];
+    [userInfo release];
+}
+
+- (NSArray *)availableExecutables {
+    NSMutableArray* result = [NSMutableArray array];
+    
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
+    
+    BOOL directory;
+    BOOL exists = [fileManager fileExistsAtPath:[self quakePath] isDirectory:&directory];
+    
+    if (exists && directory) {
+        NSArray* contents = [fileManager contentsOfDirectoryAtPath:[self quakePath] error:NULL];
+        NSEnumerator* filenameEn = [contents objectEnumerator];
+        NSString* filename;
+        while ((filename = [filenameEn nextObject])) {
+            NSString* filePath = [NSString pathWithComponents:[NSArray arrayWithObjects:[self quakePath], filename, nil]];
+            [fileManager fileExistsAtPath:filePath isDirectory:&directory];
+            if (directory && [@"app" isEqualToString:[filePath pathExtension]] && [workspace isFilePackageAtPath:filePath])
+                [result addObject:filePath];
+        }
+    }
+    
+    return result;
+}
+
+- (int)lastCompilerProfileIndex {
+    return [[NSUserDefaults standardUserDefaults] integerForKey:DefaultsLastCompilerProfileIndex];
+}
+
+- (void)setLastCompilerProfileIndex:(int)theIndex {
+    int currentIndex = [self lastCompilerProfileIndex];
+    if (currentIndex == theIndex)
+        return;
+    
+    NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:DefaultsLastCompilerProfileIndex forKey:DefaultsKey];
+    [userInfo setObject:[NSNumber numberWithInt:currentIndex] forKey:DefaultsOldValue];
+    [userInfo setObject:[NSNumber numberWithInt:theIndex] forKey:DefaultsNewValue];
+    
+    [[NSUserDefaults standardUserDefaults] setInteger:theIndex forKey:DefaultsLastCompilerProfileIndex];
     [[NSNotificationCenter defaultCenter] postNotificationName:DefaultsDidChange object:self userInfo:userInfo];
     [userInfo release];
 }

@@ -7,6 +7,7 @@
 //
 
 #import "ControllerUtils.h"
+#import "PreferencesManager.h"
 #import "Face.h"
 
 BOOL calculateEntityOrigin(EntityDefinition* entityDefinition, PickingHitList* hits, NSPoint mousePos, Camera* camera, TVector3i* result) {
@@ -175,5 +176,26 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
                 lastPoint->z = point->z;
             }
         }
+    }
+}
+
+void updateMenuWithExecutables(NSMenu* menu, BOOL setIcons, SEL action) {
+    NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
+    PreferencesManager* preferences = [PreferencesManager sharedManager];
+    NSArray* executables = [preferences availableExecutables];
+
+    NSEnumerator* executableEn = [executables objectEnumerator];
+    NSString* executable;
+    int index = 0;
+    
+    while ((executable = [executableEn nextObject])) {
+        NSString* filename = [executable lastPathComponent];
+        NSString* appname = [filename stringByDeletingPathExtension];
+        NSMenuItem* menuItem = [[NSMenuItem alloc] initWithTitle:appname action:action keyEquivalent:@""];
+        if (setIcons)
+            [menuItem setImage:[workspace iconForFile:executable]];
+        [menuItem setTag:index++];
+        [menu addItem:menuItem];
+        [menuItem release];
     }
 }

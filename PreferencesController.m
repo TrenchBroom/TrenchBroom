@@ -10,7 +10,8 @@
 #import "QuakePathFormatter.h"
 #import "MapWindowController.h"
 #import "PreferencesManager.h"
-#import "CompilerManager.h"
+#import "CompilerProfileManager.h"
+#import "ControllerUtils.h"
 
 static NSString* const GeneralToolbarItemIdentifier    = @"GeneralToolbarItem";
 static NSString* const CompilerToolbarItemIdentifier   = @"CompilerToolbarItem";
@@ -28,33 +29,10 @@ static PreferencesController* sharedInstance = nil;
 @implementation PreferencesController (private)
 
 - (void)updateExecutableList {
-    NSFileManager* fileManager = [NSFileManager defaultManager];
-    NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
+    [quakeExecutablePopUp removeAllItems];
+    updateMenuWithExecutables([quakeExecutablePopUp menu], YES, NULL);
     
     PreferencesManager* preferences = [PreferencesManager sharedManager];
-    NSString* quakePath = [preferences quakePath];
-    BOOL directory;
-    BOOL exists = [fileManager fileExistsAtPath:quakePath isDirectory:&directory];
-    
-    [quakeExecutablePopUp removeAllItems];
-    NSMenu* menu = [quakeExecutablePopUp menu];
-    if (exists && directory) {
-        NSArray* contents = [fileManager contentsOfDirectoryAtPath:quakePath error:NULL];
-        NSEnumerator* filenameEn = [contents objectEnumerator];
-        NSString* filename;
-        while ((filename = [filenameEn nextObject])) {
-            NSString* filePath = [NSString pathWithComponents:[NSArray arrayWithObjects:quakePath, filename, nil]];
-            [fileManager fileExistsAtPath:filePath isDirectory:&directory];
-            if (directory && [@"app" isEqualToString:[filePath pathExtension]] && [workspace isFilePackageAtPath:filePath]) {
-                NSString* appname = [filename stringByDeletingPathExtension];
-                NSMenuItem* menuItem = [[NSMenuItem alloc] initWithTitle:appname action:NULL keyEquivalent:@""];
-                [menuItem setImage:[workspace iconForFile:filePath]];
-                [menu addItem:menuItem];
-                [menuItem release];
-            }
-        }
-    }
-    
     NSString* executable = [preferences quakeExecutable];
     if (executable != nil)
         [quakeExecutablePopUp selectItemWithTitle:[executable stringByDeletingPathExtension]];
@@ -190,8 +168,8 @@ static PreferencesController* sharedInstance = nil;
     return [PreferencesManager sharedManager];
 }
 
-- (CompilerManager *)compilerManager {
-    return [CompilerManager sharedManager];
+- (CompilerProfileManager *)compilerProfileManager {
+    return [CompilerProfileManager sharedManager];
 }
 
 - (IBAction)generalToolbarItemSelected:(id)sender {

@@ -35,6 +35,10 @@
     IBOutlet NSMenuItem* stretchFaceVerticallyItem;
     IBOutlet NSMenuItem* shrinkFaceVerticallyItem;
     IBOutlet NSMenuItem* duplicateItem;
+    IBOutlet NSMenu* runMenu;
+    IBOutlet NSMenuItem* runDefaultMenuItem;
+    IBOutlet NSMenu* compileMenu;
+    IBOutlet NSMenuItem* compileLastMenuItem;
 }
 
 - (IBAction)showPreferences:(id)sender;
