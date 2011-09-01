@@ -22,6 +22,7 @@
 @protocol Prefab;
 
 @interface InspectorViewController : NSViewController <NSTableViewDelegate, PrefabViewTarget, TextureViewTarget, EntityDefinitionViewTarget> {
+    IBOutlet NSTabView* tabView;
     IBOutlet NSTextField* xOffsetField;
     IBOutlet NSTextField* yOffsetField;
     IBOutlet NSTextField* xScaleField;

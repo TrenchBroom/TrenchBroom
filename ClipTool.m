@@ -57,12 +57,6 @@
         point2Figure = nil;
     }
     
-    if (point2Figure != nil) {
-        [renderer removeFeedbackFigure:point2Figure];
-        [point2Figure release];
-        point2Figure = nil;
-    }
-    
     if (point3Figure != nil) {
         [renderer removeFeedbackFigure:point3Figure];
         [point3Figure release];
@@ -73,12 +67,6 @@
         [renderer removeFeedbackFigure:line1Figure];
         [line1Figure release];
         line1Figure = nil;
-    }
-    
-    if (line2Figure != nil) {
-        [renderer removeFeedbackFigure:line2Figure];
-        [line2Figure release];
-        line2Figure = nil;
     }
     
     if (line2Figure != nil) {

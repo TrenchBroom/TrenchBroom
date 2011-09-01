@@ -13,14 +13,18 @@
 - (id)initWithPoint:(TVector3i *)thePoint {
     if (self = [self init]) {
         point = *thePoint;
-        sphere = gluNewQuadric();
-        gluQuadricDrawStyle(sphere, GLU_FILL);
+        sphere = NULL;
     }
     
     return self;
 }
 
 - (void)render {
+    if (sphere == NULL) {
+        sphere = gluNewQuadric();
+        gluQuadricDrawStyle(sphere, GLU_FILL);
+    }
+    
     glFrontFace(GL_CCW);
     glPolygonMode(GL_FRONT, GL_FILL);
     
@@ -32,7 +36,8 @@
 }
 
 - (void)dealloc {
-    gluDeleteQuadric(sphere);
+    if (sphere != NULL)
+        gluDeleteQuadric(sphere);
     [super dealloc];
 }
 @end

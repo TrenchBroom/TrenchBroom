@@ -218,7 +218,6 @@
             cursorOwner = newOwner;
             if (cursorOwner != nil)
                 [cursorOwner setCursor:lastEvent ray:&lastRay hits:[self currentHits]];
-            NSLog(@"owner: %@", cursorOwner);
         }
     }
 }
@@ -268,7 +267,8 @@
         }
     }
     
-
+    menuPosition = [lastEvent locationInWindow];
+    menuPosition = [[windowController view3D] convertPointFromBase:menuPosition];
     [NSMenu popUpContextMenu:popupMenu withEvent:lastEvent forView:[windowController view3D]];
 }
 

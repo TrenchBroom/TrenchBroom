@@ -39,7 +39,6 @@
     
     MapDocument* map = [windowController document];
     [map setEntity:entity propertyKey:OriginKey value:[NSString stringWithFormat:@"%i %i %i", posi.x, posi.y, posi.z]];
-    
 }
 
 @end

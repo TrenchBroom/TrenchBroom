@@ -392,6 +392,8 @@
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:preferences];
     [center addObserver:self selector:@selector(prefabSelectionDidChange:) name:PrefabSelectionDidChange object:prefabView];
+    
+    [tabView selectTabViewItemAtIndex:0];
 }
 
 - (void)setMapWindowController:(MapWindowController *)theMapWindowController {

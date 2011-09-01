@@ -314,14 +314,14 @@ int const TexCoordSize = 2 * sizeof(float);
                     [selectedModelEntities removeObjectAtIndex:index];
                     [modelEntities addObject:entity];
                 }
+
+                entityBoundsVertexCount += 6 * 4;
+                selectedEntityBoundsVertexCount -= 6 * 4;
             }
         }
         
         [entityBoundsVbo unmapBuffer];
         [entityBoundsVbo deactivate];
-
-        entityBoundsVertexCount += 6 * 4 * [deselectedEntities count];
-        selectedEntityBoundsVertexCount -= 6 * 4 * [deselectedEntities count];
 
         [selectedEntityBoundsVbo activate];
         [selectedEntityBoundsVbo mapBuffer];
@@ -353,14 +353,14 @@ int const TexCoordSize = 2 * sizeof(float);
                     [modelEntities removeObjectAtIndex:index];
                     [selectedModelEntities addObject:entity];
                 }
+
+                entityBoundsVertexCount -= 6 * 4;
+                selectedEntityBoundsVertexCount += 6 * 4;
             }
         }
         
         [selectedEntityBoundsVbo unmapBuffer];
         [selectedEntityBoundsVbo deactivate];
-
-        entityBoundsVertexCount -= 6 * 4 * [selectedEntities count];
-        selectedEntityBoundsVertexCount += 6 * 4 * [selectedEntities count];
 
         [entityBoundsVbo activate];
         [entityBoundsVbo mapBuffer];
@@ -389,10 +389,10 @@ int const TexCoordSize = 2 * sizeof(float);
                     [entityRenderers setObject:renderer forKey:[entity entityId]];
                     [modelEntities addObject:entity];
                 }
+                
+                entityBoundsVertexCount += 6 * 4;
             }
         }
-        
-        entityBoundsVertexCount += 6 * 4 * [addedEntities count];
 
         [entityBoundsVbo unmapBuffer];
         [entityBoundsVbo deactivate];
@@ -465,6 +465,9 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)validateAddedBrushes {
     NSArray* addedBrushes = [changeSet addedBrushes];
     if ([addedBrushes count] > 0) {
+        [faceVbo activate];
+        [faceVbo mapBuffer];
+
         NSEnumerator* brushEn = [addedBrushes objectEnumerator];
         id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
@@ -476,12 +479,18 @@ int const TexCoordSize = 2 * sizeof(float);
                 [face setMemBlock:block];
             }
         }
+
+        [faceVbo unmapBuffer];
+        [faceVbo deactivate];
     }
 }
 
 - (void)validateChangedBrushes {
     NSArray* changedBrushes = [changeSet changedBrushes];
     if ([changedBrushes count] > 0) {
+        [faceVbo activate];
+        [faceVbo mapBuffer];
+        
         NSEnumerator* brushEn = [changedBrushes objectEnumerator];
         id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
@@ -498,12 +507,18 @@ int const TexCoordSize = 2 * sizeof(float);
                 [self writeFace:face toBlock:block];
             }
         }
+
+        [faceVbo unmapBuffer];
+        [faceVbo deactivate];
     }
 }
 
 - (void)validateChangedFaces {
     NSArray* changedFaces = [changeSet changedFaces];
     if ([changedFaces count] > 0) {
+        [faceVbo activate];
+        [faceVbo mapBuffer];
+        
         NSEnumerator* faceEn = [changedFaces objectEnumerator];
         id <Face> face;
         while ((face = [faceEn nextObject])) {
@@ -516,12 +531,18 @@ int const TexCoordSize = 2 * sizeof(float);
             
             [self writeFace:face toBlock:block];
         }
+        
+        [faceVbo unmapBuffer];
+        [faceVbo deactivate];
     }
 }
 
 - (void)validateRemovedBrushes {
     NSArray* removedBrushes = [changeSet removedBrushes];
     if ([removedBrushes count] > 0) {
+        [faceVbo activate];
+        [faceVbo mapBuffer];
+        
         NSEnumerator* brushEn = [removedBrushes objectEnumerator];
         id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
@@ -530,6 +551,9 @@ int const TexCoordSize = 2 * sizeof(float);
             while ((face = [faceEn nextObject]))
                 [face setMemBlock:nil];
         }
+        
+        [faceVbo unmapBuffer];
+        [faceVbo deactivate];
     }
 }
 
@@ -629,34 +653,20 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)validate {
     [self validateEntityRendererCache];
     
-    [self validateDeselection];
-    
-    if ([[changeSet addedEntities] count] > 0 || 
-        [[changeSet changedEntities] count] > 0 || 
-        [[changeSet removedEntities] count] > 0) {
-        
-        [self validateAddedEntities];
-        [self validateChangedEntities];
-        [self validateRemovedEntities];
-    }
-    
-    if ([[changeSet addedBrushes] count] > 0 ||
-        [[changeSet changedBrushes] count] > 0 ||
-        [[changeSet changedFaces] count] > 0 ||
-        [[changeSet removedBrushes] count] > 0) {
-        
-        [faceVbo activate];
-        [faceVbo mapBuffer];
-        [self validateAddedBrushes];
-        [self validateChangedBrushes];
-        [self validateChangedFaces];
-        [self validateRemovedBrushes];
-        [faceVbo unmapBuffer];
-        [faceVbo deactivate];
-    }
+    [self validateAddedEntities];
+    [self validateAddedBrushes];
     
     [self validateSelection];
     
+    [self validateChangedEntities];
+    [self validateChangedBrushes];
+    [self validateChangedFaces];
+    
+    [self validateDeselection];
+    
+    [self validateRemovedEntities];
+    [self validateRemovedBrushes];
+
     if ([[changeSet addedBrushes] count] > 0 ||
         [[changeSet changedBrushes] count] > 0 ||
         [[changeSet changedFaces] count] > 0 ||
