@@ -41,6 +41,7 @@
 		4833C15F131953F600EB1B85 /* PrefabManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C15E131953F600EB1B85 /* PrefabManager.m */; };
 		4833C1BD13196CFB00EB1B85 /* MutablePrefab.m in Sources */ = {isa = PBXBuildFile; fileRef = 4833C1BC13196CFB00EB1B85 /* MutablePrefab.m */; };
 		483A65AC13D48D96009EB9E7 /* EntityDefinitionDndTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 483A65AB13D48D95009EB9E7 /* EntityDefinitionDndTool.m */; };
+		483AB7A71410C4E400B5F44E /* PointFileFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 483AB7A61410C4E400B5F44E /* PointFileFeedbackFigure.m */; };
 		483B1129122441060072EAFB /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
 		483C515313E3284E0082C296 /* Light in Resources */ = {isa = PBXBuildFile; fileRef = 483C515013E3284E0082C296 /* Light */; };
 		483C515413E3284E0082C296 /* QBSP in Resources */ = {isa = PBXBuildFile; fileRef = 483C515113E3284E0082C296 /* QBSP */; };
@@ -304,6 +305,8 @@
 		483A65A913D48CEE009EB9E7 /* DndTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DndTool.h; sourceTree = "<group>"; };
 		483A65AA13D48D95009EB9E7 /* EntityDefinitionDndTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionDndTool.h; sourceTree = "<group>"; };
 		483A65AB13D48D95009EB9E7 /* EntityDefinitionDndTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionDndTool.m; sourceTree = "<group>"; };
+		483AB7A51410C4E400B5F44E /* PointFileFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointFileFeedbackFigure.h; sourceTree = "<group>"; };
+		483AB7A61410C4E400B5F44E /* PointFileFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PointFileFeedbackFigure.m; sourceTree = "<group>"; };
 		483B1127122441060072EAFB /* Math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		483B1128122441060072EAFB /* Math.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Math.m; sourceTree = "<group>"; };
 		483C515013E3284E0082C296 /* Light */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = Light; sourceTree = "<group>"; };
@@ -950,6 +953,8 @@
 				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
 				488F853A13F51FAE00DA0403 /* RenderChangeSet.h */,
 				488F853B13F51FAE00DA0403 /* RenderChangeSet.m */,
+				483AB7A51410C4E400B5F44E /* PointFileFeedbackFigure.h */,
+				483AB7A61410C4E400B5F44E /* PointFileFeedbackFigure.m */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -1555,6 +1560,7 @@
 				4899FF55140A765000E854BE /* CompilerProfile.m in Sources */,
 				4864E2BD140D1840000DE923 /* CompilerProfileCommand.m in Sources */,
 				4864E2C1140E2682000DE923 /* CompilerProfileRunner.m in Sources */,
+				483AB7A71410C4E400B5F44E /* PointFileFeedbackFigure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

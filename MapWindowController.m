@@ -47,6 +47,8 @@
 #import "MapParser.h"
 #import "CompilerProfileManager.h"
 #import "CompilerProfile.h"
+#import "PointFileFeedbackFigure.h"
+#import "Renderer.h"
 
 @interface MapWindowController (private)
 
@@ -54,6 +56,8 @@
 - (void)windowDidBecomeKey:(NSNotification *)notification;
 - (void)windowDidResignKey:(NSNotification *)notification;
 - (void)windowWillClose:(NSNotification *)notification;
+- (void)pointFileLoaded:(NSNotification *)notification;
+- (void)pointFileUnloaded:(NSNotification *)notification;
 - (void)runQuake:(NSString *)appPath;
 
 @end
@@ -86,6 +90,21 @@
         InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
         [inspector setMapWindowController:nil];
     }
+}
+
+- (void)pointFileLoaded:(NSNotification *)notification {
+    MapDocument* document = [self document];
+    pointFileFigure = [[PointFileFeedbackFigure alloc] initWithPoints:[document leakPoints] pointCount:[document leakPointCount]];
+    
+    Renderer* renderer = [self renderer];
+    [renderer addFeedbackFigure:pointFileFigure];
+}
+
+- (void)pointFileUnloaded:(NSNotification *)notification {
+    Renderer* renderer = [self renderer];
+    [renderer removeFeedbackFigure:pointFileFigure];
+    [pointFileFigure release];
+    pointFileFigure = nil;
 }
 
 - (void)runQuake:(NSString *)appPath {
@@ -184,6 +203,23 @@
 
 - (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window {
     return [[self document] undoManager];
+}
+
+- (void)setDocument:(NSDocument *)document {
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    
+    NSDocument* oldDocument = [self document];
+    if (oldDocument != nil) {
+        [center removeObserver:self name:PointFileLoaded object:oldDocument];
+        [center removeObserver:self name:PointFileUnloaded object:oldDocument];
+    }
+    
+    if (document != nil) {
+        [center addObserver:self selector:@selector(pointFileLoaded:) name:PointFileLoaded object:document];
+        [center addObserver:self selector:@selector(pointFileUnloaded:) name:PointFileUnloaded object:document];
+    }
+    
+    [super setDocument:document];
 }
 
 - (CGFloat)splitView:(NSSplitView *)theSplitView constrainMaxCoordinate:(CGFloat)theProposedMax ofSubviewAt:(NSInteger)theDividerIndex {
@@ -373,6 +409,22 @@
         return index >= 0 && index < [[profileManager profiles] count];
     } else if (action == @selector(runDefaultEngine:)) {
         return [[PreferencesManager sharedManager] quakeExecutable] != nil;
+    } else if (action == @selector(loadPointFile:)) {
+        MapDocument* map = [self document];
+        NSURL* mapFileUrl = [map fileURL];
+        
+        NSString* mapFilePath = [mapFileUrl path];
+        NSString* mapDirPath = [mapFilePath stringByDeletingLastPathComponent];
+        NSString* mapFileName = [mapFilePath lastPathComponent];
+        NSString* baseFileName = [mapFileName stringByDeletingPathExtension];
+        NSString* pointFileName = [baseFileName stringByAppendingPathExtension:@"pts"];
+        NSString* pointFilePath = [mapDirPath stringByAppendingPathComponent:pointFileName];
+        
+        NSFileManager* fileManager = [NSFileManager defaultManager];
+        return [fileManager fileExistsAtPath:pointFilePath];
+    } else if (action == @selector(unloadPointFile:)) {
+        MapDocument* map = [self document];
+        return [map leakPointCount] > 0;
     }
 
     return NO;
@@ -394,6 +446,7 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [pointFileFigure release];
     [options release];
     [inputManager release];
     [cursorManager release];
@@ -401,6 +454,37 @@
     [inspectorViewController release];
     [console release];
     [super dealloc];
+}
+
+#pragma mark Point File Support
+
+- (IBAction)loadPointFile:(id)sender {
+    MapDocument* map = [self document];
+    NSURL* mapFileUrl = [map fileURL];
+    
+    NSString* mapFilePath = [mapFileUrl path];
+    NSString* mapDirPath = [mapFilePath stringByDeletingLastPathComponent];
+    NSString* mapFileName = [mapFilePath lastPathComponent];
+    NSString* baseFileName = [mapFileName stringByDeletingPathExtension];
+    NSString* pointFileName = [baseFileName stringByAppendingPathExtension:@"pts"];
+    NSString* pointFilePath = [mapDirPath stringByAppendingPathComponent:pointFileName];
+    
+    NSLog(@"Loading point file %@", pointFilePath);
+    
+    NSError* error;
+    NSData* data = [NSData dataWithContentsOfFile:pointFilePath options:NSDataReadingMapped error:&error];
+    if (data == nil) {
+        NSLog(@"Could not read point file: %@", [error localizedDescription]);
+        return;
+    }
+    
+    [map loadPointFile:data];
+    NSLog(@"Point file loaded");
+}
+
+- (IBAction)unloadPointFile:(id)sender {
+    NSLog(@"Loading point file");
+    [[self document] unloadPointFile];
 }
 
 #pragma mark Entity related actions
@@ -1066,10 +1150,10 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
 
-    [selectionManager removeAll:YES];
-
     [map duplicateEntities:[selectionManager selectedEntities] newEntities:newEntities newBrushes:newBrushes];
     [map duplicateBrushes:[selectionManager selectedBrushes] newBrushes:newBrushes];
+    
+    [selectionManager removeAll:YES];
     
     [selectionManager addEntities:newEntities record:YES];
     [selectionManager addBrushes:newBrushes record:YES];

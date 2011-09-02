@@ -29,6 +29,9 @@ extern NSString* const EntitiesKey;
 extern NSString* const PropertiesWillChange;
 extern NSString* const PropertiesDidChange;
 
+extern NSString* const PointFileLoaded;
+extern NSString* const PointFileUnloaded;
+
 @class EntityDefinitionManager;
 @class MutableEntity;
 @class Picker;
@@ -50,9 +53,20 @@ extern NSString* const PropertiesDidChange;
     BOOL postNotifications;
     Picker* picker;
     GLResources* glResources;
+    
+    TVector3f* leakPoints;
+    int leakPointCount;
 }
 
+# pragma mark Point file support
+
+- (void)loadPointFile:(NSData *)theData;
+- (void)unloadPointFile;
+- (TVector3f *)leakPoints;
+- (int)leakPointCount;
+
 # pragma mark Texture wad management
+
 - (void)insertObject:(NSString *)theWadPath inTextureWadsAtIndex:(NSUInteger)theIndex;
 - (void)removeObjectFromTextureWadsAtIndex:(NSUInteger)theIndex;
 - (NSArray *)textureWads;

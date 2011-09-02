@@ -49,6 +49,9 @@ NSString* const EntitiesKey             = @"Entities";
 NSString* const PropertiesWillChange    = @"PropertiesWillChange";
 NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 
+NSString* const PointFileLoaded         = @"PointFileLoaded";
+NSString* const PointFileUnloaded       = @"PointFileUnloaded";
+
 @interface MapDocument (private)
 
 - (void)makeUndoSnapshotOfFaces:(NSArray *)theFaces;
@@ -297,6 +300,57 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
     [mapWriter release];
     
     return YES;
+}
+
+# pragma mark Point file support
+
+- (void)loadPointFile:(NSData *)theData {
+    if (leakPointCount > 0)
+        [self unloadPointFile];
+    
+    NSString* string = [[[NSString alloc] initWithData:theData encoding:NSASCIIStringEncoding] autorelease];
+    string = [string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSArray* lines = [string componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    
+    if ([lines count] == 0)
+        return;
+    
+    leakPointCount = [lines count];
+    leakPoints = malloc(leakPointCount * sizeof(TVector3f));
+    int lineIndex = 0;
+    
+    NSEnumerator* lineEn = [lines objectEnumerator];
+    NSString* line;
+    while ((line = [lineEn nextObject])) {
+        line = [line stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        if (!parseV3f(line, NSMakeRange(0, [line length]), &leakPoints[lineIndex])) {
+            free(leakPoints);
+            leakPointCount = 0;
+            NSLog(@"Error parsing point file at line %i", lineIndex + 1);
+            return;
+        }
+        lineIndex++;
+    }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:PointFileLoaded object:self];
+}
+
+- (void)unloadPointFile {
+    if (leakPointCount > 0) {
+        free(leakPoints);
+        leakPoints = NULL;
+        leakPointCount = 0;
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:PointFileUnloaded object:self];
+    }
+}
+
+- (TVector3f *)leakPoints {
+    return leakPoints;
+}
+
+- (int)leakPointCount {
+    return leakPointCount;
 }
 
 # pragma mark Texture wad management

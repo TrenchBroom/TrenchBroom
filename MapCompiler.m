@@ -23,10 +23,10 @@ static NSString* const BspFileReplacement = @"$bsp";
     
     if ((self = [self init])) {
         NSString* mapFilePath = [theMapFileUrl path];
-        NSString* mapDirPath = [[mapFilePath stringByDeletingLastPathComponent] retain];
-        NSString* mapFileName = [[mapFilePath lastPathComponent] retain];
+        NSString* mapDirPath = [mapFilePath stringByDeletingLastPathComponent];
+        NSString* mapFileName = [mapFilePath lastPathComponent];
         NSString* baseFileName = [mapFileName stringByDeletingPathExtension];
-        NSString* bspFileName = [[baseFileName stringByAppendingPathExtension:@"bsp"] retain];
+        NSString* bspFileName = [baseFileName stringByAppendingPathExtension:@"bsp"];
         
         NSMutableDictionary* replacements = [[NSMutableDictionary alloc] init];
         [replacements setObject:mapFileName forKey:MapFileReplacement];

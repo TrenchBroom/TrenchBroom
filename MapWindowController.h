@@ -24,6 +24,7 @@
 @class InspectorViewController;
 @class ConsoleWindowController;
 @class QuickBarWindowController;
+@class PointFileFeedbackFigure;
 @protocol Prefab;
 @protocol Entity;
 @protocol Brush;
@@ -40,7 +41,11 @@
     ConsoleWindowController* console;
     QuickBarWindowController* quickBar;
     BOOL view3DWasFirstResponder;
+    PointFileFeedbackFigure* pointFileFigure;
 }
+
+- (IBAction)loadPointFile:(id)sender;
+- (IBAction)unloadPointFile:(id)sender;
 
 - (IBAction)showInspector:(id)sender;
 - (IBAction)toggleGrid:(id)sender;
