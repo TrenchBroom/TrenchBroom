@@ -129,7 +129,8 @@
     TVector3f deltaf;
     subV3f(&point, &lastPoint, &deltaf);
 
-    Grid* grid = [[windowController options] grid];
+    Options* options = [windowController options];
+    Grid* grid = [options grid];
     
     MapDocument* map = [windowController document];
     TBoundingBox* worldBounds = [map worldBounds];
@@ -161,7 +162,7 @@
         duplicate = NO;
     }
     
-    [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+    [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
     [map translateEntities:[selectionManager selectedEntities] delta:deltai];
     
     /*

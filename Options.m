@@ -22,6 +22,7 @@ NSString* const OptionsChanged = @"OptionsChanged";
         renderEntityClassnames = YES;
         renderBrushes = YES;
         renderOrigin = YES;
+        lockTextures = YES;
     }
     
     return self;
@@ -110,6 +111,20 @@ NSString* const OptionsChanged = @"OptionsChanged";
         return;
     
     renderOrigin = doRenderOrigin;
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:OptionsChanged object:self];
+}
+
+- (BOOL)lockTextures {
+    return lockTextures;
+}
+
+- (void)setLockTextures:(BOOL)doLockTextures {
+    if (lockTextures == doLockTextures)
+        return;
+    
+    lockTextures = doLockTextures;
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:OptionsChanged object:self];

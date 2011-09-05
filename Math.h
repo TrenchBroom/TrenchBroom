@@ -136,7 +136,7 @@ BOOL equalV3f(const TVector3f* l, const TVector3f* r);
 BOOL nullV3f(const TVector3f* v);
 EAxis strongestComponentV3f(const TVector3f* v);
 EAxis weakestComponentV3f(const TVector3f* v);
-void closestAxisV3f(const TVector3f* v, TVector3f* o);
+const TVector3f* closestAxisV3f(const TVector3f* v);
 float componentV3f(const TVector3f* v, EAxis a);
 void setComponentV3f(TVector3f* v, EAxis a, float f);
 void roundV3f(const TVector3f* v, TVector3i* o);

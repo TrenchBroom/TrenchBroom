@@ -211,9 +211,9 @@ EAxis weakestComponentV3f(const TVector3f* v) {
     return A_Z;
 }
 
-void closestAxisV3f(const TVector3f* v, TVector3f* o) {
+const TVector3f* closestAxisV3f(const TVector3f* v) {
     if (equalV3f(v, &NullVector)) {
-        *o = NullVector;
+        return &NullVector;
     } else {
         float xa = fabs(v->x);
         float ya = fabs(v->y);
@@ -221,19 +221,19 @@ void closestAxisV3f(const TVector3f* v, TVector3f* o) {
         
         if (xa >= ya && xa >= za) {
             if (v->x > 0)
-                *o = XAxisPos;
+                return &XAxisPos;
             else
-                *o = XAxisNeg;
+                return &XAxisNeg;
         } else if (ya >= xa && ya >= za) {
             if (v->y > 0)
-                *o = YAxisPos;
+                return &YAxisPos;
             else
-                *o = YAxisNeg;
+                return &YAxisNeg;
         } else {
             if (v->z > 0)
-                *o = ZAxisPos;
+                return &ZAxisPos;
             else
-                *o = ZAxisNeg;
+                return &ZAxisNeg;
         }
     }
 }

@@ -830,7 +830,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     }
 }
 
-- (void)translateBrushes:(NSArray *)theBrushes delta:(TVector3i)theDelta {
+- (void)translateBrushes:(NSArray *)theBrushes delta:(TVector3i)theDelta lockTextures:(BOOL)lockTextures {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
@@ -840,7 +840,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     scaleV3i(&theDelta, -1, &inverse);
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateBrushes:[[theBrushes copy] autorelease] delta:inverse];
+    [[undoManager prepareWithInvocationTarget:self] translateBrushes:[[theBrushes copy] autorelease] delta:inverse lockTextures:lockTextures];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -850,11 +850,55 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
     }
-
+    
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
-    while ((brush = [brushEn nextObject]))
-        [brush translateBy:&theDelta];
+    
+    if (lockTextures) {
+        NSMutableDictionary* textureToFaces = [[NSMutableDictionary alloc] init];
+        while ((brush = [brushEn nextObject])) {
+            [brush translateBy:&theDelta];
+            
+            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
+            MutableFace* face;
+            while ((face = [faceEn nextObject])) {
+                NSString* textureName = [face texture];
+                if (textureName != nil) {
+                    NSMutableArray* facesForTexture = [textureToFaces objectForKey:textureName];
+                    if (facesForTexture == nil) {
+                        facesForTexture = [[NSMutableArray alloc] init];
+                        [textureToFaces setObject:facesForTexture forKey:textureName];
+                        [facesForTexture release];
+                    }
+                    
+                    [facesForTexture addObject:face];
+                }
+            }
+        }
+        
+        TextureManager* textureManager = [glResources textureManager];
+        NSEnumerator* textureNameEn = [textureToFaces keyEnumerator];
+        NSString* textureName;
+        while ((textureName = [textureNameEn nextObject])) {
+            Texture* texture = [textureManager textureForName:textureName];
+            if (texture != nil) {
+                NSArray* faces = [textureToFaces objectForKey:textureName];
+                int width = [texture width];
+                int height = [texture height];
+                
+                NSEnumerator* faceEn = [faces objectEnumerator];
+                MutableFace* face;
+                while ((face = [faceEn nextObject]))
+                    [face correctTextureAfterTranslationBy:&theDelta textureWidth:width textureHeight:height];
+            }
+        }
+        
+        [textureToFaces release];
+    } else {
+        while ((brush = [brushEn nextObject]))
+            [brush translateBy:&theDelta];
+    }
+    
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];

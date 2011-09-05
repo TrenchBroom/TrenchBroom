@@ -94,7 +94,7 @@ extern NSString* const PointFileUnloaded;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity withBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture;
 - (void)duplicateBrushes:(NSArray *)theBrushes newBrushes:(NSMutableArray *)theNewBrushes;
-- (void)translateBrushes:(NSArray *)theBrushes delta:(TVector3i)theDelta;
+- (void)translateBrushes:(NSArray *)theBrushes delta:(TVector3i)theDelta lockTextures:(BOOL)lockTextures;
 - (void)rotateBrushesZ90CW:(NSArray *)theBrushes center:(TVector3i)theCenter;
 - (void)rotateBrushesZ90CCW:(NSArray *)theBrushes center:(TVector3i)theCenter;
 - (void)rotateBrushes:(NSArray *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter;

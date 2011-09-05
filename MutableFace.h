@@ -43,7 +43,7 @@ typedef enum {
 
     TSide* side;
     
-    int bestAxis;
+    const TVector3f* texNorm;
     TVector3f texAxisX;
     TVector3f texAxisY;
     BOOL texAxesValid;
@@ -74,6 +74,8 @@ typedef enum {
 - (void)rotateZ90CCW:(TVector3i *)theCenter;
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter;
 - (void)dragBy:(float)dist;
+
+- (void)correctTextureAfterTranslationBy:(TVector3i *)theDelta textureWidth:(int)theTextureWidth textureHeight:(int)theTextureHeight;
 
 - (void)setSide:(TSide *)theSide;
 

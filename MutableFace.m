@@ -19,8 +19,6 @@
 #import "Texture.h"
 #import "VBOMemBlock.h"
 
-static TVector3f baseAxes[18];
-
 @interface MutableFace (private)
 
 - (void)updateTexAxes;
@@ -34,47 +32,24 @@ static TVector3f baseAxes[18];
 
 - (void)updateTexAxes {
     if (!texAxesValid) {
-        // determine texture axes, this is from QBSP
-        float best = 0;
-        bestAxis = 0;
-        for (int i = 0; i < 6; i++) {
-            float dot = dotV3f([self norm], &baseAxes[i * 3]);
-            if (dot > best) {
-                best = dot;
-                bestAxis = i;
-            }
+        texNorm = closestAxisV3f([self norm]);
+        
+        if (texNorm == &XAxisPos || texNorm == &XAxisNeg) {
+            texAxisX = YAxisPos;
+            texAxisY = ZAxisNeg;
+        } else if (texNorm == &YAxisPos || texNorm == &YAxisNeg) {
+            texAxisX = XAxisPos;
+            texAxisY = ZAxisNeg;
+        } else if (texNorm == &ZAxisPos || texNorm == &ZAxisNeg) {
+            texAxisX = XAxisPos;
+            texAxisY = YAxisNeg;
         }
         
-        texAxisX = baseAxes[bestAxis * 3 + 1];
-        texAxisY = baseAxes[bestAxis * 3 + 2];
-        
+        TQuaternion rot;
         float ang = rotation / 180 * M_PI;
-        float sinv = sin(ang);
-        float cosv = cos(ang);
-        
-        EAxis sv, tv;
-        if (texAxisX.x != 0)
-            sv = A_X;
-        else if (texAxisX.y != 0)
-            sv = A_Y;
-        else
-            sv = A_Z;
-        
-        if (texAxisY.x != 0)
-            tv = A_X;
-        else if (texAxisY.y != 0)
-            tv = A_Y;
-        else
-            tv = A_Z;
-        
-        TVector3f texAxes[2] = {texAxisX, texAxisY};
-        for (int i = 0; i < 2; i++) {
-            float ns = cosv * componentV3f(&texAxes[i], sv) - sinv * componentV3f(&texAxes[i], tv);
-            float nt = sinv * componentV3f(&texAxes[i], sv) + cosv * componentV3f(&texAxes[i], tv);
-            
-            setComponentV3f(&texAxes[i], sv, ns);
-            setComponentV3f(&texAxes[i], tv, nt);
-        }
+        setAngleAndAxisQ(&rot, ang, texNorm);
+        rotateQ(&rot, &texAxisX, &texAxisX);
+        rotateQ(&rot, &texAxisY, &texAxisY);
         
         scaleV3f(&texAxisX, 1 / xScale, &texAxisX);
         scaleV3f(&texAxisY, 1 / yScale, &texAxisY);
@@ -181,15 +156,6 @@ static TVector3f baseAxes[18];
 
 #pragma mark -
 @implementation MutableFace
-
-+ (void)initialize {
-    baseAxes[ 0] = XAxisPos; baseAxes[ 1] = YAxisPos; baseAxes[ 2] = ZAxisNeg;
-    baseAxes[ 3] = XAxisNeg; baseAxes[ 4] = YAxisPos; baseAxes[ 5] = ZAxisNeg;
-    baseAxes[ 6] = YAxisPos; baseAxes[ 7] = XAxisPos; baseAxes[ 8] = ZAxisNeg;
-    baseAxes[ 9] = YAxisNeg; baseAxes[10] = XAxisPos; baseAxes[11] = ZAxisNeg;
-    baseAxes[12] = ZAxisPos; baseAxes[13] = XAxisPos; baseAxes[14] = YAxisNeg;
-    baseAxes[15] = ZAxisNeg; baseAxes[16] = XAxisPos; baseAxes[17] = YAxisNeg;
-}
 
 - (id)init {
     if ((self = [super init])) {
@@ -326,33 +292,24 @@ static TVector3f baseAxes[18];
     if (!texAxesValid)
         [self updateTexAxes];
 
-    switch (bestAxis) {
-        case 0:
-            xOffset += x;
-            yOffset += y;
-            break;
-        case 1:
-            xOffset -= x;
-            yOffset += y;
-            break;
-        case 2:
-            xOffset -= x;
-            yOffset += y;
-            break;
-        case 3:
-            xOffset += x;
-            yOffset += y;
-            break;
-        case 4:
-            xOffset -= x;
-            yOffset += y;
-            break;
-        case 5:
-            xOffset += x;
-            yOffset += y;
-            break;
-        default:
-        break;
+    if (texNorm == &XAxisPos) {
+        xOffset += x;
+        yOffset += y;
+    } else if (texNorm == &XAxisNeg) {
+        xOffset -= x;
+        yOffset += y;
+    } else if (texNorm == &YAxisPos) {
+        xOffset -= x;
+        yOffset += y;
+    } else if (texNorm == &YAxisNeg) {
+        xOffset += x;
+        yOffset += y;
+    } else if (texNorm == &ZAxisPos) {
+        xOffset -= x;
+        yOffset += y;
+    } else if (texNorm == &ZAxisNeg) {
+        xOffset += x;
+        yOffset += y;
     }
 }
 
@@ -427,6 +384,22 @@ static TVector3f baseAxes[18];
     
     TVector3i delta = {roundf(f.x), roundf(f.y), roundf(f.z)};
     [self translateBy:&delta];
+}
+
+- (void)correctTextureAfterTranslationBy:(TVector3i *)theDelta textureWidth:(int)theTextureWidth textureHeight:(int)theTextureHeight {
+    if (!texAxesValid)
+        [self updateTexAxes];
+    
+    if (texNorm == &XAxisPos || texNorm == &XAxisNeg) {
+        xOffset -= theDelta->y % theTextureWidth;
+        yOffset += theDelta->z % theTextureHeight;
+    } else if (texNorm == &YAxisPos || texNorm == &YAxisNeg) {
+        xOffset -= theDelta->x % theTextureWidth;
+        yOffset += theDelta->z % theTextureHeight;
+    } else if (texNorm == &ZAxisPos || texNorm == &ZAxisNeg) {
+        xOffset -= theDelta->x % theTextureWidth;
+        yOffset += theDelta->y % theTextureHeight;
+    }
 }
 
 - (void)setSide:(TSide *)theSide {

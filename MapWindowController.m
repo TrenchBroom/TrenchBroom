@@ -686,7 +686,7 @@
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        closestAxisV3f([camera right], &deltaf);
+        deltaf = *closestAxisV3f([camera right]);
         scaleV3f(&deltaf, -delta, &deltaf);
 
         TBoundingBox* worldBounds = [map worldBounds];
@@ -700,7 +700,7 @@
         TVector3i deltai;
         roundV3f(&deltaf, &deltai);
         
-        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
         [map translateEntities:[selectionManager selectedEntities] delta:deltai];
     }
     
@@ -721,7 +721,7 @@
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        closestAxisV3f([camera right], &deltaf);
+        deltaf = *closestAxisV3f([camera right]);
         scaleV3f(&deltaf, delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
@@ -735,7 +735,7 @@
         TVector3i deltai;
         roundV3f(&deltaf, &deltai);
         
-        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
         [map translateEntities:[selectionManager selectedEntities] delta:deltai];
     }
     
@@ -755,7 +755,7 @@
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        closestAxisV3f([camera up], &deltaf);
+        deltaf = *closestAxisV3f([camera up]);
         scaleV3f(&deltaf, delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
@@ -769,7 +769,7 @@
         TVector3i deltai;
         roundV3f(&deltaf, &deltai);
         
-        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
         [map translateEntities:[selectionManager selectedEntities] delta:deltai];
     }
     
@@ -790,7 +790,7 @@
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        closestAxisV3f([camera up], &deltaf);
+        deltaf = *closestAxisV3f([camera up]);
         scaleV3f(&deltaf, -delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
@@ -804,7 +804,7 @@
         TVector3i deltai;
         roundV3f(&deltaf, &deltai);
         
-        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai];
+        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
         [map translateEntities:[selectionManager selectedEntities] delta:deltai];
     }
     
@@ -1081,7 +1081,7 @@
         roundV3f(&deltaf, &deltai);
         
         [map translateEntities:newEntities delta:deltai];
-        [map translateBrushes:newBrushes delta:deltai];
+        [map translateBrushes:newBrushes delta:deltai lockTextures:[options lockTextures]];
     }
     
     [undoManager setActionName:@"Paste Objects"];
@@ -1159,7 +1159,7 @@
     [selectionManager addBrushes:newBrushes record:YES];
 
     [map translateEntities:newEntities delta:deltai];
-    [map translateBrushes:newBrushes delta:deltai];
+    [map translateBrushes:newBrushes delta:deltai lockTextures:[options lockTextures]];
     
     [newEntities release];
     [newBrushes release];
@@ -1223,7 +1223,7 @@
     }
     
     [[self document] translateEntities:newEntities delta:delta];
-    [[self document] translateBrushes:newBrushes delta:delta];
+    [[self document] translateBrushes:newBrushes delta:delta lockTextures:[options lockTextures]];
     
     [selectionManager removeAll:YES];
     [selectionManager addEntities:newEntities record:YES];

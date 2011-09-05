@@ -33,6 +33,7 @@ extern NSString* const OptionsChanged;
     BOOL renderEntityClassnames;
     BOOL renderBrushes;
     BOOL renderOrigin;
+    BOOL lockTextures;
 }
 
 - (Grid *)grid;
@@ -54,5 +55,8 @@ extern NSString* const OptionsChanged;
 
 - (BOOL)renderOrigin;
 - (void)setRenderOrigin:(BOOL)doRenderOrigin;
+
+- (BOOL)lockTextures;
+- (void)setLockTextures:(BOOL)doLockTextures;
 
 @end
