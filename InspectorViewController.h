@@ -24,10 +24,15 @@
 @interface InspectorViewController : NSViewController <NSTableViewDelegate, PrefabViewTarget, TextureViewTarget, EntityDefinitionViewTarget> {
     IBOutlet NSTabView* tabView;
     IBOutlet NSTextField* xOffsetField;
+    IBOutlet NSStepper* xOffsetStepper;
     IBOutlet NSTextField* yOffsetField;
+    IBOutlet NSStepper* yOffsetStepper;
     IBOutlet NSTextField* xScaleField;
+    IBOutlet NSStepper* xScaleStepper;
     IBOutlet NSTextField* yScaleField;
+    IBOutlet NSStepper* yScaleStepper;
     IBOutlet NSTextField* rotationField;
+    IBOutlet NSStepper* rotationStepper;
     IBOutlet NSTextField* textureNameField;
     IBOutlet NSSearchField* textureNameFilterField;
     IBOutlet NSSegmentedControl* textureUsageFilterSC;
@@ -63,10 +68,15 @@
 - (MapWindowController *)mapWindowController;
 
 - (IBAction)xOffsetTextChanged:(id)sender;
+- (IBAction)xOffsetStepperChanged:(id)sender;
 - (IBAction)yOffsetTextChanged:(id)sender;
+- (IBAction)yOffsetStepperChanged:(id)sender;
 - (IBAction)xScaleTextChanged:(id)sender;
+- (IBAction)xScaleStepperChanged:(id)sender;
 - (IBAction)yScaleTextChanged:(id)sender;
+- (IBAction)yScaleStepperChanged:(id)sender;
 - (IBAction)rotationTextChanged:(id)sender;
+- (IBAction)rotationStepperChanged:(id)sender;
 - (IBAction)textureNameFilterTextChanged:(id)sender;
 - (IBAction)textureUsageFilterChanged:(id)sender;
 - (IBAction)textureSortCriterionChanged:(id)sender;

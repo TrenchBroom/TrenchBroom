@@ -24,8 +24,8 @@
     NSPoint initialLocation;
     float initialHAngle;
     float initialVAngle;
-    int lastHSteps;
-    int lastVSteps;
+    float lastHAngle;
+    float lastVAngle;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

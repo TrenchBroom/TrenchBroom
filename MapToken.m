@@ -23,16 +23,22 @@
         [result appendString:@"string, "];
     
     if ((aType & TT_B_O) != 0)
-        [result appendString:@"opening brace, "];
+        [result appendString:@"opening parenthesis, "];
     
     if ((aType & TT_B_C) != 0)
-        [result appendString:@"closing brace, "];
+        [result appendString:@"closing parenthesis, "];
     
     if ((aType & TT_CB_O) != 0)
-        [result appendString:@"opening curly brace, "];
+        [result appendString:@"opening curly bracket, "];
     
     if ((aType & TT_CB_C) != 0)
-        [result appendString:@"closing curly brace, "];
+        [result appendString:@"closing curly bracket, "];
+    
+    if ((aType & TT_SB_O) != 0)
+        [result appendString:@"opening square bracket, "];
+    
+    if ((aType & TT_SB_C) != 0)
+        [result appendString:@"closing square bracket, "];
     
     if ([result length] > 0)
         [result deleteCharactersInRange:NSMakeRange([result length] - 2, 2)];
@@ -94,6 +100,8 @@
         case TT_B_C:
         case TT_CB_O:
         case TT_CB_C:
+        case TT_SB_O:
+        case TT_SB_C:
             return [NSString stringWithFormat:@"position: %i,%i, type: %@", line, column, [MapToken typeName:type]];
         default:
             return [NSString stringWithFormat:@"position: %i,%i, type: %@, data: %@", line, column, data, [MapToken typeName:type]];

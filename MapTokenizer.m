@@ -94,6 +94,10 @@
                         return [token setType:TT_B_O data:nil line:line column:column charsRead:charsRead];
                     case ')':
                         return [token setType:TT_B_C data:nil line:line column:column charsRead:charsRead];
+                    case '[':
+                        return [token setType:TT_SB_O data:nil line:line column:column charsRead:charsRead];
+                    case ']':
+                        return [token setType:TT_SB_C data:nil line:line column:column charsRead:charsRead];
                     case '"':
                         state = TS_Q_STR;
                         string = [[NSMutableString alloc] init];

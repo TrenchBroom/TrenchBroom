@@ -289,29 +289,29 @@
     values[15] = 1;
 }
 
-- (void)transformVector3f:(TVector3f *)vector {
+- (void)transformVector3f:(const TVector3f *)vector result:(TVector3f *)result {
     TVector4f v4f;
     v4f.x = vector->x;
     v4f.y = vector->y;
     v4f.z = vector->z;
     v4f.w = 1;
     
-    [self transformVector4f:&v4f];
-    vector->x = v4f.x / v4f.w;
-    vector->y = v4f.y / v4f.w;
-    vector->z = v4f.z / v4f.w;
+    [self transformVector4f:&v4f result:&v4f];
+    result->x = v4f.x / v4f.w;
+    result->y = v4f.y / v4f.w;
+    result->z = v4f.z / v4f.w;
 }
 
-- (void)transformVector4f:(TVector4f *)vector {
+- (void)transformVector4f:(const TVector4f *)vector result:(TVector4f *)result {
     float x = values[ 0] * vector->x + values[ 4] * vector->y + values[ 8] * vector->z + values[12] * vector->w;
     float y = values[ 1] * vector->x + values[ 5] * vector->y + values[ 9] * vector->z + values[13] * vector->w;
     float z = values[ 2] * vector->x + values[ 6] * vector->y + values[10] * vector->z + values[14] * vector->w;
     float w = values[ 3] * vector->x + values[ 7] * vector->y + values[11] * vector->z + values[15] * vector->w;
     
-    vector->x = x;
-    vector->y = y;
-    vector->z = z;
-    vector->w = w;
+    result->x = x;
+    result->y = y;
+    result->z = z;
+    result->w = w;
 }
 
 - (void)negate {

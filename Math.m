@@ -366,6 +366,12 @@ BOOL parseV3f(NSString* s, NSRange r, TVector3f* o) {
     return YES;
 }
 
+BOOL opposingV3f(const TVector3f* v1, const TVector3f* v2) {
+    return !((v1->x > 0 && v2->x > 0 || v1->x < 0 && v2->x < 0) && 
+             (v1->y > 0 && v2->y > 0 || v1->y < 0 && v2->y < 0) && 
+             (v1->z > 0 && v2->z > 0 || v1->z < 0 && v2->z < 0));
+}
+
 # pragma mark TVector3i functions
 
 void addV3i(const TVector3i* l, const TVector3i* r, TVector3i* o) {
@@ -978,8 +984,8 @@ void setQ(TQuaternion* l, const TQuaternion* r) {
 }
 
 void setAngleAndAxisQ(TQuaternion* q, float a, const TVector3f* x) {
-    q->scalar = cos(a / 2);
-    scaleV3f(x, sin(a / 2), &q->vector);
+    q->scalar = cosf(a / 2);
+    scaleV3f(x, sinf(a / 2), &q->vector);
 }
 
 void mulQ(const TQuaternion* l, const TQuaternion* r, TQuaternion* o) {
@@ -1018,9 +1024,17 @@ void rotateQ(const TQuaternion* q, const TVector3f* v, TVector3f* o) {
     *o = t.vector;
 }
 
+float radiansQ(const TQuaternion* q) {
+    return 2 * acosf(q->scalar);
+}
+
+float degreesQ(const TQuaternion* q) {
+    return radiansQ(q) * 180 / M_PI;
+}
+
 # pragma mark Coordinate plane functions
 
-void projectOntoPlane(EPlane plane, const TVector3f* v, TVector3f* o) {
+void projectOntoCoordinatePlane(EPlane plane, const TVector3f* v, TVector3f* o) {
     switch (plane) {
         case P_XY:
             o->x = v->x;

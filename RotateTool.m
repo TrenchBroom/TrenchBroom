@@ -20,6 +20,8 @@
 #import "Math.h"
 #import "Camera.h"
 #import "Renderer.h"
+#import "Options.h"
+#import "Grid.h"
 
 static float M_PI_12 = M_PI / 12;
 
@@ -117,8 +119,8 @@ static float M_PI_12 = M_PI / 12;
     [rotateCursor setDragging:YES];
     [feedbackFigure setDragging:YES];
     initialLocation = [NSEvent mouseLocation];
-    lastHSteps = 0;
-    lastVSteps = 0;
+    lastHAngle = 0;
+    lastVAngle = 0;
     
     NSUndoManager* undoManager = [[windowController document] undoManager];
     [undoManager setGroupsByEvent:NO];
@@ -136,23 +138,28 @@ static float M_PI_12 = M_PI / 12;
     float hAngle = (dx / 6) / (M_PI * 2);
     float vAngle = (-dy / 6) / (M_PI * 2);
     
-    int hSteps = hAngle / M_PI_12;
-    int vSteps = vAngle / M_PI_12;
+    Options* options = [windowController options];
+    if ([[options grid] snap]) {
+        int hSteps = hAngle / M_PI_12;
+        int vSteps = vAngle / M_PI_12;
+        hAngle = hSteps * M_PI_12;
+        vAngle = vSteps * M_PI_12;
+    }
     
-    [rotateCursor updateHorizontalAngle:hSteps * M_PI_12 verticalAngle:vSteps * M_PI_12];
-    [feedbackFigure updateHorizontalAngle:hSteps * M_PI_12 verticalAngle:vSteps * M_PI_12];
+    [rotateCursor updateHorizontalAngle:hAngle verticalAngle:vAngle];
+    [feedbackFigure updateHorizontalAngle:hAngle verticalAngle:vAngle];
     
-    if (hSteps != lastHSteps || vSteps != lastVSteps) {
+    if (hAngle != lastHAngle || vAngle != lastVAngle) {
         TQuaternion rotation;
-        if (hSteps != 0 && vSteps != 0) {
+        if (hAngle != 0 && vAngle != 0) {
             TQuaternion hRotation, vRotation;
-            setAngleAndAxisQ(&hRotation, hSteps * M_PI_12, &ZAxisPos);
-            setAngleAndAxisQ(&vRotation, vSteps * M_PI_12, vAxis == A_X ? &XAxisPos : &YAxisNeg);
+            setAngleAndAxisQ(&hRotation, hAngle, &ZAxisPos);
+            setAngleAndAxisQ(&vRotation, vAngle, vAxis == A_X ? &XAxisPos : &YAxisNeg);
             mulQ(&hRotation, &vRotation, &rotation);
-        } else if (hSteps != 0) {
-            setAngleAndAxisQ(&rotation, hSteps * M_PI_12, &ZAxisPos);
+        } else if (hAngle != 0) {
+            setAngleAndAxisQ(&rotation, hAngle, &ZAxisPos);
         } else {
-            setAngleAndAxisQ(&rotation, vSteps * M_PI_12, vAxis == A_X ? &XAxisPos : &YAxisNeg);
+            setAngleAndAxisQ(&rotation, vAngle, vAxis == A_X ? &XAxisPos : &YAxisNeg);
         }
         
         MapDocument* map = [windowController document];
@@ -169,10 +176,10 @@ static float M_PI_12 = M_PI / 12;
             [undoManager beginUndoGrouping];
             
             [map rotateEntities:[selectionManager selectedEntities] rotation:rotation center:center];
-            [map rotateBrushes:[selectionManager selectedBrushes] rotation:rotation center:center];
+            [map rotateBrushes:[selectionManager selectedBrushes] rotation:rotation center:center lockTextures:[options lockTextures]];
 
-            lastHSteps = hSteps;
-            lastVSteps = vSteps;
+            lastHAngle = hAngle;
+            lastVAngle = vAngle;
         }
     }
 }

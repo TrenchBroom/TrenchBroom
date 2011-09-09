@@ -204,21 +204,18 @@
 - (void)removeFace:(MutableFace *)face {
     [face setBrush:nil];
     [faces removeObject:face];
-    if (vertexDataValid) {
-        freeVertexData(&vertexData);
-        vertexDataValid = NO;
-    }
+    [self invalidateVertexData];
 }
 
 - (void)setEntity:(MutableEntity *)theEntity {
     entity = theEntity;
 }
 
-- (void)translateBy:(TVector3i *)theDelta {
+- (void)translateBy:(TVector3i *)theDelta lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
-        [face translateBy:theDelta];
+        [face translateBy:theDelta lockTexture:lockTextures];
 
     if (vertexDataValid) {
         TVector3f deltaf;
@@ -227,11 +224,11 @@
     }
 }
 
-- (void)rotateZ90CW:(TVector3i *)theCenter {
+- (void)rotateZ90CW:(TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
-        [face rotateZ90CW:theCenter];
+        [face rotateZ90CW:theCenter lockTexture:lockTextures];
 
     if (vertexDataValid) {
         TVector3f centerf;
@@ -240,11 +237,11 @@
     }
 }
 
-- (void)rotateZ90CCW:(TVector3i *)theCenter {
+- (void)rotateZ90CCW:(TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
-        [face rotateZ90CCW:theCenter];
+        [face rotateZ90CCW:theCenter lockTexture:lockTextures];
 
     if (vertexDataValid) {
         TVector3f centerf;
@@ -253,25 +250,18 @@
     }
 }
 
-- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter {
+- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
-        [face rotate:theRotation center:theCenter];
+        [face rotate:theRotation center:theCenter lockTexture:lockTextures];
 
-    if (vertexDataValid) {
-        freeVertexData(&vertexData);
-        vertexDataValid = NO;
-    }
+    [self invalidateVertexData];
 }
 
-- (void)drag:(MutableFace *)face by:(float)dist {
-    [face dragBy:dist];
-
-    if (vertexDataValid) {
-        freeVertexData(&vertexData);
-        vertexDataValid = NO;
-    }
+- (void)drag:(MutableFace *)face by:(float)dist lockTexture:(BOOL)lockTexture {
+    [face dragBy:dist lockTexture:lockTexture];
+    [self invalidateVertexData];
 }
 
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist {
@@ -279,7 +269,7 @@
     [testFaces removeObject:face];
 
     MutableFace* testFace = [[MutableFace alloc] initWithFaceTemplate:face];
-    [testFace dragBy:dist];
+    [testFace dragBy:dist lockTexture:NO];
     [testFaces addObject:testFace];
     [testFace release];
     
@@ -294,6 +284,13 @@
     freeVertexData(&testData);
     return canDrag;
     
+}
+
+- (void)invalidateVertexData {
+    if (vertexDataValid) {
+        freeVertexData(&vertexData);
+        vertexDataValid = NO;
+    }
 }
 
 - (int)filePosition {

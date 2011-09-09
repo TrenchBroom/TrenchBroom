@@ -308,16 +308,16 @@ float pickSide(const TSide* s, const TRay* r, TVector3f* h) {
     }
     
     rayPointAtDistance(r, dist, &is);
-    projectOntoPlane(cPlane, &is, &pis);
+    projectOntoCoordinatePlane(cPlane, &is, &pis);
     
     TVertex* v = s->vertices[s->edgeCount - 1];
-    projectOntoPlane(cPlane, &v->vector, &v0);
+    projectOntoCoordinatePlane(cPlane, &v->vector, &v0);
     subV3f(&v0, &pis, &v0);
     
     int c = 0;
     for (int i = 0; i < s->edgeCount; i++) {
         v = s->vertices[i];
-        projectOntoPlane(cPlane, &v->vector, &v1);
+        projectOntoCoordinatePlane(cPlane, &v->vector, &v1);
         subV3f(&v1, &pis, &v1);
         
         if ((fzero(v0.x) && fzero(v0.y)) || (fzero(v1.x) && fzero(v1.y))) {

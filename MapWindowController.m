@@ -546,7 +546,7 @@
         NSUndoManager* undoManager = [map undoManager];
         [undoManager beginUndoGrouping];
         
-        [map rotateBrushesZ90CW:[selectionManager selectedBrushes] center:centeri];
+        [map rotateBrushesZ90CW:[selectionManager selectedBrushes] center:centeri lockTextures:[options lockTextures]];
         [map rotateEntitiesZ90CW:[selectionManager selectedEntities] center:centeri];
         
         [undoManager endUndoGrouping];
@@ -572,7 +572,7 @@
         NSUndoManager* undoManager = [map undoManager];
         [undoManager beginUndoGrouping];
         
-        [map rotateBrushesZ90CCW:[selectionManager selectedBrushes] center:centeri];
+        [map rotateBrushesZ90CCW:[selectionManager selectedBrushes] center:centeri lockTextures:[options lockTextures]];
         [map rotateEntitiesZ90CCW:[selectionManager selectedEntities] center:centeri];
         
         [undoManager endUndoGrouping];
@@ -1100,14 +1100,12 @@
         
         if ([selectionManager hasSelectedEntities]) {
             NSArray* deletedEntities = [[NSArray alloc] initWithArray:[selectionManager selectedEntities]];
-            [selectionManager removeEntities:deletedEntities record:YES];
             [[self document] deleteEntities:deletedEntities];
             [deletedEntities release];
         }
         
         if ([selectionManager hasSelectedBrushes]) {
             NSArray* deletedBrushes = [[NSArray alloc] initWithArray:[selectionManager selectedBrushes]];
-            [selectionManager removeBrushes:deletedBrushes record:YES];
             [[self document] deleteBrushes:deletedBrushes];
             [deletedBrushes release];
         }

@@ -113,14 +113,58 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     token = [self nextToken];
     [self expect:TT_STR actual:token];
     NSString* texture = [[token data] retain];
-    
+
     token = [self nextToken];
-    [self expect:TT_DEC actual:token];
-    int xOffset = [[token data] intValue];
+    if (format == MF_UNDEFINED) {
+        [self expect:TT_DEC | TT_SB_O actual:token];
+        format = [token type] == TT_DEC ? MF_STANDARD : MF_VALVE;
+
+        if (format == MF_VALVE)
+            NSRunAlertPanel(@"Warning", @"You are loading a map in Valve's 220 format. This format contains additional information about texture alignment which cannot be represented in TrenchBroom. This will lead to misaligned textures which must be corrected manually.", @"Ok", nil, nil);
+    }
     
-    token = [self nextToken];
-    [self expect:TT_DEC actual:token];
-    int yOffset = [[token data] intValue];
+    int xOffset, yOffset;
+    
+    if (format == MF_STANDARD) {
+        [self expect:TT_DEC actual:token];
+        xOffset = [[token data] intValue];
+        
+        token = [self nextToken];
+        [self expect:TT_DEC actual:token];
+        yOffset = [[token data] intValue];
+        
+    } else {
+        [self expect:TT_SB_O actual:token];
+        token = [self nextToken];
+        [self expect:TT_DEC | TT_FRAC actual:token]; // X texture axis x
+        token = [self nextToken];
+        [self expect:TT_DEC | TT_FRAC actual:token]; // X texture axis y
+        token = [self nextToken];
+        [self expect:TT_DEC | TT_FRAC actual:token]; // X texture axis z
+
+        token = [self nextToken];
+        [self expect:TT_DEC | TT_FRAC actual:token];
+        xOffset = (int)roundf([[token data] floatValue]);
+        
+        token = [self nextToken];
+        [self expect:TT_SB_C actual:token];
+        token = [self nextToken];
+        [self expect:TT_SB_O actual:token];
+        
+        token = [self nextToken];
+        [self expect:TT_DEC | TT_FRAC actual:token]; // Y texture axis x
+        token = [self nextToken];
+        [self expect:TT_DEC | TT_FRAC actual:token]; // Y texture axis y
+        token = [self nextToken];
+        [self expect:TT_DEC | TT_FRAC actual:token]; // Y texture axis z
+        token = [self nextToken];
+
+        [self expect:TT_DEC | TT_FRAC actual:token];
+        yOffset = (int)roundf([[token data] floatValue]);
+        
+        token = [self nextToken];
+        [self expect:TT_SB_C actual:token];
+    }
     
     token = [self nextToken];
     [self expect:TT_DEC | TT_FRAC actual:token];
@@ -154,6 +198,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     
     NSDate* startDate = [NSDate date];
     EParserState state = PS_DEF;
+    format = MF_UNDEFINED;
     map = theMap;
     int progress = 0;
     

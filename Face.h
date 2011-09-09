@@ -43,11 +43,10 @@
 
 - (void)texCoords:(TVector2f *)texCoords forVertex:(TVector3f *)vertex;
 - (void)gridCoords:(TVector2f *)gridCoords forVertex:(TVector3f *)vertex;
-- (void)transformToWorld:(TVector3f *)point;
-- (void)transformToSurface:(TVector3f *)point;
+- (void)transformSurface:(const TVector3f *)surfacePoint toWorld:(TVector3f *)worldPoint;
+- (void)transformWorld:(const TVector3f *)worldPoint toSurface:(TVector3f *)surfacePoint;
 - (Matrix4f *)surfaceToWorldMatrix;
 - (Matrix4f *)worldToSurfaceMatrix;
-
 
 - (VBOMemBlock *)memBlock;
 - (void)setMemBlock:(VBOMemBlock *)theMemBlock;

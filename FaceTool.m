@@ -195,6 +195,9 @@
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (!drag)
+        return;
+    
     float dist = intersectPlaneWithRay(&plane, ray);
     if (isnan(dist))
         return;
@@ -212,12 +215,17 @@
     subV3f(&point, &lastPoint, &diff);
     dist = dotV3f(&diff, &dragDir);
     
+    Options* options = [windowController options];
     MapDocument* map = [windowController document];
-    [map dragFaces:dragFaces distance:dist];
+
+    [map dragFaces:dragFaces distance:dist lockTextures:[options lockTextures]];
     lastPoint = point;
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (!drag)
+        return;
+    
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setActionName:[self actionName]];

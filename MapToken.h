@@ -12,11 +12,13 @@ typedef enum {
     TT_FRAC = 1 << 0, // fractional number
     TT_DEC  = 1 << 1, // decimal number
     TT_STR  = 1 << 2, // string
-    TT_B_O  = 1 << 3, // opening brace
-    TT_B_C  = 1 << 4, // closing brace
-    TT_CB_O = 1 << 5, // opening curly brace
-    TT_CB_C = 1 << 6, // closing curly brace
-    TT_COM  = 1 << 7 // comment
+    TT_B_O  = 1 << 3, // opening parenthesis
+    TT_B_C  = 1 << 4, // closing parenthesis
+    TT_CB_O = 1 << 5, // opening curly bracket
+    TT_CB_C = 1 << 6, // closing curly bracket
+    TT_SB_O = 1 << 7, // opening square bracket
+    TT_SB_C = 1 << 8, // closing square bracket
+    TT_COM  = 1 << 9 // comment
 } ETokenType;
 
 

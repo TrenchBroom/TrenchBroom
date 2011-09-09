@@ -226,9 +226,9 @@
         Grid* grid = [[windowController options] grid];
         [grid snapToGridV3f:&hitPoint result:&hitPoint];
         
-        [face transformToSurface:&hitPoint];
+        [face transformWorld:&hitPoint toSurface:&hitPoint];
         hitPoint.z = 0;
-        [face transformToWorld:&hitPoint];
+        [face transformSurface:&hitPoint toWorld:&hitPoint];
         
         [clipPlane updatePoint:draggedPoint x:roundf(hitPoint.x) y:roundf(hitPoint.y) z:roundf(hitPoint.z)];
     }
@@ -278,9 +278,9 @@
         [grid snapToGridV3f:[hit hitPoint] result:&t];
         
         id <Face> face = [hit object];
-        [face transformToSurface:&t];
+        [face transformWorld:&t toSurface:&t];
         t.z = 0;
-        [face transformToWorld:&t];
+        [face transformSurface:&t toWorld:&t];
         
         currentPoint = malloc(sizeof(TVector3i));
         roundV3f(&t, currentPoint);

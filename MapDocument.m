@@ -853,52 +853,9 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
-    
-    if (lockTextures) {
-        NSMutableDictionary* textureToFaces = [[NSMutableDictionary alloc] init];
-        while ((brush = [brushEn nextObject])) {
-            [brush translateBy:&theDelta];
-            
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            MutableFace* face;
-            while ((face = [faceEn nextObject])) {
-                NSString* textureName = [face texture];
-                if (textureName != nil) {
-                    NSMutableArray* facesForTexture = [textureToFaces objectForKey:textureName];
-                    if (facesForTexture == nil) {
-                        facesForTexture = [[NSMutableArray alloc] init];
-                        [textureToFaces setObject:facesForTexture forKey:textureName];
-                        [facesForTexture release];
-                    }
-                    
-                    [facesForTexture addObject:face];
-                }
-            }
-        }
-        
-        TextureManager* textureManager = [glResources textureManager];
-        NSEnumerator* textureNameEn = [textureToFaces keyEnumerator];
-        NSString* textureName;
-        while ((textureName = [textureNameEn nextObject])) {
-            Texture* texture = [textureManager textureForName:textureName];
-            if (texture != nil) {
-                NSArray* faces = [textureToFaces objectForKey:textureName];
-                int width = [texture width];
-                int height = [texture height];
-                
-                NSEnumerator* faceEn = [faces objectEnumerator];
-                MutableFace* face;
-                while ((face = [faceEn nextObject]))
-                    [face correctTextureAfterTranslationBy:&theDelta textureWidth:width textureHeight:height];
-            }
-        }
-        
-        [textureToFaces release];
-    } else {
-        while ((brush = [brushEn nextObject]))
-            [brush translateBy:&theDelta];
-    }
-    
+
+    while ((brush = [brushEn nextObject]))
+        [brush translateBy:&theDelta lockTextures:lockTextures];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -907,14 +864,14 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     }
 }
 
-- (void)rotateBrushesZ90CW:(NSArray *)theBrushes center:(TVector3i)theCenter {
+- (void)rotateBrushesZ90CW:(NSArray *)theBrushes center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateBrushesZ90CCW:[[theBrushes copy] autorelease] center:theCenter];
+    [[undoManager prepareWithInvocationTarget:self] rotateBrushesZ90CCW:[[theBrushes copy] autorelease] center:theCenter lockTextures:lockTextures];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -928,7 +885,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     while ((brush = [brushEn nextObject]))
-        [brush rotateZ90CW:&theCenter];
+        [brush rotateZ90CW:&theCenter lockTextures:lockTextures];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -937,14 +894,14 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     }
 }
 
-- (void)rotateBrushesZ90CCW:(NSArray *)theBrushes center:(TVector3i)theCenter {
+- (void)rotateBrushesZ90CCW:(NSArray *)theBrushes center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateBrushesZ90CW:[[theBrushes copy] autorelease] center:theCenter];
+    [[undoManager prepareWithInvocationTarget:self] rotateBrushesZ90CW:[[theBrushes copy] autorelease] center:theCenter lockTextures:lockTextures];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -958,7 +915,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     while ((brush = [brushEn nextObject]))
-        [brush rotateZ90CCW:&theCenter];
+        [brush rotateZ90CCW:&theCenter lockTextures:lockTextures];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -967,7 +924,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     }
 }
 
-- (void)rotateBrushes:(NSArray *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter {
+- (void)rotateBrushes:(NSArray *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
@@ -986,11 +943,11 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     }
     
     [self makeUndoSnapshotOfBrushes:[[theBrushes copy] autorelease]];
-    
+
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     while ((brush = [brushEn nextObject]))
-        [brush rotate:&theRotation center:&theCenter];
+        [brush rotate:&theRotation center:&theCenter lockTextures:lockTextures];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -1344,51 +1301,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     }
 }
 
-
-- (void)translateFaces:(NSArray *)theFaces delta:(TVector3i)theDelta {
-    NSAssert(theFaces != nil, @"face set must not be nil");
-
-    if ([theFaces count] == 0)
-        return;
-    
-    if (theDelta.x == 0 && theDelta.y == 0 && theDelta.z == 0)
-        return;
-    
-    TVector3i inverse;
-    scaleV3i(&theDelta, -1, &inverse);
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateFaces:[[theFaces copy] autorelease] delta:inverse];
-    
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        NSMutableArray* brushes = [[NSMutableArray alloc] init];
-        NSEnumerator* faceEn = [theFaces objectEnumerator];
-        id <Face> face;
-        while ((face = [faceEn nextObject]))
-            [brushes addObject:[face brush]];
-        
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:brushes forKey:BrushesKey];
-        [brushes release];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-    }
-
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
-        [face translateBy:&theDelta];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
-}
-
-- (void)dragFaces:(NSArray *)theFaces distance:(float)theDistance {
+- (void)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
     if ([theFaces count] == 0)
@@ -1430,13 +1343,13 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] dragFaces:[[theFaces copy] autorelease] distance:-theDistance];
+    [[undoManager prepareWithInvocationTarget:self] dragFaces:[[theFaces copy] autorelease] distance:-theDistance lockTextures:lockTextures];
 
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject])) {
         MutableBrush* brush = [face brush];
-        [brush drag:face by:theDistance];
+        [brush drag:face by:theDistance lockTexture:lockTextures];
     }
     
     if ([self postNotifications]) {

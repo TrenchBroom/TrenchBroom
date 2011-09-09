@@ -401,6 +401,25 @@ int writeVector2f(const TVector2f* vector, uint8_t* vbo, int address) {
         free(temp);
     }
     
+    /*
+    if (last != nil) {
+        [last setAddress:[last address] - [freeBlock capacity]];
+        [self resizeMemBlock:last toCapacity:[last capacity] + [freeBlock capacity]];
+    } else {
+        
+    }
+     */
+    
+    if (last != nil) {
+        [last setAddress:[last address] - [freeBlock capacity]];
+        [self resizeMemBlock:last toCapacity:[last capacity] + [freeBlock capacity]];
+    } else {
+        VBOMemBlock* newBlock = [[VBOMemBlock alloc] initBlockIn:self at:[previous address] + [previous capacity] capacity:[freeBlock capacity]];
+        [self insertFreeMemBlock:newBlock];
+        [newBlock insertBetweenPrevious:previous next:nil];
+        lastBlock = newBlock;
+    }
+    
     // remove the free block
     if (firstBlock == freeBlock)
         firstBlock = [freeBlock next];
@@ -423,13 +442,10 @@ int writeVector2f(const TVector2f* vector, uint8_t* vbo, int address) {
     while (freeBlock != nil && [freeBlock state] != BS_FREE)
         freeBlock = [freeBlock next];
     
-    int capacity = 0; // total capacity of the blocks that we killed so far
-    while (freeBlock != nil && [freeBlock next] != nil) {
-        int t = [freeBlock capacity];
+    while (freeBlock != nil && [freeBlock next] != nil)
         freeBlock = [self packMemBlock:freeBlock];
-        capacity += t;
-    }
 
+    /*
     if (capacity > 0) {
         if ([lastBlock state] == BS_FREE) {
             [self resizeMemBlock:lastBlock toCapacity:[freeBlock capacity] + capacity];
@@ -440,6 +456,7 @@ int writeVector2f(const TVector2f* vector, uint8_t* vbo, int address) {
             lastBlock = newBlock;
         }
     }
+     */
 }
 
 - (void)freeAllBlocks {

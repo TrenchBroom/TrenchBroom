@@ -144,6 +144,7 @@ void setV3f(TVector3f* l, const TVector3i* r);
 void rotateZ90CWV3f(const TVector3f* v, TVector3f *o);
 void rotateZ90CCWV3f(const TVector3f* v, TVector3f *o);
 BOOL parseV3f(NSString* s, NSRange r, TVector3f* o);
+BOOL opposingV3f(const TVector3f* v1, const TVector3f* v2);
 
 void addV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
 void subV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
@@ -195,6 +196,8 @@ void setAngleAndAxisQ(TQuaternion* q, float a, const TVector3f* x);
 void mulQ(const TQuaternion* l, const TQuaternion* r, TQuaternion* o);
 void conjugateQ(const TQuaternion* q, TQuaternion* o);
 void rotateQ(const TQuaternion* q, const TVector3f* v, TVector3f* o);
+float radiansQ(const TQuaternion* q);
+float degreesQ(const TQuaternion* q);
 
 void pointOnQuadraticBezierCurve(const TQuadraticBezierCurve* c, float t, TVector3f* r);
 void pointOnCubicBezierCurve(const TCubicBezierCurve* c, float t, TVector3f* r);
@@ -206,7 +209,7 @@ float distanceOfSegmentAndRay(const TVector3f* ss, const TVector3f* se, const TR
 float distanceOfSegmentAndRaySquared(const TVector3f* ss, const TVector3f* se, const TRay* r, float* rd);
 void rayPointAtDistance(const TRay* r, float d, TVector3f* p);
 
-void projectOntoPlane(EPlane plane, const TVector3f* v, TVector3f* o);
+void projectOntoCoordinatePlane(EPlane plane, const TVector3f* v, TVector3f* o);
 
 void makeCircle(float radius, int segments, TVector3f* points);
 void makeRing(float innerRadius, float outerRadius, int segments, TVector3f* points);

@@ -52,6 +52,8 @@
     FaceInfo* faceInfo;
     while ((face = [faceEn nextObject]) && (faceInfo = [faceInfoEn nextObject]))
         [faceInfo updateFace:(MutableFace *)face];
+
+    [theBrush invalidateVertexData];
 }
 
 @end

@@ -21,7 +21,7 @@
 
 @interface MutableFace (private)
 
-- (void)updateTexAxes;
+- (void)validateTexAxes;
 - (void)updateMatrices;
 - (void)geometryChanged;
 - (void)validate;
@@ -30,32 +30,30 @@
 
 @implementation MutableFace (private)
 
-- (void)updateTexAxes {
-    if (!texAxesValid) {
-        texNorm = closestAxisV3f([self norm]);
-        
-        if (texNorm == &XAxisPos || texNorm == &XAxisNeg) {
-            texAxisX = YAxisPos;
-            texAxisY = ZAxisNeg;
-        } else if (texNorm == &YAxisPos || texNorm == &YAxisNeg) {
-            texAxisX = XAxisPos;
-            texAxisY = ZAxisNeg;
-        } else if (texNorm == &ZAxisPos || texNorm == &ZAxisNeg) {
-            texAxisX = XAxisPos;
-            texAxisY = YAxisNeg;
-        }
-        
-        TQuaternion rot;
-        float ang = rotation / 180 * M_PI;
-        setAngleAndAxisQ(&rot, ang, texNorm);
-        rotateQ(&rot, &texAxisX, &texAxisX);
-        rotateQ(&rot, &texAxisY, &texAxisY);
-        
-        scaleV3f(&texAxisX, 1 / xScale, &texAxisX);
-        scaleV3f(&texAxisY, 1 / yScale, &texAxisY);
-        
-        texAxesValid = YES;
+- (void)validateTexAxes {
+    texNorm = closestAxisV3f([self norm]);
+    
+    if (texNorm == &XAxisPos || texNorm == &XAxisNeg) {
+        texAxisX = YAxisPos;
+        texAxisY = ZAxisNeg;
+    } else if (texNorm == &YAxisPos || texNorm == &YAxisNeg) {
+        texAxisX = XAxisPos;
+        texAxisY = ZAxisNeg;
+    } else if (texNorm == &ZAxisPos || texNorm == &ZAxisNeg) {
+        texAxisX = XAxisPos;
+        texAxisY = YAxisNeg;
     }
+    
+    TQuaternion rot;
+    float ang = rotation / 180 * M_PI;
+    setAngleAndAxisQ(&rot, ang, texNorm);
+    rotateQ(&rot, &texAxisX, &texAxisX);
+    rotateQ(&rot, &texAxisY, &texAxisY);
+    
+    scaleV3f(&texAxisX, 1 / xScale, &scaledTexAxisX);
+    scaleV3f(&texAxisY, 1 / yScale, &scaledTexAxisY);
+
+    texAxesValid = YES;
 }
 
 - (void)updateMatrices {
@@ -63,9 +61,9 @@
     TLine line;
     
     zAxis = *[self norm];
-    float ny = [self norm]->y;
+    float ny = zAxis.y;
 
-    if (fneg(ny)) {
+    if (ny < 0) {
         // surface X axis is normalized projection of positive world X axis along Y axis onto plane
         line.point = *[self center];
         line.point.x += 1;
@@ -75,7 +73,7 @@
         linePointAtDistance(&line, dist, &xAxis);
         subV3f(&xAxis, [self center], &xAxis);
         normalizeV3f(&xAxis, &xAxis);
-    } else if (fpos(ny)) {
+    } else if (ny > 0) {
         // surface X axis is normalized projection of negative world X axis along Y axis onto plane
         line.point = *[self center];
         line.point.x -= 1;
@@ -88,10 +86,10 @@
     } else {
         // plane normal is on XZ plane, try X, then Z
         float nx = [self norm]->x;
-        if (fpos(nx)) {
+        if (nx > 0) {
             // positive world Y axis is surface X axis
             xAxis = YAxisPos;
-        } else if (fneg(nx)) {
+        } else if (nx < 0) {
             // negative world Y axis is surface X axis
             xAxis = YAxisNeg;
         } else {
@@ -107,7 +105,6 @@
         }
     }
     
-    yAxis = zAxis;
     crossV3f(&zAxis, &xAxis, &yAxis);
     normalizeV3f(&yAxis, &yAxis);
     
@@ -290,7 +287,7 @@
         return;
     
     if (!texAxesValid)
-        [self updateTexAxes];
+        [self validateTexAxes];
 
     if (texNorm == &XAxisPos) {
         xOffset += x;
@@ -313,15 +310,31 @@
     }
 }
 
-- (void)translateBy:(TVector3i *)theDelta {
+- (void)translateBy:(TVector3i *)theDelta lockTexture:(BOOL)lockTexture {
     addV3i(&point1, theDelta, &point1);
     addV3i(&point2, theDelta, &point2);
     addV3i(&point3, theDelta, &point3);
     
+    if (lockTexture) {
+        if (!texAxesValid)
+            [self validateTexAxes];
+        
+        if (texNorm == &XAxisPos || texNorm == &XAxisNeg) {
+            xOffset -= theDelta->y;
+            yOffset += theDelta->z;
+        } else if (texNorm == &YAxisPos || texNorm == &YAxisNeg) {
+            xOffset -= theDelta->x;
+            yOffset += theDelta->z;
+        } else if (texNorm == &ZAxisPos || texNorm == &ZAxisNeg) {
+            xOffset -= theDelta->x;
+            yOffset += theDelta->y;
+        }
+    }
+
     [self geometryChanged];
 }
 
-- (void)rotateZ90CW:(TVector3i *)theCenter {
+- (void)rotateZ90CW:(TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
     subV3i(&point1, theCenter, &point1);
     rotateZ90CWV3i(&point1, &point1);
     addV3i(&point1, theCenter, &point1);
@@ -337,7 +350,7 @@
     [self geometryChanged];
 }
 
-- (void)rotateZ90CCW:(TVector3i *)theCenter {
+- (void)rotateZ90CCW:(TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
     subV3i(&point1, theCenter, &point1);
     rotateZ90CCWV3i(&point1, &point1);
     addV3i(&point1, theCenter, &point1);
@@ -353,7 +366,7 @@
     [self geometryChanged];
 }
 
-- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter {
+- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture {
     TVector3f p1, p2, p3;
     setV3f(&p1, &point1);
     setV3f(&p2, &point2);
@@ -375,31 +388,81 @@
     roundV3f(&p2, &point2);
     roundV3f(&p3, &point3);
     
+    if (lockTexture) {
+        if (!texAxesValid)
+            [self validateTexAxes];
+        
+        float xyCos, xyAngle, xzCos, xzAngle, yzCos, yzAngle;
+        TVector3f offset, axis;
+        rotateQ(theRotation, theCenter, &offset);
+        subV3f(&offset, theCenter, &offset);
+        
+        rotateQ(theRotation, &XAxisPos, &axis);
+        axis.z = 0;
+        normalizeV3f(&axis, &axis);
+        xyCos = dotV3f(&XAxisPos, &axis);
+        xyAngle = acos(xyCos) * 180 / M_PI;
+        if (axis.y < 0)
+            xyAngle *= -1;
+        
+        rotateQ(theRotation, &XAxisPos, &axis);
+        axis.y = 0;
+        normalizeV3f(&axis, &axis);
+        xzCos = dotV3f(&XAxisPos, &axis);
+        xzAngle = acos(xzCos) * 180 / M_PI;
+        if (axis.z < 0)
+            xzAngle *= -1;
+        
+        rotateQ(theRotation, &YAxisPos, &axis);
+        axis.x = 0;
+        normalizeV3f(&axis, &axis);
+        yzCos = dotV3f(&YAxisPos, &axis);
+        yzAngle = acos(yzCos) * 180 / M_PI;
+        if (axis.z < 0)
+            yzAngle *= -1;
+        
+        rotateQ(theRotation, texNorm, &axis);
+        
+        // NSLog(@"%f %f %f", offset.x, offset.y, offset.z);
+        
+        if (texNorm == &XAxisPos || texNorm == &XAxisNeg) {
+        } else if (texNorm == &YAxisPos || texNorm == &YAxisNeg) {
+        } else if (texNorm == &ZAxisPos || texNorm == &ZAxisNeg) {
+            rotateQ(theRotation, &XAxisPos, &axis);
+            axis.z = 0;
+            normalizeV3f(&axis, &axis);
+            
+            float angle = acos(dotV3f(&XAxisPos, &axis)) * 180 / M_PI;
+            if (axis.y < 0)
+                angle *= -1;
+            
+            if (texNorm == &ZAxisPos)
+                rotation += angle;
+            else
+                rotation -= angle;
+            
+            rotateQ(theRotation, texNorm, &axis);
+            xScale = xzCos;
+            yScale = yzCos;
+            
+            /*
+            xOffset -= roundf(offset.y);
+            yOffset += roundf(offset.x);
+            */
+        }
+
+        texAxesValid = NO;
+    }
+    
     [self geometryChanged];
 }
 
-- (void)dragBy:(float)dist {
+- (void)dragBy:(float)dist lockTexture:(BOOL)lockTexture {
     TVector3f f;
     scaleV3f([self norm], dist, &f);
     
     TVector3i delta = {roundf(f.x), roundf(f.y), roundf(f.z)};
-    [self translateBy:&delta];
-}
-
-- (void)correctTextureAfterTranslationBy:(TVector3i *)theDelta textureWidth:(int)theTextureWidth textureHeight:(int)theTextureHeight {
-    if (!texAxesValid)
-        [self updateTexAxes];
-    
-    if (texNorm == &XAxisPos || texNorm == &XAxisNeg) {
-        xOffset -= theDelta->y % theTextureWidth;
-        yOffset += theDelta->z % theTextureHeight;
-    } else if (texNorm == &YAxisPos || texNorm == &YAxisNeg) {
-        xOffset -= theDelta->x % theTextureWidth;
-        yOffset += theDelta->z % theTextureHeight;
-    } else if (texNorm == &ZAxisPos || texNorm == &ZAxisNeg) {
-        xOffset -= theDelta->x % theTextureWidth;
-        yOffset += theDelta->y % theTextureHeight;
-    }
+    [self translateBy:&delta lockTexture:lockTexture];
 }
 
 - (void)setSide:(TSide *)theSide {
@@ -507,13 +570,16 @@
 
 - (void)texCoords:(TVector2f *)texCoords forVertex:(TVector3f *)vertex {
     if (!texAxesValid)
-        [self updateTexAxes];
+        [self validateTexAxes];
     
-    texCoords->x = dotV3f(vertex, &texAxisX) + xOffset;
-    texCoords->y = dotV3f(vertex, &texAxisY) + yOffset;
+    texCoords->x = dotV3f(vertex, &scaledTexAxisX) + xOffset;
+    texCoords->y = dotV3f(vertex, &scaledTexAxisY) + yOffset;
 }
 
 - (void)gridCoords:(TVector2f *)gridCoords forVertex:(TVector3f *)vertex {
+    if (!texAxesValid)
+        [self validateTexAxes];
+    
     switch (strongestComponentV3f([self norm])) {
         case A_X:
             gridCoords->x = (vertex->y + 0.5f) / 256;
@@ -530,18 +596,18 @@
     }
 }
 
-- (void)transformToWorld:(TVector3f *)point {
+- (void)transformSurface:(const TVector3f *)surfacePoint toWorld:(TVector3f *)worldPoint {
     if (surfaceToWorldMatrix == nil)
         [self updateMatrices];
     
-    [surfaceToWorldMatrix transformVector3f:point];
+    [surfaceToWorldMatrix transformVector3f:surfacePoint result:worldPoint];
 }
 
-- (void)transformToSurface:(TVector3f *)point {
+- (void)transformWorld:(const TVector3f *)worldPoint toSurface:(TVector3f *)surfacePoint {
     if (worldToSurfaceMatrix == nil)
         [self updateMatrices];
     
-    [worldToSurfaceMatrix transformVector3f:point];
+    [worldToSurfaceMatrix transformVector3f:worldPoint result:surfacePoint];
 }
 
 - (Matrix4f *)surfaceToWorldMatrix {
@@ -557,7 +623,6 @@
 
     return worldToSurfaceMatrix;
 }
-
 
 - (VBOMemBlock *)memBlock {
     return memBlock;

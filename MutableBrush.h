@@ -35,13 +35,15 @@
 - (void)removeFace:(MutableFace *)face;
 
 - (void)setEntity:(MutableEntity *)theEntity;
-- (void)translateBy:(TVector3i *)theDelta;
-- (void)rotateZ90CW:(TVector3i *)theCenter;
-- (void)rotateZ90CCW:(TVector3i *)theCenter;
-- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter;
+- (void)translateBy:(TVector3i *)theDelta lockTextures:(BOOL)lockTextures;
+- (void)rotateZ90CW:(TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
+- (void)rotateZ90CCW:(TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
+- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures;
 
-- (void)drag:(MutableFace *)face by:(float)dist;
+- (void)drag:(MutableFace *)face by:(float)dist lockTexture:(BOOL)lockTexture;
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist;
+
+- (void)invalidateVertexData;
 
 - (int)filePosition;
 - (void)setFilePosition:(int)theFilePosition;

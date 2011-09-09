@@ -732,15 +732,15 @@
 										<integer value="1040" key="formatterBehavior"/>
 										<boolean value="NO" key="lenient"/>
 										<reference key="locale" ref="689482576"/>
-										<integer value="9" key="maximumFractionDigits"/>
+										<integer value="4" key="maximumFractionDigits"/>
 										<string key="negativeInfinitySymbol">-∞</string>
 										<string key="nilSymbol"/>
 										<integer value="1" key="numberStyle"/>
 										<string key="positiveInfinitySymbol">+∞</string>
 										<boolean value="NO" key="usesGroupingSeparator"/>
 									</dictionary>
-									<string key="NS.positiveformat">#0.#########</string>
-									<string key="NS.negativeformat">#0.#########</string>
+									<string key="NS.positiveformat">#0.####</string>
+									<string key="NS.negativeformat">#0.####</string>
 									<nil key="NS.positiveattrs"/>
 									<nil key="NS.negativeattrs"/>
 									<nil key="NS.zero"/>
@@ -777,6 +777,7 @@
 							<string key="NSFrame">{{470, 20}, {40, 17}}</string>
 							<reference key="NSSuperview" ref="969760102"/>
 							<reference key="NSWindow"/>
+							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:3936</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="259480501">
@@ -790,15 +791,15 @@
 										<integer value="1040" key="formatterBehavior"/>
 										<boolean value="NO" key="lenient"/>
 										<reference key="locale" ref="689482576"/>
-										<integer value="9" key="maximumFractionDigits"/>
+										<integer value="4" key="maximumFractionDigits"/>
 										<string key="negativeInfinitySymbol">-∞</string>
 										<string key="nilSymbol"/>
 										<integer value="1" key="numberStyle"/>
 										<string key="positiveInfinitySymbol">+∞</string>
 										<boolean value="NO" key="usesGroupingSeparator"/>
 									</dictionary>
-									<string key="NS.positiveformat">#0.#########</string>
-									<string key="NS.negativeformat">#0.#########</string>
+									<string key="NS.positiveformat">#0.####</string>
+									<string key="NS.negativeformat">#0.####</string>
 									<nil key="NS.positiveattrs"/>
 									<nil key="NS.negativeattrs"/>
 									<nil key="NS.zero"/>
@@ -948,15 +949,15 @@
 										<integer value="1040" key="formatterBehavior"/>
 										<boolean value="NO" key="lenient"/>
 										<reference key="locale" ref="689482576"/>
-										<integer value="9" key="maximumFractionDigits"/>
+										<integer value="4" key="maximumFractionDigits"/>
 										<string key="negativeInfinitySymbol">-∞</string>
 										<string key="nilSymbol"/>
 										<integer value="1" key="numberStyle"/>
 										<string key="positiveInfinitySymbol">+∞</string>
 										<boolean value="NO" key="usesGroupingSeparator"/>
 									</dictionary>
-									<string key="NS.positiveformat">#0.#########</string>
-									<string key="NS.negativeformat">#0.#########</string>
+									<string key="NS.positiveformat">#0.####</string>
+									<string key="NS.negativeformat">#0.####</string>
 									<nil key="NS.positiveattrs"/>
 									<nil key="NS.negativeattrs"/>
 									<nil key="NS.zero"/>

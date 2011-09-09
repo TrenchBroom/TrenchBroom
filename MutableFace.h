@@ -46,6 +46,8 @@ typedef enum {
     const TVector3f* texNorm;
     TVector3f texAxisX;
     TVector3f texAxisY;
+    TVector3f scaledTexAxisX;
+    TVector3f scaledTexAxisY;
     BOOL texAxesValid;
     
     // transforms surface coordinates to world coordinates
@@ -69,13 +71,11 @@ typedef enum {
 - (void)setXScale:(float)factor;
 - (void)setYScale:(float)factor;
 - (void)translateOffsetsX:(int)x y:(int)y;
-- (void)translateBy:(TVector3i *)theDelta;
-- (void)rotateZ90CW:(TVector3i *)theCenter;
-- (void)rotateZ90CCW:(TVector3i *)theCenter;
-- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter;
-- (void)dragBy:(float)dist;
-
-- (void)correctTextureAfterTranslationBy:(TVector3i *)theDelta textureWidth:(int)theTextureWidth textureHeight:(int)theTextureHeight;
+- (void)translateBy:(TVector3i *)theDelta lockTexture:(BOOL)lockTexture;
+- (void)rotateZ90CW:(TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
+- (void)rotateZ90CCW:(TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
+- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture;
+- (void)dragBy:(float)dist lockTexture:(BOOL)lockTexture;
 
 - (void)setSide:(TSide *)theSide;
 

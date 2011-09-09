@@ -95,9 +95,9 @@ extern NSString* const PointFileUnloaded;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity withBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture;
 - (void)duplicateBrushes:(NSArray *)theBrushes newBrushes:(NSMutableArray *)theNewBrushes;
 - (void)translateBrushes:(NSArray *)theBrushes delta:(TVector3i)theDelta lockTextures:(BOOL)lockTextures;
-- (void)rotateBrushesZ90CW:(NSArray *)theBrushes center:(TVector3i)theCenter;
-- (void)rotateBrushesZ90CCW:(NSArray *)theBrushes center:(TVector3i)theCenter;
-- (void)rotateBrushes:(NSArray *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter;
+- (void)rotateBrushesZ90CW:(NSArray *)theBrushes center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
+- (void)rotateBrushesZ90CCW:(NSArray *)theBrushes center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
+- (void)rotateBrushes:(NSArray *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures;
 - (void)deleteBrushes:(NSArray *)theBrushes;
 
 - (void)setFaces:(NSArray *)theFaces xOffset:(int)theXOffset;
@@ -109,8 +109,7 @@ extern NSString* const PointFileUnloaded;
 - (void)setFaces:(NSArray *)theFaces rotation:(float)theAngle;
 - (void)rotateFaces:(NSArray *)theFaces angle:(float)theAngle;
 - (void)setFaces:(NSArray *)theFaces texture:(NSString *)theTexture;
-- (void)translateFaces:(NSArray *)theFaces delta:(TVector3i)theDelta;
-- (void)dragFaces:(NSArray *)theFaces distance:(float)theDistance;
+- (void)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures;
 
 - (Picker *)picker;
 - (GLResources *)glResources;

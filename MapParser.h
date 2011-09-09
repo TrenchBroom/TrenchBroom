@@ -22,6 +22,12 @@ typedef enum {
     CC_FACE
 } EClipboardContents;
 
+typedef enum {
+    MF_STANDARD,
+    MF_VALVE,
+    MF_UNDEFINED
+} EMapFormat;
+
 @protocol Map;
 @class EntityDefinitionManager;
 @class MapTokenizer;
@@ -34,6 +40,7 @@ typedef enum {
     MapTokenizer* tokenizer;
     id<Map> map;
     NSMutableArray* tokens;
+    EMapFormat format;
 }
 
 - (id)initWithData:(NSData *)someData;

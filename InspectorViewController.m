@@ -189,10 +189,10 @@
         [entityView setMods:nil];
     }
 
-    [self updateEntityPropertyTable];
     [mapBrowserView reloadData];
-    [wadTableView reloadData];
+    [self updateEntityPropertyTable];
     [self updateTextureControls];
+    [wadTableView reloadData];
 }
 
 - (void)updateTextureControls {
@@ -232,39 +232,49 @@
             textureMultiple  |= ![textureName isEqualToString:[face texture]];
         }
         
+        [xOffsetStepper setEnabled:!xOffsetMultiple];
         if (xOffsetMultiple) {
             [[xOffsetField cell] setPlaceholderString:@"multiple"];
             [xOffsetField setStringValue:@""];
         } else {
             [xOffsetField setIntValue:xOffset];
+            [xOffsetStepper setIntValue:xOffset];
         }
         
+        [yOffsetStepper setEnabled:!yOffsetMultiple];
         if (yOffsetMultiple) {
             [[yOffsetField cell] setPlaceholderString:@"multiple"];
             [yOffsetField setStringValue:@""];
         } else {
             [yOffsetField setIntValue:yOffset];
+            [yOffsetStepper setIntValue:yOffset];
         }
         
+        [xScaleStepper setEnabled:!xScaleMultiple];
         if (xScaleMultiple) {
             [[xScaleField cell] setPlaceholderString:@"multiple"];
             [xScaleField setStringValue:@""];
         } else {
             [xScaleField setFloatValue:xScale];
+            [xScaleStepper setFloatValue:xScale];
         }
         
+        [yScaleStepper setEnabled:!yScaleMultiple];
         if (yScaleMultiple) {
             [[yScaleField cell] setPlaceholderString:@"multiple"];
             [yScaleField setStringValue:@""];
         } else {
             [yScaleField setFloatValue:yScale];
+            [yScaleStepper setFloatValue:yScale];
         }
         
+        [rotationStepper setEnabled:!rotationMultiple];
         if (rotationMultiple) {
             [[rotationField cell] setPlaceholderString:@"multiple"];
             [rotationField setStringValue:@""];
         } else {
             [rotationField setFloatValue:rotation];
+            [rotationStepper setFloatValue:rotation];
         }
         
         if (textureMultiple) {
@@ -277,10 +287,15 @@
         }
     } else {
         [xOffsetField setEnabled:NO];
+        [xOffsetStepper setEnabled:NO];
         [yOffsetField setEnabled:NO];
+        [yOffsetStepper setEnabled:NO];
         [xScaleField setEnabled:NO];
+        [xScaleStepper setEnabled:NO];
         [yScaleField setEnabled:NO];
+        [yScaleStepper setEnabled:NO];
         [rotationField setEnabled:NO];
+        [rotationStepper setEnabled:NO];
         
         [[xOffsetField cell] setPlaceholderString:@"n/a"];
         [[yOffsetField cell] setPlaceholderString:@"n/a"];
@@ -379,6 +394,26 @@
 - (void)loadView {
     [super loadView];
     
+    [xOffsetStepper setMinValue:INT16_MIN];
+    [xOffsetStepper setMaxValue:INT16_MAX];
+    [xOffsetStepper setIncrement:1];
+
+    [yOffsetStepper setMinValue:INT16_MIN];
+    [yOffsetStepper setMaxValue:INT16_MAX];
+    [yOffsetStepper setIncrement:1];
+    
+    [xScaleStepper setMinValue:-FLT_MAX];
+    [xScaleStepper setMaxValue:FLT_MAX];
+    [xScaleStepper setIncrement:0.05];
+
+    [yScaleStepper setMinValue:-FLT_MAX];
+    [yScaleStepper setMaxValue:FLT_MAX];
+    [yScaleStepper setIncrement:0.05];
+    
+    [rotationStepper setMinValue:-FLT_MAX];
+    [rotationStepper setMaxValue:FLT_MAX];
+    [rotationStepper setIncrement:1];
+
     entityPropertyTableDataSource = [[EntityPropertyTableDataSource alloc] init];
     [entityPropertyTableView setDataSource:entityPropertyTableDataSource];
     
@@ -424,6 +459,21 @@
     [undoManager endUndoGrouping];
 }
 
+- (IBAction)xOffsetStepperChanged:(id)sender {
+    MapDocument* map = [mapWindowController document];
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    int xOffset = [xOffsetStepper intValue];
+    NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    [map setFaces:faces xOffset:xOffset];
+    
+    [undoManager setActionName:@"Set Texture X Offset"];
+    [undoManager endUndoGrouping];
+}
+
 - (IBAction)yOffsetTextChanged:(id)sender {
     MapDocument* map = [mapWindowController document];
     SelectionManager* selectionManager = [mapWindowController selectionManager];
@@ -432,6 +482,21 @@
     [undoManager beginUndoGrouping];
     
     int yOffset = [yOffsetField intValue];
+    NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    [map setFaces:faces yOffset:yOffset];
+    
+    [undoManager setActionName:@"Set Texture Y Offset"];
+    [undoManager endUndoGrouping];
+}
+
+- (IBAction)yOffsetStepperChanged:(id)sender {
+    MapDocument* map = [mapWindowController document];
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    int yOffset = [yOffsetStepper intValue];
     NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces yOffset:yOffset];
     
@@ -454,6 +519,21 @@
     [undoManager endUndoGrouping];
 }
 
+- (IBAction)xScaleStepperChanged:(id)sender {
+    MapDocument* map = [mapWindowController document];
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    float xScale = [xScaleStepper floatValue];
+    NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    [map setFaces:faces xScale:xScale];
+    
+    [undoManager setActionName:@"Set Texture X Scale"];
+    [undoManager endUndoGrouping];
+}
+
 - (IBAction)yScaleTextChanged:(id)sender {
     MapDocument* map = [mapWindowController document];
     SelectionManager* selectionManager = [mapWindowController selectionManager];
@@ -469,6 +549,21 @@
     [undoManager endUndoGrouping];
 }
 
+- (IBAction)yScaleStepperChanged:(id)sender {
+    MapDocument* map = [mapWindowController document];
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    float yScale = [yScaleStepper floatValue];
+    NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    [map setFaces:faces yScale:yScale];
+    
+    [undoManager setActionName:@"Set Texture Y Scale"];
+    [undoManager endUndoGrouping];
+}
+
 - (IBAction)rotationTextChanged:(id)sender {
     MapDocument* map = [mapWindowController document];
     SelectionManager* selectionManager = [mapWindowController selectionManager];
@@ -477,6 +572,21 @@
     [undoManager beginUndoGrouping];
     
     float rotation = [rotationField floatValue];
+    NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    [map setFaces:faces rotation:rotation];
+    
+    [undoManager setActionName:@"Set Texture Rotation"];
+    [undoManager endUndoGrouping];
+}
+
+- (IBAction)rotationStepperChanged:(id)sender {
+    MapDocument* map = [mapWindowController document];
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    float rotation = [rotationStepper floatValue];
     NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
     [map setFaces:faces rotation:rotation];
     
@@ -704,4 +814,5 @@
         }
     }
 }
+
 @end

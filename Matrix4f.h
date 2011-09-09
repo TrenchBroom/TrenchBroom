@@ -36,8 +36,8 @@
 - (void)setRow:(int)row values:(const TVector3f *)vector;
 - (void)embed:(Matrix3f *)matrix;
 
-- (void)transformVector3f:(TVector3f *)vector;
-- (void)transformVector4f:(TVector4f *)vector;
+- (void)transformVector3f:(const TVector3f *)vector result:(TVector3f *)result;
+- (void)transformVector4f:(const TVector4f *)vector result:(TVector4f *)result;
 
 - (void)add:(Matrix4f *)matrix;
 - (void)sub:(Matrix4f *)matrix;
