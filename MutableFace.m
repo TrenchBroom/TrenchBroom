@@ -25,6 +25,7 @@
 - (void)updateMatrices;
 - (void)geometryChanged;
 - (void)validate;
+- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter;
 
 @end
 
@@ -147,6 +148,29 @@
         setPlanePointsV3i(&boundary, &point1, &point2, &point3);
         boundaryValid = YES;
     }
+}
+
+- (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter {
+    TVector3f p1, p2, p3;
+    setV3f(&p1, &point1);
+    setV3f(&p2, &point2);
+    setV3f(&p3, &point3);
+    
+    subV3f(&p1, theCenter, &p1);
+    subV3f(&p2, theCenter, &p2);
+    subV3f(&p3, theCenter, &p3);
+    
+    rotateQ(theRotation, &p1, &p1);
+    rotateQ(theRotation, &p2, &p2);
+    rotateQ(theRotation, &p3, &p3);
+    
+    addV3f(&p1, theCenter, &p1);
+    addV3f(&p2, theCenter, &p2);
+    addV3f(&p3, theCenter, &p3);
+    
+    roundV3f(&p1, &point1);
+    roundV3f(&p2, &point2);
+    roundV3f(&p3, &point3);
 }
 
 @end
@@ -367,93 +391,50 @@
 }
 
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture {
-    TVector3f p1, p2, p3;
-    setV3f(&p1, &point1);
-    setV3f(&p2, &point2);
-    setV3f(&p3, &point3);
-    
-    subV3f(&p1, theCenter, &p1);
-    subV3f(&p2, theCenter, &p2);
-    subV3f(&p3, theCenter, &p3);
-
-    rotateQ(theRotation, &p1, &p1);
-    rotateQ(theRotation, &p2, &p2);
-    rotateQ(theRotation, &p3, &p3);
-    
-    addV3f(&p1, theCenter, &p1);
-    addV3f(&p2, theCenter, &p2);
-    addV3f(&p3, theCenter, &p3);
-    
-    roundV3f(&p1, &point1);
-    roundV3f(&p2, &point2);
-    roundV3f(&p3, &point3);
-    
+    [self rotate:theRotation center:theCenter];
     if (lockTexture) {
         if (!texAxesValid)
             [self validateTexAxes];
         
-        float xyCos, xyAngle, xzCos, xzAngle, yzCos, yzAngle;
-        TVector3f offset, axis;
-        rotateQ(theRotation, theCenter, &offset);
-        subV3f(&offset, theCenter, &offset);
-        
-        rotateQ(theRotation, &XAxisPos, &axis);
-        axis.z = 0;
-        normalizeV3f(&axis, &axis);
-        xyCos = dotV3f(&XAxisPos, &axis);
-        xyAngle = acos(xyCos) * 180 / M_PI;
-        if (axis.y < 0)
-            xyAngle *= -1;
-        
-        rotateQ(theRotation, &XAxisPos, &axis);
-        axis.y = 0;
-        normalizeV3f(&axis, &axis);
-        xzCos = dotV3f(&XAxisPos, &axis);
-        xzAngle = acos(xzCos) * 180 / M_PI;
-        if (axis.z < 0)
-            xzAngle *= -1;
-        
-        rotateQ(theRotation, &YAxisPos, &axis);
-        axis.x = 0;
-        normalizeV3f(&axis, &axis);
-        yzCos = dotV3f(&YAxisPos, &axis);
-        yzAngle = acos(yzCos) * 180 / M_PI;
-        if (axis.z < 0)
-            yzAngle *= -1;
-        
-        rotateQ(theRotation, texNorm, &axis);
-        
-        // NSLog(@"%f %f %f", offset.x, offset.y, offset.z);
+        TVector3f c, r, tx, ty;
+        rotateQ(theRotation, [self center], &c);
+        subV3f(&c, [self center], &c);
+        rotateQ(theRotation, &scaledTexAxisX, &tx);
+        rotateQ(theRotation, &scaledTexAxisY, &ty);
         
         if (texNorm == &XAxisPos || texNorm == &XAxisNeg) {
+            xOffset += c.y;
+            yOffset -= c.z;
+            tx.x = 0;
+            ty.x = 0;
         } else if (texNorm == &YAxisPos || texNorm == &YAxisNeg) {
+            xOffset -= c.z;
+            yOffset += c.x;
+            tx.y = 0;
+            ty.y = 0;
         } else if (texNorm == &ZAxisPos || texNorm == &ZAxisNeg) {
-            rotateQ(theRotation, &XAxisPos, &axis);
-            axis.z = 0;
-            normalizeV3f(&axis, &axis);
-            
-            float angle = acos(dotV3f(&XAxisPos, &axis)) * 180 / M_PI;
-            if (axis.y < 0)
-                angle *= -1;
-            
-            if (texNorm == &ZAxisPos)
-                rotation += angle;
-            else
-                rotation -= angle;
-            
-            rotateQ(theRotation, texNorm, &axis);
-            xScale = xzCos;
-            yScale = yzCos;
-            
-            /*
-            xOffset -= roundf(offset.y);
-            yOffset += roundf(offset.x);
-            */
+            xOffset -= c.y;
+            yOffset += c.x;
+            tx.z = 0;
+            ty.z = 0;
         }
-
+        
+        xScale = lengthV3f(&tx);
+        yScale = lengthV3f(&ty);
+        
+        scaleV3f(&tx, 1 / xScale, &tx);
+        scaleV3f(&ty, 1 / yScale, &ty);
+        
+        float cos = dotV3f(&texAxisX, &tx);
+        rotation += acos(cos) * 180 / M_PI;
+        
+        crossV3f(&texAxisX, &tx, &r);
+        if (dotV3f(&r, texNorm) < 0)
+            rotation *= -1;
+        
         texAxesValid = NO;
     }
-    
+
     [self geometryChanged];
 }
 

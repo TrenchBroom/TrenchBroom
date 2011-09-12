@@ -21,7 +21,7 @@
     TVector3f center;
     EAxis vAxis;
     float radius;
-    NSPoint initialLocation;
+    NSPoint delta;
     float initialHAngle;
     float initialVAngle;
     float lastHAngle;

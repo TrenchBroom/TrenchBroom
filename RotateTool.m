@@ -118,7 +118,7 @@ static float M_PI_12 = M_PI / 12;
     drag = YES;
     [rotateCursor setDragging:YES];
     [feedbackFigure setDragging:YES];
-    initialLocation = [NSEvent mouseLocation];
+    delta = NSMakePoint(0, 0);
     lastHAngle = 0;
     lastVAngle = 0;
     
@@ -131,12 +131,13 @@ static float M_PI_12 = M_PI / 12;
     if (!drag)
         return;
 
-    NSPoint currentLocation = [NSEvent mouseLocation];
-    float dx = currentLocation.x - initialLocation.x;
-    float dy = currentLocation.y - initialLocation.y;
+    if (fabsf(event.deltaX) > fabsf(event.deltaY))
+        delta.x += event.deltaX;
+    else
+        delta.y += event.deltaY;
     
-    float hAngle = (dx / 6) / (M_PI * 2);
-    float vAngle = (-dy / 6) / (M_PI * 2);
+    float hAngle = (delta.x / 6) / (M_PI * 2);
+    float vAngle = (-delta.y / 6) / (M_PI * 2);
     
     Options* options = [windowController options];
     if ([[options grid] snap]) {
