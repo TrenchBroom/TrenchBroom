@@ -30,8 +30,8 @@ typedef enum {
 	TVector3i point3;
 	
 	NSMutableString* texture;
-	int xOffset;
-	int yOffset;
+	float xOffset;
+	float yOffset;
 	float rotation;
 	float xScale;
 	float yScale;

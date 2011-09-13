@@ -391,48 +391,68 @@
 }
 
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture {
-    [self rotate:theRotation center:theCenter];
     if (lockTexture) {
+        TVector3f p, pr;
+        
+        // take one point on the surface of this face and apply the rotation to it
+        // this is needed later to calculate the offsets
+        p = [self vertices][0]->vector;
+        subV3f(&p, theCenter, &pr);
+        rotateQ(theRotation, &pr, &pr);
+        addV3f(&pr, theCenter, &pr);
+        
+        // the texture coordinates which p had before the rotation
+        float ox1 = dotV3f(&p, &scaledTexAxisX) + xOffset;
+        float oy1 = dotV3f(&p, &scaledTexAxisY) + yOffset;
+
         if (!texAxesValid)
             [self validateTexAxes];
         
-        TVector3f c, r, tx, ty;
-        rotateQ(theRotation, [self center], &c);
-        subV3f(&c, [self center], &c);
+        // rotate the current tex axes in order to determine their new lengths and the rotation angle
+        TVector3f tx, ty;
         rotateQ(theRotation, &scaledTexAxisX, &tx);
         rotateQ(theRotation, &scaledTexAxisY, &ty);
         
+        // project them back on the appropriate texture plane
         if (texNorm == &XAxisPos || texNorm == &XAxisNeg) {
-            xOffset += c.y;
-            yOffset -= c.z;
             tx.x = 0;
             ty.x = 0;
         } else if (texNorm == &YAxisPos || texNorm == &YAxisNeg) {
-            xOffset -= c.z;
-            yOffset += c.x;
             tx.y = 0;
             ty.y = 0;
         } else if (texNorm == &ZAxisPos || texNorm == &ZAxisNeg) {
-            xOffset -= c.y;
-            yOffset += c.x;
             tx.z = 0;
             ty.z = 0;
         }
+
+        // apply the rotation
+        [self rotate:theRotation center:theCenter];
         
+        // the new scale factors are determined by the lengths of the rotated texture axes
         xScale = lengthV3f(&tx);
         yScale = lengthV3f(&ty);
         
         scaleV3f(&tx, 1 / xScale, &tx);
         scaleV3f(&ty, 1 / yScale, &ty);
         
-        float cos = dotV3f(&texAxisX, &tx);
-        rotation += acos(cos) * 180 / M_PI;
-        
+        // determine the rotation angle of the texture by measuring the X texture axis
+        TVector3f r;
+        float rad = acos(dotV3f(&texAxisX, &tx));
         crossV3f(&texAxisX, &tx, &r);
-        if (dotV3f(&r, texNorm) < 0)
-            rotation *= -1;
+        rotation += dotV3f(&r, texNorm) < 0 ? -rad * 180 / M_PI : rad * 180 / M_PI;
         
-        texAxesValid = NO;
+        [self validateTexAxes];
+
+        // the texture coordinates which p has after the rotation without offset
+        float ox2 = dotV3f(&pr, &scaledTexAxisX);
+        float oy2 = dotV3f(&pr, &scaledTexAxisY);
+        
+        // the current offset is the distance between the two points in texture coordinates
+        // since the points' texture coordinates should be invariant
+        xOffset = ox1 - ox2;
+        yOffset = oy1 - oy2;
+    } else {
+        [self rotate:theRotation center:theCenter];
     }
 
     [self geometryChanged];
@@ -500,11 +520,11 @@
 }
 
 - (int)xOffset {
-	return xOffset;
+	return roundf(xOffset);
 }
 
 - (int)yOffset {
-	return yOffset;
+	return roundf(yOffset);
 }
 
 - (float)rotation {

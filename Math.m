@@ -988,6 +988,10 @@ void setAngleAndAxisQ(TQuaternion* q, float a, const TVector3f* x) {
     scaleV3f(x, sinf(a / 2), &q->vector);
 }
 
+BOOL nullQ(const TQuaternion* q) {
+    return q->scalar == 1;
+}
+
 void mulQ(const TQuaternion* l, const TQuaternion* r, TQuaternion* o) {
     float a = l->scalar;
     const TVector3f* v = &l->vector;

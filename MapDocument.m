@@ -29,6 +29,7 @@
 #import "MapWriter.h"
 #import "EntityRendererManager.h"
 #import "SelectionManager.h"
+#import "Math.h"
 
 NSString* const FacesWillChange         = @"FacesWillChange";
 NSString* const FacesDidChange          = @"FacesDidChange";
@@ -711,6 +712,9 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     if ([theEntities count] == 0)
         return;
     
+    if (nullQ(&theRotation))
+        return;
+    
     NSUndoManager* undoManager = [self undoManager];
     [undoManager beginUndoGrouping];
     
@@ -930,6 +934,9 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     if ([theBrushes count] == 0)
         return;
 
+    if (nullQ(&theRotation))
+        return;
+    
     NSUndoManager* undoManager = [self undoManager];
     [undoManager beginUndoGrouping];
     

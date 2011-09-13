@@ -193,6 +193,7 @@ BOOL boundsContainBounds(const TBoundingBox* b1, const TBoundingBox *b2);
 
 void setQ(TQuaternion* l, const TQuaternion* r);
 void setAngleAndAxisQ(TQuaternion* q, float a, const TVector3f* x);
+BOOL nullQ(const TQuaternion* q);
 void mulQ(const TQuaternion* l, const TQuaternion* r, TQuaternion* o);
 void conjugateQ(const TQuaternion* q, TQuaternion* o);
 void rotateQ(const TQuaternion* q, const TVector3f* v, TVector3f* o);
