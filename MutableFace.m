@@ -53,7 +53,7 @@
     
     scaleV3f(&texAxisX, 1 / xScale, &scaledTexAxisX);
     scaleV3f(&texAxisY, 1 / yScale, &scaledTexAxisY);
-
+    
     texAxesValid = YES;
 }
 
@@ -63,7 +63,7 @@
     
     zAxis = *[self norm];
     float ny = zAxis.y;
-
+    
     if (ny < 0) {
         // surface X axis is normalized projection of positive world X axis along Y axis onto plane
         line.point = *[self center];
@@ -312,7 +312,7 @@
     
     if (!texAxesValid)
         [self validateTexAxes];
-
+    
     if (texNorm == &XAxisPos) {
         xOffset += x;
         yOffset += y;
@@ -354,7 +354,7 @@
             yOffset += theDelta->y;
         }
     }
-
+    
     [self geometryChanged];
 }
 
@@ -362,7 +362,7 @@
     subV3i(&point1, theCenter, &point1);
     rotateZ90CWV3i(&point1, &point1);
     addV3i(&point1, theCenter, &point1);
-
+    
     subV3i(&point2, theCenter, &point2);
     rotateZ90CWV3i(&point2, &point2);
     addV3i(&point2, theCenter, &point2);
@@ -386,12 +386,15 @@
     subV3i(&point3, theCenter, &point3);
     rotateZ90CCWV3i(&point3, &point3);
     addV3i(&point3, theCenter, &point3);
-
+    
     [self geometryChanged];
 }
 
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture {
     if (lockTexture) {
+        if (!texAxesValid)
+            [self validateTexAxes];
+        
         TVector3f p, pr;
         
         // take one point on the surface of this face and apply the rotation to it
@@ -404,11 +407,8 @@
         // the texture coordinates which p had before the rotation
         float ox1 = dotV3f(&p, &scaledTexAxisX) + xOffset;
         float oy1 = dotV3f(&p, &scaledTexAxisY) + yOffset;
-
-        if (!texAxesValid)
-            [self validateTexAxes];
         
-        // rotate the current tex axes in order to determine their new lengths and the rotation angle
+        // rotate the current tex axes in order to determine their new lengths and the rotation angles
         TVector3f tx, ty;
         rotateQ(theRotation, &scaledTexAxisX, &tx);
         rotateQ(theRotation, &scaledTexAxisY, &ty);
@@ -424,9 +424,6 @@
             tx.z = 0;
             ty.z = 0;
         }
-
-        // apply the rotation
-        [self rotate:theRotation center:theCenter];
         
         // the new scale factors are determined by the lengths of the rotated texture axes
         xScale = lengthV3f(&tx);
@@ -441,8 +438,14 @@
         crossV3f(&texAxisX, &tx, &r);
         rotation += dotV3f(&r, texNorm) < 0 ? -rad * 180 / M_PI : rad * 180 / M_PI;
         
+        // save the current texture axis so that we can detect a change of the texture plane
+        const TVector3f* tn = texNorm;
+        
+        // apply the rotation
+        [self rotate:theRotation center:theCenter];
+        [self geometryChanged];
         [self validateTexAxes];
-
+        
         // the texture coordinates which p has after the rotation without offset
         float ox2 = dotV3f(&pr, &scaledTexAxisX);
         float oy2 = dotV3f(&pr, &scaledTexAxisY);
@@ -454,8 +457,7 @@
     } else {
         [self rotate:theRotation center:theCenter];
     }
-
-    [self geometryChanged];
+    
 }
 
 - (void)dragBy:(float)dist lockTexture:(BOOL)lockTexture {
@@ -621,7 +623,7 @@
 - (Matrix4f *)worldToSurfaceMatrix {
     if (worldToSurfaceMatrix == nil)
         [self updateMatrices];
-
+    
     return worldToSurfaceMatrix;
 }
 
