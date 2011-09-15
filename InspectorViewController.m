@@ -90,22 +90,12 @@
 }
 
 - (void)brushesDidChange:(NSNotification *)notification {
+    [self updateTextureControls];
     [mapBrowserView reloadData];
 }
 
 - (void)facesDidChange:(NSNotification *)notification {
-    NSDictionary* userInfo = [notification userInfo];
-    NSArray* faces = [userInfo objectForKey:FacesKey];
-    
-    SelectionManager* selectionManager = [mapWindowController selectionManager];
-    
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
-        if ([selectionManager isFaceSelected:face])
-            [self updateTextureControls];
-    }
-
+    [self updateTextureControls];
     [mapBrowserView reloadData];
 }
 

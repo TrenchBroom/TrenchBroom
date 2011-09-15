@@ -28,6 +28,7 @@
         yOffset = [theFace yOffset];
         xScale = [theFace xScale];
         yScale = [theFace yScale];
+        rotation = [theFace rotation];
         texture = [[NSString alloc] initWithString:[theFace texture]];
     }
     

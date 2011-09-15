@@ -22,6 +22,7 @@
 @interface MutableFace (private)
 
 - (void)validateTexAxes;
+- (const TVector3f *)texPlaneNormAndXAxis:(TVector3f *)theXAxis yAxis:(TVector3f *)theYAxis forFaceNorm:(const TVector3f *)theNorm;
 - (void)updateMatrices;
 - (void)geometryChanged;
 - (void)validate;
@@ -31,23 +32,29 @@
 
 @implementation MutableFace (private)
 
-- (void)validateTexAxes {
-    texNorm = closestAxisV3f([self norm]);
+- (const TVector3f *)texPlaneNormAndXAxis:(TVector3f *)theXAxis yAxis:(TVector3f *)theYAxis forFaceNorm:(const TVector3f *)theNorm {
+    const TVector3f* planeNorm = closestAxisV3f(theNorm);
     
-    if (texNorm == &XAxisPos || texNorm == &XAxisNeg) {
-        texAxisX = YAxisPos;
-        texAxisY = ZAxisNeg;
-    } else if (texNorm == &YAxisPos || texNorm == &YAxisNeg) {
-        texAxisX = XAxisPos;
-        texAxisY = ZAxisNeg;
-    } else if (texNorm == &ZAxisPos || texNorm == &ZAxisNeg) {
-        texAxisX = XAxisPos;
-        texAxisY = YAxisNeg;
+    if (planeNorm == &XAxisPos || planeNorm == &XAxisNeg) {
+        *theXAxis = YAxisPos;
+        *theYAxis = ZAxisNeg;
+    } else if (planeNorm == &YAxisPos || planeNorm == &YAxisNeg) {
+        *theXAxis = XAxisPos;
+        *theYAxis = ZAxisNeg;
+    } else {
+        *theXAxis = XAxisPos;
+        *theYAxis = YAxisNeg;
     }
+    
+    return planeNorm;
+}
+
+- (void)validateTexAxes {
+    texPlaneNorm = [self texPlaneNormAndXAxis:&texAxisX yAxis:&texAxisY forFaceNorm:[self norm]];
     
     TQuaternion rot;
     float ang = rotation / 180 * M_PI;
-    setAngleAndAxisQ(&rot, ang, texNorm);
+    setAngleAndAxisQ(&rot, ang, texPlaneNorm);
     rotateQ(&rot, &texAxisX, &texAxisX);
     rotateQ(&rot, &texAxisY, &texAxisY);
     
@@ -313,22 +320,22 @@
     if (!texAxesValid)
         [self validateTexAxes];
     
-    if (texNorm == &XAxisPos) {
+    if (texPlaneNorm == &XAxisPos) {
         xOffset += x;
         yOffset += y;
-    } else if (texNorm == &XAxisNeg) {
+    } else if (texPlaneNorm == &XAxisNeg) {
         xOffset -= x;
         yOffset += y;
-    } else if (texNorm == &YAxisPos) {
+    } else if (texPlaneNorm == &YAxisPos) {
         xOffset -= x;
         yOffset += y;
-    } else if (texNorm == &YAxisNeg) {
+    } else if (texPlaneNorm == &YAxisNeg) {
         xOffset += x;
         yOffset += y;
-    } else if (texNorm == &ZAxisPos) {
+    } else if (texPlaneNorm == &ZAxisPos) {
         xOffset -= x;
         yOffset += y;
-    } else if (texNorm == &ZAxisNeg) {
+    } else if (texPlaneNorm == &ZAxisNeg) {
         xOffset += x;
         yOffset += y;
     }
@@ -343,13 +350,13 @@
         if (!texAxesValid)
             [self validateTexAxes];
         
-        if (texNorm == &XAxisPos || texNorm == &XAxisNeg) {
+        if (texPlaneNorm == &XAxisPos || texPlaneNorm == &XAxisNeg) {
             xOffset -= theDelta->y;
             yOffset += theDelta->z;
-        } else if (texNorm == &YAxisPos || texNorm == &YAxisNeg) {
+        } else if (texPlaneNorm == &YAxisPos || texPlaneNorm == &YAxisNeg) {
             xOffset -= theDelta->x;
             yOffset += theDelta->z;
-        } else if (texNorm == &ZAxisPos || texNorm == &ZAxisNeg) {
+        } else if (texPlaneNorm == &ZAxisPos || texPlaneNorm == &ZAxisNeg) {
             xOffset -= theDelta->x;
             yOffset += theDelta->y;
         }
@@ -395,6 +402,8 @@
         if (!texAxesValid)
             [self validateTexAxes];
         
+        const TVector3f* newTexPlaneNorm;
+        TVector3f newFaceNorm, baseXAxis, baseYAxis, rotXAxis, rotYAxis;
         TVector3f p, pr;
         
         // take one point on the surface of this face and apply the rotation to it
@@ -404,42 +413,42 @@
         rotateQ(theRotation, &pr, &pr);
         addV3f(&pr, theCenter, &pr);
         
+        // rotate the current face normal in order to determine the new texture plane and axes
+        rotateQ(theRotation, [self norm], &newFaceNorm);
+        newTexPlaneNorm = [self texPlaneNormAndXAxis:&baseXAxis yAxis:&baseYAxis forFaceNorm:&newFaceNorm];
+        
+        // rotate the current scaled tex axes and the unscaled X texture axis
+        rotateQ(theRotation, &scaledTexAxisX, &rotXAxis);
+        rotateQ(theRotation, &scaledTexAxisY, &rotYAxis);
+        
+        // project the rotated texture axes onto the new texture plane
+        if (newTexPlaneNorm == &XAxisPos || newTexPlaneNorm == &XAxisNeg) {
+            rotXAxis.x = 0;
+            rotYAxis.x = 0;
+        } else if (newTexPlaneNorm == &YAxisPos || newTexPlaneNorm == &YAxisNeg) {
+            rotXAxis.y = 0;
+            rotYAxis.y = 0;
+        } else {
+            rotXAxis.z = 0;
+            rotYAxis.z = 0;
+        }
+        
+        // determine the new scale factors by projecting the rotated axes to the new base axes
+        xScale = lengthV3f(&rotXAxis);
+        yScale = lengthV3f(&rotYAxis);
+        
+        // normalize the rotated projected Y axis
+        scaleV3f(&rotYAxis, 1 / yScale, &rotYAxis);
+        
+        // determine the rotation angle of the texture by measuring the angle between the new base Y axis and the projected rotated Y axis
+        TVector3f r;
+        float rad = acos(dotV3f(&baseYAxis, &rotYAxis));
+        crossV3f(&baseYAxis, &rotYAxis, &r);
+        rotation = dotV3f(&r, newTexPlaneNorm) < 0 ? -rad * 180 / M_PI : rad * 180 / M_PI;
+        
         // the texture coordinates which p had before the rotation
         float ox1 = dotV3f(&p, &scaledTexAxisX) + xOffset;
         float oy1 = dotV3f(&p, &scaledTexAxisY) + yOffset;
-        
-        // rotate the current tex axes in order to determine their new lengths and the rotation angles
-        TVector3f tx, ty;
-        rotateQ(theRotation, &scaledTexAxisX, &tx);
-        rotateQ(theRotation, &scaledTexAxisY, &ty);
-        
-        // project them back on the appropriate texture plane
-        if (texNorm == &XAxisPos || texNorm == &XAxisNeg) {
-            tx.x = 0;
-            ty.x = 0;
-        } else if (texNorm == &YAxisPos || texNorm == &YAxisNeg) {
-            tx.y = 0;
-            ty.y = 0;
-        } else if (texNorm == &ZAxisPos || texNorm == &ZAxisNeg) {
-            tx.z = 0;
-            ty.z = 0;
-        }
-        
-        // the new scale factors are determined by the lengths of the rotated texture axes
-        xScale = lengthV3f(&tx);
-        yScale = lengthV3f(&ty);
-        
-        scaleV3f(&tx, 1 / xScale, &tx);
-        scaleV3f(&ty, 1 / yScale, &ty);
-        
-        // determine the rotation angle of the texture by measuring the X texture axis
-        TVector3f r;
-        float rad = acos(dotV3f(&texAxisX, &tx));
-        crossV3f(&texAxisX, &tx, &r);
-        rotation += dotV3f(&r, texNorm) < 0 ? -rad * 180 / M_PI : rad * 180 / M_PI;
-        
-        // save the current texture axis so that we can detect a change of the texture plane
-        const TVector3f* tn = texNorm;
         
         // apply the rotation
         [self rotate:theRotation center:theCenter];
@@ -454,10 +463,11 @@
         // since the points' texture coordinates should be invariant
         xOffset = ox1 - ox2;
         yOffset = oy1 - oy2;
+        
     } else {
         [self rotate:theRotation center:theCenter];
+        [self geometryChanged];
     }
-    
 }
 
 - (void)dragBy:(float)dist lockTexture:(BOOL)lockTexture {

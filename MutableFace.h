@@ -42,8 +42,8 @@ typedef enum {
     BOOL centerValid;
 
     TSide* side;
-    
-    const TVector3f* texNorm;
+  
+    const TVector3f* texPlaneNorm;
     TVector3f texAxisX;
     TVector3f texAxisY;
     TVector3f scaledTexAxisX;
