@@ -1058,6 +1058,19 @@ void projectOntoCoordinatePlane(EPlane plane, const TVector3f* v, TVector3f* o) 
     }
 }
 
+BOOL projectVectorOntoPlane(const TVector3f* planeNorm, const TVector3f* dir, const TVector3f* v, TVector3f* o) {
+    float d = dotV3f(dir, planeNorm);
+    if (fzero(d))
+        return NO;
+    
+    d = -dotV3f(v, planeNorm) / d;
+    
+    TVector3f w;
+    scaleV3f(dir, d, &w);
+    addV3f(&w, v, o);
+
+    return YES;
+}
 
 void makeCircle(float radius, int segments, TVector3f* points) {
     float d = 2 * M_PI / segments;

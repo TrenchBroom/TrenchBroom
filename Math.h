@@ -211,6 +211,7 @@ float distanceOfSegmentAndRaySquared(const TVector3f* ss, const TVector3f* se, c
 void rayPointAtDistance(const TRay* r, float d, TVector3f* p);
 
 void projectOntoCoordinatePlane(EPlane plane, const TVector3f* v, TVector3f* o);
+BOOL projectVectorOntoPlane(const TVector3f* planeNorm, const TVector3f* dir, const TVector3f* v, TVector3f* o);
 
 void makeCircle(float radius, int segments, TVector3f* points);
 void makeRing(float innerRadius, float outerRadius, int segments, TVector3f* points);

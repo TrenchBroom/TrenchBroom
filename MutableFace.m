@@ -417,9 +417,15 @@
         rotateQ(theRotation, [self norm], &newFaceNorm);
         newTexPlaneNorm = [self texPlaneNormAndXAxis:&baseXAxis yAxis:&baseYAxis forFaceNorm:&newFaceNorm];
         
-        // rotate the current scaled tex axes and the unscaled X texture axis
-        rotateQ(theRotation, &scaledTexAxisX, &rotXAxis);
-        rotateQ(theRotation, &scaledTexAxisY, &rotYAxis);
+        // determine the new rotated X and Y texture axes
+        scaleV3f(&texAxisX, xScale, &rotXAxis); // apply inverse scale factor
+        projectVectorOntoPlane([self norm], texPlaneNorm, &rotXAxis, &rotXAxis); // project onto face boundary
+        rotateQ(theRotation, &rotXAxis, &rotXAxis); // apply rotation
+
+        // same for Y texture axis
+        scaleV3f(&texAxisY, yScale, &rotYAxis);
+        projectVectorOntoPlane([self norm], texPlaneNorm, &rotYAxis, &rotYAxis);
+        rotateQ(theRotation, &rotYAxis, &rotYAxis);
         
         // project the rotated texture axes onto the new texture plane
         if (newTexPlaneNorm == &XAxisPos || newTexPlaneNorm == &XAxisNeg) {
@@ -433,7 +439,7 @@
             rotYAxis.z = 0;
         }
         
-        // determine the new scale factors by projecting the rotated axes to the new base axes
+        // determine the new scale factors
         xScale = lengthV3f(&rotXAxis);
         yScale = lengthV3f(&rotYAxis);
         
