@@ -403,12 +403,12 @@
             [self validateTexAxes];
         
         const TVector3f* newTexPlaneNorm;
-        TVector3f newFaceNorm, baseXAxis, baseYAxis, rotXAxis, rotYAxis;
-        TVector3f p, pr;
+        TVector3f newFaceNorm, baseXAxis, baseYAxis, rotXAxis, rotYAxis, projXAxis, projYAxis;
+        TVector3f p, pr, r;
         
         // take one point on the surface of this face and apply the rotation to it
         // this is needed later to calculate the offsets
-        p = [self vertices][0]->vector;
+        p = *[self center];
         subV3f(&p, theCenter, &pr);
         rotateQ(theRotation, &pr, &pr);
         addV3f(&pr, theCenter, &pr);
@@ -428,30 +428,46 @@
         rotateQ(theRotation, &rotYAxis, &rotYAxis);
         
         // project the rotated texture axes onto the new texture plane
+        projXAxis = rotXAxis;
+        projYAxis = rotYAxis;
         if (newTexPlaneNorm == &XAxisPos || newTexPlaneNorm == &XAxisNeg) {
-            rotXAxis.x = 0;
-            rotYAxis.x = 0;
+            projXAxis.x = 0;
+            projYAxis.x = 0;
         } else if (newTexPlaneNorm == &YAxisPos || newTexPlaneNorm == &YAxisNeg) {
-            rotXAxis.y = 0;
-            rotYAxis.y = 0;
+            projXAxis.y = 0;
+            projYAxis.y = 0;
         } else {
-            rotXAxis.z = 0;
-            rotYAxis.z = 0;
+            projXAxis.z = 0;
+            projYAxis.z = 0;
         }
-        
-        // determine the new scale factors
-        xScale = lengthV3f(&rotXAxis);
-        yScale = lengthV3f(&rotYAxis);
-        
-        // normalize the rotated projected Y axis
-        scaleV3f(&rotYAxis, 1 / yScale, &rotYAxis);
+
+        // normalize the rotated projected axes
+        normalizeV3f(&projXAxis, &projXAxis);
+        normalizeV3f(&projYAxis, &projYAxis);
         
         // determine the rotation angle of the texture by measuring the angle between the new base Y axis and the projected rotated Y axis
-        TVector3f r;
-        float rad = acos(dotV3f(&baseYAxis, &rotYAxis));
-        crossV3f(&baseYAxis, &rotYAxis, &r);
-        rotation = dotV3f(&r, newTexPlaneNorm) < 0 ? -rad * 180 / M_PI : rad * 180 / M_PI;
+        float rad;
+        if (absEqualV3f(&projXAxis, &baseXAxis)) {
+            rad = acos(dotV3f(&baseYAxis, &projYAxis));
+            crossV3f(&baseYAxis, &projYAxis, &r);
+        } else {
+            rad = acos(dotV3f(&baseXAxis, &projXAxis));
+            crossV3f(&baseXAxis, &projXAxis, &r);
+        }
+        if (dotV3f(&r, newTexPlaneNorm) < 0)
+            rad *= -1;
+        rotation = rad * 180 / M_PI;
         
+        // rotate the base axes by the rotation angle
+        TQuaternion texRot;
+        setAngleAndAxisQ(&texRot, rad, newTexPlaneNorm);
+        rotateQ(&texRot, &baseXAxis, &baseXAxis);
+        rotateQ(&texRot, &baseYAxis, &baseYAxis);
+
+        // determine the new scale factors
+        xScale = fabsf(dotV3f(&rotXAxis, &baseXAxis));
+        yScale = fabsf(dotV3f(&rotYAxis, &baseYAxis));
+
         // the texture coordinates which p had before the rotation
         float ox1 = dotV3f(&p, &scaledTexAxisX) + xOffset;
         float oy1 = dotV3f(&p, &scaledTexAxisY) + yOffset;

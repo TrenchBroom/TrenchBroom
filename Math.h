@@ -133,6 +133,7 @@ float lengthV3f(const TVector3f* v);
 float lengthSquaredV3f(const TVector3f* v);
 void normalizeV3f(const TVector3f* v, TVector3f* o);
 BOOL equalV3f(const TVector3f* l, const TVector3f* r);
+BOOL absEqualV3f(const TVector3f* l, const TVector3f* r);
 BOOL nullV3f(const TVector3f* v);
 EAxis strongestComponentV3f(const TVector3f* v);
 EAxis weakestComponentV3f(const TVector3f* v);

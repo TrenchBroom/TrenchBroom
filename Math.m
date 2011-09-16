@@ -183,6 +183,10 @@ BOOL equalV3f(const TVector3f* l, const TVector3f* r) {
     return feq(l->x, r->x) && feq(l->y, r->y) && feq(l->z, r->z);
 }
 
+BOOL absEqualV3f(const TVector3f* l, const TVector3f* r) {
+    return feq(fabsf(l->x), fabsf(r->x)) && feq(fabsf(l->y), fabsf(r->y)) && feq(fabsf(l->z), fabsf(r->z));
+}
+
 BOOL nullV3f(const TVector3f* v) {
     return equalV3f(v, &NullVector);
 }
