@@ -92,6 +92,8 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 }
 
 - (void)moveTo:(const TVector3f *)thePosition {
+    NSAssert(!isnan(thePosition->x) && !isnan(thePosition->y) && !isnan(thePosition->z), @"position must be valid");
+
     if (equalV3f(&position, thePosition))
         return;
     
@@ -100,6 +102,9 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 }
 
 - (void)lookAt:(const TVector3f *)thePoint up:(const TVector3f *)theUpVector {
+    NSAssert(!isnan(thePoint->x) && !isnan(thePoint->y) && !isnan(thePoint->z), @"point must be valid");
+    NSAssert(!isnan(theUpVector->x) && !isnan(theUpVector->y) && !isnan(theUpVector->z), @"up vector must be valid");
+
     TVector3f d;
     subV3f(thePoint, &position, &d);
     normalizeV3f(&d, &d);
@@ -108,6 +113,9 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 }
 
 - (void)setDirection:(const TVector3f *)theDirection up:(const TVector3f *)theUpVector {
+    NSAssert(!isnan(theDirection->x) && !isnan(theDirection->y) && !isnan(theDirection->z), @"direction must be valid");
+    NSAssert(!isnan(theUpVector->x) && !isnan(theUpVector->y) && !isnan(theUpVector->z), @"up vector must be valid");
+
     if (equalV3f(theDirection, &direction) && equalV3f(theUpVector, &up))
         return;
     
@@ -183,7 +191,9 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
         d.y = 0;
         normalizeV3f(&d, &d);
         
-        float angle = acos(dotV3f(&direction, &d));
+        // correct rounding errors here
+        float cos = fmaxf(-1, fminf(1, dotV3f(&direction, &d)));
+        float angle = acos(cos);
         if (angle != 0) {
             TQuaternion q;
             TVector3f axis;

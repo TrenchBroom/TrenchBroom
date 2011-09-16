@@ -125,6 +125,7 @@ static float M_PI_12 = M_PI / 12;
     NSUndoManager* undoManager = [[windowController document] undoManager];
     [undoManager setGroupsByEvent:NO];
     [undoManager beginUndoGrouping];
+    NSLog(@"begin rotate");
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -197,6 +198,7 @@ static float M_PI_12 = M_PI / 12;
     [undoManager setActionName:[self actionName]];
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
+    NSLog(@"end rotate");
 }
 
 - (NSString *)actionName {
