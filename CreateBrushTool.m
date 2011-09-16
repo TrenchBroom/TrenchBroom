@@ -106,6 +106,7 @@
     [selectionManager addBrush:brush record:YES];
     
     drag = YES;
+    NSLog(@"start create brush");
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -155,6 +156,7 @@
     
     brush = nil;
     drag = NO;
+    NSLog(@"end create brush");
 }
 
 - (void)handleScrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

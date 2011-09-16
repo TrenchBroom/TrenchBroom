@@ -213,6 +213,7 @@ void rayPointAtDistance(const TRay* r, float d, TVector3f* p);
 
 void projectOntoCoordinatePlane(EPlane plane, const TVector3f* v, TVector3f* o);
 BOOL projectVectorOntoPlane(const TVector3f* planeNorm, const TVector3f* dir, const TVector3f* v, TVector3f* o);
+void makePointsForPlane(const TPlane* p, const TBoundingBox* m, TVector3i* p1, TVector3i* p2, TVector3i* p3);
 
 void makeCircle(float radius, int segments, TVector3f* points);
 void makeRing(float innerRadius, float outerRadius, int segments, TVector3f* points);

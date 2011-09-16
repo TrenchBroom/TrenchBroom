@@ -12,6 +12,8 @@
 #import "math.h"
 #import "Math.h"
 #import "Brush.h"
+#import "Entity.h"
+#import "Map.h"
 #import "Matrix4f.h"
 #import "Matrix3f.h"
 #import "PickingHit.h"
@@ -158,6 +160,16 @@
 }
 
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter {
+    TPlane plane = *[self boundary];
+    subV3f(&plane.point, theCenter, &plane.point);
+    rotateQ(theRotation, &plane.point, &plane.point);
+    rotateQ(theRotation, &plane.norm, &plane.norm);
+    addV3f(&plane.point, theCenter, &plane.point);
+    
+    TBoundingBox* worldBounds = [[[[self brush] entity] map] worldBounds];
+    makePointsForPlane(&plane, worldBounds, &point1, &point2, &point3);
+
+    /*
     TVector3f p1, p2, p3;
     setV3f(&p1, &point1);
     setV3f(&p2, &point2);
@@ -178,6 +190,7 @@
     roundV3f(&p1, &point1);
     roundV3f(&p2, &point2);
     roundV3f(&p3, &point3);
+     */
 }
 
 @end
@@ -454,6 +467,7 @@
             rad = acos(dotV3f(&baseXAxis, &projXAxis));
             crossV3f(&baseXAxis, &projXAxis, &r);
         }
+        
         if (dotV3f(&r, newTexPlaneNorm) < 0)
             rad *= -1;
         rotation = rad * 180 / M_PI;

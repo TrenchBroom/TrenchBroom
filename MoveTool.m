@@ -76,8 +76,23 @@
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     SelectionManager* selectionManager = [windowController selectionManager];
     
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    if (hit != nil) {
+    PickingHit* faceHit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+    PickingHit* entityHit = [hits firstHitOfType:HT_ENTITY ignoreOccluders:YES];
+    PickingHit* hit;
+    
+    if (faceHit == nil)
+        hit = entityHit;
+    else if (entityHit == nil)
+        hit = faceHit;
+    else if ([entityHit distance] <= [faceHit distance])
+        hit = entityHit;
+    else
+        hit = faceHit;
+
+    if (hit == nil)
+        return;
+    
+    if (hit == faceHit) {
         id <Face> face = [hit object];
         id <Brush> brush = [face brush];
         
@@ -89,21 +104,16 @@
         plane.point = lastPoint;
         [self actualPlaneNormal:[face norm] result:&plane.norm];
     } else {
-        hit = [hits firstHitOfType:HT_ENTITY ignoreOccluders:YES];
-        if (hit != nil) {
-            id <Entity> entity = [hit object];
-            
-            if (![selectionManager isEntitySelected:entity])
-                return;
-            
-            lastPoint = *[hit hitPoint];
-
-            plane.point = lastPoint;
-            intersectBoundsWithRay([entity bounds], ray, &plane.norm);
-            [self actualPlaneNormal:&plane.norm result:&plane.norm];
-        } else {
+        id <Entity> entity = [hit object];
+        
+        if (![selectionManager isEntitySelected:entity])
             return;
-        }
+        
+        lastPoint = *[hit hitPoint];
+        
+        plane.point = lastPoint;
+        intersectBoundsWithRay([entity bounds], ray, &plane.norm);
+        [self actualPlaneNormal:&plane.norm result:&plane.norm];
     }
     
     drag = YES;

@@ -1076,6 +1076,83 @@ BOOL projectVectorOntoPlane(const TVector3f* planeNorm, const TVector3f* dir, co
     return YES;
 }
 
+void makePointsForPlane(const TPlane* p, const TBoundingBox* m, TVector3i* p1, TVector3i* p2, TVector3i* p3) {
+    TLine l;
+    TVector3f a,b,c;
+    
+    switch (strongestComponentV3f(&p->norm)) {
+        case A_X:{
+            l.direction = XAxisPos;
+
+            l.point = m->min;
+            linePointAtDistance(&l, intersectPlaneWithLine(p, &l), &a);
+            
+            l.point.y = m->max.y;
+            linePointAtDistance(&l, intersectPlaneWithLine(p, &l), &b);
+            
+            l.point.z = m->max.z;
+            linePointAtDistance(&l, intersectPlaneWithLine(p, &l), &c);
+            
+            if (p->norm.x < 0) {
+                roundV3f(&a, p3);
+                roundV3f(&b, p1);
+                roundV3f(&c, p2);
+            } else {
+                roundV3f(&a, p2);
+                roundV3f(&b, p1);
+                roundV3f(&c, p3);
+            }
+            break;
+        }
+        case A_Y: {
+            l.direction = YAxisPos;
+            
+            l.point = m->min;
+            linePointAtDistance(&l, intersectPlaneWithLine(p, &l), &a);
+            
+            l.point.x = m->max.x;
+            linePointAtDistance(&l, intersectPlaneWithLine(p, &l), &b);
+            
+            l.point.z = m->max.z;
+            linePointAtDistance(&l, intersectPlaneWithLine(p, &l), &c);
+            
+            if (p->norm.y < 0) {
+                roundV3f(&a, p2);
+                roundV3f(&b, p1);
+                roundV3f(&c, p3);
+            } else {
+                roundV3f(&a, p3);
+                roundV3f(&b, p1);
+                roundV3f(&c, p2);
+            }
+            break;
+        }
+        default: {
+            l.direction = ZAxisPos;
+            
+            l.point = m->min;
+            linePointAtDistance(&l, intersectPlaneWithLine(p, &l), &a);
+            
+            l.point.x = m->max.x;
+            linePointAtDistance(&l, intersectPlaneWithLine(p, &l), &b);
+            
+            l.point.y = m->max.y;
+            linePointAtDistance(&l, intersectPlaneWithLine(p, &l), &c);
+            
+            if (p->norm.z < 0) {
+                roundV3f(&a, p3);
+                roundV3f(&b, p1);
+                roundV3f(&c, p2);
+            } else {
+                roundV3f(&a, p2);
+                roundV3f(&b, p1);
+                roundV3f(&c, p3);
+            }
+            break;
+        }
+    }
+}
+
 void makeCircle(float radius, int segments, TVector3f* points) {
     float d = 2 * M_PI / segments;
     float a = 0;
