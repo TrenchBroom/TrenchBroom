@@ -80,7 +80,7 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)renderEntityModels:(NSArray *)theEntities;
 - (void)renderEntityBounds:(const TVector4f *)color vertexCount:(int)theVertexCount;
 - (void)renderEdges:(const TVector4f *)color indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers;
-- (void)renderFaces:(BOOL)textured;
+- (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers;
 
 - (void)addBrushes:(NSArray *)theBrushes;
 - (void)removeBrushes:(NSArray *)theBrushes;
@@ -759,7 +759,7 @@ int const TexCoordSize = 2 * sizeof(float);
     glResetEdgeOffset();
 }
 
-- (void)renderFaces:(BOOL)textured {
+- (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers {
     glPolygonMode(GL_FRONT, GL_FILL);
     
     Grid* grid = [[windowController options] grid];
@@ -799,8 +799,8 @@ int const TexCoordSize = 2 * sizeof(float);
                 glDisable(GL_TEXTURE_2D);
         }
         
-        IntData* indexBuffer = [faceIndexBuffers objectForKey:textureName];
-        IntData* countBuffer = [faceCountBuffers objectForKey:textureName];
+        IntData* indexBuffer = [theIndexBuffers objectForKey:textureName];
+        IntData* countBuffer = [theCountBuffers objectForKey:textureName];
         
         const void* indexBytes = [indexBuffer bytes];
         const void* countBytes = [countBuffer bytes];
@@ -1140,11 +1140,13 @@ int const TexCoordSize = 2 * sizeof(float);
         switch ([options renderMode]) {
             case RM_TEXTURED:
                 if ([options isolationMode] == IM_NONE)
-                    [self renderFaces:YES];
+                    [self renderFaces:YES indexBuffers:faceIndexBuffers countBuffers:faceCountBuffers];
+                [self renderFaces:YES indexBuffers:selectedFaceIndexBuffers countBuffers:selectedFaceCountBuffers];
                 break;
             case RM_FLAT:
                 if ([options isolationMode] == IM_NONE)
-                    [self renderFaces:NO];
+                    [self renderFaces:NO indexBuffers:faceIndexBuffers countBuffers:faceCountBuffers];
+                [self renderFaces:NO indexBuffers:selectedFaceIndexBuffers countBuffers:selectedFaceCountBuffers];
                 break;
             case RM_WIREFRAME:
                 break;

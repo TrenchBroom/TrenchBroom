@@ -78,10 +78,12 @@
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification {
+    /*
     if ([[PreferencesManager sharedManager] inspectorSeparate]) {
         InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
         [inspector setMapWindowController:nil];
     }
+     */
     [view3D resignFirstResponder];
 }
 
@@ -223,8 +225,13 @@
 }
 
 - (CGFloat)splitView:(NSSplitView *)theSplitView constrainMaxCoordinate:(CGFloat)theProposedMax ofSubviewAt:(NSInteger)theDividerIndex {
-    float width = [splitView frame].size.width;
-    return width - 402;
+    return NSWidth([splitView frame]) - 402;
+}
+
+- (void)windowDidResize:(NSNotification *)notification {
+    PreferencesManager* preferences = [PreferencesManager sharedManager];
+    if (![preferences inspectorSeparate] && NSWidth([[inspectorViewController view] frame]) < 402)
+            [splitView setPosition:NSWidth([splitView frame]) - 402 ofDividerAtIndex:0];
 }
 
 - (void)preferencesDidChange:(NSNotification *)notification {

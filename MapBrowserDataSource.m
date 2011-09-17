@@ -84,6 +84,7 @@
         id <Brush> brush = [face brush];
         return [NSString stringWithFormat:@"Face %i", [[brush faces] indexOfObject:face]];
     }
+    
     [NSException raise:NSInvalidArgumentException format:@"unknown item: %@", item];
     return nil;
 }
