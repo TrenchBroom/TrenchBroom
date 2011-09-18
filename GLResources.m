@@ -74,4 +74,11 @@
     return vbo;
 }
 
+- (void)reset {
+    [textureManager clear];
+//    [vbos removeAllObjects];
+    [fontManager clear];
+    [entityRendererManager clear];
+}
+
 @end

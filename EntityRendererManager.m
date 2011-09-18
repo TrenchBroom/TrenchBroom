@@ -146,6 +146,10 @@
     return [self entityRendererForModelProperty:modelProperty mods:theMods];
 }
 
+- (void)clear {
+    [entityRenderers removeAllObjects];
+}
+
 - (void)activate {
     [vbo activate];
 }

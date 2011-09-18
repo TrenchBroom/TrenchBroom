@@ -80,6 +80,14 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     return textureCollections;
 }
 
+- (void)clear {
+    [textureCollections removeAllObjects];
+    valid = NO;
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:TextureManagerChanged object:self];
+}
+
 - (void)resetUsageCounts {
     NSEnumerator* collectionEn = [textureCollections objectEnumerator];
     TextureCollection* collection;

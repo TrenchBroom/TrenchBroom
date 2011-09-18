@@ -24,6 +24,7 @@
 
 - (id <EntityRenderer>)entityRendererForDefinition:(EntityDefinition *)theDefinition mods:(NSArray *)theMods;
 - (id <EntityRenderer>)entityRendererForEntity:(id <Entity>)theEntity mods:(NSArray *)theMods;
+- (void)clear;
 
 - (void)activate;
 - (void)deactivate;

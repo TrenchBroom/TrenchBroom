@@ -111,6 +111,8 @@ extern NSString* const PointFileUnloaded;
 - (void)setFaces:(NSArray *)theFaces texture:(NSString *)theTexture;
 - (void)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures;
 
+- (void)clear;
+
 - (Picker *)picker;
 - (GLResources *)glResources;
 - (EntityDefinitionManager *)entityDefinitionManager;

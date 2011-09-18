@@ -31,5 +31,6 @@
 - (TextureManager *)textureManager;
 - (EntityRendererManager *)entityRendererManager;
 - (VBOBuffer *)vboForKey:(id <NSCopying>)theKey;
+- (void)reset;
 
 @end

@@ -32,6 +32,7 @@ extern NSString* const MissingPaletteException;
 - (void)addTextureCollection:(TextureCollection *)theCollection atIndex:(NSUInteger)theIndex;
 - (void)removeTextureCollectionAtIndex:(NSUInteger)theIndex;
 - (NSArray *)textureCollections;
+- (void)clear;
 
 - (void)resetUsageCounts;
 

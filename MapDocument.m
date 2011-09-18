@@ -252,6 +252,8 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
 }
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
+    [self clear];
+    
     ProgressWindowController* pwc = [[ProgressWindowController alloc] initWithWindowNibName:@"ProgressWindow"];
     [[pwc window] makeKeyAndOrderFront:self];
     [[pwc label] setStringValue:@"Loading map file..."];
@@ -261,7 +263,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     [indicator setUsesThreadedAnimation:YES];
     
     [[self undoManager] disableUndoRegistration];
-    [self setPostNotifications:NO];
+//    [self setPostNotifications:NO];
     
     MapParser* parser = [[MapParser alloc] initWithData:data];
     [parser parseMap:self withProgressIndicator:indicator];
@@ -273,7 +275,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     while ((entity = [entityEn nextObject]))
         [self setEntityDefinition:entity];
 
-    [self setPostNotifications:YES];
+//    [self setPostNotifications:YES];
     [[self undoManager] enableUndoRegistration];
     
     [pwc close];
@@ -1364,6 +1366,25 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
         [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
+}
+
+- (void)clear {
+    [selectionManager removeAll:NO];
+    [self unloadPointFile];
+    [self removeEntities:[[entities copy] autorelease]];
+    worldspawn = nil;
+    
+    // force renderers to flush all changes
+    /*
+    NSEnumerator* controllerEn = [[self windowControllers] objectEnumerator];
+    NSWindowController* controller;
+    while ((controller = [controllerEn nextObject])) {
+            [[controller window] display];
+    }
+     */
+    
+    [[self undoManager] removeAllActions];
+    [glResources reset];
 }
 
 # pragma mark Getters

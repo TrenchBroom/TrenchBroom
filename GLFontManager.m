@@ -173,6 +173,10 @@ void gluTessEndData(GLStringData* data) {
     return glString;
 }
 
+- (void)clear {
+    [glStrings removeAllObjects];
+}
+
 - (void)activate {
     [vbo activate];
 }
