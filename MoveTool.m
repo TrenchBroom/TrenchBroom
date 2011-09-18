@@ -74,25 +74,12 @@
 # pragma mark @implementation Tool
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    SelectionManager* selectionManager = [windowController selectionManager];
-    
-    PickingHit* faceHit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    PickingHit* entityHit = [hits firstHitOfType:HT_ENTITY ignoreOccluders:YES];
-    PickingHit* hit;
-    
-    if (faceHit == nil)
-        hit = entityHit;
-    else if (entityHit == nil)
-        hit = faceHit;
-    else if ([entityHit distance] <= [faceHit distance])
-        hit = entityHit;
-    else
-        hit = faceHit;
-
+    PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
     if (hit == nil)
         return;
     
-    if (hit == faceHit) {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([hit type] == HT_FACE) {
         id <Face> face = [hit object];
         id <Brush> brush = [face brush];
         

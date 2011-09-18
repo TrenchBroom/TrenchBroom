@@ -788,7 +788,7 @@ int const TexCoordSize = 2 * sizeof(float);
     glColorPointer(4, GL_UNSIGNED_BYTE, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)TexCoordSize + TexCoordSize + ColorSize);
     glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
     
-    NSEnumerator* textureNameEn = [faceIndexBuffers keyEnumerator];
+    NSEnumerator* textureNameEn = [theIndexBuffers keyEnumerator];
     NSString* textureName;
     while ((textureName = [textureNameEn nextObject])) {
         Texture* texture = [textureManager textureForName:textureName];

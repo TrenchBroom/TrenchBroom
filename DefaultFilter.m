@@ -55,6 +55,9 @@
 }
 
 - (BOOL)isEntityRenderable:(id<Entity>)entity {
+    if ([entity isWorldspawn])
+        return YES;
+    
     if (![options renderEntities])
         return NO;
     

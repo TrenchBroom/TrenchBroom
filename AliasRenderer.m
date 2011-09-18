@@ -36,8 +36,8 @@
 
 - (void)dealloc {
     [alias release];
-    [vbo release];
     [block free];
+    [vbo release];
     [texture release];
     [palette release];
     [super dealloc];

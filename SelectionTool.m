@@ -41,60 +41,61 @@
 
 - (void)handleLeftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     SelectionManager* selectionManager = [windowController selectionManager];
-    PickingHit* entityHit = [hits firstHitOfType:HT_ENTITY ignoreOccluders:NO];
-    PickingHit* faceHit = [hits firstHitOfType:HT_FACE | HT_BRUSH ignoreOccluders:NO];
-    
-    if (entityHit != nil) {
-        id <Entity> entity = [entityHit object];
+    PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
 
-        if ([selectionManager isEntitySelected:entity]) {
-            if ([self isMultiSelectionModifierPressed]) {
-                [selectionManager removeEntity:entity record:NO];
+    if (hit != nil) {
+        if ([hit type] == HT_ENTITY) {
+            id <Entity> entity = [hit object];
+            
+            if ([selectionManager isEntitySelected:entity]) {
+                if ([self isMultiSelectionModifierPressed]) {
+                    [selectionManager removeEntity:entity record:NO];
+                } else {
+                    [selectionManager removeAll:NO];
+                    [selectionManager addEntity:entity record:NO];
+                }
             } else {
-                [selectionManager removeAll:NO];
+                if (![self isMultiSelectionModifierPressed])
+                    [selectionManager removeAll:NO];
                 [selectionManager addEntity:entity record:NO];
+                
             }
         } else {
-            if (![self isMultiSelectionModifierPressed])
-                [selectionManager removeAll:NO];
-            [selectionManager addEntity:entity record:NO];
+            id <Face> face = [hit object];
+            id <Brush> brush = [face brush];
             
-        }
-    } else if (faceHit != nil) {
-        id <Face> face = [faceHit object];
-        id <Brush> brush = [face brush];
-        
-        if ([selectionManager mode] == SM_FACES) {
-            if ([selectionManager isFaceSelected:face]) {
-                if ([self isMultiSelectionModifierPressed])
-                    [selectionManager removeFace:face record:NO];
-                else
-                    [selectionManager addBrush:brush record:NO];
+            if ([selectionManager mode] == SM_FACES) {
+                if ([selectionManager isFaceSelected:face]) {
+                    if ([self isMultiSelectionModifierPressed])
+                        [selectionManager removeFace:face record:NO];
+                    else
+                        [selectionManager addBrush:brush record:NO];
+                } else {
+                    if ([self isMultiSelectionModifierPressed]) {
+                        [selectionManager addFace:face record:NO];
+                    } else if ([NSEvent modifierFlags] == 0) {
+                        if ([selectionManager isBrushPartiallySelected:brush]) {
+                            [selectionManager removeAll:NO];
+                            [selectionManager addFace:face record:NO];
+                        } else {
+                            [selectionManager addBrush:brush record:NO];
+                        }
+                    }
+                }
             } else {
                 if ([self isMultiSelectionModifierPressed]) {
-                    [selectionManager addFace:face record:NO];
-                } else if ([NSEvent modifierFlags] == 0) {
-                    if ([selectionManager isBrushPartiallySelected:brush]) {
-                        [selectionManager removeAll:NO];
-                        [selectionManager addFace:face record:NO];
+                    if ([selectionManager isBrushSelected:brush]) {
+                        [selectionManager removeBrush:brush record:NO];
                     } else {
                         [selectionManager addBrush:brush record:NO];
                     }
-                }
-            }
-        } else {
-            if ([self isMultiSelectionModifierPressed]) {
-                if ([selectionManager isBrushSelected:brush]) {
-                    [selectionManager removeBrush:brush record:NO];
-                } else {
-                    [selectionManager addBrush:brush record:NO];
-                }
-            } else if ([NSEvent modifierFlags] == 0) {
-                if ([selectionManager isBrushSelected:brush]) {
-                    [selectionManager addFace:face record:NO];
-                } else {
-                    [selectionManager removeAll:NO];
-                    [selectionManager addBrush:brush record:NO];
+                } else if ([NSEvent modifierFlags] == 0) {
+                    if ([selectionManager isBrushSelected:brush]) {
+                        [selectionManager addFace:face record:NO];
+                    } else {
+                        [selectionManager removeAll:NO];
+                        [selectionManager addBrush:brush record:NO];
+                    }
                 }
             }
         }

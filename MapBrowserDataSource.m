@@ -66,7 +66,9 @@
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item {
-    if ([item conformsToProtocol:@protocol(Map)]) {
+    if (item == nil) {
+        return nil;
+    } else if ([item conformsToProtocol:@protocol(Map)]) {
         id <Map> map = item;
         id <Entity> worldspawn = [map worldspawn:NO];
         NSString* message = [worldspawn propertyForKey:MessageKey];
