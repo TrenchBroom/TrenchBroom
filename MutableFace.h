@@ -59,11 +59,11 @@ typedef enum {
     VBOMemBlock* memBlock;
 }
 
-- (id)initWithPoint1:(TVector3i *)aPoint1 point2:(TVector3i *)aPoint2 point3:(TVector3i *)aPoint3 texture:(NSString *)aTexture;
+- (id)initWithPoint1:(const TVector3i *)aPoint1 point2:(const TVector3i *)aPoint2 point3:(const TVector3i *)aPoint3 texture:(NSString *)aTexture;
 - (id)initWithFaceTemplate:(id <Face>)theTemplate;
 
 - (void)setBrush:(MutableBrush *)theBrush;
-- (void)setPoint1:(TVector3i *)thePoint1 point2:(TVector3i *)thePoint2 point3:(TVector3i *)thePoint3;
+- (void)setPoint1:(const TVector3i *)thePoint1 point2:(const TVector3i *)thePoint2 point3:(const TVector3i *)thePoint3;
 - (void)setTexture:(NSString *)name;
 - (void)setXOffset:(int)offset;
 - (void)setYOffset:(int)offset;
@@ -71,10 +71,11 @@ typedef enum {
 - (void)setXScale:(float)factor;
 - (void)setYScale:(float)factor;
 - (void)translateOffsetsX:(int)x y:(int)y;
-- (void)translateBy:(TVector3i *)theDelta lockTexture:(BOOL)lockTexture;
-- (void)rotateZ90CW:(TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
-- (void)rotateZ90CCW:(TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
+- (void)translateBy:(const TVector3i *)theDelta lockTexture:(BOOL)lockTexture;
+- (void)rotateZ90CW:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
+- (void)rotateZ90CCW:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture;
+- (void)mirrorAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
 - (void)dragBy:(float)dist lockTexture:(BOOL)lockTexture;
 
 - (void)setSide:(TSide *)theSide;

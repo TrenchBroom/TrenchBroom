@@ -208,7 +208,7 @@
     return self;
 }
 
-- (id)initWithPoint1:(TVector3i *)aPoint1 point2:(TVector3i *)aPoint2 point3:(TVector3i *)aPoint3 texture:(NSString *)aTexture {
+- (id)initWithPoint1:(const TVector3i *)aPoint1 point2:(const TVector3i *)aPoint2 point3:(const TVector3i *)aPoint3 texture:(NSString *)aTexture {
     if ((self = [self init])) {
         [self setPoint1:aPoint1 point2:aPoint2 point3:aPoint3];
         [self setTexture:aTexture];
@@ -266,7 +266,7 @@
     brush = theBrush;
 }
 
-- (void)setPoint1:(TVector3i *)thePoint1 point2:(TVector3i *)thePoint2 point3:(TVector3i *)thePoint3{
+- (void)setPoint1:(const TVector3i *)thePoint1 point2:(const TVector3i *)thePoint2 point3:(const TVector3i *)thePoint3{
     if (equalV3i(&point1, thePoint1) &&
         equalV3i(&point2, thePoint2) &&
         equalV3i(&point3, thePoint3))
@@ -354,7 +354,7 @@
     }
 }
 
-- (void)translateBy:(TVector3i *)theDelta lockTexture:(BOOL)lockTexture {
+- (void)translateBy:(const TVector3i *)theDelta lockTexture:(BOOL)lockTexture {
     addV3i(&point1, theDelta, &point1);
     addV3i(&point2, theDelta, &point2);
     addV3i(&point3, theDelta, &point3);
@@ -378,7 +378,7 @@
     [self geometryChanged];
 }
 
-- (void)rotateZ90CW:(TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
+- (void)rotateZ90CW:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
     if (lockTexture) {
         if (!texAxesValid)
             [self validateTexAxes];
@@ -442,7 +442,7 @@
     }
 }
 
-- (void)rotateZ90CCW:(TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
+- (void)rotateZ90CCW:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
     if (lockTexture) {
         if (!texAxesValid)
             [self validateTexAxes];
@@ -600,6 +600,59 @@
         [self rotate:theRotation center:theCenter];
         [self geometryChanged];
     }
+}
+
+- (void)mirrorAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
+    switch (theAxis) {
+        case A_X: {
+            point1.x -= theCenter->x;
+            point1.x *= -1;
+            point1.x += theCenter->x;
+            
+            point2.x -= theCenter->x;
+            point2.x *= -1;
+            point2.x += theCenter->x;
+            
+            point3.x -= theCenter->x;
+            point3.x *= -1;
+            point3.x += theCenter->x;
+            break;
+        }
+        case A_Y: {
+            point1.y -= theCenter->y;
+            point1.y *= -1;
+            point1.y += theCenter->y;
+            
+            point2.y -= theCenter->y;
+            point2.y *= -1;
+            point2.y += theCenter->y;
+            
+            point3.y -= theCenter->y;
+            point3.y *= -1;
+            point3.y += theCenter->y;
+            break;
+        }
+        default: {
+            point1.z -= theCenter->z;
+            point1.z *= -1;
+            point1.z += theCenter->z;
+            
+            point2.z -= theCenter->z;
+            point2.z *= -1;
+            point2.z += theCenter->z;
+            
+            point3.z -= theCenter->z;
+            point3.z *= -1;
+            point3.z += theCenter->z;
+            break;
+        }
+    }
+    
+    TVector3i t = point1;
+    point1 = point3;
+    point3 = t;
+    
+    [self geometryChanged];
 }
 
 - (void)dragBy:(float)dist lockTexture:(BOOL)lockTexture {

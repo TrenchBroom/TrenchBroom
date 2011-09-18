@@ -65,8 +65,8 @@
 @implementation MapWindowController (private)
 
 - (void)selectionRemoved:(NSNotification *)notification {
-    if ([[self selectionManager] mode] == SM_UNDEFINED)
-        [options setIsolationMode:IM_NONE];
+//    if ([[self selectionManager] mode] == SM_UNDEFINED)
+//        [options setIsolationMode:IM_NONE];
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
@@ -401,6 +401,10 @@
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
     } else if (action == @selector(rotateZ90CCW:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
+    } else if (action == @selector(mirrorHorizontally:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
+    } else if (action == @selector(mirrorVertically:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
     } else if (action == @selector(createPointEntity:)) {
         return YES;
     } else if (action == @selector(createBrushEntity:)) {
@@ -557,7 +561,7 @@
         [map rotateEntitiesZ90CW:[selectionManager selectedEntities] center:centeri];
         
         [undoManager endUndoGrouping];
-        [undoManager setActionName:@"Rotate Objects"];
+        [undoManager setActionName:@"Rotate Objects 90° Clockwise"];
     }
 }
 
@@ -583,8 +587,56 @@
         [map rotateEntitiesZ90CCW:[selectionManager selectedEntities] center:centeri];
         
         [undoManager endUndoGrouping];
-        [undoManager setActionName:@"Rotate Objects"];
+        [undoManager setActionName:@"Rotate Objects 90° Counterclockwise"];
     }
+}
+
+- (IBAction)mirrorHorizontally:(id)sender {
+    MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
+    
+    EAxis axis = strongestComponentV3f([camera right]);
+    
+    TVector3f centerf;
+    TVector3i centeri;
+    TBoundingBox bounds;
+
+    [selectionManager selectionBounds:&bounds];
+    centerOfBounds(&bounds, &centerf);
+    roundV3f(&centerf, &centeri);
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    [map mirrorBrushes:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
+    [map mirrorEntities:[selectionManager selectedEntities] axis:axis center:centeri];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:[NSString stringWithFormat:@"Mirror Objects Along %@ Axis", axisName(axis)]];
+}
+
+- (IBAction)mirrorVertically:(id)sender {
+    MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
+    
+    EAxis axis = strongestComponentV3f([camera up]);
+    
+    TVector3f centerf;
+    TVector3i centeri;
+    TBoundingBox bounds;
+    
+    [selectionManager selectionBounds:&bounds];
+    centerOfBounds(&bounds, &centerf);
+    roundV3f(&centerf, &centeri);
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    [map mirrorBrushes:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
+    [map mirrorEntities:[selectionManager selectedEntities] axis:axis center:centeri];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:[NSString stringWithFormat:@"Mirror Objects Along %@ Axis", axisName(axis)]];
 }
 
 - (IBAction)toggleClipTool:(id)sender {

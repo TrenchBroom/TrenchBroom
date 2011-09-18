@@ -62,7 +62,7 @@
     return self;
 }
 
-- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds {
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds {
     NSAssert(theWorldBounds != NULL, @"world bounds must not be NULL");
 
     if ((self = [self init])) {
@@ -72,7 +72,7 @@
     return self;
 }
 
-- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds brushTemplate:(id <Brush>)theTemplate {
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds brushTemplate:(id <Brush>)theTemplate {
     NSAssert(theTemplate != nil, @"brush template must not be nil");
     
     if ((self = [self initWithWorldBounds:theWorldBounds])) {
@@ -88,7 +88,7 @@
     return self;
 }
 
-- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds brushBounds:(TBoundingBox *)theBrushBounds texture:(NSString *)theTexture {
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds brushBounds:(const TBoundingBox *)theBrushBounds texture:(NSString *)theTexture {
     NSAssert(theBrushBounds != NULL, @"brush bounds must not be NULL");
     
     if ((self = [self initWithWorldBounds:theWorldBounds])) {
@@ -211,7 +211,7 @@
     entity = theEntity;
 }
 
-- (void)translateBy:(TVector3i *)theDelta lockTextures:(BOOL)lockTextures {
+- (void)translateBy:(const TVector3i *)theDelta lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
@@ -224,7 +224,7 @@
     }
 }
 
-- (void)rotateZ90CW:(TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
+- (void)rotateZ90CW:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
@@ -237,7 +237,7 @@
     }
 }
 
-- (void)rotateZ90CCW:(TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
+- (void)rotateZ90CCW:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
@@ -256,6 +256,15 @@
     while ((face = [faceEn nextObject]))
         [face rotate:theRotation center:theCenter lockTexture:lockTextures];
 
+    [self invalidateVertexData];
+}
+
+- (void)mirrorAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
+    NSEnumerator* faceEn = [faces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject]))
+        [face mirrorAxis:theAxis center:theCenter lockTexture:lockTextures];
+    
     [self invalidateVertexData];
 }
 

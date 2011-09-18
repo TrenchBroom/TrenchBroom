@@ -751,6 +751,9 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     [undoManager endUndoGrouping];
 }
 
+- (void)mirrorEntities:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter {
+}
+
 - (void)deleteEntities:(NSArray *)theEntities {
     [self removeEntities:theEntities];
 }
@@ -965,6 +968,36 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     }
     
     [undoManager endUndoGrouping];
+}
+
+- (void)mirrorBrushes:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures {
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+    
+    if ([theBrushes count] == 0)
+        return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] mirrorBrushes:[[theBrushes copy] autorelease] axis:theAxis center:theCenter lockTextures:lockTextures];
+    
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theBrushes forKey:BrushesKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
+    }
+    
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    MutableBrush* brush;
+    while ((brush = [brushEn nextObject]))
+        [brush mirrorAxis:theAxis center:&theCenter lockTextures:lockTextures];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
 }
 
 - (void)deleteBrushes:(NSArray *)theBrushes {

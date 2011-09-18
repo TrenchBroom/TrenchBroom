@@ -88,6 +88,7 @@ extern NSString* const PointFileUnloaded;
 - (void)rotateEntitiesZ90CW:(NSArray *)theEntities center:(TVector3i)theCenter;
 - (void)rotateEntitiesZ90CCW:(NSArray *)theEntities center:(TVector3i)theCenter;
 - (void)rotateEntities:(NSArray *)theEntities rotation:(TQuaternion)theRotation center:(TVector3f)theCenter;
+- (void)mirrorEntities:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter;
 - (void)deleteEntities:(NSArray *)theEntities;
 
 - (void)addBrushesToEntity:(id <Entity>)theEntity brushes:(NSArray *)theBrushes;
@@ -98,6 +99,7 @@ extern NSString* const PointFileUnloaded;
 - (void)rotateBrushesZ90CW:(NSArray *)theBrushes center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
 - (void)rotateBrushesZ90CCW:(NSArray *)theBrushes center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
 - (void)rotateBrushes:(NSArray *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures;
+- (void)mirrorBrushes:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
 - (void)deleteBrushes:(NSArray *)theBrushes;
 
 - (void)setFaces:(NSArray *)theFaces xOffset:(int)theXOffset;

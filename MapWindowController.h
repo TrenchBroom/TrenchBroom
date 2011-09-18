@@ -69,6 +69,8 @@
 
 - (IBAction)rotateZ90CW:(id)sender;
 - (IBAction)rotateZ90CCW:(id)sender;
+- (IBAction)mirrorHorizontally:(id)sender;
+- (IBAction)mirrorVertically:(id)sender;
 - (IBAction)toggleClipTool:(id)sender;
 - (IBAction)toggleClipMode:(id)sender;
 - (IBAction)performClip:(id)sender;

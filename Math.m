@@ -18,6 +18,10 @@ TVector3f const ZAxisPos = { 0,  0, +1};
 TVector3f const ZAxisNeg = { 0,  0, -1};
 TVector3f const NullVector = {0, 0, 0};
 
+NSString* const XAxisName = @"X";
+NSString* const YAxisName = @"Y";
+NSString* const ZAxisName = @"Z";
+
 BOOL fzero(float v) {
     return fabsf(v) <= AlmostZero;
 }
@@ -623,6 +627,17 @@ float planeY(const TPlane* p, float x, float z) {
 float planeZ(const TPlane* p, float x, float y) {
     float l = dotV3f(&p->norm, &p->point);
     return (l - p->norm.x * x - p->norm.y * y) / p->norm.z;
+}
+
+NSString* axisName(EAxis a) {
+    switch (a) {
+        case A_X:
+            return XAxisName;
+        case A_Y:
+            return YAxisName;
+        default:
+            return ZAxisName;
+    }
 }
 
 #pragma mark TCubicBezierCurve functions

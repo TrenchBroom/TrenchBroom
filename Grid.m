@@ -36,7 +36,9 @@ NSString* const GridChanged = @"GridChanged";
 }
 
 - (int)actualSize {
-    return 1 << size;
+    if (snap)
+        return 1 << size;
+    return 1;
 }
 
 - (BOOL)draw {

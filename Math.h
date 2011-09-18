@@ -175,6 +175,8 @@ float planeX(const TPlane* p, float y, float z);
 float planeY(const TPlane* p, float x, float z);
 float planeZ(const TPlane* p, float x, float y);
 
+NSString* axisName(EAxis a);
+
 void centerOfBounds(const TBoundingBox* b, TVector3f* o);
 void roundedCenterOfBounds(const TBoundingBox* b, TVector3i* o);
 void translateBounds(const TBoundingBox* b, const TVector3f* d, TBoundingBox* o);

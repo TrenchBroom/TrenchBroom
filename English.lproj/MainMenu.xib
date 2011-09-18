@@ -585,14 +585,14 @@
 								</object>
 								<object class="NSMenuItem" id="673708202">
 									<reference key="NSMenu" ref="789758025"/>
-									<string key="NSTitle">Brush</string>
+									<string key="NSTitle">Object</string>
 									<string key="NSKeyEquiv"/>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
 									<string key="NSAction">submenuAction:</string>
 									<object class="NSMenu" key="NSSubmenu" id="388273987">
-										<string key="NSTitle">Brush</string>
+										<string key="NSTitle">Object</string>
 										<array class="NSMutableArray" key="NSMenuItems">
 											<object class="NSMenuItem" id="83918969">
 												<reference key="NSMenu" ref="388273987"/>
@@ -609,6 +609,44 @@
 												<string key="NSTitle">Rotate 90° CCW</string>
 												<string key="NSKeyEquiv">r</string>
 												<int key="NSKeyEquivModMask">1572864</int>
+												<int key="NSMnemonicLoc">2147483647</int>
+												<reference key="NSOnImage" ref="1033313550"/>
+												<reference key="NSMixedImage" ref="310636482"/>
+											</object>
+											<object class="NSMenuItem" id="278832725">
+												<reference key="NSMenu" ref="388273987"/>
+												<bool key="NSIsDisabled">YES</bool>
+												<bool key="NSIsSeparator">YES</bool>
+												<string key="NSTitle"/>
+												<string key="NSKeyEquiv"/>
+												<int key="NSMnemonicLoc">2147483647</int>
+												<reference key="NSOnImage" ref="1033313550"/>
+												<reference key="NSMixedImage" ref="310636482"/>
+											</object>
+											<object class="NSMenuItem" id="955203076">
+												<reference key="NSMenu" ref="388273987"/>
+												<string key="NSTitle">Mirror Horizontally</string>
+												<string key="NSKeyEquiv">m</string>
+												<int key="NSKeyEquivModMask">1048576</int>
+												<int key="NSMnemonicLoc">2147483647</int>
+												<reference key="NSOnImage" ref="1033313550"/>
+												<reference key="NSMixedImage" ref="310636482"/>
+											</object>
+											<object class="NSMenuItem" id="406577010">
+												<reference key="NSMenu" ref="388273987"/>
+												<string key="NSTitle">Mirror Vertically</string>
+												<string key="NSKeyEquiv">m</string>
+												<int key="NSKeyEquivModMask">1572864</int>
+												<int key="NSMnemonicLoc">2147483647</int>
+												<reference key="NSOnImage" ref="1033313550"/>
+												<reference key="NSMixedImage" ref="310636482"/>
+											</object>
+											<object class="NSMenuItem" id="850214679">
+												<reference key="NSMenu" ref="388273987"/>
+												<bool key="NSIsDisabled">YES</bool>
+												<bool key="NSIsSeparator">YES</bool>
+												<string key="NSTitle"/>
+												<string key="NSKeyEquiv"/>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
@@ -633,28 +671,6 @@
 												<reference key="NSMenu" ref="388273987"/>
 												<string key="NSTitle">Perform Clip</string>
 												<string type="base64-UTF8" key="NSKeyEquiv">DQ</string>
-												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="1033313550"/>
-												<reference key="NSMixedImage" ref="310636482"/>
-											</object>
-										</array>
-									</object>
-								</object>
-								<object class="NSMenuItem" id="549565365">
-									<reference key="NSMenu" ref="789758025"/>
-									<string key="NSTitle">Entity</string>
-									<string key="NSKeyEquiv"/>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="1033313550"/>
-									<reference key="NSMixedImage" ref="310636482"/>
-									<string key="NSAction">submenuAction:</string>
-									<object class="NSMenu" key="NSSubmenu" id="679764630">
-										<string key="NSTitle">Entity</string>
-										<array class="NSMutableArray" key="NSMenuItems">
-											<object class="NSMenuItem" id="912791193">
-												<reference key="NSMenu" ref="679764630"/>
-												<string key="NSTitle">Item</string>
-												<string key="NSKeyEquiv"/>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
@@ -1909,6 +1925,22 @@
 					</object>
 					<int key="connectionID">863</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">mirrorHorizontally:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="955203076"/>
+					</object>
+					<int key="connectionID">868</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">mirrorVertically:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="406577010"/>
+					</object>
+					<int key="connectionID">869</int>
+				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<array key="orderedObjects">
@@ -2071,7 +2103,6 @@
 							<reference ref="790794224"/>
 							<reference ref="600792235"/>
 							<reference ref="673708202"/>
-							<reference ref="549565365"/>
 							<reference ref="189026083"/>
 							<reference ref="205985845"/>
 							<reference ref="9570787"/>
@@ -2432,6 +2463,10 @@
 							<reference ref="291756256"/>
 							<reference ref="83918969"/>
 							<reference ref="499931977"/>
+							<reference ref="955203076"/>
+							<reference ref="406577010"/>
+							<reference ref="850214679"/>
+							<reference ref="278832725"/>
 						</array>
 						<reference key="parent" ref="673708202"/>
 					</object>
@@ -2439,27 +2474,6 @@
 						<int key="objectID">659</int>
 						<reference key="object" ref="423392075"/>
 						<reference key="parent" ref="388273987"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">660</int>
-						<reference key="object" ref="549565365"/>
-						<array class="NSMutableArray" key="children">
-							<reference ref="679764630"/>
-						</array>
-						<reference key="parent" ref="789758025"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">661</int>
-						<reference key="object" ref="679764630"/>
-						<array class="NSMutableArray" key="children">
-							<reference ref="912791193"/>
-						</array>
-						<reference key="parent" ref="549565365"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">662</int>
-						<reference key="object" ref="912791193"/>
-						<reference key="parent" ref="679764630"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">696</int>
@@ -2761,6 +2775,26 @@
 						<reference key="object" ref="1010469920"/>
 						<reference key="parent" ref="720053764"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">864</int>
+						<reference key="object" ref="955203076"/>
+						<reference key="parent" ref="388273987"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">865</int>
+						<reference key="object" ref="406577010"/>
+						<reference key="parent" ref="388273987"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">866</int>
+						<reference key="object" ref="850214679"/>
+						<reference key="parent" ref="388273987"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">867</int>
+						<reference key="object" ref="278832725"/>
+						<reference key="parent" ref="388273987"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -2830,9 +2864,6 @@
 				<string key="657.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="658.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="659.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="660.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="661.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="662.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="696.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="697.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="698.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2902,13 +2933,17 @@
 				<string key="855.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="860.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="861.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="864.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="865.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="866.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="867.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="92.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">863</int>
+			<int key="maxID">869</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2963,6 +2998,8 @@
 						<string key="duplicateSelection:">id</string>
 						<string key="isolateSelection:">id</string>
 						<string key="loadPointFile:">id</string>
+						<string key="mirrorHorizontally:">id</string>
+						<string key="mirrorVertically:">id</string>
 						<string key="performClip:">id</string>
 						<string key="rotateTextureLeft:">id</string>
 						<string key="rotateTextureRight:">id</string>
@@ -3025,6 +3062,14 @@
 						</object>
 						<object class="IBActionInfo" key="loadPointFile:">
 							<string key="name">loadPointFile:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="mirrorHorizontally:">
+							<string key="name">mirrorHorizontally:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="mirrorVertically:">
+							<string key="name">mirrorVertically:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="performClip:">

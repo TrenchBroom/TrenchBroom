@@ -24,21 +24,22 @@
     TVertexData vertexData;
     BOOL vertexDataValid;
     int filePosition;
-    TBoundingBox* worldBounds;
+    const TBoundingBox* worldBounds;
 }
 
-- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds;
-- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds brushTemplate:(id <Brush>)theTemplate;
-- (id)initWithWorldBounds:(TBoundingBox *)theWorldBounds brushBounds:(TBoundingBox *)theBrushBounds texture:(NSString *)theTexture;
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds;
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds brushTemplate:(id <Brush>)theTemplate;
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds brushBounds:(const TBoundingBox *)theBrushBounds texture:(NSString *)theTexture;
 
 - (BOOL)addFace:(MutableFace *)face;
 - (void)removeFace:(MutableFace *)face;
 
 - (void)setEntity:(MutableEntity *)theEntity;
-- (void)translateBy:(TVector3i *)theDelta lockTextures:(BOOL)lockTextures;
-- (void)rotateZ90CW:(TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
-- (void)rotateZ90CCW:(TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
+- (void)translateBy:(const TVector3i *)theDelta lockTextures:(BOOL)lockTextures;
+- (void)rotateZ90CW:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
+- (void)rotateZ90CCW:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures;
+- (void)mirrorAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
 
 - (void)drag:(MutableFace *)face by:(float)dist lockTexture:(BOOL)lockTexture;
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist;

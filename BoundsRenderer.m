@@ -204,44 +204,31 @@
         glEnable(GL_DEPTH_TEST);
     
     for (int i = 0; i < 3; i++) {
-        float dist = [camera distanceTo:&p[i]];
-        if (dist <= 500) {
-            if (dist >= 400) {
-                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w - theColor->w * (dist - 400) / 100);
-            } else {
-                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w);
-            }
-            
-            glBegin(GL_LINE_STRIP);
-            for (int j = 0; j < 4; j++)
-                glVertexV3f(&gv[i][j]);
-            glEnd();
-        }
+        glColor4f(theColor->x, theColor->y, theColor->z, theColor->w);
+        
+        glBegin(GL_LINE_STRIP);
+        for (int j = 0; j < 4; j++)
+            glVertexV3f(&gv[i][j]);
+        glEnd();
     }
 
     glDisable(GL_STENCIL_TEST);
     
     [fontManager activate];
     for (int i = 0; i < maxi; i++) {
+        glColor4f(theColor->x, theColor->y, theColor->z, theColor->w);
+        
         float dist = [camera distanceTo:&p[i]];
-        if (dist <= 500) {
-            if (dist >= 400) {
-                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w - theColor->w * (dist - 400) / 100);
-            } else {
-                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w);
-            }
-            
-            float factor = dist / 300;
-            NSSize size = [glStrings[i] size];
-            
-            glPushMatrix();
-            glTranslatef(p[i].x, p[i].y, p[i].z);
-            [camera setBillboardMatrix];
-            glScalef(factor, factor, 0);
-            glTranslatef(-size.width / 2, -size.height / 2, 0);
-            [glStrings[i] render];
-            glPopMatrix();
-        }
+        float factor = dist / 300;
+        NSSize size = [glStrings[i] size];
+        
+        glPushMatrix();
+        glTranslatef(p[i].x, p[i].y, p[i].z);
+        [camera setBillboardMatrix];
+        glScalef(factor, factor, 0);
+        glTranslatef(-size.width / 2, -size.height / 2, 0);
+        [glStrings[i] render];
+        glPopMatrix();
     }
     [fontManager deactivate];
 }
