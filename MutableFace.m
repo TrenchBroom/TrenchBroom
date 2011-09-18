@@ -616,6 +616,23 @@
             point3.x -= theCenter->x;
             point3.x *= -1;
             point3.x += theCenter->x;
+            
+            if (lockTexture) {
+                if (!texAxesValid)
+                    [self validateTexAxes];
+
+                if (texPlaneNorm == &YAxisPos || texPlaneNorm == &YAxisNeg) {
+                    xScale *= -1;
+                    xOffset -= theCenter->x;
+                    xOffset *= -1;
+                    xOffset += theCenter->x;
+                } else if (texPlaneNorm == &ZAxisPos || texPlaneNorm == &ZAxisNeg) {
+                    xScale *= -1;
+                    xOffset -= theCenter->x;
+                    xOffset *= -1;
+                    xOffset += theCenter->x;
+                }
+            }
             break;
         }
         case A_Y: {
@@ -630,6 +647,23 @@
             point3.y -= theCenter->y;
             point3.y *= -1;
             point3.y += theCenter->y;
+
+            if (lockTexture) {
+                if (!texAxesValid)
+                    [self validateTexAxes];
+                
+                if (texPlaneNorm == &XAxisPos || texPlaneNorm == &XAxisNeg) {
+                    xScale *= -1;
+                    xOffset -= theCenter->y;
+                    xOffset *= -1;
+                    xOffset += theCenter->y;
+                } else if (texPlaneNorm == &ZAxisPos || texPlaneNorm == &ZAxisNeg) {
+                    yScale *= -1;
+                    yOffset -= theCenter->y;
+                    yOffset *= -1;
+                    yOffset += theCenter->y;
+                }
+            }
             break;
         }
         default: {
@@ -644,6 +678,23 @@
             point3.z -= theCenter->z;
             point3.z *= -1;
             point3.z += theCenter->z;
+
+            if (lockTexture) {
+                if (!texAxesValid)
+                    [self validateTexAxes];
+                
+                if (texPlaneNorm == &XAxisPos || texPlaneNorm == &XAxisNeg) {
+                    yScale *= -1;
+                    yOffset -= theCenter->z;
+                    yOffset *= -1;
+                    yOffset += theCenter->z;
+                } else if (texPlaneNorm == &YAxisPos || texPlaneNorm == &YAxisNeg) {
+                    yScale *= -1;
+                    yOffset -= theCenter->z;
+                    yOffset *= -1;
+                    yOffset += theCenter->z;
+                }
+            }
             break;
         }
     }
