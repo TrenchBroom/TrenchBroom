@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1DDD582C0DA1D0D100B32029 /* MapDocumentWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58280DA1D0D100B32029 /* MapDocumentWindow.xib */; };
 		1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD582A0DA1D0D100B32029 /* MainMenu.xib */; };
+		4802373E1427776900F16751 /* NSUndoManager+DebugCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 4802373D1427776900F16751 /* NSUndoManager+DebugCategory.m */; };
 		4809A10F13E2A2E300AF6557 /* InspectorView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4809A10E13E2A2E300AF6557 /* InspectorView.xib */; };
 		480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 480BB4711302ED1C005E3492 /* Matrix2f.m */; };
 		480BB50A13031A9D005E3492 /* Matrix3f.m in Sources */ = {isa = PBXBuildFile; fileRef = 480BB50913031A9D005E3492 /* Matrix3f.m */; };
@@ -236,6 +237,8 @@
 		2A37F4BAFDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		4802373C1427776800F16751 /* NSUndoManager+DebugCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSUndoManager+DebugCategory.h"; sourceTree = "<group>"; };
+		4802373D1427776900F16751 /* NSUndoManager+DebugCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSUndoManager+DebugCategory.m"; sourceTree = "<group>"; };
 		4809A10E13E2A2E300AF6557 /* InspectorView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = InspectorView.xib; sourceTree = "<group>"; };
 		480BB4701302ED1C005E3492 /* Matrix2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix2f.h; sourceTree = "<group>"; };
 		480BB4711302ED1C005E3492 /* Matrix2f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix2f.m; sourceTree = "<group>"; };
@@ -774,6 +777,8 @@
 			children = (
 				484524D513240049003B2855 /* NSFileManager+AppSupportCategory.h */,
 				484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */,
+				4802373C1427776800F16751 /* NSUndoManager+DebugCategory.h */,
+				4802373D1427776900F16751 /* NSUndoManager+DebugCategory.m */,
 			);
 			name = Misc;
 			sourceTree = "<group>";
@@ -1561,6 +1566,7 @@
 				4864E2BD140D1840000DE923 /* CompilerProfileCommand.m in Sources */,
 				4864E2C1140E2682000DE923 /* CompilerProfileRunner.m in Sources */,
 				483AB7A71410C4E400B5F44E /* PointFileFeedbackFigure.m in Sources */,
+				4802373E1427776900F16751 /* NSUndoManager+DebugCategory.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

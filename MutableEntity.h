@@ -43,6 +43,7 @@
 - (void)rotateZ90CW:(const TVector3i *)theRotationCenter;
 - (void)rotateZ90CCW:(const TVector3i *)theRotationCenter;
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theRotationCenter;
+- (void)mirrorAxis:(EAxis)theAxis center:(const TVector3i *)theCenter;
 
 - (void)replaceProperties:(NSDictionary *)theProperties;
 - (void)setProperty:(NSString *)key value:(NSString *)value;

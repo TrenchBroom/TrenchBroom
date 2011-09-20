@@ -86,6 +86,18 @@ typedef struct {
     TVector3f endControl;
 } TCubicBezierCurve;
 
+typedef struct {
+    float values[4];
+} TMatrix2f;
+
+typedef struct {
+    float values[9];
+} TMatrix3f;
+
+typedef struct {
+    float values[16];
+} TMatrix4f;
+
 extern float const AlmostZero;
 extern TVector3f const XAxisPos;
 extern TVector3f const XAxisNeg;
@@ -212,6 +224,59 @@ float closestPointOnRay(const TVector3f* c, const TRay* r);
 float distanceOfSegmentAndRay(const TVector3f* ss, const TVector3f* se, const TRay* r, float* rd);
 float distanceOfSegmentAndRaySquared(const TVector3f* ss, const TVector3f* se, const TRay* r, float* rd);
 void rayPointAtDistance(const TRay* r, float d, TVector3f* p);
+
+void setMatrix2fAsSubMatrix(const TMatrix4f* m4f, TMatrix2f* m2f);
+void setIdentityM2f(TMatrix2f* m);
+void setMinorM2f(const TMatrix2f* m2f, const TMatrix3f* m3f, int c, int r, TMatrix2f* o);
+void setColumnM2f(const TMatrix2f* m, float* v, int c, TMatrix2f* o);
+void setValueM2f(const TMatrix2f* m, float v, int c, int r, TMatrix2f* o);
+BOOL invertM2f(const TMatrix2f* m, TMatrix2f* o);
+void adjugateM2f(const TMatrix2f* m, TMatrix2f* o);
+float determinantM2f(const TMatrix2f* m);
+void negateM2f(const TMatrix2f* m, TMatrix2f* o);
+void transposeM2f(const TMatrix2f* m, TMatrix2f* o);
+void addM2f(const TMatrix2f* l, const TMatrix2f* r, TMatrix2f* o);
+void subM2f(const TMatrix2f* l, const TMatrix2f* r, TMatrix2f* o);
+void mulM2f(const TMatrix2f* l, const TMatrix2f* r, TMatrix2f* o);
+void scaleM2f(const TMatrix2f* m, float s, TMatrix2f* o);
+void columnMajorM2f(const TMatrix2f* m, float* v);
+
+void setIdentityM3f(TMatrix3f* m);
+void setMinorM3f(const TMatrix3f* m3f, const TMatrix4f* m4f, int c, int r, TMatrix3f* o);
+void setColumnM3f(const TMatrix3f* m, float* v, int c, TMatrix3f* o);
+void setValueM3f(const TMatrix3f* m, float v, int c, int r, TMatrix3f* o);
+BOOL invertM3f(const TMatrix3f* m, TMatrix3f* o);
+void adjugateM3f(const TMatrix3f* m, TMatrix3f* o);
+float determinantM3f(const TMatrix3f* m);
+void negateM3f(const TMatrix3f* m, TMatrix3f* o);
+void transposeM3f(const TMatrix3f* m, TMatrix3f* o);
+void addM3f(const TMatrix3f* l, const TMatrix3f* r, TMatrix3f* o);
+void subM3f(const TMatrix3f* l, const TMatrix3f* r, TMatrix3f* o);
+void mulM3f(const TMatrix3f* l, const TMatrix3f* r, TMatrix3f* o);
+void scaleM3f(const TMatrix3f* m, float s, TMatrix3f* o);
+void columnMajorM3f(const TMatrix3f* m, float* v);
+
+void setIdentityM4f(TMatrix4f* m);
+void embedM4f(const TMatrix3* m3f, TMatrix4f* m4f);
+void setSubMatrixM4f(const TMatrix4f* m4f, const TMatrix2f* m2f, int index, TMatrix4f* o);
+void setColumnM4f(const TMatrix4f* m, float* v, int c, TMatrix4f* o);
+void setValueM4f(const TMatrix4f* m, float v, int c, int r, TMatrix4f* o);
+BOOL invertM4f(const TMatrix4f* m, TMatrix4f* o);
+void adjugateM4f(const TMatrix4f* m, TMatrix4f* o);
+float determinantM4f(const TMatrix4f* m);
+void negateM4f(const TMatrix4f* m, TMatrix4f* o);
+void transposeM4f(const TMatrix4f* m, TMatrix4f* o);
+void addM4f(const TMatrix4f* l, const TMatrix4f* r, TMatrix4f* o);
+void subM4f(const TMatrix4f* l, const TMatrix4f* r, TMatrix4f* o);
+void mulM4f(const TMatrix4f* l, const TMatrix4f* r, TMatrix4f* o);
+void scaleM4f(const TMatrix4f* m, float s, TMatrix4f* o);
+void columnMajorM4f(const TMatrix4f* m, float* v);
+
+void rotateM4f(const TMatrix4f* m, const TVector3f* x, float a, TMatrix4f* o);
+void translateM4f(const TMatrix4f* m, const TVector3f* d, TMatrix4f* o);
+void scaleM4fV3f(const TMatrix4f* m, const TVector3f* s, TMatrix4f* o);
+void transformM4fV3f(const TMatrix4f* m, const TVector3f* v, TVector3f* o);
+void transformM4fV4f(const TMatrix4f* m, const TVector4f* v, TVector4f* o);
 
 void projectOntoCoordinatePlane(EPlane plane, const TVector3f* v, TVector3f* o);
 BOOL projectVectorOntoPlane(const TVector3f* planeNorm, const TVector3f* dir, const TVector3f* v, TVector3f* o);

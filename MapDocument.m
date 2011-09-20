@@ -275,9 +275,6 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     while ((entity = [entityEn nextObject]))
         [self setEntityDefinition:entity];
 
-//    [self setPostNotifications:YES];
-    [[self undoManager] enableUndoRegistration];
-    
     [pwc close];
     [pwc release];
     
@@ -293,6 +290,9 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
             [self insertObject:wadPath inTextureWadsAtIndex:[[textureManager textureCollections] count]];
         }
     }
+    
+    //    [self setPostNotifications:YES];
+    [[self undoManager] enableUndoRegistration];
     
     return YES;
 }
@@ -752,6 +752,33 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
 }
 
 - (void)mirrorEntities:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter {
+    NSAssert(theEntities != nil, @"entity set must not be nil");
+    
+    if ([theEntities count] == 0)
+        return;
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] mirrorEntities:[[theEntities copy] autorelease] axis:theAxis center:theCenter];
+    
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theEntities forKey:EntitiesKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
+    }
+    
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    MutableEntity* entity;
+    while ((entity = [entityEn nextObject]))
+        [entity mirrorAxis:theAxis center:&theCenter];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
 }
 
 - (void)deleteEntities:(NSArray *)theEntities {

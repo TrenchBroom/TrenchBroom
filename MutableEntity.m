@@ -298,6 +298,48 @@
     }
 }
 
+- (void)mirrorAxis:(EAxis)theAxis center:(const TVector3i *)theCenter {
+    if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
+        return;
+    
+    if (!valid)
+        [self validate];
+    
+    TVector3i o, ci, d;
+    roundV3f(&center, &ci);
+    subV3i([self origin], &ci, &d);
+    subV3i(&ci, theCenter, &ci);
+    
+    switch (theAxis) {
+        case A_X:
+            ci.x *= -1;
+            break;
+        case A_Y:
+            ci.y *= -1;
+            break;
+        default:
+            ci.z *= -1;
+            break;
+    }
+    
+    addV3i(&ci, theCenter, &ci);
+    addV3i(&ci, &d, &o);
+    
+    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", o.x, o.y, o.z]];
+    
+    if ([self angle] == nil)
+        [self setProperty:AngleKey value:@"0"];
+    
+    int a = [[self angle] intValue];
+    if (a >= 0)
+        a = (a + 180) % 360;
+    else if (a == -1)
+        a = -2;
+    else if (a == -2)
+        a = -1;
+    [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
+}
+
 - (void)replaceProperties:(NSDictionary *)theProperties {
     NSAssert(theProperties != nil, @"properties must not be nil");
     
