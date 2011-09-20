@@ -12,7 +12,6 @@
 
 @protocol Brush;
 @class Vertex;
-@class Matrix4f;
 @class PickingHit;
 @class VBOMemBlock;
 
@@ -45,8 +44,8 @@
 - (void)gridCoords:(TVector2f *)gridCoords forVertex:(TVector3f *)vertex;
 - (void)transformSurface:(const TVector3f *)surfacePoint toWorld:(TVector3f *)worldPoint;
 - (void)transformWorld:(const TVector3f *)worldPoint toSurface:(TVector3f *)surfacePoint;
-- (Matrix4f *)surfaceToWorldMatrix;
-- (Matrix4f *)worldToSurfaceMatrix;
+- (const TMatrix4f *)surfaceToWorldMatrix;
+- (const TMatrix4f *)worldToSurfaceMatrix;
 
 - (VBOMemBlock *)memBlock;
 - (void)setMemBlock:(VBOMemBlock *)theMemBlock;

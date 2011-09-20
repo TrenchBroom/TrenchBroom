@@ -12,7 +12,6 @@
 #import "Camera.h"
 #import "GLFontManager.h"
 #import "GLString.h"
-#import "Matrix4f.h"
 #import "GLUtils.h"
 
 @implementation BoundsRenderer

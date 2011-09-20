@@ -10,13 +10,12 @@
 #import "Math.h"
 #import "Cursor.h"
 
-@class Matrix4f;
 @protocol Face;
 
 @interface ApplyFaceCursor : NSObject <Cursor> {
     TVector3f position;
     TVector3f center;
-    Matrix4f* matrix;
+    TMatrix4f matrix;
     BOOL applyFlags;
 }
 

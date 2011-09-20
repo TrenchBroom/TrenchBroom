@@ -16,7 +16,6 @@ typedef enum {
 } EPlaneType;
 
 @class MutableBrush;
-@class Matrix4f;
 @class PickingHit;
 @class VBOMemBlock;
 
@@ -51,8 +50,9 @@ typedef enum {
     BOOL texAxesValid;
     
     // transforms surface coordinates to world coordinates
-    Matrix4f* surfaceToWorldMatrix;
-    Matrix4f* worldToSurfaceMatrix; // inverse of surface matrix
+    TMatrix4f surfaceToWorldMatrix;
+    TMatrix4f worldToSurfaceMatrix; // inverse of surface matrix
+    BOOL matricesValid;
     
     int filePosition;
     

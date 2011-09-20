@@ -11,8 +11,6 @@
 		1DDD582D0DA1D0D100B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD582A0DA1D0D100B32029 /* MainMenu.xib */; };
 		4802373E1427776900F16751 /* NSUndoManager+DebugCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 4802373D1427776900F16751 /* NSUndoManager+DebugCategory.m */; };
 		4809A10F13E2A2E300AF6557 /* InspectorView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4809A10E13E2A2E300AF6557 /* InspectorView.xib */; };
-		480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */ = {isa = PBXBuildFile; fileRef = 480BB4711302ED1C005E3492 /* Matrix2f.m */; };
-		480BB50A13031A9D005E3492 /* Matrix3f.m in Sources */ = {isa = PBXBuildFile; fileRef = 480BB50913031A9D005E3492 /* Matrix3f.m */; };
 		480D23201334A3A800D3B57B /* PickingHitList.m in Sources */ = {isa = PBXBuildFile; fileRef = 480D231F1334A3A800D3B57B /* PickingHitList.m */; };
 		480F2F65132562CA00651FED /* Grid.m in Sources */ = {isa = PBXBuildFile; fileRef = 480F2F64132562CA00651FED /* Grid.m */; };
 		4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4814A02212F73F1E0082E05F /* ProgressWindow.xib */; };
@@ -85,7 +83,6 @@
 		486E08B313B5EF2C00E751A6 /* RotateFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B213B5EF2C00E751A6 /* RotateFeedbackFigure.m */; };
 		486E08B613B6772300E751A6 /* FaceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B513B6772200E751A6 /* FaceInfo.m */; };
 		486E08B913B67D8100E751A6 /* BrushInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B813B67D8000E751A6 /* BrushInfo.m */; };
-		4872C97712FF4DC200C5DD29 /* Matrix4f.m in Sources */ = {isa = PBXBuildFile; fileRef = 4872C97612FF4DC200C5DD29 /* Matrix4f.m */; };
 		487436A6135B5FD900F787E1 /* DefaultFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 487436A5135B5FD900F787E1 /* DefaultFilter.m */; };
 		4874387013601A5700F787E1 /* EntityDefinitionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4874386F13601A5700F787E1 /* EntityDefinitionManager.m */; };
 		4874387313601A6000F787E1 /* EntityDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 4874387213601A6000F787E1 /* EntityDefinition.m */; };
@@ -240,10 +237,6 @@
 		4802373C1427776800F16751 /* NSUndoManager+DebugCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSUndoManager+DebugCategory.h"; sourceTree = "<group>"; };
 		4802373D1427776900F16751 /* NSUndoManager+DebugCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSUndoManager+DebugCategory.m"; sourceTree = "<group>"; };
 		4809A10E13E2A2E300AF6557 /* InspectorView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = InspectorView.xib; sourceTree = "<group>"; };
-		480BB4701302ED1C005E3492 /* Matrix2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix2f.h; sourceTree = "<group>"; };
-		480BB4711302ED1C005E3492 /* Matrix2f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix2f.m; sourceTree = "<group>"; };
-		480BB50813031A9D005E3492 /* Matrix3f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix3f.h; sourceTree = "<group>"; };
-		480BB50913031A9D005E3492 /* Matrix3f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix3f.m; sourceTree = "<group>"; };
 		480D231E1334A3A800D3B57B /* PickingHitList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PickingHitList.h; sourceTree = "<group>"; };
 		480D231F1334A3A800D3B57B /* PickingHitList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PickingHitList.m; sourceTree = "<group>"; };
 		480F2F63132562CA00651FED /* Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Grid.h; sourceTree = "<group>"; };
@@ -384,8 +377,6 @@
 		486E08B513B6772200E751A6 /* FaceInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceInfo.m; sourceTree = "<group>"; };
 		486E08B713B67D7F00E751A6 /* BrushInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushInfo.h; sourceTree = "<group>"; };
 		486E08B813B67D8000E751A6 /* BrushInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrushInfo.m; sourceTree = "<group>"; };
-		4872C97512FF4DC200C5DD29 /* Matrix4f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix4f.h; sourceTree = "<group>"; };
-		4872C97612FF4DC200C5DD29 /* Matrix4f.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix4f.m; sourceTree = "<group>"; };
 		487436A4135B5FD900F787E1 /* DefaultFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefaultFilter.h; sourceTree = "<group>"; };
 		487436A5135B5FD900F787E1 /* DefaultFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DefaultFilter.m; sourceTree = "<group>"; };
 		4874386E13601A5700F787E1 /* EntityDefinitionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionManager.h; sourceTree = "<group>"; };
@@ -783,17 +774,6 @@
 			name = Misc;
 			sourceTree = "<group>";
 		};
-		485FD0C81257A8C100F4AE49 /* 3D */ = {
-			isa = PBXGroup;
-			children = (
-				480BB50813031A9D005E3492 /* Matrix3f.h */,
-				480BB50913031A9D005E3492 /* Matrix3f.m */,
-				4872C97512FF4DC200C5DD29 /* Matrix4f.h */,
-				4872C97612FF4DC200C5DD29 /* Matrix4f.m */,
-			);
-			name = 3D;
-			sourceTree = "<group>";
-		};
 		486928E9133F27D900A0F098 /* Tool */ = {
 			isa = PBXGroup;
 			children = (
@@ -1013,15 +993,6 @@
 			name = Picking;
 			sourceTree = "<group>";
 		};
-		488FF49012243BC700EA9158 /* 2D */ = {
-			isa = PBXGroup;
-			children = (
-				480BB4701302ED1C005E3492 /* Matrix2f.h */,
-				480BB4711302ED1C005E3492 /* Matrix2f.m */,
-			);
-			name = 2D;
-			sourceTree = "<group>";
-		};
 		4898D9C113E1989D00B9C8F1 /* Prefab */ = {
 			isa = PBXGroup;
 			children = (
@@ -1195,8 +1166,6 @@
 		48A68F1C114EA7750064732A /* Math */ = {
 			isa = PBXGroup;
 			children = (
-				488FF49012243BC700EA9158 /* 2D */,
-				485FD0C81257A8C100F4AE49 /* 3D */,
 				483B1127122441060072EAFB /* Math.h */,
 				483B1128122441060072EAFB /* Math.m */,
 			);
@@ -1453,10 +1422,7 @@
 				481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */,
 				488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */,
 				4818202312FB4746002D9AAD /* SingleTextureView.m in Sources */,
-				4872C97712FF4DC200C5DD29 /* Matrix4f.m in Sources */,
 				487A7E651300801A00434806 /* Renderer.m in Sources */,
-				480BB4721302ED1C005E3492 /* Matrix2f.m in Sources */,
-				480BB50A13031A9D005E3492 /* Matrix3f.m in Sources */,
 				485D2EAF1308624900CF73D8 /* Options.m in Sources */,
 				48C3324413087D8600C23607 /* MenuDelegate.m in Sources */,
 				48E4006D13159E7E004642CD /* TextureNameFilter.m in Sources */,

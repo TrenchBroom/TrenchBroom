@@ -7,7 +7,6 @@
 //
 
 #import "ApplyFaceCursor.h"
-#import "Matrix4f.h"
 #import "Face.h"
 
 @implementation ApplyFaceCursor
@@ -20,7 +19,7 @@
     glPushMatrix();
     
     glTranslatef(position.x - center.x, position.y - center.y, position.z - center.z);
-    glMultMatrixf([matrix columnMajor]);
+    glMultMatrixf(matrix.values);
 
     glLineWidth(2);
     glColor4f(1, 1, 0, 1);
@@ -59,8 +58,7 @@
 }
 
 - (void)setFace:(id <Face>)theFace {
-    [matrix release];
-    matrix = [[theFace surfaceToWorldMatrix] retain];
+    matrix = *[theFace surfaceToWorldMatrix];
     center = *[theFace center];
 }
 
@@ -71,11 +69,5 @@
 - (void)update:(const TVector3f *)thePosition {
     position = *thePosition;
 }
-
-- (void)dealloc {
-    [matrix release];
-    [super dealloc];
-}
-
 
 @end

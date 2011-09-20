@@ -14,8 +14,6 @@
 #import "Brush.h"
 #import "Entity.h"
 #import "Map.h"
-#import "Matrix4f.h"
-#import "Matrix3f.h"
 #import "PickingHit.h"
 #import "TextureManager.h"
 #import "Texture.h"
@@ -121,24 +119,20 @@
     normalizeV3f(&yAxis, &yAxis);
     
     // build transformation matrix
-    surfaceToWorldMatrix = [[Matrix4f alloc] init];
-    [surfaceToWorldMatrix setColumn:0 values:&xAxis];
-    [surfaceToWorldMatrix setColumn:1 values:&yAxis];
-    [surfaceToWorldMatrix setColumn:2 values:&zAxis];
-    [surfaceToWorldMatrix setColumn:3 values:[self center]];
-    [surfaceToWorldMatrix setColumn:3 row:3 value:1];
+    setColumnM4fV3f(&surfaceToWorldMatrix, &xAxis, 0, &surfaceToWorldMatrix);
+    setColumnM4fV3f(&surfaceToWorldMatrix, &yAxis, 1, &surfaceToWorldMatrix);
+    setColumnM4fV3f(&surfaceToWorldMatrix, &zAxis, 2, &surfaceToWorldMatrix);
+    setColumnM4fV3f(&surfaceToWorldMatrix, [self center], 3, &surfaceToWorldMatrix);
+    setValueM4f(&surfaceToWorldMatrix, 1, 3, 3, &surfaceToWorldMatrix);
     
-    worldToSurfaceMatrix = [[Matrix4f alloc] initWithMatrix4f:surfaceToWorldMatrix];
-    if (![worldToSurfaceMatrix invert])
+    if (!invertM4f(&surfaceToWorldMatrix, &worldToSurfaceMatrix))
         [NSException raise:@"NonInvertibleMatrixException" format:@"surface transformation matrix is not invertible"];
+    
+    matricesValid = YES;
 }
 
 - (void)geometryChanged {
-    [surfaceToWorldMatrix release];
-    surfaceToWorldMatrix = nil;
-    [worldToSurfaceMatrix release];
-    worldToSurfaceMatrix = nil;
-    
+    matricesValid = NO;
     boundaryValid = NO;
     centerValid = NO;
     texAxesValid = NO;
@@ -342,8 +336,6 @@
 - (void) dealloc {
     [faceId release];
 	[texture release];
-    [surfaceToWorldMatrix release];
-    [worldToSurfaceMatrix release];
     [memBlock free];
     if (side != NULL)
         side->face = nil;
@@ -968,31 +960,31 @@
 }
 
 - (void)transformSurface:(const TVector3f *)surfacePoint toWorld:(TVector3f *)worldPoint {
-    if (surfaceToWorldMatrix == nil)
+    if (!matricesValid)
         [self updateMatrices];
     
-    [surfaceToWorldMatrix transformVector3f:surfacePoint result:worldPoint];
+    transformM4fV3f(&surfaceToWorldMatrix, surfacePoint, worldPoint);
 }
 
 - (void)transformWorld:(const TVector3f *)worldPoint toSurface:(TVector3f *)surfacePoint {
-    if (worldToSurfaceMatrix == nil)
+    if (!matricesValid)
         [self updateMatrices];
     
-    [worldToSurfaceMatrix transformVector3f:worldPoint result:surfacePoint];
+    transformM4fV3f(&worldToSurfaceMatrix, worldPoint, surfacePoint);
 }
 
-- (Matrix4f *)surfaceToWorldMatrix {
-    if (surfaceToWorldMatrix == nil)
+- (const TMatrix4f *)surfaceToWorldMatrix {
+    if (!matricesValid)
         [self updateMatrices];
     
-    return surfaceToWorldMatrix;
+    return &surfaceToWorldMatrix;
 }
 
-- (Matrix4f *)worldToSurfaceMatrix {
-    if (worldToSurfaceMatrix == nil)
+- (const TMatrix4f *)worldToSurfaceMatrix {
+    if (!matricesValid)
         [self updateMatrices];
     
-    return worldToSurfaceMatrix;
+    return &worldToSurfaceMatrix;
 }
 
 - (VBOMemBlock *)memBlock {

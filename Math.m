@@ -1055,6 +1055,511 @@ float degreesQ(const TQuaternion* q) {
     return radiansQ(q) * 180 / M_PI;
 }
 
+#pragma mark TMatrix2f functions
+
+void setMatrix2fAsSubMatrix(const TMatrix4f* m4f, int i, TMatrix2f* m2f) {
+    switch (i) {
+        case 0:
+            m2f->values[0] = m4f->values[0];
+            m2f->values[1] = m4f->values[1];
+            m2f->values[2] = m4f->values[4];
+            m2f->values[3] = m4f->values[5];
+            break;
+        case 1:
+            m2f->values[0] = m4f->values[2];
+            m2f->values[1] = m4f->values[3];
+            m2f->values[2] = m4f->values[6];
+            m2f->values[3] = m4f->values[7];
+            break;
+        case 2:
+            m2f->values[0] = m4f->values[8];
+            m2f->values[1] = m4f->values[9];
+            m2f->values[2] = m4f->values[12];
+            m2f->values[3] = m4f->values[13];
+            break;
+        case 3:
+            m2f->values[0] = m4f->values[10];
+            m2f->values[1] = m4f->values[11];
+            m2f->values[2] = m4f->values[14];
+            m2f->values[3] = m4f->values[15];
+            break;
+        default:
+            [NSException raise:NSInvalidArgumentException format:@"sub matrix index out of bounds: %i", index];
+            break;
+    }
+}
+
+void setIdentityM2f(TMatrix2f* m) {
+    m->values[0] = 1;
+    m->values[1] = 0;
+    m->values[2] = 0;
+    m->values[3] = 1;
+}
+
+void setMinorM2f(const TMatrix3f* m3f, int col, int row, TMatrix2f* o) {
+    int i = 0;
+    for (int c = 0;  c < 3; c++)
+        for (int r = 0; r < 3; r++)
+            if (c != col && r != row)
+                o->values[i++] = m3f->values[c * 3 + r];
+}
+
+void setColumnM2f(const TMatrix2f* m, const TVector2f* v, int col, TMatrix2f* o) {
+    *o = *m;
+    o->values[col * 2 + 0] = v->x;
+    o->values[col * 2 + 1] = v->y;
+}
+
+void setValueM2f(const TMatrix2f* m, float v, int col, int row, TMatrix2f* o) {
+    *o = *m;
+    o->values[col * 2 + row] = v;
+}
+
+BOOL invertM2f(const TMatrix2f* m, TMatrix2f* o) {
+    float det = determinantM2f(m);
+    if (fzero(det))
+        return NO;
+    
+    adjugateM2f(m, o);
+    scaleM2f(o, 1 / det, o);
+    return YES;
+}
+
+void adjugateM2f(const TMatrix2f* m, TMatrix2f* o) {
+    float t = m->values[0];
+    o->values[0] = m->values[3];
+    o->values[3] = t;
+    
+    o->values[1] *= -1;
+    o->values[2] *= -1;
+}
+
+float determinantM2f(const TMatrix2f* m) {
+    return m->values[0] * m->values[3] - m->values[2] - m->values[1];
+}
+
+void negateM2f(const TMatrix2f* m, TMatrix2f* o) {
+    scaleM2f(m, -1, o);
+}
+
+void transposeM2f(const TMatrix2f* m, TMatrix2f* o);
+
+void addM2f(const TMatrix2f* l, const TMatrix2f* r, TMatrix2f* o) {
+    for (int i = 0; i < 4; i++)
+        o->values[i] = l->values[i] + r->values[i];
+}
+
+void subM2f(const TMatrix2f* l, const TMatrix2f* r, TMatrix2f* o) {
+    for (int i = 0; i < 4; i++)
+        o->values[i] = l->values[i] - r->values[i];
+}
+
+void mulM2f(const TMatrix2f* l, const TMatrix2f* r, TMatrix2f* o) {
+    float a = l->values[0] * r->values[0] + l->values[2] * r->values[1];
+    float b = l->values[1] * r->values[0] + l->values[3] * r->values[1];
+    float c = l->values[0] * r->values[2] + l->values[2] * r->values[3];
+    float d = l->values[1] * r->values[2] + l->values[3] * r->values[3];
+    
+    o->values[0] = a;
+    o->values[1] = c;
+    o->values[2] = b;
+    o->values[3] = d;
+}
+
+void scaleM2f(const TMatrix2f* m, float s, TMatrix2f* o) {
+    for (int i = 0; i < 4; i++)
+        o->values[i] = m->values[i] * s;
+}
+
+#pragma mark TMatrix3f functions
+
+void setIdentityM3f(TMatrix3f* m) {
+    for (int r = 0; r < 3; r++)
+        for (int c = 0; c < 3; c++)
+            m->values[c * 3 + r] = r == c ? 1 : 0;
+}
+
+void setMinorM3f(const TMatrix4f* m4f, int col, int row, TMatrix3f* o) {
+    int i = 0;
+    for (int c = 0; c < 4; c++)
+        for (int r = 0; r < 4; r++)
+            if (c != col && r != row)
+                o->values[i++] = m4f->values[c * 4 + r];
+}
+
+void setColumnM3f(const TMatrix3f* m, const TVector3f* v, int col, TMatrix3f* o) {
+    if (o != m)
+        *o = *m;
+    
+    o->values[col * 3 + 0] = v->x;
+    o->values[col * 3 + 1] = v->y;
+    o->values[col * 3 + 2] = v->z;
+}
+
+void setValueM3f(const TMatrix3f* m, float v, int col, int row, TMatrix3f* o) {
+    if (o != m)
+        *o = *m;
+    
+    o->values[col * 3 + row] = v;
+}
+
+BOOL invertM3f(const TMatrix3f* m, TMatrix3f* o) {
+    float det = determinantM3f(m);
+    if (fzero(det))
+        return NO;
+    
+    adjugateM3f(m, o);
+    scaleM3f(o, 1 / det, o);
+    return YES;
+}
+
+void adjugateM3f(const TMatrix3f* m, TMatrix3f* o) {
+    TMatrix2f m2f;
+    for (int c = 0; c < 3; c++) {
+        for (int r = 0; r < 3; r++) {
+            setMinorM2f(m, c, r, &m2f);
+            o->values[c * 3 + r] = ((c + r) % 2 == 0 ? 1 : -1) * determinantM2f(&m2f);
+        }
+    }
+    
+    transposeM3f(o, o);
+}
+
+float determinantM3f(const TMatrix3f* m) {
+    return m->values[0] * m->values[4] * m->values[8]
+         + m->values[3] * m->values[7] * m->values[2]
+         + m->values[6] * m->values[1] * m->values[5]
+         - m->values[2] * m->values[4] * m->values[6]
+         - m->values[5] * m->values[7] * m->values[0]
+         - m->values[8] * m->values[1] * m->values[3];
+}
+
+void negateM3f(const TMatrix3f* m, TMatrix3f* o) {
+    scaleM3f(m, -1, o);
+}
+
+void transposeM3f(const TMatrix3f* m, TMatrix3f* o) {
+    for (int c = 0; c < 3; c++) {
+        o->values[c * 3 + c] = m->values[c * 3 + c];
+        for (int r = c + 1; r < 3; r++) {
+            float t = m->values[c * 3 + r];
+            o->values[c * 3 + r] = m->values[r * 3 + c];
+            o->values[r * 3 + c] = t;
+        }
+    }
+}
+
+void addM3f(const TMatrix3f* l, const TMatrix3f* r, TMatrix3f* o) {
+    for (int i = 0; i < 9; i++)
+        o->values[i] = l->values[i] + r->values[i];
+}
+
+void subM3f(const TMatrix3f* l, const TMatrix3f* r, TMatrix3f* o) {
+    for (int i = 0; i < 9; i++)
+        o->values[i] = l->values[i] - r->values[i];
+}
+
+void mulM3f(const TMatrix3f* l, const TMatrix3f* rm, TMatrix3f* o) {
+    TMatrix3f t;
+    for (int c = 0; c < 3; c++) {
+        for (int r = 0; r < 3; r++) {
+            t.values[c * 3 + r] = 0;
+            for (int i = 0; i < 3; i++)
+                t.values[c * 3 + r] += l->values[i * 3 + r] * rm->values[c * 3 + i];
+        }
+    }
+    
+    *o = t;
+}
+
+void scaleM3f(const TMatrix3f* m, float s, TMatrix3f* o) {
+    for (int i = 0; i < 9; i++)
+        o->values[i] = m->values[i] * s;
+}
+
+#pragma mark TMatrix4f functions
+
+void setIdentityM4f(TMatrix4f* m) {
+    for (int r = 0; r < 4; r++)
+        for (int c = 0; c < 4; c++)
+            m->values[c * 4 + r] = r == c ? 1 : 0;
+}
+
+void embedM4f(const TMatrix3f* m3f, TMatrix4f* m4f);
+
+void setSubMatrixM4f(const TMatrix4f* m4f, const TMatrix2f* m2f, int i, TMatrix4f* o) {
+    if (o != m4f)
+        *o = *m4f;
+    
+    switch (i) {
+        case 0:
+            o->values[ 0] = m2f->values[0];
+            o->values[ 1] = m2f->values[1];
+            o->values[ 4] = m2f->values[2];
+            o->values[ 5] = m2f->values[3];
+            break;
+        case 1:
+            o->values[ 2] = m2f->values[0];
+            o->values[ 3] = m2f->values[1];
+            o->values[ 6] = m2f->values[2];
+            o->values[ 7] = m2f->values[3];
+            break;
+        case 2:
+            o->values[ 8] = m2f->values[0];
+            o->values[ 9] = m2f->values[1];
+            o->values[12] = m2f->values[2];
+            o->values[13] = m2f->values[3];
+            break;
+        case 3:
+            o->values[10] = m2f->values[0];
+            o->values[11] = m2f->values[1];
+            o->values[14] = m2f->values[2];
+            o->values[15] = m2f->values[3];
+            break;
+        default:
+            [NSException raise:NSInvalidArgumentException format:@"sub matrix index out of bounds: %i", index];
+            break;
+    }
+}
+
+void setColumnM4fV4f(const TMatrix4f* m, const TVector4f* v, int col, TMatrix4f* o) {
+    if (o != m)
+        *o = *m;
+
+    o->values[col * 4 + 0] = v->x;
+    o->values[col * 4 + 1] = v->y;
+    o->values[col * 4 + 2] = v->z;
+    o->values[col * 4 + 3] = v->w;
+}
+
+void setColumnM4fV3f(const TMatrix4f* m, const TVector3f* v, int col, TMatrix4f* o) {
+    if (o != m)
+        *o = *m;
+    
+    o->values[col * 4 + 0] = v->x;
+    o->values[col * 4 + 1] = v->y;
+    o->values[col * 4 + 2] = v->z;
+    o->values[col * 4 + 3] = 0;
+}
+
+void setValueM4f(const TMatrix4f* m, float v, int col, int row, TMatrix4f* o) {
+    if (o != m)
+        *o = *m;
+    
+    o->values[col * 4 + row] = v;
+}
+
+BOOL invertM4f(const TMatrix4f* m, TMatrix4f* o) {
+    float det = determinantM4f(m);
+    if (fzero(det))
+        return NO;
+    
+    TMatrix2f A, Ai;
+    setMatrix2fAsSubMatrix(m, 0, &A);
+    
+    if (invertM2f(&A, &Ai)) { // use quick method
+        TMatrix2f B, C, D, CAi, CAiB, AiB;
+        
+        setMatrix2fAsSubMatrix(m, 2, &B);
+        setMatrix2fAsSubMatrix(m, 1, &C);
+        setMatrix2fAsSubMatrix(m, 3, &D);
+        
+        mulM2f(&C, &Ai, &CAi);
+        mulM2f(&CAi, &B, &CAiB);
+        mulM2f(&Ai, &B, &AiB);
+        
+        subM2f(&D, &CAiB, &D);
+        mulM2f(&AiB, &D, &A);
+
+        negateM2f(&A, &B);
+        
+        mulM2f(&A, &CAi, &A);
+        addM2f(&A, &Ai, &A);
+        
+        mulM2f(&D, &CAi, &C);
+        negateM2f(&C, &C);
+        
+        setSubMatrixM4f(m, &A, 0, o);
+        setSubMatrixM4f(o, &C, 1, o);
+        setSubMatrixM4f(o, &B, 2, o);
+        setSubMatrixM4f(o, &D, 3, o);
+    } else { // use general but slower method
+        adjugateM4f(m, o);
+        scaleM4f(o, 1 / det, o);
+    }
+    
+    return YES;
+}
+
+void adjugateM4f(const TMatrix4f* m, TMatrix4f* o) {
+    TMatrix3f m3f;
+    for (int c = 0; c < 4; c++) {
+        for (int r = 0; r < 4; r++) {
+            setMinorM3f(m, c, r, &m3f);
+            o->values[c * 4 + r] = ((c + r) % 2 == 0 ? 1 : -1) * determinantM3f(&m3f);
+        }
+    }
+    
+    transposeM4f(o, o);
+}
+
+float determinantM4f(const TMatrix4f* m) {
+    // Laplace after first col
+    float det = 0;
+    TMatrix3f m3f;
+    
+    for (int r = 0; r < 4; r++) {
+        setMinorM3f(m, 0, r, &m3f);
+        det += (r % 2 == 0 ? 1 : -1) * m->values[r] * determinantM3f(&m3f);
+    }
+    
+    return det;
+}
+
+void negateM4f(const TMatrix4f* m, TMatrix4f* o) {
+    for (int i = 0; i < 16; i++)
+        o->values[i] = -1 * m->values[i];
+}
+
+void transposeM4f(const TMatrix4f* m, TMatrix4f* o) {
+    for (int c = 0; c < 4; c++) {
+        o->values[c * 4 + c] = m->values[c * 4 + c];
+        for (int r = c + 1; r < 4; r++) {
+            float t = m->values[c * 4 + r];
+            o->values[c * 4 + r] = m->values[r * 4 + c];
+            o->values[r * 4 + c] = t;
+        }
+    }
+}
+
+void addM4f(const TMatrix4f* l, const TMatrix4f* r, TMatrix4f* o) {
+    for (int i = 0; i < 16; i++)
+        o->values[i] = l->values[i] + r->values[i];
+}
+
+void subM4f(const TMatrix4f* l, const TMatrix4f* r, TMatrix4f* o) {
+    for (int i = 0; i < 16; i++)
+        o->values[i] = l->values[i] - r->values[i];
+}
+
+void mulM4f(const TMatrix4f* l, const TMatrix4f* rm, TMatrix4f* o) {
+    TMatrix4f t;
+    for (int c = 0; c < 4; c++) {
+        for (int r = 0; r < 4; r++) {
+            t.values[c * 4 + r] = 0;
+            for (int i = 0; i < 4; i++)
+                t.values[c * 4 + r] += l->values[i * 4 + r] * rm->values[c * 4 + i];
+        }
+    }
+    
+    *o = t;
+}
+
+void scaleM4f(const TMatrix4f* m, float s, TMatrix4f* o) {
+    for (int i = 0; i < 16; i++)
+        o->values[i] = m->values[i] * s;
+}
+
+void rotateM4f(const TMatrix4f* m, const TVector3f* x, float a, TMatrix4f* o) {
+    float s = sinf(a);
+    float c = cosf(a);
+    float t = 1 - c;
+    
+    float tx  = t  * x->x;
+    float tx2 = tx * x->x;
+    float txy = tx * x->y;
+    float txz = tx * x->z;
+    
+    float ty  = t  * x->y;
+    float ty2 = ty * x->y;
+    float tyz = ty * x->z;
+    
+    float tz2 = t  * x->z * x->z;
+    
+    float sx = s * x->x;
+    float sy = s * x->y;
+    float sz = s * x->z;
+    
+    o->values[ 0] = tx2 + c;
+    o->values[ 1] = txy - sz;
+    o->values[ 2] = txz + sy;
+    o->values[ 3] = 0;
+    
+    o->values[ 4] = txy + sz;
+    o->values[ 5] = ty2 + c;
+    o->values[ 6] = tyz - sx;
+    o->values[ 7] = 0;
+    
+    o->values[ 8] = txz - sy;
+    o->values[ 9] = tyz + sx;
+    o->values[10] = tz2 + c;
+    o->values[11] = 0;
+    
+    o->values[12] = 0;
+    o->values[13] = 0;
+    o->values[14] = 0;
+    o->values[15] = 1;
+    
+    mulM4f(m, o, o);
+}
+
+void translateM4f(const TMatrix4f* m, const TVector3f* d, TMatrix4f* o) {
+    if (o != m)
+        *o = *m;
+    
+    o->values[12] += d->x;
+    o->values[13] += d->y;
+    o->values[14] += d->z;
+}
+
+void scaleM4fV3f(const TMatrix4f* m, const TVector3f* s, TMatrix4f* o) {
+    o->values[ 0] = m->values[ 0] * s->x;
+    o->values[ 1] = m->values[ 1] * s->y;
+    o->values[ 2] = m->values[ 2] * s->z;
+    o->values[ 3] = m->values[ 3];
+    
+    o->values[ 4] = m->values[ 4] * s->x;
+    o->values[ 5] = m->values[ 5] * s->y;
+    o->values[ 6] = m->values[ 6] * s->z;
+    o->values[ 7] = m->values[ 7];
+    
+    o->values[ 8] = m->values[ 8] * s->x;
+    o->values[ 9] = m->values[ 9] * s->y;
+    o->values[10] = m->values[10] * s->z;
+    o->values[11] = m->values[11];
+    
+    o->values[12] = m->values[12] * s->x;
+    o->values[13] = m->values[13] * s->y;
+    o->values[14] = m->values[14] * s->z;
+    o->values[15] = m->values[15];
+}
+
+void transformM4fV3f(const TMatrix4f* m, const TVector3f* v, TVector3f* o) {
+    TVector4f v4f;
+    v4f.x = v->x;
+    v4f.y = v->y;
+    v4f.z = v->z;
+    v4f.w = 1;
+    
+    transformM4fV4f(m, &v4f, &v4f);
+    
+    o->x = v4f.x / v4f.w;
+    o->y = v4f.y / v4f.w;
+    o->z = v4f.z / v4f.w;
+}
+
+void transformM4fV4f(const TMatrix4f* m, const TVector4f* v, TVector4f* o) {
+    float x = m->values[ 0] * v->x + m->values[ 4] * v->y + m->values[ 8] * v->z + m->values[12] * v->w;
+    float y = m->values[ 1] * v->x + m->values[ 5] * v->y + m->values[ 9] * v->z + m->values[13] * v->w;
+    float z = m->values[ 2] * v->x + m->values[ 6] * v->y + m->values[10] * v->z + m->values[14] * v->w;
+    float w = m->values[ 3] * v->x + m->values[ 7] * v->y + m->values[11] * v->z + m->values[15] * v->w;
+    
+    o->x = x;
+    o->y = y;
+    o->z = z;
+    o->w = w;
+}
+
 # pragma mark Coordinate plane functions
 
 void projectOntoCoordinatePlane(EPlane plane, const TVector3f* v, TVector3f* o) {
