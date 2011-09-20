@@ -17,6 +17,9 @@ TVector3f const YAxisNeg = { 0, -1,  0};
 TVector3f const ZAxisPos = { 0,  0, +1};
 TVector3f const ZAxisNeg = { 0,  0, -1};
 TVector3f const NullVector = {0, 0, 0};
+TMatrix2f const IdentityM2f = {1, 0, 0, 1};
+TMatrix3f const IdentityM3f = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+TMatrix4f const IdentityM4f = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
 
 NSString* const XAxisName = @"X";
 NSString* const YAxisName = @"Y";
