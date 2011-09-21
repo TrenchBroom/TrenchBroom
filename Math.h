@@ -109,6 +109,8 @@ extern TVector3f const NullVector;
 extern TMatrix2f const IdentityM2f;
 extern TMatrix3f const IdentityM3f;
 extern TMatrix4f const IdentityM4f;
+extern TMatrix4f const RotZ90CWM4f;
+extern TMatrix4f const RotZ90CCWM4f;
 
 BOOL fzero(float v);
 BOOL fpos(float v);

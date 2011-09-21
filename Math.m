@@ -20,6 +20,11 @@ TVector3f const NullVector = {0, 0, 0};
 TMatrix2f const IdentityM2f = {1, 0, 0, 1};
 TMatrix3f const IdentityM3f = {1, 0, 0, 0, 1, 0, 0, 0, 1};
 TMatrix4f const IdentityM4f = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+TMatrix4f const RotZ90CWM4f = { 0, -1,  0,  0, 
+                                1,  0,  0,  0, 
+                                0,  0,  1,  0, 
+                                0,  0,  0,  1};
+TMatrix4f const RotZ90CCWM4f = {0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
 
 NSString* const XAxisName = @"X";
 NSString* const YAxisName = @"Y";
@@ -1445,7 +1450,7 @@ void subM4f(const TMatrix4f* l, const TMatrix4f* r, TMatrix4f* o) {
         o->values[i] = l->values[i] - r->values[i];
 }
 
-void mulM4f(const TMatrix4f* l, const TMatrix4f* rm, TMatrix4f* o) {
+void mulM4f(const TMatrix4f* l, const TMatrix4f* rm, TMatrix4f* o) { // o = l * rm
     TMatrix4f t;
     for (int c = 0; c < 4; c++) {
         for (int r = 0; r < 4; r++) {
@@ -1551,7 +1556,7 @@ void transformM4fV3f(const TMatrix4f* m, const TVector3f* v, TVector3f* o) {
     o->z = v4f.z / v4f.w;
 }
 
-void transformM4fV4f(const TMatrix4f* m, const TVector4f* v, TVector4f* o) {
+void transformM4fV4f(const TMatrix4f* m, const TVector4f* v, TVector4f* o) { // o = m * v
     float x = m->values[ 0] * v->x + m->values[ 4] * v->y + m->values[ 8] * v->z + m->values[12] * v->w;
     float y = m->values[ 1] * v->x + m->values[ 5] * v->y + m->values[ 9] * v->z + m->values[13] * v->w;
     float z = m->values[ 2] * v->x + m->values[ 6] * v->y + m->values[10] * v->z + m->values[14] * v->w;

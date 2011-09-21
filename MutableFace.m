@@ -20,24 +20,35 @@
 #import "VBOMemBlock.h"
 
 
-// these matrices are column major, so imagine the initialization values to be transposed
 // ZProj projects a vector onto the XY plane (along the Z axis)
 static const TMatrix4f ZProj = { 1,  0,  0,  0,
-                           0, -1,  0,  0,
-                           0,  0,  0,  0,
-                           0,  0,  0,  1 };
+                                 0,  1,  0,  0,
+                                 0,  0,  0,  0,
+                                 0,  0,  0,  1 };
+static const TMatrix4f ZProjInv = { 1,  0,  0,  0,
+                                    0, -1,  0,  0,
+                                    0,  0,  1,  0,
+                                    0,  0,  0,  1 };
 
 // YProj projects a vector onto the XZ plane (along the Y axis)
 static const TMatrix4f YProj = { 1,  0,  0,  0,
-                           0,  0, -1,  0,
-                           0,  0,  0,  0,
-                           0,  0,  0,  1 };
+                                 0,  0,  0,  0,
+                                 0,  1,  0,  0,
+                                 0,  0,  0,  1 };
+static const TMatrix4f YProjInv = { 1,  0,  0,  0,
+                                    0,  0, -1,  0,
+                                    0,  1,  0,  0,
+                                    0,  0,  0,  1 };
 
 // XProj projects a vector onto the YZ plane (along the X axis)
-static const TMatrix4f XProj = { 0,  1,  0,  0,
-                           0,  0, -1,  0,
-                           0,  0,  0,  0,
-                           0,  0,  0,  1 };
+static const TMatrix4f XProj = { 0,  0,  0,  0,
+                                 1,  0,  0,  0,
+                                 0,  1,  0,  0,
+                                 0,  0,  0,  1 };
+static const TMatrix4f XProjInv = { 0,  1,  0,  0,
+                                    0,  0, -1,  0,
+                                    1,  0,  0,  0,
+                                    0,  0,  0,  1 };
 
 @interface MutableFace (private)
 
@@ -48,7 +59,7 @@ static const TMatrix4f XProj = { 0,  1,  0,  0,
 - (void)validate;
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter;
 
-- (void)updateTextureParametersForTransformation:(const TMatrix4f *)transformation translation:(const TMatrix4f *)translation;
+- (void)updateTextureParametersForTransformation:(const TMatrix4f *)transformation;
 
 @end
 
@@ -209,7 +220,7 @@ static const TMatrix4f XProj = { 0,  1,  0,  0,
      */
 }
 
-- (void)updateTextureParametersForTransformation:(const TMatrix4f *)transformation translation:(const TMatrix4f *)translation {
+- (void)updateTextureParametersForTransformation:(const TMatrix4f *)transformation {
     // Any transformation of this face moves the points on its surface around. The point of 
     // texture lock is that every point on the surface of this face is gets the same texture pixel
     // projected onto it after the transformation. The texture scaling, rotation and offset can be
@@ -222,143 +233,102 @@ static const TMatrix4f XProj = { 0,  1,  0,  0,
     if (!texAxesValid)
         [self validateTexAxes];
     
-    TVector3f newFaceNorm;
-    EAxis newTexPlaneNorm;
-    const TMatrix4f* projection;
+    TVector3f curTexAxisX, curTexAxisY, newTexAxisX, newTexAxisY, newFaceNorm, newCenter, offset, temp;
+    TVector2f curCenterTexCoords, newCenterTexCoords;
+    const TVector3f* curCenter;
+    const TVector3f* newBaseAxisX;
+    const TVector3f* newBaseAxisY;
+    const TVector3f* newTexPlaneNorm;
     
+    curCenter = [self center];
+    
+    curCenterTexCoords.x = dotV3f(curCenter, &scaledTexAxisX) + xOffset;
+    curCenterTexCoords.y = dotV3f(curCenter, &scaledTexAxisY) + yOffset;
+    
+    curTexAxisX = texAxisX;
+    curTexAxisY = texAxisY;
+    
+    scaleV3f(&curTexAxisX, xScale, &curTexAxisX);
+    scaleV3f(&curTexAxisY, yScale, &curTexAxisY);
+    
+    transformM4fV3f(transformation, &curTexAxisX, &newTexAxisX);
+    transformM4fV3f(transformation, &curTexAxisY, &newTexAxisY);
     transformM4fV3f(transformation, [self norm], &newFaceNorm);
-    newTexPlaneNorm = strongestComponentV3f(&newFaceNorm);
+    transformM4fV3f(transformation, &NullVector, &offset);
+    transformM4fV3f(transformation, curCenter, &newCenter);
     
-    if (newTexPlaneNorm == A_X)
-        projection = &XProj;
-    else if (newTexPlaneNorm == A_Y)
-        projection = &YProj;
-    else
-        projection = &ZProj;
+    NSLog(@"NC: %f %f %f", newCenter.x, newCenter.y, newCenter.z);
     
-    TMatrix4f m;
-    mulM4f(transformation, translation, &m);
-    mulM4f(&m, projection, &m);
+    subV3f(&newTexAxisX, &offset, &newTexAxisX);
+    subV3f(&newTexAxisY, &offset, &newTexAxisY);
+    subV3f(&newFaceNorm, &offset, &newFaceNorm);
     
-    const TVector3f* p1;
-    const TVector3f* p2 = NULL;
-    const TVector3f* p3 = NULL;
-    TVector2f p1t, p2t, p3t;
-    
-    TVector3f tp1, tp2, tp3;
-    
-    p1 = [self center];
-    p1t.x = dotV3f(p1, &texAxisX);
-    p1t.y = dotV3f(p1, &texAxisY);
-    
-    transformM4fV3f(&m, p1, &tp1);
-    
-    TVertex** vertices = [self vertices];
-    for (int i = 0; i < [self vertexCount] && p2 == NULL; i++) {
-        const TVector3f* c = &vertices[i]->vector;
-        TVector3f tc;
-        transformM4fV3f(&m, c, &tc);
-        
-        if (tp1.y - tc.y != 0) {
-            p2 = c;
-            tp2 = tc;
-            p2t.x = dotV3f(p2, &texAxisX);
-            p2t.y = dotV3f(p2, &texAxisY);
-        }
+    switch (strongestComponentV3f(&newFaceNorm)) {
+        case A_X:
+            newTexAxisX.x = 0;
+            newTexAxisY.x = 0;
+            newBaseAxisX = &YAxisPos;
+            newBaseAxisY = &ZAxisNeg;
+            newTexPlaneNorm = &XAxisPos;
+            break;
+        case A_Y:
+            newTexAxisX.y = 0;
+            newTexAxisY.y = 0;
+            newBaseAxisX = &XAxisPos;
+            newBaseAxisY = &ZAxisNeg;
+            newTexPlaneNorm = &YAxisPos;
+            break;
+        default:
+            newTexAxisX.z = 0;
+            newTexAxisY.z = 0;
+            newBaseAxisX = &XAxisPos;
+            newBaseAxisY = &YAxisNeg;
+            newTexPlaneNorm = &ZAxisPos;
+            break;
     }
     
+    xScale = 1 / lengthV3f(&newTexAxisX);
+    yScale = 1 / lengthV3f(&newTexAxisY);
     
-    for (int i = 0; i < [self vertexCount] && p3 == NULL; i++) {
-        const TVector3f* c = &vertices[i]->vector;
-        if (c == p2)
-            continue;
-        
-        TVector3f tc;
-        transformM4fV3f(&m, c, &tc);
-        
-        if ((tp1.y - tc.y) * (tp1.x - tp2.x) - (tp1.y - tp2.y) * (tp1.x - tc.x) != 0) {
-            p3 = c;
-            tp3 = tc;
-            p3t.x = dotV3f(p3, &texAxisX);
-            p3t.y = dotV3f(p3, &texAxisY);
-        }
-    }
+    if (dotV3f(&newTexAxisX, newBaseAxisX) < 0)
+        xScale *= -1;
+    if (dotV3f(&newTexAxisY, newBaseAxisY) < 0)
+        yScale *= -1;
+
+    scaleV3f(&newTexAxisX, xScale, &newTexAxisX); // normalized
+    scaleV3f(&newTexAxisY, yScale, &newTexAxisY);
     
-    float x1 = p1t.x;
-    float y1 = p1t.y;
-    float x2 = p2t.x;
-    float y2 = p2t.y;
-    float x3 = p3t.x;
-    float y3 = p3t.y;
+    float cos = dotV3f(newBaseAxisX, &newTexAxisX);
+    float rad = acosf(cos);
     
-    float x1_ = tp1.x;
-    float y1_ = tp1.y;
-    float x2_ = tp2.x;
-    float y2_ = tp2.y;
-    float x3_ = tp3.x;
-    float y3_ = tp3.y;
-    
-    float m11 = ((y1_ - y3_) * (x1  - x2 ) - (y1_ - y2_) * (x1  - x3 )) / 
-                ((y1_ - y3_) * (x1_ - x2_) - (y1_ - y2_) * (x1_ - x3_));
-    float m21 = (x1 - x2 - (x1_ - x2_) * m11) / (y1_ - y2_);
-    float m31 = x1 - x1_ * m11 - y1_ * m21;
-    
-    float m12 = ((y1_ - y3_) * (y1  - y2 ) - (y1_ - y2_) * (y1  - y3 )) /
-                ((y1_ - y3_) * (x1_ - x2_) - (y1_ - y2_) * (x1_ - x3_));
-    float m22 = (y1 - y2 - (x1_ - x2_) * m12) / (y1_ - y2_);
-    float m32 = y1 - x1_ * m12 - y1_ * m22;
-    
-    float cos1 = sqrt(m11 * m11 / (m11 * m11 + m21 * m21));
-    float cos2 = -cos1;
-    
-    // four possible solutions
-    float rad1 = acosf(cos1);
-    float rad2 = acosf(cos2);
-    float rad3 = rad1 + M_PI;
-    float rad4 = rad2 + M_PI;
-    
-    float rad11, rad12;
-    
-    if (m11 * m21 > 0) {
-        if (rad1 >= 0 && rad1 < M_PI_2) {
-            rad11 = rad1;
-            rad12 = rad3;
-        } else {
-            rad11 = rad2;
-            rad12 = rad4;
-        }
-    } else {
-        if (rad1 >= M_PI_2 && rad1 < M_PI) {
-            rad11 = rad1;
-            rad12 = rad3;
-        } else {
-            rad11 = rad2;
-            rad12 = rad4;
-        }
-    }
-    
-    float rad;
-    if (m21 * m22 > 0) {
-        if (rad11 >= M_PI_2  && rad11 < M_PI)
-            rad = rad11;
-        else
-            rad = rad12;
-    } else {
-        if (rad11 >= 0 && rad11 < M_PI_2)
-            rad = rad11;
-        else
-            rad = rad12;
-    }
-    
-    float cos = cosf(rad);
-    float sx = m11 / cos;
-    float sy = m22 / cos;
+    crossV3f(newBaseAxisX, &newTexAxisX, &temp);
+    if (dotV3f(&temp, &newFaceNorm) < 0)
+        rad += M_PI;
     
     rotation = rad * 180 / M_PI;
-    xScale = sx;
-    yScale = sy;
-    xOffset = m31;
-    yOffset = m32;
+
+    [self validateTexAxes];
+    
+    /*
+    scaleV3f(&newTexAxisX, 1 / xScale, &newTexAxisX);
+    scaleV3f(&newTexAxisY, 1 / yScale, &newTexAxisY);
+     */
+
+    newCenterTexCoords.x = dotV3f(&newCenter, &scaledTexAxisX);
+    newCenterTexCoords.y = dotV3f(&newCenter, &scaledTexAxisY);
+    
+    xOffset = curCenterTexCoords.x - newCenterTexCoords.x;
+    yOffset = curCenterTexCoords.y - newCenterTexCoords.y;
+    
+    /*
+    xOffset = -dotV3f(&newOrigin, &newTexAxisX);
+    yOffset = dotV3f(&newOrigin, &newTexAxisY);
+    
+    setAngleAndAxisQ(&rot, -delta * M_PI / 180, newTexPlaneNorm);
+    rotateQ(&rot, &offset, &offset);
+    xOffset -= offset.x;
+    yOffset += offset.y;
+     */
 }
 
 @end
@@ -532,7 +502,7 @@ static const TMatrix4f XProj = { 0,  1,  0,  0,
         TMatrix4f translation;
         translateM4f(&IdentityM4f, &deltaf, &translation);
         
-        [self updateTextureParametersForTransformation:&IdentityM4f translation:&translation];
+        [self updateTextureParametersForTransformation:&translation];
 
         /*
         TVector2f before[3];
@@ -595,46 +565,21 @@ static const TMatrix4f XProj = { 0,  1,  0,  0,
 
 - (void)rotateZ90CW:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
     if (lockTexture) {
-        TVector2f before[3];
-        TVector2f after[3];
-        TVector3f points[3];
-        TVector3f c;
-        
-        points[0] = *[self center];
-        points[1] = [self vertices][0]->vector;
-        points[2] = [self vertices][1]->vector;
-        setV3f(&c, theCenter);
-        
-        if (!texAxesValid)
-            [self validateTexAxes];
+        TMatrix4f t1, t2;
+        TVector3f d;
 
-        for (int i = 0; i < 3; i++) {
-            before[i].x = dotV3f(&points[i], &scaledTexAxisX) + xOffset;
-            before[i].y = dotV3f(&points[i], &scaledTexAxisY) + yOffset;
+        setV3f(&d, theCenter);
+//        scaleV3f(&d, -1, &d);
+        translateM4f(&IdentityM4f, &d, &t1);
 
-            subV3f(&points[i], &c, &points[i]);
-            rotateZ90CWV3f(&points[i], &points[i]);
-            addV3f(&points[i], &c, &points[i]);
-        }
+        mulM4f(&t1, &RotZ90CWM4f, &t1);
         
-        if (texPlaneNorm == &XAxisPos || texPlaneNorm == &XAxisNeg) {
-            for (int i = 0; i < 3; i++) {
-                after[i].x =  points[i].y;
-                after[i].y = -points[i].z;
-            }
-        } else if (texPlaneNorm == &YAxisPos || texPlaneNorm == &YAxisNeg) {
-            for (int i = 0; i < 3; i++) {
-                after[i].x =  points[i].x;
-                after[i].y = -points[i].z;
-            }
-        } else {
-            for (int i = 0; i < 3; i++) {
-                after[i].x =  points[i].x;
-                after[i].y = -points[i].y;
-            }
-        }
+        scaleV3f(&d, -1, &d);
+        translateM4f(&IdentityM4f, &d, &t2);
         
-        [self makeTextureParametersFromPoints:before after:after];
+        mulM4f(&t1, &t2, &t1);
+        
+        [self updateTextureParametersForTransformation:&t1];
     }
 
     subV3i(&point1, theCenter, &point1);
@@ -650,6 +595,8 @@ static const TMatrix4f XProj = { 0,  1,  0,  0,
     addV3i(&point3, theCenter, &point3);
     
     [self geometryChanged];
+
+    NSLog(@"TC: %f %f %f", [self center]->x, [self center]->y, [self center]->z);
 }
 
 - (void)rotateZ90CCW:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
