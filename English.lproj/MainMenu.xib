@@ -634,6 +634,7 @@
 											</object>
 											<object class="NSMenuItem" id="406577010">
 												<reference key="NSMenu" ref="388273987"/>
+												<bool key="NSIsAlternate">YES</bool>
 												<string key="NSTitle">Mirror Vertically</string>
 												<string key="NSKeyEquiv">m</string>
 												<int key="NSKeyEquivModMask">1572864</int>

@@ -23,8 +23,23 @@ TMatrix4f const IdentityM4f = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
 TMatrix4f const RotZ90CWM4f = { 0, -1,  0,  0, 
                                 1,  0,  0,  0, 
                                 0,  0,  1,  0, 
-                                0,  0,  0,  1};
-TMatrix4f const RotZ90CCWM4f = {0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+                                0,  0,  0,  1 };
+TMatrix4f const RotZ90CCWM4f = { 0,  1,  0,  0, 
+                                -1,  0,  0,  0, 
+                                 0,  0,  1,  0, 
+                                 0,  0,  0,  1 };
+TMatrix4f const MirXM4f = {-1,  0,  0,  0, 
+                            0,  1,  0,  0, 
+                            0,  0,  1,  0, 
+                            0,  0,  0,  1 };
+TMatrix4f const MirYM4f = { 1,  0,  0,  0, 
+                            0, -1,  0,  0, 
+                            0,  0,  1,  0, 
+                            0,  0,  0,  1 };
+TMatrix4f const MirZM4f = { 1,  0,  0,  0, 
+                            0,  1,  0,  0, 
+                            0,  0, -1,  0, 
+                            0,  0,  0,  1 };
 
 NSString* const XAxisName = @"X";
 NSString* const YAxisName = @"Y";
@@ -1041,18 +1056,17 @@ void conjugateQ(const TQuaternion* q, TQuaternion* o) {
 }
 
 void rotateQ(const TQuaternion* q, const TVector3f* v, TVector3f* o) { 
-    TQuaternion t, p, c;
-    setQ(&t, q);
+    TQuaternion p, c;
 
     p.scalar = 0;
     p.vector = *v;
     
-    setQ(&c, q);
-    conjugateQ(&c, &c);
+    conjugateQ(q, &c);
     
-    mulQ(&t, &p, &t);
-    mulQ(&t, &c, &t);
-    *o = t.vector;
+    mulQ(q, &p, &p);
+    mulQ(&p, &c, &p);
+
+    *o = p.vector;
 }
 
 float radiansQ(const TQuaternion* q) {
@@ -1138,8 +1152,8 @@ void adjugateM2f(const TMatrix2f* m, TMatrix2f* o) {
     o->values[0] = m->values[3];
     o->values[3] = t;
     
-    o->values[1] *= -1;
-    o->values[2] *= -1;
+    o->values[1] = -m->values[1];
+    o->values[2] = -m->values[2];
 }
 
 float determinantM2f(const TMatrix2f* m) {
@@ -1164,8 +1178,8 @@ void subM2f(const TMatrix2f* l, const TMatrix2f* r, TMatrix2f* o) {
 
 void mulM2f(const TMatrix2f* l, const TMatrix2f* r, TMatrix2f* o) {
     float a = l->values[0] * r->values[0] + l->values[2] * r->values[1];
-    float b = l->values[1] * r->values[0] + l->values[3] * r->values[1];
-    float c = l->values[0] * r->values[2] + l->values[2] * r->values[3];
+    float c = l->values[1] * r->values[0] + l->values[3] * r->values[1];
+    float b = l->values[0] * r->values[2] + l->values[2] * r->values[3];
     float d = l->values[1] * r->values[2] + l->values[3] * r->values[3];
     
     o->values[0] = a;
@@ -1459,7 +1473,6 @@ void mulM4f(const TMatrix4f* l, const TMatrix4f* rm, TMatrix4f* o) { // o = l * 
                 t.values[c * 4 + r] += l->values[i * 4 + r] * rm->values[c * 4 + i];
         }
     }
-    
     *o = t;
 }
 
@@ -1471,53 +1484,93 @@ void scaleM4f(const TMatrix4f* m, float s, TMatrix4f* o) {
 void rotateM4f(const TMatrix4f* m, const TVector3f* x, float a, TMatrix4f* o) {
     float s = sinf(a);
     float c = cosf(a);
-    float t = 1 - c;
+    float i = 1 - c;
     
-    float tx  = t  * x->x;
-    float tx2 = tx * x->x;
-    float txy = tx * x->y;
-    float txz = tx * x->z;
+    float ix  = i  * x->x;
+    float ix2 = ix * x->x;
+    float ixy = ix * x->y;
+    float ixz = ix * x->z;
     
-    float ty  = t  * x->y;
-    float ty2 = ty * x->y;
-    float tyz = ty * x->z;
+    float iy  = i  * x->y;
+    float iy2 = iy * x->y;
+    float iyz = iy * x->z;
     
-    float tz2 = t  * x->z * x->z;
+    float iz2 = i  * x->z * x->z;
     
     float sx = s * x->x;
     float sy = s * x->y;
     float sz = s * x->z;
     
-    o->values[ 0] = tx2 + c;
-    o->values[ 1] = txy - sz;
-    o->values[ 2] = txz + sy;
-    o->values[ 3] = 0;
+    TMatrix4f t;
     
-    o->values[ 4] = txy + sz;
-    o->values[ 5] = ty2 + c;
-    o->values[ 6] = tyz - sx;
-    o->values[ 7] = 0;
+    t.values[ 0] = ix2 + c;
+    t.values[ 1] = ixy - sz;
+    t.values[ 2] = ixz + sy;
+    t.values[ 3] = 0;
     
-    o->values[ 8] = txz - sy;
-    o->values[ 9] = tyz + sx;
-    o->values[10] = tz2 + c;
-    o->values[11] = 0;
+    t.values[ 4] = ixy + sz;
+    t.values[ 5] = iy2 + c;
+    t.values[ 6] = iyz - sx;
+    t.values[ 7] = 0;
     
-    o->values[12] = 0;
-    o->values[13] = 0;
-    o->values[14] = 0;
-    o->values[15] = 1;
+    t.values[ 8] = ixz - sy;
+    t.values[ 9] = iyz + sx;
+    t.values[10] = iz2 + c;
+    t.values[11] = 0;
     
-    mulM4f(m, o, o);
+    t.values[12] = 0;
+    t.values[13] = 0;
+    t.values[14] = 0;
+    t.values[15] = 1;
+    
+    mulM4f(m, &t, o);
+}
+
+void rotateM4fQ(const TMatrix4f* m, const TQuaternion* q, TMatrix4f* o) {
+    TMatrix4f t;
+    
+    float a = q->scalar;
+    float b = q->vector.x;
+    float c = q->vector.y;
+    float d = q->vector.z;
+    
+    float a2 = a * a;
+    float b2 = b * b;
+    float c2 = c * c;
+    float d2 = d * d;
+    
+    t.values[ 0] = a2 + b2 - c2 - d2;
+    t.values[ 1] = 2 * b * c + 2 * a * d;
+    t.values[ 2] = 2 * b * d - 2 * a * c;
+    t.values[ 3] = 0;
+
+    t.values[ 4] = 2 * b * c - 2 * a * d;
+    t.values[ 5] = a2 - b2 + c2 - d2;
+    t.values[ 6] = 2 * c * d + 2 * a * b;
+    t.values[ 7] = 0;
+    
+    t.values[ 8] = 2 * b * d + 2 * a * c;
+    t.values[ 9] = 2 * c * d - 2 * a * b;
+    t.values[10] = a2 - b2 - c2 + d2;
+    t.values[11] = 0;
+
+    t.values[12] = 0;
+    t.values[13] = 0;
+    t.values[14] = 0;
+    t.values[15] = 1;
+    
+    mulM4f(m, &t, o);
 }
 
 void translateM4f(const TMatrix4f* m, const TVector3f* d, TMatrix4f* o) {
-    if (o != m)
-        *o = *m;
+    TMatrix4f t;
+
+    t = IdentityM4f;
+    t.values[12] += d->x;
+    t.values[13] += d->y;
+    t.values[14] += d->z;
     
-    o->values[12] += d->x;
-    o->values[13] += d->y;
-    o->values[14] += d->z;
+    mulM4f(m, &t, o);
 }
 
 void scaleM4fV3f(const TMatrix4f* m, const TVector3f* s, TMatrix4f* o) {

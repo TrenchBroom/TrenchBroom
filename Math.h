@@ -111,6 +111,9 @@ extern TMatrix3f const IdentityM3f;
 extern TMatrix4f const IdentityM4f;
 extern TMatrix4f const RotZ90CWM4f;
 extern TMatrix4f const RotZ90CCWM4f;
+extern TMatrix4f const MirXM4f;
+extern TMatrix4f const MirYM4f;
+extern TMatrix4f const MirZM4f;
 
 BOOL fzero(float v);
 BOOL fpos(float v);
@@ -276,6 +279,7 @@ void mulM4f(const TMatrix4f* l, const TMatrix4f* r, TMatrix4f* o);
 void scaleM4f(const TMatrix4f* m, float s, TMatrix4f* o);
 
 void rotateM4f(const TMatrix4f* m, const TVector3f* x, float a, TMatrix4f* o);
+void rotateM4fQ(const TMatrix4f* m, const TQuaternion* q, TMatrix4f* o);
 void translateM4f(const TMatrix4f* m, const TVector3f* d, TMatrix4f* o);
 void scaleM4fV3f(const TMatrix4f* m, const TVector3f* s, TMatrix4f* o);
 void transformM4fV3f(const TMatrix4f* m, const TVector3f* v, TVector3f* o);
