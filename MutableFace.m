@@ -58,7 +58,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 @interface MutableFace (private)
 
-- (void)validateTexAxes;
+- (void)validateTexAxesForFaceNorm:(const TVector3f *)theNorm;
 - (const TVector3f *)texPlaneNormAndXAxis:(TVector3f *)theXAxis yAxis:(TVector3f *)theYAxis forFaceNorm:(const TVector3f *)theNorm;
 - (void)updateMatrices;
 - (void)geometryChanged;
@@ -87,8 +87,8 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     return BaseAxes[bestIndex * 3];
 }
 
-- (void)validateTexAxes {
-    texPlaneNorm = [self texPlaneNormAndXAxis:&texAxisX yAxis:&texAxisY forFaceNorm:[self norm]];
+- (void)validateTexAxesForFaceNorm:(const TVector3f *)theNorm {
+    texPlaneNorm = [self texPlaneNormAndXAxis:&texAxisX yAxis:&texAxisY forFaceNorm:theNorm];
     
     TQuaternion rot;
     float ang = rotation / 180 * M_PI;
@@ -192,49 +192,62 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 }
 
 - (void)updateTextureParametersForTransformation:(const TMatrix4f *)transformation {
-    // Any transformation of this face moves the points on its surface around. The point of 
-    // texture lock is that every point on the surface of this face is gets the same texture pixel
-    // projected onto it after the transformation. The texture scaling, rotation and offset can be
-    // represented with a 3x3 transformation matrix. We can calculate the new transformation matrix
-    // that keeps all points invariant from the 2D coordinates of three points before and after
-    // the transformation has taken place. From the matrices components, we can then calculate
-    // the new scaling, rotation and offset parameters.
-    
-
     if (!texAxesValid)
-        [self validateTexAxes];
+        [self validateTexAxesForFaceNorm:[self norm]];
     
-    TVector3f curTexAxisX, curTexAxisY, newTexAxisX, newTexAxisY, newFaceNorm, newCenter, newBaseAxisX, newBaseAxisY, offset, temp;
+    
+    TVector3f newTexAxisX, newTexAxisY, newFaceNorm, newCenter, newBaseAxisX, newBaseAxisY, offset, temp;
     TVector2f curCenterTexCoords, newCenterTexCoords;
+    TPlane plane;
     const TVector3f* curCenter;
     const TVector3f* newTexPlaneNorm;
+
+    static int count = 0;
+    if (texPlaneNorm == &XAxisNeg) {
+        count++;
+        if (count % 3 == 0)
+            NSLog(@"asdf");
+    }
     
-    if (equalV3f(texPlaneNorm, &ZAxisPos))
-        NSLog(@"asdf");
-    
+    // calculate the current texture coordinates of the face's center
     curCenter = [self center];
-    
     curCenterTexCoords.x = dotV3f(curCenter, &scaledTexAxisX) + xOffset;
     curCenterTexCoords.y = dotV3f(curCenter, &scaledTexAxisY) + yOffset;
     
-    curTexAxisX = texAxisX;
-    curTexAxisY = texAxisY;
+    // invert the scale of the current texture axes
+    scaleV3f(&texAxisX, xScale, &newTexAxisX);
+    scaleV3f(&texAxisY, yScale, &newTexAxisY);
     
-    scaleV3f(&curTexAxisX, xScale, &curTexAxisX);
-    scaleV3f(&curTexAxisY, yScale, &curTexAxisY);
+    // project the inversely scaled texture axes onto the boundary plane
+    plane.point = NullVector;
+    plane.norm = [self boundary]->norm;
+    if (texPlaneNorm == &XAxisPos || texPlaneNorm == &XAxisNeg) {
+        newTexAxisX.x = planeX(&plane, newTexAxisX.y, newTexAxisX.z);
+        newTexAxisY.x = planeX(&plane, newTexAxisY.y, newTexAxisY.z);
+    } else if (texPlaneNorm == &YAxisPos || texPlaneNorm == &YAxisNeg) {
+        newTexAxisX.y = planeY(&plane, newTexAxisX.x, newTexAxisX.z);
+        newTexAxisY.y = planeY(&plane, newTexAxisY.x, newTexAxisY.z);
+    } else {
+        newTexAxisX.z = planeZ(&plane, newTexAxisX.x, newTexAxisX.y);
+        newTexAxisY.z = planeZ(&plane, newTexAxisY.x, newTexAxisY.y);
+    }
     
-    transformM4fV3f(transformation, &curTexAxisX, &newTexAxisX);
-    transformM4fV3f(transformation, &curTexAxisY, &newTexAxisY);
+    // apply the transformation
+    transformM4fV3f(transformation, &newTexAxisX, &newTexAxisX);
+    transformM4fV3f(transformation, &newTexAxisY, &newTexAxisY);
     transformM4fV3f(transformation, [self norm], &newFaceNorm);
     transformM4fV3f(transformation, &NullVector, &offset);
     transformM4fV3f(transformation, curCenter, &newCenter);
     
+    // correct the directional vectors by the translational part of the transformation
     subV3f(&newTexAxisX, &offset, &newTexAxisX);
     subV3f(&newTexAxisY, &offset, &newTexAxisY);
     subV3f(&newFaceNorm, &offset, &newFaceNorm);
     
+    // obtain the new texture plane norm and the new base texture axes
     newTexPlaneNorm = [self texPlaneNormAndXAxis:&newBaseAxisX yAxis:&newBaseAxisY forFaceNorm:&newFaceNorm];
 
+    /*
     float tpnDot = dotV3f(texPlaneNorm, newTexPlaneNorm);
     if (tpnDot == 1 || tpnDot == -1) {
         TVector3f transformedTexPlaneNorm;
@@ -256,7 +269,9 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
             rotateQ(&rot, &newTexAxisY, &newTexAxisY);
         }
     }
+     */
     
+    // project the transformed texture axes onto the new texture plane
     if (newTexPlaneNorm == &XAxisPos || newTexPlaneNorm == &XAxisNeg) {
         newTexAxisX.x = 0;
         newTexAxisY.x = 0;
@@ -268,36 +283,41 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
         newTexAxisY.z = 0;
     }
     
+    // the new scaling factors are the lengths of the transformed texture axes
     xScale = lengthV3f(&newTexAxisX);
     yScale = lengthV3f(&newTexAxisY);
     
-    if (dotV3f(&newTexAxisX, &newBaseAxisX) < 0)
+    // the sign of the scaling factors depends on the angle between the new base axis and the new texture axis
+    if (dotV3f(&newBaseAxisX, &newTexAxisX) < 0)
         xScale *= -1;
-    if (dotV3f(&newTexAxisY, &newBaseAxisY) < 0)
+    if (dotV3f(&newBaseAxisY, &newTexAxisY) < 0)
         yScale *= -1;
 
-    scaleV3f(&newTexAxisX, 1 / xScale, &newTexAxisX); // normalized
-    scaleV3f(&newTexAxisY, 1 / yScale, &newTexAxisY);
+    // normalize the transformed X texture axis
+    scaleV3f(&newTexAxisX, 1 / xScale, &newTexAxisX);
     
+    // determine the rotation angle from the dot product of the new base X axis and the transformed texture X axis
     float cos = dotV3f(&newBaseAxisX, &newTexAxisX);
     float rad = acosf(cos);
-    
+
+    // the sign depends on the direction of the cross product
     crossV3f(&newBaseAxisX, &newTexAxisX, &temp);
     if (dotV3f(&temp, &newFaceNorm) < 0)
         rad *= -1;
     
     rotation = rad * 180 / M_PI;
 
-    [self validateTexAxes];
-    
-    scaleV3f(&newTexAxisX, 1 / xScale, &newTexAxisX);
-    scaleV3f(&newTexAxisY, 1 / yScale, &newTexAxisY);
+    [self validateTexAxesForFaceNorm:&newFaceNorm];
 
-    newCenterTexCoords.x = dotV3f(&newCenter, &newTexAxisX);
-    newCenterTexCoords.y = dotV3f(&newCenter, &newTexAxisY);
+    // determine the new texture coordinates of the transformed center of the face, sans offsets
+    newCenterTexCoords.x = dotV3f(&newCenter, &scaledTexAxisX);
+    newCenterTexCoords.y = dotV3f(&newCenter, &scaledTexAxisY);
     
+    // since the center should be invariant, the offsets are determined by the difference of the current and
+    // the original texture coordinates of the center
     xOffset = curCenterTexCoords.x - newCenterTexCoords.x;
-    yOffset = curCenterTexCoords.y - newCenterTexCoords.y;}
+    yOffset = curCenterTexCoords.y - newCenterTexCoords.y;
+}
 
 @end
 
@@ -435,7 +455,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
         return;
     
     if (!texAxesValid)
-        [self validateTexAxes];
+        [self validateTexAxesForFaceNorm:[self norm]];
     
     if (texPlaneNorm == &XAxisPos) {
         xOffset += x;
@@ -774,7 +794,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (void)texCoords:(TVector2f *)texCoords forVertex:(TVector3f *)vertex {
     if (!texAxesValid)
-        [self validateTexAxes];
+        [self validateTexAxesForFaceNorm:[self norm]];
     
     texCoords->x = dotV3f(vertex, &scaledTexAxisX) + xOffset;
     texCoords->y = dotV3f(vertex, &scaledTexAxisY) + yOffset;
@@ -782,7 +802,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (void)gridCoords:(TVector2f *)gridCoords forVertex:(TVector3f *)vertex {
     if (!texAxesValid)
-        [self validateTexAxes];
+        [self validateTexAxesForFaceNorm:[self norm]];
     
     switch (strongestComponentV3f([self norm])) {
         case A_X:
