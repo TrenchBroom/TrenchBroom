@@ -93,6 +93,9 @@
     }
 
     MapDocument* map = [windowController document];
+    TBoundingBox* worldBounds = [map worldBounds];
+    if (!boundsContainBounds(worldBounds, &initialBounds))
+        return;
     
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setGroupsByEvent:NO];
@@ -127,9 +130,13 @@
     
     TBoundingBox bounds = initialBounds;
     mergeBoundsWithPoint(&bounds, &point, &bounds);
-    lastPoint = point;
     
     MapDocument* map = [windowController document];
+    TBoundingBox* worldBounds = [map worldBounds];
+    if (!boundsContainBounds(worldBounds, &bounds))
+        return;
+    
+    lastPoint = point;
 
     NSUndoManager* undoManager = [map undoManager];
     [undoManager endUndoGrouping];
@@ -182,7 +189,11 @@
 
     TBoundingBox bounds = initialBounds;
     mergeBoundsWithPoint(&bounds, &lastPoint, &bounds);
+
     MapDocument* map = [windowController document];
+    TBoundingBox* worldBounds = [map worldBounds];
+    if (!boundsContainBounds(worldBounds, &bounds))
+        return;
     
     NSUndoManager* undoManager = [map undoManager];
     [undoManager endUndoGrouping];
