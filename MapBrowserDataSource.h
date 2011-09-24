@@ -8,6 +8,9 @@
 
 @class MapWindowController;
 
+static NSString* const EntityType = @"Entity";
+static NSString* const BrushType = @"Brush";
+
 @interface MapBrowserDataSource : NSObject <NSOutlineViewDataSource> {
     MapWindowController* mapWindowController;
 }

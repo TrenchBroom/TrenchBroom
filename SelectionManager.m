@@ -475,10 +475,11 @@ NSString* const SelectionVertices = @"SelectionVertices";
 - (void)removeFace:(id <Face>)face record:(BOOL)record {
     NSAssert(face != nil, @"face must not be nil");
     
-    if (record)
-        [[undoManager prepareWithInvocationTarget:self] addFace:face record:record];
+    NSUInteger index = [faces indexOfObjectIdenticalTo:face];
+    if (index == NSNotFound)
+        return;
     
-    [faces removeObjectIdenticalTo:face];
+    [faces removeObjectAtIndex:index];
     if ([faces count] == 0) {
         mode = SM_UNDEFINED;
         [partialBrushes removeAllObjects];
@@ -492,6 +493,9 @@ NSString* const SelectionVertices = @"SelectionVertices";
         if (!keepPartialBrush)
             [partialBrushes removeObject:[face brush]];
     }
+    
+    if (record)
+        [[undoManager prepareWithInvocationTarget:self] addFace:face record:record];
     
     NSArray* faceArray = [[NSArray alloc] initWithObjects:face, nil];
     NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:faceArray, SelectionFaces, nil];
@@ -508,37 +512,49 @@ NSString* const SelectionVertices = @"SelectionVertices";
     if ([theFaces count] == 0)
         return;
     
-    if (record)
-        [[undoManager prepareWithInvocationTarget:self] addFaces:theFaces record:record];
-
+    NSMutableArray* removedFaces = [[NSMutableArray alloc] init];
+    
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject])) {
-        [faces removeObjectIdenticalTo:face];
-        
-        BOOL keepPartialBrush = NO;
-        NSEnumerator* faceEn = [[[face brush] faces] objectEnumerator];
-        id <Face> sibling;
-        while ((sibling = [faceEn nextObject]) && !keepPartialBrush)
-            keepPartialBrush = [faces indexOfObjectIdenticalTo:sibling] != NSNotFound;
-        
-        if (!keepPartialBrush)
-            [partialBrushes removeObject:[face brush]];
+        NSUInteger index = [faces indexOfObjectIdenticalTo:face];
+        if (index != NSNotFound) {
+            [faces removeObjectAtIndex:index];
+            [removedFaces addObject:face];
+
+            BOOL keepPartialBrush = NO;
+            NSEnumerator* faceEn = [[[face brush] faces] objectEnumerator];
+            id <Face> sibling;
+            while ((sibling = [faceEn nextObject]) && !keepPartialBrush)
+                keepPartialBrush = [faces indexOfObjectIdenticalTo:sibling] != NSNotFound;
+            
+            if (!keepPartialBrush)
+                [partialBrushes removeObject:[face brush]];
+        }
     }
     
     if ([faces count] == 0)
         mode = SM_UNDEFINED;
     
-    NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:theFaces, SelectionFaces, nil];
+    if (record)
+        [[undoManager prepareWithInvocationTarget:self] addFaces:removedFaces record:record];
+    
+    NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:removedFaces, SelectionFaces, nil];
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:SelectionRemoved object:self userInfo:userInfo];
     [userInfo release];
+    
+    [removedFaces release];
 }
 
 - (void)removeBrush:(id <Brush>)brush record:(BOOL)record {
     NSAssert(brush != nil, @"brush must not be nil");
     
-    [brushes removeObjectIdenticalTo:brush];
+    NSUInteger index = [brushes indexOfObjectIdenticalTo:brush];
+    if (index == NSNotFound)
+        return;
+    
+    [brushes removeObjectAtIndex:index];
     if ([brushes count] == 0) {
         if ([entities count] == 0) {
             mode = SM_UNDEFINED;
@@ -566,10 +582,17 @@ NSString* const SelectionVertices = @"SelectionVertices";
     if ([theBrushes count] == 0)
         return;
     
+    NSMutableArray* removedBrushes = [[NSMutableArray alloc] init];
+    
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
-        [brushes removeObjectIdenticalTo:brush];
+    while ((brush = [brushEn nextObject])) {
+        NSUInteger index = [brushes indexOfObjectIdenticalTo:brush];
+        if (index != NSNotFound) {
+            [brushes removeObjectAtIndex:index];
+            [removedBrushes addObject:brush];
+        }
+    }
     
     if ([brushes count] == 0) {
         if ([entities count] == 0)
@@ -580,21 +603,24 @@ NSString* const SelectionVertices = @"SelectionVertices";
     brushSelectionEntityValid = NO;
     
     if (record)
-        [[undoManager prepareWithInvocationTarget:self] addBrushes:theBrushes record:record];
+        [[undoManager prepareWithInvocationTarget:self] addBrushes:removedBrushes record:record];
     
-    NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:theBrushes, SelectionBrushes, nil];
+    NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:removedBrushes, SelectionBrushes, nil];
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:SelectionRemoved object:self userInfo:userInfo];
     [userInfo release];
+    
+    [removedBrushes release];
 }
 
 - (void)removeEntity:(id <Entity>)entity record:(BOOL)record {
     NSAssert(entity != nil, @"entity must not be nil");
     
-    if (record)
-        [[undoManager prepareWithInvocationTarget:self] addEntity:entity record:record];
+    NSUInteger index = [entities indexOfObjectIdenticalTo:entity];
+    if (index == NSNotFound)
+        return;
     
-    [entities removeObjectIdenticalTo:entity];
+    [entities removeObjectAtIndex:index];
     
     if ([entities count] == 0) {
         if ([brushes count] > 0)
@@ -602,6 +628,9 @@ NSString* const SelectionVertices = @"SelectionVertices";
         else
             mode = SM_UNDEFINED;
     }
+    
+    if (record)
+        [[undoManager prepareWithInvocationTarget:self] addEntity:entity record:record];
     
     NSArray* entityArray = [[NSArray alloc] initWithObjects:entity, nil];
     NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:entityArray, SelectionEntities, nil];
@@ -618,13 +647,17 @@ NSString* const SelectionVertices = @"SelectionVertices";
     if ([theEntities count] == 0)
         return;
     
-    if (record)
-        [[undoManager prepareWithInvocationTarget:self] addEntities:theEntities record:record];
-
+    NSMutableArray* removedEntities = [[NSMutableArray alloc] init];
+    
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     id <Entity> entity;
-    while ((entity = [entityEn nextObject]))
-        [entities removeObjectIdenticalTo:entity];
+    while ((entity = [entityEn nextObject])) {
+        NSUInteger index = [entities indexOfObjectIdenticalTo:entity];
+        if (index != NSNotFound) {
+            [entities removeObjectAtIndex:index];
+            [removedEntities addObject:entity];
+        }
+    }
     
     if ([entities count] == 0) {
         if ([brushes count] > 0)
@@ -633,10 +666,15 @@ NSString* const SelectionVertices = @"SelectionVertices";
             mode = SM_UNDEFINED;
     }
     
-    NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:theEntities, SelectionEntities, nil];
+    if (record)
+        [[undoManager prepareWithInvocationTarget:self] addEntities:removedEntities record:record];
+    
+    NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] initWithObjectsAndKeys:removedEntities, SelectionEntities, nil];
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:SelectionRemoved object:self userInfo:userInfo];
     [userInfo release];
+    
+    [removedEntities release];
 }
 
 - (void)removeAll:(BOOL)record {

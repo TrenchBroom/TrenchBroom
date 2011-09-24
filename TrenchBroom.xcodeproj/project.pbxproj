@@ -12,6 +12,8 @@
 		4802373E1427776900F16751 /* NSUndoManager+DebugCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 4802373D1427776900F16751 /* NSUndoManager+DebugCategory.m */; };
 		4809A10F13E2A2E300AF6557 /* InspectorView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4809A10E13E2A2E300AF6557 /* InspectorView.xib */; };
 		480D23201334A3A800D3B57B /* PickingHitList.m in Sources */ = {isa = PBXBuildFile; fileRef = 480D231F1334A3A800D3B57B /* PickingHitList.m */; };
+		480EBEA5142DFA34005DD8D6 /* GroupTableDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 480EBEA4142DFA33005DD8D6 /* GroupTableDataSource.m */; };
+		480EBEAC142E2962005DD8D6 /* GroupManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 480EBEAB142E2962005DD8D6 /* GroupManager.m */; };
 		480F2F65132562CA00651FED /* Grid.m in Sources */ = {isa = PBXBuildFile; fileRef = 480F2F64132562CA00651FED /* Grid.m */; };
 		4814A02312F73F1E0082E05F /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4814A02212F73F1E0082E05F /* ProgressWindow.xib */; };
 		4814A02712F740580082E05F /* ProgressWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4814A02612F740580082E05F /* ProgressWindowController.m */; };
@@ -239,6 +241,10 @@
 		4809A10E13E2A2E300AF6557 /* InspectorView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = InspectorView.xib; sourceTree = "<group>"; };
 		480D231E1334A3A800D3B57B /* PickingHitList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PickingHitList.h; sourceTree = "<group>"; };
 		480D231F1334A3A800D3B57B /* PickingHitList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PickingHitList.m; sourceTree = "<group>"; };
+		480EBEA3142DFA33005DD8D6 /* GroupTableDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupTableDataSource.h; sourceTree = "<group>"; };
+		480EBEA4142DFA33005DD8D6 /* GroupTableDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupTableDataSource.m; sourceTree = "<group>"; };
+		480EBEAA142E2961005DD8D6 /* GroupManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupManager.h; sourceTree = "<group>"; };
+		480EBEAB142E2962005DD8D6 /* GroupManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupManager.m; sourceTree = "<group>"; };
 		480F2F63132562CA00651FED /* Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Grid.h; sourceTree = "<group>"; };
 		480F2F64132562CA00651FED /* Grid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Grid.m; sourceTree = "<group>"; };
 		4814A02212F73F1E0082E05F /* ProgressWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProgressWindow.xib; sourceTree = "<group>"; };
@@ -1019,6 +1025,8 @@
 				48976C8313E2BFC5005AB1EA /* InspectorWindowController.m */,
 				48F56F5013E9CDEC008DF954 /* MapBrowserDataSource.h */,
 				48F56F5113E9CDEC008DF954 /* MapBrowserDataSource.m */,
+				480EBEA3142DFA33005DD8D6 /* GroupTableDataSource.h */,
+				480EBEA4142DFA33005DD8D6 /* GroupTableDataSource.m */,
 			);
 			name = Inspector;
 			sourceTree = "<group>";
@@ -1113,6 +1121,8 @@
 				486E08B813B67D8000E751A6 /* BrushInfo.m */,
 				48A269E113C73BFA00703BC1 /* EntityInfo.h */,
 				48A269E213C73BFA00703BC1 /* EntityInfo.m */,
+				480EBEAA142E2961005DD8D6 /* GroupManager.h */,
+				480EBEAB142E2962005DD8D6 /* GroupManager.m */,
 			);
 			name = Map;
 			sourceTree = "<group>";
@@ -1533,6 +1543,8 @@
 				4864E2C1140E2682000DE923 /* CompilerProfileRunner.m in Sources */,
 				483AB7A71410C4E400B5F44E /* PointFileFeedbackFigure.m in Sources */,
 				4802373E1427776900F16751 /* NSUndoManager+DebugCategory.m in Sources */,
+				480EBEA5142DFA34005DD8D6 /* GroupTableDataSource.m in Sources */,
+				480EBEAC142E2962005DD8D6 /* GroupManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

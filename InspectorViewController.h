@@ -19,9 +19,10 @@
 @class EntityView;
 @class Texture;
 @class MapBrowserDataSource;
+@class GroupTableDataSource;
 @protocol Prefab;
 
-@interface InspectorViewController : NSViewController <NSTableViewDelegate, PrefabViewTarget, TextureViewTarget, EntityDefinitionViewTarget> {
+@interface InspectorViewController : NSViewController <NSTableViewDelegate, NSSplitViewDelegate, PrefabViewTarget, TextureViewTarget, EntityDefinitionViewTarget> {
     IBOutlet NSTabView* tabView;
     IBOutlet NSTextField* xOffsetField;
     IBOutlet NSStepper* xOffsetStepper;
@@ -61,6 +62,11 @@
     IBOutlet NSOutlineView* mapBrowserView;
     MapBrowserDataSource* mapBrowserDataSource;
     
+    IBOutlet NSTableView* groupTableView;
+    GroupTableDataSource* groupTableDataSource;
+    IBOutlet NSButton* addGroupButton;
+    IBOutlet NSButton* removeGroupButton;
+    
     MapWindowController* mapWindowController;
 }
 
@@ -94,4 +100,7 @@
 - (IBAction)entitySortCriterionChanged:(id)sender;
 
 - (IBAction)mapBrowserClicked:(id)sender;
+
+- (IBAction)addGroup:(id)sender;
+- (IBAction)removeGroup:(id)sender;
 @end

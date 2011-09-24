@@ -663,3 +663,7 @@ Set sounds to the cd track to play.
 "worldtype"	type of world
 */
 
+/*QUAKED func_group (0.0 0.0 0.0) ?
+groups brushes together. Compilers will ignore this and add the brushes to worldspawn.
+"name"  the name of this group
+*/

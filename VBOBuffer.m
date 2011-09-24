@@ -184,6 +184,8 @@ int writeVector2f(const TVector2f* vector, uint8_t* vbo, int address) {
         glBindBuffer(GL_ARRAY_BUFFER, vboId);
         glEnableClientState(GL_VERTEX_ARRAY);
     }
+
+    NSAssert(glGetError() == GL_NO_ERROR, @"buffer could not be activated: %i", glGetError());
     active = YES;
 }
 
@@ -199,6 +201,7 @@ int writeVector2f(const TVector2f* vector, uint8_t* vbo, int address) {
 
 - (void)mapBuffer {
     buffer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    NSAssert(glGetError() == GL_NO_ERROR && buffer != NULL, @"buffer could not be mapped: %i", glGetError());
 }
 
 - (void)unmapBuffer {

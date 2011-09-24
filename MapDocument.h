@@ -39,6 +39,7 @@ extern NSString* const PointFileUnloaded;
 @class Vector3i;
 @class Vector3f;
 @class SelectionManager;
+@class GroupManager;
 @protocol Entity;
 @protocol Brush;
 @protocol Face;
@@ -47,6 +48,7 @@ extern NSString* const PointFileUnloaded;
     @private
     SelectionManager* selectionManager;
     EntityDefinitionManager* entityDefinitionManager;
+    GroupManager* groupManager;
     NSMutableArray* entities;
     MutableEntity* worldspawn;
     TBoundingBox worldBounds;
@@ -92,6 +94,7 @@ extern NSString* const PointFileUnloaded;
 - (void)deleteEntities:(NSArray *)theEntities;
 
 - (void)addBrushesToEntity:(id <Entity>)theEntity brushes:(NSArray *)theBrushes;
+- (void)moveBrushesToEntity:(id <Entity>)theEntity brushes:(NSArray *)theBrushes;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity withBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture;
 - (void)duplicateBrushes:(NSArray *)theBrushes newBrushes:(NSMutableArray *)theNewBrushes;
@@ -119,4 +122,5 @@ extern NSString* const PointFileUnloaded;
 - (GLResources *)glResources;
 - (EntityDefinitionManager *)entityDefinitionManager;
 - (SelectionManager *)selectionManager;
+- (GroupManager *)groupManager;
 @end

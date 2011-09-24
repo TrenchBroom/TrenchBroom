@@ -278,10 +278,12 @@
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if ((self = [self init])) {
         windowController = theWindowController; // do not retain
-
-        SelectionManager* selectionManager = [windowController selectionManager];
+        MapDocument* map = [windowController document];
+        
+        SelectionManager* selectionManager = [map selectionManager];
+        GroupManager* groupManager = [map groupManager];
         Options* options = [windowController options];
-        filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager options:options];
+        filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager groupManager:groupManager options:options];
         
         cameraTool = [[CameraTool alloc] initWithWindowController:windowController];
         selectionTool = [[SelectionTool alloc] initWithWindowController:windowController];
@@ -293,7 +295,6 @@
         entityDefinitionDndTool = [[EntityDefinitionDndTool alloc] initWithWindowController:windowController];
         
         Camera* camera = [windowController camera];
-        MapDocument* map = [windowController document];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(cameraViewChanged:) name:CameraViewChanged object:camera];

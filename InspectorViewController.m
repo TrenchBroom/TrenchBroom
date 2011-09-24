@@ -29,13 +29,16 @@
 #import "EntityView.h"
 #import "EntityPropertyTableDataSource.h"
 #import "MapBrowserDataSource.h"
+#import "GroupTableDataSource.h"
 #import "ControllerUtils.h"
 #import "PreferencesManager.h"
 #import "PrefabNameSheetController.h"
 #import "PrefabManager.h"
+#import "GroupManager.h"
 
 @interface InspectorViewController (private)
 
+- (void)groupsDidChange:(NSNotification *)notification;
 - (void)preferencesDidChange:(NSNotification *)notification;
 - (void)entityCountChanged:(NSNotification *)notification;
 - (void)propertiesDidChange:(NSNotification *)notification;
@@ -55,6 +58,10 @@
 @end
 
 @implementation InspectorViewController (private)
+
+- (void)groupsDidChange:(NSNotification *)notification {
+    [groupTableView reloadData];
+}
 
 - (void)preferencesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
@@ -105,6 +112,7 @@
     
     SelectionManager* selectionManager = [[mapWindowController document] selectionManager];
     [addPrefabButton setEnabled:[selectionManager hasSelectedBrushes]];
+    [addGroupButton setEnabled:[selectionManager hasSelectedBrushes]];
 }
 
 - (void)prefabSelectionDidChange:(NSNotification *)notification {
@@ -125,7 +133,9 @@
         GLResources* glResources = [map glResources];
         
         TextureManager* textureManager = [glResources textureManager];
-        SelectionManager* selectionManager = [mapWindowController selectionManager];
+        SelectionManager* selectionManager = [map selectionManager];
+        GroupManager* groupManager = [map groupManager];
+        
         [center removeObserver:self name:SelectionAdded object:selectionManager];
         [center removeObserver:self name:SelectionRemoved object:selectionManager];
         [center removeObserver:self name:EntitiesAdded object:map];
@@ -136,9 +146,11 @@
         [center removeObserver:self name:BrushesDidChange object:map];
         [center removeObserver:self name:FacesDidChange object:map];
         [center removeObserver:self name:TextureManagerChanged object:textureManager];
+        [center removeObserver:self name:GroupsChanged object:groupManager];
         
         [entityPropertyTableDataSource setMapWindowController:nil];
         [mapBrowserDataSource setMapWindowController:nil];
+        [groupTableDataSource setMapWindowController:nil];
     }
     
     mapWindowController = theMapWindowController;
@@ -146,6 +158,8 @@
     if (mapWindowController != nil) {
         MapDocument* map = [mapWindowController document];
         SelectionManager* selectionManager = [map selectionManager];
+        GroupManager* groupManager = [map groupManager];
+
         GLResources* glResources = [map glResources];
         EntityDefinitionManager* entityDefinitionManager = [map entityDefinitionManager];
         
@@ -159,6 +173,7 @@
         TextureManager* textureManager = [glResources textureManager];
         [entityPropertyTableDataSource setMapWindowController:mapWindowController];
         [mapBrowserDataSource setMapWindowController:mapWindowController];
+        [groupTableDataSource setMapWindowController:mapWindowController];
         
         [center addObserver:self selector:@selector(selectionChanged:) name:SelectionAdded object:selectionManager];
         [center addObserver:self selector:@selector(selectionChanged:) name:SelectionRemoved object:selectionManager];
@@ -170,6 +185,11 @@
         [center addObserver:self selector:@selector(brushesDidChange:) name:BrushesDidChange object:map];
         [center addObserver:self selector:@selector(facesDidChange:) name:FacesDidChange object:map];
         [center addObserver:self selector:@selector(textureManagerChanged:) name:TextureManagerChanged object:textureManager];
+        [center addObserver:self selector:@selector(groupsDidChange:) name:GroupsChanged object:groupManager];
+
+        [addPrefabButton setEnabled:[selectionManager hasSelectedBrushes]];
+        [addGroupButton setEnabled:[selectionManager hasSelectedBrushes]];
+        [removeGroupButton setEnabled:[groupTableView selectedRow] != -1];
     } else {
         [singleTextureView setGLResources:nil];
         [textureView setGLResources:nil];
@@ -177,12 +197,17 @@
         [prefabView setGLResources:nil];
         [entityView setGLResources:nil entityDefinitionManager:nil];
         [entityView setMods:nil];
+
+        [addPrefabButton setEnabled:NO];
+        [addGroupButton setEnabled:NO];
+        [removeGroupButton setEnabled:NO];
     }
 
     [mapBrowserView reloadData];
     [self updateEntityPropertyTable];
     [self updateTextureControls];
     [wadTableView reloadData];
+    [groupTableView reloadData];
 }
 
 - (void)updateTextureControls {
@@ -378,6 +403,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [entityPropertyTableDataSource release];
     [mapBrowserDataSource release];
+    [groupTableDataSource release];
     [super dealloc];
 }
 
@@ -410,6 +436,9 @@
     mapBrowserDataSource = [[MapBrowserDataSource alloc] init];
     [mapBrowserView setDataSource:mapBrowserDataSource];
     
+    groupTableDataSource = [[GroupTableDataSource alloc] init];
+    [groupTableView setDataSource:groupTableDataSource];
+    
     [self updateMapWindowController:mapWindowController];
     [self prefabsPerRowChanged:prefabsPerRowSlider];
     
@@ -430,6 +459,58 @@
 
 - (MapWindowController *)mapWindowController {
     return mapWindowController;
+}
+
+#pragma mark @implementation NSTableViewDelegate
+
+- (void)tableViewSelectionDidChange:(NSNotification *)notification {
+    if ([notification object] == entityPropertyTableView) {
+        NSIndexSet* selectedRows = [entityPropertyTableView selectedRowIndexes];
+        if ([selectedRows count] > 0) {
+            MapDocument* map = [mapWindowController document];
+            SelectionManager* selectionManager = [map selectionManager];
+            NSArray* entities = [selectionManager selectedEntities];
+            
+            if ([entities count] == 0)
+                entities = [NSArray arrayWithObject:[map worldspawn:YES]];
+            
+            NSUInteger index = [selectedRows firstIndex];
+            do {
+                NSString* key = [entityPropertyTableDataSource propertyKeyAtIndex:index];
+                NSEnumerator* entityEn = [entities objectEnumerator];
+                id <Entity> entity;
+                while ((entity = [entityEn nextObject])) {
+                    if (![entity isPropertyDeletable:key]) {
+                        [removeEntityPropertyButton setEnabled:NO];
+                        return;
+                    }
+                }
+            } while ((index = [selectedRows indexGreaterThanIndex:index]) != NSNotFound);
+            
+            [removeEntityPropertyButton setEnabled:YES];
+        } else {
+            [removeEntityPropertyButton setEnabled:NO];
+        }
+    } else if ([notification object] == groupTableView) {
+        [removeGroupButton setEnabled:[groupTableView selectedRow] != -1];
+    }
+}
+
+- (BOOL)tableView:(NSTableView *)theTableView shouldEditTableColumn:(NSTableColumn *)theTableColumn row:(NSInteger)theRowIndex {
+    if (theTableView == entityPropertyTableView)
+        return [entityPropertyTableDataSource editingAllowed:theTableColumn rowIndex:theRowIndex];
+    return YES;
+}
+
+#pragma mark @implementation NSSplitViewDelegate
+
+- (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMinimumPosition ofSubviewAt:(NSInteger)dividerIndex {
+    return 150;
+}
+
+- (CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMaximumPosition ofSubviewAt:(NSInteger)dividerIndex {
+    float height = NSHeight([splitView frame]);
+    return height - 150;
 }
 
 #pragma mark Texture controls
@@ -699,8 +780,6 @@
     }
 }
 
-
-
 - (IBAction)removeEntityProperty:(id)sender {
     NSIndexSet* selectedRows = [entityPropertyTableView selectedRowIndexes];
     if ([selectedRows count] == 0)
@@ -746,46 +825,11 @@
     }
 }
 
-- (void)tableViewSelectionDidChange:(NSNotification *)notification {
-    if ([notification object] == entityPropertyTableView) {
-        NSIndexSet* selectedRows = [entityPropertyTableView selectedRowIndexes];
-        if ([selectedRows count] > 0) {
-            MapDocument* map = [mapWindowController document];
-            SelectionManager* selectionManager = [map selectionManager];
-            NSArray* entities = [selectionManager selectedEntities];
-            
-            if ([entities count] == 0)
-                entities = [NSArray arrayWithObject:[map worldspawn:YES]];
-            
-            NSUInteger index = [selectedRows firstIndex];
-            do {
-                NSString* key = [entityPropertyTableDataSource propertyKeyAtIndex:index];
-                NSEnumerator* entityEn = [entities objectEnumerator];
-                id <Entity> entity;
-                while ((entity = [entityEn nextObject])) {
-                    if (![entity isPropertyDeletable:key]) {
-                        [removeEntityPropertyButton setEnabled:NO];
-                        return;
-                    }
-                }
-            } while ((index = [selectedRows indexGreaterThanIndex:index]) != NSNotFound);
-            
-            [removeEntityPropertyButton setEnabled:YES];
-        } else {
-            [removeEntityPropertyButton setEnabled:NO];
-        }
-    }
-}
-
-- (BOOL)tableView:(NSTableView *)theTableView shouldEditTableColumn:(NSTableColumn *)theTableColumn row:(NSInteger)theRowIndex {
-    if (theTableView == entityPropertyTableView)
-        return [entityPropertyTableDataSource editingAllowed:theTableColumn rowIndex:theRowIndex];
-    return NO;
-}
-
 - (void)entityDefinitionSelected:(EntityDefinition *)theDefinition {
     NSLog(@"entityDefinitionSelected:(EntityDefinition *)theDefinition not implemented");
 }
+
+#pragma mark Map browser controls
 
 - (IBAction)mapBrowserClicked:(id)sender {
     int row = [mapBrowserView selectedRow];
@@ -803,6 +847,60 @@
             [mapWindowController makeFaceVisible:face];
         }
     }
+}
+
+#pragma mark Group controls
+
+- (IBAction)addGroup:(id)sender {
+    if (mapWindowController == nil)
+        return;
+    
+    MapDocument* map = [mapWindowController document];
+    EntityDefinitionManager* entityDefinitionManager = [map entityDefinitionManager];
+    SelectionManager* selectionManager = [map selectionManager];
+    
+    NSArray* brushes = [selectionManager selectedBrushes];
+    if ([brushes count] == 0)
+        return;
+    
+    EntityDefinition* definition = [entityDefinitionManager definitionForName:GroupClassName];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    id <Entity> entity = [map createEntityWithClassname:[definition name]];
+    [map moveBrushesToEntity:entity brushes:brushes];
+    [selectionManager addEntity:entity record:YES];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Create Group"];}
+
+- (IBAction)removeGroup:(id)sender {
+    if (mapWindowController == nil)
+        return;
+    
+    NSInteger rowIndex = [groupTableView selectedRow];
+    if (rowIndex == -1)
+        return;
+    
+    MapDocument* map = [mapWindowController document];
+    GroupManager* groupManager = [map groupManager];
+    NSArray* groups = [groupManager groups];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    id <Entity> group = [groups objectAtIndex:rowIndex];
+    NSArray* brushArray = [[NSArray alloc] initWithArray:[group brushes]];
+    [map moveBrushesToEntity:[map worldspawn:YES] brushes:brushArray];
+    [brushArray release];
+    
+    NSArray* groupArray = [[NSArray alloc] initWithObjects:group, nil];
+    [map deleteEntities:groupArray];
+    [groupArray release];
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Remove Group"];
 }
 
 @end

@@ -9,14 +9,16 @@
 #import <Cocoa/Cocoa.h>
 #import "Filter.h"
 
+@class GroupManager;
 @class SelectionManager;
 @class Options;
 
 @interface DefaultFilter : NSObject <Filter> {
+    GroupManager* groupManager;
     SelectionManager* selectionManager;
     Options* options;
 }
 
-- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager options:(Options *)theOptions;
+- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager groupManager:(GroupManager *)theGroupManager options:(Options *)theOptions;
 
 @end

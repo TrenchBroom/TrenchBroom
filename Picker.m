@@ -16,7 +16,7 @@
 
 @implementation Picker
 
-- (id)initWithDocument:(MapDocument *)theDocument {
+- (id)initWithMap:(MapDocument *)theDocument {
     if ((self = [self init])) {
         octree = [[Octree alloc] initWithDocument:theDocument minSize:64];
     }

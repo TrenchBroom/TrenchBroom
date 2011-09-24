@@ -49,6 +49,7 @@
 #import "CompilerProfile.h"
 #import "PointFileFeedbackFigure.h"
 #import "Renderer.h"
+#import "GroupManager.h"
 
 @interface MapWindowController (private)
 
@@ -336,7 +337,7 @@
         return [selectionManager hasSelection];
     } else if (action == @selector(selectEntity:)) {
         id <Entity> entity = [selectionManager brushSelectionEntity];
-        return ![entity isWorldspawn] && [[selectionManager selectedBrushes] count] < [[entity brushes] count];
+        return ![entity isWorldspawn];
     } else if (action == @selector(selectAllTouchingBrush:)) {
         return [selectionManager mode] == SM_BRUSHES && [[selectionManager selectedBrushes] count] == 1; 
     } else if (action == @selector(copy:)) {
@@ -530,10 +531,30 @@
     [selectionManager addEntity:entity record:YES];
     
     [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Create Entity"];
+    [undoManager setActionName:@"Create Point Entity"];
 }
 
 - (IBAction)createBrushEntity:(id)sender {
+    MapDocument* map = [self document];
+    EntityDefinitionManager* entityDefinitionManager = [map entityDefinitionManager];
+    SelectionManager* selectionManager = [self selectionManager];
+    
+    NSArray* brushes = [selectionManager selectedBrushes];
+    if ([brushes count] == 0)
+        return;
+    
+    NSArray* brushDefinitions = [entityDefinitionManager definitionsOfType:EDT_BRUSH];
+    EntityDefinition* definition = [brushDefinitions objectAtIndex:[sender tag]];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    id <Entity> entity = [map createEntityWithClassname:[definition name]];
+    [map moveBrushesToEntity:entity brushes:brushes];
+    [selectionManager addEntity:entity record:YES];
+
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Create Brush Entity"];
 }
 
 
@@ -1154,20 +1175,36 @@
     if ([clipTool active] && [clipTool numPoints] > 0) {
         [clipTool deleteLastPoint];
     } else {
+        MapDocument* map = [self document];
+        
+        NSArray* deletedEntities = [[NSArray alloc] initWithArray:[selectionManager selectedEntities]];
+        NSMutableArray* deletedBrushes = [[NSMutableArray alloc] initWithArray:[selectionManager selectedBrushes]];
+        NSMutableArray* remainingBrushes = [[NSMutableArray alloc] init];
+        
+        NSEnumerator* brushEn = [deletedBrushes objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            id <Entity> entity = [brush entity];
+            if ([deletedEntities indexOfObjectIdenticalTo:entity] != NSNotFound)
+                [remainingBrushes addObject:brush];
+        }
+        
+        [deletedBrushes removeObjectsInArray:remainingBrushes];
+        
         NSUndoManager* undoManager = [[self document] undoManager];
         [undoManager beginUndoGrouping];
         
-        if ([selectionManager hasSelectedEntities]) {
-            NSArray* deletedEntities = [[NSArray alloc] initWithArray:[selectionManager selectedEntities]];
-            [[self document] deleteEntities:deletedEntities];
-            [deletedEntities release];
-        }
+        if ([remainingBrushes count] > 0)
+            [[self document] moveBrushesToEntity:[map worldspawn:YES] brushes:remainingBrushes];
         
-        if ([selectionManager hasSelectedBrushes]) {
-            NSArray* deletedBrushes = [[NSArray alloc] initWithArray:[selectionManager selectedBrushes]];
-            [[self document] deleteBrushes:deletedBrushes];
-            [deletedBrushes release];
-        }
+        [[self document] deleteEntities:deletedEntities];
+        [[self document] deleteBrushes:deletedBrushes];
+
+        [selectionManager addBrushes:remainingBrushes record:YES];
+
+        [deletedEntities release];
+        [deletedBrushes release];
+        [remainingBrushes release];
         
         [undoManager endUndoGrouping];
         [undoManager setActionName:@"Delete Selection"];

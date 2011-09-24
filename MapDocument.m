@@ -29,6 +29,7 @@
 #import "MapWriter.h"
 #import "EntityRendererManager.h"
 #import "SelectionManager.h"
+#import "GroupManager.h"
 #import "Math.h"
 
 NSString* const FacesWillChange         = @"FacesWillChange";
@@ -225,7 +226,8 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
         glResources = [[GLResources alloc] initWithPalette:palette];
         [palette release];
 
-        picker = [[Picker alloc] initWithDocument:self];
+        picker = [[Picker alloc] initWithMap:self];
+        groupManager = [[GroupManager alloc] initWithMap:self];
     }
     
     return self;
@@ -234,6 +236,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [entityDefinitionManager release];
+    [groupManager release];
     [entities release];
     [picker release];
     [glResources release];
@@ -279,7 +282,10 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     [pwc release];
     
     [picker release];
-    picker = [[Picker alloc] initWithDocument:self];
+    picker = [[Picker alloc] initWithMap:self];
+    
+    [groupManager release];
+    groupManager = [[GroupManager alloc] initWithMap:self];
 
     NSString* wads = [[self worldspawn:NO] propertyForKey:@"wad"];
     if (wads != nil) {
@@ -810,6 +816,58 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:BrushesAdded object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
+- (void)moveBrushesToEntity:(id <Entity>)theEntity brushes:(NSArray *)theBrushes {
+    NSAssert(theEntity != nil, @"entity must not be nil");
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+    
+    if ([theBrushes count] == 0)
+        return;
+    
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theBrushes forKey:BrushesKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
+    }
+
+    MutableEntity* mutableEntity = (MutableEntity *)theEntity;
+    NSMutableDictionary* entityBrushes = [[NSMutableDictionary alloc] init];
+    NSMutableArray* changedEntities = [[NSMutableArray alloc] init];
+    
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    MutableBrush* brush;
+    while ((brush = [brushEn nextObject])) {
+        MutableEntity* previousEntity = [brush entity];
+        NSMutableArray* brushArray = [entityBrushes objectForKey:[previousEntity entityId]];
+        if (brushArray == nil) {
+            brushArray = [[NSMutableArray alloc] init];
+            [entityBrushes setObject:brushArray forKey:[previousEntity entityId]];
+            [brushArray release];
+            [changedEntities addObject:previousEntity];
+        }
+        
+        [brushArray addObject:brush];
+        [previousEntity removeBrush:brush];
+        [mutableEntity addBrush:brush];
+    }
+    
+    NSUndoManager* undoManager = [self undoManager];
+    NSEnumerator* changedEntityEn = [changedEntities objectEnumerator];
+    id <Entity> changedEntity;
+    while ((changedEntity = [changedEntityEn nextObject])) {
+        NSArray* brushArray = [entityBrushes objectForKey:[changedEntity entityId]];
+        [[undoManager prepareWithInvocationTarget:self] moveBrushesToEntity:changedEntity brushes:brushArray];
+    }
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }
@@ -1463,6 +1521,10 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
 
 - (SelectionManager *)selectionManager {
     return selectionManager;
+}
+
+- (GroupManager *)groupManager {
+    return groupManager;
 }
 
 # pragma mark @implementation Map

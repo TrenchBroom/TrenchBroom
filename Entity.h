@@ -17,6 +17,9 @@
 static NSString* const ClassnameKey = @"classname";
 static NSString* const SpawnFlagsKey = @"spawnflags";
 static NSString* const WorldspawnClassname = @"worldspawn";
+static NSString* const GroupClassName = @"func_group";
+static NSString* const GroupNameKey = @"name";
+static NSString* const GroupVisibilityKey = @"visible";
 static NSString* const OriginKey = @"origin";
 static NSString* const AngleKey = @"angle";
 static NSString* const MessageKey = @"message";

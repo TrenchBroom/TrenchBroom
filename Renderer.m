@@ -42,6 +42,7 @@
 #import "TextRenderer.h"
 #import "BoundsRenderer.h"
 #import "EntityClassnameAnchor.h"
+#import "GroupManager.h"
 
 NSString* const RendererChanged = @"RendererChanged";
 NSString* const FaceVboKey = @"FaceVbo";
@@ -99,7 +100,7 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)selectionRemoved:(NSNotification *)notification;
 - (void)textureManagerChanged:(NSNotification *)notification;
 - (void)cameraChanged:(NSNotification *)notification;
-- (void)optionsChanged:(NSNotification *)notification;
+- (void)optionsOrGroupsChanged:(NSNotification *)notification;
 - (void)gridChanged:(NSNotification *)notification;
 - (void)cursorChanged:(NSNotification *)notification;
 - (void)preferencesDidChange:(NSNotification *)notification;
@@ -416,18 +417,36 @@ int const TexCoordSize = 2 * sizeof(float);
     if ([changedEntities count] > 0) {
         [selectedEntityBoundsVbo activate];
         [selectedEntityBoundsVbo mapBuffer];
-        
+
+        NSMutableArray* unselectedEntities = [[NSMutableArray alloc] init];
         NSEnumerator* entityEn = [changedEntities objectEnumerator];
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
             if (![entity isWorldspawn]) {
                 VBOMemBlock* block = [entity boundsMemBlock];
-                [self writeEntityBounds:entity toBlock:block];
+                if ([block vbo] == entityBoundsVbo)
+                    [unselectedEntities addObject:entity];
+                else
+                    [self writeEntityBounds:entity toBlock:block];
             }
         }
-
+        
         [selectedEntityBoundsVbo unmapBuffer];
         [selectedEntityBoundsVbo deactivate];
+        
+        if ([unselectedEntities count] > 0) {
+            [entityBoundsVbo activate];
+            [entityBoundsVbo mapBuffer];
+            
+            entityEn = [unselectedEntities objectEnumerator];
+            while ((entity = [entityEn nextObject])) {
+                VBOMemBlock* block = [entity boundsMemBlock];
+                [self writeEntityBounds:entity toBlock:block];
+            }
+            
+            [entityBoundsVbo unmapBuffer];
+            [entityBoundsVbo deactivate];
+        }
     }
 }
 
@@ -979,12 +998,14 @@ int const TexCoordSize = 2 * sizeof(float);
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
-- (void)optionsChanged:(NSNotification *)notification {
-    SelectionManager* selectionManager = [windowController selectionManager];
+- (void)optionsOrGroupsChanged:(NSNotification *)notification {
     Options* options = [windowController options];
+    MapDocument* map = [windowController document];
+    SelectionManager* selectionManager = [map selectionManager];
+    GroupManager* groupManager = [map groupManager];
     
     [filter release];
-    filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager options:options];
+    filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager groupManager:groupManager options:options];
     [changeSet setFilterChanged:YES];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -1043,12 +1064,13 @@ int const TexCoordSize = 2 * sizeof(float);
         selectedModelEntities = [[NSMutableArray alloc] init];
         selectionBoundsRenderer = [[BoundsRenderer alloc] initWithCamera:[windowController camera] fontManager:fontManager];
         
-        SelectionManager* selectionManager = [windowController selectionManager];
         Camera* camera = [windowController camera];
         Options* options = [windowController options];
         Grid* grid = [options grid];
+        SelectionManager* selectionManager = [map selectionManager];
+        GroupManager* groupManager = [map groupManager];
         
-        filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager options:options];
+        filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager groupManager:groupManager options:options];
         
         [self addEntities:[map entities]];
         
@@ -1067,7 +1089,8 @@ int const TexCoordSize = 2 * sizeof(float);
         
         [center addObserver:self selector:@selector(textureManagerChanged:) name:TextureManagerChanged object:textureManager];
         [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
-        [center addObserver:self selector:@selector(optionsChanged:) name:OptionsChanged object:options];
+        [center addObserver:self selector:@selector(optionsOrGroupsChanged:) name:OptionsChanged object:options];
+        [center addObserver:self selector:@selector(optionsOrGroupsChanged:) name:GroupsChanged object:groupManager];
         [center addObserver:self selector:@selector(gridChanged:) name:GridChanged object:grid];
         
         CursorManager* cursorManager = [windowController cursorManager];
