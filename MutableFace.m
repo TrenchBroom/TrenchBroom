@@ -230,12 +230,6 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     xScale = lengthV3f(&newTexAxisX);
     yScale = lengthV3f(&newTexAxisY);
     
-    // the sign of the scaling factors depends on the angle between the new base axis and the new texture axis
-    if (dotV3f(&newBaseAxisX, &newTexAxisX) < 0)
-        xScale *= -1;
-    if (dotV3f(&newBaseAxisY, &newTexAxisY) < 0)
-        yScale *= -1;
-
     // normalize the transformed X texture axis
     scaleV3f(&newTexAxisX, 1 / xScale, &newTexAxisX);
     
@@ -250,6 +244,18 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     
     rotation = rad * 180 / M_PI;
 
+    // apply the rotation to the new base axes
+    TQuaternion rot;
+    setAngleAndAxisQ(&rot, rad, newTexPlaneNorm);
+    rotateQ(&rot, &newBaseAxisX, &newBaseAxisX);
+    rotateQ(&rot, &newBaseAxisY, &newBaseAxisY);
+    
+    // the sign of the scaling factors depends on the angle between the new base axis and the new texture axis
+    if (dotV3f(&newBaseAxisX, &newTexAxisX) < 0)
+        xScale *= -1;
+    if (dotV3f(&newBaseAxisY, &newTexAxisY) < 0)
+        yScale *= -1;
+    
     [self validateTexAxesForFaceNorm:&newFaceNorm];
 
     // determine the new texture coordinates of the transformed center of the face, sans offsets
