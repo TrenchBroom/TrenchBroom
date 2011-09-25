@@ -55,7 +55,10 @@ float horizontalAngle(const TVector3f* f, const TVector3f* t) {
                 hAngle = 0;
             } else {
                 vAngle = -acos(dotV3f(&initialDirection, &targetDirection));
-                hAngle = horizontalAngle(&initialUp, &targetDirection);
+                
+                TVector3f inverseUp;
+                scaleV3f(&initialUp, -1, &inverseUp);
+                hAngle = horizontalAngle(&inverseUp, &targetDirection);
             }
         } else if (feq(initialDirection.z, -1)) {
             if (feq(targetDirection.z, 1)) {
@@ -196,6 +199,9 @@ float horizontalAngle(const TVector3f* f, const TVector3f* t) {
         rotateQ(&vRotation, &direction, &direction);
         rotateQ(&vRotation, &up, &up);
     }
+    
+    normalizeV3f(&direction, &direction);
+    normalizeV3f(&up, &up);
     
     [camera moveTo:&position];
     [camera setDirection:&direction up:&up];
