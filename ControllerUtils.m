@@ -93,7 +93,7 @@ NSArray* modListFromWorldspawn(id <Entity> worldspawn) {
     return [mods autorelease];
 }
 
-void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingBox* worldBounds, TVector3f* deltaf, TVector3f* lastPoint, TVector3f* point) {
+void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingBox* worldBounds, TVector3f* deltaf, TVector3f* lastPoint) {
     if (deltaf->x > 0) {
         deltaf->x = [grid snapDownToGridf:bounds->max.x + deltaf->x] - bounds->max.x;
         if (deltaf->x <= 0) {
@@ -105,8 +105,8 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
                 deltaf->x = worldBounds->max.x - bounds->max.x;
                 deltaf->y = 0;
                 deltaf->z = 0;
-            } else if (lastPoint != NULL && point != NULL) {
-                lastPoint->x = point->x;
+            } else if (lastPoint != NULL) {
+                lastPoint->x += deltaf->x;
             }
         }
     } else if (deltaf->x < 0) {
@@ -120,8 +120,8 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
                 deltaf->x = worldBounds->min.x - bounds->min.x;
                 deltaf->y = 0;
                 deltaf->z = 0;
-            } else if (lastPoint != NULL && point != NULL) {
-                lastPoint->x = point->x;
+            } else if (lastPoint != NULL) {
+                lastPoint->x += deltaf->x;
             }
         }
     }
@@ -137,8 +137,8 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
                 deltaf->x = 0;
                 deltaf->y = worldBounds->max.y - bounds->max.y;
                 deltaf->z = 0;
-            } else if (lastPoint != NULL && point != NULL) {
-                lastPoint->y = point->y;
+            } else if (lastPoint != NULL) {
+                lastPoint->y += deltaf->y;
             }
         }
     } else if (deltaf->y < 0) {
@@ -152,8 +152,8 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
                 deltaf->x = 0;
                 deltaf->y = worldBounds->min.y - bounds->min.y;
                 deltaf->z = 0;
-            } else if (lastPoint != NULL && point != NULL) {
-                lastPoint->y = point->y;
+            } else if (lastPoint != NULL) {
+                lastPoint->y += deltaf->y;
             }
         }
     }
@@ -169,8 +169,8 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
                 deltaf->x = 0;
                 deltaf->y = 0;
                 deltaf->z = worldBounds->max.z - bounds->max.z;
-            } else if (lastPoint != NULL && point != NULL) {
-                lastPoint->z = point->z;
+            } else if (lastPoint != NULL) {
+                lastPoint->z += deltaf->z;
             }
         }
     } else if (deltaf->z < 0) {
@@ -184,8 +184,8 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
                 deltaf->x = 0;
                 deltaf->y = 0;
                 deltaf->z = worldBounds->min.z < bounds->min.z;
-            } else if (lastPoint != NULL && point != NULL) {
-                lastPoint->z = point->z;
+            } else if (lastPoint != NULL) {
+                lastPoint->z += deltaf->z;
             }
         }
     }

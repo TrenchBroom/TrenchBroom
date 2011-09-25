@@ -32,6 +32,10 @@
 - (void)actualPlaneNormal:(const TVector3f *)norm result:(TVector3f *)result;
 - (BOOL)isDuplicateModifierPressed;
 
+- (BOOL)beginMove:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)move:(const TVector3i *)delta;
+- (void)endMove:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+
 @end
 
 @implementation MoveTool (private)
@@ -51,6 +55,79 @@
 
 - (BOOL)isDuplicateModifierPressed {
     return [NSEvent modifierFlags] == NSCommandKeyMask;
+}
+
+- (BOOL)beginMove:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
+    if (hit == nil)
+        return NO;
+    
+    SelectionManager* selectionManager = [windowController selectionManager];
+    Camera* camera = [windowController camera];
+    if ([hit type] == HT_FACE) {
+        id <Face> face = [hit object];
+        id <Brush> brush = [face brush];
+        
+        if (![selectionManager isBrushSelected:brush])
+            return NO;
+        
+        lastPoint = *[hit hitPoint];
+        
+        plane.point = lastPoint;
+        [self actualPlaneNormal:[camera direction] result:&plane.norm];
+    } else {
+        id <Entity> entity = [hit object];
+        
+        if (![selectionManager isEntitySelected:entity])
+            return NO;
+        
+        lastPoint = *[hit hitPoint];
+        
+        plane.point = lastPoint;
+        [self actualPlaneNormal:[camera direction] result:&plane.norm];
+    }
+    
+    duplicate = [self isDuplicateModifierPressed];
+    
+    MapDocument* map = [windowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager setGroupsByEvent:NO];
+    [undoManager beginUndoGrouping];
+    
+    return YES;
+}
+
+- (void)move:(const TVector3i *)delta {
+    Options* options = [windowController options];
+    MapDocument* map = [windowController document];
+    SelectionManager* selectionManager = [map selectionManager];
+    
+    if (duplicate) {
+        NSMutableArray* newEntities = [[NSMutableArray alloc] init];
+        NSMutableArray* newBrushes = [[NSMutableArray alloc] init];
+        [map duplicateEntities:[selectionManager selectedEntities] newEntities:newEntities newBrushes:newBrushes];
+        [map duplicateBrushes:[selectionManager selectedBrushes] newBrushes:newBrushes];
+        
+        [selectionManager removeAll:YES];
+        [selectionManager addEntities:newEntities record:YES];
+        [selectionManager addBrushes:newBrushes record:YES];
+        
+        [newEntities release];
+        [newBrushes release];
+        
+        duplicate = NO;
+    }
+    
+    [map translateBrushes:[selectionManager selectedBrushes] delta:*delta lockTextures:[options lockTextures]];
+    [map translateEntities:[selectionManager selectedEntities] delta:*delta];
+}
+
+- (void)endMove:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    MapDocument* map = [windowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager setActionName:[self actionName]];
+    [undoManager endUndoGrouping];
+    [undoManager setGroupsByEvent:YES];
 }
 
 @end
@@ -74,42 +151,10 @@
 # pragma mark @implementation Tool
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
-    if (hit == nil)
-        return;
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([hit type] == HT_FACE) {
-        id <Face> face = [hit object];
-        id <Brush> brush = [face brush];
-        
-        if (![selectionManager isBrushSelected:brush])
-            return;
-        
-        lastPoint = *[hit hitPoint];
-        
-        plane.point = lastPoint;
-        [self actualPlaneNormal:[face norm] result:&plane.norm];
-    } else {
-        id <Entity> entity = [hit object];
-        
-        if (![selectionManager isEntitySelected:entity])
-            return;
-        
-        lastPoint = *[hit hitPoint];
-        
-        plane.point = lastPoint;
-        intersectBoundsWithRay([entity bounds], ray, &plane.norm);
-        [self actualPlaneNormal:&plane.norm result:&plane.norm];
-    }
-    
-    drag = YES;
-    duplicate = [self isDuplicateModifierPressed];
-    
-    MapDocument* map = [windowController document];
-    NSUndoManager* undoManager = [map undoManager];
-    [undoManager setGroupsByEvent:NO];
-    [undoManager beginUndoGrouping];
+    if (!scroll)
+        drag = [self beginMove:event ray:ray hits:hits];
+    else
+        drag = YES;
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -136,49 +181,65 @@
     SelectionManager* selectionManager = [map selectionManager];
     [selectionManager selectionBounds:&bounds];
 
-    calculateMoveDelta(grid, &bounds, worldBounds, &deltaf, &lastPoint, &point);
+    calculateMoveDelta(grid, &bounds, worldBounds, &deltaf, &lastPoint);
     if (nullV3f(&deltaf))
         return;
     
     TVector3i deltai;
     roundV3f(&deltaf, &deltai);
     
-    if (duplicate) {
-        NSMutableArray* newEntities = [[NSMutableArray alloc] init];
-        NSMutableArray* newBrushes = [[NSMutableArray alloc] init];
-        [map duplicateEntities:[selectionManager selectedEntities] newEntities:newEntities newBrushes:newBrushes];
-        [map duplicateBrushes:[selectionManager selectedBrushes] newBrushes:newBrushes];
-        
-        [selectionManager removeAll:YES];
-        [selectionManager addEntities:newEntities record:YES];
-        [selectionManager addBrushes:newBrushes record:YES];
-        
-        [newEntities release];
-        [newBrushes release];
-        
-        duplicate = NO;
-    }
-    
-    [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
-    [map translateEntities:[selectionManager selectedEntities] delta:deltai];
-    
-    /*
-    if (boundsContainBounds(worldBounds, &translatedBounds))
-        lastPoint = point;
-     */
+    [self move:&deltai];
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (!drag)
         return;
     
-    MapDocument* map = [windowController document];
-    NSUndoManager* undoManager = [map undoManager];
-    [undoManager setActionName:[self actionName]];
-    [undoManager endUndoGrouping];
-    [undoManager setGroupsByEvent:YES];
-    
+    if (!scroll)
+        [self endMove:event ray:ray hits:hits];
     drag = NO;
+}
+
+- (void)beginLeftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (!drag)
+        scroll = [self beginMove:event ray:ray hits:hits];
+    else
+        scroll = YES;
+}
+
+- (void)leftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (!scroll)
+        return;
+    
+    Options* options = [windowController options];
+    Grid* grid = [options grid];
+    
+    TVector3f deltaf;
+    TVector3i deltai;
+    
+    float d = ([event deltaY] > 0 ? 1 : -1) * [grid actualSize];
+    
+    scaleV3f(&plane.norm, d, &deltaf);
+    roundV3f(&deltaf, &deltai);
+    
+    [self move:&deltai];
+    
+    addV3f(&plane.point, &deltaf, &plane.point);
+
+    float dist = intersectPlaneWithRay(&plane, ray);
+    if (isnan(dist))
+        return;
+    
+    rayPointAtDistance(ray, dist, &lastPoint);
+}
+
+- (void)endLeftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (!scroll)
+        return;
+    
+    if (!drag)
+        [self endMove:event ray:ray hits:hits];
+    scroll = NO;
 }
 
 - (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -196,19 +257,17 @@
     if (!drag) {
         PickingHit* hit = [hits firstHitOfType:HT_FACE | HT_ENTITY ignoreOccluders:YES];
         if (hit != nil) {
+            Camera* camera = [windowController camera];
             switch ([hit type]) {
                 case HT_ENTITY: {
-                    id <Entity> entity = [hit object];
                     TVector3f norm;
-                    intersectBoundsWithRay([entity bounds], ray, &norm);
-                    [self actualPlaneNormal:&norm result:&norm];
+                    [self actualPlaneNormal:[camera direction] result:&norm];
                     [moveCursor setPlaneNormal:strongestComponentV3f(&norm)];
                     break;
                 }
                 case HT_FACE: {
-                    id <Face> face = [hit object];
                     TVector3f norm;
-                    [self actualPlaneNormal:[face norm] result:&norm];
+                    [self actualPlaneNormal:[camera direction] result:&norm];
                     [moveCursor setPlaneNormal:strongestComponentV3f(&norm)];
                     break;
                 }

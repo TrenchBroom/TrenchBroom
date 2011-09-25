@@ -37,6 +37,14 @@
 - (void)rightDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
 - (void)endRightDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
 
+- (void)beginLeftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)leftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)endLeftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+
+- (void)beginRightScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)rightScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)endRightScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+
 - (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
 - (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
 - (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;

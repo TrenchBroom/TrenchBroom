@@ -111,6 +111,7 @@ static AliasManager* sharedInstance = nil;
     NSString* key = [self keyForName:theName paths:thePaths];
     Alias* alias = [aliases objectForKey:key];
     if (alias == nil) {
+        NSLog(@"Loading alias model '%@', search paths: %@", theName, [thePaths componentsJoinedByString:@", "]);
         PakManager* pakManager = [PakManager sharedManager];
         NSData* entry = [pakManager entryWithName:theName pakPaths:thePaths];
         if (entry != nil) {

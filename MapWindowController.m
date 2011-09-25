@@ -773,7 +773,7 @@
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL, NULL);
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
         if (nullV3f(&deltaf))
             return;
 
@@ -808,7 +808,7 @@
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL, NULL);
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
         if (nullV3f(&deltaf))
             return;
 
@@ -842,7 +842,7 @@
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL, NULL);
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
         if (nullV3f(&deltaf))
             return;
 
@@ -877,7 +877,7 @@
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL, NULL);
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
         if (nullV3f(&deltaf))
             return;
 

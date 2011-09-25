@@ -20,35 +20,6 @@
 #import "VBOMemBlock.h"
 
 
-// ZProj projects a vector onto the XY plane (along the Z axis)
-static const TMatrix4f ZProj = { 1,  0,  0,  0,
-                                 0,  1,  0,  0,
-                                 0,  0,  0,  0,
-                                 0,  0,  0,  1 };
-static const TMatrix4f ZProjInv = { 1,  0,  0,  0,
-                                    0, -1,  0,  0,
-                                    0,  0,  1,  0,
-                                    0,  0,  0,  1 };
-
-// YProj projects a vector onto the XZ plane (along the Y axis)
-static const TMatrix4f YProj = { 1,  0,  0,  0,
-                                 0,  0,  0,  0,
-                                 0,  1,  0,  0,
-                                 0,  0,  0,  1 };
-static const TMatrix4f YProjInv = { 1,  0,  0,  0,
-                                    0,  0, -1,  0,
-                                    0,  1,  0,  0,
-                                    0,  0,  0,  1 };
-
-// XProj projects a vector onto the YZ plane (along the X axis)
-static const TMatrix4f XProj = { 0,  0,  0,  0,
-                                 1,  0,  0,  0,
-                                 0,  1,  0,  0,
-                                 0,  0,  0,  1 };
-static const TMatrix4f XProjInv = { 0,  1,  0,  0,
-                                    0,  0, -1,  0,
-                                    1,  0,  0,  0,
-                                    0,  0,  0,  1 };
 static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
                                          &ZAxisNeg, &XAxisPos, &YAxisNeg,
                                          &XAxisPos, &YAxisPos, &ZAxisNeg,
@@ -201,13 +172,6 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     TPlane plane;
     const TVector3f* curCenter;
     const TVector3f* newTexPlaneNorm;
-
-    static int count = 0;
-    if (texPlaneNorm == &XAxisNeg) {
-        count++;
-        if (count % 3 == 0)
-            NSLog(@"asdf");
-    }
     
     // calculate the current texture coordinates of the face's center
     curCenter = [self center];

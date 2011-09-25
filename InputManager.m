@@ -114,7 +114,7 @@
     if (newActiveTool == nil && ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES)) {
         if ([self isRotateModifierPressed]) {
             newActiveTool = rotateTool;
-        } else if (drag) {
+        } else if (drag || scroll) {
             if ([self isFaceDragModifierPressed]) {
                 PickingHit* hit = [[self currentHits] edgeDragHit];
                 if (hit != nil) {
@@ -398,13 +398,26 @@
 
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
-    if (drag) {
-        [activeTool endLeftDrag:lastEvent ray:&lastRay hits:[self currentHits]];
-        drag = NO;
-        [self updateActiveTool];
+    
+    if (drag || scroll) {
+        if (drag) {
+            [activeTool endLeftDrag:lastEvent ray:&lastRay hits:[self currentHits]];
+            drag = NO;
+            [self updateActiveTool];
+        }
+        
+        if (scroll) {
+            [activeTool endLeftScroll:lastEvent ray:&lastRay hits:[self currentHits]];
+            scroll = NO;
+            [self updateActiveTool];
+            
+            [self updateCursorOwner];
+            [self updateCursor];
+        }
     } else {
         [activeTool handleLeftMouseUp:lastEvent ray:&lastRay hits:[self currentHits]];
     }
+
     [self updateCursorOwner];
     [self updateCursor];
 }
@@ -438,6 +451,13 @@
 
         [self updateCursorOwner];
         [self updateCursor];
+    } else if (scroll) {
+        [activeTool endRightScroll:lastEvent ray:&lastRay hits:[self currentHits]];
+        scroll = NO;
+        [self updateActiveTool];
+        
+        [self updateCursorOwner];
+        [self updateCursor];
     } else {
         [activeTool handleRightMouseUp:lastEvent ray:&lastRay hits:[self currentHits]];
         [self showContextMenu];
@@ -445,8 +465,29 @@
 }
 
 - (void)handleScrollWheel:(NSEvent *)event sender:(id)sender {
+    int buttons = [NSEvent pressedMouseButtons];
+    if (!scroll && (buttons == 1 || buttons == 2)) {
+        scroll = YES;
+        [self updateActiveTool];
+        if (buttons == 1)
+            [activeTool beginLeftScroll:lastEvent ray:&lastRay hits:[self currentHits]];
+        else
+            [activeTool beginRightScroll:lastEvent ray:&lastRay hits:[self currentHits]];
+        
+        [self updateCursorOwner];    
+    }
+
     [self updateEvent:event];
-    [activeTool handleScrollWheel:lastEvent ray:&lastRay hits:[self currentHits]];
+    if (scroll) {
+        if (buttons == 1)
+            [activeTool leftScroll:lastEvent ray:&lastRay hits:[self currentHits]];
+        else
+            [activeTool rightScroll:lastEvent ray:&lastRay hits:[self currentHits]];
+    } else {
+        [activeTool handleScrollWheel:lastEvent ray:&lastRay hits:[self currentHits]];
+    }
+    [self updateCursor];
+    
 }
 
 - (void)handleBeginGesture:(NSEvent *)event sender:(id)sender {

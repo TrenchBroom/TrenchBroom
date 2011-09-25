@@ -109,6 +109,7 @@ static BspManager* sharedInstance = nil;
     NSString* key = [self keyForName:theName paths:thePaths];
     Bsp* bsp = [bsps objectForKey:key];
     if (bsp == nil) {
+        NSLog(@"Loading BSP model '%@', search paths: %@", theName, [thePaths componentsJoinedByString:@", "]);
         PakManager* pakManager = [PakManager sharedManager];
         NSData* entry = [pakManager entryWithName:theName pakPaths:thePaths];
         if (entry != nil) {

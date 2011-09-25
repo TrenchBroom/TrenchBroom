@@ -43,6 +43,7 @@
     id <Tool> activeTool;
     id <Tool> cursorOwner;
     BOOL drag;
+    BOOL scroll;
     BOOL hasMouse;
     
     id <DndTool> activeDndTool;

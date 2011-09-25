@@ -20,6 +20,7 @@
     TVector3f lastPoint;
     MoveCursor* moveCursor;
     BOOL drag;
+    BOOL scroll;
     BOOL duplicate;
 }
 
