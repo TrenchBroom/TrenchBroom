@@ -46,6 +46,7 @@
 - (void)transformWorld:(const TVector3f *)worldPoint toSurface:(TVector3f *)surfacePoint;
 - (const TMatrix4f *)surfaceToWorldMatrix;
 - (const TMatrix4f *)worldToSurfaceMatrix;
+- (BOOL)projectToSurface:(const TVector3f *)worldPoint axis:(const TVector3f *)axis result:(TVector3f *)result;
 
 - (VBOMemBlock *)memBlock;
 - (void)setMemBlock:(VBOMemBlock *)theMemBlock;

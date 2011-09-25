@@ -75,53 +75,32 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (void)updateMatrices {
     TVector3f xAxis, yAxis, zAxis;
-    TLine line;
     
     zAxis = *[self norm];
-    float ny = zAxis.y;
-    
-    if (ny < 0) {
-        // surface X axis is normalized projection of positive world X axis along Y axis onto plane
-        line.point = *[self center];
-        line.point.x += 1;
-        line.direction = YAxisPos;
-        
-        float dist = intersectPlaneWithLine([self boundary], &line);
-        linePointAtDistance(&line, dist, &xAxis);
-        subV3f(&xAxis, [self center], &xAxis);
-        normalizeV3f(&xAxis, &xAxis);
-    } else if (ny > 0) {
-        // surface X axis is normalized projection of negative world X axis along Y axis onto plane
-        line.point = *[self center];
-        line.point.x -= 1;
-        line.direction = YAxisPos;
-        
-        float dist = intersectPlaneWithLine([self boundary], &line);
-        linePointAtDistance(&line, dist, &xAxis);
-        subV3f(&xAxis, [self center], &xAxis);
-        normalizeV3f(&xAxis, &xAxis);
+
+    const TVector3f* closestAxis = closestAxisV3f(&zAxis);
+    if (closestAxis == &XAxisPos) {
+        addV3f(&YAxisPos, [self center], &xAxis);
+        [self projectToSurface:&xAxis axis:&XAxisPos result:&xAxis];
+    } else if (closestAxis == &XAxisNeg) {
+        addV3f(&YAxisNeg, [self center], &xAxis);
+        [self projectToSurface:&xAxis axis:&XAxisNeg result:&xAxis];
+    } else if (closestAxis == &YAxisPos) {
+        addV3f(&XAxisNeg, [self center], &xAxis);
+        [self projectToSurface:&xAxis axis:&YAxisPos result:&xAxis];
+    } else if (closestAxis == &YAxisNeg) {
+        addV3f(&XAxisPos, [self center], &xAxis);
+        [self projectToSurface:&xAxis axis:&YAxisNeg result:&xAxis];
+    } else if (closestAxis == &ZAxisPos) {
+        addV3f(&XAxisPos, [self center], &xAxis);
+        [self projectToSurface:&xAxis axis:&ZAxisPos result:&xAxis];
     } else {
-        // plane normal is on XZ plane, try X, then Z
-        float nx = [self norm]->x;
-        if (nx > 0) {
-            // positive world Y axis is surface X axis
-            xAxis = YAxisPos;
-        } else if (nx < 0) {
-            // negative world Y axis is surface X axis
-            xAxis = YAxisNeg;
-        } else {
-            // surface normal is Z = 1 or Z = -1
-            float nz = [self norm]->z;
-            if (nz > 0) {
-                // positive world X axis is surface X axis
-                xAxis = XAxisPos;
-            } else {
-                // negative world X axis is surface X axis
-                xAxis = XAxisNeg;
-            }
-        }
+        addV3f(&XAxisNeg, [self center], &xAxis);
+        [self projectToSurface:&xAxis axis:&ZAxisNeg result:&xAxis];
     }
     
+    subV3f(&xAxis, [self center], &xAxis);
+    normalizeV3f(&xAxis, &xAxis);
     crossV3f(&zAxis, &xAxis, &yAxis);
     normalizeV3f(&yAxis, &yAxis);
     
@@ -810,6 +789,19 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
         [self updateMatrices];
     
     return &worldToSurfaceMatrix;
+}
+
+- (BOOL)projectToSurface:(const TVector3f *)worldPoint axis:(const TVector3f *)axis result:(TVector3f *)result {
+    TLine line;
+    line.point = *worldPoint;
+    line.direction = *axis;
+    
+    float dist = intersectPlaneWithLine([self boundary], &line);
+    if (isnan(dist))
+        return NO;
+    
+    linePointAtDistance(&line, dist, result);
+    return YES;
 }
 
 - (VBOMemBlock *)memBlock {

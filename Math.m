@@ -561,8 +561,10 @@ void setLinePoints(TLine* l, TVector3f* p1, TVector3f* p2) {
 }
 
 void linePointAtDistance(TLine* l, float d, TVector3f* p) {
-    scaleV3f(&l->direction, d, p);
-    addV3f(p, &l->point, p);
+    TVector3f r;
+    scaleV3f(&l->direction, d, &r);
+    addV3f(&r, &l->point, &r);
+    *p = r;
 }
 
 # pragma mark TPlane functions
