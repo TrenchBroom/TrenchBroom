@@ -19,19 +19,19 @@
 		
 		<a name="creating_opening_and_saving_a_map_file"></a><h4>Creating, Opening and Saving Maps</h4>
 		<p>To create a new, empty map file, choose <b>File &raquo; New</b> from the menu or hit <b>&#8984;N</b>. This will create a new empty map file and open a new editor window.</p>
-		<p>You can open an existing map file by choosing <b>File &raquo; Open</b> from the menu or hitting <b>&#8984;O.</b></p>
+		<p>You can open an existing map file by choosing <b>File &raquo; Open</b> from the menu or hitting <b>&#8984;O</b>. TrenchBroom can open standard Quake maps as well as maps in Valve's 220 map format. However, since TrenchBroom does not fully support the 220 map format, there will be misaligned textures in such maps.</p>
 		<p>To save your map file, choose <b>File &raquo; Save</b> or hit <b>&#8984;S</b>. If you want to save your map under with a different file name, choose <b>File &raquo; Save as...</b> or hit <b>&#8679;&#8984;S</b>.</p>
 
 		<a name="compiling_and_running"></a><h4>Compiling and Running</h4>
-		<p>To compile your maps, simple choose <b>Run &raquo; Compile</b> from the menu. Currently, TrenchBroom does not allow you to specify parameters for the compilers. This is going to be addressed in a future release.</p>
-		<p>TrenchBroom runs builtin versions of qbsp, vis and light in that order. The builtin versions are ports of the following tools:</p>
+		<p>To compile your maps, choose a compiler profile from the <b>Run &raquo; Compile</b> menu. TrenchBroom comes with a couple of predefined compiler profiles, but you can customize these in the preferences window. You can quickly invoke the last profile you ran by choosing <b>Run &raquo; Compile &lt;Profile name&gt;</b> or by hitting <b>&#x2303;&#x2318;C</b>.</p>
+		<p>TrenchBroom comes with builtin versions of qbsp, vis and light. The builtin versions are ports of the following tools:</p>
 		<ul>
 			<li>Bengt Jardrup's TreeQBSP, version 2.05 (<a href="http://user.tninet.se/~xir870k/" target="_blank">user.tninet.se/~xir870k</a>)</li>
 			<li>Bengt Jardrup's and MH's multithreaded colored light, release 2 (<a href="http://mhquake.blogspot.com/" target="_blank">mhquake.blogspot.com</a>)</li>
 			<li>Willem's multithreaded vis (<a href="http://www.wantonhubris.com/toetag/ToeTag.html" target="_blank">wantonhubris.com/toetag</a>)</li>
 		</ul>
 		<p>Once compilation is started, a console window is opened which will show the output of the compiler programs. TrenchBroom extracts the correct directory for the compiled bsp from the Quake path and the mod you are working for (mods are currently not properly configurable, so don't bother with this) and copies the bsp file to that directory.</p>
-		<p>If the map compiled successfully, you can launch your preferred Quake executable by choosing <b>Run &raquo; Run</b> from the menu.</p>
+		<p>If the map compiled successfully, you can launch a Quake executable by selecting it from the <b>Run &raquo; Run</b> menu. As a shortcut, you can run your preferred engine which you <a href="#setting_the_quake_path">set in the preferences</a> by choosing <b>Run &raquo; Run &lt;Engine name&gt;</b> or by hitting <b>&#x2303;&#x2318;R</b>.</p>
 		
 	</div>
 </body>

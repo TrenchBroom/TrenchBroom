@@ -19,6 +19,7 @@
 					<li class="inactive" id="menu_link_selecting_objects">Selecting objects</li>
 					<li class="inactive" id="menu_link_creating_new_objects">Creating new objects</li>
 					<li class="inactive" id="menu_link_editing_objects">Editing objects</li>
+					<li class="inactive" id="menu_link_keeping_an_overview">Keeping an overview</li>
 					<li class="header">User Interface</li>
 					<li class="inactive" id="menu_link_the_main_window">The main window</li>
 					<li class="inactive" id="menu_link_the_inspector">The inspector</li>
@@ -55,11 +56,20 @@
 				<ul class="submenu" id="submenu_editing_objects">
 					<li><a href="#">Moving objects</a></li>
 					<li><a href="#">Rotating objects</a></li>
+					<li><a href="#">Mirroring objects</a></li>
 					<li><a href="#">Changing the shapes of brushes</a></li>
+					<li><a href="#">Managing texture wads</a></li>
 					<li><a href="#">Applying textures</a></li>
 					<li><a href="#">Changing face flags</a></li>
 					<li><a href="#">Using the entity property editor</a></li>
 					<li><a href="#">Deleting objects</a></li>
+					<li><a href="#">Editing options</a></li>
+				</ul>
+				<ul class="submenu" id="submenu_keeping_an_overview">
+					<li><a href="#">Render modes</a></li>
+					<li><a href="#">Selection isolation</a></li>
+					<li><a href="#">Brush groups</a></li>
+					<li><a href="#">Filtering</a></li>
 				</ul>
 				<ul class="submenu" id="submenu_the_main_window">
 					<li><a href="#">The 3D view</a></li>
@@ -107,6 +117,7 @@
 			$("#menu_link_selecting_objects").click(function(event) {menu_link_callback(event, "selecting_objects")});
 			$("#menu_link_creating_new_objects").click(function(event) {menu_link_callback(event, "creating_new_objects")});
 			$("#menu_link_editing_objects").click(function(event) {menu_link_callback(event, "editing_objects")});
+			$("#menu_link_keeping_an_overview").click(function(event) {menu_link_callback(event, "keeping_an_overview")});
 			$("#menu_link_the_main_window").click(function(event) {menu_link_callback(event, "the_main_window")});
 			$("#menu_link_the_inspector").click(function(event) {menu_link_callback(event, "the_inspector")});
 			$("#menu_link_the_main_menu").click(function(event) {menu_link_callback(event, "the_main_menu")});
