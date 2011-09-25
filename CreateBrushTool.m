@@ -166,7 +166,7 @@
     NSLog(@"end create brush");
 }
 
-- (void)handleScrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (void)leftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (!drag)
         return;
     

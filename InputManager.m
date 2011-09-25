@@ -468,7 +468,8 @@
     int buttons = [NSEvent pressedMouseButtons];
     if (!scroll && (buttons == 1 || buttons == 2)) {
         scroll = YES;
-        [self updateActiveTool];
+        if (!drag)
+            [self updateActiveTool];
         if (buttons == 1)
             [activeTool beginLeftScroll:lastEvent ray:&lastRay hits:[self currentHits]];
         else

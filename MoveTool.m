@@ -29,7 +29,6 @@
 
 @interface MoveTool (private)
 
-- (void)actualPlaneNormal:(const TVector3f *)norm result:(TVector3f *)result;
 - (BOOL)isDuplicateModifierPressed;
 
 - (BOOL)beginMove:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
@@ -39,19 +38,6 @@
 @end
 
 @implementation MoveTool (private)
-
-- (void)actualPlaneNormal:(const TVector3f *)norm result:(TVector3f *)result {
-    switch (strongestComponentV3f(norm)) {
-        case A_X:
-            *result = XAxisPos;
-            break;
-        case A_Y:
-            *result = YAxisPos;
-            break;
-        default:
-            *result = ZAxisPos;
-    }
-}
 
 - (BOOL)isDuplicateModifierPressed {
     return [NSEvent modifierFlags] == NSCommandKeyMask;
@@ -74,7 +60,7 @@
         lastPoint = *[hit hitPoint];
         
         plane.point = lastPoint;
-        [self actualPlaneNormal:[camera direction] result:&plane.norm];
+        plane.norm = *closestAxisV3f([camera direction]);
     } else {
         id <Entity> entity = [hit object];
         
@@ -84,7 +70,7 @@
         lastPoint = *[hit hitPoint];
         
         plane.point = lastPoint;
-        [self actualPlaneNormal:[camera direction] result:&plane.norm];
+        plane.norm = *closestAxisV3f([camera direction]);
     }
     
     duplicate = [self isDuplicateModifierPressed];
@@ -260,15 +246,11 @@
             Camera* camera = [windowController camera];
             switch ([hit type]) {
                 case HT_ENTITY: {
-                    TVector3f norm;
-                    [self actualPlaneNormal:[camera direction] result:&norm];
-                    [moveCursor setPlaneNormal:strongestComponentV3f(&norm)];
+                    [moveCursor setPlaneNormal:strongestComponentV3f(closestAxisV3f([camera direction]))];
                     break;
                 }
                 case HT_FACE: {
-                    TVector3f norm;
-                    [self actualPlaneNormal:[camera direction] result:&norm];
-                    [moveCursor setPlaneNormal:strongestComponentV3f(&norm)];
+                    [moveCursor setPlaneNormal:strongestComponentV3f(closestAxisV3f([camera direction]))];
                     break;
                 }
                 default:
