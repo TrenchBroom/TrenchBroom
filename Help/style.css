@@ -35,6 +35,10 @@ div#submenu {
 	padding-left: 20px;
 }
 
+div.image {
+	text-align: center;
+}
+
 ul.menu {
 	list-style-type: none;
 	margin: 0px;
