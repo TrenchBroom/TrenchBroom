@@ -2,7 +2,7 @@ body {
 	font-family: Helvetica;
 }
 
-p, li {
+p, li, div {
 	font-size: 10pt;
 }
 
@@ -35,8 +35,15 @@ div#submenu {
 	padding-left: 20px;
 }
 
-div.image {
+div.images {
+	background-color: #cccccc;
+	padding: 10px;
 	text-align: center;
+}
+
+div.imagecaption {
+	text-align: center;
+	font-weight: bold;
 }
 
 ul.menu {
