@@ -165,7 +165,7 @@
 		48CB060913EC19B70051640E /* CreateBrushTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CB060813EC19B70051640E /* CreateBrushTool.m */; };
 		48CB060D13EC2E690051640E /* BoundsFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CB060C13EC2E680051640E /* BoundsFeedbackFigure.m */; };
 		48CBDD9913170B330041F704 /* GLResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CBDD9813170B330041F704 /* GLResources.m */; };
-		48CE70AC134741C400886260 /* GridFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CE70AB134741C400886260 /* GridFeedbackFigure.m */; };
+		48CE70AC134741C400886260 /* EditingPlaneFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CE70AB134741C400886260 /* EditingPlaneFigure.m */; };
 		48D2A31B13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D2A31A13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m */; };
 		48D6B714134859890084F82E /* BoundsRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B713134859890084F82E /* BoundsRenderer.m */; };
 		48D6B903134B8DC90084F82E /* GLStringData.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B902134B8DC90084F82E /* GLStringData.m */; };
@@ -531,8 +531,8 @@
 		48CB060C13EC2E680051640E /* BoundsFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundsFeedbackFigure.m; sourceTree = "<group>"; };
 		48CBDD9713170B330041F704 /* GLResources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLResources.h; sourceTree = "<group>"; };
 		48CBDD9813170B330041F704 /* GLResources.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLResources.m; sourceTree = "<group>"; };
-		48CE70AA134741C400886260 /* GridFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridFeedbackFigure.h; sourceTree = "<group>"; };
-		48CE70AB134741C400886260 /* GridFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridFeedbackFigure.m; sourceTree = "<group>"; };
+		48CE70AA134741C400886260 /* EditingPlaneFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditingPlaneFigure.h; sourceTree = "<group>"; };
+		48CE70AB134741C400886260 /* EditingPlaneFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditingPlaneFigure.m; sourceTree = "<group>"; };
 		48D2A31913DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionDndFeedbackFigure.h; sourceTree = "<group>"; };
 		48D2A31A13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionDndFeedbackFigure.m; sourceTree = "<group>"; };
 		48D6B712134859890084F82E /* BoundsRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundsRenderer.h; sourceTree = "<group>"; };
@@ -805,8 +805,6 @@
 				485583C913580B34005F8B2C /* DragFaceCursor.m */,
 				486928EA133F282100A0F098 /* FaceTool.h */,
 				486928EB133F282100A0F098 /* FaceTool.m */,
-				48CE70AA134741C400886260 /* GridFeedbackFigure.h */,
-				48CE70AB134741C400886260 /* GridFeedbackFigure.m */,
 				48D6C94013574B4A00AC6A4D /* MoveCursor.h */,
 				48D6C94113574B4A00AC6A4D /* MoveCursor.m */,
 				4816144B132BE7C300CD66AF /* MoveTool.h */,
@@ -1139,6 +1137,8 @@
 				486928E9133F27D900A0F098 /* Tool */,
 				48B325E312E3788D008748E2 /* AppDelegate.h */,
 				48B325E412E3788D008748E2 /* AppDelegate.m */,
+				48CE70AA134741C400886260 /* EditingPlaneFigure.h */,
+				48CE70AB134741C400886260 /* EditingPlaneFigure.m */,
 				485D2EAD1308624900CF73D8 /* Options.h */,
 				485D2EAE1308624900CF73D8 /* Options.m */,
 				4814A02512F740580082E05F /* ProgressWindowController.h */,
@@ -1461,7 +1461,7 @@
 				48DBE7451341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m in Sources */,
 				48DBE74F1341CD8B00C0FDE7 /* ClipPlane.m in Sources */,
 				4888732A13436206005FCE15 /* FloatData.m in Sources */,
-				48CE70AC134741C400886260 /* GridFeedbackFigure.m in Sources */,
+				48CE70AC134741C400886260 /* EditingPlaneFigure.m in Sources */,
 				48D6B714134859890084F82E /* BoundsRenderer.m in Sources */,
 				48D6B903134B8DC90084F82E /* GLStringData.m in Sources */,
 				486526C5134F0BC20045A4B6 /* TextureCollection.m in Sources */,

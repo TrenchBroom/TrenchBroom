@@ -230,12 +230,14 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     xScale = lengthV3f(&newTexAxisX);
     yScale = lengthV3f(&newTexAxisY);
     
-    // normalize the transformed X texture axis
+    // normalize the transformed texture axes
     scaleV3f(&newTexAxisX, 1 / xScale, &newTexAxisX);
+    scaleV3f(&newTexAxisY, 1 / yScale, &newTexAxisY);
     
-    // determine the rotation angle from the dot product of the new base X axis and the transformed texture X axis
-    float cos = dotV3f(&newBaseAxisX, &newTexAxisX);
-    float rad = acosf(cos);
+    // determine the rotation angle from the dot product of the new base axes and the transformed texture axes
+    float radX = acosf(dotV3f(&newBaseAxisX, &newTexAxisX));
+    float radY = acosf(dotV3f(&newBaseAxisY, &newTexAxisY));
+    float rad = radX < radY ? radX : radY;
 
     // the sign depends on the direction of the cross product
     crossV3f(&newBaseAxisX, &newTexAxisX, &temp);
@@ -445,14 +447,19 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     [self geometryChanged];
 }
 
-- (void)rotateZ90CW:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
+- (void)rotate90CW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
     if (lockTexture) {
         TMatrix4f t;
         TVector3f d;
 
         setV3f(&d, theCenter);
         translateM4f(&IdentityM4f, &d, &t);
-        mulM4f(&t, &RotZ90CWM4f, &t);
+        if (theAxis == A_X)
+            mulM4f(&t, &RotX90CWM4f, &t);
+        else if (theAxis == A_Y)
+            mulM4f(&t, &RotY90CWM4f, &t);
+        else
+            mulM4f(&t, &RotZ90CWM4f, &t);
         scaleV3f(&d, -1, &d);
         translateM4f(&t, &d, &t);
         
@@ -460,28 +467,33 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     }
 
     subV3i(&point1, theCenter, &point1);
-    rotateZ90CWV3i(&point1, &point1);
+    rotate90CWV3i(&point1, theAxis, &point1);
     addV3i(&point1, theCenter, &point1);
     
     subV3i(&point2, theCenter, &point2);
-    rotateZ90CWV3i(&point2, &point2);
+    rotate90CWV3i(&point2, theAxis, &point2);
     addV3i(&point2, theCenter, &point2);
     
     subV3i(&point3, theCenter, &point3);
-    rotateZ90CWV3i(&point3, &point3);
+    rotate90CWV3i(&point3, theAxis, &point3);
     addV3i(&point3, theCenter, &point3);
     
     [self geometryChanged];
 }
 
-- (void)rotateZ90CCW:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
+- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
     if (lockTexture) {
         TMatrix4f t;
         TVector3f d;
         
         setV3f(&d, theCenter);
         translateM4f(&IdentityM4f, &d, &t);
-        mulM4f(&t, &RotZ90CCWM4f, &t);
+        if (theAxis == A_X)
+            mulM4f(&t, &RotX90CCWM4f, &t);
+        else if (theAxis == A_Y)
+            mulM4f(&t, &RotY90CCWM4f, &t);
+        else
+            mulM4f(&t, &RotZ90CCWM4f, &t);
         scaleV3f(&d, -1, &d);
         translateM4f(&t, &d, &t);
         
@@ -489,15 +501,15 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     }
     
     subV3i(&point1, theCenter, &point1);
-    rotateZ90CCWV3i(&point1, &point1);
+    rotate90CCWV3i(&point1, theAxis, &point1);
     addV3i(&point1, theCenter, &point1);
     
     subV3i(&point2, theCenter, &point2);
-    rotateZ90CCWV3i(&point2, &point2);
+    rotate90CCWV3i(&point2, theAxis, &point2);
     addV3i(&point2, theCenter, &point2);
     
     subV3i(&point3, theCenter, &point3);
-    rotateZ90CCWV3i(&point3, &point3);
+    rotate90CCWV3i(&point3, theAxis, &point3);
     addV3i(&point3, theCenter, &point3);
     
     [self geometryChanged];
@@ -529,7 +541,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     [self geometryChanged];
 }
 
-- (void)mirrorAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
+- (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
     switch (theAxis) {
         case A_X: {
             if (lockTexture) {

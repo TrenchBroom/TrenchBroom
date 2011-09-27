@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>TrenchBroom Help - Editing Objects</title>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta name="author" content="Kristian Duske">
+</head>
+<body>
+	<div id="container">
+		<h3>Editing Objects</h3>
+		TrenchBroom allows you to <a href="#moving_objects">move</a>, <a href="#rotation_objects">rotate</a> and <a href="#flipping_objects">flip</a> objects. You can also change the shape of brushes by face dragging and clipping them. All properties of faces and entities can be changed using the inspector. Finally, you can of course delete objects.
+		<h4>The Editing Plane</h4>
+		<p>It is very important that you understand how the view direction of the camera relates to editing. Since the mouse is a 2D input device, you cannot directly control all three dimensions when you edit objects with the mouse. For example, if you want to move a brush around, you can only move it in two directions by dragging it. Because of this, many editing operations take the view direction into account to decide which dimensions the mouse movements should be mapped to. So if you are looking down along the Z axis while you are moving a brush, your mouse movement will be mapped to the X and Y axes and the brush can only be moved on the XY plane. The plane which the mouse movement is mapped to in editing operations is called the <b>editing plane</b>. In general, TrenchBroom chooses either the XY plane, the XZ plane or the YZ plane as the editing plane depending on whether the camera looks generally in the direction of the (positive or negative) Z, Y or X axis, respectively.</p>
+		<img src="images/screenshots/compass.png" width="177" height="97" alt="Compass" class="inline">
+		<p>Remember that you can use the <a href="camera_navigation.html">quick info bar</a> at the bottom of the 3D view to keep your orientation. On top of that, the compass gives you a visual hint as to which plane is the current editing plane. In the screenshot on the left, the predominant axis of the camera direction is the Y axis, which is why it has gray color. The two axes which are rendered in color make up the editing plane, which in this case is the XZ plane.</p>
+		<br clear="all">
+		
+		<a name="moving_objects"></a><h4>Moving Objects</h4>
+		<p>You can either move objects using the cursor keys or the mouse. The <b>&#x2190;</b> and <b>&#x2192;</b> cursor keys move the selected objects horizontally on the editing plane whereas the <b>&#x2191;</b> and <b>&#x2193;</b> keys move them vertically. To move objects towards or away from the camera, use the <b>page down (&#x21DF;)</b> and <b>page up (&#x21DE;)</b> keys, respectively.</p>
+		<div class="images">
+			<img src="images/screenshots/move_cursor.png" width="400" height="200" alt="Moving Objects with the Mouse">
+			<div class="imagecaption">Moving objects using the mouse.</div>
+		</div>
+		<p>To move the selected objects using the mouse, <b>click and drag</b> the objects with the <b>left mouse button</b>. This will move the objects on the current editing plane. You can move the objects towards or away from the camera using the <b>scroll wheel</b> of your mouse while dragging them.</p>
+		<div class="images">
+			<img src="images/screenshots/moving_objects_grid_snap_1.png" width="260" height="240" alt="Grid Snapping in Move Operations">
+			<img src="images/screenshots/moving_objects_grid_snap_2.png" width="260" height="240" alt="Grid Snapping in Move Operations">
+			<div class="imagecaption">The bounding box is snapped to the grid.</div>
+		</div>
+		<p>If grid snapping is enabled, the bounding box of the selected objects is snapped to the grid. This is most easily explained with the above screenshots. The bounding box of the object in the left screenshot is obviously not aligned to the grid because the object is smaller than the grid. If this object is moved to the right, it is not moved by the actual grid size. Instead it is moved so that the right side of the bounding box is aligned to the grid. This can be seen in the right screenshot. If you move this object to the right again, it is moved by the grid size because the right side of the bounding box was already aligned to the grid.</p>
+		<a name="rotating_objects"></a><h4>Rotating Objects</h4>
+		<p>There are two options for rotating objects. The first is to rotate the selected brushes by 90&deg; about the one of the axes of the coordinate system. The second is to rotate the selected objects freely using the mouse. In both cases, the center of the rotation is the center of the selected objects' bounding box.</p>
+		<p>To rotate the selected objects by 90&deg; clockwise about one of the axes of the coordinate system, choose <b>Edit &raquo; Object &raquo; Rotate 90 CW</b> from the menu or hit <b>&#x2318;R</b>. If you wish to rotate the objects counter clockwise, you need to hold the <b>option key (&#x2325;)</b> when you invoke the rotate command. The actual rotation axis depends on the camera direction. TrenchBroom always selects the axis which has the smallest angle with the camera direction. So if you want to rotate some objects about the Z axis, you need to orient the camera so that it looks down or up at the objects.</p>
+	</div>
+</body>
+</html>

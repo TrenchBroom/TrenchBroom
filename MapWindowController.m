@@ -398,13 +398,13 @@
         return [[inputManager clipTool] active];
     } else if (action == @selector(performClip:)) {
         return [[inputManager clipTool] active] && [[inputManager clipTool] numPoints] > 1;
-    } else if (action == @selector(rotateZ90CW:)) {
+    } else if (action == @selector(rotate90CW:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
-    } else if (action == @selector(rotateZ90CCW:)) {
+    } else if (action == @selector(rotate90CCW:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
-    } else if (action == @selector(mirrorHorizontally:)) {
+    } else if (action == @selector(flipHorizontally:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
-    } else if (action == @selector(mirrorVertically:)) {
+    } else if (action == @selector(flipVertically:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
     } else if (action == @selector(createPointEntity:)) {
         return YES;
@@ -560,16 +560,24 @@
 
 #pragma mark Brush related actions
 
-- (IBAction)rotateZ90CW:(id)sender {
+- (IBAction)rotate90CW:(id)sender {
     MapDocument* map = [self document];
     SelectionManager* selectionManager = [self selectionManager];
     
+    EAxis axis;
+    float comp;
     TVector3f centerf;
     TBoundingBox bounds;
 
+    axis = strongestComponentV3f([camera direction]);
+    comp = componentV3f([camera direction], axis);
     [selectionManager selectionBounds:&bounds];
     centerOfBounds(&bounds, &centerf);
-    rotateBoundsZ90CW(&bounds, &centerf, &bounds);
+    
+    if (comp < 0)
+        rotateBounds90CW(&bounds, axis, &centerf, &bounds);
+    else
+        rotateBounds90CCW(&bounds, axis, &centerf, &bounds);
     
     if (boundsContainBounds([map worldBounds], &bounds)) {
         TVector3i centeri;
@@ -578,25 +586,38 @@
         NSUndoManager* undoManager = [map undoManager];
         [undoManager beginUndoGrouping];
         
-        [map rotateBrushesZ90CW:[selectionManager selectedBrushes] center:centeri lockTextures:[options lockTextures]];
-        [map rotateEntitiesZ90CW:[selectionManager selectedEntities] center:centeri];
+        if (comp < 0) {
+            [map rotateBrushes90CW:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
+            [map rotateEntities90CW:[selectionManager selectedEntities] axis:axis center:centeri];
+        } else {
+            [map rotateBrushes90CCW:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
+            [map rotateEntities90CCW:[selectionManager selectedEntities] axis:axis center:centeri];
+        }
         
         [undoManager endUndoGrouping];
         [undoManager setActionName:@"Rotate Objects 90° Clockwise"];
     }
 }
 
-- (IBAction)rotateZ90CCW:(id)sender {
+- (IBAction)rotate90CCW:(id)sender {
     MapDocument* map = [self document];
     SelectionManager* selectionManager = [self selectionManager];
     
+    EAxis axis;
+    float comp;
     TVector3f centerf;
     TBoundingBox bounds;
     
+    axis = strongestComponentV3f([camera direction]);
+    comp = componentV3f([camera direction], axis);
     [selectionManager selectionBounds:&bounds];
     centerOfBounds(&bounds, &centerf);
-    rotateBoundsZ90CCW(&bounds, &centerf, &bounds);
-    
+
+    if (comp > 0)
+        rotateBounds90CW(&bounds, axis, &centerf, &bounds);
+    else
+        rotateBounds90CCW(&bounds, axis, &centerf, &bounds);
+
     if (boundsContainBounds([map worldBounds], &bounds)) {
         TVector3i centeri;
         roundV3f(&centerf, &centeri);
@@ -604,15 +625,20 @@
         NSUndoManager* undoManager = [map undoManager];
         [undoManager beginUndoGrouping];
         
-        [map rotateBrushesZ90CCW:[selectionManager selectedBrushes] center:centeri lockTextures:[options lockTextures]];
-        [map rotateEntitiesZ90CCW:[selectionManager selectedEntities] center:centeri];
+        if (comp > 0) {
+            [map rotateBrushes90CW:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
+            [map rotateEntities90CW:[selectionManager selectedEntities] axis:axis center:centeri];
+        } else {
+            [map rotateBrushes90CCW:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
+            [map rotateEntities90CCW:[selectionManager selectedEntities] axis:axis center:centeri];
+        }
         
         [undoManager endUndoGrouping];
         [undoManager setActionName:@"Rotate Objects 90° Counterclockwise"];
     }
 }
 
-- (IBAction)mirrorHorizontally:(id)sender {
+- (IBAction)flipHorizontally:(id)sender {
     MapDocument* map = [self document];
     SelectionManager* selectionManager = [self selectionManager];
     
@@ -629,14 +655,14 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    [map mirrorBrushes:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
-    [map mirrorEntities:[selectionManager selectedEntities] axis:axis center:centeri];
+    [map flipBrushes:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
+    [map flipEntities:[selectionManager selectedEntities] axis:axis center:centeri];
     
     [undoManager endUndoGrouping];
-    [undoManager setActionName:[NSString stringWithFormat:@"Mirror Objects Along %@ Axis", axisName(axis)]];
+    [undoManager setActionName:[NSString stringWithFormat:@"flip Objects Along %@ Axis", axisName(axis)]];
 }
 
-- (IBAction)mirrorVertically:(id)sender {
+- (IBAction)flipVertically:(id)sender {
     MapDocument* map = [self document];
     SelectionManager* selectionManager = [self selectionManager];
     
@@ -653,11 +679,11 @@
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    [map mirrorBrushes:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
-    [map mirrorEntities:[selectionManager selectedEntities] axis:axis center:centeri];
+    [map flipBrushes:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
+    [map flipEntities:[selectionManager selectedEntities] axis:axis center:centeri];
     
     [undoManager endUndoGrouping];
-    [undoManager setActionName:[NSString stringWithFormat:@"Mirror Objects Along %@ Axis", axisName(axis)]];
+    [undoManager setActionName:[NSString stringWithFormat:@"flip Objects Along %@ Axis", axisName(axis)]];
 }
 
 - (IBAction)toggleClipTool:(id)sender {

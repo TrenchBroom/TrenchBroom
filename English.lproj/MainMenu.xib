@@ -625,8 +625,8 @@
 											</object>
 											<object class="NSMenuItem" id="955203076">
 												<reference key="NSMenu" ref="388273987"/>
-												<string key="NSTitle">Mirror Horizontally</string>
-												<string key="NSKeyEquiv">m</string>
+												<string key="NSTitle">Flip Horizontally</string>
+												<string key="NSKeyEquiv">f</string>
 												<int key="NSKeyEquivModMask">1048576</int>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
@@ -635,8 +635,8 @@
 											<object class="NSMenuItem" id="406577010">
 												<reference key="NSMenu" ref="388273987"/>
 												<bool key="NSIsAlternate">YES</bool>
-												<string key="NSTitle">Mirror Vertically</string>
-												<string key="NSKeyEquiv">m</string>
+												<string key="NSTitle">Flip Vertically</string>
+												<string key="NSKeyEquiv">f</string>
 												<int key="NSKeyEquivModMask">1572864</int>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
@@ -1704,22 +1704,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">rotateZ90CW:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="83918969"/>
-					</object>
-					<int key="connectionID">787</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">rotateZ90CCW:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="499931977"/>
-					</object>
-					<int key="connectionID">788</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">setGridSize:</string>
 						<reference key="source" ref="1014"/>
 						<reference key="destination" ref="607367021"/>
@@ -1928,19 +1912,35 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">mirrorHorizontally:</string>
+						<string key="label">flipHorizontally:</string>
 						<reference key="source" ref="1014"/>
 						<reference key="destination" ref="955203076"/>
 					</object>
-					<int key="connectionID">868</int>
+					<int key="connectionID">870</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">mirrorVertically:</string>
+						<string key="label">flipVertically:</string>
 						<reference key="source" ref="1014"/>
 						<reference key="destination" ref="406577010"/>
 					</object>
-					<int key="connectionID">869</int>
+					<int key="connectionID">871</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">rotate90CW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="83918969"/>
+					</object>
+					<int key="connectionID">872</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">rotate90CCW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="499931977"/>
+					</object>
+					<int key="connectionID">873</int>
 				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -2944,7 +2944,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">869</int>
+			<int key="maxID">873</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2997,15 +2997,15 @@
 						<string key="createPrefabFromSelection:">id</string>
 						<string key="deleteSelection:">id</string>
 						<string key="duplicateSelection:">id</string>
+						<string key="flipHorizontally:">id</string>
+						<string key="flipVertically:">id</string>
 						<string key="isolateSelection:">id</string>
 						<string key="loadPointFile:">id</string>
-						<string key="mirrorHorizontally:">id</string>
-						<string key="mirrorVertically:">id</string>
 						<string key="performClip:">id</string>
+						<string key="rotate90CCW:">id</string>
+						<string key="rotate90CW:">id</string>
 						<string key="rotateTextureLeft:">id</string>
 						<string key="rotateTextureRight:">id</string>
-						<string key="rotateZ90CCW:">id</string>
-						<string key="rotateZ90CW:">id</string>
 						<string key="run:">id</string>
 						<string key="runDefaultEngine:">id</string>
 						<string key="selectAll:">id</string>
@@ -3057,6 +3057,14 @@
 							<string key="name">duplicateSelection:</string>
 							<string key="candidateClassName">id</string>
 						</object>
+						<object class="IBActionInfo" key="flipHorizontally:">
+							<string key="name">flipHorizontally:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="flipVertically:">
+							<string key="name">flipVertically:</string>
+							<string key="candidateClassName">id</string>
+						</object>
 						<object class="IBActionInfo" key="isolateSelection:">
 							<string key="name">isolateSelection:</string>
 							<string key="candidateClassName">id</string>
@@ -3065,16 +3073,16 @@
 							<string key="name">loadPointFile:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="mirrorHorizontally:">
-							<string key="name">mirrorHorizontally:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="mirrorVertically:">
-							<string key="name">mirrorVertically:</string>
-							<string key="candidateClassName">id</string>
-						</object>
 						<object class="IBActionInfo" key="performClip:">
 							<string key="name">performClip:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="rotate90CCW:">
+							<string key="name">rotate90CCW:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="rotate90CW:">
+							<string key="name">rotate90CW:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="rotateTextureLeft:">
@@ -3083,14 +3091,6 @@
 						</object>
 						<object class="IBActionInfo" key="rotateTextureRight:">
 							<string key="name">rotateTextureRight:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="rotateZ90CCW:">
-							<string key="name">rotateZ90CCW:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="rotateZ90CW:">
-							<string key="name">rotateZ90CW:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="run:">

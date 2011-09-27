@@ -179,7 +179,7 @@
     [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", o.x, o.y, o.z]];
 }
 
-- (void)rotateZ90CW:(const TVector3i *)theRotationCenter {
+- (void)rotate90CW:(EAxis)theAxis center:(const TVector3i *)theCenter {
     if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
         return;
 
@@ -189,28 +189,54 @@
     TVector3i o, ci, d;
     roundV3f(&center, &ci);
     subV3i([self origin], &ci, &d);
-    subV3i(&ci, theRotationCenter, &ci);
+    subV3i(&ci, theCenter, &ci);
     
-    int x = ci.x;
-    ci.x = ci.y;
-    ci.y = -x;
+    rotate90CWV3i(&ci, theAxis, &ci);
     
-    addV3i(&ci, theRotationCenter, &ci);
+    addV3i(&ci, theCenter, &ci);
     addV3i(&ci, &d, &o);
     
     [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", o.x, o.y, o.z]];
-    
+
     if ([self angle] == nil)
         [self setProperty:AngleKey value:@"0"];
-
+    
     int a = [[self angle] intValue];
+    TVector3f direction;
+    
     if (a >= 0) {
-        a = (a + 90) % 360;
+        direction.x = cos(a * M_PI / 180);
+        direction.y = sin(a * M_PI / 180);
+        direction.z = 0;
+    } else if (a == -1) {
+        direction = ZAxisPos;
+    } else if (a == -2) {
+        direction = ZAxisNeg;
+    } else {
+        return;
+    }
+    
+    rotate90CWV3f(&direction, theAxis, &direction);
+    if (direction.z > 0.9) {
+        [self setProperty:AngleKey value:@"-1"];
+    } else if (direction.z < -0.9) {
+        [self setProperty:AngleKey value:@"-2"];
+    } else {
+        if (direction.z != 0) {
+            direction.z = 0;
+            normalizeV3f(&direction, &direction);
+        }
+        
+        a = roundf(acos(direction.x) * 180 / M_PI);
+        if (direction.y > 0)
+            a = 360 - a;
+        
         [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
     }
+
 }
 
-- (void)rotateZ90CCW:(const TVector3i *)theRotationCenter {
+- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter {
     if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
         return;
 
@@ -220,25 +246,51 @@
     TVector3i o, ci, d;
     roundV3f(&center, &ci);
     subV3i([self origin], &ci, &d);
-    subV3i(&ci, theRotationCenter, &ci);
+    subV3i(&ci, theCenter, &ci);
+
+    rotate90CCWV3i(&ci, theAxis, &ci);
     
-    int x = ci.x;
-    ci.x = -ci.y;
-    ci.y = x;
-    
-    addV3i(&ci, theRotationCenter, &ci);
+    addV3i(&ci, theCenter, &ci);
     addV3i(&ci, &d, &o);
     
     [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", o.x, o.y, o.z]];
     
     if ([self angle] == nil)
         [self setProperty:AngleKey value:@"0"];
-
+    
     int a = [[self angle] intValue];
+    TVector3f direction;
+    
     if (a >= 0) {
-        a = (a + 270) % 360;
+        direction.x = cos(a * M_PI / 180);
+        direction.y = sin(a * M_PI / 180);
+        direction.z = 0;
+    } else if (a == -1) {
+        direction = ZAxisPos;
+    } else if (a == -2) {
+        direction = ZAxisNeg;
+    } else {
+        return;
+    }
+    
+    rotate90CCWV3f(&direction, theAxis, &direction);
+    if (direction.z > 0.9) {
+        [self setProperty:AngleKey value:@"-1"];
+    } else if (direction.z < -0.9) {
+        [self setProperty:AngleKey value:@"-2"];
+    } else {
+        if (direction.z != 0) {
+            direction.z = 0;
+            normalizeV3f(&direction, &direction);
+        }
+        
+        a = roundf(acos(direction.x) * 180 / M_PI);
+        if (direction.y > 0)
+            a = 360 - a;
+        
         [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
     }
+
 }
 
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theRotationCenter {
@@ -298,7 +350,7 @@
     }
 }
 
-- (void)mirrorAxis:(EAxis)theAxis center:(const TVector3i *)theCenter {
+- (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter {
     if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
         return;
     

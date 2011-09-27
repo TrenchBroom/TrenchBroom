@@ -24,7 +24,7 @@
 #import "ClipLineFeedbackFigure.h"
 #import "ClipPlaneFeedbackFigure.h"
 #import "ClipBrushFeedbackFigure.h"
-#import "GridFeedbackFigure.h"
+#import "EditingPlaneFigure.h"
 
 @interface ClipTool (private)
 
@@ -87,10 +87,10 @@
         planeFigure = nil;
     }
     
-    if (gridFigure != nil) {
-        [renderer removeFeedbackFigure:gridFigure];
-        [gridFigure release];
-        gridFigure = nil;
+    if (editingPlaneFigure != nil) {
+        [renderer removeFeedbackFigure:editingPlaneFigure];
+        [editingPlaneFigure release];
+        editingPlaneFigure = nil;
     }
     
     NSEnumerator* figureEn = [brushFigures objectEnumerator];
@@ -155,8 +155,9 @@
             else if (draggedPoint == 2)
                 hit = [[clipPlane hitList:2] firstHitOfType:HT_FACE ignoreOccluders:YES];
                 
-            gridFigure = [[GridFeedbackFigure alloc] initWithGrid:grid originalHit:hit ray:ray];
-            [renderer addFeedbackFigure:gridFigure];
+            id <Face> face = [hit object];
+            editingPlaneFigure = [[EditingPlaneFigure alloc] initWithGrid:grid plane:[face boundary] bounds:[[face brush] bounds] ray:ray];
+            [renderer addFeedbackFigure:editingPlaneFigure];
         }
     }
 }

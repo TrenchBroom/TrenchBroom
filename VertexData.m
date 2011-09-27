@@ -847,28 +847,28 @@ void translateVertexData(TVertexData* vd, const TVector3f* d) {
     }
 }
 
-void rotateVertexDataZ90CW(TVertexData* vd, const TVector3f* c) {
+void rotateVertexData90CW(TVertexData* vd, EAxis a, const TVector3f* c) {
     for (int i = 0; i < vd->vertexCount; i++) {
         subV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
-        rotateZ90CWV3f(&vd->vertices[i]->vector, &vd->vertices[i]->vector);
+        rotate90CWV3f(&vd->vertices[i]->vector, a, &vd->vertices[i]->vector);
         addV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
     }
 
     if (vd->valid) {
-        rotateBoundsZ90CW(&vd->bounds, c, &vd->bounds);
+        rotateBounds90CW(&vd->bounds, a, c, &vd->bounds);
         centerOfBounds(&vd->bounds, &vd->center);
     }
 }
 
-void rotateVertexDataZ90CCW(TVertexData* vd, const TVector3f* c) {
+void rotateVertexData90CCW(TVertexData* vd, EAxis a, const TVector3f* c) {
     for (int i = 0; i < vd->vertexCount; i++) {
         subV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
-        rotateZ90CCWV3f(&vd->vertices[i]->vector, &vd->vertices[i]->vector);
+        rotate90CCWV3f(&vd->vertices[i]->vector, a, &vd->vertices[i]->vector);
         addV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
     }
     
     if (vd->valid) {
-        rotateBoundsZ90CCW(&vd->bounds, c, &vd->bounds);
+        rotateBounds90CCW(&vd->bounds, a, c, &vd->bounds);
         centerOfBounds(&vd->bounds, &vd->center);
     }
 }

@@ -87,10 +87,10 @@ extern NSString* const PointFileUnloaded;
 - (void)setEntities:(NSArray *)theEntities propertyKey:(NSString *)theKey value:(NSString *)theValue;
 - (void)setEntityDefinition:(id <Entity>)entity;
 - (void)translateEntities:(NSArray *)theEntities delta:(TVector3i)theDelta;
-- (void)rotateEntitiesZ90CW:(NSArray *)theEntities center:(TVector3i)theCenter;
-- (void)rotateEntitiesZ90CCW:(NSArray *)theEntities center:(TVector3i)theCenter;
+- (void)rotateEntities90CW:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter;
+- (void)rotateEntities90CCW:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter;
 - (void)rotateEntities:(NSArray *)theEntities rotation:(TQuaternion)theRotation center:(TVector3f)theCenter;
-- (void)mirrorEntities:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter;
+- (void)flipEntities:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter;
 - (void)deleteEntities:(NSArray *)theEntities;
 
 - (void)addBrushesToEntity:(id <Entity>)theEntity brushes:(NSArray *)theBrushes;
@@ -99,10 +99,10 @@ extern NSString* const PointFileUnloaded;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity withBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture;
 - (void)duplicateBrushes:(NSArray *)theBrushes newBrushes:(NSMutableArray *)theNewBrushes;
 - (void)translateBrushes:(NSArray *)theBrushes delta:(TVector3i)theDelta lockTextures:(BOOL)lockTextures;
-- (void)rotateBrushesZ90CW:(NSArray *)theBrushes center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
-- (void)rotateBrushesZ90CCW:(NSArray *)theBrushes center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
+- (void)rotateBrushes90CW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
+- (void)rotateBrushes90CCW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
 - (void)rotateBrushes:(NSArray *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures;
-- (void)mirrorBrushes:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
+- (void)flipBrushes:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
 - (void)deleteBrushes:(NSArray *)theBrushes;
 
 - (void)setFaces:(NSArray *)theFaces xOffset:(int)theXOffset;

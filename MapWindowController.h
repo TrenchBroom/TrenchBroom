@@ -67,10 +67,10 @@
 - (IBAction)createPointEntity:(id)sender;
 - (IBAction)createBrushEntity:(id)sender;
 
-- (IBAction)rotateZ90CW:(id)sender;
-- (IBAction)rotateZ90CCW:(id)sender;
-- (IBAction)mirrorHorizontally:(id)sender;
-- (IBAction)mirrorVertically:(id)sender;
+- (IBAction)rotate90CW:(id)sender;
+- (IBAction)rotate90CCW:(id)sender;
+- (IBAction)flipHorizontally:(id)sender;
+- (IBAction)flipVertically:(id)sender;
 - (IBAction)toggleClipTool:(id)sender;
 - (IBAction)toggleClipMode:(id)sender;
 - (IBAction)performClip:(id)sender;

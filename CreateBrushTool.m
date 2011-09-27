@@ -17,6 +17,8 @@
 #import "SelectionManager.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
+#import "Camera.h"
+#import "EditingPlaneFigure.h"
 
 @implementation CreateBrushTool
 
@@ -69,7 +71,6 @@
         plane.point = initialBounds.min;
     else
         plane.point = initialBounds.max;
-
 
     MapDocument* map = [windowController document];
     TBoundingBox* worldBounds = [map worldBounds];

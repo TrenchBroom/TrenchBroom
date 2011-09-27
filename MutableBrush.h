@@ -36,10 +36,10 @@
 
 - (void)setEntity:(MutableEntity *)theEntity;
 - (void)translateBy:(const TVector3i *)theDelta lockTextures:(BOOL)lockTextures;
-- (void)rotateZ90CW:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
-- (void)rotateZ90CCW:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
+- (void)rotate90CW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
+- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures;
-- (void)mirrorAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
+- (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
 
 - (void)drag:(MutableFace *)face by:(float)dist lockTexture:(BOOL)lockTexture;
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist;

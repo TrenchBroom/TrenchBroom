@@ -40,10 +40,10 @@
 - (void)brushChanged:(MutableBrush *)brush;
 
 - (void)translateBy:(const TVector3i *)theDelta;
-- (void)rotateZ90CW:(const TVector3i *)theRotationCenter;
-- (void)rotateZ90CCW:(const TVector3i *)theRotationCenter;
+- (void)rotate90CW:(EAxis)theAxis center:(const TVector3i *)theCenter;
+- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter;
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theRotationCenter;
-- (void)mirrorAxis:(EAxis)theAxis center:(const TVector3i *)theCenter;
+- (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter;
 
 - (void)replaceProperties:(NSDictionary *)theProperties;
 - (void)setProperty:(NSString *)key value:(NSString *)value;

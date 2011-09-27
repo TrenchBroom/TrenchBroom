@@ -654,14 +654,14 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     }
 }
 
-- (void)rotateEntitiesZ90CW:(NSArray *)theEntities center:(TVector3i)theCenter {
+- (void)rotateEntities90CW:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter {
     NSAssert(theEntities != nil, @"entity set must not be nil");
 
     if ([theEntities count] == 0)
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateEntitiesZ90CCW:[[theEntities copy] autorelease] center:theCenter];
+    [[undoManager prepareWithInvocationTarget:self] rotateEntities90CCW:[[theEntities copy] autorelease] axis:theAxis center:theCenter];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -675,7 +675,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     MutableEntity* entity;
     while ((entity = [entityEn nextObject]))
-        [entity rotateZ90CW:&theCenter];
+        [entity rotate90CW:theAxis center:&theCenter];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -684,14 +684,14 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     }
 }
 
-- (void)rotateEntitiesZ90CCW:(NSArray *)theEntities center:(TVector3i)theCenter {
+- (void)rotateEntities90CCW:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter {
     NSAssert(theEntities != nil, @"entity set must not be nil");
 
     if ([theEntities count] == 0)
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateEntitiesZ90CW:[[theEntities copy] autorelease] center:theCenter];
+    [[undoManager prepareWithInvocationTarget:self] rotateEntities90CW:[[theEntities copy] autorelease] axis:theAxis center:theCenter];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -705,7 +705,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     MutableEntity* entity;
     while ((entity = [entityEn nextObject]))
-        [entity rotateZ90CCW:&theCenter];
+        [entity rotate90CCW:theAxis center:&theCenter];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -757,14 +757,14 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     [undoManager endUndoGrouping];
 }
 
-- (void)mirrorEntities:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter {
+- (void)flipEntities:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter {
     NSAssert(theEntities != nil, @"entity set must not be nil");
     
     if ([theEntities count] == 0)
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] mirrorEntities:[[theEntities copy] autorelease] axis:theAxis center:theCenter];
+    [[undoManager prepareWithInvocationTarget:self] flipEntities:[[theEntities copy] autorelease] axis:theAxis center:theCenter];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -778,7 +778,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     MutableEntity* entity;
     while ((entity = [entityEn nextObject]))
-        [entity mirrorAxis:theAxis center:&theCenter];
+        [entity flipAxis:theAxis center:&theCenter];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -958,14 +958,14 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     }
 }
 
-- (void)rotateBrushesZ90CW:(NSArray *)theBrushes center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures {
+- (void)rotateBrushes90CW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateBrushesZ90CCW:[[theBrushes copy] autorelease] center:theCenter lockTextures:lockTextures];
+    [[undoManager prepareWithInvocationTarget:self] rotateBrushes90CCW:[[theBrushes copy] autorelease] axis:theAxis center:theCenter lockTextures:lockTextures];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -979,7 +979,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     while ((brush = [brushEn nextObject]))
-        [brush rotateZ90CW:&theCenter lockTextures:lockTextures];
+        [brush rotate90CW:theAxis center:&theCenter lockTextures:lockTextures];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -988,14 +988,14 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     }
 }
 
-- (void)rotateBrushesZ90CCW:(NSArray *)theBrushes center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures {
+- (void)rotateBrushes90CCW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] rotateBrushesZ90CW:[[theBrushes copy] autorelease] center:theCenter lockTextures:lockTextures];
+    [[undoManager prepareWithInvocationTarget:self] rotateBrushes90CW:[[theBrushes copy] autorelease] axis:theAxis center:theCenter lockTextures:lockTextures];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -1009,7 +1009,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     while ((brush = [brushEn nextObject]))
-        [brush rotateZ90CCW:&theCenter lockTextures:lockTextures];
+        [brush rotate90CCW:theAxis center:&theCenter lockTextures:lockTextures];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -1055,14 +1055,14 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     [undoManager endUndoGrouping];
 }
 
-- (void)mirrorBrushes:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures {
+- (void)flipBrushes:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
         return;
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] mirrorBrushes:[[theBrushes copy] autorelease] axis:theAxis center:theCenter lockTextures:lockTextures];
+    [[undoManager prepareWithInvocationTarget:self] flipBrushes:[[theBrushes copy] autorelease] axis:theAxis center:theCenter lockTextures:lockTextures];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -1076,7 +1076,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     while ((brush = [brushEn nextObject]))
-        [brush mirrorAxis:theAxis center:&theCenter lockTextures:lockTextures];
+        [brush flipAxis:theAxis center:&theCenter lockTextures:lockTextures];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];

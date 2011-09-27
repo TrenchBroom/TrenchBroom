@@ -224,29 +224,29 @@
     }
 }
 
-- (void)rotateZ90CW:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
+- (void)rotate90CW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
-        [face rotateZ90CW:theCenter lockTexture:lockTextures];
+        [face rotate90CW:theAxis center:theCenter lockTexture:lockTextures];
 
     if (vertexDataValid) {
         TVector3f centerf;
         setV3f(&centerf, theCenter);
-        rotateVertexDataZ90CW(&vertexData, &centerf);
+        rotateVertexData90CW(&vertexData, theAxis, &centerf);
     }
 }
 
-- (void)rotateZ90CCW:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
+- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
-        [face rotateZ90CCW:theCenter lockTexture:lockTextures];
+        [face rotate90CCW:theAxis center:theCenter lockTexture:lockTextures];
 
     if (vertexDataValid) {
         TVector3f centerf;
         setV3f(&centerf, theCenter);
-        rotateVertexDataZ90CCW(&vertexData, &centerf);
+        rotateVertexData90CCW(&vertexData, theAxis, &centerf);
     }
 }
 
@@ -259,11 +259,11 @@
     [self invalidateVertexData];
 }
 
-- (void)mirrorAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
+- (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
-        [face mirrorAxis:theAxis center:theCenter lockTexture:lockTextures];
+        [face flipAxis:theAxis center:theCenter lockTexture:lockTextures];
     
     [self invalidateVertexData];
 }

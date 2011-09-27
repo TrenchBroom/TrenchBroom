@@ -11,6 +11,7 @@
 @protocol Brush;
 @class MapWindowController;
 @class BoundsFeedbackFigure;
+@class EditingPlaneFigure;
 
 @interface CreateBrushTool : DefaultTool {
     MapWindowController* windowController;

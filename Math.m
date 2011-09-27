@@ -20,10 +20,26 @@ TVector3f const NullVector = {0, 0, 0};
 TMatrix2f const IdentityM2f = {1, 0, 0, 1};
 TMatrix3f const IdentityM3f = {1, 0, 0, 0, 1, 0, 0, 0, 1};
 TMatrix4f const IdentityM4f = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+TMatrix4f const RotX90CWM4f = { 1,  0,  0,  0, 
+                                0,  0, -1,  0, 
+                                0,  1,  0,  0, 
+                                0,  0,  0,  1 };
+TMatrix4f const RotY90CWM4f = { 0,  0,  1,  0, 
+                                0,  1,  0,  0, 
+                               -1,  0,  0,  0, 
+                                0,  0,  0,  1 };
 TMatrix4f const RotZ90CWM4f = { 0, -1,  0,  0, 
                                 1,  0,  0,  0, 
                                 0,  0,  1,  0, 
                                 0,  0,  0,  1 };
+TMatrix4f const RotX90CCWM4f = { 1,  0,  0,  0, 
+                                 0,  0,  1,  0, 
+                                 0, -1,  0,  0, 
+                                 0,  0,  0,  1 };
+TMatrix4f const RotY90CCWM4f = { 0,  0, -1,  0, 
+                                 0,  1,  0,  0, 
+                                 1,  0,  0,  0, 
+                                 0,  0,  0,  1 };
 TMatrix4f const RotZ90CCWM4f = { 0,  1,  0,  0, 
                                 -1,  0,  0,  0, 
                                  0,  0,  1,  0, 
@@ -311,18 +327,56 @@ void setV3f(TVector3f* l, const TVector3i* r) {
     l->z = r->z;
 }
 
-void rotateZ90CWV3f(const TVector3f* v, TVector3f *o) {
-    float x = v->x;
-    o->x = v->y;
-    o->y = -x;
-    o->z = v->z;
+void rotate90CWV3f(const TVector3f* v, EAxis a, TVector3f *o) {
+    switch (a) {
+        case A_X: {
+            float y = v->y;
+            o->x = v->x;
+            o->y = v->z;
+            o->z = -y;
+            break;
+        }
+        case A_Y: {
+            float x = v->x;
+            o->x = -v->z;
+            o->y = v->y;
+            o->z = x;
+            break;
+        }
+        default: {
+            float x = v->x;
+            o->x = v->y;
+            o->y = -x;
+            o->z = v->z;
+            break;
+        }
+    }
 }
 
-void rotateZ90CCWV3f(const TVector3f* v, TVector3f *o) {
-    float x = v->x;
-    o->x = -v->y;
-    o->y = x;
-    o->z = v->z;
+void rotate90CCWV3f(const TVector3f* v, EAxis a, TVector3f *o) {
+    switch (a) {
+        case A_X: {
+            float y = v->y;
+            o->x = v->x;
+            o->y = -v->z;
+            o->z = y;
+            break;
+        }
+        case A_Y: {
+            float x = v->x;
+            o->x = v->z;
+            o->y = v->y;
+            o->z = -x;
+            break;
+        }
+        default: {
+            float x = v->x;
+            o->x = -v->y;
+            o->y = x;
+            o->z = v->z;
+            break;
+        }
+    }
 }
 
 BOOL parseV3f(NSString* s, NSRange r, TVector3f* o) {
@@ -431,18 +485,56 @@ BOOL nullV3i(const TVector3i* v) {
     return v->x == 0 && v->y == 0 && v->z == 0;
 }
 
-void rotateZ90CWV3i(const TVector3i* v, TVector3i *o) {
-    int x = v->x;
-    o->x = v->y;
-    o->y = -x;
-    o->z = v->z;
+void rotate90CWV3i(const TVector3i* v, EAxis a, TVector3i *o) {
+    switch (a) {
+        case A_X: {
+            int y = v->y;
+            o->x = v->x;
+            o->y = v->z;
+            o->z = -y;
+            break;
+        }
+        case A_Y: {
+            int x = v->x;
+            o->x = -v->z;
+            o->y = v->y;
+            o->z = x;
+            break;
+        }
+        default: {
+            int x = v->x;
+            o->x = v->y;
+            o->y = -x;
+            o->z = v->z;
+            break;
+        }
+    }
 }
 
-void rotateZ90CCWV3i(const TVector3i* v, TVector3i *o) {
-    int x = v->x;
-    o->x = -v->y;
-    o->y = x;
-    o->z = v->z;
+void rotate90CCWV3i(const TVector3i* v, EAxis a, TVector3i *o) {
+    switch (a) {
+        case A_X: {
+            int y = v->y;
+            o->x = v->x;
+            o->y = -v->z;
+            o->z = y;
+            break;
+        }
+        case A_Y: {
+            int x = v->x;
+            o->x = v->z;
+            o->y = v->y;
+            o->z = -x;
+            break;
+        }
+        default: {
+            int x = v->x;
+            o->x = -v->y;
+            o->y = x;
+            o->z = v->z;
+            break;
+        }
+    }
 }
 
 
@@ -816,14 +908,14 @@ void translateBounds(const TBoundingBox* b, const TVector3f* d, TBoundingBox* o)
     addV3f(&b->max, d, &o->max);
 }
 
-void rotateBoundsZ90CW(const TBoundingBox* b, const TVector3f* c, TBoundingBox* o) {
+void rotateBounds90CW(const TBoundingBox* b, EAxis a, const TVector3f* c, TBoundingBox* o) {
     TBoundingBox rotated;
 
     subV3f(&b->min, c, &rotated.min);
     subV3f(&b->max, c, &rotated.max);
     
-    rotateZ90CWV3f(&rotated.min, &rotated.min);
-    rotateZ90CWV3f(&rotated.max, &rotated.max);
+    rotate90CWV3f(&rotated.min, a, &rotated.min);
+    rotate90CWV3f(&rotated.max, a, &rotated.max);
 
     o->min.x = fminf(rotated.min.x, rotated.max.x);
     o->min.y = fminf(rotated.min.y, rotated.max.y);
@@ -836,14 +928,14 @@ void rotateBoundsZ90CW(const TBoundingBox* b, const TVector3f* c, TBoundingBox* 
     addV3f(&o->max, c, &o->max);
 }
 
-void rotateBoundsZ90CCW(const TBoundingBox* b, const TVector3f* c, TBoundingBox* o) {
+void rotateBounds90CCW(const TBoundingBox* b, EAxis a, const TVector3f* c, TBoundingBox* o) {
     TBoundingBox rotated;
     
     subV3f(&b->min, c, &rotated.min);
     subV3f(&b->max, c, &rotated.max);
 
-    rotateZ90CCWV3f(&rotated.min, &rotated.min);
-    rotateZ90CCWV3f(&rotated.max, &rotated.max);
+    rotate90CCWV3f(&rotated.min, a, &rotated.min);
+    rotate90CCWV3f(&rotated.max, a, &rotated.max);
     
     o->min.x = fminf(rotated.min.x, rotated.max.x);
     o->min.y = fminf(rotated.min.y, rotated.max.y);

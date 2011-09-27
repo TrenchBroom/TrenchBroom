@@ -72,10 +72,10 @@ typedef enum {
 - (void)setYScale:(float)factor;
 - (void)translateOffsetsX:(int)x y:(int)y;
 - (void)translateBy:(const TVector3i *)theDelta lockTexture:(BOOL)lockTexture;
-- (void)rotateZ90CW:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
-- (void)rotateZ90CCW:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
+- (void)rotate90CW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
+- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture;
-- (void)mirrorAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
+- (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
 - (void)dragBy:(float)dist lockTexture:(BOOL)lockTexture;
 
 - (void)setSide:(TSide *)theSide;
