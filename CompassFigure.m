@@ -42,19 +42,33 @@
     
     glPolygonMode(GL_FRONT, GL_FILL);
     
-    glColor4f(1, 0, 0, 1);
+    EAxis axis = strongestComponentV3f([camera direction]);
+    
+    // X axis
+    if (axis == A_X)
+        glColor4f(0.8f, 0.8f, 0.8f, 1);
+    else
+        glColor4f(1, 0, 0, 1);
     glPushMatrix();
     glRotatef(90, 0, 1, 0);
     [self renderArm];
     glPopMatrix();
     
-    glColor4f(0, 1, 0, 1);
+    // Y axis
+    if (axis == A_Y)
+        glColor4f(0.8f, 0.8f, 0.8f, 1);
+    else
+        glColor4f(0, 1, 0, 1);
     glPushMatrix();
     glRotatef(270, 1, 0, 0);
     [self renderArm];
     glPopMatrix();
-    
-    glColor4f(0, 0, 1, 1);
+
+    // Z axis
+    if (axis == A_Z)
+        glColor4f(0.8f, 0.8f, 0.8f, 1);
+    else
+        glColor4f(0, 0, 1, 1);
     glPushMatrix();
     [self renderArm];
     glPopMatrix();

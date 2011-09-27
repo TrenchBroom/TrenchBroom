@@ -46,6 +46,12 @@ div.imagecaption {
 	font-weight: bold;
 }
 
+img.inline {
+	float: left;
+	margin: 0px 10px 10px 0px;
+	border: 10px solid #cccccc;
+}
+
 ul.menu {
 	list-style-type: none;
 	margin: 0px;

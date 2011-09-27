@@ -1250,9 +1250,9 @@ int const TexCoordSize = 2 * sizeof(float);
     Camera* camera = [windowController camera];
     
     glEnable(GL_LIGHT0);
-    GLfloat ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    GLfloat ambientLight[] = { 0.4f, 0.4f, 0.4f, 1.0f };
     GLfloat diffuseLight[] = { 0.8f, 0.8f, 0.8, 1.0f };
-    GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+    GLfloat specularLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
     GLfloat position[] = { [camera position]->x, [camera position]->y, [camera position]->z, 1.0f };
     
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);

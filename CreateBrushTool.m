@@ -30,67 +30,46 @@
 }
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    Camera* camera = [windowController camera];
+
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
-    if (hit != nil) {
+    if (hit != nil)
         lastPoint = *[hit hitPoint];
-    } else {
-        Camera* camera = [windowController camera];
+    else
         lastPoint = [camera defaultPointOnRay:ray];
-    }
 
     Grid* grid = [[windowController options] grid];
     [grid snapDownToGridV3f:&lastPoint result:&initialBounds.min];
     [grid snapUpToGridV3f:&lastPoint result:&initialBounds.max];
     [grid snapToGridV3f:&lastPoint result:&lastPoint];
     
+    const TVector3f* cameraDir = [camera direction];
+    
     if (initialBounds.min.x == initialBounds.max.x) {
-        if (ray->direction.x > 0)
+        if (cameraDir->x > 0)
             initialBounds.min.x -= [grid actualSize];
         else
             initialBounds.max.x += [grid actualSize];
     }
     if (initialBounds.min.y == initialBounds.max.y) {
-        if (ray->direction.y > 0)
+        if (cameraDir->y > 0)
             initialBounds.min.y -= [grid actualSize];
         else
             initialBounds.max.y += [grid actualSize];
     }
     if (initialBounds.min.z == initialBounds.max.z) {
-        if (ray->direction.z > 0)
+        if (cameraDir->z > 0)
             initialBounds.min.z -= [grid actualSize];
         else
             initialBounds.max.z += [grid actualSize];
     }
 
-    switch (strongestComponentV3f(&ray->direction)) {
-        case A_X:
-            if (ray->direction.x > 0) {
-                plane.point = initialBounds.min;
-                plane.norm = XAxisPos;
-            } else {
-                plane.point = initialBounds.max;
-                plane.norm = XAxisNeg;
-            }
-            break;
-        case A_Y:
-            if (ray->direction.y > 0) {
-                plane.point = initialBounds.min;
-                plane.norm = YAxisPos;
-            } else {
-                plane.point = initialBounds.max;
-                plane.norm = YAxisNeg;
-            }
-            break;
-        case A_Z:
-            if (ray->direction.z > 0) {
-                plane.point = initialBounds.min;
-                plane.norm = ZAxisPos;
-            } else {
-                plane.point = initialBounds.max;
-                plane.norm = ZAxisNeg;
-            }
-            break;
-    }
+    plane.norm = *closestAxisV3f(cameraDir);
+    if (plane.norm.x > 0 || plane.norm.y > 0 || plane.norm.z > 0)
+        plane.point = initialBounds.min;
+    else
+        plane.point = initialBounds.max;
+
 
     MapDocument* map = [windowController document];
     TBoundingBox* worldBounds = [map worldBounds];

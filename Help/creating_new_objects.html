@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>TrenchBroom Help - Creating New Objects</title>
+	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<meta name="author" content="Kristian Duske">
+</head>
+<body>
+	<div id="container">
+		<h3>Creating New Objects</h3>
+		<p>There are several ways to create new brushes and entities. It is recommended that you try all of the methods explained below because it depends on the context which one is most useful. In other words, sometimes it is quicker to simply duplicate an existing brush and sometimes it is quicker to create a new brush from scratch. In the next section, you will learn how to draw new brushes with your mouse, which is the most convenient way to create new geometry.</p>
+		<p>It is very important that you understand how the view direction of the camera relates to editing. Since the mouse is a 2D input device, you cannot directly control all three dimensions when you edit objects with the mouse. For example, if you want to move a brush around, you can only move it in two directions by dragging it. Because of this, many editing operations take the view direction into account to decide which dimensions the mouse movements should be mapped to. So if you are looking down along the Z axis while you are moving a brush, your mouse movement will be mapped to the X and Y axes and the brush can only be moved on the XY plane. The plane which the mouse movement is mapped to in editing operations is called the <b>editing plane</b>. In general, TrenchBroom chooses either the XY plane, the XZ plane or the YZ plane as the editing plane depending on whether the camera looks generally in the direction of the (positive or negative) Z, Y or X axis, respectively.</p>
+		<p>
+			<img src="images/screenshots/compass.png" width="177" height="97" alt="Compass" class="inline">
+			Remember that you can use the <a href="camera_navigation.html">quick info bar</a> at the bottom of the 3D view to keep your orientation. On top of that, the compass gives you a visual hint as to which plane is the current editing plane. In the screenshot on the left, the predominant axis of the camera direction is the Y axis, which is why it has gray color. The two axes which are rendered in color make up the editing plane, which in this case is the XZ plane.</p>
+		<br clear="all">
+		<a name="drawing_new_brushes_using_the_mouse"></a><h4>Drawing New Brushes Using the Mouse</h4>
+		<p>Creating a new brush from scratch is easily done in TrenchBroom. Simply <b>left click</b> and <b>drag</b> your mouse on the 3D view to create a new cuboid. The cuboid will aligned to the current editing plane and its thickness will be set to the current grid size. You can use the mouse wheel to change the thickness of the brush.</p>
+		<p>The position of the new brush depends on where you started to draw it. If you started in the void, it is positioned at a default distance from the camera. If you started your drag on another brush, it is positioned on the point on that brushes surface where you clicked. This makes it easy to create brushes which are already correctly aligned to other brushes.</p>
+	</div>
+</body>
+</html>
