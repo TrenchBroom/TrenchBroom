@@ -20,6 +20,7 @@
 					<li class="inactive" id="menu_link_creating_new_objects">Creating new objects</li>
 					<li class="inactive" id="menu_link_editing_objects">Editing objects</li>
 					<li class="inactive" id="menu_link_keeping_an_overview">Keeping an overview</li>
+					<li class="inactive" id="menu_link_misc_tasks">Miscellaneous</li>
 					<li class="header">User Interface</li>
 					<li class="inactive" id="menu_link_the_main_window">The main window</li>
 					<li class="inactive" id="menu_link_the_inspector">The inspector</li>
@@ -29,6 +30,7 @@
 			</div>
 			<div id="submenu">
 				<ul class="submenu" style="display:inline;" id="submenu_getting_started">
+					<li><a href="getting_started.html#overview">Overview</a></li>
 					<li><a href="getting_started.html#setting_the_quake_path">Setting the Quake path</a></li>
 					<li><a href="getting_started.html#creating_opening_and_saving_a_map_file">Creating, opening and saving a map file</a></li>
 					<li><a href="getting_started.html#loading_textures">Loading textures</li>
@@ -47,8 +49,8 @@
 				</ul>
 				<ul class="submenu" id="submenu_creating_new_objects">
 					<li><a href="creating_new_objects.html#drawing_new_brushes_using_the_mouse">Drawing new brushes using the mouse</a></li>
-					<li><a href="#">Inserting prefabs</a></li>
-					<li><a href="#">Dragging entities from the entity browser</a></li>
+					<li><a href="creating_new_objects.html#inserting_prefabs">Inserting prefabs</a></li>
+					<li><a href="creating_new_objects.html#dragging_entities_from_the_entity_browser">Dragging entities from the entity browser</a></li>
 					<li><a href="#">Creating point and brush entities</a></li>
 					<li><a href="#">Duplicating objects</a></li>
 					<li><a href="#">Copy and paste</a></li>
@@ -70,6 +72,10 @@
 					<li><a href="#">Selection isolation</a></li>
 					<li><a href="#">Brush groups</a></li>
 					<li><a href="#">Filtering</a></li>
+				</ul>
+				<ul class="submenu" id="submenu_misc_tasks">
+					<li><a href="#">Managing textures</a></li>
+					<li><a href="#">Managing prefabs</a></li>
 				</ul>
 				<ul class="submenu" id="submenu_the_main_window">
 					<li><a href="#">The 3D view</a></li>
@@ -118,6 +124,7 @@
 			$("#menu_link_creating_new_objects").click(function(event) {menu_link_callback(event, "creating_new_objects")});
 			$("#menu_link_editing_objects").click(function(event) {menu_link_callback(event, "editing_objects")});
 			$("#menu_link_keeping_an_overview").click(function(event) {menu_link_callback(event, "keeping_an_overview")});
+			$("#menu_link_misc_tasks").click(function(event) {menu_link_callback(event, "misc_tasks")});
 			$("#menu_link_the_main_window").click(function(event) {menu_link_callback(event, "the_main_window")});
 			$("#menu_link_the_inspector").click(function(event) {menu_link_callback(event, "the_inspector")});
 			$("#menu_link_the_main_menu").click(function(event) {menu_link_callback(event, "the_main_menu")});

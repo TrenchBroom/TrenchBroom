@@ -892,6 +892,70 @@
     [undoManager setActionName:@"Move Objects"];
 }
 
+- (void)pageUp:(id)sender {
+    MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    float delta = [[options grid] actualSize];
+    
+    if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
+        TVector3f deltaf;
+        deltaf = *closestAxisV3f([camera direction]);
+        scaleV3f(&deltaf, delta, &deltaf);
+        
+        TBoundingBox* worldBounds = [map worldBounds];
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        if (nullV3f(&deltaf))
+            return;
+        
+        TVector3i deltai;
+        roundV3f(&deltaf, &deltai);
+        
+        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
+        [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+    }
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Move Objects"];
+}
+
+- (void)pageDown:(id)sender {
+    MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    float delta = [[options grid] actualSize];
+    
+    if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
+        TVector3f deltaf;
+        deltaf = *closestAxisV3f([camera direction]);
+        scaleV3f(&deltaf, -delta, &deltaf);
+        
+        TBoundingBox* worldBounds = [map worldBounds];
+        TBoundingBox bounds;
+        [selectionManager selectionBounds:&bounds];
+        
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        if (nullV3f(&deltaf))
+            return;
+        
+        TVector3i deltai;
+        roundV3f(&deltaf, &deltai);
+        
+        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
+        [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+    }
+    
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Move Objects"];
+}
+
 #pragma mark View related actions
 
 - (IBAction)showInspector:(id)sender {
