@@ -28,7 +28,7 @@
 			<key>filename</key>
 			<string>editing_objects.html</string>
 			<key>lastUsed</key>
-			<date>2011-09-27T18:03:10Z</date>
+			<date>2011-09-28T20:33:17Z</date>
 			<key>selected</key>
 			<true/>
 		</dict>
@@ -130,9 +130,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>452</integer>
+				<integer>7</integer>
 				<key>line</key>
-				<integer>26</integer>
+				<integer>38</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
