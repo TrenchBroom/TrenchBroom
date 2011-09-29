@@ -44,7 +44,15 @@
 		The shape of a brush can be changed using two different tools: Face dragging and clipping. While face dragging can only change the location of individual faces, clipping can truly change the shape of a brush by adding new faces and deleting existing faces of the brush. The following section will cover face dragging while clipping is explained in the subsequent section.
 		
 		<h5>Face Dragging</h5>
+		<img src="images/screenshots/face_dragging_frontface.png" width="180" height="180" alt="Dragging a Front Face" class="inline">
+		<p>Face dragging is actually a translation of a face along its normal. This means that you cannot move faces around freely, but are restricted to the face's norm as its single axis of movement. There are two options to initiate a face drag. The first is to select a face and then <b>click and drag</b> it with the <b>left mouse button</b>. Once you move your mouse over a selected face, you will notice that the cursor changes into a small yellow arrow. This arrow indicates the direction in which you can drag the face. If you select multiple faces and start dragging one of them, all faces will be moved along their normal. This way, you can change a brush's size in multiple dimensions at once.</p>
+		<br clear="all">
+		<p>The second way to drag a face is to select the brush which the face belongs to and then <b>click and drag</b> on a face with the <b>left mouse button</b> while holding the <b>command key (&#x2318;)</b>. Note that if you have multiple brushes selected and you drag a face, every face of any selected brush that lies in the same plane as the dragged face will be moved, too. This allows you to quickly change the sizes of multiple brushes at once.</p>
 		
+		<img src="images/screenshots/face_dragging_backface.png" width="180" height="180" alt="Dragging a Back Face" class="inline">
+		<p>You can also drag faces which are behind the brush, but this is only possible if you use the second option described above. If you hold the <b>command key (&#x2318;)</b> and move your mouse outside of a selected brush, you will notice that the cursor again changes to the yellow arrow if you move the cursor close to an outer edge of the brush. Since any edge belongs to exactly two faces, an outer edge belongs to one face that faces the camera and one face that faces away from the camera. The latter face is the one which you can drag if you start your drag just outside of an outer edge. Note that you can only drag faces which have at least one edge visible. If you want to drag faces which are completely on the back of the brush, you need to reposition the camera.</p>
+		
+		<br clear="all">
 		<h5>Clipping</h5>
 	</div>
 </body>
