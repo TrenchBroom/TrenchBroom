@@ -10,7 +10,7 @@
 			<key>filename</key>
 			<string>index.html</string>
 			<key>lastUsed</key>
-			<date>2011-09-27T18:03:10Z</date>
+			<date>2011-09-29T08:02:45Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -28,7 +28,7 @@
 			<key>filename</key>
 			<string>editing_objects.html</string>
 			<key>lastUsed</key>
-			<date>2011-09-28T20:33:17Z</date>
+			<date>2011-09-29T08:02:45Z</date>
 			<key>selected</key>
 			<true/>
 		</dict>
@@ -36,7 +36,7 @@
 			<key>filename</key>
 			<string>getting_started.html</string>
 			<key>lastUsed</key>
-			<date>2011-09-27T11:25:04Z</date>
+			<date>2011-09-29T08:02:17Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -130,9 +130,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>7</integer>
+				<integer>2</integer>
 				<key>line</key>
-				<integer>38</integer>
+				<integer>45</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -158,14 +158,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>55</integer>
+				<integer>36</integer>
 				<key>line</key>
-				<integer>59</integer>
+				<integer>61</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>24</integer>
+			<integer>23</integer>
 		</dict>
 		<key>style.css</key>
 		<dict>
@@ -194,6 +194,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{869, 249}, {1521, 1020}}</string>
+	<string>{{399, 62}, {1521, 996}}</string>
 </dict>
 </plist>

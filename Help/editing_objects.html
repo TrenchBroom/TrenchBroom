@@ -31,9 +31,21 @@
 			<div class="imagecaption">The bounding box is snapped to the grid.</div>
 		</div>
 		<p>If grid snapping is enabled, the bounding box of the selected objects is snapped to the grid. This is most easily explained with the above screenshots. The bounding box of the object in the left screenshot is obviously not aligned to the grid because the object is smaller than the grid. If this object is moved to the right, it is not moved by the actual grid size. Instead it is moved so that the right side of the bounding box is aligned to the grid. This can be seen in the right screenshot. If you move this object to the right again, it is moved by the grid size because the right side of the bounding box was already aligned to the grid.</p>
+
 		<a name="rotating_objects"></a><h4>Rotating Objects</h4>
 		<p>There are two options for rotating objects. The first is to rotate the selected brushes by 90&deg; about the one of the axes of the coordinate system. The second is to rotate the selected objects freely using the mouse. In both cases, the center of the rotation is the center of the selected objects' bounding box.</p>
 		<p>To rotate the selected objects by 90&deg; clockwise about one of the axes of the coordinate system, choose <b>Edit &raquo; Object &raquo; Rotate 90 CW</b> from the menu or hit <b>&#x2318;R</b>. If you wish to rotate the objects counter clockwise, you need to hold the <b>option key (&#x2325;)</b> when you invoke the rotate command. The actual rotation axis depends on the camera direction. TrenchBroom always selects the axis which has the smallest angle with the camera direction. So if you want to rotate some objects about the Z axis, you need to orient the camera so that it looks down or up at the objects.</p>
+		<p>Objects can also be rotated freely without any restriction as to the angle or axis of the rotation. To rotate the selected objects, hold the <b>option key (&#x2325;)</b> and move your mouse in the 3D view. You will see that the mouse cursor turns into a rotation cursor that indicates the axes about which the objects can be rotated using the mouse. To start the rotation, <b>click and drag the left mouse button</b>. If you move the mouse horizontally, the objects are rotated about the Z axis and if you move your mouse vertically, they are moved about the current vertical rotation axis. The current vertical rotation axis depends on the horizontal rotation you have already applied. Note that the rotation angle is constrained to 15&deg; increments if grid snap is enabled. Disable grid snap to rotate the selected objects without any constraints.</p>
+
+		<a name="flipping_objects"></a><h4>Flipping Objects</h4>
+		<p>The selected objects can be flipped (or mirrored) along the horizontal axis of the editing plane by choosing <b>Edit &raquo; Object &raquo; Flip Horizontally</b> from the menu or hitting <b>&#x2318;F</b>. To flip the selected objects along the vertical axis of the editing plane, hold the <b>option key (&#x2325;)</b> when invoking the flip command.</p>
+
+		<a name="editing_brushes"></a><h4>Editing Brushes</h4>
+		The shape of a brush can be changed using two different tools: Face dragging and clipping. While face dragging can only change the location of individual faces, clipping can truly change the shape of a brush by adding new faces and deleting existing faces of the brush. The following section will cover face dragging while clipping is explained in the subsequent section.
+		
+		<h5>Face Dragging</h5>
+		
+		<h5>Clipping</h5>
 	</div>
 </body>
 </html>
