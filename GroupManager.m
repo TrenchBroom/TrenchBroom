@@ -16,6 +16,8 @@
 - (void)entitiesAdded:(NSNotification *)notification;
 - (void)entitiesWereRemoved:(NSNotification *)notification;
 - (void)brushesWillOrDidChange:(NSNotification *)notification;
+- (void)documentCleared:(NSNotification *)notification;
+- (void)documentLoaded:(NSNotification *)notification;
 
 @end
 
@@ -76,6 +78,23 @@
     }
 }
 
+- (void)documentCleared:(NSNotification *)notification {
+    [groups removeAllObjects];
+    visibleGroupCount = 0;
+}
+
+- (void)documentLoaded:(NSNotification *)notification {
+    NSEnumerator* entityEn = [[map entities] objectEnumerator];
+    id <Entity> entity;
+    while ((entity = [entityEn nextObject])) {
+        if ([GroupClassName isEqualToString:[entity classname]]) {
+            [groups addObject:entity];
+            if ([self isVisible:entity])
+                visibleGroupCount++;
+        }
+    }
+}
+
 @end
 
 @implementation GroupManager
@@ -87,22 +106,14 @@
         map = theMap;
         groups = [[NSMutableArray alloc] init];
         visibleGroupCount = 0;
-        
-        NSEnumerator* entityEn = [[map entities] objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
-            if ([GroupClassName isEqualToString:[entity classname]]) {
-                [groups addObject:entity];
-                if ([self isVisible:entity])
-                    visibleGroupCount++;
-            }
-        }
-        
+
         NSNotificationCenter* center= [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(entitiesAdded:) name:EntitiesAdded object:map];
         [center addObserver:self selector:@selector(entitiesWereRemoved:) name:EntitiesWereRemoved object:map];
         [center addObserver:self selector:@selector(brushesWillOrDidChange:) name:BrushesWillChange object:map];
         [center addObserver:self selector:@selector(brushesWillOrDidChange:) name:BrushesDidChange object:map];
+        [center addObserver:self selector:@selector(documentCleared:) name:DocumentCleared object:map];
+        [center addObserver:self selector:@selector(documentLoaded:) name:DocumentCleared object:map];
     }
     
     return self;

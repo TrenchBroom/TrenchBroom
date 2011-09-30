@@ -237,13 +237,23 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     // determine the rotation angle from the dot product of the new base axes and the transformed texture axes
     float radX = acosf(dotV3f(&newBaseAxisX, &newTexAxisX));
     float radY = acosf(dotV3f(&newBaseAxisY, &newTexAxisY));
-    float rad = radX < radY ? radX : radY;
+    float rad;
+    if (radX < radY) {
+        // the sign depends on the direction of the cross product
+        crossV3f(&newBaseAxisX, &newTexAxisX, &temp);
+        if (dotV3f(&temp, &newFaceNorm) < 0)
+            radX *= -1;
+        
+        rad = radX;
+    } else {
+        // the sign depends on the direction of the cross product
+        crossV3f(&newBaseAxisY, &newTexAxisY, &temp);
+        if (dotV3f(&temp, &newFaceNorm) < 0)
+            radY *= -1;
+        
+        rad = radY;
+    }
 
-    // the sign depends on the direction of the cross product
-    crossV3f(&newBaseAxisX, &newTexAxisX, &temp);
-    if (dotV3f(&temp, &newFaceNorm) < 0)
-        rad *= -1;
-    
     rotation = rad * 180 / M_PI;
 
     // apply the rotation to the new base axes

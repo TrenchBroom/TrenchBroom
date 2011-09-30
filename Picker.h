@@ -19,8 +19,7 @@
     Octree* octree;
 }
 
-- (id)initWithMap:(MapDocument *)theDocument;
-
+- (id)initWithMap:(MapDocument *)theMap;
 - (PickingHitList *)pickObjects:(TRay *)ray filter:(id <Filter>)filter;
 
 @end

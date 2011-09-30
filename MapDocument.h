@@ -32,6 +32,9 @@ extern NSString* const PropertiesDidChange;
 extern NSString* const PointFileLoaded;
 extern NSString* const PointFileUnloaded;
 
+extern NSString* const DocumentCleared;
+extern NSString* const DocumentLoaded;
+
 @class EntityDefinitionManager;
 @class MutableEntity;
 @class Picker;

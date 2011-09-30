@@ -105,6 +105,9 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)cursorChanged:(NSNotification *)notification;
 - (void)preferencesDidChange:(NSNotification *)notification;
 
+- (void)documentCleared:(NSNotification *)notification;
+- (void)documentLoaded:(NSNotification *)notification;
+
 @end
 
 @implementation Renderer (private)
@@ -954,6 +957,37 @@ int const TexCoordSize = 2 * sizeof(float);
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
+- (void)documentCleared:(NSNotification *)notification {
+    [faceIndexBuffers removeAllObjects];
+    [faceCountBuffers removeAllObjects];
+    [selectedFaceIndexBuffers removeAllObjects];
+    [selectedFaceCountBuffers removeAllObjects];
+    [faceVbo freeAllBlocks];
+
+    entityBoundsVertexCount = 0;
+    [entityBoundsVbo freeAllBlocks];
+    
+    selectedEntityBoundsVertexCount = 0;
+    [selectedEntityBoundsVbo freeAllBlocks];
+    
+    [classnameRenderer removeAllStrings];
+    [selectedClassnameRenderer removeAllStrings];
+    
+    [modelEntities removeAllObjects];
+    [selectedModelEntities removeAllObjects];
+    [entityRenderers removeAllObjects];
+    entityRendererCacheValid = YES;
+
+    [feedbackFigures removeAllObjects];
+    
+    [changeSet clear];
+}
+
+- (void)documentLoaded:(NSNotification *)notification {
+    MapDocument* map = [notification object];
+    [self addEntities:[map entities]];
+}
+
 - (void)selectionAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSArray* entities = [userInfo objectForKey:SelectionEntities];
@@ -1083,6 +1117,8 @@ int const TexCoordSize = 2 * sizeof(float);
         [center addObserver:self selector:@selector(brushesWillBeRemoved:) name:BrushesWillBeRemoved object:map];
         [center addObserver:self selector:@selector(brushesDidChange:) name:BrushesDidChange object:map];
         [center addObserver:self selector:@selector(facesDidChange:) name:FacesDidChange object:map];
+        [center addObserver:self selector:@selector(documentCleared:) name:DocumentCleared object:map];
+        [center addObserver:self selector:@selector(documentLoaded:) name:DocumentLoaded object:map];
         
         [center addObserver:self selector:@selector(selectionAdded:) name:SelectionAdded object:selectionManager];
         [center addObserver:self selector:@selector(selectionRemoved:) name:SelectionRemoved object:selectionManager];

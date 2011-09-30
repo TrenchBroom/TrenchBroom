@@ -110,4 +110,9 @@
     
 }
 
+- (void)removeAllStrings {
+    [strings removeAllObjects];
+    [anchors removeAllObjects];
+}
+
 @end

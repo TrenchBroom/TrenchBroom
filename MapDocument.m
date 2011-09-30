@@ -54,6 +54,9 @@ NSString* const PropertiesDidChange     = @"PropertiesDidChange";
 NSString* const PointFileLoaded         = @"PointFileLoaded";
 NSString* const PointFileUnloaded       = @"PointFileUnloaded";
 
+NSString* const DocumentCleared         = @"DocumentCleared";
+NSString* const DocumentLoaded          = @"DocumentLoaded";
+
 @interface MapDocument (private)
 
 - (void)makeUndoSnapshotOfFaces:(NSArray *)theFaces;
@@ -266,7 +269,7 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     [indicator setUsesThreadedAnimation:YES];
     
     [[self undoManager] disableUndoRegistration];
-//    [self setPostNotifications:NO];
+    [self setPostNotifications:NO];
     
     MapParser* parser = [[MapParser alloc] initWithData:data];
     [parser parseMap:self withProgressIndicator:indicator];
@@ -281,12 +284,6 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
     [pwc close];
     [pwc release];
     
-    [picker release];
-    picker = [[Picker alloc] initWithMap:self];
-    
-    [groupManager release];
-    groupManager = [[GroupManager alloc] initWithMap:self];
-
     NSString* wads = [[self worldspawn:NO] propertyForKey:@"wad"];
     if (wads != nil) {
         TextureManager* textureManager = [glResources textureManager];
@@ -297,8 +294,11 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
         }
     }
     
-    //    [self setPostNotifications:YES];
+    [self setPostNotifications:YES];
     [[self undoManager] enableUndoRegistration];
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:DocumentLoaded object:self];
     
     return YES;
 }
@@ -1489,18 +1489,12 @@ NSString* const PointFileUnloaded       = @"PointFileUnloaded";
 - (void)clear {
     [selectionManager removeAll:NO];
     [self unloadPointFile];
-    [self removeEntities:[[entities copy] autorelease]];
+    [entities removeAllObjects];
     worldspawn = nil;
     
-    // force renderers to flush all changes
-    /*
-    NSEnumerator* controllerEn = [[self windowControllers] objectEnumerator];
-    NSWindowController* controller;
-    while ((controller = [controllerEn nextObject])) {
-            [[controller window] display];
-    }
-     */
-    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:DocumentCleared object:self];
+
     [[self undoManager] removeAllActions];
     [glResources reset];
 }

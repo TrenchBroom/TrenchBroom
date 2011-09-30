@@ -32,4 +32,6 @@
 
 - (void)renderColor:(const TVector4f *)theColor;
 
+- (void)removeAllStrings;
+
 @end

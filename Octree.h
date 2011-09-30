@@ -14,11 +14,12 @@
 
 @interface Octree : NSObject {
     @private
+    int minSize;
     OctreeNode* root;
-    MapDocument* map;
 }
 
-- (id)initWithDocument:(MapDocument *)theDocument minSize:(int)theMinSize;
+- (id)initWithMap:(MapDocument *)theMap minSize:(int)theMinSize;
 
 - (NSArray *)pickObjectsWithRay:(TRay *)ray;
+
 @end
