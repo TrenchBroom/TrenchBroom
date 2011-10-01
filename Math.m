@@ -321,6 +321,18 @@ void roundV3f(const TVector3f* v, TVector3i* o) {
     o->z = roundf(v->z);
 }
 
+void roundUpV3f(const TVector3f* v, TVector3i* o) {
+    o->x = v->x > 0 ? ceilf(v->x) : floorf(v->x);
+    o->y = v->y > 0 ? ceilf(v->y) : floorf(v->y);
+    o->z = v->z > 0 ? ceilf(v->z) : floorf(v->z);
+}
+
+void roundDownV3f(const TVector3f* v, TVector3i* o) {
+    o->x = v->x < 0 ? ceilf(v->x) : floorf(v->x);
+    o->y = v->y < 0 ? ceilf(v->y) : floorf(v->y);
+    o->z = v->z < 0 ? ceilf(v->z) : floorf(v->z);
+}
+
 void setV3f(TVector3f* l, const TVector3i* r) {
     l->x = r->x;
     l->y = r->y;

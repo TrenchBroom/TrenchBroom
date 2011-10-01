@@ -8,6 +8,8 @@ p, li, div {
 
 p {
 	margin-bottom: 20px;
+	text-align: justify;
+	text-indent: 30px;
 }
 
 a {

@@ -99,8 +99,10 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
         if (deltaf->x <= 0) {
             deltaf->x = 0;
         } else {
+            /*
             if (deltaf->x < 1)
                 deltaf->x = [grid actualSize];
+             */
             if (bounds->max.x + deltaf->x > worldBounds->max.x) {
                 deltaf->x = worldBounds->max.x - bounds->max.x;
                 deltaf->y = 0;
@@ -114,8 +116,10 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
         if (deltaf->x >= 0) {
             deltaf->x = 0;
         } else {
+            /*
             if (deltaf->x > -1)
                 deltaf->x = -[grid actualSize];
+             */
             if (bounds->min.x + deltaf->x < worldBounds->min.x) {
                 deltaf->x = worldBounds->min.x - bounds->min.x;
                 deltaf->y = 0;
@@ -131,8 +135,10 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
         if (deltaf->y <= 0) {
             deltaf->y = 0;
         } else {
+            /*
             if (deltaf->y < 1)
                 deltaf->y = [grid actualSize];
+             */
             if (bounds->max.y + deltaf->y > worldBounds->max.y) {
                 deltaf->x = 0;
                 deltaf->y = worldBounds->max.y - bounds->max.y;
@@ -146,8 +152,10 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
         if (deltaf->y >= 0) {
             deltaf->y = 0;
         } else {
+            /*
             if (deltaf->y > -1)
                 deltaf->y = -[grid actualSize];
+             */
             if (bounds->min.y + deltaf->y < worldBounds->min.y) {
                 deltaf->x = 0;
                 deltaf->y = worldBounds->min.y - bounds->min.y;
@@ -163,8 +171,10 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
         if (deltaf->z <= 0) {
             deltaf->z = 0;
         } else {
+            /*
             if (deltaf->z < 1)
                 deltaf->z = [grid actualSize];
+             */
             if (bounds->max.z + deltaf->z > worldBounds->max.z) {
                 deltaf->x = 0;
                 deltaf->y = 0;
@@ -178,8 +188,10 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
         if (deltaf->z >= 0) {
             deltaf->z = 0;
         } else {
+            /*
             if (deltaf->z > -1)
                 deltaf->z = -[grid actualSize];
+             */
             if (bounds->min.z + deltaf->z < worldBounds->min.z) {
                 deltaf->x = 0;
                 deltaf->y = 0;

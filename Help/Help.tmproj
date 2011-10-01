@@ -3,46 +3,46 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>selecting_objects.html</string>
+	<string>editing_objects.html</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>index.html</string>
 			<key>lastUsed</key>
-			<date>2011-09-29T18:46:19Z</date>
+			<date>2011-10-01T17:25:29Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>camera_navigation.html</string>
 			<key>lastUsed</key>
-			<date>2011-09-29T19:07:09Z</date>
+			<date>2011-10-01T17:47:48Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>creating_new_objects.html</string>
 			<key>lastUsed</key>
-			<date>2011-09-29T19:07:37Z</date>
+			<date>2011-10-01T17:47:42Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>editing_objects.html</string>
 			<key>lastUsed</key>
-			<date>2011-09-29T19:08:11Z</date>
+			<date>2011-10-01T17:51:14Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>getting_started.html</string>
 			<key>lastUsed</key>
-			<date>2011-09-29T19:08:41Z</date>
+			<date>2011-10-01T17:31:47Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>selecting_objects.html</string>
 			<key>lastUsed</key>
-			<date>2011-09-29T19:08:41Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2011-10-01T17:31:51Z</date>
 		</dict>
 		<dict>
 			<key>name</key>
@@ -60,7 +60,7 @@
 			<key>filename</key>
 			<string>style.css</string>
 			<key>lastUsed</key>
-			<date>2011-09-27T07:56:56Z</date>
+			<date>2011-10-01T17:51:14Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -104,7 +104,7 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>0</integer>
+				<integer>45</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -116,30 +116,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>18</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>55</integer>
+				<integer>124</integer>
 			</dict>
-			<key>columnSelection</key>
-			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>2</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>16</integer>
-				<key>line</key>
-				<integer>55</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>18</integer>
-				<key>line</key>
-				<integer>55</integer>
-			</dict>
+			<integer>74</integer>
 		</dict>
 		<key>getting_started.html</key>
 		<dict>
@@ -160,9 +144,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>54</integer>
+				<integer>63</integer>
 				<key>line</key>
-				<integer>61</integer>
+				<integer>63</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -174,9 +158,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>51</integer>
+				<integer>22</integer>
 				<key>line</key>
-				<integer>20</integer>
+				<integer>36</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -188,14 +172,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>7</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>51</integer>
+				<integer>11</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>27</integer>
+			<integer>0</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
@@ -211,6 +195,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{950, 145}, {1521, 996}}</string>
+	<string>{{905, 186}, {1521, 996}}</string>
 </dict>
 </plist>

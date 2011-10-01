@@ -50,6 +50,7 @@
 #import "PointFileFeedbackFigure.h"
 #import "Renderer.h"
 #import "GroupManager.h"
+#import "EditingPlane.h"
 
 @interface MapWindowController (private)
 
@@ -57,8 +58,10 @@
 - (void)windowDidBecomeKey:(NSNotification *)notification;
 - (void)windowDidResignKey:(NSNotification *)notification;
 - (void)windowWillClose:(NSNotification *)notification;
+- (void)preferencesDidChange:(NSNotification *)notification;
 - (void)pointFileLoaded:(NSNotification *)notification;
 - (void)pointFileUnloaded:(NSNotification *)notification;
+
 - (void)runQuake:(NSString *)appPath;
 
 @end
@@ -101,6 +104,63 @@
     
     Renderer* renderer = [self renderer];
     [renderer addFeedbackFigure:pointFileFigure];
+}
+
+- (void)preferencesDidChange:(NSNotification *)notification {
+    PreferencesManager* preferences = [PreferencesManager sharedManager];
+    
+    [camera setFieldOfVision:[preferences cameraFov]];
+    [camera setNearClippingPlane:[preferences cameraNear]];
+    [camera setFarClippingPlane:[preferences cameraFar]];
+    
+    BOOL inspectorVisible = [preferences inspectorVisible];
+    BOOL inspectorSeparate = [preferences inspectorSeparate];
+    
+    if (inspectorSeparate) {
+        if (inspectorViewController != nil) {
+            NSView* inspectorView = [inspectorViewController view];
+            [inspectorView removeFromSuperview];
+            [inspectorViewController release];
+            inspectorViewController = nil;
+            [preferences setInspectorVisible:YES];
+            
+            InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
+            [inspector setMapWindowController:self];
+            [[inspector window] makeKeyAndOrderFront:self];
+        } else {
+            InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
+            [inspector setMapWindowController:self];
+            
+            if (inspectorVisible)
+                [[inspector window] makeKeyAndOrderFront:self];
+            else
+                [[inspector window] orderOut:self];
+        }
+    } else {
+        if (inspectorViewController == nil) {
+            InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
+            [inspector setMapWindowController:nil];
+            NSWindow* inspectorWindow = [inspector window];
+            [inspectorWindow close];
+            
+            inspectorViewController = [[InspectorViewController alloc] initWithNibName:@"InspectorView" bundle:nil];
+            [inspectorViewController setMapWindowController:self];
+            [preferences setInspectorVisible:YES];
+        }
+        
+        if (inspectorVisible) {
+            NSView* inspectorView = [inspectorViewController view];
+            [splitView addSubview:inspectorView];
+            [splitView adjustSubviews];
+            
+            float width = [splitView frame].size.width;
+            float pos = width - 402;
+            [splitView setPosition:pos ofDividerAtIndex:0];
+        } else {
+            NSView* inspectorView = [inspectorViewController view];
+            [inspectorView removeFromSuperview];
+        }
+    }
 }
 
 - (void)pointFileUnloaded:(NSNotification *)notification {
@@ -232,64 +292,7 @@
 - (void)windowDidResize:(NSNotification *)notification {
     PreferencesManager* preferences = [PreferencesManager sharedManager];
     if (![preferences inspectorSeparate] && NSWidth([[inspectorViewController view] frame]) < 402)
-            [splitView setPosition:NSWidth([splitView frame]) - 402 ofDividerAtIndex:0];
-}
-
-- (void)preferencesDidChange:(NSNotification *)notification {
-    PreferencesManager* preferences = [PreferencesManager sharedManager];
-
-    [camera setFieldOfVision:[preferences cameraFov]];
-    [camera setNearClippingPlane:[preferences cameraNear]];
-    [camera setFarClippingPlane:[preferences cameraFar]];
-
-    BOOL inspectorVisible = [preferences inspectorVisible];
-    BOOL inspectorSeparate = [preferences inspectorSeparate];
-
-    if (inspectorSeparate) {
-        if (inspectorViewController != nil) {
-            NSView* inspectorView = [inspectorViewController view];
-            [inspectorView removeFromSuperview];
-            [inspectorViewController release];
-            inspectorViewController = nil;
-            [preferences setInspectorVisible:YES];
-
-            InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
-            [inspector setMapWindowController:self];
-            [[inspector window] makeKeyAndOrderFront:self];
-        } else {
-            InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
-            [inspector setMapWindowController:self];
-            
-            if (inspectorVisible)
-                [[inspector window] makeKeyAndOrderFront:self];
-            else
-                [[inspector window] orderOut:self];
-        }
-    } else {
-        if (inspectorViewController == nil) {
-            InspectorWindowController* inspector = [InspectorWindowController sharedInspector];
-            [inspector setMapWindowController:nil];
-            NSWindow* inspectorWindow = [inspector window];
-            [inspectorWindow close];
-
-            inspectorViewController = [[InspectorViewController alloc] initWithNibName:@"InspectorView" bundle:nil];
-            [inspectorViewController setMapWindowController:self];
-            [preferences setInspectorVisible:YES];
-        }
-
-        if (inspectorVisible) {
-            NSView* inspectorView = [inspectorViewController view];
-            [splitView addSubview:inspectorView];
-            [splitView adjustSubviews];
-            
-            float width = [splitView frame].size.width;
-            float pos = width - 402;
-            [splitView setPosition:pos ofDividerAtIndex:0];
-        } else {
-            NSView* inspectorView = [inspectorViewController view];
-            [inspectorView removeFromSuperview];
-        }
-    }
+        [splitView setPosition:NSWidth([splitView frame]) - 402 ofDividerAtIndex:0];
 }
 
 - (void)windowDidLoad {
@@ -370,6 +373,8 @@
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
     } else if (action == @selector(rotateTextureRight:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
+    } else if (action == @selector(toggleTextureLock:)) {
+        return YES;
     } else if (action == @selector(duplicateSelection:)) {
         return ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) && ![[inputManager clipTool] active];
     } else if (action == @selector(createPrefabFromSelection:)) {
@@ -715,7 +720,7 @@
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
 
-    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:0.1f yFactor:0];
+    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:0.05f yFactor:0];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Stretch Texture Horizontally"];
@@ -726,7 +731,7 @@
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:-0.1f yFactor:0];
+    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:-0.05f yFactor:0];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Shrink Texture Horizontally"];
@@ -737,7 +742,7 @@
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:0 yFactor:0.1f];
+    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:0 yFactor:0.05f];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Stretch Texture Vertically"];
@@ -749,7 +754,7 @@
     NSUndoManager* undoManager = [[self document] undoManager];
     [undoManager beginUndoGrouping];
     
-    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:0 yFactor:0.1f];
+    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:0 yFactor:0.05f];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Shrink Texture Vertically"];
@@ -777,6 +782,10 @@
     [undoManager setActionName:@"Rotate Texture Right"];
 }
 
+- (IBAction)toggleTextureLock:(id)sender {
+    [options setLockTextures:![options lockTextures]];
+}
+
 #pragma mark Shared actions
 
 - (void)moveLeft:(id)sender {
@@ -792,19 +801,19 @@
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        deltaf = *closestAxisV3f([camera right]);
-        scaleV3f(&deltaf, -delta, &deltaf);
+        EditingPlane* editingPlane = [camera editingPlane];
+        scaleV3f([editingPlane leftAxis], delta, &deltaf);
 
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
-        if (nullV3f(&deltaf))
-            return;
-
         TVector3i deltai;
-        roundV3f(&deltaf, &deltai);
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        roundUpV3f(&deltaf, &deltai);
+        
+        if (nullV3i(&deltai))
+            return;
         
         [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
         [map translateEntities:[selectionManager selectedEntities] delta:deltai];
@@ -827,19 +836,19 @@
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        deltaf = *closestAxisV3f([camera right]);
-        scaleV3f(&deltaf, delta, &deltaf);
+        EditingPlane* editingPlane = [camera editingPlane];
+        scaleV3f([editingPlane rightAxis], delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
-        if (nullV3f(&deltaf))
-            return;
-
         TVector3i deltai;
-        roundV3f(&deltaf, &deltai);
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        roundUpV3f(&deltaf, &deltai);
+        
+        if (nullV3i(&deltai))
+            return;
         
         [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
         [map translateEntities:[selectionManager selectedEntities] delta:deltai];
@@ -861,19 +870,19 @@
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        deltaf = *closestAxisV3f([camera up]);
-        scaleV3f(&deltaf, delta, &deltaf);
+        EditingPlane* editingPlane = [camera editingPlane];
+        scaleV3f([editingPlane upAxis], delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
-        if (nullV3f(&deltaf))
-            return;
-
         TVector3i deltai;
-        roundV3f(&deltaf, &deltai);
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        roundUpV3f(&deltaf, &deltai);
+        
+        if (nullV3i(&deltai))
+            return;
         
         [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
         [map translateEntities:[selectionManager selectedEntities] delta:deltai];
@@ -896,19 +905,19 @@
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        deltaf = *closestAxisV3f([camera up]);
-        scaleV3f(&deltaf, -delta, &deltaf);
+        EditingPlane* editingPlane = [camera editingPlane];
+        scaleV3f([editingPlane downAxis], delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
-        if (nullV3f(&deltaf))
-            return;
-
         TVector3i deltai;
-        roundV3f(&deltaf, &deltai);
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        roundUpV3f(&deltaf, &deltai);
+        
+        if (nullV3i(&deltai))
+            return;
         
         [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
         [map translateEntities:[selectionManager selectedEntities] delta:deltai];
@@ -928,19 +937,19 @@
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        deltaf = *closestAxisV3f([camera direction]);
-        scaleV3f(&deltaf, delta, &deltaf);
+        EditingPlane* editingPlane = [camera editingPlane];
+        scaleV3f([editingPlane backAxis], delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
-        if (nullV3f(&deltaf))
-            return;
-        
         TVector3i deltai;
-        roundV3f(&deltaf, &deltai);
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        roundUpV3f(&deltaf, &deltai);
+        
+        if (nullV3i(&deltai))
+            return;
         
         [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
         [map translateEntities:[selectionManager selectedEntities] delta:deltai];
@@ -960,19 +969,19 @@
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        deltaf = *closestAxisV3f([camera direction]);
-        scaleV3f(&deltaf, -delta, &deltaf);
+        EditingPlane* editingPlane = [camera editingPlane];
+        scaleV3f([editingPlane frontAxis], delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
-        if (nullV3f(&deltaf))
-            return;
-        
         TVector3i deltai;
-        roundV3f(&deltaf, &deltai);
+        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        roundUpV3f(&deltaf, &deltai);
+        
+        if (nullV3i(&deltai))
+            return;
         
         [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
         [map translateEntities:[selectionManager selectedEntities] delta:deltai];

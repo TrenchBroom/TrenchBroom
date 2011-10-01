@@ -165,6 +165,8 @@ const TVector3f* closestAxisV3f(const TVector3f* v);
 float componentV3f(const TVector3f* v, EAxis a);
 void setComponentV3f(TVector3f* v, EAxis a, float f);
 void roundV3f(const TVector3f* v, TVector3i* o);
+void roundUpV3f(const TVector3f* v, TVector3i* o);
+void roundDownV3f(const TVector3f* v, TVector3i* o);
 void setV3f(TVector3f* l, const TVector3i* r);
 void rotate90CWV3f(const TVector3f* v, EAxis a, TVector3f *o);
 void rotate90CCWV3f(const TVector3f* v, EAxis a, TVector3f *o);

@@ -11,12 +11,14 @@
 #import "Math.h"
 
 @class MapWindowController;
+@class EditingPlane;
 @class MoveCursor;
 
 @interface MoveTool : DefaultTool {
     @private
     MapWindowController* windowController;
-    TPlane plane;
+    EditingPlane* editingPlane;
+    TVector3f editingPlanePoint;
     TVector3f lastPoint;
     MoveCursor* moveCursor;
     BOOL drag;

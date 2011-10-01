@@ -7,6 +7,7 @@
 //
 
 #import "Camera.h"
+#import "EditingPlane.h"
 #import <OpenGL/glu.h>
 
 NSString* const CameraChanged = @"CameraChanged";
@@ -120,10 +121,10 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
         return;
     
     direction = *theDirection;
-    up = *theUpVector;
-    
-    crossV3f(&direction, &up, &right);
+
+    crossV3f(&direction, theUpVector, &right);
     normalizeV3f(&right, &right);
+    crossV3f(&right, &direction, &up);
     
     [[NSNotificationCenter defaultCenter] postNotificationName:CameraChanged object:self];
 }
@@ -374,6 +375,10 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 
     float matrix[] = {bbRight.x, bbRight.y, bbRight.z, 0, bbUp.x, bbUp.y, bbUp.z, 0, bbLook.x, bbLook.y, bbLook.z, 0, 0, 0, 0, 1};
     glMultMatrixf(matrix);
+}
+
+- (EditingPlane *)editingPlane {
+    return [[[EditingPlane alloc] initWithCamera:self] autorelease];
 }
 
 - (void)dealloc {

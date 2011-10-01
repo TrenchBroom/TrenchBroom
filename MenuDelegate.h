@@ -34,6 +34,7 @@
     IBOutlet NSMenuItem* shrinkFaceHorizontallyItem;
     IBOutlet NSMenuItem* stretchFaceVerticallyItem;
     IBOutlet NSMenuItem* shrinkFaceVerticallyItem;
+    IBOutlet NSMenuItem* textureLockItem;
     IBOutlet NSMenuItem* duplicateItem;
     IBOutlet NSMenu* runMenu;
     IBOutlet NSMenuItem* runDefaultMenuItem;

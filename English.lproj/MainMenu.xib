@@ -689,6 +689,15 @@
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
 								</object>
+								<object class="NSMenuItem" id="310552405">
+									<reference key="NSMenu" ref="789758025"/>
+									<string key="NSTitle">Texture Lock</string>
+									<string key="NSKeyEquiv">l</string>
+									<int key="NSKeyEquivModMask">1048576</int>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="1033313550"/>
+									<reference key="NSMixedImage" ref="310636482"/>
+								</object>
 								<object class="NSMenuItem" id="9570787">
 									<reference key="NSMenu" ref="789758025"/>
 									<string key="NSTitle">Create Prefab</string>
@@ -1775,22 +1784,6 @@
 					<int key="connectionID">815</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBBindingConnection" key="connection">
-						<string key="label">value: values.InspectorVisible</string>
-						<reference key="source" ref="774530423"/>
-						<reference key="destination" ref="984468079"/>
-						<object class="NSNibBindingConnector" key="connector">
-							<reference key="NSSource" ref="774530423"/>
-							<reference key="NSDestination" ref="984468079"/>
-							<string key="NSLabel">value: values.InspectorVisible</string>
-							<string key="NSBinding">value</string>
-							<string key="NSKeyPath">values.InspectorVisible</string>
-							<int key="NSNibBindingConnectorVersion">2</int>
-						</object>
-					</object>
-					<int key="connectionID">818</int>
-				</object>
-				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
 						<string key="label">toggleGrid:</string>
 						<reference key="source" ref="1014"/>
@@ -1941,6 +1934,38 @@
 						<reference key="destination" ref="499931977"/>
 					</object>
 					<int key="connectionID">873</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">value: preferences.inspectorVisible</string>
+						<reference key="source" ref="774530423"/>
+						<reference key="destination" ref="245907468"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="774530423"/>
+							<reference key="NSDestination" ref="245907468"/>
+							<string key="NSLabel">value: preferences.inspectorVisible</string>
+							<string key="NSBinding">value</string>
+							<string key="NSKeyPath">preferences.inspectorVisible</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">880</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">toggleTextureLock:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="310552405"/>
+					</object>
+					<int key="connectionID">883</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">textureLockItem</string>
+						<reference key="source" ref="435038469"/>
+						<reference key="destination" ref="310552405"/>
+					</object>
+					<int key="connectionID">884</int>
 				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -2117,6 +2142,7 @@
 							<reference ref="211489393"/>
 							<reference ref="158651509"/>
 							<reference ref="453574053"/>
+							<reference ref="310552405"/>
 						</array>
 						<reference key="parent" ref="952259628"/>
 					</object>
@@ -2796,6 +2822,11 @@
 						<reference key="object" ref="278832725"/>
 						<reference key="parent" ref="388273987"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">882</int>
+						<reference key="object" ref="310552405"/>
+						<reference key="parent" ref="789758025"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -2938,13 +2969,14 @@
 				<string key="865.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="866.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="867.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="882.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="92.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">873</int>
+			<int key="maxID">884</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -3026,6 +3058,7 @@
 						<string key="toggleGrid:">id</string>
 						<string key="toggleProjection:">id</string>
 						<string key="toggleSnap:">id</string>
+						<string key="toggleTextureLock:">id</string>
 						<string key="unloadPointFile:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
@@ -3173,6 +3206,10 @@
 							<string key="name">toggleSnap:</string>
 							<string key="candidateClassName">id</string>
 						</object>
+						<object class="IBActionInfo" key="toggleTextureLock:">
+							<string key="name">toggleTextureLock:</string>
+							<string key="candidateClassName">id</string>
+						</object>
 						<object class="IBActionInfo" key="unloadPointFile:">
 							<string key="name">unloadPointFile:</string>
 							<string key="candidateClassName">id</string>
@@ -3241,6 +3278,7 @@
 						<string key="snapToGridItem">NSMenuItem</string>
 						<string key="stretchFaceHorizontallyItem">NSMenuItem</string>
 						<string key="stretchFaceVerticallyItem">NSMenuItem</string>
+						<string key="textureLockItem">NSMenuItem</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
 						<object class="IBToOneOutletInfo" key="compileLastMenuItem">
@@ -3357,6 +3395,10 @@
 						</object>
 						<object class="IBToOneOutletInfo" key="stretchFaceVerticallyItem">
 							<string key="name">stretchFaceVerticallyItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="textureLockItem">
+							<string key="name">textureLockItem</string>
 							<string key="candidateClassName">NSMenuItem</string>
 						</object>
 					</dictionary>

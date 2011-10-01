@@ -17,6 +17,8 @@ typedef enum {
 extern NSString* const CameraChanged;
 extern NSString* const CameraViewChanged;
 
+@class EditingPlane;
+
 @interface Camera : NSObject {
     @private
     TVector3f position;
@@ -72,4 +74,7 @@ extern NSString* const CameraViewChanged;
 - (TVector3f)defaultPointOnRay:(TRay *)ray;
 - (float)distanceTo:(TVector3f *)thePoint;
 - (void)setBillboardMatrix;
+
+- (EditingPlane *)editingPlane;
+
 @end

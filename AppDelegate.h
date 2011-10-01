@@ -8,11 +8,14 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class PreferencesManager;
 
 @interface AppDelegate : NSObject {
 
 }
 
 - (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender;
+
+- (PreferencesManager *)preferences;
 
 @end

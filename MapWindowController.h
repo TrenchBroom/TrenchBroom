@@ -25,6 +25,7 @@
 @class ConsoleWindowController;
 @class QuickBarWindowController;
 @class PointFileFeedbackFigure;
+@class PreferencesManager;
 @protocol Prefab;
 @protocol Entity;
 @protocol Brush;
@@ -63,6 +64,7 @@
 - (IBAction)shrinkTextureVertically:(id)sender;
 - (IBAction)rotateTextureLeft:(id)sender;
 - (IBAction)rotateTextureRight:(id)sender;
+- (IBAction)toggleTextureLock:(id)sender;
 
 - (IBAction)createPointEntity:(id)sender;
 - (IBAction)createBrushEntity:(id)sender;
@@ -101,4 +103,5 @@
 - (Renderer *)renderer;
 - (MapView3D *)view3D;
 - (ConsoleWindowController *)console;
+
 @end

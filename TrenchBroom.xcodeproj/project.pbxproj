@@ -85,6 +85,7 @@
 		486E08B313B5EF2C00E751A6 /* RotateFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B213B5EF2C00E751A6 /* RotateFeedbackFigure.m */; };
 		486E08B613B6772300E751A6 /* FaceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B513B6772200E751A6 /* FaceInfo.m */; };
 		486E08B913B67D8100E751A6 /* BrushInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B813B67D8000E751A6 /* BrushInfo.m */; };
+		48706C411436F41D006E0B1C /* EditingPlane.m in Sources */ = {isa = PBXBuildFile; fileRef = 48706C401436F41D006E0B1C /* EditingPlane.m */; };
 		487436A6135B5FD900F787E1 /* DefaultFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 487436A5135B5FD900F787E1 /* DefaultFilter.m */; };
 		4874387013601A5700F787E1 /* EntityDefinitionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4874386F13601A5700F787E1 /* EntityDefinitionManager.m */; };
 		4874387313601A6000F787E1 /* EntityDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 4874387213601A6000F787E1 /* EntityDefinition.m */; };
@@ -383,6 +384,8 @@
 		486E08B513B6772200E751A6 /* FaceInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceInfo.m; sourceTree = "<group>"; };
 		486E08B713B67D7F00E751A6 /* BrushInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushInfo.h; sourceTree = "<group>"; };
 		486E08B813B67D8000E751A6 /* BrushInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrushInfo.m; sourceTree = "<group>"; };
+		48706C3F1436F41C006E0B1C /* EditingPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditingPlane.h; sourceTree = "<group>"; };
+		48706C401436F41D006E0B1C /* EditingPlane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditingPlane.m; sourceTree = "<group>"; };
 		487436A4135B5FD900F787E1 /* DefaultFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefaultFilter.h; sourceTree = "<group>"; };
 		487436A5135B5FD900F787E1 /* DefaultFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DefaultFilter.m; sourceTree = "<group>"; };
 		4874386E13601A5700F787E1 /* EntityDefinitionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionManager.h; sourceTree = "<group>"; };
@@ -1150,6 +1153,8 @@
 				48F5C3DA13E1578A00B1A720 /* ControllerUtils.m */,
 				48AC3E6D13E418AB008F4BF8 /* MapCompiler.h */,
 				48AC3E6E13E418AC008F4BF8 /* MapCompiler.m */,
+				48706C3F1436F41C006E0B1C /* EditingPlane.h */,
+				48706C401436F41D006E0B1C /* EditingPlane.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -1545,6 +1550,7 @@
 				4802373E1427776900F16751 /* NSUndoManager+DebugCategory.m in Sources */,
 				480EBEA5142DFA34005DD8D6 /* GroupTableDataSource.m in Sources */,
 				480EBEAC142E2962005DD8D6 /* GroupManager.m in Sources */,
+				48706C411436F41D006E0B1C /* EditingPlane.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

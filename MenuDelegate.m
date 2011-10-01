@@ -28,6 +28,7 @@
         Options* options = [mapController options];
         Grid* grid = [options grid];
 
+        [textureLockItem setState:[options lockTextures] ? NSOnState : NSOffState];
         [showGridItem setState:[grid draw] ? NSOnState : NSOffState];
         [snapToGridItem setState:[grid snap] ? NSOnState : NSOffState];
         [gridSize8Item setState:[grid size] == 0 ? NSOnState : NSOffState];

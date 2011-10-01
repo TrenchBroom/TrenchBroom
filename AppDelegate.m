@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import "PrefabManager.h"
 #import "NSFileManager+AppSupportCategory.h"
+#import "PreferencesManager.h"
 
 @implementation AppDelegate
 
@@ -37,6 +38,10 @@
 
 - (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender {
     return NO;
+}
+
+- (PreferencesManager *)preferences {
+    return [PreferencesManager sharedManager];
 }
 
 @end

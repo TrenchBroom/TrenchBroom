@@ -26,6 +26,7 @@
 #import "MoveCursor.h"
 #import "RotateCursor.h"
 #import "ControllerUtils.h"
+#import "EditingPlane.h"
 
 @interface MoveTool (private)
 
@@ -56,22 +57,16 @@
         
         if (![selectionManager isBrushSelected:brush])
             return NO;
-        
-        lastPoint = *[hit hitPoint];
-        
-        plane.point = lastPoint;
-        plane.norm = *closestAxisV3f([camera direction]);
     } else {
         id <Entity> entity = [hit object];
         
         if (![selectionManager isEntitySelected:entity])
             return NO;
-        
-        lastPoint = *[hit hitPoint];
-        
-        plane.point = lastPoint;
-        plane.norm = *closestAxisV3f([camera direction]);
     }
+
+    lastPoint = *[hit hitPoint];
+    editingPlane = [[camera editingPlane] retain];
+    editingPlanePoint = lastPoint;
     
     duplicate = [self isDuplicateModifierPressed];
     
@@ -114,6 +109,9 @@
     [undoManager setActionName:[self actionName]];
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
+    
+    [editingPlane release];
+    editingPlane = nil;
 }
 
 @end
@@ -147,7 +145,7 @@
     if (!drag)
         return;
     
-    float dist = intersectPlaneWithRay(&plane, ray);
+    float dist = [editingPlane intersectWithRay:ray planePosition:&editingPlanePoint];
     if (isnan(dist))
         return;
     
@@ -156,7 +154,7 @@
     
     TVector3f deltaf;
     subV3f(&point, &lastPoint, &deltaf);
-
+    
     Options* options = [windowController options];
     Grid* grid = [options grid];
     
@@ -205,18 +203,12 @@
     
     float d = ([event deltaY] > 0 ? 1 : -1) * [grid actualSize];
     
-    scaleV3f(&plane.norm, d, &deltaf);
+    scaleV3f([editingPlane backAxis], d, &deltaf);
     roundV3f(&deltaf, &deltai);
     
     [self move:&deltai];
     
-    addV3f(&plane.point, &deltaf, &plane.point);
-
-    float dist = intersectPlaneWithRay(&plane, ray);
-    if (isnan(dist))
-        return;
-    
-    rayPointAtDistance(ray, dist, &lastPoint);
+    addV3f(&editingPlanePoint, &deltaf, &editingPlanePoint);
 }
 
 - (void)endLeftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -240,26 +232,15 @@
 }
 
 - (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (!drag) {
+    if (!drag && !scroll) {
         PickingHit* hit = [hits firstHitOfType:HT_FACE | HT_ENTITY ignoreOccluders:YES];
         if (hit != nil) {
             Camera* camera = [windowController camera];
-            switch ([hit type]) {
-                case HT_ENTITY: {
-                    [moveCursor setPlaneNormal:strongestComponentV3f(closestAxisV3f([camera direction]))];
-                    break;
-                }
-                case HT_FACE: {
-                    [moveCursor setPlaneNormal:strongestComponentV3f(closestAxisV3f([camera direction]))];
-                    break;
-                }
-                default:
-                    break;
-            }
+            [moveCursor setPlaneNormal:strongestComponentV3f([[camera editingPlane] frontAxis])];
             [moveCursor update:[hit hitPoint]];
         }
     } else {
-        float dist = intersectPlaneWithRay(&plane, ray);
+        float dist = [editingPlane intersectWithRay:ray planePosition:&editingPlanePoint];
         TVector3f position;
         rayPointAtDistance(ray, dist, &position);
         [moveCursor update:&position];
