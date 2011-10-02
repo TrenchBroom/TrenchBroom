@@ -14,6 +14,12 @@
 @protocol Face;
 
 typedef enum {
+    CR_REDUNDANT, // the given face is redundant and need not be added to the brush
+    CR_NULL, // the given face has nullified the entire brush
+    CR_SPLIT // the given face has split the brush
+} ECutResult;
+
+typedef enum {
     VM_DROP,
     VM_KEEP,
     VM_UNDECIDED,
@@ -104,7 +110,7 @@ void addEdge(TVertexData* vd, TEdge* e);
 void deleteEdge(TVertexData* vd, int e);
 void addSide(TVertexData* vd, TSide* s);
 void deleteSide(TVertexData* vd, int s);
-BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d);
+ECutResult cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d);
 void translateVertexData(TVertexData* vd, const TVector3f* d);
 void rotateVertexData90CW(TVertexData* vd, EAxis a, const TVector3f* c);
 void rotateVertexData90CCW(TVertexData* vd, EAxis a, const TVector3f* c);

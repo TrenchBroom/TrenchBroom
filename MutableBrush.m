@@ -184,15 +184,19 @@
 
 - (BOOL)addFace:(MutableFace *)face {
     NSMutableArray* droppedFaces = nil;
-    if (!cutVertexData([self vertexData], face, &droppedFaces))
+    ECutResult result = cutVertexData([self vertexData], face, &droppedFaces);
+    if (result == CR_NULL)
         return NO;
+    
+    if (result == CR_REDUNDANT)
+        return YES;
     
     if (droppedFaces != nil) {
         NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
         MutableFace* droppedFace;
         while ((droppedFace = [droppedFacesEn nextObject])) {
             [droppedFace setBrush:nil];
-            [faces removeObject:droppedFace];
+            [faces removeObjectIdenticalTo:droppedFace];
         }
     }
 

@@ -596,9 +596,15 @@ BOOL initVertexDataWithFaces(TVertexData* vd, const TBoundingBox* b, NSArray* f,
     NSEnumerator* faceEn = [f objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject])) {
-        if (!cutVertexData(vd, face, d)) {
-            freeVertexData(vd);
-            return NO;
+        switch (cutVertexData(vd, face, d)) {
+            case CR_REDUNDANT:
+                [*d addObject:face];
+                break;
+            case CR_NULL:
+                freeVertexData(vd);
+                return NO;
+            default:
+                break;
         }
     }
     
@@ -720,7 +726,7 @@ void deleteSide(TVertexData* vd, int s) {
     vd->sides[vd->sideCount] = NULL;
 }
 
-BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
+ECutResult cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
     const TPlane* p = [f boundary];
     
     int keep = 0;
@@ -743,15 +749,11 @@ BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
         }
     }
     
-    if (keep + undecided == vd->vertexCount) {
-        if (*d == nil)
-            *d = [NSMutableArray array];
-        [*d addObject:f];
-        return YES;
-    }
+    if (keep + undecided == vd->vertexCount)
+        return CR_REDUNDANT;
     
     if (drop + undecided == vd->vertexCount)
-        return NO;
+        return CR_NULL;
     
     // mark and split edges
     for (int i = 0; i < vd->edgeCount; i++) {
@@ -835,7 +837,7 @@ BOOL cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
             vd->edges[i]->mark = EM_UNDECIDED;
     
     vd->valid = NO;
-    return YES;
+    return CR_SPLIT;
 }
 
 void translateVertexData(TVertexData* vd, const TVector3f* d) {
