@@ -102,14 +102,16 @@
 
     if (clipPlane != nil) {
         if ([clipPlane numPoints] > 0) {
+            Camera* camera = [windowController camera];
+            
             TVector3i* p1 = [clipPlane point:0];
-            point1Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p1];
+            point1Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p1 camera:camera];
             [renderer addFeedbackFigure:point1Figure];
 
             if ([clipPlane numPoints] > 1) {
                 TVector3i* p2 = [clipPlane point:1];
                 
-                point2Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p2];
+                point2Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p2 camera:camera];
                 [renderer addFeedbackFigure:point2Figure];
                 
                 line1Figure = [[ClipLineFeedbackFigure alloc] initWithStartPoint:p1 endPoint:p2];
@@ -118,7 +120,7 @@
                 if ([clipPlane numPoints] > 2) {
                     TVector3i* p3 = [clipPlane point:2];
 
-                    point3Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p3];
+                    point3Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p3 camera:camera];
                     [renderer addFeedbackFigure:point3Figure];
                     
                     line2Figure = [[ClipLineFeedbackFigure alloc] initWithStartPoint:p2 endPoint:p3];
@@ -286,8 +288,9 @@
         roundV3f(&t, currentPoint);
         
         if ([self numPoints] < 3) {
+            Camera* camera = [windowController camera];
             Renderer* renderer = [windowController renderer];
-            currentFigure = [[ClipPointFeedbackFigure alloc] initWithPoint:currentPoint];
+            currentFigure = [[ClipPointFeedbackFigure alloc] initWithPoint:currentPoint camera:camera];
             [renderer addFeedbackFigure:currentFigure];
         }
     }

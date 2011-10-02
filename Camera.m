@@ -338,13 +338,13 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     return p;
 }
 
-- (TVector3f)defaultPointOnRay:(TRay *)ray {
+- (TVector3f)defaultPointOnRay:(const TRay *)ray {
     TVector3f point;
     rayPointAtDistance(ray, 256, &point);
     return point;
 }
 
-- (float)distanceTo:(TVector3f *)thePoint {
+- (float)distanceTo:(const TVector3f *)thePoint {
     TVector3f diff;
     subV3f(thePoint, &position, &diff);
     return lengthV3f(&diff);

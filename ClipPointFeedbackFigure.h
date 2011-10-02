@@ -12,11 +12,14 @@
 #import "Figure.h"
 #import "Math.h"
 
+@class Camera;
+
 @interface ClipPointFeedbackFigure : NSObject <Figure> {
-    TVector3i point;
+    TVector3f point;
     GLUquadric* sphere;
+    Camera* camera;
 }
 
-- (id)initWithPoint:(TVector3i *)thePoint;
+- (id)initWithPoint:(const TVector3i *)thePoint camera:(Camera *)theCamera;
 
 @end

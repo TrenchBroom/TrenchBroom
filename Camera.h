@@ -71,8 +71,8 @@ extern NSString* const CameraViewChanged;
 - (TRay)pickRayX:(float)x y:(float)y;
 - (TVector3f)defaultPoint;
 - (TVector3f)defaultPointAtX:(float)x y:(float)y;
-- (TVector3f)defaultPointOnRay:(TRay *)ray;
-- (float)distanceTo:(TVector3f *)thePoint;
+- (TVector3f)defaultPointOnRay:(const TRay *)ray;
+- (float)distanceTo:(const TVector3f *)thePoint;
 - (void)setBillboardMatrix;
 
 - (EditingPlane *)editingPlane;

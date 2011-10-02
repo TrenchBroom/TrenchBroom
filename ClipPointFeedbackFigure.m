@@ -7,13 +7,15 @@
 //
 
 #import "ClipPointFeedbackFigure.h"
+#import "Camera.h"
 
 @implementation ClipPointFeedbackFigure
 
-- (id)initWithPoint:(TVector3i *)thePoint {
+- (id)initWithPoint:(const TVector3i *)thePoint camera:(Camera *)theCamera {
     if (self = [self init]) {
-        point = *thePoint;
+        setV3f(&point, thePoint);
         sphere = NULL;
+        camera = theCamera;
     }
     
     return self;
@@ -28,10 +30,13 @@
     glFrontFace(GL_CCW);
     glPolygonMode(GL_FRONT, GL_FILL);
     
+    float dist = [camera distanceTo:&point];
+    float radius = dist / 300 * 3;
+    
     glPushMatrix();
     glTranslatef(point.x, point.y, point.z);
     glColor4f(0, 1, 0, 1);
-    gluSphere(sphere, 3, 12, 12);
+    gluSphere(sphere, radius, 12, 12);
     glPopMatrix();
 }
 
