@@ -99,7 +99,7 @@
     
     SelectionManager* selectionManager = [windowController selectionManager];
     NSArray* selectedFaces = [selectionManager selectedFaces];
-    if (![selectedFaces count] == 1)
+    if ([selectedFaces count] != 1)
         return;
     
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];

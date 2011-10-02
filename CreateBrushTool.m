@@ -89,7 +89,7 @@
     [selectionManager addBrush:brush record:YES];
     
     drag = YES;
-    NSLog(@"start create brush");
+    scrollFront = NO;
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -143,7 +143,7 @@
     
     brush = nil;
     drag = NO;
-    NSLog(@"end create brush");
+    scrollFront = NO;
 }
 
 - (void)leftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -154,17 +154,59 @@
     float delta = [grid actualSize] * ([event deltaY] / fabsf([event deltaY]));
     
     if (equalV3f(&plane.norm, &XAxisPos)) {
-        initialBounds.max.x = fmaxf(initialBounds.max.x + delta, initialBounds.min.x + [grid actualSize]);
+        if (( scrollFront && initialBounds.min.x + delta >= initialBounds.max.x - [grid actualSize]) ||
+            (!scrollFront && initialBounds.max.x + delta <= initialBounds.min.x + [grid actualSize]))
+            scrollFront = !scrollFront;
+        
+        if (scrollFront)
+            initialBounds.min.x = initialBounds.min.x + delta;
+        else
+            initialBounds.max.x = initialBounds.max.x + delta;
     } else if (equalV3f(&plane.norm, &XAxisNeg)) {
-        initialBounds.min.x = fminf(initialBounds.min.x - delta, initialBounds.max.x - [grid actualSize]);
+        if (( scrollFront && initialBounds.max.x - delta <= initialBounds.min.x + [grid actualSize]) ||
+            (!scrollFront && initialBounds.min.x - delta >= initialBounds.max.x - [grid actualSize]))
+            scrollFront = !scrollFront;
+        
+        if (scrollFront)
+            initialBounds.max.x = initialBounds.max.x - delta;
+        else
+            initialBounds.min.x = initialBounds.min.x - delta;
     } else if (equalV3f(&plane.norm, &YAxisPos)) {
-        initialBounds.max.y = fmaxf(initialBounds.max.y + delta, initialBounds.min.y + [grid actualSize]);
+        if (( scrollFront && initialBounds.min.y + delta >= initialBounds.max.y - [grid actualSize]) ||
+            (!scrollFront && initialBounds.max.y + delta <= initialBounds.min.y + [grid actualSize]))
+            scrollFront = !scrollFront;
+        
+        if (scrollFront)
+            initialBounds.min.y = initialBounds.min.y + delta;
+        else
+            initialBounds.max.y = initialBounds.max.y + delta;
     } else if (equalV3f(&plane.norm, &YAxisNeg)) {
-        initialBounds.min.y = fminf(initialBounds.min.y - delta, initialBounds.max.y - [grid actualSize]);
+        if (( scrollFront && initialBounds.max.y - delta <= initialBounds.min.y + [grid actualSize]) ||
+            (!scrollFront && initialBounds.min.y - delta >= initialBounds.max.y - [grid actualSize]))
+            scrollFront = !scrollFront;
+        
+        if (scrollFront)
+            initialBounds.max.y = initialBounds.max.y - delta;
+        else
+            initialBounds.min.y = initialBounds.min.y - delta;
     } else if (equalV3f(&plane.norm, &ZAxisPos)) {
-        initialBounds.min.z = fmaxf(initialBounds.min.z + delta, initialBounds.min.z + [grid actualSize]);
+        if (( scrollFront && initialBounds.min.z + delta >= initialBounds.max.z - [grid actualSize]) ||
+            (!scrollFront && initialBounds.max.z + delta <= initialBounds.min.z + [grid actualSize]))
+            scrollFront = !scrollFront;
+        
+        if (scrollFront)
+            initialBounds.min.z = initialBounds.min.z + delta;
+        else
+            initialBounds.max.z = initialBounds.max.z + delta;
     } else if (equalV3f(&plane.norm, &ZAxisNeg)) {
-        initialBounds.min.z = fminf(initialBounds.min.z - delta, initialBounds.max.z - [grid actualSize]);
+        if (( scrollFront && initialBounds.max.z - delta <= initialBounds.min.z + [grid actualSize]) ||
+            (!scrollFront && initialBounds.min.z - delta >= initialBounds.max.z - [grid actualSize]))
+            scrollFront = !scrollFront;
+        
+        if (scrollFront)
+            initialBounds.max.z = initialBounds.max.z - delta;
+        else
+            initialBounds.min.z = initialBounds.min.z - delta;
     }
 
     TBoundingBox bounds = initialBounds;

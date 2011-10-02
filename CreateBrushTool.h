@@ -20,6 +20,7 @@
     TVector3f lastPoint;
     id <Brush> brush;
     BOOL drag;
+    BOOL scrollFront;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
