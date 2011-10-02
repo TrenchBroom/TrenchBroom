@@ -138,7 +138,7 @@
         newActiveTool = faceTool;
     }
     
-    if (newActiveTool == nil && drag) {
+    if (newActiveTool == nil && drag && [selectionManager mode] == SM_UNDEFINED) {
         newActiveTool = createBrushTool;
     }
     

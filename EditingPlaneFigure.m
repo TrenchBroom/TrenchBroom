@@ -25,7 +25,7 @@ static int G = 2;
     if ((self = [self init])) {
         grid = theGrid;
         plane = *thePlane;
-        [grid snapDownToGridV3f:&plane.point result:&plane.point];
+//        [grid snapDownToGridV3f:&plane.point result:&plane.point];
         [self setBounds:theBounds ray:theRay];
         
     }
