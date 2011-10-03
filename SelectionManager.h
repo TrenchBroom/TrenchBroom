@@ -36,6 +36,7 @@ typedef enum {
     SM_BRUSHES_ENTITIES
 } ESelectionMode;
 
+@class Texture;
 @protocol Face;
 @protocol Brush;
 @protocol Entity;
@@ -55,7 +56,7 @@ typedef enum {
 
 - (id)initWithUndoManager:(NSUndoManager *)theUndoManager;
 
-- (void)addTexture:(NSString *)texture;
+- (void)addTexture:(Texture *)texture;
 - (void)addFace:(id <Face>)face record:(BOOL)record;
 - (void)addFaces:(NSArray *)theFaces record:(BOOL)record;
 - (void)addBrush:(id <Brush>)brush record:(BOOL)record;

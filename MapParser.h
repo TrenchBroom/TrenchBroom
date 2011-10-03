@@ -44,6 +44,7 @@ typedef enum {
 @class MapTokenizer;
 @class MutableEntity;
 @class MutableBrush;
+@class TextureManager;
 
 @interface MapParser : NSObject {
     @private
@@ -56,7 +57,7 @@ typedef enum {
 
 - (id)initWithData:(NSData *)someData;
 - (id)initWithData:(NSData *)someData;
-- (void)parseMap:(id<Map>)theMap withProgressIndicator:(NSProgressIndicator *)theIndicator;
-- (EClipboardContents)parseClipboard:(NSMutableArray *)result worldBounds:(TBoundingBox *)theWorldBounds;
+- (void)parseMap:(id<Map>)theMap textureManager:(TextureManager *)theTextureManager withProgressIndicator:(NSProgressIndicator *)theIndicator;
+- (EClipboardContents)parseClipboard:(NSMutableArray *)result worldBounds:(const TBoundingBox *)theWorldBounds textureManager:(TextureManager *)theTextureManager;
 
 @end

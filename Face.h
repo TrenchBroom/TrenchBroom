@@ -25,6 +25,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class Vertex;
 @class PickingHit;
 @class VBOMemBlock;
+@class Texture;
 
 @protocol Face <NSObject, NSCopying>
 
@@ -36,7 +37,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (TVector3i *)point2;
 - (TVector3i *)point3;
 
-- (NSString *)texture;
+- (Texture *)texture;
 - (int)xOffset;
 - (int)yOffset;
 - (float)rotation;

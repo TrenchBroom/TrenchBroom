@@ -65,7 +65,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         Texture* texture = [layout textureAt:clickPoint];
         if (texture != nil) {
             [target textureSelected:texture];
-            [selectionManager addTexture:[texture name]];
+            [selectionManager addTexture:texture];
             [self setNeedsDisplay:YES];
         }
     }
@@ -109,7 +109,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         GLFontManager* fontManager = [glResources fontManager];
         NSFont* font = [NSFont systemFontOfSize:12];
         
-        NSString* mruTexture = [[selectionManager textureMRU] lastObject];
+        Texture* mruTexture = [[selectionManager textureMRU] lastObject];
         [fontManager activate];
         
         while ((row = [rowEn nextObject])) {
@@ -140,24 +140,22 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                 [texture deactivate];
                 glDisable(GL_TEXTURE_2D);
                 
-                if (mruTexture != nil && [mruTexture isEqualToString:[texture name]]) {
-                    glColor4f(1, 0, 0, 0.6f);
+                if (mruTexture == texture) {
+                    glColor4f(0.6f, 0, 0, 1);
                     glBegin(GL_LINE_LOOP);
                     glVertex3f(tx  - 0.5, ty  - 0.5, 0);
                     glVertex3f(tx2 + 0.5, ty  - 0.5, 0);
                     glVertex3f(tx2 + 0.5, ty2 + 0.5, 0);
                     glVertex3f(tx  - 0.5, ty2 + 0.5, 0);
                     glEnd();
-                    /*
                 } else if ([texture usageCount] > 0) {
-                    glColor4f(0.6, 0.6, 0, 1);
+                    glColor4f(0.6f, 0.6f, 0, 1);
                     glBegin(GL_LINE_LOOP);
                     glVertex3f(tx  - 0.5, ty  - 0.5, 0);
                     glVertex3f(tx2 + 0.5, ty  - 0.5, 0);
                     glVertex3f(tx2 + 0.5, ty2 + 0.5, 0);
                     glVertex3f(tx  - 0.5, ty2 + 0.5, 0);
                     glEnd();
-                     */
                 }
                 
                 glColor4f(1, 1, 1, 1);

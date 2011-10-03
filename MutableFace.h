@@ -29,6 +29,7 @@ typedef enum {
 @class MutableBrush;
 @class PickingHit;
 @class VBOMemBlock;
+@class Texture;
 
 @interface MutableFace : NSObject <Face> {
     @private
@@ -38,8 +39,8 @@ typedef enum {
 	TVector3i point1;
 	TVector3i point2;
 	TVector3i point3;
-	
-	NSMutableString* texture;
+
+	Texture* texture;
 	float xOffset;
 	float yOffset;
 	float rotation;
@@ -70,12 +71,12 @@ typedef enum {
     VBOMemBlock* memBlock;
 }
 
-- (id)initWithPoint1:(const TVector3i *)aPoint1 point2:(const TVector3i *)aPoint2 point3:(const TVector3i *)aPoint3 texture:(NSString *)aTexture;
+- (id)initWithPoint1:(const TVector3i *)aPoint1 point2:(const TVector3i *)aPoint2 point3:(const TVector3i *)aPoint3 texture:(Texture *)theTexture;
 - (id)initWithFaceTemplate:(id <Face>)theTemplate;
 
 - (void)setBrush:(MutableBrush *)theBrush;
 - (void)setPoint1:(const TVector3i *)thePoint1 point2:(const TVector3i *)thePoint2 point3:(const TVector3i *)thePoint3;
-- (void)setTexture:(NSString *)name;
+- (void)setTexture:(Texture *)theTexture;
 - (void)setXOffset:(int)offset;
 - (void)setYOffset:(int)offset;
 - (void)setRotation:(float)angle;

@@ -240,7 +240,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         float xScale = [face xScale];
         float yScale = [face yScale];
         float rotation = [face rotation];
-        NSString* textureName = [face texture];
+        Texture* texture = [face texture];
         
         BOOL xOffsetMultiple = NO;
         BOOL yOffsetMultiple = NO;
@@ -255,7 +255,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             xScaleMultiple   |= xScale   != [face xScale];
             yScaleMultiple   |= yScale   != [face yScale];
             rotationMultiple |= rotation != [face rotation];
-            textureMultiple  |= ![textureName isEqualToString:[face texture]];
+            textureMultiple  |= texture  != [face texture];
         }
         
         [xOffsetStepper setEnabled:!xOffsetMultiple];
@@ -308,8 +308,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [textureNameField setStringValue:@""];
             [singleTextureView setTextureName:nil];
         } else {
-            [textureNameField setStringValue:textureName];
-            [singleTextureView setTextureName:textureName];
+            [textureNameField setStringValue:[texture name]];
+            [singleTextureView setTextureName:[texture name]];
         }
     } else {
         [xOffsetField setEnabled:NO];
@@ -684,7 +684,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager beginUndoGrouping];
     
     NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
-    [map setFaces:faces texture:[texture name]];
+    [map setFaces:faces texture:texture];
     
     [undoManager setActionName:@"Set Texture"];
     [undoManager endUndoGrouping];

@@ -38,11 +38,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (id)initWithName:(NSString *)theName skin:(AliasSkin *)theSkin index:(int)theIndex palette:(NSData *)thePalette;
 - (id)initWithBspTexture:(BspTexture *)theBspTexture palette:(NSData *)thePalette;
 - (id)initWithName:(NSString *)theName image:(NSData *)theImage width:(int)theWidth height:(int)theHeight palette:(NSData *)thePalette;
+- (id)initDummyWithName:(NSString *)theName;
 
 - (NSString *)name;
 - (NSNumber *)uniqueId;
 - (int)width;
 - (int)height;
+- (BOOL)dummy;
 
 - (void)incUsageCount;
 - (void)decUsageCount;

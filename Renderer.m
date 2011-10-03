@@ -241,8 +241,7 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)writeFace:(id <Face>)theFace toBlock:(VBOMemBlock *)theBlock {
     TVector2f texCoords, gridCoords;
     
-    NSString* textureName = [theFace texture];
-    Texture* texture = [textureManager textureForName:textureName];
+    Texture* texture = [theFace texture];
     int width = texture != nil ? [texture width] : 1;
     int height = texture != nil ? [texture height] : 1;
 
@@ -606,7 +605,7 @@ int const TexCoordSize = 2 * sizeof(float);
                     NSEnumerator* faceEn = [[brush faces] objectEnumerator];
                     id <Face> face;
                     while ((face = [faceEn nextObject])) {
-                        NSString* textureName = [face texture];
+                        NSString* textureName = [[face texture] name];
                         IntData* indexBuffer = [faceIndexBuffers objectForKey:textureName];
                         if (indexBuffer == nil) {
                             indexBuffer = [[IntData alloc] init];
@@ -642,7 +641,7 @@ int const TexCoordSize = 2 * sizeof(float);
         NSEnumerator* faceEn = [[brush faces] objectEnumerator];
         id <Face> face;
         while ((face = [faceEn nextObject])) {
-            NSString* textureName = [face texture];
+            NSString* textureName = [[face texture] name];
             IntData* indexBuffer = [selectedFaceIndexBuffers objectForKey:textureName];
             if (indexBuffer == nil) {
                 indexBuffer = [[IntData alloc] init];
@@ -664,7 +663,7 @@ int const TexCoordSize = 2 * sizeof(float);
     NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject])) {
-        NSString* textureName = [face texture];
+        NSString* textureName = [[face texture] name];
         IntData* indexBuffer = [selectedFaceIndexBuffers objectForKey:textureName];
         if (indexBuffer == nil) {
             indexBuffer = [[IntData alloc] init];

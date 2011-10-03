@@ -37,6 +37,7 @@ extern NSString* const MissingPaletteException;
     NSMutableArray* textureCollections;
     NSMutableDictionary* textures;
     NSMutableArray* texturesByName;
+    NSMutableDictionary* dummies;
     BOOL valid;
 }
 
@@ -44,8 +45,6 @@ extern NSString* const MissingPaletteException;
 - (void)removeTextureCollectionAtIndex:(NSUInteger)theIndex;
 - (NSArray *)textureCollections;
 - (void)clear;
-
-- (void)resetUsageCounts;
 
 - (Texture *)textureForName:(NSString *)name;
 - (NSArray *)texturesByCriterion:(ETextureSortCriterion)criterion;

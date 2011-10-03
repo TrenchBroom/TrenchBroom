@@ -21,6 +21,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MapView3D.h"
 #import "TextureView.h"
 #import "MapDocument.h"
+#import "GLResources.h"
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
@@ -1195,13 +1196,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     MapParser* mapParser = [[MapParser alloc] initWithData:stringData];
     NSMutableArray* mapObjects = [[NSMutableArray alloc] init];
     
-    EClipboardContents contents = [mapParser parseClipboard:mapObjects worldBounds:[[self document] worldBounds]];
+    MapDocument* map = [self document];
+    const TBoundingBox* worldBounds = [map worldBounds];
+    
+    GLResources* glResources = [map glResources];
+    TextureManager* textureManager = [glResources textureManager];
+    
+    EClipboardContents contents = [mapParser parseClipboard:mapObjects worldBounds:worldBounds textureManager:textureManager];
     [mapParser release];
     
     if (contents == CC_UNDEFINED)
         return;
     
-    MapDocument* map = [self document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
 

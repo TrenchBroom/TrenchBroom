@@ -98,6 +98,19 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return self;
 }
 
+- (id)initDummyWithName:(NSString *)theName {
+    NSAssert(theName != nil, @"name must not be nil");
+    
+    if ((self = [self init])) {
+        name = [[NSString alloc] initWithString:theName];
+        width = 1;
+        height = 1;
+        textureId = -1;
+    }
+    
+    return self;
+}
+
 - (NSString *)name {
     return name;
 }
@@ -112,6 +125,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (int)height {
     return height;
+}
+
+- (BOOL)dummy {
+    return textureId == -1;
 }
 
 - (void)incUsageCount {

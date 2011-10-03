@@ -21,6 +21,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Math.h"
 
 @class MutableFace;
+@class TextureManager;
 @protocol Face;
 
 @interface FaceInfo : NSObject {
@@ -34,13 +35,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     float xScale;
     float yScale;
     float rotation;
-    NSString* texture;
+    NSString* textureName;
 }
 
 + (id)faceInfoFor:(id <Face>)theFace;
 
 - (id)initWithFace:(id <Face>)theFace;
 
-- (void)updateFace:(MutableFace *)theFace;
+- (void)updateFace:(MutableFace *)theFace textureManager:(TextureManager *)theTextureManager;
 
 @end

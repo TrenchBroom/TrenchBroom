@@ -99,7 +99,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return self;
 }
 
-- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds brushBounds:(const TBoundingBox *)theBrushBounds texture:(NSString *)theTexture {
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds brushBounds:(const TBoundingBox *)theBrushBounds texture:(Texture *)theTexture {
     NSAssert(theBrushBounds != NULL, @"brush bounds must not be NULL");
     
     if ((self = [self initWithWorldBounds:theWorldBounds])) {

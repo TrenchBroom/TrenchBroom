@@ -51,7 +51,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return self;
 }
 
-- (void)updateBrush:(MutableBrush *)theBrush {
+- (void)updateBrush:(MutableBrush *)theBrush textureManager:(TextureManager *)theTextureManager {
     NSAssert([brushId isEqualToNumber:[theBrush brushId]], @"brush id must be equal");
     
     NSArray* faces = [theBrush faces];
@@ -62,7 +62,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     id <Face> face;
     FaceInfo* faceInfo;
     while ((face = [faceEn nextObject]) && (faceInfo = [faceInfoEn nextObject]))
-        [faceInfo updateFace:(MutableFace *)face];
+        [faceInfo updateFace:(MutableFace *)face textureManager:theTextureManager];
 
     [theBrush invalidateVertexData];
 }

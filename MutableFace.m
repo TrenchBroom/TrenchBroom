@@ -289,6 +289,9 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     // the original texture coordinates of the center
     xOffset = curCenterTexCoords.x - newCenterTexCoords.x;
     yOffset = curCenterTexCoords.y - newCenterTexCoords.y;
+    
+    xOffset -= ((int)xOffset / [texture width]) * [texture width];
+    yOffset -= ((int)yOffset / [texture height]) * [texture height];
 }
 
 @end
@@ -299,17 +302,17 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 - (id)init {
     if ((self = [super init])) {
         faceId = [[[IdGenerator sharedGenerator] getId] retain];
-        texture = [[NSMutableString alloc] init];
+        texture = nil;
         filePosition = -1;
     }
     
     return self;
 }
 
-- (id)initWithPoint1:(const TVector3i *)aPoint1 point2:(const TVector3i *)aPoint2 point3:(const TVector3i *)aPoint3 texture:(NSString *)aTexture {
+- (id)initWithPoint1:(const TVector3i *)aPoint1 point2:(const TVector3i *)aPoint2 point3:(const TVector3i *)aPoint3 texture:(Texture *)theTexture {
     if ((self = [self init])) {
         [self setPoint1:aPoint1 point2:aPoint2 point3:aPoint3];
-        [self setTexture:aTexture];
+        [self setTexture:theTexture];
         [self setXScale:1];
         [self setYScale:1];
     }
@@ -376,12 +379,18 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 }
 
 
-- (void)setTexture:(NSString *)name {
-    NSAssert(name != nil, @"texture name must not be nil");
-    NSString* trimmed = [name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    NSAssert([trimmed length] > 0, @"texture name must not be empty");
+- (void)setTexture:(Texture *)theTexture {
+    if (texture != nil) {
+        [texture decUsageCount];
+        [texture release];
+    }
     
-    [texture setString:name];
+    texture = nil;
+    
+    if (theTexture != nil) {
+        texture = [theTexture retain];
+        [texture incUsageCount];
+    }
 }
 
 - (void)setXOffset:(int)offset {
@@ -720,7 +729,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 	return &point3;
 }
 
-- (NSString *)texture {
+- (Texture *)texture {
 	return texture;
 }
 

@@ -126,11 +126,13 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
     [self makeUndoSnapshotOfFaces:theFaces];
     
+    TextureManager* textureManager = [glResources textureManager];
+    
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject])) {
         FaceInfo* faceInfo = [theFaceInfos objectForKey:[face faceId]];
-        [faceInfo updateFace:face];
+        [faceInfo updateFace:face textureManager:textureManager];
     }
     
     if ([self postNotifications]) {
@@ -159,11 +161,13 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
     [self makeUndoSnapshotOfBrushes:theBrushes];
     
+    TextureManager* textureManager = [glResources textureManager];
+    
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     while ((brush = [brushEn nextObject])) {
         BrushInfo* brushInfo = [theBrushInfos objectForKey:[brush brushId]];
-        [brushInfo updateBrush:brush];
+        [brushInfo updateBrush:brush textureManager:textureManager];
     }
     
     if ([self postNotifications]) {
@@ -282,8 +286,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     [[self undoManager] disableUndoRegistration];
     [self setPostNotifications:NO];
     
+    TextureManager* textureManager = [glResources textureManager];
+    
     MapParser* parser = [[MapParser alloc] initWithData:data];
-    [parser parseMap:self withProgressIndicator:indicator];
+    [parser parseMap:self textureManager:textureManager withProgressIndicator:indicator];
     [parser release];
 
     // set the entity definitions
@@ -394,7 +400,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [collection release];
         
         [self setEntity:[self worldspawn:YES] propertyKey:@"wad" value:[textureManager wadProperty]];
-        [self updateTextureUsageCounts];
+        [self updateFaceTextures];
     } else {
         NSLog(@"wad file '%@' does not exist", theWadPath);
     }
@@ -407,7 +413,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     MutableEntity* wc = [self worldspawn:YES];
     [wc setProperty:@"wad" value:[textureManager wadProperty]];
     
-    [self updateTextureUsageCounts];
+    [self updateFaceTextures];
 }
 
 - (NSArray *)textureWads {
@@ -422,9 +428,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     return [textureWads autorelease];
 }
 
-- (void)updateTextureUsageCounts {
+- (void)updateFaceTextures {
     TextureManager* textureManager = [glResources textureManager];
-    [textureManager resetUsageCounts];
     
     NSEnumerator* entityEn = [entities objectEnumerator];
     id <Entity> entity;
@@ -433,11 +438,11 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            id <Face> face;
+            MutableFace* face;
             while ((face = [faceEn nextObject])) {
-                Texture* texture = [textureManager textureForName:[face texture]];
-                if (texture != nil)
-                    [texture incUsageCount];
+                Texture* oldTexture = [face texture];
+                Texture* newTexture = [textureManager textureForName:[oldTexture name]];
+                [face setTexture:newTexture];
             }
         }
     }
@@ -901,7 +906,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     return [brush autorelease];
 }
 
-- (id <Brush>)createBrushInEntity:(id <Entity>)theEntity withBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture {
+- (id <Brush>)createBrushInEntity:(id <Entity>)theEntity withBounds:(TBoundingBox *)theBounds texture:(Texture *)theTexture {
     NSAssert(theEntity != nil, @"entity must not be nil");
     NSAssert(theBounds != NULL, @"brush bounds must not be NULL");
     NSAssert(theTexture != nil, @"brush texture must not be nil");
@@ -1409,7 +1414,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 }
 
-- (void)setFaces:(NSArray *)theFaces texture:(NSString *)theTexture {
+- (void)setFaces:(NSArray *)theFaces texture:(Texture *)theTexture {
     NSAssert(theFaces != nil, @"face set must not be nil");
     NSAssert(theTexture != nil, @"texture must not be nil");
     

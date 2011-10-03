@@ -20,6 +20,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "FaceInfo.h"
 #import "Face.h"
 #import "MutableFace.h"
+#import "TextureManager.h"
+#import "Texture.h"
 
 @implementation FaceInfo
 
@@ -40,7 +42,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         xScale = [theFace xScale];
         yScale = [theFace yScale];
         rotation = [theFace rotation];
-        texture = [[NSString alloc] initWithString:[theFace texture]];
+        textureName = [[NSString alloc] initWithString:[[theFace texture] name]];
     }
     
     return self;
@@ -48,11 +50,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)dealloc {
     [faceId release];
-    [texture release];
+    [textureName release];
     [super dealloc];
 }
                    
-- (void)updateFace:(MutableFace *)theFace {
+- (void)updateFace:(MutableFace *)theFace textureManager:(TextureManager *)theTextureManager {
     NSAssert([faceId isEqualToNumber:[theFace faceId]], @"face id must be equal");
     
     [theFace setPoint1:&point1 point2:&point2 point3:&point3];
@@ -61,6 +63,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [theFace setXScale:xScale];
     [theFace setYScale:yScale];
     [theFace setRotation:rotation];
+    
+    Texture* texture = [theTextureManager textureForName:textureName];
     [theFace setTexture:texture];
 }
 

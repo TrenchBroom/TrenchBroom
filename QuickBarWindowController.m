@@ -106,8 +106,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
         id <Face> face = [faceEn nextObject];
         
-        NSString* textureName = [face texture];
-        BOOL multipleTextureNames = NO;
+        Texture* texture = [face texture];
+        BOOL multipleTextures = NO;
         int xOffset = [face xOffset];
         BOOL multipleXOffsets = NO;
         int yOffset = [face yOffset];
@@ -119,8 +119,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         float rotation = [face rotation];
         BOOL multipleRotations = NO;
         
-        while ((face = [faceEn nextObject]) && !multipleTextureNames && !multipleXOffsets && !multipleYOffsets && !multipleXScales && !multipleYScales && !multipleRotations) {
-            multipleTextureNames = ![textureName isEqualToString:[face texture]];
+        while ((face = [faceEn nextObject]) && !multipleTextures && !multipleXOffsets && !multipleYOffsets && !multipleXScales && !multipleYScales && !multipleRotations) {
+            multipleTextures = texture != [face texture];
             multipleXOffsets = xOffset != [face xOffset];
             multipleYOffsets = yOffset != [face yOffset];
             multipleXScales = xScale != [face xScale];
@@ -128,11 +128,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             multipleRotations = rotation != [face rotation];
         }
 
-        if (multipleTextureNames) {
+        if (multipleTextures) {
             [[faceTextureField cell] setPlaceholderString:@"<multiple>"];
             [faceTextureField setStringValue:@""];
         } else {
-            [faceTextureField setStringValue:textureName];
+            [faceTextureField setStringValue:[texture name]];
         }
         
         if (multipleXOffsets) {

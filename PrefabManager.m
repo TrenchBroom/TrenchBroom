@@ -164,7 +164,7 @@ static PrefabManager* sharedInstance = nil;
     MapParser* parser = [[MapParser alloc] initWithData:prefabData];
     MutablePrefab* prefab = [[MutablePrefab alloc] initWithWorldBounds:&worldBounds name:prefabName group:prefabGroup readOnly:readOnly];
     
-    [parser parseMap:prefab withProgressIndicator:nil];
+    [parser parseMap:prefab textureManager:nil withProgressIndicator:nil];
     [parser release];
 
     [self addPrefab:prefab group:prefabGroup];

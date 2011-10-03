@@ -65,6 +65,7 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
         textureCollections = [[NSMutableArray alloc] init];
         textures = [[NSMutableDictionary alloc] init];
         texturesByName = [[NSMutableArray alloc] init];
+        dummies = [[NSMutableDictionary alloc] init];
     }
     
     return self;
@@ -99,22 +100,23 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     [center postNotificationName:TextureManagerChanged object:self];
 }
 
-- (void)resetUsageCounts {
-    NSEnumerator* collectionEn = [textureCollections objectEnumerator];
-    TextureCollection* collection;
-    while ((collection = [collectionEn nextObject])) {
-        NSEnumerator* textureEn = [[collection textures] objectEnumerator];
-        Texture* texture;
-        while ((texture = [textureEn nextObject]))
-            [texture setUsageCount:0];
-    }
-}
-
 - (Texture *)textureForName:(NSString *)name {
     NSAssert(name != nil, @"name must not be nil");
     
     [self validate];
-    return [textures objectForKey:name];
+    
+    Texture* texture = [textures objectForKey:name];
+    
+    if (texture == nil)
+        texture = [dummies objectForKey:name];
+    
+    if (texture == nil) {
+        texture = [[Texture alloc] initDummyWithName:name];
+        [dummies setObject:texture forKey:name];
+        [texture release];
+    }
+    
+    return texture;
 }
 
 - (NSArray *)texturesByCriterion:(ETextureSortCriterion)criterion {
@@ -164,6 +166,7 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
     [texturesByName release];
     [textures release];
     [textureCollections release];
+    [dummies release];
     [super dealloc];
 }
 

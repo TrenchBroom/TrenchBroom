@@ -25,6 +25,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MapTokenizer.h"
 #import "MapToken.h"
 #import "EntityDefinitionManager.h"
+#import "TextureManager.h"
+#import "Texture.h"
 
 static NSString* InvalidTokenException = @"InvalidTokenException";
 
@@ -67,7 +69,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     [tokens addObject:theToken];
 }
 
-- (MutableFace *)parseFace:(int)filePosition {
+- (MutableFace *)parseFace:(int)filePosition textureManager:(TextureManager *)textureManager {
     TVector3i p1, p2, p3;
     
     MapToken* token = [self nextToken];
@@ -123,7 +125,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     
     token = [self nextToken];
     [self expect:TT_STR actual:token];
-    NSString* texture = [[token data] retain];
+    Texture* texture = [textureManager textureForName:[token data]];
 
     token = [self nextToken];
     if (format == MF_UNDEFINED) {
@@ -199,11 +201,10 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     [face setYScale:yScale];
     [face setFilePosition:filePosition];
     
-    [texture release];
     return [face autorelease];
 }
 
-- (void)parseMap:(id<Map>)theMap withProgressIndicator:(NSProgressIndicator *)theIndicator {
+- (void)parseMap:(id<Map>)theMap textureManager:(TextureManager *)theTextureManager withProgressIndicator:(NSProgressIndicator *)theIndicator {
     if (theIndicator != nil)
         [theIndicator setMaxValue:100];
     
@@ -258,7 +259,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                 case PS_BRUSH:
                     switch ([token type]) {
                         case TT_B_O: {
-                            MutableFace* face = [self parseFace:[token line]];
+                            MutableFace* face = [self parseFace:[token line] textureManager:theTextureManager];
                             [brush addFace:face];
                             break;
                         }
@@ -297,7 +298,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     NSLog(@"Loaded map file in %f seconds", -duration);
 }
 
-- (EClipboardContents)parseClipboard:(NSMutableArray *)result worldBounds:(TBoundingBox *)theWorldBounds {
+- (EClipboardContents)parseClipboard:(NSMutableArray *)result worldBounds:(const TBoundingBox *)theWorldBounds textureManager:(TextureManager *)theTextureManager {
     EClipboardContents contents = CC_UNDEFINED;
     MapToken* token = [[MapToken alloc] initWithToken:[self nextToken]];
     [self expect:TT_B_O | TT_CB_O actual:token];
@@ -339,7 +340,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                             break;
                         case CC_FACE:
                             [self expect:TT_B_O actual:token];
-                            [result addObject:[self parseFace:[token line]]];
+                            [result addObject:[self parseFace:[token line] textureManager:theTextureManager]];
                             break;
                         default:
                             break;
@@ -377,7 +378,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                 case PS_BRUSH:
                     switch ([token type]) {
                         case TT_B_O:
-                            [brush addFace:[self parseFace:[token line]]];
+                            [brush addFace:[self parseFace:[token line] textureManager:theTextureManager]];
                             break;
                         case TT_CB_C:
                             if (contents == CC_BRUSH)

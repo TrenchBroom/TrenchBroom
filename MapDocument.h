@@ -54,6 +54,7 @@ extern NSString* const DocumentLoaded;
 @class Vector3f;
 @class SelectionManager;
 @class GroupManager;
+@class Texture;
 @protocol Entity;
 @protocol Brush;
 @protocol Face;
@@ -86,7 +87,7 @@ extern NSString* const DocumentLoaded;
 - (void)insertObject:(NSString *)theWadPath inTextureWadsAtIndex:(NSUInteger)theIndex;
 - (void)removeObjectFromTextureWadsAtIndex:(NSUInteger)theIndex;
 - (NSArray *)textureWads;
-- (void)updateTextureUsageCounts;
+- (void)updateFaceTextures;
 
 # pragma mark Map related functions
 
@@ -110,7 +111,7 @@ extern NSString* const DocumentLoaded;
 - (void)addBrushesToEntity:(id <Entity>)theEntity brushes:(NSArray *)theBrushes;
 - (void)moveBrushesToEntity:(id <Entity>)theEntity brushes:(NSArray *)theBrushes;
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate;
-- (id <Brush>)createBrushInEntity:(id <Entity>)theEntity withBounds:(TBoundingBox *)theBounds texture:(NSString *)theTexture;
+- (id <Brush>)createBrushInEntity:(id <Entity>)theEntity withBounds:(TBoundingBox *)theBounds texture:(Texture *)theTexture;
 - (void)duplicateBrushes:(NSArray *)theBrushes newBrushes:(NSMutableArray *)theNewBrushes;
 - (void)translateBrushes:(NSArray *)theBrushes delta:(TVector3i)theDelta lockTextures:(BOOL)lockTextures;
 - (void)rotateBrushes90CW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
@@ -127,7 +128,7 @@ extern NSString* const DocumentLoaded;
 - (void)scaleFaces:(NSArray *)theFaces xFactor:(float)theXFactor yFactor:(float)theYFactor;
 - (void)setFaces:(NSArray *)theFaces rotation:(float)theAngle;
 - (void)rotateFaces:(NSArray *)theFaces angle:(float)theAngle;
-- (void)setFaces:(NSArray *)theFaces texture:(NSString *)theTexture;
+- (void)setFaces:(NSArray *)theFaces texture:(Texture *)theTexture;
 - (void)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures;
 
 - (void)clear;

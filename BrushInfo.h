@@ -20,6 +20,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import <Foundation/Foundation.h>
 
 @class MutableBrush;
+@class TextureManager;
 @protocol Brush;
 
 @interface BrushInfo : NSObject {
@@ -32,6 +33,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (id)initWithBrush:(id <Brush>)theBrush;
 
-- (void)updateBrush:(MutableBrush *)theBrush;
+- (void)updateBrush:(MutableBrush *)theBrush textureManager:(TextureManager *)theTextureManager;
 
 @end

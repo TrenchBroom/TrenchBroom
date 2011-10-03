@@ -30,6 +30,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "PickingHitList.h"
 #import "Camera.h"
 #import "EditingPlaneFigure.h"
+#import "GLResources.h"
+#import "TextureManager.h"
+#import "Texture.h"
 
 @implementation CreateBrushTool
 
@@ -93,8 +96,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager beginUndoGrouping];
     
     SelectionManager* selectionManager = [windowController selectionManager];
+    TextureManager* textureManager = [[map glResources] textureManager];
+    
     NSArray* textureMRU = [selectionManager textureMRU];
-    NSString* texture = [textureMRU count] > 0 ? [textureMRU lastObject] : @"none";
+    Texture* texture = [textureMRU count] > 0 ? [textureMRU lastObject] : [textureManager textureForName:@"none"];
 
     brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&initialBounds texture:texture];
     [selectionManager addBrush:brush record:YES];
@@ -135,8 +140,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager beginUndoGrouping];
     
     SelectionManager* selectionManager = [windowController selectionManager];
+    TextureManager* textureManager = [[map glResources] textureManager];
+    
     NSArray* textureMRU = [selectionManager textureMRU];
-    NSString* texture = [textureMRU count] > 0 ? [textureMRU lastObject] : @"none";
+    Texture* texture = [textureMRU count] > 0 ? [textureMRU lastObject] : [textureManager textureForName:@"none"];
     
     brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&bounds texture:texture];
     [selectionManager addBrush:brush record:YES];
@@ -234,8 +241,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager beginUndoGrouping];
     
     SelectionManager* selectionManager = [windowController selectionManager];
+    TextureManager* textureManager = [[map glResources] textureManager];
+    
     NSArray* textureMRU = [selectionManager textureMRU];
-    NSString* texture = [textureMRU count] > 0 ? [textureMRU lastObject] : @"none";
+    Texture* texture = [textureMRU count] > 0 ? [textureMRU lastObject] : [textureManager textureForName:@"none"];
     
     brush = [map createBrushInEntity:[map worldspawn:YES] withBounds:&bounds texture:texture];
     [selectionManager addBrush:brush record:YES];

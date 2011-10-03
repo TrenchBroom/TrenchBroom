@@ -26,6 +26,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class MutableFace;
 @class Face;
 @class PickingHit;
+@class Texture;
 
 @interface MutableBrush : NSObject <Brush> {
     @private
@@ -40,7 +41,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds;
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds brushTemplate:(id <Brush>)theTemplate;
-- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds brushBounds:(const TBoundingBox *)theBrushBounds texture:(NSString *)theTexture;
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds brushBounds:(const TBoundingBox *)theBrushBounds texture:(Texture *)theTexture;
 
 - (BOOL)addFace:(MutableFace *)face;
 - (void)removeFace:(MutableFace *)face;

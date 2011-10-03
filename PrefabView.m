@@ -233,31 +233,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)renderFace:(id <Face>)face {
-    TVector2f t;
-    
-    TextureManager* textureManager = [glResources textureManager];
-    Texture* texture = [textureManager textureForName:[face texture]];
-    if (texture != nil)
-        [texture activate];
-    
-    float width = texture != nil ? [texture width] : 1;
-    float height = texture != nil ? [texture height] : 1;
-    
     glBegin(GL_POLYGON);
     TVertex** vertices = [face vertices];
-    for (int i = 0; i < [face vertexCount]; i++) {
-        if (texture != nil) {
-            [face texCoords:&t forVertex:&vertices[i]->vector];
-            glTexCoord2f(t.x / width, t.y / height);
-        }
-        
+    for (int i = 0; i < [face vertexCount]; i++)
         glVertexV3f(&vertices[i]->vector);
-        
-    }
     glEnd();
-    
-    if (texture != nil)
-        [texture deactivate];
 }
 
 - (void)drawRect:(NSRect)dirtyRect {

@@ -23,6 +23,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Face.h"
 #import "MutableEntity.h"
 #import "MutableBrush.h"
+#import "Texture.h"
 
 NSString* const SelectionAdded = @"SelectionAdded";
 NSString* const SelectionRemoved = @"SelectionRemoved";
@@ -67,7 +68,10 @@ NSString* const SelectionVertices = @"SelectionVertices";
     [super dealloc];
 }
 
-- (void)addTexture:(NSString *)texture {
+- (void)addTexture:(Texture *)texture {
+    if ([texture dummy])
+        return;
+    
     NSInteger index = [textureMRU indexOfObject:texture];
     if (index != NSNotFound)
         [textureMRU removeObjectAtIndex:index];
@@ -296,6 +300,8 @@ NSString* const SelectionVertices = @"SelectionVertices";
 }
 
 - (BOOL)isFaceSelected:(id <Face>)face {
+    if (face == nil)
+        NSLog(@"asdf");
     NSAssert(face != nil, @"face must not be nil");
     return [faces indexOfObjectIdenticalTo:face] != NSNotFound || [self isBrushSelected:[face brush]];
 }
