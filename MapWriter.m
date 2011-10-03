@@ -86,7 +86,7 @@ static int BUF_SIZE = 16;
     [self writeString:@" " toStream:theStream];
     [self writePoint:[theFace point3] toStream:theStream];
     
-    NSString* flags = [[NSString alloc] initWithFormat:@" %@ %i %i %f %f %f\n", [theFace texture], [theFace xOffset], [theFace yOffset], [theFace rotation], [theFace xScale], [theFace yScale]];
+    NSString* flags = [[NSString alloc] initWithFormat:@" %@ %i %i %f %f %f\n", [[theFace texture] name], [theFace xOffset], [theFace yOffset], [theFace rotation], [theFace xScale], [theFace yScale]];
     [self writeString:flags toStream:theStream];
     [flags release];
 }

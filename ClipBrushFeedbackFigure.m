@@ -48,8 +48,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)render {
     if (brush1 != nil || brush2 != nil) {
-        glSetEdgeOffset(0.6f);
-        glEnable(GL_DEPTH_TEST);
         glColor4f(0, 1, 0, 1);
         glBegin(GL_LINES);
         if (brush1 != nil) {
@@ -67,8 +65,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             }
         }
         glEnd();
-        glDisable(GL_DEPTH_TEST);
-        glResetEdgeOffset();
     }
 }
 
