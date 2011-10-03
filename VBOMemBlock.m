@@ -1,4 +1,6 @@
 /*
+Copyright (C) 2010-2011 Kristian Duske
+
 This file is part of TrenchBroom.
 
 TrenchBroom is free software: you can redistribute it and/or modify

@@ -3,34 +3,34 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>editing_objects.html</string>
+	<string>creating_new_objects.html</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>index.html</string>
 			<key>lastUsed</key>
-			<date>2011-10-01T17:25:29Z</date>
+			<date>2011-10-02T06:49:54Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>camera_navigation.html</string>
 			<key>lastUsed</key>
-			<date>2011-10-01T17:47:48Z</date>
+			<date>2011-10-02T06:47:22Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>creating_new_objects.html</string>
 			<key>lastUsed</key>
-			<date>2011-10-01T17:47:42Z</date>
+			<date>2011-10-02T12:53:24Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>editing_objects.html</string>
 			<key>lastUsed</key>
-			<date>2011-10-01T17:51:14Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2011-10-02T12:53:24Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -102,28 +102,28 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>74</integer>
 				<key>line</key>
-				<integer>45</integer>
+				<integer>7</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>3</integer>
 		</dict>
 		<key>editing_objects.html</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>85</integer>
 				<key>line</key>
-				<integer>124</integer>
+				<integer>127</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>74</integer>
+			<integer>78</integer>
 		</dict>
 		<key>getting_started.html</key>
 		<dict>
@@ -144,14 +144,30 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>63</integer>
+				<integer>50</integer>
 				<key>line</key>
-				<integer>63</integer>
+				<integer>64</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>23</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>39</integer>
+				<key>line</key>
+				<integer>64</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>71</integer>
+				<key>line</key>
+				<integer>64</integer>
+			</dict>
 		</dict>
 		<key>selecting_objects.html</key>
 		<dict>
@@ -195,6 +211,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{905, 186}, {1521, 996}}</string>
+	<string>{{652, 514}, {1521, 878}}</string>
 </dict>
 </plist>
