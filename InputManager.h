@@ -34,6 +34,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @protocol DndTool;
 @protocol Filter;
 
+typedef enum {
+    MS_NONE,
+    MS_LEFT,
+    MS_RIGHT
+} EMouseStatus;
+
 @interface InputManager : NSObject {
     @private 
     MapWindowController* windowController;
@@ -53,8 +59,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     ClipTool* clipTool;
     id <Tool> activeTool;
     id <Tool> cursorOwner;
-    BOOL drag;
-    BOOL scroll;
+    EMouseStatus dragStatus;
+    EMouseStatus scrollStatus;
     BOOL hasMouse;
     
     id <DndTool> activeDndTool;

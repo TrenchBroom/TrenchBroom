@@ -220,6 +220,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self move:&deltai];
     
     addV3f(&editingPlanePoint, &deltaf, &editingPlanePoint);
+    rayPointAtDistance(ray, [editingPlane intersectWithRay:ray planePosition:&editingPlanePoint], &lastPoint);
 }
 
 - (void)endLeftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

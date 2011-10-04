@@ -125,7 +125,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (newActiveTool == nil && ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES)) {
         if ([self isRotateModifierPressed]) {
             newActiveTool = rotateTool;
-        } else if (drag || scroll) {
+        } else if (dragStatus == MS_LEFT || scrollStatus == MS_LEFT) {
             if ([self isFaceDragModifierPressed]) {
                 PickingHit* hit = [[self currentHits] edgeDragHit];
                 if (hit != nil) {
@@ -144,12 +144,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         }
     } 
     
-    if ((newActiveTool == nil && (drag && [selectionManager mode] == SM_FACES)) || 
+    if ((newActiveTool == nil && (dragStatus == MS_LEFT && [selectionManager mode] == SM_FACES)) || 
                ([selectionManager mode] == SM_FACES && [[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed]))) {
         newActiveTool = faceTool;
     }
     
-    if (newActiveTool == nil && drag && [selectionManager mode] == SM_UNDEFINED) {
+    if (newActiveTool == nil && dragStatus == MS_LEFT && [selectionManager mode] == SM_UNDEFINED) {
         newActiveTool = createBrushTool;
     }
     
@@ -168,7 +168,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)updateCursorOwner {
-    if (!drag) {
+    if (dragStatus == MS_NONE && scrollStatus == MS_NONE) {
         SelectionManager* selectionManager = [windowController selectionManager];
         
         id <Tool> newOwner = nil;
@@ -355,7 +355,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)handleFlagsChanged:(NSEvent *)event sender:(id)sender {
-    [self updateActiveTool];
+    if (dragStatus == MS_NONE && scrollStatus == MS_NONE)
+        [self updateActiveTool];
     [activeTool handleFlagsChanged:event ray:&lastRay hits:[self currentHits]];
     
     [self updateCursorOwner];
@@ -363,8 +364,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender {
-    if (!drag) {
-        drag = YES;
+    if (dragStatus == MS_NONE) {
+        dragStatus = MS_LEFT;
         [self updateActiveTool];
         [activeTool beginLeftDrag:lastEvent ray:&lastRay hits:[self currentHits]];
 
@@ -410,16 +411,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
     
-    if (drag || scroll) {
-        if (drag) {
+    if (dragStatus == MS_LEFT || scrollStatus == MS_LEFT) {
+        if (dragStatus == MS_LEFT) {
             [activeTool endLeftDrag:lastEvent ray:&lastRay hits:[self currentHits]];
-            drag = NO;
+            dragStatus = MS_NONE;
             [self updateActiveTool];
         }
         
-        if (scroll) {
+        if (scrollStatus == MS_LEFT) {
             [activeTool endLeftScroll:lastEvent ray:&lastRay hits:[self currentHits]];
-            scroll = NO;
+            scrollStatus = MS_NONE;
             [self updateActiveTool];
             
             [self updateCursorOwner];
@@ -427,6 +428,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         }
     } else {
         [activeTool handleLeftMouseUp:lastEvent ray:&lastRay hits:[self currentHits]];
+        NSAssert([[[windowController document] undoManager] groupingLevel] == 0, @"undo grouping level must be 0 after drag ended");
     }
 
     [self updateCursorOwner];
@@ -434,8 +436,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender {
-    if (!drag) {
-        drag = YES;
+    if (dragStatus == MS_NONE) {
+        dragStatus = MS_RIGHT;
         [self updateActiveTool];
         [activeTool beginRightDrag:lastEvent ray:&lastRay hits:[self currentHits]];
 
@@ -455,33 +457,36 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)handleRightMouseUp:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
-    if (drag) {
-        [activeTool endRightDrag:lastEvent ray:&lastRay hits:[self currentHits]];
-        drag = NO;
-        [self updateActiveTool];
-
-        [self updateCursorOwner];
-        [self updateCursor];
-    } else if (scroll) {
-        [activeTool endRightScroll:lastEvent ray:&lastRay hits:[self currentHits]];
-        scroll = NO;
-        [self updateActiveTool];
+    
+    if (dragStatus == MS_RIGHT || scrollStatus == MS_RIGHT) {
+        if (dragStatus == MS_RIGHT) {
+            [activeTool endRightDrag:lastEvent ray:&lastRay hits:[self currentHits]];
+            dragStatus = MS_NONE;
+            [self updateActiveTool];
+        }
         
-        [self updateCursorOwner];
-        [self updateCursor];
+        if (scrollStatus == MS_RIGHT) {
+            [activeTool endRightScroll:lastEvent ray:&lastRay hits:[self currentHits]];
+            scrollStatus = MS_NONE;
+            [self updateActiveTool];
+        }
     } else {
         [activeTool handleRightMouseUp:lastEvent ray:&lastRay hits:[self currentHits]];
-        [self showContextMenu];
+        if (dragStatus == MS_NONE)
+            [self showContextMenu];
     }
+    
+    [self updateCursorOwner];
+    [self updateCursor];
 }
 
 - (void)handleScrollWheel:(NSEvent *)event sender:(id)sender {
     int buttons = [NSEvent pressedMouseButtons];
-    if (!scroll && (buttons == 1 || buttons == 2)) {
-        scroll = YES;
-        if (!drag)
+    if (scrollStatus == MS_NONE && (buttons == 1 || buttons == 2)) {
+        scrollStatus = buttons == 1 ? MS_LEFT : MS_RIGHT;
+        if (dragStatus == MS_NONE)
             [self updateActiveTool];
-        if (buttons == 1)
+        if (scrollStatus == MS_LEFT)
             [activeTool beginLeftScroll:lastEvent ray:&lastRay hits:[self currentHits]];
         else
             [activeTool beginRightScroll:lastEvent ray:&lastRay hits:[self currentHits]];
@@ -490,14 +495,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 
     [self updateEvent:event];
-    if (scroll) {
-        if (buttons == 1)
-            [activeTool leftScroll:lastEvent ray:&lastRay hits:[self currentHits]];
-        else
-            [activeTool rightScroll:lastEvent ray:&lastRay hits:[self currentHits]];
-    } else {
+    if (scrollStatus == MS_LEFT)
+        [activeTool leftScroll:lastEvent ray:&lastRay hits:[self currentHits]];
+    else if (scrollStatus == MS_RIGHT)
+        [activeTool rightScroll:lastEvent ray:&lastRay hits:[self currentHits]];
+    else
         [activeTool handleScrollWheel:lastEvent ray:&lastRay hits:[self currentHits]];
-    }
+    
     [self updateCursor];
     
 }
