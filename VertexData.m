@@ -609,6 +609,8 @@ BOOL initVertexDataWithFaces(TVertexData* vd, const TBoundingBox* b, NSArray* f,
     while ((face = [faceEn nextObject])) {
         switch (cutVertexData(vd, face, d)) {
             case CR_REDUNDANT:
+                if (*d == nil)
+                    *d = [NSMutableArray array];
                 [*d addObject:face];
                 break;
             case CR_NULL:
