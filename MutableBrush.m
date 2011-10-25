@@ -90,7 +90,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         NSEnumerator* faceEn = [[theTemplate faces] objectEnumerator];
         id <Face> faceTemplate;
         while ((faceTemplate = [faceEn nextObject])) {
-            MutableFace* face = [[MutableFace alloc] initWithFaceTemplate:faceTemplate];
+            MutableFace* face = [[MutableFace alloc] initWithWorldBounds:worldBounds faceTemplate:faceTemplate];
             [self addFace:face];
             [face release];
         }
@@ -113,7 +113,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         p2.z = max.z;
         p3 = min;
         p3.x = max.x;
-        MutableFace* frontFace = [[MutableFace alloc] initWithPoint1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+        MutableFace* frontFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3 texture:theTexture];
         [self addFace:frontFace];
         [frontFace release];
         
@@ -122,7 +122,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         p2.y = max.y;
         p3 = min;
         p3.z = max.z;
-        MutableFace* leftFace = [[MutableFace alloc] initWithPoint1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+        MutableFace* leftFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3 texture:theTexture];
         [self addFace:leftFace];
         [leftFace release];
         
@@ -131,7 +131,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         p2.x = max.x;
         p3 = min;
         p3.y = max.y;
-        MutableFace* bottomFace = [[MutableFace alloc] initWithPoint1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+        MutableFace* bottomFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3 texture:theTexture];
         [self addFace:bottomFace];
         [bottomFace release];
         
@@ -140,7 +140,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         p2.x = min.x;
         p3 = max;
         p3.z = min.z;
-        MutableFace* backFace = [[MutableFace alloc] initWithPoint1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+        MutableFace* backFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3 texture:theTexture];
         [self addFace:backFace];
         [backFace release];
         
@@ -149,7 +149,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         p2.z = min.z;
         p3 = max;
         p3.y = min.y;
-        MutableFace* rightFace = [[MutableFace alloc] initWithPoint1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+        MutableFace* rightFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3 texture:theTexture];
         [self addFace:rightFace];
         [rightFace release];
         
@@ -158,7 +158,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         p2.y = min.y;
         p3 = max;
         p3.x = min.x;
-        MutableFace* topFace = [[MutableFace alloc] initWithPoint1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+        MutableFace* topFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3 texture:theTexture];
         [self addFace:topFace];
         [topFace release];
     }
@@ -292,7 +292,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSMutableArray* testFaces = [[NSMutableArray alloc] initWithArray:faces];
     [testFaces removeObject:face];
 
-    MutableFace* testFace = [[MutableFace alloc] initWithFaceTemplate:face];
+    MutableFace* testFace = [[MutableFace alloc] initWithWorldBounds:worldBounds faceTemplate:face];
     [testFace dragBy:dist lockTexture:NO];
     [testFaces addObject:testFace];
     [testFace release];
@@ -362,6 +362,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (const TVector3f *)center {
     return vertexDataCenter([self vertexData]);
+}
+
+- (const TBoundingBox *)worldBounds {
+    return worldBounds;
 }
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList {

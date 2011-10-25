@@ -61,6 +61,8 @@ typedef enum {
     TVector3f scaledTexAxisY;
     BOOL texAxesValid;
     
+    const TBoundingBox* worldBounds;
+    
     // transforms surface coordinates to world coordinates
     TMatrix4f surfaceToWorldMatrix;
     TMatrix4f worldToSurfaceMatrix; // inverse of surface matrix
@@ -71,8 +73,9 @@ typedef enum {
     VBOMemBlock* memBlock;
 }
 
-- (id)initWithPoint1:(const TVector3i *)aPoint1 point2:(const TVector3i *)aPoint2 point3:(const TVector3i *)aPoint3 texture:(Texture *)theTexture;
-- (id)initWithFaceTemplate:(id <Face>)theTemplate;
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds;
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds point1:(const TVector3i *)aPoint1 point2:(const TVector3i *)aPoint2 point3:(const TVector3i *)aPoint3 texture:(Texture *)theTexture;
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds faceTemplate:(id <Face>)theTemplate;
 
 - (void)setBrush:(MutableBrush *)theBrush;
 - (void)setPoint1:(const TVector3i *)thePoint1 point2:(const TVector3i *)thePoint2 point3:(const TVector3i *)thePoint3;

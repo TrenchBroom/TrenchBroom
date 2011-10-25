@@ -69,7 +69,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     [tokens addObject:theToken];
 }
 
-- (MutableFace *)parseFace:(int)filePosition textureManager:(TextureManager *)textureManager {
+- (MutableFace *)parseFace:(int)filePosition textureManager:(TextureManager *)textureManager worldBounds:(const TBoundingBox *)worldBounds {
     TVector3i p1, p2, p3;
     
     MapToken* token = [self nextToken];
@@ -191,7 +191,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     [self expect:TT_DEC | TT_FRAC actual:token];
     float yScale = [[token data] floatValue];
     
-    MutableFace* face = [[MutableFace alloc] init];
+    MutableFace* face = [[MutableFace alloc] initWithWorldBounds:worldBounds];
     [face setPoint1:&p1 point2:&p2 point3:&p3];
     [face setTexture:texture];
     [face setXOffset:xOffset];
@@ -259,7 +259,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                 case PS_BRUSH:
                     switch ([token type]) {
                         case TT_B_O: {
-                            MutableFace* face = [self parseFace:[token line] textureManager:theTextureManager];
+                            MutableFace* face = [self parseFace:[token line] textureManager:theTextureManager worldBounds:[map worldBounds]];
                             [brush addFace:face];
                             break;
                         }
@@ -340,7 +340,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                             break;
                         case CC_FACE:
                             [self expect:TT_B_O actual:token];
-                            [result addObject:[self parseFace:[token line] textureManager:theTextureManager]];
+                            [result addObject:[self parseFace:[token line] textureManager:theTextureManager worldBounds:theWorldBounds]];
                             break;
                         default:
                             break;
@@ -378,7 +378,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                 case PS_BRUSH:
                     switch ([token type]) {
                         case TT_B_O:
-                            [brush addFace:[self parseFace:[token line] textureManager:theTextureManager]];
+                            [brush addFace:[self parseFace:[token line] textureManager:theTextureManager worldBounds:theWorldBounds]];
                             break;
                         case TT_CB_C:
                             if (contents == CC_BRUSH)

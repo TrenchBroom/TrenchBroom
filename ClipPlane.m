@@ -136,12 +136,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         return nil;
     
     id <Face> template = [[[self hitList:0] firstHitOfType:HT_FACE ignoreOccluders:YES] object];
+    const TBoundingBox* worldBounds = [template worldBounds];
     
     MutableFace* face = nil;
     if (front)
-        face = [[MutableFace alloc] initWithPoint1:p1 point2:p2 point3:p3 texture:[template texture]];
+        face = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:p1 point2:p2 point3:p3 texture:[template texture]];
     else
-        face = [[MutableFace alloc] initWithPoint1:p3 point2:p2 point3:p1 texture:[template texture]];
+        face = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:p3 point2:p2 point3:p1 texture:[template texture]];
 
     [face setXOffset:[template xOffset]];
     [face setYOffset:[template yOffset]];

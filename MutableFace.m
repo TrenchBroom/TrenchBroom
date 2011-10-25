@@ -299,8 +299,10 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 #pragma mark -
 @implementation MutableFace
 
-- (id)init {
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds {
+    NSAssert(theWorldBounds != NULL, @"world bounds must not be NULL");
     if ((self = [super init])) {
+        worldBounds = theWorldBounds;
         faceId = [[[IdGenerator sharedGenerator] getId] retain];
         texture = nil;
         filePosition = -1;
@@ -309,8 +311,8 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     return self;
 }
 
-- (id)initWithPoint1:(const TVector3i *)aPoint1 point2:(const TVector3i *)aPoint2 point3:(const TVector3i *)aPoint3 texture:(Texture *)theTexture {
-    if ((self = [self init])) {
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds point1:(const TVector3i *)aPoint1 point2:(const TVector3i *)aPoint2 point3:(const TVector3i *)aPoint3 texture:(Texture *)theTexture {
+    if ((self = [self initWithWorldBounds:theWorldBounds])) {
         [self setPoint1:aPoint1 point2:aPoint2 point3:aPoint3];
         [self setTexture:theTexture];
         [self setXScale:1];
@@ -320,8 +322,8 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     return self;
 }
 
-- (id)initWithFaceTemplate:(id <Face>)theTemplate {
-    if ((self = [self init])) {
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds faceTemplate:(id <Face>)theTemplate {
+    if ((self = [self initWithWorldBounds:theWorldBounds])) {
         [self setPoint1:[theTemplate point1] point2:[theTemplate point2] point3:[theTemplate point3]];
         [self setTexture:[theTemplate texture]];
         [self setXOffset:[theTemplate xOffset]];
@@ -565,7 +567,6 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     rotateQ(theRotation, &plane.norm, &plane.norm);
     addV3f(&plane.point, theCenter, &plane.point);
     
-    TBoundingBox* worldBounds = [[[[self brush] entity] map] worldBounds];
     makePointsForPlane(&plane, worldBounds, &point1, &point2, &point3);
     
     [self geometryChanged];
@@ -781,6 +782,10 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (int)edgeCount {
     return side->edgeCount;
+}
+
+- (const TBoundingBox *)worldBounds {
+    return worldBounds;
 }
 
 - (void)texCoords:(TVector2f *)texCoords forVertex:(TVector3f *)vertex {

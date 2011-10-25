@@ -52,6 +52,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (TEdge **)edges;
 - (int)edgeCount;
 
+- (const TBoundingBox *)worldBounds;
+
 - (void)texCoords:(TVector2f *)texCoords forVertex:(TVector3f *)vertex;
 - (void)gridCoords:(TVector2f *)gridCoords forVertex:(TVector3f *)vertex;
 - (void)transformSurface:(const TVector3f *)surfacePoint toWorld:(TVector3f *)worldPoint;

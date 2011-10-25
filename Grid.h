@@ -53,9 +53,7 @@ extern NSString* const GridChanged;
 - (void)snapToGridV3f:(const TVector3f *)vector result:(TVector3f *)result;
 - (void)snapToFarthestGridV3f:(const TVector3f *)vector result:(TVector3f *)result;
 - (void)snapUpToGridV3f:(const TVector3f *)vector result:(TVector3f *)result;
-- (void)snapUpToNextV3f:(const TVector3f *)vector result:(TVector3f *)result;
 - (void)snapDownToGridV3f:(const TVector3f *)vector result:(TVector3f *)result;
-- (void)snapDownToPreviousV3f:(const TVector3f *)vector result:(TVector3f *)result;
 - (void)gridOffsetV3f:(const TVector3f *)vector result:(TVector3f *)result;
 
 - (void)snapToGridV3i:(const TVector3i *)vector result:(TVector3i *)result;
