@@ -38,7 +38,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "TextureManager.h"
 #import "GLFontManager.h"
 #import "Texture.h"
-#import "CursorManager.h"
 #import "Figure.h"
 #import "Filter.h"
 #import "DefaultFilter.h"
@@ -113,7 +112,6 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)cameraChanged:(NSNotification *)notification;
 - (void)optionsOrGroupsChanged:(NSNotification *)notification;
 - (void)gridChanged:(NSNotification *)notification;
-- (void)cursorChanged:(NSNotification *)notification;
 - (void)preferencesDidChange:(NSNotification *)notification;
 
 - (void)documentCleared:(NSNotification *)notification;
@@ -1059,10 +1057,6 @@ int const TexCoordSize = 2 * sizeof(float);
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
-- (void)cursorChanged:(NSNotification *)notification {
-    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
-}
-
 - (void)preferencesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     if (DefaultsQuakePath != [userInfo objectForKey:DefaultsKey])
@@ -1138,9 +1132,6 @@ int const TexCoordSize = 2 * sizeof(float);
         [center addObserver:self selector:@selector(optionsOrGroupsChanged:) name:OptionsChanged object:options];
         [center addObserver:self selector:@selector(optionsOrGroupsChanged:) name:GroupsChanged object:groupManager];
         [center addObserver:self selector:@selector(gridChanged:) name:GridChanged object:grid];
-        
-        CursorManager* cursorManager = [windowController cursorManager];
-        [center addObserver:self selector:@selector(cursorChanged:) name:CursorChanged object:cursorManager];
         
         PreferencesManager* preferences = [PreferencesManager sharedManager];
         [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:preferences];
@@ -1312,16 +1303,6 @@ int const TexCoordSize = 2 * sizeof(float);
     float specReflection[] = { 0.8f, 0.8f, 0.8f, 1.0f };
     glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
     glMateriali(GL_FRONT, GL_SHININESS, 96);
-    
-    CursorManager* cursorManager = [windowController cursorManager];
-    
-    glDisable(GL_DEPTH_TEST);
-    glColor4f(1, 1, 0, 0.4f);
-    [cursorManager render];
-    
-    glEnable(GL_DEPTH_TEST);
-    glColor4f(1, 1, 0, 1);
-    [cursorManager render];
     
     glDisable(GL_LIGHT0);
     glDisable(GL_COLOR_MATERIAL);

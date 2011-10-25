@@ -125,9 +125,25 @@ NSString* const GridChanged = @"GridChanged";
     return actualSize * ceilf(f / actualSize);
 }
 
+- (float)snapUpToNextf:(float)f {
+    int actualSize = [self actualSize];
+    float s = actualSize * ceilf(f / actualSize);
+    if (s == f)
+        s += actualSize;
+    return s;
+}
+
 - (float)snapDownToGridf:(float)f {
     int actualSize = [self actualSize];
     return actualSize * floorf(f / actualSize);
+}
+
+- (float)snapDownToPreviousf:(float)f {
+    int actualSize = [self actualSize];
+    float s = actualSize * floorf(f / actualSize);
+    if (s == f)
+        s -= actualSize;
+    return s;
 }
 
 - (void)snapToGridV3f:(const TVector3f *)vector result:(TVector3f *)result {
@@ -208,6 +224,31 @@ NSString* const GridChanged = @"GridChanged";
     TVector3i snapped;
     [self snapToGridV3i:vector result:&snapped];
     subV3i(vector, &snapped, result);
+}
+
+- (float)intersectWithRay:(const TRay *)ray {
+    TPlane plane;
+    
+    plane.point.x = ray->direction.x > 0 ? [self snapUpToNextf:ray->origin.x] : [self snapDownToPreviousf:ray->origin.x];
+    plane.point.y = ray->direction.y > 0 ? [self snapUpToNextf:ray->origin.y] : [self snapDownToPreviousf:ray->origin.y];
+    plane.point.z = ray->direction.z > 0 ? [self snapUpToNextf:ray->origin.z] : [self snapDownToPreviousf:ray->origin.z];
+    
+    plane.norm = XAxisPos;
+    float distX = intersectPlaneWithRay(&plane, ray);
+    
+    plane.norm = YAxisPos;
+    float distY =intersectPlaneWithRay(&plane, ray);
+    
+    plane.norm = ZAxisPos;
+    float distZ = intersectPlaneWithRay(&plane, ray);
+    
+    float dist = distX;
+    if (!isnan(distY) && (isnan(dist) || fabsf(distY) < fabsf(dist)))
+        dist = distY;
+    if (!isnan(distZ) && (isnan(dist) || fabsf(distZ) < fabsf(dist)))
+        dist = distZ;
+    
+    return dist;
 }
 
 - (void)activateTexture {

@@ -475,9 +475,9 @@ BOOL parseV3f(NSString* s, NSRange r, TVector3f* o) {
 }
 
 BOOL opposingV3f(const TVector3f* v1, const TVector3f* v2) {
-    return !((v1->x > 0 && v2->x > 0 || v1->x < 0 && v2->x < 0) && 
-             (v1->y > 0 && v2->y > 0 || v1->y < 0 && v2->y < 0) && 
-             (v1->z > 0 && v2->z > 0 || v1->z < 0 && v2->z < 0));
+    return !(((v1->x > 0 && v2->x > 0) || (v1->x < 0 && v2->x < 0)) && 
+             ((v1->y > 0 && v2->y > 0) || (v1->y < 0 && v2->y < 0)) && 
+             ((v1->z > 0 && v2->z > 0) || (v1->z < 0 && v2->z < 0)));
 }
 
 # pragma mark TVector3i functions
@@ -1274,7 +1274,7 @@ void adjugateM2f(const TMatrix2f* m, TMatrix2f* o) {
 }
 
 float determinantM2f(const TMatrix2f* m) {
-    return m->values[0] * m->values[3] - m->values[2] - m->values[1];
+    return m->values[0] * m->values[3] - m->values[2] * m->values[1];
 }
 
 void negateM2f(const TMatrix2f* m, TMatrix2f* o) {
@@ -1507,17 +1507,20 @@ BOOL invertM4f(const TMatrix4f* m, TMatrix4f* o) {
         mulM2f(&CAi, &B, &CAiB);
         mulM2f(&Ai, &B, &AiB);
         
+        // calculate D
         subM2f(&D, &CAiB, &D);
-        mulM2f(&AiB, &D, &A);
-
-        negateM2f(&A, &B);
+        invertM2f(&D, &D);
         
-        mulM2f(&A, &CAi, &A);
+        // calculate -C and -B
+        mulM2f(&D, &CAi, &C);
+        mulM2f(&AiB, &D, &B);
+        
+        mulM2f(&B, &CAi, &A);
         addM2f(&A, &Ai, &A);
         
-        mulM2f(&D, &CAi, &C);
         negateM2f(&C, &C);
-        
+        negateM2f(&B, &B);
+
         setSubMatrixM4f(m, &A, 0, o);
         setSubMatrixM4f(o, &C, 1, o);
         setSubMatrixM4f(o, &B, 2, o);
@@ -1742,21 +1745,26 @@ void transformM4fV4f(const TMatrix4f* m, const TVector4f* v, TVector4f* o) { // 
 
 void projectOntoCoordinatePlane(EPlane plane, const TVector3f* v, TVector3f* o) {
     switch (plane) {
-        case P_XY:
+        case P_XY: {
             o->x = v->x;
             o->y = v->y;
             o->z = v->z;
             break;
-        case P_XZ:
+        }
+        case P_XZ: {
+            float y = v->y;
             o->x = v->x;
             o->y = v->z;
-            o->z = v->y;
+            o->z = y;
             break;
-        default:
+        }
+        default: {
+            float x = v->x;
             o->x = v->y;
             o->y = v->z;
-            o->z = v->x;
+            o->z = x;
             break;
+        }
     }
 }
 
@@ -2055,4 +2063,46 @@ void makeCylinder(int segments, TVector3f* points, TVector3f* normals) {
         normals[2 * segments] = normals[0];
         normals[2 * segments + 1] = normals[1];
     }
+}
+
+void makeArrowTriangles(float baseLength, float baseWidth, float headLength, float headWidth, TVector3f* points) {
+    points[0].x = 0;
+    points[0].y = 0;
+    points[0].z = 0;
+    points[1].x = baseLength;
+    points[1].y = baseWidth / 2;
+    points[1].z = 0;
+    points[2].x = baseLength;
+    points[2].y = -baseWidth / 2;
+    points[2].z = 0;
+    points[3].x = baseLength + headLength;
+    points[3].y = 0;
+    points[3].z = 0;
+    points[4].x = baseLength;
+    points[4].y = -headWidth / 2;
+    points[4].z = 0;
+    points[5].x = baseLength;
+    points[5].y = headWidth / 2;
+    points[5].z = 0;
+}
+
+void makeArrowOutline(float baseLength, float baseWidth, float headLength, float headWidth, TVector3f* points) {
+    points[0].x = 0;
+    points[0].y = 0;
+    points[0].z = 0;
+    points[1].x = baseLength;
+    points[1].y = baseWidth / 2;
+    points[1].z = 0;
+    points[2].x = baseLength;
+    points[2].y = headWidth / 2;
+    points[2].z = 0;
+    points[3].x = baseLength + headLength;
+    points[3].y = 0;
+    points[3].z = 0;
+    points[4].x = baseLength;
+    points[4].y = -headWidth / 2;
+    points[4].z = 0;
+    points[5].x = baseLength;
+    points[5].y = -baseWidth / 2;
+    points[5].z = 0;
 }

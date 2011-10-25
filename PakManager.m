@@ -113,7 +113,7 @@ static PakManager* sharedInstance = nil;
     return UINT_MAX;  // denotes an object that cannot be released
 }
 
-- (void)release {
+- (oneway void)release {
     //do nothing
 }
 

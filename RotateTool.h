@@ -26,7 +26,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @interface RotateTool : DefaultTool {
 @private
     MapWindowController* windowController;
-    RotateCursor* rotateCursor;
     RotateFeedbackFigure* feedbackFigure;
     BOOL drag;
     TVector3f center;

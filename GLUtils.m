@@ -25,6 +25,10 @@ void glVertexV3f(const TVector3f* v) {
     glVertex3f(v->x, v->y, v->z);
 }
 
+void glColorV4f(const TVector4f* v) {
+    glColor4f(v->x, v->y, v->z, v->w);
+}
+
 void glSetEdgeOffset(float f) {
     glDepthRange(0.0, 1.0 - EdgeOffset * f);
 }

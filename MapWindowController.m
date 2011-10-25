@@ -45,7 +45,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Prefab.h"
 #import "MapWriter.h"
 #import "CameraAnimation.h"
-#import "CursorManager.h"
 #import "ClipTool.h"
 #import "EntityDefinitionManager.h"
 #import "EntityDefinition.h"
@@ -62,7 +61,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "PointFileFeedbackFigure.h"
 #import "Renderer.h"
 #import "GroupManager.h"
-#import "EditingPlane.h"
+#import "EditingSystem.h"
 
 @interface MapWindowController (private)
 
@@ -321,7 +320,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self preferencesDidChange:nil];
     
     inputManager = [[InputManager alloc] initWithWindowController:self];
-    cursorManager = [[CursorManager alloc] init];
     
     [view3D setup];
     
@@ -478,7 +476,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [pointFileFigure release];
     [options release];
     [inputManager release];
-    [cursorManager release];
     [camera release];
     [inspectorViewController release];
     [console release];
@@ -813,8 +810,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        EditingPlane* editingPlane = [camera editingPlane];
-        scaleV3f([editingPlane leftAxis], delta, &deltaf);
+        EditingSystem* editingSystem = [camera horizontalEditingSystem];
+        scaleV3f([editingSystem xAxis], -delta, &deltaf);
 
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
@@ -848,8 +845,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        EditingPlane* editingPlane = [camera editingPlane];
-        scaleV3f([editingPlane rightAxis], delta, &deltaf);
+        EditingSystem* editingSystem = [camera horizontalEditingSystem];
+        scaleV3f([editingSystem xAxis], delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
@@ -882,8 +879,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        EditingPlane* editingPlane = [camera editingPlane];
-        scaleV3f([editingPlane upAxis], delta, &deltaf);
+        EditingSystem* editingSystem = [camera horizontalEditingSystem];
+        scaleV3f([editingSystem yAxis], delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
@@ -917,8 +914,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        EditingPlane* editingPlane = [camera editingPlane];
-        scaleV3f([editingPlane downAxis], delta, &deltaf);
+        EditingSystem* editingSystem = [camera horizontalEditingSystem];
+        scaleV3f([editingSystem yAxis], -delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
@@ -949,8 +946,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        EditingPlane* editingPlane = [camera editingPlane];
-        scaleV3f([editingPlane backAxis], delta, &deltaf);
+        EditingSystem* editingSystem = [camera horizontalEditingSystem];
+        scaleV3f([editingSystem zAxis], delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
@@ -981,8 +978,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
-        EditingPlane* editingPlane = [camera editingPlane];
-        scaleV3f([editingPlane frontAxis], delta, &deltaf);
+        EditingSystem* editingSystem = [camera horizontalEditingSystem];
+        scaleV3f([editingSystem zAxis], -delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
@@ -1584,10 +1581,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (InputManager *)inputManager {
     return inputManager;
-}
-
-- (CursorManager *)cursorManager {
-    return cursorManager;
 }
 
 - (Options *)options {

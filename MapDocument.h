@@ -129,7 +129,7 @@ extern NSString* const DocumentLoaded;
 - (void)setFaces:(NSArray *)theFaces rotation:(float)theAngle;
 - (void)rotateFaces:(NSArray *)theFaces angle:(float)theAngle;
 - (void)setFaces:(NSArray *)theFaces texture:(Texture *)theTexture;
-- (void)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures;
+- (BOOL)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures;
 
 - (void)clear;
 

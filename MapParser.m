@@ -304,7 +304,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     [self expect:TT_B_O | TT_CB_O actual:token];
     if ([token type] == TT_CB_O) {
         MapToken* nextToken = [[MapToken alloc] initWithToken:[self nextToken]];
-        if ([nextToken type] == TT_CB_O || TT_STR) {
+        if ([nextToken type] == TT_CB_O || [nextToken type] == TT_STR) {
             contents = CC_ENT;
         } else {
             contents = CC_BRUSH;

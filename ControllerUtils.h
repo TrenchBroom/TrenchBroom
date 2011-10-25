@@ -24,8 +24,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Camera.h"
 #import "Grid.h"
 #import "Entity.h"
+#import "Brush.h"
+#import "Face.h"
 
 BOOL calculateEntityOrigin(EntityDefinition* entityDefinition, PickingHitList* hits, NSPoint mousePos, Camera* camera, TVector3i* result);
 NSArray* modListFromWorldspawn(id <Entity> worldspawn);
 void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingBox* worldBounds, TVector3f* deltaf, TVector3f* lastPoint);
+float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBounds, const TVector3f* deltaf);
 void updateMenuWithExecutables(NSMenu* menu, BOOL setIcons, SEL action);

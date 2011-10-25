@@ -19,7 +19,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "ControllerUtils.h"
 #import "PreferencesManager.h"
-#import "Face.h"
 
 BOOL calculateEntityOrigin(EntityDefinition* entityDefinition, PickingHitList* hits, NSPoint mousePos, Camera* camera, TVector3i* result) {
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
@@ -213,6 +212,71 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
         }
     }
 }
+
+float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBounds, const TVector3f* deltaf) {
+    float dist = dotV3f(deltaf, [face norm]);
+    if (isnan(dist) || dist == 0)
+        return NAN;
+    
+    TVector3f edgeDelta;
+    
+    // find the directions which the vertices are moved in
+    TVertex** vertices = [face vertices];
+    int vertexCount = [face vertexCount];
+    
+    id <Brush> brush = [face brush];
+    TEdge** edges = [brush edges];
+    int edgeCount = [brush edgeCount];
+
+    float dragDist = dist;
+    BOOL performDrag;
+    for (int i = 0; i < edgeCount; i++) {
+        int c = 0;
+        BOOL flip = NO;
+
+        TEdge* e = edges[i];
+        for (int j = 0; j < vertexCount; j++) {
+            TVertex* v = vertices[j];
+            
+            if (v == e->startVertex || v == e->endVertex) {
+                if (c == 0)
+                    flip = v == e->endVertex;
+                c++;
+            }
+        }
+
+        if (c == 1) {
+            if (dist > 0)
+                flip = !flip;
+            
+            TRay ray;
+            if (flip) {
+                subV3f(&e->startVertex->vector, &e->endVertex->vector, &ray.direction);
+                ray.origin = e->endVertex->vector;
+            } else {
+                subV3f(&e->endVertex->vector, &e->startVertex->vector, &ray.direction);
+                ray.origin = e->startVertex->vector;
+            }
+            normalizeV3f(&ray.direction, &ray.direction);
+            
+            float gridDist = [grid intersectWithRay:&ray];
+            if (fabsf(gridDist) > 1.5f) {
+                scaleV3f(&ray.direction, gridDist, &edgeDelta);
+                float normDist = dotV3f(&edgeDelta, [face norm]);
+                if (fabsf(normDist) < fabsf(dragDist)) {
+                    dragDist = normDist;
+                    performDrag = YES;
+                }
+            }
+        }
+    }
+    
+    if (!performDrag)
+        return 0;
+    
+    return dragDist;
+}
+
 
 void updateMenuWithExecutables(NSMenu* menu, BOOL setIcons, SEL action) {
     NSWorkspace* workspace = [NSWorkspace sharedWorkspace];

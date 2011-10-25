@@ -1444,14 +1444,14 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 }
 
-- (void)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures {
+- (BOOL)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
     if ([theFaces count] == 0)
-        return;
+        return NO;
     
     if (theDistance == 0)
-        return;
+        return NO;
     
     BOOL canDrag = YES;
     NSMutableDictionary* userInfo;
@@ -1483,7 +1483,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 
     if (!canDrag)
-        return;
+        return NO;
     
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] dragFaces:[[theFaces copy] autorelease] distance:-theDistance lockTextures:lockTextures];
@@ -1500,6 +1500,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
+    
+    return YES;
 }
 
 - (void)clear {

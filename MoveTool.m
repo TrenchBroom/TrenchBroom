@@ -33,96 +33,44 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "math.h"
 #import "Renderer.h"
 #import "MapView3D.h"
-#import "CursorManager.h"
-#import "MoveCursor.h"
-#import "RotateCursor.h"
 #import "ControllerUtils.h"
-#import "EditingPlane.h"
+#import "EditingSystem.h"
+#import "MoveToolFeedbackFigure.h"
 
 @interface MoveTool (private)
 
-- (BOOL)isDuplicateModifierPressed;
-
-- (BOOL)beginMove:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
-- (void)move:(const TVector3i *)delta;
-- (void)endMove:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (BOOL)isAlternatePlaneModifierPressed;
+- (void)updateMoveDirection;
 
 @end
 
 @implementation MoveTool (private)
 
-- (BOOL)isDuplicateModifierPressed {
-    return [NSEvent modifierFlags] == NSCommandKeyMask;
+- (BOOL)isAlternatePlaneModifierPressed {
+    return [NSEvent modifierFlags] == NSAlternateKeyMask;
 }
 
-- (BOOL)beginMove:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
-    if (hit == nil)
-        return NO;
+- (void)updateMoveDirection {
+    [editingSystem release];
     
-    SelectionManager* selectionManager = [windowController selectionManager];
     Camera* camera = [windowController camera];
-    if ([hit type] == HT_FACE) {
-        id <Face> face = [hit object];
-        id <Brush> brush = [face brush];
-        
-        if (![selectionManager isBrushSelected:brush])
-            return NO;
+    if (fabsf([camera direction]->z) > 0.2f) {
+        if ([self isAlternatePlaneModifierPressed]) {
+            moveDirection = MD_LR_UD;
+            editingSystem = [[camera verticalEditingSystem] retain];
+        } else {
+            moveDirection = MD_LR_FB;
+            editingSystem = [[camera horizontalEditingSystem] retain];
+        }
     } else {
-        id <Entity> entity = [hit object];
-        
-        if (![selectionManager isEntitySelected:entity])
-            return NO;
+        if ([self isAlternatePlaneModifierPressed]) {
+            moveDirection = MD_LR_FB;
+            editingSystem = [[camera horizontalEditingSystem] retain];
+        } else {
+            moveDirection = MD_LR_UD;
+            editingSystem = [[camera verticalEditingSystem] retain];
+        }
     }
-
-    lastPoint = *[hit hitPoint];
-    editingPlane = [[camera editingPlane] retain];
-    editingPlanePoint = lastPoint;
-    
-    duplicate = [self isDuplicateModifierPressed];
-    
-    MapDocument* map = [windowController document];
-    NSUndoManager* undoManager = [map undoManager];
-    [undoManager setGroupsByEvent:NO];
-    [undoManager beginUndoGrouping];
-    
-    return YES;
-}
-
-- (void)move:(const TVector3i *)delta {
-    Options* options = [windowController options];
-    MapDocument* map = [windowController document];
-    SelectionManager* selectionManager = [map selectionManager];
-    
-    if (duplicate) {
-        NSMutableArray* newEntities = [[NSMutableArray alloc] init];
-        NSMutableArray* newBrushes = [[NSMutableArray alloc] init];
-        [map duplicateEntities:[selectionManager selectedEntities] newEntities:newEntities newBrushes:newBrushes];
-        [map duplicateBrushes:[selectionManager selectedBrushes] newBrushes:newBrushes];
-        
-        [selectionManager removeAll:YES];
-        [selectionManager addEntities:newEntities record:YES];
-        [selectionManager addBrushes:newBrushes record:YES];
-        
-        [newEntities release];
-        [newBrushes release];
-        
-        duplicate = NO;
-    }
-    
-    [map translateBrushes:[selectionManager selectedBrushes] delta:*delta lockTextures:[options lockTextures]];
-    [map translateEntities:[selectionManager selectedEntities] delta:*delta];
-}
-
-- (void)endMove:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    MapDocument* map = [windowController document];
-    NSUndoManager* undoManager = [map undoManager];
-    [undoManager setActionName:[self actionName]];
-    [undoManager endUndoGrouping];
-    [undoManager setGroupsByEvent:YES];
-    
-    [editingPlane release];
-    editingPlane = nil;
 }
 
 @end
@@ -132,31 +80,73 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if ((self = [self init])) {
         windowController = theWindowController;
-        moveCursor = [[MoveCursor alloc] init];
     }
     return self;
-}
-
-- (void)dealloc {
-    [moveCursor release];
-    [super dealloc];
 }
 
 # pragma mark -
 # pragma mark @implementation Tool
 
+- (void)handleFlagsChanged:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    [self updateMoveDirection];
+    
+    float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
+    rayPointAtDistance(ray, dist, &lastPoint);
+    
+    [feedbackFigure setEditingSystem:editingSystem];
+    [feedbackFigure setPoint:&lastPoint];
+    [feedbackFigure setMoveDirection:moveDirection];
+
+    [[windowController view3D] setNeedsDisplay:YES];
+}
+
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (!scroll)
-        drag = [self beginMove:event ray:ray hits:hits];
-    else
-        drag = YES;
+    PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
+    if (hit == nil)
+        return;
+    
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([hit type] == HT_FACE) {
+        id <Face> face = [hit object];
+        id <Brush> brush = [face brush];
+        
+        if (![selectionManager isBrushSelected:brush])
+            return;
+    } else {
+        id <Entity> entity = [hit object];
+        
+        if (![selectionManager isEntitySelected:entity])
+            return;
+    }
+
+    [self updateMoveDirection];
+    
+    lastPoint = *[hit hitPoint];
+    editingPoint = lastPoint;
+    
+    Grid* grid = [[windowController options] grid];
+    feedbackFigure = [[MoveToolFeedbackFigure alloc] initWithArrowLength:[grid actualSize]];
+    
+    [feedbackFigure setEditingSystem:editingSystem];
+    [feedbackFigure setPoint:&lastPoint];
+    [feedbackFigure setMoveDirection:moveDirection];
+    
+    Renderer* renderer = [windowController renderer];
+    [renderer addFeedbackFigure:feedbackFigure];
+    
+    MapDocument* map = [windowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager setGroupsByEvent:NO];
+    [undoManager beginUndoGrouping];
+
+    drag = YES;
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (!drag)
         return;
     
-    float dist = [editingPlane intersectWithRay:ray planePosition:&editingPlanePoint];
+    float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
     if (isnan(dist))
         return;
     
@@ -177,86 +167,41 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [selectionManager selectionBounds:&bounds];
 
     calculateMoveDelta(grid, &bounds, worldBounds, &deltaf, &lastPoint);
+    
     if (nullV3f(&deltaf))
         return;
     
     TVector3i deltai;
     roundV3f(&deltaf, &deltai);
     
-    [self move:&deltai];
+    [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
+    [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+
+    if (feedbackFigure != nil)
+        [feedbackFigure setPoint:&lastPoint];
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (!drag)
         return;
     
-    if (!scroll)
-        [self endMove:event ray:ray hits:hits];
-    drag = NO;
-}
-
-- (void)beginLeftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (!drag)
-        scroll = [self beginMove:event ray:ray hits:hits];
-    else
-        scroll = YES;
-}
-
-- (void)leftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (!scroll)
-        return;
+    MapDocument* map = [windowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager setActionName:[self actionName]];
+    [undoManager endUndoGrouping];
+    [undoManager setGroupsByEvent:YES];
     
-    Options* options = [windowController options];
-    Grid* grid = [options grid];
-    
-    TVector3f deltaf;
-    TVector3i deltai;
-    
-    float d = ([event deltaY] > 0 ? 1 : -1) * [grid actualSize];
-    
-    scaleV3f([editingPlane backAxis], d, &deltaf);
-    roundV3f(&deltaf, &deltai);
-    
-    [self move:&deltai];
-    
-    addV3f(&editingPlanePoint, &deltaf, &editingPlanePoint);
-    rayPointAtDistance(ray, [editingPlane intersectWithRay:ray planePosition:&editingPlanePoint], &lastPoint);
-}
-
-- (void)endLeftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (!scroll)
-        return;
-    
-    if (!drag)
-        [self endMove:event ray:ray hits:hits];
-    scroll = NO;
-}
-
-- (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager pushCursor:moveCursor];
-    [self updateCursor:event ray:ray hits:hits];
-}
-
-- (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager popCursor];
-}
-
-- (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (!drag && !scroll) {
-        PickingHit* hit = [hits firstHitOfType:HT_FACE | HT_ENTITY ignoreOccluders:YES];
-        if (hit != nil) {
-            Camera* camera = [windowController camera];
-            [moveCursor setPlaneNormal:strongestComponentV3f([[camera editingPlane] frontAxis])];
-            [moveCursor update:[hit hitPoint]];
-        }
-    } else {
-        float dist = [editingPlane intersectWithRay:ray planePosition:&editingPlanePoint];
-        TVector3f position;
-        rayPointAtDistance(ray, dist, &position);
-        [moveCursor update:&position];
+    if (feedbackFigure != nil) {
+        Renderer* renderer = [windowController renderer];
+        [renderer removeFeedbackFigure:feedbackFigure];
+        [feedbackFigure release];
+        feedbackFigure = nil;
     }
+    
+    [editingSystem release];
+    editingSystem = nil;
+
+    drag = NO;
 }
 
 - (NSString *)actionName {

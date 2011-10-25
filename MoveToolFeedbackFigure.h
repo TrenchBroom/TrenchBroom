@@ -18,30 +18,22 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Foundation/Foundation.h>
+#import "Figure.h"
 #import "Math.h"
+#import "MoveTool.h"
 
-@class Camera;
+@class EditingSystem;
 
-@interface EditingPlane : NSObject {
-    const TVector3f* xAxis;
-    const TVector3f* yAxis;
-    const TVector3f* frontAxis;
-    const TVector3f* backAxis;
-    const TVector3f* upAxis;
-    const TVector3f* rightAxis;
-    const TVector3f* downAxis;
-    const TVector3f* leftAxis;
+@interface MoveToolFeedbackFigure : NSObject <Figure> {
+    EditingSystem* editingSystem;
+    EMoveDirection moveDirection;
+    TVector3f point;
+    float arrowLength;
 }
 
-- (id)initWithCamera:(Camera *)theCamera;
+- (id)initWithArrowLength:(float)theArrowLength;
 
-- (const TVector3f *)frontAxis;
-- (const TVector3f *)backAxis;
-- (const TVector3f *)upAxis;
-- (const TVector3f *)rightAxis;
-- (const TVector3f *)downAxis;
-- (const TVector3f *)leftAxis;
-
-- (float)intersectWithRay:(const TRay *)theRay planePosition:(const TVector3f *)thePlanePos;
-
+- (void)setEditingSystem:(EditingSystem *)theEditingSystem;
+- (void)setPoint:(const TVector3f *)thePoint;
+- (void)setMoveDirection:(EMoveDirection)theMoveDirection;
 @end

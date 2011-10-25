@@ -21,20 +21,24 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "DefaultTool.h"
 #import "Math.h"
 
+typedef enum {
+    MD_LR_FB, // left / right & front / back
+    MD_LR_UD // left / right & up / down
+} EMoveDirection;
+
 @class MapWindowController;
-@class EditingPlane;
-@class MoveCursor;
+@class EditingSystem;
+@class MoveToolFeedbackFigure;
 
 @interface MoveTool : DefaultTool {
     @private
     MapWindowController* windowController;
-    EditingPlane* editingPlane;
-    TVector3f editingPlanePoint;
+    EditingSystem* editingSystem;
+    TVector3f editingPoint;
+    MoveToolFeedbackFigure* feedbackFigure;
     TVector3f lastPoint;
-    MoveCursor* moveCursor;
     BOOL drag;
-    BOOL scroll;
-    BOOL duplicate;
+    EMoveDirection moveDirection;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

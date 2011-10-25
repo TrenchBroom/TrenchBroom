@@ -18,12 +18,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import "RotateTool.h"
-#import "RotateCursor.h"
 #import "RotateFeedbackFigure.h"
 #import "MapWindowController.h"
 #import "MapDocument.h"
 #import "SelectionManager.h"
-#import "CursorManager.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
 #import "Entity.h"
@@ -43,7 +41,6 @@ static float M_PI_12 = M_PI / 12;
     
     if ((self = [self init])) {
         windowController = theWindowController;
-        rotateCursor = [[RotateCursor alloc] init];
         feedbackFigure = [[RotateFeedbackFigure alloc] init];
     }
     
@@ -51,7 +48,6 @@ static float M_PI_12 = M_PI / 12;
 }
 
 - (void)dealloc {
-    [rotateCursor release];
     [feedbackFigure release];
     [super dealloc];
 }
@@ -90,9 +86,6 @@ static float M_PI_12 = M_PI / 12;
             }
         }
 
-        [rotateCursor updateCenter:&center radius:radius verticalAxis:vAxis initialHAngle:initialHAngle initialVAngle:initialVAngle];
-        [rotateCursor updateHorizontalAngle:0 verticalAngle:0];
-
         [feedbackFigure updateCenter:&center radius:radius verticalAxis:vAxis initialHAngle:initialHAngle initialVAngle:initialVAngle];
         [feedbackFigure updateHorizontalAngle:0 verticalAngle:0];
         
@@ -113,9 +106,6 @@ static float M_PI_12 = M_PI / 12;
         centerOfBounds(&bounds, &center);
         radius = distanceOfPointAndRay(&center, ray);
         
-        [rotateCursor updateCenter:&center radius:radius verticalAxis:vAxis initialHAngle:initialHAngle initialVAngle:initialVAngle];
-        [rotateCursor updateHorizontalAngle:0 verticalAngle:0];
-
         [feedbackFigure updateCenter:&center radius:radius verticalAxis:vAxis initialHAngle:initialHAngle initialVAngle:initialVAngle];
         [feedbackFigure updateHorizontalAngle:0 verticalAngle:0];
     }
@@ -127,7 +117,6 @@ static float M_PI_12 = M_PI / 12;
         return;
     
     drag = YES;
-    [rotateCursor setDragging:YES];
     [feedbackFigure setDragging:YES];
     delta = NSMakePoint(0, 0);
     lastHAngle = 0;
@@ -159,7 +148,6 @@ static float M_PI_12 = M_PI / 12;
         vAngle = vSteps * M_PI_12;
     }
     
-    [rotateCursor updateHorizontalAngle:hAngle verticalAngle:vAngle];
     [feedbackFigure updateHorizontalAngle:hAngle verticalAngle:vAngle];
     
     if (hAngle != lastHAngle || vAngle != lastVAngle) {
@@ -202,7 +190,6 @@ static float M_PI_12 = M_PI / 12;
         return;
 
     drag = NO;
-    [rotateCursor setDragging:NO];
     [feedbackFigure setDragging:NO];
 
     NSUndoManager* undoManager = [[windowController document] undoManager];
@@ -214,21 +201,6 @@ static float M_PI_12 = M_PI / 12;
 
 - (NSString *)actionName {
     return @"Rotate Objects";
-}
-
-- (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager pushCursor:rotateCursor];
-    
-    [self updateCursor:event ray:ray hits:hits];
-}
-
-- (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager popCursor];
-}
-
-- (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
 }
 
 @end

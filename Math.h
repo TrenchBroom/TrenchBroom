@@ -312,3 +312,7 @@ void makeTorus(float innerRadius, float outerRadius, int innerSegments, int oute
 void makeTorusPart(float innerRadius, float outerRadius, int innerSegments, int outerSegments, float centerAngle, float angleLength, TVector3f* points, TVector3f* normals);
 void makeCone(float radius, float height, int segments, TVector3f* points, TVector3f* normals);
 void makeCylinder(int segments, TVector3f* points, TVector3f* normals);
+
+void makeArrowTriangles(float baseLength, float baseWidth, float headLength, float headWidth, TVector3f* points);
+void makeArrowOutline(float baseLength, float baseWidth, float headLength, float headWidth, TVector3f* points);
+

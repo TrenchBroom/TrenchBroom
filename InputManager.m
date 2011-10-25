@@ -38,7 +38,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MoveTool.h"
 #import "FaceTool.h"
 #import "Options.h"
-#import "CursorManager.h"
 #import "DefaultFilter.h"
 #import "DndTool.h"
 #import "EntityDefinitionDndTool.h"
@@ -59,8 +58,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)updateEvent:(NSEvent *)event;
 - (void)updateRay;
 - (void)updateActiveTool;
-- (void)updateCursor;
-- (void)updateCursorOwner;
 - (void)cameraViewChanged:(NSNotification *)notification;
 - (void)mapChanged:(NSNotification *)notification;
 
@@ -86,7 +83,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (BOOL)isRotateModifierPressed {
-    return [NSEvent modifierFlags] == NSAlternateKeyMask;
+    return [NSEvent modifierFlags] == (NSAlternateKeyMask | NSCommandKeyMask);
 }
 
 - (BOOL)isFaceDragModifierPressed {
@@ -167,85 +164,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 }
 
-- (void)updateCursorOwner {
-    if (dragStatus == MS_NONE && scrollStatus == MS_NONE) {
-        SelectionManager* selectionManager = [windowController selectionManager];
-        
-        id <Tool> newOwner = nil;
-        if (hasMouse) {
-            if ([self isCameraModifierPressed] || [self isCameraOrbitModifierPressed]) {
-                newOwner = cameraTool;
-            } else if ([clipTool active]) {
-                newOwner = clipTool;
-            } else if ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES) {
-                if ([self isRotateModifierPressed]) {
-                    newOwner = rotateTool;
-                } else if ([self isFaceDragModifierPressed]) {
-                    PickingHit* hit = [[self currentHits] edgeDragHit];
-                    if (hit != nil) {
-                        newOwner = faceTool;
-                    } else {
-                        hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
-                        if (hit != nil && [selectionManager isFaceSelected:[hit object]]) {
-                            newOwner = faceTool;
-                        }
-                    }
-                } else {
-                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_ENTITY | HT_BRUSH ignoreOccluders:YES];
-                    if (hit != nil) {
-                        switch ([hit type]) {
-                            case HT_ENTITY: {
-                                id <Entity> entity = [hit object];
-                                if ([selectionManager isEntitySelected:entity])
-                                    newOwner = moveTool;
-                                break;
-                            }
-                            case HT_BRUSH: {
-                                id <Brush> brush = [hit object];
-                                if ([selectionManager isBrushSelected:brush])
-                                    newOwner = moveTool;
-                                break;
-                            }
-                            default: {
-                                NSLog(@"unknown hit type: %i", [hit type]);
-                                break;
-                            }
-                        }
-                    }
-                }
-            } else if ([selectionManager mode] == SM_FACES) {
-                PickingHit* hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
-                if (hit != nil) {
-                    id <Face> face = [hit object];
-                    if ([selectionManager isFaceSelected:face] || ([[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed])))
-                        newOwner = faceTool;
-                }
-            }
-        }
-        
-        if (newOwner != cursorOwner) {
-            if (cursorOwner != nil)
-                [cursorOwner unsetCursor:lastEvent ray:&lastRay hits:[self currentHits]];
-            cursorOwner = newOwner;
-            if (cursorOwner != nil)
-                [cursorOwner setCursor:lastEvent ray:&lastRay hits:[self currentHits]];
-        }
-    }
-}
-
-- (void)updateCursor {
-    if (cursorOwner != nil) {
-        [cursorOwner updateCursor:lastEvent ray:&lastRay hits:[self currentHits]];
-
-        MapView3D* view3D = [windowController view3D];
-        [view3D setNeedsDisplay:YES];
-    }
-}
-
 - (void)cameraViewChanged:(NSNotification *)notification {
     [self updateRay];
-    [self updateCursorOwner];
-    [self updateCursor];
 }
 
 - (void)mapChanged:(NSNotification *)notification {
@@ -358,9 +278,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (dragStatus == MS_NONE && scrollStatus == MS_NONE)
         [self updateActiveTool];
     [activeTool handleFlagsChanged:event ray:&lastRay hits:[self currentHits]];
-    
-    [self updateCursorOwner];
-    [self updateCursor];
 }
 
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender {
@@ -368,14 +285,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         dragStatus = MS_LEFT;
         [self updateActiveTool];
         [activeTool beginLeftDrag:lastEvent ray:&lastRay hits:[self currentHits]];
-
-        [self updateCursorOwner];
     }
 
     [self updateEvent:event];
     [self updateRay];
     [activeTool leftDrag:lastEvent ray:&lastRay hits:[self currentHits]];
-    [self updateCursor];
 }
 
 - (void)handleMouseMoved:(NSEvent *)event sender:(id)sender {
@@ -384,22 +298,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     [self updateActiveTool];
     [activeTool handleMouseMoved:lastEvent ray:&lastRay hits:[self currentHits]];
-
-    [self updateCursorOwner];
-    [self updateCursor];
 }
 
 - (void)handleMouseEntered:(NSEvent *)event sender:(id)sender {
     hasMouse = YES;
     [self updateEvent:event];
     [self updateRay];
-    [self updateCursorOwner];
-    [self updateCursor];
 }
 
 - (void)handleMouseExited:(NSEvent *)event sender:(id)sender {
     hasMouse = NO;
-    [self updateCursorOwner];
 }
 
 - (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender {
@@ -422,17 +330,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [activeTool endLeftScroll:lastEvent ray:&lastRay hits:[self currentHits]];
             scrollStatus = MS_NONE;
             [self updateActiveTool];
-            
-            [self updateCursorOwner];
-            [self updateCursor];
         }
     } else {
         [activeTool handleLeftMouseUp:lastEvent ray:&lastRay hits:[self currentHits]];
         NSAssert([[[windowController document] undoManager] groupingLevel] == 0, @"undo grouping level must be 0 after drag ended");
     }
-
-    [self updateCursorOwner];
-    [self updateCursor];
 }
 
 - (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender {
@@ -440,14 +342,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         dragStatus = MS_RIGHT;
         [self updateActiveTool];
         [activeTool beginRightDrag:lastEvent ray:&lastRay hits:[self currentHits]];
-
-        [self updateCursorOwner];
     }
     
     [self updateEvent:event];
     [self updateRay];
     [activeTool rightDrag:lastEvent ray:&lastRay hits:[self currentHits]];
-    [self updateCursor];
 }
 
 - (void)handleRightMouseDown:(NSEvent *)event sender:(id)sender {
@@ -475,9 +374,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         if (dragStatus == MS_NONE)
             [self showContextMenu];
     }
-    
-    [self updateCursorOwner];
-    [self updateCursor];
 }
 
 - (void)handleScrollWheel:(NSEvent *)event sender:(id)sender {
@@ -490,8 +386,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [activeTool beginLeftScroll:lastEvent ray:&lastRay hits:[self currentHits]];
         else
             [activeTool beginRightScroll:lastEvent ray:&lastRay hits:[self currentHits]];
-        
-        [self updateCursorOwner];    
     }
 
     [self updateEvent:event];
@@ -501,8 +395,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [activeTool rightScroll:lastEvent ray:&lastRay hits:[self currentHits]];
     else
         [activeTool handleScrollWheel:lastEvent ray:&lastRay hits:[self currentHits]];
-    
-    [self updateCursor];
     
 }
 

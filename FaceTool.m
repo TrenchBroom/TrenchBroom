@@ -29,10 +29,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Face.h"
 #import "Brush.h"
 #import "math.h"
-#import "CursorManager.h"
-#import "DragFaceCursor.h"
-#import "ApplyFaceCursor.h"
-#import "Cursor.h"
+#import "ControllerUtils.h"
 
 @interface FaceTool (private)
 
@@ -86,8 +83,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if ((self = [self init])) {
         windowController = theWindowController;
-        dragFaceCursor = [[DragFaceCursor alloc] init];
-        applyFaceCursor = [[ApplyFaceCursor alloc] init];
         dragFaces = [[NSMutableArray alloc] init];
     }
     
@@ -96,8 +91,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)dealloc {
     [dragFaces release];
-    [dragFaceCursor release];
-    [applyFaceCursor release];
     [super dealloc];
 }
 
@@ -150,29 +143,27 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     SelectionManager* selectionManager = [windowController selectionManager];
 
     PickingHit* hit = [hits edgeDragHit];
-    id <Face> face;
     if (hit != nil) {
-        face = [hit object];
-        [dragFaces addObject:face];
+        referenceFace = [hit object];
+        [dragFaces addObject:referenceFace];
     } else {
         hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
         if (hit == nil)
             return;
         
-        face = [hit object];
-        if (![selectionManager isFaceSelected:face])
+        referenceFace = [hit object];
+        if (![selectionManager isFaceSelected:referenceFace])
             return;
 
         if ([selectionManager mode] == SM_FACES) {
             [dragFaces addObjectsFromArray:[selectionManager selectedFaces]];
         } else {
-            [dragFaces addObject:face];
+            [dragFaces addObject:referenceFace];
         }
     }
     
     if ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_BRUSHES_ENTITIES) {
-        id <Face> dragFace = [dragFaces objectAtIndex:0];
-        const TPlane* boundary = [dragFace boundary];
+        const TPlane* boundary = [referenceFace boundary];
         
         NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
         id <Brush> brush;
@@ -180,7 +171,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
             id <Face> face;
             while ((face = [faceEn nextObject])) {
-                if (face != dragFace && equalV3f([dragFace norm], [face norm]) && pointStatusFromPlane(boundary, &[face boundary]->point) == PS_INSIDE)
+                if (face != referenceFace && equalV3f([referenceFace norm], [face norm]) && pointStatusFromPlane(boundary, &[face boundary]->point) == PS_INSIDE)
                     [dragFaces addObject:face];
             }
         }
@@ -191,7 +182,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager setGroupsByEvent:NO];
     [undoManager beginUndoGrouping];
     
-    dragDir = *[face norm];
+    dragDir = *[referenceFace norm];
     lastPoint = *[hit hitPoint];
     plane.point = lastPoint;
 
@@ -199,9 +190,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     crossV3f(&plane.norm, &dragDir, &plane.norm);
     normalizeV3f(&plane.norm, &plane.norm);
     
-    Grid* grid = [[windowController options] grid];
-    [grid snapToGridV3f:&lastPoint result:&lastPoint];
-
     drag = YES;
 }
 
@@ -213,24 +201,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (isnan(dist))
         return;
     
-    TVector3f point;
+    TVector3f point, delta;
     rayPointAtDistance(ray, dist, &point);
+    subV3f(&point, &lastPoint, &delta);
     
     Grid* grid = [[windowController options] grid];
-    [grid snapToGridV3f:&point result:&point];
+    float dragDist = calculateDragDelta(grid, referenceFace, NULL, &delta);
     
-    if (equalV3f(&point, &lastPoint))
+    if (dragDist == 0)
         return;
 
-    TVector3f diff;
-    subV3f(&point, &lastPoint, &diff);
-    dist = dotV3f(&diff, &dragDir);
-    
     Options* options = [windowController options];
     MapDocument* map = [windowController document];
 
-    [map dragFaces:dragFaces distance:dist lockTextures:[options lockTextures]];
-    lastPoint = point;
+    if ([map dragFaces:dragFaces distance:dragDist lockTextures:[options lockTextures]])
+        lastPoint = point;
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -244,71 +229,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager setGroupsByEvent:YES];
 
     drag = NO;
+    referenceFace = nil;
     [dragFaces removeAllObjects];
-}
-
-- (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    PickingHit* hit = [hits firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:YES];
-    if (hit == nil)
-        hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    
-    id <Face> face = [hit object];
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager isFaceSelected:face]) {
-        CursorManager* cursorManager = [windowController cursorManager];
-        [cursorManager pushCursor:dragFaceCursor];
-        [dragFaceCursor setDragDir:[face norm]];
-        currentCursor = dragFaceCursor;
-    } else if ([[selectionManager selectedFaces] count] == 1) {
-        CursorManager* cursorManager = [windowController cursorManager];
-        [cursorManager pushCursor:applyFaceCursor];
-        [applyFaceCursor setFace:face];
-        [applyFaceCursor setApplyFlags:[self isApplyTextureAndFlagsModifierPressed]];
-        currentCursor = applyFaceCursor;
-    }
-}
-
-- (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager popCursor];
-    currentCursor = nil;
-}
-
-- (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (!drag) {
-        PickingHit* hit = [hits edgeDragHit];
-        if (hit == nil)
-            hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-        
-        id <Face> face = [hit object];
-        
-        CursorManager* cursorManager = [windowController cursorManager];
-        SelectionManager* selectionManager = [windowController selectionManager];
-        if ([selectionManager isFaceSelected:face]) {
-            if (currentCursor != dragFaceCursor) {
-                [cursorManager popCursor];
-                [cursorManager pushCursor:dragFaceCursor];
-                currentCursor = dragFaceCursor;
-            }
-            [dragFaceCursor setDragDir:[face norm]];
-        } else if ([[selectionManager selectedFaces] count] == 1) {
-            if (currentCursor != applyFaceCursor) {
-                [cursorManager popCursor];
-                [cursorManager pushCursor:applyFaceCursor];
-                currentCursor = applyFaceCursor;
-            }
-            [applyFaceCursor setFace:face];
-            [applyFaceCursor setApplyFlags:[self isApplyTextureAndFlagsModifierPressed]];
-        }
-        
-        [currentCursor update:[hit hitPoint]];
-    } else {
-        TVector3f position;
-        float dist = intersectPlaneWithRay(&plane, ray);
-        rayPointAtDistance(ray, dist, &position);
-        [currentCursor update:&position];
-    }
 }
 
 - (NSString *)actionName {

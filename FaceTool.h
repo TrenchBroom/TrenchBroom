@@ -22,9 +22,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @class MapWindowController;
 @class PickingHit;
-@class DragFaceCursor;
 @class ApplyFaceCursor;
-@protocol Cursor;
+@protocol Face;
 
 @interface FaceTool : DefaultTool {
     @private
@@ -32,9 +31,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TPlane plane;
     TVector3f lastPoint;
     TVector3f dragDir;
-    DragFaceCursor* dragFaceCursor;
-    ApplyFaceCursor* applyFaceCursor;
-    id <Cursor> currentCursor;
+    id <Face> referenceFace;
     NSMutableArray* dragFaces;
     BOOL drag;
 }
