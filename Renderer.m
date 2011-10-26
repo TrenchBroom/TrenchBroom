@@ -759,7 +759,6 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)renderEdges:(const TVector4f *)color indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers {
-    glSetEdgeOffset(0.5f);
     glDisable(GL_TEXTURE_2D);
     
     if (color != NULL) {
@@ -786,7 +785,6 @@ int const TexCoordSize = 2 * sizeof(float);
     
     if (color == NULL)
         glDisableClientState(GL_COLOR_ARRAY);
-    glResetEdgeOffset();
 }
 
 - (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers {
@@ -1212,15 +1210,23 @@ int const TexCoordSize = 2 * sizeof(float);
                 break;
         }
         
+        
+        glSetEdgeOffset(0.5f);
         [self renderEdges:NULL indexBuffers:faceIndexBuffers countBuffers:faceCountBuffers];
+        glResetEdgeOffset();
         
         if ([[windowController selectionManager] hasSelection]) {
+            glSetEdgeOffset(0.6f);
             glDisable(GL_DEPTH_TEST);
             [self renderEdges:&SelectionColor2 indexBuffers:selectedFaceIndexBuffers countBuffers:selectedFaceCountBuffers];
+            glResetEdgeOffset();
+
+            glSetEdgeOffset(0.7f);
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LEQUAL);
             [self renderEdges:&SelectionColor indexBuffers:selectedFaceIndexBuffers countBuffers:selectedFaceCountBuffers];
             glDepthFunc(GL_LESS);
+            glResetEdgeOffset();
         }
         
         [faceVbo deactivate];

@@ -218,6 +218,9 @@ float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBou
     if (isnan(dist) || dist == 0)
         return NAN;
     
+    if (![grid snap])
+        return dist;
+    
     TVector3f edgeDelta;
     
     // find the directions which the vertices are moved in
@@ -260,7 +263,7 @@ float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBou
             normalizeV3f(&ray.direction, &ray.direction);
             
             float gridDist = [grid intersectWithRay:&ray];
-            if (fabsf(gridDist) > 1.5f) {
+            if (fabsf(gridDist) > 0.1f) {
                 scaleV3f(&ray.direction, gridDist, &edgeDelta);
                 float normDist = dotV3f(&edgeDelta, [face norm]);
                 if (fabsf(normDist) < fabsf(dragDist)) {

@@ -769,6 +769,10 @@ float planeZ(const TPlane* p, float x, float y) {
     return (l - p->norm.x * x - p->norm.y * y) / p->norm.z;
 }
 
+BOOL equalPlane(const TPlane* p1, const TPlane* p2) {
+    return equalV3f(&p1->norm, &p2->norm) && pointStatusFromPlane(p1, &p2->point) == PS_INSIDE;
+}
+
 NSString* axisName(EAxis a) {
     switch (a) {
         case A_X:

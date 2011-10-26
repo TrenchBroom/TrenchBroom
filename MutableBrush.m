@@ -297,9 +297,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [testFaces addObject:testFace];
     [testFace release];
     
+    const TPlane* oldBoundary = [face boundary];
+    const TPlane* newBoundary = [testFace boundary];
+    
+    if (equalPlane(oldBoundary, newBoundary))
+        return NO;
+    
     NSMutableArray* droppedFaces = nil;
     TVertexData testData;
-    initVertexData(&testData);
     
     BOOL canDrag = initVertexDataWithFaces(&testData, worldBounds, testFaces, &droppedFaces) && 
                    (droppedFaces == nil || [droppedFaces count] == 0) && 

@@ -211,6 +211,7 @@ float intersectPlaneWithLine(const TPlane* p, const TLine* l);
 float planeX(const TPlane* p, float y, float z);
 float planeY(const TPlane* p, float x, float z);
 float planeZ(const TPlane* p, float x, float y);
+BOOL equalPlane(const TPlane* p1, const TPlane* p2);
 
 NSString* axisName(EAxis a);
 
