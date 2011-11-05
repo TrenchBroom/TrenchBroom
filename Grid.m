@@ -233,8 +233,6 @@ NSString* const GridChanged = @"GridChanged";
     plane.point.y = ray->direction.y > 0 ? [self snapUpToNextf:ray->origin.y] : [self snapDownToPreviousf:ray->origin.y];
     plane.point.z = ray->direction.z > 0 ? [self snapUpToNextf:ray->origin.z] : [self snapDownToPreviousf:ray->origin.z];
     
-    NSLog(@"plane.point: %f %f %f", plane.point.x, plane.point.y, plane.point.z);
-    
     plane.norm = XAxisPos;
     float distX = intersectPlaneWithRay(&plane, ray);
     
@@ -244,8 +242,6 @@ NSString* const GridChanged = @"GridChanged";
     plane.norm = ZAxisPos;
     float distZ = intersectPlaneWithRay(&plane, ray);
     
-    NSLog(@"dist: %f %f %f", distX, distY, distZ);
-
     float dist = distX;
     if (!isnan(distY) && (isnan(dist) || fabsf(distY) < fabsf(dist)))
         dist = distY;

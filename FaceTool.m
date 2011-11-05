@@ -214,8 +214,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     Options* options = [windowController options];
     MapDocument* map = [windowController document];
 
-    if ([map dragFaces:dragFaces distance:dragDist lockTextures:[options lockTextures]])
+    if ([map dragFaces:dragFaces distance:dragDist lockTextures:[options lockTextures]]) {
+        NSLog(@"=======================================================================");
         lastPoint = point;
+    }
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

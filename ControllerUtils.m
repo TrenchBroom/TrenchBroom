@@ -232,35 +232,40 @@ float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBou
     int edgeCount = [brush edgeCount];
 
     float dragDist = dist;
-    BOOL performDrag;
+    BOOL performDrag = NO;
     for (int i = 0; i < edgeCount; i++) {
         int c = 0;
-        BOOL flip = NO;
+        TRay ray;
 
         TEdge* e = edges[i];
         for (int j = 0; j < vertexCount; j++) {
             TVertex* v = vertices[j];
-            
-            if (v == e->startVertex || v == e->endVertex) {
-                if (c == 0)
-                    flip = v == e->endVertex;
+
+            if (v == e->startVertex) {
                 c++;
+                if (c == 1) {
+                    ray.origin = e->startVertex->vector;
+                    ray.direction = e->endVertex->vector;
+                } else {
+                    break;
+                }
+            } else if (v == e->endVertex) {
+                c++;
+                if (c == 1) {
+                    ray.origin = e->endVertex->vector;
+                    ray.direction = e->startVertex->vector;
+                } else {
+                    break;
+                }
             }
         }
 
         if (c == 1) {
-            if (dist > 0)
-                flip = !flip;
-            
-            TRay ray;
-            if (flip) {
-                subV3f(&e->startVertex->vector, &e->endVertex->vector, &ray.direction);
-                ray.origin = e->endVertex->vector;
-            } else {
-                subV3f(&e->endVertex->vector, &e->startVertex->vector, &ray.direction);
-                ray.origin = e->startVertex->vector;
-            }
+            subV3f(&ray.direction, &ray.origin, &ray.direction);
             normalizeV3f(&ray.direction, &ray.direction);
+            
+            if (dist > 0)
+                scaleV3f(&ray.direction, -1, &ray.direction);
             
             float gridDist = [grid intersectWithRay:&ray];
             if (fabsf(gridDist) > 0.1f) {
@@ -269,6 +274,12 @@ float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBou
                 if (fabsf(normDist) < fabsf(dragDist)) {
                     dragDist = normDist;
                     performDrag = YES;
+
+                    TVector3f v = ray.direction;
+                    scaleV3f(&v, gridDist, &v);
+                    addV3f(&v, &ray.origin, &v);
+                    
+                    NSLog(@"Vertex %f %f %f will be moved by %f to position %f %f %f", ray.origin.x, ray.origin.y, ray.origin.z, dragDist, v.x, v.y, v.z);
                 }
             }
         }
