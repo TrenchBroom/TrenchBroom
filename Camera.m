@@ -37,6 +37,8 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
         right = YAxisNeg;
         mode = CM_PERSPECTIVE;
         zoom = 0.5f;
+
+        animations = [[NSMutableSet alloc] init];
     }
     
     return self;
@@ -65,6 +67,12 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     }
     
     return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [animations release];
+    [super dealloc];
 }
 
 - (const TVector3f *)position {
@@ -396,9 +404,8 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     return [[[EditingSystem alloc] initWithCamera:self vertical:YES] autorelease];
 }
 
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [super dealloc];
+- (NSMutableSet *)animations {
+    return animations;
 }
 
 @end

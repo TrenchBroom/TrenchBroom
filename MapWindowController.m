@@ -44,7 +44,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "PrefabNameSheetController.h"
 #import "Prefab.h"
 #import "MapWriter.h"
-#import "CameraAnimation.h"
+#import "CameraAbsoluteAnimation.h"
 #import "ClipTool.h"
 #import "EntityDefinitionManager.h"
 #import "EntityDefinition.h"
@@ -1043,7 +1043,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     position = center;
     position.z += lengthV3f(&diff);
     
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
+    CameraAbsoluteAnimation* animation = [[CameraAbsoluteAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
     [animation startAnimation];
 }
 
@@ -1061,7 +1061,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     position = center;
     position.y -= lengthV3f(&diff);
 
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
+    CameraAbsoluteAnimation* animation = [[CameraAbsoluteAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
     [animation startAnimation];
 }
 
@@ -1079,7 +1079,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     position = center;
     position.x += lengthV3f(&diff);
     
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
+    CameraAbsoluteAnimation* animation = [[CameraAbsoluteAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
     [animation startAnimation];
 }
 
@@ -1527,7 +1527,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     position.y -= l;
     position.z += l;
     
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
+    CameraAbsoluteAnimation* animation = [[CameraAbsoluteAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
     [animation startAnimation];
 }
 
@@ -1549,7 +1549,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     position.y -= l;
     position.z += l;
     
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
+    CameraAbsoluteAnimation* animation = [[CameraAbsoluteAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
     [animation startAnimation];
 }
 
@@ -1564,7 +1564,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     addV3f([theFace center], &position, &position);
     scaleV3f([theFace norm], -1, &direction);
     
-    CameraAnimation* animation = [[CameraAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:[theFace center] duration:0.5];
+    CameraAbsoluteAnimation* animation = [[CameraAbsoluteAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:[theFace center] duration:0.5];
     [animation startAnimation];
 }
 

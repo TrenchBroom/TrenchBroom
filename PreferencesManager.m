@@ -254,7 +254,26 @@ static PreferencesManager* sharedInstance = nil;
     [userInfo setObject:[NSNumber numberWithBool:currentIsInspectorSeparate] forKey:DefaultsOldValue];
     [userInfo setObject:[NSNumber numberWithBool:isInspectorSeparate] forKey:DefaultsNewValue];
     
-    [[NSUserDefaults standardUserDefaults] setFloat:isInspectorSeparate forKey:DefaultsInspectorSeparate];
+    [[NSUserDefaults standardUserDefaults] setBool:isInspectorSeparate forKey:DefaultsInspectorSeparate];
+    [[NSNotificationCenter defaultCenter] postNotificationName:DefaultsDidChange object:self userInfo:userInfo];
+    [userInfo release];
+}
+
+- (float)brightness {
+    return [[NSUserDefaults standardUserDefaults] floatForKey:DefaultsBrightness];
+}
+
+- (void)setBrightness:(float)theBrightness {
+    float currentBrightness = [self brightness];
+    if (currentBrightness == theBrightness)
+        return;
+    
+    NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:DefaultsBrightness forKey:DefaultsKey];
+    [userInfo setObject:[NSNumber numberWithFloat:currentBrightness] forKey:DefaultsOldValue];
+    [userInfo setObject:[NSNumber numberWithFloat:theBrightness] forKey:DefaultsNewValue];
+    
+    [[NSUserDefaults standardUserDefaults] setFloat:theBrightness forKey:DefaultsBrightness];
     [[NSNotificationCenter defaultCenter] postNotificationName:DefaultsDidChange object:self userInfo:userInfo];
     [userInfo release];
 }

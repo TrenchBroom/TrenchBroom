@@ -1,40 +1,19 @@
-/*
-Copyright (C) 2010-2011 Kristian Duske
+//
+//  CameraAnimation.h
+//  TrenchBroom
+//
+//  Created by Kristian Duske on 05.11.11.
+//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
+//
 
-This file is part of TrenchBroom.
-
-TrenchBroom is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-TrenchBroom is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-#import <Cocoa/Cocoa.h>
-#import "Math.h"
+#import <AppKit/AppKit.h>
 
 @class Camera;
 
 @interface CameraAnimation : NSAnimation <NSAnimationDelegate> {
-    @private
     Camera* camera;
-    TCubicBezierCurve positionCurve;
-    TVector3f initialPosition;
-    TVector3f initialDirection;
-    TVector3f initialUp;
-    TVector3f targetPosition;
-    TVector3f targetLookAt;
-    TVector3f targetUp;
-    float hAngle, vAngle;
 }
 
-- (id)initWithCamera:(Camera *)theCamera targetPosition:(const TVector3f *)thePosition targetLookAt:(const TVector3f *)theLookAt duration:(NSTimeInterval)duration;
-
+- (id)initWithCamera:(Camera *)theCamera duration:(NSTimeInterval)theDuration;
+ 
 @end

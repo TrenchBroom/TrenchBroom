@@ -46,6 +46,8 @@ extern NSString* const CameraViewChanged;
     
     GLdouble modelview[16];
     GLdouble projection[16];
+    
+    NSMutableSet* animations;
 }
 
 - (id)initWithFieldOfVision:(float)theFov nearClippingPlane:(float)theNear farClippingPlane:(float)theFar;
@@ -88,5 +90,7 @@ extern NSString* const CameraViewChanged;
 
 - (EditingSystem *)horizontalEditingSystem;
 - (EditingSystem *)verticalEditingSystem;
+
+- (NSMutableSet *)animations;
 
 @end

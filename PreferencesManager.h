@@ -28,6 +28,7 @@ static NSString* const DefaultsCameraNear               = @"CameraNearClippingPl
 static NSString* const DefaultsCameraFar                = @"CameraFarClippingPlane";
 static NSString* const DefaultsInspectorSeparate        = @"InspectorSeparateWindow";
 static NSString* const DefaultsInspectorVisible         = @"InspectorVisible";
+static NSString* const DefaultsBrightness               = @"Brightness";
 
 static NSString* const DefaultsKey                      = @"Key";
 static NSString* const DefaultsOldValue                 = @"OldValue";
@@ -66,5 +67,8 @@ static NSString* const DefaultsDidChange                = @"DefaultsDidChangeNot
 
 - (BOOL)inspectorSeparate;
 - (void)setInspectorSeparate:(BOOL)isInspectorSeparate;
+
+- (float)brightness;
+- (void)setBrightness:(float)theBrightness;
 
 @end

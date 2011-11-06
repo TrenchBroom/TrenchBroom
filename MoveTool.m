@@ -36,11 +36,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "ControllerUtils.h"
 #import "EditingSystem.h"
 #import "MoveToolFeedbackFigure.h"
+#import "CameraOrbitAnimation.h"
 
 @interface MoveTool (private)
 
 - (BOOL)isAlternatePlaneModifierPressed;
-- (void)updateMoveDirection;
+- (void)updateMoveDirectionWithRay:(const TRay *)theRay;
 
 @end
 
@@ -50,11 +51,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return [NSEvent modifierFlags] == NSAlternateKeyMask;
 }
 
-- (void)updateMoveDirection {
+- (void)updateMoveDirectionWithRay:(const TRay *)theRay {
     [editingSystem release];
     
     Camera* camera = [windowController camera];
-    if (fabsf([camera direction]->z) > 0.2f) {
+    if (fabsf(theRay->direction.z) > 0.3f) {
         if ([self isAlternatePlaneModifierPressed]) {
             moveDirection = MD_LR_UD;
             editingSystem = [[camera verticalEditingSystem] retain];
@@ -88,7 +89,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 # pragma mark @implementation Tool
 
 - (void)handleFlagsChanged:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    [self updateMoveDirection];
+    [self updateMoveDirectionWithRay:ray];
     
     float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
     rayPointAtDistance(ray, dist, &lastPoint);
@@ -119,7 +120,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             return;
     }
 
-    [self updateMoveDirection];
+    [self updateMoveDirectionWithRay:ray];
     
     lastPoint = *[hit hitPoint];
     editingPoint = lastPoint;
