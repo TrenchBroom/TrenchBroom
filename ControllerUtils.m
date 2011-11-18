@@ -213,7 +213,30 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
     }
 }
 
-float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBounds, const TVector3f* deltaf) {
+void swap(float* a, float* b) {
+    float t = *a;
+    *a = *b;
+    *b = t;
+}
+
+void quicksort(float a[], int s, int e) {
+    if (e > s + 1) {
+        float p = fabsf(a[e]);
+        int l = s + 1;
+        int r = e;
+        while (l < r) {
+            if (fabsf(a[l]) <= p)
+                l++;
+            else
+                swap(&a[l], &a[--r]);
+        }
+        swap(&a[--l], &a[s]);
+        quicksort(a, s, l);
+        quicksort(a, r, e);
+    }
+}
+
+float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBounds, const TVector3f* deltaf, int skip) {
     float dist = dotV3f(deltaf, [face norm]);
     if (isnan(dist) || dist == 0)
         return NAN;
@@ -227,12 +250,15 @@ float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBou
     TVertex** vertices = [face vertices];
     int vertexCount = [face vertexCount];
     
+    if (skip == vertexCount)
+        return NAN;
+    
     id <Brush> brush = [face brush];
     TEdge** edges = [brush edges];
     int edgeCount = [brush edgeCount];
 
-    float dragDist = dist;
-    BOOL performDrag = NO;
+    float vertexDists[vertexCount];
+    int distIndex = 0;
     for (int i = 0; i < edgeCount; i++) {
         int c = 0;
         TRay ray;
@@ -268,27 +294,16 @@ float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBou
                 scaleV3f(&ray.direction, -1, &ray.direction);
             
             float gridDist = [grid intersectWithRay:&ray];
-            if (fabsf(gridDist) > 0.1f) {
-                scaleV3f(&ray.direction, gridDist, &edgeDelta);
-                float normDist = dotV3f(&edgeDelta, [face norm]);
-                if (fabsf(normDist) < fabsf(dragDist)) {
-                    dragDist = normDist;
-                    performDrag = YES;
-
-                    TVector3f v = ray.direction;
-                    scaleV3f(&v, gridDist, &v);
-                    addV3f(&v, &ray.origin, &v);
-                    
-                    NSLog(@"Vertex %f %f %f will be moved by %f to position %f %f %f", ray.origin.x, ray.origin.y, ray.origin.z, dragDist, v.x, v.y, v.z);
-                }
-            }
+            scaleV3f(&ray.direction, gridDist, &edgeDelta);
+            vertexDists[distIndex++] = dotV3f(&edgeDelta, [face norm]);
         }
     }
+
+    quicksort(vertexDists, 0, distIndex - 1);
+    if (fabsf(vertexDists[skip]) < fabsf(dist))
+        return vertexDists[skip];
     
-    if (!performDrag)
-        return 0;
-    
-    return dragDist;
+    return 0;
 }
 
 

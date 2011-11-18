@@ -30,5 +30,5 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 BOOL calculateEntityOrigin(EntityDefinition* entityDefinition, PickingHitList* hits, NSPoint mousePos, Camera* camera, TVector3i* result);
 NSArray* modListFromWorldspawn(id <Entity> worldspawn);
 void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingBox* worldBounds, TVector3f* deltaf, TVector3f* lastPoint);
-float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBounds, const TVector3f* deltaf);
+float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBounds, const TVector3f* deltaf, int skip);
 void updateMenuWithExecutables(NSMenu* menu, BOOL setIcons, SEL action);

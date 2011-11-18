@@ -60,6 +60,10 @@ typedef struct {
 } TVector2f;
 
 typedef struct {
+    int x,y;
+} TVector2i;
+
+typedef struct {
     TVector3f point;
     TVector3f direction;
 } TLine;

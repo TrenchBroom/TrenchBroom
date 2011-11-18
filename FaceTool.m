@@ -30,6 +30,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Brush.h"
 #import "math.h"
 #import "ControllerUtils.h"
+#import "MutableFace.h"
 
 @interface FaceTool (private)
 
@@ -206,18 +207,30 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     subV3f(&point, &lastPoint, &delta);
     
     Grid* grid = [[windowController options] grid];
-    float dragDist = calculateDragDelta(grid, referenceFace, NULL, &delta);
     
-    if (dragDist == 0)
+    int skip = 0;
+    BOOL done = NO;
+    float dragDist;
+    do {
+        dragDist = calculateDragDelta(grid, referenceFace, NULL, &delta, skip++);
+        if (!isnan(dragDist) && dragDist != 0) {
+            MutableFace* testFace = [[MutableFace alloc] initWithWorldBounds:[referenceFace worldBounds] faceTemplate:referenceFace];
+            [testFace dragBy:dragDist lockTexture:NO];
+            done = !equalPlane([referenceFace boundary], [testFace boundary]);
+            [testFace release];
+        } else {
+            done = YES;
+        }
+    } while (!done);
+    
+    if (isnan(dragDist) || dragDist == 0)
         return;
 
     Options* options = [windowController options];
     MapDocument* map = [windowController document];
 
-    if ([map dragFaces:dragFaces distance:dragDist lockTextures:[options lockTextures]]) {
-        NSLog(@"=======================================================================");
+    if ([map dragFaces:dragFaces distance:dragDist lockTextures:[options lockTextures]])
         lastPoint = point;
-    }
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

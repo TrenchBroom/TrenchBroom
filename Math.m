@@ -1786,6 +1786,78 @@ BOOL projectVectorOntoPlane(const TVector3f* planeNorm, const TVector3f* dir, co
     return YES;
 }
 
+float measureDist(const TVector3f* v, EAxis measureDir) {
+    if (measureDir == A_X)
+        return fabsf(v->x - roundf(v->x));
+    if (measureDir == A_Y)
+        return fabsf(v->y - roundf(v->y));
+    return fabsf(v->z - roundf(v->z));
+}
+
+/*
+void findXWithMinYOffset(const TVector2f* v, TVector2f* r) {
+    TVector2f prev, cur, t2f;
+    float prevOffset, curOffset, grad, tf;
+    int dX;
+    
+    grad = v->y / v->x;
+    dX = v->x > 0 ? 1 : -1;
+        
+    prev.x = (int)v->x + dX;
+    prev.y = grad * prev.x;
+    prevOffset = fabsf(prev.y - (int)prev.y);
+
+    cur.x = prev.x + dX;
+    cur.y = grad * cur.x;
+    curOffset = fabsf(cur.y - (int)cur.y);
+    
+    if (prevOffset == curOffset) {
+        *r = prev;
+        return;
+    }
+    
+    if (curOffset > prevOffset) {
+        dX *= -1;
+        
+        t2f = prev;
+        prev = cur;
+        cur = t2f;
+        
+        tf = prevOffset;
+        prevOffset = curOffset;
+        curOffset = tf;
+    }
+    
+    while (curOffset < prevOffset) {
+        prevOffset = curOffset;
+        prev = cur;
+        
+        cur.x = prev.x + dX;
+        cur.y = grad * cur.x;
+        curOffset = fabsf(cur.y - (int)cur.y);
+    }
+
+    *r = prev;
+}
+
+void makePointsForPlane(const TPlane* p, const TBoundingBox* m, TVector3i* p1, TVector3i* p2, TVector3i* p3) {
+    TLine l;
+    TVector3f v3f;
+    TVector2f v2f;
+    float f;
+    int x;
+    
+    switch (strongestComponentV3f(&p->norm)) {
+        case A_X:
+            break;
+        case A_Y:
+            break;
+        default:
+            break;
+    }
+}
+ */
+ 
 void makePointsForPlane(const TPlane* p, const TBoundingBox* m, TVector3i* p1, TVector3i* p2, TVector3i* p3) {
     TLine l;
     TVector3f a,b,c;
