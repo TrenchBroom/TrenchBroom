@@ -625,48 +625,6 @@ BOOL parseV3i(NSString* s, NSRange r, TVector3i* o) {
     return YES;
 }
 
-
-# pragma mark TVecto3fList functions
-
-TVector3fList* newVector3fList(int c) {
-    assert(c > 0);
-    
-    TVector3fList* l = malloc(sizeof(TVector3fList));
-    l->items = malloc(c * sizeof(TVector3f));
-    l->capacity = c;
-    l->count = 0;
-    return l;
-}
-
-void freeVector3flist(TVector3fList* l) {
-    assert(l != NULL);
-    
-    free(l->items);
-    l->items = NULL;
-    free(l);
-}
-
-void addVector3fToList(TVector3f v, TVector3fList* l) {
-    assert(l != NULL);
-    
-    if (l->count == l->capacity) {
-        TVector3f* temp = malloc(2 * l->capacity * sizeof(TVector3f));
-        free(l->items);
-        l->items = temp;
-        l->capacity *= 2;
-    }
-    
-    l->items[l->count++] = v;
-}
-
-void removeVector3fFromList(int idx, TVector3fList* l) {
-    assert(idx >= 0 && idx < l->count);
-    
-    for (int i = idx; i < l->count - 1; i++)
-        l->items[i] = l->items[i + 1];
-    l->count--;
-}
-
 # pragma mark TLine functions
 
 void setLinePoints(TLine* l, TVector3f* p1, TVector3f* p2) {
@@ -1858,7 +1816,119 @@ void makePointsForPlane(const TPlane* p, const TBoundingBox* m, TVector3i* p1, T
 }
  */
  
+
+float updatePoint(const TPlane* pl, EAxis a, TVector3f* p) {
+    switch (a) {
+        case A_X:
+            p->x = planeX(pl, p->y, p->z);
+            return fabsf(p->x - roundf(p->x));
+        case A_Y:
+            p->y = planeY(pl, p->x, p->z);
+            return fabsf(p->y - roundf(p->y));
+        default:
+            p->z = planeZ(pl, p->x, p->y);
+            return fabsf(p->z - roundf(p->z));
+    }
+}
+
+void searchForMinOffset(const TPlane* p, const TVector3f* d, TVector3i* r) {
+    TVector3f searchDir, prev, cur;
+    float prevDist, curDist;
+    EAxis projAxis = strongestComponentV3f(&p->norm);
+    
+    setV3f(&prev, r);
+    scaleV3f(d, 100, &searchDir);
+    addV3f(&prev, &searchDir, &prev);
+    prevDist = updatePoint(p, projAxis, &prev);
+                
+    searchDir = *d;
+    addV3f(&prev, &searchDir, &cur);
+    curDist = updatePoint(p, projAxis, &cur);
+    
+    if (prevDist == curDist) {
+        roundV3f(&prev, r);
+        return;
+    }
+    
+    if (curDist > prevDist) {
+        scaleV3f(&searchDir, -1, &searchDir);
+        
+        TVector3f tv = prev;
+        prev = cur;
+        cur = tv;
+        
+        float tf = prevDist;
+        prevDist = curDist;
+        curDist = tf;
+    }
+    
+    while (curDist < prevDist) {
+        prevDist = curDist;
+        prev = cur;
+        
+        addV3f(&prev, &searchDir, &cur);
+        curDist = updatePoint(p, projAxis, &cur);
+    }
+    
+    roundV3f(&prev, r);
+}
+
+void makePointsForPlane2(const TPlane* p, const TBoundingBox* m, TVector3i* p1, TVector3i* p2, TVector3i* p3) {
+    EAxis projAxis = strongestComponentV3f(&p->norm);
+    
+    const TVector3f* searchDir1;
+    const TVector3f* searchDir2;
+    const TVector3f* searchDir3;
+    
+    switch (projAxis) {
+        case A_X:
+            if (p->norm.x > 0) {
+                searchDir1 = &YAxisPos;
+                searchDir2 = &YAxisNeg;
+                searchDir3 = &ZAxisPos;
+            } else {
+                searchDir1 = &YAxisNeg;
+                searchDir2 = &YAxisPos;
+                searchDir3 = &ZAxisPos;
+            }
+            break;
+        case A_Y:
+            if (p->norm.y > 0) {
+                searchDir1 = &XAxisNeg;
+                searchDir2 = &XAxisPos;
+                searchDir3 = &ZAxisPos;
+            } else {
+                searchDir1 = &XAxisPos;
+                searchDir2 = &XAxisNeg;
+                searchDir3 = &ZAxisPos;
+            }
+            break;
+        default:
+            if (p->norm.z > 0) {
+                searchDir1 = &XAxisPos;
+                searchDir2 = &XAxisNeg;
+                searchDir3 = &YAxisPos;
+            } else {
+                searchDir1 = &XAxisNeg;
+                searchDir2 = &XAxisPos;
+                searchDir3 = &YAxisPos;
+            }
+            break;
+    }
+    
+    roundV3f(&p->point, p1);
+    roundV3f(&p->point, p2);
+    roundV3f(&p->point, p3);
+
+    searchForMinOffset(p, searchDir1, p1);
+    searchForMinOffset(p, searchDir2, p2);
+    searchForMinOffset(p, searchDir3, p3);
+}
+
 void makePointsForPlane(const TPlane* p, const TBoundingBox* m, TVector3i* p1, TVector3i* p2, TVector3i* p3) {
+    makePointsForPlane2(p, m, p1, p2, p3);
+    
+    /*
     TLine l;
     TVector3f a,b,c;
     
@@ -1933,6 +2003,7 @@ void makePointsForPlane(const TPlane* p, const TBoundingBox* m, TVector3i* p1, T
             break;
         }
     }
+     */
 }
 
 void makeCircle(float radius, int segments, TVector3f* points) {

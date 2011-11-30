@@ -18,29 +18,23 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Cocoa/Cocoa.h>
-#import "DefaultTool.h"
+#import <OpenGL/gl.h>
+#import <OpenGL/glu.h>
+#import "Cursor.h"
 #import "Math.h"
+#import "MoveTool.h"
 
-typedef enum {
-    MD_LR_FB, // left / right & front / back
-    MD_LR_UD // left / right & up / down
-} EMoveDirection;
-
-@class MapWindowController;
 @class EditingSystem;
-@class MoveCursor;
 
-@interface MoveTool : DefaultTool {
-    @private
-    MapWindowController* windowController;
+@interface MoveCursor : NSObject <Cursor> {
     EditingSystem* editingSystem;
-    TVector3f editingPoint;
-    MoveCursor* moveCursor;
-    TVector3f lastPoint;
-    BOOL drag;
     EMoveDirection moveDirection;
+    TVector3f position;
+    float arrowLength;
 }
 
-- (id)initWithWindowController:(MapWindowController *)theWindowController;
+- (void)setArrowLength:(float)theArrowLength;
+- (void)setEditingSystem:(EditingSystem *)theEditingSystem;
+- (void)setMoveDirection:(EMoveDirection)theMoveDirection;
 
 @end

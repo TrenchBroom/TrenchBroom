@@ -53,6 +53,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)rightScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 - (void)endRightScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 
+- (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
+- (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
+- (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
+
 - (NSString *)actionName { return nil; }
 
 @end

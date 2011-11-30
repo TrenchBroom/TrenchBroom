@@ -35,7 +35,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MapView3D.h"
 #import "ControllerUtils.h"
 #import "EditingSystem.h"
-#import "MoveToolFeedbackFigure.h"
+#import "MoveCursor.h"
+#import "CursorManager.h"
 #import "CameraOrbitAnimation.h"
 
 @interface MoveTool (private)
@@ -81,8 +82,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if ((self = [self init])) {
         windowController = theWindowController;
+        moveCursor = [[MoveCursor alloc] init];
     }
     return self;
+}
+
+- (void)dealloc {
+    [moveCursor release];
+    [super dealloc];
 }
 
 # pragma mark -
@@ -93,10 +100,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
     rayPointAtDistance(ray, dist, &lastPoint);
-    
-    [feedbackFigure setEditingSystem:editingSystem];
-    [feedbackFigure setPoint:&lastPoint];
-    [feedbackFigure setMoveDirection:moveDirection];
 
     [[windowController view3D] setNeedsDisplay:YES];
 }
@@ -124,16 +127,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     lastPoint = *[hit hitPoint];
     editingPoint = lastPoint;
-    
-    Grid* grid = [[windowController options] grid];
-    feedbackFigure = [[MoveToolFeedbackFigure alloc] initWithArrowLength:[grid actualSize]];
-    
-    [feedbackFigure setEditingSystem:editingSystem];
-    [feedbackFigure setPoint:&lastPoint];
-    [feedbackFigure setMoveDirection:moveDirection];
-    
-    Renderer* renderer = [windowController renderer];
-    [renderer addFeedbackFigure:feedbackFigure];
     
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
@@ -177,9 +170,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
     [map translateEntities:[selectionManager selectedEntities] delta:deltai];
-
-    if (feedbackFigure != nil)
-        [feedbackFigure setPoint:&lastPoint];
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -192,17 +182,44 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
     
-    if (feedbackFigure != nil) {
-        Renderer* renderer = [windowController renderer];
-        [renderer removeFeedbackFigure:feedbackFigure];
-        [feedbackFigure release];
-        feedbackFigure = nil;
-    }
-    
     [editingSystem release];
     editingSystem = nil;
 
     drag = NO;
+}
+
+- (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager pushCursor:moveCursor];
+    [self updateCursor:event ray:ray hits:hits];
+}
+
+- (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager popCursor];
+}
+
+- (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    TVector3f position;
+    
+    if (!drag) {
+        [self updateMoveDirectionWithRay:ray];
+
+        PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
+        if (hit != nil) {
+            float dist = [editingSystem intersectWithRay:ray planePosition:[hit hitPoint]];
+            rayPointAtDistance(ray, dist, &position);
+        }
+    } else {
+        float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
+        rayPointAtDistance(ray, dist, &position);
+    }
+
+    Grid* grid = [[windowController options] grid];
+    [moveCursor setArrowLength:[grid actualSize]];
+    [moveCursor setEditingSystem:editingSystem];
+    [moveCursor setPosition:&position];
+    [moveCursor setMoveDirection:moveDirection];
 }
 
 - (NSString *)actionName {

@@ -37,6 +37,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "GLResources.h"
 #import "TextureManager.h"
 #import "GLFontManager.h"
+#import "CursorManager.h"
 #import "Texture.h"
 #import "Figure.h"
 #import "Filter.h"
@@ -112,6 +113,7 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)cameraChanged:(NSNotification *)notification;
 - (void)optionsOrGroupsChanged:(NSNotification *)notification;
 - (void)gridChanged:(NSNotification *)notification;
+- (void)cursorChanged:(NSNotification *)notification;
 - (void)preferencesDidChange:(NSNotification *)notification;
 
 - (void)documentCleared:(NSNotification *)notification;
@@ -1055,6 +1057,10 @@ int const TexCoordSize = 2 * sizeof(float);
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 
+- (void)cursorChanged:(NSNotification *)notification {
+    [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+}
+
 - (void)preferencesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     if (DefaultsQuakePath != [userInfo objectForKey:DefaultsKey])
@@ -1130,6 +1136,9 @@ int const TexCoordSize = 2 * sizeof(float);
         [center addObserver:self selector:@selector(optionsOrGroupsChanged:) name:OptionsChanged object:options];
         [center addObserver:self selector:@selector(optionsOrGroupsChanged:) name:GroupsChanged object:groupManager];
         [center addObserver:self selector:@selector(gridChanged:) name:GridChanged object:grid];
+        
+        CursorManager* cursorManager = [windowController cursorManager];
+        [center addObserver:self selector:@selector(cursorChanged:) name:CursorChanged object:cursorManager];
         
         PreferencesManager* preferences = [PreferencesManager sharedManager];
         [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:preferences];
@@ -1286,6 +1295,9 @@ int const TexCoordSize = 2 * sizeof(float);
         glEnable(GL_DEPTH_TEST);
     }
     
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager render];
+
     // enable lighting for cursor and compass
     glEnable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);

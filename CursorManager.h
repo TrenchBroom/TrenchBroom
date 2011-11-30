@@ -18,29 +18,20 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Cocoa/Cocoa.h>
-#import "DefaultTool.h"
-#import "Math.h"
 
-typedef enum {
-    MD_LR_FB, // left / right & front / back
-    MD_LR_UD // left / right & up / down
-} EMoveDirection;
+extern NSString* const CursorChanged;
 
-@class MapWindowController;
-@class EditingSystem;
-@class MoveCursor;
+@class Vector3f;
+@protocol Cursor;
 
-@interface MoveTool : DefaultTool {
-    @private
-    MapWindowController* windowController;
-    EditingSystem* editingSystem;
-    TVector3f editingPoint;
-    MoveCursor* moveCursor;
-    TVector3f lastPoint;
-    BOOL drag;
-    EMoveDirection moveDirection;
+@interface CursorManager : NSObject {
+    NSMutableArray* cursorStack;
 }
 
-- (id)initWithWindowController:(MapWindowController *)theWindowController;
+- (void)pushCursor:(id <Cursor>)cursor;
+- (void)popCursor;
+
+- (BOOL)empty;
+- (void)render;
 
 @end

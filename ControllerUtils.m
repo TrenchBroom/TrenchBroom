@@ -19,6 +19,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "ControllerUtils.h"
 #import "PreferencesManager.h"
+#import "MutableFace.h"
 
 BOOL calculateEntityOrigin(EntityDefinition* entityDefinition, PickingHitList* hits, NSPoint mousePos, Camera* camera, TVector3i* result) {
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
@@ -213,52 +214,25 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
     }
 }
 
-void swap(float* a, float* b) {
-    float t = *a;
-    *a = *b;
-    *b = t;
-}
-
-void quicksort(float a[], int s, int e) {
-    if (e > s + 1) {
-        float p = fabsf(a[e]);
-        int l = s + 1;
-        int r = e;
-        while (l < r) {
-            if (fabsf(a[l]) <= p)
-                l++;
-            else
-                swap(&a[l], &a[--r]);
-        }
-        swap(&a[--l], &a[s]);
-        quicksort(a, s, l);
-        quicksort(a, r, e);
-    }
-}
-
-float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBounds, const TVector3f* deltaf, int skip) {
+float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBounds, const TVector3f* deltaf) {
     float dist = dotV3f(deltaf, [face norm]);
     if (isnan(dist) || dist == 0)
         return NAN;
     
-    if (![grid snap])
-        return dist;
-    
-    TVector3f edgeDelta;
-    
-    // find the directions which the vertices are moved in
+    // compute the rays which the vertices are moved on when the given face is dragged in the given direction
     TVertex** vertices = [face vertices];
     int vertexCount = [face vertexCount];
-    
-    if (skip == vertexCount)
-        return NAN;
     
     id <Brush> brush = [face brush];
     TEdge** edges = [brush edges];
     int edgeCount = [brush edgeCount];
 
-    float vertexDists[vertexCount];
-    int distIndex = 0;
+    TRay vertexRays[vertexCount];
+    int rayIndex = 0;
+    
+    // look at each edge of the brush and test if exactly one of its end vertices belongs to the given face
+    // if such an edge is detected, compute the ray which begins at the face vertex and points at the other
+    // vertex
     for (int i = 0; i < edgeCount; i++) {
         int c = 0;
         TRay ray;
@@ -290,20 +264,50 @@ float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBou
             subV3f(&ray.direction, &ray.origin, &ray.direction);
             normalizeV3f(&ray.direction, &ray.direction);
             
+            // depending on the direction of the drag vector, the rays must be inverted to reflect the
+            // actual movement of the vertices
             if (dist > 0)
                 scaleV3f(&ray.direction, -1, &ray.direction);
             
-            float gridDist = [grid intersectWithRay:&ray];
-            scaleV3f(&ray.direction, gridDist, &edgeDelta);
-            vertexDists[distIndex++] = dotV3f(&edgeDelta, [face norm]);
+            vertexRays[rayIndex++] = ray;
         }
     }
 
-    quicksort(vertexDists, 0, distIndex - 1);
-    if (fabsf(vertexDists[skip]) < fabsf(dist))
-        return vertexDists[skip];
+    TVector3f vertexDelta;
+    int gridSkip = 0;
+    float dragDist = FLT_MAX;
+    do {
+        // Find the smallest drag distance at which the face boundary is actually moved
+        // by intersecting the vertex rays with the grid planes.
+        // The distance of the vertex to the closest grid plane is then multiplied by the ray
+        // direction to yield the vector by which the vertex would be moved if the face was dragged
+        // and the drag would snap the vertex onto the previously selected grid plane.
+        // This vector is then projected onto the face normal to yield the distance by which the face
+        // must be dragged so that the vertex snaps to its closest grid plane.
+        // Then, test if the resulting drag distance is smaller than the current candidate and if it is, see if
+        // it is large enough so that the face boundary changes when the drag is applied.
+        for (int i = 0; i < vertexCount; i++) {
+            float vertexDist = [grid intersectWithRay:&vertexRays[i] skip:gridSkip];
+            scaleV3f(&vertexRays[i].direction, vertexDist, &vertexDelta);
+            float vertexDragDist = dotV3f(&vertexDelta, [face norm]);
+
+            if (fabsf(vertexDragDist) < fabsf(dragDist)) {
+                MutableFace* testFace = [[MutableFace alloc] initWithWorldBounds:[face worldBounds] faceTemplate:face];
+                [testFace dragBy:vertexDragDist lockTexture:NO];
+                if (!equalPlane([face boundary], [testFace boundary]))
+                    dragDist = vertexDragDist;
+                [testFace release];
+            }
+        }
+        
+        // If we didn't find anything, the grid planes were too close to each vertex, so try the next grid planes.
+        gridSkip++;
+    } while (dragDist == FLT_MAX);
     
-    return 0;
+    if (fabsf(dragDist) > fabsf(dist))
+        return NAN;
+    
+    return dragDist;
 }
 
 

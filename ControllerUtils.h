@@ -30,5 +30,25 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 BOOL calculateEntityOrigin(EntityDefinition* entityDefinition, PickingHitList* hits, NSPoint mousePos, Camera* camera, TVector3i* result);
 NSArray* modListFromWorldspawn(id <Entity> worldspawn);
 void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingBox* worldBounds, TVector3f* deltaf, TVector3f* lastPoint);
-float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBounds, const TVector3f* deltaf, int skip);
+
+/**
+ * Computes how far a face must be dragged along its normal so that one of its 
+ * vertices snaps to the closest grid plane.
+ *
+ * The given drag vector is projected onto the face normal to yield the distance
+ * by which the user wants to drag the face. The vertices are supposed to be 
+ * snapped to the grid, so this algorithm determines the smallest drag distance
+ * that snaps any of the faces vertices onto the grid along at least one
+ * dimension.
+ * Miniscule drags may result in the face not moving at all due to the integer
+ * representation of the faces points, so this algorithm ignores such small
+ * drag distances.
+ *
+ * @param grid the grid
+ * @param face the face which is to be dragged
+ * @param worldBounds the bounds of the level
+ * @param deltaf the drag vector
+ * @returns the distance of the face drag along its normal
+ */
+float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBounds, const TVector3f* deltaf);
 void updateMenuWithExecutables(NSMenu* menu, BOOL setIcons, SEL action);

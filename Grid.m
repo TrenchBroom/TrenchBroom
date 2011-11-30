@@ -226,12 +226,12 @@ NSString* const GridChanged = @"GridChanged";
     subV3i(vector, &snapped, result);
 }
 
-- (float)intersectWithRay:(const TRay *)ray {
+- (float)intersectWithRay:(const TRay *)ray skip:(int)skip {
     TPlane plane;
     
-    plane.point.x = ray->direction.x > 0 ? [self snapUpToNextf:ray->origin.x] : [self snapDownToPreviousf:ray->origin.x];
-    plane.point.y = ray->direction.y > 0 ? [self snapUpToNextf:ray->origin.y] : [self snapDownToPreviousf:ray->origin.y];
-    plane.point.z = ray->direction.z > 0 ? [self snapUpToNextf:ray->origin.z] : [self snapDownToPreviousf:ray->origin.z];
+    plane.point.x = ray->direction.x > 0 ? [self snapUpToNextf:ray->origin.x] + skip * [self actualSize] : [self snapDownToPreviousf:ray->origin.x] - skip * [self actualSize];
+    plane.point.y = ray->direction.y > 0 ? [self snapUpToNextf:ray->origin.y] + skip * [self actualSize] : [self snapDownToPreviousf:ray->origin.y] - skip * [self actualSize];
+    plane.point.z = ray->direction.z > 0 ? [self snapUpToNextf:ray->origin.z] + skip * [self actualSize] : [self snapDownToPreviousf:ray->origin.z] - skip * [self actualSize];
     
     plane.norm = XAxisPos;
     float distX = intersectPlaneWithRay(&plane, ray);

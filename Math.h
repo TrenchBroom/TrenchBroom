@@ -46,12 +46,6 @@ typedef struct {
 } TVector3f;
 
 typedef struct {
-    TVector3f* items;
-    int count;
-    int capacity;
-} TVector3fList;
-
-typedef struct {
     int x,y,z;
 } TVector3i;
 
@@ -196,11 +190,6 @@ BOOL nullV3i(const TVector3i* v);
 void rotate90CWV3i(const TVector3i* v, EAxis a, TVector3i *o);
 void rotate90CCWV3i(const TVector3i* v, EAxis a, TVector3i *o);
 BOOL parseV3i(NSString* s, NSRange r, TVector3i* o);
-
-TVector3fList* newVector3fList(int c);
-void freeVector3fList(TVector3fList* l);
-void addVector3fToList(TVector3f v, TVector3fList* l);
-void removeVector3fFromList(int idx, TVector3fList* l);
 
 void setLinePoints(TLine* l, TVector3f* p1, TVector3f* p2);
 void linePointAtDistance(TLine* l, float d, TVector3f* p);

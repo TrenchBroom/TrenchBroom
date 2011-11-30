@@ -31,6 +31,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "math.h"
 #import "ControllerUtils.h"
 #import "MutableFace.h"
+#import "DragFaceCursor.h"
+#import "CursorManager.h"
 
 @interface FaceTool (private)
 
@@ -85,6 +87,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if ((self = [self init])) {
         windowController = theWindowController;
         dragFaces = [[NSMutableArray alloc] init];
+        dragFaceCursor = [[DragFaceCursor alloc] init];
     }
     
     return self;
@@ -92,6 +95,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)dealloc {
     [dragFaces release];
+    [dragFaceCursor release];
     [super dealloc];
 }
 
@@ -207,22 +211,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     subV3f(&point, &lastPoint, &delta);
     
     Grid* grid = [[windowController options] grid];
-    
-    int skip = 0;
-    BOOL done = NO;
-    float dragDist;
-    do {
-        dragDist = calculateDragDelta(grid, referenceFace, NULL, &delta, skip++);
-        if (!isnan(dragDist) && dragDist != 0) {
-            MutableFace* testFace = [[MutableFace alloc] initWithWorldBounds:[referenceFace worldBounds] faceTemplate:referenceFace];
-            [testFace dragBy:dragDist lockTexture:NO];
-            done = !equalPlane([referenceFace boundary], [testFace boundary]);
-            [testFace release];
-        } else {
-            done = YES;
-        }
-    } while (!done);
-    
+    float dragDist = calculateDragDelta(grid, referenceFace, NULL, &delta);
+
     if (isnan(dragDist) || dragDist == 0)
         return;
 
@@ -248,8 +238,48 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [dragFaces removeAllObjects];
 }
 
+- (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager pushCursor:dragFaceCursor];
+    [self updateCursor:event ray:ray hits:hits];
+}
+
+- (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager popCursor];
+}
+
+- (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    TVector3f position;
+    const TVector3f* dragDirection = NULL;
+    
+    if (!drag) {
+        PickingHit* hit = [hits edgeDragHit];
+        if (hit == nil)
+            hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+        if (hit == nil)
+            return;
+
+        position = *[hit hitPoint];
+        dragDirection = [[hit object] norm];
+    } else {
+        float dist = intersectPlaneWithRay(&plane, ray);
+        if (isnan(dist))
+            return;
+        
+        rayPointAtDistance(ray, dist, &position);
+        dragDirection = [referenceFace norm];
+    }
+    
+    Grid* grid = [[windowController options] grid];
+    [dragFaceCursor setArrowLength:[grid actualSize]];
+    [dragFaceCursor setPosition:&position];
+    [dragFaceCursor setRayDirection:&ray->direction];
+    [dragFaceCursor setDragDirection:dragDirection];
+}
+
 - (NSString *)actionName {
-    return @"Move Faces";
+    return @"Drag Faces";
 }
 
 @end
