@@ -642,20 +642,30 @@ void linePointAtDistance(TLine* l, float d, TVector3f* p) {
 
 # pragma mark TPlane functions
 
+/*
+ * The points are expected in clockwise orientation (view from above the plane):
+ *
+ *           p3
+ *           |
+ *           | v1
+ *           |
+ *   p2------p1
+ *       v2
+ */
 void setPlanePointsV3i(TPlane* p, const TVector3i* p1, const TVector3i* p2, const TVector3i* p3) {
     TVector3f v1, v2;
     
     setV3f(&p->point, p1);
     
-    v1.x = p2->x - p1->x;
-    v1.y = p2->y - p1->y;
-    v1.z = p2->z - p1->z;
-
-    v2.x = p3->x - p1->x;
-    v2.y = p3->y - p1->y;
-    v2.z = p3->z - p1->z;
+    v1.x = p3->x - p1->x;
+    v1.y = p3->y - p1->y;
+    v1.z = p3->z - p1->z;
     
-    crossV3f(&v2, &v1, &p->norm);
+    v2.x = p2->x - p1->x;
+    v2.y = p2->y - p1->y;
+    v2.z = p2->z - p1->z;
+
+    crossV3f(&v1, &v2, &p->norm);
     normalizeV3f(&p->norm, &p->norm);
 }
 
@@ -1831,13 +1841,13 @@ float updatePoint(const TPlane* pl, EAxis a, TVector3f* p) {
     }
 }
 
-void searchForMinOffset(const TPlane* p, const TVector3f* d, TVector3i* r) {
+float searchForMinOffset(const TPlane* p, const TVector3f* d, float f, TVector3i* r) {
     TVector3f searchDir, prev, cur;
     float prevDist, curDist;
     EAxis projAxis = strongestComponentV3f(&p->norm);
     
     setV3f(&prev, r);
-    scaleV3f(d, 100, &searchDir);
+    scaleV3f(d, f, &searchDir);
     addV3f(&prev, &searchDir, &prev);
     prevDist = updatePoint(p, projAxis, &prev);
                 
@@ -1847,7 +1857,7 @@ void searchForMinOffset(const TPlane* p, const TVector3f* d, TVector3i* r) {
     
     if (prevDist == curDist) {
         roundV3f(&prev, r);
-        return;
+        return prevDist;
     }
     
     if (curDist > prevDist) {
@@ -1871,58 +1881,112 @@ void searchForMinOffset(const TPlane* p, const TVector3f* d, TVector3i* r) {
     }
     
     roundV3f(&prev, r);
+    return prevDist;
 }
+
+/*
+ *           p3
+ *           |
+ *           | v1
+ *           |
+ *   p2------p1
+ *       v2
+ */
 
 void makePointsForPlane2(const TPlane* p, const TBoundingBox* m, TVector3i* p1, TVector3i* p2, TVector3i* p3) {
     EAxis projAxis = strongestComponentV3f(&p->norm);
+    float curDist, prevDist;
+    int i;
+
+    TVector3i curPoint, prevPoint;
     
-    const TVector3f* searchDir1;
-    const TVector3f* searchDir2;
-    const TVector3f* searchDir3;
+    const TVector3f* searchDir1[2];
+    const TVector3f* searchDir2[2];
+    const TVector3f* searchDir3[2];
     
     switch (projAxis) {
         case A_X:
             if (p->norm.x > 0) {
-                searchDir1 = &YAxisPos;
-                searchDir2 = &YAxisNeg;
-                searchDir3 = &ZAxisPos;
+                searchDir1[0] = &YAxisPos;
+                searchDir1[1] = &ZAxisPos;
+                searchDir2[0] = &YAxisNeg;
+                searchDir2[1] = &ZAxisPos;
+                searchDir3[0] = &ZAxisPos;
+                searchDir3[1] = &YAxisPos;
             } else {
-                searchDir1 = &YAxisNeg;
-                searchDir2 = &YAxisPos;
-                searchDir3 = &ZAxisPos;
+                searchDir1[0] = &YAxisNeg;
+                searchDir1[1] = &ZAxisPos;
+                searchDir2[0] = &YAxisPos;
+                searchDir2[1] = &ZAxisPos;
+                searchDir3[0] = &ZAxisPos;
+                searchDir3[1] = &YAxisPos;
             }
             break;
         case A_Y:
             if (p->norm.y > 0) {
-                searchDir1 = &XAxisNeg;
-                searchDir2 = &XAxisPos;
-                searchDir3 = &ZAxisPos;
+                searchDir1[0] = &XAxisNeg;
+                searchDir1[1] = &ZAxisPos;
+                searchDir2[0] = &XAxisPos;
+                searchDir2[1] = &ZAxisPos;
+                searchDir3[0] = &ZAxisPos;
+                searchDir3[1] = &XAxisPos;
             } else {
-                searchDir1 = &XAxisPos;
-                searchDir2 = &XAxisNeg;
-                searchDir3 = &ZAxisPos;
+                searchDir1[0] = &XAxisPos;
+                searchDir1[1] = &ZAxisPos;
+                searchDir2[0] = &XAxisNeg;
+                searchDir2[1] = &ZAxisPos;
+                searchDir3[0] = &ZAxisPos;
+                searchDir3[1] = &XAxisPos;
             }
             break;
         default:
             if (p->norm.z > 0) {
-                searchDir1 = &XAxisPos;
-                searchDir2 = &XAxisNeg;
-                searchDir3 = &YAxisPos;
+                searchDir1[0] = &XAxisPos;
+                searchDir1[1] = &YAxisPos;
+                searchDir2[0] = &XAxisNeg;
+                searchDir2[1] = &YAxisNeg;
+                searchDir3[0] = &YAxisPos;
+                searchDir3[1] = &XAxisPos;
             } else {
-                searchDir1 = &XAxisNeg;
-                searchDir2 = &XAxisPos;
-                searchDir3 = &YAxisPos;
+                searchDir1[0] = &XAxisNeg;
+                searchDir1[1] = &YAxisNeg;
+                searchDir2[0] = &XAxisPos;
+                searchDir2[1] = &YAxisPos;
+                searchDir3[0] = &YAxisPos;
+                searchDir3[1] = &XAxisPos;
             }
             break;
     }
     
-    roundV3f(&p->point, p1);
-    roundV3f(&p->point, p2);
-    roundV3f(&p->point, p3);
-
-    searchForMinOffset(p, searchDir1, p1);
-    searchForMinOffset(p, searchDir2, p2);
-    searchForMinOffset(p, searchDir3, p3);
+    i = 0;
+    roundV3f(&p->point, &curPoint);
+    curDist = searchForMinOffset(p, searchDir1[i++ % 2], 100, &curPoint);
+    do {
+        prevDist = curDist;
+        prevPoint = curPoint;
+        curDist = searchForMinOffset(p, searchDir1[i++ % 2], 1, &curPoint);
+    } while (curDist < prevDist);
+    *p1 = prevPoint;
+    
+    i = 0;
+    roundV3f(&p->point, &curPoint);
+    curDist = searchForMinOffset(p, searchDir2[i++ % 2], 100, &curPoint);
+    do {
+        prevDist = curDist;
+        prevPoint = curPoint;
+        curDist = searchForMinOffset(p, searchDir2[i++ % 2], 100, &curPoint);
+    } while (curDist < prevDist);
+    *p2 = prevPoint;
+    
+    i = 0;
+    roundV3f(&p->point, &curPoint);
+    curDist = searchForMinOffset(p, searchDir3[i++ % 2], 100, &curPoint);
+    do {
+        prevDist = curDist;
+        prevPoint = curPoint;
+        curDist = searchForMinOffset(p, searchDir3[i++ % 2], 100, &curPoint);
+    } while (curDist < prevDist);
+    *p3 = prevPoint;
 }
 
 void makePointsForPlane(const TPlane* p, const TBoundingBox* m, TVector3i* p1, TVector3i* p2, TVector3i* p3) {
