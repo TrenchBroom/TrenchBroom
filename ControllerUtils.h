@@ -52,3 +52,5 @@ void calculateMoveDelta(Grid* grid, const TBoundingBox* bounds, const TBoundingB
  */
 float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBounds, const TVector3f* deltaf);
 void updateMenuWithExecutables(NSMenu* menu, BOOL setIcons, SEL action);
+
+void cursorArrow(const TVector3f* arrowDir, const TVector3f* viewDir, BOOL align, TVector3f** outline, int* outlineCount, TVector3f** triangles, int* triangleCount);

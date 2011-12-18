@@ -26,47 +26,68 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSAssert(theCamera != nil, @"camera must not be nil");
     
     if ((self = [self init])) {
+        xAxisPos = closestAxisV3f([theCamera right]);
+        xAxisNeg = oppositeAxisV3f([theCamera right]);
+
         if (vertical) {
-            xAxis = closestAxisV3f([theCamera right]);
-            yAxis = &ZAxisPos;
+            yAxisPos = &ZAxisPos;
+            yAxisNeg = &ZAxisNeg;
             
             TVector3f t;
-            crossV3f(xAxis, yAxis, &t);
-            zAxis = closestAxisV3f(&t);
+            crossV3f(xAxisPos, yAxisPos, &t);
+            zAxisPos = closestAxisV3f(&t);
+            zAxisNeg = oppositeAxisV3f(&t);
         } else {
-            xAxis = closestAxisV3f([theCamera right]);
-            yAxis = closestAxisV3f([theCamera direction]);
-            if (yAxis == &ZAxisPos || yAxis == &ZAxisNeg)
-                yAxis = closestAxisV3f([theCamera up]);
+            yAxisPos = closestAxisV3f([theCamera direction]);
+
+            if (yAxisPos == &ZAxisPos || yAxisPos == &ZAxisNeg) {
+                yAxisPos = closestAxisV3f([theCamera up]);
+                yAxisNeg = oppositeAxisV3f([theCamera up]);
+            } else {
+                yAxisNeg = oppositeAxisV3f([theCamera direction]);
+            }
             
-            zAxis = &ZAxisPos;
+            zAxisPos = &ZAxisPos;
+            zAxisNeg = &ZAxisNeg;
         }
 
-        setColumnM4fV3f(&IdentityM4f, xAxis, 0, &worldToLocal);
-        setColumnM4fV3f(&worldToLocal, yAxis, 1, &worldToLocal);
-        setColumnM4fV3f(&worldToLocal, zAxis, 2, &worldToLocal);
+        setColumnM4fV3f(&IdentityM4f, xAxisPos, 0, &worldToLocal);
+        setColumnM4fV3f(&worldToLocal, yAxisPos, 1, &worldToLocal);
+        setColumnM4fV3f(&worldToLocal, zAxisPos, 2, &worldToLocal);
         invertM4f(&worldToLocal, &localToWorld);
     }
     
     return self;
 }
 
-- (const TVector3f *)xAxis {
-    return xAxis;
+- (const TVector3f *)xAxisPos {
+    return xAxisPos;
 }
 
-- (const TVector3f *)yAxis {
-    return yAxis;
+- (const TVector3f *)xAxisNeg {
+    return xAxisNeg;
 }
 
-- (const TVector3f *)zAxis {
-    return zAxis;
+- (const TVector3f *)yAxisPos {
+    return yAxisPos;
+}
+
+- (const TVector3f *)yAxisNeg {
+    return yAxisNeg;
+}
+
+- (const TVector3f *)zAxisPos {
+    return zAxisPos;
+}
+
+- (const TVector3f *)zAxisNeg {
+    return zAxisNeg;
 }
 
 - (float)intersectWithRay:(const TRay *)theRay planePosition:(const TVector3f *)thePlanePos {
     TPlane plane;
     plane.point = *thePlanePos;
-    plane.norm = *zAxis;
+    plane.norm = *zAxisPos;
     
     return intersectPlaneWithRay(&plane, theRay);
 }
@@ -80,7 +101,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)eliminateLRFrom:(const TVector3f *)theVector result:(TVector3f *)theResult {
-    if (xAxis->x != 0) {
+    if (xAxisPos->x != 0) {
         theResult->x = 0;
         theResult->y = theVector->y;
         theResult->z = theVector->z;
@@ -98,7 +119,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)eliminateFBFrom:(const TVector3f *)theVector result:(TVector3f *)theResult {
-    if (xAxis->x != 0) {
+    if (xAxisPos->x != 0) {
         theResult->x = theVector->x;
         theResult->y = 0;
         theResult->z = theVector->z;

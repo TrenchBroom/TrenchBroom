@@ -24,17 +24,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Math.h"
 #import "MoveTool.h"
 
+@class DoubleArrowFigure;
 @class EditingSystem;
 
 @interface MoveCursor : NSObject <Cursor> {
+    DoubleArrowFigure* xArrow;
+    DoubleArrowFigure* yArrow;
+    DoubleArrowFigure* zArrow;
     EditingSystem* editingSystem;
     EMoveDirection moveDirection;
     TVector3f position;
-    float arrowLength;
+    TVector3f cameraPosition;
 }
 
-- (void)setArrowLength:(float)theArrowLength;
 - (void)setEditingSystem:(EditingSystem *)theEditingSystem;
 - (void)setMoveDirection:(EMoveDirection)theMoveDirection;
+- (void)setCameraPosition:(const TVector3f *)theCameraPosition;
 
 @end

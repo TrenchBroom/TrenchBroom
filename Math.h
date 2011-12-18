@@ -171,6 +171,7 @@ BOOL nullV3f(const TVector3f* v);
 EAxis strongestComponentV3f(const TVector3f* v);
 EAxis weakestComponentV3f(const TVector3f* v);
 const TVector3f* closestAxisV3f(const TVector3f* v);
+const TVector3f* oppositeAxisV3f(const TVector3f* v);
 float componentV3f(const TVector3f* v, EAxis a);
 void setComponentV3f(TVector3f* v, EAxis a, float f);
 void roundV3f(const TVector3f* v, TVector3i* o);
@@ -181,6 +182,8 @@ void rotate90CWV3f(const TVector3f* v, EAxis a, TVector3f *o);
 void rotate90CCWV3f(const TVector3f* v, EAxis a, TVector3f *o);
 BOOL parseV3f(NSString* s, NSRange r, TVector3f* o);
 BOOL opposingV3f(const TVector3f* v1, const TVector3f* v2);
+BOOL normV3f(const TVector3f* v1, const TVector3f* v2, const TVector3f* v3, TVector3f* o);
+void avg3V3f(const TVector3f* v1, const TVector3f* v2, const TVector3f* v3, TVector3f* o);
 
 void addV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
 void subV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
@@ -305,8 +308,6 @@ void makeRing(float innerRadius, float outerRadius, int segments, TVector3f* poi
 void makeTorus(float innerRadius, float outerRadius, int innerSegments, int outerSegments, TVector3f* points, TVector3f* normals);
 void makeTorusPart(float innerRadius, float outerRadius, int innerSegments, int outerSegments, float centerAngle, float angleLength, TVector3f* points, TVector3f* normals);
 void makeCone(float radius, float height, int segments, TVector3f* points, TVector3f* normals);
-void makeCylinder(int segments, TVector3f* points, TVector3f* normals);
+void makeCylinder(float radius, float height, int segments, TVector3f* points, TVector3f* normals);
 
-void makeArrowTriangles(float baseLength, float baseWidth, float headLength, float headWidth, TVector3f* points);
-void makeArrowOutline(float baseLength, float baseWidth, float headLength, float headWidth, TVector3f* points);
 

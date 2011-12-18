@@ -778,18 +778,22 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 }
 
 - (TVertex **)vertices {
+    NSAssert(side != NULL, @"side must not be NULL");
     return side->vertices;
 }
 
 - (int)vertexCount {
+    NSAssert(side != NULL, @"side must not be NULL");
     return side->edgeCount;
 }
 
 - (TEdge **)edges {
+    NSAssert(side != NULL, @"side must not be NULL");
     return side->edges;
 }
 
 - (int)edgeCount {
+    NSAssert(side != NULL, @"side must not be NULL");
     return side->edgeCount;
 }
 

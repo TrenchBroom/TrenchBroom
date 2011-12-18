@@ -296,6 +296,21 @@ const TVector3f* closestAxisV3f(const TVector3f* v) {
     }
 }
 
+const TVector3f* oppositeAxisV3f(const TVector3f* v) {
+    const TVector3f* closest = closestAxisV3f(v);
+    if (closest == &XAxisPos)
+        return &XAxisNeg;
+    if (closest == &XAxisNeg)
+        return &XAxisPos;
+    if (closest == &YAxisPos)
+        return &YAxisNeg;
+    if (closest == &YAxisNeg)
+        return &YAxisPos;
+    if (closest == &ZAxisPos)
+        return &ZAxisNeg;
+    return &ZAxisPos;
+}
+
 float componentV3f(const TVector3f* v, EAxis a) {
     switch (a) {
         case A_X:
@@ -478,6 +493,26 @@ BOOL opposingV3f(const TVector3f* v1, const TVector3f* v2) {
     return !(((v1->x > 0 && v2->x > 0) || (v1->x < 0 && v2->x < 0)) && 
              ((v1->y > 0 && v2->y > 0) || (v1->y < 0 && v2->y < 0)) && 
              ((v1->z > 0 && v2->z > 0) || (v1->z < 0 && v2->z < 0)));
+}
+
+BOOL normV3f(const TVector3f* v1, const TVector3f* v2, const TVector3f* v3, TVector3f* o) {
+    TVector3f w1, w2;
+    
+    subV3f(v3, v1, &w1);
+    subV3f(v2, v1, &w2);
+    crossV3f(&w1, &w2, o);
+    
+    if (nullV3f(o))
+        return NO;
+
+    normalizeV3f(o, o);
+    return YES;
+}
+
+void avg3V3f(const TVector3f* v1, const TVector3f* v2, const TVector3f* v3, TVector3f* o) {
+    addV3f(v1, v2, o);
+    addV3f(o, v3, o);
+    scaleV3f(o, 1 / 3.0f, o);
 }
 
 # pragma mark TVector3i functions
@@ -2221,7 +2256,7 @@ void makeCone(float radius, float height, int segments, TVector3f* points, TVect
     
     if (normals != NULL) {
         normals[0] = ZAxisPos;
-        
+
         TVector3f csn, psn, tp1, tp2;
         subV3f(&points[segments + 1], &points[0], &tp1);
         subV3f(&points[segments], &points[0], &tp2);
@@ -2245,19 +2280,19 @@ void makeCone(float radius, float height, int segments, TVector3f* points, TVect
     }
 }
 
-void makeCylinder(int segments, TVector3f* points, TVector3f* normals) {
+void makeCylinder(float radius, float height, int segments, TVector3f* points, TVector3f* normals) {
     float d = 2 * M_PI / segments;
     float a = 0;
     for (int i = 0; i < segments; i++) {
         float s = sin(a);
         float c = cos(a);
         
-        points[2 * i].x = s;
-        points[2 * i].y = c;
-        points[2 * i].z = 0;
-        points[2 * i + 1].x = s;
-        points[2 * i + 1].y = c;
-        points[2 * i + 1].z = 1;
+        points[2 * i].x = radius * s;
+        points[2 * i].y = radius * c;
+        points[2 * i].z = height;
+        points[2 * i + 1].x = radius * s;
+        points[2 * i + 1].y = radius * c;
+        points[2 * i + 1].z = 0;
         
         if (normals != NULL) {
             normals[2 * i].x = normals[2 * i + 1].x = s;

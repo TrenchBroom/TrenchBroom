@@ -23,18 +23,24 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class Camera;
 
 @interface EditingSystem : NSObject {
-    const TVector3f* xAxis;
-    const TVector3f* yAxis;
-    const TVector3f* zAxis;
+    const TVector3f* xAxisPos;
+    const TVector3f* xAxisNeg;
+    const TVector3f* yAxisPos;
+    const TVector3f* yAxisNeg;
+    const TVector3f* zAxisPos;
+    const TVector3f* zAxisNeg;
     TMatrix4f worldToLocal;
     TMatrix4f localToWorld;
 }
 
 - (id)initWithCamera:(Camera *)theCamera vertical:(BOOL)vertical;
 
-- (const TVector3f *)xAxis;
-- (const TVector3f *)yAxis;
-- (const TVector3f *)zAxis;
+- (const TVector3f *)xAxisPos;
+- (const TVector3f *)xAxisNeg;
+- (const TVector3f *)yAxisPos;
+- (const TVector3f *)yAxisNeg;
+- (const TVector3f *)zAxisPos;
+- (const TVector3f *)zAxisNeg;
 
 - (float)intersectWithRay:(const TRay *)theRay planePosition:(const TVector3f *)thePlanePos;
 

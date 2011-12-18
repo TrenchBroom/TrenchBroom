@@ -215,11 +215,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         rayPointAtDistance(ray, dist, &position);
     }
 
-    Grid* grid = [[windowController options] grid];
-    [moveCursor setArrowLength:[grid actualSize]];
     [moveCursor setEditingSystem:editingSystem];
     [moveCursor setPosition:&position];
     [moveCursor setMoveDirection:moveDirection];
+    [moveCursor setCameraPosition:[[windowController camera] position]];
 }
 
 - (NSString *)actionName {

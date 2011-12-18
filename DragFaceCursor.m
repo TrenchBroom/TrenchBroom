@@ -50,10 +50,10 @@ static const float ArrowHeadLength = 0.25f;
     setColumnM4fV3f(&planeMatrix, &planeZ, 2, &planeMatrix);
     //invertM4f(&planeMatrix, &planeMatrix);
     
+    /*
     makeArrowOutline(arrowLength * ArrowBaseLength, ArrowBaseWidth, arrowLength * ArrowHeadLength, ArrowHeadWidth, outline);
     makeArrowTriangles(arrowLength * ArrowBaseLength, ArrowBaseWidth, arrowLength * ArrowHeadLength, ArrowHeadWidth, triangles);
 
-    /*
     for (int i = 0; i < 6; i++) {
         transformM4fV3f(&planeMatrix, &outline[i], &outline[i]);
         transformM4fV3f(&planeMatrix, &triangles[i], &triangles[i]);
@@ -83,6 +83,7 @@ static const float ArrowHeadLength = 0.25f;
 @implementation DragFaceCursor
 
 - (void)render {
+    /*
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_CULL_FACE);
     
@@ -103,6 +104,7 @@ static const float ArrowHeadLength = 0.25f;
     
     glPolygonMode(GL_FRONT, GL_FILL);
     glEnable(GL_CULL_FACE);
+     */
 }
 
 - (void)setArrowLength:(float)theArrowLength {

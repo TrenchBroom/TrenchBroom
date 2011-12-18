@@ -21,6 +21,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "PreferencesManager.h"
 #import "MutableFace.h"
 
+static const float ArrowBaseWidth = 7;
+static const float ArrowBaseLength = 11;
+static const float ArrowHeadWidth = 10;
+static const float ArrowHeadLength = 5;
+
 BOOL calculateEntityOrigin(EntityDefinition* entityDefinition, PickingHitList* hits, NSPoint mousePos, Camera* camera, TVector3i* result) {
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
     if (hit != nil) {

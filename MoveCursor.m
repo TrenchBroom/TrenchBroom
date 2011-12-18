@@ -18,145 +18,71 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import "MoveCursor.h"
+#import "DoubleArrowFigure.h"
 #import "GLUtils.h"
 #import "EditingSystem.h"
-
-static const float ArrowBaseWidth = 6;
-static const float ArrowBaseLength = 0.75f;
-static const float ArrowHeadWidth = 10;
-static const float ArrowHeadLength = 0.25f;
-
-@interface MoveCursor (private)
-
-- (void)renderArrow:(TVector3f *)triangles color:(const TVector4f *)fillColor outline:(TVector3f *)outline outlineColor:(const TVector4f *)outlineColor;
-- (void)renderArrowsWithOutlineColor:(const TVector4f *)outlineColor fillColor:(const TVector4f *)fillColor;
-
-@end
-
-@implementation MoveCursor (private)
-
-- (void)renderArrow:(TVector3f *)triangles color:(const TVector4f *)fillColor outline:(TVector3f *)outline outlineColor:(const TVector4f *)outlineColor {
-    glColorV4f(fillColor);
-    glBegin(GL_TRIANGLES);
-    for (int i = 0; i < 6; i++)
-        glVertexV3f(&triangles[i]);
-    glEnd();
-    glColorV4f(outlineColor);
-    glBegin(GL_LINE_LOOP);
-    for (int i = 0; i < 6; i++)
-        glVertexV3f(&outline[i]);
-    glEnd();
-}
-
-- (void)renderArrowsWithOutlineColor:(const TVector4f *)outlineColor fillColor:(const TVector4f *)fillColor {
-    glPushMatrix();
-    glTranslatef(position.x, position.y, position.z);
-    
-    TVector3f outline[6];
-    TVector3f triangles[6];
-    if (moveDirection == MD_LR_FB) {
-        makeArrowOutline(arrowLength * ArrowBaseLength, ArrowBaseWidth, arrowLength * ArrowHeadLength, ArrowHeadWidth, outline);
-        makeArrowTriangles(arrowLength * ArrowBaseLength, ArrowBaseWidth, arrowLength * ArrowHeadLength, ArrowHeadWidth, triangles);
-        
-        const TMatrix4f* localToWorldMatrix = [editingSystem localToWorldMatrix];
-        const TVector3f* axis = [editingSystem zAxis];
-        
-        for (int i = 0; i < 6; i++) {
-            projectOntoCoordinatePlane(P_XY, &outline[i], &outline[i]);
-            projectOntoCoordinatePlane(P_XY, &triangles[i], &triangles[i]);
-            
-            transformM4fV3f(localToWorldMatrix, &outline[i], &outline[i]);
-            transformM4fV3f(localToWorldMatrix, &triangles[i], &triangles[i]);
-        }
-        
-        // right arrow
-        [self renderArrow:triangles color:fillColor outline:outline outlineColor:outlineColor];
-        
-        // left arrow
-        glPushMatrix();
-        glRotatef(180, axis->x, axis->y, axis->z);
-        [self renderArrow:triangles color:fillColor outline:outline outlineColor:outlineColor];
-        glPopMatrix();
-        
-        // front arrow
-        glPushMatrix();
-        glRotatef(90, axis->x, axis->y, axis->z);
-        [self renderArrow:triangles color:fillColor outline:outline outlineColor:outlineColor];
-        
-        // back arrow
-        glRotatef(180, axis->x, axis->y, axis->z);
-        [self renderArrow:triangles color:fillColor outline:outline outlineColor:outlineColor];
-        glPopMatrix();
-    } else if (moveDirection == MD_LR_UD) {
-        makeArrowOutline(arrowLength * ArrowBaseLength, ArrowBaseWidth, arrowLength * ArrowHeadLength, ArrowHeadWidth, outline);
-        makeArrowTriangles(arrowLength * ArrowBaseLength, ArrowBaseWidth, arrowLength * ArrowHeadLength, ArrowHeadWidth, triangles);
-        
-        const TMatrix4f* localToWorldMatrix = [editingSystem localToWorldMatrix];
-        const TVector3f* axis = [editingSystem zAxis];
-        
-        for (int i = 0; i < 6; i++) {
-            projectOntoCoordinatePlane(P_XZ, &outline[i], &outline[i]);
-            projectOntoCoordinatePlane(P_XZ, &triangles[i], &triangles[i]);
-            
-            transformM4fV3f(localToWorldMatrix, &outline[i], &outline[i]);
-            transformM4fV3f(localToWorldMatrix, &triangles[i], &triangles[i]);
-        }
-        
-        // right arrow
-        [self renderArrow:triangles color:fillColor outline:outline outlineColor:outlineColor];
-        
-        // left arrow
-        glPushMatrix();
-        glRotatef(180, axis->x, axis->y, axis->z);
-        [self renderArrow:triangles color:fillColor outline:outline outlineColor:outlineColor];
-        glPopMatrix();
-        
-        // front arrow
-        glPushMatrix();
-        glRotatef(90, axis->x, axis->y, axis->z);
-        [self renderArrow:triangles color:fillColor outline:outline outlineColor:outlineColor];
-        
-        // back arrow
-        glRotatef(180, axis->x, axis->y, axis->z);
-        [self renderArrow:triangles color:fillColor outline:outline outlineColor:outlineColor];
-        glPopMatrix();
-    }
-    
-    glPopMatrix();
-}
-
-@end
+#import "ControllerUtils.h"
 
 @implementation MoveCursor
 
+- (id)init {
+    if ((self = [super init])) {
+        xArrow = [[DoubleArrowFigure alloc] initWithDirection:A_X];
+        yArrow = [[DoubleArrowFigure alloc] initWithDirection:A_Y];
+        zArrow = [[DoubleArrowFigure alloc] initWithDirection:A_Z];
+    }
+    
+    return self;
+}
+
+- (void)dealloc {
+    [xArrow release];
+    [yArrow release];
+    [zArrow release];
+    [super dealloc];
+}
+
 - (void)render {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDisable(GL_CULL_FACE);
-    
-    TVector4f outlineColor1 = {1, 1, 1, 0.25f};
-    TVector4f fillColor1 = {0, 0, 0, 0.25f};
-    TVector4f outlineColor2 = {1, 1, 1, 1};
-    TVector4f fillColor2 = {0, 0, 0, 1};
-    
-    glMatrixMode(GL_MODELVIEW);
-    
+    [xArrow setPosition:&position];
+    [xArrow setCameraPosition:&cameraPosition];
+    [yArrow setPosition:&position];
+    [yArrow setCameraPosition:&cameraPosition];
+    [zArrow setPosition:&position];
+    [zArrow setCameraPosition:&cameraPosition];
+
+    TVector4f fillColor1 = {0, 0, 0, 1};
+    TVector4f outlineColor1 = {1, 1, 1, 1};
+    TVector4f fillColor2 = {0, 0, 0, 0.3f};
+    TVector4f outlineColor2 = {1, 1, 1, 0.3f};
+
     glDisable(GL_DEPTH_TEST);
-    [self renderArrowsWithOutlineColor:&outlineColor1 fillColor:&fillColor1];
+    
+    [xArrow setFillColor:&fillColor2];
+    [xArrow setOutlineColor:&outlineColor2];
+    [xArrow render];
+    
+    [yArrow setFillColor:&fillColor2];
+    [yArrow setOutlineColor:&outlineColor2];
+    [yArrow render];
+
+    [zArrow setFillColor:&fillColor2];
+    [zArrow setOutlineColor:&outlineColor2];
+    [zArrow render];
     
     glEnable(GL_DEPTH_TEST);
-    glSetEdgeOffset(0.5f);
-    [self renderArrowsWithOutlineColor:&outlineColor2 fillColor:&fillColor2];
-    glResetEdgeOffset();
-    
-    glPolygonMode(GL_FRONT, GL_FILL);
-    glEnable(GL_CULL_FACE);
-    
-}
 
-- (void)setArrowLength:(float)theArrowLength {
-    arrowLength = theArrowLength;
+    [xArrow setFillColor:&fillColor1];
+    [xArrow setOutlineColor:&outlineColor1];
+    [xArrow render];
+    
+    [yArrow setFillColor:&fillColor1];
+    [yArrow setOutlineColor:&outlineColor1];
+    [yArrow render];
+    
+    [zArrow setFillColor:&fillColor1];
+    [zArrow setOutlineColor:&outlineColor1];
+    [zArrow render];
 }
-
 
 - (void)setEditingSystem:(EditingSystem *)theEditingSystem {
     NSAssert(theEditingSystem != nil, @"editing system must not be nil");
@@ -170,6 +96,10 @@ static const float ArrowHeadLength = 0.25f;
 
 - (void)setMoveDirection:(EMoveDirection)theMoveDirection {
     moveDirection = theMoveDirection;
+}
+
+- (void)setCameraPosition:(const TVector3f *)theCameraPosition {
+    cameraPosition = *theCameraPosition;
 }
 
 @end

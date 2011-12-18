@@ -21,6 +21,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import <OpenGL/gl.h>
 #import "Math.h"
 
+void glNormalV3f(const TVector3f* v);
 void glVertexV3f(const TVector3f* v);
 void glColorV4f(const TVector4f* v);
 

@@ -814,7 +814,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem xAxis], -delta, &deltaf);
+        scaleV3f([editingSystem xAxisPos], -delta, &deltaf);
 
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
@@ -849,7 +849,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem xAxis], delta, &deltaf);
+        scaleV3f([editingSystem xAxisPos], delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
@@ -883,7 +883,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem yAxis], delta, &deltaf);
+        scaleV3f([editingSystem yAxisPos], delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
@@ -918,7 +918,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem yAxis], -delta, &deltaf);
+        scaleV3f([editingSystem yAxisPos], -delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
@@ -950,7 +950,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem zAxis], delta, &deltaf);
+        scaleV3f([editingSystem zAxisPos], delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
@@ -982,7 +982,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f deltaf;
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem zAxis], -delta, &deltaf);
+        scaleV3f([editingSystem zAxisPos], -delta, &deltaf);
         
         TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
