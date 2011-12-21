@@ -270,12 +270,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         rayPointAtDistance(ray, dist, &position);
         dragDirection = [referenceFace norm];
     }
+
+    Camera* camera = [windowController camera];
     
-    Grid* grid = [[windowController options] grid];
-    [dragFaceCursor setArrowLength:[grid actualSize]];
     [dragFaceCursor setPosition:&position];
-    [dragFaceCursor setRayDirection:&ray->direction];
     [dragFaceCursor setDragDirection:dragDirection];
+    [dragFaceCursor setCameraPosition:[camera position]];
 }
 
 - (NSString *)actionName {

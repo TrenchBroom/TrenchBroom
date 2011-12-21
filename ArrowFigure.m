@@ -9,27 +9,83 @@
 #import "ArrowFigure.h"
 #import "GLUtils.h"
 
-static const int segments = 20;
+static const int segments = 30;
+static const float shaftRadius = 2;
+static const float shaftLength = 9;
+static const float headRadius = 4;
+static const float headLength = 7;
 
 @implementation ArrowFigure
 
-- (id)init {
+- (id)initWithDirection:(const TVector3f *)theDirection {
     if ((self = [super init])) {
+        float cos;
+        TVector3f axis;
+        TQuaternion rot;
+        
         shaftVertexCount = 2 * segments + 2;
         shaftVertices = malloc(shaftVertexCount * sizeof(TVector3f));
-        shaftNormals = malloc(shaftVertexCount * sizeof(TVector3f));
-        makeCylinder(3, 10, segments, shaftVertices, shaftNormals);
+        shaftVertexNormals = malloc(shaftVertexCount * sizeof(TVector3f));
+        makeCylinder(shaftRadius, shaftLength, segments, shaftVertices, shaftVertexNormals);
         
-        headVertexCount = segments + 1;
+        shaftCapNormal = ZAxisNeg;
+        shaftCapPosition = NullVector;
+        
+        headVertexCount = segments + 2;
         headVertices = malloc(headVertexCount * sizeof(TVector3f));
-        headNormals = malloc(headVertexCount * sizeof(TVector3f));
-        makeCone(8, 10, 20, headVertices, headNormals);
+        headVertexNormals = malloc(headVertexCount * sizeof(TVector3f));
+        
+        makeCone(headRadius, headLength, segments, headVertices, headVertexNormals);
+        headCapNormal = ZAxisNeg;
+        headCapPosition.x = 0;
+        headCapPosition.x = 0;
+        headCapPosition.x = shaftLength;
         
         // translate the head to the top of the arrow
         for (int i = 0; i < headVertexCount; i++)
-            headVertices[i].z += 10;
+            headVertices[i].z += shaftLength;
+
+        crossV3f(&ZAxisPos, theDirection, &axis);
+        if (!nullV3f(&axis)) {
+            normalizeV3f(&axis, &axis);
+            cos = dotV3f(&ZAxisPos, theDirection);
+            setAngleAndAxisQ(&rot, acosf(cos), &axis);
+
+            for (int i = 0; i < shaftVertexCount; i++) {
+                rotateQ(&rot, &shaftVertices[i], &shaftVertices[i]);
+                rotateQ(&rot, &shaftVertexNormals[i], &shaftVertexNormals[i]);
+            }
+            
+            rotateQ(&rot, &shaftCapNormal, &shaftCapNormal);
+            rotateQ(&rot, &shaftCapPosition, &shaftCapPosition);
+
+            for (int i = 0; i < headVertexCount; i++) {
+                rotateQ(&rot, &headVertices[i], &headVertices[i]);
+                rotateQ(&rot, &headVertexNormals[i], &headVertexNormals[i]);
+            }
+            
+            rotateQ(&rot, &headCapNormal, &headCapNormal);
+            rotateQ(&rot, &headCapPosition, &headCapPosition);
+        }
         
-        cameraPos = NULL;
+        // calculate surface normals and positions for silhouette tracing
+        shaftSurfaceCount = segments;
+        shaftSurfaceNormals = malloc((shaftSurfaceCount) * sizeof(TVector3f));
+        shaftSurfacePositions = malloc((shaftSurfaceCount) * sizeof(TVector3f));
+        
+        for (int i = 0; i < shaftSurfaceCount; i++) {
+            normV3f(&shaftVertices[2 * i], &shaftVertices[2 * i + 1], &shaftVertices[2 * i + 2], &shaftSurfaceNormals[i]);
+            avg3V3f(&shaftVertices[2 * i], &shaftVertices[2 * i + 1], &shaftVertices[2 * i + 2], &shaftSurfacePositions[i]);
+        }
+        
+        headSurfaceCount = headVertexCount - 2;
+        headSurfaceNormals = malloc(headSurfaceCount * sizeof(TVector3f));
+        headSurfacePositions = malloc(headSurfaceCount * sizeof(TVector3f));
+        
+        for (int i = 0; i < headSurfaceCount; i++) {
+            normV3f(&headVertices[0], &headVertices[i + 1], &headVertices[i + 2], &headSurfaceNormals[i]);
+            avg3V3f(&headVertices[0], &headVertices[i + 1], &headVertices[i + 2], &headSurfacePositions[i]);
+        }
     }
     
     return self;
@@ -37,103 +93,166 @@ static const int segments = 20;
 
 - (void)dealloc {
     free(shaftVertices);
-    free(shaftNormals);
+    free(shaftVertexNormals);
+    free(shaftSurfaceNormals);
+    free(shaftSurfacePositions);
     free(headVertices);
-    free(headNormals);
-    cameraPos = NULL;
+    free(headVertexNormals);
+    free(headSurfaceNormals);
+    free(headSurfacePositions);
     [super dealloc];
 }
 
 - (void)render {
-    float prevDot, curDot;
-    TVector3f temp;
+    float prevDot, curDot, capDot;
+    TVector3f view, relativeCamPos;
     
-    NSAssert(cameraPos != NULL, @"camera position must not be NULL");
+    glDisable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glLineWidth(2);
+    glPointSize(2);
+    
+    subV3f(&cameraPosition, &position, &relativeCamPos);
+    
+    glPushMatrix();
+    glTranslatef(position.x, position.y, position.z);
     
     glColorV4f(&fillColor);
     
-    // render shaft cap
-    glBegin(GL_TRIANGLE_FAN);
-    glNormal3f(0, 0, -1);
-    for (int i = 0; i < shaftVertexCount / 2 - 1; i++)
-        glVertexV3f(&shaftVertices[2 * i]);
-    glEnd();
-    
     // render shaft
-    glBegin(GL_QUADS);
+    glBegin(GL_QUAD_STRIP);
     for (int i = 0; i < shaftVertexCount; i++) {
-        glNormalV3f(&shaftNormals[i]);
+        glNormalV3f(&shaftVertexNormals[i]);
         glVertexV3f(&shaftVertices[i]);
     }
     glEnd();
     
+    // shaft shaft cap
+    glBegin(GL_TRIANGLE_FAN);
+    glNormalV3f(&shaftCapNormal);
+    for (int i = 0; i < shaftVertexCount / 4; i++)
+        glVertexV3f(&shaftVertices[4 * i]);
+    glEnd();
+     
     // render head cap
     glBegin(GL_TRIANGLE_FAN);
-    glNormal3f(0, 0, -1);
-    for (int i = 1; i < headVertexCount; i++)
+    glNormalV3f(&headCapNormal);
+    for (int i = 1; i < headVertexCount ; i++)
         glVertexV3f(&headVertices[i]);
     glEnd();
     
     // render head
     glBegin(GL_TRIANGLE_FAN);
     for (int i = 0; i < headVertexCount; i++) {
-        glNormalV3f(&headNormals[i]);
+        glNormalV3f(&headVertexNormals[i]);
         glVertexV3f(&headVertices[i]);
     }
     glEnd();
-
     
-    // render the outline
+    
+    // render the outlines
     glColorV4f(&outlineColor);
-    
-    // render shaft cap outline
-    glBegin(GL_LINE_LOOP);
-    for (int i = 0; i < shaftVertexCount / 2 - 1; i++)
-        glVertexV3f(&shaftVertices[2 * i]);
-    glEnd();
+    glSetEdgeOffset(0.5f);
     
     // render shaft outline
     glBegin(GL_LINES);
-    subV3f(&shaftVertices[0], cameraPos, &temp);
-    prevDot = dotV3f(&temp, &shaftNormals[0]);
+    subV3f(&shaftSurfacePositions[shaftSurfaceCount - 1], &relativeCamPos, &view);
+    prevDot = dotV3f(&view, &shaftSurfaceNormals[shaftSurfaceCount - 1]);
     
-    for (int i = 2; i < shaftVertexCount / 2; i++) {
-        subV3f(&shaftVertices[2 * i], cameraPos, &temp);
-        curDot = dotV3f(&temp, &shaftNormals[2 * i]);
+    subV3f(&shaftCapPosition, &relativeCamPos, &view);
+    capDot = dotV3f(&view, &shaftCapNormal);
+
+    for (int i = 0; i < shaftSurfaceCount; i++) {
+        subV3f(&shaftSurfacePositions[i], &relativeCamPos, &view);
+        curDot = dotV3f(&view, &shaftSurfaceNormals[i]);
         
-        if ((prevDot > 0) != (curDot > 0)) {
+        if (prevDot > 0 && curDot < 0) {
             glVertexV3f(&shaftVertices[2 * i]);
             glVertexV3f(&shaftVertices[2 * i + 1]);
+            
+            glVertexV3f(&shaftVertices[2 * i]);
+            glVertexV3f(&shaftVertices[2 * i + 2]);
+            glVertexV3f(&shaftVertices[2 * i + 1]);
+            glVertexV3f(&shaftVertices[2 * i + 3]);
+        } else if (prevDot < 0 && curDot > 0) {
+            glVertexV3f(&shaftVertices[2 * i]);
+            glVertexV3f(&shaftVertices[2 * i + 1]);
+        } else if (curDot < 0) {
+            glVertexV3f(&shaftVertices[2 * i]);
+            glVertexV3f(&shaftVertices[2 * i + 2]);
+            glVertexV3f(&shaftVertices[2 * i + 1]);
+            glVertexV3f(&shaftVertices[2 * i + 3]);
+        } else if (capDot < 0) {
+            glVertexV3f(&shaftVertices[2 * i]);
+            glVertexV3f(&shaftVertices[2 * i + 2]);
         }
-    }
-    glEnd();
-
-    // render head cap outline
-    glBegin(GL_LINE_LOOP);
-    glNormal3f(0, 0, -1);
-    for (int i = 1; i < headVertexCount - 1; i++)
-        glVertexV3f(&headVertices[i]);
-    glEnd();
-    
-    // render head outline
-    glBegin(GL_LINES);
-    subV3f(&headVertices[1], cameraPos, &temp);
-    prevDot = dotV3f(&temp, &headNormals[1]);
-    
-    for (int i = 2; i < headVertexCount; i++) {
-        subV3f(&headVertices[i], cameraPos, &temp);
-        curDot = dotV3f(&temp, &headNormals[i]);
         
-        if ((prevDot > 0) != (curDot > 0)) {
-            glVertexV3f(&headVertices[i]);
+        prevDot = curDot;
+    }
+    
+    glEnd();
+    
+    // render head outlines
+    glBegin(GL_LINES);
+    subV3f(&headSurfacePositions[headSurfaceCount - 1], &relativeCamPos, &view);
+    prevDot = dotV3f(&view, &headSurfaceNormals[headSurfaceCount - 1]);
+    
+    subV3f(&headCapPosition, &relativeCamPos, &view);
+    capDot = dotV3f(&view, &headCapNormal);
+    
+    for (int i = 0; i < headSurfaceCount; i++) {
+        subV3f(&headSurfacePositions[i], &relativeCamPos, &view);
+        curDot = dotV3f(&view, &headSurfaceNormals[i]);
+        
+        if (prevDot > 0 && curDot < 0) {
+            glVertexV3f(&headVertices[i + 1]);
             glVertexV3f(&headVertices[0]);
+            
+            glVertexV3f(&headVertices[i + 1]);
+            glVertexV3f(&headVertices[i + 2]);
+        } else if (prevDot < 0 && curDot > 0) {
+            glVertexV3f(&headVertices[i + 1]);
+            glVertexV3f(&headVertices[0]);
+        } else if (curDot < 0) {
+            glVertexV3f(&headVertices[i + 1]);
+            glVertexV3f(&headVertices[i + 2]);
+        } else if (capDot < 0) {
+            glVertexV3f(&headVertices[i + 1]);
+            glVertexV3f(&headVertices[i + 2]);
         }
+        
+        prevDot = curDot;
     }
     glEnd();
+    
+    // render the head tip
+    glBegin(GL_POINTS);
+    glVertexV3f(&headVertices[0]);
+    glEnd();
+    
+    glPopMatrix();
+    glEnable(GL_CULL_FACE);
+    glLineWidth(1);
+    glPointSize(1);
+    glResetEdgeOffset();
+}
+
+- (void)setPosition:(const TVector3f *)thePosition {
+    position = *thePosition;
 }
 
 - (void)setCameraPosition:(const TVector3f *)theCameraPosition {
-    cameraPos = theCameraPosition;
+    cameraPosition = *theCameraPosition;
+}
+
+- (void)setFillColor:(const TVector4f *)theFillColor {
+    NSAssert(theFillColor != NULL, @"fill color must not be NULL");
+    fillColor = *theFillColor;
+}
+
+- (void)setOutlineColor:(const TVector4f *)theOutlineColor {
+    NSAssert(theOutlineColor != NULL, @"outline color must not be NULL");
+    outlineColor = *theOutlineColor;
 }
 
 @end

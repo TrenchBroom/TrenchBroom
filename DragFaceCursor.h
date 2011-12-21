@@ -21,15 +21,16 @@
 #import "Cursor.h"
 #import "Math.h"
 
+@class ArrowFigure;
+
 @interface DragFaceCursor : NSObject <Cursor> {
-    float arrowLength;
-    TVector3f position;
+    ArrowFigure* arrowFigure;
     TVector3f dragDirection;
-    TVector3f rayDirection;
+    TVector3f position;
+    TVector3f cameraPosition;
 }
 
-- (void)setArrowLength:(float)theArrowLength;
 - (void)setDragDirection:(const TVector3f *)theDragDirection;
-- (void)setRayDirection:(const TVector3f *)theRayDirection;
+- (void)setCameraPosition:(const TVector3f *)theCameraPosition;
 
 @end

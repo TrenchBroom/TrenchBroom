@@ -27,28 +27,32 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (id)init {
     if ((self = [super init])) {
-        xArrow = [[DoubleArrowFigure alloc] initWithDirection:A_X];
-        yArrow = [[DoubleArrowFigure alloc] initWithDirection:A_Y];
-        zArrow = [[DoubleArrowFigure alloc] initWithDirection:A_Z];
+        arrows[A_X] = [[DoubleArrowFigure alloc] initWithDirection:A_X];
+        arrows[A_Y] = [[DoubleArrowFigure alloc] initWithDirection:A_Y];
+        arrows[A_Z] = [[DoubleArrowFigure alloc] initWithDirection:A_Z];
     }
     
     return self;
 }
 
 - (void)dealloc {
-    [xArrow release];
-    [yArrow release];
-    [zArrow release];
+    [arrows[A_X] release];
+    [arrows[A_Y] release];
+    [arrows[A_Z] release];
     [super dealloc];
 }
 
 - (void)render {
-    [xArrow setPosition:&position];
-    [xArrow setCameraPosition:&cameraPosition];
-    [yArrow setPosition:&position];
-    [yArrow setCameraPosition:&cameraPosition];
-    [zArrow setPosition:&position];
-    [zArrow setCameraPosition:&cameraPosition];
+    DoubleArrowFigure* arrow1;
+    DoubleArrowFigure* arrow2;
+    
+    arrow1 = arrows[strongestComponentV3f([editingSystem xAxisPos])];
+    arrow2 = arrows[strongestComponentV3f([editingSystem yAxisPos])];
+    
+    [arrow1 setPosition:&position];
+    [arrow1 setCameraPosition:&cameraPosition];
+    [arrow2 setPosition:&position];
+    [arrow2 setCameraPosition:&cameraPosition];
 
     TVector4f fillColor1 = {0, 0, 0, 1};
     TVector4f outlineColor1 = {1, 1, 1, 1};
@@ -57,31 +61,23 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     glDisable(GL_DEPTH_TEST);
     
-    [xArrow setFillColor:&fillColor2];
-    [xArrow setOutlineColor:&outlineColor2];
-    [xArrow render];
+    [arrow1 setFillColor:&fillColor2];
+    [arrow1 setOutlineColor:&outlineColor2];
+    [arrow1 render];
     
-    [yArrow setFillColor:&fillColor2];
-    [yArrow setOutlineColor:&outlineColor2];
-    [yArrow render];
-
-    [zArrow setFillColor:&fillColor2];
-    [zArrow setOutlineColor:&outlineColor2];
-    [zArrow render];
+    [arrow2 setFillColor:&fillColor2];
+    [arrow2 setOutlineColor:&outlineColor2];
+    [arrow2 render];
     
     glEnable(GL_DEPTH_TEST);
 
-    [xArrow setFillColor:&fillColor1];
-    [xArrow setOutlineColor:&outlineColor1];
-    [xArrow render];
+    [arrow1 setFillColor:&fillColor1];
+    [arrow1 setOutlineColor:&outlineColor1];
+    [arrow1 render];
     
-    [yArrow setFillColor:&fillColor1];
-    [yArrow setOutlineColor:&outlineColor1];
-    [yArrow render];
-    
-    [zArrow setFillColor:&fillColor1];
-    [zArrow setOutlineColor:&outlineColor1];
-    [zArrow render];
+    [arrow2 setFillColor:&fillColor1];
+    [arrow2 setOutlineColor:&outlineColor1];
+    [arrow2 render];
 }
 
 - (void)setEditingSystem:(EditingSystem *)theEditingSystem {
@@ -94,11 +90,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     position = *thePosition;
 }
 
-- (void)setMoveDirection:(EMoveDirection)theMoveDirection {
-    moveDirection = theMoveDirection;
-}
-
 - (void)setCameraPosition:(const TVector3f *)theCameraPosition {
+    NSAssert(theCameraPosition != nil, @"camera position must not be nil");
     cameraPosition = *theCameraPosition;
 }
 

@@ -20,95 +20,38 @@
 #import "DragFaceCursor.h"
 #import <OpenGL/gl.h>
 #import "GLUtils.h"
-
-static const float ArrowBaseWidth = 6;
-static const float ArrowBaseLength = 0.75f;
-static const float ArrowHeadWidth = 10;
-static const float ArrowHeadLength = 0.25f;
-
-@interface DragFaceCursor (private)
-
-- (void)renderArrowWithOutlineColor:(const TVector4f *)outlineColor fillColor:(const TVector4f *)fillColor;
-
-@end
-
-@implementation DragFaceCursor (private)
-
-- (void)renderArrowWithOutlineColor:(const TVector4f *)outlineColor fillColor:(const TVector4f *)fillColor {
-    TVector3f outline[6];
-    TVector3f triangles[6];
-    TVector3f planeX, planeY, planeZ;
-    TMatrix4f planeMatrix;
-
-    scaleV3f(&dragDirection, 1, &planeX);
-    crossV3f(&planeX, &rayDirection, &planeY);
-    normalizeV3f(&planeY, &planeY);
-    crossV3f(&planeX, &planeY, &planeZ);
-    
-    setColumnM4fV3f(&IdentityM4f, &planeX, 0, &planeMatrix);
-    setColumnM4fV3f(&planeMatrix, &planeY, 1, &planeMatrix);
-    setColumnM4fV3f(&planeMatrix, &planeZ, 2, &planeMatrix);
-    //invertM4f(&planeMatrix, &planeMatrix);
-    
-    /*
-    makeArrowOutline(arrowLength * ArrowBaseLength, ArrowBaseWidth, arrowLength * ArrowHeadLength, ArrowHeadWidth, outline);
-    makeArrowTriangles(arrowLength * ArrowBaseLength, ArrowBaseWidth, arrowLength * ArrowHeadLength, ArrowHeadWidth, triangles);
-
-    for (int i = 0; i < 6; i++) {
-        transformM4fV3f(&planeMatrix, &outline[i], &outline[i]);
-        transformM4fV3f(&planeMatrix, &triangles[i], &triangles[i]);
-    }
-     */
-    
-    glPushMatrix();
-    glTranslatef(position.x, position.y, position.z);
-    glMultMatrixf(planeMatrix.values);
-
-    glColorV4f(fillColor);
-    glBegin(GL_TRIANGLES);
-    for (int i = 0; i < 6; i++)
-        glVertexV3f(&triangles[i]);
-    glEnd();
-    glColorV4f(outlineColor);
-    glBegin(GL_LINE_LOOP);
-    for (int i = 0; i < 6; i++)
-        glVertexV3f(&outline[i]);
-    glEnd();
-    
-    glPopMatrix();
-}
-
-@end
+#import "ArrowFigure.h"
 
 @implementation DragFaceCursor
 
-- (void)render {
-    /*
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDisable(GL_CULL_FACE);
-    
-    TVector4f outlineColor1 = {1, 1, 1, 0.25f};
-    TVector4f fillColor1 = {0, 0, 0, 0.25f};
-    TVector4f outlineColor2 = {1, 1, 1, 1};
-    TVector4f fillColor2 = {0, 0, 0, 1};
-    
-    glMatrixMode(GL_MODELVIEW);
-    
-    glDisable(GL_DEPTH_TEST);
-    [self renderArrowWithOutlineColor:&outlineColor1 fillColor:&fillColor1];
-    
-    glEnable(GL_DEPTH_TEST);
-    glSetEdgeOffset(0.5f);
-    [self renderArrowWithOutlineColor:&outlineColor2 fillColor:&fillColor2];
-    glResetEdgeOffset();
-    
-    glPolygonMode(GL_FRONT, GL_FILL);
-    glEnable(GL_CULL_FACE);
-     */
+- (void)dealloc {
+    [arrowFigure release];
+    [super dealloc];
 }
 
-- (void)setArrowLength:(float)theArrowLength {
-    arrowLength = theArrowLength;
+- (void)render {
+    if (arrowFigure == nil)
+        arrowFigure = [[ArrowFigure alloc] initWithDirection:&dragDirection];
+    
+    [arrowFigure setPosition:&position];
+    [arrowFigure setCameraPosition:&cameraPosition];
+    
+    TVector4f fillColor1 = {0, 0, 0, 1};
+    TVector4f outlineColor1 = {1, 1, 1, 1};
+    TVector4f fillColor2 = {0, 0, 0, 0.3f};
+    TVector4f outlineColor2 = {1, 1, 1, 0.3f};
+    
+    glDisable(GL_DEPTH_TEST);
+    
+    [arrowFigure setFillColor:&fillColor2];
+    [arrowFigure setOutlineColor:&outlineColor2];
+    [arrowFigure render];
+    
+    glEnable(GL_DEPTH_TEST);
+    
+    [arrowFigure setFillColor:&fillColor1];
+    [arrowFigure setOutlineColor:&outlineColor1];
+    [arrowFigure render];
 }
 
 - (void)setPosition:(const TVector3f *)thePosition {
@@ -119,11 +62,16 @@ static const float ArrowHeadLength = 0.25f;
 - (void)setDragDirection:(const TVector3f *)theDragDirection {
     NSAssert(theDragDirection != NULL, @"drag direction must not be NULL");
     dragDirection = *theDragDirection;
+    
+    if (arrowFigure != nil) {
+        [arrowFigure release];
+        arrowFigure = nil;
+    }
 }
 
-- (void)setRayDirection:(const TVector3f *)theRayDirection {
-    NSAssert(theRayDirection != NULL, @"ray direction must not be NULL");
-    rayDirection = *theRayDirection;
+- (void)setCameraPosition:(const TVector3f *)theCameraPosition {
+    NSAssert(theCameraPosition != nil, @"camera position must not be nil");
+    cameraPosition = *theCameraPosition;
 }
 
 @end

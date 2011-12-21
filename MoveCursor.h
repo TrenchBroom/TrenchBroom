@@ -28,17 +28,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class EditingSystem;
 
 @interface MoveCursor : NSObject <Cursor> {
-    DoubleArrowFigure* xArrow;
-    DoubleArrowFigure* yArrow;
-    DoubleArrowFigure* zArrow;
+    DoubleArrowFigure* arrows[3];
     EditingSystem* editingSystem;
-    EMoveDirection moveDirection;
     TVector3f position;
     TVector3f cameraPosition;
 }
 
 - (void)setEditingSystem:(EditingSystem *)theEditingSystem;
-- (void)setMoveDirection:(EMoveDirection)theMoveDirection;
 - (void)setCameraPosition:(const TVector3f *)theCameraPosition;
 
 @end

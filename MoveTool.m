@@ -42,7 +42,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @interface MoveTool (private)
 
 - (BOOL)isAlternatePlaneModifierPressed;
-- (void)updateMoveDirectionWithRay:(const TRay *)theRay;
+- (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits;
 
 @end
 
@@ -52,10 +52,32 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return [NSEvent modifierFlags] == NSAlternateKeyMask;
 }
 
-- (void)updateMoveDirectionWithRay:(const TRay *)theRay {
-    [editingSystem release];
+- (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
+    EditingSystem* newEditingSystem;
+    TVector3f norm;
     
     Camera* camera = [windowController camera];
+
+    PickingHit* hit = [theHits firstHitOfType:HT_CLOSE_EDGE | HT_FACE | HT_ENTITY ignoreOccluders:NO];
+    if (hit == nil)
+        return;
+    
+    if ([hit type] == HT_FACE || [hit type] == HT_CLOSE_EDGE) {
+        id <Face> face = [hit object];
+        newEditingSystem = [[EditingSystem alloc] initWithCamera:camera yAxis:[face norm] invert:[self isAlternatePlaneModifierPressed]];
+    } else {
+        id <Entity> entity = [hit object];
+        intersectBoundsWithRay([entity bounds], theRay, &norm);
+        newEditingSystem = [[EditingSystem alloc] initWithCamera:camera yAxis:&norm invert:[self isAlternatePlaneModifierPressed]];
+    }
+    
+    if (newEditingSystem != nil) {
+        if (editingSystem != nil)
+            [editingSystem release];
+        editingSystem = newEditingSystem;
+    }
+    
+    /*
     if (fabsf(theRay->direction.z) > 0.3f) {
         if ([self isAlternatePlaneModifierPressed]) {
             moveDirection = MD_LR_UD;
@@ -73,6 +95,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             editingSystem = [[camera verticalEditingSystem] retain];
         }
     }
+     */
 }
 
 @end
@@ -88,6 +111,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)dealloc {
+    if (editingSystem != nil)
+        [editingSystem release];
     [moveCursor release];
     [super dealloc];
 }
@@ -96,7 +121,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 # pragma mark @implementation Tool
 
 - (void)handleFlagsChanged:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    [self updateMoveDirectionWithRay:ray];
+    [self updateMoveDirectionWithRay:ray hits:hits];
     
     float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
     rayPointAtDistance(ray, dist, &lastPoint);
@@ -123,7 +148,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             return;
     }
 
-    [self updateMoveDirectionWithRay:ray];
+    [self updateMoveDirectionWithRay:ray hits:hits];
     
     lastPoint = *[hit hitPoint];
     editingPoint = lastPoint;
@@ -182,8 +207,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
     
-    [editingSystem release];
-    editingSystem = nil;
+    if (editingSystem == nil) {
+        [editingSystem release];
+        editingSystem = nil;
+    }
 
     drag = NO;
 }
@@ -203,7 +230,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVector3f position;
     
     if (!drag) {
-        [self updateMoveDirectionWithRay:ray];
+        [self updateMoveDirectionWithRay:ray hits:hits];
 
         PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
         if (hit != nil) {
@@ -217,7 +244,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     [moveCursor setEditingSystem:editingSystem];
     [moveCursor setPosition:&position];
-    [moveCursor setMoveDirection:moveDirection];
     [moveCursor setCameraPosition:[[windowController camera] position]];
 }
 

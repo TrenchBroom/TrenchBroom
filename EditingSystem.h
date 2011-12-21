@@ -34,6 +34,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (id)initWithCamera:(Camera *)theCamera vertical:(BOOL)vertical;
+- (id)initWithCamera:(Camera *)theCamera yAxis:(const TVector3f*)theYAxis invert:(BOOL)invert;
 
 - (const TVector3f *)xAxisPos;
 - (const TVector3f *)xAxisNeg;

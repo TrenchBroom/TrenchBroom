@@ -1295,19 +1295,20 @@ int const TexCoordSize = 2 * sizeof(float);
         glEnable(GL_DEPTH_TEST);
     }
     
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager render];
-
+    /*
     // enable lighting for cursor and compass
     glEnable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);
     
+    GLfloat globalAmbient[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
+    
     Camera* camera = [windowController camera];
     
     glEnable(GL_LIGHT0);
-    GLfloat ambientLight[] = { 0.4f, 0.4f, 0.4f, 1.0f };
-    GLfloat diffuseLight[] = { 0.8f, 0.8f, 0.8, 1.0f };
-    GLfloat specularLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
+    GLfloat ambientLight[] = { 0, 0, 0, 1.0f };
+    GLfloat diffuseLight[] = { 1, 1, 1, 1 };
+    GLfloat specularLight[] = { 1, 1, 1, 1 };
     GLfloat position[] = { [camera position]->x, [camera position]->y, [camera position]->z, 1.0f };
     
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
@@ -1316,15 +1317,21 @@ int const TexCoordSize = 2 * sizeof(float);
     glLightfv(GL_LIGHT0, GL_POSITION, position);
     
     glEnable(GL_COLOR_MATERIAL);
-    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     
-    float specReflection[] = { 0.8f, 0.8f, 0.8f, 1.0f };
-    glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
-    glMateriali(GL_FRONT, GL_SHININESS, 96);
+    float specReflection[] = { 1, 1, 1, 1 };
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specReflection);
+    glMateriali(GL_FRONT, GL_SHININESS, 50);
+    */
     
+    CursorManager* cursorManager = [windowController cursorManager];
+    [cursorManager render];
+    
+    /*
     glDisable(GL_LIGHT0);
     glDisable(GL_COLOR_MATERIAL);
     glDisable(GL_LIGHTING);
+     */
     
     // brightness
     /*

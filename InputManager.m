@@ -358,6 +358,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [self updateActiveTool];
     [activeTool handleFlagsChanged:event ray:&lastRay hits:[self currentHits]];
 
+    if (activeTool != cursorOwner)
+        [cursorOwner handleFlagsChanged:event ray:&lastRay hits:[self currentHits]];
+    
     [self updateCursorOwner];
     [self updateCursor];
 }

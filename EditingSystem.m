@@ -60,6 +60,54 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return self;
 }
 
+- (id)initWithCamera:(Camera *)theCamera yAxis:(const TVector3f*)theYAxis invert:(BOOL)invert {
+    NSAssert(theCamera != nil, @"camera must not be nil");
+    NSAssert(theYAxis != NULL, @"Y axis must not be NULL");
+
+    TVector3f t;
+
+    if ((self = [self init])) {
+        if (strongestComponentV3f(theYAxis) == A_Z) {
+            xAxisPos = closestAxisV3f([theCamera right]);
+            xAxisNeg = oppositeAxisV3f([theCamera right]);
+
+            if (invert) {
+                yAxisPos = &ZAxisPos;
+                yAxisNeg = &ZAxisNeg;
+                
+                crossV3f(xAxisPos, yAxisPos, &t);
+                zAxisPos = closestAxisV3f(&t);
+                zAxisNeg = oppositeAxisV3f(&t);
+            } else {
+                zAxisPos = closestAxisV3f(theYAxis);
+                zAxisNeg = oppositeAxisV3f(theYAxis);
+                
+                crossV3f(zAxisPos, xAxisPos, &t);
+                yAxisPos = closestAxisV3f(&t);
+                yAxisNeg = oppositeAxisV3f(&t);
+            }
+        } else {
+            if (invert) {
+                yAxisPos = closestAxisV3f(theYAxis);
+                yAxisNeg = oppositeAxisV3f(theYAxis);
+                zAxisPos = &ZAxisPos;
+                zAxisNeg = &ZAxisNeg;
+            } else {
+                yAxisPos = &ZAxisPos;
+                yAxisNeg = &ZAxisNeg;
+                zAxisPos = closestAxisV3f(theYAxis);
+                zAxisNeg = oppositeAxisV3f(theYAxis);
+            }
+            
+            crossV3f(zAxisPos, yAxisPos, &t);
+            xAxisPos = closestAxisV3f(&t);
+            xAxisNeg = oppositeAxisV3f(&t);
+        }
+    }
+    
+    return self;
+}
+
 - (const TVector3f *)xAxisPos {
     return xAxisPos;
 }

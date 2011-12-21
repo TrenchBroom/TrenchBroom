@@ -21,11 +21,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "DefaultTool.h"
 #import "Math.h"
 
-typedef enum {
-    MD_LR_FB, // left / right & front / back
-    MD_LR_UD // left / right & up / down
-} EMoveDirection;
-
 @class MapWindowController;
 @class EditingSystem;
 @class MoveCursor;
@@ -38,7 +33,6 @@ typedef enum {
     MoveCursor* moveCursor;
     TVector3f lastPoint;
     BOOL drag;
-    EMoveDirection moveDirection;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
