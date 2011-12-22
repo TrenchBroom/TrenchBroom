@@ -40,17 +40,25 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if ([hitList count] == 0)
         return nil;
     
-    PickingHit* hit = nil;
     if (!ignoreOccluders) {
-        hit = [[self hits] objectAtIndex:0];
-        if (![hit isType:theTypeMask])
-            hit = nil;
+        NSEnumerator* hitEn = [[self hits] objectEnumerator];
+        PickingHit* hit = [hitEn nextObject];
+        if ([hit isType:theTypeMask])
+            return hit;
+        
+        float dist = [hit distance];
+        while ((hit = [hitEn nextObject]) && ![hit isType:theTypeMask] && [hit distance] == dist);
+        
+        if ([hit distance] == dist)
+            return hit;
     } else {
         NSEnumerator* hitEn = [[self hits] objectEnumerator];
+        PickingHit* hit;
         while ((hit = [hitEn nextObject]) && ![hit isType:theTypeMask]);
+        return hit;
     }
     
-    return hit;
+    return nil;
 }
 
 - (NSArray *)hitsOfType:(EHitType)theTypeMask {
@@ -90,30 +98,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
     
     return hitList;
-}
-
-- (PickingHit *)edgeDragHit {
-    PickingHit* firstHit = [self firstHitOfType:HT_CLOSE_EDGE ignoreOccluders:NO];
-    if (firstHit == nil)
-        return nil;
-    
-    NSArray* hits = [self hitsOfType:HT_CLOSE_EDGE];
-    if ([hits count] == 1)
-        return firstHit;
-    
-    id <Face> firstHitFace = [firstHit object];
-    id <Brush> firstHitBrush = [firstHitFace brush];
-    
-    NSEnumerator* hitEn = [hits objectEnumerator];
-    PickingHit* hit;
-    while ((hit = [hitEn nextObject])) {
-        id <Face> face = [hit object];
-        id <Brush> brush = [face brush];
-        if (hit != firstHit && brush != firstHitBrush)
-            return nil;
-    }
-    
-    return firstHit;
 }
 
 - (void)dealloc {

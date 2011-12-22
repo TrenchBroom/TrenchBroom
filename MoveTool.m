@@ -58,11 +58,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     Camera* camera = [windowController camera];
 
-    PickingHit* hit = [theHits firstHitOfType:HT_CLOSE_EDGE | HT_FACE | HT_ENTITY ignoreOccluders:NO];
+    PickingHit* hit = [theHits firstHitOfType:HT_FACE | HT_ENTITY ignoreOccluders:NO];
     if (hit == nil)
         return;
     
-    if ([hit type] == HT_FACE || [hit type] == HT_CLOSE_EDGE) {
+    if ([hit type] == HT_FACE) {
         id <Face> face = [hit object];
         newEditingSystem = [[EditingSystem alloc] initWithCamera:camera yAxis:[face norm] invert:[self isAlternatePlaneModifierPressed]];
     } else {

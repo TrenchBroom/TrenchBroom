@@ -411,14 +411,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     if (!isnan(dist)) {
         PickingHit* faceHit = [[PickingHit alloc] initWithObject:side->face type:HT_FACE hitPoint:&hitPoint distance:dist];
-        PickingHit* brushHit = [[PickingHit alloc] initWithObject:[side->face brush] type:HT_BRUSH hitPoint:&hitPoint distance:dist];
         [theHitList addHit:faceHit];
-        [theHitList addHit:brushHit];
         [faceHit release];
-        [brushHit release];
     }
 }
 
+/*
 - (void)pickFace:(TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList {
     TVertexData* vd = [self vertexData];
 
@@ -461,6 +459,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [theHitList addHit:hit];
     [hit release];
 }
+*/
 
 - (BOOL)intersectsBrush:(id <Brush>)theBrush {
     NSAssert(theBrush != nil, @"brush must not be nil");

@@ -22,10 +22,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 typedef enum {
     HT_ENTITY       = 1 << 0,
-    HT_BRUSH        = 1 << 1,
-    HT_FACE         = 1 << 2,
-    HT_CLOSE_EDGE   = 1 << 3,
-    HT_ANY          = HT_ENTITY | HT_BRUSH | HT_FACE
+    HT_FACE         = 1 << 1,
+    HT_ANY          = HT_ENTITY | HT_FACE
 } EHitType;
 
 @interface PickingHit : NSObject {

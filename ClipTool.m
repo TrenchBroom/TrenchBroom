@@ -304,6 +304,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             currentFigure = [[ClipPointFeedbackFigure alloc] initWithPoint:currentPoint camera:camera];
             [renderer addFeedbackFigure:currentFigure];
         }
+    } else {
+        NSLog(@"asdf");
     }
 }
 

@@ -300,6 +300,8 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 @implementation MutableFace
 
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds {
+    if (theWorldBounds == NULL)
+        NSLog(@"asdf");
     NSAssert(theWorldBounds != NULL, @"world bounds must not be NULL");
     if ((self = [super init])) {
         worldBounds = theWorldBounds;
@@ -785,21 +787,37 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (TVertex **)vertices {
     NSAssert(side != NULL, @"side must not be NULL");
+    
+    if (side == NULL)
+        NSLog(@"asdf");
+    
     return side->vertices;
 }
 
 - (int)vertexCount {
     NSAssert(side != NULL, @"side must not be NULL");
+    
+    if (side == NULL)
+        NSLog(@"asdf");
+
     return side->edgeCount;
 }
 
 - (TEdge **)edges {
     NSAssert(side != NULL, @"side must not be NULL");
+    
+    if (side == NULL)
+        NSLog(@"asdf");
+
     return side->edges;
 }
 
 - (int)edgeCount {
     NSAssert(side != NULL, @"side must not be NULL");
+    
+    if (side == NULL)
+        NSLog(@"asdf");
+
     return side->edgeCount;
 }
 

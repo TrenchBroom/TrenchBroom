@@ -38,6 +38,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation CompassView
 
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    compassFigure = [[CompassFigure alloc] init];
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [compassFigure release];
@@ -47,12 +52,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)setCamera:(Camera *)theCamera {
     NSAssert(theCamera != nil, @"camera must not be nil");
     
-    [compassFigure release];
-    camera = theCamera;
-    compassFigure = [[CompassFigure alloc] initWithCamera:camera];
-
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-    [center removeObserver:self];
+    [center removeObserver:self name:CameraChanged object:camera];
+    
+    camera = theCamera;
     [center addObserver:self selector:@selector(cameraChanged:) name:CameraChanged object:camera];
 }
 

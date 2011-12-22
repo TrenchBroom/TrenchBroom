@@ -22,14 +22,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation CompassFigure
 
-- (id)initWithCamera:(Camera *)theCamera {
-    if (self = [self init]) {
-        camera = [theCamera retain];
-    }
-    
-    return self;
-}
-
 - (void)renderArm {
     glTranslatef(0, 0, -10);
     gluCylinder(arms, 1, 1, 20, 10, 1);
@@ -53,33 +45,22 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     glPolygonMode(GL_FRONT, GL_FILL);
     
-    EAxis axis = strongestComponentV3f([camera direction]);
-    
     // X axis
-    if (axis == A_X)
-        glColor4f(0.8f, 0.8f, 0.8f, 1);
-    else
-        glColor4f(1, 0, 0, 1);
+    glColor4f(1, 0, 0, 1);
     glPushMatrix();
     glRotatef(90, 0, 1, 0);
     [self renderArm];
     glPopMatrix();
     
     // Y axis
-    if (axis == A_Y)
-        glColor4f(0.8f, 0.8f, 0.8f, 1);
-    else
-        glColor4f(0, 1, 0, 1);
+    glColor4f(0, 1, 0, 1);
     glPushMatrix();
     glRotatef(270, 1, 0, 0);
     [self renderArm];
     glPopMatrix();
 
     // Z axis
-    if (axis == A_Z)
-        glColor4f(0.8f, 0.8f, 0.8f, 1);
-    else
-        glColor4f(0, 0, 1, 1);
+    glColor4f(0, 0, 1, 1);
     glPushMatrix();
     [self renderArm];
     glPopMatrix();
@@ -90,7 +71,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         gluDeleteQuadric(arms);
         gluDeleteQuadric(disks);
     }
-    [camera release];
     [super dealloc];
 }
 

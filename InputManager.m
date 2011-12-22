@@ -126,16 +126,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             newActiveTool = rotateTool;
         } else if (dragStatus == MS_LEFT || scrollStatus == MS_LEFT) {
             if ([self isFaceDragModifierPressed]) {
-                PickingHit* hit = [[self currentHits] edgeDragHit];
+                PickingHit* hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
                 if (hit != nil) {
-                    newActiveTool = faceTool;
-                } else {
-                    hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
-                    if (hit != nil) {
-                        id <Face> face = [hit object];
-                        if ([selectionManager isFaceSelected:face])
-                            newActiveTool = faceTool;
-                    }
+                    id <Face> face = [hit object];
+                    if ([selectionManager isFaceSelected:face])
+                        newActiveTool = faceTool;
                 }
             } else {
                 newActiveTool = moveTool;
@@ -180,17 +175,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                 if ([self isRotateModifierPressed]) {
                     newOwner = rotateTool;
                 } else if ([self isFaceDragModifierPressed]) {
-                    PickingHit* hit = [[self currentHits] edgeDragHit];
-                    if (hit != nil) {
+                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
+                    if (hit != nil && [selectionManager isFaceSelected:[hit object]]) {
                         newOwner = faceTool;
-                    } else {
-                        hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
-                        if (hit != nil && [selectionManager isFaceSelected:[hit object]]) {
-                            newOwner = faceTool;
-                        }
                     }
                 } else {
-                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_ENTITY | HT_BRUSH ignoreOccluders:YES];
+                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
                     if (hit != nil) {
                         switch ([hit type]) {
                             case HT_ENTITY: {
@@ -199,8 +189,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                                     newOwner = moveTool;
                                 break;
                             }
-                            case HT_BRUSH: {
-                                id <Brush> brush = [hit object];
+                            case HT_FACE: {
+                                id <Face> face = [hit object];
+                                id <Brush> brush = [face brush];
                                 if ([selectionManager isBrushSelected:brush])
                                     newOwner = moveTool;
                                 break;
@@ -649,17 +640,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (currentHits == nil) {
         Picker* picker = [[windowController document] picker];
         currentHits = [[picker pickObjects:&lastRay filter:filter] retain];
-        
-        SelectionManager* selectionManager = [windowController selectionManager];
-        if ([selectionManager mode] == SM_BRUSHES) {
-            PickingHit* brushHit = [currentHits firstHitOfType:HT_BRUSH ignoreOccluders:NO];
-            if (brushHit == nil) {
-                NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-                id <Brush> brush;
-                while ((brush = [brushEn nextObject]))
-                    [brush pickFace:&lastRay maxDistance:10 hitList:currentHits];
-            }
-        }
     } 
     
     return currentHits;

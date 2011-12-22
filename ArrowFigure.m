@@ -45,28 +45,55 @@ static const float headLength = 7;
         for (int i = 0; i < headVertexCount; i++)
             headVertices[i].z += shaftLength;
 
-        crossV3f(&ZAxisPos, theDirection, &axis);
-        if (!nullV3f(&axis)) {
-            normalizeV3f(&axis, &axis);
-            cos = dotV3f(&ZAxisPos, theDirection);
-            setAngleAndAxisQ(&rot, acosf(cos), &axis);
-
-            for (int i = 0; i < shaftVertexCount; i++) {
-                rotateQ(&rot, &shaftVertices[i], &shaftVertices[i]);
-                rotateQ(&rot, &shaftVertexNormals[i], &shaftVertexNormals[i]);
+        cos = dotV3f(&ZAxisPos, theDirection);
+        if (cos < 1) {
+            if (cos > -1) {
+                crossV3f(&ZAxisPos, theDirection, &axis);
+                normalizeV3f(&axis, &axis);
+                setAngleAndAxisQ(&rot, acosf(cos), &axis);
+                
+                for (int i = 0; i < shaftVertexCount; i++) {
+                    rotateQ(&rot, &shaftVertices[i], &shaftVertices[i]);
+                    rotateQ(&rot, &shaftVertexNormals[i], &shaftVertexNormals[i]);
+                }
+                
+                rotateQ(&rot, &shaftCapNormal, &shaftCapNormal);
+                rotateQ(&rot, &shaftCapPosition, &shaftCapPosition);
+                
+                for (int i = 0; i < headVertexCount; i++) {
+                    rotateQ(&rot, &headVertices[i], &headVertices[i]);
+                    rotateQ(&rot, &headVertexNormals[i], &headVertexNormals[i]);
+                }
+                
+                rotateQ(&rot, &headCapNormal, &headCapNormal);
+                rotateQ(&rot, &headCapPosition, &headCapPosition);
+            } else {
+                for (int i = 0; i < shaftVertexCount; i++) {
+                    shaftVertices[i].y *= -1;
+                    shaftVertices[i].z *= -1;
+                    shaftVertexNormals[i].y *= -1;
+                    shaftVertexNormals[i].z *= -1;
+                }
+                
+                shaftCapNormal.y *= -1;
+                shaftCapNormal.z *= -1;
+                shaftCapPosition.y *= -1;
+                shaftCapPosition.z *= -1;
+                
+                for (int i = 0; i < headVertexCount; i++) {
+                    headVertices[i].y *= -1;
+                    headVertices[i].z *= -1;
+                    headVertexNormals[i].y *= -1;
+                    headVertexNormals[i].z *= -1;
+                }
+                
+                headCapNormal.y *= -1;
+                headCapNormal.z *= -1;
+                headCapPosition.y *= -1;
+                headCapPosition.z *= -1;
             }
-            
-            rotateQ(&rot, &shaftCapNormal, &shaftCapNormal);
-            rotateQ(&rot, &shaftCapPosition, &shaftCapPosition);
-
-            for (int i = 0; i < headVertexCount; i++) {
-                rotateQ(&rot, &headVertices[i], &headVertices[i]);
-                rotateQ(&rot, &headVertexNormals[i], &headVertexNormals[i]);
-            }
-            
-            rotateQ(&rot, &headCapNormal, &headCapNormal);
-            rotateQ(&rot, &headCapPosition, &headCapPosition);
         }
+        
         
         // calculate surface normals and positions for silhouette tracing
         shaftSurfaceCount = segments;

@@ -43,7 +43,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (const TBoundingBox *)worldBounds;
 
 - (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
-- (void)pickFace:(TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList;
+// - (void)pickFace:(TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList;
 
 - (BOOL)intersectsBrush:(id <Brush>)theBrush;
 - (BOOL)containsBrush:(id <Brush>)theBrush;

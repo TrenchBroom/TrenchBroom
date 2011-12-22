@@ -28,9 +28,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     GLUquadric* arms;
     GLUquadric* disks;
     BOOL initialized;
-    Camera* camera;
 }
-
-- (id)initWithCamera:(Camera *)theCamera;
 
 @end
