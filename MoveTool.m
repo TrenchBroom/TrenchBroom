@@ -76,26 +76,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [editingSystem release];
         editingSystem = newEditingSystem;
     }
-    
-    /*
-    if (fabsf(theRay->direction.z) > 0.3f) {
-        if ([self isAlternatePlaneModifierPressed]) {
-            moveDirection = MD_LR_UD;
-            editingSystem = [[camera verticalEditingSystem] retain];
-        } else {
-            moveDirection = MD_LR_FB;
-            editingSystem = [[camera horizontalEditingSystem] retain];
-        }
-    } else {
-        if ([self isAlternatePlaneModifierPressed]) {
-            moveDirection = MD_LR_FB;
-            editingSystem = [[camera horizontalEditingSystem] retain];
-        } else {
-            moveDirection = MD_LR_UD;
-            editingSystem = [[camera verticalEditingSystem] retain];
-        }
-    }
-     */
 }
 
 @end

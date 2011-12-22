@@ -290,7 +290,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist {
     NSMutableArray* testFaces = [[NSMutableArray alloc] initWithArray:faces];
-    [testFaces removeObject:face];
+    [testFaces removeObjectIdenticalTo:face];
 
     MutableFace* testFace = [[MutableFace alloc] initWithWorldBounds:worldBounds faceTemplate:face];
     [testFace dragBy:dist lockTexture:NO];
@@ -311,8 +311,31 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                    boundsContainBounds(worldBounds, vertexDataBounds(&testData));
     
     freeVertexData(&testData);
+    [self invalidateVertexData];
     return canDrag;
+}
+
+- (void)deleteFace:(MutableFace *)face {
+    [faces removeObjectIdenticalTo:face];
+    [self invalidateVertexData];
+}
+
+- (BOOL)canDeleteFace:(MutableFace *)face {
+    NSMutableArray* testFaces = [[NSMutableArray alloc] initWithArray:faces];
+    [testFaces removeObjectIdenticalTo:face];
     
+    NSMutableArray* droppedFaces = nil;
+    TVertexData testData;
+
+    BOOL canDelete = YES;
+    
+    initVertexDataWithFaces(&testData, worldBounds, testFaces, &droppedFaces);
+    for (int i = 0; i < testData.sideCount && canDelete; i++)
+        canDelete = testData.sides[i]->face != nil;
+    
+    freeVertexData(&testData);
+    [self invalidateVertexData];
+    return canDelete;
 }
 
 - (void)invalidateVertexData {

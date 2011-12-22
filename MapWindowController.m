@@ -63,6 +63,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Renderer.h"
 #import "GroupManager.h"
 #import "EditingSystem.h"
+#import "MutableBrush.h"
+#import "MutableFace.h"
 
 @interface MapWindowController (private)
 
@@ -362,7 +364,26 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     } else if (action == @selector(paste:)) {
         return YES;
     } else if (action == @selector(deleteSelection:)) {
-        return [selectionManager hasSelectedEntities] || [selectionManager hasSelectedBrushes] || ([[inputManager clipTool] active] && [[inputManager clipTool] numPoints] > 0);
+        if ([selectionManager hasSelectedEntities])
+            return YES;
+        if ([selectionManager hasSelectedBrushes])
+            return YES;
+        if ([selectionManager hasSelectedFaces]) {
+            NSArray* faces = [selectionManager selectedFaces];
+            NSEnumerator* faceEn = [faces objectEnumerator];
+            MutableFace* face;
+            while ((face = [faceEn nextObject])) {
+                MutableBrush* brush = (MutableBrush *)[face brush];
+                if (![brush canDeleteFace:face])
+                    return NO;
+            }
+            
+            return YES;
+        }
+        
+        if ([[inputManager clipTool] active] && [[inputManager clipTool] numPoints] > 0)
+            return YES;
+        return NO;
     } else if (action == @selector(moveTextureLeft:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
     } else if (action == @selector(moveTextureLeft:)) {

@@ -56,6 +56,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)drag:(MutableFace *)face by:(float)dist lockTexture:(BOOL)lockTexture;
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist;
 
+- (void)deleteFace:(MutableFace *)ace;
+- (BOOL)canDeleteFace:(MutableFace *)face;
+
 - (void)invalidateVertexData;
 
 - (int)filePosition;

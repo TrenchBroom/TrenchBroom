@@ -231,6 +231,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [xScaleField setEnabled:YES];
         [yScaleField setEnabled:YES];
         [rotationField setEnabled:YES];
+        [resetFaceButton setEnabled:YES];
         
         NSEnumerator* faceEn = [selectedFaces objectEnumerator];
         id <Face> face = [faceEn nextObject];
@@ -322,6 +323,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [yScaleStepper setEnabled:NO];
         [rotationField setEnabled:NO];
         [rotationStepper setEnabled:NO];
+        [resetFaceButton setEnabled:NO];
         
         [[xOffsetField cell] setPlaceholderString:@"n/a"];
         [[yOffsetField cell] setPlaceholderString:@"n/a"];
@@ -673,6 +675,24 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [map setFaces:faces rotation:rotation];
     
     [undoManager setActionName:@"Set Texture Rotation"];
+    [undoManager endUndoGrouping];
+}
+
+- (IBAction)resetFace:(id)sender {
+    MapDocument* map = [mapWindowController document];
+    SelectionManager* selectionManager = [mapWindowController selectionManager];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    
+    NSArray* faces = [selectionManager mode] == SM_FACES ? [selectionManager selectedFaces] : [selectionManager selectedBrushFaces];
+    [map setFaces:faces xOffset:0];
+    [map setFaces:faces yOffset:0];
+    [map setFaces:faces xScale:1];
+    [map setFaces:faces yScale:1];
+    [map setFaces:faces rotation:0];
+    
+    [undoManager setActionName:@"Reset Face"];
     [undoManager endUndoGrouping];
 }
 

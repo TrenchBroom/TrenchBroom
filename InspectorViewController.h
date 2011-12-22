@@ -45,6 +45,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     IBOutlet NSStepper* yScaleStepper;
     IBOutlet NSTextField* rotationField;
     IBOutlet NSStepper* rotationStepper;
+    IBOutlet NSButton* resetFaceButton;
     IBOutlet NSTextField* textureNameField;
     IBOutlet NSSearchField* textureNameFilterField;
     IBOutlet NSSegmentedControl* textureUsageFilterSC;
@@ -94,6 +95,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (IBAction)yScaleStepperChanged:(id)sender;
 - (IBAction)rotationTextChanged:(id)sender;
 - (IBAction)rotationStepperChanged:(id)sender;
+- (IBAction)resetFace:(id)sender;
 - (IBAction)textureNameFilterTextChanged:(id)sender;
 - (IBAction)textureUsageFilterChanged:(id)sender;
 - (IBAction)textureSortCriterionChanged:(id)sender;
