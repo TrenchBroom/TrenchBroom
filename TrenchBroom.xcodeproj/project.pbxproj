@@ -135,6 +135,8 @@
 		4899FF55140A765000E854BE /* CompilerProfile.m in Sources */ = {isa = PBXBuildFile; fileRef = 4899FF54140A765000E854BE /* CompilerProfile.m */; };
 		489C061913C9EBA400D9D693 /* GLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 489C061813C9EBA400D9D693 /* GLUtils.m */; };
 		48A269E313C73BFA00703BC1 /* EntityInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A269E213C73BFA00703BC1 /* EntityInfo.m */; };
+		48A3B7F014A4871E002FDEBE /* VertexTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A3B7EF14A4871D002FDEBE /* VertexTool.m */; };
+		48A3B7F414A489A3002FDEBE /* DragVertexCursor.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A3B7F314A489A2002FDEBE /* DragVertexCursor.m */; };
 		48A4F489149D27310086146C /* ArrowFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A4F488149D27310086146C /* ArrowFigure.m */; };
 		48A4F48C149D323F0086146C /* DoubleArrowFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A4F48B149D323F0086146C /* DoubleArrowFigure.m */; };
 		48A5FD4C13C5E7C6009D086C /* BspManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A5FD4B13C5E7C6009D086C /* BspManager.m */; };
@@ -480,6 +482,10 @@
 		489C061813C9EBA400D9D693 /* GLUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLUtils.m; sourceTree = "<group>"; };
 		48A269E113C73BFA00703BC1 /* EntityInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityInfo.h; sourceTree = "<group>"; };
 		48A269E213C73BFA00703BC1 /* EntityInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityInfo.m; sourceTree = "<group>"; };
+		48A3B7EE14A4871D002FDEBE /* VertexTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexTool.h; sourceTree = "<group>"; };
+		48A3B7EF14A4871D002FDEBE /* VertexTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexTool.m; sourceTree = "<group>"; };
+		48A3B7F214A489A2002FDEBE /* DragVertexCursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragVertexCursor.h; sourceTree = "<group>"; };
+		48A3B7F314A489A2002FDEBE /* DragVertexCursor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragVertexCursor.m; sourceTree = "<group>"; };
 		48A4F487149D27310086146C /* ArrowFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrowFigure.h; sourceTree = "<group>"; };
 		48A4F488149D27310086146C /* ArrowFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ArrowFigure.m; sourceTree = "<group>"; };
 		48A4F48A149D323F0086146C /* DoubleArrowFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DoubleArrowFigure.h; sourceTree = "<group>"; };
@@ -823,6 +829,8 @@
 				48CB060813EC19B70051640E /* CreateBrushTool.m */,
 				48CB060B13EC2E680051640E /* BoundsFeedbackFigure.h */,
 				48CB060C13EC2E680051640E /* BoundsFeedbackFigure.m */,
+				48A3B7EE14A4871D002FDEBE /* VertexTool.h */,
+				48A3B7EF14A4871D002FDEBE /* VertexTool.m */,
 			);
 			name = Tool;
 			sourceTree = "<group>";
@@ -928,12 +936,14 @@
 				48D09298147820CE000AA366 /* Cursor.h */,
 				48D09299147820CE000AA366 /* CursorManager.h */,
 				48D0929A147820CE000AA366 /* CursorManager.m */,
+				4879791B1479556A00B28DC9 /* DragFaceCursor.h */,
+				4879791C1479556A00B28DC9 /* DragFaceCursor.m */,
+				48A3B7F214A489A2002FDEBE /* DragVertexCursor.h */,
+				48A3B7F314A489A2002FDEBE /* DragVertexCursor.m */,
 				48D0929D147822D8000AA366 /* MoveCursor.h */,
 				48D0929E147822D8000AA366 /* MoveCursor.m */,
 				48325D4513524F7000E703E0 /* CompassFigure.h */,
 				48325D4613524F7000E703E0 /* CompassFigure.m */,
-				4879791B1479556A00B28DC9 /* DragFaceCursor.h */,
-				4879791C1479556A00B28DC9 /* DragFaceCursor.m */,
 				482FFF111340E3C600849BF5 /* Figure.h */,
 				4888732813436206005FCE15 /* FloatData.h */,
 				4888732913436206005FCE15 /* FloatData.m */,
@@ -1563,6 +1573,8 @@
 				4879791D1479556A00B28DC9 /* DragFaceCursor.m in Sources */,
 				48A4F489149D27310086146C /* ArrowFigure.m in Sources */,
 				48A4F48C149D323F0086146C /* DoubleArrowFigure.m in Sources */,
+				48A3B7F014A4871E002FDEBE /* VertexTool.m in Sources */,
+				48A3B7F414A489A3002FDEBE /* DragVertexCursor.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

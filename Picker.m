@@ -35,7 +35,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return self;
 }
 
-- (PickingHitList *)pickObjects:(TRay *)ray filter:(id <Filter>)filter {
+- (PickingHitList *)pickObjects:(const TRay *)ray filter:(id <Filter>)filter {
     PickingHitList* hitList = [[PickingHitList alloc] init];
     NSArray* objects = [octree pickObjectsWithRay:ray];
     
@@ -52,8 +52,22 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                 [entity pick:ray hitList:hitList];
         }
     }
-
+    
     return [hitList autorelease];
+}
+
+- (void)pickCloseFaces:(const TRay *)theRay brushes:(NSArray *)theBrushes maxDistance:(float)theMaxDistance hitList:(PickingHitList *)theHitList {
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject]))
+        [brush pickClosestFace:theRay maxDistance:theMaxDistance hitList:theHitList];
+}
+
+- (void)pickVertices:(const TRay *)theRay brushes:(NSArray *)theBrushes handleRadius:(float)theHandleRadius hitList:(PickingHitList *)theHitList {
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    id <Brush> brush;
+    while ((brush = [brushEn nextObject]))
+        [brush pickVertices:theRay handleRadius:theHandleRadius hitList:theHitList];
 }
 
 - (void)dealloc {

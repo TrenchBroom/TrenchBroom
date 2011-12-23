@@ -11,23 +11,19 @@
 #import "GLUtils.h"
 
 static const int segments = 30;
-static const float shaftRadius = 2;
-static const float shaftLength = 9;
-static const float headRadius = 4;
-static const float headLength = 7;
 
 @implementation DoubleArrowFigure
 
-- (id)initWithDirection:(EAxis)theDirection {
+- (id)initWithDirection:(EAxis)theDirection shaftRadius:(float)theShaftRadius shaftLength:(float)theShaftLength headRadius:(float)theHeadRadius headLength:(float)theHeadLength {
     if ((self = [self init])) {
         shaftVertexCount = 2 * segments + 2;
         shaftVertices = malloc(shaftVertexCount * sizeof(TVector3f));
         shaftVertexNormals = malloc(shaftVertexCount * sizeof(TVector3f));
-        makeCylinder(shaftRadius, 2 * shaftLength, segments, shaftVertices, shaftVertexNormals);
+        makeCylinder(theShaftRadius, 2 * theShaftLength, segments, shaftVertices, shaftVertexNormals);
         
         // translate the shaft
         for (int i = 0; i < shaftVertexCount; i++)
-            shaftVertices[i].z -= shaftLength;
+            shaftVertices[i].z -= theShaftLength;
 
         headVertexCount = segments + 2;
         topHeadVertices = malloc(headVertexCount * sizeof(TVector3f));
@@ -35,15 +31,15 @@ static const float headLength = 7;
         bottomHeadVertices = malloc(headVertexCount * sizeof(TVector3f));
         bottomHeadVertexNormals = malloc(headVertexCount * sizeof(TVector3f));
         
-        makeCone(headRadius, headLength, segments, topHeadVertices, topHeadVertexNormals);
+        makeCone(theHeadRadius, theHeadLength, segments, topHeadVertices, topHeadVertexNormals);
         topHeadCapNormal = ZAxisNeg;
         topHeadCapPosition.x = 0;
         topHeadCapPosition.x = 0;
-        topHeadCapPosition.x = shaftLength;
+        topHeadCapPosition.x = theShaftLength;
         
         // translate the head to the top of the arrow and create bottom head
         for (int i = 0; i < headVertexCount; i++) {
-            topHeadVertices[i].z += shaftLength;
+            topHeadVertices[i].z += theShaftLength;
             bottomHeadVertices[i] = topHeadVertices[i];
             bottomHeadVertexNormals[i] = topHeadVertexNormals[i];
             bottomHeadVertices[i].y *= -1;
@@ -55,7 +51,7 @@ static const float headLength = 7;
         bottomHeadCapNormal = ZAxisPos;
         bottomHeadCapPosition.x = 0;
         bottomHeadCapPosition.x = 0;
-        bottomHeadCapPosition.x = -shaftLength;
+        bottomHeadCapPosition.x = -theShaftLength;
 
         // rotate the arrow into the correct direction
         if (theDirection != A_Z) {

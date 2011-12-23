@@ -148,18 +148,24 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     SelectionManager* selectionManager = [windowController selectionManager];
 
 
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    if (hit == nil)
-        return;
-    
-    referenceFace = [hit object];
-    if (![selectionManager isFaceSelected:referenceFace])
-        return;
-    
-    if ([selectionManager mode] == SM_FACES) {
-        [dragFaces addObjectsFromArray:[selectionManager selectedFaces]];
-    } else {
+    PickingHit* hit = [hits firstHitOfType:HT_CLOSE_FACE ignoreOccluders:NO];
+    if (hit != nil) {
+        referenceFace = [hit object];
         [dragFaces addObject:referenceFace];
+    } else {
+        hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+        if (hit == nil)
+            return;
+
+        referenceFace = [hit object];
+        if (![selectionManager isFaceSelected:referenceFace])
+            return;
+
+        if ([selectionManager mode] == SM_FACES) {
+            [dragFaces addObjectsFromArray:[selectionManager selectedFaces]];
+        } else {
+            [dragFaces addObject:referenceFace];
+        }
     }
     
     if ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_BRUSHES_ENTITIES) {
@@ -249,7 +255,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     const TVector3f* dragDirection = NULL;
     
     if (!drag) {
-        PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+        PickingHit* hit = [hits firstHitOfType:HT_CLOSE_FACE ignoreOccluders:NO];
+        
+        if (hit == nil)
+            hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+
         if (hit == nil)
             return;
 

@@ -46,6 +46,6 @@ typedef enum {
 - (BOOL)addObject:(id)theObject bounds:(const TBoundingBox *)theBounds;
 - (BOOL)removeObject:(id)theObject bounds:(const TBoundingBox *)theBounds;
 
-- (void)addObjectsForRay:(TRay *)ray to:(NSMutableArray *)list;
+- (void)addObjectsForRay:(const TRay *)ray to:(NSMutableArray *)list;
 
 @end

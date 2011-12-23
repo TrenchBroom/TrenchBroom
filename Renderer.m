@@ -18,7 +18,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import "Renderer.h"
-#import <OpenGL/glu.h>
 #import "MapDocument.h"
 #import "Entity.h"
 #import "MutableEntity.h"
@@ -93,6 +92,7 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)renderEntityBounds:(const TVector4f *)color vertexCount:(int)theVertexCount;
 - (void)renderEdges:(const TVector4f *)color indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers;
 - (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers;
+- (void)renderVertexHandles;
 
 - (void)addBrushes:(NSArray *)theBrushes;
 - (void)removeBrushes:(NSArray *)theBrushes;
@@ -865,6 +865,44 @@ int const TexCoordSize = 2 * sizeof(float);
     glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
+- (void)renderVertexHandles {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager mode] == SM_BRUSHES) {
+        if (vertexHandle == NULL) {
+            vertexHandle = gluNewQuadric();
+            gluQuadricDrawStyle(vertexHandle, GLU_FILL);
+        }
+        
+        glFrontFace(GL_CCW);
+        glPolygonMode(GL_FRONT, GL_FILL);
+
+        NSArray* brushes = [selectionManager selectedBrushes];
+        NSEnumerator* brushEn = [brushes objectEnumerator];
+        id <Brush> brush;
+        while ((brush = [brushEn nextObject])) {
+            int vertexCount = [brush vertexCount];
+            TVertex** vertices = [brush vertices];
+            for (int i = 0; i < vertexCount; i++) {
+                TVector3f* vertex = &vertices[i]->vector;
+                glPushMatrix();
+                glTranslatef(vertex->x, vertex->y, vertex->z);
+                
+                glDisable(GL_DEPTH_TEST);
+                glColorV4f(&SelectionColor2);
+                gluSphere(vertexHandle, 2, 12, 12);
+                
+                glEnable(GL_DEPTH_TEST);
+                glColorV4f(&SelectionColor);
+                gluSphere(vertexHandle, 2, 12, 12);
+                
+                glPopMatrix();
+            }
+        }
+
+        glFrontFace(GL_CW);
+    }
+}
+
 - (void)addEntities:(NSArray *)theEntities {
     [changeSet entitiesAdded:theEntities];
     
@@ -1157,6 +1195,8 @@ int const TexCoordSize = 2 * sizeof(float);
     [selectedFaceCountBuffers release];
     [classnameRenderer release];
     [selectedClassnameRenderer release];
+    if (vertexHandle != NULL)
+        gluDeleteQuadric(vertexHandle);
     [entityRenderers release];
     [modelEntities release];
     [selectedModelEntities release];
@@ -1284,6 +1324,8 @@ int const TexCoordSize = 2 * sizeof(float);
         glDepthFunc(GL_LEQUAL);
         [selectionBoundsRenderer renderColor:&SelectionColor];
         glDepthFunc(GL_LESS);
+        
+        [self renderVertexHandles];
     }
     
     if ([feedbackFigures count] > 0) {

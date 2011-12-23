@@ -18,6 +18,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Cocoa/Cocoa.h>
+#import <OpenGL/glu.h>
 
 extern NSString* const RendererChanged;
 
@@ -48,6 +49,8 @@ extern NSString* const RendererChanged;
     int entityBoundsVertexCount;
     int selectedEntityBoundsVertexCount;
 
+    GLUquadric* vertexHandle;
+    
     TextRenderer* classnameRenderer;
     TextRenderer* selectedClassnameRenderer;
     EntityRendererManager* entityRendererManager;

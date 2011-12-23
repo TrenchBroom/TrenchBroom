@@ -43,7 +43,7 @@
     TVector3f position;
 }
 
-- (id)initWithDirection:(EAxis)theDirection;
+- (id)initWithDirection:(EAxis)theDirection shaftRadius:(float)theShaftRadius shaftLength:(float)theShaftLength headRadius:(float)theHeadRadius headLength:(float)theHeadLength;
 
 - (void)setPosition:(const TVector3f *)thePosition;
 - (void)setCameraPosition:(const TVector3f *)theCameraPosition;

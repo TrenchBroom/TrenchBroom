@@ -597,7 +597,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return angle;
 }
 
-- (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList {
+- (void)pick:(const TRay *)theRay hitList:(PickingHitList *)theHitList {
     if ([self isWorldspawn])
         return;
     

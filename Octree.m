@@ -190,7 +190,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [super dealloc];
 }
 
-- (NSArray *)pickObjectsWithRay:(TRay *)ray {
+- (NSArray *)pickObjectsWithRay:(const TRay *)ray {
     NSMutableArray* result = [[NSMutableArray alloc] init];
     [root addObjectsForRay:ray to:result];
     return [result autorelease];

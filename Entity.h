@@ -60,7 +60,7 @@ static NSString* const ModsKey = @"_mods";
 - (TVector3i *)origin;
 - (NSNumber *)angle;
 
-- (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
+- (void)pick:(const TRay *)theRay hitList:(PickingHitList *)theHitList;
 
 - (VBOMemBlock *)boundsMemBlock;
 - (void)setBoundsMemBlock:(VBOMemBlock *)theBoundsMemBlock;

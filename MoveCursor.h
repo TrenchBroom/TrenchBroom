@@ -18,11 +18,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Cocoa/Cocoa.h>
-#import <OpenGL/gl.h>
-#import <OpenGL/glu.h>
 #import "Cursor.h"
 #import "Math.h"
-#import "MoveTool.h"
 
 @class DoubleArrowFigure;
 @class EditingSystem;

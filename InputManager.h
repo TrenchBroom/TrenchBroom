@@ -28,6 +28,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class CreateBrushTool;
 @class RotateTool;
 @class FaceTool;
+@class VertexTool;
 @class ClipTool;
 @class EntityDefinitionDndTool;
 @protocol Tool;
@@ -56,6 +57,7 @@ typedef enum {
     MoveTool* moveTool;
     RotateTool* rotateTool;
     FaceTool* faceTool;
+    VertexTool* vertexTool;
     ClipTool* clipTool;
     id <Tool> activeTool;
     id <Tool> cursorOwner;

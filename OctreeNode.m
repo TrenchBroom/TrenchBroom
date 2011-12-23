@@ -153,7 +153,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return YES;
 }
 
-- (void)addObjectsForRay:(TRay *)ray to:(NSMutableArray *)list {
+- (void)addObjectsForRay:(const TRay *)ray to:(NSMutableArray *)list {
     BOOL hit = fgte(ray->origin.x, min.x)
         && fgte(ray->origin.y, min.y)
         && fgte(ray->origin.z, min.z)

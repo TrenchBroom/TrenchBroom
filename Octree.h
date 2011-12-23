@@ -31,6 +31,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (id)initWithMap:(MapDocument *)theMap minSize:(int)theMinSize;
 
-- (NSArray *)pickObjectsWithRay:(TRay *)ray;
+- (NSArray *)pickObjectsWithRay:(const TRay *)ray;
 
 @end

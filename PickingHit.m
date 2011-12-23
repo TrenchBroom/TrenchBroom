@@ -23,8 +23,20 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (id)initWithObject:(id)theObject type:(EHitType)theType hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance {
     if ((self = [self init])) {
-        object = [theObject retain];
+        object = theObject;
         type = theType;
+        hitPoint = *theHitPoint;
+        distance = theDistance;
+    }
+    
+    return self;
+}
+
+- (id)initWithObject:(id)theObject vertex:(int)theVertexIndex hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance {
+    if ((self = [self init])) {
+        object = theObject;
+        type = HT_VERTEX;
+        vertexIndex = theVertexIndex;
         hitPoint = *theHitPoint;
         distance = theDistance;
     }
@@ -38,6 +50,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (EHitType)type {
     return type;
+}
+
+- (int)vertexIndex {
+    return vertexIndex;
 }
 
 - (BOOL)isType:(EHitType)theTypeMask {
@@ -62,11 +78,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (type < [other type])
         return NSOrderedDescending;
     return NSOrderedSame;
-}
-
-- (void)dealloc {
-    [object release];
-    [super dealloc];
 }
 
 @end

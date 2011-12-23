@@ -1,34 +1,23 @@
-/*
-Copyright (C) 2010-2011 Kristian Duske
+//
+//  DragVertexCursor.m
+//  TrenchBroom
+//
+//  Created by Kristian Duske on 23.12.11.
+//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
+//
 
-This file is part of TrenchBroom.
-
-TrenchBroom is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-TrenchBroom is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-#import "MoveCursor.h"
+#import "DragVertexCursor.h"
 #import "DoubleArrowFigure.h"
 #import "GLUtils.h"
 #import "EditingSystem.h"
 #import "ControllerUtils.h"
 
-static const float shaftRadius = 2;
-static const float shaftLength = 9;
-static const float headRadius = 4;
-static const float headLength = 7;
+static const float shaftRadius = 0.5f;
+static const float shaftLength = 4.5f;
+static const float headRadius = 1.5f;
+static const float headLength = 3.5f;
 
-@implementation MoveCursor
+@implementation DragVertexCursor
 
 - (id)init {
     if ((self = [super init])) {
@@ -58,12 +47,12 @@ static const float headLength = 7;
     [arrow1 setCameraPosition:&cameraPosition];
     [arrow2 setPosition:&position];
     [arrow2 setCameraPosition:&cameraPosition];
-
+    
     TVector4f fillColor1 = {0, 0, 0, 1};
     TVector4f outlineColor1 = {1, 1, 1, 1};
     TVector4f fillColor2 = {0, 0, 0, 0.3f};
     TVector4f outlineColor2 = {1, 1, 1, 0.3f};
-
+    
     glDisable(GL_DEPTH_TEST);
     
     [arrow1 setFillColor:&fillColor2];
@@ -75,7 +64,7 @@ static const float headLength = 7;
     [arrow2 render];
     
     glEnable(GL_DEPTH_TEST);
-
+    
     [arrow1 setFillColor:&fillColor1];
     [arrow1 setOutlineColor:&outlineColor1];
     [arrow1 render];

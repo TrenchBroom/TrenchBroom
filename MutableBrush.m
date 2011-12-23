@@ -396,7 +396,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return worldBounds;
 }
 
-- (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList {
+- (void)pick:(const TRay *)theRay hitList:(PickingHitList *)theHitList {
     TVertexData* vd = [self vertexData];
     if (isnan(intersectBoundsWithRay(vertexDataBounds(vd), theRay, NULL)))
         return;
@@ -416,8 +416,24 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 }
 
-/*
-- (void)pickFace:(TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList {
+- (void)pickVertices:(const TRay *)theRay handleRadius:(float)theRadius hitList:(PickingHitList *)theHitList {
+    TVertexData* vd = [self vertexData];
+    TVector3f hitPoint;
+    
+    for (int i = 0; i < vd->vertexCount; i++) {
+        TVector3f* vertex = &vd->vertices[i]->vector;
+        float dist = intersectSphereWithRay(vertex, theRadius, theRay);
+        if (!isnan(dist)) {
+            rayPointAtDistance(theRay, dist, &hitPoint);
+            PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:i hitPoint:&hitPoint distance:dist];
+            [theHitList addHit:hit];
+            [hit release];
+        }
+    }
+}
+
+
+- (void)pickClosestFace:(const TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList {
     TVertexData* vd = [self vertexData];
 
     TEdge* edge;
@@ -444,22 +460,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     PickingHit* hit;
     if (!isnan(leftDist)) {
-        hit = [[PickingHit alloc] initWithObject:closestEdge->leftSide->face type:HT_CLOSE_EDGE hitPoint:&hitPoint distance:leftDist];
+        hit = [[PickingHit alloc] initWithObject:closestEdge->leftSide->face type:HT_CLOSE_FACE hitPoint:&hitPoint distance:leftDist];
     } else if (!isnan(rightDist)) {
-        hit = [[PickingHit alloc] initWithObject:closestEdge->rightSide->face type:HT_CLOSE_EDGE hitPoint:&hitPoint distance:rightDist];
+        hit = [[PickingHit alloc] initWithObject:closestEdge->rightSide->face type:HT_CLOSE_FACE hitPoint:&hitPoint distance:rightDist];
     } else {
         rayPointAtDistance(theRay, closestRayDist, &hitPoint);
         if (dotV3f([closestEdge->leftSide->face norm], &theRay->direction) >= 0) {
-            hit = [[PickingHit alloc] initWithObject:closestEdge->leftSide->face type:HT_CLOSE_EDGE hitPoint:&hitPoint distance:closestRayDist];
+            hit = [[PickingHit alloc] initWithObject:closestEdge->leftSide->face type:HT_CLOSE_FACE hitPoint:&hitPoint distance:closestRayDist];
         } else {
-            hit = [[PickingHit alloc] initWithObject:closestEdge->rightSide->face type:HT_CLOSE_EDGE hitPoint:&hitPoint distance:closestRayDist];
+            hit = [[PickingHit alloc] initWithObject:closestEdge->rightSide->face type:HT_CLOSE_FACE hitPoint:&hitPoint distance:closestRayDist];
         }
     }
     
     [theHitList addHit:hit];
     [hit release];
 }
-*/
 
 - (BOOL)intersectsBrush:(id <Brush>)theBrush {
     NSAssert(theBrush != nil, @"brush must not be nil");

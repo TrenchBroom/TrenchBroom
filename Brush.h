@@ -42,8 +42,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (const TVector3f *)center;
 - (const TBoundingBox *)worldBounds;
 
-- (void)pick:(TRay *)theRay hitList:(PickingHitList *)theHitList;
-// - (void)pickFace:(TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList;
+- (void)pick:(const TRay *)theRay hitList:(PickingHitList *)theHitList;
+- (void)pickVertices:(const TRay *)theRay handleRadius:(float)theRadius hitList:(PickingHitList *)theHitList;
+- (void)pickClosestFace:(const TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList;
 
 - (BOOL)intersectsBrush:(id <Brush>)theBrush;
 - (BOOL)containsBrush:(id <Brush>)theBrush;

@@ -23,6 +23,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 typedef enum {
     HT_ENTITY       = 1 << 0,
     HT_FACE         = 1 << 1,
+    HT_CLOSE_FACE   = 1 << 2,
+    HT_VERTEX       = 1 << 3,
     HT_ANY          = HT_ENTITY | HT_FACE
 } EHitType;
 
@@ -30,13 +32,16 @@ typedef enum {
     id object;
     EHitType type;
     TVector3f hitPoint;
+    int vertexIndex;
     float distance;
 }
 
 - (id)initWithObject:(id)theObject type:(EHitType)theType hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance;
+- (id)initWithObject:(id)theObject vertex:(int)theVertexIndex hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance;
 
 - (id)object;
 - (EHitType)type;
+- (int)vertexIndex;
 - (BOOL)isType:(EHitType)theTypeMask;
 - (const TVector3f *)hitPoint;
 - (float)distance;

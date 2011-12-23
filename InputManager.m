@@ -37,6 +37,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MapDocument.h"
 #import "MoveTool.h"
 #import "FaceTool.h"
+#import "VertexTool.h"
 #import "Options.h"
 #import "DefaultFilter.h"
 #import "DndTool.h"
@@ -126,11 +127,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             newActiveTool = rotateTool;
         } else if (dragStatus == MS_LEFT || scrollStatus == MS_LEFT) {
             if ([self isFaceDragModifierPressed]) {
-                PickingHit* hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
+                PickingHit* hit = [[self currentHits] firstHitOfType:HT_CLOSE_FACE ignoreOccluders:NO];
                 if (hit != nil) {
-                    id <Face> face = [hit object];
-                    if ([selectionManager isFaceSelected:face])
-                        newActiveTool = faceTool;
+                    newActiveTool = faceTool;
+                } else {
+                    hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
+                    if (hit != nil) {
+                        id <Face> face = [hit object];
+                        if ([selectionManager isFaceSelected:face])
+                            newActiveTool = faceTool;
+                    }
                 }
             } else {
                 newActiveTool = moveTool;
@@ -175,12 +181,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                 if ([self isRotateModifierPressed]) {
                     newOwner = rotateTool;
                 } else if ([self isFaceDragModifierPressed]) {
-                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
-                    if (hit != nil && [selectionManager isFaceSelected:[hit object]]) {
+                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_CLOSE_FACE ignoreOccluders:NO];
+                    if (hit != nil) {
                         newOwner = faceTool;
+                    } else {
+                        hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
+                        if (hit != nil && [selectionManager isFaceSelected:[hit object]]) {
+                            newOwner = faceTool;
+                        }
                     }
                 } else {
-                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
+                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_ENTITY | HT_FACE | HT_VERTEX ignoreOccluders:YES];
                     if (hit != nil) {
                         switch ([hit type]) {
                             case HT_ENTITY: {
@@ -194,6 +205,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                                 id <Brush> brush = [face brush];
                                 if ([selectionManager isBrushSelected:brush])
                                     newOwner = moveTool;
+                                break;
+                            }
+                            case HT_VERTEX: {
+                                id <Brush> brush = [hit object];
+                                if ([selectionManager isBrushSelected:brush])
+                                    newOwner = vertexTool;
                                 break;
                             }
                             default: {
@@ -292,6 +309,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         createBrushTool = [[CreateBrushTool alloc] initWithWindowController:windowController];
         rotateTool = [[RotateTool alloc] initWithWindowController:windowController];
         faceTool = [[FaceTool alloc] initWithWindowController:windowController];
+        vertexTool = [[VertexTool alloc] initWithWindowController:windowController];
         clipTool = [[ClipTool alloc] initWithWindowController:windowController];
         entityDefinitionDndTool = [[EntityDefinitionDndTool alloc] initWithWindowController:windowController];
         
@@ -321,6 +339,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [createBrushTool release];
     [rotateTool release];
     [faceTool release];
+    [vertexTool release];
     [clipTool release];
     [lastEvent release];
     [currentHits release];
@@ -640,6 +659,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (currentHits == nil) {
         Picker* picker = [[windowController document] picker];
         currentHits = [[picker pickObjects:&lastRay filter:filter] retain];
+        
+        SelectionManager* selectionManager = [windowController selectionManager];
+        if ([selectionManager mode] == SM_BRUSHES) {
+            [picker pickCloseFaces:&lastRay brushes:[selectionManager selectedBrushes] maxDistance:10 hitList:currentHits];
+            [picker pickVertices:&lastRay brushes:[selectionManager selectedBrushes] handleRadius:2 hitList:currentHits];
+        }
     } 
     
     return currentHits;
