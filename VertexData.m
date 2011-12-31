@@ -937,3 +937,69 @@ EPointStatus vertexStatusFromRay(const TVector3f* o, const TVector3f* d, TVertex
     return above > 0 ? PS_ABOVE : PS_BELOW;
 }
 
+const TVector3f* vertexWithReplacement(const TSide* s, int i, const TVertex* o, const TVector3f* n) {
+    TVertex* v = startVertexOfEdge(s->edges[i], s);
+    if (v == o)
+        return n;
+    return &v->vector;
+}
+
+BOOL isConvex(const TSide* s, const TVertex* o, const TVector3f* n) {
+    /*
+    const TVector3f* v1 = vertexWithReplacement(s, s->edgeCount - 2, o, n);
+    const TVector3f* v2 = vertexWithReplacement(s, s->edgeCount - 1, o, n);
+    const TVector3f* v3 = vertexWithReplacement(s, 0, o, n);
+    
+    TVector3f e1, e2, c;
+    
+    subV3f(v2, v1, &e1);
+    subV3f(v3, v2, &e2);
+    crossV3f(&e2, &e1, &c);
+    p = dotV3f(&e1, &e2) > 0;
+    
+    for (int i = 1; i < s->edgeCount; i++) {
+        v1 = v2;
+        v2 = v3;
+        e1 = e2;
+        
+        v3 = vertexWithReplacement(s, i, o, n);
+        subV3f(v3, v2, &e2);
+        if (p != dotV3f(&e1, &e2))
+            return NO;
+    }
+     */   
+    return YES;
+}
+
+int translateVertex(TVertexData* vd, int v, const TVector3f* d) {
+    TSide* incidentSides[vd->sideCount];
+    int incidentSideCount = 0;
+    TVertex* vertex = vd->vertices[v];
+    TVector3f newLocation;
+    
+    addV3f(&vertex->vector, d, &newLocation);
+    
+    for (int i = 0; i < vd->sideCount; i++) {
+        TSide* side = vd->sides[i];
+        for (int j = 0; j < side->edgeCount; j++) {
+            TEdge* edge = side->edges[j];
+            TVertex* startVertex = startVertexOfEdge(edge, side);
+            if (startVertex == vertex)
+                incidentSides[incidentSideCount++] = side;
+        }
+    }
+    
+    for (int i = 0; i < incidentSideCount; i++) {
+        TSide* side = incidentSides[i];
+        if (side->edgeCount > 3) { // triangles require no special attention
+            if (pointStatusFromPlane([side->face boundary], &newLocation) == PS_INSIDE) { // vertex is still coplanar
+                // check if the side becomes concave
+                if (!isConvex(side, vertex, &newLocation))
+                    return -1;
+            } else { // vertex is not coplanar anymore
+            }
+        }
+        
+        // adapt the face points now
+    }
+}

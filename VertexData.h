@@ -129,3 +129,5 @@ const TBoundingBox* vertexDataBounds(TVertexData* vd);
 const TVector3f* vertexDataCenter(TVertexData* vd);
 BOOL vertexDataContainsPoint(TVertexData* vd, TVector3f* p);
 EPointStatus vertexStatusFromRay(const TVector3f* o, const TVector3f* d, TVertex** ps, int c);
+
+int translateVertex(TVertexData* vd, int v, const TVector3f* d);
