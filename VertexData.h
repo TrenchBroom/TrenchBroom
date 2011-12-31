@@ -125,6 +125,8 @@ ECutResult cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d);
 void translateVertexData(TVertexData* vd, const TVector3f* d);
 void rotateVertexData90CW(TVertexData* vd, EAxis a, const TVector3f* c);
 void rotateVertexData90CCW(TVertexData* vd, EAxis a, const TVector3f* c);
+void rotateVertexData(TVertexData* vd, const TQuaternion* r, const TVector3f* c);
+void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c);
 const TBoundingBox* vertexDataBounds(TVertexData* vd);
 const TVector3f* vertexDataCenter(TVertexData* vd);
 BOOL vertexDataContainsPoint(TVertexData* vd, TVector3f* p);

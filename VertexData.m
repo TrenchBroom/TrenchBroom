@@ -888,6 +888,48 @@ void rotateVertexData90CCW(TVertexData* vd, EAxis a, const TVector3f* c) {
     }
 }
 
+void rotateVertexData(TVertexData* vd, const TQuaternion* r, const TVector3f* c) {
+    for (int i = 0; i < vd->vertexCount; i++) {
+        subV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
+        rotateQ(r, &vd->vertices[i]->vector, &vd->vertices[i]->vector);
+        addV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
+    }
+    
+    if (vd->valid) {
+        rotateBounds(&vd->bounds, r, c, &vd->bounds);
+        centerOfBounds(&vd->bounds, &vd->center);
+    }
+}
+
+void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c) {
+    switch (a) {
+        case A_X:
+            for (int i = 0; i < vd->vertexCount; i++) {
+                vd->vertices[i]->vector.x -= c->x;
+                vd->vertices[i]->vector.x *= -1;
+                vd->vertices[i]->vector.x += c->x;
+            }
+            break;
+        case A_Y:
+            for (int i = 0; i < vd->vertexCount; i++) {
+                vd->vertices[i]->vector.y -= c->y;
+                vd->vertices[i]->vector.y *= -1;
+                vd->vertices[i]->vector.y += c->y;
+            }
+            break;
+        default:
+            for (int i = 0; i < vd->vertexCount; i++) {
+                vd->vertices[i]->vector.z -= c->z;
+                vd->vertices[i]->vector.z *= -1;
+                vd->vertices[i]->vector.z += c->z;
+            }
+            break;
+    }
+    
+    for (int i = 0; i < vd->edgeCount; i++)
+        flipEdge(vd->edges[i]);
+}
+
 void validateVertexData(TVertexData* vd) {
     if (!vd->valid) {
         vd->bounds.min = vd->vertices[0]->vector;
