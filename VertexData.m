@@ -292,6 +292,15 @@ TEdge* splitSide(TSide* s) {
     return newEdge;
 }
 
+void flipSide(TSide* s) {
+    TVertex* t;
+    for (int i = 0; i < s->edgeCount / 2; i++) {
+        t = s->vertices[i];
+        s->vertices[i] = s->vertices[s->edgeCount - i - 1];
+        s->vertices[s->edgeCount - i - 1] = t;
+    }
+}
+
 float pickSide(const TSide* s, const TRay* r, TVector3f* h) {
     const TVector3f* norm = [s->face norm];
     float d = dotV3f(norm, &r->direction);
@@ -389,7 +398,6 @@ void initVertexData(TVertexData* vd) {
     vd->bounds.min = NullVector;
     vd->bounds.max = NullVector;
     vd->center = NullVector;
-    vd->valid = NO;
 }
 
 void initVertexDataWithBounds(TVertexData* vd, const TBoundingBox* b) {
@@ -402,14 +410,18 @@ void initVertexDataWithBounds(TVertexData* vd, const TBoundingBox* b) {
     vd->sideCapacity = 6;
     vd->sides = malloc(vd->sideCapacity * sizeof(TSide *));
     vd->sideCount = 0;
-    vd->bounds.min = NullVector;
-    vd->bounds.max = NullVector;
-    vd->center = NullVector;
-    vd->valid = NO;
-    
+
     const TVector3f* min = &b->min;
     const TVector3f* max = &b->max;
-
+    
+    vd->bounds.min.x = min->x - 1;
+    vd->bounds.min.y = min->y - 1;
+    vd->bounds.min.z = min->z - 1;
+    vd->bounds.max.x = max->x + 1;
+    vd->bounds.max.y = max->y + 1;
+    vd->bounds.max.z = max->z + 1;
+    centerOfBounds(&vd->bounds, &vd->center);
+    
     TVertex* esb = malloc(sizeof(TVertex));
     esb->vector.x  = min->x - 1;
     esb->vector.y  = min->y - 1;
@@ -597,8 +609,6 @@ void initVertexDataWithBounds(TVertexData* vd, const TBoundingBox* b) {
     BOOL bottomFlipped[] = {NO, NO, NO, NO};
     initSideWithEdges(bottomEdges, bottomFlipped, 4, bottom);
     addSide(vd, bottom);
-    
-    vd->valid = NO;
 }
 
 BOOL initVertexDataWithFaces(TVertexData* vd, const TBoundingBox* b, NSArray* f, NSMutableArray** d) {
@@ -651,7 +661,6 @@ void freeVertexData(TVertexData* vd) {
         vd->sideCount = 0;
         vd->sideCapacity = 0;
     }
-    vd->valid = NO;
 }
 
 void addVertex(TVertexData* vd, TVertex* v) {
@@ -849,17 +858,26 @@ ECutResult cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
         else
             vd->edges[i]->mark = EM_UNDECIDED;
     
-    vd->valid = NO;
+    vd->bounds.min = vd->vertices[0]->vector;
+    vd->bounds.max = vd->vertices[0]->vector;
+    vd->center = vd->vertices[0]->vector;
+    
+    for  (int i = 1; i < vd->vertexCount; i++) {
+        mergeBoundsWithPoint(&vd->bounds, &vd->vertices[i]->vector, &vd->bounds);
+        addV3f(&vd->center, &vd->vertices[i]->vector, &vd->center);
+    }
+    
+    scaleV3f(&vd->center, 1.0f / vd->vertexCount, &vd->center);
+
     return CR_SPLIT;
 }
 
 void translateVertexData(TVertexData* vd, const TVector3f* d) {
     for (int i = 0; i < vd->vertexCount; i++)
         addV3f(&vd->vertices[i]->vector, d, &vd->vertices[i]->vector);
-    if (vd->valid) {
-        translateBounds(&vd->bounds, d, &vd->bounds);
-        addV3f(&vd->center, d, &vd->center);
-    }
+
+    translateBounds(&vd->bounds, d, &vd->bounds);
+    addV3f(&vd->center, d, &vd->center);
 }
 
 void rotateVertexData90CW(TVertexData* vd, EAxis a, const TVector3f* c) {
@@ -869,10 +887,10 @@ void rotateVertexData90CW(TVertexData* vd, EAxis a, const TVector3f* c) {
         addV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
     }
 
-    if (vd->valid) {
-        rotateBounds90CW(&vd->bounds, a, c, &vd->bounds);
-        centerOfBounds(&vd->bounds, &vd->center);
-    }
+    rotateBounds90CW(&vd->bounds, a, c, &vd->bounds);
+    subV3f(&vd->center, c, &vd->center);
+    rotate90CWV3f(&vd->center, a, &vd->center);
+    addV3f(&vd->center, c, &vd->center);
 }
 
 void rotateVertexData90CCW(TVertexData* vd, EAxis a, const TVector3f* c) {
@@ -882,10 +900,10 @@ void rotateVertexData90CCW(TVertexData* vd, EAxis a, const TVector3f* c) {
         addV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
     }
     
-    if (vd->valid) {
-        rotateBounds90CCW(&vd->bounds, a, c, &vd->bounds);
-        centerOfBounds(&vd->bounds, &vd->center);
-    }
+    rotateBounds90CCW(&vd->bounds, a, c, &vd->bounds);
+    subV3f(&vd->center, c, &vd->center);
+    rotate90CCWV3f(&vd->center, a, &vd->center);
+    addV3f(&vd->center, c, &vd->center);
 }
 
 void rotateVertexData(TVertexData* vd, const TQuaternion* r, const TVector3f* c) {
@@ -895,13 +913,14 @@ void rotateVertexData(TVertexData* vd, const TQuaternion* r, const TVector3f* c)
         addV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
     }
     
-    if (vd->valid) {
-        rotateBounds(&vd->bounds, r, c, &vd->bounds);
-        centerOfBounds(&vd->bounds, &vd->center);
-    }
+    rotateBounds(&vd->bounds, r, c, &vd->bounds);
+    subV3f(&vd->center, c, &vd->center);
+    rotateQ(r, &vd->center, &vd->center);
+    addV3f(&vd->center, c, &vd->center);
 }
 
 void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c) {
+    float min, max;
     switch (a) {
         case A_X:
             for (int i = 0; i < vd->vertexCount; i++) {
@@ -909,6 +928,21 @@ void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c) {
                 vd->vertices[i]->vector.x *= -1;
                 vd->vertices[i]->vector.x += c->x;
             }
+            
+            min = vd->bounds.max.x;
+            max = vd->bounds.min.x;
+            min -= c->x;
+            min *= -1;
+            min += c->x;
+            max -= c->x;
+            max *= -1;
+            max += c->x;
+            vd->bounds.min.x = min;
+            vd->bounds.max.x = max;
+            
+            vd->center.x -= c->x;
+            vd->center.x *= -1;
+            vd->center.x += c->x;
             break;
         case A_Y:
             for (int i = 0; i < vd->vertexCount; i++) {
@@ -916,6 +950,21 @@ void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c) {
                 vd->vertices[i]->vector.y *= -1;
                 vd->vertices[i]->vector.y += c->y;
             }
+            
+            min = vd->bounds.max.y;
+            max = vd->bounds.min.y;
+            min -= c->y;
+            min *= -1;
+            min += c->y;
+            max -= c->y;
+            max *= -1;
+            max += c->y;
+            vd->bounds.min.y = min;
+            vd->bounds.max.y = max;
+            
+            vd->center.y -= c->y;
+            vd->center.y *= -1;
+            vd->center.y += c->y;
             break;
         default:
             for (int i = 0; i < vd->vertexCount; i++) {
@@ -923,37 +972,29 @@ void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c) {
                 vd->vertices[i]->vector.z *= -1;
                 vd->vertices[i]->vector.z += c->z;
             }
+            
+            min = vd->bounds.max.z;
+            max = vd->bounds.min.z;
+            min -= c->z;
+            min *= -1;
+            min += c->z;
+            max -= c->z;
+            max *= -1;
+            max += c->z;
+            vd->bounds.min.z = min;
+            vd->bounds.max.z = max;
+            
+            vd->center.z -= c->z;
+            vd->center.z *= -1;
+            vd->center.z += c->z;
             break;
     }
     
     for (int i = 0; i < vd->edgeCount; i++)
         flipEdge(vd->edges[i]);
-}
-
-void validateVertexData(TVertexData* vd) {
-    if (!vd->valid) {
-        vd->bounds.min = vd->vertices[0]->vector;
-        vd->bounds.max = vd->vertices[0]->vector;
-        vd->center = vd->vertices[0]->vector;
-        
-        for  (int i = 1; i < vd->vertexCount; i++) {
-            mergeBoundsWithPoint(&vd->bounds, &vd->vertices[i]->vector, &vd->bounds);
-            addV3f(&vd->center, &vd->vertices[i]->vector, &vd->center);
-        }
-        
-        scaleV3f(&vd->center, 1.0f / vd->vertexCount, &vd->center);
-        vd->valid = YES;
-    }
-}
-
-const TBoundingBox* vertexDataBounds(TVertexData* vd) {
-    validateVertexData(vd);
-    return &vd->bounds;
-}
-
-const TVector3f* vertexDataCenter(TVertexData* vd) {
-    validateVertexData(vd);
-    return &vd->center;
+    
+    for (int i = 0; i < vd->sideCount; i++)
+        flipSide(vd->sides[i]);
 }
 
 BOOL vertexDataContainsPoint(TVertexData* vd, TVector3f* p) {

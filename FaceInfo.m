@@ -42,7 +42,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         xScale = [theFace xScale];
         yScale = [theFace yScale];
         rotation = [theFace rotation];
-        textureName = [[NSString alloc] initWithString:[[theFace texture] name]];
+        texture = [theFace texture];
     }
     
     return self;
@@ -50,11 +50,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)dealloc {
     [faceId release];
-    [textureName release];
     [super dealloc];
 }
                    
-- (void)updateFace:(MutableFace *)theFace textureManager:(TextureManager *)theTextureManager {
+- (void)updateFace:(MutableFace *)theFace {
     NSAssert([faceId isEqualToNumber:[theFace faceId]], @"face id must be equal");
     
     [theFace setPoint1:&point1 point2:&point2 point3:&point3];
@@ -64,7 +63,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [theFace setYScale:yScale];
     [theFace setRotation:rotation];
     
-    Texture* texture = [theTextureManager textureForName:textureName];
     [theFace setTexture:texture];
 }
 

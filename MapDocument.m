@@ -126,13 +126,11 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
     [self makeUndoSnapshotOfFaces:theFaces];
     
-    TextureManager* textureManager = [glResources textureManager];
-    
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject])) {
         FaceInfo* faceInfo = [theFaceInfos objectForKey:[face faceId]];
-        [faceInfo updateFace:face textureManager:textureManager];
+        [faceInfo updateFace:face];
     }
     
     if ([self postNotifications]) {
@@ -161,13 +159,11 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
     [self makeUndoSnapshotOfBrushes:theBrushes];
     
-    TextureManager* textureManager = [glResources textureManager];
-    
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     MutableBrush* brush;
     while ((brush = [brushEn nextObject])) {
         BrushInfo* brushInfo = [theBrushInfos objectForKey:[brush brushId]];
-        [brushInfo updateBrush:brush textureManager:textureManager];
+        [brushInfo updateBrush:brush];
     }
     
     if ([self postNotifications]) {

@@ -92,7 +92,6 @@ typedef struct {
     
     TBoundingBox bounds;
     TVector3f center;
-    BOOL valid;
 } TVertexData;
 
 void centerOfVertices(TVertex** v, int n, TVector3f* c);
@@ -109,6 +108,7 @@ void initSideWithEdges(TEdge** e, BOOL* f, int c, TSide* s);
 void initSideWithFace(MutableFace* f, TEdge** e, int c, TSide* s);
 void freeSide(TSide* s);
 TEdge* splitSide(TSide* s);
+void flipSide(TSide* s);
 float pickSide(const TSide* s, const TRay* r, TVector3f* h);
 
 void initVertexData(TVertexData* vd);
@@ -127,8 +127,6 @@ void rotateVertexData90CW(TVertexData* vd, EAxis a, const TVector3f* c);
 void rotateVertexData90CCW(TVertexData* vd, EAxis a, const TVector3f* c);
 void rotateVertexData(TVertexData* vd, const TQuaternion* r, const TVector3f* c);
 void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c);
-const TBoundingBox* vertexDataBounds(TVertexData* vd);
-const TVector3f* vertexDataCenter(TVertexData* vd);
 BOOL vertexDataContainsPoint(TVertexData* vd, TVector3f* p);
 EPointStatus vertexStatusFromRay(const TVector3f* o, const TVector3f* d, TVertex** ps, int c);
 

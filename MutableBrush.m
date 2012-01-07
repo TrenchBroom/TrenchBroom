@@ -30,6 +30,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @interface MutableBrush (private)
 
 - (TVertexData *)vertexData;
+- (BOOL)rebuildVertexData:(NSMutableArray **)droppedFaces;
 
 @end
 
@@ -56,6 +57,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
     
     return &vertexData;
+}
+
+- (BOOL)rebuildVertexData:(NSMutableArray **)droppedFaces {
+    initVertexData(&vertexData);
+    if (!initVertexDataWithFaces(&vertexData, worldBounds, faces, droppedFaces)) {
+        freeVertexData(&vertexData);
+        return NO;
+    }
+    
+    return YES;
 }
 
 @end
@@ -271,7 +282,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     while ((face = [faceEn nextObject]))
         [face rotate:theRotation center:theCenter lockTexture:lockTextures];
 
-    [self invalidateVertexData];
+    if (vertexDataValid)
+        rotateVertexData(&vertexData, theRotation, theCenter);
 }
 
 - (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
@@ -279,8 +291,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     MutableFace* face;
     while ((face = [faceEn nextObject]))
         [face flipAxis:theAxis center:theCenter lockTexture:lockTextures];
-    
-    [self invalidateVertexData];
+
+    if (vertexDataValid) {
+        TVector3f centerf;
+        setV3f(&centerf, theCenter);
+        flipVertexData(&vertexData, theAxis, &centerf);
+    }
 }
 
 - (void)drag:(MutableFace *)face by:(float)dist lockTexture:(BOOL)lockTexture {
@@ -308,7 +324,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     BOOL canDrag = initVertexDataWithFaces(&testData, worldBounds, testFaces, &droppedFaces) && 
                    (droppedFaces == nil || [droppedFaces count] == 0) && 
-                   boundsContainBounds(worldBounds, vertexDataBounds(&testData));
+                   boundsContainBounds(worldBounds, &testData.bounds);
     
     freeVertexData(&testData);
     [self invalidateVertexData];
@@ -385,11 +401,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (const TBoundingBox *)bounds {
-    return vertexDataBounds([self vertexData]);
+    return &[self vertexData]->bounds;
 }
 
 - (const TVector3f *)center {
-    return vertexDataCenter([self vertexData]);
+    return &[self vertexData]->center;
 }
 
 - (const TBoundingBox *)worldBounds {
@@ -398,7 +414,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)pick:(const TRay *)theRay hitList:(PickingHitList *)theHitList {
     TVertexData* vd = [self vertexData];
-    if (isnan(intersectBoundsWithRay(vertexDataBounds(vd), theRay, NULL)))
+    if (isnan(intersectBoundsWithRay(&vd->bounds, theRay, NULL)))
         return;
 
     float dist = NAN;
