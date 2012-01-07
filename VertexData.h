@@ -75,6 +75,7 @@ typedef struct TSideTag {
     TVertex** vertices;
     TEdge** edges;
     int edgeCount;
+    TVector3f center;
     MutableFace* face;
     ESideMark mark;
 } TSide;

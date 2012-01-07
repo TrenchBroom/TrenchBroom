@@ -131,21 +131,10 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 - (void)geometryChanged {
     matricesValid = NO;
     boundaryValid = NO;
-    centerValid = NO;
     texAxesValid = NO;
 }
 
 - (void)validate {
-    if (!centerValid && side != NULL) {
-        center = side->vertices[0]->vector;
-        for (int i = 1; i < side->edgeCount; i++) {
-            addV3f(&center, &side->vertices[i]->vector, &center);
-        }
-        
-        scaleV3f(&center, 1.0f / side->edgeCount, &center);
-        centerValid = YES;
-    }
-    
     if (!boundaryValid) {
         setPlanePointsV3i(&boundary, &point1, &point2, &point3);
         boundaryValid = YES;
@@ -776,8 +765,8 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 }
 
 - (const TVector3f *)center {
-    [self validate];
-    return &center;
+    NSAssert(side != NULL, @"side must not be NULL");
+    return &side->center;
 }
 
 - (const TPlane *)boundary {
@@ -787,37 +776,21 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (TVertex **)vertices {
     NSAssert(side != NULL, @"side must not be NULL");
-    
-    if (side == NULL)
-        NSLog(@"asdf");
-    
     return side->vertices;
 }
 
 - (int)vertexCount {
     NSAssert(side != NULL, @"side must not be NULL");
-    
-    if (side == NULL)
-        NSLog(@"asdf");
-
     return side->edgeCount;
 }
 
 - (TEdge **)edges {
     NSAssert(side != NULL, @"side must not be NULL");
-    
-    if (side == NULL)
-        NSLog(@"asdf");
-
     return side->edges;
 }
 
 - (int)edgeCount {
     NSAssert(side != NULL, @"side must not be NULL");
-    
-    if (side == NULL)
-        NSLog(@"asdf");
-
     return side->edgeCount;
 }
 

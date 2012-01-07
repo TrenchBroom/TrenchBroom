@@ -142,6 +142,8 @@ void initSideWithEdges(TEdge** e, BOOL* f, int c, TSide* s) {
         s->vertices[i] = startVertexOfEdge(e[i], s);
     }
     
+    centerOfVertices(s->vertices, s->edgeCount, &s->center);
+
     s->face = nil;
     s->mark = SM_UNKNOWN;
 }
@@ -162,6 +164,8 @@ void initSideWithFace(MutableFace* f, TEdge** e, int c, TSide* s) {
         s->vertices[i] = startVertexOfEdge(e[i], s);
     }
     
+    centerOfVertices(s->vertices, s->edgeCount, &s->center);
+
     s->face = f;
     [f setSide:s];
     s->mark = SM_UNKNOWN;
@@ -806,6 +810,7 @@ ECutResult cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
             addEdge(vd, newEdge);
             newEdges[newEdgeCount++] = newEdge;
             side->mark = SM_UNKNOWN;
+            centerOfVertices(side->vertices, side->edgeCount, &side->center);
         } else if (side->mark == SM_KEEP && newEdge != NULL) {
             // the edge is an undecided edge, so it needs to be flipped in order to act as a new edge
             if (newEdge->rightSide != side)
@@ -876,6 +881,9 @@ void translateVertexData(TVertexData* vd, const TVector3f* d) {
     for (int i = 0; i < vd->vertexCount; i++)
         addV3f(&vd->vertices[i]->vector, d, &vd->vertices[i]->vector);
 
+    for (int i = 0; i < vd->sideCount; i++)
+        addV3f(&vd->sides[i]->center, d, &vd->sides[i]->center);
+    
     translateBounds(&vd->bounds, d, &vd->bounds);
     addV3f(&vd->center, d, &vd->center);
 }
@@ -887,6 +895,12 @@ void rotateVertexData90CW(TVertexData* vd, EAxis a, const TVector3f* c) {
         addV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
     }
 
+    for (int i = 0; i < vd->sideCount; i++) {
+        subV3f(&vd->sides[i]->center, c, &vd->sides[i]->center);
+        rotate90CWV3f(&vd->sides[i]->center, a, &vd->sides[i]->center);
+        addV3f(&vd->sides[i]->center, c, &vd->sides[i]->center);
+    }
+    
     rotateBounds90CW(&vd->bounds, a, c, &vd->bounds);
     subV3f(&vd->center, c, &vd->center);
     rotate90CWV3f(&vd->center, a, &vd->center);
@@ -900,6 +914,12 @@ void rotateVertexData90CCW(TVertexData* vd, EAxis a, const TVector3f* c) {
         addV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
     }
     
+    for (int i = 0; i < vd->sideCount; i++) {
+        subV3f(&vd->sides[i]->center, c, &vd->sides[i]->center);
+        rotate90CCWV3f(&vd->sides[i]->center, a, &vd->sides[i]->center);
+        addV3f(&vd->sides[i]->center, c, &vd->sides[i]->center);
+    }
+    
     rotateBounds90CCW(&vd->bounds, a, c, &vd->bounds);
     subV3f(&vd->center, c, &vd->center);
     rotate90CCWV3f(&vd->center, a, &vd->center);
@@ -911,6 +931,12 @@ void rotateVertexData(TVertexData* vd, const TQuaternion* r, const TVector3f* c)
         subV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
         rotateQ(r, &vd->vertices[i]->vector, &vd->vertices[i]->vector);
         addV3f(&vd->vertices[i]->vector, c, &vd->vertices[i]->vector);
+    }
+    
+    for (int i = 0; i < vd->sideCount; i++) {
+        subV3f(&vd->sides[i]->center, c, &vd->sides[i]->center);
+        rotateQ(r, &vd->sides[i]->center, &vd->sides[i]->center);
+        addV3f(&vd->sides[i]->center, c, &vd->sides[i]->center);
     }
     
     rotateBounds(&vd->bounds, r, c, &vd->bounds);
@@ -927,6 +953,12 @@ void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c) {
                 vd->vertices[i]->vector.x -= c->x;
                 vd->vertices[i]->vector.x *= -1;
                 vd->vertices[i]->vector.x += c->x;
+            }
+            
+            for (int i = 0; i < vd->sideCount; i++) {
+                vd->sides[i]->center.x -= c->x;
+                vd->sides[i]->center.x *= -1;
+                vd->sides[i]->center.x += c->x;
             }
             
             min = vd->bounds.max.x;
@@ -951,6 +983,12 @@ void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c) {
                 vd->vertices[i]->vector.y += c->y;
             }
             
+            for (int i = 0; i < vd->sideCount; i++) {
+                vd->sides[i]->center.y -= c->y;
+                vd->sides[i]->center.y *= -1;
+                vd->sides[i]->center.y += c->y;
+            }
+            
             min = vd->bounds.max.y;
             max = vd->bounds.min.y;
             min -= c->y;
@@ -971,6 +1009,12 @@ void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c) {
                 vd->vertices[i]->vector.z -= c->z;
                 vd->vertices[i]->vector.z *= -1;
                 vd->vertices[i]->vector.z += c->z;
+            }
+            
+            for (int i = 0; i < vd->sideCount; i++) {
+                vd->sides[i]->center.z -= c->z;
+                vd->sides[i]->center.z *= -1;
+                vd->sides[i]->center.z += c->z;
             }
             
             min = vd->bounds.max.z;

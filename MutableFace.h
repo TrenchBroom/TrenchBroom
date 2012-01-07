@@ -49,8 +49,6 @@ typedef enum {
     
     TPlane boundary;
     BOOL boundaryValid;
-    TVector3f center;
-    BOOL centerValid;
 
     TSide* side;
   
