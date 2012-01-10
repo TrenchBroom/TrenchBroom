@@ -225,26 +225,24 @@ float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBou
         return NAN;
     
     // compute the rays which the vertices are moved on when the given face is dragged in the given direction
-    TVertex** vertices = [face vertices];
-    int vertexCount = [face vertexCount];
+    const TVertexList* vertices = [face vertices];
     
     id <Brush> brush = [face brush];
-    TEdge** edges = [brush edges];
-    int edgeCount = [brush edgeCount];
+    const TEdgeList* edges = [brush edges];
 
-    TRay vertexRays[vertexCount];
+    TRay vertexRays[vertices->count];
     int rayIndex = 0;
     
     // look at each edge of the brush and test if exactly one of its end vertices belongs to the given face
     // if such an edge is detected, compute the ray which begins at the face vertex and points at the other
     // vertex
-    for (int i = 0; i < edgeCount; i++) {
+    for (int i = 0; i < edges->count; i++) {
         int c = 0;
         TRay ray;
 
-        TEdge* e = edges[i];
-        for (int j = 0; j < vertexCount; j++) {
-            TVertex* v = vertices[j];
+        TEdge* e = edges->items[i];
+        for (int j = 0; j < vertices->count; j++) {
+            TVertex* v = vertices->items[j];
 
             if (v == e->startVertex) {
                 c++;
@@ -291,7 +289,7 @@ float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBou
         // must be dragged so that the vertex snaps to its closest grid plane.
         // Then, test if the resulting drag distance is smaller than the current candidate and if it is, see if
         // it is large enough so that the face boundary changes when the drag is applied.
-        for (int i = 0; i < vertexCount; i++) {
+        for (int i = 0; i < vertices->count; i++) {
             float vertexDist = [grid intersectWithRay:&vertexRays[i] skip:gridSkip];
             scaleV3f(&vertexRays[i].direction, vertexDist, &vertexDelta);
             float vertexDragDist = dotV3f(&vertexDelta, [face norm]);

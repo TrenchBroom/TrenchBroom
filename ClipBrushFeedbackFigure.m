@@ -51,17 +51,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         glColor4f(0, 1, 0, 1);
         glBegin(GL_LINES);
         if (brush1 != nil) {
-            TEdge** edges = [brush1 edges];
-            for (int i = 0; i < [brush1 edgeCount]; i++) {
-                glVertexV3f(&edges[i]->startVertex->vector);
-                glVertexV3f(&edges[i]->endVertex->vector);
+            const TEdgeList* edges = [brush1 edges];
+            for (int i = 0; i < edges->count; i++) {
+                glVertexV3f(&edges->items[i]->startVertex->vector);
+                glVertexV3f(&edges->items[i]->endVertex->vector);
             }
         }
         if (brush2 != nil) {
-            TEdge** edges = [brush2 edges];
-            for (int i = 0; i < [brush2 edgeCount]; i++) {
-                glVertexV3f(&edges[i]->startVertex->vector);
-                glVertexV3f(&edges[i]->endVertex->vector);
+            const TEdgeList* edges = [brush2 edges];
+            for (int i = 0; i < edges->count; i++) {
+                glVertexV3f(&edges->items[i]->startVertex->vector);
+                glVertexV3f(&edges->items[i]->endVertex->vector);
             }
         }
         glEnd();

@@ -234,9 +234,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)renderFace:(id <Face>)face {
     glBegin(GL_POLYGON);
-    TVertex** vertices = [face vertices];
-    for (int i = 0; i < [face vertexCount]; i++)
-        glVertexV3f(&vertices[i]->vector);
+    const TVertexList* vertices = [face vertices];
+    for (int i = 0; i < vertices->count; i++)
+        glVertexV3f(&vertices->items[i]->vector);
     glEnd();
 }
 

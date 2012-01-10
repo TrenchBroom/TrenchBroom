@@ -42,9 +42,9 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (void)validateTexAxesForFaceNorm:(const TVector3f *)theNorm;
 - (const TVector3f *)texPlaneNormAndXAxis:(TVector3f *)theXAxis yAxis:(TVector3f *)theYAxis forFaceNorm:(const TVector3f *)theNorm;
-- (void)updateMatrices;
-- (void)geometryChanged;
-- (void)validate;
+- (void)validateMatrices;
+- (void)validateBoundary;
+- (void)invalidate;
 
 - (void)updateTextureParametersForTransformation:(const TMatrix4f *)transformation;
 
@@ -53,7 +53,6 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 @implementation MutableFace (private)
 
 - (const TVector3f *)texPlaneNormAndXAxis:(TVector3f *)theXAxis yAxis:(TVector3f *)theYAxis forFaceNorm:(const TVector3f *)theNorm {
-
     int bestIndex = 0;
     float bestDot = -1;
     for (int i = 0; i < 6; i++) {
@@ -84,7 +83,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     texAxesValid = YES;
 }
 
-- (void)updateMatrices {
+- (void)validateMatrices {
     TVector3f xAxis, yAxis, zAxis;
     
     zAxis = *[self norm];
@@ -128,17 +127,15 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     matricesValid = YES;
 }
 
-- (void)geometryChanged {
+- (void)validateBoundary {
+    setPlanePointsV3i(&boundary, &point1, &point2, &point3);
+    boundaryValid = YES;
+}
+
+- (void)invalidate {
     matricesValid = NO;
     boundaryValid = NO;
     texAxesValid = NO;
-}
-
-- (void)validate {
-    if (!boundaryValid) {
-        setPlanePointsV3i(&boundary, &point1, &point2, &point3);
-        boundaryValid = YES;
-    }
 }
 
 - (void)updateTextureParametersForTransformation:(const TMatrix4f *)transformation {
@@ -368,7 +365,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     point2 = *thePoint2;
     point3 = *thePoint3;
     
-    [self geometryChanged];
+    [self invalidate];
 }
 
 
@@ -467,7 +464,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     addV3i(&point2, theDelta, &point2);
     addV3i(&point3, theDelta, &point3);
 
-    [self geometryChanged];
+    [self invalidate];
 }
 
 - (void)rotate90CW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
@@ -501,7 +498,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     rotate90CWV3i(&point3, theAxis, &point3);
     addV3i(&point3, theCenter, &point3);
     
-    [self geometryChanged];
+    [self invalidate];
 }
 
 - (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
@@ -535,7 +532,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     rotate90CCWV3i(&point3, theAxis, &point3);
     addV3i(&point3, theCenter, &point3);
     
-    [self geometryChanged];
+    [self invalidate];
 }
 
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture {
@@ -560,7 +557,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     
     makePointsForPlane(&plane, worldBounds, &point1, &point2, &point3);
     
-    [self geometryChanged];
+    [self invalidate];
 }
 
 - (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
@@ -661,7 +658,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     point1 = point3;
     point3 = t;
     
-    [self geometryChanged];
+    [self invalidate];
 }
 
 - (void)dragBy:(float)dist lockTexture:(BOOL)lockTexture {
@@ -678,7 +675,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     addV3f(&plane.point, &delta, &plane.point);
     makePointsForPlane(&plane, worldBounds, &point1, &point2, &point3);
     
-    [self geometryChanged];
+    [self invalidate];
 }
 
 - (void)setSide:(TSide *)theSide {
@@ -770,28 +767,19 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 }
 
 - (const TPlane *)boundary {
-    [self validate];
+    if (!boundaryValid)
+        [self validateBoundary];
     return &boundary;
 }
 
-- (TVertex **)vertices {
+- (const TVertexList *)vertices {
     NSAssert(side != NULL, @"side must not be NULL");
-    return side->vertices;
+    return &side->vertices;
 }
 
-- (int)vertexCount {
+- (const TEdgeList *)edges {
     NSAssert(side != NULL, @"side must not be NULL");
-    return side->edgeCount;
-}
-
-- (TEdge **)edges {
-    NSAssert(side != NULL, @"side must not be NULL");
-    return side->edges;
-}
-
-- (int)edgeCount {
-    NSAssert(side != NULL, @"side must not be NULL");
-    return side->edgeCount;
+    return &side->edges;
 }
 
 - (const TBoundingBox *)worldBounds {
@@ -828,29 +816,25 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (void)transformSurface:(const TVector3f *)surfacePoint toWorld:(TVector3f *)worldPoint {
     if (!matricesValid)
-        [self updateMatrices];
-    
+        [self validateMatrices];
     transformM4fV3f(&surfaceToWorldMatrix, surfacePoint, worldPoint);
 }
 
 - (void)transformWorld:(const TVector3f *)worldPoint toSurface:(TVector3f *)surfacePoint {
     if (!matricesValid)
-        [self updateMatrices];
-    
+        [self validateMatrices];
     transformM4fV3f(&worldToSurfaceMatrix, worldPoint, surfacePoint);
 }
 
 - (const TMatrix4f *)surfaceToWorldMatrix {
     if (!matricesValid)
-        [self updateMatrices];
-    
+        [self validateMatrices];
     return &surfaceToWorldMatrix;
 }
 
 - (const TMatrix4f *)worldToSurfaceMatrix {
     if (!matricesValid)
-        [self updateMatrices];
-    
+        [self validateMatrices];
     return &worldToSurfaceMatrix;
 }
 

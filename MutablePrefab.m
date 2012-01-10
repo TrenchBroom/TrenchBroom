@@ -58,9 +58,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
             id <Brush> brush;
             while ((brush = [brushEn nextObject])) {
-                TVertex** vertices = [brush vertices];
-                for (int i = 0; i < [brush vertexCount]; i++) {
-                    subV3f(&vertices[i]->vector, &center, &diff);
+                const TVertexList* vertices = [brush vertices];
+                for (int i = 0; i < vertices->count; i++) {
+                    subV3f(&vertices->items[i]->vector, &center, &diff);
                     float lengthSquared = lengthSquaredV3f(&diff);
                     if (lengthSquared > distSquared)
                         distSquared = lengthSquared;

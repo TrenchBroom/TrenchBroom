@@ -131,6 +131,8 @@ extern NSString* const DocumentLoaded;
 - (void)setFaces:(NSArray *)theFaces texture:(Texture *)theTexture;
 - (BOOL)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures;
 
+- (void)dragVertices:(NSArray *)theVertexIndices brushes:(NSArray *)theBrushes delta:(const TVector3f *)theDelta;
+
 - (void)clear;
 
 - (Picker *)picker;

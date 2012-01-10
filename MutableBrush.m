@@ -331,6 +331,33 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return canDrag;
 }
 
+- (int)dragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta {
+    NSMutableArray* addedFaces = nil;
+    NSMutableArray* removedFaces = nil;
+    
+    int newVertexIndex = translateVertex([self vertexData], theVertexIndex, theDelta, &addedFaces, &removedFaces);
+
+    if (removedFaces != nil) {
+        NSEnumerator* faceEn = [removedFaces objectEnumerator];
+        MutableFace* face;
+        while ((face = [faceEn nextObject])) {
+            [face setBrush:nil];
+            [faces removeObjectIdenticalTo:face];
+        }
+    }
+        
+    if (addedFaces != nil) {
+        NSEnumerator* faceEn = [addedFaces objectEnumerator];
+        MutableFace* face;
+        while ((face = [faceEn nextObject])) {
+            [face setBrush:self];
+            [faces addObject:face];
+        }
+    }
+    
+    return newVertexIndex;
+}
+
 - (void)deleteFace:(MutableFace *)face {
     [faces removeObjectIdenticalTo:face];
     [self invalidateVertexData];
@@ -346,8 +373,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     BOOL canDelete = YES;
     
     initVertexDataWithFaces(&testData, worldBounds, testFaces, &droppedFaces);
-    for (int i = 0; i < testData.sideCount && canDelete; i++)
-        canDelete = testData.sides[i]->face != nil;
+    for (int i = 0; i < testData.sideList.count && canDelete; i++)
+        canDelete = testData.sideList.items[i]->face != nil;
     
     freeVertexData(&testData);
     [self invalidateVertexData];
@@ -384,20 +411,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return faces;
 }
 
-- (TVertex **)vertices {
-    return [self vertexData]->vertices;
+- (const TVertexList *)vertices {
+    return &[self vertexData]->vertexList;
 }
 
-- (int)vertexCount {
-    return [self vertexData]->vertexCount;
-}
-
-- (TEdge **)edges {
-    return [self vertexData]->edges;
-}
-
-- (int)edgeCount {
-    return [self vertexData]->edgeCount;
+- (const TEdgeList *)edges {
+    return &[self vertexData]->edgeList;
 }
 
 - (const TBoundingBox *)bounds {
@@ -420,8 +439,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     float dist = NAN;
     TVector3f hitPoint;
     TSide* side;
-    for (int i = 0; i < vd->sideCount && isnan(dist); i++) {
-        side = vd->sides[i];
+    for (int i = 0; i < vd->sideList.count && isnan(dist); i++) {
+        side = vd->sideList.items[i];
         dist = pickSide(side, theRay, &hitPoint);
     }
 
@@ -436,8 +455,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVertexData* vd = [self vertexData];
     TVector3f hitPoint;
     
-    for (int i = 0; i < vd->vertexCount; i++) {
-        TVector3f* vertex = &vd->vertices[i]->vector;
+    for (int i = 0; i < vd->vertexList.count; i++) {
+        TVector3f* vertex = &vd->vertexList.items[i]->vector;
         float dist = intersectSphereWithRay(vertex, theRadius, theRay);
         if (!isnan(dist)) {
             rayPointAtDistance(theRay, dist, &hitPoint);
@@ -456,8 +475,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TEdge* closestEdge = nil;
     float closestRayDist;
     float closestDist2 = theMaxDist * theMaxDist + 1;
-    for (int i = 0; i < vd->edgeCount; i++) {
-        edge = vd->edges[i];
+    for (int i = 0; i < vd->edgeList.count; i++) {
+        edge = vd->edgeList.items[i];
         float rayDist;
         float dist2 = distanceOfSegmentAndRaySquared(&edge->startVertex->vector, &edge->endVertex->vector, theRay, &rayDist);
         if (dist2 < closestDist2) {
@@ -501,40 +520,35 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     // separating axis theorem
     // http://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf
     
-    TVertex** theirVertices = [theBrush vertices];
-    int theirVertexCount = [theBrush vertexCount];
+    const TVertexList* theirVertices = [theBrush vertices];
     
     NSEnumerator* myFaceEn = [faces objectEnumerator];
     id <Face> myFace;
     while ((myFace = [myFaceEn nextObject])) {
-        const TVector3f* origin = &[myFace vertices][0]->vector;
+        const TVector3f* origin = &[myFace vertices]->items[0]->vector;
         const TVector3f* direction = [myFace norm];
-        if (vertexStatusFromRay(origin, direction, theirVertices, theirVertexCount) == PS_ABOVE)
+        if (vertexStatusFromRay(origin, direction, theirVertices) == PS_ABOVE)
             return NO;
     }
     
-    TVertex** myVertices = [self vertices];
-    int myVertexCount = [self vertexCount];
+    const TVertexList* myVertices = [self vertices];
     
     NSEnumerator* theirFaceEn = [[theBrush faces] objectEnumerator];
     id <Face> theirFace;
     while ((theirFace = [theirFaceEn nextObject])) {
-        TVector3f* origin = &[theirFace vertices][0]->vector;
+        TVector3f* origin = &[theirFace vertices]->items[0]->vector;
         const TVector3f* direction = [theirFace norm];
-        if (vertexStatusFromRay(origin, direction, myVertices, myVertexCount) == PS_ABOVE)
+        if (vertexStatusFromRay(origin, direction, myVertices) == PS_ABOVE)
             return NO;
     }
 
-    TEdge** myEdges = [self edges];
-    int myEdgeCount = [self edgeCount];
-    
-    TEdge** theirEdges = [theBrush edges];
-    int theirEdgeCount = [theBrush edgeCount];
+    const TEdgeList* myEdges = [self edges];
+    const TEdgeList* theirEdges = [theBrush edges];
 
-    for (int i = 0; i < myEdgeCount; i++) {
-        TEdge* myEdge = myEdges[i];
-        for (int j = 0; j < theirEdgeCount; j++) {
-            TEdge* theirEdge = theirEdges[j];
+    for (int i = 0; i < myEdges->count; i++) {
+        TEdge* myEdge = myEdges->items[i];
+        for (int j = 0; j < theirEdges->count; j++) {
+            TEdge* theirEdge = theirEdges->items[j];
             TVector3f myEdgeVec, theirEdgeVec, direction;
             edgeVector(myEdge, &myEdgeVec);
             edgeVector(theirEdge, &theirEdgeVec);
@@ -542,9 +556,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             crossV3f(&myEdgeVec, &theirEdgeVec, &direction);
             TVector3f* origin = &myEdge->startVertex->vector;
             
-            EPointStatus myStatus = vertexStatusFromRay(origin, &direction, myVertices, myVertexCount);
+            EPointStatus myStatus = vertexStatusFromRay(origin, &direction, myVertices);
             if (myStatus != PS_INSIDE) {
-                EPointStatus theirStatus = vertexStatusFromRay(origin, &direction, theirVertices, theirVertexCount);
+                EPointStatus theirStatus = vertexStatusFromRay(origin, &direction, theirVertices);
                 if (theirStatus != PS_INSIDE) {
                     if (myStatus != theirStatus)
                         return NO;
@@ -563,11 +577,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         return NO;
 
     TVertexData* myVertexData = [self vertexData];
-    TVertex** theirVertices = [theBrush vertices];
-    int theirVertexCount = [theBrush vertexCount];
+    const TVertexList* theirVertices = [theBrush vertices];
     
-    for (int i = 0; i < theirVertexCount; i++)
-        if (!vertexDataContainsPoint(myVertexData, &theirVertices[i]->vector))
+    for (int i = 0; i < theirVertices->count; i++)
+        if (!vertexDataContainsPoint(myVertexData, &theirVertices->items[i]->vector))
             return NO;
     
     return YES;

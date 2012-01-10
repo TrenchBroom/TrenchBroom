@@ -248,9 +248,9 @@ int const TexCoordSize = 2 * sizeof(float);
     int address = [theBlock address];
     uint8_t* vboBuffer = [[theBlock vbo] buffer];
 
-    TVertex** vertices = [theFace vertices];
-    for (int i = 0; i < [theFace vertexCount]; i++) {
-        TVertex* vertex = vertices[i];
+    const TVertexList* vertices = [theFace vertices];
+    for (int i = 0; i < vertices->count; i++) {
+        TVertex* vertex = vertices->items[i];
         [theFace gridCoords:&gridCoords forVertex:&vertex->vector];
         [theFace texCoords:&texCoords forVertex:&vertex->vector];
         texCoords.x /= width;
@@ -268,7 +268,7 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)writeFace:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer {
     int index = [[theFace memBlock] address] / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
-    int count = [theFace vertexCount];
+    int count = [theFace vertices]->count;
     
     [theIndexBuffer appendInt:index];
     [theCountBuffer appendInt:count];
@@ -506,7 +506,7 @@ int const TexCoordSize = 2 * sizeof(float);
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
             id <Face> face;
             while ((face = [faceEn nextObject])) {
-                VBOMemBlock* block = [faceVbo allocMemBlock:[face vertexCount] * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize)];
+                VBOMemBlock* block = [faceVbo allocMemBlock:[face vertices]->count * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize)];
                 [self writeFace:face toBlock:block];
                 [face setMemBlock:block];
             }
@@ -529,7 +529,7 @@ int const TexCoordSize = 2 * sizeof(float);
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
             id <Face> face;
             while ((face = [faceEn nextObject])) {
-                int blockSize = [face vertexCount] * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+                int blockSize = [face vertices]->count * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
                 VBOMemBlock* block = [face memBlock];
                 if ([block capacity] != blockSize) {
                     block = [faceVbo allocMemBlock:blockSize];
@@ -554,7 +554,7 @@ int const TexCoordSize = 2 * sizeof(float);
         NSEnumerator* faceEn = [changedFaces objectEnumerator];
         id <Face> face;
         while ((face = [faceEn nextObject])) {
-            int blockSize = [face vertexCount] * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+            int blockSize = [face vertices]->count * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
             VBOMemBlock* block = [face memBlock];
             if ([block capacity] != blockSize) {
                 block = [faceVbo allocMemBlock:blockSize];
@@ -880,10 +880,9 @@ int const TexCoordSize = 2 * sizeof(float);
         NSEnumerator* brushEn = [brushes objectEnumerator];
         id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
-            int vertexCount = [brush vertexCount];
-            TVertex** vertices = [brush vertices];
-            for (int i = 0; i < vertexCount; i++) {
-                TVector3f* vertex = &vertices[i]->vector;
+            const TVertexList* vertices = [brush vertices];
+            for (int i = 0; i < vertices->count; i++) {
+                TVector3f* vertex = &vertices->items[i]->vector;
                 glPushMatrix();
                 glTranslatef(vertex->x, vertex->y, vertex->z);
                 

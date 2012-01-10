@@ -1500,6 +1500,40 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     return YES;
 }
 
+- (void)dragVertices:(NSArray *)theVertexIndices brushes:(NSArray *)theBrushes delta:(const TVector3f *)theDelta {
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+    NSAssert([theVertexIndices count] == [theBrushes count], @"number of vertex indices and brushes must be the same");
+    
+    if ([theBrushes count] == 0)
+        return;
+
+    if (nullV3f(theDelta))
+        return;
+    
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theBrushes forKey:BrushesKey];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
+    }
+    
+    [self makeUndoSnapshotOfBrushes:theBrushes];
+    
+    NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    NSEnumerator* vertexIndexEn = [theVertexIndices objectEnumerator];
+    MutableBrush* brush;
+    NSNumber* vertexIndex;
+    while ((brush = [brushEn nextObject]) && (vertexIndex = [vertexIndexEn nextObject]))
+        [brush dragVertex:[vertexIndex intValue] by:theDelta];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
 - (void)clear {
     [selectionManager removeAll:NO];
     [self unloadPointFile];

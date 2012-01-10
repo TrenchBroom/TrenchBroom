@@ -47,10 +47,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (const TVector3f *)norm;
 - (const TVector3f *)center;
 - (const TPlane *)boundary;
-- (TVertex **)vertices;
-- (int)vertexCount;
-- (TEdge **)edges;
-- (int)edgeCount;
+- (const TVertexList *)vertices;
+- (const TEdgeList *)edges;
 
 - (const TBoundingBox *)worldBounds;
 

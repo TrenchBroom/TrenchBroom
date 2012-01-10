@@ -17,6 +17,9 @@
     DragVertexCursor* cursor;
     EditingSystem* editingSystem;
     BOOL drag;
+    NSArray* vertexHits;
+    TVector3f lastPoint;
+    TVector3f editingPoint;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

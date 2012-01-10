@@ -33,10 +33,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (id)copy;
 
 - (NSArray *)faces;
-- (TVertex **)vertices;
-- (int)vertexCount;
-- (TEdge **)edges;
-- (int)edgeCount;
+- (const TVertexList *)vertices;
+- (const TEdgeList *)edges;
 
 - (const TBoundingBox *)bounds;
 - (const TVector3f *)center;

@@ -139,7 +139,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                     }
                 }
             } else {
-                newActiveTool = moveTool;
+                PickingHit* hit = [[self currentHits] firstHitOfType:HT_ENTITY | HT_FACE | HT_VERTEX ignoreOccluders:YES];
+                if (hit != nil) {
+                    switch ([hit type]) {
+                        case HT_ENTITY:
+                        case HT_FACE:
+                            newActiveTool = moveTool;
+                            break;
+                        case HT_VERTEX:
+                            newActiveTool = vertexTool;
+                            break;
+                        default:
+                            NSLog(@"unknown hit type: %i", [hit type]);
+                            break;
+                    }
+                }
             }
         }
     } 
