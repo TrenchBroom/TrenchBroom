@@ -1218,7 +1218,7 @@ void splitFace(TVertexData* vd, TSide* s, int v, NSMutableArray* newFaces) {
         initSideWithEdges(edges, flipped, 3, newSide);
 
         addEdge(vd, edges[2]);
-        addSide(vd, s);
+        addSide(vd, newSide);
 
         newFace = createFaceForSide(worldBounds, newSide);
         [newFace setTexture:[s->face texture]];
