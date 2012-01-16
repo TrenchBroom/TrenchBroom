@@ -356,7 +356,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             }
             break;
         default:
-//            NSLog(@"unknown key code: %i", [event keyCode]);
+            if (![event isARepeat])
+                NSLog(@"unknown key code: %i", [event keyCode]);
             break;
     }
     
