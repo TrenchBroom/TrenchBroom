@@ -61,6 +61,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)updateActiveTool;
 - (void)updateCursor;
 - (void)updateCursorOwner;
+- (void)keyStatusChanged:(NSEvent *)event;
 - (void)cameraViewChanged:(NSNotification *)notification;
 - (void)mapChanged:(NSNotification *)notification;
 
@@ -249,6 +250,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 }
 
+- (void)keyStatusChanged:(NSEvent *)event {
+    if (dragStatus == MS_NONE && scrollStatus == MS_NONE)
+        [self updateActiveTool];
+    [activeTool handleKeyStatusChanged:event status:keyStatus ray:&lastRay hits:[self currentHits]];
+    
+    if (activeTool != cursorOwner)
+        [cursorOwner handleKeyStatusChanged:event status:keyStatus ray:&lastRay hits:[self currentHits]];
+    
+    [self updateCursorOwner];
+    [self updateCursor];
+}
+
 - (void)cameraViewChanged:(NSNotification *)notification {
     [self updateRay];
     [self updateCursorOwner];
@@ -356,8 +369,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             }
             break;
         case 49:
-            if (![event isARepeat])
+            if (![event isARepeat]) {
                 keyStatus |= KS_SPACE;
+                [self keyStatusChanged:event];
+            }
             return YES;
             break;
         default:
@@ -372,8 +387,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (BOOL)handleKeyUp:(NSEvent *)event sender:(id)sender {
     switch ([event keyCode]) {
         case 49:
-            if (![event isARepeat])
+            if (![event isARepeat]) {
                 keyStatus &= ~KS_SPACE;
+                [self keyStatusChanged:event];
+            }
             return YES;
             break;
         default:
@@ -386,15 +403,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)handleFlagsChanged:(NSEvent *)event sender:(id)sender {
-    if (dragStatus == MS_NONE && scrollStatus == MS_NONE)
-        [self updateActiveTool];
-    [activeTool handleFlagsChanged:event ray:&lastRay hits:[self currentHits]];
-
-    if (activeTool != cursorOwner)
-        [cursorOwner handleFlagsChanged:event ray:&lastRay hits:[self currentHits]];
+    keyStatus &= KS_CLEAR_MODIFIERS;
     
-    [self updateCursorOwner];
-    [self updateCursor];
+    NSUInteger modifierFlags = [event modifierFlags];
+    if ((modifierFlags & NSShiftKeyMask) != 0)
+        keyStatus |= KS_SHIFT;
+    if ((modifierFlags & NSFunctionKeyMask) != 0)
+        keyStatus |= KS_FUNCTION;
+    if ((modifierFlags & NSControlKeyMask) != 0)
+        keyStatus |= KS_CONTROL;
+    if ((modifierFlags & NSAlternateKeyMask) != 0)
+        keyStatus |= KS_OPTION;
+    if ((modifierFlags & NSCommandKeyMask) != 0)
+        keyStatus |= KS_COMMAND;
+    
+    [self keyStatusChanged:event];
 }
 
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender {

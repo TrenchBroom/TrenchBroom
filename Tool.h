@@ -20,6 +20,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import <Cocoa/Cocoa.h>
 #import "Math.h"
 
+typedef enum {
+    KS_NONE     = 0,
+    KS_SHIFT    = 1 << 0,
+    KS_CONTROL  = 1 << 1,
+    KS_OPTION   = 1 << 2,
+    KS_COMMAND  = 1 << 3,
+    KS_FUNCTION = 1 << 4,
+    KS_SPACE    = 1 << 5
+} EKeyStatus;
+
+static int KS_CLEAR_MODIFIERS = KS_SPACE;
+
 @class PickingHitList;
 
 @protocol Tool <NSObject>
@@ -27,7 +39,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)activated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
 - (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
 
-- (void)handleFlagsChanged:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)keyStatus ray:(TRay *)ray hits:(PickingHitList *)hits;
 
 - (void)handleLeftMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
 - (void)handleLeftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;

@@ -19,6 +19,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import <Cocoa/Cocoa.h>
 #import "Math.h"
+#import "Tool.h"
 
 @class PickingHitList;
 @class MapWindowController;
@@ -40,16 +41,6 @@ typedef enum {
     MS_LEFT,
     MS_RIGHT
 } EMouseStatus;
-
-typedef enum {
-    KS_NONE     = 0,
-    KS_SHIFT    = 1 << 0,
-    KS_CONTROL  = 1 << 1,
-    KS_OPTION   = 1 << 2,
-    KS_COMMAND  = 1 << 3,
-    KS_FUNCTION = 1 << 4,
-    KS_SPACE    = 1 << 5
-} EKeyStatus;
 
 @interface InputManager : NSObject {
     @private 
