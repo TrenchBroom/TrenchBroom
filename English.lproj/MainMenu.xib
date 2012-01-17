@@ -436,7 +436,8 @@
 								<object class="NSMenuItem" id="877560837">
 									<reference key="NSMenu" ref="789758025"/>
 									<string key="NSTitle">Select None</string>
-									<string key="NSKeyEquiv"/>
+									<string key="NSKeyEquiv">A</string>
+									<int key="NSKeyEquivModMask">1048576</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
