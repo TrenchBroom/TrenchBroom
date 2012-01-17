@@ -48,15 +48,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @implementation FaceTool (private)
 
 - (BOOL)isApplyTextureAndFlagsModifierPressed {
-    return [NSEvent modifierFlags] == (NSAlternateKeyMask | NSCommandKeyMask);
+    return keyStatus = (KS_OPTION | KS_COMMAND);
 }
 
 - (BOOL)isApplyTextureModifierPressed {
-    return [NSEvent modifierFlags] == NSAlternateKeyMask;
+    return keyStatus == KS_OPTION;
 }
 
 - (BOOL)isFrontFaceModifierPressed {
-    return [NSEvent modifierFlags] == NSCommandKeyMask;
+    return keyStatus == KS_COMMAND;
 }
 
 - (void)applyTextureFrom:(id <Face>)source toFace:(id <Face>)destination {
@@ -101,6 +101,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 # pragma mark -
 # pragma mark @implementation Tool
+
+- (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)theKeyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {
+    keyStatus = theKeyStatus;
+}
 
 - (void)handleLeftMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isApplyTextureModifierPressed] && ![self isApplyTextureAndFlagsModifierPressed])

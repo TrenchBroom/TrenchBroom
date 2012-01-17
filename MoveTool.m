@@ -49,7 +49,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @implementation MoveTool (private)
 
 - (BOOL)isAlternatePlaneModifierPressed {
-    return [NSEvent modifierFlags] == NSAlternateKeyMask;
+    return keyStatus == KS_OPTION;
 }
 
 - (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
@@ -100,7 +100,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 # pragma mark -
 # pragma mark @implementation Tool
 
-- (void)handleFlagsChanged:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)theKeyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {
+    keyStatus = theKeyStatus;
+    
     [self updateMoveDirectionWithRay:ray hits:hits];
     
     float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];

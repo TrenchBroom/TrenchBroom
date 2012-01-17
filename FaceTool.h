@@ -36,6 +36,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSMutableArray* dragFaces;
     BOOL drag;
     DragFaceCursor* dragFaceCursor;
+    EKeyStatus keyStatus;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

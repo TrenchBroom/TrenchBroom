@@ -1500,30 +1500,41 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     return YES;
 }
 
-- (void)dragVertices:(NSArray *)theVertexIndices brushes:(NSArray *)theBrushes delta:(const TVector3f *)theDelta {
+- (BOOL)dragVertices:(NSArray *)theVertexIndices brushes:(NSArray *)theBrushes delta:(const TVector3f *)theDelta {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     NSAssert([theVertexIndices count] == [theBrushes count], @"number of vertex indices and brushes must be the same");
     
     if ([theBrushes count] == 0)
-        return;
+        return NO;
 
     if (nullV3f(theDelta))
-        return;
+        return NO;
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theBrushes forKey:BrushesKey];
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-    }
-    
-    [self makeUndoSnapshotOfBrushes:theBrushes];
-    
+    BOOL canDrag = YES;
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     NSEnumerator* vertexIndexEn = [theVertexIndices objectEnumerator];
     MutableBrush* brush;
     NSNumber* vertexIndex;
+    
+    while ((brush = [brushEn nextObject]) && (vertexIndex = [vertexIndexEn nextObject]))
+        canDrag &= [brush canDragVertex:[vertexIndex intValue] by:theDelta];
+
+    if (!canDrag)
+        return NO;
+    
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+            userInfo = [[NSMutableDictionary alloc] init];
+            [userInfo setObject:theBrushes forKey:BrushesKey];
+            
+            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+            [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
+    }
+    
+    [self makeUndoSnapshotOfBrushes:theBrushes];
+    
+    brushEn = [theBrushes objectEnumerator];
+    vertexIndexEn = [theVertexIndices objectEnumerator];
     while ((brush = [brushEn nextObject]) && (vertexIndex = [vertexIndexEn nextObject]))
         [brush dragVertex:[vertexIndex intValue] by:theDelta];
     
@@ -1532,6 +1543,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
+    
+    return YES;
 }
 
 - (void)clear {

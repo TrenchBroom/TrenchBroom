@@ -75,7 +75,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (BOOL)isCameraOrbitModifierPressed {
-    return keyStatus == (KS_SPACE | KS_SHIFT);
+    return keyStatus == (KS_SPACE | KS_OPTION);
 }
 
 - (BOOL)isApplyTextureModifierPressed {

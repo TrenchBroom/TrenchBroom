@@ -299,11 +299,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 }
 
-- (void)drag:(MutableFace *)face by:(float)dist lockTexture:(BOOL)lockTexture {
-    [face dragBy:dist lockTexture:lockTexture];
-    [self invalidateVertexData];
-}
-
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist {
     NSMutableArray* testFaces = [[NSMutableArray alloc] initWithArray:faces];
     [testFaces removeObjectIdenticalTo:face];
@@ -327,8 +322,42 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                    boundsContainBounds(worldBounds, &testData.bounds);
     
     freeVertexData(&testData);
-    [self invalidateVertexData];
+
+    if (vertexDataValid) {
+        for (int i = 0; i < vertexData.sideList.count; i++) {
+            TSide* side = vertexData.sideList.items[i];
+            if (side->face != nil)
+                [side->face setSide:side];
+        }
+    }
+
     return canDrag;
+}
+
+- (void)drag:(MutableFace *)face by:(float)dist lockTexture:(BOOL)lockTexture {
+    [face dragBy:dist lockTexture:lockTexture];
+    [self invalidateVertexData];
+}
+
+- (BOOL)canDragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta {
+    TVertexData testData;
+    initVertexDataWithFaces(&testData, worldBounds, faces, nil);
+    
+    NSMutableArray* addedFaces = nil;
+    NSMutableArray* removedFaces = nil;
+
+    int newVertexIndex = translateVertex(&testData, theVertexIndex, theDelta, &addedFaces, &removedFaces);
+    freeVertexData(&testData);
+
+    if (vertexDataValid) {
+        for (int i = 0; i < vertexData.sideList.count; i++) {
+            TSide* side = vertexData.sideList.items[i];
+            if (side->face != nil)
+                [side->face setSide:side];
+        }
+    }
+    
+    return newVertexIndex != -1;
 }
 
 - (int)dragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta {
@@ -357,6 +386,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     return newVertexIndex;
 }
+
 
 - (void)deleteFace:(MutableFace *)face {
     [faces removeObjectIdenticalTo:face];

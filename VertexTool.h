@@ -20,6 +20,7 @@
     NSArray* vertexHits;
     TVector3f lastPoint;
     TVector3f editingPoint;
+    EKeyStatus keyStatus;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

@@ -33,6 +33,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     MoveCursor* moveCursor;
     TVector3f lastPoint;
     BOOL drag;
+    EKeyStatus keyStatus;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

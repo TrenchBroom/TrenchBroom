@@ -34,7 +34,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @implementation SelectionTool (private)
 
 - (BOOL)isMultiSelectionModifierPressed {
-    return [NSEvent modifierFlags] == NSCommandKeyMask;
+    return keyStatus == KS_COMMAND;
 }
 
 @end
@@ -48,6 +48,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
     
     return self;
+}
+
+- (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)theKeyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {
+    keyStatus = theKeyStatus;
 }
 
 - (void)handleLeftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

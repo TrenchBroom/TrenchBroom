@@ -31,7 +31,7 @@
 @implementation VertexTool (private)
 
 - (BOOL)isAlternatePlaneModifierPressed {
-    return [NSEvent modifierFlags] == NSAlternateKeyMask;
+    return keyStatus = KS_OPTION;
 }
 
 - (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
@@ -75,13 +75,21 @@
     [super dealloc];
 }
 
+- (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)theKeyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {
+    keyStatus = theKeyStatus;
+}
+
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
     if (hit == nil)
         return;
     
     vertexHits = [[hits hitsOfType:HT_VERTEX] retain];
-    lastPoint = *[hit hitPoint];
+    
+    id <Brush> brush = [hit object];
+    TVertex* vertex = [brush vertices]->items[[hit vertexIndex]];
+    
+    lastPoint = vertex->vector;
     editingPoint = lastPoint;
     drag = YES;
 }
@@ -157,11 +165,11 @@
         
         position = *[hit hitPoint];
     } else {
-        PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
-        if (hit == nil)
+        float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
+        if (isnan(dist))
             return;
         
-        position = *[hit hitPoint];
+        rayPointAtDistance(ray, dist, &position);
     }
     
     [self updateMoveDirectionWithRay:ray hits:hits];
