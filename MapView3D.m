@@ -177,6 +177,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [super keyDown:theEvent];
 }
  
+- (void)keyUp:(NSEvent *)theEvent {
+    InputManager* inputManager = [[[self window] windowController] inputManager];
+    if (![inputManager handleKeyUp:theEvent sender:self])
+        [super keyUp:theEvent];
+}
+
 - (void)flagsChanged:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
     [inputManager handleFlagsChanged:theEvent sender:self];

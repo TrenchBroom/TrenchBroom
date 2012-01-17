@@ -41,6 +41,16 @@ typedef enum {
     MS_RIGHT
 } EMouseStatus;
 
+typedef enum {
+    KS_NONE     = 0,
+    KS_SHIFT    = 1 << 0,
+    KS_CONTROL  = 1 << 1,
+    KS_OPTION   = 1 << 2,
+    KS_COMMAND  = 1 << 3,
+    KS_FUNCTION = 1 << 4,
+    KS_SPACE    = 1 << 5
+} EKeyStatus;
+
 @interface InputManager : NSObject {
     @private 
     MapWindowController* windowController;
@@ -61,6 +71,8 @@ typedef enum {
     ClipTool* clipTool;
     id <Tool> activeTool;
     id <Tool> cursorOwner;
+
+    EKeyStatus keyStatus;
     EMouseStatus dragStatus;
     EMouseStatus scrollStatus;
     BOOL hasMouse;
@@ -74,6 +86,7 @@ typedef enum {
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 - (BOOL)handleKeyDown:(NSEvent *)event sender:(id)sender;
+- (BOOL)handleKeyUp:(NSEvent *)event sender:(id)sender;
 - (void)handleFlagsChanged:(NSEvent *)event sender:(id)sender;
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender;
 - (void)handleMouseMoved:(NSEvent *)event sender:(id)sender;

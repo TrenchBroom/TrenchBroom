@@ -70,27 +70,27 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @implementation InputManager (private)
 
 - (BOOL)isCameraModifierPressed {
-    return [NSEvent modifierFlags] == NSShiftKeyMask;
+    return keyStatus == KS_SPACE;
 }
 
 - (BOOL)isCameraOrbitModifierPressed {
-    return [NSEvent modifierFlags] == (NSShiftKeyMask | NSCommandKeyMask);
+    return keyStatus == (KS_SPACE | KS_SHIFT);
 }
 
 - (BOOL)isApplyTextureModifierPressed {
-    return [NSEvent modifierFlags] == NSAlternateKeyMask;
+    return keyStatus == KS_OPTION;
 }
 
 - (BOOL)isApplyTextureAndFlagsModifierPressed {
-    return [NSEvent modifierFlags] == (NSAlternateKeyMask | NSCommandKeyMask);
+    return keyStatus == (KS_OPTION | KS_COMMAND);
 }
 
 - (BOOL)isRotateModifierPressed {
-    return [NSEvent modifierFlags] == (NSAlternateKeyMask | NSCommandKeyMask);
+    return keyStatus == (KS_OPTION | KS_COMMAND);
 }
 
 - (BOOL)isFaceDragModifierPressed {
-    return [NSEvent modifierFlags] == NSCommandKeyMask;
+    return keyStatus == KS_COMMAND;
 }
 
 - (void)updateEvent:(NSEvent *)event {
@@ -354,6 +354,27 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                 [clipTool toggleClipMode];
                 return YES;
             }
+            break;
+        case 49:
+            if (![event isARepeat])
+                keyStatus |= KS_SPACE;
+            return YES;
+            break;
+        default:
+            if (![event isARepeat])
+                NSLog(@"unknown key code: %i", [event keyCode]);
+            break;
+    }
+    
+    return NO;
+}
+
+- (BOOL)handleKeyUp:(NSEvent *)event sender:(id)sender {
+    switch ([event keyCode]) {
+        case 49:
+            if (![event isARepeat])
+                keyStatus &= ~KS_SPACE;
+            return YES;
             break;
         default:
             if (![event isARepeat])
