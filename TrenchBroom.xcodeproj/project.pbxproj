@@ -659,10 +659,10 @@
 		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				484D092C1361C2BF004D6961 /* Misc */,
-				487437FC135ED48A00F787E1 /* Model */,
 				48A68E96114E93840064732A /* Controller */,
 				48A68F1C114EA7750064732A /* Math */,
+				484D092C1361C2BF004D6961 /* Misc */,
+				487437FC135ED48A00F787E1 /* Model */,
 				48A68EC9114E9AE20064732A /* View */,
 			);
 			name = Classes;

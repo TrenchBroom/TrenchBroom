@@ -19,6 +19,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import <Cocoa/Cocoa.h>
 #import "Math.h"
+#import "Tool.h"
 
 @class PickingHitList;
 @class MapWindowController;
@@ -61,6 +62,8 @@ typedef enum {
     ClipTool* clipTool;
     id <Tool> activeTool;
     id <Tool> cursorOwner;
+
+    EKeyStatus keyStatus;
     EMouseStatus dragStatus;
     EMouseStatus scrollStatus;
     BOOL hasMouse;
@@ -74,6 +77,7 @@ typedef enum {
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 - (BOOL)handleKeyDown:(NSEvent *)event sender:(id)sender;
+- (BOOL)handleKeyUp:(NSEvent *)event sender:(id)sender;
 - (void)handleFlagsChanged:(NSEvent *)event sender:(id)sender;
 - (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender;
 - (void)handleMouseMoved:(NSEvent *)event sender:(id)sender;
