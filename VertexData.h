@@ -67,6 +67,12 @@ typedef struct {
 } TVertex;
 
 typedef struct {
+    int* items;
+    int count;
+    int capacity;
+} TIndexList;
+
+typedef struct {
     TVertex** items;
     int count;
     int capacity;
@@ -108,6 +114,14 @@ typedef struct {
     TVector3f center;
 } TVertexData;
 
+void initIndexList(TIndexList* l, int c);
+void addIndexToList(TIndexList* l, int i);
+void removeIndexFromList(TIndexList* l, int i);
+void clearIndexList(TIndexList* l);
+void appendIndexList(const TIndexList* s, int si, int sc, TIndexList* d);
+int indexIndex(const TIndexList* l, int i);
+void freeIndexList(TIndexList* l);
+
 void initVertexList(TVertexList* l, int c);
 void addVertexToList(TVertexList* l, TVertex* v);
 void removeVertexFromList(TVertexList* l, int i);
@@ -115,6 +129,7 @@ void clearVertexList(TVertexList* l);
 void appendVertexList(const TVertexList* s, int si, int sc, TVertexList* d);
 int vertexIndex(const TVertexList* l, const TVertex* v);
 void freeVertexList(TVertexList* l);
+
 void initEdgeList(TEdgeList* l, int c);
 void addEdgeToList(TEdgeList* l, TEdge* e);
 void removeEdgeFromList(TEdgeList* l, int i);
@@ -122,6 +137,7 @@ void clearEdgeList(TEdgeList* l);
 void appendEdgeList(const TEdgeList* s, int si, int sc, TEdgeList* d);
 int edgeIndex(const TEdgeList* l, const TEdge* e);
 void freeEdgeList(TEdgeList* l);
+
 void initSideList(TSideList* l, int c);
 void addSideToList(TSideList* l, TSide* s);
 void removeSideFromList(TSideList* l, int i);
@@ -171,4 +187,6 @@ EPointStatus vertexStatusFromRay(const TVector3f* o, const TVector3f* d, const T
 MutableFace* createFaceForSide(const TBoundingBox* w, TSide* s);
 int polygonShape(const TVertexList* p, const TVector3f* n);
 
-int translateVertex(TVertexData* vd, int v, const TVector3f* d, NSMutableArray** newFaces, NSMutableArray** removedFaces);
+int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
+
+BOOL sanityCheck(const TVertexData* vd);

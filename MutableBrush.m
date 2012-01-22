@@ -343,12 +343,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVertexData testData;
     initVertexDataWithFaces(&testData, worldBounds, faces, nil);
     
-    NSMutableArray* addedFaces = nil;
-    NSMutableArray* removedFaces = nil;
+    NSMutableArray* addedFaces = [[NSMutableArray alloc] init];
+    NSMutableArray* removedFaces = [[NSMutableArray alloc] init];
 
-    int newVertexIndex = translateVertex(&testData, theVertexIndex, theDelta, &addedFaces, &removedFaces);
+    int newVertexIndex = dragVertex(&testData, theVertexIndex, *theDelta, addedFaces, removedFaces);
     freeVertexData(&testData);
 
+    [addedFaces release];
+    [removedFaces release];
+    
     if (vertexDataValid) {
         for (int i = 0; i < vertexData.sideList.count; i++) {
             TSide* side = vertexData.sideList.items[i];
@@ -357,33 +360,31 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         }
     }
     
-    return newVertexIndex != -1;
+    return YES;
 }
 
 - (int)dragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta {
-    NSMutableArray* addedFaces = nil;
-    NSMutableArray* removedFaces = nil;
+    NSMutableArray* addedFaces = [[NSMutableArray alloc] init];
+    NSMutableArray* removedFaces = [[NSMutableArray alloc] init];
     
-    int newVertexIndex = translateVertex([self vertexData], theVertexIndex, theDelta, &addedFaces, &removedFaces);
+    int newVertexIndex = dragVertex([self vertexData], theVertexIndex, *theDelta, addedFaces, removedFaces);
 
-    if (removedFaces != nil) {
-        NSEnumerator* faceEn = [removedFaces objectEnumerator];
-        MutableFace* face;
-        while ((face = [faceEn nextObject])) {
-            [face setBrush:nil];
-            [faces removeObjectIdenticalTo:face];
-        }
-    }
-        
-    if (addedFaces != nil) {
-        NSEnumerator* faceEn = [addedFaces objectEnumerator];
-        MutableFace* face;
-        while ((face = [faceEn nextObject])) {
-            [face setBrush:self];
-            [faces addObject:face];
-        }
+    NSEnumerator* faceEn = [removedFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject])) {
+        [face setBrush:nil];
+        [faces removeObjectIdenticalTo:face];
     }
     
+    faceEn = [addedFaces objectEnumerator];
+    while ((face = [faceEn nextObject])) {
+        [face setBrush:self];
+        [faces addObject:face];
+    }
+    
+    [addedFaces release];
+    [removedFaces release];
+
     return newVertexIndex;
 }
 
