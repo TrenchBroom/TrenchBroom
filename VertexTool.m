@@ -130,7 +130,11 @@
     }
     
     MapDocument* map = [windowController document];
-    [map dragVertices:vertexIndices brushes:brushes delta:&deltaf];
+    if (![map dragVertices:vertexIndices brushes:brushes delta:&deltaf]) {
+        [vertexHits release];
+        vertexHits = nil;
+        drag = NO;
+    }
     
     [brushes release];
     [vertexIndices release];

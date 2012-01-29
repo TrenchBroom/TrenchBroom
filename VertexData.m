@@ -55,7 +55,13 @@ void removeIndexFromList(TIndexList* l, int i) {
         memcpy(&l->items[i], &l->items[i + 1], (l->count - i - 1) * sizeof(int));
     
     l->count--;
-    l->items[l->count] = 0;
+}
+
+void removeSuffixFromIndexList(TIndexList* l, int i) {
+    assert(l != NULL);
+    assert(i >= 0 && i < l->count);
+    
+    l->count = i;
 }
 
 void clearIndexList(TIndexList* l) {
@@ -113,7 +119,13 @@ void removeVertexFromList(TVertexList* l, int i) {
         memcpy(&l->items[i], &l->items[i + 1], (l->count - i - 1) * sizeof(TVertex *));
 
     l->count--;
-    l->items[l->count] = NULL;
+}
+
+void removeSuffixFromVertexList(TVertexList* l, int i) {
+    assert(l != NULL);
+    assert(i >= 0 && i < l->count);
+    
+    l->count = i;
 }
 
 void clearVertexList(TVertexList* l) {
@@ -174,6 +186,13 @@ void removeEdgeFromList(TEdgeList* l, int i) {
     l->items[l->count] = NULL;
 }
 
+void removeSuffixFromEdgeList(TEdgeList* l, int i) {
+    assert(l != NULL);
+    assert(i >= 0 && i < l->count);
+    
+    l->count = i;
+}
+
 void clearEdgeList(TEdgeList* l) {
     l->count = 0;
 }
@@ -230,6 +249,13 @@ void removeSideFromList(TSideList* l, int i) {
     
     l->count--;
     l->items[l->count] = NULL;
+}
+
+void removeSuffixFromSideList(TSideList* l, int i) {
+    assert(l != NULL);
+    assert(i >= 0 && i < l->count);
+    
+    l->count = i;
 }
 
 void clearSideList(TSideList* l) {
@@ -1442,32 +1468,54 @@ int polygonShape(const TVertexList* p, const TVector3f* n) {
 }
 
 void mergeSides(TVertexData* vd, TSide* s, int si) {
+    TVertex* v;
     TEdge* e = s->edges.items[si];
     TSide* n = e->leftSide != s ? e->leftSide : e->rightSide;
     int ni = edgeIndex(&n->edges, e);
-    
-    // shift the two sides so that their shared edge is at the end of both's edge lists
-    shiftSide(s, s->edges.count - si - 1);
-    shiftSide(n, n->edges.count - ni - 1);
-    
-    removeEdgeFromList(&s->edges, s->edges.count - 1);
-    removeEdgeFromList(&n->edges, n->edges.count - 1);
 
-    removeVertexFromList(&s->vertices, s->vertices.count - 1);
-    removeVertexFromList(&n->vertices, n->vertices.count - 1);
+    do {
+        si = (si + 1) % s->edges.count;
+        ni = (ni - 1 + n->edges.count) % n->edges.count;
+    } while (s->edges.items[si] == n->edges.items[ni]);
+
+    // now si points to the last edge (in CW order) of s that should not be deleted
+    // and ni points to the first edge (in CW order) of n that should not be deleted
     
-    for (int i = 0; i < n->edges.count; i++) {
+    int c = -1;
+    do {
+        si = (si - 1 + s->edges.count) % s->edges.count;
+        ni = (ni + 1) % n->edges.count;
+        c++;
+    } while (s->edges.items[si] == n->edges.items[ni]);
+    
+    // now si points to the first edge (in CW order) of s that should not be deleted
+    // now ni points to the last edge (in CW order) of n that should not be deleted
+    // and c is the number of shared edges between s and n
+    
+    // shift the two sides so that their shared edges are at the end of both's edge lists
+    shiftSide(s, (si + c + 1) % s->edges.count);
+    shiftSide(n, ni);
+    
+    removeSuffixFromEdgeList(&s->edges, s->edges.count - c);
+    removeSuffixFromVertexList(&s->vertices, s->vertices.count - c);
+    
+    for (int i = 0; i < n->edges.count - c; i++) {
         e = n->edges.items[i];
+        v = n->vertices.items[i];
         if (e->leftSide == n)
             e->leftSide = s;
         else
             e->rightSide = s;
         addEdgeToList(&s->edges, e);
+        addVertexToList(&s->vertices, v);
     }
-
-    appendVertexList(&n->vertices, 0, n->vertices.count, &s->vertices);
     
-    deleteEdge(vd, edgeIndex(&vd->edgeList, e));
+    for (int i = n->edges.count - c; i < n->edges.count; i++) {
+        deleteEdge(vd, edgeIndex(&vd->edgeList, n->edges.items[i]));
+        if (i > n->edges.count - c)
+            deleteVertex(vd, vertexIndex(&vd->vertexList, n->vertices.items[i]));
+    }
+    
     deleteSide(vd, sideIndex(&vd->sideList, n));
 }
 
@@ -1562,7 +1610,7 @@ void mergeRegion(TVertexData* vd, TMergeRegion* r, NSMutableArray* newFaces, NSM
 
 int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
     TVertex* vertex;
-    TVector3f dragged;
+    TVector3f draggedVertex, v1, v2;
     TRay dragRay;
     float dragDist;
     TSideList incSides;
@@ -1574,7 +1622,6 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
     vertex = vd->vertexList.items[v];
     dragRay.origin = vertex->vector;
     scaleV3f(&d, 1 / dragDist, &dragRay.direction);
-    addV3f(&vertex->vector, &d, &dragged);
     
     // split all sides incident to v so that there remain only triangles
     // incident to v - it doesn't matter that some of those are coplanar, they
@@ -1586,7 +1633,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
     for (int i = 0; i < incSides.count; i++) {
         TSide* side = incSides.items[i];
         if (side->vertices.count > 3) {
-            if (pointStatusFromPlane([side->face boundary], &dragged) == PS_BELOW) {
+            if (dotV3f([side->face norm], &dragRay.direction) < 0) {
                 id <Face> newFace = splitFace(vd, side, v);
                 [newFaces addObject:newFace];
             } else {
@@ -1622,7 +1669,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
                                   &succ->vertices.items[2]->vector);
 
         float sideDragDist = intersectPlaneWithRay(&plane, &dragRay);
-        if (isnan(sideDragDist) && sideDragDist <= dragDist) {
+        if (isnan(sideDragDist) && sideDragDist > 0 && sideDragDist <= dragDist) {
             neighbor = NULL;
             for (int i = 0; i < side->edges.count && neighbor == NULL; i++) {
                 TEdge* edge = side->edges.items[i];
@@ -1635,14 +1682,16 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
             sideDragDist = intersectPlaneWithRay([neighbor->face boundary], &dragRay);
         }
         
-        if (!isnan(sideDragDist) && sideDragDist < actualDragDist)
+        if (!isnan(sideDragDist) && sideDragDist > 0 && sideDragDist < actualDragDist)
             actualDragDist = sideDragDist;
     }
 
-    vertex->vector = dragged;
+    rayPointAtDistance(&dragRay, actualDragDist, &vertex->vector);
+    draggedVertex = vertex->vector;
+    
     for (int i = 0; i < incSides.count; i++)
         updateFaceOfSide(incSides.items[i]);
-
+    
     for (int i = 0; i < vd->sideList.count; i++) {
         TSide* side = vd->sideList.items[i];
         const TPlane* boundary = [side->face boundary];
@@ -1668,73 +1717,60 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
         }
     }
     
-    BOOL vertexDeleted = NO;
+    
     for (int i = 0; i < vd->edgeList.count; i++) {
         TEdge* edge = vd->edgeList.items[i];
-        if (edge->startVertex == vertex || edge->endVertex == vertex) {
-            for (int j = i + 1; j < vd->edgeList.count; j++) {
-                TEdge* candidate = vd->edgeList.items[j];
+        edgeVector(edge, &v1);
+        for (int j = i + 1; j < vd->edgeList.count; j++) {
+            TEdge* candidate = vd->edgeList.items[j];
+            edgeVector(candidate, &v2);
+            crossV3f(&v1, &v2, &v2);
+            if (nullV3f(&v2)) {
+                if (edge->endVertex == candidate->endVertex)
+                    flipEdge(candidate);
+                if (edge->endVertex == candidate->startVertex) {
+                    assert(edge->leftSide == candidate->leftSide);
+                    assert(edge->rightSide == candidate->rightSide);
+                    
+                    removeVertexFromList(&edge->leftSide->vertices, vertexIndex(&edge->leftSide->vertices, edge->endVertex));
+                    removeVertexFromList(&edge->rightSide->vertices, vertexIndex(&edge->rightSide->vertices, edge->endVertex));
+                    deleteVertex(vd, vertexIndex(&vd->vertexList, edge->endVertex));
+                    
+                    edge->endVertex = candidate->endVertex;
+                    removeEdgeFromList(&edge->leftSide->edges, edgeIndex(&edge->leftSide->edges, candidate));
+                    removeEdgeFromList(&edge->rightSide->edges, edgeIndex(&edge->rightSide->edges, candidate));
+                    deleteEdge(vd, edgeIndex(&vd->edgeList, candidate));
+                    break;
+                }
                 
-                if (edge->startVertex == candidate->startVertex) {
-                    if (edge->endVertex == candidate->endVertex) {
-                        TSide* side = edge->leftSide;
-                        removeEdgeFromList(&side->edges, edgeIndex(&side->edges, edge));
-                        removeEdgeFromList(&side->edges, edgeIndex(&side->edges, candidate));
-                        removeVertexFromList(&side->vertices, vertexIndex(&side->vertices, vertex));
-                        deleteEdge(vd, i);
-                        deleteEdge(vd, j);
-                        deleteVertex(vd, v);
-                        vertexDeleted = YES;
-                        break;
-                    }
-                } else if (edge->startVertex == candidate->endVertex) {
-                    if (edge->endVertex == candidate->startVertex) {
-                        TSide* side = edge->leftSide;
-                        removeEdgeFromList(&side->edges, edgeIndex(&side->edges, edge));
-                        removeEdgeFromList(&side->edges, edgeIndex(&side->edges, candidate));
-                        removeVertexFromList(&side->vertices, vertexIndex(&side->vertices, vertex));
-                        deleteEdge(vd, i);
-                        deleteEdge(vd, j);
-                        deleteVertex(vd, v);
-                        vertexDeleted = YES;
-                        break;
-                    }
-                } else if (edge->endVertex == candidate->startVertex) {
-                    if (edge->startVertex == candidate->endVertex) {
-                        TSide* side = edge->leftSide;
-                        removeEdgeFromList(&side->edges, edgeIndex(&side->edges, edge));
-                        removeEdgeFromList(&side->edges, edgeIndex(&side->edges, candidate));
-                        removeVertexFromList(&side->vertices, vertexIndex(&side->vertices, vertex));
-                        deleteEdge(vd, i);
-                        deleteEdge(vd, j);
-                        deleteVertex(vd, v);
-                        vertexDeleted = YES;
-                        break;
-                    }
-                } else if (edge->endVertex == candidate->endVertex) {
-                    if (edge->startVertex == candidate->startVertex) {
-                        TSide* side = edge->leftSide;
-                        removeEdgeFromList(&side->edges, edgeIndex(&side->edges, edge));
-                        removeEdgeFromList(&side->edges, edgeIndex(&side->edges, candidate));
-                        removeVertexFromList(&side->vertices, vertexIndex(&side->vertices, vertex));
-                        deleteEdge(vd, i);
-                        deleteEdge(vd, j);
-                        deleteVertex(vd, v);
-                        vertexDeleted = YES;
-                        break;
-                    }
+                if (edge->startVertex == candidate->startVertex)
+                    flipEdge(candidate);
+                if (edge->startVertex == candidate->endVertex) {
+                    assert(edge->leftSide == candidate->leftSide);
+                    assert(edge->rightSide == candidate->rightSide);
+                    
+                    removeVertexFromList(&edge->leftSide->vertices, vertexIndex(&edge->leftSide->vertices, edge->startVertex));
+                    removeVertexFromList(&edge->rightSide->vertices, vertexIndex(&edge->rightSide->vertices, edge->startVertex));
+                    deleteVertex(vd, vertexIndex(&vd->vertexList, edge->startVertex));
+                    
+                    edge->startVertex = candidate->startVertex;
+                    removeEdgeFromList(&edge->leftSide->edges, edgeIndex(&edge->leftSide->edges, candidate));
+                    removeEdgeFromList(&edge->rightSide->edges, edgeIndex(&edge->rightSide->edges, candidate));
+                    deleteEdge(vd, edgeIndex(&vd->edgeList, candidate));
+                    break;
                 }
             }
         }
-        
-        if (vertexDeleted)
-            break;
     }
     
     boundsOfVertexData(vd, &vd->bounds, &vd->center);
     
-    if (vertexDeleted)
-        return -1;
+    v = -1;
+    for (int i = 0; i < vd->vertexList.count; i++)
+        if (equalV3f(&draggedVertex, &vd->vertexList.items[i]->vector)) {
+            v = i;
+            break;
+        }
     
     if (actualDragDist == dragDist)
         return v;

@@ -1533,10 +1533,12 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     
     [self makeUndoSnapshotOfBrushes:theBrushes];
     
+    BOOL continueDrag = YES;
+    
     brushEn = [theBrushes objectEnumerator];
     vertexIndexEn = [theVertexIndices objectEnumerator];
     while ((brush = [brushEn nextObject]) && (vertexIndex = [vertexIndexEn nextObject]))
-        [brush dragVertex:[vertexIndex intValue] by:theDelta];
+        continueDrag &= [brush dragVertex:[vertexIndex intValue] by:theDelta] != -1;
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -1544,7 +1546,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [userInfo release];
     }
     
-    return YES;
+    return continueDrag;
 }
 
 - (void)clear {

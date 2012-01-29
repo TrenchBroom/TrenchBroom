@@ -340,26 +340,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (BOOL)canDragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta {
-    TVertexData testData;
-    initVertexDataWithFaces(&testData, worldBounds, faces, nil);
-    
-    NSMutableArray* addedFaces = [[NSMutableArray alloc] init];
-    NSMutableArray* removedFaces = [[NSMutableArray alloc] init];
-
-    int newVertexIndex = dragVertex(&testData, theVertexIndex, *theDelta, addedFaces, removedFaces);
-    freeVertexData(&testData);
-
-    [addedFaces release];
-    [removedFaces release];
-    
-    if (vertexDataValid) {
-        for (int i = 0; i < vertexData.sideList.count; i++) {
-            TSide* side = vertexData.sideList.items[i];
-            if (side->face != nil)
-                [side->face setSide:side];
-        }
-    }
-    
     return YES;
 }
 
