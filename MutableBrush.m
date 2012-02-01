@@ -181,6 +181,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     MutableBrush* result = [[MutableBrush allocWithZone:zone] init];
     [result->brushId release];
     result->brushId = [brushId retain];
+    result->worldBounds = worldBounds;
     
     [result setEntity:entity];
     [result setFilePosition:filePosition];
@@ -225,12 +226,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [face setBrush:self];
     [faces addObject:face];
     return YES;
-}
-
-- (void)removeFace:(MutableFace *)face {
-    [face setBrush:nil];
-    [faces removeObject:face];
-    [self invalidateVertexData];
 }
 
 - (void)setEntity:(MutableEntity *)theEntity {

@@ -329,6 +329,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     
     [result->faceId release];
     result->faceId = [faceId retain];
+    result->worldBounds = worldBounds;
     [result setPoint1:&point1 point2:&point2 point3:&point3];
     [result setTexture:texture];
     [result setXOffset:xOffset];
@@ -688,6 +689,22 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (void)setFilePosition:(int)theFilePosition {
     filePosition = theFilePosition;
+}
+
+- (void)restore:(id <Face>)theTemplate {
+    NSAssert(theTemplate != nil, @"template must not be nil");
+    NSAssert([faceId isEqual:[theTemplate faceId]], @"face id must be equal");
+    
+    point1 = *[theTemplate point1];
+    point2 = *[theTemplate point2];
+    point3 = *[theTemplate point3];
+    xOffset = [theTemplate xOffset];
+    yOffset = [theTemplate yOffset];
+    xScale = [theTemplate xScale];
+    yScale = [theTemplate yScale];
+    rotation = [theTemplate rotation];
+
+    [self invalidate];
 }
 
 - (NSString *)description {

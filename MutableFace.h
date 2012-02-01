@@ -95,4 +95,7 @@ typedef enum {
 
 - (int)filePosition;
 - (void)setFilePosition:(int)theFilePosition;
+
+- (void)restore:(id <Face>)theTemplate;
+
 @end

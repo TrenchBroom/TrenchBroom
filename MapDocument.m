@@ -25,9 +25,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MutableEntity.h"
 #import "MutableBrush.h"
 #import "MutableFace.h"
-#import "FaceInfo.h"
-#import "BrushInfo.h"
-#import "EntityInfo.h"
 #import "TextureManager.h"
 #import "TextureCollection.h"
 #import "Texture.h"
@@ -71,50 +68,37 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 @interface MapDocument (private)
 
 - (void)makeUndoSnapshotOfFaces:(NSArray *)theFaces;
+- (void)restoreUndoSnapshot:(NSArray *)theSnapshot ofFaces:(NSArray *)theFaces;
 - (void)makeUndoSnapshotOfBrushes:(NSArray *)theBrushes;
-- (void)restoreUndoSnapshot:(NSArray *)theFaces faceInfos:(NSDictionary *)theFaceInfos;
-- (void)restoreUndoSnapshot:(NSArray *)theBrushes brushInfos:(NSDictionary *)theBrushInfos;
-- (void)restoreUndoSnapshot:(NSArray *)theEntities entityInfos:(NSDictionary *)theEntityInfos;
+- (void)restoreUndoSnapshot:(NSArray *)theSnapshot ofBrushes:(NSArray *)theBrushes;
+- (void)makeUndoSnapshotOfEntities:(NSArray *)theEntities;
+- (void)restoreUndoSnapshot:(NSArray *)theSnapshot ofEntities:(NSArray *)theEntities;
 
 @end
 
 @implementation MapDocument (private)
 
 - (void)makeUndoSnapshotOfFaces:(NSArray *)theFaces {
-    NSMutableDictionary* faceInfos = [[NSMutableDictionary alloc] init];
+    NSAssert(theFaces != nil, @"face array must not be nil");
     
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
-        FaceInfo* faceInfo = [[FaceInfo alloc] initWithFace:face];
-        [faceInfos setObject:faceInfo forKey:[face faceId]];
-        [faceInfo release];
-    }
+    if ([theFaces count] == 0)
+        return;
+    
+    NSArray* snapshot = [[NSArray alloc] initWithArray:theFaces copyItems:YES];
     
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:theFaces faceInfos:faceInfos];
+    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:snapshot ofFaces:theFaces];
 
-    [faceInfos release];
+    [snapshot release];
 }
 
-- (void)makeUndoSnapshotOfBrushes:(NSArray *)theBrushes {
-    NSMutableDictionary* brushInfos = [[NSMutableDictionary alloc] initWithCapacity:[theBrushes count]];
-
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    MutableBrush* brush;
-    while ((brush = [brushEn nextObject])) {
-        BrushInfo* brushInfo = [[BrushInfo alloc] initWithBrush:brush];
-        [brushInfos setObject:brushInfo forKey:[brush brushId]];
-        [brushInfo release];
-    }
-
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:theBrushes brushInfos:brushInfos];
+- (void)restoreUndoSnapshot:(NSArray *)theSnapshot ofFaces:(NSArray *)theFaces {
+    NSAssert(theSnapshot != nil, @"snapshot must not be nil");
+    NSAssert(theFaces != nil, @"face array must not be nil");
+    NSAssert([theSnapshot count] == [theFaces count], @"snapshot must contain the same number of items as face array");
     
-    [brushInfos release];
-}
-
-- (void)restoreUndoSnapshot:(NSArray *)theFaces faceInfos:(NSDictionary *)theFaceInfos {
+    [self makeUndoSnapshotOfFaces:theFaces];
+    
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
@@ -124,13 +108,14 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
     }
 
-    [self makeUndoSnapshotOfFaces:theFaces];
-    
     NSEnumerator* faceEn = [theFaces objectEnumerator];
+    NSEnumerator* snapshotEn = [theSnapshot objectEnumerator];
     MutableFace* face;
-    while ((face = [faceEn nextObject])) {
-        FaceInfo* faceInfo = [theFaceInfos objectForKey:[face faceId]];
-        [faceInfo updateFace:face];
+    MutableFace* snapshot;
+    
+    while ((face = [faceEn nextObject]) && (snapshot = [snapshotEn nextObject])) {
+        NSAssert([face faceId] == [snapshot faceId], @"face and snapshot must have the same id");
+        [face restore:snapshot];
     }
     
     if ([self postNotifications]) {
@@ -140,13 +125,27 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 }
 
-- (void)restoreUndoSnapshot:(NSArray *)theBrushes brushInfos:(NSDictionary *)theBrushInfos {
-    NSAssert(theBrushes != nil, @"brush set must not be nil");
-    NSAssert(theBrushInfos != nil, @"brush info dictionary must not be nil");
-    NSAssert([theBrushes count] == [theBrushInfos count], @"brush set must be of the same size as brush info dictionary");
+- (void)makeUndoSnapshotOfBrushes:(NSArray *)theBrushes {
+    NSAssert(theBrushes != nil, @"brush array must not be nil");
     
     if ([theBrushes count] == 0)
         return;
+    
+    NSArray* snapshot = [[NSArray alloc] initWithArray:theBrushes copyItems:YES];
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:snapshot ofBrushes:theBrushes];
+    
+    [snapshot release];
+}
+
+- (void)restoreUndoSnapshot:(NSArray *)theSnapshot ofBrushes:(NSArray *)theBrushes {
+    NSAssert(theSnapshot != nil, @"snapshot must not be nil");
+    NSAssert(theBrushes != nil, @"face array must not be nil");
+    NSAssert([theSnapshot count] == [theBrushes count], @"snapshot must contain the same number of items as brush array");
+    
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:theBrushes ofBrushes:theSnapshot];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -154,32 +153,70 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [userInfo setObject:theBrushes forKey:BrushesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
+        [center postNotificationName:BrushesWillBeRemoved object:self userInfo:userInfo];
     }
 
-    [self makeUndoSnapshotOfBrushes:theBrushes];
-    
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
+    NSEnumerator* snapshotEn = [theSnapshot objectEnumerator];
     MutableBrush* brush;
-    while ((brush = [brushEn nextObject])) {
-        BrushInfo* brushInfo = [theBrushInfos objectForKey:[brush brushId]];
-        [brushInfo updateBrush:brush];
+    MutableBrush* snapshot;
+
+    while ((brush = [brushEn nextObject]) && (snapshot = [snapshotEn nextObject])) {
+        NSAssert([brush brushId] == [snapshot brushId], @"brush and snapshot must have the same id");
+
+        MutableEntity* entity = [brush entity];
+        [entity addBrush:snapshot];
+        
+        if ([selectionManager isBrushSelected:brush]) {
+            [selectionManager removeBrush:brush record:NO];
+            [selectionManager addBrush:snapshot record:NO];
+        }
+        
+        [entity removeBrush:brush];
     }
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
+        [center postNotificationName:BrushesWereRemoved object:self userInfo:userInfo];
+        [userInfo release];
+        
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:theSnapshot forKey:BrushesKey];
+        [center postNotificationName:BrushesAdded object:self userInfo:userInfo];
         [userInfo release];
     }
 }
 
-- (void)restoreUndoSnapshot:(NSArray *)theEntities entityInfos:(NSDictionary *)theEntityInfos {
-    NSAssert(theEntities != nil, @"entity set must not be nil");
-    NSAssert(theEntityInfos != nil, @"entity info dictionary must not be nil");
-    NSAssert([theEntities count] == [theEntityInfos count], @"entity set must be of the same size as entity info dictionary");
+- (void)makeUndoSnapshotOfEntities:(NSArray *)theEntities {
+    NSAssert(theEntities != nil, @"enitity array must not be nil");
     
     if ([theEntities count] == 0)
         return;
+    
+    NSMutableArray* snapshot = [[NSMutableArray alloc] initWithCapacity:[theEntities count]];
+    
+    NSEnumerator* entityEn = [theEntities objectEnumerator];
+    id <Entity> entity;
+    
+    while ((entity = [entityEn nextObject])) {
+        NSDictionary* properties = [[NSDictionary alloc] initWithDictionary:[entity properties] copyItems:YES];
+        [snapshot addObject:properties];
+        [properties release];
+    }
+
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:snapshot ofEntities:theEntities];
+    
+    [snapshot release];
+}
+
+
+- (void)restoreUndoSnapshot:(NSArray *)theSnapshot ofEntities:(NSArray *)theEntities {
+    NSAssert(theSnapshot != nil, @"snapshot must not be nil");
+    NSAssert(theEntities != nil, @"entity array must not be nil");
+    NSAssert([theSnapshot count] == [theEntities count], @"snapshot must contain the same number of items as entity array");
+    
+    [self makeUndoSnapshotOfEntities:theEntities];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -190,20 +227,13 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
     }
     
-    NSMutableDictionary* undoInfos = [[NSMutableDictionary alloc] initWithCapacity:[theEntityInfos count]];
     NSEnumerator* entityEn = [theEntities objectEnumerator];
+    NSEnumerator* snapshotEn = [theSnapshot objectEnumerator];
     MutableEntity* entity;
-    while ((entity = [entityEn nextObject])) {
-        EntityInfo* undoInfo = [[EntityInfo alloc] initWithEntity:entity];
-        [undoInfos setObject:undoInfo forKey:[entity entityId]];
-        
-        EntityInfo* entityInfo = [theEntityInfos objectForKey:[entity entityId]];
-        [entityInfo updateEntity:entity];
-    }
+    NSDictionary* properties;
     
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:theEntities entityInfos:undoInfos];
-    [undoInfos release];
+    while ((entity = [entityEn nextObject]) && (properties = [snapshotEn nextObject]))
+        [entity replaceProperties:properties];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -735,8 +765,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if (nullQ(&theRotation))
         return;
     
-    NSUndoManager* undoManager = [self undoManager];
-    [undoManager beginUndoGrouping];
+    [self makeUndoSnapshotOfEntities:theEntities];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -747,26 +776,16 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
     }
     
-    NSMutableDictionary* undoInfos = [[NSMutableDictionary alloc] initWithCapacity:[theEntities count]];
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     MutableEntity* entity;
-    while ((entity = [entityEn nextObject])) {
-        EntityInfo* entityInfo = [[EntityInfo alloc] initWithEntity:entity];
-        [undoInfos setObject:entityInfo forKey:[entity entityId]];
-        [entityInfo release];
+    while ((entity = [entityEn nextObject]))
         [entity rotate:&theRotation center:&theCenter];
-    }
-    
-    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:[[theEntities copy] autorelease] entityInfos:undoInfos];
-    [undoInfos release];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
-    
-    [undoManager endUndoGrouping];
 }
 
 - (void)flipEntities:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter {

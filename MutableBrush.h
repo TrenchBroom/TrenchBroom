@@ -44,7 +44,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds brushBounds:(const TBoundingBox *)theBrushBounds texture:(Texture *)theTexture;
 
 - (BOOL)addFace:(MutableFace *)face;
-- (void)removeFace:(MutableFace *)face;
 
 - (void)setEntity:(MutableEntity *)theEntity;
 - (void)translateBy:(const TVector3i *)theDelta lockTextures:(BOOL)lockTextures;
