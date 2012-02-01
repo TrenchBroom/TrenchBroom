@@ -240,7 +240,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         Grid* grid = [[windowController options] grid];
         [grid snapToGridV3f:&hitPoint result:&hitPoint];
         
-        const TVector3f* axis = closestAxisV3f([face norm]);
+        const TVector3f* axis = firstAxisV3f([face norm]);
         [face projectToSurface:&hitPoint axis:axis result:&hitPoint];
         
         [clipPlane updatePoint:draggedPoint x:roundf(hitPoint.x) y:roundf(hitPoint.y) z:roundf(hitPoint.z)];
@@ -292,7 +292,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         
         id <Face> face = [hit object];
-        const TVector3f* axis = closestAxisV3f([face norm]);
+        const TVector3f* axis = firstAxisV3f([face norm]);
         [face projectToSurface:&t axis:axis result:&t];
         
         currentPoint = malloc(sizeof(TVector3i));

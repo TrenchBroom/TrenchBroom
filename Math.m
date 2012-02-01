@@ -269,7 +269,7 @@ EAxis weakestComponentV3f(const TVector3f* v) {
     return A_Z;
 }
 
-const TVector3f* closestAxisV3f(const TVector3f* v) {
+const TVector3f* firstAxisV3f(const TVector3f* v) {
     if (equalV3f(v, &NullVector)) {
         return &NullVector;
     } else {
@@ -296,19 +296,60 @@ const TVector3f* closestAxisV3f(const TVector3f* v) {
     }
 }
 
-const TVector3f* oppositeAxisV3f(const TVector3f* v) {
-    const TVector3f* closest = closestAxisV3f(v);
-    if (closest == &XAxisPos)
-        return &XAxisNeg;
-    if (closest == &XAxisNeg)
-        return &XAxisPos;
-    if (closest == &YAxisPos)
-        return &YAxisNeg;
-    if (closest == &YAxisNeg)
-        return &YAxisPos;
-    if (closest == &ZAxisPos)
-        return &ZAxisNeg;
-    return &ZAxisPos;
+const TVector3f* secondAxisV3f(const TVector3f* v) {
+    if (equalV3f(v, &NullVector)) {
+        return &NullVector;
+    } else {
+        float xa = fabs(v->x);
+        float ya = fabs(v->y);
+        float za = fabs(v->z);
+        
+        if ((xa <= ya && xa >= za) || 
+            (xa >= ya && xa <= za)) {
+            if (v->x > 0)
+                return &XAxisPos;
+            else
+                return &XAxisNeg;
+        } else if ((ya <= xa && ya >= za) || 
+                   (ya >= xa && ya <= za)) {
+            if (v->y > 0)
+                return &YAxisPos;
+            else
+                return &YAxisNeg;
+        } else {
+            if (v->z > 0)
+                return &ZAxisPos;
+            else
+                return &ZAxisNeg;
+        }
+    }
+}
+
+const TVector3f* thirdAxisV3f(const TVector3f* v) {
+    if (equalV3f(v, &NullVector)) {
+        return &NullVector;
+    } else {
+        float xa = fabs(v->x);
+        float ya = fabs(v->y);
+        float za = fabs(v->z);
+        
+        if (xa <= ya && xa >= za) {
+            if (v->x > 0)
+                return &XAxisPos;
+            else
+                return &XAxisNeg;
+        } else if (ya >= xa && ya >= za) {
+            if (v->y > 0)
+                return &YAxisPos;
+            else
+                return &YAxisNeg;
+        } else {
+            if (v->z > 0)
+                return &ZAxisPos;
+            else
+                return &ZAxisNeg;
+        }
+    }
 }
 
 float componentV3f(const TVector3f* v, EAxis a) {

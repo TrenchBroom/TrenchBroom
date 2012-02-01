@@ -53,6 +53,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
+    if (editingSystem != nil)
+        [editingSystem release];
+    
+    Camera* camera = [windowController camera];
+    editingSystem = [[EditingSystem alloc] initWithCamera:camera vertical:[self isAlternatePlaneModifierPressed]];
+    
+    /*
     EditingSystem* newEditingSystem;
     TVector3f norm;
     
@@ -76,6 +83,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [editingSystem release];
         editingSystem = newEditingSystem;
     }
+     */
 }
 
 @end

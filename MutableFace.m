@@ -88,7 +88,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     
     zAxis = *[self norm];
 
-    const TVector3f* closestAxis = closestAxisV3f(&zAxis);
+    const TVector3f* closestAxis = firstAxisV3f(&zAxis);
     if (closestAxis == &XAxisPos) {
         addV3f(&YAxisPos, [self center], &xAxis);
         [self projectToSurface:&xAxis axis:&XAxisPos result:&xAxis];

@@ -26,8 +26,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSAssert(theCamera != nil, @"camera must not be nil");
     
     if ((self = [self init])) {
-        xAxisPos = closestAxisV3f([theCamera right]);
-        xAxisNeg = oppositeAxisV3f([theCamera right]);
+        xAxisPos = firstAxisV3f([theCamera right]);
+        xAxisNeg = thirdAxisV3f([theCamera right]);
 
         if (vertical) {
             yAxisPos = &ZAxisPos;
@@ -35,16 +35,32 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             
             TVector3f t;
             crossV3f(xAxisPos, yAxisPos, &t);
-            zAxisPos = closestAxisV3f(&t);
-            zAxisNeg = oppositeAxisV3f(&t);
+            zAxisPos = firstAxisV3f(&t);
+            zAxisNeg = thirdAxisV3f(&t);
         } else {
-            yAxisPos = closestAxisV3f([theCamera direction]);
+            yAxisPos = firstAxisV3f([theCamera direction]);
 
             if (yAxisPos == &ZAxisPos || yAxisPos == &ZAxisNeg) {
-                yAxisPos = closestAxisV3f([theCamera up]);
-                yAxisNeg = oppositeAxisV3f([theCamera up]);
+                const TVector3f* up = [theCamera up];
+                if (fabsf(up->x) > fabsf(up->y)) {
+                    if (up->x > 0) {
+                        yAxisPos = &XAxisPos;
+                        yAxisNeg = &XAxisNeg;
+                    } else {
+                        yAxisPos = &XAxisNeg;
+                        yAxisNeg = &XAxisPos;
+                    }
+                } else {
+                    if (up->y > 0) {
+                        yAxisPos = &YAxisPos;
+                        yAxisNeg = &YAxisNeg;
+                    } else {
+                        yAxisPos = &YAxisNeg;
+                        yAxisNeg = &YAxisPos;
+                    }
+                }
             } else {
-                yAxisNeg = oppositeAxisV3f([theCamera direction]);
+                yAxisNeg = thirdAxisV3f([theCamera direction]);
             }
             
             zAxisPos = &ZAxisPos;
@@ -68,40 +84,40 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     if ((self = [self init])) {
         if (strongestComponentV3f(theYAxis) == A_Z) {
-            xAxisPos = closestAxisV3f([theCamera right]);
-            xAxisNeg = oppositeAxisV3f([theCamera right]);
+            xAxisPos = firstAxisV3f([theCamera right]);
+            xAxisNeg = thirdAxisV3f([theCamera right]);
 
             if (invert) {
                 yAxisPos = &ZAxisPos;
                 yAxisNeg = &ZAxisNeg;
                 
                 crossV3f(xAxisPos, yAxisPos, &t);
-                zAxisPos = closestAxisV3f(&t);
-                zAxisNeg = oppositeAxisV3f(&t);
+                zAxisPos = firstAxisV3f(&t);
+                zAxisNeg = thirdAxisV3f(&t);
             } else {
-                zAxisPos = closestAxisV3f(theYAxis);
-                zAxisNeg = oppositeAxisV3f(theYAxis);
+                zAxisPos = firstAxisV3f(theYAxis);
+                zAxisNeg = thirdAxisV3f(theYAxis);
                 
                 crossV3f(zAxisPos, xAxisPos, &t);
-                yAxisPos = closestAxisV3f(&t);
-                yAxisNeg = oppositeAxisV3f(&t);
+                yAxisPos = firstAxisV3f(&t);
+                yAxisNeg = thirdAxisV3f(&t);
             }
         } else {
             if (invert) {
-                yAxisPos = closestAxisV3f(theYAxis);
-                yAxisNeg = oppositeAxisV3f(theYAxis);
+                yAxisPos = firstAxisV3f(theYAxis);
+                yAxisNeg = thirdAxisV3f(theYAxis);
                 zAxisPos = &ZAxisPos;
                 zAxisNeg = &ZAxisNeg;
             } else {
                 yAxisPos = &ZAxisPos;
                 yAxisNeg = &ZAxisNeg;
-                zAxisPos = closestAxisV3f(theYAxis);
-                zAxisNeg = oppositeAxisV3f(theYAxis);
+                zAxisPos = firstAxisV3f(theYAxis);
+                zAxisNeg = thirdAxisV3f(theYAxis);
             }
             
             crossV3f(zAxisPos, yAxisPos, &t);
-            xAxisPos = closestAxisV3f(&t);
-            xAxisNeg = oppositeAxisV3f(&t);
+            xAxisPos = firstAxisV3f(&t);
+            xAxisNeg = thirdAxisV3f(&t);
         }
     }
     

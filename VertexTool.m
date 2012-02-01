@@ -31,27 +31,15 @@
 @implementation VertexTool (private)
 
 - (BOOL)isAlternatePlaneModifierPressed {
-    return keyStatus = KS_OPTION;
+    return keyStatus == KS_OPTION;
 }
 
 - (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
-    EditingSystem* newEditingSystem;
-    const TVector3f* norm;
-    
+    if (editingSystem != nil)
+        [editingSystem release];
+
     Camera* camera = [windowController camera];
-    
-    PickingHit* hit = [theHits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
-    if (hit == nil)
-        return;
-    
-    norm = oppositeAxisV3f([camera direction]);
-    newEditingSystem = [[EditingSystem alloc] initWithCamera:camera yAxis:norm invert:[self isAlternatePlaneModifierPressed]];
-    
-    if (newEditingSystem != nil) {
-        if (editingSystem != nil)
-            [editingSystem release];
-        editingSystem = newEditingSystem;
-    }
+    editingSystem = [[EditingSystem alloc] initWithCamera:camera vertical:[self isAlternatePlaneModifierPressed]];
 }
 
 @end

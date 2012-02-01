@@ -80,7 +80,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             initialBounds.max.z += [grid actualSize];
     }
 
-    plane.norm = *closestAxisV3f(cameraDir);
+    plane.norm = *firstAxisV3f(cameraDir);
     if (plane.norm.x > 0 || plane.norm.y > 0 || plane.norm.z > 0)
         plane.point = initialBounds.min;
     else
