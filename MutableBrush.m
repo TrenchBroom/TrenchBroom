@@ -471,6 +471,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [hit release];
         }
     }
+    
+    for (int i = 0; i < vd->edgeList.count; i++) {
+        TEdge* edge = vd->edgeList.items[i];
+        centerOfEdge(edge, &hitPoint);
+        float dist = intersectSphereWithRay(&hitPoint, theRadius, theRay);
+        if (!isnan(dist)) {
+            rayPointAtDistance(theRay, dist, &hitPoint);
+            PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:vd->vertexList.count + i hitPoint:&hitPoint distance:dist];
+            [theHitList addHit:hit];
+            [hit release];
+        }
+    }
 }
 
 

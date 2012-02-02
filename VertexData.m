@@ -295,6 +295,13 @@ void edgeVector(const TEdge* e, TVector3f* v) {
     subV3f(&e->endVertex->vector, &e->startVertex->vector, v);
 }
 
+void centerOfEdge(const TEdge* e, TVector3f* v) {
+    subV3f(&e->endVertex->vector, &e->startVertex->vector, v);
+    scaleV3f(v, 0.5f, v);
+    addV3f(&e->startVertex->vector, v, v);
+}
+
+
 id <Face> frontFaceOfEdge(const TEdge* e, const TRay* r) {
     id <Face> leftFace = e->leftSide->face;
     id <Face> rightFace = e->rightSide->face;
@@ -1619,6 +1626,48 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
     if (dragDist == 0)
         return v;
 
+    if (v >= vd->vertexList.count && v < vd->vertexList.count + vd->edgeList.count) {
+        TEdge* edge = vd->edgeList.items[v - vd->vertexList.count];
+        
+        shiftSide(edge->leftSide, edgeIndex(&edge->leftSide->edges, edge) + 1);
+        shiftSide(edge->rightSide, edgeIndex(&edge->rightSide->edges, edge) + 1);
+        
+        vertex = malloc(sizeof(TVertex));
+        vertex->mark = VM_UNKNOWN;
+        centerOfEdge(edge, &vertex->vector);
+        
+        TEdge* newEdge1 = malloc(sizeof(TEdge));
+        newEdge1->mark = EM_UNKNOWN;
+        newEdge1->leftSide = edge->leftSide;
+        newEdge1->rightSide = edge->rightSide;
+        newEdge1->startVertex = edge->startVertex;
+        newEdge1->endVertex = vertex;
+        
+        TEdge* newEdge2 = malloc(sizeof(TEdge));
+        newEdge2->mark = EM_UNKNOWN;
+        newEdge2->leftSide = edge->leftSide;
+        newEdge2->rightSide = edge->rightSide;
+        newEdge2->startVertex = vertex;
+        newEdge2->endVertex = edge->endVertex;
+        
+        addVertex(vd, vertex);
+        addVertexToList(&edge->leftSide->vertices, vertex);
+        addVertexToList(&edge->rightSide->vertices, vertex);
+        
+        removeEdgeFromList(&edge->leftSide->edges, edge->leftSide->edges.count - 1);
+        removeEdgeFromList(&edge->rightSide->edges, edge->rightSide->edges.count - 1);
+        deleteEdge(vd, edgeIndex(&vd->edgeList, edge));
+
+        addEdge(vd, newEdge1);
+        addEdge(vd, newEdge2);
+        addEdgeToList(&edge->leftSide->edges, newEdge2);
+        addEdgeToList(&edge->leftSide->edges, newEdge1);
+        addEdgeToList(&edge->rightSide->edges, newEdge1);
+        addEdgeToList(&edge->rightSide->edges, newEdge2);
+        
+        v = vd->vertexList.count - 1;
+    }
+    
     vertex = vd->vertexList.items[v];
     dragRay.origin = vertex->vector;
     scaleV3f(&d, 1 / dragDist, &dragRay.direction);

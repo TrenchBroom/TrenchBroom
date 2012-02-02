@@ -866,6 +866,8 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)renderVertexHandles {
+    TVector3f mid;
+    
     SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager mode] == SM_BRUSHES) {
         if (vertexHandle == NULL) {
@@ -875,6 +877,7 @@ int const TexCoordSize = 2 * sizeof(float);
         
         glFrontFace(GL_CCW);
         glPolygonMode(GL_FRONT, GL_FILL);
+        glColorV4f(&SelectionColor);
 
         NSArray* brushes = [selectionManager selectedBrushes];
         NSEnumerator* brushEn = [brushes objectEnumerator];
@@ -885,17 +888,33 @@ int const TexCoordSize = 2 * sizeof(float);
                 TVector3f* vertex = &vertices->items[i]->vector;
                 glPushMatrix();
                 glTranslatef(vertex->x, vertex->y, vertex->z);
-                
-                glDisable(GL_DEPTH_TEST);
-                glColorV4f(&SelectionColor2);
                 gluSphere(vertexHandle, 2, 12, 12);
-                
-                glEnable(GL_DEPTH_TEST);
-                glColorV4f(&SelectionColor);
-                gluSphere(vertexHandle, 2, 12, 12);
-                
                 glPopMatrix();
             }
+            
+            const TEdgeList* edges = [brush edges];
+            for (int i = 0; i < edges->count; i++) {
+                TEdge* edge = edges->items[i];
+                centerOfEdge(edge, &mid);
+
+                glPushMatrix();
+                glTranslatef(mid.x, mid.y, mid.z);
+                gluSphere(vertexHandle, 1, 12, 12);
+                glPopMatrix();
+            }
+            
+            /*
+            NSArray* faces = [brush faces];
+            NSEnumerator* faceEn = [faces objectEnumerator];
+            id <Face> face;
+            while ((face = [faceEn nextObject])) {
+                const TVector3f* center = [face center];
+                glPushMatrix();
+                glTranslatef(center->x, center->y, center->z);
+                gluSphere(vertexHandle, 1, 12, 12);
+                glPopMatrix();
+            }
+             */
         }
 
         glFrontFace(GL_CW);

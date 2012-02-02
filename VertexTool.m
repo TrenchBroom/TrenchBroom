@@ -73,11 +73,20 @@
         return;
     
     vertexHits = [[hits hitsOfType:HT_VERTEX] retain];
-    
+
     id <Brush> brush = [hit object];
-    TVertex* vertex = [brush vertices]->items[[hit vertexIndex]];
+    int index = [hit vertexIndex];
+    const TVertexList* vertices = [brush vertices];
+    const TEdgeList* edges = [brush edges];
     
-    lastPoint = vertex->vector;
+    if (index < vertices->count) {
+        TVertex* vertex = vertices->items[index];
+        lastPoint = vertex->vector;
+    } else if (index < vertices->count + edges->count) {
+        TEdge* edge = edges->items[index - vertices->count];
+        centerOfEdge(edge, &lastPoint);
+    }
+    
     editingPoint = lastPoint;
     drag = YES;
 }

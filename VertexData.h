@@ -152,6 +152,7 @@ void freeSideList(TSideList* l);
 
 void centerOfVertices(TVertexList* v, TVector3f* c);
 void edgeVector(const TEdge* e, TVector3f* v);
+void centerOfEdge(const TEdge* e, TVector3f* v);
 id <Face> frontFaceOfEdge(const TEdge* e, const TRay* r);
 id <Face> backFaceOfEdge(const TEdge* e, const TRay* r);
 TVertex* startVertexOfEdge(const TEdge* e, const TSide* s);
