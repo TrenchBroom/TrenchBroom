@@ -107,9 +107,9 @@ typedef struct {
 } TSideList;
 
 typedef struct {
-    TVertexList vertexList;
-    TEdgeList edgeList;
-    TSideList sideList;
+    TVertexList vertices;
+    TEdgeList edges;
+    TSideList sides;
     TBoundingBox bounds;
     TVector3f center;
 } TVertexData;

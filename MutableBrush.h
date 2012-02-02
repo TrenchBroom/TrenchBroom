@@ -65,4 +65,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (int)filePosition;
 - (void)setFilePosition:(int)theFilePosition;
+
+- (void)restore:(id <Brush>)theTemplate;
 @end

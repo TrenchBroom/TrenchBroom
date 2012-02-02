@@ -319,8 +319,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     freeVertexData(&testData);
 
     if (vertexDataValid) {
-        for (int i = 0; i < vertexData.sideList.count; i++) {
-            TSide* side = vertexData.sideList.items[i];
+        for (int i = 0; i < vertexData.sides.count; i++) {
+            TSide* side = vertexData.sides.items[i];
             if (side->face != nil)
                 [side->face setSide:side];
         }
@@ -379,8 +379,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     BOOL canDelete = YES;
     
     initVertexDataWithFaces(&testData, worldBounds, testFaces, &droppedFaces);
-    for (int i = 0; i < testData.sideList.count && canDelete; i++)
-        canDelete = testData.sideList.items[i]->face != nil;
+    for (int i = 0; i < testData.sides.count && canDelete; i++)
+        canDelete = testData.sides.items[i]->face != nil;
     
     freeVertexData(&testData);
     [self invalidateVertexData];
@@ -402,6 +402,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     filePosition = theFilePosition;
 }
 
+- (void)restore:(id <Brush>)theTemplate {
+    NSAssert(theTemplate != nil, @"template must not be nil");
+    NSAssert([brushId isEqualTo:[theTemplate brushId]], @"brush id must be equal");
+    
+    [faces removeAllObjects];
+    [faces addObjectsFromArray:[theTemplate faces]];
+    [self invalidateVertexData];
+}
+
 # pragma mark -
 # pragma mark @implementation Brush
 
@@ -418,11 +427,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (const TVertexList *)vertices {
-    return &[self vertexData]->vertexList;
+    return &[self vertexData]->vertices;
 }
 
 - (const TEdgeList *)edges {
-    return &[self vertexData]->edgeList;
+    return &[self vertexData]->edges;
 }
 
 - (const TBoundingBox *)bounds {
@@ -445,8 +454,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     float dist = NAN;
     TVector3f hitPoint;
     TSide* side;
-    for (int i = 0; i < vd->sideList.count && isnan(dist); i++) {
-        side = vd->sideList.items[i];
+    for (int i = 0; i < vd->sides.count && isnan(dist); i++) {
+        side = vd->sides.items[i];
         dist = pickSide(side, theRay, &hitPoint);
     }
 
@@ -461,8 +470,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVertexData* vd = [self vertexData];
     TVector3f hitPoint;
     
-    for (int i = 0; i < vd->vertexList.count; i++) {
-        TVector3f* vertex = &vd->vertexList.items[i]->vector;
+    for (int i = 0; i < vd->vertices.count; i++) {
+        TVector3f* vertex = &vd->vertices.items[i]->vector;
         float dist = intersectSphereWithRay(vertex, theRadius, theRay);
         if (!isnan(dist)) {
             rayPointAtDistance(theRay, dist, &hitPoint);
@@ -472,24 +481,24 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         }
     }
     
-    for (int i = 0; i < vd->edgeList.count; i++) {
-        TEdge* edge = vd->edgeList.items[i];
+    for (int i = 0; i < vd->edges.count; i++) {
+        TEdge* edge = vd->edges.items[i];
         centerOfEdge(edge, &hitPoint);
         float dist = intersectSphereWithRay(&hitPoint, theRadius, theRay);
         if (!isnan(dist)) {
             rayPointAtDistance(theRay, dist, &hitPoint);
-            PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:vd->vertexList.count + i hitPoint:&hitPoint distance:dist];
+            PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:vd->vertices.count + i hitPoint:&hitPoint distance:dist];
             [theHitList addHit:hit];
             [hit release];
         }
     }
 
-    for (int i = 0; i < vd->sideList.count; i++) {
-        TSide* side = vd->sideList.items[i];
+    for (int i = 0; i < vd->sides.count; i++) {
+        TSide* side = vd->sides.items[i];
         float dist = intersectSphereWithRay([side->face center], theRadius, theRay);
         if (!isnan(dist)) {
             rayPointAtDistance(theRay, dist, &hitPoint);
-            PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:vd->vertexList.count + vd->edgeList.count + i hitPoint:&hitPoint distance:dist];
+            PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:vd->vertices.count + vd->edges.count + i hitPoint:&hitPoint distance:dist];
             [theHitList addHit:hit];
             [hit release];
         }
@@ -504,8 +513,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TEdge* closestEdge = nil;
     float closestRayDist;
     float closestDist2 = theMaxDist * theMaxDist + 1;
-    for (int i = 0; i < vd->edgeList.count; i++) {
-        edge = vd->edgeList.items[i];
+    for (int i = 0; i < vd->edges.count; i++) {
+        edge = vd->edges.items[i];
         float rayDist;
         float dist2 = distanceOfSegmentAndRaySquared(&edge->startVertex->vector, &edge->endVertex->vector, theRay, &rayDist);
         if (dist2 < closestDist2) {

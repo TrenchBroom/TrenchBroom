@@ -461,6 +461,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     [self updateCursorOwner];
     [self updateCursor];
+    
+    PickingHit* hit = [[self currentHits] firstHitOfType:HT_VERTEX ignoreOccluders:NO];
+    if (hit != nil) {
+        id <Brush> brush = [hit object];
+        int index = [hit vertexIndex];
+        if (index < [brush vertices]->count) {
+            TVertex* vertex = [brush vertices]->items[index];
+            NSLog(@"vertex %f %f %f", vertex->vector.x, vertex->vector.y, vertex->vector.z);
+        }
+    }
 }
 
 - (void)handleMouseEntered:(NSEvent *)event sender:(id)sender {

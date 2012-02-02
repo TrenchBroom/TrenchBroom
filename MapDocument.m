@@ -143,7 +143,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSAssert(theSnapshot != nil, @"snapshot must not be nil");
     NSAssert(theBrushes != nil, @"face array must not be nil");
     NSAssert([theSnapshot count] == [theBrushes count], @"snapshot must contain the same number of items as brush array");
-    
+
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:theBrushes ofBrushes:theSnapshot];
     
@@ -173,6 +173,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         }
         
         [entity removeBrush:brush];
+        [brush setEntity:entity];
     }
     
     if ([self postNotifications]) {
