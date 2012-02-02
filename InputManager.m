@@ -243,6 +243,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                         newOwner = faceTool;
                 }
             }
+        } else {
+            NSLog(@"asdfasdf");
         }
         
         if (newOwner != cursorOwner) {

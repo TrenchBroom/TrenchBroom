@@ -903,7 +903,6 @@ int const TexCoordSize = 2 * sizeof(float);
                 glPopMatrix();
             }
             
-            /*
             NSArray* faces = [brush faces];
             NSEnumerator* faceEn = [faces objectEnumerator];
             id <Face> face;
@@ -914,7 +913,6 @@ int const TexCoordSize = 2 * sizeof(float);
                 gluSphere(vertexHandle, 1, 12, 12);
                 glPopMatrix();
             }
-             */
         }
 
         glFrontFace(GL_CW);

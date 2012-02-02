@@ -20,6 +20,7 @@
 #import "Grid.h"
 #import "SelectionManager.h"
 #import "MutableBrush.h"
+#import "Face.h"
 
 @interface VertexTool (private)
 
@@ -85,6 +86,9 @@
     } else if (index < vertices->count + edges->count) {
         TEdge* edge = edges->items[index - vertices->count];
         centerOfEdge(edge, &lastPoint);
+    } else {
+        id <Face> face = [[brush faces] objectAtIndex:index - edges->count - vertices->count];
+        centerOfVertices([face vertices], &lastPoint);
     }
     
     editingPoint = lastPoint;

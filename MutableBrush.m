@@ -483,6 +483,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [hit release];
         }
     }
+
+    for (int i = 0; i < vd->sideList.count; i++) {
+        TSide* side = vd->sideList.items[i];
+        float dist = intersectSphereWithRay([side->face center], theRadius, theRay);
+        if (!isnan(dist)) {
+            rayPointAtDistance(theRay, dist, &hitPoint);
+            PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:vd->vertexList.count + vd->edgeList.count + i hitPoint:&hitPoint distance:dist];
+            [theHitList addHit:hit];
+            [hit release];
+        }
+    }
 }
 
 
