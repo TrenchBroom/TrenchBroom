@@ -1821,7 +1821,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
             break;
         }
     
-    if (actualDragDist == dragDist)
+    if (actualDragDist == dragDist || v == -1)
         return v;
     
     scaleV3f(&dragRay.direction, dragDist - actualDragDist, &dragRay.direction);
