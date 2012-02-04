@@ -462,16 +462,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     [self updateCursorOwner];
     [self updateCursor];
-    
-    PickingHit* hit = [[self currentHits] firstHitOfType:HT_VERTEX ignoreOccluders:NO];
-    if (hit != nil) {
-        id <Brush> brush = [hit object];
-        int index = [hit vertexIndex];
-        if (index < [brush vertices]->count) {
-            TVertex* vertex = [brush vertices]->items[index];
-            NSLog(@"vertex %f %f %f", vertex->vector.x, vertex->vector.y, vertex->vector.z);
-        }
-    }
 }
 
 - (void)handleMouseEntered:(NSEvent *)event sender:(id)sender {
@@ -730,9 +720,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (PickingHitList *)currentHits {
     if (currentHits == nil) {
         Picker* picker = [[windowController document] picker];
-        NSAssert(picker != nil, @"picker must not be nil");
         currentHits = [[picker pickObjects:&lastRay filter:filter] retain];
-        NSAssert(currentHits != nil, @"current hits must not be nil");
         
         SelectionManager* selectionManager = [windowController selectionManager];
         if ([selectionManager mode] == SM_BRUSHES) {

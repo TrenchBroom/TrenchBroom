@@ -1549,47 +1549,29 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     return YES;
 }
 
-- (NSArray *)dragVertices:(NSArray *)theVertexIndices brushes:(NSArray *)theBrushes delta:(const TVector3f *)theDelta {
-    NSAssert(theBrushes != nil, @"brush set must not be nil");
-    NSAssert([theVertexIndices count] == [theBrushes count], @"number of vertex indices and brushes must be the same");
+- (int)dragVertex:(int)theVertexIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta {
+    NSAssert(theBrush != nil, @"brush must not be nil");
     
-    if ([theBrushes count] == 0)
-        return NO;
-
     if (nullV3f(theDelta))
         return NO;
     
-    BOOL canDrag = YES;
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    NSEnumerator* vertexIndexEn = [theVertexIndices objectEnumerator];
-    MutableBrush* brush;
-    NSNumber* vertexIndex;
+    MutableBrush* mutableBrush = (MutableBrush *)theBrush;
+    if (![mutableBrush canDragVertex:theVertexIndex by:theDelta])
+        return theVertexIndex;
     
-    while ((brush = [brushEn nextObject]) && (vertexIndex = [vertexIndexEn nextObject]))
-        canDrag &= [brush canDragVertex:[vertexIndex intValue] by:theDelta];
-
-    if (!canDrag)
-        return theVertexIndices;
+    NSArray* brushArray = [[NSArray alloc] initWithObjects:theBrush, nil];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
             userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:theBrushes forKey:BrushesKey];
+            [userInfo setObject:brushArray forKey:BrushesKey];
             
             NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
             [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
     }
     
-    [self makeUndoSnapshotOfBrushes:theBrushes];
-    
-    NSMutableArray* newVertexIndices = [[NSMutableArray alloc] initWithCapacity:[theVertexIndices count]];
-    
-    brushEn = [theBrushes objectEnumerator];
-    vertexIndexEn = [theVertexIndices objectEnumerator];
-    while ((brush = [brushEn nextObject]) && (vertexIndex = [vertexIndexEn nextObject])) {
-        int newVertexIndex = [brush dragVertex:[vertexIndex intValue] by:theDelta];
-        [newVertexIndices addObject:[NSNumber numberWithInt:newVertexIndex]];
-    }
+    [self makeUndoSnapshotOfBrushes:brushArray];
+    int newVertexIndex = [mutableBrush dragVertex:theVertexIndex by:theDelta];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -1597,7 +1579,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [userInfo release];
     }
     
-    return [newVertexIndices autorelease];
+    [brushArray release];
+    return newVertexIndex;
 }
 
 - (void)clear {

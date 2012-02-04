@@ -11,14 +11,21 @@
 @class MapWindowController;
 @class DragVertexCursor;
 @class EditingSystem;
+@protocol Brush;
+
+typedef enum {
+    VTS_DEFAULT,
+    VTS_DRAG,
+    VTS_CANCEL
+} EVertexToolState;
 
 @interface VertexTool : DefaultTool {
     MapWindowController* windowController;
     DragVertexCursor* cursor;
     EditingSystem* editingSystem;
-    BOOL drag;
-    NSArray* brushes;
-    NSArray* vertexIndices;
+    EVertexToolState state;
+    id <Brush> brush;
+    int index;
     TVector3f lastPoint;
     TVector3f editingPoint;
     EKeyStatus keyStatus;

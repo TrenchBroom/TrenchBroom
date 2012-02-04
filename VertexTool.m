@@ -53,6 +53,7 @@
     if ((self = [self init])) {
         windowController = theWindowController;
         cursor = [[DragVertexCursor alloc] init];
+        state = VTS_DEFAULT;
     }
     
     return self;
@@ -82,10 +83,10 @@
         [undoManager setGroupsByEvent:NO];
         [undoManager beginUndoGrouping];
         
-        id <Brush> brush = [hit object];
+        brush = [hit object];
         [map snapBrushes:[NSArray arrayWithObject:brush]];
         
-        int index = [hit vertexIndex];
+        index = [hit vertexIndex];
         const TVertexList* vertices = [brush vertices];
         const TEdgeList* edges = [brush edges];
         
@@ -102,27 +103,14 @@
         }
         editingPoint = lastPoint;
         
-        NSMutableArray* mutableBrushes = [[NSMutableArray alloc] init];
-        NSMutableArray* mutableVertexIndices = [[NSMutableArray alloc] init];
-        
-        NSEnumerator* hitEn = [[hits hitsOfType:HT_VERTEX] objectEnumerator];
-        while ((hit = [hitEn nextObject])) {
-            [mutableBrushes addObject:[hit object]];
-            [mutableVertexIndices addObject:[NSNumber numberWithInt:[hit vertexIndex]]];
-        }
-        
-        [map snapBrushes:mutableBrushes];
-        
-        brushes = mutableBrushes;
-        vertexIndices = mutableVertexIndices;
-        
-        drag = YES;
+        state = VTS_DRAG;
     }
+    
     [hits release];
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (!drag)
+    if (state != VTS_DRAG)
         return;
     
     float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
@@ -143,24 +131,23 @@
         return;
     
     MapDocument* map = [windowController document];
-    NSArray* newVertexIndices = [map dragVertices:vertexIndices brushes:brushes delta:&deltaf];
-    
-    NSEnumerator* indexEn = [newVertexIndices objectEnumerator];
-    NSNumber* index;
-    while ((index = [indexEn nextObject])) {
-        if ([index intValue] == -1) {
-            [self endLeftDrag:event ray:ray hits:hits];
-            break;
-        }
+    index = [map dragVertex:index brush:brush delta:&deltaf];
+    if (index == -1) {
+        [self endLeftDrag:event ray:ray hits:hits];
+        state = VTS_CANCEL;
+        [self unsetCursor:event ray:ray hits:hits];
+    } else if (index < [brush vertices]->count) {
+        lastPoint = point;
     }
-    
-    [vertexIndices release];
-    vertexIndices = [newVertexIndices retain];
-    lastPoint = point;
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (!drag)
+    if (state == VTS_CANCEL) {
+        [self setCursor:event ray:ray hits:hits];
+        state = VTS_DEFAULT;
+    }
+    
+    if (state != VTS_DRAG)
         return;
     
     MapDocument* map = [windowController document];
@@ -169,14 +156,10 @@
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
 
-    [brushes release];
-    brushes = nil;
-    [vertexIndices release];
-    vertexIndices = nil;
-    [editingSystem release];
-    editingSystem = nil;
+    brush = nil;
+    index = -1;
     
-    drag = NO;
+    state = VTS_DEFAULT;
 }
 
 - (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -193,40 +176,45 @@
 - (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     TVector3f position;
 
-    if (!drag) {
+    [self updateMoveDirectionWithRay:ray hits:hits];
+    
+    if (state == VTS_DRAG) {
+        float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
+        if (isnan(dist))
+            return;
+        
+        rayPointAtDistance(ray, dist, &position);
+
+        Camera* camera = [windowController camera];
+        [cursor setEditingSystem:editingSystem];
+        [cursor setCameraPosition:[camera position]];
+        [cursor setAttention:NO];
+    } else if (state == VTS_CANCEL) {
+        
+    } else {
         NSArray* vertexHits = [hits hitsOfType:HT_VERTEX];
         if ([vertexHits count] == 0)
             return;
-
+        
         position = *[[vertexHits objectAtIndex:0] hitPoint];
         
         BOOL attention = NO;
         NSEnumerator* hitEn = [vertexHits objectEnumerator];
         PickingHit* hit;
         while (!attention && (hit = [hitEn nextObject])) {
-            id <Brush> brush = [hit object];
-            const TVertexList* vertices = [brush vertices];
+            id <Brush> hitBrush = [hit object];
+            const TVertexList* vertices = [hitBrush vertices];
             for (int i = 0; i < vertices->count && !attention; i++)
                 attention = !intV3f(&vertices->items[i]->vector);
         }
         
+        Camera* camera = [windowController camera];
+        [cursor setEditingSystem:editingSystem];
+        [cursor setCameraPosition:[camera position]];
         [cursor setAttention:attention];
-    } else {
-        float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
-        if (isnan(dist))
-            return;
-        
-        rayPointAtDistance(ray, dist, &position);
-        [cursor setAttention:NO];
     }
     
-    [self updateMoveDirectionWithRay:ray hits:hits];
-
-    Camera* camera = [windowController camera];
-    
-    [cursor setEditingSystem:editingSystem];
     [cursor setPosition:&position];
-    [cursor setCameraPosition:[camera position]];
 }
 
 - (NSString *)actionName {

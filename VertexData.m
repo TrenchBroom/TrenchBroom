@@ -1552,6 +1552,18 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
         eIndex = vIndex - vd->vertices.count;
         TEdge* edge = vd->edges.items[eIndex];
         
+        // detect whether the drag would make the incident faces invalid
+        TVector3f edgeDir, temp;
+        edgeVector(edge, &edgeDir);
+        crossV3f([edge->leftSide->face norm], &edgeDir, &temp);
+        if (fpos(dotV3f(&d, &temp)))
+            return v;
+        
+        crossV3f(&edgeDir, [edge->rightSide->face norm], &temp);
+        if (fpos(dotV3f(&d, &temp)))
+            return v;
+        
+        // perform the edge split
         eVertices[0] = edge->startVertex->vector;
         eVertices[1] = edge->endVertex->vector;
         
@@ -1596,6 +1608,10 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
     } else if (vIndex >= vd->vertices.count + vd->edges.count && vIndex < vd->vertices.count + vd->edges.count + vd->sides.count) {
         sIndex = vIndex - vd->edges.count - vd->vertices.count;
         TSide* side = vd->sides.items[sIndex];
+        
+        // detect whether the drag would lead to an indented face
+        if (!fpos(dotV3f(&d, [side->face norm])))
+            return v;
         
         // store the side's vertices for later
         sVertexCount = side->vertices.count;
