@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010-2011 Kristian Duske
+Copyright (C) 2010-2012 Kristian Duske
 
 This file is part of TrenchBroom.
 
@@ -1544,7 +1544,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
     if (dragDist == 0)
         return vIndex;
     
-    sanityCheck(vd, YES);
+    assert(sanityCheck(vd, YES));
     
     // if v is the index of an edge, we need to split that edge and create a new vertex
     // if v is the index of a face, we need to create a new triangle fan around the face's center
@@ -1687,7 +1687,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
         vIndex = vd->vertices.count - 1;
     }
     
-    sanityCheck(vd, NO);
+    assert(sanityCheck(vd, NO));
     
     vertex = vd->vertices.items[vIndex];
     dragRay.origin = vertex->vector;
@@ -1717,7 +1717,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
         }
     }
     
-    sanityCheck(vd, YES);
+    assert(sanityCheck(vd, YES));
 
     // now find the shortest drag distance that will result in a merge of sides
     clearSideList(&incSides);
@@ -1806,7 +1806,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
         }
     }
     
-    sanityCheck(vd, YES);
+    assert(sanityCheck(vd, YES));
 
     // now merge all mergeable sides back together
     for (int i = 0; i < vd->sides.count; i++) {
@@ -1833,7 +1833,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
         }
     }
     
-    sanityCheck(vd, NO);
+    assert(sanityCheck(vd, NO));
 
     // check for consecutive edges that can be merge
     for (int i = 0; i < vd->edges.count; i++) {
@@ -1917,7 +1917,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
         }
     }
     
-    sanityCheck(vd, YES);
+    assert(sanityCheck(vd, YES));
 
     boundsOfVertexData(vd, &vd->bounds);
     

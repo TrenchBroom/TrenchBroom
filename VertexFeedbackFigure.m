@@ -1,7 +1,7 @@
 /*
 Copyright (C) 2010-2012 Kristian Duske
 
-This file is part of TrenchBroom.
+ This file is part of TrenchBroom.
 
 TrenchBroom is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,17 +17,8 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
-#import <OpenGL/gl.h>
-#import <OpenGL/glu.h>
-#import "Figure.h"
-#import "Math.h"
+#import "VertexFeedbackFigure.h"
 
-@interface ClipLineFeedbackFigure : NSObject <Figure> {
-    TVector3i startPoint;
-    TVector3i endPoint;
-}
-
-- (id)initWithStartPoint:(TVector3i *)theStartPoint endPoint:(TVector3i *)theEndPoint;
+@implementation VertexFeedbackFigure
 
 @end

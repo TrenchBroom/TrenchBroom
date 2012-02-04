@@ -17,17 +17,8 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
-#import <OpenGL/gl.h>
-#import <OpenGL/glu.h>
-#import "Figure.h"
-#import "Math.h"
+#import <Foundation/Foundation.h>
 
-@interface ClipLineFeedbackFigure : NSObject <Figure> {
-    TVector3i startPoint;
-    TVector3i endPoint;
-}
-
-- (id)initWithStartPoint:(TVector3i *)theStartPoint endPoint:(TVector3i *)theEndPoint;
+@interface VertexFeedbackFigure : NSObject
 
 @end

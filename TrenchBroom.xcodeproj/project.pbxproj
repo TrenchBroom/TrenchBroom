@@ -58,6 +58,7 @@
 		484B9A5813621004003030D7 /* EntityDefinitionParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 484B9A5713621004003030D7 /* EntityDefinitionParser.m */; };
 		484C28FC115023A2004DD957 /* VBOBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FB115023A2004DD957 /* VBOBuffer.m */; };
 		484C28FF1150258B004DD957 /* VBOMemBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FE1150258B004DD957 /* VBOMemBlock.m */; };
+		484E65A714DDE6E900E61462 /* VertexFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 484E65A614DDE6E900E61462 /* VertexFeedbackFigure.m */; };
 		48527F3811148D5C00CD6043 /* MutableFace.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3711148D5C00CD6043 /* MutableFace.m */; };
 		48527F3E11148EAA00CD6043 /* MutableBrush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* MutableBrush.m */; };
 		485582131357874F005F8B2C /* CameraTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 485582121357874F005F8B2C /* CameraTool.m */; };
@@ -332,6 +333,8 @@
 		484C28FB115023A2004DD957 /* VBOBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOBuffer.m; sourceTree = "<group>"; };
 		484C28FD1150258B004DD957 /* VBOMemBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOMemBlock.h; sourceTree = "<group>"; };
 		484C28FE1150258B004DD957 /* VBOMemBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOMemBlock.m; sourceTree = "<group>"; };
+		484E65A514DDE6E900E61462 /* VertexFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexFeedbackFigure.h; sourceTree = "<group>"; };
+		484E65A614DDE6E900E61462 /* VertexFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexFeedbackFigure.m; sourceTree = "<group>"; };
 		48527F3611148D5C00CD6043 /* MutableFace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutableFace.h; sourceTree = "<group>"; };
 		48527F3711148D5C00CD6043 /* MutableFace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutableFace.m; sourceTree = "<group>"; };
 		48527F3C11148EAA00CD6043 /* MutableBrush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutableBrush.h; sourceTree = "<group>"; };
@@ -791,16 +794,8 @@
 			children = (
 				485582111357874F005F8B2C /* CameraTool.h */,
 				485582121357874F005F8B2C /* CameraTool.m */,
-				48DBE7431341CCD200C0FDE7 /* ClipBrushFeedbackFigure.h */,
-				48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */,
-				482F004E134107DC00849BF5 /* ClipLineFeedbackFigure.h */,
-				482F004F134107DC00849BF5 /* ClipLineFeedbackFigure.m */,
 				48DBE74D1341CD8B00C0FDE7 /* ClipPlane.h */,
 				48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */,
-				482F008013410F7400849BF5 /* ClipPlaneFeedbackFigure.h */,
-				482F008113410F7400849BF5 /* ClipPlaneFeedbackFigure.m */,
-				482FFF161340E56000849BF5 /* ClipPointFeedbackFigure.h */,
-				482FFF171340E56000849BF5 /* ClipPointFeedbackFigure.m */,
 				482FFEFF1340E10E00849BF5 /* ClipTool.h */,
 				482FFF001340E10E00849BF5 /* ClipTool.m */,
 				4867430313577855009E7ABF /* DefaultTool.h */,
@@ -924,36 +919,46 @@
 			children = (
 				48025140133A1211001C51F2 /* PrimitiveRenderer */,
 				489DC65D12F9EBF500053092 /* Text */,
+				48A4F487149D27310086146C /* ArrowFigure.h */,
+				48A4F488149D27310086146C /* ArrowFigure.m */,
+				48DBE7431341CCD200C0FDE7 /* ClipBrushFeedbackFigure.h */,
+				48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */,
+				482F004E134107DC00849BF5 /* ClipLineFeedbackFigure.h */,
+				482F004F134107DC00849BF5 /* ClipLineFeedbackFigure.m */,
+				482F008013410F7400849BF5 /* ClipPlaneFeedbackFigure.h */,
+				482F008113410F7400849BF5 /* ClipPlaneFeedbackFigure.m */,
+				482FFF161340E56000849BF5 /* ClipPointFeedbackFigure.h */,
+				482FFF171340E56000849BF5 /* ClipPointFeedbackFigure.m */,
+				48325D4513524F7000E703E0 /* CompassFigure.h */,
+				48325D4613524F7000E703E0 /* CompassFigure.m */,
 				48D09298147820CE000AA366 /* Cursor.h */,
 				48D09299147820CE000AA366 /* CursorManager.h */,
 				48D0929A147820CE000AA366 /* CursorManager.m */,
+				48A4F48A149D323F0086146C /* DoubleArrowFigure.h */,
+				48A4F48B149D323F0086146C /* DoubleArrowFigure.m */,
 				4879791B1479556A00B28DC9 /* DragFaceCursor.h */,
 				4879791C1479556A00B28DC9 /* DragFaceCursor.m */,
 				48A3B7F214A489A2002FDEBE /* DragVertexCursor.h */,
 				48A3B7F314A489A2002FDEBE /* DragVertexCursor.m */,
-				48D0929D147822D8000AA366 /* MoveCursor.h */,
-				48D0929E147822D8000AA366 /* MoveCursor.m */,
-				48325D4513524F7000E703E0 /* CompassFigure.h */,
-				48325D4613524F7000E703E0 /* CompassFigure.m */,
 				482FFF111340E3C600849BF5 /* Figure.h */,
 				4888732813436206005FCE15 /* FloatData.h */,
 				4888732913436206005FCE15 /* FloatData.m */,
 				488C8EDF12F6C3ED00F358E6 /* IntData.h */,
 				488C8EE012F6C3ED00F358E6 /* IntData.m */,
+				48D0929D147822D8000AA366 /* MoveCursor.h */,
+				48D0929E147822D8000AA366 /* MoveCursor.m */,
+				483AB7A51410C4E400B5F44E /* PointFileFeedbackFigure.h */,
+				483AB7A61410C4E400B5F44E /* PointFileFeedbackFigure.m */,
+				488F853A13F51FAE00DA0403 /* RenderChangeSet.h */,
+				488F853B13F51FAE00DA0403 /* RenderChangeSet.m */,
 				487A7E631300801A00434806 /* Renderer.h */,
 				487A7E641300801A00434806 /* Renderer.m */,
 				484C28FA115023A2004DD957 /* VBOBuffer.h */,
 				484C28FB115023A2004DD957 /* VBOBuffer.m */,
 				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
 				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
-				488F853A13F51FAE00DA0403 /* RenderChangeSet.h */,
-				488F853B13F51FAE00DA0403 /* RenderChangeSet.m */,
-				483AB7A51410C4E400B5F44E /* PointFileFeedbackFigure.h */,
-				483AB7A61410C4E400B5F44E /* PointFileFeedbackFigure.m */,
-				48A4F487149D27310086146C /* ArrowFigure.h */,
-				48A4F488149D27310086146C /* ArrowFigure.m */,
-				48A4F48A149D323F0086146C /* DoubleArrowFigure.h */,
-				48A4F48B149D323F0086146C /* DoubleArrowFigure.m */,
+				484E65A514DDE6E900E61462 /* VertexFeedbackFigure.h */,
+				484E65A614DDE6E900E61462 /* VertexFeedbackFigure.m */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -1557,6 +1562,7 @@
 				48A4F48C149D323F0086146C /* DoubleArrowFigure.m in Sources */,
 				48A3B7F014A4871E002FDEBE /* VertexTool.m in Sources */,
 				48A3B7F414A489A3002FDEBE /* DragVertexCursor.m in Sources */,
+				484E65A714DDE6E900E61462 /* VertexFeedbackFigure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1648,6 +1654,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
