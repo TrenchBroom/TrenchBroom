@@ -228,6 +228,8 @@ float lengthSquaredV3f(const TVector3f* v) {
 
 void normalizeV3f(const TVector3f* v, TVector3f* o) {
     float l = lengthV3f(v);
+    assert(l != 0);
+    
     o->x = v->x / l;
     o->y = v->y / l;
     o->z = v->z / l;
@@ -243,6 +245,10 @@ BOOL absEqualV3f(const TVector3f* l, const TVector3f* r) {
 
 BOOL nullV3f(const TVector3f* v) {
     return equalV3f(v, &NullVector);
+}
+
+BOOL intV3f(const TVector3f* v) {
+    return v->x == (int)v->x && v->y == (int)v->y && v->z == (int)v->z;
 }
 
 EAxis strongestComponentV3f(const TVector3f* v) {
@@ -380,6 +386,12 @@ void setComponentV3f(TVector3f* v, EAxis a, float f) {
         default:
             [NSException raise:NSInvalidArgumentException format:@"invalid vector component %i", a];
     }
+}
+
+void snapV3f(TVector3f* v) {
+    v->x = roundf(v->x);
+    v->y = roundf(v->y);
+    v->z = roundf(v->z);
 }
 
 void roundV3f(const TVector3f* v, TVector3i* o) {

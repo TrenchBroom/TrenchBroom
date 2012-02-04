@@ -45,7 +45,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (float)yScale;
 
 - (const TVector3f *)norm;
-- (const TVector3f *)center;
 - (const TPlane *)boundary;
 - (const TVertexList *)vertices;
 - (const TEdgeList *)edges;

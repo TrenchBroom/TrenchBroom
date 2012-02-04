@@ -1583,12 +1583,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [selectionManager addBrush:[theFace brush] record:NO];
     [options setIsolationMode:IM_WIREFRAME];
     
-    TVector3f position, direction;
+    TVector3f position, direction, center;
     scaleV3f([theFace norm], 150, &position);
-    addV3f([theFace center], &position, &position);
+    centerOfVertices([theFace vertices], &center);
+    addV3f(&center, &position, &position);
     scaleV3f([theFace norm], -1, &direction);
     
-    CameraAbsoluteAnimation* animation = [[CameraAbsoluteAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:[theFace center] duration:0.5];
+    CameraAbsoluteAnimation* animation = [[CameraAbsoluteAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
     [animation startAnimation];
 }
 

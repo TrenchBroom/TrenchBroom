@@ -69,30 +69,56 @@
 }
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    NSAssert(event != NULL, @"event must not be NULL");
+    NSAssert(ray != NULL, @"ray must not be NULL");
+    NSAssert(hits != nil, @"hit list must not be nil");
+    
+    [hits retain];
+    
     PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
-    if (hit == nil)
-        return;
-    
-    vertexHits = [[hits hitsOfType:HT_VERTEX] retain];
-
-    id <Brush> brush = [hit object];
-    int index = [hit vertexIndex];
-    const TVertexList* vertices = [brush vertices];
-    const TEdgeList* edges = [brush edges];
-    
-    if (index < vertices->count) {
-        TVertex* vertex = vertices->items[index];
-        lastPoint = vertex->vector;
-    } else if (index < vertices->count + edges->count) {
-        TEdge* edge = edges->items[index - vertices->count];
-        centerOfEdge(edge, &lastPoint);
-    } else {
-        id <Face> face = [[brush faces] objectAtIndex:index - edges->count - vertices->count];
-        centerOfVertices([face vertices], &lastPoint);
+    if (hit != nil) {
+        MapDocument* map = [windowController document];
+        NSUndoManager* undoManager = [map undoManager];
+        [undoManager setGroupsByEvent:NO];
+        [undoManager beginUndoGrouping];
+        
+        id <Brush> brush = [hit object];
+        [map snapBrushes:[NSArray arrayWithObject:brush]];
+        
+        int index = [hit vertexIndex];
+        const TVertexList* vertices = [brush vertices];
+        const TEdgeList* edges = [brush edges];
+        
+        if (index < vertices->count) {
+            TVertex* vertex = vertices->items[index];
+            lastPoint = vertex->vector;
+        } else if (index < vertices->count + edges->count) {
+            TEdge* edge = edges->items[index - vertices->count];
+            centerOfEdge(edge, &lastPoint);
+        } else {
+            // the side index is not the same as the face index!!!
+            id <Face> face = [[brush faces] objectAtIndex:index - edges->count - vertices->count];
+            centerOfVertices([face vertices], &lastPoint);
+        }
+        editingPoint = lastPoint;
+        
+        NSMutableArray* mutableBrushes = [[NSMutableArray alloc] init];
+        NSMutableArray* mutableVertexIndices = [[NSMutableArray alloc] init];
+        
+        NSEnumerator* hitEn = [[hits hitsOfType:HT_VERTEX] objectEnumerator];
+        while ((hit = [hitEn nextObject])) {
+            [mutableBrushes addObject:[hit object]];
+            [mutableVertexIndices addObject:[NSNumber numberWithInt:[hit vertexIndex]]];
+        }
+        
+        [map snapBrushes:mutableBrushes];
+        
+        brushes = mutableBrushes;
+        vertexIndices = mutableVertexIndices;
+        
+        drag = YES;
     }
-    
-    editingPoint = lastPoint;
-    drag = YES;
+    [hits release];
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -116,36 +142,40 @@
     if (nullV3f(&deltaf))
         return;
     
-    SelectionManager* selectionManager = [windowController selectionManager];
-    NSMutableArray* brushes = [[NSMutableArray alloc] init];
-    NSMutableArray* vertexIndices = [[NSMutableArray alloc] init];
-
-    NSEnumerator* hitEn = [vertexHits objectEnumerator];
-    PickingHit* hit;
-    while ((hit = [hitEn nextObject])) {
-        MutableBrush* brush = [hit object];
-        if ([selectionManager isBrushSelected:brush]) {
-            [vertexIndices addObject:[NSNumber numberWithInt:[hit vertexIndex]]];
-            [brushes addObject:brush];
+    MapDocument* map = [windowController document];
+    NSArray* newVertexIndices = [map dragVertices:vertexIndices brushes:brushes delta:&deltaf];
+    
+    NSEnumerator* indexEn = [newVertexIndices objectEnumerator];
+    NSNumber* index;
+    while ((index = [indexEn nextObject])) {
+        if ([index intValue] == -1) {
+            [self endLeftDrag:event ray:ray hits:hits];
+            break;
         }
     }
     
-    MapDocument* map = [windowController document];
-    if (![map dragVertices:vertexIndices brushes:brushes delta:&deltaf]) {
-        [vertexHits release];
-        vertexHits = nil;
-        drag = NO;
-    }
-    
-    [brushes release];
     [vertexIndices release];
-    
+    vertexIndices = [newVertexIndices retain];
     lastPoint = point;
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    [vertexHits release];
-    vertexHits = nil;
+    if (!drag)
+        return;
+    
+    MapDocument* map = [windowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager setActionName:[self actionName]];
+    [undoManager endUndoGrouping];
+    [undoManager setGroupsByEvent:YES];
+
+    [brushes release];
+    brushes = nil;
+    [vertexIndices release];
+    vertexIndices = nil;
+    [editingSystem release];
+    editingSystem = nil;
+    
     drag = NO;
 }
 
@@ -164,17 +194,30 @@
     TVector3f position;
 
     if (!drag) {
-        PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
-        if (hit == nil)
+        NSArray* vertexHits = [hits hitsOfType:HT_VERTEX];
+        if ([vertexHits count] == 0)
             return;
+
+        position = *[[vertexHits objectAtIndex:0] hitPoint];
         
-        position = *[hit hitPoint];
+        BOOL attention = NO;
+        NSEnumerator* hitEn = [vertexHits objectEnumerator];
+        PickingHit* hit;
+        while (!attention && (hit = [hitEn nextObject])) {
+            id <Brush> brush = [hit object];
+            const TVertexList* vertices = [brush vertices];
+            for (int i = 0; i < vertices->count && !attention; i++)
+                attention = !intV3f(&vertices->items[i]->vector);
+        }
+        
+        [cursor setAttention:attention];
     } else {
         float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
         if (isnan(dist))
             return;
         
         rayPointAtDistance(ray, dist, &position);
+        [cursor setAttention:NO];
     }
     
     [self updateMoveDirectionWithRay:ray hits:hits];

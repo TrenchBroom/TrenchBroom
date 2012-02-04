@@ -118,6 +118,7 @@ extern NSString* const DocumentLoaded;
 - (void)rotateBrushes90CCW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
 - (void)rotateBrushes:(NSArray *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures;
 - (void)flipBrushes:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures;
+- (void)snapBrushes:(NSArray *)theBrushes;
 - (void)deleteBrushes:(NSArray *)theBrushes;
 
 - (void)setFaces:(NSArray *)theFaces xOffset:(int)theXOffset;
@@ -131,7 +132,7 @@ extern NSString* const DocumentLoaded;
 - (void)setFaces:(NSArray *)theFaces texture:(Texture *)theTexture;
 - (BOOL)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures;
 
-- (BOOL)dragVertices:(NSArray *)theVertexIndices brushes:(NSArray *)theBrushes delta:(const TVector3f *)theDelta;
+- (NSArray *)dragVertices:(NSArray *)theVertexIndices brushes:(NSArray *)theBrushes delta:(const TVector3f *)theDelta;
 
 - (void)clear;
 

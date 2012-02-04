@@ -374,13 +374,16 @@ NSString* const SelectionVertices = @"SelectionVertices";
 }
 
 - (BOOL)selectionCenter:(TVector3f *)result {
+    TVector3f center;
     switch ([self mode]) {
         case SM_FACES: {
             NSEnumerator* faceEn = [faces objectEnumerator];
             id <Face> face = [faceEn nextObject];
-            *result = *[face center];
-            while ((face = [faceEn nextObject]))
-                addV3f(result, [face center], result);
+            centerOfVertices([face vertices], result);
+            while ((face = [faceEn nextObject])) {
+                centerOfVertices([face vertices], &center);
+                addV3f(result, &center, result);
+            }
 
             scaleV3f(result, 1.0f / [faces count], result);
             return YES;
@@ -388,9 +391,11 @@ NSString* const SelectionVertices = @"SelectionVertices";
         case SM_BRUSHES: {
             NSEnumerator* brushEn = [brushes objectEnumerator];
             id <Brush> brush = [brushEn nextObject];
-            *result = *[brush center];
-            while ((brush = [brushEn nextObject]))
-                addV3f(result, [brush center], result);
+            centerOfVertices([brush vertices], result);
+            while ((brush = [brushEn nextObject])) {
+                centerOfVertices([brush vertices], &center);
+                addV3f(result, &center, result);
+            }
 
             scaleV3f(result, 1.0f / [brushes count], result);
             return YES;
@@ -408,9 +413,11 @@ NSString* const SelectionVertices = @"SelectionVertices";
         case SM_BRUSHES_ENTITIES: {
             NSEnumerator* brushEn = [brushes objectEnumerator];
             id <Brush> brush = [brushEn nextObject];
-            *result = *[brush center];
-            while ((brush = [brushEn nextObject]))
-                addV3f(result, [brush center], result);
+            centerOfVertices([brush vertices], result);
+            while ((brush = [brushEn nextObject])) {
+                centerOfVertices([brush vertices], &center);
+                addV3f(result, &center, result);
+            }
 
             NSEnumerator* entityEn = [entities objectEnumerator];
             id <Entity> entity;

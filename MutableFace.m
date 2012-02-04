@@ -84,32 +84,33 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 }
 
 - (void)validateMatrices {
-    TVector3f xAxis, yAxis, zAxis;
-    
+    TVector3f xAxis, yAxis, zAxis, center;
+
+    centerOfVertices([self vertices], &center);
     zAxis = *[self norm];
 
     const TVector3f* closestAxis = firstAxisV3f(&zAxis);
     if (closestAxis == &XAxisPos) {
-        addV3f(&YAxisPos, [self center], &xAxis);
+        addV3f(&YAxisPos, &center, &xAxis);
         [self projectToSurface:&xAxis axis:&XAxisPos result:&xAxis];
     } else if (closestAxis == &XAxisNeg) {
-        addV3f(&YAxisNeg, [self center], &xAxis);
+        addV3f(&YAxisNeg, &center, &xAxis);
         [self projectToSurface:&xAxis axis:&XAxisNeg result:&xAxis];
     } else if (closestAxis == &YAxisPos) {
-        addV3f(&XAxisNeg, [self center], &xAxis);
+        addV3f(&XAxisNeg, &center, &xAxis);
         [self projectToSurface:&xAxis axis:&YAxisPos result:&xAxis];
     } else if (closestAxis == &YAxisNeg) {
-        addV3f(&XAxisPos, [self center], &xAxis);
+        addV3f(&XAxisPos, &center, &xAxis);
         [self projectToSurface:&xAxis axis:&YAxisNeg result:&xAxis];
     } else if (closestAxis == &ZAxisPos) {
-        addV3f(&XAxisPos, [self center], &xAxis);
+        addV3f(&XAxisPos, &center, &xAxis);
         [self projectToSurface:&xAxis axis:&ZAxisPos result:&xAxis];
     } else {
-        addV3f(&XAxisNeg, [self center], &xAxis);
+        addV3f(&XAxisNeg, &center, &xAxis);
         [self projectToSurface:&xAxis axis:&ZAxisNeg result:&xAxis];
     }
     
-    subV3f(&xAxis, [self center], &xAxis);
+    subV3f(&xAxis, &center, &xAxis);
     normalizeV3f(&xAxis, &xAxis);
     crossV3f(&zAxis, &xAxis, &yAxis);
     normalizeV3f(&yAxis, &yAxis);
@@ -118,7 +119,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     setColumnM4fV3f(&surfaceToWorldMatrix, &xAxis, 0, &surfaceToWorldMatrix);
     setColumnM4fV3f(&surfaceToWorldMatrix, &yAxis, 1, &surfaceToWorldMatrix);
     setColumnM4fV3f(&surfaceToWorldMatrix, &zAxis, 2, &surfaceToWorldMatrix);
-    setColumnM4fV3f(&surfaceToWorldMatrix, [self center], 3, &surfaceToWorldMatrix);
+    setColumnM4fV3f(&surfaceToWorldMatrix, &center, 3, &surfaceToWorldMatrix);
     setValueM4f(&surfaceToWorldMatrix, 1, 3, 3, &surfaceToWorldMatrix);
     
     if (!invertM4f(&surfaceToWorldMatrix, &worldToSurfaceMatrix))
@@ -146,13 +147,13 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     TVector3f newTexAxisX, newTexAxisY, newFaceNorm, newCenter, newBaseAxisX, newBaseAxisY, offset, temp;
     TVector2f curCenterTexCoords, newCenterTexCoords;
     TPlane plane;
-    const TVector3f* curCenter;
+    TVector3f curCenter;
     const TVector3f* newTexPlaneNorm;
     
     // calculate the current texture coordinates of the face's center
-    curCenter = [self center];
-    curCenterTexCoords.x = dotV3f(curCenter, &scaledTexAxisX) + xOffset;
-    curCenterTexCoords.y = dotV3f(curCenter, &scaledTexAxisY) + yOffset;
+    centerOfVertices([self vertices], &curCenter);
+    curCenterTexCoords.x = dotV3f(&curCenter, &scaledTexAxisX) + xOffset;
+    curCenterTexCoords.y = dotV3f(&curCenter, &scaledTexAxisY) + yOffset;
     
     // invert the scale of the current texture axes
     scaleV3f(&texAxisX, xScale, &newTexAxisX);
@@ -177,7 +178,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     transformM4fV3f(transformation, &newTexAxisY, &newTexAxisY);
     transformM4fV3f(transformation, [self norm], &newFaceNorm);
     transformM4fV3f(transformation, &NullVector, &offset);
-    transformM4fV3f(transformation, curCenter, &newCenter);
+    transformM4fV3f(transformation, &curCenter, &newCenter);
     
     // correct the directional vectors by the translational part of the transformation
     subV3f(&newTexAxisX, &offset, &newTexAxisX);
@@ -776,11 +777,6 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (const TVector3f *)norm {
     return &[self boundary]->norm;
-}
-
-- (const TVector3f *)center {
-    NSAssert(side != NULL, @"side must not be NULL");
-    return &side->center;
 }
 
 - (const TPlane *)boundary {

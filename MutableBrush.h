@@ -51,6 +51,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures;
 - (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
+- (void)snap;
 
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist;
 - (void)drag:(MutableFace *)face by:(float)dist lockTexture:(BOOL)lockTexture;

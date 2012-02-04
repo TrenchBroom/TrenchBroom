@@ -907,9 +907,9 @@ int const TexCoordSize = 2 * sizeof(float);
             NSEnumerator* faceEn = [faces objectEnumerator];
             id <Face> face;
             while ((face = [faceEn nextObject])) {
-                const TVector3f* center = [face center];
+                centerOfVertices([face vertices], &mid);
                 glPushMatrix();
-                glTranslatef(center->x, center->y, center->z);
+                glTranslatef(mid.x, mid.y, mid.z);
                 gluSphere(vertexHandle, 1, 12, 12);
                 glPopMatrix();
             }

@@ -95,7 +95,6 @@ typedef struct {
 typedef struct TSideTag {
     TVertexList vertices;
     TEdgeList edges;
-    TVector3f center;
     MutableFace* face;
     ESideMark mark;
 } TSide;
@@ -111,7 +110,6 @@ typedef struct {
     TEdgeList edges;
     TSideList sides;
     TBoundingBox bounds;
-    TVector3f center;
 } TVertexData;
 
 void initIndexList(TIndexList* l, int c);
@@ -179,7 +177,7 @@ void addEdge(TVertexData* vd, TEdge* e);
 void deleteEdge(TVertexData* vd, int e);
 void addSide(TVertexData* vd, TSide* s);
 void deleteSide(TVertexData* vd, int s);
-void boundsOfVertexData(TVertexData* vd, TBoundingBox* b, TVector3f* c);
+void boundsOfVertexData(TVertexData* vd, TBoundingBox* b);
 ECutResult cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d);
 void translateVertexData(TVertexData* vd, const TVector3f* d);
 void rotateVertexData90CW(TVertexData* vd, EAxis a, const TVector3f* c);
@@ -189,9 +187,7 @@ void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c);
 BOOL vertexDataContainsPoint(TVertexData* vd, TVector3f* p);
 EPointStatus vertexStatusFromRay(const TVector3f* o, const TVector3f* d, const TVertexList* ps);
 
-MutableFace* createFaceForSide(const TBoundingBox* w, TSide* s);
-int polygonShape(const TVertexList* p, const TVector3f* n);
+int dragVertex(TVertexData* vd, int v, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
 
-int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
-
-BOOL sanityCheck(const TVertexData* vd);
+void snapVertexData(TVertexData* vd);
+BOOL sanityCheck(const TVertexData* vd, BOOL cc);

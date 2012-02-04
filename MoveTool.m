@@ -197,10 +197,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
     
-    if (editingSystem == nil) {
-        [editingSystem release];
-        editingSystem = nil;
-    }
+    [editingSystem release];
+    editingSystem = nil;
 
     drag = NO;
 }

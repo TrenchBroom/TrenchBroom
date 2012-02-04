@@ -294,6 +294,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 }
 
+- (void)snap {
+    snapVertexData([self vertexData]);
+}
+
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist {
     NSMutableArray* testFaces = [[NSMutableArray alloc] initWithArray:faces];
     [testFaces removeObjectIdenticalTo:face];
@@ -438,10 +442,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return &[self vertexData]->bounds;
 }
 
-- (const TVector3f *)center {
-    return &[self vertexData]->center;
-}
-
 - (const TBoundingBox *)worldBounds {
     return worldBounds;
 }
@@ -468,7 +468,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)pickVertices:(const TRay *)theRay handleRadius:(float)theRadius hitList:(PickingHitList *)theHitList {
     TVertexData* vd = [self vertexData];
-    TVector3f hitPoint;
+    TVector3f hitPoint, center;
     
     for (int i = 0; i < vd->vertices.count; i++) {
         TVector3f* vertex = &vd->vertices.items[i]->vector;
@@ -483,8 +483,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     for (int i = 0; i < vd->edges.count; i++) {
         TEdge* edge = vd->edges.items[i];
-        centerOfEdge(edge, &hitPoint);
-        float dist = intersectSphereWithRay(&hitPoint, theRadius, theRay);
+        centerOfEdge(edge, &center);
+        float dist = intersectSphereWithRay(&center, theRadius, theRay);
         if (!isnan(dist)) {
             rayPointAtDistance(theRay, dist, &hitPoint);
             PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:vd->vertices.count + i hitPoint:&hitPoint distance:dist];
@@ -495,7 +495,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     for (int i = 0; i < vd->sides.count; i++) {
         TSide* side = vd->sides.items[i];
-        float dist = intersectSphereWithRay([side->face center], theRadius, theRay);
+        centerOfVertices(&side->vertices, &center);
+        float dist = intersectSphereWithRay(&center, theRadius, theRay);
         if (!isnan(dist)) {
             rayPointAtDistance(theRay, dist, &hitPoint);
             PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:vd->vertices.count + vd->edges.count + i hitPoint:&hitPoint distance:dist];

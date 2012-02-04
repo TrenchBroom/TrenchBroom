@@ -37,6 +37,9 @@ static const float headLength = 3.5f;
 }
 
 - (void)render {
+    if (editingSystem == nil)
+        return;
+    
     DoubleArrowFigure* arrow1;
     DoubleArrowFigure* arrow2;
     
@@ -47,11 +50,20 @@ static const float headLength = 3.5f;
     [arrow1 setCameraPosition:&cameraPosition];
     [arrow2 setPosition:&position];
     [arrow2 setCameraPosition:&cameraPosition];
-    
-    TVector4f fillColor1 = {0, 0, 0, 1};
-    TVector4f outlineColor1 = {1, 1, 1, 1};
-    TVector4f fillColor2 = {0, 0, 0, 0.3f};
-    TVector4f outlineColor2 = {1, 1, 1, 0.3f};
+
+    TVector4f fillColor1, fillColor2, outlineColor1, outlineColor2;
+
+    if (attention) {
+        fillColor1 = (TVector4f) {0, 0, 0, 1};
+        fillColor2 = (TVector4f) {0, 0, 0, 0.3f};
+        outlineColor1 = (TVector4f) {1, 0, 0, 1};
+        outlineColor2 = (TVector4f) {1, 0, 0, 0.3f};
+    } else {
+        fillColor1 = (TVector4f) {0, 0, 0, 1};
+        fillColor2 = (TVector4f) {0, 0, 0, 0.3f};
+        outlineColor1 = (TVector4f) {1, 1, 1, 1};
+        outlineColor2 = (TVector4f) {1, 1, 1, 0.3f};
+    }
     
     glDisable(GL_DEPTH_TEST);
     
@@ -88,5 +100,10 @@ static const float headLength = 3.5f;
     NSAssert(theCameraPosition != nil, @"camera position must not be nil");
     cameraPosition = *theCameraPosition;
 }
+
+- (void)setAttention:(BOOL)theAttention {
+    attention = theAttention;
+}
+
 
 @end

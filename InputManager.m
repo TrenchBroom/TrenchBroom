@@ -177,6 +177,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [activeTool deactivated:lastEvent ray:&lastRay hits:[self currentHits]];
         activeTool = newActiveTool;
         if (activeTool != nil) {
+            [activeTool handleKeyStatusChanged:lastEvent status:keyStatus ray:&lastRay hits:[self currentHits]];
             [activeTool activated:lastEvent ray:&lastRay hits:[self currentHits]];
         }
     }
@@ -243,16 +244,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                         newOwner = faceTool;
                 }
             }
-        } else {
-            NSLog(@"asdfasdf");
         }
         
         if (newOwner != cursorOwner) {
             if (cursorOwner != nil)
                 [cursorOwner unsetCursor:lastEvent ray:&lastRay hits:[self currentHits]];
             cursorOwner = newOwner;
-            if (cursorOwner != nil)
+            if (cursorOwner != nil) {
+                [cursorOwner handleKeyStatusChanged:lastEvent status:keyStatus ray:&lastRay hits:[self currentHits]];
                 [cursorOwner setCursor:lastEvent ray:&lastRay hits:[self currentHits]];
+            }
         }
     }
 }
@@ -729,7 +730,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (PickingHitList *)currentHits {
     if (currentHits == nil) {
         Picker* picker = [[windowController document] picker];
+        NSAssert(picker != nil, @"picker must not be nil");
         currentHits = [[picker pickObjects:&lastRay filter:filter] retain];
+        NSAssert(currentHits != nil, @"current hits must not be nil");
         
         SelectionManager* selectionManager = [windowController selectionManager];
         if ([selectionManager mode] == SM_BRUSHES) {

@@ -37,7 +37,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (const TEdgeList *)edges;
 
 - (const TBoundingBox *)bounds;
-- (const TVector3f *)center;
 - (const TBoundingBox *)worldBounds;
 
 - (void)pick:(const TRay *)theRay hitList:(PickingHitList *)theHitList;

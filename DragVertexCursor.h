@@ -18,9 +18,11 @@
     EditingSystem* editingSystem;
     TVector3f position;
     TVector3f cameraPosition;
+    BOOL attention;
 }
 
 - (void)setEditingSystem:(EditingSystem *)theEditingSystem;
 - (void)setCameraPosition:(const TVector3f *)theCameraPosition;
+- (void)setAttention:(BOOL)theAttention;
 
 @end

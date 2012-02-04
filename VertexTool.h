@@ -17,7 +17,8 @@
     DragVertexCursor* cursor;
     EditingSystem* editingSystem;
     BOOL drag;
-    NSArray* vertexHits;
+    NSArray* brushes;
+    NSArray* vertexIndices;
     TVector3f lastPoint;
     TVector3f editingPoint;
     EKeyStatus keyStatus;
