@@ -188,17 +188,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVector3f position;
 
     [self updateMoveDirectionWithRay:ray hits:hits];
+    [cursor setEditingSystem:editingSystem];
     
+    Camera* camera = [windowController camera];
+    [cursor setCameraPosition:[camera position]];
+
     if (state == VTS_DRAG) {
         float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
         if (isnan(dist))
             return;
         
         rayPointAtDistance(ray, dist, &position);
-
-        Camera* camera = [windowController camera];
-        [cursor setEditingSystem:editingSystem];
-        [cursor setCameraPosition:[camera position]];
         [cursor setAttention:NO];
     } else if (state == VTS_CANCEL) {
         
@@ -218,10 +218,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             for (int i = 0; i < vertices->count && !attention; i++)
                 attention = !intV3f(&vertices->items[i]->position);
         }
-        
-        Camera* camera = [windowController camera];
-        [cursor setEditingSystem:editingSystem];
-        [cursor setCameraPosition:[camera position]];
         [cursor setAttention:attention];
     }
     

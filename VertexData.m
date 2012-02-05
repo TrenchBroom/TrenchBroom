@@ -1559,7 +1559,11 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
     for (int i = 0; i < incSides.count; i++) {
         TSide* side = incSides.items[i];
         if (side->vertices.count > 3) {
-            if (fneg(dotV3f([side->face norm], &dragRay.direction))) {
+            subV3f(&side->vertices.items[2]->position, &side->vertices.items[0]->position, &v1);
+            subV3f(&side->vertices.items[1]->position, &side->vertices.items[0]->position, &v2);
+            crossV3f(&v1, &v2, &v1);
+            
+            if (fneg(dotV3f(&v1, &dragRay.direction))) {
                 splitFace(vd, side, vIndex, newFaces);
             } else {
                 triangulateFace(vd, side, vIndex, newFaces);
