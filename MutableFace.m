@@ -709,7 +709,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"ID: %i, point 1: %i %i %i, point 2: %i %i %i, point 3: %i %i %i, texture: %@, X offset: %i, Y offset: %i, rotation: %f, X scale: %f, Y scale: %f", 
+    return [NSString stringWithFormat:@"ID: %i, point 1: %i %i %i, point 2: %i %i %i, point 3: %i %i %i, texture: %@, X offset: %f, Y offset: %f, rotation: %f, X scale: %f, Y scale: %f", 
             [faceId intValue], 
             point1.x, 
             point1.y, 

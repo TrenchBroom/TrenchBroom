@@ -103,12 +103,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         if (index < vertices->count) {
             TVertex* vertex = vertices->items[index];
-            lastPoint = vertex->vector;
+            lastPoint = vertex->position;
         } else if (index < vertices->count + edges->count) {
             TEdge* edge = edges->items[index - vertices->count];
             centerOfEdge(edge, &lastPoint);
         } else {
-            // the side index is not the same as the face index!!!
+            // the side index is not necessarily the same as the face index!!!
             id <Face> face = [[brush faces] objectAtIndex:index - edges->count - vertices->count];
             centerOfVertices([face vertices], &lastPoint);
         }
@@ -216,7 +216,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             id <Brush> hitBrush = [hit object];
             const TVertexList* vertices = [hitBrush vertices];
             for (int i = 0; i < vertices->count && !attention; i++)
-                attention = !intV3f(&vertices->items[i]->vector);
+                attention = !intV3f(&vertices->items[i]->position);
         }
         
         Camera* camera = [windowController camera];

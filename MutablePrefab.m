@@ -60,7 +60,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             while ((brush = [brushEn nextObject])) {
                 const TVertexList* vertices = [brush vertices];
                 for (int i = 0; i < vertices->count; i++) {
-                    subV3f(&vertices->items[i]->vector, &center, &diff);
+                    subV3f(&vertices->items[i]->position, &center, &diff);
                     float lengthSquared = lengthSquaredV3f(&diff);
                     if (lengthSquared > distSquared)
                         distSquared = lengthSquared;

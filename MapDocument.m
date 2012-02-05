@@ -1556,9 +1556,6 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return NO;
     
     MutableBrush* mutableBrush = (MutableBrush *)theBrush;
-    if (![mutableBrush canDragVertex:theVertexIndex by:theDelta])
-        return theVertexIndex;
-    
     NSArray* brushArray = [[NSArray alloc] initWithObjects:theBrush, nil];
     
     NSMutableDictionary* userInfo;
@@ -1571,7 +1568,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
     
     [self makeUndoSnapshotOfBrushes:brushArray];
-    int newVertexIndex = [mutableBrush dragVertex:theVertexIndex by:theDelta];
+    int newIndex = [mutableBrush dragVertex:theVertexIndex by:theDelta];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
@@ -1580,7 +1577,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
     
     [brushArray release];
-    return newVertexIndex;
+    return newIndex;
 }
 
 - (void)clear {

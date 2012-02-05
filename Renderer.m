@@ -251,8 +251,8 @@ int const TexCoordSize = 2 * sizeof(float);
     const TVertexList* vertices = [theFace vertices];
     for (int i = 0; i < vertices->count; i++) {
         TVertex* vertex = vertices->items[i];
-        [theFace gridCoords:&gridCoords forVertex:&vertex->vector];
-        [theFace texCoords:&texCoords forVertex:&vertex->vector];
+        [theFace gridCoords:&gridCoords forVertex:&vertex->position];
+        [theFace texCoords:&texCoords forVertex:&vertex->position];
         texCoords.x /= width;
         texCoords.y /= height;
         
@@ -260,7 +260,7 @@ int const TexCoordSize = 2 * sizeof(float);
         address = writeVector2f(&texCoords, vboBuffer, address);
         address = writeColor4fAsBytes(&EdgeDefaultColor, vboBuffer, address);
         address = writeColor4fAsBytes(&FaceDefaultColor, vboBuffer, address);
-        address = writeVector3f(&vertex->vector, vboBuffer, address);
+        address = writeVector3f(&vertex->position, vboBuffer, address);
     }
     
     [theBlock setState:BS_USED_VALID];
@@ -885,7 +885,7 @@ int const TexCoordSize = 2 * sizeof(float);
         while ((brush = [brushEn nextObject])) {
             const TVertexList* vertices = [brush vertices];
             for (int i = 0; i < vertices->count; i++) {
-                TVector3f* vertex = &vertices->items[i]->vector;
+                TVector3f* vertex = &vertices->items[i]->position;
                 glPushMatrix();
                 glTranslatef(vertex->x, vertex->y, vertex->z);
                 gluSphere(vertexHandle, 2, 12, 12);

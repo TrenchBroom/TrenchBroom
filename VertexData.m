@@ -285,20 +285,20 @@ void freeSideList(TSideList* l) {
 void centerOfVertices(const TVertexList* v, TVector3f* c) {
     assert(v->count > 0);
     
-    *c = v->items[0]->vector;
+    *c = v->items[0]->position;
     for (int i = 1; i < v->count; i++)
-        addV3f(c, &v->items[i]->vector, c);
+        addV3f(c, &v->items[i]->position, c);
     scaleV3f(c, 1.0f / v->count, c);
 }
 
 void edgeVector(const TEdge* e, TVector3f* v) {
-    subV3f(&e->endVertex->vector, &e->startVertex->vector, v);
+    subV3f(&e->endVertex->position, &e->startVertex->position, v);
 }
 
 void centerOfEdge(const TEdge* e, TVector3f* v) {
-    subV3f(&e->endVertex->vector, &e->startVertex->vector, v);
+    subV3f(&e->endVertex->position, &e->startVertex->position, v);
     scaleV3f(v, 0.5f, v);
-    addV3f(&e->startVertex->vector, v, v);
+    addV3f(&e->startVertex->position, v, v);
 }
 
 
@@ -347,10 +347,10 @@ TVertex* splitEdge(const TPlane* p, TEdge* e) {
     
     TVertex* newVertex = malloc(sizeof(TVertex));
     TLine line;
-    setLinePoints(&line, &e->startVertex->vector, &e->endVertex->vector);
+    setLinePoints(&line, &e->startVertex->position, &e->endVertex->position);
     
     float dist = intersectPlaneWithLine(p, &line);
-    linePointAtDistance(&line, dist, &newVertex->vector);
+    linePointAtDistance(&line, dist, &newVertex->position);
     newVertex->mark = VM_NEW;
     
     if (e->startVertex->mark == VM_DROP)
@@ -594,17 +594,18 @@ float pickSide(const TSide* s, const TRay* r, TVector3f* h) {
     projectOntoCoordinatePlane(cPlane, &is, &pis);
     
     TVertex* v = s->vertices.items[s->vertices.count - 1];
-    projectOntoCoordinatePlane(cPlane, &v->vector, &v0);
+    projectOntoCoordinatePlane(cPlane, &v->position, &v0);
     subV3f(&v0, &pis, &v0);
     
     int c = 0;
     for (int i = 0; i < s->vertices.count; i++) {
         v = s->vertices.items[i];
-        projectOntoCoordinatePlane(cPlane, &v->vector, &v1);
+        projectOntoCoordinatePlane(cPlane, &v->position, &v1);
         subV3f(&v1, &pis, &v1);
         
         if ((fzero(v0.x) && fzero(v0.y)) || (fzero(v1.x) && fzero(v1.y))) {
             // the point is identical to a polygon vertex, cancel search
+//            NSLog(@"face %@ discarded because ray hit a vertex", s->face);
             c = 1;
             break;
         }
@@ -641,8 +642,10 @@ float pickSide(const TSide* s, const TRay* r, TVector3f* h) {
         v0 = v1;
     }
     
-    if (c % 2 == 0)
+    if (c % 2 == 0) {
+//        NSLog(@"face %@ discarded because hit count was %i", s->face, c);
         return NAN;
+    }
     
     *h = is;
     return dist;
@@ -713,58 +716,58 @@ void initVertexDataWithBounds(TVertexData* vd, const TBoundingBox* b) {
     vd->bounds.max.z = max->z + 1;
     
     TVertex* esb = malloc(sizeof(TVertex));
-    esb->vector.x  = min->x - 1;
-    esb->vector.y  = min->y - 1;
-    esb->vector.z  = min->z - 1;
+    esb->position.x  = min->x - 1;
+    esb->position.y  = min->y - 1;
+    esb->position.z  = min->z - 1;
     esb->mark      = VM_UNKNOWN;
     addVertex(vd, esb);
     
     TVertex* est = malloc(sizeof(TVertex));
-    est->vector.x  = min->x - 1;
-    est->vector.y  = min->y - 1;
-    est->vector.z  = max->z + 1;
+    est->position.x  = min->x - 1;
+    est->position.y  = min->y - 1;
+    est->position.z  = max->z + 1;
     est->mark      = VM_UNKNOWN;
     addVertex(vd, est);
     
     TVertex* enb = malloc(sizeof(TVertex));
-    enb->vector.x  = min->x - 1;
-    enb->vector.y  = max->y + 1;
-    enb->vector.z  = min->z - 1;
+    enb->position.x  = min->x - 1;
+    enb->position.y  = max->y + 1;
+    enb->position.z  = min->z - 1;
     enb->mark      = VM_UNKNOWN;
     addVertex(vd, enb);
     
     TVertex* ent = malloc(sizeof(TVertex));
-    ent->vector.x  = min->x - 1;
-    ent->vector.y  = max->y + 1;
-    ent->vector.z  = max->z + 1;
+    ent->position.x  = min->x - 1;
+    ent->position.y  = max->y + 1;
+    ent->position.z  = max->z + 1;
     ent->mark      = VM_UNKNOWN;
     addVertex(vd, ent);
 
     TVertex* wsb = malloc(sizeof(TVertex));
-    wsb->vector.x  = max->x + 1;
-    wsb->vector.y  = min->y - 1;
-    wsb->vector.z  = min->z - 1;
+    wsb->position.x  = max->x + 1;
+    wsb->position.y  = min->y - 1;
+    wsb->position.z  = min->z - 1;
     wsb->mark      = VM_UNKNOWN;
     addVertex(vd, wsb);
 
     TVertex* wst = malloc(sizeof(TVertex));
-    wst->vector.x  = max->x + 1;
-    wst->vector.y  = min->y - 1;
-    wst->vector.z  = max->z + 1;
+    wst->position.x  = max->x + 1;
+    wst->position.y  = min->y - 1;
+    wst->position.z  = max->z + 1;
     wst->mark      = VM_UNKNOWN;
     addVertex(vd, wst);
     
     TVertex* wnb = malloc(sizeof(TVertex));
-    wnb->vector.x  = max->x + 1;
-    wnb->vector.y  = max->y + 1;
-    wnb->vector.z  = min->z - 1;
+    wnb->position.x  = max->x + 1;
+    wnb->position.y  = max->y + 1;
+    wnb->position.z  = min->z - 1;
     wnb->mark      = VM_UNKNOWN;
     addVertex(vd, wnb);
     
     TVertex* wnt = malloc(sizeof(TVertex));
-    wnt->vector.x  = max->x + 1;
-    wnt->vector.y  = max->y + 1;
-    wnt->vector.z  = max->z + 1;
+    wnt->position.x  = max->x + 1;
+    wnt->position.y  = max->y + 1;
+    wnt->position.z  = max->z + 1;
     wnt->mark      = VM_UNKNOWN;
     addVertex(vd, wnt);
     
@@ -982,11 +985,11 @@ void deleteSide(TVertexData* vd, int s) {
 }
 
 void boundsOfVertexData(TVertexData* vd, TBoundingBox* b) {
-    b->min = vd->vertices.items[0]->vector;
-    b->max = vd->vertices.items[0]->vector;
+    b->min = vd->vertices.items[0]->position;
+    b->max = vd->vertices.items[0]->position;
     
     for  (int i = 1; i < vd->vertices.count; i++)
-        mergeBoundsWithPoint(b, &vd->vertices.items[i]->vector, b);
+        mergeBoundsWithPoint(b, &vd->vertices.items[i]->position, b);
 }
 
 ECutResult cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
@@ -999,7 +1002,7 @@ ECutResult cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
     // mark vertices
     for (int i = 0; i < vd->vertices.count; i++) {
         TVertex* v = vd->vertices.items[i];
-        EPointStatus vs = pointStatusFromPlane(p, &v->vector);
+        EPointStatus vs = pointStatusFromPlane(p, &v->position);
         if (vs == PS_ABOVE) {
             v->mark = VM_DROP;
             drop++;
@@ -1103,16 +1106,16 @@ ECutResult cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
 
 void translateVertexData(TVertexData* vd, const TVector3f* d) {
     for (int i = 0; i < vd->vertices.count; i++)
-        addV3f(&vd->vertices.items[i]->vector, d, &vd->vertices.items[i]->vector);
+        addV3f(&vd->vertices.items[i]->position, d, &vd->vertices.items[i]->position);
 
     translateBounds(&vd->bounds, d, &vd->bounds);
 }
 
 void rotateVertexData90CW(TVertexData* vd, EAxis a, const TVector3f* c) {
     for (int i = 0; i < vd->vertices.count; i++) {
-        subV3f(&vd->vertices.items[i]->vector, c, &vd->vertices.items[i]->vector);
-        rotate90CWV3f(&vd->vertices.items[i]->vector, a, &vd->vertices.items[i]->vector);
-        addV3f(&vd->vertices.items[i]->vector, c, &vd->vertices.items[i]->vector);
+        subV3f(&vd->vertices.items[i]->position, c, &vd->vertices.items[i]->position);
+        rotate90CWV3f(&vd->vertices.items[i]->position, a, &vd->vertices.items[i]->position);
+        addV3f(&vd->vertices.items[i]->position, c, &vd->vertices.items[i]->position);
     }
 
     rotateBounds90CW(&vd->bounds, a, c, &vd->bounds);
@@ -1120,9 +1123,9 @@ void rotateVertexData90CW(TVertexData* vd, EAxis a, const TVector3f* c) {
 
 void rotateVertexData90CCW(TVertexData* vd, EAxis a, const TVector3f* c) {
     for (int i = 0; i < vd->vertices.count; i++) {
-        subV3f(&vd->vertices.items[i]->vector, c, &vd->vertices.items[i]->vector);
-        rotate90CCWV3f(&vd->vertices.items[i]->vector, a, &vd->vertices.items[i]->vector);
-        addV3f(&vd->vertices.items[i]->vector, c, &vd->vertices.items[i]->vector);
+        subV3f(&vd->vertices.items[i]->position, c, &vd->vertices.items[i]->position);
+        rotate90CCWV3f(&vd->vertices.items[i]->position, a, &vd->vertices.items[i]->position);
+        addV3f(&vd->vertices.items[i]->position, c, &vd->vertices.items[i]->position);
     }
     
     rotateBounds90CCW(&vd->bounds, a, c, &vd->bounds);
@@ -1130,9 +1133,9 @@ void rotateVertexData90CCW(TVertexData* vd, EAxis a, const TVector3f* c) {
 
 void rotateVertexData(TVertexData* vd, const TQuaternion* r, const TVector3f* c) {
     for (int i = 0; i < vd->vertices.count; i++) {
-        subV3f(&vd->vertices.items[i]->vector, c, &vd->vertices.items[i]->vector);
-        rotateQ(r, &vd->vertices.items[i]->vector, &vd->vertices.items[i]->vector);
-        addV3f(&vd->vertices.items[i]->vector, c, &vd->vertices.items[i]->vector);
+        subV3f(&vd->vertices.items[i]->position, c, &vd->vertices.items[i]->position);
+        rotateQ(r, &vd->vertices.items[i]->position, &vd->vertices.items[i]->position);
+        addV3f(&vd->vertices.items[i]->position, c, &vd->vertices.items[i]->position);
     }
     
     rotateBounds(&vd->bounds, r, c, &vd->bounds);
@@ -1143,9 +1146,9 @@ void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c) {
     switch (a) {
         case A_X:
             for (int i = 0; i < vd->vertices.count; i++) {
-                vd->vertices.items[i]->vector.x -= c->x;
-                vd->vertices.items[i]->vector.x *= -1;
-                vd->vertices.items[i]->vector.x += c->x;
+                vd->vertices.items[i]->position.x -= c->x;
+                vd->vertices.items[i]->position.x *= -1;
+                vd->vertices.items[i]->position.x += c->x;
             }
             
             min = vd->bounds.max.x;
@@ -1161,9 +1164,9 @@ void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c) {
             break;
         case A_Y:
             for (int i = 0; i < vd->vertices.count; i++) {
-                vd->vertices.items[i]->vector.y -= c->y;
-                vd->vertices.items[i]->vector.y *= -1;
-                vd->vertices.items[i]->vector.y += c->y;
+                vd->vertices.items[i]->position.y -= c->y;
+                vd->vertices.items[i]->position.y *= -1;
+                vd->vertices.items[i]->position.y += c->y;
             }
             
             min = vd->bounds.max.y;
@@ -1179,9 +1182,9 @@ void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c) {
             break;
         default:
             for (int i = 0; i < vd->vertices.count; i++) {
-                vd->vertices.items[i]->vector.z -= c->z;
-                vd->vertices.items[i]->vector.z *= -1;
-                vd->vertices.items[i]->vector.z += c->z;
+                vd->vertices.items[i]->position.z -= c->z;
+                vd->vertices.items[i]->position.z *= -1;
+                vd->vertices.items[i]->position.z += c->z;
             }
             
             min = vd->bounds.max.z;
@@ -1215,7 +1218,7 @@ EPointStatus vertexStatusFromRay(const TVector3f* o, const TVector3f* d, const T
     int above = 0;
     int below = 0;
     for (int i = 0; i < ps->count; i++) {
-        EPointStatus status = pointStatusFromRay(o, d, &ps->items[i]->vector);
+        EPointStatus status = pointStatusFromRay(o, d, &ps->items[i]->position);
         if (status == PS_ABOVE)
             above++;
         else if (status == PS_BELOW)
@@ -1239,9 +1242,9 @@ int polygonShape(const TVertexList* p, const TVector3f* n) {
     
     float d = dotV3f(n, a);
     
-    const TVector3f* v1 = &p->items[p->count - 2]->vector;
-    const TVector3f* v2 = &p->items[p->count - 1]->vector;
-    const TVector3f* v3 = &p->items[0]->vector;
+    const TVector3f* v1 = &p->items[p->count - 2]->position;
+    const TVector3f* v2 = &p->items[p->count - 1]->position;
+    const TVector3f* v3 = &p->items[0]->position;
     
     TVector3f e1, e2, c;
     subV3f(v2, v1, &e1);
@@ -1258,7 +1261,7 @@ int polygonShape(const TVertexList* p, const TVector3f* n) {
         v2 = v3;
         e1 = e2;
         
-        v3 = &p->items[i]->vector;
+        v3 = &p->items[i]->position;
         subV3f(v3, v2, &e2);
         crossV3f(&e2, &e1, &c);
         
@@ -1272,6 +1275,15 @@ int polygonShape(const TVertexList* p, const TVector3f* n) {
     return PS_CONVEX;
 }
 
+/**
+ * This method merges a given side s with another side that shares at least one
+ * edge with s. The shared edges and the shared vertices are deleted from the 
+ * given polyhedron.
+ *
+ * @param vd the polyhedron
+ * @param s the side which should be merged
+ * @param si the index of the shared edge (relative to s)
+ */
 void mergeSides(TVertexData* vd, TSide* s, int si) {
     TVertex* v;
     TEdge* e = s->edges.items[si];
@@ -1335,6 +1347,8 @@ void mergeSides(TVertexData* vd, TSide* s, int si) {
  */
 void incidentSides(TVertexData* vd, int v, TSideList* l) {
     TVertex* vertex = vd->vertices.items[v];
+    
+    // find any edge that is incident to v
     TEdge* edge = NULL;
     for (int i = 0; i < vd->edges.count && edge == NULL; i++) {
         TEdge* candidate = vd->edges.items[i];
@@ -1352,40 +1366,27 @@ void incidentSides(TVertexData* vd, int v, TSideList* l) {
 }
 
 void updateFaceOfSide(TSide* s) {
-    TPlane boundary;
     int indices[3];
     int indexCount;
-    TVector3f v1, v2;
     TVector3i p1, p2, p3;
 
     indexCount = 0;
     for (int i = 0; i < s->vertices.count && indexCount < 3; i++)
-        if (intV3f(&s->vertices.items[i]->vector))
+        if (intV3f(&s->vertices.items[i]->position))
             indices[indexCount++] = i;
     
-    if (indexCount == 3) {
-        roundV3f(&s->vertices.items[indices[0]]->vector, &p1);
-        roundV3f(&s->vertices.items[indices[1]]->vector, &p2);
-        roundV3f(&s->vertices.items[indices[2]]->vector, &p3);
-        
-        [s->face setPoint1:&p1 point2:&p2 point3:&p3];
-    } else {
-        centerOfVertices(&s->vertices, &boundary.point);
-        
-        subV3f(&s->vertices.items[1]->vector, &s->vertices.items[0]->vector, &v1);
-        subV3f(&s->vertices.items[2]->vector, &s->vertices.items[0]->vector, &v2);
-        crossV3f(&v2, &v1, &boundary.norm);
-        normalizeV3f(&boundary.norm, &boundary.norm);
-        
-        makePointsForPlane(&boundary, [s->face worldBounds], &p1, &p2, &p3);
-        [s->face setPoint1:&p1 point2:&p2 point3:&p3];
-    }
+    assert(indexCount == 3);
+
+    roundV3f(&s->vertices.items[indices[0]]->position, &p1);
+    roundV3f(&s->vertices.items[indices[1]]->position, &p2);
+    roundV3f(&s->vertices.items[indices[2]]->position, &p3);
+    
+    [s->face setPoint1:&p1 point2:&p2 point3:&p3];
 }
 
 void createFaceForSide(const TBoundingBox* w, TSide* s) {
     s->face = [[MutableFace alloc] initWithWorldBounds:w];
     [s->face setSide:s];
-    updateFaceOfSide(s);
 }
 
 void deleteDegenerateTriangle(TVertexData* vd, TSide* s, TEdge* e, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
@@ -1525,177 +1526,32 @@ void splitFace(TVertexData* vd, TSide* s, int v, NSMutableArray* newFaces) {
     [newSide->face release];
 }
 
-int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
+int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
     TVertex* vertex;
-    TVector3f draggedVertex, v1, v2;
+    TVector3f newPosition, v1, v2;
     TRay dragRay;
     float dragDist;
     TSideList incSides;
+    int vIndex;
     
-    int vIndex = v;
-    int eIndex = -1;
-    int sIndex = -1;
-
-    TVector3f eVertices[2];
-    TVector3f* sVertices = NULL;
-    int sVertexCount = 0;
+    assert(vd != NULL);
+    assert(v >= 0 && v < vd->vertices.count);
+    
+    vIndex = v;
     
     dragDist = lengthV3f(&d);
     if (dragDist == 0)
         return vIndex;
     
-    assert(sanityCheck(vd, YES));
-    
-    // if v is the index of an edge, we need to split that edge and create a new vertex
-    // if v is the index of a face, we need to create a new triangle fan around the face's center
-    if (vIndex >= vd->vertices.count && vIndex < vd->vertices.count + vd->edges.count) {
-        eIndex = vIndex - vd->vertices.count;
-        TEdge* edge = vd->edges.items[eIndex];
-        
-        // detect whether the drag would make the incident faces invalid
-        TVector3f edgeDir, temp;
-        edgeVector(edge, &edgeDir);
-        crossV3f([edge->leftSide->face norm], &edgeDir, &temp);
-        if (fpos(dotV3f(&d, &temp)))
-            return v;
-        
-        crossV3f(&edgeDir, [edge->rightSide->face norm], &temp);
-        if (fpos(dotV3f(&d, &temp)))
-            return v;
-        
-        // perform the edge split
-        eVertices[0] = edge->startVertex->vector;
-        eVertices[1] = edge->endVertex->vector;
-        
-        shiftSide(edge->leftSide, edgeIndex(&edge->leftSide->edges, edge) + 1);
-        shiftSide(edge->rightSide, edgeIndex(&edge->rightSide->edges, edge) + 1);
-        
-        vertex = malloc(sizeof(TVertex));
-        vertex->mark = VM_UNKNOWN;
-        centerOfEdge(edge, &vertex->vector);
-        
-        addVertex(vd, vertex);
-        addVertexToList(&edge->leftSide->vertices, vertex);
-        addVertexToList(&edge->rightSide->vertices, vertex);
-        
-        TEdge* newEdge1 = malloc(sizeof(TEdge));
-        newEdge1->mark = EM_UNKNOWN;
-        newEdge1->leftSide = edge->leftSide;
-        newEdge1->rightSide = edge->rightSide;
-        newEdge1->startVertex = edge->startVertex;
-        newEdge1->endVertex = vertex;
-        
-        TEdge* newEdge2 = malloc(sizeof(TEdge));
-        newEdge2->mark = EM_UNKNOWN;
-        newEdge2->leftSide = edge->leftSide;
-        newEdge2->rightSide = edge->rightSide;
-        newEdge2->startVertex = vertex;
-        newEdge2->endVertex = edge->endVertex;
-        
-        removeEdgeFromList(&edge->leftSide->edges, edge->leftSide->edges.count - 1);
-        removeEdgeFromList(&edge->rightSide->edges, edge->rightSide->edges.count - 1);
-
-        addEdge(vd, newEdge1);
-        addEdge(vd, newEdge2);
-        addEdgeToList(&edge->leftSide->edges, newEdge2);
-        addEdgeToList(&edge->leftSide->edges, newEdge1);
-        addEdgeToList(&edge->rightSide->edges, newEdge1);
-        addEdgeToList(&edge->rightSide->edges, newEdge2);
-        
-        deleteEdge(vd, eIndex);
-
-        vIndex = vd->vertices.count - 1;
-    } else if (vIndex >= vd->vertices.count + vd->edges.count && vIndex < vd->vertices.count + vd->edges.count + vd->sides.count) {
-        sIndex = vIndex - vd->edges.count - vd->vertices.count;
-        TSide* side = vd->sides.items[sIndex];
-        
-        // detect whether the drag would lead to an indented face
-        if (!fpos(dotV3f(&d, [side->face norm])))
-            return v;
-        
-        // store the side's vertices for later
-        sVertexCount = side->vertices.count;
-        sVertices = malloc(sVertexCount * sizeof(TVector3f));
-        for (int i = 0; i < side->vertices.count; i++)
-            sVertices[i] = side->vertices.items[i]->vector;
-        
-        vertex = malloc(sizeof(TVertex));
-        vertex->mark = VM_UNKNOWN;
-        centerOfVertices(&side->vertices, &vertex->vector);
-
-        addVertex(vd, vertex);
-
-        TEdge* firstEdge = malloc(sizeof(TEdge));
-        firstEdge->mark = EM_UNKNOWN;
-        firstEdge->startVertex = vertex;
-        firstEdge->endVertex = startVertexOfEdge(side->edges.items[0], side);
-        addEdge(vd, firstEdge);
-        
-        TEdge* lastEdge = firstEdge;
-        for (int i = 0; i < side->edges.count; i++) {
-            TEdge* sideEdge = side->edges.items[i];
-            
-            TEdge* newEdge;
-            if (i == side->edges.count - 1) {
-                newEdge = firstEdge;
-            } else {
-                newEdge = malloc(sizeof(TEdge));
-                newEdge->mark = EM_UNKNOWN;
-                newEdge->startVertex = vertex;
-                newEdge->endVertex = endVertexOfEdge(sideEdge, side);
-                addEdge(vd, newEdge);
-            }
-            
-            TSide* newSide = malloc(sizeof(TSide));
-            initVertexList(&newSide->vertices, 3);
-            initEdgeList(&newSide->edges, 3);
-
-            addVertexToList(&newSide->vertices, vertex);
-            addEdgeToList(&newSide->edges, lastEdge);
-            lastEdge->rightSide = newSide;
-
-            addVertexToList(&newSide->vertices, lastEdge->endVertex);
-            addEdgeToList(&newSide->edges, sideEdge);
-            if (sideEdge->leftSide == side) {
-                sideEdge->leftSide = newSide;
-            } else {
-                sideEdge->rightSide = newSide;
-            }
-            
-            addVertexToList(&newSide->vertices, newEdge->endVertex);
-            addEdgeToList(&newSide->edges, newEdge);
-            newEdge->leftSide = newSide;
-            
-            addSide(vd, newSide);
-            
-            createFaceForSide([side->face worldBounds], newSide);
-            [newSide->face setTexture:[side->face texture]];
-            [newSide->face setXOffset:[side->face xOffset]];
-            [newSide->face setYOffset:[side->face yOffset]];
-            [newSide->face setXScale:[side->face xScale]];
-            [newSide->face setYScale:[side->face yScale]];
-            [newSide->face setRotation:[side->face rotation]];
-            [newFaces addObject:newSide->face];
-            [newSide->face release];
-            
-            lastEdge = newEdge;
-        }
-        
-        [removedFaces addObject:side->face];
-        deleteSide(vd, sIndex);
-        
-        vIndex = vd->vertices.count - 1;
-    }
-    
     assert(sanityCheck(vd, NO));
     
     vertex = vd->vertices.items[vIndex];
-    dragRay.origin = vertex->vector;
+    dragRay.origin = vertex->position;
     scaleV3f(&d, 1 / dragDist, &dragRay.direction);
     
     // split all sides incident to v so that there remain only triangles
     // incident to v - it doesn't matter that some of those are coplanar, they
-    // will be merged back later
+    // will be merged later
     
     initSideList(&incSides, vd->sides.count);
     incidentSides(vd, vIndex, &incSides);
@@ -1718,7 +1574,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
     }
     
     assert(sanityCheck(vd, YES));
-
+    
     // now find the shortest drag distance that will result in a merge of sides
     clearSideList(&incSides);
     incidentSides(vd, vIndex, &incSides);
@@ -1730,18 +1586,18 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
         
         shiftSide(side, vertexIndex(&side->vertices, vertex));
         shiftSide(succ, vertexIndex(&succ->vertices, vertex));
-
+        
         TPlane plane;
-        setPlanePointsV3f(&plane, &side->vertices.items[1]->vector, 
-                                  &side->vertices.items[2]->vector, 
-                                  &succ->vertices.items[2]->vector);
-
+        setPlanePointsV3f(&plane, &side->vertices.items[1]->position, 
+                          &side->vertices.items[2]->position, 
+                          &succ->vertices.items[2]->position);
+        
         float sideDragDist = intersectPlaneWithRay(&plane, &dragRay);
         
         TEdge* neighborEdge = side->edges.items[1];
         TSide* neighbor = neighborEdge->leftSide != side ? neighborEdge->leftSide : neighborEdge->rightSide;
         float neighborDragDist = intersectPlaneWithRay([neighbor->face boundary], &dragRay);
-
+        
         if (!isnan(sideDragDist) && fpos(sideDragDist) && flt(sideDragDist, actualDragDist))
             actualDragDist = sideDragDist;
         if (!isnan(neighborDragDist) && fpos(neighborDragDist) && flt(neighborDragDist, actualDragDist))
@@ -1749,21 +1605,17 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
     }
     
     // apply the shortest drag to the vertex
-    rayPointAtDistance(&dragRay, actualDragDist, &vertex->vector);
-    if (!intV3f(&vertex->vector))
-        NSLog(@"asdf");
-    draggedVertex = vertex->vector;
-
-    // and update the faces
-    for (int i = 0; i < incSides.count; i++)
-        updateFaceOfSide(incSides.items[i]);
+    rayPointAtDistance(&dragRay, actualDragDist, &vertex->position);
+    newPosition = vertex->position;
+    
+    freeSideList(&incSides);
     
     // check whether the vertex is dragged onto another vertex
     for (int i = 0; i < vd->vertices.count; i++) {
         if (i != vIndex) {
             TVertex* vertexCandidate = vd->vertices.items[i];
-            if (equalV3f(&vertex->vector, &vertexCandidate->vector)) {
-                // find the edge incident to vertex and candidate
+            if (equalV3f(&vertex->position, &vertexCandidate->position)) {
+                // find the edge incident to both vertex and candidate
                 TEdge* delete = NULL;
                 for (int j = 0; j < vd->edges.count && delete == NULL; j++) {
                     TEdge* edge = vd->edges.items[j];
@@ -1776,7 +1628,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
                 assert(delete != NULL); 
                 assert(delete->leftSide->vertices.count == 3);
                 assert(delete->rightSide->vertices.count == 3);
-
+                
                 for (int j = 0; j < vd->edges.count; j++) {
                     TEdge* edge = vd->edges.items[j];
                     if (edge != delete && (edge->startVertex == vertexCandidate || edge->endVertex == vertexCandidate)) {
@@ -1794,31 +1646,42 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
                             edge->rightSide->vertices.items[index] = vertex;
                     }
                 }
-
+                
                 deleteDegenerateTriangle(vd, delete->leftSide, delete, newFaces, removedFaces);
                 deleteDegenerateTriangle(vd, delete->rightSide, delete, newFaces, removedFaces);
                 
                 deleteEdge(vd, edgeIndex(&vd->edges, delete));
                 deleteVertex(vd, vertexIndex(&vd->vertices, vertexCandidate));
-
+                
                 break;
             }
         }
     }
     
     assert(sanityCheck(vd, YES));
-
+    
     // now merge all mergeable sides back together
     for (int i = 0; i < vd->sides.count; i++) {
         TSide* side = vd->sides.items[i];
-        const TPlane* boundary = [side->face boundary];
+        TPlane sideBoundary;
+        setPlanePointsV3f(&sideBoundary, 
+                          &side->vertices.items[0]->position, 
+                          &side->vertices.items[1]->position, 
+                          &side->vertices.items[2]->position);
+
         for (int j = 0; j < side->edges.count; j++) {
             TEdge* edge = side->edges.items[j];
             TSide* neighbor = edge->leftSide != side ? edge->leftSide : edge->rightSide;
-            id <Face> neighborFace = neighbor->face;
+            TPlane neighborBoundary;
+            setPlanePointsV3f(&neighborBoundary, 
+                              &neighbor->vertices.items[0]->position, 
+                              &neighbor->vertices.items[1]->position, 
+                              &neighbor->vertices.items[2]->position);
             
-            if (equalPlane(boundary, [neighbor->face boundary])) {
+            if (equalPlane(&sideBoundary, &neighborBoundary)) {
                 NSLog(@"merge");
+                
+                id <Face> neighborFace = neighbor->face;
                 mergeSides(vd, side, j);
                 
                 NSUInteger faceIndex = [newFaces indexOfObjectIdenticalTo:neighborFace];
@@ -1834,8 +1697,8 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
     }
     
     assert(sanityCheck(vd, NO));
-
-    // check for consecutive edges that can be merge
+    
+    // check for consecutive edges that can be merged
     for (int i = 0; i < vd->edges.count; i++) {
         TEdge* edge = vd->edges.items[i];
         edgeVector(edge, &v1);
@@ -1849,7 +1712,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
                 if (edge->endVertex == candidate->startVertex) {
                     assert(edge->leftSide == candidate->leftSide);
                     assert(edge->rightSide == candidate->rightSide);
-
+                    
                     TSide* leftSide = edge->leftSide;
                     TSide* rightSide = edge->rightSide;
                     
@@ -1875,7 +1738,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
                     deleteVertex(vd, vertexIndex(&vd->vertices, candidate->startVertex));
                     deleteEdge(vd, edgeIndex(&vd->edges, candidate));
                     deleteEdge(vd, edgeIndex(&vd->edges, edge));
-
+                    
                     break;
                 }
                 
@@ -1910,7 +1773,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
                     deleteVertex(vd, vertexIndex(&vd->vertices, candidate->endVertex));
                     deleteEdge(vd, edgeIndex(&vd->edges, candidate));
                     deleteEdge(vd, edgeIndex(&vd->edges, edge));
-
+                    
                     break;
                 }
             }
@@ -1918,73 +1781,230 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
     }
     
     assert(sanityCheck(vd, YES));
-
+    
     boundsOfVertexData(vd, &vd->bounds);
     
     // find the index of the dragged vertex
     vIndex = -1;
     for (int i = 0; i < vd->vertices.count; i++) {
-        if (equalV3f(&draggedVertex, &vd->vertices.items[i]->vector)) {
+        if (equalV3f(&newPosition, &vd->vertices.items[i]->position)) {
             vIndex = i;
             break;
         }
     }
     
-    if (vIndex == -1) {
-        // try to find the original edge if this was an edge drag
-        if (eIndex != -1) {
-            eIndex = -1;
-            for (int i = 0; i < vd->edges.count; i++) {
-                TEdge* edge = vd->edges.items[i];
-                if ((equalV3f(&edge->startVertex->vector, &eVertices[0]) && equalV3f(&edge->endVertex->vector, &eVertices[1])) ||
-                    (equalV3f(&edge->startVertex->vector, &eVertices[1]) && equalV3f(&edge->endVertex->vector, &eVertices[0]))) {
-                    eIndex = vd->vertices.count + i;
-                    break;
-                }
-            }
-        } else if (sIndex != -1) {
-            // try to find the original side if this was a side drag
-            sIndex = -1;
-            for (int i = 0; i < vd->sides.count && sIndex == -1; i++) {
-                TSide* side = vd->sides.items[i];
-                if (sVertexCount == side->vertices.count) {
-                    for (int j = 0; j < sVertexCount && sIndex == -1; j++) {
-                        int k = 0;
-                        while (j < sVertexCount && equalV3f(&side->vertices.items[(j + k) % sVertexCount]->vector, &sVertices[k]))
-                            k++;
-                        
-                        if (k == sVertexCount)
-                            sIndex = vd->vertices.count + vd->edges.count + i;
-                    }
-                }
-            }
-        }
-    }
-    
-    if (sVertices != NULL)
-        free(sVertices);
-    
-    if (vIndex == -1) {
-        // drag was cancelled, but maybe we were dragging an edge or a face
-        if (eIndex != -1)
-            return eIndex;
-        if (sIndex != -1)
-            return sIndex;
-        return vIndex;
-    }
-    
     // drag is concluded
-    if (actualDragDist == dragDist)
+    if (vIndex == -1 || actualDragDist == dragDist) {
+        for (int i = 0; i < vd->sides.count; i++)
+            updateFaceOfSide(vd->sides.items[i]);
         return vIndex;
+    }
     
     // drag is not concluded, calculate the new delta and call self
     scaleV3f(&dragRay.direction, dragDist - actualDragDist, &dragRay.direction);
-    return dragVertex(vd, vIndex, dragRay.direction, newFaces, removedFaces);
+    return performVertexDrag(vd, vIndex, dragRay.direction, newFaces, removedFaces);
+}
+
+int splitAndDragEdge(TVertexData* vd, int e, const TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
+    TEdge* edge;
+    TVertex* vertex;
+    TVector3f edgeDir, temp;
+    TVector3f edgeVertices[2];
+    int result;
+    int index;
+
+    index = e - vd->vertices.count;
+    edge = vd->edges.items[index];
+    
+    // detect whether the drag would make the incident faces invalid
+    edgeVector(edge, &edgeDir);
+    crossV3f([edge->leftSide->face norm], &edgeDir, &temp);
+    if (fpos(dotV3f(&d, &temp)))
+        return e;
+    
+    crossV3f(&edgeDir, [edge->rightSide->face norm], &temp);
+    if (fpos(dotV3f(&d, &temp)))
+        return e;
+    
+    edgeVertices[0] = edge->startVertex->position;
+    edgeVertices[1] = edge->endVertex->position;
+    
+    // split the edge
+    shiftSide(edge->leftSide, edgeIndex(&edge->leftSide->edges, edge) + 1);
+    shiftSide(edge->rightSide, edgeIndex(&edge->rightSide->edges, edge) + 1);
+    
+    vertex = malloc(sizeof(TVertex));
+    vertex->mark = VM_UNKNOWN;
+    centerOfEdge(edge, &vertex->position);
+    
+    addVertex(vd, vertex);
+    addVertexToList(&edge->leftSide->vertices, vertex);
+    addVertexToList(&edge->rightSide->vertices, vertex);
+    
+    TEdge* newEdge1 = malloc(sizeof(TEdge));
+    newEdge1->mark = EM_UNKNOWN;
+    newEdge1->leftSide = edge->leftSide;
+    newEdge1->rightSide = edge->rightSide;
+    newEdge1->startVertex = edge->startVertex;
+    newEdge1->endVertex = vertex;
+    
+    TEdge* newEdge2 = malloc(sizeof(TEdge));
+    newEdge2->mark = EM_UNKNOWN;
+    newEdge2->leftSide = edge->leftSide;
+    newEdge2->rightSide = edge->rightSide;
+    newEdge2->startVertex = vertex;
+    newEdge2->endVertex = edge->endVertex;
+    
+    removeEdgeFromList(&edge->leftSide->edges, edge->leftSide->edges.count - 1);
+    removeEdgeFromList(&edge->rightSide->edges, edge->rightSide->edges.count - 1);
+    
+    addEdge(vd, newEdge1);
+    addEdge(vd, newEdge2);
+    addEdgeToList(&edge->leftSide->edges, newEdge2);
+    addEdgeToList(&edge->leftSide->edges, newEdge1);
+    addEdgeToList(&edge->rightSide->edges, newEdge1);
+    addEdgeToList(&edge->rightSide->edges, newEdge2);
+    
+    deleteEdge(vd, index);
+
+    result = performVertexDrag(vd, vd->vertices.count - 1, d, newFaces, removedFaces);
+    
+    for (int i = 0; i < vd->edges.count && result == -1; i++) {
+        TEdge* edge = vd->edges.items[i];
+        if ((equalV3f(&edge->startVertex->position, &edgeVertices[0]) && equalV3f(&edge->endVertex->position, &edgeVertices[1])) ||
+            (equalV3f(&edge->startVertex->position, &edgeVertices[1]) && equalV3f(&edge->endVertex->position, &edgeVertices[0]))) {
+            result = i;
+        }
+    }
+    
+    
+    return result;
+}
+
+int splitAndDragSide(TVertexData* vd, int s, const TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
+    TSide* side;
+    TVertex* vertex;
+    TVector3f* sideVertices;
+    int sideVertexCount;
+    int result;    
+    int index;
+    
+    index = s - vd->edges.count - vd->vertices.count;
+    side = vd->sides.items[index];
+    
+    // detect whether the drag would lead to an indented face
+    if (!fpos(dotV3f(&d, [side->face norm])))
+        return s;
+    
+    // store the side's vertices for later
+    sideVertexCount = side->vertices.count;
+    sideVertices = malloc(sideVertexCount * sizeof(TVector3f));
+    for (int i = 0; i < side->vertices.count; i++)
+        sideVertices[i] = side->vertices.items[i]->position;
+    
+    vertex = malloc(sizeof(TVertex));
+    vertex->mark = VM_UNKNOWN;
+    centerOfVertices(&side->vertices, &vertex->position);
+    
+    addVertex(vd, vertex);
+    
+    TEdge* firstEdge = malloc(sizeof(TEdge));
+    firstEdge->mark = EM_UNKNOWN;
+    firstEdge->startVertex = vertex;
+    firstEdge->endVertex = startVertexOfEdge(side->edges.items[0], side);
+    addEdge(vd, firstEdge);
+    
+    TEdge* lastEdge = firstEdge;
+    for (int i = 0; i < side->edges.count; i++) {
+        TEdge* sideEdge = side->edges.items[i];
+        
+        TEdge* newEdge;
+        if (i == side->edges.count - 1) {
+            newEdge = firstEdge;
+        } else {
+            newEdge = malloc(sizeof(TEdge));
+            newEdge->mark = EM_UNKNOWN;
+            newEdge->startVertex = vertex;
+            newEdge->endVertex = endVertexOfEdge(sideEdge, side);
+            addEdge(vd, newEdge);
+        }
+        
+        TSide* newSide = malloc(sizeof(TSide));
+        initVertexList(&newSide->vertices, 3);
+        initEdgeList(&newSide->edges, 3);
+        
+        addVertexToList(&newSide->vertices, vertex);
+        addEdgeToList(&newSide->edges, lastEdge);
+        lastEdge->rightSide = newSide;
+        
+        addVertexToList(&newSide->vertices, lastEdge->endVertex);
+        addEdgeToList(&newSide->edges, sideEdge);
+        if (sideEdge->leftSide == side) {
+            sideEdge->leftSide = newSide;
+        } else {
+            sideEdge->rightSide = newSide;
+        }
+        
+        addVertexToList(&newSide->vertices, newEdge->endVertex);
+        addEdgeToList(&newSide->edges, newEdge);
+        newEdge->leftSide = newSide;
+        
+        addSide(vd, newSide);
+        
+        createFaceForSide([side->face worldBounds], newSide);
+        [newSide->face setTexture:[side->face texture]];
+        [newSide->face setXOffset:[side->face xOffset]];
+        [newSide->face setYOffset:[side->face yOffset]];
+        [newSide->face setXScale:[side->face xScale]];
+        [newSide->face setYScale:[side->face yScale]];
+        [newSide->face setRotation:[side->face rotation]];
+        [newFaces addObject:newSide->face];
+        [newSide->face release];
+        
+        lastEdge = newEdge;
+    }
+    
+    [removedFaces addObject:side->face];
+    deleteSide(vd, index);
+    
+    result = performVertexDrag(vd, vd->vertices.count - 1, d, newFaces, removedFaces);
+
+    for (int i = 0; i < vd->sides.count && result == -1; i++) {
+        side = vd->sides.items[i];
+        if (sideVertexCount == side->vertices.count) {
+            for (int j = 0; j < sideVertexCount && result == -1; j++) {
+                int k = 0;
+                while (j < sideVertexCount && equalV3f(&side->vertices.items[(j + k) % sideVertexCount]->position, &sideVertices[k]))
+                    k++;
+                
+                if (k == sideVertexCount)
+                    result = i;
+            }
+        }
+    }
+
+    free(sideVertices);
+    
+    return result;
+}
+
+int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
+    assert(vd != NULL);
+    assert(v >= 0 && v < vd->vertices.count + vd->edges.count + vd->sides.count);
+    
+    if (lengthV3f(&d) == 0)
+        return v;
+
+    if (v < vd->vertices.count)
+        return performVertexDrag(vd, v, d, newFaces, removedFaces);
+    if (v < vd->vertices.count + vd->edges.count)
+        return splitAndDragEdge(vd, v, d, newFaces, removedFaces);
+    return splitAndDragSide(vd, v, d, newFaces, removedFaces);
 }
 
 void snapVertexData(TVertexData* vd) {
     for (int i = 0; i < vd->vertices.count; i++)
-        snapV3f(&vd->vertices.items[i]->vector);
+        snapV3f(&vd->vertices.items[i]->position);
     
     for (int i = 0; i < vd->sides.count; i++)
         updateFaceOfSide(vd->sides.items[i]);
@@ -2018,10 +2038,12 @@ BOOL sanityCheck(const TVertexData* vd, BOOL cc) {
     
     for (int i = 0; i < vd->sides.count; i++) {
         TSide* side = vd->sides.items[i];
+        /*
         if (cc && polygonShape(&side->vertices, [side->face norm]) != PS_CONVEX) {
             NSLog(@"side with index %i is not convex", i);
             return NO;
         }
+         */
         
         for (int j = 0; j < side->edges.count; j++) {
             TEdge* edge = side->edges.items[j];

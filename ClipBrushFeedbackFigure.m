@@ -53,15 +53,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         if (brush1 != nil) {
             const TEdgeList* edges = [brush1 edges];
             for (int i = 0; i < edges->count; i++) {
-                glVertexV3f(&edges->items[i]->startVertex->vector);
-                glVertexV3f(&edges->items[i]->endVertex->vector);
+                glVertexV3f(&edges->items[i]->startVertex->position);
+                glVertexV3f(&edges->items[i]->endVertex->position);
             }
         }
         if (brush2 != nil) {
             const TEdgeList* edges = [brush2 edges];
             for (int i = 0; i < edges->count; i++) {
-                glVertexV3f(&edges->items[i]->startVertex->vector);
-                glVertexV3f(&edges->items[i]->endVertex->vector);
+                glVertexV3f(&edges->items[i]->startVertex->position);
+                glVertexV3f(&edges->items[i]->endVertex->position);
             }
         }
         glEnd();

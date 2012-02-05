@@ -236,7 +236,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glBegin(GL_POLYGON);
     const TVertexList* vertices = [face vertices];
     for (int i = 0; i < vertices->count; i++)
-        glVertexV3f(&vertices->items[i]->vector);
+        glVertexV3f(&vertices->items[i]->position);
     glEnd();
 }
 

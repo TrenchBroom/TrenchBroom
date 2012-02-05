@@ -1099,7 +1099,7 @@ float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray, TVector3f* 
     TPlane plane;
     float dist;
     TVector3f point;
-    BOOL hit;
+    BOOL hit = NO;
     
     if (ray->direction.x < 0) {
         plane.point = b->max;

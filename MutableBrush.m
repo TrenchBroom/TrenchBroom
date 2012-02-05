@@ -338,15 +338,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self invalidateVertexData];
 }
 
-- (BOOL)canDragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta {
-    return YES;
-}
-
 - (int)dragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta {
     NSMutableArray* addedFaces = [[NSMutableArray alloc] init];
     NSMutableArray* removedFaces = [[NSMutableArray alloc] init];
     
-    int newVertexIndex = dragVertex([self vertexData], theVertexIndex, *theDelta, addedFaces, removedFaces);
+    int newIndex = dragVertex([self vertexData], theVertexIndex, *theDelta, addedFaces, removedFaces);
 
     NSEnumerator* faceEn = [removedFaces objectEnumerator];
     MutableFace* face;
@@ -364,9 +360,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [addedFaces release];
     [removedFaces release];
 
-    return newVertexIndex;
+    return newIndex;
 }
-
 
 - (void)deleteFace:(MutableFace *)face {
     [faces removeObjectIdenticalTo:face];
@@ -415,6 +410,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self invalidateVertexData];
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"ID: %i, number of faces: %i", 
+            [brushId intValue], 
+            [faces count]
+            ];
+}
+
 # pragma mark -
 # pragma mark @implementation Brush
 
@@ -448,10 +450,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)pick:(const TRay *)theRay hitList:(PickingHitList *)theHitList {
     TVertexData* vd = [self vertexData];
-    if (isnan(intersectBoundsWithRay(&vd->bounds, theRay, NULL)))
+    float dist = intersectBoundsWithRay(&vd->bounds, theRay, NULL);
+    if (isnan(dist))
         return;
 
-    float dist = NAN;
+    dist = NAN;
     TVector3f hitPoint;
     TSide* side;
     for (int i = 0; i < vd->sides.count && isnan(dist); i++) {
@@ -471,7 +474,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVector3f hitPoint, center;
     
     for (int i = 0; i < vd->vertices.count; i++) {
-        TVector3f* vertex = &vd->vertices.items[i]->vector;
+        TVector3f* vertex = &vd->vertices.items[i]->position;
         float dist = intersectSphereWithRay(vertex, theRadius, theRay);
         if (!isnan(dist)) {
             rayPointAtDistance(theRay, dist, &hitPoint);
@@ -517,7 +520,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     for (int i = 0; i < vd->edges.count; i++) {
         edge = vd->edges.items[i];
         float rayDist;
-        float dist2 = distanceOfSegmentAndRaySquared(&edge->startVertex->vector, &edge->endVertex->vector, theRay, &rayDist);
+        float dist2 = distanceOfSegmentAndRaySquared(&edge->startVertex->position, &edge->endVertex->position, theRay, &rayDist);
         if (dist2 < closestDist2) {
             closestRayDist = rayDist;
             closestDist2 = dist2;
@@ -564,7 +567,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSEnumerator* myFaceEn = [faces objectEnumerator];
     id <Face> myFace;
     while ((myFace = [myFaceEn nextObject])) {
-        const TVector3f* origin = &[myFace vertices]->items[0]->vector;
+        const TVector3f* origin = &[myFace vertices]->items[0]->position;
         const TVector3f* direction = [myFace norm];
         if (vertexStatusFromRay(origin, direction, theirVertices) == PS_ABOVE)
             return NO;
@@ -575,7 +578,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSEnumerator* theirFaceEn = [[theBrush faces] objectEnumerator];
     id <Face> theirFace;
     while ((theirFace = [theirFaceEn nextObject])) {
-        TVector3f* origin = &[theirFace vertices]->items[0]->vector;
+        TVector3f* origin = &[theirFace vertices]->items[0]->position;
         const TVector3f* direction = [theirFace norm];
         if (vertexStatusFromRay(origin, direction, myVertices) == PS_ABOVE)
             return NO;
@@ -593,7 +596,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             edgeVector(theirEdge, &theirEdgeVec);
             
             crossV3f(&myEdgeVec, &theirEdgeVec, &direction);
-            TVector3f* origin = &myEdge->startVertex->vector;
+            TVector3f* origin = &myEdge->startVertex->position;
             
             EPointStatus myStatus = vertexStatusFromRay(origin, &direction, myVertices);
             if (myStatus != PS_INSIDE) {
@@ -619,7 +622,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     const TVertexList* theirVertices = [theBrush vertices];
     
     for (int i = 0; i < theirVertices->count; i++)
-        if (!vertexDataContainsPoint(myVertexData, &theirVertices->items[i]->vector))
+        if (!vertexDataContainsPoint(myVertexData, &theirVertices->items[i]->position))
             return NO;
     
     return YES;

@@ -247,16 +247,16 @@ float calculateDragDelta(Grid* grid, id<Face> face, const TBoundingBox* worldBou
             if (v == e->startVertex) {
                 c++;
                 if (c == 1) {
-                    ray.origin = e->startVertex->vector;
-                    ray.direction = e->endVertex->vector;
+                    ray.origin = e->startVertex->position;
+                    ray.direction = e->endVertex->position;
                 } else {
                     break;
                 }
             } else if (v == e->endVertex) {
                 c++;
                 if (c == 1) {
-                    ray.origin = e->endVertex->vector;
-                    ray.direction = e->startVertex->vector;
+                    ray.origin = e->endVertex->position;
+                    ray.direction = e->startVertex->position;
                 } else {
                     break;
                 }

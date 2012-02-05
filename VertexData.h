@@ -62,7 +62,7 @@ struct TEdgeTag;
 struct TSideTag;
 
 typedef struct {
-    TVector3f vector;
+    TVector3f position;
     EVertexMark mark;
 } TVertex;
 

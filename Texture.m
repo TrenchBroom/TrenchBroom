@@ -185,6 +185,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return [self compareByName:texture];
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"Name: %@, %i*%i, ID: %i, GL ID: %i, used %i times",
+            name, width, height, [uniqueId intValue], textureId, usageCount
+            ];
+}
+
 - (void)dealloc {
     if (textureId != 0)
         glDeleteTextures(1, &textureId);
