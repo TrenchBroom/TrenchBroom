@@ -2006,6 +2006,42 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
     return splitAndDragSide(vd, v, d, newFaces, removedFaces);
 }
 
+int dragEdge(TVertexData* vd, int e, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
+    TEdge* edge;
+    TVector3f start, end, dir;
+    
+    assert(vd != NULL);
+    assert(e >= 0 && e < vd->edges.count);
+
+    if (lengthV3f(&d) == 0)
+        return e;
+    
+    edge = vd->edges.items[e];
+    start = edge->startVertex->position;
+    end = edge->endVertex->position;
+    subV3f(&end, &start, &dir);
+    
+    addV3f(&start, &d, &start);
+    addV3f(&end, &d, &end);
+    
+    if (dotV3f(&dir, &d) > 0) {
+        dragVertex(vd, vertexIndex(&vd->vertices, edge->endVertex), d, newFaces, removedFaces);
+        dragVertex(vd, vertexIndex(&vd->vertices, edge->startVertex), d, newFaces, removedFaces);
+    } else {
+        dragVertex(vd, vertexIndex(&vd->vertices, edge->startVertex), d, newFaces, removedFaces);
+        dragVertex(vd, vertexIndex(&vd->vertices, edge->endVertex), d, newFaces, removedFaces);
+    }
+    
+    for (int i = 0; i < vd->edges.count; i++) {
+        edge = vd->edges.items[i];
+        if ((equalV3f(&edge->startVertex->position, &start) && equalV3f(&edge->endVertex->position, &end)) ||
+            (equalV3f(&edge->startVertex->position, &end) && equalV3f(&edge->endVertex->position, &start)))
+            return i;
+    }
+
+    return -1;
+}
+
 void snapVertexData(TVertexData* vd) {
     for (int i = 0; i < vd->vertices.count; i++)
         snapV3f(&vd->vertices.items[i]->position);

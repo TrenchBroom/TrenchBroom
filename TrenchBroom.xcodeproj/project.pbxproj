@@ -181,6 +181,7 @@
 		48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E400AE1315A7DA004642CD /* TextureUsageFilter.m */; };
 		48E725AD13F3D26900828C0B /* QuickBarWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E725AC13F3D26900828C0B /* QuickBarWindow.m */; };
 		48E725B313F3D75A00828C0B /* QuickBarContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E725B213F3D75A00828C0B /* QuickBarContentView.m */; };
+		48ED399714E06A3A008AEBDB /* EdgeTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48ED399614E06A3A008AEBDB /* EdgeTool.m */; };
 		48F0EC52131A9CCD0088FA02 /* PrefabView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F0EC51131A9CCD0088FA02 /* PrefabView.m */; };
 		48F56F5213E9CDEC008DF954 /* MapBrowserDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F56F5113E9CDEC008DF954 /* MapBrowserDataSource.m */; };
 		48F5C3DB13E1578A00B1A720 /* ControllerUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 48F5C3DA13E1578A00B1A720 /* ControllerUtils.m */; };
@@ -567,6 +568,8 @@
 		48E725AC13F3D26900828C0B /* QuickBarWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuickBarWindow.m; sourceTree = "<group>"; };
 		48E725B113F3D75A00828C0B /* QuickBarContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickBarContentView.h; sourceTree = "<group>"; };
 		48E725B213F3D75A00828C0B /* QuickBarContentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuickBarContentView.m; sourceTree = "<group>"; };
+		48ED399514E06A3A008AEBDB /* EdgeTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EdgeTool.h; sourceTree = "<group>"; };
+		48ED399614E06A3A008AEBDB /* EdgeTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EdgeTool.m; sourceTree = "<group>"; };
 		48EEE9041153D816001A4D7C /* Test-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Test-Info.plist"; sourceTree = "<group>"; };
 		48F0EC50131A9CCD0088FA02 /* PrefabView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefabView.h; sourceTree = "<group>"; };
 		48F0EC51131A9CCD0088FA02 /* PrefabView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrefabView.m; sourceTree = "<group>"; };
@@ -797,6 +800,8 @@
 				482FFF001340E10E00849BF5 /* ClipTool.m */,
 				4867430313577855009E7ABF /* DefaultTool.h */,
 				4867430413577855009E7ABF /* DefaultTool.m */,
+				48ED399514E06A3A008AEBDB /* EdgeTool.h */,
+				48ED399614E06A3A008AEBDB /* EdgeTool.m */,
 				486928EA133F282100A0F098 /* FaceTool.h */,
 				486928EB133F282100A0F098 /* FaceTool.m */,
 				4816144B132BE7C300CD66AF /* MoveTool.h */,
@@ -1557,6 +1562,7 @@
 				48A4F48C149D323F0086146C /* DoubleArrowFigure.m in Sources */,
 				48A3B7F014A4871E002FDEBE /* VertexTool.m in Sources */,
 				48A3B7F414A489A3002FDEBE /* DragVertexCursor.m in Sources */,
+				48ED399714E06A3A008AEBDB /* EdgeTool.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

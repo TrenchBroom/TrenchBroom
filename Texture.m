@@ -51,8 +51,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             int paletteIndex = pixelBuffer[pixelBufferIndex];
             [thePalette getBytes:colorBuffer range:NSMakeRange(paletteIndex * 3, 3)];
             [texture appendBytes:colorBuffer length:3];
+            color.x += colorBuffer[0] / 255.0f;
+            color.y += colorBuffer[1] / 255.0f;
+            color.z += colorBuffer[2] / 255.0f;
         }
     }
+    
+    color.x /= size;
+    color.y /= size;
+    color.z /= size;
+    color.w = 1;
     
     return [texture autorelease];
 }
@@ -125,6 +133,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (int)height {
     return height;
+}
+
+- (const TVector4f *)color {
+    return &color;
 }
 
 - (BOOL)dummy {

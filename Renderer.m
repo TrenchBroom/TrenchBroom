@@ -242,6 +242,7 @@ int const TexCoordSize = 2 * sizeof(float);
     TVector2f texCoords, gridCoords;
     
     Texture* texture = [theFace texture];
+    const TVector4f* color = [texture dummy] ? &FaceDefaultColor : [texture color];
     int width = texture != nil ? [texture width] : 1;
     int height = texture != nil ? [texture height] : 1;
 
@@ -259,7 +260,7 @@ int const TexCoordSize = 2 * sizeof(float);
         address = writeVector2f(&gridCoords, vboBuffer, address);
         address = writeVector2f(&texCoords, vboBuffer, address);
         address = writeColor4fAsBytes(&EdgeDefaultColor, vboBuffer, address);
-        address = writeColor4fAsBytes(&FaceDefaultColor, vboBuffer, address);
+        address = writeColor4fAsBytes(color, vboBuffer, address);
         address = writeVector3f(&vertex->position, vboBuffer, address);
     }
     

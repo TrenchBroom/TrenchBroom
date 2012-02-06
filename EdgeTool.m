@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import "VertexTool.h"
+#import "EdgeTool.h"
 #import "Math.h"
 #import "MapWindowController.h"
 #import "MapDocument.h"
@@ -33,30 +33,30 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MutableBrush.h"
 #import "Face.h"
 
-@interface VertexTool (private)
+@interface EdgeTool (private)
 
 - (BOOL)isAlternatePlaneModifierPressed;
 - (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits;
 
 @end
 
-@implementation VertexTool (private)
+@implementation EdgeTool (private)
 
 - (BOOL)isAlternatePlaneModifierPressed {
-    return (keyStatus & KS_OPTION) == KS_OPTION;
+    return keyStatus == KS_OPTION;
 }
 
 - (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
     if (editingSystem != nil)
         [editingSystem release];
-
+    
     Camera* camera = [windowController camera];
     editingSystem = [[EditingSystem alloc] initWithCamera:camera vertical:[self isAlternatePlaneModifierPressed]];
 }
 
 @end
 
-@implementation VertexTool
+@implementation EdgeTool
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     NSAssert(theWindowController != nil, @"window controller must not be nil");
@@ -64,7 +64,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if ((self = [self init])) {
         windowController = theWindowController;
         cursor = [[DragVertexCursor alloc] init];
-        state = VTS_DEFAULT;
+        drag = NO;
     }
     
     return self;
@@ -89,39 +89,32 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
     if (hit != nil) {
-        MapDocument* map = [windowController document];
-        NSUndoManager* undoManager = [map undoManager];
-        [undoManager setGroupsByEvent:NO];
-        [undoManager beginUndoGrouping];
-        
         brush = [hit object];
-        [map snapBrushes:[NSArray arrayWithObject:brush]];
-        
-        index = [hit vertexIndex];
         const TVertexList* vertices = [brush vertices];
         const TEdgeList* edges = [brush edges];
+        index = [hit vertexIndex] - vertices->count;
         
-        if (index < vertices->count) {
-            TVertex* vertex = vertices->items[index];
-            lastPoint = vertex->position;
-        } else if (index < vertices->count + edges->count) {
-            TEdge* edge = edges->items[index - vertices->count];
+        if (index >= 0 && index < edges->count) {
+            MapDocument* map = [windowController document];
+            NSUndoManager* undoManager = [map undoManager];
+            [undoManager setGroupsByEvent:NO];
+            [undoManager beginUndoGrouping];
+            
+            [map snapBrushes:[NSArray arrayWithObject:brush]];
+            
+            TEdge* edge = edges->items[index];
             centerOfEdge(edge, &lastPoint);
-        } else {
-            // the side index is not necessarily the same as the face index!!!
-            id <Face> face = [[brush faces] objectAtIndex:index - edges->count - vertices->count];
-            centerOfVertices([face vertices], &lastPoint);
+            editingPoint = lastPoint;
+            
+            drag = YES;
         }
-        editingPoint = lastPoint;
-        
-        state = VTS_DRAG;
     }
     
     [hits release];
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (state != VTS_DRAG)
+    if (!drag)
         return;
     
     float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
@@ -134,31 +127,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     Options* options = [windowController options];
     Grid* grid = [options grid];
     [grid snapToGridV3f:&point result:&point];
-
+    
     TVector3f deltaf;
     subV3f(&point, &lastPoint, &deltaf);
-
+    
     if (nullV3f(&deltaf))
         return;
     
     MapDocument* map = [windowController document];
-    index = [map dragVertex:index brush:brush delta:&deltaf];
-    if (index == -1) {
-        [self endLeftDrag:event ray:ray hits:hits];
-        state = VTS_CANCEL;
-        [self unsetCursor:event ray:ray hits:hits];
-    } else if (index < [brush vertices]->count) {
-        lastPoint = point;
-    }
+    index = [map dragEdge:index brush:brush delta:&deltaf];
+//    assert(index != -1);
+    lastPoint = point;
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (state == VTS_CANCEL) {
-        [self setCursor:event ray:ray hits:hits];
-        state = VTS_DEFAULT;
-    }
-    
-    if (state != VTS_DRAG)
+    if (!drag)
         return;
     
     MapDocument* map = [windowController document];
@@ -166,11 +149,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager setActionName:[self actionName]];
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
-
+    
     brush = nil;
     index = -1;
     
-    state = VTS_DEFAULT;
+    drag = NO;
 }
 
 - (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -186,22 +169,20 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     TVector3f position;
-
+    
     [self updateMoveDirectionWithRay:ray hits:hits];
     [cursor setEditingSystem:editingSystem];
     
     Camera* camera = [windowController camera];
     [cursor setCameraPosition:[camera position]];
-
-    if (state == VTS_DRAG) {
+    
+    if (drag) {
         float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
         if (isnan(dist))
             return;
         
         rayPointAtDistance(ray, dist, &position);
         [cursor setAttention:NO];
-    } else if (state == VTS_CANCEL) {
-        
     } else {
         NSArray* vertexHits = [hits hitsOfType:HT_VERTEX];
         if ([vertexHits count] == 0)
@@ -225,6 +206,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (NSString *)actionName {
-    return @"Drag Vertex";
+    return @"Drag Edge";
 }
 @end

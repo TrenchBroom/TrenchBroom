@@ -133,6 +133,7 @@ extern NSString* const DocumentLoaded;
 - (BOOL)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures;
 
 - (int)dragVertex:(int)theVertexIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta;
+- (int)dragEdge:(int)theEdgeIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta;
 
 - (void)clear;
 

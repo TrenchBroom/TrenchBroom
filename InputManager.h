@@ -30,6 +30,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class RotateTool;
 @class FaceTool;
 @class VertexTool;
+@class EdgeTool;
 @class ClipTool;
 @class EntityDefinitionDndTool;
 @protocol Tool;
@@ -59,6 +60,7 @@ typedef enum {
     RotateTool* rotateTool;
     FaceTool* faceTool;
     VertexTool* vertexTool;
+    EdgeTool* edgeTool;
     ClipTool* clipTool;
     id <Tool> activeTool;
     id <Tool> cursorOwner;

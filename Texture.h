@@ -19,6 +19,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/gl.h>
+#import "Math.h"
 
 @class WadTextureEntry;
 @class AliasSkin;
@@ -31,6 +32,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     int width;
     int height;
     int usageCount;
+    TVector4f color;
     NSData* data;
 }
 
@@ -44,6 +46,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (NSNumber *)uniqueId;
 - (int)width;
 - (int)height;
+- (const TVector4f *)color;
 - (BOOL)dummy;
 
 - (void)incUsageCount;

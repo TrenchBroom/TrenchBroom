@@ -188,6 +188,7 @@ BOOL vertexDataContainsPoint(TVertexData* vd, TVector3f* p);
 EPointStatus vertexStatusFromRay(const TVector3f* o, const TVector3f* d, const TVertexList* ps);
 
 int dragVertex(TVertexData* vd, int v, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
+int dragEdge(TVertexData* vd, int e, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
 
 void snapVertexData(TVertexData* vd);
 BOOL sanityCheck(const TVertexData* vd, BOOL cc);

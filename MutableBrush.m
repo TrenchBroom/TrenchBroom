@@ -363,6 +363,31 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return newIndex;
 }
 
+- (int)dragEdge:(int)theEdgeIndex by:(const TVector3f *)theDelta {
+    NSMutableArray* addedFaces = [[NSMutableArray alloc] init];
+    NSMutableArray* removedFaces = [[NSMutableArray alloc] init];
+    
+    int newIndex = dragEdge([self vertexData], theEdgeIndex, *theDelta, addedFaces, removedFaces);
+    
+    NSEnumerator* faceEn = [removedFaces objectEnumerator];
+    MutableFace* face;
+    while ((face = [faceEn nextObject])) {
+        [face setBrush:nil];
+        [faces removeObjectIdenticalTo:face];
+    }
+    
+    faceEn = [addedFaces objectEnumerator];
+    while ((face = [faceEn nextObject])) {
+        [face setBrush:self];
+        [faces addObject:face];
+    }
+    
+    [addedFaces release];
+    [removedFaces release];
+    
+    return newIndex;
+}
+
 - (void)deleteFace:(MutableFace *)face {
     [faces removeObjectIdenticalTo:face];
     [self invalidateVertexData];
