@@ -1811,7 +1811,6 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
 int splitAndDragEdge(TVertexData* vd, int e, const TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
     TEdge* edge;
     TVertex* vertex;
-    TVector3f edgeDir, temp;
     TVector3f edgeVertices[2];
     int result;
     int index;
@@ -1820,13 +1819,8 @@ int splitAndDragEdge(TVertexData* vd, int e, const TVector3f d, NSMutableArray* 
     edge = vd->edges.items[index];
     
     // detect whether the drag would make the incident faces invalid
-    edgeVector(edge, &edgeDir);
-    crossV3f([edge->leftSide->face norm], &edgeDir, &temp);
-    if (fpos(dotV3f(&d, &temp)))
-        return e;
-    
-    crossV3f(&edgeDir, [edge->rightSide->face norm], &temp);
-    if (fpos(dotV3f(&d, &temp)))
+    if (fneg(dotV3f(&d, [edge->leftSide->face norm])) ||
+        fneg(dotV3f(&d, [edge->rightSide->face norm])))
         return e;
     
     edgeVertices[0] = edge->startVertex->position;

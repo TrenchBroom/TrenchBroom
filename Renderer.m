@@ -1243,6 +1243,8 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)render {
+    NSDate* start = [NSDate date];
+    
     [self validate];
     
     glEnable(GL_BLEND);
@@ -1285,7 +1287,6 @@ int const TexCoordSize = 2 * sizeof(float);
                 break;
         }
         
-        
         glSetEdgeOffset(0.5f);
         [self renderEdges:NULL indexBuffers:faceIndexBuffers countBuffers:faceCountBuffers];
         glResetEdgeOffset();
@@ -1306,7 +1307,7 @@ int const TexCoordSize = 2 * sizeof(float);
         
         [faceVbo deactivate];
     }
-    
+
     if ([options renderEntities]) {
         if ([options isolationMode] == IM_NONE) {
             [entityBoundsVbo activate];
@@ -1362,7 +1363,7 @@ int const TexCoordSize = 2 * sizeof(float);
             [figure render];
         glEnable(GL_DEPTH_TEST);
     }
-    
+
     /*
     // enable lighting for cursor and compass
     glEnable(GL_LIGHTING);
@@ -1413,6 +1414,8 @@ int const TexCoordSize = 2 * sizeof(float);
      }
      glEnable( GL_BLEND );
      */
+    
+    NSLog(@"%f", 1 / [[NSDate date] timeIntervalSinceDate:start]);
 }
 
 @end
