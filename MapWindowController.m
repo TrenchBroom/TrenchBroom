@@ -837,12 +837,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
         scaleV3f([editingSystem xAxisPos], -delta, &deltaf);
 
-        TBoundingBox* worldBounds = [map worldBounds];
+        const TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
         TVector3i deltai;
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:NULL];
         roundUpV3f(&deltaf, &deltai);
         
         if (nullV3i(&deltai))
@@ -872,12 +872,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
         scaleV3f([editingSystem xAxisPos], delta, &deltaf);
         
-        TBoundingBox* worldBounds = [map worldBounds];
+        const TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
         TVector3i deltai;
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:NULL];
         roundUpV3f(&deltaf, &deltai);
         
         if (nullV3i(&deltai))
@@ -906,12 +906,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
         scaleV3f([editingSystem yAxisPos], delta, &deltaf);
         
-        TBoundingBox* worldBounds = [map worldBounds];
+        const TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
         TVector3i deltai;
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:NULL];
         roundUpV3f(&deltaf, &deltai);
         
         if (nullV3i(&deltai))
@@ -941,12 +941,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
         scaleV3f([editingSystem yAxisPos], -delta, &deltaf);
         
-        TBoundingBox* worldBounds = [map worldBounds];
+        const TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
         TVector3i deltai;
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:NULL];
         roundUpV3f(&deltaf, &deltai);
         
         if (nullV3i(&deltai))
@@ -973,12 +973,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
         scaleV3f([editingSystem zAxisPos], delta, &deltaf);
         
-        TBoundingBox* worldBounds = [map worldBounds];
+        const TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
         TVector3i deltai;
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:NULL];
         roundUpV3f(&deltaf, &deltai);
         
         if (nullV3i(&deltai))
@@ -1005,12 +1005,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
         scaleV3f([editingSystem zAxisPos], -delta, &deltaf);
         
-        TBoundingBox* worldBounds = [map worldBounds];
+        const TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
         TVector3i deltai;
-        calculateMoveDelta([options grid], &bounds, worldBounds, &deltaf, NULL);
+        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:NULL];
         roundUpV3f(&deltaf, &deltai);
         
         if (nullV3i(&deltai))
@@ -1365,7 +1365,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     scaleV3f(&deltaf, -[grid actualSize], &deltaf);
     [grid snapToFarthestGridV3f:&deltaf result:&deltaf];
 
-    TBoundingBox* worldBounds = [map worldBounds];
+    const TBoundingBox* worldBounds = [map worldBounds];
     TBoundingBox bounds;
     [selectionManager selectionBounds:&bounds];
     if (bounds.max.x + deltaf.x > worldBounds->max.x || bounds.min.x + deltaf.x < worldBounds->min.x)

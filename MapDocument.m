@@ -477,7 +477,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
 # pragma mark Map related functions
 
-- (TBoundingBox *)worldBounds {
+- (const TBoundingBox *)worldBounds {
     return &worldBounds;
 }
 
@@ -1600,6 +1600,37 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     
     [self makeUndoSnapshotOfBrushes:brushArray];
     int newIndex = [mutableBrush dragEdge:theEdgeIndex by:theDelta];
+    
+    if ([self postNotifications]) {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
+        [userInfo release];
+    }
+    
+    [brushArray release];
+    return newIndex;
+}
+
+- (int)dragFace:(int)theFaceIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta {
+    NSAssert(theBrush != nil, @"brush must not be nil");
+    
+    if (nullV3f(theDelta))
+        return NO;
+    
+    MutableBrush* mutableBrush = (MutableBrush *)theBrush;
+    NSArray* brushArray = [[NSArray alloc] initWithObjects:theBrush, nil];
+    
+    NSMutableDictionary* userInfo;
+    if ([self postNotifications]) {
+        userInfo = [[NSMutableDictionary alloc] init];
+        [userInfo setObject:brushArray forKey:BrushesKey];
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
+    }
+    
+    [self makeUndoSnapshotOfBrushes:brushArray];
+    int newIndex = [mutableBrush dragFace:theFaceIndex by:theDelta];
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];

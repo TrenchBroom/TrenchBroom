@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import "VertexTool.h"
+#import "DragVertexTool.h"
 #import "Math.h"
 #import "MapWindowController.h"
 #import "MapDocument.h"
@@ -33,14 +33,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MutableBrush.h"
 #import "Face.h"
 
-@interface VertexTool (private)
+@interface DragVertexTool (private)
 
 - (BOOL)isAlternatePlaneModifierPressed;
 - (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits;
 
 @end
 
-@implementation VertexTool (private)
+@implementation DragVertexTool (private)
 
 - (BOOL)isAlternatePlaneModifierPressed {
     return (keyStatus & KS_OPTION) == KS_OPTION;
@@ -56,7 +56,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @end
 
-@implementation VertexTool
+@implementation DragVertexTool
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     NSAssert(theWindowController != nil, @"window controller must not be nil");
@@ -131,24 +131,29 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVector3f point;
     rayPointAtDistance(ray, dist, &point);
     
-    Options* options = [windowController options];
-    Grid* grid = [options grid];
-    [grid snapToGridV3f:&point result:&point];
-
     TVector3f deltaf;
     subV3f(&point, &lastPoint, &deltaf);
+    
+    Options* options = [windowController options];
+    Grid* grid = [options grid];
+    
+    MapDocument* map = [windowController document];
+    const TBoundingBox* worldBounds = [map worldBounds];
+    
+    TBoundingBox bounds;
+    bounds.min = lastPoint;
+    bounds.max = lastPoint;
+    
+    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:&lastPoint];
 
     if (nullV3f(&deltaf))
         return;
     
-    MapDocument* map = [windowController document];
     index = [map dragVertex:index brush:brush delta:&deltaf];
     if (index == -1) {
         [self endLeftDrag:event ray:ray hits:hits];
         state = VTS_CANCEL;
         [self unsetCursor:event ray:ray hits:hits];
-    } else if (index < [brush vertices]->count) {
-        lastPoint = point;
     }
 }
 

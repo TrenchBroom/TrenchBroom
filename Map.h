@@ -30,7 +30,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)removeEntities:(NSArray *)theEntities;
 - (void)removeEntity:(MutableEntity *)theEntity;
 
-- (TBoundingBox *)worldBounds;
+- (const TBoundingBox *)worldBounds;
 - (id <Entity>)worldspawn:(BOOL)create;
 - (NSArray *)entities;
 

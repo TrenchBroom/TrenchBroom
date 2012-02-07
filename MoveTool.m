@@ -169,13 +169,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     Grid* grid = [options grid];
     
     MapDocument* map = [windowController document];
-    TBoundingBox* worldBounds = [map worldBounds];
+    const TBoundingBox* worldBounds = [map worldBounds];
 
     TBoundingBox bounds;
     SelectionManager* selectionManager = [map selectionManager];
     [selectionManager selectionBounds:&bounds];
 
-    calculateMoveDelta(grid, &bounds, worldBounds, &deltaf, &lastPoint);
+    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:&lastPoint];
     
     if (nullV3f(&deltaf))
         return;

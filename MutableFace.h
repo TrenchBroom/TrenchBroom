@@ -92,6 +92,7 @@ typedef enum {
 - (void)dragBy:(float)dist lockTexture:(BOOL)lockTexture;
 
 - (void)setSide:(TSide *)theSide;
+- (const TSide *)side;
 
 - (int)filePosition;
 - (void)setFilePosition:(int)theFilePosition;

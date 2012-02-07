@@ -95,6 +95,10 @@ static const float headLength = 7;
     position = *thePosition;
 }
 
+- (const TVector3f *)position {
+    return &position;
+}
+
 - (void)setCameraPosition:(const TVector3f *)theCameraPosition {
     NSAssert(theCameraPosition != nil, @"camera position must not be nil");
     cameraPosition = *theCameraPosition;

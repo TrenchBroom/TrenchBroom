@@ -20,6 +20,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Grid.h"
 #import "math.h"
 #import "FloatData.h"
+#import "Face.h"
+#import "MutableFace.h"
+#import "Brush.h"
 
 NSString* const GridChanged = @"GridChanged";
 
@@ -249,6 +252,217 @@ NSString* const GridChanged = @"GridChanged";
         dist = distZ;
     
     return dist;
+}
+
+- (void)moveDeltaForBounds:(const TBoundingBox *)theBounds worldBounds:(const TBoundingBox *)theWorldBounds delta:(TVector3f *)theDelta lastPoint:(TVector3f *)theLastPoint {
+    NSAssert(theBounds != NULL, @"bounds must not be nil");
+    NSAssert(theWorldBounds != NULL, @"world bounds must not be NULL");
+    NSAssert(theDelta != NULL, @"delta must not be NULL");
+
+    if (theDelta->x > 0) {
+        theDelta->x = [self snapDownToGridf:theBounds->max.x + theDelta->x] - theBounds->max.x;
+        if (theDelta->x <= 0) {
+            theDelta->x = 0;
+        } else {
+            /*
+             if (theDelta->x < 1)
+             theDelta->x = [grid actualSize];
+             */
+            if (theBounds->max.x + theDelta->x > theWorldBounds->max.x) {
+                theDelta->x = theWorldBounds->max.x - theBounds->max.x;
+                theDelta->y = 0;
+                theDelta->z = 0;
+            } else if (theLastPoint != NULL) {
+                theLastPoint->x += theDelta->x;
+            }
+        }
+    } else if (theDelta->x < 0) {
+        theDelta->x = [self snapUpToGridf:theBounds->min.x + theDelta->x] - theBounds->min.x;
+        if (theDelta->x >= 0) {
+            theDelta->x = 0;
+        } else {
+            /*
+             if (theDelta->x > -1)
+             theDelta->x = -[grid actualSize];
+             */
+            if (theBounds->min.x + theDelta->x < theWorldBounds->min.x) {
+                theDelta->x = theWorldBounds->min.x - theBounds->min.x;
+                theDelta->y = 0;
+                theDelta->z = 0;
+            } else if (theLastPoint != NULL) {
+                theLastPoint->x += theDelta->x;
+            }
+        }
+    }
+    
+    if (theDelta->y > 0) {
+        theDelta->y = [self snapDownToGridf:theBounds->max.y + theDelta->y] - theBounds->max.y;
+        if (theDelta->y <= 0) {
+            theDelta->y = 0;
+        } else {
+            /*
+             if (theDelta->y < 1)
+             theDelta->y = [grid actualSize];
+             */
+            if (theBounds->max.y + theDelta->y > theWorldBounds->max.y) {
+                theDelta->x = 0;
+                theDelta->y = theWorldBounds->max.y - theBounds->max.y;
+                theDelta->z = 0;
+            } else if (theLastPoint != NULL) {
+                theLastPoint->y += theDelta->y;
+            }
+        }
+    } else if (theDelta->y < 0) {
+        theDelta->y = [self snapUpToGridf:theBounds->min.y + theDelta->y] - theBounds->min.y;
+        if (theDelta->y >= 0) {
+            theDelta->y = 0;
+        } else {
+            /*
+             if (theDelta->y > -1)
+             theDelta->y = -[grid actualSize];
+             */
+            if (theBounds->min.y + theDelta->y < theWorldBounds->min.y) {
+                theDelta->x = 0;
+                theDelta->y = theWorldBounds->min.y - theBounds->min.y;
+                theDelta->z = 0;
+            } else if (theLastPoint != NULL) {
+                theLastPoint->y += theDelta->y;
+            }
+        }
+    }
+    
+    if (theDelta->z > 0) {
+        theDelta->z = [self snapDownToGridf:theBounds->max.z + theDelta->z] - theBounds->max.z;
+        if (theDelta->z <= 0) {
+            theDelta->z = 0;
+        } else {
+            /*
+             if (theDelta->z < 1)
+             theDelta->z = [grid actualSize];
+             */
+            if (theBounds->max.z + theDelta->z > theWorldBounds->max.z) {
+                theDelta->x = 0;
+                theDelta->y = 0;
+                theDelta->z = theWorldBounds->max.z - theBounds->max.z;
+            } else if (theLastPoint != NULL) {
+                theLastPoint->z += theDelta->z;
+            }
+        }
+    } else if (theDelta->z < 0) {
+        theDelta->z = [self snapUpToGridf:theBounds->min.z + theDelta->z] - theBounds->min.z;
+        if (theDelta->z >= 0) {
+            theDelta->z = 0;
+        } else {
+            /*
+             if (theDelta->z > -1)
+             theDelta->z = -[grid actualSize];
+             */
+            if (theBounds->min.z + theDelta->z < theWorldBounds->min.z) {
+                theDelta->x = 0;
+                theDelta->y = 0;
+                theDelta->z = theWorldBounds->min.z < theBounds->min.z;
+            } else if (theLastPoint != NULL) {
+                theLastPoint->z += theDelta->z;
+            }
+        }
+    }
+}
+
+- (float)dragDeltaForFace:(id <Face>)theFace delta:(TVector3f *)theDelta {
+    NSAssert(theFace != nil, @"face must not be nil");
+    NSAssert(theDelta != NULL, @"delta must not be NULL");
+    
+    float dist = dotV3f(theDelta, [theFace norm]);
+    if (isnan(dist) || dist == 0)
+        return NAN;
+    
+    // compute the rays which the vertices are moved on when the given face is dragged in the given direction
+    const TVertexList* vertices = [theFace vertices];
+    
+    id <Brush> brush = [theFace brush];
+    const TEdgeList* edges = [brush edges];
+    
+    TRay vertexRays[vertices->count];
+    int rayIndex = 0;
+    
+    // look at each edge of the brush and test if exactly one of its end vertices belongs to the given face
+    // if such an edge is detected, compute the ray which begins at the face vertex and points at the other
+    // vertex
+    for (int i = 0; i < edges->count; i++) {
+        int c = 0;
+        TRay ray;
+        
+        TEdge* e = edges->items[i];
+        for (int j = 0; j < vertices->count; j++) {
+            TVertex* v = vertices->items[j];
+            
+            if (v == e->startVertex) {
+                c++;
+                if (c == 1) {
+                    ray.origin = e->startVertex->position;
+                    ray.direction = e->endVertex->position;
+                } else {
+                    break;
+                }
+            } else if (v == e->endVertex) {
+                c++;
+                if (c == 1) {
+                    ray.origin = e->endVertex->position;
+                    ray.direction = e->startVertex->position;
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        if (c == 1) {
+            subV3f(&ray.direction, &ray.origin, &ray.direction);
+            normalizeV3f(&ray.direction, &ray.direction);
+            
+            // depending on the direction of the drag vector, the rays must be inverted to reflect the
+            // actual movement of the vertices
+            if (dist > 0)
+                scaleV3f(&ray.direction, -1, &ray.direction);
+            
+            vertexRays[rayIndex++] = ray;
+        }
+    }
+    
+    TVector3f vertexDelta;
+    int gridSkip = 0;
+    float dragDist = FLT_MAX;
+    do {
+        // Find the smallest drag distance at which the face boundary is actually moved
+        // by intersecting the vertex rays with the grid planes.
+        // The distance of the vertex to the closest grid plane is then multiplied by the ray
+        // direction to yield the vector by which the vertex would be moved if the face was dragged
+        // and the drag would snap the vertex onto the previously selected grid plane.
+        // This vector is then projected onto the face normal to yield the distance by which the face
+        // must be dragged so that the vertex snaps to its closest grid plane.
+        // Then, test if the resulting drag distance is smaller than the current candidate and if it is, see if
+        // it is large enough so that the face boundary changes when the drag is applied.
+        for (int i = 0; i < vertices->count; i++) {
+            float vertexDist = [self intersectWithRay:&vertexRays[i] skip:gridSkip];
+            scaleV3f(&vertexRays[i].direction, vertexDist, &vertexDelta);
+            float vertexDragDist = dotV3f(&vertexDelta, [theFace norm]);
+            
+            if (fabsf(vertexDragDist) < fabsf(dragDist)) {
+                MutableFace* testFace = [[MutableFace alloc] initWithWorldBounds:[theFace worldBounds] faceTemplate:theFace];
+                [testFace dragBy:vertexDragDist lockTexture:NO];
+                if (!equalPlane([theFace boundary], [testFace boundary]))
+                    dragDist = vertexDragDist;
+                [testFace release];
+            }
+        }
+        
+        // If we didn't find anything, the grid planes were too close to each vertex, so try the next grid planes.
+        gridSkip++;
+    } while (dragDist == FLT_MAX);
+    
+    if (fabsf(dragDist) > fabsf(dist))
+        return NAN;
+    
+    return dragDist;
 }
 
 - (void)activateTexture {

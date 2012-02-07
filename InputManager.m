@@ -37,8 +37,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MapDocument.h"
 #import "MoveTool.h"
 #import "FaceTool.h"
-#import "VertexTool.h"
-#import "EdgeTool.h"
+#import "DragVertexTool.h"
+#import "DragEdgeTool.h"
+#import "DragFaceTool.h"
 #import "Options.h"
 #import "DefaultFilter.h"
 #import "DndTool.h"
@@ -164,9 +165,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                             const TEdgeList* edges = [brush edges];
                             int index = [hit vertexIndex];
                             if (index < vertices->count || [self isSplitModifierPressed])
-                                newActiveTool = vertexTool;
+                                newActiveTool = dragVertexTool;
                             else if (index < vertices->count + edges->count)
-                                newActiveTool = edgeTool;
+                                newActiveTool = dragEdgeTool;
+                            else
+                                newActiveTool = dragFaceTool;
                             break;
                         }
                         default:
@@ -257,9 +260,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                                     const TEdgeList* edges = [brush edges];
                                     int index = [hit vertexIndex];
                                     if (index < vertices->count || [self isSplitModifierPressed])
-                                        newOwner = vertexTool;
+                                        newOwner = dragVertexTool;
                                     else if (index < vertices->count + edges->count)
-                                        newOwner = edgeTool;
+                                        newOwner = dragEdgeTool;
+                                    else
+                                        newOwner = dragFaceTool;
                                 }
                                 break;
                             }
@@ -375,8 +380,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         createBrushTool = [[CreateBrushTool alloc] initWithWindowController:windowController];
         rotateTool = [[RotateTool alloc] initWithWindowController:windowController];
         faceTool = [[FaceTool alloc] initWithWindowController:windowController];
-        vertexTool = [[VertexTool alloc] initWithWindowController:windowController];
-        edgeTool = [[EdgeTool alloc] initWithWindowController:windowController];
+        dragVertexTool = [[DragVertexTool alloc] initWithWindowController:windowController];
+        dragEdgeTool = [[DragEdgeTool alloc] initWithWindowController:windowController];
+        dragFaceTool = [[DragFaceTool alloc] initWithWindowController:windowController];
         clipTool = [[ClipTool alloc] initWithWindowController:windowController];
         entityDefinitionDndTool = [[EntityDefinitionDndTool alloc] initWithWindowController:windowController];
         
@@ -406,8 +412,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [createBrushTool release];
     [rotateTool release];
     [faceTool release];
-    [vertexTool release];
-    [edgeTool release];
+    [dragVertexTool release];
+    [dragEdgeTool release];
+    [dragFaceTool release];
     [clipTool release];
     [lastEvent release];
     [currentHits release];

@@ -134,6 +134,7 @@ extern NSString* const DocumentLoaded;
 
 - (int)dragVertex:(int)theVertexIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta;
 - (int)dragEdge:(int)theEdgeIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta;
+- (int)dragFace:(int)theFaceIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta;
 
 - (void)clear;
 

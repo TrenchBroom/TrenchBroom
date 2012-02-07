@@ -87,7 +87,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         plane.point = initialBounds.max;
 
     MapDocument* map = [windowController document];
-    TBoundingBox* worldBounds = [map worldBounds];
+    const TBoundingBox* worldBounds = [map worldBounds];
     if (!boundsContainBounds(worldBounds, &initialBounds))
         return;
     
@@ -128,7 +128,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     mergeBoundsWithPoint(&bounds, &point, &bounds);
     
     MapDocument* map = [windowController document];
-    TBoundingBox* worldBounds = [map worldBounds];
+    const TBoundingBox* worldBounds = [map worldBounds];
     if (!boundsContainBounds(worldBounds, &bounds))
         return;
     
@@ -231,7 +231,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     mergeBoundsWithPoint(&bounds, &lastPoint, &bounds);
 
     MapDocument* map = [windowController document];
-    TBoundingBox* worldBounds = [map worldBounds];
+    const TBoundingBox* worldBounds = [map worldBounds];
     if (!boundsContainBounds(worldBounds, &bounds))
         return;
     

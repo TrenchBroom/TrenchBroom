@@ -291,6 +291,15 @@ void centerOfVertices(const TVertexList* v, TVector3f* c) {
     scaleV3f(c, 1.0f / v->count, c);
 }
 
+
+void boundsOfVertices(const TVertexList* l, TBoundingBox* b) {
+    b->min = l->items[0]->position;
+    b->max = l->items[0]->position;
+    
+    for  (int i = 1; i < l->count; i++)
+        mergeBoundsWithPoint(b, & l->items[i]->position, b);
+}
+
 void edgeVector(const TEdge* e, TVector3f* v) {
     subV3f(&e->endVertex->position, &e->startVertex->position, v);
 }
@@ -984,14 +993,6 @@ void deleteSide(TVertexData* vd, int s) {
     removeSideFromList(&vd->sides, s);
 }
 
-void boundsOfVertexData(TVertexData* vd, TBoundingBox* b) {
-    b->min = vd->vertices.items[0]->position;
-    b->max = vd->vertices.items[0]->position;
-    
-    for  (int i = 1; i < vd->vertices.count; i++)
-        mergeBoundsWithPoint(b, &vd->vertices.items[i]->position, b);
-}
-
 ECutResult cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
     const TPlane* p = [f boundary];
     
@@ -1099,7 +1100,7 @@ ECutResult cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d) {
         else
             vd->edges.items[i]->mark = EM_UNDECIDED;
 
-    boundsOfVertexData(vd, &vd->bounds);
+    boundsOfVertices(&vd->vertices, &vd->bounds);
     
     return CR_SPLIT;
 }
@@ -1683,8 +1684,6 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
                               &neighbor->vertices.items[2]->position);
             
             if (equalPlane(&sideBoundary, &neighborBoundary)) {
-                NSLog(@"merge");
-                
                 id <Face> neighborFace = neighbor->face;
                 mergeSides(vd, side, j);
                 
@@ -1786,7 +1785,7 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
     
     assert(sanityCheck(vd, YES));
     
-    boundsOfVertexData(vd, &vd->bounds);
+    boundsOfVertices(&vd->vertices, &vd->bounds);
     
     // find the index of the dragged vertex
     vIndex = -1;
@@ -1978,7 +1977,7 @@ int splitAndDragSide(TVertexData* vd, int s, const TVector3f d, NSMutableArray* 
         if (sideVertexCount == side->vertices.count) {
             for (int j = 0; j < sideVertexCount && result == -1; j++) {
                 int k = 0;
-                while (j < sideVertexCount && equalV3f(&side->vertices.items[(j + k) % sideVertexCount]->position, &sideVertices[k]))
+                while (k < sideVertexCount && equalV3f(&side->vertices.items[(j + k) % sideVertexCount]->position, &sideVertices[k]))
                     k++;
                 
                 if (k == sideVertexCount)
@@ -2009,6 +2008,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
 int dragEdge(TVertexData* vd, int e, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
     TEdge* edge;
     TVector3f start, end, dir;
+    int result;
     
     assert(vd != NULL);
     assert(e >= 0 && e < vd->edges.count);
@@ -2032,14 +2032,96 @@ int dragEdge(TVertexData* vd, int e, TVector3f d, NSMutableArray* newFaces, NSMu
         dragVertex(vd, vertexIndex(&vd->vertices, edge->endVertex), d, newFaces, removedFaces);
     }
     
-    for (int i = 0; i < vd->edges.count; i++) {
+    result = -1;
+    for (int i = 0; i < vd->edges.count && result == -1; i++) {
         edge = vd->edges.items[i];
         if ((equalV3f(&edge->startVertex->position, &start) && equalV3f(&edge->endVertex->position, &end)) ||
             (equalV3f(&edge->startVertex->position, &end) && equalV3f(&edge->endVertex->position, &start)))
-            return i;
+            result = i;
     }
 
-    return -1;
+    return result;
+}
+
+int dragSide(TVertexData* vd, int s, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
+    TSide* side;
+    TVector3f center, diff, dir;
+    TVector3f* sideVertices;
+    float length;
+    int* indices;
+    float* dots;
+    int sideVertexCount;
+    int result;
+    BOOL switched;
+
+    assert(vd != NULL);
+    assert(s >= 0 && s < vd->sides.count);
+    
+    length = lengthV3f(&d);
+    if (length == 0)
+        return s;
+
+    scaleV3f(&d, 1 / length, &dir);
+    
+    side = vd->sides.items[s];
+    centerOfVertices(&side->vertices, &center);
+    
+    sideVertexCount = side->vertices.count;
+    sideVertices = malloc(sideVertexCount * sizeof(TVector3f));
+    indices = malloc(sideVertexCount * sizeof(int));
+    dots = malloc(sideVertexCount * sizeof(float));
+    
+    for (int i = 0; i < side->vertices.count; i++) {
+        sideVertices[i] = side->vertices.items[i]->position;
+        subV3f(&sideVertices[i], &center, &diff);
+        normalizeV3f(&diff, &diff);
+        dots[i] = dotV3f(&diff, &dir);
+        indices[i] = vertexIndex(&vd->vertices, side->vertices.items[i]);
+        
+        addV3f(&sideVertices[i], &d, &sideVertices[i]);
+    }
+
+    // sort indices by dot value, eek, bubblesort
+    switched = YES;
+    for (int j = sideVertexCount - 1; j >= 0 && switched; j--) {
+        switched = NO;
+        for (int i = 0; i < j; i++) {
+            if (dots[i] > dots[i + 1]) {
+                float dt = dots[i];
+                dots[i] = dots[i + 1];
+                dots[i + 1] = dt;
+                
+                int di = indices[i];
+                indices[i] = indices[i + 1];
+                indices[i + 1] = di;
+                switched = YES;
+            }
+        }
+    }
+    
+    for (int i = 0; i < sideVertexCount; i++)
+        dragVertex(vd, indices[i], d, newFaces, removedFaces);
+    
+    result = -1;
+    for (int i = 0; i < vd->sides.count && result == -1; i++) {
+        side = vd->sides.items[i];
+        if (sideVertexCount == side->vertices.count) {
+            for (int j = 0; j < sideVertexCount && result == -1; j++) {
+                int k = 0;
+                while (k < sideVertexCount && equalV3f(&side->vertices.items[(j + k) % sideVertexCount]->position, &sideVertices[k]))
+                    k++;
+                
+                if (k == sideVertexCount)
+                    result = i;
+            }
+        }
+    }
+    
+    free(sideVertices);
+    free(indices);
+    free(dots);
+    
+    return result;
 }
 
 void snapVertexData(TVertexData* vd) {

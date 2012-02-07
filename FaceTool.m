@@ -216,7 +216,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     subV3f(&point, &lastPoint, &delta);
     
     Grid* grid = [[windowController options] grid];
-    float dragDist = calculateDragDelta(grid, referenceFace, NULL, &delta);
+    float dragDist = [grid dragDeltaForFace:referenceFace delta:&delta];
 
     if (isnan(dragDist) || dragDist == 0)
         return;

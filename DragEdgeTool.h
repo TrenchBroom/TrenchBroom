@@ -24,17 +24,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class EditingSystem;
 @protocol Brush;
 
-typedef enum {
-    VTS_DEFAULT,
-    VTS_DRAG,
-    VTS_CANCEL
-} EVertexToolState;
-
-@interface VertexTool : DefaultTool {
+@interface DragEdgeTool : DefaultTool {
     MapWindowController* windowController;
     DragVertexCursor* cursor;
     EditingSystem* editingSystem;
-    EVertexToolState state;
+    BOOL drag;
     id <Brush> brush;
     int index;
     TVector3f lastPoint;

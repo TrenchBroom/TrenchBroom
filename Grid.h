@@ -23,6 +23,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 extern NSString* const GridChanged;
 
+@protocol Face;
+
 @interface Grid : NSObject {
     @private
     int size;
@@ -63,6 +65,10 @@ extern NSString* const GridChanged;
 - (void)gridOffsetV3i:(const TVector3i *)vector result:(TVector3i *)result;
 
 - (float)intersectWithRay:(const TRay *)ray skip:(int)skip;
+
+- (void)moveDeltaForBounds:(const TBoundingBox *)theBounds worldBounds:(const TBoundingBox *)theWorldBounds delta:(TVector3f *)theDelta lastPoint:(TVector3f *)theLastPoint;
+
+- (float)dragDeltaForFace:(id <Face>)theFace delta:(TVector3f *)theDelta;
 
 - (void)activateTexture;
 - (void)deactivateTexture;

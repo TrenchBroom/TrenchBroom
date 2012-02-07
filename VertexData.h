@@ -149,6 +149,7 @@ int sideIndex(const TSideList* l, const TSide* s);
 void freeSideList(TSideList* l);
 
 void centerOfVertices(const TVertexList* v, TVector3f* c);
+void boundsOfVertices(const TVertexList* l, TBoundingBox* b);
 void edgeVector(const TEdge* e, TVector3f* v);
 void centerOfEdge(const TEdge* e, TVector3f* v);
 id <Face> frontFaceOfEdge(const TEdge* e, const TRay* r);
@@ -177,7 +178,6 @@ void addEdge(TVertexData* vd, TEdge* e);
 void deleteEdge(TVertexData* vd, int e);
 void addSide(TVertexData* vd, TSide* s);
 void deleteSide(TVertexData* vd, int s);
-void boundsOfVertexData(TVertexData* vd, TBoundingBox* b);
 ECutResult cutVertexData(TVertexData* vd, MutableFace* f, NSMutableArray** d);
 void translateVertexData(TVertexData* vd, const TVector3f* d);
 void rotateVertexData90CW(TVertexData* vd, EAxis a, const TVector3f* c);
@@ -189,6 +189,7 @@ EPointStatus vertexStatusFromRay(const TVector3f* o, const TVector3f* d, const T
 
 int dragVertex(TVertexData* vd, int v, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
 int dragEdge(TVertexData* vd, int e, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
+int dragSide(TVertexData* vd, int s, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
 
 void snapVertexData(TVertexData* vd);
 BOOL sanityCheck(const TVertexData* vd, BOOL cc);

@@ -684,6 +684,10 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     side = theSide;
 }
 
+- (const TSide *)side {
+    return side;
+}
+
 - (int)filePosition {
     return filePosition;
 }

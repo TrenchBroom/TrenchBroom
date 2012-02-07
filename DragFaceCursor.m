@@ -59,6 +59,10 @@
     position = *thePosition;
 }
 
+- (const TVector3f *)position {
+    return &position;
+}
+
 - (void)setDragDirection:(const TVector3f *)theDragDirection {
     NSAssert(theDragDirection != NULL, @"drag direction must not be NULL");
     dragDirection = *theDragDirection;

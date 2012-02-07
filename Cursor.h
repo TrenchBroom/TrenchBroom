@@ -24,5 +24,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)render;
 - (void)setPosition:(const TVector3f *)thePosition;
+- (const TVector3f *)position;
 
 @end

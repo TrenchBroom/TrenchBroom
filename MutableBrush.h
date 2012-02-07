@@ -58,6 +58,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (int)dragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta;
 - (int)dragEdge:(int)theEdgeIndex by:(const TVector3f *)theDelta;
+- (int)dragFace:(int)theFaceIndex by:(const TVector3f *)theDelta;
 
 - (void)deleteFace:(MutableFace *)ace;
 - (BOOL)canDeleteFace:(MutableFace *)face;
