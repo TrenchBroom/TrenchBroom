@@ -234,7 +234,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     [moveCursor setEditingSystem:editingSystem];
     [moveCursor setPosition:&position];
-    [moveCursor setCameraPosition:[[windowController camera] position]];
 }
 
 - (NSString *)actionName {

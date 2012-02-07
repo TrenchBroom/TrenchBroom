@@ -44,11 +44,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     while ((object = [objectEn nextObject])) {
         if ([object conformsToProtocol:@protocol(Brush)]) {
             id <Brush> brush = (id <Brush>)object;
-            if (filter == nil || [filter isBrushPickable:brush])
+            if (filter == nil || [filter brushPickable:brush])
                 [brush pick:ray hitList:hitList];
         } else if ([object conformsToProtocol:@protocol(Entity)]) {
             id <Entity> entity = (id <Entity>)object;
-            if (filter == nil || [filter isEntityPickable:entity])
+            if (filter == nil || [filter entityPickable:entity])
                 [entity pick:ray hitList:hitList];
         }
     }
@@ -63,11 +63,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [brush pickClosestFace:theRay maxDistance:theMaxDistance hitList:theHitList];
 }
 
-- (void)pickVertices:(const TRay *)theRay brushes:(NSArray *)theBrushes handleRadius:(float)theHandleRadius hitList:(PickingHitList *)theHitList {
+- (void)pickVertices:(const TRay *)theRay brushes:(NSArray *)theBrushes handleRadius:(float)theHandleRadius hitList:(PickingHitList *)theHitList filter:(id <Filter>)filter {
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
-        [brush pickVertices:theRay handleRadius:theHandleRadius hitList:theHitList];
+    while ((brush = [brushEn nextObject])) {
+        if (filter == nil || [filter brushVerticesPickable:brush])
+            [brush pickVertices:theRay handleRadius:theHandleRadius hitList:theHitList];
+    }
 }
 
 - (void)dealloc {

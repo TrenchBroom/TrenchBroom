@@ -21,23 +21,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "GLUtils.h"
 
 static const int segments = 30;
-static const float shaftRadius = 2;
-static const float shaftLength = 9;
-static const float headRadius = 4;
-static const float headLength = 7;
 
 @implementation ArrowFigure
 
-- (id)initWithDirection:(const TVector3f *)theDirection {
+- (id)initWithDirection:(const TVector3f *)theDirection shaftRadius:(float)theShaftRadius shaftLength:(float)theShaftLength headRadius:(float)theHeadRadius headLength:(float)theHeadLength {
     if ((self = [super init])) {
         float cos;
         TVector3f axis;
         TQuaternion rot;
         
+        scale = 1;
+        
         shaftVertexCount = 2 * segments + 2;
         shaftVertices = malloc(shaftVertexCount * sizeof(TVector3f));
         shaftVertexNormals = malloc(shaftVertexCount * sizeof(TVector3f));
-        makeCylinder(shaftRadius, shaftLength, segments, shaftVertices, shaftVertexNormals);
+        makeCylinder(theShaftRadius, theShaftLength, segments, shaftVertices, shaftVertexNormals);
         
         shaftCapNormal = ZAxisNeg;
         shaftCapPosition = NullVector;
@@ -46,15 +44,15 @@ static const float headLength = 7;
         headVertices = malloc(headVertexCount * sizeof(TVector3f));
         headVertexNormals = malloc(headVertexCount * sizeof(TVector3f));
         
-        makeCone(headRadius, headLength, segments, headVertices, headVertexNormals);
+        makeCone(theHeadRadius, theHeadLength, segments, headVertices, headVertexNormals);
         headCapNormal = ZAxisNeg;
         headCapPosition.x = 0;
         headCapPosition.x = 0;
-        headCapPosition.x = shaftLength;
+        headCapPosition.x = theShaftLength;
         
         // translate the head to the top of the arrow
         for (int i = 0; i < headVertexCount; i++)
-            headVertices[i].z += shaftLength;
+            headVertices[i].z += theShaftLength;
 
         cos = dotV3f(&ZAxisPos, theDirection);
         if (cos < 1) {
@@ -154,6 +152,7 @@ static const float headLength = 7;
     
     glPushMatrix();
     glTranslatef(position.x, position.y, position.z);
+    glScalef(scale, scale, scale);
     
     glColorV4f(&fillColor);
     
@@ -281,6 +280,10 @@ static const float headLength = 7;
 
 - (void)setCameraPosition:(const TVector3f *)theCameraPosition {
     cameraPosition = *theCameraPosition;
+}
+
+- (void)setScale:(float)theScale {
+    scale = theScale;
 }
 
 - (void)setFillColor:(const TVector4f *)theFillColor {

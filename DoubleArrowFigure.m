@@ -27,6 +27,8 @@ static const int segments = 30;
 
 - (id)initWithDirection:(EAxis)theDirection shaftRadius:(float)theShaftRadius shaftLength:(float)theShaftLength headRadius:(float)theHeadRadius headLength:(float)theHeadLength {
     if ((self = [self init])) {
+        scale = 1;
+        
         shaftVertexCount = 2 * segments + 2;
         shaftVertices = malloc(shaftVertexCount * sizeof(TVector3f));
         shaftVertexNormals = malloc(shaftVertexCount * sizeof(TVector3f));
@@ -142,6 +144,7 @@ static const int segments = 30;
     
     glPushMatrix();
     glTranslatef(position.x, position.y, position.z);
+    glScalef(scale, scale, scale);
     
     glColorV4f(&fillColor);
     
@@ -299,6 +302,10 @@ static const int segments = 30;
 
 - (void)setCameraPosition:(const TVector3f *)theCameraPosition {
     cameraPosition = *theCameraPosition;
+}
+
+- (void)setScale:(float)theScale {
+    scale = theScale;
 }
 
 - (void)setFillColor:(const TVector4f *)theFillColor {

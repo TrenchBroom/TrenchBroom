@@ -25,8 +25,11 @@ NSString* const CursorChanged = @"CursorChanged";
 
 @implementation CursorManager
 
-- (id)init {
-    if ((self = [super init])) {
+- (id)initWithCamera:(Camera *)theCamera {
+    NSAssert(theCamera != nil, @"camera must not be nil");
+    
+    if ((self = [self init])) {
+        camera = theCamera;
         cursorStack = [[NSMutableArray alloc] init];
     }
     
@@ -61,7 +64,7 @@ NSString* const CursorChanged = @"CursorChanged";
 - (void)render {
     if ([cursorStack count] > 0) {
         id <Cursor> cursor = [cursorStack lastObject];
-        [cursor render];
+        [cursor render:camera];
     }
 }
 

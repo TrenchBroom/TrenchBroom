@@ -20,9 +20,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import <Cocoa/Cocoa.h>
 #import "Math.h"
 
+@class Camera;
+
 @protocol Cursor <NSObject>
 
-- (void)render;
+- (void)render:(Camera *)theCamera;
 - (void)setPosition:(const TVector3f *)thePosition;
 - (const TVector3f *)position;
 

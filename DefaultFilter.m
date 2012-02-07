@@ -24,24 +24,27 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Entity.h"
 #import "Brush.h"
 #import "Face.h"
+#import "Camera.h"
 
 @implementation DefaultFilter
 
-- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager groupManager:(GroupManager *)theGroupManager options:(Options *)theOptions {
+- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager groupManager:(GroupManager *)theGroupManager camera:(Camera *)theCamera options:(Options *)theOptions {
     NSAssert(theSelectionManager != nil, @"selection manager must not be nil");
     NSAssert(theGroupManager != nil, @"group manager must not be nil");
+    NSAssert(theCamera != nil, @"camera must not be nil");
     NSAssert(theOptions != nil, @"options must not be nil");
     
     if ((self = [self init])) {
         groupManager = theGroupManager;
         selectionManager = theSelectionManager;
+        camera = theCamera;
         options = theOptions;
     }
     
     return self;
 }
 
-- (BOOL)isBrushRenderable:(id<Brush>)brush {
+- (BOOL)brushRenderable:(id<Brush>)brush {
     if (![options renderBrushes])
         return NO;
     
@@ -73,7 +76,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return NO;
 }
 
-- (BOOL)isEntityRenderable:(id<Entity>)entity {
+- (BOOL)entityRenderable:(id<Entity>)entity {
     if ([entity isWorldspawn])
         return YES;
     
@@ -92,7 +95,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return YES;
 }
 
-- (BOOL)isBrushPickable:(id<Brush>)brush {
+- (BOOL)brushPickable:(id<Brush>)brush {
     if (![options renderBrushes])
         return NO;
     
@@ -123,7 +126,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return NO;
 }
 
-- (BOOL)isEntityPickable:(id<Entity>)entity {
+- (BOOL)brushVerticesPickable:(id <Brush>)brush {
+    TVector3f center;
+    
+    centerOfVertices([brush vertices], &center);
+    return [camera distanceTo:&center] <= 384;
+}
+
+- (BOOL)entityPickable:(id<Entity>)entity {
     if (![options renderEntities])
         return NO;
     

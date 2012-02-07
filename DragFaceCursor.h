@@ -27,10 +27,8 @@
     ArrowFigure* arrowFigure;
     TVector3f dragDirection;
     TVector3f position;
-    TVector3f cameraPosition;
 }
 
 - (void)setDragDirection:(const TVector3f *)theDragDirection;
-- (void)setCameraPosition:(const TVector3f *)theCameraPosition;
 
 @end

@@ -22,7 +22,7 @@
 #import "MapWindowController.h"
 #import "MapDocument.h"
 #import "CursorManager.h"
-#import "DragVertexCursor.h"
+#import "MoveCursor.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
 #import "Camera.h"
@@ -63,7 +63,7 @@
     
     if ((self = [self init])) {
         windowController = theWindowController;
-        cursor = [[DragVertexCursor alloc] init];
+        cursor = [[MoveCursor alloc] init];
         drag = NO;
     }
     
@@ -181,9 +181,6 @@
     
     [self updateMoveDirectionWithRay:ray hits:hits];
     [cursor setEditingSystem:editingSystem];
-    
-    Camera* camera = [windowController camera];
-    [cursor setCameraPosition:[camera position]];
     
     if (drag) {
         float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];

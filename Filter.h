@@ -24,9 +24,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @protocol Filter <NSObject>
 
-- (BOOL)isBrushRenderable:(id <Brush>)brush;
-- (BOOL)isEntityRenderable:(id <Entity>)entity;
-- (BOOL)isBrushPickable:(id <Brush>)brush;
-- (BOOL)isEntityPickable:(id <Entity>)entity;
+- (BOOL)brushRenderable:(id <Brush>)brush;
+- (BOOL)entityRenderable:(id <Entity>)entity;
+- (BOOL)brushPickable:(id <Brush>)brush;
+- (BOOL)brushVerticesPickable:(id <Brush>)brush;
+- (BOOL)entityPickable:(id <Entity>)entity;
 
 @end

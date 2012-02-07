@@ -323,7 +323,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self preferencesDidChange:nil];
     
     inputManager = [[InputManager alloc] initWithWindowController:self];
-    cursorManager = [[CursorManager alloc] init];
+    cursorManager = [[CursorManager alloc] initWithCamera:camera];
     
     [view3D setup];
     

@@ -278,11 +278,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         dragDirection = [referenceFace norm];
     }
 
-    Camera* camera = [windowController camera];
-    
     [dragFaceCursor setPosition:&position];
     [dragFaceCursor setDragDirection:dragDirection];
-    [dragFaceCursor setCameraPosition:[camera position]];
 }
 
 - (NSString *)actionName {

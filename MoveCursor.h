@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
+#import "DefaultTool.h"
 #import "Cursor.h"
 #import "Math.h"
 
@@ -28,10 +28,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     DoubleArrowFigure* arrows[3];
     EditingSystem* editingSystem;
     TVector3f position;
-    TVector3f cameraPosition;
+    BOOL attention;
 }
 
 - (void)setEditingSystem:(EditingSystem *)theEditingSystem;
-- (void)setCameraPosition:(const TVector3f *)theCameraPosition;
+- (void)setAttention:(BOOL)theAttention;
 
 @end

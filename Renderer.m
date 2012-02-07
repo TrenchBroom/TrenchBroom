@@ -598,11 +598,11 @@ int const TexCoordSize = 2 * sizeof(float);
     NSEnumerator* entityEn = [[map entities] objectEnumerator];
     id <Entity> entity;
     while  ((entity = [entityEn nextObject])) {
-        if ([filter isEntityRenderable:entity]) {
+        if ([filter entityRenderable:entity]) {
             NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
             id <Brush> brush;
             while ((brush = [brushEn nextObject])) {
-                if ([filter isBrushRenderable:brush]) {
+                if ([filter brushRenderable:brush]) {
                     NSEnumerator* faceEn = [[brush faces] objectEnumerator];
                     id <Face> face;
                     while ((face = [faceEn nextObject])) {
@@ -729,7 +729,7 @@ int const TexCoordSize = 2 * sizeof(float);
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     id <Entity> entity;
     while ((entity = [entityEn nextObject])) {
-        if (filter == nil || [filter isEntityRenderable:entity]) {
+        if (filter == nil || [filter entityRenderable:entity]) {
             id <EntityRenderer> entityRenderer = [entityRenderers objectForKey:[entity entityId]];
             
             glPushMatrix();
@@ -879,40 +879,52 @@ int const TexCoordSize = 2 * sizeof(float);
         glFrontFace(GL_CCW);
         glPolygonMode(GL_FRONT, GL_FILL);
         glColorV4f(&SelectionColor);
-
+        
+        Camera* camera = [windowController camera];
+        
         NSArray* brushes = [selectionManager selectedBrushes];
         NSEnumerator* brushEn = [brushes objectEnumerator];
         id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
-            const TVertexList* vertices = [brush vertices];
-            for (int i = 0; i < vertices->count; i++) {
-                TVector3f* vertex = &vertices->items[i]->position;
-                glPushMatrix();
-                glTranslatef(vertex->x, vertex->y, vertex->z);
-                gluSphere(vertexHandle, 2, 12, 12);
-                glPopMatrix();
-            }
-            
-            const TEdgeList* edges = [brush edges];
-            for (int i = 0; i < edges->count; i++) {
-                TEdge* edge = edges->items[i];
-                centerOfEdge(edge, &mid);
-
-                glPushMatrix();
-                glTranslatef(mid.x, mid.y, mid.z);
-                gluSphere(vertexHandle, 1, 12, 12);
-                glPopMatrix();
-            }
-            
-            NSArray* faces = [brush faces];
-            NSEnumerator* faceEn = [faces objectEnumerator];
-            id <Face> face;
-            while ((face = [faceEn nextObject])) {
-                centerOfVertices([face vertices], &mid);
-                glPushMatrix();
-                glTranslatef(mid.x, mid.y, mid.z);
-                gluSphere(vertexHandle, 1, 12, 12);
-                glPopMatrix();
+            if ([filter brushVerticesPickable:brush]) {
+                const TVertexList* vertices = [brush vertices];
+                for (int i = 0; i < vertices->count; i++) {
+                    TVector3f* vertex = &vertices->items[i]->position;
+                    float dist = [camera distanceTo:vertex];
+                    
+                    glPushMatrix();
+                    glTranslatef(vertex->x, vertex->y, vertex->z);
+                    glScalef(dist / 300, dist / 300, dist / 300);
+                    gluSphere(vertexHandle, 2, 12, 12);
+                    glPopMatrix();
+                }
+                
+                const TEdgeList* edges = [brush edges];
+                for (int i = 0; i < edges->count; i++) {
+                    TEdge* edge = edges->items[i];
+                    centerOfEdge(edge, &mid);
+                    float dist = [camera distanceTo:&mid];
+                    
+                    glPushMatrix();
+                    glTranslatef(mid.x, mid.y, mid.z);
+                    glScalef(dist / 300, dist / 300, dist / 300);
+                    gluSphere(vertexHandle, 2, 12, 12);
+                    glPopMatrix();
+                }
+                
+                NSArray* faces = [brush faces];
+                NSEnumerator* faceEn = [faces objectEnumerator];
+                id <Face> face;
+                while ((face = [faceEn nextObject])) {
+                    centerOfVertices([face vertices], &mid);
+                    float dist = [camera distanceTo:&mid];
+                    
+                    glPushMatrix();
+                    glTranslatef(mid.x, mid.y, mid.z);
+                    glScalef(dist / 300, dist / 300, dist / 300);
+                    gluSphere(vertexHandle, 2, 12, 12);
+                    glPopMatrix();
+                }
             }
         }
 
@@ -1099,10 +1111,11 @@ int const TexCoordSize = 2 * sizeof(float);
     Options* options = [windowController options];
     MapDocument* map = [windowController document];
     SelectionManager* selectionManager = [map selectionManager];
+    Camera* camera = [windowController camera];
     GroupManager* groupManager = [map groupManager];
     
     [filter release];
-    filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager groupManager:groupManager options:options];
+    filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager groupManager:groupManager camera:camera options:options];
     [changeSet setFilterChanged:YES];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
@@ -1167,7 +1180,7 @@ int const TexCoordSize = 2 * sizeof(float);
         SelectionManager* selectionManager = [map selectionManager];
         GroupManager* groupManager = [map groupManager];
         
-        filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager groupManager:groupManager options:options];
+        filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager groupManager:groupManager camera:camera options:options];
         
         [self addEntities:[map entities]];
         

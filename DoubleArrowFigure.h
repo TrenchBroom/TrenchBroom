@@ -52,12 +52,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     TVector3f cameraPosition;
     TVector3f position;
+    float scale;
 }
 
 - (id)initWithDirection:(EAxis)theDirection shaftRadius:(float)theShaftRadius shaftLength:(float)theShaftLength headRadius:(float)theHeadRadius headLength:(float)theHeadLength;
 
 - (void)setPosition:(const TVector3f *)thePosition;
 - (void)setCameraPosition:(const TVector3f *)theCameraPosition;
+- (void)setScale:(float)theScale;
 - (void)setFillColor:(const TVector4f *)theFillColor;
 - (void)setOutlineColor:(const TVector4f *)theOutlineColor;
 

@@ -21,6 +21,12 @@
 #import <OpenGL/gl.h>
 #import "GLUtils.h"
 #import "ArrowFigure.h"
+#import "Camera.h"
+
+static const float shaftRadius = 1;
+static const float shaftLength = 9;
+static const float headRadius = 3;
+static const float headLength = 7;
 
 @implementation DragFaceCursor
 
@@ -29,12 +35,15 @@
     [super dealloc];
 }
 
-- (void)render {
+- (void)render:(Camera *)theCamera {
     if (arrowFigure == nil)
-        arrowFigure = [[ArrowFigure alloc] initWithDirection:&dragDirection];
+        arrowFigure = [[ArrowFigure alloc] initWithDirection:&dragDirection shaftRadius:shaftRadius shaftLength:shaftLength headRadius:headRadius headLength:headLength];
     
+    float dist = [theCamera distanceTo:&position];
+
     [arrowFigure setPosition:&position];
-    [arrowFigure setCameraPosition:&cameraPosition];
+    [arrowFigure setCameraPosition:[theCamera position]];
+    [arrowFigure setScale:dist / 300];
     
     TVector4f fillColor1 = {0, 0, 0, 1};
     TVector4f outlineColor1 = {1, 1, 1, 1};
@@ -71,11 +80,6 @@
         [arrowFigure release];
         arrowFigure = nil;
     }
-}
-
-- (void)setCameraPosition:(const TVector3f *)theCameraPosition {
-    NSAssert(theCameraPosition != nil, @"camera position must not be nil");
-    cameraPosition = *theCameraPosition;
 }
 
 @end

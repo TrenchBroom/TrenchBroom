@@ -372,7 +372,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         SelectionManager* selectionManager = [map selectionManager];
         GroupManager* groupManager = [map groupManager];
         Options* options = [windowController options];
-        filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager groupManager:groupManager options:options];
+        Camera* camera = [windowController camera];
+        
+        filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager groupManager:groupManager camera:camera options:options];
         
         cameraTool = [[CameraTool alloc] initWithWindowController:windowController];
         selectionTool = [[SelectionTool alloc] initWithWindowController:windowController];
@@ -385,8 +387,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         dragFaceTool = [[DragFaceTool alloc] initWithWindowController:windowController];
         clipTool = [[ClipTool alloc] initWithWindowController:windowController];
         entityDefinitionDndTool = [[EntityDefinitionDndTool alloc] initWithWindowController:windowController];
-        
-        Camera* camera = [windowController camera];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(cameraViewChanged:) name:CameraViewChanged object:camera];
@@ -770,7 +770,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         SelectionManager* selectionManager = [windowController selectionManager];
         if ([selectionManager mode] == SM_BRUSHES) {
             [picker pickCloseFaces:&lastRay brushes:[selectionManager selectedBrushes] maxDistance:10 hitList:currentHits];
-            [picker pickVertices:&lastRay brushes:[selectionManager selectedBrushes] handleRadius:2 hitList:currentHits];
+            [picker pickVertices:&lastRay brushes:[selectionManager selectedBrushes] handleRadius:2 hitList:currentHits filter:filter];
         }
     } 
     

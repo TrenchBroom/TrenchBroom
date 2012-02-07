@@ -21,12 +21,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 extern NSString* const CursorChanged;
 
-@class Vector3f;
+@class Camera;
 @protocol Cursor;
 
 @interface CursorManager : NSObject {
     NSMutableArray* cursorStack;
+    Camera* camera;
 }
+
+- (id)initWithCamera:(Camera *)theCamera;
 
 - (void)pushCursor:(id <Cursor>)cursor;
 - (void)popCursor;

@@ -23,13 +23,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class GroupManager;
 @class SelectionManager;
 @class Options;
+@class Camera;
 
 @interface DefaultFilter : NSObject <Filter> {
     GroupManager* groupManager;
     SelectionManager* selectionManager;
     Options* options;
+    Camera* camera;
 }
 
-- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager groupManager:(GroupManager *)theGroupManager options:(Options *)theOptions;
+- (id)initWithSelectionManager:(SelectionManager *)theSelectionManager groupManager:(GroupManager *)theGroupManager camera:(Camera *)theCamera options:(Options *)theOptions;
 
 @end
