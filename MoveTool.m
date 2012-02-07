@@ -35,8 +35,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MapView3D.h"
 #import "ControllerUtils.h"
 #import "EditingSystem.h"
-#import "MoveCursor.h"
-#import "CursorManager.h"
 #import "CameraOrbitAnimation.h"
 
 @interface MoveTool (private)
@@ -93,7 +91,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if ((self = [self init])) {
         windowController = theWindowController;
-        moveCursor = [[MoveCursor alloc] init];
     }
     return self;
 }
@@ -101,7 +98,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)dealloc {
     if (editingSystem != nil)
         [editingSystem release];
-    [moveCursor release];
     [super dealloc];
 }
 
@@ -203,37 +199,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 
     drag = NO;
-}
-
-- (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager pushCursor:moveCursor];
-    [self updateCursor:event ray:ray hits:hits];
-}
-
-- (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager popCursor];
-}
-
-- (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    TVector3f position;
-    
-    if (!drag) {
-        [self updateMoveDirectionWithRay:ray hits:hits];
-
-        PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
-        if (hit != nil) {
-            float dist = [editingSystem intersectWithRay:ray planePosition:[hit hitPoint]];
-            rayPointAtDistance(ray, dist, &position);
-        }
-    } else {
-        float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
-        rayPointAtDistance(ray, dist, &position);
-    }
-
-    [moveCursor setEditingSystem:editingSystem];
-    [moveCursor setPosition:&position];
 }
 
 - (NSString *)actionName {

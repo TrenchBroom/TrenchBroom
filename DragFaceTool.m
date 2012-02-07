@@ -21,8 +21,6 @@
 #import "Math.h"
 #import "MapWindowController.h"
 #import "MapDocument.h"
-#import "CursorManager.h"
-#import "MoveCursor.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
 #import "Camera.h"
@@ -63,7 +61,6 @@
     
     if ((self = [self init])) {
         windowController = theWindowController;
-        cursor = [[MoveCursor alloc] init];
         drag = NO;
     }
     
@@ -71,7 +68,6 @@
 }
 
 - (void)dealloc {
-    [cursor release];
     [editingSystem release];
     [super dealloc];
 }
@@ -84,6 +80,8 @@
     NSAssert(event != NULL, @"event must not be NULL");
     NSAssert(ray != NULL, @"ray must not be NULL");
     NSAssert(hits != nil, @"hit list must not be nil");
+    
+    [self updateMoveDirectionWithRay:ray hits:hits];
     
     [hits retain];
     
@@ -163,52 +161,6 @@
     index = -1;
     
     drag = NO;
-}
-
-- (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager pushCursor:cursor];
-    [self updateCursor:event ray:ray hits:hits];
-}
-
-- (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager popCursor];
-}
-
-- (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    TVector3f position;
-    
-    [self updateMoveDirectionWithRay:ray hits:hits];
-    [cursor setEditingSystem:editingSystem];
-    
-    if (drag) {
-        float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
-        if (isnan(dist))
-            return;
-        
-        rayPointAtDistance(ray, dist, &position);
-        [cursor setAttention:NO];
-    } else {
-        NSArray* vertexHits = [hits hitsOfType:HT_VERTEX];
-        if ([vertexHits count] == 0)
-            return;
-        
-        position = *[[vertexHits objectAtIndex:0] hitPoint];
-        
-        BOOL attention = NO;
-        NSEnumerator* hitEn = [vertexHits objectEnumerator];
-        PickingHit* hit;
-        while (!attention && (hit = [hitEn nextObject])) {
-            id <Brush> hitBrush = [hit object];
-            const TVertexList* vertices = [hitBrush vertices];
-            for (int i = 0; i < vertices->count && !attention; i++)
-                attention = !intV3f(&vertices->items[i]->position);
-        }
-        [cursor setAttention:attention];
-    }
-    
-    [cursor setPosition:&position];
 }
 
 - (NSString *)actionName {

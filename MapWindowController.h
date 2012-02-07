@@ -29,7 +29,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class SingleTextureView;
 @class Options;
 @class Prefab;
-@class CursorManager;
 @class ClipTool;
 @class Renderer;
 @class InspectorViewController;
@@ -49,7 +48,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     Camera* camera;
     InputManager* inputManager;
     Options* options;
-    CursorManager* cursorManager;
     ConsoleWindowController* console;
     QuickBarWindowController* quickBar;
     BOOL view3DWasFirstResponder;
@@ -109,7 +107,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (Camera *)camera;
 - (SelectionManager *)selectionManager;
 - (InputManager *)inputManager;
-- (CursorManager *)cursorManager;
 - (Options *)options;
 - (Renderer *)renderer;
 - (MapView3D *)view3D;

@@ -20,13 +20,11 @@
 #import "DefaultTool.h"
 
 @class MapWindowController;
-@class MoveCursor;
 @class EditingSystem;
 @protocol Brush;
 
 @interface DragFaceTool : DefaultTool {
     MapWindowController* windowController;
-    MoveCursor* cursor;
     EditingSystem* editingSystem;
     BOOL drag;
     id <Brush> brush;

@@ -21,8 +21,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Math.h"
 #import "MapWindowController.h"
 #import "MapDocument.h"
-#import "CursorManager.h"
-#import "MoveCursor.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
 #import "Camera.h"
@@ -63,7 +61,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ((self = [self init])) {
         windowController = theWindowController;
-        cursor = [[MoveCursor alloc] init];
         state = VTS_DEFAULT;
     }
     
@@ -71,13 +68,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)dealloc {
-    [cursor release];
     [editingSystem release];
     [super dealloc];
 }
 
 - (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)theKeyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {
     keyStatus = theKeyStatus;
+    [self updateMoveDirectionWithRay:ray hits:hits];
 }
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -85,6 +82,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSAssert(ray != NULL, @"ray must not be NULL");
     NSAssert(hits != nil, @"hit list must not be nil");
     
+    [self updateMoveDirectionWithRay:ray hits:hits];
+
     [hits retain];
     
     PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
@@ -153,13 +152,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (index == -1) {
         [self endLeftDrag:event ray:ray hits:hits];
         state = VTS_CANCEL;
-        [self unsetCursor:event ray:ray hits:hits];
     }
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (state == VTS_CANCEL) {
-        [self setCursor:event ray:ray hits:hits];
         state = VTS_DEFAULT;
     }
     
@@ -176,54 +173,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     index = -1;
     
     state = VTS_DEFAULT;
-}
-
-- (void)setCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager pushCursor:cursor];
-    [self updateCursor:event ray:ray hits:hits];
-}
-
-- (void)unsetCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager popCursor];
-}
-
-- (void)updateCursor:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    TVector3f position;
-
-    [self updateMoveDirectionWithRay:ray hits:hits];
-    [cursor setEditingSystem:editingSystem];
-    
-    if (state == VTS_DRAG) {
-        float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
-        if (isnan(dist))
-            return;
-        
-        rayPointAtDistance(ray, dist, &position);
-        [cursor setAttention:NO];
-    } else if (state == VTS_CANCEL) {
-        
-    } else {
-        NSArray* vertexHits = [hits hitsOfType:HT_VERTEX];
-        if ([vertexHits count] == 0)
-            return;
-        
-        position = *[[vertexHits objectAtIndex:0] hitPoint];
-        
-        BOOL attention = NO;
-        NSEnumerator* hitEn = [vertexHits objectEnumerator];
-        PickingHit* hit;
-        while (!attention && (hit = [hitEn nextObject])) {
-            id <Brush> hitBrush = [hit object];
-            const TVertexList* vertices = [hitBrush vertices];
-            for (int i = 0; i < vertices->count && !attention; i++)
-                attention = !intV3f(&vertices->items[i]->position);
-        }
-        [cursor setAttention:attention];
-    }
-    
-    [cursor setPosition:&position];
 }
 
 - (NSString *)actionName {

@@ -20,7 +20,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "DefaultTool.h"
 
 @class MapWindowController;
-@class MoveCursor;
 @class EditingSystem;
 @protocol Brush;
 
@@ -32,7 +31,6 @@ typedef enum {
 
 @interface DragVertexTool : DefaultTool {
     MapWindowController* windowController;
-    MoveCursor* cursor;
     EditingSystem* editingSystem;
     EVertexToolState state;
     id <Brush> brush;

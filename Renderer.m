@@ -36,7 +36,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "GLResources.h"
 #import "TextureManager.h"
 #import "GLFontManager.h"
-#import "CursorManager.h"
 #import "Texture.h"
 #import "Figure.h"
 #import "Filter.h"
@@ -1205,9 +1204,6 @@ int const TexCoordSize = 2 * sizeof(float);
         [center addObserver:self selector:@selector(optionsOrGroupsChanged:) name:GroupsChanged object:groupManager];
         [center addObserver:self selector:@selector(gridChanged:) name:GridChanged object:grid];
         
-        CursorManager* cursorManager = [windowController cursorManager];
-        [center addObserver:self selector:@selector(cursorChanged:) name:CursorChanged object:cursorManager];
-        
         PreferencesManager* preferences = [PreferencesManager sharedManager];
         [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:preferences];
     }
@@ -1395,9 +1391,6 @@ int const TexCoordSize = 2 * sizeof(float);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specReflection);
     glMateriali(GL_FRONT, GL_SHININESS, 50);
     */
-    
-    CursorManager* cursorManager = [windowController cursorManager];
-    [cursorManager render];
     
     /*
     glDisable(GL_LIGHT0);

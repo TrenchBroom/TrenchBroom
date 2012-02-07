@@ -206,6 +206,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)updateCursorOwner {
+    /*
     if (dragStatus == MS_NONE && scrollStatus == MS_NONE) {
         SelectionManager* selectionManager = [windowController selectionManager];
         
@@ -297,15 +298,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             }
         }
     }
+    */
 }
 
 - (void)updateCursor {
+    /*
     if (cursorOwner != nil) {
         [cursorOwner updateCursor:lastEvent ray:&lastRay hits:[self currentHits]];
         
         MapView3D* view3D = [windowController view3D];
         [view3D setNeedsDisplay:YES];
     }
+     */
 }
 
 - (void)keyStatusChanged:(NSEvent *)event {

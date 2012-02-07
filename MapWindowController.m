@@ -31,7 +31,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Wad.h"
 #import "TextureManager.h"
 #import "InputManager.h"
-#import "CursorManager.h"
 #import "VBOBuffer.h"
 #import "Octree.h"
 #import "Picker.h"
@@ -323,7 +322,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self preferencesDidChange:nil];
     
     inputManager = [[InputManager alloc] initWithWindowController:self];
-    cursorManager = [[CursorManager alloc] initWithCamera:camera];
     
     [view3D setup];
     
@@ -499,7 +497,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [pointFileFigure release];
     [options release];
     [inputManager release];
-    [cursorManager release];
     [camera release];
     [inspectorViewController release];
     [console release];
@@ -1606,10 +1603,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (InputManager *)inputManager {
     return inputManager;
-}
-
-- (CursorManager *)cursorManager {
-    return cursorManager;
 }
 
 - (Options *)options {

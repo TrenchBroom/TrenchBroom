@@ -22,8 +22,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @class MapWindowController;
 @class PickingHit;
-@class ApplyFaceCursor;
-@class DragFaceCursor;
 @protocol Face;
 
 @interface FaceTool : DefaultTool {
@@ -35,7 +33,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     id <Face> referenceFace;
     NSMutableArray* dragFaces;
     BOOL drag;
-    DragFaceCursor* dragFaceCursor;
     EKeyStatus keyStatus;
 }
 

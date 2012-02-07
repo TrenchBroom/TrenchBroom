@@ -23,14 +23,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @class MapWindowController;
 @class EditingSystem;
-@class MoveCursor;
 
 @interface MoveTool : DefaultTool {
     @private
     MapWindowController* windowController;
     EditingSystem* editingSystem;
     TVector3f editingPoint;
-    MoveCursor* moveCursor;
     TVector3f lastPoint;
     BOOL drag;
     EKeyStatus keyStatus;
