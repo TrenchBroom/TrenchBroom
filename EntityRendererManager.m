@@ -110,7 +110,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ((self = [self init])) {
         entityRenderers = [[NSMutableDictionary alloc] init];
-        vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
+        vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF type:GL_ARRAY_BUFFER];
         palette = [thePalette retain];
         
         PreferencesManager* preferences = [PreferencesManager sharedManager];

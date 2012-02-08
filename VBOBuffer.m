@@ -101,10 +101,11 @@ int writeVector2f(const TVector2f* vector, uint8_t* vbo, int address) {
     return self;
 }
 
-- (id)initWithTotalCapacity:(int)capacity {
+- (id)initWithTotalCapacity:(int)capacity type:(GLenum)theType {
     if ((self = [self init])) {
         totalCapacity = capacity;
         freeCapacity = capacity;
+        type = theType;
         firstBlock = [[VBOMemBlock alloc] initBlockIn:self at:0 capacity:capacity];
         lastBlock = firstBlock;
         [freeBlocksByCapacity addObject:firstBlock];
@@ -188,12 +189,12 @@ int writeVector2f(const TVector2f* vector, uint8_t* vbo, int address) {
 - (void)activate {
     if (vboId == 0) {
         glGenBuffers(1, &vboId);
-        glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glBufferData(GL_ARRAY_BUFFER, totalCapacity, NULL, GL_DYNAMIC_DRAW);
+        glBindBuffer(type, vboId);
+//        glEnableClientState(GL_VERTEX_ARRAY);
+        glBufferData(type, totalCapacity, NULL, GL_DYNAMIC_DRAW);
     } else {
-        glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glEnableClientState(GL_VERTEX_ARRAY);
+        glBindBuffer(type, vboId);
+//        glEnableClientState(GL_VERTEX_ARRAY);
     }
 
     NSAssert(glGetError() == GL_NO_ERROR, @"buffer could not be activated: %i", glGetError());
@@ -201,8 +202,8 @@ int writeVector2f(const TVector2f* vector, uint8_t* vbo, int address) {
 }
 
 - (void)deactivate {
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glDisableClientState(GL_VERTEX_ARRAY);
+    glBindBuffer(type, 0);
     active = NO;
 }
 
@@ -211,13 +212,13 @@ int writeVector2f(const TVector2f* vector, uint8_t* vbo, int address) {
 }
 
 - (void)mapBuffer {
-    buffer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    buffer = glMapBuffer(type, GL_WRITE_ONLY);
     NSAssert(glGetError() == GL_NO_ERROR && buffer != NULL, @"buffer could not be mapped: %i", glGetError());
 }
 
 - (void)unmapBuffer {
     if (buffer != NULL) {
-        glUnmapBuffer(GL_ARRAY_BUFFER);
+        glUnmapBuffer(type);
         buffer = NULL;
     }
 }

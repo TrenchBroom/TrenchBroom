@@ -41,10 +41,11 @@ extern NSString* const BufferNotMappedException;
     VBOMemBlock* lastBlock;
     uint8_t* buffer;
     GLuint vboId;
+    GLenum type;
     BOOL active;
 }
 
-- (id)initWithTotalCapacity:(int)capacity;
+- (id)initWithTotalCapacity:(int)capacity type:(GLenum)theType;
 
 - (int)totalCapacity;
 - (int)freeCapacity;

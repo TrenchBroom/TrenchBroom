@@ -65,7 +65,7 @@ void gluTessEndData(GLStringData* data) {
 
 - (id)init {
     if ((self = [super init])) {
-        vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
+        vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF type:GL_ARRAY_BUFFER];
         glStrings = [[NSMutableDictionary alloc] init];
         
         gluTess = gluNewTess();
@@ -190,9 +190,12 @@ void gluTessEndData(GLStringData* data) {
 
 - (void)activate {
     [vbo activate];
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(2, GL_FLOAT, 0, 0);
 }
 
 - (void)deactivate {
+    glDisableClientState(GL_VERTEX_ARRAY);
     [vbo deactivate];
 }
 

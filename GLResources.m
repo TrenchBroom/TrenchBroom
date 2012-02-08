@@ -35,7 +35,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [pixelFormat release];
         
         palette = [thePalette retain];
-        vbos = [[NSMutableDictionary alloc] init];
         fontManager = [[GLFontManager alloc] init];
         textureManager = [[TextureManager alloc] init];
         entityRendererManager = [[EntityRendererManager alloc] initWithPalette:palette];
@@ -49,7 +48,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [fontManager release];
     [textureManager release];
     [palette release];
-    [vbos release];
     [openGLContext release];
     [super dealloc];
 }
@@ -74,20 +72,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return entityRendererManager;
 }
 
-- (VBOBuffer *)vboForKey:(id <NSCopying>)theKey {
-    VBOBuffer* vbo = [vbos objectForKey:theKey];
-    if (vbo == nil) {
-        vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF];
-        [vbos setObject:vbo forKey:theKey];
-        [vbo release];
-    }
-    
-    return vbo;
-}
-
 - (void)reset {
     [textureManager clear];
-//    [vbos removeAllObjects];
     [fontManager clear];
     [entityRendererManager clear];
 }

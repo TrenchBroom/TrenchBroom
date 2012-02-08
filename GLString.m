@@ -107,8 +107,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)render {
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(2, GL_FLOAT, 0, 0);
     if (hasTriangleSet)
         glDrawArrays(GL_TRIANGLES, triangleSetIndex, triangleSetCount);
     if (hasTriangleStrips)

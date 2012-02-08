@@ -754,8 +754,8 @@ int const TexCoordSize = 2 * sizeof(float);
     }
 
     glDrawArrays(GL_QUADS, 0, theVertexCount);
-    if (color == NULL)
-        glDisableClientState(GL_COLOR_ARRAY);
+//    if (color == NULL)
+        // glDisableClientState(GL_COLOR_ARRAY);
     glEnable(GL_CULL_FACE);
     glResetEdgeOffset();
 }
@@ -1159,9 +1159,9 @@ int const TexCoordSize = 2 * sizeof(float);
         mods = [modListFromWorldspawn([map worldspawn:YES]) retain];
         entityRendererCacheValid = YES;
         
-        faceVbo = [glResources vboForKey:FaceVboKey];
-        entityBoundsVbo = [glResources vboForKey:EntityBoundsVboKey];
-        selectedEntityBoundsVbo = [glResources vboForKey:SelectedEntityBoundsVboKey];
+        faceVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF type:GL_ARRAY_BUFFER];
+        entityBoundsVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF type:GL_ARRAY_BUFFER];
+        selectedEntityBoundsVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF type:GL_ARRAY_BUFFER];
         faceIndexBuffers = [[NSMutableDictionary alloc] init];
         faceCountBuffers = [[NSMutableDictionary alloc] init];
         selectedFaceIndexBuffers = [[NSMutableDictionary alloc] init];
@@ -1229,6 +1229,9 @@ int const TexCoordSize = 2 * sizeof(float);
     [selectionBoundsRenderer release];
     [filter release];
     [mods release];
+    [faceVbo release];
+    [entityBoundsVbo release];
+    [selectedEntityBoundsVbo release];
     [super dealloc];
 }
 
@@ -1272,6 +1275,8 @@ int const TexCoordSize = 2 * sizeof(float);
     
     if ([options renderBrushes]) {
         [faceVbo activate];
+        glEnableClientState(GL_VERTEX_ARRAY);
+        
         switch ([options renderMode]) {
             case RM_TEXTURED:
                 if ([options isolationMode] == IM_NONE)
@@ -1305,6 +1310,7 @@ int const TexCoordSize = 2 * sizeof(float);
             glResetEdgeOffset();
         }
         
+        glDisableClientState(GL_VERTEX_ARRAY);
         [faceVbo deactivate];
     }
 

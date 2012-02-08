@@ -30,7 +30,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     GLFontManager* fontManager;
     TextureManager* textureManager;
     EntityRendererManager* entityRendererManager;
-    NSMutableDictionary* vbos;
     NSData* palette;
 }
 
@@ -41,7 +40,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (GLFontManager *)fontManager;
 - (TextureManager *)textureManager;
 - (EntityRendererManager *)entityRendererManager;
-- (VBOBuffer *)vboForKey:(id <NSCopying>)theKey;
 - (void)reset;
 
 @end
