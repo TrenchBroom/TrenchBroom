@@ -1232,8 +1232,6 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)render {
-    NSDate* start = [NSDate date];
-    
     [self validate];
     
     glEnable(GL_BLEND);
@@ -1406,8 +1404,6 @@ int const TexCoordSize = 2 * sizeof(float);
      }
      glEnable( GL_BLEND );
      */
-    
-    NSLog(@"%f", 1 / [[NSDate date] timeIntervalSinceDate:start]);
 }
 
 @end

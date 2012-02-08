@@ -108,6 +108,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [center addObserver:self selector:@selector(preferencesDidChange:) name:DefaultsDidChange object:preferences];
     
     [self registerForDraggedTypes:[NSArray arrayWithObject:EntityDefinitionType]];
+
+    GLint swapInterval = 1;
+    [[self openGLContext] setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
 }
 
 - (BOOL)becomeFirstResponder {
