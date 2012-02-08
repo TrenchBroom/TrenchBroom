@@ -836,7 +836,7 @@ int const TexCoordSize = 2 * sizeof(float);
         const void* countBytes = [countBuffer bytes];
         int primCount = [indexBuffer count];
         
-        glMultiDrawArrays(GL_POLYGON, indexBytes, countBytes, primCount);
+        glMultiDrawArrays(GL_TRIANGLE_FAN, indexBytes, countBytes, primCount);
         
         if (textured) {
             if (texture != nil)
