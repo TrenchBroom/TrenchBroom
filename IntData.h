@@ -28,7 +28,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (id)initDataWithCapacity:(int)capacity;
 
-- (void)appendInt:(int)value;
+- (void)appendInt:(unsigned int)value;
 - (const void*)bytes;
 - (int)count;
 

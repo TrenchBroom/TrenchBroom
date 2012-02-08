@@ -32,15 +32,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (id)initDataWithCapacity:(int)capacity {
     if ((self = [super init])) {
-        data = [[NSMutableData alloc] initWithLength:capacity * sizeof(int)];
+        data = [[NSMutableData alloc] initWithLength:capacity * sizeof(unsigned int)];
         count = 0;
     }
     
     return self;
 }
 
-- (void)appendInt:(int)value {
-    [data appendBytes:(char *)&value length:sizeof(int)];
+- (void)appendInt:(unsigned int)value {
+    [data appendBytes:(char *)&value length:sizeof(unsigned int)];
     count++;
 }
 

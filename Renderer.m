@@ -72,8 +72,9 @@ int const TexCoordSize = 2 * sizeof(float);
 @interface Renderer (private)
 
 - (void)writeEntityBounds:(id <Entity>)theEntity toBlock:(VBOMemBlock *)theBlock;
-- (void)writeFace:(id <Face>)theFace toBlock:(VBOMemBlock *)theBlock;
-- (void)writeFace:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer;
+- (void)writeFaceVertices:(id <Face>)theFace toBlock:(VBOMemBlock *)theBlock;
+- (void)writeFaceTriangles:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer;
+- (void)writeFaceEdges:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer;
 
 - (void)validateEntityRendererCache;
 - (void)validateDeselection;
@@ -89,8 +90,8 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)renderEntityModels:(NSArray *)theEntities;
 - (void)renderEntityBounds:(const TVector4f *)color vertexCount:(int)theVertexCount;
-- (void)renderEdges:(const TVector4f *)color indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers;
-- (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers;
+- (void)renderEdges:(const TVector4f *)color indexBuffer:(IntData *)theIndexBuffer;
+- (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers;
 - (void)renderVertexHandles;
 
 - (void)addBrushes:(NSArray *)theBrushes;
@@ -237,7 +238,7 @@ int const TexCoordSize = 2 * sizeof(float);
     [theBlock setState:BS_USED_VALID];
 }
 
-- (void)writeFace:(id <Face>)theFace toBlock:(VBOMemBlock *)theBlock {
+- (void)writeFaceVertices:(id <Face>)theFace toBlock:(VBOMemBlock *)theBlock {
     TVector2f texCoords, gridCoords;
     
     Texture* texture = [theFace texture];
@@ -266,12 +267,27 @@ int const TexCoordSize = 2 * sizeof(float);
     [theBlock setState:BS_USED_VALID];
 }
 
-- (void)writeFace:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer countBuffer:(IntData *)theCountBuffer {
-    int index = [[theFace memBlock] address] / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
-    int count = [theFace vertices]->count;
+- (void)writeFaceTriangles:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer {
+    int baseIndex = [[theFace memBlock] address] / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
     
-    [theIndexBuffer appendInt:index];
-    [theCountBuffer appendInt:count];
+    for (int i = 1; i < [theFace vertices]->count - 1; i++) {
+        [theIndexBuffer appendInt:baseIndex];
+        [theIndexBuffer appendInt:baseIndex + i];
+        [theIndexBuffer appendInt:baseIndex + i + 1];
+    }
+}
+
+- (void)writeFaceEdges:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer {
+    int baseIndex = [[theFace memBlock] address] / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+    int vertexCount = [theFace vertices]->count;
+    
+    for (int i = 0; i < vertexCount - 1; i++) {
+        [theIndexBuffer appendInt:baseIndex + i];
+        [theIndexBuffer appendInt:baseIndex + i + 1];
+    }
+    
+    [theIndexBuffer appendInt:baseIndex + vertexCount - 1];
+    [theIndexBuffer appendInt:baseIndex];
 }
 
 - (void)validateEntityRendererCache {
@@ -507,7 +523,7 @@ int const TexCoordSize = 2 * sizeof(float);
             id <Face> face;
             while ((face = [faceEn nextObject])) {
                 VBOMemBlock* block = [faceVbo allocMemBlock:[face vertices]->count * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize)];
-                [self writeFace:face toBlock:block];
+                [self writeFaceVertices:face toBlock:block];
                 [face setMemBlock:block];
             }
         }
@@ -536,7 +552,7 @@ int const TexCoordSize = 2 * sizeof(float);
                     [face setMemBlock:block];
                 }
                 
-                [self writeFace:face toBlock:block];
+                [self writeFaceVertices:face toBlock:block];
             }
         }
 
@@ -561,7 +577,7 @@ int const TexCoordSize = 2 * sizeof(float);
                 [face setMemBlock:block];
             }
             
-            [self writeFace:face toBlock:block];
+            [self writeFaceVertices:face toBlock:block];
         }
         
         [faceVbo unmapBuffer];
@@ -591,7 +607,8 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)rebuildFaceIndexBuffers {
     [faceIndexBuffers removeAllObjects];
-    [faceCountBuffers removeAllObjects];
+    [edgeIndexBuffer release];
+    edgeIndexBuffer = [[IntData alloc] init];
     
     MapDocument* map = [windowController document];
     NSEnumerator* entityEn = [[map entities] objectEnumerator];
@@ -613,14 +630,8 @@ int const TexCoordSize = 2 * sizeof(float);
                             [indexBuffer release];
                         }
                         
-                        IntData* countBuffer = [faceCountBuffers objectForKey:textureName];
-                        if (countBuffer == nil) {
-                            countBuffer = [[IntData alloc] init];
-                            [faceCountBuffers setObject:countBuffer forKey:textureName];
-                            [countBuffer release];
-                        }
-                        
-                        [self writeFace:face toIndexBuffer:indexBuffer countBuffer:countBuffer];
+                        [self writeFaceTriangles:face toIndexBuffer:indexBuffer];
+                        [self writeFaceEdges:face toIndexBuffer:edgeIndexBuffer];
                     }
                 }
             }
@@ -630,7 +641,8 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)rebuildSelectedFaceIndexBuffers {
     [selectedFaceIndexBuffers removeAllObjects];
-    [selectedFaceCountBuffers removeAllObjects];
+    [selectedEdgeIndexBuffer release];
+    selectedEdgeIndexBuffer = [[IntData alloc] init];
     
     MapDocument* map = [windowController document];
     SelectionManager* selectionManager = [map selectionManager];
@@ -649,14 +661,8 @@ int const TexCoordSize = 2 * sizeof(float);
                 [indexBuffer release];
             }
             
-            IntData* countBuffer = [selectedFaceCountBuffers objectForKey:textureName];
-            if (countBuffer == nil) {
-                countBuffer = [[IntData alloc] init];
-                [selectedFaceCountBuffers setObject:countBuffer forKey:textureName];
-                [countBuffer release];
-            }
-            
-            [self writeFace:face toIndexBuffer:indexBuffer countBuffer:countBuffer];
+            [self writeFaceTriangles:face toIndexBuffer:indexBuffer];
+            [self writeFaceEdges:face toIndexBuffer:selectedEdgeIndexBuffer];
         }
     }
     
@@ -671,14 +677,8 @@ int const TexCoordSize = 2 * sizeof(float);
             [indexBuffer release];
         }
         
-        IntData* countBuffer = [selectedFaceCountBuffers objectForKey:textureName];
-        if (countBuffer == nil) {
-            countBuffer = [[IntData alloc] init];
-            [selectedFaceCountBuffers setObject:countBuffer forKey:textureName];
-            [countBuffer release];
-        }
-        
-        [self writeFace:face toIndexBuffer:indexBuffer countBuffer:countBuffer];
+        [self writeFaceTriangles:face toIndexBuffer:indexBuffer];
+        [self writeFaceEdges:face toIndexBuffer:selectedEdgeIndexBuffer];
     }
 }
 
@@ -760,7 +760,7 @@ int const TexCoordSize = 2 * sizeof(float);
     glResetEdgeOffset();
 }
 
-- (void)renderEdges:(const TVector4f *)color indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers {
+- (void)renderEdges:(const TVector4f *)color indexBuffer:(IntData *)theIndexBuffer {
     glDisable(GL_TEXTURE_2D);
     
     if (color != NULL) {
@@ -772,24 +772,15 @@ int const TexCoordSize = 2 * sizeof(float);
         glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
     }
     
-    NSEnumerator* textureNameEn = [theIndexBuffers keyEnumerator];
-    NSString* textureName;
-    while ((textureName = [textureNameEn nextObject])) {
-        IntData* indexBuffer = [theIndexBuffers objectForKey:textureName];
-        IntData* countBuffer = [theCountBuffers objectForKey:textureName];
-        
-        const void* indexBytes = [indexBuffer bytes];
-        const void* countBytes = [countBuffer bytes];
-        int primCount = [indexBuffer count];
-        
-        glMultiDrawArrays(GL_LINE_LOOP, indexBytes, countBytes, primCount);
-    }
+    const void* indexBytes = [theIndexBuffer bytes];
+    int primCount = [theIndexBuffer count];
+    glDrawElements(GL_LINES, primCount, GL_UNSIGNED_INT, indexBytes);
     
     if (color == NULL)
         glDisableClientState(GL_COLOR_ARRAY);
 }
 
-- (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers countBuffers:(NSDictionary *)theCountBuffers {
+- (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers {
     glPolygonMode(GL_FRONT, GL_FILL);
     
     Grid* grid = [[windowController options] grid];
@@ -830,13 +821,11 @@ int const TexCoordSize = 2 * sizeof(float);
         }
         
         IntData* indexBuffer = [theIndexBuffers objectForKey:textureName];
-        IntData* countBuffer = [theCountBuffers objectForKey:textureName];
         
         const void* indexBytes = [indexBuffer bytes];
-        const void* countBytes = [countBuffer bytes];
         int primCount = [indexBuffer count];
         
-        glMultiDrawArrays(GL_TRIANGLE_FAN, indexBytes, countBytes, primCount);
+        glDrawElements(GL_TRIANGLES, primCount, GL_UNSIGNED_INT, indexBytes);
         
         if (textured) {
             if (texture != nil)
@@ -1033,9 +1022,7 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)documentCleared:(NSNotification *)notification {
     [faceIndexBuffers removeAllObjects];
-    [faceCountBuffers removeAllObjects];
     [selectedFaceIndexBuffers removeAllObjects];
-    [selectedFaceCountBuffers removeAllObjects];
     [faceVbo freeAllBlocks];
 
     entityBoundsVertexCount = 0;
@@ -1162,10 +1149,9 @@ int const TexCoordSize = 2 * sizeof(float);
         faceVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF type:GL_ARRAY_BUFFER];
         entityBoundsVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF type:GL_ARRAY_BUFFER];
         selectedEntityBoundsVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF type:GL_ARRAY_BUFFER];
+        
         faceIndexBuffers = [[NSMutableDictionary alloc] init];
-        faceCountBuffers = [[NSMutableDictionary alloc] init];
         selectedFaceIndexBuffers = [[NSMutableDictionary alloc] init];
-        selectedFaceCountBuffers = [[NSMutableDictionary alloc] init];
         classnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:[windowController camera]];
         selectedClassnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:[windowController camera]];
         entityRenderers = [[NSMutableDictionary alloc] init];
@@ -1216,9 +1202,9 @@ int const TexCoordSize = 2 * sizeof(float);
     [feedbackFigures release];
     [changeSet release];
     [faceIndexBuffers release];
-    [faceCountBuffers release];
     [selectedFaceIndexBuffers release];
-    [selectedFaceCountBuffers release];
+    [edgeIndexBuffer release];
+    [selectedEdgeIndexBuffer release];
     [classnameRenderer release];
     [selectedClassnameRenderer release];
     if (vertexHandle != NULL)
@@ -1280,32 +1266,32 @@ int const TexCoordSize = 2 * sizeof(float);
         switch ([options renderMode]) {
             case RM_TEXTURED:
                 if ([options isolationMode] == IM_NONE)
-                    [self renderFaces:YES indexBuffers:faceIndexBuffers countBuffers:faceCountBuffers];
-                [self renderFaces:YES indexBuffers:selectedFaceIndexBuffers countBuffers:selectedFaceCountBuffers];
+                    [self renderFaces:YES indexBuffers:faceIndexBuffers];
+                [self renderFaces:YES indexBuffers:selectedFaceIndexBuffers];
                 break;
             case RM_FLAT:
                 if ([options isolationMode] == IM_NONE)
-                    [self renderFaces:NO indexBuffers:faceIndexBuffers countBuffers:faceCountBuffers];
-                [self renderFaces:NO indexBuffers:selectedFaceIndexBuffers countBuffers:selectedFaceCountBuffers];
+                    [self renderFaces:NO indexBuffers:faceIndexBuffers];
+                [self renderFaces:NO indexBuffers:selectedFaceIndexBuffers];
                 break;
             case RM_WIREFRAME:
                 break;
         }
         
         glSetEdgeOffset(0.5f);
-        [self renderEdges:NULL indexBuffers:faceIndexBuffers countBuffers:faceCountBuffers];
+        [self renderEdges:NULL indexBuffer:edgeIndexBuffer];
         glResetEdgeOffset();
         
         if ([[windowController selectionManager] hasSelection]) {
             glSetEdgeOffset(0.6f);
             glDisable(GL_DEPTH_TEST);
-            [self renderEdges:&SelectionColor2 indexBuffers:selectedFaceIndexBuffers countBuffers:selectedFaceCountBuffers];
+            [self renderEdges:&SelectionColor2 indexBuffer:selectedEdgeIndexBuffer];
             glResetEdgeOffset();
 
             glSetEdgeOffset(0.7f);
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LEQUAL);
-            [self renderEdges:&SelectionColor indexBuffers:selectedFaceIndexBuffers countBuffers:selectedFaceCountBuffers];
+            [self renderEdges:&SelectionColor indexBuffer:selectedEdgeIndexBuffer];
             glDepthFunc(GL_LESS);
             glResetEdgeOffset();
         }
