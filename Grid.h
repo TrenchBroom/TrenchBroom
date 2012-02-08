@@ -67,7 +67,7 @@ extern NSString* const GridChanged;
 - (float)intersectWithRay:(const TRay *)ray skip:(int)skip;
 
 - (void)moveDeltaForBounds:(const TBoundingBox *)theBounds worldBounds:(const TBoundingBox *)theWorldBounds delta:(TVector3f *)theDelta lastPoint:(TVector3f *)theLastPoint;
-
+- (void)moveDeltaForVertex:(const TVector3f *)theVertex worldBounds:(const TBoundingBox *)theWorldBounds delta:(TVector3f *)theDelta lastPoint:(TVector3f *)theLastPoint;
 - (float)dragDeltaForFace:(id <Face>)theFace delta:(TVector3f *)theDelta;
 
 - (void)activateTexture;

@@ -139,11 +139,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     MapDocument* map = [windowController document];
     const TBoundingBox* worldBounds = [map worldBounds];
     
-    TBoundingBox bounds;
-    bounds.min = lastPoint;
-    bounds.max = lastPoint;
-    
-    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:&lastPoint];
+    [grid moveDeltaForVertex:&lastPoint worldBounds:worldBounds delta:&deltaf lastPoint:&lastPoint];
 
     if (nullV3f(&deltaf))
         return;
@@ -153,6 +149,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [self endLeftDrag:event ray:ray hits:hits];
         state = VTS_CANCEL;
     }
+
+    editingPoint = lastPoint;
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

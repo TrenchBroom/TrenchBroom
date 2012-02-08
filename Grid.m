@@ -368,6 +368,147 @@ NSString* const GridChanged = @"GridChanged";
     }
 }
 
+- (void)moveDeltaForVertex:(const TVector3f *)theVertex worldBounds:(const TBoundingBox *)theWorldBounds delta:(TVector3f *)theDelta lastPoint:(TVector3f *)theLastPoint {
+    TVector3f original = *theVertex;
+    float d;
+    
+    if (theDelta->x > 0) {
+        theDelta->x = [self snapDownToGridf:original.x + theDelta->x] - original.x;
+        if (theDelta->x <= 0) {
+            theDelta->x = 0;
+        } else {
+            /*
+             if (theDelta->x < 1)
+             theDelta->x = [grid actualSize];
+             */
+            if (original.x + theDelta->x > theWorldBounds->max.x) {
+                theDelta->x = theWorldBounds->max.x - original.x;
+                theDelta->y = 0;
+                theDelta->z = 0;
+            } else if (theLastPoint != NULL) {
+                theLastPoint->x += theDelta->x;
+            }
+        }
+    } else if (theDelta->x < 0) {
+        theDelta->x = [self snapUpToGridf:original.x + theDelta->x] - original.x;
+        if (theDelta->x >= 0) {
+            theDelta->x = 0;
+        } else {
+            /*
+             if (theDelta->x > -1)
+             theDelta->x = -[grid actualSize];
+             */
+            if (original.x + theDelta->x < theWorldBounds->min.x) {
+                theDelta->x = theWorldBounds->min.x - original.x;
+                theDelta->y = 0;
+                theDelta->z = 0;
+            } else if (theLastPoint != NULL) {
+                theLastPoint->x += theDelta->x;
+            }
+        }
+    }
+    
+    d = original.x + theDelta->x - (int)(original.x + theDelta->x);
+    if (d != 0) {
+        theDelta->x -= d;
+        if (theLastPoint != NULL)
+            theLastPoint->x -= d;
+    }
+    
+    if (theDelta->y > 0) {
+        theDelta->y = [self snapDownToGridf:original.y + theDelta->y] - original.y;
+        if (theDelta->y <= 0) {
+            theDelta->y = 0;
+        } else {
+            /*
+             if (theDelta->y < 1)
+             theDelta->y = [grid actualSize];
+             */
+            if (original.y + theDelta->y > theWorldBounds->max.y) {
+                theDelta->y = theWorldBounds->max.y - original.y;
+                theDelta->y = 0;
+                theDelta->z = 0;
+            } else if (theLastPoint != NULL) {
+                theLastPoint->y += theDelta->y;
+            }
+        }
+    } else if (theDelta->y < 0) {
+        theDelta->y = [self snapUpToGridf:original.y + theDelta->y] - original.y;
+        if (theDelta->y >= 0) {
+            theDelta->y = 0;
+        } else {
+            /*
+             if (theDelta->y > -1)
+             theDelta->y = -[grid actualSize];
+             */
+            if (original.y + theDelta->y < theWorldBounds->min.y) {
+                theDelta->y = theWorldBounds->min.y - original.y;
+                theDelta->y = 0;
+                theDelta->z = 0;
+            } else if (theLastPoint != NULL) {
+                theLastPoint->y += theDelta->y;
+            }
+        }
+    }
+    
+    d = original.y + theDelta->y - (int)(original.y + theDelta->y);
+    if (d != 0) {
+        theDelta->y -= d;
+        if (theLastPoint != NULL)
+            theLastPoint->y -= d;
+    }
+    
+    d = original.x + theDelta->x - (int)(original.x + theDelta->x);
+    if (d != 0) {
+        theDelta->x -= d;
+        if (theLastPoint != NULL)
+            theLastPoint->x -= d;
+    }
+    
+    if (theDelta->z > 0) {
+        theDelta->z = [self snapDownToGridf:original.z + theDelta->z] - original.z;
+        if (theDelta->z <= 0) {
+            theDelta->z = 0;
+        } else {
+            /*
+             if (theDelta->z < 1)
+             theDelta->z = [grid actualSize];
+             */
+            if (original.z + theDelta->z > theWorldBounds->max.z) {
+                theDelta->z = theWorldBounds->max.z - original.z;
+                theDelta->y = 0;
+                theDelta->z = 0;
+            } else if (theLastPoint != NULL) {
+                theLastPoint->z += theDelta->z;
+            }
+        }
+    } else if (theDelta->z < 0) {
+        theDelta->z = [self snapUpToGridf:original.z + theDelta->z] - original.z;
+        if (theDelta->z >= 0) {
+            theDelta->z = 0;
+        } else {
+            /*
+             if (theDelta->z > -1)
+             theDelta->z = -[grid actualSize];
+             */
+            if (original.z + theDelta->z < theWorldBounds->min.z) {
+                theDelta->z = theWorldBounds->min.z - original.z;
+                theDelta->y = 0;
+                theDelta->z = 0;
+            } else if (theLastPoint != NULL) {
+                theLastPoint->z += theDelta->z;
+            }
+        }
+    }
+    
+    d = original.z + theDelta->z - (int)(original.z + theDelta->z);
+    if (d != 0) {
+        theDelta->z -= d;
+        if (theLastPoint != NULL)
+            theLastPoint->z -= d;
+    }
+}
+
 - (float)dragDeltaForFace:(id <Face>)theFace delta:(TVector3f *)theDelta {
     NSAssert(theFace != nil, @"face must not be nil");
     NSAssert(theDelta != NULL, @"delta must not be NULL");
