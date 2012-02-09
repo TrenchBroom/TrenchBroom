@@ -610,6 +610,8 @@ int const TexCoordSize = 2 * sizeof(float);
     [edgeIndexBuffer release];
     edgeIndexBuffer = [[IntData alloc] init];
     
+    NSMutableArray* allFaces = [[NSMutableArray alloc] init];
+    
     MapDocument* map = [windowController document];
     NSEnumerator* entityEn = [[map entities] objectEnumerator];
     id <Entity> entity;
@@ -618,25 +620,35 @@ int const TexCoordSize = 2 * sizeof(float);
             NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
             id <Brush> brush;
             while ((brush = [brushEn nextObject])) {
-                if ([filter brushRenderable:brush]) {
-                    NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-                    id <Face> face;
-                    while ((face = [faceEn nextObject])) {
-                        NSString* textureName = [[face texture] name];
-                        IntData* indexBuffer = [faceIndexBuffers objectForKey:textureName];
-                        if (indexBuffer == nil) {
-                            indexBuffer = [[IntData alloc] init];
-                            [faceIndexBuffers setObject:indexBuffer forKey:textureName];
-                            [indexBuffer release];
-                        }
-                        
-                        [self writeFaceTriangles:face toIndexBuffer:indexBuffer];
-                        [self writeFaceEdges:face toIndexBuffer:edgeIndexBuffer];
-                    }
-                }
+                if ([filter brushRenderable:brush])
+                    [allFaces addObjectsFromArray:[brush faces]];
             }
         }
     }
+    
+    SelectionManager* selectionManager = [map selectionManager];
+    NSMutableArray* selectedFaces = [[NSMutableArray alloc] initWithArray:[selectionManager selectedFaces]];
+    [selectedFaces addObjectsFromArray:[selectionManager selectedBrushFaces]];
+    
+    [allFaces removeObjectsInArray:selectedFaces];
+    [selectedFaces release];
+    
+    NSEnumerator* faceEn = [allFaces objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject])) {
+        NSString* textureName = [[face texture] name];
+        IntData* indexBuffer = [faceIndexBuffers objectForKey:textureName];
+        if (indexBuffer == nil) {
+            indexBuffer = [[IntData alloc] init];
+            [faceIndexBuffers setObject:indexBuffer forKey:textureName];
+            [indexBuffer release];
+        }
+        
+        [self writeFaceTriangles:face toIndexBuffer:indexBuffer];
+        [self writeFaceEdges:face toIndexBuffer:edgeIndexBuffer];
+    }
+    
+    [allFaces release];
 }
 
 - (void)rebuildSelectedFaceIndexBuffers {
@@ -700,8 +712,6 @@ int const TexCoordSize = 2 * sizeof(float);
     [self validateRemovedBrushes];
 
     if ([[changeSet addedBrushes] count] > 0 ||
-        [[changeSet changedBrushes] count] > 0 ||
-        [[changeSet changedFaces] count] > 0 ||
         [[changeSet removedBrushes] count] > 0 ||
         [[changeSet selectedBrushes] count] > 0 ||
         [[changeSet deselectedBrushes] count] > 0 ||
@@ -710,6 +720,16 @@ int const TexCoordSize = 2 * sizeof(float);
         [changeSet filterChanged]) {
         
         [self rebuildFaceIndexBuffers];
+    }
+    
+    if ([[changeSet changedBrushes] count] > 0 ||
+        [[changeSet changedFaces] count] > 0 ||
+        [[changeSet selectedBrushes] count] > 0 ||
+        [[changeSet deselectedBrushes] count] > 0 ||
+        [[changeSet selectedFaces] count] > 0 ||
+        [[changeSet deselectedFaces] count] > 0 ||
+        [changeSet filterChanged]) {
+        
         [self rebuildSelectedFaceIndexBuffers];
     }
     
@@ -734,7 +754,7 @@ int const TexCoordSize = 2 * sizeof(float);
             glPushMatrix();
             [entityRenderer renderWithEntity:entity];
             glPopMatrix();
-        }
+        } 
     }
     
     glDisable(GL_TEXTURE_2D);

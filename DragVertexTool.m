@@ -127,11 +127,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (isnan(dist))
         return;
     
-    TVector3f point;
+    TVector3f point, nextPoint;
     rayPointAtDistance(ray, dist, &point);
     
     TVector3f deltaf;
     subV3f(&point, &lastPoint, &deltaf);
+    nextPoint = lastPoint;
     
     Options* options = [windowController options];
     Grid* grid = [options grid];
@@ -139,17 +140,20 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     MapDocument* map = [windowController document];
     const TBoundingBox* worldBounds = [map worldBounds];
     
-    [grid moveDeltaForVertex:&lastPoint worldBounds:worldBounds delta:&deltaf lastPoint:&lastPoint];
+    [grid moveDeltaForVertex:&lastPoint worldBounds:worldBounds delta:&deltaf lastPoint:&nextPoint];
 
     if (nullV3f(&deltaf))
         return;
     
-    index = [map dragVertex:index brush:brush delta:&deltaf];
-    if (index == -1) {
+    int newIndex = [map dragVertex:index brush:brush delta:&deltaf];
+    if (newIndex == -1) {
         [self endLeftDrag:event ray:ray hits:hits];
         state = VTS_CANCEL;
+    } else if (newIndex < [brush vertices]->count) {
+        lastPoint = nextPoint;
     }
-
+    
+    index = newIndex;
     editingPoint = lastPoint;
 }
 

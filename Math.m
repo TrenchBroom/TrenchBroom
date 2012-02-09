@@ -390,10 +390,10 @@ void setComponentV3f(TVector3f* v, EAxis a, float f) {
     }
 }
 
-void snapV3f(TVector3f* v) {
-    v->x = roundf(v->x);
-    v->y = roundf(v->y);
-    v->z = roundf(v->z);
+void snapV3f(const TVector3f* v, TVector3f* o) {
+    o->x = roundf(v->x);
+    o->y = roundf(v->y);
+    o->z = roundf(v->z);
 }
 
 void roundV3f(const TVector3f* v, TVector3i* o) {

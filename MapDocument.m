@@ -458,6 +458,9 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 - (void)updateFaceTextures {
     TextureManager* textureManager = [glResources textureManager];
     
+    NSMutableArray* changedFaces = [[NSMutableArray alloc] init];
+    NSMutableArray* newTextures = [[NSMutableArray alloc] init];
+    
     NSEnumerator* entityEn = [entities objectEnumerator];
     id <Entity> entity;
     while ((entity = [entityEn nextObject])) {
@@ -465,14 +468,44 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         id <Brush> brush;
         while ((brush = [brushEn nextObject])) {
             NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            MutableFace* face;
+            id <Face> face;
             while ((face = [faceEn nextObject])) {
                 Texture* oldTexture = [face texture];
                 Texture* newTexture = [textureManager textureForName:[oldTexture name]];
-                [face setTexture:newTexture];
+                if (oldTexture != newTexture) {
+                    [changedFaces addObject:face];
+                    [newTextures addObject:newTexture];
+                }
             }
         }
     }
+    
+    if ([changedFaces count] > 0) {
+        NSDictionary* userInfo = nil;
+        if ([self postNotifications]) {
+            userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:changedFaces, FacesKey, nil];
+            
+            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+            [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
+        }
+        
+        NSEnumerator* faceEn = [changedFaces objectEnumerator];
+        NSEnumerator* textureEn = [newTextures objectEnumerator];
+        MutableFace* face;
+        Texture* texture;
+        while ((face = [faceEn nextObject]) && (texture = [textureEn nextObject])) {
+            [face setTexture:texture];
+        }
+        
+        if ([self postNotifications]) {
+            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+            [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
+            [userInfo release];
+        }
+    }
+    
+    [changedFaces release];
+    [newTextures release];
 }
 
 # pragma mark Map related functions

@@ -176,7 +176,7 @@ const TVector3f* secondAxisV3f(const TVector3f* v);
 const TVector3f* thirdAxisV3f(const TVector3f* v);
 float componentV3f(const TVector3f* v, EAxis a);
 void setComponentV3f(TVector3f* v, EAxis a, float f);
-void snapV3f(TVector3f* v);
+void snapV3f(const TVector3f* v, TVector3f* o);
 void roundV3f(const TVector3f* v, TVector3i* o);
 void roundUpV3f(const TVector3f* v, TVector3i* o);
 void roundDownV3f(const TVector3f* v, TVector3i* o);

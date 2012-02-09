@@ -1369,12 +1369,17 @@ void incidentSides(TVertexData* vd, int v, TSideList* l) {
 void updateFaceOfSide(TSide* s) {
     int indices[3];
     int indexCount;
+    TVector3f t;
     TVector3i p1, p2, p3;
 
     indexCount = 0;
-    for (int i = 0; i < s->vertices.count && indexCount < 3; i++)
-        if (intV3f(&s->vertices.items[i]->position))
+    for (int i = 0; i < s->vertices.count && indexCount < 3; i++) {
+        snapV3f(&s->vertices.items[i]->position, &t);
+        if (equalV3f(&s->vertices.items[i]->position, &t)) {
+            s->vertices.items[i]->position = t;
             indices[indexCount++] = i;
+        }
+    }
     
     assert(indexCount == 3);
 
@@ -2122,7 +2127,7 @@ void snapVertexData(TVertexData* vd) {
     assert(sanityCheck(vd, YES));
 
     for (int i = 0; i < vd->vertices.count; i++)
-        snapV3f(&vd->vertices.items[i]->position);
+        snapV3f(&vd->vertices.items[i]->position, &vd->vertices.items[i]->position);
     
     // in some cases, we may now have an invalid brush, which must be fixed.
     
