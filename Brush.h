@@ -23,6 +23,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @class PickingHit;
 @class PickingHitList;
+@class Camera;
 @protocol Entity;
 @protocol Face;
 

@@ -23,6 +23,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MutableFace.h"
 #import "Entity.h"
 #import "MutableEntity.h"
+#import "Camera.h"
 #import "IdGenerator.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
@@ -521,11 +522,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)pickVertices:(const TRay *)theRay handleRadius:(float)theRadius hitList:(PickingHitList *)theHitList {
     TVertexData* vd = [self vertexData];
-    TVector3f hitPoint, center;
+    TVector3f hitPoint, center, diff;
     
     for (int i = 0; i < vd->vertices.count; i++) {
         TVector3f* vertex = &vd->vertices.items[i]->position;
-        float dist = intersectSphereWithRay(vertex, theRadius, theRay);
+        
+        subV3f(vertex, &theRay->origin, &diff);
+        float vertexDist = lengthV3f(&diff);
+        
+        float dist = intersectSphereWithRay(vertex, theRadius * vertexDist / 300, theRay);
         if (!isnan(dist)) {
             rayPointAtDistance(theRay, dist, &hitPoint);
             PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:i hitPoint:&hitPoint distance:dist];
@@ -537,7 +542,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     for (int i = 0; i < vd->edges.count; i++) {
         TEdge* edge = vd->edges.items[i];
         centerOfEdge(edge, &center);
-        float dist = intersectSphereWithRay(&center, theRadius, theRay);
+
+        subV3f(&center, &theRay->origin, &diff);
+        float vertexDist = lengthV3f(&diff);
+
+        float dist = intersectSphereWithRay(&center, theRadius * vertexDist / 300, theRay);
         if (!isnan(dist)) {
             rayPointAtDistance(theRay, dist, &hitPoint);
             PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:vd->vertices.count + i hitPoint:&hitPoint distance:dist];
@@ -549,7 +558,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     for (int i = 0; i < vd->sides.count; i++) {
         TSide* side = vd->sides.items[i];
         centerOfVertices(&side->vertices, &center);
-        float dist = intersectSphereWithRay(&center, theRadius, theRay);
+        
+        subV3f(&center, &theRay->origin, &diff);
+        float vertexDist = lengthV3f(&diff);
+        
+        float dist = intersectSphereWithRay(&center, theRadius * vertexDist / 300, theRay);
         if (!isnan(dist)) {
             rayPointAtDistance(theRay, dist, &hitPoint);
             PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:vd->vertices.count + vd->edges.count + i hitPoint:&hitPoint distance:dist];
