@@ -130,7 +130,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVector3f center;
     
     centerOfVertices([brush vertices], &center);
-    return [camera distanceTo:&center] <= 384;
+    return [camera squaredDistanceTo:&center] <= 512 * 512;
 }
 
 - (BOOL)entityPickable:(id<Entity>)entity {

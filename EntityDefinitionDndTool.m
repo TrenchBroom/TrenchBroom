@@ -45,8 +45,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVector3i posi;
     
     Grid* grid = [[windowController options] grid];
-    calculateEntityOrigin([entity entityDefinition], hits, [sender draggingLocation], [windowController camera], &posi);
-    [grid snapToGridV3i:&posi result:&posi];
+    calculateEntityOrigin(grid, [entity entityDefinition], hits, [sender draggingLocation], [windowController camera], &posi);
     
     MapDocument* map = [windowController document];
     [map setEntity:entity propertyKey:OriginKey value:[NSString stringWithFormat:@"%i %i %i", posi.x, posi.y, posi.z]];

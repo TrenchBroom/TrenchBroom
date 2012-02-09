@@ -30,7 +30,7 @@ typedef enum {
     KS_SPACE    = 1 << 5
 } EKeyStatus;
 
-static int KS_CLEAR_MODIFIERS = KS_SPACE;
+static int const KS_CLEAR_MODIFIERS = KS_SPACE;
 
 @class PickingHitList;
 

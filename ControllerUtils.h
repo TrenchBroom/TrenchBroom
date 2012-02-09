@@ -27,7 +27,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Brush.h"
 #import "Face.h"
 
-BOOL calculateEntityOrigin(EntityDefinition* entityDefinition, PickingHitList* hits, NSPoint mousePos, Camera* camera, TVector3i* result);
+BOOL calculateEntityOrigin(Grid* grid, EntityDefinition* entityDefinition, PickingHitList* hits, NSPoint mousePos, Camera* camera, TVector3i* result);
 NSArray* modListFromWorldspawn(id <Entity> worldspawn);
 
 void updateMenuWithExecutables(NSMenu* menu, BOOL setIcons, SEL action);

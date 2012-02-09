@@ -2119,11 +2119,17 @@ int dragSide(TVertexData* vd, int s, TVector3f d, NSMutableArray* newFaces, NSMu
 }
 
 void snapVertexData(TVertexData* vd) {
+    assert(sanityCheck(vd, YES));
+
     for (int i = 0; i < vd->vertices.count; i++)
         snapV3f(&vd->vertices.items[i]->position);
     
+    // in some cases, we may now have an invalid brush, which must be fixed.
+    
     for (int i = 0; i < vd->sides.count; i++)
         updateFaceOfSide(vd->sides.items[i]);
+    
+    assert(sanityCheck(vd, YES));
 }
 
 BOOL sanityCheck(const TVertexData* vd, BOOL cc) {
@@ -2195,6 +2201,12 @@ BOOL sanityCheck(const TVertexData* vd, BOOL cc) {
             NSLog(@"vertex with index %i does not belong to any side", i);
             return NO;
         }
+        
+        for (int j = i + 1; j < vd->vertices.count; j++)
+            if (equalV3f(&vd->vertices.items[i]->position, &vd->vertices.items[j]->position)) {
+                NSLog(@"vertex with index %i is identical to vertex with index %i", i, j);
+                return NO;
+            }
     }
     
     for (int i = 0; i < vd->edges.count; i++) {

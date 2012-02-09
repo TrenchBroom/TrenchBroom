@@ -747,15 +747,16 @@ int const TexCoordSize = 2 * sizeof(float);
     glDisable(GL_CULL_FACE);
     
     if (color != NULL) {
-        glColor4f(color->x, color->y, color->z, color->w);
+        glColorV4f(color);
         glVertexPointer(3, GL_FLOAT, ColorSize + VertexSize, (const GLvoid *)(long)ColorSize);
     } else {
         glInterleavedArrays(GL_C4UB_V3F, 0, 0);
+        glEnableClientState(GL_COLOR_ARRAY);
     }
 
     glDrawArrays(GL_QUADS, 0, theVertexCount);
-//    if (color == NULL)
-        // glDisableClientState(GL_COLOR_ARRAY);
+    if (color == NULL)
+        glDisableClientState(GL_COLOR_ARRAY);
     glEnable(GL_CULL_FACE);
     glResetEdgeOffset();
 }
@@ -1322,12 +1323,16 @@ int const TexCoordSize = 2 * sizeof(float);
             [fontManager deactivate];
 
             [selectedEntityBoundsVbo activate];
+            glEnableClientState(GL_VERTEX_ARRAY);
+            
             glDisable(GL_DEPTH_TEST);
             [self renderEntityBounds:&SelectionColor2 vertexCount:selectedEntityBoundsVertexCount];
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LEQUAL);
             [self renderEntityBounds:&SelectionColor vertexCount:selectedEntityBoundsVertexCount];
             glDepthFunc(GL_LESS);
+            
+            glDisableClientState(GL_VERTEX_ARRAY);
             [selectedEntityBoundsVbo deactivate];
             
             [self renderEntityModels:selectedModelEntities];

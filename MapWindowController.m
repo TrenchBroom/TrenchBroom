@@ -547,11 +547,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSPoint mousePos = [inputManager menuPosition];
     PickingHitList* hits = [inputManager currentHits];
     
-    TVector3i insertPoint;
-    calculateEntityOrigin(definition, hits, mousePos, camera, &insertPoint);
-
     Grid* grid = [options grid];
-    [grid snapToGridV3i:&insertPoint result:&insertPoint];
+
+    TVector3i insertPoint;
+    calculateEntityOrigin(grid, definition, hits, mousePos, camera, &insertPoint);
     
     NSString* origin = [NSString stringWithFormat:@"%i %i %i", insertPoint.x, insertPoint.y, insertPoint.z];
     

@@ -370,6 +370,12 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     return lengthV3f(&diff);
 }
 
+- (float)squaredDistanceTo:(const TVector3f *)thePoint {
+    TVector3f diff;
+    subV3f(thePoint, &position, &diff);
+    return lengthSquaredV3f(&diff);
+}
+
 - (void)setBillboardMatrix {
     TVector3f bbLook, bbUp, bbRight;
     scaleV3f(&direction, -1, &bbLook);

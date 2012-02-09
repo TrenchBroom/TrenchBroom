@@ -21,6 +21,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "math.h"
 
 float const AlmostZero = 0.001f;
+float const PointStatusEpsilon = 0.01f;
+
 TVector3f const XAxisPos = {+1,  0,  0};
 TVector3f const XAxisNeg = {-1,  0,  0};
 TVector3f const YAxisPos = { 0, +1,  0};
@@ -777,10 +779,10 @@ EPointStatus pointStatusFromRay(const TVector3f* o, const TVector3f* d, const TV
     
     subV3f(v, o, &t);
     float c = dotV3f(d, &t);
-    if (fpos(c))
+    if (c > PointStatusEpsilon)
         return PS_ABOVE;
     
-    if (fneg(c))
+    if (c < -PointStatusEpsilon)
         return PS_BELOW;
     
     return PS_INSIDE;
