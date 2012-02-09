@@ -41,7 +41,7 @@
 						<key>Path</key>
 						<string>Compilers/BJMHLight</string>
 						<key>Arguments</key>
-						<string>-threads 4 -fast 0 $bsp</string>
+						<string>-gate 1 -threads 4 -fast 0 $bsp</string>
 					</dict>
 				</array>
 			</dict>
@@ -66,7 +66,7 @@
 						<key>Path</key>
 						<string>Compilers/BJMHLight</string>
 						<key>Arguments</key>
-						<string>-threads 4 -extra4 $bsp</string>
+						<string>-gate 1 -threads 4 -extra4 $bsp</string>
 					</dict>
 				</array>
 			</dict>
