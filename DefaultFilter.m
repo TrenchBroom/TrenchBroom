@@ -26,6 +26,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Face.h"
 #import "Camera.h"
 
+int const VertexMaxDistanceSquared = 512 * 512;
+
 @implementation DefaultFilter
 
 - (id)initWithSelectionManager:(SelectionManager *)theSelectionManager groupManager:(GroupManager *)theGroupManager camera:(Camera *)theCamera options:(Options *)theOptions {
@@ -127,10 +129,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (BOOL)brushVerticesPickable:(id <Brush>)brush {
-    TVector3f center;
-    
-    centerOfVertices([brush vertices], &center);
-    return [camera squaredDistanceTo:&center] <= 1024 * 1024;
+    const TVertexList* vertices = [brush vertices];
+    for (int i = 0; i < vertices->count; i++)
+        if ([camera squaredDistanceTo:&vertices->items[i]->position] <= VertexMaxDistanceSquared)
+            return YES;
+
+    return NO;
 }
 
 - (BOOL)entityPickable:(id<Entity>)entity {
