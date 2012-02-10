@@ -260,7 +260,7 @@ NSString* const GridChanged = @"GridChanged";
     NSAssert(theDelta != NULL, @"delta must not be NULL");
 
     if (theDelta->x > 0) {
-        theDelta->x = [self snapDownToGridf:theBounds->max.x + theDelta->x] - theBounds->max.x;
+        theDelta->x = [self snapToGridf:theBounds->max.x + theDelta->x] - theBounds->max.x;
         if (theDelta->x <= 0) {
             theDelta->x = 0;
         } else {
@@ -277,7 +277,7 @@ NSString* const GridChanged = @"GridChanged";
             }
         }
     } else if (theDelta->x < 0) {
-        theDelta->x = [self snapUpToGridf:theBounds->min.x + theDelta->x] - theBounds->min.x;
+        theDelta->x = [self snapToGridf:theBounds->min.x + theDelta->x] - theBounds->min.x;
         if (theDelta->x >= 0) {
             theDelta->x = 0;
         } else {
@@ -296,7 +296,7 @@ NSString* const GridChanged = @"GridChanged";
     }
     
     if (theDelta->y > 0) {
-        theDelta->y = [self snapDownToGridf:theBounds->max.y + theDelta->y] - theBounds->max.y;
+        theDelta->y = [self snapToGridf:theBounds->max.y + theDelta->y] - theBounds->max.y;
         if (theDelta->y <= 0) {
             theDelta->y = 0;
         } else {
@@ -313,7 +313,7 @@ NSString* const GridChanged = @"GridChanged";
             }
         }
     } else if (theDelta->y < 0) {
-        theDelta->y = [self snapUpToGridf:theBounds->min.y + theDelta->y] - theBounds->min.y;
+        theDelta->y = [self snapToGridf:theBounds->min.y + theDelta->y] - theBounds->min.y;
         if (theDelta->y >= 0) {
             theDelta->y = 0;
         } else {
@@ -332,7 +332,7 @@ NSString* const GridChanged = @"GridChanged";
     }
     
     if (theDelta->z > 0) {
-        theDelta->z = [self snapDownToGridf:theBounds->max.z + theDelta->z] - theBounds->max.z;
+        theDelta->z = [self snapToGridf:theBounds->max.z + theDelta->z] - theBounds->max.z;
         if (theDelta->z <= 0) {
             theDelta->z = 0;
         } else {
@@ -349,7 +349,7 @@ NSString* const GridChanged = @"GridChanged";
             }
         }
     } else if (theDelta->z < 0) {
-        theDelta->z = [self snapUpToGridf:theBounds->min.z + theDelta->z] - theBounds->min.z;
+        theDelta->z = [self snapToGridf:theBounds->min.z + theDelta->z] - theBounds->min.z;
         if (theDelta->z >= 0) {
             theDelta->z = 0;
         } else {
@@ -373,7 +373,7 @@ NSString* const GridChanged = @"GridChanged";
     float d;
     
     if (theDelta->x > 0) {
-        theDelta->x = [self snapDownToGridf:original.x + theDelta->x] - original.x;
+        theDelta->x = [self snapToGridf:original.x + theDelta->x] - original.x;
         if (theDelta->x <= 0) {
             theDelta->x = 0;
         } else {
@@ -390,7 +390,7 @@ NSString* const GridChanged = @"GridChanged";
             }
         }
     } else if (theDelta->x < 0) {
-        theDelta->x = [self snapUpToGridf:original.x + theDelta->x] - original.x;
+        theDelta->x = [self snapToGridf:original.x + theDelta->x] - original.x;
         if (theDelta->x >= 0) {
             theDelta->x = 0;
         } else {
@@ -416,7 +416,7 @@ NSString* const GridChanged = @"GridChanged";
     }
     
     if (theDelta->y > 0) {
-        theDelta->y = [self snapDownToGridf:original.y + theDelta->y] - original.y;
+        theDelta->y = [self snapToGridf:original.y + theDelta->y] - original.y;
         if (theDelta->y <= 0) {
             theDelta->y = 0;
         } else {
@@ -433,7 +433,7 @@ NSString* const GridChanged = @"GridChanged";
             }
         }
     } else if (theDelta->y < 0) {
-        theDelta->y = [self snapUpToGridf:original.y + theDelta->y] - original.y;
+        theDelta->y = [self snapToGridf:original.y + theDelta->y] - original.y;
         if (theDelta->y >= 0) {
             theDelta->y = 0;
         } else {
@@ -466,7 +466,7 @@ NSString* const GridChanged = @"GridChanged";
     }
     
     if (theDelta->z > 0) {
-        theDelta->z = [self snapDownToGridf:original.z + theDelta->z] - original.z;
+        theDelta->z = [self snapToGridf:original.z + theDelta->z] - original.z;
         if (theDelta->z <= 0) {
             theDelta->z = 0;
         } else {
@@ -483,7 +483,7 @@ NSString* const GridChanged = @"GridChanged";
             }
         }
     } else if (theDelta->z < 0) {
-        theDelta->z = [self snapUpToGridf:original.z + theDelta->z] - original.z;
+        theDelta->z = [self snapToGridf:original.z + theDelta->z] - original.z;
         if (theDelta->z >= 0) {
             theDelta->z = 0;
         } else {
