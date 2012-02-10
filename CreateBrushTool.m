@@ -33,6 +33,51 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "GLResources.h"
 #import "TextureManager.h"
 #import "Texture.h"
+#import "EditingSystem.h"
+
+@interface CreateBrushTool (private)
+
+- (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits;
+
+@end
+
+@implementation CreateBrushTool (private)
+
+- (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
+    if (editingSystem != nil)
+        [editingSystem release];
+    
+    Camera* camera = [windowController camera];
+    editingSystem = [[EditingSystem alloc] initWithCamera:camera vertical:strongestComponentV3f([camera direction]) != A_Z];
+    
+    /*
+     EditingSystem* newEditingSystem;
+     TVector3f norm;
+     
+     Camera* camera = [windowController camera];
+     
+     PickingHit* hit = [theHits firstHitOfType:HT_FACE | HT_ENTITY ignoreOccluders:NO];
+     if (hit == nil)
+     return;
+     
+     if ([hit type] == HT_FACE) {
+     id <Face> face = [hit object];
+     newEditingSystem = [[EditingSystem alloc] initWithCamera:camera yAxis:[face norm] invert:[self isAlternatePlaneModifierPressed]];
+     } else {
+     id <Entity> entity = [hit object];
+     intersectBoundsWithRay([entity bounds], theRay, &norm);
+     newEditingSystem = [[EditingSystem alloc] initWithCamera:camera yAxis:&norm invert:[self isAlternatePlaneModifierPressed]];
+     }
+     
+     if (newEditingSystem != nil) {
+     if (editingSystem != nil)
+     [editingSystem release];
+     editingSystem = newEditingSystem;
+     }
+     */
+}
+
+@end
 
 @implementation CreateBrushTool
 
@@ -80,11 +125,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             initialBounds.max.z += [grid actualSize];
     }
 
-    plane.norm = *firstAxisV3f(cameraDir);
-    if (plane.norm.x > 0 || plane.norm.y > 0 || plane.norm.z > 0)
-        plane.point = initialBounds.min;
-    else
-        plane.point = initialBounds.max;
+    [self updateMoveDirectionWithRay:ray hits:hits];
+    editingPoint = lastPoint;
 
     MapDocument* map = [windowController document];
     const TBoundingBox* worldBounds = [map worldBounds];
@@ -112,7 +154,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (!drag)
         return;
     
-    float dist = intersectPlaneWithRay(&plane, ray);
+    float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
     if (isnan(dist))
         return;
     
@@ -159,6 +201,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
     
+    if (editingSystem != nil) {
+        [editingSystem release];
+        editingSystem = nil;
+    }
+
     brush = nil;
     drag = NO;
     scrollFront = NO;
@@ -171,7 +218,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     Grid* grid = [[windowController options] grid];
     float delta = [grid actualSize] * ([event deltaY] / fabsf([event deltaY]));
     
-    if (equalV3f(&plane.norm, &XAxisPos)) {
+    if (equalV3f([editingSystem zAxisNeg], &XAxisPos)) {
         if (( scrollFront && initialBounds.min.x + delta >= initialBounds.max.x - [grid actualSize]) ||
             (!scrollFront && initialBounds.max.x + delta <= initialBounds.min.x + [grid actualSize]))
             scrollFront = !scrollFront;
@@ -180,7 +227,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             initialBounds.min.x = initialBounds.min.x + delta;
         else
             initialBounds.max.x = initialBounds.max.x + delta;
-    } else if (equalV3f(&plane.norm, &XAxisNeg)) {
+    } else if (equalV3f([editingSystem zAxisNeg], &XAxisNeg)) {
         if (( scrollFront && initialBounds.max.x - delta <= initialBounds.min.x + [grid actualSize]) ||
             (!scrollFront && initialBounds.min.x - delta >= initialBounds.max.x - [grid actualSize]))
             scrollFront = !scrollFront;
@@ -189,7 +236,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             initialBounds.max.x = initialBounds.max.x - delta;
         else
             initialBounds.min.x = initialBounds.min.x - delta;
-    } else if (equalV3f(&plane.norm, &YAxisPos)) {
+    } else if (equalV3f([editingSystem zAxisNeg], &YAxisPos)) {
         if (( scrollFront && initialBounds.min.y + delta >= initialBounds.max.y - [grid actualSize]) ||
             (!scrollFront && initialBounds.max.y + delta <= initialBounds.min.y + [grid actualSize]))
             scrollFront = !scrollFront;
@@ -198,7 +245,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             initialBounds.min.y = initialBounds.min.y + delta;
         else
             initialBounds.max.y = initialBounds.max.y + delta;
-    } else if (equalV3f(&plane.norm, &YAxisNeg)) {
+    } else if (equalV3f([editingSystem zAxisNeg], &YAxisNeg)) {
         if (( scrollFront && initialBounds.max.y - delta <= initialBounds.min.y + [grid actualSize]) ||
             (!scrollFront && initialBounds.min.y - delta >= initialBounds.max.y - [grid actualSize]))
             scrollFront = !scrollFront;
@@ -207,7 +254,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             initialBounds.max.y = initialBounds.max.y - delta;
         else
             initialBounds.min.y = initialBounds.min.y - delta;
-    } else if (equalV3f(&plane.norm, &ZAxisPos)) {
+    } else if (equalV3f([editingSystem zAxisNeg], &ZAxisPos)) {
         if (( scrollFront && initialBounds.min.z + delta >= initialBounds.max.z - [grid actualSize]) ||
             (!scrollFront && initialBounds.max.z + delta <= initialBounds.min.z + [grid actualSize]))
             scrollFront = !scrollFront;
@@ -216,7 +263,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             initialBounds.min.z = initialBounds.min.z + delta;
         else
             initialBounds.max.z = initialBounds.max.z + delta;
-    } else if (equalV3f(&plane.norm, &ZAxisNeg)) {
+    } else if (equalV3f([editingSystem zAxisNeg], &ZAxisNeg)) {
         if (( scrollFront && initialBounds.max.z - delta <= initialBounds.min.z + [grid actualSize]) ||
             (!scrollFront && initialBounds.min.z - delta >= initialBounds.max.z - [grid actualSize]))
             scrollFront = !scrollFront;

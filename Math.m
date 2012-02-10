@@ -304,6 +304,33 @@ const TVector3f* firstAxisV3f(const TVector3f* v) {
     }
 }
 
+const TVector3f* firstAxisNegV3f(const TVector3f* v) {
+    if (equalV3f(v, &NullVector)) {
+        return &NullVector;
+    } else {
+        float xa = fabs(v->x);
+        float ya = fabs(v->y);
+        float za = fabs(v->z);
+        
+        if (xa >= ya && xa >= za) {
+            if (v->x > 0)
+                return &XAxisNeg;
+            else
+                return &XAxisPos;
+        } else if (ya >= xa && ya >= za) {
+            if (v->y > 0)
+                return &YAxisNeg;
+            else
+                return &YAxisPos;
+        } else {
+            if (v->z > 0)
+                return &ZAxisNeg;
+            else
+                return &ZAxisPos;
+        }
+    }
+}
+
 const TVector3f* secondAxisV3f(const TVector3f* v) {
     if (equalV3f(v, &NullVector)) {
         return &NullVector;
@@ -333,6 +360,35 @@ const TVector3f* secondAxisV3f(const TVector3f* v) {
     }
 }
 
+const TVector3f* secondAxisNegV3f(const TVector3f* v) {
+    if (equalV3f(v, &NullVector)) {
+        return &NullVector;
+    } else {
+        float xa = fabs(v->x);
+        float ya = fabs(v->y);
+        float za = fabs(v->z);
+        
+        if ((xa <= ya && xa >= za) || 
+            (xa >= ya && xa <= za)) {
+            if (v->x > 0)
+                return &XAxisNeg;
+            else
+                return &XAxisPos;
+        } else if ((ya <= xa && ya >= za) || 
+                   (ya >= xa && ya <= za)) {
+            if (v->y > 0)
+                return &YAxisNeg;
+            else
+                return &YAxisPos;
+        } else {
+            if (v->z > 0)
+                return &ZAxisNeg;
+            else
+                return &ZAxisPos;
+        }
+    }
+}
+
 const TVector3f* thirdAxisV3f(const TVector3f* v) {
     if (equalV3f(v, &NullVector)) {
         return &NullVector;
@@ -356,6 +412,33 @@ const TVector3f* thirdAxisV3f(const TVector3f* v) {
                 return &ZAxisPos;
             else
                 return &ZAxisNeg;
+        }
+    }
+}
+
+const TVector3f* thirdAxisNegV3f(const TVector3f* v) {
+    if (equalV3f(v, &NullVector)) {
+        return &NullVector;
+    } else {
+        float xa = fabs(v->x);
+        float ya = fabs(v->y);
+        float za = fabs(v->z);
+        
+        if (xa <= ya && xa >= za) {
+            if (v->x > 0)
+                return &XAxisNeg;
+            else
+                return &XAxisPos;
+        } else if (ya >= xa && ya >= za) {
+            if (v->y > 0)
+                return &YAxisNeg;
+            else
+                return &YAxisPos;
+        } else {
+            if (v->z > 0)
+                return &ZAxisNeg;
+            else
+                return &ZAxisPos;
         }
     }
 }

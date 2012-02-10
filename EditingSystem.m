@@ -32,11 +32,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         if (vertical) {
             yAxisPos = &ZAxisPos;
             yAxisNeg = &ZAxisNeg;
-            
-            TVector3f t;
-            crossV3f(xAxisPos, yAxisPos, &t);
-            zAxisPos = firstAxisV3f(&t);
-            zAxisNeg = thirdAxisV3f(&t);
         } else {
             yAxisPos = firstAxisV3f([theCamera direction]);
 
@@ -60,12 +55,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                     }
                 }
             } else {
-                yAxisNeg = thirdAxisV3f([theCamera direction]);
+                yAxisNeg = firstAxisNegV3f([theCamera direction]);
             }
-            
-            zAxisPos = &ZAxisPos;
-            zAxisNeg = &ZAxisNeg;
         }
+
+        
+        TVector3f t;
+        crossV3f(xAxisPos, yAxisPos, &t);
+        zAxisPos = firstAxisV3f(&t);
+        zAxisNeg = firstAxisNegV3f(&t);
 
         setColumnM4fV3f(&IdentityM4f, xAxisPos, 0, &worldToLocal);
         setColumnM4fV3f(&worldToLocal, yAxisPos, 1, &worldToLocal);
