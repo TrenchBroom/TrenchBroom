@@ -1620,4 +1620,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return console;
 }
 
+- (PreferencesManager *)preferences {
+    return [PreferencesManager sharedManager];
+}
+
 @end

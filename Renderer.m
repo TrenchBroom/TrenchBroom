@@ -1379,6 +1379,33 @@ int const TexCoordSize = 2 * sizeof(float);
         glEnable(GL_DEPTH_TEST);
     }
 
+    PreferencesManager* preferences = [PreferencesManager sharedManager];
+    float brightness = [preferences brightness];
+    if(brightness > 1) {
+        glBlendFunc(GL_DST_COLOR, GL_ONE);
+        glColor3f(brightness - 1, brightness - 1, brightness - 1);
+    } else {
+        glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+        glColor3f(brightness, brightness, brightness);
+    }
+    glEnable(GL_BLEND);
+    
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glBegin(GL_QUADS);
+    glVertex3i(-1, 1, 0);
+    glVertex3i(1, 1, 0);
+    glVertex3i(1, -1, 0);
+    glVertex3i(-1, -1, 0);
+    glEnd();
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    
     /*
     // enable lighting for cursor and compass
     glEnable(GL_LIGHTING);

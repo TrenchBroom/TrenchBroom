@@ -16,6 +16,8 @@
 	<integer>10000</integer>
 	<key>CameraFov</key>
 	<integer>90</integer>
+	<key>Brightness</key>
+	<integer>1</integer>
 	<key>Compilers</key>
 	<dict>
 		<key>Profiles</key>

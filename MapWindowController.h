@@ -111,5 +111,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (Renderer *)renderer;
 - (MapView3D *)view3D;
 - (ConsoleWindowController *)console;
+- (PreferencesManager *)preferences;
 
 @end
