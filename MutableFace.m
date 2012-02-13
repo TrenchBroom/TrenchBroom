@@ -72,8 +72,12 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     texPlaneNorm = [self texPlaneNormAndXAxis:&texAxisX yAxis:&texAxisY forFaceNorm:theNorm];
     
     TQuaternion rot;
-    float ang = rotation / 180 * M_PI;
-    setAngleAndAxisQ(&rot, ang, texPlaneNorm);
+    TVector3f rotAxis;
+
+    float ang = rotation * M_PI / 180;
+    absV3f(texPlaneNorm, &rotAxis);
+    
+    setAngleAndAxisQ(&rot, ang, &rotAxis);
     rotateQ(&rot, &texAxisX, &texAxisX);
     rotateQ(&rot, &texAxisY, &texAxisY);
     
@@ -232,6 +236,8 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     scaleV3f(&newTexAxisX, 1 / xScale, &newTexAxisX);
     scaleV3f(&newTexAxisY, 1 / yScale, &newTexAxisY);
     
+    // WARNING: the texture plane norm is not the rotation axis of the texture (it's always the absolute axis)
+    
     // determine the rotation angle from the dot product of the new base axes and the transformed texture axes
     float radX = acosf(dotV3f(&newBaseAxisX, &newTexAxisX));
     float radY = acosf(dotV3f(&newBaseAxisY, &newTexAxisY));
@@ -256,7 +262,9 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
     // apply the rotation to the new base axes
     TQuaternion rot;
-    setAngleAndAxisQ(&rot, rad, newTexPlaneNorm);
+    TVector3f rotAxis;
+    absV3f(newTexPlaneNorm, &rotAxis);
+    setAngleAndAxisQ(&rot, rad, &rotAxis);
     rotateQ(&rot, &newBaseAxisX, &newBaseAxisX);
     rotateQ(&rot, &newBaseAxisY, &newBaseAxisY);
     

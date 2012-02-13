@@ -23,6 +23,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 extern NSString* const GridChanged;
 
+extern int const GridMaxSize;
+extern int const GridMinSize;
+
 @protocol Face;
 
 @interface Grid : NSObject {

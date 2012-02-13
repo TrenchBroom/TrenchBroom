@@ -20,6 +20,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import <Cocoa/Cocoa.h>
 
 @class CompassView;
+@class Grid;
 @class MapWindowController;
 
 @interface QuickBarWindowController : NSWindowController <NSWindowDelegate> {
@@ -56,5 +57,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (IBAction)selectAll:(id)sender;
 - (IBAction)selectNone:(id)sender;
 - (IBAction)selectEntity:(id)sender;
+
+- (Grid *)grid;
 
 @end

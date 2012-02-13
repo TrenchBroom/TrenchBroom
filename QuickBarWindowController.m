@@ -26,6 +26,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MapDocument.h"
 #import "Entity.h"
 #import "Face.h"
+#import "Options.h"
+#import "Grid.h"
 
 @interface QuickBarWindowController (private)
 
@@ -295,6 +297,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (IBAction)selectEntity:(id)sender {
     [mapWindowController selectEntity:sender];
+}
+
+- (Grid *)grid {
+    return [[mapWindowController options] grid];
 }
 
 @end

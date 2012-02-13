@@ -51,6 +51,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSFileHandle* stdOutHandle = [[task standardOutput] fileHandleForReading];
     [self log:[stdOutHandle readDataToEndOfFile]];
     
+    [console endTask];
+    
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     
     [center removeObserver:self name:NSFileHandleReadCompletionNotification object:stdOutHandle];
@@ -69,21 +71,24 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     NSArray* argComponents = [[command arguments] componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     NSMutableArray* argArray = [[NSMutableArray alloc] init];
+    NSMutableString* argString = [[NSMutableString alloc] init];
     
     NSEnumerator* argEn = [argComponents objectEnumerator];
     NSString* arg;
     while ((arg = [argEn nextObject])) {
+        NSString* processedArg = arg;
+        
         NSEnumerator* replacementEn = [replacements keyEnumerator];
         NSString* searchStr;
         while ((searchStr = [replacementEn nextObject])) {
             if ([arg isEqualToString:searchStr]) {
-                [argArray addObject:[replacements objectForKey:searchStr]];
+                processedArg = [replacements objectForKey:searchStr];
                 break;
             }
         }
         
-        if (searchStr == nil)
-            [argArray addObject:arg];
+        [argArray addObject:processedArg];
+        [argString appendFormat:@" %@", processedArg];
     }
     
     NSString* launchPath = [command path];
@@ -99,7 +104,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [task setCurrentDirectoryPath:workDir];
     [task setLaunchPath:launchPath];
     [task setArguments:argArray];
-    [argArray release];
     
     NSPipe* stdOutPipe = [[NSPipe alloc] init];
     NSFileHandle* stdOutHandle = [stdOutPipe fileHandleForReading];
@@ -110,8 +114,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [center addObserver:self selector:@selector(stdOutReadCompleted:) name:NSFileHandleReadCompletionNotification object:stdOutHandle];
     [center addObserver:self selector:@selector(taskFinished:) name:NSTaskDidTerminateNotification object:task];
     
+    [console startTask:[NSString stringWithFormat:@"%@%@", [command path], argString]];
+    [console logBold:[NSString stringWithFormat:@"\n\n===== Launching task '%@%@' =====\n\n", [command path], argString]];
+    
     [stdOutHandle readInBackgroundAndNotify];
     [task launch];
+    [argArray release];
+    [argString release];
 }
 
 @end
@@ -143,7 +152,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)run {
-    [console logBold:[NSString stringWithFormat:@"===== Running Compiler Profile %@ =====\n\n", [profile name]]];
+    [console clearConsole:self];
+    [console logBold:[NSString stringWithFormat:@"===== Running Compiler Profile %@ =====", [profile name]]];
     
     if ([[profile commands] count] > 0) {
         commandIndex = 0;

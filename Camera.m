@@ -30,9 +30,9 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     if ((self = [super init])) {
         position = NullVector;
         
-        position.x = -496; //-64;
-        position.y = -96; //-64;
-        position.z = 432; //64;
+        position.x = -64;
+        position.y = -64;
+        position.z = 64;
 
         direction = XAxisPos;
         up = ZAxisPos;
@@ -285,10 +285,14 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    if (mode == CM_PERSPECTIVE)
-        gluPerspective(fov, NSWidth(viewport) / NSHeight(viewport), near, far);
-    else
+    if (mode == CM_PERSPECTIVE) {
+        // thanks to LordHavoc for the following gem
+        float vfrustum = tan(fov * M_PI / 360) * 0.75 * near;
+        float hfrustum = vfrustum * NSWidth(viewport) / NSHeight(viewport);
+        glFrustum(-hfrustum, hfrustum, -vfrustum, vfrustum, near, far);
+    } else {
         glOrtho(zoom * NSWidth(viewport) / -2, zoom * NSWidth(viewport) / 2, zoom * NSHeight(viewport) / -2, zoom * NSHeight(viewport) / 2, near, far);
+    }
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();

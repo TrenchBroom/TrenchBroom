@@ -25,6 +25,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Brush.h"
 
 NSString* const GridChanged = @"GridChanged";
+int const GridMaxSize = 8;
+int const GridMinSize = 0;
 
 @implementation Grid
 
@@ -64,7 +66,7 @@ NSString* const GridChanged = @"GridChanged";
 }
 
 - (void)setSize:(int)theSize {
-    if (theSize < 0 || theSize > 8)
+    if (theSize < GridMinSize || theSize > GridMaxSize)
         [NSException raise:NSInvalidArgumentException format:@"invalid grid size: %i", theSize];
 
     if (size == theSize)

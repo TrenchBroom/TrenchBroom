@@ -66,6 +66,8 @@
 		4855B29E1465C7A40062078C /* CameraAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 4855B29D1465C7A40062078C /* CameraAnimation.m */; };
 		4856F97E13E482C6004CFABE /* BJMHLight in Resources */ = {isa = PBXBuildFile; fileRef = 4856F97D13E482C6004CFABE /* BJMHLight */; };
 		4856F98013E482D8004CFABE /* BJMHLight in Copy Compiler Binaries */ = {isa = PBXBuildFile; fileRef = 4856F97D13E482C6004CFABE /* BJMHLight */; };
+		485720E014E71BE7009B0959 /* TxQBSP in Resources */ = {isa = PBXBuildFile; fileRef = 485720DF14E71BE7009B0959 /* TxQBSP */; };
+		485720E214E71BED009B0959 /* TxQBSP in Copy Compiler Binaries */ = {isa = PBXBuildFile; fileRef = 485720DF14E71BE7009B0959 /* TxQBSP */; };
 		485AE8A712F4B9BA00CDBD6A /* Picker.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8A612F4B9BA00CDBD6A /* Picker.m */; };
 		485AE8D712F4C5BD00CDBD6A /* PickingHit.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8D612F4C5BD00CDBD6A /* PickingHit.m */; };
 		485D2EAF1308624900CF73D8 /* Options.m in Sources */ = {isa = PBXBuildFile; fileRef = 485D2EAE1308624900CF73D8 /* Options.m */; };
@@ -199,6 +201,7 @@
 			dstPath = Compilers;
 			dstSubfolderSpec = 7;
 			files = (
+				485720E214E71BED009B0959 /* TxQBSP in Copy Compiler Binaries */,
 				4856F98013E482D8004CFABE /* BJMHLight in Copy Compiler Binaries */,
 				48AC3E6C13E3FA99008F4BF8 /* TreeQBSP in Copy Compiler Binaries */,
 				4846A7B713E35D870088E122 /* Light in Copy Compiler Binaries */,
@@ -341,6 +344,7 @@
 		4855B29C1465C7A40062078C /* CameraAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraAnimation.h; sourceTree = "<group>"; };
 		4855B29D1465C7A40062078C /* CameraAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraAnimation.m; sourceTree = "<group>"; };
 		4856F97D13E482C6004CFABE /* BJMHLight */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = BJMHLight; sourceTree = "<group>"; };
+		485720DF14E71BE7009B0959 /* TxQBSP */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = TxQBSP; sourceTree = "<group>"; };
 		485AE8A512F4B9BA00CDBD6A /* Picker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Picker.h; sourceTree = "<group>"; };
 		485AE8A612F4B9BA00CDBD6A /* Picker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Picker.m; sourceTree = "<group>"; };
 		485AE8D512F4C5BD00CDBD6A /* PickingHit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PickingHit.h; sourceTree = "<group>"; };
@@ -753,6 +757,7 @@
 		483C514F13E3281C0082C296 /* Compilers */ = {
 			isa = PBXGroup;
 			children = (
+				485720DF14E71BE7009B0959 /* TxQBSP */,
 				4856F97D13E482C6004CFABE /* BJMHLight */,
 				48AC3E6A13E3FA8D008F4BF8 /* TreeQBSP */,
 				483C515013E3284E0082C296 /* Light */,
@@ -1372,6 +1377,7 @@
 				487D2A5A1401324500F2673B /* 128.map in Resources */,
 				487D2A5B1401324500F2673B /* 32.map in Resources */,
 				487D2A5C1401324500F2673B /* 64.map in Resources */,
+				485720E014E71BE7009B0959 /* TxQBSP in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

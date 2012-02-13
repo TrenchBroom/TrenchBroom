@@ -29,9 +29,9 @@
 				<array>
 					<dict>
 						<key>Path</key>
-						<string>Compilers/TreeQBSP</string>
+						<string>Compilers/TxQBSP</string>
 						<key>Arguments</key>
-						<string>-oldaxis $map $bsp</string>
+						<string>$map $bsp</string>
 					</dict>
 					<dict>
 						<key>Path</key>
@@ -54,9 +54,9 @@
 				<array>
 					<dict>
 						<key>Path</key>
-						<string>Compilers/TreeQBSP</string>
+						<string>Compilers/TxQBSP</string>
 						<key>Arguments</key>
-						<string>-oldAxis $map $bsp</string>
+						<string>$map $bsp</string>
 					</dict>
 					<dict>
 						<key>Path</key>

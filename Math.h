@@ -128,6 +128,8 @@ extern TMatrix4f const MirXM4f;
 extern TMatrix4f const MirYM4f;
 extern TMatrix4f const MirZM4f;
 
+extern float const PointStatusEpsilon;
+
 BOOL fzero(float v);
 BOOL fpos(float v);
 BOOL fneg(float v);
@@ -162,6 +164,7 @@ void subV3f(const TVector3f* l, const TVector3f* r, TVector3f* o);
 float dotV3f(const TVector3f* l, const TVector3f* r);
 void crossV3f(const TVector3f* l, const TVector3f* r, TVector3f* o);
 void scaleV3f(const TVector3f* v, float f, TVector3f* o);
+void absV3f(const TVector3f* v, TVector3f* o);
 float lengthV3f(const TVector3f* v);
 float lengthSquaredV3f(const TVector3f* v);
 void normalizeV3f(const TVector3f* v, TVector3f* o);

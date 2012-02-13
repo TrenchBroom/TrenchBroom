@@ -57,9 +57,9 @@ NSString* const RendererChanged = @"RendererChanged";
 NSString* const FaceVboKey = @"FaceVbo";
 NSString* const EntityBoundsVboKey = @"EntityBoundsVbo";
 NSString* const SelectedEntityBoundsVboKey = @"SelectedEntityBoundsVbo";
-TVector4f const EntityBoundsDefaultColor = {1, 1, 1, 0.5f};
-TVector4f const EntityBoundsWireframeColor = {1, 1, 1, 0.6f};
-TVector4f const EntityClassnameColor = {1, 1, 1, 1};
+TVector4f const EntityBoundsDefaultColor = {0.5f, 0.5f, 0.5f, 1};
+TVector4f const EntityBoundsWireframeColor = {0.5f, 0.5f, 0.5f, 0.6f};
+TVector4f const EntityClassnameColor = {0.5f, 0.5f, 0.5f, 1};
 TVector4f const EdgeDefaultColor = {0.4f, 0.4f, 0.4f, 0.4f};
 TVector4f const FaceDefaultColor = {0.2f, 0.2f, 0.2f, 1};
 TVector4f const SelectionColor = {1, 0, 0, 1};
@@ -125,7 +125,7 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)writeEntityBounds:(id <Entity>)theEntity toBlock:(VBOMemBlock *)theBlock {
     TVector3f t;
-    TBoundingBox* bounds = [theEntity bounds];
+    const TBoundingBox* bounds = [theEntity bounds];
     EntityDefinition* definition = [theEntity entityDefinition];
     TVector4f color = definition != nil ? *[definition color] : EntityBoundsDefaultColor;
     color.w = EntityBoundsDefaultColor.w;
@@ -133,109 +133,108 @@ int const TexCoordSize = 2 * sizeof(float);
     int address = [theBlock address];
     uint8_t* vboBuffer = [[theBlock vbo] buffer];
     
-    // bottom side
+    // east face
     t = bounds->min;
     address = writeColor4fAsBytes(&color, vboBuffer, address);
     address = writeVector3f(&t, vboBuffer, address);
     
+    t.y = bounds->max.y;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.z = bounds->max.z;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.y = bounds->min.y;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    // front face
+    t = bounds->min;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.z = bounds->max.z;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+
     t.x = bounds->max.x;
     address = writeColor4fAsBytes(&color, vboBuffer, address);
     address = writeVector3f(&t, vboBuffer, address);
-    
-    t.y = bounds->max.y;
+
+    t.z = bounds->min.z;
     address = writeColor4fAsBytes(&color, vboBuffer, address);
     address = writeVector3f(&t, vboBuffer, address);
-    
-    t.x = bounds->min.x;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    // south side
+
+    // bottom face
     t = bounds->min;
     address = writeColor4fAsBytes(&color, vboBuffer, address);
     address = writeVector3f(&t, vboBuffer, address);
-    
-    t.z = bounds->max.z;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
+
     t.x = bounds->max.x;
     address = writeColor4fAsBytes(&color, vboBuffer, address);
     address = writeVector3f(&t, vboBuffer, address);
-    
-    t.z = bounds->min.z;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    // west side
-    t = bounds->min;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
+
     t.y = bounds->max.y;
     address = writeColor4fAsBytes(&color, vboBuffer, address);
     address = writeVector3f(&t, vboBuffer, address);
-    
-    t.z = bounds->max.z;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    t.y = bounds->min.y;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    // top side
-    t = bounds->max;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    t.y = bounds->min.y;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
+
     t.x = bounds->min.x;
     address = writeColor4fAsBytes(&color, vboBuffer, address);
     address = writeVector3f(&t, vboBuffer, address);
-    
+
+    // west face
+    t = bounds->max;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+
+    t.z = bounds->min.z;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+
+    t.y = bounds->min.y;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+
+    t.z = bounds->max.z;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+
+    // back face
+    t = bounds->max;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+
+    t.x = bounds->min.x;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+
+    t.z = bounds->min.z;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+
+    t.x = bounds->max.x;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+
+    // top face
+    t = bounds->max;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+
+    t.y = bounds->min.y;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+
+    t.x = bounds->min.x;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+
     t.y = bounds->max.y;
     address = writeColor4fAsBytes(&color, vboBuffer, address);
     address = writeVector3f(&t, vboBuffer, address);
-    
-    // north side
-    t = bounds->max;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    t.z = bounds->min.z;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    t.x = bounds->min.x;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    t.z = bounds->max.z;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    // east side
-    t = bounds->max;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    t.z = bounds->min.z;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    t.y = bounds->min.y;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    t.z = bounds->max.z;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    [theBlock setState:BS_USED_VALID];
+
 }
 
 - (void)writeFaceVertices:(id <Face>)theFace toBlock:(VBOMemBlock *)theBlock {
@@ -452,11 +451,13 @@ int const TexCoordSize = 2 * sizeof(float);
         id <Entity> entity;
         while ((entity = [entityEn nextObject])) {
             if (![entity isWorldspawn]) {
+                
                 VBOMemBlock* block = [entity boundsMemBlock];
                 if ([block vbo] == entityBoundsVbo)
                     [unselectedEntities addObject:entity];
                 else
                     [self writeEntityBounds:entity toBlock:block];
+                
             }
         }
         
@@ -476,6 +477,8 @@ int const TexCoordSize = 2 * sizeof(float);
             [entityBoundsVbo unmapBuffer];
             [entityBoundsVbo deactivate];
         }
+        
+        [unselectedEntities release];
     }
 }
 
@@ -491,7 +494,7 @@ int const TexCoordSize = 2 * sizeof(float);
             if (![entity isWorldspawn]) {
                 [entity setBoundsMemBlock:nil];
                 [entityRenderers removeObjectForKey:[entity entityId]];
-                [modelEntities removeObject:entity];
+                [modelEntities removeObjectIdenticalTo:entity];
             }
         }
 
@@ -764,7 +767,6 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)renderEntityBounds:(const TVector4f *)color vertexCount:(int)theVertexCount {
     glSetEdgeOffset(0.5f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glDisable(GL_CULL_FACE);
     
     if (color != NULL) {
         glColorV4f(color);
@@ -775,9 +777,10 @@ int const TexCoordSize = 2 * sizeof(float);
     }
 
     glDrawArrays(GL_QUADS, 0, theVertexCount);
+    
     if (color == NULL)
         glDisableClientState(GL_COLOR_ARRAY);
-    glEnable(GL_CULL_FACE);
+
     glResetEdgeOffset();
 }
 
@@ -1322,18 +1325,26 @@ int const TexCoordSize = 2 * sizeof(float);
     if ([options renderEntities]) {
         if ([options isolationMode] == IM_NONE) {
             [entityBoundsVbo activate];
+            glEnableClientState(GL_VERTEX_ARRAY);
             [self renderEntityBounds:NULL vertexCount:entityBoundsVertexCount];
+            glDisableClientState(GL_VERTEX_ARRAY);
             [entityBoundsVbo deactivate];
+
             [self renderEntityModels:modelEntities];
-            
+
             if ([options renderEntityClassnames]) {
                 [fontManager activate];
                 [classnameRenderer renderColor:&EntityClassnameColor];
                 [fontManager deactivate];
             }
+            
         } else if ([options isolationMode] == IM_WIREFRAME) {
             [entityBoundsVbo activate];
+            glEnableClientState(GL_VERTEX_ARRAY);
+            
             [self renderEntityBounds:&EntityBoundsWireframeColor vertexCount:entityBoundsVertexCount];
+
+            glDisableClientState(GL_VERTEX_ARRAY);
             [entityBoundsVbo deactivate];
         }
         

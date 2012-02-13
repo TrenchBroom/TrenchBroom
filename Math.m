@@ -220,6 +220,12 @@ void scaleV3f(const TVector3f* v, float f, TVector3f* o) {
     o->z = f * v->z;
 }
 
+void absV3f(const TVector3f* v, TVector3f* o) {
+    o->x = fabsf(v->x);
+    o->y = fabsf(v->y);
+    o->z = fabsf(v->z);
+}
+
 float lengthV3f(const TVector3f* v) {
     return sqrt(lengthSquaredV3f(v));
 }

@@ -21,6 +21,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @interface ConsoleWindowController : NSWindowController {
     IBOutlet NSTextView* consoleTextView;
+    IBOutlet NSProgressIndicator* progressIndicator;
+    IBOutlet NSTextField* currentTaskLabel;
     NSDictionary* regularAttrs;
     NSDictionary* boldAttrs;
 }
@@ -29,6 +31,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)log:(NSString *)theString bold:(BOOL)isBold;
 - (void)log:(NSString *)theString;
 - (void)logBold:(NSString *)theString;
-
+- (void)startTask:(NSString *)theName;
+- (void)endTask;
 
 @end

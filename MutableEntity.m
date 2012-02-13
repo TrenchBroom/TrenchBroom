@@ -121,6 +121,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 
 - (void) dealloc {
+    [boundsMemBlock free];
     [entityId release];
 	[properties release];
 	[brushes release];
@@ -621,5 +622,4 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [boundsMemBlock free];
     boundsMemBlock = theBoundsMemBlock;
 }
-
 @end

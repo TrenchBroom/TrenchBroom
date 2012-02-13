@@ -40,6 +40,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [super dealloc];
 }
 
+- (void)awakeFromNib {
+    [progressIndicator setUsesThreadedAnimation:YES];
+}
+
 - (void)log:(NSString *)theString bold:(BOOL)isBold {
     NSAssert(theString != nil, @"string must not be nil");
     
@@ -69,6 +73,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSAttributedString* emptyString = [[NSAttributedString alloc] initWithString:@""];
     [[consoleTextView textStorage] setAttributedString:emptyString];
     [emptyString release];
+}
+
+- (void)startTask:(NSString *)theName {
+    [currentTaskLabel setStringValue:theName];
+    [progressIndicator startAnimation:self];
+    [progressIndicator setHidden:NO];
+}
+
+- (void)endTask {
+    [currentTaskLabel setStringValue:@""];
+    [progressIndicator stopAnimation:self];
+    [progressIndicator setHidden:YES];
 }
 
 @end

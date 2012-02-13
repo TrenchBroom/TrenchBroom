@@ -1549,8 +1549,6 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
     if (dragDist == 0)
         return vIndex;
     
-    assert(sanityCheck(vd, NO));
-    
     vertex = vd->vertices.items[vIndex];
     dragRay.origin = vertex->position;
     scaleV3f(&d, 1 / dragDist, &dragRay.direction);
@@ -1583,7 +1581,7 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
         }
     }
     
-    assert(sanityCheck(vd, YES));
+    assert(sanityCheck(vd, NO));
     
     // now find the shortest drag distance that will result in a merge of sides
     clearSideList(&incSides);
@@ -1668,7 +1666,7 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
         }
     }
     
-    assert(sanityCheck(vd, YES));
+    assert(sanityCheck(vd, NO));
     
     // now merge all mergeable sides back together
     for (int i = 0; i < vd->sides.count; i++) {
@@ -1787,8 +1785,6 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
             }
         }
     }
-    
-    assert(sanityCheck(vd, YES));
     
     boundsOfVertices(&vd->vertices, &vd->bounds);
     
@@ -1991,29 +1987,39 @@ int splitAndDragSide(TVertexData* vd, int s, const TVector3f d, NSMutableArray* 
 }
 
 int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
+    int newIndex;
+    
     assert(vd != NULL);
     assert(v >= 0 && v < vd->vertices.count + vd->edges.count + vd->sides.count);
     
     if (lengthV3f(&d) == 0)
         return v;
 
+    assert(sanityCheck(vd, YES));
+
     if (v < vd->vertices.count)
-        return performVertexDrag(vd, v, d, newFaces, removedFaces);
-    if (v < vd->vertices.count + vd->edges.count)
-        return splitAndDragEdge(vd, v, d, newFaces, removedFaces);
-    return splitAndDragSide(vd, v, d, newFaces, removedFaces);
+        newIndex = performVertexDrag(vd, v, d, newFaces, removedFaces);
+    else if (v < vd->vertices.count + vd->edges.count)
+        newIndex = splitAndDragEdge(vd, v, d, newFaces, removedFaces);
+    else
+        newIndex = splitAndDragSide(vd, v, d, newFaces, removedFaces);
+    
+    assert(sanityCheck(vd, YES));
+    return newIndex;
 }
 
 int dragEdge(TVertexData* vd, int e, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
     TEdge* edge;
     TVector3f start, end, dir;
-    int result;
+    int newIndex;
     
     assert(vd != NULL);
     assert(e >= 0 && e < vd->edges.count);
 
     if (lengthV3f(&d) == 0)
         return e;
+    
+    assert(sanityCheck(vd, YES));
     
     edge = vd->edges.items[e];
     start = edge->startVertex->position;
@@ -2031,15 +2037,17 @@ int dragEdge(TVertexData* vd, int e, TVector3f d, NSMutableArray* newFaces, NSMu
         dragVertex(vd, vertexIndex(&vd->vertices, edge->endVertex), d, newFaces, removedFaces);
     }
     
-    result = -1;
-    for (int i = 0; i < vd->edges.count && result == -1; i++) {
+    newIndex = -1;
+    for (int i = 0; i < vd->edges.count && newIndex == -1; i++) {
         edge = vd->edges.items[i];
         if ((equalV3f(&edge->startVertex->position, &start) && equalV3f(&edge->endVertex->position, &end)) ||
             (equalV3f(&edge->startVertex->position, &end) && equalV3f(&edge->endVertex->position, &start)))
-            result = i;
+            newIndex = i;
     }
 
-    return result;
+    assert(sanityCheck(vd, YES));
+    
+    return newIndex;
 }
 
 int dragSide(TVertexData* vd, int s, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
@@ -2050,7 +2058,7 @@ int dragSide(TVertexData* vd, int s, TVector3f d, NSMutableArray* newFaces, NSMu
     int* indices;
     float* dots;
     int sideVertexCount;
-    int result;
+    int newIndex;
     BOOL switched;
 
     assert(vd != NULL);
@@ -2060,6 +2068,8 @@ int dragSide(TVertexData* vd, int s, TVector3f d, NSMutableArray* newFaces, NSMu
     if (length == 0)
         return s;
 
+    assert(sanityCheck(vd, YES));
+    
     scaleV3f(&d, 1 / length, &dir);
     
     side = vd->sides.items[s];
@@ -2101,17 +2111,17 @@ int dragSide(TVertexData* vd, int s, TVector3f d, NSMutableArray* newFaces, NSMu
     for (int i = 0; i < sideVertexCount; i++)
         dragVertex(vd, indices[i], d, newFaces, removedFaces);
     
-    result = -1;
-    for (int i = 0; i < vd->sides.count && result == -1; i++) {
+    newIndex = -1;
+    for (int i = 0; i < vd->sides.count && newIndex == -1; i++) {
         side = vd->sides.items[i];
         if (sideVertexCount == side->vertices.count) {
-            for (int j = 0; j < sideVertexCount && result == -1; j++) {
+            for (int j = 0; j < sideVertexCount && newIndex == -1; j++) {
                 int k = 0;
                 while (k < sideVertexCount && equalV3f(&side->vertices.items[(j + k) % sideVertexCount]->position, &sideVertices[k]))
                     k++;
                 
                 if (k == sideVertexCount)
-                    result = i;
+                    newIndex = i;
             }
         }
     }
@@ -2120,7 +2130,9 @@ int dragSide(TVertexData* vd, int s, TVector3f d, NSMutableArray* newFaces, NSMu
     free(indices);
     free(dots);
     
-    return result;
+    assert(sanityCheck(vd, YES));
+    
+    return newIndex;
 }
 
 void snapVertexData(TVertexData* vd) {
@@ -2165,12 +2177,10 @@ BOOL sanityCheck(const TVertexData* vd, BOOL cc) {
     
     for (int i = 0; i < vd->sides.count; i++) {
         TSide* side = vd->sides.items[i];
-        /*
         if (cc && polygonShape(&side->vertices, [side->face norm]) != PS_CONVEX) {
             NSLog(@"side with index %i is not convex", i);
             return NO;
         }
-         */
         
         for (int j = 0; j < side->edges.count; j++) {
             TEdge* edge = side->edges.items[j];

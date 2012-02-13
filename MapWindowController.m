@@ -198,7 +198,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSString* mapFileName = [mapFilePath lastPathComponent];
     NSString* baseFileName = [mapFileName stringByDeletingPathExtension];
     NSString* bspFileName = [baseFileName stringByAppendingPathExtension:@"bsp"];
+    NSString* litFileName = [baseFileName stringByAppendingPathExtension:@"lit"];
     NSString* bspFilePath = [mapDirPath stringByAppendingPathComponent:bspFileName];
+    NSString* litFilePath = [mapDirPath stringByAppendingPathComponent:litFileName];
     
     NSFileManager* fileManager = [NSFileManager defaultManager];
     if (![fileManager fileExistsAtPath:bspFilePath]) {
@@ -249,6 +251,22 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (![fileManager copyItemAtPath:bspFilePath toPath:targetBspPath error:&error]) {
         [console logBold:[NSString stringWithFormat:@"Failed to copy BSP file from '%@' to '%@': %@\n", bspFilePath, targetBspPath, [error localizedDescription]]];
         return;
+    }
+
+    NSString* targetLitPath = [modMapsDirPath stringByAppendingPathComponent:litFileName];
+    if ([fileManager fileExistsAtPath:targetLitPath]) {
+        [console log:[NSString stringWithFormat:@"Removing existing lightmap file '%@'\n", targetLitPath]];
+        if (![fileManager removeItemAtPath:targetLitPath error:&error]) {
+            [console logBold:[NSString stringWithFormat:@"Failed to remove existing lightmap file from '%@': %@\n", targetLitPath, [error localizedDescription]]];
+            return;
+        }
+    }
+    
+    if ([fileManager fileExistsAtPath:litFilePath]) {
+        if (![fileManager copyItemAtPath:litFilePath toPath:targetLitPath error:&error]) {
+            [console logBold:[NSString stringWithFormat:@"Failed to copy lightmap file from '%@' to '%@': %@\n", litFilePath, targetLitPath, [error localizedDescription]]];
+            return;
+        }
     }
     
     NSURL* appUrl = [NSURL fileURLWithPath:appPath];

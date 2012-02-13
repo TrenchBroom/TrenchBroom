@@ -49,7 +49,7 @@ extern NSString* const RendererChanged;
     VBOBuffer* selectedEntityBoundsVbo;
     int entityBoundsVertexCount;
     int selectedEntityBoundsVertexCount;
-
+    
     GLUquadric* vertexHandle;
     
     TextRenderer* classnameRenderer;

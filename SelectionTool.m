@@ -24,10 +24,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "SelectionManager.h"
 #import "Face.h"
 #import "Brush.h"
+#import "Options.h"
+#import "Grid.h"
 
 @interface SelectionTool (private)
 
 - (BOOL)isMultiSelectionModifierPressed;
+- (BOOL)isGridSizeModifierPressed;
 
 @end
 
@@ -35,6 +38,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (BOOL)isMultiSelectionModifierPressed {
     return keyStatus == KS_COMMAND;
+}
+
+- (BOOL)isGridSizeModifierPressed {
+    return keyStatus == KS_OPTION;
 }
 
 @end
@@ -52,6 +59,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)theKeyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {
     keyStatus = theKeyStatus;
+}
+
+- (void)handleScrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (![self isGridSizeModifierPressed])
+        return;
+    
+    Grid* grid = [[windowController options] grid];
+    int size = [grid size];
+    if ([event deltaY] < 0)
+        size -= 1;
+    else
+        size += 1;
+    
+    if (size >= GridMinSize && size <= GridMaxSize)
+        [grid setSize:size];
 }
 
 - (void)handleLeftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

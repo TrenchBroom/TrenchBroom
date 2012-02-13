@@ -64,5 +64,4 @@ static NSString* const ModsKey = @"_mods";
 
 - (VBOMemBlock *)boundsMemBlock;
 - (void)setBoundsMemBlock:(VBOMemBlock *)theBoundsMemBlock;
-
 @end
