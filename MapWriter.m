@@ -24,17 +24,35 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Face.h"
 #import "SelectionManager.h"
 
-static int BUF_SIZE = 16;
+static char buffer[256];
+
+void writeString(char* theString, int length, NSOutputStream* theStream) {
+    [theStream write:(void *)theString maxLength:length];
+}
+
+void writeFace(id <Face> theFace, NSOutputStream* theStream) {
+    const TVector3i* p1 = [theFace point1];
+    const TVector3i* p2 = [theFace point2];
+    const TVector3i* p3 = [theFace point3];
+    int length = sprintf(buffer,  "( %i %i %i ) ( %i %i %i ) ( %i %i %i ) %s %i %i %f %f %f\n",
+                         p1->x, p1->y, p1->z,
+                         p2->x, p2->y, p2->z,
+                         p3->x, p3->y, p3->z,
+                         [[[theFace texture] name] cStringUsingEncoding:NSASCIIStringEncoding],
+                         [theFace xOffset], 
+                         [theFace yOffset], 
+                         [theFace rotation], 
+                         [theFace xScale], 
+                         [theFace yScale]);
+    writeString(buffer, length, theStream);
+}
+
+void writeProperty(NSString* theKey, NSString* theValue, NSOutputStream* theStream) {
+    int length = sprintf(buffer, "\"%s\" \"%s\"", [theKey cStringUsingEncoding:NSASCIIStringEncoding], [theValue cStringUsingEncoding:NSASCIIStringEncoding]);
+    writeString(buffer, length, theStream);
+}
 
 @implementation MapWriter
-
-- (id)init {
-    if ((self = [super init])) {
-        buffer = malloc(BUF_SIZE);
-    }
-
-    return self;
-}
 
 - (id)initWithMap:(id <Map>)theMap {
     NSAssert(theMap != nil, @"map must not be nil");
@@ -56,77 +74,26 @@ static int BUF_SIZE = 16;
     return self;
 }
 
-- (void)writeString:(NSString *)theString toStream:(NSOutputStream *)theStream {
-    NSUInteger count;
-    
-    NSRange range = NSMakeRange(0, [theString length]);
-    
-    while (range.length > 0) {
-        [theString getBytes:buffer 
-                  maxLength:BUF_SIZE 
-                 usedLength:&count 
-                   encoding:NSASCIIStringEncoding 
-                    options:0 
-                      range:range 
-             remainingRange:&range];
-        [theStream write:buffer maxLength:count];
-    }
-}
-
-- (void)writePoint:(TVector3i *)thePoint toStream:(NSOutputStream *)theStream {
-    NSString* t = [[NSString alloc] initWithFormat:@"( %i %i %i )", thePoint->x, thePoint->y, thePoint->z];
-    [self writeString:t toStream:theStream];
-    [t release];
-}
-
-- (void)writeFace:(id <Face>)theFace toStream:(NSOutputStream *)theStream {
-    [self writePoint:[theFace point1] toStream:theStream];
-    [self writeString:@" " toStream:theStream];
-    [self writePoint:[theFace point2] toStream:theStream];
-    [self writeString:@" " toStream:theStream];
-    [self writePoint:[theFace point3] toStream:theStream];
-    
-    NSString* flags = [[NSString alloc] initWithFormat:@" %@ %i %i %f %f %f\n", [[theFace texture] name], [theFace xOffset], [theFace yOffset], [theFace rotation], [theFace xScale], [theFace yScale]];
-    [self writeString:flags toStream:theStream];
-    [flags release];
-}
-
 - (void)writeBrush:(id <Brush>)theBrush toStream:(NSOutputStream *)theStream {
-    [self writeString:@"{\n" toStream:theStream];
+    writeString("{\n", 2, theStream);
     
     NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];
     id <Face> face;
     while ((face = [faceEn nextObject]))
-        [self writeFace:face toStream:theStream];
+        writeFace(face, theStream);
     
-    [self writeString:@"}\n" toStream:theStream];
-}
-
-- (void)writeEntityHeaderToStream:(NSOutputStream *)theStream {
-    [self writeString:@"{\n" toStream:theStream];
-}
-
-- (void)writeProperty:(NSString *)theKey value:(NSString *)theValue toStream:(NSOutputStream *)theStream {
-    [self writeString:@"\""     toStream:theStream];
-    [self writeString:theKey    toStream:theStream];
-    [self writeString:@"\" \""  toStream:theStream];
-    [self writeString:theValue  toStream:theStream];
-    [self writeString:@"\"\n"   toStream:theStream];
-}
-
-- (void)writeEntityFooterToStream:(NSOutputStream *)theStream {
-    [self writeString:@"}\n" toStream:theStream];
+    writeString("}\n", 2, theStream);
 }
 
 - (void)writeEntity:(id <Entity>)theEntity toStream:(NSOutputStream *)theStream {
-    [self writeEntityHeaderToStream:theStream];
+    writeString("{\n", 2, theStream);
     
     NSDictionary* properties = [theEntity properties];
     NSEnumerator* keyEn = [properties keyEnumerator];
     NSString* key;
     while ((key = [keyEn nextObject])) {
         NSString* value = [properties objectForKey:key];
-        [self writeProperty:key value:value toStream:theStream];
+        writeProperty(key, value, theStream);
     }
 
     NSEnumerator* brushEn = [[theEntity brushes] objectEnumerator];
@@ -134,7 +101,7 @@ static int BUF_SIZE = 16;
     while ((brush = [brushEn nextObject]))
         [self writeBrush:brush toStream:theStream];
 
-    [self writeEntityFooterToStream:theStream];
+    writeString("}\n", 2, theStream);
 }
 
 - (void)writeToStream:(NSOutputStream *)theStream {
@@ -170,8 +137,8 @@ static int BUF_SIZE = 16;
                     id <Entity> entity = [brush entity];
                     if ([entity isWorldspawn] || [entities indexOfObjectIdenticalTo:entity] == NSNotFound) {
                         if (!worldspawnStarted) {
-                            [self writeEntityHeaderToStream:theStream];
-                            [self writeProperty:ClassnameKey value:WorldspawnClassname toStream:theStream];
+                            writeString("{\n", 2, theStream);
+                            writeProperty(ClassnameKey, WorldspawnClassname, theStream);
                             worldspawnStarted = YES;
                         }
                         
@@ -180,7 +147,7 @@ static int BUF_SIZE = 16;
                 }
                 
                 if (worldspawnStarted)
-                    [self writeEntityFooterToStream:theStream];
+                    writeString("}\n", 2, theStream);
                 
 
                 NSEnumerator* entityEn = [entities objectEnumerator];
@@ -191,22 +158,22 @@ static int BUF_SIZE = 16;
                 break;
             }
             case SM_BRUSHES: {
-                [self writeEntityHeaderToStream:theStream];
-                [self writeProperty:ClassnameKey value:WorldspawnClassname toStream:theStream];
+                writeString("{\n", 2, theStream);
+                writeProperty(ClassnameKey, WorldspawnClassname, theStream);
 
                 NSEnumerator* brushEn = [[selection selectedBrushes] objectEnumerator];
                 id <Brush> brush;
                 while ((brush = [brushEn nextObject]))
                     [self writeBrush:brush toStream:theStream];
                 
-                [self writeEntityFooterToStream:theStream];
+                writeString("}\n", 2, theStream);
                 break;
             }
             case SM_FACES: {
                 NSEnumerator* faceEn = [[selection selectedFaces] objectEnumerator];
                 id <Face> face;
                 while ((face = [faceEn nextObject]))
-                    [self writeFace:face toStream:theStream];
+                    writeFace(face, theStream);
                 break;
             }
             default:
@@ -229,11 +196,6 @@ static int BUF_SIZE = 16;
     [self writeToStream:stream];
     [stream close];
     [stream release];
-}
-
-- (void)dealloc {
-    free(buffer);
-    [super dealloc];
 }
 
 @end

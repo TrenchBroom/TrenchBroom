@@ -60,37 +60,38 @@ static float M_PI_12 = M_PI / 12;
     SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager selectionBounds:&bounds]) {
         centerOfBounds(&bounds, &center);
-        radius = distanceOfPointAndRay(&center, ray);
+        radius = 100;
 
         Camera* camera = [windowController camera];
-        TVector3f diff;
-        subV3f([camera position], &center, &diff);
-        vAxis = fabs(diff.x) < fabs(diff.y) ? A_X : A_Y;
+        vAxis = *[camera right];
 
-        EAxis comp = strongestComponentV3f(&diff);
-        if (comp == A_X || (comp == A_Z && vAxis == A_Y)) {
-            if (diff.x > 0) {
-                initialHAngle = 0;
-                initialVAngle = 0;
-            } else {
-                initialHAngle = M_PI;
-                initialVAngle = 0;
-            }
-        } else {
-            if (diff.y > 0) {
-                initialHAngle = M_PI / 2;
-                initialVAngle = 0;
-            } else {
-                initialHAngle = 3 * M_PI / 2;
-                initialVAngle = 0;
-            }
+        float cos = dotV3f(&XAxisPos, &vAxis);
+        float angle = acosf(cos);
+        if (cos > -1 || cos < 1) {
+            TVector3f c;
+            crossV3f(&XAxisPos, &vAxis, &c);
+            if (c.z < 0)
+                angle *= -1;
         }
-
-        [feedbackFigure updateCenter:&center radius:radius verticalAxis:vAxis initialHAngle:initialHAngle initialVAngle:initialVAngle];
-        [feedbackFigure updateHorizontalAngle:0 verticalAngle:0];
+        
+        Grid* grid = [[windowController options] grid];
+        if ([grid snap]) {
+            angle = [grid snapAngle:angle];
+            
+            TQuaternion rot;
+            setAngleAndAxisQ(&rot, angle, &ZAxisPos);
+            rotateQ(&rot, &XAxisPos, &vAxis);
+        }
+        
+        [feedbackFigure setDragging:NO];
+        [feedbackFigure setCenter:&center radius:radius];
+        [feedbackFigure setVerticalAxis:&vAxis];
+        [feedbackFigure setHorizontalAngle:0 verticalAngle:0];
         
         Renderer* renderer = [windowController renderer];
         [renderer addFeedbackFigure:feedbackFigure];
+        
+        delta = NSMakePoint(0, 0);
     }
 }
 
@@ -104,10 +105,26 @@ static float M_PI_12 = M_PI / 12;
     SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager selectionBounds:&bounds]) {
         centerOfBounds(&bounds, &center);
-        radius = distanceOfPointAndRay(&center, ray);
         
-        [feedbackFigure updateCenter:&center radius:radius verticalAxis:vAxis initialHAngle:initialHAngle initialVAngle:initialVAngle];
-        [feedbackFigure updateHorizontalAngle:0 verticalAngle:0];
+        delta.x += event.deltaX;
+        delta.y += event.deltaY;
+        
+        float angle = delta.x / 50;
+        Grid* grid = [[windowController options] grid];
+        if ([grid snap])
+            angle = [grid snapAngle:angle];
+
+        if (angle != 0) {
+            TQuaternion rot;
+            setAngleAndAxisQ(&rot, angle, &ZAxisPos);
+            rotateQ(&rot, &vAxis, &vAxis);
+            [feedbackFigure setVerticalAxis:&vAxis];
+            
+            Renderer* renderer = [windowController renderer];
+            [renderer updateFeedbackFigure:feedbackFigure];
+
+            delta.x = 0;
+        }
     }
 }
 
@@ -147,20 +164,19 @@ static float M_PI_12 = M_PI / 12;
         hAngle = hSteps * M_PI_12;
         vAngle = vSteps * M_PI_12;
     }
-    
-    [feedbackFigure updateHorizontalAngle:hAngle verticalAngle:vAngle];
+
     
     if (hAngle != lastHAngle || vAngle != lastVAngle) {
         TQuaternion rotation;
         if (hAngle != 0 && vAngle != 0) {
             TQuaternion hRotation, vRotation;
             setAngleAndAxisQ(&hRotation, hAngle, &ZAxisPos);
-            setAngleAndAxisQ(&vRotation, vAngle, vAxis == A_X ? &XAxisPos : &YAxisNeg);
+            setAngleAndAxisQ(&vRotation, vAngle, &vAxis);
             mulQ(&hRotation, &vRotation, &rotation);
         } else if (hAngle != 0) {
             setAngleAndAxisQ(&rotation, hAngle, &ZAxisPos);
         } else {
-            setAngleAndAxisQ(&rotation, vAngle, vAxis == A_X ? &XAxisPos : &YAxisNeg);
+            setAngleAndAxisQ(&rotation, vAngle, &vAxis);
         }
         
         MapDocument* map = [windowController document];

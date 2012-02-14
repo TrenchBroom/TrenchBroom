@@ -1247,13 +1247,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager beginUndoGrouping];
 
     SelectionManager* selectionManager = [map selectionManager];
-    [selectionManager removeAll:YES];
     
     NSMutableArray* newEntities = [[NSMutableArray alloc] init];
     NSMutableArray* newBrushes = [[NSMutableArray alloc] init];
     
     switch (contents) {
         case CC_ENT: {
+            [selectionManager removeAll:YES];
             NSEnumerator* entityEn = [mapObjects objectEnumerator];
             id <Entity> entity;
             while ((entity = [entityEn nextObject])) {
@@ -1275,6 +1275,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             break;
         }
         case CC_BRUSH: {
+            [selectionManager removeAll:YES];
             id <Entity> worldspawn = [map worldspawn:YES];
             NSEnumerator* brushEn = [mapObjects objectEnumerator];
             id <Brush> brush;
@@ -1285,6 +1286,23 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             break;
         }
         case CC_FACE: {
+            NSArray* faces;
+            if ([selectionManager mode] == SM_BRUSHES)
+                faces = [selectionManager selectedBrushFaces];
+            else if ([selectionManager mode] == SM_FACES)
+                faces = [selectionManager selectedFaces];
+            else
+                return;
+            
+            id <Face> source = [mapObjects lastObject];
+            [map setFaces:faces texture:[source texture]];
+            if (([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask) {
+                [map setFaces:faces xOffset:[source xOffset]];
+                [map setFaces:faces yOffset:[source yOffset]];
+                [map setFaces:faces xScale:[source xScale]];
+                [map setFaces:faces yScale:[source yScale]];
+                [map setFaces:faces rotation:[source rotation]];
+            }
             break;
         }
             
@@ -1292,27 +1310,29 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             break;
     }
     
-    [selectionManager addEntities:newEntities record:YES];
-    [selectionManager addBrushes:newBrushes record:YES];
-    
-    if (([NSEvent modifierFlags] & NSAlternateKeyMask) == 0) {
-        TBoundingBox bounds;
-        [selectionManager selectionBounds:&bounds];
+    if (contents != CC_FACE) {
+        [selectionManager addEntities:newEntities record:YES];
+        [selectionManager addBrushes:newBrushes record:YES];
         
-        TVector3f oldCenter;
-        centerOfBounds(&bounds, &oldCenter);
-        
-        TVector3f newCenter = [camera defaultPoint];
-        [[options grid] snapToGridV3f:&newCenter result:&newCenter];
-        
-        TVector3f deltaf;
-        subV3f(&newCenter, &oldCenter, &deltaf);
-        
-        TVector3i deltai;
-        roundV3f(&deltaf, &deltai);
-        
-        [map translateEntities:newEntities delta:deltai];
-        [map translateBrushes:newBrushes delta:deltai lockTextures:[options lockTextures]];
+        if (([NSEvent modifierFlags] & NSAlternateKeyMask) == 0) {
+            TBoundingBox bounds;
+            [selectionManager selectionBounds:&bounds];
+            
+            TVector3f oldCenter;
+            centerOfBounds(&bounds, &oldCenter);
+            
+            TVector3f newCenter = [camera defaultPoint];
+            [[options grid] snapToGridV3f:&newCenter result:&newCenter];
+            
+            TVector3f deltaf;
+            subV3f(&newCenter, &oldCenter, &deltaf);
+            
+            TVector3i deltai;
+            roundV3f(&deltaf, &deltai);
+            
+            [map translateEntities:newEntities delta:deltai];
+            [map translateBrushes:newBrushes delta:deltai lockTextures:[options lockTextures]];
+        }
     }
     
     [undoManager setActionName:@"Paste Objects"];

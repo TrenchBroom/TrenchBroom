@@ -2075,97 +2075,77 @@ float searchForMinOffset(const TPlane* p, const TVector3f* d, float f, TVector3i
 void makePointsForPlane2(const TPlane* p, const TBoundingBox* m, TVector3i* p1, TVector3i* p2, TVector3i* p3) {
     EAxis projAxis = strongestComponentV3f(&p->norm);
     float curDist, prevDist;
-    int i;
 
     TVector3i curPoint, prevPoint;
     
-    const TVector3f* searchDir1[2];
-    const TVector3f* searchDir2[2];
-    const TVector3f* searchDir3[2];
+    TVector3i* points[] = {p1, p2, p3};
+    const TVector3f* searchDir[3][2];
     
     switch (projAxis) {
         case A_X:
             if (p->norm.x > 0) {
-                searchDir1[0] = &YAxisPos;
-                searchDir1[1] = &ZAxisPos;
-                searchDir2[0] = &YAxisNeg;
-                searchDir2[1] = &ZAxisPos;
-                searchDir3[0] = &ZAxisPos;
-                searchDir3[1] = &YAxisPos;
+                searchDir[0][0] = &YAxisPos;
+                searchDir[0][1] = &ZAxisPos;
+                searchDir[1][0] = &YAxisNeg;
+                searchDir[1][1] = &ZAxisPos;
+                searchDir[2][0] = &ZAxisPos;
+                searchDir[2][1] = &YAxisNeg;
             } else {
-                searchDir1[0] = &YAxisNeg;
-                searchDir1[1] = &ZAxisPos;
-                searchDir2[0] = &YAxisPos;
-                searchDir2[1] = &ZAxisPos;
-                searchDir3[0] = &ZAxisPos;
-                searchDir3[1] = &YAxisPos;
+                searchDir[0][0] = &YAxisNeg;
+                searchDir[0][1] = &ZAxisPos;
+                searchDir[1][0] = &YAxisPos;
+                searchDir[1][1] = &ZAxisPos;
+                searchDir[2][0] = &ZAxisPos;
+                searchDir[2][1] = &YAxisNeg;
             }
             break;
         case A_Y:
             if (p->norm.y > 0) {
-                searchDir1[0] = &XAxisNeg;
-                searchDir1[1] = &ZAxisPos;
-                searchDir2[0] = &XAxisPos;
-                searchDir2[1] = &ZAxisPos;
-                searchDir3[0] = &ZAxisPos;
-                searchDir3[1] = &XAxisPos;
+                searchDir[0][0] = &XAxisNeg;
+                searchDir[0][1] = &ZAxisPos;
+                searchDir[1][0] = &XAxisPos;
+                searchDir[1][1] = &ZAxisPos;
+                searchDir[2][0] = &ZAxisPos;
+                searchDir[2][1] = &XAxisNeg;
             } else {
-                searchDir1[0] = &XAxisPos;
-                searchDir1[1] = &ZAxisPos;
-                searchDir2[0] = &XAxisNeg;
-                searchDir2[1] = &ZAxisPos;
-                searchDir3[0] = &ZAxisPos;
-                searchDir3[1] = &XAxisPos;
+                searchDir[0][0] = &XAxisPos;
+                searchDir[0][1] = &ZAxisPos;
+                searchDir[1][0] = &XAxisNeg;
+                searchDir[1][1] = &ZAxisPos;
+                searchDir[2][0] = &ZAxisPos;
+                searchDir[2][1] = &XAxisNeg;
             }
             break;
         default:
             if (p->norm.z > 0) {
-                searchDir1[0] = &XAxisPos;
-                searchDir1[1] = &YAxisPos;
-                searchDir2[0] = &XAxisNeg;
-                searchDir2[1] = &YAxisNeg;
-                searchDir3[0] = &YAxisPos;
-                searchDir3[1] = &XAxisPos;
+                searchDir[0][0] = &XAxisPos;
+                searchDir[0][1] = &YAxisPos;
+                searchDir[1][0] = &XAxisNeg;
+                searchDir[1][1] = &YAxisNeg;
+                searchDir[2][0] = &YAxisPos;
+                searchDir[2][1] = &XAxisNeg;
             } else {
-                searchDir1[0] = &XAxisNeg;
-                searchDir1[1] = &YAxisNeg;
-                searchDir2[0] = &XAxisPos;
-                searchDir2[1] = &YAxisPos;
-                searchDir3[0] = &YAxisPos;
-                searchDir3[1] = &XAxisPos;
+                searchDir[0][0] = &XAxisNeg;
+                searchDir[0][1] = &YAxisNeg;
+                searchDir[1][0] = &XAxisPos;
+                searchDir[1][1] = &YAxisPos;
+                searchDir[2][0] = &YAxisPos;
+                searchDir[2][1] = &XAxisNeg;
             }
             break;
     }
     
-    i = 0;
-    roundV3f(&p->point, &curPoint);
-    curDist = searchForMinOffset(p, searchDir1[i++ % 2], 100, &curPoint);
-    do {
-        prevDist = curDist;
-        prevPoint = curPoint;
-        curDist = searchForMinOffset(p, searchDir1[i++ % 2], 1, &curPoint);
-    } while (curDist < prevDist);
-    *p1 = prevPoint;
-    
-    i = 0;
-    roundV3f(&p->point, &curPoint);
-    curDist = searchForMinOffset(p, searchDir2[i++ % 2], 100, &curPoint);
-    do {
-        prevDist = curDist;
-        prevPoint = curPoint;
-        curDist = searchForMinOffset(p, searchDir2[i++ % 2], 100, &curPoint);
-    } while (curDist < prevDist);
-    *p2 = prevPoint;
-    
-    i = 0;
-    roundV3f(&p->point, &curPoint);
-    curDist = searchForMinOffset(p, searchDir3[i++ % 2], 100, &curPoint);
-    do {
-        prevDist = curDist;
-        prevPoint = curPoint;
-        curDist = searchForMinOffset(p, searchDir3[i++ % 2], 100, &curPoint);
-    } while (curDist < prevDist);
-    *p3 = prevPoint;
+    for (int i = 0; i < 3; i++) {
+        int j = 0;
+        roundV3f(&p->point, &curPoint);
+        curDist = searchForMinOffset(p, searchDir[i][j++ % 2], 100, &curPoint);
+        do {
+            prevDist = curDist;
+            prevPoint = curPoint;
+            curDist = searchForMinOffset(p, searchDir[i][j++ % 2], 1, &curPoint);
+        } while (curDist < prevDist);
+        *points[i] = prevPoint;
+    }
 }
 
 void makePointsForPlane(const TPlane* p, const TBoundingBox* m, TVector3i* p1, TVector3i* p2, TVector3i* p3) {

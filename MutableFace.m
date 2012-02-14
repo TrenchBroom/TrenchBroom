@@ -672,18 +672,29 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 }
 
 - (void)dragBy:(float)dist lockTexture:(BOOL)lockTexture {
-    TVector3f delta;
-    scaleV3f([self norm], dist, &delta);
+    TVector3f deltaf;
+    TVector3i deltai;
+    const TVector3f* axis;
+    scaleV3f([self norm], dist, &deltaf);
+    
+    axis = firstAxisV3f([self norm]);
+    int d = roundf(dotV3f(&deltaf, axis));
+
+    deltaf = *axis;
+    scaleV3f(&deltaf, d, &deltaf);
+    roundV3f(&deltaf, &deltai);
     
     if (lockTexture) {
         TMatrix4f t;
-        translateM4f(&IdentityM4f, &delta, &t);
+        translateM4f(&IdentityM4f, &deltaf, &t);
         [self updateTextureParametersForTransformation:&t];
     }
 
     TPlane plane = *[self boundary];
-    addV3f(&plane.point, &delta, &plane.point);
-    makePointsForPlane(&plane, worldBounds, &point1, &point2, &point3);
+    addV3f(&plane.point, &deltaf, &plane.point);
+    addV3i(&point1, &deltai, &point1);
+    addV3i(&point2, &deltai, &point2);
+    addV3i(&point3, &deltai, &point3);
     
     [self invalidate];
 }

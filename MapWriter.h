@@ -26,7 +26,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     @private
     id <Map> map;
     SelectionManager* selection;
-    void* buffer;
 }
 
 - (id)initWithMap:(id <Map>)theMap;

@@ -72,6 +72,7 @@ extern NSString* const RendererChanged;
 
 - (void)addFeedbackFigure:(id <Figure>)theFigure;
 - (void)removeFeedbackFigure:(id <Figure>)theFigure;
+- (void)updateFeedbackFigure:(id <Figure>)theFigure;
 
 - (void)render;
 

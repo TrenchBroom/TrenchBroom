@@ -57,6 +57,10 @@ int const GridMinSize = 0;
     return 1;
 }
 
+- (float)actualRotAngle {
+    return 15 * M_PI / 180;
+}
+
 - (BOOL)draw {
     return draw;
 }
@@ -149,6 +153,11 @@ int const GridMinSize = 0;
     if (s == f)
         s -= actualSize;
     return s;
+}
+
+- (float)snapAngle:(float)a {
+    float r = 10000 * [self actualRotAngle];
+    return ((int)(10000 * a / r)) * r / 10000;
 }
 
 - (void)snapToGridV3f:(const TVector3f *)vector result:(TVector3f *)result {

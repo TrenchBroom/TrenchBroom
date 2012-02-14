@@ -41,6 +41,7 @@ extern int const GridMinSize;
 - (int)size;
 - (float)alpha;
 - (int)actualSize;
+- (float)actualRotAngle;
 - (BOOL)draw;
 - (BOOL)snap;
 
@@ -54,6 +55,7 @@ extern int const GridMinSize;
 - (float)snapToGridf:(float)f;
 - (float)snapUpToGridf:(float)f;
 - (float)snapDownToGridf:(float)f;
+- (float)snapAngle:(float)a;
 
 - (void)snapToGridV3f:(const TVector3f *)vector result:(TVector3f *)result;
 - (void)snapToFarthestGridV3f:(const TVector3f *)vector result:(TVector3f *)result;

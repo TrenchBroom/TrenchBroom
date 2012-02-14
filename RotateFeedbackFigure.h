@@ -26,17 +26,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @interface RotateFeedbackFigure : NSObject <Figure> {
 @private
     TVector3f center;
-    EAxis vAxis;
+    TVector3f vAxis;
     float hAngle;
     float vAngle;
     BOOL drag;
     float radius;
-    float initialHAngle;
-    float initialVAngle;
 }
 
-- (void)updateCenter:(TVector3f *)theCenter radius:(float)theRadius verticalAxis:(EAxis)theVerticalAxis initialHAngle:(float)theInitialHAngle initialVAngle:(float)theInitialVAngle;
+- (void)setCenter:(const TVector3f *)theCenter radius:(float)theRadius;
+- (void)setVerticalAxis:(const TVector3f *)theVerticalAxis;
 - (void)setDragging:(BOOL)isDragging;
-- (void)updateHorizontalAngle:(float)theHAngle verticalAngle:(float)theVAngle;
+- (void)setHorizontalAngle:(float)theHAngle verticalAngle:(float)theVAngle;
 
 @end

@@ -29,11 +29,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     RotateFeedbackFigure* feedbackFigure;
     BOOL drag;
     TVector3f center;
-    EAxis vAxis;
+    TVector3f vAxis;
     float radius;
     NSPoint delta;
-    float initialHAngle;
-    float initialVAngle;
     float lastHAngle;
     float lastVAngle;
 }
