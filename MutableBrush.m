@@ -456,9 +456,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSAssert(theTemplate != nil, @"template must not be nil");
     NSAssert([brushId isEqualTo:[theTemplate brushId]], @"brush id must be equal");
     
-    [faces removeAllObjects];
-    [faces addObjectsFromArray:[theTemplate faces]];
     [self invalidateVertexData];
+    [faces removeAllObjects];
+    
+    NSEnumerator* faceEn = [[theTemplate faces] objectEnumerator];
+    id <Face> face;
+    while ((face = [faceEn nextObject])) {
+        MutableFace* copy = [face copy];
+        [faces addObject:copy];
+        [copy setBrush:self];
+        [copy release];
+    }
 }
 
 - (NSString *)description {

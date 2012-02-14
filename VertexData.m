@@ -1871,7 +1871,7 @@ int splitAndDragEdge(TVertexData* vd, int e, const TVector3f d, NSMutableArray* 
         TEdge* edge = vd->edges.items[i];
         if ((equalV3f(&edge->startVertex->position, &edgeVertices[0]) && equalV3f(&edge->endVertex->position, &edgeVertices[1])) ||
             (equalV3f(&edge->startVertex->position, &edgeVertices[1]) && equalV3f(&edge->endVertex->position, &edgeVertices[0]))) {
-            result = i;
+            result = vd->vertices.count + i;
         }
     }
     
@@ -1976,7 +1976,7 @@ int splitAndDragSide(TVertexData* vd, int s, const TVector3f d, NSMutableArray* 
                     k++;
                 
                 if (k == sideVertexCount)
-                    result = i;
+                    result = vd->vertices.count + vd->edges.count + i;
             }
         }
     }

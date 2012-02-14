@@ -144,8 +144,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSAssert(theBrushes != nil, @"face array must not be nil");
     NSAssert([theSnapshot count] == [theBrushes count], @"snapshot must contain the same number of items as brush array");
 
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:theBrushes ofBrushes:theSnapshot];
+    [self makeUndoSnapshotOfBrushes:theBrushes];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -153,7 +152,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [userInfo setObject:theBrushes forKey:BrushesKey];
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillBeRemoved object:self userInfo:userInfo];
+        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
     }
 
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
@@ -163,27 +162,12 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
     while ((brush = [brushEn nextObject]) && (snapshot = [snapshotEn nextObject])) {
         NSAssert([brush brushId] == [snapshot brushId], @"brush and snapshot must have the same id");
-
-        MutableEntity* entity = [brush entity];
-        [entity addBrush:snapshot];
-        
-        if ([selectionManager isBrushSelected:brush]) {
-            [selectionManager removeBrush:brush record:NO];
-            [selectionManager addBrush:snapshot record:NO];
-        }
-        
-        [entity removeBrush:brush];
-        [brush setEntity:entity];
+        [brush restore:snapshot];
     }
     
     if ([self postNotifications]) {
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWereRemoved object:self userInfo:userInfo];
-        [userInfo release];
-        
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theSnapshot forKey:BrushesKey];
-        [center postNotificationName:BrushesAdded object:self userInfo:userInfo];
+        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
 }

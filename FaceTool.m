@@ -34,47 +34,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @interface FaceTool (private)
 
-- (BOOL)isApplyTextureAndFlagsModifierPressed;
-- (BOOL)isApplyTextureModifierPressed;
 - (BOOL)isFrontFaceModifierPressed;
-
-- (void)applyTextureFrom:(id <Face>)source toFace:(id <Face>)destination;
-- (void)applyFlagsFrom:(id <Face>)source toFace:(id <Face>)destination;
 
 @end
 
 @implementation FaceTool (private)
 
-- (BOOL)isApplyTextureAndFlagsModifierPressed {
-    return keyStatus = (KS_OPTION | KS_COMMAND);
-}
-
-- (BOOL)isApplyTextureModifierPressed {
-    return keyStatus == KS_OPTION;
-}
-
 - (BOOL)isFrontFaceModifierPressed {
     return keyStatus == KS_COMMAND;
-}
-
-- (void)applyTextureFrom:(id <Face>)source toFace:(id <Face>)destination {
-    MapDocument* map = [windowController document];
-
-    NSArray* faceArray = [[NSArray alloc] initWithObjects:destination, nil];
-    [map setFaces:faceArray texture:[source texture]];
-    [faceArray release];
-}
-
-- (void)applyFlagsFrom:(id <Face>)source toFace:(id <Face>)destination {
-    MapDocument* map = [windowController document];
-
-    NSArray* faceArray = [[NSArray alloc] initWithObjects:destination, nil];
-    [map setFaces:faceArray xOffset:[source xOffset]];
-    [map setFaces:faceArray yOffset:[source yOffset]];
-    [map setFaces:faceArray xScale:[source xScale]];
-    [map setFaces:faceArray yScale:[source yScale]];
-    [map setFaces:faceArray rotation:[source rotation]];
-    [faceArray release];
 }
 
 @end
@@ -100,48 +67,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)theKeyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {
     keyStatus = theKeyStatus;
-}
-
-- (void)handleLeftMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (![self isApplyTextureModifierPressed] && ![self isApplyTextureAndFlagsModifierPressed])
-        return;
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-    NSArray* selectedFaces = [selectionManager selectedFaces];
-    if ([selectedFaces count] != 1)
-        return;
-    
-    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
-    id <Face> target = [hit object];
-    NSMutableArray* targetArray = [[NSMutableArray alloc] init];
-    
-    if ([event clickCount] == 1) {
-        [targetArray addObject:target];
-    } else if ([event clickCount] == 2) {
-        id <Brush> brush = [target brush];
-        [targetArray addObjectsFromArray:[brush faces]];
-    }
-
-    if ([targetArray count] > 0) {
-        MapDocument* map = [windowController document];
-        NSUndoManager* undoManager = [map undoManager];
-        [undoManager beginUndoGrouping];
-        
-        id <Face> source = [[selectedFaces objectEnumerator] nextObject];
-        [map setFaces:targetArray texture:[source texture]];
-        if ([self isApplyTextureAndFlagsModifierPressed]) {
-            [map setFaces:targetArray xOffset:[source xOffset]];
-            [map setFaces:targetArray yOffset:[source yOffset]];
-            [map setFaces:targetArray xScale:[source xScale]];
-            [map setFaces:targetArray yScale:[source yScale]];
-            [map setFaces:targetArray rotation:[source rotation]];
-        }
-        
-        [undoManager setActionName:@"Copy Face"];
-        [undoManager endUndoGrouping];
-    }
-            
-    [targetArray release];
 }
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

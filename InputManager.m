@@ -53,8 +53,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (BOOL)isCameraModifierPressed;
 - (BOOL)isCameraOrbitModifierPressed;
-- (BOOL)isApplyTextureModifierPressed;
-- (BOOL)isApplyTextureAndFlagsModifierPressed;
 - (BOOL)isRotateModifierPressed;
 - (BOOL)isFaceDragModifierPressed;
 - (BOOL)isSplitModifierPressed;
@@ -81,16 +79,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return keyStatus == (KS_SPACE | KS_OPTION);
 }
 
-- (BOOL)isApplyTextureModifierPressed {
-    return keyStatus == KS_OPTION;
-}
-
-- (BOOL)isApplyTextureAndFlagsModifierPressed {
-    return keyStatus == (KS_OPTION | KS_COMMAND);
-}
-
 - (BOOL)isRotateModifierPressed {
-    return keyStatus == (KS_OPTION | KS_COMMAND);
+    return NO;
+//    return keyStatus == (KS_OPTION | KS_COMMAND);
 }
 
 - (BOOL)isFaceDragModifierPressed {
@@ -179,11 +170,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             }
         }
     } 
-    
-    if ((newActiveTool == nil && (dragStatus == MS_LEFT && [selectionManager mode] == SM_FACES)) || 
-               ([selectionManager mode] == SM_FACES && [[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed]))) {
-        newActiveTool = faceTool;
-    }
     
     if (newActiveTool == nil && dragStatus == MS_LEFT && [selectionManager mode] == SM_UNDEFINED) {
         newActiveTool = createBrushTool;
