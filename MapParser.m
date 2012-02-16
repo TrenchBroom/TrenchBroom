@@ -70,7 +70,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
 }
 
 - (MutableFace *)parseFace:(int)filePosition textureManager:(TextureManager *)textureManager worldBounds:(const TBoundingBox *)worldBounds {
-    TVector3i p1, p2, p3;
+    TVector3f p1, p2, p3;
     
     MapToken* token = [self nextToken];
     [self expect:TT_DEC | TT_FRAC actual:token];
@@ -191,8 +191,7 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     [self expect:TT_DEC | TT_FRAC actual:token];
     float yScale = [[token data] floatValue];
     
-    MutableFace* face = [[MutableFace alloc] initWithWorldBounds:worldBounds];
-    [face setPoint1:&p1 point2:&p2 point3:&p3];
+    MutableFace* face = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3];
     [face setTexture:texture];
     [face setXOffset:xOffset];
     [face setYOffset:yOffset];

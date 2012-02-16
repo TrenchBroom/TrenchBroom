@@ -681,14 +681,14 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 }
 
-- (void)translateEntities:(NSArray *)theEntities delta:(TVector3i)theDelta {
+- (void)translateEntities:(NSArray *)theEntities delta:(TVector3f)theDelta {
     NSAssert(theEntities != nil, @"entity set must not be nil");
     
     if ([theEntities count] == 0)
         return;
 
-    TVector3i inverse;
-    scaleV3i(&theDelta, -1, &inverse);
+    TVector3f inverse;
+    scaleV3f(&theDelta, -1, &inverse);
     
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] translateEntities:[[theEntities copy] autorelease] delta:inverse];
@@ -714,7 +714,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 }
 
-- (void)rotateEntities90CW:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter {
+- (void)rotateEntities90CW:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3f)theCenter {
     NSAssert(theEntities != nil, @"entity set must not be nil");
 
     if ([theEntities count] == 0)
@@ -744,7 +744,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 }
 
-- (void)rotateEntities90CCW:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter {
+- (void)rotateEntities90CCW:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3f)theCenter {
     NSAssert(theEntities != nil, @"entity set must not be nil");
 
     if ([theEntities count] == 0)
@@ -806,7 +806,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 }
 
-- (void)flipEntities:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3i)theCenter {
+- (void)flipEntities:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3f)theCenter {
     NSAssert(theEntities != nil, @"entity set must not be nil");
     
     if ([theEntities count] == 0)
@@ -973,14 +973,14 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 }
 
-- (void)translateBrushes:(NSArray *)theBrushes delta:(TVector3i)theDelta lockTextures:(BOOL)lockTextures {
+- (void)translateBrushes:(NSArray *)theBrushes delta:(TVector3f)theDelta lockTextures:(BOOL)lockTextures {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
         return;
 
-    TVector3i inverse;
-    scaleV3i(&theDelta, -1, &inverse);
+    TVector3f inverse;
+    scaleV3f(&theDelta, -1, &inverse);
     
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] translateBrushes:[[theBrushes copy] autorelease] delta:inverse lockTextures:lockTextures];
@@ -1007,7 +1007,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 }
 
-- (void)rotateBrushes90CW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures {
+- (void)rotateBrushes90CW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
@@ -1037,7 +1037,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 }
 
-- (void)rotateBrushes90CCW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures {
+- (void)rotateBrushes90CCW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)
@@ -1104,7 +1104,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     [undoManager endUndoGrouping];
 }
 
-- (void)flipBrushes:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3i)theCenter lockTextures:(BOOL)lockTextures {
+- (void)flipBrushes:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
     if ([theBrushes count] == 0)

@@ -43,7 +43,6 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 - (void)validateTexAxesForFaceNorm:(const TVector3f *)theNorm;
 - (const TVector3f *)texPlaneNormAndXAxis:(TVector3f *)theXAxis yAxis:(TVector3f *)theYAxis forFaceNorm:(const TVector3f *)theNorm;
 - (void)validateMatrices;
-- (void)validateBoundary;
 - (void)invalidate;
 
 - (void)updateTextureParametersForTransformation:(const TMatrix4f *)transformation;
@@ -132,14 +131,8 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     matricesValid = YES;
 }
 
-- (void)validateBoundary {
-    setPlanePointsV3i(&boundary, &point1, &point2, &point3);
-    boundaryValid = YES;
-}
-
 - (void)invalidate {
     matricesValid = NO;
-    boundaryValid = NO;
     texAxesValid = NO;
 }
 
@@ -308,10 +301,19 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     return self;
 }
 
-- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds point1:(const TVector3i *)aPoint1 point2:(const TVector3i *)aPoint2 point3:(const TVector3i *)aPoint3 texture:(Texture *)theTexture {
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds point1:(const TVector3f *)aPoint1 point2:(const TVector3f *)aPoint2 point3:(const TVector3f *)aPoint3 {
     if ((self = [self initWithWorldBounds:theWorldBounds])) {
-        [self setPoint1:aPoint1 point2:aPoint2 point3:aPoint3];
-        [self setTexture:theTexture];
+        setPlanePointsV3f(&boundary, aPoint1, aPoint2, aPoint3);
+        [self setXScale:1];
+        [self setYScale:1];
+    }
+    
+    return self;
+}
+
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds boundary:(const TPlane *)theBoundary {
+    if ((self = [self initWithWorldBounds:theWorldBounds])) {
+        boundary = *theBoundary;
         [self setXScale:1];
         [self setYScale:1];
     }
@@ -321,7 +323,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds faceTemplate:(id <Face>)theTemplate {
     if ((self = [self initWithWorldBounds:theWorldBounds])) {
-        [self setPoint1:[theTemplate point1] point2:[theTemplate point2] point3:[theTemplate point3]];
+        boundary = *[theTemplate boundary];
         [self setTexture:[theTemplate texture]];
         [self setXOffset:[theTemplate xOffset]];
         [self setYOffset:[theTemplate yOffset]];
@@ -339,7 +341,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     [result->faceId release];
     result->faceId = [faceId retain];
     result->worldBounds = worldBounds;
-    [result setPoint1:&point1 point2:&point2 point3:&point3];
+    result->boundary = boundary;
     [result setTexture:texture];
     [result setXOffset:xOffset];
     [result setYOffset:yOffset];
@@ -364,20 +366,6 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 - (void)setBrush:(MutableBrush *)theBrush {
     brush = theBrush;
 }
-
-- (void)setPoint1:(const TVector3i *)thePoint1 point2:(const TVector3i *)thePoint2 point3:(const TVector3i *)thePoint3{
-    if (equalV3i(&point1, thePoint1) &&
-        equalV3i(&point2, thePoint2) &&
-        equalV3i(&point3, thePoint3))
-        return;
-    
-    point1 = *thePoint1;
-    point2 = *thePoint2;
-    point3 = *thePoint3;
-    
-    [self invalidate];
-}
-
 
 - (void)setTexture:(Texture *)theTexture {
     if (texture != nil) {
@@ -459,118 +447,94 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     }
 }
 
-- (void)translateBy:(const TVector3i *)theDelta lockTexture:(BOOL)lockTexture {
+- (void)translateBy:(const TVector3f *)theDelta lockTexture:(BOOL)lockTexture {
     if (lockTexture) {
         TMatrix4f t;
-        TVector3f d;
-
-        setV3f(&d, theDelta);
-        translateM4f(&IdentityM4f, &d, &t);
-        
+        translateM4f(&IdentityM4f, theDelta, &t);
         [self updateTextureParametersForTransformation:&t];
     }
 
-    addV3i(&point1, theDelta, &point1);
-    addV3i(&point2, theDelta, &point2);
-    addV3i(&point3, theDelta, &point3);
+    addV3f(&boundary.point, theDelta, &boundary.point);
 
     [self invalidate];
 }
 
-- (void)rotate90CW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
+- (void)rotate90CW:(EAxis)theAxis center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture {
     if (lockTexture) {
         TMatrix4f t;
-        TVector3f d;
+        TVector3f invCenter;
 
-        setV3f(&d, theCenter);
-        translateM4f(&IdentityM4f, &d, &t);
+        translateM4f(&IdentityM4f, theCenter, &t);
         if (theAxis == A_X)
             mulM4f(&t, &RotX90CWM4f, &t);
         else if (theAxis == A_Y)
             mulM4f(&t, &RotY90CWM4f, &t);
         else
             mulM4f(&t, &RotZ90CWM4f, &t);
-        scaleV3f(&d, -1, &d);
-        translateM4f(&t, &d, &t);
+        
+        scaleV3f(theCenter, -1, &invCenter);
+        translateM4f(&t, &invCenter, &t);
         
         [self updateTextureParametersForTransformation:&t];
     }
 
-    subV3i(&point1, theCenter, &point1);
-    rotate90CWV3i(&point1, theAxis, &point1);
-    addV3i(&point1, theCenter, &point1);
-    
-    subV3i(&point2, theCenter, &point2);
-    rotate90CWV3i(&point2, theAxis, &point2);
-    addV3i(&point2, theCenter, &point2);
-    
-    subV3i(&point3, theCenter, &point3);
-    rotate90CWV3i(&point3, theAxis, &point3);
-    addV3i(&point3, theCenter, &point3);
-    
+    subV3f(&boundary.point, theCenter, &boundary.point);
+    rotate90CWV3f(&boundary.point, theAxis, &boundary.point);
+    rotate90CWV3f(&boundary.norm, theAxis, &boundary.norm);
+    addV3f(&boundary.point, theCenter, &boundary.point);
+
     [self invalidate];
 }
 
-- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
+- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture {
     if (lockTexture) {
         TMatrix4f t;
-        TVector3f d;
-        
-        setV3f(&d, theCenter);
-        translateM4f(&IdentityM4f, &d, &t);
+        TVector3f invCenter;
+
+        translateM4f(&IdentityM4f, theCenter, &t);
         if (theAxis == A_X)
             mulM4f(&t, &RotX90CCWM4f, &t);
         else if (theAxis == A_Y)
             mulM4f(&t, &RotY90CCWM4f, &t);
         else
             mulM4f(&t, &RotZ90CCWM4f, &t);
-        scaleV3f(&d, -1, &d);
-        translateM4f(&t, &d, &t);
+        
+        scaleV3f(theCenter, -1, &invCenter);
+        translateM4f(&t, &invCenter, &t);
         
         [self updateTextureParametersForTransformation:&t];
     }
     
-    subV3i(&point1, theCenter, &point1);
-    rotate90CCWV3i(&point1, theAxis, &point1);
-    addV3i(&point1, theCenter, &point1);
-    
-    subV3i(&point2, theCenter, &point2);
-    rotate90CCWV3i(&point2, theAxis, &point2);
-    addV3i(&point2, theCenter, &point2);
-    
-    subV3i(&point3, theCenter, &point3);
-    rotate90CCWV3i(&point3, theAxis, &point3);
-    addV3i(&point3, theCenter, &point3);
+    subV3f(&boundary.point, theCenter, &boundary.point);
+    rotate90CCWV3f(&boundary.point, theAxis, &boundary.point);
+    rotate90CCWV3f(&boundary.norm, theAxis, &boundary.norm);
+    addV3f(&boundary.point, theCenter, &boundary.point);
     
     [self invalidate];
 }
 
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture {
     if (lockTexture) {
-        TVector3f d;
         TMatrix4f t;
+        TVector3f invCenter;
 
-        d = *theCenter;
-        translateM4f(&IdentityM4f, &d, &t);
+        translateM4f(&IdentityM4f, theCenter, &t);
         rotateM4fQ(&t, theRotation, &t);
-        scaleV3f(&d, -1, &d);
-        translateM4f(&t, &d, &t);
+        scaleV3f(theCenter, -1, &invCenter);
+        translateM4f(&t, &invCenter, &t);
         
         [self updateTextureParametersForTransformation:&t];
     }
 
-    TPlane plane = *[self boundary];
-    subV3f(&plane.point, theCenter, &plane.point);
-    rotateQ(theRotation, &plane.point, &plane.point);
-    rotateQ(theRotation, &plane.norm, &plane.norm);
-    addV3f(&plane.point, theCenter, &plane.point);
-    
-    makePointsForPlane(&plane, worldBounds, &point1, &point2, &point3);
+    subV3f(&boundary.point, theCenter, &boundary.point);
+    rotateQ(theRotation, &boundary.point, &boundary.point);
+    rotateQ(theRotation, &boundary.norm, &boundary.norm);
+    addV3f(&boundary.point, theCenter, &boundary.point);
     
     [self invalidate];
 }
 
-- (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture {
+- (void)flipAxis:(EAxis)theAxis center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture {
     switch (theAxis) {
         case A_X: {
             if (lockTexture) {
@@ -589,17 +553,10 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
                 [self updateTextureParametersForTransformation:&t1];
             }
             
-            point1.x -= theCenter->x;
-            point1.x *= -1;
-            point1.x += theCenter->x;
-            
-            point2.x -= theCenter->x;
-            point2.x *= -1;
-            point2.x += theCenter->x;
-            
-            point3.x -= theCenter->x;
-            point3.x *= -1;
-            point3.x += theCenter->x;
+            boundary.point.x -= theCenter->x;
+            boundary.point.x *= -1;
+            boundary.point.x += theCenter->x;
+            boundary.norm.x *= -1;
             break;
         }
         case A_Y: {
@@ -619,17 +576,10 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
                 [self updateTextureParametersForTransformation:&t1];
             }
 
-            point1.y -= theCenter->y;
-            point1.y *= -1;
-            point1.y += theCenter->y;
-            
-            point2.y -= theCenter->y;
-            point2.y *= -1;
-            point2.y += theCenter->y;
-            
-            point3.y -= theCenter->y;
-            point3.y *= -1;
-            point3.y += theCenter->y;
+            boundary.point.y -= theCenter->y;
+            boundary.point.y *= -1;
+            boundary.point.y += theCenter->y;
+            boundary.norm.y *= -1;
             break;
         }
         default: {
@@ -649,52 +599,22 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
                 [self updateTextureParametersForTransformation:&t1];
             }
 
-            point1.z -= theCenter->z;
-            point1.z *= -1;
-            point1.z += theCenter->z;
-            
-            point2.z -= theCenter->z;
-            point2.z *= -1;
-            point2.z += theCenter->z;
-            
-            point3.z -= theCenter->z;
-            point3.z *= -1;
-            point3.z += theCenter->z;
+            boundary.point.z -= theCenter->z;
+            boundary.point.z *= -1;
+            boundary.point.z += theCenter->z;
+            boundary.norm.z *= -1;
             break;
         }
     }
-    
-    TVector3i t = point1;
-    point1 = point3;
-    point3 = t;
     
     [self invalidate];
 }
 
 - (void)dragBy:(float)dist lockTexture:(BOOL)lockTexture {
     TVector3f deltaf;
-    TVector3i deltai;
-    const TVector3f* axis;
     scaleV3f([self norm], dist, &deltaf);
     
-    axis = firstAxisV3f([self norm]);
-    int d = roundf(dotV3f(&deltaf, axis));
-
-    deltaf = *axis;
-    scaleV3f(&deltaf, d, &deltaf);
-    roundV3f(&deltaf, &deltai);
-    
-    if (lockTexture) {
-        TMatrix4f t;
-        translateM4f(&IdentityM4f, &deltaf, &t);
-        [self updateTextureParametersForTransformation:&t];
-    }
-
-    TPlane plane = *[self boundary];
-    addV3f(&plane.point, &deltaf, &plane.point);
-    addV3i(&point1, &deltai, &point1);
-    addV3i(&point2, &deltai, &point2);
-    addV3i(&point3, &deltai, &point3);
+    addV3f(&boundary.point, &deltaf, &boundary.point);
     
     [self invalidate];
 }
@@ -705,6 +625,11 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (const TSide *)side {
     return side;
+}
+
+- (void)setBoundary:(const TPlane *)theBoundary {
+    NSAssert(theBoundary != NULL, @"boundary must not be NULL");
+    boundary = *theBoundary;
 }
 
 - (int)filePosition {
@@ -718,10 +643,8 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 - (void)restore:(id <Face>)theTemplate {
     NSAssert(theTemplate != nil, @"template must not be nil");
     NSAssert([faceId isEqual:[theTemplate faceId]], @"face id must be equal");
-    
-    point1 = *[theTemplate point1];
-    point2 = *[theTemplate point2];
-    point3 = *[theTemplate point3];
+
+    boundary = *[theTemplate boundary];
     xOffset = [theTemplate xOffset];
     yOffset = [theTemplate yOffset];
     xScale = [theTemplate xScale];
@@ -732,17 +655,8 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"ID: %i, point 1: %i %i %i, point 2: %i %i %i, point 3: %i %i %i, texture: %@, X offset: %f, Y offset: %f, rotation: %f, X scale: %f, Y scale: %f", 
+    return [NSString stringWithFormat:@"ID: %i, texture: %@, X offset: %f, Y offset: %f, rotation: %f, X scale: %f, Y scale: %f", 
             [faceId intValue], 
-            point1.x, 
-            point1.y, 
-            point1.z, 
-            point2.x, 
-            point2.y, 
-            point2.z, 
-            point3.x, 
-            point3.y, 
-            point3.z, 
             texture, 
             xOffset, 
             yOffset, 
@@ -760,18 +674,6 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (id <Brush>)brush {
     return brush;
-}
-
-- (TVector3i *)point1 {
-	return &point1;
-}
-
-- (TVector3i *)point2 {
-	return &point2;
-}
-
-- (TVector3i *)point3 {
-	return &point3;
 }
 
 - (Texture *)texture {
@@ -803,8 +705,6 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 }
 
 - (const TPlane *)boundary {
-    if (!boundaryValid)
-        [self validateBoundary];
     return &boundary;
 }
 

@@ -38,8 +38,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)position:(TVector3f *)thePosition {
-    TVector3f* ec = [entity center];
-    TBoundingBox* b = [entity bounds];
+    const TVector3f* ec = [entity center];
+    const TBoundingBox* b = [entity bounds];
     TVector3f bs;
     
     sizeOfBounds(b, &bs);

@@ -22,11 +22,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Math.h"
 
 @interface ClipPlaneFeedbackFigure : NSObject <Figure> {
-    TVector3i point1;
-    TVector3i point2;
-    TVector3i point3;
+    TVector3f point1;
+    TVector3f point2;
+    TVector3f point3;
 }
 
-- (id)initWithPoint1:(TVector3i *)thePoint1 point2:(TVector3i *)thePoint2 point3:(TVector3i *)thePoint3;
+- (id)initWithPoint1:(const TVector3f *)thePoint1 point2:(const TVector3f *)thePoint2 point3:(const TVector3f *)thePoint3;
 
 @end

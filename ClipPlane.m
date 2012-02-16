@@ -1,4 +1,4 @@
-/*
+ /*
 Copyright (C) 2010-2012 Kristian Duske
 
 This file is part of TrenchBroom.
@@ -29,7 +29,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation ClipPlane
 
-- (void)addPoint:(TVector3i *)thePoint hitList:(PickingHitList *)theHitList {
+- (void)addPoint:(TVector3f *)thePoint hitList:(PickingHitList *)theHitList {
     NSAssert(numPoints >= 0 && numPoints < 3, @"number of points must be between 0 and 3");
     
     points[numPoints] = *thePoint;
@@ -37,7 +37,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     numPoints++;
 }
 
-- (void)updatePoint:(int)index x:(int)x y:(int)y z:(int)z {
+- (void)updatePoint:(int)index x:(float)x y:(float)y z:(float)z {
     NSAssert(index >= 0 && index < numPoints, @"index out of bounds");
     
     points[index].x = x;
@@ -57,7 +57,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return numPoints;
 }
 
-- (TVector3i *)point:(int)index {
+- (TVector3f *)point:(int)index {
     NSAssert(index >= 0 && index <= numPoints, @"index out of bounds");
     
     return &points[index];
@@ -81,9 +81,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (numPoints < 2)
         return nil;
 
-    TVector3i* p1 = [self point:0];
-    TVector3i* p2 = [self point:1];
-    TVector3i* p3 = NULL;
+    TVector3f* p1 = [self point:0];
+    TVector3f* p2 = [self point:1];
+    TVector3f* p3 = NULL;
     
     if (numPoints < 3) {
         const TVector3f* norm = NULL;
@@ -126,7 +126,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             p3->x = roundf(t.x);
             p3->y = roundf(t.y);
             p3->z = roundf(t.z);
-            addV3i(p3, p1, p3);
+            addV3f(p3, p1, p3);
         }    
     } else {
         p3 = [self point:2];
@@ -140,10 +140,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     MutableFace* face = nil;
     if (front)
-        face = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:p1 point2:p2 point3:p3 texture:[template texture]];
+        face = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:p1 point2:p2 point3:p3];
     else
-        face = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:p3 point2:p2 point3:p1 texture:[template texture]];
-
+        face = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:p3 point2:p2 point3:p1];
+    
+    [face setTexture:[template texture]];
     [face setXOffset:[template xOffset]];
     [face setYOffset:[template yOffset]];
     [face setXScale:[template xScale]];

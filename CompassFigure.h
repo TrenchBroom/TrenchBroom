@@ -21,13 +21,19 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Figure.h"
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
+#import "Math.h"
 
 @class Camera;
 
 @interface CompassFigure : NSObject <Figure> {
+    TVector3f center;
     GLUquadric* arms;
     GLUquadric* disks;
     BOOL initialized;
+    float axisLength;
 }
+
+- (void)setAxisLength:(float)theAxisLength;
+- (void)setCenter:(const TVector3f *)theCenter;
 
 @end

@@ -31,13 +31,15 @@ void writeString(char* theString, int length, NSOutputStream* theStream) {
 }
 
 void writeFace(id <Face> theFace, NSOutputStream* theStream) {
-    const TVector3i* p1 = [theFace point1];
-    const TVector3i* p2 = [theFace point2];
-    const TVector3i* p3 = [theFace point3];
+    const TVertexList* vertices = [theFace vertices];
+    const TVector3f* p1 = &vertices->items[0]->position;
+    const TVector3f* p2 = &vertices->items[1]->position;
+    const TVector3f* p3 = &vertices->items[2]->position;
+
     int length = sprintf(buffer,  "( %i %i %i ) ( %i %i %i ) ( %i %i %i ) %s %i %i %f %f %f\n",
-                         p1->x, p1->y, p1->z,
-                         p2->x, p2->y, p2->z,
-                         p3->x, p3->y, p3->z,
+                         (int)p1->x, (int)p1->y, (int)p1->z,
+                         (int)p2->x, (int)p2->y, (int)p2->z,
+                         (int)p3->x, (int)p3->y, (int)p3->z,
                          [[[theFace texture] name] cStringUsingEncoding:NSASCIIStringEncoding],
                          [theFace xOffset], 
                          [theFace yOffset], 

@@ -22,6 +22,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class MapWindowController;
 @class RotateCursor;
 @class RotateFeedbackFigure;
+@class CompassFigure;
 
 @interface RotateTool : DefaultTool {
 @private

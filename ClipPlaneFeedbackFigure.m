@@ -21,7 +21,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation ClipPlaneFeedbackFigure
 
-- (id)initWithPoint1:(TVector3i *)thePoint1 point2:(TVector3i *)thePoint2 point3:(TVector3i *)thePoint3 {
+- (id)initWithPoint1:(const TVector3f *)thePoint1 point2:(const TVector3f *)thePoint2 point3:(const TVector3f *)thePoint3 {
     if ((self = [self init])) {
         point1 = *thePoint1;
         point2 = *thePoint2;

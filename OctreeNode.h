@@ -35,13 +35,13 @@ typedef enum {
 @interface OctreeNode : NSObject {
     @private
     int minSize;
-    TVector3i min;
-    TVector3i max;
+    TVector3f min;
+    TVector3f max;
     NSMutableSet* objects;
     OctreeNode* children[8];
 }
 
-- (id)initWithMin:(TVector3i *)theMin max:(TVector3i *)theMax minSize:(int)theMinSize;
+- (id)initWithMin:(const TVector3f *)theMin max:(const TVector3f *)theMax minSize:(int)theMinSize;
 
 - (BOOL)addObject:(id)theObject bounds:(const TBoundingBox *)theBounds;
 - (BOOL)removeObject:(id)theObject bounds:(const TBoundingBox *)theBounds;

@@ -22,9 +22,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation ClipPointFeedbackFigure
 
-- (id)initWithPoint:(const TVector3i *)thePoint camera:(Camera *)theCamera {
+- (id)initWithPoint:(const TVector3f *)thePoint camera:(Camera *)theCamera {
     if (self = [self init]) {
-        setV3f(&point, thePoint);
+        point = *thePoint;
         sphere = NULL;
         camera = theCamera;
     }

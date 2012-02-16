@@ -157,7 +157,7 @@ int const GridMinSize = 0;
 
 - (float)snapAngle:(float)a {
     float r = 10000 * [self actualRotAngle];
-    return ((int)(10000 * a / r)) * r / 10000;
+    return roundf(10000 * a / r) * r / 10000;
 }
 
 - (void)snapToGridV3f:(const TVector3f *)vector result:(TVector3f *)result {

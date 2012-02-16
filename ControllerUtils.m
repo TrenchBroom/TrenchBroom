@@ -88,7 +88,8 @@ BOOL calculateEntityOrigin(Grid* grid, EntityDefinition* entityDefinition, Picki
         scaleV3f(&size, 0.5f, &size);
         subV3f(&posf, &size, &posf);
         [grid snapToGridV3f:&posf result:&posf];
-        roundV3f(&posf, result);
+        roundV3f(&posf, &posf);
+        setV3i(result, &posf);
         return NO;
     }
 }

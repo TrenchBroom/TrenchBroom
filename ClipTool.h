@@ -44,7 +44,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     ClipLineFeedbackFigure* line3Figure;
     ClipPlaneFeedbackFigure* planeFigure;
     NSMutableArray* brushFigures;
-    TVector3i* currentPoint;
+    TVector3f* currentPoint;
     ClipPointFeedbackFigure* currentFigure;
     int draggedPoint;
     EditingPlaneFigure* editingPlaneFigure;

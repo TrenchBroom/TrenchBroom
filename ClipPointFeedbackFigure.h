@@ -31,6 +31,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     Camera* camera;
 }
 
-- (id)initWithPoint:(const TVector3i *)thePoint camera:(Camera *)theCamera;
+- (id)initWithPoint:(const TVector3f *)thePoint camera:(Camera *)theCamera;
 
 @end

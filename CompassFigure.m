@@ -20,15 +20,42 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "CompassFigure.h"
 #import "Camera.h"
 
-@implementation CompassFigure
+@interface CompassFigure (private)
+
+- (void)renderArm;
+
+@end
+
+@implementation CompassFigure (private)
 
 - (void)renderArm {
-    glTranslatef(0, 0, -10);
-    gluCylinder(arms, 1, 1, 20, 10, 1);
+    glTranslatef(0, 0, -axisLength);
+    gluCylinder(arms, 1, 1, 2 * axisLength, 10, 1);
     gluDisk(disks, 0, 1, 10, 1);
-    glTranslatef(0, 0, 20);
+    glTranslatef(0, 0, 2 * axisLength);
     gluCylinder(arms, 2, 0, 3, 10, 5);
     gluDisk(disks, 0, 2, 10, 1);
+}
+
+@end
+
+@implementation CompassFigure
+
+- (id)init {
+    if ((self = [super init])) {
+        center = NullVector;
+        axisLength = 10;
+    }
+    
+    return self;
+}
+
+- (void)dealloc {
+    if (initialized) {
+        gluDeleteQuadric(arms);
+        gluDeleteQuadric(disks);
+    }
+    [super dealloc];
 }
 
 - (void)render {
@@ -44,10 +71,38 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
     
     glPolygonMode(GL_FRONT, GL_FILL);
+
+    glDisable(GL_DEPTH_TEST);
+    
+    // X axis
+    glColor4f(1, 0, 0, 0.2f);
+    glPushMatrix();
+    glTranslatef(center.x, center.y, center.z);
+    glRotatef(90, 0, 1, 0);
+    [self renderArm];
+    glPopMatrix();
+    
+    // Y axis
+    glColor4f(0, 1, 0, 0.2f);
+    glPushMatrix();
+    glTranslatef(center.x, center.y, center.z);
+    glRotatef(270, 1, 0, 0);
+    [self renderArm];
+    glPopMatrix();
+
+    // Z axis
+    glColor4f(0, 0, 1, 0.2f);
+    glPushMatrix();
+    glTranslatef(center.x, center.y, center.z);
+    [self renderArm];
+    glPopMatrix();
+    
+    glEnable(GL_DEPTH_TEST);
     
     // X axis
     glColor4f(1, 0, 0, 1);
     glPushMatrix();
+    glTranslatef(center.x, center.y, center.z);
     glRotatef(90, 0, 1, 0);
     [self renderArm];
     glPopMatrix();
@@ -55,23 +110,28 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     // Y axis
     glColor4f(0, 1, 0, 1);
     glPushMatrix();
+    glTranslatef(center.x, center.y, center.z);
     glRotatef(270, 1, 0, 0);
     [self renderArm];
     glPopMatrix();
-
+    
     // Z axis
     glColor4f(0, 0, 1, 1);
     glPushMatrix();
+    glTranslatef(center.x, center.y, center.z);
     [self renderArm];
     glPopMatrix();
+    
 }
 
-- (void)dealloc {
-    if (initialized) {
-        gluDeleteQuadric(arms);
-        gluDeleteQuadric(disks);
-    }
-    [super dealloc];
+- (void)setAxisLength:(float)theAxisLength {
+    NSAssert(theAxisLength > 0, @"axis length must be positive");
+    axisLength = theAxisLength;
+}
+
+- (void)setCenter:(const TVector3f *)theCenter {
+    NSAssert(theCenter != NULL, @"center must not be NULL");
+    center = *theCenter;
 }
 
 @end

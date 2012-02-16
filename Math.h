@@ -182,10 +182,9 @@ const TVector3f* thirdAxisV3f(const TVector3f* v);
 const TVector3f* thirdAxisNegV3f(const TVector3f* v);
 float componentV3f(const TVector3f* v, EAxis a);
 void setComponentV3f(TVector3f* v, EAxis a, float f);
-void snapV3f(const TVector3f* v, TVector3f* o);
-void roundV3f(const TVector3f* v, TVector3i* o);
-void roundUpV3f(const TVector3f* v, TVector3i* o);
-void roundDownV3f(const TVector3f* v, TVector3i* o);
+void roundV3f(const TVector3f* v, TVector3f* o);
+void roundUpV3f(const TVector3f* v, TVector3f* o);
+void roundDownV3f(const TVector3f* v, TVector3f* o);
 void setV3f(TVector3f* l, const TVector3i* r);
 void rotate90CWV3f(const TVector3f* v, EAxis a, TVector3f *o);
 void rotate90CCWV3f(const TVector3f* v, EAxis a, TVector3f *o);
@@ -196,6 +195,7 @@ void avg3V3f(const TVector3f* v1, const TVector3f* v2, const TVector3f* v3, TVec
 
 void addV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
 void subV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
+void setV3i(TVector3i* l, const TVector3f* r);
 void scaleV3i(const TVector3i* v, int i, TVector3i* o);
 BOOL equalV3i(const TVector3i* l, const TVector3i* r);
 BOOL nullV3i(const TVector3i* v);
@@ -221,7 +221,6 @@ BOOL equalPlane(const TPlane* p1, const TPlane* p2);
 NSString* axisName(EAxis a);
 
 void centerOfBounds(const TBoundingBox* b, TVector3f* o);
-void roundedCenterOfBounds(const TBoundingBox* b, TVector3i* o);
 void translateBounds(const TBoundingBox* b, const TVector3f* d, TBoundingBox* o);
 void rotateBounds(const TBoundingBox* b, const TQuaternion* q, const TVector3f* c, TBoundingBox* o);
 void rotateBounds90CW(const TBoundingBox* b, EAxis a, const TVector3f* c, TBoundingBox* o);
@@ -230,7 +229,6 @@ void mergeBoundsWithPoint(const TBoundingBox* b, const TVector3f* p, TBoundingBo
 void mergeBoundsWithBounds(const TBoundingBox* b, const TBoundingBox* c, TBoundingBox* o);
 void expandBounds(const TBoundingBox* b, float f, TBoundingBox* o);
 void sizeOfBounds(const TBoundingBox* b, TVector3f* o);
-void roundedSizeOfBounds(const TBoundingBox* b, TVector3i* o);
 float radiusOfBounds(const TBoundingBox* b);
 float intersectBoundsWithRay(const TBoundingBox* b, const TRay* ray, TVector3f* n);
 BOOL boundsContainPoint(const TBoundingBox* b, const TVector3f* p);
@@ -310,7 +308,6 @@ void transformM4fV4f(const TMatrix4f* m, const TVector4f* v, TVector4f* o);
 
 void projectOntoCoordinatePlane(EPlane plane, const TVector3f* v, TVector3f* o);
 BOOL projectVectorOntoPlane(const TVector3f* planeNorm, const TVector3f* dir, const TVector3f* v, TVector3f* o);
-void makePointsForPlane(const TPlane* p, const TBoundingBox* m, TVector3i* p1, TVector3i* p2, TVector3i* p3);
 
 void makeCircle(float radius, int segments, TVector3f* points);
 void makeRing(float innerRadius, float outerRadius, int segments, TVector3f* points);

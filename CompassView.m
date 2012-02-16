@@ -41,6 +41,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)awakeFromNib {
     [super awakeFromNib];
     compassFigure = [[CompassFigure alloc] init];
+    [compassFigure setAxisLength:10];
 }
 
 - (void)dealloc {

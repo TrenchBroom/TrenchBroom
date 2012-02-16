@@ -21,7 +21,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation ClipLineFeedbackFigure
 
-- (id)initWithStartPoint:(TVector3i *)theStartPoint endPoint:(TVector3i *)theEndPoint {
+- (id)initWithStartPoint:(const TVector3f *)theStartPoint endPoint:(const TVector3f *)theEndPoint {
     if (self = [self init]) {
         startPoint = *theStartPoint;
         endPoint = *theEndPoint;

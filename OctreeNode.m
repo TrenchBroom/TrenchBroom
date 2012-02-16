@@ -22,13 +22,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @interface OctreeNode (private)
 
-- (BOOL)bounds:(const TBoundingBox *)theBounds containedInMin:(TVector3i *)theMin max:(TVector3i *)theMax;
+- (BOOL)bounds:(const TBoundingBox *)theBounds containedInMin:(TVector3f *)theMin max:(TVector3f *)theMax;
 
 @end
 
 @implementation OctreeNode (private)
 
-- (BOOL)bounds:(const TBoundingBox *)theBounds containedInMin:(TVector3i *)theMin max:(TVector3i *)theMax {
+- (BOOL)bounds:(const TBoundingBox *)theBounds containedInMin:(TVector3f *)theMin max:(TVector3f *)theMax {
     return fgte(theBounds->min.x, theMin->x)
     && fgte(theBounds->min.y, theMin->y)
     && fgte(theBounds->min.z, theMin->z)
@@ -41,7 +41,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation OctreeNode
 
-- (id)initWithMin:(TVector3i *)theMin max:(TVector3i *)theMax minSize:(int)theMinSize {
+- (id)initWithMin:(const TVector3f *)theMin max:(const TVector3f *)theMax minSize:(int)theMinSize {
     if ((self = [self init])) {
         min = *theMin;
         max = *theMax;
@@ -54,7 +54,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (BOOL)addObject:(id)theObject bounds:(const TBoundingBox *)theBounds toChild:(int)theIndex {
     if (children[theIndex] == nil) {
-        TVector3i childMin, childMax;
+        TVector3f childMin, childMax;
         switch (theIndex) {
             case CP_WSB:
                 childMin.x = min.x;

@@ -632,18 +632,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         rotateBounds90CCW(&bounds, axis, &centerf, &bounds);
     
     if (boundsContainBounds([map worldBounds], &bounds)) {
-        TVector3i centeri;
-        roundV3f(&centerf, &centeri);
+        roundV3f(&centerf, &centerf);
         
         NSUndoManager* undoManager = [map undoManager];
         [undoManager beginUndoGrouping];
         
         if (comp < 0) {
-            [map rotateBrushes90CW:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
-            [map rotateEntities90CW:[selectionManager selectedEntities] axis:axis center:centeri];
+            [map rotateBrushes90CW:[selectionManager selectedBrushes] axis:axis center:centerf lockTextures:[options lockTextures]];
+            [map rotateEntities90CW:[selectionManager selectedEntities] axis:axis center:centerf];
         } else {
-            [map rotateBrushes90CCW:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
-            [map rotateEntities90CCW:[selectionManager selectedEntities] axis:axis center:centeri];
+            [map rotateBrushes90CCW:[selectionManager selectedBrushes] axis:axis center:centerf lockTextures:[options lockTextures]];
+            [map rotateEntities90CCW:[selectionManager selectedEntities] axis:axis center:centerf];
         }
         
         [undoManager endUndoGrouping];
@@ -657,32 +656,29 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     EAxis axis;
     float comp;
-    TVector3f centerf;
+    TVector3f center;
     TBoundingBox bounds;
     
     axis = strongestComponentV3f([camera direction]);
     comp = componentV3f([camera direction], axis);
     [selectionManager selectionBounds:&bounds];
-    centerOfBounds(&bounds, &centerf);
+    centerOfBounds(&bounds, &center);
 
     if (comp > 0)
-        rotateBounds90CW(&bounds, axis, &centerf, &bounds);
+        rotateBounds90CW(&bounds, axis, &center, &bounds);
     else
-        rotateBounds90CCW(&bounds, axis, &centerf, &bounds);
+        rotateBounds90CCW(&bounds, axis, &center, &bounds);
 
     if (boundsContainBounds([map worldBounds], &bounds)) {
-        TVector3i centeri;
-        roundV3f(&centerf, &centeri);
-        
         NSUndoManager* undoManager = [map undoManager];
         [undoManager beginUndoGrouping];
         
         if (comp > 0) {
-            [map rotateBrushes90CW:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
-            [map rotateEntities90CW:[selectionManager selectedEntities] axis:axis center:centeri];
+            [map rotateBrushes90CW:[selectionManager selectedBrushes] axis:axis center:center lockTextures:[options lockTextures]];
+            [map rotateEntities90CW:[selectionManager selectedEntities] axis:axis center:center];
         } else {
-            [map rotateBrushes90CCW:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
-            [map rotateEntities90CCW:[selectionManager selectedEntities] axis:axis center:centeri];
+            [map rotateBrushes90CCW:[selectionManager selectedBrushes] axis:axis center:center lockTextures:[options lockTextures]];
+            [map rotateEntities90CCW:[selectionManager selectedEntities] axis:axis center:center];
         }
         
         [undoManager endUndoGrouping];
@@ -696,19 +692,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     EAxis axis = strongestComponentV3f([camera right]);
     
-    TVector3f centerf;
-    TVector3i centeri;
+    TVector3f center;
     TBoundingBox bounds;
 
     [selectionManager selectionBounds:&bounds];
-    centerOfBounds(&bounds, &centerf);
-    roundV3f(&centerf, &centeri);
+    centerOfBounds(&bounds, &center);
     
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    [map flipBrushes:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
-    [map flipEntities:[selectionManager selectedEntities] axis:axis center:centeri];
+    [map flipBrushes:[selectionManager selectedBrushes] axis:axis center:center lockTextures:[options lockTextures]];
+    [map flipEntities:[selectionManager selectedEntities] axis:axis center:center];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:[NSString stringWithFormat:@"flip Objects Along %@ Axis", axisName(axis)]];
@@ -720,19 +714,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     EAxis axis = strongestComponentV3f([camera up]);
     
-    TVector3f centerf;
-    TVector3i centeri;
+    TVector3f center;
     TBoundingBox bounds;
     
     [selectionManager selectionBounds:&bounds];
-    centerOfBounds(&bounds, &centerf);
-    roundV3f(&centerf, &centeri);
+    centerOfBounds(&bounds, &center);
     
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    [map flipBrushes:[selectionManager selectedBrushes] axis:axis center:centeri lockTextures:[options lockTextures]];
-    [map flipEntities:[selectionManager selectedEntities] axis:axis center:centeri];
+    [map flipBrushes:[selectionManager selectedBrushes] axis:axis center:center lockTextures:[options lockTextures]];
+    [map flipEntities:[selectionManager selectedEntities] axis:axis center:center];
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:[NSString stringWithFormat:@"flip Objects Along %@ Axis", axisName(axis)]];
@@ -841,29 +833,27 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    float delta = [[options grid] actualSize];
+    float dist = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedFaces])
-        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:delta yDelta:0];
+        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:dist yDelta:0];
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
-        TVector3f deltaf;
+        TVector3f delta;
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem xAxisPos], -delta, &deltaf);
+        scaleV3f([editingSystem xAxisPos], -dist, &delta);
 
         const TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        TVector3i deltai;
-        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:NULL];
-        roundUpV3f(&deltaf, &deltai);
-        
-        if (nullV3i(&deltai))
+        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:NULL];
+
+        if (nullV3f(&delta))
             return;
         
-        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
-        [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+        [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
+        [map translateEntities:[selectionManager selectedEntities] delta:delta];
     }
     
     [undoManager endUndoGrouping];
@@ -876,29 +866,27 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    float delta = [[options grid] actualSize];
+    float dist = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedFaces])
-        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:-delta yDelta:0];
+        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:-dist yDelta:0];
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
-        TVector3f deltaf;
+        TVector3f delta;
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem xAxisPos], delta, &deltaf);
+        scaleV3f([editingSystem xAxisPos], dist, &delta);
         
         const TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        TVector3i deltai;
-        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:NULL];
-        roundUpV3f(&deltaf, &deltai);
+        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:NULL];
         
-        if (nullV3i(&deltai))
+        if (nullV3f(&delta))
             return;
         
-        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
-        [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+        [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
+        [map translateEntities:[selectionManager selectedEntities] delta:delta];
     }
     
     [undoManager endUndoGrouping];
@@ -910,29 +898,27 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    float delta = [[options grid] actualSize];
+    float dist = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedFaces])
-        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:0 yDelta:delta];
+        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:0 yDelta:dist];
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
-        TVector3f deltaf;
+        TVector3f delta;
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem yAxisPos], delta, &deltaf);
+        scaleV3f([editingSystem yAxisPos], dist, &delta);
         
         const TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        TVector3i deltai;
-        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:NULL];
-        roundUpV3f(&deltaf, &deltai);
+        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:NULL];
         
-        if (nullV3i(&deltai))
+        if (nullV3f(&delta))
             return;
         
-        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
-        [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+        [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
+        [map translateEntities:[selectionManager selectedEntities] delta:delta];
     }
     
     [undoManager endUndoGrouping];
@@ -945,29 +931,27 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    float delta = [[options grid] actualSize];
+    float dist = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedFaces])
-        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:0 yDelta:-delta];
+        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:0 yDelta:-dist];
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
-        TVector3f deltaf;
+        TVector3f delta;
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem yAxisPos], -delta, &deltaf);
+        scaleV3f([editingSystem yAxisPos], -dist, &delta);
         
         const TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        TVector3i deltai;
-        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:NULL];
-        roundUpV3f(&deltaf, &deltai);
+        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:NULL];
         
-        if (nullV3i(&deltai))
+        if (nullV3f(&delta))
             return;
         
-        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
-        [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+        [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
+        [map translateEntities:[selectionManager selectedEntities] delta:delta];
     }
     
     [undoManager endUndoGrouping];
@@ -980,26 +964,24 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    float delta = [[options grid] actualSize];
+    float dist = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
-        TVector3f deltaf;
+        TVector3f delta;
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem zAxisPos], delta, &deltaf);
+        scaleV3f([editingSystem zAxisPos], dist, &delta);
         
         const TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        TVector3i deltai;
-        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:NULL];
-        roundUpV3f(&deltaf, &deltai);
+        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:NULL];
         
-        if (nullV3i(&deltai))
+        if (nullV3f(&delta))
             return;
         
-        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
-        [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+        [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
+        [map translateEntities:[selectionManager selectedEntities] delta:delta];
     }
     
     [undoManager endUndoGrouping];
@@ -1012,26 +994,24 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
     
-    float delta = [[options grid] actualSize];
+    float dist = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
-        TVector3f deltaf;
+        TVector3f delta;
         EditingSystem* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem zAxisPos], -delta, &deltaf);
+        scaleV3f([editingSystem zAxisPos], -dist, &delta);
         
         const TBoundingBox* worldBounds = [map worldBounds];
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
         
-        TVector3i deltai;
-        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:NULL];
-        roundUpV3f(&deltaf, &deltai);
+        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:NULL];
         
-        if (nullV3i(&deltai))
+        if (nullV3f(&delta))
             return;
         
-        [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
-        [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+        [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
+        [map translateEntities:[selectionManager selectedEntities] delta:delta];
     }
     
     [undoManager endUndoGrouping];
@@ -1324,14 +1304,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             TVector3f newCenter = [camera defaultPoint];
             [[options grid] snapToGridV3f:&newCenter result:&newCenter];
             
-            TVector3f deltaf;
-            subV3f(&newCenter, &oldCenter, &deltaf);
+            TVector3f delta;
+            subV3f(&newCenter, &oldCenter, &delta);
             
-            TVector3i deltai;
-            roundV3f(&deltaf, &deltai);
-            
-            [map translateEntities:newEntities delta:deltai];
-            [map translateBrushes:newBrushes delta:deltai lockTextures:[options lockTextures]];
+            [map translateEntities:newEntities delta:delta];
+            [map translateBrushes:newBrushes delta:delta lockTextures:[options lockTextures]];
         }
     }
     
@@ -1391,26 +1368,23 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     Grid* grid = [options grid];
     
-    TVector3f deltaf = NullVector;
+    TVector3f delta = NullVector;
     const TVector3f* cameraDirection = [camera direction];
     EAxis strongestComponent = strongestComponentV3f(cameraDirection);
-    setComponentV3f(&deltaf, strongestComponent, componentV3f(cameraDirection, strongestComponent));
-    normalizeV3f(&deltaf, &deltaf);
-    scaleV3f(&deltaf, -[grid actualSize], &deltaf);
-    [grid snapToFarthestGridV3f:&deltaf result:&deltaf];
+    setComponentV3f(&delta, strongestComponent, componentV3f(cameraDirection, strongestComponent));
+    normalizeV3f(&delta, &delta);
+    scaleV3f(&delta, -[grid actualSize], &delta);
+    [grid snapToFarthestGridV3f:&delta result:&delta];
 
     const TBoundingBox* worldBounds = [map worldBounds];
     TBoundingBox bounds;
     [selectionManager selectionBounds:&bounds];
-    if (bounds.max.x + deltaf.x > worldBounds->max.x || bounds.min.x + deltaf.x < worldBounds->min.x)
-        deltaf.x *= -1;
-    if (bounds.max.y + deltaf.y > worldBounds->max.y || bounds.min.y + deltaf.y < worldBounds->min.y)
-        deltaf.y *= -1;
-    if (bounds.max.z + deltaf.z > worldBounds->max.z || bounds.min.z + deltaf.z < worldBounds->min.z)
-        deltaf.z *= -1;
-    
-    TVector3i deltai;
-    roundV3f(&deltaf, &deltai);
+    if (bounds.max.x + delta.x > worldBounds->max.x || bounds.min.x + delta.x < worldBounds->min.x)
+        delta.x *= -1;
+    if (bounds.max.y + delta.y > worldBounds->max.y || bounds.min.y + delta.y < worldBounds->min.y)
+        delta.y *= -1;
+    if (bounds.max.z + delta.z > worldBounds->max.z || bounds.min.z + delta.z < worldBounds->min.z)
+        delta.z *= -1;
     
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
@@ -1423,8 +1397,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [selectionManager addEntities:newEntities record:YES];
     [selectionManager addBrushes:newBrushes record:YES];
 
-    [map translateEntities:newEntities delta:deltai];
-    [map translateBrushes:newBrushes delta:deltai lockTextures:[options lockTextures]];
+    [map translateEntities:newEntities delta:delta];
+    [map translateBrushes:newBrushes delta:delta lockTextures:[options lockTextures]];
     
     [newEntities release];
     [newBrushes release];
@@ -1457,11 +1431,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     addV3f(&insertPos, &offset, &insertPos);
 
-    TVector3f dist;
-    subV3f(&insertPos, [prefab center], &dist);
-    
-    TVector3i delta;
-    roundV3f(&dist, &delta);
+    TVector3f delta;
+    subV3f(&insertPos, [prefab center], &delta);
     
     NSMutableArray* newEntities = [[NSMutableArray alloc] init];
     NSMutableArray* newBrushes = [[NSMutableArray alloc] init];

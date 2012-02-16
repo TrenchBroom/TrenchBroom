@@ -55,6 +55,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         } else {
             vertexDataValid = YES;
         }
+        
+        verticesOnGrid = YES;
+        for (int i = 0; i < vertexData.vertices.count && verticesOnGrid; i++)
+            verticesOnGrid = intV3f(&vertexData.vertices.items[i]->position);
     }
     
     return &vertexData;
@@ -115,62 +119,43 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSAssert(theBrushBounds != NULL, @"brush bounds must not be NULL");
     
     if ((self = [self initWithWorldBounds:theWorldBounds])) {
-        TVector3i min, max, p1, p2, p3;
+        TPlane boundary;
         
-        roundV3f(&theBrushBounds->min, &min);
-        roundV3f(&theBrushBounds->max, &max);
-        
-        p1 = min;
-        p2 = min;
-        p2.z = max.z;
-        p3 = min;
-        p3.x = max.x;
-        MutableFace* frontFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+        boundary.point = theBrushBounds->min;
+        boundary.norm = YAxisNeg;
+        MutableFace* frontFace = [[MutableFace alloc] initWithWorldBounds:worldBounds boundary:&boundary];
+        [frontFace setTexture:theTexture];
         [self addFace:frontFace];
         [frontFace release];
-        
-        p1 = min;
-        p2 = min;
-        p2.y = max.y;
-        p3 = min;
-        p3.z = max.z;
-        MutableFace* leftFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+
+        boundary.norm = XAxisNeg;
+        MutableFace* leftFace = [[MutableFace alloc] initWithWorldBounds:worldBounds boundary:&boundary];
+        [leftFace setTexture:theTexture];
         [self addFace:leftFace];
         [leftFace release];
-        
-        p1 = min;
-        p2 = min;
-        p2.x = max.x;
-        p3 = min;
-        p3.y = max.y;
-        MutableFace* bottomFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+
+        boundary.norm = ZAxisNeg;
+        MutableFace* bottomFace = [[MutableFace alloc] initWithWorldBounds:worldBounds boundary:&boundary];
+        [bottomFace setTexture:theTexture];
         [self addFace:bottomFace];
         [bottomFace release];
-        
-        p1 = max;
-        p2 = max;
-        p2.x = min.x;
-        p3 = max;
-        p3.z = min.z;
-        MutableFace* backFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+
+        boundary.point = theBrushBounds->max;
+        boundary.norm = YAxisPos;
+        MutableFace* backFace = [[MutableFace alloc] initWithWorldBounds:worldBounds boundary:&boundary];
+        [backFace setTexture:theTexture];
         [self addFace:backFace];
         [backFace release];
-        
-        p1 = max;
-        p2 = max;
-        p2.z = min.z;
-        p3 = max;
-        p3.y = min.y;
-        MutableFace* rightFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+
+        boundary.norm = XAxisPos;
+        MutableFace* rightFace = [[MutableFace alloc] initWithWorldBounds:worldBounds boundary:&boundary];
+        [rightFace setTexture:theTexture];
         [self addFace:rightFace];
         [rightFace release];
-        
-        p1 = max;
-        p2 = max;
-        p2.y = min.y;
-        p3 = max;
-        p3.x = min.x;
-        MutableFace* topFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3 texture:theTexture];
+
+        boundary.norm = ZAxisPos;
+        MutableFace* topFace = [[MutableFace alloc] initWithWorldBounds:worldBounds boundary:&boundary];
+        [topFace setTexture:theTexture];
         [self addFace:topFace];
         [topFace release];
     }
@@ -233,43 +218,34 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     entity = theEntity;
 }
 
-- (void)translateBy:(const TVector3i *)theDelta lockTextures:(BOOL)lockTextures {
+- (void)translateBy:(const TVector3f *)theDelta lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
         [face translateBy:theDelta lockTexture:lockTextures];
 
-    if (vertexDataValid) {
-        TVector3f deltaf;
-        setV3f(&deltaf, theDelta);
-        translateVertexData(&vertexData, &deltaf);
-    }
+    if (vertexDataValid)
+        translateVertexData(&vertexData, theDelta);
 }
 
-- (void)rotate90CW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
+- (void)rotate90CW:(EAxis)theAxis center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
         [face rotate90CW:theAxis center:theCenter lockTexture:lockTextures];
 
-    if (vertexDataValid) {
-        TVector3f centerf;
-        setV3f(&centerf, theCenter);
-        rotateVertexData90CW(&vertexData, theAxis, &centerf);
-    }
+    if (vertexDataValid)
+        rotateVertexData90CW(&vertexData, theAxis, theCenter);
 }
 
-- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
+- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
         [face rotate90CCW:theAxis center:theCenter lockTexture:lockTextures];
 
-    if (vertexDataValid) {
-        TVector3f centerf;
-        setV3f(&centerf, theCenter);
-        rotateVertexData90CCW(&vertexData, theAxis, &centerf);
-    }
+    if (vertexDataValid)
+        rotateVertexData90CCW(&vertexData, theAxis, theCenter);
 }
 
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures {
@@ -280,19 +256,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     if (vertexDataValid)
         rotateVertexData(&vertexData, theRotation, theCenter);
+    
+    snapVertexData(&vertexData);
 }
 
-- (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures {
+- (void)flipAxis:(EAxis)theAxis center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures {
     NSEnumerator* faceEn = [faces objectEnumerator];
     MutableFace* face;
     while ((face = [faceEn nextObject]))
         [face flipAxis:theAxis center:theCenter lockTexture:lockTextures];
 
-    if (vertexDataValid) {
-        TVector3f centerf;
-        setV3f(&centerf, theCenter);
-        flipVertexData(&vertexData, theAxis, &centerf);
-    }
+    if (vertexDataValid)
+        flipVertexData(&vertexData, theAxis, theCenter);
 }
 
 - (void)snap {
@@ -499,6 +474,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return &[self vertexData]->edges;
 }
 
+- (BOOL)verticesOnGrid {
+    if (!vertexDataValid)
+        [self vertexData];
+    return verticesOnGrid;
+}
+
 - (const TBoundingBox *)bounds {
     return &[self vertexData]->bounds;
 }
@@ -683,6 +664,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return YES;
 }
 
+- (BOOL)containsPoint:(const TVector3f *)thePoint {
+    NSAssert(thePoint != NULL, @"point must not be NULL");
+    if (!boundsContainPoint([self bounds], thePoint))
+        return NO;
+    
+    return vertexDataContainsPoint([self vertexData], thePoint);
+}
+
 - (BOOL)containsBrush:(id <Brush>)theBrush {
     NSAssert(theBrush != nil, @"brush must not be nil");
     
@@ -705,7 +694,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (!boundsIntersectWithBounds([self bounds], [theEntity bounds]))
         return NO;
     
-    TBoundingBox* entityBounds = [theEntity bounds];
+    const TBoundingBox* entityBounds = [theEntity bounds];
     TVertexData* myVertexData = [self vertexData];
     
     TVector3f p = entityBounds->min;
@@ -749,7 +738,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (!boundsContainBounds([self bounds], [theEntity bounds]))
         return NO;
     
-    TBoundingBox* entityBounds = [theEntity bounds];
+    const TBoundingBox* entityBounds = [theEntity bounds];
     TVertexData* myVertexData = [self vertexData];
     
     TVector3f p = entityBounds->min;

@@ -34,7 +34,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 	NSMutableArray* brushes;
 	NSMutableDictionary* properties;
     TVector3f center;
-    TVector3i origin;
+    TVector3f origin;
     NSNumber* angle;
     TBoundingBox bounds;
     TBoundingBox maxBounds;
@@ -50,11 +50,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)removeBrush:(MutableBrush *)brush;
 - (void)brushChanged:(MutableBrush *)brush;
 
-- (void)translateBy:(const TVector3i *)theDelta;
-- (void)rotate90CW:(EAxis)theAxis center:(const TVector3i *)theCenter;
-- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter;
+- (void)translateBy:(const TVector3f *)theDelta;
+- (void)rotate90CW:(EAxis)theAxis center:(const TVector3f *)theCenter;
+- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3f *)theCenter;
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theRotationCenter;
-- (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter;
+- (void)flipAxis:(EAxis)theAxis center:(const TVector3f *)theCenter;
 
 - (void)replaceProperties:(NSDictionary *)theProperties;
 - (void)setProperty:(NSString *)key value:(NSString *)value;

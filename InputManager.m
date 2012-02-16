@@ -80,8 +80,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (BOOL)isRotateModifierPressed {
-    return NO;
-//    return keyStatus == (KS_OPTION | KS_COMMAND);
+    return keyStatus == (KS_SHIFT);
 }
 
 - (BOOL)isFaceDragModifierPressed {

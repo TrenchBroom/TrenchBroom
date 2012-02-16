@@ -36,10 +36,6 @@ typedef enum {
     MutableBrush* brush;
     NSNumber* faceId;
     
-	TVector3i point1;
-	TVector3i point2;
-	TVector3i point3;
-
 	Texture* texture;
 	float xOffset;
 	float yOffset;
@@ -48,8 +44,6 @@ typedef enum {
 	float yScale;
     
     TPlane boundary;
-    BOOL boundaryValid;
-
     TSide* side;
   
     const TVector3f* texPlaneNorm;
@@ -72,11 +66,11 @@ typedef enum {
 }
 
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds;
-- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds point1:(const TVector3i *)aPoint1 point2:(const TVector3i *)aPoint2 point3:(const TVector3i *)aPoint3 texture:(Texture *)theTexture;
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds point1:(const TVector3f *)aPoint1 point2:(const TVector3f *)aPoint2 point3:(const TVector3f *)aPoint3;
+- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds boundary:(const TPlane *)theBoundary;
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds faceTemplate:(id <Face>)theTemplate;
 
 - (void)setBrush:(MutableBrush *)theBrush;
-- (void)setPoint1:(const TVector3i *)thePoint1 point2:(const TVector3i *)thePoint2 point3:(const TVector3i *)thePoint3;
 - (void)setTexture:(Texture *)theTexture;
 - (void)setXOffset:(int)offset;
 - (void)setYOffset:(int)offset;
@@ -84,15 +78,16 @@ typedef enum {
 - (void)setXScale:(float)factor;
 - (void)setYScale:(float)factor;
 - (void)translateOffsetsX:(int)x y:(int)y;
-- (void)translateBy:(const TVector3i *)theDelta lockTexture:(BOOL)lockTexture;
-- (void)rotate90CW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
-- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
+- (void)translateBy:(const TVector3f *)theDelta lockTexture:(BOOL)lockTexture;
+- (void)rotate90CW:(EAxis)theAxis center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture;
+- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture;
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture;
-- (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTexture:(BOOL)lockTexture;
+- (void)flipAxis:(EAxis)theAxis center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture;
 - (void)dragBy:(float)dist lockTexture:(BOOL)lockTexture;
 
 - (void)setSide:(TSide *)theSide;
 - (const TSide *)side;
+- (void)setBoundary:(const TPlane *)theBoundary;
 
 - (int)filePosition;
 - (void)setFilePosition:(int)theFilePosition;

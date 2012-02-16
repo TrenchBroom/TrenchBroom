@@ -33,10 +33,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (id <Brush>)brush;
 - (id)copy;
 
-- (TVector3i *)point1;
-- (TVector3i *)point2;
-- (TVector3i *)point3;
-
 - (Texture *)texture;
 - (int)xOffset;
 - (int)yOffset;

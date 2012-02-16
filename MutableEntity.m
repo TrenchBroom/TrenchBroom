@@ -65,11 +65,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     } else if ([entityDefinition type] == EDT_POINT) {
         bounds = *[entityDefinition bounds];
         
-        TVector3f of;
-        setV3f(&of, &origin);
-        
-        addV3f(&bounds.min, &of, &bounds.min);
-        addV3f(&bounds.max, &of, &bounds.max);
+        addV3f(&bounds.min, &origin, &bounds.min);
+        addV3f(&bounds.max, &origin, &bounds.max);
         centerOfBounds(&bounds, &center);
 
         TVector3f diff;
@@ -179,36 +176,33 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     valid = NO;
 }
 
-- (void)translateBy:(const TVector3i *)theDelta {
+- (void)translateBy:(const TVector3f *)theDelta {
     if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
         return;
     
     if (!valid)
         [self validate];
     
-    TVector3i o;
-    addV3i([self origin], theDelta, &o);
-    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", o.x, o.y, o.z]];
+    TVector3f temp;
+    addV3f([self origin], theDelta, &temp);
+    roundV3f(&temp, &temp);
+    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", (int)temp.x, (int)temp.y, (int)temp.z]];
 }
 
-- (void)rotate90CW:(EAxis)theAxis center:(const TVector3i *)theCenter {
+- (void)rotate90CW:(EAxis)theAxis center:(const TVector3f *)theCenter {
     if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
         return;
 
     if (!valid)
         [self validate];
     
-    TVector3i o, ci, d;
-    roundV3f(&center, &ci);
-    subV3i([self origin], &ci, &d);
-    subV3i(&ci, theCenter, &ci);
+    TVector3f temp;
+    subV3f([self origin], theCenter, &temp);
+    rotate90CWV3f(&temp, theAxis, &temp);
+    addV3f(&temp, theCenter, &temp);
+    roundV3f(&temp, &temp);
     
-    rotate90CWV3i(&ci, theAxis, &ci);
-    
-    addV3i(&ci, theCenter, &ci);
-    addV3i(&ci, &d, &o);
-    
-    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", o.x, o.y, o.z]];
+    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", (int)temp.x, (int)temp.y, (int)temp.z]];
 
     if ([self angle] == nil)
         [self setProperty:AngleKey value:@"0"];
@@ -248,24 +242,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 }
 
-- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter {
+- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3f *)theCenter {
     if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
         return;
 
     if (!valid)
         [self validate];
     
-    TVector3i o, ci, d;
-    roundV3f(&center, &ci);
-    subV3i([self origin], &ci, &d);
-    subV3i(&ci, theCenter, &ci);
+    TVector3f temp;
+    subV3f([self origin], theCenter, &temp);
+    rotate90CCWV3f(&temp, theAxis, &temp);
+    addV3f(&temp, theCenter, &temp);
+    roundV3f(&temp, &temp);
+    
+    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", (int)temp.x, (int)temp.y, (int)temp.z]];
 
-    rotate90CCWV3i(&ci, theAxis, &ci);
-    
-    addV3i(&ci, theCenter, &ci);
-    addV3i(&ci, &d, &o);
-    
-    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", o.x, o.y, o.z]];
     
     if ([self angle] == nil)
         [self setProperty:AngleKey value:@"0"];
@@ -312,18 +303,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (!valid)
         [self validate];
 
-    TVector3f originf, offset;
-    setV3f(&originf, [self origin]);
-    subV3f(&center, &originf, &offset);
-
+    TVector3f temp, offset;
+    subV3f(&center, [self origin], &offset);
     subV3f(&center, theRotationCenter, &center);
     rotateQ(theRotation, &center, &center);
     addV3f(&center, theRotationCenter, &center);
-    subV3f(&center, &offset, &originf);
+    subV3f(&center, &offset, &temp);
+    roundV3f(&temp, &temp);
 
-    TVector3i newOrigin;
-    roundV3f(&originf, &newOrigin);
-    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", newOrigin.x, newOrigin.y, newOrigin.z]];
+    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", (int)temp.x, (int)temp.y, (int)temp.z]];
     
     if ([self angle] == nil)
         [self setProperty:AngleKey value:@"0"];
@@ -362,34 +350,34 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 }
 
-- (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter {
+- (void)flipAxis:(EAxis)theAxis center:(const TVector3f *)theCenter {
     if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
         return;
     
     if (!valid)
         [self validate];
     
-    TVector3i o, ci, d;
-    roundV3f(&center, &ci);
-    subV3i([self origin], &ci, &d);
-    subV3i(&ci, theCenter, &ci);
+    TVector3f temp, offset;
+    subV3f(&center, [self origin], &offset);
+    subV3f(&center, theCenter, &center);
     
     switch (theAxis) {
         case A_X:
-            ci.x *= -1;
+            center.x *= -1;
             break;
         case A_Y:
-            ci.y *= -1;
+            center.y *= -1;
             break;
         default:
-            ci.z *= -1;
+            center.z *= -1;
             break;
     }
     
-    addV3i(&ci, theCenter, &ci);
-    addV3i(&ci, &d, &o);
+    addV3f(&center, theCenter, &center);
+    addV3f(&center, &offset, &temp);
+    roundV3f(&temp, &temp);
     
-    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", o.x, o.y, o.z]];
+    [self setProperty:OriginKey value:[NSString stringWithFormat:@"%i %i %i", (int)temp.x, (int)temp.y, (int)temp.z]];
     
     if ([self angle] == nil)
         [self setProperty:AngleKey value:@"0"];
@@ -431,10 +419,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         NSLog(@"Cannot overwrite classname property");
         return;
     } else if ([key isEqualToString:OriginKey]) {
-        if (!parseV3i(value, NSMakeRange(0, [value length]), &origin)) {
+        if (!parseV3f(value, NSMakeRange(0, [value length]), &origin)) {
             NSLog(@"Invalid origin value: '%@'", value);
             return;
         }
+        roundV3f(&origin, &origin);
         valid = NO;
     } else if ([key isEqualToString:AngleKey]) {
         [angle release];
@@ -566,28 +555,28 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return [[self classname] isEqualToString:WorldspawnClassname];
 }
 
-- (TBoundingBox *)maxBounds {
+- (const TBoundingBox *)maxBounds {
     if (!valid)
         [self validate];
     
     return &maxBounds;
 }
 
-- (TBoundingBox *)bounds {
+- (const TBoundingBox *)bounds {
     if (!valid)
         [self validate];
     
     return &bounds;
 }
 
-- (TVector3f *)center {
+- (const TVector3f *)center {
     if (!valid)
         [self validate];
 
     return &center;
 }
 
-- (TVector3i *)origin {
+- (const TVector3f *)origin {
     if (entityDefinition == nil || [entityDefinition type] != EDT_POINT)
         [NSException raise:NSInternalInconsistencyException format:@"Entity is not a point entity (ID %@)", entityId];
     

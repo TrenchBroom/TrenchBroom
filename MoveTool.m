@@ -158,8 +158,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVector3f point;
     rayPointAtDistance(ray, dist, &point);
     
-    TVector3f deltaf;
-    subV3f(&point, &lastPoint, &deltaf);
+    TVector3f delta;
+    subV3f(&point, &lastPoint, &delta);
     
     Options* options = [windowController options];
     Grid* grid = [options grid];
@@ -171,16 +171,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     SelectionManager* selectionManager = [map selectionManager];
     [selectionManager selectionBounds:&bounds];
 
-    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:&lastPoint];
+    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:&lastPoint];
     
-    if (nullV3f(&deltaf))
+    if (nullV3f(&delta))
         return;
     
-    TVector3i deltai;
-    roundV3f(&deltaf, &deltai);
-    
-    [map translateBrushes:[selectionManager selectedBrushes] delta:deltai lockTextures:[options lockTextures]];
-    [map translateEntities:[selectionManager selectedEntities] delta:deltai];
+    [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
+    [map translateEntities:[selectionManager selectedEntities] delta:delta];
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

@@ -41,7 +41,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (int)setClipPointWithRay:(TRay *)ray hits:(PickingHitList *)hits;
 - (void)updateFeedback:(TRay *)ray;
-- (BOOL)intersect:(TRay *)ray withClipPoint:(TVector3i *)point;
+- (BOOL)intersect:(TRay *)ray withClipPoint:(const TVector3f *)point;
 
 @end
 
@@ -115,12 +115,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         if ([clipPlane numPoints] > 0) {
             Camera* camera = [windowController camera];
             
-            TVector3i* p1 = [clipPlane point:0];
+            TVector3f* p1 = [clipPlane point:0];
             point1Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p1 camera:camera];
             [renderer addFeedbackFigure:point1Figure];
 
             if ([clipPlane numPoints] > 1) {
-                TVector3i* p2 = [clipPlane point:1];
+                TVector3f* p2 = [clipPlane point:1];
                 
                 point2Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p2 camera:camera];
                 [renderer addFeedbackFigure:point2Figure];
@@ -129,7 +129,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                 [renderer addFeedbackFigure:line1Figure];
 
                 if ([clipPlane numPoints] > 2) {
-                    TVector3i* p3 = [clipPlane point:2];
+                    TVector3f* p3 = [clipPlane point:2];
 
                     point3Figure = [[ClipPointFeedbackFigure alloc] initWithPoint:p3 camera:camera];
                     [renderer addFeedbackFigure:point3Figure];
@@ -175,7 +175,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 }
 
-- (BOOL)intersect:(TRay *)ray withClipPoint:(TVector3i *)point {
+- (BOOL)intersect:(TRay *)ray withClipPoint:(const TVector3f *)point {
     TVector3f center = {point->x, point->y, point->z};
     return !isnan(intersectSphereWithRay(&center, 3, ray));
 }

@@ -62,7 +62,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self renderAtOrigin:[theEntity origin] angle:[theEntity angle]];
 }
 
-- (void)renderAtOrigin:(TVector3i *)theOrigin angle:(NSNumber *)theAngle {
+- (void)renderAtOrigin:(const TVector3f *)theOrigin angle:(NSNumber *)theAngle {
     if (block == nil) {
         [vbo mapBuffer];
         

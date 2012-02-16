@@ -184,7 +184,7 @@ void rotateVertexData90CW(TVertexData* vd, EAxis a, const TVector3f* c);
 void rotateVertexData90CCW(TVertexData* vd, EAxis a, const TVector3f* c);
 void rotateVertexData(TVertexData* vd, const TQuaternion* r, const TVector3f* c);
 void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c);
-BOOL vertexDataContainsPoint(TVertexData* vd, TVector3f* p);
+BOOL vertexDataContainsPoint(TVertexData* vd, const TVector3f* p);
 EPointStatus vertexStatusFromRay(const TVector3f* o, const TVector3f* d, const TVertexList* ps);
 
 int dragVertex(TVertexData* vd, int v, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);

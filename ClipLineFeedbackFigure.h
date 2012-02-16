@@ -24,10 +24,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Math.h"
 
 @interface ClipLineFeedbackFigure : NSObject <Figure> {
-    TVector3i startPoint;
-    TVector3i endPoint;
+    TVector3f startPoint;
+    TVector3f endPoint;
 }
 
-- (id)initWithStartPoint:(TVector3i *)theStartPoint endPoint:(TVector3i *)theEndPoint;
+- (id)initWithStartPoint:(const TVector3f *)theStartPoint endPoint:(const TVector3f *)theEndPoint;
 
 @end

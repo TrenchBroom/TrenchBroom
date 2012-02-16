@@ -54,10 +54,10 @@ static NSString* const ModsKey = @"_mods";
 - (BOOL)isWorldspawn;
 - (NSString *)classname;
 
-- (TBoundingBox *)maxBounds;
-- (TBoundingBox *)bounds;
-- (TVector3f *)center;
-- (TVector3i *)origin;
+- (const TBoundingBox *)maxBounds;
+- (const TBoundingBox *)bounds;
+- (const TVector3f *)center;
+- (const TVector3f *)origin;
 - (NSNumber *)angle;
 
 - (void)pick:(const TRay *)theRay hitList:(PickingHitList *)theHitList;

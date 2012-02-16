@@ -25,7 +25,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @protocol EntityRenderer <NSObject>
 
 - (void)renderWithEntity:(id <Entity>)theEntity;
-- (void)renderAtOrigin:(TVector3i *)theOrigin angle:(NSNumber *)theAngle;
+- (void)renderAtOrigin:(const TVector3f *)theOrigin angle:(NSNumber *)theAngle;
 - (const TVector3f *)center;
 - (const TBoundingBox *)bounds;
 - (const TBoundingBox *)maxBounds;

@@ -31,8 +31,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Renderer.h"
 #import "Options.h"
 #import "Grid.h"
-
-static float M_PI_12 = M_PI / 12;
+#import "CompassFigure.h"
 
 @implementation RotateTool
 
@@ -100,34 +99,6 @@ static float M_PI_12 = M_PI / 12;
     [renderer removeFeedbackFigure:feedbackFigure];
 }
 
-- (void)handleMouseMoved:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    TBoundingBox bounds;
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager selectionBounds:&bounds]) {
-        centerOfBounds(&bounds, &center);
-        
-        delta.x += event.deltaX;
-        delta.y += event.deltaY;
-        
-        float angle = delta.x / 50;
-        Grid* grid = [[windowController options] grid];
-        if ([grid snap])
-            angle = [grid snapAngle:angle];
-
-        if (angle != 0) {
-            TQuaternion rot;
-            setAngleAndAxisQ(&rot, angle, &ZAxisPos);
-            rotateQ(&rot, &vAxis, &vAxis);
-            [feedbackFigure setVerticalAxis:&vAxis];
-            
-            Renderer* renderer = [windowController renderer];
-            [renderer updateFeedbackFigure:feedbackFigure];
-
-            delta.x = 0;
-        }
-    }
-}
-
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     float d = closestPointOnRay(&center, ray);
     if (isnan(d))
@@ -155,29 +126,35 @@ static float M_PI_12 = M_PI / 12;
         delta.y += event.deltaY;
     
     float hAngle = (delta.x / 6) / (M_PI * 2);
-    float vAngle = (-delta.y / 6) / (M_PI * 2);
+    float vAngle = (delta.y / 6) / (M_PI * 2);
     
     Options* options = [windowController options];
-    if ([[options grid] snap]) {
-        int hSteps = hAngle / M_PI_12;
-        int vSteps = vAngle / M_PI_12;
-        hAngle = hSteps * M_PI_12;
-        vAngle = vSteps * M_PI_12;
+    Grid* grid = [options grid];
+    if ([grid snap]) {
+        hAngle = [grid snapAngle:hAngle];
+        vAngle = [grid snapAngle:vAngle];
     }
 
     
     if (hAngle != lastHAngle || vAngle != lastVAngle) {
         TQuaternion rotation;
+        TVector3f rotatedVAxis;
         if (hAngle != 0 && vAngle != 0) {
             TQuaternion hRotation, vRotation;
             setAngleAndAxisQ(&hRotation, hAngle, &ZAxisPos);
+            rotateQ(&hRotation, &vAxis, &rotatedVAxis);
+            
             setAngleAndAxisQ(&vRotation, vAngle, &vAxis);
             mulQ(&hRotation, &vRotation, &rotation);
         } else if (hAngle != 0) {
             setAngleAndAxisQ(&rotation, hAngle, &ZAxisPos);
+            rotateQ(&rotation, &vAxis, &rotatedVAxis);
         } else {
             setAngleAndAxisQ(&rotation, vAngle, &vAxis);
+            rotatedVAxis = vAxis;
         }
+        
+        [feedbackFigure setVerticalAxis:&rotatedVAxis];
         
         MapDocument* map = [windowController document];
         SelectionManager* selectionManager = [windowController selectionManager];

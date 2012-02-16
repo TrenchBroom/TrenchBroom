@@ -32,17 +32,17 @@ typedef enum {
 @protocol Brush;
 
 @interface ClipPlane : NSObject {
-    TVector3i points[3];
+    TVector3f points[3];
     PickingHitList* hitLists[3];
     int numPoints;
     EClipMode clipMode;
 }
 
-- (void)addPoint:(TVector3i *)thePoint hitList:(PickingHitList *)theHitList;
-- (void)updatePoint:(int)index x:(int)x y:(int)y z:(int)z;
+- (void)addPoint:(TVector3f *)thePoint hitList:(PickingHitList *)theHitList;
+- (void)updatePoint:(int)index x:(float)x y:(float)y z:(float)z;
 - (void)removeLastPoint;
 - (int)numPoints;
-- (TVector3i *)point:(int)index;
+- (TVector3f *)point:(int)index;
 - (PickingHitList *)hitList:(int)index;
 
 - (void)setClipMode:(EClipMode)theClipMode;

@@ -198,7 +198,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         EntityRendererManager* entityRendererManager = [glResources entityRendererManager];
         [entityRendererManager activate];
         
-        TVector3i origin = {0, 0, 0};
+        TVector3f origin = {0, 0, 0};
         
         NSEnumerator* rowEn = [[layout rows] objectEnumerator];
         NSArray* row;

@@ -145,13 +145,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)documentCleared:(NSNotification *)notification {
-    MapDocument* map = [notification object];
-
-    TVector3i min, max;
-    roundV3f(&[map worldBounds]->min, &min);
-    roundV3f(&[map worldBounds]->max, &max);
+    [root release];
     
-    root = [[OctreeNode alloc] initWithMin:&min max:&max minSize:minSize];
+    MapDocument* map = [notification object];
+    root = [[OctreeNode alloc] initWithMin:&[map worldBounds]->min max:&[map worldBounds]->max minSize:minSize];
 }
 
 @end
@@ -161,12 +158,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (id)initWithMap:(MapDocument *)theMap minSize:(int)theMinSize {
     if ((self = [self init])) {
         minSize = theMinSize;
-
-        TVector3i min, max;
-        roundV3f(&[theMap worldBounds]->min, &min);
-        roundV3f(&[theMap worldBounds]->max, &max);
-        
-        root = [[OctreeNode alloc] initWithMin:&min max:&max minSize:minSize];
+        root = [[OctreeNode alloc] initWithMin:&[theMap worldBounds]->min max:&[theMap worldBounds]->max minSize:minSize];
 
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(entitiesAdded:) name:EntitiesAdded object:theMap];

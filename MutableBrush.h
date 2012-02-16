@@ -34,6 +34,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     MutableEntity* entity;
 	NSMutableArray* faces;
     TVertexData vertexData;
+    BOOL verticesOnGrid;
     BOOL vertexDataValid;
     int filePosition;
     const TBoundingBox* worldBounds;
@@ -46,11 +47,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (BOOL)addFace:(MutableFace *)face;
 
 - (void)setEntity:(MutableEntity *)theEntity;
-- (void)translateBy:(const TVector3i *)theDelta lockTextures:(BOOL)lockTextures;
-- (void)rotate90CW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
-- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
+- (void)translateBy:(const TVector3f *)theDelta lockTextures:(BOOL)lockTextures;
+- (void)rotate90CW:(EAxis)theAxis center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures;
+- (void)rotate90CCW:(EAxis)theAxis center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures;
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures;
-- (void)flipAxis:(EAxis)theAxis center:(const TVector3i *)theCenter lockTextures:(BOOL)lockTextures;
+- (void)flipAxis:(EAxis)theAxis center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures;
 - (void)snap;
 
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist;

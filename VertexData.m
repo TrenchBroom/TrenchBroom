@@ -1208,7 +1208,7 @@ void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c) {
         flipSide(vd->sides.items[i]);
 }
 
-BOOL vertexDataContainsPoint(TVertexData* vd, TVector3f* p) {
+BOOL vertexDataContainsPoint(TVertexData* vd, const TVector3f* p) {
     for (int i = 0; i < vd->sides.count; i++)
         if (pointStatusFromPlane([vd->sides.items[i]->face boundary], p) == PS_ABOVE)
             return NO;
@@ -1367,27 +1367,10 @@ void incidentSides(TVertexData* vd, int v, TSideList* l) {
 }
 
 void updateFaceOfSide(TSide* s) {
-    int indices[3];
-    int indexCount;
-    TVector3f t;
-    TVector3i p1, p2, p3;
-
-    indexCount = 0;
-    for (int i = 0; i < s->vertices.count && indexCount < 3; i++) {
-        snapV3f(&s->vertices.items[i]->position, &t);
-        if (equalV3f(&s->vertices.items[i]->position, &t)) {
-            s->vertices.items[i]->position = t;
-            indices[indexCount++] = i;
-        }
-    }
+    TPlane boundary;
     
-    assert(indexCount == 3);
-
-    roundV3f(&s->vertices.items[indices[0]]->position, &p1);
-    roundV3f(&s->vertices.items[indices[1]]->position, &p2);
-    roundV3f(&s->vertices.items[indices[2]]->position, &p3);
-    
-    [s->face setPoint1:&p1 point2:&p2 point3:&p3];
+    setPlanePointsV3f(&boundary, &s->vertices.items[0]->position, &s->vertices.items[1]->position, &s->vertices.items[2]->position);
+    [s->face setBoundary:&boundary];
 }
 
 void createFaceForSide(const TBoundingBox* w, TSide* s) {
@@ -2136,10 +2119,11 @@ int dragSide(TVertexData* vd, int s, TVector3f d, NSMutableArray* newFaces, NSMu
 }
 
 void snapVertexData(TVertexData* vd) {
+    /*
     assert(sanityCheck(vd, YES));
 
     for (int i = 0; i < vd->vertices.count; i++)
-        snapV3f(&vd->vertices.items[i]->position, &vd->vertices.items[i]->position);
+        roundV3f(&vd->vertices.items[i]->position, &vd->vertices.items[i]->position);
     
     // in some cases, we may now have an invalid brush, which must be fixed.
     
@@ -2147,6 +2131,7 @@ void snapVertexData(TVertexData* vd) {
         updateFaceOfSide(vd->sides.items[i]);
     
     assert(sanityCheck(vd, YES));
+     */
 }
 
 BOOL sanityCheck(const TVertexData* vd, BOOL cc) {

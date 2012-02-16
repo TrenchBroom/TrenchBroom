@@ -36,6 +36,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (NSArray *)faces;
 - (const TVertexList *)vertices;
 - (const TEdgeList *)edges;
+- (BOOL)verticesOnGrid;
 
 - (const TBoundingBox *)bounds;
 - (const TBoundingBox *)worldBounds;
@@ -44,6 +45,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)pickVertices:(const TRay *)theRay handleRadius:(float)theRadius hitList:(PickingHitList *)theHitList;
 - (void)pickClosestFace:(const TRay *)theRay maxDistance:(float)theMaxDist hitList:(PickingHitList *)theHitList;
 
+- (BOOL)containsPoint:(const TVector3f *)thePoint;
 - (BOOL)intersectsBrush:(id <Brush>)theBrush;
 - (BOOL)containsBrush:(id <Brush>)theBrush;
 - (BOOL)intersectsEntity:(id <Entity>)theEntity;
