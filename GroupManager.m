@@ -116,7 +116,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [center addObserver:self selector:@selector(brushesWillOrDidChange:) name:BrushesWillChange object:map];
         [center addObserver:self selector:@selector(brushesWillOrDidChange:) name:BrushesDidChange object:map];
         [center addObserver:self selector:@selector(documentCleared:) name:DocumentCleared object:map];
-        [center addObserver:self selector:@selector(documentLoaded:) name:DocumentCleared object:map];
+        [center addObserver:self selector:@selector(documentLoaded:) name:DocumentLoaded object:map];
     }
     
     return self;
