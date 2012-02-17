@@ -31,15 +31,14 @@ void writeString(char* theString, int length, NSOutputStream* theStream) {
 }
 
 void writeFace(id <Face> theFace, NSOutputStream* theStream) {
-    const TVertexList* vertices = [theFace vertices];
-    const TVector3f* p1 = &vertices->items[0]->position;
-    const TVector3f* p2 = &vertices->items[1]->position;
-    const TVector3f* p3 = &vertices->items[2]->position;
+    TVector3f p1, p2, p3;
+    
+     [theFace point1:&p1 point2:&p2 point3:&p3];
 
     int length = sprintf(buffer,  "( %i %i %i ) ( %i %i %i ) ( %i %i %i ) %s %i %i %f %f %f\n",
-                         (int)roundf(p1->x), (int)roundf(p1->y), (int)roundf(p1->z),
-                         (int)roundf(p2->x), (int)roundf(p2->y), (int)roundf(p2->z),
-                         (int)roundf(p3->x), (int)roundf(p3->y), (int)roundf(p3->z),
+                         (int)roundf(p1.x), (int)roundf(p1.y), (int)roundf(p1.z),
+                         (int)roundf(p2.x), (int)roundf(p2.y), (int)roundf(p2.z),
+                         (int)roundf(p3.x), (int)roundf(p3.y), (int)roundf(p3.z),
                          [[[theFace texture] name] cStringUsingEncoding:NSASCIIStringEncoding],
                          [theFace xOffset], 
                          [theFace yOffset], 
@@ -79,9 +78,7 @@ void writeProperty(NSString* theKey, NSString* theValue, NSOutputStream* theStre
 - (void)writeBrush:(id <Brush>)theBrush toStream:(NSOutputStream *)theStream {
     writeString("{\n", 2, theStream);
     
-    NSEnumerator* faceEn = [[theBrush faces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject]))
+    for (id <Face> face in [theBrush faces])
         writeFace(face, theStream);
     
     writeString("}\n", 2, theStream);
@@ -91,16 +88,12 @@ void writeProperty(NSString* theKey, NSString* theValue, NSOutputStream* theStre
     writeString("{\n", 2, theStream);
     
     NSDictionary* properties = [theEntity properties];
-    NSEnumerator* keyEn = [properties keyEnumerator];
-    NSString* key;
-    while ((key = [keyEn nextObject])) {
+    for (NSString* key in properties) {
         NSString* value = [properties objectForKey:key];
         writeProperty(key, value, theStream);
     }
 
-    NSEnumerator* brushEn = [[theEntity brushes] objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
+    for (id <Brush> brush in [theEntity brushes])
         [self writeBrush:brush toStream:theStream];
 
     writeString("}\n", 2, theStream);
@@ -112,9 +105,7 @@ void writeProperty(NSString* theKey, NSString* theValue, NSOutputStream* theStre
         if (worldspawn != nil)
             [self writeEntity:worldspawn toStream:theStream];
         
-        NSEnumerator* entityEn = [[map entities] objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject]))
+        for (id <Entity> entity in [map entities])
             if (entity != worldspawn)
                 [self writeEntity:entity toStream:theStream];
     }
@@ -122,9 +113,7 @@ void writeProperty(NSString* theKey, NSString* theValue, NSOutputStream* theStre
     if (selection != nil) {
         switch ([selection mode]) {
             case SM_ENTITIES: {
-                NSEnumerator* entityEn = [[selection selectedEntities] objectEnumerator];
-                id <Entity> entity;
-                while ((entity = [entityEn nextObject]))
+                for (id <Entity> entity in [selection selectedEntities])
                     if (![entity isWorldspawn])
                         [self writeEntity:entity toStream:theStream];
                 break;
@@ -133,9 +122,7 @@ void writeProperty(NSString* theKey, NSString* theValue, NSOutputStream* theStre
                 NSArray* entities = [selection selectedEntities];
 
                 BOOL worldspawnStarted = NO;
-                NSEnumerator* brushEn = [[selection selectedBrushes] objectEnumerator];
-                id <Brush> brush;
-                while ((brush = [brushEn nextObject])) {
+                for (id <Brush> brush in [selection selectedBrushes]) {
                     id <Entity> entity = [brush entity];
                     if ([entity isWorldspawn] || [entities indexOfObjectIdenticalTo:entity] == NSNotFound) {
                         if (!worldspawnStarted) {
@@ -151,10 +138,7 @@ void writeProperty(NSString* theKey, NSString* theValue, NSOutputStream* theStre
                 if (worldspawnStarted)
                     writeString("}\n", 2, theStream);
                 
-
-                NSEnumerator* entityEn = [entities objectEnumerator];
-                id <Entity> entity;
-                while ((entity = [entityEn nextObject]))
+                for (id <Entity> entity in entities)
                     if (![entity isWorldspawn])
                         [self writeEntity:entity toStream:theStream];
                 break;
@@ -163,18 +147,14 @@ void writeProperty(NSString* theKey, NSString* theValue, NSOutputStream* theStre
                 writeString("{\n", 2, theStream);
                 writeProperty(ClassnameKey, WorldspawnClassname, theStream);
 
-                NSEnumerator* brushEn = [[selection selectedBrushes] objectEnumerator];
-                id <Brush> brush;
-                while ((brush = [brushEn nextObject]))
+                for (id <Brush> brush in [selection selectedBrushes])
                     [self writeBrush:brush toStream:theStream];
                 
                 writeString("}\n", 2, theStream);
                 break;
             }
             case SM_FACES: {
-                NSEnumerator* faceEn = [[selection selectedFaces] objectEnumerator];
-                id <Face> face;
-                while ((face = [faceEn nextObject]))
+                for (id <Face> face in [selection selectedFaces])
                     writeFace(face, theStream);
                 break;
             }

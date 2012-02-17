@@ -67,9 +67,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     NSMutableArray* result = [[NSMutableArray alloc] init];
     
-    NSEnumerator* hitEn = [[self hits] objectEnumerator];
-    PickingHit* hit;
-    while ((hit = [hitEn nextObject]))
+    for (PickingHit* hit in [self hits])
         if ([hit isType:theTypeMask])
             [result addObject:hit];
     
@@ -82,9 +80,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     NSMutableSet* result = [[NSMutableSet alloc] init];
     
-    NSEnumerator* hitEn = [[self hitsOfType:theTypeMask] objectEnumerator];
-    PickingHit* hit;
-    while ((hit = [hitEn nextObject]))
+    for (PickingHit* hit in [self hits])
         if ([hit isType:theTypeMask])
             [result addObject:[hit object]];
     

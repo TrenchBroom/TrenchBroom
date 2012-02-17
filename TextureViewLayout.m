@@ -52,11 +52,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)addTextures:(NSArray *)theTextures {
-    NSEnumerator* textureEn = [theTextures objectEnumerator];
-    Texture* texture;
-    while ((texture = [textureEn nextObject]))
-        [textures addObject:texture];
-
+    [textures addObjectsFromArray:theTextures];
     valid = NO;
 }
 
@@ -77,9 +73,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (!valid) {
         [rows removeAllObjects];
         
-        NSEnumerator* texEn = [textures objectEnumerator];
-        Texture* texture;
-        while ((texture = [texEn nextObject])) {
+        for (Texture* texture in textures) {
             if (filter == nil || [filter passes:texture]) {
                 GLString* nameString = [fontManager glStringFor:[texture name] font:font];
                 NSSize nameSize = [nameString size];
@@ -117,10 +111,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (NSArray *)rowsInY:(float)y height:(float)height {
     NSMutableArray* result = [[NSMutableArray alloc] init];
-    
-    NSEnumerator* rowEn = [rows objectEnumerator];
-    TextureViewLayoutRow* row;
-    while ((row = [rowEn nextObject]))
+    for (TextureViewLayoutRow* row in rows)
         if ([row y] + [row height] > y && [row y] < y + height)
             [result addObject:row];
     
@@ -128,9 +119,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (Texture *)textureAt:(NSPoint)location {
-    NSEnumerator* rowEn = [rows objectEnumerator];
-    TextureViewLayoutRow* row;
-    while ((row = [rowEn nextObject]))
+    for (TextureViewLayoutRow* row in rows)
         if ([row containsY:location.y])
             return [[row cellAt:location] texture];
     

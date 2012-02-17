@@ -105,17 +105,12 @@ static PrefabManager* sharedInstance = nil;
     
     NSArray* groupNames = [[fileManager contentsOfDirectoryAtPath:thePath error:NULL] sortedArrayUsingSelector:@selector(localizedStandardCompare:)];
     if (groupNames != nil) {
-        NSEnumerator* groupNameEn = [groupNames objectEnumerator];
-        NSString* groupName;
-        while ((groupName = [groupNameEn nextObject])) {
+        for (NSString* groupName in groupNames) {
             NSLog(@"Loading group '%@'", groupName);
             NSString* groupPath = [NSString pathWithComponents:[NSArray arrayWithObjects:thePath, groupName, nil]];
             
             NSArray* prefabNames = [[fileManager contentsOfDirectoryAtPath:groupPath error:NULL] sortedArrayUsingSelector:@selector(localizedStandardCompare:)];
-            
-            NSEnumerator* prefabNameEn = [prefabNames objectEnumerator];
-            NSString* prefabName;
-            while ((prefabName = [prefabNameEn nextObject])) {
+            for (NSString* prefabName in prefabNames) {
                 if ([[prefabName pathExtension] isEqualToString:@"map"]) {
                     NSString* prefabPath = [NSString pathWithComponents:[NSArray arrayWithObjects:thePath, groupName, prefabName, nil]];
                     NSLog(@"Loading prefab from '%@'", prefabPath);
@@ -225,9 +220,7 @@ static PrefabManager* sharedInstance = nil;
     MutablePrefab* prefab = [[MutablePrefab alloc] initWithWorldBounds:&worldBounds name:prefabName group:prefabGroup readOnly:NO];
     NSMutableDictionary* entities = [[NSMutableDictionary alloc] init];
     
-    NSEnumerator* brushEn = [brushTemplates objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject])) {
+    for (id <Brush> brush in brushTemplates) {
         id <Entity> brushEntity = [brush entity];
         MutableEntity* newEntity = [entities objectForKey:[brushEntity entityId]];
         if (newEntity == nil) {
@@ -313,9 +306,7 @@ static PrefabManager* sharedInstance = nil;
 
 - (id <PrefabGroup>)prefabGroupWithNamePrefix:(NSString *)prefix {
     NSString* lowercasePrefix = [prefix lowercaseString];
-    NSEnumerator* groupEn = [prefabGroups objectEnumerator];
-    id <PrefabGroup> group;
-    while ((group = [groupEn nextObject]))
+    for (id <PrefabGroup> group in prefabGroups)
         if ([[[group name] lowercaseString] hasPrefix:lowercasePrefix])
             return group;
     return nil;

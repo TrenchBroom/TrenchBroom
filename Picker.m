@@ -39,9 +39,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     PickingHitList* hitList = [[PickingHitList alloc] init];
     NSArray* objects = [octree pickObjectsWithRay:ray];
     
-    NSEnumerator* objectEn = [objects objectEnumerator];
-    id object;
-    while ((object = [objectEn nextObject])) {
+    for (id object in objects) {
         if ([object conformsToProtocol:@protocol(Brush)]) {
             id <Brush> brush = (id <Brush>)object;
             if (filter == nil || [filter brushPickable:brush])
@@ -57,19 +55,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)pickCloseFaces:(const TRay *)theRay brushes:(NSArray *)theBrushes maxDistance:(float)theMaxDistance hitList:(PickingHitList *)theHitList {
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
+    for (id <Brush> brush in theBrushes)
         [brush pickClosestFace:theRay maxDistance:theMaxDistance hitList:theHitList];
 }
 
 - (void)pickVertices:(const TRay *)theRay brushes:(NSArray *)theBrushes handleRadius:(float)theHandleRadius hitList:(PickingHitList *)theHitList filter:(id <Filter>)filter {
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject])) {
+    for (id <Brush> brush in theBrushes)
         if (filter == nil || [filter brushVerticesPickable:brush])
             [brush pickVertices:theRay handleRadius:theHandleRadius hitList:theHitList];
-    }
 }
 
 - (void)dealloc {

@@ -91,10 +91,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [compileMenu removeAllItems];
     CompilerProfileManager* profileManager = [CompilerProfileManager sharedManager];
     
-    NSEnumerator* profileEn = [[profileManager profiles] objectEnumerator];
-    CompilerProfile* profile;
     int index = 0;
-    while ((profile = [profileEn nextObject])) {
+    for (CompilerProfile* profile in [profileManager profiles]) {
         if ([profile name] != nil) {
             NSMenuItem* profileMenuItem = [[NSMenuItem alloc] initWithTitle:[profile name] action:@selector(compile:) keyEquivalent:@""];
             [profileMenuItem setTag:index];
@@ -102,7 +100,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [profileMenuItem release];
         }
         
-        index += 1;
+        index++;
     }
     
     // build run menu

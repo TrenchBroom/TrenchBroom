@@ -45,10 +45,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)entitiesAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSArray* entities = [userInfo objectForKey:EntitiesKey];
-    
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject]))
+    for (id <Entity> entity in entities)
         if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
             [root addObject:entity bounds:[entity bounds]];
 }
@@ -56,10 +53,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)entitiesWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSArray* entities = [userInfo objectForKey:EntitiesKey];
-    
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject]))
+    for (id <Entity> entity in entities)
         if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
             if (![root removeObject:entity bounds:[entity bounds]])
                 [NSException raise:NSInvalidArgumentException format:@"Entity %@ was not removed from octree", entity];
@@ -68,10 +62,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)propertiesWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSArray* entities = [userInfo objectForKey:EntitiesKey];
-    
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject]))
+    for (id <Entity> entity in entities)
         if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
             [root removeObject:entity bounds:[entity bounds]];
 }
@@ -79,10 +70,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)propertiesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSArray* entities = [userInfo objectForKey:EntitiesKey];
-    
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject]))
+    for (id <Entity> entity in entities)
         if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
             [root addObject:entity bounds:[entity bounds]];
 }
@@ -90,20 +78,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)brushesAdded:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSArray* brushes = [userInfo objectForKey:BrushesKey];
-    
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
+    for (id <Brush> brush in brushes)
         [root addObject:brush bounds:[brush bounds]];
 }
 
 - (void)brushesWillBeRemoved:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSArray* brushes = [userInfo objectForKey:BrushesKey];
-    
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
+    for (id <Brush> brush in brushes)
         if (![root removeObject:brush bounds:[brush bounds]])
             [NSException raise:NSInvalidArgumentException format:@"Brush %@ was not removed from octree", brush];
 }
@@ -111,35 +93,23 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)brushesWillChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSArray* brushes = [userInfo objectForKey:BrushesKey];
-    
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
+    for (id <Brush> brush in brushes)
         [root removeObject:brush bounds:[brush bounds]];
 }
 
 - (void)brushesDidChange:(NSNotification *)notification {
     NSDictionary* userInfo = [notification userInfo];
     NSArray* brushes = [userInfo objectForKey:BrushesKey];
-    
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
+    for (id <Brush> brush in brushes)
         [root addObject:brush bounds:[brush bounds]];
 }
 
 - (void)documentLoaded:(NSNotification *)notification {
     MapDocument* map = [notification object];
-    
-    NSEnumerator* entityEn = [[map entities] objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
+    for (id <Entity> entity in [map entities]) {
         if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
             [root addObject:entity bounds:[entity bounds]];
-        
-        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject]))
+        for (id <Brush> brush in [entity brushes])
             [root addObject:brush bounds:[brush bounds]];
     }
 }

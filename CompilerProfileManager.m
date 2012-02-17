@@ -80,17 +80,13 @@ static CompilerProfileManager* sharedInstance = nil;
         if (compilersDictionary != nil) {
             NSArray* profilesArray = [compilersDictionary objectForKey:CompilerProfilesArray];
             if (profilesArray != nil) {
-                NSEnumerator* profileEn = [profilesArray objectEnumerator];
-                NSDictionary* profileDict;
-                while ((profileDict = [profileEn nextObject])) {
+                for (NSDictionary* profileDict in profilesArray) {
                     NSString* profileName = [profileDict objectForKey:CompilerProfileName];
                     
                     NSArray* commandsArray = [profileDict objectForKey:CompilerProfileCommandsArray];
                     NSMutableArray* commands = [[NSMutableArray alloc] initWithCapacity:[commandsArray count]];
                     
-                    NSEnumerator* commandEn = [commandsArray objectEnumerator];
-                    NSDictionary* commandDict;
-                    while ((commandDict = [commandEn nextObject])) {
+                    for (NSDictionary* commandDict in commandsArray) {
                         NSString* commandPath = [commandDict objectForKey:CompilerProfileCommandPath];
                         NSString* commandArguments = [commandDict objectForKey:CompilerProfileCommandArguments];
                         
@@ -124,17 +120,13 @@ static CompilerProfileManager* sharedInstance = nil;
     NSMutableArray* profileDictsArray = [NSMutableArray array];
     [compilersDict setObject:profileDictsArray forKey:CompilerProfilesArray];
     
-    NSEnumerator* profileEn = [profiles objectEnumerator];
-    CompilerProfile* profile;
-    while ((profile = [profileEn nextObject])) {
+    for (CompilerProfile* profile in profiles) {
         NSMutableDictionary* profileDict = [NSMutableDictionary dictionary];
         if ([profile name] != nil)
             [profileDict setObject:[profile name] forKey:CompilerProfileName];
         
         NSMutableArray* commandDictsArray = [NSMutableArray array];
-        NSEnumerator* commandEn = [[profile commands] objectEnumerator];
-        CompilerProfileCommand* command;
-        while ((command = [commandEn nextObject])) {
+        for (CompilerProfileCommand* command in [profile commands]) {
             NSMutableDictionary* commandDict = [NSMutableDictionary dictionary];
             if ([command path] != nil)
                 [commandDict setObject:[command path] forKey:CompilerProfileCommandPath];

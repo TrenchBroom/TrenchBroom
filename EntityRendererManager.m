@@ -59,9 +59,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         return nil;
     
     NSMutableArray* pakPaths = [[NSMutableArray alloc] initWithCapacity:[theMods count]];
-    NSEnumerator* modEn = [theMods objectEnumerator];
-    NSString* mod;
-    while ((mod = [modEn nextObject]))
+    for (NSString* mod in theMods)
         [pakPaths addObject:[quakePath stringByAppendingPathComponent:mod]];
     
     id <NSCopying> rendererKey = [self rendererKey:theModelProperty pakPaths:pakPaths];

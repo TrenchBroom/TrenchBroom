@@ -43,9 +43,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         NSMutableArray* droppedFaces = nil;
         if (!initVertexDataWithFaces(&vertexData, worldBounds, faces, &droppedFaces)) {
             if (droppedFaces != nil) {
-                NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
-                MutableFace* droppedFace;
-                while ((droppedFace = [droppedFacesEn nextObject])) {
+                for (MutableFace* droppedFace in droppedFaces) {
                     [droppedFace setBrush:nil];
                     [faces removeObject:droppedFace];
                 }
@@ -103,9 +101,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSAssert(theTemplate != nil, @"brush template must not be nil");
     
     if ((self = [self initWithWorldBounds:theWorldBounds])) {
-        NSEnumerator* faceEn = [[theTemplate faces] objectEnumerator];
-        id <Face> faceTemplate;
-        while ((faceTemplate = [faceEn nextObject])) {
+        for (id <Face> faceTemplate in [theTemplate faces]) {
             MutableFace* face = [[MutableFace alloc] initWithWorldBounds:worldBounds faceTemplate:faceTemplate];
             [self addFace:face];
             [face release];
@@ -172,9 +168,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [result setEntity:entity];
     [result setFilePosition:filePosition];
 
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
+    for (id <Face> face in faces) {
         id <Face> faceCopy = [face copy];
         [result addFace:faceCopy];
         [faceCopy release];
@@ -201,9 +195,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         return YES;
     
     if (droppedFaces != nil) {
-        NSEnumerator* droppedFacesEn = [droppedFaces objectEnumerator];
-        MutableFace* droppedFace;
-        while ((droppedFace = [droppedFacesEn nextObject])) {
+        for (MutableFace* droppedFace in droppedFaces) {
             [droppedFace setBrush:nil];
             [faces removeObjectIdenticalTo:droppedFace];
         }
@@ -219,59 +211,60 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)translateBy:(const TVector3f *)theDelta lockTextures:(BOOL)lockTextures {
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
+    for (MutableFace* face in faces)
         [face translateBy:theDelta lockTexture:lockTextures];
 
     if (vertexDataValid)
         translateVertexData(&vertexData, theDelta);
+    
+    [entity brushChanged:self];
 }
 
 - (void)rotate90CW:(EAxis)theAxis center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures {
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
+    for (MutableFace* face in faces)
         [face rotate90CW:theAxis center:theCenter lockTexture:lockTextures];
 
     if (vertexDataValid)
         rotateVertexData90CW(&vertexData, theAxis, theCenter);
+    
+    [entity brushChanged:self];
 }
 
 - (void)rotate90CCW:(EAxis)theAxis center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures {
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
+    for (MutableFace* face in faces)
         [face rotate90CCW:theAxis center:theCenter lockTexture:lockTextures];
 
     if (vertexDataValid)
         rotateVertexData90CCW(&vertexData, theAxis, theCenter);
+    
+    [entity brushChanged:self];
 }
 
 - (void)rotate:(const TQuaternion *)theRotation center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures {
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
+    for (MutableFace* face in faces)
         [face rotate:theRotation center:theCenter lockTexture:lockTextures];
 
     if (vertexDataValid)
         rotateVertexData(&vertexData, theRotation, theCenter);
     
     snapVertexData(&vertexData);
+    
+    [entity brushChanged:self];
 }
 
 - (void)flipAxis:(EAxis)theAxis center:(const TVector3f *)theCenter lockTextures:(BOOL)lockTextures {
-    NSEnumerator* faceEn = [faces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
+    for (MutableFace* face in faces)
         [face flipAxis:theAxis center:theCenter lockTexture:lockTextures];
 
     if (vertexDataValid)
         flipVertexData(&vertexData, theAxis, theCenter);
+    
+    [entity brushChanged:self];
 }
 
 - (void)snap {
     snapVertexData([self vertexData]);
+    [entity brushChanged:self];
 }
 
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist {
@@ -312,6 +305,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)drag:(MutableFace *)face by:(float)dist lockTexture:(BOOL)lockTexture {
     [face dragBy:dist lockTexture:lockTexture];
     [self invalidateVertexData];
+    
+    [entity brushChanged:self];
 }
 
 - (int)dragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta {
@@ -320,22 +315,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     int newIndex = dragVertex([self vertexData], theVertexIndex, *theDelta, addedFaces, removedFaces);
 
-    NSEnumerator* faceEn = [removedFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject])) {
-        [face setBrush:nil];
-        [faces removeObjectIdenticalTo:face];
+    for (MutableFace* removedFace in removedFaces) {
+        [removedFace setBrush:nil];
+        [faces removeObjectIdenticalTo:removedFace];
     }
     
-    faceEn = [addedFaces objectEnumerator];
-    while ((face = [faceEn nextObject])) {
-        [face setBrush:self];
-        [faces addObject:face];
+    for (MutableFace* addedFace in addedFaces) {
+        [addedFace setBrush:self];
+        [faces addObject:addedFace];
     }
+    
+    [entity brushChanged:self];
     
     [addedFaces release];
     [removedFaces release];
-
+    
     return newIndex;
 }
 
@@ -345,18 +339,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     int newIndex = dragEdge([self vertexData], theEdgeIndex, *theDelta, addedFaces, removedFaces);
     
-    NSEnumerator* faceEn = [removedFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject])) {
-        [face setBrush:nil];
-        [faces removeObjectIdenticalTo:face];
+    for (MutableFace* removedFace in removedFaces) {
+        [removedFace setBrush:nil];
+        [faces removeObjectIdenticalTo:removedFace];
     }
     
-    faceEn = [addedFaces objectEnumerator];
-    while ((face = [faceEn nextObject])) {
-        [face setBrush:self];
-        [faces addObject:face];
+    for (MutableFace* addedFace in addedFaces) {
+        [addedFace setBrush:self];
+        [faces addObject:addedFace];
     }
+    
+    [entity brushChanged:self];
     
     [addedFaces release];
     [removedFaces release];
@@ -370,18 +363,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     int newIndex = dragSide([self vertexData], theFaceIndex, *theDelta, addedFaces, removedFaces);
     
-    NSEnumerator* faceEn = [removedFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject])) {
-        [face setBrush:nil];
-        [faces removeObjectIdenticalTo:face];
+    for (MutableFace* removedFace in removedFaces) {
+        [removedFace setBrush:nil];
+        [faces removeObjectIdenticalTo:removedFace];
     }
     
-    faceEn = [addedFaces objectEnumerator];
-    while ((face = [faceEn nextObject])) {
-        [face setBrush:self];
-        [faces addObject:face];
+    for (MutableFace* addedFace in addedFaces) {
+        [addedFace setBrush:self];
+        [faces addObject:addedFace];
     }
+    
+    [entity brushChanged:self];
     
     [addedFaces release];
     [removedFaces release];
@@ -392,6 +384,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)deleteFace:(MutableFace *)face {
     [faces removeObjectIdenticalTo:face];
     [self invalidateVertexData];
+    [entity brushChanged:self];
 }
 
 - (BOOL)canDeleteFace:(MutableFace *)face {
@@ -434,14 +427,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self invalidateVertexData];
     [faces removeAllObjects];
     
-    NSEnumerator* faceEn = [[theTemplate faces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
+    for (id <Face> face in [theTemplate faces]) {
         MutableFace* copy = [face copy];
         [faces addObject:copy];
         [copy setBrush:self];
         [copy release];
     }
+
+    [entity brushChanged:self];
 }
 
 - (NSString *)description {
@@ -627,9 +620,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     const TVertexList* theirVertices = [theBrush vertices];
     
-    NSEnumerator* myFaceEn = [faces objectEnumerator];
-    id <Face> myFace;
-    while ((myFace = [myFaceEn nextObject])) {
+    for (id <Face> myFace in faces) {
         const TVector3f* origin = &[myFace vertices]->items[0]->position;
         const TVector3f* direction = [myFace norm];
         if (vertexStatusFromRay(origin, direction, theirVertices) == PS_ABOVE)
@@ -638,9 +629,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     const TVertexList* myVertices = [self vertices];
     
-    NSEnumerator* theirFaceEn = [[theBrush faces] objectEnumerator];
-    id <Face> theirFace;
-    while ((theirFace = [theirFaceEn nextObject])) {
+    for (id <Face> theirFace in [theBrush faces]) {
         TVector3f* origin = &[theirFace vertices]->items[0]->position;
         const TVector3f* direction = [theirFace norm];
         if (vertexStatusFromRay(origin, direction, myVertices) == PS_ABOVE)

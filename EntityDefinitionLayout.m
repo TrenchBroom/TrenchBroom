@@ -51,8 +51,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (entityDefinitions == nil || [entityDefinitions count] == 0)
         return;
     
-    NSEnumerator* definitionEn = [entityDefinitions objectEnumerator];
-    EntityDefinition* definition;
     float x = width; // to force creation of first row
     float y = outerMargin;
     float yd = 0;
@@ -61,7 +59,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     float maxWidth = 150;
 
     NSMutableArray* row;
-    while ((definition = [definitionEn nextObject])) {
+    for (EntityDefinition* definition in entityDefinitions) {
         if (filter == nil || [filter passes:definition]) {
             GLString* nameString = [fontManager glStringFor:[definition name] font:font];
             float cellWidth = fmax(maxWidth, [nameString size].width);
@@ -109,16 +107,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (!valid)
         [self validate];
     
-    NSEnumerator* rowEn = [rows objectEnumerator];
-    NSArray* row;
-    while ((row = [rowEn nextObject])) {
-        NSEnumerator* cellEn = [row objectEnumerator];
-        EntityDefinitionLayoutCell* cell;
-        while ((cell = [cellEn nextObject])) {
+    for (NSArray* row in rows)
+        for (EntityDefinitionLayoutCell* cell in row)
             if (NSPointInRect(pos, [cell bounds]))
                 return cell;
-        }
-    }
     
     return nil;
 }

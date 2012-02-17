@@ -497,6 +497,16 @@ void roundDownV3f(const TVector3f* v, TVector3f* o) {
     o->z = v->z < 0 ? ceilf(v->z) : floorf(v->z);
 }
 
+void snapV3f(const TVector3f* v, TVector3f* o) {
+    float rx = roundf(v->x);
+    float ry = roundf(v->y);
+    float rz = roundf(v->z);
+
+    o->x = fabsf(v->x - rx) < AlmostZero ? rx : v->x;
+    o->y = fabsf(v->y - ry) < AlmostZero ? ry : v->y;
+    o->z = fabsf(v->z - rz) < AlmostZero ? rz : v->z;
+}
+
 void setV3f(TVector3f* l, const TVector3i* r) {
     l->x = r->x;
     l->y = r->y;

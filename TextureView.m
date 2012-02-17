@@ -102,21 +102,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     glTranslatef(0, 2 * NSMinY(visibleRect), 0);
     if (layout != nil) {
-        NSArray* rows = [layout rowsInY:NSMinY(visibleRect) height:NSHeight(visibleRect)];
-        NSEnumerator* rowEn = [rows objectEnumerator];
-        TextureViewLayoutRow* row;
-
         GLFontManager* fontManager = [glResources fontManager];
         NSFont* font = [NSFont systemFontOfSize:12];
         
         Texture* mruTexture = [[selectionManager textureMRU] lastObject];
         [fontManager activate];
         
-        while ((row = [rowEn nextObject])) {
-            NSArray* cells = [row cells];
-            NSEnumerator* cellEn = [cells objectEnumerator];
-            TextureViewLayoutCell* cell;
-            while ((cell = [cellEn nextObject])) {
+        NSArray* rows = [layout rowsInY:NSMinY(visibleRect) height:NSHeight(visibleRect)];
+        for (TextureViewLayoutRow* row in rows) {
+            for (TextureViewLayoutCell* cell in [row cells]) {
                 float tx = NSMinX([cell textureRect]);
                 float ty = NSHeight(visibleRect) - NSMinY([cell textureRect]);
                 float tx2 = NSMaxX([cell textureRect]);

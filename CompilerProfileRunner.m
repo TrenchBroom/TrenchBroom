@@ -73,14 +73,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSMutableArray* argArray = [[NSMutableArray alloc] init];
     NSMutableString* argString = [[NSMutableString alloc] init];
     
-    NSEnumerator* argEn = [argComponents objectEnumerator];
-    NSString* arg;
-    while ((arg = [argEn nextObject])) {
+    for (NSString* arg in argComponents) {
         NSString* processedArg = arg;
         
-        NSEnumerator* replacementEn = [replacements keyEnumerator];
-        NSString* searchStr;
-        while ((searchStr = [replacementEn nextObject])) {
+        for (NSString* searchStr in replacements) {
             if ([arg isEqualToString:searchStr]) {
                 processedArg = [replacements objectForKey:searchStr];
                 break;

@@ -294,9 +294,7 @@ int const TexCoordSize = 2 * sizeof(float);
         [entityRenderers removeAllObjects];
 
         NSArray* modelEntitiesCopy = [modelEntities copy];
-        NSEnumerator* entityEn = [modelEntitiesCopy objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
+        for (id <Entity> entity in modelEntitiesCopy) {
             id <EntityRenderer> renderer = [entityRendererManager entityRendererForEntity:entity mods:mods];
             if (renderer != nil)
                 [entityRenderers setObject:renderer forKey:[entity entityId]];
@@ -305,8 +303,7 @@ int const TexCoordSize = 2 * sizeof(float);
         }
 
         NSArray* selectedModelEntitiesCopy = [selectedModelEntities copy];
-        entityEn = [selectedModelEntitiesCopy objectEnumerator];
-        while ((entity = [entityEn nextObject])) {
+        for (id <Entity> entity in selectedModelEntitiesCopy) {
             id <EntityRenderer> renderer = [entityRendererManager entityRendererForEntity:entity mods:mods];
             if (renderer != nil)
                 [entityRenderers setObject:renderer forKey:[entity entityId]];
@@ -327,9 +324,7 @@ int const TexCoordSize = 2 * sizeof(float);
         [entityBoundsVbo activate];
         [entityBoundsVbo mapBuffer];
         
-        NSEnumerator* entityEn = [deselectedEntities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
+        for (id <Entity> entity in deselectedEntities) {
             if (![entity isWorldspawn]) {
                 VBOMemBlock* block = [entityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
                 [self writeEntityBounds:entity toBlock:block];
@@ -366,9 +361,7 @@ int const TexCoordSize = 2 * sizeof(float);
         [selectedEntityBoundsVbo activate];
         [selectedEntityBoundsVbo mapBuffer];
         
-        NSEnumerator* entityEn = [selectedEntities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
+        for (id <Entity> entity in selectedEntities) {
             if (![entity isWorldspawn]) {
                 VBOMemBlock* block = [selectedEntityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
                 [self writeEntityBounds:entity toBlock:block];
@@ -405,9 +398,7 @@ int const TexCoordSize = 2 * sizeof(float);
         [entityBoundsVbo activate];
         [entityBoundsVbo mapBuffer];
 
-        NSEnumerator* entityEn = [addedEntities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
+        for (id <Entity> entity in addedEntities) {
             if (![entity isWorldspawn]) {
                 VBOMemBlock* block = [entityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
                 [self writeEntityBounds:entity toBlock:block];
@@ -427,8 +418,7 @@ int const TexCoordSize = 2 * sizeof(float);
         [entityBoundsVbo deactivate];
         
         [fontManager activate];
-        entityEn = [addedEntities objectEnumerator];
-        while ((entity = [entityEn nextObject])) {
+        for (id <Entity> entity in addedEntities) {
             if (![entity isWorldspawn]) {
                 NSString* classname = [entity classname];
                 EntityClassnameAnchor* anchor = [[EntityClassnameAnchor alloc] initWithEntity:entity];
@@ -447,9 +437,7 @@ int const TexCoordSize = 2 * sizeof(float);
         [selectedEntityBoundsVbo mapBuffer];
 
         NSMutableArray* unselectedEntities = [[NSMutableArray alloc] init];
-        NSEnumerator* entityEn = [changedEntities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
+        for (id <Entity> entity in changedEntities) {
             if (![entity isWorldspawn]) {
                 
                 VBOMemBlock* block = [entity boundsMemBlock];
@@ -468,8 +456,7 @@ int const TexCoordSize = 2 * sizeof(float);
             [entityBoundsVbo activate];
             [entityBoundsVbo mapBuffer];
             
-            entityEn = [unselectedEntities objectEnumerator];
-            while ((entity = [entityEn nextObject])) {
+            for (id <Entity> entity in unselectedEntities) {
                 VBOMemBlock* block = [entity boundsMemBlock];
                 [self writeEntityBounds:entity toBlock:block];
             }
@@ -488,9 +475,7 @@ int const TexCoordSize = 2 * sizeof(float);
         [entityBoundsVbo activate];
         [entityBoundsVbo mapBuffer];
         
-        NSEnumerator* entityEn = [removedEntities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
+        for (id <Entity> entity in removedEntities) {
             if (![entity isWorldspawn]) {
                 [entity setBoundsMemBlock:nil];
                 [entityRenderers removeObjectForKey:[entity entityId]];
@@ -505,8 +490,7 @@ int const TexCoordSize = 2 * sizeof(float);
         [entityBoundsVbo deactivate];
 
         [fontManager activate];
-        entityEn = [removedEntities objectEnumerator];
-        while ((entity = [entityEn nextObject]))
+        for (id <Entity> entity in removedEntities)
             if (![entity isWorldspawn])
                 [classnameRenderer removeStringForKey:[entity entityId]];
         [fontManager deactivate];
@@ -519,12 +503,8 @@ int const TexCoordSize = 2 * sizeof(float);
         [faceVbo activate];
         [faceVbo mapBuffer];
 
-        NSEnumerator* brushEn = [addedBrushes objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            id <Face> face;
-            while ((face = [faceEn nextObject])) {
+        for (id <Brush> brush in addedBrushes) {
+            for (id <Face> face in [brush faces]) {
                 VBOMemBlock* block = [faceVbo allocMemBlock:[face vertices]->count * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize)];
                 [self writeFaceVertices:face toBlock:block];
                 [face setMemBlock:block];
@@ -542,12 +522,8 @@ int const TexCoordSize = 2 * sizeof(float);
         [faceVbo activate];
         [faceVbo mapBuffer];
         
-        NSEnumerator* brushEn = [changedBrushes objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            id <Face> face;
-            while ((face = [faceEn nextObject])) {
+        for (id <Brush> brush in changedBrushes) {
+            for (id <Face> face in [brush faces]) {
                 int blockSize = [face vertices]->count * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
                 VBOMemBlock* block = [face memBlock];
                 if ([block capacity] != blockSize) {
@@ -564,15 +540,29 @@ int const TexCoordSize = 2 * sizeof(float);
     }
 }
 
+- (void)validateRemovedBrushes {
+    NSArray* removedBrushes = [changeSet removedBrushes];
+    if ([removedBrushes count] > 0) {
+        [faceVbo activate];
+        [faceVbo mapBuffer];
+        
+        for (id <Brush> brush in removedBrushes)
+            for (id <Face> face in [brush faces])
+                [face setMemBlock:nil];
+        
+        [faceVbo unmapBuffer];
+        [faceVbo deactivate];
+    }
+}
+
+
 - (void)validateChangedFaces {
     NSArray* changedFaces = [changeSet changedFaces];
     if ([changedFaces count] > 0) {
         [faceVbo activate];
         [faceVbo mapBuffer];
         
-        NSEnumerator* faceEn = [changedFaces objectEnumerator];
-        id <Face> face;
-        while ((face = [faceEn nextObject])) {
+        for (id <Face> face in changedFaces) {
             int blockSize = [face vertices]->count * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
             VBOMemBlock* block = [face memBlock];
             if ([block capacity] != blockSize) {
@@ -588,26 +578,6 @@ int const TexCoordSize = 2 * sizeof(float);
     }
 }
 
-- (void)validateRemovedBrushes {
-    NSArray* removedBrushes = [changeSet removedBrushes];
-    if ([removedBrushes count] > 0) {
-        [faceVbo activate];
-        [faceVbo mapBuffer];
-        
-        NSEnumerator* brushEn = [removedBrushes objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            id <Face> face;
-            while ((face = [faceEn nextObject]))
-                [face setMemBlock:nil];
-        }
-        
-        [faceVbo unmapBuffer];
-        [faceVbo deactivate];
-    }
-}
-
 - (void)rebuildFaceIndexBuffers {
     [faceIndexBuffers removeAllObjects];
     [edgeIndexBuffer release];
@@ -616,18 +586,11 @@ int const TexCoordSize = 2 * sizeof(float);
     NSMutableArray* allFaces = [[NSMutableArray alloc] init];
     
     MapDocument* map = [windowController document];
-    NSEnumerator* entityEn = [[map entities] objectEnumerator];
-    id <Entity> entity;
-    while  ((entity = [entityEn nextObject])) {
-        if ([filter entityRenderable:entity]) {
-            NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-            id <Brush> brush;
-            while ((brush = [brushEn nextObject])) {
+    for (id <Entity> entity in [map entities])
+        if ([filter entityRenderable:entity])
+            for (id <Brush> brush in [entity brushes])
                 if ([filter brushRenderable:brush])
                     [allFaces addObjectsFromArray:[brush faces]];
-            }
-        }
-    }
     
     SelectionManager* selectionManager = [map selectionManager];
     NSMutableArray* selectedFaces = [[NSMutableArray alloc] initWithArray:[selectionManager selectedFaces]];
@@ -636,9 +599,7 @@ int const TexCoordSize = 2 * sizeof(float);
     [allFaces removeObjectsInArray:selectedFaces];
     [selectedFaces release];
     
-    NSEnumerator* faceEn = [allFaces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
+    for (id <Face> face in allFaces) {
         NSString* textureName = [[face texture] name];
         IntData* indexBuffer = [faceIndexBuffers objectForKey:textureName];
         if (indexBuffer == nil) {
@@ -662,12 +623,8 @@ int const TexCoordSize = 2 * sizeof(float);
     MapDocument* map = [windowController document];
     SelectionManager* selectionManager = [map selectionManager];
     
-    NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject])) {
-        NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-        id <Face> face;
-        while ((face = [faceEn nextObject])) {
+    for (id <Brush> brush in [selectionManager selectedBrushes]) {
+        for (id <Face> face in [brush faces]) {
             NSString* textureName = [[face texture] name];
             IntData* indexBuffer = [selectedFaceIndexBuffers objectForKey:textureName];
             if (indexBuffer == nil) {
@@ -681,9 +638,7 @@ int const TexCoordSize = 2 * sizeof(float);
         }
     }
     
-    NSEnumerator* faceEn = [[selectionManager selectedFaces] objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
+    for (id <Face> face in [selectionManager selectedFaces]) {
         NSString* textureName = [[face texture] name];
         IntData* indexBuffer = [selectedFaceIndexBuffers objectForKey:textureName];
         if (indexBuffer == nil) {
@@ -748,9 +703,7 @@ int const TexCoordSize = 2 * sizeof(float);
     [entityRendererManager activate];
     
     glMatrixMode(GL_MODELVIEW);
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
+    for (id <Entity> entity in theEntities) {
         if (filter == nil || [filter entityRenderable:entity]) {
             id <EntityRenderer> entityRenderer = [entityRenderers objectForKey:[entity entityId]];
             
@@ -833,9 +786,7 @@ int const TexCoordSize = 2 * sizeof(float);
     glColorPointer(4, GL_UNSIGNED_BYTE, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)TexCoordSize + TexCoordSize + ColorSize);
     glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
     
-    NSEnumerator* textureNameEn = [theIndexBuffers keyEnumerator];
-    NSString* textureName;
-    while ((textureName = [textureNameEn nextObject])) {
+    for (NSString* textureName in theIndexBuffers) {
         Texture* texture = [textureManager textureForName:textureName];
         if (textured) {
             if (texture != nil)
@@ -894,10 +845,7 @@ int const TexCoordSize = 2 * sizeof(float);
         
         Camera* camera = [windowController camera];
         
-        NSArray* brushes = [selectionManager selectedBrushes];
-        NSEnumerator* brushEn = [brushes objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
+        for (id <Brush> brush in [selectionManager selectedBrushes]) {
             if ([filter brushVerticesPickable:brush]) {
                 const TVertexList* vertices = [brush vertices];
                 for (int i = 0; i < vertices->count; i++) {
@@ -924,10 +872,7 @@ int const TexCoordSize = 2 * sizeof(float);
                     glPopMatrix();
                 }
                 
-                NSArray* faces = [brush faces];
-                NSEnumerator* faceEn = [faces objectEnumerator];
-                id <Face> face;
-                while ((face = [faceEn nextObject])) {
+                for (id <Face> face in [brush faces]) {
                     centerOfVertices([face vertices], &mid);
                     float dist = [camera distanceTo:&mid];
                     
@@ -948,9 +893,7 @@ int const TexCoordSize = 2 * sizeof(float);
     [changeSet entitiesAdded:theEntities];
     
     NSMutableArray* brushes = [[NSMutableArray alloc] init];
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject]))
+    for (id <Entity> entity in theEntities)
         [brushes addObjectsFromArray:[entity brushes]];
     
     [self addBrushes:brushes];
@@ -961,9 +904,7 @@ int const TexCoordSize = 2 * sizeof(float);
     [changeSet entitiesRemoved:theEntities];
     
     NSMutableArray* brushes = [[NSMutableArray alloc] init];
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject]))
+    for (id <Entity> entity in theEntities)
         [brushes addObjectsFromArray:[entity brushes]];
     
     [self removeBrushes:brushes];
@@ -990,6 +931,16 @@ int const TexCoordSize = 2 * sizeof(float);
     NSDictionary* userInfo = [notification userInfo];
     NSArray* brushes = [userInfo objectForKey:BrushesKey];
     [changeSet brushesChanged:brushes];
+    
+    NSMutableSet* entities = [[NSMutableSet alloc] init];
+    for (id <Brush> brush in brushes) {
+        id <Entity> entity = [brush entity];
+        if (![entity isWorldspawn] && [[entity entityDefinition] type] == EDT_BRUSH)
+            [entities addObject:entity];
+    }
+    
+    [changeSet entitiesChanged:[entities allObjects]];
+    [entities release];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -1387,9 +1338,7 @@ int const TexCoordSize = 2 * sizeof(float);
     
     if ([feedbackFigures count] > 0) {
         glDisable(GL_DEPTH_TEST);
-        NSEnumerator* figureEn = [feedbackFigures objectEnumerator];
-        id <Figure> figure;
-        while ((figure = [figureEn nextObject]))
+        for (id <Figure> figure in feedbackFigures)
             [figure render];
         glEnable(GL_DEPTH_TEST);
     }

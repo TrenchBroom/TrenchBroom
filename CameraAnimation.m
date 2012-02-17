@@ -40,9 +40,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSMutableSet* animations = [camera animations];
     
     NSSet* copy = [[NSSet alloc] initWithSet:animations];
-    NSEnumerator* animationEn = [copy objectEnumerator];
-    NSAnimation* animation;
-    while ((animation = [animationEn nextObject]))
+    for (NSAnimation* animation in copy)
         [animation stopAnimation];
     [copy release];
     

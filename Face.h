@@ -42,6 +42,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (const TVector3f *)norm;
 - (const TPlane *)boundary;
+- (void)point1:(TVector3f *)thePoint1 point2:(TVector3f *)thePoint2 point3:(TVector3f *)thePoint3;
 - (const TVertexList *)vertices;
 - (const TEdgeList *)edges;
 

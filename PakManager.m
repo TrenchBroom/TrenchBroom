@@ -50,9 +50,7 @@ static PakManager* sharedInstance = nil;
         
         pakDirectories = [[NSMutableArray alloc] init];
 
-        NSEnumerator* contentEn = [contents objectEnumerator];
-        NSString* content;
-        while ((content = [contentEn nextObject])) {
+        for (NSString* content in contents) {
             NSString* pakFileName = [content lowercaseString];
             if ([[pakFileName pathExtension] isEqualToString:@"pak"]) {
                 NSString* pakFilePath = [thePath stringByAppendingPathComponent:pakFileName];
@@ -139,14 +137,10 @@ static PakManager* sharedInstance = nil;
     NSAssert(thePakPaths != nil, @"pak path array must not be nil");
     NSAssert([thePakPaths count] > 0, @"pak path array must not be empty");
     
-    NSEnumerator* pakPathEn = [thePakPaths reverseObjectEnumerator];
-    NSString* pakPath;
-    while ((pakPath = [pakPathEn nextObject])) {
+    for (NSString* pakPath in [thePakPaths reverseObjectEnumerator]) {
         NSArray* pakDirectories = [self pakDirectoriesAtPath:pakPath];
         if (pakDirectories != nil) {
-            NSEnumerator* pakDirectoryEn = [pakDirectories reverseObjectEnumerator];
-            PakDirectory* pakDirectory;
-            while ((pakDirectory = [pakDirectoryEn nextObject])) {
+            for (PakDirectory* pakDirectory in [pakDirectories reverseObjectEnumerator]) {
                 NSData* entry = [pakDirectory entryForName:theEntryName];
                 if (entry != nil)
                     return entry;

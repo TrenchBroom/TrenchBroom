@@ -52,9 +52,7 @@ int const VertexMaxDistanceSquared = 512 * 512;
     
     if ([options isolationMode] == IM_DISCARD) {
         if ([selectionManager mode] == SM_FACES) {
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            id <Face> face;
-            while ((face = [faceEn nextObject]))
+            for (id <Face> face in [brush faces])
                 if ([selectionManager isFaceSelected:face])
                     return YES;
             
@@ -103,9 +101,7 @@ int const VertexMaxDistanceSquared = 512 * 512;
     
     if ([options isolationMode] != IM_NONE) {
         if ([selectionManager mode] == SM_FACES) {
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            id <Face> face;
-            while ((face = [faceEn nextObject]))
+            for (id <Face> face in [brush faces])
                 if ([selectionManager isFaceSelected:face])
                     return YES;
             

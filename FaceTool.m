@@ -95,17 +95,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_BRUSHES_ENTITIES) {
         const TPlane* boundary = [referenceFace boundary];
-        
-        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            id <Face> face;
-            while ((face = [faceEn nextObject])) {
+        for (id <Brush> brush in [selectionManager selectedBrushes])
+            for (id <Face> face in [brush faces])
                 if (face != referenceFace && equalV3f([referenceFace norm], [face norm]) && pointStatusFromPlane(boundary, &[face boundary]->point) == PS_INSIDE)
                     [dragFaces addObject:face];
-            }
-        }
     }
     
     MapDocument* map = [windowController document];

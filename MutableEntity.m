@@ -42,7 +42,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             MutableBrush* brush = [brushEn nextObject];
             
             bounds = *[brush bounds];
-            while ((brush = [brushEn nextObject]))
+            for (brush in brushEn)
                 mergeBoundsWithBounds(&bounds, [brush bounds], &bounds);
             
             centerOfBounds(&bounds, &center);
@@ -105,9 +105,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (id)initWithProperties:(NSDictionary *)theProperties {
     if ((self = [self init])) {
-        NSEnumerator* keyEn = [[theProperties allKeys] objectEnumerator];
-        NSString* key;
-        while ((key = [keyEn nextObject])) {
+        for (NSString* key in theProperties) {
             NSString* value = [theProperties objectForKey:key];
             [self setProperty:key value:value];
         }
@@ -138,9 +136,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [result setMap:map];
     [result setFilePosition:filePosition];
     
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject])) {
+    for (id <Brush> brush in brushes) {
         id <Brush> brushCopy = (id <Brush>) [brush copy];
         [result addBrush:brushCopy];
         [brushCopy release];
@@ -404,9 +400,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [angle release];
     angle = nil;
     
-    NSEnumerator* keyEn = [theProperties keyEnumerator];
-    NSString* key;
-    while ((key = [keyEn nextObject])) {
+    for (NSString* key in theProperties) {
         NSString* value = [theProperties objectForKey:key];
         [self setProperty:key value:value];
     }
@@ -533,14 +527,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if ([spawnFlags count] == 0)
         return @"<none>";
     
-    NSEnumerator* spawnFlagEn = [spawnFlags objectEnumerator];
-    SpawnFlag* spawnFlag = [spawnFlagEn nextObject];
-    
-    NSMutableString* result = [[NSMutableString alloc] initWithString:[spawnFlag name]];
-    while ((spawnFlag = [spawnFlagEn nextObject]))
-        [result appendFormat:@" %@", [spawnFlag name]];
-    
-    return [result autorelease];
+    return [spawnFlags componentsJoinedByString:@" "];
 }
 
 - (NSString *)classname {

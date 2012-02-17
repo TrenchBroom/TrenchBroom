@@ -46,7 +46,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         min = *theMin;
         max = *theMax;
         minSize = theMinSize;
-        objects = [[NSMutableSet alloc] init];
+        objects = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -249,11 +249,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
     
     if (hit) {
-        NSEnumerator* objectEn = [objects objectEnumerator];
-        id object;
-        while ((object = [objectEn nextObject]))
-            [list addObject:object];
-        
+        [list addObjectsFromArray:objects];
         for (int i = 0; i < 8; i++)
             if (children[i] != nil)
                 [children[i] addObjectsForRay:ray to:list];

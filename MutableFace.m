@@ -718,6 +718,34 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     return &side->edges;
 }
 
+- (void)point1:(TVector3f *)thePoint1 point2:(TVector3f *)thePoint2 point3:(TVector3f *)thePoint3 {
+    TVector3f v1, v2;
+
+    float bestDot = 1;
+    int best = -1;
+    const TVertexList* vertices = [self vertices];
+    for (int i = 0; i < vertices->count; i++) {
+        *thePoint3 = vertices->items[(i - 1 + vertices->count) % vertices->count]->position;
+        *thePoint1 = vertices->items[i]->position;
+        *thePoint2 = vertices->items[(i + 1) % vertices->count]->position;
+        
+        subV3f(thePoint3, thePoint1, &v1);
+        normalizeV3f(&v1, &v1);
+        subV3f(thePoint2, thePoint1, &v2);
+        normalizeV3f(&v2, &v2);
+        
+        float dot = fabsf(dotV3f(&v1, &v2));
+        if (dot < bestDot) {
+            bestDot = dot;
+            best = i;
+        }
+    }
+    
+    *thePoint3 = vertices->items[(best - 1 + vertices->count) % vertices->count]->position;
+    *thePoint1 = vertices->items[best]->position;
+    *thePoint2 = vertices->items[(best + 1) % vertices->count]->position;
+}
+
 - (const TBoundingBox *)worldBounds {
     return worldBounds;
 }

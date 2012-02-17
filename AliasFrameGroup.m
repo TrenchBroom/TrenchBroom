@@ -35,7 +35,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         NSEnumerator* frameEn = [frames objectEnumerator];
         AliasFrame* frame = [frameEn nextObject];
         bounds = *[frame bounds];
-
         while ((frame = [frameEn nextObject]))
             mergeBoundsWithBounds(&bounds, [frame bounds], &bounds);
     }

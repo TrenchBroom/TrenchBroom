@@ -39,9 +39,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSArray* entities = [userInfo objectForKey:EntitiesKey];
     
     BOOL changed = NO;
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
+    for (id <Entity> entity in entities) {
         if ([GroupClassName isEqualToString:[entity classname]]) {
             [groups addObject:entity];
             if ([self isVisible:entity])
@@ -59,9 +57,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSArray* entities = [userInfo objectForKey:EntitiesKey];
 
     BOOL changed = NO;
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
+    for (id <Entity> entity in entities) {
         if ([GroupClassName isEqualToString:[entity classname]]) {
             if ([self isVisible:entity])
                 visibleGroupCount--;
@@ -78,9 +74,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSDictionary* userInfo = [notification userInfo];
     NSArray* brushes = [userInfo objectForKey:BrushesKey];
     
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject])) {
+    for (id <Brush> brush in brushes) {
         id <Entity> entity = [brush entity];
         if ([GroupClassName isEqualToString:[entity classname]]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:GroupsChanged object:self];
@@ -95,9 +89,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)documentLoaded:(NSNotification *)notification {
-    NSEnumerator* entityEn = [[map entities] objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
+    for (id <Entity> entity in [map entities]) {
         if ([GroupClassName isEqualToString:[entity classname]]) {
             [groups addObject:entity];
             if ([self isVisible:entity])

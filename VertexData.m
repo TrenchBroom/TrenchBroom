@@ -360,6 +360,7 @@ TVertex* splitEdge(const TPlane* p, TEdge* e) {
     
     float dist = intersectPlaneWithLine(p, &line);
     linePointAtDistance(&line, dist, &newVertex->position);
+    snapV3f(&newVertex->position, &newVertex->position);
     newVertex->mark = VM_NEW;
     
     if (e->startVertex->mark == VM_DROP)
@@ -927,9 +928,7 @@ void initVertexDataWithBounds(TVertexData* vd, const TBoundingBox* b) {
 BOOL initVertexDataWithFaces(TVertexData* vd, const TBoundingBox* b, NSArray* f, NSMutableArray** d) {
     initVertexDataWithBounds(vd, b);
     
-    NSEnumerator* faceEn = [f objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
+    for (id <Face> face in f) {
         switch (cutVertexData(vd, face, d)) {
             case CR_REDUNDANT:
                 if (*d == nil)
@@ -1793,6 +1792,8 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
     
     // drag is concluded
     if (vIndex == -1 || actualDragDist == dragDist) {
+        for (int i = 0; i < vd->vertices.count; i++)
+            snapV3f(&vd->vertices.items[i]->position, &vd->vertices.items[i]->position);
         for (int i = 0; i < vd->sides.count; i++)
             updateFaceOfSide(vd->sides.items[i]);
         return vIndex;

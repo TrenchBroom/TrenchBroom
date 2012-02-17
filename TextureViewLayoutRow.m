@@ -74,12 +74,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (![self containsY:location.y])
         return nil;
     
-    NSEnumerator* cellEn = [cells objectEnumerator];
-    TextureViewLayoutCell* cell;
-    while ((cell = [cellEn nextObject])) {
+    for (TextureViewLayoutCell* cell in cells)
         if ([cell contains:location])
             return cell;
-    }
     
     return nil;
 }

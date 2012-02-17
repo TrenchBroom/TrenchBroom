@@ -37,7 +37,7 @@ typedef enum {
     int minSize;
     TVector3f min;
     TVector3f max;
-    NSMutableSet* objects;
+    NSMutableArray* objects;
     OctreeNode* children[8];
 }
 

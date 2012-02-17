@@ -200,12 +200,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         TVector3f origin = {0, 0, 0};
         
-        NSEnumerator* rowEn = [[layout rows] objectEnumerator];
-        NSArray* row;
-        while ((row = [rowEn nextObject])) {
-            NSEnumerator* cellEn = [row objectEnumerator];
-            EntityDefinitionLayoutCell* cell;
-            while ((cell = [cellEn nextObject])) {
+        for (NSArray* row in [layout rows]) {
+            for (EntityDefinitionLayoutCell* cell in row) {
                 EntityDefinition* definition = [cell entityDefinition];
                 id <EntityRenderer> renderer = [entityRendererManager entityRendererForDefinition:definition mods:mods];
                 
@@ -311,11 +307,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         glTranslatef(0, 2 * NSMinY(visibleRect), 0);
         
-        rowEn = [[layout rows] objectEnumerator];
-        while ((row = [rowEn nextObject])) {
-            NSEnumerator* cellEn = [row objectEnumerator];
-            EntityDefinitionLayoutCell* cell;
-            while ((cell = [cellEn nextObject])) {
+        for (NSArray* row in [layout rows]) {
+            for (EntityDefinitionLayoutCell* cell in row) {
                 GLString* nameString = [cell nameString];
 
                 glPushMatrix();

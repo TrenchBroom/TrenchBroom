@@ -102,9 +102,7 @@ NSArray* modListFromWorldspawn(id <Entity> worldspawn) {
     NSMutableArray* mods = [[NSMutableArray alloc] init];
     [mods addObject:@"id1"];
     if (modsStr != nil) {
-        NSEnumerator* modStrEn = [[modsStr componentsSeparatedByString:@";"] objectEnumerator];
-        NSString* mod;
-        while ((mod = [modStrEn nextObject])) {
+        for (NSString* mod in [modsStr componentsSeparatedByString:@";"]) {
             NSString* cleaned = [mod stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
             if ([cleaned length] > 0)
                 [mods addObject:cleaned];
@@ -119,11 +117,8 @@ void updateMenuWithExecutables(NSMenu* menu, BOOL setIcons, SEL action) {
     PreferencesManager* preferences = [PreferencesManager sharedManager];
     NSArray* executables = [preferences availableExecutables];
 
-    NSEnumerator* executableEn = [executables objectEnumerator];
-    NSString* executable;
     int index = 0;
-    
-    while ((executable = [executableEn nextObject])) {
+    for (NSString* executable in executables) {
         NSString* filename = [executable lastPathComponent];
         NSString* appname = [filename stringByDeletingPathExtension];
         NSMenuItem* menuItem = [[NSMenuItem alloc] initWithTitle:appname action:action keyEquivalent:@""];

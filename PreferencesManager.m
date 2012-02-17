@@ -132,9 +132,7 @@ static PreferencesManager* sharedInstance = nil;
     
     if (exists && directory) {
         NSArray* contents = [fileManager contentsOfDirectoryAtPath:[self quakePath] error:NULL];
-        NSEnumerator* filenameEn = [contents objectEnumerator];
-        NSString* filename;
-        while ((filename = [filenameEn nextObject])) {
+        for (NSString* filename in contents) {
             NSString* filePath = [NSString pathWithComponents:[NSArray arrayWithObjects:[self quakePath], filename, nil]];
             [fileManager fileExistsAtPath:filePath isDirectory:&directory];
             if (directory && [@"app" isEqualToString:[filePath pathExtension]] && [workspace isFilePackageAtPath:filePath])

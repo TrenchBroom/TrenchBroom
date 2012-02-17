@@ -61,9 +61,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         if (hasTriangleStrips) {
             triangleStripIndices = [[IntData alloc] init];
             triangleStripCounts = [[IntData alloc] init];
-            NSEnumerator* stripEn = [triangleStrips objectEnumerator];
-            FloatData* strip;
-            while ((strip = [stripEn nextObject])) {
+            for (FloatData* strip in triangleStrips) {
                 [triangleStripIndices appendInt:address / (2 * sizeof(float))];
                 [triangleStripCounts appendInt:[strip count] / 2];
                 const void* buffer = [strip bytes];
@@ -74,9 +72,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         if (hasTriangleFans) {
             triangleFanIndices = [[IntData alloc] init];
             triangleFanCounts = [[IntData alloc] init];
-            NSEnumerator* fanEn = [triangleFans objectEnumerator];
-            FloatData* fan;
-            while ((fan = [fanEn nextObject])) {
+            for (FloatData* fan in triangleFans) {
                 [triangleFanIndices appendInt:address / (2 * sizeof(float))];
                 [triangleFanCounts appendInt:[fan count] / 2];
                 const void* buffer = [fan bytes];

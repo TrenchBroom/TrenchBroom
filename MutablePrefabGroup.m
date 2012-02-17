@@ -58,9 +58,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (BOOL)readOnly {
-    NSEnumerator* prefabEn = [prefabs objectEnumerator];
-    id <Prefab> prefab;
-    while ((prefab = [prefabEn nextObject]))
+    for (id <Prefab> prefab in prefabs)
         if ([prefab readOnly])
             return YES;
     

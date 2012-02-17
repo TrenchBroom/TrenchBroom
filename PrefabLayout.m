@@ -50,11 +50,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)validate {
     [groupRows removeAllObjects];
     
-    NSEnumerator* groupEn = [[prefabManager prefabGroups] objectEnumerator];
-    id <PrefabGroup> group;
     int y = outerMargin;
-    
-    while ((group = [groupEn nextObject])) {
+    for (id <PrefabGroup> group in [prefabManager prefabGroups]) {
         PrefabLayoutGroupRow* groupRow = [[PrefabLayoutGroupRow alloc] initWithPrefabGroup:group prefabsPerRow:prefabsPerRow atPos:NSMakePoint(outerMargin, y) width:width - 2 * outerMargin innerMargin:innerMargin fontManager:fontManager font:font];
         [groupRows addObject:groupRow];
         y += NSHeight([groupRow bounds]) + groupMargin;
@@ -83,9 +80,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (!valid)
         [self validate];
     
-    NSEnumerator* groupRowEn = [groupRows objectEnumerator];
-    PrefabLayoutGroupRow* groupRow;
-    while ((groupRow = [groupRowEn nextObject]))
+    for (PrefabLayoutGroupRow* groupRow in groupRows)
         if (NSPointInRect(pos, [groupRow bounds]))
             return [groupRow prefabAt:(NSPoint)pos];
     

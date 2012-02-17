@@ -81,9 +81,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (id <Prefab>)prefabAt:(NSPoint)pos {
-    NSEnumerator* cellEn = [cells objectEnumerator];
-    PrefabLayoutPrefabCell* cell;
-    while ((cell = [cellEn nextObject]))
+    for (PrefabLayoutPrefabCell* cell in cells)
         if (NSPointInRect(pos, [cell prefabBounds]))
             return [cell prefab];
     return nil;

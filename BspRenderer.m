@@ -73,9 +73,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         int address = [block address];
         uint8_t* vboBuffer = [vbo buffer];
         
-        NSEnumerator* faceEn = [[model faces] objectEnumerator];
-        BspFace* face;
-        while ((face = [faceEn nextObject])) {
+        for (BspFace* face in [model faces]) {
             TTextureInfo* texInfo = [face textureInfo];
             BspTexture* bspTexture = texInfo->texture;
             Texture* texture = [textures objectForKey:[bspTexture name]];
@@ -133,9 +131,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glInterleavedArrays(GL_T2F_V3F, 0, (const GLvoid *)(long)[block address]);
     
-    NSEnumerator* textureEn = [textures objectEnumerator];
-    Texture* texture;
-    while ((texture = [textureEn nextObject])) {
+    for (Texture* texture in [textures allValues]) {
         IntData* indexBuffer = [indices objectForKey:[texture name]];
         IntData* countBuffer = [counts objectForKey:[texture name]];
         

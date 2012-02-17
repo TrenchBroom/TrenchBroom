@@ -40,14 +40,9 @@ NSString* const MissingPaletteException = @"MissingPaletteException";
         [textures removeAllObjects];
         [texturesByName removeAllObjects];
         
-        NSEnumerator* collectionEn = [textureCollections objectEnumerator];
-        TextureCollection* collection;
-        while ((collection = [collectionEn nextObject])) {
-            NSEnumerator* textureEn = [[collection textures] objectEnumerator];
-            Texture* texture;
-            while ((texture = [textureEn nextObject]))
+        for (TextureCollection* collection in textureCollections)
+            for (Texture* texture in [collection textures])
                 [textures setObject:texture forKey:[texture name]];
-        }
         
         [texturesByName addObjectsFromArray:[textures allValues]];
         [texturesByName sortUsingSelector:@selector(compareByName:)];

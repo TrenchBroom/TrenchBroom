@@ -44,7 +44,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         bounds = *[entity bounds];
         center = *[entity center];
         
-        while ((entity = [entityEn nextObject])) {
+        for (entity in entityEn) {
             mergeBoundsWithBounds(&bounds, [entity bounds], &bounds);
             addV3f(&center, [entity center], &center);
         }
@@ -53,11 +53,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         TVector3f diff;
         float distSquared = 0;
         
-        entityEn = [entities objectEnumerator];
-        while ((entity = [entityEn nextObject])) {
-            NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-            id <Brush> brush;
-            while ((brush = [brushEn nextObject])) {
+        for (entity in entities) {
+            for (id <Brush> brush in [entity brushes]) {
                 const TVertexList* vertices = [brush vertices];
                 for (int i = 0; i < vertices->count; i++) {
                     subV3f(&vertices->items[i]->position, &center, &diff);
@@ -132,14 +129,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (id <Entity>)worldspawn:(BOOL)create {
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject]))
+    for (id <Entity> entity in entities)
         if ([entity isWorldspawn])
             return entity;
     
     if (create) {
-        entity = [[MutableEntity alloc] initWithProperties:[NSDictionary dictionaryWithObject:@"worldspawn" forKey:@"classname"]];
+        MutableEntity* entity = [[MutableEntity alloc] initWithProperties:[NSDictionary dictionaryWithObject:@"worldspawn" forKey:@"classname"]];
         [self addEntity:entity];
         return [entity autorelease];
     }
@@ -170,9 +165,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)removeEntities:(NSArray *)theEntities {
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    MutableEntity* entity;
-    while ((entity = [entityEn nextObject])) {
+    for (MutableEntity* entity in theEntities) {
         [entities removeObject:entity];
         [entity setMap:nil];
     }

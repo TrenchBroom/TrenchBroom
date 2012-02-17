@@ -148,9 +148,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
     }
 
     [faces addObjectsFromArray:theFaces];
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
+    for (id <Face> face in theFaces) {
         if ([partialBrushes indexOfObjectIdenticalTo:[face brush]] == NSNotFound)
             [partialBrushes addObject:[face brush]];
         [self addTexture:[face texture]];
@@ -335,9 +333,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
 
 - (NSArray *)selectedBrushFaces {
     NSMutableArray* result = [[NSMutableArray alloc] init];
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject]))
+    for (id <Brush> brush in brushes)
         [result addObjectsFromArray:[brush faces]];
     return [result autorelease];
 }
@@ -380,7 +376,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
             NSEnumerator* faceEn = [faces objectEnumerator];
             id <Face> face = [faceEn nextObject];
             centerOfVertices([face vertices], result);
-            while ((face = [faceEn nextObject])) {
+            for (face in faceEn) {
                 centerOfVertices([face vertices], &center);
                 addV3f(result, &center, result);
             }
@@ -392,7 +388,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
             NSEnumerator* brushEn = [brushes objectEnumerator];
             id <Brush> brush = [brushEn nextObject];
             centerOfVertices([brush vertices], result);
-            while ((brush = [brushEn nextObject])) {
+            for (brush in brushEn) {
                 centerOfVertices([brush vertices], &center);
                 addV3f(result, &center, result);
             }
@@ -404,7 +400,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
             NSEnumerator* entityEn = [entities objectEnumerator];
             id <Entity> entity = [entityEn nextObject];
             *result = *[entity center];
-            while ((entity = [entityEn nextObject]))
+            for (entity in entityEn)
                 addV3f(result, [entity center], result);
             
             scaleV3f(result, 1.0f / [entities count], result);
@@ -414,14 +410,12 @@ NSString* const SelectionVertices = @"SelectionVertices";
             NSEnumerator* brushEn = [brushes objectEnumerator];
             id <Brush> brush = [brushEn nextObject];
             centerOfVertices([brush vertices], result);
-            while ((brush = [brushEn nextObject])) {
+            for (brush in brushEn) {
                 centerOfVertices([brush vertices], &center);
                 addV3f(result, &center, result);
             }
 
-            NSEnumerator* entityEn = [entities objectEnumerator];
-            id <Entity> entity;
-            while ((entity = [entityEn nextObject]))
+            for (id <Entity> entity in entities)
                 addV3f(result, [entity center], result);
             
             scaleV3f(result, 1.0f / ([brushes count] + [entities count]), result);
@@ -438,7 +432,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
             NSEnumerator* brushEn = [brushes objectEnumerator];
             id <Brush> brush = [brushEn nextObject];
             *result = *[brush bounds];
-            while ((brush = [brushEn nextObject]))
+            for (brush in brushEn)
                 mergeBoundsWithBounds(result, [brush bounds], result);
             return YES;
         }
@@ -446,7 +440,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
             NSEnumerator* entityEn = [entities objectEnumerator];
             id <Entity> entity = [entityEn nextObject];
             *result = *[entity bounds];
-            while ((entity = [entityEn nextObject]))
+            for (entity in entityEn)
                 mergeBoundsWithBounds(result, [entity bounds], result);
             return YES;
         }
@@ -454,12 +448,10 @@ NSString* const SelectionVertices = @"SelectionVertices";
             NSEnumerator* brushEn = [brushes objectEnumerator];
             id <Brush> brush = [brushEn nextObject];
             *result = *[brush bounds];
-            while ((brush = [brushEn nextObject]))
+            for (brush in brushEn)
                 mergeBoundsWithBounds(result, [brush bounds], result);
             
-            NSEnumerator* entityEn = [entities objectEnumerator];
-            id <Entity> entity;
-            while ((entity = [entityEn nextObject]))
+            for (id <Entity> entity in entities)
                 mergeBoundsWithBounds(result, [entity bounds], result);
             
             return YES;
@@ -468,7 +460,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
             NSEnumerator* faceEn = [faces objectEnumerator];
             id <Face> face = [faceEn nextObject];
             *result = *[[face brush] bounds];
-            while ((face = [faceEn nextObject]))
+            for (face in faceEn)
                 mergeBoundsWithBounds(result, [[face brush] bounds], result);
             
             return YES;
@@ -509,10 +501,11 @@ NSString* const SelectionVertices = @"SelectionVertices";
         [partialBrushes removeAllObjects];
     } else {
         BOOL keepPartialBrush = NO;
-        NSEnumerator* faceEn = [[[face brush] faces] objectEnumerator];
-        id <Face> sibling;
-        while ((sibling = [faceEn nextObject]) && !keepPartialBrush)
+        for (id <Face> sibling in [[face brush] faces]) {
             keepPartialBrush = [faces indexOfObjectIdenticalTo:sibling] != NSNotFound;
+            if (keepPartialBrush)
+                break;
+        }
         
         if (!keepPartialBrush)
             [partialBrushes removeObject:[face brush]];
@@ -538,19 +531,18 @@ NSString* const SelectionVertices = @"SelectionVertices";
     
     NSMutableArray* removedFaces = [[NSMutableArray alloc] init];
     
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    id <Face> face;
-    while ((face = [faceEn nextObject])) {
+    for (id <Face> face in theFaces) {
         NSUInteger index = [faces indexOfObjectIdenticalTo:face];
         if (index != NSNotFound) {
             [faces removeObjectAtIndex:index];
             [removedFaces addObject:face];
 
             BOOL keepPartialBrush = NO;
-            NSEnumerator* faceEn = [[[face brush] faces] objectEnumerator];
-            id <Face> sibling;
-            while ((sibling = [faceEn nextObject]) && !keepPartialBrush)
+            for (id <Face> sibling in [[face brush] faces]) {
                 keepPartialBrush = [faces indexOfObjectIdenticalTo:sibling] != NSNotFound;
+                if (keepPartialBrush)
+                    break;
+            }
             
             if (!keepPartialBrush)
                 [partialBrushes removeObject:[face brush]];
@@ -608,9 +600,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
     
     NSMutableArray* removedBrushes = [[NSMutableArray alloc] init];
     
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject])) {
+    for (id <Brush> brush in theBrushes) {
         NSUInteger index = [brushes indexOfObjectIdenticalTo:brush];
         if (index != NSNotFound) {
             [brushes removeObjectAtIndex:index];
@@ -673,9 +663,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
     
     NSMutableArray* removedEntities = [[NSMutableArray alloc] init];
     
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
+    for (id <Entity> entity in theEntities) {
         NSUInteger index = [entities indexOfObjectIdenticalTo:entity];
         if (index != NSNotFound) {
             [entities removeObjectAtIndex:index];

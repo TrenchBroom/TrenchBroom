@@ -385,10 +385,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         if ([selectionManager hasSelectedBrushes])
             return YES;
         if ([selectionManager hasSelectedFaces]) {
-            NSArray* faces = [selectionManager selectedFaces];
-            NSEnumerator* faceEn = [faces objectEnumerator];
-            MutableFace* face;
-            while ((face = [faceEn nextObject])) {
+            for (MutableFace* face in [selectionManager selectedFaces]) {
                 MutableBrush* brush = (MutableBrush *)[face brush];
                 if (![brush canDeleteFace:face])
                     return NO;
@@ -516,6 +513,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [options release];
     [inputManager release];
     [camera release];
+    [quickBar release];
     [inspectorViewController release];
     [console release];
     [super dealloc];
@@ -1109,10 +1107,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     NSMutableArray* entities = [[NSMutableArray alloc] init];
     NSMutableArray* brushes = [[NSMutableArray alloc] init];
-    
-    NSEnumerator* entityEn = [[[self document] entities] objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
+
+    MapDocument* map = [self document];
+    for (id <Entity> entity in [map entities]) {
         if ([entity entityDefinition] != nil && [[entity entityDefinition] type] == EDT_POINT)
             [entities addObject:entity];
         else
@@ -1149,15 +1146,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSMutableArray* touchingEntities = [[NSMutableArray alloc] init];
     NSMutableArray* touchingBrushes = [[NSMutableArray alloc] init];
     
-    NSEnumerator* entityEn = [[map entities] objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
+    for (id <Entity> entity in [map entities]) {
         if (![entity isWorldspawn] && [selectionBrush intersectsEntity:entity])
             [touchingEntities addObject:entity];
         
-        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject]))
+        for (id <Brush> brush in [entity brushes])
             if (selectionBrush != brush && [selectionBrush intersectsBrush:brush])
                 [touchingBrushes addObject:brush];
     }
@@ -1234,9 +1227,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     switch (contents) {
         case CC_ENT: {
             [selectionManager removeAll:YES];
-            NSEnumerator* entityEn = [mapObjects objectEnumerator];
-            id <Entity> entity;
-            while ((entity = [entityEn nextObject])) {
+            for (id <Entity> entity in mapObjects) {
                 id <Entity> targetEntity;
                 if ([entity isWorldspawn]) {
                     targetEntity = [map worldspawn:YES];
@@ -1245,9 +1236,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                     [newEntities addObject:targetEntity];
                 }
                 
-                NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-                id <Brush> brush;
-                while ((brush = [brushEn nextObject])) {
+                for (id <Brush> brush in [entity brushes]) {
                     id <Brush> newBrush = [map createBrushInEntity:targetEntity fromTemplate:brush];
                     [newBrushes addObject:newBrush];
                 }
@@ -1257,9 +1246,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         case CC_BRUSH: {
             [selectionManager removeAll:YES];
             id <Entity> worldspawn = [map worldspawn:YES];
-            NSEnumerator* brushEn = [mapObjects objectEnumerator];
-            id <Brush> brush;
-            while ((brush = [brushEn nextObject])) {
+            for (id <Brush> brush in mapObjects) {
                 id <Brush> newBrush = [map createBrushInEntity:worldspawn fromTemplate:brush];
                 [newBrushes addObject:newBrush];
             }
@@ -1329,9 +1316,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         NSMutableArray* deletedBrushes = [[NSMutableArray alloc] initWithArray:[selectionManager selectedBrushes]];
         NSMutableArray* remainingBrushes = [[NSMutableArray alloc] init];
         
-        NSEnumerator* brushEn = [deletedBrushes objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
+        for (id <Brush> brush in deletedBrushes) {
             id <Entity> entity = [brush entity];
             if ([deletedEntities indexOfObjectIdenticalTo:entity] != NSNotFound)
                 [remainingBrushes addObject:brush];
@@ -1438,9 +1423,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSMutableArray* newBrushes = [[NSMutableArray alloc] init];
     MapDocument* map = [self document];
     
-    NSEnumerator* entityEn = [[prefab entities] objectEnumerator];
-    id <Entity> prefabEntity;
-    while ((prefabEntity = [entityEn nextObject])) {
+    for (id <Entity> prefabEntity in [prefab entities]) {
         id <Entity> mapEntity;
         if ([prefabEntity isWorldspawn]) {
             mapEntity = [map worldspawn:YES];
@@ -1450,9 +1433,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [newEntities addObject:mapEntity];
         }
         
-        NSEnumerator* prefabBrushEn = [[prefabEntity brushes] objectEnumerator];
-        id <Brush> prefabBrush;
-        while ((prefabBrush = [prefabBrushEn nextObject])) {
+        for (id <Brush> prefabBrush in [prefabEntity brushes]) {
             id <Brush> mapBrush = [map createBrushInEntity:mapEntity fromTemplate:prefabBrush];
             [newBrushes addObject:mapBrush];
         }

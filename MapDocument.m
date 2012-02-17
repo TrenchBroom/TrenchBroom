@@ -74,6 +74,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 - (void)makeUndoSnapshotOfEntities:(NSArray *)theEntities;
 - (void)restoreUndoSnapshot:(NSArray *)theSnapshot ofEntities:(NSArray *)theEntities;
 
+- (void)postNotification:(NSString *)theNotification forFaces:(NSArray *)theFaces;
+- (void)postNotification:(NSString *)theNotification forBrushes:(NSArray *)theBrushes;
+- (void)postNotification:(NSString *)theNotification forEntities:(NSArray *)theEntities;
+
 @end
 
 @implementation MapDocument (private)
@@ -227,6 +231,33 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 }
 
+- (void)postNotification:(NSString *)theNotification forFaces:(NSArray *)theFaces {
+    if ([self postNotifications]) {
+        NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:theFaces, FacesKey, nil];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:theNotification object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
+- (void)postNotification:(NSString *)theNotification forBrushes:(NSArray *)theBrushes {
+    if ([self postNotifications]) {
+        NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:theBrushes, BrushesKey, nil];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:theNotification object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
+- (void)postNotification:(NSString *)theNotification forEntities:(NSArray *)theEntities {
+    if ([self postNotifications]) {
+        NSDictionary* userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:theEntities, EntitiesKey, nil];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:theNotification object:self userInfo:userInfo];
+        [userInfo release];
+    }
+}
+
 @end
 
 @implementation MapDocument
@@ -304,9 +335,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     [parser release];
 
     // set the entity definitions
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    MutableEntity* entity;
-    while ((entity = [entityEn nextObject]))
+    for (MutableEntity* entity in entities)
         [self setEntityDefinition:entity];
 
     [pwc close];
@@ -356,9 +385,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     leakPoints = malloc(leakPointCount * sizeof(TVector3f));
     int lineIndex = 0;
     
-    NSEnumerator* lineEn = [lines objectEnumerator];
-    NSString* line;
-    while ((line = [lineEn nextObject])) {
+    for (NSString* line in lines) {
         line = [line stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         if (!parseV3f(line, NSMakeRange(0, [line length]), &leakPoints[lineIndex])) {
             free(leakPoints);
@@ -431,9 +458,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSMutableArray* textureWads = [[NSMutableArray alloc] init];
 
     TextureManager* textureManager = [glResources textureManager];
-    NSEnumerator* collectionEn = [[textureManager textureCollections] objectEnumerator];
-    TextureCollection* collection;
-    while ((collection = [collectionEn nextObject]))
+    for (TextureCollection* collection in [textureManager textureCollections])
         [textureWads addObject:[collection name]];
     
     return [textureWads autorelease];
@@ -445,15 +470,9 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSMutableArray* changedFaces = [[NSMutableArray alloc] init];
     NSMutableArray* newTextures = [[NSMutableArray alloc] init];
     
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
-        NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-            id <Face> face;
-            while ((face = [faceEn nextObject])) {
+    for (id <Entity> entity in entities) {
+        for (id <Brush> brush in [entity brushes]) {
+            for (id <Face> face in [brush faces]) {
                 Texture* oldTexture = [face texture];
                 Texture* newTexture = [textureManager textureForName:[oldTexture name]];
                 if (oldTexture != newTexture) {
@@ -465,27 +484,16 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
     
     if ([changedFaces count] > 0) {
-        NSDictionary* userInfo = nil;
-        if ([self postNotifications]) {
-            userInfo = [[NSDictionary alloc] initWithObjectsAndKeys:changedFaces, FacesKey, nil];
-            
-            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-            [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
-        }
+        [self postNotification:FacesWillChange forFaces:changedFaces];
         
         NSEnumerator* faceEn = [changedFaces objectEnumerator];
         NSEnumerator* textureEn = [newTextures objectEnumerator];
         MutableFace* face;
         Texture* texture;
-        while ((face = [faceEn nextObject]) && (texture = [textureEn nextObject])) {
+        while ((face = [faceEn nextObject]) && (texture = [textureEn nextObject]))
             [face setTexture:texture];
-        }
         
-        if ([self postNotifications]) {
-            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-            [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
-            [userInfo release];
-        }
+        [self postNotification:FacesDidChange forFaces:changedFaces];
     }
     
     [changedFaces release];
@@ -552,22 +560,16 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if ([theEntities count] == 0)
         return;
     
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
+    for (id <Entity> entity in theEntities) {
         id <Entity> newEntity = [self createEntityWithProperties:[entity properties]];
         
         if ([[entity entityDefinition] type] != EDT_POINT) {
-            NSArray* brushes = [entity brushes];
-            if ([brushes count] > 0) {
-                NSEnumerator* brushEn = [brushes objectEnumerator];
-                id <Brush> brush;
-                while ((brush = [brushEn nextObject])) {
-                    id <Brush> newBrush = [self createBrushInEntity:newEntity fromTemplate:brush];
-                    [theNewBrushes addObject:newBrush];
-                }
+            for (id <Brush> brush in [entity brushes]) {
+                id <Brush> newBrush = [self createBrushInEntity:newEntity fromTemplate:brush];
+                [theNewBrushes addObject:newBrush];
             }
         }
+        
         [theNewEntities addObject:newEntity];
     }
 }
@@ -585,18 +587,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return;
     
     [[[self undoManager] prepareWithInvocationTarget:self] setEntity:theEntity propertyKey:theKey value:oldValue];
-    
-    NSMutableDictionary* userInfo = nil;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        NSArray* userInfoEntities = [[NSArray alloc] initWithObjects:theEntity, nil];
-        
-        [userInfo setObject:userInfoEntities forKey:EntitiesKey];
-        [userInfoEntities release];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
-    }
+
+    [self postNotification:PropertiesWillChange forEntities:[NSArray arrayWithObject:theEntity]];
     
     MutableEntity* mutableEntity = (MutableEntity *)theEntity;
     if (theValue == nil)
@@ -604,11 +596,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     else
         [mutableEntity setProperty:theKey value:theValue];
     
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:PropertiesDidChange forEntities:[NSArray arrayWithObject:theEntity]];
 }
 
 - (void)setEntities:(NSArray *)theEntities propertyKey:(NSString *)theKey value:(NSString *)theValue {
@@ -619,10 +607,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return;
     
     NSMutableArray* changedEntities = [[NSMutableArray alloc] init];
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    id <Entity> entity;
-    
-    while ((entity = [entityEn nextObject])) {
+    for (id <Entity> entity in theEntities) {
         NSString* oldValue = [entity propertyForKey:theKey];
         if (oldValue == nil) {
             if (theValue != nil)
@@ -631,22 +616,12 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
             [changedEntities addObject:entity];
     }
     
-    
     if ([changedEntities count] > 0) {
-        NSMutableDictionary* userInfo = nil;
-        if ([self postNotifications]) {
-            userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:changedEntities forKey:EntitiesKey];
-            
-            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-            [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
-        }
+        [self postNotification:PropertiesWillChange forEntities:changedEntities];
 
         NSUndoManager* undoManager = [self undoManager];
 
-        NSEnumerator* changedEntityEn = [changedEntities objectEnumerator];
-        MutableEntity* mutableEntity;
-        while ((mutableEntity = [changedEntityEn nextObject])) {
+        for (MutableEntity* mutableEntity in changedEntities) {
             [[undoManager prepareWithInvocationTarget:self] setEntity:mutableEntity propertyKey:theKey value:[mutableEntity propertyForKey:theKey]];
             
             if (theValue == nil)
@@ -655,11 +630,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
                 [mutableEntity setProperty:theKey value:theValue];
         }
 
-        if ([self postNotifications]) {
-            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-            [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
-            [userInfo release];
-        }
+        [self postNotification:PropertiesDidChange forEntities:changedEntities];
     }
     
     [changedEntities release];
@@ -693,25 +664,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] translateEntities:[[theEntities copy] autorelease] delta:inverse];
 
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theEntities forKey:EntitiesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
-    }
-
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    MutableEntity* entity;
-    while ((entity = [entityEn nextObject]))
+    [self postNotification:PropertiesWillChange forEntities:theEntities];
+    for (MutableEntity* entity in theEntities)
         [entity translateBy:&theDelta];
-
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:PropertiesDidChange forEntities:theEntities];
 }
 
 - (void)rotateEntities90CW:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3f)theCenter {
@@ -723,25 +679,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] rotateEntities90CCW:[[theEntities copy] autorelease] axis:theAxis center:theCenter];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theEntities forKey:EntitiesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
-    }
-    
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    MutableEntity* entity;
-    while ((entity = [entityEn nextObject]))
+    [self postNotification:PropertiesWillChange forEntities:theEntities];
+    for (MutableEntity* entity in theEntities)
         [entity rotate90CW:theAxis center:&theCenter];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:PropertiesDidChange forEntities:theEntities];
 }
 
 - (void)rotateEntities90CCW:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3f)theCenter {
@@ -753,25 +694,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] rotateEntities90CW:[[theEntities copy] autorelease] axis:theAxis center:theCenter];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theEntities forKey:EntitiesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
-    }
-    
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    MutableEntity* entity;
-    while ((entity = [entityEn nextObject]))
+    [self postNotification:PropertiesWillChange forEntities:theEntities];
+    for (MutableEntity* entity in theEntities)
         [entity rotate90CCW:theAxis center:&theCenter];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:PropertiesDidChange forEntities:theEntities];
 }
 
 - (void)rotateEntities:(NSArray *)theEntities rotation:(TQuaternion)theRotation center:(TVector3f)theCenter {
@@ -785,25 +711,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     
     [self makeUndoSnapshotOfEntities:theEntities];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theEntities forKey:EntitiesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
-    }
-    
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    MutableEntity* entity;
-    while ((entity = [entityEn nextObject]))
+    [self postNotification:PropertiesWillChange forEntities:theEntities];
+    for (MutableEntity* entity in theEntities)
         [entity rotate:&theRotation center:&theCenter];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:PropertiesDidChange forEntities:theEntities];
 }
 
 - (void)flipEntities:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3f)theCenter {
@@ -815,25 +726,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] flipEntities:[[theEntities copy] autorelease] axis:theAxis center:theCenter];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theEntities forKey:EntitiesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
-    }
-    
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    MutableEntity* entity;
-    while ((entity = [entityEn nextObject]))
+    [self postNotification:PropertiesWillChange forEntities:theEntities];
+    for (MutableEntity* entity in theEntities)
         [entity flipAxis:theAxis center:&theCenter];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:PropertiesDidChange forEntities:theEntities];
 }
 
 - (void)deleteEntities:(NSArray *)theEntities {
@@ -853,20 +749,9 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     [[undoManager prepareWithInvocationTarget:self] deleteBrushes:[[theBrushes copy] autorelease]];
     
     MutableEntity* mutableEntity = (MutableEntity *)theEntity;
-    
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    MutableBrush* brush;
-    while ((brush = [brushEn nextObject]))
+    for (MutableBrush* brush in theBrushes)
         [mutableEntity addBrush:brush];
-    
-    if ([self postNotifications]) {
-        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theBrushes forKey:BrushesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesAdded object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:BrushesAdded forBrushes:theBrushes];
 }
 
 - (void)moveBrushesToEntity:(id <Entity>)theEntity brushes:(NSArray *)theBrushes {
@@ -876,22 +761,13 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if ([theBrushes count] == 0)
         return;
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theBrushes forKey:BrushesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-    }
+    [self postNotification:BrushesWillChange forBrushes:theBrushes];
 
     MutableEntity* mutableEntity = (MutableEntity *)theEntity;
     NSMutableDictionary* entityBrushes = [[NSMutableDictionary alloc] init];
     NSMutableArray* changedEntities = [[NSMutableArray alloc] init];
     
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    MutableBrush* brush;
-    while ((brush = [brushEn nextObject])) {
+    for (MutableBrush* brush in theBrushes) {
         MutableEntity* previousEntity = [brush entity];
         NSMutableArray* brushArray = [entityBrushes objectForKey:[previousEntity entityId]];
         if (brushArray == nil) {
@@ -907,18 +783,12 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
     
     NSUndoManager* undoManager = [self undoManager];
-    NSEnumerator* changedEntityEn = [changedEntities objectEnumerator];
-    id <Entity> changedEntity;
-    while ((changedEntity = [changedEntityEn nextObject])) {
+    for (id <Entity> changedEntity in changedEntities) {
         NSArray* brushArray = [entityBrushes objectForKey:[changedEntity entityId]];
         [[undoManager prepareWithInvocationTarget:self] moveBrushesToEntity:changedEntity brushes:brushArray];
     }
     
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:BrushesDidChange forBrushes:theBrushes];
 }
 
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate {
@@ -931,11 +801,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
     
     id <Brush> brush = [[MutableBrush alloc] initWithWorldBounds:&worldBounds brushTemplate:theTemplate];
-    
-    NSArray* brushArray = [[NSArray alloc] initWithObjects:brush, nil];
-    [self addBrushesToEntity:theEntity brushes:brushArray];
-    [brushArray release];
-    
+    [self addBrushesToEntity:theEntity brushes:[NSArray arrayWithObject:brush]];
     return [brush autorelease];
 }
 
@@ -950,11 +816,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
     
     id <Brush> brush = [[MutableBrush alloc] initWithWorldBounds:&worldBounds brushBounds:theBounds texture:theTexture];
-    
-    NSArray* brushArray = [[NSArray alloc] initWithObjects:brush, nil];
-    [self addBrushesToEntity:theEntity brushes:brushArray];
-    [brushArray release];
-    
+    [self addBrushesToEntity:theEntity brushes:[NSArray arrayWithObject:brush]];
     return [brush autorelease];
 }
 
@@ -965,9 +827,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if ([theBrushes count] == 0)
         return;
     
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject])) {
+    for (id <Brush> brush in theBrushes) {
         id <Brush> newBrush = [self createBrushInEntity:[self worldspawn:YES] fromTemplate:brush];
         [theNewBrushes addObject:newBrush];
     }
@@ -985,26 +845,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] translateBrushes:[[theBrushes copy] autorelease] delta:inverse lockTextures:lockTextures];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theBrushes forKey:BrushesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-    }
-    
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    MutableBrush* brush;
-
-    while ((brush = [brushEn nextObject]))
+    [self postNotification:BrushesWillChange forBrushes:theBrushes];
+    for (MutableBrush* brush in theBrushes)
         [brush translateBy:&theDelta lockTextures:lockTextures];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:BrushesDidChange forBrushes:theBrushes];
 }
 
 - (void)rotateBrushes90CW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures {
@@ -1016,25 +860,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] rotateBrushes90CCW:[[theBrushes copy] autorelease] axis:theAxis center:theCenter lockTextures:lockTextures];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theBrushes forKey:BrushesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-    }
-    
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    MutableBrush* brush;
-    while ((brush = [brushEn nextObject]))
+    [self postNotification:BrushesWillChange forBrushes:theBrushes];
+    for (MutableBrush* brush in theBrushes)
         [brush rotate90CW:theAxis center:&theCenter lockTextures:lockTextures];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:BrushesDidChange forBrushes:theBrushes];
 }
 
 - (void)rotateBrushes90CCW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures {
@@ -1046,25 +875,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] rotateBrushes90CW:[[theBrushes copy] autorelease] axis:theAxis center:theCenter lockTextures:lockTextures];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theBrushes forKey:BrushesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-    }
-    
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    MutableBrush* brush;
-    while ((brush = [brushEn nextObject]))
+    [self postNotification:BrushesWillChange forBrushes:theBrushes];
+    for (MutableBrush* brush in theBrushes)
         [brush rotate90CCW:theAxis center:&theCenter lockTextures:lockTextures];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:BrushesDidChange forBrushes:theBrushes];
 }
 
 - (void)rotateBrushes:(NSArray *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures {
@@ -1075,33 +889,13 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
     if (nullQ(&theRotation))
         return;
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [undoManager beginUndoGrouping];
-    
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theBrushes forKey:BrushesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-    }
-    
+
     [self makeUndoSnapshotOfBrushes:[[theBrushes copy] autorelease]];
 
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    MutableBrush* brush;
-    while ((brush = [brushEn nextObject]))
+    [self postNotification:BrushesWillChange forBrushes:theBrushes];
+    for (MutableBrush* brush in theBrushes)
         [brush rotate:&theRotation center:&theCenter lockTextures:lockTextures];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
-    
-    [undoManager endUndoGrouping];
+    [self postNotification:BrushesDidChange forBrushes:theBrushes];
 }
 
 - (void)flipBrushes:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures {
@@ -1113,25 +907,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] flipBrushes:[[theBrushes copy] autorelease] axis:theAxis center:theCenter lockTextures:lockTextures];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theBrushes forKey:BrushesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-    }
-    
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    MutableBrush* brush;
-    while ((brush = [brushEn nextObject]))
+    [self postNotification:BrushesWillChange forBrushes:theBrushes];
+    for (MutableBrush* brush in theBrushes)
         [brush flipAxis:theAxis center:&theCenter lockTextures:lockTextures];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:BrushesDidChange forBrushes:theBrushes];
 }
 
 - (void)snapBrushes:(NSArray *)theBrushes {
@@ -1141,26 +920,11 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return;
     
     [self makeUndoSnapshotOfBrushes:theBrushes];
-
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theBrushes forKey:BrushesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-    }
     
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    MutableBrush* brush;
-    while ((brush = [brushEn nextObject]))
+    [self postNotification:BrushesWillChange forBrushes:theBrushes];
+    for (MutableBrush* brush in theBrushes)
         [brush snap];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:BrushesDidChange forBrushes:theBrushes];
 }
 
 - (void)deleteBrushes:(NSArray *)theBrushes {
@@ -1169,62 +933,42 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if ([theBrushes count] == 0)
         return;
     
-    NSMutableArray* affectedEntities = [[NSMutableArray alloc] init];
+    NSMutableArray* changedEntities = [[NSMutableArray alloc] init];
+    NSMutableArray* emptyEntities = [[NSMutableArray alloc] init];
     NSMutableDictionary* entityIdToBrushSet = [[NSMutableDictionary alloc] init];
     
-    NSEnumerator* brushEn = [theBrushes objectEnumerator];
-    MutableBrush* brush;
-    while ((brush = [brushEn nextObject])) {
+    for (MutableBrush* brush in theBrushes) {
         id <Entity> entity = [brush entity];
         NSMutableArray* entityBrushes = [entityIdToBrushSet objectForKey:[entity entityId]];
         if (entityBrushes == nil) {
             entityBrushes = [[NSMutableArray alloc] init];
             [entityIdToBrushSet setObject:entityBrushes forKey:[entity entityId]];
             [entityBrushes release];
-            
-            [affectedEntities addObject:entity];
+            [changedEntities addObject:entity];
         }
-        
         [entityBrushes addObject:brush];
     }
     
-    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     NSUndoManager* undoManager = [self undoManager];
     [undoManager beginUndoGrouping];
     
-    NSMutableArray* emptyEntities = [[NSMutableArray alloc] init];
-    
-    NSEnumerator* entityEn = [affectedEntities objectEnumerator];
-    MutableEntity* entity;
-    while ((entity = [entityEn nextObject])) {
+    for (MutableEntity* entity in changedEntities) {
         NSArray* entityBrushes = [entityIdToBrushSet objectForKey:[entity entityId]];
         [selectionManager removeBrushes:entityBrushes record:YES];
         [[undoManager prepareWithInvocationTarget:self] addBrushesToEntity:entity brushes:[[entityBrushes copy] autorelease]];
 
-        NSMutableDictionary* userInfo;
-        if ([self postNotifications]) {
-            userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:entityBrushes forKey:BrushesKey];
-            [center postNotificationName:BrushesWillBeRemoved object:self userInfo:userInfo];
-        }
-        
-        NSEnumerator* brushEn = [entityBrushes objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject]))
+        [self postNotification:BrushesWillBeRemoved forBrushes:entityBrushes];
+        for (id <Brush> brush in entityBrushes)
             [entity removeBrush:brush];
+        [self postNotification:BrushesWereRemoved forBrushes:entityBrushes];
         
-        if ([self postNotifications]) {
-            [center postNotificationName:BrushesWereRemoved object:self userInfo:userInfo];
-            [userInfo release];
-        }
-
         if (![entity isWorldspawn] && [[entity brushes] count] == 0)
             [emptyEntities addObject:entity];
     }
     
     [self removeEntities:emptyEntities];
     [emptyEntities release];
-    [affectedEntities release];
+    [changedEntities release];
     [entityIdToBrushSet release];
     
     [undoManager endUndoGrouping];
@@ -1239,27 +983,12 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if ([theFaces count] == 0)
         return;
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theFaces forKey:FacesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
-    }
-
     [self makeUndoSnapshotOfFaces:[[theFaces copy] autorelease]];
     
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
+    [self postNotification:FacesWillChange forFaces:theFaces];
+    for (MutableFace* face in theFaces)
         [face setXOffset:theXOffset];
-
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:FacesDidChange forFaces:theFaces];
 }
 
 - (void)setFaces:(NSArray *)theFaces yOffset:(int)theYOffset {
@@ -1268,27 +997,12 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if ([theFaces count] == 0)
         return;
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theFaces forKey:FacesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
-    }
-    
     [self makeUndoSnapshotOfFaces:[[theFaces copy] autorelease]];
     
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
+    [self postNotification:FacesWillChange forFaces:theFaces];
+    for (MutableFace* face in theFaces)
         [face setYOffset:theYOffset];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:FacesDidChange forFaces:theFaces];
 }
 
 - (void)translateFaceOffsets:(NSArray *)theFaces xDelta:(int)theXDelta yDelta:(int)theYDelta {
@@ -1300,27 +1014,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSUndoManager* undoManager = [self undoManager];
     [[undoManager prepareWithInvocationTarget:self] translateFaceOffsets:[[theFaces copy] autorelease] xDelta:-theXDelta yDelta:-theYDelta];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theFaces forKey:FacesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
-    }
-    
-    [self makeUndoSnapshotOfFaces:[[theFaces copy] autorelease]];
-    
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
+    [self postNotification:FacesWillChange forFaces:theFaces];
+    for (MutableFace* face in theFaces)
         [face translateOffsetsX:theXDelta y:theYDelta];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:FacesDidChange forFaces:theFaces];
 }
 
 - (void)setFaces:(NSArray *)theFaces xScale:(float)theXScale {
@@ -1329,27 +1026,12 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if ([theFaces count] == 0)
         return;
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theFaces forKey:FacesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
-    }
-    
     [self makeUndoSnapshotOfFaces:[[theFaces copy] autorelease]];
-    
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
+
+    [self postNotification:FacesWillChange forFaces:theFaces];
+    for (MutableFace* face in theFaces)
         [face setXScale:theXScale];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:FacesDidChange forFaces:theFaces];
 }
 
 - (void)setFaces:(NSArray *)theFaces yScale:(float)theYScale {
@@ -1358,27 +1040,12 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if ([theFaces count] == 0)
         return;
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theFaces forKey:FacesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
-    }
-    
     [self makeUndoSnapshotOfFaces:[[theFaces copy] autorelease]];
     
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
+    [self postNotification:FacesWillChange forFaces:theFaces];
+    for (MutableFace* face in theFaces)
         [face setYScale:theYScale];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:FacesDidChange forFaces:theFaces];
 }
 
 - (void)scaleFaces:(NSArray *)theFaces xFactor:(float)theXFactor yFactor:(float)theYFactor {
@@ -1390,29 +1057,15 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if (theXFactor == 0 && theYFactor == 0)
         return;
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theFaces forKey:FacesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
-    }
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] scaleFaces:[[theFaces copy] autorelease] xFactor:-theXFactor yFactor:-theYFactor];
     
-    [self makeUndoSnapshotOfFaces:[[theFaces copy] autorelease]];
-    
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject])) {
+    [self postNotification:FacesWillChange forFaces:theFaces];
+    for (MutableFace* face in theFaces) {
         [face setXScale:theXFactor + [face xScale]];
         [face setYScale:theYFactor + [face yScale]];
     }
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:FacesDidChange forFaces:theFaces];
 }
 
 - (void)setFaces:(NSArray *)theFaces rotation:(float)theAngle {
@@ -1421,27 +1074,12 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if ([theFaces count] == 0)
         return;
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theFaces forKey:FacesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
-    }
-    
     [self makeUndoSnapshotOfFaces:[[theFaces copy] autorelease]];
     
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
+    [self postNotification:FacesWillChange forFaces:theFaces];
+    for (MutableFace* face in theFaces)
         [face setRotation:theAngle];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:FacesDidChange forFaces:theFaces];
 }
 
 - (void)rotateFaces:(NSArray *)theFaces angle:(float)theAngle {
@@ -1453,27 +1091,13 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if (theAngle == 0)
         return;
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theFaces forKey:FacesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
-    }
-    
-    [self makeUndoSnapshotOfFaces:[[theFaces copy] autorelease]];
-    
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
-        [face setRotation:[face rotation] + theAngle];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    NSUndoManager* undoManager = [self undoManager];
+    [[undoManager prepareWithInvocationTarget:self] rotateFaces:[[theFaces copy] autorelease] angle:-theAngle];
+
+    [self postNotification:FacesWillChange forFaces:theFaces];
+    for (MutableFace* face in theFaces)
+        [face setRotation:theAngle + [face rotation]];
+    [self postNotification:FacesDidChange forFaces:theFaces];
 }
 
 - (void)setFaces:(NSArray *)theFaces texture:(Texture *)theTexture {
@@ -1483,27 +1107,12 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if ([theFaces count] == 0)
         return;
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theFaces forKey:FacesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
-    }
-    
     [self makeUndoSnapshotOfFaces:[[theFaces copy] autorelease]];
-    
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject]))
+
+    [self postNotification:FacesWillChange forFaces:theFaces];
+    for (MutableFace* face in theFaces)
         [face setTexture:theTexture];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:FacesDidChange forFaces:theFaces];
 }
 
 - (BOOL)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures {
@@ -1515,55 +1124,28 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if (theDistance == 0)
         return NO;
     
+    NSMutableArray* brushes = [[NSMutableArray alloc] init];
     BOOL canDrag = YES;
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        NSMutableArray* brushes = [[NSMutableArray alloc] init];
-        NSEnumerator* faceEn = [theFaces objectEnumerator];
-        MutableFace* face;
-        while ((face = [faceEn nextObject]) && canDrag) {
-            MutableBrush* brush = [face brush];
-            [brushes addObject:brush];
-            canDrag &= [brush canDrag:face by:theDistance];
-        }
-        
-        if (canDrag) {
-            userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:brushes forKey:BrushesKey];
-            [brushes release];
-            
-            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-            [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-        }
-    } else {
-        NSEnumerator* faceEn = [theFaces objectEnumerator];
-        MutableFace* face;
-        while ((face = [faceEn nextObject]) && canDrag) {
-            MutableBrush* brush = [face brush];
-            canDrag &= [brush canDrag:face by:theDistance];
-        }
-    }
-
-    if (!canDrag)
-        return NO;
-    
-    NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] dragFaces:[[theFaces copy] autorelease] distance:-theDistance lockTextures:lockTextures];
-
-    NSEnumerator* faceEn = [theFaces objectEnumerator];
-    MutableFace* face;
-    while ((face = [faceEn nextObject])) {
+    for (id <Face> face in theFaces) {
         MutableBrush* brush = [face brush];
-        [brush drag:face by:theDistance lockTexture:lockTextures];
+        [brushes addObject:brush];
+        canDrag &= [brush canDrag:face by:theDistance];
     }
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
-        [userInfo release];
+
+    if (canDrag) {
+        NSUndoManager* undoManager = [self undoManager];
+        [[undoManager prepareWithInvocationTarget:self] dragFaces:[[theFaces copy] autorelease] distance:-theDistance lockTextures:lockTextures];
+
+        [self postNotification:BrushesWillChange forBrushes:brushes];
+        for (MutableFace* face in theFaces) {
+            MutableBrush* brush = [face brush];
+            [brush drag:face by:theDistance lockTexture:lockTextures];
+        }
+        [self postNotification:BrushesDidChange forBrushes:brushes];
     }
-    
-    return YES;
+
+    [brushes release];
+    return canDrag;
 }
 
 - (int)dragVertex:(int)theVertexIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta {
@@ -1574,24 +1156,11 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     
     MutableBrush* mutableBrush = (MutableBrush *)theBrush;
     NSArray* brushArray = [[NSArray alloc] initWithObjects:theBrush, nil];
-    
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-            userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:brushArray forKey:BrushesKey];
-            
-            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-            [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-    }
-    
+
     [self makeUndoSnapshotOfBrushes:brushArray];
+    [self postNotification:BrushesWillChange forBrushes:brushArray];
     int newIndex = [mutableBrush dragVertex:theVertexIndex by:theDelta];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:BrushesDidChange forBrushes:brushArray];
     
     [brushArray release];
     return newIndex;
@@ -1606,23 +1175,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     MutableBrush* mutableBrush = (MutableBrush *)theBrush;
     NSArray* brushArray = [[NSArray alloc] initWithObjects:theBrush, nil];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:brushArray forKey:BrushesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-    }
-    
     [self makeUndoSnapshotOfBrushes:brushArray];
+    [self postNotification:BrushesWillChange forBrushes:brushArray];
     int newIndex = [mutableBrush dragEdge:theEdgeIndex by:theDelta];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:BrushesDidChange forBrushes:brushArray];
     
     [brushArray release];
     return newIndex;
@@ -1637,23 +1193,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     MutableBrush* mutableBrush = (MutableBrush *)theBrush;
     NSArray* brushArray = [[NSArray alloc] initWithObjects:theBrush, nil];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:brushArray forKey:BrushesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-    }
-    
     [self makeUndoSnapshotOfBrushes:brushArray];
+    [self postNotification:BrushesWillChange forBrushes:brushArray];
     int newIndex = [mutableBrush dragFace:theFaceIndex by:theDelta];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:BrushesDidChange forBrushes:brushArray];
     
     [brushArray release];
     return newIndex;
@@ -1704,23 +1247,14 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     
     [[[self undoManager] prepareWithInvocationTarget:self] removeEntities:[[theEntities copy] autorelease]];
 
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    MutableEntity* entity;
-    while ((entity = [entityEn nextObject])) {
+    for (MutableEntity* entity in theEntities) {
         if (![entity isWorldspawn] || [self worldspawn:NO] == nil) {
             [entities addObject:entity];
             [entity setMap:self];
         }
     }
     
-    if ([self postNotifications]) {
-        NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theEntities forKey:EntitiesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:EntitiesAdded object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:EntitiesAdded forEntities:theEntities];
 }
 
 - (void)addEntity:(MutableEntity *)theEntity {
@@ -1740,29 +1274,14 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     [[self selectionManager] removeEntities:theEntities record:YES];
     [[[self undoManager] prepareWithInvocationTarget:self] addEntities:[[theEntities copy] autorelease]];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theEntities forKey:EntitiesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:EntitiesWillBeRemoved object:self userInfo:userInfo];
-    }
-    
-    NSEnumerator* entityEn = [theEntities objectEnumerator];
-    MutableEntity* entity;
-    while ((entity = [entityEn nextObject])) {
+    [self postNotification:EntitiesWillBeRemoved forEntities:theEntities];
+    for (MutableEntity* entity in theEntities) {
         [entity setMap:nil];
         [entities removeObject:entity];
         if (worldspawn == entity)
             worldspawn = nil;
     }
-
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:EntitiesWereRemoved object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:EntitiesWereRemoved forEntities:theEntities];
 }
 
 - (void)removeEntity:(MutableEntity *)theEntity {
@@ -1775,8 +1294,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
 - (id <Entity>)worldspawn:(BOOL)create {
     if (worldspawn == nil || ![worldspawn isWorldspawn]) {
-        NSEnumerator* en = [entities objectEnumerator];
-        while ((worldspawn = [en nextObject]))
+        for (worldspawn in entities)
             if ([worldspawn isWorldspawn])
                 break;
     }
@@ -1790,14 +1308,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [entities addObject:entity];
         [entity setMap:self];
 
-        if ([self postNotifications]) {
-            NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
-            [userInfo setObject:[NSArray arrayWithObject:entity] forKey:EntitiesKey];
-            
-            NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-            [center postNotificationName:EntitiesAdded object:self userInfo:userInfo];
-            [userInfo release];
-        }        
+        [self postNotification:EntitiesAdded forEntities:[NSArray arrayWithObject:entity]];
         
         worldspawn = entity;
         [entity release];

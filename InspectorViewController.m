@@ -93,9 +93,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     NSDictionary* userInfo = [notification userInfo];
     NSArray* entities = [userInfo objectForKey:EntitiesKey];
-    NSEnumerator* entityEn = [entities objectEnumerator];
-    id <Entity> entity;
-    while ((entity = [entityEn nextObject])) {
+    for (id <Entity> entity in entities) {
         if ([entity isWorldspawn]) {
             [entityView setMods:modListFromWorldspawn(entity)];
             break;
@@ -250,7 +248,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         BOOL rotationMultiple = NO;
         BOOL textureMultiple = NO;
         
-        while ((face = [faceEn nextObject])) {
+        for (face in faceEn) {
             xOffsetMultiple  |= xOffset  != [face xOffset];
             yOffsetMultiple  |= yOffset  != [face yOffset];
             xScaleMultiple   |= xScale   != [face xScale];
@@ -490,9 +488,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             NSUInteger index = [selectedRows firstIndex];
             do {
                 NSString* key = [entityPropertyTableDataSource propertyKeyAtIndex:index];
-                NSEnumerator* entityEn = [entities objectEnumerator];
-                id <Entity> entity;
-                while ((entity = [entityEn nextObject])) {
+                for (id <Entity> entity in entities) {
                     if (![entity isPropertyDeletable:key]) {
                         [removeEntityPropertyButton setEnabled:NO];
                         return;
@@ -741,9 +737,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [openPanel setCanCreateDirectories:NO];
     
     if ([openPanel runModal] == NSFileHandlingPanelOKButton) {
-        NSEnumerator* urlEn = [[openPanel URLs] objectEnumerator];
-        NSURL* url;
-        while ((url = [urlEn nextObject])) {
+        for (NSURL* url in [openPanel URLs]) {
             NSString* wadPath = [url path];
             if (wadPath != nil)
                 [wadArrayController addObject:wadPath];

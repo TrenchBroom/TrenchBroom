@@ -528,75 +528,65 @@ int const GridMinSize = 0;
     if (isnan(dist) || dist == 0)
         return NAN;
     
-    // compute the rays which the vertices are moved on when the given face is dragged in the given direction
-    const TVertexList* vertices = [theFace vertices];
-    
     id <Brush> brush = [theFace brush];
-    const TEdgeList* edges = [brush edges];
+    const TEdgeList* brushEdges = [brush edges];
+    const TVertexList* faceVertices = [theFace vertices];
+
+    // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged
+    TRay* edgeRays = malloc(brushEdges->count * sizeof(TRay));
+    int rayCount = 0;
     
-    TRay vertexRays[vertices->count];
-    int rayIndex = 0;
-    
-    // look at each edge of the brush and test if exactly one of its end vertices belongs to the given face
-    // if such an edge is detected, compute the ray which begins at the face vertex and points at the other
-    // vertex
-    for (int i = 0; i < edges->count; i++) {
+    for (int i = 0; i < brushEdges->count; i++) {
+        const TEdge* edge = brushEdges->items[i];
         int c = 0;
-        TRay ray;
+        BOOL invertEdge = NO;
         
-        TEdge* e = edges->items[i];
-        for (int j = 0; j < vertices->count; j++) {
-            TVertex* v = vertices->items[j];
-            
-            if (v == e->startVertex) {
-                c++;
-                if (c == 1) {
-                    ray.origin = e->startVertex->position;
-                    ray.direction = e->endVertex->position;
-                } else {
-                    break;
-                }
-            } else if (v == e->endVertex) {
-                c++;
-                if (c == 1) {
-                    ray.origin = e->endVertex->position;
-                    ray.direction = e->startVertex->position;
-                } else {
-                    break;
-                }
-            }
+        if (vertexIndex(faceVertices, edge->startVertex) != -1)
+            c++;
+        if (vertexIndex(faceVertices, edge->endVertex) != -1) {
+            c++;
+            invertEdge = YES;
         }
-        
+
         if (c == 1) {
-            subV3f(&ray.direction, &ray.origin, &ray.direction);
-            normalizeV3f(&ray.direction, &ray.direction);
+            TRay* ray = &edgeRays[rayCount];
+            if (invertEdge) {
+                ray->origin = edge->endVertex->position;
+                ray->direction = edge->startVertex->position;
+            } else {
+                ray->origin = edge->startVertex->position;
+                ray->direction = edge->endVertex->position;
+            }
             
+            subV3f(&ray->direction, &ray->origin, &ray->direction);
+            normalizeV3f(&ray->direction, &ray->direction);
+
             // depending on the direction of the drag vector, the rays must be inverted to reflect the
             // actual movement of the vertices
             if (dist > 0)
-                scaleV3f(&ray.direction, -1, &ray.direction);
+                scaleV3f(&ray->direction, -1, &ray->direction);
             
-            vertexRays[rayIndex++] = ray;
+            rayCount++;
         }
     }
     
-    TVector3f vertexDelta;
+    TVector3f delta;
     int gridSkip = 0;
     float dragDist = FLT_MAX;
     do {
         // Find the smallest drag distance at which the face boundary is actually moved
-        // by intersecting the vertex rays with the grid planes.
-        // The distance of the vertex to the closest grid plane is then multiplied by the ray
+        // by intersecting the edge rays with the grid planes.
+        // The distance of the ray origin to the closest grid plane is then multiplied by the ray
         // direction to yield the vector by which the vertex would be moved if the face was dragged
         // and the drag would snap the vertex onto the previously selected grid plane.
         // This vector is then projected onto the face normal to yield the distance by which the face
         // must be dragged so that the vertex snaps to its closest grid plane.
         // Then, test if the resulting drag distance is smaller than the current candidate and if it is, see if
         // it is large enough so that the face boundary changes when the drag is applied.
-        for (int i = 0; i < vertices->count; i++) {
-            float vertexDist = [self intersectWithRay:&vertexRays[i] skip:gridSkip];
-            scaleV3f(&vertexRays[i].direction, vertexDist, &vertexDelta);
-            float vertexDragDist = dotV3f(&vertexDelta, [theFace norm]);
+        for (int i = 0; i < rayCount; i++) {
+            float vertexDist = [self intersectWithRay:&edgeRays[i] skip:gridSkip];
+            scaleV3f(&edgeRays[i].direction, vertexDist, &delta);
+            float vertexDragDist = dotV3f(&delta, [theFace norm]);
             
             if (fabsf(vertexDragDist) < fabsf(dragDist)) {
                 MutableFace* testFace = [[MutableFace alloc] initWithWorldBounds:[theFace worldBounds] faceTemplate:theFace];
@@ -609,7 +599,9 @@ int const GridMinSize = 0;
         
         // If we didn't find anything, the grid planes were too close to each vertex, so try the next grid planes.
         gridSkip++;
-    } while (dragDist == FLT_MAX);
+    } while (dragDist == FLT_MAX);    
+
+    free(edgeRays);
     
     if (fabsf(dragDist) > fabsf(dist))
         return NAN;

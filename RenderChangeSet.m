@@ -87,7 +87,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)entitiesSelected:(NSArray *)theEntities {
-    [selectedEntities addObjectsFromArray:theEntities];
+    if ([deselectedEntities count] > 0) {
+        for (id entity in theEntities) {
+            NSUInteger index = [deselectedEntities indexOfObject:entity];
+            if (index != NSNotFound)
+                [deselectedEntities removeObjectAtIndex:index];
+            else
+                [selectedEntities addObject:entity];
+        }
+    } else {
+        [selectedEntities addObjectsFromArray:theEntities];
+    }
 }
 
 - (void)entitiesDeselected:(NSArray *)theEntities {
@@ -95,7 +105,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)brushesSelected:(NSArray *)theBrushes {
-    [selectedBrushes addObjectsFromArray:theBrushes];
+    if ([deselectedBrushes count] > 0) {
+        for (id brush in theBrushes) {
+            NSUInteger index = [deselectedBrushes indexOfObject:brush];
+            if (index != NSNotFound)
+                [deselectedBrushes removeObjectAtIndex:index];
+            else
+                [selectedBrushes addObject:brush];
+        }
+    } else {
+        [selectedBrushes addObjectsFromArray:theBrushes];
+    }
 }
 
 - (void)brushesDeselected:(NSArray *)theBrushes {
@@ -103,7 +123,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)facesSelected:(NSArray *)theFaces {
-    [selectedFaces addObjectsFromArray:theFaces];
+    if ([deselectedFaces count] > 0) {
+        for (id face in theFaces) {
+            NSUInteger index = [deselectedFaces indexOfObject:face];
+            if (index != NSNotFound)
+                [deselectedFaces removeObjectAtIndex:index];
+            else
+                [selectedFaces addObject:face];
+        }
+    } else {
+        [selectedFaces addObjectsFromArray:theFaces];
+    }
 }
 
 - (void)facesDeselected:(NSArray *)theFaces {

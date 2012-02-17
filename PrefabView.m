@@ -135,14 +135,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         cameras = [[NSMutableDictionary alloc] init];
         
         PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-        NSEnumerator* groupEn = [[prefabManager prefabGroups] objectEnumerator];
-        id <PrefabGroup> group;
-        while ((group = [groupEn nextObject])) {
-            NSEnumerator* prefabEn = [[group prefabs] objectEnumerator];
-            id <Prefab> prefab;
-            while ((prefab = [prefabEn nextObject]))
+        for (id <PrefabGroup> group in [prefabManager prefabGroups])
+            for (id <Prefab> prefab in [group prefabs])
                 [self addPrefab:prefab];
-        }
         
         NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(prefabAdded:) name:PrefabAdded object:prefabManager];
@@ -258,12 +253,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-    NSEnumerator* groupRowEn = [[layout groupRows] objectEnumerator];
-    PrefabLayoutGroupRow* groupRow;
-    while ((groupRow = [groupRowEn nextObject])) {
-        NSEnumerator* cellEn = [[groupRow cells] objectEnumerator];
-        PrefabLayoutPrefabCell* cell;
-        while ((cell = [cellEn nextObject])) {
+    for (PrefabLayoutGroupRow* groupRow in [layout groupRows]) {
+        for (PrefabLayoutPrefabCell* cell in [groupRow cells]) {
             id <Prefab> prefab = [cell prefab];
             NSRect prefabBounds = [cell prefabBounds];
             NSRect cameraBounds = NSMakeRect(NSMinX(prefabBounds), NSHeight(visibleRect) - NSMaxY(prefabBounds) + NSMinY(visibleRect), NSWidth(prefabBounds), NSHeight(prefabBounds));
@@ -271,15 +262,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             Camera* camera = [cameras objectForKey:[prefab prefabId]];
             [camera updateView:cameraBounds];
             
-            NSEnumerator* entityEn = [[prefab entities] objectEnumerator];
-            id <Entity> entity;
-            while ((entity = [entityEn nextObject])) {
-                NSEnumerator* brushEn = [[entity brushes] objectEnumerator];
-                id <Brush> brush;
-                while ((brush = [brushEn nextObject])) {
-                    NSEnumerator* faceEn = [[brush faces] objectEnumerator];
-                    id <Face> face;
-                    while ((face = [faceEn nextObject])) {
+            for (id <Entity> entity in [prefab entities]) {
+                for (id <Brush> brush in [entity brushes]) {
+                    for (id <Face> face in [brush faces]) {
                         glEnable(GL_TEXTURE_2D);
                         glPolygonMode(GL_FRONT, GL_FILL);
                         glColor4f(0, 0, 0, 1);
@@ -321,8 +306,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [fontManager activate];
     glTranslatef(0, 2 * NSMinY(visibleRect), 0);
     
-    groupRowEn = [[layout groupRows] objectEnumerator];
-    while ((groupRow = [groupRowEn nextObject])) {
+    for (PrefabLayoutGroupRow* groupRow in [layout groupRows]) {
         id <PrefabGroup> prefabGroup = [groupRow prefabGroup];
         GLString* groupNameString = [fontManager glStringFor:[prefabGroup name] font:font]; 
         
@@ -337,10 +321,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         glColor4f(1, 1, 1, 1);
         [groupNameString render];
         glPopMatrix();
-        
-        NSEnumerator* cellEn = [[groupRow cells] objectEnumerator];
-        PrefabLayoutPrefabCell* cell;
-        while ((cell = [cellEn nextObject])) {
+
+        for (PrefabLayoutPrefabCell* cell in [groupRow cells]) {
             id <Prefab> prefab = [cell prefab];
             GLString* prefabNameString = [fontManager glStringFor:[prefab name] font:font];
             

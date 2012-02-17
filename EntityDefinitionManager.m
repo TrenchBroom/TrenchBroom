@@ -65,12 +65,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (NSArray *)definitionsOfType:(EEntityDefinitionType)type sortCriterion:(EEntityDefinitionSortCriterion)criterion {
     NSMutableArray* result = [[NSMutableArray alloc] init];
     
-    NSEnumerator* definitionEn = [definitionsByName objectEnumerator];
-    EntityDefinition* definition;
-    while ((definition = [definitionEn nextObject])) {
+    for (EntityDefinition* definition in [definitionsByName objectEnumerator])
         if ([definition type] == type)
             [result addObject:definition];
-    }
     
     if (criterion == ES_USAGE)
         [result sortUsingSelector:@selector(compareByUsageCount:)];

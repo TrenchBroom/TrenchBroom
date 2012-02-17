@@ -163,9 +163,7 @@ static PreferencesController* sharedInstance = nil;
     [openPanel setCanCreateDirectories:NO];
     
     if ([openPanel runModal] == NSFileHandlingPanelOKButton) {
-        NSEnumerator* urlEn = [[openPanel URLs] objectEnumerator];
-        NSURL* url;
-        while ((url = [urlEn nextObject])) {
+        for (NSURL* url in [openPanel URLs]) {
             NSString* quakePath = [url path];
             if (quakePath != nil) {
                 PreferencesManager* preferences = [PreferencesManager sharedManager];

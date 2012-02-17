@@ -104,9 +104,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         editingPlaneFigure = nil;
     }
     
-    NSEnumerator* figureEn = [brushFigures objectEnumerator];
-    ClipBrushFeedbackFigure* figure;
-    while ((figure = [figureEn nextObject]))
+    for (ClipBrushFeedbackFigure* figure in brushFigures) 
         [renderer removeFeedbackFigure:figure];
     [brushFigures removeAllObjects];
     
@@ -147,10 +145,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         }
 
         SelectionManager* selectionManager = [windowController selectionManager];
-        NSEnumerator* brushEn = [[selectionManager selectedBrushes] objectEnumerator];
-        id <Brush> brush;
-        while ((brush = [brushEn nextObject])) {
-            figure = [[ClipBrushFeedbackFigure alloc] initWithBrush:brush clipPlane:clipPlane];
+        for (id <Brush> brush in [selectionManager selectedBrushes]) {
+            ClipBrushFeedbackFigure* figure = [[ClipBrushFeedbackFigure alloc] initWithBrush:brush clipPlane:clipPlane];
             if (figure != nil) {
                 [brushFigures addObject:figure];
                 [renderer addFeedbackFigure:figure];
@@ -371,9 +367,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSArray* brushes = [[NSArray alloc] initWithArray:[selectionManager selectedBrushes]];
     [selectionManager removeAll:YES];
     
-    NSEnumerator* brushEn = [brushes objectEnumerator];
-    id <Brush> brush;
-    while ((brush = [brushEn nextObject])) {
+    for (id <Brush> brush in brushes) {
         id <Brush> firstResult = nil;
         id <Brush> secondResult = nil;
         [clipPlane clipBrush:brush firstResult:&firstResult secondResult:&secondResult];

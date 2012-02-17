@@ -78,6 +78,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSAssert(theKey != nil, @"key must not be nil");
     NSAssert(theTextRenderer != nil, @"text renderer must not be nil");
 
+    if (![strings objectForKey:theKey])
+        NSLog(@"asdf");
+    
     GLString* string = [strings objectForKey:theKey];
     id <TextAnchor> anchor = [anchors objectForKey:theKey];
     
@@ -91,9 +94,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     TVector3f position;
 
-    NSEnumerator* keyEn = [strings keyEnumerator];
-    id <NSCopying> key;
-    while ((key = [keyEn nextObject])) {
+    for (id <NSCopying> key in strings) {
         GLString* glString = [strings objectForKey:key];
         id <TextAnchor> anchor = [anchors objectForKey:key];
         

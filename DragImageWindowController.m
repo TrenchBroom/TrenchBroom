@@ -33,9 +33,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if ([theView isKindOfClass:[MapView3D class]])
         return YES;
     
-    NSEnumerator* viewEn = [[theView subviews] objectEnumerator];
-    NSView* subview;
-    while ((subview = [viewEn nextObject])) {
+    for (NSView* subview in [theView subviews]) {
         NSPoint viewLocation = [subview convertPoint:theLocation fromView:nil];
         if ([subview hitTest:viewLocation] && [self containsMapViewUnderCursor:subview atLocation:theLocation])
             return YES;
@@ -89,10 +87,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)dragTo:(NSPoint)theLocation {
-    NSEnumerator* windowEn = [[NSApp orderedWindows] objectEnumerator];
-    NSWindow* window;
     BOOL mapViewActive = NO;
-    while ((window = [windowEn nextObject])) {
+    for (NSWindow* window in [NSApp orderedWindows]) {
         if (window != [self window]) {
             NSView* content = [window contentView];
             NSPoint windowLocation = [window mouseLocationOutsideOfEventStream];

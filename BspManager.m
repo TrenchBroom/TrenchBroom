@@ -43,9 +43,7 @@ static BspManager* sharedInstance = nil;
 - (NSString *)keyForName:(NSString *)theName paths:(NSArray *)thePaths {
     NSMutableString* key = [[NSMutableString alloc] init];
     
-    NSEnumerator* pathEn = [thePaths objectEnumerator];
-    NSString* path;
-    while ((path = [pathEn nextObject])) {
+    for (NSString* path in thePaths) {
         [key appendString:path];
         [key appendString:@";"];
     }

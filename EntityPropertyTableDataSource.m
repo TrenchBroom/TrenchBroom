@@ -56,11 +56,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     } else {
         NSEnumerator* entityEn = [entities objectEnumerator];
         id <Entity> entity = [entityEn nextObject];
+        
         NSMutableDictionary* mergedProperties = [[NSMutableDictionary alloc] initWithDictionary:[entity properties]];
         NSString* spawnFlagsString = [entity spawnFlagsString];
         [mergedProperties setObject:spawnFlagsString forKey:SpawnFlagsKey];
         
-        while ((entity = [entityEn nextObject])) {
+        for (entity in entityEn) {
             NSSet* allKeys = [[NSSet alloc] initWithArray:[mergedProperties allKeys]];
             NSMutableSet* keys = [[NSMutableSet alloc] initWithArray:[[entity properties] allKeys]];
             NSMutableSet* toRemove = [[NSMutableSet alloc] initWithSet:allKeys];
@@ -69,9 +70,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             
             [mergedProperties removeObjectsForKeys:[toRemove allObjects]];
             
-            NSEnumerator* keyEn = [keys objectEnumerator];
-            NSString* key;
-            while ((key = [keyEn nextObject])) {
+            for (NSString* key in keys) {
                 id oldValue = [mergedProperties objectForKey:key];
                 if (oldValue != NSMultipleValuesMarker) {
                     NSString* newValue;
@@ -115,18 +114,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([@"Key" isEqualToString:[theTableColumn identifier]]) {
         NSString* key = [sortedKeys objectAtIndex:theIndex];
-        
-        NSEnumerator* entityEn = [entities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject]))
+        for (id <Entity> entity in entities)
             if (![entity isPropertyDeletable:key])
                 return NO;
     } else if ([@"Value" isEqualToString:[theTableColumn identifier]]) {
         NSString* key = [sortedKeys objectAtIndex:theIndex];
-        
-        NSEnumerator* entityEn = [entities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject]))
+        for (id <Entity> entity in entities)
             if (![entity isPropertyWritable:key])
                 return NO;
     }
@@ -175,9 +168,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         NSString* oldKey = [sortedKeys objectAtIndex:rowIndex];
         NSString* newKey = (NSString *)anObject;
         
-        NSEnumerator* entityEn = [entities objectEnumerator];
-        id <Entity> entity;
-        while ((entity = [entityEn nextObject])) {
+        for (id <Entity> entity in entities) {
             NSString* value = [entity propertyForKey:oldKey];
             [map setEntity:entity propertyKey:oldKey value:nil];
             [map setEntity:entity propertyKey:newKey value:value];

@@ -123,12 +123,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (NSArray *)flagsForMask:(int)theMask {
     NSMutableArray* result = [[NSMutableArray alloc] init];
     
-    NSEnumerator* flagEn = [flags objectEnumerator];
-    SpawnFlag* flag;
-    while ((flag = [flagEn nextObject])) {
+    for (SpawnFlag* flag in flags)
         if ((theMask & [flag flag]) != 0)
             [result addObject:flag];
-    }
     
     [result sortUsingSelector:@selector(compareByFlag:)];
     return [result autorelease];
@@ -163,16 +160,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     ModelProperty* defaultProperty = nil;
     ModelProperty* specificProperty = nil;
     
-    NSEnumerator* propertyEn = [properties objectEnumerator];
-    id <EntityDefinitionProperty> property;
-    while ((property = [propertyEn nextObject]) && (specificProperty == nil)) {
+    for (id <EntityDefinitionProperty> property in properties) {
         if ([property isKindOfClass:[ModelProperty class]]) {
             ModelProperty* modelProperty = (ModelProperty *)property;
             NSString* flagName = [modelProperty flagName];
-            if (flagName == nil)
+            
+            if (flagName == nil) {
                 defaultProperty = modelProperty;
-            else if ([self isFlag:flagName setOnEntity:theEntity])
+            } else if ([self isFlag:flagName setOnEntity:theEntity]) {
                 specificProperty = modelProperty;
+                break;
+            }
         }
     }
     
@@ -180,9 +178,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (ModelProperty *)defaultModelProperty {
-    NSEnumerator* propertyEn = [properties objectEnumerator];
-    id <EntityDefinitionProperty> property;
-    while ((property = [propertyEn nextObject])) {
+    for (id <EntityDefinitionProperty> property in properties) {
         if ([property isKindOfClass:[ModelProperty class]]) {
             ModelProperty* modelProperty = (ModelProperty *)property;
             NSString* flagName = [modelProperty flagName];

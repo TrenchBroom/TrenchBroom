@@ -28,7 +28,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [stream open];
         bufferIndex = 0;
         bufferSize = [stream read:buffer maxLength:1024];
-        pushBuffer = [[NSMutableString alloc] init];
+        stringLength = 0;
+        string[stringLength] = 0;
+        pushCount = 0;
         charsRead = 0;
         line = 1;
         column = 0;
@@ -43,11 +45,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (state == EOF)
         [NSException raise:@"Invalid State" format:@"read past end of file"];
     
-    if ([pushBuffer length] > 0) {
-        char c = [pushBuffer characterAtIndex:0];
-        [pushBuffer deleteCharactersInRange:NSMakeRange(0, 1)];
-        return c;
-    }
+    if (pushCount > 0)
+        return pushBuffer[--pushCount];
     
     if (bufferIndex == bufferSize) {
         bufferIndex = 0;
@@ -70,7 +69,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)pushBack:(char)c {
-    [pushBuffer appendFormat:@"%c", c];
+    pushBuffer[pushCount++] = c;
 }
 
 - (MapToken *)nextToken {
@@ -84,7 +83,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                         char d = [self readChar];
                         if (d == '/') {
                             state = TS_COM;
-                            string = [[NSMutableString alloc] init];
+                            stringLength = 0;
+                            string[stringLength] = 0;
                             startLine = line;
                             startColumn = column;
                             break;
@@ -111,7 +111,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                         return [token setType:TT_SB_C data:nil line:line column:column charsRead:charsRead];
                     case '"':
                         state = TS_Q_STR;
-                        string = [[NSMutableString alloc] init];
+                        stringLength = 0;
+                        string[stringLength] = 0;
                         startLine = line;
                         startColumn = column;
                         break;
@@ -127,15 +128,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                     case '8':
                     case '9':
                         state = TS_DEC;
-                        string = [[NSMutableString alloc] init];
-                        [string appendFormat:@"%c", c];
+                        stringLength = 1;
+                        string[0] = c;
+                        string[stringLength] = 0;
                         startLine = line;
                         startColumn = column;
                         break;
                     default:
                         state = TS_STR;
-                        string = [[NSMutableString alloc] init];
-                        [string appendFormat:@"%c", c];
+                        stringLength = 1;
+                        string[0] = c;
                         startLine = line;
                         startColumn = column;
                         break;
@@ -144,13 +146,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             case TS_Q_STR:
                 switch (c) {
                     case '"': {
-                        [token setType:TT_STR data:string line:startLine column:startColumn charsRead:charsRead];
-                        [string release];
-                        string = nil;
+                        [token setType:TT_STR data:[NSString stringWithCString:string encoding:NSASCIIStringEncoding] line:startLine column:startColumn charsRead:charsRead];
+                        stringLength = 0;
+                        string[stringLength] = 0;
                         state = TS_DEF;
                         return token;
                     default:
-                        [string appendFormat:@"%c", c];
+                        string[stringLength++] = c;
+                        string[stringLength] = 0;
                         break;
                     }
                 }
@@ -169,13 +172,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                     case '\n':
                     case '\t':
                     case ' ': {
-                        [token setType:TT_STR data:string line:startLine column:startColumn charsRead:charsRead];
-                        [string release];
-                        string = nil;
+                        [token setType:TT_STR data:[NSString stringWithCString:string encoding:NSASCIIStringEncoding] line:startLine column:startColumn charsRead:charsRead];
+                        stringLength = 0;
+                        string[stringLength] = 0;
                         state = comment ? TS_COM : TS_DEF;
                         return token;
                     default:
-                        [string appendFormat:@"%c", c];
+                        string[stringLength++] = c;
+                        string[stringLength] = 0;
                         break;
                     }
                 }
@@ -200,15 +204,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                     case ' ': {
                         NSNumber* number;
                         if (state == TS_DEC) {
-                            number = [NSNumber numberWithInt:[string intValue]];
-                            [string release];
-                            string = nil;
+                            number = [NSNumber numberWithInt:atoi(string)];
+                            stringLength = 0;
+                            string[stringLength] = 0;
                             state = comment ? TS_COM : TS_DEF;
                             return [token setType:TT_DEC data:number line:startLine column:startColumn charsRead:charsRead];
                         } else {
-                            number = [NSNumber numberWithFloat:[string floatValue]];
-                            [string release];
-                            string = nil;
+                            number = [NSNumber numberWithFloat:atof(string)];
+                            stringLength = 0;
+                            string[stringLength] = 0;
                             state = comment ? TS_COM : TS_DEF;
                             return [token setType:TT_FRAC data:number line:startLine column:startColumn charsRead:charsRead];
                         }
@@ -217,7 +221,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                     default: {
                         if ((c < '0' || c > '9') && (c != '.'))
                             state = TS_STR;
-                        [string appendFormat:@"%c", c];
+                        string[stringLength++] = c;
+                        string[stringLength] = 0;
                         break;
                     }
                 }
@@ -227,13 +232,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                 switch (c) {
                     case '\r':
                     case '\n':
-                        [token setType:TT_COM data:string line:startLine column:startColumn charsRead:charsRead];
-                        [string release];
-                        string = nil;
+                        [token setType:TT_COM data:[NSString stringWithCString:string encoding:NSASCIIStringEncoding] line:startLine column:startColumn charsRead:charsRead];
+                        stringLength = 0;
+                        string[stringLength] = 0;
                         state = TS_DEF;
                         return token;
                     default:
-                        [string appendFormat:@"%c", c];
+                        string[stringLength++] = c;
+                        string[stringLength] = 0;
                         break;
                     }
                 break;
@@ -246,10 +252,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)dealloc {
-    [pushBuffer release];
     [token release];
     [stream release];
-    [string release];
     [super dealloc];
 }
 

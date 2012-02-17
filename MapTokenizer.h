@@ -29,7 +29,6 @@ typedef enum {
     TS_EOF // parsing is complete
 } ETokenizerState;
 
-
 @class MapToken;
 
 @interface MapTokenizer : NSObject {
@@ -38,10 +37,12 @@ typedef enum {
     ETokenizerState state;
     MapToken* token;
     uint8_t buffer[1024];
-    NSMutableString* string;
     int bufferSize;
     int bufferIndex;
-    NSMutableString* pushBuffer;
+    char string[1024];
+    int stringLength;
+    char pushBuffer[1024];
+    int pushCount;
     int line;
     int column;
     int startLine;
