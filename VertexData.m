@@ -549,6 +549,17 @@ TEdge* splitSide(TSide* s) {
         return NULL;
     }
     
+    if (splitIndex1 < 0 || splitIndex2 < 0) {
+        for (int i = 0; i < s->edges.count; i++) {
+            const TEdge* edge = s->edges.items[i];
+            const TVertex* start = startVertexOfEdge(edge, s);
+            const TVertex* end = endVertexOfEdge(edge, s);
+            NSLog(@"e0: %f %f %f to %f %f %f with mark %i", start->position.x, start->position.y, start->position.z, end->position.x, end->position.y, end->position.z, edge->mark);
+        }
+        
+        assert(NO);
+    }
+    
     assert(splitIndex1 >= 0 && splitIndex2 >= 0);
     s->mark = SM_SPLIT;
     

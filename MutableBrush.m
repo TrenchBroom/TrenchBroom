@@ -480,6 +480,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return verticesOnGrid;
 }
 
+- (void)planePoint1:(TVector3f *)thePoint1 point2:(TVector3f *)thePoint2 point3:(TVector3f *)thePoint3 {
+    const TVertexList* vertices = [self vertices];
+    if (vertices->count == 3) {
+        thePoint1 = &vertices->items[0]->position;
+        thePoint2 = &vertices->items[1]->position;
+        thePoint3 = &vertices->items[2]->position;
+    } else {
+        
+    }
+}
+
 - (const TBoundingBox *)bounds {
     return &[self vertexData]->bounds;
 }

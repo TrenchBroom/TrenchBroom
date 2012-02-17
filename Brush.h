@@ -37,6 +37,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (const TVertexList *)vertices;
 - (const TEdgeList *)edges;
 - (BOOL)verticesOnGrid;
+- (void)planePoint1:(TVector3f *)thePoint1 point2:(TVector3f *)thePoint2 point3:(TVector3f *)thePoint3;
 
 - (const TBoundingBox *)bounds;
 - (const TBoundingBox *)worldBounds;

@@ -37,9 +37,9 @@ void writeFace(id <Face> theFace, NSOutputStream* theStream) {
     const TVector3f* p3 = &vertices->items[2]->position;
 
     int length = sprintf(buffer,  "( %i %i %i ) ( %i %i %i ) ( %i %i %i ) %s %i %i %f %f %f\n",
-                         (int)p1->x, (int)p1->y, (int)p1->z,
-                         (int)p2->x, (int)p2->y, (int)p2->z,
-                         (int)p3->x, (int)p3->y, (int)p3->z,
+                         (int)roundf(p1->x), (int)roundf(p1->y), (int)roundf(p1->z),
+                         (int)roundf(p2->x), (int)roundf(p2->y), (int)roundf(p2->z),
+                         (int)roundf(p3->x), (int)roundf(p3->y), (int)roundf(p3->z),
                          [[[theFace texture] name] cStringUsingEncoding:NSASCIIStringEncoding],
                          [theFace xOffset], 
                          [theFace yOffset], 
