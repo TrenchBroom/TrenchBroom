@@ -44,9 +44,6 @@
 		483A65AC13D48D96009EB9E7 /* EntityDefinitionDndTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 483A65AB13D48D95009EB9E7 /* EntityDefinitionDndTool.m */; };
 		483AB7A71410C4E400B5F44E /* PointFileFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 483AB7A61410C4E400B5F44E /* PointFileFeedbackFigure.m */; };
 		483B1129122441060072EAFB /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
-		483C515313E3284E0082C296 /* Light in Resources */ = {isa = PBXBuildFile; fileRef = 483C515013E3284E0082C296 /* Light */; };
-		483C515413E3284E0082C296 /* QBSP in Resources */ = {isa = PBXBuildFile; fileRef = 483C515113E3284E0082C296 /* QBSP */; };
-		483C515513E3284E0082C296 /* Vis in Resources */ = {isa = PBXBuildFile; fileRef = 483C515213E3284E0082C296 /* Vis */; };
 		484524A61323CCBD003B2855 /* MapWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524A51323CCBD003B2855 /* MapWriter.m */; };
 		484524D713240049003B2855 /* NSFileManager+AppSupportCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */; };
 		48455A4B13800A520096FEA5 /* IO.m in Sources */ = {isa = PBXBuildFile; fileRef = 48455A4A13800A520096FEA5 /* IO.m */; };
@@ -63,9 +60,7 @@
 		4855821D135788B5005F8B2C /* SelectionTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4855821C135788B5005F8B2C /* SelectionTool.m */; };
 		4855B29A1465C4A00062078C /* CameraOrbitAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 4855B2991465C4A00062078C /* CameraOrbitAnimation.m */; };
 		4855B29E1465C7A40062078C /* CameraAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 4855B29D1465C7A40062078C /* CameraAnimation.m */; };
-		4856F97E13E482C6004CFABE /* BJMHLight in Resources */ = {isa = PBXBuildFile; fileRef = 4856F97D13E482C6004CFABE /* BJMHLight */; };
 		4856F98013E482D8004CFABE /* BJMHLight in Copy Compiler Binaries */ = {isa = PBXBuildFile; fileRef = 4856F97D13E482C6004CFABE /* BJMHLight */; };
-		485720E014E71BE7009B0959 /* TxQBSP in Resources */ = {isa = PBXBuildFile; fileRef = 485720DF14E71BE7009B0959 /* TxQBSP */; };
 		485720E214E71BED009B0959 /* TxQBSP in Copy Compiler Binaries */ = {isa = PBXBuildFile; fileRef = 485720DF14E71BE7009B0959 /* TxQBSP */; };
 		485AE8A712F4B9BA00CDBD6A /* Picker.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8A612F4B9BA00CDBD6A /* Picker.m */; };
 		485AE8D712F4C5BD00CDBD6A /* PickingHit.m in Sources */ = {isa = PBXBuildFile; fileRef = 485AE8D612F4C5BD00CDBD6A /* PickingHit.m */; };
@@ -95,9 +90,6 @@
 		487A645812EA397C00A43289 /* TextureView.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A645712EA397C00A43289 /* TextureView.m */; };
 		487A646C12EA3A7E00A43289 /* Texture.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A646B12EA3A7E00A43289 /* Texture.m */; };
 		487A7E651300801A00434806 /* Renderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 487A7E641300801A00434806 /* Renderer.m */; };
-		487D2A5A1401324500F2673B /* 128.map in Resources */ = {isa = PBXBuildFile; fileRef = 487D2A571401324500F2673B /* 128.map */; };
-		487D2A5B1401324500F2673B /* 32.map in Resources */ = {isa = PBXBuildFile; fileRef = 487D2A581401324500F2673B /* 32.map */; };
-		487D2A5C1401324500F2673B /* 64.map in Resources */ = {isa = PBXBuildFile; fileRef = 487D2A591401324500F2673B /* 64.map */; };
 		487D2A5D1401327100F2673B /* 128.map in Copy Prefabs (Cubes) */ = {isa = PBXBuildFile; fileRef = 487D2A571401324500F2673B /* 128.map */; };
 		487D2A5E1401327100F2673B /* 32.map in Copy Prefabs (Cubes) */ = {isa = PBXBuildFile; fileRef = 487D2A581401324500F2673B /* 32.map */; };
 		487D2A5F1401327100F2673B /* 64.map in Copy Prefabs (Cubes) */ = {isa = PBXBuildFile; fileRef = 487D2A591401324500F2673B /* 64.map */; };
@@ -141,7 +133,6 @@
 		48A68F27114EDF360064732A /* MutableEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F26114EDF360064732A /* MutableEntity.m */; };
 		48A68F70114EE6DC0064732A /* MapDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A68F6F114EE6DC0064732A /* MapDocument.m */; };
 		48AC3E6313E3D00C008F4BF8 /* PreferencesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AC3E6213E3D00C008F4BF8 /* PreferencesManager.m */; };
-		48AC3E6B13E3FA8D008F4BF8 /* TreeQBSP in Resources */ = {isa = PBXBuildFile; fileRef = 48AC3E6A13E3FA8D008F4BF8 /* TreeQBSP */; };
 		48AC3E6C13E3FA99008F4BF8 /* TreeQBSP in Copy Compiler Binaries */ = {isa = PBXBuildFile; fileRef = 48AC3E6A13E3FA8D008F4BF8 /* TreeQBSP */; };
 		48AC3E6F13E418AC008F4BF8 /* MapCompiler.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AC3E6E13E418AC008F4BF8 /* MapCompiler.m */; };
 		48ACEC9913E162A900FEB81B /* DragPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 48ACEC9813E162A900FEB81B /* DragPlaceholder.png */; };
@@ -161,6 +152,7 @@
 		48C029B513C4ED2800FB8B71 /* BspFace.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C029B413C4ED2800FB8B71 /* BspFace.m */; };
 		48C029B913C4EF0500FB8B71 /* Bsp.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C029B813C4EF0500FB8B71 /* Bsp.m */; };
 		48C3324413087D8600C23607 /* MenuDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C3324313087D8600C23607 /* MenuDelegate.m */; };
+		48C81D3D14F05210009F81B1 /* TrenchBroom.help in Resources */ = {isa = PBXBuildFile; fileRef = 48C81D3C14F05210009F81B1 /* TrenchBroom.help */; };
 		48CB060913EC19B70051640E /* CreateBrushTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CB060813EC19B70051640E /* CreateBrushTool.m */; };
 		48CB060D13EC2E690051640E /* BoundsFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CB060C13EC2E680051640E /* BoundsFeedbackFigure.m */; };
 		48CBDD9913170B330041F704 /* GLResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CBDD9813170B330041F704 /* GLResources.m */; };
@@ -520,6 +512,7 @@
 		48C029B813C4EF0500FB8B71 /* Bsp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Bsp.m; sourceTree = "<group>"; };
 		48C3324213087D8600C23607 /* MenuDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuDelegate.h; sourceTree = "<group>"; };
 		48C3324313087D8600C23607 /* MenuDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MenuDelegate.m; sourceTree = "<group>"; };
+		48C81D3C14F05210009F81B1 /* TrenchBroom.help */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TrenchBroom.help; sourceTree = "<group>"; };
 		48CB060713EC19B70051640E /* CreateBrushTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateBrushTool.h; sourceTree = "<group>"; };
 		48CB060813EC19B70051640E /* CreateBrushTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CreateBrushTool.m; sourceTree = "<group>"; };
 		48CB060B13EC2E680051640E /* BoundsFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundsFeedbackFigure.h; sourceTree = "<group>"; };
@@ -659,6 +652,7 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				48C81D3C14F05210009F81B1 /* TrenchBroom.help */,
 				48ACEC9813E162A900FEB81B /* DragPlaceholder.png */,
 				48FE96081363279D009B31FD /* quake.def */,
 				48639BF312EA227100808576 /* QuakePalette.lmp */,
@@ -1362,17 +1356,9 @@
 				4898D9B713E1718C00B9C8F1 /* DragImageWindow.xib in Resources */,
 				4809A10F13E2A2E300AF6557 /* InspectorView.xib in Resources */,
 				48976C7313E2BA63005AB1EA /* InspectorWindow.xib in Resources */,
-				483C515313E3284E0082C296 /* Light in Resources */,
-				483C515413E3284E0082C296 /* QBSP in Resources */,
-				483C515513E3284E0082C296 /* Vis in Resources */,
-				48AC3E6B13E3FA8D008F4BF8 /* TreeQBSP in Resources */,
-				4856F97E13E482C6004CFABE /* BJMHLight in Resources */,
 				48BC2E6713EBEF7C003657D6 /* ConsoleWindow.xib in Resources */,
 				487799C613F308ED001F9335 /* QuickBarWindow.xib in Resources */,
-				487D2A5A1401324500F2673B /* 128.map in Resources */,
-				487D2A5B1401324500F2673B /* 32.map in Resources */,
-				487D2A5C1401324500F2673B /* 64.map in Resources */,
-				485720E014E71BE7009B0959 /* TxQBSP in Resources */,
+				48C81D3D14F05210009F81B1 /* TrenchBroom.help in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

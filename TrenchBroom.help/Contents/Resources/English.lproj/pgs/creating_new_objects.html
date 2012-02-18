@@ -5,7 +5,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>TrenchBroom Help - Creating New Objects</title>
-	<link rel="StyleSheet" href="style.css" type="text/css" media="screen" />
+	<link rel="StyleSheet" href="../sty/style.css" type="text/css" media="screen" />
 	<meta name="author" content="Kristian Duske">
 </head>
 <body>
@@ -14,14 +14,14 @@
 		<p>There are several ways to create new brushes and entities. It is recommended that you try all of the methods explained below because it depends on the context which one is most useful. In other words, sometimes it is quicker to simply duplicate an existing brush and sometimes it is quicker to create a new brush from scratch. In the next section, you will learn how to draw new brushes with your mouse, which is the most convenient way to create new geometry.</p>
 		<h3>The Editing Plane</h3>
 		<p>It is very important that you understand how the view direction of the camera relates to editing. Since the mouse is a 2D input device, you cannot directly control all three dimensions when you edit objects with the mouse. For example, if you want to move a brush around, you can only move it in two directions by dragging it. Because of this, many editing operations take the view direction into account to decide which dimensions the mouse movements should be mapped to. So if you are looking down along the Z axis while you are moving a brush, your mouse movement will be mapped to the X and Y axes and the brush can only be moved on the XY plane. The plane which the mouse movement is mapped to in editing operations is called the <b>editing plane</b>. In general, TrenchBroom chooses either the XY plane, the XZ plane or the YZ plane as the editing plane depending on whether the camera looks generally in the direction of the (positive or negative) Z, Y or X axis, respectively.</p>
-		<img src="images/screenshots/compass.png" width="177" height="97" alt="Compass" class="inline">
+		<img src="../../shrd/compass.png" width="177" height="97" alt="Compass" class="inline">
 		<p>Remember that you can use the <a href="camera_navigation.html">quick info bar</a> at the bottom of the 3D view to keep your orientation. On top of that, the compass gives you a visual hint as to which plane is the current editing plane. In the screenshot on the left, the predominant axis of the camera direction is the Y axis, which is why it has gray color. The two axes which are rendered in color make up the editing plane, which in this case is the XZ plane.</p>
 		<br clear="all">
 		
 		<a name="drawing_new_brushes_using_the_mouse"></a><h3>Drawing New Brushes Using the Mouse</h3>
 		<p>Creating a new brush from scratch is easily done in TrenchBroom. Simply <b>left click</b> and <b>drag</b> your mouse on the 3D view to create a new cuboid. The cuboid will aligned to the current editing plane and its thickness will be set to the current grid size. You can use the mouse wheel to change the thickness of the brush. Note that you can only draw a new brush if you deselect everything first.</p>
 		<p>The position of the new brush depends on where you started to draw it. If you started in the void, it is positioned at a default distance from the camera. If you started your drag on another brush, it is positioned on the point on that brushes surface where you clicked. This makes it easy to create brushes which are already correctly aligned to other brushes.</p>
-		<img src="images/screenshots/mru_texture.png" width="120" height="120" alt="Most Recently Used Texture" class="inline">
+		<img src="../../shrd/mru_texture.png" width="120" height="120" alt="Most Recently Used Texture" class="inline">
 		<p>Note that TrenchBroom automatically selects the most recently used texture when you draw a brush. The most recently used texture updated whenever you select a face or when you select a texture in the texture browser. A red border is drawn around that texture in the browser. <a href="misc_tasks.html#managing_textures">Click here</a> to find out more about texture management in TrenchBroom.</p>
 		<br clear="all">
 
@@ -34,7 +34,7 @@
 		<a name="creating_point_and_brush_entities"></a><h3>Creating Point and Brush Entities</h3>
 		<p>You can create any type of entity by using the popup menu of the 3D view. To create a new point entity, <b>ctrl-click</b> (or <b>right click</b>) in the 3D view and select the entity you wish to create from the <b>Create Point Entity</b> submenu. If you clicked on a brush when you opened the popup menu, the entity will be placed on the surface of that brush. If you clicked in the void, it will be placed at a default distance from the camera.</p>
 		<div class="images">
-			<img src="images/screenshots/point_entity_popup_menu.png" width="460" height="160" alt="Point Entity Popup Menu">
+			<img src="../../shrd/point_entity_popup_menu.png" width="460" height="160" alt="Point Entity Popup Menu">
 			<div class="imagecaption">Creating a new light entity using the popup menu.</div>
 		</div>
 		<p>If you wish to create a brush entity, select the brushes that should belong to that entity, <b>ctrl-click</b> (or <b>right click</b>) in the 3D view and select the brush entity from the <b>Create Brush Entity</b> submenu. Note that you can only create a brush entity if none of the currently selected brushes belongs to any other brush entity (other than worldspawn).</p>
