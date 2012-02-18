@@ -20,7 +20,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "GLResources.h"
 #import "GLFontManager.h"
 #import "TextureManager.h"
-#import "VBOBuffer.h"
+#import "Vbo.h"
 #import "EntityRendererManager.h"
 
 @implementation GLResources

@@ -28,7 +28,6 @@ typedef enum {
 
 @class MutableBrush;
 @class PickingHit;
-@class VBOMemBlock;
 @class Texture;
 
 @interface MutableFace : NSObject <Face> {
@@ -62,7 +61,7 @@ typedef enum {
     
     int filePosition;
     
-    VBOMemBlock* memBlock;
+    VboBlock* vboBlock;
 }
 
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds;

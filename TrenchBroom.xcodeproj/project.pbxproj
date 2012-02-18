@@ -56,8 +56,7 @@
 		484B9A4413620327003030D7 /* EntityDefinitionTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 484B9A4313620327003030D7 /* EntityDefinitionTokenizer.m */; };
 		484B9A47136203F8003030D7 /* EntityDefinitionToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 484B9A46136203F8003030D7 /* EntityDefinitionToken.m */; };
 		484B9A5813621004003030D7 /* EntityDefinitionParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 484B9A5713621004003030D7 /* EntityDefinitionParser.m */; };
-		484C28FC115023A2004DD957 /* VBOBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FB115023A2004DD957 /* VBOBuffer.m */; };
-		484C28FF1150258B004DD957 /* VBOMemBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FE1150258B004DD957 /* VBOMemBlock.m */; };
+		484C28FC115023A2004DD957 /* Vbo.m in Sources */ = {isa = PBXBuildFile; fileRef = 484C28FB115023A2004DD957 /* Vbo.m */; };
 		48527F3811148D5C00CD6043 /* MutableFace.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3711148D5C00CD6043 /* MutableFace.m */; };
 		48527F3E11148EAA00CD6043 /* MutableBrush.m in Sources */ = {isa = PBXBuildFile; fileRef = 48527F3D11148EAA00CD6043 /* MutableBrush.m */; };
 		485582131357874F005F8B2C /* CameraTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 485582121357874F005F8B2C /* CameraTool.m */; };
@@ -327,10 +326,8 @@
 		484B9A46136203F8003030D7 /* EntityDefinitionToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionToken.m; sourceTree = "<group>"; };
 		484B9A5613621004003030D7 /* EntityDefinitionParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionParser.h; sourceTree = "<group>"; };
 		484B9A5713621004003030D7 /* EntityDefinitionParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionParser.m; sourceTree = "<group>"; };
-		484C28FA115023A2004DD957 /* VBOBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOBuffer.h; sourceTree = "<group>"; };
-		484C28FB115023A2004DD957 /* VBOBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOBuffer.m; sourceTree = "<group>"; };
-		484C28FD1150258B004DD957 /* VBOMemBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VBOMemBlock.h; sourceTree = "<group>"; };
-		484C28FE1150258B004DD957 /* VBOMemBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VBOMemBlock.m; sourceTree = "<group>"; };
+		484C28FA115023A2004DD957 /* Vbo.h */ = {isa = PBXFileReference; fileEncoding = 4; path = Vbo.h; sourceTree = "<group>"; };
+		484C28FB115023A2004DD957 /* Vbo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vbo.m; sourceTree = "<group>"; };
 		48527F3611148D5C00CD6043 /* MutableFace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutableFace.h; sourceTree = "<group>"; };
 		48527F3711148D5C00CD6043 /* MutableFace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutableFace.m; sourceTree = "<group>"; };
 		48527F3C11148EAA00CD6043 /* MutableBrush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutableBrush.h; sourceTree = "<group>"; };
@@ -933,10 +930,8 @@
 				488F853B13F51FAE00DA0403 /* RenderChangeSet.m */,
 				487A7E631300801A00434806 /* Renderer.h */,
 				487A7E641300801A00434806 /* Renderer.m */,
-				484C28FA115023A2004DD957 /* VBOBuffer.h */,
-				484C28FB115023A2004DD957 /* VBOBuffer.m */,
-				484C28FD1150258B004DD957 /* VBOMemBlock.h */,
-				484C28FE1150258B004DD957 /* VBOMemBlock.m */,
+				484C28FA115023A2004DD957 /* Vbo.h */,
+				484C28FB115023A2004DD957 /* Vbo.m */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -1395,8 +1390,7 @@
 				48A68ECF114E9B0D0064732A /* MapView3D.m in Sources */,
 				48A68F27114EDF360064732A /* MutableEntity.m in Sources */,
 				48A68F70114EE6DC0064732A /* MapDocument.m in Sources */,
-				484C28FC115023A2004DD957 /* VBOBuffer.m in Sources */,
-				484C28FF1150258B004DD957 /* VBOMemBlock.m in Sources */,
+				484C28FC115023A2004DD957 /* Vbo.m in Sources */,
 				483B1129122441060072EAFB /* Math.m in Sources */,
 				48B324C112E1F455008748E2 /* Camera.m in Sources */,
 				48B325E512E3788D008748E2 /* AppDelegate.m in Sources */,

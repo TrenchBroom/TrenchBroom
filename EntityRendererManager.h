@@ -18,8 +18,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Foundation/Foundation.h>
+#import "Vbo.h"
 
-@class VBOBuffer;
 @class EntityDefinition;
 @protocol EntityRenderer;
 @protocol Entity;
@@ -27,7 +27,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @interface EntityRendererManager : NSObject {
 @private
     NSMutableDictionary* entityRenderers;
-    VBOBuffer* vbo;
+    Vbo vbo;
     NSData* palette;
 }
 

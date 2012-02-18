@@ -19,21 +19,20 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import <Cocoa/Cocoa.h>
 #import "EntityRenderer.h"
+#import "Vbo.h"
 
 @class Alias;
-@class VBOBuffer;
-@class VBOMemBlock;
 @class Texture;
 
 @interface AliasRenderer : NSObject <EntityRenderer> {
     Alias* alias;
     int skinIndex;
-    VBOBuffer* vbo;
-    VBOMemBlock* block;
+    Vbo* vbo;
+    VboBlock* vboBlock;
     Texture* texture;
     NSData* palette;
     int triangleCount;
 }
 
-- (id)initWithAlias:(Alias *)theAlias skinIndex:(int)theSkinIndex vbo:(VBOBuffer *)theVbo palette:(NSData *)thePalette;
+- (id)initWithAlias:(Alias *)theAlias skinIndex:(int)theSkinIndex vbo:(Vbo *)theVbo palette:(NSData *)thePalette;
 @end

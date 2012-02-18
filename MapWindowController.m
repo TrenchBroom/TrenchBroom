@@ -31,7 +31,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Wad.h"
 #import "TextureManager.h"
 #import "InputManager.h"
-#import "VBOBuffer.h"
+#import "Vbo.h"
 #import "Octree.h"
 #import "Picker.h"
 #import "SelectionManager.h"

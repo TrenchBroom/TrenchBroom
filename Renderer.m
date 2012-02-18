@@ -24,8 +24,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Brush.h"
 #import "Face.h"
 #import "VertexData.h"
-#import "VBOBuffer.h"
-#import "VBOMemBlock.h"
 #import "SelectionManager.h"
 #import "MutableFace.h"
 #import "Camera.h"
@@ -71,8 +69,8 @@ int const TexCoordSize = 2 * sizeof(float);
 
 @interface Renderer (private)
 
-- (void)writeEntityBounds:(id <Entity>)theEntity toBlock:(VBOMemBlock *)theBlock;
-- (void)writeFaceVertices:(id <Face>)theFace toBlock:(VBOMemBlock *)theBlock;
+- (void)writeEntityBounds:(id <Entity>)theEntity toBlock:(VboBlock *)theBlock;
+- (void)writeFaceVertices:(id <Face>)theFace toBlock:(VboBlock *)theBlock;
 - (void)writeFaceTriangles:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer;
 - (void)writeFaceEdges:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer;
 
@@ -123,15 +121,15 @@ int const TexCoordSize = 2 * sizeof(float);
 
 @implementation Renderer (private)
 
-- (void)writeEntityBounds:(id <Entity>)theEntity toBlock:(VBOMemBlock *)theBlock {
+- (void)writeEntityBounds:(id <Entity>)theEntity toBlock:(VboBlock *)theBlock {
     TVector3f t;
     const TBoundingBox* bounds = [theEntity bounds];
     EntityDefinition* definition = [theEntity entityDefinition];
     TVector4f color = definition != nil ? *[definition color] : EntityBoundsDefaultColor;
     color.w = EntityBoundsDefaultColor.w;
     
-    int address = [theBlock address];
-    uint8_t* vboBuffer = [[theBlock vbo] buffer];
+    int address = theBlock->address;
+    uint8_t* vboBuffer = theBlock->vbo->buffer;
     
     // east face
     t = bounds->min;
@@ -234,10 +232,9 @@ int const TexCoordSize = 2 * sizeof(float);
     t.y = bounds->max.y;
     address = writeColor4fAsBytes(&color, vboBuffer, address);
     address = writeVector3f(&t, vboBuffer, address);
-
 }
 
-- (void)writeFaceVertices:(id <Face>)theFace toBlock:(VBOMemBlock *)theBlock {
+- (void)writeFaceVertices:(id <Face>)theFace toBlock:(VboBlock *)theBlock {
     TVector2f texCoords, gridCoords;
     
     Texture* texture = [theFace texture];
@@ -245,8 +242,8 @@ int const TexCoordSize = 2 * sizeof(float);
     int width = texture != nil ? [texture width] : 1;
     int height = texture != nil ? [texture height] : 1;
 
-    int address = [theBlock address];
-    uint8_t* vboBuffer = [[theBlock vbo] buffer];
+    int address = theBlock->address;
+    uint8_t* vboBuffer = theBlock->vbo->buffer;
 
     const TVertexList* vertices = [theFace vertices];
     for (int i = 0; i < vertices->count; i++) {
@@ -262,12 +259,10 @@ int const TexCoordSize = 2 * sizeof(float);
         address = writeColor4fAsBytes(color, vboBuffer, address);
         address = writeVector3f(&vertex->position, vboBuffer, address);
     }
-    
-    [theBlock setState:BS_USED_VALID];
 }
 
 - (void)writeFaceTriangles:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer {
-    int baseIndex = [[theFace memBlock] address] / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+    int baseIndex = [theFace vboBlock]->address / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
     
     for (int i = 1; i < [theFace vertices]->count - 1; i++) {
         [theIndexBuffer appendInt:baseIndex];
@@ -277,7 +272,7 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)writeFaceEdges:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer {
-    int baseIndex = [[theFace memBlock] address] / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+    int baseIndex = [theFace vboBlock]->address / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
     int vertexCount = [theFace vertices]->count;
     
     for (int i = 0; i < vertexCount - 1; i++) {
@@ -321,15 +316,14 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)validateDeselection {
     NSArray* deselectedEntities = [changeSet deselectedEntities];
     if ([deselectedEntities count] > 0) {
-        [entityBoundsVbo activate];
-        [entityBoundsVbo mapBuffer];
+        activateVbo(&entityBoundsVbo);
+        mapVbo(&entityBoundsVbo);
         
         for (id <Entity> entity in deselectedEntities) {
             if (![entity isWorldspawn]) {
-                VBOMemBlock* block = [entityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
+                VboBlock* block = allocVboBlock(&entityBoundsVbo, 6 * 4 * (ColorSize + VertexSize));
                 [self writeEntityBounds:entity toBlock:block];
-                [entity setBoundsMemBlock:block];
-                [block setState:BS_USED_VALID];
+                [entity setBoundsVboBlock:block];
                 
                 [selectedClassnameRenderer moveStringWithKey:[entity entityId] toTextRenderer:classnameRenderer];
 
@@ -344,29 +338,28 @@ int const TexCoordSize = 2 * sizeof(float);
             }
         }
         
-        [entityBoundsVbo unmapBuffer];
-        [entityBoundsVbo deactivate];
+        unmapVbo(&entityBoundsVbo);
+        deactivateVbo(&entityBoundsVbo);
 
-        [selectedEntityBoundsVbo activate];
-        [selectedEntityBoundsVbo mapBuffer];
-        [selectedEntityBoundsVbo pack];
-        [selectedEntityBoundsVbo unmapBuffer];
-        [selectedEntityBoundsVbo deactivate];
+        activateVbo(&selectedEntityBoundsVbo);
+        mapVbo(&selectedEntityBoundsVbo);
+        packVbo(&selectedEntityBoundsVbo);
+        unmapVbo(&selectedEntityBoundsVbo);
+        deactivateVbo(&selectedEntityBoundsVbo);
     }
 }
 
 - (void)validateSelection {
     NSArray* selectedEntities = [changeSet selectedEntities];
     if ([selectedEntities count] > 0) {
-        [selectedEntityBoundsVbo activate];
-        [selectedEntityBoundsVbo mapBuffer];
+        activateVbo(&selectedEntityBoundsVbo);
+        mapVbo(&selectedEntityBoundsVbo);
         
         for (id <Entity> entity in selectedEntities) {
             if (![entity isWorldspawn]) {
-                VBOMemBlock* block = [selectedEntityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
+                VboBlock* block = allocVboBlock(&selectedEntityBoundsVbo, 6 * 4 * (ColorSize + VertexSize));
                 [self writeEntityBounds:entity toBlock:block];
-                [entity setBoundsMemBlock:block];
-                [block setState:BS_USED_VALID];
+                [entity setBoundsVboBlock:block];
                 
                 [classnameRenderer moveStringWithKey:[entity entityId] toTextRenderer:selectedClassnameRenderer];
                 
@@ -381,28 +374,28 @@ int const TexCoordSize = 2 * sizeof(float);
             }
         }
         
-        [selectedEntityBoundsVbo unmapBuffer];
-        [selectedEntityBoundsVbo deactivate];
-
-        [entityBoundsVbo activate];
-        [entityBoundsVbo mapBuffer];
-        [entityBoundsVbo pack];
-        [entityBoundsVbo unmapBuffer];
-        [entityBoundsVbo deactivate];
+        unmapVbo(&selectedEntityBoundsVbo);
+        deactivateVbo(&selectedEntityBoundsVbo);
+        
+        activateVbo(&entityBoundsVbo);
+        mapVbo(&entityBoundsVbo);
+        packVbo(&entityBoundsVbo);
+        unmapVbo(&entityBoundsVbo);
+        deactivateVbo(&entityBoundsVbo);
     }
 }
 
 - (void)validateAddedEntities {
     NSArray* addedEntities = [changeSet addedEntities];
     if ([addedEntities count] > 0) {
-        [entityBoundsVbo activate];
-        [entityBoundsVbo mapBuffer];
+        activateVbo(&entityBoundsVbo);
+        mapVbo(&entityBoundsVbo);
 
         for (id <Entity> entity in addedEntities) {
             if (![entity isWorldspawn]) {
-                VBOMemBlock* block = [entityBoundsVbo allocMemBlock:6 * 4 * (ColorSize + VertexSize)];
+                VboBlock* block = allocVboBlock(&entityBoundsVbo, 6 * 4 * (ColorSize + VertexSize));
                 [self writeEntityBounds:entity toBlock:block];
-                [entity setBoundsMemBlock:block];
+                [entity setBoundsVboBlock:block];
                 
                 id <EntityRenderer> renderer = [entityRendererManager entityRendererForEntity:entity mods:mods];
                 if (renderer != nil) {
@@ -414,8 +407,8 @@ int const TexCoordSize = 2 * sizeof(float);
             }
         }
 
-        [entityBoundsVbo unmapBuffer];
-        [entityBoundsVbo deactivate];
+        unmapVbo(&entityBoundsVbo);
+        deactivateVbo(&entityBoundsVbo);
         
         [fontManager activate];
         for (id <Entity> entity in addedEntities) {
@@ -433,15 +426,14 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)validateChangedEntities {
     NSArray* changedEntities = [changeSet changedEntities];
     if ([changedEntities count] > 0) {
-        [selectedEntityBoundsVbo activate];
-        [selectedEntityBoundsVbo mapBuffer];
+        activateVbo(&selectedEntityBoundsVbo);
+        mapVbo(&selectedEntityBoundsVbo);
 
         NSMutableArray* unselectedEntities = [[NSMutableArray alloc] init];
         for (id <Entity> entity in changedEntities) {
             if (![entity isWorldspawn]) {
-                
-                VBOMemBlock* block = [entity boundsMemBlock];
-                if ([block vbo] == entityBoundsVbo)
+                VboBlock* block = [entity boundsVboBlock];
+                if (block->vbo == &entityBoundsVbo)
                     [unselectedEntities addObject:entity];
                 else
                     [self writeEntityBounds:entity toBlock:block];
@@ -449,20 +441,20 @@ int const TexCoordSize = 2 * sizeof(float);
             }
         }
         
-        [selectedEntityBoundsVbo unmapBuffer];
-        [selectedEntityBoundsVbo deactivate];
+        unmapVbo(&selectedEntityBoundsVbo);
+        deactivateVbo(&selectedEntityBoundsVbo);
         
         if ([unselectedEntities count] > 0) {
-            [entityBoundsVbo activate];
-            [entityBoundsVbo mapBuffer];
+            activateVbo(&entityBoundsVbo);
+            mapVbo(&entityBoundsVbo);
             
             for (id <Entity> entity in unselectedEntities) {
-                VBOMemBlock* block = [entity boundsMemBlock];
+                VboBlock* block = [entity boundsVboBlock];
                 [self writeEntityBounds:entity toBlock:block];
             }
             
-            [entityBoundsVbo unmapBuffer];
-            [entityBoundsVbo deactivate];
+            unmapVbo(&entityBoundsVbo);
+            deactivateVbo(&entityBoundsVbo);
         }
         
         [unselectedEntities release];
@@ -472,22 +464,22 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)validateRemovedEntities {
     NSArray* removedEntities = [changeSet removedEntities];
     if ([removedEntities count] > 0) {
-        [entityBoundsVbo activate];
-        [entityBoundsVbo mapBuffer];
+        activateVbo(&entityBoundsVbo);
+        mapVbo(&entityBoundsVbo);
         
         for (id <Entity> entity in removedEntities) {
             if (![entity isWorldspawn]) {
-                [entity setBoundsMemBlock:nil];
+                [entity setBoundsVboBlock:NULL];
                 [entityRenderers removeObjectForKey:[entity entityId]];
                 [modelEntities removeObjectIdenticalTo:entity];
             }
         }
 
-        [entityBoundsVbo pack];
+        packVbo(&entityBoundsVbo);
         entityBoundsVertexCount -= 6 * 4 * [removedEntities count];
 
-        [entityBoundsVbo unmapBuffer];
-        [entityBoundsVbo deactivate];
+        unmapVbo(&entityBoundsVbo);
+        deactivateVbo(&entityBoundsVbo);
 
         [fontManager activate];
         for (id <Entity> entity in removedEntities)
@@ -500,58 +492,58 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)validateAddedBrushes {
     NSArray* addedBrushes = [changeSet addedBrushes];
     if ([addedBrushes count] > 0) {
-        [faceVbo activate];
-        [faceVbo mapBuffer];
+        activateVbo(&faceVbo);
+        mapVbo(&faceVbo);
 
         for (id <Brush> brush in addedBrushes) {
             for (id <Face> face in [brush faces]) {
-                VBOMemBlock* block = [faceVbo allocMemBlock:[face vertices]->count * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize)];
+                VboBlock* block = allocVboBlock(&faceVbo, [face vertices]->count * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize));
                 [self writeFaceVertices:face toBlock:block];
-                [face setMemBlock:block];
+                [face setVboBlock:block];
             }
         }
 
-        [faceVbo unmapBuffer];
-        [faceVbo deactivate];
+        unmapVbo(&faceVbo);
+        deactivateVbo(&faceVbo);
     }
 }
 
 - (void)validateChangedBrushes {
     NSArray* changedBrushes = [changeSet changedBrushes];
     if ([changedBrushes count] > 0) {
-        [faceVbo activate];
-        [faceVbo mapBuffer];
+        activateVbo(&faceVbo);
+        mapVbo(&faceVbo);
         
         for (id <Brush> brush in changedBrushes) {
             for (id <Face> face in [brush faces]) {
                 int blockSize = [face vertices]->count * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
-                VBOMemBlock* block = [face memBlock];
-                if ([block capacity] != blockSize) {
-                    block = [faceVbo allocMemBlock:blockSize];
-                    [face setMemBlock:block];
+                VboBlock* block = [face vboBlock];
+                if (block == NULL || block->capacity != blockSize) {
+                    block = allocVboBlock(&faceVbo, blockSize);
+                    [face setVboBlock:block];
                 }
                 
                 [self writeFaceVertices:face toBlock:block];
             }
         }
 
-        [faceVbo unmapBuffer];
-        [faceVbo deactivate];
+        unmapVbo(&faceVbo);
+        deactivateVbo(&faceVbo);
     }
 }
 
 - (void)validateRemovedBrushes {
     NSArray* removedBrushes = [changeSet removedBrushes];
     if ([removedBrushes count] > 0) {
-        [faceVbo activate];
-        [faceVbo mapBuffer];
+        activateVbo(&faceVbo);
+        mapVbo(&faceVbo);
         
         for (id <Brush> brush in removedBrushes)
             for (id <Face> face in [brush faces])
-                [face setMemBlock:nil];
+                [face setVboBlock:NULL];
         
-        [faceVbo unmapBuffer];
-        [faceVbo deactivate];
+        unmapVbo(&faceVbo);
+        deactivateVbo(&faceVbo);
     }
 }
 
@@ -559,22 +551,22 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)validateChangedFaces {
     NSArray* changedFaces = [changeSet changedFaces];
     if ([changedFaces count] > 0) {
-        [faceVbo activate];
-        [faceVbo mapBuffer];
+        activateVbo(&faceVbo);
+        mapVbo(&faceVbo);
         
         for (id <Face> face in changedFaces) {
             int blockSize = [face vertices]->count * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
-            VBOMemBlock* block = [face memBlock];
-            if ([block capacity] != blockSize) {
-                block = [faceVbo allocMemBlock:blockSize];
-                [face setMemBlock:block];
+            VboBlock* block = [face vboBlock];
+            if (block->capacity != blockSize) {
+                block = allocVboBlock(&faceVbo, blockSize);
+                [face setVboBlock:block];
             }
             
             [self writeFaceVertices:face toBlock:block];
         }
         
-        [faceVbo unmapBuffer];
-        [faceVbo deactivate];
+        unmapVbo(&faceVbo);
+        deactivateVbo(&faceVbo);
     }
 }
 
@@ -998,13 +990,13 @@ int const TexCoordSize = 2 * sizeof(float);
 - (void)documentCleared:(NSNotification *)notification {
     [faceIndexBuffers removeAllObjects];
     [selectedFaceIndexBuffers removeAllObjects];
-    [faceVbo freeAllBlocks];
+    freeAllVboBlocks(&faceVbo);
 
     entityBoundsVertexCount = 0;
-    [entityBoundsVbo freeAllBlocks];
+    freeAllVboBlocks(&entityBoundsVbo);
     
     selectedEntityBoundsVertexCount = 0;
-    [selectedEntityBoundsVbo freeAllBlocks];
+    freeAllVboBlocks(&selectedEntityBoundsVbo);
     
     [classnameRenderer removeAllStrings];
     [selectedClassnameRenderer removeAllStrings];
@@ -1121,9 +1113,9 @@ int const TexCoordSize = 2 * sizeof(float);
         mods = [modListFromWorldspawn([map worldspawn:YES]) retain];
         entityRendererCacheValid = YES;
         
-        faceVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF type:GL_ARRAY_BUFFER];
-        entityBoundsVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF type:GL_ARRAY_BUFFER];
-        selectedEntityBoundsVbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF type:GL_ARRAY_BUFFER];
+        initVbo(&faceVbo, GL_ARRAY_BUFFER, 0xFFFF);
+        initVbo(&entityBoundsVbo, GL_ARRAY_BUFFER, 0xFFFF);
+        initVbo(&selectedEntityBoundsVbo, GL_ARRAY_BUFFER, 0xFFFF);
         
         faceIndexBuffers = [[NSMutableDictionary alloc] init];
         selectedFaceIndexBuffers = [[NSMutableDictionary alloc] init];
@@ -1190,9 +1182,9 @@ int const TexCoordSize = 2 * sizeof(float);
     [selectionBoundsRenderer release];
     [filter release];
     [mods release];
-    [faceVbo release];
-    [entityBoundsVbo release];
-    [selectedEntityBoundsVbo release];
+    freeVbo(&faceVbo);
+    freeVbo(&entityBoundsVbo);
+    freeVbo(&selectedEntityBoundsVbo);
     [super dealloc];
 }
 
@@ -1237,7 +1229,7 @@ int const TexCoordSize = 2 * sizeof(float);
     }
     
     if ([options renderBrushes]) {
-        [faceVbo activate];
+        activateVbo(&faceVbo);
         glEnableClientState(GL_VERTEX_ARRAY);
         
         switch ([options renderMode]) {
@@ -1274,16 +1266,16 @@ int const TexCoordSize = 2 * sizeof(float);
         }
         
         glDisableClientState(GL_VERTEX_ARRAY);
-        [faceVbo deactivate];
+        deactivateVbo(&faceVbo);
     }
 
     if ([options renderEntities]) {
         if ([options isolationMode] == IM_NONE) {
-            [entityBoundsVbo activate];
+            activateVbo(&entityBoundsVbo);
             glEnableClientState(GL_VERTEX_ARRAY);
             [self renderEntityBounds:NULL vertexCount:entityBoundsVertexCount];
             glDisableClientState(GL_VERTEX_ARRAY);
-            [entityBoundsVbo deactivate];
+            deactivateVbo(&entityBoundsVbo);
 
             [self renderEntityModels:modelEntities];
 
@@ -1294,13 +1286,13 @@ int const TexCoordSize = 2 * sizeof(float);
             }
             
         } else if ([options isolationMode] == IM_WIREFRAME) {
-            [entityBoundsVbo activate];
+            activateVbo(&entityBoundsVbo);
             glEnableClientState(GL_VERTEX_ARRAY);
             
             [self renderEntityBounds:&EntityBoundsWireframeColor vertexCount:entityBoundsVertexCount];
 
             glDisableClientState(GL_VERTEX_ARRAY);
-            [entityBoundsVbo deactivate];
+            deactivateVbo(&entityBoundsVbo);
         }
         
         if ([[windowController selectionManager] hasSelection]) {
@@ -1308,7 +1300,7 @@ int const TexCoordSize = 2 * sizeof(float);
             [selectedClassnameRenderer renderColor:&SelectionColor];
             [fontManager deactivate];
 
-            [selectedEntityBoundsVbo activate];
+            activateVbo(&selectedEntityBoundsVbo);
             glEnableClientState(GL_VERTEX_ARRAY);
             
             glDisable(GL_DEPTH_TEST);
@@ -1319,7 +1311,7 @@ int const TexCoordSize = 2 * sizeof(float);
             glDepthFunc(GL_LESS);
             
             glDisableClientState(GL_VERTEX_ARRAY);
-            [selectedEntityBoundsVbo deactivate];
+            deactivateVbo(&selectedEntityBoundsVbo);
             
             [self renderEntityModels:selectedModelEntities];
         }

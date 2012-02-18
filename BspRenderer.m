@@ -21,8 +21,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Bsp.h"
 #import "BspModel.h"
 #import "BspFace.h"
-#import "VBOBuffer.h"
-#import "VBOMemBlock.h"
 #import "IntData.h"
 #import "Entity.h"
 #import "BspTexture.h"
@@ -30,14 +28,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation BspRenderer
 
-- (id)initWithBsp:(Bsp *)theBsp vbo:(VBOBuffer *)theVbo palette:(NSData *)thePalette {
+- (id)initWithBsp:(Bsp *)theBsp vbo:(Vbo *)theVbo palette:(NSData *)thePalette {
     NSAssert(theBsp != nil, @"BSP must not be nil");
-    NSAssert(theVbo != nil, @"VBO must not be nil");
+    NSAssert(theVbo != NULL, @"VBO must not be nil");
     NSAssert(thePalette != nil, @"palette must not be nil");
     
     if ((self = [self init])) {
         bsp = [theBsp retain];
-        vbo = [theVbo retain];
+        vbo = theVbo;
+        block = NULL;
         palette = [thePalette retain];
         textures = [[NSMutableDictionary alloc] init];
         indices = [[NSMutableDictionary alloc] init];
@@ -50,8 +49,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)dealloc {
     [palette release];
     [bsp release];
-    [block free];
-    [vbo release];
+    if (block != NULL)
+        freeVboBlock(block);
     [textures release];
     [indices release];
     [counts release];
@@ -64,14 +63,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)renderAtOrigin:(const TVector3f *)theOrigin angle:(NSNumber *)theAngle {
     if (block == nil) {
-        [vbo mapBuffer];
+        mapVbo(vbo);
         
         BspModel* model = [[bsp models] objectAtIndex:0];
         int modelVertexCount = [model vertexCount];
 
-        block = [vbo allocMemBlock:modelVertexCount * 5 * sizeof(float)];
-        int address = [block address];
-        uint8_t* vboBuffer = [vbo buffer];
+        block = allocVboBlock(vbo, modelVertexCount * 5 * sizeof(float));
+        int address = block->address;
+        uint8_t* vboBuffer = vbo->buffer;
         
         for (BspFace* face in [model faces]) {
             TTextureInfo* texInfo = [face textureInfo];
@@ -97,7 +96,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                 [countBuffer release];
             }
             
-            [indexBuffer appendInt:(address - [block address]) / (5 * sizeof(float))];
+            [indexBuffer appendInt:(address - block->address) / (5 * sizeof(float))];
             [countBuffer appendInt:[face vertexCount]];
             
             TVector3f* faceVertices = [face vertices];
@@ -111,7 +110,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             }
         }
         
-        [vbo unmapBuffer];
+        unmapVbo(vbo);
     }
     
     glTranslatef(theOrigin->x, theOrigin->y, theOrigin->z);
@@ -129,7 +128,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glEnable(GL_TEXTURE_2D);
     glPolygonMode(GL_FRONT, GL_FILL);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glInterleavedArrays(GL_T2F_V3F, 0, (const GLvoid *)(long)[block address]);
+    glInterleavedArrays(GL_T2F_V3F, 0, (const GLvoid *)(long)block->address);
     
     for (Texture* texture in [textures allValues]) {
         IntData* indexBuffer = [indices objectForKey:[texture name]];

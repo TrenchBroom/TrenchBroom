@@ -18,15 +18,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Cocoa/Cocoa.h>
+#import "Vbo.h"
 
 @class GLStringData;
-@class VBOBuffer;
-@class VBOMemBlock;
 @class IntData;
 
 @interface GLString : NSObject {
     @private
-    VBOMemBlock* memBlock;
+    VboBlock* vboBlock;
     BOOL hasTriangleSet;
     int triangleSetIndex;
     int triangleSetCount;
@@ -39,7 +38,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSSize size;
 }
 
-- (id)initWithVbo:(VBOBuffer *)theVbo data:(GLStringData *)theData size:(NSSize)theSize;
+- (id)initWithVbo:(Vbo *)theVbo data:(GLStringData *)theData size:(NSSize)theSize;
 
 - (NSSize)size;
 

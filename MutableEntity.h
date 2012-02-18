@@ -25,7 +25,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class MutableBrush;
 @class Face;
 @class EntityDefinition;
-@class VBOMemBlock;
 
 @interface MutableEntity : NSObject <Entity> {
     EntityDefinition* entityDefinition;
@@ -41,7 +40,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     BOOL valid;
     int filePosition;
     
-    VBOMemBlock* boundsMemBlock;
+    VboBlock* boundsVboBlock;
 }
 
 - (id)initWithProperties:(NSDictionary *)theProperties;

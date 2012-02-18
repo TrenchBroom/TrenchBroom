@@ -20,11 +20,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import <Cocoa/Cocoa.h>
 #import "Math.h"
 #import "VertexData.h"
+#import "Vbo.h"
 
 @protocol Brush;
 @class Vertex;
 @class PickingHit;
-@class VBOMemBlock;
 @class Texture;
 
 @protocol Face <NSObject, NSCopying>
@@ -56,7 +56,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (const TMatrix4f *)worldToSurfaceMatrix;
 - (BOOL)projectToSurface:(const TVector3f *)worldPoint axis:(const TVector3f *)axis result:(TVector3f *)result;
 
-- (VBOMemBlock *)memBlock;
-- (void)setMemBlock:(VBOMemBlock *)theMemBlock;
+- (VboBlock *)vboBlock;
+- (void)setVboBlock:(VboBlock *)theVboBlock;
 
 @end

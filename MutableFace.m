@@ -28,7 +28,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "PickingHit.h"
 #import "TextureManager.h"
 #import "Texture.h"
-#import "VBOMemBlock.h"
 
 
 static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
@@ -287,13 +286,21 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 #pragma mark -
 @implementation MutableFace
 
+- (id)init {
+    if ((self = [super init])) {
+        faceId = [[[IdGenerator sharedGenerator] getId] retain];
+        vboBlock = NULL;
+    }
+    
+    return self;
+}
+
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds {
     if (theWorldBounds == NULL)
         NSLog(@"asdf");
     NSAssert(theWorldBounds != NULL, @"world bounds must not be NULL");
-    if ((self = [super init])) {
+    if ((self = [self init])) {
         worldBounds = theWorldBounds;
-        faceId = [[[IdGenerator sharedGenerator] getId] retain];
         texture = nil;
         filePosition = -1;
     }
@@ -357,7 +364,8 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 - (void) dealloc {
     [faceId release];
 	[texture release];
-    [memBlock free];
+    if (vboBlock != NULL)
+        freeVboBlock(vboBlock);
     if (side != NULL)
         side->face = nil;
 	[super dealloc];
@@ -815,13 +823,14 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     return YES;
 }
 
-- (VBOMemBlock *)memBlock {
-    return memBlock;
+- (VboBlock *)vboBlock {
+    return vboBlock;
 }
 
-- (void)setMemBlock:(VBOMemBlock *)theMemBlock {
-    [memBlock free];
-    memBlock = theMemBlock;
+- (void)setVboBlock:(VboBlock *)theVboBlock {
+    if (vboBlock != NULL)
+        freeVboBlock(vboBlock);
+    vboBlock = theVboBlock;
 }
 
 @end

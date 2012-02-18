@@ -19,13 +19,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/glu.h>
+#import "Vbo.h"
 
-@class VBOBuffer;
 @class GLString;
 
 @interface GLFontManager : NSObject {
     @private
-    VBOBuffer* vbo;
+    Vbo vbo;
     GLUtesselator* gluTess;
     NSLayoutManager* layoutManager;
     NSTextStorage* textStorage;

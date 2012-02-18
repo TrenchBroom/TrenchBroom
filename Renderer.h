@@ -19,10 +19,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/glu.h>
+#import "Vbo.h"
 
 extern NSString* const RendererChanged;
 
-@class VBOBuffer;
 @class MapWindowController;
 @class TextureManager;
 @class GLFontManager;
@@ -40,13 +40,13 @@ extern NSString* const RendererChanged;
     MapWindowController* windowController;
     TextureManager* textureManager;
     GLFontManager* fontManager;
-    VBOBuffer* faceVbo;
+    Vbo faceVbo;
     NSMutableDictionary* faceIndexBuffers;
     NSMutableDictionary* selectedFaceIndexBuffers;
     IntData* edgeIndexBuffer;
     IntData* selectedEdgeIndexBuffer;
-    VBOBuffer* entityBoundsVbo;
-    VBOBuffer* selectedEntityBoundsVbo;
+    Vbo entityBoundsVbo;
+    Vbo selectedEntityBoundsVbo;
     int entityBoundsVertexCount;
     int selectedEntityBoundsVertexCount;
     

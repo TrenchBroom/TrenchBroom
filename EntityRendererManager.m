@@ -28,7 +28,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Bsp.h"
 #import "AliasRenderer.h"
 #import "BspRenderer.h"
-#import "VBOBuffer.h"
+#import "Vbo.h"
 #import "PreferencesManager.h"
 
 @interface EntityRendererManager (private)
@@ -74,7 +74,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             if (alias != nil) {
                 int skinIndex = [theModelProperty skinIndex];
                 
-                entityRenderer = [[AliasRenderer alloc] initWithAlias:alias skinIndex:skinIndex vbo:vbo palette:palette];
+                entityRenderer = [[AliasRenderer alloc] initWithAlias:alias skinIndex:skinIndex vbo:&vbo palette:palette];
                 [entityRenderers setObject:entityRenderer forKey:rendererKey];
                 [entityRenderer release];
             } else {
@@ -85,7 +85,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             Bsp* bsp = [bspManager bspWithName:modelName paths:pakPaths];
             
             if (bsp != nil) {
-                entityRenderer = [[BspRenderer alloc] initWithBsp:bsp vbo:vbo palette:palette];
+                entityRenderer = [[BspRenderer alloc] initWithBsp:bsp vbo:&vbo palette:palette];
                 [entityRenderers setObject:entityRenderer forKey:rendererKey];
                 [entityRenderer release];
             } else {
@@ -108,7 +108,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ((self = [self init])) {
         entityRenderers = [[NSMutableDictionary alloc] init];
-        vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF type:GL_ARRAY_BUFFER];
+        initVbo(&vbo, GL_ARRAY_BUFFER, 0xFFFF);
         palette = [thePalette retain];
         
         PreferencesManager* preferences = [PreferencesManager sharedManager];
@@ -122,7 +122,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [entityRenderers release];
-    [vbo release];
+    freeVbo(&vbo);
     [palette release];
     [super dealloc];
 }
@@ -160,11 +160,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)activate {
-    [vbo activate];
+    activateVbo(&vbo);
 }
 
 - (void)deactivate {
-    [vbo deactivate];
+    deactivateVbo(&vbo);
 }
 
 

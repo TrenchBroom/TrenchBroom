@@ -19,9 +19,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import <Cocoa/Cocoa.h>
 #import "Math.h"
+#import "Vbo.h"
 
 @protocol Map;
-@class VBOMemBlock;
 @class EntityDefinition;
 @class PickingHitList;
 
@@ -62,6 +62,6 @@ static NSString* const ModsKey = @"_mods";
 
 - (void)pick:(const TRay *)theRay hitList:(PickingHitList *)theHitList;
 
-- (VBOMemBlock *)boundsMemBlock;
-- (void)setBoundsMemBlock:(VBOMemBlock *)theBoundsMemBlock;
+- (VboBlock *)boundsVboBlock;
+- (void)setBoundsVboBlock:(VboBlock *)theBoundsVboBlock;
 @end

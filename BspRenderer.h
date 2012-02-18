@@ -19,22 +19,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import <Foundation/Foundation.h>
 #import "EntityRenderer.h"
+#import "Vbo.h"
 
 @class Bsp;
-@class VBOBuffer;
-@class VBOMemBlock;
 
 @interface BspRenderer : NSObject <EntityRenderer> {
 @private
     Bsp* bsp;
     NSData* palette;
-    VBOBuffer* vbo;
-    VBOMemBlock* block;
+    Vbo* vbo;
+    VboBlock* block;
     NSMutableDictionary* textures;
     NSMutableDictionary* indices;
     NSMutableDictionary* counts;
 }
 
-- (id)initWithBsp:(Bsp *)theBsp vbo:(VBOBuffer *)theVbo palette:(NSData *)thePalette;
+- (id)initWithBsp:(Bsp *)theBsp vbo:(Vbo *)theVbo palette:(NSData *)thePalette;
 
 @end

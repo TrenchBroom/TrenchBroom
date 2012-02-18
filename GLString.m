@@ -19,14 +19,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "GLString.h"
 #import "GLStringData.h"
-#import "VBOBuffer.h"
-#import "VBOMemBlock.h"
 #import "FloatData.h"
 #import "IntData.h"
 
 @implementation GLString
 
-- (id)initWithVbo:(VBOBuffer *)theVbo data:(GLStringData *)theData size:(NSSize)theSize {
+- (id)initWithVbo:(Vbo *)theVbo data:(GLStringData *)theData size:(NSSize)theSize {
     if ((self = [self init])) {
         size = theSize;
 
@@ -35,24 +33,24 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         NSArray* triangleFans = [theData triangleFans];
         int vertexCount = [theData vertexCount];
         
-        memBlock = [theVbo allocMemBlock:2 * vertexCount * sizeof(float)];
+        vboBlock = allocVboBlock(theVbo, 2 * vertexCount * sizeof(float));
         hasTriangleSet = triangleSet != nil;
         hasTriangleStrips = triangleStrips != nil;
         hasTriangleFans = triangleFans != nil;
         
-        BOOL wasActive = [theVbo active];
-        BOOL wasMapped = [theVbo mapped];
+        BOOL wasActive = theVbo->active;
+        BOOL wasMapped = theVbo->mapped;
         
         if (!wasActive)
-            [theVbo activate];
+            activateVbo(theVbo);
         if (!wasMapped)
-            [theVbo mapBuffer];
+            mapVbo(theVbo);
         
-        int address = [memBlock address];
-        uint8_t* vboBuffer = [theVbo buffer];
+        int address = vboBlock->address;
+        uint8_t* vboBuffer = theVbo->buffer;
         
         if (hasTriangleSet) {
-            triangleSetIndex = [memBlock address] / (2 * sizeof(float));
+            triangleSetIndex = address / (2 * sizeof(float));
             triangleSetCount = [triangleSet count] / 2;
             const void* buffer = [triangleSet bytes];
             address = writeBuffer(buffer, vboBuffer, address, [triangleSet count] * sizeof(float));
@@ -81,9 +79,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         }
         
         if (!wasMapped)
-            [theVbo unmapBuffer];
+            unmapVbo(theVbo);
         if (!wasActive)
-            [theVbo deactivate];
+            deactivateVbo(theVbo);
     }
     
     return self;
@@ -112,7 +110,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)dealloc {
-    [memBlock free];
+    freeVboBlock(vboBlock);
     [triangleStripIndices release];
     [triangleStripCounts release];
     [triangleFanIndices release];

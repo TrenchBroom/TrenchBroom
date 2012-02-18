@@ -22,23 +22,23 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "AliasSkin.h"
 #import "AliasFrame.h"
 #import "Texture.h"
-#import "VBOBuffer.h"
-#import "VBOMemBlock.h"
+#import "Vbo.h"
 #import "Math.h"
 #import "Entity.h"
 
 @implementation AliasRenderer
 
-- (id)initWithAlias:(Alias *)theAlias skinIndex:(int)theSkinIndex vbo:(VBOBuffer *)theVbo palette:(NSData *)thePalette {
+- (id)initWithAlias:(Alias *)theAlias skinIndex:(int)theSkinIndex vbo:(Vbo *)theVbo palette:(NSData *)thePalette {
     NSAssert(theAlias != nil, @"alias must not be nil");
     NSAssert(theSkinIndex >= 0, @"skin index must be at least 0");
-    NSAssert(theVbo != nil, @"VBO must not be nil");
+    NSAssert(theVbo != NULL, @"VBO must not be nil");
     NSAssert(thePalette != nil, @"palette must not be nil");
     
     if ((self = [self init])) {
         alias = [theAlias retain];
         skinIndex = theSkinIndex;
-        vbo = [theVbo retain];
+        vbo = theVbo;
+        vboBlock = NULL;
         palette = [thePalette retain];
     }
     
@@ -47,8 +47,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)dealloc {
     [alias release];
-    [block free];
-    [vbo release];
+    if (vboBlock != NULL)
+        freeVboBlock(vboBlock);
     [texture release];
     [palette release];
     [super dealloc];
@@ -59,18 +59,19 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)renderAtOrigin:(const TVector3f *)theOrigin angle:(NSNumber *)theAngle {
-    if (block == nil) {
+    if (vboBlock == nil) {
         AliasSkin* skin = [alias skinWithIndex:skinIndex];
         texture = [[Texture alloc] initWithName:[alias name] skin:skin index:0 palette:palette];
         
         AliasFrame* frame = [alias firstFrame];
         triangleCount = [frame triangleCount];
         int vertexSize = 3 * 8;
-        block = [vbo allocMemBlock:triangleCount * vertexSize * sizeof(float)];
-        [vbo mapBuffer];
         
-        int address = [block address];
-        uint8_t* vboBuffer = [vbo buffer];
+        vboBlock = allocVboBlock(vbo, triangleCount * vertexSize * sizeof(float));
+        mapVbo(vbo);
+        
+        int address = vboBlock->address;
+        uint8_t* vboBuffer = vbo->buffer;
         
         for (int i = 0; i < triangleCount; i++) {
             const TFrameTriangle* triangle = [frame triangleAtIndex:i];
@@ -83,7 +84,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             }
         }
         
-        [vbo unmapBuffer];
+        unmapVbo(vbo);
     }
     
     glTranslatef(theOrigin->x, theOrigin->y, theOrigin->z);
@@ -103,7 +104,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     [texture activate];
     
-    glInterleavedArrays(GL_T2F_N3F_V3F, 0, (const GLvoid *)(long)[block address]);
+    glInterleavedArrays(GL_T2F_N3F_V3F, 0, (const GLvoid *)(long)vboBlock->address);
     glDrawArrays(GL_TRIANGLES, 0, triangleCount * 3);
     
     [texture deactivate];

@@ -19,7 +19,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "GLFontManager.h"
 #import <OpenGL/gl.h>
-#import "VBOBuffer.h"
+#import "Vbo.h"
 #import "GLString.h"
 #import "GLStringData.h"
 #import "Math.h"
@@ -65,7 +65,7 @@ void gluTessEndData(GLStringData* data) {
 
 - (id)init {
     if ((self = [super init])) {
-        vbo = [[VBOBuffer alloc] initWithTotalCapacity:0xFFFF type:GL_ARRAY_BUFFER];
+        initVbo(&vbo, GL_ARRAY_BUFFER, 0xFFFF);
         glStrings = [[NSMutableDictionary alloc] init];
         
         gluTess = gluNewTess();
@@ -173,7 +173,7 @@ void gluTessEndData(GLStringData* data) {
         }
         gluTessEndPolygon(gluTess);
 
-        glString = [[GLString alloc] initWithVbo:vbo data:glStringData size:bounds.size];
+        glString = [[GLString alloc] initWithVbo:&vbo data:glStringData size:bounds.size];
         [glStringData release];
         
         [stringsForFont setObject:glString forKey:theString];
@@ -189,14 +189,14 @@ void gluTessEndData(GLStringData* data) {
 }
 
 - (void)activate {
-    [vbo activate];
+    activateVbo(&vbo);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);
 }
 
 - (void)deactivate {
     glDisableClientState(GL_VERTEX_ARRAY);
-    [vbo deactivate];
+    deactivateVbo(&vbo);
 }
 
 - (void)dealloc {
@@ -205,7 +205,7 @@ void gluTessEndData(GLStringData* data) {
     [layoutManager release];
     gluDeleteTess(gluTess);
     [glStrings release];
-    [vbo release];
+    freeVbo(&vbo);
     free(points);
     [super dealloc];
 }

@@ -21,7 +21,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Brush.h"
 #import "MutableBrush.h"
 #import "IdGenerator.h"
-#import "VBOMemBlock.h"
 #import "PickingHitList.h"
 #import "PickingHit.h"
 #import "EntityDefinition.h"
@@ -98,6 +97,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 		properties = [[NSMutableDictionary alloc] init];
 		brushes = [[NSMutableArray alloc] init];
         filePosition = -1;
+        boundsVboBlock = NULL;
     }
     
     return self;
@@ -116,7 +116,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 
 - (void) dealloc {
-    [boundsMemBlock free];
+    if (boundsVboBlock != NULL)
+        freeVboBlock(boundsVboBlock);
     [entityId release];
 	[properties release];
 	[brushes release];
@@ -590,12 +591,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [pickingHit release];
 }
 
-- (VBOMemBlock *)boundsMemBlock {
-    return boundsMemBlock;
+
+- (VboBlock *)boundsVboBlock {
+    return boundsVboBlock;
 }
 
-- (void)setBoundsMemBlock:(VBOMemBlock *)theBoundsMemBlock {
-    [boundsMemBlock free];
-    boundsMemBlock = theBoundsMemBlock;
+- (void)setBoundsVboBlock:(VboBlock *)theBoundsVboBlock {
+    if (boundsVboBlock != NULL)
+        freeVboBlock(boundsVboBlock);
+    boundsVboBlock = theBoundsVboBlock;
 }
 @end
