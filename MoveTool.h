@@ -31,7 +31,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVector3f editingPoint;
     TVector3f lastPoint;
     BOOL drag;
-    EKeyStatus keyStatus;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

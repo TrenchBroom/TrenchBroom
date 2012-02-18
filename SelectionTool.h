@@ -24,7 +24,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @interface SelectionTool : DefaultTool {
     MapWindowController* windowController;
-    EKeyStatus keyStatus;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

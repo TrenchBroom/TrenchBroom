@@ -47,7 +47,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @implementation MoveTool (private)
 
 - (BOOL)isAlternatePlaneModifierPressed {
-    return keyStatus == KS_OPTION;
+    return [NSEvent modifierFlags] == NSAlternateKeyMask;
 }
 
 - (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
@@ -103,17 +103,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 # pragma mark -
 # pragma mark @implementation Tool
-
-- (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)theKeyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {
-    keyStatus = theKeyStatus;
-    
-    [self updateMoveDirectionWithRay:ray hits:hits];
-    
-    float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
-    rayPointAtDistance(ray, dist, &lastPoint);
-
-    [[windowController view3D] setNeedsDisplay:YES];
-}
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];

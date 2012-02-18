@@ -115,42 +115,60 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSAssert(theBrushBounds != NULL, @"brush bounds must not be NULL");
     
     if ((self = [self initWithWorldBounds:theWorldBounds])) {
-        TPlane boundary;
+        TVector3f p1, p2, p3;
         
-        boundary.point = theBrushBounds->min;
-        boundary.norm = YAxisNeg;
-        MutableFace* frontFace = [[MutableFace alloc] initWithWorldBounds:worldBounds boundary:&boundary];
+        p1 = theBrushBounds->min;
+        p2 = p1;
+        p2.z = theBrushBounds->max.z;
+        p3 = p1;
+        p3.x = theBrushBounds->max.x;
+        MutableFace* frontFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3];
         [frontFace setTexture:theTexture];
         [self addFace:frontFace];
         [frontFace release];
 
-        boundary.norm = XAxisNeg;
-        MutableFace* leftFace = [[MutableFace alloc] initWithWorldBounds:worldBounds boundary:&boundary];
+        p2 = p1;
+        p2.y = theBrushBounds->max.y;
+        p3 = p1;
+        p3.z = theBrushBounds->max.z;
+        MutableFace* leftFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3];
         [leftFace setTexture:theTexture];
         [self addFace:leftFace];
         [leftFace release];
 
-        boundary.norm = ZAxisNeg;
-        MutableFace* bottomFace = [[MutableFace alloc] initWithWorldBounds:worldBounds boundary:&boundary];
+        p2 = p1;
+        p2.x = theBrushBounds->max.x;
+        p3 = p1;
+        p3.y = theBrushBounds->max.y;
+        MutableFace* bottomFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3];
         [bottomFace setTexture:theTexture];
         [self addFace:bottomFace];
         [bottomFace release];
 
-        boundary.point = theBrushBounds->max;
-        boundary.norm = YAxisPos;
-        MutableFace* backFace = [[MutableFace alloc] initWithWorldBounds:worldBounds boundary:&boundary];
+        p1 = theBrushBounds->max;
+        p2 = p1;
+        p2.x = theBrushBounds->min.x;
+        p3 = p1;
+        p3.z = theBrushBounds->min.z;
+        MutableFace* backFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3];
         [backFace setTexture:theTexture];
         [self addFace:backFace];
         [backFace release];
 
-        boundary.norm = XAxisPos;
-        MutableFace* rightFace = [[MutableFace alloc] initWithWorldBounds:worldBounds boundary:&boundary];
+        p2 = p1;
+        p2.z = theBrushBounds->min.z;
+        p3 = p1;
+        p3.y = theBrushBounds->min.y;
+        MutableFace* rightFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3];
         [rightFace setTexture:theTexture];
         [self addFace:rightFace];
         [rightFace release];
 
-        boundary.norm = ZAxisPos;
-        MutableFace* topFace = [[MutableFace alloc] initWithWorldBounds:worldBounds boundary:&boundary];
+        p2 = p1;
+        p2.y = theBrushBounds->min.y;
+        p3 = p1;
+        p3.x = theBrushBounds->min.x;
+        MutableFace* topFace = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3];
         [topFace setTexture:theTexture];
         [self addFace:topFace];
         [topFace release];

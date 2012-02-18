@@ -41,7 +41,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @implementation DragVertexTool (private)
 
 - (BOOL)isAlternatePlaneModifierPressed {
-    return (keyStatus & KS_OPTION) == KS_OPTION;
+    return [NSEvent modifierFlags] == NSAlternateKeyMask;
 }
 
 - (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
@@ -70,11 +70,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)dealloc {
     [editingSystem release];
     [super dealloc];
-}
-
-- (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)theKeyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {
-    keyStatus = theKeyStatus;
-    [self updateMoveDirectionWithRay:ray hits:hits];
 }
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

@@ -801,12 +801,8 @@
 				486928E8133F27D300A0F098 /* Tool.h */,
 				486E08AD13B5EAE300E751A6 /* RotateTool.h */,
 				486E08AE13B5EAE300E751A6 /* RotateTool.m */,
-				486E08B113B5EF2C00E751A6 /* RotateFeedbackFigure.h */,
-				486E08B213B5EF2C00E751A6 /* RotateFeedbackFigure.m */,
 				48CB060713EC19B70051640E /* CreateBrushTool.h */,
 				48CB060813EC19B70051640E /* CreateBrushTool.m */,
-				48CB060B13EC2E680051640E /* BoundsFeedbackFigure.h */,
-				48CB060C13EC2E680051640E /* BoundsFeedbackFigure.m */,
 			);
 			name = Tool;
 			sourceTree = "<group>";
@@ -909,6 +905,8 @@
 			children = (
 				48025140133A1211001C51F2 /* PrimitiveRenderer */,
 				489DC65D12F9EBF500053092 /* Text */,
+				48CB060B13EC2E680051640E /* BoundsFeedbackFigure.h */,
+				48CB060C13EC2E680051640E /* BoundsFeedbackFigure.m */,
 				48DBE7431341CCD200C0FDE7 /* ClipBrushFeedbackFigure.h */,
 				48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */,
 				482F004E134107DC00849BF5 /* ClipLineFeedbackFigure.h */,
@@ -930,6 +928,8 @@
 				488F853B13F51FAE00DA0403 /* RenderChangeSet.m */,
 				487A7E631300801A00434806 /* Renderer.h */,
 				487A7E641300801A00434806 /* Renderer.m */,
+				486E08B113B5EF2C00E751A6 /* RotateFeedbackFigure.h */,
+				486E08B213B5EF2C00E751A6 /* RotateFeedbackFigure.m */,
 				484C28FA115023A2004DD957 /* Vbo.h */,
 				484C28FB115023A2004DD957 /* Vbo.m */,
 			);

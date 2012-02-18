@@ -31,7 +31,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     int index;
     TVector3f lastPoint;
     TVector3f editingPoint;
-    EKeyStatus keyStatus;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

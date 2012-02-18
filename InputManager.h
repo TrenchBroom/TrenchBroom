@@ -67,7 +67,6 @@ typedef enum {
     id <Tool> activeTool;
     id <Tool> cursorOwner;
 
-    EKeyStatus keyStatus;
     EMouseStatus dragStatus;
     EMouseStatus scrollStatus;
     BOOL hasMouse;

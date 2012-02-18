@@ -42,6 +42,7 @@ typedef enum {
 	float xScale;
 	float yScale;
     
+    TVector3f points[3];
     TPlane boundary;
     TSide* side;
   
@@ -66,9 +67,9 @@ typedef enum {
 
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds;
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds point1:(const TVector3f *)aPoint1 point2:(const TVector3f *)aPoint2 point3:(const TVector3f *)aPoint3;
-- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds boundary:(const TPlane *)theBoundary;
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds faceTemplate:(id <Face>)theTemplate;
 
+- (void)setPlanePointsFromVertices;
 - (void)setBrush:(MutableBrush *)theBrush;
 - (void)setTexture:(Texture *)theTexture;
 - (void)setXOffset:(int)offset;
@@ -86,7 +87,6 @@ typedef enum {
 
 - (void)setSide:(TSide *)theSide;
 - (const TSide *)side;
-- (void)setBoundary:(const TPlane *)theBoundary;
 
 - (int)filePosition;
 - (void)setFilePosition:(int)theFilePosition;

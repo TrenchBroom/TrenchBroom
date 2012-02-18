@@ -37,11 +37,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @implementation SelectionTool (private)
 
 - (BOOL)isMultiSelectionModifierPressed {
-    return keyStatus == KS_COMMAND;
+    return [NSEvent modifierFlags] == NSCommandKeyMask;
 }
 
 - (BOOL)isGridSizeModifierPressed {
-    return keyStatus == KS_OPTION;
+    return [NSEvent modifierFlags] == NSAlternateKeyMask;
 }
 
 @end
@@ -55,10 +55,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
     
     return self;
-}
-
-- (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)theKeyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {
-    keyStatus = theKeyStatus;
 }
 
 - (void)handleScrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

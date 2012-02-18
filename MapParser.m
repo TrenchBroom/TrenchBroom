@@ -139,13 +139,18 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     int xOffset, yOffset;
     
     if (format == MF_STANDARD) {
-        [self expect:TT_DEC actual:token];
-        xOffset = [[token data] intValue];
+        [self expect:TT_DEC | TT_FRAC actual:token];
+        xOffset = (int)roundf([[token data] intValue]);
+        
+        if ([token type] == TT_FRAC)
+            NSLog(@"Rounding fractional texture offsets in line %i", [token line]);
         
         token = [self nextToken];
-        [self expect:TT_DEC actual:token];
-        yOffset = [[token data] intValue];
+        [self expect:TT_DEC | TT_FRAC actual:token];
+        yOffset = (int)roundf([[token data] intValue]);
         
+        if ([token type] == TT_FRAC)
+            NSLog(@"Rounding fractional texture offsets in line %i", [token line]);
     } else {
         [self expect:TT_SB_O actual:token];
         token = [self nextToken];
@@ -192,6 +197,11 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     float yScale = [[token data] floatValue];
     
     MutableFace* face = [[MutableFace alloc] initWithWorldBounds:worldBounds point1:&p1 point2:&p2 point3:&p3];
+    if (face == nil) {
+        NSLog(@"Skipping invalid face in line %i", filePosition);
+        return nil;
+    }
+    
     [face setTexture:texture];
     [face setXOffset:xOffset];
     [face setYOffset:yOffset];
@@ -199,7 +209,6 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
     [face setXScale:xScale];
     [face setYScale:yScale];
     [face setFilePosition:filePosition];
-    
     return [face autorelease];
 }
 
@@ -259,7 +268,10 @@ static NSString* InvalidTokenException = @"InvalidTokenException";
                     switch ([token type]) {
                         case TT_B_O: {
                             MutableFace* face = [self parseFace:[token line] textureManager:theTextureManager worldBounds:[map worldBounds]];
-                            [brush addFace:face];
+                            if (face != nil) {
+                                [brush addFace:face];
+                            } else {
+                            }
                             break;
                         }
                         case TT_CB_C:

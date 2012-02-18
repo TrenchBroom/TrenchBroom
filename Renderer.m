@@ -1106,7 +1106,8 @@ int const TexCoordSize = 2 * sizeof(float);
         
         MapDocument* map = [windowController document];
         GLResources* glResources = [map glResources];
-        entityRendererManager = [glResources entityRendererManager];
+         // retain so that it only gets released after we release the entity renderer cache
+        entityRendererManager = [[glResources entityRendererManager] retain];
         textureManager = [glResources textureManager];
         fontManager = [glResources fontManager];
         
@@ -1179,6 +1180,7 @@ int const TexCoordSize = 2 * sizeof(float);
     [entityRenderers release];
     [modelEntities release];
     [selectedModelEntities release];
+    [entityRendererManager release];
     [selectionBoundsRenderer release];
     [filter release];
     [mods release];
@@ -1334,7 +1336,7 @@ int const TexCoordSize = 2 * sizeof(float);
             [figure render];
         glEnable(GL_DEPTH_TEST);
     }
-
+     
     PreferencesManager* preferences = [PreferencesManager sharedManager];
     float brightness = [preferences brightness];
     if(brightness > 1) {
@@ -1346,6 +1348,7 @@ int const TexCoordSize = 2 * sizeof(float);
     }
     glEnable(GL_BLEND);
     
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();

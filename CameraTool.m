@@ -33,11 +33,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @implementation CameraTool (private)
 
 - (BOOL)isCameraModifierPressed {
-    return keyStatus == KS_SPACE;
+    return [NSEvent modifierFlags] == NSShiftKeyMask;
 }
 
 - (BOOL)isCameraOrbitModifierPressed {
-    return keyStatus == (KS_SPACE | KS_OPTION);
+    return [NSEvent modifierFlags] == (NSShiftKeyMask | NSCommandKeyMask);
 }
 
 @end
@@ -50,10 +50,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
     
     return self;
-}
-
-- (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)theKeyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {
-    keyStatus = theKeyStatus;
 }
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -119,7 +115,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         if (gesture)
             [camera moveForward:6 * [event deltaZ] right:-6 * [event deltaX] up:6 * [event deltaY]];
         else
-            [camera moveForward:6 * [event deltaY] right:-6 * [event deltaX] up:6 * [event deltaZ]];
+            [camera moveForward:6 * [event deltaX] right:-6 * [event deltaY] up:6 * [event deltaZ]];
     }
 }
 

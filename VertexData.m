@@ -1376,13 +1376,6 @@ void incidentSides(TVertexData* vd, int v, TSideList* l) {
     } while (side != l->items[0]);
 }
 
-void updateFaceOfSide(TSide* s) {
-    TPlane boundary;
-    
-    setPlanePointsV3f(&boundary, &s->vertices.items[0]->position, &s->vertices.items[1]->position, &s->vertices.items[2]->position);
-    [s->face setBoundary:&boundary];
-}
-
 void createFaceForSide(const TBoundingBox* w, TSide* s) {
     s->face = [[MutableFace alloc] initWithWorldBounds:w];
     [s->face setSide:s];
@@ -1795,7 +1788,7 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
         for (int i = 0; i < vd->vertices.count; i++)
             snapV3f(&vd->vertices.items[i]->position, &vd->vertices.items[i]->position);
         for (int i = 0; i < vd->sides.count; i++)
-            updateFaceOfSide(vd->sides.items[i]);
+            [vd->sides.items[i]->face setPlanePointsFromVertices];
         return vIndex;
     }
     
@@ -2140,7 +2133,7 @@ void snapVertexData(TVertexData* vd) {
     // in some cases, we may now have an invalid brush, which must be fixed.
     
     for (int i = 0; i < vd->sides.count; i++)
-        updateFaceOfSide(vd->sides.items[i]);
+        [vd->sides.items[i]->face setPlanePointsFromVertices];
     
     assert(sanityCheck(vd, YES));
      */

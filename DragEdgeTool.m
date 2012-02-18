@@ -41,7 +41,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @implementation DragEdgeTool (private)
 
 - (BOOL)isAlternatePlaneModifierPressed {
-    return keyStatus == KS_OPTION;
+    return [NSEvent modifierFlags] == NSAlternateKeyMask;
 }
 
 - (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
@@ -70,10 +70,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)dealloc {
     [editingSystem release];
     [super dealloc];
-}
-
-- (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)theKeyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {
-    keyStatus = theKeyStatus;
 }
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

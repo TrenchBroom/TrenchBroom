@@ -841,24 +841,8 @@ void linePointAtDistance(TLine* l, float d, TVector3f* p) {
  *   p2------p1
  *       v2
  */
-void setPlanePointsV3i(TPlane* p, const TVector3i* p1, const TVector3i* p2, const TVector3i* p3) {
-    TVector3f v1, v2;
-    
-    setV3f(&p->point, p1);
-    
-    v1.x = p3->x - p1->x;
-    v1.y = p3->y - p1->y;
-    v1.z = p3->z - p1->z;
-    
-    v2.x = p2->x - p1->x;
-    v2.y = p2->y - p1->y;
-    v2.z = p2->z - p1->z;
 
-    crossV3f(&v1, &v2, &p->norm);
-    normalizeV3f(&p->norm, &p->norm);
-}
-
-void setPlanePointsV3f(TPlane* p, const TVector3f* p1, const TVector3f* p2, const TVector3f* p3) {
+BOOL setPlanePointsV3f(TPlane* p, const TVector3f* p1, const TVector3f* p2, const TVector3f* p3) {
     TVector3f v1, v2;
     p->point = *p1;
 
@@ -866,7 +850,11 @@ void setPlanePointsV3f(TPlane* p, const TVector3f* p1, const TVector3f* p2, cons
     subV3f(p2, p1, &v2);
     
     crossV3f(&v1, &v2, &p->norm);
+    if (nullV3f(&p->norm))
+        return NO;
+    
     normalizeV3f(&p->norm, &p->norm);
+    return YES;
 }
 
 EPointStatus pointStatusFromPlane(const TPlane* p, const TVector3f* v) {

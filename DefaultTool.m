@@ -24,8 +24,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)activated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 - (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 
-- (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)keyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {}
-
 - (void)handleLeftMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 - (void)handleLeftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 - (void)handleRightMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}

@@ -49,6 +49,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glColor4f(0, 1, 0, 1);
     gluSphere(sphere, radius, 12, 12);
     glPopMatrix();
+    
+    glFrontFace(GL_CW);
 }
 
 - (void)dealloc {

@@ -27,7 +27,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVector3f orbitCenter;
     BOOL gesture;
     BOOL orbit;
-    EKeyStatus keyStatus;
 }
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;

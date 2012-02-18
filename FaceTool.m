@@ -41,7 +41,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @implementation FaceTool (private)
 
 - (BOOL)isFrontFaceModifierPressed {
-    return keyStatus == KS_COMMAND;
+    return [NSEvent modifierFlags] == NSCommandKeyMask;
 }
 
 @end
@@ -64,10 +64,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 # pragma mark -
 # pragma mark @implementation Tool
-
-- (void)handleKeyStatusChanged:(NSEvent *)event status:(EKeyStatus)theKeyStatus ray:(TRay *)ray hits:(PickingHitList *)hits {
-    keyStatus = theKeyStatus;
-}
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     SelectionManager* selectionManager = [windowController selectionManager];

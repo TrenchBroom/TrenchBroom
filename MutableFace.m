@@ -296,8 +296,6 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 }
 
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds {
-    if (theWorldBounds == NULL)
-        NSLog(@"asdf");
     NSAssert(theWorldBounds != NULL, @"world bounds must not be NULL");
     if ((self = [self init])) {
         worldBounds = theWorldBounds;
@@ -310,19 +308,16 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds point1:(const TVector3f *)aPoint1 point2:(const TVector3f *)aPoint2 point3:(const TVector3f *)aPoint3 {
     if ((self = [self initWithWorldBounds:theWorldBounds])) {
-        setPlanePointsV3f(&boundary, aPoint1, aPoint2, aPoint3);
+        points[0] = *aPoint1;
+        points[1] = *aPoint2;
+        points[2] = *aPoint3;
         [self setXScale:1];
         [self setYScale:1];
-    }
-    
-    return self;
-}
 
-- (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds boundary:(const TPlane *)theBoundary {
-    if ((self = [self initWithWorldBounds:theWorldBounds])) {
-        boundary = *theBoundary;
-        [self setXScale:1];
-        [self setYScale:1];
+        if (!setPlanePointsV3f(&boundary, &points[0], &points[1], &points[2])) {
+            [self release];
+            return nil;
+        }
     }
     
     return self;
@@ -330,6 +325,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds faceTemplate:(id <Face>)theTemplate {
     if ((self = [self initWithWorldBounds:theWorldBounds])) {
+        [theTemplate point1:&points[0] point2:&points[1] point3:&points[2]];
         boundary = *[theTemplate boundary];
         [self setTexture:[theTemplate texture]];
         [self setXOffset:[theTemplate xOffset]];
@@ -348,6 +344,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     [result->faceId release];
     result->faceId = [faceId retain];
     result->worldBounds = worldBounds;
+    [self point1:&result->points[0] point2:&result->points[1] point3:&result->points[2]];
     result->boundary = boundary;
     [result setTexture:texture];
     [result setXOffset:xOffset];
@@ -369,6 +366,36 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     if (side != NULL)
         side->face = nil;
 	[super dealloc];
+}
+
+- (void)setPlanePointsFromVertices {
+    TVector3f v1, v2;
+    
+    float bestDot = 1;
+    int best = -1;
+    const TVertexList* vertices = [self vertices];
+    for (int i = 0; i < vertices->count && bestDot > 0; i++) {
+        points[2] = vertices->items[(i - 1 + vertices->count) % vertices->count]->position;
+        points[0] = vertices->items[i]->position;
+        points[1] = vertices->items[(i + 1) % vertices->count]->position;
+        
+        subV3f(&points[2], &points[0], &v1);
+        normalizeV3f(&v1, &v1);
+        subV3f(&points[1], &points[0], &v2);
+        normalizeV3f(&v2, &v2);
+        
+        float dot = fabsf(dotV3f(&v1, &v2));
+        if (dot < bestDot) {
+            bestDot = dot;
+            best = i;
+        }
+    }
+    
+    points[2] = vertices->items[(best - 1 + vertices->count) % vertices->count]->position;
+    points[0] = vertices->items[best]->position;
+    points[1] = vertices->items[(best + 1) % vertices->count]->position;
+    
+    setPlanePointsV3f(&boundary, &points[0], &points[1], &points[2]);
 }
 
 - (void)setBrush:(MutableBrush *)theBrush {
@@ -463,6 +490,8 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     }
 
     addV3f(&boundary.point, theDelta, &boundary.point);
+    for (int i = 0; i < 3; i++)
+        addV3f(&points[i], theDelta, &points[i]);
 
     [self invalidate];
 }
@@ -490,6 +519,12 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     rotate90CWV3f(&boundary.point, theAxis, &boundary.point);
     rotate90CWV3f(&boundary.norm, theAxis, &boundary.norm);
     addV3f(&boundary.point, theCenter, &boundary.point);
+    
+    for (int i = 0; i < 3; i++) {
+        subV3f(&points[i], theCenter, &points[i]);
+        rotate90CWV3f(&points[i], theAxis, &points[i]);
+        addV3f(&points[i], theCenter, &points[i]);
+    }
 
     [self invalidate];
 }
@@ -518,6 +553,12 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     rotate90CCWV3f(&boundary.norm, theAxis, &boundary.norm);
     addV3f(&boundary.point, theCenter, &boundary.point);
     
+    
+    for (int i = 0; i < 3; i++) {
+        subV3f(&points[i], theCenter, &points[i]);
+        rotate90CCWV3f(&points[i], theAxis, &points[i]);
+        addV3f(&points[i], theCenter, &points[i]);
+    }
     [self invalidate];
 }
 
@@ -539,6 +580,12 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     rotateQ(theRotation, &boundary.norm, &boundary.norm);
     addV3f(&boundary.point, theCenter, &boundary.point);
     
+    for (int i = 0; i < 3; i++) {
+        subV3f(&points[i], theCenter, &points[i]);
+        rotateQ(theRotation, &points[i], &points[i]);
+        addV3f(&points[i], theCenter, &points[i]);
+    }
+
     [self invalidate];
 }
 
@@ -565,6 +612,12 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
             boundary.point.x *= -1;
             boundary.point.x += theCenter->x;
             boundary.norm.x *= -1;
+            
+            for (int i = 0; i < 3; i++) {
+                points[i].x -= theCenter->x;
+                points[i].x *= -1;
+                points[i].x += theCenter->x;
+            }
             break;
         }
         case A_Y: {
@@ -588,6 +641,12 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
             boundary.point.y *= -1;
             boundary.point.y += theCenter->y;
             boundary.norm.y *= -1;
+            
+            for (int i = 0; i < 3; i++) {
+                points[i].y -= theCenter->y;
+                points[i].y *= -1;
+                points[i].y += theCenter->y;
+            }
             break;
         }
         default: {
@@ -611,6 +670,12 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
             boundary.point.z *= -1;
             boundary.point.z += theCenter->z;
             boundary.norm.z *= -1;
+            
+            for (int i = 0; i < 3; i++) {
+                points[i].z -= theCenter->z;
+                points[i].z *= -1;
+                points[i].z += theCenter->z;
+            }
             break;
         }
     }
@@ -623,6 +688,8 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     scaleV3f([self norm], dist, &deltaf);
     
     addV3f(&boundary.point, &deltaf, &boundary.point);
+    for (int i = 0; i < 3; i++)
+        addV3f(&points[i], &deltaf, &points[i]);
     
     [self invalidate];
 }
@@ -633,11 +700,6 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (const TSide *)side {
     return side;
-}
-
-- (void)setBoundary:(const TPlane *)theBoundary {
-    NSAssert(theBoundary != NULL, @"boundary must not be NULL");
-    boundary = *theBoundary;
 }
 
 - (int)filePosition {
@@ -708,6 +770,12 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 	return yScale;
 }
 
+- (void)point1:(TVector3f *)thePoint1 point2:(TVector3f *)thePoint2 point3:(TVector3f *)thePoint3 {
+    *thePoint1 = points[0];
+    *thePoint2 = points[1];
+    *thePoint3 = points[2];
+}
+
 - (const TVector3f *)norm {
     return &[self boundary]->norm;
 }
@@ -724,34 +792,6 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 - (const TEdgeList *)edges {
     NSAssert(side != NULL, @"side must not be NULL");
     return &side->edges;
-}
-
-- (void)point1:(TVector3f *)thePoint1 point2:(TVector3f *)thePoint2 point3:(TVector3f *)thePoint3 {
-    TVector3f v1, v2;
-
-    float bestDot = 1;
-    int best = -1;
-    const TVertexList* vertices = [self vertices];
-    for (int i = 0; i < vertices->count; i++) {
-        *thePoint3 = vertices->items[(i - 1 + vertices->count) % vertices->count]->position;
-        *thePoint1 = vertices->items[i]->position;
-        *thePoint2 = vertices->items[(i + 1) % vertices->count]->position;
-        
-        subV3f(thePoint3, thePoint1, &v1);
-        normalizeV3f(&v1, &v1);
-        subV3f(thePoint2, thePoint1, &v2);
-        normalizeV3f(&v2, &v2);
-        
-        float dot = fabsf(dotV3f(&v1, &v2));
-        if (dot < bestDot) {
-            bestDot = dot;
-            best = i;
-        }
-    }
-    
-    *thePoint3 = vertices->items[(best - 1 + vertices->count) % vertices->count]->position;
-    *thePoint1 = vertices->items[best]->position;
-    *thePoint2 = vertices->items[(best + 1) % vertices->count]->position;
 }
 
 - (const TBoundingBox *)worldBounds {
