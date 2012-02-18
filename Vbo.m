@@ -68,12 +68,12 @@ int writeVector2f(const TVector2f* vector, uint8_t* vbo, int address) {
     return a;
 }
 
-/*
 void checkVbo(Vbo* vbo) {
     VboBlock* block = vbo->firstBlock;
     assert(block->previous == NULL);
     
     while (block->next != NULL) {
+        assert(block->vbo == vbo);
         VboBlock* previous = block;
         block = block->next;
         
@@ -92,7 +92,6 @@ void checkVbo(Vbo* vbo) {
             assert(block->capacity <= vbo->freeBlocks[i + 1]->capacity);
     }
 }
-*/
  
 void initVbo(Vbo* vbo, GLenum type, int capacity) {
     vbo->totalCapacity = capacity;
@@ -495,7 +494,7 @@ VboBlock* packVboBlock(VboBlock* block) {
     int address = first->address;
     
     do {
-        last->address = previous->address + previous->capacity;
+        last->address -= block->capacity;
         size += last->capacity;
         previous = last;
         last = last->next;
@@ -518,6 +517,8 @@ VboBlock* packVboBlock(VboBlock* block) {
         newBlock->vbo = vbo;
         newBlock->address = previous->address + previous->capacity;
         newBlock->capacity = block->capacity;
+        newBlock->free = YES;
+        
         insertFreeVboBlock(newBlock);
         previous->next = newBlock;
         newBlock->previous = previous;
@@ -529,6 +530,10 @@ VboBlock* packVboBlock(VboBlock* block) {
         vbo->firstBlock = block->next;
     
     removeFreeVboBlock(block);
+    if (block->previous != NULL)
+        block->previous->next = block->next;
+    if (block->next != NULL)
+        block->next->previous = block->previous;
     block->previous = NULL;
     block->next = NULL;
     free(block);

@@ -326,7 +326,7 @@
 		484B9A46136203F8003030D7 /* EntityDefinitionToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionToken.m; sourceTree = "<group>"; };
 		484B9A5613621004003030D7 /* EntityDefinitionParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionParser.h; sourceTree = "<group>"; };
 		484B9A5713621004003030D7 /* EntityDefinitionParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionParser.m; sourceTree = "<group>"; };
-		484C28FA115023A2004DD957 /* Vbo.h */ = {isa = PBXFileReference; fileEncoding = 4; path = Vbo.h; sourceTree = "<group>"; };
+		484C28FA115023A2004DD957 /* Vbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vbo.h; sourceTree = "<group>"; };
 		484C28FB115023A2004DD957 /* Vbo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vbo.m; sourceTree = "<group>"; };
 		48527F3611148D5C00CD6043 /* MutableFace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutableFace.h; sourceTree = "<group>"; };
 		48527F3711148D5C00CD6043 /* MutableFace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutableFace.m; sourceTree = "<group>"; };
