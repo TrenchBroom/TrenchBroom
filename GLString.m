@@ -101,6 +101,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         size = theSize;
         glStringData = [theData retain];
         vboValid = NO;
+        vboBlock = NULL;
     }
     
     return self;
@@ -133,7 +134,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)dealloc {
     if (glStringData != nil)
         [glStringData release];
-    freeVboBlock(vboBlock);
+    if (vboBlock != NULL)
+        freeVboBlock(vboBlock);
     [triangleStripIndices release];
     [triangleStripCounts release];
     [triangleFanIndices release];
