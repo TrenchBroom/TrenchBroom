@@ -22,66 +22,85 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "FloatData.h"
 #import "IntData.h"
 
+@interface GLString (private)
+
+- (void)validateVbo;
+
+@end
+
+@implementation GLString (private)
+
+- (void)validateVbo {
+    NSAssert(!vboValid, @"vbo must be invalid");
+    NSAssert(glStringData != nil, @"string data must not be nil");
+    NSAssert(vbo != NULL, @"vbo must not be NULL");
+    NSAssert(vbo->active, @"vbo must be active");
+    
+    BOOL wasMapped = vbo->mapped;
+    if (!wasMapped)
+        mapVbo(vbo);
+    
+    FloatData* triangleSet = [glStringData triangleSet];
+    NSArray* triangleStrips = [glStringData triangleStrips];
+    NSArray* triangleFans = [glStringData triangleFans];
+    int vertexCount = [glStringData vertexCount];
+    
+    vboBlock = allocVboBlock(vbo, 2 * vertexCount * sizeof(float));
+    hasTriangleSet = triangleSet != nil;
+    hasTriangleStrips = triangleStrips != nil;
+    hasTriangleFans = triangleFans != nil;
+    
+    int address = vboBlock->address;
+    uint8_t* vboBuffer = vbo->buffer;
+    
+    if (hasTriangleSet) {
+        triangleSetIndex = address / (2 * sizeof(float));
+        triangleSetCount = [triangleSet count] / 2;
+        const void* buffer = [triangleSet bytes];
+        address = writeBuffer(buffer, vboBuffer, address, [triangleSet count] * sizeof(float));
+    }
+    
+    if (hasTriangleStrips) {
+        triangleStripIndices = [[IntData alloc] init];
+        triangleStripCounts = [[IntData alloc] init];
+        for (FloatData* strip in triangleStrips) {
+            [triangleStripIndices appendInt:address / (2 * sizeof(float))];
+            [triangleStripCounts appendInt:[strip count] / 2];
+            const void* buffer = [strip bytes];
+            address = writeBuffer(buffer, vboBuffer, address, [strip count] * sizeof(float));
+        }
+    }
+    
+    if (hasTriangleFans) {
+        triangleFanIndices = [[IntData alloc] init];
+        triangleFanCounts = [[IntData alloc] init];
+        for (FloatData* fan in triangleFans) {
+            [triangleFanIndices appendInt:address / (2 * sizeof(float))];
+            [triangleFanCounts appendInt:[fan count] / 2];
+            const void* buffer = [fan bytes];
+            address = writeBuffer(buffer, vboBuffer, address, [fan count] * sizeof(float));
+        }
+    }
+    
+    if (!wasMapped)
+        unmapVbo(vbo);
+    
+    [glStringData release];
+    glStringData = nil;
+    vbo = nil;
+    vboValid = YES;
+}
+
+@end
+
 @implementation GLString
 
 - (id)initWithVbo:(Vbo *)theVbo data:(GLStringData *)theData size:(NSSize)theSize {
     if ((self = [self init])) {
+        vbo = theVbo;
         size = theSize;
-
-        FloatData* triangleSet = [theData triangleSet];
-        NSArray* triangleStrips = [theData triangleStrips];
-        NSArray* triangleFans = [theData triangleFans];
-        int vertexCount = [theData vertexCount];
-        
-        vboBlock = allocVboBlock(theVbo, 2 * vertexCount * sizeof(float));
-        hasTriangleSet = triangleSet != nil;
-        hasTriangleStrips = triangleStrips != nil;
-        hasTriangleFans = triangleFans != nil;
-        
-        BOOL wasActive = theVbo->active;
-        BOOL wasMapped = theVbo->mapped;
-        
-        if (!wasActive)
-            activateVbo(theVbo);
-        if (!wasMapped)
-            mapVbo(theVbo);
-        
-        int address = vboBlock->address;
-        uint8_t* vboBuffer = theVbo->buffer;
-        
-        if (hasTriangleSet) {
-            triangleSetIndex = address / (2 * sizeof(float));
-            triangleSetCount = [triangleSet count] / 2;
-            const void* buffer = [triangleSet bytes];
-            address = writeBuffer(buffer, vboBuffer, address, [triangleSet count] * sizeof(float));
-        }
-        
-        if (hasTriangleStrips) {
-            triangleStripIndices = [[IntData alloc] init];
-            triangleStripCounts = [[IntData alloc] init];
-            for (FloatData* strip in triangleStrips) {
-                [triangleStripIndices appendInt:address / (2 * sizeof(float))];
-                [triangleStripCounts appendInt:[strip count] / 2];
-                const void* buffer = [strip bytes];
-                address = writeBuffer(buffer, vboBuffer, address, [strip count] * sizeof(float));
-            }
-        }
-        
-        if (hasTriangleFans) {
-            triangleFanIndices = [[IntData alloc] init];
-            triangleFanCounts = [[IntData alloc] init];
-            for (FloatData* fan in triangleFans) {
-                [triangleFanIndices appendInt:address / (2 * sizeof(float))];
-                [triangleFanCounts appendInt:[fan count] / 2];
-                const void* buffer = [fan bytes];
-                address = writeBuffer(buffer, vboBuffer, address, [fan count] * sizeof(float));
-            }
-        }
-        
-        if (!wasMapped)
-            unmapVbo(theVbo);
-        if (!wasActive)
-            deactivateVbo(theVbo);
+        glStringData = [theData retain];
+        vboValid = NO;
     }
     
     return self;
@@ -101,6 +120,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)render {
+    if (!vboValid)
+        [self validateVbo];
     if (hasTriangleSet)
         glDrawArrays(GL_TRIANGLES, triangleSetIndex, triangleSetCount);
     if (hasTriangleStrips)
@@ -110,6 +131,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)dealloc {
+    if (glStringData != nil)
+        [glStringData release];
     freeVboBlock(vboBlock);
     [triangleStripIndices release];
     [triangleStripCounts release];

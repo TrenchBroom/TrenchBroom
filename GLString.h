@@ -25,7 +25,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @interface GLString : NSObject {
     @private
+    Vbo* vbo;
     VboBlock* vboBlock;
+    GLStringData* glStringData;
+    BOOL vboValid;
     BOOL hasTriangleSet;
     int triangleSetIndex;
     int triangleSetCount;
