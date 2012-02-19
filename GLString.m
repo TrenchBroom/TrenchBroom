@@ -45,7 +45,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSArray* triangleFans = [glStringData triangleFans];
     int vertexCount = [glStringData vertexCount];
     
-    vboBlock = allocVboBlock(vbo, 2 * vertexCount * sizeof(float));
+    vboBlock = allocVboBlock(vbo, 3 * vertexCount * sizeof(float));
     hasTriangleSet = triangleSet != nil;
     hasTriangleStrips = triangleStrips != nil;
     hasTriangleFans = triangleFans != nil;
@@ -54,8 +54,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     uint8_t* vboBuffer = vbo->buffer;
     
     if (hasTriangleSet) {
-        triangleSetIndex = address / (2 * sizeof(float));
-        triangleSetCount = [triangleSet count] / 2;
+        triangleSetIndex = address / (3 * sizeof(float));
+        triangleSetCount = [triangleSet count] / 3;
         const void* buffer = [triangleSet bytes];
         address = writeBuffer(buffer, vboBuffer, address, [triangleSet count] * sizeof(float));
     }
@@ -64,8 +64,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         triangleStripIndices = [[IntData alloc] init];
         triangleStripCounts = [[IntData alloc] init];
         for (FloatData* strip in triangleStrips) {
-            [triangleStripIndices appendInt:address / (2 * sizeof(float))];
-            [triangleStripCounts appendInt:[strip count] / 2];
+            [triangleStripIndices appendInt:address / (3 * sizeof(float))];
+            [triangleStripCounts appendInt:[strip count] / 3];
             const void* buffer = [strip bytes];
             address = writeBuffer(buffer, vboBuffer, address, [strip count] * sizeof(float));
         }
@@ -75,8 +75,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         triangleFanIndices = [[IntData alloc] init];
         triangleFanCounts = [[IntData alloc] init];
         for (FloatData* fan in triangleFans) {
-            [triangleFanIndices appendInt:address / (2 * sizeof(float))];
-            [triangleFanCounts appendInt:[fan count] / 2];
+            [triangleFanIndices appendInt:address / (3 * sizeof(float))];
+            [triangleFanCounts appendInt:[fan count] / 3];
             const void* buffer = [fan bytes];
             address = writeBuffer(buffer, vboBuffer, address, [fan count] * sizeof(float));
         }
