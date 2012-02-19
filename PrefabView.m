@@ -36,7 +36,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "PrefabLayoutGroupRow.h"
 #import "PrefabLayoutPrefabCell.h"
 #import "GLFontManager.h"
-#import "GLFontManager.h"
 #import "GLString.h"
 #import "PrefabViewTarget.h"
 #import "VertexData.h"
@@ -152,8 +151,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [cameras release];
-    [glResources release];
     [layout release];
+    [glResources release];
+    [fontManager release];
     [super dealloc];
 }
 
@@ -245,8 +245,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glFrontFace(GL_CW);
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1.0, 1.0);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glShadeModel(GL_FLAT);
     glEnable(GL_TEXTURE_2D);
@@ -271,12 +269,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                         [self renderFace:face];
                         
                         glDisable(GL_TEXTURE_2D);
+                        glSetEdgeOffset(0.5f);
                         glPolygonMode(GL_FRONT, GL_LINE);
                         if (selectedPrefab == prefab)
                             glColor4f(1, 0, 0, 1);
                         else
                             glColor4f(1, 1, 1, 0.5f);
                         [self renderFace:face];
+                        glResetEdgeOffset();
                     }
                 }
             }
@@ -300,7 +300,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_TEXTURE_2D);
 
-    GLFontManager* fontManager = [glResources fontManager];
     NSFont* font = [NSFont systemFontOfSize:13];
     
     [fontManager activate];
@@ -345,6 +344,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)setGLResources:(GLResources *)theGLResources {
+    if (glResources == theGLResources)
+        return;
+    
     [self selectPrefab:nil];
     
     [glResources release];
@@ -354,15 +356,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:[glResources openGLContext]];
         [self setOpenGLContext:sharingContext];
         [sharingContext release];
-
-        [layout release];
-
-        GLFontManager* fontManager = [glResources fontManager];
-        NSFont* font = [NSFont systemFontOfSize:13];
-        PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
-        layout = [[PrefabLayout alloc] initWithPrefabManager:prefabManager prefabsPerRow:prefabsPerRow fontManager:fontManager font:font];
-                  
+    } else {
+        NSOpenGLContext* context = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:nil];
+        [self setOpenGLContext:context];
+        [context release];
     }
+
+    [[self openGLContext] makeCurrentContext];
+    
+    [layout release];
+    [fontManager release];
+
+    fontManager = [[GLFontManager alloc] init];
+    NSFont* font = [NSFont systemFontOfSize:13];
+    PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];
+    layout = [[PrefabLayout alloc] initWithPrefabManager:prefabManager prefabsPerRow:prefabsPerRow fontManager:fontManager font:font];
 
     [self reshape];
 }

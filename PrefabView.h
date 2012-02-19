@@ -22,6 +22,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @protocol Prefab;
 @class Camera;
 @class GLResources;
+@class GLFontManager;
 @class PrefabLayout;
 @protocol PrefabViewTarget;
 
@@ -32,6 +33,7 @@ static NSString* const PrefabSelectionDidChange = @"PrefabSelectionDidChange";
     id <Prefab> draggedPrefab;
     id <Prefab> selectedPrefab;
     GLResources* glResources;
+    GLFontManager* fontManager;
     PrefabLayout* layout;
     int prefabsPerRow;
     IBOutlet id <PrefabViewTarget> target;
