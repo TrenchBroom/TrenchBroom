@@ -189,14 +189,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return self;
 }
 
-- (id)initWithWindowController:(MapWindowController *)theWindowController {
-    if ((self = [self init])) {
-        windowController = theWindowController;
-    }
-    
-    return self;
-}
-
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if ([clipPlane numPoints] > 0 && [self intersect:ray withClipPoint:[clipPlane point:0]]) {
         draggedPoint = 0;

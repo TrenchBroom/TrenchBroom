@@ -48,9 +48,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation FaceTool
 
-- (id)initWithWindowController:(MapWindowController *)theWindowController {
-    if ((self = [self init])) {
-        windowController = theWindowController;
+- (id)init {
+    if ((self = [super init])) {
         dragFaces = [[NSMutableArray alloc] init];
     }
     

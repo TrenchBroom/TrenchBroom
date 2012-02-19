@@ -33,7 +33,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "GLResources.h"
 #import "TextureManager.h"
 #import "Texture.h"
-#import "EditingSystem.h"
+#import "DragPlane.h"
 
 @interface CreateBrushTool (private)
 
@@ -48,7 +48,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [editingSystem release];
     
     Camera* camera = [windowController camera];
-    editingSystem = [[EditingSystem alloc] initWithCamera:camera vertical:strongestComponentV3f([camera direction]) != A_Z];
+    editingSystem = [[DragPlane alloc] initWithCamera:camera vertical:strongestComponentV3f([camera direction]) != A_Z];
     
     /*
      EditingSystem* newEditingSystem;
@@ -80,15 +80,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @end
 
 @implementation CreateBrushTool
-
-- (id)initWithWindowController:(MapWindowController *)theWindowController {
-    if ((self = [self init])) {
-        windowController = theWindowController;
-        drag = NO;
-    }
-    
-    return self;
-}
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     Camera* camera = [windowController camera];

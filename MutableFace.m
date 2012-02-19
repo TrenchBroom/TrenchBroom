@@ -391,6 +391,8 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
         }
     }
     
+    assert(best != -1);
+    
     points[2] = vertices->items[(best - 1 + vertices->count) % vertices->count]->position;
     points[0] = vertices->items[best]->position;
     points[1] = vertices->items[(best + 1) % vertices->count]->position;

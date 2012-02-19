@@ -34,77 +34,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Renderer.h"
 #import "MapView3D.h"
 #import "ControllerUtils.h"
-#import "EditingSystem.h"
+#import "DragPlane.h"
 #import "CameraOrbitAnimation.h"
 
-@interface MoveTool (private)
-
-- (BOOL)isAlternatePlaneModifierPressed;
-- (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits;
-
-@end
-
-@implementation MoveTool (private)
-
-- (BOOL)isAlternatePlaneModifierPressed {
-    return [NSEvent modifierFlags] == NSAlternateKeyMask;
-}
-
-- (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
-    if (editingSystem != nil)
-        [editingSystem release];
-    
-    Camera* camera = [windowController camera];
-    editingSystem = [[EditingSystem alloc] initWithCamera:camera vertical:[self isAlternatePlaneModifierPressed]];
-    
-    /*
-    EditingSystem* newEditingSystem;
-    TVector3f norm;
-    
-    Camera* camera = [windowController camera];
-
-    PickingHit* hit = [theHits firstHitOfType:HT_FACE | HT_ENTITY ignoreOccluders:NO];
-    if (hit == nil)
-        return;
-    
-    if ([hit type] == HT_FACE) {
-        id <Face> face = [hit object];
-        newEditingSystem = [[EditingSystem alloc] initWithCamera:camera yAxis:[face norm] invert:[self isAlternatePlaneModifierPressed]];
-    } else {
-        id <Entity> entity = [hit object];
-        intersectBoundsWithRay([entity bounds], theRay, &norm);
-        newEditingSystem = [[EditingSystem alloc] initWithCamera:camera yAxis:&norm invert:[self isAlternatePlaneModifierPressed]];
-    }
-    
-    if (newEditingSystem != nil) {
-        if (editingSystem != nil)
-            [editingSystem release];
-        editingSystem = newEditingSystem;
-    }
-     */
-}
-
-@end
-
 @implementation MoveTool
-
-- (id)initWithWindowController:(MapWindowController *)theWindowController {
-    if ((self = [self init])) {
-        windowController = theWindowController;
-    }
-    return self;
-}
-
-- (void)dealloc {
-    if (editingSystem != nil)
-        [editingSystem release];
-    [super dealloc];
-}
 
 # pragma mark -
 # pragma mark @implementation Tool
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
     if (hit == nil)
         return;
@@ -122,34 +60,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         if (![selectionManager isEntitySelected:entity])
             return;
     }
-
-    [self updateMoveDirectionWithRay:ray hits:hits];
     
-    lastPoint = *[hit hitPoint];
-    editingPoint = lastPoint;
+    *lastPoint = *[hit hitPoint];
     
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setGroupsByEvent:NO];
     [undoManager beginUndoGrouping];
 
-    drag = YES;
+    return YES;
 }
 
-- (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (!drag)
-        return;
-    
-    float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
-    if (isnan(dist))
-        return;
-    
-    TVector3f point;
-    rayPointAtDistance(ray, dist, &point);
-    
-    TVector3f delta;
-    subV3f(&point, &lastPoint, &delta);
-    
+- (BOOL)doLeftDrag:(NSEvent *)event ray:(TRay *)ray delta:(TVector3f *)delta hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     Options* options = [windowController options];
     Grid* grid = [options grid];
     
@@ -160,31 +82,23 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     SelectionManager* selectionManager = [map selectionManager];
     [selectionManager selectionBounds:&bounds];
 
-    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:&lastPoint];
+    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:delta lastPoint:lastPoint];
     
-    if (nullV3f(&delta))
-        return;
+    if (nullV3f(delta))
+        return YES;
     
-    [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
-    [map translateEntities:[selectionManager selectedEntities] delta:delta];
+    [map translateBrushes:[selectionManager selectedBrushes] delta:*delta lockTextures:[options lockTextures]];
+    [map translateEntities:[selectionManager selectedEntities] delta:*delta];
+
+    return YES;
 }
 
-- (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (!drag)
-        return;
-    
+- (void)doEndLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setActionName:[self actionName]];
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
-    
-    if (editingSystem != nil) {
-        [editingSystem release];
-        editingSystem = nil;
-    }
-
-    drag = NO;
 }
 
 - (NSString *)actionName {

@@ -35,11 +35,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation RotateTool
 
-- (id)initWithWindowController:(MapWindowController *)theWindowController {
-    NSAssert(theWindowController != nil, @"window controller must not be nil");
-    
-    if ((self = [self init])) {
-        windowController = theWindowController;
+- (id)init {
+    if ((self = [super init])) {
         feedbackFigure = [[RotateFeedbackFigure alloc] init];
     }
     

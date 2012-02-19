@@ -44,14 +44,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation CameraTool
 
-- (id)initWithWindowController:(MapWindowController *)theWindowController {
-    if ((self = [self init])) {
-        windowController = theWindowController;
-    }
-    
-    return self;
-}
-
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isCameraModifierPressed] && ![self isCameraOrbitModifierPressed])
         return;

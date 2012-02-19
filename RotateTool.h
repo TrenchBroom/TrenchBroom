@@ -26,7 +26,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @interface RotateTool : DefaultTool {
 @private
-    MapWindowController* windowController;
     RotateFeedbackFigure* feedbackFigure;
     BOOL drag;
     TVector3f center;
@@ -36,8 +35,5 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     float lastHAngle;
     float lastVAngle;
 }
-
-- (id)initWithWindowController:(MapWindowController *)theWindowController;
-
 
 @end

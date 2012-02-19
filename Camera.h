@@ -28,7 +28,7 @@ typedef enum {
 extern NSString* const CameraChanged;
 extern NSString* const CameraViewChanged;
 
-@class EditingSystem;
+@class DragPlane;
 
 @interface Camera : NSObject {
     @private
@@ -89,8 +89,8 @@ extern NSString* const CameraViewChanged;
 - (float)squaredDistanceTo:(const TVector3f *)thePoint;
 - (void)setBillboardMatrix;
 
-- (EditingSystem *)horizontalEditingSystem;
-- (EditingSystem *)verticalEditingSystem;
+- (DragPlane *)horizontalEditingSystem;
+- (DragPlane *)verticalEditingSystem;
 
 - (NSMutableSet *)animations;
 

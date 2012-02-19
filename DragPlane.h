@@ -22,7 +22,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @class Camera;
 
-@interface EditingSystem : NSObject {
+@interface DragPlane : NSObject {
     const TVector3f* xAxisPos;
     const TVector3f* xAxisNeg;
     const TVector3f* yAxisPos;

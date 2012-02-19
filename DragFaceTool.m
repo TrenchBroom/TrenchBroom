@@ -24,61 +24,16 @@
 #import "PickingHit.h"
 #import "PickingHitList.h"
 #import "Camera.h"
-#import "EditingSystem.h"
+#import "DragPlane.h"
 #import "Options.h"
 #import "Grid.h"
 #import "SelectionManager.h"
 #import "MutableBrush.h"
 #import "Face.h"
 
-@interface DragFaceTool (private)
-
-- (BOOL)isAlternatePlaneModifierPressed;
-- (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits;
-
-@end
-
-@implementation DragFaceTool (private)
-
-- (BOOL)isAlternatePlaneModifierPressed {
-    return [NSEvent modifierFlags] == NSAlternateKeyMask;
-}
-
-- (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
-    if (editingSystem != nil)
-        [editingSystem release];
-    
-    Camera* camera = [windowController camera];
-    editingSystem = [[EditingSystem alloc] initWithCamera:camera vertical:[self isAlternatePlaneModifierPressed]];
-}
-
-@end
-
 @implementation DragFaceTool
 
-- (id)initWithWindowController:(MapWindowController *)theWindowController {
-    NSAssert(theWindowController != nil, @"window controller must not be nil");
-    
-    if ((self = [self init])) {
-        windowController = theWindowController;
-        drag = NO;
-    }
-    
-    return self;
-}
-
-- (void)dealloc {
-    [editingSystem release];
-    [super dealloc];
-}
-
-- (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    NSAssert(event != NULL, @"event must not be NULL");
-    NSAssert(ray != NULL, @"ray must not be NULL");
-    NSAssert(hits != nil, @"hit list must not be nil");
-    
-    [self updateMoveDirectionWithRay:ray hits:hits];
-    
+- (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     [hits retain];
     
     PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
@@ -99,30 +54,15 @@
             
             id <Face> face = [faces objectAtIndex:index];
             
-            centerOfVertices([face vertices], &lastPoint);
-            editingPoint = lastPoint;
-            
-            drag = YES;
+            centerOfVertices([face vertices], lastPoint);
         }
     }
     
     [hits release];
+    return hits != nil;
 }
 
-- (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (!drag)
-        return;
-    
-    float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
-    if (isnan(dist))
-        return;
-    
-    TVector3f point;
-    rayPointAtDistance(ray, dist, &point);
-    
-    TVector3f deltaf;
-    subV3f(&point, &lastPoint, &deltaf);
-
+- (BOOL)doLeftDrag:(NSEvent *)event ray:(TRay *)ray delta:(TVector3f *)delta hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     Options* options = [windowController options];
     Grid* grid = [options grid];
 
@@ -133,20 +73,16 @@
     id <Face> face = [[brush faces] objectAtIndex:index];
     boundsOfVertices([face vertices], &bounds);
     
-    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&deltaf lastPoint:&lastPoint];
+    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:delta lastPoint:lastPoint];
     
-    if (nullV3f(&deltaf))
-        return;
+    if (nullV3f(delta))
+        return YES;
     
-    index = [map dragFace:index brush:brush delta:&deltaf];
-    if (index == -1)
-        [self endLeftDrag:event ray:ray hits:hits];
+    index = [map dragFace:index brush:brush delta:delta];
+    return index != -1;
 }
 
-- (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (!drag)
-        return;
-    
+- (void)doEndLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setActionName:[self actionName]];
@@ -155,8 +91,6 @@
     
     brush = nil;
     index = -1;
-    
-    drag = NO;
 }
 
 - (NSString *)actionName {

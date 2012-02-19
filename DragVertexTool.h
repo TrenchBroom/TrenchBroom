@@ -17,28 +17,13 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import "DefaultTool.h"
+#import "DragTool.h"
 
-@class MapWindowController;
-@class EditingSystem;
 @protocol Brush;
 
-typedef enum {
-    VTS_DEFAULT,
-    VTS_DRAG,
-    VTS_CANCEL
-} EVertexToolState;
-
-@interface DragVertexTool : DefaultTool {
-    MapWindowController* windowController;
-    EditingSystem* editingSystem;
-    EVertexToolState state;
+@interface DragVertexTool : DragTool {
     id <Brush> brush;
     int index;
-    TVector3f lastPoint;
-    TVector3f editingPoint;
 }
-
-- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 @end

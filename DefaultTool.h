@@ -20,8 +20,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import <Cocoa/Cocoa.h>
 #import "Tool.h"
 
-@interface DefaultTool : NSObject <Tool> {
+@class MapWindowController;
 
+@interface DefaultTool : NSObject <Tool> {
+    MapWindowController* windowController;
 }
+
+- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 @end

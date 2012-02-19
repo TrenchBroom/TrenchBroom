@@ -78,7 +78,7 @@
 		486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1E12F41FD1003D26FE /* OctreeNode.m */; };
 		486E08AF13B5EAE300E751A6 /* RotateTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08AE13B5EAE300E751A6 /* RotateTool.m */; };
 		486E08B313B5EF2C00E751A6 /* RotateFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 486E08B213B5EF2C00E751A6 /* RotateFeedbackFigure.m */; };
-		48706C411436F41D006E0B1C /* EditingSystem.m in Sources */ = {isa = PBXBuildFile; fileRef = 48706C401436F41D006E0B1C /* EditingSystem.m */; };
+		48706C411436F41D006E0B1C /* DragPlane.m in Sources */ = {isa = PBXBuildFile; fileRef = 48706C401436F41D006E0B1C /* DragPlane.m */; };
 		487436A6135B5FD900F787E1 /* DefaultFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 487436A5135B5FD900F787E1 /* DefaultFilter.m */; };
 		4874387013601A5700F787E1 /* EntityDefinitionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4874386F13601A5700F787E1 /* EntityDefinitionManager.m */; };
 		4874387313601A6000F787E1 /* EntityDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 4874387213601A6000F787E1 /* EntityDefinition.m */; };
@@ -153,6 +153,7 @@
 		48C029B913C4EF0500FB8B71 /* Bsp.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C029B813C4EF0500FB8B71 /* Bsp.m */; };
 		48C3324413087D8600C23607 /* MenuDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C3324313087D8600C23607 /* MenuDelegate.m */; };
 		48C81D3D14F05210009F81B1 /* TrenchBroom.help in Resources */ = {isa = PBXBuildFile; fileRef = 48C81D3C14F05210009F81B1 /* TrenchBroom.help */; };
+		48C81D4014F059B2009F81B1 /* DragTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48C81D3F14F059B1009F81B1 /* DragTool.m */; };
 		48CB060913EC19B70051640E /* CreateBrushTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CB060813EC19B70051640E /* CreateBrushTool.m */; };
 		48CB060D13EC2E690051640E /* BoundsFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CB060C13EC2E680051640E /* BoundsFeedbackFigure.m */; };
 		48CBDD9913170B330041F704 /* GLResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CBDD9813170B330041F704 /* GLResources.m */; };
@@ -368,8 +369,8 @@
 		486E08AE13B5EAE300E751A6 /* RotateTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RotateTool.m; sourceTree = "<group>"; };
 		486E08B113B5EF2C00E751A6 /* RotateFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateFeedbackFigure.h; sourceTree = "<group>"; };
 		486E08B213B5EF2C00E751A6 /* RotateFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RotateFeedbackFigure.m; sourceTree = "<group>"; };
-		48706C3F1436F41C006E0B1C /* EditingSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditingSystem.h; sourceTree = "<group>"; };
-		48706C401436F41D006E0B1C /* EditingSystem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditingSystem.m; sourceTree = "<group>"; };
+		48706C3F1436F41C006E0B1C /* DragPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragPlane.h; sourceTree = "<group>"; };
+		48706C401436F41D006E0B1C /* DragPlane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragPlane.m; sourceTree = "<group>"; };
 		487436A4135B5FD900F787E1 /* DefaultFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefaultFilter.h; sourceTree = "<group>"; };
 		487436A5135B5FD900F787E1 /* DefaultFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DefaultFilter.m; sourceTree = "<group>"; };
 		4874386E13601A5700F787E1 /* EntityDefinitionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionManager.h; sourceTree = "<group>"; };
@@ -513,6 +514,8 @@
 		48C3324213087D8600C23607 /* MenuDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuDelegate.h; sourceTree = "<group>"; };
 		48C3324313087D8600C23607 /* MenuDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MenuDelegate.m; sourceTree = "<group>"; };
 		48C81D3C14F05210009F81B1 /* TrenchBroom.help */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TrenchBroom.help; sourceTree = "<group>"; };
+		48C81D3E14F059B1009F81B1 /* DragTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragTool.h; sourceTree = "<group>"; };
+		48C81D3F14F059B1009F81B1 /* DragTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragTool.m; sourceTree = "<group>"; };
 		48CB060713EC19B70051640E /* CreateBrushTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateBrushTool.h; sourceTree = "<group>"; };
 		48CB060813EC19B70051640E /* CreateBrushTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CreateBrushTool.m; sourceTree = "<group>"; };
 		48CB060B13EC2E680051640E /* BoundsFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundsFeedbackFigure.h; sourceTree = "<group>"; };
@@ -784,6 +787,10 @@
 				48ED399614E06A3A008AEBDB /* DragEdgeTool.m */,
 				48ED399914E07E66008AEBDB /* DragFaceTool.h */,
 				48ED399A14E07E66008AEBDB /* DragFaceTool.m */,
+				48706C3F1436F41C006E0B1C /* DragPlane.h */,
+				48706C401436F41D006E0B1C /* DragPlane.m */,
+				48C81D3E14F059B1009F81B1 /* DragTool.h */,
+				48C81D3F14F059B1009F81B1 /* DragTool.m */,
 				48A3B7EE14A4871D002FDEBE /* DragVertexTool.h */,
 				48A3B7EF14A4871D002FDEBE /* DragVertexTool.m */,
 				486928EA133F282100A0F098 /* FaceTool.h */,
@@ -1130,8 +1137,6 @@
 				48F5C3DA13E1578A00B1A720 /* ControllerUtils.m */,
 				48AC3E6D13E418AB008F4BF8 /* MapCompiler.h */,
 				48AC3E6E13E418AC008F4BF8 /* MapCompiler.m */,
-				48706C3F1436F41C006E0B1C /* EditingSystem.h */,
-				48706C401436F41D006E0B1C /* EditingSystem.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -1511,12 +1516,13 @@
 				4802373E1427776900F16751 /* NSUndoManager+DebugCategory.m in Sources */,
 				480EBEA5142DFA34005DD8D6 /* GroupTableDataSource.m in Sources */,
 				480EBEAC142E2962005DD8D6 /* GroupManager.m in Sources */,
-				48706C411436F41D006E0B1C /* EditingSystem.m in Sources */,
+				48706C411436F41D006E0B1C /* DragPlane.m in Sources */,
 				4855B29A1465C4A00062078C /* CameraOrbitAnimation.m in Sources */,
 				4855B29E1465C7A40062078C /* CameraAnimation.m in Sources */,
 				48A3B7F014A4871E002FDEBE /* DragVertexTool.m in Sources */,
 				48ED399714E06A3A008AEBDB /* DragEdgeTool.m in Sources */,
 				48ED399B14E07E67008AEBDB /* DragFaceTool.m in Sources */,
+				48C81D4014F059B2009F81B1 /* DragTool.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

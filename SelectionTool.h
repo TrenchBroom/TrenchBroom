@@ -23,9 +23,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class MapWindowController;
 
 @interface SelectionTool : DefaultTool {
-    MapWindowController* windowController;
 }
-
-- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 @end

@@ -17,10 +17,10 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import "EditingSystem.h"
+#import "DragPlane.h"
 #import "Camera.h"
 
-@implementation EditingSystem
+@implementation DragPlane
 
 - (id)initWithCamera:(Camera *)theCamera vertical:(BOOL)vertical {
     NSAssert(theCamera != nil, @"camera must not be nil");

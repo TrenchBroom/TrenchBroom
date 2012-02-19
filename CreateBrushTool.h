@@ -22,19 +22,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @protocol Brush;
 @class MapWindowController;
 @class BoundsFeedbackFigure;
-@class EditingSystem;
+@class DragPlane;
 
 @interface CreateBrushTool : DefaultTool {
-    MapWindowController* windowController;
     TBoundingBox initialBounds;
-    EditingSystem* editingSystem;
+    DragPlane* editingSystem;
     TVector3f editingPoint;
     TVector3f lastPoint;
     id <Brush> brush;
     BOOL drag;
     BOOL scrollFront;
 }
-
-- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 @end

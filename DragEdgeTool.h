@@ -17,22 +17,13 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import "DefaultTool.h"
+#import "DragTool.h"
 
-@class MapWindowController;
-@class EditingSystem;
 @protocol Brush;
 
-@interface DragEdgeTool : DefaultTool {
-    MapWindowController* windowController;
-    EditingSystem* editingSystem;
-    BOOL drag;
+@interface DragEdgeTool : DragTool {
     id <Brush> brush;
     int index;
-    TVector3f lastPoint;
-    TVector3f editingPoint;
 }
-
-- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 @end

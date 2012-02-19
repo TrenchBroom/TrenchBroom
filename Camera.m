@@ -18,7 +18,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import "Camera.h"
-#import "EditingSystem.h"
+#import "DragPlane.h"
 #import <OpenGL/glu.h>
 
 NSString* const CameraChanged = @"CameraChanged";
@@ -408,12 +408,12 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     glMultMatrixf(matrix);
 }
 
-- (EditingSystem *)horizontalEditingSystem {
-    return [[[EditingSystem alloc] initWithCamera:self vertical:NO] autorelease];
+- (DragPlane *)horizontalEditingSystem {
+    return [[[DragPlane alloc] initWithCamera:self vertical:NO] autorelease];
 }
 
-- (EditingSystem *)verticalEditingSystem {
-    return [[[EditingSystem alloc] initWithCamera:self vertical:YES] autorelease];
+- (DragPlane *)verticalEditingSystem {
+    return [[[DragPlane alloc] initWithCamera:self vertical:YES] autorelease];
 }
 
 - (NSMutableSet *)animations {

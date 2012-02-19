@@ -24,61 +24,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "PickingHit.h"
 #import "PickingHitList.h"
 #import "Camera.h"
-#import "EditingSystem.h"
+#import "DragPlane.h"
 #import "Options.h"
 #import "Grid.h"
 #import "SelectionManager.h"
 #import "MutableBrush.h"
 #import "Face.h"
 
-@interface DragVertexTool (private)
-
-- (BOOL)isAlternatePlaneModifierPressed;
-- (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits;
-
-@end
-
-@implementation DragVertexTool (private)
-
-- (BOOL)isAlternatePlaneModifierPressed {
-    return [NSEvent modifierFlags] == NSAlternateKeyMask;
-}
-
-- (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
-    if (editingSystem != nil)
-        [editingSystem release];
-
-    Camera* camera = [windowController camera];
-    editingSystem = [[EditingSystem alloc] initWithCamera:camera vertical:[self isAlternatePlaneModifierPressed]];
-}
-
-@end
-
 @implementation DragVertexTool
 
-- (id)initWithWindowController:(MapWindowController *)theWindowController {
-    NSAssert(theWindowController != nil, @"window controller must not be nil");
-    
-    if ((self = [self init])) {
-        windowController = theWindowController;
-        state = VTS_DEFAULT;
-    }
-    
-    return self;
-}
-
-- (void)dealloc {
-    [editingSystem release];
-    [super dealloc];
-}
-
-- (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    NSAssert(event != NULL, @"event must not be NULL");
-    NSAssert(ray != NULL, @"ray must not be NULL");
-    NSAssert(hits != nil, @"hit list must not be nil");
-    
-    [self updateMoveDirectionWithRay:ray hits:hits];
-
+- (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     [hits retain];
     
     PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
@@ -97,69 +52,46 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         if (index < vertices->count) {
             TVertex* vertex = vertices->items[index];
-            lastPoint = vertex->position;
+            *lastPoint = vertex->position;
         } else if (index < vertices->count + edges->count) {
             TEdge* edge = edges->items[index - vertices->count];
-            centerOfEdge(edge, &lastPoint);
+            centerOfEdge(edge, lastPoint);
         } else {
             // the side index is not necessarily the same as the face index!!!
             id <Face> face = [[brush faces] objectAtIndex:index - edges->count - vertices->count];
-            centerOfVertices([face vertices], &lastPoint);
+            centerOfVertices([face vertices], lastPoint);
         }
-        editingPoint = lastPoint;
-        
-        state = VTS_DRAG;
     }
     
     [hits release];
+    return hits != nil;
 }
 
-- (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (state != VTS_DRAG)
-        return;
-    
-    float dist = [editingSystem intersectWithRay:ray planePosition:&editingPoint];
-    if (isnan(dist))
-        return;
-    
-    TVector3f point, nextPoint;
-    rayPointAtDistance(ray, dist, &point);
-    
-    TVector3f deltaf;
-    subV3f(&point, &lastPoint, &deltaf);
-    nextPoint = lastPoint;
-    
+- (BOOL)doLeftDrag:(NSEvent *)event ray:(TRay *)ray delta:(TVector3f *)delta hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     Options* options = [windowController options];
     Grid* grid = [options grid];
     
     MapDocument* map = [windowController document];
     const TBoundingBox* worldBounds = [map worldBounds];
     
-    [grid moveDeltaForVertex:&lastPoint worldBounds:worldBounds delta:&deltaf lastPoint:&nextPoint];
+    TVector3f nextPoint = *lastPoint;
+    [grid moveDeltaForVertex:lastPoint worldBounds:worldBounds delta:delta lastPoint:&nextPoint];
 
-    if (nullV3f(&deltaf))
-        return;
+    if (nullV3f(delta))
+        return YES;
     
-    int newIndex = [map dragVertex:index brush:brush delta:&deltaf];
+    int newIndex = [map dragVertex:index brush:brush delta:delta];
     if (newIndex == -1) {
         [self endLeftDrag:event ray:ray hits:hits];
-        state = VTS_CANCEL;
     } else if (newIndex < [brush vertices]->count) {
-        lastPoint = nextPoint;
+        *lastPoint = nextPoint;
     }
     
     index = newIndex;
-    editingPoint = lastPoint;
+    return index != -1;
 }
 
-- (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    if (state == VTS_CANCEL) {
-        state = VTS_DEFAULT;
-    }
-    
-    if (state != VTS_DRAG)
-        return;
-    
+- (void)doEndLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setActionName:[self actionName]];
@@ -168,8 +100,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     brush = nil;
     index = -1;
-    
-    state = VTS_DEFAULT;
 }
 
 - (NSString *)actionName {

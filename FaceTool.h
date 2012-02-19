@@ -20,13 +20,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import <Cocoa/Cocoa.h>
 #import "DefaultTool.h"
 
-@class MapWindowController;
-@class PickingHit;
 @protocol Face;
 
 @interface FaceTool : DefaultTool {
     @private
-    MapWindowController* windowController;
     TPlane plane;
     TVector3f lastPoint;
     TVector3f dragDir;
@@ -34,7 +31,5 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSMutableArray* dragFaces;
     BOOL drag;
 }
-
-- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 @end

@@ -34,7 +34,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class EditingPlaneFigure;
 
 @interface ClipTool : DefaultTool {
-    MapWindowController* windowController;
     ClipPlane* clipPlane;
     ClipPointFeedbackFigure* point1Figure;
     ClipPointFeedbackFigure* point2Figure;
@@ -49,8 +48,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     int draggedPoint;
     EditingPlaneFigure* editingPlaneFigure;
 }
-
-- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 - (void)activate;
 - (void)deactivate;

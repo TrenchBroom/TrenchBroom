@@ -17,22 +17,13 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import "DefaultTool.h"
+#import "DragTool.h"
 
-@class MapWindowController;
-@class EditingSystem;
 @protocol Brush;
 
-@interface DragFaceTool : DefaultTool {
-    MapWindowController* windowController;
-    EditingSystem* editingSystem;
-    BOOL drag;
+@interface DragFaceTool : DragTool {
     id <Brush> brush;
     int index;
-    TVector3f lastPoint;
-    TVector3f editingPoint;
 }
-
-- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 @end

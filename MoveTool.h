@@ -18,21 +18,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Cocoa/Cocoa.h>
-#import "DefaultTool.h"
-#import "Math.h"
+#import "DragTool.h"
 
-@class MapWindowController;
-@class EditingSystem;
-
-@interface MoveTool : DefaultTool {
-    @private
-    MapWindowController* windowController;
-    EditingSystem* editingSystem;
-    TVector3f editingPoint;
-    TVector3f lastPoint;
-    BOOL drag;
+@interface MoveTool : DragTool {
 }
-
-- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 @end

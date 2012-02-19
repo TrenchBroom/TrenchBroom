@@ -61,7 +61,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "PointFileFeedbackFigure.h"
 #import "Renderer.h"
 #import "GroupManager.h"
-#import "EditingSystem.h"
+#import "DragPlane.h"
 #import "MutableBrush.h"
 #import "MutableFace.h"
 
@@ -838,7 +838,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f delta;
-        EditingSystem* editingSystem = [camera horizontalEditingSystem];
+        DragPlane* editingSystem = [camera horizontalEditingSystem];
         scaleV3f([editingSystem xAxisPos], -dist, &delta);
 
         const TBoundingBox* worldBounds = [map worldBounds];
@@ -871,7 +871,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f delta;
-        EditingSystem* editingSystem = [camera horizontalEditingSystem];
+        DragPlane* editingSystem = [camera horizontalEditingSystem];
         scaleV3f([editingSystem xAxisPos], dist, &delta);
         
         const TBoundingBox* worldBounds = [map worldBounds];
@@ -903,7 +903,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f delta;
-        EditingSystem* editingSystem = [camera horizontalEditingSystem];
+        DragPlane* editingSystem = [camera horizontalEditingSystem];
         scaleV3f([editingSystem yAxisPos], dist, &delta);
         
         const TBoundingBox* worldBounds = [map worldBounds];
@@ -936,7 +936,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f delta;
-        EditingSystem* editingSystem = [camera horizontalEditingSystem];
+        DragPlane* editingSystem = [camera horizontalEditingSystem];
         scaleV3f([editingSystem yAxisPos], -dist, &delta);
         
         const TBoundingBox* worldBounds = [map worldBounds];
@@ -966,7 +966,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f delta;
-        EditingSystem* editingSystem = [camera horizontalEditingSystem];
+        DragPlane* editingSystem = [camera horizontalEditingSystem];
         scaleV3f([editingSystem zAxisPos], dist, &delta);
         
         const TBoundingBox* worldBounds = [map worldBounds];
@@ -996,7 +996,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f delta;
-        EditingSystem* editingSystem = [camera horizontalEditingSystem];
+        DragPlane* editingSystem = [camera horizontalEditingSystem];
         scaleV3f([editingSystem zAxisPos], -dist, &delta);
         
         const TBoundingBox* worldBounds = [map worldBounds];

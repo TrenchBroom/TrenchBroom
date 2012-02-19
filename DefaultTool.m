@@ -18,8 +18,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import "DefaultTool.h"
+#import "MapWindowController.h"
 
 @implementation DefaultTool
+
+- (id)initWithWindowController:(MapWindowController *)theWindowController {
+    if ((self = [self init])) {
+        windowController = theWindowController;
+    }
+    
+    return self;
+}
 
 - (void)activated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 - (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}

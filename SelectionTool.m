@@ -49,14 +49,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation SelectionTool
 
-- (id)initWithWindowController:(MapWindowController *)theWindowController {
-    if ((self = [self init])) {
-        windowController = theWindowController;
-    }
-    
-    return self;
-}
-
 - (void)handleScrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isGridSizeModifierPressed])
         return;

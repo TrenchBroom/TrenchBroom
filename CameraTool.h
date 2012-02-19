@@ -23,12 +23,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class MapWindowController;
 
 @interface CameraTool : DefaultTool {
-    MapWindowController* windowController;
     TVector3f orbitCenter;
     BOOL gesture;
     BOOL orbit;
 }
-
-- (id)initWithWindowController:(MapWindowController *)theWindowController;
 
 @end
