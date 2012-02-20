@@ -68,7 +68,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     SelectionManager* selectionManager = [windowController selectionManager];
 
 
-    PickingHit* hit = [hits firstHitOfType:HT_CLOSE_FACE ignoreOccluders:NO];
+    PickingHit* hit = [hits firstHitOfType:HT_CLOSE_FACE ignoreOccluders:YES];
     if (hit != nil) {
         referenceFace = [hit object];
         [dragFaces addObject:referenceFace];

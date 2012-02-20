@@ -302,7 +302,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_TEXTURE_2D);
         
-        GLFontManager* fontManager = [glResources fontManager];
         [fontManager activate];
         
         glTranslatef(0, 2 * NSMinY(visibleRect), 0);
@@ -327,26 +326,35 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)setGLResources:(GLResources *)theGLResources entityDefinitionManager:(EntityDefinitionManager *)theEntityDefinitionManager {
+    if (glResources == theGLResources)
+        return;
+    
     [glResources release];
     glResources = [theGLResources retain];
     
     [entityDefinitionManager release];
     entityDefinitionManager = [theEntityDefinitionManager retain];
     
+    [fontManager release];
+    fontManager = nil;
+
+    [layout release];
+    layout = nil;
+    
     if (glResources != nil && entityDefinitionManager != nil) {
         NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:[glResources openGLContext]];
         [self setOpenGLContext:sharingContext];
         [sharingContext release];
         
-        [layout release];
+        [sharingContext makeCurrentContext];
         
-        GLFontManager* fontManager = [glResources fontManager];
+        fontManager = [[GLFontManager alloc] init];
         NSFont* font = [NSFont systemFontOfSize:13];
         layout = [[EntityDefinitionLayout alloc] initWithFontManager:fontManager font:font];
         [layout setEntityDefinitions:[entityDefinitionManager definitionsOfType:EDT_POINT sortCriterion:sortCriterion]];
+        
+        [self reshape];
     }
-    
-    [self reshape];
 }
 
 - (void)setMods:(NSArray *)theMods {
@@ -377,6 +385,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [glResources release];
     [entityDefinitionManager release];
     [layout release];
+    [fontManager release];
     [mods release];
     [super dealloc];
 }

@@ -103,10 +103,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glPolygonMode(GL_FRONT, GL_FILL);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     [texture activate];
-    
+
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glInterleavedArrays(GL_T2F_N3F_V3F, 0, (const GLvoid *)(long)vboBlock->address);
     glDrawArrays(GL_TRIANGLES, 0, triangleCount * 3);
-    
+    glPopClientAttrib();
+
     [texture deactivate];
 }
 

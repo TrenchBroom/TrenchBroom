@@ -35,7 +35,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     int pointCapacity;
 }
 
-- (GLString *)glStringFor:(NSString *)theString font:(NSFont *)theFont;
+- (GLString *)createGLString:(NSString *)theString font:(NSFont *)theFont;
+// - (GLString *)glStringFor:(NSString *)theString font:(NSFont *)theFont;
 - (void)clear;
 
 - (void)activate;

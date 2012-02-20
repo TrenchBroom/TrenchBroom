@@ -713,25 +713,24 @@ int const TexCoordSize = 2 * sizeof(float);
     glSetEdgeOffset(0.5f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     if (color != NULL) {
         glColorV4f(color);
         glVertexPointer(3, GL_FLOAT, ColorSize + VertexSize, (const GLvoid *)(long)ColorSize);
     } else {
         glInterleavedArrays(GL_C4UB_V3F, 0, 0);
-        glEnableClientState(GL_COLOR_ARRAY);
     }
 
     glDrawArrays(GL_QUADS, 0, theVertexCount);
-    
-    if (color == NULL)
-        glDisableClientState(GL_COLOR_ARRAY);
 
+    glPopClientAttrib();
     glResetEdgeOffset();
 }
 
 - (void)renderEdges:(const TVector4f *)color indexBuffer:(IntData *)theIndexBuffer {
     glDisable(GL_TEXTURE_2D);
-    
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+
     if (color != NULL) {
         glColor4f(color->x, color->y, color->z, color->w);
         glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
@@ -745,12 +744,12 @@ int const TexCoordSize = 2 * sizeof(float);
     int primCount = [theIndexBuffer count];
     glDrawElements(GL_LINES, primCount, GL_UNSIGNED_INT, indexBytes);
     
-    if (color == NULL)
-        glDisableClientState(GL_COLOR_ARRAY);
+    glPopClientAttrib();
 }
 
 - (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers {
     glPolygonMode(GL_FRONT, GL_FILL);
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     
     Grid* grid = [[windowController options] grid];
     if ([grid draw]) {
@@ -816,8 +815,8 @@ int const TexCoordSize = 2 * sizeof(float);
         glActiveTexture(GL_TEXTURE0);
         glClientActiveTexture(GL_TEXTURE0);
     }
-    
-    glDisableClientState(GL_COLOR_ARRAY);
+
+    glPopClientAttrib();
     glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
@@ -847,7 +846,7 @@ int const TexCoordSize = 2 * sizeof(float);
                     glPushMatrix();
                     glTranslatef(vertex->x, vertex->y, vertex->z);
                     glScalef(dist / 300, dist / 300, dist / 300);
-                    gluSphere(vertexHandle, 3, 12, 12);
+                    gluSphere(vertexHandle, 2, 12, 12);
                     glPopMatrix();
                 }
                 
@@ -860,7 +859,7 @@ int const TexCoordSize = 2 * sizeof(float);
                     glPushMatrix();
                     glTranslatef(mid.x, mid.y, mid.z);
                     glScalef(dist / 300, dist / 300, dist / 300);
-                    gluSphere(vertexHandle, 3, 12, 12);
+                    gluSphere(vertexHandle, 2, 12, 12);
                     glPopMatrix();
                 }
                 
@@ -871,7 +870,7 @@ int const TexCoordSize = 2 * sizeof(float);
                     glPushMatrix();
                     glTranslatef(mid.x, mid.y, mid.z);
                     glScalef(dist / 300, dist / 300, dist / 300);
-                    gluSphere(vertexHandle, 3, 12, 12);
+                    gluSphere(vertexHandle, 2, 12, 12);
                     glPopMatrix();
                 }
             }

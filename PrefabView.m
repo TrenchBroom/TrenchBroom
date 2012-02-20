@@ -352,6 +352,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [glResources release];
     glResources = [theGLResources retain];
     
+    [layout release];
+    [fontManager release];
+    
     if (glResources != nil) {
         NSOpenGLContext* sharingContext = [[NSOpenGLContext alloc] initWithFormat:[self pixelFormat] shareContext:[glResources openGLContext]];
         [self setOpenGLContext:sharingContext];
@@ -364,9 +367,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     [[self openGLContext] makeCurrentContext];
     
-    [layout release];
-    [fontManager release];
-
     fontManager = [[GLFontManager alloc] init];
     NSFont* font = [NSFont systemFontOfSize:13];
     PrefabManager* prefabManager = [PrefabManager sharedPrefabManager];

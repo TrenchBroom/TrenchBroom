@@ -128,6 +128,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glEnable(GL_TEXTURE_2D);
     glPolygonMode(GL_FRONT, GL_FILL);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glInterleavedArrays(GL_T2F_V3F, 0, (const GLvoid *)(long)block->address);
     
     for (Texture* texture in [textures allValues]) {
@@ -140,8 +141,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         [texture activate];
         glMultiDrawArrays(GL_POLYGON, indexBytes, countBytes, primCount);
-
     }
+    
+    glPopClientAttrib();
 }
 
 

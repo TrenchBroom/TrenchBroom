@@ -190,12 +190,13 @@ void gluTessEndData(GLStringData* data) {
 
 - (void)activate {
     activateVbo(&vbo);
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, 0);
+    glVertexPointer(2, GL_FLOAT, 0, 0);
 }
 
 - (void)deactivate {
-    glDisableClientState(GL_VERTEX_ARRAY);
+    glPopClientAttrib();
     deactivateVbo(&vbo);
 }
 

@@ -21,6 +21,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "EntityDefinitionManager.h"
 
 @class GLResources;
+@class GLFontManager;
 @class EntityDefinitionLayout;
 @class EntityDefinition;
 @class DragImageWindowController;
@@ -32,6 +33,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     EntityDefinition* draggedEntityDefinition;
     EntityDefinitionManager* entityDefinitionManager;
     GLResources* glResources;
+    GLFontManager* fontManager;
     EntityDefinitionLayout* layout;
     IBOutlet id <EntityDefinitionViewTarget> target;
     id <EntityDefinitionFilter> filter;

@@ -22,6 +22,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation GLStringData
 
+- (id)init {
+    if ((self = [super init])) {
+        vertexCount = 0;
+    }
+    
+    return self;
+}
+
 - (void)dealloc {
     [triangleSet release];
     [triangleStrips release];
@@ -61,20 +69,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         case GL_TRIANGLES:
             [triangleSet appendFloat:vertex->x];
             [triangleSet appendFloat:vertex->y];
-            [triangleSet appendFloat:0];
             break;
         case GL_TRIANGLE_STRIP: {
             FloatData* stripData = [triangleStrips lastObject];
             [stripData appendFloat:vertex->x];
             [stripData appendFloat:vertex->y];
-            [stripData appendFloat:0];
             break;
         }
         case GL_TRIANGLE_FAN: {
             FloatData* fanData = [triangleFans lastObject];
             [fanData appendFloat:vertex->x];
             [fanData appendFloat:vertex->y];
-            [fanData appendFloat:0];
             break;
         }
         default:

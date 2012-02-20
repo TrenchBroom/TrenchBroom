@@ -79,8 +79,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (BOOL)isRotateModifierPressed {
-//    return keyStatus == (KS_OPTION | KS_COMMAND);
-    return NO;
+    return [NSEvent modifierFlags] == (NSAlternateKeyMask | NSCommandKeyMask);
 }
 
 - (BOOL)isFaceDragModifierPressed {
@@ -121,13 +120,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     } 
     
     if (newActiveTool == nil && ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES)) {
-        if ([self isRotateModifierPressed]) {
+        PickingHit* hit = [[self currentHits] firstHitOfType:HT_ENTITY | HT_FACE | HT_VERTEX ignoreOccluders:YES];
+        if ((hit == nil || [hit type] != HT_VERTEX) && [self isRotateModifierPressed]) {
             newActiveTool = rotateTool;
         } 
         
         if (newActiveTool == nil && (dragStatus == MS_LEFT || scrollStatus == MS_LEFT)) {
             if ([self isFaceDragModifierPressed]) {
-                PickingHit* hit = [[self currentHits] firstHitOfType:HT_CLOSE_FACE ignoreOccluders:NO];
+                PickingHit* hit = [[self currentHits] firstHitOfType:HT_CLOSE_FACE ignoreOccluders:YES];
                 if (hit != nil) {
                     newActiveTool = faceTool;
                 } else {
@@ -141,7 +141,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             } 
             
             if (newActiveTool == nil) {
-                PickingHit* hit = [[self currentHits] firstHitOfType:HT_ENTITY | HT_FACE | HT_VERTEX ignoreOccluders:YES];
                 if (hit != nil) {
                     switch ([hit type]) {
                         case HT_ENTITY:
@@ -169,6 +168,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             }
         }
     } 
+    
+    if (newActiveTool == nil && [selectionManager mode] == SM_FACES && [self isFaceDragModifierPressed]) {
+        PickingHit* hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:NO];
+        if (hit != nil) {
+            id <Face> face = [hit object];
+            if ([selectionManager isFaceSelected:face])
+                newActiveTool = faceTool;
+        }
+    }
     
     if (newActiveTool == nil && dragStatus == MS_LEFT && [selectionManager mode] == SM_UNDEFINED) {
         newActiveTool = createBrushTool;
@@ -711,7 +719,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         SelectionManager* selectionManager = [windowController selectionManager];
         if ([selectionManager mode] == SM_BRUSHES) {
             [picker pickCloseFaces:&lastRay brushes:[selectionManager selectedBrushes] maxDistance:10 hitList:currentHits];
-            [picker pickVertices:&lastRay brushes:[selectionManager selectedBrushes] handleRadius:3 hitList:currentHits filter:filter];
+            [picker pickVertices:&lastRay brushes:[selectionManager selectedBrushes] handleRadius:2 hitList:currentHits filter:filter];
         }
     } 
     
