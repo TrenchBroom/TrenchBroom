@@ -120,14 +120,27 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     } 
     
     if (newActiveTool == nil && ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES)) {
-        PickingHit* hit = [[self currentHits] firstHitOfType:HT_ENTITY | HT_FACE | HT_VERTEX ignoreOccluders:YES];
-        if ((hit == nil || [hit type] != HT_VERTEX) && [self isRotateModifierPressed]) {
-            newActiveTool = rotateTool;
-        } 
+        PickingHit* hit = [[self currentHits] firstHitOfType:HT_VERTEX ignoreOccluders:NO];
+        if (hit != nil) {
+            id <Brush> brush = [hit object];
+            const TVertexList* vertices = [brush vertices];
+            const TEdgeList* edges = [brush edges];
+            int index = [hit vertexIndex];
+            if (index < vertices->count || [self isSplitModifierPressed])
+                newActiveTool = dragVertexTool;
+            else if (index < vertices->count + edges->count)
+                newActiveTool = dragEdgeTool;
+            else
+                newActiveTool = dragFaceTool;
+        }
+        
+        if (newActiveTool == nil && [self isRotateModifierPressed]) {
+                newActiveTool = rotateTool;
+        }
         
         if (newActiveTool == nil && (dragStatus == MS_LEFT || scrollStatus == MS_LEFT)) {
             if ([self isFaceDragModifierPressed]) {
-                PickingHit* hit = [[self currentHits] firstHitOfType:HT_CLOSE_FACE ignoreOccluders:YES];
+                hit = [[self currentHits] firstHitOfType:HT_CLOSE_FACE ignoreOccluders:YES];
                 if (hit != nil) {
                     newActiveTool = faceTool;
                 } else {
@@ -141,40 +154,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             } 
             
             if (newActiveTool == nil) {
+                hit = [[self currentHits] firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:NO];
                 if (hit != nil) {
-                    switch ([hit type]) {
-                        case HT_ENTITY:
-                        case HT_FACE:
-                            newActiveTool = moveTool;
-                            break;
-                        case HT_VERTEX: {
-                            id <Brush> brush = [hit object];
-                            const TVertexList* vertices = [brush vertices];
-                            const TEdgeList* edges = [brush edges];
-                            int index = [hit vertexIndex];
-                            if (index < vertices->count || [self isSplitModifierPressed])
-                                newActiveTool = dragVertexTool;
-                            else if (index < vertices->count + edges->count)
-                                newActiveTool = dragEdgeTool;
-                            else
-                                newActiveTool = dragFaceTool;
-                            break;
-                        }
-                        default:
-                            NSLog(@"unknown hit type: %i", [hit type]);
-                            break;
-                    }
+                    newActiveTool = moveTool;
                 }
             }
-        }
-    } 
-    
-    if (newActiveTool == nil && [selectionManager mode] == SM_FACES && [self isFaceDragModifierPressed]) {
-        PickingHit* hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:NO];
-        if (hit != nil) {
-            id <Face> face = [hit object];
-            if ([selectionManager isFaceSelected:face])
-                newActiveTool = faceTool;
         }
     }
     

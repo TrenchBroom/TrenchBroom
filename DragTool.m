@@ -21,7 +21,7 @@
 @implementation DragTool (private)
 
 - (BOOL)isAlternatePlaneModifierPressed {
-    return [NSEvent modifierFlags] == NSAlternateKeyMask;
+    return ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0;
 }
 
 - (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
