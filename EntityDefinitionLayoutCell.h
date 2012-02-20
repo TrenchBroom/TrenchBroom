@@ -26,16 +26,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @private
     EntityDefinition* entityDefinition;
     NSRect entityDefinitionBounds;
-    GLString* nameString;
+    GLString* name;
     NSRect nameBounds;
     NSRect bounds;
 }
 
-- (id)initWithEntityDefinition:(EntityDefinition *)theEntityDefinition atPos:(NSPoint)thePos width:(float)theWidth nameString:(GLString *)theNameString;
+- (id)initWithEntityDefinition:(EntityDefinition *)theEntityDefinition atPos:(NSPoint)thePos width:(float)theWidth name:(GLString *)theName;
 
 - (EntityDefinition *)entityDefinition;
 - (NSRect)entityDefinitionBounds;
-- (GLString* )nameString;
+- (GLString* )name;
 - (NSRect)nameBounds;
 - (NSRect)bounds;
 

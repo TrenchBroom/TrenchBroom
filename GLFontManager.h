@@ -31,6 +31,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSTextStorage* textStorage;
     NSTextContainer* textContainer;
     NSMutableDictionary* glStrings;
+    NSMutableArray* unpreparedStrings;
     NSPoint* points;
     int pointCapacity;
 }

@@ -22,9 +22,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @protocol PrefabGroup;
 @protocol Prefab;
 @class GLFontManager;
+@class GLString;
 
 @interface PrefabLayoutGroupRow : NSObject {
     id <PrefabGroup> prefabGroup;
+    GLString* name;
     NSRect titleBarBounds;
     NSRect titleBounds;
     NSRect bounds;
@@ -34,6 +36,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (id)initWithPrefabGroup:(id <PrefabGroup>)thePrefabGroup prefabsPerRow:(int)prefabsPerRow atPos:(NSPoint)thePos width:(float)theWidth innerMargin:(float)innerMargin fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont;
 
 - (id <PrefabGroup>)prefabGroup;
+- (GLString *)name;
 - (NSArray *)cells;
 
 - (id <Prefab>)prefabAt:(NSPoint)pos;

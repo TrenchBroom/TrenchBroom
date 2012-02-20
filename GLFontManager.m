@@ -67,6 +67,7 @@ void gluTessEndData(GLStringData* data) {
     if ((self = [super init])) {
         initVbo(&vbo, GL_ARRAY_BUFFER, 0xFFFF);
         glStrings = [[NSMutableDictionary alloc] init];
+        unpreparedStrings = [[NSMutableArray alloc] init];
         
         gluTess = gluNewTess();
         gluTessProperty(gluTess, GLU_TESS_BOUNDARY_ONLY, GL_FALSE);
@@ -93,12 +94,13 @@ void gluTessEndData(GLStringData* data) {
     return self;
 }
 
-- (GLString *)glStringFor:(NSString *)theString font:(NSFont *)theFont {
+- (GLString *)createGLString:(NSString *)theString font:(NSFont *)theFont {
     NSAssert(theString != nil, @"string must not be nil");
+    NSAssert(theFont != nil, @"font must not be nil");
     
-    NSMutableDictionary* stringsForFont = [glStrings objectForKey:theFont];
+    NSMapTable* stringsForFont = [glStrings objectForKey:theFont];
     if (stringsForFont == nil) {
-        stringsForFont = [[NSMutableDictionary alloc] init];
+        stringsForFont = [[NSMapTable alloc] initWithKeyOptions:NSMapTableStrongMemory valueOptions:NSMapTableZeroingWeakMemory  capacity:10];
         [glStrings setObject:stringsForFont forKey:theFont];
         [stringsForFont release];
     }
@@ -106,7 +108,6 @@ void gluTessEndData(GLStringData* data) {
     GLString* glString = [stringsForFont objectForKey:theString];
     if (glString == nil) {
         NSMutableDictionary* attrs = [[NSMutableDictionary alloc] init];
-//        [attrs setObject:[NSNumber numberWithFloat:2] forKey:NSKernAttributeName];
         [attrs setObject:theFont forKey:NSFontAttributeName];
         
         NSAttributedString* attrString = [[NSAttributedString alloc] initWithString:theString attributes:attrs];
@@ -120,7 +121,7 @@ void gluTessEndData(GLStringData* data) {
         NSRect bounds = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textContainer];
         NSGlyph* glyphs = malloc((glyphRange.length + 1) * sizeof(NSGlyph));
         NSUInteger count = [layoutManager getGlyphs:glyphs range:glyphRange];
-
+        
         [NSBezierPath setDefaultFlatness:0.1f];
         NSBezierPath* path = [NSBezierPath bezierPath];
         [path moveToPoint:NSMakePoint(0, 0)];
@@ -172,24 +173,32 @@ void gluTessEndData(GLStringData* data) {
             }
         }
         gluTessEndPolygon(gluTess);
-
-        glString = [[GLString alloc] initWithVbo:&vbo data:glStringData size:bounds.size];
-        [glStringData release];
         
-        [stringsForFont setObject:glString forKey:theString];
-        [glString release];
-    }
+        glString = [[GLString alloc] initWithString:theString data:glStringData size:bounds.size cache:stringsForFont];
+        [glStringData release];
 
+        [unpreparedStrings addObject:glString];
+        [glString autorelease];
+    }
     
     return glString;
 }
 
 - (void)clear {
     [glStrings removeAllObjects];
+    [unpreparedStrings removeAllObjects];
 }
 
 - (void)activate {
     activateVbo(&vbo);
+    if ([unpreparedStrings count] > 0) {
+        mapVbo(&vbo);
+        for (GLString* glString in unpreparedStrings)
+            [glString prepare:&vbo];
+        unmapVbo(&vbo);
+        [unpreparedStrings removeAllObjects];
+    }
+    
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);
@@ -206,6 +215,7 @@ void gluTessEndData(GLStringData* data) {
     [layoutManager release];
     gluDeleteTess(gluTess);
     [glStrings release];
+    [unpreparedStrings release];
     freeVbo(&vbo);
     free(points);
     [super dealloc];

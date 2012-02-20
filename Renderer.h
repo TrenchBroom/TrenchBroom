@@ -29,7 +29,6 @@ extern NSString* const RendererChanged;
 @class RenderChangeSet;
 @class EntityRendererManager;
 @class TextRenderer;
-@class BoundsRenderer;
 @class IntData;
 @protocol EntityLayer;
 @protocol Figure;
@@ -60,8 +59,6 @@ extern NSString* const RendererChanged;
     NSMutableDictionary* entityRenderers;
     BOOL entityRendererCacheValid;
     NSArray* mods;
-    
-    BoundsRenderer* selectionBoundsRenderer;
     
     RenderChangeSet* changeSet;
     NSMutableArray* feedbackFigures;

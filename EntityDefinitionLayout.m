@@ -61,8 +61,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSMutableArray* row;
     for (EntityDefinition* definition in entityDefinitions) {
         if (filter == nil || [filter passes:definition]) {
-            GLString* nameString = [fontManager glStringFor:[definition name] font:font];
-            float cellWidth = fmax(maxWidth, [nameString size].width);
+            GLString* cellName = [fontManager createGLString:[definition name] font:font];
+            float cellWidth = fmax(maxWidth, [cellName size].width);
             
             if (x + cellWidth + outerMargin > width) {
                 row = [[NSMutableArray alloc] init];
@@ -73,7 +73,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                 yd = 0;
             }
             
-            EntityDefinitionLayoutCell* cell = [[EntityDefinitionLayoutCell alloc] initWithEntityDefinition:definition atPos:NSMakePoint(x, y) width:cellWidth nameString:nameString];
+            EntityDefinitionLayoutCell* cell = [[EntityDefinitionLayoutCell alloc] initWithEntityDefinition:definition atPos:NSMakePoint(x, y) width:cellWidth name:cellName];
             [row addObject:cell];
             [cell release];
             
@@ -136,6 +136,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)setWidth:(float)theWidth {
+    if (width == theWidth)
+        return;
     width = theWidth;
     [self invalidate];
 }

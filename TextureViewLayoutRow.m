@@ -20,6 +20,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "TextureViewLayoutRow.h"
 #import "Texture.h"
 #import "TextureViewLayoutCell.h"
+#import "GLString.h"
 
 @implementation TextureViewLayoutRow
 
@@ -36,17 +37,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return self;
 }
 
-- (BOOL)addTexture:(Texture *)texture nameSize:(NSSize)nameSize {
+- (BOOL)addTexture:(Texture *)texture name:(GLString *)theName {
     float x;
     if ([cells count] == 0)
         x = outerMargin;
     else
         x = [[cells lastObject] cellRect].origin.x + [[cells lastObject] cellRect].size.width + innerMargin;
     
+    NSSize nameSize = [theName size];
     if (x + fmax([texture width], nameSize.width) + outerMargin > width)
         return NO;
     
-    TextureViewLayoutCell* cell = [[TextureViewLayoutCell alloc] initAt:NSMakePoint(x, y) texture:texture nameSize:nameSize];
+    TextureViewLayoutCell* cell = [[TextureViewLayoutCell alloc] initAt:NSMakePoint(x, y) texture:texture name:theName];
     [cells addObject:cell];
     [cell release];
 

@@ -21,6 +21,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @class Texture;
 @class TextureViewLayoutCell;
+@class GLString;
 
 @interface TextureViewLayoutRow : NSObject {
     @private
@@ -33,7 +34,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 - (id)initAtY:(float)yPos width:(float)theWidth innerMargin:(float)theInnerMargin outerMargin:(float)theOuterMargin;
 
-- (BOOL)addTexture:(Texture *)texture nameSize:(NSSize)theNameSize;
+- (BOOL)addTexture:(Texture *)texture name:(GLString *)theName;
 - (NSArray *)cells;
 
 - (float)y;

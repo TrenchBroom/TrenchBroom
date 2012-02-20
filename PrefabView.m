@@ -247,7 +247,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glShadeModel(GL_FLAT);
-    glEnable(GL_TEXTURE_2D);
     
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
@@ -282,7 +281,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             }
         }
     }
-    
+
     glViewport(0, 0, NSWidth(visibleRect), NSHeight(visibleRect));
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -295,35 +294,33 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glLoadIdentity();
     gluLookAt(0, 0, 1, 0, 0, -1, 0, 1, 0);
     
-    glDisable(GL_POLYGON_OFFSET_FILL);
     glPolygonMode(GL_FRONT, GL_FILL);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_TEXTURE_2D);
 
-    NSFont* font = [NSFont systemFontOfSize:13];
-    
     [fontManager activate];
     glTranslatef(0, 2 * NSMinY(visibleRect), 0);
     
     for (PrefabLayoutGroupRow* groupRow in [layout groupRows]) {
-        id <PrefabGroup> prefabGroup = [groupRow prefabGroup];
-        GLString* groupNameString = [fontManager glStringFor:[prefabGroup name] font:font]; 
+        GLString* groupName = [groupRow name];
         
         glPushMatrix();
         NSRect titleBounds = [groupRow titleBounds];
         NSRect titleBarBounds = [groupRow titleBarBounds];
 
         glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+        /*
         glRectf(NSMinX(titleBarBounds),  NSHeight(visibleRect) - NSMinY(titleBarBounds), NSMaxX(titleBarBounds), NSHeight(visibleRect) - NSMaxY(titleBarBounds));
 
+         */
         glTranslatef(NSMinX(titleBounds),  NSHeight(visibleRect) - NSMaxY(titleBounds), 0);
         glColor4f(1, 1, 1, 1);
-        [groupNameString render];
+        [groupName render];
         glPopMatrix();
 
         for (PrefabLayoutPrefabCell* cell in [groupRow cells]) {
             id <Prefab> prefab = [cell prefab];
-            GLString* prefabNameString = [fontManager glStringFor:[prefab name] font:font];
+            GLString* prefabName = [cell name];
             
             glPushMatrix();
             NSRect nameBounds = [cell nameBounds];
@@ -333,7 +330,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                 glColor4f(1, 0, 0, 1);
             else
                 glColor4f(1, 1, 1, 1);
-            [prefabNameString render];
+            [prefabName render];
             glPopMatrix();
         }
     }

@@ -308,13 +308,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         for (NSArray* row in [layout rows]) {
             for (EntityDefinitionLayoutCell* cell in row) {
-                GLString* nameString = [cell nameString];
+                GLString* name = [cell name];
 
                 glPushMatrix();
                 NSRect nameBounds = [cell nameBounds];
                 glTranslatef(NSMinX(nameBounds),  NSHeight(visibleRect) - NSMaxY(nameBounds), 0);
                 glColor4f(1, 1, 1, 1);
-                [nameString render];
+                [name render];
                 glPopMatrix();
             }
         }

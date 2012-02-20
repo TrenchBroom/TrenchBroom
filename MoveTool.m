@@ -45,7 +45,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
     if (hit == nil)
-        return;
+        return NO;
     
     SelectionManager* selectionManager = [windowController selectionManager];
     if ([hit type] == HT_FACE) {
@@ -53,12 +53,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         id <Brush> brush = [face brush];
         
         if (![selectionManager isBrushSelected:brush])
-            return;
+            return NO;
     } else {
         id <Entity> entity = [hit object];
         
         if (![selectionManager isEntitySelected:entity])
-            return;
+            return NO;
     }
     
     *lastPoint = *[hit hitPoint];

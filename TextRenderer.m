@@ -53,9 +53,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSAssert(theFont != nil, @"font must not be nil");
     NSAssert(theAnchor != nil, @"anchor must not be nil");
     
-    GLString* glString = [fontManager glStringFor:theString font:theFont];
+    GLString* glString = [fontManager createGLString:theString font:theFont];
     [strings setObject:glString forKey:theKey];
-     [anchors setObject:theAnchor forKey:theKey];
+    [anchors setObject:theAnchor forKey:theKey];
 }
 
 - (void)removeStringForKey:(id <NSCopying>)theKey {

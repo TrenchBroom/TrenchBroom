@@ -22,36 +22,46 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "FloatData.h"
 #import "IntData.h"
 
-@interface GLString (private)
+@implementation GLString
 
-- (void)validateVbo;
-
-@end
-
-@implementation GLString (private)
-
-- (void)validateVbo {
-    NSAssert(!vboValid, @"vbo must be invalid");
-    NSAssert(glStringData != nil, @"string data must not be nil");
-    NSAssert(vbo != NULL, @"vbo must not be NULL");
-    NSAssert(vbo->active, @"vbo must be active");
+- (id)initWithString:(NSString *)theString data:(GLStringData *)theData size:(NSSize)theSize cache:(NSMapTable *)theCache {
+    NSAssert(theString != nil, @"string must not be nil");
+    NSAssert(theData != nil, @"data must not be nil");
+    NSAssert(theCache != nil, @"cache map must not be nil");
     
-    BOOL wasMapped = vbo->mapped;
-    if (!wasMapped)
-        mapVbo(vbo);
+    if ((self = [self init])) {
+        string = [theString retain];
+        cache = [theCache retain];
+        [cache setObject:self forKey:string];
+        glStringData = [theData retain];
+        size = theSize;
+        vboBlock = NULL;
+    }
+    
+    return self;
+}
+
+- (NSSize)size {
+    return size;
+}
+
+- (void)prepare:(Vbo *)theVbo {
+    NSAssert(theVbo != NULL, @"vbo must not be NULL");
+    NSAssert(theVbo->mapped, @"vbo must be mapped");
+    NSAssert(glStringData != nil, @"string data must not be nil");
     
     FloatData* triangleSet = [glStringData triangleSet];
     NSArray* triangleStrips = [glStringData triangleStrips];
     NSArray* triangleFans = [glStringData triangleFans];
     int vertexCount = [glStringData vertexCount];
     
-    vboBlock = allocVboBlock(vbo, 2 * vertexCount * sizeof(float));
+    vboBlock = allocVboBlock(theVbo, 2 * vertexCount * sizeof(float));
     hasTriangleSet = triangleSet != nil;
     hasTriangleStrips = triangleStrips != nil;
     hasTriangleFans = triangleFans != nil;
     
     int address = vboBlock->address;
-    uint8_t* vboBuffer = vbo->buffer;
+    uint8_t* vboBuffer = theVbo->buffer;
     
     if (hasTriangleSet) {
         triangleSetIndex = address / (2 * sizeof(float));
@@ -82,33 +92,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         }
     }
     
-    if (!wasMapped)
-        unmapVbo(vbo);
-    
     [glStringData release];
     glStringData = nil;
-    vbo = nil;
-    vboValid = YES;
-}
-
-@end
-
-@implementation GLString
-
-- (id)initWithVbo:(Vbo *)theVbo data:(GLStringData *)theData size:(NSSize)theSize {
-    if ((self = [self init])) {
-        vbo = theVbo;
-        size = theSize;
-        glStringData = [theData retain];
-        vboValid = NO;
-        vboBlock = NULL;
-    }
-    
-    return self;
-}
-
-- (NSSize)size {
-    return size;
 }
 
 - (void)renderBackground {
@@ -121,8 +106,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)render {
-    if (!vboValid)
-        [self validateVbo];
+    NSAssert(vboBlock != NULL, @"vbo block must not be NULL");
     if (hasTriangleSet)
         glDrawArrays(GL_TRIANGLES, triangleSetIndex, triangleSetCount);
     if (hasTriangleStrips)
@@ -132,6 +116,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)dealloc {
+    [cache removeObjectForKey:string];
+    [string release];
+    [cache release];
     if (glStringData != nil)
         [glStringData release];
     if (vboBlock != NULL)

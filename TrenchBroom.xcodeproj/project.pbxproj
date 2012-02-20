@@ -199,7 +199,6 @@
 		48CBDD9913170B330041F704 /* GLResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CBDD9813170B330041F704 /* GLResources.m */; };
 		48CE70AC134741C400886260 /* EditingPlaneFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CE70AB134741C400886260 /* EditingPlaneFigure.m */; };
 		48D2A31B13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D2A31A13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m */; };
-		48D6B714134859890084F82E /* BoundsRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B713134859890084F82E /* BoundsRenderer.m */; };
 		48D6B903134B8DC90084F82E /* GLStringData.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B902134B8DC90084F82E /* GLStringData.m */; };
 		48DB957812F0699600FB5483 /* InputManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB957712F0699600FB5483 /* InputManager.m */; };
 		48DBE7451341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */; };
@@ -606,8 +605,6 @@
 		48CE70AB134741C400886260 /* EditingPlaneFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditingPlaneFigure.m; sourceTree = "<group>"; };
 		48D2A31913DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionDndFeedbackFigure.h; sourceTree = "<group>"; };
 		48D2A31A13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionDndFeedbackFigure.m; sourceTree = "<group>"; };
-		48D6B712134859890084F82E /* BoundsRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundsRenderer.h; sourceTree = "<group>"; };
-		48D6B713134859890084F82E /* BoundsRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundsRenderer.m; sourceTree = "<group>"; };
 		48D6B901134B8DC90084F82E /* GLStringData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLStringData.h; sourceTree = "<group>"; };
 		48D6B902134B8DC90084F82E /* GLStringData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLStringData.m; sourceTree = "<group>"; };
 		48DB957612F0699600FB5483 /* InputManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputManager.h; sourceTree = "<group>"; };
@@ -770,8 +767,6 @@
 		48025140133A1211001C51F2 /* PrimitiveRenderer */ = {
 			isa = PBXGroup;
 			children = (
-				48D6B712134859890084F82E /* BoundsRenderer.h */,
-				48D6B713134859890084F82E /* BoundsRenderer.m */,
 				481BF7AA13A4B5220040580B /* AliasRenderer.h */,
 				481BF7AB13A4B5220040580B /* AliasRenderer.m */,
 				48A5FD4D13C5E9BA009D086C /* EntityRenderer.h */,
@@ -1661,7 +1656,6 @@
 				48DBE74F1341CD8B00C0FDE7 /* ClipPlane.m in Sources */,
 				4888732A13436206005FCE15 /* FloatData.m in Sources */,
 				48CE70AC134741C400886260 /* EditingPlaneFigure.m in Sources */,
-				48D6B714134859890084F82E /* BoundsRenderer.m in Sources */,
 				48D6B903134B8DC90084F82E /* GLStringData.m in Sources */,
 				486526C5134F0BC20045A4B6 /* TextureCollection.m in Sources */,
 				48325D4713524F7000E703E0 /* CompassFigure.m in Sources */,

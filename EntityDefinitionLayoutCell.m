@@ -23,14 +23,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation EntityDefinitionLayoutCell
 
-- (id)initWithEntityDefinition:(EntityDefinition *)theEntityDefinition atPos:(NSPoint)thePos width:(float)theWidth nameString:(GLString *)theNameString {
+- (id)initWithEntityDefinition:(EntityDefinition *)theEntityDefinition atPos:(NSPoint)thePos width:(float)theWidth name:(GLString *)theName {
     if ((self = [self init])) {
         entityDefinition = [theEntityDefinition retain];
         entityDefinitionBounds = NSMakeRect(thePos.x, thePos.y, theWidth, theWidth);
         
-        nameString = [theNameString retain];
+        name = [theName retain];
         
-        NSSize nameSize = [nameString size];
+        NSSize nameSize = [name size];
         nameBounds = NSMakeRect(thePos.x + (theWidth - nameSize.width) / 2, NSMaxY(entityDefinitionBounds), nameSize.width, nameSize.height);
         bounds = NSMakeRect(thePos.x, thePos.y, theWidth, theWidth + nameSize.height);
     }
@@ -40,6 +40,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)dealloc {
     [entityDefinition release];
+    [name release];
     [super dealloc];
 }
 
@@ -55,8 +56,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return nameBounds;
 }
 
-- (GLString *)nameString {
-    return nameString;
+- (GLString *)name {
+    return name;
 }
 
 - (NSRect)bounds {

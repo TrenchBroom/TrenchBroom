@@ -20,19 +20,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import <Cocoa/Cocoa.h>
 
 @protocol Prefab;
-@class GLFont;
+@class GLString;
 
 @interface PrefabLayoutPrefabCell : NSObject {
     @private
     id <Prefab> prefab;
+    GLString* name;
     NSRect prefabBounds;
     NSRect nameBounds;
     NSRect bounds;
 }
 
-- (id)initWithPrefab:(id <Prefab>)thePrefab atPos:(NSPoint)thePos width:(float)theWidth nameSize:(NSSize)theNameSize;
+- (id)initWithPrefab:(id <Prefab>)thePrefab atPos:(NSPoint)thePos width:(float)theWidth name:(GLString *)theName;
 
 - (id <Prefab>)prefab;
+- (GLString *)name;
 - (NSRect)prefabBounds;
 - (NSRect)nameBounds;
 - (NSRect)bounds;

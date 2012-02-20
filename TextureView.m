@@ -102,10 +102,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     glTranslatef(0, 2 * NSMinY(visibleRect), 0);
     if (layout != nil) {
-        GLFontManager* fontManager = [glResources fontManager];
-        NSFont* font = [NSFont systemFontOfSize:12];
-        
         Texture* mruTexture = [[selectionManager textureMRU] lastObject];
+        GLFontManager* fontManager = [glResources fontManager];
         [fontManager activate];
         
         NSArray* rows = [layout rowsInY:NSMinY(visibleRect) height:NSHeight(visibleRect)];
@@ -156,10 +154,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                 float nx = NSMinX([cell nameRect]);
                 float ny = NSHeight(visibleRect) - NSMaxY([cell nameRect]);
                 
-                GLString* glString = [fontManager glStringFor:[texture name] font:font];
+                GLString* name = [cell name];
                 glPushMatrix();
                 glTranslatef(nx, ny, 0);
-                [glString render];
+                [name render];
                 glPopMatrix();
             }
         }

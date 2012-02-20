@@ -64,7 +64,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)setWidth:(float)theWidth {
     if (width == theWidth)
         return;
-    
     width = theWidth;
     valid = NO;
 }
@@ -75,13 +74,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         for (Texture* texture in textures) {
             if (filter == nil || [filter passes:texture]) {
-                GLString* nameString = [fontManager glStringFor:[texture name] font:font];
-                NSSize nameSize = [nameString size];
+                GLString* name = [fontManager createGLString:[texture name] font:font];
                 TextureViewLayoutRow* row = [rows lastObject];
-                if (row == nil || ![row addTexture:texture nameSize:nameSize]) {
+                if (row == nil || ![row addTexture:texture name:name]) {
                     float y = row == nil ? outerMargin : [row y] + [row height] + innerMargin;
                     row = [[TextureViewLayoutRow alloc] initAtY:y width:width innerMargin:innerMargin outerMargin:outerMargin];
-                    [row addTexture:texture nameSize:nameSize];
+                    [row addTexture:texture name:name];
                     [rows addObject:row];
                     [row release];
                 }

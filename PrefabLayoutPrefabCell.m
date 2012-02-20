@@ -19,16 +19,19 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "PrefabLayoutPrefabCell.h"
 #import "Prefab.h"
+#import "GLString.h"
 
 @implementation PrefabLayoutPrefabCell
 
-- (id)initWithPrefab:(id <Prefab>)thePrefab atPos:(NSPoint)thePos width:(float)theWidth nameSize:(NSSize)theNameSize {
+- (id)initWithPrefab:(id <Prefab>)thePrefab atPos:(NSPoint)thePos width:(float)theWidth name:(GLString *)theName {
     if ((self = [self init])) {
         prefab = [thePrefab retain];
+        name = [theName retain];
         prefabBounds = NSMakeRect(thePos.x, thePos.y, theWidth, theWidth);
 
-        nameBounds = NSMakeRect(thePos.x + (theWidth - theNameSize.width) / 2, NSMaxY(prefabBounds), theNameSize.width, theNameSize.height);
-        bounds = NSMakeRect(thePos.x, thePos.y, theWidth, theWidth + theNameSize.height);
+        NSSize nameSize = [name size];
+        nameBounds = NSMakeRect(thePos.x + (theWidth - nameSize.width) / 2, NSMaxY(prefabBounds), nameSize.width, nameSize.height);
+        bounds = NSMakeRect(thePos.x, thePos.y, theWidth, theWidth + nameSize.height);
     }
     
     return self;
@@ -36,6 +39,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (id <Prefab>)prefab {
     return prefab;
+}
+
+- (GLString *)name {
+    return name;
 }
 
 - (NSRect)prefabBounds {
@@ -52,6 +59,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)dealloc {
     [prefab release];
+    [name release];
     [super dealloc];
 }
 

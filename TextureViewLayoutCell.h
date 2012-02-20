@@ -20,20 +20,23 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import <Cocoa/Cocoa.h>
 
 @class Texture;
+@class GLString;
 
 @interface TextureViewLayoutCell : NSObject {
     @private
     Texture* texture;
+    GLString* name;
     NSRect textureRect;
     NSRect cellRect;
     NSRect nameRect;
 }
 
-- (id)initAt:(NSPoint)location texture:(Texture *)theTexture nameSize:(NSSize)theNameSize;
+- (id)initAt:(NSPoint)location texture:(Texture *)theTexture name:(GLString *)theName;
 
 - (NSRect)cellRect;
 - (NSRect)textureRect;
 - (NSRect)nameRect;
+- (GLString *)name;
 
 - (BOOL)contains:(NSPoint)point;
 

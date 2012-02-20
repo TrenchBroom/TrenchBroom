@@ -37,8 +37,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (id)initWithPrefabGroup:(id <PrefabGroup>)thePrefabGroup prefabsPerRow:(int)thePrefabsPerRow atPos:(NSPoint)thePos width:(float)theWidth innerMargin:(float)innerMargin fontManager:(GLFontManager *)theFontManager font:(NSFont *)theFont {
     if ((self = [self init])) {
         prefabGroup = [thePrefabGroup retain];
-        GLString* nameString = [theFontManager glStringFor:[prefabGroup name] font:theFont];
-        NSSize nameSize = [nameString size];
+        name = [[theFontManager createGLString:[prefabGroup name] font:theFont] retain];
+        NSSize nameSize = [name size];
         titleBarBounds = NSMakeRect(thePos.x, thePos.y, theWidth, nameSize.height + 4);
         titleBounds = NSMakeRect(thePos.x + 4, thePos.y + 2, nameSize.width, nameSize.height);
 
@@ -55,9 +55,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             }
 
             id <Prefab> prefab = [prefabs objectAtIndex:i];
-            GLString* prefabNameString = [theFontManager glStringFor:[prefab name] font:theFont];
-            NSSize prefabNameSize = [prefabNameString size];
-            cell = [[PrefabLayoutPrefabCell alloc] initWithPrefab:prefab atPos:NSMakePoint(x, y) width:cellWidth nameSize:prefabNameSize];
+            GLString* prefabName = [theFontManager createGLString:[prefab name] font:theFont];
+            cell = [[PrefabLayoutPrefabCell alloc] initWithPrefab:prefab atPos:NSMakePoint(x, y) width:cellWidth name:prefabName];
             [cells addObject:cell];
             [cell release];
             
@@ -74,6 +73,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (id <PrefabGroup>)prefabGroup {
     return prefabGroup;
+}
+
+- (GLString *)name {
+    return name;
 }
 
 - (NSArray *)cells {
@@ -101,6 +104,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)dealloc {
     [prefabGroup release];
+    [name release];
     [cells release];
     [super dealloc];
 }

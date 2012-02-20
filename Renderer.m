@@ -47,7 +47,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "EntityRenderer.h"
 #import "EntityRendererManager.h"
 #import "TextRenderer.h"
-#import "BoundsRenderer.h"
 #import "EntityClassnameAnchor.h"
 #import "GroupManager.h"
 
@@ -410,7 +409,6 @@ int const TexCoordSize = 2 * sizeof(float);
         unmapVbo(&entityBoundsVbo);
         deactivateVbo(&entityBoundsVbo);
         
-        [fontManager activate];
         for (id <Entity> entity in addedEntities) {
             if (![entity isWorldspawn]) {
                 NSString* classname = [entity classname];
@@ -419,7 +417,6 @@ int const TexCoordSize = 2 * sizeof(float);
                 [anchor release];
             }
         }
-        [fontManager deactivate];
     }
 }
 
@@ -682,11 +679,6 @@ int const TexCoordSize = 2 * sizeof(float);
         
         [self rebuildSelectedFaceIndexBuffers];
     }
-    
-    TBoundingBox selectionBounds;
-    SelectionManager* selectionManager = [windowController selectionManager];
-    [selectionManager selectionBounds:&selectionBounds];
-    [selectionBoundsRenderer setBounds:&selectionBounds];
     
     [changeSet clear];
 }
@@ -1124,8 +1116,7 @@ int const TexCoordSize = 2 * sizeof(float);
         entityRenderers = [[NSMutableDictionary alloc] init];
         modelEntities = [[NSMutableArray alloc] init];
         selectedModelEntities = [[NSMutableArray alloc] init];
-        selectionBoundsRenderer = [[BoundsRenderer alloc] initWithCamera:[windowController camera] fontManager:fontManager];
-        
+
         Camera* camera = [windowController camera];
         Options* options = [windowController options];
         Grid* grid = [options grid];
@@ -1180,7 +1171,6 @@ int const TexCoordSize = 2 * sizeof(float);
     [modelEntities release];
     [selectedModelEntities release];
     [entityRendererManager release];
-    [selectionBoundsRenderer release];
     [filter release];
     [mods release];
     freeVbo(&faceVbo);
@@ -1318,16 +1308,8 @@ int const TexCoordSize = 2 * sizeof(float);
         }
     }
     
-    if ([[windowController selectionManager] hasSelection]) {
-        glDisable(GL_DEPTH_TEST);
-        [selectionBoundsRenderer renderColor:&SelectionColor3];
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-        [selectionBoundsRenderer renderColor:&SelectionColor];
-        glDepthFunc(GL_LESS);
-        
+    if ([[windowController selectionManager] hasSelection])
         [self renderVertexHandles];
-    }
     
     if ([feedbackFigures count] > 0) {
         glDisable(GL_DEPTH_TEST);

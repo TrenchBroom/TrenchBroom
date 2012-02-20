@@ -25,10 +25,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @interface GLString : NSObject {
     @private
-    Vbo* vbo;
+    NSString* string;
+    NSMapTable* cache;
     VboBlock* vboBlock;
     GLStringData* glStringData;
-    BOOL vboValid;
     BOOL hasTriangleSet;
     int triangleSetIndex;
     int triangleSetCount;
@@ -41,10 +41,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSSize size;
 }
 
-- (id)initWithVbo:(Vbo *)theVbo data:(GLStringData *)theData size:(NSSize)theSize;
+- (id)initWithString:(NSString *)theString data:(GLStringData *)theData size:(NSSize)theSize cache:(NSMapTable *)theCache;
 
 - (NSSize)size;
 
+- (void)prepare:(Vbo *)theVbo;
 - (void)renderBackground;
 - (void)render;
 @end

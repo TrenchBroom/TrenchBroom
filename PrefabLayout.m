@@ -88,11 +88,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)setPrefabsPerRow:(int)thePrefabsPerRow {
+    if (prefabsPerRow == thePrefabsPerRow)
+        return;
     prefabsPerRow = thePrefabsPerRow;
     [self invalidate];
 }
 
 - (void)setWidth:(float)theWidth {
+    if (width == theWidth)
+        return;
     width = theWidth;
     [self invalidate];
 }
