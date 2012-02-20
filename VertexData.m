@@ -1286,76 +1286,6 @@ int polygonShape(const TVertexList* p, const TVector3f* n) {
     return PS_CONVEX;
 }
 
-/**
- * This method merges a given side s with another side that shares at least one
- * edge with s. The shared edges and the shared vertices are deleted from the 
- * given polyhedron.
- *
- * @param vd the polyhedron
- * @param s the side which should be merged
- * @param si the index of the shared edge (relative to s)
- */
-void mergeSides(TVertexData* vd, TSide* s, int si) {
-    TVertex* v;
-    TEdge* e = s->edges.items[si];
-    TSide* n = e->leftSide != s ? e->leftSide : e->rightSide;
-    int ni = edgeIndex(&n->edges, e);
-
-    do {
-        si = (si + 1) % s->edges.count;
-        ni = (ni - 1 + n->edges.count) % n->edges.count;
-    } while (s->edges.items[si] == n->edges.items[ni]);
-
-    // now si points to the last edge (in CW order) of s that should not be deleted
-    // and ni points to the first edge (in CW order) of n that should not be deleted
-    
-    int c = -1;
-    do {
-        si = (si - 1 + s->edges.count) % s->edges.count;
-        ni = (ni + 1) % n->edges.count;
-        c++;
-    } while (s->edges.items[si] == n->edges.items[ni]);
-    
-    // now si points to the first edge (in CW order) of s that should not be deleted
-    // now ni points to the last edge (in CW order) of n that should not be deleted
-    // and c is the number of shared edges between s and n
-    
-    // shift the two sides so that their shared edges are at the end of both's edge lists
-    shiftSide(s, (si + c + 1) % s->edges.count);
-    shiftSide(n, ni);
-    
-    removeSuffixFromEdgeList(&s->edges, s->edges.count - c);
-    removeSuffixFromVertexList(&s->vertices, s->vertices.count - c);
-    
-    for (int i = 0; i < n->edges.count - c; i++) {
-        e = n->edges.items[i];
-        v = n->vertices.items[i];
-        if (e->leftSide == n)
-            e->leftSide = s;
-        else
-            e->rightSide = s;
-        addEdgeToList(&s->edges, e);
-        addVertexToList(&s->vertices, v);
-    }
-    
-    for (int i = n->edges.count - c; i < n->edges.count; i++) {
-        deleteEdge(vd, edgeIndex(&vd->edges, n->edges.items[i]));
-        if (i > n->edges.count - c)
-            deleteVertex(vd, vertexIndex(&vd->vertices, n->vertices.items[i]));
-    }
-    
-    deleteSide(vd, sideIndex(&vd->sides, n));
-}
-
-/**
- * This method determines the sides which are incident to the vertex with the
- * given index in the given polyhedron and adds them to the given side list in
- * clockwise order.
- *
- * @param vd the polyhedron
- * @param v the index of the vertex
- * @param l the list to which the incident sides are added in clockwise order
- */
 void incidentSides(TVertexData* vd, int v, TSideList* l) {
     TVertex* vertex = vd->vertices.items[v];
     
@@ -1518,45 +1448,20 @@ void splitFace(TVertexData* vd, TSide* s, int v, NSMutableArray* newFaces) {
     [newSide->face release];
 }
 
-int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
-    TVertex* vertex;
-    TVector3f newPosition, v1, v2;
-    TRay dragRay;
-    float dragDist;
-    TSideList incSides;
-    int vIndex;
+void splitSides(TVertexData* vd, const TSideList* sides, const TRay* dragRay, int dragVertexIndex, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
+    TVector3f v1, v2;
     
-    assert(vd != NULL);
-    assert(v >= 0 && v < vd->vertices.count);
-    
-    vIndex = v;
-    
-    dragDist = lengthV3f(&d);
-    if (dragDist == 0)
-        return vIndex;
-    
-    vertex = vd->vertices.items[vIndex];
-    dragRay.origin = vertex->position;
-    scaleV3f(&d, 1 / dragDist, &dragRay.direction);
-    
-    // split all sides incident to v so that there remain only triangles
-    // incident to v - it doesn't matter that some of those are coplanar, they
-    // will be merged later
-    
-    initSideList(&incSides, vd->sides.count);
-    incidentSides(vd, vIndex, &incSides);
-    
-    for (int i = 0; i < incSides.count; i++) {
-        TSide* side = incSides.items[i];
+    for (int i = 0; i < sides->count; i++) {
+        TSide* side = sides->items[i];
         if (side->vertices.count > 3) {
             subV3f(&side->vertices.items[2]->position, &side->vertices.items[0]->position, &v1);
             subV3f(&side->vertices.items[1]->position, &side->vertices.items[0]->position, &v2);
             crossV3f(&v1, &v2, &v1);
             
-            if (fneg(dotV3f(&v1, &dragRay.direction))) {
-                splitFace(vd, side, vIndex, newFaces);
+            if (fneg(dotV3f(&v1, &dragRay->direction))) {
+                splitFace(vd, side, dragVertexIndex, newFaces);
             } else {
-                triangulateFace(vd, side, vIndex, newFaces);
+                triangulateFace(vd, side, dragVertexIndex, newFaces);
                 NSUInteger faceIndex = [newFaces indexOfObjectIdenticalTo:side->face];
                 if (faceIndex != NSNotFound)
                     [newFaces removeObjectAtIndex:faceIndex];
@@ -1566,95 +1471,61 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
             }
         }
     }
+}
+
+void mergeNeighbors(TVertexData* vd, TSide* s, int si) {
+    TVertex* v;
+    TEdge* e = s->edges.items[si];
+    TSide* n = e->leftSide != s ? e->leftSide : e->rightSide;
+    int ni = edgeIndex(&n->edges, e);
     
-    assert(sanityCheck(vd, NO));
+    do {
+        si = (si + 1) % s->edges.count;
+        ni = (ni - 1 + n->edges.count) % n->edges.count;
+    } while (s->edges.items[si] == n->edges.items[ni]);
     
-    // now find the shortest drag distance that will result in a merge of sides
-    clearSideList(&incSides);
-    incidentSides(vd, vIndex, &incSides);
-    float actualDragDist = dragDist;
+    // now si points to the last edge (in CW order) of s that should not be deleted
+    // and ni points to the first edge (in CW order) of n that should not be deleted
     
-    for (int i = 0; i < incSides.count; i++) {
-        TSide* side = incSides.items[i];
-        TSide* succ = incSides.items[(i + 1) % incSides.count];
-        
-        shiftSide(side, vertexIndex(&side->vertices, vertex));
-        shiftSide(succ, vertexIndex(&succ->vertices, vertex));
-        
-        TPlane plane;
-        setPlanePointsV3f(&plane, &side->vertices.items[1]->position, 
-                          &side->vertices.items[2]->position, 
-                          &succ->vertices.items[2]->position);
-        
-        float sideDragDist = intersectPlaneWithRay(&plane, &dragRay);
-        
-        TEdge* neighborEdge = side->edges.items[1];
-        TSide* neighbor = neighborEdge->leftSide != side ? neighborEdge->leftSide : neighborEdge->rightSide;
-        float neighborDragDist = intersectPlaneWithRay([neighbor->face boundary], &dragRay);
-        
-        if (!isnan(sideDragDist) && fpos(sideDragDist) && flt(sideDragDist, actualDragDist))
-            actualDragDist = sideDragDist;
-        if (!isnan(neighborDragDist) && fpos(neighborDragDist) && flt(neighborDragDist, actualDragDist))
-            actualDragDist = neighborDragDist;
+    int c = -1;
+    do {
+        si = (si - 1 + s->edges.count) % s->edges.count;
+        ni = (ni + 1) % n->edges.count;
+        c++;
+    } while (s->edges.items[si] == n->edges.items[ni]);
+    
+    // now si points to the first edge (in CW order) of s that should not be deleted
+    // now ni points to the last edge (in CW order) of n that should not be deleted
+    // and c is the number of shared edges between s and n
+    
+    // shift the two sides so that their shared edges are at the end of both's edge lists
+    shiftSide(s, (si + c + 1) % s->edges.count);
+    shiftSide(n, ni);
+    
+    removeSuffixFromEdgeList(&s->edges, s->edges.count - c);
+    removeSuffixFromVertexList(&s->vertices, s->vertices.count - c);
+    
+    for (int i = 0; i < n->edges.count - c; i++) {
+        e = n->edges.items[i];
+        v = n->vertices.items[i];
+        if (e->leftSide == n)
+            e->leftSide = s;
+        else
+            e->rightSide = s;
+        addEdgeToList(&s->edges, e);
+        addVertexToList(&s->vertices, v);
     }
     
-    // apply the shortest drag to the vertex
-    rayPointAtDistance(&dragRay, actualDragDist, &vertex->position);
-    newPosition = vertex->position;
-    
-    freeSideList(&incSides);
-    
-    // check whether the vertex is dragged onto another vertex
-    for (int i = 0; i < vd->vertices.count; i++) {
-        if (i != vIndex) {
-            TVertex* vertexCandidate = vd->vertices.items[i];
-            if (equalV3f(&vertex->position, &vertexCandidate->position)) {
-                // find the edge incident to both vertex and candidate
-                TEdge* delete = NULL;
-                for (int j = 0; j < vd->edges.count && delete == NULL; j++) {
-                    TEdge* edge = vd->edges.items[j];
-                    if ((edge->startVertex == vertex && edge->endVertex == vertexCandidate) ||
-                        (edge->endVertex == vertex && edge->startVertex == vertexCandidate))
-                        delete = edge;
-                }
-                
-                // because the algorithm should not allow non-adjacent vertices to be merged in the first place
-                assert(delete != NULL); 
-                assert(delete->leftSide->vertices.count == 3);
-                assert(delete->rightSide->vertices.count == 3);
-                
-                for (int j = 0; j < vd->edges.count; j++) {
-                    TEdge* edge = vd->edges.items[j];
-                    if (edge != delete && (edge->startVertex == vertexCandidate || edge->endVertex == vertexCandidate)) {
-                        if (edge->startVertex == vertexCandidate)
-                            edge->startVertex = vertex;
-                        else
-                            edge->endVertex = vertex;
-                        
-                        int index = vertexIndex(&edge->leftSide->vertices, vertexCandidate);
-                        if (index != -1)
-                            edge->leftSide->vertices.items[index] = vertex;
-                        
-                        index = vertexIndex(&edge->rightSide->vertices, vertexCandidate);
-                        if (index != -1)
-                            edge->rightSide->vertices.items[index] = vertex;
-                    }
-                }
-                
-                deleteDegenerateTriangle(vd, delete->leftSide, delete, newFaces, removedFaces);
-                deleteDegenerateTriangle(vd, delete->rightSide, delete, newFaces, removedFaces);
-                
-                deleteEdge(vd, edgeIndex(&vd->edges, delete));
-                deleteVertex(vd, vertexIndex(&vd->vertices, vertexCandidate));
-                
-                break;
-            }
-        }
+    for (int i = n->edges.count - c; i < n->edges.count; i++) {
+        deleteEdge(vd, edgeIndex(&vd->edges, n->edges.items[i]));
+        if (i > n->edges.count - c)
+            deleteVertex(vd, vertexIndex(&vd->vertices, n->vertices.items[i]));
     }
     
-    assert(sanityCheck(vd, NO));
-    
-    // now merge all mergeable sides back together
+    deleteSide(vd, sideIndex(&vd->sides, n));
+}
+
+void mergeSides(TVertexData* vd, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
     for (int i = 0; i < vd->sides.count; i++) {
         TSide* side = vd->sides.items[i];
         TPlane sideBoundary;
@@ -1662,7 +1533,7 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
                           &side->vertices.items[0]->position, 
                           &side->vertices.items[1]->position, 
                           &side->vertices.items[2]->position);
-
+        
         for (int j = 0; j < side->edges.count; j++) {
             TEdge* edge = side->edges.items[j];
             TSide* neighbor = edge->leftSide != side ? edge->leftSide : edge->rightSide;
@@ -1674,7 +1545,7 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
             
             if (equalPlane(&sideBoundary, &neighborBoundary)) {
                 id <Face> neighborFace = neighbor->face;
-                mergeSides(vd, side, j);
+                mergeNeighbors(vd, side, j);
                 
                 NSUInteger faceIndex = [newFaces indexOfObjectIdenticalTo:neighborFace];
                 if (faceIndex != NSNotFound)
@@ -1687,10 +1558,82 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
             }
         }
     }
+}
+
+float calculateShortestDragDist(const TSideList* sides, const TVertex* dragVertex, const TRay* dragRay, float dragDist) {
+    float actualDragDist;
+    TPlane plane;
     
-    assert(sanityCheck(vd, NO));
+    actualDragDist = dragDist;
+    for (int i = 0; i < sides->count; i++) {
+        TSide* side = sides->items[i];
+        TSide* succ = sides->items[(i + 1) % sides->count];
+        
+        shiftSide(side, vertexIndex(&side->vertices, dragVertex));
+        shiftSide(succ, vertexIndex(&succ->vertices, dragVertex));
+        
+        setPlanePointsV3f(&plane, &side->vertices.items[1]->position, 
+                          &side->vertices.items[2]->position, 
+                          &succ->vertices.items[2]->position);
+        
+        float sideDragDist = intersectPlaneWithRay(&plane, dragRay);
+        
+        TEdge* neighborEdge = side->edges.items[1];
+        TSide* neighbor = neighborEdge->leftSide != side ? neighborEdge->leftSide : neighborEdge->rightSide;
+        float neighborDragDist = intersectPlaneWithRay([neighbor->face boundary], dragRay);
+        
+        if (!isnan(sideDragDist) && fpos(sideDragDist) && flt(sideDragDist, actualDragDist))
+            actualDragDist = sideDragDist;
+        if (!isnan(neighborDragDist) && fpos(neighborDragDist) && flt(neighborDragDist, actualDragDist))
+            actualDragDist = neighborDragDist;
+    }
     
-    // check for consecutive edges that can be merged
+    return actualDragDist;
+}
+
+void killVertex(TVertexData* vd, const TVertex* dragVertex, const TVertex* killVertex, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
+    // find the edge incident to both vertex and candidate
+    TEdge* delete = NULL;
+    for (int j = 0; j < vd->edges.count && delete == NULL; j++) {
+        TEdge* edge = vd->edges.items[j];
+        if ((edge->startVertex == dragVertex && edge->endVertex == killVertex) ||
+            (edge->endVertex == dragVertex && edge->startVertex == killVertex))
+            delete = edge;
+    }
+    
+    // because the algorithm should not allow non-adjacent vertices to be merged in the first place
+    assert(delete != NULL); 
+    assert(delete->leftSide->vertices.count == 3);
+    assert(delete->rightSide->vertices.count == 3);
+    
+    for (int j = 0; j < vd->edges.count; j++) {
+        TEdge* edge = vd->edges.items[j];
+        if (edge != delete && (edge->startVertex == killVertex || edge->endVertex == killVertex)) {
+            if (edge->startVertex == killVertex)
+                edge->startVertex = (TVertex *)dragVertex;
+            else
+                edge->endVertex = (TVertex *)dragVertex;
+            
+            int index = vertexIndex(&edge->leftSide->vertices, killVertex);
+            if (index != -1)
+                edge->leftSide->vertices.items[index] = (TVertex *)dragVertex;
+            
+            index = vertexIndex(&edge->rightSide->vertices, killVertex);
+            if (index != -1)
+                edge->rightSide->vertices.items[index] = (TVertex *)dragVertex;
+        }
+    }
+    
+    deleteDegenerateTriangle(vd, delete->leftSide, delete, newFaces, removedFaces);
+    deleteDegenerateTriangle(vd, delete->rightSide, delete, newFaces, removedFaces);
+    
+    deleteEdge(vd, edgeIndex(&vd->edges, delete));
+    deleteVertex(vd, vertexIndex(&vd->vertices, killVertex));
+}
+
+void mergeConsecutiveEdges(TVertexData* vd) {
+    TVector3f v1, v2;
+    
     for (int i = 0; i < vd->edges.count; i++) {
         TEdge* edge = vd->edges.items[i];
         edgeVector(edge, &v1);
@@ -1771,6 +1714,84 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
             }
         }
     }
+}
+
+int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
+    TVertex* vertex;
+    TVector3f newPosition;
+    TRay dragRay;
+    float dragDist;
+    TSideList incSides;
+    int vIndex;
+    TVector3f v1, v2, cross, edgeVector;
+    
+    assert(vd != NULL);
+    assert(v >= 0 && v < vd->vertices.count);
+    
+    vIndex = v;
+    
+    dragDist = lengthV3f(&d);
+    if (dragDist == 0)
+        return vIndex;
+    
+    vertex = vd->vertices.items[vIndex];
+    dragRay.origin = vertex->position;
+    scaleV3f(&d, 1 / dragDist, &dragRay.direction);
+    
+    initSideList(&incSides, vd->sides.count);
+    incidentSides(vd, vIndex, &incSides);
+    splitSides(vd, &incSides, &dragRay, vIndex, newFaces, removedFaces);
+    
+    assert(sanityCheck(vd, NO));
+    
+    clearSideList(&incSides);
+    incidentSides(vd, vIndex, &incSides);
+    float actualDragDist = calculateShortestDragDist(&incSides, vertex, &dragRay, dragDist);
+    
+    rayPointAtDistance(&dragRay, actualDragDist, &vertex->position);
+    newPosition = vertex->position;
+    
+    freeSideList(&incSides);
+    
+    // check whether the vertex is dragged onto a non-incident edge
+    for (int i = 0; i < vd->edges.count; i++) {
+        TEdge* edge = vd->edges.items[i];
+        if (edge->startVertex != vertex && edge->endVertex != vertex) {
+            subV3f(&vertex->position, &edge->startVertex->position, &v1);
+            subV3f(&vertex->position, &edge->endVertex->position, &v2);
+            crossV3f(&v1, &v2, &cross);
+            
+            if (nullV3f(&cross)) {
+                subV3f(&edge->endVertex->position, &edge->startVertex->position, &edgeVector);
+                if (dotV3f(&v1, &edgeVector) > 0 != dotV3f(&v2, &edgeVector) > 0) {
+                    vertex->position = dragRay.origin;
+                    mergeSides(vd, newFaces, removedFaces);
+                    return vertexIndex(&vd->vertices, vertex);
+                }
+            }
+        }
+    }
+    
+    // check whether the vertex is dragged onto another vertex, if so, kill that vertex
+    for (int i = 0; i < vd->vertices.count; i++) {
+        if (i != vIndex) {
+            TVertex* candidate = vd->vertices.items[i];
+            if (equalV3f(&vertex->position, &candidate->position)) {
+                killVertex(vd, vertex, candidate, newFaces, removedFaces);
+                break;
+            }
+        }
+    }
+    
+    assert(sanityCheck(vd, NO));
+    
+    // now merge all mergeable sides back together
+    mergeSides(vd, newFaces, removedFaces);
+    
+    assert(sanityCheck(vd, NO));
+    
+    // check for consecutive edges that can be merged
+    mergeConsecutiveEdges(vd);
     
     boundsOfVertices(&vd->vertices, &vd->bounds);
     
