@@ -20,6 +20,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import <Cocoa/Cocoa.h>
 #import "Map.h"
 #import "Math.h"
+#import "VertexData.h"
 
 extern NSString* const FacesWillChange;
 extern NSString* const FacesDidChange;
@@ -132,9 +133,9 @@ extern NSString* const DocumentLoaded;
 - (void)setFaces:(NSArray *)theFaces texture:(Texture *)theTexture;
 - (BOOL)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures;
 
-- (int)dragVertex:(int)theVertexIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta;
-- (int)dragEdge:(int)theEdgeIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta;
-- (int)dragFace:(int)theFaceIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta;
+- (TDragResult)dragVertex:(int)theVertexIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta;
+- (TDragResult)dragEdge:(int)theEdgeIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta;
+- (TDragResult)dragFace:(int)theFaceIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta;
 
 - (void)clear;
 

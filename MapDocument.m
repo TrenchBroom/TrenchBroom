@@ -1148,58 +1148,49 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     return canDrag;
 }
 
-- (int)dragVertex:(int)theVertexIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta {
+- (TDragResult)dragVertex:(int)theVertexIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta {
     NSAssert(theBrush != nil, @"brush must not be nil");
-    
-    if (nullV3f(theDelta))
-        return NO;
     
     MutableBrush* mutableBrush = (MutableBrush *)theBrush;
     NSArray* brushArray = [[NSArray alloc] initWithObjects:theBrush, nil];
 
     [self makeUndoSnapshotOfBrushes:brushArray];
     [self postNotification:BrushesWillChange forBrushes:brushArray];
-    int newIndex = [mutableBrush dragVertex:theVertexIndex by:theDelta];
+    TDragResult result = [mutableBrush dragVertex:theVertexIndex by:theDelta];
     [self postNotification:BrushesDidChange forBrushes:brushArray];
     
     [brushArray release];
-    return newIndex;
+    return result;
 }
 
-- (int)dragEdge:(int)theEdgeIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta {
+- (TDragResult)dragEdge:(int)theEdgeIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta {
     NSAssert(theBrush != nil, @"brush must not be nil");
-    
-    if (nullV3f(theDelta))
-        return NO;
     
     MutableBrush* mutableBrush = (MutableBrush *)theBrush;
     NSArray* brushArray = [[NSArray alloc] initWithObjects:theBrush, nil];
     
     [self makeUndoSnapshotOfBrushes:brushArray];
     [self postNotification:BrushesWillChange forBrushes:brushArray];
-    int newIndex = [mutableBrush dragEdge:theEdgeIndex by:theDelta];
+    TDragResult result = [mutableBrush dragEdge:theEdgeIndex by:theDelta];
     [self postNotification:BrushesDidChange forBrushes:brushArray];
     
     [brushArray release];
-    return newIndex;
+    return result;
 }
 
-- (int)dragFace:(int)theFaceIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta {
+- (TDragResult)dragFace:(int)theFaceIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta {
     NSAssert(theBrush != nil, @"brush must not be nil");
-    
-    if (nullV3f(theDelta))
-        return NO;
     
     MutableBrush* mutableBrush = (MutableBrush *)theBrush;
     NSArray* brushArray = [[NSArray alloc] initWithObjects:theBrush, nil];
     
     [self makeUndoSnapshotOfBrushes:brushArray];
     [self postNotification:BrushesWillChange forBrushes:brushArray];
-    int newIndex = [mutableBrush dragFace:theFaceIndex by:theDelta];
+    TDragResult result = [mutableBrush dragFace:theFaceIndex by:theDelta];
     [self postNotification:BrushesDidChange forBrushes:brushArray];
     
     [brushArray release];
-    return newIndex;
+    return result;
 }
 
 - (void)clear {

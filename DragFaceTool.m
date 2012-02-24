@@ -73,12 +73,20 @@
     id <Face> face = [[brush faces] objectAtIndex:index];
     boundsOfVertices([face vertices], &bounds);
     
-    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:delta lastPoint:lastPoint];
+    TVector3f nextPoint = *lastPoint;
+    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:delta lastPoint:&nextPoint];
     
     if (nullV3f(delta))
         return YES;
     
-    index = [map dragFace:index brush:brush delta:delta];
+    TDragResult result = [map dragFace:index brush:brush delta:delta];
+    if (result.index == -1) {
+        [self endLeftDrag:event ray:ray hits:hits];
+    } else if (result.moved) {
+        *lastPoint = nextPoint;
+    }
+    
+    index = result.index;
     return index != -1;
 }
 

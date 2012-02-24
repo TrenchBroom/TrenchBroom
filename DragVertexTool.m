@@ -80,16 +80,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (nullV3f(delta))
         return YES;
     
-    TVector3f oldPosition = [brush vertices]->items[index]->position;
-    
-    int newIndex = [map dragVertex:index brush:brush delta:delta];
-    if (newIndex == -1) {
+    TDragResult result = [map dragVertex:index brush:brush delta:delta];
+    if (result.index == -1) {
         [self endLeftDrag:event ray:ray hits:hits];
-    } else if (newIndex < [brush vertices]->count && !equalV3f(&[brush vertices]->items[newIndex]->position, &oldPosition)) {
+    } else if (result.moved) {
         *lastPoint = nextPoint;
     }
     
-    index = newIndex;
+    index = result.index;
     return index != -1;
 }
 

@@ -327,11 +327,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [entity brushChanged:self];
 }
 
-- (int)dragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta {
+- (TDragResult)dragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta {
     NSMutableArray* addedFaces = [[NSMutableArray alloc] init];
     NSMutableArray* removedFaces = [[NSMutableArray alloc] init];
     
-    int newIndex = dragVertex([self vertexData], theVertexIndex, *theDelta, addedFaces, removedFaces);
+    TDragResult result = dragVertex([self vertexData], theVertexIndex, *theDelta, addedFaces, removedFaces);
 
     for (MutableFace* removedFace in removedFaces) {
         [removedFace setBrush:nil];
@@ -348,14 +348,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [addedFaces release];
     [removedFaces release];
     
-    return newIndex;
+    return result;
 }
 
-- (int)dragEdge:(int)theEdgeIndex by:(const TVector3f *)theDelta {
+- (TDragResult)dragEdge:(int)theEdgeIndex by:(const TVector3f *)theDelta {
     NSMutableArray* addedFaces = [[NSMutableArray alloc] init];
     NSMutableArray* removedFaces = [[NSMutableArray alloc] init];
     
-    int newIndex = dragEdge([self vertexData], theEdgeIndex, *theDelta, addedFaces, removedFaces);
+    TDragResult result = dragEdge([self vertexData], theEdgeIndex, *theDelta, addedFaces, removedFaces);
     
     for (MutableFace* removedFace in removedFaces) {
         [removedFace setBrush:nil];
@@ -372,14 +372,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [addedFaces release];
     [removedFaces release];
     
-    return newIndex;
+    return result;
 }
 
-- (int)dragFace:(int)theFaceIndex by:(const TVector3f *)theDelta {
+- (TDragResult)dragFace:(int)theFaceIndex by:(const TVector3f *)theDelta {
     NSMutableArray* addedFaces = [[NSMutableArray alloc] init];
     NSMutableArray* removedFaces = [[NSMutableArray alloc] init];
     
-    int newIndex = dragSide([self vertexData], theFaceIndex, *theDelta, addedFaces, removedFaces);
+    TDragResult result = dragSide([self vertexData], theFaceIndex, *theDelta, addedFaces, removedFaces);
     
     for (MutableFace* removedFace in removedFaces) {
         [removedFace setBrush:nil];
@@ -396,7 +396,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [addedFaces release];
     [removedFaces release];
     
-    return newIndex;
+    return result;
 }
 
 - (void)deleteFace:(MutableFace *)face {

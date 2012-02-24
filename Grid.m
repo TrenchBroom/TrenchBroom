@@ -541,9 +541,9 @@ int const GridMinSize = 0;
         int c = 0;
         BOOL invertEdge = NO;
         
-        if (vertexIndex(faceVertices, edge->startVertex) != -1)
+        if (findVertex(faceVertices, edge->startVertex) != -1)
             c++;
-        if (vertexIndex(faceVertices, edge->endVertex) != -1) {
+        if (findVertex(faceVertices, edge->endVertex) != -1) {
             c++;
             invertEdge = YES;
         }

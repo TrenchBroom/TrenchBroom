@@ -703,7 +703,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         SelectionManager* selectionManager = [windowController selectionManager];
         if ([selectionManager mode] == SM_BRUSHES) {
             [picker pickCloseFaces:&lastRay brushes:[selectionManager selectedBrushes] maxDistance:10 hitList:currentHits];
-            [picker pickVertices:&lastRay brushes:[selectionManager selectedBrushes] handleRadius:2 hitList:currentHits filter:filter];
+            [picker pickVertices:&lastRay brushes:[selectionManager selectedBrushes] handleRadius:3 hitList:currentHits filter:filter];
         }
     } 
     

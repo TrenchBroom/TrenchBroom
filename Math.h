@@ -172,6 +172,7 @@ BOOL equalV3f(const TVector3f* l, const TVector3f* r);
 BOOL absEqualV3f(const TVector3f* l, const TVector3f* r);
 BOOL intV3f(const TVector3f* v);
 BOOL nullV3f(const TVector3f* v);
+BOOL sameDirV3f(const TVector3f* v1, const TVector3f* v2);
 EAxis strongestComponentV3f(const TVector3f* v);
 EAxis weakestComponentV3f(const TVector3f* v);
 const TVector3f* firstAxisV3f(const TVector3f* v);

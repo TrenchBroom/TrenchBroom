@@ -73,12 +73,20 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     bounds.max = edge->startVertex->position;
     mergeBoundsWithPoint(&bounds, &edge->endVertex->position, &bounds);
     
-    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:delta lastPoint:lastPoint];
+    TVector3f nextPoint = *lastPoint;
+    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:delta lastPoint:&nextPoint];
 
     if (nullV3f(delta))
         return YES;
     
-    index = [map dragEdge:index brush:brush delta:delta];
+    TDragResult result = [map dragEdge:index brush:brush delta:delta];
+    if (result.index == -1) {
+        [self endLeftDrag:event ray:ray hits:hits];
+    } else if (result.moved) {
+        *lastPoint = nextPoint;
+    }
+    
+    index = result.index;
     return index != -1;
 }
 
