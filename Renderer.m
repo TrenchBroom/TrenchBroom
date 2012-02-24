@@ -838,7 +838,7 @@ int const TexCoordSize = 2 * sizeof(float);
                     glPushMatrix();
                     glTranslatef(vertex->x, vertex->y, vertex->z);
                     glScalef(dist / 300, dist / 300, dist / 300);
-                    gluSphere(vertexHandle, 2, 12, 12);
+                    gluSphere(vertexHandle, 3, 12, 12);
                     glPopMatrix();
                 }
                 
@@ -851,7 +851,7 @@ int const TexCoordSize = 2 * sizeof(float);
                     glPushMatrix();
                     glTranslatef(mid.x, mid.y, mid.z);
                     glScalef(dist / 300, dist / 300, dist / 300);
-                    gluSphere(vertexHandle, 2, 12, 12);
+                    gluSphere(vertexHandle, 3, 12, 12);
                     glPopMatrix();
                 }
                 
@@ -862,7 +862,7 @@ int const TexCoordSize = 2 * sizeof(float);
                     glPushMatrix();
                     glTranslatef(mid.x, mid.y, mid.z);
                     glScalef(dist / 300, dist / 300, dist / 300);
-                    gluSphere(vertexHandle, 2, 12, 12);
+                    gluSphere(vertexHandle, 3, 12, 12);
                     glPopMatrix();
                 }
             }
