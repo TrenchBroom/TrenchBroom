@@ -1818,6 +1818,63 @@ int performVertexDrag(TVertexData* vd, int v, const TVector3f d, NSMutableArray*
     return performVertexDrag(vd, vIndex, dragRay.direction, newFaces, removedFaces);
 }
 
+BOOL vertexDragAllowed(TVertexData* vd, int v, const TVector3f d, BOOL k, float maxDist) {
+    TRay ray;
+    TVertex* vertex;
+    TEdge* edge;
+    TVector3f point;
+    float rayDist;
+    float pointDist2;
+    float maxDist2;
+    TVertexList vertexHits;
+    
+    initVertexList(&vertexHits, vd->vertices.count);
+    
+    ray.origin = vd->vertices.items[v]->position;
+    ray.direction = d;
+    
+    for (int i = 0; i < vd->vertices.count; i++) {
+        if (i != v) {
+            vertex = vd->vertices.items[i];
+            rayDist = closestPointOnRay(&vertex->position, &ray);
+            if (!isnan(rayDist) && rayDist <= maxDist) {
+                rayPointAtDistance(&ray, rayDist, &point);
+                if (equalV3f(&vertex->position, &point))
+                    addVertexToList(&vertexHits, vertex);
+            }
+        }
+    }
+    
+    if (!k && vertexHits.count > 0) {
+        freeVertexList(&vertexHits);
+        return NO;
+    }
+    
+    for (int i = 0; i < vertexHits.count; i++) {
+        vertex = vertexHits.items[i];
+        for (int j = 0; j < vd->edges.count; j++) {
+            edge = vd->edges.items[j];
+            if ((edge->startVertex != vertex || edge->endVertex != vd->vertices.items[v]) &&
+                (edge->startVertex != vd->vertices.items[v] || edge->endVertex != vertex))
+                return NO;
+        }
+    }
+    
+    freeVertexList(&vertexHits);
+    
+    maxDist2 = maxDist * maxDist;
+    for (int i = 0; i < vd->edges.count; i++) {
+        edge = vd->edges.items[i];
+        if (edge->startVertex != vd->vertices.items[v] && edge->endVertex != vd->vertices.items[v]) {
+            pointDist2 = distanceOfSegmentAndRaySquared(&edge->startVertex->position, &edge->endVertex->position, &ray, &rayDist);
+            if (!isnan(pointDist2) && rayDist <= AlmostZero && pointDist2 <= maxDist2)
+                return NO;
+        }
+    }
+    
+    return YES;
+}
+
 int splitAndDragEdge(TVertexData* vd, int e, const TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
     TEdge* edge;
     TVertex* vertex;
@@ -2020,7 +2077,7 @@ int dragVertex(TVertexData* vd, int v, const TVector3f d, NSMutableArray* newFac
 int dragEdge(TVertexData* vd, int e, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces) {
     TEdge* edge;
     TVector3f start, end, dir;
-    int newIndex;
+    int startIndex, endIndex, newIndex;
     
     assert(vd != NULL);
     assert(e >= 0 && e < vd->edges.count);
@@ -2038,12 +2095,15 @@ int dragEdge(TVertexData* vd, int e, TVector3f d, NSMutableArray* newFaces, NSMu
     addV3f(&start, &d, &start);
     addV3f(&end, &d, &end);
     
+    startIndex = vertexIndex(&vd->vertices, edge->endVertex);
+    endIndex = vertexIndex(&vd->vertices, edge->startVertex);
+    
     if (dotV3f(&dir, &d) > 0) {
-        dragVertex(vd, vertexIndex(&vd->vertices, edge->endVertex), d, newFaces, removedFaces);
-        dragVertex(vd, vertexIndex(&vd->vertices, edge->startVertex), d, newFaces, removedFaces);
+        dragVertex(vd, endIndex, d, newFaces, removedFaces);
+        dragVertex(vd, startIndex, d, newFaces, removedFaces);
     } else {
-        dragVertex(vd, vertexIndex(&vd->vertices, edge->startVertex), d, newFaces, removedFaces);
-        dragVertex(vd, vertexIndex(&vd->vertices, edge->endVertex), d, newFaces, removedFaces);
+        dragVertex(vd, startIndex, d, newFaces, removedFaces);
+        dragVertex(vd, endIndex, d, newFaces, removedFaces);
     }
     
     newIndex = -1;

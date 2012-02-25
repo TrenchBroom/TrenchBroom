@@ -980,6 +980,14 @@ float intersectSphereWithRay(const TVector3f* c, float ra, const TRay* r) {
 }
 
 float distanceOfPointAndRay(const TVector3f* c, const TRay* r) {
+    float s = distanceOfPointAndRaySquared(c, r);
+    if (isnan(s))
+        return s;
+    
+    return sqrt(s);
+}
+
+float distanceOfPointAndRaySquared(const TVector3f* c, const TRay* r) {
     float d = closestPointOnRay(c, r);
     if (isnan(d))
         return NAN;
@@ -987,7 +995,7 @@ float distanceOfPointAndRay(const TVector3f* c, const TRay* r) {
     TVector3f p, pc;
     rayPointAtDistance(r, d, &p);
     subV3f(c, &p, &pc);
-    return lengthV3f(&pc);
+    return lengthSquaredV3f(&pc);
 }
 
 float closestPointOnRay(const TVector3f* c, const TRay* r) {
@@ -1051,7 +1059,10 @@ float distanceOfSegmentAndRaySquared(const TVector3f* ss, const TVector3f* se, c
 }
 
 float distanceOfSegmentAndRay(const TVector3f* ss, const TVector3f* se, const TRay* r, float* rd) {
-    return sqrt(distanceOfSegmentAndRaySquared(ss, se, r, rd));
+    float s = distanceOfSegmentAndRaySquared(ss, se, r, rd);
+    if (isnan(s))
+        return s;
+    return sqrt(s);
 }
 
 void rayPointAtDistance(const TRay* r, float d, TVector3f* p) {

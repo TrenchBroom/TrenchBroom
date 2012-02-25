@@ -249,6 +249,7 @@ void pointOnCubicBezierCurve(const TCubicBezierCurve* c, float t, TVector3f* r);
 
 float intersectSphereWithRay(const TVector3f* c, float ra, const TRay* r);
 float distanceOfPointAndRay(const TVector3f* c, const TRay* r);
+float distanceOfPointAndRaySquared(const TVector3f* c, const TRay* r);
 float closestPointOnRay(const TVector3f* c, const TRay* r);
 float distanceOfSegmentAndRay(const TVector3f* ss, const TVector3f* se, const TRay* r, float* rd);
 float distanceOfSegmentAndRaySquared(const TVector3f* ss, const TVector3f* se, const TRay* r, float* rd);
