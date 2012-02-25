@@ -112,13 +112,18 @@ typedef struct {
     TBoundingBox bounds;
 } TVertexData;
 
+typedef struct {
+    int index;
+    BOOL moved;
+} TDragResult;
+
 void initIndexList(TIndexList* l, int c);
 void addIndexToList(TIndexList* l, int i);
 void removeIndexFromList(TIndexList* l, int i);
 void removeSuffixFromIndexList(TIndexList* l, int i);
 void clearIndexList(TIndexList* l);
 void appendIndexList(const TIndexList* s, int si, int sc, TIndexList* d);
-int indexIndex(const TIndexList* l, int i);
+int findIndex(const TIndexList* l, int i);
 void freeIndexList(TIndexList* l);
 
 void initVertexList(TVertexList* l, int c);
@@ -127,7 +132,8 @@ void removeVertexFromList(TVertexList* l, int i);
 void removeSuffixFromVertexList(TVertexList* l, int i);
 void clearVertexList(TVertexList* l);
 void appendVertexList(const TVertexList* s, int si, int sc, TVertexList* d);
-int vertexIndex(const TVertexList* l, const TVertex* v);
+int findVertex(const TVertexList* l, const TVertex* v);
+int findVertexLike(const TVertexList* l, const TVector3f* v);
 void freeVertexList(TVertexList* l);
 
 void initEdgeList(TEdgeList* l, int c);
@@ -136,7 +142,8 @@ void removeEdgeFromList(TEdgeList* l, int i);
 void removeSuffixFromEdgeList(TEdgeList* l, int i);
 void clearEdgeList(TEdgeList* l);
 void appendEdgeList(const TEdgeList* s, int si, int sc, TEdgeList* d);
-int edgeIndex(const TEdgeList* l, const TEdge* e);
+int findEdge(const TEdgeList* l, const TEdge* e);
+int findEdgeLike(const TEdgeList* l, const TVector3f* v1, const TVector3f* v2);
 void freeEdgeList(TEdgeList* l);
 
 void initSideList(TSideList* l, int c);
@@ -145,7 +152,8 @@ void removeSideFromList(TSideList* l, int i);
 void removeSuffixFromSideList(TSideList* l, int i);
 void clearSideList(TSideList* l);
 void appendSideList(const TSideList* s, int si, int sc, TSideList* d);
-int sideIndex(const TSideList* l, const TSide* s);
+int findSide(const TSideList* l, const TSide* s);
+int findSideLike(const TSideList* l, const TVector3f* v, int c);
 void freeSideList(TSideList* l);
 
 void centerOfVertices(const TVertexList* v, TVector3f* c);
@@ -187,9 +195,9 @@ void flipVertexData(TVertexData* vd, EAxis a, const TVector3f* c);
 BOOL vertexDataContainsPoint(TVertexData* vd, const TVector3f* p);
 EPointStatus vertexStatusFromRay(const TVector3f* o, const TVector3f* d, const TVertexList* ps);
 
-int dragVertex(TVertexData* vd, int v, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
-int dragEdge(TVertexData* vd, int e, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
-int dragSide(TVertexData* vd, int s, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
+TDragResult dragVertex(TVertexData* vd, int v, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
+TDragResult dragEdge(TVertexData* vd, int e, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
+TDragResult dragSide(TVertexData* vd, int s, TVector3f d, NSMutableArray* newFaces, NSMutableArray* removedFaces);
 
 void snapVertexData(TVertexData* vd);
 BOOL sanityCheck(const TVertexData* vd, BOOL cc);

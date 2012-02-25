@@ -19,6 +19,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "DefaultTool.h"
 #import "MapWindowController.h"
+#import "Figure.h"
+#import "Renderer.h"
 
 @implementation DefaultTool
 
@@ -28,6 +30,20 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
     
     return self;
+}
+
+- (void)addFeedbackFigure:(id <Figure>)theFigure {
+    NSAssert(theFigure != nil, @"figure must not be nil");
+    
+    Renderer* renderer = [windowController renderer];
+    [renderer addFeedbackFigure:theFigure];
+}
+
+- (void)removeFeedbackFigure:(id <Figure>)theFigure {
+    NSAssert(theFigure != nil, @"figure must not be nil");
+    
+    Renderer* renderer = [windowController renderer];
+    [renderer removeFeedbackFigure:theFigure];
 }
 
 - (void)activated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}

@@ -30,8 +30,24 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "SelectionManager.h"
 #import "MutableBrush.h"
 #import "Face.h"
+#import "VertexFeedbackFigure.h"
 
 @implementation DragVertexTool
+
+- (id)initWithWindowController:(MapWindowController *)theWindowController {
+    if ((self = [super initWithWindowController:theWindowController])) {
+        Camera* camera = [theWindowController camera];
+        TVector4f color = {1, 1, 1, 1};
+        vertexFigure = [[VertexFeedbackFigure alloc] initWithCamera:camera radius:3 color:&color];
+    }
+    
+    return self;
+}
+
+- (void)dealloc {
+    [vertexFigure release];
+    [super dealloc];
+}
 
 - (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     [hits retain];
@@ -53,14 +69,19 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         if (index < vertices->count) {
             TVertex* vertex = vertices->items[index];
             *lastPoint = vertex->position;
+            [vertexFigure setVertex:vertex];
         } else if (index < vertices->count + edges->count) {
             TEdge* edge = edges->items[index - vertices->count];
             centerOfEdge(edge, lastPoint);
+            [vertexFigure setPosition:lastPoint];
         } else {
             // the side index is not necessarily the same as the face index!!!
             id <Face> face = [[brush faces] objectAtIndex:index - edges->count - vertices->count];
             centerOfVertices([face vertices], lastPoint);
+            [vertexFigure setPosition:lastPoint];
         }
+
+        [self addFeedbackFigure:vertexFigure];
     }
     
     [hits release];
@@ -80,16 +101,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (nullV3f(delta))
         return YES;
     
-    TVector3f oldPosition = [brush vertices]->items[index]->position;
-    
-    int newIndex = [map dragVertex:index brush:brush delta:delta];
-    if (newIndex == -1) {
+    TDragResult result = [map dragVertex:index brush:brush delta:delta];
+    if (result.index == -1) {
         [self endLeftDrag:event ray:ray hits:hits];
-    } else if (newIndex < [brush vertices]->count && !equalV3f(&[brush vertices]->items[newIndex]->position, &oldPosition)) {
+    } else if (result.moved) {
         *lastPoint = nextPoint;
+        TVertex* vertex = [brush vertices]->items[result.index];
+        [vertexFigure setVertex:vertex];
     }
     
-    index = newIndex;
+    index = result.index;
     return index != -1;
 }
 
@@ -100,6 +121,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
 
+    [self removeFeedbackFigure:vertexFigure];
     brush = nil;
     index = -1;
 }

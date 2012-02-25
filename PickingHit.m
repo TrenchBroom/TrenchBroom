@@ -68,6 +68,29 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return distance;
 }
 
+- (NSString *)description {
+    NSString* typeStr;
+    switch (type) {
+        case HT_ENTITY:
+            typeStr = @"HT_ENTITY";
+            break;
+        case HT_FACE:
+            typeStr = @"HT_FACE";
+            break;
+        case HT_CLOSE_FACE:
+            typeStr = @"HT_CLOSE_FACE";
+            break;
+        case HT_VERTEX:
+            typeStr = @"HT_VERTEX";
+            break;
+        default:
+            typeStr = @"unknown";
+            break;
+    }
+    
+    return [NSString stringWithFormat:@"Type: %@, object %@, hit point %f %f %f, vertex index %i, distance %f", typeStr, object, hitPoint.x, hitPoint.y, hitPoint.z, vertexIndex, distance];
+}
+
 - (NSComparisonResult)compareTo:(PickingHit *)other {
     if (distance < [other distance])
         return NSOrderedAscending;

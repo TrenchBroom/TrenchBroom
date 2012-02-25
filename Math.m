@@ -255,6 +255,22 @@ BOOL nullV3f(const TVector3f* v) {
     return equalV3f(v, &NullVector);
 }
 
+BOOL sameDirV3f(const TVector3f* v1, const TVector3f* v2) {
+    TVector3f cross;
+    crossV3f(v1, v2, &cross);
+    if (!nullV3f(&cross))
+        return NO;
+
+    if (v1->x != 0)
+        return v1->x > 0 == v2->x > 0;
+    else if (v1->y != 0)
+        return v1->y > 0 == v2->y > 0;
+    else if (v1->z != 0)
+        return v1->z > 0 == v2->z > 0;
+    
+    return nullV3f(v2);
+}
+
 BOOL intV3f(const TVector3f* v) {
     return v->x == (int)v->x && v->y == (int)v->y && v->z == (int)v->z;
 }

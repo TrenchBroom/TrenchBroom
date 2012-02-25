@@ -30,8 +30,19 @@
 #import "SelectionManager.h"
 #import "MutableBrush.h"
 #import "Face.h"
+#import "FaceFeedbackFigure.h"
 
 @implementation DragFaceTool
+
+- (id)initWithWindowController:(MapWindowController *)theWindowController {
+    if ((self = [super initWithWindowController:theWindowController])) {
+        Camera* camera = [theWindowController camera];
+        TVector4f color = {1, 1, 1, 1};
+        faceFigure = [[FaceFeedbackFigure alloc] initWithCamera:camera radius:3 color:&color];
+    }
+    
+    return self;
+}
 
 - (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     [hits retain];
@@ -53,8 +64,10 @@
             [map snapBrushes:[NSArray arrayWithObject:brush]];
             
             id <Face> face = [faces objectAtIndex:index];
-            
             centerOfVertices([face vertices], lastPoint);
+            
+            [faceFigure setVertices:[face vertices]];
+            [self addFeedbackFigure:faceFigure];
         }
     }
     
@@ -73,12 +86,22 @@
     id <Face> face = [[brush faces] objectAtIndex:index];
     boundsOfVertices([face vertices], &bounds);
     
-    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:delta lastPoint:lastPoint];
+    TVector3f nextPoint = *lastPoint;
+    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:delta lastPoint:&nextPoint];
     
     if (nullV3f(delta))
         return YES;
     
-    index = [map dragFace:index brush:brush delta:delta];
+    TDragResult result = [map dragFace:index brush:brush delta:delta];
+    if (result.index == -1) {
+        [self endLeftDrag:event ray:ray hits:hits];
+    } else if (result.moved) {
+        face = [[brush faces] objectAtIndex:result.index];
+        [faceFigure setVertices:[face vertices]];
+        *lastPoint = nextPoint;
+    }
+    
+    index = result.index;
     return index != -1;
 }
 
@@ -89,6 +112,7 @@
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
     
+    [self removeFeedbackFigure:faceFigure];
     brush = nil;
     index = -1;
 }

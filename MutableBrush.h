@@ -57,9 +57,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist;
 - (void)drag:(MutableFace *)face by:(float)dist lockTexture:(BOOL)lockTexture;
 
-- (int)dragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta;
-- (int)dragEdge:(int)theEdgeIndex by:(const TVector3f *)theDelta;
-- (int)dragFace:(int)theFaceIndex by:(const TVector3f *)theDelta;
+- (TDragResult)dragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta;
+- (TDragResult)dragEdge:(int)theEdgeIndex by:(const TVector3f *)theDelta;
+- (TDragResult)dragFace:(int)theFaceIndex by:(const TVector3f *)theDelta;
 
 - (void)deleteFace:(MutableFace *)ace;
 - (BOOL)canDeleteFace:(MutableFace *)face;

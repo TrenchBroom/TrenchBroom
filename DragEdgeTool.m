@@ -30,8 +30,24 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "SelectionManager.h"
 #import "MutableBrush.h"
 #import "Face.h"
+#import "EdgeFeedbackFigure.h"
 
 @implementation DragEdgeTool
+
+- (id)initWithWindowController:(MapWindowController *)theWindowController {
+    if ((self = [super initWithWindowController:theWindowController])) {
+        Camera* camera = [theWindowController camera];
+        TVector4f color = {1, 1, 1, 1};
+        edgeFigure = [[EdgeFeedbackFigure alloc] initWithCamera:camera radius:3 color:&color];
+    }
+    
+    return self;
+}
+
+- (void)dealloc {
+    [edgeFigure release];
+    [super dealloc];
+}
 
 - (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     [hits retain];
@@ -53,6 +69,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             
             TEdge* edge = edges->items[index];
             centerOfEdge(edge, lastPoint);
+
+            [edgeFigure setEdge:edge];
+            [self addFeedbackFigure:edgeFigure];
         }
     }
     
@@ -73,12 +92,22 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     bounds.max = edge->startVertex->position;
     mergeBoundsWithPoint(&bounds, &edge->endVertex->position, &bounds);
     
-    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:delta lastPoint:lastPoint];
+    TVector3f nextPoint = *lastPoint;
+    [grid moveDeltaForBounds:&bounds worldBounds:worldBounds delta:delta lastPoint:&nextPoint];
 
     if (nullV3f(delta))
         return YES;
     
-    index = [map dragEdge:index brush:brush delta:delta];
+    TDragResult result = [map dragEdge:index brush:brush delta:delta];
+    if (result.index == -1) {
+        [self endLeftDrag:event ray:ray hits:hits];
+    } else if (result.moved) {
+        TEdge* edge = [brush edges]->items[result.index];
+        [edgeFigure setEdge:edge];
+        *lastPoint = nextPoint;
+    }
+    
+    index = result.index;
     return index != -1;
 }
 
@@ -88,7 +117,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager setActionName:[self actionName]];
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
-    
+
+    [self removeFeedbackFigure:edgeFigure];
     brush = nil;
     index = -1;
 }
