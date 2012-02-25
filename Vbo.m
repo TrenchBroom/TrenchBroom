@@ -218,11 +218,8 @@ void insertFreeVboBlock(VboBlock* block) {
     assert(index >= 0 && index <= vbo->freeBlocksCount);
 
     if (vbo->freeBlocksCount == vbo->freeBlocksCapacity) {
-        VboBlock** temp = vbo->freeBlocks;
         vbo->freeBlocksCapacity *= 2;
-        vbo->freeBlocks = malloc(vbo->freeBlocksCapacity * sizeof(VboBlock*));
-        memcpy(vbo->freeBlocks, temp, vbo->freeBlocksCount * sizeof(VboBlock*));
-        free(temp);
+        vbo->freeBlocks = realloc(vbo->freeBlocks, vbo->freeBlocksCapacity * sizeof(VboBlock*));
     }
 
     for (int i = vbo->freeBlocksCount; i > index; i--)

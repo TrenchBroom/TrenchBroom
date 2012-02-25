@@ -26,15 +26,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation TextRenderer
 
-- (id)initWithFontManager:(GLFontManager *)theFontManager camera:(Camera *)theCamera {
+- (id)initWithFontManager:(GLFontManager *)theFontManager camera:(Camera *)theCamera fadeDistance:(float)theFadeDistance {
     NSAssert(theFontManager != nil, @"font manager must not be nil");
     NSAssert(theCamera != nil, @"camera must not be nil");
+    NSAssert(theFadeDistance > 0, @"fade distance must be greater than 0");
     
     if ((self = [self init])) {
         strings = [[NSMutableDictionary alloc] init];
         anchors = [[NSMutableDictionary alloc] init];
         fontManager = [theFontManager retain];
         camera = [theCamera retain];
+        fadeDistance = theFadeDistance;
     }
     
     return self;
@@ -100,9 +102,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         [anchor position:&position];
         float dist = [camera distanceTo:&position];
-        if (dist <= 500) {
-            if (dist >= 400) {
-                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w - theColor->w * (dist - 400) / 100);
+        if (dist <= fadeDistance + 100) {
+            if (dist >= fadeDistance) {
+                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w - theColor->w * (dist - fadeDistance) / 100);
             } else {
                 glColor4f(theColor->x, theColor->y, theColor->z, theColor->w);
             }

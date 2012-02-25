@@ -106,7 +106,6 @@
 		4880CE6514F1146400F53AAF /* editing_objects.html in Resources */ = {isa = PBXBuildFile; fileRef = 4880CE3914F1146400F53AAF /* editing_objects.html */; };
 		4880CE6614F1146400F53AAF /* getting_started.html in Resources */ = {isa = PBXBuildFile; fileRef = 4880CE3A14F1146400F53AAF /* getting_started.html */; };
 		4880CE6714F1146400F53AAF /* selecting_objects.html in Resources */ = {isa = PBXBuildFile; fileRef = 4880CE3B14F1146400F53AAF /* selecting_objects.html */; };
-		4880CE6814F1146400F53AAF /* jquery.js in Sources */ = {isa = PBXBuildFile; fileRef = 4880CE3D14F1146400F53AAF /* jquery.js */; };
 		4880CE6914F1146400F53AAF /* style.css in Resources */ = {isa = PBXBuildFile; fileRef = 4880CE3F14F1146400F53AAF /* style.css */; };
 		4880CE6A14F1146400F53AAF /* TrenchBroom.html in Resources */ = {isa = PBXBuildFile; fileRef = 4880CE4014F1146400F53AAF /* TrenchBroom.html */; };
 		4880CE6B14F1146400F53AAF /* camera_navigation_quick_info.png in Resources */ = {isa = PBXBuildFile; fileRef = 4880CE4314F1146400F53AAF /* camera_navigation_quick_info.png */; };
@@ -1520,7 +1519,7 @@
 		2A37F4A9FDCFA73011CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0410;
+				LastUpgradeCheck = 0420;
 			};
 			buildConfigurationList = C05733CB08A9546B00998B17 /* Build configuration list for PBXProject "TrenchBroom" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1760,7 +1759,6 @@
 				48ED399714E06A3A008AEBDB /* DragEdgeTool.m in Sources */,
 				48ED399B14E07E67008AEBDB /* DragFaceTool.m in Sources */,
 				48C81D4014F059B2009F81B1 /* DragTool.m in Sources */,
-				4880CE6814F1146400F53AAF /* jquery.js in Sources */,
 				482BF7BF14F9464A000AB8B0 /* VertexFeedbackFigure.m in Sources */,
 				482BF7C214F95051000AB8B0 /* EdgeFeedbackFigure.m in Sources */,
 				482BF7C514F954B4000AB8B0 /* FaceFeedbackFigure.m in Sources */,

@@ -27,13 +27,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @interface TextRenderer : NSObject {
 @private
+    float fadeDistance;
     Camera* camera;
     GLFontManager* fontManager;
     NSMutableDictionary* strings;
     NSMutableDictionary* anchors;
 }
 
-- (id)initWithFontManager:(GLFontManager *)theFontManager camera:(Camera *)theCamera;
+- (id)initWithFontManager:(GLFontManager *)theFontManager camera:(Camera *)theCamera fadeDistance:(float)theFadeDistance;
 
 - (void)addString:(NSString *)theString forKey:(id <NSCopying>)theKey withFont:(NSFont *)theFont withAnchor:(id <TextAnchor>)theAnchor;
 - (void)removeStringForKey:(id <NSCopying>)theKey;

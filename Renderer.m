@@ -1111,8 +1111,8 @@ int const TexCoordSize = 2 * sizeof(float);
         
         faceIndexBuffers = [[NSMutableDictionary alloc] init];
         selectedFaceIndexBuffers = [[NSMutableDictionary alloc] init];
-        classnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:[windowController camera]];
-        selectedClassnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:[windowController camera]];
+        classnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:[windowController camera] fadeDistance:400];
+        selectedClassnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:[windowController camera] fadeDistance:2000];
         entityRenderers = [[NSMutableDictionary alloc] init];
         modelEntities = [[NSMutableArray alloc] init];
         selectedModelEntities = [[NSMutableArray alloc] init];

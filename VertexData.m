@@ -37,11 +37,8 @@ void addIndexToList(TIndexList* l, int i) {
     assert(l != NULL);
     
     if (l->count == l->capacity) {
-        int* t = l->items;
         l->capacity *= 2;
-        l->items = malloc(l->capacity * sizeof(int));
-        memcpy(l->items, t, l->count * sizeof(int));
-        free(t);
+        l->items = realloc(l->items, l->capacity * sizeof(int));
     }
     
     l->items[l->count++] = i;
@@ -101,11 +98,8 @@ void addVertexToList(TVertexList* l, TVertex* v) {
     assert(v != NULL);
     
     if (l->count == l->capacity) {
-        TVertex** t = l->items;
         l->capacity *= 2;
-        l->items = malloc(l->capacity * sizeof(TVertex **));
-        memcpy(l->items, t, l->count * sizeof(TVertex **));
-        free(t);
+        l->items = realloc(l->items, l->capacity * sizeof(TVertex **));
     }
 
     l->items[l->count++] = v;
@@ -172,11 +166,8 @@ void addEdgeToList(TEdgeList* l, TEdge* e) {
     assert(e != NULL);
     
     if (l->count == l->capacity) {
-        TEdge** t = l->items;
         l->capacity *= 2;
-        l->items = malloc(l->capacity * sizeof(TEdge **));
-        memcpy(l->items, t, l->count * sizeof(TEdge **));
-        free(t);
+        l->items = realloc(l->items, l->capacity * sizeof(TEdge **));
     }
     
     l->items[l->count++] = e;
@@ -247,11 +238,8 @@ void addSideToList(TSideList* l, TSide* s) {
     assert(s != NULL);
     
     if (l->count == l->capacity) {
-        TSide** t = l->items;
         l->capacity *= 2;
-        l->items = malloc(l->capacity * sizeof(TSide **));
-        memcpy(l->items, t, l->count * sizeof(TSide **));
-        free(t);
+        l->items = realloc(l->items, l->capacity * sizeof(TSide **));
     }
     
     l->items[l->count++] = s;

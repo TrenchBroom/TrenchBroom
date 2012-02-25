@@ -52,10 +52,7 @@ void gluTessEndData(GLStringData* data) {
 @implementation GLFontManager (private)
 
 - (void)resizePointArrayTo:(int)capacity {
-    NSPoint* temp = malloc(capacity * sizeof(NSPoint));
-    memcpy(temp, points, fmin(pointCapacity, capacity) * sizeof(NSPoint));
-    free(points);
-    points = temp;
+    points = realloc(points, capacity * sizeof(NSPoint));
     pointCapacity = capacity;
 }
 
