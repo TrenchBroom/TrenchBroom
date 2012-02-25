@@ -67,7 +67,6 @@
 						<string key="NSFrame">{{1, -2}, {399, 795}}</string>
 						<reference key="NSSuperview" ref="1005"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="569284412"/>
 						<string key="NSReuseIdentifierKey">_NS:461</string>
 						<array class="NSMutableArray" key="NSTabViewItems">
 							<object class="NSTabViewItem" id="659371525">
@@ -2117,7 +2116,7 @@
 														<object class="NSTextField" id="819330064">
 															<reference key="NSNextResponder" ref="599151485"/>
 															<int key="NSvFlags">268</int>
-															<string key="NSFrame">{{15, 130}, {30, 17}}</string>
+															<string key="NSFrame">{{15, 130}, {50, 17}}</string>
 															<reference key="NSSuperview" ref="599151485"/>
 															<reference key="NSWindow"/>
 															<reference key="NSNextKeyView" ref="409358104"/>
@@ -2203,7 +2202,6 @@
 																	<object class="NSSegmentItem">
 																		<double key="NSSegmentItemWidth">76</double>
 																		<string key="NSSegmentItemLabel">None</string>
-																		<string key="NSSegmentItemTooltip">Disables selection isolation.</string>
 																		<bool key="NSSegmentItemSelected">YES</bool>
 																		<int key="NSSegmentItemImageScaling">0</int>
 																	</object>
@@ -2217,7 +2215,6 @@
 																	<object class="NSSegmentItem">
 																		<double key="NSSegmentItemWidth">75</double>
 																		<string key="NSSegmentItemLabel">Discard</string>
-																		<string key="NSSegmentItemTooltip">Unselected objects are not rendered at all.</string>
 																		<int key="NSSegmentItemImageScaling">0</int>
 																	</object>
 																</array>
@@ -2255,7 +2252,6 @@
 																	<object class="NSSegmentItem">
 																		<double key="NSSegmentItemWidth">75</double>
 																		<string key="NSSegmentItemLabel">Wireframe</string>
-																		<string key="NSSegmentItemTooltip">Brushes are rendered as wireframe models.</string>
 																		<int key="NSSegmentItemImageScaling">0</int>
 																	</object>
 																</array>
@@ -2798,7 +2794,6 @@
 											<string key="NSFrame">{{312, 282}, {40, 17}}</string>
 											<reference key="NSSuperview" ref="569284412"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView"/>
 											<bool key="NSEnabled">YES</bool>
 											<object class="NSTextFieldCell" key="NSCell" id="372329210">
 												<int key="NSCellFlags">68288064</int>
@@ -5325,6 +5320,7 @@
 				<string key="18.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="182.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="183.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<integer value="2" key="184.IBNSSegmentedControlInspectorSelectedSegmentMetadataKey"/>
 				<string key="184.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<integer value="0" key="184.IBSegmentedControlInspectorSelectedSegmentMetadataKey"/>
 				<object class="NSMutableDictionary" key="185.IBAttributePlaceholdersKey">
@@ -5335,7 +5331,7 @@
 						<string key="toolTip">Render everything</string>
 					</object>
 				</object>
-				<integer value="2" key="185.IBNSSegmentedControlInspectorSelectedSegmentMetadataKey"/>
+				<integer value="0" key="185.IBNSSegmentedControlInspectorSelectedSegmentMetadataKey"/>
 				<string key="185.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<integer value="0" key="185.IBSegmentedControlInspectorSelectedSegmentMetadataKey"/>
 				<string key="186.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>

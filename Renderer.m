@@ -724,7 +724,7 @@ int const TexCoordSize = 2 * sizeof(float);
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 
     if (color != NULL) {
-        glColor4f(color->x, color->y, color->z, color->w);
+        glColorV4f(color);
         glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
     } else {
         glEnableClientState(GL_COLOR_ARRAY);
@@ -793,23 +793,17 @@ int const TexCoordSize = 2 * sizeof(float);
         }
     }
     
-    if (textured) {
+    if (textured)
         glDisable(GL_TEXTURE_2D);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    }
     
     if ([grid draw]) {
         glActiveTexture(GL_TEXTURE1);
+        [grid deactivateTexture];
         glDisable(GL_TEXTURE_2D);
-        glClientActiveTexture(GL_TEXTURE1);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        
         glActiveTexture(GL_TEXTURE0);
-        glClientActiveTexture(GL_TEXTURE0);
     }
 
     glPopClientAttrib();
-    glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 - (void)renderVertexHandles {
@@ -1243,12 +1237,10 @@ int const TexCoordSize = 2 * sizeof(float);
         glResetEdgeOffset();
         
         if ([[windowController selectionManager] hasSelection]) {
-            glSetEdgeOffset(0.6f);
             glDisable(GL_DEPTH_TEST);
             [self renderEdges:&SelectionColor2 indexBuffer:selectedEdgeIndexBuffer];
-            glResetEdgeOffset();
 
-            glSetEdgeOffset(0.7f);
+            glSetEdgeOffset(0.6f);
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LEQUAL);
             [self renderEdges:&SelectionColor indexBuffer:selectedEdgeIndexBuffer];
@@ -1320,7 +1312,7 @@ int const TexCoordSize = 2 * sizeof(float);
      
     PreferencesManager* preferences = [PreferencesManager sharedManager];
     float brightness = [preferences brightness];
-    if(brightness > 1) {
+    if (brightness > 1) {
         glBlendFunc(GL_DST_COLOR, GL_ONE);
         glColor3f(brightness - 1, brightness - 1, brightness - 1);
     } else {
