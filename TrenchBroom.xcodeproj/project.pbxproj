@@ -27,6 +27,9 @@
 		481D301012FAE5C0001CBD9E /* GLFontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 481D300F12FAE5C0001CBD9E /* GLFontManager.m */; };
 		482A2C1E13A8ACF7009FEFC2 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 482A2C1D13A8ACF7009FEFC2 /* PreferencesWindow.xib */; };
 		482B817E13169EB200F36EF5 /* GLException.m in Sources */ = {isa = PBXBuildFile; fileRef = 482B817D13169EB200F36EF5 /* GLException.m */; };
+		482BF7BF14F9464A000AB8B0 /* VertexFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482BF7BE14F9464A000AB8B0 /* VertexFeedbackFigure.m */; };
+		482BF7C214F95051000AB8B0 /* EdgeFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482BF7C114F95051000AB8B0 /* EdgeFeedbackFigure.m */; };
+		482BF7C514F954B4000AB8B0 /* FaceFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482BF7C414F954B4000AB8B0 /* FaceFeedbackFigure.m */; };
 		482F0050134107DC00849BF5 /* ClipLineFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482F004F134107DC00849BF5 /* ClipLineFeedbackFigure.m */; };
 		482F008213410F7400849BF5 /* ClipPlaneFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 482F008113410F7400849BF5 /* ClipPlaneFeedbackFigure.m */; };
 		482FFF011340E10E00849BF5 /* ClipTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 482FFF001340E10E00849BF5 /* ClipTool.m */; };
@@ -303,6 +306,12 @@
 		482A2C1D13A8ACF7009FEFC2 /* PreferencesWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindow.xib; sourceTree = "<group>"; };
 		482B817C13169EB200F36EF5 /* GLException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLException.h; sourceTree = "<group>"; };
 		482B817D13169EB200F36EF5 /* GLException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLException.m; sourceTree = "<group>"; };
+		482BF7BD14F9464A000AB8B0 /* VertexFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexFeedbackFigure.h; sourceTree = "<group>"; };
+		482BF7BE14F9464A000AB8B0 /* VertexFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VertexFeedbackFigure.m; sourceTree = "<group>"; };
+		482BF7C014F95051000AB8B0 /* EdgeFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EdgeFeedbackFigure.h; sourceTree = "<group>"; };
+		482BF7C114F95051000AB8B0 /* EdgeFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EdgeFeedbackFigure.m; sourceTree = "<group>"; };
+		482BF7C314F954B3000AB8B0 /* FaceFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceFeedbackFigure.h; sourceTree = "<group>"; };
+		482BF7C414F954B4000AB8B0 /* FaceFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceFeedbackFigure.m; sourceTree = "<group>"; };
 		482F004E134107DC00849BF5 /* ClipLineFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipLineFeedbackFigure.h; sourceTree = "<group>"; };
 		482F004F134107DC00849BF5 /* ClipLineFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipLineFeedbackFigure.m; sourceTree = "<group>"; };
 		482F008013410F7400849BF5 /* ClipPlaneFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipPlaneFeedbackFigure.h; sourceTree = "<group>"; };
@@ -792,6 +801,35 @@
 			name = VertexData;
 			sourceTree = "<group>";
 		};
+		482BF7BB14F94628000AB8B0 /* Figures */ = {
+			isa = PBXGroup;
+			children = (
+				48CB060C13EC2E680051640E /* BoundsFeedbackFigure.m */,
+				48DBE7431341CCD200C0FDE7 /* ClipBrushFeedbackFigure.h */,
+				48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */,
+				482F004E134107DC00849BF5 /* ClipLineFeedbackFigure.h */,
+				482F004F134107DC00849BF5 /* ClipLineFeedbackFigure.m */,
+				482F008013410F7400849BF5 /* ClipPlaneFeedbackFigure.h */,
+				482F008113410F7400849BF5 /* ClipPlaneFeedbackFigure.m */,
+				482FFF161340E56000849BF5 /* ClipPointFeedbackFigure.h */,
+				482FFF171340E56000849BF5 /* ClipPointFeedbackFigure.m */,
+				48325D4513524F7000E703E0 /* CompassFigure.h */,
+				48325D4613524F7000E703E0 /* CompassFigure.m */,
+				482FFF111340E3C600849BF5 /* Figure.h */,
+				483AB7A51410C4E400B5F44E /* PointFileFeedbackFigure.h */,
+				483AB7A61410C4E400B5F44E /* PointFileFeedbackFigure.m */,
+				486E08B113B5EF2C00E751A6 /* RotateFeedbackFigure.h */,
+				486E08B213B5EF2C00E751A6 /* RotateFeedbackFigure.m */,
+				482BF7BD14F9464A000AB8B0 /* VertexFeedbackFigure.h */,
+				482BF7BE14F9464A000AB8B0 /* VertexFeedbackFigure.m */,
+				482BF7C014F95051000AB8B0 /* EdgeFeedbackFigure.h */,
+				482BF7C114F95051000AB8B0 /* EdgeFeedbackFigure.m */,
+				482BF7C314F954B3000AB8B0 /* FaceFeedbackFigure.h */,
+				482BF7C414F954B4000AB8B0 /* FaceFeedbackFigure.m */,
+			);
+			name = Figures;
+			sourceTree = "<group>";
+		};
 		483048F913A13A8A002CA97B /* Alias */ = {
 			isa = PBXGroup;
 			children = (
@@ -980,33 +1018,18 @@
 		487E31F3114F741F0043A111 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
+				482BF7BB14F94628000AB8B0 /* Figures */,
 				48025140133A1211001C51F2 /* PrimitiveRenderer */,
 				489DC65D12F9EBF500053092 /* Text */,
 				48CB060B13EC2E680051640E /* BoundsFeedbackFigure.h */,
-				48CB060C13EC2E680051640E /* BoundsFeedbackFigure.m */,
-				48DBE7431341CCD200C0FDE7 /* ClipBrushFeedbackFigure.h */,
-				48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */,
-				482F004E134107DC00849BF5 /* ClipLineFeedbackFigure.h */,
-				482F004F134107DC00849BF5 /* ClipLineFeedbackFigure.m */,
-				482F008013410F7400849BF5 /* ClipPlaneFeedbackFigure.h */,
-				482F008113410F7400849BF5 /* ClipPlaneFeedbackFigure.m */,
-				482FFF161340E56000849BF5 /* ClipPointFeedbackFigure.h */,
-				482FFF171340E56000849BF5 /* ClipPointFeedbackFigure.m */,
-				48325D4513524F7000E703E0 /* CompassFigure.h */,
-				48325D4613524F7000E703E0 /* CompassFigure.m */,
-				482FFF111340E3C600849BF5 /* Figure.h */,
 				4888732813436206005FCE15 /* FloatData.h */,
 				4888732913436206005FCE15 /* FloatData.m */,
 				488C8EDF12F6C3ED00F358E6 /* IntData.h */,
 				488C8EE012F6C3ED00F358E6 /* IntData.m */,
-				483AB7A51410C4E400B5F44E /* PointFileFeedbackFigure.h */,
-				483AB7A61410C4E400B5F44E /* PointFileFeedbackFigure.m */,
 				488F853A13F51FAE00DA0403 /* RenderChangeSet.h */,
 				488F853B13F51FAE00DA0403 /* RenderChangeSet.m */,
 				487A7E631300801A00434806 /* Renderer.h */,
 				487A7E641300801A00434806 /* Renderer.m */,
-				486E08B113B5EF2C00E751A6 /* RotateFeedbackFigure.h */,
-				486E08B213B5EF2C00E751A6 /* RotateFeedbackFigure.m */,
 				484C28FA115023A2004DD957 /* Vbo.h */,
 				484C28FB115023A2004DD957 /* Vbo.m */,
 			);
@@ -1738,6 +1761,9 @@
 				48ED399B14E07E67008AEBDB /* DragFaceTool.m in Sources */,
 				48C81D4014F059B2009F81B1 /* DragTool.m in Sources */,
 				4880CE6814F1146400F53AAF /* jquery.js in Sources */,
+				482BF7BF14F9464A000AB8B0 /* VertexFeedbackFigure.m in Sources */,
+				482BF7C214F95051000AB8B0 /* EdgeFeedbackFigure.m in Sources */,
+				482BF7C514F954B4000AB8B0 /* FaceFeedbackFigure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

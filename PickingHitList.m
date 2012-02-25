@@ -96,6 +96,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return hitList;
 }
 
+- (NSString *)description {
+    return [hitList description];
+}
+
 - (void)dealloc {
     [hitList release];
     [super dealloc];

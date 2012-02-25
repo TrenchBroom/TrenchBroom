@@ -30,8 +30,19 @@
 #import "SelectionManager.h"
 #import "MutableBrush.h"
 #import "Face.h"
+#import "FaceFeedbackFigure.h"
 
 @implementation DragFaceTool
+
+- (id)initWithWindowController:(MapWindowController *)theWindowController {
+    if ((self = [super initWithWindowController:theWindowController])) {
+        Camera* camera = [theWindowController camera];
+        TVector4f color = {1, 1, 1, 1};
+        faceFigure = [[FaceFeedbackFigure alloc] initWithCamera:camera radius:3 color:&color];
+    }
+    
+    return self;
+}
 
 - (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     [hits retain];
@@ -53,8 +64,10 @@
             [map snapBrushes:[NSArray arrayWithObject:brush]];
             
             id <Face> face = [faces objectAtIndex:index];
-            
             centerOfVertices([face vertices], lastPoint);
+            
+            [faceFigure setVertices:[face vertices]];
+            [self addFeedbackFigure:faceFigure];
         }
     }
     
@@ -83,6 +96,8 @@
     if (result.index == -1) {
         [self endLeftDrag:event ray:ray hits:hits];
     } else if (result.moved) {
+        face = [[brush faces] objectAtIndex:result.index];
+        [faceFigure setVertices:[face vertices]];
         *lastPoint = nextPoint;
     }
     
@@ -97,6 +112,7 @@
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
     
+    [self removeFeedbackFigure:faceFigure];
     brush = nil;
     index = -1;
 }

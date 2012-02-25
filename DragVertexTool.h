@@ -20,10 +20,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "DragTool.h"
 
 @protocol Brush;
+@class VertexFeedbackFigure;
 
 @interface DragVertexTool : DragTool {
     id <Brush> brush;
     int index;
+    VertexFeedbackFigure* vertexFigure;
 }
 
 @end
