@@ -298,34 +298,38 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_TEXTURE_2D);
 
-    [fontManager activate];
     glTranslatef(0, 2 * NSMinY(visibleRect), 0);
-    
+    glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+
+    glBegin(GL_QUADS);
+    for (PrefabLayoutGroupRow* groupRow in [layout groupRows]) {
+        NSRect titleBarBounds = [groupRow titleBarBounds];
+        glVertex2f(NSMinX(titleBarBounds), NSHeight(visibleRect) - NSMaxY(titleBarBounds));
+        glVertex2f(NSMinX(titleBarBounds), NSHeight(visibleRect) - NSMinY(titleBarBounds));
+        glVertex2f(NSMaxX(titleBarBounds), NSHeight(visibleRect) - NSMinY(titleBarBounds));
+        glVertex2f(NSMaxX(titleBarBounds), NSHeight(visibleRect) - NSMaxY(titleBarBounds));
+    }
+    glEnd();
+     
+    [fontManager activate];
+    glColor4f(1, 1, 1, 1);
+
     for (PrefabLayoutGroupRow* groupRow in [layout groupRows]) {
         GLString* groupName = [groupRow name];
+        NSRect titleBounds = [groupRow titleBounds];
         
         glPushMatrix();
-        NSRect titleBounds = [groupRow titleBounds];
-        NSRect titleBarBounds = [groupRow titleBarBounds];
-
-        glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
-        /*
-        glRectf(NSMinX(titleBarBounds),  NSHeight(visibleRect) - NSMinY(titleBarBounds), NSMaxX(titleBarBounds), NSHeight(visibleRect) - NSMaxY(titleBarBounds));
-
-         */
         glTranslatef(NSMinX(titleBounds),  NSHeight(visibleRect) - NSMaxY(titleBounds), 0);
-        glColor4f(1, 1, 1, 1);
         [groupName render];
         glPopMatrix();
 
         for (PrefabLayoutPrefabCell* cell in [groupRow cells]) {
             id <Prefab> prefab = [cell prefab];
             GLString* prefabName = [cell name];
+            NSRect nameBounds = [cell nameBounds];
             
             glPushMatrix();
-            NSRect nameBounds = [cell nameBounds];
             glTranslatef(NSMinX(nameBounds),  NSHeight(visibleRect) - NSMaxY(nameBounds), 0);
-            
             if (selectedPrefab == prefab)
                 glColor4f(1, 0, 0, 1);
             else
