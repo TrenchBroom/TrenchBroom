@@ -99,9 +99,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         return YES;
     
     TDragResult result = [map dragEdge:index brush:brush delta:delta];
-    if (result.index == -1) {
-        [self endLeftDrag:event ray:ray hits:hits];
-    } else if (result.moved) {
+    if (result.index != -1) {
         TEdge* edge = [brush edges]->items[result.index];
         [edgeFigure setEdge:edge];
         *lastPoint = nextPoint;

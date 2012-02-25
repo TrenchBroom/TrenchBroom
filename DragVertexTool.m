@@ -102,9 +102,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         return YES;
     
     TDragResult result = [map dragVertex:index brush:brush delta:delta];
-    if (result.index == -1) {
-        [self endLeftDrag:event ray:ray hits:hits];
-    } else if (result.moved) {
+    if (result.index != -1) {
         *lastPoint = nextPoint;
         TVertex* vertex = [brush vertices]->items[result.index];
         [vertexFigure setVertex:vertex];

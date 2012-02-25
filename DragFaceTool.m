@@ -93,9 +93,7 @@
         return YES;
     
     TDragResult result = [map dragFace:index brush:brush delta:delta];
-    if (result.index == -1) {
-        [self endLeftDrag:event ray:ray hits:hits];
-    } else if (result.moved) {
+    if (result.index != -1) {
         face = [[brush faces] objectAtIndex:result.index];
         [faceFigure setVertices:[face vertices]];
         *lastPoint = nextPoint;
