@@ -38,6 +38,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     BOOL vertexDataValid;
     int filePosition;
     const TBoundingBox* worldBounds;
+    BOOL selected;
 }
 
 - (id)initWithWorldBounds:(const TBoundingBox *)theWorldBounds;

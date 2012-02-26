@@ -285,6 +285,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [entity brushChanged:self];
 }
 
+- (void)setSelected:(BOOL)isSelected {
+    selected = isSelected;
+}
+
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist {
     NSMutableArray* testFaces = [[NSMutableArray alloc] initWithArray:faces];
     [testFaces removeObjectIdenticalTo:face];
@@ -489,6 +493,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (!vertexDataValid)
         [self vertexData];
     return verticesOnGrid;
+}
+
+- (BOOL)selected {
+    return selected;
 }
 
 - (void)planePoint1:(TVector3f *)thePoint1 point2:(TVector3f *)thePoint2 point3:(TVector3f *)thePoint3 {

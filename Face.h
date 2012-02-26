@@ -40,6 +40,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (float)xScale;
 - (float)yScale;
 
+- (BOOL)selected;
+- (void)setSelected:(BOOL)isSelected;
+
 - (void)point1:(TVector3f *)thePoint1 point2:(TVector3f *)thePoint2 point3:(TVector3f *)thePoint3;
 - (const TVector3f *)norm;
 - (const TPlane *)boundary;

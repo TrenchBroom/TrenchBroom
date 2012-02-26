@@ -65,9 +65,6 @@ typedef enum {
 - (void)addEntities:(NSArray *)theEntities record:(BOOL)record;
 
 - (ESelectionMode)mode;
-- (BOOL)isFaceSelected:(id <Face>)face;
-- (BOOL)isBrushSelected:(id <Brush>)brush;
-- (BOOL)isEntitySelected:(id <Entity>)entity;
 - (BOOL)isBrushPartiallySelected:(id <Brush>)brush;
 
 - (NSArray *)textureMRU;

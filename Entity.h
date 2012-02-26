@@ -60,6 +60,9 @@ static NSString* const ModsKey = @"_mods";
 - (const TVector3f *)origin;
 - (NSNumber *)angle;
 
+- (BOOL)selected;
+- (void)setSelected:(BOOL)isSelected;
+
 - (void)pick:(const TRay *)theRay hitList:(PickingHitList *)theHitList;
 
 - (VboBlock *)boundsVboBlock;

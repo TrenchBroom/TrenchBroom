@@ -696,6 +696,10 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     [self invalidate];
 }
 
+- (void)setSelected:(BOOL)isSelected {
+    selected = isSelected;
+}
+
 - (void)setSide:(TSide *)theSide {
     side = theSide;
 }
@@ -770,6 +774,10 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (float)yScale {
 	return yScale;
+}
+
+- (BOOL)selected {
+    return selected;
 }
 
 - (void)point1:(TVector3f *)thePoint1 point2:(TVector3f *)thePoint2 point3:(TVector3f *)thePoint3 {

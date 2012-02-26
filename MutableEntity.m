@@ -473,6 +473,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     map = theMap;
 }
 
+- (void)setSelected:(BOOL)isSelected {
+    selected = isSelected;
+}
+
 - (int)filePosition {
     return filePosition;
 }
@@ -574,6 +578,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (NSNumber *)angle {
     return angle;
+}
+
+- (BOOL)selected {
+    return selected;
 }
 
 - (void)pick:(const TRay *)theRay hitList:(PickingHitList *)theHitList {

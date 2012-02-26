@@ -47,17 +47,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (hit == nil)
         return NO;
     
-    SelectionManager* selectionManager = [windowController selectionManager];
     if ([hit type] == HT_FACE) {
         id <Face> face = [hit object];
         id <Brush> brush = [face brush];
         
-        if (![selectionManager isBrushSelected:brush])
+        if (![brush selected])
             return NO;
     } else {
         id <Entity> entity = [hit object];
         
-        if (![selectionManager isEntitySelected:entity])
+        if (![entity selected])
             return NO;
     }
     

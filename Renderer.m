@@ -593,52 +593,43 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     
     // TODO building an array of all faces, then subtracting the selected faces costs a lot of performance
     
-    NSMutableArray* allFaces = [[NSMutableArray alloc] init];
-    
-    MapDocument* map = [windowController document];
-    for (id <Entity> entity in [map entities])
-        if ([filter entityRenderable:entity])
-            for (id <Brush> brush in [entity brushes])
-                if ([filter brushRenderable:brush])
-                    [allFaces addObjectsFromArray:[brush faces]];
-    
-    SelectionManager* selectionManager = [map selectionManager];
-    NSMutableArray* selectedFaces = [[NSMutableArray alloc] initWithArray:[selectionManager selectedFaces]];
-    [selectedFaces addObjectsFromArray:[selectionManager selectedBrushFaces]];
-    
-    [allFaces removeObjectsInArray:selectedFaces];
-    [selectedFaces release];
-    
     NSEnumerator* textureIndexBufferEn = [textureIndexBuffers objectEnumerator];
     TextureFaceIndexBuffer* textureIndexBuffer;
-    
-    for (id <Face> face in allFaces) {
-        Texture* texture = [face texture];
-        NSString* textureName = [texture name];
-        textureIndexBuffer = [faceIndexBuffers objectForKey:textureName];
-        TIndexBuffer* indexBuffer = NULL;
-        if (textureIndexBuffer == nil) {
-            textureIndexBuffer = [textureIndexBufferEn nextObject];
-            if (textureIndexBuffer == nil) {
-                textureIndexBuffer = [[TextureFaceIndexBuffer alloc] init];
-                [faceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
-                [textureIndexBuffer release];
-                indexBuffer = [textureIndexBuffer buffer];
-            } else {
-                [faceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
-                indexBuffer = [textureIndexBuffer buffer];
-                clearIndexBuffer(indexBuffer);
-            }
-            
-            [textureIndexBuffer setTexture:texture];
-        } else {
-            indexBuffer = [textureIndexBuffer buffer];
-        }
-        
-        writeFaceIndices(face, indexBuffer, &edgeIndexBuffer);
-    }
 
-    [allFaces release];
+    MapDocument* map = [windowController document];
+    for (id <Entity> entity in [map entities]) {
+        if ([filter entityRenderable:entity]) {
+            for (id <Brush> brush in [entity brushes]) {
+                if ([filter brushRenderable:brush]) {
+                    for (id <Face> face in [brush faces]) {
+                        Texture* texture = [face texture];
+                        NSString* textureName = [texture name];
+                        textureIndexBuffer = [faceIndexBuffers objectForKey:textureName];
+                        TIndexBuffer* indexBuffer = NULL;
+                        if (textureIndexBuffer == nil) {
+                            textureIndexBuffer = [textureIndexBufferEn nextObject];
+                            if (textureIndexBuffer == nil) {
+                                textureIndexBuffer = [[TextureFaceIndexBuffer alloc] init];
+                                [faceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
+                                [textureIndexBuffer release];
+                                indexBuffer = [textureIndexBuffer buffer];
+                            } else {
+                                [faceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
+                                indexBuffer = [textureIndexBuffer buffer];
+                                clearIndexBuffer(indexBuffer);
+                            }
+                            
+                            [textureIndexBuffer setTexture:texture];
+                        } else {
+                            indexBuffer = [textureIndexBuffer buffer];
+                        }
+                        
+                        writeFaceIndices(face, indexBuffer, &edgeIndexBuffer);
+                    }
+                }
+            }
+        }
+    }
 }
 
 - (void)rebuildSelectedFaceIndexBuffers {
@@ -825,14 +816,16 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         
         PreferencesManager* preferences = [PreferencesManager sharedManager];
         float brightness = [preferences brightness];
+        float color[3] = {brightness / 2, brightness / 2, brightness / 2};
+        
         glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
         glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+        glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
 
         glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
-        glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_PRIMARY_COLOR);
+        glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
         glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
         
-        glColor3f(brightness / 2, brightness / 2, brightness / 2);
         glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
         
         glClientActiveTexture(GL_TEXTURE0);
@@ -840,10 +833,10 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         glTexCoordPointer(2, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)TexCoordSize);
     } else {
         glDisable(GL_TEXTURE_2D);
-        glEnableClientState(GL_COLOR_ARRAY);
-        glColorPointer(4, GL_UNSIGNED_BYTE, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)TexCoordSize + TexCoordSize + ColorSize);
     }
     
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(4, GL_UNSIGNED_BYTE, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)TexCoordSize + TexCoordSize + ColorSize);
     glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
     
     for (TextureFaceIndexBuffer* textureIndexBuffer in [theIndexBuffers objectEnumerator]) {

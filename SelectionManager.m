@@ -106,6 +106,8 @@ NSString* const SelectionVertices = @"SelectionVertices";
     }
     
     [faces addObject:face];
+    [face setSelected:YES];
+    
     if ([partialBrushes indexOfObjectIdenticalTo:[face brush]] == NSNotFound)
         [partialBrushes addObject:[face brush]];
     [self addTexture:[face texture]];
@@ -149,6 +151,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
 
     [faces addObjectsFromArray:theFaces];
     for (id <Face> face in theFaces) {
+        [face setSelected:YES];
         if ([partialBrushes indexOfObjectIdenticalTo:[face brush]] == NSNotFound)
             [partialBrushes addObject:[face brush]];
         [self addTexture:[face texture]];
@@ -179,6 +182,8 @@ NSString* const SelectionVertices = @"SelectionVertices";
     }
     
     [brushes addObject:brush];
+    [brush setSelected:YES];
+    
     if (mode == SM_ENTITIES)
         mode = SM_BRUSHES_ENTITIES;
     else
@@ -215,6 +220,9 @@ NSString* const SelectionVertices = @"SelectionVertices";
     }
     
     [brushes addObjectsFromArray:theBrushes];
+    for (id <Brush> brush in theBrushes)
+        [brush setSelected:YES];
+    
     if (mode == SM_ENTITIES)
         mode = SM_BRUSHES_ENTITIES;
     else
@@ -245,6 +253,8 @@ NSString* const SelectionVertices = @"SelectionVertices";
     }
 
     [entities addObject:entity];
+    [entity setSelected:YES];
+    
     if (mode == SM_BRUSHES)
         mode = SM_BRUSHES_ENTITIES;
     else
@@ -281,6 +291,9 @@ NSString* const SelectionVertices = @"SelectionVertices";
     }
     
     [entities addObjectsFromArray:theEntities];
+    for (id <Entity> entity in theEntities)
+        [entity setSelected:YES];
+    
     if (mode == SM_BRUSHES)
         mode = SM_BRUSHES_ENTITIES;
     else
@@ -295,23 +308,6 @@ NSString* const SelectionVertices = @"SelectionVertices";
 
 - (ESelectionMode)mode {
     return mode;
-}
-
-- (BOOL)isFaceSelected:(id <Face>)face {
-    if (face == nil)
-        NSLog(@"asdf");
-    NSAssert(face != nil, @"face must not be nil");
-    return [faces indexOfObjectIdenticalTo:face] != NSNotFound || [self isBrushSelected:[face brush]];
-}
-
-- (BOOL)isBrushSelected:(id <Brush>)brush {
-    NSAssert(brush != nil, @"brush must not be nil");
-    return [brushes indexOfObjectIdenticalTo:brush] != NSNotFound || [self isEntitySelected:[brush entity]];
-}
-
-- (BOOL)isEntitySelected:(id <Entity>)entity {
-    NSAssert(entity != nil, @"entity must not be nil");
-    return [entities indexOfObjectIdenticalTo:entity] != NSNotFound;
 }
 
 - (BOOL)isBrushPartiallySelected:(id <Brush>)brush {
@@ -496,6 +492,8 @@ NSString* const SelectionVertices = @"SelectionVertices";
         return;
     
     [faces removeObjectAtIndex:index];
+    [face setSelected:NO];
+    
     if ([faces count] == 0) {
         mode = SM_UNDEFINED;
         [partialBrushes removeAllObjects];
@@ -532,6 +530,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
     NSMutableArray* removedFaces = [[NSMutableArray alloc] init];
     
     for (id <Face> face in theFaces) {
+        [face setSelected:NO];
         NSUInteger index = [faces indexOfObjectIdenticalTo:face];
         if (index != NSNotFound) {
             [faces removeObjectAtIndex:index];
@@ -571,6 +570,8 @@ NSString* const SelectionVertices = @"SelectionVertices";
         return;
     
     [brushes removeObjectAtIndex:index];
+    [brush setSelected:NO];
+    
     if ([brushes count] == 0) {
         if ([entities count] == 0) {
             mode = SM_UNDEFINED;
@@ -601,6 +602,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
     NSMutableArray* removedBrushes = [[NSMutableArray alloc] init];
     
     for (id <Brush> brush in theBrushes) {
+        [brush setSelected:NO];
         NSUInteger index = [brushes indexOfObjectIdenticalTo:brush];
         if (index != NSNotFound) {
             [brushes removeObjectAtIndex:index];
@@ -635,6 +637,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
         return;
     
     [entities removeObjectAtIndex:index];
+    [entity setSelected:NO];
     
     if ([entities count] == 0) {
         if ([brushes count] > 0)
@@ -664,6 +667,7 @@ NSString* const SelectionVertices = @"SelectionVertices";
     NSMutableArray* removedEntities = [[NSMutableArray alloc] init];
     
     for (id <Entity> entity in theEntities) {
+        [entity setSelected:NO];
         NSUInteger index = [entities indexOfObjectIdenticalTo:entity];
         if (index != NSNotFound) {
             [entities removeObjectAtIndex:index];

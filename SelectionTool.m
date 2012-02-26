@@ -24,6 +24,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "SelectionManager.h"
 #import "Face.h"
 #import "Brush.h"
+#import "Entity.h"
 #import "Options.h"
 #import "Grid.h"
 
@@ -72,7 +73,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         if ([hit type] == HT_ENTITY) {
             id <Entity> entity = [hit object];
             
-            if ([selectionManager isEntitySelected:entity]) {
+            if ([entity selected]) {
                 if ([self isMultiSelectionModifierPressed]) {
                     [selectionManager removeEntity:entity record:NO];
                 } else {
@@ -90,7 +91,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             id <Brush> brush = [face brush];
             
             if ([selectionManager mode] == SM_FACES) {
-                if ([selectionManager isFaceSelected:face]) {
+                if ([face selected]) {
                     if ([self isMultiSelectionModifierPressed])
                         [selectionManager removeFace:face record:NO];
                     else
@@ -109,13 +110,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                 }
             } else {
                 if ([self isMultiSelectionModifierPressed]) {
-                    if ([selectionManager isBrushSelected:brush]) {
+                    if ([brush selected]) {
                         [selectionManager removeBrush:brush record:NO];
                     } else {
                         [selectionManager addBrush:brush record:NO];
                     }
                 } else if ([NSEvent modifierFlags] == 0) {
-                    if ([selectionManager isBrushSelected:brush]) {
+                    if ([brush selected]) {
                         [selectionManager addFace:face record:NO];
                     } else {
                         [selectionManager removeAll:NO];

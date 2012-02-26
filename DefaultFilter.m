@@ -53,17 +53,13 @@ int const VertexMaxDistanceSquared = 512 * 512;
     if ([options isolationMode] == IM_DISCARD) {
         if ([selectionManager mode] == SM_FACES) {
             for (id <Face> face in [brush faces])
-                if ([selectionManager isFaceSelected:face])
+                if ([face selected])
                     return YES;
             
             return NO;
         }
         
-        if ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_BRUSHES_ENTITIES) {
-            return [selectionManager isBrushSelected:brush];
-        }
-        
-        return NO;
+        return [brush selected];
     }
     
     if ([groupManager allGroupsInvisible])
@@ -84,7 +80,7 @@ int const VertexMaxDistanceSquared = 512 * 512;
         return NO;
     
     if ([options isolationMode] == IM_DISCARD)
-        return [selectionManager isEntitySelected:entity];
+        return [entity selected];
 
     if ([groupManager allGroupsInvisible])
         return YES;
@@ -102,16 +98,13 @@ int const VertexMaxDistanceSquared = 512 * 512;
     if ([options isolationMode] != IM_NONE) {
         if ([selectionManager mode] == SM_FACES) {
             for (id <Face> face in [brush faces])
-                if ([selectionManager isFaceSelected:face])
+                if ([face selected])
                     return YES;
             
             return NO;
         }
 
-        if ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_BRUSHES_ENTITIES)
-            return [selectionManager isBrushSelected:brush];
-            
-        return NO;
+        return [brush selected];
     }
     
     if ([groupManager allGroupsInvisible])
@@ -143,7 +136,7 @@ int const VertexMaxDistanceSquared = 512 * 512;
     if ([options isolationMode] == IM_NONE)
         return YES;
     
-    return [selectionManager isEntitySelected:entity];
+    return [entity selected];
 }
 
 @end

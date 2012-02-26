@@ -147,7 +147,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                     hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:NO];
                     if (hit != nil) {
                         id <Face> face = [hit object];
-                        if ([selectionManager isFaceSelected:face])
+                        if ([face selected])
                             newActiveTool = faceTool;
                     }
                 }

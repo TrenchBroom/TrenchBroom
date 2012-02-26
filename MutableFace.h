@@ -45,7 +45,9 @@ typedef enum {
     TVector3f points[3];
     TPlane boundary;
     TSide* side;
-  
+    
+    BOOL selected;
+    
     const TVector3f* texPlaneNorm;
     TVector3f texAxisX;
     TVector3f texAxisY;

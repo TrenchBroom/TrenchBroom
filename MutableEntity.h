@@ -39,6 +39,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TBoundingBox maxBounds;
     BOOL valid;
     int filePosition;
+    BOOL selected;
     
     VboBlock* boundsVboBlock;
 }

@@ -78,7 +78,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             return;
 
         referenceFace = [hit object];
-        if (![selectionManager isFaceSelected:referenceFace])
+        if (![referenceFace selected])
             return;
 
         if ([selectionManager mode] == SM_FACES) {
