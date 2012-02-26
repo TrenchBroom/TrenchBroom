@@ -123,11 +123,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (NSArray *)flagsForMask:(int)theMask {
     NSMutableArray* result = [[NSMutableArray alloc] init];
     
-    for (SpawnFlag* flag in flags)
+    for (SpawnFlag* flag in [flags objectEnumerator])
         if ((theMask & [flag flag]) != 0)
             [result addObject:flag];
     
     [result sortUsingSelector:@selector(compareByFlag:)];
+    
     return [result autorelease];
 }
 

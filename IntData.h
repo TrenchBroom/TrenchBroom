@@ -19,7 +19,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import <Cocoa/Cocoa.h>
 
-
 @interface IntData : NSObject {
     @private
     NSMutableData* data;

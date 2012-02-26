@@ -67,6 +67,7 @@
 						<string key="NSFrame">{{1, -2}, {399, 795}}</string>
 						<reference key="NSSuperview" ref="1005"/>
 						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView" ref="569284412"/>
 						<string key="NSReuseIdentifierKey">_NS:461</string>
 						<array class="NSMutableArray" key="NSTabViewItems">
 							<object class="NSTabViewItem" id="659371525">
@@ -2116,7 +2117,7 @@
 														<object class="NSTextField" id="819330064">
 															<reference key="NSNextResponder" ref="599151485"/>
 															<int key="NSvFlags">268</int>
-															<string key="NSFrame">{{15, 130}, {50, 17}}</string>
+															<string key="NSFrame">{{15, 130}, {48, 17}}</string>
 															<reference key="NSSuperview" ref="599151485"/>
 															<reference key="NSWindow"/>
 															<reference key="NSNextKeyView" ref="409358104"/>
@@ -2760,8 +2761,8 @@
 												<int key="NSCellFlags2">131072</int>
 												<string key="NSContents"/>
 												<reference key="NSControlView" ref="809909812"/>
-												<double key="NSMaxValue">2</double>
-												<double key="NSMinValue">0.0</double>
+												<double key="NSMaxValue">2.2999999999999998</double>
+												<double key="NSMinValue">0.29999999999999999</double>
 												<double key="NSValue">1</double>
 												<double key="NSAltIncValue">0.0</double>
 												<int key="NSNumberOfTickMarks">21</int>
@@ -2794,6 +2795,7 @@
 											<string key="NSFrame">{{312, 282}, {40, 17}}</string>
 											<reference key="NSSuperview" ref="569284412"/>
 											<reference key="NSWindow"/>
+											<reference key="NSNextKeyView"/>
 											<bool key="NSEnabled">YES</bool>
 											<object class="NSTextFieldCell" key="NSCell" id="372329210">
 												<int key="NSCellFlags">68288064</int>

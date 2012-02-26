@@ -18,6 +18,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Cocoa/Cocoa.h>
+#import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
 #import "Vbo.h"
 
@@ -34,6 +35,17 @@ extern NSString* const RendererChanged;
 @protocol Figure;
 @protocol Filter;
 
+typedef struct {
+    GLuint* items;
+    int capacity;
+    int count;
+} TIndexBuffer;
+
+void initIndexBuffer(TIndexBuffer* buffer, int capacity);
+void freeIndexBuffer(TIndexBuffer* buffer);
+void clearIndexBuffer(TIndexBuffer* buffer);
+void addIndex(TIndexBuffer* buffer, GLuint index);
+
 @interface Renderer : NSObject {
     @private
     MapWindowController* windowController;
@@ -42,8 +54,8 @@ extern NSString* const RendererChanged;
     Vbo faceVbo;
     NSMutableDictionary* faceIndexBuffers;
     NSMutableDictionary* selectedFaceIndexBuffers;
-    IntData* edgeIndexBuffer;
-    IntData* selectedEdgeIndexBuffer;
+    TIndexBuffer edgeIndexBuffer;
+    TIndexBuffer selectedEdgeIndexBuffer;
     Vbo entityBoundsVbo;
     Vbo selectedEntityBoundsVbo;
     int entityBoundsVertexCount;

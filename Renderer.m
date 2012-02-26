@@ -49,6 +49,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "TextRenderer.h"
 #import "EntityClassnameAnchor.h"
 #import "GroupManager.h"
+#import "TextureFaceIndexBuffer.h"
 
 NSString* const RendererChanged = @"RendererChanged";
 NSString* const FaceVboKey = @"FaceVbo";
@@ -66,12 +67,193 @@ int const VertexSize = 3 * sizeof(float);
 int const ColorSize = 4;
 int const TexCoordSize = 2 * sizeof(float);
 
-@interface Renderer (private)
+void initIndexBuffer(TIndexBuffer* buffer, int capacity) {
+    buffer->capacity = capacity;
+    buffer->items = malloc(buffer->capacity * sizeof(GLuint));
+    buffer->count = 0;
+}
 
-- (void)writeEntityBounds:(id <Entity>)theEntity toBlock:(VboBlock *)theBlock;
-- (void)writeFaceVertices:(id <Face>)theFace toBlock:(VboBlock *)theBlock;
-- (void)writeFaceTriangles:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer;
-- (void)writeFaceEdges:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer;
+void freeIndexBuffer(TIndexBuffer* buffer) {
+    free(buffer->items);
+    buffer->capacity = -1;
+    buffer->count = -1;
+}
+
+void clearIndexBuffer(TIndexBuffer* buffer) {
+    buffer->count = 0;
+}
+
+void addIndex(TIndexBuffer* buffer, GLuint index) {
+    if (buffer->capacity == buffer->count) {
+        buffer->capacity *= 2;
+        buffer->items = realloc(buffer->items, buffer->capacity * sizeof(GLuint));
+    }
+    
+    buffer->items[buffer->count++] = index;
+}
+
+void writeEntityBounds(id <Entity> entity, VboBlock* block) {
+    TVector3f t;
+    const TBoundingBox* bounds = [entity bounds];
+    EntityDefinition* definition = [entity entityDefinition];
+    TVector4f color = definition != nil ? *[definition color] : EntityBoundsDefaultColor;
+    color.w = EntityBoundsDefaultColor.w;
+    
+    int address = block->address;
+    uint8_t* vboBuffer = block->vbo->buffer;
+    
+    // east face
+    t = bounds->min;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.y = bounds->max.y;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.z = bounds->max.z;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.y = bounds->min.y;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    // front face
+    t = bounds->min;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.z = bounds->max.z;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.x = bounds->max.x;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.z = bounds->min.z;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    // bottom face
+    t = bounds->min;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.x = bounds->max.x;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.y = bounds->max.y;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.x = bounds->min.x;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    // west face
+    t = bounds->max;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.z = bounds->min.z;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.y = bounds->min.y;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.z = bounds->max.z;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    // back face
+    t = bounds->max;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.x = bounds->min.x;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.z = bounds->min.z;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.x = bounds->max.x;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    // top face
+    t = bounds->max;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.y = bounds->min.y;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.x = bounds->min.x;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+    
+    t.y = bounds->max.y;
+    address = writeColor4fAsBytes(&color, vboBuffer, address);
+    address = writeVector3f(&t, vboBuffer, address);
+}
+
+void writeFaceVertices(id <Face> face, VboBlock* block) {
+    TVector2f texCoords, gridCoords;
+    
+    Texture* texture = [face texture];
+    const TVector4f* color = [texture dummy] ? &FaceDefaultColor : [texture color];
+    int width = texture != nil ? [texture width] : 1;
+    int height = texture != nil ? [texture height] : 1;
+    
+    int address = block->address;
+    uint8_t* vboBuffer = block->vbo->buffer;
+    
+    const TVertexList* vertices = [face vertices];
+    for (int i = 0; i < vertices->count; i++) {
+        TVertex* vertex = vertices->items[i];
+        [face gridCoords:&gridCoords forVertex:&vertex->position];
+        [face texCoords:&texCoords forVertex:&vertex->position];
+        texCoords.x /= width;
+        texCoords.y /= height;
+        
+        address = writeVector2f(&gridCoords, vboBuffer, address);
+        address = writeVector2f(&texCoords, vboBuffer, address);
+        address = writeColor4fAsBytes(&EdgeDefaultColor, vboBuffer, address);
+        address = writeColor4fAsBytes(color, vboBuffer, address);
+        address = writeVector3f(&vertex->position, vboBuffer, address);
+    }
+}
+
+void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer* edgeBuffer) {
+    int baseIndex = [face vboBlock]->address / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+    int vertexCount = [face vertices]->count;
+    
+    addIndex(edgeBuffer, baseIndex);
+    addIndex(edgeBuffer, baseIndex + 1);
+    
+    for (int i = 1; i < vertexCount - 1; i++) {
+        addIndex(triangleBuffer, baseIndex);
+        addIndex(triangleBuffer, baseIndex + i);
+        addIndex(triangleBuffer, baseIndex + i + 1);
+
+        addIndex(edgeBuffer, baseIndex + i);
+        addIndex(edgeBuffer, baseIndex + i + 1);
+    }
+    
+    addIndex(edgeBuffer, baseIndex + vertexCount - 1);
+    addIndex(edgeBuffer, baseIndex);
+}
+
+
+@interface Renderer (private)
 
 - (void)validateEntityRendererCache;
 - (void)validateDeselection;
@@ -87,7 +269,7 @@ int const TexCoordSize = 2 * sizeof(float);
 
 - (void)renderEntityModels:(NSArray *)theEntities;
 - (void)renderEntityBounds:(const TVector4f *)color vertexCount:(int)theVertexCount;
-- (void)renderEdges:(const TVector4f *)color indexBuffer:(IntData *)theIndexBuffer;
+- (void)renderEdges:(const TVector4f *)color indexBuffer:(const TIndexBuffer *)theIndexBuffer;
 - (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers;
 - (void)renderVertexHandles;
 
@@ -119,169 +301,6 @@ int const TexCoordSize = 2 * sizeof(float);
 @end
 
 @implementation Renderer (private)
-
-- (void)writeEntityBounds:(id <Entity>)theEntity toBlock:(VboBlock *)theBlock {
-    TVector3f t;
-    const TBoundingBox* bounds = [theEntity bounds];
-    EntityDefinition* definition = [theEntity entityDefinition];
-    TVector4f color = definition != nil ? *[definition color] : EntityBoundsDefaultColor;
-    color.w = EntityBoundsDefaultColor.w;
-    
-    int address = theBlock->address;
-    uint8_t* vboBuffer = theBlock->vbo->buffer;
-    
-    // east face
-    t = bounds->min;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    t.y = bounds->max.y;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    t.z = bounds->max.z;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    t.y = bounds->min.y;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    // front face
-    t = bounds->min;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-    
-    t.z = bounds->max.z;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.x = bounds->max.x;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.z = bounds->min.z;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    // bottom face
-    t = bounds->min;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.x = bounds->max.x;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.y = bounds->max.y;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.x = bounds->min.x;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    // west face
-    t = bounds->max;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.z = bounds->min.z;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.y = bounds->min.y;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.z = bounds->max.z;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    // back face
-    t = bounds->max;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.x = bounds->min.x;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.z = bounds->min.z;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.x = bounds->max.x;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    // top face
-    t = bounds->max;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.y = bounds->min.y;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.x = bounds->min.x;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-
-    t.y = bounds->max.y;
-    address = writeColor4fAsBytes(&color, vboBuffer, address);
-    address = writeVector3f(&t, vboBuffer, address);
-}
-
-- (void)writeFaceVertices:(id <Face>)theFace toBlock:(VboBlock *)theBlock {
-    TVector2f texCoords, gridCoords;
-    
-    Texture* texture = [theFace texture];
-    const TVector4f* color = [texture dummy] ? &FaceDefaultColor : [texture color];
-    int width = texture != nil ? [texture width] : 1;
-    int height = texture != nil ? [texture height] : 1;
-
-    int address = theBlock->address;
-    uint8_t* vboBuffer = theBlock->vbo->buffer;
-
-    const TVertexList* vertices = [theFace vertices];
-    for (int i = 0; i < vertices->count; i++) {
-        TVertex* vertex = vertices->items[i];
-        [theFace gridCoords:&gridCoords forVertex:&vertex->position];
-        [theFace texCoords:&texCoords forVertex:&vertex->position];
-        texCoords.x /= width;
-        texCoords.y /= height;
-        
-        address = writeVector2f(&gridCoords, vboBuffer, address);
-        address = writeVector2f(&texCoords, vboBuffer, address);
-        address = writeColor4fAsBytes(&EdgeDefaultColor, vboBuffer, address);
-        address = writeColor4fAsBytes(color, vboBuffer, address);
-        address = writeVector3f(&vertex->position, vboBuffer, address);
-    }
-}
-
-- (void)writeFaceTriangles:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer {
-    int baseIndex = [theFace vboBlock]->address / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
-    
-    for (int i = 1; i < [theFace vertices]->count - 1; i++) {
-        [theIndexBuffer appendInt:baseIndex];
-        [theIndexBuffer appendInt:baseIndex + i];
-        [theIndexBuffer appendInt:baseIndex + i + 1];
-    }
-}
-
-- (void)writeFaceEdges:(id <Face>)theFace toIndexBuffer:(IntData *)theIndexBuffer {
-    int baseIndex = [theFace vboBlock]->address / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
-    int vertexCount = [theFace vertices]->count;
-    
-    for (int i = 0; i < vertexCount - 1; i++) {
-        [theIndexBuffer appendInt:baseIndex + i];
-        [theIndexBuffer appendInt:baseIndex + i + 1];
-    }
-    
-    [theIndexBuffer appendInt:baseIndex + vertexCount - 1];
-    [theIndexBuffer appendInt:baseIndex];
-}
 
 - (void)validateEntityRendererCache {
     if (!entityRendererCacheValid) {
@@ -321,7 +340,7 @@ int const TexCoordSize = 2 * sizeof(float);
         for (id <Entity> entity in deselectedEntities) {
             if (![entity isWorldspawn]) {
                 VboBlock* block = allocVboBlock(&entityBoundsVbo, 6 * 4 * (ColorSize + VertexSize));
-                [self writeEntityBounds:entity toBlock:block];
+                writeEntityBounds(entity, block);
                 [entity setBoundsVboBlock:block];
                 
                 [selectedClassnameRenderer moveStringWithKey:[entity entityId] toTextRenderer:classnameRenderer];
@@ -357,7 +376,7 @@ int const TexCoordSize = 2 * sizeof(float);
         for (id <Entity> entity in selectedEntities) {
             if (![entity isWorldspawn]) {
                 VboBlock* block = allocVboBlock(&selectedEntityBoundsVbo, 6 * 4 * (ColorSize + VertexSize));
-                [self writeEntityBounds:entity toBlock:block];
+                writeEntityBounds(entity, block);
                 [entity setBoundsVboBlock:block];
                 
                 [classnameRenderer moveStringWithKey:[entity entityId] toTextRenderer:selectedClassnameRenderer];
@@ -393,7 +412,7 @@ int const TexCoordSize = 2 * sizeof(float);
         for (id <Entity> entity in addedEntities) {
             if (![entity isWorldspawn]) {
                 VboBlock* block = allocVboBlock(&entityBoundsVbo, 6 * 4 * (ColorSize + VertexSize));
-                [self writeEntityBounds:entity toBlock:block];
+                writeEntityBounds(entity, block);
                 [entity setBoundsVboBlock:block];
                 
                 id <EntityRenderer> renderer = [entityRendererManager entityRendererForEntity:entity mods:mods];
@@ -433,7 +452,7 @@ int const TexCoordSize = 2 * sizeof(float);
                 if (block->vbo == &entityBoundsVbo)
                     [unselectedEntities addObject:entity];
                 else
-                    [self writeEntityBounds:entity toBlock:block];
+                    writeEntityBounds(entity, block);
                 
             }
         }
@@ -447,7 +466,7 @@ int const TexCoordSize = 2 * sizeof(float);
             
             for (id <Entity> entity in unselectedEntities) {
                 VboBlock* block = [entity boundsVboBlock];
-                [self writeEntityBounds:entity toBlock:block];
+                writeEntityBounds(entity, block);
             }
             
             unmapVbo(&entityBoundsVbo);
@@ -495,7 +514,7 @@ int const TexCoordSize = 2 * sizeof(float);
         for (id <Brush> brush in addedBrushes) {
             for (id <Face> face in [brush faces]) {
                 VboBlock* block = allocVboBlock(&faceVbo, [face vertices]->count * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize));
-                [self writeFaceVertices:face toBlock:block];
+                writeFaceVertices(face, block);
                 [face setVboBlock:block];
             }
         }
@@ -520,7 +539,7 @@ int const TexCoordSize = 2 * sizeof(float);
                     [face setVboBlock:block];
                 }
                 
-                [self writeFaceVertices:face toBlock:block];
+                writeFaceVertices(face, block);
             }
         }
 
@@ -559,7 +578,7 @@ int const TexCoordSize = 2 * sizeof(float);
                 [face setVboBlock:block];
             }
             
-            [self writeFaceVertices:face toBlock:block];
+            writeFaceVertices(face, block);
         }
         
         unmapVbo(&faceVbo);
@@ -568,9 +587,11 @@ int const TexCoordSize = 2 * sizeof(float);
 }
 
 - (void)rebuildFaceIndexBuffers {
+    NSArray* textureIndexBuffers = [faceIndexBuffers allValues];
     [faceIndexBuffers removeAllObjects];
-    [edgeIndexBuffer release];
-    edgeIndexBuffer = [[IntData alloc] init];
+    clearIndexBuffer(&edgeIndexBuffer);
+    
+    // TODO building an array of all faces, then subtracting the selected faces costs a lot of performance
     
     NSMutableArray* allFaces = [[NSMutableArray alloc] init];
     
@@ -588,56 +609,101 @@ int const TexCoordSize = 2 * sizeof(float);
     [allFaces removeObjectsInArray:selectedFaces];
     [selectedFaces release];
     
+    NSEnumerator* textureIndexBufferEn = [textureIndexBuffers objectEnumerator];
+    TextureFaceIndexBuffer* textureIndexBuffer;
+    
     for (id <Face> face in allFaces) {
-        NSString* textureName = [[face texture] name];
-        IntData* indexBuffer = [faceIndexBuffers objectForKey:textureName];
-        if (indexBuffer == nil) {
-            indexBuffer = [[IntData alloc] init];
-            [faceIndexBuffers setObject:indexBuffer forKey:textureName];
-            [indexBuffer release];
+        Texture* texture = [face texture];
+        NSString* textureName = [texture name];
+        textureIndexBuffer = [faceIndexBuffers objectForKey:textureName];
+        TIndexBuffer* indexBuffer = NULL;
+        if (textureIndexBuffer == nil) {
+            textureIndexBuffer = [textureIndexBufferEn nextObject];
+            if (textureIndexBuffer == nil) {
+                textureIndexBuffer = [[TextureFaceIndexBuffer alloc] init];
+                [faceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
+                [textureIndexBuffer release];
+                indexBuffer = [textureIndexBuffer buffer];
+            } else {
+                [faceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
+                indexBuffer = [textureIndexBuffer buffer];
+                clearIndexBuffer(indexBuffer);
+            }
+            
+            [textureIndexBuffer setTexture:texture];
+        } else {
+            indexBuffer = [textureIndexBuffer buffer];
         }
         
-        [self writeFaceTriangles:face toIndexBuffer:indexBuffer];
-        [self writeFaceEdges:face toIndexBuffer:edgeIndexBuffer];
+        writeFaceIndices(face, indexBuffer, &edgeIndexBuffer);
     }
-    
+
     [allFaces release];
 }
 
 - (void)rebuildSelectedFaceIndexBuffers {
+    NSArray* textureIndexBuffers = [selectedFaceIndexBuffers allValues];
     [selectedFaceIndexBuffers removeAllObjects];
-    [selectedEdgeIndexBuffer release];
-    selectedEdgeIndexBuffer = [[IntData alloc] init];
+    clearIndexBuffer(&selectedEdgeIndexBuffer);
     
     MapDocument* map = [windowController document];
     SelectionManager* selectionManager = [map selectionManager];
     
+    NSEnumerator* textureIndexBufferEn = [textureIndexBuffers objectEnumerator];
+    TextureFaceIndexBuffer* textureIndexBuffer;
+
     for (id <Brush> brush in [selectionManager selectedBrushes]) {
         for (id <Face> face in [brush faces]) {
-            NSString* textureName = [[face texture] name];
-            IntData* indexBuffer = [selectedFaceIndexBuffers objectForKey:textureName];
-            if (indexBuffer == nil) {
-                indexBuffer = [[IntData alloc] init];
-                [selectedFaceIndexBuffers setObject:indexBuffer forKey:textureName];
-                [indexBuffer release];
+            Texture* texture = [face texture];
+            NSString* textureName = [texture name];
+            textureIndexBuffer = [selectedFaceIndexBuffers objectForKey:textureName];
+            TIndexBuffer* indexBuffer = NULL;
+            if (textureIndexBuffer == nil) {
+                textureIndexBuffer = [textureIndexBufferEn nextObject];
+                if (textureIndexBuffer == nil) {
+                    textureIndexBuffer = [[TextureFaceIndexBuffer alloc] init];
+                    [selectedFaceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
+                    [textureIndexBuffer release];
+                    indexBuffer = [textureIndexBuffer buffer];
+                } else {
+                    [selectedFaceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
+                    indexBuffer = [textureIndexBuffer buffer];
+                    clearIndexBuffer(indexBuffer);
+                }
+
+                [textureIndexBuffer setTexture:texture];
+            } else {
+                indexBuffer = [textureIndexBuffer buffer];
             }
             
-            [self writeFaceTriangles:face toIndexBuffer:indexBuffer];
-            [self writeFaceEdges:face toIndexBuffer:selectedEdgeIndexBuffer];
+            writeFaceIndices(face, indexBuffer, &selectedEdgeIndexBuffer);
         }
     }
     
     for (id <Face> face in [selectionManager selectedFaces]) {
-        NSString* textureName = [[face texture] name];
-        IntData* indexBuffer = [selectedFaceIndexBuffers objectForKey:textureName];
-        if (indexBuffer == nil) {
-            indexBuffer = [[IntData alloc] init];
-            [selectedFaceIndexBuffers setObject:indexBuffer forKey:textureName];
-            [indexBuffer release];
+        Texture* texture = [face texture];
+        NSString* textureName = [texture name];
+        textureIndexBuffer = [selectedFaceIndexBuffers objectForKey:textureName];
+        TIndexBuffer* indexBuffer = NULL;
+        if (textureIndexBuffer == nil) {
+            textureIndexBuffer = [textureIndexBufferEn nextObject];
+            if (textureIndexBuffer == nil) {
+                textureIndexBuffer = [[TextureFaceIndexBuffer alloc] init];
+                [selectedFaceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
+                [textureIndexBuffer release];
+                indexBuffer = [textureIndexBuffer buffer];
+            } else {
+                [selectedFaceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
+                indexBuffer = [textureIndexBuffer buffer];
+                clearIndexBuffer(indexBuffer);
+            }
+
+            [textureIndexBuffer setTexture:texture];
+        } else {
+            indexBuffer = [textureIndexBuffer buffer];
         }
-        
-        [self writeFaceTriangles:face toIndexBuffer:indexBuffer];
-        [self writeFaceEdges:face toIndexBuffer:selectedEdgeIndexBuffer];
+
+        writeFaceIndices(face, indexBuffer, &selectedEdgeIndexBuffer);
     }
 }
 
@@ -719,7 +785,7 @@ int const TexCoordSize = 2 * sizeof(float);
     glResetEdgeOffset();
 }
 
-- (void)renderEdges:(const TVector4f *)color indexBuffer:(IntData *)theIndexBuffer {
+- (void)renderEdges:(const TVector4f *)color indexBuffer:(const TIndexBuffer *)theIndexBuffer {
     glDisable(GL_TEXTURE_2D);
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 
@@ -732,9 +798,7 @@ int const TexCoordSize = 2 * sizeof(float);
         glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
     }
     
-    const void* indexBytes = [theIndexBuffer bytes];
-    int primCount = [theIndexBuffer count];
-    glDrawElements(GL_LINES, primCount, GL_UNSIGNED_INT, indexBytes);
+    glDrawElements(GL_LINES, theIndexBuffer->count, GL_UNSIGNED_INT, theIndexBuffer->items);
     
     glPopClientAttrib();
 }
@@ -757,20 +821,33 @@ int const TexCoordSize = 2 * sizeof(float);
     glActiveTexture(GL_TEXTURE0);
     if (textured) {
         glEnable(GL_TEXTURE_2D);
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+        
+        PreferencesManager* preferences = [PreferencesManager sharedManager];
+        float brightness = [preferences brightness];
+        glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+        glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+
+        glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
+        glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_PRIMARY_COLOR);
+        glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
+        
+        glColor3f(brightness / 2, brightness / 2, brightness / 2);
+        glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
+        
         glClientActiveTexture(GL_TEXTURE0);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glTexCoordPointer(2, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)TexCoordSize);
     } else {
         glDisable(GL_TEXTURE_2D);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glColorPointer(4, GL_UNSIGNED_BYTE, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)TexCoordSize + TexCoordSize + ColorSize);
     }
     
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(4, GL_UNSIGNED_BYTE, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)TexCoordSize + TexCoordSize + ColorSize);
     glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
     
-    for (NSString* textureName in theIndexBuffers) {
-        Texture* texture = [textureManager textureForName:textureName];
+    for (TextureFaceIndexBuffer* textureIndexBuffer in [theIndexBuffers objectEnumerator]) {
+        Texture* texture = [textureIndexBuffer texture];
         if (textured) {
             if (texture != nil)
                 [texture activate];
@@ -778,12 +855,8 @@ int const TexCoordSize = 2 * sizeof(float);
                 glDisable(GL_TEXTURE_2D);
         }
         
-        IntData* indexBuffer = [theIndexBuffers objectForKey:textureName];
-        
-        const void* indexBytes = [indexBuffer bytes];
-        int primCount = [indexBuffer count];
-        
-        glDrawElements(GL_TRIANGLES, primCount, GL_UNSIGNED_INT, indexBytes);
+        TIndexBuffer* indexBuffer = [textureIndexBuffer buffer];
+        glDrawElements(GL_TRIANGLES, indexBuffer->count, GL_UNSIGNED_INT, indexBuffer->items);
         
         if (textured) {
             if (texture != nil)
@@ -1103,6 +1176,8 @@ int const TexCoordSize = 2 * sizeof(float);
         initVbo(&entityBoundsVbo, GL_ARRAY_BUFFER, 0xFFFF);
         initVbo(&selectedEntityBoundsVbo, GL_ARRAY_BUFFER, 0xFFFF);
         
+        initIndexBuffer(&edgeIndexBuffer, 0xFFF);
+        initIndexBuffer(&selectedEdgeIndexBuffer, 0xFFF);
         faceIndexBuffers = [[NSMutableDictionary alloc] init];
         selectedFaceIndexBuffers = [[NSMutableDictionary alloc] init];
         classnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:[windowController camera] fadeDistance:400];
@@ -1155,8 +1230,8 @@ int const TexCoordSize = 2 * sizeof(float);
     [changeSet release];
     [faceIndexBuffers release];
     [selectedFaceIndexBuffers release];
-    [edgeIndexBuffer release];
-    [selectedEdgeIndexBuffer release];
+    freeIndexBuffer(&edgeIndexBuffer);
+    freeIndexBuffer(&selectedEdgeIndexBuffer);
     [classnameRenderer release];
     [selectedClassnameRenderer release];
     if (vertexHandle != NULL)
@@ -1233,17 +1308,17 @@ int const TexCoordSize = 2 * sizeof(float);
         }
         
         glSetEdgeOffset(0.5f);
-        [self renderEdges:NULL indexBuffer:edgeIndexBuffer];
+        [self renderEdges:NULL indexBuffer:&edgeIndexBuffer];
         glResetEdgeOffset();
         
         if ([[windowController selectionManager] hasSelection]) {
             glDisable(GL_DEPTH_TEST);
-            [self renderEdges:&SelectionColor2 indexBuffer:selectedEdgeIndexBuffer];
+            [self renderEdges:&SelectionColor2 indexBuffer:&selectedEdgeIndexBuffer];
 
             glSetEdgeOffset(0.6f);
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LEQUAL);
-            [self renderEdges:&SelectionColor indexBuffer:selectedEdgeIndexBuffer];
+            [self renderEdges:&SelectionColor indexBuffer:&selectedEdgeIndexBuffer];
             glDepthFunc(GL_LESS);
             glResetEdgeOffset();
         }
@@ -1310,6 +1385,7 @@ int const TexCoordSize = 2 * sizeof(float);
         glEnable(GL_DEPTH_TEST);
     }
      
+    /*
     PreferencesManager* preferences = [PreferencesManager sharedManager];
     float brightness = [preferences brightness];
     if (brightness > 1) {
@@ -1338,7 +1414,6 @@ int const TexCoordSize = 2 * sizeof(float);
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
     
-    /*
     // enable lighting for cursor and compass
     glEnable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);

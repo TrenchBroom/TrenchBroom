@@ -25,6 +25,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Vbo.h"
 #import "Math.h"
 #import "Entity.h"
+#import "PreferencesManager.h"
 
 @implementation AliasRenderer
 
@@ -99,9 +100,22 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             glRotatef(-intAngle, 0, 0, 1);
     }
     
-    glEnable(GL_TEXTURE_2D);
     glPolygonMode(GL_FRONT, GL_FILL);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glEnable(GL_TEXTURE_2D);
+    
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+    PreferencesManager* preferences = [PreferencesManager sharedManager];
+    float brightness = [preferences brightness];
+    glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+    glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+    
+    glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
+    glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_PRIMARY_COLOR);
+    glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
+    
+    glColor3f(brightness / 2, brightness / 2, brightness / 2);
+    glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
+
     [texture activate];
 
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);

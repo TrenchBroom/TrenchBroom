@@ -98,6 +98,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 		brushes = [[NSMutableArray alloc] init];
         filePosition = -1;
         boundsVboBlock = NULL;
+        entityDefinition = nil;
     }
     
     return self;
