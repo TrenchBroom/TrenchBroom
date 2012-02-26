@@ -346,7 +346,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     result->worldBounds = worldBounds;
     [self point1:&result->points[0] point2:&result->points[1] point3:&result->points[2]];
     result->boundary = boundary;
-    [result setTexture:texture];
+    result->texture = texture;
     [result setXOffset:xOffset];
     [result setYOffset:yOffset];
     [result setXScale:xScale];
@@ -726,6 +726,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     xScale = [theTemplate xScale];
     yScale = [theTemplate yScale];
     rotation = [theTemplate rotation];
+    [self setTexture:[theTemplate texture]];
 
     [self invalidate];
 }

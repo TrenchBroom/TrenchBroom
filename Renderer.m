@@ -591,8 +591,6 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     [faceIndexBuffers removeAllObjects];
     clearIndexBuffer(&edgeIndexBuffer);
     
-    // TODO building an array of all faces, then subtracting the selected faces costs a lot of performance
-    
     NSEnumerator* textureIndexBufferEn = [textureIndexBuffers objectEnumerator];
     TextureFaceIndexBuffer* textureIndexBuffer;
 
@@ -602,29 +600,31 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
             for (id <Brush> brush in [entity brushes]) {
                 if ([filter brushRenderable:brush]) {
                     for (id <Face> face in [brush faces]) {
-                        Texture* texture = [face texture];
-                        NSString* textureName = [texture name];
-                        textureIndexBuffer = [faceIndexBuffers objectForKey:textureName];
-                        TIndexBuffer* indexBuffer = NULL;
-                        if (textureIndexBuffer == nil) {
-                            textureIndexBuffer = [textureIndexBufferEn nextObject];
+                        if (![face selected]) {
+                            Texture* texture = [face texture];
+                            NSString* textureName = [texture name];
+                            textureIndexBuffer = [faceIndexBuffers objectForKey:textureName];
+                            TIndexBuffer* indexBuffer = NULL;
                             if (textureIndexBuffer == nil) {
-                                textureIndexBuffer = [[TextureFaceIndexBuffer alloc] init];
-                                [faceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
-                                [textureIndexBuffer release];
-                                indexBuffer = [textureIndexBuffer buffer];
+                                textureIndexBuffer = [textureIndexBufferEn nextObject];
+                                if (textureIndexBuffer == nil) {
+                                    textureIndexBuffer = [[TextureFaceIndexBuffer alloc] init];
+                                    [faceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
+                                    [textureIndexBuffer release];
+                                    indexBuffer = [textureIndexBuffer buffer];
+                                } else {
+                                    [faceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
+                                    indexBuffer = [textureIndexBuffer buffer];
+                                    clearIndexBuffer(indexBuffer);
+                                }
+                                
+                                [textureIndexBuffer setTexture:texture];
                             } else {
-                                [faceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
                                 indexBuffer = [textureIndexBuffer buffer];
-                                clearIndexBuffer(indexBuffer);
                             }
                             
-                            [textureIndexBuffer setTexture:texture];
-                        } else {
-                            indexBuffer = [textureIndexBuffer buffer];
+                            writeFaceIndices(face, indexBuffer, &edgeIndexBuffer);
                         }
-                        
-                        writeFaceIndices(face, indexBuffer, &edgeIndexBuffer);
                     }
                 }
             }
