@@ -81,6 +81,7 @@ typedef enum {
 - (void)setXScale:(float)factor;
 - (void)setYScale:(float)factor;
 - (void)translateOffsetsBy:(float)theDelta dir:(const TVector3f *)theDir;
+- (void)rotateTextureBy:(float)theAngle;
 - (void)translateBy:(const TVector3f *)theDelta lockTexture:(BOOL)lockTexture;
 - (void)rotate90CW:(EAxis)theAxis center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture;
 - (void)rotate90CCW:(EAxis)theAxis center:(const TVector3f *)theCenter lockTexture:(BOOL)lockTexture;

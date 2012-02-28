@@ -1096,7 +1096,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
     [self postNotification:FacesWillChange forFaces:theFaces];
     for (MutableFace* face in theFaces)
-        [face setRotation:theAngle + [face rotation]];
+        [face rotateTextureBy:theAngle];
     [self postNotification:FacesDidChange forFaces:theFaces];
 }
 

@@ -463,6 +463,17 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     }
 }
 
+- (void)rotateTextureBy:(float)theAngle {
+    if (!texAxesValid)
+        [self validateTexAxesForFaceNorm:[self norm]];
+
+    if (texPlaneNormIndex == texFaceNormIndex)
+        rotation += theAngle;
+    else
+        rotation -= theAngle;
+    texAxesValid = NO;
+}
+
 - (void)translateBy:(const TVector3f *)theDelta lockTexture:(BOOL)lockTexture {
     if (lockTexture) {
         TMatrix4f t;

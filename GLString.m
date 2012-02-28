@@ -96,12 +96,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glStringData = nil;
 }
 
-- (void)renderBackground {
+- (void)renderBackground:(NSSize)theInsets {
     glBegin(GL_QUADS);
-    glVertex3f(-1, -1, 0);
-    glVertex3f(-1, size.height + 1, 0);
-    glVertex3f(size.width + 1, size.height + 1, 0);
-    glVertex3f(size.width + 1, -1, 0);
+    glVertex3f(-theInsets.width, -theInsets.height, 0);
+    glVertex3f(-theInsets.width, size.height + theInsets.height, 0);
+    glVertex3f(size.width + theInsets.width, size.height + theInsets.height, 0);
+    glVertex3f(size.width + theInsets.width, -theInsets.height, 0);
     glEnd();
 }
 

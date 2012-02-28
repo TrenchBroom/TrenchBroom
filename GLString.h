@@ -46,6 +46,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (NSSize)size;
 
 - (void)prepare:(Vbo *)theVbo;
-- (void)renderBackground;
+- (void)renderBackground:(NSSize)theInsets;
 - (void)render;
 @end

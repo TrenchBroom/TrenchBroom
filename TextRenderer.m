@@ -95,19 +95,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glPolygonMode(GL_FRONT, GL_FILL);
 
     TVector3f position;
+    float cutOff = (fadeDistance + 100) * (fadeDistance + 100);
 
     for (id <NSCopying> key in strings) {
         GLString* glString = [strings objectForKey:key];
         id <TextAnchor> anchor = [anchors objectForKey:key];
         
         [anchor position:&position];
-        float dist = [camera distanceTo:&position];
-        if (dist <= fadeDistance + 100) {
-            if (dist >= fadeDistance) {
-                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w - theColor->w * (dist - fadeDistance) / 100);
-            } else {
-                glColor4f(theColor->x, theColor->y, theColor->z, theColor->w);
-            }
+        float dist2 = [camera squaredDistanceTo:&position];
+        if (dist2 <= cutOff) {
+            float dist = sqrt(dist2);
             float factor = dist / 300;
             
             NSSize size = [glString size];
@@ -117,7 +114,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [camera setBillboardMatrix];
             glScalef(factor, factor, 0);
             glTranslatef(-size.width / 2, 0, 0);
+
+            float alphaFactor = 1 - fmaxf((dist - fadeDistance), 0) / 100;
+            
+            glColor4f(0, 0, 0, 0.6f * alphaFactor);
+            [glString renderBackground:NSMakeSize(2, 1)];
+            
+            glSetEdgeOffset(0.5f);
+            glColor4f(theColor->x, theColor->y, theColor->z, theColor->w * alphaFactor);
             [glString render];
+            glResetEdgeOffset();
+            
             glPopMatrix();
         }
     }

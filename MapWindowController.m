@@ -834,6 +834,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     float dist = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedFaces]) {
+        if (([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
+            dist = 1;
+
         TVector3f dir;
         invertV3f([camera right], &dir);
         [map translateFaceOffsets:[selectionManager selectedFaces] delta:dist dir:dir];
@@ -870,6 +873,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     float dist = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedFaces]) {
+        if (([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
+            dist = 1;
+        
         TVector3f dir = *[camera right];
         [map translateFaceOffsets:[selectionManager selectedFaces] delta:dist dir:dir];
     }
@@ -905,6 +911,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     float dist = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedFaces]) {
+        if (([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
+            dist = 1;
+        
         TVector3f dir = *[camera up];
         [map translateFaceOffsets:[selectionManager selectedFaces] delta:dist dir:dir];
     }
@@ -940,6 +949,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     float dist = [[options grid] actualSize];
     
     if ([selectionManager hasSelectedFaces]) {
+        if (([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
+            dist = 1;
+        
         TVector3f dir;
         invertV3f([camera up], &dir);
         [map translateFaceOffsets:[selectionManager selectedFaces] delta:dist dir:dir];
@@ -975,6 +987,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     float dist = [[options grid] actualSize];
     
+    if ([selectionManager hasSelectedFaces]) {
+        float angle = -15;
+        if (([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
+            angle = -1;
+        
+        [map rotateFaces:[selectionManager selectedFaces] angle:angle];
+    }
+    
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f delta;
         DragPlane* editingSystem = [camera horizontalEditingSystem];
@@ -1005,6 +1025,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     float dist = [[options grid] actualSize];
     
+    if ([selectionManager hasSelectedFaces]) {
+        float angle = 15;
+        if (([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
+            angle = 1;
+        
+        [map rotateFaces:[selectionManager selectedFaces] angle:angle];
+    }
+
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f delta;
         DragPlane* editingSystem = [camera horizontalEditingSystem];
