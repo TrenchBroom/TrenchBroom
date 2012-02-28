@@ -833,8 +833,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     float dist = [[options grid] actualSize];
     
-    if ([selectionManager hasSelectedFaces])
-        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:dist yDelta:0];
+    if ([selectionManager hasSelectedFaces]) {
+        TVector3f dir;
+        invertV3f([camera right], &dir);
+        [map translateFaceOffsets:[selectionManager selectedFaces] delta:dist dir:dir];
+    }
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f delta;
@@ -866,8 +869,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     float dist = [[options grid] actualSize];
     
-    if ([selectionManager hasSelectedFaces])
-        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:-dist yDelta:0];
+    if ([selectionManager hasSelectedFaces]) {
+        TVector3f dir = *[camera right];
+        [map translateFaceOffsets:[selectionManager selectedFaces] delta:dist dir:dir];
+    }
+    
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f delta;
@@ -898,8 +904,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     float dist = [[options grid] actualSize];
     
-    if ([selectionManager hasSelectedFaces])
-        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:0 yDelta:dist];
+    if ([selectionManager hasSelectedFaces]) {
+        TVector3f dir = *[camera up];
+        [map translateFaceOffsets:[selectionManager selectedFaces] delta:dist dir:dir];
+    }
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f delta;
@@ -931,8 +939,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     float dist = [[options grid] actualSize];
     
-    if ([selectionManager hasSelectedFaces])
-        [map translateFaceOffsets:[selectionManager selectedFaces] xDelta:0 yDelta:-dist];
+    if ([selectionManager hasSelectedFaces]) {
+        TVector3f dir;
+        invertV3f([camera up], &dir);
+        [map translateFaceOffsets:[selectionManager selectedFaces] delta:dist dir:dir];
+    }
     
     if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
         TVector3f delta;

@@ -1005,18 +1005,18 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     [self postNotification:FacesDidChange forFaces:theFaces];
 }
 
-- (void)translateFaceOffsets:(NSArray *)theFaces xDelta:(int)theXDelta yDelta:(int)theYDelta {
+- (void)translateFaceOffsets:(NSArray *)theFaces delta:(float)theDelta dir:(TVector3f)theDir {
     NSAssert(theFaces != nil, @"face set must not be nil");
     
-    if ([theFaces count] == 0)
+    if ([theFaces count] == 0 || theDelta == 0)
         return;
 
     NSUndoManager* undoManager = [self undoManager];
-    [[undoManager prepareWithInvocationTarget:self] translateFaceOffsets:[[theFaces copy] autorelease] xDelta:-theXDelta yDelta:-theYDelta];
+    [[undoManager prepareWithInvocationTarget:self] translateFaceOffsets:[[theFaces copy] autorelease] delta:-theDelta dir:theDir];
     
     [self postNotification:FacesWillChange forFaces:theFaces];
     for (MutableFace* face in theFaces)
-        [face translateOffsetsX:theXDelta y:theYDelta];
+        [face translateOffsetsBy:theDelta dir:&theDir];
     [self postNotification:FacesDidChange forFaces:theFaces];
 }
 

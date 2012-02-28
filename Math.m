@@ -226,6 +226,10 @@ void absV3f(const TVector3f* v, TVector3f* o) {
     o->z = fabsf(v->z);
 }
 
+void invertV3f(const TVector3f* v, TVector3f* o) {
+    scaleV3f(v, -1, o);
+}
+
 float lengthV3f(const TVector3f* v) {
     return sqrt(lengthSquaredV3f(v));
 }
@@ -269,6 +273,12 @@ BOOL sameDirV3f(const TVector3f* v1, const TVector3f* v2) {
         return v1->z > 0 == v2->z > 0;
     
     return nullV3f(v2);
+}
+
+BOOL oppositeDirV3f(const TVector3f* v1, const TVector3f* v2) {
+    return !(((v1->x > 0 && v2->x > 0) || (v1->x < 0 && v2->x < 0)) && 
+             ((v1->y > 0 && v2->y > 0) || (v1->y < 0 && v2->y < 0)) && 
+             ((v1->z > 0 && v2->z > 0) || (v1->z < 0 && v2->z < 0)));
 }
 
 BOOL intV3f(const TVector3f* v) {
@@ -651,12 +661,6 @@ BOOL parseV3f(NSString* s, NSRange r, TVector3f* o) {
     o->z = z;
     
     return YES;
-}
-
-BOOL opposingV3f(const TVector3f* v1, const TVector3f* v2) {
-    return !(((v1->x > 0 && v2->x > 0) || (v1->x < 0 && v2->x < 0)) && 
-             ((v1->y > 0 && v2->y > 0) || (v1->y < 0 && v2->y < 0)) && 
-             ((v1->z > 0 && v2->z > 0) || (v1->z < 0 && v2->z < 0)));
 }
 
 BOOL normV3f(const TVector3f* v1, const TVector3f* v2, const TVector3f* v3, TVector3f* o) {

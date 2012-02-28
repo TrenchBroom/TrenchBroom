@@ -443,19 +443,23 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     texAxesValid = NO;
 }
 
-- (void)translateOffsetsX:(int)x y:(int)y {
-    if (x == 0 && y == 0)
-        return;
-    
+- (void)translateOffsetsBy:(float)theDelta dir:(const TVector3f *)theDir {
     if (!texAxesValid)
         [self validateTexAxesForFaceNorm:[self norm]];
 
-    if (texPlaneNormIndex == texFaceNormIndex) {
-        xOffset += x;
-        yOffset += y;
+    float dotX = dotV3f(theDir, &texAxisX);    
+    float dotY = dotV3f(theDir, &texAxisY);
+    
+    if (fabsf(dotX) >= fabsf(dotY)) {
+        if (dotX >= 0)
+            xOffset -= theDelta;
+        else
+            xOffset += theDelta;
     } else {
-        xOffset -= x;
-        yOffset -= y;
+        if (dotY >= 0)
+            yOffset -= theDelta;
+        else
+            yOffset += theDelta;
     }
 }
 

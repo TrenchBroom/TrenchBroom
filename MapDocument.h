@@ -124,7 +124,7 @@ extern NSString* const DocumentLoaded;
 
 - (void)setFaces:(NSArray *)theFaces xOffset:(int)theXOffset;
 - (void)setFaces:(NSArray *)theFaces yOffset:(int)theYOffset;
-- (void)translateFaceOffsets:(NSArray *)theFaces xDelta:(int)theXDelta yDelta:(int)theYDelta;
+- (void)translateFaceOffsets:(NSArray *)theFaces delta:(float)theDelta dir:(TVector3f)theDir;
 - (void)setFaces:(NSArray *)theFaces xScale:(float)theXScale;
 - (void)setFaces:(NSArray *)theFaces yScale:(float)theYScale;
 - (void)scaleFaces:(NSArray *)theFaces xFactor:(float)theXFactor yFactor:(float)theYFactor;
