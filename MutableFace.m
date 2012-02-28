@@ -158,10 +158,10 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     // project the inversely scaled texture axes onto the boundary plane
     plane.point = NullVector;
     plane.norm = [self boundary]->norm;
-    if (texPlaneNorm == &XAxisPos || texPlaneNorm == &XAxisNeg) {
+    if (texPlaneNorm->x != 0) {
         newTexAxisX.x = planeX(&plane, newTexAxisX.y, newTexAxisX.z);
         newTexAxisY.x = planeX(&plane, newTexAxisY.y, newTexAxisY.z);
-    } else if (texPlaneNorm == &YAxisPos || texPlaneNorm == &YAxisNeg) {
+    } else if (texPlaneNorm->y != 0) {
         newTexAxisX.y = planeY(&plane, newTexAxisX.x, newTexAxisX.z);
         newTexAxisY.y = planeY(&plane, newTexAxisY.x, newTexAxisY.z);
     } else {
@@ -234,20 +234,11 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     float radX = acosf(dotV3f(&newBaseAxisX, &newTexAxisX));
     float radY = acosf(dotV3f(&newBaseAxisY, &newTexAxisY));
     float rad;
-    if (radX < radY) {
-        // the sign depends on the direction of the cross product
-        crossV3f(&newBaseAxisX, &newTexAxisX, &temp);
-        if (dotV3f(&temp, &newFaceNorm) < 0)
-            radX *= -1;
-        
-        rad = radX;
+    
+    if (newTexPlaneNorm->x < 0 || newTexPlaneNorm->y < 0 || newTexPlaneNorm->z < 0) {
+        rad = fminf(radX, radY);
     } else {
-        // the sign depends on the direction of the cross product
-        crossV3f(&newBaseAxisY, &newTexAxisY, &temp);
-        if (dotV3f(&temp, &newFaceNorm) < 0)
-            radY *= -1;
-        
-        rad = radY;
+        rad = fmaxf(radX, radY);
     }
 
     rotation = rad * 180 / M_PI;
@@ -255,6 +246,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     // apply the rotation to the new base axes
     TQuaternion rot;
     TVector3f rotAxis;
+//    rotAxis = *newTexPlaneNorm;
     absV3f(newTexPlaneNorm, &rotAxis);
     setAngleAndAxisQ(&rot, rad, &rotAxis);
     rotateQ(&rot, &newBaseAxisX, &newBaseAxisX);
@@ -360,7 +352,6 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 - (void) dealloc {
     [faceId release];
-	[texture release];
     if (vboBlock != NULL)
         freeVboBlock(vboBlock);
     if (side != NULL)
@@ -405,17 +396,13 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 }
 
 - (void)setTexture:(Texture *)theTexture {
-    if (texture != nil) {
+    if (texture != nil)
         [texture decUsageCount];
-        [texture release];
-    }
     
-    texture = nil;
+    texture = theTexture;
     
-    if (theTexture != nil) {
-        texture = [theTexture retain];
+    if (texture != nil)
         [texture incUsageCount];
-    }
 }
 
 - (void)setXOffset:(int)offset {
@@ -778,7 +765,9 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 }
 
 - (BOOL)selected {
-    return selected;
+    if (selected)
+        return YES;
+    return [brush selected];
 }
 
 - (void)point1:(TVector3f *)thePoint1 point2:(TVector3f *)thePoint2 point3:(TVector3f *)thePoint3 {

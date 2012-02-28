@@ -22,6 +22,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Camera.h"
 #import "PickingHit.h"
 #import "PickingHitList.h"
+#import "PreferencesManager.h"
 
 @interface CameraTool (private)
 
@@ -65,14 +66,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    PreferencesManager* preferences = [PreferencesManager sharedManager];
+    BOOL inverted = [preferences cameraInverted];
+    
     Camera* camera = [windowController camera];
     if (orbit) {
         float h = -[event deltaX] / 90;
-        float v = [event deltaY] / 90;
+        float v = [event deltaY] / 90 * (inverted ? 1 : -1);
         [camera orbitCenter:&orbitCenter hAngle:h vAngle:v];
     } else {
         float yaw = -[event deltaX] / 90;
-        float pitch = [event deltaY] / 90;
+        float pitch = [event deltaY] / 90 * (inverted ? 1 : -1);
         [camera rotateYaw:yaw pitch:pitch];
     }
 }

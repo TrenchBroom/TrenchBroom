@@ -1523,6 +1523,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [selectionManager removeAll:NO];
     [selectionManager addEntity:theEntity record:NO];
     [selectionManager addBrushes:[theEntity brushes] record:NO];
+    
     [options setIsolationMode:IM_WIREFRAME];
     
     TVector3f center, size;
@@ -1531,6 +1532,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [selectionManager selectionCenter:&center];
     sizeOfBounds(&bounds, &size);
     float l = fmaxf(size.x, fmaxf(size.y, size.z));
+    
+    if (l == 0)
+        return;
     
     TVector3f position = center;
     position.x -= l;

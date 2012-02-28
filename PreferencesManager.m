@@ -219,6 +219,25 @@ static PreferencesManager* sharedInstance = nil;
     [userInfo release];
 }
 
+- (BOOL)cameraInverted {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:DefaultsCameraInverted];
+}
+
+- (void)setCameraInverted:(BOOL)isCameraInverted {
+    BOOL currentCameraInverted = [self cameraInverted];
+    if (currentCameraInverted == isCameraInverted)
+        return;
+    
+    NSMutableDictionary* userInfo = [[NSMutableDictionary alloc] init];
+    [userInfo setObject:DefaultsCameraInverted forKey:DefaultsKey];
+    [userInfo setObject:[NSNumber numberWithBool:isCameraInverted] forKey:DefaultsOldValue];
+    [userInfo setObject:[NSNumber numberWithBool:isCameraInverted] forKey:DefaultsNewValue];
+    
+    [[NSUserDefaults standardUserDefaults] setBool:isCameraInverted forKey:DefaultsCameraInverted];
+    [[NSNotificationCenter defaultCenter] postNotificationName:DefaultsDidChange object:self userInfo:userInfo];
+    [userInfo release];
+}
+
 - (BOOL)inspectorVisible {
     return [[NSUserDefaults standardUserDefaults] boolForKey:DefaultsInspectorVisible];
 }

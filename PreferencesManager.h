@@ -26,6 +26,7 @@ static NSString* const DefaultsLastCompilerProfileIndex = @"LastCompilerProfileI
 static NSString* const DefaultsCameraFov                = @"CameraFov";
 static NSString* const DefaultsCameraNear               = @"CameraNearClippingPlane";
 static NSString* const DefaultsCameraFar                = @"CameraFarClippingPlane";
+static NSString* const DefaultsCameraInverted           = @"CameraInverted";
 static NSString* const DefaultsInspectorSeparate        = @"InspectorSeparateWindow";
 static NSString* const DefaultsInspectorVisible         = @"InspectorVisible";
 static NSString* const DefaultsBrightness               = @"Brightness";
@@ -61,6 +62,9 @@ static NSString* const DefaultsDidChange                = @"DefaultsDidChangeNot
 
 - (float)cameraFar;
 - (void)setCameraFar:(float)theCameraFar;
+
+- (BOOL)cameraInverted;
+- (void)setCameraInverted:(BOOL)isCameraInverted;
 
 - (BOOL)inspectorVisible;
 - (void)setInspectorVisible:(BOOL)isInspectorVisible;
