@@ -47,8 +47,9 @@ typedef enum {
     TSide* side;
     
     BOOL selected;
-    
-    const TVector3f* texPlaneNorm;
+
+    int texPlaneNormIndex;
+    int texFaceNormIndex;
     TVector3f texAxisX;
     TVector3f texAxisY;
     TVector3f scaledTexAxisX;

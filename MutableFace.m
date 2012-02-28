@@ -40,7 +40,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 @interface MutableFace (private)
 
 - (void)validateTexAxesForFaceNorm:(const TVector3f *)theNorm;
-- (const TVector3f *)texPlaneNormAndXAxis:(TVector3f *)theXAxis yAxis:(TVector3f *)theYAxis forFaceNorm:(const TVector3f *)theNorm;
+- (void)texXAxis:(TVector3f *)theXAxis yAxis:(TVector3f *)theYAxis planeNormIndex:(int *)thePlaneNormIndex faceNormIndex:(int *)theFaceNormIndex forFaceNorm:(const TVector3f *)theNorm;
 - (void)validateMatrices;
 - (void)invalidate;
 
@@ -50,7 +50,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
 
 @implementation MutableFace (private)
 
-- (const TVector3f *)texPlaneNormAndXAxis:(TVector3f *)theXAxis yAxis:(TVector3f *)theYAxis forFaceNorm:(const TVector3f *)theNorm {
+- (void)texXAxis:(TVector3f *)theXAxis yAxis:(TVector3f *)theYAxis planeNormIndex:(int *)thePlaneNormIndex faceNormIndex:(int *)theFaceNormIndex forFaceNorm:(const TVector3f *)theNorm {
     int bestIndex = 0;
     float bestDot = -1;
     for (int i = 0; i < 6; i++) {
@@ -63,19 +63,16 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     
     *theXAxis = *BaseAxes[bestIndex * 3 + 1];
     *theYAxis = *BaseAxes[bestIndex * 3 + 2];
-    return BaseAxes[bestIndex * 3];
+    *theFaceNormIndex = bestIndex * 3;
+    *thePlaneNormIndex = (bestIndex / 2) * 6;
 }
 
 - (void)validateTexAxesForFaceNorm:(const TVector3f *)theNorm {
-    texPlaneNorm = [self texPlaneNormAndXAxis:&texAxisX yAxis:&texAxisY forFaceNorm:theNorm];
-    
     TQuaternion rot;
-    TVector3f rotAxis;
 
-    float ang = rotation * M_PI / 180;
-    absV3f(texPlaneNorm, &rotAxis);
-    
-    setAngleAndAxisQ(&rot, ang, &rotAxis);
+    [self texXAxis:&texAxisX yAxis:&texAxisY planeNormIndex:&texPlaneNormIndex faceNormIndex:&texFaceNormIndex forFaceNorm:theNorm];
+
+    setAngleAndAxisQ(&rot, rotation * M_PI / 180, BaseAxes[texPlaneNormIndex]);
     rotateQ(&rot, &texAxisX, &texAxisX);
     rotateQ(&rot, &texAxisY, &texAxisY);
     
@@ -140,11 +137,12 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
         [self validateTexAxesForFaceNorm:[self norm]];
     
     
-    TVector3f newTexAxisX, newTexAxisY, newFaceNorm, newCenter, newBaseAxisX, newBaseAxisY, offset, temp;
+    TVector3f newTexAxisX, newTexAxisY, newFaceNorm, newCenter, newBaseAxisX, newBaseAxisY, offset, cross;
     TVector2f curCenterTexCoords, newCenterTexCoords;
     TPlane plane;
     TVector3f curCenter;
-    const TVector3f* newTexPlaneNorm;
+    int newPlaneNormIndex, newFaceNormIndex;
+    float radX, radY, rad;
     
     // calculate the current texture coordinates of the face's center
     centerOfVertices([self vertices], &curCenter);
@@ -158,10 +156,10 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     // project the inversely scaled texture axes onto the boundary plane
     plane.point = NullVector;
     plane.norm = [self boundary]->norm;
-    if (texPlaneNorm->x != 0) {
+    if (BaseAxes[texPlaneNormIndex]->x != 0) {
         newTexAxisX.x = planeX(&plane, newTexAxisX.y, newTexAxisX.z);
         newTexAxisY.x = planeX(&plane, newTexAxisY.y, newTexAxisY.z);
-    } else if (texPlaneNorm->y != 0) {
+    } else if (BaseAxes[texPlaneNormIndex]->y != 0) {
         newTexAxisX.y = planeY(&plane, newTexAxisX.x, newTexAxisX.z);
         newTexAxisY.y = planeY(&plane, newTexAxisY.x, newTexAxisY.z);
     } else {
@@ -182,7 +180,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     subV3f(&newFaceNorm, &offset, &newFaceNorm);
     
     // obtain the new texture plane norm and the new base texture axes
-    newTexPlaneNorm = [self texPlaneNormAndXAxis:&newBaseAxisX yAxis:&newBaseAxisY forFaceNorm:&newFaceNorm];
+    [self texXAxis:&newBaseAxisX yAxis:&newBaseAxisY planeNormIndex:&newPlaneNormIndex faceNormIndex:&newFaceNormIndex forFaceNorm:&newFaceNorm];
 
     /*
     float tpnDot = dotV3f(texPlaneNorm, newTexPlaneNorm);
@@ -209,10 +207,10 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
      */
     
     // project the transformed texture axes onto the new texture plane
-    if (newTexPlaneNorm == &XAxisPos || newTexPlaneNorm == &XAxisNeg) {
+    if (BaseAxes[newPlaneNormIndex]->x != 0) {
         newTexAxisX.x = 0;
         newTexAxisY.x = 0;
-    } else if (newTexPlaneNorm == &YAxisPos || newTexPlaneNorm == &YAxisNeg) {
+    } else if (BaseAxes[newPlaneNormIndex]->y != 0) {
         newTexAxisX.y = 0;
         newTexAxisY.y = 0;
     } else {
@@ -231,24 +229,26 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     // WARNING: the texture plane norm is not the rotation axis of the texture (it's always the absolute axis)
     
     // determine the rotation angle from the dot product of the new base axes and the transformed texture axes
-    float radX = acosf(dotV3f(&newBaseAxisX, &newTexAxisX));
-    float radY = acosf(dotV3f(&newBaseAxisY, &newTexAxisY));
-    float rad;
-    
-    if (newTexPlaneNorm->x < 0 || newTexPlaneNorm->y < 0 || newTexPlaneNorm->z < 0) {
-        rad = fminf(radX, radY);
-    } else {
-        rad = fmaxf(radX, radY);
-    }
+    radX = acosf(dotV3f(&newBaseAxisX, &newTexAxisX));
+    crossV3f(&newBaseAxisX, &newTexAxisX, &cross);
+    if (dotV3f(&cross, BaseAxes[newPlaneNormIndex]) < 0)
+        radX *= -1;
+
+    radY = acosf(dotV3f(&newBaseAxisY, &newTexAxisY));
+    crossV3f(&newBaseAxisY, &newTexAxisY, &cross);
+    if (dotV3f(&cross, BaseAxes[newPlaneNormIndex]) < 0)
+        radY *= -1;
+
+    rad = radX;
 
     rotation = rad * 180 / M_PI;
 
     // apply the rotation to the new base axes
     TQuaternion rot;
-    TVector3f rotAxis;
+//    TVector3f rotAxis;
 //    rotAxis = *newTexPlaneNorm;
-    absV3f(newTexPlaneNorm, &rotAxis);
-    setAngleAndAxisQ(&rot, rad, &rotAxis);
+//    absV3f(newTexPlaneNorm, &rotAxis);
+    setAngleAndAxisQ(&rot, rad, BaseAxes[newPlaneNormIndex]);
     rotateQ(&rot, &newBaseAxisX, &newBaseAxisX);
     rotateQ(&rot, &newBaseAxisY, &newBaseAxisY);
     
@@ -449,25 +449,13 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     
     if (!texAxesValid)
         [self validateTexAxesForFaceNorm:[self norm]];
-    
-    if (texPlaneNorm == &XAxisPos) {
+
+    if (texPlaneNormIndex == texFaceNormIndex) {
         xOffset += x;
         yOffset += y;
-    } else if (texPlaneNorm == &XAxisNeg) {
+    } else {
         xOffset -= x;
-        yOffset += y;
-    } else if (texPlaneNorm == &YAxisPos) {
-        xOffset -= x;
-        yOffset += y;
-    } else if (texPlaneNorm == &YAxisNeg) {
-        xOffset += x;
-        yOffset += y;
-    } else if (texPlaneNorm == &ZAxisPos) {
-        xOffset -= x;
-        yOffset += y;
-    } else if (texPlaneNorm == &ZAxisNeg) {
-        xOffset += x;
-        yOffset += y;
+        yOffset -= y;
     }
 }
 
