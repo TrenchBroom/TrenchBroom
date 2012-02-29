@@ -23,6 +23,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "GLResources.h"
 #import "TextureManager.h"
 #import "Texture.h"
+#import "PreferencesManager.h"
 
 @implementation SingleTextureView
 
@@ -54,7 +55,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         if (texture != nil) {
             glEnable(GL_TEXTURE_2D);
-            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+            
+            PreferencesManager* preferences = [PreferencesManager sharedManager];
+            float brightness = [preferences brightness];
+            float color[3] = {brightness / 2, brightness / 2, brightness / 2};
+            
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
+            
+            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
+            
+            glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
             
             glPolygonMode(GL_FRONT, GL_FILL);
             
