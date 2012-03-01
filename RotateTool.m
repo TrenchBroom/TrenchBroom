@@ -160,24 +160,34 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         vAngle = [grid snapAngle:vAngle];
     }
 
-    
     if (hAngle != lastHAngle || vAngle != lastVAngle) {
-        TQuaternion rotation;
-        TVector3f rotatedVAxis;
-        if (hAngle != 0 && vAngle != 0) {
-            TQuaternion hRotation, vRotation;
-            setAngleAndAxisQ(&hRotation, hAngle, &ZAxisPos);
-            rotateQ(&hRotation, &vAxis, &rotatedVAxis);
-            
-            setAngleAndAxisQ(&vRotation, vAngle, &vAxis);
-            mulQ(&hRotation, &vRotation, &rotation);
-        } else if (hAngle != 0) {
-            setAngleAndAxisQ(&rotation, hAngle, &ZAxisPos);
-            rotateQ(&rotation, &vAxis, &rotatedVAxis);
-        } else {
-            setAngleAndAxisQ(&rotation, vAngle, &vAxis);
-            rotatedVAxis = vAxis;
+        TQuaternion hRotation, vRotation;
+        TVector3f rotatedVAxis = vAxis;
+        
+        float totalHAngle = hAngle;
+        float totalVAngle = vAngle;
+        
+        int hSteps = hAngle / M_PI_2;
+        hAngle -= hSteps * M_PI_2;
+        
+        if (hSteps > 0) {
+            for (int i = 0; i < hSteps; i++)
+                rotate90CCWV3f(&rotatedVAxis, A_Z, &rotatedVAxis);
+        } else if (hSteps < 0) {
+            for (int i = 0; i > hSteps; i--)
+                rotate90CWV3f(&rotatedVAxis, A_Z, &rotatedVAxis);
         }
+        
+        setAngleAndAxisQ(&hRotation, hAngle, &ZAxisPos);
+        rotateQ(&hRotation, &rotatedVAxis, &rotatedVAxis);
+
+        int vSteps = 0;
+        if (hAngle == 0 && equalV3f(&rotatedVAxis, firstAxisV3f(&rotatedVAxis))) {
+            vSteps = vAngle / M_PI_2;
+            vAngle -= vSteps * M_PI_2;
+        }
+        
+        setAngleAndAxisQ(&vRotation, vAngle, &rotatedVAxis);
         
         [feedbackFigure setVerticalAxis:&rotatedVAxis];
         
@@ -186,19 +196,69 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         TBoundingBox bounds;
         [selectionManager selectionBounds:&bounds];
-        rotateBounds(&bounds, &rotation, &center, &bounds);
+
+        if (hSteps > 0) {
+            for (int i = 0; i < hSteps; i++)
+                rotateBounds90CCW(&bounds, A_Z, &center, &bounds);
+        } else if (hSteps < 0) {
+            for (int i = 0; i > hSteps; i--)
+                rotateBounds90CW(&bounds, A_Z, &center, &bounds);
+        }
+
+        rotateBounds(&bounds, &hRotation, &center, &bounds);
         
+        if (vSteps > 0) {
+            EAxis axis = strongestComponentV3f(&rotatedVAxis);
+            for (int i = 0; i < vSteps; i++)
+                rotateBounds90CCW(&bounds, axis, &center, &bounds);
+        } else if (vSteps < 0) {
+            EAxis axis = strongestComponentV3f(&rotatedVAxis);
+            for (int i = 0; i > hSteps; i--)
+                rotateBounds90CW(&bounds, axis, &center, &bounds);
+        }
+
+        rotateBounds(&bounds, &vRotation, &center, &bounds);
+
         if (boundsContainBounds([map worldBounds], &bounds)) {
             NSUndoManager* undoManager = [map undoManager];
             [undoManager endUndoGrouping];
             [undoManager undo];
             [undoManager beginUndoGrouping];
             
-            [map rotateEntities:[selectionManager selectedEntities] rotation:rotation center:center];
-            [map rotateBrushes:[selectionManager selectedBrushes] rotation:rotation center:center lockTextures:[options lockTextures]];
+            if (hSteps > 0) {
+                for (int i = 0; i < hSteps; i++) {
+                    [map rotateEntities90CCW:[selectionManager selectedEntities] axis:A_Z center:center];
+                    [map rotateBrushes90CCW:[selectionManager selectedBrushes] axis:A_Z center:center lockTextures:[options lockTextures]];
+                }
+            } else if (hSteps < 0) {
+                for (int i = 0; i > hSteps; i--) {
+                    [map rotateEntities90CW:[selectionManager selectedEntities] axis:A_Z center:center];
+                    [map rotateBrushes90CW:[selectionManager selectedBrushes] axis:A_Z center:center lockTextures:[options lockTextures]];
+                }
+            }
 
-            lastHAngle = hAngle;
-            lastVAngle = vAngle;
+            [map rotateEntities:[selectionManager selectedEntities] rotation:hRotation center:center];
+            [map rotateBrushes:[selectionManager selectedBrushes] rotation:hRotation center:center lockTextures:[options lockTextures]];
+
+            if (vSteps > 0) {
+                EAxis axis = strongestComponentV3f(&rotatedVAxis);
+                for (int i = 0; i < vSteps; i++) {
+                    [map rotateEntities90CCW:[selectionManager selectedEntities] axis:axis center:center];
+                    [map rotateBrushes90CCW:[selectionManager selectedBrushes] axis:axis center:center lockTextures:[options lockTextures]];
+                }
+            } else if (vSteps < 0) {
+                EAxis axis = strongestComponentV3f(&rotatedVAxis);
+                for (int i = 0; i > hSteps; i--) {
+                    [map rotateEntities90CW:[selectionManager selectedEntities] axis:axis center:center];
+                    [map rotateBrushes90CW:[selectionManager selectedBrushes] axis:axis center:center lockTextures:[options lockTextures]];
+                }
+            }
+            
+            [map rotateEntities:[selectionManager selectedEntities] rotation:vRotation center:center];
+            [map rotateBrushes:[selectionManager selectedBrushes] rotation:vRotation center:center lockTextures:[options lockTextures]];
+
+            lastHAngle = totalHAngle;
+            lastVAngle = totalVAngle;
         }
     }
 }
