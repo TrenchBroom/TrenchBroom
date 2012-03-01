@@ -23,6 +23,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "PreferencesManager.h"
 #import "CompilerProfileManager.h"
 #import "ControllerUtils.h"
+#import "PreferencesViewAnimation.h"
 
 static NSString* const GeneralToolbarItemIdentifier    = @"GeneralToolbarItem";
 static NSString* const CompilerToolbarItemIdentifier   = @"CompilerToolbarItem";
@@ -59,26 +60,46 @@ static PreferencesController* sharedInstance = nil;
 }
 
 - (void)activateToolbarItemWithId:(NSString *)toolbarItemIdentifier view:(NSView *)newView animate:(BOOL)animate {
+    if (toolbarItemIdentifier == lastSelectedIdentifier)
+        return;
+    
+    if (currentAnimation != nil)
+        [currentAnimation stopAnimation];
+
     NSView* contentView = [[self window] contentView];
     NSView* oldView = [[contentView subviews] count] > 0 ? [[contentView subviews] objectAtIndex:0] : nil;
     
     NSRect oldWindowFrame = [[self window] frame];
     NSRect newViewFrame = [newView frame];
-    
+
     float rest = NSHeight(oldWindowFrame) - NSHeight([contentView frame]);
     float heightDiff = NSHeight(newViewFrame) - NSHeight([contentView frame]);
     
-    NSRect newFrame = NSMakeRect(NSMinX(oldWindowFrame), NSMinY(oldWindowFrame) - heightDiff, NSWidth(newViewFrame), NSHeight(newViewFrame) + rest);
-    [[self window] setFrame:newFrame display:YES animate:animate];
-
     newViewFrame.origin.y = 0;
     [newView setFrame:newViewFrame];
+    
+    NSRect newFrame = NSMakeRect(NSMinX(oldWindowFrame), NSMinY(oldWindowFrame) - heightDiff, NSWidth(newViewFrame), NSHeight(newViewFrame) + rest);
+    if (animate) {
+        [currentAnimation release];
+        currentAnimation = [[PreferencesViewAnimation alloc] initWithDuration:0.25 animationCurve:NSAnimationEaseInOut];
+        [currentAnimation setWindow:[self window]];
+        [currentAnimation setOutView:oldView];
+        [currentAnimation setInView:newView];
+        [currentAnimation setTargetFrame:newFrame];
+        [currentAnimation startAnimation];
+    } else {
+        [[self window] setFrame:newFrame display:YES];
 
-    [contentView addSubview:newView];
-    [oldView removeFromSuperview];
-    [contentView setNeedsDisplay:YES];
+        NSView* contentView = [[self window] contentView];
+        [contentView addSubview:newView];
+        [oldView removeFromSuperview];
+        
+        [oldView setAlphaValue:0];
+        [newView setAlphaValue:1];
+    }
     
     [toolbar setSelectedItemIdentifier:toolbarItemIdentifier];
+    lastSelectedIdentifier = toolbarItemIdentifier;
 }
 
 @end
@@ -144,6 +165,9 @@ static PreferencesController* sharedInstance = nil;
 - (void)windowDidLoad {
     [toolbarItemToViewMap setObject:generalView forKey:GeneralToolbarItemIdentifier];
     [toolbarItemToViewMap setObject:compilerView forKey:CompilerToolbarItemIdentifier];
+    
+    [generalView setAlphaValue:0];
+    [compilerView setAlphaValue:0];
     
     PreferencesManager* preferences = [PreferencesManager sharedManager];
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];

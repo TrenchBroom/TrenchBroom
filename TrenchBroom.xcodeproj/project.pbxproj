@@ -209,6 +209,7 @@
 		48E4006D13159E7E004642CD /* TextureNameFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E4006C13159E7E004642CD /* TextureNameFilter.m */; };
 		48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E400AE1315A7DA004642CD /* TextureUsageFilter.m */; };
 		48E71DE214FA4D5500A965F9 /* TextureFaceIndexBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E71DE114FA4D5500A965F9 /* TextureFaceIndexBuffer.m */; };
+		48E71DE614FFAF3000A965F9 /* PreferencesViewAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E71DE514FFAF3000A965F9 /* PreferencesViewAnimation.m */; };
 		48E725AD13F3D26900828C0B /* QuickBarWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E725AC13F3D26900828C0B /* QuickBarWindow.m */; };
 		48E725B313F3D75A00828C0B /* QuickBarContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E725B213F3D75A00828C0B /* QuickBarContentView.m */; };
 		48ED399714E06A3A008AEBDB /* DragEdgeTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48ED399614E06A3A008AEBDB /* DragEdgeTool.m */; };
@@ -631,6 +632,8 @@
 		48E400AE1315A7DA004642CD /* TextureUsageFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureUsageFilter.m; sourceTree = "<group>"; };
 		48E71DE014FA4D5400A965F9 /* TextureFaceIndexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureFaceIndexBuffer.h; sourceTree = "<group>"; };
 		48E71DE114FA4D5500A965F9 /* TextureFaceIndexBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureFaceIndexBuffer.m; sourceTree = "<group>"; };
+		48E71DE414FFAF3000A965F9 /* PreferencesViewAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesViewAnimation.h; sourceTree = "<group>"; };
+		48E71DE514FFAF3000A965F9 /* PreferencesViewAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesViewAnimation.m; sourceTree = "<group>"; };
 		48E725AB13F3D26900828C0B /* QuickBarWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickBarWindow.h; sourceTree = "<group>"; };
 		48E725AC13F3D26900828C0B /* QuickBarWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuickBarWindow.m; sourceTree = "<group>"; };
 		48E725B113F3D75A00828C0B /* QuickBarContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickBarContentView.h; sourceTree = "<group>"; };
@@ -1258,6 +1261,8 @@
 				4898D9CB13E1A2A200B9C8F1 /* QuakePathFormatter.m */,
 				48AC3E6113E3D00C008F4BF8 /* PreferencesManager.h */,
 				48AC3E6213E3D00C008F4BF8 /* PreferencesManager.m */,
+				48E71DE414FFAF3000A965F9 /* PreferencesViewAnimation.h */,
+				48E71DE514FFAF3000A965F9 /* PreferencesViewAnimation.m */,
 			);
 			name = Preferences;
 			sourceTree = "<group>";
@@ -1768,6 +1773,7 @@
 				482BF7C214F95051000AB8B0 /* EdgeFeedbackFigure.m in Sources */,
 				482BF7C514F954B4000AB8B0 /* FaceFeedbackFigure.m in Sources */,
 				48E71DE214FA4D5500A965F9 /* TextureFaceIndexBuffer.m in Sources */,
+				48E71DE614FFAF3000A965F9 /* PreferencesViewAnimation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

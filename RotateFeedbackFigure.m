@@ -19,8 +19,19 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "RotateFeedbackFigure.h"
 #import "GLUtils.h"
+#import "Grid.h"
 
 @implementation RotateFeedbackFigure
+
+- (id)initWithGrid:(Grid *)theGrid {
+    NSAssert(theGrid != nil, @"grid must not be nil");
+    
+    if ((self = [self init])) {
+        grid = theGrid;
+    }
+    
+    return self;
+}
 
 - (void)render {
     int segments = radius;
@@ -77,24 +88,25 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glPopMatrix();
     
     glBegin(GL_LINES);
-    if (!drag) {
+    if (!drag && [grid snap]) {
         float x,y;
         float a = 0;
-        float da = M_PI / 12;
-        for (int i = 0; i < 24; i++) {
+        int n = roundf(2 * M_PI / [grid actualRotAngle]);
+        float da = 2 * M_PI / n;
+        for (int i = 0; i < n; i++) {
             x = cosf(a);
             y = sinf(a);
             
-            glVertex3f(x * radius * 0.9f, y * radius * 0.9f, 0);
+            glVertex3f(x * radius * 0.95f, y * radius * 0.95f, 0);
             glVertex3f(x * radius, y * radius, 0);
             
             a += da;
         }
     }
     
-    glVertex3f(0, 0, 0);
+    glVertex3f(0, 0, -radius);
     glVertex3f(0, 0, radius);
-    glVertex3f(0, 0, 0);
+    glVertex3f(-radius * vAxis.x, -radius * vAxis.y, -radius * vAxis.z);
     glVertex3f(radius * vAxis.x, radius * vAxis.y, radius * vAxis.z);
     
     glColor4f(1, 0, 0, 1);

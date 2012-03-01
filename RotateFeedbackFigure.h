@@ -21,8 +21,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Figure.h"
 #import "Math.h"
 
+@class Grid;
+
 @interface RotateFeedbackFigure : NSObject <Figure> {
 @private
+    Grid* grid;
     TVector3f center;
     TVector3f vAxis;
     float hAngle;
@@ -30,6 +33,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     BOOL drag;
     float radius;
 }
+
+- (id)initWithGrid:(Grid *)theGrid;
 
 - (void)setCenter:(const TVector3f *)theCenter radius:(float)theRadius;
 - (void)setVerticalAxis:(const TVector3f *)theVerticalAxis;

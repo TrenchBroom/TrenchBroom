@@ -35,9 +35,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation RotateTool
 
-- (id)init {
-    if ((self = [super init])) {
-        feedbackFigure = [[RotateFeedbackFigure alloc] init];
+- (id)initWithWindowController:(MapWindowController *)theWindowController {
+    if ((self = [super initWithWindowController:theWindowController])) {
+        Grid* grid = [[windowController options] grid];
+        feedbackFigure = [[RotateFeedbackFigure alloc] initWithGrid:grid];
     }
     
     return self;
@@ -129,6 +130,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     delta = NSMakePoint(0, 0);
     lastHAngle = 0;
     lastVAngle = 0;
+    
+    // to avoid confusion for the user:
+    Camera* camera = [windowController camera];
+    if (dotV3f(&vAxis, [camera right]) < 0)
+        scaleV3f(&vAxis, -1, &vAxis);
     
     NSUndoManager* undoManager = [[windowController document] undoManager];
     [undoManager setGroupsByEvent:NO];

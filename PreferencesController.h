@@ -21,6 +21,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @class PreferencesManager;
 @class CompilerProfileManager;
+@class PreferencesViewAnimation;
 
 @interface PreferencesController : NSWindowController {
     IBOutlet NSTextField* quakePathTextField;
@@ -32,6 +33,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     IBOutlet NSView* compilerView;
     IBOutlet NSArrayController* compilerToolsArrayController;
     NSMutableDictionary* toolbarItemToViewMap;
+    PreferencesViewAnimation* currentAnimation;
+    NSString* lastSelectedIdentifier;
 }
 
 + (PreferencesController *)sharedPreferences;
