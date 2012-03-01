@@ -38,6 +38,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "EntityRendererManager.h"
 #import "SelectionManager.h"
 #import "GroupManager.h"
+#import "Autosaver.h"
 #import "Math.h"
 
 NSString* const FacesWillChange         = @"FacesWillChange";
@@ -127,6 +128,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
+    
+    [autosaver updateLastAction];
 }
 
 - (void)makeUndoSnapshotOfBrushes:(NSArray *)theBrushes {
@@ -174,6 +177,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
+
+    [autosaver updateLastAction];
 }
 
 - (void)makeUndoSnapshotOfEntities:(NSArray *)theEntities {
@@ -229,6 +234,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
         [userInfo release];
     }
+
+    [autosaver updateLastAction];
 }
 
 - (void)postNotification:(NSString *)theNotification forFaces:(NSArray *)theFaces {
@@ -276,7 +283,9 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         NSBundle* mainBundle = [NSBundle mainBundle];
         NSString* definitionPath = [mainBundle pathForResource:@"quake" ofType:@"def"];
         entityDefinitionManager = [[EntityDefinitionManager alloc] initWithDefinitionFile:definitionPath];
-
+        
+        autosaver = [[Autosaver alloc] initWithMap:self saveInterval:5 * 60 idleInterval:3 numberOfBackups:50];
+        
         entities = [[NSMutableArray alloc] init];
         worldspawn = nil;
         postNotifications = YES;
@@ -295,6 +304,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [autosaver release];
     [entityDefinitionManager release];
     [groupManager release];
     [entities release];
@@ -597,6 +607,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [mutableEntity setProperty:theKey value:theValue];
     
     [self postNotification:PropertiesDidChange forEntities:[NSArray arrayWithObject:theEntity]];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)setEntities:(NSArray *)theEntities propertyKey:(NSString *)theKey value:(NSString *)theValue {
@@ -634,6 +646,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
     
     [changedEntities release];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)setEntityDefinition:(id <Entity>)entity {
@@ -668,6 +682,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableEntity* entity in theEntities)
         [entity translateBy:&theDelta];
     [self postNotification:PropertiesDidChange forEntities:theEntities];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)rotateEntities90CW:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3f)theCenter {
@@ -683,6 +699,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableEntity* entity in theEntities)
         [entity rotate90CW:theAxis center:&theCenter];
     [self postNotification:PropertiesDidChange forEntities:theEntities];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)rotateEntities90CCW:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3f)theCenter {
@@ -698,6 +716,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableEntity* entity in theEntities)
         [entity rotate90CCW:theAxis center:&theCenter];
     [self postNotification:PropertiesDidChange forEntities:theEntities];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)rotateEntities:(NSArray *)theEntities rotation:(TQuaternion)theRotation center:(TVector3f)theCenter {
@@ -715,6 +735,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableEntity* entity in theEntities)
         [entity rotate:&theRotation center:&theCenter];
     [self postNotification:PropertiesDidChange forEntities:theEntities];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)flipEntities:(NSArray *)theEntities axis:(EAxis)theAxis center:(TVector3f)theCenter {
@@ -730,6 +752,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableEntity* entity in theEntities)
         [entity flipAxis:theAxis center:&theCenter];
     [self postNotification:PropertiesDidChange forEntities:theEntities];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)deleteEntities:(NSArray *)theEntities {
@@ -752,6 +776,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableBrush* brush in theBrushes)
         [mutableEntity addBrush:brush];
     [self postNotification:BrushesAdded forBrushes:theBrushes];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)moveBrushesToEntity:(id <Entity>)theEntity brushes:(NSArray *)theBrushes {
@@ -789,6 +815,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
     
     [self postNotification:BrushesDidChange forBrushes:theBrushes];
+    
+    [autosaver updateLastAction];
 }
 
 - (id <Brush>)createBrushInEntity:(id <Entity>)theEntity fromTemplate:(id <Brush>)theTemplate {
@@ -849,6 +877,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableBrush* brush in theBrushes)
         [brush translateBy:&theDelta lockTextures:lockTextures];
     [self postNotification:BrushesDidChange forBrushes:theBrushes];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)rotateBrushes90CW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures {
@@ -864,6 +894,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableBrush* brush in theBrushes)
         [brush rotate90CW:theAxis center:&theCenter lockTextures:lockTextures];
     [self postNotification:BrushesDidChange forBrushes:theBrushes];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)rotateBrushes90CCW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures {
@@ -879,6 +911,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableBrush* brush in theBrushes)
         [brush rotate90CCW:theAxis center:&theCenter lockTextures:lockTextures];
     [self postNotification:BrushesDidChange forBrushes:theBrushes];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)rotateBrushes:(NSArray *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures {
@@ -896,6 +930,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableBrush* brush in theBrushes)
         [brush rotate:&theRotation center:&theCenter lockTextures:lockTextures];
     [self postNotification:BrushesDidChange forBrushes:theBrushes];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)flipBrushes:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures {
@@ -911,6 +947,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableBrush* brush in theBrushes)
         [brush flipAxis:theAxis center:&theCenter lockTextures:lockTextures];
     [self postNotification:BrushesDidChange forBrushes:theBrushes];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)snapBrushes:(NSArray *)theBrushes {
@@ -925,6 +963,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableBrush* brush in theBrushes)
         [brush snap];
     [self postNotification:BrushesDidChange forBrushes:theBrushes];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)deleteBrushes:(NSArray *)theBrushes {
@@ -973,6 +1013,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     
     [undoManager endUndoGrouping];
     [undoManager setActionName:@"Delete Brushes"];
+    
+    [autosaver updateLastAction];
 }
 
 # pragma mark Face related functions
@@ -989,6 +1031,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableFace* face in theFaces)
         [face setXOffset:theXOffset];
     [self postNotification:FacesDidChange forFaces:theFaces];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)setFaces:(NSArray *)theFaces yOffset:(int)theYOffset {
@@ -1003,6 +1047,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableFace* face in theFaces)
         [face setYOffset:theYOffset];
     [self postNotification:FacesDidChange forFaces:theFaces];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)translateFaceOffsets:(NSArray *)theFaces delta:(float)theDelta dir:(TVector3f)theDir {
@@ -1018,6 +1064,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableFace* face in theFaces)
         [face translateOffsetsBy:theDelta dir:&theDir];
     [self postNotification:FacesDidChange forFaces:theFaces];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)setFaces:(NSArray *)theFaces xScale:(float)theXScale {
@@ -1032,6 +1080,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableFace* face in theFaces)
         [face setXScale:theXScale];
     [self postNotification:FacesDidChange forFaces:theFaces];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)setFaces:(NSArray *)theFaces yScale:(float)theYScale {
@@ -1046,6 +1096,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableFace* face in theFaces)
         [face setYScale:theYScale];
     [self postNotification:FacesDidChange forFaces:theFaces];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)scaleFaces:(NSArray *)theFaces xFactor:(float)theXFactor yFactor:(float)theYFactor {
@@ -1066,6 +1118,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [face setYScale:theYFactor + [face yScale]];
     }
     [self postNotification:FacesDidChange forFaces:theFaces];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)setFaces:(NSArray *)theFaces rotation:(float)theAngle {
@@ -1080,6 +1134,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableFace* face in theFaces)
         [face setRotation:theAngle];
     [self postNotification:FacesDidChange forFaces:theFaces];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)rotateFaces:(NSArray *)theFaces angle:(float)theAngle {
@@ -1098,6 +1154,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableFace* face in theFaces)
         [face rotateTextureBy:theAngle];
     [self postNotification:FacesDidChange forFaces:theFaces];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)setFaces:(NSArray *)theFaces texture:(Texture *)theTexture {
@@ -1113,6 +1171,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     for (MutableFace* face in theFaces)
         [face setTexture:theTexture];
     [self postNotification:FacesDidChange forFaces:theFaces];
+    
+    [autosaver updateLastAction];
 }
 
 - (BOOL)dragFaces:(NSArray *)theFaces distance:(float)theDistance lockTextures:(BOOL)lockTextures {
@@ -1145,6 +1205,9 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 
     [brushes release];
+    
+    [autosaver updateLastAction];
+
     return canDrag;
 }
 
@@ -1160,6 +1223,9 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     [self postNotification:BrushesDidChange forBrushes:brushArray];
     
     [brushArray release];
+    
+    [autosaver updateLastAction];
+
     return result;
 }
 
@@ -1175,6 +1241,9 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     [self postNotification:BrushesDidChange forBrushes:brushArray];
     
     [brushArray release];
+    
+    [autosaver updateLastAction];
+
     return result;
 }
 
@@ -1190,6 +1259,9 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     [self postNotification:BrushesDidChange forBrushes:brushArray];
     
     [brushArray release];
+    
+    [autosaver updateLastAction];
+
     return result;
 }
 
@@ -1204,6 +1276,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
     [[self undoManager] removeAllActions];
     [glResources reset];
+    
+    [autosaver updateLastAction];
 }
 
 # pragma mark Getters
@@ -1246,6 +1320,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
     
     [self postNotification:EntitiesAdded forEntities:theEntities];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)addEntity:(MutableEntity *)theEntity {
@@ -1273,6 +1349,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
             worldspawn = nil;
     }
     [self postNotification:EntitiesWereRemoved forEntities:theEntities];
+    
+    [autosaver updateLastAction];
 }
 
 - (void)removeEntity:(MutableEntity *)theEntity {
@@ -1303,6 +1381,8 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         
         worldspawn = entity;
         [entity release];
+        
+        [autosaver updateLastAction];
     }
     
     return worldspawn;

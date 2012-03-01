@@ -49,7 +49,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "TextRenderer.h"
 #import "EntityClassnameAnchor.h"
 #import "GroupManager.h"
-#import "TextureFaceIndexBuffer.h"
+#import "TextureIndexBuffer.h"
 
 NSString* const RendererChanged = @"RendererChanged";
 NSString* const FaceVboKey = @"FaceVbo";
@@ -592,7 +592,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     clearIndexBuffer(&edgeIndexBuffer);
     
     NSEnumerator* textureIndexBufferEn = [textureIndexBuffers objectEnumerator];
-    TextureFaceIndexBuffer* textureIndexBuffer;
+    TextureIndexBuffer* textureIndexBuffer;
 
     MapDocument* map = [windowController document];
     for (id <Entity> entity in [map entities]) {
@@ -608,7 +608,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
                             if (textureIndexBuffer == nil) {
                                 textureIndexBuffer = [textureIndexBufferEn nextObject];
                                 if (textureIndexBuffer == nil) {
-                                    textureIndexBuffer = [[TextureFaceIndexBuffer alloc] init];
+                                    textureIndexBuffer = [[TextureIndexBuffer alloc] init];
                                     [faceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
                                     [textureIndexBuffer release];
                                     indexBuffer = [textureIndexBuffer buffer];
@@ -641,7 +641,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     SelectionManager* selectionManager = [map selectionManager];
     
     NSEnumerator* textureIndexBufferEn = [textureIndexBuffers objectEnumerator];
-    TextureFaceIndexBuffer* textureIndexBuffer;
+    TextureIndexBuffer* textureIndexBuffer;
 
     for (id <Brush> brush in [selectionManager selectedBrushes]) {
         for (id <Face> face in [brush faces]) {
@@ -652,7 +652,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
             if (textureIndexBuffer == nil) {
                 textureIndexBuffer = [textureIndexBufferEn nextObject];
                 if (textureIndexBuffer == nil) {
-                    textureIndexBuffer = [[TextureFaceIndexBuffer alloc] init];
+                    textureIndexBuffer = [[TextureIndexBuffer alloc] init];
                     [selectedFaceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
                     [textureIndexBuffer release];
                     indexBuffer = [textureIndexBuffer buffer];
@@ -679,7 +679,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         if (textureIndexBuffer == nil) {
             textureIndexBuffer = [textureIndexBufferEn nextObject];
             if (textureIndexBuffer == nil) {
-                textureIndexBuffer = [[TextureFaceIndexBuffer alloc] init];
+                textureIndexBuffer = [[TextureIndexBuffer alloc] init];
                 [selectedFaceIndexBuffers setObject:textureIndexBuffer forKey:textureName];
                 [textureIndexBuffer release];
                 indexBuffer = [textureIndexBuffer buffer];
@@ -839,7 +839,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     glColorPointer(4, GL_UNSIGNED_BYTE, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)TexCoordSize + TexCoordSize + ColorSize);
     glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
     
-    for (TextureFaceIndexBuffer* textureIndexBuffer in [theIndexBuffers objectEnumerator]) {
+    for (TextureIndexBuffer* textureIndexBuffer in [theIndexBuffers objectEnumerator]) {
         Texture* texture = [textureIndexBuffer texture];
         if (textured) {
             if (texture != nil)

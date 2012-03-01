@@ -17,20 +17,19 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import <AppKit/AppKit.h>
+#import <Foundation/Foundation.h>
+#import "Renderer.h"
 
-@interface PreferencesViewAnimation : NSAnimation <NSAnimationDelegate> {
-    NSView* outView;
-    NSView* inView;
-    NSWindow* window;
-    NSRect sourceFrame;
-    NSRect targetFrame;
-    BOOL started;
+@class Texture;
+
+@interface TextureIndexBuffer : NSObject {
+    Texture* texture;
+    TIndexBuffer indexBuffer;
 }
 
-- (void)setOutView:(NSView *)theOutView;
-- (void)setInView:(NSView *)theInView;
-- (void)setWindow:(NSWindow *)theWindow;
-- (void)setTargetFrame:(NSRect)theTargetFrame;
+- (void)setTexture:(Texture *)theTexture;
+- (Texture *)texture;
+
+- (TIndexBuffer *)buffer;
 
 @end

@@ -80,9 +80,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSAssert(theKey != nil, @"key must not be nil");
     NSAssert(theTextRenderer != nil, @"text renderer must not be nil");
 
-    if (![strings objectForKey:theKey])
-        NSLog(@"asdf");
-    
     GLString* string = [strings objectForKey:theKey];
     id <TextAnchor> anchor = [anchors objectForKey:theKey];
     

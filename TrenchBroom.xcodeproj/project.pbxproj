@@ -208,8 +208,9 @@
 		48E1806512F5F07D007995FE /* SelectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1806412F5F07D007995FE /* SelectionManager.m */; };
 		48E4006D13159E7E004642CD /* TextureNameFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E4006C13159E7E004642CD /* TextureNameFilter.m */; };
 		48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E400AE1315A7DA004642CD /* TextureUsageFilter.m */; };
-		48E71DE214FA4D5500A965F9 /* TextureFaceIndexBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E71DE114FA4D5500A965F9 /* TextureFaceIndexBuffer.m */; };
+		48E71DE214FA4D5500A965F9 /* TextureIndexBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E71DE114FA4D5500A965F9 /* TextureIndexBuffer.m */; };
 		48E71DE614FFAF3000A965F9 /* PreferencesViewAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E71DE514FFAF3000A965F9 /* PreferencesViewAnimation.m */; };
+		48E71E131500258900A965F9 /* Autosaver.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E71E121500258800A965F9 /* Autosaver.m */; };
 		48E725AD13F3D26900828C0B /* QuickBarWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E725AC13F3D26900828C0B /* QuickBarWindow.m */; };
 		48E725B313F3D75A00828C0B /* QuickBarContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E725B213F3D75A00828C0B /* QuickBarContentView.m */; };
 		48ED399714E06A3A008AEBDB /* DragEdgeTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48ED399614E06A3A008AEBDB /* DragEdgeTool.m */; };
@@ -630,10 +631,12 @@
 		48E4006C13159E7E004642CD /* TextureNameFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureNameFilter.m; sourceTree = "<group>"; };
 		48E400AD1315A7DA004642CD /* TextureUsageFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureUsageFilter.h; sourceTree = "<group>"; };
 		48E400AE1315A7DA004642CD /* TextureUsageFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureUsageFilter.m; sourceTree = "<group>"; };
-		48E71DE014FA4D5400A965F9 /* TextureFaceIndexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureFaceIndexBuffer.h; sourceTree = "<group>"; };
-		48E71DE114FA4D5500A965F9 /* TextureFaceIndexBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureFaceIndexBuffer.m; sourceTree = "<group>"; };
+		48E71DE014FA4D5400A965F9 /* TextureIndexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureIndexBuffer.h; sourceTree = "<group>"; };
+		48E71DE114FA4D5500A965F9 /* TextureIndexBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureIndexBuffer.m; sourceTree = "<group>"; };
 		48E71DE414FFAF3000A965F9 /* PreferencesViewAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesViewAnimation.h; sourceTree = "<group>"; };
 		48E71DE514FFAF3000A965F9 /* PreferencesViewAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesViewAnimation.m; sourceTree = "<group>"; };
+		48E71E111500258700A965F9 /* Autosaver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Autosaver.h; sourceTree = "<group>"; };
+		48E71E121500258800A965F9 /* Autosaver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Autosaver.m; sourceTree = "<group>"; };
 		48E725AB13F3D26900828C0B /* QuickBarWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickBarWindow.h; sourceTree = "<group>"; };
 		48E725AC13F3D26900828C0B /* QuickBarWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuickBarWindow.m; sourceTree = "<group>"; };
 		48E725B113F3D75A00828C0B /* QuickBarContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickBarContentView.h; sourceTree = "<group>"; };
@@ -1037,8 +1040,8 @@
 				487A7E641300801A00434806 /* Renderer.m */,
 				484C28FA115023A2004DD957 /* Vbo.h */,
 				484C28FB115023A2004DD957 /* Vbo.m */,
-				48E71DE014FA4D5400A965F9 /* TextureFaceIndexBuffer.h */,
-				48E71DE114FA4D5500A965F9 /* TextureFaceIndexBuffer.m */,
+				48E71DE014FA4D5400A965F9 /* TextureIndexBuffer.h */,
+				48E71DE114FA4D5500A965F9 /* TextureIndexBuffer.m */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -1300,6 +1303,8 @@
 			children = (
 				488C8EB812F69F6900F358E6 /* IO */,
 				480AD8B312ED78E7009B5970 /* VertexData */,
+				48E71E111500258700A965F9 /* Autosaver.h */,
+				48E71E121500258800A965F9 /* Autosaver.m */,
 				48379C6B131B949A00F53DFA /* Brush.h */,
 				48379C6C131B956B00F53DFA /* Entity.h */,
 				48379C6A131B940400F53DFA /* Face.h */,
@@ -1772,8 +1777,9 @@
 				482BF7BF14F9464A000AB8B0 /* VertexFeedbackFigure.m in Sources */,
 				482BF7C214F95051000AB8B0 /* EdgeFeedbackFigure.m in Sources */,
 				482BF7C514F954B4000AB8B0 /* FaceFeedbackFigure.m in Sources */,
-				48E71DE214FA4D5500A965F9 /* TextureFaceIndexBuffer.m in Sources */,
+				48E71DE214FA4D5500A965F9 /* TextureIndexBuffer.m in Sources */,
 				48E71DE614FFAF3000A965F9 /* PreferencesViewAnimation.m in Sources */,
+				48E71E131500258900A965F9 /* Autosaver.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

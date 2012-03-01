@@ -17,20 +17,23 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import <AppKit/AppKit.h>
+#import <Foundation/Foundation.h>
 
-@interface PreferencesViewAnimation : NSAnimation <NSAnimationDelegate> {
-    NSView* outView;
-    NSView* inView;
-    NSWindow* window;
-    NSRect sourceFrame;
-    NSRect targetFrame;
-    BOOL started;
+@class MapDocument;
+
+@interface Autosaver : NSObject {
+    MapDocument* map;
+    NSTimeInterval saveInterval;
+    NSTimeInterval idleInterval;
+    int numberOfBackups;
+    
+    NSDate* lastAction;
+    NSDate* lastSave;
+    NSTimer* timer;
 }
 
-- (void)setOutView:(NSView *)theOutView;
-- (void)setInView:(NSView *)theInView;
-- (void)setWindow:(NSWindow *)theWindow;
-- (void)setTargetFrame:(NSRect)theTargetFrame;
+- (id)initWithMap:(MapDocument *)theMap saveInterval:(NSTimeInterval)theSaveInterval idleInterval:(NSTimeInterval)theIdleInterval numberOfBackups:(int)theNumberOfBackups;
+
+- (void)updateLastAction;
 
 @end

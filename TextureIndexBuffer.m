@@ -17,20 +17,35 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import <AppKit/AppKit.h>
+#import "TextureIndexBuffer.h"
+#import "Texture.h"
 
-@interface PreferencesViewAnimation : NSAnimation <NSAnimationDelegate> {
-    NSView* outView;
-    NSView* inView;
-    NSWindow* window;
-    NSRect sourceFrame;
-    NSRect targetFrame;
-    BOOL started;
+@implementation TextureIndexBuffer
+
+- (id)init {
+    if ((self = [super init])) {
+        texture = nil;
+        initIndexBuffer(&indexBuffer, 0xFF);
+    }
+    
+    return self;
 }
 
-- (void)setOutView:(NSView *)theOutView;
-- (void)setInView:(NSView *)theInView;
-- (void)setWindow:(NSWindow *)theWindow;
-- (void)setTargetFrame:(NSRect)theTargetFrame;
+- (void)dealloc {
+    freeIndexBuffer(&indexBuffer);
+    [super dealloc];
+}
+
+- (void)setTexture:(Texture *)theTexture {
+    texture = theTexture;
+}
+
+- (Texture *)texture {
+    return texture;
+}
+
+- (TIndexBuffer *)buffer {
+    return &indexBuffer;
+}
 
 @end
