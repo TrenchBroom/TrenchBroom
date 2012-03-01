@@ -56,7 +56,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     SelectionManager* selectionManager = [windowController selectionManager];
     if ([selectionManager selectionBounds:&bounds]) {
         centerOfBounds(&bounds, &center);
-        radius = 100;
+        radius = 40;
 
         Camera* camera = [windowController camera];
         vAxis = *[camera right];
@@ -84,8 +84,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [feedbackFigure setVerticalAxis:&vAxis];
         [feedbackFigure setHorizontalAngle:0 verticalAngle:0];
         
-        Renderer* renderer = [windowController renderer];
-        [renderer addFeedbackFigure:feedbackFigure];
+        [self addFeedbackFigure:feedbackFigure];
         
         delta = NSMakePoint(0, 0);
     }
@@ -94,6 +93,30 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     Renderer* renderer = [windowController renderer];
     [renderer removeFeedbackFigure:feedbackFigure];
+}
+
+- (void)handleMouseMoved:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (fabsf(event.deltaX) > fabsf(event.deltaY))
+        delta.x += event.deltaX;
+    else
+        delta.y += event.deltaY;
+    
+    float angle = (delta.x / 16) / (M_PI * 2);
+    Grid* grid = [[windowController options] grid];
+    if ([grid snap])
+        angle = [grid snapAngle:angle];
+    
+    if (angle == 0)
+        return;
+    
+    TQuaternion rot;
+    setAngleAndAxisQ(&rot, angle, &ZAxisPos);
+    rotateQ(&rot, &vAxis, &vAxis);
+    
+    [feedbackFigure setVerticalAxis:&vAxis];
+    [self updateFeedbackFigure:feedbackFigure];
+
+    delta = NSMakePoint(0, 0);
 }
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -110,7 +133,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSUndoManager* undoManager = [[windowController document] undoManager];
     [undoManager setGroupsByEvent:NO];
     [undoManager beginUndoGrouping];
-    NSLog(@"begin rotate");
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -122,8 +144,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     else
         delta.y += event.deltaY;
     
-    float hAngle = (delta.x / 6) / (M_PI * 2);
-    float vAngle = (delta.y / 6) / (M_PI * 2);
+    float hAngle = (delta.x / 16) / (M_PI * 2);
+    float vAngle = (delta.y / 16) / (M_PI * 2);
     
     Options* options = [windowController options];
     Grid* grid = [options grid];
@@ -186,7 +208,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager setActionName:[self actionName]];
     [undoManager endUndoGrouping];
     [undoManager setGroupsByEvent:YES];
-    NSLog(@"end rotate");
 }
 
 - (NSString *)actionName {

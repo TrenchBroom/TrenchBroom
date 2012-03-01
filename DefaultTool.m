@@ -46,6 +46,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [renderer removeFeedbackFigure:theFigure];
 }
 
+- (void)updateFeedbackFigure:(id <Figure>)theFigure  {
+    NSAssert(theFigure != nil, @"figure must not be nil");
+    
+    Renderer* renderer = [windowController renderer];
+    [renderer updateFeedbackFigure:theFigure];
+}
+
 - (void)activated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 - (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 

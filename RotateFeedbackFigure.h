@@ -20,8 +20,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import <Foundation/Foundation.h>
 #import "Figure.h"
 #import "Math.h"
-#import <OpenGL/gl.h>
-#import <OpenGL/glu.h>
 
 @interface RotateFeedbackFigure : NSObject <Figure> {
 @private

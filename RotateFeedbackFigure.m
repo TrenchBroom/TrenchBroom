@@ -18,26 +18,104 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import "RotateFeedbackFigure.h"
+#import "GLUtils.h"
 
 @implementation RotateFeedbackFigure
 
 - (void)render {
+    int segments = radius;
+    TVector3f points[segments];
+    makeCircle(radius, segments, points);
+    
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glDisable(GL_CULL_FACE);
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glTranslatef(center.x, center.y, center.z);
-    glEnable(GL_DEPTH_TEST);
 
-    glDisable(GL_DEPTH_TEST);
-    glColor4f(0, 1, 0, 1);
+    glColor4f(1, 1, 1, 0.1f);
+    glBegin(GL_TRIANGLE_FAN);
+    glVertexV3f(&NullVector);
+    for (int i = 0; i < segments; i++)
+        glVertexV3f(&points[i]);
+    glVertexV3f(&points[0]);
+    glEnd();
+    
+    glColor4f(1, 1, 1, 0.7f);
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < segments; i++)
+        glVertexV3f(&points[i]);
+    glEnd();
 
-    glBegin(GL_LINES);
-    glVertex3f(0, 0, 0);
-    glVertex3f(0, 0, 100);
-    glVertex3f(0, 0, 0);
-    glVertex3f(100 * vAxis.x, 100 * vAxis.y, 100 * vAxis.z);
+    glPushMatrix();
+    float angle = acosf(dotV3f(&vAxis, &XAxisPos));
+    if (!isnan(angle)) {
+        TVector3f cross;
+        crossV3f(&vAxis, &XAxisPos, &cross);
+        if (cross.z > 0)
+            angle *= -1;
+        
+        glRotatef(angle * 180 / M_PI, 0, 0, 1);
+    }
+    
+    glRotatef(90, 1, 0, 0);
+    
+    glColor4f(1, 1, 1, 0.1f);
+    glBegin(GL_TRIANGLE_FAN);
+    glVertexV3f(&NullVector);
+    for (int i = 0; i < segments; i++)
+        glVertexV3f(&points[i]);
+    glVertexV3f(&points[0]);
+    glEnd();
+
+    glColor4f(1, 1, 1, 0.7f);
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < segments; i++)
+        glVertexV3f(&points[i]);
     glEnd();
 
     glPopMatrix();
+    
+    glBegin(GL_LINES);
+    if (!drag) {
+        float x,y;
+        float a = 0;
+        float da = M_PI / 12;
+        for (int i = 0; i < 24; i++) {
+            x = cosf(a);
+            y = sinf(a);
+            
+            glVertex3f(x * radius * 0.9f, y * radius * 0.9f, 0);
+            glVertex3f(x * radius, y * radius, 0);
+            
+            a += da;
+        }
+    }
+    
+    glVertex3f(0, 0, 0);
+    glVertex3f(0, 0, radius);
+    glVertex3f(0, 0, 0);
+    glVertex3f(radius * vAxis.x, radius * vAxis.y, radius * vAxis.z);
+    
+    glColor4f(1, 0, 0, 1);
+    glVertex3f(radius, 0, 0);
+    glVertex3f(radius + 10, 0, 0);
+    glVertex3f(-radius, 0, 0);
+    glVertex3f(-radius - 10, 0, 0);
+    glColor4f(0, 1, 0, 1);
+    glVertex3f(0, radius, 0);
+    glVertex3f(0, radius + 10, 0);
+    glVertex3f(0, -radius, 0);
+    glVertex3f(0, -radius - 10, 0);
+    glColor4f(0, 0, 1, 1);
+    glVertex3f(0, 0, radius);
+    glVertex3f(0, 0, radius + 10);
+    glVertex3f(0, 0, -radius);
+    glVertex3f(0, 0, -radius - 10);
+    glEnd();
+
+    glPopMatrix();
+    glEnable(GL_CULL_FACE);
 }
 
 - (void)setCenter:(const TVector3f *)theCenter radius:(float)theRadius {

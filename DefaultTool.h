@@ -31,5 +31,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)addFeedbackFigure:(id <Figure>)theFigure;
 - (void)removeFeedbackFigure:(id <Figure>)theFigure;
+- (void)updateFeedbackFigure:(id <Figure>)theFigure;
 
 @end

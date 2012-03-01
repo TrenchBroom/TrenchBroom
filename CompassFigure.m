@@ -75,7 +75,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glDisable(GL_DEPTH_TEST);
     
     // X axis
-    glColor4f(1, 0, 0, 0.2f);
+    glColor4f(1, 0, 0, 0.5f);
     glPushMatrix();
     glTranslatef(center.x, center.y, center.z);
     glRotatef(90, 0, 1, 0);
@@ -83,7 +83,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glPopMatrix();
     
     // Y axis
-    glColor4f(0, 1, 0, 0.2f);
+    glColor4f(0, 1, 0, 0.5f);
     glPushMatrix();
     glTranslatef(center.x, center.y, center.z);
     glRotatef(270, 1, 0, 0);
@@ -91,7 +91,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glPopMatrix();
 
     // Z axis
-    glColor4f(0, 0, 1, 0.2f);
+    glColor4f(0, 0, 1, 0.5f);
     glPushMatrix();
     glTranslatef(center.x, center.y, center.z);
     [self renderArm];
