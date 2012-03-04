@@ -32,7 +32,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return self;
 }
 
-- (void)render {
+- (void)render:(id <Filter>)theFilter {
     if (sphere == NULL) {
         sphere = gluNewQuadric();
         gluQuadricDrawStyle(sphere, GLU_FILL);

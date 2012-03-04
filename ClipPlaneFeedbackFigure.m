@@ -31,7 +31,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return self;
 }
 
-- (void)render {
+- (void)render:(id <Filter>)theFilter {
     glColor4f(0, 1, 0, 0.1f);
     glDisable(GL_CULL_FACE);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

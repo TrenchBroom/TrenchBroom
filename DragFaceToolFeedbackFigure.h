@@ -24,6 +24,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Math.h"
 
 @class Camera;
+@protocol Filter;
 
 @interface DragFaceToolFeedbackFigure : NSObject <Figure> {
     GLUquadric* vertexHandle;

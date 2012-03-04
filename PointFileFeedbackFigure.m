@@ -43,7 +43,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [super dealloc];
 }
 
-- (void)render {
+- (void)render:(id <Filter>)theFilter {
     glDisable(GL_DEPTH_TEST);
     glColor4f(1, 1, 0, 0.3f);
     glBegin(GL_LINE_STRIP);

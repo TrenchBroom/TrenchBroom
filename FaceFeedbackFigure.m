@@ -41,7 +41,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [super dealloc];
 }
 
-- (void)render {
+- (void)render:(id <Filter>)theFilter {
     TVector3f center;
     
     glColorV4f(&color);
@@ -52,7 +52,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     centerOfVertices(vertices, &center);
     [vertexFigure setPosition:&center];
-    [vertexFigure render];
+    [vertexFigure render:theFilter];
 
 }
 

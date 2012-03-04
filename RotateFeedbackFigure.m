@@ -33,7 +33,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return self;
 }
 
-- (void)render {
+- (void)render:(id <Filter>)theFilter {
     int segments = radius;
     TVector3f points[segments];
     makeCircle(radius, segments, points);

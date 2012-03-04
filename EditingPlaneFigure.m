@@ -115,7 +115,7 @@ static int G = 2;
     }
 }
 
-- (void)render {
+- (void)render:(id <Filter>)theFilter {
     glColor4f(1, 0, 0, 0.2f);
     glEnable(GL_MAP2_VERTEX_3);
     glMap2f(GL_MAP2_VERTEX_3,

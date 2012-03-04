@@ -23,7 +23,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class TextureView;
 @class Camera;
 @class TextureManager;
-@class InputManager;
+@class InputController;
 @class SelectionManager;
 @class GLFontManager;
 @class SingleTextureView;
@@ -46,7 +46,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 	IBOutlet MapView3D* view3D;
     InspectorViewController* inspectorViewController;
     Camera* camera;
-    InputManager* inputManager;
+    InputController* inputController;
     Options* options;
     ConsoleWindowController* console;
     QuickBarWindowController* quickBar;
@@ -104,7 +104,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (Camera *)camera;
 - (SelectionManager *)selectionManager;
-- (InputManager *)inputManager;
+- (InputController *)inputController;
 - (Options *)options;
 - (Renderer *)renderer;
 - (MapView3D *)view3D;

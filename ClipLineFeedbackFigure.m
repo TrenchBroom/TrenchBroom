@@ -30,7 +30,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return self;
 }
 
-- (void)render {
+- (void)render:(id <Filter>)theFilter {
     glColor4f(0, 1, 0, 1);
     glBegin(GL_LINES);
     glVertex3f(startPoint.x, startPoint.y, startPoint.z);

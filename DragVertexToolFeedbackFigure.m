@@ -22,10 +22,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "GLUtils.h"
 #import "Brush.h"
 #import "Face.h"
+#import "Filter.h"
 
 @implementation DragVertexToolFeedbackFigure
 
-- (void)render {
+- (void)render:(id <Filter>)theFilter {
     TVector3f mid;
     
     if ([brushes count] > 0) {
@@ -40,40 +41,42 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         glColorV4f(&color);
         
         for (id <Brush> brush in brushes) {
-            const TVertexList* vertices = [brush vertices];
-            for (int i = 0; i < vertices->count; i++) {
-                TVector3f* vertex = &vertices->items[i]->position;
-                float dist = [camera distanceTo:vertex];
+            if (theFilter == nil || [theFilter brushVerticesPickable:brush]) {
+                const TVertexList* vertices = [brush vertices];
+                for (int i = 0; i < vertices->count; i++) {
+                    TVector3f* vertex = &vertices->items[i]->position;
+                    float dist = [camera distanceTo:vertex];
+                    
+                    glPushMatrix();
+                    glTranslatef(vertex->x, vertex->y, vertex->z);
+                    glScalef(dist / 300, dist / 300, dist / 300);
+                    gluSphere(vertexHandle, radius, 12, 12);
+                    glPopMatrix();
+                }
                 
-                glPushMatrix();
-                glTranslatef(vertex->x, vertex->y, vertex->z);
-                glScalef(dist / 300, dist / 300, dist / 300);
-                gluSphere(vertexHandle, radius, 12, 12);
-                glPopMatrix();
-            }
-            
-            const TEdgeList* edges = [brush edges];
-            for (int i = 0; i < edges->count; i++) {
-                TEdge* edge = edges->items[i];
-                centerOfEdge(edge, &mid);
-                float dist = [camera distanceTo:&mid];
+                const TEdgeList* edges = [brush edges];
+                for (int i = 0; i < edges->count; i++) {
+                    TEdge* edge = edges->items[i];
+                    centerOfEdge(edge, &mid);
+                    float dist = [camera distanceTo:&mid];
+                    
+                    glPushMatrix();
+                    glTranslatef(mid.x, mid.y, mid.z);
+                    glScalef(dist / 300, dist / 300, dist / 300);
+                    gluSphere(vertexHandle, radius, 12, 12);
+                    glPopMatrix();
+                }
                 
-                glPushMatrix();
-                glTranslatef(mid.x, mid.y, mid.z);
-                glScalef(dist / 300, dist / 300, dist / 300);
-                gluSphere(vertexHandle, radius, 12, 12);
-                glPopMatrix();
-            }
-            
-            for (id <Face> face in [brush faces]) {
-                centerOfVertices([face vertices], &mid);
-                float dist = [camera distanceTo:&mid];
-                
-                glPushMatrix();
-                glTranslatef(mid.x, mid.y, mid.z);
-                glScalef(dist / 300, dist / 300, dist / 300);
-                gluSphere(vertexHandle, radius, 12, 12);
-                glPopMatrix();
+                for (id <Face> face in [brush faces]) {
+                    centerOfVertices([face vertices], &mid);
+                    float dist = [camera distanceTo:&mid];
+                    
+                    glPushMatrix();
+                    glTranslatef(mid.x, mid.y, mid.z);
+                    glScalef(dist / 300, dist / 300, dist / 300);
+                    gluSphere(vertexHandle, radius, 12, 12);
+                    glPopMatrix();
+                }
             }
         }
         

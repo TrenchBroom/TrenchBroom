@@ -202,7 +202,7 @@
 		48CE70AC134741C400886260 /* EditingPlaneFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CE70AB134741C400886260 /* EditingPlaneFigure.m */; };
 		48D2A31B13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D2A31A13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m */; };
 		48D6B903134B8DC90084F82E /* GLStringData.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D6B902134B8DC90084F82E /* GLStringData.m */; };
-		48DB957812F0699600FB5483 /* InputManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB957712F0699600FB5483 /* InputManager.m */; };
+		48DB957812F0699600FB5483 /* InputController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB957712F0699600FB5483 /* InputController.m */; };
 		48DBE7451341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */; };
 		48DBE74F1341CD8B00C0FDE7 /* ClipPlane.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */; };
 		48DD414C1503BBC10074C1F4 /* DragFaceToolFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DD414A1503BB830074C1F4 /* DragFaceToolFeedbackFigure.m */; };
@@ -620,8 +620,8 @@
 		48D2A31A13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionDndFeedbackFigure.m; sourceTree = "<group>"; };
 		48D6B901134B8DC90084F82E /* GLStringData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLStringData.h; sourceTree = "<group>"; };
 		48D6B902134B8DC90084F82E /* GLStringData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLStringData.m; sourceTree = "<group>"; };
-		48DB957612F0699600FB5483 /* InputManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputManager.h; sourceTree = "<group>"; };
-		48DB957712F0699600FB5483 /* InputManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InputManager.m; sourceTree = "<group>"; };
+		48DB957612F0699600FB5483 /* InputController.h */ = {isa = PBXFileReference; fileEncoding = 4; path = InputController.h; sourceTree = "<group>"; };
+		48DB957712F0699600FB5483 /* InputController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InputController.m; sourceTree = "<group>"; };
 		48DBE7431341CCD200C0FDE7 /* ClipBrushFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipBrushFeedbackFigure.h; sourceTree = "<group>"; };
 		48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipBrushFeedbackFigure.m; sourceTree = "<group>"; };
 		48DBE74D1341CD8B00C0FDE7 /* ClipPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipPlane.h; sourceTree = "<group>"; };
@@ -1253,8 +1253,8 @@
 				4855B2991465C4A00062078C /* CameraOrbitAnimation.m */,
 				480F2F63132562CA00651FED /* Grid.h */,
 				480F2F64132562CA00651FED /* Grid.m */,
-				48DB957612F0699600FB5483 /* InputManager.h */,
-				48DB957712F0699600FB5483 /* InputManager.m */,
+				48DB957612F0699600FB5483 /* InputController.h */,
+				48DB957712F0699600FB5483 /* InputController.m */,
 				48A68EB6114E96C00064732A /* MapWindowController.h */,
 				48A68EB7114E96C00064732A /* MapWindowController.m */,
 				48C3324213087D8600C23607 /* MenuDelegate.h */,
@@ -1666,7 +1666,7 @@
 				4866F3B112EAC9FA009B345C /* TextureViewLayout.m in Sources */,
 				4866F3BE12EACD2B009B345C /* TextureViewLayoutRow.m in Sources */,
 				4866F3C412EACE73009B345C /* TextureViewLayoutCell.m in Sources */,
-				48DB957812F0699600FB5483 /* InputManager.m in Sources */,
+				48DB957812F0699600FB5483 /* InputController.m in Sources */,
 				486A9C1C12F41FCA003D26FE /* Octree.m in Sources */,
 				486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */,
 				485AE8A712F4B9BA00CDBD6A /* Picker.m in Sources */,

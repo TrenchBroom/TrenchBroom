@@ -69,7 +69,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     bounds = *theBounds;
 }
 
-- (void)render {
+- (void)render:(id <Filter>)theFilter {
     glDisable(GL_DEPTH_TEST);
     glColor4f(0, 1, 0, 0.5f);
     [self doRender];

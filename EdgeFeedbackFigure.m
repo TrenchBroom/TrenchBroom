@@ -45,16 +45,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [super dealloc];
 }
 
-- (void)render {
+- (void)render:(id <Filter>)theFilter {
     glColorV4f(&color);
     glBegin(GL_LINES);
     glVertexV3f(&start);
     glVertexV3f(&end);
     glEnd();
     
-    [startFigure render];
-    [endFigure render];
-    [centerFigure render];
+    [startFigure render:theFilter];
+    [endFigure render:theFilter];
+    [centerFigure render:theFilter];
 }
 
 - (void)setEdge:(const TEdge *)theEdge {

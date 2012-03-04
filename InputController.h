@@ -44,7 +44,7 @@ typedef enum {
     MS_RIGHT
 } EMouseStatus;
 
-@interface InputManager : NSObject {
+@interface InputController : NSObject {
     @private 
     MapWindowController* windowController;
     id <Filter> filter;

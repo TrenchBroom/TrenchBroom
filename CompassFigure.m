@@ -58,7 +58,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [super dealloc];
 }
 
-- (void)render {
+- (void)render:(id <Filter>)theFilter {
     if (!initialized) {
         arms = gluNewQuadric();
         disks = gluNewQuadric();

@@ -117,7 +117,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         glMateriali(GL_FRONT, GL_SHININESS, 96);
         
         glScalef(1.9f, 1.9f, 1.9f);
-        [compassFigure render];
+        [compassFigure render:nil];
         
         glDisable(GL_LIGHT0);
         glDisable(GL_COLOR_MATERIAL);

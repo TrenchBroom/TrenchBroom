@@ -117,6 +117,18 @@ int const VertexMaxDistanceSquared = 512 * 512;
     return NO;
 }
 
+- (BOOL)brushVerticesPickable:(id <Brush>)brush {
+    if ([brush containsPoint:[camera position]])
+        return NO;
+    
+    const TVertexList* vertices = [brush vertices];
+    for (int i = 0; i < vertices->count; i++)
+        if ([camera squaredDistanceTo:&vertices->items[i]->position] <= VertexMaxDistanceSquared)
+            return YES;
+    
+    return NO;
+}
+
 - (BOOL)entityPickable:(id<Entity>)entity {
     if (![options renderEntities])
         return NO;

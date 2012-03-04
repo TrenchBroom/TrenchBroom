@@ -49,7 +49,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     origin = *theOrigin;
 }
 
-- (void)render {
+- (void)render:(id <Filter>)theFilter {
     TVector3f min, max;
     setV3f(&min, &origin);
     setV3f(&max, &origin);

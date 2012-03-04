@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import "InputManager.h"
+#import "InputController.h"
 #import <OpenGL/glu.h>
 #import "CameraTool.h"
 #import "SelectionTool.h"
@@ -49,49 +49,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Entity.h"
 #import "CreateBrushTool.h"
 
-@interface InputManager (private)
-
-- (BOOL)isCameraModifierPressed;
-- (BOOL)isCameraOrbitModifierPressed;
-- (BOOL)isRotateModifierPressed;
-- (BOOL)isFaceDragModifierPressed;
-- (BOOL)isSplitModifierPressed;
+@interface InputController (private)
 
 - (void)updateEvent:(NSEvent *)event;
 - (void)updateRay;
-
-/*
-- (void)updateActiveTool;
-- (void)updateCursor;
-- (void)updateCursorOwner;
-*/
 - (void)cameraViewChanged:(NSNotification *)notification;
 - (void)mapChanged:(NSNotification *)notification;
 
 - (void)showContextMenu;
 @end
 
-@implementation InputManager (private)
-
-- (BOOL)isCameraModifierPressed {
-    return [NSEvent modifierFlags] == NSShiftKeyMask;
-}
-
-- (BOOL)isCameraOrbitModifierPressed {
-    return [NSEvent modifierFlags] == (NSShiftKeyMask | NSCommandKeyMask);
-}
-
-- (BOOL)isRotateModifierPressed {
-    return [NSEvent modifierFlags] == (NSAlternateKeyMask | NSCommandKeyMask);
-}
-
-- (BOOL)isFaceDragModifierPressed {
-    return [NSEvent modifierFlags] == NSCommandKeyMask;
-}
-
-- (BOOL)isSplitModifierPressed {
-    return [NSEvent modifierFlags] == NSCommandKeyMask || [NSEvent modifierFlags] == (NSCommandKeyMask | NSAlternateKeyMask);
-}
+@implementation InputController (private)
 
 - (void)updateEvent:(NSEvent *)event {
     [lastEvent release];
@@ -110,183 +78,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     currentHits = nil;
 }
 
-/*
-- (void)updateActiveTool {
-    SelectionManager* selectionManager = [windowController selectionManager];
-
-    id <Tool> newActiveTool = nil;
-    if ([self isCameraModifierPressed] || [self isCameraOrbitModifierPressed]) {
-        newActiveTool = cameraTool;
-    }
-    
-    if (newActiveTool == nil && [clipTool active]) {
-        newActiveTool = clipTool;
-    } 
-    
-    if (newActiveTool == nil && ([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES)) {
-        PickingHit* hit = [[self currentHits] firstHitOfType:HT_VERTEX ignoreOccluders:NO];
-        if (hit != nil) {
-            id <Brush> brush = [hit object];
-            const TVertexList* vertices = [brush vertices];
-            const TEdgeList* edges = [brush edges];
-            int index = [hit vertexIndex];
-            if (index < vertices->count || [self isSplitModifierPressed])
-                newActiveTool = dragVertexTool;
-            else if (index < vertices->count + edges->count)
-                newActiveTool = dragEdgeTool;
-            else
-                newActiveTool = dragFaceTool;
-        }
-        
-        if (newActiveTool == nil && [self isRotateModifierPressed]) {
-                newActiveTool = rotateTool;
-        }
-        
-        if (newActiveTool == nil && (dragStatus == MS_LEFT || scrollStatus == MS_LEFT)) {
-            if ([self isFaceDragModifierPressed]) {
-                hit = [[self currentHits] firstHitOfType:HT_CLOSE_FACE ignoreOccluders:NO];
-                if (hit != nil) {
-                    newActiveTool = faceTool;
-                } else {
-                    hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:NO];
-                    if (hit != nil) {
-                        id <Face> face = [hit object];
-                        if ([face selected])
-                            newActiveTool = faceTool;
-                    }
-                }
-            } 
-            
-            if (newActiveTool == nil) {
-                hit = [[self currentHits] firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:NO];
-                if (hit != nil) {
-                    newActiveTool = moveTool;
-                }
-            }
-        }
-    }
-    
-    if (newActiveTool == nil && dragStatus == MS_LEFT && [selectionManager mode] == SM_UNDEFINED) {
-        newActiveTool = createBrushTool;
-    }
-    
-    if (newActiveTool == nil) {
-        newActiveTool = selectionTool;
-    }
-    
-    if (newActiveTool != activeTool) {
-        if (activeTool != nil)
-            [activeTool deactivated:lastEvent ray:&lastRay hits:[self currentHits]];
-        activeTool = newActiveTool;
-        if (activeTool != nil)
-            [activeTool activated:lastEvent ray:&lastRay hits:[self currentHits]];
-    }
-}
-
-- (void)updateCursorOwner {
-    if (dragStatus == MS_NONE && scrollStatus == MS_NONE) {
-        SelectionManager* selectionManager = [windowController selectionManager];
-        
-        id <Tool> newOwner = nil;
-        if (hasMouse) {
-            if (newOwner == nil && ([self isCameraModifierPressed] || [self isCameraOrbitModifierPressed])) {
-                newOwner = cameraTool;
-            }
-                
-            if (newOwner == nil && [clipTool active]) {
-                newOwner = clipTool;
-            }
-            
-            if (([selectionManager mode] == SM_BRUSHES || [selectionManager mode] == SM_ENTITIES || [selectionManager mode] == SM_BRUSHES_ENTITIES)) {
-                if (newOwner == nil && [self isRotateModifierPressed]) {
-                    newOwner = rotateTool;
-                }
-                
-                if (newOwner == nil && [self isFaceDragModifierPressed]) {
-                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_CLOSE_FACE ignoreOccluders:NO];
-                    if (hit != nil) {
-                        newOwner = faceTool;
-                    } else {
-                        hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:NO];
-                        if (hit != nil && [selectionManager isFaceSelected:[hit object]]) {
-                            newOwner = faceTool;
-                        }
-                    }
-                }
-                
-                if (newOwner == nil) {
-                    PickingHit* hit = [[self currentHits] firstHitOfType:HT_ENTITY | HT_FACE | HT_VERTEX ignoreOccluders:YES];
-                    if (hit != nil) {
-                        switch ([hit type]) {
-                            case HT_ENTITY: {
-                                id <Entity> entity = [hit object];
-                                if ([selectionManager isEntitySelected:entity])
-                                    newOwner = moveTool;
-                                break;
-                            }
-                            case HT_FACE: {
-                                id <Face> face = [hit object];
-                                id <Brush> brush = [face brush];
-                                if ([selectionManager isBrushSelected:brush])
-                                    newOwner = moveTool;
-                                break;
-                            }
-                            case HT_VERTEX: {
-                                id <Brush> brush = [hit object];
-                                if ([selectionManager isBrushSelected:brush]) {
-                                    const TVertexList* vertices = [brush vertices];
-                                    const TEdgeList* edges = [brush edges];
-                                    int index = [hit vertexIndex];
-                                    if (index < vertices->count || [self isSplitModifierPressed])
-                                        newOwner = dragVertexTool;
-                                    else if (index < vertices->count + edges->count)
-                                        newOwner = dragEdgeTool;
-                                    else
-                                        newOwner = dragFaceTool;
-                                }
-                                break;
-                            }
-                            default: {
-                                NSLog(@"unknown hit type: %i", [hit type]);
-                                break;
-                            }
-                        }
-                    }
-                }
-            } 
-            
-            if (newOwner == nil && [selectionManager mode] == SM_FACES) {
-                PickingHit* hit = [[self currentHits] firstHitOfType:HT_FACE ignoreOccluders:YES];
-                if (hit != nil) {
-                    id <Face> face = [hit object];
-                    if ([selectionManager isFaceSelected:face] || ([[selectionManager selectedFaces] count] == 1 && ([self isApplyTextureModifierPressed] || [self isApplyTextureAndFlagsModifierPressed])))
-                        newOwner = faceTool;
-                }
-            }
-        }
-        
-        if (newOwner != cursorOwner) {
-            if (cursorOwner != nil)
-                [cursorOwner unsetCursor:lastEvent ray:&lastRay hits:[self currentHits]];
-            cursorOwner = newOwner;
-            if (cursorOwner != nil) {
-                [cursorOwner handleKeyStatusChanged:lastEvent status:keyStatus ray:&lastRay hits:[self currentHits]];
-                [cursorOwner setCursor:lastEvent ray:&lastRay hits:[self currentHits]];
-            }
-        }
-    }
-}
-
-- (void)updateCursor {
-    if (cursorOwner != nil) {
-        [cursorOwner updateCursor:lastEvent ray:&lastRay hits:[self currentHits]];
-        
-        MapView3D* view3D = [windowController view3D];
-        [view3D setNeedsDisplay:YES];
-    }
-}
-*/
-
 - (void)cameraViewChanged:(NSNotification *)notification {
     [self updateRay];
 }
@@ -295,7 +86,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [currentHits release];
     currentHits = nil;
 }
-
 
 - (void)showContextMenu {
     if (popupMenu == nil) {
@@ -328,7 +118,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @end
 
-@implementation InputManager
+@implementation InputController
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if ((self = [self init])) {
         windowController = theWindowController; // do not retain
@@ -359,6 +149,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [mouseReceiverChain addObject:moveTool];
         [mouseReceiverChain addObject:rotateTool];
         [mouseReceiverChain addObject:selectionTool];
+        [mouseReceiverChain addObject:createBrushTool];
         dragScrollReceiver = nil;
         modalReceiverIndex = -1;
         

@@ -30,7 +30,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "WadLoader.h"
 #import "Wad.h"
 #import "TextureManager.h"
-#import "InputManager.h"
+#import "InputController.h"
 #import "Vbo.h"
 #import "Octree.h"
 #import "Picker.h"
@@ -339,7 +339,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     camera = [[Camera alloc] init];
     [self preferencesDidChange:nil];
     
-    inputManager = [[InputManager alloc] initWithWindowController:self];
+    inputController = [[InputController alloc] initWithWindowController:self];
     
     [view3D setup];
     
@@ -394,7 +394,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             return YES;
         }
         
-        if ([[inputManager clipTool] active] && [[inputManager clipTool] numPoints] > 0)
+        if ([[inputController clipTool] active] && [[inputController clipTool] numPoints] > 0)
             return YES;
         return NO;
     } else if (action == @selector(moveTextureLeft:)) {
@@ -422,7 +422,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     } else if (action == @selector(toggleTextureLock:)) {
         return YES;
     } else if (action == @selector(duplicateSelection:)) {
-        return ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) && ![[inputManager clipTool] active];
+        return ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) && ![[inputController clipTool] active];
     } else if (action == @selector(createPrefabFromSelection:)) {
         return [selectionManager hasSelectedBrushes];
     } else if (action == @selector(showInspector:)) {
@@ -444,11 +444,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     } else if (action == @selector(setGridSize:)) {
         return YES;
     } else if (action == @selector(toggleClipTool:)) {
-        return [selectionManager hasSelectedBrushes] || [[inputManager clipTool] active];
+        return [selectionManager hasSelectedBrushes] || [[inputController clipTool] active];
     } else if (action == @selector(toggleClipMode:)) {
-        return [[inputManager clipTool] active];
+        return [[inputController clipTool] active];
     } else if (action == @selector(performClip:)) {
-        return [[inputManager clipTool] active] && [[inputManager clipTool] numPoints] > 1;
+        return [[inputController clipTool] active] && [[inputController clipTool] numPoints] > 1;
     } else if (action == @selector(rotate90CW:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
     } else if (action == @selector(rotate90CCW:)) {
@@ -519,7 +519,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [pointFileFigure release];
     [options release];
-    [inputManager release];
+    [inputController release];
     [camera release];
     [quickBar release];
     [inspectorViewController release];
@@ -568,8 +568,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSArray* pointDefinitions = [entityDefinitionManager definitionsOfType:EDT_POINT];
     EntityDefinition* definition = [pointDefinitions objectAtIndex:[sender tag]];
 
-    NSPoint mousePos = [inputManager menuPosition];
-    PickingHitList* hits = [inputManager currentHits];
+    NSPoint mousePos = [inputController menuPosition];
+    PickingHitList* hits = [inputController currentHits];
     
     Grid* grid = [options grid];
 
@@ -737,19 +737,19 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (IBAction)toggleDragVertexTool:(id)sender {
-    [inputManager toggleDragVertexTool];
+    [inputController toggleDragVertexTool];
 }
 
 - (IBAction)toggleDragEdgeTool:(id)sender {
-    [inputManager toggleDragEdgeTool];
+    [inputController toggleDragEdgeTool];
 }
 
 - (IBAction)toggleDragFaceTool:(id)sender {
-    [inputManager toggleDragFaceTool];
+    [inputController toggleDragFaceTool];
 }
 
 - (IBAction)toggleClipTool:(id)sender {
-    ClipTool* clipTool = [inputManager clipTool];
+    ClipTool* clipTool = [inputController clipTool];
     if ([clipTool active])
         [clipTool deactivate];
     else
@@ -757,13 +757,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (IBAction)toggleClipMode:(id)sender {
-    ClipTool* clipTool = [inputManager clipTool];
+    ClipTool* clipTool = [inputController clipTool];
     if ([clipTool active])
         [clipTool toggleClipMode];
 }
 
 - (IBAction)performClip:(id)sender {
-    ClipTool* clipTool = [inputManager clipTool];
+    ClipTool* clipTool = [inputController clipTool];
     if ([clipTool active]) {
         [clipTool performClip:[self document]];
         [clipTool deactivate];
@@ -1306,7 +1306,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (IBAction)deleteSelection:(id)sender {
     SelectionManager* selectionManager = [self selectionManager];
-    ClipTool* clipTool = [inputManager clipTool];
+    ClipTool* clipTool = [inputController clipTool];
     if ([clipTool active] && [clipTool numPoints] > 0) {
         [clipTool deleteLastPoint];
     } else {
@@ -1594,8 +1594,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return [[self document] selectionManager];
 }
 
-- (InputManager *)inputManager {
-    return inputManager;
+- (InputController *)inputController {
+    return inputController;
 }
 
 - (Options *)options {

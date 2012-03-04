@@ -19,8 +19,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import <Cocoa/Cocoa.h>
 
+@protocol Filter;
+
 @protocol Figure <NSObject>
 
-- (void)render;
+- (void)render:(id <Filter>)theFilter;
 
 @end

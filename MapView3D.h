@@ -19,7 +19,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import <Cocoa/Cocoa.h>
 
-@class InputManager;
+@class InputController;
 @class Renderer;
 @class Options;
 

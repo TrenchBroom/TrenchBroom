@@ -1308,7 +1308,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     if ([feedbackFigures count] > 0) {
         glDisable(GL_DEPTH_TEST);
         for (id <Figure> figure in feedbackFigures)
-            [figure render];
+            [figure render:filter];
         glEnable(GL_DEPTH_TEST);
     }
      

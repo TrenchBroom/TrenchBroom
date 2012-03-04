@@ -32,6 +32,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Face.h"
 #import "EdgeFeedbackFigure.h"
 #import "DragEdgeToolFeedbackFigure.h"
+#import "Filter.h"
 
 TVector4f const CurrentEdgeColor = {1, 0, 0, 1};
 TVector4f const EdgeColor = {0, 229 / 255.0f, 221 / 255.0f, 1};
