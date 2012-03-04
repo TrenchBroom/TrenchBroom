@@ -57,10 +57,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)doEndRightDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (BOOL)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     [self updateMoveDirectionWithRay:ray hits:hits];
     drag = [self doBeginLeftDrag:event ray:ray hits:hits lastPoint:&lastPoint];
     dragPlanePosition = lastPoint;
+    return drag;
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

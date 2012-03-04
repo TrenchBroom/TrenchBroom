@@ -31,14 +31,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MutableBrush.h"
 #import "Face.h"
 #import "EdgeFeedbackFigure.h"
+#import "DragEdgeToolFeedbackFigure.h"
+
+TVector4f const CurrentEdgeColor = {1, 1, 1, 1};
+TVector4f const EdgeColor = {1, 0, 0, 1};
 
 @implementation DragEdgeTool
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if ((self = [super initWithWindowController:theWindowController])) {
         Camera* camera = [theWindowController camera];
-        TVector4f color = {1, 1, 1, 1};
-        edgeFigure = [[EdgeFeedbackFigure alloc] initWithCamera:camera radius:3 color:&color];
+        edgeFigure = [[EdgeFeedbackFigure alloc] initWithCamera:camera radius:3 color:&CurrentEdgeColor];
+        feedbackFigure = [[DragEdgeToolFeedbackFigure alloc] initWithCamera:camera radius:3 color:&EdgeColor];
     }
     
     return self;
@@ -46,7 +50,19 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)dealloc {
     [edgeFigure release];
+    [feedbackFigure release];
     [super dealloc];
+}
+
+- (void)activated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    [feedbackFigure setBrushes:[selectionManager selectedBrushes]];
+    
+    [self addFeedbackFigure:feedbackFigure];
+}
+
+- (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    [self removeFeedbackFigure:feedbackFigure];
 }
 
 - (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {

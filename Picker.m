@@ -61,8 +61,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)pickVertices:(const TRay *)theRay brushes:(NSArray *)theBrushes handleRadius:(float)theHandleRadius hitList:(PickingHitList *)theHitList filter:(id <Filter>)filter {
     for (id <Brush> brush in theBrushes)
-        if (filter == nil || [filter brushVerticesPickable:brush])
-            [brush pickVertices:theRay handleRadius:theHandleRadius hitList:theHitList];
+        [brush pickVertices:theRay handleRadius:theHandleRadius hitList:theHitList];
 }
 
 - (void)dealloc {

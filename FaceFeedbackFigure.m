@@ -42,8 +42,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)render {
-    TVertex* current;
-    TVertex* next;
     TVector3f center;
     
     glColorV4f(&color);
@@ -51,20 +49,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     for (int i = 0; i < vertices->count; i++)
         glVertexV3f(&vertices->items[i]->position);
     glEnd();
-    
-    for (int i = 0; i < vertices->count; i++) {
-        current = vertices->items[i];
-        next = vertices->items[(i + 1) % vertices->count];
-        
-        [vertexFigure setVertex:current];
-        [vertexFigure render];
-        
-        addV3f(&current->position, &next->position, &center);
-        scaleV3f(&center, 0.5f, &center);
-        
-        [vertexFigure setPosition:&center];
-        [vertexFigure render];
-    }
     
     centerOfVertices(vertices, &center);
     [vertexFigure setPosition:&center];

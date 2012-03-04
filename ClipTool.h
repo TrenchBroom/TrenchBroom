@@ -18,7 +18,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Cocoa/Cocoa.h>
-#import "DefaultTool.h"
+#import "Tool.h"
 #import "Math.h"
 
 @class MapWindowController;
@@ -33,7 +33,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class ClipPlaneFeedbackFigure;
 @class EditingPlaneFigure;
 
-@interface ClipTool : DefaultTool {
+@interface ClipTool : Tool {
     ClipPlane* clipPlane;
     ClipPointFeedbackFigure* point1Figure;
     ClipPointFeedbackFigure* point2Figure;

@@ -35,12 +35,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @interface FaceTool (private)
 
 - (BOOL)isFrontFaceModifierPressed;
+- (BOOL)isFaceDragModifierPressed;
 
 @end
 
 @implementation FaceTool (private)
 
 - (BOOL)isFrontFaceModifierPressed {
+    return [NSEvent modifierFlags] == NSCommandKeyMask;
+}
+
+- (BOOL)isFaceDragModifierPressed {
     return [NSEvent modifierFlags] == NSCommandKeyMask;
 }
 
@@ -64,7 +69,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 # pragma mark -
 # pragma mark @implementation Tool
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (BOOL)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (![self isFaceDragModifierPressed])
+        return NO;
+    
     SelectionManager* selectionManager = [windowController selectionManager];
 
     PickingHit* hit = [hits firstHitOfType:HT_CLOSE_FACE ignoreOccluders:NO];
@@ -74,11 +82,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     } else {
         hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
         if (hit == nil)
-            return;
+            return NO;
 
         referenceFace = [hit object];
         if (![referenceFace selected])
-            return;
+            return NO;
 
         if ([selectionManager mode] == SM_FACES) {
             [dragFaces addObjectsFromArray:[selectionManager selectedFaces]];
@@ -109,6 +117,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     normalizeV3f(&plane.norm, &plane.norm);
     
     drag = YES;
+    return YES;
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

@@ -18,11 +18,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Cocoa/Cocoa.h>
-#import "DefaultTool.h"
+#import "Tool.h"
 
 @protocol Face;
 
-@interface FaceTool : DefaultTool {
+@interface FaceTool : Tool {
     @private
     TPlane plane;
     TVector3f lastPoint;

@@ -61,8 +61,6 @@ void addIndex(TIndexBuffer* buffer, GLuint index);
     int entityBoundsVertexCount;
     int selectedEntityBoundsVertexCount;
     
-    GLUquadric* vertexHandle;
-    
     TextRenderer* classnameRenderer;
     TextRenderer* selectedClassnameRenderer;
     EntityRendererManager* entityRendererManager;

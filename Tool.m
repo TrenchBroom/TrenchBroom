@@ -17,12 +17,12 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import "DefaultTool.h"
+#import "Tool.h"
 #import "MapWindowController.h"
 #import "Figure.h"
 #import "Renderer.h"
 
-@implementation DefaultTool
+@implementation Tool
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if ((self = [self init])) {
@@ -56,32 +56,34 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)activated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 - (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 
-- (void)leftMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
-- (void)leftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
-- (void)rightMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
-- (void)rightMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
+- (BOOL)leftMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits { return NO; }
+- (BOOL)leftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits { return NO; }
+- (BOOL)rightMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits { return NO; }
+- (BOOL)rightMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits { return NO; }
 - (void)mouseMoved:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
-- (void)scrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
+- (BOOL)scrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits { return NO; }
 
-- (void)beginGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
+- (BOOL)beginGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits { return NO; }
 - (void)endGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 - (void)magnify:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
+- (BOOL)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits { return NO; }
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 
-- (void)beginRightDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
+- (BOOL)beginRightDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits { return NO; }
 - (void)rightDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 - (void)endRightDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 
-- (void)beginLeftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
+- (BOOL)beginLeftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits { return NO; }
 - (void)leftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 - (void)endLeftScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 
-- (void)beginRightScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
+- (BOOL)beginRightScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits { return NO; }
 - (void)rightScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 - (void)endRightScroll:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
+
+- (void)flagsChanged:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 
 - (NSString *)actionName { return nil; }
 

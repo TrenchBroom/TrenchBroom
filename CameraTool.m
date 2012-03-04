@@ -45,9 +45,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation CameraTool
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (BOOL)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isCameraModifierPressed] && ![self isCameraOrbitModifierPressed])
-        return;
+        return NO;
     
     if ([self isCameraOrbitModifierPressed]) {
         PickingHit* hit = [hits firstHitOfType:HT_ANY ignoreOccluders:YES];
@@ -59,6 +59,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         }
         orbit = YES;
     }
+    
+    return YES;
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
@@ -81,6 +83,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 }
 
+- (BOOL)beginRightDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    return [self isCameraModifierPressed] || [self isCameraOrbitModifierPressed];
+}
+
 - (void)rightDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isCameraModifierPressed])
         return;
@@ -89,17 +95,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [camera moveForward:0 right:[event deltaX] up:-[event deltaY]];
 }
 
-- (void)beginGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (BOOL)beginGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (![self isCameraModifierPressed] && ![self isCameraOrbitModifierPressed])
+        return NO;
+
     gesture = YES;
+    return YES;
 }
 
 - (void)endGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     gesture = NO;
 }
 
-- (void)scrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (BOOL)scrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isCameraModifierPressed] && ![self isCameraOrbitModifierPressed])
-        return;
+        return NO;
     
     Camera* camera = [windowController camera];
     if ([self isCameraOrbitModifierPressed]) {
@@ -113,6 +123,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         else
             [camera moveForward:6 * [event deltaX] right:-6 * [event deltaY] up:6 * [event deltaZ]];
     }
+    
+    return YES;
 }
 
 - (void)magnify:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

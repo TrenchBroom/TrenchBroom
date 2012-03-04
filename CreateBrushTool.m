@@ -81,7 +81,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation CreateBrushTool
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (BOOL)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     Camera* camera = [windowController camera];
 
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
@@ -122,7 +122,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     MapDocument* map = [windowController document];
     const TBoundingBox* worldBounds = [map worldBounds];
     if (!boundsContainBounds(worldBounds, &initialBounds))
-        return;
+        return NO;
     
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setGroupsByEvent:NO];
@@ -139,6 +139,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     drag = YES;
     scrollFront = NO;
+    return YES;
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

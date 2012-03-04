@@ -34,7 +34,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class DragFaceTool;
 @class ClipTool;
 @class EntityDefinitionDndTool;
-@protocol Tool;
+@class Tool;
 @protocol DndTool;
 @protocol Filter;
 
@@ -54,6 +54,10 @@ typedef enum {
     PickingHitList* currentHits;
     NSPoint menuPosition;
     
+    NSMutableArray* mouseReceiverChain;
+    Tool* dragScrollReceiver;
+    int modalReceiverIndex;
+    
     CameraTool* cameraTool;
     SelectionTool* selectionTool;
     CreateBrushTool* createBrushTool;
@@ -64,8 +68,6 @@ typedef enum {
     DragEdgeTool* dragEdgeTool;
     DragFaceTool* dragFaceTool;
     ClipTool* clipTool;
-    id <Tool> activeTool;
-    id <Tool> cursorOwner;
 
     EMouseStatus dragStatus;
     EMouseStatus scrollStatus;
@@ -103,6 +105,10 @@ typedef enum {
 - (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)sender;
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender;
 - (void)concludeDragOperation:(id <NSDraggingInfo>)sender;
+
+- (void)toggleDragVertexTool;
+- (void)toggleDragEdgeTool;
+- (void)toggleDragFaceTool;
 
 - (ClipTool *)clipTool;
 - (NSPoint)menuPosition;

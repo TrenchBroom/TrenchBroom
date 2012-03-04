@@ -18,11 +18,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Cocoa/Cocoa.h>
-#import "DefaultTool.h"
+#import "Tool.h"
 
 @class MapWindowController;
 
-@interface SelectionTool : DefaultTool {
+@interface SelectionTool : Tool {
 }
 
 @end

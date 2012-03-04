@@ -17,14 +17,14 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import "DefaultTool.h"
+#import "Tool.h"
 
 @class MapWindowController;
 @class RotateCursor;
 @class RotateFeedbackFigure;
 @class CompassFigure;
 
-@interface RotateTool : DefaultTool {
+@interface RotateTool : Tool {
 @private
     RotateFeedbackFigure* feedbackFigure;
     BOOL drag;
@@ -34,6 +34,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSPoint delta;
     float lastHAngle;
     float lastVAngle;
+    BOOL active;
 }
 
 @end

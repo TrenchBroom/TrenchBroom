@@ -20,12 +20,14 @@
 #import "DragTool.h"
 
 @protocol Brush;
+@class DragFaceToolFeedbackFigure;
 @class FaceFeedbackFigure;
 
 @interface DragFaceTool : DragTool {
-    FaceFeedbackFigure* faceFigure;
     id <Brush> brush;
     int index;
+    DragFaceToolFeedbackFigure* feedbackFigure;
+    FaceFeedbackFigure* faceFigure;
 }
 
 @end

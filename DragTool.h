@@ -17,12 +17,12 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import "DefaultTool.h"
+#import "Tool.h"
 #import "Math.h"
 
 @class DragPlane;
 
-@interface DragTool : DefaultTool {
+@interface DragTool : Tool {
     @private
     DragPlane* dragPlane;
     TVector3f dragPlanePosition;

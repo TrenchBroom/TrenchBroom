@@ -17,20 +17,24 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
-#import "Tool.h"
+#import <Foundation/Foundation.h>
+#import <OpenGL/gl.h>
+#import <OpenGL/glu.h>
+#import "Figure.h"
+#import "Math.h"
 
-@class MapWindowController;
-@protocol Figure;
+@class Camera;
 
-@interface DefaultTool : NSObject <Tool> {
-    MapWindowController* windowController;
+@interface DragEdgeToolFeedbackFigure : NSObject <Figure> {
+    GLUquadric* vertexHandle;
+    Camera* camera;
+    float radius;
+    TVector4f color;
+    NSArray* brushes;
 }
 
-- (id)initWithWindowController:(MapWindowController *)theWindowController;
+- (id)initWithCamera:(Camera *)theCamera radius:(float)theRadius color:(const TVector4f *)theColor;
 
-- (void)addFeedbackFigure:(id <Figure>)theFigure;
-- (void)removeFeedbackFigure:(id <Figure>)theFigure;
-- (void)updateFeedbackFigure:(id <Figure>)theFigure;
+- (void)setBrushes:(NSArray *)theBrushes;
 
 @end

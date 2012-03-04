@@ -67,12 +67,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (IBAction)switchToXZView:(id)sender;
 - (IBAction)switchToYZView:(id)sender;
 
-- (IBAction)stretchTextureHorizontally:(id)sender;
-- (IBAction)shrinkTextureHorizontally:(id)sender;
-- (IBAction)stretchTextureVertically:(id)sender;
-- (IBAction)shrinkTextureVertically:(id)sender;
-- (IBAction)rotateTextureLeft:(id)sender;
-- (IBAction)rotateTextureRight:(id)sender;
 - (IBAction)toggleTextureLock:(id)sender;
 
 - (IBAction)createPointEntity:(id)sender;
@@ -82,6 +76,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (IBAction)rotate90CCW:(id)sender;
 - (IBAction)flipHorizontally:(id)sender;
 - (IBAction)flipVertically:(id)sender;
+- (IBAction)toggleDragVertexTool:(id)sender;
+- (IBAction)toggleDragEdgeTool:(id)sender;
+- (IBAction)toggleDragFaceTool:(id)sender;
 - (IBAction)toggleClipTool:(id)sender;
 - (IBAction)toggleClipMode:(id)sender;
 - (IBAction)performClip:(id)sender;

@@ -33,6 +33,26 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Grid.h"
 #import "CompassFigure.h"
 
+@interface RotateTool (private)
+
+- (BOOL)isRotateModifierPressed;
+- (BOOL)isApplicable;
+
+@end
+
+@implementation RotateTool (private)
+
+- (BOOL)isRotateModifierPressed {
+    return [NSEvent modifierFlags] == (NSAlternateKeyMask | NSCommandKeyMask);
+}
+
+- (BOOL)isApplicable {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    return [self isRotateModifierPressed] && ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]);
+}
+
+@end
+
 @implementation RotateTool
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
@@ -52,51 +72,58 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 # pragma mark -
 # pragma mark @implementation Tool
 
-- (void)activated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    TBoundingBox bounds;
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager selectionBounds:&bounds]) {
-        centerOfBounds(&bounds, &center);
-        radius = 40;
-
-        Camera* camera = [windowController camera];
-        vAxis = *[camera right];
-
-        float cos = dotV3f(&XAxisPos, &vAxis);
-        float angle = acosf(cos);
-        if (cos > -1 || cos < 1) {
-            TVector3f c;
-            crossV3f(&XAxisPos, &vAxis, &c);
-            if (c.z < 0)
-                angle *= -1;
-        }
-        
-        Grid* grid = [[windowController options] grid];
-        if ([grid snap]) {
-            angle = [grid snapAngle:angle];
+- (void)flagsChanged:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    BOOL applicable = [self isApplicable];
+    if (!active && applicable) {
+        TBoundingBox bounds;
+        SelectionManager* selectionManager = [windowController selectionManager];
+        if ([selectionManager selectionBounds:&bounds]) {
+            centerOfBounds(&bounds, &center);
+            radius = 40;
             
-            TQuaternion rot;
-            setAngleAndAxisQ(&rot, angle, &ZAxisPos);
-            rotateQ(&rot, &XAxisPos, &vAxis);
+            Camera* camera = [windowController camera];
+            vAxis = *[camera right];
+            
+            float cos = dotV3f(&XAxisPos, &vAxis);
+            float angle = acosf(cos);
+            if (cos > -1 || cos < 1) {
+                TVector3f c;
+                crossV3f(&XAxisPos, &vAxis, &c);
+                if (c.z < 0)
+                    angle *= -1;
+            }
+            
+            Grid* grid = [[windowController options] grid];
+            if ([grid snap]) {
+                angle = [grid snapAngle:angle];
+                
+                TQuaternion rot;
+                setAngleAndAxisQ(&rot, angle, &ZAxisPos);
+                rotateQ(&rot, &XAxisPos, &vAxis);
+            }
+            
+            [feedbackFigure setDragging:NO];
+            [feedbackFigure setCenter:&center radius:radius];
+            [feedbackFigure setVerticalAxis:&vAxis];
+            [feedbackFigure setHorizontalAngle:0 verticalAngle:0];
+            
+            [self addFeedbackFigure:feedbackFigure];
+            
+            delta = NSMakePoint(0, 0);
         }
         
-        [feedbackFigure setDragging:NO];
-        [feedbackFigure setCenter:&center radius:radius];
-        [feedbackFigure setVerticalAxis:&vAxis];
-        [feedbackFigure setHorizontalAngle:0 verticalAngle:0];
-        
-        [self addFeedbackFigure:feedbackFigure];
-        
-        delta = NSMakePoint(0, 0);
+        active = YES;
+    } else if (active && !applicable) {
+        Renderer* renderer = [windowController renderer];
+        [renderer removeFeedbackFigure:feedbackFigure];
+        active = NO;
     }
 }
 
-- (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
-    Renderer* renderer = [windowController renderer];
-    [renderer removeFeedbackFigure:feedbackFigure];
-}
-
 - (void)mouseMoved:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (!active)
+        return;
+    
     if (fabsf(event.deltaX) > fabsf(event.deltaY))
         delta.x += event.deltaX;
     else
@@ -120,10 +147,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     delta = NSMakePoint(0, 0);
 }
 
-- (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (BOOL)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (![self isApplicable])
+        return NO;
+    
     float d = closestPointOnRay(&center, ray);
     if (isnan(d))
-        return;
+        return NO;
     
     drag = YES;
     [feedbackFigure setDragging:YES];
@@ -139,6 +169,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSUndoManager* undoManager = [[windowController document] undoManager];
     [undoManager setGroupsByEvent:NO];
     [undoManager beginUndoGrouping];
+    
+    return YES;
 }
 
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

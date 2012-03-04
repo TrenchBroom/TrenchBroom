@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010-2011 Kristian Duske
+Copyright (C) 2010-2012 Kristian Duske
 
 This file is part of TrenchBroom.
 
@@ -13,15 +13,28 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
+ou should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
-#import "CoordinatePlane.h"
+#import <Foundation/Foundation.h>
+#import <OpenGL/gl.h>
+#import <OpenGL/glu.h>
+#import "Figure.h"
+#import "Math.h"
 
-@interface CoordinatePlaneXZ : NSObject <CoordinatePlane> {
+@class Camera;
 
+@interface DragVertexToolFeedbackFigure : NSObject <Figure> {
+    GLUquadric* vertexHandle;
+    Camera* camera;
+    float radius;
+    TVector4f color;
+    NSArray* brushes;
 }
+
+- (id)initWithCamera:(Camera *)theCamera radius:(float)theRadius color:(const TVector4f *)theColor;
+
+- (void)setBrushes:(NSArray *)theBrushes;
 
 @end

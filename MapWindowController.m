@@ -490,6 +490,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         return [map leakPointCount] > 0;
     } else if (action == @selector(enlargeBrushes:)) {
         return [selectionManager hasSelectedBrushes];
+    } else if (action == @selector(toggleDragVertexTool:)) {
+        return YES;
+    } else if (action == @selector(toggleDragEdgeTool:)) {
+        return YES;
+    } else if (action == @selector(toggleDragFaceTool:)) {
+        return YES;
     }
 
     return NO;
@@ -730,6 +736,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager setActionName:[NSString stringWithFormat:@"flip Objects Along %@ Axis", axisName(axis)]];
 }
 
+- (IBAction)toggleDragVertexTool:(id)sender {
+    [inputManager toggleDragVertexTool];
+}
+
+- (IBAction)toggleDragEdgeTool:(id)sender {
+    [inputManager toggleDragEdgeTool];
+}
+
+- (IBAction)toggleDragFaceTool:(id)sender {
+    [inputManager toggleDragFaceTool];
+}
+
 - (IBAction)toggleClipTool:(id)sender {
     ClipTool* clipTool = [inputManager clipTool];
     if ([clipTool active])
@@ -761,73 +779,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 #pragma mark Face related actions
-
-- (IBAction)stretchTextureHorizontally:(id)sender {
-    SelectionManager* selectionManager = [self selectionManager];
-    NSUndoManager* undoManager = [[self document] undoManager];
-    [undoManager beginUndoGrouping];
-
-    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:0.05f yFactor:0];
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Stretch Texture Horizontally"];
-}
-
-- (IBAction)shrinkTextureHorizontally:(id)sender {
-    SelectionManager* selectionManager = [self selectionManager];
-    NSUndoManager* undoManager = [[self document] undoManager];
-    [undoManager beginUndoGrouping];
-    
-    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:-0.05f yFactor:0];
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Shrink Texture Horizontally"];
-}
-
-- (IBAction)stretchTextureVertically:(id)sender {
-    SelectionManager* selectionManager = [self selectionManager];
-    NSUndoManager* undoManager = [[self document] undoManager];
-    [undoManager beginUndoGrouping];
-    
-    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:0 yFactor:0.05f];
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Stretch Texture Vertically"];
-
-}
-
-- (IBAction)shrinkTextureVertically:(id)sender {
-    SelectionManager* selectionManager = [self selectionManager];
-    NSUndoManager* undoManager = [[self document] undoManager];
-    [undoManager beginUndoGrouping];
-    
-    [[self document] scaleFaces:[selectionManager selectedFaces] xFactor:0 yFactor:0.05f];
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Shrink Texture Vertically"];
-}
-
-- (IBAction)rotateTextureLeft:(id)sender {
-    SelectionManager* selectionManager = [self selectionManager];
-    NSUndoManager* undoManager = [[self document] undoManager];
-    [undoManager beginUndoGrouping];
-    
-    [[self document] rotateFaces:[selectionManager selectedFaces] angle:-15];
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Rotate Texture Left"];
-}
-
-- (IBAction)rotateTextureRight:(id)sender {
-    SelectionManager* selectionManager = [self selectionManager];
-    NSUndoManager* undoManager = [[self document] undoManager];
-    [undoManager beginUndoGrouping];
-    
-    [[self document] rotateFaces:[selectionManager selectedFaces] angle:15];
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Rotate Texture Right"];
-}
 
 - (IBAction)toggleTextureLock:(id)sender {
     [options setLockTextures:![options lockTextures]];

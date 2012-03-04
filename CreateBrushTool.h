@@ -17,14 +17,14 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import "DefaultTool.h"
+#import "Tool.h"
 
 @protocol Brush;
 @class MapWindowController;
 @class BoundsFeedbackFigure;
 @class DragPlane;
 
-@interface CreateBrushTool : DefaultTool {
+@interface CreateBrushTool : Tool {
     TBoundingBox initialBounds;
     DragPlane* editingSystem;
     TVector3f editingPoint;

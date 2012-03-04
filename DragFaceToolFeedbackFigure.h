@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010-2011 Kristian Duske
+Copyright (C) 2010-2012 Kristian Duske
 
 This file is part of TrenchBroom.
 
@@ -13,23 +13,28 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
+ou should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
+#import <OpenGL/gl.h>
+#import <OpenGL/glu.h>
+#import "Figure.h"
+#import "Math.h"
 
-@class Vector3f;
+@class Camera;
 
-@protocol CoordinatePlane <NSObject>
+@interface DragFaceToolFeedbackFigure : NSObject <Figure> {
+    GLUquadric* vertexHandle;
+    Camera* camera;
+    float radius;
+    TVector4f color;
+    NSArray* brushes;
+}
 
-- (Vector3f *)project:(Vector3f *)thePoint;
-- (BOOL)clockwise:(Vector3f *)theNorm;
+- (id)initWithCamera:(Camera *)theCamera radius:(float)theRadius color:(const TVector4f *)theColor;
 
-- (float)xOf:(Vector3f *)thePoint;
-- (float)yOf:(Vector3f *)thePoint;
-- (float)zOf:(Vector3f *)thePoint;
-
-- (void)set:(Vector3f *)thePoint toX:(float)x y:(float)y z:(float)z;
+- (void)setBrushes:(NSArray *)theBrushes;
 
 @end

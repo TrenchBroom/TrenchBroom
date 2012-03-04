@@ -20,12 +20,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "DragTool.h"
 
 @class EdgeFeedbackFigure;
+@class DragEdgeToolFeedbackFigure;
 @protocol Brush;
 
 @interface DragEdgeTool : DragTool {
-    EdgeFeedbackFigure* edgeFigure;
     id <Brush> brush;
     int index;
+    DragEdgeToolFeedbackFigure* feedbackFigure;
+    EdgeFeedbackFigure* edgeFigure;
 }
 
 @end

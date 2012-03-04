@@ -271,7 +271,6 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
 - (void)renderEntityBounds:(const TVector4f *)color vertexCount:(int)theVertexCount;
 - (void)renderEdges:(const TVector4f *)color indexBuffer:(const TIndexBuffer *)theIndexBuffer;
 - (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers;
-- (void)renderVertexHandles;
 
 - (void)addBrushes:(NSArray *)theBrushes;
 - (void)removeBrushes:(NSArray *)theBrushes;
@@ -872,66 +871,6 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     glPopClientAttrib();
 }
 
-- (void)renderVertexHandles {
-    TVector3f mid;
-    
-    SelectionManager* selectionManager = [windowController selectionManager];
-    if ([selectionManager mode] == SM_BRUSHES) {
-        if (vertexHandle == NULL) {
-            vertexHandle = gluNewQuadric();
-            gluQuadricDrawStyle(vertexHandle, GLU_FILL);
-        }
-        
-        glFrontFace(GL_CCW);
-        glPolygonMode(GL_FRONT, GL_FILL);
-        glColorV4f(&SelectionColor);
-        
-        Camera* camera = [windowController camera];
-        
-        for (id <Brush> brush in [selectionManager selectedBrushes]) {
-            if ([filter brushVerticesPickable:brush]) {
-                const TVertexList* vertices = [brush vertices];
-                for (int i = 0; i < vertices->count; i++) {
-                    TVector3f* vertex = &vertices->items[i]->position;
-                    float dist = [camera distanceTo:vertex];
-                    
-                    glPushMatrix();
-                    glTranslatef(vertex->x, vertex->y, vertex->z);
-                    glScalef(dist / 300, dist / 300, dist / 300);
-                    gluSphere(vertexHandle, 3, 12, 12);
-                    glPopMatrix();
-                }
-                
-                const TEdgeList* edges = [brush edges];
-                for (int i = 0; i < edges->count; i++) {
-                    TEdge* edge = edges->items[i];
-                    centerOfEdge(edge, &mid);
-                    float dist = [camera distanceTo:&mid];
-                    
-                    glPushMatrix();
-                    glTranslatef(mid.x, mid.y, mid.z);
-                    glScalef(dist / 300, dist / 300, dist / 300);
-                    gluSphere(vertexHandle, 3, 12, 12);
-                    glPopMatrix();
-                }
-                
-                for (id <Face> face in [brush faces]) {
-                    centerOfVertices([face vertices], &mid);
-                    float dist = [camera distanceTo:&mid];
-                    
-                    glPushMatrix();
-                    glTranslatef(mid.x, mid.y, mid.z);
-                    glScalef(dist / 300, dist / 300, dist / 300);
-                    gluSphere(vertexHandle, 3, 12, 12);
-                    glPopMatrix();
-                }
-            }
-        }
-
-        glFrontFace(GL_CW);
-    }
-}
-
 - (void)addEntities:(NSArray *)theEntities {
     [changeSet entitiesAdded:theEntities];
     
@@ -1227,8 +1166,6 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     freeIndexBuffer(&selectedEdgeIndexBuffer);
     [classnameRenderer release];
     [selectedClassnameRenderer release];
-    if (vertexHandle != NULL)
-        gluDeleteQuadric(vertexHandle);
     [entityRenderers release];
     [modelEntities release];
     [selectedModelEntities release];
@@ -1367,9 +1304,6 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
             [self renderEntityModels:selectedModelEntities];
         }
     }
-    
-    if ([[windowController selectionManager] hasSelection])
-        [self renderVertexHandles];
     
     if ([feedbackFigures count] > 0) {
         glDisable(GL_DEPTH_TEST);

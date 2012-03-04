@@ -31,17 +31,38 @@
 #import "MutableBrush.h"
 #import "Face.h"
 #import "FaceFeedbackFigure.h"
+#import "DragFaceToolFeedbackFigure.h"
+
+TVector4f const CurrentFaceColor = {1, 1, 1, 1};
+TVector4f const FaceColor = {1, 0, 0, 1};
 
 @implementation DragFaceTool
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController {
     if ((self = [super initWithWindowController:theWindowController])) {
         Camera* camera = [theWindowController camera];
-        TVector4f color = {1, 1, 1, 1};
-        faceFigure = [[FaceFeedbackFigure alloc] initWithCamera:camera radius:3 color:&color];
+        faceFigure = [[FaceFeedbackFigure alloc] initWithCamera:camera radius:3 color:&CurrentFaceColor];
+        feedbackFigure = [[DragFaceToolFeedbackFigure alloc] initWithCamera:camera radius:3 color:&FaceColor];
     }
     
     return self;
+}
+
+- (void)dealloc {
+    [faceFigure release];
+    [feedbackFigure release];
+    [super dealloc];
+}
+
+- (void)activated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    [feedbackFigure setBrushes:[selectionManager selectedBrushes]];
+    
+    [self addFeedbackFigure:feedbackFigure];
+}
+
+- (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    [self removeFeedbackFigure:feedbackFigure];
 }
 
 - (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {

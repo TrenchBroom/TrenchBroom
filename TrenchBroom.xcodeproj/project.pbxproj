@@ -75,7 +75,7 @@
 		4866F3B112EAC9FA009B345C /* TextureViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3B012EAC9FA009B345C /* TextureViewLayout.m */; };
 		4866F3BE12EACD2B009B345C /* TextureViewLayoutRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */; };
 		4866F3C412EACE73009B345C /* TextureViewLayoutCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */; };
-		4867430513577855009E7ABF /* DefaultTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4867430413577855009E7ABF /* DefaultTool.m */; };
+		4867430513577855009E7ABF /* Tool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4867430413577855009E7ABF /* Tool.m */; };
 		486928EC133F282100A0F098 /* FaceTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 486928EB133F282100A0F098 /* FaceTool.m */; };
 		486A9C1C12F41FCA003D26FE /* Octree.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1B12F41FCA003D26FE /* Octree.m */; };
 		486A9C1F12F41FD1003D26FE /* OctreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 486A9C1E12F41FD1003D26FE /* OctreeNode.m */; };
@@ -205,12 +205,15 @@
 		48DB957812F0699600FB5483 /* InputManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DB957712F0699600FB5483 /* InputManager.m */; };
 		48DBE7451341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */; };
 		48DBE74F1341CD8B00C0FDE7 /* ClipPlane.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */; };
+		48DD414C1503BBC10074C1F4 /* DragFaceToolFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48DD414A1503BB830074C1F4 /* DragFaceToolFeedbackFigure.m */; };
 		48E1806512F5F07D007995FE /* SelectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E1806412F5F07D007995FE /* SelectionManager.m */; };
 		48E4006D13159E7E004642CD /* TextureNameFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E4006C13159E7E004642CD /* TextureNameFilter.m */; };
 		48E400AF1315A7DA004642CD /* TextureUsageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E400AE1315A7DA004642CD /* TextureUsageFilter.m */; };
 		48E71DE214FA4D5500A965F9 /* TextureIndexBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E71DE114FA4D5500A965F9 /* TextureIndexBuffer.m */; };
 		48E71DE614FFAF3000A965F9 /* PreferencesViewAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E71DE514FFAF3000A965F9 /* PreferencesViewAnimation.m */; };
 		48E71E131500258900A965F9 /* Autosaver.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E71E121500258800A965F9 /* Autosaver.m */; };
+		48E71E2E1503A05500A965F9 /* DragVertexToolFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E71E2D1503A05500A965F9 /* DragVertexToolFeedbackFigure.m */; };
+		48E71E311503B78700A965F9 /* DragEdgeToolFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E71E301503B78600A965F9 /* DragEdgeToolFeedbackFigure.m */; };
 		48E725AD13F3D26900828C0B /* QuickBarWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E725AC13F3D26900828C0B /* QuickBarWindow.m */; };
 		48E725B313F3D75A00828C0B /* QuickBarContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E725B213F3D75A00828C0B /* QuickBarContentView.m */; };
 		48ED399714E06A3A008AEBDB /* DragEdgeTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 48ED399614E06A3A008AEBDB /* DragEdgeTool.m */; };
@@ -406,9 +409,8 @@
 		4866F3BD12EACD2B009B345C /* TextureViewLayoutRow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayoutRow.m; sourceTree = "<group>"; };
 		4866F3C212EACE73009B345C /* TextureViewLayoutCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayoutCell.h; sourceTree = "<group>"; };
 		4866F3C312EACE73009B345C /* TextureViewLayoutCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayoutCell.m; sourceTree = "<group>"; };
-		4867430313577855009E7ABF /* DefaultTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefaultTool.h; sourceTree = "<group>"; };
-		4867430413577855009E7ABF /* DefaultTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DefaultTool.m; sourceTree = "<group>"; };
-		486928E8133F27D300A0F098 /* Tool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tool.h; sourceTree = "<group>"; };
+		4867430313577855009E7ABF /* Tool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tool.h; sourceTree = "<group>"; };
+		4867430413577855009E7ABF /* Tool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tool.m; sourceTree = "<group>"; };
 		486928EA133F282100A0F098 /* FaceTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceTool.h; sourceTree = "<group>"; };
 		486928EB133F282100A0F098 /* FaceTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceTool.m; sourceTree = "<group>"; };
 		486A9C1A12F41FCA003D26FE /* Octree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Octree.h; sourceTree = "<group>"; };
@@ -624,6 +626,8 @@
 		48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipBrushFeedbackFigure.m; sourceTree = "<group>"; };
 		48DBE74D1341CD8B00C0FDE7 /* ClipPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipPlane.h; sourceTree = "<group>"; };
 		48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipPlane.m; sourceTree = "<group>"; };
+		48DD41491503BB830074C1F4 /* DragFaceToolFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragFaceToolFeedbackFigure.h; sourceTree = "<group>"; };
+		48DD414A1503BB830074C1F4 /* DragFaceToolFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragFaceToolFeedbackFigure.m; sourceTree = "<group>"; };
 		48E1806312F5F07D007995FE /* SelectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionManager.h; sourceTree = "<group>"; };
 		48E1806412F5F07D007995FE /* SelectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectionManager.m; sourceTree = "<group>"; };
 		48E4006013159CE2004642CD /* TextureFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureFilter.h; sourceTree = "<group>"; };
@@ -637,6 +641,10 @@
 		48E71DE514FFAF3000A965F9 /* PreferencesViewAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesViewAnimation.m; sourceTree = "<group>"; };
 		48E71E111500258700A965F9 /* Autosaver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Autosaver.h; sourceTree = "<group>"; };
 		48E71E121500258800A965F9 /* Autosaver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Autosaver.m; sourceTree = "<group>"; };
+		48E71E2C1503A05500A965F9 /* DragVertexToolFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragVertexToolFeedbackFigure.h; sourceTree = "<group>"; };
+		48E71E2D1503A05500A965F9 /* DragVertexToolFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragVertexToolFeedbackFigure.m; sourceTree = "<group>"; };
+		48E71E2F1503B78600A965F9 /* DragEdgeToolFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragEdgeToolFeedbackFigure.h; sourceTree = "<group>"; };
+		48E71E301503B78600A965F9 /* DragEdgeToolFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DragEdgeToolFeedbackFigure.m; sourceTree = "<group>"; };
 		48E725AB13F3D26900828C0B /* QuickBarWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickBarWindow.h; sourceTree = "<group>"; };
 		48E725AC13F3D26900828C0B /* QuickBarWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QuickBarWindow.m; sourceTree = "<group>"; };
 		48E725B113F3D75A00828C0B /* QuickBarContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickBarContentView.h; sourceTree = "<group>"; };
@@ -834,6 +842,12 @@
 				482BF7C114F95051000AB8B0 /* EdgeFeedbackFigure.m */,
 				482BF7C314F954B3000AB8B0 /* FaceFeedbackFigure.h */,
 				482BF7C414F954B4000AB8B0 /* FaceFeedbackFigure.m */,
+				48E71E2C1503A05500A965F9 /* DragVertexToolFeedbackFigure.h */,
+				48E71E2D1503A05500A965F9 /* DragVertexToolFeedbackFigure.m */,
+				48E71E2F1503B78600A965F9 /* DragEdgeToolFeedbackFigure.h */,
+				48E71E301503B78600A965F9 /* DragEdgeToolFeedbackFigure.m */,
+				48DD41491503BB830074C1F4 /* DragFaceToolFeedbackFigure.h */,
+				48DD414A1503BB830074C1F4 /* DragFaceToolFeedbackFigure.m */,
 			);
 			name = Figures;
 			sourceTree = "<group>";
@@ -903,8 +917,8 @@
 				48DBE74E1341CD8B00C0FDE7 /* ClipPlane.m */,
 				482FFEFF1340E10E00849BF5 /* ClipTool.h */,
 				482FFF001340E10E00849BF5 /* ClipTool.m */,
-				4867430313577855009E7ABF /* DefaultTool.h */,
-				4867430413577855009E7ABF /* DefaultTool.m */,
+				4867430313577855009E7ABF /* Tool.h */,
+				4867430413577855009E7ABF /* Tool.m */,
 				48ED399514E06A3A008AEBDB /* DragEdgeTool.h */,
 				48ED399614E06A3A008AEBDB /* DragEdgeTool.m */,
 				48ED399914E07E66008AEBDB /* DragFaceTool.h */,
@@ -921,7 +935,6 @@
 				4816144C132BE7C300CD66AF /* MoveTool.m */,
 				4855821B135788B5005F8B2C /* SelectionTool.h */,
 				4855821C135788B5005F8B2C /* SelectionTool.m */,
-				486928E8133F27D300A0F098 /* Tool.h */,
 				486E08AD13B5EAE300E751A6 /* RotateTool.h */,
 				486E08AE13B5EAE300E751A6 /* RotateTool.m */,
 				48CB060713EC19B70051640E /* CreateBrushTool.h */,
@@ -1626,6 +1639,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48DD414C1503BBC10074C1F4 /* DragFaceToolFeedbackFigure.m in Sources */,
 				8D15AC320486D014006FF6A4 /* main.m in Sources */,
 				48527F3811148D5C00CD6043 /* MutableFace.m in Sources */,
 				48527F3E11148EAA00CD6043 /* MutableBrush.m in Sources */,
@@ -1696,7 +1710,7 @@
 				48D6B903134B8DC90084F82E /* GLStringData.m in Sources */,
 				486526C5134F0BC20045A4B6 /* TextureCollection.m in Sources */,
 				48325D4713524F7000E703E0 /* CompassFigure.m in Sources */,
-				4867430513577855009E7ABF /* DefaultTool.m in Sources */,
+				4867430513577855009E7ABF /* Tool.m in Sources */,
 				485582131357874F005F8B2C /* CameraTool.m in Sources */,
 				4855821D135788B5005F8B2C /* SelectionTool.m in Sources */,
 				487436A6135B5FD900F787E1 /* DefaultFilter.m in Sources */,
@@ -1780,6 +1794,8 @@
 				48E71DE214FA4D5500A965F9 /* TextureIndexBuffer.m in Sources */,
 				48E71DE614FFAF3000A965F9 /* PreferencesViewAnimation.m in Sources */,
 				48E71E131500258900A965F9 /* Autosaver.m in Sources */,
+				48E71E2E1503A05500A965F9 /* DragVertexToolFeedbackFigure.m in Sources */,
+				48E71E311503B78700A965F9 /* DragEdgeToolFeedbackFigure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

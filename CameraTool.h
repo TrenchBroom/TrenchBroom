@@ -18,11 +18,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Cocoa/Cocoa.h>
-#import "DefaultTool.h"
+#import "Tool.h"
 
 @class MapWindowController;
 
-@interface CameraTool : DefaultTool {
+@interface CameraTool : Tool {
     TVector3f orbitCenter;
     BOOL gesture;
     BOOL orbit;
