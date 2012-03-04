@@ -104,6 +104,9 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     
     [self makeUndoSnapshotOfFaces:theFaces];
     
+    [selectionManager removeAll:NO];
+    [selectionManager addFaces:theFaces record:NO];
+    
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
         userInfo = [[NSMutableDictionary alloc] init];
@@ -152,6 +155,9 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSAssert([theSnapshot count] == [theBrushes count], @"snapshot must contain the same number of items as brush array");
 
     [self makeUndoSnapshotOfBrushes:theBrushes];
+    
+    [selectionManager removeAll:NO];
+    [selectionManager addBrushes:theBrushes record:NO];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -211,6 +217,9 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSAssert([theSnapshot count] == [theEntities count], @"snapshot must contain the same number of items as entity array");
     
     [self makeUndoSnapshotOfEntities:theEntities];
+    
+    [selectionManager removeAll:NO];
+    [selectionManager addEntities:theEntities record:NO];
     
     NSMutableDictionary* userInfo;
     if ([self postNotifications]) {
@@ -951,6 +960,23 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     [autosaver updateLastAction];
 }
 
+- (void)enlargeBrushes:(NSArray *)theBrushes by:(float)theDelta lockTextures:(BOOL)lockTextures {
+    NSAssert(theBrushes != nil, @"brush set must not be nil");
+    NSAssert(theDelta > 0, @"delta must be greater than 0");
+    
+    if ([theBrushes count] == 0)
+        return;
+
+    [self makeUndoSnapshotOfBrushes:[[theBrushes copy] autorelease]];
+    
+    [self postNotification:BrushesWillChange forBrushes:theBrushes];
+    for (MutableBrush* brush in theBrushes)
+        [brush enlargeBy:theDelta lockTexture:lockTextures];
+    [self postNotification:BrushesDidChange forBrushes:theBrushes];
+    
+    [autosaver updateLastAction];
+}
+
 - (void)snapBrushes:(NSArray *)theBrushes {
     NSAssert(theBrushes != nil, @"brush set must not be nil");
     
@@ -1266,6 +1292,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 }
 
 - (void)clear {
+    [[self undoManager] removeAllActions];
     [selectionManager removeAll:NO];
     [self unloadPointFile];
     [entities removeAllObjects];
@@ -1274,7 +1301,6 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:DocumentCleared object:self];
 
-    [[self undoManager] removeAllActions];
     [glResources reset];
     
     [autosaver updateLastAction];

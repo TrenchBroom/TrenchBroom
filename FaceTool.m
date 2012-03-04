@@ -67,13 +67,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     SelectionManager* selectionManager = [windowController selectionManager];
 
-
-    PickingHit* hit = [hits firstHitOfType:HT_CLOSE_FACE ignoreOccluders:YES];
+    PickingHit* hit = [hits firstHitOfType:HT_CLOSE_FACE ignoreOccluders:NO];
     if (hit != nil) {
         referenceFace = [hit object];
         [dragFaces addObject:referenceFace];
     } else {
-        hit = [hits firstHitOfType:HT_FACE ignoreOccluders:YES];
+        hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
         if (hit == nil)
             return;
 

@@ -140,7 +140,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         if (newActiveTool == nil && (dragStatus == MS_LEFT || scrollStatus == MS_LEFT)) {
             if ([self isFaceDragModifierPressed]) {
-                hit = [[self currentHits] firstHitOfType:HT_CLOSE_FACE ignoreOccluders:YES];
+                hit = [[self currentHits] firstHitOfType:HT_CLOSE_FACE ignoreOccluders:NO];
                 if (hit != nil) {
                     newActiveTool = faceTool;
                 } else {
@@ -388,7 +388,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [super dealloc];
 }
 
-- (BOOL)handleKeyDown:(NSEvent *)event sender:(id)sender {
+- (BOOL)keyDown:(NSEvent *)event sender:(id)sender {
     switch ([event keyCode]) {
         case 48:
             if (clipTool != nil) {
@@ -403,11 +403,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return NO;
 }
 
-- (BOOL)handleKeyUp:(NSEvent *)event sender:(id)sender {
+- (BOOL)keyUp:(NSEvent *)event sender:(id)sender {
     return NO;
 }
 
-- (void)handleFlagsChanged:(NSEvent *)event sender:(id)sender {
+- (void)flagsChanged:(NSEvent *)event sender:(id)sender {
     if (dragStatus == MS_NONE && scrollStatus == MS_NONE)
         [self updateActiveTool];
     
@@ -415,7 +415,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self updateCursor];
 }
 
-- (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender {
+- (void)leftMouseDragged:(NSEvent *)event sender:(id)sender {
     if (dragStatus == MS_NONE) {
         dragStatus = MS_LEFT;
         [self updateActiveTool];
@@ -431,18 +431,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self updateCursor];
 }
 
-- (void)handleMouseMoved:(NSEvent *)event sender:(id)sender {
+- (void)mouseMoved:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
     [self updateRay];
 
     [self updateActiveTool];
-    [activeTool handleMouseMoved:lastEvent ray:&lastRay hits:[self currentHits]];
+    [activeTool mouseMoved:lastEvent ray:&lastRay hits:[self currentHits]];
 
     [self updateCursorOwner];
     [self updateCursor];
 }
 
-- (void)handleMouseEntered:(NSEvent *)event sender:(id)sender {
+- (void)mouseEntered:(NSEvent *)event sender:(id)sender {
     hasMouse = YES;
     [self updateEvent:event];
     [self updateRay];
@@ -451,18 +451,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self updateCursor];
 }
 
-- (void)handleMouseExited:(NSEvent *)event sender:(id)sender {
+- (void)mouseExited:(NSEvent *)event sender:(id)sender {
     hasMouse = NO;
     [self updateCursorOwner];
 }
 
-- (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender {
+- (void)leftMouseDown:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
     [self updateRay];
-    [activeTool handleLeftMouseDown:lastEvent ray:&lastRay hits:[self currentHits]];
+    [activeTool leftMouseDown:lastEvent ray:&lastRay hits:[self currentHits]];
 }
 
-- (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender {
+- (void)leftMouseUp:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
     
     if (dragStatus == MS_LEFT || scrollStatus == MS_LEFT) {
@@ -483,7 +483,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
              */
         }
     } else {
-        [activeTool handleLeftMouseUp:lastEvent ray:&lastRay hits:[self currentHits]];
+        [activeTool leftMouseUp:lastEvent ray:&lastRay hits:[self currentHits]];
         NSAssert([[[windowController document] undoManager] groupingLevel] == 0, @"undo grouping level must be 0 after drag ended");
     }
     
@@ -491,7 +491,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self updateCursor];
 }
 
-- (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender {
+- (void)rightMouseDragged:(NSEvent *)event sender:(id)sender {
     if (dragStatus == MS_NONE) {
         dragStatus = MS_RIGHT;
         [self updateActiveTool];
@@ -506,12 +506,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self updateCursor];
 }
 
-- (void)handleRightMouseDown:(NSEvent *)event sender:(id)sender {
+- (void)rightMouseDown:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
-    [activeTool handleRightMouseDown:lastEvent ray:&lastRay hits:[self currentHits]];
+    [activeTool rightMouseDown:lastEvent ray:&lastRay hits:[self currentHits]];
 }
 
-- (void)handleRightMouseUp:(NSEvent *)event sender:(id)sender {
+- (void)rightMouseUp:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
     
     if (dragStatus == MS_RIGHT || scrollStatus == MS_RIGHT) {
@@ -527,7 +527,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [self updateActiveTool];
         }
     } else {
-        [activeTool handleRightMouseUp:lastEvent ray:&lastRay hits:[self currentHits]];
+        [activeTool rightMouseUp:lastEvent ray:&lastRay hits:[self currentHits]];
         if (dragStatus == MS_NONE)
             [self showContextMenu];
     }
@@ -536,7 +536,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self updateCursor];
 }
 
-- (void)handleScrollWheel:(NSEvent *)event sender:(id)sender {
+- (void)scrollWheel:(NSEvent *)event sender:(id)sender {
     int buttons = [NSEvent pressedMouseButtons];
     if (scrollStatus == MS_NONE && (buttons == 1 || buttons == 2)) {
         scrollStatus = buttons == 1 ? MS_LEFT : MS_RIGHT;
@@ -556,27 +556,27 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     else if (scrollStatus == MS_RIGHT)
         [activeTool rightScroll:lastEvent ray:&lastRay hits:[self currentHits]];
     else
-        [activeTool handleScrollWheel:lastEvent ray:&lastRay hits:[self currentHits]];
+        [activeTool scrollWheel:lastEvent ray:&lastRay hits:[self currentHits]];
     
     [self updateCursor];
 }
 
-- (void)handleBeginGesture:(NSEvent *)event sender:(id)sender {
+- (void)beginGesture:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
-    [activeTool handleBeginGesture:lastEvent ray:&lastRay hits:[self currentHits]];
+    [activeTool beginGesture:lastEvent ray:&lastRay hits:[self currentHits]];
 }
 
-- (void)handleEndGesture:(NSEvent *)event sender:(id)sender {
+- (void)endGesture:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
-    [activeTool handleEndGesture:lastEvent ray:&lastRay hits:[self currentHits]];
+    [activeTool endGesture:lastEvent ray:&lastRay hits:[self currentHits]];
 }
 
-- (void)handleMagnify:(NSEvent *)event sender:(id)sender {
+- (void)magnify:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
-    [activeTool handleMagnify:lastEvent ray:&lastRay hits:[self currentHits]];
+    [activeTool magnify:lastEvent ray:&lastRay hits:[self currentHits]];
 }
 
-- (NSDragOperation)handleDraggingEntered:(id <NSDraggingInfo>)sender {
+- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
     NSPasteboard* pasteboard = [sender draggingPasteboard];
     NSString* type = [pasteboard availableTypeFromArray:[NSArray arrayWithObject:EntityDefinitionType]];
     if (type == nil)
@@ -599,7 +599,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return NSDragOperationNone;
 }
 
-- (NSDragOperation)handleDraggingUpdated:(id <NSDraggingInfo>)sender {
+- (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender {
     if (activeDndTool == nil)
         return NSDragOperationNone;
     
@@ -613,7 +613,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return [activeDndTool handleDraggingUpdated:sender ray:&ray hits:hitList];
 }
 
-- (void)handleDraggingEnded:(id <NSDraggingInfo>)sender {
+- (void)draggingEnded:(id <NSDraggingInfo>)sender {
     if (activeDndTool == nil)
         return;
     
@@ -628,7 +628,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     activeDndTool = nil;
 }
 
-- (void)handleDraggingExited:(id <NSDraggingInfo>)sender {
+- (void)draggingExited:(id <NSDraggingInfo>)sender {
     if (activeDndTool == nil)
         return;
     

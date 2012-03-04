@@ -79,27 +79,27 @@ typedef enum {
 
 - (id)initWithWindowController:(MapWindowController *)theWindowController;
 
-- (BOOL)handleKeyDown:(NSEvent *)event sender:(id)sender;
-- (BOOL)handleKeyUp:(NSEvent *)event sender:(id)sender;
-- (void)handleFlagsChanged:(NSEvent *)event sender:(id)sender;
-- (void)handleLeftMouseDragged:(NSEvent *)event sender:(id)sender;
-- (void)handleMouseMoved:(NSEvent *)event sender:(id)sender;
-- (void)handleMouseEntered:(NSEvent *)event sender:(id)sender;
-- (void)handleMouseExited:(NSEvent *)event sender:(id)sender;
-- (void)handleLeftMouseDown:(NSEvent *)event sender:(id)sender;
-- (void)handleLeftMouseUp:(NSEvent *)event sender:(id)sender;
-- (void)handleRightMouseDragged:(NSEvent *)event sender:(id)sender;
-- (void)handleRightMouseDown:(NSEvent *)event sender:(id)sender;
-- (void)handleRightMouseUp:(NSEvent *)event sender:(id)sender;
-- (void)handleScrollWheel:(NSEvent *)event sender:(id)sender;
-- (void)handleBeginGesture:(NSEvent *)event sender:(id)sender;
-- (void)handleEndGesture:(NSEvent *)event sender:(id)sender;
-- (void)handleMagnify:(NSEvent *)event sender:(id)sender;
+- (BOOL)keyDown:(NSEvent *)event sender:(id)sender;
+- (BOOL)keyUp:(NSEvent *)event sender:(id)sender;
+- (void)flagsChanged:(NSEvent *)event sender:(id)sender;
+- (void)leftMouseDragged:(NSEvent *)event sender:(id)sender;
+- (void)mouseMoved:(NSEvent *)event sender:(id)sender;
+- (void)mouseEntered:(NSEvent *)event sender:(id)sender;
+- (void)mouseExited:(NSEvent *)event sender:(id)sender;
+- (void)leftMouseDown:(NSEvent *)event sender:(id)sender;
+- (void)leftMouseUp:(NSEvent *)event sender:(id)sender;
+- (void)rightMouseDragged:(NSEvent *)event sender:(id)sender;
+- (void)rightMouseDown:(NSEvent *)event sender:(id)sender;
+- (void)rightMouseUp:(NSEvent *)event sender:(id)sender;
+- (void)scrollWheel:(NSEvent *)event sender:(id)sender;
+- (void)beginGesture:(NSEvent *)event sender:(id)sender;
+- (void)endGesture:(NSEvent *)event sender:(id)sender;
+- (void)magnify:(NSEvent *)event sender:(id)sender;
 
-- (NSDragOperation)handleDraggingEntered:(id <NSDraggingInfo>)sender;
-- (NSDragOperation)handleDraggingUpdated:(id <NSDraggingInfo>)sender;
-- (void)handleDraggingEnded:(id <NSDraggingInfo>)sender;
-- (void)handleDraggingExited:(id <NSDraggingInfo>)sender;
+- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender;
+- (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender;
+- (void)draggingEnded:(id <NSDraggingInfo>)sender;
+- (void)draggingExited:(id <NSDraggingInfo>)sender;
 - (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)sender;
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender;
 - (void)concludeDragOperation:(id <NSDraggingInfo>)sender;

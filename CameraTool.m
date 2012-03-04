@@ -89,15 +89,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [camera moveForward:0 right:[event deltaX] up:-[event deltaY]];
 }
 
-- (void)handleBeginGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (void)beginGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     gesture = YES;
 }
 
-- (void)handleEndGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (void)endGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     gesture = NO;
 }
 
-- (void)handleScrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (void)scrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isCameraModifierPressed] && ![self isCameraOrbitModifierPressed])
         return;
     
@@ -115,7 +115,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 }
 
-- (void)handleMagnify:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (void)magnify:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isCameraModifierPressed])
         return;
     

@@ -488,6 +488,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     } else if (action == @selector(unloadPointFile:)) {
         MapDocument* map = [self document];
         return [map leakPointCount] > 0;
+    } else if (action == @selector(enlargeBrushes:)) {
+        return [selectionManager hasSelectedBrushes];
     }
 
     return NO;
@@ -748,6 +750,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [clipTool performClip:[self document]];
         [clipTool deactivate];
     }
+}
+
+- (IBAction)enlargeBrushes:(id)sender {
+    MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
+    Grid* grid = [options grid];
+    
+    [map enlargeBrushes:[selectionManager selectedBrushes] by:[grid actualSize] lockTextures:[options lockTextures]];
 }
 
 #pragma mark Face related actions

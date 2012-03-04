@@ -672,6 +672,10 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
         }
     }
     
+    TVector3f t = points[1];
+    points[1] = points[2];
+    points[2] = t;
+    
     [self invalidate];
 }
 
@@ -710,6 +714,7 @@ static const TVector3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
     NSAssert(theTemplate != nil, @"template must not be nil");
     NSAssert([faceId isEqual:[theTemplate faceId]], @"face id must be equal");
 
+    [theTemplate point1:&points[0] point2:&points[1] point3:&points[2]];
     boundary = *[theTemplate boundary];
     xOffset = [theTemplate xOffset];
     yOffset = [theTemplate yOffset];

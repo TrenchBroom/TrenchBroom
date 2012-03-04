@@ -96,7 +96,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [renderer removeFeedbackFigure:feedbackFigure];
 }
 
-- (void)handleMouseMoved:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (void)mouseMoved:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (fabsf(event.deltaX) > fabsf(event.deltaY))
         delta.x += event.deltaX;
     else

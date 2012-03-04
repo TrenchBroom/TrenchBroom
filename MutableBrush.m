@@ -327,7 +327,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)drag:(MutableFace *)face by:(float)dist lockTexture:(BOOL)lockTexture {
     [face dragBy:dist lockTexture:lockTexture];
     [self invalidateVertexData];
-    
+    [entity brushChanged:self];
+}
+
+- (void)enlargeBy:(float)delta lockTexture:(BOOL)lockTexture {
+    for (MutableFace* face in faces)
+        [face dragBy:delta lockTexture:lockTexture];
+    [self invalidateVertexData];
     [entity brushChanged:self];
 }
 

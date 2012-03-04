@@ -85,6 +85,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (IBAction)toggleClipTool:(id)sender;
 - (IBAction)toggleClipMode:(id)sender;
 - (IBAction)performClip:(id)sender;
+- (IBAction)enlargeBrushes:(id)sender;
 
 - (IBAction)selectAll:(id)sender;
 - (IBAction)selectNone:(id)sender;

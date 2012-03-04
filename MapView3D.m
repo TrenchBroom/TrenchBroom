@@ -57,24 +57,24 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [[self openGLContext] makeCurrentContext];
     
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    return [inputManager handleDraggingEntered:sender];
+    return [inputManager draggingEntered:sender];
 }
 
 - (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender {
     [[self openGLContext] makeCurrentContext];
 
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    return [inputManager handleDraggingUpdated:sender];
+    return [inputManager draggingUpdated:sender];
 }
 
 - (void)draggingEnded:(id<NSDraggingInfo>)sender {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleDraggingEnded:sender];
+    [inputManager draggingEnded:sender];
 }
 
 - (void)draggingExited:(id<NSDraggingInfo>)sender {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleDraggingExited:sender];
+    [inputManager draggingExited:sender];
 }
 
 - (BOOL)prepareForDragOperation:(id<NSDraggingInfo>)sender {
@@ -176,84 +176,84 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)keyDown:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    if (![inputManager handleKeyDown:theEvent sender:self])
+    if (![inputManager keyDown:theEvent sender:self])
         [super keyDown:theEvent];
 }
  
 - (void)keyUp:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    if (![inputManager handleKeyUp:theEvent sender:self])
+    if (![inputManager keyUp:theEvent sender:self])
         [super keyUp:theEvent];
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleFlagsChanged:theEvent sender:self];
+    [inputManager flagsChanged:theEvent sender:self];
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleLeftMouseDragged:theEvent sender:self];
+    [inputManager leftMouseDragged:theEvent sender:self];
 }
 
 - (void)mouseMoved:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleMouseMoved:theEvent sender:self];
+    [inputManager mouseMoved:theEvent sender:self];
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleMouseEntered:theEvent sender:self];
+    [inputManager mouseEntered:theEvent sender:self];
 }
 
 - (void)mouseExited:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleMouseExited:theEvent sender:self];
+    [inputManager mouseExited:theEvent sender:self];
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleLeftMouseDown:theEvent sender:self];
+    [inputManager leftMouseDown:theEvent sender:self];
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleLeftMouseUp:theEvent sender:self];
+    [inputManager leftMouseUp:theEvent sender:self];
 }
 
 - (void)rightMouseDragged:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleRightMouseDragged:theEvent sender:self];
+    [inputManager rightMouseDragged:theEvent sender:self];
 }
 
 - (void)rightMouseDown:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleRightMouseDown:theEvent sender:self];
+    [inputManager rightMouseDown:theEvent sender:self];
 }
 
 - (void)rightMouseUp:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleRightMouseUp:theEvent sender:self];
+    [inputManager rightMouseUp:theEvent sender:self];
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleScrollWheel:theEvent sender:self];
+    [inputManager scrollWheel:theEvent sender:self];
 }
 
 - (void)beginGestureWithEvent:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleBeginGesture:theEvent sender:self];
+    [inputManager beginGesture:theEvent sender:self];
 }
 
 - (void)endGestureWithEvent:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleEndGesture:theEvent sender:self];
+    [inputManager endGesture:theEvent sender:self];
 }
 
 - (void)magnifyWithEvent:(NSEvent *)theEvent {
     InputManager* inputManager = [[[self window] windowController] inputManager];
-    [inputManager handleMagnify:theEvent sender:self];
+    [inputManager magnify:theEvent sender:self];
 }
 
 - (void) drawRect:(NSRect)dirtyRect {

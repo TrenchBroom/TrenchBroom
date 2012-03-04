@@ -58,6 +58,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (BOOL)canDrag:(MutableFace *)face by:(float)dist;
 - (void)drag:(MutableFace *)face by:(float)dist lockTexture:(BOOL)lockTexture;
 
+- (void)enlargeBy:(float)delta lockTexture:(BOOL)lockTexture;
+
 - (TDragResult)dragVertex:(int)theVertexIndex by:(const TVector3f *)theDelta;
 - (TDragResult)dragEdge:(int)theEdgeIndex by:(const TVector3f *)theDelta;
 - (TDragResult)dragFace:(int)theFaceIndex by:(const TVector3f *)theDelta;

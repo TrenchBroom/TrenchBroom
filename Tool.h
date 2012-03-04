@@ -27,16 +27,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)activated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
 - (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
 
-- (void)handleLeftMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
-- (void)handleLeftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
-- (void)handleRightMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
-- (void)handleRightMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
-- (void)handleMouseMoved:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
-- (void)handleScrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)leftMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)leftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)rightMouseDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)rightMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)mouseMoved:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)scrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
 
-- (void)handleBeginGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
-- (void)handleEndGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
-- (void)handleMagnify:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)beginGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)endGesture:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
+- (void)magnify:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
 
 - (void)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;
 - (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits;

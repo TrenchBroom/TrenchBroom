@@ -50,7 +50,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @implementation SelectionTool
 
-- (void)handleScrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (void)scrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isGridSizeModifierPressed])
         return;
     
@@ -65,7 +65,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [grid setSize:size];
 }
 
-- (void)handleLeftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (void)leftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     SelectionManager* selectionManager = [windowController selectionManager];
     PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
 

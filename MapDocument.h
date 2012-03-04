@@ -121,6 +121,7 @@ extern NSString* const DocumentLoaded;
 - (void)rotateBrushes90CCW:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures;
 - (void)rotateBrushes:(NSArray *)theBrushes rotation:(TQuaternion)theRotation center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures;
 - (void)flipBrushes:(NSArray *)theBrushes axis:(EAxis)theAxis center:(TVector3f)theCenter lockTextures:(BOOL)lockTextures;
+- (void)enlargeBrushes:(NSArray *)theBrushes by:(float)theDelta lockTextures:(BOOL)lockTextures;
 - (void)snapBrushes:(NSArray *)theBrushes;
 - (void)deleteBrushes:(NSArray *)theBrushes;
 
