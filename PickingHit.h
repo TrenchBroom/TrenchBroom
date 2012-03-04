@@ -21,27 +21,31 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Math.h"
 
 typedef enum {
-    HT_ENTITY       = 1 << 0,
-    HT_FACE         = 1 << 1,
-    HT_CLOSE_FACE   = 1 << 2,
-    HT_VERTEX       = 1 << 3,
-    HT_ANY          = HT_ENTITY | HT_FACE
+    HT_ENTITY           = 1 << 0,
+    HT_FACE             = 1 << 1,
+    HT_CLOSE_FACE       = 1 << 2,
+    HT_VERTEX_HANDLE    = 1 << 3,
+    HT_EDGE_HANDLE      = 1 << 4,
+    HT_FACE_HANDLE      = 1 << 5,
+    HT_ANY              = HT_ENTITY | HT_FACE
 } EHitType;
 
 @interface PickingHit : NSObject {
     id object;
     EHitType type;
     TVector3f hitPoint;
-    int vertexIndex;
+    int index;
     float distance;
 }
 
 - (id)initWithObject:(id)theObject type:(EHitType)theType hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance;
-- (id)initWithObject:(id)theObject vertex:(int)theVertexIndex hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance;
+- (id)initWithObject:(id)theObject vertexIndex:(int)theVertexIndex hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance;
+- (id)initWithObject:(id)theObject edgeIndex:(int)theEdgeIndex hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance;
+- (id)initWithObject:(id)theObject faceIndex:(int)theFaceIndex hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance;
 
 - (id)object;
 - (EHitType)type;
-- (int)vertexIndex;
+- (int)index;
 - (BOOL)isType:(EHitType)theTypeMask;
 - (const TVector3f *)hitPoint;
 - (float)distance;

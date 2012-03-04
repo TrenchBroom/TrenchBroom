@@ -558,7 +558,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         float dist = intersectSphereWithRay(vertex, theRadius * vertexDist / 300, theRay);
         if (!isnan(dist)) {
             rayPointAtDistance(theRay, dist, &hitPoint);
-            PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:i hitPoint:&hitPoint distance:dist];
+            PickingHit* hit = [[PickingHit alloc] initWithObject:self vertexIndex:i hitPoint:&hitPoint distance:dist];
             [theHitList addHit:hit];
             [hit release];
         }
@@ -574,7 +574,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         float dist = intersectSphereWithRay(&center, theRadius * vertexDist / 300, theRay);
         if (!isnan(dist)) {
             rayPointAtDistance(theRay, dist, &hitPoint);
-            PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:vd->vertices.count + i hitPoint:&hitPoint distance:dist];
+            PickingHit* hit = [[PickingHit alloc] initWithObject:self edgeIndex:i hitPoint:&hitPoint distance:dist];
             [theHitList addHit:hit];
             [hit release];
         }
@@ -590,7 +590,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         float dist = intersectSphereWithRay(&center, theRadius * vertexDist / 300, theRay);
         if (!isnan(dist)) {
             rayPointAtDistance(theRay, dist, &hitPoint);
-            PickingHit* hit = [[PickingHit alloc] initWithObject:self vertex:vd->vertices.count + vd->edges.count + i hitPoint:&hitPoint distance:dist];
+            PickingHit* hit = [[PickingHit alloc] initWithObject:self faceIndex:i hitPoint:&hitPoint distance:dist];
             [theHitList addHit:hit];
             [hit release];
         }

@@ -40,6 +40,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         glColorV4f(&color);
         
         for (id <Brush> brush in brushes) {
+            const TVertexList* vertices = [brush vertices];
+            for (int i = 0; i < vertices->count; i++) {
+                TVector3f* vertex = &vertices->items[i]->position;
+                float dist = [camera distanceTo:vertex];
+                
+                glPushMatrix();
+                glTranslatef(vertex->x, vertex->y, vertex->z);
+                glScalef(dist / 300, dist / 300, dist / 300);
+                gluSphere(vertexHandle, radius, 12, 12);
+                glPopMatrix();
+            }
+
             const TEdgeList* edges = [brush edges];
             for (int i = 0; i < edges->count; i++) {
                 TEdge* edge = edges->items[i];

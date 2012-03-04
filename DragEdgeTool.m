@@ -33,8 +33,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "EdgeFeedbackFigure.h"
 #import "DragEdgeToolFeedbackFigure.h"
 
-TVector4f const CurrentEdgeColor = {1, 1, 1, 1};
-TVector4f const EdgeColor = {1, 0, 0, 1};
+TVector4f const CurrentEdgeColor = {1, 0, 0, 1};
+TVector4f const EdgeColor = {0, 229 / 255.0f, 221 / 255.0f, 1};
 
 @implementation DragEdgeTool
 
@@ -68,31 +68,55 @@ TVector4f const EdgeColor = {1, 0, 0, 1};
 - (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     [hits retain];
     
-    PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
+    PickingHit* hit = [hits firstHitOfType:HT_VERTEX_HANDLE | HT_EDGE_HANDLE ignoreOccluders:NO];
     if (hit != nil) {
         brush = [hit object];
-        const TVertexList* vertices = [brush vertices];
         const TEdgeList* edges = [brush edges];
-        index = [hit vertexIndex] - vertices->count;
+        index = [hit index];
         
-        if (index >= 0 && index < edges->count) {
-            MapDocument* map = [windowController document];
-            NSUndoManager* undoManager = [map undoManager];
-            [undoManager setGroupsByEvent:NO];
-            [undoManager beginUndoGrouping];
-            
-            [map snapBrushes:[NSArray arrayWithObject:brush]];
-            
+        if ([hit type] == HT_EDGE_HANDLE) {
             TEdge* edge = edges->items[index];
             centerOfEdge(edge, lastPoint);
-
             [edgeFigure setEdge:edge];
-            [self addFeedbackFigure:edgeFigure];
+        } else {
+            const TVertexList* vertices = [brush vertices];
+            TVertex* vertex = vertices->items[index];
+            TVector3f edgeDir;
+            
+            float bestDot = -1;
+            
+            for (int i = 0; i < edges->count; i++) {
+                TEdge* edge = edges->items[i];
+                if (edge->startVertex == vertex || edge->endVertex == vertex) {
+                    if (edge->startVertex == vertex)
+                        subV3f(&edge->endVertex->position, &edge->startVertex->position, &edgeDir);
+                    else
+                        subV3f(&edge->startVertex->position, &edge->endVertex->position, &edgeDir);
+                    normalizeV3f(&edgeDir, &edgeDir);
+                    float dot = dotV3f(&edgeDir, &ray->direction);
+                    if (dot > bestDot) {
+                        bestDot = dot;
+                        index = i;
+                    }
+                }
+            }
+            
+            TEdge* edge = edges->items[index];
+            [edgeFigure setEdge:edge];
+            *lastPoint = vertex->position;
         }
+
+        MapDocument* map = [windowController document];
+        NSUndoManager* undoManager = [map undoManager];
+        [undoManager setGroupsByEvent:NO];
+        [undoManager beginUndoGrouping];
+        
+        [map snapBrushes:[NSArray arrayWithObject:brush]];
+        [self addFeedbackFigure:edgeFigure];
     }
     
     [hits release];
-    return hits != nil;
+    return hit != nil;
 }
 
 - (BOOL)doLeftDrag:(NSEvent *)event ray:(TRay *)ray delta:(TVector3f *)delta hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {

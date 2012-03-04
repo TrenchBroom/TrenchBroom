@@ -32,11 +32,35 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return self;
 }
 
-- (id)initWithObject:(id)theObject vertex:(int)theVertexIndex hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance {
+- (id)initWithObject:(id)theObject vertexIndex:(int)theVertexIndex hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance {
     if ((self = [self init])) {
         object = theObject;
-        type = HT_VERTEX;
-        vertexIndex = theVertexIndex;
+        type = HT_VERTEX_HANDLE;
+        index = theVertexIndex;
+        hitPoint = *theHitPoint;
+        distance = theDistance;
+    }
+    
+    return self;
+}
+
+- (id)initWithObject:(id)theObject edgeIndex:(int)theEdgeIndex hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance {
+    if ((self = [self init])) {
+        object = theObject;
+        type = HT_EDGE_HANDLE;
+        index = theEdgeIndex;
+        hitPoint = *theHitPoint;
+        distance = theDistance;
+    }
+    
+    return self;
+}
+
+- (id)initWithObject:(id)theObject faceIndex:(int)theFaceIndex hitPoint:(const TVector3f *)theHitPoint distance:(float)theDistance {
+    if ((self = [self init])) {
+        object = theObject;
+        type = HT_FACE_HANDLE;
+        index = theFaceIndex;
         hitPoint = *theHitPoint;
         distance = theDistance;
     }
@@ -52,8 +76,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return type;
 }
 
-- (int)vertexIndex {
-    return vertexIndex;
+- (int)index {
+    return index;
 }
 
 - (BOOL)isType:(EHitType)theTypeMask {
@@ -80,15 +104,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         case HT_CLOSE_FACE:
             typeStr = @"HT_CLOSE_FACE";
             break;
-        case HT_VERTEX:
-            typeStr = @"HT_VERTEX";
+        case HT_VERTEX_HANDLE:
+            typeStr = @"HT_VERTEX_HANDLE";
+            break;
+        case HT_EDGE_HANDLE:
+            typeStr = @"HT_EDGE_HANDLE";
+            break;
+        case HT_FACE_HANDLE:
+            typeStr = @"HT_FACE_HANDLE";
             break;
         default:
             typeStr = @"unknown";
             break;
     }
     
-    return [NSString stringWithFormat:@"Type: %@, object %@, hit point %f %f %f, vertex index %i, distance %f", typeStr, object, hitPoint.x, hitPoint.y, hitPoint.z, vertexIndex, distance];
+    return [NSString stringWithFormat:@"Type: %@, object %@, hit point %f %f %f, index %i, distance %f", typeStr, object, hitPoint.x, hitPoint.y, hitPoint.z, index, distance];
 }
 
 - (NSComparisonResult)compareTo:(PickingHit *)other {

@@ -33,8 +33,8 @@
 #import "FaceFeedbackFigure.h"
 #import "DragFaceToolFeedbackFigure.h"
 
-TVector4f const CurrentFaceColor = {1, 1, 1, 1};
-TVector4f const FaceColor = {1, 0, 0, 1};
+TVector4f const CurrentFaceColor = {1, 0, 0, 1};
+TVector4f const FaceColor = {230 / 255.0f, 31 / 255.0f, 1, 1};
 
 @implementation DragFaceTool
 
@@ -68,13 +68,11 @@ TVector4f const FaceColor = {1, 0, 0, 1};
 - (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     [hits retain];
     
-    PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
+    PickingHit* hit = [hits firstHitOfType:HT_FACE_HANDLE ignoreOccluders:NO];
     if (hit != nil) {
         brush = [hit object];
-        const TVertexList* vertices = [brush vertices];
-        const TEdgeList* edges = [brush edges];
         NSArray* faces = [brush faces];
-        index = [hit vertexIndex] - vertices->count - edges->count;
+        index = [hit index];
         
         if (index >= 0 && index < [faces count]) {
             MapDocument* map = [windowController document];
@@ -93,7 +91,7 @@ TVector4f const FaceColor = {1, 0, 0, 1};
     }
     
     [hits release];
-    return hits != nil;
+    return hit != nil;
 }
 
 - (BOOL)doLeftDrag:(NSEvent *)event ray:(TRay *)ray delta:(TVector3f *)delta hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {

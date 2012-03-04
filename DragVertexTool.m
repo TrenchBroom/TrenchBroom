@@ -33,8 +33,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "VertexFeedbackFigure.h"
 #import "DragVertexToolFeedbackFigure.h"
 
-TVector4f const CurrentVertexColor = {1, 1, 1, 1};
-TVector4f const VertexColor = {1, 0, 0, 1};
+TVector4f const CurrentVertexColor = {1, 0, 0, 1};
+TVector4f const VertexColor = {0, 114 / 255.0f, 229 / 255.0f, 1};
 
 @implementation DragVertexTool
 
@@ -68,7 +68,7 @@ TVector4f const VertexColor = {1, 0, 0, 1};
 - (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     [hits retain];
     
-    PickingHit* hit = [hits firstHitOfType:HT_VERTEX ignoreOccluders:NO];
+    PickingHit* hit = [hits firstHitOfType:HT_VERTEX_HANDLE | HT_EDGE_HANDLE | HT_FACE_HANDLE ignoreOccluders:NO];
     if (hit != nil) {
         MapDocument* map = [windowController document];
         NSUndoManager* undoManager = [map undoManager];
@@ -78,30 +78,32 @@ TVector4f const VertexColor = {1, 0, 0, 1};
         brush = [hit object];
         [map snapBrushes:[NSArray arrayWithObject:brush]];
         
-        index = [hit vertexIndex];
+        index = [hit index];
         const TVertexList* vertices = [brush vertices];
         const TEdgeList* edges = [brush edges];
         
-        if (index < vertices->count) {
+        if ([hit type] == HT_VERTEX_HANDLE) {
             TVertex* vertex = vertices->items[index];
             *lastPoint = vertex->position;
             [vertexFigure setVertex:vertex];
-        } else if (index < vertices->count + edges->count) {
-            TEdge* edge = edges->items[index - vertices->count];
+        } else if ([hit type] == HT_EDGE_HANDLE) {
+            TEdge* edge = edges->items[index];
             centerOfEdge(edge, lastPoint);
             [vertexFigure setPosition:lastPoint];
+            index += vertices->count;
         } else {
             // the side index is not necessarily the same as the face index!!!
-            id <Face> face = [[brush faces] objectAtIndex:index - edges->count - vertices->count];
+            id <Face> face = [[brush faces] objectAtIndex:index];
             centerOfVertices([face vertices], lastPoint);
             [vertexFigure setPosition:lastPoint];
+            index += vertices->count + edges->count;
         }
 
         [self addFeedbackFigure:vertexFigure];
     }
     
     [hits release];
-    return hits != nil;
+    return hit != nil;
 }
 
 - (BOOL)doLeftDrag:(NSEvent *)event ray:(TRay *)ray delta:(TVector3f *)delta hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
