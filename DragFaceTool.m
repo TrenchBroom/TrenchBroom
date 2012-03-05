@@ -68,7 +68,7 @@ TVector4f const FaceColor = {230 / 255.0f, 31 / 255.0f, 1, 1};
 - (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     [hits retain];
     
-    PickingHit* hit = [hits firstHitOfType:HT_FACE_HANDLE ignoreOccluders:NO];
+    PickingHit* hit = [hits firstHitOfType:HT_FACE_HANDLE ignoreOccluders:YES];
     if (hit != nil) {
         brush = [hit object];
         NSArray* faces = [brush faces];

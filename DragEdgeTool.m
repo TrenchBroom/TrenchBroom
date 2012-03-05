@@ -69,43 +69,15 @@ TVector4f const EdgeColor = {0, 229 / 255.0f, 221 / 255.0f, 1};
 - (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     [hits retain];
     
-    PickingHit* hit = [hits firstHitOfType:HT_VERTEX_HANDLE | HT_EDGE_HANDLE ignoreOccluders:NO];
+    PickingHit* hit = [hits firstHitOfType:HT_EDGE_HANDLE ignoreOccluders:YES];
     if (hit != nil) {
         brush = [hit object];
         const TEdgeList* edges = [brush edges];
         index = [hit index];
         
-        if ([hit type] == HT_EDGE_HANDLE) {
-            TEdge* edge = edges->items[index];
-            centerOfEdge(edge, lastPoint);
-            [edgeFigure setEdge:edge];
-        } else {
-            const TVertexList* vertices = [brush vertices];
-            TVertex* vertex = vertices->items[index];
-            TVector3f edgeDir;
-            
-            float bestDot = -1;
-            
-            for (int i = 0; i < edges->count; i++) {
-                TEdge* edge = edges->items[i];
-                if (edge->startVertex == vertex || edge->endVertex == vertex) {
-                    if (edge->startVertex == vertex)
-                        subV3f(&edge->endVertex->position, &edge->startVertex->position, &edgeDir);
-                    else
-                        subV3f(&edge->startVertex->position, &edge->endVertex->position, &edgeDir);
-                    normalizeV3f(&edgeDir, &edgeDir);
-                    float dot = dotV3f(&edgeDir, &ray->direction);
-                    if (dot > bestDot) {
-                        bestDot = dot;
-                        index = i;
-                    }
-                }
-            }
-            
-            TEdge* edge = edges->items[index];
-            [edgeFigure setEdge:edge];
-            *lastPoint = vertex->position;
-        }
+        TEdge* edge = edges->items[index];
+        centerOfEdge(edge, lastPoint);
+        [edgeFigure setEdge:edge];
 
         MapDocument* map = [windowController document];
         NSUndoManager* undoManager = [map undoManager];

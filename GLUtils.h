@@ -23,6 +23,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 void glNormalV3f(const TVector3f* v);
 void glVertexV3f(const TVector3f* v);
+void glColorV4fAlpha(const TVector4f* v, float alpha);
 void glColorV4f(const TVector4f* v);
 
 void glSetEdgeOffset(float f);

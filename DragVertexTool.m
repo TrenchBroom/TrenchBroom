@@ -68,7 +68,7 @@ TVector4f const VertexColor = {0, 114 / 255.0f, 229 / 255.0f, 1};
 - (BOOL)doBeginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits lastPoint:(TVector3f *)lastPoint {
     [hits retain];
     
-    PickingHit* hit = [hits firstHitOfType:HT_VERTEX_HANDLE | HT_EDGE_HANDLE | HT_FACE_HANDLE ignoreOccluders:NO];
+    PickingHit* hit = [hits firstHitOfType:HT_VERTEX_HANDLE | HT_EDGE_HANDLE | HT_FACE_HANDLE ignoreOccluders:YES];
     if (hit != nil) {
         MapDocument* map = [windowController document];
         NSUndoManager* undoManager = [map undoManager];

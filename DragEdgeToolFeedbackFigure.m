@@ -24,10 +24,35 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Face.h"
 #import "Filter.h"
 
+@interface DragEdgeToolFeedbackFigure (private)
+
+- (void)renderHandles:(id <Brush>)brush;
+
+@end
+
+@implementation DragEdgeToolFeedbackFigure (private)
+
+- (void)renderHandles:(id <Brush>)brush {
+    TVector3f mid;
+    const TEdgeList* edges = [brush edges];
+    for (int i = 0; i < edges->count; i++) {
+        TEdge* edge = edges->items[i];
+        centerOfEdge(edge, &mid);
+        float dist = [camera distanceTo:&mid];
+        
+        glPushMatrix();
+        glTranslatef(mid.x, mid.y, mid.z);
+        glScalef(dist / 300, dist / 300, dist / 300);
+        gluSphere(vertexHandle, radius, 12, 12);
+        glPopMatrix();
+    }
+}
+
+@end
+
 @implementation DragEdgeToolFeedbackFigure
 
 - (void)render:(id <Filter>)theFilter {
-    TVector3f mid;
     
     if ([brushes count] > 0) {
         if (vertexHandle == NULL) {
@@ -37,35 +62,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         glFrontFace(GL_CCW);
         glPolygonMode(GL_FRONT, GL_FILL);
-        glEnable(GL_DEPTH_TEST);
-        glColorV4f(&color);
         
         for (id <Brush> brush in brushes) {
             if (theFilter == nil || [theFilter brushVerticesPickable:brush]) {
-                const TVertexList* vertices = [brush vertices];
-                for (int i = 0; i < vertices->count; i++) {
-                    TVector3f* vertex = &vertices->items[i]->position;
-                    float dist = [camera distanceTo:vertex];
-                    
-                    glPushMatrix();
-                    glTranslatef(vertex->x, vertex->y, vertex->z);
-                    glScalef(dist / 300, dist / 300, dist / 300);
-                    gluSphere(vertexHandle, radius, 12, 12);
-                    glPopMatrix();
-                }
-                
-                const TEdgeList* edges = [brush edges];
-                for (int i = 0; i < edges->count; i++) {
-                    TEdge* edge = edges->items[i];
-                    centerOfEdge(edge, &mid);
-                    float dist = [camera distanceTo:&mid];
-                    
-                    glPushMatrix();
-                    glTranslatef(mid.x, mid.y, mid.z);
-                    glScalef(dist / 300, dist / 300, dist / 300);
-                    gluSphere(vertexHandle, radius, 12, 12);
-                    glPopMatrix();
-                }
+                glEnable(GL_DEPTH_TEST);
+                glColorV4f(&color);
+                [self renderHandles:brush];
+                glDisable(GL_DEPTH_TEST);
+                glColorV4fAlpha(&color, 0.4f);
+                [self renderHandles:brush];
             }
         }
         

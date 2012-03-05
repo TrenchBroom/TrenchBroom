@@ -29,8 +29,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSAssert(theColor != NULL, @"color must not be NULL");
     
     if ((self = [self init])) {
-        startFigure = [[VertexFeedbackFigure alloc] initWithCamera:theCamera radius:theRadius color:theColor];
-        endFigure = [[VertexFeedbackFigure alloc] initWithCamera:theCamera radius:theRadius color:theColor];
         centerFigure = [[VertexFeedbackFigure alloc] initWithCamera:theCamera radius:theRadius color:theColor];
         color = *theColor;
     }
@@ -39,8 +37,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)dealloc {
-    [startFigure release];
-    [endFigure release];
     [centerFigure release];
     [super dealloc];
 }
@@ -52,8 +48,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glVertexV3f(&end);
     glEnd();
     
-    [startFigure render:theFilter];
-    [endFigure render:theFilter];
     [centerFigure render:theFilter];
 }
 
@@ -64,9 +58,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     start = theEdge->startVertex->position;
     end = theEdge->endVertex->position;
-
-    [startFigure setVertex:theEdge->startVertex];
-    [endFigure setVertex:theEdge->endVertex];
     
     addV3f(&start, &end, &center);
     scaleV3f(&center, 0.5f, &center);

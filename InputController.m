@@ -201,6 +201,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (BOOL)keyDown:(NSEvent *)event sender:(id)sender {
+    switch ([event keyCode]) {
+        case 48: // tab key, faking this because it doesn't work as a key equivalent for NSMenuItem
+            if (clipTool != nil) {
+                [clipTool toggleClipSide];
+                return YES;
+            }
+            break;
+        default:
+            break;
+    }
+    
     return NO;
 }
 

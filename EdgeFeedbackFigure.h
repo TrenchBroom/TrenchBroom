@@ -26,8 +26,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @class VertexFeedbackFigure;
 
 @interface EdgeFeedbackFigure : NSObject <Figure> {
-    VertexFeedbackFigure* startFigure;
-    VertexFeedbackFigure* endFigure;
     VertexFeedbackFigure* centerFigure;
     TVector4f color;
     TVector3f start, end;
