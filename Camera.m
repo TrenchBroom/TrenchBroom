@@ -216,7 +216,7 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
         // correct rounding errors here
         float cos = fmaxf(-1, fminf(1, dotV3f(&direction, &d)));
         float angle = acos(cos);
-        if (angle != 0) {
+        if (!fzero(angle)) {
             TQuaternion q;
             TVector3f axis;
 

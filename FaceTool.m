@@ -36,6 +36,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (BOOL)isFrontFaceModifierPressed;
 - (BOOL)isFaceDragModifierPressed;
+- (BOOL)isApplyTextureModifierPressed;
+- (BOOL)isApplyFlagsModifierPressed;
 
 @end
 
@@ -46,7 +48,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (BOOL)isFaceDragModifierPressed {
-    return [NSEvent modifierFlags] == NSCommandKeyMask;
+    return ([NSEvent modifierFlags] & NSCommandKeyMask) == NSCommandKeyMask;
+}
+
+- (BOOL)isApplyTextureModifierPressed {
+    return ([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
+}
+
+- (BOOL)isApplyFlagsModifierPressed {
+    return ([NSEvent modifierFlags] & NSCommandKeyMask) == NSCommandKeyMask;
 }
 
 @end
@@ -68,6 +78,49 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 # pragma mark -
 # pragma mark @implementation Tool
+
+- (BOOL)leftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (![self isApplyTextureModifierPressed])
+        return NO;
+
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if ([selectionManager mode] != SM_FACES)
+        return NO;
+
+    PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
+    if (hit == nil)
+        return NO;
+    
+    id <Face> source = [[selectionManager selectedFaces] lastObject];
+    id <Face> target = [hit object];
+
+    NSMutableArray* targetArray = [[NSMutableArray alloc] init];
+    if ([event clickCount] == 2)
+        [targetArray addObjectsFromArray:[[target brush] faces]];
+    else
+        [targetArray addObject:target];
+    
+    MapDocument* map = [windowController document];
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+
+    [selectionManager removeAll:YES];
+    [selectionManager addFaces:targetArray record:YES];
+    
+    [map setFaces:targetArray texture:[source texture]];
+    if ([self isApplyFlagsModifierPressed]) {
+        [map setFaces:targetArray xOffset:[source xOffset]];
+        [map setFaces:targetArray yOffset:[source yOffset]];
+        [map setFaces:targetArray xScale:[source xScale]];
+        [map setFaces:targetArray yScale:[source yScale]];
+        [map setFaces:targetArray rotation:[source rotation]];
+    }
+
+    [undoManager setActionName:@"Apply Texture"];
+    [undoManager endUndoGrouping];
+    
+    return YES;
+}
 
 - (BOOL)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isFaceDragModifierPressed])

@@ -1727,6 +1727,8 @@ void mergeEdges(TVertexData* vd) {
                 if (edge->endVertex == candidate->endVertex)
                     flipEdge(candidate);
                 if (edge->endVertex == candidate->startVertex) {
+                    // we sometimes crash here because we meet two identical edges with opposite directions
+                    assert(edge->startVertex != candidate->endVertex);
                     assert(edge->leftSide == candidate->leftSide);
                     assert(edge->rightSide == candidate->rightSide);
                     
@@ -2291,13 +2293,6 @@ BOOL sanityCheck(const TVertexData* vd, BOOL cc) {
         return NO;
     }
 
-    for (int i = 0; i < vd->edges.count; i++) {
-        if (vd->edges.items[i]->leftSide == vd->edges.items[i]->rightSide) {
-            NSLog(@"edge with index %i has equal sides", i);
-            return NO;
-        }
-    }
-    
     int vVisits[vd->vertices.count];
     for (int i = 0; i < vd->vertices.count; i++)
         vVisits[i] = 0;
@@ -2359,6 +2354,21 @@ BOOL sanityCheck(const TVertexData* vd, BOOL cc) {
         if (eVisits[i] != 2) {
             NSLog(@"edge with index %i was visited %i times, should have been 2", i, eVisits[i]);
             return NO;
+        }
+        
+        if (vd->edges.items[i]->leftSide == vd->edges.items[i]->rightSide) {
+            NSLog(@"edge with index %i has equal sides", i);
+            return NO;
+        }
+
+        TEdge* edge1 = vd->edges.items[i];
+        for (int j = i + 1; j < vd->edges.count; j++) {
+            TEdge* edge2 = vd->edges.items[j];
+            if ((edge1->startVertex == edge2->startVertex && edge1->endVertex == edge2->endVertex) ||
+                (edge1->startVertex == edge2->endVertex && edge1->endVertex == edge2->startVertex)) {
+                NSLog(@"edge with index %i is identical to edge with index %i", i, j);
+                return NO;
+            }
         }
     }
     

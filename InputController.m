@@ -173,7 +173,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [center addObserver:self selector:@selector(mapChanged:) name:BrushesWereRemoved object:map];
         [center addObserver:self selector:@selector(mapChanged:) name:BrushesDidChange object:map];
         [center addObserver:self selector:@selector(mapChanged:) name:FacesDidChange object:map];
-//        [center addObserver:self selector:@selector(selectionChanged:) name:SelectionRemoved object:selectionManager];
+        [center addObserver:self selector:@selector(selectionChanged:) name:SelectionRemoved object:selectionManager];
     }
     
     return self;
@@ -284,12 +284,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             scrollStatus = MS_NONE;
             dragScrollReceiver = nil;
         }
+        NSAssert([[[windowController document] undoManager] groupingLevel] == 0, @"undo grouping level must be 0 after drag ended");
     } else {
         for (Tool* receiver in receiverChain) {
             if ([receiver leftMouseUp:lastEvent ray:&lastRay hits:[self currentHits]])
                 break;
         }
-        NSAssert([[[windowController document] undoManager] groupingLevel] == 0, @"undo grouping level must be 0 after drag ended");
     }
 }
 

@@ -37,11 +37,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 @interface CreateBrushTool (private)
 
+- (BOOL)isCreateBrushModifierPressed;
 - (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits;
 
 @end
 
 @implementation CreateBrushTool (private)
+
+- (BOOL)isCreateBrushModifierPressed {
+    return [NSEvent modifierFlags] == NSAlternateKeyMask;
+}
 
 - (void)updateMoveDirectionWithRay:(const TRay *)theRay hits:(PickingHitList *)theHits {
     if (editingSystem != nil)
@@ -49,32 +54,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     Camera* camera = [windowController camera];
     editingSystem = [[DragPlane alloc] initWithCamera:camera vertical:strongestComponentV3f([camera direction]) != A_Z];
-    
-    /*
-     EditingSystem* newEditingSystem;
-     TVector3f norm;
-     
-     Camera* camera = [windowController camera];
-     
-     PickingHit* hit = [theHits firstHitOfType:HT_FACE | HT_ENTITY ignoreOccluders:NO];
-     if (hit == nil)
-     return;
-     
-     if ([hit type] == HT_FACE) {
-     id <Face> face = [hit object];
-     newEditingSystem = [[EditingSystem alloc] initWithCamera:camera yAxis:[face norm] invert:[self isAlternatePlaneModifierPressed]];
-     } else {
-     id <Entity> entity = [hit object];
-     intersectBoundsWithRay([entity bounds], theRay, &norm);
-     newEditingSystem = [[EditingSystem alloc] initWithCamera:camera yAxis:&norm invert:[self isAlternatePlaneModifierPressed]];
-     }
-     
-     if (newEditingSystem != nil) {
-     if (editingSystem != nil)
-     [editingSystem release];
-     editingSystem = newEditingSystem;
-     }
-     */
 }
 
 @end
@@ -82,6 +61,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @implementation CreateBrushTool
 
 - (BOOL)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (![self isCreateBrushModifierPressed])
+        return NO;
+    
     Camera* camera = [windowController camera];
 
     PickingHit* hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
@@ -124,11 +106,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (!boundsContainBounds(worldBounds, &initialBounds))
         return NO;
     
+    SelectionManager* selectionManager = [windowController selectionManager];
+    [selectionManager removeAll:NO];
+
     NSUndoManager* undoManager = [map undoManager];
     [undoManager setGroupsByEvent:NO];
     [undoManager beginUndoGrouping];
     
-    SelectionManager* selectionManager = [windowController selectionManager];
     TextureManager* textureManager = [[map glResources] textureManager];
     
     NSArray* textureMRU = [selectionManager textureMRU];

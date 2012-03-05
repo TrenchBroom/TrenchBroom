@@ -351,8 +351,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     SelectionManager* selectionManager = [windowController selectionManager];
     
     NSArray* brushes = [[NSArray alloc] initWithArray:[selectionManager selectedBrushes]];
-    [selectionManager removeAll:YES];
-    
     for (id <Brush> brush in brushes) {
         id <Brush> firstResult = nil;
         id <Brush> secondResult = nil;
@@ -366,13 +364,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [newBrushes addObject:[map createBrushInEntity:entity fromTemplate:secondResult]];
     }
     
-    [map deleteBrushes:brushes];
     [selectionManager addBrushes:newBrushes record:YES];
+    [map deleteBrushes:brushes];
     
     [undoManager setActionName:[brushes count] == 1 ? @"Clip Brush" : @"Clip Brushes"];
     [undoManager endUndoGrouping];
     
     [brushes release];
+    [newBrushes release];
     [clipPlane reset];
     if (currentPoint != NULL) {
         free(currentPoint);
