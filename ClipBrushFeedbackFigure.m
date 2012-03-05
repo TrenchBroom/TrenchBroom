@@ -33,8 +33,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     if (self = [self init]) {
         [theClipPlane clipBrush:theBrush firstResult:&brush1 secondResult:&brush2];
         if (brush1 == nil && brush2 == nil) {
-            [self release];
-            return nil;
+            brush1 = [theBrush retain];
         } else {
             if (brush1 != nil)
                 [brush1 retain];

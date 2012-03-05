@@ -189,7 +189,32 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return self;
 }
 
+- (void)activated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    clipPlane = [[ClipPlane alloc] init];
+    [self updateFeedback:nil];
+}
+
+- (void)deactivated:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    [clipPlane release];
+    clipPlane = nil;
+    
+    free(currentPoint);
+    currentPoint = NULL;
+    
+    if (currentFigure != nil) {
+        Renderer* renderer = [windowController renderer];
+        [renderer removeFeedbackFigure:currentFigure];
+        [currentFigure release];
+        currentFigure = nil;
+    }
+    
+    [self updateFeedback:nil];
+}
+
 - (BOOL)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    if (clipPlane == nil)
+        return NO;
+
     if ([clipPlane numPoints] > 0 && [self intersect:ray withClipPoint:[clipPlane point:0]]) {
         draggedPoint = 0;
     } else if ([clipPlane numPoints] > 1 && [self intersect:ray withClipPoint:[clipPlane point:1]]) {
@@ -238,25 +263,26 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self updateFeedback:ray];
 }
 
-- (void)handleLeftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (BOOL)leftMouseUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (clipPlane == nil)
-        return;
+        return NO;
     
-    if (currentPoint == NULL)
-        return;
-    
-    [self setClipPointWithRay:ray hits:hits];
-    [self updateFeedback:ray];
-    
-    if (currentFigure != nil) {
-        Renderer* renderer = [windowController renderer];
-        [renderer removeFeedbackFigure:currentFigure];
-        [currentFigure release];
-        currentFigure = nil;
+    if (currentPoint != NULL) {
+        [self setClipPointWithRay:ray hits:hits];
+        [self updateFeedback:ray];
+        
+        if (currentFigure != nil) {
+            Renderer* renderer = [windowController renderer];
+            [renderer removeFeedbackFigure:currentFigure];
+            [currentFigure release];
+            currentFigure = nil;
+        }
     }
+    
+    return YES;
 }
 
-- (void)handleMouseMoved:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+- (void)mouseMoved:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (clipPlane == nil)
         return;
     
@@ -296,33 +322,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 }
 
-- (void)activate {
-    clipPlane = [[ClipPlane alloc] init];
-    [self updateFeedback:nil];
-}
-
-- (void)deactivate {
-    [clipPlane release];
-    clipPlane = nil;
-
-    free(currentPoint);
-    currentPoint = NULL;
+- (void)toggleClipSide {
+    NSAssert(clipPlane !=  nil, @"clip plane must not be nil");
     
-    if (currentFigure != nil) {
-        Renderer* renderer = [windowController renderer];
-        [renderer removeFeedbackFigure:currentFigure];
-        [currentFigure release];
-        currentFigure = nil;
-    }
-
-    [self updateFeedback:nil];
-}
-
-- (BOOL)active {
-    return clipPlane != nil;
-}
-
-- (void)toggleClipMode {
     switch ([clipPlane clipMode]) {
         case CM_FRONT:
             [clipPlane setClipMode:CM_BACK];
@@ -334,25 +336,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [clipPlane setClipMode:CM_FRONT];
             break;
     }
+    
     [self updateFeedback:nil];
 }
 
-- (void)deleteLastPoint {
-    if ([clipPlane numPoints] > 0) {
-        [clipPlane removeLastPoint];
-        [self updateFeedback:NULL];
-    }
-}
-
-- (int)numPoints {
-    return [clipPlane numPoints];
-}
-
-- (NSArray *)performClip:(MapDocument* )map {
+- (void)performClip {
+    NSAssert(clipPlane !=  nil, @"clip plane must not be nil");
+    
+    MapDocument* map = [windowController document];
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];
-
-    NSMutableArray* result = [[NSMutableArray alloc] init];
+    
+    NSMutableArray* newBrushes = [[NSMutableArray alloc] init];
     SelectionManager* selectionManager = [windowController selectionManager];
     
     NSArray* brushes = [[NSArray alloc] initWithArray:[selectionManager selectedBrushes]];
@@ -365,14 +360,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         id <Entity> entity = [brush entity];
         if (firstResult != nil)
-            [result addObject:[map createBrushInEntity:entity fromTemplate:firstResult]];
+            [newBrushes addObject:[map createBrushInEntity:entity fromTemplate:firstResult]];
         
         if (secondResult != nil)
-            [result addObject:[map createBrushInEntity:entity fromTemplate:secondResult]];
+            [newBrushes addObject:[map createBrushInEntity:entity fromTemplate:secondResult]];
     }
     
     [map deleteBrushes:brushes];
-    [selectionManager addBrushes:result record:YES];
+    [selectionManager addBrushes:newBrushes record:YES];
     
     [undoManager setActionName:[brushes count] == 1 ? @"Clip Brush" : @"Clip Brushes"];
     [undoManager endUndoGrouping];
@@ -383,19 +378,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         free(currentPoint);
         currentPoint = NULL;
     }
-
-    [self updateFeedback:nil];
     
-    return [result autorelease];
+    [self updateFeedback:nil];
 }
 
-- (void)cancel {
-    [clipPlane reset];
-    if (currentPoint != NULL) {
-        free(currentPoint);
-        currentPoint = NULL;
+- (void)deleteLastClipPoint {
+    NSAssert(clipPlane !=  nil, @"clip plane must not be nil");
+    
+    if ([clipPlane numPoints] > 0) {
+        [clipPlane removeLastPoint];
+        [self updateFeedback:NULL];
     }
-    [self updateFeedback:nil];
+}
+
+- (int)numPoints {
+    return [clipPlane numPoints];
 }
 
 - (void)dealloc {

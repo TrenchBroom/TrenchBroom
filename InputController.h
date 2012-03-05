@@ -54,7 +54,7 @@ typedef enum {
     PickingHitList* currentHits;
     NSPoint menuPosition;
     
-    NSMutableArray* mouseReceiverChain;
+    NSMutableArray* receiverChain;
     Tool* dragScrollReceiver;
     int modalReceiverIndex;
     
@@ -83,6 +83,7 @@ typedef enum {
 
 - (BOOL)keyDown:(NSEvent *)event sender:(id)sender;
 - (BOOL)keyUp:(NSEvent *)event sender:(id)sender;
+
 - (void)flagsChanged:(NSEvent *)event sender:(id)sender;
 - (void)leftMouseDragged:(NSEvent *)event sender:(id)sender;
 - (void)mouseMoved:(NSEvent *)event sender:(id)sender;
@@ -109,8 +110,10 @@ typedef enum {
 - (void)toggleDragVertexTool;
 - (void)toggleDragEdgeTool;
 - (void)toggleDragFaceTool;
-
+- (void)toggleClipTool;
+- (Tool *)currentModalTool;
 - (ClipTool *)clipTool;
+
 - (NSPoint)menuPosition;
 - (PickingHitList *)currentHits;
 

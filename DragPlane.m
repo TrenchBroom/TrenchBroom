@@ -27,7 +27,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     if ((self = [self init])) {
         xAxisPos = firstAxisV3f([theCamera right]);
-        xAxisNeg = thirdAxisV3f([theCamera right]);
+        xAxisNeg = firstAxisNegV3f([theCamera right]);
 
         if (vertical) {
             yAxisPos = &ZAxisPos;

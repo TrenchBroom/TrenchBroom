@@ -66,23 +66,41 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (IBAction)switchToXYView:(id)sender;
 - (IBAction)switchToXZView:(id)sender;
 - (IBAction)switchToYZView:(id)sender;
-
-- (IBAction)toggleTextureLock:(id)sender;
+- (IBAction)moveCameraForward:(id)sender;
+- (IBAction)moveCameraBackward:(id)sender;
+- (IBAction)moveCameraLeft:(id)sender;
+- (IBAction)moveCameraRight:(id)sender;
+- (IBAction)moveCameraUp:(id)sender;
+- (IBAction)moveCameraDown:(id)sender;
 
 - (IBAction)createPointEntity:(id)sender;
 - (IBAction)createBrushEntity:(id)sender;
 
-- (IBAction)rotate90CW:(id)sender;
-- (IBAction)rotate90CCW:(id)sender;
-- (IBAction)flipHorizontally:(id)sender;
-- (IBAction)flipVertically:(id)sender;
+- (IBAction)moveObjectsLeft:(id)sender;
+- (IBAction)moveObjectsRight:(id)sender;
+- (IBAction)moveObjectsAway:(id)sender;
+- (IBAction)moveObjectsToward:(id)sender;
+- (IBAction)moveObjectsUp:(id)sender;
+- (IBAction)moveObjectsDown:(id)sender;
+- (IBAction)rotateObjects90CW:(id)sender;
+- (IBAction)rotateObjects90CCW:(id)sender;
+- (IBAction)flipObjectsHorizontally:(id)sender;
+- (IBAction)flipObjectsVertically:(id)sender;
 - (IBAction)toggleDragVertexTool:(id)sender;
 - (IBAction)toggleDragEdgeTool:(id)sender;
 - (IBAction)toggleDragFaceTool:(id)sender;
 - (IBAction)toggleClipTool:(id)sender;
-- (IBAction)toggleClipMode:(id)sender;
+- (IBAction)toggleClipSide:(id)sender;
 - (IBAction)performClip:(id)sender;
 - (IBAction)enlargeBrushes:(id)sender;
+
+- (IBAction)moveTexturesLeft:(id)sender;
+- (IBAction)moveTexturesRight:(id)sender;
+- (IBAction)moveTexturesUp:(id)sender;
+- (IBAction)moveTexturesDown:(id)sender;
+- (IBAction)rotateTexturesCW:(id)sender;
+- (IBAction)rotateTexturesCCW:(id)sender;
+- (IBAction)toggleTextureLock:(id)sender;
 
 - (IBAction)selectAll:(id)sender;
 - (IBAction)selectNone:(id)sender;

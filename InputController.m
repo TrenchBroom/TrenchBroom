@@ -55,6 +55,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)updateRay;
 - (void)cameraViewChanged:(NSNotification *)notification;
 - (void)mapChanged:(NSNotification *)notification;
+- (void)selectionChanged:(NSNotification *)notification;
 
 - (void)showContextMenu;
 @end
@@ -116,6 +117,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [NSMenu popUpContextMenu:popupMenu withEvent:lastEvent forView:[windowController view3D]];
 }
 
+- (void)selectionChanged:(NSNotification *)notification {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    if (![selectionManager hasSelectedBrushes] && modalReceiverIndex != -1) {
+        Tool* modalReceiver = [receiverChain objectAtIndex:modalReceiverIndex];
+        [modalReceiver deactivated:lastEvent ray:&lastRay hits:[self currentHits]];
+        [receiverChain removeObjectAtIndex:modalReceiverIndex];
+        modalReceiverIndex = -1;
+    }
+}
+
 @end
 
 @implementation InputController
@@ -143,13 +154,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         clipTool = [[ClipTool alloc] initWithWindowController:windowController];
         entityDefinitionDndTool = [[EntityDefinitionDndTool alloc] initWithWindowController:windowController];
         
-        mouseReceiverChain = [[NSMutableArray alloc] init];
-        [mouseReceiverChain addObject:cameraTool];
-        [mouseReceiverChain addObject:faceTool];
-        [mouseReceiverChain addObject:moveTool];
-        [mouseReceiverChain addObject:rotateTool];
-        [mouseReceiverChain addObject:selectionTool];
-        [mouseReceiverChain addObject:createBrushTool];
+        receiverChain = [[NSMutableArray alloc] init];
+        [receiverChain addObject:cameraTool];
+        [receiverChain addObject:faceTool];
+        [receiverChain addObject:moveTool];
+        [receiverChain addObject:rotateTool];
+        [receiverChain addObject:selectionTool];
+        [receiverChain addObject:createBrushTool];
         dragScrollReceiver = nil;
         modalReceiverIndex = -1;
         
@@ -162,6 +173,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [center addObserver:self selector:@selector(mapChanged:) name:BrushesWereRemoved object:map];
         [center addObserver:self selector:@selector(mapChanged:) name:BrushesDidChange object:map];
         [center addObserver:self selector:@selector(mapChanged:) name:FacesDidChange object:map];
+//        [center addObserver:self selector:@selector(selectionChanged:) name:SelectionRemoved object:selectionManager];
     }
     
     return self;
@@ -183,23 +195,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [clipTool release];
     [lastEvent release];
     [currentHits release];
-    [mouseReceiverChain release];
+    [receiverChain release];
     [filter release];
     [super dealloc];
 }
 
 - (BOOL)keyDown:(NSEvent *)event sender:(id)sender {
-    switch ([event keyCode]) {
-        case 48:
-            if (clipTool != nil) {
-                [clipTool toggleClipMode];
-                return YES;
-            }
-            break;
-        default:
-            break;
-    }
-    
     return NO;
 }
 
@@ -208,17 +209,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)flagsChanged:(NSEvent *)event sender:(id)sender {
-    for (Tool* mouseReceiver in mouseReceiverChain)
-        [mouseReceiver flagsChanged:event ray:&lastRay hits:[self currentHits]];
+    for (Tool* receiver in receiverChain)
+        [receiver flagsChanged:event ray:&lastRay hits:[self currentHits]];
 }
 
 - (void)leftMouseDragged:(NSEvent *)event sender:(id)sender {
     if (dragStatus == MS_NONE) {
         dragStatus = MS_LEFT;
         
-        for (Tool* mouseReceiver in mouseReceiverChain) {
-            if ([mouseReceiver beginLeftDrag:lastEvent ray:&lastRay hits:[self currentHits]]) {
-                dragScrollReceiver = mouseReceiver;
+        for (Tool* receiver in receiverChain) {
+            if ([receiver beginLeftDrag:lastEvent ray:&lastRay hits:[self currentHits]]) {
+                dragScrollReceiver = receiver;
                 break;
             }
         }
@@ -233,8 +234,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self updateEvent:event];
     [self updateRay];
 
-    for (Tool* mouseReceiver in mouseReceiverChain)
-        [mouseReceiver mouseMoved:lastEvent ray:&lastRay hits:[self currentHits]];
+    for (Tool* receiver in receiverChain)
+        [receiver mouseMoved:lastEvent ray:&lastRay hits:[self currentHits]];
 }
 
 - (void)mouseEntered:(NSEvent *)event sender:(id)sender {
@@ -251,8 +252,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self updateEvent:event];
     [self updateRay];
     
-    for (Tool* mouseReceiver in mouseReceiverChain) {
-        if ([mouseReceiver leftMouseDown:lastEvent ray:&lastRay hits:[self currentHits]])
+    for (Tool* receiver in receiverChain) {
+        if ([receiver leftMouseDown:lastEvent ray:&lastRay hits:[self currentHits]])
             break;
     }
 }
@@ -273,8 +274,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             dragScrollReceiver = nil;
         }
     } else {
-        for (Tool* mouseReceiver in mouseReceiverChain) {
-            if ([mouseReceiver leftMouseUp:lastEvent ray:&lastRay hits:[self currentHits]])
+        for (Tool* receiver in receiverChain) {
+            if ([receiver leftMouseUp:lastEvent ray:&lastRay hits:[self currentHits]])
                 break;
         }
         NSAssert([[[windowController document] undoManager] groupingLevel] == 0, @"undo grouping level must be 0 after drag ended");
@@ -284,9 +285,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)rightMouseDragged:(NSEvent *)event sender:(id)sender {
     if (dragStatus == MS_NONE) {
         dragStatus = MS_RIGHT;
-        for (Tool* mouseReceiver in mouseReceiverChain) {
-            if ([mouseReceiver beginRightDrag:lastEvent ray:&lastRay hits:[self currentHits]]) {
-                dragScrollReceiver = mouseReceiver;
+        for (Tool* receiver in receiverChain) {
+            if ([receiver beginRightDrag:lastEvent ray:&lastRay hits:[self currentHits]]) {
+                dragScrollReceiver = receiver;
                 break;
             }
         }
@@ -300,8 +301,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)rightMouseDown:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
     
-    for (Tool* mouseReceiver in mouseReceiverChain) {
-        if ([mouseReceiver rightMouseDown:lastEvent ray:&lastRay hits:[self currentHits]])
+    for (Tool* receiver in receiverChain) {
+        if ([receiver rightMouseDown:lastEvent ray:&lastRay hits:[self currentHits]])
             break;
     }
 }
@@ -322,8 +323,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             dragScrollReceiver = nil;
         }
     } else {
-        for (Tool* mouseReceiver in mouseReceiverChain) {
-            if ([mouseReceiver rightMouseUp:lastEvent ray:&lastRay hits:[self currentHits]])
+        for (Tool* receiver in receiverChain) {
+            if ([receiver rightMouseUp:lastEvent ray:&lastRay hits:[self currentHits]])
                 break;
         }
         if (dragStatus == MS_NONE)
@@ -337,9 +338,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         scrollStatus = buttons == 1 ? MS_LEFT : MS_RIGHT;
         if (scrollStatus == MS_LEFT) {
             if (dragScrollReceiver == nil) {
-                for (Tool* mouseReceiver in mouseReceiverChain) {
-                    if ([mouseReceiver beginLeftScroll:lastEvent ray:&lastRay hits:[self currentHits]]) {
-                        dragScrollReceiver = mouseReceiver;
+                for (Tool* receiver in receiverChain) {
+                    if ([receiver beginLeftScroll:lastEvent ray:&lastRay hits:[self currentHits]]) {
+                        dragScrollReceiver = receiver;
                         break;
                     }
                 }
@@ -348,9 +349,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             }
         } else {
             if (dragScrollReceiver == nil) {
-                for (Tool* mouseReceiver in mouseReceiverChain) {
-                    if ([mouseReceiver beginRightScroll:lastEvent ray:&lastRay hits:[self currentHits]]) {
-                        dragScrollReceiver = mouseReceiver;
+                for (Tool* receiver in receiverChain) {
+                    if ([receiver beginRightScroll:lastEvent ray:&lastRay hits:[self currentHits]]) {
+                        dragScrollReceiver = receiver;
                         break;
                     }
                 }
@@ -369,8 +370,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         else
             [dragScrollReceiver scrollWheel:lastEvent ray:&lastRay hits:[self currentHits]];
     } else {
-        for (Tool* mouseReceiver in mouseReceiverChain) {
-            if ([mouseReceiver scrollWheel:lastEvent ray:&lastRay hits:[self currentHits]])
+        for (Tool* receiver in receiverChain) {
+            if ([receiver scrollWheel:lastEvent ray:&lastRay hits:[self currentHits]])
                 break;
         }
     }
@@ -379,9 +380,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)beginGesture:(NSEvent *)event sender:(id)sender {
     [self updateEvent:event];
 
-    for (Tool* mouseReceiver in mouseReceiverChain) {
-        if ([mouseReceiver beginGesture:lastEvent ray:&lastRay hits:[self currentHits]]) {
-            dragScrollReceiver = mouseReceiver;
+    for (Tool* receiver in receiverChain) {
+        if ([receiver beginGesture:lastEvent ray:&lastRay hits:[self currentHits]]) {
+            dragScrollReceiver = receiver;
             break;
         }
     }
@@ -512,16 +513,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)toggleTool:(Tool *)theTool index:(int)theIndex {
     Tool* modalReceiver = nil;
     if (modalReceiverIndex != -1) {
-        modalReceiver = [mouseReceiverChain objectAtIndex:modalReceiverIndex];
+        modalReceiver = [receiverChain objectAtIndex:modalReceiverIndex];
         [modalReceiver deactivated:lastEvent ray:&lastRay hits:[self currentHits]];
-        [mouseReceiverChain removeObjectAtIndex:modalReceiverIndex];
+        [receiverChain removeObjectAtIndex:modalReceiverIndex];
         modalReceiverIndex = -1;
     }
 
     if (theTool != modalReceiver) {
         modalReceiverIndex = theIndex;
         [theTool activated:lastEvent ray:&lastRay hits:[self currentHits]];
-        [mouseReceiverChain insertObject:theTool atIndex:modalReceiverIndex];
+        [receiverChain insertObject:theTool atIndex:modalReceiverIndex];
     }
 }
 
@@ -535,6 +536,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)toggleDragFaceTool {
     [self toggleTool:dragFaceTool index:1];
+}
+
+- (void)toggleClipTool {
+    [self toggleTool:clipTool index:1];
+}
+
+- (Tool *)currentModalTool {
+    if (modalReceiverIndex == -1)
+        return nil;
+    return [receiverChain objectAtIndex:modalReceiverIndex];
 }
 
 - (ClipTool *)clipTool {

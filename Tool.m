@@ -85,6 +85,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)flagsChanged:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {}
 
+- (BOOL)keyUp:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits { return NO; }
+- (BOOL)keyDown:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits { return NO; }
+
 - (NSString *)actionName { return nil; }
 
 @end

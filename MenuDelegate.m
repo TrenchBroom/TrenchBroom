@@ -27,6 +27,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "CompilerProfile.h"
 #import "ControllerUtils.h"
 #import "PreferencesManager.h"
+#import "SelectionManager.h"
 
 @implementation MenuDelegate
 
@@ -34,8 +35,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSApplication* app = [NSApplication sharedApplication];
     NSWindow* keyWindow = [app keyWindow];
     NSWindowController* controller = [keyWindow windowController];
+
+    if ([actionsMenuItem hasSubmenu])
+        [actionsMenuItem setSubmenu:nil];
+    [actionsMenuItem setEnabled:NO];
+
     if ([controller isKindOfClass:[MapWindowController class]]) {
         MapWindowController* mapController = (MapWindowController *)controller;
+        SelectionManager* selectionManager = [mapController selectionManager];
         Options* options = [mapController options];
         Grid* grid = [options grid];
 
@@ -49,32 +56,19 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [gridSize128Item setState:[grid size] == 4 ? NSOnState : NSOffState];
         [gridSize256Item setState:[grid size] == 5 ? NSOnState : NSOffState];
         
-        if ([grid snap]) {
-            [moveFaceLeftItem setTitle:[NSString stringWithFormat:@"Move Left By %i", [[options grid] size]]];
-            [moveFaceLeftAltItem setTitle:@"Move Left By 1"];
-            [moveFaceRightItem setTitle:[NSString stringWithFormat:@"Move Right By %i", [[options grid] size]]];
-            [moveFaceRightAltItem setTitle:@"Move Right By 1"];
-            [moveFaceUpItem setTitle:[NSString stringWithFormat:@"Move Up By %i", [[options grid] size]]];
-            [moveFaceUpAltItem setTitle:@"Move Up By 1"];
-            [moveFaceDownItem setTitle:[NSString stringWithFormat:@"Move Down By %i", [[options grid] size]]];
-            [moveFaceDownAltItem setTitle:@"Move Down By 1"];
-            [rotateFaceLeftItem setTitle:@"Rotate Left By 15"];
-            [rotateFaceLeftAltItem setTitle:@"Rotate Left By 1"];
-            [rotateFaceRightItem setTitle:@"Rotate Right By 15"];
-            [rotateFaceRightAltItem setTitle:@"Rotate Right By 1"];
-        } else {
-            [moveFaceLeftItem setTitle:@"Move Left By 1"];
-            [moveFaceLeftAltItem setTitle:[NSString stringWithFormat:@"Move Left By %i", [[options grid] size]]];
-            [moveFaceRightItem setTitle:@"Move Right By 1"];
-            [moveFaceRightAltItem setTitle:[NSString stringWithFormat:@"Move Right By %i", [[options grid] size]]];
-            [moveFaceUpItem setTitle:@"Move Up By 1"];
-            [moveFaceUpAltItem setTitle:[NSString stringWithFormat:@"Move Up By %i", [[options grid] size]]];
-            [moveFaceDownItem setTitle:@"Move Down By 1"];
-            [moveFaceDownAltItem setTitle:[NSString stringWithFormat:@"Move Down By %i", [[options grid] size]]];
-            [rotateFaceLeftItem setTitle:@"Rotate Left By 1"];
-            [rotateFaceLeftAltItem setTitle:@"Rotate Left By 15"];
-            [rotateFaceRightItem setTitle:@"Rotate Right By 1"];
-            [rotateFaceRightAltItem setTitle:@"Rotate Right By 15"];
+        switch ([selectionManager mode]) {
+            case SM_FACES:
+                [actionsMenuItem setSubmenu:textureActionMenu];
+                [actionsMenuItem setEnabled:YES];
+                break;
+            case SM_BRUSHES:
+            case SM_ENTITIES:
+            case SM_BRUSHES_ENTITIES:
+                [actionsMenuItem setSubmenu:objectActionMenu];
+                [actionsMenuItem setEnabled:YES];
+                break;
+            default:
+                break;
         }
     } else {
         [showGridItem setState:NSOffState];

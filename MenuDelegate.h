@@ -29,28 +29,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     IBOutlet NSMenuItem* gridSize64Item;
     IBOutlet NSMenuItem* gridSize128Item;
     IBOutlet NSMenuItem* gridSize256Item;
-    IBOutlet NSMenuItem* moveFaceLeftItem;
-    IBOutlet NSMenuItem* moveFaceLeftAltItem;
-    IBOutlet NSMenuItem* moveFaceRightItem;
-    IBOutlet NSMenuItem* moveFaceRightAltItem;
-    IBOutlet NSMenuItem* moveFaceUpItem;
-    IBOutlet NSMenuItem* moveFaceUpAltItem;
-    IBOutlet NSMenuItem* moveFaceDownItem;
-    IBOutlet NSMenuItem* moveFaceDownAltItem;
-    IBOutlet NSMenuItem* rotateFaceLeftItem;
-    IBOutlet NSMenuItem* rotateFaceLeftAltItem;
-    IBOutlet NSMenuItem* rotateFaceRightItem;
-    IBOutlet NSMenuItem* rotateFaceRightAltItem;
-    IBOutlet NSMenuItem* stretchFaceHorizontallyItem;
-    IBOutlet NSMenuItem* shrinkFaceHorizontallyItem;
-    IBOutlet NSMenuItem* stretchFaceVerticallyItem;
-    IBOutlet NSMenuItem* shrinkFaceVerticallyItem;
     IBOutlet NSMenuItem* textureLockItem;
-    IBOutlet NSMenuItem* duplicateItem;
     IBOutlet NSMenu* runMenu;
     IBOutlet NSMenuItem* runDefaultMenuItem;
     IBOutlet NSMenu* compileMenu;
     IBOutlet NSMenuItem* compileLastMenuItem;
+    IBOutlet NSMenuItem* actionsMenuItem;
+    IBOutlet NSMenu* textureActionMenu;
+    IBOutlet NSMenu* objectActionMenu;
 }
 
 - (IBAction)showPreferences:(id)sender;

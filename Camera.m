@@ -408,11 +408,11 @@ NSString* const CameraViewChanged = @"CameraViewChanged";
     glMultMatrixf(matrix);
 }
 
-- (DragPlane *)horizontalEditingSystem {
+- (DragPlane *)horizontalDragPlane {
     return [[[DragPlane alloc] initWithCamera:self vertical:NO] autorelease];
 }
 
-- (DragPlane *)verticalEditingSystem {
+- (DragPlane *)verticalDragPlane {
     return [[[DragPlane alloc] initWithCamera:self vertical:YES] autorelease];
 }
 

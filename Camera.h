@@ -89,8 +89,8 @@ extern NSString* const CameraViewChanged;
 - (float)squaredDistanceTo:(const TVector3f *)thePoint;
 - (void)setBillboardMatrix;
 
-- (DragPlane *)horizontalEditingSystem;
-- (DragPlane *)verticalEditingSystem;
+- (DragPlane *)horizontalDragPlane;
+- (DragPlane *)verticalDragPlane;
 
 - (NSMutableSet *)animations;
 

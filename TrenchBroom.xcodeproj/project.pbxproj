@@ -402,7 +402,6 @@
 		4864F8C3135B564600511696 /* Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Filter.h; sourceTree = "<group>"; };
 		486526C3134F0BC20045A4B6 /* TextureCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureCollection.h; sourceTree = "<group>"; };
 		486526C4134F0BC20045A4B6 /* TextureCollection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureCollection.m; sourceTree = "<group>"; };
-		4866413E122986AF00752B89 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = /Developer/Library/Frameworks/SenTestingKit.framework; sourceTree = "<absolute>"; };
 		4866F3AF12EAC9FA009B345C /* TextureViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayout.h; sourceTree = "<group>"; };
 		4866F3B012EAC9FA009B345C /* TextureViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureViewLayout.m; sourceTree = "<group>"; };
 		4866F3BC12EACD2B009B345C /* TextureViewLayoutRow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureViewLayoutRow.h; sourceTree = "<group>"; };
@@ -620,7 +619,7 @@
 		48D2A31A13DEEE6200F9786E /* EntityDefinitionDndFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionDndFeedbackFigure.m; sourceTree = "<group>"; };
 		48D6B901134B8DC90084F82E /* GLStringData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLStringData.h; sourceTree = "<group>"; };
 		48D6B902134B8DC90084F82E /* GLStringData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLStringData.m; sourceTree = "<group>"; };
-		48DB957612F0699600FB5483 /* InputController.h */ = {isa = PBXFileReference; fileEncoding = 4; path = InputController.h; sourceTree = "<group>"; };
+		48DB957612F0699600FB5483 /* InputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputController.h; sourceTree = "<group>"; };
 		48DB957712F0699600FB5483 /* InputController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InputController.m; sourceTree = "<group>"; };
 		48DBE7431341CCD200C0FDE7 /* ClipBrushFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipBrushFeedbackFigure.h; sourceTree = "<group>"; };
 		48DBE7441341CCD200C0FDE7 /* ClipBrushFeedbackFigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClipBrushFeedbackFigure.m; sourceTree = "<group>"; };
@@ -695,7 +694,6 @@
 				1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */,
 				48A68F0E114EA0420064732A /* OpenGL.framework */,
 				48A68F17114EA76E0064732A /* Accelerate.framework */,
-				4866413E122986AF00752B89 /* SenTestingKit.framework */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";

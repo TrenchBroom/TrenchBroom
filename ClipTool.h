@@ -49,15 +49,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     EditingPlaneFigure* editingPlaneFigure;
 }
 
-- (void)activate;
-- (void)deactivate;
-- (BOOL)active;
+- (void)toggleClipSide;
+- (void)performClip;
+- (void)deleteLastClipPoint;
 
-- (void)toggleClipMode;
-- (NSArray *)performClip:(MapDocument* )map;
-- (void)cancel;
-
-- (void)deleteLastPoint;
 - (int)numPoints;
 
 @end

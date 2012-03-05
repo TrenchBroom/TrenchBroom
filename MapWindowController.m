@@ -77,6 +77,11 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)runQuake:(NSString *)appPath;
 
+- (BOOL)isGridOffModifierPressed;
+- (void)moveObjects:(const TVector3f *)theDirection;
+- (void)moveTextures:(const TVector3f *)theDirection;
+- (void)rotateTextures:(BOOL)clockwise;
+
 @end
 
 @implementation MapWindowController (private)
@@ -279,6 +284,73 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         [console logBold:[NSString stringWithFormat:@"Failed to launch executable '%@‘: %@\n", appPath, [error localizedDescription]]];
 }
 
+- (BOOL)isGridOffModifierPressed {
+    return ([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
+}
+
+- (void)moveObjects:(const TVector3f *)theDirection {
+    TVector3f delta;
+    TBoundingBox bounds;
+    MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
+    Grid* grid = [options grid];
+    BOOL gridOff = [self isGridOffModifierPressed];
+    
+    delta = *theDirection;
+    
+    if (gridOff)
+        [grid setSnap:NO];
+    else
+        scaleV3f(&delta, [grid actualSize], &delta);
+    
+    [selectionManager selectionBounds:&bounds];
+    [grid moveDeltaForBounds:&bounds worldBounds:[map worldBounds] delta:&delta lastPoint:NULL];
+    
+    if (!nullV3f(&delta)) {
+        NSUndoManager* undoManager = [map undoManager];
+        [undoManager beginUndoGrouping];
+        [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
+        [map translateEntities:[selectionManager selectedEntities] delta:delta];
+        [undoManager endUndoGrouping];
+        [undoManager setActionName:@"Move Objects"];
+    }
+
+    if (gridOff)
+        [grid setSnap:YES];
+}
+
+- (void)moveTextures:(const TVector3f *)theDirection {
+    float delta;
+    MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
+    Grid* grid = [options grid];
+    
+    delta = [self isGridOffModifierPressed] ? 1 : [grid actualSize];
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    [map translateFaceOffsets:[selectionManager selectedFaces] delta:delta dir:*theDirection];
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Move Textures"];
+}
+
+- (void)rotateTextures:(BOOL)clockwise; {
+    float angle;
+    MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
+    Grid* grid = [options grid];
+    
+    angle = [self isGridOffModifierPressed] ? 1 : ([grid actualRotAngle]) * 180 / M_PI;
+    if (clockwise)
+        angle *= -1;
+    
+    NSUndoManager* undoManager = [map undoManager];
+    [undoManager beginUndoGrouping];
+    [map rotateFaces:[selectionManager selectedFaces] angle:angle];
+    [undoManager endUndoGrouping];
+    [undoManager setActionName:@"Rotate Textures"];
+}
+
 @end
 
 @implementation MapWindowController
@@ -394,35 +466,26 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             return YES;
         }
         
-        if ([[inputController clipTool] active] && [[inputController clipTool] numPoints] > 0)
+        ClipTool* clipTool = [inputController clipTool];
+        if ([inputController currentModalTool] == clipTool && [clipTool numPoints] > 0)
             return YES;
         return NO;
-    } else if (action == @selector(moveTextureLeft:)) {
-        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
-    } else if (action == @selector(moveTextureLeft:)) {
-        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
-    } else if (action == @selector(moveTextureRight:)) {
-        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
-    } else if (action == @selector(moveTextureUp:)) {
-        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
-    } else if (action == @selector(moveTextureDown:)) {
-        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
-    } else if (action == @selector(stretchTextureHorizontally:)) {
-        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
-    } else if (action == @selector(shrinkTextureHorizontally:)) {
-        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
-    } else if (action == @selector(stretchTextureVertically:)) {
-        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
-    } else if (action == @selector(shrinkTextureVertically:)) {
-        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
-    } else if (action == @selector(rotateTextureLeft:)) {
-        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
-    } else if (action == @selector(rotateTextureRight:)) {
-        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedFaces];
+    } else if (action == @selector(moveTexturesLeft:)) {
+        return [selectionManager hasSelectedFaces];
+    } else if (action == @selector(moveTexturesRight:)) {
+        return [selectionManager hasSelectedFaces];
+    } else if (action == @selector(moveTexturesUp:)) {
+        return [selectionManager hasSelectedFaces];
+    } else if (action == @selector(moveTexturesDown:)) {
+        return [selectionManager hasSelectedFaces];
+    } else if (action == @selector(rotateTexturesCW:)) {
+        return [selectionManager hasSelectedFaces];
+    } else if (action == @selector(rotateTexturesCCW:)) {
+        return [selectionManager hasSelectedFaces];
     } else if (action == @selector(toggleTextureLock:)) {
         return YES;
     } else if (action == @selector(duplicateSelection:)) {
-        return ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) && ![[inputController clipTool] active];
+        return ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]);
     } else if (action == @selector(createPrefabFromSelection:)) {
         return [selectionManager hasSelectedBrushes];
     } else if (action == @selector(showInspector:)) {
@@ -443,19 +506,25 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         return YES;
     } else if (action == @selector(setGridSize:)) {
         return YES;
-    } else if (action == @selector(toggleClipTool:)) {
-        return [selectionManager hasSelectedBrushes] || [[inputController clipTool] active];
-    } else if (action == @selector(toggleClipMode:)) {
-        return [[inputController clipTool] active];
-    } else if (action == @selector(performClip:)) {
-        return [[inputController clipTool] active] && [[inputController clipTool] numPoints] > 1;
-    } else if (action == @selector(rotate90CW:)) {
+    } else if (action == @selector(moveObjectsLeft:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
-    } else if (action == @selector(rotate90CCW:)) {
+    } else if (action == @selector(moveObjectsRight:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
-    } else if (action == @selector(flipHorizontally:)) {
+    } else if (action == @selector(moveObjectsAway:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
-    } else if (action == @selector(flipVertically:)) {
+    } else if (action == @selector(moveObjectsToward:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
+    } else if (action == @selector(moveObjectsUp:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
+    } else if (action == @selector(moveObjectsDown:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
+    } else if (action == @selector(rotateObjects90CW:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
+    } else if (action == @selector(rotateObjects90CCW:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
+    } else if (action == @selector(flipObjectsHorizontally:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
+    } else if (action == @selector(flipObjectsVertically:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
     } else if (action == @selector(createPointEntity:)) {
         return YES;
@@ -490,11 +559,30 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         return [map leakPointCount] > 0;
     } else if (action == @selector(enlargeBrushes:)) {
         return [selectionManager hasSelectedBrushes];
+    } else if (action == @selector(toggleClipTool:)) {
+        return [selectionManager hasSelectedBrushes];
+    } else if (action == @selector(toggleClipMode:)) {
+        return [inputController currentModalTool] == [inputController clipTool];
+    } else if (action == @selector(performClip:)) {
+        ClipTool* clipTool = [inputController clipTool];
+        return [inputController currentModalTool] == clipTool && [clipTool numPoints] > 0;
     } else if (action == @selector(toggleDragVertexTool:)) {
-        return YES;
+        return [selectionManager hasSelectedBrushes];
     } else if (action == @selector(toggleDragEdgeTool:)) {
-        return YES;
+        return [selectionManager hasSelectedBrushes];
     } else if (action == @selector(toggleDragFaceTool:)) {
+        return [selectionManager hasSelectedBrushes];
+    } else if (action == @selector(moveCameraForward:)) {
+        return YES;
+    } else if (action == @selector(moveCameraBackward:)) {
+        return YES;
+    } else if (action == @selector(moveCameraLeft:)) {
+        return YES;
+    } else if (action == @selector(moveCameraRight:)) {
+        return YES;
+    } else if (action == @selector(moveCameraUp:)) {
+        return YES;
+    } else if (action == @selector(moveCameraDown:)) {
         return YES;
     }
 
@@ -616,9 +704,40 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 
-#pragma mark Brush related actions
+#pragma mark Object related actions
 
-- (IBAction)rotate90CW:(id)sender {
+- (IBAction)moveObjectsLeft:(id)sender {
+    DragPlane* horizontalDragPlane = [camera horizontalDragPlane];
+    [self moveObjects:[horizontalDragPlane xAxisNeg]];
+}
+
+- (IBAction)moveObjectsRight:(id)sender {
+    DragPlane* horizontalDragPlane = [camera horizontalDragPlane];
+    [self moveObjects:[horizontalDragPlane xAxisPos]];
+}
+
+- (IBAction)moveObjectsAway:(id)sender {
+    DragPlane* horizontalDragPlane = [camera horizontalDragPlane];
+    [self moveObjects:[horizontalDragPlane yAxisPos]];
+}
+
+- (IBAction)moveObjectsToward:(id)sender {
+    DragPlane* horizontalDragPlane = [camera horizontalDragPlane];
+    [self moveObjects:[horizontalDragPlane yAxisNeg]];
+}
+
+- (IBAction)moveObjectsUp:(id)sender {
+    DragPlane* horizontalDragPlane = [camera horizontalDragPlane];
+    [self moveObjects:[horizontalDragPlane zAxisPos]];
+}
+
+- (IBAction)moveObjectsDown:(id)sender {
+    DragPlane* horizontalDragPlane = [camera horizontalDragPlane];
+    [self moveObjects:[horizontalDragPlane zAxisNeg]];
+}
+
+
+- (IBAction)rotateObjects90CW:(id)sender {
     MapDocument* map = [self document];
     SelectionManager* selectionManager = [self selectionManager];
     
@@ -656,7 +775,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 }
 
-- (IBAction)rotate90CCW:(id)sender {
+- (IBAction)rotateObjects90CCW:(id)sender {
     MapDocument* map = [self document];
     SelectionManager* selectionManager = [self selectionManager];
     
@@ -692,7 +811,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     }
 }
 
-- (IBAction)flipHorizontally:(id)sender {
+- (IBAction)flipObjectsHorizontally:(id)sender {
     MapDocument* map = [self document];
     SelectionManager* selectionManager = [self selectionManager];
     
@@ -714,7 +833,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager setActionName:[NSString stringWithFormat:@"flip Objects Along %@ Axis", axisName(axis)]];
 }
 
-- (IBAction)flipVertically:(id)sender {
+- (IBAction)flipObjectsVertically:(id)sender {
     MapDocument* map = [self document];
     SelectionManager* selectionManager = [self selectionManager];
     
@@ -749,25 +868,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (IBAction)toggleClipTool:(id)sender {
-    ClipTool* clipTool = [inputController clipTool];
-    if ([clipTool active])
-        [clipTool deactivate];
-    else
-        [clipTool activate];
+    [inputController toggleClipTool];
 }
 
-- (IBAction)toggleClipMode:(id)sender {
+- (IBAction)toggleClipSide:(id)sender {
     ClipTool* clipTool = [inputController clipTool];
-    if ([clipTool active])
-        [clipTool toggleClipMode];
+    [clipTool toggleClipSide];
 }
 
 - (IBAction)performClip:(id)sender {
     ClipTool* clipTool = [inputController clipTool];
-    if ([clipTool active]) {
-        [clipTool performClip:[self document]];
-        [clipTool deactivate];
-    }
+    [clipTool performClip];
 }
 
 - (IBAction)enlargeBrushes:(id)sender {
@@ -780,240 +891,36 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma mark Face related actions
 
+- (IBAction)moveTexturesLeft:(id)sender {
+    TVector3f dir;
+    invertV3f([camera right], &dir);
+    [self moveTextures:&dir];
+}
+
+- (IBAction)moveTexturesRight:(id)sender {
+    [self moveTextures:[camera right]];
+}
+
+- (IBAction)moveTexturesUp:(id)sender {
+    [self moveTextures:[camera up]];
+}
+
+- (IBAction)moveTexturesDown:(id)sender {
+    TVector3f dir;
+    invertV3f([camera up], &dir);
+    [self moveTextures:&dir];
+}
+
+- (IBAction)rotateTexturesCW:(id)sender {
+    [self rotateTextures:YES];
+}
+
+- (IBAction)rotateTexturesCCW:(id)sender {
+    [self rotateTextures:NO];
+}
+
 - (IBAction)toggleTextureLock:(id)sender {
     [options setLockTextures:![options lockTextures]];
-}
-
-#pragma mark Shared actions
-
-- (void)moveLeft:(id)sender {
-    MapDocument* map = [self document];
-    SelectionManager* selectionManager = [self selectionManager];
-    NSUndoManager* undoManager = [map undoManager];
-    [undoManager beginUndoGrouping];
-    
-    float dist = [[options grid] actualSize];
-    
-    if ([selectionManager hasSelectedFaces]) {
-        if (([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
-            dist = 1;
-
-        TVector3f dir;
-        invertV3f([camera right], &dir);
-        [map translateFaceOffsets:[selectionManager selectedFaces] delta:dist dir:dir];
-    }
-    
-    if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
-        TVector3f delta;
-        DragPlane* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem xAxisPos], -dist, &delta);
-
-        const TBoundingBox* worldBounds = [map worldBounds];
-        TBoundingBox bounds;
-        [selectionManager selectionBounds:&bounds];
-        
-        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:NULL];
-
-        if (nullV3f(&delta))
-            return;
-        
-        [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
-        [map translateEntities:[selectionManager selectedEntities] delta:delta];
-    }
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Move Objects"];
-}
-
-- (void)moveRight:(id)sender {
-    MapDocument* map = [self document];
-    SelectionManager* selectionManager = [self selectionManager];
-    NSUndoManager* undoManager = [map undoManager];
-    [undoManager beginUndoGrouping];
-    
-    float dist = [[options grid] actualSize];
-    
-    if ([selectionManager hasSelectedFaces]) {
-        if (([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
-            dist = 1;
-        
-        TVector3f dir = *[camera right];
-        [map translateFaceOffsets:[selectionManager selectedFaces] delta:dist dir:dir];
-    }
-    
-    
-    if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
-        TVector3f delta;
-        DragPlane* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem xAxisPos], dist, &delta);
-        
-        const TBoundingBox* worldBounds = [map worldBounds];
-        TBoundingBox bounds;
-        [selectionManager selectionBounds:&bounds];
-        
-        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:NULL];
-        
-        if (nullV3f(&delta))
-            return;
-        
-        [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
-        [map translateEntities:[selectionManager selectedEntities] delta:delta];
-    }
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Move Objects"];}
-
-- (void)moveUp:(id)sender {
-    MapDocument* map = [self document];
-    SelectionManager* selectionManager = [self selectionManager];
-    NSUndoManager* undoManager = [map undoManager];
-    [undoManager beginUndoGrouping];
-    
-    float dist = [[options grid] actualSize];
-    
-    if ([selectionManager hasSelectedFaces]) {
-        if (([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
-            dist = 1;
-        
-        TVector3f dir = *[camera up];
-        [map translateFaceOffsets:[selectionManager selectedFaces] delta:dist dir:dir];
-    }
-    
-    if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
-        TVector3f delta;
-        DragPlane* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem yAxisPos], dist, &delta);
-        
-        const TBoundingBox* worldBounds = [map worldBounds];
-        TBoundingBox bounds;
-        [selectionManager selectionBounds:&bounds];
-        
-        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:NULL];
-        
-        if (nullV3f(&delta))
-            return;
-        
-        [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
-        [map translateEntities:[selectionManager selectedEntities] delta:delta];
-    }
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Move Objects"];
-}
-
-- (void)moveDown:(id)sender {
-    MapDocument* map = [self document];
-    SelectionManager* selectionManager = [self selectionManager];
-    NSUndoManager* undoManager = [map undoManager];
-    [undoManager beginUndoGrouping];
-    
-    float dist = [[options grid] actualSize];
-    
-    if ([selectionManager hasSelectedFaces]) {
-        if (([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
-            dist = 1;
-        
-        TVector3f dir;
-        invertV3f([camera up], &dir);
-        [map translateFaceOffsets:[selectionManager selectedFaces] delta:dist dir:dir];
-    }
-    
-    if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
-        TVector3f delta;
-        DragPlane* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem yAxisPos], -dist, &delta);
-        
-        const TBoundingBox* worldBounds = [map worldBounds];
-        TBoundingBox bounds;
-        [selectionManager selectionBounds:&bounds];
-        
-        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:NULL];
-        
-        if (nullV3f(&delta))
-            return;
-        
-        [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
-        [map translateEntities:[selectionManager selectedEntities] delta:delta];
-    }
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Move Objects"];
-}
-
-- (void)pageUp:(id)sender {
-    MapDocument* map = [self document];
-    SelectionManager* selectionManager = [self selectionManager];
-    NSUndoManager* undoManager = [map undoManager];
-    [undoManager beginUndoGrouping];
-    
-    float dist = [[options grid] actualSize];
-    
-    if ([selectionManager hasSelectedFaces]) {
-        float angle = -15;
-        if (([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
-            angle = -1;
-        
-        [map rotateFaces:[selectionManager selectedFaces] angle:angle];
-    }
-    
-    if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
-        TVector3f delta;
-        DragPlane* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem zAxisPos], dist, &delta);
-        
-        const TBoundingBox* worldBounds = [map worldBounds];
-        TBoundingBox bounds;
-        [selectionManager selectionBounds:&bounds];
-        
-        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:NULL];
-        
-        if (nullV3f(&delta))
-            return;
-        
-        [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
-        [map translateEntities:[selectionManager selectedEntities] delta:delta];
-    }
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Move Objects"];
-}
-
-- (void)pageDown:(id)sender {
-    MapDocument* map = [self document];
-    SelectionManager* selectionManager = [self selectionManager];
-    NSUndoManager* undoManager = [map undoManager];
-    [undoManager beginUndoGrouping];
-    
-    float dist = [[options grid] actualSize];
-    
-    if ([selectionManager hasSelectedFaces]) {
-        float angle = 15;
-        if (([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
-            angle = 1;
-        
-        [map rotateFaces:[selectionManager selectedFaces] angle:angle];
-    }
-
-    if ([selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities]) {
-        TVector3f delta;
-        DragPlane* editingSystem = [camera horizontalEditingSystem];
-        scaleV3f([editingSystem zAxisPos], -dist, &delta);
-        
-        const TBoundingBox* worldBounds = [map worldBounds];
-        TBoundingBox bounds;
-        [selectionManager selectionBounds:&bounds];
-        
-        [[options grid] moveDeltaForBounds:&bounds worldBounds:worldBounds delta:&delta lastPoint:NULL];
-        
-        if (nullV3f(&delta))
-            return;
-        
-        [map translateBrushes:[selectionManager selectedBrushes] delta:delta lockTextures:[options lockTextures]];
-        [map translateEntities:[selectionManager selectedEntities] delta:delta];
-    }
-    
-    [undoManager endUndoGrouping];
-    [undoManager setActionName:@"Move Objects"];
 }
 
 #pragma mark View related actions
@@ -1097,6 +1004,48 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     CameraAbsoluteAnimation* animation = [[CameraAbsoluteAnimation alloc] initWithCamera:camera targetPosition:&position targetLookAt:&center duration:0.5];
     [animation startAnimation];
+}
+
+- (IBAction)moveCameraForward:(id)sender {
+    if ([self isGridOffModifierPressed])
+        [camera moveForward:1 right:0 up:0];
+    else
+        [camera moveForward:16 right:0 up:0];
+}
+
+- (IBAction)moveCameraBackward:(id)sender {
+    if ([self isGridOffModifierPressed])
+        [camera moveForward:-1 right:0 up:0];
+    else
+        [camera moveForward:-16 right:0 up:0];
+}
+
+- (IBAction)moveCameraLeft:(id)sender {
+    if ([self isGridOffModifierPressed])
+        [camera moveForward:0 right:-1 up:0];
+    else
+        [camera moveForward:0 right:-16 up:0];
+}
+
+- (IBAction)moveCameraRight:(id)sender {
+    if ([self isGridOffModifierPressed])
+        [camera moveForward:0 right:1 up:0];
+    else
+        [camera moveForward:0 right:16 up:0];
+}
+
+- (IBAction)moveCameraUp:(id)sender {
+    if ([self isGridOffModifierPressed])
+        [camera moveForward:0 right:0 up:1];
+    else
+        [camera moveForward:0 right:0 up:16];
+}
+
+- (IBAction)moveCameraDown:(id)sender {
+    if ([self isGridOffModifierPressed])
+        [camera moveForward:0 right:0 up:-1];
+    else
+        [camera moveForward:0 right:0 up:-16];
 }
 
 #pragma mark Structure and selection
@@ -1307,8 +1256,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (IBAction)deleteSelection:(id)sender {
     SelectionManager* selectionManager = [self selectionManager];
     ClipTool* clipTool = [inputController clipTool];
-    if ([clipTool active] && [clipTool numPoints] > 0) {
-        [clipTool deleteLastPoint];
+    if ([inputController currentModalTool] == clipTool && [clipTool numPoints] > 0) {
+        [clipTool deleteLastClipPoint];
     } else {
         MapDocument* map = [self document];
         
