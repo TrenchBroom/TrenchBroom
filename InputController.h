@@ -72,6 +72,7 @@ typedef enum {
     EMouseStatus dragStatus;
     EMouseStatus scrollStatus;
     BOOL hasMouse;
+    NSDate* clickDate;
     
     id <DndTool> activeDndTool;
     EntityDefinitionDndTool* entityDefinitionDndTool;

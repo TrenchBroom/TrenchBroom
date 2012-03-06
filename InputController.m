@@ -49,6 +49,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "Entity.h"
 #import "CreateBrushTool.h"
 
+static const double ClickThreshold = 0.2;
+
 @interface InputController (private)
 
 - (void)updateEvent:(NSEvent *)event;
@@ -260,6 +262,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)leftMouseDown:(NSEvent *)event sender:(id)sender {
+    [clickDate release];
+    clickDate = [[NSDate date] retain];
+    
     [self updateEvent:event];
     [self updateRay];
     
@@ -284,7 +289,16 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             scrollStatus = MS_NONE;
             dragScrollReceiver = nil;
         }
-        NSAssert([[[windowController document] undoManager] groupingLevel] == 0, @"undo grouping level must be 0 after drag ended");
+        
+        if ([[NSDate date] timeIntervalSinceDate:clickDate] <= ClickThreshold) {
+            for (Tool* receiver in receiverChain) {
+                if ([receiver leftMouseUp:lastEvent ray:&lastRay hits:[self currentHits]])
+                    break;
+            }
+        }
+        
+        [clickDate release];
+        clickDate = nil;
     } else {
         for (Tool* receiver in receiverChain) {
             if ([receiver leftMouseUp:lastEvent ray:&lastRay hits:[self currentHits]])
@@ -310,6 +324,9 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)rightMouseDown:(NSEvent *)event sender:(id)sender {
+    [clickDate release];
+    clickDate = [[NSDate date] retain];
+
     [self updateEvent:event];
     
     for (Tool* receiver in receiverChain) {
@@ -333,6 +350,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             scrollStatus = MS_NONE;
             dragScrollReceiver = nil;
         }
+    
+        if ([[NSDate date] timeIntervalSinceDate:clickDate] <= ClickThreshold) {
+            for (Tool* receiver in receiverChain) {
+                if ([receiver leftMouseUp:lastEvent ray:&lastRay hits:[self currentHits]])
+                    break;
+            }
+        }
+        
+        [clickDate release];
+        clickDate = nil;
+
     } else {
         for (Tool* receiver in receiverChain) {
             if ([receiver rightMouseUp:lastEvent ray:&lastRay hits:[self currentHits]])

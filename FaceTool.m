@@ -130,11 +130,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     PickingHit* hit = [hits firstHitOfType:HT_CLOSE_FACE ignoreOccluders:NO];
     if (hit != nil) {
+        id <Face> face = [hit object];
+        id <Brush> brush = [face brush];
+        if (![face selected] && ![brush selected])
+            return NO;
+
         referenceFace = [hit object];
         [dragFaces addObject:referenceFace];
     } else {
         hit = [hits firstHitOfType:HT_FACE ignoreOccluders:NO];
         if (hit == nil)
+            return NO;
+
+        id <Face> face = [hit object];
+        id <Brush> brush = [face brush];
+        if (![face selected] && ![brush selected])
             return NO;
 
         referenceFace = [hit object];

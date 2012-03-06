@@ -38,7 +38,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 @implementation SelectionTool (private)
 
 - (BOOL)isMultiSelectionModifierPressed {
-    return [NSEvent modifierFlags] == NSCommandKeyMask;
+    return ([NSEvent modifierFlags] & NSCommandKeyMask) == NSCommandKeyMask;
 }
 
 - (BOOL)isGridSizeModifierPressed {
@@ -49,6 +49,33 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 
 @implementation SelectionTool
+
+- (BOOL)beginLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    return [self isMultiSelectionModifierPressed];
+}
+
+- (void)leftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
+    SelectionManager* selectionManager = [windowController selectionManager];
+    PickingHit* hit = [hits firstHitOfType:HT_ENTITY | HT_FACE ignoreOccluders:YES];
+    
+    if (hit != nil) {
+        if ([hit type] == HT_ENTITY) {
+            id <Entity> entity= [hit object];
+            if (![entity selected]) {
+                    [selectionManager addEntity:[hit object] record:NO];
+            }
+        } else {
+            id <Face> face = [hit object];
+            id <Brush> brush = [face brush];
+            if ([selectionManager mode] == SM_FACES) {
+                if (![face selected])
+                    [selectionManager addFace:face record:NO];
+            } else if (![brush selected]) {
+                [selectionManager addBrush:brush record:NO];
+            }
+        }
+    }
+}
 
 - (BOOL)scrollWheel:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {
     if (![self isGridSizeModifierPressed])
