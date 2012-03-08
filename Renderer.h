@@ -21,6 +21,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
 #import "Vbo.h"
+#import "EdgeTree.h"
 
 extern NSString* const RendererChanged;
 
@@ -54,8 +55,8 @@ void addIndex(TIndexBuffer* buffer, GLuint index);
     Vbo faceVbo;
     NSMutableDictionary* faceIndexBuffers;
     NSMutableDictionary* selectedFaceIndexBuffers;
-    TIndexBuffer edgeIndexBuffer;
-    TIndexBuffer selectedEdgeIndexBuffer;
+    TEdgeTree edgeTree;
+    Vbo edgeVbo;
     Vbo entityBoundsVbo;
     Vbo selectedEntityBoundsVbo;
     int entityBoundsVertexCount;

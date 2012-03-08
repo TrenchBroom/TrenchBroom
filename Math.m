@@ -683,6 +683,22 @@ void avg3V3f(const TVector3f* v1, const TVector3f* v2, const TVector3f* v3, TVec
     scaleV3f(o, 1 / 3.0f, o);
 }
 
+int compareV3f(const TVector3f* v1, const TVector3f* v2) {
+    if (v1->x < v2->x)
+        return -1;
+    if (v1->x > v2->x)
+        return 1;
+    if (v1->y < v2->y)
+        return -1;
+    if (v1->y > v2->y)
+        return 1;
+    if (v1->z < v2->z)
+        return -1;
+    if (v1->z > v2->z)
+        return 1;
+    return 0;
+}
+
 # pragma mark TVector3i functions
 
 void addV3i(const TVector3i* l, const TVector3i* r, TVector3i* o) {

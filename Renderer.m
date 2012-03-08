@@ -58,11 +58,10 @@ NSString* const SelectedEntityBoundsVboKey = @"SelectedEntityBoundsVbo";
 TVector4f const EntityBoundsDefaultColor = {0.5f, 0.5f, 0.5f, 1};
 TVector4f const EntityBoundsWireframeColor = {0.5f, 0.5f, 0.5f, 0.6f};
 TVector4f const EntityClassnameColor = {1, 1, 1, 1};
-TVector4f const EdgeDefaultColor = {0.4f, 0.4f, 0.4f, 0.4f};
+TVector4f const EdgeDefaultColor = {0.6f, 0.6f, 0.6f, 0.6f};
 TVector4f const FaceDefaultColor = {0.2f, 0.2f, 0.2f, 1};
 TVector4f const SelectionColor = {1, 0, 0, 1};
-TVector4f const SelectionColor2 = {1, 0, 0, 0.2f};
-TVector4f const SelectionColor3 = {1, 0, 0, 0.5f};
+TVector4f const SelectionColor2 = {1, 0, 0, 0.35f};
 int const VertexSize = 3 * sizeof(float);
 int const ColorSize = 4;
 int const TexCoordSize = 2 * sizeof(float);
@@ -232,26 +231,35 @@ void writeFaceVertices(id <Face> face, VboBlock* block) {
     }
 }
 
-void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer* edgeBuffer) {
+void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer) {
     int baseIndex = [face vboBlock]->address / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
     int vertexCount = [face vertices]->count;
-    
-    addIndex(edgeBuffer, baseIndex);
-    addIndex(edgeBuffer, baseIndex + 1);
     
     for (int i = 1; i < vertexCount - 1; i++) {
         addIndex(triangleBuffer, baseIndex);
         addIndex(triangleBuffer, baseIndex + i);
         addIndex(triangleBuffer, baseIndex + i + 1);
-
-        addIndex(edgeBuffer, baseIndex + i);
-        addIndex(edgeBuffer, baseIndex + i + 1);
     }
-    
-    addIndex(edgeBuffer, baseIndex + vertexCount - 1);
-    addIndex(edgeBuffer, baseIndex);
 }
 
+void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* selectedAddress) {
+    TEdgeTreeNodeItem* item = node->items;
+    while (item != NULL) {
+        if (item->selected > 0) {
+            *selectedAddress = writeVector3f(&node->position, vbo->buffer, *selectedAddress);
+            *selectedAddress = writeVector3f(&item->position, vbo->buffer, *selectedAddress);
+        } else {
+            *address = writeVector3f(&node->position, vbo->buffer, *address);
+            *address = writeVector3f(&item->position, vbo->buffer, *address);
+        }
+        item = item->next;
+    }
+    
+    if (node->left != NULL)
+        writeEdgeTreeNode(node->left, vbo, address, selectedAddress);
+    if (node->right != NULL)
+        writeEdgeTreeNode(node->right, vbo, address, selectedAddress);
+}
 
 @interface Renderer (private)
 
@@ -265,11 +273,13 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
 - (void)validateChangedFaces;
 - (void)validateRemovedBrushes;
 - (void)rebuildFaceIndexBuffers;
+- (void)rebuildSelectedFaceIndexBuffers;
+- (void)rebuildEdgeVbo;
 - (void)validate;
 
 - (void)renderEntityModels:(NSArray *)theEntities;
 - (void)renderEntityBounds:(const TVector4f *)color vertexCount:(int)theVertexCount;
-- (void)renderEdges:(const TVector4f *)color indexBuffer:(const TIndexBuffer *)theIndexBuffer;
+- (void)renderEdges:(const TVector4f *)color firstEdge:(int)theFirstEdge edgeCount:(int)theEdgeCount;
 - (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers;
 
 - (void)addBrushes:(NSArray *)theBrushes;
@@ -278,6 +288,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
 - (void)removeEntities:(NSArray *)theEntities;
 
 - (void)facesDidChange:(NSNotification *)notification;
+- (void)brushesWillChange:(NSNotification *)notification;
 - (void)brushesDidChange:(NSNotification *)notification;
 - (void)brushesAdded:(NSNotification *)notification;
 - (void)brushesWillBeRemoved:(NSNotification *)notification;
@@ -588,7 +599,6 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
 - (void)rebuildFaceIndexBuffers {
     NSArray* textureIndexBuffers = [faceIndexBuffers allValues];
     [faceIndexBuffers removeAllObjects];
-    clearIndexBuffer(&edgeIndexBuffer);
     
     NSEnumerator* textureIndexBufferEn = [textureIndexBuffers objectEnumerator];
     TextureIndexBuffer* textureIndexBuffer;
@@ -622,7 +632,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
                                 indexBuffer = [textureIndexBuffer buffer];
                             }
                             
-                            writeFaceIndices(face, indexBuffer, &edgeIndexBuffer);
+                            writeFaceIndices(face, indexBuffer);
                         }
                     }
                 }
@@ -634,7 +644,6 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
 - (void)rebuildSelectedFaceIndexBuffers {
     NSArray* textureIndexBuffers = [selectedFaceIndexBuffers allValues];
     [selectedFaceIndexBuffers removeAllObjects];
-    clearIndexBuffer(&selectedEdgeIndexBuffer);
     
     MapDocument* map = [windowController document];
     SelectionManager* selectionManager = [map selectionManager];
@@ -665,8 +674,8 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
             } else {
                 indexBuffer = [textureIndexBuffer buffer];
             }
-            
-            writeFaceIndices(face, indexBuffer, &selectedEdgeIndexBuffer);
+
+            writeFaceIndices(face, indexBuffer);
         }
     }
     
@@ -693,8 +702,35 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
             indexBuffer = [textureIndexBuffer buffer];
         }
 
-        writeFaceIndices(face, indexBuffer, &selectedEdgeIndexBuffer);
+        writeFaceIndices(face, indexBuffer);
     }
+}
+
+- (void)rebuildEdgeVbo {
+    activateVbo(&edgeVbo);
+    mapVbo(&edgeVbo);
+    
+    freeAllVboBlocks(&edgeVbo);
+    
+    if (edgeTree.count > 0) {
+        int address = -1;
+        int selectedAddress = -1;
+
+        if (edgeTree.count - edgeTree.selected > 0) {
+            VboBlock* block = allocVboBlock(&edgeVbo, (edgeTree.count - edgeTree.selected) * 2 * 3 * sizeof(float));
+            address = block->address;
+        }
+        
+        if (edgeTree.selected > 0) {
+            VboBlock* selectedBlock = allocVboBlock(&edgeVbo, edgeTree.selected * 2 * 3 * sizeof(float));
+            selectedAddress = selectedBlock->address;
+        }
+        
+        writeEdgeTreeNode(edgeTree.root, &edgeVbo, &address, &selectedAddress);
+    }
+    
+    unmapVbo(&edgeVbo);
+    deactivateVbo(&edgeVbo);
 }
 
 - (void)validate {
@@ -736,6 +772,19 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         [self rebuildSelectedFaceIndexBuffers];
     }
     
+    if ([[changeSet addedBrushes] count] > 0 ||
+        [[changeSet removedBrushes] count] > 0 ||
+        [[changeSet changedBrushes] count] > 0 ||
+        [[changeSet changedFaces] count] > 0 ||
+        [[changeSet selectedBrushes] count] > 0 ||
+        [[changeSet deselectedBrushes] count] > 0 ||
+        [[changeSet selectedFaces] count] > 0 ||
+        [[changeSet deselectedFaces] count] > 0 ||
+        [changeSet filterChanged]) {
+
+        [self rebuildEdgeVbo];
+    }
+
     [changeSet clear];
 }
 
@@ -775,20 +824,13 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     glResetEdgeOffset();
 }
 
-- (void)renderEdges:(const TVector4f *)color indexBuffer:(const TIndexBuffer *)theIndexBuffer {
+- (void)renderEdges:(const TVector4f *)color firstEdge:(int)theFirstEdge edgeCount:(int)theEdgeCount {
     glDisable(GL_TEXTURE_2D);
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-
-    if (color != NULL) {
-        glColorV4f(color);
-        glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
-    } else {
-        glEnableClientState(GL_COLOR_ARRAY);
-        glColorPointer(4, GL_UNSIGNED_BYTE, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize));
-        glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
-    }
     
-    glDrawElements(GL_LINES, theIndexBuffer->count, GL_UNSIGNED_INT, theIndexBuffer->items);
+    glColorV4f(color);
+    glVertexPointer(3, GL_FLOAT, 0, 0);
+    glDrawArrays(GL_LINES, 2 * theFirstEdge, 2 * theEdgeCount);
     
     glPopClientAttrib();
 }
@@ -895,10 +937,22 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
 
 - (void)addBrushes:(NSArray *)theBrushes {
     [changeSet brushesAdded:theBrushes];
+    
+    for (id <Brush> brush in theBrushes) {
+        const TEdgeList* edges = [brush edges];
+        for (int i = 0; i < edges->count; i++)
+            insertEdgeIntoTree(&edgeTree, edges->items[i]);
+    }
 }
 
 - (void)removeBrushes:(NSArray *)theBrushes {
     [changeSet brushesRemoved:theBrushes];
+
+    for (id <Brush> brush in theBrushes) {
+        const TEdgeList* edges = [brush edges];
+        for (int i = 0; i < edges->count; i++)
+            removeEdgeFromTree(&edgeTree, edges->items[i]);
+    }
 }
 
 - (void)facesDidChange:(NSNotification *)notification {
@@ -907,6 +961,17 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     [changeSet facesChanged:faces];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
+}
+
+- (void)brushesWillChange:(NSNotification *)notification {
+    NSDictionary* userInfo = [notification userInfo];
+    NSArray* brushes = [userInfo objectForKey:BrushesKey];
+    
+    for (id <Brush> brush in brushes) {
+        const TEdgeList* edges = [brush edges];
+        for (int i = 0; i < edges->count; i++)
+            removeEdgeFromTree(&edgeTree, edges->items[i]);
+    }
 }
 
 - (void)brushesDidChange:(NSNotification *)notification {
@@ -919,6 +984,10 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         id <Entity> entity = [brush entity];
         if (![entity isWorldspawn] && [[entity entityDefinition] type] == EDT_BRUSH)
             [entities addObject:entity];
+
+        const TEdgeList* edges = [brush edges];
+        for (int i = 0; i < edges->count; i++)
+            insertEdgeIntoTree(&edgeTree, edges->items[i]);
     }
     
     [changeSet entitiesChanged:[entities allObjects]];
@@ -1015,11 +1084,25 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     if (entities != nil)
         [changeSet entitiesSelected:entities];
     
-    if (brushes != nil)
+    if (brushes != nil) {
         [changeSet brushesSelected:brushes];
+        
+        for (id <Brush> brush in brushes) {
+            const TEdgeList* edges = [brush edges];
+            for (int i = 0; i < edges->count; i++)
+                selectEdgeInTree(&edgeTree, edges->items[i]);
+        }
+    }
     
-    if (faces != nil)
+    if (faces != nil) {
         [changeSet facesSelected:faces];
+        
+        for (id <Face> face in faces) {
+            const TEdgeList* edges = [face edges];
+            for (int i = 0; i < edges->count; i++)
+                selectEdgeInTree(&edgeTree, edges->items[i]);
+        }
+    }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -1033,11 +1116,25 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     if (entities != nil)
         [changeSet entitiesDeselected:entities];
     
-    if (brushes != nil)
+    if (brushes != nil) {
         [changeSet brushesDeselected:brushes];
+        
+        for (id <Brush> brush in brushes) {
+            const TEdgeList* edges = [brush edges];
+            for (int i = 0; i < edges->count; i++)
+                deselectEdgeInTree(&edgeTree, edges->items[i]);
+        }
+    }
     
-    if (faces != nil)
+    if (faces != nil) {
         [changeSet facesDeselected:faces];
+        
+        for (id <Face> face in faces) {
+            const TEdgeList* edges = [face edges];
+            for (int i = 0; i < edges->count; i++)
+                deselectEdgeInTree(&edgeTree, edges->items[i]);
+        }
+    }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
@@ -1108,8 +1205,9 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         initVbo(&entityBoundsVbo, GL_ARRAY_BUFFER, 0xFFFF);
         initVbo(&selectedEntityBoundsVbo, GL_ARRAY_BUFFER, 0xFFFF);
         
-        initIndexBuffer(&edgeIndexBuffer, 0xFFF);
-        initIndexBuffer(&selectedEdgeIndexBuffer, 0xFFF);
+        initEdgeTree(&edgeTree);
+        initVbo(&edgeVbo, GL_ARRAY_BUFFER, 0xFFFF);
+        
         faceIndexBuffers = [[NSMutableDictionary alloc] init];
         selectedFaceIndexBuffers = [[NSMutableDictionary alloc] init];
         classnameRenderer = [[TextRenderer alloc] initWithFontManager:fontManager camera:[windowController camera] fadeDistance:400];
@@ -1135,6 +1233,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         [center addObserver:self selector:@selector(propertiesDidChange:) name:PropertiesDidChange object:map];
         [center addObserver:self selector:@selector(brushesAdded:) name:BrushesAdded object:map];
         [center addObserver:self selector:@selector(brushesWillBeRemoved:) name:BrushesWillBeRemoved object:map];
+        [center addObserver:self selector:@selector(brushesWillChange:) name:BrushesWillChange object:map];
         [center addObserver:self selector:@selector(brushesDidChange:) name:BrushesDidChange object:map];
         [center addObserver:self selector:@selector(facesDidChange:) name:FacesDidChange object:map];
         [center addObserver:self selector:@selector(documentCleared:) name:DocumentCleared object:map];
@@ -1162,8 +1261,6 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     [changeSet release];
     [faceIndexBuffers release];
     [selectedFaceIndexBuffers release];
-    freeIndexBuffer(&edgeIndexBuffer);
-    freeIndexBuffer(&selectedEdgeIndexBuffer);
     [classnameRenderer release];
     [selectedClassnameRenderer release];
     [entityRenderers release];
@@ -1172,9 +1269,11 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
     [entityRendererManager release];
     [filter release];
     [mods release];
+    clearEdgeTree(&edgeTree);
     freeVbo(&faceVbo);
     freeVbo(&entityBoundsVbo);
     freeVbo(&selectedEntityBoundsVbo);
+    freeVbo(&edgeVbo);
     [super dealloc];
 }
 
@@ -1237,25 +1336,28 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
                 break;
         }
         
-        glSetEdgeOffset(0.5f);
-        [self renderEdges:NULL indexBuffer:&edgeIndexBuffer];
-        glResetEdgeOffset();
+//        glDisableClientState(GL_VERTEX_ARRAY);
+        deactivateVbo(&faceVbo);
         
-        if ([[windowController selectionManager] hasSelection]) {
-            glDisable(GL_DEPTH_TEST);
-            [self renderEdges:&SelectionColor2 indexBuffer:&selectedEdgeIndexBuffer];
+        glSetEdgeOffset(0.5f);
+        activateVbo(&edgeVbo);
+        
+        if (edgeTree.count - edgeTree.selected > 0)
+            [self renderEdges:&EdgeDefaultColor firstEdge:0 edgeCount:edgeTree.count - edgeTree.selected];
 
+        if (edgeTree.selected > 0) {
+            glDisable(GL_DEPTH_TEST);
+            [self renderEdges:&SelectionColor2 firstEdge:edgeTree.count - edgeTree.selected edgeCount:edgeTree.selected];
+            
             glSetEdgeOffset(0.6f);
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LEQUAL);
-            [self renderEdges:&SelectionColor indexBuffer:&selectedEdgeIndexBuffer];
+            [self renderEdges:&SelectionColor firstEdge:edgeTree.count - edgeTree.selected edgeCount:edgeTree.selected];
             glDepthFunc(GL_LESS);
-            glResetEdgeOffset();
         }
-        
-        glDisableClientState(GL_VERTEX_ARRAY);
-        deactivateVbo(&faceVbo);
+        glResetEdgeOffset();
     }
+    deactivateVbo(&edgeVbo);
 
     if ([options renderEntities]) {
         if ([options isolationMode] == IM_NONE) {

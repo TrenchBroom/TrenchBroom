@@ -47,6 +47,7 @@
 		483A65AC13D48D96009EB9E7 /* EntityDefinitionDndTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 483A65AB13D48D95009EB9E7 /* EntityDefinitionDndTool.m */; };
 		483AB7A71410C4E400B5F44E /* PointFileFeedbackFigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 483AB7A61410C4E400B5F44E /* PointFileFeedbackFigure.m */; };
 		483B1129122441060072EAFB /* Math.m in Sources */ = {isa = PBXBuildFile; fileRef = 483B1128122441060072EAFB /* Math.m */; };
+		484184DB1507CAF4009532B9 /* EdgeTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 484184DA1507CAF4009532B9 /* EdgeTree.m */; };
 		484524A61323CCBD003B2855 /* MapWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524A51323CCBD003B2855 /* MapWriter.m */; };
 		484524D713240049003B2855 /* NSFileManager+AppSupportCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 484524D613240049003B2855 /* NSFileManager+AppSupportCategory.m */; };
 		48455A4B13800A520096FEA5 /* IO.m in Sources */ = {isa = PBXBuildFile; fileRef = 48455A4A13800A520096FEA5 /* IO.m */; };
@@ -360,6 +361,8 @@
 		483C515013E3284E0082C296 /* Light */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = Light; sourceTree = "<group>"; };
 		483C515113E3284E0082C296 /* QBSP */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = QBSP; sourceTree = "<group>"; };
 		483C515213E3284E0082C296 /* Vis */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = Vis; sourceTree = "<group>"; };
+		484184D91507CAF3009532B9 /* EdgeTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EdgeTree.h; sourceTree = "<group>"; };
+		484184DA1507CAF4009532B9 /* EdgeTree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EdgeTree.m; sourceTree = "<group>"; };
 		484524A41323CCBD003B2855 /* MapWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWriter.h; sourceTree = "<group>"; };
 		484524A51323CCBD003B2855 /* MapWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapWriter.m; sourceTree = "<group>"; };
 		484524D513240049003B2855 /* NSFileManager+AppSupportCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+AppSupportCategory.h"; sourceTree = "<group>"; };
@@ -1053,6 +1056,8 @@
 				484C28FB115023A2004DD957 /* Vbo.m */,
 				48E71DE014FA4D5400A965F9 /* TextureIndexBuffer.h */,
 				48E71DE114FA4D5500A965F9 /* TextureIndexBuffer.m */,
+				484184D91507CAF3009532B9 /* EdgeTree.h */,
+				484184DA1507CAF4009532B9 /* EdgeTree.m */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -1794,6 +1799,7 @@
 				48E71E131500258900A965F9 /* Autosaver.m in Sources */,
 				48E71E2E1503A05500A965F9 /* DragVertexToolFeedbackFigure.m in Sources */,
 				48E71E311503B78700A965F9 /* DragEdgeToolFeedbackFigure.m in Sources */,
+				484184DB1507CAF4009532B9 /* EdgeTree.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

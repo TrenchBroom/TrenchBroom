@@ -195,6 +195,7 @@ void rotate90CCWV3f(const TVector3f* v, EAxis a, TVector3f *o);
 BOOL parseV3f(NSString* s, NSRange r, TVector3f* o);
 BOOL normV3f(const TVector3f* v1, const TVector3f* v2, const TVector3f* v3, TVector3f* o);
 void avg3V3f(const TVector3f* v1, const TVector3f* v2, const TVector3f* v3, TVector3f* o);
+int compareV3f(const TVector3f* v1, const TVector3f* v2);
 
 void addV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
 void subV3i(const TVector3i* l, const TVector3i* r, TVector3i* o);
