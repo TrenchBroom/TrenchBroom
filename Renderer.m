@@ -50,6 +50,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "EntityClassnameAnchor.h"
 #import "GroupManager.h"
 #import "TextureIndexBuffer.h"
+#import "BoundsRenderer.h"
 
 NSString* const RendererChanged = @"RendererChanged";
 NSString* const FaceVboKey = @"FaceVbo";
@@ -62,6 +63,7 @@ TVector4f const EdgeDefaultColor = {0.6f, 0.6f, 0.6f, 0.6f};
 TVector4f const FaceDefaultColor = {0.2f, 0.2f, 0.2f, 1};
 TVector4f const SelectionColor = {1, 0, 0, 1};
 TVector4f const SelectionColor2 = {1, 0, 0, 0.35f};
+TVector4f const SelectionColor3 = {1, 0, 0, 0.6f};
 int const VertexSize = 3 * sizeof(float);
 int const ColorSize = 4;
 int const TexCoordSize = 2 * sizeof(float);
@@ -785,6 +787,11 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
         [self rebuildEdgeVbo];
     }
 
+    TBoundingBox selectionBounds;
+    SelectionManager* selectionManager = [windowController selectionManager];
+    [selectionManager selectionBounds:&selectionBounds];
+    [selectionBoundsRenderer setBounds:&selectionBounds];
+    
     [changeSet clear];
 }
 
@@ -1242,6 +1249,8 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
         SelectionManager* selectionManager = [map selectionManager];
         GroupManager* groupManager = [map groupManager];
         
+        selectionBoundsRenderer = [[BoundsRenderer alloc] initWithCamera:camera fontManager:fontManager];
+                                   
         filter = [[DefaultFilter alloc] initWithSelectionManager:selectionManager groupManager:groupManager camera:camera options:options];
         
         [self addEntities:[map entities]];
@@ -1427,91 +1436,21 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
         }
     }
     
+    if ([[windowController selectionManager] hasSelection]) {
+        glDisable(GL_DEPTH_TEST);
+        [selectionBoundsRenderer renderColor:&SelectionColor3];
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        [selectionBoundsRenderer renderColor:&SelectionColor];
+        glDepthFunc(GL_LESS);
+    }
+    
     if ([feedbackFigures count] > 0) {
         glDisable(GL_DEPTH_TEST);
         for (id <Figure> figure in feedbackFigures)
             [figure render:filter];
         glEnable(GL_DEPTH_TEST);
     }
-     
-    /*
-    PreferencesManager* preferences = [PreferencesManager sharedManager];
-    float brightness = [preferences brightness];
-    if (brightness > 1) {
-        glBlendFunc(GL_DST_COLOR, GL_ONE);
-        glColor3f(brightness - 1, brightness - 1, brightness - 1);
-    } else {
-        glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-        glColor3f(brightness, brightness, brightness);
-    }
-    glEnable(GL_BLEND);
-    
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glBegin(GL_QUADS);
-    glVertex3i(-1, 1, 0);
-    glVertex3i(1, 1, 0);
-    glVertex3i(1, -1, 0);
-    glVertex3i(-1, -1, 0);
-    glEnd();
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-    
-    // enable lighting for cursor and compass
-    glEnable(GL_LIGHTING);
-    glShadeModel(GL_SMOOTH);
-    
-    GLfloat globalAmbient[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
-    
-    Camera* camera = [windowController camera];
-    
-    glEnable(GL_LIGHT0);
-    GLfloat ambientLight[] = { 0, 0, 0, 1.0f };
-    GLfloat diffuseLight[] = { 1, 1, 1, 1 };
-    GLfloat specularLight[] = { 1, 1, 1, 1 };
-    GLfloat position[] = { [camera position]->x, [camera position]->y, [camera position]->z, 1.0f };
-    
-    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
-    glLightfv(GL_LIGHT0, GL_POSITION, position);
-    
-    glEnable(GL_COLOR_MATERIAL);
-    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-    
-    float specReflection[] = { 1, 1, 1, 1 };
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specReflection);
-    glMateriali(GL_FRONT, GL_SHININESS, 50);
-    */
-    
-    /*
-    glDisable(GL_LIGHT0);
-    glDisable(GL_COLOR_MATERIAL);
-    glDisable(GL_LIGHTING);
-     */
-    
-    // brightness
-    /*
-     float brightness = 0.5f;
-     if( brightness > 1 )
-     {
-     glBlendFunc( GL_DST_COLOR, GL_ONE );
-     glColor3f( brightness-1, brightness-1, brightness-1 );
-     }
-     else
-     {
-     glBlendFunc( GL_ZERO, GL_SRC_COLOR );
-     glColor3f( brightness, brightness, brightness );
-     }
-     glEnable( GL_BLEND );
-     */
 }
 
 @end

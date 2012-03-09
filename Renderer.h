@@ -31,7 +31,7 @@ extern NSString* const RendererChanged;
 @class RenderChangeSet;
 @class EntityRendererManager;
 @class TextRenderer;
-@class IntData;
+@class BoundsRenderer;
 @protocol EntityLayer;
 @protocol Figure;
 @protocol Filter;
@@ -70,6 +70,8 @@ void addIndex(TIndexBuffer* buffer, GLuint index);
     NSMutableDictionary* entityRenderers;
     BOOL entityRendererCacheValid;
     NSArray* mods;
+    
+    BoundsRenderer* selectionBoundsRenderer;
     
     RenderChangeSet* changeSet;
     NSMutableArray* feedbackFigures;

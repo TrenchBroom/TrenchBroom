@@ -104,6 +104,7 @@
 		4881C74212E9C8BE006BF922 /* TextureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74112E9C8BE006BF922 /* TextureManager.m */; };
 		4881C74812E9CD88006BF922 /* WadTextureEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74712E9CD88006BF922 /* WadTextureEntry.m */; };
 		4881C74B12E9CD8F006BF922 /* WadPaletteEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */; };
+		488514D3150AB396000A58CD /* BoundsRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488514D2150AB396000A58CD /* BoundsRenderer.m */; };
 		488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 488868DA12FAFCBF00CAEA55 /* GLString.m */; };
 		4888732A13436206005FCE15 /* FloatData.m in Sources */ = {isa = PBXBuildFile; fileRef = 4888732913436206005FCE15 /* FloatData.m */; };
 		488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */ = {isa = PBXBuildFile; fileRef = 488C8EE012F6C3ED00F358E6 /* IntData.m */; };
@@ -427,6 +428,8 @@
 		4881C74712E9CD88006BF922 /* WadTextureEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WadTextureEntry.m; sourceTree = "<group>"; };
 		4881C74912E9CD8F006BF922 /* WadPaletteEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WadPaletteEntry.h; sourceTree = "<group>"; };
 		4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WadPaletteEntry.m; sourceTree = "<group>"; };
+		488514D1150AB396000A58CD /* BoundsRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundsRenderer.h; sourceTree = "<group>"; };
+		488514D2150AB396000A58CD /* BoundsRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundsRenderer.m; sourceTree = "<group>"; };
 		488868D912FAFCBF00CAEA55 /* GLString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLString.h; sourceTree = "<group>"; };
 		488868DA12FAFCBF00CAEA55 /* GLString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLString.m; sourceTree = "<group>"; };
 		4888732813436206005FCE15 /* FloatData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatData.h; sourceTree = "<group>"; };
@@ -963,6 +966,8 @@
 				482BF7BB14F94628000AB8B0 /* Figures */,
 				48025140133A1211001C51F2 /* PrimitiveRenderer */,
 				489DC65D12F9EBF500053092 /* Text */,
+				488514D1150AB396000A58CD /* BoundsRenderer.h */,
+				488514D2150AB396000A58CD /* BoundsRenderer.m */,
 				48CB060B13EC2E680051640E /* BoundsFeedbackFigure.h */,
 				4888732813436206005FCE15 /* FloatData.h */,
 				4888732913436206005FCE15 /* FloatData.m */,
@@ -1581,6 +1586,7 @@
 				48E71E2E1503A05500A965F9 /* DragVertexToolFeedbackFigure.m in Sources */,
 				48E71E311503B78700A965F9 /* DragEdgeToolFeedbackFigure.m in Sources */,
 				484184DB1507CAF4009532B9 /* EdgeTree.m in Sources */,
+				488514D3150AB396000A58CD /* BoundsRenderer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
