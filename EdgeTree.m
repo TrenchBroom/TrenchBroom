@@ -155,26 +155,26 @@ void insertEdgeIntoNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector
     TEdgeTreeNodeItem* item = node->items;
     int order = compareV3f(position, &item->position);
     if (order < 0) {
-        node->items = newEdgeTreeNodeItem(position, node->items);
+        node->items = newEdgeTreeNodeItem(position, item);
         tree->count++;
+    } else if (order == 0) {
+        item->count++;
     } else {
-        TEdgeTreeNodeItem* previous = NULL;
+        TEdgeTreeNodeItem* previous = item;
+        item = previous->next;
         while (item != NULL) {
-            if (order == 0) {
-                item->count++;
-                break;
-            } else if (order < 0) {
-                assert(previous != NULL); // cannot happen during the first iteration
+            order = compareV3f(position, &item->position);
+            if (order < 0) {
                 previous->next = newEdgeTreeNodeItem(position, item);
                 tree->count++;
+                break;
+            } else if (order == 0) {
+                item->count++;
                 break;
             }
             
             previous = item;
             item = item->next;
-            
-            if (item != NULL)
-                order = compareV3f(position, &item->position);
         }
         
         if (item == NULL) {
@@ -223,8 +223,6 @@ void insertEdgeIntoNode(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* s
         rebalanceEdgeTreeNode(node);
         assert(abs(edgeTreeNodeBalance(node)) <= 1);
     }
-    
-    assert(abs(edgeTreeNodeBalance(node)) <= 1);
 }
 
 BOOL removeEdgeFromNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* position) {
