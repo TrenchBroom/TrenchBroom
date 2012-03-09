@@ -68,6 +68,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
 @interface MapDocument (private)
 
+- (void)makeUndoSnapshotOfSelection;
 - (void)makeUndoSnapshotOfFaces:(NSArray *)theFaces;
 - (void)restoreUndoSnapshot:(NSArray *)theSnapshot ofFaces:(NSArray *)theFaces;
 - (void)makeUndoSnapshotOfBrushes:(NSArray *)theBrushes;
@@ -83,6 +84,39 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
 @implementation MapDocument (private)
 
+- (void)makeUndoSnapshotOfSelection {
+    NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
+    switch ([selectionManager mode]) {
+        case SM_BRUSHES: {
+            NSArray* selectedBrushes = [selectionManager selectedBrushes];
+            [[undoManager prepareWithInvocationTarget:selectionManager] addBrushes:[[selectedBrushes copy] autorelease] record:NO];
+            break;
+        }
+        case SM_ENTITIES: {
+            NSArray* selectedEntities = [selectionManager selectedEntities];
+            [[undoManager prepareWithInvocationTarget:selectionManager] addEntities:[[selectedEntities copy] autorelease] record:NO];
+            break;
+        }
+        case SM_BRUSHES_ENTITIES: {
+            NSArray* selectedEntities = [selectionManager selectedEntities];
+            NSArray* selectedBrushes = [selectionManager selectedBrushes];
+            [[undoManager prepareWithInvocationTarget:selectionManager] addEntities:[[selectedEntities copy] autorelease] record:NO];
+            [[undoManager prepareWithInvocationTarget:selectionManager] addBrushes:[[selectedBrushes copy] autorelease] record:NO];
+            break;
+        }
+        case SM_FACES: {
+            NSArray* selectedFaces = [selectionManager selectedFaces];
+            [[undoManager prepareWithInvocationTarget:selectionManager] addFaces:[[selectedFaces copy] autorelease] record:NO];
+            break;
+        }
+        default:
+            break;
+    }
+    [[undoManager prepareWithInvocationTarget:selectionManager] removeAll:NO];
+    [undoManager endUndoGrouping];
+}
+
 - (void)makeUndoSnapshotOfFaces:(NSArray *)theFaces {
     NSAssert(theFaces != nil, @"face array must not be nil");
     
@@ -92,7 +126,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSArray* snapshot = [[NSArray alloc] initWithArray:theFaces copyItems:YES];
     
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:snapshot ofFaces:theFaces];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
 
     [snapshot release];
 }
@@ -107,30 +144,17 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     [selectionManager removeAll:NO];
     [selectionManager addFaces:theFaces record:NO];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theFaces forKey:FacesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesWillChange object:self userInfo:userInfo];
-    }
-
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     NSEnumerator* snapshotEn = [theSnapshot objectEnumerator];
     MutableFace* face;
     MutableFace* snapshot;
     
+    [self postNotification:FacesWillChange forFaces:theFaces];
     while ((face = [faceEn nextObject]) && (snapshot = [snapshotEn nextObject])) {
         NSAssert([face faceId] == [snapshot faceId], @"face and snapshot must have the same id");
         [face restore:snapshot];
     }
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:FacesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:FacesDidChange forFaces:theFaces];
     
     [autosaver updateLastAction];
 }
@@ -144,7 +168,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSArray* snapshot = [[NSArray alloc] initWithArray:theBrushes copyItems:YES];
     
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:snapshot ofBrushes:theBrushes];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
     
     [snapshot release];
 }
@@ -158,31 +185,18 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     
     [selectionManager removeAll:NO];
     [selectionManager addBrushes:theBrushes record:NO];
-    
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theBrushes forKey:BrushesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesWillChange object:self userInfo:userInfo];
-    }
 
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     NSEnumerator* snapshotEn = [theSnapshot objectEnumerator];
     MutableBrush* brush;
     MutableBrush* snapshot;
 
+    [self postNotification:BrushesWillChange forBrushes:theBrushes];
     while ((brush = [brushEn nextObject]) && (snapshot = [snapshotEn nextObject])) {
         NSAssert([brush brushId] == [snapshot brushId], @"brush and snapshot must have the same id");
         [brush restore:snapshot];
     }
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:BrushesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:BrushesDidChange forBrushes:theBrushes];
 
     [autosaver updateLastAction];
 }
@@ -205,7 +219,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
 
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] restoreUndoSnapshot:snapshot ofEntities:theEntities];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
     
     [snapshot release];
 }
@@ -221,28 +238,15 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     [selectionManager removeAll:NO];
     [selectionManager addEntities:theEntities record:NO];
     
-    NSMutableDictionary* userInfo;
-    if ([self postNotifications]) {
-        userInfo = [[NSMutableDictionary alloc] init];
-        [userInfo setObject:theEntities forKey:EntitiesKey];
-        
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesWillChange object:self userInfo:userInfo];
-    }
-    
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     NSEnumerator* snapshotEn = [theSnapshot objectEnumerator];
     MutableEntity* entity;
     NSDictionary* properties;
     
+    [self postNotification:PropertiesWillChange forEntities:theEntities];
     while ((entity = [entityEn nextObject]) && (properties = [snapshotEn nextObject]))
         [entity replaceProperties:properties];
-    
-    if ([self postNotifications]) {
-        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-        [center postNotificationName:PropertiesDidChange object:self userInfo:userInfo];
-        [userInfo release];
-    }
+    [self postNotification:PropertiesDidChange forEntities:theEntities];
 
     [autosaver updateLastAction];
 }
@@ -605,7 +609,11 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     } else if ([oldValue isEqualToString:theValue])
         return;
     
-    [[[self undoManager] prepareWithInvocationTarget:self] setEntity:theEntity propertyKey:theKey value:oldValue];
+    NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
+    [[undoManager prepareWithInvocationTarget:self] setEntity:theEntity propertyKey:theKey value:oldValue];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
 
     [self postNotification:PropertiesWillChange forEntities:[NSArray arrayWithObject:theEntity]];
     
@@ -641,7 +649,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         [self postNotification:PropertiesWillChange forEntities:changedEntities];
 
         NSUndoManager* undoManager = [self undoManager];
-
+        [undoManager beginUndoGrouping];
         for (MutableEntity* mutableEntity in changedEntities) {
             [[undoManager prepareWithInvocationTarget:self] setEntity:mutableEntity propertyKey:theKey value:[mutableEntity propertyForKey:theKey]];
             
@@ -650,7 +658,9 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
             else
                 [mutableEntity setProperty:theKey value:theValue];
         }
-
+        [self makeUndoSnapshotOfSelection];
+        [undoManager endUndoGrouping];
+        
         [self postNotification:PropertiesDidChange forEntities:changedEntities];
     }
     
@@ -685,7 +695,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     scaleV3f(&theDelta, -1, &inverse);
     
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] translateEntities:[[theEntities copy] autorelease] delta:inverse];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
 
     [self postNotification:PropertiesWillChange forEntities:theEntities];
     for (MutableEntity* entity in theEntities)
@@ -702,7 +715,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] rotateEntities90CCW:[[theEntities copy] autorelease] axis:theAxis center:theCenter];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
     
     [self postNotification:PropertiesWillChange forEntities:theEntities];
     for (MutableEntity* entity in theEntities)
@@ -719,7 +735,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] rotateEntities90CW:[[theEntities copy] autorelease] axis:theAxis center:theCenter];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
     
     [self postNotification:PropertiesWillChange forEntities:theEntities];
     for (MutableEntity* entity in theEntities)
@@ -755,8 +774,11 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] flipEntities:[[theEntities copy] autorelease] axis:theAxis center:theCenter];
-    
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
+
     [self postNotification:PropertiesWillChange forEntities:theEntities];
     for (MutableEntity* entity in theEntities)
         [entity flipAxis:theAxis center:&theCenter];
@@ -779,7 +801,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return;
 
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] deleteBrushes:[[theBrushes copy] autorelease]];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
     
     MutableEntity* mutableEntity = (MutableEntity *)theEntity;
     for (MutableBrush* brush in theBrushes)
@@ -818,10 +843,13 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     }
     
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     for (id <Entity> changedEntity in changedEntities) {
         NSArray* brushArray = [entityBrushes objectForKey:[changedEntity entityId]];
         [[undoManager prepareWithInvocationTarget:self] moveBrushesToEntity:changedEntity brushes:brushArray];
     }
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
     
     [self postNotification:BrushesDidChange forBrushes:theBrushes];
     
@@ -880,7 +908,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     scaleV3f(&theDelta, -1, &inverse);
     
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] translateBrushes:[[theBrushes copy] autorelease] delta:inverse lockTextures:lockTextures];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
     
     [self postNotification:BrushesWillChange forBrushes:theBrushes];
     for (MutableBrush* brush in theBrushes)
@@ -897,7 +928,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] rotateBrushes90CCW:[[theBrushes copy] autorelease] axis:theAxis center:theCenter lockTextures:lockTextures];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
     
     [self postNotification:BrushesWillChange forBrushes:theBrushes];
     for (MutableBrush* brush in theBrushes)
@@ -914,7 +948,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] rotateBrushes90CW:[[theBrushes copy] autorelease] axis:theAxis center:theCenter lockTextures:lockTextures];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
     
     [self postNotification:BrushesWillChange forBrushes:theBrushes];
     for (MutableBrush* brush in theBrushes)
@@ -950,7 +987,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] flipBrushes:[[theBrushes copy] autorelease] axis:theAxis center:theCenter lockTextures:lockTextures];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
     
     [self postNotification:BrushesWillChange forBrushes:theBrushes];
     for (MutableBrush* brush in theBrushes)
@@ -1031,6 +1071,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         if (![entity isWorldspawn] && [[entity brushes] count] == 0)
             [emptyEntities addObject:entity];
     }
+    [self makeUndoSnapshotOfSelection];
     
     [self removeEntities:emptyEntities];
     [emptyEntities release];
@@ -1084,7 +1125,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return;
 
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] translateFaceOffsets:[[theFaces copy] autorelease] delta:-theDelta dir:theDir];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
     
     [self postNotification:FacesWillChange forFaces:theFaces];
     for (MutableFace* face in theFaces)
@@ -1136,7 +1180,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] scaleFaces:[[theFaces copy] autorelease] xFactor:-theXFactor yFactor:-theYFactor];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
     
     [self postNotification:FacesWillChange forFaces:theFaces];
     for (MutableFace* face in theFaces) {
@@ -1174,7 +1221,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         return;
     
     NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
     [[undoManager prepareWithInvocationTarget:self] rotateFaces:[[theFaces copy] autorelease] angle:-theAngle];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
 
     [self postNotification:FacesWillChange forFaces:theFaces];
     for (MutableFace* face in theFaces)
@@ -1220,7 +1270,10 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
     if (canDrag) {
         NSUndoManager* undoManager = [self undoManager];
+        [undoManager beginUndoGrouping];
         [[undoManager prepareWithInvocationTarget:self] dragFaces:[[theFaces copy] autorelease] distance:-theDistance lockTextures:lockTextures];
+        [self makeUndoSnapshotOfSelection];
+        [undoManager endUndoGrouping];
 
         [self postNotification:BrushesWillChange forBrushes:brushes];
         for (MutableFace* face in theFaces) {
@@ -1336,7 +1389,11 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if ([theEntities count] == 0)
         return;
     
-    [[[self undoManager] prepareWithInvocationTarget:self] removeEntities:[[theEntities copy] autorelease]];
+    NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
+    [[undoManager prepareWithInvocationTarget:self] removeEntities:[[theEntities copy] autorelease]];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
 
     for (MutableEntity* entity in theEntities) {
         if (![entity isWorldspawn] || [self worldspawn:NO] == nil) {
@@ -1364,8 +1421,11 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     if ([theEntities count] == 0)
         return;
 
-    [[self selectionManager] removeEntities:theEntities record:YES];
-    [[[self undoManager] prepareWithInvocationTarget:self] addEntities:[[theEntities copy] autorelease]];
+    NSUndoManager* undoManager = [self undoManager];
+    [undoManager beginUndoGrouping];
+    [[undoManager prepareWithInvocationTarget:self] addEntities:[[theEntities copy] autorelease]];
+    [self makeUndoSnapshotOfSelection];
+    [undoManager endUndoGrouping];
     
     [self postNotification:EntitiesWillBeRemoved forEntities:theEntities];
     for (MutableEntity* entity in theEntities) {
