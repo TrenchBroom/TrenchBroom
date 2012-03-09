@@ -30,8 +30,16 @@ int checkEdgeTreeNode(TEdgeTreeNode* node) {
         assert(compareV3f(&node->left->position, &node->position) < 0);
     if (node->right != NULL)
         assert(compareV3f(&node->right->position, &node->position) > 0);
-    
 
+    assert(node->items != NULL);
+    TEdgeTreeNodeItem* item = node->items;
+    const TVector3f* position = &node->position;
+    while (item != NULL) {
+        assert(compareV3f(position, &item->position) < 0);
+        position = &item->position;
+        item = item->next;
+    }
+    
     int leftHeight = checkEdgeTreeNode(node->left);
     int rightHeight = checkEdgeTreeNode(node->right);
     
@@ -39,7 +47,9 @@ int checkEdgeTreeNode(TEdgeTreeNode* node) {
     assert(edgeTreeNodeHeight(node->right) == rightHeight);
     assert(abs(edgeTreeNodeBalance(node)) <= 1);
     
-    return 1 + maxi(leftHeight, rightHeight);
+    int height = maxi(leftHeight, rightHeight) + 1;
+    assert(node->height == height);
+    return height;
 }
 
 void checkEdgeTree(TEdgeTree* tree) {
@@ -92,21 +102,21 @@ void rebalanceEdgeTreeNode(TEdgeTreeNode* node) {
     int nodeBalance = edgeTreeNodeBalance(node);
     if (nodeBalance > 1) { // right is higher than left
         int rightBalance = edgeTreeNodeBalance(node->right);
-        assert(rightBalance != 0);
-        if (rightBalance == 1) { // single left rotation with node as root
+        assert(abs(rightBalance) <= 1);
+        if (rightBalance >= 0) { // single left rotation with node as root
             rotateEdgeTreeNodeLeft(node);
-        } else if (rightBalance == -1) { // right rotation with right as root, left rotation with node as root
+        } else { // right rotation with right as root, left rotation with node as root
             rotateEdgeTreeNodeRight(node->right);
             rotateEdgeTreeNodeLeft(node);
         }
         assert(node->left != NULL && node->right != NULL);
     } else if (nodeBalance < -1) { // left is higher than right
         int leftBalance = edgeTreeNodeBalance(node->left);
-        assert(leftBalance != 0);
-        if (leftBalance == 1) { // left rotation with left as root, right rotation with node as root
-            rotateEdgeTreeNodeLeft(node->left);
+        assert(abs(leftBalance) <= 1);
+        if (leftBalance <= 0) {
             rotateEdgeTreeNodeRight(node);
-        } else if (leftBalance == -1) { // single right rotation with node as root
+        } else {
+            rotateEdgeTreeNodeLeft(node->left);
             rotateEdgeTreeNodeRight(node);
         }
         assert(node->left != NULL && node->right != NULL);
@@ -130,7 +140,7 @@ void freeEdgeTreeNode(TEdgeTreeNode* node) {
     free(node);
 }
 
-TEdgeTreeNodeItem* newEdgeTreeNodeItem(const TVector3f* position, int count, TEdgeTreeNodeItem* next) {
+TEdgeTreeNodeItem* newEdgeTreeNodeItem(const TVector3f* position, TEdgeTreeNodeItem* next) {
     TEdgeTreeNodeItem* item = malloc(sizeof(TEdgeTreeNodeItem));
     item->position = *position;
     item->count = 1;
@@ -140,35 +150,36 @@ TEdgeTreeNodeItem* newEdgeTreeNodeItem(const TVector3f* position, int count, TEd
 }
 
 void insertEdgeIntoNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* position) {
-    if (node->items == NULL) {
-        node->items = newEdgeTreeNodeItem(position, 1, NULL);
+    assert(node->items != NULL);
+    
+    TEdgeTreeNodeItem* item = node->items;
+    int order = compareV3f(position, &item->position);
+    if (order < 0) {
+        node->items = newEdgeTreeNodeItem(position, node->items);
         tree->count++;
     } else {
-        TEdgeTreeNodeItem* item = node->items;
-        int order = compareV3f(position, &item->position);
-        if (order < 0) {
-            node->items = newEdgeTreeNodeItem(position, 1, node->items);
-            tree->count++;
-        } else {
-            TEdgeTreeNodeItem* previous = NULL;
-            while (item != NULL) {
-                if (order == 0) {
-                    item->count++;
-                    break;
-                } else if (order < 0) { // cannot happen during the first iteration
-                    previous->next = newEdgeTreeNodeItem(position, 1, item);
-                    tree->count++;
-                    break;
-                }
-                
-                previous = item;
-                item = item->next;
+        TEdgeTreeNodeItem* previous = NULL;
+        while (item != NULL) {
+            if (order == 0) {
+                item->count++;
+                break;
+            } else if (order < 0) {
+                assert(previous != NULL); // cannot happen during the first iteration
+                previous->next = newEdgeTreeNodeItem(position, item);
+                tree->count++;
+                break;
             }
             
-            if (item == NULL) {
-                previous->next = newEdgeTreeNodeItem(position, 1, NULL);
-                tree->count++;
-            }
+            previous = item;
+            item = item->next;
+            
+            if (item != NULL)
+                order = compareV3f(position, &item->position);
+        }
+        
+        if (item == NULL) {
+            previous->next = newEdgeTreeNodeItem(position, NULL);
+            tree->count++;
         }
     }
 }
@@ -191,13 +202,21 @@ void insertEdgeIntoNode(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* s
         insertEdgeIntoNodeItems(tree, node, larger);
     } else {
         if (order < 0) { // insert left
-            if (node->left == NULL)
+            if (node->left == NULL) {
                 node->left = newEdgeTreeNode(smaller);
-            insertEdgeIntoNode(tree, node->left, smaller, larger);
+                node->left->items = newEdgeTreeNodeItem(larger, NULL);
+                tree->count++;
+            } else {
+                insertEdgeIntoNode(tree, node->left, smaller, larger);
+            }
         } else { // insert right
-            if (node->right == NULL)
+            if (node->right == NULL) {
                 node->right = newEdgeTreeNode(smaller);
-            insertEdgeIntoNode(tree, node->right, smaller, larger);
+                node->right->items = newEdgeTreeNodeItem(larger, NULL);
+                tree->count++;
+            } else {
+                insertEdgeIntoNode(tree, node->right, smaller, larger);
+            }
         }
         
         node->height = maxi(edgeTreeNodeHeight(node->left), edgeTreeNodeHeight(node->right)) + 1;
@@ -215,6 +234,7 @@ BOOL removeEdgeFromNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector
     item = node->items;
     if (item != NULL) {
         order = compareV3f(position, &item->position);
+        assert(order > -1);
         if (order == 0) {
             item->count--;
             if (item->count == 0) {
@@ -222,22 +242,25 @@ BOOL removeEdgeFromNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector
                 free(item);
                 tree->count--;
             }
-        } else if (order > 0) {
+        } else {
             TEdgeTreeNodeItem* previous = item;
             item = item->next;
             while (item != NULL) {
                 order = compareV3f(position, &item->position);
+                assert(order > -1);
                 if (order == 0) {
                     item->count--;
                     if (item->count == 0) {
                         previous->next = item->next;
                         free(item);
                         tree->count--;
-                        break;
                     }
+                    break;
                 }
                 item = item->next;
             }
+            
+            assert(item != NULL);
         }
     }
     
@@ -320,9 +343,14 @@ void insertEdgeIntoTree(TEdgeTree* tree, const TEdge* edge) {
         larger = &edge->startVertex->position;
     }
     
-    if (tree->root == NULL)
+    if (tree->root == NULL) {
         tree->root = newEdgeTreeNode(smaller);
-    insertEdgeIntoNode(tree, tree->root, smaller, larger);
+        tree->root->items = newEdgeTreeNodeItem(larger, NULL);
+        tree->count++;
+    } else {
+        insertEdgeIntoNode(tree, tree->root, smaller, larger);
+    }
+
     checkEdgeTree(tree);
 }
 
@@ -366,7 +394,7 @@ TEdgeTreeNodeItem* findItemInNode(TEdgeTreeNode* node, const TVector3f* smaller,
         }
     } else if (order < 0 && node->left != NULL) {
         return findItemInNode(node->left, smaller, larger);
-    } else if (node->right != NULL) {
+    } else if (order > 0 && node->right != NULL) {
         return findItemInNode(node->right, smaller, larger);
     }
     
@@ -395,6 +423,8 @@ void selectEdgeInTree(TEdgeTree* tree, const TEdge* edge) {
         item->selected++;
         if (item->selected == 1)
             tree->selected++;
+    } else {
+        NSLog(@"oops");
     }
 }
 
@@ -417,8 +447,11 @@ void deselectEdgeInTree(TEdgeTree* tree, const TEdge* edge) {
     
     TEdgeTreeNodeItem* item = findItemInNode(tree->root, smaller, larger);
     if (item != NULL) {
+        assert(item->selected > 0);
         item->selected--;
         if (item->selected == 0)
             tree->selected--;
+    } else {
+        NSLog(@"oops");
     }
 }
