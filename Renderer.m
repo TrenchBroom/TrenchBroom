@@ -941,7 +941,7 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
     for (id <Brush> brush in theBrushes) {
         const TEdgeList* edges = [brush edges];
         for (int i = 0; i < edges->count; i++)
-            insertEdgeIntoTree(&edgeTree, edges->items[i]);
+            insertEdgeIntoTree(&edgeTree, edges->items[i], NO);
     }
 }
 
@@ -951,7 +951,7 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
     for (id <Brush> brush in theBrushes) {
         const TEdgeList* edges = [brush edges];
         for (int i = 0; i < edges->count; i++)
-            removeEdgeFromTree(&edgeTree, edges->items[i]);
+            removeEdgeFromTree(&edgeTree, edges->items[i], NO);
     }
 }
 
@@ -969,10 +969,8 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
     
     for (id <Brush> brush in brushes) {
         const TEdgeList* edges = [brush edges];
-        for (int i = 0; i < edges->count; i++) {
-            deselectEdgeInTree(&edgeTree, edges->items[i]);
-            removeEdgeFromTree(&edgeTree, edges->items[i]);
-        }
+        for (int i = 0; i < edges->count; i++)
+            removeEdgeFromTree(&edgeTree, edges->items[i], YES);
     }
 }
 
@@ -988,10 +986,8 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
             [entities addObject:entity];
 
         const TEdgeList* edges = [brush edges];
-        for (int i = 0; i < edges->count; i++) {
-            insertEdgeIntoTree(&edgeTree, edges->items[i]);
-            selectEdgeInTree(&edgeTree, edges->items[i]);
-        }
+        for (int i = 0; i < edges->count; i++)
+            insertEdgeIntoTree(&edgeTree, edges->items[i], YES);
     }
     
     [changeSet entitiesChanged:[entities allObjects]];

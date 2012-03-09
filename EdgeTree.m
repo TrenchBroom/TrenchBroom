@@ -140,36 +140,50 @@ void freeEdgeTreeNode(TEdgeTreeNode* node) {
     free(node);
 }
 
-TEdgeTreeNodeItem* newEdgeTreeNodeItem(const TVector3f* position, TEdgeTreeNodeItem* next) {
+TEdgeTreeNodeItem* newEdgeTreeNodeItem(const TVector3f* position, TEdgeTreeNodeItem* next, BOOL selected) {
     TEdgeTreeNodeItem* item = malloc(sizeof(TEdgeTreeNodeItem));
     item->position = *position;
     item->count = 1;
-    item->selected = 0;
+    item->selected = selected ? 1 : 0;
     item->next = next;
     return item;
 }
 
-void insertEdgeIntoNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* position) {
+void insertEdgeIntoNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* position, BOOL selected) {
     assert(node->items != NULL);
     
     TEdgeTreeNodeItem* item = node->items;
     int order = compareV3f(position, &item->position);
     if (order < 0) {
-        node->items = newEdgeTreeNodeItem(position, item);
+        node->items = newEdgeTreeNodeItem(position, item, selected);
         tree->count++;
+        if (selected)
+            tree->selected++;
     } else if (order == 0) {
         item->count++;
+        if (selected) {
+            item->selected++;
+            if (item->selected == 1)
+                tree->selected++;
+        }
     } else {
         TEdgeTreeNodeItem* previous = item;
         item = previous->next;
         while (item != NULL) {
             order = compareV3f(position, &item->position);
             if (order < 0) {
-                previous->next = newEdgeTreeNodeItem(position, item);
+                previous->next = newEdgeTreeNodeItem(position, item, selected);
                 tree->count++;
+                if (selected)
+                    tree->selected++;
                 break;
             } else if (order == 0) {
                 item->count++;
+                if (selected) {
+                    item->selected++;
+                    if (item->selected == 1)
+                        tree->selected++;
+                }
                 break;
             }
             
@@ -178,8 +192,10 @@ void insertEdgeIntoNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector
         }
         
         if (item == NULL) {
-            previous->next = newEdgeTreeNodeItem(position, NULL);
+            previous->next = newEdgeTreeNodeItem(position, NULL, selected);
             tree->count++;
+            if (selected)
+                tree->selected++;
         }
     }
 }
@@ -194,28 +210,32 @@ TEdgeTreeNode* newEdgeTreeNode(const TVector3f* position) {
     return node;
 }
 
-void insertEdgeIntoNode(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* smaller, const TVector3f* larger) {
+void insertEdgeIntoNode(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* smaller, const TVector3f* larger, BOOL selected) {
     int order;
     
     order = compareV3f(smaller, &node->position);
     if (order == 0) {
-        insertEdgeIntoNodeItems(tree, node, larger);
+        insertEdgeIntoNodeItems(tree, node, larger, selected);
     } else {
         if (order < 0) { // insert left
             if (node->left == NULL) {
                 node->left = newEdgeTreeNode(smaller);
-                node->left->items = newEdgeTreeNodeItem(larger, NULL);
+                node->left->items = newEdgeTreeNodeItem(larger, NULL, selected);
                 tree->count++;
+                if (selected)
+                    tree->selected++;
             } else {
-                insertEdgeIntoNode(tree, node->left, smaller, larger);
+                insertEdgeIntoNode(tree, node->left, smaller, larger, selected);
             }
         } else { // insert right
             if (node->right == NULL) {
                 node->right = newEdgeTreeNode(smaller);
-                node->right->items = newEdgeTreeNodeItem(larger, NULL);
+                node->right->items = newEdgeTreeNodeItem(larger, NULL, selected);
                 tree->count++;
+                if (selected)
+                    tree->selected++;
             } else {
-                insertEdgeIntoNode(tree, node->right, smaller, larger);
+                insertEdgeIntoNode(tree, node->right, smaller, larger, selected);
             }
         }
         
@@ -225,7 +245,7 @@ void insertEdgeIntoNode(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* s
     }
 }
 
-BOOL removeEdgeFromNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* position) {
+BOOL removeEdgeFromNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* position, BOOL selected) {
     TEdgeTreeNodeItem* item;
     int order;
 
@@ -235,6 +255,11 @@ BOOL removeEdgeFromNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector
         assert(order > -1);
         if (order == 0) {
             item->count--;
+            if (selected) {
+                item->selected--;
+                if (item->selected == 0)
+                    tree->selected--;
+            }
             if (item->count == 0) {
                 node->items = item->next;
                 free(item);
@@ -248,6 +273,11 @@ BOOL removeEdgeFromNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector
                 assert(order > -1);
                 if (order == 0) {
                     item->count--;
+                    if (selected) {
+                        item->selected--;
+                        if (item->selected == 0)
+                            tree->selected--;
+                    }
                     if (item->count == 0) {
                         previous->next = item->next;
                         free(item);
@@ -255,6 +285,8 @@ BOOL removeEdgeFromNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector
                     }
                     break;
                 }
+                
+                previous = item;
                 item = item->next;
             }
             
@@ -265,14 +297,14 @@ BOOL removeEdgeFromNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector
     return node->items == NULL;
 }
 
-TEdgeTreeNode* removeEdgeFromTreeNode(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* smaller, const TVector3f* larger) {
+TEdgeTreeNode* removeEdgeFromTreeNode(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* smaller, const TVector3f* larger, BOOL selected) {
     int order;
     TEdgeTreeNode* result;
     
     result = node;
     order = compareV3f(smaller, &node->position);
     if (order == 0) {
-        if (removeEdgeFromNodeItems(tree, node, larger)) {
+        if (removeEdgeFromNodeItems(tree, node, larger, selected)) {
             if (node->left == NULL && node->right == NULL) {
                 result = NULL;
                 free(node);
@@ -291,7 +323,7 @@ TEdgeTreeNode* removeEdgeFromTreeNode(TEdgeTree* tree, TEdgeTreeNode* node, cons
                 TVector3f position = succ->position;
                 
                 succ->items = NULL;
-                node->right = removeEdgeFromTreeNode(tree, node->right, &position, NULL);
+                node->right = removeEdgeFromTreeNode(tree, node->right, &position, NULL, NO);
                 node->items = items;
                 node->position = position;
 
@@ -301,15 +333,14 @@ TEdgeTreeNode* removeEdgeFromTreeNode(TEdgeTree* tree, TEdgeTreeNode* node, cons
         }
     } else {
         if (order < 0)
-            node->left = removeEdgeFromTreeNode(tree, node->left, smaller, larger);
+            node->left = removeEdgeFromTreeNode(tree, node->left, smaller, larger, selected);
         else
-            node->right = removeEdgeFromTreeNode(tree, node->right, smaller, larger);
+            node->right = removeEdgeFromTreeNode(tree, node->right, smaller, larger, selected);
 
         node->height = maxi(edgeTreeNodeHeight(node->left), edgeTreeNodeHeight(node->right)) + 1;
         rebalanceEdgeTreeNode(node);
     }
 
-    assert(abs(edgeTreeNodeBalance(node)) <= 1);
     return result;
 }
 
@@ -327,7 +358,7 @@ void clearEdgeTree(TEdgeTree* tree) {
     }
 }
 
-void insertEdgeIntoTree(TEdgeTree* tree, const TEdge* edge) {
+void insertEdgeIntoTree(TEdgeTree* tree, const TEdge* edge, BOOL selected) {
     const TVector3f* smaller;
     const TVector3f* larger;
     int order;
@@ -343,16 +374,17 @@ void insertEdgeIntoTree(TEdgeTree* tree, const TEdge* edge) {
     
     if (tree->root == NULL) {
         tree->root = newEdgeTreeNode(smaller);
-        tree->root->items = newEdgeTreeNodeItem(larger, NULL);
+        tree->root->items = newEdgeTreeNodeItem(larger, NULL, selected);
         tree->count++;
+        if (selected)
+            tree->selected++;
     } else {
-        insertEdgeIntoNode(tree, tree->root, smaller, larger);
+        insertEdgeIntoNode(tree, tree->root, smaller, larger, selected);
     }
-
-    checkEdgeTree(tree);
+//    checkEdgeTree(tree);
 }
 
-void removeEdgeFromTree(TEdgeTree* tree, const TEdge* edge) {
+void removeEdgeFromTree(TEdgeTree* tree, const TEdge* edge, BOOL selected) {
     const TVector3f* smaller;
     const TVector3f* larger;
     int order;
@@ -369,14 +401,14 @@ void removeEdgeFromTree(TEdgeTree* tree, const TEdge* edge) {
         larger = &edge->startVertex->position;
     }
     
-    tree->root = removeEdgeFromTreeNode(tree, tree->root, smaller, larger);
+    tree->root = removeEdgeFromTreeNode(tree, tree->root, smaller, larger, selected);
     if (tree->root != NULL) {
         tree->root->height = maxi(edgeTreeNodeHeight(tree->root->left), edgeTreeNodeHeight(tree->root->right)) + 1;
         rebalanceEdgeTreeNode(tree->root);
         assert(abs(edgeTreeNodeBalance(tree->root)) <= 1);
     }
 
-    checkEdgeTree(tree);
+//    checkEdgeTree(tree);
 }
 
 TEdgeTreeNodeItem* findItemInNode(TEdgeTreeNode* node, const TVector3f* smaller, const TVector3f* larger) {
@@ -417,13 +449,10 @@ void selectEdgeInTree(TEdgeTree* tree, const TEdge* edge) {
     }
     
     TEdgeTreeNodeItem* item = findItemInNode(tree->root, smaller, larger);
-    if (item != NULL) {
-        item->selected++;
-        if (item->selected == 1)
-            tree->selected++;
-    } else {
-        NSLog(@"oops");
-    }
+    assert(item != NULL);
+    item->selected++;
+    if (item->selected == 1)
+        tree->selected++;
 }
 
 void deselectEdgeInTree(TEdgeTree* tree, const TEdge* edge) {
@@ -444,12 +473,9 @@ void deselectEdgeInTree(TEdgeTree* tree, const TEdge* edge) {
     }
     
     TEdgeTreeNodeItem* item = findItemInNode(tree->root, smaller, larger);
-    if (item != NULL) {
-        assert(item->selected > 0);
-        item->selected--;
-        if (item->selected == 0)
-            tree->selected--;
-    } else {
-        NSLog(@"oops");
-    }
+    assert(item != NULL);
+    assert(item->selected > 0);
+    item->selected--;
+    if (item->selected == 0)
+        tree->selected--;
 }

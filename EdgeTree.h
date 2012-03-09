@@ -42,7 +42,7 @@ typedef struct  {
 
 void initEdgeTree(TEdgeTree* tree);
 void clearEdgeTree(TEdgeTree* tree);
-void insertEdgeIntoTree(TEdgeTree* tree, const TEdge* edge);
-void removeEdgeFromTree(TEdgeTree* tree, const TEdge* edge);
+void insertEdgeIntoTree(TEdgeTree* tree, const TEdge* edge, BOOL selected);
+void removeEdgeFromTree(TEdgeTree* tree, const TEdge* edge, BOOL selected);
 void selectEdgeInTree(TEdgeTree* tree, const TEdge* edge);
 void deselectEdgeInTree(TEdgeTree* tree, const TEdge* edge);
