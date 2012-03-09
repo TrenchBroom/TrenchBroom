@@ -92,6 +92,7 @@ void rebalanceEdgeTreeNode(TEdgeTreeNode* node) {
     int nodeBalance = edgeTreeNodeBalance(node);
     if (nodeBalance > 1) { // right is higher than left
         int rightBalance = edgeTreeNodeBalance(node->right);
+        assert(rightBalance != 0);
         if (rightBalance == 1) { // single left rotation with node as root
             rotateEdgeTreeNodeLeft(node);
         } else if (rightBalance == -1) { // right rotation with right as root, left rotation with node as root
@@ -101,6 +102,7 @@ void rebalanceEdgeTreeNode(TEdgeTreeNode* node) {
         assert(node->left != NULL && node->right != NULL);
     } else if (nodeBalance < -1) { // left is higher than right
         int leftBalance = edgeTreeNodeBalance(node->left);
+        assert(leftBalance != 0);
         if (leftBalance == 1) { // left rotation with left as root, right rotation with node as root
             rotateEdgeTreeNodeLeft(node->left);
             rotateEdgeTreeNodeRight(node);
@@ -109,6 +111,7 @@ void rebalanceEdgeTreeNode(TEdgeTreeNode* node) {
         }
         assert(node->left != NULL && node->right != NULL);
     }
+    assert(abs(edgeTreeNodeBalance(node)) <= 1);
 }
 
 void freeEdgeTreeNode(TEdgeTreeNode* node) {
@@ -230,9 +233,10 @@ BOOL removeEdgeFromNodeItems(TEdgeTree* tree, TEdgeTreeNode* node, const TVector
                         previous->next = item->next;
                         free(item);
                         tree->count--;
-                        item = NULL;
+                        break;
                     }
                 }
+                item = item->next;
             }
         }
     }
@@ -284,6 +288,7 @@ TEdgeTreeNode* removeEdgeFromTreeNode(TEdgeTree* tree, TEdgeTreeNode* node, cons
         rebalanceEdgeTreeNode(node);
     }
 
+    assert(abs(edgeTreeNodeBalance(node)) <= 1);
     return result;
 }
 
@@ -318,7 +323,7 @@ void insertEdgeIntoTree(TEdgeTree* tree, const TEdge* edge) {
     if (tree->root == NULL)
         tree->root = newEdgeTreeNode(smaller);
     insertEdgeIntoNode(tree, tree->root, smaller, larger);
-//    checkEdgeTree(tree);
+    checkEdgeTree(tree);
 }
 
 void removeEdgeFromTree(TEdgeTree* tree, const TEdge* edge) {
@@ -342,6 +347,7 @@ void removeEdgeFromTree(TEdgeTree* tree, const TEdge* edge) {
     if (tree->root != NULL) {
         tree->root->height = maxi(edgeTreeNodeHeight(tree->root->left), edgeTreeNodeHeight(tree->root->right)) + 1;
         rebalanceEdgeTreeNode(tree->root);
+        assert(abs(edgeTreeNodeBalance(tree->root)) <= 1);
     }
 
     checkEdgeTree(tree);
