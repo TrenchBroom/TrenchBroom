@@ -571,7 +571,9 @@ int const GridMinSize = 0;
     }
     
     TVector3f delta;
-    int gridSkip = 0;
+    scaleV3f([theFace norm], dist, &delta);
+    int gridSkip = maxi(0, dotV3f(&delta, firstAxisV3f(&delta)) / [self actualSize] - 1);
+    
     float dragDist = FLT_MAX;
     do {
         // Find the smallest drag distance at which the face boundary is actually moved
@@ -605,7 +607,8 @@ int const GridMinSize = 0;
     
     if (fabsf(dragDist) > fabsf(dist))
         return NAN;
-    
+
+    scaleV3f([theFace norm], dragDist, theDelta);
     return dragDist;
 }
 

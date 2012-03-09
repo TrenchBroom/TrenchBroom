@@ -280,7 +280,7 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
 - (void)renderEntityModels:(NSArray *)theEntities;
 - (void)renderEntityBounds:(const TVector4f *)color vertexCount:(int)theVertexCount;
 - (void)renderEdges:(const TVector4f *)color firstEdge:(int)theFirstEdge edgeCount:(int)theEdgeCount;
-- (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers;
+- (void)renderFaces:(BOOL)textured selected:(BOOL)selected indexBuffers:(NSDictionary *)theIndexBuffers;
 
 - (void)addBrushes:(NSArray *)theBrushes;
 - (void)removeBrushes:(NSArray *)theBrushes;
@@ -835,21 +835,36 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
     glPopClientAttrib();
 }
 
-- (void)renderFaces:(BOOL)textured indexBuffers:(NSDictionary *)theIndexBuffers {
+- (void)renderFaces:(BOOL)textured selected:(BOOL)selected indexBuffers:(NSDictionary *)theIndexBuffers {
     glPolygonMode(GL_FRONT, GL_FILL);
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     
     Grid* grid = [[windowController options] grid];
     if ([grid draw]) {
-        glActiveTexture(GL_TEXTURE1);
+        glActiveTexture(GL_TEXTURE2);
         glEnable(GL_TEXTURE_2D);
         [grid activateTexture];
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-        glClientActiveTexture(GL_TEXTURE1);
+        glClientActiveTexture(GL_TEXTURE2);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glTexCoordPointer(2, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)0);
     }
     
+    if (selected) {
+        glActiveTexture(GL_TEXTURE1);
+        glEnable(GL_TEXTURE_2D);
+        [grid activateTexture]; // just a dummy
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+        float color[3] = {0.6f, 0.35f, 0.35f};
+        glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+        glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+        glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
+        glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
+        glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
+        glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
+        glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2);
+    }
+        
     glActiveTexture(GL_TEXTURE0);
     if (textured) {
         glEnable(GL_TEXTURE_2D);
@@ -864,8 +879,8 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
         glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
 
         glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
-        glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
         glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
+        glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
         
         glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
         
@@ -903,8 +918,13 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
     if (textured)
         glDisable(GL_TEXTURE_2D);
     
-    if ([grid draw]) {
+    if (selected) {
         glActiveTexture(GL_TEXTURE1);
+        glDisable(GL_TEXTURE_2D);
+    }
+    
+    if ([grid draw]) {
+        glActiveTexture(GL_TEXTURE2);
         [grid deactivateTexture];
         glDisable(GL_TEXTURE_2D);
         glActiveTexture(GL_TEXTURE0);
@@ -1324,22 +1344,21 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
         switch ([options renderMode]) {
             case RM_TEXTURED:
                 if ([options isolationMode] == IM_NONE)
-                    [self renderFaces:YES indexBuffers:faceIndexBuffers];
-                [self renderFaces:YES indexBuffers:selectedFaceIndexBuffers];
+                    [self renderFaces:YES selected:NO indexBuffers:faceIndexBuffers];
+                [self renderFaces:YES selected:YES indexBuffers:selectedFaceIndexBuffers];
                 break;
             case RM_FLAT:
                 if ([options isolationMode] == IM_NONE)
-                    [self renderFaces:NO indexBuffers:faceIndexBuffers];
-                [self renderFaces:NO indexBuffers:selectedFaceIndexBuffers];
+                    [self renderFaces:NO selected:NO indexBuffers:faceIndexBuffers];
+                [self renderFaces:NO selected:YES indexBuffers:selectedFaceIndexBuffers];
                 break;
             case RM_WIREFRAME:
                 break;
         }
         
-//        glDisableClientState(GL_VERTEX_ARRAY);
         deactivateVbo(&faceVbo);
         
-        glSetEdgeOffset(0.5f);
+        glSetEdgeOffset(0.05f);
         activateVbo(&edgeVbo);
         
         if (edgeTree.count - edgeTree.selected > 0)
@@ -1349,7 +1368,7 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
             glDisable(GL_DEPTH_TEST);
             [self renderEdges:&SelectionColor2 firstEdge:edgeTree.count - edgeTree.selected edgeCount:edgeTree.selected];
             
-            glSetEdgeOffset(0.6f);
+            glSetEdgeOffset(0.1f);
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LEQUAL);
             [self renderEdges:&SelectionColor firstEdge:edgeTree.count - edgeTree.selected edgeCount:edgeTree.selected];
@@ -1358,6 +1377,7 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
         glResetEdgeOffset();
     }
     deactivateVbo(&edgeVbo);
+    glDisableClientState(GL_VERTEX_ARRAY);
 
     if ([options renderEntities]) {
         if ([options isolationMode] == IM_NONE) {

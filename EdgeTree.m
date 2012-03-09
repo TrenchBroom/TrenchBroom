@@ -21,6 +21,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #define edgeTreeNodeHeight(node) (node == NULL ? 0 : node->height)
 #define edgeTreeNodeBalance(node) (edgeTreeNodeHeight(node->right) - edgeTreeNodeHeight(node->left))
+#define resetEdgeTreeNodeHeight(node) (node->height = maxi(edgeTreeNodeHeight(node->left), edgeTreeNodeHeight(node->right)) + 1)
 
 int checkEdgeTreeNode(TEdgeTreeNode* node) {
     if (node == NULL)
@@ -78,8 +79,8 @@ void rotateEdgeTreeNodeLeft(TEdgeTreeNode* node) {
     
     switchEdgeTreeNodes(node, right);
 
-    right->height = maxi(edgeTreeNodeHeight(right->left), edgeTreeNodeHeight(right->right)) + 1;
-    node->height = maxi(edgeTreeNodeHeight(node->left), edgeTreeNodeHeight(node->right)) + 1;
+    resetEdgeTreeNodeHeight(right);
+    resetEdgeTreeNodeHeight(node);
 }
 
 void rotateEdgeTreeNodeRight(TEdgeTreeNode* node) {
@@ -94,8 +95,8 @@ void rotateEdgeTreeNodeRight(TEdgeTreeNode* node) {
     
     switchEdgeTreeNodes(node, left);
     
-    left->height = maxi(edgeTreeNodeHeight(left->left), edgeTreeNodeHeight(left->right)) + 1;
-    node->height = maxi(edgeTreeNodeHeight(node->left), edgeTreeNodeHeight(node->right)) + 1;
+    resetEdgeTreeNodeHeight(left);
+    resetEdgeTreeNodeHeight(node);
 }
 
 void rebalanceEdgeTreeNode(TEdgeTreeNode* node) {
@@ -239,7 +240,7 @@ void insertEdgeIntoNode(TEdgeTree* tree, TEdgeTreeNode* node, const TVector3f* s
             }
         }
         
-        node->height = maxi(edgeTreeNodeHeight(node->left), edgeTreeNodeHeight(node->right)) + 1;
+        resetEdgeTreeNodeHeight(node);
         rebalanceEdgeTreeNode(node);
         assert(abs(edgeTreeNodeBalance(node)) <= 1);
     }
@@ -327,7 +328,7 @@ TEdgeTreeNode* removeEdgeFromTreeNode(TEdgeTree* tree, TEdgeTreeNode* node, cons
                 node->items = items;
                 node->position = position;
 
-                node->height = maxi(edgeTreeNodeHeight(node->left), edgeTreeNodeHeight(node->right)) + 1;
+                resetEdgeTreeNodeHeight(node);
                 rebalanceEdgeTreeNode(node);
             }
         }
@@ -337,7 +338,7 @@ TEdgeTreeNode* removeEdgeFromTreeNode(TEdgeTree* tree, TEdgeTreeNode* node, cons
         else
             node->right = removeEdgeFromTreeNode(tree, node->right, smaller, larger, selected);
 
-        node->height = maxi(edgeTreeNodeHeight(node->left), edgeTreeNodeHeight(node->right)) + 1;
+        resetEdgeTreeNodeHeight(node);
         rebalanceEdgeTreeNode(node);
     }
 
@@ -403,7 +404,7 @@ void removeEdgeFromTree(TEdgeTree* tree, const TEdge* edge, BOOL selected) {
     
     tree->root = removeEdgeFromTreeNode(tree, tree->root, smaller, larger, selected);
     if (tree->root != NULL) {
-        tree->root->height = maxi(edgeTreeNodeHeight(tree->root->left), edgeTreeNodeHeight(tree->root->right)) + 1;
+        resetEdgeTreeNodeHeight(tree->root);
         rebalanceEdgeTreeNode(tree->root);
         assert(abs(edgeTreeNodeBalance(tree->root)) <= 1);
     }

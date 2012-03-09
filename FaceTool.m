@@ -200,12 +200,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     if (isnan(dragDist) || dragDist == 0)
         return;
-
+    
     Options* options = [windowController options];
     MapDocument* map = [windowController document];
 
     if ([map dragFaces:dragFaces distance:dragDist lockTextures:[options lockTextures]])
-        lastPoint = point;
+        addV3f(&lastPoint, &delta, &lastPoint);
 }
 
 - (void)endLeftDrag:(NSEvent *)event ray:(TRay *)ray hits:(PickingHitList *)hits {

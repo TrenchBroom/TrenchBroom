@@ -616,29 +616,23 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         }
     }
     
-    if (closestDist2 > theMaxDist * theMaxDist)
+    if (closestEdge == NULL || closestDist2 > theMaxDist * theMaxDist * closestRayDist / 300)
         return;
 
     TVector3f hitPoint;
     float leftDist = pickSide(closestEdge->leftSide, theRay, &hitPoint);
     float rightDist = pickSide(closestEdge->rightSide, theRay, &hitPoint);
 
-    PickingHit* hit;
-    if (!isnan(leftDist)) {
-        hit = [[PickingHit alloc] initWithObject:closestEdge->leftSide->face type:HT_CLOSE_FACE hitPoint:&hitPoint distance:leftDist];
-    } else if (!isnan(rightDist)) {
-        hit = [[PickingHit alloc] initWithObject:closestEdge->rightSide->face type:HT_CLOSE_FACE hitPoint:&hitPoint distance:rightDist];
-    } else {
+    if (isnan(leftDist) && isnan(rightDist)) {
+        PickingHit* hit;
         rayPointAtDistance(theRay, closestRayDist, &hitPoint);
-        if (dotV3f([closestEdge->leftSide->face norm], &theRay->direction) >= 0) {
+        if (dotV3f([closestEdge->leftSide->face norm], &theRay->direction) >= 0)
             hit = [[PickingHit alloc] initWithObject:closestEdge->leftSide->face type:HT_CLOSE_FACE hitPoint:&hitPoint distance:closestRayDist];
-        } else {
+        else
             hit = [[PickingHit alloc] initWithObject:closestEdge->rightSide->face type:HT_CLOSE_FACE hitPoint:&hitPoint distance:closestRayDist];
-        }
+        [theHitList addHit:hit];
+        [hit release];
     }
-    
-    [theHitList addHit:hit];
-    [hit release];
 }
 
 - (BOOL)intersectsBrush:(id <Brush>)theBrush {

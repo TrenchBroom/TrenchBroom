@@ -602,7 +602,7 @@ static const double ClickThreshold = 0.2;
         
         SelectionManager* selectionManager = [windowController selectionManager];
         if ([selectionManager mode] == SM_BRUSHES) {
-            [picker pickCloseFaces:&lastRay brushes:[selectionManager selectedBrushes] maxDistance:10 hitList:currentHits];
+            [picker pickCloseFaces:&lastRay brushes:[selectionManager selectedBrushes] maxDistance:30 hitList:currentHits];
             [picker pickVertices:&lastRay brushes:[selectionManager selectedBrushes] handleRadius:3 hitList:currentHits filter:filter];
         }
     } 
