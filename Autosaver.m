@@ -131,6 +131,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             NSString* backupBasename = [NSString stringWithFormat:@"%@ %i", mapBasename, backupNo];
             NSString* backupPath = [[autosavePath stringByAppendingPathComponent:backupBasename] stringByAppendingPathExtension:@"map"];
             
+            NSLog(@"Autosaving to file '%@'", backupPath);
+            
             MapWriter* mapWriter = [[MapWriter alloc] initWithMap:map];
             [mapWriter writeToFileAtPath:backupPath];
             [mapWriter release];

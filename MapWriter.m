@@ -35,14 +35,14 @@ void writeFace(id <Face> theFace, NSOutputStream* theStream) {
     
      [theFace point1:&p1 point2:&p2 point3:&p3];
 
-    int length = sprintf(buffer,  "( %i %i %i ) ( %i %i %i ) ( %i %i %i ) %s %i %i %f %f %f\n",
+    int length = sprintf(buffer,  "( %i %i %i ) ( %i %i %i ) ( %i %i %i ) %s %i %i %i %f %f\n",
                          (int)roundf(p1.x), (int)roundf(p1.y), (int)roundf(p1.z),
                          (int)roundf(p2.x), (int)roundf(p2.y), (int)roundf(p2.z),
                          (int)roundf(p3.x), (int)roundf(p3.y), (int)roundf(p3.z),
                          [[[theFace texture] name] cStringUsingEncoding:NSASCIIStringEncoding],
-                         [theFace xOffset], 
-                         [theFace yOffset], 
-                         [theFace rotation], 
+                         (int)roundf([theFace xOffset]), 
+                         (int)roundf([theFace yOffset]), 
+                         (int)roundf([theFace rotation]), 
                          [theFace xScale], 
                          [theFace yScale]);
     writeString(buffer, length, theStream);
