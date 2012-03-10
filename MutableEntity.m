@@ -209,8 +209,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVector3f direction;
     
     if (a >= 0) {
-        direction.x = cos(a * M_PI / 180);
-        direction.y = sin(a * M_PI / 180);
+        direction.x = cos(2 * M_PI - a * M_PI / 180);
+        direction.y = sin(2 * M_PI - a * M_PI / 180);
         direction.z = 0;
     } else if (a == -1) {
         direction = ZAxisPos;
@@ -232,7 +232,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         }
         
         a = roundf(acos(direction.x) * 180 / M_PI);
-        if (direction.y > 0)
+        crossV3f(&direction, &XAxisPos, &temp);
+        if (!nullV3f(&temp) && temp.z < 0)
             a = 360 - a;
         
         [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
@@ -263,8 +264,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVector3f direction;
     
     if (a >= 0) {
-        direction.x = cos(a * M_PI / 180);
-        direction.y = sin(a * M_PI / 180);
+        direction.x = cos(2 * M_PI - a * M_PI / 180);
+        direction.y = sin(2 * M_PI - a * M_PI / 180);
         direction.z = 0;
     } else if (a == -1) {
         direction = ZAxisPos;
@@ -286,7 +287,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         }
         
         a = roundf(acos(direction.x) * 180 / M_PI);
-        if (direction.y > 0)
+        crossV3f(&direction, &XAxisPos, &temp);
+        if (!nullV3f(&temp) && temp.z < 0)
             a = 360 - a;
         
         [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
@@ -318,8 +320,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TVector3f direction;
     
     if (a >= 0) {
-        direction.x = cos(a * M_PI / 180);
-        direction.y = sin(a * M_PI / 180);
+        direction.x = cos(2 * M_PI - a * M_PI / 180);
+        direction.y = sin(2 * M_PI - a * M_PI / 180);
         direction.z = 0;
     } else if (a == -1) {
         direction = ZAxisPos;
@@ -341,8 +343,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         }
 
         a = roundf(acos(direction.x) * 180 / M_PI);
-        if (direction.y > 0)
+        crossV3f(&direction, &XAxisPos, &temp);
+        if (!nullV3f(&temp) && temp.z < 0)
             a = 360 - a;
+        
         
         [self setProperty:AngleKey value:[NSString stringWithFormat:@"%i", a]];
     }

@@ -141,9 +141,6 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     
     [self makeUndoSnapshotOfFaces:theFaces];
     
-    [selectionManager removeAll:NO];
-    [selectionManager addFaces:theFaces record:NO];
-    
     NSEnumerator* faceEn = [theFaces objectEnumerator];
     NSEnumerator* snapshotEn = [theSnapshot objectEnumerator];
     MutableFace* face;
@@ -183,9 +180,6 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
     [self makeUndoSnapshotOfBrushes:theBrushes];
     
-    [selectionManager removeAll:NO];
-    [selectionManager addBrushes:theBrushes record:NO];
-
     NSEnumerator* brushEn = [theBrushes objectEnumerator];
     NSEnumerator* snapshotEn = [theSnapshot objectEnumerator];
     MutableBrush* brush;
@@ -234,9 +228,6 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     NSAssert([theSnapshot count] == [theEntities count], @"snapshot must contain the same number of items as entity array");
     
     [self makeUndoSnapshotOfEntities:theEntities];
-    
-    [selectionManager removeAll:NO];
-    [selectionManager addEntities:theEntities record:NO];
     
     NSEnumerator* entityEn = [theEntities objectEnumerator];
     NSEnumerator* snapshotEn = [theSnapshot objectEnumerator];

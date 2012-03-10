@@ -1407,9 +1407,7 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
         } else if ([options isolationMode] == IM_WIREFRAME) {
             activateVbo(&entityBoundsVbo);
             glEnableClientState(GL_VERTEX_ARRAY);
-            
             [self renderEntityBounds:&EntityBoundsWireframeColor vertexCount:entityBoundsVertexCount];
-
             glDisableClientState(GL_VERTEX_ARRAY);
             deactivateVbo(&entityBoundsVbo);
         }
@@ -1439,12 +1437,6 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
     if ([options renderSizeGuides] && [[windowController selectionManager] hasSelection]) {
         glDisable(GL_DEPTH_TEST);
         [selectionBoundsRenderer renderColor:&SelectionColor];
-        /*
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-        [selectionBoundsRenderer renderColor:&SelectionColor];
-        glDepthFunc(GL_LESS);
-         */
     }
     
     if ([feedbackFigures count] > 0) {
