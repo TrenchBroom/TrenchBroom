@@ -11,11 +11,13 @@
 <body>
 	<div id="container">
 		<h2>Shaping Brushes</h2>
-		The shape of a brush can be changed using two different tools: Face dragging and clipping. While face dragging can only change the location of individual faces, clipping can truly change the shape of a brush by adding new faces and deleting existing faces of the brush. The following section will cover face dragging while clipping is explained in the subsequent section.
+		The shape of a brush can be changed using several different tools. With the <a href="#face_dragging">face dragging</a> tool, you can quickly move faces, thereby changing the brushes size. The <a href="#using_the_clipping_tool">clipping tool</a> allows you to cut brushes into arbitrary shapes. You can <a href="#deleting_faces">delete</a> individual faces of a brush. TrenchBroom also comes with very powerful tools to edit the <a href="vertex_editing">vertices</a>, <a href="edge_editing">edges</a> and the <a href="face_editing">faces</a> of a brush.
+
+		 and clipping. While face dragging can only change the location of individual faces, clipping can truly change the shape of a brush by adding new faces and deleting existing faces of the brush. The following section will cover face dragging while clipping is explained in the subsequent section.
 		
 		<a name="face_dragging"></a><h3>Face Dragging</h3>
 		<img src="../../shrd/face_dragging_frontface.png" width="180" height="180" alt="Dragging a Front Face" class="inline">
-		<p>Face dragging is actually a translation of a face along its normal. This means that you cannot move faces around freely, but are restricted to the face's norm as its single axis of movement. There are two options to initiate a face drag. The first is to select a face and then <b>click and drag</b> it with the <b>left mouse button</b>. Once you move your mouse over a selected face, you will notice that the cursor changes into a small yellow arrow. This arrow indicates the direction in which you can drag the face. If you select multiple faces and start dragging one of them, all faces will be moved along their normal. This way, you can change a brush's size in multiple dimensions at once.</p>
+		<p>Face dragging is actually a translation of a face along its normal. This means that you cannot move faces around freely, but are restricted to the face's normal as its single axis of movement. There are two options to initiate a face drag. The first is to select a face and then <b>click and drag</b> it with the <b>left mouse button</b>. Once you move your mouse over a selected face, you will notice that the cursor changes into a small yellow arrow. This arrow indicates the direction in which you can drag the face. If you select multiple faces and start dragging one of them, all faces will be moved along their normal. This way, you can change a brush's size in multiple dimensions at once.</p>
 		<br clear="all">
 		<p>The second way to drag a face is to select the brush which the face belongs to and then <b>click and drag</b> on a face with the <b>left mouse button</b> while holding the <b>command key (&#x2318;)</b>. Note that if you have multiple brushes selected and you drag a face, every face of any selected brush that lies in the same plane as the dragged face will be moved, too. This allows you to quickly change the sizes of multiple brushes at once.</p>
 		
@@ -56,17 +58,17 @@
 		<p>In certain situations, you have to place clipping points which are not on the surface of any of the selected brushes. If you find that you to place a clipping point somewhere in the void, you can drag that clipping point off any of the faces of the selected brushes. Simply click on any face of a selected brush and <b>drag with the left mouse button</b>. You will see a red grid which will help you place the point. The grid is aligned with the face on which you started your drag and it represents the plane on which you can place the clipping point. You can also edit already placed clipping points by dragging them around with the <b>left mouse button</b>.</p>
 		<br clear="all">
 
+		<a name="deleting_faces"></a><h3>Deleting Faces</h3>
+		<p></p>
+
 		<a name="vertex_editing"></a><h3>Vertex Editing</h3>
 		<p></p>
-		<br clear="all">
 
 		<a name="edge_editing"></a><h3>Edge Editing</h3>
 		<p></p>
-		<br clear="all">
 
 		<a name="face_editing"></a><h3>Face Editing</h3>
 		<p></p>
-		<br clear="all">
 	</div>
 </body>
 </html>
