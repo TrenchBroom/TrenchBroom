@@ -42,15 +42,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         initVertexData(&vertexData);
         NSMutableArray* droppedFaces = nil;
         if (!initVertexDataWithFaces(&vertexData, worldBounds, faces, &droppedFaces)) {
+            freeVertexData(&vertexData);
+            return NULL;
+        } else {
             if (droppedFaces != nil) {
                 for (MutableFace* droppedFace in droppedFaces) {
                     [droppedFace setBrush:nil];
                     [faces removeObject:droppedFace];
                 }
             }
-            freeVertexData(&vertexData);
-            return NULL;
-        } else {
             vertexDataValid = YES;
         }
         
