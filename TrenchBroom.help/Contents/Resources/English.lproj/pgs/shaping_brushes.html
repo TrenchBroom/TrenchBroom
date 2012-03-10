@@ -12,21 +12,18 @@
 	<div id="container">
 		<h2>Shaping Brushes</h2>
 		The shape of a brush can be changed using several different tools. With the <a href="#face_dragging">face dragging</a> tool, you can quickly move faces, thereby changing the brushes size. The <a href="#using_the_clipping_tool">clipping tool</a> allows you to cut brushes into arbitrary shapes. You can <a href="#deleting_faces">delete</a> individual faces of a brush. TrenchBroom also comes with very powerful tools to edit the <a href="vertex_editing">vertices</a>, <a href="edge_editing">edges</a> and the <a href="face_editing">faces</a> of a brush.
-
-		 and clipping. While face dragging can only change the location of individual faces, clipping can truly change the shape of a brush by adding new faces and deleting existing faces of the brush. The following section will cover face dragging while clipping is explained in the subsequent section.
 		
 		<a name="face_dragging"></a><h3>Face Dragging</h3>
 		<img src="../../shrd/face_dragging_frontface.png" width="180" height="180" alt="Dragging a Front Face" class="inline">
-		<p>Face dragging is actually a translation of a face along its normal. This means that you cannot move faces around freely, but are restricted to the face's normal as its single axis of movement. There are two options to initiate a face drag. The first is to select a face and then <b>click and drag</b> it with the <b>left mouse button</b>. Once you move your mouse over a selected face, you will notice that the cursor changes into a small yellow arrow. This arrow indicates the direction in which you can drag the face. If you select multiple faces and start dragging one of them, all faces will be moved along their normal. This way, you can change a brush's size in multiple dimensions at once.</p>
-		<br clear="all">
-		<p>The second way to drag a face is to select the brush which the face belongs to and then <b>click and drag</b> on a face with the <b>left mouse button</b> while holding the <b>command key (&#x2318;)</b>. Note that if you have multiple brushes selected and you drag a face, every face of any selected brush that lies in the same plane as the dragged face will be moved, too. This allows you to quickly change the sizes of multiple brushes at once.</p>
+		<p>Face dragging is actually a translation of a face along its normal. This means that you cannot move faces around freely, but are restricted to the face's normal as its single axis of movement. To drag a face, click and drag it with the <b>left mouse button</b> while holding the <b>command key (&#x2318;)</b>. If you select multiple faces and start dragging one of them, all faces will be moved along their normal. This way, you can change a brush's size in multiple dimensions at once. Note that if you have multiple brushes selected and you drag a face, every face of any selected brush that lies in the same plane as the dragged face will be moved, too. This allows you to quickly change the sizes of multiple brushes at once.</p>
 		
+		<br clear="all">
 		<img src="../../shrd/face_dragging_backface.png" width="180" height="180" alt="Dragging a Back Face" class="inline">
-		<p>You can also drag faces which are behind the brush, but this is only possible if you use the second option described above. If you hold the <b>command key (&#x2318;)</b> and move your mouse outside of a selected brush, you will notice that the cursor again changes to the yellow arrow if you move the cursor close to an outer edge of the brush. Since any edge belongs to exactly two faces, an outer edge belongs to one face that faces the camera and one face that faces away from the camera. The latter face is the one which you can drag if you start your drag just outside of an outer edge. Note that you can only drag faces which have at least one edge visible. If you want to drag faces which are completely on the back of the brush, you need to reposition the camera.</p>
+		<p>You can also drag faces which are behind the brush. Hold the <b>command key (&#x2318;)</b> and move your mouse outside of a selected brush, but close to an outer edge of the brush. Since any edge belongs to exactly two faces, an outer edge belongs to one face that faces the camera and one face that faces away from the camera. The latter face is the one which you can drag if you start your drag just outside of an outer edge. Note that you can only drag faces which have at least one edge visible. If you want to drag faces which are completely on the back of the brush, you need to reposition the camera.</p>
 		
 		<br clear="all">
 		<a name="using_the_clipping_tool"></a><h3>Using the Clipping Tool</h3>
-		<p>The clipping tool is the most important tool to change the shapes of brushes because it is the only tool that can actually add and remove faces from a brush. It is also the only tool in TrenchBroom that is not activated with a modifier key such as the shift key. To toggle the clip tool, you need to press the <b>C key</b> while brushes are selected. Afterwards, you will notice a green dot under your mouse cursor if you move the mouse over a selected brushes (see also the first of the following screenshots).</p>
+		<p>The clipping tool an important tool to change the shapes of brushes because it can add and remove faces from a brush. It is not activated with a modifier key such as the shift key. To toggle the clip tool, you need to press the <b>C key</b> while brushes are selected. Afterwards, you will notice a green dot under your mouse cursor if you move the mouse over a selected brushes (see also the first of the following screenshots).</p>
 		<p>The general principle of any clip tool is that it cuts one or several brushes by adding a face to them. Remember that brushes are made of faces, and each face defines a plane which is actually the boundary of a half space. The brushes volume is then the intersection of all the half spaces defined by its faces. If you add a new face to a brush, there are three possible outcomes:</p>
 		<ul>
 			<li>The halfspace defined by the new plane does not intersect the brushes volume at all, and as a result the brush becomes invalid and is deleted.</li>
@@ -57,9 +54,16 @@
 		<img src="../../shrd/clipping_drag_point.png" width="260" height="203" alt="Dragging a Clip Point" class="inline">
 		<p>In certain situations, you have to place clipping points which are not on the surface of any of the selected brushes. If you find that you to place a clipping point somewhere in the void, you can drag that clipping point off any of the faces of the selected brushes. Simply click on any face of a selected brush and <b>drag with the left mouse button</b>. You will see a red grid which will help you place the point. The grid is aligned with the face on which you started your drag and it represents the plane on which you can place the clipping point. You can also edit already placed clipping points by dragging them around with the <b>left mouse button</b>.</p>
 		<br clear="all">
+		<p>You should practice a bit with the clipping tool. Often, you can change a brush into a desired shape much quicker using the clipping tool than if you use one of the other options described in this section.</p>
 
 		<a name="deleting_faces"></a><h3>Deleting Faces</h3>
-		<p></p>
+		<p>Sometimes, it is useful to delete a face of a brush. For example, in the following screenshots, deleting the selected face changes the brush's shape into a cuboid.</p>
+		<div class="images">
+			<img src="../../shrd/delete_face_1.png" width="300" height="253" alt="Deleting a Face">
+			<img src="../../shrd/delete_face_2.png" width="300" height="253" alt="Deleting a Face">
+			<div class="imagecaption">Deleting a face.</div>
+		</div>
+		<p>However, it is not always possible to delete a face. You can only delete faces if the brush does not become invalid as a result. Consider the cuboid in the second screenshot as an example. If you delete any face of this cuboid, the brush is no longer closed and thus invalid. Hence, none of its faces can be deleted.</p>
 
 		<a name="vertex_editing"></a><h3>Vertex Editing</h3>
 		<p></p>

@@ -1225,6 +1225,14 @@
 			<object class="NSMenu" id="171675804">
 				<string key="NSTitle">Object Action Menu</string>
 				<array class="NSMutableArray" key="NSMenuItems">
+					<object class="NSMenuItem" id="1035831988">
+						<reference key="NSMenu" ref="171675804"/>
+						<string key="NSTitle">Move Left</string>
+						<string key="NSKeyEquiv"></string>
+						<int key="NSMnemonicLoc">2147483647</int>
+						<reference key="NSOnImage" ref="1033313550"/>
+						<reference key="NSMixedImage" ref="310636482"/>
+					</object>
 					<object class="NSMenuItem" id="757584531">
 						<reference key="NSMenu" ref="171675804"/>
 						<bool key="NSIsAlternate">YES</bool>
@@ -1353,7 +1361,7 @@
 						<reference key="NSOnImage" ref="1033313550"/>
 						<reference key="NSMixedImage" ref="310636482"/>
 					</object>
-					<object class="NSMenuItem" id="658553201">
+					<object class="NSMenuItem" id="747885854">
 						<reference key="NSMenu" ref="171675804"/>
 						<string key="NSTitle">Pitch 90° CW</string>
 						<string key="NSKeyEquiv"></string>
@@ -1362,7 +1370,7 @@
 						<reference key="NSOnImage" ref="1033313550"/>
 						<reference key="NSMixedImage" ref="310636482"/>
 					</object>
-					<object class="NSMenuItem" id="941517953">
+					<object class="NSMenuItem" id="84243192">
 						<reference key="NSMenu" ref="171675804"/>
 						<string key="NSTitle">Pitch 90° CCW</string>
 						<string key="NSKeyEquiv"></string>
@@ -1371,7 +1379,7 @@
 						<reference key="NSOnImage" ref="1033313550"/>
 						<reference key="NSMixedImage" ref="310636482"/>
 					</object>
-					<object class="NSMenuItem" id="319550397">
+					<object class="NSMenuItem" id="615481011">
 						<reference key="NSMenu" ref="171675804"/>
 						<string key="NSTitle">Yaw 90° CW</string>
 						<string key="NSKeyEquiv"></string>
@@ -1380,7 +1388,7 @@
 						<reference key="NSOnImage" ref="1033313550"/>
 						<reference key="NSMixedImage" ref="310636482"/>
 					</object>
-					<object class="NSMenuItem" id="161406799">
+					<object class="NSMenuItem" id="911924445">
 						<reference key="NSMenu" ref="171675804"/>
 						<string key="NSTitle">Yaw 90° CCW</string>
 						<string key="NSKeyEquiv"></string>
@@ -2246,7 +2254,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">rotateObjectsPitch90CW:</string>
 						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="658553201"/>
+						<reference key="destination" ref="747885854"/>
 					</object>
 					<int key="connectionID">1102</int>
 				</object>
@@ -2254,7 +2262,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">rotateObjectsPitch90CCW:</string>
 						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="941517953"/>
+						<reference key="destination" ref="84243192"/>
 					</object>
 					<int key="connectionID">1103</int>
 				</object>
@@ -2262,7 +2270,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">rotateObjectsYaw90CW:</string>
 						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="319550397"/>
+						<reference key="destination" ref="615481011"/>
 					</object>
 					<int key="connectionID">1104</int>
 				</object>
@@ -2270,9 +2278,17 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">rotateObjectsYaw90CCW:</string>
 						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="161406799"/>
+						<reference key="destination" ref="911924445"/>
 					</object>
 					<int key="connectionID">1105</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsLeft:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="1035831988"/>
+					</object>
+					<int key="connectionID">1110</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -3332,10 +3348,11 @@
 							<reference ref="516507106"/>
 							<reference ref="550767006"/>
 							<reference ref="62768314"/>
-							<reference ref="658553201"/>
-							<reference ref="941517953"/>
-							<reference ref="319550397"/>
-							<reference ref="161406799"/>
+							<reference ref="747885854"/>
+							<reference ref="84243192"/>
+							<reference ref="615481011"/>
+							<reference ref="911924445"/>
+							<reference ref="1035831988"/>
 						</array>
 						<reference key="parent" ref="0"/>
 					</object>
@@ -3506,22 +3523,27 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">1092</int>
-						<reference key="object" ref="658553201"/>
+						<reference key="object" ref="747885854"/>
 						<reference key="parent" ref="171675804"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">1093</int>
-						<reference key="object" ref="941517953"/>
+						<reference key="object" ref="84243192"/>
 						<reference key="parent" ref="171675804"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">1096</int>
-						<reference key="object" ref="319550397"/>
+						<reference key="object" ref="615481011"/>
 						<reference key="parent" ref="171675804"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">1097</int>
-						<reference key="object" ref="161406799"/>
+						<reference key="object" ref="911924445"/>
+						<reference key="parent" ref="171675804"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">1108</int>
+						<reference key="object" ref="1035831988"/>
 						<reference key="parent" ref="171675804"/>
 					</object>
 				</array>
@@ -3569,6 +3591,7 @@
 				<string key="1093.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="1096.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="1097.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="1108.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="112.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="124.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="125.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3706,7 +3729,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">1107</int>
+			<int key="maxID">1110</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
