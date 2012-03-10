@@ -33,6 +33,7 @@ NSString* const OptionsChanged = @"OptionsChanged";
         renderEntityClassnames = YES;
         renderBrushes = YES;
         renderOrigin = YES;
+        renderSizeGuides = YES;
         lockTextures = YES;
     }
     
@@ -122,6 +123,20 @@ NSString* const OptionsChanged = @"OptionsChanged";
         return;
     
     renderOrigin = doRenderOrigin;
+    
+    NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+    [center postNotificationName:OptionsChanged object:self];
+}
+
+- (BOOL)renderSizeGuides {
+    return renderSizeGuides;
+}
+
+- (void)setRenderSizeGuides:(BOOL)doRenderSideGuides {
+    if (renderSizeGuides == doRenderSideGuides)
+        return;
+    
+    renderSizeGuides = doRenderSideGuides;
     
     NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:OptionsChanged object:self];

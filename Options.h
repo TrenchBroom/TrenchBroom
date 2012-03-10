@@ -44,6 +44,7 @@ extern NSString* const OptionsChanged;
     BOOL renderEntityClassnames;
     BOOL renderBrushes;
     BOOL renderOrigin;
+    BOOL renderSizeGuides;
     BOOL lockTextures;
 }
 
@@ -66,6 +67,9 @@ extern NSString* const OptionsChanged;
 
 - (BOOL)renderOrigin;
 - (void)setRenderOrigin:(BOOL)doRenderOrigin;
+
+- (BOOL)renderSizeGuides;
+- (void)setRenderSizeGuides:(BOOL)doRenderSideGuides;
 
 - (BOOL)lockTextures;
 - (void)setLockTextures:(BOOL)doLockTextures;

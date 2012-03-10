@@ -1436,13 +1436,15 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
         }
     }
     
-    if ([[windowController selectionManager] hasSelection]) {
+    if ([options renderSizeGuides] && [[windowController selectionManager] hasSelection]) {
         glDisable(GL_DEPTH_TEST);
-        [selectionBoundsRenderer renderColor:&SelectionColor3];
+        [selectionBoundsRenderer renderColor:&SelectionColor];
+        /*
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
         [selectionBoundsRenderer renderColor:&SelectionColor];
         glDepthFunc(GL_LESS);
+         */
     }
     
     if ([feedbackFigures count] > 0) {
