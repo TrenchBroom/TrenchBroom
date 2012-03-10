@@ -35,5 +35,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (id)initWithMap:(MapDocument *)theMap saveInterval:(NSTimeInterval)theSaveInterval idleInterval:(NSTimeInterval)theIdleInterval numberOfBackups:(int)theNumberOfBackups;
 
 - (void)updateLastAction;
+- (void)terminate;
 
 @end

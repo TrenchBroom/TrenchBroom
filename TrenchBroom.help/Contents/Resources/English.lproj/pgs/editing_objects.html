@@ -11,17 +11,15 @@
 <body>
 	<div id="container">
 		<h2>Editing Objects</h2>
-		TrenchBroom allows you to <a href="#moving_objects">move</a>, <a href="#rotation_objects">rotate</a> and <a href="#flipping_objects">flip</a> objects. Furthermore, you can change the shape of a brush by dragging its vertices, edges, or faces and by clipping it. All properties of faces and entities can be changed using the inspector. Finally, you can of course delete objects.
+		TrenchBroom allows you to <a href="#moving_objects">move</a>, <a href="#rotation_objects">rotate</a> and <a href="#flipping_objects">flip</a> objects. All properties of faces and entities can be changed using the inspector. Of course, you can also delete objects.
 		<h3>The Editing Plane</h3>
         <p>It is very important that you understand how mouse input is mapped to 3D coordinates when editing objects in TrenchBroom. Since the mouse is a 2D input device, you cannot directly control all three dimensions when you edit objects with the mouse. For example, if you want to move a brush around, you can only move it in two directions by dragging it. Because of this, TrenchBroom maps all mouse input to the horizontal XY plane. This means that you can only move things around horizontally by default. To move an object vertically (and left or right), you need to hold the <b>option key (&#x2325;)</b> during editing.</p>
-		<br clear="all">
+		
+		<h3>The Closest Axis</h3>
+		<p>Sometimes, the effect of an editing action depends on the camera direction. Consider the axis of the rotation commands for example. Depending on how the camera is oriented, one of the coordinate system axes is selected as the rotation axis for these commands. To explain how such commands work, we will use the concept of the <b>closest axis</b> of a vector. For any given vector, its closest axis is determined by its greatest absolute component. So, if the camera direction is (0.7, 0.6, -0.4), the closest axis is the positive X axis because the X component (0.7) is the absolute greatest component of that vector.</p>
 		
 		<a name="moving_objects"></a><h3>Moving Objects</h3>
 		<p>You can either move objects using the cursor keys or the mouse. The <b>&#x2190;</b> and <b>&#x2192;</b> cursor keys move the selected objects left or right on the editing plane whereas the <b>&#x2193;</b> and <b>&#x2191;</b> keys move them towards or away from the camera. To move objects vertically, use the <b>page up (&#x21DE;)</b> or <b>page down (&#x21DF;)</b> key.</p>
-		<div class="images">
-			<img src="../../shrd/move_cursor.png" width="400" height="200" alt="Moving Objects with the Mouse">
-			<div class="imagecaption">Moving objects using the mouse.</div>
-		</div>
 		<p>To move the selected objects horizontally using the mouse, <b>click and drag</b> the objects with the <b>left mouse button</b>. To move them vertically, hold the <b>option key (&#x2325;)</b> while dragging.</p>
 		<div class="images">
 			<img src="../../shrd/moving_objects_grid_snap_1.png" width="260" height="240" alt="Grid Snapping in Move Operations">
@@ -32,70 +30,41 @@
 
 		<a name="rotating_objects"></a><h3>Rotating Objects</h3>
 		<p>There are two options for rotating objects. The first is to rotate the selected brushes by 90&deg; about the one of the axes of the coordinate system. The second is to rotate the selected objects freely using the mouse. In both cases, the center of the rotation is the center of the selected objects' bounding box.</p>
-		<p>To rotate the selected objects by 90&deg; clockwise about one of the axes of the coordinate system, choose <b>Edit &raquo; Object &raquo; Rotate 90 CW</b> from the menu or hit <b>&#x2318;R</b>. If you wish to rotate the objects counter clockwise, you need to hold the <b>option key (&#x2325;)</b> when you invoke the rotate command. The actual rotation axis depends on the camera direction. TrenchBroom always selects the axis which has the smallest angle with the camera direction. So if you want to rotate some objects about the Z axis, you need to orient the camera so that it looks down or up at the objects.</p>
-		<p>Objects can also be rotated freely without any restriction as to the angle or axis of the rotation. To rotate the selected objects, hold the <b>option key (&#x2325;)</b> and move your mouse in the 3D view. You will see that the mouse cursor turns into a rotation cursor that indicates the axes about which the objects can be rotated using the mouse. To start the rotation, <b>click and drag the left mouse button</b>. If you move the mouse horizontally, the objects are rotated about the Z axis and if you move your mouse vertically, they are moved about the current vertical rotation axis. The current vertical rotation axis depends on the horizontal rotation you have already applied. Note that the rotation angle is constrained to 15&deg; increments if grid snap is enabled. Disable grid snap to rotate the selected objects without any constraints.</p>
+		<p>To rotate the selected objects by 90&deg; clockwise about one of the axes of the coordinate system, choose one of the rotation commands from the <b>Edit &raquo; Actions</b> menu or hit the appropriate keyboard shortcut. The following rotation commands are available:</p>
+		<img src="../../shrd/roll_pitch_yaw.png" width="200" height="200" alt="Roll, Pitch and Yaw Axes" class="inline">
+		<ul style="margin-left: 210px;">
+			<li><b>Roll 90&deg; CW (&#x2318;&#x21DE;)</b> - rotate the selected objects clockwise about the closest axis of the camera direction by 90&deg;.</li>
+			<li><b>Roll 90&deg; CCW (&#x2318;&#x21DF;)</b> - rotate the selected objects counter-clockwise about the closest axis of the camera direction by 90&deg;.</li>
+			<li><b>Pitch 90&deg; CW (&#x2318;&#x2193;)</b> - rotate the selected objects clockwise about the closest axis of the right camera axis by 90&deg;.</li>
+			<li><b>Pitch 90&deg; CCW (&#x2318;&#x2191;)</b> - rotate the selected objects counter-clockwise about the closest axis of the right camera axis by 90&deg;.</li>
+			<li><b>Yaw 90&deg; CW (&#x2318;&#x2190;)</b> - rotate the selected objects clockwise about the Z axis by 90&deg;.</li>
+			<li><b>Yaw 90&deg; CCW (&#x2318;&#x2192;)</b> - rotate the selected objects counter-clockwise about the Z axis by 90&deg;.</li>
+		</ul>
+		<br clear="all">
+		<p>Objects can also be rotated freely without any restriction as to the angle or axis of the rotation. To rotate the selected objects, hold the <b>option and command keys (&#x2325;&#x2318;)</b> and move your mouse in the 3D view. You will see that the mouse cursor turns into a rotation cursor that indicates the axes about which the objects can be rotated using the mouse. While the horizontal rotation axis is always the Z axis, you can adjust the vertical rotation axis by <b>moving the mouse left and right</b>. The current rotation axes are represented by a compass-like figure (see screenshot below).</p>
+
+		<p>To start the rotation, <b>click and drag the left mouse button</b>. If you move the mouse left and right, the objects are rotated about the Z axis and if you move your mouse up and down, they are moved about the selected vertical rotation axis. The current vertical rotation axis depends on the horizontal rotation you have already applied. Note that the rotation angle is constrained to 15&deg; increments if grid snap is enabled. Disable grid snap to rotate the selected objects without any constraints.</p>
+		<div class="images">
+			<img src="../../shrd/rotate_tool.png" width="600" height="440" alt="Free Rotation">
+			<div class="imagecaption">The rotation tool and the rotation compass..</div>
+		</div>
 
 		<a name="flipping_objects"></a><h3>Flipping Objects</h3>
 		<p>The selected objects can be flipped (or mirrored) along the horizontal axis of the editing plane by choosing <b>Edit &raquo; Object &raquo; Flip Horizontally</b> from the menu or hitting <b>&#x2318;F</b>. To flip the selected objects along the vertical axis of the editing plane, hold the <b>option key (&#x2325;)</b> when invoking the flip command.</p>
 
-		<a name="editing_brushes"></a><h3>Editing Brushes</h3>
-		The shape of a brush can be changed using two different tools: Face dragging and clipping. While face dragging can only change the location of individual faces, clipping can truly change the shape of a brush by adding new faces and deleting existing faces of the brush. The following section will cover face dragging while clipping is explained in the subsequent section.
-		
-		<h4>Face Dragging</h4>
-		<img src="../../shrd/face_dragging_frontface.png" width="180" height="180" alt="Dragging a Front Face" class="inline">
-		<p>Face dragging is actually a translation of a face along its normal. This means that you cannot move faces around freely, but are restricted to the face's norm as its single axis of movement. There are two options to initiate a face drag. The first is to select a face and then <b>click and drag</b> it with the <b>left mouse button</b>. Once you move your mouse over a selected face, you will notice that the cursor changes into a small yellow arrow. This arrow indicates the direction in which you can drag the face. If you select multiple faces and start dragging one of them, all faces will be moved along their normal. This way, you can change a brush's size in multiple dimensions at once.</p>
-		<br clear="all">
-		<p>The second way to drag a face is to select the brush which the face belongs to and then <b>click and drag</b> on a face with the <b>left mouse button</b> while holding the <b>command key (&#x2318;)</b>. Note that if you have multiple brushes selected and you drag a face, every face of any selected brush that lies in the same plane as the dragged face will be moved, too. This allows you to quickly change the sizes of multiple brushes at once.</p>
-		
-		<img src="../../shrd/face_dragging_backface.png" width="180" height="180" alt="Dragging a Back Face" class="inline">
-		<p>You can also drag faces which are behind the brush, but this is only possible if you use the second option described above. If you hold the <b>command key (&#x2318;)</b> and move your mouse outside of a selected brush, you will notice that the cursor again changes to the yellow arrow if you move the cursor close to an outer edge of the brush. Since any edge belongs to exactly two faces, an outer edge belongs to one face that faces the camera and one face that faces away from the camera. The latter face is the one which you can drag if you start your drag just outside of an outer edge. Note that you can only drag faces which have at least one edge visible. If you want to drag faces which are completely on the back of the brush, you need to reposition the camera.</p>
-		
-		<br clear="all">
-		<h4>Clipping</h4>
-		<p>The clipping tool is the most important tool to change the shapes of brushes because it is the only tool that can actually add and remove faces from a brush. It is also the only tool in TrenchBroom that is not activated with a modifier key such as the shift key. To toggle the clip tool, you need to press the <b>C key</b> while brushes are selected. Afterwards, you will notice a green dot under your mouse cursor if you move the mouse over a selected brushes (see also the first of the following screenshots).</p>
-		<p>The general principle of any clip tool is that it cuts one or several brushes by adding a face to them. Remember that brushes are made of faces, and each face defines a plane which is actually the boundary of a half space. The brushes volume is then the intersection of all the half spaces defined by its faces. If you add a new face to a brush, there are three possible outcomes:</p>
-		<ul>
-			<li>The halfspace defined by the new plane does not intersect the brushes volume at all, and as a result the brush becomes invalid and is deleted.</li>
-			<li>The brushes volume is entirely contained in the halfspace defined by the new face, so nothing actually changes.</li>
-			<li>The intersection of the brushes volume and the half space defined by the new face is smaller than the brushes volume. The result is that the new face is added to the brush and all other faces which intersect with the new face are cut off. Additionally, some faces may be removed from the brush. This is what the clipping tool is designed to do.</li>
-		</ul>
-		<p>The clipping tool allows you to define a plane (called the <b>clipping plane</b>) by placing at least two points in space. This plane is then added to the selected brushes as a new face, and some brushes are deleted, some are changed and some retain their shape as described above. Depending on the orientation of the clipping plane, different parts of the selected brushes are retained and deleted. The following screenshots show the three clipping modes of the clipping tool:</p>
-		<div class="images">
-			<img src="../../shrd/clipping_mode_1.png" width="180" height="180" alt="Clipping Mode 1">
-			<img src="../../shrd/clipping_mode_2.png" width="180" height="180" alt="Clipping Mode 2">
-			<img src="../../shrd/clipping_mode_3.png" width="180" height="180" alt="Clipping Mode 3">
-			<div class="imagecaption">The modes of the clipping tool.</div>
-		</div>
+		<a name="deleting_objects"></a><h3>Deleting Objects</h3>
+		<p>To delete brushes or entities, select them in the 3D view and hit the <b>backspace key (&#x232B;)</b>.</p>
 
-		<p>The first screenshot shows the clipping plane in its default orientation. Here, only one part of the brush is kept and the other is deleted. The second screenshot shows the same clipping plane, but with the opposite orientation, so the part of the brush that would be deleted in the first screenshot is retained and vice versa. And finally the third screenshot shows the third mode of the clipping tool. Here, both parts of the brush are retained, so the brush is split in two along the clipping plane.</p>
-		<p>Now how does the clipping tool work in practice? After it is activated, you can place up to three points in space. These points define the clipping plane. The following screenshots should give you an idea how this works:</p>
-
-		<div class="images">
-			<img src="../../shrd/clipping_1.png" width="150" height="150" alt="Clipping Tool with One Point">
-			<img src="../../shrd/clipping_2.png" width="150" height="150" alt="Clipping Tool with Two Points">
-			<img src="../../shrd/clipping_3.png" width="150" height="150" alt="Clipping Tool with Three Points">
-			<img src="../../shrd/clipping_4.png" width="150" height="150" alt="Clipped Brush">
-			<div class="imagecaption">The clipping tool needs at least two points.</div>
-		</div>
-		<p>The green dots represent the clipping points. The clipping tool needs at least two clipping points to create a clipping plane. You can place clipping points by clicking with the <b>left mouse button</b>, but you can only place clipping points on the faces of the currently selected brushes. However, you can drag clipping points off the faces (see below). You can delete the most recently placed clipping point by hitting the <b>backspace key (&#x232B;)</b>. Once you have placed two points, the clipping tool will try to guess a clipping plane for you. If you need more control over the clipping plane, you need to plane a third point. Now the clipping plane will be represented by a green triangle that has the three points as vertices (see third screenshot).</p>
-		<p>The clipping tool always gives you an instant preview of how the clipped brushes will look like. Once you are satisfied with the clipping plane, you can hit <b>return (&#x21A9;)</b> to perform the clip. You can toggle between the three modes of the clipping tool using the <b>tab key (&#x21E5;)</b>. If you would like to cancel the clipping operation, simply deactivate the clipping tool by hitting <b>C</b>.</p>
-
-		<img src="../../shrd/clipping_drag_point.png" width="260" height="203" alt="Dragging a Clip Point" class="inline">
-		<p>In certain situations, you have to place clipping points which are not on the surface of any of the selected brushes. If you find that you to place a clipping point somewhere in the void, you can drag that clipping point off any of the faces of the selected brushes. Simply click on any face of a selected brush and <b>drag with the left mouse button</b>. You will see a red grid which will help you place the point. The grid is aligned with the face on which you started your drag and it represents the plane on which you can place the clipping point. You can also edit already placed clipping points by dragging them around with the <b>left mouse button</b>.</p>
-		<br clear="all">
-		
 		<a name="applying_textures"></a><h3>Applying Textures</h3>
-		<p>You can assign new textures to faces in two ways: Selecting the texture for the currently selected faces in the texture browser or using the stamp tool. To assign a texture using the first way, select the faces you want to assign the texture to in the 3D view and then click on the texture in the texture browser. If you select entire brushes in the 3D view, the texture will be assigned to all faces of the selected brushes.</p>
+		<p>You can assign new textures to faces in two ways: Selecting the texture for the currently selected faces in the texture browser or using the mouse. To assign a texture using the first way, select the faces you want to assign the texture to in the 3D view and then click on the texture in the texture browser. If you select entire brushes in the 3D view, the texture will be assigned to all faces of the selected brushes.</p>
 
-		<img src="../../shrd/texture_stamp.png" width="150" height="150" alt="Texture Stamp Tool" class="inline">
-		<p>The stamp tool is useful if you want to copy the texture of an existing face to other faces. Select the face whose texture you want to copy in the 3D view, then <b>left click</b> on the faces you wish to copy the texture to while holding the <b>option key (&#x2325;)</b>. You will notice that once you press the option key, the cursor changes to a yellow square if you move it over a non-selected face. In the screenshot, the selected face has a blue brick texture. This texture will be applied to the face on the right once the face is clicked on. If you double click while holding the option key, the texture is applied on each face of the brush.</p>
-		<br clear="all">
-		<p>In the next section, you will learn how you can use the stamp tool to not only copy the texture and the attributes of an existing face to other faces.</p>
+		<p>The second way is useful if you want to copy the texture of an existing face to other faces. First, select the face whose texture you want to copy in the 3D view. This face is called the <b>source face</b>. Then <b>left click</b> on the target faces you wish to copy the texture to while holding the <b>option key (&#x2325;)</b>. If you double click while holding the option key, the texture is applied on each face of the brush to which the target face belongs.</p>
+		<p>In the next section, you will learn how you can use this technique to not only copy the texture and the attributes of an existing face to other faces.</p>
 
 		<a name="changing_face_attributes"></a><h3>Changing Face Attributes</h3>
 		<p>The attributes of a face are the horizontal and vertical offsets and scaling factors as well as the rotation of the texture. To examine the attributes of a face, you must first select it in the 3D view. The <a href="">quick view bar</a> at the bottom of the 3D view displays the attributes of the selected face(s) in its very right section:</p>
 		<div class="images">
-			<img src="../../shrd/quick_view_bar_attributes.png" width="513" height="97" alt="Face Attributes in the Quick View Bar">
+			<img src="../../shrd/quick_view_bar_attributes.png" width="592" height="97" alt="Face Attributes in the Quick View Bar">
 			<div class="imagecaption">The quick view bar allows you to inspect the face attributes.</div>
 		</div>
 		
@@ -111,20 +80,19 @@
 			<li><b>Edit &raquo; Move Right (<b>&#x2192;</b>)</b> - increases the horizontal texture offset by the current grid size</li>
 			<li><b>Edit &raquo; Move Up (<b>&#x2191;</b>)</b> - increases the vertical texture offset by the current grid size</li>
 			<li><b>Edit &raquo; Move Down (<b>&#x2193;)</b></b> - decreases the vertical texture offset by the current grid size</li>
-			<li><b>Edit &raquo; Texture &raquo; Rotate Left By 15 (<b>U</b>)</b> - rotates the texture left by 15 degrees (&#x2325;: 1 degree)</li>
-			<li><b>Edit &raquo; Texture &raquo; Rotate Right By 15 (<b>O</b>)</b> - rotates the texture right by 15 degrees(&#x2325;: 1 degree)</li>
-			<li><b>Edit &raquo; Texture &raquo; Stretch Horizontally (<b>H</b>)</b> - increases the horizontal stretching factor by 0.05</li>
-			<li><b>Edit &raquo; Texture &raquo; Shrink Horizontally (<b>F</b>)</b> - decreases the horizontal stretching factor by 0.05</li>
-			<li><b>Edit &raquo; Texture &raquo; Stretch Vertically (<b>T</b>)</b> - increases the vertical stretching factor by 0.05</li>
-			<li><b>Edit &raquo; Texture &raquo; Shrink Vertically (<b>G</b>)</b> - decreases the vertical stretching factor by 0.05</li>
+			<li><b>Edit &raquo; Texture &raquo; CW Left By 15 (<b>U</b>)</b> - rotates the texture left by 15&deg; (&#x2325;: 1 degree)</li>
+			<li><b>Edit &raquo; Texture &raquo; CCW Right By 15 (<b>O</b>)</b> - rotates the texture right by 15&deg; (&#x2325;: 1 degree)</li>
 		</ul>
-		<p>&nbsp;</p>
-		<img src="../../shrd/texture_stamp_with_attributes.png" width="150" height="150" alt="Texture Stamp Tool with Attributes" class="inline">
-		<p>Besides copying the texture of the selected face to other faces, the stamp tool can also copy face attributes. Simply hold the <b>command key (&#x2318;)</b> while clicking on another face and along with the texture, the attributes of the selected face are copied to the face you clicked on. In the screenshot, you can see how the stamp cursor is changed to indicate that you are copying face attributes.</p>
-		<br clear="all">
+		<p>To move the texture by 1 instead of the current grid size or to rotate the texture by 1&deg; instead of 15&deg;, hold the <b>option key (&#x2325;)</b> while invoking these commands.</p>
+		<p>Besides copying the texture of the selected face to other faces, you can also use the mouse to copy face attributes. Simply hold the <b>command key (&#x2318;)</b> while clicking on another face and along with the texture, the attributes of the source face are copied to the target face you clicked on.</p>
 		
 		<a name="using_the_entity_property_editor"></a><h3>Using the Entity Property Editor</h3>
-		
+		<p>Each Quake entity has some properties associated with it. These properties control the appearance or the effect of an entity in the game. Each property has a key and a value. In TrenchBroom, these properties can be edited using property list in the entity inspector. The property list represents all properties of the selected entities.</p>
+		<div class="images">
+			<img src="../../shrd/inspector_entity_properties.png" width="401" height="348" alt="Entity Properties in the Inspector">
+			<div class="imagecaption">The property list allows you to edit the properties of the selected entities.</div>
+		</div>
+		<p>To edit the key or the value of a property, simply <b>double click</b> it and enter the new key or value in the entity inspector. Hit <b>return (&#x21A9;)</b> to commit the changes. To create a new property, click on the <b>plus button</b> below the property list. To delete one or more properties, select them in the list and click on the <b>minus button</b> below the property list. Note that you can also edit the properties of multiple selected entities at once. However, only those properties are displayed in the list which all selected entities have in common.</p>
 	</div>
 </body>
 </html>

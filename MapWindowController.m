@@ -82,6 +82,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)moveTextures:(const TVector3f *)theDirection;
 - (void)rotateTextures:(BOOL)clockwise;
 
+- (void)rotateObjects:(const TVector3f *)refAxis clockwise:(BOOL)clockwise;
 @end
 
 @implementation MapWindowController (private)
@@ -351,6 +352,44 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [undoManager setActionName:@"Rotate Textures"];
 }
 
+- (void)rotateObjects:(const TVector3f *)refAxis clockwise:(BOOL)clockwise {
+    EAxis axis;
+    float comp;
+    TVector3f centerf;
+    TBoundingBox bounds;
+    
+    MapDocument* map = [self document];
+    SelectionManager* selectionManager = [self selectionManager];
+    
+    axis = strongestComponentV3f(refAxis);
+    comp = componentV3f(refAxis, axis);
+    [selectionManager selectionBounds:&bounds];
+    centerOfBounds(&bounds, &centerf);
+    
+    if (comp > 0 == clockwise)
+        rotateBounds90CW(&bounds, axis, &centerf, &bounds);
+    else
+        rotateBounds90CCW(&bounds, axis, &centerf, &bounds);
+    
+    if (boundsContainBounds([map worldBounds], &bounds)) {
+        roundV3f(&centerf, &centerf);
+        
+        NSUndoManager* undoManager = [map undoManager];
+        [undoManager beginUndoGrouping];
+        
+        if (comp > 0 == clockwise) {
+            [map rotateBrushes90CW:[selectionManager selectedBrushes] axis:axis center:centerf lockTextures:[options lockTextures]];
+            [map rotateEntities90CW:[selectionManager selectedEntities] axis:axis center:centerf];
+        } else {
+            [map rotateBrushes90CCW:[selectionManager selectedBrushes] axis:axis center:centerf lockTextures:[options lockTextures]];
+            [map rotateEntities90CCW:[selectionManager selectedEntities] axis:axis center:centerf];
+        }
+        
+        [undoManager endUndoGrouping];
+        [undoManager setActionName:@"Rotate Objects 90°"];
+    }
+}
+
 @end
 
 @implementation MapWindowController
@@ -518,9 +557,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
     } else if (action == @selector(moveObjectsDown:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
-    } else if (action == @selector(rotateObjects90CW:)) {
+    } else if (action == @selector(rotateObjectsRoll90CW:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
-    } else if (action == @selector(rotateObjects90CCW:)) {
+    } else if (action == @selector(rotateObjectsRoll90CCW:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
+    } else if (action == @selector(rotateObjectsPitch90CW:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
+    } else if (action == @selector(rotateObjectsPitch90CCW:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
+    } else if (action == @selector(rotateObjectsYaw90CW:)) {
+        return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
+    } else if (action == @selector(rotateObjectsYaw90CCW:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
     } else if (action == @selector(flipObjectsHorizontally:)) {
         return [selectionManager hasSelectedBrushes] || [selectionManager hasSelectedEntities];
@@ -736,79 +783,28 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [self moveObjects:[horizontalDragPlane zAxisNeg]];
 }
 
-
-- (IBAction)rotateObjects90CW:(id)sender {
-    MapDocument* map = [self document];
-    SelectionManager* selectionManager = [self selectionManager];
-    
-    EAxis axis;
-    float comp;
-    TVector3f centerf;
-    TBoundingBox bounds;
-
-    axis = strongestComponentV3f([camera direction]);
-    comp = componentV3f([camera direction], axis);
-    [selectionManager selectionBounds:&bounds];
-    centerOfBounds(&bounds, &centerf);
-    
-    if (comp < 0)
-        rotateBounds90CW(&bounds, axis, &centerf, &bounds);
-    else
-        rotateBounds90CCW(&bounds, axis, &centerf, &bounds);
-    
-    if (boundsContainBounds([map worldBounds], &bounds)) {
-        roundV3f(&centerf, &centerf);
-        
-        NSUndoManager* undoManager = [map undoManager];
-        [undoManager beginUndoGrouping];
-        
-        if (comp < 0) {
-            [map rotateBrushes90CW:[selectionManager selectedBrushes] axis:axis center:centerf lockTextures:[options lockTextures]];
-            [map rotateEntities90CW:[selectionManager selectedEntities] axis:axis center:centerf];
-        } else {
-            [map rotateBrushes90CCW:[selectionManager selectedBrushes] axis:axis center:centerf lockTextures:[options lockTextures]];
-            [map rotateEntities90CCW:[selectionManager selectedEntities] axis:axis center:centerf];
-        }
-        
-        [undoManager endUndoGrouping];
-        [undoManager setActionName:@"Rotate Objects 90° Clockwise"];
-    }
+- (IBAction)rotateObjectsRoll90CW:(id)sender {
+    [self rotateObjects:[camera direction] clockwise:NO];
 }
 
-- (IBAction)rotateObjects90CCW:(id)sender {
-    MapDocument* map = [self document];
-    SelectionManager* selectionManager = [self selectionManager];
-    
-    EAxis axis;
-    float comp;
-    TVector3f center;
-    TBoundingBox bounds;
-    
-    axis = strongestComponentV3f([camera direction]);
-    comp = componentV3f([camera direction], axis);
-    [selectionManager selectionBounds:&bounds];
-    centerOfBounds(&bounds, &center);
+- (IBAction)rotateObjectsRoll90CCW:(id)sender {
+    [self rotateObjects:[camera direction] clockwise:YES];
+}
 
-    if (comp > 0)
-        rotateBounds90CW(&bounds, axis, &center, &bounds);
-    else
-        rotateBounds90CCW(&bounds, axis, &center, &bounds);
+- (IBAction)rotateObjectsPitch90CW:(id)sender{
+    [self rotateObjects:[camera right] clockwise:YES];
+}
 
-    if (boundsContainBounds([map worldBounds], &bounds)) {
-        NSUndoManager* undoManager = [map undoManager];
-        [undoManager beginUndoGrouping];
-        
-        if (comp > 0) {
-            [map rotateBrushes90CW:[selectionManager selectedBrushes] axis:axis center:center lockTextures:[options lockTextures]];
-            [map rotateEntities90CW:[selectionManager selectedEntities] axis:axis center:center];
-        } else {
-            [map rotateBrushes90CCW:[selectionManager selectedBrushes] axis:axis center:center lockTextures:[options lockTextures]];
-            [map rotateEntities90CCW:[selectionManager selectedEntities] axis:axis center:center];
-        }
-        
-        [undoManager endUndoGrouping];
-        [undoManager setActionName:@"Rotate Objects 90° Counterclockwise"];
-    }
+- (IBAction)rotateObjectsPitch90CCW:(id)sender {
+    [self rotateObjects:[camera right] clockwise:NO];
+}
+
+- (IBAction)rotateObjectsYaw90CW:(id)sender {
+    [self rotateObjects:&ZAxisPos clockwise:YES];
+}
+
+- (IBAction)rotateObjectsYaw90CCW:(id)sender {
+    [self rotateObjects:&ZAxisPos clockwise:NO];
 }
 
 - (IBAction)flipObjectsHorizontally:(id)sender {
@@ -1254,42 +1250,53 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (IBAction)deleteSelection:(id)sender {
-    SelectionManager* selectionManager = [self selectionManager];
     ClipTool* clipTool = [inputController clipTool];
     if ([inputController currentModalTool] == clipTool && [clipTool numPoints] > 0) {
         [clipTool deleteLastClipPoint];
     } else {
-        MapDocument* map = [self document];
-        
-        NSArray* deletedEntities = [[NSArray alloc] initWithArray:[selectionManager selectedEntities]];
-        NSMutableArray* deletedBrushes = [[NSMutableArray alloc] initWithArray:[selectionManager selectedBrushes]];
-        NSMutableArray* remainingBrushes = [[NSMutableArray alloc] init];
-        
-        for (id <Brush> brush in deletedBrushes) {
-            id <Entity> entity = [brush entity];
-            if ([deletedEntities indexOfObjectIdenticalTo:entity] != NSNotFound)
-                [remainingBrushes addObject:brush];
+        SelectionManager* selectionManager = [self selectionManager];
+        if ([selectionManager mode] == SM_BRUSHES || 
+            [selectionManager mode] == SM_ENTITIES || 
+            [selectionManager mode] == SM_BRUSHES_ENTITIES) {
+            
+            NSArray* deletedEntities = [[NSArray alloc] initWithArray:[selectionManager selectedEntities]];
+            NSMutableArray* deletedBrushes = [[NSMutableArray alloc] initWithArray:[selectionManager selectedBrushes]];
+            NSMutableArray* remainingBrushes = [[NSMutableArray alloc] init];
+            
+            for (id <Brush> brush in deletedBrushes) {
+                id <Entity> entity = [brush entity];
+                if ([deletedEntities indexOfObjectIdenticalTo:entity] != NSNotFound)
+                    [remainingBrushes addObject:brush];
+            }
+            
+            [deletedBrushes removeObjectsInArray:remainingBrushes];
+            
+            MapDocument* map = [self document];
+            NSUndoManager* undoManager = [map undoManager];
+            [undoManager beginUndoGrouping];
+            
+            if ([remainingBrushes count] > 0)
+                [[self document] moveBrushesToEntity:[map worldspawn:YES] brushes:remainingBrushes];
+            
+            [[self document] deleteEntities:deletedEntities];
+            [[self document] deleteBrushes:deletedBrushes];
+            
+            [selectionManager addBrushes:remainingBrushes record:YES];
+            
+            [deletedEntities release];
+            [deletedBrushes release];
+            [remainingBrushes release];
+            
+            [undoManager endUndoGrouping];
+            [undoManager setActionName:@"Delete Objects"];
+        } else if ([selectionManager mode] == SM_FACES) {
+            MapDocument* map = [self document];
+            NSUndoManager* undoManager = [map undoManager];
+            [undoManager beginUndoGrouping];
+            [map deleteFaces:[selectionManager selectedFaces]];
+            [undoManager endUndoGrouping];
+            [undoManager setActionName:@"Delete Faces"];
         }
-        
-        [deletedBrushes removeObjectsInArray:remainingBrushes];
-        
-        NSUndoManager* undoManager = [[self document] undoManager];
-        [undoManager beginUndoGrouping];
-        
-        if ([remainingBrushes count] > 0)
-            [[self document] moveBrushesToEntity:[map worldspawn:YES] brushes:remainingBrushes];
-        
-        [[self document] deleteEntities:deletedEntities];
-        [[self document] deleteBrushes:deletedBrushes];
-
-        [selectionManager addBrushes:remainingBrushes record:YES];
-
-        [deletedEntities release];
-        [deletedBrushes release];
-        [remainingBrushes release];
-        
-        [undoManager endUndoGrouping];
-        [undoManager setActionName:@"Delete Selection"];
     }
 }
 

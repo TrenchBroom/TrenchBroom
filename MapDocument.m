@@ -308,6 +308,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [autosaver terminate];
     [autosaver release];
     [entityDefinitionManager release];
     [groupManager release];
@@ -1272,13 +1273,45 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
             [brush drag:face by:theDistance lockTexture:lockTextures];
         }
         [self postNotification:BrushesDidChange forBrushes:brushes];
+        [autosaver updateLastAction];
     }
 
     [brushes release];
-    
-    [autosaver updateLastAction];
-
     return canDrag;
+}
+
+- (BOOL)deleteFaces:(NSArray *)theFaces {
+    NSAssert(theFaces != nil, @"face set must not be nil");
+    
+    if ([theFaces count] == 0)
+        return NO;
+    
+    NSMutableArray* brushes = [[NSMutableArray alloc] init];
+    BOOL canDelete = YES;
+    for (id <Face> face in theFaces) {
+        MutableBrush* brush = [face brush];
+        [brushes addObject:brush];
+        canDelete &= [brush canDeleteFace:face];
+    }
+    
+    if (canDelete) {
+        NSArray* faces = [[selectionManager selectedFaces] copy];
+        [selectionManager removeAll:NO];
+        [selectionManager addBrushes:brushes record:NO];
+        [self makeUndoSnapshotOfBrushes:brushes];
+        [self postNotification:BrushesWillChange forBrushes:brushes];
+        for (MutableFace* face in faces) {
+            MutableBrush* brush = [face brush];
+            [brush deleteFace:face];
+        }
+        [self postNotification:BrushesDidChange forBrushes:brushes];
+        [selectionManager removeAll:NO];
+        [autosaver updateLastAction];
+        [faces release];
+    }
+    
+    [brushes release];
+    return canDelete;
 }
 
 - (TDragResult)dragVertex:(int)theVertexIndex brush:(id <Brush>)theBrush delta:(const TVector3f *)theDelta {

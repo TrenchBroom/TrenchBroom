@@ -411,6 +411,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)deleteFace:(MutableFace *)face {
     [faces removeObjectIdenticalTo:face];
+    [face setBrush:nil];
     [self invalidateVertexData];
     [entity brushChanged:self];
 }
@@ -429,7 +430,15 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         canDelete = testData.sides.items[i]->face != nil;
     
     freeVertexData(&testData);
-    [self invalidateVertexData];
+
+    if (vertexDataValid) {
+        for (int i = 0; i < vertexData.sides.count; i++) {
+            TSide* side = vertexData.sides.items[i];
+            if (side->face != nil)
+                [side->face setSide:side];
+        }
+    }
+
     return canDelete;
 }
 

@@ -82,8 +82,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (IBAction)moveObjectsToward:(id)sender;
 - (IBAction)moveObjectsUp:(id)sender;
 - (IBAction)moveObjectsDown:(id)sender;
-- (IBAction)rotateObjects90CW:(id)sender;
-- (IBAction)rotateObjects90CCW:(id)sender;
+- (IBAction)rotateObjectsRoll90CW:(id)sender;
+- (IBAction)rotateObjectsRoll90CCW:(id)sender;
+- (IBAction)rotateObjectsPitch90CW:(id)sender;
+- (IBAction)rotateObjectsPitch90CCW:(id)sender;
+- (IBAction)rotateObjectsYaw90CW:(id)sender;
+- (IBAction)rotateObjectsYaw90CCW:(id)sender;
 - (IBAction)flipObjectsHorizontally:(id)sender;
 - (IBAction)flipObjectsVertically:(id)sender;
 - (IBAction)toggleDragVertexTool:(id)sender;

@@ -1225,14 +1225,6 @@
 			<object class="NSMenu" id="171675804">
 				<string key="NSTitle">Object Action Menu</string>
 				<array class="NSMutableArray" key="NSMenuItems">
-					<object class="NSMenuItem" id="1035831988">
-						<reference key="NSMenu" ref="171675804"/>
-						<string key="NSTitle">Move Left</string>
-						<string key="NSKeyEquiv"></string>
-						<int key="NSMnemonicLoc">2147483647</int>
-						<reference key="NSOnImage" ref="1033313550"/>
-						<reference key="NSMixedImage" ref="310636482"/>
-					</object>
 					<object class="NSMenuItem" id="757584531">
 						<reference key="NSMenu" ref="171675804"/>
 						<bool key="NSIsAlternate">YES</bool>
@@ -1345,8 +1337,8 @@
 					</object>
 					<object class="NSMenuItem" id="81770607">
 						<reference key="NSMenu" ref="171675804"/>
-						<string key="NSTitle">Rotate 90° CW</string>
-						<string key="NSKeyEquiv">r</string>
+						<string key="NSTitle">Roll 90° CW</string>
+						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">1048576</int>
 						<int key="NSMnemonicLoc">2147483647</int>
 						<reference key="NSOnImage" ref="1033313550"/>
@@ -1354,10 +1346,45 @@
 					</object>
 					<object class="NSMenuItem" id="325236663">
 						<reference key="NSMenu" ref="171675804"/>
-						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Rotate 90° CCW</string>
-						<string key="NSKeyEquiv">r</string>
-						<int key="NSKeyEquivModMask">1572864</int>
+						<string key="NSTitle">Roll 90° CCW</string>
+						<string key="NSKeyEquiv"></string>
+						<int key="NSKeyEquivModMask">1048576</int>
+						<int key="NSMnemonicLoc">2147483647</int>
+						<reference key="NSOnImage" ref="1033313550"/>
+						<reference key="NSMixedImage" ref="310636482"/>
+					</object>
+					<object class="NSMenuItem" id="658553201">
+						<reference key="NSMenu" ref="171675804"/>
+						<string key="NSTitle">Pitch 90° CW</string>
+						<string key="NSKeyEquiv"></string>
+						<int key="NSKeyEquivModMask">1048576</int>
+						<int key="NSMnemonicLoc">2147483647</int>
+						<reference key="NSOnImage" ref="1033313550"/>
+						<reference key="NSMixedImage" ref="310636482"/>
+					</object>
+					<object class="NSMenuItem" id="941517953">
+						<reference key="NSMenu" ref="171675804"/>
+						<string key="NSTitle">Pitch 90° CCW</string>
+						<string key="NSKeyEquiv"></string>
+						<int key="NSKeyEquivModMask">1048576</int>
+						<int key="NSMnemonicLoc">2147483647</int>
+						<reference key="NSOnImage" ref="1033313550"/>
+						<reference key="NSMixedImage" ref="310636482"/>
+					</object>
+					<object class="NSMenuItem" id="319550397">
+						<reference key="NSMenu" ref="171675804"/>
+						<string key="NSTitle">Yaw 90° CW</string>
+						<string key="NSKeyEquiv"></string>
+						<int key="NSKeyEquivModMask">1048576</int>
+						<int key="NSMnemonicLoc">2147483647</int>
+						<reference key="NSOnImage" ref="1033313550"/>
+						<reference key="NSMixedImage" ref="310636482"/>
+					</object>
+					<object class="NSMenuItem" id="161406799">
+						<reference key="NSMenu" ref="171675804"/>
+						<string key="NSTitle">Yaw 90° CCW</string>
+						<string key="NSKeyEquiv"></string>
+						<int key="NSKeyEquivModMask">1048576</int>
 						<int key="NSMnemonicLoc">2147483647</int>
 						<reference key="NSOnImage" ref="1033313550"/>
 						<reference key="NSMixedImage" ref="310636482"/>
@@ -2009,14 +2036,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">moveObjectsLeft:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="1035831988"/>
-					</object>
-					<int key="connectionID">1034</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">moveObjectsDown:</string>
 						<reference key="source" ref="1014"/>
 						<reference key="destination" ref="900796578"/>
@@ -2046,22 +2065,6 @@
 						<reference key="destination" ref="1067743939"/>
 					</object>
 					<int key="connectionID">1038</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">rotateObjects90CW:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="81770607"/>
-					</object>
-					<int key="connectionID">1039</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">rotateObjects90CCW:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="325236663"/>
-					</object>
-					<int key="connectionID">1040</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
@@ -2222,6 +2225,54 @@
 						<reference key="destination" ref="850327469"/>
 					</object>
 					<int key="connectionID">1086</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">rotateObjectsRoll90CW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="81770607"/>
+					</object>
+					<int key="connectionID">1100</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">rotateObjectsRoll90CCW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="325236663"/>
+					</object>
+					<int key="connectionID">1101</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">rotateObjectsPitch90CW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="658553201"/>
+					</object>
+					<int key="connectionID">1102</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">rotateObjectsPitch90CCW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="941517953"/>
+					</object>
+					<int key="connectionID">1103</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">rotateObjectsYaw90CW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="319550397"/>
+					</object>
+					<int key="connectionID">1104</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">rotateObjectsYaw90CCW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="161406799"/>
+					</object>
+					<int key="connectionID">1105</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -3261,7 +3312,6 @@
 						<int key="objectID">1006</int>
 						<reference key="object" ref="171675804"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="1035831988"/>
 							<reference ref="757584531"/>
 							<reference ref="473992563"/>
 							<reference ref="915300115"/>
@@ -3282,13 +3332,12 @@
 							<reference ref="516507106"/>
 							<reference ref="550767006"/>
 							<reference ref="62768314"/>
+							<reference ref="658553201"/>
+							<reference ref="941517953"/>
+							<reference ref="319550397"/>
+							<reference ref="161406799"/>
 						</array>
 						<reference key="parent" ref="0"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">1010</int>
-						<reference key="object" ref="1035831988"/>
-						<reference key="parent" ref="171675804"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">1011</int>
@@ -3455,6 +3504,26 @@
 						<reference key="object" ref="850327469"/>
 						<reference key="parent" ref="403305097"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">1092</int>
+						<reference key="object" ref="658553201"/>
+						<reference key="parent" ref="171675804"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">1093</int>
+						<reference key="object" ref="941517953"/>
+						<reference key="parent" ref="171675804"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">1096</int>
+						<reference key="object" ref="319550397"/>
+						<reference key="parent" ref="171675804"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">1097</int>
+						<reference key="object" ref="161406799"/>
+						<reference key="parent" ref="171675804"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -3463,7 +3532,6 @@
 				<string key="-3.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="1005.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="1006.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="1010.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="1011.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="1012.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="1013.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3497,6 +3565,10 @@
 				<string key="1068.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="1069.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="1070.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="1092.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="1093.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="1096.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="1097.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="112.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="124.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="125.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3634,7 +3706,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">1089</int>
+			<int key="maxID">1107</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -3709,8 +3781,12 @@
 						<string key="moveTexturesRight:">id</string>
 						<string key="moveTexturesUp:">id</string>
 						<string key="performClip:">id</string>
-						<string key="rotateObjects90CCW:">id</string>
-						<string key="rotateObjects90CW:">id</string>
+						<string key="rotateObjectsPitch90CCW:">id</string>
+						<string key="rotateObjectsPitch90CW:">id</string>
+						<string key="rotateObjectsRoll90CCW:">id</string>
+						<string key="rotateObjectsRoll90CW:">id</string>
+						<string key="rotateObjectsYaw90CCW:">id</string>
+						<string key="rotateObjectsYaw90CW:">id</string>
 						<string key="rotateTexturesCCW:">id</string>
 						<string key="rotateTexturesCW:">id</string>
 						<string key="run:">id</string>
@@ -3852,12 +3928,28 @@
 							<string key="name">performClip:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="rotateObjects90CCW:">
-							<string key="name">rotateObjects90CCW:</string>
+						<object class="IBActionInfo" key="rotateObjectsPitch90CCW:">
+							<string key="name">rotateObjectsPitch90CCW:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="rotateObjects90CW:">
-							<string key="name">rotateObjects90CW:</string>
+						<object class="IBActionInfo" key="rotateObjectsPitch90CW:">
+							<string key="name">rotateObjectsPitch90CW:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="rotateObjectsRoll90CCW:">
+							<string key="name">rotateObjectsRoll90CCW:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="rotateObjectsRoll90CW:">
+							<string key="name">rotateObjectsRoll90CW:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="rotateObjectsYaw90CCW:">
+							<string key="name">rotateObjectsYaw90CCW:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="rotateObjectsYaw90CW:">
+							<string key="name">rotateObjectsYaw90CW:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="rotateTexturesCCW:">

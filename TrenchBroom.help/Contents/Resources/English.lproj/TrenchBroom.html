@@ -19,6 +19,7 @@
 					<li class="inactive" id="menu_link_selecting_objects">Selecting objects</li>
 					<li class="inactive" id="menu_link_creating_new_objects">Creating new objects</li>
 					<li class="inactive" id="menu_link_editing_objects">Editing objects</li>
+					<li class="inactive" id="menu_link_shaping_brushes">Shaping brushes</li>
 					<li class="inactive" id="menu_link_keeping_an_overview">Keeping an overview</li>
 					<li class="inactive" id="menu_link_misc_tasks">Miscellaneous</li>
 					<li class="header">User Interface</li>
@@ -59,12 +60,18 @@
 					<li><a href="pgs/editing_objects.html#moving_objects">Moving objects</a></li>
 					<li><a href="pgs/editing_objects.html#rotating_objects">Rotating objects</a></li>
 					<li><a href="pgs/editing_objects.html#flipping_objects">Flipping objects</a></li>
-					<li><a href="pgs/editing_objects.html#editing_brushes">Editing brushes</a></li>
+					<li><a href="pgs/editing_objects.html#deleting_objects">Deleting objects</a></li>
 					<li><a href="pgs/editing_objects.html#applying_textures">Applying textures</a></li>
 					<li><a href="pgs/editing_objects.html#changing_face_attributes">Changing face attributes</a></li>
 					<li><a href="pgs/editing_objects.html#using_the_entity_property_editor">Using the entity property editor</a></li>
-					<li><a href="#">Deleting objects</a></li>
 					<li><a href="#">Editing options</a></li>
+				</ul>
+				<ul class="submenu" id="submenu_shaping_brushes">
+					<li><a href="pgs/shaping_brushes.html#face_dragging">Face dragging</a></li>
+					<li><a href="pgs/shaping_brushes.html#using_the_clipping_tool">Using the clipping tool</a></li>
+					<li><a href="pgs/shaping_brushes.html#vertex_editing">Vertex editing</a></li>
+					<li><a href="pgs/shaping_brushes.html#edge_editing">Edge editing</a></li>
+					<li><a href="pgs/shaping_brushes.html#face_editing">Face editing</a></li>
 				</ul>
 				<ul class="submenu" id="submenu_keeping_an_overview">
 					<li><a href="#">Render modes</a></li>
@@ -122,6 +129,7 @@
 			$("#menu_link_selecting_objects").click(function(event) {menu_link_callback(event, "selecting_objects")});
 			$("#menu_link_creating_new_objects").click(function(event) {menu_link_callback(event, "creating_new_objects")});
 			$("#menu_link_editing_objects").click(function(event) {menu_link_callback(event, "editing_objects")});
+			$("#menu_link_shaping_brushes").click(function(event) {menu_link_callback(event, "shaping_brushes")});
 			$("#menu_link_keeping_an_overview").click(function(event) {menu_link_callback(event, "keeping_an_overview")});
 			$("#menu_link_misc_tasks").click(function(event) {menu_link_callback(event, "misc_tasks")});
 			$("#menu_link_the_main_window").click(function(event) {menu_link_callback(event, "the_main_window")});

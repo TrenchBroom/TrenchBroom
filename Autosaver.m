@@ -166,16 +166,23 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)dealloc {
+    [self terminate];
     [lastSave release];
     [lastAction release];
-    [timer invalidate];
-    [timer release];
     [super dealloc];
 }
 
 - (void)updateLastAction {
     [lastAction release];
     lastAction = [[NSDate date] retain];
+}
+
+- (void)terminate {
+    if (timer != nil) {
+        [timer invalidate];
+        [timer release];
+        timer = nil;
+    }
 }
 
 @end

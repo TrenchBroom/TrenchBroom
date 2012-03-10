@@ -1420,12 +1420,14 @@ void writeEdgeTreeNode(const TEdgeTreeNode* node, Vbo* vbo, int* address, int* s
             activateVbo(&selectedEntityBoundsVbo);
             glEnableClientState(GL_VERTEX_ARRAY);
             
+            glDisable(GL_CULL_FACE);
             glDisable(GL_DEPTH_TEST);
             [self renderEntityBounds:&SelectionColor2 vertexCount:selectedEntityBoundsVertexCount];
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LEQUAL);
             [self renderEntityBounds:&SelectionColor vertexCount:selectedEntityBoundsVertexCount];
             glDepthFunc(GL_LESS);
+            glEnable(GL_CULL_FACE);
             
             glDisableClientState(GL_VERTEX_ARRAY);
             deactivateVbo(&selectedEntityBoundsVbo);
