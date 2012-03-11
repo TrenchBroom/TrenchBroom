@@ -1049,6 +1049,7 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
     
     NSUndoManager* undoManager = [self undoManager];
     [undoManager beginUndoGrouping];
+    [self makeUndoSnapshotOfSelection];
     
     for (MutableEntity* entity in changedEntities) {
         NSArray* entityBrushes = [entityIdToBrushSet objectForKey:[entity entityId]];
@@ -1063,7 +1064,6 @@ NSString* const DocumentLoaded          = @"DocumentLoaded";
         if (![entity isWorldspawn] && [[entity brushes] count] == 0)
             [emptyEntities addObject:entity];
     }
-    [self makeUndoSnapshotOfSelection];
     
     [self removeEntities:emptyEntities];
     [emptyEntities release];

@@ -883,12 +883,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     MapDocument* map = [mapWindowController document];
     EntityDefinitionManager* entityDefinitionManager = [map entityDefinitionManager];
     SelectionManager* selectionManager = [map selectionManager];
-    
+
     NSArray* brushes = [selectionManager selectedBrushes];
     if ([brushes count] == 0)
         return;
     
-    EntityDefinition* definition = [entityDefinitionManager definitionForName:GroupClassName];
+    EntityDefinition* definition = [entityDefinitionManager definitionForName:GroupClassname];
     
     NSUndoManager* undoManager = [map undoManager];
     [undoManager beginUndoGrouping];

@@ -66,13 +66,59 @@
 		<p>However, it is not always possible to delete a face. You can only delete faces if the brush does not become invalid as a result. Consider the cuboid in the second screenshot as an example. If you delete any face of this cuboid, the brush is no longer closed and thus invalid. Hence, none of its faces can be deleted.</p>
 
 		<a name="vertex_editing"></a><h3>Vertex Editing</h3>
-		<p></p>
+		<p>The vertex editing mode allows you to move the vertices of a brush and to split edges and faces by adding new vertices to them. To activate the vertex editing mode, press <b>V</b>. To deactivate the vertex editing mode, press <b>V</b> again. Once vertex editing has been activated, you will notice blue handles at the vertices, edges and faces of the selected brushes. Note that these handles will only be visible if you are within a certain distance to the brush.You can move vertices horizontally by <b>left clicking and dragging</b> them with the mouse. To move them vertically, hold the <b>option key (&#x2325;)</b> while dragging. You can also edit vertices which are behind the brush - just click and drag their handle.</p>
+		<div class="images">
+			<img src="../../shrd/vertex_editing.png" width="300" height="261" alt="Vertex Editing Mode">
+			<img src="../../shrd/vertex_editing_vertex_moved.png" width="300" height="261" alt="One Vertex Moved">
+			<div class="imagecaption">Vertex Editing</div>
+		</div>
+		<p>You can move vertices freely as long as the brush does not become invalid. In such cases, the vertex you are moving will disappear. TrenchBroom will split and merge faces automatically as you move vertices around. In the second screenshot above, you can see that the left face of the cuboid has been split into two triangles as a result of one of its vertices being moved.</p>
+		<div class="images">
+			<img src="../../shrd/vertex_editing.png" width="300" height="261" alt="Vertex Editing Mode">
+			<img src="../../shrd/vertex_editing_edge_split.png" width="300" height="261" alt="One Edge Split">
+			<div class="imagecaption">Edge splitting</div>
+		</div>
+		<p>You can also add new vertices to a brush by either splitting an edge or splitting a face. To split an edge, click on the blue handle in the center of the edge and drag it away from the brush. In the above screenshot, you can see how the upper edge of the right face has been split in two, resulting in a new vertex.</p>
+		<div class="images">
+			<img src="../../shrd/vertex_editing.png" width="300" height="261" alt="Vertex Editing Mode">
+			<img src="../../shrd/vertex_editing_face_split.png" width="300" height="261" alt="One Face Split">
+			<div class="imagecaption">Face splitting</div>
+		</div>
+		<p>To split a face, click on the blue handle in the center of the face and drag it away from the brush. Look at the screenshot above for an example. Here, the top face of the brush has been split into four triangles which share the newly created vertex.</p>
+		<p>You can also merge vertices by moving one vertex onto another vertex, but only if the two vertices belong to the same edge. Otherwise, the brush would become invalid.</p>
+		<p>Face and edge splitting are very useful operations for creating terrain and natural rock formations. Play around with these features and you will quickly get an idea how they work.</p>
 
 		<a name="edge_editing"></a><h3>Edge Editing</h3>
-		<p></p>
+		<p>The edge editing mode can be activated and deactivated by pressing <b>E</b>. If edge editing is active, you will see light blue handles at the center of each edge. Again, these handles are only shown if you are close to a selected brush. Like vertices, edges can be moved horizontally by <b>left clicking and dragging</b> them with the mouse and vertically by holding the <b>option key (&#x2325;)</b> while dragging.
+		<div class="images">
+			<img src="../../shrd/edge_editing.png" width="300" height="241" alt="Edge Editing Mode">
+			<img src="../../shrd/edge_editing_1.png" width="300" height="241" alt="One Edge Moved">
+			<div class="imagecaption">Edge Editing</div>
+		</div>
+		<p>In the screenshot above on the right, you can see that the upper edge of the left face has been moved horizontally inside the brush. Moving an edge is basically, just a shortcut for moving the two vertices of the edge, so TrenchBroom also splits and merges faces automatically just like in vertex editing mode.</p>
+		<div class="images">
+			<img src="../../shrd/edge_editing_1.png" width="300" height="241" alt="One Edge Moved">
+			<img src="../../shrd/edge_editing_2.png" width="300" height="241" alt="Edge moved sideways">
+			<div class="imagecaption">Edge Editing 2</div>
+		</div>
+		<p>To illustrate these concepts, the screenshots above show the effect of moving the edge sideways. You can see that the front right face of the brush has been split into triangles.</p>
 
 		<a name="face_editing"></a><h3>Face Editing</h3>
-		<p></p>
+		<p>Finally, you can edit faces in the face editing mode, which is activated and deactivated by pressing <b>F</b>.  Using this mode, you can move all vertices which belong to one face by <b>left dragging </b>the purple face handle. To move the face vertically, hold the <b>option key (&#x2325;)</b> while dragging.</p>
+		<div class="images">
+			<img src="../../shrd/face_editing_1.png" width="300" height="273" alt="Face Editing Mode">
+			<img src="../../shrd/face_editing_2.png" width="300" height="273" alt="Face Sheared">
+			<div class="imagecaption">Face Editing 2</div>
+		</div>
+		<p>As you can see in the screenshots above, moving a face is basically like shearing brush. Of couse, you can also change the size of the brush by dragging the face towards or away from the brush's center. Note that, depending on the shape of the brush, face editing can have a different effect than <a href="#face_dragging">face dragging</a>. Consider the following screenshots for an example.</p>
+		<div class="images">
+			<img src="../../shrd/face_dragging_vs_editing_1.png" width="200" height="181" alt="Frustrum">
+			<img src="../../shrd/face_dragging_vs_editing_2.png" width="200" height="181" alt="Frustrum after Face Editing">
+			<img src="../../shrd/face_dragging_vs_editing_3.png" width="200" height="181" alt="Frustrum after Face Dragging">
+			<div class="imagecaption">Face editing vs. face dragging</div>
+		</div>
+		<p>In the first screenshot, you see a brush shaped like a frustrum (a frustrum is a pyramid with its tip cut off). The top face is a square with a side length of four grid units. The second screenshot shows the effect of moving the top face upward using face editing mode. As you can see, the side length of the square has not changed - this is because face moving is tantamount to moving the vertices of the face in parallel. In the third screenshot however, you see the effect of dragging the face upwards. In this case, the side length of the top square has changed. Both operations have their advantages and disadvantages and it depends on the context which one you should use.</p>
+		<p>This concludes the section about shaping brushes. You have learned how to drag faces, clip brushes, delete individual faces and how to use the vertex, edge and face editing modes. Together, these tools allow you to create complex brush shapes quickly and precisely.</p>
 	</div>
 </body>
 </html>

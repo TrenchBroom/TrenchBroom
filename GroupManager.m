@@ -40,7 +40,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     BOOL changed = NO;
     for (id <Entity> entity in entities) {
-        if ([GroupClassName isEqualToString:[entity classname]]) {
+        if ([entity isGroup]) {
             [groups addObject:entity];
             if ([self isVisible:entity])
                 visibleGroupCount++;
@@ -58,7 +58,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
     BOOL changed = NO;
     for (id <Entity> entity in entities) {
-        if ([GroupClassName isEqualToString:[entity classname]]) {
+        if ([entity isGroup]) {
             if ([self isVisible:entity])
                 visibleGroupCount--;
             [groups removeObject:entity];
@@ -76,7 +76,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     
     for (id <Brush> brush in brushes) {
         id <Entity> entity = [brush entity];
-        if ([GroupClassName isEqualToString:[entity classname]]) {
+        if ([entity isGroup]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:GroupsChanged object:self];
             break;
         }
@@ -90,7 +90,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)documentLoaded:(NSNotification *)notification {
     for (id <Entity> entity in [map entities]) {
-        if ([GroupClassName isEqualToString:[entity classname]]) {
+        if ([entity isGroup]) {
             [groups addObject:entity];
             if ([self isVisible:entity])
                 visibleGroupCount++;

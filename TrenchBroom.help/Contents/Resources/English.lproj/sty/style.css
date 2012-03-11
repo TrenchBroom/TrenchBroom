@@ -12,6 +12,10 @@ p {
 	text-indent: 30px;
 }
 
+p.no-indent {
+	text-indent: 0px;
+}
+
 a {
 	color: rgb(235,125,0);
 	text-decoration: none;
@@ -76,8 +80,8 @@ ul.menu li.active {
 	    linear,
 	    left bottom,
 	    right bottom,
-	    color-stop(0.3, rgb(255,255,255)),
-	    color-stop(0.8, rgb(235,125,0))
+	    color-stop(0.1, rgb(255,255,255)),
+	    color-stop(0.9, rgb(235,125,0))
 	);
 }
 

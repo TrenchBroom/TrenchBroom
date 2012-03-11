@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>TrenchBroom Help - Miscellaneous</title>
+	<link rel="StyleSheet" href="../sty/style.css" type="text/css" media="screen" />
+	<meta name="author" content="Kristian Duske">
+</head>
+<body>
+	<div id="container">
+		<h2>Miscellaneous</h2>
+		<p>This section contains information about tasks which are not directly related to editing, but which are still important if you want to create maps for Quake. You will learn how to manage <a href="#managing_textures">textures</a> and <a href="#managing_prefabs">prefabs</a> as well as how to use and edit <a href="#compiler_profiles">compiler profiles</a>.</p>
+
+		<a name="managing_textures"></a><h3>Managing Textures</h3>
+		<p>Quake textures are loaded from so-called texture wads. Once you have one or more texture wads loaded, the textures contained therein are displayed in the texture browser, which you will find in the <b>face tab</b> of the inspector. Note that the order in which you load texture wads is important to the way duplicate textures are handled. If two texture wads contain a texture with the same name, TrenchBroom will use the texture from the most recently loaded texture wad. The order of the texture wads can be seen in the texture wad list below the texture browser.</p>
+		<div class="images">
+			<img src="../../shrd/managing_textures.png" width="600" height="540" alt="Managing Textures">
+			<div class="imagecaption">Managing Textures</div>
+		</div>
+		<p>In the above screenshot, only one texture wad was loaded. To load another texture wad, click on the <b>plus button</b> below the texture wad list. Click the <b>minus button</b> to unload the currently selected texture wad. You cannot reorder texture wads in the wad list. If you need to change the wad order, you need to delete the wads and re-add them in the desired order.</p>
+		<p class="no-indent"><img src="../../shrd/used_texture.png" width="120" height="120" alt="Used Texture" class="inline">The texture browser displays all loaded textures in alphabetical order by default. Using the buttons on the left above the browser, you can toggle between ordering them by name and by usage. To filter the textures, you can use the buttons and the search field on the right above the browser. The buttons allow you to toggle between displaying all textures or only the textures used in the current map. If you enter a string into the search field, only the textures whose name contains that string are displayed in the browser. Each texture that is used in the current map is drawn with a yellow border in the texture browser (see screenshot on the left).</p>
+		<br clear="all">
+		<p class="no-indent"><img src="../../shrd/mru_texture.png" width="120" height="120" alt="Most Recently Used Texture" class="inline">The editor tracks which texture was most recently used. This is the texture which was on the most recently selected face or which was most recently clicked on in the texture browser. The most recently used texture is drawn with a red border in the texture browser. This texture is used for newly created brushes.</p>
+		<br clear="all">
+
+		<a name="managing_prefabs"></a><h3>Managing Prefabs</h3>
+		<p></p>
+
+		<a name="compiler_profiles"></a><h3>Compiler Profiles</h3>
+		<p></p>
+</body>
+</html>

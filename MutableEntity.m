@@ -552,6 +552,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     return [[self classname] isEqualToString:WorldspawnClassname];
 }
 
+- (BOOL)isGroup {
+    return [[self classname] isEqualToString:GroupClassname];
+}
+
 - (const TBoundingBox *)maxBounds {
     if (!valid)
         [self validate];

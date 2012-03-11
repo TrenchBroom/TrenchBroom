@@ -28,13 +28,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 static NSString* const ClassnameKey = @"classname";
 static NSString* const SpawnFlagsKey = @"spawnflags";
 static NSString* const WorldspawnClassname = @"worldspawn";
-static NSString* const GroupClassName = @"func_group";
-static NSString* const GroupNameKey = @"name";
-static NSString* const GroupVisibilityKey = @"visible";
+static NSString* const GroupClassname = @"func_group";
+static NSString* const GroupNameKey = @"_TB_name";
+static NSString* const GroupVisibilityKey = @"_TB_visible";
 static NSString* const OriginKey = @"origin";
 static NSString* const AngleKey = @"angle";
 static NSString* const MessageKey = @"message";
-static NSString* const ModsKey = @"_mods";
+static NSString* const ModsKey = @"_TB_mods";
 
 @protocol Entity <NSObject, NSCopying>
 
@@ -52,6 +52,7 @@ static NSString* const ModsKey = @"_mods";
 
 - (EntityDefinition *)entityDefinition;
 - (BOOL)isWorldspawn;
+- (BOOL)isGroup;
 - (NSString *)classname;
 
 - (const TBoundingBox *)maxBounds;

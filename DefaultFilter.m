@@ -66,7 +66,7 @@ int const VertexMaxDistanceSquared = 512 * 512;
         return YES;
     
     id <Entity> entity = [brush entity];
-    if ([GroupClassName isEqualToString:[entity classname]])
+    if ([entity isGroup])
         return [groupManager isVisible:entity];
     
     return NO;
@@ -85,7 +85,7 @@ int const VertexMaxDistanceSquared = 512 * 512;
     if ([groupManager allGroupsInvisible])
         return YES;
     
-    if ([GroupClassName isEqualToString:[entity classname]])
+    if ([entity isGroup])
         return [groupManager isVisible:entity];
     
     return YES;
@@ -111,7 +111,7 @@ int const VertexMaxDistanceSquared = 512 * 512;
         return YES;
     
     id <Entity> entity = [brush entity];
-    if ([GroupClassName isEqualToString:[entity classname]])
+    if ([entity isGroup])
         return [groupManager isVisible:entity];
     
     return NO;

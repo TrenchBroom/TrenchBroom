@@ -81,15 +81,14 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)moveObjects:(const TVector3f *)theDirection;
 - (void)moveTextures:(const TVector3f *)theDirection;
 - (void)rotateTextures:(BOOL)clockwise;
-
 - (void)rotateObjects:(const TVector3f *)refAxis clockwise:(BOOL)clockwise;
 @end
 
 @implementation MapWindowController (private)
 
 - (void)selectionRemoved:(NSNotification *)notification {
-//    if ([[self selectionManager] mode] == SM_UNDEFINED)
-//        [options setIsolationMode:IM_NONE];
+    if ([[self selectionManager] mode] == SM_UNDEFINED)
+        [options setIsolationMode:IM_NONE];
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
@@ -1263,12 +1262,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             NSMutableArray* deletedBrushes = [[NSMutableArray alloc] initWithArray:[selectionManager selectedBrushes]];
             NSMutableArray* remainingBrushes = [[NSMutableArray alloc] init];
             
-            for (id <Brush> brush in deletedBrushes) {
-                id <Entity> entity = [brush entity];
-                if ([deletedEntities indexOfObjectIdenticalTo:entity] != NSNotFound)
-                    [remainingBrushes addObject:brush];
+            for (id <Entity> entity in deletedEntities) {
+                for (id <Brush> brush in [entity brushes]) {
+                    if ([deletedBrushes indexOfObjectIdenticalTo:brush] == NSNotFound)
+                        [remainingBrushes addObject:brush];
+                }
             }
-            
             [deletedBrushes removeObjectsInArray:remainingBrushes];
             
             MapDocument* map = [self document];
@@ -1276,12 +1275,13 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
             [undoManager beginUndoGrouping];
             
             if ([remainingBrushes count] > 0)
-                [[self document] moveBrushesToEntity:[map worldspawn:YES] brushes:remainingBrushes];
+                [map moveBrushesToEntity:[map worldspawn:YES] brushes:remainingBrushes];
             
-            [[self document] deleteEntities:deletedEntities];
-            [[self document] deleteBrushes:deletedBrushes];
+            [map deleteEntities:deletedEntities];
+            [map deleteBrushes:deletedBrushes];
             
-            [selectionManager addBrushes:remainingBrushes record:YES];
+            [selectionManager removeAll:NO];
+            [selectionManager addBrushes:remainingBrushes record:NO];
             
             [deletedEntities release];
             [deletedBrushes release];

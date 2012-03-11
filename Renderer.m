@@ -279,7 +279,6 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
 - (void)removeEntities:(NSArray *)theEntities;
 
 - (void)facesDidChange:(NSNotification *)notification;
-- (void)brushesWillChange:(NSNotification *)notification;
 - (void)brushesDidChange:(NSNotification *)notification;
 - (void)brushesAdded:(NSNotification *)notification;
 - (void)brushesWillBeRemoved:(NSNotification *)notification;
@@ -339,7 +338,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         mapVbo(&entityBoundsVbo);
         
         for (id <Entity> entity in deselectedEntities) {
-            if (![entity isWorldspawn]) {
+            if (![entity isWorldspawn] && ![entity isGroup]) {
                 VboBlock* block = allocVboBlock(&entityBoundsVbo, 6 * 4 * (ColorSize + VertexSize));
                 writeEntityBounds(entity, block);
                 [entity setBoundsVboBlock:block];
@@ -375,7 +374,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         mapVbo(&selectedEntityBoundsVbo);
         
         for (id <Entity> entity in selectedEntities) {
-            if (![entity isWorldspawn]) {
+            if (![entity isWorldspawn] && ![entity isGroup]) {
                 VboBlock* block = allocVboBlock(&selectedEntityBoundsVbo, 6 * 4 * (ColorSize + VertexSize));
                 writeEntityBounds(entity, block);
                 [entity setBoundsVboBlock:block];
@@ -411,7 +410,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         mapVbo(&entityBoundsVbo);
 
         for (id <Entity> entity in addedEntities) {
-            if (![entity isWorldspawn]) {
+            if (![entity isWorldspawn] && ![entity isGroup]) {
                 VboBlock* block = allocVboBlock(&entityBoundsVbo, 6 * 4 * (ColorSize + VertexSize));
                 writeEntityBounds(entity, block);
                 [entity setBoundsVboBlock:block];
@@ -430,7 +429,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         deactivateVbo(&entityBoundsVbo);
         
         for (id <Entity> entity in addedEntities) {
-            if (![entity isWorldspawn]) {
+            if (![entity isWorldspawn] && ![entity isGroup]) {
                 NSString* classname = [entity classname];
                 EntityClassnameAnchor* anchor = [[EntityClassnameAnchor alloc] initWithEntity:entity];
                 [classnameRenderer addString:classname forKey:[entity entityId] withFont:[NSFont systemFontOfSize:9] withAnchor:anchor];
@@ -448,7 +447,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
 
         NSMutableArray* unselectedEntities = [[NSMutableArray alloc] init];
         for (id <Entity> entity in changedEntities) {
-            if (![entity isWorldspawn]) {
+            if (![entity isWorldspawn] && ![entity isGroup]) {
                 VboBlock* block = [entity boundsVboBlock];
                 if (block->vbo == &entityBoundsVbo)
                     [unselectedEntities addObject:entity];
@@ -485,7 +484,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         mapVbo(&entityBoundsVbo);
         
         for (id <Entity> entity in removedEntities) {
-            if (![entity isWorldspawn]) {
+            if (![entity isWorldspawn] && ![entity isGroup]) {
                 [entity setBoundsVboBlock:NULL];
                 [entityRenderers removeObjectForKey:[entity entityId]];
                 [modelEntities removeObjectIdenticalTo:entity];
@@ -500,7 +499,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
 
         [fontManager activate];
         for (id <Entity> entity in removedEntities)
-            if (![entity isWorldspawn])
+            if (![entity isWorldspawn] && ![entity isGroup])
                 [classnameRenderer removeStringForKey:[entity entityId]];
         [fontManager deactivate];
     }
@@ -1266,9 +1265,11 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
                 break;
         }
         
-        glSetEdgeOffset(0.1f);
-        [self renderEdges:NULL indexBuffer:&edgeIndexBuffer];
-        glResetEdgeOffset();
+        if ([options isolationMode] != IM_NONE) {
+            glSetEdgeOffset(0.1f);
+            [self renderEdges:NULL indexBuffer:&edgeIndexBuffer];
+            glResetEdgeOffset();
+        }
         
         if ([[windowController selectionManager] hasSelection]) {
             glDisable(GL_DEPTH_TEST);
