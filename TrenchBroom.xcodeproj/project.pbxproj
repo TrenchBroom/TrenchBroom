@@ -105,6 +105,8 @@
 		4881C74812E9CD88006BF922 /* WadTextureEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74712E9CD88006BF922 /* WadTextureEntry.m */; };
 		4881C74B12E9CD8F006BF922 /* WadPaletteEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */; };
 		488514D3150AB396000A58CD /* BoundsRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488514D2150AB396000A58CD /* BoundsRenderer.m */; };
+		488514E9150EA729000A58CD /* 12.map in Copy Prefabs (Cylinders) */ = {isa = PBXBuildFile; fileRef = 488514E4150EA6E5000A58CD /* 12.map */; };
+		488514EA150EA729000A58CD /* 24.map in Copy Prefabs (Cylinders) */ = {isa = PBXBuildFile; fileRef = 488514E5150EA6E5000A58CD /* 24.map */; };
 		488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 488868DA12FAFCBF00CAEA55 /* GLString.m */; };
 		4888732A13436206005FCE15 /* FloatData.m in Sources */ = {isa = PBXBuildFile; fileRef = 4888732913436206005FCE15 /* FloatData.m */; };
 		488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */ = {isa = PBXBuildFile; fileRef = 488C8EE012F6C3ED00F358E6 /* IntData.m */; };
@@ -211,6 +213,18 @@
 				4846A7B913E35D870088E122 /* Vis in Copy Compiler Binaries */,
 			);
 			name = "Copy Compiler Binaries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		488514E8150EA707000A58CD /* Copy Prefabs (Cylinders) */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Prefabs/Cylinders;
+			dstSubfolderSpec = 7;
+			files = (
+				488514E9150EA729000A58CD /* 12.map in Copy Prefabs (Cylinders) */,
+				488514EA150EA729000A58CD /* 24.map in Copy Prefabs (Cylinders) */,
+			);
+			name = "Copy Prefabs (Cylinders)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		48B5A1AC131EE9020043FBD9 /* Copy Prefabs (Cubes) */ = {
@@ -430,6 +444,8 @@
 		4881C74A12E9CD8F006BF922 /* WadPaletteEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WadPaletteEntry.m; sourceTree = "<group>"; };
 		488514D1150AB396000A58CD /* BoundsRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundsRenderer.h; sourceTree = "<group>"; };
 		488514D2150AB396000A58CD /* BoundsRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundsRenderer.m; sourceTree = "<group>"; };
+		488514E4150EA6E5000A58CD /* 12.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 12.map; sourceTree = "<group>"; };
+		488514E5150EA6E5000A58CD /* 24.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 24.map; sourceTree = "<group>"; };
 		488868D912FAFCBF00CAEA55 /* GLString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLString.h; sourceTree = "<group>"; };
 		488868DA12FAFCBF00CAEA55 /* GLString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLString.m; sourceTree = "<group>"; };
 		4888732813436206005FCE15 /* FloatData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatData.h; sourceTree = "<group>"; };
@@ -1004,6 +1020,16 @@
 			name = Wad;
 			sourceTree = "<group>";
 		};
+		488514E3150EA6E5000A58CD /* Cylinders */ = {
+			isa = PBXGroup;
+			children = (
+				488514E4150EA6E5000A58CD /* 12.map */,
+				488514E5150EA6E5000A58CD /* 24.map */,
+			);
+			name = Cylinders;
+			path = Prefabs/Cylinders;
+			sourceTree = "<group>";
+		};
 		488C8EB812F69F6900F358E6 /* IO */ = {
 			isa = PBXGroup;
 			children = (
@@ -1335,6 +1361,7 @@
 			isa = PBXGroup;
 			children = (
 				487D2A561401324500F2673B /* Cubes */,
+				488514E3150EA6E5000A58CD /* Cylinders */,
 			);
 			name = Prefabs;
 			sourceTree = "<group>";
@@ -1357,6 +1384,7 @@
 				8D15AC300486D014006FF6A4 /* Sources */,
 				8D15AC330486D014006FF6A4 /* Frameworks */,
 				48B5A1AC131EE9020043FBD9 /* Copy Prefabs (Cubes) */,
+				488514E8150EA707000A58CD /* Copy Prefabs (Cylinders) */,
 				4846A7B613E35D4D0088E122 /* Copy Compiler Binaries */,
 			);
 			buildRules = (
