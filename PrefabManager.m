@@ -26,6 +26,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "MutableEntity.h"
 #import "MutableBrush.h"
 #import "MapWriter.h"
+#import "TextureManager.h"
 #import "NSFileManager+AppSupportCategory.h"
 
 NSString* const PrefabAdded = @"PrefabAdded";
@@ -79,6 +80,7 @@ static PrefabManager* sharedInstance = nil;
 
 - (id)init {
     if ((self = [super init])) {
+        textureManager = [[TextureManager alloc] init];
         nameToPrefabGroup = [[NSMutableDictionary alloc] init];
         prefabGroups = [[NSMutableArray alloc] init];
         worldBounds.min.x = -0x8000;
@@ -159,7 +161,7 @@ static PrefabManager* sharedInstance = nil;
     MapParser* parser = [[MapParser alloc] initWithData:prefabData];
     MutablePrefab* prefab = [[MutablePrefab alloc] initWithWorldBounds:&worldBounds name:prefabName group:prefabGroup readOnly:readOnly];
     
-    [parser parseMap:prefab textureManager:nil withProgressIndicator:nil];
+    [parser parseMap:prefab textureManager:textureManager withProgressIndicator:nil];
     [parser release];
 
     [self addPrefab:prefab group:prefabGroup];

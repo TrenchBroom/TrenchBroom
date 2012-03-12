@@ -1378,6 +1378,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSMutableArray* newEntities = [[NSMutableArray alloc] init];
     NSMutableArray* newBrushes = [[NSMutableArray alloc] init];
     MapDocument* map = [self document];
+    TextureManager* textureManager = [[map glResources] textureManager];
     
     for (id <Entity> prefabEntity in [prefab entities]) {
         id <Entity> mapEntity;
@@ -1391,12 +1392,18 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
         
         for (id <Brush> prefabBrush in [prefabEntity brushes]) {
             id <Brush> mapBrush = [map createBrushInEntity:mapEntity fromTemplate:prefabBrush];
+            for (MutableFace* face in [mapBrush faces]) {
+                Texture* prefabTexture = [face texture];
+                Texture* mapTexture = [textureManager textureForName:[prefabTexture name]];
+                [face setTexture:mapTexture];
+            }
+            
             [newBrushes addObject:mapBrush];
         }
     }
     
-    [[self document] translateEntities:newEntities delta:delta];
-    [[self document] translateBrushes:newBrushes delta:delta lockTextures:[options lockTextures]];
+    [map translateEntities:newEntities delta:delta];
+    [map translateBrushes:newBrushes delta:delta lockTextures:[options lockTextures]];
     
     [selectionManager removeAll:YES];
     [selectionManager addEntities:newEntities record:YES];

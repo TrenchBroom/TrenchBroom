@@ -28,6 +28,7 @@ extern NSString* const PrefabGroupChanged;
 extern NSString* const PrefabKey;
 extern NSString* const PrefabGroupKey;
 
+@class TextureManager;
 @protocol Prefab;
 @protocol PrefabGroup;
 
@@ -37,6 +38,7 @@ extern NSString* const PrefabGroupKey;
     NSMutableArray* prefabGroups;
     BOOL sorted;
     TBoundingBox worldBounds;
+    TextureManager* textureManager;
 }
 
 + (PrefabManager *)sharedPrefabManager;
