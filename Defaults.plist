@@ -26,6 +26,19 @@
 		<array>
 			<dict>
 				<key>Name</key>
+				<string>Entities only</string>
+				<key>Commands</key>
+				<array>
+					<dict>
+						<key>Path</key>
+						<string>TxQBSP</string>
+						<key>Arguments</key>
+						<string>-onlyents $map $bsp</string>
+					</dict>
+				</array>
+			</dict>
+			<dict>
+				<key>Name</key>
 				<string>Quick</string>
 				<key>Commands</key>
 				<array>

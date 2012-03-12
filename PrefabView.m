@@ -273,7 +273,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
                         if (selectedPrefab == prefab)
                             glColor4f(1, 0, 0, 1);
                         else
-                            glColor4f(1, 1, 1, 0.5f);
+                            glColor4f(1, 1, 1, 1);
                         [self renderFace:face];
                         glResetEdgeOffset();
                     }
@@ -312,12 +312,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     glEnd();
      
     [fontManager activate];
-    glColor4f(1, 1, 1, 1);
 
     for (PrefabLayoutGroupRow* groupRow in [layout groupRows]) {
         GLString* groupName = [groupRow name];
         NSRect titleBounds = [groupRow titleBounds];
         
+        glColor4f(1, 1, 1, 1);
         glPushMatrix();
         glTranslatef(NSMinX(titleBounds),  NSHeight(visibleRect) - NSMaxY(titleBounds), 0);
         [groupName render];
