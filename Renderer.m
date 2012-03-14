@@ -1268,7 +1268,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
                 break;
         }
         
-        if ([options isolationMode] != IM_NONE) {
+        if ([options isolationMode] != IM_DISCARD) {
             glSetEdgeOffset(0.1f);
             [self renderEdges:NULL indexBuffer:&edgeIndexBuffer];
             glResetEdgeOffset();
