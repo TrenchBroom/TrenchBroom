@@ -107,6 +107,7 @@
 		488514D3150AB396000A58CD /* BoundsRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 488514D2150AB396000A58CD /* BoundsRenderer.m */; };
 		488514E9150EA729000A58CD /* 12.map in Copy Prefabs (Cylinders) */ = {isa = PBXBuildFile; fileRef = 488514E4150EA6E5000A58CD /* 12.map */; };
 		488514EA150EA729000A58CD /* 24.map in Copy Prefabs (Cylinders) */ = {isa = PBXBuildFile; fileRef = 488514E5150EA6E5000A58CD /* 24.map */; };
+		488514F11510D356000A58CD /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 488514F01510D355000A58CD /* Icon.icns */; };
 		488868DB12FAFCBF00CAEA55 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = 488868DA12FAFCBF00CAEA55 /* GLString.m */; };
 		4888732A13436206005FCE15 /* FloatData.m in Sources */ = {isa = PBXBuildFile; fileRef = 4888732913436206005FCE15 /* FloatData.m */; };
 		488C8EE112F6C3ED00F358E6 /* IntData.m in Sources */ = {isa = PBXBuildFile; fileRef = 488C8EE012F6C3ED00F358E6 /* IntData.m */; };
@@ -446,6 +447,7 @@
 		488514D2150AB396000A58CD /* BoundsRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BoundsRenderer.m; sourceTree = "<group>"; };
 		488514E4150EA6E5000A58CD /* 12.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 12.map; sourceTree = "<group>"; };
 		488514E5150EA6E5000A58CD /* 24.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 24.map; sourceTree = "<group>"; };
+		488514F01510D355000A58CD /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		488868D912FAFCBF00CAEA55 /* GLString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLString.h; sourceTree = "<group>"; };
 		488868DA12FAFCBF00CAEA55 /* GLString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLString.m; sourceTree = "<group>"; };
 		4888732813436206005FCE15 /* FloatData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatData.h; sourceTree = "<group>"; };
@@ -662,6 +664,7 @@
 		2A37F4AAFDCFA73011CA2CEA /* TrenchBroom */ = {
 			isa = PBXGroup;
 			children = (
+				488514F01510D355000A58CD /* Icon.icns */,
 				2A37F4ABFDCFA73011CA2CEA /* Classes */,
 				2A37F4AFFDCFA73011CA2CEA /* Other Sources */,
 				2A37F4B8FDCFA73011CA2CEA /* Resources */,
@@ -1446,6 +1449,7 @@
 				48BC2E6713EBEF7C003657D6 /* ConsoleWindow.xib in Resources */,
 				487799C613F308ED001F9335 /* QuickBarWindow.xib in Resources */,
 				48C81D3D14F05210009F81B1 /* TrenchBroom.help in Resources */,
+				488514F11510D356000A58CD /* Icon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

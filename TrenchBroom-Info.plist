@@ -36,7 +36,7 @@
 	<key>CFBundleHelpBookName</key>
 	<string>com.kristianduske.TrenchBroom.help</string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>Icon.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.kristianduske.${PRODUCT_NAME:rfc1034identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>

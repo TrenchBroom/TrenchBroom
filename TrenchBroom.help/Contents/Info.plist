@@ -21,7 +21,7 @@
 	<key>HPDBookAccessPath</key>
 	<string>TrenchBroom.html</string>
 	<key>HPDBookIconPath</key>
-	<string>shrd/icon.png</string>
+	<string>../../../Icon.icns</string>
 	<key>HPDBookIndexPath</key>
 	<string>TrenchBroom.helpindex</string>
 	<key>HPDBokKBProduct</key>
