@@ -617,15 +617,17 @@
 											<object class="NSMenuItem" id="290239895">
 												<reference key="NSMenu" ref="709869826"/>
 												<string key="NSTitle">Show Grid</string>
-												<string key="NSKeyEquiv">G</string>
+												<string key="NSKeyEquiv">g</string>
+												<int key="NSKeyEquivModMask">1048576</int>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
 											</object>
 											<object class="NSMenuItem" id="477418875">
 												<reference key="NSMenu" ref="709869826"/>
-												<string key="NSTitle">Snap to Grid</string>
-												<string key="NSKeyEquiv">H</string>
+												<string key="NSTitle">Snap To Grid</string>
+												<string key="NSKeyEquiv">h</string>
+												<int key="NSKeyEquivModMask">1048576</int>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
 												<reference key="NSMixedImage" ref="310636482"/>
@@ -734,24 +736,6 @@
 									<object class="NSMenu" key="NSSubmenu" id="403305097">
 										<string key="NSTitle">Camera</string>
 										<array class="NSMutableArray" key="NSMenuItems">
-											<object class="NSMenuItem" id="503492308">
-												<reference key="NSMenu" ref="403305097"/>
-												<string key="NSTitle">Toggle Projection Mode</string>
-												<string key="NSKeyEquiv">P</string>
-												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="1033313550"/>
-												<reference key="NSMixedImage" ref="310636482"/>
-											</object>
-											<object class="NSMenuItem" id="576181861">
-												<reference key="NSMenu" ref="403305097"/>
-												<bool key="NSIsDisabled">YES</bool>
-												<bool key="NSIsSeparator">YES</bool>
-												<string key="NSTitle"/>
-												<string key="NSKeyEquiv"/>
-												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="1033313550"/>
-												<reference key="NSMixedImage" ref="310636482"/>
-											</object>
 											<object class="NSMenuItem" id="532629463">
 												<reference key="NSMenu" ref="403305097"/>
 												<string key="NSTitle">Switch To XY View</string>
@@ -1123,7 +1107,7 @@
 					<object class="NSMenuItem" id="332848501">
 						<reference key="NSMenu" ref="616476099"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Left by 1</string>
+						<string key="NSTitle">Move Left By 1</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1141,7 +1125,7 @@
 					<object class="NSMenuItem" id="897256177">
 						<reference key="NSMenu" ref="616476099"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Right by 1</string>
+						<string key="NSTitle">Move Right By 1</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1159,7 +1143,7 @@
 					<object class="NSMenuItem" id="1050878181">
 						<reference key="NSMenu" ref="616476099"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Up by 1</string>
+						<string key="NSTitle">Move Up By 1</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1177,7 +1161,7 @@
 					<object class="NSMenuItem" id="906271399">
 						<reference key="NSMenu" ref="616476099"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Down by 1</string>
+						<string key="NSTitle">Move Down By 1</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1186,7 +1170,7 @@
 					</object>
 					<object class="NSMenuItem" id="220666945">
 						<reference key="NSMenu" ref="616476099"/>
-						<string key="NSTitle">Rotate CW by 15°</string>
+						<string key="NSTitle">Rotate CW By 15°</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSMnemonicLoc">2147483647</int>
 						<reference key="NSOnImage" ref="1033313550"/>
@@ -1195,7 +1179,7 @@
 					<object class="NSMenuItem" id="1020987823">
 						<reference key="NSMenu" ref="616476099"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Rotate CW by 1°</string>
+						<string key="NSTitle">Rotate CW By 1°</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1204,7 +1188,7 @@
 					</object>
 					<object class="NSMenuItem" id="200327094">
 						<reference key="NSMenu" ref="616476099"/>
-						<string key="NSTitle">Rotate CCW by 15°</string>
+						<string key="NSTitle">Rotate CCW By 15°</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSMnemonicLoc">2147483647</int>
 						<reference key="NSOnImage" ref="1033313550"/>
@@ -1213,7 +1197,7 @@
 					<object class="NSMenuItem" id="742242409">
 						<reference key="NSMenu" ref="616476099"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Rotate CCW by 1°</string>
+						<string key="NSTitle">Rotate CCW By 1°</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1236,7 +1220,7 @@
 					<object class="NSMenuItem" id="757584531">
 						<reference key="NSMenu" ref="171675804"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Left by 1</string>
+						<string key="NSTitle">Move Left By 1</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1254,7 +1238,7 @@
 					<object class="NSMenuItem" id="915300115">
 						<reference key="NSMenu" ref="171675804"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Right by 1</string>
+						<string key="NSTitle">Move Right By 1</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1272,7 +1256,7 @@
 					<object class="NSMenuItem" id="93501280">
 						<reference key="NSMenu" ref="171675804"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Away by 1</string>
+						<string key="NSTitle">Move Away By 1</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1290,7 +1274,7 @@
 					<object class="NSMenuItem" id="1067743939">
 						<reference key="NSMenu" ref="171675804"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Toward by 1</string>
+						<string key="NSTitle">Move Toward By 1</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1308,7 +1292,7 @@
 					<object class="NSMenuItem" id="845290377">
 						<reference key="NSMenu" ref="171675804"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Up by 1</string>
+						<string key="NSTitle">Move Up By 1</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1326,7 +1310,7 @@
 					<object class="NSMenuItem" id="900796578">
 						<reference key="NSMenu" ref="171675804"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Down by 1</string>
+						<string key="NSTitle">Move Down By 1</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1361,7 +1345,7 @@
 						<reference key="NSOnImage" ref="1033313550"/>
 						<reference key="NSMixedImage" ref="310636482"/>
 					</object>
-					<object class="NSMenuItem" id="747885854">
+					<object class="NSMenuItem" id="236378116">
 						<reference key="NSMenu" ref="171675804"/>
 						<string key="NSTitle">Pitch 90° CW</string>
 						<string key="NSKeyEquiv"></string>
@@ -1370,7 +1354,7 @@
 						<reference key="NSOnImage" ref="1033313550"/>
 						<reference key="NSMixedImage" ref="310636482"/>
 					</object>
-					<object class="NSMenuItem" id="84243192">
+					<object class="NSMenuItem" id="816922122">
 						<reference key="NSMenu" ref="171675804"/>
 						<string key="NSTitle">Pitch 90° CCW</string>
 						<string key="NSKeyEquiv"></string>
@@ -1379,7 +1363,7 @@
 						<reference key="NSOnImage" ref="1033313550"/>
 						<reference key="NSMixedImage" ref="310636482"/>
 					</object>
-					<object class="NSMenuItem" id="615481011">
+					<object class="NSMenuItem" id="907178689">
 						<reference key="NSMenu" ref="171675804"/>
 						<string key="NSTitle">Yaw 90° CW</string>
 						<string key="NSKeyEquiv"></string>
@@ -1388,7 +1372,7 @@
 						<reference key="NSOnImage" ref="1033313550"/>
 						<reference key="NSMixedImage" ref="310636482"/>
 					</object>
-					<object class="NSMenuItem" id="911924445">
+					<object class="NSMenuItem" id="454180294">
 						<reference key="NSMenu" ref="171675804"/>
 						<string key="NSTitle">Yaw 90° CCW</string>
 						<string key="NSKeyEquiv"></string>
@@ -1761,14 +1745,6 @@
 						<reference key="destination" ref="854048401"/>
 					</object>
 					<int key="connectionID">775</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">toggleProjection:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="503492308"/>
-					</object>
-					<int key="connectionID">778</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
@@ -2254,7 +2230,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">rotateObjectsPitch90CW:</string>
 						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="747885854"/>
+						<reference key="destination" ref="236378116"/>
 					</object>
 					<int key="connectionID">1102</int>
 				</object>
@@ -2262,7 +2238,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">rotateObjectsPitch90CCW:</string>
 						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="84243192"/>
+						<reference key="destination" ref="816922122"/>
 					</object>
 					<int key="connectionID">1103</int>
 				</object>
@@ -2270,7 +2246,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">rotateObjectsYaw90CW:</string>
 						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="615481011"/>
+						<reference key="destination" ref="907178689"/>
 					</object>
 					<int key="connectionID">1104</int>
 				</object>
@@ -2278,7 +2254,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">rotateObjectsYaw90CCW:</string>
 						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="911924445"/>
+						<reference key="destination" ref="454180294"/>
 					</object>
 					<int key="connectionID">1105</int>
 				</object>
@@ -2987,8 +2963,6 @@
 							<reference ref="532629463"/>
 							<reference ref="328646194"/>
 							<reference ref="1043181363"/>
-							<reference ref="576181861"/>
-							<reference ref="503492308"/>
 							<reference ref="665064535"/>
 							<reference ref="344461831"/>
 							<reference ref="738814467"/>
@@ -3024,16 +2998,6 @@
 						<int key="objectID">772</int>
 						<reference key="object" ref="854048401"/>
 						<reference key="parent" ref="466310130"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">776</int>
-						<reference key="object" ref="576181861"/>
-						<reference key="parent" ref="403305097"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">777</int>
-						<reference key="object" ref="503492308"/>
-						<reference key="parent" ref="403305097"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">789</int>
@@ -3348,10 +3312,10 @@
 							<reference ref="516507106"/>
 							<reference ref="550767006"/>
 							<reference ref="62768314"/>
-							<reference ref="747885854"/>
-							<reference ref="84243192"/>
-							<reference ref="615481011"/>
-							<reference ref="911924445"/>
+							<reference ref="236378116"/>
+							<reference ref="816922122"/>
+							<reference ref="907178689"/>
+							<reference ref="454180294"/>
 							<reference ref="1035831988"/>
 						</array>
 						<reference key="parent" ref="0"/>
@@ -3523,22 +3487,22 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">1092</int>
-						<reference key="object" ref="747885854"/>
+						<reference key="object" ref="236378116"/>
 						<reference key="parent" ref="171675804"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">1093</int>
-						<reference key="object" ref="84243192"/>
+						<reference key="object" ref="816922122"/>
 						<reference key="parent" ref="171675804"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">1096</int>
-						<reference key="object" ref="615481011"/>
+						<reference key="object" ref="907178689"/>
 						<reference key="parent" ref="171675804"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">1097</int>
-						<reference key="object" ref="911924445"/>
+						<reference key="object" ref="454180294"/>
 						<reference key="parent" ref="171675804"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -3664,8 +3628,6 @@
 				<string key="759.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="760.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="772.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="776.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="777.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="789.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="79.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="791.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>

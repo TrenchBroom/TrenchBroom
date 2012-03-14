@@ -4,6 +4,7 @@ Control				&#x2303;
 Shift				&#8679;
 Menu Delimiter		&raquo;
 
+Tab					&#x21E5;
 Return				&#x21A9;
 Escape				&#x238B;
 Backspace			&#x232B;

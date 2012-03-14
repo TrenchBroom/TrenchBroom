@@ -17,16 +17,14 @@
 					<li class="active" id="menu_link_getting_started">Getting started</li>
 					<li class="inactive" id="menu_link_camera_navigation">Camera navigation</li>
 					<li class="inactive" id="menu_link_selecting_objects">Selecting objects</li>
+					<li class="header">Editing</li>
 					<li class="inactive" id="menu_link_creating_new_objects">Creating new objects</li>
 					<li class="inactive" id="menu_link_editing_objects">Editing objects</li>
 					<li class="inactive" id="menu_link_shaping_brushes">Shaping brushes</li>
 					<li class="inactive" id="menu_link_keeping_an_overview">Keeping an overview</li>
+					<li class="header">Other</li>
 					<li class="inactive" id="menu_link_misc_tasks">Miscellaneous</li>
-					<li class="header">User Interface</li>
-					<li class="inactive" id="menu_link_the_main_window">The main window</li>
-					<li class="inactive" id="menu_link_the_inspector">The inspector</li>
-					<li class="inactive" id="menu_link_the_main_menu">The main menu</li>
-					<li class="inactive" id="menu_link_the_controls">Keyboard and mouse controls</li>
+					<li class="inactive" id="menu_link_the_controls">Cheat sheet (pdf)</li>
 				</ul>
 			</div>
 			<div id="submenu">
@@ -85,34 +83,6 @@
 					<li><a href="pgs/miscellaneous.html#managin_prefabs">Managing prefabs</a></li>
 					<li><a href="pgs/miscellaneous.html#compiler_profiles">Compiler Profiles</a></li>
 				</ul>
-				<ul class="submenu" id="submenu_the_main_window">
-					<li><a href="#">The 3D view</a></li>
-					<li><a href="#">3D mouse cursors</a></li>
-					<li><a href="#">The quick info bar</a></li>
-					<li><a href="#">The compass</a></li>
-				</ul>
-				<ul class="submenu" id="submenu_the_inspector">
-					<li><a href="#">General info</a></li>
-					<li><a href="#">The map tab</a></li>
-					<li><a href="#">The entity tab</a></li>
-					<li><a href="#">The brush tab</a></li>
-					<li><a href="#">The face tab</a></li>
-					<li><a href="#">The view tab</a></li>
-				</ul>
-				<ul class="submenu" id="submenu_the_main_menu">
-					<li><a href="#">The TrenchBroom menu</a></li>
-					<li><a href="#">The File menu</a></li>
-					<li><a href="#">The Edit menu</a></li>
-					<li><a href="#">The View menu</a></li>
-					<li><a href="#">The Run menu</a></li>
-					<li><a href="#">The Window menu</a></li>
-					<li><a href="#">The Help menu</a></li>
-				</ul>
-				<ul class="submenu" id="submenu_the_controls">
-					<li><a href="#">Navigation controls</a></li>
-					<li><a href="#">Editing controls</a></li>
-					<li><a href="#">Other controls</a></li>
-				</ul>
 			</div>
 		</div>
 		<script src="scrpt/jquery.js"></script>
@@ -134,10 +104,7 @@
 			$("#menu_link_shaping_brushes").click(function(event) {menu_link_callback(event, "shaping_brushes");});
 			$("#menu_link_keeping_an_overview").click(function(event) {menu_link_callback(event, "keeping_an_overview");});
 			$("#menu_link_misc_tasks").click(function(event) {menu_link_callback(event, "misc_tasks");});
-			$("#menu_link_the_main_window").click(function(event) {menu_link_callback(event, "the_main_window");});
-			$("#menu_link_the_inspector").click(function(event) {menu_link_callback(event, "the_inspector");});
-			$("#menu_link_the_main_menu").click(function(event) {menu_link_callback(event, "the_main_menu");});
-			$("#menu_link_the_controls").click(function(event) {menu_link_callback(event, "the_controls");});
+			$("#menu_link_the_controls").click(function(event) {window.location = 'gfx/CheatSheet.pdf';});
 		});
 		</script>
 	</body>
