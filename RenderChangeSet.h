@@ -34,6 +34,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     NSMutableArray* selectedFaces;
     NSMutableArray* deselectedFaces;
     BOOL filterChanged;
+    BOOL textureManagerChanged;
 }
 
 - (void)entitiesAdded:(NSArray *)theEntities;
@@ -50,6 +51,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)facesSelected:(NSArray *)theFaces;
 - (void)facesDeselected:(NSArray *)theFaces;
 - (void)setFilterChanged:(BOOL)isFilterChanged;
+- (void)setTextureManagerChanged:(BOOL)isTextureManagerChanged;
 - (void)clear;
 
 - (NSArray *)addedEntities;
@@ -66,5 +68,6 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (NSArray *)selectedFaces;
 - (NSArray *)deselectedFaces;
 - (BOOL)filterChanged;
+- (BOOL)textureManagerChanged;
 
 @end

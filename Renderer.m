@@ -721,7 +721,8 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         [[changeSet deselectedBrushes] count] > 0 ||
         [[changeSet selectedFaces] count] > 0 ||
         [[changeSet deselectedFaces] count] > 0 ||
-        [changeSet filterChanged]) {
+        [changeSet filterChanged] ||
+        [changeSet textureManagerChanged]) {
         
         [self rebuildFaceIndexBuffers];
     }
@@ -732,7 +733,8 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
         [[changeSet deselectedBrushes] count] > 0 ||
         [[changeSet selectedFaces] count] > 0 ||
         [[changeSet deselectedFaces] count] > 0 ||
-        [changeSet filterChanged]) {
+        [changeSet filterChanged] ||
+        [changeSet textureManagerChanged]) {
         
         [self rebuildSelectedFaceIndexBuffers];
     }
@@ -1068,6 +1070,7 @@ void writeFaceIndices(id <Face> face, TIndexBuffer* triangleBuffer, TIndexBuffer
 }
 
 - (void)textureManagerChanged:(NSNotification *)notification {
+    [changeSet setTextureManagerChanged:YES];
     [[NSNotificationCenter defaultCenter] postNotificationName:RendererChanged object:self];
 }
 

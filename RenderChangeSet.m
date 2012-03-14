@@ -144,6 +144,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     filterChanged = isFilterChanged;
 }
 
+- (void)setTextureManagerChanged:(BOOL)isTextureManagerChanged {
+    textureManagerChanged = isTextureManagerChanged;
+}
+
 - (void)clear {
     [addedEntities removeAllObjects];
     [removedEntities removeAllObjects];
@@ -159,6 +163,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     [selectedFaces removeAllObjects];
     [deselectedFaces removeAllObjects];
     filterChanged = NO;
+    textureManagerChanged = NO;
 }
 
 - (NSArray *)addedEntities {
@@ -215,6 +220,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (BOOL)filterChanged {
     return filterChanged;
+}
+
+- (BOOL)textureManagerChanged {
+    return textureManagerChanged;
 }
 
 @end

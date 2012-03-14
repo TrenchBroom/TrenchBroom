@@ -1,0 +1,76 @@
+body {
+	font-family: Helvetica;
+	text-align: center;
+}
+
+p, li, div {
+	font-size: 12pt;
+}
+
+p {
+	margin-bottom: 20px;
+	text-align: justify;
+	text-indent: 30px;
+}
+
+p.subtitle {
+	text-indent: 0px;
+	text-align: center;
+	margin: 0px;
+	color: gray;
+}
+
+p.no-indent {
+	text-indent: 0px;
+}
+
+h1 {
+	margin-bottom: 0px;
+}
+
+h2 {
+	text-align: left;
+}
+
+h3 {
+	text-align: left;
+}
+
+div.image {
+	text-align: center;
+}
+
+a {
+	color: rgb(235,125,0);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+div#container {
+	width: 1024px;
+	margin: 60px auto;
+}
+
+div#content {
+	text-align: left;
+}
+
+hr {
+	border: 1p solid gray;
+}
+
+ul.menu {
+	color: gray;
+	display: inline;
+	margin: 0px;
+	padding: 0px;
+}
+
+ul.menu li {
+	display: inline;
+	margin: 0 10px 0 10px;
+	font-weight: bold;
+}
