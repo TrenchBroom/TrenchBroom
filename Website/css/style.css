@@ -58,6 +58,11 @@ div#content {
 	text-align: left;
 }
 
+div.latest {
+	border: 2px solid #AA0000;
+	background-color: #440000;
+}
+
 hr {
 	border: 1p solid gray;
 }
