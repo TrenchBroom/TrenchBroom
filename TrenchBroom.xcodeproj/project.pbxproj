@@ -86,7 +86,6 @@
 		487436A6135B5FD900F787E1 /* DefaultFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 487436A5135B5FD900F787E1 /* DefaultFilter.m */; };
 		4874387013601A5700F787E1 /* EntityDefinitionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4874386F13601A5700F787E1 /* EntityDefinitionManager.m */; };
 		4874387313601A6000F787E1 /* EntityDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 4874387213601A6000F787E1 /* EntityDefinition.m */; };
-		4876741C15129FF800338143 /* WadIO.c in Sources */ = {isa = PBXBuildFile; fileRef = 4876741A15129FF800338143 /* WadIO.c */; };
 		48770FF312E5BE66009B440B /* MapTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF212E5BE66009B440B /* MapTokenizer.m */; };
 		48770FF612E5BF28009B440B /* MapToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 48770FF512E5BF28009B440B /* MapToken.m */; };
 		4877106E12E5DA55009B440B /* MapParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4877106D12E5DA55009B440B /* MapParser.m */; };
@@ -409,9 +408,6 @@
 		4874386F13601A5700F787E1 /* EntityDefinitionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinitionManager.m; sourceTree = "<group>"; };
 		4874387113601A6000F787E1 /* EntityDefinition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinition.h; sourceTree = "<group>"; };
 		4874387213601A6000F787E1 /* EntityDefinition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EntityDefinition.m; sourceTree = "<group>"; };
-		4876741A15129FF800338143 /* WadIO.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = WadIO.c; sourceTree = "<group>"; };
-		4876741B15129FF800338143 /* WadIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WadIO.h; sourceTree = "<group>"; };
-		487674201512A1DE00338143 /* TrenchBroom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroom.h; sourceTree = "<group>"; };
 		48770FF112E5BE66009B440B /* MapTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapTokenizer.h; sourceTree = "<group>"; };
 		48770FF212E5BE66009B440B /* MapTokenizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapTokenizer.m; sourceTree = "<group>"; };
 		48770FF412E5BF28009B440B /* MapToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapToken.h; sourceTree = "<group>"; };
@@ -668,7 +664,6 @@
 		2A37F4AAFDCFA73011CA2CEA /* TrenchBroom */ = {
 			isa = PBXGroup;
 			children = (
-				4876741715129FF800338143 /* Core */,
 				488514F01510D355000A58CD /* Icon.icns */,
 				2A37F4ABFDCFA73011CA2CEA /* Classes */,
 				2A37F4AFFDCFA73011CA2CEA /* Other Sources */,
@@ -958,32 +953,6 @@
 				484B9A5713621004003030D7 /* EntityDefinitionParser.m */,
 			);
 			name = IO;
-			sourceTree = "<group>";
-		};
-		4876741715129FF800338143 /* Core */ = {
-			isa = PBXGroup;
-			children = (
-				4876741815129FF800338143 /* IO */,
-				487674201512A1DE00338143 /* TrenchBroom.h */,
-			);
-			path = Core;
-			sourceTree = "<group>";
-		};
-		4876741815129FF800338143 /* IO */ = {
-			isa = PBXGroup;
-			children = (
-				4876741915129FF800338143 /* Wad */,
-			);
-			path = IO;
-			sourceTree = "<group>";
-		};
-		4876741915129FF800338143 /* Wad */ = {
-			isa = PBXGroup;
-			children = (
-				4876741A15129FF800338143 /* WadIO.c */,
-				4876741B15129FF800338143 /* WadIO.h */,
-			);
-			path = Wad;
 			sourceTree = "<group>";
 		};
 		48770C59138C333F0067231C /* Pak */ = {
@@ -1650,7 +1619,6 @@
 				48E71E311503B78700A965F9 /* DragEdgeToolFeedbackFigure.m in Sources */,
 				484184DB1507CAF4009532B9 /* EdgeTree.m in Sources */,
 				488514D3150AB396000A58CD /* BoundsRenderer.m in Sources */,
-				4876741C15129FF800338143 /* WadIO.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
