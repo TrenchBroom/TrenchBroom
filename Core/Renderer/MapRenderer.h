@@ -17,8 +17,26 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import <Cocoa/Cocoa.h>
+#ifndef TrenchBroom_MapRenderer_h
+#define TrenchBroom_MapRenderer_h
 
-@interface Document : NSDocument
+#include "VecMath.h"
 
-@end
+namespace TrenchBroom {
+
+    class RenderContext {
+    public:
+        Vec4f backgroundColor;
+        bool renderOrigin;
+        float originAxisLength;
+        RenderContext();
+    };
+    
+    class MapRenderer {
+    public:
+        void render(RenderContext& context);
+    };
+    
+}
+
+#endif

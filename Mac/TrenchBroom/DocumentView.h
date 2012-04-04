@@ -17,8 +17,10 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import <Cocoa/Cocoa.h>
+#import <AppKit/AppKit.h>
 
-@interface Document : NSDocument
+@interface DocumentView : NSOpenGLView {
+    void* renderer;
+}
 
 @end

@@ -19,6 +19,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface Document : NSDocument
+@interface DocumentWindowController : NSWindowController
 
 @end
