@@ -1,9 +1,0 @@
-map = [entity]
-entity = [property] {brush}
-property = """string""" " " """string"""
-brush = "{" {face} "}"
-face = point point point string dec dec dec frac frac
-point = "(" dec dec dec ")"
-string = [char | digit]
-dec = [digit] | -[digit]
-frac = dec | dec "." [digit]

@@ -1,7 +1,0 @@
-//
-// Prefix header for all source files of the 'TrenchBroom' target in the 'TrenchBroom' project
-//
-
-#ifdef __OBJC__
-    #import <Cocoa/Cocoa.h>
-#endif
