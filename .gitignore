@@ -1,10 +1,9 @@
 build/*
 build/**/*
 
-/**/*.xcodeproj/project.xcworkspace/xcuserdata/**/*
-/**/*.xcodeproj/xcuserdata/**/*
-/**/*.xcodeproj/kristian.mode1v3
-/**/*.xcodeproj/kristian.pbxuser
-/**/*.xcodeproj/kristian.perspectivev3
+Gwen/Projects/macosx/xcode4/obj/*
+Gwen/Projects/macosx/xcode4/obj/**/*
+
+xcuserdata
 
 .DS_Store
