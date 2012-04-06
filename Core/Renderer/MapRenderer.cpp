@@ -41,6 +41,7 @@ namespace TrenchBroom {
             glShadeModel(GL_FLAT);
             
             if (context.renderOrigin) {
+                glDisable(GL_TEXTURE_2D);
                 glBegin(GL_LINES);
                 glColor4f(1, 0, 0, 0.5f);
                 glVertex3f(-context.originAxisLength, 0, 0);

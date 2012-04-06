@@ -21,6 +21,7 @@
 
 @interface DocumentView : NSOpenGLView {
     void* editorGui;
+    NSUInteger flags;
 }
 
 @end

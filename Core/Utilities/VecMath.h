@@ -20,48 +20,77 @@
 #ifndef TrenchBroom_VecMath_h
 #define TrenchBroom_VecMath_h
 
-namespace TrenchBroom {
+static const float AlmostZero = 0.001f;
 
-    class Vec3f {
-    public:
-        float x,y,z;
-        Vec3f& operator= (const Vec3f& right);
-        const Vec3f operator+ (const Vec3f& right) const;
-        const Vec3f operator- (const Vec3f& right) const;
-        const Vec3f operator* (const float right) const;
-        const float operator| (const Vec3f& right) const; // dot product
-        const Vec3f operator% (const Vec3f& right) const; // cross product
-        Vec3f& operator+= (const Vec3f& right);
-        Vec3f& operator-= (const Vec3f& right);
-        Vec3f& operator*= (const float right);
-        Vec3f& operator%= (const Vec3f& right);
-        const float& operator[] (const int index) const;
-        Vec3f();
-        Vec3f(float x, float y, float z);
-    };
+class Vec3f {
+public:
+    float x,y,z;
+    Vec3f& operator= (const Vec3f& right);
+    const Vec3f operator+ (const Vec3f& right) const;
+    const Vec3f operator- (const Vec3f& right) const;
+    const Vec3f operator* (const float right) const;
+    const Vec3f operator/ (const float right) const;
+    const float operator| (const Vec3f& right) const; // dot product
+    const Vec3f operator% (const Vec3f& right) const; // cross product
+    Vec3f& operator+= (const Vec3f& right);
+    Vec3f& operator-= (const Vec3f& right);
+    Vec3f& operator*= (const float right);
+    Vec3f& operator/= (const float right);
+    Vec3f& operator%= (const Vec3f& right);
+    const float& operator[] (const int index) const;
+    Vec3f();
+    Vec3f(float x, float y, float z);
     
-    static const Vec3f XAxisPos( 1,  0,  0);
-    static const Vec3f XAxisNeg(-1,  0,  0);
-    static const Vec3f YAxisPos( 0,  1,  0);
-    static const Vec3f YAxisNeg( 0, -1,  0);
-    static const Vec3f ZAxisPos( 0,  0,  1);
-    static const Vec3f ZAxisNeg( 0,  0, -1);
-    static const Vec3f Null3f(0, 0, 0);
+    float length() const;
+    float lengthSquared() const;
+    const Vec3f normalize() const;
+    bool equals(Vec3f other) const;
+    bool equals(Vec3f other, float delta) const;
+};
+
+static const Vec3f XAxisPos( 1,  0,  0);
+static const Vec3f XAxisNeg(-1,  0,  0);
+static const Vec3f YAxisPos( 0,  1,  0);
+static const Vec3f YAxisNeg( 0, -1,  0);
+static const Vec3f ZAxisPos( 0,  0,  1);
+static const Vec3f ZAxisNeg( 0,  0, -1);
+static const Vec3f Null3f(0, 0, 0);
+
+class Vec4f {
+public:
+    float x,y,z,w;
+    Vec4f& operator= (const Vec4f& right);
+    const Vec4f operator+ (const Vec4f& right) const;
+    const Vec4f operator- (const Vec4f& right) const;
+    const Vec4f operator* (const float right) const;
+    const Vec4f operator/ (const float right) const;
+    const float operator| (const Vec4f right) const; // dot product
+    Vec4f& operator+= (const Vec4f& right);
+    Vec4f& operator-= (const Vec4f& right);
+    Vec4f& operator*= (const float right);
+    Vec4f& operator/= (const float right);
+    const float& operator[] (const int index) const;
+    Vec4f();
+    Vec4f(float x, float y, float z, float w);
     
-    class Vec4f {
-    public:
-        float x,y,z,w;
-        Vec4f& operator= (const Vec4f& right);
-        const Vec4f operator+ (const Vec4f& right) const;
-        const Vec4f operator- (const Vec4f& right) const;
-        const Vec4f operator* (const float right) const;
-        Vec4f& operator+= (const Vec4f& right);
-        Vec4f& operator-= (const Vec4f& right);
-        Vec4f& operator*= (const float right);
-        const float& operator[] (const int index) const;
-        Vec4f();
-        Vec4f(float x, float y, float z, float w);
-    };
-}
+    float length() const;
+    float lengthSquared() const;
+    const Vec4f normalize() const;
+    bool equals(Vec4f other) const;
+    bool equals(Vec4f other, float delta) const;
+};
+
+class Quat {
+public:
+    float s;
+    Vec3f v;
+    const Quat operator* (const Quat& right) const;
+    const Vec3f operator* (const Vec3f& right) const;
+    Quat& operator*= (const Quat& right);
+    Quat();
+    Quat(float angle, Vec3f axis);
+    void setRotation(float angle, const Vec3f axis);
+    const Quat conjugate() const ;
+};
 
 #endif

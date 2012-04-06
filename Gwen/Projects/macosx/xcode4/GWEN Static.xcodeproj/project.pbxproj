@@ -366,6 +366,7 @@
 				36153A9C7DFE6BF05F090949 /* Platforms */,
 				6E4A5A4D018549D80CD7377A /* Skin.cpp */,
 				2E1B0D9750FD266554D730B7 /* ToolTip.cpp */,
+				4B312B49605B0CEB29B95408 /* VerticalSlider.cpp */,
 				2FB53B9357D23431248D4046 /* Utility.cpp */,
 				2C0D48B1161D4ECE492217E1 /* events.cpp */,
 				5E526F594CDF58102C1066E4 /* inputhandler.cpp */,
@@ -443,7 +444,6 @@
 				018B59E35F190AD956FE7BCB /* TreeControl.cpp */,
 				62846C58421F3DC766FF7C8B /* TreeNode.cpp */,
 				45983B4331C926A14EF73E45 /* VerticalScrollBar.cpp */,
-				4B312B49605B0CEB29B95408 /* VerticalSlider.cpp */,
 				0F95294A58B17F7B1EB918EF /* WindowControl.cpp */,
 			);
 			name = Controls;

@@ -138,6 +138,7 @@ void Gwen::Input::OnCanvasThink( Controls::Base* pControl )
 	if ( !KeyboardFocus ) return;
 	if ( KeyboardFocus->GetCanvas() != pControl ) return;
 
+    /*
 	float fTime = Gwen::Platform::GetTimeInSeconds();
 
 	//
@@ -161,6 +162,7 @@ void Gwen::Input::OnCanvasThink( Controls::Base* pControl )
 			}
 		}
 	}
+     */
 }
 
 bool Gwen::Input::IsKeyDown( int iKey )

@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		48367703152F0DF800D402E3 /* Splitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48367702152F0DF800D402E3 /* Splitter.cpp */; };
+		4836770C152F2C1600D402E3 /* MapInputController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4836770B152F2C1600D402E3 /* MapInputController.cpp */; };
+		48367711152F4B3E00D402E3 /* CameraTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48367710152F4B3E00D402E3 /* CameraTool.cpp */; };
+		48367715152F4B7500D402E3 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48367714152F4B7500D402E3 /* Camera.cpp */; };
 		48667DB3152D961300A65C45 /* EditorGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48667DB2152D961300A65C45 /* EditorGui.cpp */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
 		48979EEC152EF3F60039ABE8 /* MapRendererControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48979EEB152EF3F60039ABE8 /* MapRendererControl.cpp */; };
@@ -33,6 +36,13 @@
 /* Begin PBXFileReference section */
 		48367700152F0DC200D402E3 /* Splitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Splitter.h; path = ../Core/GUI/Splitter.h; sourceTree = "<group>"; };
 		48367702152F0DF800D402E3 /* Splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Splitter.cpp; path = ../Core/GUI/Splitter.cpp; sourceTree = "<group>"; };
+		4836770A152F2BEA00D402E3 /* MapInputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapInputController.h; path = ../Core/Controller/MapInputController.h; sourceTree = "<group>"; };
+		4836770B152F2C1600D402E3 /* MapInputController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapInputController.cpp; path = ../Core/Controller/MapInputController.cpp; sourceTree = "<group>"; };
+		4836770D152F2C6C00D402E3 /* Tool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tool.h; path = ../Core/Controller/Tool.h; sourceTree = "<group>"; };
+		4836770F152F4B2C00D402E3 /* CameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CameraTool.h; path = ../Core/Controller/CameraTool.h; sourceTree = "<group>"; };
+		48367710152F4B3E00D402E3 /* CameraTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CameraTool.cpp; path = ../Core/Controller/CameraTool.cpp; sourceTree = "<group>"; };
+		48367713152F4B6300D402E3 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Camera.h; path = ../Core/Model/Camera.h; sourceTree = "<group>"; };
+		48367714152F4B7500D402E3 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		48667DB1152D960100A65C45 /* EditorGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EditorGui.h; path = ../Core/GUI/EditorGui.h; sourceTree = "<group>"; };
 		48667DB2152D961300A65C45 /* EditorGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EditorGui.cpp; path = ../Core/GUI/EditorGui.cpp; sourceTree = "<group>"; };
 		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
@@ -84,6 +94,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		48367709152F2BB400D402E3 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				4836770A152F2BEA00D402E3 /* MapInputController.h */,
+				4836770B152F2C1600D402E3 /* MapInputController.cpp */,
+				4836770D152F2C6C00D402E3 /* Tool.h */,
+				4836770F152F4B2C00D402E3 /* CameraTool.h */,
+				48367710152F4B3E00D402E3 /* CameraTool.cpp */,
+			);
+			name = Controller;
+			sourceTree = "<group>";
+		};
+		48367712152F4B4C00D402E3 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				48367713152F4B6300D402E3 /* Camera.h */,
+				48367714152F4B7500D402E3 /* Camera.cpp */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
 		48667DB0152D95BE00A65C45 /* GUI */ = {
 			isa = PBXGroup;
 			children = (
@@ -164,6 +195,8 @@
 		48B50E43152CF97F00E75402 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				48367712152F4B4C00D402E3 /* Model */,
+				48367709152F2BB400D402E3 /* Controller */,
 				48667DB0152D95BE00A65C45 /* GUI */,
 				48B50E45152CF9C300E75402 /* Renderer */,
 				48B50E48152CFA7600E75402 /* Utilities */,
@@ -265,6 +298,9 @@
 				48667DB3152D961300A65C45 /* EditorGui.cpp in Sources */,
 				48979EEC152EF3F60039ABE8 /* MapRendererControl.cpp in Sources */,
 				48367703152F0DF800D402E3 /* Splitter.cpp in Sources */,
+				4836770C152F2C1600D402E3 /* MapInputController.cpp in Sources */,
+				48367711152F4B3E00D402E3 /* CameraTool.cpp in Sources */,
+				48367715152F4B7500D402E3 /* Camera.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

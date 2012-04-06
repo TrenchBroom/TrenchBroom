@@ -18,139 +18,255 @@
  */
 
 #include "VecMath.h"
-#include <assert.h>
+#include <cassert>
+#include <cmath>
 
-namespace TrenchBroom {
-    Vec3f& Vec3f::operator= (const Vec3f& right) {
-        if (this != &right) {
-            x = right.x;
-            y = right.y;
-            z = right.z;
-        }
-        return *this;
+#pragma mark Vec3f
+Vec3f& Vec3f::operator= (const Vec3f& right) {
+    if (this != &right) {
+        x = right.x;
+        y = right.y;
+        z = right.z;
     }
+    return *this;
+}
 
-    const Vec3f Vec3f::operator+ (const Vec3f& right) const {
-        Vec3f result = *this;
-        return result += right;
-    }
-    
-    const Vec3f Vec3f::operator- (const Vec3f& right) const {
-        Vec3f result = *this;
-        return result -= right;
-    }
-    
-    const Vec3f Vec3f::operator* (const float right) const {
-        Vec3f result = *this;
-        return result *= right;
-    }
-    
-    const float Vec3f::operator| (const Vec3f& right) const {
-        return x * right.x + y * right.y + z * right.z;
-    }
-    
-    const Vec3f Vec3f::operator% (const Vec3f& right) const {
-        Vec3f result = *this;
-        return result %= right;
-    }
-    
-    Vec3f& Vec3f::operator+= (const Vec3f& right) {
-        x += right.x;
-        y += right.y;
-        z += right.z;
-        return *this;
-    }
-    
-    Vec3f& Vec3f::operator-= (const Vec3f& right) {
-        x -= right.x;
-        y -= right.y;
-        z -= right.z;
-        return *this;
-    }
-    
-    Vec3f& Vec3f::operator*= (const float right) {
-        x *= right;
-        y *= right;
-        z *= right;
-        return *this;
-    }
-    
-    Vec3f& Vec3f::operator%= (const Vec3f& right) {
-        float xt = y * right.z - z * right.y;
-        float yt = z * right.x - x * right.z;
-        z = x * right.y - y * right.x;
-        x = xt;
-        y = yt;
-        return *this;
-    }
-    
-    const float& Vec3f::operator[] (const int index) const {
-        assert(index >= 0 && index < 3);
-        if (index == 0) return x;
-        if (index == 1) return y;
-        return z;
-    }
+const Vec3f Vec3f::operator+ (const Vec3f& right) const {
+    Vec3f result = *this;
+    return result += right;
+}
 
-    Vec3f::Vec3f() : x(0), y(0), z(0) {}
-    Vec3f::Vec3f(float x, float y, float z) : x(x), y(y), z(z) {}
+const Vec3f Vec3f::operator- (const Vec3f& right) const {
+    Vec3f result = *this;
+    return result -= right;
+}
 
-    Vec4f& Vec4f::operator= (const Vec4f& right) {
-        if (this != &right) {
-            x = right.x;
-            y = right.y;
-            z = right.z;
-            w = right.w;
-        }
-        return *this;
-    }
-    
-    const Vec4f Vec4f::operator+ (const Vec4f& right) const {
-        Vec4f result = *this;
-        return result += right;
-    }
-    
-    const Vec4f Vec4f::operator- (const Vec4f& right) const {
-        Vec4f result = *this;
-        return result -= right;
-    }
-    
-    const Vec4f Vec4f::operator* (const float right) const {
-        Vec4f result = *this;
-        return result *= right;
-    }
-    
-    Vec4f& Vec4f::operator+= (const Vec4f& right) {
-        x += right.x;
-        y += right.y;
-        z += right.z;
-        w += right.w;
-        return *this;
-    }
-    
-    Vec4f& Vec4f::operator-= (const Vec4f& right) {
-        x -= right.x;
-        y -= right.y;
-        z -= right.z;
-        w -= right.w;
-        return *this;
-    }
-    
-    Vec4f& Vec4f::operator*= (const float right) {
-        x *= right;
-        y *= right;
-        z *= right;
-        w *= right;
-        return *this;
-    }
-    
-    const float& Vec4f::operator[] (const int index) const {
-        assert(index >= 0 && index < 4);
-        if (index == 0) return x;
-        if (index == 1) return y;
-        if (index == 2) return z;
-        return w;
-    }
+const Vec3f Vec3f::operator* (const float right) const {
+    Vec3f result = *this;
+    return result *= right;
+}
 
-    Vec4f::Vec4f() : x(0), y(0), z(0), w(0) {}
-    Vec4f::Vec4f(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
+const Vec3f Vec3f::operator/ (const float right) const {
+    return *this * (1 / right);
+}
+
+const float Vec3f::operator| (const Vec3f& right) const {
+    return x * right.x + y * right.y + z * right.z;
+}
+
+const Vec3f Vec3f::operator% (const Vec3f& right) const {
+    Vec3f result = *this;
+    return result %= right;
+}
+
+Vec3f& Vec3f::operator+= (const Vec3f& right) {
+    x += right.x;
+    y += right.y;
+    z += right.z;
+    return *this;
+}
+
+Vec3f& Vec3f::operator-= (const Vec3f& right) {
+    x -= right.x;
+    y -= right.y;
+    z -= right.z;
+    return *this;
+}
+
+Vec3f& Vec3f::operator*= (const float right) {
+    x *= right;
+    y *= right;
+    z *= right;
+    return *this;
+}
+
+Vec3f& Vec3f::operator/= (const float right) {
+    return *this *= (1 / right);
+}
+
+Vec3f& Vec3f::operator%= (const Vec3f& right) {
+    float xt = y * right.z - z * right.y;
+    float yt = z * right.x - x * right.z;
+    z = x * right.y - y * right.x;
+    x = xt;
+    y = yt;
+    return *this;
+}
+
+const float& Vec3f::operator[] (const int index) const {
+    assert(index >= 0 && index < 3);
+    if (index == 0) return x;
+    if (index == 1) return y;
+    return z;
+}
+
+Vec3f::Vec3f() : x(0), y(0), z(0) {}
+Vec3f::Vec3f(float x, float y, float z) : x(x), y(y), z(z) {}
+
+float Vec3f::length() const {
+    return sqrt(lengthSquared());
+}
+
+float Vec3f::lengthSquared() const {
+    return *this | *this;
+}
+
+const Vec3f Vec3f::normalize() const {
+    Vec3f result = *this;
+    result /= result.length();
+    return result;
+}
+
+bool Vec3f::equals(Vec3f other) const {
+    return equals(other, AlmostZero);
+}
+
+bool Vec3f::equals(Vec3f other, float delta) const {
+    Vec3f diff = other - *this;
+    return diff.lengthSquared() <= delta * delta;
+}
+
+#pragma mark Vec4f
+
+Vec4f& Vec4f::operator= (const Vec4f& right) {
+    if (this != &right) {
+        x = right.x;
+        y = right.y;
+        z = right.z;
+        w = right.w;
+    }
+    return *this;
+}
+
+const Vec4f Vec4f::operator+ (const Vec4f& right) const {
+    Vec4f result = *this;
+    return result += right;
+}
+
+const Vec4f Vec4f::operator- (const Vec4f& right) const {
+    Vec4f result = *this;
+    return result -= right;
+}
+
+const Vec4f Vec4f::operator* (const float right) const {
+    Vec4f result = *this;
+    return result *= right;
+}
+
+const Vec4f Vec4f::operator/ (const float right) const {
+    return *this * (1 / right);
+}
+
+const float Vec4f::operator| (const Vec4f right) const {
+    return x * right.x + y * right.y + z * right.z + w * right.w;
+}
+
+Vec4f& Vec4f::operator+= (const Vec4f& right) {
+    x += right.x;
+    y += right.y;
+    z += right.z;
+    w += right.w;
+    return *this;
+}
+
+Vec4f& Vec4f::operator-= (const Vec4f& right) {
+    x -= right.x;
+    y -= right.y;
+    z -= right.z;
+    w -= right.w;
+    return *this;
+}
+
+Vec4f& Vec4f::operator*= (const float right) {
+    x *= right;
+    y *= right;
+    z *= right;
+    w *= right;
+    return *this;
+}
+
+Vec4f& Vec4f::operator/= (const float right) {
+    return *this *= (1 / right);
+}
+
+const float& Vec4f::operator[] (const int index) const {
+    assert(index >= 0 && index < 4);
+    if (index == 0) return x;
+    if (index == 1) return y;
+    if (index == 2) return z;
+    return w;
+}
+
+Vec4f::Vec4f() : x(0), y(0), z(0), w(0) {}
+Vec4f::Vec4f(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
+
+float Vec4f::length() const {
+    return sqrt(lengthSquared());
+}
+
+float Vec4f::lengthSquared() const {
+    return *this | *this;
+}
+
+const Vec4f Vec4f::normalize() const {
+    Vec4f result = *this;
+    result /= result.length();
+    return result;
+}
+
+bool Vec4f::equals(Vec4f other) const {
+    return equals(other, AlmostZero);
+}
+
+bool Vec4f::equals(Vec4f other, float delta) const {
+    Vec4f diff = other - *this;
+    return diff.lengthSquared() <= delta * delta;
+}
+
+#pragma mark Quat
+
+const Quat Quat::operator* (const Quat& right) const {
+    Quat result = *this;
+    return result *= right;
+}
+
+const Vec3f Quat::operator* (const Vec3f& right) const {
+    Quat p;
+    p.s = 0;
+    p.v = right;
+    p = *this * p * conjugate();
+    return p.v;
+}
+
+Quat& Quat::operator*= (const Quat& right) {
+    const float& t = right.s;
+    const Vec3f& w = right.v;
+
+    float nx = s * w.x + t * v.x + v.y * w.z - v.z * w.y;
+    float ny = s * w.y + t * v.y + v.z * w.x - v.x * w.z;
+    float nz = s * w.z + t * v.z + v.x * w.y - v.y * w.x;
+    
+    s = s * t - (v | w);
+    v.x = nx;
+    v.y = ny;
+    v.z = nz;
+    return *this;
+}
+
+Quat::Quat() : s(0), v(Null3f) {}
+
+Quat::Quat(float angle, Vec3f axis) {
+    setRotation(angle, axis);
+}
+
+void Quat::setRotation(float angle, const Vec3f axis) {
+    s = cosf(angle / 2);
+    v = axis * sinf(angle / 2);
+}
+
+const Quat Quat::conjugate() const {
+    Quat result;
+    result.s = s;
+    result.v = v * -1;
+    return result;
 }
