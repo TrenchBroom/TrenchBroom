@@ -1,0 +1,391 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		23B62DB177CD6A8207FC632A /* AllegroSample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 66064063339A7C095BF62500 /* AllegroSample.cpp */; };
+		51AE0DE160A0467B50CB4B19 /* libGWEN-Renderer-Allegro.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139212AD37B751C04FE83CA6 /* libGWEN-Renderer-Allegro.a */; };
+		69C915EF38A0493C429B0014 /* libgwen_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 141D35B649E767FD30086C67 /* libgwen_static.a */; };
+		1E3140635E824CEC44F76864 /* libunittest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41EF60DD78E30730101F6656 /* libunittest.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		38DA307179D927ED3DE1134F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 052772357A720C2043C417AF /* Renderer-Allegro.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 41BA260D26B7668D58DA1085;
+			remoteInfo = "libGWEN-Renderer-Allegro.a";
+		};
+		539920B1491E74DF002729C3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 052772357A720C2043C417AF /* Renderer-Allegro.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 0CD235EA3F995EEC109D65D3;
+			remoteInfo = "libGWEN-Renderer-Allegro.a";
+		};
+		03537F0675507B8A2E0B5CB2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6E8E453602D9360536465E0E /* GWEN Static.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 02BE11DC3DE93C302DE06A96;
+			remoteInfo = "libgwen_static.a";
+		};
+		39B5444A0FCD6ED700670419 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6E8E453602D9360536465E0E /* GWEN Static.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A1E136149BF1FFE088C47B2;
+			remoteInfo = "libgwen_static.a";
+		};
+		00D25D2C07984495387073DD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 574436F6513F3604513A74D4 /* UnitTest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0EEF2578179B65951A3B3F69;
+			remoteInfo = "libunittest.a";
+		};
+		4E88627D24A42F8971B61E28 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 574436F6513F3604513A74D4 /* UnitTest.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 07C7442D7302344120E14037;
+			remoteInfo = "libunittest.a";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		66064063339A7C095BF62500 /* AllegroSample.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "AllegroSample.cpp"; path = "../../../Samples/Allegro/AllegroSample.cpp"; sourceTree = "<group>"; };
+		46E82D3B197F70C7254A554D /* AllegroSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = "AllegroSample.app"; path = "AllegroSample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		052772357A720C2043C417AF /* Renderer-Allegro.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "Renderer-Allegro.xcodeproj"; path = "Renderer-Allegro.xcodeproj"; sourceTree = SOURCE_ROOT; };
+		6E8E453602D9360536465E0E /* GWEN Static.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "GWEN Static.xcodeproj"; path = "GWEN Static.xcodeproj"; sourceTree = SOURCE_ROOT; };
+		574436F6513F3604513A74D4 /* UnitTest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "UnitTest.xcodeproj"; path = "UnitTest.xcodeproj"; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		29134747381C76B4259970AD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51AE0DE160A0467B50CB4B19 /* libGWEN-Renderer-Allegro.a in Frameworks */,
+				69C915EF38A0493C429B0014 /* libgwen_static.a in Frameworks */,
+				1E3140635E824CEC44F76864 /* libunittest.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		41184C1268F351DE61D84B45 /* Sample-Allegro */ = {
+			isa = PBXGroup;
+			children = (
+				52935A5C0546446A44865E9E /* Samples */,
+				79327C221C7D03C10D0845BF /* Products */,
+				2D9A7A0B6941695B59B332DD /* Projects */,
+			);
+			name = "Sample-Allegro";
+			sourceTree = "<group>";
+		};
+		52935A5C0546446A44865E9E /* Samples */ = {
+			isa = PBXGroup;
+			children = (
+				0F48689D47723761462546A0 /* Allegro */,
+			);
+			name = "Samples";
+			sourceTree = "<group>";
+		};
+		0F48689D47723761462546A0 /* Allegro */ = {
+			isa = PBXGroup;
+			children = (
+				66064063339A7C095BF62500 /* AllegroSample.cpp */,
+			);
+			name = "Allegro";
+			sourceTree = "<group>";
+		};
+		79327C221C7D03C10D0845BF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				46E82D3B197F70C7254A554D /* AllegroSample.app */,
+			);
+			name = "Products";
+			sourceTree = "<group>";
+		};
+		2D9A7A0B6941695B59B332DD /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				052772357A720C2043C417AF /* Renderer-Allegro.xcodeproj */,
+				6E8E453602D9360536465E0E /* GWEN Static.xcodeproj */,
+				574436F6513F3604513A74D4 /* UnitTest.xcodeproj */,
+			);
+			name = "Projects";
+			sourceTree = "<group>";
+		};
+		0A9762516AF91D574C3F3CC5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				139212AD37B751C04FE83CA6 /* libGWEN-Renderer-Allegro.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6DB6026E43151801228027C1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				141D35B649E767FD30086C67 /* libgwen_static.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		14E228A0474244F416A342CC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				41EF60DD78E30730101F6656 /* libunittest.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		68B151580897039A7B932480 /* Sample-Allegro */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1561147A67A876EB52F75E4E /* Build configuration list for PBXNativeTarget "Sample-Allegro" */;
+			buildPhases = (
+				7A8A06DB51965BEF67B40989 /* Resources */,
+				01B2545C10CC4DFC1A9217CB /* Sources */,
+				29134747381C76B4259970AD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				50956FD70DC03F8224F30271 /* PBXTargetDependency */,
+				10746665786B47E347014863 /* PBXTargetDependency */,
+				60A4390101252C496CD06138 /* PBXTargetDependency */,
+			);
+			name = "Sample-Allegro";
+			productInstallPath = "$(HOME)/Applications";
+			productName = "Sample-Allegro";
+			productReference = 46E82D3B197F70C7254A554D /* AllegroSample.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "Sample-Allegro" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 41184C1268F351DE61D84B45 /* Sample-Allegro */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 0A9762516AF91D574C3F3CC5 /* Products */;
+					ProjectRef = 052772357A720C2043C417AF /* Renderer-Allegro.xcodeproj */;
+				},
+				{
+					ProductGroup = 6DB6026E43151801228027C1 /* Products */;
+					ProjectRef = 6E8E453602D9360536465E0E /* GWEN Static.xcodeproj */;
+				},
+				{
+					ProductGroup = 14E228A0474244F416A342CC /* Products */;
+					ProjectRef = 574436F6513F3604513A74D4 /* UnitTest.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				68B151580897039A7B932480 /* AllegroSample.app */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		139212AD37B751C04FE83CA6 /* libGWEN-Renderer-Allegro.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "../../../lib/macosx/libGWEN-Renderer-Allegro.a";
+			remoteRef = 38DA307179D927ED3DE1134F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		141D35B649E767FD30086C67 /* libgwen_static.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "../../../lib/macosx/libgwen_static.a";
+			remoteRef = 03537F0675507B8A2E0B5CB2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		41EF60DD78E30730101F6656 /* libunittest.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "../../../lib/macosx/libunittest.a";
+			remoteRef = 00D25D2C07984495387073DD /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7A8A06DB51965BEF67B40989 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		01B2545C10CC4DFC1A9217CB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23B62DB177CD6A8207FC632A /* AllegroSample.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+/* End PBXVariantGroup section */
+
+/* Begin PBXTargetDependency section */
+		50956FD70DC03F8224F30271 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "libGWEN-Renderer-Allegro.a";
+			targetProxy = 539920B1491E74DF002729C3 /* PBXContainerItemProxy */;
+		};
+		10746665786B47E347014863 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "libgwen_static.a";
+			targetProxy = 39B5444A0FCD6ED700670419 /* PBXContainerItemProxy */;
+		};
+		60A4390101252C496CD06138 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "libunittest.a";
+			targetProxy = 4E88627D24A42F8971B61E28 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0F6B4896144E401623DA703B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../../../bin;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PRODUCT_NAME = "AllegroSample";
+			};
+			name = "Release";
+		};
+		47FC71E64ED0777B3FA02AF9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../../../bin;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PRODUCT_NAME = "AllegroSample_D";
+			};
+			name = "Debug";
+		};
+		3435137B760E448A5DD42556 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NDEBUG",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"../../../include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"../../../lib",
+					"../../../lib/macosx",
+				);
+				OBJROOT = "obj/Release/Sample-Allegro";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = (
+					"-ffast-math",
+				);
+				OTHER_LDFLAGS = (
+					"-lalleg",
+				);
+				PREBINDING = NO;
+				SYMROOT = "../../../bin";
+			};
+			name = "Release";
+		};
+		023D7B0A6765566B438D6211 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_DEBUG",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"../../../include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"../../../lib",
+					"../../../lib/macosx",
+				);
+				OBJROOT = "obj/Debug/Sample-Allegro";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-lalleg",
+				);
+				PREBINDING = NO;
+				SYMROOT = "../../../bin";
+			};
+			name = "Debug";
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1561147A67A876EB52F75E4E /* Build configuration list for PBXNativeTarget "AllegroSample.app" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0F6B4896144E401623DA703B /* Release */,
+				47FC71E64ED0777B3FA02AF9 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Release";
+		};
+		1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "Sample-Allegro" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3435137B760E448A5DD42556 /* Release */,
+				023D7B0A6765566B438D6211 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Release";
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

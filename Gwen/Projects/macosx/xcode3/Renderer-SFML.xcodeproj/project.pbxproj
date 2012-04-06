@@ -1,0 +1,236 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2C2012426C2B31C46CBD7B01 /* SFML.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 11A512302AF94AA5339D1F7E /* SFML.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		11A512302AF94AA5339D1F7E /* SFML.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "SFML.cpp"; path = "../../../Renderers/SFML/SFML.cpp"; sourceTree = "<group>"; };
+		32F65E4D2710449608BE1E62 /* libGWEN-Renderer-SFML.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libGWEN-Renderer-SFML.a"; path = "libGWEN-Renderer-SFML.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		188D121A23E530CE5FDB24D8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2F024CF312BE0A355D61130D /* Renderer-SFML */ = {
+			isa = PBXGroup;
+			children = (
+				4C74596F18BE170C320224B6 /* Renderers */,
+				30DA44047DC66D376AB81373 /* Products */,
+			);
+			name = "Renderer-SFML";
+			sourceTree = "<group>";
+		};
+		4C74596F18BE170C320224B6 /* Renderers */ = {
+			isa = PBXGroup;
+			children = (
+				4D612A5A0D372A59439A55E6 /* SFML */,
+			);
+			name = "Renderers";
+			sourceTree = "<group>";
+		};
+		4D612A5A0D372A59439A55E6 /* SFML */ = {
+			isa = PBXGroup;
+			children = (
+				11A512302AF94AA5339D1F7E /* SFML.cpp */,
+			);
+			name = "SFML";
+			sourceTree = "<group>";
+		};
+		30DA44047DC66D376AB81373 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				32F65E4D2710449608BE1E62 /* libGWEN-Renderer-SFML.a */,
+			);
+			name = "Products";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		39430A697C9D49F10A1A31CB /* Renderer-SFML */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 108F5C19794E314874C54D62 /* Build configuration list for PBXNativeTarget "Renderer-SFML" */;
+			buildPhases = (
+				12F72A6B577A38D93E7C4DCB /* Resources */,
+				7569690212F941A94CED7A94 /* Sources */,
+				188D121A23E530CE5FDB24D8 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Renderer-SFML";
+			productName = "Renderer-SFML";
+			productReference = 32F65E4D2710449608BE1E62 /* libGWEN-Renderer-SFML.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "Renderer-SFML" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 2F024CF312BE0A355D61130D /* Renderer-SFML */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				39430A697C9D49F10A1A31CB /* libGWEN-Renderer-SFML.a */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		12F72A6B577A38D93E7C4DCB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7569690212F941A94CED7A94 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C2012426C2B31C46CBD7B01 /* SFML.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		7F446D917F391E293FE16FEC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../../../lib/macosx;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = "GWEN-Renderer-SFML";
+			};
+			name = "Release";
+		};
+		1AB169F8585F02D02CFF416B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../../../lib/macosx;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = "GWEN-Renderer-SFML";
+			};
+			name = "Debug";
+		};
+		14CD561A483536D30B2C788D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NDEBUG",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"../../../include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"../../../lib",
+					"../../../lib/macosx",
+				);
+				OBJROOT = "obj/Release/Renderer-SFML";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = (
+					"-ffast-math",
+				);
+				PREBINDING = NO;
+				SYMROOT = "../../../lib/macosx";
+			};
+			name = "Release";
+		};
+		589D54AF30714E866A1449AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_DEBUG",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"../../../include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"../../../lib",
+					"../../../lib/macosx",
+				);
+				OBJROOT = "obj/Debug/Renderer-SFML";
+				ONLY_ACTIVE_ARCH = YES;
+				PREBINDING = NO;
+				SYMROOT = "../../../lib/macosx";
+			};
+			name = "Debug";
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		108F5C19794E314874C54D62 /* Build configuration list for PBXNativeTarget "libGWEN-Renderer-SFML.a" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7F446D917F391E293FE16FEC /* Release */,
+				1AB169F8585F02D02CFF416B /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Release";
+		};
+		1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "Renderer-SFML" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				14CD561A483536D30B2C788D /* Release */,
+				589D54AF30714E866A1449AF /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "Release";
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

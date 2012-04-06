@@ -1,10 +1,10 @@
 build/*
 build/**/*
 
-/Mac/TrenchBroom.xcodeproj/project.xcworkspace/xcuserdata/**/*
-/Mac/TrenchBroom.xcodeproj/xcuserdata/**/*
-/Mac/TrenchBroom.xcodeproj/kristian.mode1v3
-/Mac/TrenchBroom.xcodeproj/kristian.pbxuser
-/Mac/TrenchBroom.xcodeproj/kristian.perspectivev3
+/**/*.xcodeproj/project.xcworkspace/xcuserdata/**/*
+/**/*.xcodeproj/xcuserdata/**/*
+/**/*.xcodeproj/kristian.mode1v3
+/**/*.xcodeproj/kristian.pbxuser
+/**/*.xcodeproj/kristian.perspectivev3
 
 .DS_Store

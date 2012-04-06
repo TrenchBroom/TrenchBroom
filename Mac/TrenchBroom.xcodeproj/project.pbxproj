@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		48367703152F0DF800D402E3 /* Splitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48367702152F0DF800D402E3 /* Splitter.cpp */; };
+		48667DB3152D961300A65C45 /* EditorGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48667DB2152D961300A65C45 /* EditorGui.cpp */; };
+		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
+		48979EEC152EF3F60039ABE8 /* MapRendererControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48979EEB152EF3F60039ABE8 /* MapRendererControl.cpp */; };
 		48B50E13152CF6E400E75402 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E12152CF6E400E75402 /* Cocoa.framework */; };
 		48B50E1D152CF6E400E75402 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 48B50E1B152CF6E400E75402 /* InfoPlist.strings */; };
 		48B50E1F152CF6E400E75402 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E1E152CF6E400E75402 /* main.m */; };
@@ -20,9 +24,20 @@
 		48B50E47152CF9D600E75402 /* MapRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E46152CF9D600E75402 /* MapRenderer.cpp */; };
 		48B50E4B152CFAFC00E75402 /* VecMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E4A152CFAFC00E75402 /* VecMath.cpp */; };
 		48B50E4D152D019C00E75402 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E4C152D019C00E75402 /* OpenGL.framework */; };
+		48C9A3A8152DD82A00EB804C /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3A7152DD82A00EB804C /* libfreeimage.a */; };
+		48C9A3AC152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3A9152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a */; };
+		48C9A3AD152DD83800EB804C /* libGWEN-Renderer-OpenGL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3AA152DD83800EB804C /* libGWEN-Renderer-OpenGL.a */; };
+		48C9A3AE152DD83800EB804C /* libgwend_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3AB152DD83800EB804C /* libgwend_static.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		48367700152F0DC200D402E3 /* Splitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Splitter.h; path = ../Core/GUI/Splitter.h; sourceTree = "<group>"; };
+		48367702152F0DF800D402E3 /* Splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Splitter.cpp; path = ../Core/GUI/Splitter.cpp; sourceTree = "<group>"; };
+		48667DB1152D960100A65C45 /* EditorGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EditorGui.h; path = ../Core/GUI/EditorGui.h; sourceTree = "<group>"; };
+		48667DB2152D961300A65C45 /* EditorGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EditorGui.cpp; path = ../Core/GUI/EditorGui.cpp; sourceTree = "<group>"; };
+		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
+		48979EEA152EF3DE0039ABE8 /* MapRendererControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapRendererControl.h; path = ../Core/GUI/MapRendererControl.h; sourceTree = "<group>"; };
+		48979EEB152EF3F60039ABE8 /* MapRendererControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapRendererControl.cpp; path = ../Core/GUI/MapRendererControl.cpp; sourceTree = "<group>"; };
 		48B50E0E152CF6E400E75402 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48B50E12152CF6E400E75402 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		48B50E15152CF6E400E75402 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -46,6 +61,10 @@
 		48B50E49152CFAF000E75402 /* VecMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VecMath.h; path = ../Core/Utilities/VecMath.h; sourceTree = "<group>"; };
 		48B50E4A152CFAFC00E75402 /* VecMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VecMath.cpp; path = ../Core/Utilities/VecMath.cpp; sourceTree = "<group>"; };
 		48B50E4C152D019C00E75402 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		48C9A3A7152DD82A00EB804C /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = ../Gwen/lib/libfreeimage.a; sourceTree = "<group>"; };
+		48C9A3A9152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libGWEN-Renderer-OpenGL_DebugFont.a"; path = "../Gwen/lib/macosx/libGWEN-Renderer-OpenGL_DebugFont.a"; sourceTree = "<group>"; };
+		48C9A3AA152DD83800EB804C /* libGWEN-Renderer-OpenGL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libGWEN-Renderer-OpenGL.a"; path = "../Gwen/lib/macosx/libGWEN-Renderer-OpenGL.a"; sourceTree = "<group>"; };
+		48C9A3AB152DD83800EB804C /* libgwend_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgwend_static.a; path = ../Gwen/lib/macosx/libgwend_static.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +72,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48C9A3AC152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a in Frameworks */,
+				48C9A3AD152DD83800EB804C /* libGWEN-Renderer-OpenGL.a in Frameworks */,
+				48C9A3AE152DD83800EB804C /* libgwend_static.a in Frameworks */,
+				48C9A3A8152DD82A00EB804C /* libfreeimage.a in Frameworks */,
 				48B50E4D152D019C00E75402 /* OpenGL.framework in Frameworks */,
 				48B50E13152CF6E400E75402 /* Cocoa.framework in Frameworks */,
 			);
@@ -61,9 +84,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		48667DB0152D95BE00A65C45 /* GUI */ = {
+			isa = PBXGroup;
+			children = (
+				48667DB1152D960100A65C45 /* EditorGui.h */,
+				48667DB2152D961300A65C45 /* EditorGui.cpp */,
+				48979EEA152EF3DE0039ABE8 /* MapRendererControl.h */,
+				48979EEB152EF3F60039ABE8 /* MapRendererControl.cpp */,
+				48367700152F0DC200D402E3 /* Splitter.h */,
+				48367702152F0DF800D402E3 /* Splitter.cpp */,
+			);
+			name = GUI;
+			sourceTree = "<group>";
+		};
 		48B50E03152CF6E400E75402 = {
 			isa = PBXGroup;
 			children = (
+				48C9A3A9152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a */,
+				48C9A3AA152DD83800EB804C /* libGWEN-Renderer-OpenGL.a */,
+				48C9A3AB152DD83800EB804C /* libgwend_static.a */,
+				48C9A3A7152DD82A00EB804C /* libfreeimage.a */,
 				48B50E4C152D019C00E75402 /* OpenGL.framework */,
 				48B50E43152CF97F00E75402 /* Core */,
 				48B50E36152CF79000E75402 /* Icon.icns */,
@@ -116,6 +156,7 @@
 				48B50E1E152CF6E400E75402 /* main.m */,
 				48B50E20152CF6E400E75402 /* TrenchBroom-Prefix.pch */,
 				48B50E21152CF6E400E75402 /* Credits.rtf */,
+				48979EE7152E34AE0039ABE8 /* DefaultSkin.png */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -123,8 +164,9 @@
 		48B50E43152CF97F00E75402 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				48B50E48152CFA7600E75402 /* Utilities */,
+				48667DB0152D95BE00A65C45 /* GUI */,
 				48B50E45152CF9C300E75402 /* Renderer */,
+				48B50E48152CFA7600E75402 /* Utilities */,
 			);
 			name = Core;
 			sourceTree = "<group>";
@@ -203,6 +245,7 @@
 				48B50E29152CF6E400E75402 /* Document.xib in Resources */,
 				48B50E2C152CF6E400E75402 /* MainMenu.xib in Resources */,
 				48B50E37152CF79000E75402 /* Icon.icns in Resources */,
+				48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,6 +262,9 @@
 				48B50E42152CF95500E75402 /* DocumentView.mm in Sources */,
 				48B50E47152CF9D600E75402 /* MapRenderer.cpp in Sources */,
 				48B50E4B152CFAFC00E75402 /* VecMath.cpp in Sources */,
+				48667DB3152D961300A65C45 /* EditorGui.cpp in Sources */,
+				48979EEC152EF3F60039ABE8 /* MapRendererControl.cpp in Sources */,
+				48367703152F0DF800D402E3 /* Splitter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,10 +310,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -280,9 +327,10 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				HEADER_SEARCH_PATHS = ../Gwen/include;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.6;
 			};
 			name = Debug;
 		};
@@ -290,18 +338,20 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
-				SDKROOT = macosx10.5;
+				HEADER_SEARCH_PATHS = ../Gwen/include;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx10.6;
 			};
 			name = Release;
 		};
@@ -311,7 +361,12 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
 				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../Gwen/lib/macosx\"",
+					"\"$(SRCROOT)/../Gwen/lib\"",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -323,7 +378,12 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
 				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../Gwen/lib/macosx\"",
+					"\"$(SRCROOT)/../Gwen/lib\"",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

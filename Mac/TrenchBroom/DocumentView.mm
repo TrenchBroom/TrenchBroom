@@ -18,53 +18,93 @@
  */
 
 #import "DocumentView.h"
-#import "MapRenderer.h"
+#import "EditorGui.h"
 #import "VecMath.h"
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
+#import <math.h>
 
 using namespace TrenchBroom;
+using namespace TrenchBroom::Gui;
+
+@interface DocumentView (Private)
+- (void)renderTimerFired:(NSNotification*)theNotification;
+@end
+
+@implementation DocumentView (Private)
+- (void)renderTimerFired:(NSNotification*)theNotification {
+    [self setNeedsDisplay:YES];
+}
+@end
 
 @implementation DocumentView
 
+- (void)prepareOpenGL {
+    GLint swapInt = 1;
+    [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
+}
+
+- (BOOL)acceptsFirstResponder {
+    return YES;
+}
+
 - (void)awakeFromNib {
-    renderer = new MapRenderer();
+    // set up a render loop
+    NSTimer* renderTimer = [NSTimer timerWithTimeInterval:0.001 target:self selector:@selector(renderTimerFired:) userInfo:nil repeats:YES];
+    [[NSRunLoop currentRunLoop] addTimer:renderTimer forMode:NSDefaultRunLoopMode];
+    [[NSRunLoop currentRunLoop] addTimer:renderTimer forMode:NSEventTrackingRunLoopMode]; //Ensure timer fires during resize
+    
+    [[self window] setAcceptsMouseMovedEvents:YES];
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
-    NSRect viewport = [self visibleRect];
-    glViewport(NSMinX(viewport), NSMinY(viewport), NSWidth(viewport), NSHeight(viewport));
+    if (editorGui == NULL) {
+        NSString* skinPath = [[NSBundle mainBundle] pathForResource:@"DefaultSkin" ofType:@"png"];
+        string skinPathCpp([skinPath cStringUsingEncoding:NSASCIIStringEncoding]);
+        editorGui = new EditorGui(skinPathCpp);
+    }
 
-    float fov = 90;
-    float near = 0.1f;
-    float far = 2000;
-    Vec3f position(-64, -64, 64);
-    Vec3f direction(XAxisPos);
-    Vec3f up(ZAxisPos);
+    NSRect viewport = [self visibleRect];
     
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    float vfrustum = tan(fov * M_PI / 360) * 0.75 * near;
-    float hfrustum = vfrustum * NSWidth(viewport) / NSHeight(viewport);
-    glFrustum(-hfrustum, hfrustum, -vfrustum, vfrustum, near, far);
-
+    glOrtho(NSMinX(viewport), NSMaxX(viewport), NSMaxY(viewport), NSMinY(viewport), -1, 1);
+    
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(position.x,
-              position.y,
-              position.z,
-              position.x + direction.x,
-              position.y + direction.y,
-              position.z + direction.z,
-              up.x,
-              up.y,
-              up.z);
-
-    RenderContext context;
-    MapRenderer* r = (MapRenderer *)renderer;
-    r->render(context);
+    glViewport(NSMinX(viewport), NSMinY(viewport), NSWidth(viewport), NSHeight(viewport));
+    
+    ((EditorGui *)editorGui)->resizeTo(NSWidth(viewport), NSHeight(viewport));
+    ((EditorGui *)editorGui)->render();
     
     [[self openGLContext] flushBuffer];
+}
+
+- (void)mouseDown:(NSEvent *)theEvent {
+    if (editorGui != NULL) ((EditorGui *)editorGui)->canvas()->InputMouseButton(0, true);
+}
+
+- (void)mouseUp:(NSEvent *)theEvent {
+    if (editorGui != NULL) ((EditorGui *)editorGui)->canvas()->InputMouseButton(0, false);
+}
+
+- (void)rightMouseDown:(NSEvent *)theEvent {
+    if (editorGui != NULL) ((EditorGui *)editorGui)->canvas()->InputMouseButton(1, true);
+}
+
+- (void)rightMouseUp:(NSEvent *)theEvent {
+    if (editorGui != NULL) ((EditorGui *)editorGui)->canvas()->InputMouseButton(1, false);
+}
+
+- (void)mouseMoved:(NSEvent *)theEvent {
+    NSPoint pos = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+    if (editorGui != NULL) ((EditorGui *)editorGui)->canvas()->InputMouseMoved(pos.x, pos.y, theEvent.deltaX, theEvent.deltaY);
+}
+
+- (void)mouseDragged:(NSEvent *)theEvent {
+    NSPoint pos = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+    if (editorGui != NULL) ((EditorGui *)editorGui)->canvas()->InputMouseMoved(pos.x, pos.y, theEvent.deltaX, theEvent.deltaY);
 }
 
 @end

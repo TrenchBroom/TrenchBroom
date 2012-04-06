@@ -20,7 +20,7 @@
 #import <AppKit/AppKit.h>
 
 @interface DocumentView : NSOpenGLView {
-    void* renderer;
+    void* editorGui;
 }
 
 @end

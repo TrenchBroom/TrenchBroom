@@ -23,20 +23,20 @@
 #include "VecMath.h"
 
 namespace TrenchBroom {
-
-    class RenderContext {
-    public:
-        Vec4f backgroundColor;
-        bool renderOrigin;
-        float originAxisLength;
-        RenderContext();
-    };
-    
-    class MapRenderer {
-    public:
-        void render(RenderContext& context);
-    };
-    
+    namespace Renderer {
+        class RenderContext {
+        public:
+            Vec4f backgroundColor;
+            bool renderOrigin;
+            float originAxisLength;
+            RenderContext();
+        };
+        
+        class MapRenderer {
+        public:
+            void render(RenderContext& context);
+        };
+    }
 }
 
 #endif

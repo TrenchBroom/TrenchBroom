@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+	version = "1.0">
+	<FileRef
+		location = "group:GWEN DLL.xcodeproj">
+	</FileRef>
+	<FileRef
+		location = "group:GWEN Static.xcodeproj">
+	</FileRef>
+	<FileRef
+		location = "group:UnitTest.xcodeproj">
+	</FileRef>
+	<FileRef
+		location = "group:Renderer-OpenGL.xcodeproj">
+	</FileRef>
+	<FileRef
+		location = "group:Renderer-OpenGL_DebugFont.xcodeproj">
+	</FileRef>
+	<FileRef
+		location = "group:Renderer-SFML.xcodeproj">
+	</FileRef>
+	<FileRef
+		location = "group:Renderer-Allegro.xcodeproj">
+	</FileRef>
+	<FileRef
+		location = "group:Sample-SFML.xcodeproj">
+	</FileRef>
+	<FileRef
+		location = "group:Sample-Allegro.xcodeproj">
+	</FileRef>
+</Workspace>
