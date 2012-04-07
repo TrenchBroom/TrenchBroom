@@ -78,7 +78,8 @@ namespace TrenchBroom {
         };
         
         class MapTokenizer {
-            istream& m_stream;
+            vector<char> m_chars;
+            int m_index;
             ETokenizerState m_state;
             int m_line;
             int m_column;

@@ -27,13 +27,12 @@ namespace TrenchBroom {
             if (m_state == TS_EOF)
                 return 0;
             
-            if (m_stream.eof()) {
+            if (m_index == m_chars.size()) {
                 m_state = TS_EOF;
                 return 0;
             }
             
-            char c;
-            m_stream.get(c);
+            char c = m_chars[m_index++];
             if (c == '\n') {
                 m_line++;
                 m_column = 0;
@@ -45,12 +44,10 @@ namespace TrenchBroom {
         }
         
         char MapTokenizer::peekChar() {
-            if (m_state == TS_EOF || m_stream.eof())
+            if (m_state == TS_EOF || m_index == m_chars.size())
                 return 0;
             
-            char c;
-            m_stream.get(c);
-            m_stream.seekg(-1, ios::cur);
+            char c = m_chars[m_index];
             return c;
         }
         
@@ -60,11 +57,14 @@ namespace TrenchBroom {
             else m_token.data.clear();
             m_token.line = line;
             m_token.column = column;
-            m_token.charsRead = (int)m_stream.tellg();
+            m_token.charsRead = m_index;
             return &m_token;
         }
         
-        MapTokenizer::MapTokenizer(istream& stream) : m_stream(stream), m_state(TS_DEF), m_line(1), m_column(1) {
+        MapTokenizer::MapTokenizer(istream& stream) : m_state(TS_DEF), m_line(1), m_column(1) {
+            istreambuf_iterator<char> begin(stream), end;
+            m_chars = vector<char>(begin, end);
+            m_index = 0;
         }
         
         MapToken* MapTokenizer::next() {
