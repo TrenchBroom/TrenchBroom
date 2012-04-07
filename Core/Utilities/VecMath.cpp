@@ -21,6 +21,92 @@
 #include <cassert>
 #include <cmath>
 
+#pragma mark Vec2f
+Vec2f& Vec2f::operator= (const Vec2f& right) {
+    if (this != &right) {
+        x = right.x;
+        y = right.y;
+    }
+    return *this;
+}
+
+const Vec2f Vec2f::operator+ (const Vec2f& right) const {
+    Vec2f result = *this;
+    return result += right;
+}
+
+const Vec2f Vec2f::operator- (const Vec2f& right) const {
+    Vec2f result = *this;
+    return result -= right;
+}
+
+const Vec2f Vec2f::operator* (const float right) const {
+    Vec2f result = *this;
+    return result *= right;
+}
+
+const Vec2f Vec2f::operator/ (const float right) const {
+    return *this * (1 / right);
+}
+
+const float Vec2f::operator| (const Vec2f& right) const {
+    return x * right.x + y * right.y;
+}
+
+Vec2f& Vec2f::operator+= (const Vec2f& right) {
+    x += right.x;
+    y += right.y;
+    return *this;
+}
+
+Vec2f& Vec2f::operator-= (const Vec2f& right) {
+    x -= right.x;
+    y -= right.y;
+    return *this;
+}
+
+Vec2f& Vec2f::operator*= (const float right) {
+    x *= right;
+    y *= right;
+    return *this;
+}
+
+Vec2f& Vec2f::operator/= (const float right) {
+    return *this *= (1 / right);
+}
+
+const float& Vec2f::operator[] (const int index) const {
+    assert(index >= 0 && index < 2);
+    if (index == 0) return x;
+    return y;
+}
+
+Vec2f::Vec2f() : x(0), y(0) {}
+Vec2f::Vec2f(float x, float y) : x(x), y(y) {}
+
+float Vec2f::length() const {
+    return sqrt(lengthSquared());
+}
+
+float Vec2f::lengthSquared() const {
+    return *this | *this;
+}
+
+const Vec2f Vec2f::normalize() const {
+    Vec2f result = *this;
+    result /= result.length();
+    return result;
+}
+
+bool Vec2f::equals(Vec2f other) const {
+    return equals(other, AlmostZero);
+}
+
+bool Vec2f::equals(Vec2f other, float delta) const {
+    Vec2f diff = other - *this;
+    return diff.lengthSquared() <= delta * delta;
+}
+
 #pragma mark Vec3f
 Vec3f& Vec3f::operator= (const Vec3f& right) {
     if (this != &right) {
@@ -270,3 +356,36 @@ const Quat Quat::conjugate() const {
     result.v = v * -1;
     return result;
 }
+
+const BBox BBox::operator+ (const BBox& right) const {
+    BBox result = *this;
+    return result += right;
+}
+
+const BBox BBox::operator+ (const Vec3f& right) const {
+    BBox result = *this;
+    return result += right;
+}
+
+BBox& BBox::operator+= (const BBox& right) {
+    min.x = fminf(min.x, right.min.x);
+    min.y = fminf(min.y, right.min.y);
+    min.z = fminf(min.z, right.min.z);
+    max.x = fmaxf(max.x, right.max.x);
+    max.y = fmaxf(max.y, right.max.y);
+    max.z = fmaxf(max.z, right.max.z);
+    return *this;
+}
+
+BBox& BBox::operator+= (const Vec3f& right) {
+    min.x = fminf(min.x, right.x);
+    min.y = fminf(min.y, right.y);
+    min.z = fminf(min.z, right.z);
+    max.x = fmaxf(max.x, right.x);
+    max.y = fmaxf(max.y, right.y);
+    max.z = fmaxf(max.z, right.z);
+    return *this;
+}
+
+BBox::BBox() : min(Null3f), max(Null3f) {}
+BBox::BBox(Vec3f min, Vec3f max) : min(min), max(max) {}

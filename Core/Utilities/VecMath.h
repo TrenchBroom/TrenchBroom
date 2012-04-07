@@ -22,6 +22,30 @@
 
 static const float AlmostZero = 0.001f;
 
+class Vec2f {
+public:
+    float x,y;
+    Vec2f& operator= (const Vec2f& right);
+    const Vec2f operator+ (const Vec2f& right) const;
+    const Vec2f operator- (const Vec2f& right) const;
+    const Vec2f operator* (const float right) const;
+    const Vec2f operator/ (const float right) const;
+    const float operator| (const Vec2f& right) const; // dot product
+    Vec2f& operator+= (const Vec2f& right);
+    Vec2f& operator-= (const Vec2f& right);
+    Vec2f& operator*= (const float right);
+    Vec2f& operator/= (const float right);
+    const float& operator[] (const int index) const;
+    Vec2f();
+    Vec2f(float x, float y);
+    
+    float length() const;
+    float lengthSquared() const;
+    const Vec2f normalize() const;
+    bool equals(Vec2f other) const;
+    bool equals(Vec2f other, float delta) const;
+};
+
 class Vec3f {
 public:
     float x,y,z;
@@ -91,6 +115,18 @@ public:
     Quat(float angle, Vec3f axis);
     void setRotation(float angle, const Vec3f axis);
     const Quat conjugate() const ;
+};
+
+class BBox {
+public:
+    Vec3f min;
+    Vec3f max;
+    const BBox operator+ (const BBox& right) const;
+    const BBox operator+ (const Vec3f& right) const;
+    BBox& operator+= (const BBox& right);
+    BBox& operator+= (const Vec3f& right);
+    BBox();
+    BBox(Vec3f min, Vec3f max);
 };
 
 #endif
