@@ -18,6 +18,7 @@
  */
 
 #include "Editor.h"
+#include <ctime>
 #include "VecMath.h"
 #include "Preferences.h"
 #include "MapParser.h"
@@ -46,10 +47,12 @@ namespace TrenchBroom {
             m_map->clear();
             delete m_map;
 
+            clock_t start = clock();
             ifstream stream(path.c_str());
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
             IO::MapParser parser(stream, worldBounds, *m_textureManager);
             m_map = parser.parseMap(m_entityDefinitionFilePath);
+            fprintf(stdout, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
         }
         
         void Editor::saveMap(const string& path) {
