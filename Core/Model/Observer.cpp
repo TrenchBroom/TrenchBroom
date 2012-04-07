@@ -20,52 +20,50 @@
 #include "Observer.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        void Observable::addObserver(const string& name, Observer& observer) {
-            m_observers.insert(pair<const string, Observer&>(name, observer));
+    void Observable::addObserver(const string& name, Observer& observer) {
+        m_observers.insert(pair<const string, Observer&>(name, observer));
+    }
+    
+    void Observable::removeObserver(const string& name, Observer& observer) {
+        multimap<const string, Observer&>::iterator start, end;
+        start = m_observers.lower_bound(name);
+        end = m_observers.upper_bound(name);
+        while (start != end) {
+            if (&start->second == &observer) {
+                m_observers.erase(start);
+                break;
+            }
+            start++;
         }
-        
-        void Observable::removeObserver(const string& name, Observer& observer) {
+    }
+    
+    void Observable::removeObserver(Observer& observer) {
+        multimap<const string, Observer&>::iterator it, eraseIt;
+        for (it = m_observers.begin(); it != m_observers.end(); it++) {
+            if (&it->second == &observer) {
+                eraseIt = it;
+                m_observers.erase(eraseIt);
+            }
+        }
+    }
+    
+    void Observable::postNotification(const string& name, const void* data) {
+        if (m_postNotifications) {
             multimap<const string, Observer&>::iterator start, end;
             start = m_observers.lower_bound(name);
             end = m_observers.upper_bound(name);
             while (start != end) {
-                if (&start->second == &observer) {
-                    m_observers.erase(start);
-                    break;
-                }
+                start->second.notify(name, data);
                 start++;
             }
         }
-        
-        void Observable::removeObserver(Observer& observer) {
-            multimap<const string, Observer&>::iterator it, eraseIt;
-            for (it = m_observers.begin(); it != m_observers.end(); it++) {
-                if (&it->second == &observer) {
-                    eraseIt = it;
-                    m_observers.erase(eraseIt);
-                }
-            }
-        }
-        
-        void Observable::postNotification(const string& name, const void* data) {
-            if (m_postNotifications) {
-                multimap<const string, Observer&>::iterator start, end;
-                start = m_observers.lower_bound(name);
-                end = m_observers.upper_bound(name);
-                while (start != end) {
-                    start->second.notify(name, data);
-                    start++;
-                }
-            }
-        }
-        
-        void Observable::setPostNotifications(bool postNotifications) {
-            m_postNotifications = postNotifications;
-        }
-        
-        bool Observable::postNotifications() {
-            return m_postNotifications;
-        }
+    }
+
+    void Observable::setPostNotifications(bool postNotifications) {
+        m_postNotifications = postNotifications;
+    }
+    
+    bool Observable::postNotifications() {
+        return m_postNotifications;
     }
 }

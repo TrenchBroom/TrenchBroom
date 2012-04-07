@@ -17,23 +17,25 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapObject_h
-#define TrenchBroom_MapObject_h
-
-#include "VecMath.h"
+#include "Preferences.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class MapObject {
-        protected:
-            int m_uniqueId;
-        public:
-            MapObject();
-            virtual ~MapObject() {};
-            int uniqueId() const;
-            virtual BBox bounds() const {};
-        };
+        Preferences& Preferences::sharedPreferences() {
+            static Preferences instance;
+            return instance;
+        }
+
+        float Preferences::cameraFov() {
+            return 90;
+        }
+        
+        float Preferences::cameraNear() {
+            return 0.1f;
+        }
+        
+        float Preferences::cameraFar() {
+            return 2000;
+        }
     }
 }
-
-#endif

@@ -25,6 +25,8 @@
 #include "Groups.h"
 #include "Selection.h"
 
+using namespace TrenchBroom::Model;
+
 namespace TrenchBroom {
     
     class Filter {

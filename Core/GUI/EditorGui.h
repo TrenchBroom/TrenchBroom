@@ -27,6 +27,7 @@
 #include "Gwen/Controls/TabControl.h"
 #include "MapRendererControl.h"
 #include "Splitter.h"
+#include "Editor.h"
 
 using namespace std;
 
@@ -34,8 +35,8 @@ namespace TrenchBroom {
     namespace Gui {
         class EditorGui {
         private:
+            Controller::Editor& m_editor;
             Gwen::Renderer::OpenGL* m_renderer;
-            //        Gwen::Skin::Simple* m_skin;
             Gwen::Skin::TexturedBase* m_skin;
             Gwen::Controls::Canvas* m_canvas;
             Splitter* m_splitter;
@@ -43,8 +44,8 @@ namespace TrenchBroom {
             Gwen::Controls::TabControl* m_inspectorTab;
             
         public:
-            EditorGui(const string& skinPath);
-            EditorGui();
+            EditorGui(Controller::Editor& editor, const string& skinPath);
+            ~EditorGui();
             
             void resizeTo(int width, int height);
             void render();

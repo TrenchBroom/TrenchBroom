@@ -20,13 +20,13 @@
 #include "Map.h"
 #include <algorithm>
 #include <fstream>
-#include <assert.h>
+#include <cassert>
 #include "Utils.h"
 
 namespace TrenchBroom {
     namespace Model {
         Map::Map(const BBox& worldBounds, const string& entityDefinitionFilePath) : Observable(), m_worldBounds(worldBounds) {
-            m_octree = new Octree(this, 256);
+            m_octree = new Octree(*this, 256);
             m_selection = new Selection();
             m_entityDefinitionManager = EntityDefinitionManager::sharedManager(entityDefinitionFilePath);
             m_groupManager = new GroupManager(*this);
@@ -58,11 +58,10 @@ namespace TrenchBroom {
             assert(stream.is_open());
             
             while (!stream.eof()) {
-                Vec3f point;
                 getline(stream, line);
                 line = trim(line);
                 if (line.length() > 0) {
-                    assert(parseV3f(line.c_str(), 0, line.length(), &point));
+                    Vec3f point = Vec3f(line);
                     m_leakPoints.push_back(point);
                 }
             }
@@ -153,7 +152,7 @@ namespace TrenchBroom {
                 else
                     fprintf(stdout, "Warning: No entity definition found for class name '%s'", classname->c_str());
             } else {
-                fprintf(stdout, "Warning: Entity with id %i is missing classname property (line %i)", entity->entityId(), entity->filePosition());
+                fprintf(stdout, "Warning: Entity with id %i is missing classname property (line %i)", entity->uniqueId(), entity->filePosition());
             }
         }
         
@@ -199,7 +198,7 @@ namespace TrenchBroom {
         
         Brush* Map::createBrush(Entity& entity, const Brush& brushTemplate) {
             BBox templateBounds = brushTemplate.bounds();
-            if (!boundsContainBounds(&m_worldBounds, &templateBounds)) return NULL;
+            if (!m_worldBounds.contains(brushTemplate.bounds())) return NULL;
             
             Brush* brush = new Brush(m_worldBounds, brushTemplate);
             m_selection->removeAll();
@@ -208,8 +207,8 @@ namespace TrenchBroom {
             return brush;
         }
         
-        Brush* Map::createBrush(Entity& entity, BBox bounds, Texture& texture) {
-            if (!boundsContainBounds(&m_worldBounds, &bounds)) return NULL;
+        Brush* Map::createBrush(Entity& entity, BBox bounds, Assets::Texture& texture) {
+            if (!m_worldBounds.contains(bounds)) return NULL;
             
             Brush* brush = new Brush(m_worldBounds, bounds, texture);
             m_selection->removeAll();
@@ -351,7 +350,7 @@ namespace TrenchBroom {
             }
         }
         
-        void Map::rotateObjects(TQuaternion rotation, Vec3f center, bool lockTextures) {
+        void Map::rotateObjects(Quat rotation, Vec3f center, bool lockTextures) {
             const vector<Entity*>& entities = m_selection->entities();
             const vector<Brush*>& brushes = m_selection->brushes();
             

@@ -17,13 +17,14 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_InputRouter_h
-#define TrenchBroom_InputRouter_h
+#ifndef TrenchBroom_InputController_h
+#define TrenchBroom_InputController_h
 
 #include <vector>
 #include "Tool.h"
 #include "Camera.h"
 #include "CameraTool.h"
+#include "Editor.h"
 
 using namespace std;
 
@@ -36,8 +37,10 @@ namespace TrenchBroom {
             MS_RIGHT
         } EMouseStatus;
         
-        class MapInputController {
+        class Editor;
+        class InputController {
         private:
+            Editor& m_editor;
             ToolEvent m_currentEvent;
             EMouseStatus m_dragStatus;
             
@@ -47,8 +50,8 @@ namespace TrenchBroom {
             
             CameraTool* m_cameraTool;
         public:
-            MapInputController(Model::Camera& camera);
-            ~MapInputController();
+            InputController(Editor& editor);
+            ~InputController();
             void modifierKeyDown(EModifierKeys modifierKey);
             void modifierKeyUp(EModifierKeys modifierKey);
             void mouseDown(EMouseButton mouseButton);

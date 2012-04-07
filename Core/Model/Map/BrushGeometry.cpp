@@ -18,7 +18,7 @@
  */
 
 #include "BrushGeometry.h"
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 #include <map>
 #include <algorithm>
@@ -72,26 +72,19 @@ namespace TrenchBroom {
         }
         
         Vec3f Edge::vector() {
-            Vec3f result;
-            subV3f(&end->position, &start->position, &result);
-            return result;
+            return end->position - start->position;
         }
         
         Vec3f Edge::center() {
-            Vec3f result;
-            addV3f(&start->position, &end->position, &result);
-            scaleV3f(&result, 0.5f, &result);
-            return result;
+            return (start->position + end->position) / 2;
         }
         
-        Vertex* Edge::split(TPlane plane) {
-            TLine line;
+        Vertex* Edge::split(Plane plane) {
+            Line line(start->position, (end->position - start->position).normalize());
             Vertex* newVertex = new Vertex();
-            setLinePoints(&line, &start->position, &end->position);
             
-            float dist = intersectPlaneWithLine(&plane, &line);
-            linePointAtDistance(&line, dist, &newVertex->position);
-            snapV3f(&newVertex->position, &newVertex->position);
+            float dist = plane.intersectWithLine(line);
+            newVertex->position = line.pointAtDistance(dist).snap();
             newVertex->mark = VM_NEW;
             
             if (start->mark == VM_DROP) start = newVertex;
@@ -388,17 +381,17 @@ namespace TrenchBroom {
             
         }
         
-        void BrushGeometry::splitSides(vector<Side*>& sides, TRay ray, int vertexIndex, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
+        void BrushGeometry::splitSides(vector<Side*>& sides, Ray ray, int vertexIndex, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             Vec3f v1, v2;
             
             for (int i = 0; i < sides.size(); i++) {
                 Side* side = sides[i];
                 if (side->vertices.size() > 3) {
-                    subV3f(&side->vertices[2]->position, &side->vertices[0]->position, &v1);
-                    subV3f(&side->vertices[1]->position, &side->vertices[0]->position, &v2);
-                    crossV3f(&v1, &v2, &v1);
+                    v1 = side->vertices[2]->position - side->vertices[0]->position;
+                    v2 = side->vertices[1]->position - side->vertices[0]->position;
+                    v1 = v1 % v2;
                     
-                    if (negf(dotV3f(&v1, &ray.direction))) {
+                    if ((v1 | ray.direction) <= -AlmostZero) {
                         splitSide(side, vertexIndex, newFaces);
                     } else {
                         triangulateSide(side, vertexIndex, newFaces);
@@ -465,8 +458,8 @@ namespace TrenchBroom {
                 for (int j = i + 1; j < edges.size(); j++) {
                     Edge* candidate = edges[j];
                     v2 = candidate->vector();
-                    crossV3f(&v1, &v2, &v2);
-                    if (nullV3f(&v2)) {
+                    v2 = v1 % v2;
+                    if (v2.equals(Null3f)) {
                         if (edge->end == candidate->end)
                             candidate->flip();
                         if (edge->end == candidate->start) {
@@ -592,22 +585,20 @@ namespace TrenchBroom {
         void BrushGeometry::mergeSides(vector<Face*>& newFaces, vector<Face*>&droppedFaces) {
             for (int i = 0; i < sides.size(); i++) {
                 Side* side = sides[i];
-                TPlane sideBoundary;
-                setPlanePointsV3f(&sideBoundary, 
-                                  &side->vertices[0]->position, 
-                                  &side->vertices[1]->position, 
-                                  &side->vertices[2]->position);
+                Plane sideBoundary;
+                sideBoundary.setPoints(side->vertices[0]->position, 
+                                       side->vertices[1]->position, 
+                                       side->vertices[2]->position);
                 
                 for (int j = 0; j < side->edges.size(); j++) {
                     Edge* edge = side->edges[j];
                     Side* neighbour = edge->left != side ? edge->left : edge->right;
-                    TPlane neighbourBoundary;
-                    setPlanePointsV3f(&neighbourBoundary, 
-                                      &neighbour->vertices[0]->position, 
-                                      &neighbour->vertices[1]->position, 
-                                      &neighbour->vertices[2]->position);
+                    Plane neighbourBoundary;
+                    neighbourBoundary.setPoints(neighbour->vertices[0]->position, 
+                                                neighbour->vertices[1]->position, 
+                                                neighbour->vertices[2]->position);
                     
-                    if (equalPlane(&sideBoundary, &neighbourBoundary)) {
+                    if (sideBoundary.equals(neighbourBoundary)) {
                         Face* neighbourFace = neighbour->face;
                         mergeNeighbours(side, j);
                         
@@ -626,9 +617,9 @@ namespace TrenchBroom {
             }
         }
         
-        float BrushGeometry::minVertexMoveDist(const vector<Side*>& sides, const Vertex* vertex, TRay ray, float maxDist) {
+        float BrushGeometry::minVertexMoveDist(const vector<Side*>& sides, const Vertex* vertex, Ray ray, float maxDist) {
             float minDist;
-            TPlane plane;
+            Plane plane;
             
             minDist = maxDist;
             for (int i = 0; i < sides.size(); i++) {
@@ -638,22 +629,22 @@ namespace TrenchBroom {
                 side->shift(indexOf<Vertex>(side->vertices, vertex));
                 succ->shift(indexOf<Vertex>(succ->vertices, vertex));
                 
-                setPlanePointsV3f(&plane, &side->vertices[1]->position, 
-                                  &side->vertices[2]->position, 
-                                  &succ->vertices[2]->position);
+                plane.setPoints(side->vertices[1]->position, 
+                                side->vertices[2]->position, 
+                                succ->vertices[2]->position);
                 
-                float sideDist = intersectPlaneWithRay(&plane, &ray);
+                float sideDist = plane.intersectWithRay(ray);
                 
                 Edge* neighbourEdge = side->edges[1];
                 Side* neighbourSide = neighbourEdge->left != side ? neighbourEdge->left : neighbourEdge->right;
                 
                 plane = neighbourSide->face->boundary();
-                float neighborDist = intersectPlaneWithRay(&plane, &ray);
+                float neighbourDist = plane.intersectWithRay(ray);
                 
-                if (!isnan(sideDist) && posf(sideDist) && ltf(sideDist, minDist))
+                if (!isnan(sideDist) && sideDist >= AlmostZero && sideDist < minDist - AlmostZero)
                     minDist = sideDist;
-                if (!isnan(neighborDist) && posf(neighborDist) && ltf(neighborDist, minDist))
-                    minDist = neighborDist;
+                if (!isnan(neighbourDist) && neighbourDist >= AlmostZero && neighbourDist < minDist - AlmostZero)
+                    minDist = neighbourDist;
             }
             
             return minDist;
@@ -662,7 +653,7 @@ namespace TrenchBroom {
         MoveResult BrushGeometry::moveVertex(int vertexIndex, bool mergeIncidentVertex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             Vertex* vertex;
             Vec3f newPosition;
-            TRay ray;
+            Ray ray;
             float actualMoveDist, moveDist, dot1, dot2;
             vector<Side*> incSides;
             int actualVertexIndex;
@@ -671,7 +662,7 @@ namespace TrenchBroom {
             
             assert(vertexIndex >= 0 && vertexIndex < vertices.size());
             
-            moveDist = lengthV3f(&delta);
+            moveDist = delta.length();
             if (moveDist == 0) {
                 result.moved = false;
                 result.index = vertexIndex;
@@ -681,7 +672,7 @@ namespace TrenchBroom {
             actualVertexIndex = vertexIndex;
             vertex = vertices[actualVertexIndex];
             ray.origin = vertex->position;
-            scaleV3f(&delta, 1 / moveDist, &ray.direction);
+            ray.direction = delta / moveDist;
             
             incSides = incidentSides(actualVertexIndex);
             splitSides(incSides, ray, actualVertexIndex, newFaces, droppedFaces);
@@ -689,21 +680,21 @@ namespace TrenchBroom {
             incSides = incidentSides(actualVertexIndex);
             actualMoveDist = minVertexMoveDist(incSides, vertex, ray, moveDist);
             
-            rayPointAtDistance(&ray, actualMoveDist, &vertex->position);
+            vertex->position = ray.pointAtDistance(actualMoveDist);
             newPosition = vertex->position;
             
             // check whether the vertex is dragged onto a non-incident edge
             for (int i = 0; i < edges.size(); i++) {
                 Edge* edge = edges[i];
                 if (edge->start != vertex && edge->end != vertex) {
-                    subV3f(&vertex->position, &edge->start->position, &v1);
-                    subV3f(&vertex->position, &edge->end->position, &v2);
-                    crossV3f(&v1, &v2, &cross);
+                    v1 = vertex->position - edge->start->position;
+                    v2 = vertex->position - edge->end->position;
+                    cross = v1 % v2;
                     
-                    if (nullV3f(&cross)) {
-                        subV3f(&edge->end->position, &edge->start->position, &edgeVector);
-                        dot1 = dotV3f(&v1, &edgeVector);
-                        dot2 = dotV3f(&v2, &edgeVector);
+                    if (cross.equals(Null3f)) {
+                        edgeVector = edge->vector();
+                        dot1 = v1 | edgeVector;
+                        dot2 = v2 | edgeVector;
                         if ((dot1 > 0 && dot2 < 0) || (dot1 < 0 && dot2 > 0)) {
                             // undo the vertex move
                             vertex->position = ray.origin;
@@ -722,7 +713,7 @@ namespace TrenchBroom {
             for (int i = 0; i < vertices.size(); i++) {
                 if (i != vertexIndex) {
                     Vertex* candidate = vertices[i];
-                    if (equalV3f(&vertex->position, &candidate->position)) {
+                    if (vertex->position.equals(candidate->position)) {
                         if (mergeIncidentVertex) {
                             mergeVertices(vertex, candidate, newFaces, droppedFaces);
                             break;
@@ -752,7 +743,7 @@ namespace TrenchBroom {
             // drag is concluded
             if (vertexIndex == -1 || actualMoveDist == moveDist) {
                 for (int i = 0; i < vertices.size(); i++)
-                    snapV3f(&vertices[i]->position, &vertices[i]->position);
+                    vertices[i]->position = vertices[i]->position.snap();
                 for (int i = 0; i < sides.size(); i++)
                     sides[i]->face->updatePoints();
                 
@@ -762,7 +753,7 @@ namespace TrenchBroom {
             }
             
             // drag is not concluded, calculate the new delta and call self
-            scaleV3f(&ray.direction, moveDist - actualMoveDist, &ray.direction);
+            ray.direction *= (moveDist - actualMoveDist);
             return moveVertex(vertexIndex, mergeIncidentVertex, ray.direction, newFaces, droppedFaces);
         }
         
@@ -778,10 +769,10 @@ namespace TrenchBroom {
             edge = edges[edgeIndex];
             
             // detect whether the drag would make the incident faces invalid
-            leftNorm = edge->left->face->boundary().norm;
-            rightNorm = edge->right->face->boundary().norm;
-            if (negf(dotV3f(&delta, &leftNorm)) ||
-                negf(dotV3f(&delta, &rightNorm))) {
+            leftNorm = edge->left->face->boundary().normal;
+            rightNorm = edge->right->face->boundary().normal;
+            if ((delta | leftNorm) <= -AlmostZero || 
+                (delta | rightNorm) <= -AlmostZero) {
                 result.moved = false;
                 result.index = index;
                 return result;
@@ -839,8 +830,8 @@ namespace TrenchBroom {
             side = sides[index];
             
             // detect whether the drag would lead to an indented face
-            norm = side->face->boundary().norm;
-            if (!posf(dotV3f(&delta, &norm))) {
+            norm = side->face->boundary().normal;
+            if ((delta | norm) < AlmostZero) {
                 result.moved = false;
                 result.index = sideIndex;
                 return result;
@@ -1048,7 +1039,7 @@ namespace TrenchBroom {
         }
         
         ECutResult BrushGeometry::addFace(Face& face, vector<Face*>& droppedFaces) {
-            TPlane boundary = face.boundary();
+            Plane boundary = face.boundary();
             
             int keep = 0;
             int drop = 0;
@@ -1057,7 +1048,7 @@ namespace TrenchBroom {
             // mark vertices
             for (int i = 0; i < vertices.size(); i++) {
                 Vertex& vertex = *vertices[i];
-                EPointStatus vs = pointStatusFromPlane(&boundary, &vertex.position);
+                EPointStatus vs = boundary.pointStatus(vertex.position);
                 if (vs == PS_ABOVE) {
                     vertex.mark = VM_DROP;
                     drop++;
@@ -1171,102 +1162,37 @@ namespace TrenchBroom {
         
         void BrushGeometry::translate(Vec3f delta) {
             for (int i = 0; i < vertices.size(); i++)
-                addV3f(&vertices[i]->position, &delta, &vertices[i]->position);
-            translateBounds(&bounds, &delta, &bounds);
+                vertices[i]->position += delta;
+            bounds = bounds.translate(delta);
         }
         
         void BrushGeometry::rotate90CW(EAxis axis, Vec3f center) {
-            for (int i = 0; i < vertices.size(); i++) {
-                subV3f(&vertices[i]->position, &center, &vertices[i]->position);
-                rotate90CWV3f(&vertices[i]->position, axis, &vertices[i]->position);
-                addV3f(&vertices[i]->position, &center, &vertices[i]->position);
-            }
-            rotateBounds90CW(&bounds, axis, &center, &bounds);
+            for (int i = 0; i < vertices.size(); i++)
+                vertices[i]->position = vertices[i]->position.rotate90(axis, center, true);
+            bounds = bounds.rotate90(axis, center, true);
         }
         
         void BrushGeometry::rotate90CCW(EAxis axis, Vec3f center) {
-            for (int i = 0; i < vertices.size(); i++) {
-                subV3f(&vertices[i]->position, &center, &vertices[i]->position);
-                rotate90CCWV3f(&vertices[i]->position, axis, &vertices[i]->position);
-                addV3f(&vertices[i]->position, &center, &vertices[i]->position);
-            }
-            rotateBounds90CCW(&bounds, axis, &center, &bounds);
+            for (int i = 0; i < vertices.size(); i++)
+                vertices[i]->position = vertices[i]->position.rotate90(axis, center, false);
+            bounds = bounds.rotate90(axis, center, false);
         }
         
-        void BrushGeometry::rotate(TQuaternion rotation, Vec3f center) {
-            for (int i = 0; i < vertices.size(); i++) {
-                subV3f(&vertices[i]->position, &center, &vertices[i]->position);
-                rotateQ(&rotation, &vertices[i]->position, &vertices[i]->position);
-                addV3f(&vertices[i]->position, &center, &vertices[i]->position);
-            }
-            rotateBounds(&bounds, &rotation, &center, &bounds);
+        void BrushGeometry::rotate(Quat rotation, Vec3f center) {
+            for (int i = 0; i < vertices.size(); i++)
+                vertices[i]->position = rotation * (vertices[i]->position - center) + center;
+            bounds = bounds.rotate(rotation, center);
         }
         
         void BrushGeometry::flip(EAxis axis, Vec3f center) {
-            float min, max;
-            switch (axis) {
-                case A_X:
-                    for (int i = 0; i < vertices.size(); i++) {
-                        vertices[i]->position.x -= center.x;
-                        vertices[i]->position.x *= -1;
-                        vertices[i]->position.x += center.x;
-                    }
-                    
-                    min = bounds.max.x;
-                    max = bounds.min.x;
-                    min -= center.x;
-                    min *= -1;
-                    min += center.x;
-                    max -= center.x;
-                    max *= -1;
-                    max += center.x;
-                    bounds.min.x = min;
-                    bounds.max.x = max;
-                    break;
-                case A_Y:
-                    for (int i = 0; i < vertices.size(); i++) {
-                        vertices[i]->position.y -= center.y;
-                        vertices[i]->position.y *= -1;
-                        vertices[i]->position.y += center.y;
-                    }
-                    
-                    min = bounds.max.y;
-                    max = bounds.min.y;
-                    min -= center.y;
-                    min *= -1;
-                    min += center.y;
-                    max -= center.y;
-                    max *= -1;
-                    max += center.y;
-                    bounds.min.y = min;
-                    bounds.max.y = max;
-                    break;
-                default:
-                    for (int i = 0; i < vertices.size(); i++) {
-                        vertices[i]->position.z -= center.z;
-                        vertices[i]->position.z *= -1;
-                        vertices[i]->position.z += center.z;
-                    }
-                    
-                    min = bounds.max.z;
-                    max = bounds.min.z;
-                    min -= center.z;
-                    min *= -1;
-                    min += center.z;
-                    max -= center.z;
-                    max *= -1;
-                    max += center.z;
-                    bounds.min.z = min;
-                    bounds.max.z = max;
-                    break;
-            }
-            
+            for (int i = 0; i < vertices.size(); i++)
+                vertices[i]->position = vertices[i]->position.flip(axis, center);
+            bounds = bounds.flip(axis, center);
+
             for (int i = 0; i < edges.size(); i++)
                 edges[i]->flip();
-            
             for (int i = 0; i < sides.size(); i++)
                 sides[i]->flip();
-            
         }
         
         void BrushGeometry::snap() {
@@ -1277,7 +1203,7 @@ namespace TrenchBroom {
             assert(vertexIndex < vertices.size() + edges.size() + sides.size());
             
             MoveResult result;
-            if (lengthSquaredV3f(&delta) == 0)
+            if (delta.lengthSquared() == 0)
                 result = MoveResult(vertexIndex, false);
             else if (vertexIndex < vertices.size())
                 result = moveVertex(vertexIndex, true, delta, newFaces, droppedFaces);
@@ -1292,7 +1218,7 @@ namespace TrenchBroom {
         MoveResult BrushGeometry::moveEdge(int edgeIndex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             assert(edgeIndex >= 0 && edgeIndex < edges.size());
             
-            if (lengthSquaredV3f(&delta) == 0)
+            if (delta.lengthSquared() == 0)
                 return MoveResult(edgeIndex, false);
             
             BrushGeometry testGeometry(*this);
@@ -1302,12 +1228,12 @@ namespace TrenchBroom {
             Edge* edge = testGeometry.edges[edgeIndex];
             Vec3f start = edge->start->position;
             Vec3f end = edge->end->position;
-            subV3f(&end, &start, &dir);
-            addV3f(&start, &delta, &start);
-            addV3f(&end, &delta, &end);
+            dir = end - start;
+            start += delta;
+            end += delta;
             
             MoveResult result;
-            if (dotV3f(&dir, &delta) > 0) {
+            if ((dir | delta) > 0) {
                 result = testGeometry.moveVertex(indexOf<Vertex>(testGeometry.vertices, edge->end), false, delta, newFaces, droppedFaces);
                 if (result.moved)
                     result = testGeometry.moveVertex(indexOf<Vertex>(testGeometry.vertices, edge->start), false, delta, newFaces, droppedFaces);
@@ -1333,15 +1259,15 @@ namespace TrenchBroom {
         MoveResult BrushGeometry::moveSide(int sideIndex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             assert(sideIndex >= 0 && sideIndex < sides.size());
             
-            float dist = lengthV3f(&delta);
+            float dist = delta.length();
             if (dist == 0)
                 return MoveResult(sideIndex, false);
             
             BrushGeometry testGeometry(*this);
             testGeometry.restoreFaceSides();
             
-            Vec3f dir, diff;
-            scaleV3f(&delta, 1 / dist, &dir);
+            Vec3f diff;
+            Vec3f dir = delta / dist;
             Side* side = testGeometry.sides[sideIndex];
             Vec3f center = centerOfVertices(side->vertices);
             
@@ -1351,10 +1277,10 @@ namespace TrenchBroom {
             vector<float> dots(sideVertexCount);
             for (int i = 0; i < sideVertexCount; i++) {
                 sideVertices[i] = side->vertices[i]->position;
-                subV3f(&sideVertices[i], &center, &diff);
-                dots[i] = dotV3f(&diff, &dir);
+                Vec3f diff = sideVertices[i] - center;
+                dots[i] = diff | dir;
                 indices[i] = indexOf<Vertex>(testGeometry.vertices, side->vertices[i]);
-                addV3f(&sideVertices[i], &delta, &sideVertices[i]);
+                sideVertices[i] += delta;
             }
             
             // sort indices by dot value, eek, bubblesort
@@ -1416,16 +1342,15 @@ namespace TrenchBroom {
         
         int indexOf(const vector<Vertex*>& vertices, Vec3f v) {
             for (int i = 0; i < vertices.size(); i++)
-                if (equalV3f(&vertices[i]->position, &v))
-                    return i;
+                if (vertices[i]->position.equals(v)) return i;
             return -1;
         }
         
         int indexOf(const vector<Edge*>& edges, Vec3f v1, Vec3f v2) {
             for (int i = 0; i < edges.size(); i++) {
                 Edge* edge = edges[i];
-                if ((equalV3f(&edge->start->position, &v1) && equalV3f(&edge->end->position, &v2)) ||
-                    (equalV3f(&edge->start->position, &v2) && equalV3f(&edge->end->position, &v1)))
+                if ((edge->start->position.equals(v1) && edge->end->position.equals(v2)) ||
+                    (edge->start->position.equals(v2) && edge->end->position.equals(v1)))
                     return i;
             }
             return -1;
@@ -1437,7 +1362,7 @@ namespace TrenchBroom {
                 if (side->vertices.size() == vertices.size()) {
                     for (int j = 0; j < vertices.size(); j++) {
                         int k = 0;
-                        while (k < vertices.size() && equalV3f(&side->vertices[(j + k) % vertices.size()]->position, &vertices[k]))
+                        while (k < vertices.size() && side->vertices[(j + k) % vertices.size()]->position.equals(vertices[k]))
                             k++;
                         
                         if (k == vertices.size())
@@ -1452,8 +1377,8 @@ namespace TrenchBroom {
         Vec3f centerOfVertices(const vector<Vertex*>& vertices) {
             Vec3f center = vertices[0]->position;
             for (int i = 1; i < vertices.size(); i++)
-                addV3f(&center, &vertices[0]->position, &center);
-            scaleV3f(&center, 1.0f / vertices.size(), &center);
+                center += vertices[i]->position;
+            center /= vertices.size();
             return center;
         }
         
@@ -1463,15 +1388,16 @@ namespace TrenchBroom {
             bounds.max = vertices[0]->position;
             
             for  (int i = 1; i < vertices.size(); i++)
-                mergeBoundsWithPoint(&bounds, &vertices[i]->position, &bounds);
+                bounds += vertices[i]->position;
             return bounds;
         }
         
         EPointStatus vertexStatusFromRay(Vec3f origin, Vec3f direction, const vector<Vertex*>& vertices) {
+            Ray ray(origin, direction);
             int above = 0;
             int below = 0;
             for (int i = 0; i < vertices.size(); i++) {
-                EPointStatus status = pointStatusFromRay(&origin, &direction, &vertices[i]->position);
+                EPointStatus status = ray.pointStatus(vertices[i]->position); 
                 if (status == PS_ABOVE)
                     above++;
                 else if (status == PS_BELOW)

@@ -45,29 +45,29 @@ namespace TrenchBroom {
         private:
             int m_minSize;
             BBox m_bounds;
-            vector<MapObject&> m_objects;
+            vector<MapObject*> m_objects;
             OctreeNode* m_children[8];
             bool addObject(MapObject& object, int childIndex);
         public:
-            OctreeNode(BBox bounds, int minSize);
+            OctreeNode(const BBox& bounds, int minSize);
             ~OctreeNode();
             bool addObject(MapObject& object);
             bool removeObject(MapObject& object);
-            void intersect(TRay ray, vector<Map::MapObject&>& objects);
+            void intersect(const Ray& ray, vector<MapObject*>& objects);
         };
         
         class Map;
         class Octree : public Observer {
         private:
             int m_minSize;
-            Map* m_map;
+            Map& m_map;
             OctreeNode* m_root;
         protected:
             void notify(const string &name, const void *data);
         public:
-            Octree(Map* map, int minSize);
+            Octree(Map& map, int minSize);
             ~Octree();
-            vector<MapObject&> intersect(TRay ray);
+            vector<MapObject*> intersect(const Ray& ray);
         };
     }
 }

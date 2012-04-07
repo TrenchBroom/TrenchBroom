@@ -94,41 +94,32 @@ namespace TrenchBroom {
             return m_children[childIndex]->addObject(object);
         }
         
-        OctreeNode::OctreeNode(BBox bounds, int minSize) : m_bounds(bounds), m_minSize(minSize) {}
+        OctreeNode::OctreeNode(const BBox& bounds, int minSize) : m_bounds(bounds), m_minSize(minSize) {}
         
         OctreeNode::~OctreeNode() {
             for (int i = 0; i < 8; i++) if (m_children != NULL) delete m_children[i];
         }
         
         bool OctreeNode::addObject(MapObject& object) {
-            BBox objectBounds = object.bounds();
-            if (!boundsContainBounds(&m_bounds, &objectBounds)) return false;
+            if (!m_bounds.contains(object.bounds())) return false;
             if (m_bounds.max.x - m_bounds.min.x > m_minSize)
                 for (int i = 0; i < 8; i++)
                     if (addObject(object, i)) return true;
-            m_objects.push_back(object);
+            m_objects.push_back(&object);
             return true;
         }
         
-        bool OctreeNode::removeObject(void* object, BBox bounds) {
-            BBox objectBounds = object.bounds();
-            if (!boundsContainBounds(&m_bounds, &objectBounds)) return false;
+        bool OctreeNode::removeObject(MapObject& object) {
+            if (!m_bounds.contains(object.bounds())) return false;
             for (int i = 0; i < 8; i++)
                 if (m_children[i] != NULL && m_children[i]->removeObject(object)) return true;
-            vector<void*>::iterator it = find(m_objects.begin(), m_objects.end(), object);
+            vector<MapObject*>::iterator it = find(m_objects.begin(), m_objects.end(), &object);
             if (it != m_objects.end()) m_objects.erase(it);
             return true;
         }
         
-        void OctreeNode::intersect(TRay ray, vector<MapObject&>& objects) {
-            bool hit = gtef(ray.origin.x, m_bounds.min.x)
-            && gtef(ray.origin.y, m_bounds.min.y)
-            && gtef(ray.origin.z, m_bounds.min.z)
-            && ltef(ray.origin.x, m_bounds.max.x)
-            && ltef(ray.origin.y, m_bounds.max.y)
-            && ltef(ray.origin.z, m_bounds.max.z);
-            
-            if (hit || !isnan(intersectBoundsWithRay(&m_bounds, &ray, NULL))) {
+        void OctreeNode::intersect(const Ray& ray, vector<MapObject*>& objects) {
+            if (m_bounds.contains(ray.origin) || !std::isnan(m_bounds.intersectWithRay(ray))) {
                 objects.insert(objects.end(), m_objects.begin(), m_objects.end());
                 for (int i = 0; i < 8; i++)
                     if (m_children[i] != NULL) m_children[i]->intersect(ray, objects);
@@ -163,11 +154,11 @@ namespace TrenchBroom {
                     assert(m_root->removeObject(*brush));
                 }
             } else if (name == MapLoaded) {
-                const vector<Entity*>& entities = m_map->entities();
+                const vector<Entity*>& entities = m_map.entities();
                 for (int i = 0; i < entities.size(); i++) {
                     Entity* entity = entities[i];
                     if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == EDT_POINT)
-                        m_root->addObject(entity, entity->bounds());
+                        m_root->addObject((MapObject&)*entity);
                     const vector<Brush*>& brushes = entity->brushes();
                     for (int j = 0; j < brushes.size(); j++) {
                         Brush* brush = brushes[j];
@@ -176,30 +167,30 @@ namespace TrenchBroom {
                 }
             } else if (name == MapCleared) {
                 delete m_root;
-                m_root = new OctreeNode(m_map->worldBounds(), m_minSize);
+                m_root = new OctreeNode(m_map.worldBounds(), m_minSize);
             }
         }
         
-        Octree::Octree(Map* map, int minSize) : m_minSize(minSize), m_map(map), m_root(new OctreeNode(map->worldBounds(), minSize)) {
-            m_map->addObserver(EntitiesAdded, *this);
-            m_map->addObserver(EntitiesWillBeRemoved, *this);
-            m_map->addObserver(PropertiesWillChange, *this);
-            m_map->addObserver(PropertiesDidChange, *this);
-            m_map->addObserver(BrushesAdded, *this);
-            m_map->addObserver(BrushesWillBeRemoved, *this);
-            m_map->addObserver(BrushesWillChange, *this);
-            m_map->addObserver(BrushesDidChange, *this);
-            m_map->addObserver(MapLoaded, *this);
-            m_map->addObserver(MapCleared, *this);
+        Octree::Octree(Map& map, int minSize) : m_minSize(minSize), m_map(map), m_root(new OctreeNode(map.worldBounds(), minSize)) {
+            m_map.addObserver(EntitiesAdded, *this);
+            m_map.addObserver(EntitiesWillBeRemoved, *this);
+            m_map.addObserver(PropertiesWillChange, *this);
+            m_map.addObserver(PropertiesDidChange, *this);
+            m_map.addObserver(BrushesAdded, *this);
+            m_map.addObserver(BrushesWillBeRemoved, *this);
+            m_map.addObserver(BrushesWillChange, *this);
+            m_map.addObserver(BrushesDidChange, *this);
+            m_map.addObserver(MapLoaded, *this);
+            m_map.addObserver(MapCleared, *this);
         }
         
         Octree::~Octree() {
-            m_map->removeObserver(*this);
+            m_map.removeObserver(*this);
             delete m_root;
         }
         
-        vector<MapObject&> Octree::intersect(TRay ray) {
-            vector<MapObject&> result;
+        vector<MapObject*> Octree::intersect(const Ray& ray) {
+            vector<MapObject*> result;
             m_root->intersect(ray, result);
             return result;
         }

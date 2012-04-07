@@ -17,30 +17,30 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapInputController.h"
+#include "InputController.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        MapInputController::MapInputController(Model::Camera& camera) {
-            m_cameraTool = new CameraTool(camera);
+        InputController::InputController(Editor& editor) : m_editor(editor) {
+            m_cameraTool = new CameraTool(editor.camera());
             m_receiverChain.push_back(m_cameraTool);
             m_dragStatus = MS_NONE;
             m_dragScrollReceiver = NULL;
         }
         
-        MapInputController::~MapInputController() {
+        InputController::~InputController() {
             delete m_cameraTool;
         }
         
-        void MapInputController::modifierKeyDown(EModifierKeys modifierKey) {
+        void InputController::modifierKeyDown(EModifierKeys modifierKey) {
             m_currentEvent.modifierKeys |= modifierKey;
         }
         
-        void MapInputController::modifierKeyUp(EModifierKeys modifierKey) {
+        void InputController::modifierKeyUp(EModifierKeys modifierKey) {
             m_currentEvent.modifierKeys &= ~modifierKey;
         }
         
-        void MapInputController::mouseDown(EMouseButton mouseButton) {
+        void InputController::mouseDown(EMouseButton mouseButton) {
             m_currentEvent.mouseButton = mouseButton;
             
             if (m_currentEvent.mouseButton == MB_LEFT) {
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             }
         }
         
-        void MapInputController::mouseUp(EMouseButton mouseButton) {
+        void InputController::mouseUp(EMouseButton mouseButton) {
             m_currentEvent.mouseButton = mouseButton;
             
             if (m_dragStatus == MS_LEFT && m_currentEvent.mouseButton == MB_LEFT) {
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             m_currentEvent.mouseButton = MB_NONE;
         }
         
-        void MapInputController::mouseMoved(float x, float y, float dx, float dy) {
+        void InputController::mouseMoved(float x, float y, float dx, float dy) {
             m_currentEvent.mouseX = x;
             m_currentEvent.mouseY = y;
             m_currentEvent.deltaX = dx;
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             }
         }
         
-        void MapInputController::scrolled(float dx, float dy) {
+        void InputController::scrolled(float dx, float dy) {
             m_currentEvent.scrollX = dx;
             m_currentEvent.scrollY = dy;
             

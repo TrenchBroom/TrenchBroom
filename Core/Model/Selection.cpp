@@ -37,7 +37,7 @@ namespace TrenchBroom {
             return m_entities.empty() && m_brushes.empty() && m_faces.empty();
         }
         
-        const vector<Texture*>& Selection::mruTextures() const {
+        const vector<Assets::Texture*>& Selection::mruTextures() const {
             return m_mruTextures;
         }
         
@@ -85,42 +85,32 @@ namespace TrenchBroom {
             switch (m_mode) {
                 case SM_FACES:
                     center = m_faces[0]->center();
-                    for (int i = 1; i < m_faces.size(); i++) {
-                        Vec3f temp = m_faces[i]->center();
-                        addV3f(&center, &temp, &center);
-                    }
-                    scaleV3f(&center, 1.0f / m_faces.size(), &center);
+                    for (int i = 1; i < m_faces.size(); i++)
+                        center += m_faces[i]->center();
+                    center /= m_faces.size();
                     break;
                 case SM_BRUSHES:
                     center = m_brushes[0]->center();
-                    for (int i = 1; i < m_brushes.size(); i++) {
-                        Vec3f temp = m_brushes[i]->center();
-                        addV3f(&center, &temp, &center);
-                    }
-                    scaleV3f(&center, 1.0f / m_brushes.size(), &center);
+                    for (int i = 1; i < m_brushes.size(); i++)
+                        center += m_brushes[i]->center();
+                    center /= m_brushes.size();
                     break;
                 case SM_ENTITIES:
                     center = m_entities[0]->center();
-                    for (int i = 1; i < m_entities.size(); i++) {
-                        Vec3f temp = m_entities[i]->center();
-                        addV3f(&center, &temp, &center);
-                    }
-                    scaleV3f(&center, 1.0f / m_entities.size(), &center);
+                    for (int i = 1; i < m_entities.size(); i++)
+                        center += m_entities[i]->center();
+                    center /= m_entities.size();
                     break;
                 case SM_BRUSHES_ENTITIES:
                     center = m_brushes[0]->center();
-                    for (int i = 1; i < m_brushes.size(); i++) {
-                        Vec3f temp = m_brushes[i]->center();
-                        addV3f(&center, &temp, &center);
-                    }
-                    for (int i = 0; i < m_entities.size(); i++) {
-                        Vec3f temp = m_entities[i]->center();
-                        addV3f(&center, &temp, &center);
-                    }
-                    scaleV3f(&center, 1.0f / m_brushes.size() + m_entities.size(), &center);
+                    for (int i = 1; i < m_brushes.size(); i++)
+                        center += m_brushes[i]->center();
+                    for (int i = 0; i < m_entities.size(); i++)
+                        center += m_entities[i]->center();
+                    center /= (m_brushes.size() + m_entities.size());
                     break;
                 default:
-                    center = NanVector;
+                    center = Nan3f;
                     break;
             }
             
@@ -132,49 +122,39 @@ namespace TrenchBroom {
             switch (m_mode) {
                 case SM_FACES:
                     bounds = m_faces[0]->brush()->bounds();
-                    for (int i = 1; i < m_faces.size(); i++) {
-                        BBox temp = m_faces[i]->brush()->bounds();
-                        mergeBoundsWithBounds(&bounds, &temp, &bounds);
-                    }
+                    for (int i = 1; i < m_faces.size(); i++)
+                        bounds += m_faces[i]->brush()->bounds();
                     break;
                 case SM_BRUSHES:
                     bounds = m_brushes[0]->bounds();
-                    for (int i = 1; i < m_brushes.size(); i++) {
-                        BBox temp = m_brushes[i]->bounds();
-                        mergeBoundsWithBounds(&bounds, &temp, &bounds);
-                    }
+                    for (int i = 1; i < m_brushes.size(); i++)
+                        bounds += m_brushes[i]->bounds();
                     break;
                 case SM_ENTITIES:
                     bounds = m_entities[0]->bounds();
-                    for (int i = 1; i < m_entities.size(); i++) {
-                        BBox temp = m_entities[i]->bounds();
-                        mergeBoundsWithBounds(&bounds, &temp, &bounds);
-                    }
+                    for (int i = 1; i < m_entities.size(); i++)
+                        bounds += m_entities[i]->bounds();
                     break;
                 case SM_BRUSHES_ENTITIES:
                     bounds = m_brushes[0]->bounds();
-                    for (int i = 1; i < m_brushes.size(); i++) {
-                        BBox temp = m_brushes[i]->bounds();
-                        mergeBoundsWithBounds(&bounds, &temp, &bounds);
-                    }
-                    for (int i = 0; i < m_entities.size(); i++) {
-                        BBox temp = m_entities[i]->bounds();
-                        mergeBoundsWithBounds(&bounds, &temp, &bounds);
-                    }
+                    for (int i = 1; i < m_brushes.size(); i++)
+                        bounds += m_brushes[i]->bounds();
+                    for (int i = 0; i < m_entities.size(); i++)
+                        bounds += m_entities[i]->bounds();
                     break;
                 default:
-                    bounds.min = NanVector;
-                    bounds.max = NanVector;
+                    bounds.min = Nan3f;
+                    bounds.max = Nan3f;
                     break;
             }
             return bounds;
         }
         
-        void Selection::addTexture(Texture& texture) {
+        void Selection::addTexture(Assets::Texture& texture) {
             if (texture.dummy)
                 return;
             
-            vector<Texture*>::iterator it = find(m_mruTextures.begin(), m_mruTextures.end(), &texture);
+            vector<Assets::Texture*>::iterator it = find(m_mruTextures.begin(), m_mruTextures.end(), &texture);
             if (it != m_mruTextures.end())
                 m_mruTextures.erase(it);
             m_mruTextures.push_back(&texture);

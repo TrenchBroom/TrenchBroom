@@ -39,10 +39,10 @@ namespace TrenchBroom {
             Brush* m_brush;
             
             Vec3f m_points[3];
-            TPlane m_boundary;
+            Plane m_boundary;
             const BBox& m_worldBounds;
             
-            Texture* m_texture;
+            Assets::Texture* m_texture;
             float m_xOffset;
             float m_yOffset;
             float m_rotation;
@@ -61,12 +61,12 @@ namespace TrenchBroom {
             
             int m_filePosition;
             bool m_selected;
-            VboBlock* m_vboBlock;
+            Renderer::VboBlock* m_vboBlock;
             
             void init();
             void texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, int& planeNormIndex, int& faceNormIndex) const;
             void validateTexAxes(const Vec3f& faceNormal);
-            void compensateTransformation(const TMatrix4f& transformation);
+            void compensateTransformation(const Mat4f& transformation);
         public:
             Face(const BBox& worldBounds);
             Face(const BBox& worldBounds, Vec3f point1, Vec3f point2, Vec3f point3);
@@ -83,14 +83,14 @@ namespace TrenchBroom {
             void points(Vec3f& point1, Vec3f& point2, Vec3f& point3) const;
             void updatePoints();
             Vec3f normal() const;
-            TPlane boundary() const;
+            Plane boundary() const;
             Vec3f center() const;
             const BBox& worldBounds() const;
             const vector<Vertex*>& vertices() const;
             const vector<Edge*>& edges() const;
             
-            Texture* texture() const;
-            void setTexture(Texture* texture);
+            Assets::Texture* texture() const;
+            void setTexture(Assets::Texture* texture);
             int xOffset() const;
             void setXOffset(int xOffset);
             int yOffset() const;
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             void translate(Vec3f delta, bool lockTexture);
             void rotate90CW(EAxis axis, Vec3f center, bool lockTexture);
             void rotate90CCW(EAxis axis, Vec3f center, bool lockTexture);
-            void rotate(TQuaternion rotation, Vec3f center, bool lockTexture);
+            void rotate(Quat rotation, Vec3f center, bool lockTexture);
             void flip(EAxis axis, Vec3f center, bool lockTexture);
             void move(float dist, bool lockTexture);
             
@@ -118,8 +118,8 @@ namespace TrenchBroom {
             void setFilePosition(int filePosition);
             bool selected() const;
             void setSelected(bool selected);
-            VboBlock* vboBlock() const;
-            void setVboBlock(VboBlock* vboBlock);
+            Renderer::VboBlock* vboBlock() const;
+            void setVboBlock(Renderer::VboBlock* vboBlock);
         };
     }
 }

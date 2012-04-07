@@ -23,12 +23,11 @@
 #include <OpenGL/glu.h>
 #include "Gwen/Structures.h"
 #include "Tool.h"
+#include "Camera.h"
 
 namespace TrenchBroom {
     namespace Gui {
-        MapRendererControl::MapRendererControl(Base* parent) : Base(parent) {
-            m_camera = new Model::Camera(90, 0.1f, 2000, Vec3f(-32, -32, 32), XAxisPos);
-            m_mapInputController = new Controller::MapInputController(*m_camera);
+        MapRendererControl::MapRendererControl(Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
             m_mapRenderer = new Renderer::MapRenderer();
             SetKeyboardInputEnabled(true);
             SetMouseInputEnabled(true);
@@ -36,8 +35,6 @@ namespace TrenchBroom {
         
         MapRendererControl::~MapRendererControl() {
             delete m_mapRenderer;
-            delete m_mapInputController;
-            delete m_camera;
         }
         
         void MapRendererControl::Render(Skin::Base* skin) {
@@ -49,13 +46,15 @@ namespace TrenchBroom {
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
-            float vfrustum = tan(m_camera->fov() * M_PI / 360) * 0.75 * m_camera->near();
-            float hfrustum = vfrustum * bounds.w / (float)bounds.h;
-            glFrustum(-hfrustum, hfrustum, -vfrustum, vfrustum, m_camera->near(), m_camera->far());
             
-            Vec3f pos = m_camera->position();
-            Vec3f at = pos + m_camera->direction();
-            Vec3f up = m_camera->up();
+            Model::Camera& camera = m_editor.camera();
+            float vfrustum = tan(camera.fov() * M_PI / 360) * 0.75 * camera.near();
+            float hfrustum = vfrustum * bounds.w / (float)bounds.h;
+            glFrustum(-hfrustum, hfrustum, -vfrustum, vfrustum, camera.near(), camera.far());
+            
+            Vec3f pos = camera.position();
+            Vec3f at = pos + camera.direction();
+            Vec3f up = camera.up();
             
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
@@ -76,18 +75,18 @@ namespace TrenchBroom {
         }
 
         void MapRendererControl::OnMouseMoved( int x, int y, int deltaX, int deltaY ) {
-            m_mapInputController->mouseMoved(x, y, deltaX, deltaY);
+            m_editor.inputController().mouseMoved(x, y, deltaX, deltaY);
         }
         
         bool MapRendererControl::OnMouseWheeled( int iDelta ) {
-            m_mapInputController->scrolled(iDelta, 0);
+            m_editor.inputController().scrolled(iDelta, 0);
             return true;
         }
         
         void MapRendererControl::OnMouseClickLeft( int x, int y, bool bDown ) {
             Focus();
-            if (bDown) m_mapInputController->mouseDown(Controller::MB_LEFT);
-            else m_mapInputController->mouseUp(Controller::MB_LEFT);
+            if (bDown) m_editor.inputController().mouseDown(Controller::MB_LEFT);
+            else m_editor.inputController().mouseUp(Controller::MB_LEFT);
 
             // keep receiving mouse events even if the mouse leaves this control
             if (bDown) Gwen::MouseFocus = this;
@@ -96,8 +95,8 @@ namespace TrenchBroom {
         
         void MapRendererControl::OnMouseClickRight( int x, int y, bool bDown ) {
             Focus();
-            if (bDown) m_mapInputController->mouseDown(Controller::MB_RIGHT);
-            else m_mapInputController->mouseUp(Controller::MB_RIGHT);
+            if (bDown)m_editor.inputController().mouseDown(Controller::MB_RIGHT);
+            else m_editor.inputController().mouseUp(Controller::MB_RIGHT);
             
             // keep receiving mouse events even if the mouse leaves this control
             if (bDown) Gwen::MouseFocus = this;
@@ -107,16 +106,16 @@ namespace TrenchBroom {
         bool MapRendererControl::OnKeyPress(int iKey, bool bPress) {
             switch (iKey) {
                 case Gwen::Key::Shift:
-                    m_mapInputController->modifierKeyDown(Controller::MK_SHIFT);
+                    m_editor.inputController().modifierKeyDown(Controller::MK_SHIFT);
                     return true;
                 case Gwen::Key::Control:
-                    m_mapInputController->modifierKeyDown(Controller::MK_CTRL);
+                    m_editor.inputController().modifierKeyDown(Controller::MK_CTRL);
                     return true;
                 case Gwen::Key::Alt:
-                    m_mapInputController->modifierKeyDown(Controller::MK_ALT);
+                    m_editor.inputController().modifierKeyDown(Controller::MK_ALT);
                     return true;
                 case Gwen::Key::Command:
-                    m_mapInputController->modifierKeyDown(Controller::MK_CMD);
+                    m_editor.inputController().modifierKeyDown(Controller::MK_CMD);
                     return true;
                 default:
                     return false;
@@ -126,16 +125,16 @@ namespace TrenchBroom {
         bool MapRendererControl::OnKeyRelease(int iKey) {
             switch (iKey) {
                 case Gwen::Key::Shift:
-                    m_mapInputController->modifierKeyUp(Controller::MK_SHIFT);
+                    m_editor.inputController().modifierKeyUp(Controller::MK_SHIFT);
                     return true;
                 case Gwen::Key::Control:
-                    m_mapInputController->modifierKeyUp(Controller::MK_CTRL);
+                    m_editor.inputController().modifierKeyUp(Controller::MK_CTRL);
                     return true;
                 case Gwen::Key::Alt:
-                    m_mapInputController->modifierKeyUp(Controller::MK_ALT);
+                    m_editor.inputController().modifierKeyUp(Controller::MK_ALT);
                     return true;
                 case Gwen::Key::Command:
-                    m_mapInputController->modifierKeyUp(Controller::MK_CMD);
+                    m_editor.inputController().modifierKeyUp(Controller::MK_CMD);
                     return true;
                 default:
                     return false;

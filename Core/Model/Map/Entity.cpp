@@ -32,35 +32,26 @@ namespace TrenchBroom {
             m_filePosition = -1;
             m_selected = false;
             m_vboBlock = NULL;
-            m_origin = NullVector;
+            m_origin = Null3f;
             m_angle = NAN;
             rebuildGeometry();
         }
         
         void Entity::rebuildGeometry() {
-            m_bounds.min = m_bounds.max = NullVector;
-            m_maxBounds.min = m_maxBounds.max = NullVector;
+            m_bounds.min = m_bounds.max = Null3f;
+            m_maxBounds.min = m_maxBounds.max = Null3f;
             if (m_entityDefinition == NULL || m_entityDefinition->type == EDT_BRUSH) {
                 if (!m_brushes.empty()) {
                     m_bounds = m_brushes[0]->bounds();
-                    for (int i = 1; i < m_brushes.size(); i++) {
-                        BBox brushBounds = m_brushes[i]->bounds();
-                        mergeBoundsWithBounds(&m_bounds, &brushBounds, &m_bounds);
-                    }
+                    for (int i = 1; i < m_brushes.size(); i++)
+                        m_bounds += m_brushes[i]->bounds();
                 }
             } else if (m_entityDefinition->type == EDT_POINT) {
-                m_bounds = m_entityDefinition->bounds;
-                addV3f(&m_bounds.min, &m_origin, &m_bounds.min);
-                addV3f(&m_bounds.max, &m_origin, &m_bounds.max);
-                centerOfBounds(&m_bounds, &m_center);
+                m_bounds = m_entityDefinition->bounds.translate(m_origin);
             }
             
-            centerOfBounds(&m_bounds, &m_center);
-            Vec3f diff;
-            subV3f(&m_bounds.max, &m_center, &diff);
-            diff.x = diff.y = diff.z = lengthV3f(&diff);
-            subV3f(&m_center, &diff, &m_maxBounds.min);
-            addV3f(&m_center, &diff, &m_maxBounds.max);
+            m_center = m_bounds.center();
+            m_maxBounds = m_bounds.maxBounds();
         }
         
         Entity::Entity() : MapObject() {
@@ -74,7 +65,7 @@ namespace TrenchBroom {
             if ((it = m_properties.find(AngleKey)) != m_properties.end())
                 m_angle = atof(it->second.c_str());
             if ((it = m_properties.find(OriginKey)) != m_properties.end())
-                parseV3f(it->second.c_str(), 0, it->second.length(), &m_origin);
+                m_origin = Vec3f(it->second);
             rebuildGeometry();
         }
         
@@ -87,15 +78,9 @@ namespace TrenchBroom {
             if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_BRUSH)
                 return;
             
-            Vec3f temp;
-            subV3f(&m_origin, &rotationCenter, &temp);
-            if (clockwise) rotate90CWV3f(&temp, axis, &temp);
-            else rotate90CCWV3f(&temp, axis, &temp);
-            addV3f(&temp, &rotationCenter, &temp);
-            setProperty(OriginKey, temp, true);
-            
+            setProperty(OriginKey, m_origin.rotate90(axis, rotationCenter, clockwise), true);
+
             Vec3f direction;
-            
             if (m_angle >= 0) {
                 direction.x = cos(2 * M_PI - m_angle * M_PI / 180);
                 direction.y = sin(2 * M_PI - m_angle * M_PI / 180);
@@ -108,8 +93,7 @@ namespace TrenchBroom {
                 return;
             }
             
-            if (clockwise) rotate90CWV3f(&direction, axis, &direction);
-            else rotate90CCWV3f(&direction, axis, &direction);
+            direction = direction.rotate90(axis, clockwise);
             if (direction.z > 0.9) {
                 setProperty(AngleKey, -1, true);
             } else if (direction.z < -0.9) {
@@ -117,12 +101,12 @@ namespace TrenchBroom {
             } else {
                 if (direction.z != 0) {
                     direction.z = 0;
-                    normalizeV3f(&direction, &direction);
+                    direction = direction.normalize();
                 }
                 
                 m_angle = roundf(acos(direction.x) * 180 / M_PI);
-                crossV3f(&direction, &XAxisPos, &temp);
-                if (!nullV3f(&temp) && temp.z < 0)
+                Vec3f cross = direction % XAxisPos;
+                if (!cross.equals(Null3f) && cross.z < 0)
                     m_angle = 360 - m_angle;
                 setProperty(AngleKey, m_angle, true);
             }
@@ -208,11 +192,7 @@ namespace TrenchBroom {
                     fprintf(stdout, "Warning: Cannot set origin to NULL");
                     return;
                 }
-                if (!parseV3f(key.c_str(), 0, value->length(), &m_origin)) {
-                    fprintf(stdout, "Warning: Cannot parse origin value %s", value->c_str());
-                    return;
-                }
-                roundV3f(&m_origin, &m_origin);
+                setProperty(key, Vec3f(*value), true);
             } else if (key == AngleKey) {
                 if (value != NULL) m_angle = strtof(value->c_str(), NULL);
                 else m_angle = NAN;
@@ -238,7 +218,11 @@ namespace TrenchBroom {
             setProperty(key, valueStr.str());
         }
         
-        void setProperties(map<string, string> properties, bool replace) {
+        void Entity::setProperties(map<string, string> properties, bool replace) {
+            if (replace) m_properties.clear();
+            map<string, string>::iterator it;
+            for (it = properties.begin(); it != properties.end(); ++it)
+                m_properties[it->first] = it->second;
         }
         
         void Entity::deleteProperty(const string& key) {
@@ -317,9 +301,7 @@ namespace TrenchBroom {
             if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_POINT)
                 return;
             
-            Vec3f temp;
-            addV3f(&m_origin, &delta, &temp);
-            setProperty(OriginKey, temp, true);
+            setProperty(OriginKey, m_origin + delta, true);
         }
         
         void Entity::rotate90CW(EAxis axis, Vec3f rotationCenter) {
@@ -330,20 +312,16 @@ namespace TrenchBroom {
             rotate90(axis, rotationCenter, false);
         }
         
-        void Entity::rotate(TQuaternion rotation, Vec3f rotationCenter) {
+        void Entity::rotate(Quat rotation, Vec3f rotationCenter) {
             if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_BRUSH)
                 return;
             
-            Vec3f direction, temp, offset;
-            subV3f(&m_center, &m_origin, &offset);
-            subV3f(&m_center, &rotationCenter, &m_center);
-            rotateQ(&rotation, &m_center, &m_center);
-            addV3f(&m_center, &rotationCenter, &m_center);
-            subV3f(&m_center, &offset, &temp);
-            roundV3f(&temp, &temp);
-            setProperty(OriginKey, temp, true);
+            Vec3f offset = m_center - m_origin;
+            m_center = rotation * (m_center - rotationCenter) + rotationCenter;
+            setProperty(OriginKey, m_center - offset, true);
             setProperty(AngleKey, 0, true);
             
+            Vec3f direction;
             if (m_angle >= 0) {
                 direction.x = cos(2 * M_PI - m_angle * M_PI / 180);
                 direction.y = sin(2 * M_PI - m_angle * M_PI / 180);
@@ -356,7 +334,7 @@ namespace TrenchBroom {
                 return;
             }
             
-            rotateQ(&rotation, &direction, &direction);
+            direction = rotation * direction;
             if (direction.z > 0.9) {
                 setProperty(AngleKey, -1, true);
             } else if (direction.z < -0.9) {
@@ -364,12 +342,12 @@ namespace TrenchBroom {
             } else {
                 if (direction.z != 0) {
                     direction.z = 0;
-                    normalizeV3f(&direction, &direction);
+                    direction = direction.normalize();
                 }
                 
                 m_angle = roundf(acos(direction.x) * 180 / M_PI);
-                crossV3f(&direction, &XAxisPos, &temp);
-                if (!nullV3f(&temp) && temp.z < 0)
+                Vec3f cross = direction % XAxisPos;
+                if (!cross.equals(Null3f) && cross.z < 0)
                     m_angle = 360 - m_angle;
                 setProperty(AngleKey, m_angle, true);
             }
@@ -379,25 +357,9 @@ namespace TrenchBroom {
             if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_BRUSH)
                 return;
             
-            Vec3f temp, offset;
-            subV3f(&m_center, &m_origin, &offset);
-            subV3f(&m_center, &flipCenter, &m_center);
-            
-            switch (axis) {
-                case A_X:
-                    m_center.x *= -1;
-                    break;
-                case A_Y:
-                    m_center.y *= -1;
-                    break;
-                default:
-                    m_center.z *= -1;
-                    break;
-            }
-            
-            addV3f(&m_center, &flipCenter, &m_center);
-            addV3f(&m_center, &offset, &temp);
-            setProperty(OriginKey, temp, true);
+            Vec3f offset = m_center - m_origin;
+            m_center = m_center.flip(axis, flipCenter);
+            setProperty(OriginKey, m_center + offset, true);
             setProperty(AngleKey, 0, true);
             
             if (m_angle >= 0)
@@ -425,13 +387,13 @@ namespace TrenchBroom {
             m_selected = selected;
         }
         
-        VboBlock* Entity::vboBlock() const {
+        Renderer::VboBlock* Entity::vboBlock() const {
             return m_vboBlock;
         }
         
-        void Entity::setVboBlock(VboBlock* vboBlock) {
+        void Entity::setVboBlock(Renderer::VboBlock* vboBlock) {
             if (m_vboBlock != NULL)
-                freeVboBlock(m_vboBlock);
+                vboBlock->freeBlock();
             m_vboBlock = vboBlock;
         }
     }

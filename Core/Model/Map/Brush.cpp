@@ -39,7 +39,7 @@ namespace TrenchBroom {
             restore(brushTemplate);
         }
         
-        Brush::Brush(const BBox& worldBounds, const BBox& brushBounds, Texture& texture) : MapObject(), m_worldBounds(worldBounds) {
+        Brush::Brush(const BBox& worldBounds, const BBox& brushBounds, Assets::Texture& texture) : MapObject(), m_worldBounds(worldBounds) {
             init();
             m_geometry = new BrushGeometry(m_worldBounds);
             
@@ -164,23 +164,16 @@ namespace TrenchBroom {
         }
         
         bool Brush::containsPoint(Vec3f point) {
-            const BBox& myBounds = bounds();
-            if (!boundsContainPoint(&myBounds, &point))
-                return false;
+            if (!bounds().contains(point)) return false;
             
-            for (int i = 0; i < m_faces.size(); i++) {
-                TPlane boundary = m_faces[i]->boundary();
-                if (pointStatusFromPlane(&boundary, &point) == PS_ABOVE)
+            for (int i = 0; i < m_faces.size(); i++)
+                if (m_faces[i]->boundary().pointStatus(point) == PS_ABOVE)
                     return false;
-            }
             return true;
         }
         
         bool Brush::intersectsBrush(const Brush& brush) {
-            const BBox myBounds = bounds();
-            const BBox theirBounds = brush.bounds();
-            if (!boundsIntersectWithBounds(&myBounds, &theirBounds))
-                return false;
+            if (!bounds().intersects(brush.bounds())) return false;
             
             // separating axis theorem
             // http://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf
@@ -190,7 +183,7 @@ namespace TrenchBroom {
             for (int i = 0; i < theirFaces.size(); i++) {
                 Face* theirFace = theirFaces[i];
                 Vec3f origin = theirFace->vertices()[0]->position;
-                Vec3f direction = theirFace->boundary().norm;
+                Vec3f direction = theirFace->boundary().normal;
                 if (vertexStatusFromRay(origin, direction, myVertices) == PS_ABOVE)
                     return false;
             }
@@ -200,7 +193,7 @@ namespace TrenchBroom {
             for (int i = 0; i < m_faces.size(); i++) {
                 Face* myFace = m_faces[i];
                 Vec3f origin = myFace->vertices()[0]->position;
-                Vec3f direction = myFace->boundary().norm;
+                Vec3f direction = myFace->boundary().normal;
                 if (vertexStatusFromRay(origin, direction, theirVertices) == PS_ABOVE)
                     return false;
             }
@@ -211,11 +204,9 @@ namespace TrenchBroom {
                 Edge* myEdge = myEdges[i];
                 for (int j = 0; j < theirEdges.size(); j++) {
                     Edge* theirEdge = theirEdges[i];
-                    Vec3f myEdgeVec, theirEdgeVec, direction;
-                    subV3f(&myEdge->end->position, &myEdge->start->position, &myEdgeVec);
-                    subV3f(&theirEdge->end->position, &theirEdge->start->position, &theirEdgeVec);
-                    
-                    crossV3f(&myEdgeVec, &theirEdgeVec, &direction);
+                    Vec3f myEdgeVec = myEdge->end->position - myEdge->start->position;
+                    Vec3f theirEdgeVec = theirEdge->end->position - theirEdge->start->position;
+                    Vec3f direction = myEdgeVec % theirEdgeVec;
                     Vec3f origin = myEdge->start->position;
                     
                     EPointStatus myStatus = vertexStatusFromRay(origin, direction, myVertices);
@@ -233,10 +224,7 @@ namespace TrenchBroom {
         }
         
         bool Brush::containsBrush(const Brush& brush) {
-            const BBox myBounds = bounds();
-            const BBox theirBounds = brush.bounds();
-            if (!boundsContainBounds(&myBounds, &theirBounds))
-                return false;
+            if (bounds().contains(brush.bounds())) return false;
             
             const vector<Vertex*>& theirVertices = brush.vertices();
             for (int i = 0; i < theirVertices.size(); i++)
@@ -246,10 +234,8 @@ namespace TrenchBroom {
         }
         
         bool Brush::intersectsEntity(const Entity& entity) {
-            const BBox myBounds = bounds();
-            const BBox theirBounds = entity.bounds();
-            if (!boundsIntersectWithBounds(&myBounds, &theirBounds))
-                return false;
+            BBox theirBounds = entity.bounds();
+            if (!bounds().intersects(theirBounds)) return false;
             
             Vec3f point = theirBounds.min;
             if (containsPoint(point))
@@ -279,10 +265,8 @@ namespace TrenchBroom {
         }
         
         bool Brush::containsEntity(const Entity& entity) {
-            const BBox myBounds = bounds();
-            const BBox theirBounds = entity.bounds();
-            if (!boundsContainBounds(&myBounds, &theirBounds))
-                return false;
+            BBox theirBounds = entity.bounds();
+            if (!bounds().contains(theirBounds)) return false;
             
             Vec3f point = theirBounds.min;
             if (!containsPoint(point))
@@ -370,7 +354,7 @@ namespace TrenchBroom {
             m_entity->brushChanged(this);
         }
         
-        void Brush::rotate(TQuaternion rotation, Vec3f center, bool lockTextures) {
+        void Brush::rotate(Quat rotation, Vec3f center, bool lockTextures) {
             for (int i = 0; i < m_faces.size(); i++)
                 m_faces[i]->rotate(rotation, center, lockTextures);
             m_geometry->rotate(rotation, center);
@@ -388,9 +372,7 @@ namespace TrenchBroom {
             Face testFace(m_worldBounds, face);
             testFace.move(dist, false);
             
-            TPlane oldBoundary = face.boundary();
-            TPlane newBoundary = testFace.boundary();
-            if (equalPlane(&oldBoundary, &newBoundary)) return false;
+            if (face.boundary().equals(testFace.boundary())) return false;
             
             vector<Face*> droppedFaces;
             BrushGeometry testGeometry(m_worldBounds);
@@ -399,7 +381,7 @@ namespace TrenchBroom {
                     testGeometry.addFace(*m_faces[i], droppedFaces);
             
             ECutResult result = testGeometry.addFace(testFace, droppedFaces);
-            bool canDrag = droppedFaces.size() == 0 && result != CR_NULL && boundsContainBounds(&m_worldBounds, &testGeometry.bounds);
+            bool canDrag = droppedFaces.size() == 0 && result != CR_NULL && m_worldBounds.contains(testGeometry.bounds);
             
             m_geometry->restoreFaceSides();
             return canDrag;

@@ -29,6 +29,7 @@
 #include "Texture.h"
 
 using namespace std;
+using namespace TrenchBroom::Model;
 
 namespace TrenchBroom {
     namespace IO {
@@ -96,7 +97,7 @@ namespace TrenchBroom {
         class MapParser {
         private:
             const BBox& m_worldBounds;
-            TextureManager& m_textureManager;
+            Assets::TextureManager& m_textureManager;
             int m_size;
             EMapFormat m_format;
             MapTokenizer* m_tokenizer;
@@ -106,7 +107,7 @@ namespace TrenchBroom {
             MapToken* nextToken();
             void pushToken(MapToken* token);
         public:
-            MapParser(istream& stream, const BBox& worldBounds, TextureManager& textureManager);
+            MapParser(istream& stream, const BBox& worldBounds, Assets::TextureManager& textureManager);
             ~MapParser();
             Map* parseMap(const string& entityDefinitionFilePath);
             Entity* parseEntity();

@@ -56,7 +56,7 @@ namespace TrenchBroom {
         public:
             Brush(const BBox& worldBounds);
             Brush(const BBox& worldBounds, const Brush& brushTemplate);
-            Brush(const BBox& worldBounds, const BBox& brushBounds, Texture& texture);
+            Brush(const BBox& worldBounds, const BBox& brushBounds, Assets::Texture& texture);
             ~Brush();
             
             void restore(const Brush& brushTemplate);
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             void translate(Vec3f delta, bool lockTextures);
             void rotate90CW(EAxis axis, Vec3f center, bool lockTextures);
             void rotate90CCW(EAxis axis, Vec3f center, bool lockTextures);
-            void rotate(TQuaternion rotation, Vec3f center, bool lockTextures);
+            void rotate(Quat rotation, Vec3f center, bool lockTextures);
             void flip(EAxis axis, Vec3f center, bool lockTextures);
             bool canResize(Face& face, float dist);
             void resize(Face& face, float dist, bool lockTextures);

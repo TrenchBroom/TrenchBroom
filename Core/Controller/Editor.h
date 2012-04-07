@@ -17,21 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapObject_h
-#define TrenchBroom_MapObject_h
+#ifndef TrenchBroom_Editor_h
+#define TrenchBroom_Editor_h
 
-#include "VecMath.h"
+#include "Camera.h"
+#include "InputController.h"
+#include "Map.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class MapObject {
-        protected:
-            int m_uniqueId;
+    namespace Controller {
+        class InputController;
+        class Editor {
+        private:
+            Model::Map* m_map;
+            Model::Camera* m_camera;
+            InputController* m_inputController;
         public:
-            MapObject();
-            virtual ~MapObject() {};
-            int uniqueId() const;
-            virtual BBox bounds() const {};
+            Editor(const string& entityDefinitionFilePath);
+            ~Editor();
+            
+            Model::Camera& camera();
+            InputController& inputController();
         };
     }
 }

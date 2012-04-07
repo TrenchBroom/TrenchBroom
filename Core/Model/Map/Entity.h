@@ -63,7 +63,7 @@ namespace TrenchBroom {
             
             int m_filePosition;
             bool m_selected;
-            VboBlock* m_vboBlock;
+            Renderer::VboBlock* m_vboBlock;
             
             void init();
             void rebuildGeometry();
@@ -109,15 +109,15 @@ namespace TrenchBroom {
             void translate(Vec3f delta);
             void rotate90CW(EAxis axis, Vec3f rotationCenter);
             void rotate90CCW(EAxis axis, Vec3f rotationCenter);
-            void rotate(TQuaternion rotation, Vec3f rotationCenter);
+            void rotate(Quat rotation, Vec3f rotationCenter);
             void flip(EAxis axis, Vec3f flipCenter);
             
             int filePosition() const;
             void setFilePosition(int filePosition);
             bool selected() const;
             void setSelected(bool selected);
-            VboBlock* vboBlock() const;
-            void setVboBlock(VboBlock* vboBlock);
+            Renderer::VboBlock* vboBlock() const;
+            void setVboBlock(Renderer::VboBlock* vboBlock);
         };
     }
 }

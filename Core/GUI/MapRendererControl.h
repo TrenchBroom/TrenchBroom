@@ -24,8 +24,7 @@
 #include "Gwen/Skin.h"
 #include "Gwen/Controls/Base.h"
 #include "MapRenderer.h"
-#include "MapInputController.h"
-#include "Camera.h"
+#include "Editor.h"
 
 using namespace Gwen;
 using namespace TrenchBroom;
@@ -34,11 +33,10 @@ namespace TrenchBroom {
     namespace Gui {
         class MapRendererControl : public Controls::Base {
         protected:
-            Model::Camera* m_camera;
-            Controller::MapInputController* m_mapInputController;
+            Controller::Editor& m_editor;
             Renderer::MapRenderer* m_mapRenderer;
         public:
-            MapRendererControl(Base* parent);
+            MapRendererControl(Base* parent, Controller::Editor& editor);
             ~MapRendererControl();
             virtual void Render(Skin::Base* skin);
 

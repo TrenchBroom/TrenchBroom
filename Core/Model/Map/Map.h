@@ -21,6 +21,7 @@
 #define TrenchBroom_QuakeMap_h
 
 #include <vector>
+#include "VecMath.h"
 #include "Observer.h"
 #include "Octree.h"
 #include "Selection.h"
@@ -54,6 +55,7 @@ namespace TrenchBroom {
         class Octree;
         class Selection;
         class MoveResult;
+        class Entity;
         class Map : public Observable {
         private:
             Octree* m_octree;
@@ -89,7 +91,7 @@ namespace TrenchBroom {
             void addBrushesToEntity(Entity& entity);
             void moveBrushesToEntity(Entity& entity);
             Brush* createBrush(Entity& entity, const Brush& brushTemplate);
-            Brush* createBrush(Entity& entity, BBox bounds, Texture& texture);
+            Brush* createBrush(Entity& entity, BBox bounds, Assets::Texture& texture);
             void snapBrushes();
             bool resizeBrushes(vector<Face*>& faces, float delta, bool lockTextures);
             
@@ -98,7 +100,7 @@ namespace TrenchBroom {
             void translateObjects(Vec3f delta, bool lockTextures);
             void rotateObjects90CW(EAxis axis, Vec3f center, bool lockTextures);
             void rotateObjects90CCW(EAxis axis, Vec3f center, bool lockTextures);
-            void rotateObjects(TQuaternion rotation, Vec3f center, bool lockTextures);
+            void rotateObjects(Quat rotation, Vec3f center, bool lockTextures);
             void flipObjects(EAxis axis, Vec3f center, bool lockTextures);
             void deleteObjects();
             

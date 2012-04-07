@@ -27,43 +27,27 @@
 using namespace std;
 
 namespace TrenchBroom {
-    namespace Model {
-        template <typename T> 
-        struct Notifier
-        { 
-            typedef void (*Function)(const vector<T>&); 
-        };
-
-        class Observable;
-        class Observer {
-        protected:
-            virtual void notify(const string& name, const void* data) {};
-            friend class ObservableSlot;
-        };
-        
-        class ObservableSlot {
-        private:
-            bool m_postNotifications;
-            vector<Observer*> m_observers;
-        public:
-            void addObserver(Observer& observer, Notifier::Function& function);
-        };
-        
-        class Observable {
-        private:
-            bool m_postNotifications;
-            multimap<const string, Observer&> m_observers;
-        protected:
-            void postNotification(const string& name, const void* data);
-        public:
-            Observable() : m_postNotifications(true) {};
-            void addObserver(const string& name, Observer& observer);
-            void removeObserver(const string& name, Observer& observer);
-            void removeObserver(Observer& observer);
-            void setPostNotifications(bool postNotifications);
-            bool postNotifications();
-        };
-    }
+    class Observable;
+    class Observer {
+    protected:
+        virtual void notify(const string& name, const void* data) {};
+        friend class Observable;
+    };
+    
+    class Observable {
+    private:
+        bool m_postNotifications;
+        multimap<const string, Observer&> m_observers;
+    protected:
+        void postNotification(const string& name, const void* data);
+    public:
+        Observable() : m_postNotifications(true) {};
+        void addObserver(const string& name, Observer& observer);
+        void removeObserver(const string& name, Observer& observer);
+        void removeObserver(Observer& observer);
+        void setPostNotifications(bool postNotifications);
+        bool postNotifications();
+    };
 }
 
 #endif

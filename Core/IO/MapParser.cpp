@@ -60,7 +60,7 @@ namespace TrenchBroom {
             else m_token.data.clear();
             m_token.line = line;
             m_token.column = column;
-            m_token.charsRead = m_stream.tellg();
+            m_token.charsRead = (int)m_stream.tellg();
             return &m_token;
         }
         
@@ -239,10 +239,10 @@ namespace TrenchBroom {
             m_tokenStack.push_back(token);
         }
         
-        MapParser::MapParser(istream& stream, const BBox& worldBounds, TextureManager& textureManager) : m_worldBounds(worldBounds), m_textureManager(textureManager) {
-            int cur = stream.tellg();
+        MapParser::MapParser(istream& stream, const BBox& worldBounds, Assets::TextureManager& textureManager) : m_worldBounds(worldBounds), m_textureManager(textureManager) {
+            streamoff cur = stream.tellg();
             stream.seekg(0, ios::end);
-            m_size = stream.tellg();
+            m_size = (int)stream.tellg();
             m_size -= cur;
             stream.seekg(cur, ios::beg);
         }
@@ -315,7 +315,7 @@ namespace TrenchBroom {
         }
         
         Face* MapParser::parseFace() {
-            Vec3f p1, p2, p3, v1, v2;
+            Vec3f p1, p2, p3;
             float xOffset, yOffset, rotation, xScale, yScale;
             MapToken* token;
             
@@ -345,7 +345,7 @@ namespace TrenchBroom {
             expect(TT_B_C, token = nextToken());
             
             expect(TT_STR, token = nextToken());
-            Texture* texture = m_textureManager.texture(token->data);
+            Assets::Texture* texture = m_textureManager.texture(token->data);
             
             token = nextToken();
             if (m_format == MF_UNDEFINED) {
@@ -385,11 +385,7 @@ namespace TrenchBroom {
             expect(TT_DEC | TT_FRAC, token = nextToken());
             yScale = atof(token->data.c_str());
             
-            subV3f(&p3, &p1, &v1);
-            subV3f(&p2, &p1, &v2);
-            
-            crossV3f(&v1, &v2, &v1);
-            if (nullV3f(&v1)) {
+            if (((p3 - p1) % (p2 - p1)).equals(Null3f)) {
                 fprintf(stdout, "Warning: Skipping invalid face in line %i", token->line);
                 return NULL;
             }

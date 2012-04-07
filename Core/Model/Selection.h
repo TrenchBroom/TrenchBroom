@@ -23,6 +23,10 @@
 #include <vector>
 #include "Observer.h"
 #include "VecMath.h"
+#include "Texture.h"
+#include "Entity.h"
+#include "Brush.h"
+#include "Face.h"
 
 using namespace std;
 
@@ -39,24 +43,24 @@ namespace TrenchBroom {
             SM_BRUSHES_ENTITIES
         } ESelectionMode;
         
-        class Face;
-        class Brush;
-        class Entity;
         class Texture;
+        class Entity;
+        class Brush;
+        class Face;
         class Selection : public Observable {
         private:
             vector<Face*> m_faces;
             vector<Brush*> m_brushes;
             vector<Brush*> m_partialBrushes;
             vector<Entity*> m_entities;
-            vector<Texture*> m_mruTextures;
+            vector<Assets::Texture*> m_mruTextures;
             ESelectionMode m_mode;
         public:
             Selection();
             ESelectionMode mode() const;
             bool isPartial(Brush& brush) const;
             bool empty() const;
-            const vector<Texture*>& mruTextures() const;
+            const vector<Assets::Texture*>& mruTextures() const;
             const vector<Face*>& faces() const;
             const vector<Face*> brushFaces() const;
             const vector<Brush*>& brushes() const;
@@ -66,7 +70,7 @@ namespace TrenchBroom {
             Vec3f center() const;
             BBox bounds() const;
             
-            void addTexture(Texture& texture);
+            void addTexture(Assets::Texture& texture);
             void addFace(Face& face);
             void addFaces(const vector<Face*>& faces);
             void addBrush(Brush& brush);

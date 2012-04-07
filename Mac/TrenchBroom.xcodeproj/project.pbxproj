@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		48061814153032A30099EB8C /* Vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48061813153032A30099EB8C /* Vbo.cpp */; };
 		483511A3152FB61A007B561E /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483511A2152FB61A007B561E /* Camera.cpp */; };
 		48367703152F0DF800D402E3 /* Splitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48367702152F0DF800D402E3 /* Splitter.cpp */; };
-		4836770C152F2C1600D402E3 /* MapInputController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4836770B152F2C1600D402E3 /* MapInputController.cpp */; };
+		4836770C152F2C1600D402E3 /* InputController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4836770B152F2C1600D402E3 /* InputController.cpp */; };
 		48367711152F4B3E00D402E3 /* CameraTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48367710152F4B3E00D402E3 /* CameraTool.cpp */; };
 		48667DB3152D961300A65C45 /* EditorGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48667DB2152D961300A65C45 /* EditorGui.cpp */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
@@ -20,7 +21,6 @@
 		48B05A52152FB670006AF69B /* Wad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A4C152FB670006AF69B /* Wad.cpp */; };
 		48B05A5C152FB72C006AF69B /* Observer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A54152FB72C006AF69B /* Observer.cpp */; };
 		48B05A5D152FB72C006AF69B /* Octree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A56152FB72C006AF69B /* Octree.cpp */; };
-		48B05A5E152FB72C006AF69B /* Picker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A58152FB72C006AF69B /* Picker.cpp */; };
 		48B05A5F152FB72C006AF69B /* Selection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A5A152FB72C006AF69B /* Selection.cpp */; };
 		48B05A6A152FB7B3006AF69B /* Alias.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A61152FB7B3006AF69B /* Alias.cpp */; };
 		48B05A6B152FB7B3006AF69B /* Bsp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A64152FB7B3006AF69B /* Bsp.cpp */; };
@@ -47,6 +47,9 @@
 		48B50E47152CF9D600E75402 /* MapRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E46152CF9D600E75402 /* MapRenderer.cpp */; };
 		48B50E4B152CFAFC00E75402 /* VecMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E4A152CFAFC00E75402 /* VecMath.cpp */; };
 		48B50E4D152D019C00E75402 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E4C152D019C00E75402 /* OpenGL.framework */; };
+		48C9793F15308EC0003020FC /* Filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C9793D15308EC0003020FC /* Filter.cpp */; };
+		48C979451530AB6F003020FC /* Editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C979431530AB6F003020FC /* Editor.cpp */; };
+		48C979481530AE96003020FC /* Preferences.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C979471530AE96003020FC /* Preferences.cpp */; };
 		48C9A3A8152DD82A00EB804C /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3A7152DD82A00EB804C /* libfreeimage.a */; };
 		48C9A3AC152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3A9152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a */; };
 		48C9A3AD152DD83800EB804C /* libGWEN-Renderer-OpenGL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3AA152DD83800EB804C /* libGWEN-Renderer-OpenGL.a */; };
@@ -54,11 +57,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		48061811153032900099EB8C /* Vbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vbo.h; path = ../Core/Renderer/Vbo.h; sourceTree = "<group>"; };
+		48061813153032A30099EB8C /* Vbo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vbo.cpp; path = ../Core/Renderer/Vbo.cpp; sourceTree = "<group>"; };
 		483511A2152FB61A007B561E /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = ../Core/Model/Camera.cpp; sourceTree = "<group>"; };
 		48367700152F0DC200D402E3 /* Splitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Splitter.h; path = ../Core/GUI/Splitter.h; sourceTree = "<group>"; };
 		48367702152F0DF800D402E3 /* Splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Splitter.cpp; path = ../Core/GUI/Splitter.cpp; sourceTree = "<group>"; };
-		4836770A152F2BEA00D402E3 /* MapInputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapInputController.h; path = ../Core/Controller/MapInputController.h; sourceTree = "<group>"; };
-		4836770B152F2C1600D402E3 /* MapInputController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapInputController.cpp; path = ../Core/Controller/MapInputController.cpp; sourceTree = "<group>"; };
+		4836770A152F2BEA00D402E3 /* InputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InputController.h; path = ../Core/Controller/InputController.h; sourceTree = "<group>"; };
+		4836770B152F2C1600D402E3 /* InputController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InputController.cpp; path = ../Core/Controller/InputController.cpp; sourceTree = "<group>"; };
 		4836770D152F2C6C00D402E3 /* Tool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tool.h; path = ../Core/Controller/Tool.h; sourceTree = "<group>"; };
 		4836770F152F4B2C00D402E3 /* CameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CameraTool.h; path = ../Core/Controller/CameraTool.h; sourceTree = "<group>"; };
 		48367710152F4B3E00D402E3 /* CameraTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CameraTool.cpp; path = ../Core/Controller/CameraTool.cpp; sourceTree = "<group>"; };
@@ -81,8 +86,6 @@
 		48B05A55152FB72C006AF69B /* Observer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Observer.h; path = ../Core/Model/Observer.h; sourceTree = "<group>"; };
 		48B05A56152FB72C006AF69B /* Octree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Octree.cpp; path = ../Core/Model/Octree.cpp; sourceTree = "<group>"; };
 		48B05A57152FB72C006AF69B /* Octree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Octree.h; path = ../Core/Model/Octree.h; sourceTree = "<group>"; };
-		48B05A58152FB72C006AF69B /* Picker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Picker.cpp; path = ../Core/Model/Picker.cpp; sourceTree = "<group>"; };
-		48B05A59152FB72C006AF69B /* Picker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Picker.h; path = ../Core/Model/Picker.h; sourceTree = "<group>"; };
 		48B05A5A152FB72C006AF69B /* Selection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Selection.cpp; path = ../Core/Model/Selection.cpp; sourceTree = "<group>"; };
 		48B05A5B152FB72C006AF69B /* Selection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Selection.h; path = ../Core/Model/Selection.h; sourceTree = "<group>"; };
 		48B05A61152FB7B3006AF69B /* Alias.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Alias.cpp; sourceTree = "<group>"; };
@@ -133,6 +136,13 @@
 		48B50E49152CFAF000E75402 /* VecMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VecMath.h; path = ../Core/Utilities/VecMath.h; sourceTree = "<group>"; };
 		48B50E4A152CFAFC00E75402 /* VecMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VecMath.cpp; path = ../Core/Utilities/VecMath.cpp; sourceTree = "<group>"; };
 		48B50E4C152D019C00E75402 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		48C9793B15306DD8003020FC /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utils.h; path = ../Core/Utilities/Utils.h; sourceTree = "<group>"; };
+		48C9793D15308EC0003020FC /* Filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Filter.cpp; path = ../Core/Utilities/Filter.cpp; sourceTree = "<group>"; };
+		48C9793E15308EC0003020FC /* Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Filter.h; path = ../Core/Utilities/Filter.h; sourceTree = "<group>"; };
+		48C979431530AB6F003020FC /* Editor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Editor.cpp; path = ../Core/Controller/Editor.cpp; sourceTree = "<group>"; };
+		48C979441530AB6F003020FC /* Editor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Editor.h; path = ../Core/Controller/Editor.h; sourceTree = "<group>"; };
+		48C979461530ADEE003020FC /* Preferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Preferences.h; path = ../Core/Model/Preferences.h; sourceTree = "<group>"; };
+		48C979471530AE96003020FC /* Preferences.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Preferences.cpp; path = ../Core/Model/Preferences.cpp; sourceTree = "<group>"; };
 		48C9A3A7152DD82A00EB804C /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = ../Gwen/lib/libfreeimage.a; sourceTree = "<group>"; };
 		48C9A3A9152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libGWEN-Renderer-OpenGL_DebugFont.a"; path = "../Gwen/lib/macosx/libGWEN-Renderer-OpenGL_DebugFont.a"; sourceTree = "<group>"; };
 		48C9A3AA152DD83800EB804C /* libGWEN-Renderer-OpenGL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libGWEN-Renderer-OpenGL.a"; path = "../Gwen/lib/macosx/libGWEN-Renderer-OpenGL.a"; sourceTree = "<group>"; };
@@ -159,11 +169,13 @@
 		48367709152F2BB400D402E3 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				4836770A152F2BEA00D402E3 /* MapInputController.h */,
-				4836770B152F2C1600D402E3 /* MapInputController.cpp */,
-				4836770D152F2C6C00D402E3 /* Tool.h */,
 				4836770F152F4B2C00D402E3 /* CameraTool.h */,
 				48367710152F4B3E00D402E3 /* CameraTool.cpp */,
+				48C979431530AB6F003020FC /* Editor.cpp */,
+				48C979441530AB6F003020FC /* Editor.h */,
+				4836770A152F2BEA00D402E3 /* InputController.h */,
+				4836770B152F2C1600D402E3 /* InputController.cpp */,
+				4836770D152F2C6C00D402E3 /* Tool.h */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -179,10 +191,10 @@
 				48B05A55152FB72C006AF69B /* Observer.h */,
 				48B05A56152FB72C006AF69B /* Octree.cpp */,
 				48B05A57152FB72C006AF69B /* Octree.h */,
-				48B05A58152FB72C006AF69B /* Picker.cpp */,
-				48B05A59152FB72C006AF69B /* Picker.h */,
 				48B05A5A152FB72C006AF69B /* Selection.cpp */,
 				48B05A5B152FB72C006AF69B /* Selection.h */,
+				48C979461530ADEE003020FC /* Preferences.h */,
+				48C979471530AE96003020FC /* Preferences.cpp */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -340,6 +352,8 @@
 			children = (
 				48B50E44152CF9B500E75402 /* MapRenderer.h */,
 				48B50E46152CF9D600E75402 /* MapRenderer.cpp */,
+				48061811153032900099EB8C /* Vbo.h */,
+				48061813153032A30099EB8C /* Vbo.cpp */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -347,6 +361,9 @@
 		48B50E48152CFA7600E75402 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				48C9793D15308EC0003020FC /* Filter.cpp */,
+				48C9793E15308EC0003020FC /* Filter.h */,
+				48C9793B15306DD8003020FC /* Utils.h */,
 				48B50E49152CFAF000E75402 /* VecMath.h */,
 				48B50E4A152CFAFC00E75402 /* VecMath.cpp */,
 			);
@@ -429,7 +446,7 @@
 				48667DB3152D961300A65C45 /* EditorGui.cpp in Sources */,
 				48979EEC152EF3F60039ABE8 /* MapRendererControl.cpp in Sources */,
 				48367703152F0DF800D402E3 /* Splitter.cpp in Sources */,
-				4836770C152F2C1600D402E3 /* MapInputController.cpp in Sources */,
+				4836770C152F2C1600D402E3 /* InputController.cpp in Sources */,
 				48367711152F4B3E00D402E3 /* CameraTool.cpp in Sources */,
 				483511A3152FB61A007B561E /* Camera.cpp in Sources */,
 				48B05A4E152FB670006AF69B /* EntityDefinitionParser.cpp in Sources */,
@@ -438,7 +455,6 @@
 				48B05A52152FB670006AF69B /* Wad.cpp in Sources */,
 				48B05A5C152FB72C006AF69B /* Observer.cpp in Sources */,
 				48B05A5D152FB72C006AF69B /* Octree.cpp in Sources */,
-				48B05A5E152FB72C006AF69B /* Picker.cpp in Sources */,
 				48B05A5F152FB72C006AF69B /* Selection.cpp in Sources */,
 				48B05A6A152FB7B3006AF69B /* Alias.cpp in Sources */,
 				48B05A6B152FB7B3006AF69B /* Bsp.cpp in Sources */,
@@ -452,6 +468,10 @@
 				48B05A84152FB84E006AF69B /* Groups.cpp in Sources */,
 				48B05A85152FB84E006AF69B /* Map.cpp in Sources */,
 				48B05A86152FB84E006AF69B /* MapObject.cpp in Sources */,
+				48061814153032A30099EB8C /* Vbo.cpp in Sources */,
+				48C9793F15308EC0003020FC /* Filter.cpp in Sources */,
+				48C979451530AB6F003020FC /* Editor.cpp in Sources */,
+				48C979481530AE96003020FC /* Preferences.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

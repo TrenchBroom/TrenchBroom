@@ -90,7 +90,7 @@ namespace TrenchBroom {
             Vec3f vector();
             Vec3f center();
             void updateMark();
-            Vertex* split(TPlane plane);
+            Vertex* split(Plane plane);
             void flip();
         };
         
@@ -118,12 +118,12 @@ namespace TrenchBroom {
             void deleteDegenerateTriangle(Side* side, Edge* edge, vector<Face*>& newFaces, vector<Face*>& droppedFaces);
             void triangulateSide(Side* side, int vertexIndex, vector<Face*>& newFaces);
             void splitSide(Side* side, int vertexIndex, vector<Face*>& newFaces);
-            void splitSides(vector<Side*>& sides, TRay ray, int vertexIndex, vector<Face*>& newFaces, vector<Face*>& droppedFaces);
+            void splitSides(vector<Side*>& sides, Ray ray, int vertexIndex, vector<Face*>& newFaces, vector<Face*>& droppedFaces);
             void mergeVertices(Vertex* keepVertex, Vertex* dropVertex, vector<Face*>& newFaces, vector<Face*>& droppedFaces);
             void mergeEdges();
             void mergeNeighbours(Side* side, int edgeIndex);
             void mergeSides(vector<Face*>& newFaces, vector<Face*>&droppedFaces);
-            float minVertexMoveDist(const vector<Side*>& sides, const Vertex* vertex, TRay ray, float maxDist);
+            float minVertexMoveDist(const vector<Side*>& sides, const Vertex* vertex, Ray ray, float maxDist);
             MoveResult moveVertex(int vertexIndex, bool mergeIncidentVertex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces);
             MoveResult splitAndMoveEdge(int index, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces);
             MoveResult splitAndMoveSide(int sideIndex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces);
@@ -147,7 +147,7 @@ namespace TrenchBroom {
             void translate(Vec3f delta);
             void rotate90CW(EAxis axis, Vec3f center);
             void rotate90CCW(EAxis axis, Vec3f center);
-            void rotate(TQuaternion rotation, Vec3f center);
+            void rotate(Quat rotation, Vec3f center);
             void flip(EAxis axis, Vec3f center);
             void snap();
             
