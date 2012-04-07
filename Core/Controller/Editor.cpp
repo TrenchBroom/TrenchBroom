@@ -20,14 +20,16 @@
 #include "Editor.h"
 #include "VecMath.h"
 #include "Preferences.h"
+#include "MapParser.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        Editor::Editor(const string& entityDefinitionFilePath) {
+        Editor::Editor(const string& entityDefinitionFilePath) : m_entityDefinitionFilePath(entityDefinitionFilePath) {
             Model::Preferences& prefs = Model::Preferences::sharedPreferences();
 
+            m_textureManager = new Model::Assets::TextureManager();
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
-            m_map = new Model::Map(worldBounds, entityDefinitionFilePath);
+            m_map = new Model::Map(worldBounds, m_entityDefinitionFilePath);
             m_camera = new Model::Camera(prefs.cameraFov(), prefs.cameraNear(), prefs.cameraFar(), 
                                          Vec3f(-32, -32, 32), XAxisPos);
             m_inputController = new InputController(*this);
@@ -37,6 +39,20 @@ namespace TrenchBroom {
             delete m_inputController;
             delete m_camera;
             delete m_map;
+            delete m_textureManager;
+        }
+        
+        void Editor::loadMap(const string& path) {
+            m_map->clear();
+            delete m_map;
+
+            ifstream stream(path.c_str());
+            BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
+            IO::MapParser parser(stream, worldBounds, *m_textureManager);
+            m_map = parser.parseMap(m_entityDefinitionFilePath);
+        }
+        
+        void Editor::saveMap(const string& path) {
         }
         
         Model::Camera& Editor::camera() {

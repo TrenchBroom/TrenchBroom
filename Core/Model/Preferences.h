@@ -26,8 +26,8 @@ namespace TrenchBroom {
     namespace Model {
         class Preferences : public Observable {
         private:
-            Preferences();
-            ~Preferences();
+            Preferences() {};
+            ~Preferences() {};
         public:
             static Preferences& sharedPreferences();
             float cameraFov();

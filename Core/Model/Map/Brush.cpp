@@ -28,6 +28,7 @@ namespace TrenchBroom {
             m_onGrid = false;
             m_filePosition = -1;
             m_selected = false;
+            m_geometry = new BrushGeometry(m_worldBounds);
         }
         
         Brush::Brush(const BBox& worldBounds) : MapObject(), m_worldBounds(worldBounds) {
@@ -41,7 +42,6 @@ namespace TrenchBroom {
         
         Brush::Brush(const BBox& worldBounds, const BBox& brushBounds, Assets::Texture& texture) : MapObject(), m_worldBounds(worldBounds) {
             init();
-            m_geometry = new BrushGeometry(m_worldBounds);
             
             Vec3f p1, p2, p3;
             

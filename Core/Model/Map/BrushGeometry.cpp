@@ -65,6 +65,8 @@ namespace TrenchBroom {
             else if (end->mark == VM_DROP) drop++;
             else if (end->mark == VM_UNDECIDED) undecided++;
             
+            assert(keep + drop + undecided == 2);
+            
             if (keep == 1 && drop == 1) mark = EM_SPLIT;
             else if (keep > 0) mark = EM_KEEP;
             else if (drop > 0) mark = EM_DROP;
@@ -102,32 +104,29 @@ namespace TrenchBroom {
             end = tempVertex;
         }
         
-        Side::Side(Edge* edges[], bool invert[], int count) {
+        Side::Side(Edge* newEdges[], bool invert[], int count) : mark(SM_NEW), face(NULL) {
             for (int i = 0; i < count; i++) {
-                this->edges.push_back(edges[i]);
+                Edge* edge = newEdges[i];
+                this->edges.push_back(edge);
                 if (invert[i]) {
-                    edges[i]->left = this;
-                    vertices.push_back(edges[i]->end);
+                    edge->left = this;
+                    vertices.push_back(edge->end);
                 } else {
-                    edges[i]->right = this;
-                    vertices.push_back(edges[i]->start);
+                    edge->right = this;
+                    vertices.push_back(edge->start);
                 }
             }
-            
-            face = NULL;
-            mark = SM_NEW;
         }
         
-        Side::Side(Face& face, vector<Edge*>& edges) {
-            for (int i = 0; i < edges.size(); i++) {
-                edges[i]->left = this;
-                edges.push_back(edges[i]);
-                vertices.push_back(edges[i]->startVertex(this));
+        Side::Side(Face& face, vector<Edge*>& newEdges) : mark(SM_NEW), face(&face) {
+            for (int i = 0; i < newEdges.size(); i++) {
+                Edge* edge = newEdges[i];
+                edge->left = this;
+                edges.push_back(edge);
+                vertices.push_back(edge->startVertex(this));
             }
             
-            this->face = &face;
             this->face->setSide(this);
-            mark = SM_NEW;
         }
         
         void Side::replaceEdges(int index1, int index2, Edge* edge) {
@@ -170,6 +169,8 @@ namespace TrenchBroom {
             
             int splitIndex1 = -2;
             int splitIndex2 = -2;
+            
+            assert(!edges.empty());
             
             Edge* edge = edges.back();
             EEdgeMark lastMark = edge->mark;
@@ -1080,7 +1081,7 @@ namespace TrenchBroom {
             // mark, split and drop sides
             vector<Edge*> newEdges;
             vector<Side*>::iterator sideIt;
-            for (sideIt = sides.begin(); sideIt != sides.end(); sideIt++) {
+            for (sideIt = sides.begin(); sideIt != sides.end(); ++sideIt) {
                 Side* side = *sideIt;
                 Edge* newEdge = side->split();
                 
@@ -1091,7 +1092,7 @@ namespace TrenchBroom {
                         face->setSide(NULL);
                     }
                     delete side;
-                    sideIt = sides.erase(sideIt);
+                    sideIt = --sides.erase(sideIt);
                 } else if (side->mark == SM_SPLIT) {
                     edges.push_back(newEdge);
                     newEdges.push_back(newEdge);
@@ -1127,11 +1128,11 @@ namespace TrenchBroom {
             // clean up
             // delete dropped vertices
             vector<Vertex*>::iterator vertexIt;
-            for (vertexIt = vertices.begin(); vertexIt != vertices.end(); vertexIt++) {
+            for (vertexIt = vertices.begin(); vertexIt != vertices.end(); ++vertexIt) {
                 Vertex* vertex = *vertexIt;
                 if (vertex->mark == VM_DROP) {
                     delete vertex;
-                    vertexIt = vertices.erase(vertexIt);
+                    vertexIt = --vertices.erase(vertexIt);
                 } else {
                     vertex->mark = VM_UNDECIDED;
                 }
@@ -1143,7 +1144,7 @@ namespace TrenchBroom {
                 Edge* edge = *edgeIt;
                 if (edge->mark == EM_DROP) {
                     delete edge;
-                    edgeIt = edges.erase(edgeIt);
+                    edgeIt = --edges.erase(edgeIt);
                 } else {
                     edge->mark = EM_UNDECIDED;
                 }

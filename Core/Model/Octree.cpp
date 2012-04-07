@@ -94,10 +94,15 @@ namespace TrenchBroom {
             return m_children[childIndex]->addObject(object);
         }
         
-        OctreeNode::OctreeNode(const BBox& bounds, int minSize) : m_bounds(bounds), m_minSize(minSize) {}
+        OctreeNode::OctreeNode(const BBox& bounds, int minSize) : m_bounds(bounds), m_minSize(minSize) {
+            for (int i = 0; i < 8; i++)
+                m_children[i] = NULL;
+        }
         
         OctreeNode::~OctreeNode() {
-            for (int i = 0; i < 8; i++) if (m_children != NULL) delete m_children[i];
+            for (int i = 0; i < 8; i++)
+                if (m_children != NULL)
+                    delete m_children[i];
         }
         
         bool OctreeNode::addObject(MapObject& object) {

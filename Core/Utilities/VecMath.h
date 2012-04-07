@@ -344,7 +344,7 @@ public:
     bool setPoints(const Vec3f& point1, const Vec3f& point2, const Vec3f& point3);
     const Vec3f anchor() const;
     float intersectWithRay(const Ray& ray) const;
-    float intersectWithLine(const Line& line) const;
+    float intersectWithLine(const class Line& line) const;
     EPointStatus pointStatus(const Vec3f& point) const;
     float x(float y, float z) const;
     float y(float x, float z) const;

@@ -24,14 +24,19 @@
 #import <OpenGL/glu.h>
 #import <math.h>
 #import "Gwen/InputHandler.h"
+#import "Editor.h"
+#import "Document.h"
 
 using namespace TrenchBroom;
 using namespace TrenchBroom::Gui;
+using namespace TrenchBroom::Controller;
 
 @interface DocumentView (Private)
 - (void)renderTimerFired:(NSNotification*)theNotification;
 - (void)key:(NSEvent*)theEvent down:(BOOL)down;
 - (void)key:(NSEvent*)theEvent mask:(NSUInteger)theMask gwenKey:(int)theGwenKey;
+- (Editor*)editor;
+- (EditorGui*)editorGui;
 @end
 
 @implementation DocumentView (Private)
@@ -43,47 +48,47 @@ using namespace TrenchBroom::Gui;
     if (editorGui == NULL) return;
     switch ([theEvent keyCode]) {
         case 36:
-            ((EditorGui *)editorGui)->canvas()->InputKey(Gwen::Key::Return, down);
+            [self editorGui]->canvas()->InputKey(Gwen::Key::Return, down);
             break;
         case 51:
-            ((EditorGui *)editorGui)->canvas()->InputKey(Gwen::Key::Backspace, down);
+            [self editorGui]->canvas()->InputKey(Gwen::Key::Backspace, down);
             break;
         case 117:
-            ((EditorGui *)editorGui)->canvas()->InputKey(Gwen::Key::Delete, down);
+            [self editorGui]->canvas()->InputKey(Gwen::Key::Delete, down);
             break;
         case 123:
-            ((EditorGui *)editorGui)->canvas()->InputKey(Gwen::Key::Left, down);
+            [self editorGui]->canvas()->InputKey(Gwen::Key::Left, down);
             break;
         case 124:
-            ((EditorGui *)editorGui)->canvas()->InputKey(Gwen::Key::Right, down);
+            [self editorGui]->canvas()->InputKey(Gwen::Key::Right, down);
             break;
         case 48:
-            ((EditorGui *)editorGui)->canvas()->InputKey(Gwen::Key::Tab, down);
+            [self editorGui]->canvas()->InputKey(Gwen::Key::Tab, down);
             break;
         case 49:
-            ((EditorGui *)editorGui)->canvas()->InputKey(Gwen::Key::Space, down);
+            [self editorGui]->canvas()->InputKey(Gwen::Key::Space, down);
             break;
         case 115:
-            ((EditorGui *)editorGui)->canvas()->InputKey(Gwen::Key::Home, down);
+            [self editorGui]->canvas()->InputKey(Gwen::Key::Home, down);
             break;
         case 119:
-            ((EditorGui *)editorGui)->canvas()->InputKey(Gwen::Key::End, down);
+            [self editorGui]->canvas()->InputKey(Gwen::Key::End, down);
             break;
         case 126:
-            ((EditorGui *)editorGui)->canvas()->InputKey(Gwen::Key::Up, down);
+            [self editorGui]->canvas()->InputKey(Gwen::Key::Up, down);
             break;
         case 125:
-            ((EditorGui *)editorGui)->canvas()->InputKey(Gwen::Key::Down, down);
+            [self editorGui]->canvas()->InputKey(Gwen::Key::Down, down);
             break;
         case 53:
-            ((EditorGui *)editorGui)->canvas()->InputKey(Gwen::Key::Escape, down);
+            [self editorGui]->canvas()->InputKey(Gwen::Key::Escape, down);
             break;
         default:
             // http://stackoverflow.com/questions/891594/nsstring-to-wchar-t
             if (down) {
                 const char* utf16 = [[theEvent characters] cStringUsingEncoding:NSUTF16LittleEndianStringEncoding];
                 wchar_t c = *utf16;
-                ((EditorGui *)editorGui)->canvas()->InputCharacter(c);
+                [self editorGui]->canvas()->InputCharacter(c);
             }
             break;
     }
@@ -92,9 +97,21 @@ using namespace TrenchBroom::Gui;
 - (void)key:(NSEvent*)theEvent mask:(NSUInteger)theMask gwenKey:(int)theGwenKey; {
     if ((flags & theMask) != ([theEvent modifierFlags] & theMask)) {
         BOOL down = ([theEvent modifierFlags] & theMask) == theMask;
-        ((EditorGui *)editorGui)->canvas()->InputKey(theGwenKey, down);
+        [self editorGui]->canvas()->InputKey(theGwenKey, down);
     }
 }
+
+- (Editor*)editor {
+    NSWindow* window = [self window];
+    NSWindowController* controller = [window windowController];
+    Document* document = [controller document];
+    return (Editor*)[document editor];
+}
+
+- (EditorGui*)editorGui {
+    return (EditorGui*)editorGui;
+}
+
 @end
 
 @implementation DocumentView
@@ -122,7 +139,7 @@ using namespace TrenchBroom::Gui;
     if (editorGui == NULL) {
         NSString* skinPath = [[NSBundle mainBundle] pathForResource:@"DefaultSkin" ofType:@"png"];
         string skinPathCpp([skinPath cStringUsingEncoding:NSASCIIStringEncoding]);
-        editorGui = new EditorGui(skinPathCpp);
+        editorGui = new EditorGui(*[self editor], skinPathCpp);
     }
 
     NSRect viewport = [self visibleRect];
@@ -136,8 +153,8 @@ using namespace TrenchBroom::Gui;
     glLoadIdentity();
     glViewport(NSMinX(viewport), NSMinY(viewport), NSWidth(viewport), NSHeight(viewport));
     
-    ((EditorGui *)editorGui)->resizeTo(NSWidth(viewport), NSHeight(viewport));
-    ((EditorGui *)editorGui)->render();
+    [self editorGui]->resizeTo(NSWidth(viewport), NSHeight(viewport));
+    [self editorGui]->render();
     
     [[self openGLContext] flushBuffer];
 }
@@ -165,16 +182,16 @@ using namespace TrenchBroom::Gui;
         float delta = [theEvent deltaX];
         if (delta == 0) delta = [theEvent deltaY];
         if (delta == 0) delta = [theEvent deltaZ];
-        ((EditorGui *)editorGui)->canvas()->InputMouseWheel(delta);
+        [self editorGui]->canvas()->InputMouseWheel(delta);
     }
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
-    if (editorGui != NULL) ((EditorGui *)editorGui)->canvas()->InputMouseButton(0, true);
+    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseButton(0, true);
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
-    if (editorGui != NULL) ((EditorGui *)editorGui)->canvas()->InputMouseButton(0, false);
+    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseButton(0, false);
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
@@ -182,11 +199,11 @@ using namespace TrenchBroom::Gui;
 }
 
 - (void)rightMouseDown:(NSEvent *)theEvent {
-    if (editorGui != NULL) ((EditorGui *)editorGui)->canvas()->InputMouseButton(1, true);
+    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseButton(1, true);
 }
 
 - (void)rightMouseUp:(NSEvent *)theEvent {
-    if (editorGui != NULL) ((EditorGui *)editorGui)->canvas()->InputMouseButton(1, false);
+    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseButton(1, false);
 }
 
 - (void)rightMouseDragged:(NSEvent *)theEvent {
@@ -194,11 +211,11 @@ using namespace TrenchBroom::Gui;
 }
 
 - (void)otherMouseDown:(NSEvent *)theEvent {
-    if (editorGui != NULL) ((EditorGui *)editorGui)->canvas()->InputMouseButton(2, true);
+    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseButton(2, true);
 }
 
 - (void)otherMouseUp:(NSEvent *)theEvent {
-    if (editorGui != NULL) ((EditorGui *)editorGui)->canvas()->InputMouseButton(2, false);
+    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseButton(2, false);
 }
 
 - (void)otherMouseDragged:(NSEvent *)theEvent {
@@ -207,7 +224,7 @@ using namespace TrenchBroom::Gui;
 
 - (void)mouseMoved:(NSEvent *)theEvent {
     NSPoint pos = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-    if (editorGui != NULL) ((EditorGui *)editorGui)->canvas()->InputMouseMoved(pos.x, pos.y, theEvent.deltaX, theEvent.deltaY);
+    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseMoved(pos.x, pos.y, theEvent.deltaX, theEvent.deltaY);
 }
 
 @end

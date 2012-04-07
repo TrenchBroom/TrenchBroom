@@ -40,6 +40,9 @@ namespace TrenchBroom {
             delete m_groupManager;
         }
         
+        void Map::save(const string& path) {
+        }
+
         void Map::clear() {
             m_selection->removeAll();
             unloadPointFile();

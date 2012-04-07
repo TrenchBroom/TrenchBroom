@@ -23,6 +23,8 @@
 #include "Camera.h"
 #include "InputController.h"
 #include "Map.h"
+#include "Texture.h"
+#include <string>
 
 namespace TrenchBroom {
     namespace Controller {
@@ -32,9 +34,14 @@ namespace TrenchBroom {
             Model::Map* m_map;
             Model::Camera* m_camera;
             InputController* m_inputController;
+            Model::Assets::TextureManager* m_textureManager;
+            string m_entityDefinitionFilePath;
         public:
             Editor(const string& entityDefinitionFilePath);
             ~Editor();
+            
+            void loadMap(const string& path);
+            void saveMap(const string& path);
             
             Model::Camera& camera();
             InputController& inputController();

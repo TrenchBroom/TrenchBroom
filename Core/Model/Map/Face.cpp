@@ -207,15 +207,12 @@ namespace TrenchBroom {
             m_texAxesValid = false;
         }
         
-        Face::Face(const BBox& worldBounds) : m_worldBounds(worldBounds) {
-            init();
-        }
-        
         Face::Face(const BBox& worldBounds, Vec3f point1, Vec3f point2, Vec3f point3) : m_worldBounds(worldBounds) {
             init();
             m_points[0] = point1;
             m_points[1] = point2;
-            m_points[3] = point3;
+            m_points[2] = point3;
+            m_boundary.setPoints(m_points[0], m_points[1], m_points[2]);
         }
         
         Face::Face(const BBox& worldBounds, const Face& faceTemplate) : m_worldBounds(worldBounds) {

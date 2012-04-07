@@ -103,8 +103,8 @@ namespace TrenchBroom {
             ESideMark mark;
             
             Side() : mark(SM_NEW) {}
-            Side(Edge* edges[], bool invert[], int count);
-            Side(Face& face, vector<Edge*>& edges);
+            Side(Edge* newEdges[], bool invert[], int count);
+            Side(Face& face, vector<Edge*>& newEdges);
             
             void replaceEdges(int index1, int index2, Edge* edge);
             Edge* split();

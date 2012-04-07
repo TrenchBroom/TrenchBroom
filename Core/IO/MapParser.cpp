@@ -64,7 +64,7 @@ namespace TrenchBroom {
             return &m_token;
         }
         
-        MapTokenizer::MapTokenizer(istream& stream) : m_stream(stream) {
+        MapTokenizer::MapTokenizer(istream& stream) : m_stream(stream), m_state(TS_DEF), m_line(1), m_column(1) {
         }
         
         MapToken* MapTokenizer::next() {
@@ -245,6 +245,11 @@ namespace TrenchBroom {
             m_size = (int)stream.tellg();
             m_size -= cur;
             stream.seekg(cur, ios::beg);
+            m_tokenizer = new MapTokenizer(stream);
+        }
+        
+        MapParser::~MapParser() {
+            delete m_tokenizer;
         }
         
         Map* MapParser::parseMap(const string& entityDefinitionFilePath) {
@@ -257,11 +262,13 @@ namespace TrenchBroom {
         }
         
         Entity* MapParser::parseEntity() {
-            MapToken* token;
-            Entity* entity = NULL;
+            MapToken* token = nextToken();
+            if (token == NULL) return NULL;
             
-            expect(TT_CB_O, token);
-            entity = new Entity();
+            expect(TT_CB_O | TT_CB_C, token);
+            if (token->type == TT_CB_C) return NULL;
+            
+            Entity* entity = new Entity();
             entity->setFilePosition(token->line);
             
             while ((token = nextToken()) != NULL) {
@@ -284,7 +291,7 @@ namespace TrenchBroom {
                         return entity;
                     }
                     default:
-                        fprintf(stdout, "Warning: Unexpected token type %i at line %i", token->type, token->line);
+                        fprintf(stdout, "Warning: Unexpected token type %i at line %i\n", token->type, token->line);
                         return NULL;
                 }
             }
@@ -294,7 +301,12 @@ namespace TrenchBroom {
         
         Brush* MapParser::parseBrush() {
             MapToken* token;
-            Brush* brush = NULL;
+
+            expect(TT_CB_O | TT_CB_C, token = nextToken());
+            if (token->type == TT_CB_C) return NULL;
+            
+            Brush* brush = new Brush(m_worldBounds);
+            brush->setFilePosition(token->line);
             
             while ((token = nextToken()) != NULL) {
                 switch (token->type) {
@@ -307,7 +319,7 @@ namespace TrenchBroom {
                     case TT_CB_C:
                         return brush;
                     default:
-                        fprintf(stdout, "Warning: Unexpected token type %i at line %i", token->type, token->line);
+                        fprintf(stdout, "Warning: Unexpected token type %i at line %i\n", token->type, token->line);
                         return NULL;
                 }
             }
@@ -326,16 +338,16 @@ namespace TrenchBroom {
             p1.y = atoi(token->data.c_str());
             expect(TT_DEC | TT_FRAC, token = nextToken());
             p1.z = atoi(token->data.c_str());
-            expect(TT_B_O, token = nextToken());
             expect(TT_B_C, token = nextToken());
+            expect(TT_B_O, token = nextToken());
             expect(TT_DEC | TT_FRAC, token = nextToken());
             p2.x = atoi(token->data.c_str());
             expect(TT_DEC | TT_FRAC, token = nextToken());
             p2.y = atoi(token->data.c_str());
             expect(TT_DEC | TT_FRAC, token = nextToken());
             p2.z = atoi(token->data.c_str());
-            expect(TT_B_O, token = nextToken());
             expect(TT_B_C, token = nextToken());
+            expect(TT_B_O, token = nextToken());
             expect(TT_DEC | TT_FRAC, token = nextToken());
             p3.x = atoi(token->data.c_str());
             expect(TT_DEC | TT_FRAC, token = nextToken());

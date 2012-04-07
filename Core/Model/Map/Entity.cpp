@@ -184,7 +184,7 @@ namespace TrenchBroom {
         }
         
         void Entity::setProperty(const string& key, const string* value) {
-            if (key == ClassnameKey) {
+            if (key == ClassnameKey && classname() != NULL) {
                 fprintf(stdout, "Warning: Cannot overwrite classname property");
                 return;
             } else if (key == OriginKey) {
@@ -192,7 +192,7 @@ namespace TrenchBroom {
                     fprintf(stdout, "Warning: Cannot set origin to NULL");
                     return;
                 }
-                setProperty(key, Vec3f(*value), true);
+                m_origin = Vec3f(*value);
             } else if (key == AngleKey) {
                 if (value != NULL) m_angle = strtof(value->c_str(), NULL);
                 else m_angle = NAN;

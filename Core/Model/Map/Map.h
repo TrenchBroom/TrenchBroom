@@ -71,6 +71,9 @@ namespace TrenchBroom {
         public:
             Map(const BBox& worldBounds, const string& entityDefinitionFilePath);
             ~Map();
+            
+# pragma mark Saving and Clearing
+            void save(const string& path);
             void clear();
             
 # pragma mark Point File Support

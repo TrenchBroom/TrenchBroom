@@ -68,7 +68,6 @@ namespace TrenchBroom {
             void validateTexAxes(const Vec3f& faceNormal);
             void compensateTransformation(const Mat4f& transformation);
         public:
-            Face(const BBox& worldBounds);
             Face(const BBox& worldBounds, Vec3f point1, Vec3f point2, Vec3f point3);
             Face(const BBox& worldBounds, const Face& faceTemplate);
             ~Face();
