@@ -51,9 +51,9 @@ namespace TrenchBroom {
             return c;
         }
         
-        MapToken* MapTokenizer::token(ETokenType type, string* data, int line, int column) {
+        MapToken* MapTokenizer::token(ETokenType type, char* data, int index, int line, int column) {
             m_token.type = type;
-            if (data != NULL) m_token.data = *data;
+            if (data != NULL) m_token.data = string(data, index);
             else m_token.data.clear();
             m_token.line = line;
             m_token.column = column;
@@ -78,7 +78,7 @@ namespace TrenchBroom {
                                 char d = peekChar();
                                 if (d == '/') {
                                     m_state = TS_COM;
-                                    m_buffer.clear();
+                                    m_bufferIndex = 0;
                                     m_startLine = m_line;
                                     m_startColumn = m_column;
                                     nextChar();
@@ -91,20 +91,20 @@ namespace TrenchBroom {
                             case ' ':
                                 break; // ignore whitespace in boundaries
                             case '{':
-                                return token(TT_CB_O, NULL, m_line, m_column);
+                                return token(TT_CB_O, NULL, 0, m_line, m_column);
                             case '}':
-                                return token(TT_CB_C, NULL, m_line, m_column);
+                                return token(TT_CB_C, NULL, 0, m_line, m_column);
                             case '(':
-                                return token(TT_B_O, NULL, m_line, m_column);
+                                return token(TT_B_O, NULL, 0, m_line, m_column);
                             case ')':
-                                return token(TT_B_C, NULL, m_line, m_column);
+                                return token(TT_B_C, NULL, 0, m_line, m_column);
                             case '[':
-                                return token(TT_SB_O, NULL, m_line, m_column);
+                                return token(TT_SB_O, NULL, 0, m_line, m_column);
                             case ']':
-                                return token(TT_CB_C, NULL, m_line, m_column);
+                                return token(TT_CB_C, NULL, 0, m_line, m_column);
                             case '"':
                                 m_state = TS_Q_STR;
-                                m_buffer.clear();
+                                m_bufferIndex = 0;
                                 m_startLine = m_line;
                                 m_startColumn = m_column;
                                 break;
@@ -120,15 +120,15 @@ namespace TrenchBroom {
                             case '8':
                             case '9':
                                 m_state = TS_DEC;
-                                m_buffer.clear();
-                                m_buffer += c;
+                                m_bufferIndex = 0;
+                                m_buffer[m_bufferIndex++] = c;
                                 m_startLine = m_line;
                                 m_startColumn = m_column;
                                 break;
                             default:
                                 m_state = TS_STR;
-                                m_buffer.clear();
-                                m_buffer += c;
+                                m_bufferIndex = 0;
+                                m_buffer[m_bufferIndex++] = c;
                                 m_startLine = m_line;
                                 m_startColumn = m_column;
                                 break;
@@ -137,13 +137,13 @@ namespace TrenchBroom {
                     case TS_Q_STR:
                         switch (c) {
                             case '"': {
-                                MapToken* tok = token(TT_STR, &m_buffer, m_startLine, m_startColumn);
-                                m_buffer.clear();
+                                MapToken* tok = token(TT_STR, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
+                                m_bufferIndex = 0;
                                 m_state = TS_DEF;
                                 return tok;
                             }
                             default:
-                                m_buffer += c;
+                                m_buffer[m_bufferIndex++] = c;
                                 break;
                         }
                         break;
@@ -157,13 +157,13 @@ namespace TrenchBroom {
                             case '\n':
                             case '\t':
                             case ' ': {
-                                MapToken* tok = token(TT_STR, &m_buffer, m_startLine, m_startColumn);
-                                m_buffer.clear();
+                                MapToken* tok = token(TT_STR, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
+                                m_bufferIndex = 0;
                                 m_state = comment ? TS_COM : TS_DEF;
                                 return tok;
                             }
                             default:
-                                m_buffer += c;
+                                m_buffer[m_bufferIndex++] = c;
                                 break;
                         }
                         break;
@@ -180,16 +180,16 @@ namespace TrenchBroom {
                             case '\t':
                             case ' ': {
                                 MapToken* tok;
-                                if (m_state == TS_DEC) tok = token(TT_DEC, &m_buffer, m_startLine, m_startColumn);
-                                else tok = token(TT_FRAC, &m_buffer, m_startLine, m_startColumn);
-                                m_buffer.clear();
+                                if (m_state == TS_DEC) tok = token(TT_DEC, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
+                                else tok = token(TT_FRAC, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
+                                m_bufferIndex = 0;
                                 m_state = comment ? TS_COM : TS_DEF;
                                 return tok;
                             }
                             default:
                                 if ((c < '0' || c > '9') && (c != '.'))
                                     m_state = TS_STR;
-                                m_buffer += c;
+                                m_buffer[m_bufferIndex++] = c;
                                 break;
                         }
                         break;
@@ -198,13 +198,13 @@ namespace TrenchBroom {
                         switch (c) {
                             case '\r':
                             case '\n': {
-                                MapToken* tok = token(TT_COM, &m_buffer, m_startLine, m_startColumn);
-                                m_buffer.clear();
+                                MapToken* tok = token(TT_COM, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
+                                m_bufferIndex = 0;
                                 m_state = TS_DEF;
                                 return tok;
                             }
                             default:
-                                m_buffer += c;
+                                m_buffer[m_bufferIndex++] = c;
                                 break;
                         }
                         break;

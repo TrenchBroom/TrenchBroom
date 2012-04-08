@@ -22,6 +22,7 @@
 
 #include <string>
 #include <istream>
+#include <sstream>
 #include "Map.h"
 #include "Entity.h"
 #include "Brush.h"
@@ -80,16 +81,17 @@ namespace TrenchBroom {
         class MapTokenizer {
             vector<char> m_chars;
             int m_index;
+            char m_buffer[1024];
+            int m_bufferIndex;
             ETokenizerState m_state;
             int m_line;
             int m_column;
             int m_startLine;
             int m_startColumn;
-            string m_buffer;
             MapToken m_token;
             char nextChar();
             char peekChar();
-            MapToken* token(ETokenType type, string* data, int line, int column);
+            MapToken* token(ETokenType type, char* data, int index, int line, int column);
         public:
             MapTokenizer(istream& stream);
             MapToken* next();

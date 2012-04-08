@@ -105,6 +105,8 @@ namespace TrenchBroom {
         }
         
         Side::Side(Edge* newEdges[], bool invert[], int count) : mark(SM_NEW), face(NULL) {
+            vertices.reserve(count);
+            edges.reserve(count);
             for (int i = 0; i < count; i++) {
                 Edge* edge = newEdges[i];
                 this->edges.push_back(edge);
@@ -119,6 +121,8 @@ namespace TrenchBroom {
         }
         
         Side::Side(Face& face, vector<Edge*>& newEdges) : mark(SM_NEW), face(&face) {
+            vertices.reserve(newEdges.size());
+            edges.reserve(newEdges.size());
             for (int i = 0; i < newEdges.size(); i++) {
                 Edge* edge = newEdges[i];
                 edge->left = this;
@@ -130,34 +134,19 @@ namespace TrenchBroom {
         }
         
         void Side::replaceEdges(int index1, int index2, Edge* edge) {
-            vector<Edge*> newEdges;
-            vector<Vertex*> newVertices;
-            
             if (index2 > index1) {
-                for (int i = 0; i <= index1; i++) {
-                    newEdges.push_back(edges[i]);
-                    newVertices.push_back(edges[i]->startVertex(this));
-                }
-                
-                newEdges.push_back(edge);
-                newVertices.push_back(edge->startVertex(this));
-                
-                for (int i = index2; i < edges.size(); i++) {
-                    newEdges.push_back(edges[i]);
-                    newVertices.push_back(edges[i]->startVertex(this));
-                }
+                vertices.erase(vertices.begin() + index1 + 1, vertices.begin() + index2);
+                edges.erase(edges.begin() + index1 + 1, edges.begin() + index2);
+                vertices.insert(vertices.begin() + index1 + 1, edge->startVertex(this));
+                edges.insert(edges.begin() + index1 + 1, edge);
             } else {
-                for (int i = index2; i <= index1; i++) {
-                    newEdges.push_back(edges[i]);
-                    newVertices.push_back(edges[i]->startVertex(this));
-                }
-                
-                newEdges.push_back(edge);
-                newVertices.push_back(edge->startVertex(this));
+                vertices.erase(vertices.begin() + index1 + 1, vertices.end());
+                vertices.erase(vertices.begin(), vertices.begin() + index2);
+                edges.erase(edges.begin() + index1 + 1, edges.end());
+                edges.erase(edges.begin(), edges.begin() + index2);
+                vertices.push_back(edge->startVertex(this));
+                edges.push_back(edge);
             }
-            
-            edges = newEdges;
-            vertices = newVertices;
         }
         
         Edge* Side::split() {
