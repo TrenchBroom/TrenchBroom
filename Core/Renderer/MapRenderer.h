@@ -21,6 +21,9 @@
 #define TrenchBroom_MapRenderer_h
 
 #include "VecMath.h"
+#include "Vbo.h"
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -33,6 +36,10 @@ namespace TrenchBroom {
         };
         
         class MapRenderer {
+        private:
+            Vbo* faceVbo;
+            map<int, vector<unsigned char> > m_faceIndexBuffers;
+            vector<unsigned char> m_edgeIndexBuffer;
         public:
             void render(RenderContext& context);
         };

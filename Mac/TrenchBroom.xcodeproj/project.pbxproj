@@ -51,6 +51,7 @@
 		48C979451530AB6F003020FC /* Editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C979431530AB6F003020FC /* Editor.cpp */; };
 		48C979481530AE96003020FC /* Preferences.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C979471530AE96003020FC /* Preferences.cpp */; };
 		48C9794E1530CB72003020FC /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794D1530CB72003020FC /* quake.def */; };
+		48C97950153174B9003020FC /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794F153174B9003020FC /* QuakePalette.lmp */; };
 		48C9A3A8152DD82A00EB804C /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3A7152DD82A00EB804C /* libfreeimage.a */; };
 		48C9A3AC152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3A9152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a */; };
 		48C9A3AD152DD83800EB804C /* libGWEN-Renderer-OpenGL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3AA152DD83800EB804C /* libGWEN-Renderer-OpenGL.a */; };
@@ -145,6 +146,7 @@
 		48C979461530ADEE003020FC /* Preferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Preferences.h; path = ../Core/Model/Preferences.h; sourceTree = "<group>"; };
 		48C979471530AE96003020FC /* Preferences.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Preferences.cpp; path = ../Core/Model/Preferences.cpp; sourceTree = "<group>"; };
 		48C9794D1530CB72003020FC /* quake.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = quake.def; path = ../../Resources/Defs/quake.def; sourceTree = "<group>"; };
+		48C9794F153174B9003020FC /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
 		48C9A3A7152DD82A00EB804C /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = ../Gwen/lib/libfreeimage.a; sourceTree = "<group>"; };
 		48C9A3A9152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libGWEN-Renderer-OpenGL_DebugFont.a"; path = "../Gwen/lib/macosx/libGWEN-Renderer-OpenGL_DebugFont.a"; sourceTree = "<group>"; };
 		48C9A3AA152DD83800EB804C /* libGWEN-Renderer-OpenGL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libGWEN-Renderer-OpenGL.a"; path = "../Gwen/lib/macosx/libGWEN-Renderer-OpenGL.a"; sourceTree = "<group>"; };
@@ -326,6 +328,7 @@
 		48B50E19152CF6E400E75402 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				48C9794F153174B9003020FC /* QuakePalette.lmp */,
 				48C9794D1530CB72003020FC /* quake.def */,
 				48B50E1A152CF6E400E75402 /* TrenchBroom-Info.plist */,
 				48B50E1B152CF6E400E75402 /* InfoPlist.strings */,
@@ -431,6 +434,7 @@
 				48B50E37152CF79000E75402 /* Icon.icns in Resources */,
 				48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */,
 				48C9794E1530CB72003020FC /* quake.def in Resources */,
+				48C97950153174B9003020FC /* QuakePalette.lmp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

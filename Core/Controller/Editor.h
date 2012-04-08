@@ -35,9 +35,10 @@ namespace TrenchBroom {
             Model::Camera* m_camera;
             InputController* m_inputController;
             Model::Assets::TextureManager* m_textureManager;
+            Model::Assets::Palette* m_palette;
             string m_entityDefinitionFilePath;
         public:
-            Editor(const string& entityDefinitionFilePath);
+            Editor(const string& entityDefinitionFilePath, const string& palettePath);
             ~Editor();
             
             void loadMap(const string& path);

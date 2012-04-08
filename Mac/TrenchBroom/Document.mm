@@ -32,7 +32,9 @@ using namespace TrenchBroom::Controller;
         NSBundle* mainBundle = [NSBundle mainBundle];
         NSString* definitionPath = [mainBundle pathForResource:@"quake" ofType:@"def"];
         const char* definitionPathC = [definitionPath cStringUsingEncoding:NSASCIIStringEncoding];
-        editor = new Editor(definitionPathC);
+        NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
+        const char* palettePathC = [palettePath cStringUsingEncoding:NSASCIIStringEncoding];
+        editor = new Editor(definitionPathC, palettePathC);
     }
     return self;
 }

@@ -44,6 +44,7 @@ namespace TrenchBroom {
         static string const AngleKey            = "angle";
         static string const MessageKey          = "message";
         static string const ModsKey             = "__tb_mods";
+        static string const WadKey              = "wads";
         
         class Map;
         class Brush;
