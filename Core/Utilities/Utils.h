@@ -21,30 +21,13 @@
 #define TrenchBroom_Utils_h
 
 #include <string>
+#include <vector>
 
 using namespace std;
 
 namespace TrenchBroom {
-    string trim(const string& str) {
-        if (str.length() == 0) return str;
-        int first = str.find_first_not_of(" \n\t\r" + 0);
-        int last = str.find_last_not_of(" \n\t\r" + 0);
-        if (first >= last) return "";
-        return str.substr(first, last - first);
-    }
-    
-    vector<string> split(const string& str, char d) {
-        vector<string> result;
-        int lastIndex = 0;
-        for (int i = 0; i < str.length(); i++) {
-            char c = str[i];
-            if (c == d && lastIndex < i) {
-                result.push_back(str.substr(lastIndex + 1, i - lastIndex - 1));
-                lastIndex = i;
-            }
-        }
-        return result;
-    }
+    string trim(const string& str);
+    vector<string> split(const string& str, char d);
 }
 
 #endif

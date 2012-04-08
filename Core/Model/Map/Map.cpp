@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Map::Map(const BBox& worldBounds, const string& entityDefinitionFilePath) : Observable(), m_worldBounds(worldBounds) {
+        Map::Map(const BBox& worldBounds, const string& entityDefinitionFilePath) : Observable(), m_worldBounds(worldBounds), m_worldspawn(NULL) {
             m_octree = new Octree(*this, 256);
             m_selection = new Selection();
             m_entityDefinitionManager = EntityDefinitionManager::sharedManager(entityDefinitionFilePath);
