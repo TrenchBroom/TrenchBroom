@@ -41,7 +41,11 @@ namespace TrenchBroom {
             EDP_DEFAULT,
             EDP_BASE
         } EPropertyType;
-        
+
+        class EntityDefinition;
+        bool compareByName(const EntityDefinition* def1, const EntityDefinition* def2);
+        bool compareByUsage(const EntityDefinition* def1, const EntityDefinition* def2);
+
         class Property {
         public:
             EPropertyType type;
