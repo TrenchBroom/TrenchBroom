@@ -141,8 +141,8 @@ namespace TrenchBroom {
                 for (int i = 0; i < m_collections.size(); i++) {
                     TextureCollection* collection = m_collections[i];
                     for (int j = 0; j < collection->textures.size(); j++) {
-                        Texture* texture = collection->textures[i];
-                        m_textures[texture->name] = texture;
+                        Texture* texture = collection->textures[j];
+                        m_textures.insert(pair<string, Texture*>(texture->name, texture));
                     }
                 }
             }

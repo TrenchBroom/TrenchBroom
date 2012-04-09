@@ -34,42 +34,60 @@ namespace TrenchBroom {
         
         VboBlock::VboBlock(Vbo& vbo, int address, int capacity) : m_vbo(vbo), address(address), capacity(capacity), free(true), previous(NULL), next(NULL) {}
 
-        int VboBlock::writeBuffer(const unsigned char* buffer, int address, int length) {
-            memcpy(m_vbo.m_buffer + address, buffer, length);
-            return address + length;
+        int VboBlock::writeBuffer(const unsigned char* buffer, int offset, int length) {
+            assert(offset >= 0 && offset + length <= capacity);
+            memcpy(m_vbo.m_buffer + address + offset, buffer, length);
+            return offset + length;
         }
         
-        int VboBlock::writeByte(unsigned char b, int address) {
-            m_vbo.m_buffer[address] = b;
-            return address + 1;
+        int VboBlock::writeByte(unsigned char b, int offset) {
+            assert(offset >= 0 && offset < capacity);
+            m_vbo.m_buffer[address + offset] = b;
+            return offset + 1;
         }
         
-        int VboBlock::writeFloat(float f, int address) {
-            memcpy(m_vbo.m_buffer + address, &f, sizeof(float));
-            return address + sizeof(float);
+        int VboBlock::writeFloat(float f, int offset) {
+            assert(offset >= 0 && offset + sizeof(float) <= capacity);
+            //memcpy(m_vbo.m_buffer + offset, &f, sizeof(float));
+            for (int i = 0; i < sizeof(float); i++)
+                m_vbo.m_buffer[address + offset + i] = ((char *)&f)[i];
+            return offset + sizeof(float);
         }
         
-        int VboBlock::writeColor(const Vec4f& color, int address) {
-            address = writeByte((unsigned char)color.x * 0xFF, address);
-            address = writeByte((unsigned char)color.y * 0xFF, address);
-            address = writeByte((unsigned char)color.z * 0xFF, address);
-            address = writeByte((unsigned char)color.w * 0xFF, address);
-            return address;
+        int VboBlock::writeColor(const Vec4f& color, int offset) {
+            assert(offset >= 0 && offset + 4 <= capacity);
+            offset = writeByte((unsigned char)color.x * 0xFF, offset);
+            offset = writeByte((unsigned char)color.y * 0xFF, offset);
+            offset = writeByte((unsigned char)color.z * 0xFF, offset);
+            offset = writeByte((unsigned char)color.w * 0xFF, offset);
+            return offset;
         }
         
-        int VboBlock::writeVec(const Vec4f& vec, int address) {
-            memcpy(m_vbo.m_buffer + address, &vec, sizeof(Vec4f));
-            return address + sizeof(Vec4f);
+        int VboBlock::writeVec(const Vec4f& vec, int offset) {
+            assert(offset >= 0 && offset + sizeof(Vec4f) <= capacity);
+            // memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(Vec4f));
+            offset = writeFloat(vec.x, offset);
+            offset = writeFloat(vec.y, offset);
+            offset = writeFloat(vec.z, offset);
+            offset = writeFloat(vec.w, offset);
+            return offset; // + sizeof(Vec4f);
         }
         
-        int VboBlock::writeVec(const Vec3f& vec, int address) {
-            memcpy(m_vbo.m_buffer + address, &vec, sizeof(Vec3f));
-            return address + sizeof(Vec3f);
+        int VboBlock::writeVec(const Vec3f& vec, int offset) {
+            assert(offset >= 0 && offset + sizeof(Vec3f) <= capacity);
+            // memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(Vec3f));
+            offset = writeFloat(vec.x, offset);
+            offset = writeFloat(vec.y, offset);
+            offset = writeFloat(vec.z, offset);
+            return offset; // + sizeof(Vec3f);
         }
         
-        int VboBlock::writeVec(const Vec2f& vec, int address) {
-            memcpy(m_vbo.m_buffer + address, &vec, sizeof(Vec2f));
-            return address + sizeof(Vec2f);
+        int VboBlock::writeVec(const Vec2f& vec, int offset) {
+            assert(offset >= 0 && offset + sizeof(Vec2f) <= capacity);
+            // memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(Vec2f));
+            offset = writeFloat(vec.x, offset);
+            offset = writeFloat(vec.y, offset);
+            return offset;// + sizeof(Vec2f);
         }
 
         void VboBlock::freeBlock() {

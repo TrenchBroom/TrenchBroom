@@ -255,6 +255,7 @@ namespace TrenchBroom {
         Map* MapParser::parseMap(const string& entityDefinitionFilePath) {
             m_format = MF_UNDEFINED;
             Map* map = new Map(m_worldBounds, entityDefinitionFilePath);
+            map->setPostNotifications(false);
             Entity* entity = NULL;
             
             while ((entity = parseEntity()) != NULL) map->addEntity(entity);

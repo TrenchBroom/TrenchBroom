@@ -18,8 +18,10 @@
  */
 
 #include "MapRenderer.h"
+#include <set>
 #include "Map.h"
 #include "Entity.h"
+#include "EntityDefinition.h"
 #include "Brush.h"
 #include "BrushGeometry.h"
 #include "Face.h"
@@ -237,6 +239,50 @@ namespace TrenchBroom {
             m_changeSet.brushesRemoved(brushes);
         }
 
+        void MapRenderer::entitiesWereAdded(const vector<Model::Entity*>& entities) {
+            addEntities(entities);
+        }
+        
+        void MapRenderer::entitiesWillBeRemoved(const vector<Model::Entity*>& entities) {
+            removeEntities(entities);
+        }
+        
+        void MapRenderer::propertiesDidChange(const vector<Model::Entity*>& entities) {
+            m_changeSet.entitiesChanged(entities);
+            
+            Model::Entity* worldspawn = m_editor.map().worldspawn(true);
+            if (find(entities.begin(), entities.end(), worldspawn) != entities.end()) {
+                // if mods changed, invalidate renderer cache here
+            }
+        }
+        
+        void MapRenderer::brushesWereAdded(const vector<Model::Brush*>& brushes) {
+            addBrushes(brushes);
+        }
+        
+        void MapRenderer::brushesWillBeRemoved(const vector<Model::Brush*>& brushes) {
+            removeBrushes(brushes);
+        }
+        
+        void MapRenderer::brushesDidChange(const vector<Model::Brush*>& brushes) {
+            m_changeSet.brushesChanged(brushes);
+            
+            vector<Model::Entity*> entities;
+            for (int i = 0; i < brushes.size(); i++) {
+                Model::Entity* entity = brushes[i]->entity();
+                if (!entity->worldspawn() && entity->entityDefinition()->type == Model::EDT_BRUSH) {
+                    if (find(entities.begin(), entities.end(), entity) == entities.end())
+                        entities.push_back(entity);
+                }
+            }
+            
+            m_changeSet.entitiesChanged(entities);
+        }
+        
+        void MapRenderer::facesDidChange(const vector<Model::Face*>& faces) {
+            m_changeSet.facesChanged(faces);
+        }
+        
         void MapRenderer::mapLoaded(Model::Map& map) {
             addEntities(map.entities());
         }
@@ -252,7 +298,7 @@ namespace TrenchBroom {
             int width = texture != NULL ? texture->width : 1;
             int height = texture != NULL ? texture->height : 1;
             
-            int address = block.address;
+            int offset = 0;
             const vector<Model::Vertex*>& vertices = face.vertices();
             for (int i = 0; i < vertices.size(); i++) {
                 const Model::Vertex* vertex = vertices[i];
@@ -261,11 +307,11 @@ namespace TrenchBroom {
                 texCoords.x /= width;
                 texCoords.y /= height;
                 
-                address = block.writeVec(gridCoords, address);
-                address = block.writeVec(texCoords, address);
-                address = block.writeColor(EdgeDefaultColor, address);
-                address = block.writeColor(color, address);
-                address = block.writeVec(vertex->position, address);
+                offset = block.writeVec(gridCoords, offset);
+                offset = block.writeVec(texCoords, offset);
+                offset = block.writeColor(EdgeDefaultColor, offset);
+                offset = block.writeColor(color, offset);
+                offset = block.writeVec(vertex->position, offset);
             }
         }
 
@@ -281,6 +327,10 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::rebuildFaceIndexBuffers() {
+            for (FaceIndexBuffers::iterator it = m_faceIndexBuffers.begin(); it != m_faceIndexBuffers.end(); ++it)
+                delete it->second;
+            m_faceIndexBuffers.clear();
+            
             const vector<Model::Entity*>& entities = m_editor.map().entities();
             for (int i = 0; i < entities.size(); i++) {
                 const vector<Model::Brush*>& brushes = entities[i]->brushes();
@@ -288,12 +338,13 @@ namespace TrenchBroom {
                     const vector<Model::Face*>& faces = brushes[j]->faces();
                     for (int k = 0; k < faces.size(); k++) {
                         Model::Face* face = faces[k];
-                        if (face->selected()) {
+                        if (!face->selected()) {
                             Model::Assets::Texture* texture = face->texture();
                             vector<GLuint>* indexBuffer = NULL;
                             FaceIndexBuffers::iterator it = m_faceIndexBuffers.find(texture);
                             if (it == m_faceIndexBuffers.end()) {
-                                indexBuffer = new vector<GLuint>(0xFF);
+                                indexBuffer = new vector<GLuint>();
+                                indexBuffer->reserve(0xFF);
                                 m_faceIndexBuffers[texture] = indexBuffer;
                             } else {
                                 indexBuffer = it->second;
@@ -464,7 +515,7 @@ namespace TrenchBroom {
                 Model::Assets::Texture* texture = it->first;
                 if (textured) texture->activate();
                 vector<GLuint>* indices = it->second;
-                glDrawElements(GL_TRIANGLES, (int)indices->size(), GL_UNSIGNED_INT, &indices->front());
+                glDrawElements(GL_TRIANGLES, (int)indices->size(), GL_UNSIGNED_INT, &(*indices)[0]);
                 if (textured) texture->deactivate();
             }
             

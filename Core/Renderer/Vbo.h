@@ -44,13 +44,13 @@ namespace TrenchBroom {
             VboBlock* next;
 
             VboBlock(Vbo& vbo, int address, int capacity);
-            int writeBuffer(const unsigned char* buffer, int address, int length);
-            int writeByte(unsigned char b, int address);
-            int writeFloat(float f, int address);
-            int writeColor(const Vec4f& color, int address);
-            int writeVec(const Vec4f& vec, int address);
-            int writeVec(const Vec3f& vec, int address);
-            int writeVec(const Vec2f& vec, int address);
+            int writeBuffer(const unsigned char* buffer, int offset, int length);
+            int writeByte(unsigned char b, int offset);
+            int writeFloat(float f, int offset);
+            int writeColor(const Vec4f& color, int offset);
+            int writeVec(const Vec4f& vec, int offset);
+            int writeVec(const Vec3f& vec, int offset);
+            int writeVec(const Vec2f& vec, int offset);
             void freeBlock();
         };
         

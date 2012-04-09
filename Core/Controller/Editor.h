@@ -37,6 +37,8 @@ namespace TrenchBroom {
             Model::Assets::TextureManager* m_textureManager;
             Model::Assets::Palette* m_palette;
             string m_entityDefinitionFilePath;
+
+            void updateFaceTextures();
         public:
             Editor(const string& entityDefinitionFilePath, const string& palettePath);
             ~Editor();

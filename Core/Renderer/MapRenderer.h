@@ -121,7 +121,13 @@ namespace TrenchBroom {
             void removeEntities(const vector<Model::Entity*>& entities);
             void addBrushes(const vector<Model::Brush*>& brushes);
             void removeBrushes(const vector<Model::Brush*>& brushes);
-            
+            void entitiesWereAdded(const vector<Model::Entity*>& entities);
+            void entitiesWillBeRemoved(const vector<Model::Entity*>& entities);
+            void propertiesDidChange(const vector<Model::Entity*>& entities);
+            void brushesWereAdded(const vector<Model::Brush*>& brushes);
+            void brushesWillBeRemoved(const vector<Model::Brush*>& brushes);
+            void brushesDidChange(const vector<Model::Brush*>& brushes);
+            void facesDidChange(const vector<Model::Face*>& faces);
             void mapLoaded(Model::Map& map);
             void mapCleared(Model::Map& map);
             

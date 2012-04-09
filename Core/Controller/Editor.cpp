@@ -28,6 +28,34 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        void Editor::updateFaceTextures() {
+            vector<Model::Face*> changedFaces;
+            vector<Model::Assets::Texture*> newTextures;
+            
+            const vector<Model::Entity*>& entities = m_map->entities();
+            for (int i = 0; i < entities.size(); i++) {
+                const vector<Model::Brush*>& brushes = entities[i]->brushes();
+                for (int j = 0; j < brushes.size(); j++) {
+                    const vector<Model::Face*>& faces = brushes[j]->faces();
+                    for (int k = 0; k < faces.size(); k++) {
+                        Model::Assets::Texture* oldTexture = faces[k]->texture();
+                        Model::Assets::Texture* newTexture = m_textureManager->texture(oldTexture->name);
+                        if (oldTexture != newTexture) {
+                            changedFaces.push_back(faces[k]);
+                            newTextures.push_back(newTexture);
+                        }
+                    }
+                }
+            }
+            
+            if (!changedFaces.empty()) {
+                m_map->facesWillChange(changedFaces);
+                for (int i = 0; i < changedFaces.size(); i++)
+                    changedFaces[i]->setTexture(newTextures[i]);
+                m_map->facesDidChange(changedFaces);
+            }
+        }
+        
         Editor::Editor(const string& entityDefinitionFilePath, const string& palettePath) : m_entityDefinitionFilePath(entityDefinitionFilePath) {
             Model::Preferences& prefs = Model::Preferences::sharedPreferences();
 
@@ -74,8 +102,10 @@ namespace TrenchBroom {
                     m_textureManager->addCollection(collection, i);
                     fprintf(stdout, "Loaded %s in %f seconds\n", wadPath.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
                 }
-                
             }
+            
+            updateFaceTextures();
+            m_map->mapLoaded(*m_map);
         }
         
         void Editor::saveMap(const string& path) {
