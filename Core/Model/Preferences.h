@@ -20,11 +20,11 @@
 #ifndef TrenchBroom_Header_h
 #define TrenchBroom_Header_h
 
-#include "Observer.h"
+#include "Event.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Preferences : public Observable {
+        class Preferences {
         private:
             Preferences() {};
             ~Preferences() {};

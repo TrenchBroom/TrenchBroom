@@ -31,7 +31,7 @@ namespace TrenchBroom {
             MapObject();
             virtual ~MapObject() {};
             int uniqueId() const;
-            virtual BBox bounds() const {};
+            virtual BBox bounds() const = 0;
         };
     }
 }

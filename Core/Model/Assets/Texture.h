@@ -29,7 +29,7 @@
 #include "Palette.h"
 #include "Alias.h"
 #include "Bsp.h"
-#include "Observer.h"
+#include "Event.h"
 
 using namespace std;
 
@@ -77,13 +77,16 @@ namespace TrenchBroom {
                 ~TextureCollection();
             };
             
-            class TextureManager : public Observable {
+            class TextureManager {
             private:
                 vector<TextureCollection*> m_collections;
                 map<string, Texture*> m_textures;
                 map<string, Texture*> m_dummies;
                 void reloadTextures();
             public:
+                typedef Event<TextureManager&> TextureManagerEvent;
+                TextureManagerEvent textureManagerChanged;
+                
                 ~TextureManager();
                 
                 void addCollection(TextureCollection* collection, int index);

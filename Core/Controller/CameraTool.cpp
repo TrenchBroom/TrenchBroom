@@ -19,6 +19,7 @@
 
 #include "CameraTool.h"
 #include <cstdio>
+#include "Camera.h"
 
 namespace TrenchBroom {
     namespace Controller {

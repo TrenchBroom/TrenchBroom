@@ -91,7 +91,11 @@ namespace TrenchBroom {
             }
             
             void Texture::activate() {
-                if (dummy) return;
+                if (dummy) {
+                    deactivate();
+                    return;
+                }
+                
                 if (m_textureId == 0) {
                     if (m_textureBuffer != NULL) {
                         glGenTextures(1, &m_textureId);
@@ -144,7 +148,6 @@ namespace TrenchBroom {
             }
             
             TextureManager::~TextureManager() {
-                setPostNotifications(false);
                 clear();
             }
             
@@ -152,21 +155,21 @@ namespace TrenchBroom {
                 assert(index >= 0 && index <= m_collections.size());
                 m_collections.insert(m_collections.begin() + index, collection);
                 reloadTextures();
-                postNotification(TextureManagerChanged, NULL);
+                textureManagerChanged(*this);
             }
             
             void TextureManager::removeCollection(int index) {
                 assert(index >= 0 && index < m_collections.size());
                 delete m_collections[index];
                 m_collections.erase(m_collections.begin() + index);
-                postNotification(TextureManagerChanged, NULL);
+                textureManagerChanged(*this);
             }
             
             void TextureManager::clear() {
                 m_dummies.clear();
                 m_textures.clear();
                 while (!m_collections.empty()) delete m_collections.back(), m_collections.pop_back();
-                postNotification(TextureManagerChanged, NULL);
+                textureManagerChanged(*this);
             }
             
             const vector<TextureCollection*> TextureManager::collections() {

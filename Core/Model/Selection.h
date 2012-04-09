@@ -21,7 +21,7 @@
 #define TrenchBroom_Selection_h
 
 #include <vector>
-#include "Observer.h"
+#include "Event.h"
 #include "VecMath.h"
 #include "Texture.h"
 #include "Entity.h"
@@ -32,9 +32,6 @@ using namespace std;
 
 namespace TrenchBroom {
     namespace Model {
-        static const string SelectionAdded = "SelectionAdded";
-        static const string SelectionRemoved = "SelectionRemoved";
-        
         typedef enum {
             SM_NONE,
             SM_FACES,
@@ -47,7 +44,22 @@ namespace TrenchBroom {
         class Entity;
         class Brush;
         class Face;
-        class Selection : public Observable {
+        
+        class SelectionEventData {
+        public:
+            vector<Entity*> entities;
+            vector<Brush*> brushes;
+            vector<Face*> faces;
+            SelectionEventData() {};
+            SelectionEventData(const vector<Entity*>& entities) : entities(entities) {}
+            SelectionEventData(const vector<Brush*>& brushes) : brushes(brushes) {}
+            SelectionEventData(const vector<Face*>& faces) : faces(faces) {}
+            SelectionEventData(Entity& entity) { entities.push_back(&entity); }
+            SelectionEventData(Brush& brush) { brushes.push_back(&brush); }
+            SelectionEventData(Face& face) { faces.push_back(&face); }
+        };
+        
+        class Selection {
         private:
             vector<Face*> m_faces;
             vector<Brush*> m_brushes;
@@ -56,6 +68,10 @@ namespace TrenchBroom {
             vector<Assets::Texture*> m_mruTextures;
             ESelectionMode m_mode;
         public:
+            typedef Event<SelectionEventData&> SelectionEvent;
+            SelectionEvent selectionAdded;
+            SelectionEvent selectionRemoved;
+            
             Selection();
             ESelectionMode mode() const;
             bool isPartial(Brush& brush) const;

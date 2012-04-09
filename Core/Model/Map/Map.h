@@ -22,7 +22,7 @@
 
 #include <vector>
 #include "VecMath.h"
-#include "Observer.h"
+#include "Event.h"
 #include "Octree.h"
 #include "Selection.h"
 #include "Groups.h"
@@ -33,30 +33,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        static const string FacesWillChange         = "FacesWillChange";
-        static const string FacesDidChange          = "FacesDidChange";
-        
-        static const string BrushesAdded            = "BrushesAdded";
-        static const string BrushesWillBeRemoved    = "BrushesWillBeRemoved";
-        static const string BrushesWillChange       = "BrushesWillChange";
-        static const string BrushesDidChange        = "BrushesDidChange";
-        
-        static const string EntitiesAdded           = "EntitiesAdded";
-        static const string EntitiesWillBeRemoved   = "EntitiesWillBeRemoved";
-        static const string PropertiesWillChange    = "PropertiesWillChange";
-        static const string PropertiesDidChange     = "PropertiesDidChange";
-        
-        static const string PointFileLoaded         = "PointFileLoaded";
-        static const string PointFileUnloaded       = "PointFileUnloaded";
-        
-        static const string MapCleared              = "MapCleared";
-        static const string MapLoaded               = "MapLoaded";
-        
         class Octree;
         class Selection;
         class MoveResult;
         class Entity;
-        class Map : public Observable {
+        class Map {
         private:
             Octree* m_octree;
             Selection* m_selection;
@@ -68,7 +49,31 @@ namespace TrenchBroom {
             BBox m_worldBounds;
             
             vector<Vec3f> m_leakPoints;
+            
+            bool m_postNotifications;
         public:
+# pragma mark Events
+            typedef Event<const vector<Entity*>&> EntityEvent;
+            typedef Event<const vector<Brush*>&> BrushEvent;
+            typedef Event<const vector<Face*>&> FaceEvent;
+            typedef Event<Map&> MapEvent;
+            typedef Event<Map&> PointFileEvent;
+            EntityEvent entitiesWereAdded;
+            EntityEvent entitiesWillBeRemoved;
+            EntityEvent propertiesWillChange;
+            EntityEvent propertiesDidChange;
+            BrushEvent brushesWereAdded;
+            BrushEvent brushesWillBeRemoved;
+            BrushEvent brushesWillChange;
+            BrushEvent brushesDidChange;
+            FaceEvent facesWillChange;
+            FaceEvent facesDidChange;
+            MapEvent mapLoaded;
+            MapEvent mapCleared;
+            PointFileEvent pointFileLoaded;
+            PointFileEvent pointFileUnloaded;
+            void setPostNotifications(bool postNotifications);
+            
             Map(const BBox& worldBounds, const string& entityDefinitionFilePath);
             ~Map();
             

@@ -28,7 +28,7 @@
 namespace TrenchBroom {
     namespace Gui {
         MapRendererControl::MapRendererControl(Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
-            m_mapRenderer = new Renderer::MapRenderer();
+            m_mapRenderer = new Renderer::MapRenderer(m_editor);
             SetKeyboardInputEnabled(true);
             SetMouseInputEnabled(true);
         }

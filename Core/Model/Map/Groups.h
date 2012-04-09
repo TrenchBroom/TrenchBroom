@@ -21,24 +21,31 @@
 #define TrenchBroom_Groups_h
 
 #include <vector>
-#include "Observer.h"
+#include "Event.h"
 
 using namespace std;
 
 namespace TrenchBroom {
     namespace Model {
-        static const string GroupsChanged = "GroupsChanged";
-        
         class Entity;
+        class Brush;
         class Map;
-        class GroupManager : protected Observer, public Observable {
+
+        class GroupManager {
         private:
             Map& m_map;
             vector<Entity*> m_groups;
             int m_visibleGroupCount;
-        protected:
-            void notify(const string &name, const void *data);
+            
+            void entitesAdded(const vector<Entity*>& entities);
+            void entitiesRemoved(const vector<Entity*>& entities);
+            void brushesChanged(const vector<Brush*>& brushes);
+            void mapLoaded(Map& map);
+            void mapCleared(Map& map);
         public:
+            typedef Event<GroupManager> GroupsChangedEvent;
+            GroupsChangedEvent groupsChanged;
+
             GroupManager(Map& map);
             ~GroupManager();
             const vector<Entity*>& groups() const;

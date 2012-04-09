@@ -44,13 +44,13 @@ namespace TrenchBroom {
             VboBlock* next;
 
             VboBlock(Vbo& vbo, int address, int capacity);
-            int write(const unsigned char* buffer, int address, int length);
-            int write(unsigned char b, int address);
-            int write(float f, int address);
-            int writeByteColor(const Vec4f& color, int address);
-            int write(const Vec4f& vec, int address);
-            int write(const Vec3f& vec, int address);
-            int write(const Vec2f& vec, int address);
+            int writeBuffer(const unsigned char* buffer, int address, int length);
+            int writeByte(unsigned char b, int address);
+            int writeFloat(float f, int address);
+            int writeColor(const Vec4f& color, int address);
+            int writeVec(const Vec4f& vec, int address);
+            int writeVec(const Vec3f& vec, int address);
+            int writeVec(const Vec2f& vec, int address);
             void freeBlock();
         };
         
@@ -73,6 +73,7 @@ namespace TrenchBroom {
             void resizeVbo(int newCapacity);
             void resizeBlock(VboBlock& block, int newCapacity);
             VboBlock* packBlock(VboBlock& block);
+            friend class VboBlock;
         public:
             Vbo(GLenum type, int capacity);
             ~Vbo();

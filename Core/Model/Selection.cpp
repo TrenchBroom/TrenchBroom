@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Selection::Selection() : Observable(), m_mode(SM_NONE) {}
+        Selection::Selection() : m_mode(SM_NONE) {}
         
         ESelectionMode Selection::mode() const {
             return m_mode;
@@ -171,10 +171,9 @@ namespace TrenchBroom {
             
             addTexture(*face.texture());
             m_mode = SM_FACES;
-            
-            vector<Face*> faces;
-            faces.push_back(&face);
-            postNotification(SelectionAdded, &faces);
+
+            SelectionEventData data(face);
+            selectionAdded(data);
         }
         
         void Selection::addFaces(const vector<Face*>& faces) {
@@ -192,7 +191,8 @@ namespace TrenchBroom {
             addTexture(*faces[faces.size() - 1]->texture());
             m_mode = SM_FACES;
             
-            postNotification(SelectionAdded, &faces);
+            SelectionEventData data(faces);
+            selectionAdded(data);
         }
         
         void Selection::addBrush(Brush& brush) {
@@ -204,9 +204,8 @@ namespace TrenchBroom {
             if (m_mode == SM_ENTITIES) m_mode = SM_BRUSHES_ENTITIES;
             else m_mode = SM_BRUSHES;
             
-            vector<Brush*> brushes;
-            brushes.push_back(&brush);
-            postNotification(SelectionAdded, &brushes);
+            SelectionEventData data(brush);
+            selectionAdded(data);
         }
         
         void Selection::addBrushes(const vector<Brush*>& brushes) {
@@ -222,7 +221,8 @@ namespace TrenchBroom {
             if (m_mode == SM_ENTITIES) m_mode = SM_BRUSHES_ENTITIES;
             else m_mode = SM_BRUSHES;
             
-            postNotification(SelectionAdded, &brushes);
+            SelectionEventData data(brushes);
+            selectionAdded(data);
         }
         
         void Selection::addEntity(Entity& entity) {
@@ -234,9 +234,8 @@ namespace TrenchBroom {
             if (m_mode == SM_BRUSHES) m_mode = SM_BRUSHES_ENTITIES;
             else m_mode = SM_ENTITIES;
             
-            vector<Entity*> entities;
-            entities.push_back(&entity);
-            postNotification(SelectionAdded, &entities);
+            SelectionEventData data(entity);
+            selectionAdded(data);
         }
         
         void Selection::addEntities(const vector<Entity*>& entities) {
@@ -252,7 +251,8 @@ namespace TrenchBroom {
             if (m_mode == SM_BRUSHES) m_mode = SM_BRUSHES_ENTITIES;
             else m_mode = SM_ENTITIES;
             
-            postNotification(SelectionAdded, &entities);
+            SelectionEventData data(entities);
+            selectionAdded(data);
         }
         
         void Selection::removeFace(Face& face) {
@@ -274,9 +274,8 @@ namespace TrenchBroom {
                     m_partialBrushes.erase(find(m_partialBrushes.begin(), m_partialBrushes.end(), face.brush()));
             }
             
-            vector<Face*> faces;
-            faces.push_back(&face);
-            postNotification(SelectionRemoved, &faces);
+            SelectionEventData data(face);
+            selectionRemoved(data);
         }
         
         void Selection::removeFaces(const vector<Face*>& faces) {
@@ -303,7 +302,8 @@ namespace TrenchBroom {
             if (m_faces.size() == 0)
                 m_mode = SM_NONE;
             
-            postNotification(SelectionRemoved, &removedFaces);
+            SelectionEventData data(faces);
+            selectionRemoved(data);
         }
         
         void Selection::removeBrush(Brush& brush) {
@@ -318,9 +318,8 @@ namespace TrenchBroom {
                 else m_mode = SM_ENTITIES;
             }
             
-            vector<Brush*> brushes;
-            brushes.push_back(&brush);
-            postNotification(SelectionRemoved, &brushes);
+            SelectionEventData data(brush);
+            selectionRemoved(data);
         }
         
         void Selection::removeBrushes(const vector<Brush*>& brushes) {
@@ -342,7 +341,8 @@ namespace TrenchBroom {
                 else m_mode = SM_ENTITIES;
             }
             
-            postNotification(SelectionRemoved, &removedBrushes);
+            SelectionEventData data(removedBrushes);
+            selectionRemoved(data);
         }
         
         void Selection::removeEntity(Entity& entity) {
@@ -357,9 +357,8 @@ namespace TrenchBroom {
                 else m_mode = SM_BRUSHES;
             }
             
-            vector<Entity*> entities;
-            entities.push_back(&entity);
-            postNotification(SelectionRemoved, &entities);
+            SelectionEventData data(entity);
+            selectionRemoved(data);
         }
         
         void Selection::removeEntities(const vector<Entity*>& entities) {
@@ -381,36 +380,40 @@ namespace TrenchBroom {
                 else m_mode = SM_BRUSHES;
             }
             
-            postNotification(SelectionRemoved, &removedEntities);
+            SelectionEventData data(removedEntities);
+            selectionRemoved(data);
         }
         
         void Selection::removeAll() {
+            if (m_faces.empty() && m_brushes.empty() && m_entities.empty()) return;
+            
+            SelectionEventData data;
+            
             if (!m_faces.empty()) {
-                vector<Face*> copy = m_faces;
+                data.faces = m_faces;
                 for (int i = 0; i < m_faces.size(); i++)
                     m_faces[i]->setSelected(false);
                 m_faces.clear();
                 m_mode = SM_NONE;
-                postNotification(SelectionRemoved, &copy);
             }
             
             if (!m_brushes.empty()) {
-                vector<Brush*> copy = m_brushes;
+                data.brushes = m_brushes;
                 for (int i = 0; i < m_brushes.size(); i++)
                     m_brushes[i]->setSelected(false);
                 m_brushes.clear();
                 m_mode = SM_NONE;
-                postNotification(SelectionRemoved, &copy);
             }
             
             if (!m_entities.empty()) {
-                vector<Entity*> copy = m_entities;
+                data.entities = m_entities;
                 for (int i = 0; i < m_entities.size(); i++)
                     m_entities[i]->setSelected(false);
                 m_entities.clear();
                 m_mode = SM_NONE;
-                postNotification(SelectionRemoved, &copy);
             }
+            
+            selectionRemoved(data);
         }
     }
 }

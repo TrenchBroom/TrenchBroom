@@ -44,6 +44,7 @@ namespace TrenchBroom {
             void loadMap(const string& path);
             void saveMap(const string& path);
             
+            Model::Map& map();
             Model::Camera& camera();
             InputController& inputController();
         };

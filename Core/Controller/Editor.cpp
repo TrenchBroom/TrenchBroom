@@ -81,6 +81,10 @@ namespace TrenchBroom {
         void Editor::saveMap(const string& path) {
         }
         
+        Model::Map& Editor::map() {
+            return *m_map;
+        }
+        
         Model::Camera& Editor::camera() {
             return *m_camera;
         }

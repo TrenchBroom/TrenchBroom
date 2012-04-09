@@ -22,9 +22,7 @@
 
 #include <vector>
 #include "VecMath.h"
-#include "Map.h"
-#include "MapObject.h"
-#include "Observer.h"
+#include "Event.h"
 
 using namespace std;
 
@@ -41,6 +39,12 @@ namespace TrenchBroom {
             CP_ENT = 7
         } ENodePosition;
         
+        class MapObject;
+        class Entity;
+        class Brush;
+        class Face;
+        class Map;
+        
         class OctreeNode {
         private:
             int m_minSize;
@@ -56,14 +60,18 @@ namespace TrenchBroom {
             void intersect(const Ray& ray, vector<MapObject*>& objects);
         };
         
-        class Map;
-        class Octree : public Observer {
+        class Octree {
         private:
             int m_minSize;
             Map& m_map;
             OctreeNode* m_root;
-        protected:
-            void notify(const string &name, const void *data);
+
+            void entitiesWereAddedOrPropertiesDidChange(const vector<Entity*>& entities);
+            void entitiesWillBeRemovedOrPropertiesWillChange(const vector<Entity*>& entities);
+            void brushesWereAddedOrDidChange(const vector<Brush*>& brushes);
+            void brushesWillBeRemovedOrWillChange(const vector<Brush*>& brushes);
+            void mapLoaded(Map& map);
+            void mapCleared(Map& map);
         public:
             Octree(Map& map, int minSize);
             ~Octree();

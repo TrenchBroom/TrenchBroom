@@ -18,11 +18,23 @@
  */
 
 #include "MapRenderer.h"
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
+#include "Map.h"
+#include "Entity.h"
+#include "Brush.h"
+#include "BrushGeometry.h"
+#include "Face.h"
+#include "Vbo.h"
+#include "Editor.h"
 
 namespace TrenchBroom {
     namespace Renderer {
+        static const Vec4f FaceDefaultColor(0.2f, 0.2f, 0.2f, 1);
+        static const Vec4f EdgeDefaultColor(0.6f, 0.6f, 0.6f, 0.6f);
+        static const int VertexSize = 3 * sizeof(float);
+        static const int ColorSize = 4;
+        static const int TexCoordSize = 2 * sizeof(float);
+
+        
         RenderContext::RenderContext() {
             backgroundColor.x = 0;
             backgroundColor.y = 0;
@@ -34,23 +46,23 @@ namespace TrenchBroom {
 
 #pragma mark ChangeSet
         
-        void ChangeSet::entitiesAdded(const vector<Entity*>& entities) {
+        void ChangeSet::entitiesAdded(const vector<Model::Entity*>& entities) {
             m_addedEntities.insert(m_addedEntities.end(), entities.begin(), entities.end());
         }
         
-        void ChangeSet::entitiesRemoved(const vector<Entity*>& entities) {
+        void ChangeSet::entitiesRemoved(const vector<Model::Entity*>& entities) {
             m_removedEntities.insert(m_removedEntities.end(), entities.begin(), entities.end());
         }
         
-        void ChangeSet::entitiesChanged(const vector<Entity*>& entities) {
+        void ChangeSet::entitiesChanged(const vector<Model::Entity*>& entities) {
             m_changedEntities.insert(m_changedEntities.end(), entities.begin(), entities.end());
         }
         
-        void ChangeSet::entitiesSelected(const vector<Entity*>& entities) {
+        void ChangeSet::entitiesSelected(const vector<Model::Entity*>& entities) {
             if (!m_deselectedEntities.empty()) {
                 for (int i = 0; i < entities.size(); i++) {
-                    Entity* entity = entities[i];
-                    vector<Entity*>::iterator it = find(m_deselectedEntities.begin(), m_deselectedEntities.end(), entity);
+                    Model::Entity* entity = entities[i];
+                    vector<Model::Entity*>::iterator it = find(m_deselectedEntities.begin(), m_deselectedEntities.end(), entity);
                     if (it == m_deselectedEntities.end()) m_deselectedEntities.erase(it);
                     else m_selectedEntities.push_back(entity);
                 }
@@ -59,27 +71,27 @@ namespace TrenchBroom {
             }
         }
         
-        void ChangeSet::entitiesDeselected(const vector<Entity*>& entities) {
+        void ChangeSet::entitiesDeselected(const vector<Model::Entity*>& entities) {
             m_deselectedEntities.insert(m_deselectedEntities.end(), entities.begin(), entities.end());
         }
         
-        void ChangeSet::brushesAdded(const vector<Brush*>& brushes) {
+        void ChangeSet::brushesAdded(const vector<Model::Brush*>& brushes) {
             m_addedBrushes.insert(m_addedBrushes.end(), brushes.begin(), brushes.end());
         }
         
-        void ChangeSet::brushesRemoved(const vector<Brush*>& brushes) {
+        void ChangeSet::brushesRemoved(const vector<Model::Brush*>& brushes) {
             m_removedBrushes.insert(m_removedBrushes.end(), brushes.begin(), brushes.end());
         }
         
-        void ChangeSet::brushesChanged(const vector<Brush*>& brushes) {
+        void ChangeSet::brushesChanged(const vector<Model::Brush*>& brushes) {
             m_changedBrushes.insert(m_changedBrushes.end(), brushes.begin(), brushes.end());
         }
         
-        void ChangeSet::brushesSelected(const vector<Brush*>& brushes) {
+        void ChangeSet::brushesSelected(const vector<Model::Brush*>& brushes) {
             if (!m_deselectedBrushes.empty()) {
                 for (int i = 0; i < brushes.size(); i++) {
-                    Brush* brush = brushes[i];
-                    vector<Brush*>::iterator it = find(m_deselectedBrushes.begin(), m_deselectedBrushes.end(), brush);
+                    Model::Brush* brush = brushes[i];
+                    vector<Model::Brush*>::iterator it = find(m_deselectedBrushes.begin(), m_deselectedBrushes.end(), brush);
                     if (it == m_deselectedBrushes.end()) m_deselectedBrushes.erase(it);
                     else m_selectedBrushes.push_back(brush);
                 }
@@ -88,19 +100,19 @@ namespace TrenchBroom {
             }
         }
         
-        void ChangeSet::brushesDeselected(const vector<Brush*>& brushes) {
+        void ChangeSet::brushesDeselected(const vector<Model::Brush*>& brushes) {
             m_deselectedBrushes.insert(m_deselectedBrushes.end(), brushes.begin(), brushes.end());
         }
         
-        void ChangeSet::facesChanged(const vector<Face*>& faces) {
+        void ChangeSet::facesChanged(const vector<Model::Face*>& faces) {
             m_changedFaces.insert(m_changedFaces.end(), faces.begin(), faces.end());
         }
         
-        void ChangeSet::facesSelected(const vector<Face*>& faces) {
+        void ChangeSet::facesSelected(const vector<Model::Face*>& faces) {
             if (!m_deselectedFaces.empty()) {
                 for (int i = 0; i < faces.size(); i++) {
-                    Face* face = faces[i];
-                    vector<Face*>::iterator it = find(m_deselectedFaces.begin(), m_deselectedFaces.end(), face);
+                    Model::Face* face = faces[i];
+                    vector<Model::Face*>::iterator it = find(m_deselectedFaces.begin(), m_deselectedFaces.end(), face);
                     if (it == m_deselectedFaces.end()) m_deselectedFaces.erase(it);
                     else m_selectedFaces.push_back(face);
                 }
@@ -109,15 +121,15 @@ namespace TrenchBroom {
             }
         }
         
-        void ChangeSet::facesDeselected(const vector<Face*>& faces) {
+        void ChangeSet::facesDeselected(const vector<Model::Face*>& faces) {
             m_deselectedFaces.insert(m_deselectedFaces.end(), faces.begin(), faces.end());
         }
         
-        void ChangeSet::filterChanged() {
+        void ChangeSet::setFilterChanged() {
             m_filterChanged = true;
         }
         
-        void ChangeSet::textureManagerChanged() {
+        void ChangeSet::setTextureManagerChanged() {
             m_textureManagerChanged = true;
         }
         
@@ -140,55 +152,55 @@ namespace TrenchBroom {
         }
         
         
-        const vector<Entity*> ChangeSet::addedEntities() const {
+        const vector<Model::Entity*> ChangeSet::addedEntities() const {
             return m_addedEntities;
         }
         
-        const vector<Entity*> ChangeSet::removedEntities() const {
+        const vector<Model::Entity*> ChangeSet::removedEntities() const {
             return m_removedEntities;
         }
         
-        const vector<Entity*> ChangeSet::changedEntities() const {
+        const vector<Model::Entity*> ChangeSet::changedEntities() const {
             return m_changedEntities;
         }
         
-        const vector<Entity*> ChangeSet::selectedEntities() const {
+        const vector<Model::Entity*> ChangeSet::selectedEntities() const {
             return m_selectedEntities;
         }
         
-        const vector<Entity*> ChangeSet::deselectedEntities() const {
+        const vector<Model::Entity*> ChangeSet::deselectedEntities() const {
             return m_deselectedEntities;
         }
         
-        const vector<Brush*> ChangeSet::addedBrushes() const {
+        const vector<Model::Brush*> ChangeSet::addedBrushes() const {
             return m_addedBrushes;
         }
         
-        const vector<Brush*> ChangeSet::removedBrushes() const {
+        const vector<Model::Brush*> ChangeSet::removedBrushes() const {
             return m_removedBrushes;
         }
         
-        const vector<Brush*> ChangeSet::changedBrushes() const {
+        const vector<Model::Brush*> ChangeSet::changedBrushes() const {
             return m_changedBrushes;
         }
         
-        const vector<Brush*> ChangeSet::selectedBrushes() const {
+        const vector<Model::Brush*> ChangeSet::selectedBrushes() const {
             return m_selectedBrushes;
         }
         
-        const vector<Brush*> ChangeSet::deselectedBrushes() const {
+        const vector<Model::Brush*> ChangeSet::deselectedBrushes() const {
             return m_deselectedBrushes;
         }
         
-        const vector<Face*> ChangeSet::changedFaces() const {
+        const vector<Model::Face*> ChangeSet::changedFaces() const {
             return m_changedFaces;
         }
         
-        const vector<Face*> ChangeSet::selectedFaces() const {
+        const vector<Model::Face*> ChangeSet::selectedFaces() const {
             return m_selectedFaces;
         }
         
-        const vector<Face*> ChangeSet::deselectedFaces() const {
+        const vector<Model::Face*> ChangeSet::deselectedFaces() const {
             return m_deselectedFaces;
         }
         
@@ -203,32 +215,300 @@ namespace TrenchBroom {
 
 #pragma mark MapRenderer
         
-        void MapRenderer::addEntities(const vector<Entity*>& entities) {
+        void MapRenderer::addEntities(const vector<Model::Entity*>& entities) {
             m_changeSet.entitiesAdded(entities);
+            
+            for (int i = 0; i < entities.size(); i++)
+                addBrushes(entities[i]->brushes());
         }
         
-        void MapRenderer::removeEntities(const vector<Entity*>& entities) {
+        void MapRenderer::removeEntities(const vector<Model::Entity*>& entities) {
             m_changeSet.entitiesRemoved(entities);
+            
+            for (int i = 0; i < entities.size(); i++)
+                removeBrushes(entities[i]->brushes());
         }
         
-        void MapRenderer::addBrushes(const vector<Brush*>& brushes) {
+        void MapRenderer::addBrushes(const vector<Model::Brush*>& brushes) {
             m_changeSet.brushesAdded(brushes);
         }
         
-        void MapRenderer::removeBrushes(const vector<Brush*>& brushes) {
+        void MapRenderer::removeBrushes(const vector<Model::Brush*>& brushes) {
             m_changeSet.brushesRemoved(brushes);
+        }
+
+        void MapRenderer::mapLoaded(Model::Map& map) {
+            addEntities(map.entities());
+        }
+        
+        void MapRenderer::mapCleared(Model::Map& map) {
+        }
+
+        void MapRenderer::writeFaceVertices(Model::Face& face, VboBlock& block) {
+            Vec2f texCoords, gridCoords;
+            
+            Model::Assets::Texture* texture = face.texture();
+            Vec4f color = texture != NULL && !texture->dummy ? texture->averageColor : FaceDefaultColor;
+            int width = texture != NULL ? texture->width : 1;
+            int height = texture != NULL ? texture->height : 1;
+            
+            int address = block.address;
+            const vector<Model::Vertex*>& vertices = face.vertices();
+            for (int i = 0; i < vertices.size(); i++) {
+                const Model::Vertex* vertex = vertices[i];
+                gridCoords = face.gridCoords(vertex->position);
+                texCoords = face.textureCoords(vertex->position);
+                texCoords.x /= width;
+                texCoords.y /= height;
+                
+                address = block.writeVec(gridCoords, address);
+                address = block.writeVec(texCoords, address);
+                address = block.writeColor(EdgeDefaultColor, address);
+                address = block.writeColor(color, address);
+                address = block.writeVec(vertex->position, address);
+            }
+        }
+
+        void MapRenderer::writeFaceIndices(Model::Face& face, vector<GLuint>& triangleBuffer) {
+            int baseIndex = face.vboBlock()->address / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+            size_t vertexCount = face.vertices().size();
+         
+            for (int i = 1; i < vertexCount - 1; i++) {
+                triangleBuffer.push_back(baseIndex);
+                triangleBuffer.push_back(baseIndex + i);
+                triangleBuffer.push_back(baseIndex + i + 1);
+            }
+        }
+
+        void MapRenderer::rebuildFaceIndexBuffers() {
+            const vector<Model::Entity*>& entities = m_editor.map().entities();
+            for (int i = 0; i < entities.size(); i++) {
+                const vector<Model::Brush*>& brushes = entities[i]->brushes();
+                for (int j = 0; j < brushes.size(); j++) {
+                    const vector<Model::Face*>& faces = brushes[j]->faces();
+                    for (int k = 0; k < faces.size(); k++) {
+                        Model::Face* face = faces[k];
+                        if (face->selected()) {
+                            Model::Assets::Texture* texture = face->texture();
+                            vector<GLuint>* indexBuffer = NULL;
+                            FaceIndexBuffers::iterator it = m_faceIndexBuffers.find(texture);
+                            if (it == m_faceIndexBuffers.end()) {
+                                indexBuffer = new vector<GLuint>(0xFF);
+                                m_faceIndexBuffers[texture] = indexBuffer;
+                            } else {
+                                indexBuffer = it->second;
+                            }
+                            writeFaceIndices(*face, *indexBuffer);
+                        }
+                    }
+                }
+            }
+        }
+        
+        void MapRenderer::rebuildSelectedFaceIndexBuffers() {
+        }
+        
+        void MapRenderer::validateEntityRendererCache() {
+        }
+        
+        void MapRenderer::validateAddedEntities() {
+        }
+        
+        void MapRenderer::validateRemovedEntities() {
+        }
+        
+        void MapRenderer::validateChangedEntities() {
+        }
+        
+        void MapRenderer::validateAddedBrushes() {
+            const vector<Model::Brush*>& addedBrushes = m_changeSet.addedBrushes();
+            if (!addedBrushes.empty()) {
+                m_faceVbo->activate();
+                m_faceVbo->map();
+                
+                for (int i = 0; i < addedBrushes.size(); i++) {
+                    vector<Model::Face*> addedFaces = addedBrushes[i]->faces();
+                    for (int j = 0; j < addedFaces.size(); j++) {
+                        Model::Face* face = addedFaces[j];
+                        VboBlock& block = m_faceVbo->allocBlock((int)face->vertices().size() * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize));
+                        writeFaceVertices(*face, block);
+                        face->setVboBlock(&block);
+                    }
+                }
+                
+                m_faceVbo->unmap();
+                m_faceVbo->deactivate();
+            }
+        }
+        
+        void MapRenderer::validateRemovedBrushes() {
+        }
+        
+        void MapRenderer::validateChangedBrushes() {
+        }
+        
+        void MapRenderer::validateChangedFaces() {
+        }
+        
+        void MapRenderer::validateSelection() {
+        }
+        
+        void MapRenderer::validateDeselection() {
+        }
+
+        void MapRenderer::validate() {
+            validateEntityRendererCache();
+            validateAddedEntities();
+            validateAddedBrushes();
+            validateSelection();
+            validateChangedEntities();
+            validateChangedBrushes();
+            validateChangedFaces();
+            validateDeselection();
+            validateRemovedEntities();
+            validateRemovedBrushes();
+            
+            if (!m_changeSet.addedBrushes().empty() ||
+                !m_changeSet.removedBrushes().empty() ||
+                !m_changeSet.selectedBrushes().empty() ||
+                !m_changeSet.deselectedBrushes().empty() ||
+                !m_changeSet.selectedFaces().empty() ||
+                !m_changeSet.deselectedFaces().empty() ||
+                m_changeSet.filterChanged() ||
+                m_changeSet.textureManagerChanged()) {
+                rebuildFaceIndexBuffers();
+            }
+            
+            if (!m_changeSet.changedBrushes().empty() ||
+                !m_changeSet.changedFaces().empty() ||
+                !m_changeSet.selectedBrushes().empty() ||
+                !m_changeSet.deselectedBrushes().empty() ||
+                !m_changeSet.selectedFaces().empty() ||
+                !m_changeSet.deselectedFaces().empty() ||
+                m_changeSet.filterChanged() ||
+                m_changeSet.textureManagerChanged()) {
+                rebuildSelectedFaceIndexBuffers();
+            }
+            
+            m_changeSet.clear();
+        }
+
+        void MapRenderer::renderFaces(bool textured, bool selected, FaceIndexBuffers& indexBuffers) {
+            glPolygonMode(GL_FRONT, GL_FILL);
+            glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+            
+            /*
+            Grid* grid = [[windowController options] grid];
+            if ([grid draw]) {
+                glActiveTexture(GL_TEXTURE2);
+                glEnable(GL_TEXTURE_2D);
+                [grid activateTexture];
+                glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+                glClientActiveTexture(GL_TEXTURE2);
+                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                glTexCoordPointer(2, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)0);
+            }
+             */
+            
+            if (selected) {
+                glActiveTexture(GL_TEXTURE1);
+                glEnable(GL_TEXTURE_2D);
+//                [grid activateTexture]; // just a dummy
+                glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+                float color[3] = {0.6f, 0.35f, 0.35f};
+                glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+                glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+                glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
+                glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
+                glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
+                glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
+                glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2);
+            }
+            
+            glActiveTexture(GL_TEXTURE0);
+            if (textured) {
+                glEnable(GL_TEXTURE_2D);
+                glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+                
+                /*
+                PreferencesManager* preferences = [PreferencesManager sharedManager];
+                float brightness = [preferences brightness];
+                float color[3] = {brightness / 2, brightness / 2, brightness / 2};
+                */
+                 
+                float color[3] = {0.5f, 0.5f, 0.5f};
+                
+                glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+                glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+                glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
+                
+                glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
+                glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
+                glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
+                
+                glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
+                
+                glClientActiveTexture(GL_TEXTURE0);
+                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                glTexCoordPointer(2, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)TexCoordSize);
+            } else {
+                glDisable(GL_TEXTURE_2D);
+            }
+            
+            glEnableClientState(GL_COLOR_ARRAY);
+            glColorPointer(4, GL_UNSIGNED_BYTE, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize));
+            glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
+            
+            FaceIndexBuffers::iterator it;
+            for (it = indexBuffers.begin(); it != indexBuffers.end(); ++it) {
+                Model::Assets::Texture* texture = it->first;
+                if (textured) texture->activate();
+                vector<GLuint>* indices = it->second;
+                glDrawElements(GL_TRIANGLES, (int)indices->size(), GL_UNSIGNED_INT, &indices->front());
+                if (textured) texture->deactivate();
+            }
+            
+            if (textured)
+                glDisable(GL_TEXTURE_2D);
+            
+            if (selected) {
+                glActiveTexture(GL_TEXTURE1);
+                glDisable(GL_TEXTURE_2D);
+            }
+            
+            /*
+            if ([grid draw]) {
+                glActiveTexture(GL_TEXTURE2);
+                [grid deactivateTexture];
+                glDisable(GL_TEXTURE_2D);
+                glActiveTexture(GL_TEXTURE0);
+            }
+             */
+            
+            glPopClientAttrib();
         }
 
         MapRenderer::MapRenderer(Controller::Editor& editor) : m_editor(editor) {
             m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            
+            Model::Map& map = m_editor.map();
+            map.mapLoaded   += new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapLoaded);
+            map.mapCleared  += new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapCleared);
+            
+            addEntities(map.entities());
         }
         
         MapRenderer::~MapRenderer() {
+            Model::Map& map = m_editor.map();
+            map.mapLoaded   -= new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapLoaded);
+            map.mapCleared  -= new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapCleared);
             delete m_faceVbo;
         }
 
         
         void MapRenderer::render(RenderContext& context) {
+            validate();
+            
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glFrontFace(GL_CW);
@@ -250,6 +530,12 @@ namespace TrenchBroom {
                 glVertex3f(0, 0, context.originAxisLength);
                 glEnd();
             }
+            
+            m_faceVbo->activate();
+            glEnableClientState(GL_VERTEX_ARRAY);
+            renderFaces(true, false, m_faceIndexBuffers);
+            glDisableClientState(GL_VERTEX_ARRAY);
+            m_faceVbo->deactivate();
         }
     }
 }

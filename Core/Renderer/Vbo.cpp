@@ -34,6 +34,44 @@ namespace TrenchBroom {
         
         VboBlock::VboBlock(Vbo& vbo, int address, int capacity) : m_vbo(vbo), address(address), capacity(capacity), free(true), previous(NULL), next(NULL) {}
 
+        int VboBlock::writeBuffer(const unsigned char* buffer, int address, int length) {
+            memcpy(m_vbo.m_buffer + address, buffer, length);
+            return address + length;
+        }
+        
+        int VboBlock::writeByte(unsigned char b, int address) {
+            m_vbo.m_buffer[address] = b;
+            return address + 1;
+        }
+        
+        int VboBlock::writeFloat(float f, int address) {
+            memcpy(m_vbo.m_buffer + address, &f, sizeof(float));
+            return address + sizeof(float);
+        }
+        
+        int VboBlock::writeColor(const Vec4f& color, int address) {
+            address = writeByte((unsigned char)color.x * 0xFF, address);
+            address = writeByte((unsigned char)color.y * 0xFF, address);
+            address = writeByte((unsigned char)color.z * 0xFF, address);
+            address = writeByte((unsigned char)color.w * 0xFF, address);
+            return address;
+        }
+        
+        int VboBlock::writeVec(const Vec4f& vec, int address) {
+            memcpy(m_vbo.m_buffer + address, &vec, sizeof(Vec4f));
+            return address + sizeof(Vec4f);
+        }
+        
+        int VboBlock::writeVec(const Vec3f& vec, int address) {
+            memcpy(m_vbo.m_buffer + address, &vec, sizeof(Vec3f));
+            return address + sizeof(Vec3f);
+        }
+        
+        int VboBlock::writeVec(const Vec2f& vec, int address) {
+            memcpy(m_vbo.m_buffer + address, &vec, sizeof(Vec2f));
+            return address + sizeof(Vec2f);
+        }
+
         void VboBlock::freeBlock() {
             m_vbo.freeBlock(*this);
         }
@@ -187,7 +225,7 @@ namespace TrenchBroom {
             return last;
         }
         
-        Vbo::Vbo(GLenum type, int capacity) : m_type(type), m_totalCapacity(capacity), m_freeCapacity(capacity) {
+        Vbo::Vbo(GLenum type, int capacity) : m_type(type), m_totalCapacity(capacity), m_freeCapacity(capacity), m_buffer(NULL), m_vboId(0), m_active(false), m_mapped(false) {
             m_first = new VboBlock(*this, 0, m_totalCapacity);
             m_last = m_first;
             m_freeBlocks.push_back(m_first);
@@ -245,7 +283,7 @@ namespace TrenchBroom {
             glUnmapBuffer(m_type);
             assert(glGetError() == GL_NO_ERROR);
             m_buffer = NULL;
-            m_mapped = true;
+            m_mapped = false;
         }
         
         VboBlock& Vbo::allocBlock(int capacity) {

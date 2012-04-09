@@ -93,7 +93,7 @@ namespace TrenchBroom {
             }
             return m_children[childIndex]->addObject(object);
         }
-        
+
         OctreeNode::OctreeNode(const BBox& bounds, int minSize) : m_bounds(bounds), m_minSize(minSize) {
             for (int i = 0; i < 8; i++)
                 m_children[i] = NULL;
@@ -131,66 +131,79 @@ namespace TrenchBroom {
             }
         }
         
-        void Octree::notify(const string &name, const void *data) {
-            if (name == EntitiesAdded || name == PropertiesWillChange) {
-                const vector<Entity*>* entities = (const vector<Entity*>*)data;
-                for (int i = 0; i < entities->size(); i++) {
-                    Entity* entity = (*entities)[i];
-                    if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == EDT_POINT)
-                        m_root->addObject(*entity);
-                }
-            } else if (name == EntitiesWillBeRemoved || name == PropertiesDidChange) {
-                const vector<Entity*>* entities = (const vector<Entity*>*)data;
-                for (int i = 0; i < entities->size(); i++) {
-                    Entity* entity = (*entities)[i];
-                    if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == EDT_POINT)
-                        assert(m_root->removeObject(*entity));
-                }
-            } else if (name == BrushesAdded || name == BrushesDidChange) {
-                const vector<Brush*>* brushes = (const vector<Brush*>*)data;
-                for (int i = 0; i < brushes->size(); i++) {
-                    Brush* brush = (*brushes)[i];
-                    m_root->addObject(*brush);
-                }
-            } else if (name == BrushesWillBeRemoved || name == BrushesWillChange) {
-                const vector<Brush*>* brushes = (const vector<Brush*>*)data;
-                for (int i = 0; i < brushes->size(); i++) {
-                    Brush* brush = (*brushes)[i];
-                    assert(m_root->removeObject(*brush));
-                }
-            } else if (name == MapLoaded) {
-                const vector<Entity*>& entities = m_map.entities();
-                for (int i = 0; i < entities.size(); i++) {
-                    Entity* entity = entities[i];
-                    if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == EDT_POINT)
-                        m_root->addObject((MapObject&)*entity);
-                    const vector<Brush*>& brushes = entity->brushes();
-                    for (int j = 0; j < brushes.size(); j++) {
-                        Brush* brush = brushes[j];
-                        m_root->addObject(*brush);
-                    }
-                }
-            } else if (name == MapCleared) {
-                delete m_root;
-                m_root = new OctreeNode(m_map.worldBounds(), m_minSize);
+        void Octree::entitiesWereAddedOrPropertiesDidChange(const vector<Entity*>& entities) {
+            for (int i = 0; i < entities.size(); i++) {
+                Entity* entity = entities[i];
+                if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == EDT_POINT)
+                    m_root->addObject(*entity);
             }
         }
         
+        void Octree::entitiesWillBeRemovedOrPropertiesWillChange(const vector<Entity*>& entities){
+            for (int i = 0; i < entities.size(); i++) {
+                Entity* entity = entities[i];
+                if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == EDT_POINT)
+                    assert(m_root->removeObject(*entity));
+            }
+        }
+        
+        void Octree::brushesWereAddedOrDidChange(const vector<Brush*>& brushes) {
+            for (int i = 0; i < brushes.size(); i++) {
+                Brush* brush = brushes[i];
+                m_root->addObject(*brush);
+            }
+        }
+        
+        void Octree::brushesWillBeRemovedOrWillChange(const vector<Brush*>& brushes) {
+            for (int i = 0; i < brushes.size(); i++) {
+                Brush* brush = brushes[i];
+                assert(m_root->removeObject(*brush));
+            }
+        }
+        
+        void Octree::mapLoaded(Map& map) {
+            const vector<Entity*>& entities = map.entities();
+            for (int i = 0; i < entities.size(); i++) {
+                Entity* entity = entities[i];
+                if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == EDT_POINT)
+                    m_root->addObject((MapObject&)*entity);
+                const vector<Brush*>& brushes = entity->brushes();
+                for (int j = 0; j < brushes.size(); j++) {
+                    Brush* brush = brushes[j];
+                    m_root->addObject(*brush);
+                }
+            }
+        }
+        
+        void Octree::mapCleared(Map& map) {
+            delete m_root;
+            m_root = new OctreeNode(m_map.worldBounds(), m_minSize);
+        }
+        
         Octree::Octree(Map& map, int minSize) : m_minSize(minSize), m_map(map), m_root(new OctreeNode(map.worldBounds(), minSize)) {
-            m_map.addObserver(EntitiesAdded, *this);
-            m_map.addObserver(EntitiesWillBeRemoved, *this);
-            m_map.addObserver(PropertiesWillChange, *this);
-            m_map.addObserver(PropertiesDidChange, *this);
-            m_map.addObserver(BrushesAdded, *this);
-            m_map.addObserver(BrushesWillBeRemoved, *this);
-            m_map.addObserver(BrushesWillChange, *this);
-            m_map.addObserver(BrushesDidChange, *this);
-            m_map.addObserver(MapLoaded, *this);
-            m_map.addObserver(MapCleared, *this);
+            m_map.entitiesWereAdded     += new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWereAddedOrPropertiesDidChange);
+            m_map.entitiesWillBeRemoved += new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWillBeRemovedOrPropertiesWillChange);
+            m_map.propertiesWillChange  += new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWillBeRemovedOrPropertiesWillChange);
+            m_map.propertiesDidChange   += new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWereAddedOrPropertiesDidChange);
+            m_map.brushesWereAdded      += new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWereAddedOrDidChange);
+            m_map.brushesWillBeRemoved  += new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWillBeRemovedOrWillChange);
+            m_map.brushesWillChange     += new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWillBeRemovedOrWillChange);
+            m_map.brushesDidChange      += new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWereAddedOrDidChange);
+            m_map.mapLoaded             += new Model::Map::MapEvent::T<Octree>(this, &Octree::mapLoaded);
+            m_map.mapCleared            += new Model::Map::MapEvent::T<Octree>(this, &Octree::mapCleared);
         }
         
         Octree::~Octree() {
-            m_map.removeObserver(*this);
+            m_map.entitiesWereAdded     -= new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWereAddedOrPropertiesDidChange);
+            m_map.entitiesWillBeRemoved -= new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWillBeRemovedOrPropertiesWillChange);
+            m_map.propertiesWillChange  -= new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWillBeRemovedOrPropertiesWillChange);
+            m_map.propertiesDidChange   -= new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWereAddedOrPropertiesDidChange);
+            m_map.brushesWereAdded      -= new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWereAddedOrDidChange);
+            m_map.brushesWillBeRemoved  -= new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWillBeRemovedOrWillChange);
+            m_map.brushesWillChange     -= new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWillBeRemovedOrWillChange);
+            m_map.brushesDidChange      -= new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWereAddedOrDidChange);
+            m_map.mapLoaded             -= new Model::Map::MapEvent::T<Octree>(this, &Octree::mapLoaded);
+            m_map.mapCleared            -= new Model::Map::MapEvent::T<Octree>(this, &Octree::mapCleared);
             delete m_root;
         }
         

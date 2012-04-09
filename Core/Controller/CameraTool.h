@@ -20,10 +20,14 @@
 #ifndef TrenchBroom_CameraTool_h
 #define TrenchBroom_CameraTool_h
 
-#include "Camera.h"
 #include "Tool.h"
+#include "VecMath.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Camera;
+    }
+    
     namespace Controller {
         class CameraTool : public Tool {
         private:

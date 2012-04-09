@@ -20,7 +20,6 @@
 		48B05A4F152FB670006AF69B /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A46152FB670006AF69B /* MapParser.cpp */; };
 		48B05A50152FB670006AF69B /* Pak.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A48152FB670006AF69B /* Pak.cpp */; };
 		48B05A52152FB670006AF69B /* Wad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A4C152FB670006AF69B /* Wad.cpp */; };
-		48B05A5C152FB72C006AF69B /* Observer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A54152FB72C006AF69B /* Observer.cpp */; };
 		48B05A5D152FB72C006AF69B /* Octree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A56152FB72C006AF69B /* Octree.cpp */; };
 		48B05A5F152FB72C006AF69B /* Selection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A5A152FB72C006AF69B /* Selection.cpp */; };
 		48B05A6A152FB7B3006AF69B /* Alias.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B05A61152FB7B3006AF69B /* Alias.cpp */; };
@@ -86,8 +85,7 @@
 		48B05A4B152FB670006AF69B /* substream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = substream.h; sourceTree = "<group>"; };
 		48B05A4C152FB670006AF69B /* Wad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Wad.cpp; sourceTree = "<group>"; };
 		48B05A4D152FB670006AF69B /* Wad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Wad.h; sourceTree = "<group>"; };
-		48B05A54152FB72C006AF69B /* Observer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Observer.cpp; path = ../Core/Model/Observer.cpp; sourceTree = "<group>"; };
-		48B05A55152FB72C006AF69B /* Observer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Observer.h; path = ../Core/Model/Observer.h; sourceTree = "<group>"; };
+		48B05A55152FB72C006AF69B /* Event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Event.h; path = ../Core/Model/Event.h; sourceTree = "<group>"; };
 		48B05A56152FB72C006AF69B /* Octree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Octree.cpp; path = ../Core/Model/Octree.cpp; sourceTree = "<group>"; };
 		48B05A57152FB72C006AF69B /* Octree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Octree.h; path = ../Core/Model/Octree.h; sourceTree = "<group>"; };
 		48B05A5A152FB72C006AF69B /* Selection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Selection.cpp; path = ../Core/Model/Selection.cpp; sourceTree = "<group>"; };
@@ -193,8 +191,7 @@
 				48B05A6E152FB84E006AF69B /* Map */,
 				48367713152F4B6300D402E3 /* Camera.h */,
 				483511A2152FB61A007B561E /* Camera.cpp */,
-				48B05A54152FB72C006AF69B /* Observer.cpp */,
-				48B05A55152FB72C006AF69B /* Observer.h */,
+				48B05A55152FB72C006AF69B /* Event.h */,
 				48B05A56152FB72C006AF69B /* Octree.cpp */,
 				48B05A57152FB72C006AF69B /* Octree.h */,
 				48B05A5A152FB72C006AF69B /* Selection.cpp */,
@@ -464,7 +461,6 @@
 				48B05A4F152FB670006AF69B /* MapParser.cpp in Sources */,
 				48B05A50152FB670006AF69B /* Pak.cpp in Sources */,
 				48B05A52152FB670006AF69B /* Wad.cpp in Sources */,
-				48B05A5C152FB72C006AF69B /* Observer.cpp in Sources */,
 				48B05A5D152FB72C006AF69B /* Octree.cpp in Sources */,
 				48B05A5F152FB72C006AF69B /* Selection.cpp in Sources */,
 				48B05A6A152FB7B3006AF69B /* Alias.cpp in Sources */,

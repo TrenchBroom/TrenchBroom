@@ -24,64 +24,78 @@
 
 namespace TrenchBroom {
     namespace Model {
-        void GroupManager::notify(const string &name, const void *data) {
+        void GroupManager::entitesAdded(const vector<Entity*>& entities) {
             bool changed = false;
-            if (name == EntitiesAdded) {
-                const vector<Entity*>& entities = *(const vector<Entity*>*)data;
-                for (int i = 0; i < entities.size(); i++) {
-                    if (entities[i]->group()) {
-                        m_groups.push_back(entities[i]);
-                        if (visible(*entities[i]))
-                            m_visibleGroupCount++;
-                        changed |= true;
-                    }
-                }
-            } else if (name == EntitiesWillBeRemoved) {
-                const vector<Entity*>& entities = *(const vector<Entity*>*)data;
-                for (int i = 0; i < entities.size(); i++) {
-                    if (entities[i]->group()) {
-                        if (visible(*entities[i]))
-                            m_visibleGroupCount--;
-                        m_groups.erase(find(m_groups.begin(), m_groups.end(), entities[i]));
-                        changed |= true;
-                    }
-                }
-            } else if (name == BrushesDidChange) {
-                const vector<Brush*>& brushes = *(const vector<Brush*>*)data;
-                for (int i = 0; i < brushes.size(); i++) {
-                    if (brushes[i]->entity()->group()) {
-                        changed = true;
-                        break;
-                    }
-                }
-            } else if (name == MapCleared) {
-                m_groups.clear();
-                m_visibleGroupCount = 0;
-            } else if (name == MapLoaded) {
-                const vector<Entity*>& entities = m_map.entities();
-                for (int i = 0; i < entities.size(); i++) {
-                    if (entities[i]->group()) {
-                        m_groups.push_back(entities[i]);
-                        if (visible(*entities[i]))
-                            m_visibleGroupCount++;
-                    }
+            for (int i = 0; i < entities.size(); i++) {
+                if (entities[i]->group()) {
+                    m_groups.push_back(entities[i]);
+                    if (visible(*entities[i]))
+                        m_visibleGroupCount++;
+                    changed |= true;
                 }
             }
-            
             if (changed)
-                postNotification(GroupsChanged, NULL);
+                groupsChanged(*this);
         }
         
-        GroupManager::GroupManager(Map& map) : Observer(), m_map(map), m_visibleGroupCount(0) {
-            m_map.addObserver(EntitiesAdded, *this);
-            m_map.addObserver(EntitiesWillBeRemoved, *this);
-            m_map.addObserver(BrushesDidChange, *this);
-            m_map.addObserver(MapCleared, *this);
-            m_map.addObserver(MapLoaded, *this);
+        void GroupManager::entitiesRemoved(const vector<Entity*>& entities) {
+            bool changed = false;
+            for (int i = 0; i < entities.size(); i++) {
+                if (entities[i]->group()) {
+                    if (visible(*entities[i]))
+                        m_visibleGroupCount--;
+                    m_groups.erase(find(m_groups.begin(), m_groups.end(), entities[i]));
+                    changed |= true;
+                }
+            }
+            if (changed)
+                groupsChanged(*this);
+        }
+        
+        void GroupManager::brushesChanged(const vector<Brush*>& brushes) {
+            bool changed = false;
+            for (int i = 0; i < brushes.size(); i++) {
+                if (brushes[i]->entity()->group()) {
+                    changed = true;
+                    break;
+                }
+            }
+            if (changed)
+                groupsChanged(*this);
+        }
+        
+        void GroupManager::mapLoaded(Map& map) {
+            const vector<Entity*>& entities = map.entities();
+            for (int i = 0; i < entities.size(); i++) {
+                if (entities[i]->group()) {
+                    m_groups.push_back(entities[i]);
+                    if (visible(*entities[i]))
+                        m_visibleGroupCount++;
+                }
+            }
+            groupsChanged(*this);
+        }
+        
+        void GroupManager::mapCleared(Map& map) {
+            m_groups.clear();
+            m_visibleGroupCount = 0;
+            groupsChanged(*this);
+        }
+
+        GroupManager::GroupManager(Map& map) : m_map(map), m_visibleGroupCount(0) {
+            m_map.entitiesWereAdded     += new Model::Map::EntityEvent::T<GroupManager>(this, &GroupManager::entitesAdded);
+            m_map.entitiesWillBeRemoved += new Model::Map::EntityEvent::T<GroupManager>(this, &GroupManager::entitiesRemoved);
+            m_map.brushesDidChange      += new Model::Map::BrushEvent::T<GroupManager>(this, &GroupManager::brushesChanged);
+            m_map.mapLoaded             += new Model::Map::MapEvent::T<GroupManager>(this, &GroupManager::mapLoaded);
+            m_map.mapCleared            += new Model::Map::MapEvent::T<GroupManager>(this, &GroupManager::mapCleared);
         }
         
         GroupManager::~GroupManager() {
-            m_map.removeObserver(*this);
+            m_map.entitiesWereAdded     -= new Model::Map::EntityEvent::T<GroupManager>(this, &GroupManager::entitesAdded);
+            m_map.entitiesWillBeRemoved -= new Model::Map::EntityEvent::T<GroupManager>(this, &GroupManager::entitiesRemoved);
+            m_map.brushesDidChange      -= new Model::Map::BrushEvent::T<GroupManager>(this, &GroupManager::brushesChanged);
+            m_map.mapLoaded             -= new Model::Map::MapEvent::T<GroupManager>(this, &GroupManager::mapLoaded);
+            m_map.mapCleared            -= new Model::Map::MapEvent::T<GroupManager>(this, &GroupManager::mapCleared);
         }
         
         const vector<Entity*>& GroupManager::groups() const {
@@ -90,7 +104,7 @@ namespace TrenchBroom {
         
         void GroupManager::setGroupName(Entity& group, const string& name) {
             group.setProperty(GroupNameKey, name);
-            postNotification(GroupsChanged, NULL);
+            groupsChanged(*this);
         }
         
         void GroupManager::setGroupVisibility(Entity& group, bool visibility) {
@@ -98,7 +112,7 @@ namespace TrenchBroom {
             group.setProperty(GroupNameKey, "" + visibility);
             if (visibility) m_visibleGroupCount++;
             else m_visibleGroupCount--;
-            postNotification(GroupsChanged, NULL);
+            groupsChanged(*this);
         }
         
         bool GroupManager::visible(const Entity& group) const {
