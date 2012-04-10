@@ -227,6 +227,15 @@ bool Vec3f::equals(Vec3f other, float delta) const {
     return diff.lengthSquared() <= delta * delta;
 }
 
+EAxis Vec3f::strongestAxis() const {
+    int ax = fabsf(x);
+    int ay = fabsf(y);
+    int az = fabsf(z);
+    if (ax >= ay && ax >= az) return A_X;
+    if (ay >= ax && ay >= az) return A_Y;
+    return A_Z;
+}
+
 const Vec3f Vec3f::snap() const {
     return snap(AlmostZero);
 }
@@ -234,9 +243,9 @@ const Vec3f Vec3f::snap() const {
 const Vec3f Vec3f::snap(float epsilon) const {
     Vec3f rounded(roundf(x), roundf(y), round(z));
     Vec3f result;
-    result.x = fabsf(x - rounded.x) < AlmostZero ? rounded.x : x;
-    result.y = fabsf(y - rounded.y) < AlmostZero ? rounded.y : y;
-    result.z = fabsf(z - rounded.z) < AlmostZero ? rounded.z : z;
+    result.x = feq(x, rounded.x) ? rounded.x : x;
+    result.y = feq(y, rounded.y) ? rounded.y : y;
+    result.z = feq(z, rounded.z) ? rounded.z : z;
     return result;
 }
 
@@ -1392,15 +1401,15 @@ const Vec3f Plane::anchor() const {
 
 float Plane::intersectWithRay(const Ray& ray) const {
     float d = ray.direction | normal;
-    if (fabsf(d) < AlmostZero) return NAN;
+    if (fzero(d)) return NAN;
     float s = ((anchor() - ray.origin) | normal) / d;
-    if (s < -AlmostZero) return NAN;
+    if (fneg(s)) return NAN;
     return s;
 }
 
 float Plane::intersectWithLine(const Line& line) const {
     float d = line.direction | normal;
-    if (fabsf(d) < AlmostZero) return NAN;
+    if (fzero(d)) return NAN;
     return ((anchor() - line.point) | normal) / d;
 }
 
@@ -1460,4 +1469,40 @@ const Plane Plane::flip(EAxis axis) const {
 
 const Plane Plane::flip(EAxis axis, const Vec3f& center) const {
     return Plane(normal.flip(axis), anchor().flip(axis, center));
+}
+
+const CoordinatePlane& CoordinatePlane::plane(CPlane plane) {
+    static CoordinatePlane xy(CP_XY);
+    static CoordinatePlane xz(CP_XZ);
+    static CoordinatePlane yz(CP_YZ);
+    switch (plane) {
+        case CP_XY:
+            return xy;
+        case CP_XZ:
+            return xz;
+        case CP_YZ:
+            return yz;
+    }
+}
+
+const CoordinatePlane& CoordinatePlane::plane(const Vec3f& normal) {
+    switch (normal.strongestAxis()) {
+        case A_X:
+            return plane(CP_YZ);
+        case A_Y:
+            return plane(CP_XZ);
+        case A_Z:
+            return plane(CP_XY);
+    }
+}
+
+const Vec3f CoordinatePlane::project(const Vec3f& point) {
+    switch (m_plane) {
+        case CP_XY:
+            return Vec3f(point.x, point.y, point.z);
+        case CP_YZ:
+            return Vec3f(point.y, point.z, point.x);
+        case CP_XZ:
+            return Vec3f(point.x, point.z, point.y);
+    }
 }

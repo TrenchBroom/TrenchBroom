@@ -30,6 +30,7 @@ namespace TrenchBroom {
                 
                 stream.seekg(0, ios::end);
                 m_size = stream.tellg();
+                stream.seekg(0, ios::beg);
                 m_data = new unsigned char[m_size];
                 stream.read((char*)m_data, m_size);
                 stream.close();

@@ -20,9 +20,8 @@
 #include "Camera.h"
 #include <cmath>
 
-
 namespace TrenchBroom {
-    namespace Model {
+    namespace Controller {
         Camera::Camera(float fov, float near, float far, Vec3f position, Vec3f direction) : m_fov(fov), m_near(near), m_far(far), m_position(position), m_direction(direction) {
             if (m_direction.equals(ZAxisPos)) {
                 m_right = YAxisNeg;
@@ -64,6 +63,46 @@ namespace TrenchBroom {
             return m_far;
         }
         
+        const Vec3f Camera::defaultPoint() {
+            return m_position + m_direction * 256;
+        }
+        
+        const Vec3f Camera::unproject(float x, float y, float depth) const {
+            GLdouble rx, ry, rz;
+            gluUnProject(x, y, depth, m_modelview, m_projection, m_viewport, &rx, &ry, &rz);
+            
+            return Vec3f(rx, ry, rz);
+        }
+
+        const Ray Camera::pickRay(float x, float y) const {
+            Vec3f direction = (unproject(x, y, 0.5f) - m_position).normalize();
+            return Ray(m_position, direction);
+        }
+
+        void Camera::update(float x, float y, float width, float height) {
+            glMatrixMode(GL_PROJECTION);
+            glPushMatrix();
+            glLoadIdentity();
+            
+            float vfrustum = tan(m_fov * M_PI / 360) * 0.75 * m_near;
+            float hfrustum = vfrustum * width / height;
+            glFrustum(-hfrustum, hfrustum, -vfrustum, vfrustum, m_near, m_far);
+            
+            const Vec3f& pos = m_position;
+            const Vec3f& at = m_position + m_direction;
+            const Vec3f& up = m_up;
+            
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+            glLoadIdentity();
+            glViewport(x, y, width, height);
+            gluLookAt(pos.x, pos.y, pos.z, at.x, at.y, at.z, up.x, up.y, up.z);
+
+            glGetIntegerv(GL_VIEWPORT, m_viewport);
+            glGetDoublev(GL_MODELVIEW_MATRIX, m_modelview);
+            glGetDoublev(GL_PROJECTION_MATRIX, m_projection);
+        }
+
         void Camera::moveTo(Vec3f position) {
             m_position = position;
         }
@@ -117,7 +156,7 @@ namespace TrenchBroom {
                 // correct rounding errors
                 float cos = fmaxf(-1, fminf(1, m_direction | newDirection));
                 float angle = acosf(cos);
-                if (fabsf(angle) < AlmostZero) {
+                if (!fzero(angle)) {
                     Vec3f axis = (m_direction % newDirection).normalize();
                     rotation = Quat(angle, axis);
                     offset = rotation * offset;

@@ -20,19 +20,18 @@
 #include "CameraTool.h"
 #include <cstdio>
 #include "Camera.h"
+#include "Editor.h"
+#include "Picker.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        CameraTool::CameraTool(Model::Camera& camera) : m_camera(camera), m_orbit(false), m_invert(false), m_lookSensitivity(1 / 90.0f), m_panSensitivity(1.0f), m_moveSensitivity(6.0f) {}
-
-        
         bool CameraTool::scrolled(ToolEvent& event) {
             if (!cameraModiferPressed(event) && !orbitModifierPressed(event)) return false;
             
             float forward = event.scrollX * m_moveSensitivity;
             float right = 0;
             float up = 0;
-            m_camera.moveBy(forward, right, up);
+            m_editor.camera().moveBy(forward, right, up);
             return true;
         }
         
@@ -40,7 +39,10 @@ namespace TrenchBroom {
             if (!cameraModiferPressed(event) && !orbitModifierPressed(event)) return false;
             
             if (orbitModifierPressed(event)) {
-                // TODO implement orbiting
+                Model::Hit* hit = event.hits->first(Model::HT_ENTITY | Model::HT_FACE, true);
+                if (hit != NULL) m_orbitCenter = hit->hitPoint;
+                else m_orbitCenter = m_editor.camera().defaultPoint();
+                m_orbit = true;
             }
             return true;
         }
@@ -49,11 +51,11 @@ namespace TrenchBroom {
             if (m_orbit) {
                 float hAngle = -event.deltaX * m_lookSensitivity;
                 float vAngle = event.deltaY * m_lookSensitivity * (m_invert ? 1 : -1);
-                m_camera.orbit(m_orbitCenter, hAngle, vAngle);
+                m_editor.camera().orbit(m_orbitCenter, hAngle, vAngle);
             } else {
                 float yawAngle = -event.deltaX * m_lookSensitivity;
                 float pitchAngle = event.deltaY * m_lookSensitivity * (m_invert ? 1 : -1);
-                m_camera.rotate(yawAngle, pitchAngle);
+                m_editor.camera().rotate(yawAngle, pitchAngle);
             }
         }
         
@@ -69,7 +71,7 @@ namespace TrenchBroom {
             float forward = 0;
             float right = event.deltaX * m_panSensitivity;
             float up = -event.deltaY * m_panSensitivity;
-            m_camera.moveBy(forward, right, up);
+            m_editor.camera().moveBy(forward, right, up);
         }
         
         bool CameraTool::cameraModiferPressed(ToolEvent& event) {

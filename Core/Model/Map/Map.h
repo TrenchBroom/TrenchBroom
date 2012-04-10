@@ -23,23 +23,27 @@
 #include <vector>
 #include "VecMath.h"
 #include "Event.h"
-#include "Octree.h"
-#include "Selection.h"
-#include "Groups.h"
-#include "EntityDefinition.h"
-#include "Entity.h"
-#include "Brush.h"
-#include "Face.h"
 
 namespace TrenchBroom {
     namespace Model {
+        namespace Assets {
+            class Texture;
+        }
+        
         class Octree;
+        class Picker;
         class Selection;
+        class EntityDefinitionManager;
+        class GroupManager;
         class MoveResult;
         class Entity;
+        class Brush;
+        class Face;
+        
         class Map {
         private:
             Octree* m_octree;
+            Picker* m_picker;
             Selection* m_selection;
             EntityDefinitionManager* m_entityDefinitionManager;
             GroupManager* m_groupManager;
@@ -130,6 +134,7 @@ namespace TrenchBroom {
 # pragma mark Getters
             BBox worldBounds();
             Octree& octree();
+            Picker& picker();
             Selection& selection();
             EntityDefinitionManager& entityDefinitionManager();
             GroupManager& groupManager();

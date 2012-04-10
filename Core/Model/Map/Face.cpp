@@ -54,8 +54,8 @@ namespace TrenchBroom {
             Quat rot(m_rotation * M_PI / 180, *BaseAxes[m_texPlaneNormIndex]);
             m_texAxisX = rot * m_texAxisX;
             m_texAxisY = rot * m_texAxisY;
-            m_texAxisX /= m_xScale;
-            m_texAxisY /= m_yScale;
+            m_scaledTexAxisX = m_texAxisX / m_xScale;
+            m_scaledTexAxisY = m_texAxisY / m_yScale;
             
             m_texAxesValid = true;
         }

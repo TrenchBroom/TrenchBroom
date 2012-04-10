@@ -20,6 +20,9 @@
 #include "Editor.h"
 #include <ctime>
 #include "VecMath.h"
+#include "Camera.h"
+#include "InputController.h"
+#include "Map.h"
 #include "Preferences.h"
 #include "MapParser.h"
 #include "Entity.h"
@@ -62,7 +65,7 @@ namespace TrenchBroom {
             m_textureManager = new Model::Assets::TextureManager();
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
             m_map = new Model::Map(worldBounds, m_entityDefinitionFilePath);
-            m_camera = new Model::Camera(prefs.cameraFov(), prefs.cameraNear(), prefs.cameraFar(), 
+            m_camera = new Camera(prefs.cameraFov(), prefs.cameraNear(), prefs.cameraFar(), 
                                          Vec3f(-32, -32, 32), XAxisPos);
             m_inputController = new InputController(*this);
             
@@ -115,7 +118,7 @@ namespace TrenchBroom {
             return *m_map;
         }
         
-        Model::Camera& Editor::camera() {
+        Camera& Editor::camera() {
             return *m_camera;
         }
 

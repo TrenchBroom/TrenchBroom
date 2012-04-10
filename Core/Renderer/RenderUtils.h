@@ -17,25 +17,18 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Preferences.h"
+
+#ifndef TrenchBroom_RenderUtils_h
+#define TrenchBroom_RenderUtils_h
+
+#include "VecMath.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        Preferences& Preferences::sharedPreferences() {
-            static Preferences instance;
-            return instance;
-        }
-
-        float Preferences::cameraFov() {
-            return 90;
-        }
-        
-        float Preferences::cameraNear() {
-            return 10;
-        }
-        
-        float Preferences::cameraFar() {
-            return 10000;
-        }
+    namespace Renderer {
+        void glColorV4f(const Vec4f& color);
+        void glSetEdgeOffset(float f);
+        void glResetEdgeOffset();
     }
 }
+
+#endif

@@ -22,7 +22,10 @@
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #include "Gwen/Structures.h"
+#include "MapRenderer.h"
+#include "Editor.h"
 #include "Tool.h"
+#include "InputController.h"
 #include "Camera.h"
 
 namespace TrenchBroom {
@@ -43,24 +46,14 @@ namespace TrenchBroom {
             glPushAttrib(GL_ALL_ATTRIB_BITS);
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT | GL_CLIENT_PIXEL_STORE_BIT);
             
-            glMatrixMode(GL_PROJECTION);
-            glPushMatrix();
-            glLoadIdentity();
+            glDisableClientState(GL_VERTEX_ARRAY);
+            glDisableClientState(GL_COLOR_ARRAY);
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glDisable(GL_TEXTURE_2D);
             
-            Model::Camera& camera = m_editor.camera();
-            float vfrustum = tan(camera.fov() * M_PI / 360) * 0.75 * camera.near();
-            float hfrustum = vfrustum * bounds.w / (float)bounds.h;
-            glFrustum(-hfrustum, hfrustum, -vfrustum, vfrustum, camera.near(), camera.far());
-            
-            Vec3f pos = camera.position();
-            Vec3f at = pos + camera.direction();
-            Vec3f up = camera.up();
-            
-            glMatrixMode(GL_MODELVIEW);
-            glPushMatrix();
-            glLoadIdentity();
-            glViewport(bounds.x, bounds.y, bounds.w, bounds.h);
-            gluLookAt(pos.x, pos.y, pos.z, at.x, at.y, at.z, up.x, up.y, up.z);
+            Controller::Camera& camera = m_editor.camera();
+            camera.update(bounds.x, bounds.y, bounds.w, bounds.h);
             
             Renderer::RenderContext context;
             m_mapRenderer->render(context);

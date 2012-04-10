@@ -37,8 +37,8 @@ namespace TrenchBroom {
             mark = VM_NEW;
         }
         
-        Edge::Edge(Vertex* start, Vertex* end) : start(start), end(end), mark((EM_NEW)) {}
-        Edge::Edge() : mark(EM_NEW) {}
+        Edge::Edge(Vertex* start, Vertex* end) : start(start), end(end), mark((EM_NEW)), left(NULL), right(NULL) {}
+        Edge::Edge() : start(NULL), end(NULL), mark(EM_NEW), left(NULL), right(NULL) {}
         
         Vertex* Edge::startVertex(Side* side) {
             if (left == side) return end;
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             edges.reserve(count);
             for (int i = 0; i < count; i++) {
                 Edge* edge = newEdges[i];
-                this->edges.push_back(edge);
+                edges.push_back(edge);
                 if (invert[i]) {
                     edge->left = this;
                     vertices.push_back(edge->end);
@@ -133,20 +133,94 @@ namespace TrenchBroom {
             this->face->setSide(this);
         }
         
+        float Side::intersectWithRay(const Ray& ray) {
+            const Plane& boundary = face->boundary();
+            float dot = boundary.normal | ray.direction;
+            if (!fneg(dot)) return NAN;
+            
+            float dist = boundary.intersectWithRay(ray);
+            if (std::isnan(dist)) return NAN;
+            
+            Vec3f hit, projectedHit, v0, v1;
+            CoordinatePlane cPlane = CoordinatePlane::plane(boundary.normal);
+            
+            hit = ray.pointAtDistance(dist);
+            projectedHit = cPlane.project(hit);
+            
+            const Vertex* vertex = vertices.back();
+            v0 = cPlane.project(vertex->position) - projectedHit;
+            
+            int c = 0;
+            for (int i = 0; i < vertices.size(); i++) {
+                vertex = vertices[i];
+                v1 = cPlane.project(vertex->position) - projectedHit;
+                
+                if ((fzero(v0.x) && fzero(v0.y)) || (fzero(v1.x) && fzero(v1.y))) {
+                    // the point is identical to a polygon vertex, cancel search
+                    c = 1;
+                    break;
+                }
+                
+                /*
+                 * A polygon edge intersects with the positive X axis if the
+                 * following conditions are met: The Y coordinates of its
+                 * vertices must have different signs (we assign a negative sign
+                 * to 0 here in order to count it as a negative number) and one
+                 * of the following two conditions must be met: Either the X
+                 * coordinates of the vertices are both positive or the X
+                 * coordinates of the edge have different signs (again, we
+                 * assign a negative sign to 0 here). In the latter case, we
+                 * must calculate the point of intersection between the edge and
+                 * the X axis and determine whether its X coordinate is positive
+                 * or zero.
+                 */
+                
+                // do the Y coordinates have different signs?
+                if ((v0.y > 0 && v1.y <= 0) || (v0.y <= 0 && v1.y > 0)) {
+                    // Is segment entirely on the positive side of the X axis?
+                    if (v0.x > 0 && v1.x > 0) {
+                        c += 1; // edge intersects with the X axis
+                        // if not, do the X coordinates have different signs?
+                    } else if ((v0.x > 0 && v1.x <= 0) || (v0.x <= 0 && v1.x > 0)) {
+                        // calculate the point of intersection between the edge
+                        // and the X axis
+                        float x = -v0.y * (v1.x - v0.x) / (v1.y - v0.y) + v0.x;
+                        if (x >= 0)
+                            c += 1; // edge intersects with the X axis
+                    }
+                }
+                
+                v0 = v1;
+            }
+            
+            if (c % 2 == 0) return NAN;
+            return dist;
+        }
+        
         void Side::replaceEdges(int index1, int index2, Edge* edge) {
             if (index2 > index1) {
-                vertices.erase(vertices.begin() + index1 + 1, vertices.begin() + index2);
+                vertices.erase(vertices.begin() + index1 + 1, vertices.begin() + index2 + 1);
                 edges.erase(edges.begin() + index1 + 1, edges.begin() + index2);
                 vertices.insert(vertices.begin() + index1 + 1, edge->startVertex(this));
+                vertices.insert(vertices.begin() + index1 + 2, edge->endVertex(this));
+
+                assert(edge->startVertex(this) == vertices[index1 + 1]);
+                assert(edge->endVertex(this) == vertices[index1 + 2]);
                 edges.insert(edges.begin() + index1 + 1, edge);
             } else {
                 vertices.erase(vertices.begin() + index1 + 1, vertices.end());
-                vertices.erase(vertices.begin(), vertices.begin() + index2);
+                vertices.erase(vertices.begin(), vertices.begin() + index2 + 1);
                 edges.erase(edges.begin() + index1 + 1, edges.end());
                 edges.erase(edges.begin(), edges.begin() + index2);
                 vertices.push_back(edge->startVertex(this));
+                vertices.insert(vertices.begin(), edge->endVertex(this));
+                
+                assert(edge->startVertex(this) == vertices.back());
+                assert(edge->endVertex(this) == vertices.front());
                 edges.push_back(edge);
             }
+
+            assert(vertices.size() == edges.size());
         }
         
         Edge* Side::split() {
@@ -381,7 +455,7 @@ namespace TrenchBroom {
                     v2 = side->vertices[1]->position - side->vertices[0]->position;
                     v1 = v1 % v2;
                     
-                    if ((v1 | ray.direction) <= -AlmostZero) {
+                    if (fneg((v1 | ray.direction))) {
                         splitSide(side, vertexIndex, newFaces);
                     } else {
                         triangulateSide(side, vertexIndex, newFaces);
@@ -631,9 +705,9 @@ namespace TrenchBroom {
                 plane = neighbourSide->face->boundary();
                 float neighbourDist = plane.intersectWithRay(ray);
                 
-                if (!isnan(sideDist) && sideDist >= AlmostZero && sideDist < minDist - AlmostZero)
+                if (!std::isnan(sideDist) && fpos(sideDist) && flt(sideDist, minDist))
                     minDist = sideDist;
-                if (!isnan(neighbourDist) && neighbourDist >= AlmostZero && neighbourDist < minDist - AlmostZero)
+                if (!std::isnan(neighbourDist) && fpos(neighbourDist) && flt(neighbourDist, minDist))
                     minDist = neighbourDist;
             }
             
@@ -761,8 +835,8 @@ namespace TrenchBroom {
             // detect whether the drag would make the incident faces invalid
             leftNorm = edge->left->face->boundary().normal;
             rightNorm = edge->right->face->boundary().normal;
-            if ((delta | leftNorm) <= -AlmostZero || 
-                (delta | rightNorm) <= -AlmostZero) {
+            if (fneg((delta | leftNorm)) || 
+                fneg((delta | rightNorm))) {
                 result.moved = false;
                 result.index = index;
                 return result;
@@ -821,7 +895,7 @@ namespace TrenchBroom {
             
             // detect whether the drag would lead to an indented face
             norm = side->face->boundary().normal;
-            if ((delta | norm) < AlmostZero) {
+            if (fzero((delta | norm))) {
                 result.moved = false;
                 result.index = sideIndex;
                 return result;
@@ -1106,6 +1180,7 @@ namespace TrenchBroom {
                     if (edge->start == candidate->end) {
                         newEdges[j] = newEdges[i + 1];
                         newEdges[i + 1] = candidate;
+                        break;
                     }
                 }
             }
@@ -1113,6 +1188,19 @@ namespace TrenchBroom {
             // now create the new side
             Side* newSide = new Side(face, newEdges);
             sides.push_back(newSide);
+            
+            // sanity checks
+            for (int i = 0; i < sides.size(); i++) {
+                Side* side = sides[i];
+                vector<Vertex*>& vertices = side->vertices;
+                vector<Edge*>& edges = side->edges;
+                assert(vertices.size() == edges.size());
+                for (int j = 0; j < vertices.size(); j++) {
+                    assert(vertices[j]->mark != VM_DROP);
+                    assert(edges[j]->mark != EM_DROP);
+                    assert(edges[j]->startVertex(side) == vertices[j]);
+                }
+            }
             
             // clean up
             // delete dropped vertices
@@ -1123,19 +1211,19 @@ namespace TrenchBroom {
                     delete vertex;
                     vertexIt = --vertices.erase(vertexIt);
                 } else {
-                    vertex->mark = VM_UNDECIDED;
+                    vertex->mark = VM_UNKNOWN;
                 }
             }
             
             // delete dropped edges
             vector<Edge*>::iterator edgeIt;
-            for (edgeIt = edges.begin(); edgeIt != edges.end(); edgeIt++) {
+            for (edgeIt = edges.begin(); edgeIt != edges.end(); ++edgeIt) {
                 Edge* edge = *edgeIt;
                 if (edge->mark == EM_DROP) {
                     delete edge;
                     edgeIt = --edges.erase(edgeIt);
                 } else {
-                    edge->mark = EM_UNDECIDED;
+                    edge->mark = EM_UNKNOWN;
                 }
             }
             

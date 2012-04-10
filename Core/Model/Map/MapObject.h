@@ -24,6 +24,13 @@
 
 namespace TrenchBroom {
     namespace Model {
+        typedef enum {
+            MT_ENTITY,
+            MT_BRUSH
+        } EMapObjectType;
+
+        class HitList;
+        
         class MapObject {
         protected:
             int m_uniqueId;
@@ -32,6 +39,8 @@ namespace TrenchBroom {
             virtual ~MapObject() {};
             int uniqueId() const;
             virtual BBox bounds() const = 0;
+            virtual EMapObjectType objectType() const = 0;
+            virtual void pick(const Ray& ray, HitList& hits) = 0;
         };
     }
 }

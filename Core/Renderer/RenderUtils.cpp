@@ -17,25 +17,24 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Preferences.h"
+
+#include "RenderUtils.h"
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
 
 namespace TrenchBroom {
-    namespace Model {
-        Preferences& Preferences::sharedPreferences() {
-            static Preferences instance;
-            return instance;
-        }
+    namespace Renderer {
+        float const EdgeOffset = 0.0001f;
 
-        float Preferences::cameraFov() {
-            return 90;
+        void glColorV4f(const Vec4f& color) {
+            glColor4f(color.x, color.y, color.z, color.w);
+        }
+        void glSetEdgeOffset(float f) {
+            glDepthRange(0.0, 1.0 - EdgeOffset * f);
         }
         
-        float Preferences::cameraNear() {
-            return 10;
-        }
-        
-        float Preferences::cameraFar() {
-            return 10000;
+        void glResetEdgeOffset() {
+            glDepthRange(EdgeOffset, 1.0);
         }
     }
 }

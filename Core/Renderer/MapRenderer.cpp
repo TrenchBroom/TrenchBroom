@@ -20,6 +20,7 @@
 #include "MapRenderer.h"
 #include <set>
 #include "Map.h"
+#include "Selection.h"
 #include "Entity.h"
 #include "EntityDefinition.h"
 #include "Brush.h"
@@ -27,11 +28,15 @@
 #include "Face.h"
 #include "Vbo.h"
 #include "Editor.h"
+#include "RenderUtils.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         static const Vec4f FaceDefaultColor(0.2f, 0.2f, 0.2f, 1);
         static const Vec4f EdgeDefaultColor(0.6f, 0.6f, 0.6f, 0.6f);
+        static const Vec4f  SelectionColor(1, 0, 0, 1);
+        static const Vec4f  SelectionColor2(1, 0, 0, 0.35f);
+        static const Vec4f  SelectionColor3(1, 0, 0, 0.6f);
         static const int VertexSize = 3 * sizeof(float);
         static const int ColorSize = 4;
         static const int TexCoordSize = 2 * sizeof(float);
@@ -65,7 +70,7 @@ namespace TrenchBroom {
                 for (int i = 0; i < entities.size(); i++) {
                     Model::Entity* entity = entities[i];
                     vector<Model::Entity*>::iterator it = find(m_deselectedEntities.begin(), m_deselectedEntities.end(), entity);
-                    if (it == m_deselectedEntities.end()) m_deselectedEntities.erase(it);
+                    if (it != m_deselectedEntities.end()) m_deselectedEntities.erase(it);
                     else m_selectedEntities.push_back(entity);
                 }
             } else {
@@ -94,7 +99,7 @@ namespace TrenchBroom {
                 for (int i = 0; i < brushes.size(); i++) {
                     Model::Brush* brush = brushes[i];
                     vector<Model::Brush*>::iterator it = find(m_deselectedBrushes.begin(), m_deselectedBrushes.end(), brush);
-                    if (it == m_deselectedBrushes.end()) m_deselectedBrushes.erase(it);
+                    if (it != m_deselectedBrushes.end()) m_deselectedBrushes.erase(it);
                     else m_selectedBrushes.push_back(brush);
                 }
             } else {
@@ -115,7 +120,7 @@ namespace TrenchBroom {
                 for (int i = 0; i < faces.size(); i++) {
                     Model::Face* face = faces[i];
                     vector<Model::Face*>::iterator it = find(m_deselectedFaces.begin(), m_deselectedFaces.end(), face);
-                    if (it == m_deselectedFaces.end()) m_deselectedFaces.erase(it);
+                    if (it != m_deselectedFaces.end()) m_deselectedFaces.erase(it);
                     else m_selectedFaces.push_back(face);
                 }
             } else {
@@ -290,6 +295,24 @@ namespace TrenchBroom {
         void MapRenderer::mapCleared(Model::Map& map) {
         }
 
+        void MapRenderer::selectionAdded(const Model::SelectionEventData& event) {
+            if (!event.entities.empty())
+                m_changeSet.entitiesSelected(event.entities);
+            if (!event.brushes.empty())
+                m_changeSet.brushesSelected(event.brushes);
+            if (!event.faces.empty())
+                m_changeSet.facesSelected(event.faces);
+        }
+        
+        void MapRenderer::selectionRemoved(const Model::SelectionEventData& event) {
+            if (!event.entities.empty())
+                m_changeSet.entitiesDeselected(event.entities);
+            if (!event.brushes.empty())
+                m_changeSet.brushesDeselected(event.brushes);
+            if (!event.faces.empty())
+                m_changeSet.facesDeselected(event.faces);
+        }
+
         void MapRenderer::writeFaceVertices(Model::Face& face, VboBlock& block) {
             Vec2f texCoords, gridCoords;
             
@@ -315,41 +338,57 @@ namespace TrenchBroom {
             }
         }
 
-        void MapRenderer::writeFaceIndices(Model::Face& face, vector<GLuint>& triangleBuffer) {
+        void MapRenderer::writeFaceIndices(Model::Face& face, IndexBuffer& triangleBuffer, IndexBuffer& edgeBuffer) {
             int baseIndex = face.vboBlock()->address / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
-            size_t vertexCount = face.vertices().size();
+            int vertexCount = (int)face.vertices().size();
          
+            edgeBuffer.push_back(baseIndex);
+            edgeBuffer.push_back(baseIndex + 1);
+            
             for (int i = 1; i < vertexCount - 1; i++) {
                 triangleBuffer.push_back(baseIndex);
                 triangleBuffer.push_back(baseIndex + i);
                 triangleBuffer.push_back(baseIndex + i + 1);
+                
+                edgeBuffer.push_back(baseIndex + i);
+                edgeBuffer.push_back(baseIndex + i + 1);
             }
+            
+            edgeBuffer.push_back(baseIndex + vertexCount - 1);
+            edgeBuffer.push_back(baseIndex);
         }
 
         void MapRenderer::rebuildFaceIndexBuffers() {
             for (FaceIndexBuffers::iterator it = m_faceIndexBuffers.begin(); it != m_faceIndexBuffers.end(); ++it)
                 delete it->second;
             m_faceIndexBuffers.clear();
+            m_edgeIndexBuffer.clear();
+            m_edgeIndexBuffer.reserve(0xFFFF);
+            
+            // possible improvement: collect all faces and sort them by their texture, then create the buffers sequentially
             
             const vector<Model::Entity*>& entities = m_editor.map().entities();
             for (int i = 0; i < entities.size(); i++) {
                 const vector<Model::Brush*>& brushes = entities[i]->brushes();
                 for (int j = 0; j < brushes.size(); j++) {
-                    const vector<Model::Face*>& faces = brushes[j]->faces();
-                    for (int k = 0; k < faces.size(); k++) {
-                        Model::Face* face = faces[k];
-                        if (!face->selected()) {
-                            Model::Assets::Texture* texture = face->texture();
-                            vector<GLuint>* indexBuffer = NULL;
-                            FaceIndexBuffers::iterator it = m_faceIndexBuffers.find(texture);
-                            if (it == m_faceIndexBuffers.end()) {
-                                indexBuffer = new vector<GLuint>();
-                                indexBuffer->reserve(0xFF);
-                                m_faceIndexBuffers[texture] = indexBuffer;
-                            } else {
-                                indexBuffer = it->second;
+                    Model::Brush* brush = brushes[j];
+                    if (!brush->selected()) {
+                        const vector<Model::Face*>& faces = brush->faces();
+                        for (int k = 0; k < faces.size(); k++) {
+                            Model::Face* face = faces[k];
+                            if (!face->selected()) {
+                                Model::Assets::Texture* texture = face->texture();
+                                IndexBuffer* indexBuffer = NULL;
+                                FaceIndexBuffers::iterator it = m_faceIndexBuffers.find(texture);
+                                if (it == m_faceIndexBuffers.end()) {
+                                    indexBuffer = new vector<GLuint>();
+                                    indexBuffer->reserve(0xFF);
+                                    m_faceIndexBuffers[texture] = indexBuffer;
+                                } else {
+                                    indexBuffer = it->second;
+                                }
+                                writeFaceIndices(*face, *indexBuffer, m_edgeIndexBuffer);
                             }
-                            writeFaceIndices(*face, *indexBuffer);
                         }
                     }
                 }
@@ -357,6 +396,50 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::rebuildSelectedFaceIndexBuffers() {
+            for (FaceIndexBuffers::iterator it = m_selectedFaceIndexBuffers.begin(); it != m_selectedFaceIndexBuffers.end(); ++it)
+                delete it->second;
+            m_selectedFaceIndexBuffers.clear();
+            m_selectedEdgeIndexBuffer.clear();
+            m_selectedEdgeIndexBuffer.reserve(0xFFFF);
+            
+            Model::Selection& selection = m_editor.map().selection();
+            
+            // possible improvement: collect all faces and sort them by their texture, then create the buffers sequentially
+            
+            const vector<Model::Brush*> brushes = selection.brushes();
+            for (int i = 0; i < brushes.size(); i++) {
+                const vector<Model::Face*>& faces = brushes[i]->faces();
+                for (int j = 0; j < faces.size(); j++) {
+                    Model::Face* face = faces[j];
+                    Model::Assets::Texture* texture = face->texture();
+                    IndexBuffer* indexBuffer = NULL;
+                    FaceIndexBuffers::iterator it = m_selectedFaceIndexBuffers.find(texture);
+                    if (it == m_selectedFaceIndexBuffers.end()) {
+                        indexBuffer = new vector<GLuint>();
+                        indexBuffer->reserve(0xFF);
+                        m_selectedFaceIndexBuffers[texture] = indexBuffer;
+                    } else {
+                        indexBuffer = it->second;
+                    }
+                    writeFaceIndices(*face, *indexBuffer, m_selectedEdgeIndexBuffer);
+                }
+            }
+
+            const vector<Model::Face*>& faces = selection.faces();
+            for (int i = 0; i < faces.size(); i++) {
+                Model::Face* face = faces[i];
+                Model::Assets::Texture* texture = face->texture();
+                IndexBuffer* indexBuffer = NULL;
+                FaceIndexBuffers::iterator it = m_selectedFaceIndexBuffers.find(texture);
+                if (it == m_selectedFaceIndexBuffers.end()) {
+                    indexBuffer = new vector<GLuint>();
+                    indexBuffer->reserve(0xFF);
+                    m_selectedFaceIndexBuffers[texture] = indexBuffer;
+                } else {
+                    indexBuffer = it->second;
+                }
+                writeFaceIndices(*face, *indexBuffer, m_selectedEdgeIndexBuffer);
+            }
         }
         
         void MapRenderer::validateEntityRendererCache() {
@@ -402,6 +485,7 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::validateSelection() {
+            
         }
         
         void MapRenderer::validateDeselection() {
@@ -444,6 +528,26 @@ namespace TrenchBroom {
             m_changeSet.clear();
         }
 
+        void MapRenderer::renderEdges(const Vec4f* color, const IndexBuffer& indexBuffer) {
+            glDisable(GL_TEXTURE_2D);
+            glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+            
+            if (color != NULL) {
+                glColorV4f(*color);
+                glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
+            } else {
+                glEnableClientState(GL_COLOR_ARRAY);
+                glColorPointer(4, GL_UNSIGNED_BYTE, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize));
+                glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
+            }
+            
+            GLsizei count = (GLsizei)indexBuffer.size();
+            GLvoid* offset = (GLvoid*)&indexBuffer[0];
+            
+            glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, offset);
+            glPopClientAttrib();        
+        }
+        
         void MapRenderer::renderFaces(bool textured, bool selected, FaceIndexBuffers& indexBuffers) {
             glPolygonMode(GL_FRONT, GL_FILL);
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
@@ -462,9 +566,14 @@ namespace TrenchBroom {
              */
             
             if (selected) {
+                if (m_selectionDummyTexture == NULL) {
+                    unsigned char image = 0;
+                    m_selectionDummyTexture = new Model::Assets::Texture("selection dummy", &image, 1, 1);
+                }
+                
                 glActiveTexture(GL_TEXTURE1);
                 glEnable(GL_TEXTURE_2D);
-//                [grid activateTexture]; // just a dummy
+                m_selectionDummyTexture->activate();
                 glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
                 float color[3] = {0.6f, 0.35f, 0.35f};
                 glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
@@ -487,7 +596,7 @@ namespace TrenchBroom {
                 float color[3] = {brightness / 2, brightness / 2, brightness / 2};
                 */
                  
-                float color[3] = {0.5f, 0.5f, 0.5f};
+                float color[4] = {0.5f, 0.5f, 0.5f, 1.0f};
                 
                 glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
                 glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
@@ -514,8 +623,8 @@ namespace TrenchBroom {
             for (it = indexBuffers.begin(); it != indexBuffers.end(); ++it) {
                 Model::Assets::Texture* texture = it->first;
                 if (textured) texture->activate();
-                vector<GLuint>* indices = it->second;
-                glDrawElements(GL_TRIANGLES, (int)indices->size(), GL_UNSIGNED_INT, &(*indices)[0]);
+                IndexBuffer* indices = it->second;
+                glDrawElements(GL_TRIANGLES, (GLsizei)indices->size(), GL_UNSIGNED_INT, &(*indices)[0]);
                 if (textured) texture->deactivate();
             }
             
@@ -524,6 +633,7 @@ namespace TrenchBroom {
             
             if (selected) {
                 glActiveTexture(GL_TEXTURE1);
+                m_selectionDummyTexture->deactivate();
                 glDisable(GL_TEXTURE_2D);
             }
             
@@ -541,19 +651,31 @@ namespace TrenchBroom {
 
         MapRenderer::MapRenderer(Controller::Editor& editor) : m_editor(editor) {
             m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            m_selectionDummyTexture = NULL;
             
             Model::Map& map = m_editor.map();
-            map.mapLoaded   += new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapLoaded);
-            map.mapCleared  += new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapCleared);
+            Model::Selection& selection = map.selection();
+            
+            map.mapLoaded               += new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapLoaded);
+            map.mapCleared              += new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapCleared);
+            selection.selectionAdded    += new Model::Selection::SelectionEvent::T<MapRenderer>(this, &MapRenderer::selectionAdded);
+            selection.selectionRemoved  += new Model::Selection::SelectionEvent::T<MapRenderer>(this, &MapRenderer::selectionRemoved);
             
             addEntities(map.entities());
         }
         
         MapRenderer::~MapRenderer() {
             Model::Map& map = m_editor.map();
-            map.mapLoaded   -= new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapLoaded);
-            map.mapCleared  -= new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapCleared);
+            Model::Selection& selection = map.selection();
+            
+            map.mapLoaded               -= new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapLoaded);
+            map.mapCleared              -= new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapCleared);
+            selection.selectionAdded    -= new Model::Selection::SelectionEvent::T<MapRenderer>(this, &MapRenderer::selectionAdded);
+            selection.selectionRemoved  -= new Model::Selection::SelectionEvent::T<MapRenderer>(this, &MapRenderer::selectionRemoved);
             delete m_faceVbo;
+            
+            if (m_selectionDummyTexture != NULL)
+                delete m_selectionDummyTexture;
         }
 
         
@@ -565,7 +687,9 @@ namespace TrenchBroom {
             glFrontFace(GL_CW);
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LESS);
             glShadeModel(GL_FLAT);
+            glResetEdgeOffset();
             
             if (context.renderOrigin) {
                 glDisable(GL_TEXTURE_2D);
@@ -585,6 +709,25 @@ namespace TrenchBroom {
             m_faceVbo->activate();
             glEnableClientState(GL_VERTEX_ARRAY);
             renderFaces(true, false, m_faceIndexBuffers);
+            if (!m_editor.map().selection().empty())
+                renderFaces(true, true, m_selectedFaceIndexBuffers);
+            
+            glSetEdgeOffset(0.1f);
+            renderEdges(NULL, m_edgeIndexBuffer);
+            glResetEdgeOffset();
+            
+            if (!m_editor.map().selection().empty()) {
+                glDisable(GL_DEPTH_TEST);
+                renderEdges(&SelectionColor2, m_selectedEdgeIndexBuffer);
+                glEnable(GL_DEPTH_TEST);
+                
+                glSetEdgeOffset(0.2f);
+                glDepthFunc(GL_LEQUAL);
+                renderEdges(&SelectionColor, m_selectedEdgeIndexBuffer);
+                glDepthFunc(GL_LESS);
+                glResetEdgeOffset();
+            }
+            
             glDisableClientState(GL_VERTEX_ARRAY);
             m_faceVbo->deactivate();
         }

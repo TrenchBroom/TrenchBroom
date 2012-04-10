@@ -21,6 +21,7 @@
 #include <math.h>
 #include <iostream>
 #include <sstream>
+#include "Picker.h"
 
 using namespace std;
 
@@ -112,6 +113,10 @@ namespace TrenchBroom {
             }
         }
         
+        EMapObjectType Entity::objectType() const {
+            return MT_ENTITY;
+        }
+
         const EntityDefinition* Entity::entityDefinition() const {
             return m_entityDefinition;
         }
@@ -141,6 +146,17 @@ namespace TrenchBroom {
             return m_maxBounds;
         }
         
+        void Entity::pick(const Ray& ray, HitList& hits) {
+            if (worldspawn()) return;
+            
+            float dist = bounds().intersectWithRay(ray, NULL);
+            if (std::isnan(dist)) return;
+            
+            Vec3f hitPoint = ray.pointAtDistance(dist);
+            Hit* hit = new Hit(this, HT_ENTITY, hitPoint, dist);
+            hits.add(*hit);
+        }
+
         Map* Entity::quakeMap() const {
             return m_map;
         }

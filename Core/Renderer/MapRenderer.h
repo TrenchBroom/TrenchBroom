@@ -22,7 +22,6 @@
 
 #include <map>
 #include <vector>
-#include <tr1/memory>
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #include "VecMath.h"
@@ -35,6 +34,7 @@ namespace TrenchBroom {
         class Entity;
         class Brush;
         class Face;
+        class SelectionEventData;
         
         namespace Assets {
             class Texture;
@@ -111,11 +111,17 @@ namespace TrenchBroom {
         
         class MapRenderer {
         private:
+            typedef vector<GLuint> IndexBuffer;
+            typedef map<Model::Assets::Texture*, IndexBuffer* > FaceIndexBuffers;
+
             Controller::Editor& m_editor;
             Vbo* m_faceVbo;
-            typedef map<Model::Assets::Texture*, vector<GLuint>* > FaceIndexBuffers;
             FaceIndexBuffers m_faceIndexBuffers;
+            FaceIndexBuffers m_selectedFaceIndexBuffers;
+            IndexBuffer m_edgeIndexBuffer;
+            IndexBuffer m_selectedEdgeIndexBuffer;
             ChangeSet m_changeSet;
+            Model::Assets::Texture* m_selectionDummyTexture;
             
             void addEntities(const vector<Model::Entity*>& entities);
             void removeEntities(const vector<Model::Entity*>& entities);
@@ -130,9 +136,11 @@ namespace TrenchBroom {
             void facesDidChange(const vector<Model::Face*>& faces);
             void mapLoaded(Model::Map& map);
             void mapCleared(Model::Map& map);
+            void selectionAdded(const Model::SelectionEventData& event);
+            void selectionRemoved(const Model::SelectionEventData& event);
             
             void writeFaceVertices(Model::Face& face, VboBlock& block);
-            void writeFaceIndices(Model::Face& face, vector<GLuint>& triangleBuffer);
+            void writeFaceIndices(Model::Face& face, IndexBuffer& triangleBuffer, IndexBuffer& edgeBuffer);
             
             void rebuildFaceIndexBuffers();
             void rebuildSelectedFaceIndexBuffers();
@@ -149,6 +157,7 @@ namespace TrenchBroom {
             void validateDeselection();
             void validate();
             
+            void renderEdges(const Vec4f* color, const IndexBuffer& indexBuffer);
             void renderFaces(bool textured, bool selected, FaceIndexBuffers& indexBuffers);
         public:
             MapRenderer(Controller::Editor& editor);

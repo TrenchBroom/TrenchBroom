@@ -33,8 +33,8 @@ namespace TrenchBroom {
                 return texture1->usageCount < texture2->usageCount;
             }
             
-            void Texture::init(const string& name, const unsigned char* image, int width, int height, const Palette* palette) {
-                static int currentId = 0;
+            void Texture::init(const string& name, int width, int height) {
+                static int currentId = 1;
                 this->uniqueId = currentId++;
                 this->name = name;
                 this->width = width;
@@ -42,18 +42,22 @@ namespace TrenchBroom {
                 this->dummy = false;
                 this->m_textureId = 0;
                 this->usageCount = 0;
-                
-                if (image != NULL) {
+            }
+            
+            void Texture::init(const string& name, const unsigned char* indexImage, int width, int height, const Palette* palette) {
+                init(name, width, height);
+
+                if (indexImage != NULL) {
                     int pixelCount = width * height;
                     m_textureBuffer = new unsigned char[pixelCount * 3];
-                    palette->indexToRgb(image, m_textureBuffer, pixelCount);
+                    palette->indexToRgb(indexImage, m_textureBuffer, pixelCount);
                     
                     averageColor.x = averageColor.y = averageColor.z = 0;
                     averageColor.w = 1;
                     for (int i = 0; i < pixelCount; i++) {
-                        averageColor.x += m_textureBuffer[i * 3 + 0] / 255.0;
-                        averageColor.y += m_textureBuffer[i * 3 + 1] / 255.0;
-                        averageColor.z += m_textureBuffer[i * 3 + 2] / 255.0;
+                        averageColor.x += (m_textureBuffer[i * 3 + 0] / 255.0f);
+                        averageColor.y += (m_textureBuffer[i * 3 + 1] / 255.0f);
+                        averageColor.z += (m_textureBuffer[i * 3 + 2] / 255.0f);
                     }
                     
                     averageColor.x /= pixelCount;
@@ -62,8 +66,17 @@ namespace TrenchBroom {
                 }
             }
             
-            Texture::Texture(const string& name, const unsigned char* image, int width, int height, const Palette& palette) {
-                init(name, image, width, height, &palette);
+            Texture::Texture(const string& name, const unsigned char* rgbImage, int width, int height) {
+                init(name, width, height);
+                if (rgbImage != NULL) {
+                    int pixelCount = width * height;
+                    m_textureBuffer = new unsigned char[pixelCount * 3];
+                    memcpy(m_textureBuffer, rgbImage, pixelCount * 3);
+                }
+            }
+            
+            Texture::Texture(const string& name, const unsigned char* indexImage, int width, int height, const Palette& palette) {
+                init(name, indexImage, width, height, &palette);
             }
             
             Texture::Texture(const IO::Mip& mip, const Palette& palette) {

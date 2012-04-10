@@ -48,7 +48,8 @@ namespace TrenchBroom {
                 GLuint m_textureId;
                 unsigned char* m_textureBuffer;
                 
-                void init(const string& name, const unsigned char* image, int width, int height, const Palette* palette);
+                void init(const string& name, int width, int height);
+                void init(const string& name, const unsigned char* indexImage, int width, int height, const Palette* palette);
             public:
                 string name;
                 int uniqueId;
@@ -58,7 +59,8 @@ namespace TrenchBroom {
                 int height;
                 Vec4f averageColor;
                 
-                Texture(const string& name, const unsigned char* image, int width, int height, const Palette& palette);
+                Texture(const string& name, const unsigned char* rgbImage, int width, int height);
+                Texture(const string& name, const unsigned char* indexedImage, int width, int height, const Palette& palette);
                 Texture(const IO::Mip& mip, const Palette& palette);
                 Texture(const string& name, const AliasSkin& skin, int skinIndex, const Palette& palette);
                 Texture(const string& name, const BspTexture& texture, const Palette& palette);

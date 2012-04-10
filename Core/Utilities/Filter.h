@@ -28,7 +28,6 @@
 using namespace TrenchBroom::Model;
 
 namespace TrenchBroom {
-    
     class Filter {
     private:
     public:

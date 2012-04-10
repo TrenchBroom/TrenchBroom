@@ -23,14 +23,20 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/Skin.h"
 #include "Gwen/Controls/Base.h"
-#include "MapRenderer.h"
-#include "Editor.h"
 
 using namespace Gwen;
-using namespace TrenchBroom;
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class MapRenderer;
+    }
+    namespace Controller {
+        class Editor;
+    }
+    
     namespace Gui {
+        
+        
         class MapRendererControl : public Controls::Base {
         protected:
             Controller::Editor& m_editor;

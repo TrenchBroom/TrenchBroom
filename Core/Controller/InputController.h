@@ -22,9 +22,6 @@
 
 #include <vector>
 #include "Tool.h"
-#include "Camera.h"
-#include "CameraTool.h"
-#include "Editor.h"
 
 using namespace std;
 
@@ -37,7 +34,12 @@ namespace TrenchBroom {
             MS_RIGHT
         } EMouseStatus;
         
+        class Tool;
+        class ToolEvent;
+        class CameraTool;
+        class SelectionTool;
         class Editor;
+
         class InputController {
         private:
             Editor& m_editor;
@@ -49,6 +51,9 @@ namespace TrenchBroom {
             int m_modalReceiverIndex;
             
             CameraTool* m_cameraTool;
+            SelectionTool* m_selectionTool;
+            
+            void updateHits();
         public:
             InputController(Editor& editor);
             ~InputController();

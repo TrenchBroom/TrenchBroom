@@ -74,6 +74,7 @@ namespace TrenchBroom {
             Entity(const map<string, string> properties);
             ~Entity();
             
+            EMapObjectType objectType() const;
             const EntityDefinition* entityDefinition() const;
             void setEntityDefinition(EntityDefinition* entityDefinition);
             Vec3f center() const;
@@ -81,6 +82,8 @@ namespace TrenchBroom {
             BBox bounds() const;
             BBox maxBounds() const;
             
+            void pick(const Ray& ray, HitList& hits);
+
             Map* quakeMap() const;
             void setMap(Map* quakeMap);
             const vector<Brush*>& brushes() const;

@@ -21,6 +21,15 @@
 #include <algorithm>
 #include <fstream>
 #include <cassert>
+#include "Octree.h"
+#include "Picker.h"
+#include "Selection.h"
+#include "Groups.h"
+#include "Entity.h"
+#include "EntityDefinition.h"
+#include "Brush.h"
+#include "Face.h"
+
 #include "Utils.h"
 
 namespace TrenchBroom {
@@ -31,6 +40,7 @@ namespace TrenchBroom {
 
         Map::Map(const BBox& worldBounds, const string& entityDefinitionFilePath) : m_worldBounds(worldBounds), m_worldspawn(NULL) {
             m_octree = new Octree(*this, 256);
+            m_picker = new Picker(*m_octree);
             m_selection = new Selection();
             m_entityDefinitionManager = EntityDefinitionManager::sharedManager(entityDefinitionFilePath);
             m_groupManager = new GroupManager(*this);
@@ -41,6 +51,7 @@ namespace TrenchBroom {
             setPostNotifications(false);
             clear();
             delete m_octree;
+            delete m_picker;
             delete m_selection;
             delete m_groupManager;
         }
@@ -573,6 +584,10 @@ namespace TrenchBroom {
         
         Octree& Map::octree() {
             return *m_octree;
+        }
+        
+        Picker& Map::picker() {
+            return *m_picker;
         }
         
         Selection& Map::selection() {

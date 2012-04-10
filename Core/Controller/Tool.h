@@ -20,7 +20,13 @@
 #ifndef TrenchBroom_Tool_h
 #define TrenchBroom_Tool_h
 
+#include <cstdio>
+
 namespace TrenchBroom {
+    namespace Model {
+        class HitList;
+    }
+    
     namespace Controller {
         
         typedef enum {
@@ -38,6 +44,8 @@ namespace TrenchBroom {
             MB_MIDDLE = 3
         } EMouseButton;
         
+        class Editor;
+        
         class ToolEvent {
         public:
             int modifierKeys;
@@ -48,12 +56,15 @@ namespace TrenchBroom {
             float deltaY;
             float scrollX;
             float scrollY;
-            ToolEvent() : modifierKeys(MK_NONE), mouseButton(MB_NONE) {}
+            Model::HitList* hits;
+            ToolEvent() : modifierKeys(MK_NONE), mouseButton(MB_NONE), hits(NULL) {}
         };
         
         class Tool {
+        protected:
+            Editor& m_editor;
         public:
-            Tool() {}
+            Tool(Editor& editor) : m_editor(editor) {}
             virtual ~Tool() {}
 
             virtual void activated(ToolEvent& event) {}
@@ -80,6 +91,8 @@ namespace TrenchBroom {
             virtual bool beginRightScroll(ToolEvent& event) { return false; }
             virtual void rightScroll(ToolEvent& event) {}
             virtual void endRightScroll(ToolEvent& event) {}
+ 
+            static bool noModifierPressed(ToolEvent& event) { return event.modifierKeys == MK_NONE; }
         };
     }
 }

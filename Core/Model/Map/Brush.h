@@ -61,6 +61,7 @@ namespace TrenchBroom {
             
             void restore(const Brush& brushTemplate);
             
+            EMapObjectType objectType() const;
             Entity* entity() const;
             void setEntity(Entity* entity);
             const vector<Face*>& faces() const;
@@ -70,6 +71,7 @@ namespace TrenchBroom {
             const vector<Vertex*>& vertices() const;
             const vector<Edge*>& edges() const;
             
+            void pick(const Ray& ray, HitList& hits);
             bool containsPoint(Vec3f point);
             bool intersectsBrush(const Brush& brush);
             bool containsBrush(const Brush& brush);

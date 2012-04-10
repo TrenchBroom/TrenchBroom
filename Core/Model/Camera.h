@@ -21,9 +21,11 @@
 #define TrenchBroom_Camera_h
 
 #include "VecMath.h"
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Controller {
         
         class Camera {
         protected:
@@ -34,6 +36,9 @@ namespace TrenchBroom {
             float m_fov;
             float m_near;
             float m_far;
+            GLint m_viewport[4];
+            GLdouble m_modelview[16];
+            GLdouble m_projection[16];
         public:
             Camera(float fov, float near, float far, Vec3f position, Vec3f direction);
             const Vec3f& position() const;
@@ -43,6 +48,11 @@ namespace TrenchBroom {
             float fov() const;
             float near() const;
             float far() const;
+            
+            const Vec3f defaultPoint();
+            const Vec3f unproject(float x, float y, float depth) const;
+            const Ray pickRay(float x, float y) const;
+            void update(float x, float y, float width, float height);
             
             void moveTo(Vec3f position);
             void moveBy(float forward, float right, float up);

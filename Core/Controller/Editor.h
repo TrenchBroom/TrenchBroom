@@ -20,19 +20,27 @@
 #ifndef TrenchBroom_Editor_h
 #define TrenchBroom_Editor_h
 
-#include "Camera.h"
-#include "InputController.h"
-#include "Map.h"
-#include "Texture.h"
 #include <string>
 
+using namespace std;
+
 namespace TrenchBroom {
+    namespace Model {
+        namespace Assets {
+            class TextureManager;
+            class Palette;
+        }
+        class Map;
+    }
+    
     namespace Controller {
+        class Camera;
         class InputController;
+
         class Editor {
         private:
             Model::Map* m_map;
-            Model::Camera* m_camera;
+            Camera* m_camera;
             InputController* m_inputController;
             Model::Assets::TextureManager* m_textureManager;
             Model::Assets::Palette* m_palette;
@@ -47,7 +55,7 @@ namespace TrenchBroom {
             void saveMap(const string& path);
             
             Model::Map& map();
-            Model::Camera& camera();
+            Camera& camera();
             InputController& inputController();
         };
     }

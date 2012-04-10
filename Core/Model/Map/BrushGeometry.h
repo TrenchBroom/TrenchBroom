@@ -102,10 +102,11 @@ namespace TrenchBroom {
             Face* face;
             ESideMark mark;
             
-            Side() : mark(SM_NEW) {}
+            Side() : mark(SM_NEW), face(NULL) {}
             Side(Edge* newEdges[], bool invert[], int count);
             Side(Face& face, vector<Edge*>& newEdges);
             
+            float intersectWithRay(const Ray& ray);
             void replaceEdges(int index1, int index2, Edge* edge);
             Edge* split();
             void flip();

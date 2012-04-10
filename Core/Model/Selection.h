@@ -68,7 +68,7 @@ namespace TrenchBroom {
             vector<Assets::Texture*> m_mruTextures;
             ESelectionMode m_mode;
         public:
-            typedef Event<SelectionEventData&> SelectionEvent;
+            typedef Event<const SelectionEventData&> SelectionEvent;
             SelectionEvent selectionAdded;
             SelectionEvent selectionRemoved;
             

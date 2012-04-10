@@ -17,38 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CameraTool_h
-#define TrenchBroom_CameraTool_h
+#ifndef TrenchBroom_SelectionTool_h
+#define TrenchBroom_SelectionTool_h
 
 #include "Tool.h"
-#include "VecMath.h"
 
 namespace TrenchBroom {
-    namespace Controller {
-        class Camera;
+    namespace Model {
+        class Selection;
     }
     
     namespace Controller {
-        class CameraTool : public Tool {
-        private:
-            Vec3f m_orbitCenter;
-            bool m_orbit;
-            bool m_invert;
-            float m_lookSensitivity;
-            float m_panSensitivity;
-            float m_moveSensitivity;
+        class SelectionTool : public Tool {
         public:
-            CameraTool(Editor& editor) : Tool(editor), m_orbit(false), m_invert(false), m_lookSensitivity(1 / 90.0f), m_panSensitivity(1.0f), m_moveSensitivity(6.0f) {}
-
-            bool scrolled(ToolEvent& event);
+            SelectionTool(Editor& editor) : Tool(editor) {}
+            
+            bool leftMouseUp(ToolEvent& event);
             bool beginLeftDrag(ToolEvent& event);
             void leftDrag(ToolEvent& event);
-            void endLeftDrag(ToolEvent& event);
-            bool beginRightDrag(ToolEvent& event);
-            void rightDrag(ToolEvent& event);
 
-            static bool cameraModiferPressed(ToolEvent& event);
-            static bool orbitModifierPressed(ToolEvent& event);
+            static bool multiSelectionModiferPressed(ToolEvent& event);
+            static bool gridSizeModifierPressed(ToolEvent& event);
         };
     }
 }

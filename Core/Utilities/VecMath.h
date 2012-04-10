@@ -23,10 +23,19 @@
 #include <string>
 #include <cmath>
 
-using namespace std;
+#define AlmostZero 0.001f
+#define PointStatusEpsilon 0.01f
 
-static const float AlmostZero = 0.001f;
-static const float PointStatusEpsilon = 0.01f;
+#define fzero(f)        (fabsf(f) <= AlmostZero)
+#define fpos(f)         (f > AlmostZero)
+#define fneg(f)         (f < -AlmostZero)
+#define feq(f1, f2)     (fabsf(f1 - f2) < AlmostZero)
+#define fgt(f1, f2)     (f1 > f2 + AlmostZero)
+#define flt(f1, f2)     (f1 < f2 - AlmostZero)
+#define fgte(f1, f2)    (!flt(f1, f2))
+#define flte(f1, f2)    (!fgt(f1, f2))
+
+using namespace std;
 
 typedef enum {
     A_X,
@@ -89,6 +98,7 @@ public:
     const Vec3f normalize() const;
     bool equals(Vec3f other) const;
     bool equals(Vec3f other, float delta) const;
+    EAxis strongestAxis() const;
     
     const Vec3f snap() const;
     const Vec3f snap(float epsilon) const;
@@ -359,6 +369,20 @@ public:
     const Plane rotate(Quat rotation, const Vec3f& center) const;
     const Plane flip(EAxis axis) const;
     const Plane flip(EAxis axis, const Vec3f& center) const;
+};
+
+class CoordinatePlane {
+public:
+    typedef enum {
+        CP_XY, CP_XZ, CP_YZ
+    } CPlane;
+private:
+    const CPlane m_plane;
+    CoordinatePlane(CPlane plane) : m_plane(plane) {}
+public:
+    static const CoordinatePlane& plane(CPlane plane);
+    static const CoordinatePlane& plane(const Vec3f& normal);
+    const Vec3f project(const Vec3f& point);
 };
 
 #endif

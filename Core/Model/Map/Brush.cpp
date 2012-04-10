@@ -20,6 +20,7 @@
 #include "Brush.h"
 #include <assert.h>
 #include <algorithm>
+#include "Picker.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -131,6 +132,10 @@ namespace TrenchBroom {
             m_entity->brushChanged(this);
         }
         
+        EMapObjectType Brush::objectType() const {
+            return MT_BRUSH;
+        }
+
         Entity* Brush::entity() const {
             return m_entity;
         }
@@ -161,6 +166,24 @@ namespace TrenchBroom {
         
         const vector<Edge*>& Brush::edges() const {
             return m_geometry->edges;
+        }
+        
+        void Brush::pick(const Ray& ray, HitList& hits) {
+            float dist = bounds().intersectWithRay(ray, NULL);
+            if (std::isnan(dist)) return;
+            
+            dist = NAN;
+            Side* side;
+            for (int i = 0; i < m_geometry->sides.size() && std::isnan(dist); i++) {
+                side = m_geometry->sides[i];
+                dist = side->intersectWithRay(ray);
+            }
+            
+            if (!std::isnan(dist)) {
+                Vec3f hitPoint = ray.pointAtDistance(dist);
+                Hit* hit = new Hit(side->face, HT_FACE, hitPoint, dist);
+                hits.add(*hit);
+            }
         }
         
         bool Brush::containsPoint(Vec3f point) {
