@@ -376,5 +376,9 @@ namespace TrenchBroom {
             while (block != NULL && block->next != NULL)
                 block = packBlock(*block);
         }
+
+        bool Vbo::ownsBlock(VboBlock& block) {
+            return &block.m_vbo == this;
+        }
     }
 }

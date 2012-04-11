@@ -134,7 +134,7 @@ namespace TrenchBroom {
                     for (int j = 0; j < 3; j++) {
                         int index = triangles[i].vertices[j];
                         frameTriangle->vertices[j].position = frameVertices[index];
-                        frameTriangle->vertices[j].norm = AliasNormals[packedFrameVertices[index].i];
+                        frameTriangle->vertices[j].normal = AliasNormals[packedFrameVertices[index].i];
                         frameTriangle->vertices[j].texCoords.x = (float)vertices[index].s / skinWidth;
                         frameTriangle->vertices[j].texCoords.y = (float)vertices[index].t / skinHeight;
                         if (vertices[index].onseam && !triangles[i].front)

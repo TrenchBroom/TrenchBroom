@@ -196,8 +196,10 @@ Vec3f::Vec3f(const string& str) {
 
     pos = str.find_first_not_of(blank, pos);
     x = atof(cstr + pos);
+    pos = str.find_first_of(blank, pos);
     pos = str.find_first_not_of(blank, pos);
     y = atof(cstr + pos);
+    pos = str.find_first_of(blank, pos);
     pos = str.find_first_not_of(blank, pos);
     z = atof(cstr + pos);
 }

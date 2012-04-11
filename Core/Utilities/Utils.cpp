@@ -42,4 +42,21 @@ namespace TrenchBroom {
             result.push_back(str.substr(lastIndex, str.length() - lastIndex));
         return result;
     }
+    
+    string appendPath(const string& prefix, const string& suffix) {
+        if (prefix.empty()) return suffix;
+        if (suffix.empty()) return prefix;
+        
+        string path = prefix;
+        if (prefix[prefix.length() - 1] != '/' && suffix[0] != '/')
+            path += '/';
+        return path + suffix;
+    }
+
+    string pathExtension(const string& path) {
+        size_t pos = path.find_last_of('.');
+        if (pos == string::npos) return "";
+        return path.substr(pos + 1);
+    }
+
 }

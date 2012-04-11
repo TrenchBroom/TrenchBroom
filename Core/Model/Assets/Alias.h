@@ -46,7 +46,7 @@ namespace TrenchBroom {
             class AliasFrameVertex {
             public:
                 Vec2f texCoords;
-                Vec3f position, norm;
+                Vec3f position, normal;
             };
             
             class AliasPackedFrameVertex {

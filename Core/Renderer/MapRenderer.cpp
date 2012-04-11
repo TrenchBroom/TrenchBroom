@@ -29,27 +29,20 @@
 #include "Vbo.h"
 #include "Editor.h"
 #include "RenderUtils.h"
+#include "Options.h"
+#include "Preferences.h"
+#include "Filter.h"
+#include "EntityRendererManager.h"
+#include "EntityRenderer.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        static const Vec4f FaceDefaultColor(0.2f, 0.2f, 0.2f, 1);
-        static const Vec4f EdgeDefaultColor(0.6f, 0.6f, 0.6f, 0.6f);
-        static const Vec4f  SelectionColor(1, 0, 0, 1);
-        static const Vec4f  SelectionColor2(1, 0, 0, 0.35f);
-        static const Vec4f  SelectionColor3(1, 0, 0, 0.6f);
         static const int VertexSize = 3 * sizeof(float);
         static const int ColorSize = 4;
         static const int TexCoordSize = 2 * sizeof(float);
 
         
-        RenderContext::RenderContext() {
-            backgroundColor.x = 0;
-            backgroundColor.y = 0;
-            backgroundColor.z = 0;
-            backgroundColor.w = 1;
-            renderOrigin = true;
-            originAxisLength = 64;
-        }
+        RenderContext::RenderContext(Filter& filter, Controller::TransientOptions& options) : filter(filter), options(options), preferences(Model::Preferences::sharedPreferences()) {}
 
 #pragma mark ChangeSet
         
@@ -313,11 +306,12 @@ namespace TrenchBroom {
                 m_changeSet.facesDeselected(event.faces);
         }
 
-        void MapRenderer::writeFaceVertices(Model::Face& face, VboBlock& block) {
+        void MapRenderer::writeFaceVertices(RenderContext& context, Model::Face& face, VboBlock& block) {
             Vec2f texCoords, gridCoords;
             
             Model::Assets::Texture* texture = face.texture();
-            Vec4f color = texture != NULL && !texture->dummy ? texture->averageColor : FaceDefaultColor;
+            const Vec4f& faceColor = texture != NULL && !texture->dummy ? texture->averageColor : context.preferences.faceColor();
+            const Vec4f& edgeColor = context.preferences.edgeColor();
             int width = texture != NULL ? texture->width : 1;
             int height = texture != NULL ? texture->height : 1;
             
@@ -332,13 +326,13 @@ namespace TrenchBroom {
                 
                 offset = block.writeVec(gridCoords, offset);
                 offset = block.writeVec(texCoords, offset);
-                offset = block.writeColor(EdgeDefaultColor, offset);
-                offset = block.writeColor(color, offset);
+                offset = block.writeColor(edgeColor, offset);
+                offset = block.writeColor(faceColor, offset);
                 offset = block.writeVec(vertex->position, offset);
             }
         }
 
-        void MapRenderer::writeFaceIndices(Model::Face& face, IndexBuffer& triangleBuffer, IndexBuffer& edgeBuffer) {
+        void MapRenderer::writeFaceIndices(RenderContext& context, Model::Face& face, IndexBuffer& triangleBuffer, IndexBuffer& edgeBuffer) {
             int baseIndex = face.vboBlock()->address / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
             int vertexCount = (int)face.vertices().size();
          
@@ -358,7 +352,116 @@ namespace TrenchBroom {
             edgeBuffer.push_back(baseIndex);
         }
 
-        void MapRenderer::rebuildFaceIndexBuffers() {
+        void MapRenderer::writeEntityBounds(RenderContext& context, Model::Entity& entity, VboBlock& block) {
+            Vec3f t;
+            const BBox& bounds = entity.bounds();
+            const Model::EntityDefinition* definition = entity.entityDefinition();
+            Vec4f color = definition != NULL ? definition->color : context.preferences.entityBoundsColor();
+            color.w = context.preferences.entityBoundsColor().w;
+            
+            int offset = 0;
+            
+            t = bounds.min;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+            
+            t.x = bounds.max.x;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+            
+            t.x = bounds.min.x;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+            
+            t.y = bounds.max.y;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.y = bounds.min.y;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.z = bounds.max.z;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t = bounds.max;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.x = bounds.min.x;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.x = bounds.max.x;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.y = bounds.min.y;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.y = bounds.max.y;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.z = bounds.min.z;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t = bounds.min;
+            t.x = bounds.max.x;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.y = bounds.max.y;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.y = bounds.min.y;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.z = bounds.max.z;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+            
+            t = bounds.min;
+            t.y = bounds.max.y;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.x = bounds.max.x;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.x = bounds.min.x;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.z = bounds.max.z;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t = bounds.min;
+            t.z = bounds.max.z;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.x = bounds.max.x;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.x = bounds.min.x;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+
+            t.y = bounds.max.y;
+            offset = block.writeColor(color, offset);
+            offset = block.writeVec(t, offset);
+        }
+
+        void MapRenderer::rebuildFaceIndexBuffers(RenderContext& context) {
             for (FaceIndexBuffers::iterator it = m_faceIndexBuffers.begin(); it != m_faceIndexBuffers.end(); ++it)
                 delete it->second;
             m_faceIndexBuffers.clear();
@@ -369,25 +472,29 @@ namespace TrenchBroom {
             
             const vector<Model::Entity*>& entities = m_editor.map().entities();
             for (int i = 0; i < entities.size(); i++) {
-                const vector<Model::Brush*>& brushes = entities[i]->brushes();
-                for (int j = 0; j < brushes.size(); j++) {
-                    Model::Brush* brush = brushes[j];
-                    if (!brush->selected()) {
-                        const vector<Model::Face*>& faces = brush->faces();
-                        for (int k = 0; k < faces.size(); k++) {
-                            Model::Face* face = faces[k];
-                            if (!face->selected()) {
-                                Model::Assets::Texture* texture = face->texture();
-                                IndexBuffer* indexBuffer = NULL;
-                                FaceIndexBuffers::iterator it = m_faceIndexBuffers.find(texture);
-                                if (it == m_faceIndexBuffers.end()) {
-                                    indexBuffer = new vector<GLuint>();
-                                    indexBuffer->reserve(0xFF);
-                                    m_faceIndexBuffers[texture] = indexBuffer;
-                                } else {
-                                    indexBuffer = it->second;
+                if (context.filter.entityVisible(*entities[i])) {
+                    const vector<Model::Brush*>& brushes = entities[i]->brushes();
+                    for (int j = 0; j < brushes.size(); j++) {
+                        if (context.filter.brushVisible(*brushes[j])) {
+                            Model::Brush* brush = brushes[j];
+                            if (!brush->selected()) {
+                                const vector<Model::Face*>& faces = brush->faces();
+                                for (int k = 0; k < faces.size(); k++) {
+                                    Model::Face* face = faces[k];
+                                    if (!face->selected()) {
+                                        Model::Assets::Texture* texture = face->texture();
+                                        IndexBuffer* indexBuffer = NULL;
+                                        FaceIndexBuffers::iterator it = m_faceIndexBuffers.find(texture);
+                                        if (it == m_faceIndexBuffers.end()) {
+                                            indexBuffer = new vector<GLuint>();
+                                            indexBuffer->reserve(0xFF);
+                                            m_faceIndexBuffers[texture] = indexBuffer;
+                                        } else {
+                                            indexBuffer = it->second;
+                                        }
+                                        writeFaceIndices(context, *face, *indexBuffer, m_edgeIndexBuffer);
+                                    }
                                 }
-                                writeFaceIndices(*face, *indexBuffer, m_edgeIndexBuffer);
                             }
                         }
                     }
@@ -395,7 +502,7 @@ namespace TrenchBroom {
             }
         }
         
-        void MapRenderer::rebuildSelectedFaceIndexBuffers() {
+        void MapRenderer::rebuildSelectedFaceIndexBuffers(RenderContext& context) {
             for (FaceIndexBuffers::iterator it = m_selectedFaceIndexBuffers.begin(); it != m_selectedFaceIndexBuffers.end(); ++it)
                 delete it->second;
             m_selectedFaceIndexBuffers.clear();
@@ -421,7 +528,7 @@ namespace TrenchBroom {
                     } else {
                         indexBuffer = it->second;
                     }
-                    writeFaceIndices(*face, *indexBuffer, m_selectedEdgeIndexBuffer);
+                    writeFaceIndices(context, *face, *indexBuffer, m_selectedEdgeIndexBuffer);
                 }
             }
 
@@ -438,23 +545,116 @@ namespace TrenchBroom {
                 } else {
                     indexBuffer = it->second;
                 }
-                writeFaceIndices(*face, *indexBuffer, m_selectedEdgeIndexBuffer);
+                writeFaceIndices(context, *face, *indexBuffer, m_selectedEdgeIndexBuffer);
             }
         }
         
-        void MapRenderer::validateEntityRendererCache() {
+        void MapRenderer::validateEntityRendererCache(RenderContext& context) {
+            if (!m_entityRendererCacheValid) {
+                const vector<string>& mods = m_editor.map().mods();
+                EntityRenderers::iterator it;
+                for (it = m_entityRenderers.begin(); it != m_entityRenderers.end(); ++it) {
+                    EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*it->first, mods);
+                    if (renderer != NULL) m_entityRenderers[it->first] = renderer;
+                    else m_entityRenderers.erase(it);
+                }
+                for (it = m_selectedEntityRenderers.begin(); it != m_selectedEntityRenderers.end(); ++it) {
+                    EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*it->first, mods);
+                    if (renderer != NULL) m_selectedEntityRenderers[it->first] = renderer;
+                    else m_selectedEntityRenderers.erase(it);
+                }
+                m_entityRendererCacheValid = true;
+            }
         }
         
-        void MapRenderer::validateAddedEntities() {
+        void MapRenderer::validateAddedEntities(RenderContext& context) {
+            const vector<Model::Entity*>& addedEntities = m_changeSet.addedEntities();
+            if (!addedEntities.empty()) {
+                m_entityBoundsVbo->activate();
+                m_entityBoundsVbo->map();
+                
+                for (int i = 0; i < addedEntities.size(); i++) {
+                    Model::Entity* entity = addedEntities[i];
+                    if (context.filter.entityVisible(*entity)) {
+                        VboBlock& block = m_entityBoundsVbo->allocBlock(6 * 4 * (ColorSize + VertexSize));
+                        writeEntityBounds(context, *entity, block);
+                        entity->setVboBlock(&block);
+                        m_entityBoundsVertexCount += 6 * 4;
+                        
+                        EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_editor.map().mods());
+                        if (renderer != NULL)
+                            m_entityRenderers[entity] = renderer;
+                    }
+                }
+                
+                m_entityBoundsVbo->unmap();
+                m_entityBoundsVbo->deactivate();
+            }
         }
         
-        void MapRenderer::validateRemovedEntities() {
+        void MapRenderer::validateRemovedEntities(RenderContext& context) {
+            const vector<Model::Entity*>& removedEntities = m_changeSet.removedEntities();
+            if (!removedEntities.empty()) {
+                m_entityBoundsVbo->activate();
+                m_entityBoundsVbo->map();
+                
+                for (int i = 0; i < removedEntities.size(); i++) {
+                    Model::Entity* entity = removedEntities[i];
+                    if (context.filter.entityVisible(*entity)) {
+                        entity->setVboBlock(NULL);
+                        
+                        m_entityRenderers.erase(entity);
+                    }
+                }
+                
+                m_entityBoundsVertexCount -= 6 * 4 * removedEntities.size();
+                m_entityBoundsVbo->pack();
+                m_entityBoundsVbo->unmap();
+                m_entityBoundsVbo->deactivate();
+            }
         }
         
-        void MapRenderer::validateChangedEntities() {
+        void MapRenderer::validateChangedEntities(RenderContext& context) {
+            const vector<Model::Entity*>& changedEntities = m_changeSet.changedEntities();
+            if (!changedEntities.empty()) {
+                m_selectedEntityBoundsVbo->activate();
+                m_selectedEntityBoundsVbo->map();
+                
+                vector<Entity*> unselectedEntities; // is this still necessary?
+                for (int i = 0; i < changedEntities.size(); i++) {
+                    Model::Entity* entity = changedEntities[i];
+                    if (context.filter.entityVisible(*entity)) {
+                        VboBlock* block = entity->vboBlock();
+                        if (m_entityBoundsVbo->ownsBlock(*block))
+                            unselectedEntities.push_back(entity);
+                        else
+                            writeEntityBounds(context, *entity, *block);
+                    }
+                }
+                
+                m_selectedEntityBoundsVbo->unmap();
+                m_selectedEntityBoundsVbo->deactivate();
+                
+                if (!unselectedEntities.empty()) {
+                    m_entityBoundsVbo->activate();
+                    m_entityBoundsVbo->map();
+                    
+                    for (int i = 0; i < unselectedEntities.size(); i++) {
+                        Model::Entity* entity = unselectedEntities[i];
+                        if (context.filter.entityVisible(*entity)) {
+                            VboBlock* block = entity->vboBlock();
+                            writeEntityBounds(context, *entity, *block);
+                        }
+                    }
+                    
+                    m_entityBoundsVbo->unmap();
+                    m_entityBoundsVbo->deactivate();
+                }
+            }
+            
         }
         
-        void MapRenderer::validateAddedBrushes() {
+        void MapRenderer::validateAddedBrushes(RenderContext& context) {
             const vector<Model::Brush*>& addedBrushes = m_changeSet.addedBrushes();
             if (!addedBrushes.empty()) {
                 m_faceVbo->activate();
@@ -465,7 +665,7 @@ namespace TrenchBroom {
                     for (int j = 0; j < addedFaces.size(); j++) {
                         Model::Face* face = addedFaces[j];
                         VboBlock& block = m_faceVbo->allocBlock((int)face->vertices().size() * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize));
-                        writeFaceVertices(*face, block);
+                        writeFaceVertices(context, *face, block);
                         face->setVboBlock(&block);
                     }
                 }
@@ -475,33 +675,102 @@ namespace TrenchBroom {
             }
         }
         
-        void MapRenderer::validateRemovedBrushes() {
+        void MapRenderer::validateRemovedBrushes(RenderContext& context) {
         }
         
-        void MapRenderer::validateChangedBrushes() {
+        void MapRenderer::validateChangedBrushes(RenderContext& context) {
         }
         
-        void MapRenderer::validateChangedFaces() {
+        void MapRenderer::validateChangedFaces(RenderContext& context) {
         }
         
-        void MapRenderer::validateSelection() {
-            
+        void MapRenderer::validateSelection(RenderContext& context) {
+            const vector<Model::Entity*> selectedEntities = m_changeSet.selectedEntities();
+            if (!selectedEntities.empty()) {
+                m_selectedEntityBoundsVbo->activate();
+                m_selectedEntityBoundsVbo->map();
+
+                for (int i = 0; i < selectedEntities.size(); i++) {
+                    Model::Entity* entity = selectedEntities[i];
+                    if (context.filter.entityVisible(*entity)) {
+                        VboBlock& block = m_selectedEntityBoundsVbo->allocBlock(6 * 4 * (ColorSize + VertexSize));
+                        writeEntityBounds(context, *entity, block);
+                        entity->setVboBlock(&block);
+                        m_entityBoundsVertexCount -= 6 * 4;
+                        m_selectedEntityBoundsVertexCount += 6 * 4;
+
+                        EntityRenderers::iterator it = m_entityRenderers.find(entity);
+                        if (it != m_entityRenderers.end()) {
+                            m_selectedEntityRenderers[entity] = it->second;
+                            m_entityRenderers.erase(it);
+                        } else {
+                            EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_editor.map().mods());
+                            if (renderer != NULL)
+                                m_selectedEntityRenderers[entity] = renderer;
+                        }
+                    }
+                }
+                
+                m_selectedEntityBoundsVbo->unmap();
+                m_selectedEntityBoundsVbo->deactivate();
+                
+                m_entityBoundsVbo->activate();
+                m_entityBoundsVbo->map();
+                m_entityBoundsVbo->pack();
+                m_entityBoundsVbo->unmap();
+                m_entityBoundsVbo->deactivate();
+            }
         }
         
-        void MapRenderer::validateDeselection() {
+        void MapRenderer::validateDeselection(RenderContext& context) {
+            const vector<Model::Entity*> deselectedEntities = m_changeSet.deselectedEntities();
+            if (!deselectedEntities.empty()) {
+                m_entityBoundsVbo->activate();
+                m_entityBoundsVbo->map();
+                
+                for (int i = 0; i < deselectedEntities.size(); i++) {
+                    Model::Entity* entity = deselectedEntities[i];
+                    if (context.filter.entityVisible(*entity)) {
+                        VboBlock& block = m_entityBoundsVbo->allocBlock(6 * 4 * (ColorSize + VertexSize));
+                        writeEntityBounds(context, *entity, block);
+                        entity->setVboBlock(&block);
+                        m_entityBoundsVertexCount += 6 * 4;
+                        m_selectedEntityBoundsVertexCount -= 6 * 4;
+
+                        EntityRenderers::iterator it = m_selectedEntityRenderers.find(entity);
+                        if (it != m_selectedEntityRenderers.end()) {
+                            m_entityRenderers[entity] = it->second;
+                            m_selectedEntityRenderers.erase(it);
+                        } else {
+                            EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_editor.map().mods());
+                            if (renderer != NULL)
+                                m_entityRenderers[entity] = renderer;
+                        }
+                    }
+                }
+                
+                m_entityBoundsVbo->unmap();
+                m_entityBoundsVbo->deactivate();
+                
+                m_selectedEntityBoundsVbo->activate();
+                m_selectedEntityBoundsVbo->map();
+                m_selectedEntityBoundsVbo->pack();
+                m_selectedEntityBoundsVbo->unmap();
+                m_selectedEntityBoundsVbo->deactivate();
+            }
         }
 
-        void MapRenderer::validate() {
-            validateEntityRendererCache();
-            validateAddedEntities();
-            validateAddedBrushes();
-            validateSelection();
-            validateChangedEntities();
-            validateChangedBrushes();
-            validateChangedFaces();
-            validateDeselection();
-            validateRemovedEntities();
-            validateRemovedBrushes();
+        void MapRenderer::validate(RenderContext& context) {
+            validateEntityRendererCache(context);
+            validateAddedEntities(context);
+            validateAddedBrushes(context);
+            validateSelection(context);
+            validateChangedEntities(context);
+            validateChangedBrushes(context);
+            validateChangedFaces(context);
+            validateDeselection(context);
+            validateRemovedEntities(context);
+            validateRemovedBrushes(context);
             
             if (!m_changeSet.addedBrushes().empty() ||
                 !m_changeSet.removedBrushes().empty() ||
@@ -511,7 +780,7 @@ namespace TrenchBroom {
                 !m_changeSet.deselectedFaces().empty() ||
                 m_changeSet.filterChanged() ||
                 m_changeSet.textureManagerChanged()) {
-                rebuildFaceIndexBuffers();
+                rebuildFaceIndexBuffers(context);
             }
             
             if (!m_changeSet.changedBrushes().empty() ||
@@ -522,13 +791,47 @@ namespace TrenchBroom {
                 !m_changeSet.deselectedFaces().empty() ||
                 m_changeSet.filterChanged() ||
                 m_changeSet.textureManagerChanged()) {
-                rebuildSelectedFaceIndexBuffers();
+                rebuildSelectedFaceIndexBuffers(context);
             }
             
             m_changeSet.clear();
         }
 
-        void MapRenderer::renderEdges(const Vec4f* color, const IndexBuffer& indexBuffer) {
+        void MapRenderer::renderEntityBounds(RenderContext& context, const Vec4f* color, int vertexCount) {
+            glSetEdgeOffset(0.5f);
+            
+            glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+            if (color != NULL) {
+                glColorV4f(*color);
+                glVertexPointer(3, GL_FLOAT, ColorSize + VertexSize, (const GLvoid *)(long)ColorSize);
+            } else {
+                glInterleavedArrays(GL_C4UB_V3F, 0, 0);
+            }
+            
+            glDrawArrays(GL_LINES, 0, vertexCount);
+            
+            glPopClientAttrib();
+            glResetEdgeOffset();
+        }
+        
+        void MapRenderer::renderEntityModels(RenderContext& context, EntityRenderers& entities) {
+            m_entityRendererManager->activate();
+            
+            glMatrixMode(GL_MODELVIEW);
+            EntityRenderers::iterator it;
+            for (it = entities.begin(); it != entities.end(); ++it) {
+                Entity* entity = it->first;
+                EntityRenderer* renderer = it->second;
+                glPushMatrix();
+                renderer->render(context, *entity);
+                glPopMatrix();
+            }
+            
+            glDisable(GL_TEXTURE_2D);
+            m_entityRendererManager->deactivate();
+        }
+        
+        void MapRenderer::renderEdges(RenderContext& context, const Vec4f* color, const IndexBuffer& indexBuffer) {
             glDisable(GL_TEXTURE_2D);
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             
@@ -548,7 +851,7 @@ namespace TrenchBroom {
             glPopClientAttrib();        
         }
         
-        void MapRenderer::renderFaces(bool textured, bool selected, FaceIndexBuffers& indexBuffers) {
+        void MapRenderer::renderFaces(RenderContext& context, bool textured, bool selected, FaceIndexBuffers& indexBuffers) {
             glPolygonMode(GL_FRONT, GL_FILL);
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             
@@ -570,12 +873,14 @@ namespace TrenchBroom {
                     unsigned char image = 0;
                     m_selectionDummyTexture = new Model::Assets::Texture("selection dummy", &image, 1, 1);
                 }
+
+                const Vec4f& selectedFaceColor = context.preferences.selectedFaceColor();
+                GLfloat color[4] = {selectedFaceColor.x, selectedFaceColor.y, selectedFaceColor.z, selectedFaceColor.w};
                 
                 glActiveTexture(GL_TEXTURE1);
                 glEnable(GL_TEXTURE_2D);
                 m_selectionDummyTexture->activate();
                 glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-                float color[3] = {0.6f, 0.35f, 0.35f};
                 glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
                 glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
                 glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
@@ -590,22 +895,15 @@ namespace TrenchBroom {
                 glEnable(GL_TEXTURE_2D);
                 glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
                 
-                /*
-                PreferencesManager* preferences = [PreferencesManager sharedManager];
-                float brightness = [preferences brightness];
-                float color[3] = {brightness / 2, brightness / 2, brightness / 2};
-                */
-                 
-                float color[4] = {0.5f, 0.5f, 0.5f, 1.0f};
+                float brightness = context.preferences.brightness();
+                float color[4] = {brightness / 2, brightness / 2, brightness / 2, 1};
                 
                 glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
                 glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
                 glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
-                
                 glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
                 glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
                 glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
-                
                 glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
                 
                 glClientActiveTexture(GL_TEXTURE0);
@@ -653,6 +951,15 @@ namespace TrenchBroom {
             m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_selectionDummyTexture = NULL;
             
+            m_entityBoundsVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            m_selectedEntityBoundsVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            m_entityBoundsVertexCount = 0;
+            m_selectedEntityBoundsVertexCount = 0;
+            
+            Model::Preferences& preferences = Model::Preferences::sharedPreferences();
+            m_entityRendererManager = new EntityRendererManager(preferences.quakePath(), m_editor.palette());
+            m_entityRendererCacheValid = true;
+            
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
             
@@ -672,7 +979,11 @@ namespace TrenchBroom {
             map.mapCleared              -= new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapCleared);
             selection.selectionAdded    -= new Model::Selection::SelectionEvent::T<MapRenderer>(this, &MapRenderer::selectionAdded);
             selection.selectionRemoved  -= new Model::Selection::SelectionEvent::T<MapRenderer>(this, &MapRenderer::selectionRemoved);
+            
             delete m_faceVbo;
+            delete m_entityBoundsVbo;
+            delete m_selectedEntityBoundsVbo;
+            delete m_entityRendererManager;
             
             if (m_selectionDummyTexture != NULL)
                 delete m_selectionDummyTexture;
@@ -680,7 +991,7 @@ namespace TrenchBroom {
 
         
         void MapRenderer::render(RenderContext& context) {
-            validate();
+            validate(context);
             
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -691,45 +1002,115 @@ namespace TrenchBroom {
             glShadeModel(GL_FLAT);
             glResetEdgeOffset();
             
-            if (context.renderOrigin) {
+            if (context.options.renderOrigin) {
                 glDisable(GL_TEXTURE_2D);
                 glBegin(GL_LINES);
                 glColor4f(1, 0, 0, 0.5f);
-                glVertex3f(-context.originAxisLength, 0, 0);
-                glVertex3f(context.originAxisLength, 0, 0);
+                glVertex3f(-context.options.originAxisLength, 0, 0);
+                glVertex3f(context.options.originAxisLength, 0, 0);
                 glColor4f(0, 1, 0, 0.5f);
-                glVertex3f(0, -context.originAxisLength, 0);
-                glVertex3f(0, context.originAxisLength, 0);
+                glVertex3f(0, -context.options.originAxisLength, 0);
+                glVertex3f(0, context.options.originAxisLength, 0);
                 glColor4f(0, 0, 1, 0.5f);
-                glVertex3f(0, 0, -context.originAxisLength);
-                glVertex3f(0, 0, context.originAxisLength);
+                glVertex3f(0, 0, -context.options.originAxisLength);
+                glVertex3f(0, 0, context.options.originAxisLength);
                 glEnd();
             }
             
-            m_faceVbo->activate();
-            glEnableClientState(GL_VERTEX_ARRAY);
-            renderFaces(true, false, m_faceIndexBuffers);
-            if (!m_editor.map().selection().empty())
-                renderFaces(true, true, m_selectedFaceIndexBuffers);
-            
-            glSetEdgeOffset(0.1f);
-            renderEdges(NULL, m_edgeIndexBuffer);
-            glResetEdgeOffset();
-            
-            if (!m_editor.map().selection().empty()) {
-                glDisable(GL_DEPTH_TEST);
-                renderEdges(&SelectionColor2, m_selectedEdgeIndexBuffer);
-                glEnable(GL_DEPTH_TEST);
+            if (context.options.renderBrushes) {
+                m_faceVbo->activate();
+                glEnableClientState(GL_VERTEX_ARRAY);
+
+                switch (context.options.renderMode) {
+                    case Controller::RM_TEXTURED:
+                        if (context.options.isolationMode == Controller::IM_NONE)
+                            renderFaces(context, true, false, m_faceIndexBuffers);
+                        if (!m_editor.map().selection().empty())
+                            renderFaces(context, true, true, m_selectedFaceIndexBuffers);
+                        break;
+                    case Controller::RM_FLAT:
+                        if (context.options.isolationMode == Controller::IM_NONE)
+                            renderFaces(context, false, false, m_faceIndexBuffers);
+                        if (!m_editor.map().selection().empty())
+                            renderFaces(context, false, true, m_selectedFaceIndexBuffers);
+                        break;
+                    case Controller::RM_WIREFRAME:
+                        break;
+                }
+
+                if (context.options.isolationMode != Controller::IM_DISCARD) {
+                    glSetEdgeOffset(0.1f);
+                    renderEdges(context, NULL, m_edgeIndexBuffer);
+                    glResetEdgeOffset();
+                }
                 
-                glSetEdgeOffset(0.2f);
-                glDepthFunc(GL_LEQUAL);
-                renderEdges(&SelectionColor, m_selectedEdgeIndexBuffer);
-                glDepthFunc(GL_LESS);
-                glResetEdgeOffset();
+                if (!m_editor.map().selection().empty()) {
+                    glDisable(GL_DEPTH_TEST);
+                    renderEdges(context, &context.preferences.hiddenSelectedEdgeColor(), m_selectedEdgeIndexBuffer);
+                    glEnable(GL_DEPTH_TEST);
+                    
+                    glSetEdgeOffset(0.2f);
+                    glDepthFunc(GL_LEQUAL);
+                    renderEdges(context, &context.preferences.selectedEdgeColor(), m_selectedEdgeIndexBuffer);
+                    glDepthFunc(GL_LESS);
+                    glResetEdgeOffset();
+                }
+                
+                glDisableClientState(GL_VERTEX_ARRAY);
+                m_faceVbo->deactivate();
             }
             
-            glDisableClientState(GL_VERTEX_ARRAY);
-            m_faceVbo->deactivate();
+            if (context.options.renderEntities) {
+                if (context.options.isolationMode == Controller::IM_NONE) {
+                    m_entityBoundsVbo->activate();
+                    glEnableClientState(GL_VERTEX_ARRAY);
+                    renderEntityBounds(context, NULL, m_entityBoundsVertexCount);
+                    glDisableClientState(GL_VERTEX_ARRAY);
+                    m_entityBoundsVbo->deactivate();
+
+                    renderEntityModels(context, m_entityRenderers);
+                    
+                    /*
+                    
+                    if ([options renderEntityClassnames]) {
+                        [fontManager activate];
+                        [classnameRenderer renderColor:&EntityClassnameColor];
+                        [fontManager deactivate];
+                    }
+                     */
+                } else if (context.options.isolationMode == Controller::IM_WIREFRAME) {
+                    m_entityBoundsVbo->activate();
+                    glEnableClientState(GL_VERTEX_ARRAY);
+                    renderEntityBounds(context, &context.preferences.entityBoundsWireframeColor(), m_entityBoundsVertexCount);
+                    glDisableClientState(GL_VERTEX_ARRAY);
+                    m_entityBoundsVbo->deactivate();
+                }
+                
+                if (!m_editor.map().selection().empty()) {
+                    /*
+                    [fontManager activate];
+                    [selectedClassnameRenderer renderColor:&SelectionColor];
+                    [fontManager deactivate];
+                    */
+                     
+                    m_selectedEntityBoundsVbo->activate();
+                    glEnableClientState(GL_VERTEX_ARRAY);
+                    
+                    glDisable(GL_CULL_FACE);
+                    glDisable(GL_DEPTH_TEST);
+                    renderEntityBounds(context, &context.preferences.hiddenSelectedEntityBoundsColor(), m_selectedEntityBoundsVertexCount);
+                    glEnable(GL_DEPTH_TEST);
+                    glDepthFunc(GL_LEQUAL);
+                    renderEntityBounds(context, &context.preferences.selectedEntityBoundsColor(), m_selectedEntityBoundsVertexCount);
+                    glDepthFunc(GL_LESS);
+                    glEnable(GL_CULL_FACE);
+                    
+                    glDisableClientState(GL_VERTEX_ARRAY);
+                    m_selectedEntityBoundsVbo->deactivate();
+                    
+                    renderEntityModels(context, m_selectedEntityRenderers);
+                }
+            }
         }
     }
 }

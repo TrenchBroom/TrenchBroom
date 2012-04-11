@@ -148,7 +148,7 @@ namespace TrenchBroom {
             return m_faces;
         }
         
-        BBox Brush::bounds() const {
+        const BBox& Brush::bounds() const {
             return m_geometry->bounds;
         }
         
@@ -156,7 +156,7 @@ namespace TrenchBroom {
             return m_worldBounds;
         }
         
-        Vec3f Brush::center() {
+        const Vec3f Brush::center() {
             return centerOfVertices(vertices());
         }
         

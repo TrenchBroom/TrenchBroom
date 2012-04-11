@@ -77,10 +77,10 @@ namespace TrenchBroom {
             EMapObjectType objectType() const;
             const EntityDefinition* entityDefinition() const;
             void setEntityDefinition(EntityDefinition* entityDefinition);
-            Vec3f center() const;
-            Vec3f origin() const;
-            BBox bounds() const;
-            BBox maxBounds() const;
+            const Vec3f& center() const;
+            const Vec3f& origin() const;
+            const BBox& bounds() const;
+            const BBox& maxBounds() const;
             
             void pick(const Ray& ray, HitList& hits);
 

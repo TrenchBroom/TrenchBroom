@@ -80,7 +80,7 @@ namespace TrenchBroom {
             Filter* m_filter;
         public:
             Picker(Octree& octree);
-            HitList* pick(const Ray& ray, Filter* filter);
+            HitList* pick(const Ray& ray, Filter& filter);
         };
     }
 }

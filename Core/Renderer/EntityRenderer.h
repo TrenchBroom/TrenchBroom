@@ -17,19 +17,29 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Utils_h
-#define TrenchBroom_Utils_h
+#ifndef TrenchBroom_EntityRenderer_h
+#define TrenchBroom_EntityRenderer_h
 
-#include <string>
-#include <vector>
-
-using namespace std;
+#include "VecMath.h"
 
 namespace TrenchBroom {
-    string trim(const string& str);
-    vector<string> split(const string& str, char d);
-    string appendPath(const string& prefix, const string& suffix);
-    string pathExtension(const string& path);
+    namespace Model {
+        class Entity;
+    }
+    
+    namespace Renderer {
+        class RenderContext;
+        
+        class EntityRenderer {
+        public:
+            virtual ~EntityRenderer() {};
+            virtual void render(RenderContext& context, Model::Entity& entity) = 0;
+            virtual void render(RenderContext& context, const Vec3f& position, float angle) = 0;
+            virtual const Vec3f& center() = 0;
+            virtual const BBox& bounds() = 0;
+            virtual const BBox& maxBounds() = 0;
+        };
+    }
 }
 
 #endif

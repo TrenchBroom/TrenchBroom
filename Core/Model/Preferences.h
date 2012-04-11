@@ -21,18 +21,48 @@
 #define TrenchBroom_Header_h
 
 #include "Event.h"
+#include "VecMath.h"
 
 namespace TrenchBroom {
     namespace Model {
         class Preferences {
         private:
-            Preferences() {};
+            Vec4f m_faceColor;
+            Vec4f m_edgeColor;
+            Vec4f m_selectedFaceColor;
+            Vec4f m_selectedEdgeColor;
+            Vec4f m_hiddenSelectedEdgeColor;
+            Vec4f m_entityBoundsColor;
+            Vec4f m_entityBoundsWireframeColor;
+            Vec4f m_selectedEntityBoundsColor;
+            Vec4f m_hiddenSelectedEntityBoundsColor;
+            Vec4f m_backgroundColor;
+            string m_quakePath;
+            
+            void loadDefaults();
+            void loadPreferences();
+            
+            Preferences();
             ~Preferences() {};
         public:
             static Preferences& sharedPreferences();
             float cameraFov();
             float cameraNear();
             float cameraFar();
+            float brightness();
+            
+            const Vec4f& faceColor();
+            const Vec4f& edgeColor();
+            const Vec4f& selectedFaceColor();
+            const Vec4f& selectedEdgeColor();
+            const Vec4f& hiddenSelectedEdgeColor();
+            const Vec4f& entityBoundsColor();
+            const Vec4f& entityBoundsWireframeColor();
+            const Vec4f& selectedEntityBoundsColor();
+            const Vec4f& hiddenSelectedEntityBoundsColor();
+            const Vec4f& backgroundColor();
+            
+            const string& quakePath();
         };
     }
 }

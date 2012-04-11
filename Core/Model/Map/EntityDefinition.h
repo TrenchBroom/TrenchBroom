@@ -43,8 +43,12 @@ namespace TrenchBroom {
         } EPropertyType;
 
         class EntityDefinition;
+        class Entity;
+        class SpawnFlag;
+        
         bool compareByName(const EntityDefinition* def1, const EntityDefinition* def2);
         bool compareByUsage(const EntityDefinition* def1, const EntityDefinition* def2);
+        bool compareByFlag(const SpawnFlag& left, const SpawnFlag& right);
 
         class Property {
         public:
@@ -112,6 +116,11 @@ namespace TrenchBroom {
             vector<Property*> properties;
             string description;
             int usageCount;
+            
+            vector<SpawnFlag> flagsForMask(int mask) const;
+            bool flagSetOnEntity(const string& name, const Entity& entity) const;
+            ModelProperty* modelPropertyForEntity(const Entity& entity) const;
+            ModelProperty* defaultModelProperty() const;
         };
         
         typedef enum {

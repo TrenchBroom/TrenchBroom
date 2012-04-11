@@ -28,6 +28,8 @@
 #include "Entity.h"
 #include "Utils.h"
 #include "Wad.h"
+#include "Options.h"
+#include "Filter.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -70,6 +72,8 @@ namespace TrenchBroom {
             m_inputController = new InputController(*this);
             
             m_palette = new Model::Assets::Palette(palettePath);
+            m_options = new TransientOptions();
+            m_filter = new Filter();
         }
         
         Editor::~Editor() {
@@ -78,6 +82,8 @@ namespace TrenchBroom {
             delete m_map;
             delete m_textureManager;
             delete m_palette;
+            delete m_options;
+            delete m_filter;
         }
         
         void Editor::loadMap(const string& path) {
@@ -124,6 +130,18 @@ namespace TrenchBroom {
 
         InputController& Editor::inputController() {
             return *m_inputController;
+        }
+
+        TransientOptions& Editor::options() {
+            return *m_options;
+        }
+        
+        Filter& Editor::filter() {
+            return *m_filter;
+        }
+
+        Model::Assets::Palette& Editor::palette() {
+            return *m_palette;
         }
 
     }

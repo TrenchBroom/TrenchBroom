@@ -56,7 +56,7 @@ namespace TrenchBroom {
                 BspTextureInfo* textureInfo;
                 vector<Vec3f> vertices;
                 BspFace(BspTextureInfo* textureInfo, vector<Vec3f>& vertices);
-                Vec2f textureCoordinates(Vec3f& vertex);
+                Vec2f textureCoordinates(const Vec3f& vertex);
             };
             
             class BspModel {

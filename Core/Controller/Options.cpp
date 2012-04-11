@@ -17,19 +17,4 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Utils_h
-#define TrenchBroom_Utils_h
-
-#include <string>
-#include <vector>
-
-using namespace std;
-
-namespace TrenchBroom {
-    string trim(const string& str);
-    vector<string> split(const string& str, char d);
-    string appendPath(const string& prefix, const string& suffix);
-    string pathExtension(const string& path);
-}
-
-#endif
+#include "Options.h"

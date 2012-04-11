@@ -34,7 +34,7 @@ namespace TrenchBroom {
             m_selected = false;
             m_vboBlock = NULL;
             m_origin = Null3f;
-            m_angle = NAN;
+            m_angle = 0;
             rebuildGeometry();
         }
         
@@ -130,19 +130,19 @@ namespace TrenchBroom {
             rebuildGeometry();
         }
         
-        Vec3f Entity::center() const {
+        const Vec3f& Entity::center() const {
             return m_center;
         }
         
-        Vec3f Entity::origin() const {
+        const Vec3f& Entity::origin() const {
             return m_origin;
         }
         
-        BBox Entity::bounds() const {
+        const BBox& Entity::bounds() const {
             return m_bounds;
         }
         
-        BBox Entity::maxBounds() const {
+        const BBox& Entity::maxBounds() const {
             return m_maxBounds;
         }
         
@@ -236,9 +236,7 @@ namespace TrenchBroom {
         
         void Entity::setProperties(map<string, string> properties, bool replace) {
             if (replace) m_properties.clear();
-            map<string, string>::iterator it;
-            for (it = properties.begin(); it != properties.end(); ++it)
-                m_properties[it->first] = it->second;
+            m_properties.insert(properties.begin(), properties.end());
         }
         
         void Entity::deleteProperty(const string& key) {

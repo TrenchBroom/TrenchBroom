@@ -65,9 +65,9 @@ namespace TrenchBroom {
             Entity* entity() const;
             void setEntity(Entity* entity);
             const vector<Face*>& faces() const;
-            BBox bounds() const;
+            const BBox& bounds() const;
             const BBox& worldBounds() const;
-            Vec3f center();
+            const Vec3f center();
             const vector<Vertex*>& vertices() const;
             const vector<Edge*>& edges() const;
             

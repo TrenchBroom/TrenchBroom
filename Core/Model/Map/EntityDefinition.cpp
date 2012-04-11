@@ -18,7 +18,9 @@
  */
 
 #include "EntityDefinition.h"
+#include <cstdlib>
 #include "EntityDefinitionParser.h"
+#include "Entity.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -30,6 +32,10 @@ namespace TrenchBroom {
             return def1->usageCount <= def2->usageCount;
         }
         
+        bool compareByFlag(const SpawnFlag& left, const SpawnFlag& right) {
+            return left.flag < right.flag;
+        }
+
         EntityDefinition* EntityDefinition::baseDefinition(const string& name, const map<string, SpawnFlag>& flags, const vector<Property*>& properties) {
             EntityDefinition* definition = new EntityDefinition();
             definition->type = EDT_BASE;
@@ -65,6 +71,59 @@ namespace TrenchBroom {
         EntityDefinition::~EntityDefinition() {
             while(!properties.empty()) delete properties.back(), properties.pop_back();
         }
+        
+        vector<SpawnFlag> EntityDefinition::flagsForMask(int mask) const {
+            vector<SpawnFlag> result;
+            map<string, SpawnFlag>::const_iterator it;
+            for (it = flags.begin(); it != flags.end(); ++it)
+                if ((it->second.flag & mask) != 0)
+                    result.push_back(it->second);
+            sort(result.begin(), result.end(), compareByFlag);
+            return result;
+        }
+        
+        bool EntityDefinition::flagSetOnEntity(const string& name, const Entity& entity) const {
+            const string* entityFlagsStr = entity.propertyForKey(SpawnFlagsKey);
+            if (entityFlagsStr == NULL)
+                return false;
+            map<string, SpawnFlag>::const_iterator it = flags.find(name);
+            if (it == flags.end())
+                return false;
+            return (it->second.flag & atoi(entityFlagsStr->c_str())) != 0;
+            
+        }
+
+        ModelProperty* EntityDefinition::modelPropertyForEntity(const Entity& entity) const {
+            ModelProperty* defaultProperty = NULL;
+            ModelProperty* specificProperty = NULL;
+            for (int i = 0; i < properties.size() && specificProperty == NULL; i++) {
+                Property* property = properties[i];
+                if (property->type == EDP_MODEL) {
+                    ModelProperty* modelProperty = static_cast<ModelProperty*>(property);
+                    if (modelProperty->flagName.empty())
+                        defaultProperty = modelProperty;
+                    else if (flagSetOnEntity(modelProperty->flagName, entity))
+                        specificProperty = modelProperty;
+                }
+            }
+                               
+            return specificProperty != NULL ? specificProperty : defaultProperty;
+        }
+        
+        ModelProperty* EntityDefinition::defaultModelProperty() const {
+            for (int i = 0; i < properties.size(); i++) {
+                Property* property = properties[i];
+                if (property->type == EDP_MODEL) {
+                    ModelProperty* modelProperty = static_cast<ModelProperty*>(property);
+                    if (modelProperty->flagName.empty())
+                        return modelProperty;
+                }
+            }
+            
+            return NULL;
+        }
+
+#pragma mark EntityDefinitionManager
         
         EntityDefinitionManager::EntityDefinitionManager(const string& path) {
             clock_t start = clock();

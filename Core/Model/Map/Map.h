@@ -53,6 +53,7 @@ namespace TrenchBroom {
             BBox m_worldBounds;
             
             vector<Vec3f> m_leakPoints;
+            vector<string> m_mods;
             
             bool m_postNotifications;
         public:
@@ -138,6 +139,7 @@ namespace TrenchBroom {
             Selection& selection();
             EntityDefinitionManager& entityDefinitionManager();
             GroupManager& groupManager();
+            const vector<string>& mods();
         };
     }
 }

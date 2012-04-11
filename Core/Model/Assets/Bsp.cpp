@@ -72,7 +72,7 @@ namespace TrenchBroom {
                     bounds += vertices[i];
             }
             
-            Vec2f BspFace::textureCoordinates(Vec3f& vertex) {
+            Vec2f BspFace::textureCoordinates(const Vec3f& vertex) {
                 Vec2f result;
                 result.x = ((vertex | textureInfo->sAxis) + textureInfo->sOffset) / textureInfo->texture->width;
                 result.y = ((vertex | textureInfo->tAxis) + textureInfo->tOffset) / textureInfo->texture->height;

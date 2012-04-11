@@ -35,7 +35,7 @@ namespace TrenchBroom {
             Model::Picker& picker = m_editor.map().picker();
             Camera& camera = m_editor.camera();
             Ray pickRay = camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);
-            m_currentEvent.hits = picker.pick(pickRay, NULL);
+            m_currentEvent.hits = picker.pick(pickRay, m_editor.filter());
         }
 
         InputController::InputController(Editor& editor) : m_editor(editor) {

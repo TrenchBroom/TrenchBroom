@@ -29,12 +29,15 @@
 using namespace std;
 
 namespace TrenchBroom {
+    class Filter;
+    
     namespace Model {
         class Map;
         class Entity;
         class Brush;
         class Face;
         class SelectionEventData;
+        class Preferences;
         
         namespace Assets {
             class Texture;
@@ -43,18 +46,21 @@ namespace TrenchBroom {
 
     namespace Controller {
         class Editor;
+        class TransientOptions;
     }
     
     namespace Renderer {
         class Vbo;
         class VboBlock;
+        class EntityRenderer;
+        class EntityRendererManager;
         
         class RenderContext {
         public:
-            Vec4f backgroundColor;
-            bool renderOrigin;
-            float originAxisLength;
-            RenderContext();
+            Filter& filter;
+            Controller::TransientOptions& options;
+            Model::Preferences& preferences;
+            RenderContext(Filter& filter, Controller::TransientOptions& options);
         };
         
         class ChangeSet {
@@ -113,13 +119,29 @@ namespace TrenchBroom {
         private:
             typedef vector<GLuint> IndexBuffer;
             typedef map<Model::Assets::Texture*, IndexBuffer* > FaceIndexBuffers;
+            typedef map<Model::Entity*, EntityRenderer*> EntityRenderers;
 
             Controller::Editor& m_editor;
             Vbo* m_faceVbo;
+            
+            // level geometry rendering
             FaceIndexBuffers m_faceIndexBuffers;
             FaceIndexBuffers m_selectedFaceIndexBuffers;
             IndexBuffer m_edgeIndexBuffer;
             IndexBuffer m_selectedEdgeIndexBuffer;
+            
+            // entity bounds rendering
+            Vbo* m_entityBoundsVbo;
+            Vbo* m_selectedEntityBoundsVbo;
+            int m_entityBoundsVertexCount;
+            int m_selectedEntityBoundsVertexCount;
+            
+            // entity model rendering
+            EntityRendererManager* m_entityRendererManager;
+            EntityRenderers m_entityRenderers;
+            EntityRenderers m_selectedEntityRenderers;
+            bool m_entityRendererCacheValid;
+            
             ChangeSet m_changeSet;
             Model::Assets::Texture* m_selectionDummyTexture;
             
@@ -139,26 +161,29 @@ namespace TrenchBroom {
             void selectionAdded(const Model::SelectionEventData& event);
             void selectionRemoved(const Model::SelectionEventData& event);
             
-            void writeFaceVertices(Model::Face& face, VboBlock& block);
-            void writeFaceIndices(Model::Face& face, IndexBuffer& triangleBuffer, IndexBuffer& edgeBuffer);
+            void writeFaceVertices(RenderContext& context, Model::Face& face, VboBlock& block);
+            void writeFaceIndices(RenderContext& context, Model::Face& face, IndexBuffer& triangleBuffer, IndexBuffer& edgeBuffer);
+            void writeEntityBounds(RenderContext& context, Model::Entity& entity, VboBlock& block);
             
-            void rebuildFaceIndexBuffers();
-            void rebuildSelectedFaceIndexBuffers();
+            void rebuildFaceIndexBuffers(RenderContext& context);
+            void rebuildSelectedFaceIndexBuffers(RenderContext& context);
             
-            void validateEntityRendererCache();
-            void validateAddedEntities();
-            void validateRemovedEntities();
-            void validateChangedEntities();
-            void validateAddedBrushes();
-            void validateRemovedBrushes();
-            void validateChangedBrushes();
-            void validateChangedFaces();
-            void validateSelection();
-            void validateDeselection();
-            void validate();
+            void validateEntityRendererCache(RenderContext& context);
+            void validateAddedEntities(RenderContext& context);
+            void validateRemovedEntities(RenderContext& context);
+            void validateChangedEntities(RenderContext& context);
+            void validateAddedBrushes(RenderContext& context);
+            void validateRemovedBrushes(RenderContext& context);
+            void validateChangedBrushes(RenderContext& context);
+            void validateChangedFaces(RenderContext& context);
+            void validateSelection(RenderContext& context);
+            void validateDeselection(RenderContext& context);
+            void validate(RenderContext& context);
             
-            void renderEdges(const Vec4f* color, const IndexBuffer& indexBuffer);
-            void renderFaces(bool textured, bool selected, FaceIndexBuffers& indexBuffers);
+            void renderEntityBounds(RenderContext& context, const Vec4f* color, int vertexCount);
+            void renderEntityModels(RenderContext& context, EntityRenderers& entities);
+            void renderEdges(RenderContext& context, const Vec4f* color, const IndexBuffer& indexBuffer);
+            void renderFaces(RenderContext& context, bool textured, bool selected, FaceIndexBuffers& indexBuffers);
         public:
             MapRenderer(Controller::Editor& editor);
             ~MapRenderer();

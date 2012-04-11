@@ -16,6 +16,8 @@
 		48661B3A1534826500649E47 /* Picker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48661B391534826400649E47 /* Picker.cpp */; };
 		48661B3E1534BC6A00649E47 /* SelectionTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48661B3D1534BC6A00649E47 /* SelectionTool.cpp */; };
 		48667DB3152D961300A65C45 /* EditorGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48667DB2152D961300A65C45 /* EditorGui.cpp */; };
+		4888F82A15357B84000423D2 /* BspRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4888F82915357B84000423D2 /* BspRenderer.cpp */; };
+		4888F82D1535B980000423D2 /* EntityRendererManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4888F82C1535B980000423D2 /* EntityRendererManager.cpp */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
 		48979EEC152EF3F60039ABE8 /* MapRendererControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48979EEB152EF3F60039ABE8 /* MapRendererControl.cpp */; };
 		4898E86115322E3900E335EA /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4898E86015322E3900E335EA /* Utils.cpp */; };
@@ -59,6 +61,8 @@
 		48C9A3AC152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3A9152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a */; };
 		48C9A3AD152DD83800EB804C /* libGWEN-Renderer-OpenGL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3AA152DD83800EB804C /* libGWEN-Renderer-OpenGL.a */; };
 		48C9A3AE152DD83800EB804C /* libgwend_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3AB152DD83800EB804C /* libgwend_static.a */; };
+		48CBE90E1535691300E9BDD6 /* Options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CBE90D1535691300E9BDD6 /* Options.cpp */; };
+		48CBE914153574B700E9BDD6 /* AliasRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CBE913153574B700E9BDD6 /* AliasRenderer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -81,6 +85,10 @@
 		48661B3D1534BC6A00649E47 /* SelectionTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SelectionTool.cpp; path = ../Core/Controller/SelectionTool.cpp; sourceTree = "<group>"; };
 		48667DB1152D960100A65C45 /* EditorGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EditorGui.h; path = ../Core/GUI/EditorGui.h; sourceTree = "<group>"; };
 		48667DB2152D961300A65C45 /* EditorGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EditorGui.cpp; path = ../Core/GUI/EditorGui.cpp; sourceTree = "<group>"; };
+		4888F82715357B6F000423D2 /* BspRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BspRenderer.h; path = ../Core/Renderer/BspRenderer.h; sourceTree = "<group>"; };
+		4888F82915357B84000423D2 /* BspRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BspRenderer.cpp; path = ../Core/Renderer/BspRenderer.cpp; sourceTree = "<group>"; };
+		4888F82B1535B967000423D2 /* EntityRendererManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EntityRendererManager.h; path = ../Core/Renderer/EntityRendererManager.h; sourceTree = "<group>"; };
+		4888F82C1535B980000423D2 /* EntityRendererManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EntityRendererManager.cpp; path = ../Core/Renderer/EntityRendererManager.cpp; sourceTree = "<group>"; };
 		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
 		48979EEA152EF3DE0039ABE8 /* MapRendererControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapRendererControl.h; path = ../Core/GUI/MapRendererControl.h; sourceTree = "<group>"; };
 		48979EEB152EF3F60039ABE8 /* MapRendererControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapRendererControl.cpp; path = ../Core/GUI/MapRendererControl.cpp; sourceTree = "<group>"; };
@@ -160,6 +168,11 @@
 		48C9A3A9152DD83800EB804C /* libGWEN-Renderer-OpenGL_DebugFont.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libGWEN-Renderer-OpenGL_DebugFont.a"; path = "../Gwen/lib/macosx/libGWEN-Renderer-OpenGL_DebugFont.a"; sourceTree = "<group>"; };
 		48C9A3AA152DD83800EB804C /* libGWEN-Renderer-OpenGL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libGWEN-Renderer-OpenGL.a"; path = "../Gwen/lib/macosx/libGWEN-Renderer-OpenGL.a"; sourceTree = "<group>"; };
 		48C9A3AB152DD83800EB804C /* libgwend_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgwend_static.a; path = ../Gwen/lib/macosx/libgwend_static.a; sourceTree = "<group>"; };
+		48CBE90B153568FE00E9BDD6 /* Options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Options.h; path = ../Core/Controller/Options.h; sourceTree = "<group>"; };
+		48CBE90D1535691300E9BDD6 /* Options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Options.cpp; path = ../Core/Controller/Options.cpp; sourceTree = "<group>"; };
+		48CBE90F153573C800E9BDD6 /* EntityRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EntityRenderer.h; path = ../Core/Renderer/EntityRenderer.h; sourceTree = "<group>"; };
+		48CBE9121535749000E9BDD6 /* AliasRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AliasRenderer.h; path = ../Core/Renderer/AliasRenderer.h; sourceTree = "<group>"; };
+		48CBE913153574B700E9BDD6 /* AliasRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AliasRenderer.cpp; path = ../Core/Renderer/AliasRenderer.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -193,6 +206,8 @@
 				48661B3C1534BC5D00649E47 /* SelectionTool.h */,
 				48661B3D1534BC6A00649E47 /* SelectionTool.cpp */,
 				4836770D152F2C6C00D402E3 /* Tool.h */,
+				48CBE90B153568FE00E9BDD6 /* Options.h */,
+				48CBE90D1535691300E9BDD6 /* Options.cpp */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -374,6 +389,13 @@
 				48061813153032A30099EB8C /* Vbo.cpp */,
 				48661B3515346FAE00649E47 /* RenderUtils.h */,
 				48661B3615346FDB00649E47 /* RenderUtils.cpp */,
+				48CBE90F153573C800E9BDD6 /* EntityRenderer.h */,
+				48CBE9121535749000E9BDD6 /* AliasRenderer.h */,
+				48CBE913153574B700E9BDD6 /* AliasRenderer.cpp */,
+				4888F82715357B6F000423D2 /* BspRenderer.h */,
+				4888F82915357B84000423D2 /* BspRenderer.cpp */,
+				4888F82B1535B967000423D2 /* EntityRendererManager.h */,
+				4888F82C1535B980000423D2 /* EntityRendererManager.cpp */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -498,6 +520,10 @@
 				48661B3715346FDB00649E47 /* RenderUtils.cpp in Sources */,
 				48661B3A1534826500649E47 /* Picker.cpp in Sources */,
 				48661B3E1534BC6A00649E47 /* SelectionTool.cpp in Sources */,
+				48CBE90E1535691300E9BDD6 /* Options.cpp in Sources */,
+				48CBE914153574B700E9BDD6 /* AliasRenderer.cpp in Sources */,
+				4888F82A15357B84000423D2 /* BspRenderer.cpp in Sources */,
+				4888F82D1535B980000423D2 /* EntityRendererManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

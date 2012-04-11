@@ -65,10 +65,10 @@ namespace TrenchBroom {
             } else {
                 m_column--;
             }
+            m_stream.seekg(-1, ios::cur);
         }
         
         char EntityDefinitionTokenizer::peekChar() {
-            m_stream.seekg(1, ios::cur);
             char c;
             m_stream.get(c);
             m_stream.seekg(-1, ios::cur);
@@ -264,10 +264,12 @@ namespace TrenchBroom {
         string EntityDefinitionTokenizer::remainder() {
             assert(m_state == TS_INDEF);
             
-            next();
+            nextChar();
             string buffer;
-            while (m_state != TS_EOF && m_char != '*' && peekChar() != '/')
-                buffer += next()->data;
+            while (m_state != TS_EOF && m_char != '*' && peekChar() != '/') {
+                buffer += m_char;
+                nextChar();
+            }
             pushChar();
             return buffer;
         }
@@ -325,14 +327,17 @@ namespace TrenchBroom {
         
         map<string, Model::SpawnFlag> EntityDefinitionParser::parseFlags() {
             map<string, Model::SpawnFlag> flags;
-            EntityDefinitionToken* token = m_tokenizer->next();
+            EntityDefinitionToken* token = m_tokenizer->peek();
+            if (token->type != TT_WORD)
+                return flags;
             
             while (token->type == TT_WORD) {
+                token = m_tokenizer->next();
                 string name = token->data;
                 int value = 1 << flags.size();
                 Model::SpawnFlag flag(name, value);
                 flags[name] = flag;
-                token = m_tokenizer->next();
+                token = m_tokenizer->peek();
             }
             
             return flags;
@@ -363,7 +368,7 @@ namespace TrenchBroom {
                 string name = token->data;
                 
                 vector<Model::ChoiceArgument> arguments;
-                expect(TT_B_O, token = m_tokenizer->next());
+                expect(TT_B_O, token = nextTokenIgnoringNewlines());
                 token = nextTokenIgnoringNewlines();
                 while (token->type == TT_B_O) {
                     expect(TT_DEC, token = nextTokenIgnoringNewlines());
@@ -388,7 +393,7 @@ namespace TrenchBroom {
                 unsigned long lastColon = modelPath.find_last_of(':');
                 if (lastColon > 0 && lastColon != string::npos) {
                     skinIndex = atoi(modelPath.c_str() + lastColon + 1);
-                    modelPath = modelPath.substr(1, lastColon - 2);
+                    modelPath = modelPath.substr(0, lastColon);
                 }
                 
                 expect(TT_C | TT_B_C, token = nextTokenIgnoringNewlines());

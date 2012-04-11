@@ -25,6 +25,8 @@
 using namespace std;
 
 namespace TrenchBroom {
+    class Filter;
+    
     namespace Model {
         namespace Assets {
             class TextureManager;
@@ -36,12 +38,15 @@ namespace TrenchBroom {
     namespace Controller {
         class Camera;
         class InputController;
+        class TransientOptions;
 
         class Editor {
         private:
             Model::Map* m_map;
             Camera* m_camera;
             InputController* m_inputController;
+            TransientOptions* m_options;
+            Filter* m_filter;
             Model::Assets::TextureManager* m_textureManager;
             Model::Assets::Palette* m_palette;
             string m_entityDefinitionFilePath;
@@ -57,6 +62,9 @@ namespace TrenchBroom {
             Model::Map& map();
             Camera& camera();
             InputController& inputController();
+            TransientOptions& options();
+            Filter& filter();
+            Model::Assets::Palette& palette();
         };
     }
 }

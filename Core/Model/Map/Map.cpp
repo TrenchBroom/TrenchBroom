@@ -45,6 +45,8 @@ namespace TrenchBroom {
             m_entityDefinitionManager = EntityDefinitionManager::sharedManager(entityDefinitionFilePath);
             m_groupManager = new GroupManager(*this);
             m_postNotifications = true;
+            
+            m_mods.push_back("id1");
         }
         
         Map::~Map() {
@@ -124,6 +126,7 @@ namespace TrenchBroom {
             if (!entity->worldspawn() || worldspawn(false) == NULL) {
                 m_entities.push_back(entity);
                 entity->setMap(this);
+                setEntityDefinition(entity);
             }
             
             vector <Entity*> entities;
@@ -132,32 +135,14 @@ namespace TrenchBroom {
         }
         
         Entity* Map::createEntity(const string& classname) {
-            EntityDefinition* entityDefinition = m_entityDefinitionManager->definition(classname);
-            if (entityDefinition == NULL) {
-                fprintf(stdout, "Warning: No entity definition found for class name '%s'", classname.c_str());
-                return NULL;
-            }
-            
             Entity* entity = new Entity();
             entity->setProperty(ClassnameKey, classname);
-            entity->setEntityDefinition(entityDefinition);
             addEntity(entity);
             return entity;
         }
         
         Entity* Map::createEntity(const map<string, string> properties) {
-            map<string, string>::const_iterator it = properties.find(ClassnameKey);
-            assert(it != properties.end());
-            
-            string classname = it->second;
-            EntityDefinition* entityDefinition = m_entityDefinitionManager->definition(classname);
-            if (entityDefinition == NULL) {
-                fprintf(stdout, "Warning: No entity definition found for class name '%s'", classname.c_str());
-                return NULL;
-            }
-            
             Entity* entity = new Entity(properties);
-            entity->setEntityDefinition(entityDefinition);
             addEntity(entity);
             return entity;
         }
@@ -169,9 +154,9 @@ namespace TrenchBroom {
                 if (entityDefinition != NULL)
                     entity->setEntityDefinition(entityDefinition);
                 else
-                    fprintf(stdout, "Warning: No entity definition found for class name '%s'", classname->c_str());
+                    fprintf(stdout, "Warning: No entity definition found for class name '%s'\n", classname->c_str());
             } else {
-                fprintf(stdout, "Warning: Entity with id %i is missing classname property (line %i)", entity->uniqueId(), entity->filePosition());
+                fprintf(stdout, "Warning: Entity with id %i is missing classname property (line %i)\n", entity->uniqueId(), entity->filePosition());
             }
         }
         
@@ -600,6 +585,10 @@ namespace TrenchBroom {
         
         GroupManager& Map::groupManager() {
             return *m_groupManager;
+        }
+
+        const vector<string>& Map::mods() {
+            return m_mods;
         }
     }
 }

@@ -84,6 +84,7 @@ namespace TrenchBroom {
             VboBlock& allocBlock(int capacity);
             VboBlock& freeBlock(VboBlock& block);
             void pack();
+            bool ownsBlock(VboBlock& block);
         };
     }
 }

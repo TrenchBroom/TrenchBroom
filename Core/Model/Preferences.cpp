@@ -21,6 +21,29 @@
 
 namespace TrenchBroom {
     namespace Model {
+        void Preferences::loadDefaults() {
+            m_faceColor = Vec4f(0.2f, 0.2f, 0.2f, 1);
+            m_edgeColor = Vec4f(0.6f, 0.6f, 0.6f, 0.6f);
+            m_selectedFaceColor = Vec4f(0.6f, 0.35f, 0.35f, 1);
+            m_selectedEdgeColor = Vec4f(1, 0, 0, 1);
+            m_hiddenSelectedEdgeColor = Vec4f(1, 0, 0, 0.35f);
+            m_entityBoundsColor = Vec4f(0.5f, 0.5f, 0.5f, 1);
+            m_entityBoundsWireframeColor = Vec4f(0.5f, 0.5f, 0.5f, 0.6f);
+            m_selectedEntityBoundsColor = m_selectedEdgeColor;
+            m_hiddenSelectedEntityBoundsColor = m_hiddenSelectedEdgeColor;
+            m_backgroundColor = Vec4f(0, 0, 0, 0);
+            m_quakePath = "";
+        }
+        
+        void Preferences::loadPreferences() {
+            m_quakePath = "/Applications/Quake";
+        }
+
+        Preferences::Preferences() {
+            loadDefaults();
+            loadPreferences();
+        }
+        
         Preferences& Preferences::sharedPreferences() {
             static Preferences instance;
             return instance;
@@ -36,6 +59,54 @@ namespace TrenchBroom {
         
         float Preferences::cameraFar() {
             return 10000;
+        }
+
+        float Preferences::brightness() {
+            return 1;
+        }
+
+        const Vec4f& Preferences::faceColor() {
+            return m_faceColor;
+        }
+        
+        const Vec4f& Preferences::Preferences::edgeColor(){
+            return m_edgeColor;
+        }
+        
+        const Vec4f& Preferences::selectedFaceColor() {
+            return m_selectedFaceColor;
+        }
+        
+        const Vec4f& Preferences::selectedEdgeColor() {
+            return m_selectedEdgeColor;
+        }
+        
+        const Vec4f& Preferences::hiddenSelectedEdgeColor() {
+            return m_hiddenSelectedEdgeColor;
+        }
+        
+        const Vec4f& Preferences::entityBoundsColor() {
+            return m_entityBoundsColor;
+        }
+        
+        const Vec4f& Preferences::entityBoundsWireframeColor() {
+            return m_entityBoundsWireframeColor;
+        }
+
+        const Vec4f& Preferences::selectedEntityBoundsColor() {
+            return m_selectedEntityBoundsColor;
+        }
+        
+        const Vec4f& Preferences::hiddenSelectedEntityBoundsColor() {
+            return m_hiddenSelectedEntityBoundsColor;
+        }
+
+        const Vec4f& Preferences::backgroundColor() {
+            return m_backgroundColor;
+        }
+
+        const string& Preferences::quakePath() {
+            return m_quakePath;
         }
     }
 }
