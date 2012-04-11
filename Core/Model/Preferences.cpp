@@ -31,6 +31,8 @@ namespace TrenchBroom {
             m_entityBoundsWireframeColor = Vec4f(0.5f, 0.5f, 0.5f, 0.6f);
             m_selectedEntityBoundsColor = m_selectedEdgeColor;
             m_hiddenSelectedEntityBoundsColor = m_hiddenSelectedEdgeColor;
+            m_selectionGuideColor = m_selectedEdgeColor;
+            m_hiddenSelectionGuideColor = m_hiddenSelectedEdgeColor;
             m_backgroundColor = Vec4f(0, 0, 0, 0);
             m_quakePath = "";
         }
@@ -99,6 +101,13 @@ namespace TrenchBroom {
         
         const Vec4f& Preferences::hiddenSelectedEntityBoundsColor() {
             return m_hiddenSelectedEntityBoundsColor;
+        }
+
+        const Vec4f& Preferences::selectionGuideColor() {
+            return m_selectionGuideColor;
+        }
+        const Vec4f& Preferences::hiddenSelectionGuideColor() {
+            return m_hiddenSelectionGuideColor;
         }
 
         const Vec4f& Preferences::backgroundColor() {

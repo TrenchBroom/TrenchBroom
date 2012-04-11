@@ -1223,6 +1223,10 @@ const Vec3f BBox::center() const {
     return min + (max - min) / 2;
 }
 
+const Vec3f BBox::size() const {
+    return max - min;
+}
+
 bool BBox::contains(const Vec3f& point) const {
     return point.x >= min.x && point.x <= max.x &&
            point.y >= min.y && point.y <= max.y &&

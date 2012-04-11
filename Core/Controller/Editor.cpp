@@ -61,7 +61,7 @@ namespace TrenchBroom {
             }
         }
         
-        Editor::Editor(const string& entityDefinitionFilePath, const string& palettePath) : m_entityDefinitionFilePath(entityDefinitionFilePath) {
+        Editor::Editor(const string& entityDefinitionFilePath, const string& palettePath, Renderer::FontManager& fontManager) : m_entityDefinitionFilePath(entityDefinitionFilePath), m_fontManager(fontManager) {
             Model::Preferences& prefs = Model::Preferences::sharedPreferences();
 
             m_textureManager = new Model::Assets::TextureManager();
@@ -144,5 +144,8 @@ namespace TrenchBroom {
             return *m_palette;
         }
 
+        Renderer::FontManager& Editor::fontManager() {
+            return m_fontManager;
+        }
     }
 }

@@ -134,6 +134,8 @@ namespace TrenchBroom {
         }
         
         float Side::intersectWithRay(const Ray& ray) {
+            assert(face != NULL);
+            
             const Plane& boundary = face->boundary();
             float dot = boundary.normal | ray.direction;
             if (!fneg(dot)) return NAN;

@@ -36,6 +36,8 @@ namespace TrenchBroom {
             Vec4f m_entityBoundsWireframeColor;
             Vec4f m_selectedEntityBoundsColor;
             Vec4f m_hiddenSelectedEntityBoundsColor;
+            Vec4f m_selectionGuideColor;
+            Vec4f m_hiddenSelectionGuideColor;
             Vec4f m_backgroundColor;
             string m_quakePath;
             
@@ -60,6 +62,8 @@ namespace TrenchBroom {
             const Vec4f& entityBoundsWireframeColor();
             const Vec4f& selectedEntityBoundsColor();
             const Vec4f& hiddenSelectedEntityBoundsColor();
+            const Vec4f& selectionGuideColor();
+            const Vec4f& hiddenSelectionGuideColor();
             const Vec4f& backgroundColor();
             
             const string& quakePath();

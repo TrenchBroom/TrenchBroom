@@ -25,6 +25,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        void glVertexV3f(const Vec3f& vertex);
         void glColorV4f(const Vec4f& color);
         void glSetEdgeOffset(float f);
         void glResetEdgeOffset();

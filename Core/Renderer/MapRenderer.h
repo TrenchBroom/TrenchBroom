@@ -54,6 +54,7 @@ namespace TrenchBroom {
         class VboBlock;
         class EntityRenderer;
         class EntityRendererManager;
+        class StringRenderer;
         
         class RenderContext {
         public:
@@ -142,6 +143,10 @@ namespace TrenchBroom {
             EntityRenderers m_selectedEntityRenderers;
             bool m_entityRendererCacheValid;
             
+            // selection guides
+            BBox m_selectionBounds;
+            StringRenderer* m_guideStrings[3];
+            
             ChangeSet m_changeSet;
             Model::Assets::Texture* m_selectionDummyTexture;
             
@@ -164,6 +169,7 @@ namespace TrenchBroom {
             void writeFaceVertices(RenderContext& context, Model::Face& face, VboBlock& block);
             void writeFaceIndices(RenderContext& context, Model::Face& face, IndexBuffer& triangleBuffer, IndexBuffer& edgeBuffer);
             void writeEntityBounds(RenderContext& context, Model::Entity& entity, VboBlock& block);
+            void updateSelectionBounds();
             
             void rebuildFaceIndexBuffers(RenderContext& context);
             void rebuildSelectedFaceIndexBuffers(RenderContext& context);
@@ -180,6 +186,7 @@ namespace TrenchBroom {
             void validateDeselection(RenderContext& context);
             void validate(RenderContext& context);
             
+            void renderSelectionGuides(RenderContext& context, const Vec4f& color);
             void renderEntityBounds(RenderContext& context, const Vec4f* color, int vertexCount);
             void renderEntityModels(RenderContext& context, EntityRenderers& entities);
             void renderEdges(RenderContext& context, const Vec4f* color, const IndexBuffer& indexBuffer);

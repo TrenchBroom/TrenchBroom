@@ -26,6 +26,10 @@ namespace TrenchBroom {
     namespace Renderer {
         float const EdgeOffset = 0.0001f;
 
+        void glVertexV3f(const Vec3f& vertex) {
+            glVertex3f(vertex.x, vertex.y, vertex.z);
+        }
+        
         void glColorV4f(const Vec4f& color) {
             glColor4f(color.x, color.y, color.z, color.w);
         }

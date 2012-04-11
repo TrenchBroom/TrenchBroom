@@ -18,6 +18,8 @@
 		48667DB3152D961300A65C45 /* EditorGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48667DB2152D961300A65C45 /* EditorGui.cpp */; };
 		4888F82A15357B84000423D2 /* BspRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4888F82915357B84000423D2 /* BspRenderer.cpp */; };
 		4888F82D1535B980000423D2 /* EntityRendererManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4888F82C1535B980000423D2 /* EntityRendererManager.cpp */; };
+		4888F8301535E85D000423D2 /* FontManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4888F82F1535E85D000423D2 /* FontManager.cpp */; };
+		4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4888F8331536099B000423D2 /* MacStringFactory.mm */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
 		48979EEC152EF3F60039ABE8 /* MapRendererControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48979EEB152EF3F60039ABE8 /* MapRendererControl.cpp */; };
 		4898E86115322E3900E335EA /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4898E86015322E3900E335EA /* Utils.cpp */; };
@@ -89,6 +91,10 @@
 		4888F82915357B84000423D2 /* BspRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BspRenderer.cpp; path = ../Core/Renderer/BspRenderer.cpp; sourceTree = "<group>"; };
 		4888F82B1535B967000423D2 /* EntityRendererManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EntityRendererManager.h; path = ../Core/Renderer/EntityRendererManager.h; sourceTree = "<group>"; };
 		4888F82C1535B980000423D2 /* EntityRendererManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EntityRendererManager.cpp; path = ../Core/Renderer/EntityRendererManager.cpp; sourceTree = "<group>"; };
+		4888F82E1535E7D7000423D2 /* FontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FontManager.h; path = ../Core/Renderer/FontManager.h; sourceTree = "<group>"; };
+		4888F82F1535E85D000423D2 /* FontManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FontManager.cpp; path = ../Core/Renderer/FontManager.cpp; sourceTree = "<group>"; };
+		4888F8321536099B000423D2 /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; path = MacStringFactory.h; sourceTree = "<group>"; };
+		4888F8331536099B000423D2 /* MacStringFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacStringFactory.mm; sourceTree = "<group>"; };
 		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
 		48979EEA152EF3DE0039ABE8 /* MapRendererControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapRendererControl.h; path = ../Core/GUI/MapRendererControl.h; sourceTree = "<group>"; };
 		48979EEB152EF3F60039ABE8 /* MapRendererControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapRendererControl.cpp; path = ../Core/GUI/MapRendererControl.cpp; sourceTree = "<group>"; };
@@ -344,6 +350,8 @@
 				48B50E41152CF95500E75402 /* DocumentView.mm */,
 				48B50E3D152CF8F900E75402 /* DocumentWindowController.h */,
 				48B50E3E152CF8F900E75402 /* DocumentWindowController.mm */,
+				4888F8321536099B000423D2 /* MacStringFactory.h */,
+				4888F8331536099B000423D2 /* MacStringFactory.mm */,
 				48B50E27152CF6E400E75402 /* Document.xib */,
 				48B50E2A152CF6E400E75402 /* MainMenu.xib */,
 				48B50E19152CF6E400E75402 /* Supporting Files */,
@@ -396,6 +404,7 @@
 				4888F82915357B84000423D2 /* BspRenderer.cpp */,
 				4888F82B1535B967000423D2 /* EntityRendererManager.h */,
 				4888F82C1535B980000423D2 /* EntityRendererManager.cpp */,
+				4888F82F1535E85D000423D2 /* FontManager.cpp */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -409,6 +418,7 @@
 				48C9793B15306DD8003020FC /* Utils.h */,
 				48B50E49152CFAF000E75402 /* VecMath.h */,
 				48B50E4A152CFAFC00E75402 /* VecMath.cpp */,
+				4888F82E1535E7D7000423D2 /* FontManager.h */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -524,6 +534,8 @@
 				48CBE914153574B700E9BDD6 /* AliasRenderer.cpp in Sources */,
 				4888F82A15357B84000423D2 /* BspRenderer.cpp in Sources */,
 				4888F82D1535B980000423D2 /* EntityRendererManager.cpp in Sources */,
+				4888F8301535E85D000423D2 /* FontManager.cpp in Sources */,
+				4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

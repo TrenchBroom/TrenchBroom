@@ -328,6 +328,7 @@ public:
     BBox(const Vec3f& min, const Vec3f& max);
     const BBox maxBounds() const;
     const Vec3f center() const;
+    const Vec3f size() const;
     bool contains(const Vec3f& point) const;
     bool contains(const BBox& bounds) const;
     bool intersects(const BBox& bounds) const;

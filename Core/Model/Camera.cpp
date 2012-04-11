@@ -102,6 +102,23 @@ namespace TrenchBroom {
             glGetDoublev(GL_MODELVIEW_MATRIX, m_modelview);
             glGetDoublev(GL_PROJECTION_MATRIX, m_projection);
         }
+        
+        void Camera::setBillboard() {
+            Vec3f bbLook = m_direction * -1;
+            Vec3f bbUp = m_up;
+            Vec3f bbRight = bbUp % bbLook;
+            
+            float matrix[] = {bbRight.x, bbRight.y, bbRight.z, 0, bbUp.x, bbUp.y, bbUp.z, 0, bbLook.x, bbLook.y, bbLook.z, 0, 0, 0, 0, 1};
+            glMultMatrixf(matrix);
+        }
+
+        float Camera::distanceTo(const Vec3f& point) {
+            return sqrt(squaredDistanceTo(point));
+        }
+        
+        float Camera::squaredDistanceTo(const Vec3f& point) {
+            return (point - m_position).lengthSquared();
+        }
 
         void Camera::moveTo(Vec3f position) {
             m_position = position;

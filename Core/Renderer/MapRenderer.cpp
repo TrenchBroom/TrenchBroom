@@ -34,6 +34,8 @@
 #include "Filter.h"
 #include "EntityRendererManager.h"
 #include "EntityRenderer.h"
+#include "Camera.h"
+#include "FontManager.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -461,6 +463,20 @@ namespace TrenchBroom {
             offset = block.writeVec(t, offset);
         }
 
+        void MapRenderer::updateSelectionBounds() {
+            FontManager& fontManager = m_editor.fontManager();
+            m_selectionBounds = m_editor.map().selection().bounds();
+            Vec3f size = m_selectionBounds.size();
+            FontDescriptor descriptor("Arial", 13);
+            char str[12];
+            
+            for (int i = 0; i < 3; i++) {
+                sprintf(str, "%.0f", size[i]);
+                if (m_guideStrings[i] != NULL) fontManager.destroyStringRenderer(*m_guideStrings[i]);
+                m_guideStrings[i] = &fontManager.createStringRenderer(descriptor, str);
+            }
+        }
+        
         void MapRenderer::rebuildFaceIndexBuffers(RenderContext& context) {
             for (FaceIndexBuffers::iterator it = m_faceIndexBuffers.begin(); it != m_faceIndexBuffers.end(); ++it)
                 delete it->second;
@@ -686,6 +702,9 @@ namespace TrenchBroom {
         
         void MapRenderer::validateSelection(RenderContext& context) {
             const vector<Model::Entity*> selectedEntities = m_changeSet.selectedEntities();
+            const vector<Model::Brush*> selectedBrushes = m_changeSet.selectedBrushes();
+            const vector<Model::Face*> selectedFaces = m_changeSet.selectedFaces();
+
             if (!selectedEntities.empty()) {
                 m_selectedEntityBoundsVbo->activate();
                 m_selectedEntityBoundsVbo->map();
@@ -720,10 +739,16 @@ namespace TrenchBroom {
                 m_entityBoundsVbo->unmap();
                 m_entityBoundsVbo->deactivate();
             }
+            
+            if (!selectedEntities.empty() || !selectedBrushes.empty() || !selectedFaces.empty())
+                updateSelectionBounds();
         }
         
         void MapRenderer::validateDeselection(RenderContext& context) {
             const vector<Model::Entity*> deselectedEntities = m_changeSet.deselectedEntities();
+            const vector<Model::Brush*> deselectedBrushes = m_changeSet.deselectedBrushes();
+            const vector<Model::Face*> deselectedFaces = m_changeSet.deselectedFaces();
+
             if (!deselectedEntities.empty()) {
                 m_entityBoundsVbo->activate();
                 m_entityBoundsVbo->map();
@@ -758,6 +783,9 @@ namespace TrenchBroom {
                 m_selectedEntityBoundsVbo->unmap();
                 m_selectedEntityBoundsVbo->deactivate();
             }
+
+            if (!deselectedEntities.empty() || !deselectedBrushes.empty() || !deselectedFaces.empty())
+                updateSelectionBounds();
         }
 
         void MapRenderer::validate(RenderContext& context) {
@@ -797,6 +825,183 @@ namespace TrenchBroom {
             m_changeSet.clear();
         }
 
+        void MapRenderer::renderSelectionGuides(RenderContext& context, const Vec4f& color) {
+            FontManager& fontManager = m_editor.fontManager();
+            Controller::Camera& camera = m_editor.camera();
+
+            const Vec3f cameraPos = camera.position();
+            Vec3f center = m_selectionBounds.center();
+            Vec3f size = m_selectionBounds.size();
+            Vec3f diff = center - cameraPos;
+            
+            int maxi = 0;
+            Vec3f gv[3][4];
+            // X guide
+            if (diff.y >= 0) {
+                gv[0][0] = m_selectionBounds.min;
+                gv[0][0].y -= 5;
+                gv[0][1] = gv[0][0];
+                gv[0][1].y -= 5;
+                gv[0][2] = gv[0][1];
+                gv[0][2].x = m_selectionBounds.max.x;
+                gv[0][3] = gv[0][0];
+                gv[0][3].x = m_selectionBounds.max.x;
+            } else {
+                gv[0][0] = m_selectionBounds.min;
+                gv[0][0].y = m_selectionBounds.max.y + 5;
+                gv[0][1] = gv[0][0];
+                gv[0][1].y += 5;
+                gv[0][2] = gv[0][1];
+                gv[0][2].x = m_selectionBounds.max.x;
+                gv[0][3] = gv[0][0];
+                gv[0][3].x = m_selectionBounds.max.x;
+            }
+            
+            // Y guide
+            if (diff.x >= 0) {
+                gv[1][0] = m_selectionBounds.min;
+                gv[1][0].x -= 5;
+                gv[1][1] = gv[1][0];
+                gv[1][1].x -= 5;
+                gv[1][2] = gv[1][1];
+                gv[1][2].y = m_selectionBounds.max.y;
+                gv[1][3] = gv[1][0];
+                gv[1][3].y = m_selectionBounds.max.y;
+            } else {
+                gv[1][0] = m_selectionBounds.min;
+                gv[1][0].x = m_selectionBounds.max.x + 5;
+                gv[1][1] = gv[1][0];
+                gv[1][1].x += 5;
+                gv[1][2] = gv[1][1];
+                gv[1][2].y = m_selectionBounds.max.y;
+                gv[1][3] = gv[1][0];
+                gv[1][3].y = m_selectionBounds.max.y;
+            }
+            
+            if (diff.z >= 0)
+                for (int i = 0; i < 2; i++)
+                    for (int j = 0; j < 4; j++)
+                        gv[i][j].z = m_selectionBounds.max.z;
+            
+            // Z Guide
+            if (cameraPos.x <= m_selectionBounds.min.x && cameraPos.y <= m_selectionBounds.max.y) {
+                gv[2][0] = m_selectionBounds.min;
+                gv[2][0].x -= 3.5f;
+                gv[2][0].y = m_selectionBounds.max.y + 3.5f;
+                gv[2][1] = gv[2][0];
+                gv[2][1].x -= 3.5f;
+                gv[2][1].y += 3.5f;
+                gv[2][2] = gv[2][1];
+                gv[2][2].z = m_selectionBounds.max.z;
+                gv[2][3] = gv[2][0];
+                gv[2][3].z = m_selectionBounds.max.z;
+            } else if (cameraPos.x <= m_selectionBounds.max.x && cameraPos.y >= m_selectionBounds.max.y) {
+                gv[2][0] = m_selectionBounds.max;
+                gv[2][0].x += 3.5f;
+                gv[2][0].y += 3.5f;
+                gv[2][1] = gv[2][0];
+                gv[2][1].x += 3.5f;
+                gv[2][1].y += 3.5f;
+                gv[2][2] = gv[2][1];
+                gv[2][2].z = m_selectionBounds.min.z;
+                gv[2][3] = gv[2][0];
+                gv[2][3].z = m_selectionBounds.min.z;
+            } else if (cameraPos.x >= m_selectionBounds.max.x && cameraPos.y >= m_selectionBounds.min.y) {
+                gv[2][0] = m_selectionBounds.max;
+                gv[2][0].y = m_selectionBounds.min.y;
+                gv[2][0].x += 3.5f;
+                gv[2][0].y -= 3.5f;
+                gv[2][1] = gv[2][0];
+                gv[2][1].x += 3.5f;
+                gv[2][1].y -= 3.5f;
+                gv[2][2] = gv[2][1];
+                gv[2][2].z = m_selectionBounds.min.z;
+                gv[2][3] = gv[2][0];
+                gv[2][3].z = m_selectionBounds.min.z;
+            } else if (cameraPos.x >= m_selectionBounds.min.x && cameraPos.y <= m_selectionBounds.min.y) {
+                gv[2][0] = m_selectionBounds.min;
+                gv[2][0].x -= 3.5f;
+                gv[2][0].y -= 3.5f;
+                gv[2][1] = gv[2][0];
+                gv[2][1].x -= 3.5f;
+                gv[2][1].y -= 3.5f;
+                gv[2][2] = gv[2][1];
+                gv[2][2].z = m_selectionBounds.max.z;
+                gv[2][3] = gv[2][0];
+                gv[2][3].z = m_selectionBounds.max.z;
+            } else {
+                // above, inside or below, don't render Z guide
+                maxi = 2;
+            }
+            
+            // initialize the stencil buffer to cancel out the guides in those areas where the strings will be rendered
+            glPolygonMode(GL_FRONT, GL_FILL);
+            glClear(GL_STENCIL_BUFFER_BIT);
+            glColorMask(false, false, false, false);
+            glEnable(GL_STENCIL_TEST);
+            glStencilFunc(GL_ALWAYS, 1, 1);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+            
+            bool depth = glIsEnabled(GL_DEPTH_TEST);
+            if (depth)
+                glDisable(GL_DEPTH_TEST);
+            
+            Vec3f points[3];
+            for (int i = 0; i < maxi; i++) {
+                points[i] = (gv[i][2] - gv[i][1]) / 2 + gv[i][1];
+                
+                float dist = camera.distanceTo(points[i]);
+                float factor = dist / 300;
+                float width = m_guideStrings[i]->width;
+                float height = m_guideStrings[i]->height;
+                
+                glPushMatrix();
+                glTranslatef(points[i].x, points[i].y, points[i].z);
+                camera.setBillboard();
+                glScalef(factor, factor, 0);
+                glTranslatef(-width / 2, -height / 2, 0);
+                m_guideStrings[i]->renderBackground(1, 1);
+                glPopMatrix();
+            }
+            
+            glColorMask(true, true, true, true);
+            glStencilFunc(GL_NOTEQUAL, 1, 1);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+            
+            if (depth)
+                glEnable(GL_DEPTH_TEST);
+            
+            for (int i = 0; i < 3; i++) {
+                glColorV4f(color);
+                
+                glBegin(GL_LINE_STRIP);
+                for (int j = 0; j < 4; j++)
+                    glVertexV3f(gv[i][j]);
+                glEnd();
+            }
+            
+            glDisable(GL_STENCIL_TEST);
+            
+            fontManager.activate();
+            for (int i = 0; i < maxi; i++) {
+                glColorV4f(color);
+                
+                float dist = camera.distanceTo(points[i]);
+                float factor = dist / 300;
+                float width = m_guideStrings[i]->width;
+                float height = m_guideStrings[i]->height;
+                
+                glPushMatrix();
+                glTranslatef(points[i].x, points[i].y, points[i].z);
+                camera.setBillboard();
+                glScalef(factor, factor, 0);
+                glTranslatef(-width / 2, -height / 2, 0);
+                m_guideStrings[i]->render();
+                glPopMatrix();
+            }
+            fontManager.deactivate();
+        }
+        
         void MapRenderer::renderEntityBounds(RenderContext& context, const Vec4f* color, int vertexCount) {
             glSetEdgeOffset(0.5f);
             
@@ -960,6 +1165,9 @@ namespace TrenchBroom {
             m_entityRendererManager = new EntityRendererManager(preferences.quakePath(), m_editor.palette());
             m_entityRendererCacheValid = true;
             
+            for (int i = 0; i < 3; i++)
+                m_guideStrings[i] = NULL;
+            
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
             
@@ -1109,6 +1317,11 @@ namespace TrenchBroom {
                     m_selectedEntityBoundsVbo->deactivate();
                     
                     renderEntityModels(context, m_selectedEntityRenderers);
+                    
+                    if (context.options.renderSizeGuides) {
+                        glDisable(GL_DEPTH_TEST);
+                        renderSelectionGuides(context, context.preferences.selectionGuideColor());
+                    }
                 }
             }
         }

@@ -19,10 +19,13 @@
 
 #import "Document.h"
 #import "Editor.h"
+#import "FontManager.h"
+#import "MacStringFactory.h"
 #import <string>
 
 using namespace TrenchBroom;
 using namespace TrenchBroom::Controller;
+using namespace TrenchBroom::Renderer;
 
 @implementation Document
 
@@ -34,13 +37,18 @@ using namespace TrenchBroom::Controller;
         const char* definitionPathC = [definitionPath cStringUsingEncoding:NSASCIIStringEncoding];
         NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
         const char* palettePathC = [palettePath cStringUsingEncoding:NSASCIIStringEncoding];
-        editor = new Editor(definitionPathC, palettePathC);
+        
+        stringFactory = new MacStringFactory();
+        fontManager = new FontManager(*(StringFactory*)stringFactory);
+        editor = new Editor(definitionPathC, palettePathC, *(FontManager*)fontManager);
     }
     return self;
 }
 
 - (void)dealloc {
     delete (Editor*)editor;
+    delete (FontManager*)fontManager;
+    delete (StringFactory*)stringFactory;
     [super dealloc];
 }
 

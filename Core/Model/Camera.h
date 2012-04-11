@@ -53,6 +53,10 @@ namespace TrenchBroom {
             const Vec3f unproject(float x, float y, float depth) const;
             const Ray pickRay(float x, float y) const;
             void update(float x, float y, float width, float height);
+            void setBillboard();
+
+            float distanceTo(const Vec3f& point);
+            float squaredDistanceTo(const Vec3f& point);
             
             void moveTo(Vec3f position);
             void moveBy(float forward, float right, float up);
