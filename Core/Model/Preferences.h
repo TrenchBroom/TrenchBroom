@@ -39,8 +39,17 @@ namespace TrenchBroom {
             Vec4f m_selectionGuideColor;
             Vec4f m_hiddenSelectionGuideColor;
             Vec4f m_backgroundColor;
-            string m_quakePath;
             
+            Vec4f m_infoOverlayColor;
+            float m_infoOverlayFadeDistance;
+            Vec4f m_selectedInfoOverlayColor;
+            float m_selectedInfoOverlayFadeDistance;
+            
+            string m_rendererFontName;
+            float m_rendererFontSize;
+            
+            string m_quakePath;
+
             void loadDefaults();
             void loadPreferences();
             
@@ -65,8 +74,18 @@ namespace TrenchBroom {
             const Vec4f& selectionGuideColor();
             const Vec4f& hiddenSelectionGuideColor();
             const Vec4f& backgroundColor();
+
+            const Vec4f& infoOverlayColor();
+            float infoOverlayFadeDistance();
+            const Vec4f& selectedInfoOverlayColor();
+            float selectedInfoOverlayFadeDistance();
+            
+            const string& rendererFontName();
+            float rendererFontSize();
             
             const string& quakePath();
+            
+            
         };
     }
 }

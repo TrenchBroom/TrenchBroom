@@ -46,6 +46,7 @@ namespace TrenchBroom {
 
     namespace Controller {
         class Editor;
+        class Camera;
         class TransientOptions;
     }
     
@@ -55,13 +56,15 @@ namespace TrenchBroom {
         class EntityRenderer;
         class EntityRendererManager;
         class StringRenderer;
+        class TextRenderer;
         
         class RenderContext {
         public:
+            Controller::Camera& camera;
             Filter& filter;
             Controller::TransientOptions& options;
             Model::Preferences& preferences;
-            RenderContext(Filter& filter, Controller::TransientOptions& options);
+            RenderContext(Controller::Camera& camera, Filter& filter, Controller::TransientOptions& options);
         };
         
         class ChangeSet {
@@ -143,6 +146,10 @@ namespace TrenchBroom {
             EntityRenderers m_selectedEntityRenderers;
             bool m_entityRendererCacheValid;
             
+            // classnames
+            TextRenderer* m_classnameRenderer;
+            TextRenderer* m_selectedClassnameRenderer;
+            
             // selection guides
             BBox m_selectionBounds;
             StringRenderer* m_guideStrings[3];
@@ -169,7 +176,7 @@ namespace TrenchBroom {
             void writeFaceVertices(RenderContext& context, Model::Face& face, VboBlock& block);
             void writeFaceIndices(RenderContext& context, Model::Face& face, IndexBuffer& triangleBuffer, IndexBuffer& edgeBuffer);
             void writeEntityBounds(RenderContext& context, Model::Entity& entity, VboBlock& block);
-            void updateSelectionBounds();
+            void updateSelectionBounds(RenderContext& context);
             
             void rebuildFaceIndexBuffers(RenderContext& context);
             void rebuildSelectedFaceIndexBuffers(RenderContext& context);

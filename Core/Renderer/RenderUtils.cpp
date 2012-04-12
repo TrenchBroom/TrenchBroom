@@ -33,6 +33,11 @@ namespace TrenchBroom {
         void glColorV4f(const Vec4f& color) {
             glColor4f(color.x, color.y, color.z, color.w);
         }
+
+        void glColorV4f(const Vec4f& color, float blendFactor) {
+            glColor4f(color.x, color.y, color.z, color.w * blendFactor);
+        }
+
         void glSetEdgeOffset(float f) {
             glDepthRange(0.0, 1.0 - EdgeOffset * f);
         }

@@ -55,7 +55,7 @@ namespace TrenchBroom {
             Controller::Camera& camera = m_editor.camera();
             camera.update(bounds.x, bounds.y, bounds.w, bounds.h);
             
-            Renderer::RenderContext context(m_editor.filter(), m_editor.options());
+            Renderer::RenderContext context(m_editor.camera(), m_editor.filter(), m_editor.options());
             m_mapRenderer->render(context);
 
             glMatrixMode(GL_PROJECTION);

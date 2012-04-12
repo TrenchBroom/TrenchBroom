@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class VboBlock {
         private:
             Vbo& m_vbo;
-            void insertBetween(VboBlock* previous, VboBlock* next);
+            void insertBetween(VboBlock* previousBlock, VboBlock* nextBlock);
             friend class Vbo;
         public:
             unsigned int address;

@@ -58,7 +58,9 @@ namespace TrenchBroom {
             vector<FloatBuffer*> triangleStrips;
             vector<FloatBuffer*> triangleFans;
             int vertexCount;
+            float width, height;
             
+            StringData(float width, float height);
             ~StringData();
             void begin(GLenum type);
             void append(Point& vertex);

@@ -25,11 +25,11 @@
 namespace TrenchBroom {
     namespace Renderer {
 #pragma mark VboBlock
-        void VboBlock::insertBetween(VboBlock* previous, VboBlock* next) {
-            if (previous != NULL) previous->next = this;
-            previous = previous;
-            if (next != NULL) next->previous = this;
-            next = next;
+        void VboBlock::insertBetween(VboBlock* previousBlock, VboBlock* nextBlock) {
+            if (previousBlock != NULL) previousBlock->next = this;
+            previous = previousBlock;
+            if (nextBlock != NULL) nextBlock->previous = this;
+            next = nextBlock;
         }
         
         VboBlock::VboBlock(Vbo& vbo, int address, int capacity) : m_vbo(vbo), address(address), capacity(capacity), free(true), previous(NULL), next(NULL) {}

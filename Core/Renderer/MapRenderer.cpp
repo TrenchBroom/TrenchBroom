@@ -36,6 +36,8 @@
 #include "EntityRenderer.h"
 #include "Camera.h"
 #include "FontManager.h"
+#include "TextRenderer.h"
+#include "EntityClassnameAnchor.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -44,7 +46,7 @@ namespace TrenchBroom {
         static const int TexCoordSize = 2 * sizeof(float);
 
         
-        RenderContext::RenderContext(Filter& filter, Controller::TransientOptions& options) : filter(filter), options(options), preferences(Model::Preferences::sharedPreferences()) {}
+        RenderContext::RenderContext(Controller::Camera& camera, Filter& filter, Controller::TransientOptions& options) : camera(camera), filter(filter), options(options), preferences(Model::Preferences::sharedPreferences()) {}
 
 #pragma mark ChangeSet
         
@@ -463,17 +465,29 @@ namespace TrenchBroom {
             offset = block.writeVec(t, offset);
         }
 
-        void MapRenderer::updateSelectionBounds() {
+        void MapRenderer::updateSelectionBounds(RenderContext& context) {
             FontManager& fontManager = m_editor.fontManager();
             m_selectionBounds = m_editor.map().selection().bounds();
-            Vec3f size = m_selectionBounds.size();
-            FontDescriptor descriptor("Arial", 13);
-            char str[12];
             
             for (int i = 0; i < 3; i++) {
-                sprintf(str, "%.0f", size[i]);
-                if (m_guideStrings[i] != NULL) fontManager.destroyStringRenderer(*m_guideStrings[i]);
-                m_guideStrings[i] = &fontManager.createStringRenderer(descriptor, str);
+                if (m_guideStrings[i] != NULL) {
+                    fontManager.destroyStringRenderer(*m_guideStrings[i]);
+                    m_guideStrings[i] = NULL;
+                }
+            }
+             
+            
+            if (!m_editor.map().selection().empty()) {
+                Vec3f size = m_selectionBounds.size();
+                const string& fontName = context.preferences.rendererFontName();
+                float fontSize = context.preferences.rendererFontSize();
+                FontDescriptor descriptor(fontName, fontSize);
+                char str[16];
+
+                for (int i = 0; i < 3; i++) {
+                    sprintf(str, "%.0f", size[i]);
+                    m_guideStrings[i] = &fontManager.createStringRenderer(descriptor, str);
+                }
             }
         }
         
@@ -586,6 +600,10 @@ namespace TrenchBroom {
         void MapRenderer::validateAddedEntities(RenderContext& context) {
             const vector<Model::Entity*>& addedEntities = m_changeSet.addedEntities();
             if (!addedEntities.empty()) {
+                const string& fontName = context.preferences.rendererFontName();
+                float fontSize = context.preferences.rendererFontSize();
+                FontDescriptor descriptor(fontName, fontSize);
+                
                 m_entityBoundsVbo->activate();
                 m_entityBoundsVbo->map();
                 
@@ -600,6 +618,10 @@ namespace TrenchBroom {
                         EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_editor.map().mods());
                         if (renderer != NULL)
                             m_entityRenderers[entity] = renderer;
+                        
+                        const string& classname = *entity->classname();
+                        EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
+                        m_classnameRenderer->addString(entity->uniqueId(), classname, descriptor, *anchor);
                     }
                 }
                 
@@ -618,8 +640,8 @@ namespace TrenchBroom {
                     Model::Entity* entity = removedEntities[i];
                     if (context.filter.entityVisible(*entity)) {
                         entity->setVboBlock(NULL);
-                        
                         m_entityRenderers.erase(entity);
+                        m_classnameRenderer->removeString(entity->uniqueId());
                     }
                 }
                 
@@ -727,6 +749,8 @@ namespace TrenchBroom {
                             if (renderer != NULL)
                                 m_selectedEntityRenderers[entity] = renderer;
                         }
+                        
+                        m_classnameRenderer->transferString(entity->uniqueId(), *m_selectedClassnameRenderer);
                     }
                 }
                 
@@ -741,7 +765,7 @@ namespace TrenchBroom {
             }
             
             if (!selectedEntities.empty() || !selectedBrushes.empty() || !selectedFaces.empty())
-                updateSelectionBounds();
+                updateSelectionBounds(context);
         }
         
         void MapRenderer::validateDeselection(RenderContext& context) {
@@ -771,6 +795,8 @@ namespace TrenchBroom {
                             if (renderer != NULL)
                                 m_entityRenderers[entity] = renderer;
                         }
+
+                        m_selectedClassnameRenderer->transferString(entity->uniqueId(), *m_classnameRenderer);
                     }
                 }
                 
@@ -785,7 +811,7 @@ namespace TrenchBroom {
             }
 
             if (!deselectedEntities.empty() || !deselectedBrushes.empty() || !deselectedFaces.empty())
-                updateSelectionBounds();
+                updateSelectionBounds(context);
         }
 
         void MapRenderer::validate(RenderContext& context) {
@@ -827,14 +853,13 @@ namespace TrenchBroom {
 
         void MapRenderer::renderSelectionGuides(RenderContext& context, const Vec4f& color) {
             FontManager& fontManager = m_editor.fontManager();
-            Controller::Camera& camera = m_editor.camera();
 
-            const Vec3f cameraPos = camera.position();
+            const Vec3f cameraPos = context.camera.position();
             Vec3f center = m_selectionBounds.center();
             Vec3f size = m_selectionBounds.size();
             Vec3f diff = center - cameraPos;
             
-            int maxi = 0;
+            int maxi = 3;
             Vec3f gv[3][4];
             // X guide
             if (diff.y >= 0) {
@@ -950,14 +975,14 @@ namespace TrenchBroom {
             for (int i = 0; i < maxi; i++) {
                 points[i] = (gv[i][2] - gv[i][1]) / 2 + gv[i][1];
                 
-                float dist = camera.distanceTo(points[i]);
+                float dist = context.camera.distanceTo(points[i]);
                 float factor = dist / 300;
                 float width = m_guideStrings[i]->width;
                 float height = m_guideStrings[i]->height;
                 
                 glPushMatrix();
                 glTranslatef(points[i].x, points[i].y, points[i].z);
-                camera.setBillboard();
+                context.camera.setBillboard();
                 glScalef(factor, factor, 0);
                 glTranslatef(-width / 2, -height / 2, 0);
                 m_guideStrings[i]->renderBackground(1, 1);
@@ -986,14 +1011,14 @@ namespace TrenchBroom {
             for (int i = 0; i < maxi; i++) {
                 glColorV4f(color);
                 
-                float dist = camera.distanceTo(points[i]);
+                float dist = context.camera.distanceTo(points[i]);
                 float factor = dist / 300;
                 float width = m_guideStrings[i]->width;
                 float height = m_guideStrings[i]->height;
                 
                 glPushMatrix();
                 glTranslatef(points[i].x, points[i].y, points[i].z);
-                camera.setBillboard();
+                context.camera.setBillboard();
                 glScalef(factor, factor, 0);
                 glTranslatef(-width / 2, -height / 2, 0);
                 m_guideStrings[i]->render();
@@ -1165,6 +1190,9 @@ namespace TrenchBroom {
             m_entityRendererManager = new EntityRendererManager(preferences.quakePath(), m_editor.palette());
             m_entityRendererCacheValid = true;
             
+            m_classnameRenderer = new TextRenderer(m_editor.fontManager(), preferences.infoOverlayFadeDistance());
+            m_selectedClassnameRenderer = new TextRenderer(m_editor.fontManager(), preferences.selectedInfoOverlayFadeDistance());
+            
             for (int i = 0; i < 3; i++)
                 m_guideStrings[i] = NULL;
             
@@ -1192,6 +1220,9 @@ namespace TrenchBroom {
             delete m_entityBoundsVbo;
             delete m_selectedEntityBoundsVbo;
             delete m_entityRendererManager;
+            
+            delete m_classnameRenderer;
+            delete m_selectedClassnameRenderer;
             
             if (m_selectionDummyTexture != NULL)
                 delete m_selectionDummyTexture;
@@ -1224,6 +1255,21 @@ namespace TrenchBroom {
                 glVertex3f(0, 0, context.options.originAxisLength);
                 glEnd();
             }
+            
+//            glColor4f(1, 1, 1, 1);
+//            
+//            glMatrixMode(GL_MODELVIEW);
+//            glPushMatrix();
+//            m_editor.camera().setBillboard();
+//            
+//            FontDescriptor descriptor("Arial", 13);
+//            StringRenderer& renderer = m_editor.fontManager().createStringRenderer(descriptor, "test");
+//            m_editor.fontManager().activate();
+//            glTranslatef(100, 200, 0);
+//            renderer.render();
+//            m_editor.fontManager().deactivate();
+//            m_editor.fontManager().destroyStringRenderer(renderer);
+//            glPopMatrix();
             
             if (context.options.renderBrushes) {
                 m_faceVbo->activate();
@@ -1278,14 +1324,11 @@ namespace TrenchBroom {
 
                     renderEntityModels(context, m_entityRenderers);
                     
-                    /*
-                    
-                    if ([options renderEntityClassnames]) {
-                        [fontManager activate];
-                        [classnameRenderer renderColor:&EntityClassnameColor];
-                        [fontManager deactivate];
+                    if (context.options.renderEntityClassnames) {
+                        m_editor.fontManager().activate();
+                        m_classnameRenderer->render(context, context.preferences.infoOverlayColor());
+                        m_editor.fontManager().deactivate();
                     }
-                     */
                 } else if (context.options.isolationMode == Controller::IM_WIREFRAME) {
                     m_entityBoundsVbo->activate();
                     glEnableClientState(GL_VERTEX_ARRAY);
@@ -1295,11 +1338,11 @@ namespace TrenchBroom {
                 }
                 
                 if (!m_editor.map().selection().empty()) {
-                    /*
-                    [fontManager activate];
-                    [selectedClassnameRenderer renderColor:&SelectionColor];
-                    [fontManager deactivate];
-                    */
+                    if (context.options.renderEntityClassnames) {
+                        m_editor.fontManager().activate();
+                        m_selectedClassnameRenderer->render(context, context.preferences.selectedInfoOverlayColor());
+                        m_editor.fontManager().deactivate();
+                    }
                      
                     m_selectedEntityBoundsVbo->activate();
                     glEnableClientState(GL_VERTEX_ARRAY);

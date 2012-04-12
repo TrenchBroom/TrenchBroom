@@ -20,6 +20,8 @@
 		4888F82D1535B980000423D2 /* EntityRendererManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4888F82C1535B980000423D2 /* EntityRendererManager.cpp */; };
 		4888F8301535E85D000423D2 /* FontManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4888F82F1535E85D000423D2 /* FontManager.cpp */; };
 		4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4888F8331536099B000423D2 /* MacStringFactory.mm */; };
+		4888F83715375860000423D2 /* TextRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4888F8361537585F000423D2 /* TextRenderer.cpp */; };
+		4888F83A15376874000423D2 /* EntityClassnameAnchor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4888F83915376873000423D2 /* EntityClassnameAnchor.cpp */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
 		48979EEC152EF3F60039ABE8 /* MapRendererControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48979EEB152EF3F60039ABE8 /* MapRendererControl.cpp */; };
 		4898E86115322E3900E335EA /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4898E86015322E3900E335EA /* Utils.cpp */; };
@@ -93,8 +95,12 @@
 		4888F82C1535B980000423D2 /* EntityRendererManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EntityRendererManager.cpp; path = ../Core/Renderer/EntityRendererManager.cpp; sourceTree = "<group>"; };
 		4888F82E1535E7D7000423D2 /* FontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FontManager.h; path = ../Core/Renderer/FontManager.h; sourceTree = "<group>"; };
 		4888F82F1535E85D000423D2 /* FontManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FontManager.cpp; path = ../Core/Renderer/FontManager.cpp; sourceTree = "<group>"; };
-		4888F8321536099B000423D2 /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; path = MacStringFactory.h; sourceTree = "<group>"; };
+		4888F8321536099B000423D2 /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
 		4888F8331536099B000423D2 /* MacStringFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacStringFactory.mm; sourceTree = "<group>"; };
+		4888F83515375851000423D2 /* TextRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextRenderer.h; path = ../Core/Renderer/TextRenderer.h; sourceTree = "<group>"; };
+		4888F8361537585F000423D2 /* TextRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextRenderer.cpp; path = ../Core/Renderer/TextRenderer.cpp; sourceTree = "<group>"; };
+		4888F8381537684D000423D2 /* EntityClassnameAnchor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EntityClassnameAnchor.h; path = ../Core/Renderer/EntityClassnameAnchor.h; sourceTree = "<group>"; };
+		4888F83915376873000423D2 /* EntityClassnameAnchor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EntityClassnameAnchor.cpp; path = ../Core/Renderer/EntityClassnameAnchor.cpp; sourceTree = "<group>"; };
 		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
 		48979EEA152EF3DE0039ABE8 /* MapRendererControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapRendererControl.h; path = ../Core/GUI/MapRendererControl.h; sourceTree = "<group>"; };
 		48979EEB152EF3F60039ABE8 /* MapRendererControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapRendererControl.cpp; path = ../Core/GUI/MapRendererControl.cpp; sourceTree = "<group>"; };
@@ -405,6 +411,10 @@
 				4888F82B1535B967000423D2 /* EntityRendererManager.h */,
 				4888F82C1535B980000423D2 /* EntityRendererManager.cpp */,
 				4888F82F1535E85D000423D2 /* FontManager.cpp */,
+				4888F83515375851000423D2 /* TextRenderer.h */,
+				4888F8361537585F000423D2 /* TextRenderer.cpp */,
+				4888F8381537684D000423D2 /* EntityClassnameAnchor.h */,
+				4888F83915376873000423D2 /* EntityClassnameAnchor.cpp */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -536,6 +546,8 @@
 				4888F82D1535B980000423D2 /* EntityRendererManager.cpp in Sources */,
 				4888F8301535E85D000423D2 /* FontManager.cpp in Sources */,
 				4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */,
+				4888F83715375860000423D2 /* TextRenderer.cpp in Sources */,
+				4888F83A15376874000423D2 /* EntityClassnameAnchor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

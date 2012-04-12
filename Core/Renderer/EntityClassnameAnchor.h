@@ -17,19 +17,26 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef TrenchBroom_EntityClassnameAnchor_h
+#define TrenchBroom_EntityClassnameAnchor_h
 
-#ifndef TrenchBroom_RenderUtils_h
-#define TrenchBroom_RenderUtils_h
-
+#include "TextRenderer.h"
 #include "VecMath.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Entity;
+    }
+    
     namespace Renderer {
-        void glVertexV3f(const Vec3f& vertex);
-        void glColorV4f(const Vec4f& color);
-        void glColorV4f(const Vec4f& color, float blendFactor);
-        void glSetEdgeOffset(float f);
-        void glResetEdgeOffset();
+        class EntityClassnameAnchor : public TextRenderer::Anchor {
+        private:
+            Model::Entity& m_entity;
+            Vec3f m_position;
+        public:
+            EntityClassnameAnchor(Model::Entity& entity) : m_entity(entity) {}
+            const Vec3f& position();
+        };
     }
 }
 

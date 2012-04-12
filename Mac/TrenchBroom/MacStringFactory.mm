@@ -124,7 +124,7 @@ namespace TrenchBroom {
             else
                 gluTessProperty(m_gluTess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_ODD);
             
-            StringData* stringData = new StringData();
+            StringData* stringData = new StringData(NSWidth(bounds), NSHeight(bounds));
             gluTessBeginPolygon(m_gluTess, stringData);
             
             GLdouble coords[3];

@@ -34,6 +34,15 @@ namespace TrenchBroom {
             m_selectionGuideColor = m_selectedEdgeColor;
             m_hiddenSelectionGuideColor = m_hiddenSelectedEdgeColor;
             m_backgroundColor = Vec4f(0, 0, 0, 0);
+            
+            m_infoOverlayColor= Vec4f(1, 1, 1, 1);
+            m_infoOverlayFadeDistance = 400;
+            m_selectedInfoOverlayColor = Vec4f(1, 0, 0, 1);
+            m_selectedInfoOverlayFadeDistance = 2000;
+            
+            m_rendererFontName = "Helvetica";
+            m_rendererFontSize = 11;
+            
             m_quakePath = "";
         }
         
@@ -112,6 +121,30 @@ namespace TrenchBroom {
 
         const Vec4f& Preferences::backgroundColor() {
             return m_backgroundColor;
+        }
+
+        const Vec4f& Preferences::infoOverlayColor() {
+            return m_infoOverlayColor;
+        }
+        
+        float Preferences::infoOverlayFadeDistance() {
+            return m_infoOverlayFadeDistance;
+        }
+        
+        const Vec4f& Preferences::selectedInfoOverlayColor() {
+            return m_selectedInfoOverlayColor;
+        }
+        
+        float Preferences::selectedInfoOverlayFadeDistance() {
+            return m_selectedInfoOverlayFadeDistance;
+        }
+
+        const string& Preferences::rendererFontName() {
+            return m_rendererFontName;
+        }
+        
+        float Preferences::rendererFontSize() {
+            return m_rendererFontSize;
         }
 
         const string& Preferences::quakePath() {

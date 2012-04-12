@@ -30,6 +30,9 @@ namespace TrenchBroom {
             return left.size < right.size;
         }
 
+        StringData::StringData(float width, float height) : width(width), height(height), vertexCount(0) {
+        }
+        
         StringData::~StringData() {
             while (!triangleStrips.empty()) delete triangleStrips.back(), triangleStrips.pop_back();
             while (!triangleFans.empty()) delete triangleFans.back(), triangleFans.pop_back();
@@ -81,7 +84,7 @@ namespace TrenchBroom {
             // nothing to do
         }
 
-        StringRenderer::StringRenderer(const FontDescriptor& descriptor, const string& str, StringData* stringData) : fontDescriptor(descriptor), str(str), m_data(stringData), m_vboBlock(NULL) {
+        StringRenderer::StringRenderer(const FontDescriptor& descriptor, const string& str, StringData* stringData) : fontDescriptor(descriptor), str(str), m_data(stringData), m_vboBlock(NULL), width(stringData->width), height(stringData->height) {
             assert(stringData != NULL);
             m_hasTriangleSet = false;
             m_hasTriangleStrips = false;
@@ -104,47 +107,48 @@ namespace TrenchBroom {
         }
         
         void StringRenderer::prepare(Vbo& vbo) {
-            if (m_data != NULL) {
-                m_vboBlock = &vbo.allocBlock(2 * m_data->vertexCount * sizeof(float));
-                m_hasTriangleSet = !m_data->triangleSet.empty();
-                m_hasTriangleStrips = !m_data->triangleStrips.empty();
-                m_hasTriangleFans = !m_data->triangleFans.empty();
-                
-                int offset = 0;
-                if (m_hasTriangleSet) {
-                    m_triangleSetIndex = (m_vboBlock->address + offset) / (2 * sizeof(float));
-                    m_triangleSetCount = (int)m_data->triangleSet.size() / 2;
-                    const unsigned char* buffer = (const unsigned char*)&m_data->triangleSet[0];
-                    offset = m_vboBlock->writeBuffer(buffer, offset, (int)m_data->triangleSet.size() * sizeof(float));
-                }
-                
-                if (m_hasTriangleStrips) {
-                    m_triangleStripIndices = new IntBuffer();
-                    m_triangleStripCounts = new IntBuffer();
-                    for (int i = 0; i < m_data->triangleStrips.size(); i++) {
-                        FloatBuffer* strip = m_data->triangleStrips[i];
-                        m_triangleStripIndices->push_back((m_vboBlock->address + offset) / (2 * sizeof(float)));
-                        m_triangleStripCounts->push_back((int)strip->size() / 2);
-                        const unsigned char* buffer = (const unsigned char*)&(*strip)[0];
-                        offset = m_vboBlock->writeBuffer(buffer, offset, (int)strip->size() * sizeof(float));
-                    }
-                }
-
-                if (m_hasTriangleFans) {
-                    m_triangleFanIndices = new IntBuffer();
-                    m_triangleFanCounts = new IntBuffer();
-                    for (int i = 0; i < m_data->triangleFans.size(); i++) {
-                        FloatBuffer* fan = m_data->triangleFans[i];
-                        m_triangleFanIndices->push_back((m_vboBlock->address + offset) / (2 * sizeof(float)));
-                        m_triangleFanCounts->push_back((int)fan->size() / 2);
-                        const unsigned char* buffer = (const unsigned char*)&(*fan)[0];
-                        offset = m_vboBlock->writeBuffer(buffer, offset, (int)fan->size() * sizeof(float));
-                    }
-                }
-                
-                delete m_data;
-                m_data = NULL;
+            assert(m_data != NULL);
+            m_vboBlock = &vbo.allocBlock(2 * m_data->vertexCount * sizeof(float));
+            assert(m_vboBlock != NULL);
+            
+            m_hasTriangleSet = !m_data->triangleSet.empty();
+            m_hasTriangleStrips = !m_data->triangleStrips.empty();
+            m_hasTriangleFans = !m_data->triangleFans.empty();
+            
+            int offset = 0;
+            if (m_hasTriangleSet) {
+                m_triangleSetIndex = (m_vboBlock->address + offset) / (2 * sizeof(float));
+                m_triangleSetCount = (int)m_data->triangleSet.size() / 2;
+                const unsigned char* buffer = (const unsigned char*)&m_data->triangleSet[0];
+                offset = m_vboBlock->writeBuffer(buffer, offset, (int)m_data->triangleSet.size() * sizeof(float));
             }
+            
+            if (m_hasTriangleStrips) {
+                m_triangleStripIndices = new IntBuffer();
+                m_triangleStripCounts = new IntBuffer();
+                for (int i = 0; i < m_data->triangleStrips.size(); i++) {
+                    FloatBuffer* strip = m_data->triangleStrips[i];
+                    m_triangleStripIndices->push_back((m_vboBlock->address + offset) / (2 * sizeof(float)));
+                    m_triangleStripCounts->push_back((int)strip->size() / 2);
+                    const unsigned char* buffer = (const unsigned char*)&(*strip)[0];
+                    offset = m_vboBlock->writeBuffer(buffer, offset, (int)strip->size() * sizeof(float));
+                }
+            }
+            
+            if (m_hasTriangleFans) {
+                m_triangleFanIndices = new IntBuffer();
+                m_triangleFanCounts = new IntBuffer();
+                for (int i = 0; i < m_data->triangleFans.size(); i++) {
+                    FloatBuffer* fan = m_data->triangleFans[i];
+                    m_triangleFanIndices->push_back((m_vboBlock->address + offset) / (2 * sizeof(float)));
+                    m_triangleFanCounts->push_back((int)fan->size() / 2);
+                    const unsigned char* buffer = (const unsigned char*)&(*fan)[0];
+                    offset = m_vboBlock->writeBuffer(buffer, offset, (int)fan->size() * sizeof(float));
+                }
+            }
+            
+            delete m_data;
+            m_data = NULL;
         }
 
         void StringRenderer::renderBackground(float hInset, float vInset) {
@@ -170,7 +174,7 @@ namespace TrenchBroom {
                 GLint* indexPtr = &(*m_triangleFanIndices)[0];
                 GLsizei* countPtr = &(*m_triangleFanCounts)[0];
                 GLsizei primCount = (int)m_triangleFanIndices->size();
-                glMultiDrawArrays(GL_TRIANGLE_STRIP, indexPtr, countPtr, primCount);
+                glMultiDrawArrays(GL_TRIANGLE_FAN, indexPtr, countPtr, primCount);
             }
         }
 
@@ -223,10 +227,10 @@ namespace TrenchBroom {
                 stringCache = fontIt->second;
                 StringCache::iterator stringIt = stringCache->find(stringRenderer.str);
                 if (stringIt != stringCache->end()) {
-                    int* count = &stringIt->second->second;
-                    count--;
-                    if (count <= 0) {
-                        delete stringIt->second->first;
+                    StringCacheEntry* entry = stringIt->second;
+                    entry->second--;
+                    if (entry->second <= 0) {
+                        delete entry->first;
                         stringCache->erase(stringIt);
                         if (stringCache->empty())
                             m_fontCache.erase(fontIt);
