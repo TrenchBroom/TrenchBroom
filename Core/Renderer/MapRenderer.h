@@ -57,6 +57,7 @@ namespace TrenchBroom {
         class EntityRendererManager;
         class StringRenderer;
         class TextRenderer;
+        class GridRenderer;
         
         class RenderContext {
         public:
@@ -133,6 +134,9 @@ namespace TrenchBroom {
             FaceIndexBuffers m_selectedFaceIndexBuffers;
             IndexBuffer m_edgeIndexBuffer;
             IndexBuffer m_selectedEdgeIndexBuffer;
+            
+            // grid
+            GridRenderer* m_gridRenderer;
             
             // entity bounds rendering
             Vbo* m_entityBoundsVbo;

@@ -43,6 +43,8 @@ namespace TrenchBroom {
             m_rendererFontName = "Helvetica";
             m_rendererFontSize = 11;
             
+            m_gridAlpha = 0.15f;
+            
             m_quakePath = "";
         }
         
@@ -145,6 +147,10 @@ namespace TrenchBroom {
         
         float Preferences::rendererFontSize() {
             return m_rendererFontSize;
+        }
+
+        float Preferences::gridAlpha() {
+            return m_gridAlpha;
         }
 
         const string& Preferences::quakePath() {

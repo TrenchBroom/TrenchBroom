@@ -41,6 +41,7 @@ namespace TrenchBroom {
     
     namespace Controller {
         class Camera;
+        class Grid;
         class InputController;
         class TransientOptions;
 
@@ -48,6 +49,7 @@ namespace TrenchBroom {
         private:
             Model::Map* m_map;
             Camera* m_camera;
+            Grid* m_grid;
             InputController* m_inputController;
             TransientOptions* m_options;
             Filter* m_filter;
@@ -66,6 +68,7 @@ namespace TrenchBroom {
             
             Model::Map& map();
             Camera& camera();
+            Grid& grid();
             InputController& inputController();
             TransientOptions& options();
             Filter& filter();

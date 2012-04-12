@@ -43,10 +43,11 @@ namespace TrenchBroom {
             bool renderEntityClassnames;
             bool renderBrushes;
             bool renderOrigin;
+            bool renderGrid;
             float originAxisLength;
             bool renderSizeGuides;
             bool lockTextures;
-            TransientOptions() : renderMode(RM_TEXTURED), isolationMode(IM_NONE), renderEntities(true), renderEntityClassnames(true), renderBrushes(true), renderOrigin(true), originAxisLength(64), renderSizeGuides(true), lockTextures(true) {}
+            TransientOptions() : renderMode(RM_TEXTURED), isolationMode(IM_NONE), renderEntities(true), renderEntityClassnames(true), renderBrushes(true), renderOrigin(true), renderGrid(true), originAxisLength(64), renderSizeGuides(true), lockTextures(true) {}
         };
     }
 }

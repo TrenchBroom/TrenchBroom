@@ -30,6 +30,7 @@
 #include "Wad.h"
 #include "Options.h"
 #include "Filter.h"
+#include "Grid.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -69,6 +70,7 @@ namespace TrenchBroom {
             m_map = new Model::Map(worldBounds, m_entityDefinitionFilePath);
             m_camera = new Camera(prefs.cameraFov(), prefs.cameraNear(), prefs.cameraFar(), 
                                          Vec3f(-32, -32, 32), XAxisPos);
+            m_grid = new Grid(5);
             m_inputController = new InputController(*this);
             
             m_palette = new Model::Assets::Palette(palettePath);
@@ -128,6 +130,10 @@ namespace TrenchBroom {
             return *m_camera;
         }
 
+        Grid& Editor::grid() {
+            return *m_grid;
+        }
+        
         InputController& Editor::inputController() {
             return *m_inputController;
         }

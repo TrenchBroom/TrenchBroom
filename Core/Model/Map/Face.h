@@ -110,8 +110,8 @@ namespace TrenchBroom {
             void flip(EAxis axis, Vec3f center, bool lockTexture);
             void move(float dist, bool lockTexture);
             
-            Vec2f textureCoords(Vec3f vertex);
-            Vec2f gridCoords(Vec3f vertex);
+            Vec2f textureCoords(const Vec3f& vertex);
+            Vec2f gridCoords(const Vec3f& vertex);
             
             int filePosition() const;
             void setFilePosition(int filePosition);

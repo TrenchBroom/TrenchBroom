@@ -48,6 +48,8 @@ namespace TrenchBroom {
             string m_rendererFontName;
             float m_rendererFontSize;
             
+            float m_gridAlpha;
+            
             string m_quakePath;
 
             void loadDefaults();
@@ -82,6 +84,8 @@ namespace TrenchBroom {
             
             const string& rendererFontName();
             float rendererFontSize();
+            
+            float gridAlpha();
             
             const string& quakePath();
             

@@ -38,6 +38,7 @@
 #include "FontManager.h"
 #include "TextRenderer.h"
 #include "EntityClassnameAnchor.h"
+#include "GridRenderer.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -1085,18 +1086,16 @@ namespace TrenchBroom {
             glPolygonMode(GL_FRONT, GL_FILL);
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             
-            /*
-            Grid* grid = [[windowController options] grid];
-            if ([grid draw]) {
+            if (context.options.renderGrid) {
+                Controller::Grid& grid = m_editor.grid();
                 glActiveTexture(GL_TEXTURE2);
                 glEnable(GL_TEXTURE_2D);
-                [grid activateTexture];
+                m_gridRenderer->activate(grid);
                 glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
                 glClientActiveTexture(GL_TEXTURE2);
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                 glTexCoordPointer(2, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)0);
             }
-             */
             
             if (selected) {
                 if (m_selectionDummyTexture == NULL) {
@@ -1165,28 +1164,27 @@ namespace TrenchBroom {
                 glDisable(GL_TEXTURE_2D);
             }
             
-            /*
-            if ([grid draw]) {
+            if (context.options.renderGrid) {
                 glActiveTexture(GL_TEXTURE2);
-                [grid deactivateTexture];
+                m_gridRenderer->deactivate();
                 glDisable(GL_TEXTURE_2D);
                 glActiveTexture(GL_TEXTURE0);
             }
-             */
             
             glPopClientAttrib();
         }
 
         MapRenderer::MapRenderer(Controller::Editor& editor) : m_editor(editor) {
+            Model::Preferences& preferences = Model::Preferences::sharedPreferences();
+
             m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-            m_selectionDummyTexture = NULL;
+            m_gridRenderer = new GridRenderer(preferences.gridAlpha());
             
             m_entityBoundsVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_selectedEntityBoundsVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_entityBoundsVertexCount = 0;
             m_selectedEntityBoundsVertexCount = 0;
             
-            Model::Preferences& preferences = Model::Preferences::sharedPreferences();
             m_entityRendererManager = new EntityRendererManager(preferences.quakePath(), m_editor.palette());
             m_entityRendererCacheValid = true;
             
@@ -1196,6 +1194,8 @@ namespace TrenchBroom {
             for (int i = 0; i < 3; i++)
                 m_guideStrings[i] = NULL;
             
+            m_selectionDummyTexture = NULL;
+
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
             
@@ -1217,6 +1217,8 @@ namespace TrenchBroom {
             selection.selectionRemoved  -= new Model::Selection::SelectionEvent::T<MapRenderer>(this, &MapRenderer::selectionRemoved);
             
             delete m_faceVbo;
+            delete m_gridRenderer;
+            
             delete m_entityBoundsVbo;
             delete m_selectedEntityBoundsVbo;
             delete m_entityRendererManager;

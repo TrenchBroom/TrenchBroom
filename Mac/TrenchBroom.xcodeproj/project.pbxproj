@@ -22,6 +22,8 @@
 		4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4888F8331536099B000423D2 /* MacStringFactory.mm */; };
 		4888F83715375860000423D2 /* TextRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4888F8361537585F000423D2 /* TextRenderer.cpp */; };
 		4888F83A15376874000423D2 /* EntityClassnameAnchor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4888F83915376873000423D2 /* EntityClassnameAnchor.cpp */; };
+		4888F83D15377185000423D2 /* Grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4888F83C15377185000423D2 /* Grid.cpp */; };
+		4888F841153772A9000423D2 /* GridRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4888F840153772A8000423D2 /* GridRenderer.cpp */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
 		48979EEC152EF3F60039ABE8 /* MapRendererControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48979EEB152EF3F60039ABE8 /* MapRendererControl.cpp */; };
 		4898E86115322E3900E335EA /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4898E86015322E3900E335EA /* Utils.cpp */; };
@@ -101,6 +103,10 @@
 		4888F8361537585F000423D2 /* TextRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextRenderer.cpp; path = ../Core/Renderer/TextRenderer.cpp; sourceTree = "<group>"; };
 		4888F8381537684D000423D2 /* EntityClassnameAnchor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EntityClassnameAnchor.h; path = ../Core/Renderer/EntityClassnameAnchor.h; sourceTree = "<group>"; };
 		4888F83915376873000423D2 /* EntityClassnameAnchor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EntityClassnameAnchor.cpp; path = ../Core/Renderer/EntityClassnameAnchor.cpp; sourceTree = "<group>"; };
+		4888F83B15377165000423D2 /* Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Grid.h; path = ../Core/Controller/Grid.h; sourceTree = "<group>"; };
+		4888F83C15377185000423D2 /* Grid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Grid.cpp; path = ../Core/Controller/Grid.cpp; sourceTree = "<group>"; };
+		4888F83E15377278000423D2 /* GridRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GridRenderer.h; path = ../Core/Renderer/GridRenderer.h; sourceTree = "<group>"; };
+		4888F840153772A8000423D2 /* GridRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GridRenderer.cpp; path = ../Core/Renderer/GridRenderer.cpp; sourceTree = "<group>"; };
 		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
 		48979EEA152EF3DE0039ABE8 /* MapRendererControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapRendererControl.h; path = ../Core/GUI/MapRendererControl.h; sourceTree = "<group>"; };
 		48979EEB152EF3F60039ABE8 /* MapRendererControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapRendererControl.cpp; path = ../Core/GUI/MapRendererControl.cpp; sourceTree = "<group>"; };
@@ -213,6 +219,8 @@
 				48367710152F4B3E00D402E3 /* CameraTool.cpp */,
 				48C979431530AB6F003020FC /* Editor.cpp */,
 				48C979441530AB6F003020FC /* Editor.h */,
+				4888F83B15377165000423D2 /* Grid.h */,
+				4888F83C15377185000423D2 /* Grid.cpp */,
 				4836770A152F2BEA00D402E3 /* InputController.h */,
 				4836770B152F2C1600D402E3 /* InputController.cpp */,
 				48661B3C1534BC5D00649E47 /* SelectionTool.h */,
@@ -397,24 +405,26 @@
 		48B50E45152CF9C300E75402 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
-				48B50E44152CF9B500E75402 /* MapRenderer.h */,
-				48B50E46152CF9D600E75402 /* MapRenderer.cpp */,
-				48061811153032900099EB8C /* Vbo.h */,
-				48061813153032A30099EB8C /* Vbo.cpp */,
-				48661B3515346FAE00649E47 /* RenderUtils.h */,
-				48661B3615346FDB00649E47 /* RenderUtils.cpp */,
-				48CBE90F153573C800E9BDD6 /* EntityRenderer.h */,
-				48CBE9121535749000E9BDD6 /* AliasRenderer.h */,
 				48CBE913153574B700E9BDD6 /* AliasRenderer.cpp */,
-				4888F82715357B6F000423D2 /* BspRenderer.h */,
+				48CBE9121535749000E9BDD6 /* AliasRenderer.h */,
 				4888F82915357B84000423D2 /* BspRenderer.cpp */,
-				4888F82B1535B967000423D2 /* EntityRendererManager.h */,
-				4888F82C1535B980000423D2 /* EntityRendererManager.cpp */,
-				4888F82F1535E85D000423D2 /* FontManager.cpp */,
-				4888F83515375851000423D2 /* TextRenderer.h */,
-				4888F8361537585F000423D2 /* TextRenderer.cpp */,
-				4888F8381537684D000423D2 /* EntityClassnameAnchor.h */,
+				4888F82715357B6F000423D2 /* BspRenderer.h */,
 				4888F83915376873000423D2 /* EntityClassnameAnchor.cpp */,
+				4888F8381537684D000423D2 /* EntityClassnameAnchor.h */,
+				48CBE90F153573C800E9BDD6 /* EntityRenderer.h */,
+				4888F82C1535B980000423D2 /* EntityRendererManager.cpp */,
+				4888F82B1535B967000423D2 /* EntityRendererManager.h */,
+				4888F82F1535E85D000423D2 /* FontManager.cpp */,
+				4888F83E15377278000423D2 /* GridRenderer.h */,
+				4888F840153772A8000423D2 /* GridRenderer.cpp */,
+				48B50E46152CF9D600E75402 /* MapRenderer.cpp */,
+				48B50E44152CF9B500E75402 /* MapRenderer.h */,
+				48661B3615346FDB00649E47 /* RenderUtils.cpp */,
+				48661B3515346FAE00649E47 /* RenderUtils.h */,
+				4888F8361537585F000423D2 /* TextRenderer.cpp */,
+				4888F83515375851000423D2 /* TextRenderer.h */,
+				48061813153032A30099EB8C /* Vbo.cpp */,
+				48061811153032900099EB8C /* Vbo.h */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -548,6 +558,8 @@
 				4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */,
 				4888F83715375860000423D2 /* TextRenderer.cpp in Sources */,
 				4888F83A15376874000423D2 /* EntityClassnameAnchor.cpp in Sources */,
+				4888F83D15377185000423D2 /* Grid.cpp in Sources */,
+				4888F841153772A9000423D2 /* GridRenderer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

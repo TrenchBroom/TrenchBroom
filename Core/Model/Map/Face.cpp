@@ -502,7 +502,7 @@ namespace TrenchBroom {
             m_texAxesValid = false; 
         }
         
-        Vec2f Face::textureCoords(Vec3f vertex) {
+        Vec2f Face::textureCoords(const Vec3f& vertex) {
             if (!m_texAxesValid)
                 validateTexAxes(m_boundary.normal);
             
@@ -512,19 +512,17 @@ namespace TrenchBroom {
             return texCoords;
         }
         
-        Vec2f Face::gridCoords(Vec3f vertex) {
+        Vec2f Face::gridCoords(const Vec3f& vertex) {
             if (!m_texAxesValid)
                 validateTexAxes(m_boundary.normal);
             
             Vec2f gridCoords;
-            switch (m_texFaceNormIndex) {
-                case 2:
-                case 3:
+            switch (m_boundary.normal.strongestAxis()) {
+                case A_X:
                     gridCoords.x = (vertex.y + 0.5f) / 256;
                     gridCoords.y = (vertex.z + 0.5f) / 256;
                     break;
-                case 4:
-                case 5:
+                case A_Y:
                     gridCoords.x = (vertex.x + 0.5f) / 256;
                     gridCoords.y = (vertex.z + 0.5f) / 256;
                     break;
