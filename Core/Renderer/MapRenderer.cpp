@@ -467,7 +467,7 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::updateSelectionBounds(RenderContext& context) {
-            FontManager& fontManager = m_editor.fontManager();
+            FontManager& fontManager = m_fontManager;
             m_selectionBounds = m_editor.map().selection().bounds();
             
             for (int i = 0; i < 3; i++) {
@@ -853,7 +853,7 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::renderSelectionGuides(RenderContext& context, const Vec4f& color) {
-            FontManager& fontManager = m_editor.fontManager();
+            FontManager& fontManager = m_fontManager;
 
             const Vec3f cameraPos = context.camera.position();
             Vec3f center = m_selectionBounds.center();
@@ -1174,7 +1174,7 @@ namespace TrenchBroom {
             glPopClientAttrib();
         }
 
-        MapRenderer::MapRenderer(Controller::Editor& editor) : m_editor(editor) {
+        MapRenderer::MapRenderer(Controller::Editor& editor, FontManager& fontManager) : m_editor(editor), m_fontManager(fontManager) {
             Model::Preferences& preferences = Model::Preferences::sharedPreferences();
 
             m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
@@ -1188,8 +1188,8 @@ namespace TrenchBroom {
             m_entityRendererManager = new EntityRendererManager(preferences.quakePath(), m_editor.palette());
             m_entityRendererCacheValid = true;
             
-            m_classnameRenderer = new TextRenderer(m_editor.fontManager(), preferences.infoOverlayFadeDistance());
-            m_selectedClassnameRenderer = new TextRenderer(m_editor.fontManager(), preferences.selectedInfoOverlayFadeDistance());
+            m_classnameRenderer = new TextRenderer(m_fontManager, preferences.infoOverlayFadeDistance());
+            m_selectedClassnameRenderer = new TextRenderer(m_fontManager, preferences.selectedInfoOverlayFadeDistance());
             
             for (int i = 0; i < 3; i++)
                 m_guideStrings[i] = NULL;
@@ -1199,22 +1199,16 @@ namespace TrenchBroom {
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
             
-            map.mapLoaded               += new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapLoaded);
-            map.mapCleared              += new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapCleared);
-            selection.selectionAdded    += new Model::Selection::SelectionEvent::T<MapRenderer>(this, &MapRenderer::selectionAdded);
-            selection.selectionRemoved  += new Model::Selection::SelectionEvent::T<MapRenderer>(this, &MapRenderer::selectionRemoved);
+            map.mapLoaded               += new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapLoaded);
+            map.mapCleared              += new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapCleared);
+            selection.selectionAdded    += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
+            selection.selectionRemoved  += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
             
             addEntities(map.entities());
         }
         
         MapRenderer::~MapRenderer() {
-            Model::Map& map = m_editor.map();
-            Model::Selection& selection = map.selection();
-            
-            map.mapLoaded               -= new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapLoaded);
-            map.mapCleared              -= new Model::Map::MapEvent::T<MapRenderer>(this, &MapRenderer::mapCleared);
-            selection.selectionAdded    -= new Model::Selection::SelectionEvent::T<MapRenderer>(this, &MapRenderer::selectionAdded);
-            selection.selectionRemoved  -= new Model::Selection::SelectionEvent::T<MapRenderer>(this, &MapRenderer::selectionRemoved);
+            // editor is already deleted. so don't unregister the listeners
             
             delete m_faceVbo;
             delete m_gridRenderer;
@@ -1265,12 +1259,12 @@ namespace TrenchBroom {
 //            m_editor.camera().setBillboard();
 //            
 //            FontDescriptor descriptor("Arial", 13);
-//            StringRenderer& renderer = m_editor.fontManager().createStringRenderer(descriptor, "test");
-//            m_editor.fontManager().activate();
+//            StringRenderer& renderer = m_fontManager.createStringRenderer(descriptor, "test");
+//            m_fontManager.activate();
 //            glTranslatef(100, 200, 0);
 //            renderer.render();
-//            m_editor.fontManager().deactivate();
-//            m_editor.fontManager().destroyStringRenderer(renderer);
+//            m_fontManager.deactivate();
+//            m_fontManager.destroyStringRenderer(renderer);
 //            glPopMatrix();
             
             if (context.options.renderBrushes) {
@@ -1327,9 +1321,9 @@ namespace TrenchBroom {
                     renderEntityModels(context, m_entityRenderers);
                     
                     if (context.options.renderEntityClassnames) {
-                        m_editor.fontManager().activate();
+                        m_fontManager.activate();
                         m_classnameRenderer->render(context, context.preferences.infoOverlayColor());
-                        m_editor.fontManager().deactivate();
+                        m_fontManager.deactivate();
                     }
                 } else if (context.options.isolationMode == Controller::IM_WIREFRAME) {
                     m_entityBoundsVbo->activate();
@@ -1341,9 +1335,9 @@ namespace TrenchBroom {
                 
                 if (!m_editor.map().selection().empty()) {
                     if (context.options.renderEntityClassnames) {
-                        m_editor.fontManager().activate();
+                        m_fontManager.activate();
                         m_selectedClassnameRenderer->render(context, context.preferences.selectedInfoOverlayColor());
-                        m_editor.fontManager().deactivate();
+                        m_fontManager.deactivate();
                     }
                      
                     m_selectedEntityBoundsVbo->activate();

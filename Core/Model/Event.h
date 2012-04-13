@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Observer_h
 #define TrenchBroom_Observer_h
 
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <map>
@@ -28,55 +29,49 @@ using namespace std;
 
 namespace TrenchBroom {
     namespace Model {
+        
         template <typename Arg1>
         class Event  {
         private:
-            class Base {
+            class ListenerBase {
             public:
-                virtual ~Base() {}
-                virtual void operator()(Arg1) = 0;
+                virtual void operator()(Arg1 arg1) = 0;
+                virtual bool equals(const void* other) const = 0;
+                bool operator==(const ListenerBase& other) const {
+                    return other.equals(this);
+                }
             };
-            vector<Base*> m_ptrs;
-        public: 
+        public:
             template <typename Class>
-            class T : public Base {
+            class Listener : public ListenerBase {
                 typedef void (Class::*Func)(Arg1);
             private:
                 Class* m_target; // Pointer to the object we are delegating to.
                 Func   m_function; // Address of the function on the delegate object.
             public:
-                T(Class* target, Func function) : m_target(target), m_function(function) {}
-                virtual void operator()(Arg1 arg1) {
+                Listener(Class* target, Func function) : m_target(target), m_function(function) {}
+                void operator()(Arg1 arg1) {
                     return (m_target->*m_function)(arg1);
                 }
-                virtual bool operator==(const T& other) const {
+                
+                bool equals(const void* other) const {
+                    return *this == *static_cast<const Listener<Class>*>(other);
+                }
+                
+                bool operator==(const Listener<Class>& other) const {
                     return this == &other || (m_target == other.m_target && m_function == other.m_function);
                 }
             };
-            class S : public Base {
-                typedef void (*Func)(Arg1);
-            private:
-                Func m_function; 
-                
-            public:
-                S(Func function) : m_function(function) {}
-                virtual void operator()(Arg1 arg1) {
-                    return m_function(arg1);
-                }
-                virtual bool operator==(const S& other) const {
-                    return this == &other || m_function == other.m_function;
-                }
-            };
             
-            Event& operator+=(Base* ptr) {
+            Event& operator+=(ListenerBase* ptr) {
                 m_ptrs.push_back(ptr);
                 return *this;
             }
             
-            Event& operator-=(Base* ptr) {
-                typename vector<Base*>::iterator it;
+            Event& operator-=(ListenerBase* ptr) {
+                typename vector<ListenerBase*>::iterator it;
                 for (it = m_ptrs.begin(); it != m_ptrs.end(); ++it) {
-                    if (*it == ptr || *(*it) == *ptr) {
+                    if (**it == *ptr) {
                         delete *it;
                         m_ptrs.erase(it);
                         break;
@@ -87,11 +82,13 @@ namespace TrenchBroom {
             }
             
             void operator()(Arg1 arg1) {
-                typename std::vector<Base*>::iterator end = m_ptrs.end();
-                for (typename std::vector<Base*>::iterator i = m_ptrs.begin(); i != end; ++i) {
+                typename std::vector<ListenerBase*>::iterator end = m_ptrs.end();
+                for (typename std::vector<ListenerBase*>::iterator i = m_ptrs.begin(); i != end; ++i) {
                     (*(*i))(arg1); 
                 }
             }
+        private:
+            vector<ListenerBase*> m_ptrs;
         };
     }
 }

@@ -58,6 +58,7 @@ namespace TrenchBroom {
         class StringRenderer;
         class TextRenderer;
         class GridRenderer;
+        class FontManager;
         
         class RenderContext {
         public:
@@ -160,6 +161,7 @@ namespace TrenchBroom {
             
             ChangeSet m_changeSet;
             Model::Assets::Texture* m_selectionDummyTexture;
+            FontManager& m_fontManager;
             
             void addEntities(const vector<Model::Entity*>& entities);
             void removeEntities(const vector<Model::Entity*>& entities);
@@ -203,7 +205,7 @@ namespace TrenchBroom {
             void renderEdges(RenderContext& context, const Vec4f* color, const IndexBuffer& indexBuffer);
             void renderFaces(RenderContext& context, bool textured, bool selected, FaceIndexBuffers& indexBuffers);
         public:
-            MapRenderer(Controller::Editor& editor);
+            MapRenderer(Controller::Editor& editor, FontManager& fontManager);
             ~MapRenderer();
             void render(RenderContext& context);
         };

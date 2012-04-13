@@ -21,8 +21,6 @@
 
 @interface Document : NSDocument {
     void* editor;
-    void* stringFactory;
-    void* fontManager;
 }
 
 - (void*)editor;

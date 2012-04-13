@@ -40,18 +40,9 @@ using namespace TrenchBroom::Renderer;
         NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
         const char* palettePathC = [palettePath cStringUsingEncoding:NSASCIIStringEncoding];
         
-        stringFactory = new MacStringFactory();
-        fontManager = new FontManager(*(StringFactory*)stringFactory);
-        editor = new Editor(definitionPathC, palettePathC, *(FontManager*)fontManager);
+        editor = new Editor(definitionPathC, palettePathC);
     }
     return self;
-}
-
-- (void)dealloc {
-    delete (Editor*)editor;
-    delete (FontManager*)fontManager;
-    delete (StringFactory*)stringFactory;
-    [super dealloc];
 }
 
 - (NSString *)windowNibName {

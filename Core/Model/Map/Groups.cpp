@@ -83,19 +83,19 @@ namespace TrenchBroom {
         }
 
         GroupManager::GroupManager(Map& map) : m_map(map), m_visibleGroupCount(0) {
-            m_map.entitiesWereAdded     += new Model::Map::EntityEvent::T<GroupManager>(this, &GroupManager::entitesAdded);
-            m_map.entitiesWillBeRemoved += new Model::Map::EntityEvent::T<GroupManager>(this, &GroupManager::entitiesRemoved);
-            m_map.brushesDidChange      += new Model::Map::BrushEvent::T<GroupManager>(this, &GroupManager::brushesChanged);
-            m_map.mapLoaded             += new Model::Map::MapEvent::T<GroupManager>(this, &GroupManager::mapLoaded);
-            m_map.mapCleared            += new Model::Map::MapEvent::T<GroupManager>(this, &GroupManager::mapCleared);
+            m_map.entitiesWereAdded     += new Model::Map::EntityEvent::Listener<GroupManager>(this, &GroupManager::entitesAdded);
+            m_map.entitiesWillBeRemoved += new Model::Map::EntityEvent::Listener<GroupManager>(this, &GroupManager::entitiesRemoved);
+            m_map.brushesDidChange      += new Model::Map::BrushEvent::Listener<GroupManager>(this, &GroupManager::brushesChanged);
+            m_map.mapLoaded             += new Model::Map::MapEvent::Listener<GroupManager>(this, &GroupManager::mapLoaded);
+            m_map.mapCleared            += new Model::Map::MapEvent::Listener<GroupManager>(this, &GroupManager::mapCleared);
         }
         
         GroupManager::~GroupManager() {
-            m_map.entitiesWereAdded     -= new Model::Map::EntityEvent::T<GroupManager>(this, &GroupManager::entitesAdded);
-            m_map.entitiesWillBeRemoved -= new Model::Map::EntityEvent::T<GroupManager>(this, &GroupManager::entitiesRemoved);
-            m_map.brushesDidChange      -= new Model::Map::BrushEvent::T<GroupManager>(this, &GroupManager::brushesChanged);
-            m_map.mapLoaded             -= new Model::Map::MapEvent::T<GroupManager>(this, &GroupManager::mapLoaded);
-            m_map.mapCleared            -= new Model::Map::MapEvent::T<GroupManager>(this, &GroupManager::mapCleared);
+            m_map.entitiesWereAdded     -= new Model::Map::EntityEvent::Listener<GroupManager>(this, &GroupManager::entitesAdded);
+            m_map.entitiesWillBeRemoved -= new Model::Map::EntityEvent::Listener<GroupManager>(this, &GroupManager::entitiesRemoved);
+            m_map.brushesDidChange      -= new Model::Map::BrushEvent::Listener<GroupManager>(this, &GroupManager::brushesChanged);
+            m_map.mapLoaded             -= new Model::Map::MapEvent::Listener<GroupManager>(this, &GroupManager::mapLoaded);
+            m_map.mapCleared            -= new Model::Map::MapEvent::Listener<GroupManager>(this, &GroupManager::mapCleared);
         }
         
         const vector<Entity*>& GroupManager::groups() const {

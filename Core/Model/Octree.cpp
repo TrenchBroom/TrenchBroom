@@ -181,29 +181,29 @@ namespace TrenchBroom {
         }
         
         Octree::Octree(Map& map, int minSize) : m_minSize(minSize), m_map(map), m_root(new OctreeNode(map.worldBounds(), minSize)) {
-            m_map.entitiesWereAdded     += new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWereAddedOrPropertiesDidChange);
-            m_map.entitiesWillBeRemoved += new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWillBeRemovedOrPropertiesWillChange);
-            m_map.propertiesWillChange  += new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWillBeRemovedOrPropertiesWillChange);
-            m_map.propertiesDidChange   += new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWereAddedOrPropertiesDidChange);
-            m_map.brushesWereAdded      += new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWereAddedOrDidChange);
-            m_map.brushesWillBeRemoved  += new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWillBeRemovedOrWillChange);
-            m_map.brushesWillChange     += new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWillBeRemovedOrWillChange);
-            m_map.brushesDidChange      += new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWereAddedOrDidChange);
-            m_map.mapLoaded             += new Model::Map::MapEvent::T<Octree>(this, &Octree::mapLoaded);
-            m_map.mapCleared            += new Model::Map::MapEvent::T<Octree>(this, &Octree::mapCleared);
+            m_map.entitiesWereAdded     += new Model::Map::EntityEvent::Listener<Octree>(this, &Octree::entitiesWereAddedOrPropertiesDidChange);
+            m_map.entitiesWillBeRemoved += new Model::Map::EntityEvent::Listener<Octree>(this, &Octree::entitiesWillBeRemovedOrPropertiesWillChange);
+            m_map.propertiesWillChange  += new Model::Map::EntityEvent::Listener<Octree>(this, &Octree::entitiesWillBeRemovedOrPropertiesWillChange);
+            m_map.propertiesDidChange   += new Model::Map::EntityEvent::Listener<Octree>(this, &Octree::entitiesWereAddedOrPropertiesDidChange);
+            m_map.brushesWereAdded      += new Model::Map::BrushEvent::Listener<Octree>(this, &Octree::brushesWereAddedOrDidChange);
+            m_map.brushesWillBeRemoved  += new Model::Map::BrushEvent::Listener<Octree>(this, &Octree::brushesWillBeRemovedOrWillChange);
+            m_map.brushesWillChange     += new Model::Map::BrushEvent::Listener<Octree>(this, &Octree::brushesWillBeRemovedOrWillChange);
+            m_map.brushesDidChange      += new Model::Map::BrushEvent::Listener<Octree>(this, &Octree::brushesWereAddedOrDidChange);
+            m_map.mapLoaded             += new Model::Map::MapEvent::Listener<Octree>(this, &Octree::mapLoaded);
+            m_map.mapCleared            += new Model::Map::MapEvent::Listener<Octree>(this, &Octree::mapCleared);
         }
         
         Octree::~Octree() {
-            m_map.entitiesWereAdded     -= new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWereAddedOrPropertiesDidChange);
-            m_map.entitiesWillBeRemoved -= new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWillBeRemovedOrPropertiesWillChange);
-            m_map.propertiesWillChange  -= new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWillBeRemovedOrPropertiesWillChange);
-            m_map.propertiesDidChange   -= new Model::Map::EntityEvent::T<Octree>(this, &Octree::entitiesWereAddedOrPropertiesDidChange);
-            m_map.brushesWereAdded      -= new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWereAddedOrDidChange);
-            m_map.brushesWillBeRemoved  -= new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWillBeRemovedOrWillChange);
-            m_map.brushesWillChange     -= new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWillBeRemovedOrWillChange);
-            m_map.brushesDidChange      -= new Model::Map::BrushEvent::T<Octree>(this, &Octree::brushesWereAddedOrDidChange);
-            m_map.mapLoaded             -= new Model::Map::MapEvent::T<Octree>(this, &Octree::mapLoaded);
-            m_map.mapCleared            -= new Model::Map::MapEvent::T<Octree>(this, &Octree::mapCleared);
+            m_map.entitiesWereAdded     -= new Model::Map::EntityEvent::Listener<Octree>(this, &Octree::entitiesWereAddedOrPropertiesDidChange);
+            m_map.entitiesWillBeRemoved -= new Model::Map::EntityEvent::Listener<Octree>(this, &Octree::entitiesWillBeRemovedOrPropertiesWillChange);
+            m_map.propertiesWillChange  -= new Model::Map::EntityEvent::Listener<Octree>(this, &Octree::entitiesWillBeRemovedOrPropertiesWillChange);
+            m_map.propertiesDidChange   -= new Model::Map::EntityEvent::Listener<Octree>(this, &Octree::entitiesWereAddedOrPropertiesDidChange);
+            m_map.brushesWereAdded      -= new Model::Map::BrushEvent::Listener<Octree>(this, &Octree::brushesWereAddedOrDidChange);
+            m_map.brushesWillBeRemoved  -= new Model::Map::BrushEvent::Listener<Octree>(this, &Octree::brushesWillBeRemovedOrWillChange);
+            m_map.brushesWillChange     -= new Model::Map::BrushEvent::Listener<Octree>(this, &Octree::brushesWillBeRemovedOrWillChange);
+            m_map.brushesDidChange      -= new Model::Map::BrushEvent::Listener<Octree>(this, &Octree::brushesWereAddedOrDidChange);
+            m_map.mapLoaded             -= new Model::Map::MapEvent::Listener<Octree>(this, &Octree::mapLoaded);
+            m_map.mapCleared            -= new Model::Map::MapEvent::Listener<Octree>(this, &Octree::mapCleared);
             delete m_root;
         }
         

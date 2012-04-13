@@ -35,10 +35,6 @@ namespace TrenchBroom {
         class Map;
     }
     
-    namespace Renderer {
-        class FontManager;
-    }
-    
     namespace Controller {
         class Camera;
         class Grid;
@@ -56,12 +52,11 @@ namespace TrenchBroom {
             Filter* m_filter;
             Model::Assets::TextureManager* m_textureManager;
             Model::Assets::Palette* m_palette;
-            Renderer::FontManager& m_fontManager;
             string m_entityDefinitionFilePath;
 
             void updateFaceTextures();
         public:
-            Editor(const string& entityDefinitionFilePath, const string& palettePath, Renderer::FontManager& fontManager);
+            Editor(const string& entityDefinitionFilePath, const string& palettePath);
             ~Editor();
             
             void loadMap(const string& path, ProgressIndicator* indicator);
@@ -74,7 +69,6 @@ namespace TrenchBroom {
             TransientOptions& options();
             Filter& filter();
             Model::Assets::Palette& palette();
-            Renderer::FontManager& fontManager();
         };
     }
 }

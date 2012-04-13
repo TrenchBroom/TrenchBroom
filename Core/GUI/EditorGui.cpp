@@ -23,21 +23,20 @@
 namespace TrenchBroom {
     namespace Gui {
 
-        EditorGui::EditorGui(Controller::Editor& editor, const string& skinPath) : m_editor(editor) {
+        EditorGui::EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const string& skinPath) : m_editor(editor) {
             m_renderer = new Gwen::Renderer::OpenGL_DebugFont();
             m_skin = new Gwen::Skin::TexturedBase();
             m_skin->SetRender(m_renderer);
             m_skin->Init(skinPath);
             m_canvas = new Gwen::Controls::Canvas(m_skin);
             m_splitter = new Splitter(m_canvas, true);
-            m_mapRenderer = new MapRendererControl(m_splitter, m_editor);
+            m_mapRenderer = new MapRendererControl(m_splitter, m_editor, fontManager);
             m_splitter->SetPanel(0, m_mapRenderer);
             m_inspectorTab = new Gwen::Controls::TabControl(m_splitter);
             m_splitter->SetPanel(1, m_inspectorTab);
         }
         
         EditorGui::~EditorGui() {
-            m_editor.fontManager().clear();
             delete m_mapRenderer;
             delete m_inspectorTab;
             delete m_splitter;

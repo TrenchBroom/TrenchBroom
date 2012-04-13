@@ -29,20 +29,19 @@ using namespace Gwen;
 namespace TrenchBroom {
     namespace Renderer {
         class MapRenderer;
+        class FontManager;
     }
     namespace Controller {
         class Editor;
     }
     
     namespace Gui {
-        
-        
         class MapRendererControl : public Controls::Base {
         protected:
             Controller::Editor& m_editor;
             Renderer::MapRenderer* m_mapRenderer;
         public:
-            MapRendererControl(Base* parent, Controller::Editor& editor);
+            MapRendererControl(Base* parent, Controller::Editor& editor, Renderer::FontManager& fontManager);
             ~MapRendererControl();
             virtual void Render(Skin::Base* skin);
 

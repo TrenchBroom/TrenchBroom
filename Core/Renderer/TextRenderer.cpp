@@ -45,7 +45,7 @@ namespace TrenchBroom {
             TextMap::iterator textIt = m_entries.find(key);
             if (textIt != m_entries.end()) {
                 m_fontManager.destroyStringRenderer(*textIt->second.first);
-                delete textIt->second.first; // delete anchor
+                delete textIt->second.second; // delete anchor
                 m_entries.erase(textIt);
             }
         }
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             TextMap::iterator textIt;
             for (textIt = m_entries.begin(); textIt != m_entries.end(); ++textIt) {
                 m_fontManager.destroyStringRenderer(*textIt->second.first);
-                delete textIt->second.first; // delete anchor
+                delete textIt->second.second; // delete anchor
             }
             m_entries.clear();
         }

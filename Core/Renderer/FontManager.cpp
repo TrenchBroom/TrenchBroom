@@ -204,6 +204,7 @@ namespace TrenchBroom {
             clear();
             if (m_vbo != NULL)
                 delete m_vbo;
+            delete &m_stringFactory;
         }
         
         StringRenderer& FontManager::createStringRenderer(const FontDescriptor& descriptor, const string& str) {

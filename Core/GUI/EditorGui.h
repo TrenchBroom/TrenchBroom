@@ -28,10 +28,12 @@
 #include "MapRendererControl.h"
 #include "Splitter.h"
 #include "Editor.h"
+#include "FontManager.h"
 
 using namespace std;
 
 namespace TrenchBroom {
+    
     namespace Gui {
         class EditorGui {
         private:
@@ -42,9 +44,8 @@ namespace TrenchBroom {
             Splitter* m_splitter;
             MapRendererControl* m_mapRenderer;
             Gwen::Controls::TabControl* m_inspectorTab;
-            
         public:
-            EditorGui(Controller::Editor& editor, const string& skinPath);
+            EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const string& skinPath);
             ~EditorGui();
             
             void resizeTo(int width, int height);

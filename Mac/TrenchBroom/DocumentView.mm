@@ -26,10 +26,13 @@
 #import "Gwen/InputHandler.h"
 #import "Editor.h"
 #import "Document.h"
+#import "FontManager.h"
+#import "MacStringFactory.h"
 
 using namespace TrenchBroom;
 using namespace TrenchBroom::Gui;
 using namespace TrenchBroom::Controller;
+using namespace TrenchBroom::Renderer;
 
 @interface DocumentView (Private)
 - (void)prepareOpenGL;
@@ -123,8 +126,12 @@ using namespace TrenchBroom::Controller;
 @implementation DocumentView
 
 - (void)releaseResources {
+    Editor* editor = [self editor];
+    delete editor;
     if (editorGui != NULL)
         delete ((EditorGui*)editorGui);
+    if (fontManager != NULL)
+        delete ((FontManager*)fontManager);
     if (renderTimer != nil) {
         [renderTimer invalidate];
         renderTimer = nil;
@@ -146,10 +153,15 @@ using namespace TrenchBroom::Controller;
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
+    if (fontManager == NULL) {
+        MacStringFactory* stringFactory = new MacStringFactory();
+        fontManager = new FontManager(*stringFactory);
+    }
+    
     if (editorGui == NULL) {
         NSString* skinPath = [[NSBundle mainBundle] pathForResource:@"DefaultSkin" ofType:@"png"];
         string skinPathCpp([skinPath cStringUsingEncoding:NSASCIIStringEncoding]);
-        editorGui = new EditorGui(*[self editor], skinPathCpp);
+        editorGui = new EditorGui(*[self editor], *(FontManager*)fontManager, skinPathCpp);
     }
 
     NSRect viewport = [self visibleRect];

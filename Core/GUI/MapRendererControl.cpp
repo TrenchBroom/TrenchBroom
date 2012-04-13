@@ -27,11 +27,12 @@
 #include "Tool.h"
 #include "InputController.h"
 #include "Camera.h"
+#include "FontManager.h"
 
 namespace TrenchBroom {
     namespace Gui {
-        MapRendererControl::MapRendererControl(Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
-            m_mapRenderer = new Renderer::MapRenderer(m_editor);
+        MapRendererControl::MapRendererControl(Base* parent, Controller::Editor& editor, Renderer::FontManager& fontManager) : Base(parent), m_editor(editor) {
+            m_mapRenderer = new Renderer::MapRenderer(m_editor, fontManager);
             SetKeyboardInputEnabled(true);
             SetMouseInputEnabled(true);
         }
