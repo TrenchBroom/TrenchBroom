@@ -18,6 +18,7 @@
  */
 
 #include "EditorGui.h"
+#include "FontManager.h"
 
 namespace TrenchBroom {
     namespace Gui {
@@ -36,6 +37,7 @@ namespace TrenchBroom {
         }
         
         EditorGui::~EditorGui() {
+            m_editor.fontManager().clear();
             delete m_mapRenderer;
             delete m_inspectorTab;
             delete m_splitter;

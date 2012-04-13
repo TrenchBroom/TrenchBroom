@@ -122,7 +122,9 @@ using namespace TrenchBroom::Controller;
 
 @implementation DocumentView
 
-- (void)stopRenderLoop {
+- (void)releaseResources {
+    if (editorGui != NULL)
+        delete ((EditorGui*)editorGui);
     if (renderTimer != nil) {
         [renderTimer invalidate];
         renderTimer = nil;
@@ -141,12 +143,6 @@ using namespace TrenchBroom::Controller;
     
     [[self window] setAcceptsMouseMovedEvents:YES];
     flags = [NSEvent modifierFlags];
-}
-
-- (void)dealloc {
-    if (editorGui != NULL)
-        delete ((EditorGui*)editorGui);
-    [super dealloc];
 }
 
 - (void)drawRect:(NSRect)dirtyRect {

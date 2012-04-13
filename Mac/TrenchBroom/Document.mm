@@ -64,10 +64,6 @@ using namespace TrenchBroom::Renderer;
     [controller release];
 }
 
-- (void)windowControllerDidLoadNib:(NSWindowController *)aController {
-    [super windowControllerDidLoadNib:aController];
-}
-
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError {
     return nil;
 }

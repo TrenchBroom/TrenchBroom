@@ -74,10 +74,13 @@ namespace TrenchBroom {
             }
             
             Event& operator-=(Base* ptr) {
-                typename vector<Base*>::iterator it = find(m_ptrs.begin(), m_ptrs.end(), ptr);
-                if (it != m_ptrs.end()) {
-                    delete *it;
-                    m_ptrs.erase(it);
+                typename vector<Base*>::iterator it;
+                for (it = m_ptrs.begin(); it != m_ptrs.end(); ++it) {
+                    if (*it == ptr || *(*it) == *ptr) {
+                        delete *it;
+                        m_ptrs.erase(it);
+                        break;
+                    }
                 }
                 delete ptr;
                 return *this;

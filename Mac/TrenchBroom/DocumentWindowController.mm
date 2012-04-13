@@ -31,7 +31,7 @@
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
-    [documentView stopRenderLoop];
+    [documentView releaseResources];
 }
 
 @end
