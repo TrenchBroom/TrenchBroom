@@ -33,6 +33,10 @@ using namespace std;
 using namespace TrenchBroom::Model;
 
 namespace TrenchBroom {
+    namespace Controller {
+        class ProgressIndicator;
+    }
+
     namespace IO {
         typedef enum {
             TT_FRAC = 1 << 0, // fractional number
@@ -95,6 +99,7 @@ namespace TrenchBroom {
         public:
             MapTokenizer(istream& stream);
             MapToken* next();
+            int size();
         };
         
         class MapParser {
@@ -112,9 +117,9 @@ namespace TrenchBroom {
         public:
             MapParser(istream& stream, const BBox& worldBounds, Assets::TextureManager& textureManager);
             ~MapParser();
-            Map* parseMap(const string& entityDefinitionFilePath);
-            Entity* parseEntity();
-            Brush* parseBrush();
+            Map* parseMap(const string& entityDefinitionFilePath, Controller::ProgressIndicator* indicator);
+            Entity* parseEntity(Controller::ProgressIndicator* indicator);
+            Brush* parseBrush(Controller::ProgressIndicator* indicator);
             Face* parseFace();
         };
     }

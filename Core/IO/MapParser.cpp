@@ -20,6 +20,7 @@
 #include "MapParser.h"
 #include <assert.h>
 #include <cmath>
+#include "ProgressIndicator.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -216,6 +217,10 @@ namespace TrenchBroom {
             return NULL;
         }
         
+        int MapTokenizer::size() {
+            return (int)m_chars.size();
+        }
+
         void MapParser::expect(int expectedType, const MapToken* actualToken) const {
             assert(actualToken != NULL);
             assert((actualToken->type & expectedType) != 0);
@@ -252,17 +257,19 @@ namespace TrenchBroom {
             delete m_tokenizer;
         }
         
-        Map* MapParser::parseMap(const string& entityDefinitionFilePath) {
+        Map* MapParser::parseMap(const string& entityDefinitionFilePath, Controller::ProgressIndicator* indicator) {
             m_format = MF_UNDEFINED;
             Map* map = new Map(m_worldBounds, entityDefinitionFilePath);
             map->setPostNotifications(false);
             Entity* entity = NULL;
             
-            while ((entity = parseEntity()) != NULL) map->addEntity(entity);
+            if (indicator != NULL) indicator->reset(m_tokenizer->size());
+            while ((entity = parseEntity(indicator)) != NULL) map->addEntity(entity);
+            if (indicator != NULL) indicator->update(m_tokenizer->size());
             return map;
         }
         
-        Entity* MapParser::parseEntity() {
+        Entity* MapParser::parseEntity(Controller::ProgressIndicator* indicator) {
             MapToken* token = nextToken();
             if (token == NULL) return NULL;
             
@@ -285,10 +292,11 @@ namespace TrenchBroom {
                     case TT_CB_O: {
                         pushToken(token);
                         Brush* brush = NULL;
-                        while ((brush = parseBrush()) != NULL)
+                        while ((brush = parseBrush(indicator)) != NULL)
                             entity->addBrush(brush);
                     }
                     case TT_CB_C: {
+                        if (indicator != NULL) indicator->update(token->charsRead);
                         return entity;
                     }
                     default:
@@ -300,7 +308,7 @@ namespace TrenchBroom {
             return entity;
         }
         
-        Brush* MapParser::parseBrush() {
+        Brush* MapParser::parseBrush(Controller::ProgressIndicator* indicator) {
             MapToken* token;
 
             expect(TT_CB_O | TT_CB_C, token = nextToken());
@@ -318,6 +326,7 @@ namespace TrenchBroom {
                         break;
                     }
                     case TT_CB_C:
+                        if (indicator != NULL) indicator->update(token->charsRead);
                         return brush;
                     default:
                         fprintf(stdout, "Warning: Unexpected token type %i at line %i\n", token->type, token->line);

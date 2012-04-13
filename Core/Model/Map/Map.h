@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_QuakeMap_h
-#define TrenchBroom_QuakeMap_h
+#ifndef TrenchBroom_Map_h
+#define TrenchBroom_Map_h
 
 #include <vector>
 #include "VecMath.h"

@@ -31,6 +31,7 @@
 #include "Options.h"
 #include "Filter.h"
 #include "Grid.h"
+#include "ProgressIndicator.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -88,7 +89,7 @@ namespace TrenchBroom {
             delete m_filter;
         }
         
-        void Editor::loadMap(const string& path) {
+        void Editor::loadMap(const string& path, ProgressIndicator* indicator) {
             m_map->clear();
             delete m_map;
             
@@ -98,8 +99,10 @@ namespace TrenchBroom {
             ifstream stream(path.c_str());
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
             IO::MapParser parser(stream, worldBounds, *m_textureManager);
-            m_map = parser.parseMap(m_entityDefinitionFilePath);
+            m_map = parser.parseMap(m_entityDefinitionFilePath, indicator);
             fprintf(stdout, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
+            
+            indicator->setText("Loading wad files...");
             
             // load wad files
             const string* wads = m_map->worldspawn(true)->propertyForKey(WadKey);

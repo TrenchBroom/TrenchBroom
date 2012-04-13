@@ -21,6 +21,7 @@
 #import "Editor.h"
 #import "FontManager.h"
 #import "MacStringFactory.h"
+#import "MacProgressIndicator.h"
 #import <string>
 
 using namespace TrenchBroom;
@@ -67,7 +68,10 @@ using namespace TrenchBroom::Renderer;
 - (BOOL)readFromURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError {
     NSString* path = [absoluteURL path];
     const char* pathC = [path cStringUsingEncoding:NSASCIIStringEncoding];
-    ((Editor*)editor)->loadMap(pathC);
+
+    MacProgressIndicator* indicator = new MacProgressIndicator("Loading map file...");
+    ((Editor*)editor)->loadMap(pathC, indicator);
+    delete indicator;
     
     return YES;
 }

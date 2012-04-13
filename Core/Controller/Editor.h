@@ -44,6 +44,7 @@ namespace TrenchBroom {
         class Grid;
         class InputController;
         class TransientOptions;
+        class ProgressIndicator;
 
         class Editor {
         private:
@@ -63,7 +64,7 @@ namespace TrenchBroom {
             Editor(const string& entityDefinitionFilePath, const string& palettePath, Renderer::FontManager& fontManager);
             ~Editor();
             
-            void loadMap(const string& path);
+            void loadMap(const string& path, ProgressIndicator* indicator);
             void saveMap(const string& path);
             
             Model::Map& map();

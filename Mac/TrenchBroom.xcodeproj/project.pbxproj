@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		48061814153032A30099EB8C /* Vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48061813153032A30099EB8C /* Vbo.cpp */; };
+		4812004E1538636900181D66 /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4812004D1538636900181D66 /* ProgressWindow.xib */; };
+		48120055153867E300181D66 /* MacProgressIndicator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48120054153867E300181D66 /* MacProgressIndicator.mm */; };
 		483511A3152FB61A007B561E /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483511A2152FB61A007B561E /* Camera.cpp */; };
 		48367703152F0DF800D402E3 /* Splitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48367702152F0DF800D402E3 /* Splitter.cpp */; };
 		4836770C152F2C1600D402E3 /* InputController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4836770B152F2C1600D402E3 /* InputController.cpp */; };
@@ -74,6 +76,10 @@
 /* Begin PBXFileReference section */
 		48061811153032900099EB8C /* Vbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vbo.h; path = ../Core/Renderer/Vbo.h; sourceTree = "<group>"; };
 		48061813153032A30099EB8C /* Vbo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Vbo.cpp; path = ../Core/Renderer/Vbo.cpp; sourceTree = "<group>"; };
+		4812004815385A2800181D66 /* ProgressIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProgressIndicator.h; path = ../Core/Controller/ProgressIndicator.h; sourceTree = "<group>"; };
+		4812004D1538636900181D66 /* ProgressWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ProgressWindow.xib; sourceTree = "<group>"; };
+		48120053153867E300181D66 /* MacProgressIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacProgressIndicator.h; sourceTree = "<group>"; };
+		48120054153867E300181D66 /* MacProgressIndicator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacProgressIndicator.mm; sourceTree = "<group>"; };
 		483511A2152FB61A007B561E /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = ../Core/Model/Camera.cpp; sourceTree = "<group>"; };
 		48367700152F0DC200D402E3 /* Splitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Splitter.h; path = ../Core/GUI/Splitter.h; sourceTree = "<group>"; };
 		48367702152F0DF800D402E3 /* Splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Splitter.cpp; path = ../Core/GUI/Splitter.cpp; sourceTree = "<group>"; };
@@ -213,21 +219,22 @@
 		48367709152F2BB400D402E3 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				48367713152F4B6300D402E3 /* Camera.h */,
 				483511A2152FB61A007B561E /* Camera.cpp */,
-				4836770F152F4B2C00D402E3 /* CameraTool.h */,
+				48367713152F4B6300D402E3 /* Camera.h */,
 				48367710152F4B3E00D402E3 /* CameraTool.cpp */,
+				4836770F152F4B2C00D402E3 /* CameraTool.h */,
 				48C979431530AB6F003020FC /* Editor.cpp */,
 				48C979441530AB6F003020FC /* Editor.h */,
-				4888F83B15377165000423D2 /* Grid.h */,
 				4888F83C15377185000423D2 /* Grid.cpp */,
-				4836770A152F2BEA00D402E3 /* InputController.h */,
+				4888F83B15377165000423D2 /* Grid.h */,
 				4836770B152F2C1600D402E3 /* InputController.cpp */,
-				48661B3C1534BC5D00649E47 /* SelectionTool.h */,
-				48661B3D1534BC6A00649E47 /* SelectionTool.cpp */,
-				4836770D152F2C6C00D402E3 /* Tool.h */,
-				48CBE90B153568FE00E9BDD6 /* Options.h */,
+				4836770A152F2BEA00D402E3 /* InputController.h */,
 				48CBE90D1535691300E9BDD6 /* Options.cpp */,
+				48CBE90B153568FE00E9BDD6 /* Options.h */,
+				4812004815385A2800181D66 /* ProgressIndicator.h */,
+				48661B3D1534BC6A00649E47 /* SelectionTool.cpp */,
+				48661B3C1534BC5D00649E47 /* SelectionTool.h */,
+				4836770D152F2C6C00D402E3 /* Tool.h */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -240,15 +247,15 @@
 				48B05A55152FB72C006AF69B /* Event.h */,
 				48B05A56152FB72C006AF69B /* Octree.cpp */,
 				48B05A57152FB72C006AF69B /* Octree.h */,
-				48B05A5A152FB72C006AF69B /* Selection.cpp */,
-				48B05A5B152FB72C006AF69B /* Selection.h */,
 				48C979461530ADEE003020FC /* Preferences.h */,
 				48C979471530AE96003020FC /* Preferences.cpp */,
+				48B05A5A152FB72C006AF69B /* Selection.cpp */,
+				48B05A5B152FB72C006AF69B /* Selection.h */,
 			);
 			name = Model;
 			sourceTree = "<group>";
 		};
-		48667DB0152D95BE00A65C45 /* GUI */ = {
+		48667DB0152D95BE00A65C45 /* Gui */ = {
 			isa = PBXGroup;
 			children = (
 				48667DB1152D960100A65C45 /* EditorGui.h */,
@@ -258,7 +265,7 @@
 				48367700152F0DC200D402E3 /* Splitter.h */,
 				48367702152F0DF800D402E3 /* Splitter.cpp */,
 			);
-			name = GUI;
+			name = Gui;
 			sourceTree = "<group>";
 		};
 		48B05A43152FB670006AF69B /* IO */ = {
@@ -314,8 +321,8 @@
 				48B05A7C152FB84E006AF69B /* Map.h */,
 				48B05A7D152FB84E006AF69B /* MapObject.cpp */,
 				48B05A7E152FB84E006AF69B /* MapObject.h */,
-				48661B381534825300649E47 /* Picker.h */,
 				48661B391534826400649E47 /* Picker.cpp */,
+				48661B381534825300649E47 /* Picker.h */,
 			);
 			name = Map;
 			path = ../Core/Model/Map;
@@ -366,8 +373,11 @@
 				48B50E3E152CF8F900E75402 /* DocumentWindowController.mm */,
 				4888F8321536099B000423D2 /* MacStringFactory.h */,
 				4888F8331536099B000423D2 /* MacStringFactory.mm */,
+				48120053153867E300181D66 /* MacProgressIndicator.h */,
+				48120054153867E300181D66 /* MacProgressIndicator.mm */,
 				48B50E27152CF6E400E75402 /* Document.xib */,
 				48B50E2A152CF6E400E75402 /* MainMenu.xib */,
+				4812004D1538636900181D66 /* ProgressWindow.xib */,
 				48B50E19152CF6E400E75402 /* Supporting Files */,
 			);
 			name = Mac;
@@ -395,7 +405,7 @@
 				48B05A43152FB670006AF69B /* IO */,
 				48367712152F4B4C00D402E3 /* Model */,
 				48367709152F2BB400D402E3 /* Controller */,
-				48667DB0152D95BE00A65C45 /* GUI */,
+				48667DB0152D95BE00A65C45 /* Gui */,
 				48B50E45152CF9C300E75402 /* Renderer */,
 				48B50E48152CFA7600E75402 /* Utilities */,
 			);
@@ -502,6 +512,7 @@
 				48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */,
 				48C9794E1530CB72003020FC /* quake.def in Resources */,
 				48C97950153174B9003020FC /* QuakePalette.lmp in Resources */,
+				4812004E1538636900181D66 /* ProgressWindow.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -560,6 +571,7 @@
 				4888F83A15376874000423D2 /* EntityClassnameAnchor.cpp in Sources */,
 				4888F83D15377185000423D2 /* Grid.cpp in Sources */,
 				4888F841153772A9000423D2 /* GridRenderer.cpp in Sources */,
+				48120055153867E300181D66 /* MacProgressIndicator.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
