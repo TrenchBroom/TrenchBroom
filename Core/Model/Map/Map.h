@@ -103,7 +103,7 @@ namespace TrenchBroom {
 # pragma mark Brush related functions
             void addBrushesToEntity(Entity& entity);
             void moveBrushesToEntity(Entity& entity);
-            Brush* createBrush(Entity& entity, const Brush& brushTemplate);
+            Brush* createBrush(Entity& entity, Brush& brushTemplate);
             Brush* createBrush(Entity& entity, BBox bounds, Assets::Texture& texture);
             void snapBrushes();
             bool resizeBrushes(vector<Face*>& faces, float delta, bool lockTextures);

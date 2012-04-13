@@ -21,6 +21,7 @@
 #include <math.h>
 #include <iostream>
 #include <sstream>
+#include <cassert>
 #include "Picker.h"
 
 using namespace std;
@@ -35,10 +36,12 @@ namespace TrenchBroom {
             m_vboBlock = NULL;
             m_origin = Null3f;
             m_angle = 0;
-            rebuildGeometry();
+            invalidateGeometry();
         }
         
-        void Entity::rebuildGeometry() {
+        void Entity::validateGeometry() {
+            assert(!m_geometryValid);
+            
             m_bounds.min = m_bounds.max = Null3f;
             m_maxBounds.min = m_maxBounds.max = Null3f;
             if (m_entityDefinition == NULL || m_entityDefinition->type == EDT_BRUSH) {
@@ -53,6 +56,11 @@ namespace TrenchBroom {
             
             m_center = m_bounds.center();
             m_maxBounds = m_bounds.maxBounds();
+            m_geometryValid = true;
+        }
+        
+        void Entity::invalidateGeometry() {
+            m_geometryValid = false;
         }
         
         Entity::Entity() : MapObject() {
@@ -67,7 +75,7 @@ namespace TrenchBroom {
                 m_angle = atof(it->second.c_str());
             if ((it = m_properties.find(OriginKey)) != m_properties.end())
                 m_origin = Vec3f(it->second);
-            rebuildGeometry();
+            invalidateGeometry();
         }
         
         Entity::~Entity() {
@@ -127,10 +135,11 @@ namespace TrenchBroom {
             m_entityDefinition = entityDefinition;
             if (m_entityDefinition != NULL)
                 m_entityDefinition->usageCount++;
-            rebuildGeometry();
+            invalidateGeometry();
         }
         
-        const Vec3f& Entity::center() const {
+        const Vec3f& Entity::center() {
+            if (!m_geometryValid) validateGeometry();
             return m_center;
         }
         
@@ -138,11 +147,13 @@ namespace TrenchBroom {
             return m_origin;
         }
         
-        const BBox& Entity::bounds() const {
+        const BBox& Entity::bounds() {
+            if (!m_geometryValid) validateGeometry();
             return m_bounds;
         }
         
-        const BBox& Entity::maxBounds() const {
+        const BBox& Entity::maxBounds() {
+            if (!m_geometryValid) validateGeometry();
             return m_maxBounds;
         }
         
@@ -217,7 +228,7 @@ namespace TrenchBroom {
             const string* oldValue = propertyForKey(key);
             if (oldValue != NULL && oldValue == value) return;
             m_properties[key] = *value;
-            rebuildGeometry();
+            invalidateGeometry();
         }
         
         void Entity::setProperty(const string& key, Vec3f value, bool round) {
@@ -248,7 +259,7 @@ namespace TrenchBroom {
             if (key == AngleKey) m_angle = NAN;
             if (m_properties.count(key) == 0) return;
             m_properties.erase(key);
-            rebuildGeometry();
+            invalidateGeometry();
         }
         
         const string* Entity::classname() const {
@@ -273,7 +284,7 @@ namespace TrenchBroom {
             
             brush->setEntity(this);
             m_brushes.push_back(brush);
-            rebuildGeometry();
+            invalidateGeometry();
         }
         
         void Entity::addBrushes(const vector<Brush*>& brushes) {
@@ -284,11 +295,11 @@ namespace TrenchBroom {
                 brushes[i]->setEntity(this);
                 m_brushes.push_back(brushes[i]);
             }
-            rebuildGeometry();
+            invalidateGeometry();
         }
         
         void Entity::brushChanged(Brush* brush) {
-            rebuildGeometry();
+            invalidateGeometry();
         }
         
         void Entity::removeBrush(Brush* brush) {
@@ -297,7 +308,7 @@ namespace TrenchBroom {
             
             brush->setEntity(NULL);
             m_brushes.erase(find(m_brushes.begin(), m_brushes.end(), brush));
-            rebuildGeometry();
+            invalidateGeometry();
         }
         
         void Entity::removeBrushes(vector<Brush*>& brushes) {
@@ -308,7 +319,7 @@ namespace TrenchBroom {
                 brushes[i]->setEntity(NULL);
                 m_brushes.erase(find(m_brushes.begin(), m_brushes.end(), brushes[i]));
             }
-            rebuildGeometry();
+            invalidateGeometry();
         }
         
         void Entity::translate(Vec3f delta) {
@@ -330,9 +341,9 @@ namespace TrenchBroom {
             if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_BRUSH)
                 return;
             
-            Vec3f offset = m_center - m_origin;
-            m_center = rotation * (m_center - rotationCenter) + rotationCenter;
-            setProperty(OriginKey, m_center - offset, true);
+            Vec3f offset = center() - origin();
+            Vec3f newCenter = rotation * (center() - rotationCenter) + rotationCenter;
+            setProperty(OriginKey, newCenter - offset, true);
             setProperty(AngleKey, 0, true);
             
             Vec3f direction;
@@ -365,15 +376,16 @@ namespace TrenchBroom {
                     m_angle = 360 - m_angle;
                 setProperty(AngleKey, m_angle, true);
             }
+            invalidateGeometry();
         }
         
         void Entity::flip(EAxis axis, Vec3f flipCenter) {
             if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_BRUSH)
                 return;
             
-            Vec3f offset = m_center - m_origin;
-            m_center = m_center.flip(axis, flipCenter);
-            setProperty(OriginKey, m_center + offset, true);
+            Vec3f offset = center() - origin();
+            Vec3f newCenter = center().flip(axis, flipCenter);
+            setProperty(OriginKey, newCenter + offset, true);
             setProperty(AngleKey, 0, true);
             
             if (m_angle >= 0)
@@ -383,6 +395,7 @@ namespace TrenchBroom {
             else if (m_angle == -2)
                 m_angle = -1;
             setProperty(AngleKey, m_angle, true);
+            invalidateGeometry();
         }
         
         int Entity::filePosition() const {

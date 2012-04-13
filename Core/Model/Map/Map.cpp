@@ -200,7 +200,7 @@ namespace TrenchBroom {
             if (m_postNotifications) brushesDidChange(brushes);
         }
         
-        Brush* Map::createBrush(Entity& entity, const Brush& brushTemplate) {
+        Brush* Map::createBrush(Entity& entity, Brush& brushTemplate) {
             BBox templateBounds = brushTemplate.bounds();
             if (!m_worldBounds.contains(brushTemplate.bounds())) return NULL;
             

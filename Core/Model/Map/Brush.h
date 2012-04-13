@@ -65,7 +65,7 @@ namespace TrenchBroom {
             Entity* entity() const;
             void setEntity(Entity* entity);
             const vector<Face*>& faces() const;
-            const BBox& bounds() const;
+            const BBox& bounds();
             const BBox& worldBounds() const;
             const Vec3f center();
             const vector<Vertex*>& vertices() const;
@@ -73,10 +73,10 @@ namespace TrenchBroom {
             
             void pick(const Ray& ray, HitList& hits);
             bool containsPoint(Vec3f point);
-            bool intersectsBrush(const Brush& brush);
-            bool containsBrush(const Brush& brush);
-            bool intersectsEntity(const Entity& entity);
-            bool containsEntity(const Entity& entity);
+            bool intersectsBrush(Brush& brush);
+            bool containsBrush(Brush& brush);
+            bool intersectsEntity(Entity& entity);
+            bool containsEntity(Entity& entity);
             
             bool addFace(Face* face);
             bool canDeleteFace(Face& face);

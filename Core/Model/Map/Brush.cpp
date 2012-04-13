@@ -148,7 +148,7 @@ namespace TrenchBroom {
             return m_faces;
         }
         
-        const BBox& Brush::bounds() const {
+        const BBox& Brush::bounds() {
             return m_geometry->bounds;
         }
         
@@ -195,7 +195,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool Brush::intersectsBrush(const Brush& brush) {
+        bool Brush::intersectsBrush(Brush& brush) {
             if (!bounds().intersects(brush.bounds())) return false;
             
             // separating axis theorem
@@ -246,7 +246,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool Brush::containsBrush(const Brush& brush) {
+        bool Brush::containsBrush(Brush& brush) {
             if (bounds().contains(brush.bounds())) return false;
             
             const vector<Vertex*>& theirVertices = brush.vertices();
@@ -256,7 +256,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool Brush::intersectsEntity(const Entity& entity) {
+        bool Brush::intersectsEntity(Entity& entity) {
             BBox theirBounds = entity.bounds();
             if (!bounds().intersects(theirBounds)) return false;
             
@@ -287,7 +287,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool Brush::containsEntity(const Entity& entity) {
+        bool Brush::containsEntity(Entity& entity) {
             BBox theirBounds = entity.bounds();
             if (!bounds().contains(theirBounds)) return false;
             
