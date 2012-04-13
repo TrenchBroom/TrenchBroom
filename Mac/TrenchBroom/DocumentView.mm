@@ -32,6 +32,7 @@ using namespace TrenchBroom::Gui;
 using namespace TrenchBroom::Controller;
 
 @interface DocumentView (Private)
+- (void)prepareOpenGL;
 - (void)renderTimerFired:(NSNotification*)theNotification;
 - (void)key:(NSEvent*)theEvent down:(BOOL)down;
 - (void)key:(NSEvent*)theEvent mask:(NSUInteger)theMask gwenKey:(int)theGwenKey;
@@ -40,6 +41,11 @@ using namespace TrenchBroom::Controller;
 @end
 
 @implementation DocumentView (Private)
+- (void)prepareOpenGL {
+    GLint swapInt = 1;
+    [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
+}
+
 - (void)renderTimerFired:(NSNotification*)theNotification {
     [self setNeedsDisplay:YES];
 }
@@ -116,9 +122,11 @@ using namespace TrenchBroom::Controller;
 
 @implementation DocumentView
 
-- (void)prepareOpenGL {
-    GLint swapInt = 1;
-    [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
+- (void)stopRenderLoop {
+    if (renderTimer != nil) {
+        [renderTimer invalidate];
+        renderTimer = nil;
+    }
 }
 
 - (BOOL)acceptsFirstResponder {
@@ -127,12 +135,18 @@ using namespace TrenchBroom::Controller;
 
 - (void)awakeFromNib {
     // set up a render loop
-    NSTimer* renderTimer = [NSTimer timerWithTimeInterval:0.001 target:self selector:@selector(renderTimerFired:) userInfo:nil repeats:YES];
+    renderTimer = [NSTimer timerWithTimeInterval:0.001 target:self selector:@selector(renderTimerFired:) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:renderTimer forMode:NSDefaultRunLoopMode];
     [[NSRunLoop currentRunLoop] addTimer:renderTimer forMode:NSEventTrackingRunLoopMode]; //Ensure timer fires during resize
     
     [[self window] setAcceptsMouseMovedEvents:YES];
     flags = [NSEvent modifierFlags];
+}
+
+- (void)dealloc {
+    if (editorGui != NULL)
+        delete ((EditorGui*)editorGui);
+    [super dealloc];
 }
 
 - (void)drawRect:(NSRect)dirtyRect {

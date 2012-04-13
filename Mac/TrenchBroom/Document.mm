@@ -22,6 +22,7 @@
 #import "FontManager.h"
 #import "MacStringFactory.h"
 #import "MacProgressIndicator.h"
+#import "DocumentWindowController.h"
 #import <string>
 
 using namespace TrenchBroom;
@@ -55,6 +56,12 @@ using namespace TrenchBroom::Renderer;
 
 - (NSString *)windowNibName {
     return @"Document";
+}
+
+- (void)makeWindowControllers {
+	DocumentWindowController* controller = [[DocumentWindowController alloc] initWithWindowNibName:@"DocumentWindow"];
+	[self addWindowController:controller];
+    [controller release];
 }
 
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController {

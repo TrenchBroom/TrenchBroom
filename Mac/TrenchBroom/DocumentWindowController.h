@@ -19,6 +19,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface DocumentWindowController : NSWindowController
+@class DocumentView;
+
+@interface DocumentWindowController : NSWindowController <NSWindowDelegate> {
+    IBOutlet DocumentView* documentView;
+}
 
 @end

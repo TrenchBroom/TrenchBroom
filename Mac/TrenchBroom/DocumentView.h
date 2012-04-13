@@ -20,8 +20,11 @@
 #import <AppKit/AppKit.h>
 
 @interface DocumentView : NSOpenGLView {
+    NSTimer* renderTimer;
     void* editorGui;
     NSUInteger flags;
 }
+
+- (void)stopRenderLoop;
 
 @end

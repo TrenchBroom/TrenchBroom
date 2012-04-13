@@ -85,8 +85,7 @@ namespace TrenchBroom {
             
             void operator()(Arg1 arg1) {
                 typename std::vector<Base*>::iterator end = m_ptrs.end();
-                for (typename std::vector<Base*>::iterator i = m_ptrs.begin();
-                     i != end; ++i) {
+                for (typename std::vector<Base*>::iterator i = m_ptrs.begin(); i != end; ++i) {
                     (*(*i))(arg1); 
                 }
             }
