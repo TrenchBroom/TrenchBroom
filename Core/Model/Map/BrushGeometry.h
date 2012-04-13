@@ -70,6 +70,7 @@ namespace TrenchBroom {
         class Vertex {
         private:
             static Vertex* pool;
+            static int poolSize;
             Vertex* next;
         public:
             Vec3f position;
@@ -84,6 +85,7 @@ namespace TrenchBroom {
         class Edge {
         private:
             static Edge* pool;
+            static int poolSize;
             Edge* next;
         public:
             Vertex* start;
@@ -108,6 +110,7 @@ namespace TrenchBroom {
         class Side {
         private:
             static Side* pool;
+            static int poolSize;
             Side* next;
         public:
             vector<Vertex*> vertices;

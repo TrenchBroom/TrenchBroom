@@ -24,16 +24,24 @@
 #include <algorithm>
 #include "VecMath.h"
 
+#define VERTEX_MAX_POOL_SIZE 256
+#define EDGE_MAX_POOL_SIZE 256
+#define SIDE_MAX_POOL_SIZE 256
+
 namespace TrenchBroom {
     namespace Model {
         Vertex* Vertex::pool = NULL;
         Edge* Edge::pool = NULL;
         Side* Side::pool = NULL;
+        int Vertex::poolSize = 0;
+        int Edge::poolSize = 0;
+        int Side::poolSize = 0;
         
         void* Vertex::operator new(size_t size) {
             if (pool != NULL) {
                 Vertex* vertex = pool;
                 pool = pool->next;
+                poolSize--;
                 return vertex;
             }
             
@@ -43,9 +51,14 @@ namespace TrenchBroom {
         }
         
         void Vertex::operator delete(void* pointer) {
-            Vertex* vertex = (Vertex*)pointer;
-            vertex->next = pool;
-            pool = vertex;
+            if (poolSize < VERTEX_MAX_POOL_SIZE) {
+                Vertex* vertex = (Vertex*)pointer;
+                vertex->next = pool;
+                pool = vertex;
+                poolSize++;
+            } else {
+                free(pointer);
+            }
         }
 
         Vertex::Vertex(float x, float y, float z) {
@@ -63,6 +76,7 @@ namespace TrenchBroom {
             if (pool != NULL) {
                 Edge* edge = pool;
                 pool = pool->next;
+                poolSize--;
                 return edge;
             }
             
@@ -72,9 +86,14 @@ namespace TrenchBroom {
         }
         
         void Edge::operator delete(void* pointer) {
-            Edge* edge = (Edge*)pointer;
-            edge->next = pool;
-            pool = edge;
+            if (poolSize < EDGE_MAX_POOL_SIZE) {
+                Edge* edge = (Edge*)pointer;
+                edge->next = pool;
+                pool = edge;
+                poolSize++;
+            } else {
+                free(pointer);
+            }
         }
 
         Edge::Edge(Vertex* start, Vertex* end) : start(start), end(end), mark((EM_NEW)), left(NULL), right(NULL) {}
@@ -148,6 +167,7 @@ namespace TrenchBroom {
             if (pool != NULL) {
                 Side* side = pool;
                 pool = pool->next;
+                poolSize--;
                 return side;
             }
             
@@ -157,9 +177,14 @@ namespace TrenchBroom {
         }
         
         void Side::operator delete(void* pointer) {
-            Side* side = (Side*)pointer;
-            side->next = pool;
-            pool = side;
+            if (poolSize < SIDE_MAX_POOL_SIZE) {
+                Side* side = (Side*)pointer;
+                side->next = pool;
+                pool = side;
+                poolSize++;
+            } else {
+                free(pointer);
+            }
         }
 
         Side::Side(Edge* newEdges[], bool invert[], int count) : mark(SM_NEW), face(NULL) {
