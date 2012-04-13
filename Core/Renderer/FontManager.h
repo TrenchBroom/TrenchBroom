@@ -71,6 +71,7 @@ namespace TrenchBroom {
         private:
             StringData* m_data;
             VboBlock* m_vboBlock;
+            GLuint m_listId;
             bool m_hasTriangleSet;
             bool m_hasTriangleStrips;
             bool m_hasTriangleFans;

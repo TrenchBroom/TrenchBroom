@@ -89,6 +89,7 @@ namespace TrenchBroom {
             m_hasTriangleSet = false;
             m_hasTriangleStrips = false;
             m_hasTriangleFans = false;
+            m_listId = 0;
         }
         
         StringRenderer::~StringRenderer() {
@@ -104,6 +105,8 @@ namespace TrenchBroom {
                 delete m_triangleFanIndices;
                 delete m_triangleFanCounts;
             }
+            if (m_listId > 0)
+                glDeleteLists(m_listId, 1);
         }
         
         void StringRenderer::prepare(Vbo& vbo) {
@@ -162,20 +165,37 @@ namespace TrenchBroom {
         
         void StringRenderer::render() {
             assert(m_vboBlock != NULL);
-            if (m_hasTriangleSet)
-                glDrawArrays(GL_TRIANGLES, m_triangleSetIndex, m_triangleSetCount);
-            if (m_hasTriangleStrips) {
-                GLint* indexPtr = &(*m_triangleStripIndices)[0];
-                GLsizei* countPtr = &(*m_triangleStripCounts)[0];
-                GLsizei primCount = (int)m_triangleStripIndices->size();
-                glMultiDrawArrays(GL_TRIANGLE_STRIP, indexPtr, countPtr, primCount);
+            if (m_listId == 0) {
+                m_listId = glGenLists(1);
+                assert(m_listId > 0);
+                
+                glNewList(m_listId, GL_COMPILE);
+                if (m_hasTriangleSet) {
+                    glDrawArrays(GL_TRIANGLES, m_triangleSetIndex, m_triangleSetCount);
+                    m_hasTriangleSet = false;
+                }
+                if (m_hasTriangleStrips) {
+                    GLint* indexPtr = &(*m_triangleStripIndices)[0];
+                    GLsizei* countPtr = &(*m_triangleStripCounts)[0];
+                    GLsizei primCount = (int)m_triangleStripIndices->size();
+                    glMultiDrawArrays(GL_TRIANGLE_STRIP, indexPtr, countPtr, primCount);
+                    delete m_triangleStripIndices;
+                    delete m_triangleStripCounts;
+                    m_hasTriangleStrips = false;
+                }
+                if (m_hasTriangleFans) {
+                    GLint* indexPtr = &(*m_triangleFanIndices)[0];
+                    GLsizei* countPtr = &(*m_triangleFanCounts)[0];
+                    GLsizei primCount = (int)m_triangleFanIndices->size();
+                    glMultiDrawArrays(GL_TRIANGLE_FAN, indexPtr, countPtr, primCount);
+                    delete m_triangleFanIndices;
+                    delete m_triangleFanCounts;
+                    m_hasTriangleFans = false;
+                }
+                glEndList();
             }
-            if (m_hasTriangleFans) {
-                GLint* indexPtr = &(*m_triangleFanIndices)[0];
-                GLsizei* countPtr = &(*m_triangleFanCounts)[0];
-                GLsizei primCount = (int)m_triangleFanIndices->size();
-                glMultiDrawArrays(GL_TRIANGLE_FAN, indexPtr, countPtr, primCount);
-            }
+            
+            glCallList(m_listId);
         }
 
         FontManager::FontManager(StringFactory& stringFactory) : m_stringFactory(stringFactory), m_vbo(NULL) {}
