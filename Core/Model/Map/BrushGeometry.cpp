@@ -26,6 +26,28 @@
 
 namespace TrenchBroom {
     namespace Model {
+        Vertex* Vertex::pool = NULL;
+        Edge* Edge::pool = NULL;
+        Side* Side::pool = NULL;
+        
+        void* Vertex::operator new(size_t size) {
+            if (pool != NULL) {
+                Vertex* vertex = pool;
+                pool = pool->next;
+                return vertex;
+            }
+            
+            Vertex* vertex = (Vertex*)malloc(size);
+            vertex->next = NULL;
+            return vertex;
+        }
+        
+        void Vertex::operator delete(void* pointer) {
+            Vertex* vertex = (Vertex*)pointer;
+            vertex->next = pool;
+            pool = vertex;
+        }
+
         Vertex::Vertex(float x, float y, float z) {
             position.x = x;
             position.y = y;
@@ -37,6 +59,24 @@ namespace TrenchBroom {
             mark = VM_NEW;
         }
         
+        void* Edge::operator new(size_t size) {
+            if (pool != NULL) {
+                Edge* edge = pool;
+                pool = pool->next;
+                return edge;
+            }
+            
+            Edge* edge = (Edge*)malloc(size);
+            edge->next = NULL;
+            return edge;
+        }
+        
+        void Edge::operator delete(void* pointer) {
+            Edge* edge = (Edge*)pointer;
+            edge->next = pool;
+            pool = edge;
+        }
+
         Edge::Edge(Vertex* start, Vertex* end) : start(start), end(end), mark((EM_NEW)), left(NULL), right(NULL) {}
         Edge::Edge() : start(NULL), end(NULL), mark(EM_NEW), left(NULL), right(NULL) {}
         
@@ -104,6 +144,24 @@ namespace TrenchBroom {
             end = tempVertex;
         }
         
+        void* Side::operator new(size_t size) {
+            if (pool != NULL) {
+                Side* side = pool;
+                pool = pool->next;
+                return side;
+            }
+            
+            Side* side = (Side*)malloc(size);
+            side->next = NULL;
+            return side;
+        }
+        
+        void Side::operator delete(void* pointer) {
+            Side* side = (Side*)pointer;
+            side->next = pool;
+            pool = side;
+        }
+
         Side::Side(Edge* newEdges[], bool invert[], int count) : mark(SM_NEW), face(NULL) {
             vertices.reserve(count);
             edges.reserve(count);

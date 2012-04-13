@@ -69,7 +69,6 @@ namespace TrenchBroom {
         
         class StringRenderer {
         private:
-            
             StringData* m_data;
             VboBlock* m_vboBlock;
             bool m_hasTriangleSet;

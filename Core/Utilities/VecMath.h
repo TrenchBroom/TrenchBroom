@@ -69,8 +69,8 @@ public:
     float length() const;
     float lengthSquared() const;
     const Vec2f normalize() const;
-    bool equals(Vec2f other) const;
-    bool equals(Vec2f other, float delta) const;
+    bool equals(const Vec2f& other) const;
+    bool equals(const Vec2f& other, float delta) const;
 };
 
 class Vec3f {
@@ -96,8 +96,8 @@ public:
     float length() const;
     float lengthSquared() const;
     const Vec3f normalize() const;
-    bool equals(Vec3f other) const;
-    bool equals(Vec3f other, float delta) const;
+    bool equals(const Vec3f& other) const;
+    bool equals(const Vec3f& other, float delta) const;
     EAxis strongestAxis() const;
     
     const Vec3f snap() const;
@@ -137,8 +137,8 @@ public:
     float length() const;
     float lengthSquared() const;
     const Vec4f normalize() const;
-    bool equals(Vec4f other) const;
-    bool equals(Vec4f other, float delta) const;
+    bool equals(const Vec4f& other) const;
+    bool equals(const Vec4f& other, float delta) const;
 };
 
 class Mat2f {
@@ -326,6 +326,7 @@ public:
     BBox& operator+= (const Vec3f& right);
     BBox();
     BBox(const Vec3f& min, const Vec3f& max);
+    BBox(float minx, float miny, float minz, float maxx, float maxy, float maxz);
     const BBox maxBounds() const;
     const Vec3f center() const;
     const Vec3f size() const;

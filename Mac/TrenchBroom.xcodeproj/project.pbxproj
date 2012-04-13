@@ -414,6 +414,7 @@
 				48CBE90F153573C800E9BDD6 /* EntityRenderer.h */,
 				4888F82C1535B980000423D2 /* EntityRendererManager.cpp */,
 				4888F82B1535B967000423D2 /* EntityRendererManager.h */,
+				4888F82E1535E7D7000423D2 /* FontManager.h */,
 				4888F82F1535E85D000423D2 /* FontManager.cpp */,
 				4888F83E15377278000423D2 /* GridRenderer.h */,
 				4888F840153772A8000423D2 /* GridRenderer.cpp */,
@@ -438,7 +439,6 @@
 				48C9793B15306DD8003020FC /* Utils.h */,
 				48B50E49152CFAF000E75402 /* VecMath.h */,
 				48B50E4A152CFAFC00E75402 /* VecMath.cpp */,
-				4888F82E1535E7D7000423D2 /* FontManager.h */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";

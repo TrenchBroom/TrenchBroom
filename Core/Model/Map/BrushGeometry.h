@@ -68,21 +68,31 @@ namespace TrenchBroom {
         };
         
         class Vertex {
+        private:
+            static Vertex* pool;
+            Vertex* next;
         public:
             Vec3f position;
             EVertexMark mark;
+            void* operator new(size_t size);
+            void operator delete(void* pointer);
             Vertex(float x, float y, float z);
             Vertex();
         };
         
         class Side;
         class Edge {
+        private:
+            static Edge* pool;
+            Edge* next;
         public:
             Vertex* start;
             Vertex* end;
             Side* left;
             Side* right;
             EEdgeMark mark;
+            void* operator new(size_t size);
+            void operator delete(void* pointer);
             Edge(Vertex* start, Vertex* end);
             Edge();
             Vertex* startVertex(Side* side);
@@ -96,16 +106,19 @@ namespace TrenchBroom {
         
         class Face;
         class Side {
+        private:
+            static Side* pool;
+            Side* next;
         public:
             vector<Vertex*> vertices;
             vector<Edge*> edges;
             Face* face;
             ESideMark mark;
-            
+            void* operator new(size_t size);
+            void operator delete(void* pointer);
             Side() : mark(SM_NEW), face(NULL) {}
             Side(Edge* newEdges[], bool invert[], int count);
             Side(Face& face, vector<Edge*>& newEdges);
-            
             float intersectWithRay(const Ray& ray);
             void replaceEdges(int index1, int index2, Edge* edge);
             Edge* split();

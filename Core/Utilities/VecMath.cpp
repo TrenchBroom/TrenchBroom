@@ -32,22 +32,23 @@ Vec2f& Vec2f::operator= (const Vec2f& right) {
 }
 
 const Vec2f Vec2f::operator+ (const Vec2f& right) const {
-    Vec2f result = *this;
-    return result += right;
+    return Vec2f(x + right.x, 
+                 y + right.y);
 }
 
 const Vec2f Vec2f::operator- (const Vec2f& right) const {
-    Vec2f result = *this;
-    return result -= right;
+    return Vec2f(x - right.x, 
+                 y - right.y);
 }
 
 const Vec2f Vec2f::operator* (const float right) const {
-    Vec2f result = *this;
-    return result *= right;
+    return Vec2f(x * right, 
+                 y * right);
 }
 
 const Vec2f Vec2f::operator/ (const float right) const {
-    return *this * (1 / right);
+    return Vec2f(x / right, 
+                 y / right);
 }
 
 const float Vec2f::operator| (const Vec2f& right) const {
@@ -73,7 +74,9 @@ Vec2f& Vec2f::operator*= (const float right) {
 }
 
 Vec2f& Vec2f::operator/= (const float right) {
-    return *this *= (1 / right);
+    x /= right;
+    y /= right;
+    return *this;
 }
 
 float& Vec2f::operator[] (const int index) {
@@ -94,16 +97,16 @@ float Vec2f::lengthSquared() const {
 }
 
 const Vec2f Vec2f::normalize() const {
-    Vec2f result = *this;
-    result /= result.length();
-    return result;
+    float l = length();
+    return Vec2f(x / l, 
+                 y / l);
 }
 
-bool Vec2f::equals(Vec2f other) const {
+bool Vec2f::equals(const Vec2f& other) const {
     return equals(other, AlmostZero);
 }
 
-bool Vec2f::equals(Vec2f other, float delta) const {
+bool Vec2f::equals(const Vec2f& other, float delta) const {
     Vec2f diff = other - *this;
     return diff.lengthSquared() <= delta * delta;
 }
@@ -119,22 +122,27 @@ Vec3f& Vec3f::operator= (const Vec3f& right) {
 }
 
 const Vec3f Vec3f::operator+ (const Vec3f& right) const {
-    Vec3f result = *this;
-    return result += right;
+    return Vec3f(x + right.x, 
+                 y + right.y, 
+                 z + right.z);
 }
 
 const Vec3f Vec3f::operator- (const Vec3f& right) const {
-    Vec3f result = *this;
-    return result -= right;
+    return Vec3f(x - right.x, 
+                 y - right.y, 
+                 z - right.z);
 }
 
 const Vec3f Vec3f::operator* (const float right) const {
-    Vec3f result = *this;
-    return result *= right;
+    return Vec3f(x * right, 
+                 y * right, 
+                 z * right);
 }
 
 const Vec3f Vec3f::operator/ (const float right) const {
-    return *this * (1 / right);
+    return Vec3f(x / right, 
+                 y / right, 
+                 z / right);
 }
 
 const float Vec3f::operator| (const Vec3f& right) const {
@@ -142,8 +150,9 @@ const float Vec3f::operator| (const Vec3f& right) const {
 }
 
 const Vec3f Vec3f::operator% (const Vec3f& right) const {
-    Vec3f result = *this;
-    return result %= right;
+    return Vec3f(y * right.z - z * right.y, 
+                 z * right.x - x * right.z, 
+                 x * right.y - y * right.x);
 }
 
 Vec3f& Vec3f::operator+= (const Vec3f& right) {
@@ -168,7 +177,10 @@ Vec3f& Vec3f::operator*= (const float right) {
 }
 
 Vec3f& Vec3f::operator/= (const float right) {
-    return *this *= (1 / right);
+    x /= right;
+    y /= right;
+    z /= right;
+    return *this;
 }
 
 Vec3f& Vec3f::operator%= (const Vec3f& right) {
@@ -215,16 +227,17 @@ float Vec3f::lengthSquared() const {
 }
 
 const Vec3f Vec3f::normalize() const {
-    Vec3f result = *this;
-    result /= result.length();
-    return result;
+    float l = length();
+    return Vec3f(x / l, 
+                 y / l,
+                 z / l);
 }
 
-bool Vec3f::equals(Vec3f other) const {
+bool Vec3f::equals(const Vec3f& other) const {
     return equals(other, AlmostZero);
 }
 
-bool Vec3f::equals(Vec3f other, float delta) const {
+bool Vec3f::equals(const Vec3f& other, float delta) const {
     Vec3f diff = other - *this;
     return diff.lengthSquared() <= delta * delta;
 }
@@ -243,12 +256,12 @@ const Vec3f Vec3f::snap() const {
 }
 
 const Vec3f Vec3f::snap(float epsilon) const {
-    Vec3f rounded(roundf(x), roundf(y), round(z));
-    Vec3f result;
-    result.x = feq(x, rounded.x) ? rounded.x : x;
-    result.y = feq(y, rounded.y) ? rounded.y : y;
-    result.z = feq(z, rounded.z) ? rounded.z : z;
-    return result;
+    float xr = roundf(x);
+    float yr = roundf(y);
+    float zr = roundf(z);
+    return Vec3f(feq(x, xr) ? xr : x, 
+                 feq(y, yr) ? yr : y, 
+                 feq(z, zr) ? zr : z);
 }
 
 const Vec3f Vec3f::rotate90(EAxis axis, bool clockwise) const {
@@ -301,22 +314,31 @@ Vec4f& Vec4f::operator= (const Vec4f& right) {
 }
 
 const Vec4f Vec4f::operator+ (const Vec4f& right) const {
-    Vec4f result = *this;
-    return result += right;
+    return Vec4f(x + right.x, 
+                 y + right.y, 
+                 z + right.z, 
+                 w + right.w);
 }
 
 const Vec4f Vec4f::operator- (const Vec4f& right) const {
-    Vec4f result = *this;
-    return result -= right;
+    return Vec4f(x - right.x, 
+                 y - right.y, 
+                 z - right.z, 
+                 w - right.w);
 }
 
 const Vec4f Vec4f::operator* (const float right) const {
-    Vec4f result = *this;
-    return result *= right;
+    return Vec4f(x * right, 
+                 y * right, 
+                 z * right, 
+                 w * right);
 }
 
 const Vec4f Vec4f::operator/ (const float right) const {
-    return *this * (1 / right);
+    return Vec4f(x / right, 
+                 y / right, 
+                 z / right, 
+                 w / right);
 }
 
 const float Vec4f::operator| (const Vec4f right) const {
@@ -348,7 +370,11 @@ Vec4f& Vec4f::operator*= (const float right) {
 }
 
 Vec4f& Vec4f::operator/= (const float right) {
-    return *this *= (1 / right);
+    x /= right;
+    y /= right;
+    z /= right;
+    w /= right;
+    return *this;
 }
 
 float& Vec4f::operator[] (const int index) {
@@ -371,16 +397,18 @@ float Vec4f::lengthSquared() const {
 }
 
 const Vec4f Vec4f::normalize() const {
-    Vec4f result = *this;
-    result /= result.length();
-    return result;
+    float l = length();
+    return Vec4f(x / l, 
+                 y / l, 
+                 z / l, 
+                 w / l);
 }
 
-bool Vec4f::equals(Vec4f other) const {
+bool Vec4f::equals(const Vec4f& other) const {
     return equals(other, AlmostZero);
 }
 
-bool Vec4f::equals(Vec4f other, float delta) const {
+bool Vec4f::equals(const Vec4f& other, float delta) const {
     Vec4f diff = other - *this;
     return diff.lengthSquared() <= delta * delta;
 }
@@ -394,39 +422,37 @@ Mat2f& Mat2f::operator= (const Mat2f& right) {
 }
 
 const Mat2f Mat2f::operator+ (const Mat2f& right) const {
-    Mat2f result = *this;
-    return result += right;
+    return Mat2f(v[0] + right.v[0], v[2] + right.v[2],
+                 v[1] + right.v[1], v[3] + right.v[3]);
 }
 
 const Mat2f Mat2f::operator- (const Mat2f& right) const {
-    Mat2f result = *this;
-    return result -= right;
+    return Mat2f(v[0] - right.v[0], v[2] - right.v[2],
+                 v[1] - right.v[1], v[3] - right.v[3]);
 }
 
 const Mat2f Mat2f::operator* (const float right) const {
-    Mat2f result = *this;
-    return result *= right;
+    return Mat2f(v[0] * right, v[2] * right,
+                 v[1] * right, v[3] * right);
 }
 
 const Vec2f Mat2f::operator* (const Vec2f& right) const {
-    Vec2f result;
-    result.x = v[0] * right.x + v[2] * right.y;
-    result.y = v[1] * right.x + v[3] * right.y;
-    return result;
+    return Vec2f(v[0] * right.x + v[2] * right.y, 
+                 v[1] * right.x + v[3] * right.y);
 }
 
 const Mat2f Mat2f::operator* (const Mat2f& right) const {
-    Mat2f result;
-    result[0] = v[0] * right.v[0] + v[2] * right.v[1];
-    result[1] = v[1] * right.v[0] + v[3] * right.v[1];
-    result[2] = v[0] * right.v[2] + v[2] * right.v[3];
-    result[3] = v[1] * right.v[2] + v[3] * right.v[3];
-    return result;
+    return Mat2f(v[0] * right.v[0] + v[2] * right.v[1],
+                 v[1] * right.v[0] + v[3] * right.v[1],
+                 v[0] * right.v[2] + v[2] * right.v[3],
+                 v[1] * right.v[2] + v[3] * right.v[3]);
 }
 
 const Mat2f Mat2f::operator/ (const float right) const {
-    Mat2f result = *this;
-    return result /= right;
+    return Mat2f(v[0] / right, 
+                 v[1] / right, 
+                 v[2] / right, 
+                 v[3] / right);
 }
 
 Mat2f& Mat2f::operator+= (const Mat2f& right) {
@@ -471,7 +497,7 @@ Mat2f::Mat2f(float v11, float v12, float v21, float v22) {
     v[0] = v11;
     v[2] = v12;
     v[1] = v21;
-    v[2] = v22;
+    v[3] = v22;
 }
 
 void Mat2f::setIdentity() {
@@ -513,7 +539,8 @@ const Mat2f Mat2f::adjugate() const {
 }
 
 const Mat2f Mat2f::negate() const {
-    return *this * -1;
+    return Mat2f(v[0] * -1, v[1] * -1,
+                 v[2] * -1, v[3] * -1);
 }
 
 const Mat2f Mat2f::transpose() const {
@@ -541,26 +568,27 @@ Mat3f& Mat3f::operator= (const Mat3f& right) {
 }
 
 const Mat3f Mat3f::operator+ (const Mat3f& right) const {
-    Mat3f result = *this;
-    return result += right;
+    return Mat3f(v[0] + right.v[0], v[1] + right.v[1], v[2] + right.v[2],
+                 v[3] + right.v[3], v[4] + right.v[4], v[5] + right.v[5],
+                 v[6] + right.v[6], v[7] + right.v[7], v[8] + right.v[8]);
 }
 
 const Mat3f Mat3f::operator- (const Mat3f& right) const {
-    Mat3f result = *this;
-    return result -= right;
+    return Mat3f(v[0] - right.v[0], v[1] - right.v[1], v[2] - right.v[2],
+                 v[3] - right.v[3], v[4] - right.v[4], v[5] - right.v[5],
+                 v[6] - right.v[6], v[7] - right.v[7], v[8] - right.v[8]);
 }
 
 const Mat3f Mat3f::operator* (const float right) const {
-    Mat3f result = *this;
-    return result *= right;
+    return Mat3f(v[0] * right, v[1] * right, v[2] * right,
+                 v[3] * right, v[4] * right, v[5] * right,
+                 v[6] * right, v[7] * right, v[8] * right);
 }
 
 const Vec3f Mat3f::operator* (const Vec3f& right) const {
-    Vec3f result;
-    result.x = v[0] * right.x + v[3] * right.y + v[6] * right.z;
-    result.y = v[1] * right.x + v[4] * right.y + v[7] * right.z;
-    result.z = v[2] * right.x + v[5] * right.y + v[8] * right.z;
-    return result;
+    return Vec3f(v[0] * right.x + v[3] * right.y + v[6] * right.z,
+                 v[1] * right.x + v[4] * right.y + v[7] * right.z,
+                 v[2] * right.x + v[5] * right.y + v[8] * right.z);
 }
 
 const Mat3f Mat3f::operator* (const Mat3f& right) const {
@@ -573,9 +601,9 @@ const Mat3f Mat3f::operator* (const Mat3f& right) const {
 }
 
 const Mat3f Mat3f::operator/ (const float right) const {
-    Mat3f result;
-    result /= right;
-    return result;
+    return Mat3f(v[0] / right, v[1] / right, v[2] / right,
+                 v[3] / right, v[4] / right, v[5] / right,
+                 v[6] / right, v[7] / right, v[8] / right);
 }
 
 Mat3f& Mat3f::operator+= (const Mat3f& right) {
@@ -644,7 +672,6 @@ const Mat3f Mat3f::invert(bool& invertible) const {
     float det = determinant();
     invertible = det != 0;
     if (!invertible) return Mat3f();
-    
     return adjugate() / det;
 }
 
@@ -657,10 +684,9 @@ const Mat3f Mat3f::adjugate() const {
 }
 
 const Mat3f Mat3f::negate() const {
-    Mat3f result;
-    for (int i = 0; i < 9; i++)
-        result[i] = -v[i];
-    return result;
+    return Mat3f(v[0] * - 1, v[1] * - 1, v[2] * - 1,
+                 v[3] * - 1, v[4] * - 1, v[5] * - 1,
+                 v[6] * - 1, v[7] * - 1, v[8] * - 1);
 }
 
 const Mat3f Mat3f::transpose() const {
@@ -703,42 +729,38 @@ Mat4f& Mat4f::operator= (const Mat4f& right) {
 }
 
 const Mat4f Mat4f::operator+ (const Mat4f& right) const {
-    Mat4f result = *this;
-    return result += right;
+    return Mat4f(v[ 0] + right.v[ 0], v[ 1] + right.v[ 1], v[ 2] + right.v[ 2], v[ 3] + right.v[ 3],
+                 v[ 4] + right.v[ 4], v[ 5] + right.v[ 5], v[ 6] + right.v[ 6], v[ 7] + right.v[ 7],
+                 v[ 8] + right.v[ 8], v[ 9] + right.v[ 9], v[10] + right.v[10], v[11] + right.v[11],
+                 v[12] + right.v[12], v[13] + right.v[13], v[14] + right.v[14], v[15] + right.v[15]);
 }
 
 const Mat4f Mat4f::operator- (const Mat4f& right) const {
-    Mat4f result = *this;
-    return result -= right;
+    return Mat4f(v[ 0] - right.v[ 0], v[ 1] - right.v[ 1], v[ 2] - right.v[ 2], v[ 3] - right.v[ 3],
+                 v[ 4] - right.v[ 4], v[ 5] - right.v[ 5], v[ 6] - right.v[ 6], v[ 7] - right.v[ 7],
+                 v[ 8] - right.v[ 8], v[ 9] - right.v[ 9], v[10] - right.v[10], v[11] - right.v[11],
+                 v[12] - right.v[12], v[13] - right.v[13], v[14] - right.v[14], v[15] - right.v[15]);
 }
 
 const Mat4f Mat4f::operator* (const float right) const {
-    Mat4f result = *this;
-    return result *= right;
+    return Mat4f(v[ 0] * right, v[ 1] * right, v[ 2] * right, v[ 3] * right,
+                 v[ 4] * right, v[ 5] * right, v[ 6] * right, v[ 7] * right,
+                 v[ 8] * right, v[ 9] * right, v[10] * right, v[11] * right,
+                 v[12] * right, v[13] * right, v[14] * right, v[15] * right);
 }
 
 const Vec3f Mat4f::operator* (const Vec3f& right) const {
-    Vec4f temp;
-    temp.x = right.x;
-    temp.y = right.y;
-    temp.z = right.z;
-    temp.w = 1;
-    temp = *this * temp;
-    
-    Vec3f result;
-    result.x = temp.x / temp.w;
-    result.y = temp.y / temp.w;
-    result.z = temp.z / temp.w;
-    return result;
+    float w = v[ 3] * right.x + v[ 7] * right.y + v[11] * right.z + v[15];
+    return Vec3f((v[ 0] * right.x + v[ 4] * right.y + v[ 8] * right.z + v[12]) / w,
+                 (v[ 1] * right.x + v[ 5] * right.y + v[ 9] * right.z + v[13]) / w,
+                 (v[ 2] * right.x + v[ 6] * right.y + v[10] * right.z + v[14]) / w);
 }
 
 const Vec4f Mat4f::operator* (const Vec4f& right) const {
-    Vec4f result;
-    result.x = v[ 0] * right.x + v[ 4] * right.y + v[ 8] * right.z + v[12] * right.w;
-    result.y = v[ 1] * right.x + v[ 5] * right.y + v[ 9] * right.z + v[13] * right.w;
-    result.z = v[ 2] * right.x + v[ 6] * right.y + v[10] * right.z + v[14] * right.w;
-    result.w = v[ 3] * right.x + v[ 7] * right.y + v[11] * right.z + v[15] * right.w;
-    return result;
+    return Vec4f(v[ 0] * right.x + v[ 4] * right.y + v[ 8] * right.z + v[12] * right.w,
+                 v[ 1] * right.x + v[ 5] * right.y + v[ 9] * right.z + v[13] * right.w,
+                 v[ 2] * right.x + v[ 6] * right.y + v[10] * right.z + v[14] * right.w,
+                 v[ 3] * right.x + v[ 7] * right.y + v[11] * right.z + v[15] * right.w);
 }
 
 const Mat4f Mat4f::operator* (const Mat4f& right) const {
@@ -945,10 +967,10 @@ const Mat4f Mat4f::adjugate() const {
 }
 
 const Mat4f Mat4f::negate() const {
-    Mat4f result;
-    for (int i = 0; i < 16; i++)
-        result[i] = -v[i];
-    return result;
+    return Mat4f(v[ 0] * -1, v[ 1] * -1, v[ 2] * -1, v[ 3] * -1,
+                 v[ 4] * -1, v[ 5] * -1, v[ 6] * -1, v[ 7] * -1,
+                 v[ 8] * -1, v[ 9] * -1, v[10] * -1, v[11] * -1,
+                 v[12] * -1, v[13] * -1, v[14] * -1, v[15] * -1);
 }
 
 const Mat4f Mat4f::transpose() const {
@@ -1070,27 +1092,10 @@ const Mat4f Mat4f::translate(const Vec3f& delta) const {
 }
 
 const Mat4f Mat4f::scale(const Vec3f& factors) const {
-    Mat4f result;
-    result[ 0] = v[ 0] * factors.x;
-    result[ 1] = v[ 1] * factors.y;
-    result[ 2] = v[ 2] * factors.z;
-    result[ 3] = v[ 3];
-    
-    result[ 4] = v[ 4] * factors.x;
-    result[ 5] = v[ 5] * factors.y;
-    result[ 6] = v[ 6] * factors.z;
-    result[ 7] = v[ 7];
-    
-    result[ 8] = v[ 8] * factors.x;
-    result[ 9] = v[ 9] * factors.y;
-    result[10] = v[10] * factors.z;
-    result[11] = v[11];
-    
-    result[12] = v[12] * factors.x;
-    result[13] = v[13] * factors.y;
-    result[14] = v[14] * factors.z;
-    result[15] = v[15];
-    return result;
+    return Mat4f(v[ 0] * factors.x, v[ 1] * factors.y, v[ 2] * factors.z, v[ 3],
+                 v[ 4] * factors.x, v[ 5] * factors.y, v[ 6] * factors.z, v[ 7],
+                 v[ 8] * factors.x, v[ 9] * factors.y, v[10] * factors.z, v[11],
+                 v[12] * factors.x, v[13] * factors.y, v[14] * factors.z, v[15]);
 }
 
 #pragma mark Quat
@@ -1148,7 +1153,9 @@ Ray::Ray() : origin(Null3f), direction(Null3f) {}
 Ray::Ray(const Vec3f& origin, const Vec3f& direction) : origin(origin), direction(direction) {}
 
 const Vec3f Ray::pointAtDistance(float distance) const {
-    return origin + direction * distance;
+    return Vec3f(origin.x + direction.x * distance,
+                 origin.y + direction.y * distance,
+                 origin.z + direction.z * distance);
 }
 
 EPointStatus Ray::pointStatus(const Vec3f& point) const {
@@ -1165,7 +1172,9 @@ Line::Line() : point(Null3f), direction(Null3f) {}
 Line::Line(const Vec3f& point, const Vec3f& direction) : point(point), direction(direction) {}
 
 const Vec3f Line::pointAtDistance(float distance) const {
-    return point + direction * distance;
+    return Vec3f(point.x + direction.x * distance,
+                 point.y + direction.y * distance,
+                 point.z + direction.z * distance);
 }
 
 #pragma mark BBox
@@ -1180,13 +1189,21 @@ void BBox::repair() {
 }
 
 const BBox BBox::operator+ (const BBox& right) const {
-    BBox result = *this;
-    return result += right;
+    return BBox(fminf(min.x, right.min.x),
+                fminf(min.y, right.min.y),
+                fminf(min.z, right.min.z),
+                fmaxf(max.x, right.max.x),
+                fmaxf(max.y, right.max.y),
+                fmaxf(max.z, right.max.z));
 }
 
 const BBox BBox::operator+ (const Vec3f& right) const {
-    BBox result = *this;
-    return result += right;
+    return BBox(fminf(min.x, right.x),
+                fminf(min.y, right.y),
+                fminf(min.z, right.z),
+                fmaxf(max.x, right.x),
+                fmaxf(max.y, right.y),
+                fmaxf(max.z, right.z));
 }
 
 BBox& BBox::operator+= (const BBox& right) {
@@ -1211,6 +1228,14 @@ BBox& BBox::operator+= (const Vec3f& right) {
 
 BBox::BBox() : min(Null3f), max(Null3f) {}
 BBox::BBox(const Vec3f& min, const Vec3f& max) : min(min), max(max) {}
+BBox::BBox(float minx, float miny, float minz, float maxx, float maxy, float maxz) {
+    min.x = minx;
+    min.y = miny;
+    min.z = minz;
+    max.x = maxx;
+    max.y = maxy;
+    max.z = maxz;
+}
 
 const BBox BBox::maxBounds() const {
     Vec3f c = center();
@@ -1220,11 +1245,15 @@ const BBox BBox::maxBounds() const {
 }
 
 const Vec3f BBox::center() const {
-    return min + (max - min) / 2;
+    return Vec3f((max.x + min.x) / 2,
+                 (max.y + min.y) / 2,
+                 (max.z + min.z) / 2);
 }
 
 const Vec3f BBox::size() const {
-    return max - min;
+    return Vec3f(max.x - min.x,
+                 max.y - min.y,
+                 max.z - min.z);
 }
 
 bool BBox::contains(const Vec3f& point) const {
@@ -1321,7 +1350,12 @@ float BBox::intersectWithRay(const Ray& ray) const {
 }
 
 const BBox BBox::translate(const Vec3f& delta) const {
-    return BBox(min + delta, max + delta);
+    return BBox(min.x + delta.x,
+                min.y + delta.y,
+                min.z + delta.z,
+                max.x + delta.x,
+                max.y + delta.y,
+                max.z + delta.z);
 }
 
 const BBox BBox::rotate90(EAxis axis, bool clockwise) const {
@@ -1373,14 +1407,12 @@ const BBox BBox::flip(EAxis axis, const Vec3f& center) const {
 }
 
 const BBox BBox::expand(float f) {
-    BBox result = *this;
-    result.min.x -= f;
-    result.min.y -= f;
-    result.min.z -= f;
-    result.max.x += f;
-    result.max.y += f;
-    result.max.z += f;
-    return result;
+    return BBox(min.x -= f,
+                min.y -= f,
+                min.z -= f,
+                max.x += f,
+                max.y += f,
+                max.z += f);
 }
 
 #pragma mark Plane
