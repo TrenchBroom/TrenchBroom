@@ -7,3 +7,6 @@ Gwen/Projects/macosx/xcode4/obj/**/*
 xcuserdata
 
 .DS_Store
+
+/Windows/TrenchBroom/bin
+/Windows/TrenchBroom/obj
