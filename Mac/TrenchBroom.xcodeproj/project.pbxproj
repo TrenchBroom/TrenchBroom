@@ -225,7 +225,6 @@
 		4825B41A153AE59F007E3AE1 /* Event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Event.h; sourceTree = "<group>"; };
 		4825B41B153AE59F007E3AE1 /* Filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Filter.cpp; sourceTree = "<group>"; };
 		4825B41C153AE59F007E3AE1 /* Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Filter.h; sourceTree = "<group>"; };
-		4825B41D153AE59F007E3AE1 /* glplat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glplat.h; sourceTree = "<group>"; };
 		4825B41E153AE59F007E3AE1 /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
 		4825B41F153AE59F007E3AE1 /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 		4825B420153AE59F007E3AE1 /* VecMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VecMath.cpp; sourceTree = "<group>"; };
@@ -389,6 +388,10 @@
 		4825B545153AE693007E3AE1 /* OpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGL.h; sourceTree = "<group>"; };
 		4825B546153AE693007E3AE1 /* OpenGL_DebugFont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenGL_DebugFont.cpp; sourceTree = "<group>"; };
 		4825B547153AE693007E3AE1 /* OpenGL_DebugFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGL_DebugFont.h; sourceTree = "<group>"; };
+		4825B54B153B4C45007E3AE1 /* gl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gl.h; sourceTree = "<group>"; };
+		4825B54C153B4C45007E3AE1 /* glext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glext.h; sourceTree = "<group>"; };
+		4825B54D153B4C45007E3AE1 /* glplat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glplat.h; sourceTree = "<group>"; };
+		4825B54E153B4C45007E3AE1 /* glu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glu.h; sourceTree = "<group>"; };
 		4888F8321536099B000423D2 /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
 		4888F8331536099B000423D2 /* MacStringFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacStringFactory.mm; sourceTree = "<group>"; };
 		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
@@ -576,7 +579,6 @@
 				4825B41A153AE59F007E3AE1 /* Event.h */,
 				4825B41B153AE59F007E3AE1 /* Filter.cpp */,
 				4825B41C153AE59F007E3AE1 /* Filter.h */,
-				4825B41D153AE59F007E3AE1 /* glplat.h */,
 				4825B41E153AE59F007E3AE1 /* Utils.cpp */,
 				4825B41F153AE59F007E3AE1 /* Utils.h */,
 				4825B420153AE59F007E3AE1 /* VecMath.cpp */,
@@ -821,6 +823,18 @@
 			path = ../Gwen/Source/Gwen/Renderers;
 			sourceTree = "<group>";
 		};
+		4825B54A153B4C45007E3AE1 /* GLH */ = {
+			isa = PBXGroup;
+			children = (
+				4825B54B153B4C45007E3AE1 /* gl.h */,
+				4825B54C153B4C45007E3AE1 /* glext.h */,
+				4825B54D153B4C45007E3AE1 /* glplat.h */,
+				4825B54E153B4C45007E3AE1 /* glu.h */,
+			);
+			name = GLH;
+			path = ../Core/Source/GLH;
+			sourceTree = "<group>";
+		};
 		48B50E03152CF6E400E75402 = {
 			isa = PBXGroup;
 			children = (
@@ -894,6 +908,7 @@
 			isa = PBXGroup;
 			children = (
 				4825B3BC153AE59F007E3AE1 /* Controller */,
+				4825B54A153B4C45007E3AE1 /* GLH */,
 				4825B3CC153AE59F007E3AE1 /* GUI */,
 				4825B3D3153AE59F007E3AE1 /* IO */,
 				4825B3DD153AE59F007E3AE1 /* Model */,
@@ -1132,6 +1147,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++98";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1163,6 +1179,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++98";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
