@@ -1,18 +1,28 @@
-/***************************************************************
- * Name:      TrenchBroomMain.h
- * Purpose:   Defines Application Frame
- * Author:    Kristian Duske (kristian.duske@gmail.com)
- * Created:   2012-04-15
- * Copyright: Kristian Duske (kristianduske.com/trenchbroom)
- * License:
- **************************************************************/
+/*
+ Copyright (C) 2010-2012 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef TRENCHBROOMMAIN_H
 #define TRENCHBROOMMAIN_H
 
 //(*Headers(TrenchBroomFrame)
 #include <wx/menu.h>
-#include <wx/glcanvas.h>
+#include "DocumentCanvas.h"
 #include <wx/frame.h>
 #include <wx/statusbr.h>
 //*)
@@ -32,14 +42,14 @@ class TrenchBroomFrame: public wxFrame
         //*)
 
         //(*Identifiers(TrenchBroomFrame)
-        static const long ID_GLCANVAS1;
+        static const long ID_DOCUMENTCANVAS;
         static const long idMenuQuit;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
         //*)
 
         //(*Declarations(TrenchBroomFrame)
-        wxGLCanvas* GLCanvas1;
+        DocumentCanvas* documentCanvas;
         wxStatusBar* StatusBar1;
         //*)
 
