@@ -19,19 +19,19 @@
 
 #include "Editor.h"
 #include <ctime>
-#include "Utilities/VecMath.h"
-#include "Model/Camera.h"
+#include "Controller/Grid.h"
 #include "Controller/InputController.h"
+#include "Controller/Options.h"
+#include "Controller/ProgressIndicator.h"
+#include "Model/Camera.h"
 #include "Model/Map/Map.h"
+#include "Model/Map/Entity.h"
 #include "Model/Preferences.h"
 #include "IO/MapParser.h"
-#include "Model/Map/Entity.h"
-#include "Utilities/Utils.h"
 #include "IO/Wad.h"
-#include "Controller/Options.h"
 #include "Utilities/Filter.h"
-#include "Controller/Grid.h"
-#include "Controller/ProgressIndicator.h"
+#include "Utilities/Utils.h"
+#include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
     namespace Controller {
