@@ -1,0 +1,54 @@
+1. Install mingw32 and msys from http://www.mingw.org/ to C:\MingGW
+2. Add C:\MinGW\bin to your PATH.
+3. Install wxWidgets 2.8.x sources from http://www.wxwidgets.org/ to C:\wxWidgets2.8
+4. Prepare wxWidgets to compile with OpenGL support (note that some of the following steps may be superfluous,
+   but I had tremendous problems getting wxWidgets to build with OpenGL support on Windows, so I changed things
+   all over the place):
+   1. Find any header file in C:\wxWidgets2.8 that contains a preprocessor definition that looks like this:
+
+      #define wxUSE_GLCANVAS 0
+
+      Attention, there may be any number of spaces between the definition name and its value.
+   2. In any header file that contains such a definition, change its value to 1:
+
+      #define wxUSE_GLGANVAS 1      
+  
+   3. Copy C:\wxWidgets2.8\include\msw\setup.h to C:\wxWidgets2.8\include\setup.h
+   4. Edit C:\wxWidgets2.8\build\msw\config.gcc and change the line
+
+      USE_OPENGL ?= 0 to USE_OPENGL ?= 1
+
+   5. Edit C:\wxWidgets2.8\build\msw\makefile.gcc and
+      1. Change the definition of GLDLL_CXXFLAGS to include the parameter -DwxUSE_GLCANVAS=1 
+         between the parameters -DWXUSINGDLL and -DWXMAKINGDLL_GL:
+
+         ... -DWXUSINGDLL -DwxUSE_GLCANVAS=1 -DWXMAKINGDLL_GL ...
+
+      2. Change the definition of GLLIB_CXXFLAGSto include the parameter -DwxUSE_GLCANVAS=1 
+         between the parameters -I..\..\src\expat\lib and $(__RTTIFLAG):
+
+         ... -I..\..\src\expat\lib -DwxUSE_GLCANVAS=1 $(__RTTIFLAG) ...
+   6. Open a command prompt and change into C:\wxWidgets2.8\build\msw
+   7. Type the following commands:
+      
+      mingw32-make -j4 -f makefile.gcc MONOLITHIC=1 SHARED=0 UNICODE=1 BUILD=release clean
+      mingw32-make -j4 -f makefile.gcc MONOLITHIC=1 SHARED=0 UNICODE=1 BUILD=debug clean
+      mingw32-make -j4 -f makefile.gcc MONOLITHIC=1 SHARED=0 UNICODE=1 BUILD=release
+      mingw32-make -j4 -f makefile.gcc MONOLITHIC=1 SHARED=0 UNICODE=1 BUILD=debug
+
+      Note that j4 instructs the compiler to use 4 cores - adapt this to your CPU.
+
+   8. Go into C:\wxWidgets2.8\lib\gcc_lib and make sure that the following files exist and have more
+      than a couple of bytes in them (i.e., they contain actual symbols):
+      
+      libwxmsw28u_gl.a
+      libwxmsw28ud_gl.a
+
+5. Install Code::Blocks (I use 10.0.5) from http://www.codeblocks.org and open it.
+6. Before opening the TrenchBroom Code::Blocks project, set a global variable pointing to your
+   custom build of wxWidgets:
+   1. Select "Settings > Global Variables..." in the Code::Blocks menu.
+   2. Using the default variable set, create a new variable with the name "wx" (without quotes).
+   3. Set the base of the new variable to C:\wxWidgets2.8.
+7. Now open the TrenchBroom Code::Blocks project for Windows and build away.
+ 
