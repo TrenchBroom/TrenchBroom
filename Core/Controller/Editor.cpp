@@ -1,44 +1,44 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Editor.h"
 #include <ctime>
-#include "VecMath.h"
-#include "Camera.h"
-#include "InputController.h"
-#include "Map.h"
-#include "Preferences.h"
-#include "MapParser.h"
-#include "Entity.h"
-#include "Utils.h"
-#include "Wad.h"
-#include "Options.h"
-#include "Filter.h"
-#include "Grid.h"
-#include "ProgressIndicator.h"
+#include "Utilities/VecMath.h"
+#include "Model/Camera.h"
+#include "Controller/InputController.h"
+#include "Model/Map/Map.h"
+#include "Model/Preferences.h"
+#include "IO/MapParser.h"
+#include "Model/Map/Entity.h"
+#include "Utilities/Utils.h"
+#include "IO/Wad.h"
+#include "Controller/Options.h"
+#include "Utilities/Filter.h"
+#include "Controller/Grid.h"
+#include "Controller/ProgressIndicator.h"
 
 namespace TrenchBroom {
     namespace Controller {
         void Editor::updateFaceTextures() {
             vector<Model::Face*> changedFaces;
             vector<Model::Assets::Texture*> newTextures;
-            
+
             const vector<Model::Entity*>& entities = m_map->entities();
             for (int i = 0; i < entities.size(); i++) {
                 const vector<Model::Brush*>& brushes = entities[i]->brushes();
@@ -54,7 +54,7 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             if (!changedFaces.empty()) {
                 m_map->facesWillChange(changedFaces);
                 for (int i = 0; i < changedFaces.size(); i++)
@@ -62,23 +62,23 @@ namespace TrenchBroom {
                 m_map->facesDidChange(changedFaces);
             }
         }
-        
+
         Editor::Editor(const string& entityDefinitionFilePath, const string& palettePath) : m_entityDefinitionFilePath(entityDefinitionFilePath) {
             Model::Preferences& prefs = Model::Preferences::sharedPreferences();
 
             m_textureManager = new Model::Assets::TextureManager();
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
             m_map = new Model::Map(worldBounds, m_entityDefinitionFilePath);
-            m_camera = new Camera(prefs.cameraFov(), prefs.cameraNear(), prefs.cameraFar(), 
+            m_camera = new Camera(prefs.cameraFov(), prefs.cameraNear(), prefs.cameraFar(),
                                          Vec3f(-32, -32, 32), XAxisPos);
             m_grid = new Grid(5);
             m_inputController = new InputController(*this);
-            
+
             m_palette = new Model::Assets::Palette(palettePath);
             m_options = new TransientOptions();
             m_filter = new Filter();
         }
-        
+
         Editor::~Editor() {
             delete m_inputController;
             delete m_camera;
@@ -88,22 +88,22 @@ namespace TrenchBroom {
             delete m_options;
             delete m_filter;
         }
-        
+
         void Editor::loadMap(const string& path, ProgressIndicator* indicator) {
             m_map->clear();
             delete m_map;
-            
+
             m_textureManager->clear();
-            
+
             clock_t start = clock();
             ifstream stream(path.c_str());
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
             IO::MapParser parser(stream, worldBounds, *m_textureManager);
             m_map = parser.parseMap(m_entityDefinitionFilePath, indicator);
             fprintf(stdout, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
-            
+
             indicator->setText("Loading wad files...");
-            
+
             // load wad files
             const string* wads = m_map->worldspawn(true)->propertyForKey(WadKey);
             if (wads != NULL) {
@@ -117,18 +117,18 @@ namespace TrenchBroom {
                     fprintf(stdout, "Loaded %s in %f seconds\n", wadPath.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
                 }
             }
-            
+
             updateFaceTextures();
             m_map->mapLoaded(*m_map);
         }
-        
+
         void Editor::saveMap(const string& path) {
         }
-        
+
         Model::Map& Editor::map() {
             return *m_map;
         }
-        
+
         Camera& Editor::camera() {
             return *m_camera;
         }
@@ -136,7 +136,7 @@ namespace TrenchBroom {
         Grid& Editor::grid() {
             return *m_grid;
         }
-        
+
         InputController& Editor::inputController() {
             return *m_inputController;
         }
@@ -144,7 +144,7 @@ namespace TrenchBroom {
         TransientOptions& Editor::options() {
             return *m_options;
         }
-        
+
         Filter& Editor::filter() {
             return *m_filter;
         }
