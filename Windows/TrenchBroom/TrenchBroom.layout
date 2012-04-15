@@ -1,4 +1,94 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
+	<File name="..\..\Core\Source\Controller\Camera.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="3078" topLine="43" />
+	</File>
+	<File name="..\..\Core\Source\Controller\Camera.h" open="1" top="0" tabpos="2">
+		<Cursor position="805" topLine="0" />
+	</File>
+	<File name="..\..\Core\Source\GLH\gl.h" open="1" top="0" tabpos="16">
+		<Cursor position="82107" topLine="2126" />
+	</File>
+	<File name="..\..\Core\Source\GLH\glext.h" open="1" top="0" tabpos="14">
+		<Cursor position="213744" topLine="5392" />
+	</File>
+	<File name="..\..\Core\Source\GLH\glplat.h" open="1" top="0" tabpos="1">
+		<Cursor position="834" topLine="0" />
+	</File>
+	<File name="..\..\Core\Source\GUI\MapRendererControl.cpp" open="1" top="0" tabpos="3">
+		<Cursor position="1015" topLine="1" />
+	</File>
+	<File name="..\..\Core\Source\IO\Pak.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="841" topLine="0" />
+	</File>
+	<File name="..\..\Core\Source\Model\Assets\Texture.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="6297" topLine="102" />
+	</File>
+	<File name="..\..\Core\Source\Model\Assets\Texture.h" open="1" top="0" tabpos="4">
+		<Cursor position="1013" topLine="3" />
+	</File>
+	<File name="..\..\Core\Source\Model\Map\Entity.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="10586" topLine="281" />
+	</File>
+	<File name="..\..\Core\Source\Model\Map\EntityDefinition.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="7907" topLine="125" />
+	</File>
+	<File name="..\..\Core\Source\Model\Map\Groups.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="784" topLine="18" />
+	</File>
+	<File name="..\..\Core\Source\Model\Map\Map.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1053" topLine="4" />
+	</File>
+	<File name="..\..\Core\Source\Model\Map\Map.h" open="0" top="0" tabpos="0">
+		<Cursor position="1765" topLine="31" />
+	</File>
+	<File name="..\..\Core\Source\Model\Map\Picker.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="784" topLine="0" />
+	</File>
+	<File name="..\..\Core\Source\Model\Selection.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="785" topLine="4" />
+	</File>
+	<File name="..\..\Core\Source\Renderer\AliasRenderer.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="3684" topLine="56" />
+	</File>
+	<File name="..\..\Core\Source\Renderer\AliasRenderer.h" open="0" top="0" tabpos="0">
+		<Cursor position="837" topLine="0" />
+	</File>
+	<File name="..\..\Core\Source\Renderer\BspRenderer.cpp" open="1" top="1" tabpos="15">
+		<Cursor position="5783" topLine="84" />
+	</File>
+	<File name="..\..\Core\Source\Renderer\BspRenderer.h" open="1" top="0" tabpos="6">
+		<Cursor position="909" topLine="0" />
+	</File>
+	<File name="..\..\Core\Source\Renderer\EntityRendererManager.cpp" open="1" top="0" tabpos="7">
+		<Cursor position="1109" topLine="3" />
+	</File>
+	<File name="..\..\Core\Source\Renderer\FontManager.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="7465" topLine="152" />
+	</File>
+	<File name="..\..\Core\Source\Renderer\FontManager.h" open="1" top="0" tabpos="8">
+		<Cursor position="869" topLine="0" />
+	</File>
+	<File name="..\..\Core\Source\Renderer\GridRenderer.h" open="1" top="0" tabpos="9">
+		<Cursor position="836" topLine="0" />
+	</File>
+	<File name="..\..\Core\Source\Renderer\MapRenderer.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="787" topLine="0" />
+	</File>
+	<File name="..\..\Core\Source\Renderer\MapRenderer.h" open="1" top="0" tabpos="10">
+		<Cursor position="850" topLine="0" />
+	</File>
+	<File name="..\..\Core\Source\Renderer\RenderUtils.cpp" open="1" top="0" tabpos="11">
+		<Cursor position="771" topLine="0" />
+	</File>
+	<File name="..\..\Core\Source\Renderer\Vbo.h" open="1" top="0" tabpos="12">
+		<Cursor position="852" topLine="0" />
+	</File>
+	<File name="..\..\Gwen\Source\GL\glew.h" open="1" top="0" tabpos="13">
+		<Cursor position="749" topLine="0" />
+	</File>
+	<File name="TrenchBroomMain.h" open="0" top="0" tabpos="10">
+		<Cursor position="1224" topLine="0" />
+	</File>
 </CodeBlocks_layout_file>

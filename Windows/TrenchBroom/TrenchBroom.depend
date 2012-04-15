@@ -1776,7 +1776,7 @@
 
 1186407652 c:\wxwidgets-2.8.12\include\wx\msw\rcdefs.h
 
-1334442283 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\windows\trenchbroom\trenchbroommain.cpp
+1334490005 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\windows\trenchbroom\trenchbroommain.cpp
 	"wx_pch.h"
 	"TrenchBroomMain.h"
 	<wx/msgdlg.h>
@@ -1787,9 +1787,9 @@
 	<wx/wxprec.h>
 	<wx/wx.h>
 
-1334442283 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\windows\trenchbroom\trenchbroommain.h
+1334490006 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\windows\trenchbroom\trenchbroommain.h
 	<wx/menu.h>
-	<wx/glcanvas.h>
+	"DocumentCanvas.h"
 	<wx/frame.h>
 	<wx/statusbr.h>
 
@@ -1810,12 +1810,1405 @@
 	"wx/msw/wrapwin.h"
 	<GL/gl.h>
 
-1334442161 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\windows\trenchbroom\trenchbroomapp.cpp
+1334478705 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\windows\trenchbroom\trenchbroomapp.cpp
 	"wx_pch.h"
 	"TrenchBroomApp.h"
 	"TrenchBroomMain.h"
 	<wx/image.h>
 
-1334442160 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\windows\trenchbroom\trenchbroomapp.h
+1334478705 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\windows\trenchbroom\trenchbroomapp.h
 	<wx/app.h>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\anim.cpp
+	"Gwen/Anim.h"
+	"Gwen/Utility.h"
+	<math.h>
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\anim.h
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Platform.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\gwen.h
+	"Gwen/Macros.h"
+	"Gwen/Config.h"
+	"Gwen/Exports.h"
+	"Gwen/Structures.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Canvas.h"
+	"Gwen/Align.h"
+	"Gwen/TextObject.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\macros.h
+	<stdlib.h>
+	<stdarg.h>
+	<memory.h>
+	<algorithm>
+	<windows.h>
+	<CoreFoundation/CoreFoundation.h>
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\config.h
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\exports.h
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\structures.h
+	"Gwen/Exports.h"
+	<string>
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\skin.h
+	"Gwen/BaseRender.h"
+	"Gwen/Font.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\baserender.h
+	"Gwen/Structures.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\font.h
+	<string>
+	<list>
+	"Gwen/BaseRender.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\base.h
+	"Gwen/Exports.h"
+	"Gwen/Structures.h"
+	"Gwen/BaseRender.h"
+	"Gwen/Events.h"
+	"Gwen/Utility.h"
+	<list>
+	<map>
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\events.h
+	<list>
+	"Gwen/Exports.h"
+	"Gwen/Structures.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\utility.h
+	<sstream>
+	<vector>
+	"Gwen/Structures.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\canvas.h
+	<set>
+	"Gwen/Controls/Base.h"
+	"Gwen/InputHandler.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\inputhandler.h
+	<queue>
+	"Gwen/Gwen.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\align.h
+	"Gwen/Controls/Base.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\textobject.h
+	"Gwen/Gwen.h"
+	"Gwen/Utility.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\platform.h
+	"Gwen/Structures.h"
+	"Gwen/Events.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\baserender.cpp
+	"Gwen/Gwen.h"
+	"Gwen/BaseRender.h"
+	"Gwen/Utility.h"
+	"Gwen/Platform.h"
+	<math.h>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\base.cpp
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Gwen.h"
+	"Gwen/BaseRender.h"
+	"Gwen/Skin.h"
+	"Gwen/Platform.h"
+	"Gwen/DragAndDrop.h"
+	"Gwen/ToolTip.h"
+	"Gwen/Utility.h"
+	<list>
+	"Gwen/Anim.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\label.h
+	"Gwen/BaseRender.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Text.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\text.h
+	"Gwen/BaseRender.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/TextObject.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\draganddrop.h
+	<sstream>
+	"Gwen/Skin.h"
+	"Gwen/Structures.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\tooltip.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\button.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Controls/ImagePanel.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\button.h
+	"Gwen/TextObject.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Label.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\imagepanel.h
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/BaseRender.h"
+	"Gwen/Texture.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\texture.h
+	<string>
+	"Gwen/BaseRender.h"
+	"Gwen/TextObject.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\canvas.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Canvas.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/Menu.h"
+	"Gwen/DragAndDrop.h"
+	"Gwen/ToolTip.h"
+	"Gwen/Anim.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\menu.h
+	"Gwen/BaseRender.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/MenuItem.h"
+	"Gwen/Controls/ScrollControl.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\menuitem.h
+	"Gwen/BaseRender.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Controls/Menu.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\scrollcontrol.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/ScrollBar.h"
+	"Gwen/Controls/VerticalScrollBar.h"
+	"Gwen/Controls/HorizontalScrollBar.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\scrollbar.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/ScrollBarBar.h"
+	"Gwen/Controls/ScrollBarButton.h"
+	"Gwen/Gwen.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\scrollbarbar.h
+	"Gwen/Controls/Dragger.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\dragger.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\scrollbarbutton.h
+	"Gwen/Controls/Button.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\verticalscrollbar.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/ScrollBar.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\horizontalscrollbar.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/Dragger.h"
+	"Gwen/Controls/ScrollBar.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\checkbox.cpp
+	"Gwen/Controls/CheckBox.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\checkbox.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/LabelClickable.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\labelclickable.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\collapsiblecategory.cpp
+	"Gwen/Controls/CollapsibleCategory.h"
+	"Gwen/Controls/CollapsibleList.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\collapsiblecategory.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\collapsiblelist.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Controls/ScrollControl.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/CollapsibleCategory.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\colorcontrols.cpp
+	"Gwen/Utility.h"
+	"Gwen/Controls/ColorControls.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\colorcontrols.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\colorpicker.cpp
+	"Gwen/Controls/ColorPicker.h"
+	"Gwen/Controls/HorizontalSlider.h"
+	"Gwen/Controls/GroupBox.h"
+	"Gwen/Controls/TextBox.h"
+	"Gwen/Utility.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\colorpicker.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\horizontalslider.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Controls/Dragger.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/Slider.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\slider.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Controls/Dragger.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\groupbox.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\textbox.h
+	"Gwen/BaseRender.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Controls/ScrollControl.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\combobox.cpp
+	"Gwen/Controls/ComboBox.h"
+	"Gwen/Controls/Menu.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\combobox.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/TextBox.h"
+	"Gwen/Controls/Menu.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\crosssplitter.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Controls/CrossSplitter.h"
+	"Gwen/Controls/Button.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\crosssplitter.h
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/SplitterBar.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\splitterbar.h
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Dragger.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\dialogs\fileopen.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Platform.h"
+	"Gwen/Controls/Dialogs/FileOpen.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\dialogs\fileopen.h
+	"Gwen/Gwen.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\dialogs\filesave.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Platform.h"
+	"Gwen/Controls/Dialogs/FileSave.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\dialogs\filesave.h
+	"Gwen/Gwen.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\dialogs\query.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Dialogs/Query.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\dialogs\query.h
+	"Gwen/Gwen.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\dockbase.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/DockBase.h"
+	"Gwen/Controls/DockedTabControl.h"
+	"Gwen/Controls/Highlight.h"
+	"Gwen/DragAndDrop.h"
+	"Gwen/Controls/Resizer.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\dockbase.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\dockedtabcontrol.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/TabControl.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\tabcontrol.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Controls/TabButton.h"
+	"Gwen/Controls/TabStrip.h"
+	"Gwen/Controls/TabTitleBar.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\tabbutton.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\tabstrip.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Controls/TabButton.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\tabtitlebar.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Controls/TabButton.h"
+	"Gwen/DragAndDrop.h"
+	"Gwen/Skin.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\highlight.h
+	"Gwen/BaseRender.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Skin.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\resizer.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/Dragger.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\dockedtabcontrol.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/DockedTabControl.h"
+	"Gwen/Controls/Highlight.h"
+	"Gwen/DragAndDrop.h"
+	"Gwen/Controls/WindowControl.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\windowcontrol.h
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Controls/Dragger.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Controls/ResizableControl.h"
+	"Gwen/Controls/Modal.h"
+	"Gwen/Skin.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\resizablecontrol.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Controls/Dragger.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Controls/Resizer.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\modal.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\dragger.cpp
+	"Gwen/Controls/Dragger.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\groupbox.cpp
+	"Gwen/Controls/GroupBox.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\hsvcolorpicker.cpp
+	"Gwen/Controls/HSVColorPicker.h"
+	"Gwen/Controls/ColorControls.h"
+	"Gwen/Controls/ColorPicker.h"
+	"Gwen/Controls/TextBox.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Utility.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\hsvcolorpicker.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/ColorControls.h"
+	"Gwen/Controls/ColorPicker.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\horizontalscrollbar.cpp
+	"Gwen/Controls/ScrollBar.h"
+	"Gwen/Controls/HorizontalScrollBar.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\horizontalslider.cpp
+	"Gwen/Controls/Slider.h"
+	"Gwen/Controls/HorizontalSlider.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\imagepanel.cpp
+	"Gwen/Controls/ImagePanel.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\label.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Utility.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\labelclickable.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/LabelClickable.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\listbox.cpp
+	"Gwen/Controls/ListBox.h"
+	"Gwen/Controls/ScrollControl.h"
+	"Gwen/InputHandler.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\listbox.h
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Layout/Table.h"
+	"Gwen/Controls/ScrollControl.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\layout\table.h
+	"Gwen/Controls/Label.h"
+	"Gwen/Utility.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\menu.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Menu.h"
+	"Gwen/Skin.h"
+	"Gwen/Utility.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\menuitem.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Controls/MenuItem.h"
+	"Gwen/Skin.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\menustrip.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Controls/MenuStrip.h"
+	"Gwen/Skin.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\menustrip.h
+	"Gwen/BaseRender.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Menu.h"
+	"Gwen/Controls/MenuItem.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\numericupdown.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Utility.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/NumericUpDown.h"
+	"Gwen/Controls/Layout/Splitter.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\numericupdown.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Controls/TextBox.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\layout\splitter.h
+	"Gwen/Controls/Base.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\progressbar.cpp
+	"Gwen/Controls/ScrollControl.h"
+	"Gwen/Controls/ProgressBar.h"
+	"Gwen/Utility.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\progressbar.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\properties.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/Properties.h"
+	"Gwen/Utility.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\properties.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Controls/Property/BaseProperty.h"
+	"Gwen/Controls/Property/Text.h"
+	"Gwen/Controls/SplitterBar.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\property\baseproperty.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Utility.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\property\text.h
+	"Gwen/Controls/Property/BaseProperty.h"
+	"Gwen/Controls/TextBox.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\radiobutton.cpp
+	"Gwen/Controls/RadioButton.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\radiobutton.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/CheckBox.h"
+	"Gwen/Controls/LabelClickable.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\radiobuttoncontroller.cpp
+	"Gwen/Controls/RadioButtonController.h"
+	"Gwen/Controls/RadioButton.h"
+	"Gwen/Utility.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\radiobuttoncontroller.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Controls/RadioButton.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\resizablecontrol.cpp
+	"Gwen/Controls/ImagePanel.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Controls/ResizableControl.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\resizer.cpp
+	"Gwen/Controls/Resizer.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\richlabel.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Controls/RichLabel.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Utility.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\richlabel.h
+	"Gwen/BaseRender.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Text.h"
+	"Gwen/TextObject.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\scrollbar.cpp
+	"Gwen/Controls/ScrollBar.h"
+	"Gwen/Controls/ScrollBarButton.h"
+	"Gwen/Controls/ScrollBarBar.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\scrollbarbar.cpp
+	"Gwen/Controls/ScrollBar.h"
+	"Gwen/Controls/ScrollBarBar.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\scrollbarbutton.cpp
+	"Gwen/Controls/ScrollBar.h"
+	"Gwen/Controls/ScrollBarButton.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\scrollcontrol.cpp
+	"Gwen/Controls/ScrollControl.h"
+	"Gwen/Controls/ScrollBar.h"
+	"Gwen/Controls/VerticalScrollBar.h"
+	"Gwen/Controls/HorizontalScrollBar.h"
+	"Gwen/Utility.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\slider.cpp
+	<math.h>
+	"Gwen/Controls/Slider.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\splitterbar.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Controls/SplitterBar.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\tabbutton.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/TabButton.h"
+	"Gwen/Controls/TabControl.h"
+	"Gwen/Controls/Highlight.h"
+	"Gwen/DragAndDrop.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\tabcontrol.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/TabControl.h"
+	"Gwen/Controls/Highlight.h"
+	"Gwen/DragAndDrop.h"
+	"Gwen/Controls/WindowControl.h"
+	"Gwen/Controls/ScrollBarButton.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\tabstrip.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/TabStrip.h"
+	"Gwen/Controls/TabControl.h"
+	"Gwen/Controls/Highlight.h"
+	"Gwen/DragAndDrop.h"
+	"Gwen/Utility.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\text.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Text.h"
+	"Gwen/Skin.h"
+	"Gwen/Utility.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\textbox.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Controls/TextBox.h"
+	"Gwen/Skin.h"
+	"Gwen/Utility.h"
+	"Gwen/Platform.h"
+	<math.h>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\textboxnumeric.cpp
+	"Gwen/Gwen.h"
+	"Gwen/Controls/TextBox.h"
+	"Gwen/Skin.h"
+	"Gwen/Utility.h"
+	"Gwen/Platform.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\treecontrol.cpp
+	"Gwen/Controls/TreeControl.h"
+	"Gwen/Controls/ScrollControl.h"
+	"Gwen/Utility.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\treecontrol.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/TreeNode.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\treenode.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Controls/ScrollControl.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\treenode.cpp
+	"Gwen/Controls/TreeNode.h"
+	"Gwen/Controls/TreeControl.h"
+	"Gwen/Utility.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\verticalscrollbar.cpp
+	"Gwen/Controls/ScrollBar.h"
+	"Gwen/Controls/VerticalScrollBar.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\verticalslider.cpp
+	"Gwen/Controls/Slider.h"
+	"Gwen/Controls/VerticalSlider.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\verticalslider.h
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/Button.h"
+	"Gwen/Controls/Dragger.h"
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/Slider.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\controls\windowcontrol.cpp
+	"Gwen/Controls/WindowControl.h"
+	"Gwen/Controls/ImagePanel.h"
+	"Gwen/Controls/Label.h"
+	"Gwen/Controls/Modal.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\draganddrop.cpp
+	"Gwen/Gwen.h"
+	"Gwen/DragAndDrop.h"
+	"Gwen/Utility.h"
+	"Gwen/Platform.h"
+
+1334489946 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\gwen.cpp
+	"Gwen/Gwen.h"
+	<stdio.h>
+	<stdarg.h>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\hook.cpp
+	"Gwen/Hook.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\hook.h
+	"Gwen/Gwen.h"
+	<list>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\platforms\null.cpp
+	"Gwen/Macros.h"
+	"Gwen/Platform.h"
+	<time.h>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\platforms\windows.cpp
+	"Gwen/Macros.h"
+	"Gwen/Platform.h"
+	<windows.h>
+	<mmsystem.h>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\renderers\opengl.cpp
+	"Gwen/Renderers/OpenGL.h"
+	"Gwen/Utility.h"
+	"Gwen/Font.h"
+	"Gwen/Texture.h"
+	<math.h>
+	"GL/glew.h"
+	"FreeImage/FreeImage.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\renderers\opengl.h
+	"Gwen/Gwen.h"
+	"Gwen/BaseRender.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gl\glew.h
+	<stddef.h>
+	<stdint.h>
+	<inttypes.h>
+	<OpenGL/glu.h>
+	<GL/glu.h>
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\freeimage\freeimage.h
+	<wchar.h>
+	<inttypes.h>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\renderers\opengl_debugfont.cpp
+	"Gwen/Renderers/OpenGL_DebugFont.h"
+	"Gwen/Utility.h"
+	"Gwen/Font.h"
+	"Gwen/Texture.h"
+	<math.h>
+	"GL/glew.h"
+	"FontData.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\renderers\opengl_debugfont.h
+	"Gwen/Gwen.h"
+	"Gwen/Renderers/OpenGL.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\renderers\fontdata.h
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\skin.cpp
+	"Gwen/Gwen.h"
+	<math.h>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\tooltip.cpp
+	"Gwen/ToolTip.h"
+	"Gwen/Utility.h"
+
+1334489952 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\utility.cpp
+	"Gwen/ToolTip.h"
+	"Gwen/Utility.h"
+	"Gwen/TextObject.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\events.cpp
+	"Gwen/Events.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\inputhandler.cpp
+	"Gwen/InputHandler.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/DragAndDrop.h"
+	"Gwen/Hook.h"
+	"Gwen/Platform.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\grid.cpp
+	"Grid.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\grid.h
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\selectiontool.cpp
+	"SelectionTool.h"
+	"Controller/Editor.h"
+	"Model/Map/Brush.h"
+	"Model/Map/Face.h"
+	"Model/Map/Entity.h"
+	"Model/Map/Picker.h"
+	"Model/Selection.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\selectiontool.h
+	"Controller/Tool.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\tool.h
+	<cstdio>
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\editor.h
+	<string>
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\brush.h
+	<vector>
+	"Model/Assets/Texture.h"
+	"Model/Map/BrushGeometry.h"
+	"Model/Map/Entity.h"
+	"Model/Map/Face.h"
+	"Model/Map/MapObject.h"
+
+1334504526 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\assets\texture.h
+	<string>
+	<vector>
+	<map>
+	"IO/Wad.h"
+	"Model/Assets/Alias.h"
+	"Model/Assets/Bsp.h"
+	"Model/Assets/Palette.h"
+	"Utilities/Event.h"
+	"Utilities/glplat.h"
+	"Utilities/VecMath.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\io\wad.h
+	<fstream>
+	<string>
+	<vector>
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\assets\alias.h
+	<istream>
+	<string>
+	<vector>
+	<map>
+	"Utilities/VecMath.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\utilities\vecmath.h
+	<string>
+	<cmath>
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\assets\bsp.h
+	<string>
+	<vector>
+	<map>
+	<istream>
+	"Utilities/VecMath.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\assets\palette.h
+	<string>
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\utilities\event.h
+	<cstdlib>
+	<string>
+	<vector>
+	<map>
+
+1334505288 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\utilities\glplat.h
+	"glew.h"
+	<OpenGL/glu.h>
+	<OpenGL/gl.h>
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\brushgeometry.h
+	<vector>
+	"Model/Map/Face.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\face.h
+	<vector>
+	"Utilities/VecMath.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\entity.h
+	<string>
+	<vector>
+	<map>
+	"Model/Map/Brush.h"
+	"Model/Map/EntityDefinition.h"
+	"Model/Map/Map.h"
+	"Model/Map/MapObject.h"
+	"Renderer/Vbo.h"
+	"Utilities/VecMath.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\entitydefinition.h
+	<string>
+	<vector>
+	<map>
+	"Utilities/VecMath.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\map.h
+	<vector>
+	"Utilities/Event.h"
+	"Utilities/VecMath.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\mapobject.h
+	"Utilities/VecMath.h"
+
+1334504527 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\vbo.h
+	<vector>
+	"Utilities/VecMath.h"
+	"Utilities/glplat.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\picker.h
+	<vector>
+	"Utilities/VecMath.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\selection.h
+	<vector>
+	"Model/Assets/Texture.h"
+	"Model/Map/Brush.h"
+	"Model/Map/Face.h"
+	"Model/Map/Entity.h"
+	"Utilities/Event.h"
+	"Utilities/VecMath.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\gui\editorgui.cpp
+	"EditorGui.h"
+	"Controller/Editor.h"
+	"Gui/MapRendererControl.h"
+	"Gui/Splitter.h"
+	"Renderer/FontManager.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\gui\editorgui.h
+	"Gwen/Skins/Simple.h"
+	"Gwen/Skins/TexturedBase.h"
+	"Gwen/Renderers/OpenGL_DebugFont.h"
+	"Gwen/Controls/Canvas.h"
+	"Gwen/Controls/TabControl.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\skins\simple.h
+	"Gwen/Skin.h"
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Base.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\skins\texturedbase.h
+	"Gwen/Skin.h"
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Texture.h"
+	"Gwen/Skins/Texturing.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\gwen\source\gwen\skins\texturing.h
+	"Gwen/Gwen.h"
+	"Gwen/Texture.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\gui\maprenderercontrol.h
+	"Gwen/Gwen.h"
+	"Gwen/Skin.h"
+	"Gwen/Controls/Base.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\gui\splitter.h
+	"Gwen/Gwen.h"
+	"Gwen/Controls/Base.h"
+	"Gwen/Controls/SplitterBar.h"
+
+1334504527 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\fontmanager.h
+	<string>
+	<vector>
+	<map>
+	"Utilities/glplat.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\cameratool.cpp
+	"CameraTool.h"
+	<cstdio>
+	"Controller/Camera.h"
+	"Controller/Editor.h"
+	"Model/Map/Picker.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\cameratool.h
+	"Controller/Tool.h"
+	"Utilities/VecMath.h"
+
+1334504526 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\camera.h
+	"Utilities/glplat.h"
+	"Utilities/VecMath.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\editor.cpp
+	"Editor.h"
+	<ctime>
+	"Controller/Camera.h"
+	"Controller/Grid.h"
+	"Controller/InputController.h"
+	"Controller/Options.h"
+	"Controller/ProgressIndicator.h"
+	"Model/Map/Map.h"
+	"Model/Map/Entity.h"
+	"Model/Preferences.h"
+	"IO/MapParser.h"
+	"IO/Wad.h"
+	"Utilities/Filter.h"
+	"Utilities/Utils.h"
+	"Utilities/VecMath.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\inputcontroller.h
+	<vector>
+	"Controller/Tool.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\options.h
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\progressindicator.h
+	<cassert>
+	<string>
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\preferences.h
+	"Utilities/Event.h"
+	"Utilities/VecMath.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\io\mapparser.h
+	<string>
+	<istream>
+	<sstream>
+	"Model/Map/Map.h"
+	"Model/Map/Entity.h"
+	"Model/Map/Brush.h"
+	"Model/Map/Face.h"
+	"Model/Assets/Texture.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\utilities\filter.h
+	"Model/Map/Brush.h"
+	"Model/Map/Entity.h"
+	"Model/Map/Groups.h"
+	"Model/Selection.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\groups.h
+	<vector>
+	"Utilities/Event.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\utilities\utils.h
+	<string>
+	<vector>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\inputcontroller.cpp
+	"InputController.h"
+	"Controller/Camera.h"
+	"Controller/CameraTool.h"
+	"Controller/Editor.h"
+	"Controller/SelectionTool.h"
+	"Model/Map/Map.h"
+	"Model/Map/Picker.h"
+
+1334504526 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\gui\maprenderercontrol.cpp
+	"MapRendererControl.h"
+	"Gwen/Structures.h"
+	"Controller/Editor.h"
+	"Controller/Tool.h"
+	"Controller/InputController.h"
+	"Controller/Camera.h"
+	"Renderer/FontManager.h"
+	"Renderer/MapRenderer.h"
+	"Utilities/glplat.h"
+
+1334504527 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\maprenderer.h
+	<map>
+	<vector>
+	"Utilities/glplat.h"
+	"Utilities/VecMath.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\gui\splitter.cpp
+	"Splitter.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\io\entitydefinitionparser.cpp
+	"EntityDefinitionParser.h"
+	<assert.h>
+	"Utilities/VecMath.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\io\entitydefinitionparser.h
+	<fstream>
+	"Model/Map/EntityDefinition.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\io\mapparser.cpp
+	"MapParser.h"
+	<assert.h>
+	<cmath>
+	"Controller/ProgressIndicator.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\io\wad.cpp
+	"Wad.h"
+
+1334502692 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\io\pak.cpp
+	"Pak.h"
+	<cstdio>
+	<cstring>
+	<dirent.h>
+	<numeric>
+	<algorithm>
+	"substream.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\io\pak.h
+	<istream>
+	<fstream>
+	<string>
+	<vector>
+	<map>
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\io\substream.h
+	<streambuf>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\assets\alias.cpp
+	"Alias.h"
+	<assert.h>
+	<numeric>
+	<cmath>
+	"AliasNormals.h"
+	"IO/Pak.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\assets\aliasnormals.h
+	"Utilities/VecMath.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\assets\bsp.cpp
+	"Bsp.h"
+	<cmath>
+	<numeric>
+	"IO/Pak.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\assets\palette.cpp
+	"Palette.h"
+	<fstream>
+	<cassert>
+
+1334502715 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\assets\texture.cpp
+	"Texture.h"
+	<cassert>
+	<algorithm>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\brush.cpp
+	"Brush.h"
+	<assert.h>
+	<algorithm>
+	"Model/Map/Picker.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\brushgeometry.cpp
+	"BrushGeometry.h"
+	<cassert>
+	<cmath>
+	<map>
+	<algorithm>
+	"Utilities/VecMath.h"
+
+1334502776 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\entity.cpp
+	"Entity.h"
+	<math.h>
+	<iostream>
+	<sstream>
+	<cassert>
+	<algorithm>
+	"Model/Map/Picker.h"
+
+1334502776 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\entitydefinition.cpp
+	"EntityDefinition.h"
+	<cstdlib>
+	<algorithm>
+	"IO/EntityDefinitionParser.h"
+	"Model/Map/Entity.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\face.cpp
+	"Face.h"
+	<cassert>
+	<cmath>
+	"Model/Assets/Texture.h"
+	"Model/Map/Brush.h"
+	"Model/Map/BrushGeometry.h"
+	"Renderer/Vbo.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\mapobject.cpp
+	"MapObject.h"
+
+1334502822 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\map.cpp
+	"Map.h"
+	<algorithm>
+	<fstream>
+	<cassert>
+	"Model/Map/Brush.h"
+	"Model/Map/Entity.h"
+	"Model/Map/EntityDefinition.h"
+	"Model/Map/Face.h"
+	"Model/Map/Groups.h"
+	"Model/Map/Picker.h"
+	"Model/Octree.h"
+	"Model/Selection.h"
+	"Utilities/Utils.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\octree.h
+	<vector>
+	"Utilities/Event.h"
+	"Utilities/VecMath.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\octree.cpp
+	"Octree.h"
+	<algorithm>
+	<cmath>
+	<assert.h>
+	"Model/Map/Brush.h"
+	"Model/Map/Entity.h"
+	"Model/Map/EntityDefinition.h"
+	"Model/Map/Map.h"
+
+1334502837 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\groups.cpp
+	"Groups.h"
+	<cstdlib>
+	<algorithm>
+	"Model/Map/Entity.h"
+	"Model/Map/Map.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\preferences.cpp
+	"Preferences.h"
+
+1334502849 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\map\picker.cpp
+	"Picker.h"
+	<cassert>
+	<algorithm>
+	"Model/Map/MapObject.h"
+	"Model/Octree.h"
+	"Utilities/Filter.h"
+
+1334502858 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\model\selection.cpp
+	"Selection.h"
+	<cmath>
+	<algorithm>
+	"Model/Map/BrushGeometry.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\entityclassnameanchor.cpp
+	"EntityClassnameAnchor.h"
+	"Model/Map/Entity.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\entityclassnameanchor.h
+	"TextRenderer.h"
+	"Utilities/VecMath.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\textrenderer.h
+	<map>
+	"Utilities/VecMath.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\utilities\glew.h
+	<stddef.h>
+	<stdint.h>
+	<inttypes.h>
+	<OpenGL/glu.h>
+	<GL/glu.h>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\bsprenderer.cpp
+	"BspRenderer.h"
+	"Model/Assets/Bsp.h"
+	"Model/Map/Entity.h"
+	"Model/Preferences.h"
+	"Renderer/MapRenderer.h"
+	"Renderer/Vbo.h"
+
+1334504527 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\bsprenderer.h
+	<string>
+	<map>
+	<vector>
+	"Renderer/EntityRenderer.h"
+	"Utilities/glplat.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\entityrenderer.h
+	"Utilities/VecMath.h"
+
+1334503230 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\fontmanager.cpp
+	"FontManager.h"
+	<cassert>
+	"Renderer/Vbo.h"
+
+1334504527 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\aliasrenderer.cpp
+	"AliasRenderer.h"
+	"Model/Assets/Alias.h"
+	"Model/Assets/Palette.h"
+	"Model/Assets/Texture.h"
+	"Model/Map/Entity.h"
+	"Model/Preferences.h"
+	"Renderer/MapRenderer.h"
+	"Renderer/Vbo.h"
+	"Utilities/glplat.h"
+
+1334503230 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\aliasrenderer.h
+	"Renderer/EntityRenderer.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\gridrenderer.cpp
+	"GridRenderer.h"
+	<cassert>
+	"Controller/Grid.h"
+	"Model/Assets/Texture.h"
+
+1334504527 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\gridrenderer.h
+	<vector>
+	"Utilities/glplat.h"
+
+1334504527 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\entityrenderermanager.cpp
+	"EntityRendererManager.h"
+	<cassert>
+	"Model/Assets/Alias.h"
+	"Model/Assets/Bsp.h"
+	"Model/Assets/Palette.h"
+	"Model/Map/Entity.h"
+	"Model/Map/EntityDefinition.h"
+	"Renderer/AliasRenderer.h"
+	"Renderer/BspRenderer.h"
+	"Renderer/EntityRenderer.h"
+	"Renderer/Vbo.h"
+	"Utilities/glplat.h"
+	"Utilities/Utils.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\entityrenderermanager.h
+	<map>
+	<string>
+	<vector>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\textrenderer.cpp
+	"TextRenderer.h"
+	"Controller/Camera.h"
+	"Renderer/FontManager.h"
+	"Renderer/MapRenderer.h"
+	"Renderer/RenderUtils.h"
+
+1334489110 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\renderutils.h
+	"Utilities/VecMath.h"
+
+1334504527 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\renderutils.cpp
+	"RenderUtils.h"
+	"Utilities/glplat.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\vbo.cpp
+	"Vbo.h"
+	<cassert>
+	<cstring>
+	<algorithm>
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\utilities\filter.cpp
+	"Filter.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\utilities\utils.cpp
+	"Utils.h"
+
+1334489110 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\utilities\vecmath.cpp
+	"VecMath.h"
+	<cassert>
+	<cstdlib>
+
+1334503828 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\renderer\maprenderer.cpp
+	"MapRenderer.h"
+	<set>
+	<algorithm>
+	"Model/Map/Brush.h"
+	"Model/Map/BrushGeometry.h"
+	"Model/Map/Entity.h"
+	"Model/Map/EntityDefinition.h"
+	"Model/Map/Face.h"
+	"Model/Map/Map.h"
+	"Model/Preferences.h"
+	"Model/Selection.h"
+	"Controller/Camera.h"
+	"Controller/Editor.h"
+	"Controller/Options.h"
+	"Renderer/EntityRendererManager.h"
+	"Renderer/EntityRenderer.h"
+	"Renderer/EntityClassnameAnchor.h"
+	"Renderer/FontManager.h"
+	"Renderer/GridRenderer.h"
+	"Renderer/RenderUtils.h"
+	"Renderer/TextRenderer.h"
+	"Renderer/Vbo.h"
+	"Utilities/Filter.h"
+
+1334479502 c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\windows\trenchbroom\documentcanvas.h
+	"wx_pch.h"
+	<wx/wx.h>
+	<wx/glcanvas.h>
+
+1334502293 source:c:\dokumente und einstellungen\administrator\eigene dateien\trenchbroom\core\source\controller\camera.cpp
+	"Camera.h"
+	<cmath>
 

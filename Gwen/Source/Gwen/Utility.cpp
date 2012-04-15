@@ -19,8 +19,8 @@ UnicodeString Gwen::Utility::Format( const wchar_t* fmt, ... )
 	wchar_t strOut[ 4096 ];
 
 	va_list s;
-	va_start( s, fmt ); 
-	vswprintf( strOut, sizeof(strOut), fmt, s );
+	va_start( s, fmt );
+	vsnwprintf( strOut, sizeof(strOut), fmt, s );
 	va_end(s);
 
 	UnicodeString str = strOut;

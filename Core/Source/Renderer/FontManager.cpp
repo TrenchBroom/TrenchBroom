@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,7 +32,7 @@ namespace TrenchBroom {
 
         StringData::StringData(float width, float height) : width(width), height(height), vertexCount(0) {
         }
-        
+
         StringData::~StringData() {
             while (!triangleStrips.empty()) delete triangleStrips.back(), triangleStrips.pop_back();
             while (!triangleFans.empty()) delete triangleFans.back(), triangleFans.pop_back();
@@ -55,7 +55,7 @@ namespace TrenchBroom {
                     break;
             }
         }
-        
+
         void StringData::append(Point& vertex) {
             switch (m_type) {
                 case GL_TRIANGLES:
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             }
             vertexCount++;
         }
-        
+
         void StringData::end() {
             // nothing to do
         }
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             m_hasTriangleFans = false;
             m_listId = 0;
         }
-        
+
         StringRenderer::~StringRenderer() {
             if (m_data != NULL)
                 delete m_data;
@@ -108,16 +108,16 @@ namespace TrenchBroom {
             if (m_listId > 0)
                 glDeleteLists(m_listId, 1);
         }
-        
+
         void StringRenderer::prepare(Vbo& vbo) {
             assert(m_data != NULL);
             m_vboBlock = &vbo.allocBlock(2 * m_data->vertexCount * sizeof(float));
             assert(m_vboBlock != NULL);
-            
+
             m_hasTriangleSet = !m_data->triangleSet.empty();
             m_hasTriangleStrips = !m_data->triangleStrips.empty();
             m_hasTriangleFans = !m_data->triangleFans.empty();
-            
+
             int offset = 0;
             if (m_hasTriangleSet) {
                 m_triangleSetIndex = (m_vboBlock->address + offset) / (2 * sizeof(float));
@@ -125,7 +125,7 @@ namespace TrenchBroom {
                 const unsigned char* buffer = (const unsigned char*)&m_data->triangleSet[0];
                 offset = m_vboBlock->writeBuffer(buffer, offset, (int)m_data->triangleSet.size() * sizeof(float));
             }
-            
+
             if (m_hasTriangleStrips) {
                 m_triangleStripIndices = new IntBuffer();
                 m_triangleStripCounts = new IntBuffer();
@@ -137,7 +137,7 @@ namespace TrenchBroom {
                     offset = m_vboBlock->writeBuffer(buffer, offset, (int)strip->size() * sizeof(float));
                 }
             }
-            
+
             if (m_hasTriangleFans) {
                 m_triangleFanIndices = new IntBuffer();
                 m_triangleFanCounts = new IntBuffer();
@@ -149,7 +149,7 @@ namespace TrenchBroom {
                     offset = m_vboBlock->writeBuffer(buffer, offset, (int)fan->size() * sizeof(float));
                 }
             }
-            
+
             delete m_data;
             m_data = NULL;
         }
@@ -162,13 +162,13 @@ namespace TrenchBroom {
             glVertex3f(width + hInset, -vInset, 0);
             glEnd();
         }
-        
+
         void StringRenderer::render() {
             assert(m_vboBlock != NULL);
             if (m_listId == 0) {
                 m_listId = glGenLists(1);
                 assert(m_listId > 0);
-                
+
                 glNewList(m_listId, GL_COMPILE);
                 if (m_hasTriangleSet) {
                     glDrawArrays(GL_TRIANGLES, m_triangleSetIndex, m_triangleSetCount);
@@ -194,19 +194,19 @@ namespace TrenchBroom {
                 }
                 glEndList();
             }
-            
+
             glCallList(m_listId);
         }
 
         FontManager::FontManager(StringFactory& stringFactory) : m_stringFactory(stringFactory), m_vbo(NULL) {}
-        
+
         FontManager::~FontManager() {
             clear();
             if (m_vbo != NULL)
                 delete m_vbo;
             delete &m_stringFactory;
         }
-        
+
         StringRenderer& FontManager::createStringRenderer(const FontDescriptor& descriptor, const string& str) {
             FontCache::iterator fontIt = m_fontCache.find(descriptor);
             StringCache* stringCache = NULL;
@@ -218,7 +218,7 @@ namespace TrenchBroom {
                     return *stringIt->second->first;
                 }
             }
-            
+
             StringData* stringData = m_stringFactory.createStringData(descriptor, str);
             StringRenderer* stringRenderer = new StringRenderer(descriptor, str, stringData);
 
@@ -226,13 +226,13 @@ namespace TrenchBroom {
                 stringCache = new StringCache();
                 m_fontCache[descriptor] = stringCache;
             }
-            
+
             m_unpreparedStrings.push_back(stringRenderer);
             (*stringCache)[str] = new StringCacheEntry(stringRenderer, 1);
-            
+
             return *stringRenderer;
         }
-        
+
         void FontManager::destroyStringRenderer(StringRenderer& stringRenderer) {
             vector<StringRenderer*>::iterator unprepStrIt;
             for (unprepStrIt = m_unpreparedStrings.begin(); unprepStrIt != m_unpreparedStrings.end(); ++unprepStrIt) {
@@ -241,7 +241,7 @@ namespace TrenchBroom {
                     break;
                 }
             }
-            
+
             FontCache::iterator fontIt = m_fontCache.find(stringRenderer.fontDescriptor);
             StringCache* stringCache = NULL;
             if (fontIt != m_fontCache.end()) {
@@ -262,7 +262,7 @@ namespace TrenchBroom {
 
         void FontManager::clear() {
             m_unpreparedStrings.clear();
-            
+
             FontCache::iterator fontIt;
             for (fontIt = m_fontCache.begin(); fontIt != m_fontCache.end(); ++fontIt) {
                 StringCache* stringCache = fontIt->second;
@@ -275,7 +275,7 @@ namespace TrenchBroom {
             }
             m_fontCache.clear();
         }
-        
+
         void FontManager::activate() {
             if (m_vbo == NULL)
                 m_vbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
@@ -291,7 +291,7 @@ namespace TrenchBroom {
             glEnableClientState(GL_VERTEX_ARRAY);
             glVertexPointer(2, GL_FLOAT, 0, 0);
         }
-        
+
         void FontManager::deactivate() {
             glPopClientAttrib();
             m_vbo->deactivate();

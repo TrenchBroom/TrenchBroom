@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Camera_h
 #define TrenchBroom_Camera_h
 
-#include "Utilities/glplat.h"
+#include "GLH/glplat.h"
 #include "Utilities/VecMath.h"
 
 namespace TrenchBroom {

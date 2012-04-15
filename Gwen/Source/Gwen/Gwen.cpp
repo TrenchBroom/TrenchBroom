@@ -23,7 +23,7 @@ namespace Gwen
 		{
 			char strOut[1024];
 			va_list s;
-			va_start( s, str ); 
+			va_start( s, str );
 			vsnprintf( strOut, sizeof(strOut), str, s );
 			va_end(s);
 			GwenUtil_OutputDebugCharString( strOut );
@@ -33,8 +33,8 @@ namespace Gwen
 		{
 			wchar_t strOut[1024];
 			va_list s;
-			va_start( s, str ); 
-			vswprintf( strOut, sizeof(strOut), str, s );
+			va_start( s, str );
+			vsnwprintf( strOut, sizeof(strOut), str, s );
 			va_end(s);
 			GwenUtil_OutputDebugWideString( strOut );
 		}
@@ -45,7 +45,7 @@ namespace Gwen
 #ifdef WINDOWS
 			MessageBoxA( NULL, strMsg, "Assert", TB_MB_ICONEXCLAMATION | TB_MB_OK );
 			_asm { int 3 }
-#else 
+#else
 			(void)strMsg; // unused param
 #endif
 		}
