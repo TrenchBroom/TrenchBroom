@@ -32,21 +32,21 @@ namespace TrenchBroom {
             Vec3f m_direction;
             Vec3f m_up;
             Vec3f m_right;
-            float m_fov;
-            float m_near;
-            float m_far;
+            float m_fieldOfVision;
+            float m_nearPlane;
+            float m_farPlane;
             GLint m_viewport[4];
             GLdouble m_modelview[16];
             GLdouble m_projection[16];
         public:
-            Camera(float fov, float near, float far, Vec3f position, Vec3f direction);
+            Camera(float fieldOfVision, float nearPlane, float farPlane, Vec3f position, Vec3f direction);
             const Vec3f& position() const;
             const Vec3f& direction() const;
             const Vec3f& up() const;
             const Vec3f& right() const;
-            float fov() const;
-            float near() const;
-            float far() const;
+            float fieldOfVision() const;
+            float nearPlane() const;
+            float farPlane() const;
 
             const Vec3f defaultPoint();
             const Vec3f unproject(float x, float y, float depth) const;
@@ -65,9 +65,9 @@ namespace TrenchBroom {
             void rotate(float yawAngle, float pitchAngle);
             void orbit(Vec3f center, float hAngle, float vAngle);
 
-            void setFov(float fov);
-            void setNear(float near);
-            void setFar(float far);
+            void setFieldOfVision(float fieldOfVision);
+            void setNearPlane(float nearPlane);
+            void setFarPlane(float farPlane);
         };
     }
 }

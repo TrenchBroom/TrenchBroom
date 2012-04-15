@@ -22,7 +22,7 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        Camera::Camera(float fov, float near, float far, Vec3f position, Vec3f direction) : m_fov(fov), m_near(near), m_far(far), m_position(position), m_direction(direction) {
+        Camera::Camera(float fieldOfVision, float nearPlane, float farPlane, Vec3f position, Vec3f direction) : m_fieldOfVision(fieldOfVision), m_nearPlane(nearPlane), m_farPlane(farPlane), m_position(position), m_direction(direction) {
             if (m_direction.equals(ZAxisPos)) {
                 m_right = YAxisNeg;
                 m_up = XAxisNeg;
@@ -51,16 +51,16 @@ namespace TrenchBroom {
             return m_right;
         }
         
-        float Camera::fov() const {
-            return m_fov;
+        float Camera::fieldOfVision() const {
+            return m_fieldOfVision;
         }
         
-        float Camera::near() const {
-            return m_near;
+        float Camera::nearPlane() const {
+            return m_nearPlane;
         }
         
-        float Camera::far() const {
-            return m_far;
+        float Camera::farPlane() const {
+            return m_farPlane;
         }
         
         const Vec3f Camera::defaultPoint() {
@@ -84,9 +84,9 @@ namespace TrenchBroom {
             glPushMatrix();
             glLoadIdentity();
             
-            float vfrustum = tan(m_fov * M_PI / 360) * 0.75 * m_near;
+            float vfrustum = tan(m_fieldOfVision * M_PI / 360) * 0.75 * m_nearPlane;
             float hfrustum = vfrustum * width / height;
-            glFrustum(-hfrustum, hfrustum, -vfrustum, vfrustum, m_near, m_far);
+            glFrustum(-hfrustum, hfrustum, -vfrustum, vfrustum, m_nearPlane, m_farPlane);
             
             const Vec3f& pos = m_position;
             const Vec3f& at = m_position + m_direction;
@@ -187,16 +187,16 @@ namespace TrenchBroom {
             moveTo(offset + center);
         }
         
-        void Camera::setFov(float fov) {
-            m_fov = fov;
+        void Camera::setFieldOfVision(float fieldOfVision) {
+            m_fieldOfVision = fieldOfVision;
         }
         
-        void Camera::setNear(float near) {
-            m_near = near;
+        void Camera::setNearPlane(float nearPlane) {
+            m_nearPlane = nearPlane;
         }
         
-        void Camera::setFar(float far) {
-            m_far = far;
+        void Camera::setFarPlane(float farPlane) {
+            m_farPlane = farPlane;
         }
     }
 }
