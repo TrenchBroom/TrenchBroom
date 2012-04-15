@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,26 +26,26 @@ namespace TrenchBroom {
     namespace Model {
         class HitList;
     }
-    
+
     namespace Controller {
-        
+
         typedef enum {
-            MK_NONE = 0,
-            MK_SHIFT = 1 << 0,
-            MK_CTRL = 1 << 1,
-            MK_ALT = 1 << 2,
-            MK_CMD = 1 << 3
+            MOD_NONE = 0,
+            MOD_SHIFT = 1 << 0,
+            MOD_CTRL = 1 << 1,
+            MOD_ALT = 1 << 2,
+            MOD_CMD = 1 << 3
         } EModifierKeys;
-        
+
         typedef enum {
             MB_NONE = 0,
             MB_LEFT = 1,
             MB_RIGHT = 2,
             MB_MIDDLE = 3
         } EMouseButton;
-        
+
         class Editor;
-        
+
         class ToolEvent {
         public:
             int modifierKeys;
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             Model::HitList* hits;
             ToolEvent() : modifierKeys(MK_NONE), mouseButton(MB_NONE), hits(NULL) {}
         };
-        
+
         class Tool {
         protected:
             Editor& m_editor;
@@ -75,23 +75,23 @@ namespace TrenchBroom {
             virtual bool rightMouseUp(ToolEvent& event) { return false; }
             virtual bool mouseMoved(ToolEvent& event) { return false; }
             virtual bool scrolled(ToolEvent& event) { return false; }
-            
+
             virtual bool beginLeftDrag(ToolEvent& event) { return false; }
             virtual void leftDrag(ToolEvent& event) {}
             virtual void endLeftDrag(ToolEvent& event) {}
-            
+
             virtual bool beginRightDrag(ToolEvent& event) { return false; }
             virtual void rightDrag(ToolEvent& event) {}
             virtual void endRightDrag(ToolEvent& event) {}
-            
+
             virtual bool beginLeftScroll(ToolEvent& event) { return false; }
             virtual void leftScroll(ToolEvent& event) {}
             virtual void endLeftScroll(ToolEvent& event) {}
-            
+
             virtual bool beginRightScroll(ToolEvent& event) { return false; }
             virtual void rightScroll(ToolEvent& event) {}
             virtual void endRightScroll(ToolEvent& event) {}
- 
+
             static bool noModifierPressed(ToolEvent& event) { return event.modifierKeys == MK_NONE; }
         };
     }
