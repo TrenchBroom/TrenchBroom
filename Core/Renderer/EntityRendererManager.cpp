@@ -19,18 +19,18 @@
 
 #include "EntityRendererManager.h"
 #include <cassert>
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include "EntityDefinition.h"
-#include "Palette.h"
-#include "Entity.h"
-#include "Vbo.h"
-#include "Utils.h"
-#include "Alias.h"
-#include "Bsp.h"
-#include "EntityRenderer.h"
-#include "AliasRenderer.h"
-#include "BspRenderer.h"
+
+#include "Model/Assets/Alias.h"
+#include "Model/Assets/Bsp.h"
+#include "Model/Assets/Palette.h"
+#include "Model/Map/Entity.h"
+#include "Model/Map/EntityDefinition.h"
+#include "Renderer/AliasRenderer.h"
+#include "Renderer/BspRenderer.h"
+#include "Renderer/EntityRenderer.h"
+#include "Renderer/Vbo.h"
+#include "Utilities/glplat.h"
+#include "Utilities/Utils.h"
 
 namespace TrenchBroom {
     namespace Renderer {

@@ -19,8 +19,8 @@
 
 #include "EntityDefinition.h"
 #include <cstdlib>
-#include "EntityDefinitionParser.h"
-#include "Entity.h"
+#include "IO/EntityDefinitionParser.h"
+#include "Model/Map/Entity.h"
 
 namespace TrenchBroom {
     namespace Model {

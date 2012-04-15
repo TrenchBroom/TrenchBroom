@@ -21,7 +21,7 @@
 #define TrenchBroom_TextRenderer_h
 
 #include <map>
-#include "VecMath.h"
+#include "Utilities/VecMath.h"
 
 using namespace std;
 

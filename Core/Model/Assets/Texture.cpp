@@ -18,7 +18,7 @@
  */
 
 #include "Texture.h"
-#include <assert.h>
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Model {

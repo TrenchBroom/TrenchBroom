@@ -20,9 +20,10 @@
 #ifndef TrenchBroom_Vbo_h
 #define TrenchBroom_Vbo_h
 
-#include <OpenGL/gl.h>
 #include <vector>
-#include "VecMath.h"
+
+#include "Utilities/VecMath.h"
+#include "Utilities/glplat.h"
 
 using namespace std;
 

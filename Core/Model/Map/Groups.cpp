@@ -18,9 +18,9 @@
  */
 
 #include "Groups.h"
-#include "Map.h"
-#include "Entity.h"
 #include <cstdlib>
+#include "Model/Map/Entity.h"
+#include "Model/Map/Map.h"
 
 namespace TrenchBroom {
     namespace Model {

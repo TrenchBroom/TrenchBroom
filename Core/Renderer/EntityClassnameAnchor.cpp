@@ -18,7 +18,7 @@
  */
 
 #include "EntityClassnameAnchor.h"
-#include "Entity.h"
+#include "Model/Map/Entity.h"
 
 namespace TrenchBroom {
     namespace Renderer {

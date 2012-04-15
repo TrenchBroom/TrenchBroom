@@ -21,7 +21,7 @@
 #define TrenchBroom_InputController_h
 
 #include <vector>
-#include "Tool.h"
+#include "Controller/Tool.h"
 
 using namespace std;
 

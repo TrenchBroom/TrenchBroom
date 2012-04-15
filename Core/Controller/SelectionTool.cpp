@@ -18,12 +18,12 @@
  */
 
 #include "SelectionTool.h"
-#include "Editor.h"
-#include "Selection.h"
-#include "Picker.h"
-#include "Entity.h"
-#include "Brush.h"
-#include "Face.h"
+#include "Controller/Editor.h"
+#include "Model/Map/Brush.h"
+#include "Model/Map/Face.h"
+#include "Model/Map/Entity.h"
+#include "Model/Map/Picker.h"
+#include "Model/Selection.h"
 
 namespace TrenchBroom {
     namespace Controller {

@@ -21,8 +21,7 @@
 #define TrenchBroom_BrushGeometry_h
 
 #include <vector>
-#include "VecMath.h"
-#include "Face.h"
+#include "Model/Map/Face.h"
 
 using namespace std;
 

@@ -19,8 +19,9 @@
 
 #include "GridRenderer.h"
 #include <cassert>
-#include "Texture.h"
-#include "Grid.h"
+
+#include "Controller/Grid.h"
+#include "Model/Assets/Texture.h"
 
 namespace TrenchBroom {
     namespace Renderer {

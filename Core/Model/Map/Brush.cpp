@@ -20,7 +20,7 @@
 #include "Brush.h"
 #include <assert.h>
 #include <algorithm>
-#include "Picker.h"
+#include "Model/Map/Picker.h"
 
 namespace TrenchBroom {
     namespace Model {

@@ -18,8 +18,8 @@
  */
 
 #include "Selection.h"
-#include "BrushGeometry.h"
 #include <cmath>
+#include "Model/Map/BrushGeometry.h"
 
 namespace TrenchBroom {
     namespace Model {

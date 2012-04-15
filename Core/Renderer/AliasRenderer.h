@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_AliasRenderer_h
 #define TrenchBroom_AliasRenderer_h
 
-#include "EntityRenderer.h"
+#include "Renderer/EntityRenderer.h"
 
 namespace TrenchBroom {
     namespace Model {

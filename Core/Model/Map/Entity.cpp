@@ -22,7 +22,7 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
-#include "Picker.h"
+#include "Model/Map/Picker.h"
 
 using namespace std;
 

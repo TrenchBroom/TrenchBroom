@@ -17,4 +17,15 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Options.h"
+#ifndef TrenchBroom_glplat_h
+#define TrenchBroom_glplat_h
+
+#if defined _WIN32
+#elif defined __APPLE__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
+#error Unknown platform - can't include proper OpenGL libraries.
+#endif
+
+#endif

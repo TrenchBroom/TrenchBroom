@@ -19,8 +19,7 @@
 
 
 #include "RenderUtils.h"
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
+#include "Utilities/glplat.h"
 
 namespace TrenchBroom {
     namespace Renderer {

@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_Header_h
 #define TrenchBroom_Header_h
 
-#include "Event.h"
-#include "VecMath.h"
+#include "Utilities/Event.h"
+#include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
     namespace Model {

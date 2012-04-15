@@ -21,14 +21,14 @@
 #include <algorithm>
 #include <fstream>
 #include <cassert>
-#include "Octree.h"
-#include "Picker.h"
-#include "Selection.h"
-#include "Groups.h"
-#include "Entity.h"
-#include "EntityDefinition.h"
-#include "Brush.h"
-#include "Face.h"
+#include "Model/Map/Brush.h"
+#include "Model/Map/Entity.h"
+#include "Model/Map/EntityDefinition.h"
+#include "Model/Map/Face.h"
+#include "Model/Map/Groups.h"
+#include "Model/Map/Picker.h"
+#include "Model/Octree.h"
+#include "Model/Selection.h"
 
 #include "Utils.h"
 

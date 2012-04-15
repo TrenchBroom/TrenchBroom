@@ -19,9 +19,9 @@
 
 #include "CameraTool.h"
 #include <cstdio>
-#include "Camera.h"
-#include "Editor.h"
-#include "Picker.h"
+#include "Controller/Camera.h"
+#include "Controller/Editor.h"
+#include "Model/Map/Picker.h"
 
 namespace TrenchBroom {
     namespace Controller {

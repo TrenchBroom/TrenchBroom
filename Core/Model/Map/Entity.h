@@ -23,12 +23,12 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "MapObject.h"
-#include "Brush.h"
-#include "VecMath.h"
-#include "Vbo.h"
-#include "Map.h"
-#include "EntityDefinition.h"
+#include "Model/Map/Brush.h"
+#include "Model/Map/EntityDefinition.h"
+#include "Model/Map/Map.h"
+#include "Model/Map/MapObject.h"
+#include "Renderer/Vbo.h"
+#include "Utilities/VecMath.h"
 
 using namespace std;
 

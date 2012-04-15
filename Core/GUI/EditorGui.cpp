@@ -18,7 +18,10 @@
  */
 
 #include "EditorGui.h"
-#include "FontManager.h"
+#include "Controller/Editor.h"
+#include "Gui/MapRendererControl.h"
+#include "Gui/Splitter.h"
+#include "Renderer/FontManager.h"
 
 namespace TrenchBroom {
     namespace Gui {

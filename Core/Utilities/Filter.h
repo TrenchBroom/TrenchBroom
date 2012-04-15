@@ -20,10 +20,10 @@
 #ifndef TrenchBroom_Filter_h
 #define TrenchBroom_Filter_h
 
-#include "Entity.h"
-#include "Brush.h"
-#include "Groups.h"
-#include "Selection.h"
+#include "Model/Map/Brush.h"
+#include "Model/Map/Entity.h"
+#include "Model/Map/Groups.h"
+#include "Model/Selection.h"
 
 using namespace TrenchBroom::Model;
 

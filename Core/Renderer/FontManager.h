@@ -19,11 +19,11 @@
 
 #ifndef TrenchBroom_FontManager_h
 #define TrenchBroom_FontManager_h
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
+
 #include <string>
 #include <vector>
 #include <map>
+#include "Utilities/glplat.h"
 
 using namespace std;
 

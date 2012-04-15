@@ -21,18 +21,25 @@
 #define TrenchBroom_Face_h
 
 #include <vector>
-#include "Brush.h"
-#include "Texture.h"
-#include "VecMath.h"
-#include "Vbo.h"
-#include "BrushGeometry.h"
+#include "Utilities/VecMath.h"
 
 using namespace std;
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class VboBlock;
+    }
+    
     namespace Model {
+        namespace Assets {
+            class Texture;
+        }
+        
         class Brush;
         class Side;
+        class Vertex;
+        class Edge;
+        
         class Face {
         protected:
             int m_faceId;

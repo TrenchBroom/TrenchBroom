@@ -24,7 +24,7 @@
 #include <vector>
 #include <map>
 #include <istream>
-#include "VecMath.h"
+#include "Utilities/VecMath.h"
 
 using namespace std;
 

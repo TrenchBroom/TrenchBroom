@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MapObject_h
 #define TrenchBroom_MapObject_h
 
-#include "VecMath.h"
+#include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
     namespace Model {

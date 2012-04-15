@@ -18,10 +18,10 @@
  */
 
 #include "TextRenderer.h"
-#include "FontManager.h"
-#include "MapRenderer.h"
-#include "Camera.h"
-#include "RenderUtils.h"
+#include "Controller/Camera.h"
+#include "Renderer/FontManager.h"
+#include "Renderer/MapRenderer.h"
+#include "Renderer/RenderUtils.h"
 
 namespace TrenchBroom {
     namespace Renderer {

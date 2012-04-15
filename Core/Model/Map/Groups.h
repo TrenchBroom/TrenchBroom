@@ -21,7 +21,7 @@
 #define TrenchBroom_Groups_h
 
 #include <vector>
-#include "Event.h"
+#include "Utilities/Event.h"
 
 using namespace std;
 

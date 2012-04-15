@@ -18,13 +18,12 @@
  */
 
 #include "InputController.h"
-#include "Tool.h"
-#include "Camera.h"
-#include "CameraTool.h"
-#include "SelectionTool.h"
-#include "Editor.h"
-#include "Map.h"
-#include "Picker.h"
+#include "Controller/Camera.h"
+#include "Controller/CameraTool.h"
+#include "Controller/Editor.h"
+#include "Controller/SelectionTool.h"
+#include "Model/Map/Map.h"
+#include "Model/Map/Picker.h"
 
 namespace TrenchBroom {
     namespace Controller {

@@ -19,8 +19,8 @@
 #ifndef TrenchBroom_Picker_h
 #define TrenchBroom_Picker_h
 
-#include "VecMath.h"
 #include <vector>
+#include "Utilities/VecMath.h"
 
 using namespace std;
 

@@ -21,11 +21,11 @@
 #define TrenchBroom_Brush_h
 
 #include <vector>
-#include "MapObject.h"
-#include "Entity.h"
-#include "Face.h"
-#include "Texture.h"
-#include "BrushGeometry.h"
+#include "Model/Assets/Texture.h"
+#include "Model/Map/BrushGeometry.h"
+#include "Model/Map/Entity.h"
+#include "Model/Map/Face.h"
+#include "Model/Map/MapObject.h"
 
 using namespace std;
 

@@ -20,7 +20,10 @@
 #include "Face.h"
 #include <cassert>
 #include <cmath>
-#include "BrushGeometry.h"
+#include "Model/Assets/Texture.h"
+#include "Model/Map/Brush.h"
+#include "Model/Map/BrushGeometry.h"
+#include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
     namespace Model {

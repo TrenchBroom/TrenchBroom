@@ -18,11 +18,11 @@
  */
 
 #include "Alias.h"
-#include "AliasNormals.h"
 #include <assert.h>
 #include <numeric>
 #include <cmath>
-#include "Pak.h"
+#include "AliasNormals.h"
+#include "IO/Pak.h"
 
 #define MDL_HEADER_SCALE              0x8
 #define MDL_HEADER_NUMSKINS           0x30

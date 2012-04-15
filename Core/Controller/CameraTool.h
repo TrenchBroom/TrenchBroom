@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_CameraTool_h
 #define TrenchBroom_CameraTool_h
 
-#include "Tool.h"
-#include "VecMath.h"
+#include "Controller/Tool.h"
+#include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
     namespace Controller {

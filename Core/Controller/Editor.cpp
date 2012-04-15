@@ -19,11 +19,11 @@
 
 #include "Editor.h"
 #include <ctime>
+#include "Controller/Camera.h"
 #include "Controller/Grid.h"
 #include "Controller/InputController.h"
 #include "Controller/Options.h"
 #include "Controller/ProgressIndicator.h"
-#include "Model/Camera.h"
 #include "Model/Map/Map.h"
 #include "Model/Map/Entity.h"
 #include "Model/Preferences.h"

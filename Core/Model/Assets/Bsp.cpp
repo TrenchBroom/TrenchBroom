@@ -20,7 +20,7 @@
 #include "Bsp.h"
 #include <cmath>
 #include <numeric>
-#include "Pak.h"
+#include "IO/Pak.h"
 
 #define BSP_DIR_TEXTURES_ADDRESS      0x14
 #define BSP_DIR_TEXTURES_SIZE         0x18

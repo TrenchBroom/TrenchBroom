@@ -19,9 +19,9 @@
 
 #include "Picker.h"
 #include <cassert>
-#include "Octree.h"
-#include "MapObject.h"
-#include "Filter.h"
+#include "Model/Map/MapObject.h"
+#include "Model/Octree.h"
+#include "Utilities/Filter.h"
 
 namespace TrenchBroom {
     namespace Model {

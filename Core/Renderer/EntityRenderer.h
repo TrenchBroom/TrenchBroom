@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityRenderer_h
 #define TrenchBroom_EntityRenderer_h
 
-#include "VecMath.h"
+#include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
     namespace Model {

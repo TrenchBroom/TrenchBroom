@@ -23,13 +23,14 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <OpenGL/gl.h>
-#include "VecMath.h"
-#include "Wad.h"
-#include "Palette.h"
-#include "Alias.h"
-#include "Bsp.h"
-#include "Event.h"
+
+#include "IO/Wad.h"
+#include "Model/Assets/Alias.h"
+#include "Model/Assets/Bsp.h"
+#include "Model/Assets/Palette.h"
+#include "Utilities/Event.h"
+#include "Utilities/glplat.h"
+#include "Utilities/VecMath.h"
 
 using namespace std;
 

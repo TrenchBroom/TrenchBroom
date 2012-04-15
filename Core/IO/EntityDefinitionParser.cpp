@@ -19,7 +19,7 @@
 
 #include "EntityDefinitionParser.h"
 #include <assert.h>
-#include "VecMath.h"
+#include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
     namespace IO {

@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "VecMath.h"
+#include "Utilities/VecMath.h"
 
 using namespace std;
 

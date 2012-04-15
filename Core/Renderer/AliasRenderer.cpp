@@ -18,13 +18,13 @@
  */
 
 #include "AliasRenderer.h"
-#include "Alias.h"
-#include "Vbo.h"
-#include "Palette.h"
-#include "Texture.h"
-#include "Entity.h"
-#include "MapRenderer.h"
-#include "Preferences.h"
+#include "Model/Assets/Alias.h"
+#include "Model/Assets/Palette.h"
+#include "Model/Assets/Texture.h"
+#include "Model/Map/Entity.h"
+#include "Model/Preferences.h"
+#include "Renderer/MapRenderer.h"
+#include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
     namespace Renderer {

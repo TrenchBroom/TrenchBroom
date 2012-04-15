@@ -21,8 +21,8 @@
 #define TrenchBroom_Octree_h
 
 #include <vector>
-#include "VecMath.h"
-#include "Event.h"
+#include "Utilities/Event.h"
+#include "Utilities/VecMath.h"
 
 using namespace std;
 

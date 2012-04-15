@@ -21,7 +21,7 @@
 #ifndef TrenchBroom_RenderUtils_h
 #define TrenchBroom_RenderUtils_h
 
-#include "VecMath.h"
+#include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
     namespace Renderer {

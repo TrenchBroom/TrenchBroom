@@ -19,15 +19,15 @@
 
 
 #include "MapRendererControl.h"
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
 #include "Gwen/Structures.h"
-#include "MapRenderer.h"
-#include "Editor.h"
-#include "Tool.h"
-#include "InputController.h"
-#include "Camera.h"
-#include "FontManager.h"
+
+#include "Controller/Editor.h"
+#include "Controller/Tool.h"
+#include "Controller/InputController.h"
+#include "Controller/Camera.h"
+#include "Renderer/FontManager.h"
+#include "Renderer/MapRenderer.h"
+#include "Utilities/glplat.h"
 
 namespace TrenchBroom {
     namespace Gui {

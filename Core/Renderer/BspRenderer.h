@@ -23,9 +23,9 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include "EntityRenderer.h"
+
+#include "Renderer/EntityRenderer.h"
+#include "Utilities/glplat.h"
 
 using namespace std;
 

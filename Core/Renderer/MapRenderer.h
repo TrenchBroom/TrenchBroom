@@ -22,9 +22,8 @@
 
 #include <map>
 #include <vector>
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include "VecMath.h"
+#include "Utilities/glplat.h"
+#include "Utilities/VecMath.h"
 
 using namespace std;
 

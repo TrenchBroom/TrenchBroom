@@ -19,7 +19,7 @@
 
 #include "Palette.h"
 #include <fstream>
-#include <assert.h>
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Model {

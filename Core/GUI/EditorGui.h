@@ -25,16 +25,22 @@
 #include "Gwen/Renderers/OpenGL_DebugFont.h"
 #include "Gwen/Controls/Canvas.h"
 #include "Gwen/Controls/TabControl.h"
-#include "MapRendererControl.h"
-#include "Splitter.h"
-#include "Editor.h"
-#include "FontManager.h"
 
 using namespace std;
 
 namespace TrenchBroom {
+    namespace Controller {
+        class Editor;
+    }
+    
+    namespace Renderer {
+        class FontManager;
+    }
     
     namespace Gui {
+        class MapRendererControl;
+        class Splitter;
+
         class EditorGui {
         private:
             Controller::Editor& m_editor;

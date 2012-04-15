@@ -18,11 +18,11 @@
  */
 
 #include "BspRenderer.h"
-#include "Vbo.h"
-#include "Bsp.h"
-#include "Entity.h"
-#include "MapRenderer.h"
-#include "Preferences.h"
+#include "Model/Assets/Bsp.h"
+#include "Model/Map/Entity.h"
+#include "Model/Preferences.h"
+#include "Renderer/MapRenderer.h"
+#include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
     namespace Renderer {

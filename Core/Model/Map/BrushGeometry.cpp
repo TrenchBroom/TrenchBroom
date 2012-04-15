@@ -22,7 +22,7 @@
 #include <cmath>
 #include <map>
 #include <algorithm>
-#include "VecMath.h"
+#include "Utilities/VecMath.h"
 
 #define VERTEX_MAX_POOL_SIZE 256
 #define EDGE_MAX_POOL_SIZE 256

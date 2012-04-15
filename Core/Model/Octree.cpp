@@ -21,10 +21,10 @@
 #include <algorithm>
 #include <cmath>
 #include <assert.h>
-#include "Entity.h"
-#include "EntityDefinition.h"
-#include "Brush.h"
-#include "Map.h"
+#include "Model/Map/Brush.h"
+#include "Model/Map/Entity.h"
+#include "Model/Map/EntityDefinition.h"
+#include "Model/Map/Map.h"
 
 namespace TrenchBroom {
     namespace Model {

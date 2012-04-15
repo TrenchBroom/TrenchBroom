@@ -19,7 +19,7 @@
 
 #include "FontManager.h"
 #include <cassert>
-#include "Vbo.h"
+#include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
     namespace Renderer {

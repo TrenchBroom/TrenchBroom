@@ -23,11 +23,11 @@
 #include <string>
 #include <istream>
 #include <sstream>
-#include "Map.h"
-#include "Entity.h"
-#include "Brush.h"
-#include "Face.h"
-#include "Texture.h"
+#include "Model/Map/Map.h"
+#include "Model/Map/Entity.h"
+#include "Model/Map/Brush.h"
+#include "Model/Map/Face.h"
+#include "Model/Assets/Texture.h"
 
 using namespace std;
 using namespace TrenchBroom::Model;

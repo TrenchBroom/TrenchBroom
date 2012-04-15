@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_SelectionTool_h
 #define TrenchBroom_SelectionTool_h
 
-#include "Tool.h"
+#include "Controller/Tool.h"
 
 namespace TrenchBroom {
     namespace Model {

@@ -21,7 +21,7 @@
 #define TrenchBroom_EntityClassnameAnchor_h
 
 #include "TextRenderer.h"
-#include "VecMath.h"
+#include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
     namespace Model {

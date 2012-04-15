@@ -21,7 +21,7 @@
 #define TrenchBroom_EntityDefinitionParser_h
 
 #include <fstream>
-#include "EntityDefinition.h"
+#include "Model/Map/EntityDefinition.h"
 
 using namespace std;
 

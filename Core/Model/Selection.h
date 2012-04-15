@@ -21,12 +21,12 @@
 #define TrenchBroom_Selection_h
 
 #include <vector>
-#include "Event.h"
-#include "VecMath.h"
-#include "Texture.h"
-#include "Entity.h"
-#include "Brush.h"
-#include "Face.h"
+#include "Model/Assets/Texture.h"
+#include "Model/Map/Brush.h"
+#include "Model/Map/Face.h"
+#include "Model/Map/Entity.h"
+#include "Utilities/Event.h"
+#include "Utilities/VecMath.h"
 
 using namespace std;
 
