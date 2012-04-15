@@ -4,8 +4,9 @@
 		<title>Map Document</title>
 		<centered>1</centered>
 		<size>800,600</size>
-		<object class="wxGLCanvas" name="ID_GLCANVAS1" variable="GLCanvas1" member="yes">
+		<object class="wxGLCanvas" name="ID_DOCUMENTCANVAS" subclass="DocumentCanvas" variable="documentCanvas" member="yes">
 			<mDepthSize>16</mDepthSize>
+			<mStencilSize>8</mStencilSize>
 			<pos>232,432</pos>
 		</object>
 		<object class="wxMenuBar" variable="MenuBar1" member="no">
