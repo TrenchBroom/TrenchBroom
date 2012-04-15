@@ -1,23 +1,12 @@
-/*
- Copyright (C) 2010-2012 Kristian Duske
+/***************************************************************
+ * Name:      TrenchBroomMain.cpp
+ * Purpose:   Code for Application Frame
+ * Author:    Kristian Duske (kristian.duske@gmail.com)
+ * Created:   2012-04-15
+ * Copyright: Kristian Duske (kristianduske.com/trenchbroom)
+ * License:
+ **************************************************************/
 
- This file is part of TrenchBroom.
-
- TrenchBroom is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- TrenchBroom is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-#include "wx_pch.h"
 #include "TrenchBroomMain.h"
 #include <wx/msgdlg.h>
 
@@ -53,7 +42,6 @@ wxString wxbuildinfo(wxbuildinfoformat format)
 }
 
 //(*IdInit(TrenchBroomFrame)
-const long TrenchBroomFrame::ID_DOCUMENTCANVAS = wxNewId();
 const long TrenchBroomFrame::idMenuQuit = wxNewId();
 const long TrenchBroomFrame::idMenuAbout = wxNewId();
 const long TrenchBroomFrame::ID_STATUSBAR1 = wxNewId();
@@ -72,16 +60,8 @@ TrenchBroomFrame::TrenchBroomFrame(wxWindow* parent,wxWindowID id)
     wxMenu* Menu1;
     wxMenuBar* MenuBar1;
     wxMenu* Menu2;
-
-    Create(parent, id, _("Map Document"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("id"));
-    SetClientSize(wxSize(800,600));
-    int GLCanvasAttributes_1[] = {
-    	WX_GL_RGBA,
-    	WX_GL_DOUBLEBUFFER,
-    	WX_GL_DEPTH_SIZE,      16,
-    	WX_GL_STENCIL_SIZE,    8,
-    	0, 0 };
-    documentCanvas = new DocumentCanvas(this, ID_DOCUMENTCANVAS, wxPoint(232,432), wxDefaultSize, 0, _T("ID_DOCUMENTCANVAS"), GLCanvasAttributes_1);
+    
+    Create(parent, id, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("id"));
     MenuBar1 = new wxMenuBar();
     Menu1 = new wxMenu();
     MenuItem1 = new wxMenuItem(Menu1, idMenuQuit, _("Quit\tAlt-F4"), _("Quit the application"), wxITEM_NORMAL);
@@ -98,8 +78,7 @@ TrenchBroomFrame::TrenchBroomFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetFieldsCount(1,__wxStatusBarWidths_1);
     StatusBar1->SetStatusStyles(1,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
-    Center();
-
+    
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&TrenchBroomFrame::OnQuit);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&TrenchBroomFrame::OnAbout);
     //*)

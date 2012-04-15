@@ -20,16 +20,6 @@
 #ifndef TrenchBroom_glplat_h
 #define TrenchBroom_glplat_h
 
-#if defined _WIN32
-#define GL_GLEXT_PROTOTYPES 1
-#include "GLH/glu.h"
-#include "GLH/glext.h"
-#include "GLH/gl.h"
-#elif defined __APPLE__
-#include <OpenGL/glu.h>
-#include <OpenGL/gl.h>
-#else
-#error Unknown platform - can't include proper OpenGL libraries.'
-#endif
+#include "GLH/GLee.h"
 
 #endif

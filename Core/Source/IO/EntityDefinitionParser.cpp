@@ -1,24 +1,26 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "EntityDefinitionParser.h"
 #include <assert.h>
+#include <cstdlib>
+
 #include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
@@ -26,12 +28,12 @@ namespace TrenchBroom {
         bool EntityDefinitionTokenizer::nextChar() {
             if (m_state == TB_TS_EOF)
                 return false;
-            
+
             if (m_stream.eof()) {
                 m_state = TB_TS_EOF;
                 return false;
             }
-            
+
             m_stream.get(m_char);
             if (m_char == '\n') {
                 m_line++;
@@ -39,14 +41,14 @@ namespace TrenchBroom {
             } else {
                 m_column++;
             }
-            
+
             return true;
         }
-        
+
         void EntityDefinitionTokenizer::pushChar() {
             if (m_state == TB_TS_EOF)
                 m_state = TB_TS_OUTDEF;
-            
+
             m_stream.seekg(-1, ios::cur);
             m_stream.get(m_char);
             if (m_char == '\n') {
@@ -67,14 +69,14 @@ namespace TrenchBroom {
             }
             m_stream.seekg(-1, ios::cur);
         }
-        
+
         char EntityDefinitionTokenizer::peekChar() {
             char c;
             m_stream.get(c);
             m_stream.seekg(-1, ios::cur);
             return c;
         }
-        
+
         EntityDefinitionToken* EntityDefinitionTokenizer::token(ETokenType type, string* data) {
             m_token.type = type;
             if (data == NULL)
@@ -86,9 +88,9 @@ namespace TrenchBroom {
             m_token.charsRead = (int)m_stream.tellg();
             return &m_token;
         }
-        
+
         EntityDefinitionTokenizer::EntityDefinitionTokenizer(istream& stream) : m_stream(stream), m_state(TB_TS_OUTDEF), m_line(1), m_column(0) {}
-        
+
         EntityDefinitionToken* EntityDefinitionTokenizer::next() {
             string buffer;
             while (nextChar()) {
@@ -234,36 +236,36 @@ namespace TrenchBroom {
                                 break;
                         }
                         break;
-                    }            
+                    }
                     default:
                         break;
                 }
             }
-            
+
             return NULL;
         }
-        
+
         EntityDefinitionToken* EntityDefinitionTokenizer::peek() {
             int oldLine = m_line;
             int oldColumn = m_column;
             streamoff oldPos = m_stream.tellg();
             char oldChar = m_char;
             ETokenizerState oldState = m_state;
-            
+
             next();
-            
+
             m_line = oldLine;
             m_column = oldColumn;
             m_stream.seekg(oldPos, ios::beg);
             m_char = oldChar;
             m_state = oldState;
-            
+
             return &m_token;
         }
-        
+
         string EntityDefinitionTokenizer::remainder() {
             assert(m_state == TB_TS_INDEF);
-            
+
             nextChar();
             string buffer;
             while (m_state != TB_TS_EOF && m_char != '*' && peekChar() != '/') {
@@ -273,23 +275,23 @@ namespace TrenchBroom {
             pushChar();
             return buffer;
         }
-        
+
         void EntityDefinitionParser::expect(int expectedType, const EntityDefinitionToken* actualToken) const {
             assert(actualToken != NULL);
             assert((actualToken->type & expectedType) != 0);
         }
-        
+
         EntityDefinitionToken* EntityDefinitionParser::nextTokenIgnoringNewlines() {
             EntityDefinitionToken* token = m_tokenizer->next();
             while (token->type == TB_TT_NL)
                 token = m_tokenizer->next();
             return token;
         }
-        
+
         Vec4f EntityDefinitionParser::parseColor() {
             Vec4f color;
             EntityDefinitionToken* token = NULL;
-            
+
             expect(TB_TT_B_O, token = m_tokenizer->next());
             expect(TB_TT_FRAC, token = m_tokenizer->next());
             color.x = atof(token->data.c_str());
@@ -301,11 +303,11 @@ namespace TrenchBroom {
             color.w = 1;
             return color;
         }
-        
+
         BBox EntityDefinitionParser::parseBounds() {
             BBox bounds;
             EntityDefinitionToken* token = NULL;
-            
+
             expect(TB_TT_B_O, token = m_tokenizer->next());
             expect(TB_TT_DEC, token = m_tokenizer->next());
             bounds.min.x = atoi(token->data.c_str());
@@ -324,13 +326,13 @@ namespace TrenchBroom {
             expect(TB_TT_B_C, token = m_tokenizer->next());
             return bounds;
         }
-        
+
         map<string, Model::SpawnFlag> EntityDefinitionParser::parseFlags() {
             map<string, Model::SpawnFlag> flags;
             EntityDefinitionToken* token = m_tokenizer->peek();
             if (token->type != TB_TT_WORD)
                 return flags;
-            
+
             while (token->type == TB_TT_WORD) {
                 token = m_tokenizer->next();
                 string name = token->data;
@@ -339,10 +341,10 @@ namespace TrenchBroom {
                 flags[name] = flag;
                 token = m_tokenizer->peek();
             }
-            
+
             return flags;
         }
-        
+
         vector<Model::Property*> EntityDefinitionParser::parseProperties() {
             vector<Model::Property*> properties;
             EntityDefinitionToken* token = m_tokenizer->peek();
@@ -355,18 +357,18 @@ namespace TrenchBroom {
             }
             return properties;
         }
-        
+
         Model::Property* EntityDefinitionParser::parseProperty() {
             EntityDefinitionToken* token = nextTokenIgnoringNewlines();
             if (token->type != TB_TT_WORD)
                 return NULL;
-            
+
             Model::Property* property = NULL;
             string type = token->data;
             if (type == "choice") {
                 expect(TB_TT_STR, token = m_tokenizer->next());
                 string name = token->data;
-                
+
                 vector<Model::ChoiceArgument> arguments;
                 expect(TB_TT_B_O, token = nextTokenIgnoringNewlines());
                 token = nextTokenIgnoringNewlines();
@@ -376,10 +378,10 @@ namespace TrenchBroom {
                     expect(TB_TT_C, token = nextTokenIgnoringNewlines());
                     expect(TB_TT_STR, token = nextTokenIgnoringNewlines());
                     string value = token->data;
-                    
+
                     Model::ChoiceArgument argument(key, value);
                     arguments.push_back(argument);
-                    
+
                     expect(TB_TT_B_C, token = nextTokenIgnoringNewlines());
                     token = nextTokenIgnoringNewlines();
                 }
@@ -395,7 +397,7 @@ namespace TrenchBroom {
                     skinIndex = atoi(modelPath.c_str() + lastColon + 1);
                     modelPath = modelPath.substr(0, lastColon);
                 }
-                
+
                 expect(TB_TT_C | TB_TT_B_C, token = nextTokenIgnoringNewlines());
                 if (token->type == TB_TT_C) {
                     expect(TB_TT_STR, token = nextTokenIgnoringNewlines());
@@ -421,35 +423,35 @@ namespace TrenchBroom {
                 property = new Model::BaseProperty(baseName);
                 expect(TB_TT_B_C, token = nextTokenIgnoringNewlines());
             }
-            
+
             expect(TB_TT_SC, token = nextTokenIgnoringNewlines());
             return property;
         }
-        
+
         string EntityDefinitionParser::parseDescription() {
             EntityDefinitionToken* token = m_tokenizer->peek();
             if (token->type == TB_TT_ED_C)
                 return "";
             return m_tokenizer->remainder();
         }
-        
+
         EntityDefinitionParser::EntityDefinitionParser(string path) {
             m_stream.open(path.c_str());
             m_tokenizer = new EntityDefinitionTokenizer(m_stream);
         }
-        
+
         EntityDefinitionParser::~EntityDefinitionParser() {
             if (m_stream.is_open())
                 m_stream.close();
             if (m_tokenizer != NULL)
                 delete m_tokenizer;
         }
-        
+
         Model::EntityDefinition* EntityDefinitionParser::nextDefinition() {
             EntityDefinitionToken* token = m_tokenizer->next();
             if (token == NULL)
                 return NULL;
-            
+
             expect(TB_TT_ED_O, token);
             string name;
             bool hasColor = false;
@@ -460,17 +462,17 @@ namespace TrenchBroom {
             map<string, Model::SpawnFlag> flags;
             vector<Model::Property*> properties;
             string description;
-            
+
             token = m_tokenizer->next();
             expect(TB_TT_WORD, token);
             name = token->data;
-            
+
             token = m_tokenizer->peek();
             expect(TB_TT_B_O | TB_TT_NL, token);
             if (token->type == TB_TT_B_O) {
                 hasColor = true;
                 color = parseColor();
-                
+
                 token = m_tokenizer->peek();
                 expect(TB_TT_B_O | TB_TT_QM, token);
                 if (token->type == TB_TT_B_O) {
@@ -479,19 +481,19 @@ namespace TrenchBroom {
                 } else {
                     m_tokenizer->next();
                 }
-                
+
                 token = m_tokenizer->peek();
                 if (token->type == TB_TT_WORD) {
                     hasFlags = true;
                     flags = parseFlags();
                 }
             }
-            
+
             expect(TB_TT_NL, token = m_tokenizer->next());
             properties = parseProperties();
             description = parseDescription();
             expect(TB_TT_ED_C, token = m_tokenizer->next());
-            
+
             Model::EntityDefinition* definition = NULL;
             if (!hasColor)
                 definition = Model::EntityDefinition::baseDefinition(name, flags, properties);

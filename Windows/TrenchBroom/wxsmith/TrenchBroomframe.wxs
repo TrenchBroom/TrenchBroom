@@ -1,38 +1,30 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <wxsmith>
-	<object class="wxFrame" name="TrenchBroomFrame">
-		<title>Map Document</title>
-		<centered>1</centered>
-		<size>800,600</size>
-		<object class="wxGLCanvas" name="ID_DOCUMENTCANVAS" subclass="DocumentCanvas" variable="documentCanvas" member="yes">
-			<mDepthSize>16</mDepthSize>
-			<mStencilSize>8</mStencilSize>
-			<pos>232,432</pos>
-		</object>
-		<object class="wxMenuBar" variable="MenuBar1" member="no">
-			<object class="wxMenu" variable="Menu1" member="no">
-				<label>&amp;File</label>
-				<object class="wxMenuItem" name="idMenuQuit" variable="MenuItem1" member="no">
-					<label>Quit</label>
-					<accel>Alt-F4</accel>
-					<help>Quit the application</help>
-					<handler function="OnQuit" entry="EVT_MENU" />
-				</object>
-			</object>
-			<object class="wxMenu" variable="Menu2" member="no">
-				<label>Help</label>
-				<object class="wxMenuItem" name="idMenuAbout" variable="MenuItem2" member="no">
-					<label>About</label>
-					<accel>F1</accel>
-					<help>Show info about this application</help>
-					<handler function="OnAbout" entry="EVT_MENU" />
-				</object>
-			</object>
-		</object>
-		<object class="wxStatusBar" name="ID_STATUSBAR1" variable="StatusBar1" member="yes">
-			<fields>1</fields>
-			<widths>-1</widths>
-			<styles>wxSB_NORMAL</styles>
-		</object>
-	</object>
+    <object class="wxFrame" name="TrenchBroomFrame">
+        <object class="wxMenuBar" variable="MenuBar1" member="no">
+            <object class="wxMenu" variable="Menu1" member="no">
+                <label>&amp;File</label>
+                <object class="wxMenuItem" name="idMenuQuit" variable="MenuItem1" member="no">
+                    <label>Quit</label>
+                    <accel>Alt-F4</accel>
+                    <help>Quit the application</help>
+                    <handler function="OnQuit" entry="EVT_MENU" />
+                </object>
+            </object>
+            <object class="wxMenu" variable="Menu2" member="no">
+                <label>Help</label>
+                <object class="wxMenuItem" name="idMenuAbout" variable="MenuItem2" member="no">
+                    <label>About</label>
+                    <accel>F1</accel>
+                    <help>Show info about this application</help>
+                    <handler function="OnAbout" entry="EVT_MENU" />
+                </object>
+            </object>
+        </object>
+        <object class="wxStatusBar" name="ID_STATUSBAR1" variable="StatusBar1" member="yes">
+            <fields>1</fields>
+            <widths>-1</widths>
+            <styles>wxSB_NORMAL</styles>
+        </object>
+    </object>
 </wxsmith>

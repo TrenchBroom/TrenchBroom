@@ -19,7 +19,9 @@
 
 #include "EntityDefinition.h"
 #include <cstdlib>
+#include <ctime>
 #include <algorithm>
+
 #include "IO/EntityDefinitionParser.h"
 #include "Model/Map/Entity.h"
 

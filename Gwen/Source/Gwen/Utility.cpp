@@ -10,7 +10,7 @@
 
 using namespace Gwen;
 
-#ifndef vsnwprintf
+#ifdef __APPLE__
 #define vsnwprintf vswprintf
 #endif
 
