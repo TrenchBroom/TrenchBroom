@@ -10,6 +10,10 @@
 
 using namespace Gwen;
 
+#ifndef vsnwprintf
+#define vsnwprintf vswprintf
+#endif
+
 #ifdef _MSC_VER
 	#pragma warning(disable:4267)// conversion from 'size_t' to 'int', possible loss of data
 #endif
