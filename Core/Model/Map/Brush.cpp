@@ -133,7 +133,7 @@ namespace TrenchBroom {
         }
         
         EMapObjectType Brush::objectType() const {
-            return MT_BRUSH;
+            return TB_MT_BRUSH;
         }
 
         Entity* Brush::entity() const {
@@ -181,7 +181,7 @@ namespace TrenchBroom {
             
             if (!std::isnan(dist)) {
                 Vec3f hitPoint = ray.pointAtDistance(dist);
-                Hit* hit = new Hit(side->face, HT_FACE, hitPoint, dist);
+                Hit* hit = new Hit(side->face, TB_HT_FACE, hitPoint, dist);
                 hits.add(*hit);
             }
         }
@@ -190,7 +190,7 @@ namespace TrenchBroom {
             if (!bounds().contains(point)) return false;
             
             for (int i = 0; i < m_faces.size(); i++)
-                if (m_faces[i]->boundary().pointStatus(point) == PS_ABOVE)
+                if (m_faces[i]->boundary().pointStatus(point) == TB_PS_ABOVE)
                     return false;
             return true;
         }
@@ -207,7 +207,7 @@ namespace TrenchBroom {
                 Face* theirFace = theirFaces[i];
                 Vec3f origin = theirFace->vertices()[0]->position;
                 Vec3f direction = theirFace->boundary().normal;
-                if (vertexStatusFromRay(origin, direction, myVertices) == PS_ABOVE)
+                if (vertexStatusFromRay(origin, direction, myVertices) == TB_PS_ABOVE)
                     return false;
             }
             
@@ -217,7 +217,7 @@ namespace TrenchBroom {
                 Face* myFace = m_faces[i];
                 Vec3f origin = myFace->vertices()[0]->position;
                 Vec3f direction = myFace->boundary().normal;
-                if (vertexStatusFromRay(origin, direction, theirVertices) == PS_ABOVE)
+                if (vertexStatusFromRay(origin, direction, theirVertices) == TB_PS_ABOVE)
                     return false;
             }
             
@@ -233,9 +233,9 @@ namespace TrenchBroom {
                     Vec3f origin = myEdge->start->position;
                     
                     EPointStatus myStatus = vertexStatusFromRay(origin, direction, myVertices);
-                    if (myStatus != PS_INSIDE) {
+                    if (myStatus != TB_PS_INSIDE) {
                         EPointStatus theirStatus = vertexStatusFromRay(origin, direction, theirVertices);
-                        if (theirStatus != PS_INSIDE) {
+                        if (theirStatus != TB_PS_INSIDE) {
                             if (myStatus != theirStatus)
                                 return false;
                         }
@@ -321,8 +321,8 @@ namespace TrenchBroom {
         bool Brush::addFace(Face* face) {
             vector<Face*> droppedFaces;
             ECutResult result = m_geometry->addFace(*face, droppedFaces);
-            if (result == CR_REDUNDANT) return true;
-            if (result == CR_NULL) return false;
+            if (result == TB_CR_REDUNDANT) return true;
+            if (result == TB_CR_NULL) return false;
             
             for (int i = 0; i < droppedFaces.size(); i++) {
                 Face* droppedFace = droppedFaces[i];
@@ -404,7 +404,7 @@ namespace TrenchBroom {
                     testGeometry.addFace(*m_faces[i], droppedFaces);
             
             ECutResult result = testGeometry.addFace(testFace, droppedFaces);
-            bool canDrag = droppedFaces.size() == 0 && result != CR_NULL && m_worldBounds.contains(testGeometry.bounds);
+            bool canDrag = droppedFaces.size() == 0 && result != TB_CR_NULL && m_worldBounds.contains(testGeometry.bounds);
             
             m_geometry->restoreFaceSides();
             return canDrag;

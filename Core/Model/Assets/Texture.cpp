@@ -195,7 +195,7 @@ namespace TrenchBroom {
                 for (it = m_textures.begin(); it != m_textures.end(); it++)
                     result.push_back(it->second);
                 
-                if (criterion == TS_USAGE) sort(result.begin(), result.end(), compareByUsageCount);
+                if (criterion == TB_TS_USAGE) sort(result.begin(), result.end(), compareByUsageCount);
                 else sort(result.begin(), result.end(), compareByName);
                 return result;
             }

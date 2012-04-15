@@ -65,11 +65,11 @@ namespace TrenchBroom {
             position.x = x;
             position.y = y;
             position.z = z;
-            mark = VM_NEW;
+            mark = TB_VM_NEW;
         }
         
         Vertex::Vertex() {
-            mark = VM_NEW;
+            mark = TB_VM_NEW;
         }
         
         void* Edge::operator new(size_t size) {
@@ -96,8 +96,8 @@ namespace TrenchBroom {
             }
         }
 
-        Edge::Edge(Vertex* start, Vertex* end) : start(start), end(end), mark((EM_NEW)), left(NULL), right(NULL) {}
-        Edge::Edge() : start(NULL), end(NULL), mark(EM_NEW), left(NULL), right(NULL) {}
+        Edge::Edge(Vertex* start, Vertex* end) : start(start), end(end), mark((TB_EM_NEW)), left(NULL), right(NULL) {}
+        Edge::Edge() : start(NULL), end(NULL), mark(TB_EM_NEW), left(NULL), right(NULL) {}
         
         Vertex* Edge::startVertex(Side* side) {
             if (left == side) return end;
@@ -116,20 +116,20 @@ namespace TrenchBroom {
             int drop = 0;
             int undecided = 0;
             
-            if (start->mark == VM_KEEP) keep++;
-            else if (start->mark == VM_DROP) drop++;
-            else if (start->mark == VM_UNDECIDED) undecided++;
+            if (start->mark == TB_VM_KEEP) keep++;
+            else if (start->mark == TB_VM_DROP) drop++;
+            else if (start->mark == TB_VM_UNDECIDED) undecided++;
             
-            if (end->mark == VM_KEEP) keep++;
-            else if (end->mark == VM_DROP) drop++;
-            else if (end->mark == VM_UNDECIDED) undecided++;
+            if (end->mark == TB_VM_KEEP) keep++;
+            else if (end->mark == TB_VM_DROP) drop++;
+            else if (end->mark == TB_VM_UNDECIDED) undecided++;
             
             assert(keep + drop + undecided == 2);
             
-            if (keep == 1 && drop == 1) mark = EM_SPLIT;
-            else if (keep > 0) mark = EM_KEEP;
-            else if (drop > 0) mark = EM_DROP;
-            else mark = EM_UNDECIDED;
+            if (keep == 1 && drop == 1) mark = TB_EM_SPLIT;
+            else if (keep > 0) mark = TB_EM_KEEP;
+            else if (drop > 0) mark = TB_EM_DROP;
+            else mark = TB_EM_UNDECIDED;
         }
         
         Vec3f Edge::vector() {
@@ -146,9 +146,9 @@ namespace TrenchBroom {
             
             float dist = plane.intersectWithLine(line);
             newVertex->position = line.pointAtDistance(dist).snap();
-            newVertex->mark = VM_NEW;
+            newVertex->mark = TB_VM_NEW;
             
-            if (start->mark == VM_DROP) start = newVertex;
+            if (start->mark == TB_VM_DROP) start = newVertex;
             else end = newVertex;
             
             return newVertex;
@@ -187,7 +187,7 @@ namespace TrenchBroom {
             }
         }
 
-        Side::Side(Edge* newEdges[], bool invert[], int count) : mark(SM_NEW), face(NULL) {
+        Side::Side(Edge* newEdges[], bool invert[], int count) : mark(TB_SM_NEW), face(NULL) {
             vertices.reserve(count);
             edges.reserve(count);
             for (int i = 0; i < count; i++) {
@@ -203,7 +203,7 @@ namespace TrenchBroom {
             }
         }
         
-        Side::Side(Face& face, vector<Edge*>& newEdges) : mark(SM_NEW), face(&face) {
+        Side::Side(Face& face, vector<Edge*>& newEdges) : mark(TB_SM_NEW), face(&face) {
             vertices.reserve(newEdges.size());
             edges.reserve(newEdges.size());
             for (int i = 0; i < newEdges.size(); i++) {
@@ -325,22 +325,22 @@ namespace TrenchBroom {
             for (int i = 0; i < edges.size(); i++) {
                 edge = edges[i];
                 EEdgeMark currentMark = edge->mark;
-                if (currentMark == EM_SPLIT) {
+                if (currentMark == TB_EM_SPLIT) {
                     Vertex* start = edge->startVertex(this);
-                    if (start->mark == VM_KEEP)
+                    if (start->mark == TB_VM_KEEP)
                         splitIndex1 = i;
                     else
                         splitIndex2 = i;
                     split++;
-                } else if (currentMark == EM_UNDECIDED) {
+                } else if (currentMark == TB_EM_UNDECIDED) {
                     undecided++;
                     undecidedEdge = edge;
-                } else if (currentMark == EM_KEEP) {
-                    if (lastMark == EM_DROP)
+                } else if (currentMark == TB_EM_KEEP) {
+                    if (lastMark == TB_EM_DROP)
                         splitIndex2 = i;
                     keep++;
-                } else if (currentMark == EM_DROP) {
-                    if (lastMark == EM_KEEP)
+                } else if (currentMark == TB_EM_DROP) {
+                    if (lastMark == TB_EM_KEEP)
                         splitIndex1 = i > 0 ? i - 1 : edges.size() - 1;
                     drop++;
                 }
@@ -348,29 +348,29 @@ namespace TrenchBroom {
             }
             
             if (keep == edges.size()) {
-                mark = SM_KEEP;
+                mark = TB_SM_KEEP;
                 return NULL;
             }
             
             if (undecided == 1 && keep == edges.size() - 1) {
-                mark = SM_KEEP;
+                mark = TB_SM_KEEP;
                 return undecidedEdge;
             }
             
             if (drop + undecided == edges.size()) {
-                mark = SM_DROP;
+                mark = TB_SM_DROP;
                 return NULL;
             }
             
             assert(splitIndex1 >= 0 && splitIndex2 >= 0);
-            mark = SM_SPLIT;
+            mark = TB_SM_SPLIT;
             
             Edge* newEdge = new Edge();
             newEdge->start = edges[splitIndex1]->endVertex(this);
             newEdge->end = edges[splitIndex2]->startVertex(this);
             newEdge->left = NULL;
             newEdge->right = this;
-            newEdge->mark = EM_NEW;
+            newEdge->mark = TB_EM_NEW;
             
             replaceEdges(splitIndex1, splitIndex2, newEdge);
             return newEdge;
@@ -475,7 +475,7 @@ namespace TrenchBroom {
                 sideEdges[2]->end = vertex;
                 sideEdges[2]->left= NULL;
                 sideEdges[2]->right = NULL;
-                sideEdges[2]->mark = EM_NEW;
+                sideEdges[2]->mark = TB_EM_NEW;
                 flipped[2] = false;
                 edges.push_back(sideEdges[2]);
                 
@@ -518,7 +518,7 @@ namespace TrenchBroom {
             sideEdges[2]->end = side->vertices[(sideVertexIndex + 1) % side->vertices.size()];
             sideEdges[2]->left = NULL;
             sideEdges[2]->right = side;
-            sideEdges[2]->mark = EM_NEW;
+            sideEdges[2]->mark = TB_EM_NEW;
             flipped[2] = true;
             edges.push_back(sideEdges[2]);
             side->replaceEdges((sideVertexIndex + side->edges.size() - 2) % side->edges.size(), (sideVertexIndex + 1) % side->edges.size(), sideEdges[2]);
@@ -1198,29 +1198,29 @@ namespace TrenchBroom {
             for (int i = 0; i < vertices.size(); i++) {
                 Vertex& vertex = *vertices[i];
                 EPointStatus vs = boundary.pointStatus(vertex.position);
-                if (vs == PS_ABOVE) {
-                    vertex.mark = VM_DROP;
+                if (vs == TB_PS_ABOVE) {
+                    vertex.mark = TB_VM_DROP;
                     drop++;
-                } else if (vs == PS_BELOW) {
-                    vertex.mark  = VM_KEEP;
+                } else if (vs == TB_PS_BELOW) {
+                    vertex.mark  = TB_VM_KEEP;
                     keep++;
                 } else {
-                    vertex.mark = VM_UNDECIDED;
+                    vertex.mark = TB_VM_UNDECIDED;
                     undecided++;
                 }
             }
             
             if (keep + undecided == vertices.size())
-                return CR_REDUNDANT;
+                return TB_CR_REDUNDANT;
             
             if (drop + undecided == vertices.size())
-                return CR_NULL;
+                return TB_CR_NULL;
             
             // mark and split edges
             for (int i = 0; i < edges.size(); i++) {
                 Edge& edge = *edges[i];
                 edge.updateMark();
-                if (edge.mark == EM_SPLIT) {
+                if (edge.mark == TB_EM_SPLIT) {
                     Vertex* vertex = edge.split(boundary);
                     vertices.push_back(vertex);
                 }
@@ -1233,7 +1233,7 @@ namespace TrenchBroom {
                 Side* side = *sideIt;
                 Edge* newEdge = side->split();
                 
-                if (side->mark == SM_DROP) {
+                if (side->mark == TB_SM_DROP) {
                     Face* face = side->face;
                     if (face != NULL) {
                         droppedFaces.push_back(face);
@@ -1241,18 +1241,18 @@ namespace TrenchBroom {
                     }
                     delete side;
                     sideIt = --sides.erase(sideIt);
-                } else if (side->mark == SM_SPLIT) {
+                } else if (side->mark == TB_SM_SPLIT) {
                     edges.push_back(newEdge);
                     newEdges.push_back(newEdge);
-                    side->mark = SM_UNKNOWN;
-                } else if (side->mark == SM_KEEP && newEdge != NULL) {
+                    side->mark = TB_SM_UNKNOWN;
+                } else if (side->mark == TB_SM_KEEP && newEdge != NULL) {
                     // the edge is an undecided edge, so it needs to be flipped in order to act as a new edge
                     if (newEdge->right != side)
                         newEdge->flip();
                     newEdges.push_back(newEdge);
-                    side->mark = SM_UNKNOWN;
+                    side->mark = TB_SM_UNKNOWN;
                 } else {
-                    side->mark = SM_UNKNOWN;
+                    side->mark = TB_SM_UNKNOWN;
                 }
             }
             
@@ -1281,8 +1281,8 @@ namespace TrenchBroom {
                 vector<Edge*>& edges = side->edges;
                 assert(vertices.size() == edges.size());
                 for (int j = 0; j < vertices.size(); j++) {
-                    assert(vertices[j]->mark != VM_DROP);
-                    assert(edges[j]->mark != EM_DROP);
+                    assert(vertices[j]->mark != TB_VM_DROP);
+                    assert(edges[j]->mark != TB_EM_DROP);
                     assert(edges[j]->startVertex(side) == vertices[j]);
                 }
             }
@@ -1292,11 +1292,11 @@ namespace TrenchBroom {
             vector<Vertex*>::iterator vertexIt;
             for (vertexIt = vertices.begin(); vertexIt != vertices.end(); ++vertexIt) {
                 Vertex* vertex = *vertexIt;
-                if (vertex->mark == VM_DROP) {
+                if (vertex->mark == TB_VM_DROP) {
                     delete vertex;
                     vertexIt = --vertices.erase(vertexIt);
                 } else {
-                    vertex->mark = VM_UNKNOWN;
+                    vertex->mark = TB_VM_UNKNOWN;
                 }
             }
             
@@ -1304,21 +1304,21 @@ namespace TrenchBroom {
             vector<Edge*>::iterator edgeIt;
             for (edgeIt = edges.begin(); edgeIt != edges.end(); ++edgeIt) {
                 Edge* edge = *edgeIt;
-                if (edge->mark == EM_DROP) {
+                if (edge->mark == TB_EM_DROP) {
                     delete edge;
                     edgeIt = --edges.erase(edgeIt);
                 } else {
-                    edge->mark = EM_UNKNOWN;
+                    edge->mark = TB_EM_UNKNOWN;
                 }
             }
             
             bounds = boundsOfVertices(vertices);
-            return CR_SPLIT;
+            return TB_CR_SPLIT;
         }
         
         bool BrushGeometry::addFaces(vector<Face*>& faces, vector<Face*>& droppedFaces) {
             for (int i = 0; i < faces.size(); i++)
-                if (addFace(*faces[i], droppedFaces) == CR_NULL)
+                if (addFace(*faces[i], droppedFaces) == TB_CR_NULL)
                     return false;
             return true;
         }
@@ -1561,15 +1561,15 @@ namespace TrenchBroom {
             int below = 0;
             for (int i = 0; i < vertices.size(); i++) {
                 EPointStatus status = ray.pointStatus(vertices[i]->position); 
-                if (status == PS_ABOVE)
+                if (status == TB_PS_ABOVE)
                     above++;
-                else if (status == PS_BELOW)
+                else if (status == TB_PS_BELOW)
                     below++;
                 if (above > 0 && below > 0)
-                    return PS_INSIDE;
+                    return TB_PS_INSIDE;
             }
             
-            return above > 0 ? PS_ABOVE : PS_BELOW;
+            return above > 0 ? TB_PS_ABOVE : TB_PS_BELOW;
         }
     }
 }

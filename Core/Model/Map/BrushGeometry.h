@@ -28,34 +28,34 @@ using namespace std;
 namespace TrenchBroom {
     namespace Model {
         typedef enum {
-            CR_REDUNDANT, // the given face is redundant and need not be added to the brush
-            CR_NULL, // the given face has nullified the entire brush
-            CR_SPLIT // the given face has split the brush
+            TB_CR_REDUNDANT, // the given face is redundant and need not be added to the brush
+            TB_CR_NULL, // the given face has nullified the entire brush
+            TB_CR_SPLIT // the given face has split the brush
         } ECutResult;
         
         typedef enum {
-            VM_DROP,
-            VM_KEEP,
-            VM_UNDECIDED,
-            VM_NEW,
-            VM_UNKNOWN
+            TB_VM_DROP,
+            TB_VM_KEEP,
+            TB_VM_UNDECIDED,
+            TB_VM_NEW,
+            TB_VM_UNKNOWN
         } EVertexMark;
         
         typedef enum {
-            EM_KEEP,
-            EM_DROP,
-            EM_SPLIT,
-            EM_UNDECIDED,
-            EM_NEW,
-            EM_UNKNOWN
+            TB_EM_KEEP,
+            TB_EM_DROP,
+            TB_EM_SPLIT,
+            TB_EM_UNDECIDED,
+            TB_EM_NEW,
+            TB_EM_UNKNOWN
         } EEdgeMark;
         
         typedef enum {
-            SM_KEEP,
-            SM_DROP,
-            SM_SPLIT,
-            SM_NEW,
-            SM_UNKNOWN
+            TB_SM_KEEP,
+            TB_SM_DROP,
+            TB_SM_SPLIT,
+            TB_SM_NEW,
+            TB_SM_UNKNOWN
         } ESideMark;
         
         class MoveResult {
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             ESideMark mark;
             void* operator new(size_t size);
             void operator delete(void* pointer);
-            Side() : mark(SM_NEW), face(NULL) {}
+            Side() : mark(TB_SM_NEW), face(NULL) {}
             Side(Edge* newEdges[], bool invert[], int count);
             Side(Face& face, vector<Edge*>& newEdges);
             float intersectWithRay(const Ray& ray);

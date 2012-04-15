@@ -39,38 +39,38 @@ namespace TrenchBroom {
 
     namespace IO {
         typedef enum {
-            TT_FRAC = 1 << 0, // fractional number
-            TT_DEC  = 1 << 1, // decimal number
-            TT_STR  = 1 << 2, // string
-            TT_B_O  = 1 << 3, // opening parenthesis
-            TT_B_C  = 1 << 4, // closing parenthesis
-            TT_CB_O = 1 << 5, // opening curly bracket
-            TT_CB_C = 1 << 6, // closing curly bracket
-            TT_SB_O = 1 << 7, // opening square bracket
-            TT_SB_C = 1 << 8, // closing square bracket
-            TT_COM  = 1 << 9 // comment
+            TB_TT_FRAC = 1 << 0, // fractional number
+            TB_TT_DEC  = 1 << 1, // decimal number
+            TB_TT_STR  = 1 << 2, // string
+            TB_TT_B_O  = 1 << 3, // opening parenthesis
+            TB_TT_B_C  = 1 << 4, // closing parenthesis
+            TB_TT_CB_O = 1 << 5, // opening curly bracket
+            TB_TT_CB_C = 1 << 6, // closing curly bracket
+            TB_TT_SB_O = 1 << 7, // opening square bracket
+            TB_TT_SB_C = 1 << 8, // closing square bracket
+            TB_TT_COM  = 1 << 9 // comment
         } ETokenType;
         
         typedef enum {
-            TS_DEF, // default state
-            TS_DEC, // current token is a decimal number
-            TS_FRAC, // current token is a fractional number
-            TS_STR, // current token is a string
-            TS_Q_STR, // current token is a quoted string
-            TS_COM,
-            TS_EOF // parsing is complete
+            TB_TS_DEF, // default state
+            TB_TS_DEC, // current token is a decimal number
+            TB_TS_FRAC, // current token is a fractional number
+            TB_TS_STR, // current token is a string
+            TB_TS_Q_STR, // current token is a quoted string
+            TB_TS_COM,
+            TB_TS_EOF // parsing is complete
         } ETokenizerState;
         
         typedef enum {
-            PS_DEF, // default state
-            PS_ENT, // currently parsing an entity
-            PS_BRUSH, // currently parsing a brush
+            TB_PS_DEF, // default state
+            TB_PS_ENT, // currently parsing an entity
+            TB_PS_BRUSH, // currently parsing a brush
         } EParserState;
         
         typedef enum {
-            MF_STANDARD,
-            MF_VALVE,
-            MF_UNDEFINED
+            TB_MF_STANDARD,
+            TB_MF_VALVE,
+            TB_MF_UNDEFINED
         } EMapFormat;
         
         class MapToken {

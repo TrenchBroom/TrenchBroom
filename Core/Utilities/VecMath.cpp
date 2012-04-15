@@ -246,9 +246,9 @@ EAxis Vec3f::strongestAxis() const {
     int ax = fabsf(x);
     int ay = fabsf(y);
     int az = fabsf(z);
-    if (ax >= ay && ax >= az) return A_X;
-    if (ay >= ax && ay >= az) return A_Y;
-    return A_Z;
+    if (ax >= ay && ax >= az) return TB_AX_X;
+    if (ay >= ax && ay >= az) return TB_AX_Y;
+    return TB_AX_Z;
 }
 
 const Vec3f Vec3f::snap() const {
@@ -266,13 +266,13 @@ const Vec3f Vec3f::snap(float epsilon) const {
 
 const Vec3f Vec3f::rotate90(EAxis axis, bool clockwise) const {
     switch (axis) {
-        case A_X:
+        case TB_AX_X:
             if (clockwise) return Vec3f(x, z, -y);
             return Vec3f(x, -z, y);
-        case A_Y:
+        case TB_AX_Y:
             if (clockwise) return Vec3f(-z, y, x);
             return Vec3f(z, y, -x);
-        case A_Z:
+        case TB_AX_Z:
             if (clockwise) return Vec3f(y, -x, z);
             return Vec3f(-y, x, z);
     }
@@ -286,11 +286,11 @@ const Vec3f Vec3f::rotate90(EAxis axis, const Vec3f& center, bool clockwise) con
 
 const Vec3f Vec3f::flip(EAxis axis) const {
     switch (axis) {
-        case A_X:
+        case TB_AX_X:
             return Vec3f(-x, y, z);
-        case A_Y:
+        case TB_AX_Y:
             return Vec3f(x, -y, z);
-        case A_Z:
+        case TB_AX_Z:
             return Vec3f(x, y, -z);
     }
 }
@@ -1160,9 +1160,9 @@ const Vec3f Ray::pointAtDistance(float distance) const {
 
 EPointStatus Ray::pointStatus(const Vec3f& point) const {
     float dot = direction | (point - origin);
-    if (dot >  PointStatusEpsilon) return PS_ABOVE;
-    if (dot < -PointStatusEpsilon) return PS_BELOW;
-    return PS_INSIDE;
+    if (dot >  PointStatusEpsilon) return TB_PS_ABOVE;
+    if (dot < -PointStatusEpsilon) return TB_PS_BELOW;
+    return TB_PS_INSIDE;
 }
 
 #pragma mark Line
@@ -1453,9 +1453,9 @@ float Plane::intersectWithLine(const Line& line) const {
 
 EPointStatus Plane::pointStatus(const Vec3f& point) const {
     float dot = normal | (point - anchor());
-    if (dot >  PointStatusEpsilon) return PS_ABOVE;
-    if (dot < -PointStatusEpsilon) return PS_BELOW;
-    return PS_INSIDE;
+    if (dot >  PointStatusEpsilon) return TB_PS_ABOVE;
+    if (dot < -PointStatusEpsilon) return TB_PS_BELOW;
+    return TB_PS_INSIDE;
 }
 
 float Plane::x(float y, float z) const {
@@ -1510,37 +1510,37 @@ const Plane Plane::flip(EAxis axis, const Vec3f& center) const {
 }
 
 const CoordinatePlane& CoordinatePlane::plane(CPlane plane) {
-    static CoordinatePlane xy(CP_XY);
-    static CoordinatePlane xz(CP_XZ);
-    static CoordinatePlane yz(CP_YZ);
+    static CoordinatePlane xy(TB_CP_XY);
+    static CoordinatePlane xz(TB_CP_XZ);
+    static CoordinatePlane yz(TB_CP_YZ);
     switch (plane) {
-        case CP_XY:
+        case TB_CP_XY:
             return xy;
-        case CP_XZ:
+        case TB_CP_XZ:
             return xz;
-        case CP_YZ:
+        case TB_CP_YZ:
             return yz;
     }
 }
 
 const CoordinatePlane& CoordinatePlane::plane(const Vec3f& normal) {
     switch (normal.strongestAxis()) {
-        case A_X:
-            return plane(CP_YZ);
-        case A_Y:
-            return plane(CP_XZ);
-        case A_Z:
-            return plane(CP_XY);
+        case TB_AX_X:
+            return plane(TB_CP_YZ);
+        case TB_AX_Y:
+            return plane(TB_CP_XZ);
+        case TB_AX_Z:
+            return plane(TB_CP_XY);
     }
 }
 
 const Vec3f CoordinatePlane::project(const Vec3f& point) {
     switch (m_plane) {
-        case CP_XY:
+        case TB_CP_XY:
             return Vec3f(point.x, point.y, point.z);
-        case CP_YZ:
+        case TB_CP_YZ:
             return Vec3f(point.y, point.z, point.x);
-        case CP_XZ:
+        case TB_CP_XZ:
             return Vec3f(point.x, point.z, point.y);
     }
 }

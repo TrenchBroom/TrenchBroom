@@ -39,7 +39,7 @@ namespace TrenchBroom {
             if (!cameraModiferPressed(event) && !orbitModifierPressed(event)) return false;
             
             if (orbitModifierPressed(event)) {
-                Model::Hit* hit = event.hits->first(Model::HT_ENTITY | Model::HT_FACE, true);
+                Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
                 if (hit != NULL) m_orbitCenter = hit->hitPoint;
                 else m_orbitCenter = m_editor.camera().defaultPoint();
                 m_orbit = true;
@@ -75,11 +75,11 @@ namespace TrenchBroom {
         }
         
         bool CameraTool::cameraModiferPressed(ToolEvent& event) {
-            return event.modifierKeys == MK_SHIFT;
+            return event.modifierKeys == TB_MK_SHIFT;
         }
         
         bool CameraTool::orbitModifierPressed(ToolEvent& event) {
-            return event.modifierKeys == (MK_SHIFT | MK_CMD);
+            return event.modifierKeys == (TB_MK_SHIFT | TB_MK_CMD);
         }
     }
 }

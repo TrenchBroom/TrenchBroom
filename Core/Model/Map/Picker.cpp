@@ -36,17 +36,17 @@ namespace TrenchBroom {
         }
         
         Entity& Hit::entity() {
-            assert(type == HT_ENTITY);
+            assert(type == TB_HT_ENTITY);
             return *(Entity*)object;
         }
         
         Brush& Hit::brush() {
-            assert(type == HT_VERTEX_HANDLE || type == HT_EDGE_HANDLE || type == HT_FACE_HANDLE);
+            assert(type == TB_HT_VERTEX_HANDLE || type == TB_HT_EDGE_HANDLE || type == TB_HT_FACE_HANDLE);
             return *(Brush*)object;
         }
         
         Face& Hit::face() {
-            assert(type == HT_FACE || type == HT_CLOSE_FACE);
+            assert(type == TB_HT_FACE || type == TB_HT_CLOSE_FACE);
             return *(Face*)object;
         }
 

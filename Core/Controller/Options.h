@@ -24,9 +24,9 @@ namespace TrenchBroom {
     namespace Controller {
 
         typedef enum {
-            RM_TEXTURED,
-            RM_FLAT,
-            RM_WIREFRAME
+            TB_RM_TEXTURED,
+            TB_RM_FLAT,
+            TB_RM_WIREFRAME
         } ERenderMode;
         
         typedef enum {
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             float originAxisLength;
             bool renderSizeGuides;
             bool lockTextures;
-            TransientOptions() : renderMode(RM_TEXTURED), isolationMode(IM_NONE), renderEntities(true), renderEntityClassnames(true), renderBrushes(true), renderOrigin(true), renderGrid(true), originAxisLength(64), renderSizeGuides(true), lockTextures(true) {}
+            TransientOptions() : renderMode(TB_RM_TEXTURED), isolationMode(IM_NONE), renderEntities(true), renderEntityClassnames(true), renderBrushes(true), renderOrigin(true), renderGrid(true), originAxisLength(64), renderSizeGuides(true), lockTextures(true) {}
         };
     }
 }

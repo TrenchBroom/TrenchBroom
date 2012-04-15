@@ -29,12 +29,12 @@ namespace TrenchBroom {
 
     namespace Model {
         typedef enum {
-            HT_ENTITY           = 1 << 0,
-            HT_FACE             = 1 << 1,
-            HT_CLOSE_FACE       = 1 << 2,
-            HT_VERTEX_HANDLE    = 1 << 3,
-            HT_EDGE_HANDLE      = 1 << 4,
-            HT_FACE_HANDLE      = 1 << 5
+            TB_HT_ENTITY           = 1 << 0,
+            TB_HT_FACE             = 1 << 1,
+            TB_HT_CLOSE_FACE       = 1 << 2,
+            TB_HT_VERTEX_HANDLE    = 1 << 3,
+            TB_HT_EDGE_HANDLE      = 1 << 4,
+            TB_HT_FACE_HANDLE      = 1 << 5
         } EHitType;
 
         class Entity;

@@ -29,14 +29,14 @@ using namespace std;
 namespace TrenchBroom {
     namespace Model {
         typedef enum {
-            CP_WSB = 0,
-            CP_WST = 1,
-            CP_WNB = 2,
-            CP_WNT = 3,
-            CP_ESB = 4,
-            CP_EST = 5,
-            CP_ENB = 6,
-            CP_ENT = 7
+            TB_CP_WSB = 0,
+            TB_CP_WST = 1,
+            TB_CP_WNB = 2,
+            TB_CP_WNT = 3,
+            TB_CP_ESB = 4,
+            TB_CP_EST = 5,
+            TB_CP_ENB = 6,
+            TB_CP_ENT = 7
         } ENodePosition;
         
         class MapObject;

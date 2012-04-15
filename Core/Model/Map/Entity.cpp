@@ -44,13 +44,13 @@ namespace TrenchBroom {
             
             m_bounds.min = m_bounds.max = Null3f;
             m_maxBounds.min = m_maxBounds.max = Null3f;
-            if (m_entityDefinition == NULL || m_entityDefinition->type == EDT_BRUSH) {
+            if (m_entityDefinition == NULL || m_entityDefinition->type == TB_EDT_BRUSH) {
                 if (!m_brushes.empty()) {
                     m_bounds = m_brushes[0]->bounds();
                     for (int i = 1; i < m_brushes.size(); i++)
                         m_bounds += m_brushes[i]->bounds();
                 }
-            } else if (m_entityDefinition->type == EDT_POINT) {
+            } else if (m_entityDefinition->type == TB_EDT_POINT) {
                 m_bounds = m_entityDefinition->bounds.translate(m_origin);
             }
             
@@ -84,7 +84,7 @@ namespace TrenchBroom {
         }
         
         void Entity::rotate90(EAxis axis, Vec3f rotationCenter, bool clockwise) {
-            if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_BRUSH)
+            if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
             
             setProperty(OriginKey, m_origin.rotate90(axis, rotationCenter, clockwise), true);
@@ -122,7 +122,7 @@ namespace TrenchBroom {
         }
         
         EMapObjectType Entity::objectType() const {
-            return MT_ENTITY;
+            return TB_MT_ENTITY;
         }
 
         const EntityDefinition* Entity::entityDefinition() const {
@@ -164,7 +164,7 @@ namespace TrenchBroom {
             if (std::isnan(dist)) return;
             
             Vec3f hitPoint = ray.pointAtDistance(dist);
-            Hit* hit = new Hit(this, HT_ENTITY, hitPoint, dist);
+            Hit* hit = new Hit(this, TB_HT_ENTITY, hitPoint, dist);
             hits.add(*hit);
         }
 
@@ -279,7 +279,7 @@ namespace TrenchBroom {
         }
         
         void Entity::addBrush(Brush* brush) {
-            if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_BRUSH)
+            if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
             
             brush->setEntity(this);
@@ -288,7 +288,7 @@ namespace TrenchBroom {
         }
         
         void Entity::addBrushes(const vector<Brush*>& brushes) {
-            if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_BRUSH)
+            if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
             
             for (int i = 0; i < brushes.size(); i++) {
@@ -303,7 +303,7 @@ namespace TrenchBroom {
         }
         
         void Entity::removeBrush(Brush* brush) {
-            if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_BRUSH)
+            if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
             
             brush->setEntity(NULL);
@@ -312,7 +312,7 @@ namespace TrenchBroom {
         }
         
         void Entity::removeBrushes(vector<Brush*>& brushes) {
-            if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_BRUSH)
+            if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
             
             for (int i = 0; i < brushes.size(); i++) {
@@ -323,7 +323,7 @@ namespace TrenchBroom {
         }
         
         void Entity::translate(Vec3f delta) {
-            if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_POINT)
+            if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_POINT)
                 return;
             
             setProperty(OriginKey, m_origin + delta, true);
@@ -338,7 +338,7 @@ namespace TrenchBroom {
         }
         
         void Entity::rotate(Quat rotation, Vec3f rotationCenter) {
-            if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_BRUSH)
+            if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
             
             Vec3f offset = center() - origin();
@@ -380,7 +380,7 @@ namespace TrenchBroom {
         }
         
         void Entity::flip(EAxis axis, Vec3f flipCenter) {
-            if (m_entityDefinition != NULL && m_entityDefinition->type != EDT_BRUSH)
+            if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
             
             Vec3f offset = center() - origin();

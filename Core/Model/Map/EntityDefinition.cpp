@@ -38,7 +38,7 @@ namespace TrenchBroom {
 
         EntityDefinition* EntityDefinition::baseDefinition(const string& name, const map<string, SpawnFlag>& flags, const vector<Property*>& properties) {
             EntityDefinition* definition = new EntityDefinition();
-            definition->type = EDT_BASE;
+            definition->type = TB_EDT_BASE;
             definition->name = name;
             definition->flags = flags;
             definition->properties = properties;
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         
         EntityDefinition* EntityDefinition::pointDefinition(const string& name, const Vec4f& color, const BBox& bounds, const map<string, SpawnFlag>& flags, const vector<Property*>& properties, const string& description) {
             EntityDefinition* definition = new EntityDefinition();
-            definition->type = EDT_POINT;
+            definition->type = TB_EDT_POINT;
             definition->name = name;
             definition->color = color;
             definition->bounds = bounds;
@@ -59,7 +59,7 @@ namespace TrenchBroom {
         
         EntityDefinition* EntityDefinition::brushDefinition(const string& name, const Vec4f& color, const map<string, SpawnFlag>& flags, const vector<Property*> properties, const string& description) {
             EntityDefinition* definition = new EntityDefinition();
-            definition->type = EDT_BRUSH;
+            definition->type = TB_EDT_BRUSH;
             definition->name = name;
             definition->color = color;
             definition->flags = flags;
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             ModelProperty* specificProperty = NULL;
             for (int i = 0; i < properties.size() && specificProperty == NULL; i++) {
                 Property* property = properties[i];
-                if (property->type == EDP_MODEL) {
+                if (property->type == TB_EDP_MODEL) {
                     ModelProperty* modelProperty = static_cast<ModelProperty*>(property);
                     if (modelProperty->flagName.empty())
                         defaultProperty = modelProperty;
@@ -113,7 +113,7 @@ namespace TrenchBroom {
         ModelProperty* EntityDefinition::defaultModelProperty() const {
             for (int i = 0; i < properties.size(); i++) {
                 Property* property = properties[i];
-                if (property->type == EDP_MODEL) {
+                if (property->type == TB_EDP_MODEL) {
                     ModelProperty* modelProperty = static_cast<ModelProperty*>(property);
                     if (modelProperty->flagName.empty())
                         return modelProperty;

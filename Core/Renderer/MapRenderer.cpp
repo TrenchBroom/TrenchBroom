@@ -273,7 +273,7 @@ namespace TrenchBroom {
             vector<Model::Entity*> entities;
             for (int i = 0; i < brushes.size(); i++) {
                 Model::Entity* entity = brushes[i]->entity();
-                if (!entity->worldspawn() && entity->entityDefinition()->type == Model::EDT_BRUSH) {
+                if (!entity->worldspawn() && entity->entityDefinition()->type == Model::TB_EDT_BRUSH) {
                     if (find(entities.begin(), entities.end(), entity) == entities.end())
                         entities.push_back(entity);
                 }
@@ -1272,19 +1272,19 @@ namespace TrenchBroom {
                 glEnableClientState(GL_VERTEX_ARRAY);
 
                 switch (context.options.renderMode) {
-                    case Controller::RM_TEXTURED:
+                    case Controller::TB_RM_TEXTURED:
                         if (context.options.isolationMode == Controller::IM_NONE)
                             renderFaces(context, true, false, m_faceIndexBuffers);
                         if (!m_editor.map().selection().empty())
                             renderFaces(context, true, true, m_selectedFaceIndexBuffers);
                         break;
-                    case Controller::RM_FLAT:
+                    case Controller::TB_RM_FLAT:
                         if (context.options.isolationMode == Controller::IM_NONE)
                             renderFaces(context, false, false, m_faceIndexBuffers);
                         if (!m_editor.map().selection().empty())
                             renderFaces(context, false, true, m_selectedFaceIndexBuffers);
                         break;
-                    case Controller::RM_WIREFRAME:
+                    case Controller::TB_RM_WIREFRAME:
                         break;
                 }
 

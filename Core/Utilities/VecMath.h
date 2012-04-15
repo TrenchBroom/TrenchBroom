@@ -38,15 +38,15 @@
 using namespace std;
 
 typedef enum {
-    A_X,
-    A_Y,
-    A_Z
+    TB_AX_X,
+    TB_AX_Y,
+    TB_AX_Z
 } EAxis;
 
 typedef enum {
-    PS_ABOVE, // point is above the plane
-    PS_BELOW, // point is below the plane
-    PS_INSIDE // point is contained inside the plane
+    TB_PS_ABOVE, // point is above the plane
+    TB_PS_BELOW, // point is below the plane
+    TB_PS_INSIDE // point is contained inside the plane
 } EPointStatus;
 
 class Vec2f {
@@ -376,7 +376,7 @@ public:
 class CoordinatePlane {
 public:
     typedef enum {
-        CP_XY, CP_XZ, CP_YZ
+        TB_CP_XY, TB_CP_XZ, TB_CP_YZ
     } CPlane;
 private:
     const CPlane m_plane;

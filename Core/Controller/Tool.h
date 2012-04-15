@@ -30,18 +30,18 @@ namespace TrenchBroom {
     namespace Controller {
 
         typedef enum {
-            MOD_NONE = 0,
-            MOD_SHIFT = 1 << 0,
-            MOD_CTRL = 1 << 1,
-            MOD_ALT = 1 << 2,
-            MOD_CMD = 1 << 3
+            TB_MK_NONE = 0,
+            TB_MK_SHIFT = 1 << 0,
+            TB_MK_CTRL = 1 << 1,
+            TB_MK_ALT = 1 << 2,
+            TB_MK_CMD = 1 << 3
         } EModifierKeys;
 
         typedef enum {
-            MB_NONE = 0,
-            MB_LEFT = 1,
-            MB_RIGHT = 2,
-            MB_MIDDLE = 3
+            TB_MB_NONE = 0,
+            TB_MB_LEFT = 1,
+            TB_MB_RIGHT = 2,
+            TB_MB_MIDDLE = 3
         } EMouseButton;
 
         class Editor;
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             float scrollX;
             float scrollY;
             Model::HitList* hits;
-            ToolEvent() : modifierKeys(MK_NONE), mouseButton(MB_NONE), hits(NULL) {}
+            ToolEvent() : modifierKeys(TB_MK_NONE), mouseButton(TB_MB_NONE), hits(NULL) {}
         };
 
         class Tool {
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             virtual void rightScroll(ToolEvent& event) {}
             virtual void endRightScroll(ToolEvent& event) {}
 
-            static bool noModifierPressed(ToolEvent& event) { return event.modifierKeys == MK_NONE; }
+            static bool noModifierPressed(ToolEvent& event) { return event.modifierKeys == TB_MK_NONE; }
         };
     }
 }

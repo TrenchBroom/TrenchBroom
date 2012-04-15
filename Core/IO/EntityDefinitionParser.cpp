@@ -24,11 +24,11 @@
 namespace TrenchBroom {
     namespace IO {
         bool EntityDefinitionTokenizer::nextChar() {
-            if (m_state == TS_EOF)
+            if (m_state == TB_TS_EOF)
                 return false;
             
             if (m_stream.eof()) {
-                m_state = TS_EOF;
+                m_state = TB_TS_EOF;
                 return false;
             }
             
@@ -44,8 +44,8 @@ namespace TrenchBroom {
         }
         
         void EntityDefinitionTokenizer::pushChar() {
-            if (m_state == TS_EOF)
-                m_state = TS_OUTDEF;
+            if (m_state == TB_TS_EOF)
+                m_state = TB_TS_OUTDEF;
             
             m_stream.seekg(-1, ios::cur);
             m_stream.get(m_char);
@@ -87,53 +87,53 @@ namespace TrenchBroom {
             return &m_token;
         }
         
-        EntityDefinitionTokenizer::EntityDefinitionTokenizer(istream& stream) : m_stream(stream), m_state(TS_OUTDEF), m_line(1), m_column(0) {}
+        EntityDefinitionTokenizer::EntityDefinitionTokenizer(istream& stream) : m_stream(stream), m_state(TB_TS_OUTDEF), m_line(1), m_column(0) {}
         
         EntityDefinitionToken* EntityDefinitionTokenizer::next() {
             string buffer;
             while (nextChar()) {
                 switch (m_state) {
-                    case TS_OUTDEF:
+                    case TB_TS_OUTDEF:
                         switch (m_char) {
                             case '/':
                                 if (peekChar() == '*') {
-                                    m_state = TS_INDEF;
+                                    m_state = TB_TS_INDEF;
                                     while (m_char != ' ')
                                         nextChar();
-                                    return token(TT_ED_O, NULL);
+                                    return token(TB_TT_ED_O, NULL);
                                 } else if (peekChar() == '/') {
-                                    m_state = TS_COM;
+                                    m_state = TB_TS_COM;
                                 }
                                 break;
                             default:
                                 break;
                         }
                         break;
-                    case TS_INDEF:
+                    case TB_TS_INDEF:
                         switch (m_char) {
                             case '*':
                                 if (peekChar() == '/') {
                                     nextChar();
-                                    m_state = TS_OUTDEF;
-                                    return token(TT_ED_C, NULL);
+                                    m_state = TB_TS_OUTDEF;
+                                    return token(TB_TT_ED_C, NULL);
                                 }
                                 break;
                             case '(':
-                                return token(TT_B_O, NULL);
+                                return token(TB_TT_B_O, NULL);
                             case ')':
-                                return token(TT_B_C, NULL);
+                                return token(TB_TT_B_C, NULL);
                             case '{':
-                                return token(TT_CB_O, NULL);
+                                return token(TB_TT_CB_O, NULL);
                             case '}':
-                                return token(TT_CB_C, NULL);
+                                return token(TB_TT_CB_C, NULL);
                             case ';':
-                                return token(TT_SC, NULL);
+                                return token(TB_TT_SC, NULL);
                             case '?':
-                                return token(TT_QM, NULL);
+                                return token(TB_TT_QM, NULL);
                             case '\n':
-                                return token(TT_NL, NULL);
+                                return token(TB_TT_NL, NULL);
                             case ',':
-                                return token(TT_C, NULL);
+                                return token(TB_TT_C, NULL);
                             case ' ':
                             case '\t':
                                 break;
@@ -148,26 +148,26 @@ namespace TrenchBroom {
                             case '7':
                             case '8':
                             case '9':
-                                m_state = TS_DEC;
+                                m_state = TB_TS_DEC;
                                 buffer.clear();
                                 buffer += m_char;
                                 break;
                             case '"':
-                                m_state = TS_Q_STR;
+                                m_state = TB_TS_Q_STR;
                                 buffer.clear();
                                 break;
                             default:
-                                m_state = TS_WORD;
+                                m_state = TB_TS_WORD;
                                 buffer.clear();
                                 buffer += m_char;
                                 break;
                         }
                         break;
-                    case TS_COM:
+                    case TB_TS_COM:
                         if (m_char == '\n')
-                            m_state = TS_OUTDEF;
+                            m_state = TB_TS_OUTDEF;
                         break;
-                    case TS_WORD:
+                    case TB_TS_WORD:
                         switch (m_char) {
                             case '/':
                                 if (peekChar() == '*') {
@@ -180,26 +180,26 @@ namespace TrenchBroom {
                             case ' ':
                             case '\n':
                             case '\t':
-                                m_state = TS_INDEF;
+                                m_state = TB_TS_INDEF;
                                 pushChar();
-                                return token(TT_WORD, &buffer);
+                                return token(TB_TT_WORD, &buffer);
                             default:
                                 buffer += m_char;
                                 break;
                         }
                         break;
-                    case TS_Q_STR:
+                    case TB_TS_Q_STR:
                         if (m_char == '"') {
-                            m_state = TS_INDEF;
-                            return token(TT_STR, &buffer);
+                            m_state = TB_TS_INDEF;
+                            return token(TB_TT_STR, &buffer);
                         } else {
                             buffer += m_char;
                         }
                         break;
-                    case TS_DEC:
+                    case TB_TS_DEC:
                         if (m_char == '.')
-                            m_state = TS_FRAC;
-                    case TS_FRAC: {
+                            m_state = TB_TS_FRAC;
+                    case TB_TS_FRAC: {
                         switch (m_char) {
                             case '0':
                             case '1':
@@ -218,19 +218,19 @@ namespace TrenchBroom {
                             case '\t':
                             case ',':
                             case ' ': {
-                                if (m_state == TS_DEC) {
+                                if (m_state == TB_TS_DEC) {
                                     pushChar();
-                                    m_state = TS_INDEF;
-                                    return token(TT_DEC, &buffer);
+                                    m_state = TB_TS_INDEF;
+                                    return token(TB_TT_DEC, &buffer);
                                 } else {
                                     pushChar();
-                                    m_state = TS_INDEF;
-                                    return token(TT_FRAC, &buffer);
+                                    m_state = TB_TS_INDEF;
+                                    return token(TB_TT_FRAC, &buffer);
                                 }
                                 break;
                             }
                             default:
-                                m_state = TS_WORD;
+                                m_state = TB_TS_WORD;
                                 break;
                         }
                         break;
@@ -262,11 +262,11 @@ namespace TrenchBroom {
         }
         
         string EntityDefinitionTokenizer::remainder() {
-            assert(m_state == TS_INDEF);
+            assert(m_state == TB_TS_INDEF);
             
             nextChar();
             string buffer;
-            while (m_state != TS_EOF && m_char != '*' && peekChar() != '/') {
+            while (m_state != TB_TS_EOF && m_char != '*' && peekChar() != '/') {
                 buffer += m_char;
                 nextChar();
             }
@@ -281,7 +281,7 @@ namespace TrenchBroom {
         
         EntityDefinitionToken* EntityDefinitionParser::nextTokenIgnoringNewlines() {
             EntityDefinitionToken* token = m_tokenizer->next();
-            while (token->type == TT_NL)
+            while (token->type == TB_TT_NL)
                 token = m_tokenizer->next();
             return token;
         }
@@ -290,14 +290,14 @@ namespace TrenchBroom {
             Vec4f color;
             EntityDefinitionToken* token = NULL;
             
-            expect(TT_B_O, token = m_tokenizer->next());
-            expect(TT_FRAC, token = m_tokenizer->next());
+            expect(TB_TT_B_O, token = m_tokenizer->next());
+            expect(TB_TT_FRAC, token = m_tokenizer->next());
             color.x = atof(token->data.c_str());
-            expect(TT_FRAC, token = m_tokenizer->next());
+            expect(TB_TT_FRAC, token = m_tokenizer->next());
             color.y = atof(token->data.c_str());
-            expect(TT_FRAC, token = m_tokenizer->next());
+            expect(TB_TT_FRAC, token = m_tokenizer->next());
             color.z = atof(token->data.c_str());
-            expect(TT_B_C, token = m_tokenizer->next());
+            expect(TB_TT_B_C, token = m_tokenizer->next());
             color.w = 1;
             return color;
         }
@@ -306,32 +306,32 @@ namespace TrenchBroom {
             BBox bounds;
             EntityDefinitionToken* token = NULL;
             
-            expect(TT_B_O, token = m_tokenizer->next());
-            expect(TT_DEC, token = m_tokenizer->next());
+            expect(TB_TT_B_O, token = m_tokenizer->next());
+            expect(TB_TT_DEC, token = m_tokenizer->next());
             bounds.min.x = atoi(token->data.c_str());
-            expect(TT_DEC, token = m_tokenizer->next());
+            expect(TB_TT_DEC, token = m_tokenizer->next());
             bounds.min.y = atoi(token->data.c_str());
-            expect(TT_DEC, token = m_tokenizer->next());
+            expect(TB_TT_DEC, token = m_tokenizer->next());
             bounds.min.z = atoi(token->data.c_str());
-            expect(TT_B_C, token = m_tokenizer->next());
-            expect(TT_B_O, token = m_tokenizer->next());
-            expect(TT_DEC, token = m_tokenizer->next());
+            expect(TB_TT_B_C, token = m_tokenizer->next());
+            expect(TB_TT_B_O, token = m_tokenizer->next());
+            expect(TB_TT_DEC, token = m_tokenizer->next());
             bounds.max.x = atoi(token->data.c_str());
-            expect(TT_DEC, token = m_tokenizer->next());
+            expect(TB_TT_DEC, token = m_tokenizer->next());
             bounds.max.y = atoi(token->data.c_str());
-            expect(TT_DEC, token = m_tokenizer->next());
+            expect(TB_TT_DEC, token = m_tokenizer->next());
             bounds.max.z = atoi(token->data.c_str());
-            expect(TT_B_C, token = m_tokenizer->next());
+            expect(TB_TT_B_C, token = m_tokenizer->next());
             return bounds;
         }
         
         map<string, Model::SpawnFlag> EntityDefinitionParser::parseFlags() {
             map<string, Model::SpawnFlag> flags;
             EntityDefinitionToken* token = m_tokenizer->peek();
-            if (token->type != TT_WORD)
+            if (token->type != TB_TT_WORD)
                 return flags;
             
-            while (token->type == TT_WORD) {
+            while (token->type == TB_TT_WORD) {
                 token = m_tokenizer->next();
                 string name = token->data;
                 int value = 1 << flags.size();
@@ -346,48 +346,48 @@ namespace TrenchBroom {
         vector<Model::Property*> EntityDefinitionParser::parseProperties() {
             vector<Model::Property*> properties;
             EntityDefinitionToken* token = m_tokenizer->peek();
-            if (token->type == TT_CB_O) {
+            if (token->type == TB_TT_CB_O) {
                 token = m_tokenizer->next();
                 Model::Property* property;
                 while ((property = parseProperty()) != NULL)
                     properties.push_back(property);
-                expect(TT_CB_C, token);
+                expect(TB_TT_CB_C, token);
             }
             return properties;
         }
         
         Model::Property* EntityDefinitionParser::parseProperty() {
             EntityDefinitionToken* token = nextTokenIgnoringNewlines();
-            if (token->type != TT_WORD)
+            if (token->type != TB_TT_WORD)
                 return NULL;
             
             Model::Property* property = NULL;
             string type = token->data;
             if (type == "choice") {
-                expect(TT_STR, token = m_tokenizer->next());
+                expect(TB_TT_STR, token = m_tokenizer->next());
                 string name = token->data;
                 
                 vector<Model::ChoiceArgument> arguments;
-                expect(TT_B_O, token = nextTokenIgnoringNewlines());
+                expect(TB_TT_B_O, token = nextTokenIgnoringNewlines());
                 token = nextTokenIgnoringNewlines();
-                while (token->type == TT_B_O) {
-                    expect(TT_DEC, token = nextTokenIgnoringNewlines());
+                while (token->type == TB_TT_B_O) {
+                    expect(TB_TT_DEC, token = nextTokenIgnoringNewlines());
                     int key = atoi(token->data.c_str());
-                    expect(TT_C, token = nextTokenIgnoringNewlines());
-                    expect(TT_STR, token = nextTokenIgnoringNewlines());
+                    expect(TB_TT_C, token = nextTokenIgnoringNewlines());
+                    expect(TB_TT_STR, token = nextTokenIgnoringNewlines());
                     string value = token->data;
                     
                     Model::ChoiceArgument argument(key, value);
                     arguments.push_back(argument);
                     
-                    expect(TT_B_C, token = nextTokenIgnoringNewlines());
+                    expect(TB_TT_B_C, token = nextTokenIgnoringNewlines());
                     token = nextTokenIgnoringNewlines();
                 }
-                expect(TT_B_C, token);
+                expect(TB_TT_B_C, token);
                 property = new Model::ChoiceProperty(name, arguments);
             } else if (type == "model") {
-                expect(TT_B_O, token = nextTokenIgnoringNewlines());
-                expect(TT_STR, nextTokenIgnoringNewlines());
+                expect(TB_TT_B_O, token = nextTokenIgnoringNewlines());
+                expect(TB_TT_STR, nextTokenIgnoringNewlines());
                 string modelPath = token->data;
                 int skinIndex = 0;
                 unsigned long lastColon = modelPath.find_last_of(':');
@@ -396,39 +396,39 @@ namespace TrenchBroom {
                     modelPath = modelPath.substr(0, lastColon);
                 }
                 
-                expect(TT_C | TT_B_C, token = nextTokenIgnoringNewlines());
-                if (token->type == TT_C) {
-                    expect(TT_STR, token = nextTokenIgnoringNewlines());
+                expect(TB_TT_C | TB_TT_B_C, token = nextTokenIgnoringNewlines());
+                if (token->type == TB_TT_C) {
+                    expect(TB_TT_STR, token = nextTokenIgnoringNewlines());
                     string flagName = token->data;
                     property = new Model::ModelProperty(flagName, modelPath, skinIndex);
-                    expect(TT_B_C, token = nextTokenIgnoringNewlines());
+                    expect(TB_TT_B_C, token = nextTokenIgnoringNewlines());
                 } else {
                     property = new Model::ModelProperty(modelPath, skinIndex);
                 }
             } else if (type == "default") {
-                expect(TT_B_O, token = nextTokenIgnoringNewlines());
-                expect(TT_STR, token = nextTokenIgnoringNewlines());
+                expect(TB_TT_B_O, token = nextTokenIgnoringNewlines());
+                expect(TB_TT_STR, token = nextTokenIgnoringNewlines());
                 string name = token->data;
-                expect(TT_C, token = nextTokenIgnoringNewlines());
-                expect(TT_STR, token = nextTokenIgnoringNewlines());
+                expect(TB_TT_C, token = nextTokenIgnoringNewlines());
+                expect(TB_TT_STR, token = nextTokenIgnoringNewlines());
                 string value = token->data;
                 property = new Model::DefaultProperty(name, value);
-                expect(TT_B_C, token = nextTokenIgnoringNewlines());
+                expect(TB_TT_B_C, token = nextTokenIgnoringNewlines());
             } else if (type == "base") {
-                expect(TT_B_O, token = nextTokenIgnoringNewlines());
-                expect(TT_STR, token = nextTokenIgnoringNewlines());
+                expect(TB_TT_B_O, token = nextTokenIgnoringNewlines());
+                expect(TB_TT_STR, token = nextTokenIgnoringNewlines());
                 string baseName = token->data;
                 property = new Model::BaseProperty(baseName);
-                expect(TT_B_C, token = nextTokenIgnoringNewlines());
+                expect(TB_TT_B_C, token = nextTokenIgnoringNewlines());
             }
             
-            expect(TT_SC, token = nextTokenIgnoringNewlines());
+            expect(TB_TT_SC, token = nextTokenIgnoringNewlines());
             return property;
         }
         
         string EntityDefinitionParser::parseDescription() {
             EntityDefinitionToken* token = m_tokenizer->peek();
-            if (token->type == TT_ED_C)
+            if (token->type == TB_TT_ED_C)
                 return "";
             return m_tokenizer->remainder();
         }
@@ -450,7 +450,7 @@ namespace TrenchBroom {
             if (token == NULL)
                 return NULL;
             
-            expect(TT_ED_O, token);
+            expect(TB_TT_ED_O, token);
             string name;
             bool hasColor = false;
             bool hasBounds = false;
@@ -462,18 +462,18 @@ namespace TrenchBroom {
             string description;
             
             token = m_tokenizer->next();
-            expect(TT_WORD, token);
+            expect(TB_TT_WORD, token);
             name = token->data;
             
             token = m_tokenizer->peek();
-            expect(TT_B_O | TT_NL, token);
-            if (token->type == TT_B_O) {
+            expect(TB_TT_B_O | TB_TT_NL, token);
+            if (token->type == TB_TT_B_O) {
                 hasColor = true;
                 color = parseColor();
                 
                 token = m_tokenizer->peek();
-                expect(TT_B_O | TT_QM, token);
-                if (token->type == TT_B_O) {
+                expect(TB_TT_B_O | TB_TT_QM, token);
+                if (token->type == TB_TT_B_O) {
                     hasBounds = true;
                     bounds = parseBounds();
                 } else {
@@ -481,16 +481,16 @@ namespace TrenchBroom {
                 }
                 
                 token = m_tokenizer->peek();
-                if (token->type == TT_WORD) {
+                if (token->type == TB_TT_WORD) {
                     hasFlags = true;
                     flags = parseFlags();
                 }
             }
             
-            expect(TT_NL, token = m_tokenizer->next());
+            expect(TB_TT_NL, token = m_tokenizer->next());
             properties = parseProperties();
             description = parseDescription();
-            expect(TT_ED_C, token = m_tokenizer->next());
+            expect(TB_TT_ED_C, token = m_tokenizer->next());
             
             Model::EntityDefinition* definition = NULL;
             if (!hasColor)

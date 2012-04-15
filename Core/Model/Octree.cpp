@@ -32,7 +32,7 @@ namespace TrenchBroom {
             if (m_children[childIndex] == NULL) {
                 BBox childBounds;
                 switch (childIndex) {
-                    case CP_WSB:
+                    case TB_CP_WSB:
                         childBounds.min.x = m_bounds.min.x;
                         childBounds.min.y = m_bounds.min.y;
                         childBounds.min.z = m_bounds.min.z;
@@ -40,7 +40,7 @@ namespace TrenchBroom {
                         childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2;
                         childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2;
                         break;
-                    case CP_WST:
+                    case TB_CP_WST:
                         childBounds.min.x = m_bounds.min.x;
                         childBounds.min.y = m_bounds.min.y;
                         childBounds.min.z = (m_bounds.min.z + m_bounds.max.z) / 2;
@@ -48,7 +48,7 @@ namespace TrenchBroom {
                         childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2;
                         childBounds.max.z = m_bounds.max.z;
                         break;
-                    case CP_WNB:
+                    case TB_CP_WNB:
                         childBounds.min.x = m_bounds.min.x;
                         childBounds.min.y = (m_bounds.min.y + m_bounds.max.y) / 2;
                         childBounds.min.z = m_bounds.min.z;
@@ -56,7 +56,7 @@ namespace TrenchBroom {
                         childBounds.max.y = m_bounds.max.y;
                         childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2;
                         break;
-                    case CP_ESB:
+                    case TB_CP_ESB:
                         childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2;
                         childBounds.min.y = m_bounds.min.y;
                         childBounds.min.z = m_bounds.min.z;
@@ -64,7 +64,7 @@ namespace TrenchBroom {
                         childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2;
                         childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2;
                         break;
-                    case CP_EST:
+                    case TB_CP_EST:
                         childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2;
                         childBounds.min.y = m_bounds.min.y;
                         childBounds.min.z = (m_bounds.min.z + m_bounds.max.z) / 2;
@@ -72,7 +72,7 @@ namespace TrenchBroom {
                         childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2;
                         childBounds.max.z = m_bounds.max.z;
                         break;
-                    case CP_ENB:
+                    case TB_CP_ENB:
                         childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2;
                         childBounds.min.y = (m_bounds.min.y + m_bounds.max.y) / 2;
                         childBounds.min.z = m_bounds.min.z;
@@ -80,7 +80,7 @@ namespace TrenchBroom {
                         childBounds.max.y = m_bounds.max.y;
                         childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2;
                         break;
-                    case CP_ENT:
+                    case TB_CP_ENT:
                         childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2;
                         childBounds.min.y = (m_bounds.min.y + m_bounds.max.y) / 2;
                         childBounds.min.z = (m_bounds.min.z + m_bounds.max.z) / 2;
@@ -134,7 +134,7 @@ namespace TrenchBroom {
         void Octree::entitiesWereAddedOrPropertiesDidChange(const vector<Entity*>& entities) {
             for (int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
-                if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == EDT_POINT)
+                if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
                     m_root->addObject(*entity);
             }
         }
@@ -142,7 +142,7 @@ namespace TrenchBroom {
         void Octree::entitiesWillBeRemovedOrPropertiesWillChange(const vector<Entity*>& entities){
             for (int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
-                if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == EDT_POINT)
+                if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
                     assert(m_root->removeObject(*entity));
             }
         }
@@ -165,7 +165,7 @@ namespace TrenchBroom {
             const vector<Entity*>& entities = map.entities();
             for (int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
-                if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == EDT_POINT)
+                if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
                     m_root->addObject((MapObject&)*entity);
                 const vector<Brush*>& brushes = entity->brushes();
                 for (int j = 0; j < brushes.size(); j++) {

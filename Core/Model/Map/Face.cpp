@@ -420,8 +420,8 @@ namespace TrenchBroom {
         void Face::rotate90CW(EAxis axis, Vec3f center, bool lockTexture) {
             if (lockTexture) {
                 Mat4f t = IdentityM4f.translate(center);
-                if (axis == A_X) t *= RotX90CWM4f;
-                else if (axis == A_Y) t *= RotY90CWM4f;
+                if (axis == TB_AX_X) t *= RotX90CWM4f;
+                else if (axis == TB_AX_Y) t *= RotY90CWM4f;
                 else t *= RotZ90CWM4f;
                 t.translate(center * -1);
                 compensateTransformation(t);
@@ -437,8 +437,8 @@ namespace TrenchBroom {
         void Face::rotate90CCW(EAxis axis, Vec3f center, bool lockTexture) {
             if (lockTexture) {
                 Mat4f t = IdentityM4f.translate(center);
-                if (axis == A_X) t *= RotX90CCWM4f;
-                else if (axis == A_Y) t *= RotY90CCWM4f;
+                if (axis == TB_AX_X) t *= RotX90CCWM4f;
+                else if (axis == TB_AX_Y) t *= RotY90CCWM4f;
                 else t *= RotZ90CCWM4f;
                 t.translate(center * -1);
                 compensateTransformation(t);
@@ -470,15 +470,15 @@ namespace TrenchBroom {
                 Mat4f t;
                 Vec3f d;
                 switch (axis) {
-                    case A_X:
+                    case TB_AX_X:
                         d = Vec3f(center.x, 0, 0);
                         t = IdentityM4f.translate(d) * MirXM4f * IdentityM4f.translate(d * -1);
                         break;
-                    case A_Y:
+                    case TB_AX_Y:
                         d = Vec3f(0, center.y, 0);
                         t = IdentityM4f.translate(d) * MirYM4f * IdentityM4f.translate(d * -1);
                         break;
-                    case A_Z:
+                    case TB_AX_Z:
                         d = Vec3f(0, 0, center.z);
                         t = IdentityM4f.translate(d) * MirZM4f * IdentityM4f.translate(d * -1);
                         break;
@@ -521,11 +521,11 @@ namespace TrenchBroom {
             
             Vec2f gridCoords;
             switch (m_boundary.normal.strongestAxis()) {
-                case A_X:
+                case TB_AX_X:
                     gridCoords.x = (vertex.y + 0.5f) / 256;
                     gridCoords.y = (vertex.z + 0.5f) / 256;
                     break;
-                case A_Y:
+                case TB_AX_Y:
                     gridCoords.x = (vertex.x + 0.5f) / 256;
                     gridCoords.y = (vertex.z + 0.5f) / 256;
                     break;

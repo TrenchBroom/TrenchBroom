@@ -25,8 +25,8 @@
 namespace TrenchBroom {
     namespace Model {
         typedef enum {
-            MT_ENTITY,
-            MT_BRUSH
+            TB_MT_ENTITY,
+            TB_MT_BRUSH
         } EMapObjectType;
 
         class HitList;

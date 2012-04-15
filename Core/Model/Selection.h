@@ -33,11 +33,11 @@ using namespace std;
 namespace TrenchBroom {
     namespace Model {
         typedef enum {
-            SM_NONE,
-            SM_FACES,
-            SM_BRUSHES,
-            SM_ENTITIES,
-            SM_BRUSHES_ENTITIES
+            TB_SM_NONE,
+            TB_SM_FACES,
+            TB_SM_BRUSHES,
+            TB_SM_ENTITIES,
+            TB_SM_BRUSHES_ENTITIES
         } ESelectionMode;
         
         class Texture;

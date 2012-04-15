@@ -79,8 +79,8 @@ namespace TrenchBroom {
         
         void MapRendererControl::OnMouseClickLeft( int x, int y, bool bDown ) {
             Focus();
-            if (bDown) m_editor.inputController().mouseDown(Controller::MB_LEFT);
-            else m_editor.inputController().mouseUp(Controller::MB_LEFT);
+            if (bDown) m_editor.inputController().mouseDown(Controller::TB_MB_LEFT);
+            else m_editor.inputController().mouseUp(Controller::TB_MB_LEFT);
 
             // keep receiving mouse events even if the mouse leaves this control
             if (bDown) Gwen::MouseFocus = this;
@@ -89,8 +89,8 @@ namespace TrenchBroom {
         
         void MapRendererControl::OnMouseClickRight( int x, int y, bool bDown ) {
             Focus();
-            if (bDown)m_editor.inputController().mouseDown(Controller::MB_RIGHT);
-            else m_editor.inputController().mouseUp(Controller::MB_RIGHT);
+            if (bDown)m_editor.inputController().mouseDown(Controller::TB_MB_RIGHT);
+            else m_editor.inputController().mouseUp(Controller::TB_MB_RIGHT);
             
             // keep receiving mouse events even if the mouse leaves this control
             if (bDown) Gwen::MouseFocus = this;
@@ -100,16 +100,16 @@ namespace TrenchBroom {
         bool MapRendererControl::OnKeyPress(int iKey, bool bPress) {
             switch (iKey) {
                 case Gwen::Key::Shift:
-                    m_editor.inputController().modifierKeyDown(Controller::MK_SHIFT);
+                    m_editor.inputController().modifierKeyDown(Controller::TB_MK_SHIFT);
                     return true;
                 case Gwen::Key::Control:
-                    m_editor.inputController().modifierKeyDown(Controller::MK_CTRL);
+                    m_editor.inputController().modifierKeyDown(Controller::TB_MK_CTRL);
                     return true;
                 case Gwen::Key::Alt:
-                    m_editor.inputController().modifierKeyDown(Controller::MK_ALT);
+                    m_editor.inputController().modifierKeyDown(Controller::TB_MK_ALT);
                     return true;
                 case Gwen::Key::Command:
-                    m_editor.inputController().modifierKeyDown(Controller::MK_CMD);
+                    m_editor.inputController().modifierKeyDown(Controller::TB_MK_CMD);
                     return true;
                 default:
                     return false;
@@ -119,16 +119,16 @@ namespace TrenchBroom {
         bool MapRendererControl::OnKeyRelease(int iKey) {
             switch (iKey) {
                 case Gwen::Key::Shift:
-                    m_editor.inputController().modifierKeyUp(Controller::MK_SHIFT);
+                    m_editor.inputController().modifierKeyUp(Controller::TB_MK_SHIFT);
                     return true;
                 case Gwen::Key::Control:
-                    m_editor.inputController().modifierKeyUp(Controller::MK_CTRL);
+                    m_editor.inputController().modifierKeyUp(Controller::TB_MK_CTRL);
                     return true;
                 case Gwen::Key::Alt:
-                    m_editor.inputController().modifierKeyUp(Controller::MK_ALT);
+                    m_editor.inputController().modifierKeyUp(Controller::TB_MK_ALT);
                     return true;
                 case Gwen::Key::Command:
-                    m_editor.inputController().modifierKeyUp(Controller::MK_CMD);
+                    m_editor.inputController().modifierKeyUp(Controller::TB_MK_CMD);
                     return true;
                 default:
                     return false;

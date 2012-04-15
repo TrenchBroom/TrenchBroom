@@ -29,9 +29,9 @@ namespace TrenchBroom {
     namespace Controller {
         
         typedef enum {
-            MS_NONE,
-            MS_LEFT,
-            MS_RIGHT
+            TB_MS_NONE,
+            TB_MS_LEFT,
+            TB_MS_RIGHT
         } EMouseStatus;
         
         class Tool;

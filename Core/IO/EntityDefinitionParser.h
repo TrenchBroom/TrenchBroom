@@ -28,31 +28,31 @@ using namespace std;
 namespace TrenchBroom {
     namespace IO {
         typedef enum {
-            TT_FRAC = 1 <<  0, // fractional number
-            TT_DEC  = 1 <<  1, // decimal number
-            TT_STR  = 1 <<  2, // string
-            TT_B_O  = 1 <<  3, // opening brace
-            TT_B_C  = 1 <<  4, // closing brace
-            TT_CB_O = 1 <<  5, // opening curly brace
-            TT_CB_C = 1 <<  6, // closing curly brace
-            TT_WORD = 1 <<  7, // word
-            TT_QM   = 1 <<  8, // question mark
-            TT_ED_O = 1 <<  9, // entity definition open
-            TT_ED_C = 1 << 10, // entity definition close
-            TT_SC   = 1 << 11, // semicolon
-            TT_NL   = 1 << 12, // newline
-            TT_C    = 1 << 13  // comma
+            TB_TT_FRAC = 1 <<  0, // fractional number
+            TB_TT_DEC  = 1 <<  1, // decimal number
+            TB_TT_STR  = 1 <<  2, // string
+            TB_TT_B_O  = 1 <<  3, // opening brace
+            TB_TT_B_C  = 1 <<  4, // closing brace
+            TB_TT_CB_O = 1 <<  5, // opening curly brace
+            TB_TT_CB_C = 1 <<  6, // closing curly brace
+            TB_TT_WORD = 1 <<  7, // word
+            TB_TT_QM   = 1 <<  8, // question mark
+            TB_TT_ED_O = 1 <<  9, // entity definition open
+            TB_TT_ED_C = 1 << 10, // entity definition close
+            TB_TT_SC   = 1 << 11, // semicolon
+            TB_TT_NL   = 1 << 12, // newline
+            TB_TT_C    = 1 << 13  // comma
         } ETokenType;
         
         typedef enum {
-            TS_OUTDEF, // currently between definitions
-            TS_INDEF, // currently parsing a definition
-            TS_COM, // comment
-            TS_DEC, // current token is a decimal number
-            TS_FRAC, // current token is a fractional number
-            TS_WORD, // current token is a word
-            TS_Q_STR, // current token is a quoted string
-            TS_EOF // parsing is complete
+            TB_TS_OUTDEF, // currently between definitions
+            TB_TS_INDEF, // currently parsing a definition
+            TB_TS_COM, // comment
+            TB_TS_DEC, // current token is a decimal number
+            TB_TS_FRAC, // current token is a fractional number
+            TB_TS_WORD, // current token is a word
+            TB_TS_Q_STR, // current token is a quoted string
+            TB_TS_EOF // parsing is complete
         } ETokenizerState;
         
         class EntityDefinitionToken {

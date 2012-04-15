@@ -25,11 +25,11 @@
 namespace TrenchBroom {
     namespace IO {
         char MapTokenizer::nextChar() {
-            if (m_state == TS_EOF)
+            if (m_state == TB_TS_EOF)
                 return 0;
             
             if (m_index == m_chars.size()) {
-                m_state = TS_EOF;
+                m_state = TB_TS_EOF;
                 return 0;
             }
             
@@ -45,7 +45,7 @@ namespace TrenchBroom {
         }
         
         char MapTokenizer::peekChar() {
-            if (m_state == TS_EOF || m_index == m_chars.size())
+            if (m_state == TB_TS_EOF || m_index == m_chars.size())
                 return 0;
             
             char c = m_chars[m_index];
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             return &m_token;
         }
         
-        MapTokenizer::MapTokenizer(istream& stream) : m_state(TS_DEF), m_line(1), m_column(1) {
+        MapTokenizer::MapTokenizer(istream& stream) : m_state(TB_TS_DEF), m_line(1), m_column(1) {
             istreambuf_iterator<char> begin(stream), end;
             m_chars = vector<char>(begin, end);
             m_index = 0;
@@ -73,12 +73,12 @@ namespace TrenchBroom {
             
             while ((c = nextChar()) != 0) {
                 switch (m_state) {
-                    case TS_DEF:
+                    case TB_TS_DEF:
                         switch (c) {
                             case '/': {
                                 char d = peekChar();
                                 if (d == '/') {
-                                    m_state = TS_COM;
+                                    m_state = TB_TS_COM;
                                     m_bufferIndex = 0;
                                     m_startLine = m_line;
                                     m_startColumn = m_column;
@@ -92,19 +92,19 @@ namespace TrenchBroom {
                             case ' ':
                                 break; // ignore whitespace in boundaries
                             case '{':
-                                return token(TT_CB_O, NULL, 0, m_line, m_column);
+                                return token(TB_TT_CB_O, NULL, 0, m_line, m_column);
                             case '}':
-                                return token(TT_CB_C, NULL, 0, m_line, m_column);
+                                return token(TB_TT_CB_C, NULL, 0, m_line, m_column);
                             case '(':
-                                return token(TT_B_O, NULL, 0, m_line, m_column);
+                                return token(TB_TT_B_O, NULL, 0, m_line, m_column);
                             case ')':
-                                return token(TT_B_C, NULL, 0, m_line, m_column);
+                                return token(TB_TT_B_C, NULL, 0, m_line, m_column);
                             case '[':
-                                return token(TT_SB_O, NULL, 0, m_line, m_column);
+                                return token(TB_TT_SB_O, NULL, 0, m_line, m_column);
                             case ']':
-                                return token(TT_CB_C, NULL, 0, m_line, m_column);
+                                return token(TB_TT_CB_C, NULL, 0, m_line, m_column);
                             case '"':
-                                m_state = TS_Q_STR;
+                                m_state = TB_TS_Q_STR;
                                 m_bufferIndex = 0;
                                 m_startLine = m_line;
                                 m_startColumn = m_column;
@@ -120,14 +120,14 @@ namespace TrenchBroom {
                             case '7':
                             case '8':
                             case '9':
-                                m_state = TS_DEC;
+                                m_state = TB_TS_DEC;
                                 m_bufferIndex = 0;
                                 m_buffer[m_bufferIndex++] = c;
                                 m_startLine = m_line;
                                 m_startColumn = m_column;
                                 break;
                             default:
-                                m_state = TS_STR;
+                                m_state = TB_TS_STR;
                                 m_bufferIndex = 0;
                                 m_buffer[m_bufferIndex++] = c;
                                 m_startLine = m_line;
@@ -135,12 +135,12 @@ namespace TrenchBroom {
                                 break;
                         }
                         break;
-                    case TS_Q_STR:
+                    case TB_TS_Q_STR:
                         switch (c) {
                             case '"': {
-                                MapToken* tok = token(TT_STR, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
+                                MapToken* tok = token(TB_TT_STR, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
                                 m_bufferIndex = 0;
-                                m_state = TS_DEF;
+                                m_state = TB_TS_DEF;
                                 return tok;
                             }
                             default:
@@ -148,7 +148,7 @@ namespace TrenchBroom {
                                 break;
                         }
                         break;
-                    case TS_STR: {
+                    case TB_TS_STR: {
                         bool comment = false;
                         switch (c) {
                             case '/': {
@@ -158,9 +158,9 @@ namespace TrenchBroom {
                             case '\n':
                             case '\t':
                             case ' ': {
-                                MapToken* tok = token(TT_STR, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
+                                MapToken* tok = token(TB_TT_STR, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
                                 m_bufferIndex = 0;
-                                m_state = comment ? TS_COM : TS_DEF;
+                                m_state = comment ? TB_TS_COM : TB_TS_DEF;
                                 return tok;
                             }
                             default:
@@ -169,9 +169,9 @@ namespace TrenchBroom {
                         }
                         break;
                     }
-                    case TS_DEC:
-                        if (c == '.') m_state = TS_FRAC;
-                    case TS_FRAC: {
+                    case TB_TS_DEC:
+                        if (c == '.') m_state = TB_TS_FRAC;
+                    case TB_TS_FRAC: {
                         bool comment = false;
                         switch (c) {
                             case '/':
@@ -181,27 +181,27 @@ namespace TrenchBroom {
                             case '\t':
                             case ' ': {
                                 MapToken* tok;
-                                if (m_state == TS_DEC) tok = token(TT_DEC, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
-                                else tok = token(TT_FRAC, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
+                                if (m_state == TB_TS_DEC) tok = token(TB_TT_DEC, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
+                                else tok = token(TB_TT_FRAC, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
                                 m_bufferIndex = 0;
-                                m_state = comment ? TS_COM : TS_DEF;
+                                m_state = comment ? TB_TS_COM : TB_TS_DEF;
                                 return tok;
                             }
                             default:
                                 if ((c < '0' || c > '9') && (c != '.'))
-                                    m_state = TS_STR;
+                                    m_state = TB_TS_STR;
                                 m_buffer[m_bufferIndex++] = c;
                                 break;
                         }
                         break;
                     }
-                    case TS_COM:
+                    case TB_TS_COM:
                         switch (c) {
                             case '\r':
                             case '\n': {
-                                MapToken* tok = token(TT_COM, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
+                                MapToken* tok = token(TB_TT_COM, m_buffer, m_bufferIndex, m_startLine, m_startColumn);
                                 m_bufferIndex = 0;
-                                m_state = TS_DEF;
+                                m_state = TB_TS_DEF;
                                 return tok;
                             }
                             default:
@@ -233,7 +233,7 @@ namespace TrenchBroom {
                 m_tokenStack.pop_back();
             } else {
                 token = m_tokenizer->next();
-                while (token != NULL && token->type == TT_COM)
+                while (token != NULL && token->type == TB_TT_COM)
                     token = m_tokenizer->next();
             }
             
@@ -258,7 +258,7 @@ namespace TrenchBroom {
         }
         
         Map* MapParser::parseMap(const string& entityDefinitionFilePath, Controller::ProgressIndicator* indicator) {
-            m_format = MF_UNDEFINED;
+            m_format = TB_MF_UNDEFINED;
             Map* map = new Map(m_worldBounds, entityDefinitionFilePath);
             map->setPostNotifications(false);
             Entity* entity = NULL;
@@ -273,29 +273,29 @@ namespace TrenchBroom {
             MapToken* token = nextToken();
             if (token == NULL) return NULL;
             
-            expect(TT_CB_O | TT_CB_C, token);
-            if (token->type == TT_CB_C) return NULL;
+            expect(TB_TT_CB_O | TB_TT_CB_C, token);
+            if (token->type == TB_TT_CB_C) return NULL;
             
             Entity* entity = new Entity();
             entity->setFilePosition(token->line);
             
             while ((token = nextToken()) != NULL) {
                 switch (token->type) {
-                    case TT_STR: {
+                    case TB_TT_STR: {
                         string key = token->data;
                         token = nextToken();
-                        expect(TT_STR, token);
+                        expect(TB_TT_STR, token);
                         string value = token->data;
                         entity->setProperty(key, value);
                         break;
                     }
-                    case TT_CB_O: {
+                    case TB_TT_CB_O: {
                         pushToken(token);
                         Brush* brush = NULL;
                         while ((brush = parseBrush(indicator)) != NULL)
                             entity->addBrush(brush);
                     }
-                    case TT_CB_C: {
+                    case TB_TT_CB_C: {
                         if (indicator != NULL) indicator->update(token->charsRead);
                         return entity;
                     }
@@ -311,21 +311,21 @@ namespace TrenchBroom {
         Brush* MapParser::parseBrush(Controller::ProgressIndicator* indicator) {
             MapToken* token;
 
-            expect(TT_CB_O | TT_CB_C, token = nextToken());
-            if (token->type == TT_CB_C) return NULL;
+            expect(TB_TT_CB_O | TB_TT_CB_C, token = nextToken());
+            if (token->type == TB_TT_CB_C) return NULL;
             
             Brush* brush = new Brush(m_worldBounds);
             brush->setFilePosition(token->line);
             
             while ((token = nextToken()) != NULL) {
                 switch (token->type) {
-                    case TT_B_O: {
+                    case TB_TT_B_O: {
                         pushToken(token);
                         Face* face = parseFace();
                         if (face != NULL) brush->addFace(face);
                         break;
                     }
-                    case TT_CB_C:
+                    case TB_TT_CB_C:
                         if (indicator != NULL) indicator->update(token->charsRead);
                         return brush;
                     default:
@@ -341,70 +341,70 @@ namespace TrenchBroom {
             float xOffset, yOffset, rotation, xScale, yScale;
             MapToken* token;
             
-            expect(TT_B_O, token = nextToken());
-            expect(TT_DEC | TT_FRAC, token = nextToken());
+            expect(TB_TT_B_O, token = nextToken());
+            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             p1.x = atoi(token->data.c_str());
-            expect(TT_DEC | TT_FRAC, token = nextToken());
+            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             p1.y = atoi(token->data.c_str());
-            expect(TT_DEC | TT_FRAC, token = nextToken());
+            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             p1.z = atoi(token->data.c_str());
-            expect(TT_B_C, token = nextToken());
-            expect(TT_B_O, token = nextToken());
-            expect(TT_DEC | TT_FRAC, token = nextToken());
+            expect(TB_TT_B_C, token = nextToken());
+            expect(TB_TT_B_O, token = nextToken());
+            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             p2.x = atoi(token->data.c_str());
-            expect(TT_DEC | TT_FRAC, token = nextToken());
+            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             p2.y = atoi(token->data.c_str());
-            expect(TT_DEC | TT_FRAC, token = nextToken());
+            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             p2.z = atoi(token->data.c_str());
-            expect(TT_B_C, token = nextToken());
-            expect(TT_B_O, token = nextToken());
-            expect(TT_DEC | TT_FRAC, token = nextToken());
+            expect(TB_TT_B_C, token = nextToken());
+            expect(TB_TT_B_O, token = nextToken());
+            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             p3.x = atoi(token->data.c_str());
-            expect(TT_DEC | TT_FRAC, token = nextToken());
+            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             p3.y = atoi(token->data.c_str());
-            expect(TT_DEC | TT_FRAC, token = nextToken());
+            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             p3.z = atoi(token->data.c_str());
-            expect(TT_B_C, token = nextToken());
+            expect(TB_TT_B_C, token = nextToken());
             
-            expect(TT_STR, token = nextToken());
+            expect(TB_TT_STR, token = nextToken());
             Assets::Texture* texture = m_textureManager.texture(token->data);
             
             token = nextToken();
-            if (m_format == MF_UNDEFINED) {
-                expect(TT_DEC | TT_FRAC | TT_SB_O, token);
-                m_format = token->type == TT_DEC ? MF_STANDARD : MF_VALVE;
-                if (m_format == MF_VALVE) fprintf(stdout, "Warning: Loading unsupported map Valve 220 map format");
+            if (m_format == TB_MF_UNDEFINED) {
+                expect(TB_TT_DEC | TB_TT_FRAC | TB_TT_SB_O, token);
+                m_format = token->type == TB_TT_DEC ? TB_MF_STANDARD : TB_MF_VALVE;
+                if (m_format == TB_MF_VALVE) fprintf(stdout, "Warning: Loading unsupported map Valve 220 map format");
             }
             
-            if (m_format == MF_STANDARD) {
-                expect(TT_DEC | TT_FRAC, token);
-                bool frac = token->type == TT_FRAC;
+            if (m_format == TB_MF_STANDARD) {
+                expect(TB_TT_DEC | TB_TT_FRAC, token);
+                bool frac = token->type == TB_TT_FRAC;
                 xOffset = atof(token->data.c_str());
-                expect(TT_DEC | TT_FRAC, token = nextToken());
+                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
                 yOffset = atof(token->data.c_str());
-                if (frac || token->type == TT_FRAC) fprintf(stdout, "Warning: Rounding fractional texture offset in line %i", token->line);
+                if (frac || token->type == TB_TT_FRAC) fprintf(stdout, "Warning: Rounding fractional texture offset in line %i", token->line);
             } else { // Valve 220 format
-                expect(TT_SB_O, token);
-                expect(TT_DEC | TT_FRAC, token = nextToken()); // X texture axis x
-                expect(TT_DEC | TT_FRAC, token = nextToken()); // X texture axis y
-                expect(TT_DEC | TT_FRAC, token = nextToken()); // X texture axis z
-                expect(TT_DEC | TT_FRAC, token = nextToken()); // X texture axis offset
+                expect(TB_TT_SB_O, token);
+                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // X texture axis x
+                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // X texture axis y
+                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // X texture axis z
+                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // X texture axis offset
                 xOffset = atof(token->data.c_str());
-                expect(TT_SB_C, token = nextToken());
-                expect(TT_SB_O, token = nextToken());
-                expect(TT_DEC | TT_FRAC, token = nextToken()); // Y texture axis x
-                expect(TT_DEC | TT_FRAC, token = nextToken()); // Y texture axis y
-                expect(TT_DEC | TT_FRAC, token = nextToken()); // Y texture axis z
-                expect(TT_DEC | TT_FRAC, token = nextToken()); // Y texture axis offset
+                expect(TB_TT_SB_C, token = nextToken());
+                expect(TB_TT_SB_O, token = nextToken());
+                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // Y texture axis x
+                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // Y texture axis y
+                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // Y texture axis z
+                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // Y texture axis offset
                 yOffset = atof(token->data.c_str());
-                expect(TT_SB_C, token = nextToken());
+                expect(TB_TT_SB_C, token = nextToken());
             }
             
-            expect(TT_DEC | TT_FRAC, token = nextToken());
+            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             rotation = atof(token->data.c_str());
-            expect(TT_DEC | TT_FRAC, token = nextToken());
+            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             xScale = atof(token->data.c_str());
-            expect(TT_DEC | TT_FRAC, token = nextToken());
+            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             yScale = atof(token->data.c_str());
             
             if (((p3 - p1) % (p2 - p1)).equals(Null3f)) {

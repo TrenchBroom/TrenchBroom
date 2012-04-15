@@ -40,8 +40,8 @@ namespace TrenchBroom {
             static const string TextureManagerChanged = "TextureManagerChanged";
             
             typedef enum {
-                TS_NAME,
-                TS_USAGE
+                TB_TS_NAME,
+                TB_TS_USAGE
             } ETextureSortCriterion;
             
             class Texture {

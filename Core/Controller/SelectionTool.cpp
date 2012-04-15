@@ -29,9 +29,9 @@ namespace TrenchBroom {
     namespace Controller {
         bool SelectionTool::leftMouseUp(ToolEvent& event) {
             Model::Selection& selection = m_editor.map().selection();
-            Model::Hit* hit = event.hits->first(Model::HT_ENTITY | Model::HT_FACE, true);
+            Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
             if (hit != NULL) {
-                if (hit->type == Model::HT_ENTITY) {
+                if (hit->type == Model::TB_HT_ENTITY) {
                     Model::Entity& entity = hit->entity();
                     if (entity.selected()) {
                         if (multiSelectionModiferPressed(event)) {
@@ -48,7 +48,7 @@ namespace TrenchBroom {
                 } else {
                     Model::Face& face = hit->face();
                     Model::Brush& brush = *face.brush();
-                    if (selection.mode() == Model::SM_FACES) {
+                    if (selection.mode() == Model::TB_SM_FACES) {
                         if (face.selected()) {
                             if (multiSelectionModiferPressed(event))
                                 selection.removeFace(face);
@@ -95,16 +95,16 @@ namespace TrenchBroom {
         
         void SelectionTool::leftDrag(ToolEvent& event) {
             Model::Selection& selection = m_editor.map().selection();
-            Model::Hit* hit = event.hits->first(Model::HT_ENTITY | Model::HT_FACE, true);
+            Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
             if (hit != NULL) {
-                if (hit->type == Model::HT_ENTITY) {
+                if (hit->type == Model::TB_HT_ENTITY) {
                     Model::Entity& entity = hit->entity();
                     if (!entity.selected())
                         selection.addEntity(entity);
                 } else {
                     Model::Face& face = hit->face();
                     Model::Brush& brush = *face.brush();
-                    if (selection.mode() == Model::SM_FACES) {
+                    if (selection.mode() == Model::TB_SM_FACES) {
                         if (!face.selected())
                             selection.addFace(face);
                     } else {
@@ -116,11 +116,11 @@ namespace TrenchBroom {
         }
         
         bool SelectionTool::multiSelectionModiferPressed(ToolEvent& event) {
-            return event.modifierKeys == MK_CMD;
+            return event.modifierKeys == TB_MK_CMD;
         }
         
         bool SelectionTool::gridSizeModifierPressed(ToolEvent& event) {
-            return event.modifierKeys == MK_ALT;
+            return event.modifierKeys == TB_MK_ALT;
         }
    }
 }

@@ -43,7 +43,7 @@ namespace Gwen
 		{
 			if ( b ) return;
 #ifdef WINDOWS
-			MessageBoxA( NULL, strMsg, "Assert", MB_ICONEXCLAMATION | MB_OK );
+			MessageBoxA( NULL, strMsg, "Assert", TB_MB_ICONEXCLAMATION | TB_MB_OK );
 			_asm { int 3 }
 #else 
 			(void)strMsg; // unused param
