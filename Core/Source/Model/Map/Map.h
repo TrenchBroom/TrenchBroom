@@ -110,17 +110,16 @@ namespace TrenchBroom {
             
 # pragma mark Common functions
             void duplicateObjects(vector<Entity*>& newEntities, vector<Brush*>& newBrushes);
-            void translateObjects(Vec3f delta, bool lockTextures);
-            void rotateObjects90CW(EAxis axis, Vec3f center, bool lockTextures);
-            void rotateObjects90CCW(EAxis axis, Vec3f center, bool lockTextures);
-            void rotateObjects(Quat rotation, Vec3f center, bool lockTextures);
-            void flipObjects(EAxis axis, Vec3f center, bool lockTextures);
+            void translateObjects(const Vec3f& delta, bool lockTextures);
+            void rotateObjects90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures);
+            void rotateObjects(const Quat& rotation, const Vec3f& center, bool lockTextures);
+            void flipObjects(EAxis axis, const Vec3f& center, bool lockTextures);
             void deleteObjects();
             
 # pragma mark Face related functoins
             void setXOffset(int xOffset);
             void setYOffset(int yOffset);
-            void translateFaces(float delta, Vec3f dir);
+            void translateFaces(float delta, const Vec3f& dir);
             void setRotation(float rotation);
             void rotateFaces(float angle);
             void setXScale(float xScale);
@@ -128,12 +127,12 @@ namespace TrenchBroom {
             bool deleteFaces();
             
 # pragma mark Vertex related functions
-            MoveResult moveVertex(Brush& brush, int vertexIndex, Vec3f delta);
-            MoveResult moveEdge(Brush& brush, int edgeIndex, Vec3f delta);
-            MoveResult moveFace(Brush& brush, int faceIndex, Vec3f delta);
+            MoveResult moveVertex(Brush& brush, int vertexIndex, const Vec3f& delta);
+            MoveResult moveEdge(Brush& brush, int edgeIndex, const Vec3f& delta);
+            MoveResult moveFace(Brush& brush, int faceIndex, const Vec3f& delta);
             
 # pragma mark Getters
-            BBox worldBounds();
+            const BBox& worldBounds();
             Octree& octree();
             Picker& picker();
             Selection& selection();

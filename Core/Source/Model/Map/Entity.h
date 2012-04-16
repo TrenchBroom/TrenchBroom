@@ -51,12 +51,12 @@ namespace TrenchBroom {
         class Entity : public MapObject {
         private:
             EntityDefinition* m_entityDefinition;
-            Vec3f m_center;
             Vec3f m_origin;
             float m_angle;
-            BBox m_bounds;
-            BBox m_maxBounds;
-            bool m_geometryValid;
+            mutable Vec3f m_center;
+            mutable BBox m_bounds;
+            mutable BBox m_maxBounds;
+            mutable bool m_geometryValid;
             
             Map* m_map;
             vector<Brush*> m_brushes;
@@ -68,9 +68,8 @@ namespace TrenchBroom {
             Renderer::VboBlock* m_vboBlock;
             
             void init();
-            void validateGeometry();
+            void validateGeometry() const;
             void invalidateGeometry();
-            void rotate90(EAxis axis, Vec3f rotationCenter, bool clockwise);
         public:
             Entity();
             Entity(const map<string, string> properties);
@@ -79,10 +78,10 @@ namespace TrenchBroom {
             EMapObjectType objectType() const;
             const EntityDefinition* entityDefinition() const;
             void setEntityDefinition(EntityDefinition* entityDefinition);
-            const Vec3f& center();
+            const Vec3f& center() const;
             const Vec3f& origin() const;
-            const BBox& bounds();
-            const BBox& maxBounds();
+            const BBox& bounds() const;
+            const BBox& maxBounds() const;
             
             void pick(const Ray& ray, HitList& hits);
 
@@ -96,7 +95,7 @@ namespace TrenchBroom {
             bool propertyDeletable(const string& key) const;
             void setProperty(const string& key, const string& value);
             void setProperty(const string& key, const string* value);
-            void setProperty(const string& key, Vec3f value, bool round);
+            void setProperty(const string& key, const Vec3f& value, bool round);
             void setProperty(const string& key, float value, bool round);
             void setProperties(map<string, string> properties, bool replace);
             void deleteProperty(const string& key);
@@ -112,11 +111,10 @@ namespace TrenchBroom {
             void removeBrush(Brush* brush);
             void removeBrushes(vector<Brush*>& brushes);
             
-            void translate(Vec3f delta);
-            void rotate90CW(EAxis axis, Vec3f rotationCenter);
-            void rotate90CCW(EAxis axis, Vec3f rotationCenter);
-            void rotate(Quat rotation, Vec3f rotationCenter);
-            void flip(EAxis axis, Vec3f flipCenter);
+            void translate(const Vec3f& delta);
+            void rotate90(EAxis axis, const Vec3f& rotationCenter, bool clockwise);
+            void rotate(const Quat& rotation, const Vec3f& rotationCenter);
+            void flip(EAxis axis, const Vec3f& flipCenter);
             
             int filePosition() const;
             void setFilePosition(int filePosition);

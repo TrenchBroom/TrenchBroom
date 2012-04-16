@@ -111,8 +111,7 @@ namespace TrenchBroom {
             void translateOffsets(float delta, Vec3f dir);
             void rotateTexture(float angle);
             void translate(Vec3f delta, bool lockTexture);
-            void rotate90CW(EAxis axis, Vec3f center, bool lockTexture);
-            void rotate90CCW(EAxis axis, Vec3f center, bool lockTexture);
+            void rotate90(EAxis axis, Vec3f center, bool clockwise, bool lockTexture);
             void rotate(Quat rotation, Vec3f center, bool lockTexture);
             void flip(EAxis axis, Vec3f center, bool lockTexture);
             void move(float dist, bool lockTexture);

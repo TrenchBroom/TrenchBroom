@@ -19,7 +19,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "FontManager.h"
-#include "GLH/glplat.h"
+#include "GL/GLee.h"
 
 namespace TrenchBroom {
     namespace Renderer {

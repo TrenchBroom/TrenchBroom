@@ -148,7 +148,7 @@ namespace TrenchBroom {
             return m_faces;
         }
         
-        const BBox& Brush::bounds() {
+        const BBox& Brush::bounds() const {
             return m_geometry->bounds;
         }
         
@@ -156,7 +156,7 @@ namespace TrenchBroom {
             return m_worldBounds;
         }
         
-        const Vec3f Brush::center() {
+        const Vec3f Brush::center() const {
             return centerOfVertices(vertices());
         }
         
@@ -356,35 +356,28 @@ namespace TrenchBroom {
             rebuildGeometry();
         }
         
-        void Brush::translate(Vec3f delta, bool lockTextures) {
+        void Brush::translate(const Vec3f& delta, bool lockTextures) {
             for (int i = 0; i < m_faces.size(); i++)
                 m_faces[i]->translate(delta, lockTextures);
             m_geometry->translate(delta);
             m_entity->brushChanged(this);
         }
         
-        void Brush::rotate90CW(EAxis axis, Vec3f center, bool lockTextures) {
+        void Brush::rotate90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures) {
             for (int i = 0; i < m_faces.size(); i++)
-                m_faces[i]->rotate90CW(axis, center, lockTextures);
-            m_geometry->rotate90CW(axis, center);
+                m_faces[i]->rotate90(axis, center, clockwise, lockTextures);
+            m_geometry->rotate90(axis, center, clockwise);
             m_entity->brushChanged(this);
         }
         
-        void Brush::rotate90CCW(EAxis axis, Vec3f center, bool lockTextures) {
-            for (int i = 0; i < m_faces.size(); i++)
-                m_faces[i]->rotate90CCW(axis, center, lockTextures);
-            m_geometry->rotate90CCW(axis, center);
-            m_entity->brushChanged(this);
-        }
-        
-        void Brush::rotate(Quat rotation, Vec3f center, bool lockTextures) {
+        void Brush::rotate(const Quat& rotation, const Vec3f& center, bool lockTextures) {
             for (int i = 0; i < m_faces.size(); i++)
                 m_faces[i]->rotate(rotation, center, lockTextures);
             m_geometry->rotate(rotation, center);
             m_entity->brushChanged(this);
         }
         
-        void Brush::flip(EAxis axis, Vec3f center, bool lockTextures) {
+        void Brush::flip(EAxis axis, const Vec3f& center, bool lockTextures) {
             for (int i = 0; i < m_faces.size(); i++)
                 m_faces[i]->flip(axis, center, lockTextures);
             m_geometry->flip(axis, center);

@@ -63,6 +63,7 @@ public:
     Vec2f& operator*= (const float right);
     Vec2f& operator/= (const float right);
     float& operator[] (const int index);
+    const float& operator[] (const int index) const;
     Vec2f();
     Vec2f(float x, float y);
     
@@ -89,6 +90,7 @@ public:
     Vec3f& operator/= (const float right);
     Vec3f& operator%= (const Vec3f& right);
     float& operator[] (const int index);
+    const float& operator[] (const int index) const;
     Vec3f();
     Vec3f(const string& str);
     Vec3f(float x, float y, float z);
@@ -131,6 +133,7 @@ public:
     Vec4f& operator*= (const float right);
     Vec4f& operator/= (const float right);
     float& operator[] (const int index);
+    const float& operator[] (const int index) const;
     Vec4f();
     Vec4f(float x, float y, float z, float w);
     
@@ -157,6 +160,7 @@ public:
     Mat2f& operator*= (const Mat2f& right);
     Mat2f& operator/= (const float right);
     float& operator[] (const int index);
+    const float& operator[] (const int index) const;
     Mat2f();
     Mat2f(float v11, float v12, float v21, float v22);
     void setIdentity();
@@ -187,6 +191,7 @@ public:
     Mat3f& operator*= (const Mat3f& right);
     Mat3f& operator/= (const float right);
     float& operator[] (const int index);
+    const float& operator[] (const int index) const;
     Mat3f();
     Mat3f(float v11, float v12, float v13, float v21, float v22, float v23, float v31, float v32, float v33);
     void setIdentity();
@@ -220,6 +225,7 @@ public:
     Mat4f& operator*= (const Mat4f& right);
     Mat4f& operator/= (const float right);
     float& operator[] (const int index);
+    const float& operator[] (const int index) const;
     Mat4f();
     Mat4f(float v11, float v12, float v13, float v14, float v21, float v22, float v23, float v24, float v31, float v32, float v33, float v34, float v41, float v42, float v43, float v44);
     void setIdentity();

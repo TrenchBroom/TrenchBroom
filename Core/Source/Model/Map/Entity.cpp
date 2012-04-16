@@ -40,7 +40,7 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
 
-        void Entity::validateGeometry() {
+        void Entity::validateGeometry() const {
             assert(!m_geometryValid);
 
             m_bounds.min = m_bounds.max = Null3f;
@@ -84,44 +84,6 @@ namespace TrenchBroom {
 
         }
 
-        void Entity::rotate90(EAxis axis, Vec3f rotationCenter, bool clockwise) {
-            if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
-                return;
-
-            setProperty(OriginKey, m_origin.rotate90(axis, rotationCenter, clockwise), true);
-
-            Vec3f direction;
-            if (m_angle >= 0) {
-                direction.x = cos(2 * M_PI - m_angle * M_PI / 180);
-                direction.y = sin(2 * M_PI - m_angle * M_PI / 180);
-                direction.z = 0;
-            } else if (m_angle == -1) {
-                direction = ZAxisPos;
-            } else if (m_angle == -2) {
-                direction = ZAxisNeg;
-            } else {
-                return;
-            }
-
-            direction = direction.rotate90(axis, clockwise);
-            if (direction.z > 0.9) {
-                setProperty(AngleKey, -1, true);
-            } else if (direction.z < -0.9) {
-                setProperty(AngleKey, -2, true);
-            } else {
-                if (direction.z != 0) {
-                    direction.z = 0;
-                    direction = direction.normalize();
-                }
-
-                m_angle = roundf(acos(direction.x) * 180 / M_PI);
-                Vec3f cross = direction % XAxisPos;
-                if (!cross.equals(Null3f) && cross.z < 0)
-                    m_angle = 360 - m_angle;
-                setProperty(AngleKey, m_angle, true);
-            }
-        }
-
         EMapObjectType Entity::objectType() const {
             return TB_MT_ENTITY;
         }
@@ -139,7 +101,7 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
 
-        const Vec3f& Entity::center() {
+        const Vec3f& Entity::center() const {
             if (!m_geometryValid) validateGeometry();
             return m_center;
         }
@@ -148,12 +110,12 @@ namespace TrenchBroom {
             return m_origin;
         }
 
-        const BBox& Entity::bounds() {
+        const BBox& Entity::bounds() const {
             if (!m_geometryValid) validateGeometry();
             return m_bounds;
         }
 
-        const BBox& Entity::maxBounds() {
+        const BBox& Entity::maxBounds() const {
             if (!m_geometryValid) validateGeometry();
             return m_maxBounds;
         }
@@ -232,7 +194,7 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
 
-        void Entity::setProperty(const string& key, Vec3f value, bool round) {
+        void Entity::setProperty(const string& key, const Vec3f& value, bool round) {
             stringstream valueStr;
             if (round) valueStr << (int)roundf(value.x) << " " << (int)roundf(value.y) << " " << (int)roundf(value.z);
             else valueStr << value.x << " " << value.y << " " << value.z;
@@ -323,22 +285,52 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
 
-        void Entity::translate(Vec3f delta) {
+        void Entity::translate(const Vec3f& delta) {
             if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_POINT)
                 return;
 
             setProperty(OriginKey, m_origin + delta, true);
         }
 
-        void Entity::rotate90CW(EAxis axis, Vec3f rotationCenter) {
-            rotate90(axis, rotationCenter, true);
+        void Entity::rotate90(EAxis axis, const Vec3f& rotationCenter, bool clockwise) {
+            if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
+                return;
+            
+            setProperty(OriginKey, m_origin.rotate90(axis, rotationCenter, clockwise), true);
+            
+            Vec3f direction;
+            if (m_angle >= 0) {
+                direction.x = cos(2 * M_PI - m_angle * M_PI / 180);
+                direction.y = sin(2 * M_PI - m_angle * M_PI / 180);
+                direction.z = 0;
+            } else if (m_angle == -1) {
+                direction = ZAxisPos;
+            } else if (m_angle == -2) {
+                direction = ZAxisNeg;
+            } else {
+                return;
+            }
+            
+            direction = direction.rotate90(axis, clockwise);
+            if (direction.z > 0.9) {
+                setProperty(AngleKey, -1, true);
+            } else if (direction.z < -0.9) {
+                setProperty(AngleKey, -2, true);
+            } else {
+                if (direction.z != 0) {
+                    direction.z = 0;
+                    direction = direction.normalize();
+                }
+                
+                m_angle = roundf(acos(direction.x) * 180 / M_PI);
+                Vec3f cross = direction % XAxisPos;
+                if (!cross.equals(Null3f) && cross.z < 0)
+                    m_angle = 360 - m_angle;
+                setProperty(AngleKey, m_angle, true);
+            }
         }
-
-        void Entity::rotate90CCW(EAxis axis, Vec3f rotationCenter) {
-            rotate90(axis, rotationCenter, false);
-        }
-
-        void Entity::rotate(Quat rotation, Vec3f rotationCenter) {
+        
+        void Entity::rotate(const Quat& rotation, const Vec3f& rotationCenter) {
             if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
 
@@ -380,7 +372,7 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
 
-        void Entity::flip(EAxis axis, Vec3f flipCenter) {
+        void Entity::flip(EAxis axis, const Vec3f& flipCenter) {
             if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
 

@@ -29,7 +29,7 @@
 #include "Model/Assets/Bsp.h"
 #include "Model/Assets/Palette.h"
 #include "Utilities/Event.h"
-#include "GLH/glplat.h"
+#include "GL/GLee.h"
 #include "Utilities/VecMath.h"
 
 using namespace std;

@@ -116,6 +116,8 @@
 		4825B536153AE5E9007E3AE1 /* Utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B4F6153AE5E9007E3AE1 /* Utility.cpp */; };
 		4825B548153AE693007E3AE1 /* OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B544153AE693007E3AE1 /* OpenGL.cpp */; };
 		4825B549153AE693007E3AE1 /* OpenGL_DebugFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B546153AE693007E3AE1 /* OpenGL_DebugFont.cpp */; };
+		4825B555153C9F56007E3AE1 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4825B553153C9F56007E3AE1 /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		4825B557153C9FB7007E3AE1 /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4825B556153C9FB7007E3AE1 /* libfreeimage.a */; };
 		4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4888F8331536099B000423D2 /* MacStringFactory.mm */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
 		48B50E13152CF6E400E75402 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E12152CF6E400E75402 /* Cocoa.framework */; };
@@ -131,7 +133,6 @@
 		48B50E4D152D019C00E75402 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E4C152D019C00E75402 /* OpenGL.framework */; };
 		48C9794E1530CB72003020FC /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794D1530CB72003020FC /* quake.def */; };
 		48C97950153174B9003020FC /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794F153174B9003020FC /* QuakePalette.lmp */; };
-		48C9A3A8152DD82A00EB804C /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C9A3A7152DD82A00EB804C /* libfreeimage.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -388,10 +389,9 @@
 		4825B545153AE693007E3AE1 /* OpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGL.h; sourceTree = "<group>"; };
 		4825B546153AE693007E3AE1 /* OpenGL_DebugFont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenGL_DebugFont.cpp; sourceTree = "<group>"; };
 		4825B547153AE693007E3AE1 /* OpenGL_DebugFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGL_DebugFont.h; sourceTree = "<group>"; };
-		4825B54B153B4C45007E3AE1 /* gl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gl.h; sourceTree = "<group>"; };
-		4825B54C153B4C45007E3AE1 /* glext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glext.h; sourceTree = "<group>"; };
-		4825B54D153B4C45007E3AE1 /* glplat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glplat.h; sourceTree = "<group>"; };
-		4825B54E153B4C45007E3AE1 /* glu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glu.h; sourceTree = "<group>"; };
+		4825B553153C9F56007E3AE1 /* GLee.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GLee.c; sourceTree = "<group>"; };
+		4825B554153C9F56007E3AE1 /* GLee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLee.h; sourceTree = "<group>"; };
+		4825B556153C9FB7007E3AE1 /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = ../Gwen/Lib/Mac/libfreeimage.a; sourceTree = "<group>"; };
 		4888F8321536099B000423D2 /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
 		4888F8331536099B000423D2 /* MacStringFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacStringFactory.mm; sourceTree = "<group>"; };
 		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
@@ -408,7 +408,7 @@
 		48B50E25152CF6E400E75402 /* Document.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Document.mm; sourceTree = "<group>"; };
 		48B50E28152CF6E400E75402 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/DocumentWindow.xib; sourceTree = "<group>"; };
 		48B50E2B152CF6E400E75402 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		48B50E36152CF79000E75402 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
+		48B50E36152CF79000E75402 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Icon.icns; path = ../Icon.icns; sourceTree = "<group>"; };
 		48B50E3D152CF8F900E75402 /* DocumentWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DocumentWindowController.h; sourceTree = "<group>"; };
 		48B50E3E152CF8F900E75402 /* DocumentWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DocumentWindowController.mm; sourceTree = "<group>"; };
 		48B50E40152CF95500E75402 /* DocumentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DocumentView.h; sourceTree = "<group>"; };
@@ -416,7 +416,6 @@
 		48B50E4C152D019C00E75402 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		48C9794D1530CB72003020FC /* quake.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = quake.def; path = ../../Resources/Defs/quake.def; sourceTree = "<group>"; };
 		48C9794F153174B9003020FC /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
-		48C9A3A7152DD82A00EB804C /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = ../Gwen/lib/libfreeimage.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -424,7 +423,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				48C9A3A8152DD82A00EB804C /* libfreeimage.a in Frameworks */,
+				4825B557153C9FB7007E3AE1 /* libfreeimage.a in Frameworks */,
 				48B50E4D152D019C00E75402 /* OpenGL.framework in Frameworks */,
 				48B50E13152CF6E400E75402 /* Cocoa.framework in Frameworks */,
 			);
@@ -823,24 +822,19 @@
 			path = ../Gwen/Source/Gwen/Renderers;
 			sourceTree = "<group>";
 		};
-		4825B54A153B4C45007E3AE1 /* GLH */ = {
+		4825B552153C9F56007E3AE1 /* GL */ = {
 			isa = PBXGroup;
 			children = (
-				4825B54B153B4C45007E3AE1 /* gl.h */,
-				4825B54C153B4C45007E3AE1 /* glext.h */,
-				4825B54D153B4C45007E3AE1 /* glplat.h */,
-				4825B54E153B4C45007E3AE1 /* glu.h */,
+				4825B553153C9F56007E3AE1 /* GLee.c */,
+				4825B554153C9F56007E3AE1 /* GLee.h */,
 			);
-			name = GLH;
-			path = ../Core/Source/GLH;
+			name = GL;
+			path = ../Core/Source/GL;
 			sourceTree = "<group>";
 		};
 		48B50E03152CF6E400E75402 = {
 			isa = PBXGroup;
 			children = (
-				48B50E36152CF79000E75402 /* Icon.icns */,
-				48C9A3A7152DD82A00EB804C /* libfreeimage.a */,
-				48B50E4C152D019C00E75402 /* OpenGL.framework */,
 				48B50E43152CF97F00E75402 /* Core */,
 				4825B44D153AE5B4007E3AE1 /* Gwen */,
 				48B50E18152CF6E400E75402 /* Mac */,
@@ -863,6 +857,8 @@
 				48B50E15152CF6E400E75402 /* AppKit.framework */,
 				48B50E12152CF6E400E75402 /* Cocoa.framework */,
 				48B50E17152CF6E400E75402 /* Foundation.framework */,
+				48B50E4C152D019C00E75402 /* OpenGL.framework */,
+				4825B556153C9FB7007E3AE1 /* libfreeimage.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -892,6 +888,7 @@
 		48B50E19152CF6E400E75402 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				48B50E36152CF79000E75402 /* Icon.icns */,
 				48C9794F153174B9003020FC /* QuakePalette.lmp */,
 				48C9794D1530CB72003020FC /* quake.def */,
 				48B50E1A152CF6E400E75402 /* TrenchBroom-Info.plist */,
@@ -908,7 +905,7 @@
 			isa = PBXGroup;
 			children = (
 				4825B3BC153AE59F007E3AE1 /* Controller */,
-				4825B54A153B4C45007E3AE1 /* GLH */,
+				4825B552153C9F56007E3AE1 /* GL */,
 				4825B3CC153AE59F007E3AE1 /* GUI */,
 				4825B3D3153AE59F007E3AE1 /* IO */,
 				4825B3DD153AE59F007E3AE1 /* Model */,
@@ -1101,6 +1098,7 @@
 				4825B536153AE5E9007E3AE1 /* Utility.cpp in Sources */,
 				4825B548153AE693007E3AE1 /* OpenGL.cpp in Sources */,
 				4825B549153AE693007E3AE1 /* OpenGL_DebugFont.cpp in Sources */,
+				4825B555153C9F56007E3AE1 /* GLee.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1168,6 +1166,7 @@
 					../Gwen/Source,
 					../Core/Source,
 				);
+				LIBRARY_SEARCH_PATHS = ../Gwen/Lib/Mac/;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx10.6;
@@ -1194,6 +1193,7 @@
 					../Gwen/Source,
 					../Core/Source,
 				);
+				LIBRARY_SEARCH_PATHS = ../Gwen/Lib/Mac/;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = macosx10.6;
 			};
@@ -1205,11 +1205,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
 				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../Gwen/lib/macosx\"",
-					"\"$(SRCROOT)/../Gwen/lib\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -1222,11 +1218,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
 				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../Gwen/lib/macosx\"",
-					"\"$(SRCROOT)/../Gwen/lib\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;

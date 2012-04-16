@@ -22,7 +22,7 @@
 
 #include <map>
 #include <vector>
-#include "GLH/glplat.h"
+#include "GL/GLee.h"
 #include "Utilities/VecMath.h"
 
 using namespace std;

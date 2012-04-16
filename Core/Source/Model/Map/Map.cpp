@@ -294,7 +294,7 @@ namespace TrenchBroom {
             if (!newBrushes.empty() && m_postNotifications) brushesWereAdded(newBrushes);
         }
 
-        void Map::translateObjects(Vec3f delta, bool lockTextures) {
+        void Map::translateObjects(const Vec3f& delta, bool lockTextures) {
             const vector<Entity*>& entities = m_selection->entities();
             const vector<Brush*>& brushes = m_selection->brushes();
 
@@ -313,45 +313,26 @@ namespace TrenchBroom {
             }
         }
 
-        void Map::rotateObjects90CW(EAxis axis, Vec3f center, bool lockTextures) {
+        void Map::rotateObjects90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures) {
             const vector<Entity*>& entities = m_selection->entities();
             const vector<Brush*>& brushes = m_selection->brushes();
 
             if (!entities.empty()) {
                 if (m_postNotifications) propertiesWillChange(entities);
                 for (int i = 0; i < entities.size(); i++)
-                    entities[i]->rotate90CW(axis, center);
+                    entities[i]->rotate90(axis, center, clockwise);
                 if (m_postNotifications) propertiesDidChange(entities);
             }
 
             if (!brushes.empty()) {
                 if (m_postNotifications) brushesWillChange(brushes);
                 for (int i = 0; i < brushes.size(); i++)
-                    brushes[i]->rotate90CW(axis, center, lockTextures);
+                    brushes[i]->rotate90(axis, center, clockwise, lockTextures);
                 if (m_postNotifications) brushesDidChange(brushes);
             }
         }
 
-        void Map::rotateObjects90CCW(EAxis axis, Vec3f center, bool lockTextures) {
-            const vector<Entity*>& entities = m_selection->entities();
-            const vector<Brush*>& brushes = m_selection->brushes();
-
-            if (!entities.empty()) {
-                if (m_postNotifications) propertiesWillChange(entities);
-                for (int i = 0; i < entities.size(); i++)
-                    entities[i]->rotate90CCW(axis, center);
-                if (m_postNotifications) propertiesDidChange(entities);
-            }
-
-            if (!brushes.empty()) {
-                if (m_postNotifications) brushesWillChange(brushes);
-                for (int i = 0; i < brushes.size(); i++)
-                    brushes[i]->rotate90CCW(axis, center, lockTextures);
-                if (m_postNotifications) brushesDidChange(brushes);
-            }
-        }
-
-        void Map::rotateObjects(Quat rotation, Vec3f center, bool lockTextures) {
+        void Map::rotateObjects(const Quat& rotation, const Vec3f& center, bool lockTextures) {
             const vector<Entity*>& entities = m_selection->entities();
             const vector<Brush*>& brushes = m_selection->brushes();
 
@@ -370,7 +351,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Map::flipObjects(EAxis axis, Vec3f center, bool lockTextures) {
+        void Map::flipObjects(EAxis axis, const Vec3f& center, bool lockTextures) {
             const vector<Entity*>& entities = m_selection->entities();
             const vector<Brush*>& brushes = m_selection->brushes();
 
@@ -449,7 +430,7 @@ namespace TrenchBroom {
             if (m_postNotifications) facesDidChange(faces);
         }
 
-        void Map::translateFaces(float delta, Vec3f dir) {
+        void Map::translateFaces(float delta, const Vec3f& dir) {
             const vector<Face*>& faces = m_selection->faces();
             if (faces.empty()) return;
 
@@ -528,7 +509,7 @@ namespace TrenchBroom {
         }
 
 # pragma mark Vertex related functions
-        MoveResult Map::moveVertex(Brush& brush, int vertexIndex, Vec3f delta) {
+        MoveResult Map::moveVertex(Brush& brush, int vertexIndex, const Vec3f& delta) {
             if (find(m_selection->brushes().begin(), m_selection->brushes().end(), &brush) == m_selection->brushes().end())
                 m_selection->addBrush(brush);
             vector<Brush*> brushArray;
@@ -539,7 +520,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        MoveResult Map::moveEdge(Brush& brush, int edgeIndex, Vec3f delta) {
+        MoveResult Map::moveEdge(Brush& brush, int edgeIndex, const Vec3f& delta) {
             if (find(m_selection->brushes().begin(), m_selection->brushes().end(), &brush) == m_selection->brushes().end())
                 m_selection->addBrush(brush);
             vector<Brush*> brushArray;
@@ -550,7 +531,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        MoveResult Map::moveFace(Brush& brush, int faceIndex, Vec3f delta) {
+        MoveResult Map::moveFace(Brush& brush, int faceIndex, const Vec3f& delta) {
             if (find(m_selection->brushes().begin(), m_selection->brushes().end(), &brush) == m_selection->brushes().end())
                 m_selection->addBrush(brush);
             vector<Brush*> brushArray;
@@ -562,7 +543,7 @@ namespace TrenchBroom {
         }
 
 # pragma mark getters
-        BBox Map::worldBounds() {
+        const BBox& Map::worldBounds() {
             return m_worldBounds;
         }
 

@@ -25,7 +25,7 @@
 #include <vector>
 
 #include "Renderer/EntityRenderer.h"
-#include "GLH/glplat.h"
+#include "GL/GLee.h"
 
 using namespace std;
 

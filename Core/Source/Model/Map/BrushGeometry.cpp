@@ -341,7 +341,7 @@ namespace TrenchBroom {
                     keep++;
                 } else if (currentMark == TB_EM_DROP) {
                     if (lastMark == TB_EM_KEEP)
-                        splitIndex1 = i > 0 ? i - 1 : edges.size() - 1;
+                        splitIndex1 = i > 0 ? i - 1 : (int)edges.size() - 1;
                     drop++;
                 }
                 lastMark = currentMark;
@@ -799,7 +799,7 @@ namespace TrenchBroom {
             return minDist;
         }
         
-        MoveResult BrushGeometry::moveVertex(int vertexIndex, bool mergeIncidentVertex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
+        MoveResult BrushGeometry::moveVertex(int vertexIndex, bool mergeIncidentVertex, const Vec3f& delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             Vertex* vertex;
             Vec3f newPosition;
             Ray ray;
@@ -906,7 +906,7 @@ namespace TrenchBroom {
             return moveVertex(vertexIndex, mergeIncidentVertex, ray.direction, newFaces, droppedFaces);
         }
         
-        MoveResult BrushGeometry::splitAndMoveEdge(int index, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
+        MoveResult BrushGeometry::splitAndMoveEdge(int index, const Vec3f& delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             Edge* edge;
             Vertex* vertex;
             Vec3f edgeVertices[2];
@@ -967,7 +967,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        MoveResult BrushGeometry::splitAndMoveSide(int sideIndex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
+        MoveResult BrushGeometry::splitAndMoveSide(int sideIndex, const Vec3f& delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             Side* side;
             Vertex* vertex;
             vector<Vec3f> sideVertices;
@@ -1329,16 +1329,10 @@ namespace TrenchBroom {
             bounds = bounds.translate(delta);
         }
         
-        void BrushGeometry::rotate90CW(EAxis axis, Vec3f center) {
+        void BrushGeometry::rotate90(EAxis axis, Vec3f center, bool clockwise) {
             for (int i = 0; i < vertices.size(); i++)
-                vertices[i]->position = vertices[i]->position.rotate90(axis, center, true);
-            bounds = bounds.rotate90(axis, center, true);
-        }
-        
-        void BrushGeometry::rotate90CCW(EAxis axis, Vec3f center) {
-            for (int i = 0; i < vertices.size(); i++)
-                vertices[i]->position = vertices[i]->position.rotate90(axis, center, false);
-            bounds = bounds.rotate90(axis, center, false);
+                vertices[i]->position = vertices[i]->position.rotate90(axis, center, clockwise);
+            bounds = bounds.rotate90(axis, center, clockwise);
         }
         
         void BrushGeometry::rotate(Quat rotation, Vec3f center) {

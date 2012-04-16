@@ -65,9 +65,9 @@ namespace TrenchBroom {
             Entity* entity() const;
             void setEntity(Entity* entity);
             const vector<Face*>& faces() const;
-            const BBox& bounds();
+            const BBox& bounds() const;
             const BBox& worldBounds() const;
-            const Vec3f center();
+            const Vec3f center() const;
             const vector<Vertex*>& vertices() const;
             const vector<Edge*>& edges() const;
             
@@ -82,11 +82,10 @@ namespace TrenchBroom {
             bool canDeleteFace(Face& face);
             void deleteFace(Face& face);
             
-            void translate(Vec3f delta, bool lockTextures);
-            void rotate90CW(EAxis axis, Vec3f center, bool lockTextures);
-            void rotate90CCW(EAxis axis, Vec3f center, bool lockTextures);
-            void rotate(Quat rotation, Vec3f center, bool lockTextures);
-            void flip(EAxis axis, Vec3f center, bool lockTextures);
+            void translate(const Vec3f& delta, bool lockTextures);
+            void rotate90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures);
+            void rotate(const Quat& rotation, const Vec3f& center, bool lockTextures);
+            void flip(EAxis axis, const Vec3f& center, bool lockTextures);
             bool canResize(Face& face, float dist);
             void resize(Face& face, float dist, bool lockTextures);
             void enlarge(float delta, bool lockTextures);

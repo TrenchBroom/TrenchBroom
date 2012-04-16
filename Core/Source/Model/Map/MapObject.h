@@ -38,7 +38,7 @@ namespace TrenchBroom {
             MapObject();
             virtual ~MapObject() {};
             int uniqueId() const;
-            virtual const BBox& bounds() = 0;
+            virtual const BBox& bounds() const = 0;
             virtual EMapObjectType objectType() const = 0;
             virtual void pick(const Ray& ray, HitList& hits) = 0;
         };

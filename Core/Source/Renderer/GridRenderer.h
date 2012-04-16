@@ -21,7 +21,7 @@
 #define TrenchBroom_GridRenderer_h
 
 #include <vector>
-#include "GLH/glplat.h"
+#include "GL/GLee.h"
 
 using namespace std;
 

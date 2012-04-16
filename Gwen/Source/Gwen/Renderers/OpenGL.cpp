@@ -6,7 +6,7 @@
 
 #include <math.h>
 
-#include "GL/glew.h"
+#include "GL/GLee.h"
 #include "FreeImage/FreeImage.h"
 
 

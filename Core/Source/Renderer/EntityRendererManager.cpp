@@ -29,7 +29,7 @@
 #include "Renderer/BspRenderer.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/Vbo.h"
-#include "GLH/glplat.h"
+#include "GL/GLee.h"
 #include "Utilities/Utils.h"
 
 namespace TrenchBroom {

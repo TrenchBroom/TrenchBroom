@@ -417,36 +417,19 @@ namespace TrenchBroom {
             m_texAxesValid = false;
         }
         
-        void Face::rotate90CW(EAxis axis, Vec3f center, bool lockTexture) {
+        void Face::rotate90(EAxis axis, Vec3f center, bool clockwise, bool lockTexture) {
             if (lockTexture) {
                 Mat4f t = IdentityM4f.translate(center);
-                if (axis == TB_AX_X) t *= RotX90CWM4f;
-                else if (axis == TB_AX_Y) t *= RotY90CWM4f;
-                else t *= RotZ90CWM4f;
+                if (axis == TB_AX_X) t *= clockwise ? RotX90CWM4f : RotX90CCWM4f;
+                else if (axis == TB_AX_Y) t *= clockwise ? RotY90CWM4f : RotY90CCWM4f;
+                else t *= clockwise ? RotZ90CWM4f : RotZ90CWM4f;
                 t.translate(center * -1);
                 compensateTransformation(t);
             }
             
-            m_boundary = m_boundary.rotate90(axis, center, true);
+            m_boundary = m_boundary.rotate90(axis, center, clockwise);
             for (int i = 0; i < 3; i++)
-                m_points[i] = m_points[i].rotate90(axis, center, true);
-            
-            m_texAxesValid = false;
-        }
-        
-        void Face::rotate90CCW(EAxis axis, Vec3f center, bool lockTexture) {
-            if (lockTexture) {
-                Mat4f t = IdentityM4f.translate(center);
-                if (axis == TB_AX_X) t *= RotX90CCWM4f;
-                else if (axis == TB_AX_Y) t *= RotY90CCWM4f;
-                else t *= RotZ90CCWM4f;
-                t.translate(center * -1);
-                compensateTransformation(t);
-            }
-            
-            m_boundary = m_boundary.rotate90(axis, center, false);
-            for (int i = 0; i < 3; i++)
-                m_points[i] = m_points[i].rotate90(axis, center, false);
+                m_points[i] = m_points[i].rotate90(axis, center, clockwise);
             
             m_texAxesValid = false;
         }

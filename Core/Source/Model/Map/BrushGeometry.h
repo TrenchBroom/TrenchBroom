@@ -140,9 +140,9 @@ namespace TrenchBroom {
             void mergeNeighbours(Side* side, int edgeIndex);
             void mergeSides(vector<Face*>& newFaces, vector<Face*>&droppedFaces);
             float minVertexMoveDist(const vector<Side*>& sides, const Vertex* vertex, Ray ray, float maxDist);
-            MoveResult moveVertex(int vertexIndex, bool mergeIncidentVertex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces);
-            MoveResult splitAndMoveEdge(int index, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces);
-            MoveResult splitAndMoveSide(int sideIndex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces);
+            MoveResult moveVertex(int vertexIndex, bool mergeIncidentVertex, const Vec3f& delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces);
+            MoveResult splitAndMoveEdge(int index, const Vec3f& delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces);
+            MoveResult splitAndMoveSide(int sideIndex, const Vec3f& delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces);
             void copy(const BrushGeometry& original);
         public:
             vector<Vertex*> vertices;
@@ -161,8 +161,7 @@ namespace TrenchBroom {
             bool addFaces(vector<Face*>& faces, vector<Face*>& droppedFaces);
             
             void translate(Vec3f delta);
-            void rotate90CW(EAxis axis, Vec3f center);
-            void rotate90CCW(EAxis axis, Vec3f center);
+            void rotate90(EAxis axis, Vec3f center, bool clockwise);
             void rotate(Quat rotation, Vec3f center);
             void flip(EAxis axis, Vec3f center);
             void snap();

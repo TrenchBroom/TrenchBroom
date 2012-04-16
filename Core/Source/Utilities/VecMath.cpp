@@ -85,6 +85,12 @@ float& Vec2f::operator[] (const int index) {
     return y;
 }
 
+const float& Vec2f::operator[] (const int index) const {
+    assert(index >= 0 && index < 2);
+    if (index == 0) return x;
+    return y;
+}
+
 Vec2f::Vec2f() : x(0), y(0) {}
 Vec2f::Vec2f(float x, float y) : x(x), y(y) {}
 
@@ -193,6 +199,13 @@ Vec3f& Vec3f::operator%= (const Vec3f& right) {
 }
 
 float& Vec3f::operator[] (const int index) {
+    assert(index >= 0 && index < 3);
+    if (index == 0) return x;
+    if (index == 1) return y;
+    return z;
+}
+
+const float& Vec3f::operator[] (const int index) const {
     assert(index >= 0 && index < 3);
     if (index == 0) return x;
     if (index == 1) return y;
@@ -385,6 +398,14 @@ float& Vec4f::operator[] (const int index) {
     return w;
 }
 
+const float& Vec4f::operator[] (const int index) const {
+    assert(index >= 0 && index < 4);
+    if (index == 0) return x;
+    if (index == 1) return y;
+    if (index == 2) return z;
+    return w;
+}
+
 Vec4f::Vec4f() : x(0), y(0), z(0), w(0) {}
 Vec4f::Vec4f(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
@@ -484,6 +505,11 @@ Mat2f& Mat2f::operator/= (const float right) {
 }
 
 float& Mat2f::operator[] (const int index) {
+    assert(index >= 0 && index < 4);
+    return v[index];
+}
+
+const float& Mat2f::operator[] (const int index) const {
     assert(index >= 0 && index < 4);
     return v[index];
 }
@@ -635,6 +661,11 @@ Mat3f& Mat3f::operator/= (const float right) {
 }
 
 float& Mat3f::operator[] (const int index) {
+    assert(index >= 0 && index < 9);
+    return v[index];
+}
+
+const float& Mat3f::operator[] (const int index) const {
     assert(index >= 0 && index < 9);
     return v[index];
 }
@@ -809,6 +840,11 @@ Mat4f& Mat4f::operator/= (const float right) {
 }
 
 float& Mat4f::operator[] (const int index) {
+    assert(index >= 0 && index < 16);
+    return v[index];
+}
+
+const float& Mat4f::operator[] (const int index) const {
     assert(index >= 0 && index < 16);
     return v[index];
 }

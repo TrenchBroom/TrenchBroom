@@ -25,7 +25,7 @@
 #include "Model/Preferences.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/Vbo.h"
-#include "GLH/glplat.h"
+#include "GL/GLee.h"
 
 namespace TrenchBroom {
     namespace Renderer {

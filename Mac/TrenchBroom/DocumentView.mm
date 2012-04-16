@@ -18,10 +18,9 @@
  */
 
 #import "DocumentView.h"
+#import "GL/GLee.h"
 #import "EditorGui.h"
 #import "VecMath.h"
-#import <OpenGL/gl.h>
-#import <OpenGL/glu.h>
 #import <math.h>
 #import "Gwen/InputHandler.h"
 #import "Editor.h"
