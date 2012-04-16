@@ -30,7 +30,7 @@
 
 #define FREEIMAGE_MAJOR_VERSION   3
 #define FREEIMAGE_MINOR_VERSION   15
-#define FREEIMAGE_RELEASE_SERIAL  0
+#define FREEIMAGE_RELEASE_SERIAL  3
 
 // Compiler options ---------------------------------------------------------
 
@@ -141,6 +141,8 @@ typedef uint8_t BYTE;
 typedef uint16_t WORD;
 typedef uint32_t DWORD;
 typedef int32_t LONG;
+typedef int64_t FIINT64;
+typedef uint64_t FIUINT64;
 #else
 // MS is not C99 ISO compliant
 typedef long BOOL;
@@ -148,6 +150,8 @@ typedef unsigned char BYTE;
 typedef unsigned short WORD;
 typedef unsigned long DWORD;
 typedef long LONG;
+typedef signed __int64 FIINT64;
+typedef unsigned __int64 FIUINT64;
 #endif // _MSC_VER
 
 #if (defined(_WIN32) || defined(__WIN32__))
@@ -525,7 +529,10 @@ FI_ENUM(FREE_IMAGE_MDTYPE) {
 	FIDT_FLOAT		= 11,	// 32-bit IEEE floating point 
 	FIDT_DOUBLE		= 12,	// 64-bit IEEE floating point 
 	FIDT_IFD		= 13,	// 32-bit unsigned integer (offset) 
-	FIDT_PALETTE	= 14	// 32-bit RGBQUAD 
+	FIDT_PALETTE	= 14,	// 32-bit RGBQUAD 
+	FIDT_LONG8		= 16,	// 64-bit unsigned integer 
+	FIDT_SLONG8		= 17,	// 64-bit signed integer
+	FIDT_IFD8		= 18	// 64-bit unsigned integer (offset)
 };
 
 /**
@@ -710,6 +717,7 @@ typedef void (DLL_CALLCONV *FI_InitProc)(Plugin *plugin, int format_id);
 #define RAW_DEFAULT         0		// load the file as linear RGB 48-bit
 #define RAW_PREVIEW			1		// try to load the embedded JPEG preview with included Exif Data or default to RGB 24-bit
 #define RAW_DISPLAY			2		// load the file as RGB 24-bit
+#define RAW_HALFSIZE		4		// output a half-size color image
 #define SGI_DEFAULT			0
 #define TARGA_DEFAULT       0
 #define TARGA_LOAD_RGB888   1       // If set the loader converts RGB555 and ARGB8888 -> RGB888.
@@ -965,6 +973,7 @@ DLL_API void DLL_CALLCONV FreeImage_ConvertToRawBits(BYTE *bits, FIBITMAP *dib, 
 DLL_API FIBITMAP *DLL_CALLCONV FreeImage_ConvertToFloat(FIBITMAP *dib);
 DLL_API FIBITMAP *DLL_CALLCONV FreeImage_ConvertToRGBF(FIBITMAP *dib);
 DLL_API FIBITMAP *DLL_CALLCONV FreeImage_ConvertToUINT16(FIBITMAP *dib);
+DLL_API FIBITMAP *DLL_CALLCONV FreeImage_ConvertToRGB16(FIBITMAP *dib);
 
 DLL_API FIBITMAP *DLL_CALLCONV FreeImage_ConvertToStandardType(FIBITMAP *src, BOOL scale_linear FI_DEFAULT(TRUE));
 DLL_API FIBITMAP *DLL_CALLCONV FreeImage_ConvertToType(FIBITMAP *src, FREE_IMAGE_TYPE dst_type, BOOL scale_linear FI_DEFAULT(TRUE));
