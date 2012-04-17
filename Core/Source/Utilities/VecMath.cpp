@@ -1378,7 +1378,7 @@ float BBox::intersectWithRay(const Ray& ray, Vec3f* sideNormal) const {
         }
     }
     
-    return NAN;
+    return numeric_limits<float>::quiet_NaN();
 }
 
 float BBox::intersectWithRay(const Ray& ray) const {
@@ -1475,15 +1475,15 @@ const Vec3f Plane::anchor() const {
 
 float Plane::intersectWithRay(const Ray& ray) const {
     float d = ray.direction | normal;
-    if (Math::fzero(d)) return NAN;
+    if (Math::fzero(d)) return numeric_limits<float>::quiet_NaN();
     float s = ((anchor() - ray.origin) | normal) / d;
-    if (Math::fneg(s)) return NAN;
+    if (Math::fneg(s)) return numeric_limits<float>::quiet_NaN();
     return s;
 }
 
 float Plane::intersectWithLine(const Line& line) const {
     float d = line.direction | normal;
-    if (Math::fzero(d)) return NAN;
+    if (Math::fzero(d)) return numeric_limits<float>::quiet_NaN();
     return ((anchor() - line.point) | normal) / d;
 }
 

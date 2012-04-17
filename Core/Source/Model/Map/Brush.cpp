@@ -172,7 +172,7 @@ namespace TrenchBroom {
             float dist = bounds().intersectWithRay(ray, NULL);
             if (std::isnan(dist)) return;
             
-            dist = NAN;
+            dist = numeric_limits<float>::quiet_NaN();
             Side* side;
             for (int i = 0; i < m_geometry->sides.size() && std::isnan(dist); i++) {
                 side = m_geometry->sides[i];

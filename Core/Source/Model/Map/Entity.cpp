@@ -185,7 +185,7 @@ namespace TrenchBroom {
                 m_origin = Vec3f(*value);
             } else if (key == AngleKey) {
                 if (value != NULL) m_angle = strtof(value->c_str(), NULL);
-                else m_angle = NAN;
+                else m_angle = numeric_limits<float>::quiet_NaN();
             }
 
             const string* oldValue = propertyForKey(key);
@@ -219,7 +219,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (key == AngleKey) m_angle = NAN;
+            if (key == AngleKey) m_angle = numeric_limits<float>::quiet_NaN();
             if (m_properties.count(key) == 0) return;
             m_properties.erase(key);
             invalidateGeometry();

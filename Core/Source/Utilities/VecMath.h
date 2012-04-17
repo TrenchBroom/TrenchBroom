@@ -146,7 +146,7 @@ static const Vec3f YAxisNeg( 0, -1,  0);
 static const Vec3f ZAxisPos( 0,  0,  1);
 static const Vec3f ZAxisNeg( 0,  0, -1);
 static const Vec3f Null3f(0, 0, 0);
-static const Vec3f Nan3f(NAN, NAN, NAN);
+static const Vec3f Nan3f(numeric_limits<float>::quiet_NaN(), numeric_limits<float>::quiet_NaN(), numeric_limits<float>::quiet_NaN());
 
 class Vec4f {
 public:
