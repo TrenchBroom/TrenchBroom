@@ -98,19 +98,19 @@ namespace Gwen
 			return inside;
 		}
 
-		GWEN_EXPORT UnicodeString Format( const wchar_t* fmt, ... );
+		UnicodeString Format( const wchar_t* fmt, ... );
 
 		namespace Strings
 		{
 			typedef std::vector<Gwen::String> List;
 			typedef std::vector<Gwen::UnicodeString> UnicodeList;
 
-			GWEN_EXPORT void Split( const Gwen::String& str, const Gwen::String& seperator, Strings::List& outbits, bool bLeaveSeperators = false );
-			GWEN_EXPORT void Split( const Gwen::UnicodeString& str, const Gwen::UnicodeString& seperator, Strings::UnicodeList& outbits, bool bLeaveSeperators = false );
-			GWEN_EXPORT bool Wildcard( const Gwen::TextObject& strWildcard, const Gwen::TextObject& strHaystack );
+			void Split( const Gwen::String& str, const Gwen::String& seperator, Strings::List& outbits, bool bLeaveSeperators = false );
+			void Split( const Gwen::UnicodeString& str, const Gwen::UnicodeString& seperator, Strings::UnicodeList& outbits, bool bLeaveSeperators = false );
+			bool Wildcard( const Gwen::TextObject& strWildcard, const Gwen::TextObject& strHaystack );
 
-			GWEN_EXPORT void ToUpper( Gwen::UnicodeString& str );
-			GWEN_EXPORT void Strip( Gwen::UnicodeString& str, const Gwen::UnicodeString& chars );
+			void ToUpper( Gwen::UnicodeString& str );
+			void Strip( Gwen::UnicodeString& str, const Gwen::UnicodeString& chars );
 
 			template <typename T>
 			T TrimLeft( const T& str, const T& strChars )
@@ -122,10 +122,10 @@ namespace Gwen
 
 			namespace To
 			{
-				GWEN_EXPORT bool Bool( const Gwen::String& str );
-				GWEN_EXPORT int Int( const Gwen::String& str );
-				GWEN_EXPORT float Float( const Gwen::String& str );
-				GWEN_EXPORT bool Floats( const Gwen::String& str, float* f, size_t iCount );
+				bool Bool( const Gwen::String& str );
+				int Int( const Gwen::String& str );
+				float Float( const Gwen::String& str );
+				bool Floats( const Gwen::String& str, float* f, size_t iCount );
 			}
 		}
 	}

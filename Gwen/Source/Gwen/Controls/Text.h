@@ -16,7 +16,7 @@ namespace Gwen
 {
 	namespace ControlsInternal
 	{
-		class GWEN_EXPORT Text : public Controls::Base
+		class Text : public Controls::Base
 		{
 			public:
 

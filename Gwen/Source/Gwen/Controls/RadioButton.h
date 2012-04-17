@@ -20,7 +20,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT RadioButton : public CheckBox
+		class RadioButton : public CheckBox
 		{
 				GWEN_CONTROL( RadioButton, CheckBox );
 				virtual void Render( Skin::Base* skin );
@@ -31,7 +31,7 @@ namespace Gwen
 				virtual bool AllowUncheck(){ return false; }
 		};
 
-		class GWEN_EXPORT LabeledRadioButton : public Base
+		class LabeledRadioButton : public Base
 		{
 			public:
 

@@ -19,7 +19,7 @@ namespace Gwen
 	{
 		class TreeControl;
 
-		class GWEN_EXPORT TreeNode : public Base
+		class TreeNode : public Base
 		{
 			public:
 

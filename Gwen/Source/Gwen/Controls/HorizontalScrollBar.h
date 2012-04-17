@@ -19,7 +19,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT HorizontalScrollBar : public BaseScrollBar
+		class HorizontalScrollBar : public BaseScrollBar
 		{
 			public:
 

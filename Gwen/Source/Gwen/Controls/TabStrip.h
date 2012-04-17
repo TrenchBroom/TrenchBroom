@@ -18,7 +18,7 @@ namespace Gwen
 	{
 		//class TabControl;
 
-		class GWEN_EXPORT TabStrip : public Base
+		class TabStrip : public Base
 		{
 			public:
 

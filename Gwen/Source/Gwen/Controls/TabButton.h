@@ -17,7 +17,7 @@ namespace Gwen
 	{
 		class TabControl;
 
-		class GWEN_EXPORT TabButton : public Button
+		class TabButton : public Button
 		{
 			public:
 

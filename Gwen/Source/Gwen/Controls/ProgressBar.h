@@ -17,7 +17,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT ProgressBar : public Label
+		class ProgressBar : public Label
 		{
 			public:
 

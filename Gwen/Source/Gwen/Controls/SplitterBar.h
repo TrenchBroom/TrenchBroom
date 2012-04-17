@@ -10,7 +10,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT SplitterBar : public ControlsInternal::Dragger
+		class SplitterBar : public ControlsInternal::Dragger
 		{
 			public:
 

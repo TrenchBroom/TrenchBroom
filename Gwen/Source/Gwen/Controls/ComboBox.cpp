@@ -13,7 +13,7 @@ using namespace Gwen;
 using namespace Gwen::Controls;
 using namespace Gwen::ControlsInternal;
 
-class GWEN_EXPORT DownArrow : public Controls::Base
+class DownArrow : public Controls::Base
 {
 	public:
 

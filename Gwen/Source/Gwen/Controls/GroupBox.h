@@ -19,7 +19,7 @@ namespace Gwen
 	namespace Controls
 	{
 
-		class GWEN_EXPORT GroupBox : public Label
+		class GroupBox : public Label
 		{
 			public:
 

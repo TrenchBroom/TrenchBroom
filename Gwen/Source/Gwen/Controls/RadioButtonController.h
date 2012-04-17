@@ -18,7 +18,7 @@ namespace Gwen
 	namespace Controls
 	{
 
-		class GWEN_EXPORT RadioButtonController : public Base
+		class RadioButtonController : public Base
 		{
 			public:
 

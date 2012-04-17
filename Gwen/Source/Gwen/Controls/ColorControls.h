@@ -18,7 +18,7 @@ namespace Gwen
 	namespace Controls
 	{
 
-		class GWEN_EXPORT ColorLerpBox : public Controls::Base
+		class ColorLerpBox : public Controls::Base
 		{
 			public:
 				GWEN_CONTROL( ColorLerpBox, Controls::Base );
@@ -37,7 +37,7 @@ namespace Gwen
 				
 		};
 
-		class GWEN_EXPORT ColorSlider : public Controls::Base
+		class ColorSlider : public Controls::Base
 		{
 			public:
 				GWEN_CONTROL( ColorSlider, Controls::Base );

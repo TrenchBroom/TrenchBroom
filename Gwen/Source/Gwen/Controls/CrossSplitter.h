@@ -10,7 +10,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT CrossSplitter : public Controls::Base
+		class CrossSplitter : public Controls::Base
 		{
 			public:
 

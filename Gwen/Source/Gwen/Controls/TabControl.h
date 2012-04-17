@@ -23,7 +23,7 @@ namespace Gwen
 
 	namespace Controls
 	{
-		class GWEN_EXPORT TabControl : public Base
+		class TabControl : public Base
 		{
 			GWEN_CONTROL( TabControl, Base );
 

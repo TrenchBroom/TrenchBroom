@@ -17,7 +17,7 @@ namespace Gwen
 {
 	namespace ControlsInternal
 	{
-		class GWEN_EXPORT ColorDisplay : public Controls::Base
+		class ColorDisplay : public Controls::Base
 		{
 			public:
 				GWEN_CONTROL_INLINE( ColorDisplay, Controls::Base )
@@ -50,7 +50,7 @@ namespace Gwen
 	namespace Controls
 	{
 
-		class GWEN_EXPORT ColorPicker : public Base
+		class ColorPicker : public Base
 		{
 			public:
 

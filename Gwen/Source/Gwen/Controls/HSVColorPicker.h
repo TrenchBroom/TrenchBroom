@@ -19,7 +19,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT HSVColorPicker : public Controls::Base
+		class HSVColorPicker : public Controls::Base
 		{
 		public:
 			GWEN_CONTROL( HSVColorPicker, Controls::Base );

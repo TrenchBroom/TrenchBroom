@@ -18,7 +18,7 @@ namespace Gwen
 		class DockedTabControl;
 		class TabControl;
 
-		class GWEN_EXPORT DockBase : public Base
+		class DockBase : public Base
 		{
 			public:
 

@@ -19,7 +19,7 @@ namespace Gwen
 	namespace Controls
 	{
 
-		class GWEN_EXPORT CheckBox : public Button
+		class CheckBox : public Button
 		{
 			public:
 
@@ -46,7 +46,7 @@ namespace Gwen
 				bool m_bChecked;
 		};
 
-		class GWEN_EXPORT CheckBoxWithLabel : public Base
+		class CheckBoxWithLabel : public Base
 		{
 			public:
 

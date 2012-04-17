@@ -18,7 +18,7 @@ namespace Gwen
 {
 	namespace ControlsInternal
 	{
-		class GWEN_EXPORT Resizer : public Dragger
+		class Resizer : public Dragger
 		{
 			public:
 

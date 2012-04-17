@@ -17,7 +17,7 @@ namespace Gwen
 	namespace Controls
 	{
 
-		class GWEN_EXPORT VerticalScrollBar : public BaseScrollBar
+		class VerticalScrollBar : public BaseScrollBar
 		{
 		
 			GWEN_CONTROL( VerticalScrollBar, BaseScrollBar );

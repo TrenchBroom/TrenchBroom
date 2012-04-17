@@ -18,7 +18,7 @@ namespace Gwen
 {
 	namespace ControlsInternal
 	{
-		class GWEN_EXPORT SliderBar : public ControlsInternal::Dragger
+		class SliderBar : public ControlsInternal::Dragger
 		{
 			GWEN_CONTROL( SliderBar, ControlsInternal::Dragger );
 
@@ -35,7 +35,7 @@ namespace Gwen
 	namespace Controls
 	{
 
-		class GWEN_EXPORT Slider : public Base
+		class Slider : public Base
 		{
 				GWEN_CONTROL( Slider, Base );
 

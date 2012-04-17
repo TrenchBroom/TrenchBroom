@@ -9,7 +9,6 @@
 #define GWEN_EVENTS_H
 
 #include <list>
-#include "Gwen/Exports.h"
 #include "Gwen/Structures.h"
 
 namespace Gwen 
@@ -25,7 +24,7 @@ namespace Gwen
 		class Caller;
 
 		// A class must be derived from this 
-		class GWEN_EXPORT Handler
+		class Handler
 		{
 			public:
 
@@ -54,7 +53,7 @@ namespace Gwen
 		//
 		//
 		//
-		class GWEN_EXPORT Caller
+		class Caller
 		{
 			public:
 

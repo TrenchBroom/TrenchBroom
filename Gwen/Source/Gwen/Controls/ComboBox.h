@@ -20,7 +20,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT ComboBox : public Button
+		class ComboBox : public Button
 		{
 			public:
 

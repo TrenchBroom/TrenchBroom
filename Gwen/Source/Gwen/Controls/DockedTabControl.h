@@ -15,7 +15,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT DockedTabControl : public TabControl
+		class DockedTabControl : public TabControl
 		{
 			public:
 

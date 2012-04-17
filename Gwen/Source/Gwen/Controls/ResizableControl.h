@@ -22,7 +22,7 @@ namespace Gwen
 	namespace Controls
 	{
 
-		class GWEN_EXPORT ResizableControl : public Base
+		class ResizableControl : public Base
 		{
 			public:
 

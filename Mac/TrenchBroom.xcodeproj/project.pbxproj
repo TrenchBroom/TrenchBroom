@@ -356,7 +356,6 @@
 		4825B4CD153AE5E9007E3AE1 /* DragAndDrop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DragAndDrop.h; path = ../Gwen/Source/Gwen/DragAndDrop.h; sourceTree = "<group>"; };
 		4825B4CE153AE5E9007E3AE1 /* events.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = events.cpp; path = ../Gwen/Source/Gwen/events.cpp; sourceTree = "<group>"; };
 		4825B4CF153AE5E9007E3AE1 /* Events.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Events.h; path = ../Gwen/Source/Gwen/Events.h; sourceTree = "<group>"; };
-		4825B4D0153AE5E9007E3AE1 /* Exports.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Exports.h; path = ../Gwen/Source/Gwen/Exports.h; sourceTree = "<group>"; };
 		4825B4D1153AE5E9007E3AE1 /* Font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Font.h; path = ../Gwen/Source/Gwen/Font.h; sourceTree = "<group>"; };
 		4825B4D2153AE5E9007E3AE1 /* Gwen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Gwen.cpp; path = ../Gwen/Source/Gwen/Gwen.cpp; sourceTree = "<group>"; };
 		4825B4D3153AE5E9007E3AE1 /* Gwen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Gwen.h; path = ../Gwen/Source/Gwen/Gwen.h; sourceTree = "<group>"; };
@@ -606,7 +605,6 @@
 				4825B4CD153AE5E9007E3AE1 /* DragAndDrop.h */,
 				4825B4CE153AE5E9007E3AE1 /* events.cpp */,
 				4825B4CF153AE5E9007E3AE1 /* Events.h */,
-				4825B4D0153AE5E9007E3AE1 /* Exports.h */,
 				4825B4D1153AE5E9007E3AE1 /* Font.h */,
 				4825B4D2153AE5E9007E3AE1 /* Gwen.cpp */,
 				4825B4D3153AE5E9007E3AE1 /* Gwen.h */,

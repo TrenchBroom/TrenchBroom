@@ -16,7 +16,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT Label : public Controls::Base
+		class Label : public Controls::Base
 		{
 			public:
 

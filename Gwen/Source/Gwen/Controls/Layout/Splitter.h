@@ -18,7 +18,7 @@ namespace Gwen
 		namespace Layout
 		{
 
-			class GWEN_EXPORT Splitter : public Base
+			class Splitter : public Base
 			{
 				public:
 

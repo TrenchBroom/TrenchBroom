@@ -17,7 +17,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT TextBox : public Label
+		class TextBox : public Label
 		{
 			GWEN_CONTROL( TextBox, Label );
 
@@ -86,7 +86,7 @@ namespace Gwen
 				float	m_fLastInputTime;
 		};
 
-		class GWEN_EXPORT TextBoxNumeric : public TextBox
+		class TextBoxNumeric : public TextBox
 		{
 			public:
 

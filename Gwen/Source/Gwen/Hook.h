@@ -17,7 +17,7 @@ namespace Gwen
 {
 	namespace Hook
 	{
-		class GWEN_EXPORT BaseHook
+		class BaseHook
 		{
 			public:
 
@@ -26,10 +26,10 @@ namespace Gwen
 
 		typedef std::list<BaseHook*> HookList;
 
-		GWEN_EXPORT HookList& GetHookList();
+		HookList& GetHookList();
 
-		GWEN_EXPORT void AddHook( BaseHook* pHook );
-		GWEN_EXPORT void RemoveHook( BaseHook* pHook );
+		void AddHook( BaseHook* pHook );
+		void RemoveHook( BaseHook* pHook );
 
 		template< typename fnc >
 		bool  CallHook( fnc f )
