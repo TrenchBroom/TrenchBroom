@@ -29,33 +29,33 @@ namespace TrenchBroom {
     namespace Controller {
         class ProgressIndicator {
         private:
-            float m_max;
+            float m_maxValue;
             float m_percent;
         protected:
             virtual void doReset() = 0;
             virtual void doUpdate() = 0;
         public:
-            ProgressIndicator(float max) : m_max(max), m_percent(0) {
-                assert(m_max > 0);
+            ProgressIndicator(float maxValue) : m_maxValue(maxValue), m_percent(0) {
+                assert(m_maxValue > 0);
             }
             virtual ~ProgressIndicator() {};
             
-            float max() {
-                return m_max;
+            float maxValue() {
+                return m_maxValue;
             }
             
             float percent() {
                 return m_percent;
             }
             
-            void reset(float max) {
-                assert(max > 0);
-                m_max = max;
+            void reset(float maxValue) {
+                assert(maxValue > 0);
+                m_maxValue = maxValue;
                 doReset();
             };
             
             void update(float progress) {
-                float percent = progress / m_max * 100;
+                float percent = progress / m_maxValue * 100;
                 if ((int)m_percent == (int)percent) return;
                 m_percent = percent;
                 doUpdate();
