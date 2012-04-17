@@ -173,7 +173,7 @@ namespace TrenchBroom {
                 // correct rounding errors
                 float cos = fmaxf(-1, fminf(1, m_direction | newDirection));
                 float angle = acosf(cos);
-                if (!fzero(angle)) {
+                if (!Math::fzero(angle)) {
                     Vec3f axis = (m_direction % newDirection).normalize();
                     rotation = Quat(angle, axis);
                     offset = rotation * offset;

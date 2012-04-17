@@ -48,7 +48,7 @@ namespace TrenchBroom {
                 m_texture = new Model::Assets::Texture(m_alias.name, skin, 0, m_palette);
 
                 Model::Assets::AliasSingleFrame& frame = m_alias.firstFrame();
-                m_triangleCount = (int)frame.triangles.size();
+                m_triangleCount = static_cast<int>(frame.triangles.size());
                 int vertexSize = 3 * 8;
 
                 m_vboBlock = &m_vbo.allocBlock(m_triangleCount * vertexSize * sizeof(float));

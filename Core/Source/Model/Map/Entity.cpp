@@ -196,14 +196,14 @@ namespace TrenchBroom {
 
         void Entity::setProperty(const string& key, const Vec3f& value, bool round) {
             stringstream valueStr;
-            if (round) valueStr << (int)roundf(value.x) << " " << (int)roundf(value.y) << " " << (int)roundf(value.z);
+            if (round) valueStr << (int)Math::roundf(value.x) << " " << (int)Math::roundf(value.y) << " " << (int)Math::roundf(value.z);
             else valueStr << value.x << " " << value.y << " " << value.z;
             setProperty(key, valueStr.str());
         }
 
         void Entity::setProperty(const string& key, float value, bool round) {
             stringstream valueStr;
-            if (round) valueStr << (int)roundf(value);
+            if (round) valueStr << (int)Math::roundf(value);
             else valueStr << value;
             setProperty(key, valueStr.str());
         }
@@ -230,7 +230,7 @@ namespace TrenchBroom {
         }
 
         const int Entity::angle() const {
-            return roundf(m_angle);
+            return Math::roundf(m_angle);
         }
 
         bool Entity::worldspawn() const {
@@ -322,7 +322,7 @@ namespace TrenchBroom {
                     direction = direction.normalize();
                 }
                 
-                m_angle = roundf(acos(direction.x) * 180 / M_PI);
+                m_angle = Math::roundf(acos(direction.x) * 180 / M_PI);
                 Vec3f cross = direction % XAxisPos;
                 if (!cross.equals(Null3f) && cross.z < 0)
                     m_angle = 360 - m_angle;
@@ -363,7 +363,7 @@ namespace TrenchBroom {
                     direction = direction.normalize();
                 }
 
-                m_angle = roundf(acos(direction.x) * 180 / M_PI);
+                m_angle = Math::roundf(acos(direction.x) * 180 / M_PI);
                 Vec3f cross = direction % XAxisPos;
                 if (!cross.equals(Null3f) && cross.z < 0)
                     m_angle = 360 - m_angle;

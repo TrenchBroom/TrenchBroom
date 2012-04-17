@@ -35,9 +35,9 @@ UnicodeString Gwen::Utility::Format( const wchar_t* fmt, ... )
 
 void Gwen::Utility::Strings::Split( const Gwen::String& str, const Gwen::String& seperator, Strings::List& outbits, bool bLeave )
 {
-	int iOffset = 0;
-	int iLength = str.length();
-	int iSepLen = seperator.length();
+	size_t iOffset = 0;
+	size_t iLength = str.length();
+	size_t iSepLen = seperator.length();
 
 	size_t i = str.find( seperator, 0 );
 	while ( i != std::string::npos )
@@ -54,9 +54,9 @@ void Gwen::Utility::Strings::Split( const Gwen::String& str, const Gwen::String&
 
 void Gwen::Utility::Strings::Split( const Gwen::UnicodeString& str, const Gwen::UnicodeString& seperator, Strings::UnicodeList& outbits, bool bLeave )
 {
-	int iOffset = 0;
-	int iLength = str.length();
-	int iSepLen = seperator.length();
+	size_t iOffset = 0;
+	size_t iLength = str.length();
+	size_t iSepLen = seperator.length();
 
 	size_t i = str.find( seperator, 0 );
 	while ( i != std::wstring::npos )
@@ -112,9 +112,9 @@ bool Gwen::Utility::Strings::Wildcard( const TextObject& strWildcard, const Text
 	const UnicodeString& W = strWildcard.GetUnicode();
 	const UnicodeString& H = strHaystack.GetUnicode();
 
-	if ( strWildcard == "*" ) return true;
+	if (strWildcard == "*") return true;
 
-	int iPos = W.find( L"*", 0 );
+	size_t iPos = W.find( L"*", 0 );
 	if ( iPos == UnicodeString::npos ) return strWildcard == strHaystack;
 
 	// First half matches

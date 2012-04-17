@@ -221,7 +221,7 @@ namespace TrenchBroom {
             
             const Plane& boundary = face->boundary();
             float dot = boundary.normal | ray.direction;
-            if (!fneg(dot)) return NAN;
+            if (!Math::fneg(dot)) return NAN;
             
             float dist = boundary.intersectWithRay(ray);
             if (std::isnan(dist)) return NAN;
@@ -240,7 +240,7 @@ namespace TrenchBroom {
                 vertex = vertices[i];
                 v1 = cPlane.project(vertex->position) - projectedHit;
                 
-                if ((fzero(v0.x) && fzero(v0.y)) || (fzero(v1.x) && fzero(v1.y))) {
+                if ((Math::fzero(v0.x) && Math::fzero(v0.y)) || (Math::fzero(v1.x) && Math::fzero(v1.y))) {
                     // the point is identical to a polygon vertex, cancel search
                     c = 1;
                     break;
@@ -282,7 +282,7 @@ namespace TrenchBroom {
             return dist;
         }
         
-        void Side::replaceEdges(int index1, int index2, Edge* edge) {
+        void Side::replaceEdges(size_t index1, size_t index2, Edge* edge) {
             if (index2 > index1) {
                 vertices.erase(vertices.begin() + index1 + 1, vertices.begin() + index2 + 1);
                 edges.erase(edges.begin() + index1 + 1, edges.begin() + index2);
@@ -378,7 +378,7 @@ namespace TrenchBroom {
         
         void Side::flip() {
             Vertex* tempVertex;
-            int j;
+            size_t j;
             for (int i = 0; i < vertices.size() / 2; i++) {
                 j = vertices.size() - i - 1;
                 tempVertex = vertices[i];
@@ -387,17 +387,17 @@ namespace TrenchBroom {
             }
         }
         
-        void Side::shift(int offset) {
+        void Side::shift(size_t offset) {
             vector<Edge*> newEdges;
             vector<Vertex*> newVertices;
-            int count;
+            size_t count;
             
             if (offset == 0)
                 return;
             
             count = edges.size();
             for (int i = 0; i < count; i++) {
-                int index = (i + offset + count) % count;
+                size_t index = (i + offset + count) % count;
                 newEdges.push_back(edges[index]);
                 newVertices.push_back(vertices[index]);
             }
@@ -406,7 +406,7 @@ namespace TrenchBroom {
             vertices = newVertices;
         }
         
-        vector<Side*> BrushGeometry::incidentSides(int vertexIndex) {
+        vector<Side*> BrushGeometry::incidentSides(size_t vertexIndex) {
             vector<Side*> result;
             Vertex* vertex = vertices[vertexIndex];
             
@@ -421,7 +421,7 @@ namespace TrenchBroom {
             Side* side = edge->start == vertex ? edge->right : edge->left;
             do {
                 result.push_back(side);
-                int i = indexOf<Edge>(side->edges, edge);
+                size_t i = indexOf<Edge>(side->edges, edge);
                 edge = side->edges[(i - 1 + side->edges.size()) % side->edges.size()];
                 side = edge->start == vertex ? edge->right : edge->left;
             } while (side != result[0]);
@@ -443,9 +443,9 @@ namespace TrenchBroom {
             else
                 keepEdge->right = neighbour;
             
-            int deleteIndex = indexOf(neighbour->edges, dropEdge);
-            int prevIndex = (deleteIndex - 1 + neighbour->edges.size()) % neighbour->edges.size();
-            int nextIndex = (deleteIndex + 1) % neighbour->edges.size();
+            size_t deleteIndex = indexOf(neighbour->edges, dropEdge);
+            size_t prevIndex = (deleteIndex - 1 + neighbour->edges.size()) % neighbour->edges.size();
+            size_t nextIndex = (deleteIndex + 1) % neighbour->edges.size();
             neighbour->replaceEdges(prevIndex, nextIndex, keepEdge);
             
             vector<Face*>::iterator faceIt = find(newFaces.begin(), newFaces.end(), side->face);
@@ -456,10 +456,10 @@ namespace TrenchBroom {
             deleteElement(edges, dropEdge);
         }
         
-        void BrushGeometry::triangulateSide(Side* side, int vertexIndex, vector<Face*>& newFaces) {
+        void BrushGeometry::triangulateSide(Side* side, size_t vertexIndex, vector<Face*>& newFaces) {
             Side* newSide;
             Vertex* vertex = vertices[vertexIndex];
-            int sideVertexIndex = indexOf<Vertex>(side->vertices, vertex);
+            size_t sideVertexIndex = indexOf<Vertex>(side->vertices, vertex);
             assert(sideVertexIndex >= 0);
             
             Edge* sideEdges[3];
@@ -501,10 +501,10 @@ namespace TrenchBroom {
             newFaces.push_back(newSide->face);
         }
         
-        void BrushGeometry::splitSide(Side* side, int vertexIndex, vector<Face*>& newFaces) {
+        void BrushGeometry::splitSide(Side* side, size_t vertexIndex, vector<Face*>& newFaces) {
             Side* newSide;
             Vertex* vertex = vertices[vertexIndex];
-            int sideVertexIndex = indexOf<Vertex>(side->vertices, vertex);
+            size_t sideVertexIndex = indexOf<Vertex>(side->vertices, vertex);
             assert(sideVertexIndex >= 0);
             
             Edge* sideEdges[3];
@@ -530,7 +530,7 @@ namespace TrenchBroom {
             
         }
         
-        void BrushGeometry::splitSides(vector<Side*>& sides, Ray ray, int vertexIndex, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
+        void BrushGeometry::splitSides(vector<Side*>& sides, Ray ray, size_t vertexIndex, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             Vec3f v1, v2;
             
             for (int i = 0; i < sides.size(); i++) {
@@ -540,7 +540,7 @@ namespace TrenchBroom {
                     v2 = side->vertices[1]->position - side->vertices[0]->position;
                     v1 = v1 % v2;
                     
-                    if (fneg((v1 | ray.direction))) {
+                    if (Math::fneg((v1 | ray.direction))) {
                         splitSide(side, vertexIndex, newFaces);
                     } else {
                         triangulateSide(side, vertexIndex, newFaces);
@@ -581,7 +581,7 @@ namespace TrenchBroom {
                     else
                         edge->end = keepVertex;
                     
-                    int index = indexOf(edge->left->vertices, dropVertex);
+                    size_t index = indexOf(edge->left->vertices, dropVertex);
                     if (index != -1)
                         edge->left->vertices[index] = keepVertex;
                     
@@ -627,10 +627,10 @@ namespace TrenchBroom {
                             newEdge->right = rightSide;
                             edges.push_back(newEdge);
                             
-                            int leftIndex = indexOf<Edge>(leftSide->edges, candidate);
-                            int leftCount = leftSide->edges.size();
-                            int rightIndex = indexOf<Edge>(rightSide->edges, candidate);
-                            int rightCount = rightSide->edges.size();
+                            size_t leftIndex = indexOf<Edge>(leftSide->edges, candidate);
+                            size_t leftCount = leftSide->edges.size();
+                            size_t rightIndex = indexOf<Edge>(rightSide->edges, candidate);
+                            size_t rightCount = rightSide->edges.size();
                             
                             leftSide->replaceEdges((leftIndex - 1 + leftCount) % leftCount, (leftIndex + 2) % leftCount, newEdge);
                             rightSide->replaceEdges((rightIndex - 2 + rightCount) % rightCount, (rightIndex + 1) % rightCount, newEdge);
@@ -658,10 +658,10 @@ namespace TrenchBroom {
                             newEdge->right = rightSide;
                             edges.push_back(newEdge);
                             
-                            int leftIndex = indexOf<Edge>(leftSide->edges, candidate);
-                            int leftCount = leftSide->edges.size();
-                            int rightIndex = indexOf<Edge>(rightSide->edges, candidate);
-                            int rightCount = rightSide->edges.size();
+                            size_t leftIndex = indexOf<Edge>(leftSide->edges, candidate);
+                            size_t leftCount = leftSide->edges.size();
+                            size_t rightIndex = indexOf<Edge>(rightSide->edges, candidate);
+                            size_t rightCount = rightSide->edges.size();
                             
                             leftSide->replaceEdges((leftIndex - 2 + leftCount) % leftCount, (leftIndex + 1) % leftCount, newEdge);
                             rightSide->replaceEdges((rightIndex - 1 + rightCount) % rightCount, (rightIndex + 2) % rightCount, newEdge);
@@ -677,12 +677,12 @@ namespace TrenchBroom {
             }
         }
         
-        void BrushGeometry::mergeNeighbours(Side* side, int edgeIndex) {
+        void BrushGeometry::mergeNeighbours(Side* side, size_t edgeIndex) {
             Vertex* vertex;
             Edge* edge = side->edges[edgeIndex];
             Side* neighbour = edge->left != side ? edge->left : edge->right;
-            int sideEdgeIndex = edgeIndex;
-            int neighbourEdgeIndex = indexOf<Edge>(neighbour->edges, edge);
+            size_t sideEdgeIndex = edgeIndex;
+            size_t neighbourEdgeIndex = indexOf<Edge>(neighbour->edges, edge);
             
             do {
                 sideEdgeIndex = (sideEdgeIndex + 1) % side->edges.size();
@@ -721,7 +721,7 @@ namespace TrenchBroom {
                 side->vertices.push_back(vertex);
             }
             
-            for (int i = neighbour->edges.size() - count; i < neighbour->edges.size(); i++) {
+            for (size_t i = neighbour->edges.size() - count; i < neighbour->edges.size(); i++) {
                 deleteElement<Edge>(edges, neighbour->edges[i]);
                 if (i > neighbour->edges.size() - count)
                     deleteElement<Vertex>(vertices, neighbour->vertices[i]);
@@ -790,22 +790,22 @@ namespace TrenchBroom {
                 plane = neighbourSide->face->boundary();
                 float neighbourDist = plane.intersectWithRay(ray);
                 
-                if (!std::isnan(sideDist) && fpos(sideDist) && flt(sideDist, minDist))
+                if (!std::isnan(sideDist) && Math::fpos(sideDist) && Math::flt(sideDist, minDist))
                     minDist = sideDist;
-                if (!std::isnan(neighbourDist) && fpos(neighbourDist) && flt(neighbourDist, minDist))
+                if (!std::isnan(neighbourDist) && Math::fpos(neighbourDist) && Math::flt(neighbourDist, minDist))
                     minDist = neighbourDist;
             }
             
             return minDist;
         }
         
-        MoveResult BrushGeometry::moveVertex(int vertexIndex, bool mergeIncidentVertex, const Vec3f& delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
+        MoveResult BrushGeometry::moveVertex(size_t vertexIndex, bool mergeIncidentVertex, const Vec3f& delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             Vertex* vertex;
             Vec3f newPosition;
             Ray ray;
             float actualMoveDist, moveDist, dot1, dot2;
             vector<Side*> incSides;
-            int actualVertexIndex;
+            size_t actualVertexIndex;
             Vec3f v1, v2, cross, edgeVector;
             MoveResult result;
             
@@ -906,13 +906,13 @@ namespace TrenchBroom {
             return moveVertex(vertexIndex, mergeIncidentVertex, ray.direction, newFaces, droppedFaces);
         }
         
-        MoveResult BrushGeometry::splitAndMoveEdge(int index, const Vec3f& delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
+        MoveResult BrushGeometry::splitAndMoveEdge(size_t index, const Vec3f& delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             Edge* edge;
             Vertex* vertex;
             Vec3f edgeVertices[2];
             Vec3f leftNorm, rightNorm;
             MoveResult result;
-            int edgeIndex;
+            size_t edgeIndex;
             
             edgeIndex = index - vertices.size();
             edge = edges[edgeIndex];
@@ -920,8 +920,8 @@ namespace TrenchBroom {
             // detect whether the drag would make the incident faces invalid
             leftNorm = edge->left->face->boundary().normal;
             rightNorm = edge->right->face->boundary().normal;
-            if (fneg((delta | leftNorm)) || 
-                fneg((delta | rightNorm))) {
+            if (Math::fneg((delta | leftNorm)) || 
+                Math::fneg((delta | rightNorm))) {
                 result.moved = false;
                 result.index = index;
                 return result;
@@ -967,20 +967,20 @@ namespace TrenchBroom {
             return result;
         }
         
-        MoveResult BrushGeometry::splitAndMoveSide(int sideIndex, const Vec3f& delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
+        MoveResult BrushGeometry::splitAndMoveSide(size_t sideIndex, const Vec3f& delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             Side* side;
             Vertex* vertex;
             vector<Vec3f> sideVertices;
             Vec3f norm;
             MoveResult result;    
-            int index;
+            size_t index;
             
             index = sideIndex - edges.size() - vertices.size();
             side = sides[index];
             
             // detect whether the drag would lead to an indented face
             norm = side->face->boundary().normal;
-            if (fzero((delta | norm))) {
+            if (Math::fzero((delta | norm))) {
                 result.moved = false;
                 result.index = sideIndex;
                 return result;
@@ -1355,7 +1355,7 @@ namespace TrenchBroom {
         void BrushGeometry::snap() {
         }
         
-        MoveResult BrushGeometry::moveVertex(int vertexIndex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
+        MoveResult BrushGeometry::moveVertex(size_t vertexIndex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             assert(vertexIndex >= 0);
             assert(vertexIndex < vertices.size() + edges.size() + sides.size());
             
@@ -1372,7 +1372,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        MoveResult BrushGeometry::moveEdge(int edgeIndex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
+        MoveResult BrushGeometry::moveEdge(size_t edgeIndex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             assert(edgeIndex >= 0 && edgeIndex < edges.size());
             
             if (delta.lengthSquared() == 0)
@@ -1413,7 +1413,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        MoveResult BrushGeometry::moveSide(int sideIndex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
+        MoveResult BrushGeometry::moveSide(size_t sideIndex, Vec3f delta, vector<Face*>& newFaces, vector<Face*>& droppedFaces) {
             assert(sideIndex >= 0 && sideIndex < sides.size());
             
             float dist = delta.length();
@@ -1428,9 +1428,9 @@ namespace TrenchBroom {
             Side* side = testGeometry.sides[sideIndex];
             Vec3f center = centerOfVertices(side->vertices);
             
-            int sideVertexCount = side->vertices.size();
+            size_t sideVertexCount = side->vertices.size();
             vector<Vec3f> sideVertices(sideVertexCount);
-            vector<int> indices(sideVertexCount);
+            vector<size_t> indices(sideVertexCount);
             vector<float> dots(sideVertexCount);
             for (int i = 0; i < sideVertexCount; i++) {
                 sideVertices[i] = side->vertices[i]->position;
@@ -1442,7 +1442,7 @@ namespace TrenchBroom {
             
             // sort indices by dot value, eek, bubblesort
             bool switched = true;
-            for (int j = sideVertexCount - 1; j >= 0 && switched; j--) {
+            for (int j = static_cast<int>(sideVertexCount) - 1; j >= 0 && switched; j--) {
                 switched = false;
                 for (int i = 0; i < j; i++) {
                     if (dots[i] > dots[i + 1]) {
@@ -1450,7 +1450,7 @@ namespace TrenchBroom {
                         dots[i] = dots[i + 1];
                         dots[i + 1] = dt;
                         
-                        int di = indices[i];
+                        size_t di = indices[i];
                         indices[i] = indices[i + 1];
                         indices[i + 1] = di;
                         switched = true;
@@ -1475,7 +1475,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        template <class T> int indexOf(const vector<T*>& vec, const T* element) {
+        template <class T> size_t indexOf(const vector<T*>& vec, const T* element) {
             for (int i = 0; i < vec.size(); i++)
                 if (vec[i] == element)
                     return i;
@@ -1497,13 +1497,13 @@ namespace TrenchBroom {
             return true;
         }
         
-        int indexOf(const vector<Vertex*>& vertices, Vec3f v) {
+        size_t indexOf(const vector<Vertex*>& vertices, Vec3f v) {
             for (int i = 0; i < vertices.size(); i++)
                 if (vertices[i]->position.equals(v)) return i;
             return -1;
         }
         
-        int indexOf(const vector<Edge*>& edges, Vec3f v1, Vec3f v2) {
+        size_t indexOf(const vector<Edge*>& edges, Vec3f v1, Vec3f v2) {
             for (int i = 0; i < edges.size(); i++) {
                 Edge* edge = edges[i];
                 if ((edge->start->position.equals(v1) && edge->end->position.equals(v2)) ||
@@ -1513,7 +1513,7 @@ namespace TrenchBroom {
             return -1;
         }
         
-        int indexOf(const vector<Side*>& sides, const vector<Vec3f>& vertices) {
+        size_t indexOf(const vector<Side*>& sides, const vector<Vec3f>& vertices) {
             for (int i = 0; i < sides.size(); i++) {
                 Side* side = sides[i];
                 if (side->vertices.size() == vertices.size()) {

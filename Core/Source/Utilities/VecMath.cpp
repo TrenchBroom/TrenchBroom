@@ -109,7 +109,7 @@ const Vec2f Vec2f::normalize() const {
 }
 
 bool Vec2f::equals(const Vec2f& other) const {
-    return equals(other, AlmostZero);
+    return equals(other, Math::AlmostZero);
 }
 
 bool Vec2f::equals(const Vec2f& other, float delta) const {
@@ -247,7 +247,7 @@ const Vec3f Vec3f::normalize() const {
 }
 
 bool Vec3f::equals(const Vec3f& other) const {
-    return equals(other, AlmostZero);
+    return equals(other, Math::AlmostZero);
 }
 
 bool Vec3f::equals(const Vec3f& other, float delta) const {
@@ -265,16 +265,16 @@ EAxis Vec3f::strongestAxis() const {
 }
 
 const Vec3f Vec3f::snap() const {
-    return snap(AlmostZero);
+    return snap(Math::AlmostZero);
 }
 
 const Vec3f Vec3f::snap(float epsilon) const {
-    float xr = roundf(x);
-    float yr = roundf(y);
-    float zr = roundf(z);
-    return Vec3f(feq(x, xr) ? xr : x, 
-                 feq(y, yr) ? yr : y, 
-                 feq(z, zr) ? zr : z);
+    float xr = Math::roundf(x);
+    float yr = Math::roundf(y);
+    float zr = Math::roundf(z);
+    return Vec3f(Math::feq(x, xr) ? xr : x, 
+                 Math::feq(y, yr) ? yr : y, 
+                 Math::feq(z, zr) ? zr : z);
 }
 
 const Vec3f Vec3f::rotate90(EAxis axis, bool clockwise) const {
@@ -426,7 +426,7 @@ const Vec4f Vec4f::normalize() const {
 }
 
 bool Vec4f::equals(const Vec4f& other) const {
-    return equals(other, AlmostZero);
+    return equals(other, Math::AlmostZero);
 }
 
 bool Vec4f::equals(const Vec4f& other, float delta) const {
@@ -1196,8 +1196,8 @@ const Vec3f Ray::pointAtDistance(float distance) const {
 
 EPointStatus Ray::pointStatus(const Vec3f& point) const {
     float dot = direction | (point - origin);
-    if (dot >  PointStatusEpsilon) return TB_PS_ABOVE;
-    if (dot < -PointStatusEpsilon) return TB_PS_BELOW;
+    if (dot >  Math::PointStatusEpsilon) return TB_PS_ABOVE;
+    if (dot < -Math::PointStatusEpsilon) return TB_PS_BELOW;
     return TB_PS_INSIDE;
 }
 
@@ -1463,7 +1463,7 @@ bool Plane::setPoints(const Vec3f& point1, const Vec3f& point2, const Vec3f& poi
     Vec3f v1 = point3 - point1;
     Vec3f v2 = point2 - point1;
     normal = v1 % v2;
-    if (normal.equals(Null3f, AlmostZero)) return false;
+    if (normal.equals(Null3f, Math::AlmostZero)) return false;
     normal = normal.normalize();
     distance = point1 | normal;
     return true;
@@ -1475,22 +1475,22 @@ const Vec3f Plane::anchor() const {
 
 float Plane::intersectWithRay(const Ray& ray) const {
     float d = ray.direction | normal;
-    if (fzero(d)) return NAN;
+    if (Math::fzero(d)) return NAN;
     float s = ((anchor() - ray.origin) | normal) / d;
-    if (fneg(s)) return NAN;
+    if (Math::fneg(s)) return NAN;
     return s;
 }
 
 float Plane::intersectWithLine(const Line& line) const {
     float d = line.direction | normal;
-    if (fzero(d)) return NAN;
+    if (Math::fzero(d)) return NAN;
     return ((anchor() - line.point) | normal) / d;
 }
 
 EPointStatus Plane::pointStatus(const Vec3f& point) const {
     float dot = normal | (point - anchor());
-    if (dot >  PointStatusEpsilon) return TB_PS_ABOVE;
-    if (dot < -PointStatusEpsilon) return TB_PS_BELOW;
+    if (dot >  Math::PointStatusEpsilon) return TB_PS_ABOVE;
+    if (dot < -Math::PointStatusEpsilon) return TB_PS_BELOW;
     return TB_PS_INSIDE;
 }
 
@@ -1510,7 +1510,7 @@ float Plane::z(float x, float y) const {
 }
 
 bool Plane::equals(const Plane& other) const {
-    return equals(other, AlmostZero);
+    return equals(other, Math::AlmostZero);
 }
 
 bool Plane::equals(const Plane& other, float epsilon) const {

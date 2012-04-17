@@ -23,18 +23,47 @@
 #include <string>
 #include <cmath>
 
-#define AlmostZero 0.001f
-#define PointStatusEpsilon 0.01f
+namespace Math {
+    static const float AlmostZero = 0.001f;
+    static const float PointStatusEpsilon = 0.01f;
 
-#define fzero(f)        (fabsf(f) <= AlmostZero)
-#define fpos(f)         (f > AlmostZero)
-#define fneg(f)         (f < -AlmostZero)
-#define feq(f1, f2)     (fabsf(f1 - f2) < AlmostZero)
-#define fgt(f1, f2)     (f1 > f2 + AlmostZero)
-#define flt(f1, f2)     (f1 < f2 - AlmostZero)
-#define fgte(f1, f2)    (!flt(f1, f2))
-#define flte(f1, f2)    (!fgt(f1, f2))
-
+    inline float roundf(float f) {
+        return (int)(floor(f + 0.5f));
+    }
+    
+    inline bool fzero(float f) {
+        return fabsf(f) <= AlmostZero;
+    }
+    
+    inline bool fpos(float f) {
+        return f > AlmostZero;
+    }
+    
+    inline bool fneg(float f) {
+        return f < -AlmostZero;
+    }
+    
+    inline bool feq(float f1, float f2) {
+        return fabsf(f1 - f2) < AlmostZero;
+    }
+    
+    inline bool fgt(float f1, float f2) {
+        return f1 > f2 + AlmostZero;
+    }
+    
+    inline bool flt(float f1, float f2) {
+        return f1 < f2 - AlmostZero;
+    }
+    
+    inline bool fgte(float f1, float f2) {
+        return !flt(f1, f2);
+    }
+    
+    inline bool flte(float f1, float f2) {
+        return !fgt(f1, f2);
+    }
+}
+    
 using namespace std;
 
 typedef enum {
