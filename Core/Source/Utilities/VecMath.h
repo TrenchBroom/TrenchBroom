@@ -62,6 +62,14 @@ namespace Math {
     inline bool flte(float f1, float f2) {
         return !fgt(f1, f2);
     }
+    
+    inline float fmin(float f1, float f2) {
+        return f1 < f2 ? f1 : f2;
+    }
+    
+    inline float fmax(float f1, float f2) {
+        return f1 < f2 ? f2 : f1;
+    }
 }
     
 using namespace std;

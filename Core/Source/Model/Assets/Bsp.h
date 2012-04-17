@@ -26,6 +26,10 @@
 #include <istream>
 #include "Utilities/VecMath.h"
 
+#ifdef _MSC_VER
+#include <cstdint>
+#endif
+
 using namespace std;
 
 namespace TrenchBroom {

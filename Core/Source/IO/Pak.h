@@ -26,6 +26,10 @@
 #include <vector>
 #include <map>
 
+#ifdef _MSC_VER
+#include <cstdint>
+#endif
+
 #define PAK_HEADER_ADDRESS 0x0
 #define PAK_HEADER_MAGIC_LENGTH 0x4
 #define PAK_HEADER_MAGIC_VALUE "PACK";

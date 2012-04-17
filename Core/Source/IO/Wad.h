@@ -24,6 +24,10 @@
 #include <string>
 #include <vector>
 
+#ifdef _MSC_VER
+#include <cstdint>
+#endif
+
 #define WAD_NUM_ENTRIES_ADDRESS 4
 #define WAD_DIR_OFFSET_ADDRESS 8
 #define WAD_DIR_ENTRY_TYPE_OFFSET 4
