@@ -18,7 +18,7 @@
  */
 
 #include "Entity.h"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <sstream>
 #include <cassert>
@@ -300,8 +300,8 @@ namespace TrenchBroom {
             
             Vec3f direction;
             if (m_angle >= 0) {
-                direction.x = cos(2 * M_PI - m_angle * M_PI / 180);
-                direction.y = sin(2 * M_PI - m_angle * M_PI / 180);
+                direction.x = cos(2 * Math::Pi - m_angle * Math::Pi / 180);
+                direction.y = sin(2 * Math::Pi - m_angle * Math::Pi / 180);
                 direction.z = 0;
             } else if (m_angle == -1) {
                 direction = ZAxisPos;
@@ -322,7 +322,7 @@ namespace TrenchBroom {
                     direction = direction.normalize();
                 }
                 
-                m_angle = Math::roundf(acos(direction.x) * 180 / M_PI);
+                m_angle = Math::roundf(acos(direction.x) * 180 / Math::Pi);
                 Vec3f cross = direction % XAxisPos;
                 if (!cross.equals(Null3f) && cross.z < 0)
                     m_angle = 360 - m_angle;
@@ -341,8 +341,8 @@ namespace TrenchBroom {
 
             Vec3f direction;
             if (m_angle >= 0) {
-                direction.x = cos(2 * M_PI - m_angle * M_PI / 180);
-                direction.y = sin(2 * M_PI - m_angle * M_PI / 180);
+                direction.x = cos(2 * Math::Pi - m_angle * Math::Pi / 180);
+                direction.y = sin(2 * Math::Pi - m_angle * Math::Pi / 180);
                 direction.z = 0;
             } else if (m_angle == -1) {
                 direction = ZAxisPos;
@@ -363,7 +363,7 @@ namespace TrenchBroom {
                     direction = direction.normalize();
                 }
 
-                m_angle = Math::roundf(acos(direction.x) * 180 / M_PI);
+                m_angle = Math::roundf(acos(direction.x) * 180 / Math::Pi);
                 Vec3f cross = direction % XAxisPos;
                 if (!cross.equals(Null3f) && cross.z < 0)
                     m_angle = 360 - m_angle;

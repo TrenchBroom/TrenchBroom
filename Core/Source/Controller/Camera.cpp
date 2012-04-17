@@ -84,7 +84,7 @@ namespace TrenchBroom {
             glPushMatrix();
             glLoadIdentity();
             
-            float vfrustum = tan(m_fieldOfVision * M_PI / 360) * 0.75 * m_nearPlane;
+            float vfrustum = tan(m_fieldOfVision * Math::Pi / 360) * 0.75 * m_nearPlane;
             float hfrustum = vfrustum * width / height;
             glFrustum(-hfrustum, hfrustum, -vfrustum, vfrustum, m_nearPlane, m_farPlane);
             
