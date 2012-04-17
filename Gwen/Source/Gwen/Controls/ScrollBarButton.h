@@ -14,7 +14,7 @@ namespace Gwen
 {
 	namespace ControlsInternal
 	{
-		class GWEN_EXPORT ScrollBarButton : public Controls::Button
+		class ScrollBarButton : public Controls::Button
 		{
 			public:
 

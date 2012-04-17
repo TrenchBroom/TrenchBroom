@@ -13,9 +13,9 @@
 namespace Gwen
 {
 	// Globals
-	GWEN_EXPORT Controls::Base* HoveredControl = NULL;
-	GWEN_EXPORT Controls::Base* KeyboardFocus = NULL;
-	GWEN_EXPORT Controls::Base* MouseFocus = NULL;
+	Controls::Base* HoveredControl = NULL;
+	Controls::Base* KeyboardFocus = NULL;
+	Controls::Base* MouseFocus = NULL;
 
 	namespace Debug
 	{

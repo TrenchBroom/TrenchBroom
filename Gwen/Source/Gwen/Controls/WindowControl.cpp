@@ -14,7 +14,7 @@ using namespace Gwen;
 using namespace Gwen::Controls;
 using namespace Gwen::ControlsInternal;
 
-class GWEN_EXPORT Gwen::Controls::CloseButton : public Button
+class Gwen::Controls::CloseButton : public Button
 {
 	GWEN_CONTROL_INLINE( CloseButton, Button ){}
 

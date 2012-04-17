@@ -19,7 +19,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT HorizontalSlider : public Slider
+		class HorizontalSlider : public Slider
 		{
 			GWEN_CONTROL( HorizontalSlider, Slider );
 

@@ -18,7 +18,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT RichLabel : public Controls::Base
+		class RichLabel : public Controls::Base
 		{
 			public:
 

@@ -20,7 +20,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT CollapsibleList : public Gwen::Controls::ScrollControl
+		class CollapsibleList : public Gwen::Controls::ScrollControl
 		{
 			public:
 

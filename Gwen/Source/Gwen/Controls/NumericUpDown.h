@@ -16,7 +16,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT NumericUpDownButton_Up : public Button
+		class NumericUpDownButton_Up : public Button
 		{
 			GWEN_CONTROL_INLINE( NumericUpDownButton_Up, Button )
 			{
@@ -29,7 +29,7 @@ namespace Gwen
 			}
 		};
 
-		class GWEN_EXPORT NumericUpDownButton_Down : public Button
+		class NumericUpDownButton_Down : public Button
 		{
 			GWEN_CONTROL_INLINE( NumericUpDownButton_Down, Button )
 			{
@@ -42,7 +42,7 @@ namespace Gwen
 			}
 		};
 
-		class GWEN_EXPORT NumericUpDown : public TextBoxNumeric
+		class NumericUpDown : public TextBoxNumeric
 		{
 			public:
 

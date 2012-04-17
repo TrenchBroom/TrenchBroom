@@ -16,7 +16,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT Canvas : public Base
+		class Canvas : public Base
 		{
 			public:
 

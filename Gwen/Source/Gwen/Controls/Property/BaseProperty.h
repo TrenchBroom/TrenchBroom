@@ -20,7 +20,7 @@ namespace Gwen
 	{
 		namespace Property
 		{
-			class GWEN_EXPORT Base : public Gwen::Controls::Base
+			class Base : public Gwen::Controls::Base
 			{
 				public:
 

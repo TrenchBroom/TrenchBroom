@@ -17,7 +17,7 @@ namespace Gwen
 {
 	namespace Anim
 	{
-		class GWEN_EXPORT Animation
+		class Animation
 		{
 			public:
 
@@ -32,14 +32,14 @@ namespace Gwen
 				Gwen::Controls::Base*	m_Control;
 		};
 
-		GWEN_EXPORT void Add( Gwen::Controls::Base* control, Animation* animation );
-		GWEN_EXPORT void Cancel( Gwen::Controls::Base* control );
-		GWEN_EXPORT void Think();
+		void Add( Gwen::Controls::Base* control, Animation* animation );
+		void Cancel( Gwen::Controls::Base* control );
+		void Think();
 
 		//
 		// Timed animation. Provides a useful base for animations.
 		//
-		class GWEN_EXPORT TimedAnimation : public Animation
+		class TimedAnimation : public Animation
 		{
 			public:
 
@@ -66,7 +66,7 @@ namespace Gwen
 
 		namespace Size
 		{
-			class GWEN_EXPORT Height : public TimedAnimation
+			class Height : public TimedAnimation
 			{
 				public:
 

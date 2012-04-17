@@ -20,7 +20,7 @@ namespace Gwen
 	{
 		class CollapsibleList;
 
-		class GWEN_EXPORT CollapsibleCategory : public Gwen::Controls::Base
+		class CollapsibleCategory : public Gwen::Controls::Base
 		{
 			public:
 

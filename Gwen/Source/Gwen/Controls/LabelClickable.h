@@ -15,7 +15,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT LabelClickable : public Button
+		class LabelClickable : public Button
 		{
 			public:
 

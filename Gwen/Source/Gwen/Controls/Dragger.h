@@ -17,7 +17,7 @@ namespace Gwen
 {
 	namespace ControlsInternal
 	{
-		class GWEN_EXPORT Dragger : public Controls::Base
+		class Dragger : public Controls::Base
 		{
 			public:
 

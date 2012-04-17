@@ -8,7 +8,6 @@
 #ifndef GWEN_CONTROLS_BASE_H
 #define GWEN_CONTROLS_BASE_H
 
-#include "Gwen/Exports.h"
 #include "Gwen/Structures.h"
 #include "Gwen/BaseRender.h"
 #include "Gwen/Events.h"
@@ -45,7 +44,7 @@ namespace Gwen
 	{
 		class Canvas;
 
-		class GWEN_EXPORT Base : public Event::Handler
+		class Base : public Event::Handler
 		{
 			public:
 

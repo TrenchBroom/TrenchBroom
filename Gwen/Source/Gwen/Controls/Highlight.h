@@ -16,7 +16,7 @@ namespace Gwen
 {
 	namespace ControlsInternal
 	{
-		class GWEN_EXPORT Highlight : public Controls::Base
+		class Highlight : public Controls::Base
 		{
 			public:
 

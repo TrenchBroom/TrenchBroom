@@ -17,7 +17,7 @@ namespace Gwen
 	{
 		namespace Property
 		{
-			class GWEN_EXPORT Text : public Property::Base
+			class Text : public Property::Base
 			{
 				public:
 

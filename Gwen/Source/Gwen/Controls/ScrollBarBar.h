@@ -16,7 +16,7 @@ namespace Gwen
 {
 	namespace ControlsInternal
 	{
-		class GWEN_EXPORT ScrollBarBar : public ControlsInternal::Dragger
+		class ScrollBarBar : public ControlsInternal::Dragger
 		{
 			public:
 

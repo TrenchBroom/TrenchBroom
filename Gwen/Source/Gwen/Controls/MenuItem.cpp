@@ -12,7 +12,7 @@
 using namespace Gwen;
 using namespace Gwen::Controls;
 
-class GWEN_EXPORT RightArrow : public Controls::Base
+class RightArrow : public Controls::Base
 {
 	public:
 

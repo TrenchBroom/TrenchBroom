@@ -18,7 +18,7 @@ namespace Gwen
 	{
 		namespace Layout
 		{
-			class GWEN_EXPORT Position : public Base
+			class Position : public Base
 			{
 				public:
 
@@ -46,7 +46,7 @@ namespace Gwen
 					int		m_iPosition;
 			};
 
-			class GWEN_EXPORT Center : public Position
+			class Center : public Position
 			{
 				GWEN_CONTROL_INLINE( Center, Position )
 				{

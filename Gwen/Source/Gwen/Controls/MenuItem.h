@@ -19,7 +19,7 @@ namespace Gwen
 	{
 		class Menu;
 
-		class GWEN_EXPORT MenuItem : public Button
+		class MenuItem : public Button
 		{
 			public:
 

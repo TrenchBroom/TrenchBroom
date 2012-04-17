@@ -18,7 +18,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT TabTitleBar : public Label
+		class TabTitleBar : public Label
 		{
 			public:
 

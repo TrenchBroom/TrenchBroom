@@ -25,7 +25,7 @@ namespace Gwen
 	{
 		class CloseButton;
 
-		class GWEN_EXPORT WindowControl : public ResizableControl
+		class WindowControl : public ResizableControl
 		{
 			public:
 

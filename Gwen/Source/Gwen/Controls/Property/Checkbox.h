@@ -17,7 +17,7 @@ namespace Gwen
 	{
 		namespace Property
 		{
-			class GWEN_EXPORT Checkbox : public Property::Base
+			class Checkbox : public Property::Base
 			{
 				public:
 

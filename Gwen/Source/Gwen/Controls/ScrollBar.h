@@ -24,7 +24,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT BaseScrollBar : public Base
+		class BaseScrollBar : public Base
 		{
 			public:
 				

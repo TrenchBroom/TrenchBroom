@@ -24,7 +24,7 @@ namespace Gwen
 
 		class PropertyRow;
 
-		class GWEN_EXPORT Properties : public Base
+		class Properties : public Base
 		{
 			public:
 
@@ -47,7 +47,7 @@ namespace Gwen
 
 		};
 
-		class GWEN_EXPORT PropertyRow : public Base
+		class PropertyRow : public Base
 		{
 			public:
 

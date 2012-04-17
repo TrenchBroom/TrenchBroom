@@ -34,7 +34,7 @@ namespace Gwen
 
 		};
 
-		class GWEN_EXPORT Base
+		class Base
 		{
 			public:
 

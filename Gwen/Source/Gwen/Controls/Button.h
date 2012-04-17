@@ -18,7 +18,7 @@ namespace Gwen
 	{
 		class ImagePanel;
 
-		class GWEN_EXPORT Button : public Label
+		class Button : public Label
 		{
 			public:
 

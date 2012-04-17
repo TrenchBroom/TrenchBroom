@@ -28,7 +28,7 @@ namespace Gwen
 			const unsigned char Dot = 3;
 		}
 
-		class GWEN_EXPORT Base
+		class Base
 		{
 			public:
 

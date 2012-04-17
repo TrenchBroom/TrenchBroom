@@ -19,7 +19,7 @@ namespace Gwen
 	{
 		class MenuItem;
 
-		class GWEN_EXPORT Menu : public ScrollControl
+		class Menu : public ScrollControl
 		{
 			public:
 
@@ -61,7 +61,7 @@ namespace Gwen
 				bool m_bDeleteOnClose;
 		};
 
-		class GWEN_EXPORT MenuDivider : public Base
+		class MenuDivider : public Base
 		{
 			public:
 

@@ -12,7 +12,6 @@
 #ifndef GWEN_STRUCTURES_H
 #define GWEN_STRUCTURES_H
 
-#include "Gwen/Exports.h"
 #include <string>
 
 namespace Gwen
@@ -43,7 +42,7 @@ namespace Gwen
 	typedef std::string String;
 	typedef wchar_t UnicodeChar; // Portability??
 
-	struct GWEN_EXPORT Margin
+	struct Margin
 	{
 		Margin( int left_ = 0, int top_ = 0, int right_ = 0, int bottom_ = 0 )
 		{
@@ -72,7 +71,7 @@ namespace Gwen
 	typedef Margin Padding;
 
 
-	struct GWEN_EXPORT Rect 
+	struct Rect 
 	{
 		Rect( int x_ = 0, int y_ = 0, int w_ = 0, int h_ = 0 )
 		{
@@ -98,7 +97,7 @@ namespace Gwen
 	};
 
 
-	struct GWEN_EXPORT Point
+	struct Point
 	{
 		Point(int x_ = 0, int y_ = 0) 
 		{ 
@@ -109,7 +108,7 @@ namespace Gwen
 		int x, y;
 	};
 
-	struct GWEN_EXPORT HSV 
+	struct HSV 
 	{
 		float h;
 		float s;
@@ -117,7 +116,7 @@ namespace Gwen
 	};
 
 
-	struct GWEN_EXPORT Color
+	struct Color
 	{
 		Color( unsigned char r_ = 255, unsigned char g_ = 255, unsigned char b_ = 255, unsigned char a_ = 255 )
 		{
@@ -201,7 +200,7 @@ namespace Gwen
 
 	namespace DragAndDrop
 	{
-		struct GWEN_EXPORT Package
+		struct Package
 		{
 			Package()
 			{

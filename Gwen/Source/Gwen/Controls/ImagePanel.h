@@ -17,7 +17,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT ImagePanel : public Controls::Base
+		class ImagePanel : public Controls::Base
 		{
 			public:
 

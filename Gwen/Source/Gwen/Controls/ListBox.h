@@ -19,7 +19,7 @@ namespace Gwen
 	{
 		class ScrollControl;
 
-		class GWEN_EXPORT ListBox : public ScrollControl
+		class ListBox : public ScrollControl
 		{
 			public:
 				

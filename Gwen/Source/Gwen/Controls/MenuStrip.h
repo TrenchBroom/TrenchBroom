@@ -17,7 +17,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT MenuStrip : public Menu
+		class MenuStrip : public Menu
 		{
 			GWEN_CONTROL( MenuStrip, Menu );
 
