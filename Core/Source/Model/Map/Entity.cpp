@@ -18,6 +18,7 @@
  */
 
 #include "Entity.h"
+#include <cstdlib>
 #include <cmath>
 #include <iostream>
 #include <sstream>
@@ -184,7 +185,7 @@ namespace TrenchBroom {
                 }
                 m_origin = Vec3f(*value);
             } else if (key == AngleKey) {
-                if (value != NULL) m_angle = strtof(value->c_str(), NULL);
+                if (value != NULL) m_angle = atof(value->c_str());
                 else m_angle = numeric_limits<float>::quiet_NaN();
             }
 
@@ -230,7 +231,7 @@ namespace TrenchBroom {
         }
 
         const int Entity::angle() const {
-            return Math::roundf(m_angle);
+            return static_cast<int>(Math::roundf(m_angle));
         }
 
         bool Entity::worldspawn() const {

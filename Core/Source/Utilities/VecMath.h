@@ -28,7 +28,7 @@ namespace Math {
     static const float PointStatusEpsilon = 0.01f;
     static const float Pi = 3.141592f;
 
-    inline float isnan(float f) {
+    inline bool isnan(float f) {
 #ifdef _MSC_VER
         return _isnan(f);
 #else
