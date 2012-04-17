@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TrenchBroom", "TrenchBroom\TrenchBroom.vcxproj", "{DDC1147D-F2D7-4EAF-80E9-4B7B82801D68}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DDC1147D-F2D7-4EAF-80E9-4B7B82801D68}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DDC1147D-F2D7-4EAF-80E9-4B7B82801D68}.Debug|Win32.Build.0 = Debug|Win32
+		{DDC1147D-F2D7-4EAF-80E9-4B7B82801D68}.Release|Win32.ActiveCfg = Release|Win32
+		{DDC1147D-F2D7-4EAF-80E9-4B7B82801D68}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
