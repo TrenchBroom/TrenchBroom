@@ -124,7 +124,7 @@ namespace TrenchBroom {
             if (worldspawn()) return;
 
             float dist = bounds().intersectWithRay(ray, NULL);
-            if (std::isnan(dist)) return;
+            if (Math::isnan(dist)) return;
 
             Vec3f hitPoint = ray.pointAtDistance(dist);
             Hit* hit = new Hit(this, TB_HT_ENTITY, hitPoint, dist);

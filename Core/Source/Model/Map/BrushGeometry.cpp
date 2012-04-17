@@ -224,7 +224,7 @@ namespace TrenchBroom {
             if (!Math::fneg(dot)) return numeric_limits<float>::quiet_NaN();
             
             float dist = boundary.intersectWithRay(ray);
-            if (std::isnan(dist)) return numeric_limits<float>::quiet_NaN();
+            if (Math::isnan(dist)) return numeric_limits<float>::quiet_NaN();
             
             Vec3f hit, projectedHit, v0, v1;
             CoordinatePlane cPlane = CoordinatePlane::plane(boundary.normal);
@@ -790,9 +790,9 @@ namespace TrenchBroom {
                 plane = neighbourSide->face->boundary();
                 float neighbourDist = plane.intersectWithRay(ray);
                 
-                if (!std::isnan(sideDist) && Math::fpos(sideDist) && Math::flt(sideDist, minDist))
+                if (!Math::isnan(sideDist) && Math::fpos(sideDist) && Math::flt(sideDist, minDist))
                     minDist = sideDist;
-                if (!std::isnan(neighbourDist) && Math::fpos(neighbourDist) && Math::flt(neighbourDist, minDist))
+                if (!Math::isnan(neighbourDist) && Math::fpos(neighbourDist) && Math::flt(neighbourDist, minDist))
                     minDist = neighbourDist;
             }
             

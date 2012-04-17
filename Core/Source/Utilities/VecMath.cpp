@@ -1315,7 +1315,7 @@ float BBox::intersectWithRay(const Ray& ray, Vec3f* sideNormal) const {
     if (ray.direction.x < 0) {
         Plane plane(XAxisPos, max);
         float distance = plane.intersectWithRay(ray);
-        if (!std::isnan(distance)) {
+        if (!Math::isnan(distance)) {
             Vec3f point = ray.pointAtDistance(distance);
             if (point.y >= min.y && point.y <= max.y && point.z >= min.z && point.z <= max.z) {
                 if (sideNormal != NULL) *sideNormal = XAxisPos;
@@ -1325,7 +1325,7 @@ float BBox::intersectWithRay(const Ray& ray, Vec3f* sideNormal) const {
     } else if (ray.direction.x > 0) {
         Plane plane(XAxisNeg, min);
         float distance = plane.intersectWithRay(ray);
-        if (!std::isnan(distance)) {
+        if (!Math::isnan(distance)) {
             Vec3f point = ray.pointAtDistance(distance);
             if (point.y >= min.y && point.y <= max.y && point.z >= min.z && point.z <= max.z) {
                 if (sideNormal != NULL) *sideNormal = XAxisNeg;
@@ -1337,7 +1337,7 @@ float BBox::intersectWithRay(const Ray& ray, Vec3f* sideNormal) const {
     if (ray.direction.y < 0) {
         Plane plane(YAxisPos, max);
         float distance = plane.intersectWithRay(ray);
-        if (!std::isnan(distance)) {
+        if (!Math::isnan(distance)) {
             Vec3f point = ray.pointAtDistance(distance);
             if (point.x >= min.x && point.x <= max.x && point.z >= min.z && point.z <= max.z) {
                 if (sideNormal != NULL) *sideNormal = YAxisPos;
@@ -1347,7 +1347,7 @@ float BBox::intersectWithRay(const Ray& ray, Vec3f* sideNormal) const {
     } else if (ray.direction.y > 0) {
         Plane plane(YAxisNeg, min);
         float distance = plane.intersectWithRay(ray);
-        if (!std::isnan(distance)) {
+        if (!Math::isnan(distance)) {
             Vec3f point = ray.pointAtDistance(distance);
             if (point.x >= min.x && point.x <= max.x && point.z >= min.z && point.z <= max.z) {
                 if (sideNormal != NULL) *sideNormal = YAxisNeg;
@@ -1359,7 +1359,7 @@ float BBox::intersectWithRay(const Ray& ray, Vec3f* sideNormal) const {
     if (ray.direction.z < 0) {
         Plane plane(ZAxisPos, max);
         float distance = plane.intersectWithRay(ray);
-        if (!std::isnan(distance)) {
+        if (!Math::isnan(distance)) {
             Vec3f point = ray.pointAtDistance(distance);
             if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y) {
                 if (sideNormal != NULL) *sideNormal = ZAxisPos;
@@ -1369,7 +1369,7 @@ float BBox::intersectWithRay(const Ray& ray, Vec3f* sideNormal) const {
     } else if (ray.direction.z > 0) {
         Plane plane(ZAxisNeg, min);
         float distance = plane.intersectWithRay(ray);
-        if (!std::isnan(distance)) {
+        if (!Math::isnan(distance)) {
             Vec3f point = ray.pointAtDistance(distance);
             if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y) {
                 if (sideNormal != NULL) *sideNormal = ZAxisNeg;

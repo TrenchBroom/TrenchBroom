@@ -170,16 +170,16 @@ namespace TrenchBroom {
         
         void Brush::pick(const Ray& ray, HitList& hits) {
             float dist = bounds().intersectWithRay(ray, NULL);
-            if (std::isnan(dist)) return;
+            if (Math::isnan(dist)) return;
             
             dist = numeric_limits<float>::quiet_NaN();
             Side* side;
-            for (int i = 0; i < m_geometry->sides.size() && std::isnan(dist); i++) {
+            for (int i = 0; i < m_geometry->sides.size() && Math::isnan(dist); i++) {
                 side = m_geometry->sides[i];
                 dist = side->intersectWithRay(ray);
             }
             
-            if (!std::isnan(dist)) {
+            if (!Math::isnan(dist)) {
                 Vec3f hitPoint = ray.pointAtDistance(dist);
                 Hit* hit = new Hit(side->face, TB_HT_FACE, hitPoint, dist);
                 hits.add(*hit);

@@ -28,6 +28,14 @@ namespace Math {
     static const float PointStatusEpsilon = 0.01f;
     static const float Pi = 3.141592f;
 
+    inline float isnan(float f) {
+#ifdef _MSC_VER
+        return _isnan(f);
+#else
+        return Math::isnan(f);
+#endif
+    }
+    
     inline float roundf(float f) {
         return (int)(floor(f + 0.5f));
     }

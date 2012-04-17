@@ -124,7 +124,7 @@ namespace TrenchBroom {
         }
         
         void OctreeNode::intersect(const Ray& ray, vector<MapObject*>& objects) {
-            if (m_bounds.contains(ray.origin) || !std::isnan(m_bounds.intersectWithRay(ray))) {
+            if (m_bounds.contains(ray.origin) || !Math::isnan(m_bounds.intersectWithRay(ray))) {
                 objects.insert(objects.end(), m_objects.begin(), m_objects.end());
                 for (int i = 0; i < 8; i++)
                     if (m_children[i] != NULL) m_children[i]->intersect(ray, objects);
