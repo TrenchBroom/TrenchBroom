@@ -10,10 +10,6 @@
 
 using namespace Gwen;
 
-#ifdef __APPLE__
-#define vsnwprintf vswprintf
-#endif
-
 #ifdef _MSC_VER
 	#pragma warning(disable:4267)// conversion from 'size_t' to 'int', possible loss of data
 #endif
@@ -24,7 +20,7 @@ UnicodeString Gwen::Utility::Format( const wchar_t* fmt, ... )
 
 	va_list s;
 	va_start( s, fmt );
-	vsnwprintf( strOut, sizeof(strOut), fmt, s );
+	vswprintf( strOut, sizeof(strOut), fmt, s );
 	va_end(s);
 
 	UnicodeString str = strOut;

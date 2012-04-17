@@ -83,7 +83,7 @@ namespace TrenchBroom {
         
         class isubstream : public istream {
         public:
-            isubstream(streambuf* sbuf) : m_sbuf(sbuf) { this->init(sbuf); };
+            isubstream(streambuf* sbuf) : istream(sbuf), m_sbuf(sbuf) { this->init(sbuf); };
             ~isubstream() { delete m_sbuf; }
         private:
             streambuf* m_sbuf;

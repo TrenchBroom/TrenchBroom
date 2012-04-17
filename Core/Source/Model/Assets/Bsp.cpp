@@ -229,7 +229,7 @@ namespace TrenchBroom {
                 stream.read((char *)&faceEdgesLength, sizeof(int32_t));
                 faceEdgesCount = faceEdgesLength / BSP_FACE_EDGE_SIZE;
 
-                int32_t faceEdges[faceEdgesCount];
+                int32_t* faceEdges = new int32_t[faceEdgesCount];
                 stream.seekg(faceEdgesAddr, ios::beg);
                 readFaceEdges(stream, faceEdgesCount, faceEdges);
 
@@ -240,9 +240,9 @@ namespace TrenchBroom {
                 stream.read((char *)&modelsLength, sizeof(int32_t));
                 modelCount = modelsLength / BSP_MODEL_SIZE;
 
-                bool vertexMark[vertexCount];
+                bool* vertexMark = new bool[vertexCount];
                 memset(vertexMark, false, vertexCount * sizeof(bool));
-                int modelVertices[vertexCount];
+                int* modelVertices = new int[vertexCount];
 
                 stream.seekg(modelsAddr, ios::beg);
                 for (int i = 0; i < modelCount; i++) {
@@ -303,7 +303,7 @@ namespace TrenchBroom {
                     for (int i = 0; i < modelVertexCount; i++) {
                         int vertexIndex = modelVertices[i];
                         diff = vertices[vertexIndex] - center;
-                        distSquared = fmax(distSquared, diff.lengthSquared());
+						distSquared = Math::fmax(distSquared, diff.lengthSquared());
                     }
 
                     float dist = sqrt(distSquared);
@@ -319,6 +319,10 @@ namespace TrenchBroom {
                     BspModel* bspModel = new BspModel(bspFaces, totalVertexCount, center, bounds, maxBounds);
                     models.push_back(bspModel);
                 }
+
+				delete [] faceEdges;
+				delete [] vertexMark;
+				delete [] modelVertices;
             }
 
             Bsp::~Bsp() {

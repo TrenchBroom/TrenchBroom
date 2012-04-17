@@ -114,6 +114,7 @@
     <ClInclude Include="..\..\Core\Source\GUI\EditorGui.h" />
     <ClInclude Include="..\..\Core\Source\GUI\MapRendererControl.h" />
     <ClInclude Include="..\..\Core\Source\GUI\Splitter.h" />
+    <ClInclude Include="..\..\Core\Source\IO\dirent.h" />
     <ClInclude Include="..\..\Core\Source\IO\EntityDefinitionParser.h" />
     <ClInclude Include="..\..\Core\Source\IO\MapParser.h" />
     <ClInclude Include="..\..\Core\Source\IO\Pak.h" />

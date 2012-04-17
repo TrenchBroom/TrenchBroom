@@ -20,10 +20,15 @@
 #include "Pak.h"
 #include <cstdio>
 #include <cstring>
-#include <dirent.h>
 #include <numeric>
 #include <algorithm>
 #include "substream.h"
+
+#ifdef _MSC_VER
+#include "dirent.h"
+#else
+#include <dirent.h>
+#endif
 
 namespace TrenchBroom {
     namespace IO {

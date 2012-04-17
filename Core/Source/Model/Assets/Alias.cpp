@@ -113,7 +113,7 @@ namespace TrenchBroom {
                 float distSquared;
                 for (int i = 0; i < vertices.size(); i++) {
                     diff = frameVertices[i] - center;
-                    distSquared = fmax(distSquared, diff.lengthSquared());
+                    distSquared = Math::fmax(distSquared, diff.lengthSquared());
                 }
                 
                 float dist = sqrt(distSquared);

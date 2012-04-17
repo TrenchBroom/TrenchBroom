@@ -82,7 +82,7 @@ namespace TrenchBroom {
             return m_faceColor;
         }
         
-        const Vec4f& Preferences::Preferences::edgeColor(){
+        const Vec4f& Preferences::edgeColor(){
             return m_edgeColor;
         }
         

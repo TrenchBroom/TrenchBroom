@@ -56,7 +56,7 @@ namespace TrenchBroom {
                 int dim = grid.actualSize();
                 if (dim < 4) dim = 4;
                 int texSize = 1 << 8;
-                unsigned char pixel[texSize * texSize * 4];
+                unsigned char* pixel = new unsigned char[texSize * texSize * 4];
                 for (int y = 0; y < texSize; y++) {
                     for (int x = 0; x < texSize; x++) {
                         int i = (y * texSize + x) * 4;
@@ -81,6 +81,7 @@ namespace TrenchBroom {
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
                 m_textures[index] = textureId;
+				delete [] pixel;
             }
             
             glBindTexture(GL_TEXTURE_2D, textureId);

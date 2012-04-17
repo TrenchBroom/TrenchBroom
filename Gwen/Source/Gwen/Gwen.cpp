@@ -34,7 +34,7 @@ namespace Gwen
 			wchar_t strOut[1024];
 			va_list s;
 			va_start( s, str );
-			vsnwprintf( strOut, sizeof(strOut), str, s );
+			vswprintf( strOut, sizeof(strOut), str, s );
 			va_end(s);
 			GwenUtil_OutputDebugWideString( strOut );
 		}
