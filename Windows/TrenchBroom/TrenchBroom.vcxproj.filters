@@ -1,0 +1,926 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Quelldateien">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Headerdateien">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Ressourcendateien">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Headerdateien\Core">
+      <UniqueIdentifier>{47e745a2-8be5-4bdb-94ca-e07f85238d98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Core\Controller">
+      <UniqueIdentifier>{3274ddd9-4649-4534-b47a-40d999f8d575}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Core\GL">
+      <UniqueIdentifier>{b5958330-531f-41e1-a3d4-f69137a1073f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Core\GUI">
+      <UniqueIdentifier>{be8caf8e-2b6b-47ce-beea-949a428781c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Core\IO">
+      <UniqueIdentifier>{57c9a23c-ba88-431d-872d-3d709a63887c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Core\Model">
+      <UniqueIdentifier>{765175d4-ca00-4885-acc5-b5366ade0066}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Core\Model\Assets">
+      <UniqueIdentifier>{7e84370c-dbbf-4b61-8be4-1757aaa6630d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Core\Model\Map">
+      <UniqueIdentifier>{45912881-f826-4f10-b17d-f846cccbb157}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Core\Utilities">
+      <UniqueIdentifier>{367e715f-4d5a-43a6-b621-cbcb5ba70c7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Core\Renderer">
+      <UniqueIdentifier>{b7661e01-9dae-4558-a838-f0d5835effbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Gwen">
+      <UniqueIdentifier>{af65901e-a2af-458e-8671-47539acc287c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Gwen\FreeImage">
+      <UniqueIdentifier>{147bf5a9-9477-4b41-9169-51ab71e0a03d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Gwen\Controls">
+      <UniqueIdentifier>{47edc2df-60b6-4940-851a-de01db167e9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Gwen\Controls\Dialogs">
+      <UniqueIdentifier>{7271f1f3-20fb-4243-880e-17fbf54cc40e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Gwen\Controls\Layout">
+      <UniqueIdentifier>{c0577f2a-3362-46a7-a196-cd6111f12469}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Gwen\Controls\Property">
+      <UniqueIdentifier>{6965519b-1af8-4300-9b6f-bee17a720731}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Gwen\Renderers">
+      <UniqueIdentifier>{385b2638-d50d-4df0-bf03-c72151481c4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Gwen\Skins">
+      <UniqueIdentifier>{7d7f9da0-5cfe-43ae-a0d4-b53878a8e25c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Core">
+      <UniqueIdentifier>{8185b1bf-5510-4572-bfe5-ee5e3238a2b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Core\Controller">
+      <UniqueIdentifier>{cc602b72-23ac-4785-bcb6-93e1d8666313}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Core\GL">
+      <UniqueIdentifier>{12bf89e0-3cd9-4ccd-ab91-312829b291ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Core\GUI">
+      <UniqueIdentifier>{f12b7474-3aa3-4f3d-9d29-8340ad825200}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Core\IO">
+      <UniqueIdentifier>{1649319c-c125-400b-8ec1-ee1c33623de6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Core\Model">
+      <UniqueIdentifier>{d1083f9b-1359-4bac-951e-37332c82d1e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Core\Model\Assets">
+      <UniqueIdentifier>{7f9d7e99-94d7-45e5-b70d-e19af2fb3c07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Core\Model\Map">
+      <UniqueIdentifier>{2839d24f-5cd4-42c2-a4ac-abb0d26a8fcb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Core\Utilities">
+      <UniqueIdentifier>{d88052b6-be5a-4307-973b-f4d0a78ffa38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Core\Renderer">
+      <UniqueIdentifier>{95d84069-b898-4c85-820f-991d785abc3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Gwen">
+      <UniqueIdentifier>{52bc1a0e-4c3a-443a-8558-333c6c4a493a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Gwen\Controls">
+      <UniqueIdentifier>{51e0cfd8-1a85-4599-97e6-88c4af17b35f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Gwen\Controls\Dialogs">
+      <UniqueIdentifier>{b461cfa0-92ba-48f8-b968-571a093fc93c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Gwen\Renderers">
+      <UniqueIdentifier>{181be891-20e3-4fdc-8004-ac37c9da3797}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Gwen\Platforms">
+      <UniqueIdentifier>{b95e3eed-3ae4-42ad-a61f-99abb4f17fc5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="TrenchBroom.reg" />
+    <None Include="res\TrenchBroom.rc2">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="res\TrenchBroomDoc.ico">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="res\TrenchBroom.ico">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TrenchBroom.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="MapDocument.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="MapView.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\CameraTool.h">
+      <Filter>Headerdateien\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\Editor.h">
+      <Filter>Headerdateien\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\Grid.h">
+      <Filter>Headerdateien\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\InputController.h">
+      <Filter>Headerdateien\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\Options.h">
+      <Filter>Headerdateien\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\ProgressIndicator.h">
+      <Filter>Headerdateien\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\SelectionTool.h">
+      <Filter>Headerdateien\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\Tool.h">
+      <Filter>Headerdateien\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\Camera.h">
+      <Filter>Headerdateien\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\GL\GLee.h">
+      <Filter>Headerdateien\Core\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\GUI\MapRendererControl.h">
+      <Filter>Headerdateien\Core\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\GUI\Splitter.h">
+      <Filter>Headerdateien\Core\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\GUI\EditorGui.h">
+      <Filter>Headerdateien\Core\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\IO\MapParser.h">
+      <Filter>Headerdateien\Core\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\IO\Pak.h">
+      <Filter>Headerdateien\Core\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\IO\substream.h">
+      <Filter>Headerdateien\Core\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\IO\Wad.h">
+      <Filter>Headerdateien\Core\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\IO\dirent.h">
+      <Filter>Headerdateien\Core\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\IO\EntityDefinitionParser.h">
+      <Filter>Headerdateien\Core\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Preferences.h">
+      <Filter>Headerdateien\Core\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Selection.h">
+      <Filter>Headerdateien\Core\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Octree.h">
+      <Filter>Headerdateien\Core\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Assets\Bsp.h">
+      <Filter>Headerdateien\Core\Model\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Assets\Palette.h">
+      <Filter>Headerdateien\Core\Model\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Assets\Texture.h">
+      <Filter>Headerdateien\Core\Model\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Assets\Alias.h">
+      <Filter>Headerdateien\Core\Model\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Assets\AliasNormals.h">
+      <Filter>Headerdateien\Core\Model\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Map\EntityDefinition.h">
+      <Filter>Headerdateien\Core\Model\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Map\Face.h">
+      <Filter>Headerdateien\Core\Model\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Map\Groups.h">
+      <Filter>Headerdateien\Core\Model\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Map\Map.h">
+      <Filter>Headerdateien\Core\Model\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Map\MapObject.h">
+      <Filter>Headerdateien\Core\Model\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Map\Picker.h">
+      <Filter>Headerdateien\Core\Model\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Map\Brush.h">
+      <Filter>Headerdateien\Core\Model\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Map\BrushGeometry.h">
+      <Filter>Headerdateien\Core\Model\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Map\Entity.h">
+      <Filter>Headerdateien\Core\Model\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Utilities\Filter.h">
+      <Filter>Headerdateien\Core\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Utilities\Utils.h">
+      <Filter>Headerdateien\Core\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Utilities\VecMath.h">
+      <Filter>Headerdateien\Core\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Utilities\Event.h">
+      <Filter>Headerdateien\Core\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\AliasRenderer.h">
+      <Filter>Headerdateien\Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Vbo.h">
+      <Filter>Headerdateien\Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\BspRenderer.h">
+      <Filter>Headerdateien\Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\EntityClassnameAnchor.h">
+      <Filter>Headerdateien\Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\EntityRenderer.h">
+      <Filter>Headerdateien\Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\EntityRendererManager.h">
+      <Filter>Headerdateien\Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\FontManager.h">
+      <Filter>Headerdateien\Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\GridRenderer.h">
+      <Filter>Headerdateien\Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\MapRenderer.h">
+      <Filter>Headerdateien\Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\RenderUtils.h">
+      <Filter>Headerdateien\Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\TextRenderer.h">
+      <Filter>Headerdateien\Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Align.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Anim.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\BaseRender.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Config.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\DragAndDrop.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Events.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Font.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Gwen.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Hook.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\InputHandler.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Macros.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Platform.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Skin.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Structures.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\TextObject.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Texture.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\ToolTip.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Utility.h">
+      <Filter>Headerdateien\Gwen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Button.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Canvas.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\CheckBox.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\CollapsibleCategory.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\CollapsibleList.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ColorControls.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ColorPicker.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ComboBox.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\CrossSplitter.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\DockBase.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\DockedTabControl.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Dragger.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\GroupBox.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Highlight.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\HorizontalScrollBar.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\HorizontalSlider.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\HSVColorPicker.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ImagePanel.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Label.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\LabelClickable.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ListBox.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Menu.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\MenuItem.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\MenuStrip.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Modal.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\NumericUpDown.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ProgressBar.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Properties.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\PropertyTree.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\RadioButton.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\RadioButtonController.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ResizableControl.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Resizer.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\RichLabel.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ScrollBar.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ScrollBarBar.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ScrollBarButton.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ScrollControl.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Slider.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\SplitterBar.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\StatusBar.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\TabButton.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\TabControl.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\TabStrip.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\TabTitleBar.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Text.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\TextBox.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ToolBar.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\TreeControl.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\TreeNode.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\VerticalScrollBar.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\VerticalSlider.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\WindowControl.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Base.h">
+      <Filter>Headerdateien\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Dialogs\FileOpen.h">
+      <Filter>Headerdateien\Gwen\Controls\Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Dialogs\FileSave.h">
+      <Filter>Headerdateien\Gwen\Controls\Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Dialogs\Query.h">
+      <Filter>Headerdateien\Gwen\Controls\Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Layout\Position.h">
+      <Filter>Headerdateien\Gwen\Controls\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Layout\Splitter.h">
+      <Filter>Headerdateien\Gwen\Controls\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Layout\Table.h">
+      <Filter>Headerdateien\Gwen\Controls\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Property\ColorSelector.h">
+      <Filter>Headerdateien\Gwen\Controls\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Property\Text.h">
+      <Filter>Headerdateien\Gwen\Controls\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Property\BaseProperty.h">
+      <Filter>Headerdateien\Gwen\Controls\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Property\Checkbox.h">
+      <Filter>Headerdateien\Gwen\Controls\Property</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\FreeImage\FreeImage.h">
+      <Filter>Headerdateien\Gwen\FreeImage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Renderers\FontData.h">
+      <Filter>Headerdateien\Gwen\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Renderers\OpenGL.h">
+      <Filter>Headerdateien\Gwen\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Renderers\OpenGL_DebugFont.h">
+      <Filter>Headerdateien\Gwen\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Skins\TexturedBase.h">
+      <Filter>Headerdateien\Gwen\Skins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Skins\Texturing.h">
+      <Filter>Headerdateien\Gwen\Skins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Skins\Simple.h">
+      <Filter>Headerdateien\Gwen\Skins</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TrenchBroom.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="MapDocument.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="MapView.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\Camera.cpp">
+      <Filter>Quelldateien\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\CameraTool.cpp">
+      <Filter>Quelldateien\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\Editor.cpp">
+      <Filter>Quelldateien\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\Grid.cpp">
+      <Filter>Quelldateien\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\InputController.cpp">
+      <Filter>Quelldateien\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\SelectionTool.cpp">
+      <Filter>Quelldateien\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\GL\GLee.c">
+      <Filter>Quelldateien\Core\GL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\GUI\EditorGui.cpp">
+      <Filter>Quelldateien\Core\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\GUI\MapRendererControl.cpp">
+      <Filter>Quelldateien\Core\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\GUI\Splitter.cpp">
+      <Filter>Quelldateien\Core\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\IO\EntityDefinitionParser.cpp">
+      <Filter>Quelldateien\Core\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\IO\MapParser.cpp">
+      <Filter>Quelldateien\Core\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\IO\Pak.cpp">
+      <Filter>Quelldateien\Core\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\IO\Wad.cpp">
+      <Filter>Quelldateien\Core\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Octree.cpp">
+      <Filter>Quelldateien\Core\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Preferences.cpp">
+      <Filter>Quelldateien\Core\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Selection.cpp">
+      <Filter>Quelldateien\Core\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Assets\Alias.cpp">
+      <Filter>Quelldateien\Core\Model\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Assets\Bsp.cpp">
+      <Filter>Quelldateien\Core\Model\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Assets\Palette.cpp">
+      <Filter>Quelldateien\Core\Model\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Assets\Texture.cpp">
+      <Filter>Quelldateien\Core\Model\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Map\Brush.cpp">
+      <Filter>Quelldateien\Core\Model\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Map\BrushGeometry.cpp">
+      <Filter>Quelldateien\Core\Model\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Map\Entity.cpp">
+      <Filter>Quelldateien\Core\Model\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Map\EntityDefinition.cpp">
+      <Filter>Quelldateien\Core\Model\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Map\Face.cpp">
+      <Filter>Quelldateien\Core\Model\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Map\Groups.cpp">
+      <Filter>Quelldateien\Core\Model\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Map\Map.cpp">
+      <Filter>Quelldateien\Core\Model\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Map\MapObject.cpp">
+      <Filter>Quelldateien\Core\Model\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Map\Picker.cpp">
+      <Filter>Quelldateien\Core\Model\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\AliasRenderer.cpp">
+      <Filter>Quelldateien\Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\BspRenderer.cpp">
+      <Filter>Quelldateien\Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\EntityClassnameAnchor.cpp">
+      <Filter>Quelldateien\Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\EntityRendererManager.cpp">
+      <Filter>Quelldateien\Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\FontManager.cpp">
+      <Filter>Quelldateien\Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\GridRenderer.cpp">
+      <Filter>Quelldateien\Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\MapRenderer.cpp">
+      <Filter>Quelldateien\Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\RenderUtils.cpp">
+      <Filter>Quelldateien\Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\TextRenderer.cpp">
+      <Filter>Quelldateien\Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\Vbo.cpp">
+      <Filter>Quelldateien\Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Utilities\Filter.cpp">
+      <Filter>Quelldateien\Core\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Utilities\Utils.cpp">
+      <Filter>Quelldateien\Core\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Utilities\VecMath.cpp">
+      <Filter>Quelldateien\Core\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\DragAndDrop.cpp">
+      <Filter>Quelldateien\Gwen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\events.cpp">
+      <Filter>Quelldateien\Gwen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Gwen.cpp">
+      <Filter>Quelldateien\Gwen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Hook.cpp">
+      <Filter>Quelldateien\Gwen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\inputhandler.cpp">
+      <Filter>Quelldateien\Gwen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Skin.cpp">
+      <Filter>Quelldateien\Gwen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\ToolTip.cpp">
+      <Filter>Quelldateien\Gwen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Utility.cpp">
+      <Filter>Quelldateien\Gwen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Anim.cpp">
+      <Filter>Quelldateien\Gwen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\BaseRender.cpp">
+      <Filter>Quelldateien\Gwen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Base.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Button.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Canvas.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\CheckBox.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\CollapsibleCategory.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\ColorControls.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\ColorPicker.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\ComboBox.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\CrossSplitter.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\DockBase.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\DockedTabControl.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Dragger.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\GroupBox.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\HorizontalScrollBar.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\HorizontalSlider.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\HSVColorPicker.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\ImagePanel.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Label.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\LabelClickable.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\ListBox.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Menu.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\MenuItem.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\MenuStrip.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\NumericUpDown.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\ProgressBar.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Properties.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\RadioButton.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\RadioButtonController.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\ResizableControl.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Resizer.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\RichLabel.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\ScrollBar.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\ScrollBarBar.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\ScrollBarButton.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\ScrollControl.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Slider.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\SplitterBar.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\TabButton.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\TabControl.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\TabStrip.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Text.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\TextBox.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\TextBoxNumeric.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\TreeControl.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\TreeNode.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\VerticalScrollBar.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\VerticalSlider.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\WindowControl.cpp">
+      <Filter>Quelldateien\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Dialogs\FileOpen.cpp">
+      <Filter>Quelldateien\Gwen\Controls\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Dialogs\FileSave.cpp">
+      <Filter>Quelldateien\Gwen\Controls\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Dialogs\Query.cpp">
+      <Filter>Quelldateien\Gwen\Controls\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Platforms\Null.cpp">
+      <Filter>Quelldateien\Gwen\Platforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Platforms\Windows.cpp">
+      <Filter>Quelldateien\Gwen\Platforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Renderers\OpenGL.cpp">
+      <Filter>Quelldateien\Gwen\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Renderers\OpenGL_DebugFont.cpp">
+      <Filter>Quelldateien\Gwen\Renderers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="TrenchBroom.rc">
+      <Filter>Ressourcendateien</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="FreeImage.lib">
+      <Filter>Ressourcendateien</Filter>
+    </Library>
+  </ItemGroup>
+</Project>

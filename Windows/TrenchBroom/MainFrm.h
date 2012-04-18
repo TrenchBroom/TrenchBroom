@@ -3,15 +3,13 @@
 //
 
 #pragma once
-#include "ChildView.h"
 
 class CMainFrame : public CFrameWnd
 {
 	
-public:
+protected: // create from serialization only
 	CMainFrame();
-protected: 
-	DECLARE_DYNAMIC(CMainFrame)
+	DECLARE_DYNCREATE(CMainFrame)
 
 // Attributes
 public:
@@ -36,7 +34,6 @@ public:
 // Generated message map functions
 protected:
 	afx_msg void OnFileClose();
-	afx_msg void OnClose();
 	DECLARE_MESSAGE_MAP()
 
 };

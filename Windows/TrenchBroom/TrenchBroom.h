@@ -19,22 +19,18 @@ class CTrenchBroomApp : public CWinApp
 public:
 	CTrenchBroomApp();
 
-	CArray<HWND, HWND> m_aryFrames;
+protected:
+	CMultiDocTemplate* m_pDocTemplate;
 public:
 
 // Overrides
 public:
 	virtual BOOL InitInstance();
-	virtual int ExitInstance();
 
 // Implementation
-protected:
-	HMENU  m_hMDIMenu;
-	HACCEL m_hMDIAccel;
-
-public:
 	afx_msg void OnAppAbout();
 	afx_msg void OnFileNewFrame();
+	afx_msg void OnFileNew();
 	DECLARE_MESSAGE_MAP()
 };
 

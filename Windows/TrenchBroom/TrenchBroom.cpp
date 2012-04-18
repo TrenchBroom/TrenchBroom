@@ -8,6 +8,8 @@
 #include "TrenchBroom.h"
 #include "MainFrm.h"
 
+#include "MapDocument.h"
+#include "MapView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -19,6 +21,9 @@
 BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	ON_COMMAND(ID_APP_ABOUT, &CTrenchBroomApp::OnAppAbout)
 	ON_COMMAND(ID_FILE_NEW_FRAME, &CTrenchBroomApp::OnFileNewFrame)
+	ON_COMMAND(ID_FILE_NEW, &CTrenchBroomApp::OnFileNew)
+	// Standard file based document commands
+	ON_COMMAND(ID_FILE_OPEN, &CWinApp::OnFileOpen)
 END_MESSAGE_MAP()
 
 
@@ -27,7 +32,7 @@ END_MESSAGE_MAP()
 CTrenchBroomApp::CTrenchBroomApp()
 {
 	// support Restart Manager
-	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
+	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_ALL_ASPECTS;
 #ifdef _MANAGED
 	// If the application is built using Common Language Runtime support (/clr):
 	//     1) This additional setting is needed for Restart Manager support to work properly.
@@ -78,41 +83,45 @@ BOOL CTrenchBroomApp::InitInstance()
 	// TODO: You should modify this string to be something appropriate
 	// such as the name of your company or organization
 	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
 
 
-	// To create the main window, this code creates a new frame window
-	// object and then sets it as the application's main window object
-	CMainFrame* pFrame = new CMainFrame;
-	if (!pFrame)
+	// Register the application's document templates.  Document templates
+	//  serve as the connection between documents, frame windows and views
+	CMultiDocTemplate* pDocTemplate;
+	pDocTemplate = new CMultiDocTemplate(
+		IDR_MAINFRAME,
+		RUNTIME_CLASS(CMapDocument),
+		RUNTIME_CLASS(CMainFrame),       // main SDI frame window
+		RUNTIME_CLASS(CMapView));
+	if (!pDocTemplate)
 		return FALSE;
-	m_pMainWnd = pFrame;
-	// create main MDI frame window
-	if (!pFrame->LoadFrame(IDR_MAINFRAME))
+	m_pDocTemplate = pDocTemplate;
+	AddDocTemplate(pDocTemplate);
+
+
+	// Parse command line for standard shell commands, DDE, file open
+	CCommandLineInfo cmdInfo;
+	ParseCommandLine(cmdInfo);
+
+	// Enable DDE Execute open
+	EnableShellOpen();
+	RegisterShellFileTypes(TRUE);
+
+
+	// Dispatch commands specified on the command line.  Will return FALSE if
+	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
+	if (!ProcessShellCommand(cmdInfo))
 		return FALSE;
-	// try to load shared MDI menus and accelerator table
-	//TODO: add additional member variables and load calls for
-	//	additional menu types your application may need
-	HINSTANCE hInst = AfxGetResourceHandle();
-	m_hMDIMenu  = ::LoadMenu(hInst, MAKEINTRESOURCE(IDR_TrenchBroomTYPE));
-	m_hMDIAccel = ::LoadAccelerators(hInst, MAKEINTRESOURCE(IDR_TrenchBroomTYPE));
-
-
-
-
-
 
 	// The one and only window has been initialized, so show and update it
-	pFrame->ShowWindow(SW_SHOW);
-	pFrame->UpdateWindow();
+	m_pMainWnd->ShowWindow(SW_SHOW);
+	m_pMainWnd->UpdateWindow();
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
+	// Enable drag/drop open
+	m_pMainWnd->DragAcceptFiles();
 	return TRUE;
-}
-
-int CTrenchBroomApp::ExitInstance()
-{
-	//TODO: handle additional resources you may have added
-	return CWinApp::ExitInstance();
 }
 
 // CTrenchBroomApp message handlers
@@ -159,12 +168,79 @@ void CTrenchBroomApp::OnAppAbout()
 
 void CTrenchBroomApp::OnFileNewFrame() 
 {
-	CMainFrame* pFrame = new CMainFrame;
-	pFrame->LoadFrame(IDR_MAINFRAME, WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, 
-					  NULL, NULL);
-	pFrame->ShowWindow(SW_SHOW);
-	pFrame->UpdateWindow();
-	m_aryFrames.Add(pFrame->GetSafeHwnd());
+	ASSERT(m_pDocTemplate != NULL);
+
+	CDocument* pDoc = NULL;
+	CFrameWnd* pFrame = NULL;
+
+	// Create a new instance of the document referenced
+	// by the m_pDocTemplate member.
+	if (m_pDocTemplate != NULL)
+		pDoc = m_pDocTemplate->CreateNewDocument();
+
+	if (pDoc != NULL)
+	{
+		// If creation worked, use create a new frame for
+		// that document.
+		pFrame = m_pDocTemplate->CreateNewFrame(pDoc, NULL);
+		if (pFrame != NULL)
+		{
+			// Set the title, and initialize the document.
+			// If document initialization fails, clean-up
+			// the frame window and document.
+
+			m_pDocTemplate->SetDefaultTitle(pDoc);
+			if (!pDoc->OnNewDocument())
+			{
+				pFrame->DestroyWindow();
+				pFrame = NULL;
+			}
+			else
+			{
+				// Otherwise, update the frame
+				m_pDocTemplate->InitialUpdateFrame(pFrame, pDoc, TRUE);
+			}
+		}
+	}
+
+	// If we failed, clean up the document and show a
+	// message to the user.
+
+	if (pFrame == NULL || pDoc == NULL)
+	{
+		delete pDoc;
+		AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
+	}
+}
+
+void CTrenchBroomApp::OnFileNew() 
+{
+	CDocument* pDoc = NULL;
+	CFrameWnd* pFrame;
+	pFrame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
+	
+	if (pFrame != NULL)
+		pDoc = pFrame->GetActiveDocument();
+
+	if (pFrame == NULL || pDoc == NULL)
+	{
+		// if it's the first document, create as normal
+		CWinApp::OnFileNew();
+	}
+	else
+	{
+		// Otherwise, see if we have to save modified, then
+		// ask the document to reinitialize itself.
+		if (!pDoc->SaveModified())
+			return;
+
+		CDocTemplate* pTemplate = pDoc->GetDocTemplate();
+		ASSERT(pTemplate != NULL);
+
+		if (pTemplate != NULL)
+			pTemplate->SetDefaultTitle(pDoc);
+		pDoc->OnNewDocument();
+	}
 }
 
 

@@ -46,6 +46,13 @@ res\TrenchBroom.rc2
     Visual C++. You should place all resources not editable by
     the resource editor in this file.
 
+TrenchBroom.reg
+    This is an example .reg file that shows you the kind of registration
+    settings the framework will set for you.  You can use this as a .reg
+    file to go along with your application or just delete it and rely
+    on the default RegisterShellFileTypes registration.
+
+
 /////////////////////////////////////////////////////////////////////////////
 
 For the main frame window:
@@ -56,6 +63,26 @@ MainFrm.h, MainFrm.cpp
     CFrameWnd and controls all SDI frame features.
 
 /////////////////////////////////////////////////////////////////////////////
+
+The application wizard creates one document type and one view:
+
+MapDocument.h, MapDocument.cpp - the document
+    These files contain your CMapDocument class.  Edit these files to
+    add your special document data and to implement file saving and loading
+    (via CMapDocument::Serialize).
+    The Document will have the following strings:
+        File extension:      map
+        File type ID:        TrenchBroom.Document
+        Main frame caption:  TrenchBroom
+        Doc type name:       Untitled
+        Filter name:         Quake Map File (*.map)
+        File new short name: Untitled
+        File type long name: TrenchBroom.Document
+
+MapView.h, MapView.cpp - the view of the document
+    These files contain your CMapView class.
+    CMapView objects are used to view CMapDocument objects.
+
 
 
 

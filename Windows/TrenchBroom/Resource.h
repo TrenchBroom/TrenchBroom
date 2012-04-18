@@ -4,7 +4,7 @@
 //
 #define IDD_ABOUTBOX				100
 #define IDR_MAINFRAME				128
-#define IDR_TrenchBroomTYPE				130
+#define IDR_UntitledTYPE				130
 #define IDS_CLOSE					195
 
 // Next default values for new objects

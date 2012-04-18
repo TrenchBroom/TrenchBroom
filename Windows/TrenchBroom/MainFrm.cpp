@@ -13,11 +13,10 @@
 
 // CMainFrame
 
-IMPLEMENT_DYNAMIC(CMainFrame, CFrameWnd)
+IMPLEMENT_DYNCREATE(CMainFrame, CFrameWnd)
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_FILE_CLOSE, &CMainFrame::OnFileClose)
-	ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
 // CMainFrame construction/destruction
@@ -89,20 +88,4 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 void CMainFrame::OnFileClose()
 {
 	DestroyWindow();
-}
-
-void CMainFrame::OnClose()
-{
-	CTrenchBroomApp *pApp = reinterpret_cast<CTrenchBroomApp*>(AfxGetApp());
-	// main window is being closed so cleanup
-	if (pApp->m_pMainWnd == this)
-	{
-		for (int iCntr=0; iCntr < pApp->m_aryFrames.GetSize(); iCntr++)
-		{
-			HWND hFrame = pApp->m_aryFrames.GetAt(iCntr);
-			if (::IsWindow(hFrame))
-				::SendMessage(hFrame, WM_CLOSE, 0, 0);
-		}
-	}
-	CFrameWnd::OnClose();
 }
