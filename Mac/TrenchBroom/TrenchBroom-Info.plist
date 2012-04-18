@@ -12,7 +12,7 @@
 				<string>map</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string></string>
+			<string>Icon</string>
 			<key>CFBundleTypeName</key>
 			<string>DocumentType</string>
 			<key>CFBundleTypeOSTypes</key>
@@ -22,7 +22,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>NSDocumentClass</key>
-			<string>Document</string>
+			<string>MapDocument</string>
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>

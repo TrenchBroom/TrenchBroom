@@ -17,21 +17,15 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import "DocumentWindowController.h"
-#import "DocumentView.h"
+#import <AppKit/AppKit.h>
 
-@implementation DocumentWindowController
-
-- (id)initWithWindow:(NSWindow *)window {
-    if (self = [super initWithWindow:window]) {
-        [window setDelegate:self];
-    }
-    
-    return self;
+@interface MapView: NSOpenGLView {
+    NSTimer* renderTimer;
+    void* editorGui;
+    void* fontManager;
+    NSUInteger flags;
 }
 
-- (void)windowWillClose:(NSNotification *)notification {
-    [documentView releaseResources];
-}
+- (void)releaseResources;
 
 @end

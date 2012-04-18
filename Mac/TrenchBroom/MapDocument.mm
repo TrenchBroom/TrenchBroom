@@ -17,19 +17,19 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import "Document.h"
+#import "MapDocument.h"
+#import "MapWindowController.h"
 #import "Editor.h"
 #import "FontManager.h"
 #import "MacStringFactory.h"
 #import "MacProgressIndicator.h"
-#import "DocumentWindowController.h"
 #import <string>
 
 using namespace TrenchBroom;
 using namespace TrenchBroom::Controller;
 using namespace TrenchBroom::Renderer;
 
-@implementation Document
+@implementation MapDocument
 
 - (id)init {
     self = [super init];
@@ -45,12 +45,8 @@ using namespace TrenchBroom::Renderer;
     return self;
 }
 
-- (NSString *)windowNibName {
-    return @"Document";
-}
-
 - (void)makeWindowControllers {
-	DocumentWindowController* controller = [[DocumentWindowController alloc] initWithWindowNibName:@"DocumentWindow"];
+	MapWindowController* controller = [[MapWindowController alloc] initWithWindowNibName:@"MapWindow"];
 	[self addWindowController:controller];
     [controller release];
 }

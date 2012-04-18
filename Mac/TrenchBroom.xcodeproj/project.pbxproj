@@ -117,19 +117,19 @@
 		4825B548153AE693007E3AE1 /* OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B544153AE693007E3AE1 /* OpenGL.cpp */; };
 		4825B549153AE693007E3AE1 /* OpenGL_DebugFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B546153AE693007E3AE1 /* OpenGL_DebugFont.cpp */; };
 		4825B555153C9F56007E3AE1 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4825B553153C9F56007E3AE1 /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
-		4825B557153C9FB7007E3AE1 /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4825B556153C9FB7007E3AE1 /* libfreeimage.a */; };
+		48261BC2153F2ECE00D067FD /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48261BC1153F2ECE00D067FD /* libfreeimage.a */; };
 		4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4888F8331536099B000423D2 /* MacStringFactory.mm */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
 		48B50E13152CF6E400E75402 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E12152CF6E400E75402 /* Cocoa.framework */; };
 		48B50E1D152CF6E400E75402 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 48B50E1B152CF6E400E75402 /* InfoPlist.strings */; };
 		48B50E1F152CF6E400E75402 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E1E152CF6E400E75402 /* main.m */; };
 		48B50E23152CF6E400E75402 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 48B50E21152CF6E400E75402 /* Credits.rtf */; };
-		48B50E26152CF6E400E75402 /* Document.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E25152CF6E400E75402 /* Document.mm */; };
-		48B50E29152CF6E400E75402 /* DocumentWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48B50E27152CF6E400E75402 /* DocumentWindow.xib */; };
+		48B50E26152CF6E400E75402 /* MapDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E25152CF6E400E75402 /* MapDocument.mm */; };
+		48B50E29152CF6E400E75402 /* MapWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48B50E27152CF6E400E75402 /* MapWindow.xib */; };
 		48B50E2C152CF6E400E75402 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48B50E2A152CF6E400E75402 /* MainMenu.xib */; };
 		48B50E37152CF79000E75402 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48B50E36152CF79000E75402 /* Icon.icns */; };
-		48B50E3F152CF8F900E75402 /* DocumentWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E3E152CF8F900E75402 /* DocumentWindowController.mm */; };
-		48B50E42152CF95500E75402 /* DocumentView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E41152CF95500E75402 /* DocumentView.mm */; };
+		48B50E3F152CF8F900E75402 /* MapWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E3E152CF8F900E75402 /* MapWindowController.mm */; };
+		48B50E42152CF95500E75402 /* MapView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E41152CF95500E75402 /* MapView.mm */; };
 		48B50E4D152D019C00E75402 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E4C152D019C00E75402 /* OpenGL.framework */; };
 		48C9794E1530CB72003020FC /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794D1530CB72003020FC /* quake.def */; };
 		48C97950153174B9003020FC /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794F153174B9003020FC /* QuakePalette.lmp */; };
@@ -390,7 +390,7 @@
 		4825B547153AE693007E3AE1 /* OpenGL_DebugFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGL_DebugFont.h; sourceTree = "<group>"; };
 		4825B553153C9F56007E3AE1 /* GLee.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GLee.c; sourceTree = "<group>"; };
 		4825B554153C9F56007E3AE1 /* GLee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLee.h; sourceTree = "<group>"; };
-		4825B556153C9FB7007E3AE1 /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = ../Gwen/Lib/Mac/libfreeimage.a; sourceTree = "<group>"; };
+		48261BC1153F2ECE00D067FD /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfreeimage.a; sourceTree = "<group>"; };
 		4888F8321536099B000423D2 /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
 		4888F8331536099B000423D2 /* MacStringFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacStringFactory.mm; sourceTree = "<group>"; };
 		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
@@ -403,15 +403,15 @@
 		48B50E1E152CF6E400E75402 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		48B50E20152CF6E400E75402 /* TrenchBroom-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TrenchBroom-Prefix.pch"; sourceTree = "<group>"; };
 		48B50E22152CF6E400E75402 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
-		48B50E24152CF6E400E75402 /* Document.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
-		48B50E25152CF6E400E75402 /* Document.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Document.mm; sourceTree = "<group>"; };
-		48B50E28152CF6E400E75402 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/DocumentWindow.xib; sourceTree = "<group>"; };
+		48B50E24152CF6E400E75402 /* MapDocument.h */ = {isa = PBXFileReference; path = MapDocument.h; sourceTree = "<group>"; };
+		48B50E25152CF6E400E75402 /* MapDocument.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MapDocument.mm; sourceTree = "<group>"; };
+		48B50E28152CF6E400E75402 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MapWindow.xib; sourceTree = "<group>"; };
 		48B50E2B152CF6E400E75402 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		48B50E36152CF79000E75402 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Icon.icns; path = ../Icon.icns; sourceTree = "<group>"; };
-		48B50E3D152CF8F900E75402 /* DocumentWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DocumentWindowController.h; sourceTree = "<group>"; };
-		48B50E3E152CF8F900E75402 /* DocumentWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DocumentWindowController.mm; sourceTree = "<group>"; };
-		48B50E40152CF95500E75402 /* DocumentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DocumentView.h; sourceTree = "<group>"; };
-		48B50E41152CF95500E75402 /* DocumentView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DocumentView.mm; sourceTree = "<group>"; };
+		48B50E3D152CF8F900E75402 /* MapWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; path = MapWindowController.h; sourceTree = "<group>"; };
+		48B50E3E152CF8F900E75402 /* MapWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapWindowController.mm; sourceTree = "<group>"; };
+		48B50E40152CF95500E75402 /* MapView.h */ = {isa = PBXFileReference; fileEncoding = 4; path = MapView.h; sourceTree = "<group>"; };
+		48B50E41152CF95500E75402 /* MapView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapView.mm; sourceTree = "<group>"; };
 		48B50E4C152D019C00E75402 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		48C9794D1530CB72003020FC /* quake.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = quake.def; path = ../../Resources/Defs/quake.def; sourceTree = "<group>"; };
 		48C9794F153174B9003020FC /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
@@ -422,9 +422,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4825B557153C9FB7007E3AE1 /* libfreeimage.a in Frameworks */,
 				48B50E4D152D019C00E75402 /* OpenGL.framework in Frameworks */,
 				48B50E13152CF6E400E75402 /* Cocoa.framework in Frameworks */,
+				48261BC2153F2ECE00D067FD /* libfreeimage.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -852,11 +852,11 @@
 		48B50E11152CF6E400E75402 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				48261BC1153F2ECE00D067FD /* libfreeimage.a */,
 				48B50E15152CF6E400E75402 /* AppKit.framework */,
 				48B50E12152CF6E400E75402 /* Cocoa.framework */,
 				48B50E17152CF6E400E75402 /* Foundation.framework */,
 				48B50E4C152D019C00E75402 /* OpenGL.framework */,
-				4825B556153C9FB7007E3AE1 /* libfreeimage.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -864,17 +864,17 @@
 		48B50E18152CF6E400E75402 /* Mac */ = {
 			isa = PBXGroup;
 			children = (
-				48B50E24152CF6E400E75402 /* Document.h */,
-				48B50E25152CF6E400E75402 /* Document.mm */,
-				48B50E40152CF95500E75402 /* DocumentView.h */,
-				48B50E41152CF95500E75402 /* DocumentView.mm */,
-				48B50E3D152CF8F900E75402 /* DocumentWindowController.h */,
-				48B50E3E152CF8F900E75402 /* DocumentWindowController.mm */,
+				48B50E24152CF6E400E75402 /* MapDocument.h */,
+				48B50E25152CF6E400E75402 /* MapDocument.mm */,
+				48B50E40152CF95500E75402 /* MapView.h */,
+				48B50E41152CF95500E75402 /* MapView.mm */,
+				48B50E3D152CF8F900E75402 /* MapWindowController.h */,
+				48B50E3E152CF8F900E75402 /* MapWindowController.mm */,
 				4888F8321536099B000423D2 /* MacStringFactory.h */,
 				4888F8331536099B000423D2 /* MacStringFactory.mm */,
 				48120053153867E300181D66 /* MacProgressIndicator.h */,
 				48120054153867E300181D66 /* MacProgressIndicator.mm */,
-				48B50E27152CF6E400E75402 /* DocumentWindow.xib */,
+				48B50E27152CF6E400E75402 /* MapWindow.xib */,
 				48B50E2A152CF6E400E75402 /* MainMenu.xib */,
 				4812004D1538636900181D66 /* ProgressWindow.xib */,
 				48B50E19152CF6E400E75402 /* Supporting Files */,
@@ -966,7 +966,7 @@
 			files = (
 				48B50E1D152CF6E400E75402 /* InfoPlist.strings in Resources */,
 				48B50E23152CF6E400E75402 /* Credits.rtf in Resources */,
-				48B50E29152CF6E400E75402 /* DocumentWindow.xib in Resources */,
+				48B50E29152CF6E400E75402 /* MapWindow.xib in Resources */,
 				48B50E2C152CF6E400E75402 /* MainMenu.xib in Resources */,
 				48B50E37152CF79000E75402 /* Icon.icns in Resources */,
 				48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */,
@@ -984,9 +984,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				48B50E1F152CF6E400E75402 /* main.m in Sources */,
-				48B50E26152CF6E400E75402 /* Document.mm in Sources */,
-				48B50E3F152CF8F900E75402 /* DocumentWindowController.mm in Sources */,
-				48B50E42152CF95500E75402 /* DocumentView.mm in Sources */,
+				48B50E26152CF6E400E75402 /* MapDocument.mm in Sources */,
+				48B50E3F152CF8F900E75402 /* MapWindowController.mm in Sources */,
+				48B50E42152CF95500E75402 /* MapView.mm in Sources */,
 				4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */,
 				48120055153867E300181D66 /* MacProgressIndicator.mm in Sources */,
 				4825B422153AE59F007E3AE1 /* Camera.cpp in Sources */,
@@ -1119,12 +1119,12 @@
 			name = Credits.rtf;
 			sourceTree = "<group>";
 		};
-		48B50E27152CF6E400E75402 /* DocumentWindow.xib */ = {
+		48B50E27152CF6E400E75402 /* MapWindow.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
 				48B50E28152CF6E400E75402 /* en */,
 			);
-			name = DocumentWindow.xib;
+			name = MapWindow.xib;
 			sourceTree = "<group>";
 		};
 		48B50E2A152CF6E400E75402 /* MainMenu.xib */ = {
@@ -1203,7 +1203,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
 				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -1216,7 +1219,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
 				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;

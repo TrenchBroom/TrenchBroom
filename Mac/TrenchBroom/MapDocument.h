@@ -19,10 +19,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class DocumentView;
-
-@interface DocumentWindowController : NSWindowController <NSWindowDelegate> {
-    IBOutlet DocumentView* documentView;
+@interface MapDocument : NSDocument {
+    void* editor;
 }
+
+- (void*)editor;
 
 @end

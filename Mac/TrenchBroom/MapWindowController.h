@@ -19,10 +19,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface Document : NSDocument {
-    void* editor;
-}
+@class MapView;
 
-- (void*)editor;
+@interface MapWindowController : NSWindowController <NSWindowDelegate> {
+    IBOutlet MapView* mapView;
+}
 
 @end

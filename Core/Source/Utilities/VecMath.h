@@ -32,7 +32,7 @@ namespace Math {
 #ifdef _MSC_VER
         return _isnan(f);
 #else
-        return Math::isnan(f);
+        return std::isnan(f);
 #endif
     }
     

@@ -17,14 +17,14 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import "DocumentView.h"
+#import "MapView.h"
 #import "GL/GLee.h"
 #import "EditorGui.h"
 #import "VecMath.h"
 #import <math.h>
 #import "Gwen/InputHandler.h"
 #import "Editor.h"
-#import "Document.h"
+#import "MapDocument.h"
 #import "FontManager.h"
 #import "MacStringFactory.h"
 
@@ -33,7 +33,7 @@ using namespace TrenchBroom::Gui;
 using namespace TrenchBroom::Controller;
 using namespace TrenchBroom::Renderer;
 
-@interface DocumentView (Private)
+@interface MapView (Private)
 - (void)prepareOpenGL;
 - (void)renderTimerFired:(NSNotification*)theNotification;
 - (void)key:(NSEvent*)theEvent down:(BOOL)down;
@@ -42,7 +42,7 @@ using namespace TrenchBroom::Renderer;
 - (EditorGui*)editorGui;
 @end
 
-@implementation DocumentView (Private)
+@implementation MapView (Private)
 - (void)prepareOpenGL {
     GLint swapInt = 1;
     [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
@@ -112,7 +112,7 @@ using namespace TrenchBroom::Renderer;
 - (Editor*)editor {
     NSWindow* window = [self window];
     NSWindowController* controller = [window windowController];
-    Document* document = [controller document];
+    MapDocument* document = [controller document];
     return (Editor*)[document editor];
 }
 
@@ -122,7 +122,7 @@ using namespace TrenchBroom::Renderer;
 
 @end
 
-@implementation DocumentView
+@implementation MapView
 
 - (void)releaseResources {
     Editor* editor = [self editor];

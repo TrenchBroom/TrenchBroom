@@ -17,15 +17,21 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import <AppKit/AppKit.h>
+#import "MapWindowController.h"
+#import "MapView.h"
 
-@interface DocumentView : NSOpenGLView {
-    NSTimer* renderTimer;
-    void* editorGui;
-    void* fontManager;
-    NSUInteger flags;
+@implementation MapWindowController
+
+- (id)initWithWindow:(NSWindow *)window {
+    if (self = [super initWithWindow:window]) {
+        [window setDelegate:self];
+    }
+    
+    return self;
 }
 
-- (void)releaseResources;
+- (void)windowWillClose:(NSNotification *)notification {
+    [mapView releaseResources];
+}
 
 @end
