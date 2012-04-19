@@ -87,7 +87,6 @@ namespace TrenchBroom {
                     float dist = sqrt(dist2);
                     float factor = dist / 300;
                     float width = renderer->width;
-                    float height = renderer->height;
                     
                     glPushMatrix();
                     glTranslatef(position.x, position.y, position.z);

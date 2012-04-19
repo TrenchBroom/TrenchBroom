@@ -29,6 +29,11 @@ namespace Gwen
 		void RenderOverlay( Gwen::Controls::Canvas* pCanvas, Skin::Base* skin );
 
 		void ControlDeleted( Gwen::Controls::Base* pControl );
+
+        // should be private to the implementation, but declaring them here to silence the compiler
+        bool OnDrop( int x, int y );
+        bool ShouldStartDraggingControl( int x, int y );
+        void UpdateHoveredControl( Gwen::Controls::Base* pCtrl, int x, int y );
 	}
 
 }

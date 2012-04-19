@@ -24,17 +24,17 @@
 #include "AliasNormals.h"
 #include "IO/Pak.h"
 
-#define MDL_HEADER_SCALE              0x8
-#define MDL_HEADER_NUMSKINS           0x30
-#define MDL_SKINS                     0x54
-#define MDL_SIMPLE_FRAME_NAME         0x8
-#define MDL_SIMPLE_FRAME_NAME_SIZE    0x10
-#define MDL_MULTI_FRAME_TIMES         0xC
-#define MDL_FRAME_VERTEX_SIZE         0x4
-
 namespace TrenchBroom {
     namespace Model {
         namespace Assets {
+            static const int MDL_HEADER_SCALE               = 0x8;
+            static const int MDL_HEADER_NUMSKINS            = 0x30;
+            static const int MDL_SKINS                      = 0x54;
+            static const int MDL_SIMPLE_FRAME_NAME          = 0x8;
+            static const int MDL_SIMPLE_FRAME_NAME_SIZE     = 0x10;
+            static const int MDL_MULTI_FRAME_TIMES          = 0xC;
+            static const int MDL_FRAME_VERTEX_SIZE          = 0x4;
+            
             AliasSkin::AliasSkin(const unsigned char* picture, int width, int height) : width(width), height(height) {
                 count = 1;
                 pictures.push_back(picture);
@@ -230,8 +230,8 @@ namespace TrenchBroom {
                         streampos base = stream.tellg();
                         stream.read((char *)&groupFrameCount, sizeof(int32_t));
                         
-                        int timePos = MDL_MULTI_FRAME_TIMES + base;
-                        int framePos = MDL_MULTI_FRAME_TIMES + groupFrameCount * sizeof(float) + base;
+                        streampos timePos = MDL_MULTI_FRAME_TIMES + base;
+                        streampos framePos = MDL_MULTI_FRAME_TIMES + groupFrameCount * sizeof(float) + base;
                         
                         vector<float> groupFrameTimes(groupFrameCount);
                         vector<AliasSingleFrame*> groupFrames(groupFrameCount);

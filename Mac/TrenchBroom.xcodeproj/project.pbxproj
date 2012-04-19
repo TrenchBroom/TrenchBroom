@@ -403,14 +403,14 @@
 		48B50E1E152CF6E400E75402 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		48B50E20152CF6E400E75402 /* TrenchBroom-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TrenchBroom-Prefix.pch"; sourceTree = "<group>"; };
 		48B50E22152CF6E400E75402 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
-		48B50E24152CF6E400E75402 /* MapDocument.h */ = {isa = PBXFileReference; path = MapDocument.h; sourceTree = "<group>"; };
+		48B50E24152CF6E400E75402 /* MapDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapDocument.h; sourceTree = "<group>"; };
 		48B50E25152CF6E400E75402 /* MapDocument.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MapDocument.mm; sourceTree = "<group>"; };
 		48B50E28152CF6E400E75402 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MapWindow.xib; sourceTree = "<group>"; };
 		48B50E2B152CF6E400E75402 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		48B50E36152CF79000E75402 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Icon.icns; path = ../Icon.icns; sourceTree = "<group>"; };
-		48B50E3D152CF8F900E75402 /* MapWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; path = MapWindowController.h; sourceTree = "<group>"; };
+		48B50E3D152CF8F900E75402 /* MapWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWindowController.h; sourceTree = "<group>"; };
 		48B50E3E152CF8F900E75402 /* MapWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapWindowController.mm; sourceTree = "<group>"; };
-		48B50E40152CF95500E75402 /* MapView.h */ = {isa = PBXFileReference; fileEncoding = 4; path = MapView.h; sourceTree = "<group>"; };
+		48B50E40152CF95500E75402 /* MapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapView.h; sourceTree = "<group>"; };
 		48B50E41152CF95500E75402 /* MapView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapView.mm; sourceTree = "<group>"; };
 		48B50E4C152D019C00E75402 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		48C9794D1530CB72003020FC /* quake.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = quake.def; path = ../../Resources/Defs/quake.def; sourceTree = "<group>"; };
@@ -1154,7 +1154,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
@@ -1164,10 +1164,12 @@
 					../Gwen/Source,
 					../Core/Source,
 				);
-				LIBRARY_SEARCH_PATHS = ../Gwen/Lib/Mac/;
+				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-w";
 				SDKROOT = macosx10.6;
+				WARNING_LDFLAGS = "";
 			};
 			name = Debug;
 		};
@@ -1182,6 +1184,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
@@ -1191,9 +1194,11 @@
 					../Gwen/Source,
 					../Core/Source,
 				);
-				LIBRARY_SEARCH_PATHS = ../Gwen/Lib/Mac/;
+				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_LDFLAGS = "";
 				SDKROOT = macosx10.6;
+				WARNING_LDFLAGS = "";
 			};
 			name = Release;
 		};

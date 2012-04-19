@@ -37,7 +37,10 @@ using namespace std;
 namespace TrenchBroom {
     namespace Model {
         namespace Assets {
+            class Texture;
             static const string TextureManagerChanged = "TextureManagerChanged";
+            static bool compareByName(const Texture* texture1, const Texture* texture2);
+            static bool compareByUsageCount(const Texture* texture1, const Texture* texture2);
 
             typedef enum {
                 TB_TS_NAME,

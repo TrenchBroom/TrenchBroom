@@ -98,7 +98,7 @@ int Text::GetClosestCharacter( Gwen::Point p )
 	int iDistance = 4096;
 	int iChar = 0;
 
-	for ( size_t i=0; i<m_String.length()+1; i++ )
+	for ( int i=0; i<m_String.length()+1; i++ )
 	{
 		Gwen::Point cp = GetCharacterPosition( i );
 		int iDist = abs(cp.x - p.x) + abs(cp.y - p.y); // this isn't proper

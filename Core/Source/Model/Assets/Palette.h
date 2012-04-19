@@ -30,7 +30,7 @@ namespace TrenchBroom {
             class Palette {
             private:
                 unsigned char* m_data;
-                int m_size;
+                size_t m_size;
             public:
                 Palette(const string& path);
                 ~Palette();

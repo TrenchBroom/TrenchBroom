@@ -32,6 +32,10 @@
 
 namespace TrenchBroom {
     namespace IO {
+        int comparePaks(const Pak* pak1, const Pak* pak2) {
+            return pak1->path.compare(pak2->path);
+        }
+        
         Pak::Pak(string path) {
             char magic[PAK_HEADER_MAGIC_LENGTH];
             char entryName[PAK_ENTRY_NAME_LENGTH];
@@ -107,10 +111,6 @@ namespace TrenchBroom {
             for (it = paks.begin(); it != paks.end(); it++) {
                 while(!it->second.empty()) delete it->second.back(), it->second.pop_back();
             }
-        }
-
-        int comparePaks(const Pak* pak1, const Pak* pak2) {
-            return pak1->path.compare(pak2->path);
         }
 
         vector<Pak*>* PakManager::paksAtPath(string path) {

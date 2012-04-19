@@ -36,7 +36,7 @@ namespace Gwen
 			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
-			GLenum format = GL_RGB;
+			// GLenum format = GL_RGB;
 			unsigned char* texdata = new unsigned char[256*256*4];
 			for (int i=0;i<256*256;i++)
 			{
@@ -67,7 +67,7 @@ namespace Gwen
 			float yOffset=0.0f;
 			for ( int i=0; i<text.length(); i++ )
 			{
-				wchar_t chr = text[i];
+				// wchar_t chr = text[i];
 				char ch = converted_string[i];
 				float curSpacing = sGwenDebugFontSpacing[ch] * m_fLetterSpacing * fSize * m_fFontScale[0];
 				Gwen::Rect r( pos.x + yOffset, pos.y-fSize*0.2f, (fSize * m_fFontScale[0]), fSize * m_fFontScale[1] );

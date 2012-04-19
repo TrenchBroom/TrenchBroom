@@ -12,6 +12,9 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/Skin.h"
 
+static Gwen::Color HSVToColor( float h, float s, float v );
+static Gwen::HSV RGBtoHSV( int r, int g, int b );
+static Gwen::Color LerpColor( Gwen::Color &toColor, Gwen::Color &fromColor, float amount );
 
 namespace Gwen 
 {

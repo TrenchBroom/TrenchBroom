@@ -11,6 +11,10 @@
 #include <queue>
 #include "Gwen/Gwen.h"
 
+// should be private to the implementation
+void FindKeyboardFocus( Gwen::Controls::Base* pControl );
+void UpdateHoveredControl( Gwen::Controls::Base* pInCanvas );
+
 namespace Gwen 
 {
 	namespace Controls
@@ -41,7 +45,7 @@ namespace Gwen
 		const unsigned char Count = 17;
 	}
 
-	namespace Input 
+    namespace Input 
 	{
 		namespace Message
 		{

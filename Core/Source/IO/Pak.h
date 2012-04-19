@@ -40,6 +40,9 @@ using namespace std;
 
 namespace TrenchBroom {
     namespace IO {
+        class Pak;
+        static int comparePaks(const Pak* pak1, const Pak* pak2);
+
         class PakEntry {
         public:
             string name;
