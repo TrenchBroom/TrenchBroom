@@ -3,7 +3,8 @@
 //
 
 #pragma once
-
+#include "GL/GLee.h"
+#include "GUI/EditorGui.h"
 
 class CMapView : public CView
 {
@@ -37,6 +38,14 @@ protected:
 // Generated message map functions
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+protected:
+	HDC m_deviceContext;
+	HGLRC m_openGLContext;
+	TrenchBroom::Gui::EditorGui* m_editorGui;
+public:
+	afx_msg void OnDestroy();
 };
 
 #ifndef _DEBUG  // debug version in MapView.cpp

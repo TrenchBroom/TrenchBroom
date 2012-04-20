@@ -4,7 +4,7 @@
 
 
 #pragma once
-
+#include "Controller/Editor.h"
 
 class CMapDocument : public CDocument
 {
@@ -45,4 +45,5 @@ protected:
 	// Helper function that sets search content for a Search Handler
 	void SetSearchContent(const CString& value);
 #endif // SHARED_HANDLERS
+	TrenchBroom::Controller::Editor* m_editor;
 };

@@ -18,7 +18,7 @@
  */
 
 #include "EntityDefinitionParser.h"
-#include <assert.h>
+#include <cassert>
 #include <cstdlib>
 
 #include "Utilities/VecMath.h"
@@ -437,6 +437,8 @@ namespace TrenchBroom {
 
         EntityDefinitionParser::EntityDefinitionParser(string path) {
             m_stream.open(path.c_str());
+			assert(m_stream.is_open());
+
             m_tokenizer = new EntityDefinitionTokenizer(m_stream);
         }
 

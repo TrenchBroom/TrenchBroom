@@ -27,7 +27,7 @@ END_MESSAGE_MAP()
 
 // CMapDocument construction/destruction
 
-CMapDocument::CMapDocument()
+CMapDocument::CMapDocument() : m_editor(NULL)
 {
 	// TODO: add one-time construction code here
 
@@ -35,6 +35,8 @@ CMapDocument::CMapDocument()
 
 CMapDocument::~CMapDocument()
 {
+	if (m_editor != NULL)
+		delete m_editor;
 }
 
 BOOL CMapDocument::OnNewDocument()
@@ -42,8 +44,13 @@ BOOL CMapDocument::OnNewDocument()
 	if (!CDocument::OnNewDocument())
 		return FALSE;
 
-	// TODO: add reinitialization code here
-	// (SDI documents will reuse this document)
+	if (m_editor != NULL)
+		delete m_editor;
+
+	string definitionPath	= "..\\..\\Resources\\Defs\\quake.def";
+	string palettePath		= "..\\..\\Resources\\Graphics\\QuakePalette.lmp";
+
+	m_editor = new TrenchBroom::Controller::Editor(definitionPath, palettePath);
 
 	return TRUE;
 }
