@@ -91,15 +91,15 @@ namespace TrenchBroom {
 
         void Editor::loadMap(const string& path, ProgressIndicator* indicator) {
             m_map->clear();
-            delete m_map;
-
             m_textureManager->clear();
+
+			m_map->setPostNotifications(false);
 
             clock_t start = clock();
             ifstream stream(path.c_str());
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
             IO::MapParser parser(stream, worldBounds, *m_textureManager);
-            m_map = parser.parseMap(m_entityDefinitionFilePath, indicator);
+            parser.parseMap(*m_map, indicator);
             fprintf(stdout, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
 
             indicator->setText("Loading wad files...");
@@ -118,8 +118,11 @@ namespace TrenchBroom {
                 }
             }
 
+
             updateFaceTextures();
-            m_map->mapLoaded(*m_map);
+			m_map->setPostNotifications(true);
+
+			m_map->mapLoaded(*m_map);
         }
 
         void Editor::saveMap(const string& path) {

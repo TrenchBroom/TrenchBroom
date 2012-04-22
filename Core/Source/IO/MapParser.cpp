@@ -257,16 +257,13 @@ namespace TrenchBroom {
             delete m_tokenizer;
         }
         
-        Map* MapParser::parseMap(const string& entityDefinitionFilePath, Controller::ProgressIndicator* indicator) {
+        void MapParser::parseMap(Map& map, Controller::ProgressIndicator* indicator) {
             m_format = TB_MF_UNDEFINED;
-            Map* map = new Map(m_worldBounds, entityDefinitionFilePath);
-            map->setPostNotifications(false);
             Entity* entity = NULL;
             
             if (indicator != NULL) indicator->reset(m_tokenizer->size());
-            while ((entity = parseEntity(indicator)) != NULL) map->addEntity(entity);
+            while ((entity = parseEntity(indicator)) != NULL) map.addEntity(entity);
             if (indicator != NULL) indicator->update(m_tokenizer->size());
-            return map;
         }
         
         Entity* MapParser::parseEntity(Controller::ProgressIndicator* indicator) {

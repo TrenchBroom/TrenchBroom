@@ -574,6 +574,9 @@
     <ClInclude Include="WinStringFactory.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="ProgressDialog.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TrenchBroom.cpp">
@@ -916,6 +919,9 @@
       <Filter>Source\Gwen\Renderers</Filter>
     </ClCompile>
     <ClCompile Include="WinStringFactory.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ProgressDialog.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

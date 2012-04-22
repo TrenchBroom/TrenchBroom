@@ -117,7 +117,7 @@ namespace TrenchBroom {
         public:
             MapParser(istream& stream, const BBox& worldBounds, Assets::TextureManager& textureManager);
             ~MapParser();
-            Map* parseMap(const string& entityDefinitionFilePath, Controller::ProgressIndicator* indicator);
+            void parseMap(Map& map, Controller::ProgressIndicator* indicator);
             Entity* parseEntity(Controller::ProgressIndicator* indicator);
             Brush* parseBrush(Controller::ProgressIndicator* indicator);
             Face* parseFace();

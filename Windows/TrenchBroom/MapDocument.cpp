@@ -25,6 +25,7 @@
 #endif
 
 #include "MapDocument.h"
+#include "ProgressDialog.h"
 
 #include <propkey.h>
 
@@ -64,21 +65,17 @@ BOOL CMapDocument::OnNewDocument()
 	return TRUE;
 }
 
-
-
-
-// CMapDocument serialization
-
-void CMapDocument::Serialize(CArchive& ar)
+BOOL CMapDocument::OnOpenDocument(LPCTSTR lpszPathName)
 {
-	if (ar.IsStoring())
-	{
-		// TODO: add storing code here
-	}
-	else
-	{
-		// TODO: add loading code here
-	}
+	ProgressDialog progressDialog(NULL);
+	progressDialog.Create(ProgressDialog::IDD);
+	progressDialog.ShowWindow(SW_SHOW);
+
+	std::string path(lpszPathName);
+	m_editor->loadMap(path, &progressDialog);
+
+	progressDialog.CloseWindow();
+	return TRUE;
 }
 
 #ifdef SHARED_HANDLERS

@@ -35,7 +35,7 @@ public:
 // Overrides
 public:
 	virtual BOOL OnNewDocument();
-	virtual void Serialize(CArchive& ar);
+	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
 #ifdef SHARED_HANDLERS
 	virtual void InitializeSearchContent();
 	virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds);

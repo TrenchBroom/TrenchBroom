@@ -53,6 +53,8 @@ namespace TrenchBroom {
 
 #pragma mark ChangeSet
 
+		ChangeSet::ChangeSet() : m_filterChanged(false), m_textureManagerChanged(false) {}
+
         void ChangeSet::entitiesAdded(const vector<Model::Entity*>& entities) {
             m_addedEntities.insert(m_addedEntities.end(), entities.begin(), entities.end());
         }

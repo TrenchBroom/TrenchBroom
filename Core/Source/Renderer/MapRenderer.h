@@ -86,6 +86,8 @@ namespace TrenchBroom {
             bool m_filterChanged;
             bool m_textureManagerChanged;
         public:
+			ChangeSet();
+
             void entitiesAdded(const vector<Model::Entity*>& entities);
             void entitiesRemoved(const vector<Model::Entity*>& entities);
             void entitiesChanged(const vector<Model::Entity*>& entities);

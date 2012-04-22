@@ -70,11 +70,11 @@ namespace TrenchBroom {
                 gluTessNormal(m_gluTess, 0, 0, -1);
             }
 
-			wchar_t* fontName = new wchar_t[descriptor.name.length()];
+			TCHAR* fontName = new TCHAR[descriptor.name.length()];
 			for (int i = 0; i < descriptor.name.length(); i++)
 				fontName[i] = descriptor.name[i];
 
-			wchar_t* wstr = new wchar_t[str.length()];
+			TCHAR* wstr = new TCHAR[str.length()];
 			for (int i = 0; i < str.length(); i++)
 				wstr[i] = str[i];
 
