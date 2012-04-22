@@ -24,9 +24,10 @@ namespace TrenchBroom {
 	namespace Renderer {
 		namespace StringFactoryCallback {
             void gluTessBeginData(GLenum type, StringData* data);
-            void gluTessVertexData(LPPOINT vertex, StringData* data);
+            void gluTessVertexData(StringData::Point* vertex, StringData* data);
             void gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, StringData* data);
             void gluTessEndData(StringData* data);
+			void gluTessError(GLenum errorCode);
         }
 
 		class WinStringFactory :public StringFactory {

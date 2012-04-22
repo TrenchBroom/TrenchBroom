@@ -29,21 +29,30 @@ namespace TrenchBroom {
                 data->begin(type);
             }
             
-            void gluTessVertexData(LPPOINT vertex, StringData* data) {
+            void gluTessVertexData(StringData::Point* vertex, StringData* data) {
                 StringData::Point point (vertex->x, vertex->y);
                 data->append(point);
             }
             
             void gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, StringData* data) {
-				LPPOINT vertex = new POINT();
+				StringData::Point* vertex = new StringData::Point();
                 vertex->x = coords[0];
                 vertex->y = coords[1];
                 *outData = vertex;
+				fprintf(stdout, "%li", outData);
             }
             
             void gluTessEndData(StringData* data) {
                 data->end();
             }
+
+			void gluTessError(GLenum errorCode) {
+				const GLubyte *estring;
+
+				estring = gluErrorString(errorCode);
+				fprintf (stderr, "Tessellation Error: %s\n", estring);
+				exit (0);
+			}
         }
 
 		WinStringFactory::WinStringFactory(HDC mainDC) : m_gluTess(NULL) {
@@ -63,10 +72,11 @@ namespace TrenchBroom {
                 gluTessProperty(m_gluTess, GLU_TESS_BOUNDARY_ONLY, GL_FALSE);
                 gluTessProperty(m_gluTess, GLU_TESS_TOLERANCE, 0);
                 
-                gluTessCallback(m_gluTess, GLU_TESS_BEGIN_DATA,   reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessBeginData));
-                gluTessCallback(m_gluTess, GLU_TESS_VERTEX_DATA,  reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessVertexData));
-                gluTessCallback(m_gluTess, GLU_TESS_COMBINE_DATA, reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessCombineData));
-                gluTessCallback(m_gluTess, GLU_TESS_END_DATA,     reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessEndData));
+                gluTessCallback(m_gluTess, GLU_TESS_BEGIN_DATA,		reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessBeginData));
+                gluTessCallback(m_gluTess, GLU_TESS_VERTEX_DATA,	reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessVertexData));
+                gluTessCallback(m_gluTess, GLU_TESS_COMBINE_DATA,	reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessCombineData));
+                gluTessCallback(m_gluTess, GLU_TESS_END_DATA,		reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessEndData));
+				gluTessCallback(m_gluTess, GLU_TESS_ERROR,			reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessError));
                 gluTessNormal(m_gluTess, 0, 0, -1);
             }
 
@@ -88,41 +98,63 @@ namespace TrenchBroom {
 			EndPath(m_dc);
 			FlattenPath(m_dc);
 
-			const int numPoints = GetPath(m_dc, NULL, NULL, 0);
-			LPPOINT points = new POINT[numPoints];
-			LPBYTE types = new BYTE[numPoints];
+			int winding = GetPolyFillMode(m_dc);
+			if (winding == ALTERNATE)
+				gluTessProperty(m_gluTess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_ODD);
+			else
+				gluTessProperty(m_gluTess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_NONZERO);
 
-			GetPath(m_dc, points, types, numPoints);
+			const int numPoints = GetPath(m_dc, NULL, NULL, 0);
+			LPPOINT pathPoints = new POINT[numPoints];
+			LPBYTE pathTypes = new BYTE[numPoints];
+
+			StringData::Point* stringPoints = new StringData::Point[numPoints];
+
+			GetPath(m_dc, pathPoints, pathTypes, numPoints);
 
 			StringData* stringData = new StringData(size.cx, size.cy);
 			double coords[2];
 
+			int contourSize = 0;
 			gluTessBeginPolygon(m_gluTess, stringData);
 			for (int i = 0; i < numPoints; i++) {
-				switch (types[i]) {
+				stringPoints[i].x = pathPoints[i].x;
+				stringPoints[i].y = pathPoints[i].y;
+				switch (pathTypes[i]) {
 				case PT_MOVETO:
+					if (contourSize > 0) {
+						gluTessEndContour(m_gluTess);
+						contourSize = 0;
+					}
+
 					gluTessBeginContour(m_gluTess);
-					coords[0] = points[i].x;
-                    coords[1] = points[i].y;
-                    gluTessVertex(m_gluTess, coords, &points[i]);
+					coords[0] = stringPoints[i].x;
+                    coords[1] = stringPoints[i].y;
+                    gluTessVertex(m_gluTess, coords, &stringPoints[i]);
+					contourSize++;
 					break;
 				case PT_CLOSEFIGURE:
 					gluTessEndContour(m_gluTess);
+					contourSize = 0;
 					break;
 				case PT_LINETO:
-					coords[0] = points[i].x;
-                    coords[1] = points[i].y;
-                    gluTessVertex(m_gluTess, coords, &points[i]);
+					coords[0] = stringPoints[i].x;
+                    coords[1] = stringPoints[i].y;
+                    gluTessVertex(m_gluTess, coords, &stringPoints[i]);
+					contourSize++;
 					break;
 				}
 			}
+			if (contourSize > 0)
+				gluTessEndContour(m_gluTess);
 			gluTessEndPolygon(m_gluTess);
 
 			DeleteObject(font);
 			delete [] fontName;
 			delete [] wstr;
-			delete [] points;
-			delete [] types;
+			delete [] pathPoints;
+			delete [] pathTypes;
+			delete [] stringPoints;
 
 			return stringData;
 		}
