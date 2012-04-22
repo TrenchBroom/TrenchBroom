@@ -23,11 +23,11 @@
 namespace TrenchBroom {
 	namespace Renderer {
 		namespace StringFactoryCallback {
-            void gluTessBeginData(GLenum type, StringData* data);
-            void gluTessVertexData(StringData::Point* vertex, StringData* data);
-            void gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, StringData* data);
-            void gluTessEndData(StringData* data);
-			void gluTessError(GLenum errorCode);
+            void CALLBACK gluTessBeginData(GLenum type, StringData* data);
+            void CALLBACK gluTessVertexData(StringData::Point* vertex, StringData* data);
+            void CALLBACK gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, StringData* data);
+            void CALLBACK gluTessEndData(StringData* data);
+			void CALLBACK gluTessError(GLenum errorCode);
         }
 
 		class WinStringFactory :public StringFactory {

@@ -25,16 +25,16 @@ namespace TrenchBroom {
 		typedef void (__stdcall *GluTessCallbackType)();
 
 		namespace StringFactoryCallback {
-            void gluTessBeginData(GLenum type, StringData* data) {
+            void CALLBACK gluTessBeginData(GLenum type, StringData* data) {
                 data->begin(type);
             }
             
-            void gluTessVertexData(StringData::Point* vertex, StringData* data) {
+            void CALLBACK gluTessVertexData(StringData::Point* vertex, StringData* data) {
                 StringData::Point point (vertex->x, vertex->y);
                 data->append(point);
             }
             
-            void gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, StringData* data) {
+            void CALLBACK gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, StringData* data) {
 				StringData::Point* vertex = new StringData::Point();
                 vertex->x = coords[0];
                 vertex->y = coords[1];
@@ -42,11 +42,11 @@ namespace TrenchBroom {
 				fprintf(stdout, "%li", outData);
             }
             
-            void gluTessEndData(StringData* data) {
+            void CALLBACK gluTessEndData(StringData* data) {
                 data->end();
             }
 
-			void gluTessError(GLenum errorCode) {
+			void CALLBACK gluTessError(GLenum errorCode) {
 				const GLubyte *estring;
 
 				estring = gluErrorString(errorCode);
@@ -72,11 +72,18 @@ namespace TrenchBroom {
                 gluTessProperty(m_gluTess, GLU_TESS_BOUNDARY_ONLY, GL_FALSE);
                 gluTessProperty(m_gluTess, GLU_TESS_TOLERANCE, 0);
                 
+				gluTessCallback(m_gluTess, GLU_TESS_BEGIN,			NULL);
                 gluTessCallback(m_gluTess, GLU_TESS_BEGIN_DATA,		reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessBeginData));
+				gluTessCallback(m_gluTess, GLU_TESS_VERTEX,			NULL);
                 gluTessCallback(m_gluTess, GLU_TESS_VERTEX_DATA,	reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessVertexData));
+				gluTessCallback(m_gluTess, GLU_TESS_EDGE_FLAG,		NULL);
+				gluTessCallback(m_gluTess, GLU_TESS_EDGE_FLAG_DATA, NULL);
+				gluTessCallback(m_gluTess, GLU_TESS_COMBINE,		NULL);
                 gluTessCallback(m_gluTess, GLU_TESS_COMBINE_DATA,	reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessCombineData));
+				gluTessCallback(m_gluTess, GLU_TESS_END,			NULL);
                 gluTessCallback(m_gluTess, GLU_TESS_END_DATA,		reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessEndData));
 				gluTessCallback(m_gluTess, GLU_TESS_ERROR,			reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessError));
+				gluTessCallback(m_gluTess, GLU_TESS_ERROR_DATA,		NULL);
                 gluTessNormal(m_gluTess, 0, 0, -1);
             }
 
