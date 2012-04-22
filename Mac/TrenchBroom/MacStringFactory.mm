@@ -21,6 +21,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+		typedef GLvoid (*GluTessCallbackType)();
+        
         namespace StringFactoryCallback {
             void gluTessBeginData(GLenum type, StringData* data) {
                 data->begin(type);
@@ -50,7 +52,7 @@ namespace TrenchBroom {
             m_pointCapacity = newCapacity;
         }
         
-        MacStringFactory::MacStringFactory() : m_gluTess(NULL) {
+        MacStringFactory::MacStringFactory() : m_gluTess(NULL), m_points(NULL) {
             m_textStorage = [[NSTextStorage alloc] init];
             m_textContainer = [[NSTextContainer alloc] init];
             m_layoutManager = [[NSLayoutManager alloc] init];
@@ -78,10 +80,10 @@ namespace TrenchBroom {
                 gluTessProperty(m_gluTess, GLU_TESS_BOUNDARY_ONLY, GL_FALSE);
                 gluTessProperty(m_gluTess, GLU_TESS_TOLERANCE, 0);
                 
-                gluTessCallback(m_gluTess, GLU_TESS_BEGIN_DATA,   (GLvoid (*) ( )) &StringFactoryCallback::gluTessBeginData);
-                gluTessCallback(m_gluTess, GLU_TESS_VERTEX_DATA,  (GLvoid (*) ( )) &StringFactoryCallback::gluTessVertexData);
-                gluTessCallback(m_gluTess, GLU_TESS_COMBINE_DATA, (GLvoid (*) ( )) &StringFactoryCallback::gluTessCombineData);
-                gluTessCallback(m_gluTess, GLU_TESS_END_DATA,     (GLvoid (*) ( )) &StringFactoryCallback::gluTessEndData);
+                gluTessCallback(m_gluTess, GLU_TESS_BEGIN_DATA,   reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessBeginData));
+                gluTessCallback(m_gluTess, GLU_TESS_VERTEX_DATA,  reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessVertexData));
+                gluTessCallback(m_gluTess, GLU_TESS_COMBINE_DATA, reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessCombineData));
+                gluTessCallback(m_gluTess, GLU_TESS_END_DATA,     reinterpret_cast<GluTessCallbackType>(StringFactoryCallback::gluTessEndData));
                 gluTessNormal(m_gluTess, 0, 0, -1);
             }
             
