@@ -1228,8 +1228,8 @@ namespace TrenchBroom {
             
             // mark, split and drop sides
             vector<Edge*> newEdges;
-            vector<Side*>::iterator sideIt;
-            for (sideIt = sides.begin(); sideIt != sides.end(); ++sideIt) {
+            vector<Side*>::iterator sideIt = sides.begin();
+            while (sideIt != sides.end()) {
                 Side* side = *sideIt;
                 Edge* newEdge = side->split();
                 
@@ -1240,19 +1240,22 @@ namespace TrenchBroom {
                         face->setSide(NULL);
                     }
                     delete side;
-                    sideIt = --sides.erase(sideIt);
+                    sideIt = sides.erase(sideIt);
                 } else if (side->mark == TB_SM_SPLIT) {
                     edges.push_back(newEdge);
                     newEdges.push_back(newEdge);
                     side->mark = TB_SM_UNKNOWN;
+                    ++sideIt;
                 } else if (side->mark == TB_SM_KEEP && newEdge != NULL) {
                     // the edge is an undecided edge, so it needs to be flipped in order to act as a new edge
                     if (newEdge->right != side)
                         newEdge->flip();
                     newEdges.push_back(newEdge);
                     side->mark = TB_SM_UNKNOWN;
+                    ++sideIt;
                 } else {
                     side->mark = TB_SM_UNKNOWN;
+                    ++sideIt;
                 }
             }
             
@@ -1289,26 +1292,28 @@ namespace TrenchBroom {
             
             // clean up
             // delete dropped vertices
-            vector<Vertex*>::iterator vertexIt;
-            for (vertexIt = vertices.begin(); vertexIt != vertices.end(); ++vertexIt) {
+            vector<Vertex*>::iterator vertexIt = vertices.begin();
+            while (vertexIt != vertices.end()) {
                 Vertex* vertex = *vertexIt;
                 if (vertex->mark == TB_VM_DROP) {
                     delete vertex;
-                    vertexIt = --vertices.erase(vertexIt);
+                    vertexIt = vertices.erase(vertexIt);
                 } else {
                     vertex->mark = TB_VM_UNKNOWN;
+                    ++vertexIt;
                 }
             }
             
             // delete dropped edges
-            vector<Edge*>::iterator edgeIt;
-            for (edgeIt = edges.begin(); edgeIt != edges.end(); ++edgeIt) {
+            vector<Edge*>::iterator edgeIt = edges.begin();
+            while (edgeIt != edges.end()) {
                 Edge* edge = *edgeIt;
                 if (edge->mark == TB_EM_DROP) {
                     delete edge;
-                    edgeIt = --edges.erase(edgeIt);
+                    edgeIt = edges.erase(edgeIt);
                 } else {
                     edge->mark = TB_EM_UNKNOWN;
+                    ++edgeIt;
                 }
             }
             
