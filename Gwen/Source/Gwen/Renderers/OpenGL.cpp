@@ -168,7 +168,8 @@ namespace Gwen
 
 		void OpenGL::LoadTexture( Gwen::Texture* pTexture )
 		{
-			const char *wFileName = pTexture->name.Get().c_str();
+			Gwen::String textureName = pTexture->name.Get();
+			const char *wFileName = textureName.c_str();
 
 			FREE_IMAGE_FORMAT imageFormat = FreeImage_GetFileType( wFileName );
 

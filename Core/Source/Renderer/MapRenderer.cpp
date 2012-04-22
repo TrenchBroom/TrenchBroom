@@ -1031,6 +1031,9 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::renderEntityBounds(RenderContext& context, const Vec4f* color, int vertexCount) {
+			if (vertexCount == 0)
+				return;
+
             glSetEdgeOffset(0.5f);
 
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
@@ -1048,6 +1051,9 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::renderEntityModels(RenderContext& context, EntityRenderers& entities) {
+			if (entities.empty())
+				return;
+
             m_entityRendererManager->activate();
 
             glMatrixMode(GL_MODELVIEW);
@@ -1065,6 +1071,9 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::renderEdges(RenderContext& context, const Vec4f* color, const IndexBuffer& indexBuffer) {
+			if (indexBuffer.empty())
+				return;
+
             glDisable(GL_TEXTURE_2D);
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 
@@ -1085,6 +1094,9 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::renderFaces(RenderContext& context, bool textured, bool selected, FaceIndexBuffers& indexBuffers) {
+			if (indexBuffers.empty())
+				return;
+
             glPolygonMode(GL_FRONT, GL_FILL);
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 

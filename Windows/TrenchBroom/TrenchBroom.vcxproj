@@ -253,6 +253,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TrenchBroom.h" />
+    <ClInclude Include="WinStringFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Core\Source\Controller\Camera.cpp" />
@@ -371,6 +372,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TrenchBroom.cpp" />
+    <ClCompile Include="WinStringFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TrenchBroom.rc" />

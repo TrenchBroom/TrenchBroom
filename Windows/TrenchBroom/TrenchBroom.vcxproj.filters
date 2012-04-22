@@ -571,6 +571,9 @@
     <ClInclude Include="..\..\Gwen\Source\Gwen\Skins\Simple.h">
       <Filter>Header\Gwen\Skins</Filter>
     </ClInclude>
+    <ClInclude Include="WinStringFactory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TrenchBroom.cpp">
@@ -911,6 +914,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Gwen\Source\Gwen\Renderers\OpenGL_DebugFont.cpp">
       <Filter>Source\Gwen\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="WinStringFactory.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,21 @@
+/*
+ Copyright (C) 2010-2012 Kristian Duske
 
-// MapDocument.cpp : implementation of the CMapDocument class
-//
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "stdafx.h"
 // SHARED_HANDLERS can be defined in an ATL project implementing preview, thumbnail
@@ -29,8 +44,10 @@ END_MESSAGE_MAP()
 
 CMapDocument::CMapDocument() : m_editor(NULL)
 {
-	// TODO: add one-time construction code here
+	string definitionPath	= "..\\..\\Resources\\Defs\\quake.def";
+	string palettePath		= "..\\..\\Resources\\Graphics\\QuakePalette.lmp";
 
+	m_editor = new TrenchBroom::Controller::Editor(definitionPath, palettePath);
 }
 
 CMapDocument::~CMapDocument()
@@ -43,14 +60,6 @@ BOOL CMapDocument::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument())
 		return FALSE;
-
-	if (m_editor != NULL)
-		delete m_editor;
-
-	string definitionPath	= "..\\..\\Resources\\Defs\\quake.def";
-	string palettePath		= "..\\..\\Resources\\Graphics\\QuakePalette.lmp";
-
-	m_editor = new TrenchBroom::Controller::Editor(definitionPath, palettePath);
 
 	return TRUE;
 }
@@ -142,3 +151,9 @@ void CMapDocument::Dump(CDumpContext& dc) const
 
 
 // CMapDocument commands
+
+
+TrenchBroom::Controller::Editor& CMapDocument::editor()
+{
+	return *m_editor;
+}
