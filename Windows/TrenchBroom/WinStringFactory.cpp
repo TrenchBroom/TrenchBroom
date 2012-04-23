@@ -95,7 +95,9 @@ namespace TrenchBroom {
 			for (int i = 0; i < str.length(); i++)
 				wstr[i] = str[i];
 
-			HFONT font = CreateFont(descriptor.size, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_DONTCARE, fontName);
+			float scale = 1.0f;
+
+			HFONT font = CreateFont(scale * descriptor.size, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_DONTCARE, fontName);
 			SelectObject(m_dc, font);
 			SIZE size;
 			GetTextExtentPoint32(m_dc, wstr, str.length(), &size);
@@ -115,20 +117,19 @@ namespace TrenchBroom {
 			LPPOINT pathPoints = new POINT[numPoints];
 			LPBYTE pathTypes = new BYTE[numPoints];
 
-			StringData::Point* stringPoints = new StringData::Point[numPoints];
+			StringData::Point* stringPoints = new StringData::Point[numPoints - 4];
 
 			GetPath(m_dc, pathPoints, pathTypes, numPoints);
 
-			StringData* stringData = new StringData(size.cx, size.cy);
+			StringData* stringData = new StringData(size.cx / scale, size.cy / scale);
 			double coords[2];
 
 			int contourSize = 0;
 			gluTessBeginPolygon(m_gluTess, stringData);
-			for (int i = 0; i < numPoints; i++) {
-				stringPoints[i].x = pathPoints[i].x;
-				stringPoints[i].y = pathPoints[i].y;
-				switch (pathTypes[i]) {
-				case PT_MOVETO:
+			for (int i = 0; i < numPoints - 4; i++) {
+				stringPoints[i].x = pathPoints[i + 4].x / scale;
+				stringPoints[i].y = stringData->height - (pathPoints[i + 4].y / scale);
+				if (pathTypes[i + 4] == PT_MOVETO) {
 					if (contourSize > 0) {
 						gluTessEndContour(m_gluTess);
 						contourSize = 0;
@@ -139,17 +140,17 @@ namespace TrenchBroom {
                     coords[1] = stringPoints[i].y;
                     gluTessVertex(m_gluTess, coords, &stringPoints[i]);
 					contourSize++;
-					break;
-				case PT_CLOSEFIGURE:
-					gluTessEndContour(m_gluTess);
-					contourSize = 0;
-					break;
-				case PT_LINETO:
-					coords[0] = stringPoints[i].x;
-                    coords[1] = stringPoints[i].y;
-                    gluTessVertex(m_gluTess, coords, &stringPoints[i]);
-					contourSize++;
-					break;
+				} else {
+					if ((pathTypes[i + 4] & PT_LINETO) != 0) {
+						coords[0] = stringPoints[i].x;
+						coords[1] = stringPoints[i].y;
+		                gluTessVertex(m_gluTess, coords, &stringPoints[i]);
+						contourSize++;
+					}
+					if ((pathTypes[i + 4] & PT_CLOSEFIGURE) != 0) {
+						gluTessEndContour(m_gluTess);
+						contourSize = 0;
+					}
 				}
 			}
 			if (contourSize > 0)

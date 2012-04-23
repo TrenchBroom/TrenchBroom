@@ -131,8 +131,9 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	static PIXELFORMATDESCRIPTOR descriptor =
-	{
+	m_deviceContext = GetDC()->m_hDC;
+
+	PIXELFORMATDESCRIPTOR descriptor = {
 		sizeof(PIXELFORMATDESCRIPTOR),
 		1,								// version
 		PFD_DRAW_TO_WINDOW |			//draw to window
@@ -154,11 +155,38 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		0								// no damage mask
 	};
 
-	m_deviceContext = GetDC()->m_hDC;
-	int pixelFormat = ChoosePixelFormat(m_deviceContext, &descriptor);
+	GLint iAttributes[] = {
+		WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+        WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+        WGL_ACCELERATION_ARB,	WGL_FULL_ACCELERATION_ARB,
+        WGL_COLOR_BITS_ARB,		24,
+        WGL_ALPHA_BITS_ARB,		8,
+        WGL_DEPTH_BITS_ARB,		32,
+        WGL_STENCIL_BITS_ARB,	8,
+        WGL_DOUBLE_BUFFER_ARB,	GL_TRUE,
+        WGL_SAMPLE_BUFFERS_ARB,	GL_TRUE,
+        WGL_SAMPLES_ARB,		4,
+        0,0};
+	GLfloat fAttributes[] = {0,0};
+	GLint pixelFormat;
+	GLuint numFormats;
+
+	pixelFormat = ChoosePixelFormat(m_deviceContext, &descriptor);
 	SetPixelFormat(m_deviceContext, pixelFormat, &descriptor);
 	m_openGLContext = wglCreateContext(m_deviceContext);
 	wglMakeCurrent(m_deviceContext, m_openGLContext);
+
+	/*
+	bool valid = wglChoosePixelFormatARB(m_deviceContext, iAttributes, fAttributes, 1, &pixelFormat, &numFormats);
+
+	if (valid && numFormats > 0) {
+		wglDeleteContext(m_openGLContext);
+		SetPixelFormat(m_deviceContext, pixelFormat, &descriptor);
+		m_openGLContext = wglCreateContext(m_deviceContext);
+		wglMakeCurrent(m_deviceContext, m_openGLContext);
+	}
+	*/
+
 	wglSwapIntervalEXT(1);
 
 	string skinPath = "..\\..\\Resources\\Graphics\\DefaultSkin.png";
@@ -213,7 +241,7 @@ void CMapView::OnRButtonUp(UINT nFlags, CPoint point)
 
 BOOL CMapView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
-	m_editorGui->canvas()->InputMouseWheel(zDelta);
+	m_editorGui->canvas()->InputMouseWheel(zDelta / -10.0f);
 	return TRUE;
 }
 

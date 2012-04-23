@@ -74,7 +74,7 @@ BOOL CMapDocument::OnOpenDocument(LPCTSTR lpszPathName)
 	std::string path(lpszPathName);
 	m_editor->loadMap(path, &progressDialog);
 
-	progressDialog.CloseWindow();
+	progressDialog.DestroyWindow();
 	return TRUE;
 }
 

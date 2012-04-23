@@ -146,6 +146,7 @@ namespace TrenchBroom {
         }
 
         EntityDefinitionManager* EntityDefinitionManager::sharedManager(const string& path) {
+			// TODO this will leak
             static map<string, EntityDefinitionManager*> instances;
             map<string, EntityDefinitionManager*>::iterator it = instances.find(path);
             if (it != instances.end())
