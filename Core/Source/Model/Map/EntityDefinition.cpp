@@ -146,14 +146,13 @@ namespace TrenchBroom {
         }
 
         EntityDefinitionManager* EntityDefinitionManager::sharedManager(const string& path) {
-			// TODO this will leak
-            static map<string, EntityDefinitionManager*> instances;
-            map<string, EntityDefinitionManager*>::iterator it = instances.find(path);
-            if (it != instances.end())
+            static auto_ptr<EntityDefinitionMap> instances(new EntityDefinitionMap());
+            map<string, EntityDefinitionManager*>::iterator it = instances->managers.find(path);
+            if (it != instances->managers.end())
                 return it->second;
 
             EntityDefinitionManager* instance = new EntityDefinitionManager(path);
-            instances[path] = instance;
+            instances->managers[path] = instance;
             return instance;
         }
 

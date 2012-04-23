@@ -142,6 +142,17 @@ namespace TrenchBroom {
             const vector<EntityDefinition*> definitions(EEntityDefinitionType type) const;
             const vector<EntityDefinition*>definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const;
         };
+
+        class EntityDefinitionMap {
+        public:
+            map<string, EntityDefinitionManager*> managers;
+            ~EntityDefinitionMap() {
+                map<string, EntityDefinitionManager*>::iterator it;
+                for (it = managers.begin(); it != managers.end(); ++it)
+                    delete it->second;
+            }
+        };
+        
     }
 }
 #endif
