@@ -118,6 +118,7 @@
 		4825B549153AE693007E3AE1 /* OpenGL_DebugFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B546153AE693007E3AE1 /* OpenGL_DebugFont.cpp */; };
 		4825B555153C9F56007E3AE1 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4825B553153C9F56007E3AE1 /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		48261BC2153F2ECE00D067FD /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48261BC1153F2ECE00D067FD /* libfreeimage.a */; };
+		48886BA51545FE0A006A781B /* EditorHolder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48886BA41545FE09006A781B /* EditorHolder.mm */; };
 		4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4888F8331536099B000423D2 /* MacStringFactory.mm */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
 		48B50E13152CF6E400E75402 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E12152CF6E400E75402 /* Cocoa.framework */; };
@@ -391,6 +392,8 @@
 		4825B553153C9F56007E3AE1 /* GLee.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GLee.c; sourceTree = "<group>"; };
 		4825B554153C9F56007E3AE1 /* GLee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLee.h; sourceTree = "<group>"; };
 		48261BC1153F2ECE00D067FD /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfreeimage.a; sourceTree = "<group>"; };
+		48886BA31545FE09006A781B /* EditorHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorHolder.h; sourceTree = "<group>"; };
+		48886BA41545FE09006A781B /* EditorHolder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EditorHolder.mm; sourceTree = "<group>"; };
 		4888F8321536099B000423D2 /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
 		4888F8331536099B000423D2 /* MacStringFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacStringFactory.mm; sourceTree = "<group>"; };
 		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
@@ -864,6 +867,8 @@
 		48B50E18152CF6E400E75402 /* Mac */ = {
 			isa = PBXGroup;
 			children = (
+				48886BA31545FE09006A781B /* EditorHolder.h */,
+				48886BA41545FE09006A781B /* EditorHolder.mm */,
 				48B50E24152CF6E400E75402 /* MapDocument.h */,
 				48B50E25152CF6E400E75402 /* MapDocument.mm */,
 				48B50E40152CF95500E75402 /* MapView.h */,
@@ -1097,6 +1102,7 @@
 				4825B548153AE693007E3AE1 /* OpenGL.cpp in Sources */,
 				4825B549153AE693007E3AE1 /* OpenGL_DebugFont.cpp in Sources */,
 				4825B555153C9F56007E3AE1 /* GLee.c in Sources */,
+				48886BA51545FE0A006A781B /* EditorHolder.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

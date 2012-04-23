@@ -19,10 +19,12 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class EditorHolder;
+
 @interface MapDocument : NSDocument {
-    void* editor;
+    EditorHolder* editorHolder;
 }
 
-- (void*)editor;
+- (EditorHolder*)editorHolder;
 
 @end

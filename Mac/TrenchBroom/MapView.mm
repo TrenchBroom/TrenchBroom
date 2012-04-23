@@ -24,6 +24,7 @@
 #import <math.h>
 #import "Gwen/InputHandler.h"
 #import "Editor.h"
+#import "EditorHolder.h"
 #import "MapDocument.h"
 #import "FontManager.h"
 #import "MacStringFactory.h"
@@ -110,10 +111,13 @@ using namespace TrenchBroom::Renderer;
 }
 
 - (Editor*)editor {
-    NSWindow* window = [self window];
-    NSWindowController* controller = [window windowController];
-    MapDocument* document = [controller document];
-    return (Editor*)[document editor];
+    if (editorHolder == NULL) {
+        NSWindow* window = [self window];
+        NSWindowController* controller = [window windowController];
+        MapDocument* document = [controller document];
+        editorHolder = [[document editorHolder] retain];
+    }
+    return (Editor*)[editorHolder editor];
 }
 
 - (EditorGui*)editorGui {
@@ -129,8 +133,8 @@ using namespace TrenchBroom::Renderer;
         delete ((EditorGui*)editorGui);
     if (fontManager != NULL)
         delete ((FontManager*)fontManager);
-    Editor* editor = [self editor];
-    delete editor;
+    if (editorHolder != NULL)
+        [editorHolder release];
     [super dealloc];
 }
 

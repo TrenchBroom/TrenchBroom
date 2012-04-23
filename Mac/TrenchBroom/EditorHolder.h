@@ -17,18 +17,15 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import <AppKit/AppKit.h>
 
-@class EditorHolder;
+#import <Foundation/Foundation.h>
 
-@interface MapView: NSOpenGLView {
-    EditorHolder* editorHolder;
-    NSTimer* renderTimer;
-    void* editorGui;
-    void* fontManager;
-    NSUInteger flags;
+@interface EditorHolder : NSObject {
+    void* editor;
 }
 
-- (void)stopRenderLoop;
+- (id)initWithDefinitionPath:(NSString *)definitionPath palettePath:(NSString *)palettePath;
+
+- (void*) editor;
 
 @end

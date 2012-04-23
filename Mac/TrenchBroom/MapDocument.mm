@@ -20,6 +20,7 @@
 #import "MapDocument.h"
 #import "MapWindowController.h"
 #import "Editor.h"
+#import "EditorHolder.h"
 #import "FontManager.h"
 #import "MacStringFactory.h"
 #import "MacProgressIndicator.h"
@@ -36,13 +37,16 @@ using namespace TrenchBroom::Renderer;
     if (self) {
         NSBundle* mainBundle = [NSBundle mainBundle];
         NSString* definitionPath = [mainBundle pathForResource:@"quake" ofType:@"def"];
-        const char* definitionPathC = [definitionPath cStringUsingEncoding:NSASCIIStringEncoding];
         NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
-        const char* palettePathC = [palettePath cStringUsingEncoding:NSASCIIStringEncoding];
         
-        editor = new Editor(definitionPathC, palettePathC);
+        editorHolder = [[EditorHolder alloc] initWithDefinitionPath:definitionPath palettePath:palettePath];
     }
     return self;
+}
+
+- (void)dealloc {
+    [editorHolder release];
+    [super dealloc];
 }
 
 - (void)makeWindowControllers {
@@ -60,7 +64,8 @@ using namespace TrenchBroom::Renderer;
     const char* pathC = [path cStringUsingEncoding:NSASCIIStringEncoding];
 
     MacProgressIndicator* indicator = new MacProgressIndicator("Loading map file...");
-    ((Editor*)editor)->loadMap(pathC, indicator);
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->loadMap(pathC, indicator);
     delete indicator;
     
     return YES;
@@ -70,8 +75,8 @@ using namespace TrenchBroom::Renderer;
     return YES;
 }
 
-- (void*)editor {
-    return editor;
+- (EditorHolder *)editorHolder {
+    return editorHolder;
 }
 
 @end
