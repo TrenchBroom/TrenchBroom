@@ -351,6 +351,7 @@ namespace TrenchBroom {
                 if (stream != NULL) {
                     Bsp* bsp = new Bsp(name, *stream);
                     bsps[key] = bsp;
+                    delete stream;
                     return bsp;
                 }
 

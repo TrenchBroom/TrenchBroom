@@ -280,6 +280,7 @@ namespace TrenchBroom {
                 if (stream != NULL) {
                     Alias* alias = new Alias(name, *stream);
                     aliases[key] = alias;
+                    delete stream;
                     return alias;
                 }
                 

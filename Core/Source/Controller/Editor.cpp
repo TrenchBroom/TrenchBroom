@@ -83,6 +83,7 @@ namespace TrenchBroom {
             delete m_inputController;
             delete m_camera;
             delete m_map;
+            delete m_grid;
             delete m_textureManager;
             delete m_palette;
             delete m_options;

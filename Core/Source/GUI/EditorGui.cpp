@@ -40,10 +40,8 @@ namespace TrenchBroom {
         }
         
         EditorGui::~EditorGui() {
-            delete m_mapRenderer;
-            delete m_inspectorTab;
-            delete m_splitter;
-            delete m_canvas;
+            m_canvas->Release();
+            
             delete m_skin;
             delete m_renderer;
         }

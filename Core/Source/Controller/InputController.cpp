@@ -47,6 +47,8 @@ namespace TrenchBroom {
         }
         
         InputController::~InputController() {
+            if (m_currentEvent.hits != NULL)
+                delete m_currentEvent.hits;
             delete m_cameraTool;
             delete m_selectionTool;
         }
