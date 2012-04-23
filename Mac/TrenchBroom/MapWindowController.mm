@@ -31,7 +31,7 @@
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
-    [mapView releaseResources];
+    [mapView stopRenderLoop];
 }
 
 @end

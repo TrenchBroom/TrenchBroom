@@ -92,7 +92,7 @@ namespace TrenchBroom {
             const vector<Vec3f>& leakPoints() const;
             
 # pragma mark Entity related functions
-            vector<Entity*>& entities();
+            const vector<Entity*>& entities();
             Entity* worldspawn(bool create);
             void addEntity(Entity* entity);
             Entity* createEntity(const string& classname);

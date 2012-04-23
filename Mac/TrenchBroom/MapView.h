@@ -26,6 +26,6 @@
     NSUInteger flags;
 }
 
-- (void)releaseResources;
+- (void)stopRenderLoop;
 
 @end

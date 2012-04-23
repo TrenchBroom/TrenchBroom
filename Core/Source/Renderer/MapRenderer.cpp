@@ -1224,8 +1224,27 @@ namespace TrenchBroom {
         }
 
         MapRenderer::~MapRenderer() {
-            // editor is already deleted. so don't unregister the listeners
+            Model::Map& map = m_editor.map();
+            Model::Selection& selection = map.selection();
+            
+            map.mapLoaded               -= new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapLoaded);
+            map.mapCleared              -= new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapCleared);
+            selection.selectionAdded    -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
+            selection.selectionRemoved  -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
 
+            const vector<Entity*>& entities = map.entities();
+            for (int i = 0; i < entities.size(); i++) {
+                Entity* entity = entities[i];
+                const vector<Brush*>& brushes = entity->brushes();
+                for (int j = 0; j < brushes.size(); j++) {
+                    Brush* brush = brushes[j];
+                    const vector<Face*>& faces = brush->faces();
+                    for (int k = 0; k < faces.size(); k++)
+                        faces[k]->setVboBlock(NULL);
+                }
+                entity->setVboBlock(NULL);
+            }
+            
             delete m_faceVbo;
             delete m_gridRenderer;
 

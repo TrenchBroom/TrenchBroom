@@ -100,7 +100,7 @@ namespace TrenchBroom {
         }
 
 # pragma mark Entity related functions
-        vector<Entity*>& Map::entities() {
+        const vector<Entity*>& Map::entities() {
             return m_entities;
         }
 

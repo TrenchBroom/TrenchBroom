@@ -414,7 +414,7 @@ namespace TrenchBroom {
 
         void Entity::setVboBlock(Renderer::VboBlock* vboBlock) {
             if (m_vboBlock != NULL)
-                vboBlock->freeBlock();
+                m_vboBlock->freeBlock();
             m_vboBlock = vboBlock;
         }
     }

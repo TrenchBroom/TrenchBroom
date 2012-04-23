@@ -124,13 +124,17 @@ using namespace TrenchBroom::Renderer;
 
 @implementation MapView
 
-- (void)releaseResources {
-    Editor* editor = [self editor];
-    delete editor;
+- (void)dealloc {
     if (editorGui != NULL)
         delete ((EditorGui*)editorGui);
     if (fontManager != NULL)
         delete ((FontManager*)fontManager);
+    Editor* editor = [self editor];
+    delete editor;
+    [super dealloc];
+}
+
+- (void)stopRenderLoop {
     if (renderTimer != nil) {
         [renderTimer invalidate];
         renderTimer = nil;
