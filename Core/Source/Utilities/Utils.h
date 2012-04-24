@@ -28,8 +28,12 @@ using namespace std;
 namespace TrenchBroom {
     string trim(const string& str);
     vector<string> split(const string& str, char d);
+
     string appendPath(const string& prefix, const string& suffix);
+    string deleteLastPathComponent(const string& path);
     string pathExtension(const string& path);
+    
+    bool fileExists(const string& path);
 }
 
 #endif

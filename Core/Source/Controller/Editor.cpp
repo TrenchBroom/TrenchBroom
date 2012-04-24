@@ -111,11 +111,20 @@ namespace TrenchBroom {
                 vector<string> wadPaths = split(*wads, ';');
                 for (int i = 0; i < wadPaths.size(); i++) {
                     string wadPath = trim(wadPaths[i]);
-                    start = clock();
-                    IO::Wad wad(wadPath);
-                    Model::Assets::TextureCollection* collection = new Model::Assets::TextureCollection(wadPath, wad, *m_palette);
-                    m_textureManager->addCollection(collection, i);
-                    fprintf(stdout, "Loaded %s in %f seconds\n", wadPath.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
+                    if (!fileExists(wadPath)) {
+                        string folderPath = deleteLastPathComponent(path);
+                        wadPath = appendPath(folderPath, wadPath);
+                    }
+                    
+                    if (fileExists(wadPath)) {
+                        start = clock();
+                        IO::Wad wad(wadPath);
+                        Model::Assets::TextureCollection* collection = new Model::Assets::TextureCollection(wadPath, wad, *m_palette);
+                        m_textureManager->addCollection(collection, i);
+                        fprintf(stdout, "Loaded %s in %f seconds\n", wadPath.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
+                    } else {
+                        fprintf(stdout, "Warning: Could not open texture wad %s\n", wadPaths[i].c_str());
+                    }
                 }
             }
 

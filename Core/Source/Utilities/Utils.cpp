@@ -18,6 +18,7 @@
  */
 
 #include "Utils.h"
+#include <fstream>
 
 namespace TrenchBroom {
     string trim(const string& str) {
@@ -53,10 +54,21 @@ namespace TrenchBroom {
         return path + suffix;
     }
 
+    string deleteLastPathComponent(const string& path) {
+        if (path.empty()) return path;
+        size_t sepPos = path.find_last_of("/\\");
+        if (sepPos == string::npos) return "";
+        return path.substr(0, sepPos);
+    }
+    
     string pathExtension(const string& path) {
         size_t pos = path.find_last_of('.');
         if (pos == string::npos) return "";
         return path.substr(pos + 1);
     }
 
+    bool fileExists(const string& path) {
+        fstream testStream(path.c_str());
+        return testStream.is_open();
+    }
 }
