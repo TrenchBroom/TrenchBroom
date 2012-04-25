@@ -290,9 +290,12 @@ namespace TrenchBroom {
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             glEnableClientState(GL_VERTEX_ARRAY);
             glVertexPointer(2, GL_FLOAT, 0, 0);
+			glEnable(GL_POLYGON_SMOOTH);
+			glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
         }
 
         void FontManager::deactivate() {
+			glDisable(GL_POLYGON_SMOOTH);
             glPopClientAttrib();
             m_vbo->deactivate();
         }

@@ -43,6 +43,7 @@ namespace TrenchBroom {
                 this->dummy = false;
                 this->m_textureId = 0;
                 this->usageCount = 0;
+				m_textureBuffer = NULL;
             }
 
             void Texture::init(const string& name, const unsigned char* indexImage, int width, int height, const Palette* palette) {
@@ -137,7 +138,7 @@ namespace TrenchBroom {
                 this->name = name;
                 for (int i = 0; i < wad.entries.size(); i++) {
                     IO::WadEntry& entry = wad.entries[i];
-                    if (entry.type == WT_MIP) {
+                    if (entry.type == IO::WT_MIP) {
                         IO::Mip* mip = wad.loadMipAtEntry(entry);
                         Texture* texture = new Texture(*mip, palette);
                         textures.push_back(texture);

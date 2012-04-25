@@ -18,6 +18,7 @@
  */
 
 #include "Wad.h"
+#include <cassert>
 
 namespace TrenchBroom {
     namespace IO {
@@ -59,6 +60,8 @@ namespace TrenchBroom {
                 mStream.seekg(directoryAddr, ios::beg);
                 
                 for (int i = 0; i < entryCount; i++) {
+					assert(!mStream.eof());
+
                     mStream.read((char *)&entry.address, sizeof(int32_t));
                     mStream.read((char *)&entry.length, sizeof(int32_t));
                     mStream.seekg(WAD_DIR_ENTRY_TYPE_OFFSET, ios::cur);
@@ -76,10 +79,20 @@ namespace TrenchBroom {
         }
         
         Mip* Wad::loadMipAtEntry(WadEntry& entry) {
-            int32_t width, height, mip0Offset, mip1Offset, mip2Offset, mip3Offset;
-            int mip0Size, mip1Size, mip2Size, mip3Size;
-            Mip* mip;
+			int32_t width = 0;
+			int32_t height = 0; 
+			int32_t mip0Offset = 0;
+			int32_t mip1Offset = 0;
+			int32_t mip2Offset = 0;
+			int32_t mip3Offset = 0;
+			int mip0Size = 0;
+			int mip1Size = 0;
+			int mip2Size = 0;
+			int mip3Size = 0;
+            Mip* mip = NULL;
             
+			assert(mStream.is_open());
+			mStream.clear();
             if (entry.type == WT_MIP) {
                 mStream.seekg(entry.address, ios::beg);
                 mStream.seekg(WAD_TEX_WIDTH_OFFSET, ios::cur);

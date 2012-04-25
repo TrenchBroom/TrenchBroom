@@ -76,6 +76,7 @@ namespace TrenchBroom {
             if (!mStream.is_open())
                 mStream.open(path.c_str());
 
+			mStream.clear();
             substreambuf* subStream = new substreambuf(mStream.rdbuf(), entry->address, entry->length);
             return new isubstream(subStream);
         }

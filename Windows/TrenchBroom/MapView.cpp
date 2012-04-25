@@ -24,6 +24,7 @@
 #include "TrenchBroom.h"
 #endif
 
+#include <cassert>
 #include "MapDocument.h"
 #include "MapView.h"
 #include "WinStringFactory.h"
@@ -167,26 +168,43 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
         WGL_SAMPLE_BUFFERS_ARB,	GL_TRUE,
         WGL_SAMPLES_ARB,		4,
         0,0};
+	int tryDepthAttributes[] = {32, 24,16};
+	int trySampleAttributes[] = {4, 2};
+	
 	GLfloat fAttributes[] = {0,0};
-	GLint pixelFormat;
-	GLuint numFormats;
+	GLint pixelFormat = -1;
+	GLuint numFormats = 0;
 
-	pixelFormat = ChoosePixelFormat(m_deviceContext, &descriptor);
+	CFrameWnd* testWindow = new CFrameWnd();
+	assert(testWindow->Create(NULL, "Test Window"));
+	HDC testDC = testWindow->GetDC()->m_hDC;
+
+	pixelFormat = ChoosePixelFormat(testDC, &descriptor);
+	SetPixelFormat(testDC, pixelFormat, &descriptor);
+	HGLRC testGLContext = wglCreateContext(testDC);
+	wglMakeCurrent(testDC, testGLContext);
+
+	bool valid = true;
+	for (int i = 0; i < 3 && valid && numFormats == 0; i++) {
+		iAttributes[11] = tryDepthAttributes[i];
+		for (int j = 0; j < 2 && valid && numFormats == 0; j++) {
+			iAttributes[19] = trySampleAttributes[j];
+			valid = wglChoosePixelFormatARB(testDC, iAttributes, fAttributes, 1, &pixelFormat, &numFormats);
+		}
+	}
+
+	wglDeleteContext(testGLContext);
+	testGLContext = NULL;
+	testWindow->DestroyWindow();
+	testWindow = NULL;
+	testDC = NULL;
+
+	if (!valid || numFormats == 0)
+		pixelFormat = ChoosePixelFormat(m_deviceContext, &descriptor);
+
 	SetPixelFormat(m_deviceContext, pixelFormat, &descriptor);
 	m_openGLContext = wglCreateContext(m_deviceContext);
 	wglMakeCurrent(m_deviceContext, m_openGLContext);
-
-	/*
-	bool valid = wglChoosePixelFormatARB(m_deviceContext, iAttributes, fAttributes, 1, &pixelFormat, &numFormats);
-
-	if (valid && numFormats > 0) {
-		wglDeleteContext(m_openGLContext);
-		SetPixelFormat(m_deviceContext, pixelFormat, &descriptor);
-		m_openGLContext = wglCreateContext(m_deviceContext);
-		wglMakeCurrent(m_deviceContext, m_openGLContext);
-	}
-	*/
-
 	wglSwapIntervalEXT(1);
 
 	string skinPath = "..\\..\\Resources\\Graphics\\DefaultSkin.png";
@@ -217,18 +235,21 @@ void CMapView::OnDestroy()
 
 void CMapView::OnLButtonDown(UINT nFlags, CPoint point)
 {
+	SetCapture();
 	m_editorGui->canvas()->InputMouseButton(0, true);	
 }
 
 
 void CMapView::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	m_editorGui->canvas()->InputMouseButton(0, false);	
+	m_editorGui->canvas()->InputMouseButton(0, false);
+	ReleaseCapture();
 }
 
 
 void CMapView::OnRButtonDown(UINT nFlags, CPoint point)
 {
+	SetCapture();
 	m_editorGui->canvas()->InputMouseButton(1, true);	
 }
 
@@ -236,6 +257,7 @@ void CMapView::OnRButtonDown(UINT nFlags, CPoint point)
 void CMapView::OnRButtonUp(UINT nFlags, CPoint point)
 {
 	m_editorGui->canvas()->InputMouseButton(1, false);	
+	ReleaseCapture();
 }
 
 
@@ -255,8 +277,13 @@ void CMapView::OnMouseMove(UINT nFlags, CPoint point)
 	if (m_lastMousePos == NULL)
 		m_lastMousePos = new CPoint(0, 0);
 
-	m_editorGui->canvas()->InputMouseMoved(point.x, point.y, point.x - m_lastMousePos->x, point.y - m_lastMousePos->y);
-	*m_lastMousePos = point;
+	RECT clientRect;
+	GetClientRect(&clientRect);
+	int x = point.x;
+	int y = clientRect.bottom - point.y;
+	m_editorGui->canvas()->InputMouseMoved(x, y, x - m_lastMousePos->x, y - m_lastMousePos->y);
+	m_lastMousePos->x = x;
+	m_lastMousePos->y = y;
 }
 
 

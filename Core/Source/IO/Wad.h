@@ -28,23 +28,24 @@
 #include <cstdint>
 #endif
 
-#define WAD_NUM_ENTRIES_ADDRESS 4
-#define WAD_DIR_OFFSET_ADDRESS 8
-#define WAD_DIR_ENTRY_TYPE_OFFSET 4
-#define WAD_DIR_ENTRY_NAME_OFFSET 3
-#define WAD_DIR_ENTRY_NAME_LENGTH 16
-#define WAD_PAL_LENGTH 256
-#define WAD_TEX_WIDTH_OFFSET 16
-
-#define WT_STATUS 'B'
-#define WT_CONSOLE 'C'
-#define WT_MIP 'D'
-#define WT_PALETTE '@'
-
 using namespace std;
 
 namespace TrenchBroom {
     namespace IO {
+		static const int WAD_NUM_ENTRIES_ADDRESS	= 4;
+		static const int WAD_DIR_OFFSET_ADDRESS		= 8;
+		static const int WAD_DIR_ENTRY_TYPE_OFFSET	= 4;
+		static const int WAD_DIR_ENTRY_NAME_OFFSET	= 3;
+		static const int WAD_DIR_ENTRY_NAME_LENGTH	= 16;
+		static const int WAD_PAL_LENGTH				= 256;
+		static const int WAD_TEX_WIDTH_OFFSET		= 16;
+
+		static const char WT_STATUS		= 'B';
+		static const char WT_CONSOLE	= 'C';
+		static const char WT_MIP		= 'D';
+		static const char WT_PALETTE	= '@';
+
+
         class WadEntry {
         public:
             int32_t address;

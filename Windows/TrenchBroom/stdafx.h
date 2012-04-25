@@ -5,6 +5,7 @@
 
 #pragma once
 
+
 #ifndef _SECURE_ATL
 #define _SECURE_ATL 1
 #endif

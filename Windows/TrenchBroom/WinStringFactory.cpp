@@ -95,7 +95,7 @@ namespace TrenchBroom {
 			for (int i = 0; i < str.length(); i++)
 				wstr[i] = str[i];
 
-			float scale = 1.0f;
+			float scale = 4.0f;
 
 			HFONT font = CreateFont(scale * descriptor.size, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_DONTCARE, fontName);
 			SelectObject(m_dc, font);
