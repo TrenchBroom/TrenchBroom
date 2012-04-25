@@ -256,9 +256,9 @@ bool Vec3f::equals(const Vec3f& other, float delta) const {
 }
 
 EAxis Vec3f::strongestAxis() const {
-    int ax = fabsf(x);
-    int ay = fabsf(y);
-    int az = fabsf(z);
+    float ax = fabsf(x);
+    float ay = fabsf(y);
+    float az = fabsf(z);
     if (ax >= ay && ax >= az) return TB_AX_X;
     if (ay >= ax && ay >= az) return TB_AX_Y;
     return TB_AX_Z;
