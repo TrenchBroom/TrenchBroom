@@ -20,6 +20,7 @@
 #include "VecMath.h"
 #include <cassert>
 #include <cstdlib>
+#include <sstream>
 
 #pragma mark Vec2f
 
@@ -115,6 +116,18 @@ bool Vec2f::equals(const Vec2f& other) const {
 bool Vec2f::equals(const Vec2f& other, float delta) const {
     Vec2f diff = other - *this;
     return diff.lengthSquared() <= delta * delta;
+}
+
+void Vec2f::write(ostream& str) const {
+    str << x;
+    str << ' ';
+    str << y;
+}
+
+string Vec2f::asString() const {
+    stringstream result;
+    write(result);
+    return result.str();
 }
 
 #pragma mark Vec3f
@@ -264,6 +277,20 @@ EAxis Vec3f::strongestAxis() const {
     return TB_AX_Z;
 }
 
+void Vec3f::write(ostream& str) const {
+    str << x;
+    str << ' ';
+    str << y;
+    str << ' ';
+    str << z;
+}
+
+string Vec3f::asString() const {
+    stringstream result;
+    write(result);
+    return result.str();
+}
+
 const Vec3f Vec3f::snap() const {
     return snap(Math::AlmostZero);
 }
@@ -407,6 +434,25 @@ const float& Vec4f::operator[] (const int index) const {
 }
 
 Vec4f::Vec4f() : x(0), y(0), z(0), w(0) {}
+
+Vec4f::Vec4f(const string& str) {
+    const char* cstr = str.c_str();
+    size_t pos = 0;
+    string blank = " \t\n\r";
+    
+    pos = str.find_first_not_of(blank, pos);
+    x = atof(cstr + pos);
+    pos = str.find_first_of(blank, pos);
+    pos = str.find_first_not_of(blank, pos);
+    y = atof(cstr + pos);
+    pos = str.find_first_of(blank, pos);
+    pos = str.find_first_not_of(blank, pos);
+    z = atof(cstr + pos);
+    pos = str.find_first_of(blank, pos);
+    pos = str.find_first_not_of(blank, pos);
+    w = atof(cstr + pos);
+}
+
 Vec4f::Vec4f(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
 float Vec4f::length() const {
@@ -432,6 +478,22 @@ bool Vec4f::equals(const Vec4f& other) const {
 bool Vec4f::equals(const Vec4f& other, float delta) const {
     Vec4f diff = other - *this;
     return diff.lengthSquared() <= delta * delta;
+}
+
+void Vec4f::write(ostream& str) const {
+    str << x;
+    str << ' ';
+    str << y;
+    str << ' ';
+    str << z;
+    str << ' ';
+    str << w;
+}
+
+string Vec4f::asString() const {
+    stringstream result;
+    write(result);
+    return result.str();
 }
 
 #pragma mark Mat2f

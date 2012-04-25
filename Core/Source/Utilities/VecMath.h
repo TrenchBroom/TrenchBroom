@@ -22,6 +22,7 @@
 
 #include <string>
 #include <cmath>
+#include <ostream>
 
 namespace Math {
     static const float AlmostZero = 0.001f;
@@ -118,6 +119,8 @@ public:
     const Vec2f normalize() const;
     bool equals(const Vec2f& other) const;
     bool equals(const Vec2f& other, float delta) const;
+    void write(ostream& str) const;
+    string asString() const;
 };
 
 class Vec3f {
@@ -147,6 +150,8 @@ public:
     bool equals(const Vec3f& other) const;
     bool equals(const Vec3f& other, float delta) const;
     EAxis strongestAxis() const;
+    void write(ostream& str) const;
+    string asString() const;
     
     const Vec3f snap() const;
     const Vec3f snap(float epsilon) const;
@@ -181,6 +186,7 @@ public:
     float& operator[] (const int index);
     const float& operator[] (const int index) const;
     Vec4f();
+    Vec4f(const string& str);
     Vec4f(float x, float y, float z, float w);
     
     float length() const;
@@ -188,6 +194,8 @@ public:
     const Vec4f normalize() const;
     bool equals(const Vec4f& other) const;
     bool equals(const Vec4f& other, float delta) const;
+    void write(ostream& str) const;
+    string asString() const;
 };
 
 class Mat2f {
