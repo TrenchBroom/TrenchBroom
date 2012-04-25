@@ -25,7 +25,7 @@ namespace TrenchBroom {
     namespace Model {
         namespace Assets {
             Palette::Palette(const string& path) {
-                ifstream stream(path.c_str());
+                ifstream stream(path.c_str(), ios::binary);
                 assert(stream.is_open());
                 
                 stream.seekg(0, ios::end);

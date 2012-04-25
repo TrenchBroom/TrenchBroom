@@ -43,7 +43,7 @@ namespace TrenchBroom {
             int entryCount;
 
             this->path = path;
-            mStream.open(this->path.c_str());
+			mStream.open(this->path.c_str(), ios::binary);
             if (mStream.is_open()) {
                 mStream.seekg(PAK_HEADER_ADDRESS, ios::beg);
                 mStream.read((char *)magic, PAK_HEADER_MAGIC_LENGTH); // todo check and throw exception

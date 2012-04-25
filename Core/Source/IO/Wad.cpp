@@ -50,7 +50,8 @@ namespace TrenchBroom {
             char entryName[WAD_DIR_ENTRY_NAME_LENGTH];
             WadEntry entry;
             
-            mStream.open(path.c_str());
+            mStream.open(path.c_str(), ios::binary);
+			mStream.exceptions(ios::failbit | ios::badbit);
             if (mStream.is_open()) {
                 mStream.seekg(WAD_NUM_ENTRIES_ADDRESS, ios::beg);
                 mStream.read((char *)&entryCount, sizeof(int32_t));
@@ -62,16 +63,19 @@ namespace TrenchBroom {
                 for (int i = 0; i < entryCount; i++) {
 					assert(!mStream.eof());
 
-                    mStream.read((char *)&entry.address, sizeof(int32_t));
+					mStream.read((char *)&entry.address, sizeof(int32_t));
                     mStream.read((char *)&entry.length, sizeof(int32_t));
                     mStream.seekg(WAD_DIR_ENTRY_TYPE_OFFSET, ios::cur);
                     mStream.read((char *)&entry.type, 1);
                     mStream.seekg(WAD_DIR_ENTRY_NAME_OFFSET, ios::cur);
                     mStream.read((char *)entryName, WAD_DIR_ENTRY_NAME_LENGTH);
+
                     entry.name = entryName;
                     entries.push_back(entry);
                 }
             }
+
+			mStream.clear();
         }
         
         Wad::~Wad() {
@@ -92,7 +96,7 @@ namespace TrenchBroom {
             Mip* mip = NULL;
             
 			assert(mStream.is_open());
-			mStream.clear();
+			assert(!mStream.eof());
             if (entry.type == WT_MIP) {
                 mStream.seekg(entry.address, ios::beg);
                 mStream.seekg(WAD_TEX_WIDTH_OFFSET, ios::cur);
