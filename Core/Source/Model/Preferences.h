@@ -26,7 +26,33 @@
 namespace TrenchBroom {
     namespace Model {
         class Preferences {
-        private:
+        protected:
+            static const string CameraKey;
+            static const string CameraOrbitKey;
+            static const string FaceColor;
+            static const string EdgeColor;
+            static const string SelectedFaceColor;
+            static const string SelectedEdgeColor;
+            static const string HiddenSelectedEdgeColor;
+            static const string EntityBoundsColor;
+            static const string EntityBoundsWireframeColor;
+            static const string SelectedEntityBoundsColor;
+            static const string HiddenSelectedEntityBoundsColor;
+            static const string SelectionGuideColor;
+            static const string HiddenSelectionGuideColor;
+            static const string BackgroundColor;
+            static const string InfoOverlayColor;
+            static const string InfoOverlayFadeDistance;
+            static const string SelectedInfoOverlayColor;
+            static const string SelectedInfoOverlayFadeDistance;
+            static const string RendererFontName;
+            static const string RendererFontSize;
+            static const string GridAlpha;
+            static const string QuakePath;
+            
+            int m_cameraKey;
+            int m_cameraOrbitKey;
+            
             Vec4f m_faceColor;
             Vec4f m_edgeColor;
             Vec4f m_selectedFaceColor;
@@ -52,13 +78,21 @@ namespace TrenchBroom {
             
             string m_quakePath;
 
-            void loadDefaults();
-            void loadPreferences();
+            virtual void loadDefaults();
+            virtual void loadPlatformDefaults() = 0;
+            virtual void loadPreferences() = 0;
             
-            Preferences();
-            ~Preferences() {};
+            virtual void saveInt(const string& key, int value) = 0;
+            virtual void saveFloat(const string& key, float value) = 0;
+            virtual void saveString(const string& key, const string& value) = 0;
         public:
-            static Preferences& sharedPreferences();
+            static Preferences* sharedPreferences;
+
+            Preferences() {};
+            virtual ~Preferences() {};
+            
+            void init();
+            
             float cameraFov();
             float cameraNear();
             float cameraFar();

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		480ED5311549C7E4003CA78F /* MacPreferences.mm in Sources */ = {isa = PBXBuildFile; fileRef = 480ED5301549C7E4003CA78F /* MacPreferences.mm */; };
+		480ED5351549CEE4003CA78F /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 480ED5341549CEE4003CA78F /* AppDelegate.mm */; };
 		4812004E1538636900181D66 /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4812004D1538636900181D66 /* ProgressWindow.xib */; };
 		48120055153867E300181D66 /* MacProgressIndicator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48120054153867E300181D66 /* MacProgressIndicator.mm */; };
 		4825B422153AE59F007E3AE1 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B3BD153AE59F007E3AE1 /* Camera.cpp */; };
@@ -137,6 +139,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		480ED52F1549C7E4003CA78F /* MacPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacPreferences.h; sourceTree = "<group>"; };
+		480ED5301549C7E4003CA78F /* MacPreferences.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacPreferences.mm; sourceTree = "<group>"; };
+		480ED5331549CEE4003CA78F /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		480ED5341549CEE4003CA78F /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		4812004D1538636900181D66 /* ProgressWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ProgressWindow.xib; sourceTree = "<group>"; };
 		48120053153867E300181D66 /* MacProgressIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacProgressIndicator.h; sourceTree = "<group>"; };
 		48120054153867E300181D66 /* MacProgressIndicator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacProgressIndicator.mm; sourceTree = "<group>"; };
@@ -867,6 +873,8 @@
 		48B50E18152CF6E400E75402 /* Mac */ = {
 			isa = PBXGroup;
 			children = (
+				480ED5331549CEE4003CA78F /* AppDelegate.h */,
+				480ED5341549CEE4003CA78F /* AppDelegate.mm */,
 				48886BA31545FE09006A781B /* EditorHolder.h */,
 				48886BA41545FE09006A781B /* EditorHolder.mm */,
 				48B50E24152CF6E400E75402 /* MapDocument.h */,
@@ -875,10 +883,12 @@
 				48B50E41152CF95500E75402 /* MapView.mm */,
 				48B50E3D152CF8F900E75402 /* MapWindowController.h */,
 				48B50E3E152CF8F900E75402 /* MapWindowController.mm */,
-				4888F8321536099B000423D2 /* MacStringFactory.h */,
-				4888F8331536099B000423D2 /* MacStringFactory.mm */,
+				480ED52F1549C7E4003CA78F /* MacPreferences.h */,
+				480ED5301549C7E4003CA78F /* MacPreferences.mm */,
 				48120053153867E300181D66 /* MacProgressIndicator.h */,
 				48120054153867E300181D66 /* MacProgressIndicator.mm */,
+				4888F8321536099B000423D2 /* MacStringFactory.h */,
+				4888F8331536099B000423D2 /* MacStringFactory.mm */,
 				48B50E27152CF6E400E75402 /* MapWindow.xib */,
 				48B50E2A152CF6E400E75402 /* MainMenu.xib */,
 				4812004D1538636900181D66 /* ProgressWindow.xib */,
@@ -1103,6 +1113,8 @@
 				4825B549153AE693007E3AE1 /* OpenGL_DebugFont.cpp in Sources */,
 				4825B555153C9F56007E3AE1 /* GLee.c in Sources */,
 				48886BA51545FE0A006A781B /* EditorHolder.mm in Sources */,
+				480ED5311549C7E4003CA78F /* MacPreferences.mm in Sources */,
+				480ED5351549CEE4003CA78F /* AppDelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

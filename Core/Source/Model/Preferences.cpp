@@ -21,6 +21,29 @@
 
 namespace TrenchBroom {
     namespace Model {
+        const string Preferences::CameraKey                         = "Controls: camera key";
+        const string Preferences::CameraOrbitKey                    = "Controls: camera orbit key";
+        const string Preferences::FaceColor                         = "Renderer: face color";
+        const string Preferences::EdgeColor                         = "Renderer: edge color";
+        const string Preferences::SelectedFaceColor                 = "Renderer: face color (selected)";
+        const string Preferences::SelectedEdgeColor                 = "Renderer: edge color (selected)";
+        const string Preferences::HiddenSelectedEdgeColor           = "Renderer: edge color (selected and hidden)";
+        const string Preferences::EntityBoundsColor                 = "Renderer: entity bounds color";
+        const string Preferences::EntityBoundsWireframeColor        = "Renderer: entity bounds color (wireframe mode)";
+        const string Preferences::SelectedEntityBoundsColor         = "Renderer: entity bounds color (selected)";
+        const string Preferences::HiddenSelectedEntityBoundsColor   = "Renderer: entity bounds color (selected and hidden)";
+        const string Preferences::SelectionGuideColor               = "Renderer: selection guide color";
+        const string Preferences::HiddenSelectionGuideColor         = "Renderer: selection guide color (hidden)";
+        const string Preferences::BackgroundColor                   = "Renderer: background color";
+        const string Preferences::InfoOverlayColor                  = "Renderer: info overlay color";
+        const string Preferences::InfoOverlayFadeDistance           = "Renderer: info overlay fade distance";
+        const string Preferences::SelectedInfoOverlayColor          = "Renderer: info overlay color (selected)";
+        const string Preferences::SelectedInfoOverlayFadeDistance   = "Renderer: info overlay fade distance (selected)";
+        const string Preferences::RendererFontName                  = "Renderer: font name";
+        const string Preferences::RendererFontSize                  = "Renderer: font size";
+        const string Preferences::GridAlpha                         = "Renderer: grid translucency";
+        const string Preferences::QuakePath                         = "General: quake path";
+        
         void Preferences::loadDefaults() {
             m_faceColor = Vec4f(0.2f, 0.2f, 0.2f, 1);
             m_edgeColor = Vec4f(0.6f, 0.6f, 0.6f, 0.6f);
@@ -46,22 +69,18 @@ namespace TrenchBroom {
             m_gridAlpha = 0.15f;
             
             m_quakePath = "";
+            
+            loadPlatformDefaults();
         }
         
-        void Preferences::loadPreferences() {
-            m_quakePath = "/Applications/Quake";
-        }
+        Preferences* Preferences::sharedPreferences = NULL;
 
-        Preferences::Preferences() {
+        void Preferences::init() {
             loadDefaults();
+            loadPlatformDefaults();
             loadPreferences();
         }
         
-        Preferences& Preferences::sharedPreferences() {
-            static Preferences instance;
-            return instance;
-        }
-
         float Preferences::cameraFov() {
             return 90;
         }

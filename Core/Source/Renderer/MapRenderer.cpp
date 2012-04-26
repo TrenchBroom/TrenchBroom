@@ -49,7 +49,7 @@ namespace TrenchBroom {
         static const int TexCoordSize = 2 * sizeof(float);
 
 
-        RenderContext::RenderContext(Controller::Camera& camera, Filter& filter, Controller::TransientOptions& options) : camera(camera), filter(filter), options(options), preferences(Model::Preferences::sharedPreferences()) {}
+        RenderContext::RenderContext(Controller::Camera& camera, Filter& filter, Controller::TransientOptions& options) : camera(camera), filter(filter), options(options), preferences(*Model::Preferences::sharedPreferences) {}
 
 #pragma mark ChangeSet
 
@@ -1191,21 +1191,21 @@ namespace TrenchBroom {
         }
 
         MapRenderer::MapRenderer(Controller::Editor& editor, FontManager& fontManager) : m_editor(editor), m_fontManager(fontManager) {
-            Model::Preferences& preferences = Model::Preferences::sharedPreferences();
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
 
             m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-            m_gridRenderer = new GridRenderer(preferences.gridAlpha());
+            m_gridRenderer = new GridRenderer(prefs.gridAlpha());
 
             m_entityBoundsVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_selectedEntityBoundsVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_entityBoundsVertexCount = 0;
             m_selectedEntityBoundsVertexCount = 0;
 
-            m_entityRendererManager = new EntityRendererManager(preferences.quakePath(), m_editor.palette());
+            m_entityRendererManager = new EntityRendererManager(prefs.quakePath(), m_editor.palette());
             m_entityRendererCacheValid = true;
 
-            m_classnameRenderer = new TextRenderer(m_fontManager, preferences.infoOverlayFadeDistance());
-            m_selectedClassnameRenderer = new TextRenderer(m_fontManager, preferences.selectedInfoOverlayFadeDistance());
+            m_classnameRenderer = new TextRenderer(m_fontManager, prefs.infoOverlayFadeDistance());
+            m_selectedClassnameRenderer = new TextRenderer(m_fontManager, prefs.selectedInfoOverlayFadeDistance());
 
             for (int i = 0; i < 3; i++)
                 m_guideStrings[i] = NULL;

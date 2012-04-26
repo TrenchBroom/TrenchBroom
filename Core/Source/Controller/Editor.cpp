@@ -64,7 +64,7 @@ namespace TrenchBroom {
         }
 
         Editor::Editor(const string& entityDefinitionFilePath, const string& palettePath) : m_entityDefinitionFilePath(entityDefinitionFilePath) {
-            Model::Preferences& prefs = Model::Preferences::sharedPreferences();
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
 
             m_textureManager = new Model::Assets::TextureManager();
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
