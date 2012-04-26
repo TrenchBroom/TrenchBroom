@@ -17,38 +17,30 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "WinPreferences.h"
+#include "Controller/Tool.h"
 
-#ifndef __AFXWIN_H__
-	#error "include 'stdafx.h' before including this file for PCH"
-#endif
+namespace TrenchBroom {
+	namespace Model {
+			void WinPreferences::loadPlatformDefaults() {
+				m_cameraKey = Controller::TB_MK_SHIFT;
+				m_cameraOrbitKey = Controller::TB_MK_CTRL;
+				m_quakePath = "C:/Program Files/Quake";
+			}
 
-#include "resource.h"       // main symbols
+			void WinPreferences::loadPreferences() {
+			}
 
+			void WinPreferences::saveInt(const string& key, int value) {
+			}
 
-// CTrenchBroomApp:
-// See TrenchBroom.cpp for the implementation of this class
-//
+			void WinPreferences::saveFloat(const string& key, float value) {
+			}
 
-class CTrenchBroomApp : public CWinApp
-{
-public:
-	CTrenchBroomApp();
+			void WinPreferences::saveString(const string& key, const string& value) {
+			}
 
-protected:
-	CMultiDocTemplate* m_pDocTemplate;
-public:
-
-// Overrides
-public:
-	virtual BOOL InitInstance();
-	virtual BOOL ExitInstance();
-
-// Implementation
-	afx_msg void OnAppAbout();
-	afx_msg void OnFileNewFrame();
-	afx_msg void OnFileNew();
-	DECLARE_MESSAGE_MAP()
-};
-
-extern CTrenchBroomApp theApp;
+			void WinPreferences::saveVec4f(const string& key, const Vec4f& value) {
+			}
+	}
+}

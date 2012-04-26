@@ -18,37 +18,19 @@
  */
 
 #pragma once
+#include "Model/Preferences.h"
 
-#ifndef __AFXWIN_H__
-	#error "include 'stdafx.h' before including this file for PCH"
-#endif
+namespace TrenchBroom {
+	namespace Model {
+		class WinPreferences : public Preferences {
+		protected:
+			void loadPlatformDefaults();
+			void loadPreferences();
 
-#include "resource.h"       // main symbols
-
-
-// CTrenchBroomApp:
-// See TrenchBroom.cpp for the implementation of this class
-//
-
-class CTrenchBroomApp : public CWinApp
-{
-public:
-	CTrenchBroomApp();
-
-protected:
-	CMultiDocTemplate* m_pDocTemplate;
-public:
-
-// Overrides
-public:
-	virtual BOOL InitInstance();
-	virtual BOOL ExitInstance();
-
-// Implementation
-	afx_msg void OnAppAbout();
-	afx_msg void OnFileNewFrame();
-	afx_msg void OnFileNew();
-	DECLARE_MESSAGE_MAP()
-};
-
-extern CTrenchBroomApp theApp;
+			void saveInt(const string& key, int value);
+			void saveFloat(const string& key, float value);
+			void saveString(const string& key, const string& value);
+			void saveVec4f(const string& key, const Vec4f& value);
+		};
+	}
+}
