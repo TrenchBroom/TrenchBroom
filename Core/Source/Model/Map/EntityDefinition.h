@@ -59,14 +59,14 @@ namespace TrenchBroom {
         class BaseProperty : public Property {
         public:
             string baseName;
-            BaseProperty(string& baseName) : Property(TB_EDP_BASE), baseName(baseName) {};
+            BaseProperty(const string& baseName) : Property(TB_EDP_BASE), baseName(baseName) {};
         };
         
         class DefaultProperty : public Property {
         public:
             string name;
             string value;
-            DefaultProperty(string& name, string& value) : Property(TB_EDP_DEFAULT), name(name), value(value) {};
+            DefaultProperty(const string& name, const string& value) : Property(TB_EDP_DEFAULT), name(name), value(value) {};
         };
         
         class ModelProperty : public Property {
@@ -74,8 +74,8 @@ namespace TrenchBroom {
             string flagName;
             string modelPath;
             int skinIndex;
-            ModelProperty(string& flagName, string& modelPath, int skinIndex) : Property(TB_EDP_MODEL), flagName(flagName), modelPath(modelPath), skinIndex(skinIndex) {};
-            ModelProperty(string& modelPath, int skinIndex) : Property(TB_EDP_MODEL), flagName(""), modelPath(modelPath), skinIndex(skinIndex) {};
+            ModelProperty(const string& flagName, const string& modelPath, int skinIndex) : Property(TB_EDP_MODEL), flagName(flagName), modelPath(modelPath), skinIndex(skinIndex) {};
+            ModelProperty(const string& modelPath, int skinIndex) : Property(TB_EDP_MODEL), flagName(""), modelPath(modelPath), skinIndex(skinIndex) {};
         };
         
         class ChoiceArgument {
@@ -89,7 +89,7 @@ namespace TrenchBroom {
         public:
             string name;
             vector<ChoiceArgument> arguments;
-            ChoiceProperty(string& name, vector<ChoiceArgument>& arguments) : Property(TB_EDP_CHOICE), name(name), arguments(arguments) {};
+            ChoiceProperty(const string& name, vector<ChoiceArgument>& arguments) : Property(TB_EDP_CHOICE), name(name), arguments(arguments) {};
         };
         
         class SpawnFlag {
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             string name;
             int flag;
             SpawnFlag() {};
-            SpawnFlag(string& name, int flag) : name(name), flag(flag) {};
+            SpawnFlag(const string& name, int flag) : name(name), flag(flag) {};
         };
         
         class EntityDefinition {

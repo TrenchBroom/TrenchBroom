@@ -26,6 +26,10 @@
 #include "MapDocument.h"
 #include "MapView.h"
 #include "Model/Preferences.h"
+#include "Model/Map/EntityDefinition.h"
+#include "IO/Pak.h"
+#include "Model/Assets/Alias.h"
+#include "Model/Assets/Bsp.h"
 #include "WinPreferences.h"
 
 #ifdef _DEBUG
@@ -126,8 +130,12 @@ BOOL CTrenchBroomApp::InitInstance()
 	RegisterShellFileTypes(TRUE);
 
 	// Initialize TrenchBroom globals
-	TrenchBroom::Model::Preferences::sharedPreferences = new TrenchBroom::Model::WinPreferences();
-	TrenchBroom::Model::Preferences::sharedPreferences->init();
+    TrenchBroom::Model::Preferences::sharedPreferences = new TrenchBroom::Model::WinPreferences();
+    TrenchBroom::Model::Preferences::sharedPreferences->init();
+    TrenchBroom::Model::EntityDefinitionManager::sharedManagers = new TrenchBroom::Model::EntityDefinitionMap();
+    TrenchBroom::IO::PakManager::sharedManager = new TrenchBroom::IO::PakManager();
+    TrenchBroom::Model::Assets::AliasManager::sharedManager = new TrenchBroom::Model::Assets::AliasManager();
+    TrenchBroom::Model::Assets::BspManager::sharedManager = new TrenchBroom::Model::Assets::BspManager();
 
 	// Dispatch commands specified on the command line.  Will return FALSE if
 	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
@@ -145,13 +153,18 @@ BOOL CTrenchBroomApp::InitInstance()
 }
 
 BOOL CTrenchBroomApp::ExitInstance() {
-	if (!CWinApp::ExitInstance())
-		return FALSE;
+    delete TrenchBroom::Model::Assets::BspManager::sharedManager;
+    TrenchBroom::Model::Assets::BspManager::sharedManager = NULL;
+    delete TrenchBroom::Model::Assets::AliasManager::sharedManager;
+    TrenchBroom::Model::Assets::AliasManager::sharedManager = NULL;
+    delete TrenchBroom::IO::PakManager::sharedManager;
+    TrenchBroom::IO::PakManager::sharedManager = NULL;
+    delete TrenchBroom::Model::EntityDefinitionManager::sharedManagers;
+    TrenchBroom::Model::EntityDefinitionManager::sharedManagers = NULL;
+    delete TrenchBroom::Model::Preferences::sharedPreferences;
+    TrenchBroom::Model::Preferences::sharedPreferences = NULL;
 
-	delete TrenchBroom::Model::Preferences::sharedPreferences;
-	TrenchBroom::Model::Preferences::sharedPreferences = NULL;
-
-	return TRUE;
+	return  CWinApp::ExitInstance();
 }
 
 // CTrenchBroomApp message handlers
