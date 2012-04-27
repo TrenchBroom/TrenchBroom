@@ -95,7 +95,7 @@ namespace TrenchBroom {
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
             glLoadIdentity();
-            glViewport(x, y, width, height);
+            glViewport(static_cast<int>(x), static_cast<int>(y), static_cast<int>(width), static_cast<int>(height));
             gluLookAt(pos.x, pos.y, pos.z, at.x, at.y, at.z, up.x, up.y, up.z);
 
             glGetIntegerv(GL_VIEWPORT, m_viewport);

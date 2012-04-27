@@ -261,9 +261,9 @@ namespace TrenchBroom {
             m_format = TB_MF_UNDEFINED;
             Entity* entity = NULL;
             
-            if (indicator != NULL) indicator->reset(m_tokenizer->size());
+            if (indicator != NULL) indicator->reset(static_cast<float>(m_tokenizer->size()));
             while ((entity = parseEntity(indicator)) != NULL) map.addEntity(entity);
-            if (indicator != NULL) indicator->update(m_tokenizer->size());
+            if (indicator != NULL) indicator->update(static_cast<float>(m_tokenizer->size()));
         }
         
         Entity* MapParser::parseEntity(Controller::ProgressIndicator* indicator) {
@@ -293,7 +293,7 @@ namespace TrenchBroom {
                             entity->addBrush(brush);
                     }
                     case TB_TT_CB_C: {
-                        if (indicator != NULL) indicator->update(token->charsRead);
+                        if (indicator != NULL) indicator->update(static_cast<float>(token->charsRead));
                         return entity;
                     }
                     default:
@@ -323,7 +323,7 @@ namespace TrenchBroom {
                         break;
                     }
                     case TB_TT_CB_C:
-                        if (indicator != NULL) indicator->update(token->charsRead);
+                        if (indicator != NULL) indicator->update(static_cast<float>(token->charsRead));
                         return brush;
                     default:
                         fprintf(stdout, "Warning: Unexpected token type %i at line %i\n", token->type, token->line);
@@ -340,27 +340,27 @@ namespace TrenchBroom {
             
             expect(TB_TT_B_O, token = nextToken());
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p1.x = atoi(token->data.c_str());
+            p1.x = atof(token->data.c_str());
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p1.y = atoi(token->data.c_str());
+            p1.y = atof(token->data.c_str());
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p1.z = atoi(token->data.c_str());
+            p1.z = atof(token->data.c_str());
             expect(TB_TT_B_C, token = nextToken());
             expect(TB_TT_B_O, token = nextToken());
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p2.x = atoi(token->data.c_str());
+            p2.x = atof(token->data.c_str());
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p2.y = atoi(token->data.c_str());
+            p2.y = atof(token->data.c_str());
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p2.z = atoi(token->data.c_str());
+            p2.z = atof(token->data.c_str());
             expect(TB_TT_B_C, token = nextToken());
             expect(TB_TT_B_O, token = nextToken());
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p3.x = atoi(token->data.c_str());
+            p3.x = atof(token->data.c_str());
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p3.y = atoi(token->data.c_str());
+            p3.y = atof(token->data.c_str());
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p3.z = atoi(token->data.c_str());
+            p3.z = atof(token->data.c_str());
             expect(TB_TT_B_C, token = nextToken());
             
             expect(TB_TT_STR, token = nextToken());

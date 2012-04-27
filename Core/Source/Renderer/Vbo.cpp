@@ -24,7 +24,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-#pragma mark VboBlock
         void VboBlock::insertBetween(VboBlock* previousBlock, VboBlock* nextBlock) {
             if (previousBlock != NULL) previousBlock->next = this;
             previous = previousBlock;
@@ -82,8 +81,6 @@ namespace TrenchBroom {
         void VboBlock::freeBlock() {
             m_vbo.freeBlock(*this);
         }
-        
-#pragma mark Vbo
         
         int Vbo::findFreeBlockInRange(int capacity, int start, int length) {
             if (length == 1) {

@@ -44,7 +44,7 @@ void ProgressDialog::doReset()
 
 void ProgressDialog::doUpdate()
 {
-	m_progressbar.SetPos(percent());
+	m_progressbar.SetPos(static_cast<int>(percent()));
 
 	CWinApp* app = (CWinApp*)AfxGetApp();
 	app->PumpMessage();

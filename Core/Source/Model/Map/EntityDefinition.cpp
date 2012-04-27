@@ -126,8 +126,6 @@ namespace TrenchBroom {
             return NULL;
         }
 
-#pragma mark EntityDefinitionManager
-
         EntityDefinitionMap* EntityDefinitionManager::sharedManagers = NULL;
 
         EntityDefinitionManager::EntityDefinitionManager(const string& path) {

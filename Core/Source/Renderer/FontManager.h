@@ -38,8 +38,8 @@ namespace TrenchBroom {
         class FontDescriptor {
         public:
             const string name;
-            const float size;
-            FontDescriptor(const string name, float size) : name(name), size(size) {}
+            const int size;
+            FontDescriptor(const string name, int size) : name(name), size(size) {}
         };
 
         bool operator<(FontDescriptor const& left, FontDescriptor const& right);

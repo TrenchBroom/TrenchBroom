@@ -173,7 +173,7 @@ namespace TrenchBroom {
 
                 stream->seekg(textureAddr, ios::beg);
                 stream->read((char *)&textureCount, sizeof(int32_t));
-                stream->seekg(-sizeof(int32_t), ios::cur);
+                stream->seekg(-static_cast<int>(sizeof(int32_t)), ios::cur);
                 textures.resize(textureCount);
                 readTextures(stream, textureCount);
 
@@ -292,7 +292,7 @@ namespace TrenchBroom {
                         vertexMark[vertexIndex] = false;
                     }
 
-                    center /= modelVertexCount;
+                    center /= static_cast<float>(modelVertexCount);
 
                     BBox maxBounds;
                     Vec3f diff;

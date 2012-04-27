@@ -22,8 +22,6 @@
 #include <cstdlib>
 #include <sstream>
 
-#pragma mark Vec2f
-
 Vec2f& Vec2f::operator= (const Vec2f& right) {
     if (this != &right) {
         x = right.x;
@@ -130,7 +128,6 @@ string Vec2f::asString() const {
     return result.str();
 }
 
-#pragma mark Vec3f
 Vec3f& Vec3f::operator= (const Vec3f& right) {
     if (this != &right) {
         x = right.x;
@@ -312,7 +309,7 @@ const Vec3f Vec3f::rotate90(EAxis axis, bool clockwise) const {
         case TB_AX_Y:
             if (clockwise) return Vec3f(-z, y, x);
             return Vec3f(z, y, -x);
-        case TB_AX_Z:
+        default:
             if (clockwise) return Vec3f(y, -x, z);
             return Vec3f(-y, x, z);
     }
@@ -330,7 +327,7 @@ const Vec3f Vec3f::flip(EAxis axis) const {
             return Vec3f(-x, y, z);
         case TB_AX_Y:
             return Vec3f(x, -y, z);
-        case TB_AX_Z:
+        default:
             return Vec3f(x, y, -z);
     }
 }
@@ -340,8 +337,6 @@ const Vec3f Vec3f::flip(EAxis axis, const Vec3f& center) const {
     result.flip(axis);
     return result += center;
 }
-
-#pragma mark Vec4f
 
 Vec4f& Vec4f::operator= (const Vec4f& right) {
     if (this != &right) {
@@ -496,8 +491,6 @@ string Vec4f::asString() const {
     return result.str();
 }
 
-#pragma mark Mat2f
-
 Mat2f& Mat2f::operator= (const Mat2f& right) {
     for (int i = 0; i < 4; i++)
         v[i] = right.v[i];
@@ -591,7 +584,7 @@ Mat2f::Mat2f(float v11, float v12, float v21, float v22) {
 void Mat2f::setIdentity() {
     for (int c = 0; c < 2; c++)
         for (int r = 0; r < 2; r++)
-            v[c * 2 + r] = c == r ? 1 : 0;
+            v[c * 2 + r] = c == r ? 1.0f : 0.0f;
 }
 
 void Mat2f::setValue(int row, int col, float value) {
@@ -646,8 +639,6 @@ const Mat2f Mat2f::transpose() const {
 float Mat2f::determinant() const {
     return v[0] * v[3] - v[2] * v[1];
 }
-
-#pragma mark Mat3f
 
 Mat3f& Mat3f::operator= (const Mat3f& right) {
     for (int i = 0; i < 9; i++)
@@ -746,7 +737,7 @@ Mat3f::Mat3f(float v11, float v12, float v13, float v21, float v22, float v23, f
 void Mat3f::setIdentity() {
     for (int c = 0; c < 3; c++)
         for (int r = 0; r < 3; r++)
-            v[c * 3 + r] = c == r ? 1 : 0;
+            v[c * 3 + r] = c == r ? 1.0f : 0.0f;
 }
 
 void Mat3f::setValue(int row, int col, float value) {
@@ -812,8 +803,6 @@ const Mat2f Mat3f::minor(int row, int col) const {
                 result[i++] = v[c * 3 + r];
     return result;
 }
-
-#pragma mark Mat4f
 
 Mat4f& Mat4f::operator= (const Mat4f& right) {
     for (int i = 0; i < 16; i++)
@@ -926,7 +915,7 @@ Mat4f::Mat4f(float v11, float v12, float v13, float v14, float v21, float v22, f
 void Mat4f::setIdentity() {
     for (int r = 0; r < 4; r++)
         for (int c = 0; c < 4; c++)
-            v[c * 4 + r] = r == c ? 1 : 0;
+            v[c * 4 + r] = r == c ? 1.0f : 0.0f;
 }
 
 void Mat4f::setValue(int row, int col, float value) {
@@ -1196,8 +1185,6 @@ const Mat4f Mat4f::scale(const Vec3f& factors) const {
                  v[12] * factors.x, v[13] * factors.y, v[14] * factors.z, v[15]);
 }
 
-#pragma mark Quat
-
 const Quat Quat::operator* (const Quat& right) const {
     Quat result = *this;
     return result *= right;
@@ -1244,8 +1231,6 @@ const Quat Quat::conjugate() const {
     return result;
 }
 
-#pragma mark Ray
-
 Ray::Ray() : origin(Null3f), direction(Null3f) {}
 
 Ray::Ray(const Vec3f& origin, const Vec3f& direction) : origin(origin), direction(direction) {}
@@ -1263,8 +1248,6 @@ EPointStatus Ray::pointStatus(const Vec3f& point) const {
     return TB_PS_INSIDE;
 }
 
-#pragma mark Line
-
 Line::Line() : point(Null3f), direction(Null3f) {}
 
 Line::Line(const Vec3f& point, const Vec3f& direction) : point(point), direction(direction) {}
@@ -1274,8 +1257,6 @@ const Vec3f Line::pointAtDistance(float distance) const {
                  point.y + direction.y * distance,
                  point.z + direction.z * distance);
 }
-
-#pragma mark BBox
 
 void BBox::repair() {
     min.x = Math::fmin(min.x, max.x);
@@ -1513,8 +1494,6 @@ const BBox BBox::expand(float f) {
                 max.z += f);
 }
 
-#pragma mark Plane
-
 Plane::Plane() : normal(Null3f), distance(0) {}
 
 Plane::Plane(const Vec3f& normal, float distance) : normal(normal), distance(distance) {}
@@ -1616,7 +1595,7 @@ const CoordinatePlane& CoordinatePlane::plane(CPlane plane) {
             return xy;
         case TB_CP_XZ:
             return xz;
-        case TB_CP_YZ:
+        default:
             return yz;
     }
 }
@@ -1627,7 +1606,7 @@ const CoordinatePlane& CoordinatePlane::plane(const Vec3f& normal) {
             return plane(TB_CP_YZ);
         case TB_AX_Y:
             return plane(TB_CP_XZ);
-        case TB_AX_Z:
+        default:
             return plane(TB_CP_XY);
     }
 }
@@ -1638,7 +1617,7 @@ const Vec3f CoordinatePlane::project(const Vec3f& point) {
             return Vec3f(point.x, point.y, point.z);
         case TB_CP_YZ:
             return Vec3f(point.y, point.z, point.x);
-        case TB_CP_XZ:
+        default:
             return Vec3f(point.x, point.z, point.y);
     }
 }

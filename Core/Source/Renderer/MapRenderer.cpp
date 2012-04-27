@@ -51,8 +51,6 @@ namespace TrenchBroom {
 
         RenderContext::RenderContext(Controller::Camera& camera, Filter& filter, Controller::TransientOptions& options) : camera(camera), filter(filter), options(options), preferences(*Model::Preferences::sharedPreferences) {}
 
-#pragma mark ChangeSet
-
 		ChangeSet::ChangeSet() : m_filterChanged(false), m_textureManagerChanged(false) {}
 
         void ChangeSet::entitiesAdded(const vector<Model::Entity*>& entities) {
@@ -221,8 +219,6 @@ namespace TrenchBroom {
             return m_textureManagerChanged;
         }
 
-
-#pragma mark MapRenderer
 
         void MapRenderer::addEntities(const vector<Model::Entity*>& entities) {
             m_changeSet.entitiesAdded(entities);
@@ -485,7 +481,7 @@ namespace TrenchBroom {
             if (!m_editor.map().selection().empty()) {
                 Vec3f size = m_selectionBounds.size();
                 const string& fontName = context.preferences.rendererFontName();
-                float fontSize = context.preferences.rendererFontSize();
+                int fontSize = context.preferences.rendererFontSize();
                 FontDescriptor descriptor(fontName, fontSize);
                 char str[16];
 
@@ -606,7 +602,7 @@ namespace TrenchBroom {
             const vector<Model::Entity*>& addedEntities = m_changeSet.addedEntities();
             if (!addedEntities.empty()) {
                 const string& fontName = context.preferences.rendererFontName();
-                float fontSize = context.preferences.rendererFontSize();
+				int fontSize = context.preferences.rendererFontSize();
                 FontDescriptor descriptor(fontName, fontSize);
 
                 m_entityBoundsVbo->activate();
