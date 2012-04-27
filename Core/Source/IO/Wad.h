@@ -70,7 +70,7 @@ namespace TrenchBroom {
         };
         
         class Wad {
-            ifstream mStream;
+            ifstream m_stream;
         public:
             vector<WadEntry> entries;
             Wad(string path);

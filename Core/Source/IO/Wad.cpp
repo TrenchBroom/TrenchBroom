@@ -50,36 +50,36 @@ namespace TrenchBroom {
             char entryName[WAD_DIR_ENTRY_NAME_LENGTH];
             WadEntry entry;
             
-            mStream.open(path.c_str(), ios::binary);
-			mStream.exceptions(ios::failbit | ios::badbit);
-            if (mStream.is_open()) {
-                mStream.seekg(WAD_NUM_ENTRIES_ADDRESS, ios::beg);
-                mStream.read((char *)&entryCount, sizeof(int32_t));
+            m_stream.open(path.c_str(), ios::binary);
+			m_stream.exceptions(ios::failbit | ios::badbit);
+            if (m_stream.is_open()) {
+                m_stream.seekg(WAD_NUM_ENTRIES_ADDRESS, ios::beg);
+                m_stream.read((char *)&entryCount, sizeof(int32_t));
                 
-                mStream.seekg(WAD_DIR_OFFSET_ADDRESS, ios::beg);
-                mStream.read((char *)&directoryAddr, sizeof(int32_t));
-                mStream.seekg(directoryAddr, ios::beg);
+                m_stream.seekg(WAD_DIR_OFFSET_ADDRESS, ios::beg);
+                m_stream.read((char *)&directoryAddr, sizeof(int32_t));
+                m_stream.seekg(directoryAddr, ios::beg);
                 
                 for (int i = 0; i < entryCount; i++) {
-					assert(!mStream.eof());
+					assert(!m_stream.eof());
 
-					mStream.read((char *)&entry.address, sizeof(int32_t));
-                    mStream.read((char *)&entry.length, sizeof(int32_t));
-                    mStream.seekg(WAD_DIR_ENTRY_TYPE_OFFSET, ios::cur);
-                    mStream.read((char *)&entry.type, 1);
-                    mStream.seekg(WAD_DIR_ENTRY_NAME_OFFSET, ios::cur);
-                    mStream.read((char *)entryName, WAD_DIR_ENTRY_NAME_LENGTH);
+					m_stream.read((char *)&entry.address, sizeof(int32_t));
+                    m_stream.read((char *)&entry.length, sizeof(int32_t));
+                    m_stream.seekg(WAD_DIR_ENTRY_TYPE_OFFSET, ios::cur);
+                    m_stream.read((char *)&entry.type, 1);
+                    m_stream.seekg(WAD_DIR_ENTRY_NAME_OFFSET, ios::cur);
+                    m_stream.read((char *)entryName, WAD_DIR_ENTRY_NAME_LENGTH);
 
                     entry.name = entryName;
                     entries.push_back(entry);
                 }
             }
 
-			mStream.clear();
+			m_stream.clear();
         }
         
         Wad::~Wad() {
-            mStream.close();
+            m_stream.close();
         }
         
         Mip* Wad::loadMipAtEntry(WadEntry& entry) {
@@ -95,17 +95,17 @@ namespace TrenchBroom {
 			int mip3Size = 0;
             Mip* mip = NULL;
             
-			assert(mStream.is_open());
-			assert(!mStream.eof());
+			assert(m_stream.is_open());
+			assert(!m_stream.eof());
             if (entry.type == WT_MIP) {
-                mStream.seekg(entry.address, ios::beg);
-                mStream.seekg(WAD_TEX_WIDTH_OFFSET, ios::cur);
-                mStream.read((char *)&width, sizeof(int32_t));
-                mStream.read((char *)&height, sizeof(int32_t));
-                mStream.read((char *)&mip0Offset, sizeof(int32_t));
-                mStream.read((char *)&mip1Offset, sizeof(int32_t));
-                mStream.read((char *)&mip2Offset, sizeof(int32_t));
-                mStream.read((char *)&mip3Offset, sizeof(int32_t));
+                m_stream.seekg(entry.address, ios::beg);
+                m_stream.seekg(WAD_TEX_WIDTH_OFFSET, ios::cur);
+                m_stream.read((char *)&width, sizeof(int32_t));
+                m_stream.read((char *)&height, sizeof(int32_t));
+                m_stream.read((char *)&mip0Offset, sizeof(int32_t));
+                m_stream.read((char *)&mip1Offset, sizeof(int32_t));
+                m_stream.read((char *)&mip2Offset, sizeof(int32_t));
+                m_stream.read((char *)&mip3Offset, sizeof(int32_t));
                 
                 mip = new Mip(entry.name, width, height);
                 
@@ -114,14 +114,14 @@ namespace TrenchBroom {
                 mip2Size = mip1Size / 4;
                 mip3Size = mip2Size / 4;
                 
-                mStream.seekg(entry.address + mip0Offset, ios::beg);
-                mStream.read((char *)mip->mip0, mip0Size);
-                mStream.seekg(entry.address + mip1Offset, ios::beg);
-                mStream.read((char *)mip->mip1, mip1Size);
-                mStream.seekg(entry.address + mip2Offset, ios::beg);
-                mStream.read((char *)mip->mip2, mip2Size);
-                mStream.seekg(entry.address + mip3Offset, ios::beg);
-                mStream.read((char *)mip->mip3, mip3Size);
+                m_stream.seekg(entry.address + mip0Offset, ios::beg);
+                m_stream.read((char *)mip->mip0, mip0Size);
+                m_stream.seekg(entry.address + mip1Offset, ios::beg);
+                m_stream.read((char *)mip->mip1, mip1Size);
+                m_stream.seekg(entry.address + mip2Offset, ios::beg);
+                m_stream.read((char *)mip->mip2, mip2Size);
+                m_stream.seekg(entry.address + mip3Offset, ios::beg);
+                m_stream.read((char *)mip->mip3, mip3Size);
             }
             
             return mip;
