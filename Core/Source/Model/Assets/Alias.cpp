@@ -22,7 +22,6 @@
 #include <numeric>
 #include <cmath>
 #include "AliasNormals.h"
-#include "IO/Pak.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -80,15 +79,15 @@ namespace TrenchBroom {
                 return vertex;
             }
             
-            AliasSingleFrame* Alias::readFrame(istream& stream, Vec3f origin, Vec3f scale, int skinWidth, int skinHeight, vector<AliasSkinVertex>& vertices, vector<AliasSkinTriangle>& triangles) {
+            AliasSingleFrame* Alias::readFrame(IO::PakStream& stream, Vec3f origin, Vec3f scale, int skinWidth, int skinHeight, vector<AliasSkinVertex>& vertices, vector<AliasSkinTriangle>& triangles) {
                 char name[MDL_SIMPLE_FRAME_NAME_SIZE];
-                stream.seekg(MDL_SIMPLE_FRAME_NAME, ios::cur);
-                stream.read(name, MDL_SIMPLE_FRAME_NAME_SIZE);
+                stream->seekg(MDL_SIMPLE_FRAME_NAME, ios::cur);
+                stream->read(name, MDL_SIMPLE_FRAME_NAME_SIZE);
                 
                 vector<AliasPackedFrameVertex> packedFrameVertices(vertices.size());
                 for (int i = 0; i < vertices.size(); i++) {
                     AliasPackedFrameVertex packedVertex;
-                    stream.read((char *)&packedVertex, 4 * sizeof(unsigned char));
+                    stream->read((char *)&packedVertex, 4 * sizeof(unsigned char));
                     packedFrameVertices[i] = packedVertex;
                 }
                 
@@ -151,49 +150,49 @@ namespace TrenchBroom {
                 while(!triangles.empty()) delete triangles.back(), triangles.pop_back();
             }
             
-            Alias::Alias(string& name, istream& stream) : name(name) {
+            Alias::Alias(string& name, IO::PakStream stream) : name(name) {
                 Vec3f scale, origin;
                 int32_t skinCount, skinWidth, skinHeight, skinSize;
                 int32_t vertexCount, triangleCount, frameCount;
                 
-                stream.seekg(MDL_HEADER_SCALE, ios::beg);
-                stream.read((char *)&scale, sizeof(Vec3f));
-                stream.read((char *)&origin, sizeof(Vec3f));
+                stream->seekg(MDL_HEADER_SCALE, ios::beg);
+                stream->read((char *)&scale, sizeof(Vec3f));
+                stream->read((char *)&origin, sizeof(Vec3f));
                 
-                stream.seekg(MDL_HEADER_NUMSKINS, ios::beg);
-                stream.read((char *)&skinCount, sizeof(int32_t));
-                stream.read((char *)&skinWidth, sizeof(int32_t));
-                stream.read((char *)&skinHeight, sizeof(int32_t));
+                stream->seekg(MDL_HEADER_NUMSKINS, ios::beg);
+                stream->read((char *)&skinCount, sizeof(int32_t));
+                stream->read((char *)&skinWidth, sizeof(int32_t));
+                stream->read((char *)&skinHeight, sizeof(int32_t));
                 skinSize = skinWidth * skinHeight;
                 
-                stream.read((char *)&vertexCount, sizeof(int32_t));
-                stream.read((char *)&triangleCount, sizeof(int32_t));
-                stream.read((char *)&frameCount, sizeof(int32_t));
+                stream->read((char *)&vertexCount, sizeof(int32_t));
+                stream->read((char *)&triangleCount, sizeof(int32_t));
+                stream->read((char *)&frameCount, sizeof(int32_t));
                 
-                stream.seekg(MDL_SKINS, ios::beg);
+                stream->seekg(MDL_SKINS, ios::beg);
                 for (int i = 0; i < skinCount; i++) {
                     int32_t skinGroup;
                     
-                    stream.read((char *)&skinGroup, sizeof(int32_t));
+                    stream->read((char *)&skinGroup, sizeof(int32_t));
                     if (skinGroup == 0) {
                         unsigned char* skinPicture = new unsigned char[skinSize];
-                        stream.read((char *)skinPicture, skinSize);
+                        stream->read((char *)skinPicture, skinSize);
                         AliasSkin* skin = new AliasSkin(skinPicture, skinWidth, skinHeight);
                         skins.push_back(skin);
                     } else {
                         int32_t numPics;
-                        stream.read((char *)&numPics, sizeof(int32_t));
+                        stream->read((char *)&numPics, sizeof(int32_t));
                         vector<float> times(numPics);
                         vector<const unsigned char *> skinPictures(numPics);
                         
-                        streampos base = stream.tellg();
+                        streampos base = stream->tellg();
                         for (int j = 0; j < numPics; j++) {
-                            stream.seekg(j * sizeof(float) + base, ios::beg);
-                            stream.read((char *)&times[i], sizeof(float));
+                            stream->seekg(j * sizeof(float) + base, ios::beg);
+                            stream->read((char *)&times[i], sizeof(float));
                             
                             unsigned char* skinPicture = new unsigned char[skinSize];
-                            stream.seekg(numPics * sizeof(float) + j * skinSize + base, ios::beg);
-                            stream.read((char *)&skinPicture, skinSize);
+                            stream->seekg(numPics * sizeof(float) + j * skinSize + base, ios::beg);
+                            stream->read((char *)&skinPicture, skinSize);
                             
                             skinPictures[i] = skinPicture;
                         }
@@ -206,29 +205,29 @@ namespace TrenchBroom {
                 // now stream is at the first skin vertex
                 vector<AliasSkinVertex> vertices(vertexCount);
                 for (int i = 0; i < vertexCount; i++) {
-                    stream.read((char *)&vertices[i].onseam, sizeof(int32_t));
-                    stream.read((char *)&vertices[i].s, sizeof(int32_t));
-                    stream.read((char *)&vertices[i].t, sizeof(int32_t));
+                    stream->read((char *)&vertices[i].onseam, sizeof(int32_t));
+                    stream->read((char *)&vertices[i].s, sizeof(int32_t));
+                    stream->read((char *)&vertices[i].t, sizeof(int32_t));
                 }
                 
                 // now stream is at the first skin triangle
                 vector<AliasSkinTriangle> triangles(triangleCount);
                 for (int i = 0; i < triangleCount; i++) {
-                    stream.read((char *)&triangles[i].front, sizeof(int32_t));
+                    stream->read((char *)&triangles[i].front, sizeof(int32_t));
                     for (int j = 0; j < 3; j++)
-                        stream.read((char *)&triangles[i].vertices[j], sizeof(int32_t));
+                        stream->read((char *)&triangles[i].vertices[j], sizeof(int32_t));
                 }
                 
                 // now stream is at the first frame
                 for (int i = 0; i < frameCount; i++) {
                     int32_t type;
-                    stream.read((char *)&type, sizeof(int32_t));
+                    stream->read((char *)&type, sizeof(int32_t));
                     if (type == 0) { // single frame
                         frames.push_back(readFrame(stream, origin, scale, skinWidth, skinHeight, vertices, triangles));
                     } else { // frame group
                         int32_t groupFrameCount;
-                        streampos base = stream.tellg();
-                        stream.read((char *)&groupFrameCount, sizeof(int32_t));
+                        streampos base = stream->tellg();
+                        stream->read((char *)&groupFrameCount, sizeof(int32_t));
                         
                         streampos timePos = MDL_MULTI_FRAME_TIMES + base;
                         streampos framePos = MDL_MULTI_FRAME_TIMES + groupFrameCount * sizeof(float) + base;
@@ -236,11 +235,11 @@ namespace TrenchBroom {
                         vector<float> groupFrameTimes(groupFrameCount);
                         vector<AliasSingleFrame*> groupFrames(groupFrameCount);
                         for (int j = 0; j < groupFrameCount; j++) {
-                            stream.seekg(timePos, ios::beg);
-                            stream.read((char *)&groupFrameTimes[i], sizeof(float));
+                            stream->seekg(timePos, ios::beg);
+                            stream->read((char *)&groupFrameTimes[i], sizeof(float));
                             timePos = j * sizeof(float) + timePos;
                             
-                            stream.seekg(framePos, ios::beg);
+                            stream->seekg(framePos, ios::beg);
                             groupFrames[j] = readFrame(stream, origin, scale, skinWidth, skinHeight, vertices, triangles);
                             framePos = MDL_SIMPLE_FRAME_NAME_SIZE + (vertexCount + 2) * MDL_FRAME_VERTEX_SIZE + framePos;
                         }
@@ -273,11 +272,10 @@ namespace TrenchBroom {
                 fprintf(stdout, "Loading alias model '%s', search paths: %s\n", name.c_str(), pathList.c_str());
                 
                 IO::PakManager& pakManager = *IO::PakManager::sharedManager;
-                istream* stream = pakManager.streamForEntry(name, paths);
-                if (stream != NULL) {
-                    Alias* alias = new Alias(name, *stream);
+                IO::PakStream stream = pakManager.streamForEntry(name, paths);
+                if (stream.get() != NULL) {
+                    Alias* alias = new Alias(name, stream);
                     aliases[key] = alias;
-                    delete stream;
                     return alias;
                 }
                 

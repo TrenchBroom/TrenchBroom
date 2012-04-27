@@ -25,6 +25,8 @@
 #include <vector>
 #include <map>
 #include "Utilities/VecMath.h"
+#include "IO/Pak.h"
+
 
 #ifdef _MSC_VER
 #include <cstdint>
@@ -104,12 +106,12 @@ namespace TrenchBroom {
             class Alias {
             private:
                 Vec3f unpackFrameVertex(AliasPackedFrameVertex& packedVertex, Vec3f origin, Vec3f size);
-                AliasSingleFrame* readFrame(istream& stream, Vec3f origin, Vec3f scale, int skinWidth, int skinHeight, vector<AliasSkinVertex>& vertices, vector<AliasSkinTriangle>& triangles);
+                AliasSingleFrame* readFrame(IO::PakStream& stream, Vec3f origin, Vec3f scale, int skinWidth, int skinHeight, vector<AliasSkinVertex>& vertices, vector<AliasSkinTriangle>& triangles);
             public:
                 string name;
                 vector<AliasFrame*> frames;
                 vector<AliasSkin*> skins;
-                Alias(string& name, istream& stream);
+                Alias(string& name, IO::PakStream stream);
                 ~Alias();
                 AliasSingleFrame& firstFrame();
             };

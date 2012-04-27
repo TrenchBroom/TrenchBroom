@@ -66,33 +66,34 @@ namespace TrenchBroom {
             }
         }
 
-        istream* Pak::streamForEntry(string name) {
+        PakStream Pak::streamForEntry(string name) {
             PakEntry* entry;
 
             map<string, PakEntry>::iterator it = entries.find(name);
             if (it == entries.end())
-                return NULL;
+                return auto_ptr<istream>(NULL);
 
             entry = &it->second;
             if (!mStream.is_open())
                 mStream.open(path.c_str());
 
 			mStream.clear();
-            substreambuf* subStream = new substreambuf(mStream.rdbuf(), entry->address, entry->length);
-            return new isubstream(subStream);
+            substreambuf* subStreamBuf = new substreambuf(mStream.rdbuf(), entry->address, entry->length);
+            istream* subStream = new isubstream(subStreamBuf);
+            return PakStream(subStream);
         }
 
         PakManager* PakManager::sharedManager = NULL;
         
-        istream* PakManager::streamForEntry(string& name, vector<string>& paths) {
+        PakStream PakManager::streamForEntry(string& name, vector<string>& paths) {
             vector<string>::reverse_iterator path;
             for (path = paths.rbegin(); path < paths.rend(); ++path) {
                 vector<Pak*>* paks = paksAtPath(*path);
                 if (paks != NULL) {
                     vector<Pak*>::reverse_iterator pak;
                     for (pak = paks->rbegin(); pak < paks->rend(); ++pak) {
-                        istream* stream = (*pak)->streamForEntry(name);
-                        if (stream != NULL)
+                        PakStream stream = (*pak)->streamForEntry(name);
+                        if (stream.get() != NULL)
                             return stream;
                     }
                 }
@@ -100,7 +101,7 @@ namespace TrenchBroom {
 
             string nicePaths = accumulate(paths.begin(), paths.end(), string(", "));
             fprintf(stdout, "Warning: Could not find pak entry %s at pak paths %s\n", name.c_str(), nicePaths.c_str());
-            return NULL;
+            return PakStream(NULL);
         }
 
         PakManager::PakManager() {}

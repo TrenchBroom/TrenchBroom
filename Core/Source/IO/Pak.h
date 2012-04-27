@@ -43,6 +43,8 @@ namespace TrenchBroom {
         class Pak;
         static int comparePaks(const Pak* pak1, const Pak* pak2);
 
+        typedef auto_ptr<istream> PakStream;
+        
         class PakEntry {
         public:
             string name;
@@ -57,7 +59,7 @@ namespace TrenchBroom {
             map<string, PakEntry> entries;
             Pak(string path);
             Pak(const Pak&);
-            istream* streamForEntry(string name);
+            PakStream streamForEntry(string name);
         };
         
         class PakManager {
@@ -68,7 +70,7 @@ namespace TrenchBroom {
             static PakManager* sharedManager;
             PakManager();
             ~PakManager();
-            istream* streamForEntry(string& name, vector<string>& paths);
+           PakStream streamForEntry(string& name, vector<string>& paths);
         };
     }
 }

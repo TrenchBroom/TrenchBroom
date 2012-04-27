@@ -25,6 +25,7 @@
 #include <map>
 #include <istream>
 #include "Utilities/VecMath.h"
+#include "IO/Pak.h"
 
 #ifdef _MSC_VER
 #include <cstdint>
@@ -89,18 +90,18 @@ namespace TrenchBroom {
             
             class Bsp {
             private:
-                void readTextures(istream& stream, int counts);
-                void readTextureInfos(istream& stream, int count, vector<BspTexture*>& textures);
-                void readVertices(istream& stream, int count, vector<Vec3f>& vertices);
-                void readEdges(istream& stream, int count, vector<BspEdgeInfo>& edges);
-                void readFaces(istream& stream, int count, vector<BspFaceInfo>& faces);
-                void readFaceEdges(istream& stream, int count, int32_t* indices);
+                void readTextures(IO::PakStream& stream, int counts);
+                void readTextureInfos(IO::PakStream& stream, int count, vector<BspTexture*>& textures);
+                void readVertices(IO::PakStream& stream, int count, vector<Vec3f>& vertices);
+                void readEdges(IO::PakStream& stream, int count, vector<BspEdgeInfo>& edges);
+                void readFaces(IO::PakStream& stream, int count, vector<BspFaceInfo>& faces);
+                void readFaceEdges(IO::PakStream& stream, int count, int32_t* indices);
             public:
                 string name;
                 vector<BspModel*> models;
                 vector<BspTexture*>textures;
                 vector<BspTextureInfo*>textureInfos;
-                Bsp(string& name, istream& stream);
+                Bsp(string& name, IO::PakStream stream);
                 ~Bsp();
             };
             
