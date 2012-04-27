@@ -109,9 +109,9 @@ namespace TrenchBroom {
                 
                 center /= vertices.size();
                 
-                Vec3f diff;
-                float distSquared;
-                for (int i = 0; i < vertices.size(); i++) {
+                Vec3f diff = frameVertices[0] - center;
+				float distSquared = diff.lengthSquared();
+                for (int i = 1; i < vertices.size(); i++) {
                     diff = frameVertices[i] - center;
                     distSquared = Math::fmax(distSquared, diff.lengthSquared());
                 }

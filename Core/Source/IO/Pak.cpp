@@ -23,6 +23,7 @@
 #include <numeric>
 #include <algorithm>
 #include "substream.h"
+#include "Utilities/Utils.h"
 
 #ifdef _MSC_VER
 #include "dirent.h"
@@ -33,7 +34,7 @@
 namespace TrenchBroom {
     namespace IO {
         int comparePaks(const Pak* pak1, const Pak* pak2) {
-            return pak1->path.compare(pak2->path);
+			return pak1->path.compare(pak2->path) < 0;
         }
         
         Pak::Pak(string path) {
@@ -138,11 +139,7 @@ namespace TrenchBroom {
 
             do {
                 if (strncmp(entry->d_name + entry->d_namlen - 4, ".pak", 4) == 0) {
-                    string pakPath = path;
-                    if (pakPath[pakPath.length() - 1] != '/')
-                        pakPath += '/';
-                    pakPath += entry->d_name;
-
+					string pakPath = appendPath(path, entry->d_name);
                     Pak* pak = new Pak(pakPath);
                     newPaks.push_back(pak);
                 }
