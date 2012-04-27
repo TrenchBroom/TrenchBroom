@@ -331,11 +331,8 @@ namespace TrenchBroom {
                 while(!models.empty()) delete models.back(), models.pop_back();
             }
 
-            BspManager& BspManager::sharedManager() {
-                static BspManager instance;
-                return instance;
-            }
-
+            BspManager* BspManager::sharedManager = NULL;
+            
             Bsp* BspManager::bspForName(string& name, vector<string>& paths) {
                 string pathList = accumulate(paths.begin(), paths.end(), string(";"));
                 string key = pathList + ":" + name;
@@ -346,7 +343,7 @@ namespace TrenchBroom {
 
                 fprintf(stdout, "Loading BSP model '%s', search paths: %s\n", name.c_str(), pathList.c_str());
 
-                IO::PakManager& pakManager = IO::PakManager::sharedManager();
+                IO::PakManager& pakManager = *IO::PakManager::sharedManager;
                 istream* stream = pakManager.streamForEntry(name, paths);
                 if (stream != NULL) {
                     Bsp* bsp = new Bsp(name, *stream);

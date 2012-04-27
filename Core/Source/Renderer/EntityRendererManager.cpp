@@ -56,7 +56,7 @@ namespace TrenchBroom {
             string modelName = modelProperty.modelPath.substr(1);
             string ext = pathExtension(modelName);
             if (ext == "mdl") {
-                Model::Assets::AliasManager& aliasManager = Model::Assets::AliasManager::sharedManager();
+                Model::Assets::AliasManager& aliasManager = *Model::Assets::AliasManager::sharedManager;
                 Model::Assets::Alias* alias = aliasManager.aliasForName(modelName, searchPaths);
                 if (alias != NULL) {
                     int skinIndex = modelProperty.skinIndex;
@@ -65,7 +65,7 @@ namespace TrenchBroom {
                     return renderer;
                 }
             } else if (ext == "bsp") {
-                Model::Assets::BspManager& bspManager = Model::Assets::BspManager::sharedManager();
+                Model::Assets::BspManager& bspManager = *Model::Assets::BspManager::sharedManager;
                 Model::Assets::Bsp* bsp = bspManager.bspForName(modelName, searchPaths);
                 if (bsp != NULL) {
                     Renderer::EntityRenderer* renderer = new Renderer::BspRenderer(*bsp, *m_vbo, m_palette);

@@ -128,6 +128,8 @@ namespace TrenchBroom {
 
 #pragma mark EntityDefinitionManager
 
+        EntityDefinitionMap* EntityDefinitionManager::sharedManagers = NULL;
+
         EntityDefinitionManager::EntityDefinitionManager(const string& path) {
             clock_t start = clock();
             IO::EntityDefinitionParser parser(path);
@@ -146,13 +148,12 @@ namespace TrenchBroom {
         }
 
         EntityDefinitionManager* EntityDefinitionManager::sharedManager(const string& path) {
-            static auto_ptr<EntityDefinitionMap> instances(new EntityDefinitionMap());
-            map<string, EntityDefinitionManager*>::iterator it = instances->managers.find(path);
-            if (it != instances->managers.end())
+            map<string, EntityDefinitionManager*>::iterator it = sharedManagers->managers.find(path);
+            if (it != sharedManagers->managers.end())
                 return it->second;
 
             EntityDefinitionManager* instance = new EntityDefinitionManager(path);
-            instances->managers[path] = instance;
+            sharedManagers->managers[path] = instance;
             return instance;
         }
 

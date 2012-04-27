@@ -82,11 +82,8 @@ namespace TrenchBroom {
             return new isubstream(subStream);
         }
 
-        PakManager& PakManager::sharedManager() {
-            static PakManager instance;
-            return instance;
-        }
-
+        PakManager* PakManager::sharedManager = NULL;
+        
         istream* PakManager::streamForEntry(string& name, vector<string>& paths) {
             vector<string>::reverse_iterator path;
             for (path = paths.rbegin(); path < paths.rend(); ++path) {

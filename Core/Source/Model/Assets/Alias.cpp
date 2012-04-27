@@ -260,10 +260,7 @@ namespace TrenchBroom {
                 return *frames[0]->firstFrame();
             }
             
-            AliasManager& AliasManager::sharedManager() {
-                static AliasManager instance;
-                return instance;
-            }
+            AliasManager* AliasManager::sharedManager = NULL;
             
             Alias* AliasManager::aliasForName(string& name, vector<string>& paths) {
                 string pathList = accumulate(paths.begin(), paths.end(), string(";"));
@@ -275,7 +272,7 @@ namespace TrenchBroom {
                 
                 fprintf(stdout, "Loading alias model '%s', search paths: %s\n", name.c_str(), pathList.c_str());
                 
-                IO::PakManager& pakManager = IO::PakManager::sharedManager();
+                IO::PakManager& pakManager = *IO::PakManager::sharedManager;
                 istream* stream = pakManager.streamForEntry(name, paths);
                 if (stream != NULL) {
                     Alias* alias = new Alias(name, *stream);

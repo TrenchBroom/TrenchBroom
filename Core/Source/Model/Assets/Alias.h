@@ -115,14 +115,14 @@ namespace TrenchBroom {
             };
             
             class AliasManager {
-            public:
-                AliasManager();
-                ~AliasManager();
-                static AliasManager& sharedManager();
-                Alias* aliasForName(string& name, vector<string>& paths);
             private:
                 map<string, Alias*> aliases;
                 AliasManager(const AliasManager&);
+            public:
+                static AliasManager* sharedManager;
+                AliasManager();
+                ~AliasManager();
+                Alias* aliasForName(string& name, vector<string>& paths);
             };
         }
     }

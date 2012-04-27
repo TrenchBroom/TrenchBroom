@@ -105,13 +105,13 @@ namespace TrenchBroom {
             };
             
             class BspManager {
-            public:
-                BspManager();
-                ~BspManager();
-                static BspManager& sharedManager();
-                Bsp* bspForName(string& name, vector<string>& paths);
             private:
                 map<string, Bsp*> bsps;
+            public:
+                static BspManager* sharedManager;
+                BspManager();
+                ~BspManager();
+                Bsp* bspForName(string& name, vector<string>& paths);
             };
         }
     }

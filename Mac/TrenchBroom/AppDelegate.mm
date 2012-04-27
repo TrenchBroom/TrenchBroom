@@ -19,6 +19,10 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "AppDelegate.h"
 #import "Model/Preferences.h"
+#import "Model/Map/EntityDefinition.h"
+#import "IO/Pak.h"
+#import "Model/Assets/Alias.h"
+#import "Model/Assets/Bsp.h"
 #import "MacPreferences.h"
 
 @implementation AppDelegate
@@ -26,9 +30,21 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
     TrenchBroom::Model::Preferences::sharedPreferences = new TrenchBroom::Model::MacPreferences();
     TrenchBroom::Model::Preferences::sharedPreferences->init();
+    TrenchBroom::Model::EntityDefinitionManager::sharedManagers = new TrenchBroom::Model::EntityDefinitionMap();
+    TrenchBroom::IO::PakManager::sharedManager = new TrenchBroom::IO::PakManager();
+    TrenchBroom::Model::Assets::AliasManager::sharedManager = new TrenchBroom::Model::Assets::AliasManager();
+    TrenchBroom::Model::Assets::BspManager::sharedManager = new TrenchBroom::Model::Assets::BspManager();
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
+    delete TrenchBroom::Model::Assets::BspManager::sharedManager;
+    TrenchBroom::Model::Assets::BspManager::sharedManager = NULL;
+    delete TrenchBroom::Model::Assets::AliasManager::sharedManager;
+    TrenchBroom::Model::Assets::AliasManager::sharedManager = NULL;
+    delete TrenchBroom::IO::PakManager::sharedManager;
+    TrenchBroom::IO::PakManager::sharedManager = NULL;
+    delete TrenchBroom::Model::EntityDefinitionManager::sharedManagers;
+    TrenchBroom::Model::EntityDefinitionManager::sharedManagers = NULL;
     delete TrenchBroom::Model::Preferences::sharedPreferences;
     TrenchBroom::Model::Preferences::sharedPreferences = NULL;
 }

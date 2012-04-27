@@ -128,11 +128,14 @@ namespace TrenchBroom {
             ES_USAGE
         } EEntityDefinitionSortCriterion;
         
+        class EntityDefinitionMap;
         class EntityDefinitionManager {
         private:
             map<const string, EntityDefinition*> m_definitions;
             vector<EntityDefinition*> m_definitionsByName;
         public:
+            static EntityDefinitionMap* sharedManagers;
+            
             EntityDefinitionManager(const string& path);
             ~EntityDefinitionManager();
             static EntityDefinitionManager* sharedManager(const string& path);
