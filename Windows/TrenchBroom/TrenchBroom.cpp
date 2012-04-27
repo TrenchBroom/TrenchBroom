@@ -25,6 +25,8 @@
 
 #include "MapDocument.h"
 #include "MapView.h"
+#include "Model/Preferences.h"
+#include "WinPreferences.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -97,7 +99,7 @@ BOOL CTrenchBroomApp::InitInstance()
 	// Change the registry key under which our settings are stored
 	// TODO: You should modify this string to be something appropriate
 	// such as the name of your company or organization
-	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+	SetRegistryKey(_T("TrenchBroom"));
 	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
 
 
@@ -123,6 +125,9 @@ BOOL CTrenchBroomApp::InitInstance()
 	EnableShellOpen();
 	RegisterShellFileTypes(TRUE);
 
+	// Initialize TrenchBroom globals
+	TrenchBroom::Model::Preferences::sharedPreferences = new TrenchBroom::Model::WinPreferences();
+	TrenchBroom::Model::Preferences::sharedPreferences->init();
 
 	// Dispatch commands specified on the command line.  Will return FALSE if
 	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
@@ -136,6 +141,16 @@ BOOL CTrenchBroomApp::InitInstance()
 	//  In an SDI app, this should occur after ProcessShellCommand
 	// Enable drag/drop open
 	m_pMainWnd->DragAcceptFiles();
+	return TRUE;
+}
+
+BOOL CTrenchBroomApp::ExitInstance() {
+	if (!CWinApp::ExitInstance())
+		return FALSE;
+
+	delete TrenchBroom::Model::Preferences::sharedPreferences;
+	TrenchBroom::Model::Preferences::sharedPreferences = NULL;
+
 	return TRUE;
 }
 
