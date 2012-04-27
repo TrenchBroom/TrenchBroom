@@ -22,6 +22,7 @@
 #include "Controller/Camera.h"
 #include "Controller/Editor.h"
 #include "Model/Map/Picker.h"
+#include "Model/Preferences.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -75,11 +76,11 @@ namespace TrenchBroom {
         }
         
         bool CameraTool::cameraModiferPressed(ToolEvent& event) {
-            return event.modifierKeys == TB_MK_SHIFT;
+            return event.modifierKeys == Model::Preferences::sharedPreferences->cameraKey();
         }
         
         bool CameraTool::orbitModifierPressed(ToolEvent& event) {
-            return event.modifierKeys == (TB_MK_SHIFT | TB_MK_CMD);
+            return event.modifierKeys == Model::Preferences::sharedPreferences->cameraOrbitKey();
         }
     }
 }

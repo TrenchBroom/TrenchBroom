@@ -81,6 +81,14 @@ namespace TrenchBroom {
             loadPreferences();
         }
         
+        int Preferences::cameraKey() {
+            return m_cameraKey;
+        }
+        
+        int Preferences::cameraOrbitKey() {
+            return m_cameraOrbitKey;
+        }
+
         float Preferences::cameraFov() {
             return 90;
         }

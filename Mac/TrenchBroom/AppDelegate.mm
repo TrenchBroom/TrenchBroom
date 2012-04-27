@@ -30,6 +30,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
     delete TrenchBroom::Model::Preferences::sharedPreferences;
+    TrenchBroom::Model::Preferences::sharedPreferences = NULL;
 }
 
 - (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender {

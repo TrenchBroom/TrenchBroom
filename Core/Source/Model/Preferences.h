@@ -93,6 +93,9 @@ namespace TrenchBroom {
             
             void init();
             
+            int cameraKey();
+            int cameraOrbitKey();
+            
             float cameraFov();
             float cameraNear();
             float cameraFar();
