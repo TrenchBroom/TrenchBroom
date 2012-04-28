@@ -97,7 +97,7 @@ namespace TrenchBroom {
 
 			float scale = 4.0f;
 
-			HFONT font = CreateFont(scale * descriptor.size, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_DONTCARE, fontName);
+			HFONT font = CreateFont(static_cast<int>(scale * descriptor.size), 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_DONTCARE, fontName);
 			SelectObject(m_dc, font);
 			SIZE size;
 			GetTextExtentPoint32(m_dc, wstr, str.length(), &size);

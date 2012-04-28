@@ -106,7 +106,7 @@ namespace TrenchBroom {
                     bounds += frameVertices[i];
                 }
                 
-                center /= vertices.size();
+                center /= static_cast<float>(vertices.size());
                 
                 Vec3f diff = frameVertices[0] - center;
 				float distSquared = diff.lengthSquared();

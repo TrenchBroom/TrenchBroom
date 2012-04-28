@@ -88,19 +88,19 @@ namespace TrenchBroom {
                     center = m_faces[0]->center();
                     for (int i = 1; i < m_faces.size(); i++)
                         center += m_faces[i]->center();
-                    center /= m_faces.size();
+                    center /= static_cast<float>(m_faces.size());
                     break;
                 case TB_SM_BRUSHES:
                     center = m_brushes[0]->center();
                     for (int i = 1; i < m_brushes.size(); i++)
                         center += m_brushes[i]->center();
-                    center /= m_brushes.size();
+                    center /= static_cast<float>(m_brushes.size());
                     break;
                 case TB_SM_ENTITIES:
                     center = m_entities[0]->center();
                     for (int i = 1; i < m_entities.size(); i++)
                         center += m_entities[i]->center();
-                    center /= m_entities.size();
+                    center /= static_cast<float>(m_entities.size());
                     break;
                 case TB_SM_BRUSHES_ENTITIES:
                     center = m_brushes[0]->center();
@@ -108,7 +108,7 @@ namespace TrenchBroom {
                         center += m_brushes[i]->center();
                     for (int i = 0; i < m_entities.size(); i++)
                         center += m_entities[i]->center();
-                    center /= (m_brushes.size() + m_entities.size());
+                    center /= static_cast<float>(m_brushes.size() + m_entities.size());
                     break;
                 default:
                     center = Nan3f;

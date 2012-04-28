@@ -1540,7 +1540,7 @@ namespace TrenchBroom {
             Vec3f center = vertices[0]->position;
             for (int i = 1; i < vertices.size(); i++)
                 center += vertices[i]->position;
-            center /= vertices.size();
+            center /= static_cast<float>(vertices.size());
             return center;
         }
         

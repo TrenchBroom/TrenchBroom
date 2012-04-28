@@ -72,7 +72,7 @@ namespace TrenchBroom {
             float m_selectedInfoOverlayFadeDistance;
             
             string m_rendererFontName;
-            float m_rendererFontSize;
+            int m_rendererFontSize;
             
             float m_gridAlpha;
             
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             float selectedInfoOverlayFadeDistance();
             
             const string& rendererFontName();
-            float rendererFontSize();
+            int rendererFontSize();
             
             float gridAlpha();
             

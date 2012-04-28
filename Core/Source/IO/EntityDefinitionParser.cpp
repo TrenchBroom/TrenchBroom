@@ -85,7 +85,7 @@ namespace TrenchBroom {
                 m_token.data = *data;
             m_token.line = m_line;
             m_token.column = m_column;
-            m_token.charsRead = (int)m_stream.tellg();
+            m_token.charsRead = static_cast<int>(m_stream.tellg());
             return &m_token;
         }
 
@@ -310,19 +310,19 @@ namespace TrenchBroom {
 
             expect(TB_TT_B_O, token = m_tokenizer->next());
             expect(TB_TT_DEC, token = m_tokenizer->next());
-            bounds.min.x = atoi(token->data.c_str());
+            bounds.min.x = atof(token->data.c_str());
             expect(TB_TT_DEC, token = m_tokenizer->next());
-            bounds.min.y = atoi(token->data.c_str());
+            bounds.min.y = atof(token->data.c_str());
             expect(TB_TT_DEC, token = m_tokenizer->next());
-            bounds.min.z = atoi(token->data.c_str());
+            bounds.min.z = atof(token->data.c_str());
             expect(TB_TT_B_C, token = m_tokenizer->next());
             expect(TB_TT_B_O, token = m_tokenizer->next());
             expect(TB_TT_DEC, token = m_tokenizer->next());
-            bounds.max.x = atoi(token->data.c_str());
+            bounds.max.x = atof(token->data.c_str());
             expect(TB_TT_DEC, token = m_tokenizer->next());
-            bounds.max.y = atoi(token->data.c_str());
+            bounds.max.y = atof(token->data.c_str());
             expect(TB_TT_DEC, token = m_tokenizer->next());
-            bounds.max.z = atoi(token->data.c_str());
+            bounds.max.z = atof(token->data.c_str());
             expect(TB_TT_B_C, token = m_tokenizer->next());
             return bounds;
         }

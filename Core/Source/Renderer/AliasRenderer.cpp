@@ -39,7 +39,7 @@ namespace TrenchBroom {
         }
 
         void AliasRenderer::render(RenderContext& context, Model::Entity& entity) {
-            render(context, entity.origin(), entity.angle());
+            render(context, entity.origin(), static_cast<float>(entity.angle()));
         }
 
         void AliasRenderer::render(RenderContext& context, const Vec3f& position, float angle) {

@@ -60,7 +60,7 @@ namespace TrenchBroom {
             return definition;
         }
 
-        EntityDefinition* EntityDefinition::brushDefinition(const string& name, const Vec4f& color, const map<string, SpawnFlag>& flags, const vector<Property*> properties, const string& description) {
+        EntityDefinition* EntityDefinition::brushDefinition(const string& name, const Vec4f& color, const map<string, SpawnFlag>& flags, const vector<Property*>& properties, const string& description) {
             EntityDefinition* definition = new EntityDefinition();
             definition->type = TB_EDT_BRUSH;
             definition->name = name;
@@ -125,8 +125,6 @@ namespace TrenchBroom {
 
             return NULL;
         }
-
-#pragma mark EntityDefinitionManager
 
         EntityDefinitionMap* EntityDefinitionManager::sharedManagers = NULL;
 

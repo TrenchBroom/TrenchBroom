@@ -68,8 +68,6 @@ namespace TrenchBroom {
             if (m_postNotifications) mapCleared(*this);
         }
 
-# pragma mark Point File Support
-
         void Map::loadPointFile(const string& path) {
             if (!m_leakPoints.empty()) unloadPointFile();
 
@@ -99,7 +97,6 @@ namespace TrenchBroom {
             return m_leakPoints;
         }
 
-# pragma mark Entity related functions
         const vector<Entity*>& Map::entities() {
             return m_entities;
         }
@@ -180,8 +177,6 @@ namespace TrenchBroom {
             }
         }
 
-# pragma mark Brush related functions
-
         void Map::addBrushesToEntity(Entity& entity) {
             const vector<Brush*>& brushes = m_selection->brushes();
             if (brushes.empty()) return;
@@ -255,8 +250,6 @@ namespace TrenchBroom {
 
             return drag;
         }
-
-# pragma mark Common functions
 
         void Map::duplicateObjects(vector<Entity*>& newEntities, vector<Brush*>& newBrushes) {
             const vector<Entity*>& entities = m_selection->entities();
@@ -409,7 +402,6 @@ namespace TrenchBroom {
             }
         }
 
-# pragma mark Face related functoins
         void Map::setXOffset(int xOffset) {
             const vector<Face*>& faces = m_selection->faces();
             if (faces.empty()) return;
@@ -508,7 +500,6 @@ namespace TrenchBroom {
             return del;
         }
 
-# pragma mark Vertex related functions
         MoveResult Map::moveVertex(Brush& brush, int vertexIndex, const Vec3f& delta) {
             if (find(m_selection->brushes().begin(), m_selection->brushes().end(), &brush) == m_selection->brushes().end())
                 m_selection->addBrush(brush);
@@ -542,7 +533,6 @@ namespace TrenchBroom {
             return result;
         }
 
-# pragma mark getters
         const BBox& Map::worldBounds() {
             return m_worldBounds;
         }

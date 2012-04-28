@@ -231,8 +231,8 @@ namespace TrenchBroom {
         void Face::restore(const Face& faceTemplate) {
             faceTemplate.points(m_points[0], m_points[1], m_points[2]);
             m_boundary = faceTemplate.boundary();
-            m_xOffset = faceTemplate.xOffset();
-            m_yOffset = faceTemplate.yOffset();
+            m_xOffset = static_cast<float>(faceTemplate.xOffset());
+            m_yOffset = static_cast<float>(faceTemplate.yOffset());
             m_rotation = faceTemplate.rotation();
             m_xScale = faceTemplate.xScale();
             m_yScale = faceTemplate.yScale();
@@ -331,20 +331,20 @@ namespace TrenchBroom {
         }
         
         int Face::xOffset() const {
-            return m_xOffset;
+            return static_cast<int>(m_xOffset);
         }
         
         void Face::setXOffset(int xOffset) {
-            m_xOffset = xOffset;
+            m_xOffset = static_cast<float>(xOffset);
             m_texAxesValid = false;
         }
         
         int Face::yOffset() const {
-            return m_yOffset;
+            return static_cast<int>(m_yOffset);
         }
         
         void Face::setYOffset(int yOffset) {
-            m_yOffset = yOffset;
+            m_yOffset = static_cast<float>(yOffset);
             m_texAxesValid = false;
         }
         

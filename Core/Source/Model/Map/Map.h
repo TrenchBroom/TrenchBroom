@@ -57,7 +57,6 @@ namespace TrenchBroom {
             
             bool m_postNotifications;
         public:
-# pragma mark Events
             typedef Event<const vector<Entity*>&> EntityEvent;
             typedef Event<const vector<Brush*>&> BrushEvent;
             typedef Event<const vector<Face*>&> FaceEvent;
@@ -82,16 +81,13 @@ namespace TrenchBroom {
             Map(const BBox& worldBounds, const string& entityDefinitionFilePath);
             ~Map();
             
-# pragma mark Saving and Clearing
             void save(const string& path);
             void clear();
             
-# pragma mark Point File Support
             void loadPointFile(const string& path);
             void unloadPointFile();
             const vector<Vec3f>& leakPoints() const;
             
-# pragma mark Entity related functions
             const vector<Entity*>& entities();
             Entity* worldspawn(bool create);
             void addEntity(Entity* entity);
@@ -100,7 +96,6 @@ namespace TrenchBroom {
             void setEntityDefinition(Entity* entity);
             void setEntityProperty(const string& key, const string* value);
             
-# pragma mark Brush related functions
             void addBrushesToEntity(Entity& entity);
             void moveBrushesToEntity(Entity& entity);
             Brush* createBrush(Entity& entity, Brush& brushTemplate);
@@ -108,7 +103,6 @@ namespace TrenchBroom {
             void snapBrushes();
             bool resizeBrushes(vector<Face*>& faces, float delta, bool lockTextures);
             
-# pragma mark Common functions
             void duplicateObjects(vector<Entity*>& newEntities, vector<Brush*>& newBrushes);
             void translateObjects(const Vec3f& delta, bool lockTextures);
             void rotateObjects90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures);
@@ -116,7 +110,6 @@ namespace TrenchBroom {
             void flipObjects(EAxis axis, const Vec3f& center, bool lockTextures);
             void deleteObjects();
             
-# pragma mark Face related functoins
             void setXOffset(int xOffset);
             void setYOffset(int yOffset);
             void translateFaces(float delta, const Vec3f& dir);
@@ -126,12 +119,10 @@ namespace TrenchBroom {
             void setYScale(float yScale);
             bool deleteFaces();
             
-# pragma mark Vertex related functions
             MoveResult moveVertex(Brush& brush, int vertexIndex, const Vec3f& delta);
             MoveResult moveEdge(Brush& brush, int edgeIndex, const Vec3f& delta);
             MoveResult moveFace(Brush& brush, int faceIndex, const Vec3f& delta);
             
-# pragma mark Getters
             const BBox& worldBounds();
             Octree& octree();
             Picker& picker();
