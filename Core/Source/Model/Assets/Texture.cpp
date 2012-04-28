@@ -182,6 +182,8 @@ namespace TrenchBroom {
             }
 
             void TextureManager::clear() {
+                for (map<string, Texture*>::iterator it = m_dummies.begin(); it != m_dummies.end(); ++it)
+                    delete it->second;
                 m_dummies.clear();
                 m_textures.clear();
                 while (!m_collections.empty()) delete m_collections.back(), m_collections.pop_back();

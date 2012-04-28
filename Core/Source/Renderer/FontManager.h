@@ -24,6 +24,7 @@
 #include <vector>
 #include <map>
 #include "GL/GLee.h"
+#include "Utilities/SharedPointer.h"
 
 using namespace std;
 
@@ -95,6 +96,8 @@ namespace TrenchBroom {
             void render();
         };
 
+        typedef tr1::shared_ptr<StringRenderer> StringRendererPtr;
+
         class StringFactory {
         public:
             virtual ~StringFactory() {};
@@ -103,19 +106,23 @@ namespace TrenchBroom {
 
         class FontManager {
         private:
-            typedef pair<StringRenderer*, int> StringCacheEntry;
-            typedef map<const string, StringCacheEntry*> StringCache;
-            typedef map<const FontDescriptor, StringCache*> FontCache;
+            typedef pair<StringRendererPtr, int> StringCacheEntry;
+            typedef tr1::shared_ptr<StringCacheEntry> StringCacheEntryPtr;
+
+            typedef map<const string, StringCacheEntryPtr> StringCache;
+            typedef tr1::shared_ptr<StringCache> StringCachePtr;
+            
+            typedef map<const FontDescriptor, StringCachePtr> FontCache;
 
             Vbo* m_vbo;
-            vector<StringRenderer*> m_unpreparedStrings;
+            vector<StringRendererPtr> m_unpreparedStrings;
             FontCache m_fontCache;
             StringFactory& m_stringFactory;
         public:
             FontManager(StringFactory& stringFactory);
             ~FontManager();
-            StringRenderer& createStringRenderer(const FontDescriptor& descriptor, const string& str);
-            void destroyStringRenderer(StringRenderer& stringRenderer);
+            StringRendererPtr createStringRenderer(const FontDescriptor& descriptor, const string& str);
+            void destroyStringRenderer(StringRendererPtr stringRenderer);
             void clear();
 
             void activate();

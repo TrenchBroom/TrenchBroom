@@ -22,6 +22,8 @@
 
 #include <map>
 #include "Utilities/VecMath.h"
+#include "Renderer/FontManager.h"
+#include "Utilities/SharedPointer.h"
 
 using namespace std;
 
@@ -38,20 +40,21 @@ namespace TrenchBroom {
             public:
                 virtual const Vec3f& position() = 0;
             };
+            typedef tr1::shared_ptr<Anchor> AnchorPtr;
         private:
-            typedef pair<StringRenderer*, Anchor*> TextEntry;
+            typedef pair<StringRendererPtr, AnchorPtr> TextEntry;
             typedef map<int, TextEntry> TextMap;
             
             float m_fadeDistance;
             FontManager& m_fontManager;
             TextMap m_entries;
             
-            void addString(int key, StringRenderer& stringRenderer, Anchor& anchor);
+            void addString(int key, StringRendererPtr stringRenderer, AnchorPtr anchor);
         public:
             TextRenderer(FontManager& fontManager, float fadeDistance);
             ~TextRenderer();
             
-            void addString(int key, const string& str, const FontDescriptor& descriptor, Anchor& anchor);
+            void addString(int key, const string& str, const FontDescriptor& descriptor, AnchorPtr anchor);
             void removeString(int key);
             void transferString(int key, TextRenderer& destination);
             void clear();

@@ -19,15 +19,14 @@
 
 #include "TextRenderer.h"
 #include "Controller/Camera.h"
-#include "Renderer/FontManager.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderUtils.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        void TextRenderer::addString(int key, StringRenderer& stringRenderer, Anchor& anchor) {
+        void TextRenderer::addString(int key, StringRendererPtr stringRenderer, AnchorPtr anchor) {
             removeString(key);
-            m_entries[key] = TextEntry(&stringRenderer, &anchor);
+            m_entries[key] = TextEntry(stringRenderer, anchor);
         }
 
         TextRenderer::TextRenderer(FontManager& fontManager, float fadeDistance) : m_fontManager(fontManager), m_fadeDistance(fadeDistance) {}
@@ -36,16 +35,15 @@ namespace TrenchBroom {
             clear();
         }
 
-        void TextRenderer::addString(int key, const string& str, const FontDescriptor& descriptor, Anchor& anchor) {
-            StringRenderer& stringRenderer = m_fontManager.createStringRenderer(descriptor, str);
+        void TextRenderer::addString(int key, const string& str, const FontDescriptor& descriptor, AnchorPtr anchor) {
+            StringRendererPtr stringRenderer = m_fontManager.createStringRenderer(descriptor, str);
             addString(key, stringRenderer, anchor);
         }
         
         void TextRenderer::removeString(int key) {
             TextMap::iterator textIt = m_entries.find(key);
             if (textIt != m_entries.end()) {
-                m_fontManager.destroyStringRenderer(*textIt->second.first);
-                delete textIt->second.second; // delete anchor
+                m_fontManager.destroyStringRenderer(textIt->second.first);
                 m_entries.erase(textIt);
             }
         }
@@ -53,17 +51,15 @@ namespace TrenchBroom {
         void TextRenderer::transferString(int key, TextRenderer& destination) {
             TextMap::iterator textIt = m_entries.find(key);
             if (textIt != m_entries.end()) {
-                destination.addString(key, *textIt->second.first, *textIt->second.second);
+                destination.addString(key, textIt->second.first, textIt->second.second);
                 m_entries.erase(textIt);
             }
         }
         
         void TextRenderer::clear() {
             TextMap::iterator textIt;
-            for (textIt = m_entries.begin(); textIt != m_entries.end(); ++textIt) {
-                m_fontManager.destroyStringRenderer(*textIt->second.first);
-                delete textIt->second.second; // delete anchor
-            }
+            for (textIt = m_entries.begin(); textIt != m_entries.end(); ++textIt)
+                m_fontManager.destroyStringRenderer(textIt->second.first);
             m_entries.clear();
         }
         
@@ -78,8 +74,8 @@ namespace TrenchBroom {
 
             TextMap::iterator textIt;
             for (textIt = m_entries.begin(); textIt != m_entries.end(); ++textIt) {
-                StringRenderer* renderer = textIt->second.first;
-                Anchor* anchor = textIt->second.second;
+                StringRendererPtr renderer = textIt->second.first;
+                AnchorPtr anchor = textIt->second.second;
                 const Vec3f& position = anchor->position();
 
                 float dist2 = context.camera.squaredDistanceTo(position);

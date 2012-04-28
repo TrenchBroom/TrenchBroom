@@ -207,51 +207,51 @@ namespace TrenchBroom {
             delete &m_stringFactory;
         }
 
-        StringRenderer& FontManager::createStringRenderer(const FontDescriptor& descriptor, const string& str) {
+        StringRendererPtr FontManager::createStringRenderer(const FontDescriptor& descriptor, const string& str) {
             FontCache::iterator fontIt = m_fontCache.find(descriptor);
-            StringCache* stringCache = NULL;
+            StringCachePtr stringCache;
             if (fontIt != m_fontCache.end()) {
                 stringCache = fontIt->second;
                 StringCache::iterator stringIt = stringCache->find(str);
                 if (stringIt != stringCache->end()) {
                     stringIt->second->second++;
-                    return *stringIt->second->first;
+                    return stringIt->second->first;
                 }
             }
 
             StringData* stringData = m_stringFactory.createStringData(descriptor, str);
             StringRenderer* stringRenderer = new StringRenderer(descriptor, str, stringData);
-
-            if (stringCache == NULL) {
-                stringCache = new StringCache();
+            StringRendererPtr stringRendererPtr(stringRenderer);
+            
+            if (stringCache.get() == NULL) {
+                stringCache = StringCachePtr(new StringCache());
                 m_fontCache[descriptor] = stringCache;
             }
 
-            m_unpreparedStrings.push_back(stringRenderer);
-            (*stringCache)[str] = new StringCacheEntry(stringRenderer, 1);
+            m_unpreparedStrings.push_back(stringRendererPtr);
+            (*stringCache)[str] = StringCacheEntryPtr(new StringCacheEntry(stringRendererPtr, 1));
 
-            return *stringRenderer;
+            return stringRendererPtr;
         }
 
-        void FontManager::destroyStringRenderer(StringRenderer& stringRenderer) {
-            vector<StringRenderer*>::iterator unprepStrIt;
+        void FontManager::destroyStringRenderer(StringRendererPtr stringRenderer) {
+            vector<StringRendererPtr>::iterator unprepStrIt;
             for (unprepStrIt = m_unpreparedStrings.begin(); unprepStrIt != m_unpreparedStrings.end(); ++unprepStrIt) {
-                if (*unprepStrIt == &stringRenderer) {
+                if (unprepStrIt->get() == stringRenderer.get()) {
                     m_unpreparedStrings.erase(unprepStrIt);
                     break;
                 }
             }
 
-            FontCache::iterator fontIt = m_fontCache.find(stringRenderer.fontDescriptor);
-            StringCache* stringCache = NULL;
+            FontCache::iterator fontIt = m_fontCache.find(stringRenderer->fontDescriptor);
+            StringCachePtr stringCache;
             if (fontIt != m_fontCache.end()) {
                 stringCache = fontIt->second;
-                StringCache::iterator stringIt = stringCache->find(stringRenderer.str);
+                StringCache::iterator stringIt = stringCache->find(stringRenderer->str);
                 if (stringIt != stringCache->end()) {
-                    StringCacheEntry* entry = stringIt->second;
+                    StringCacheEntryPtr entry = stringIt->second;
                     entry->second--;
                     if (entry->second <= 0) {
-                        delete entry->first;
                         stringCache->erase(stringIt);
                         if (stringCache->empty())
                             m_fontCache.erase(fontIt);
@@ -262,17 +262,6 @@ namespace TrenchBroom {
 
         void FontManager::clear() {
             m_unpreparedStrings.clear();
-
-            FontCache::iterator fontIt;
-            for (fontIt = m_fontCache.begin(); fontIt != m_fontCache.end(); ++fontIt) {
-                StringCache* stringCache = fontIt->second;
-                StringCache::iterator stringIt;
-                for (stringIt = stringCache->begin(); stringIt != stringCache->end(); ++stringIt) {
-                    delete stringIt->second->first;
-                    delete stringIt->second;
-                }
-                delete stringCache;
-            }
             m_fontCache.clear();
         }
 

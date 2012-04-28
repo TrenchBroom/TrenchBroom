@@ -62,19 +62,15 @@ namespace TrenchBroom {
                         texture = textureIt->second;
                     }
 
-                    InfoBuffer* infoBuffer = NULL;
                     TextureVertexInfo::iterator infoIt = m_vertexInfos.find(texture);
                     if (infoIt == m_vertexInfos.end()) {
-                        infoBuffer = new pair<IntBuffer*, IntBuffer*>(new IntBuffer(), new IntBuffer());
-                        infoBuffer->first->reserve(0xF);
-                        infoBuffer->second->reserve(0xF);
-                        m_vertexInfos[texture] = infoBuffer;
-                    } else {
-                        infoBuffer = infoIt->second;
+                        m_vertexInfos[texture].first.reserve(0xF);
+                        m_vertexInfos[texture].second.reserve(0xF);
                     }
                     
-                    infoBuffer->first->push_back(offset / vertexSize);
-                    infoBuffer->second->push_back((GLsizei)face.vertices.size());
+                    InfoBuffer& infoBuffer = m_vertexInfos[texture];
+                    infoBuffer.first.push_back(offset / vertexSize);
+                    infoBuffer.second.push_back((GLsizei)face.vertices.size());
                     
                     for (int j = 0; j < face.vertices.size(); j++) {
                         const Vec3f& vertex = face.vertices[j];
@@ -111,12 +107,12 @@ namespace TrenchBroom {
             
             for (TextureCache::iterator textureIt = m_textures.begin(); textureIt != m_textures.end(); ++textureIt) {
                 Model::Assets::Texture* texture = textureIt->second;
-                InfoBuffer* infoBuffer = m_vertexInfos[texture];
-                IntBuffer* indexBuffer = infoBuffer->first;
-                IntBuffer* countBuffer = infoBuffer->second;
-                GLint* indexPtr = &(*indexBuffer)[0];
-                GLsizei* countPtr = &(*countBuffer)[0];
-                GLsizei primCount = (int)indexBuffer->size();
+                InfoBuffer& infoBuffer = m_vertexInfos[texture];
+                IntBuffer& indexBuffer = infoBuffer.first;
+                IntBuffer& countBuffer = infoBuffer.second;
+                GLint* indexPtr = &indexBuffer[0];
+                GLsizei* countPtr = &countBuffer[0];
+                GLsizei primCount = static_cast<int>(indexBuffer.size());
                 
                 texture->activate();
                 glMultiDrawArrays(GL_POLYGON, indexPtr, countPtr, primCount);

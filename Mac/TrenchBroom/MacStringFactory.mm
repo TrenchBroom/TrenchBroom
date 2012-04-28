@@ -38,18 +38,12 @@ namespace TrenchBroom {
                 vertex->x = coords[0];
                 vertex->y = coords[1];
                 *outData = vertex;
+                tempPoints.push_back(vertex);
             }
             
             void gluTessEndData(StringData* data) {
                 data->end();
             }
-        }
-        
-        void MacStringFactory::resizePointArray(int newCapacity) {
-            NSPoint* temp = m_points;
-            m_points = new NSPoint[newCapacity];
-            memcpy(m_points, temp, m_pointCapacity);
-            m_pointCapacity = newCapacity;
         }
         
         MacStringFactory::MacStringFactory() : m_gluTess(NULL), m_points(NULL) {
@@ -61,8 +55,6 @@ namespace TrenchBroom {
             [m_textStorage addLayoutManager:m_layoutManager];
             
             [m_textContainer setLineFragmentPadding:0];
-            m_pointCapacity = 128;
-            m_points = new NSPoint[m_pointCapacity];
         }
 
         MacStringFactory::~MacStringFactory() {
@@ -71,7 +63,6 @@ namespace TrenchBroom {
             [m_layoutManager release];
             if (m_gluTess != NULL)
                 gluDeleteTess(m_gluTess);
-            delete [] m_points;
         }
 
         StringData* MacStringFactory::createStringData(const FontDescriptor& descriptor, const string& str) {
@@ -132,8 +123,7 @@ namespace TrenchBroom {
             GLdouble coords[3];
             coords[2] = 0;
             
-            while ([path elementCount] > m_pointCapacity)
-                resizePointArray(2 * m_pointCapacity);
+            m_points.resize([path elementCount]);
             
             for (int i = 0; i < [path elementCount]; i++) {
                 NSBezierPathElement element = [path elementAtIndex:i associatedPoints:&m_points[i]];
@@ -158,6 +148,10 @@ namespace TrenchBroom {
                 }
             }
             gluTessEndPolygon(m_gluTess);
+            
+            while (!StringFactoryCallback::tempPoints.empty())
+                delete StringFactoryCallback::tempPoints.back(), 
+                StringFactoryCallback::tempPoints.pop_back();
             
             return stringData;
         }

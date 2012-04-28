@@ -24,6 +24,7 @@
 #include <vector>
 #include "GL/GLee.h"
 #include "Utilities/VecMath.h"
+#include "Renderer/FontManager.h"
 
 using namespace std;
 
@@ -158,7 +159,7 @@ namespace TrenchBroom {
 
             // selection guides
             BBox m_selectionBounds;
-            StringRenderer* m_guideStrings[3];
+            StringRendererPtr m_guideStrings[3];
 
             ChangeSet m_changeSet;
             Model::Assets::Texture* m_selectionDummyTexture;

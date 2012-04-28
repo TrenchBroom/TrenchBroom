@@ -49,8 +49,8 @@ namespace TrenchBroom {
         private:
             typedef map<string, Model::Assets::Texture*> TextureCache;
             typedef vector<GLint> IntBuffer;
-            typedef pair<IntBuffer*, IntBuffer*> InfoBuffer;
-            typedef map<Model::Assets::Texture*, InfoBuffer* > TextureVertexInfo;
+            typedef pair<IntBuffer, IntBuffer> InfoBuffer;
+            typedef map<Model::Assets::Texture*, InfoBuffer> TextureVertexInfo;
 
             Model::Assets::Bsp& m_bsp;
             Vbo& m_vbo;

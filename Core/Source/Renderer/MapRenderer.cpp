@@ -471,9 +471,9 @@ namespace TrenchBroom {
             m_selectionBounds = m_editor.map().selection().bounds();
 
             for (int i = 0; i < 3; i++) {
-                if (m_guideStrings[i] != NULL) {
-                    fontManager.destroyStringRenderer(*m_guideStrings[i]);
-                    m_guideStrings[i] = NULL;
+                if (m_guideStrings[i].get() != NULL) {
+                    fontManager.destroyStringRenderer(m_guideStrings[i]);
+                    m_guideStrings[i] = StringRendererPtr();
                 }
             }
 
@@ -487,7 +487,7 @@ namespace TrenchBroom {
 
                 for (int i = 0; i < 3; i++) {
                     sprintf(str, "%.0f", size[i]);
-                    m_guideStrings[i] = &fontManager.createStringRenderer(descriptor, str);
+                    m_guideStrings[i] = fontManager.createStringRenderer(descriptor, str);
                 }
             }
         }
@@ -622,7 +622,8 @@ namespace TrenchBroom {
 
                         const string& classname = *entity->classname();
                         EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
-                        m_classnameRenderer->addString(entity->uniqueId(), classname, descriptor, *anchor);
+                        TextRenderer::AnchorPtr anchorPtr(anchor);
+                        m_classnameRenderer->addString(entity->uniqueId(), classname, descriptor, anchorPtr);
                     }
                 }
 
@@ -1203,9 +1204,6 @@ namespace TrenchBroom {
             m_classnameRenderer = new TextRenderer(m_fontManager, prefs.infoOverlayFadeDistance());
             m_selectedClassnameRenderer = new TextRenderer(m_fontManager, prefs.selectedInfoOverlayFadeDistance());
 
-            for (int i = 0; i < 3; i++)
-                m_guideStrings[i] = NULL;
-
             m_selectionDummyTexture = NULL;
 
             Model::Map& map = m_editor.map();
@@ -1251,6 +1249,14 @@ namespace TrenchBroom {
             delete m_classnameRenderer;
             delete m_selectedClassnameRenderer;
 
+            for (FaceIndexBuffers::iterator it = m_faceIndexBuffers.begin(); it != m_faceIndexBuffers.end(); ++it)
+                delete it->second;
+            m_faceIndexBuffers.clear();
+
+            for (FaceIndexBuffers::iterator it = m_selectedFaceIndexBuffers.begin(); it != m_selectedFaceIndexBuffers.end(); ++it)
+                delete it->second;
+            m_selectedFaceIndexBuffers.clear();
+            
             if (m_selectionDummyTexture != NULL)
                 delete m_selectionDummyTexture;
         }
