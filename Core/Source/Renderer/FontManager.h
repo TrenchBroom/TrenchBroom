@@ -106,7 +106,12 @@ namespace TrenchBroom {
 
         class FontManager {
         private:
-            typedef pair<StringRendererPtr, int> StringCacheEntry;
+            class StringCacheEntry {
+            public:
+                StringRendererPtr stringRenderer;
+                int count;
+                StringCacheEntry(StringRendererPtr stringRenderer, int count) : stringRenderer(stringRenderer), count(count) {};
+            };
             typedef tr1::shared_ptr<StringCacheEntry> StringCacheEntryPtr;
 
             typedef map<const string, StringCacheEntryPtr> StringCache;

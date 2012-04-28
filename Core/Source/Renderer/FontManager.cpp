@@ -214,8 +214,9 @@ namespace TrenchBroom {
                 stringCache = fontIt->second;
                 StringCache::iterator stringIt = stringCache->find(str);
                 if (stringIt != stringCache->end()) {
-                    stringIt->second->second++;
-                    return stringIt->second->first;
+                    StringCacheEntryPtr entry = stringIt->second;
+                    entry->count++;
+                    return entry->stringRenderer;
                 }
             }
 
@@ -250,8 +251,8 @@ namespace TrenchBroom {
                 StringCache::iterator stringIt = stringCache->find(stringRenderer->str);
                 if (stringIt != stringCache->end()) {
                     StringCacheEntryPtr entry = stringIt->second;
-                    entry->second--;
-                    if (entry->second <= 0) {
+                    entry->count--;
+                    if (entry->count <= 0) {
                         stringCache->erase(stringIt);
                         if (stringCache->empty())
                             m_fontCache.erase(fontIt);
