@@ -424,6 +424,7 @@
 		48B50E4C152D019C00E75402 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		48C9794D1530CB72003020FC /* quake.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = quake.def; path = ../../Resources/Defs/quake.def; sourceTree = "<group>"; };
 		48C9794F153174B9003020FC /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
+		48F579F4154BFC830039B369 /* SharedPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SharedPointer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -586,6 +587,7 @@
 				4825B41A153AE59F007E3AE1 /* Event.h */,
 				4825B41B153AE59F007E3AE1 /* Filter.cpp */,
 				4825B41C153AE59F007E3AE1 /* Filter.h */,
+				48F579F4154BFC830039B369 /* SharedPointer.h */,
 				4825B41E153AE59F007E3AE1 /* Utils.cpp */,
 				4825B41F153AE59F007E3AE1 /* Utils.h */,
 				4825B420153AE59F007E3AE1 /* VecMath.cpp */,

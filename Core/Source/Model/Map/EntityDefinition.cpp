@@ -39,7 +39,7 @@ namespace TrenchBroom {
             return left.flag < right.flag;
         }
 
-        EntityDefinition* EntityDefinition::baseDefinition(const string& name, const map<string, SpawnFlag>& flags, const vector<Property*>& properties) {
+        EntityDefinition* EntityDefinition::baseDefinition(const string& name, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties) {
             EntityDefinition* definition = new EntityDefinition();
             definition->type = TB_EDT_BASE;
             definition->name = name;
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return definition;
         }
 
-        EntityDefinition* EntityDefinition::pointDefinition(const string& name, const Vec4f& color, const BBox& bounds, const map<string, SpawnFlag>& flags, const vector<Property*>& properties, const string& description) {
+        EntityDefinition* EntityDefinition::pointDefinition(const string& name, const Vec4f& color, const BBox& bounds, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description) {
             EntityDefinition* definition = new EntityDefinition();
             definition->type = TB_EDT_POINT;
             definition->name = name;
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             return definition;
         }
 
-        EntityDefinition* EntityDefinition::brushDefinition(const string& name, const Vec4f& color, const map<string, SpawnFlag>& flags, const vector<Property*>& properties, const string& description) {
+        EntityDefinition* EntityDefinition::brushDefinition(const string& name, const Vec4f& color, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description) {
             EntityDefinition* definition = new EntityDefinition();
             definition->type = TB_EDT_BRUSH;
             definition->name = name;
@@ -69,10 +69,6 @@ namespace TrenchBroom {
             definition->properties = properties;
             definition->description = description;
             return definition;
-        }
-
-        EntityDefinition::~EntityDefinition() {
-            while(!properties.empty()) delete properties.back(), properties.pop_back();
         }
 
         vector<SpawnFlag> EntityDefinition::flagsForMask(int mask) const {
@@ -96,13 +92,13 @@ namespace TrenchBroom {
 
         }
 
-        ModelProperty* EntityDefinition::modelPropertyForEntity(const Entity& entity) const {
-            ModelProperty* defaultProperty = NULL;
-            ModelProperty* specificProperty = NULL;
+        ModelPropertyPtr EntityDefinition::modelPropertyForEntity(const Entity& entity) const {
+            ModelPropertyPtr defaultProperty;
+            ModelPropertyPtr specificProperty;
             for (int i = 0; i < properties.size() && specificProperty == NULL; i++) {
-                Property* property = properties[i];
+                PropertyPtr property = properties[i];
                 if (property->type == TB_EDP_MODEL) {
-                    ModelProperty* modelProperty = static_cast<ModelProperty*>(property);
+                    ModelPropertyPtr modelProperty = tr1::static_pointer_cast<ModelProperty>(property);
                     if (modelProperty->flagName.empty())
                         defaultProperty = modelProperty;
                     else if (flagSetOnEntity(modelProperty->flagName, entity))
@@ -110,20 +106,20 @@ namespace TrenchBroom {
                 }
             }
 
-            return specificProperty != NULL ? specificProperty : defaultProperty;
+            return specificProperty.get() != NULL ? specificProperty : defaultProperty;
         }
 
-        ModelProperty* EntityDefinition::defaultModelProperty() const {
+        ModelPropertyPtr EntityDefinition::defaultModelProperty() const {
             for (int i = 0; i < properties.size(); i++) {
-                Property* property = properties[i];
+                PropertyPtr property = properties[i];
                 if (property->type == TB_EDP_MODEL) {
-                    ModelProperty* modelProperty = static_cast<ModelProperty*>(property);
+                    ModelPropertyPtr modelProperty = tr1::static_pointer_cast<ModelProperty>(property);
                     if (modelProperty->flagName.empty())
                         return modelProperty;
                 }
             }
 
-            return NULL;
+            return ModelPropertyPtr();
         }
 
         EntityDefinitionMap* EntityDefinitionManager::sharedManagers = NULL;

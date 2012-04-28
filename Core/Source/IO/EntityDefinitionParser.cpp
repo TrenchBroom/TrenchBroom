@@ -345,12 +345,12 @@ namespace TrenchBroom {
             return flags;
         }
 
-        vector<Model::Property*> EntityDefinitionParser::parseProperties() {
-            vector<Model::Property*> properties;
+        vector<Model::PropertyPtr> EntityDefinitionParser::parseProperties() {
+            vector<Model::PropertyPtr> properties;
             EntityDefinitionToken* token = m_tokenizer->peek();
             if (token->type == TB_TT_CB_O) {
                 token = m_tokenizer->next();
-                Model::Property* property;
+                Model::PropertyPtr property;
                 while ((property = parseProperty()) != NULL)
                     properties.push_back(property);
                 expect(TB_TT_CB_C, token);
@@ -358,10 +358,10 @@ namespace TrenchBroom {
             return properties;
         }
 
-        Model::Property* EntityDefinitionParser::parseProperty() {
+        Model::PropertyPtr EntityDefinitionParser::parseProperty() {
             EntityDefinitionToken* token = nextTokenIgnoringNewlines();
             if (token->type != TB_TT_WORD)
-                return NULL;
+                return Model::PropertyPtr();
 
             Model::Property* property = NULL;
             string type = token->data;
@@ -425,7 +425,7 @@ namespace TrenchBroom {
             }
 
             expect(TB_TT_SC, token = nextTokenIgnoringNewlines());
-            return property;
+            return Model::PropertyPtr(property);
         }
 
         string EntityDefinitionParser::parseDescription() {
@@ -462,7 +462,7 @@ namespace TrenchBroom {
             Vec4f color;
             BBox bounds;
             map<string, Model::SpawnFlag> flags;
-            vector<Model::Property*> properties;
+            vector<Model::PropertyPtr> properties;
             string description;
 
             token = m_tokenizer->next();

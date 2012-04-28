@@ -33,10 +33,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        int comparePaks(const Pak* pak1, const Pak* pak2) {
-			return pak1->path.compare(pak2->path) < 0;
-        }
-        
         Pak::Pak(string path) {
             char magic[PAK_HEADER_MAGIC_LENGTH];
             char entryName[PAK_ENTRY_NAME_LENGTH];
@@ -44,22 +40,22 @@ namespace TrenchBroom {
             int entryCount;
 
             this->path = path;
-			mStream.open(this->path.c_str(), ios::binary);
-            if (mStream.is_open()) {
-                mStream.seekg(PAK_HEADER_ADDRESS, ios::beg);
-                mStream.read((char *)magic, PAK_HEADER_MAGIC_LENGTH); // todo check and throw exception
-                mStream.read((char *)&directoryAddr, sizeof(int32_t));
-                mStream.read((char *)&directorySize, sizeof(int32_t));
+			m_stream.open(this->path.c_str(), ios::binary);
+            if (m_stream.is_open()) {
+                m_stream.seekg(PAK_HEADER_ADDRESS, ios::beg);
+                m_stream.read((char *)magic, PAK_HEADER_MAGIC_LENGTH); // todo check and throw exception
+                m_stream.read((char *)&directoryAddr, sizeof(int32_t));
+                m_stream.read((char *)&directorySize, sizeof(int32_t));
                 entryCount = directorySize / PAK_ENTRY_LENGTH;
 
-                mStream.seekg(directoryAddr, ios::beg);
+                m_stream.seekg(directoryAddr, ios::beg);
                 for (int i = 0; i < entryCount; i++) {
                     PakEntry entry;
 
-                    mStream.read(entryName, PAK_ENTRY_NAME_LENGTH);
+                    m_stream.read(entryName, PAK_ENTRY_NAME_LENGTH);
                     entry.name = entryName;
-                    mStream.read((char *)&entry.address, sizeof(int32_t));
-                    mStream.read((char *)&entry.length, sizeof(int32_t));
+                    m_stream.read((char *)&entry.address, sizeof(int32_t));
+                    m_stream.read((char *)&entry.length, sizeof(int32_t));
 
                     entries[entry.name] = entry;
                 }
@@ -74,24 +70,28 @@ namespace TrenchBroom {
                 return auto_ptr<istream>(NULL);
 
             entry = &it->second;
-            if (!mStream.is_open())
-                mStream.open(path.c_str());
+            if (!m_stream.is_open())
+                m_stream.open(path.c_str());
 
-			mStream.clear();
-            substreambuf* subStreamBuf = new substreambuf(mStream.rdbuf(), entry->address, entry->length);
+			m_stream.clear();
+            substreambuf* subStreamBuf = new substreambuf(m_stream.rdbuf(), entry->address, entry->length);
             istream* subStream = new isubstream(subStreamBuf);
             return PakStream(subStream);
         }
 
+        int comparePaks(const PakPtr pak1, const PakPtr pak2) {
+			return pak1->path.compare(pak2->path) < 0;
+        }
+        
         PakManager* PakManager::sharedManager = NULL;
         
-        PakStream PakManager::streamForEntry(string& name, vector<string>& paths) {
-            vector<string>::reverse_iterator path;
+        PakStream PakManager::streamForEntry(string& name, const vector<string>& paths) {
+            vector<string>::const_reverse_iterator path;
             for (path = paths.rbegin(); path < paths.rend(); ++path) {
-                vector<Pak*>* paks = paksAtPath(*path);
-                if (paks != NULL) {
-                    vector<Pak*>::reverse_iterator pak;
-                    for (pak = paks->rbegin(); pak < paks->rend(); ++pak) {
+                vector<PakPtr> paks;
+                if (paksAtPath(*path, paks)) {
+                    vector<PakPtr>::reverse_iterator pak;
+                    for (pak = paks.rbegin(); pak < paks.rend(); ++pak) {
                         PakStream stream = (*pak)->streamForEntry(name);
                         if (stream.get() != NULL)
                             return stream;
@@ -104,42 +104,33 @@ namespace TrenchBroom {
             return PakStream(NULL);
         }
 
-        PakManager::PakManager() {}
-
-        PakManager::~PakManager() {
-            map<string, vector<Pak*> >::iterator it;
-            for (it = paks.begin(); it != paks.end(); it++) {
-                while(!it->second.empty()) delete it->second.back(), it->second.pop_back();
+        bool PakManager::paksAtPath(const string& path, vector<PakPtr>& result) {
+            map<string, vector<PakPtr> >::iterator it = paks.find(path);
+            if (it != paks.end()) {
+                result = it->second;
+                return true;
             }
-        }
 
-        vector<Pak*>* PakManager::paksAtPath(string path) {
-            DIR* dir;
-            struct dirent* entry;
-            vector<Pak*> newPaks;
-
-            map<string, vector<Pak*> >::iterator it = paks.find(path);
-            if (it != paks.end())
-                return &it->second;
-
-            dir = opendir(path.c_str());
+            DIR* dir = opendir(path.c_str());
             if (!dir) {
                 fprintf(stdout, "Warning: Could not open pak path %s\n", path.c_str());
-                return NULL;
+                return false;
             }
 
-            entry = readdir(dir);
+            struct dirent* entry = readdir(dir);
             if (!entry) {
                 fprintf(stdout, "Warning: %s does not contain any pak files\n", path.c_str());
                 closedir(dir);
-                return NULL;
+                return false;
             }
 
+            vector<PakPtr> newPaks;
             do {
                 if (strncmp(entry->d_name + entry->d_namlen - 4, ".pak", 4) == 0) {
 					string pakPath = appendPath(path, entry->d_name);
                     Pak* pak = new Pak(pakPath);
-                    newPaks.push_back(pak);
+                    PakPtr pakPtr(pak);
+                    newPaks.push_back(pakPtr);
                 }
                 entry = readdir(dir);
             } while (entry);
@@ -148,7 +139,8 @@ namespace TrenchBroom {
             sort(newPaks.begin(), newPaks.end(), comparePaks);
             paks[path] = newPaks;
 
-            return &paks[path];
+            result = paks[path];
+            return true;
         }
     }
 }

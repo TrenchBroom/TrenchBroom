@@ -24,27 +24,27 @@
 #include "Model/Assets/Bsp.h"
 #include "Model/Assets/Palette.h"
 #include "Model/Map/Entity.h"
-#include "Model/Map/EntityDefinition.h"
 #include "Renderer/AliasRenderer.h"
 #include "Renderer/BspRenderer.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/Vbo.h"
 #include "GL/GLee.h"
 #include "Utilities/Utils.h"
+#include "Utilities/SharedPointer.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        const string EntityRendererManager::entityRendererKey(const Model::ModelProperty& modelProperty, const vector<string>& searchPaths) {
+        const string EntityRendererManager::entityRendererKey(Model::ModelPropertyPtr modelProperty, const vector<string>& searchPaths) {
             string key;
             for (int i = 0; i < searchPaths.size(); i++)
                 key += searchPaths[i] + " ";
-            key += modelProperty.modelPath + " ";
-            key += modelProperty.flagName + " ";
-            key += modelProperty.skinIndex;
+            key += modelProperty->modelPath + " ";
+            key += modelProperty->flagName + " ";
+            key += modelProperty->skinIndex;
             return key;
         }
 
-        EntityRenderer* EntityRendererManager::entityRenderer(const Model::ModelProperty& modelProperty, const vector<string>& mods) {
+        EntityRenderer* EntityRendererManager::entityRenderer(Model::ModelPropertyPtr modelProperty, const vector<string>& mods) {
             vector<string> searchPaths;
             for (int i = 0; i < mods.size(); i++)
                 searchPaths.push_back(appendPath(m_quakePath, mods[i]));
@@ -53,13 +53,13 @@ namespace TrenchBroom {
             EntityRendererCache::iterator it = m_entityRenderers.find(key);
             if (it != m_entityRenderers.end()) return it->second;
 
-            string modelName = modelProperty.modelPath.substr(1);
+            string modelName = modelProperty->modelPath.substr(1);
             string ext = pathExtension(modelName);
             if (ext == "mdl") {
                 Model::Assets::AliasManager& aliasManager = *Model::Assets::AliasManager::sharedManager;
                 Model::Assets::Alias* alias = aliasManager.aliasForName(modelName, searchPaths);
                 if (alias != NULL) {
-                    int skinIndex = modelProperty.skinIndex;
+                    int skinIndex = modelProperty->skinIndex;
                     Renderer::EntityRenderer* renderer = new Renderer::AliasRenderer(*alias, skinIndex, *m_vbo, m_palette);
                     m_entityRenderers[key] = renderer;
                     return renderer;
@@ -90,10 +90,10 @@ namespace TrenchBroom {
 
         EntityRenderer* EntityRendererManager::entityRenderer(const Model::EntityDefinition& entityDefinition, const vector<string>& mods) {
             assert(!mods.empty());
-            Model::ModelProperty* modelProperty = entityDefinition.defaultModelProperty();
-            if (modelProperty == NULL)
+            Model::ModelPropertyPtr modelProperty = entityDefinition.defaultModelProperty();
+            if (modelProperty.get() == NULL)
                 return NULL;
-            return entityRenderer(*modelProperty, mods);
+            return entityRenderer(modelProperty, mods);
         }
 
         EntityRenderer* EntityRendererManager::entityRenderer(const Model::Entity& entity, const vector<string>& mods) {

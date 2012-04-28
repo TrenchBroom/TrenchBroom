@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "Utilities/SharedPointer.h"
 
 #ifdef _MSC_VER
 #include <cstdint>
@@ -41,7 +42,6 @@ using namespace std;
 namespace TrenchBroom {
     namespace IO {
         class Pak;
-        static int comparePaks(const Pak* pak1, const Pak* pak2);
 
         typedef auto_ptr<istream> PakStream;
         
@@ -53,24 +53,25 @@ namespace TrenchBroom {
         };
         
         class Pak {
-            ifstream mStream;
+            ifstream m_stream;
         public:
             string path;
             map<string, PakEntry> entries;
             Pak(string path);
-            Pak(const Pak&);
             PakStream streamForEntry(string name);
         };
         
+        typedef tr1::shared_ptr<Pak> PakPtr;
+        static int comparePaks(const PakPtr pak1, const PakPtr pak2);
+        
         class PakManager {
         private:
-            map<string, vector<Pak*> > paks;
-            vector<Pak*>* paksAtPath(string path);
+            map<string, vector<PakPtr> > paks;
+            bool paksAtPath(const string& path, vector<PakPtr>& result);
         public:
             static PakManager* sharedManager;
-            PakManager();
-            ~PakManager();
-           PakStream streamForEntry(string& name, vector<string>& paths);
+            PakManager() {};
+            PakStream streamForEntry(string& name, const vector<string>& paths);
         };
     }
 }

@@ -24,6 +24,7 @@
 #include <vector>
 #include <map>
 #include "Utilities/VecMath.h"
+#include "Utilities/SharedPointer.h"
 
 using namespace std;
 
@@ -92,6 +93,9 @@ namespace TrenchBroom {
             ChoiceProperty(const string& name, vector<ChoiceArgument>& arguments) : Property(TB_EDP_CHOICE), name(name), arguments(arguments) {};
         };
         
+        typedef tr1::shared_ptr<Property> PropertyPtr;
+        typedef tr1::shared_ptr<ModelProperty> ModelPropertyPtr;
+        
         class SpawnFlag {
         public:
             string name;
@@ -102,10 +106,9 @@ namespace TrenchBroom {
         
         class EntityDefinition {
         public:
-            static EntityDefinition* baseDefinition(const string& name, const map<string, SpawnFlag>& flags, const vector<Property*>& properties);
-            static EntityDefinition* pointDefinition(const string& name, const Vec4f& color, const BBox& bounds, const map<string, SpawnFlag>& flags, const vector<Property*>& properties, const string& description);
-            static EntityDefinition* brushDefinition(const string& name, const Vec4f& color, const map<string, SpawnFlag>& flags, const vector<Property*>& properties, const string& description);
-            ~EntityDefinition();
+            static EntityDefinition* baseDefinition(const string& name, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties);
+            static EntityDefinition* pointDefinition(const string& name, const Vec4f& color, const BBox& bounds, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description);
+            static EntityDefinition* brushDefinition(const string& name, const Vec4f& color, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description);
             EEntityDefinitionType type;
             string name;
             Vec4f color;
@@ -113,14 +116,14 @@ namespace TrenchBroom {
             BBox bounds;
             BBox maxBounds;
             map<string, SpawnFlag> flags;
-            vector<Property*> properties;
+            vector<PropertyPtr> properties;
             string description;
             int usageCount;
             
             vector<SpawnFlag> flagsForMask(int mask) const;
             bool flagSetOnEntity(const string& name, const Entity& entity) const;
-            ModelProperty* modelPropertyForEntity(const Entity& entity) const;
-            ModelProperty* defaultModelProperty() const;
+            ModelPropertyPtr modelPropertyForEntity(const Entity& entity) const;
+            ModelPropertyPtr defaultModelProperty() const;
         };
         
         typedef enum {

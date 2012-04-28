@@ -92,8 +92,8 @@ namespace TrenchBroom {
             Vec4f parseColor();
             BBox parseBounds();
             map<string, Model::SpawnFlag> parseFlags();
-            vector<Model::Property*> parseProperties();
-            Model::Property* parseProperty();
+            vector<Model::PropertyPtr> parseProperties();
+            Model::PropertyPtr parseProperty();
             string parseDescription();
         public:
             EntityDefinitionParser(string path);

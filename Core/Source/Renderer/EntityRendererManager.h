@@ -23,6 +23,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "Model/Map/EntityDefinition.h"
 
 using namespace std;
 
@@ -50,8 +51,8 @@ namespace TrenchBroom {
             EntityRendererCache m_entityRenderers;
             string m_quakePath;
 
-            const string entityRendererKey(const Model::ModelProperty& modelProperty, const vector<string>& searchPaths);
-            EntityRenderer* entityRenderer(const Model::ModelProperty& modelProperty, const vector<string>& mods);
+            const string entityRendererKey(Model::ModelPropertyPtr modelProperty, const vector<string>& searchPaths);
+            EntityRenderer* entityRenderer(Model::ModelPropertyPtr modelProperty, const vector<string>& mods);
         public:
             EntityRendererManager(const string& quakePath, Model::Assets::Palette& palette);
             ~EntityRendererManager();

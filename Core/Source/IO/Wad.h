@@ -65,7 +65,7 @@ namespace TrenchBroom {
             unsigned char* mip2;
             unsigned char* mip3;
             
-            Mip(string name, int width, int height);
+            Mip(const string& name, int width, int height);
             ~Mip();
         };
         
@@ -73,9 +73,9 @@ namespace TrenchBroom {
             ifstream m_stream;
         public:
             vector<WadEntry> entries;
-            Wad(string path);
+            Wad(const string& path);
             ~Wad();
-            Mip* loadMipAtEntry(WadEntry& entry);
+            Mip* loadMipAtEntry(const WadEntry& entry);
         };
     }
 }

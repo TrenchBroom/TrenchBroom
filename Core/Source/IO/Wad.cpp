@@ -22,7 +22,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Mip::Mip(string name, int width, int height) {
+        Mip::Mip(const string& name, int width, int height) {
             int size;
             
             this->name = name;
@@ -44,7 +44,7 @@ namespace TrenchBroom {
         }
         
         
-        Wad::Wad(string path) {
+        Wad::Wad(const string& path) {
             int32_t entryCount;
             int32_t directoryAddr;
             char entryName[WAD_DIR_ENTRY_NAME_LENGTH];
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             m_stream.close();
         }
         
-        Mip* Wad::loadMipAtEntry(WadEntry& entry) {
+        Mip* Wad::loadMipAtEntry(const WadEntry& entry) {
 			int32_t width = 0;
 			int32_t height = 0; 
 			int32_t mip0Offset = 0;
