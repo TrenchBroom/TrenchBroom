@@ -83,14 +83,14 @@ namespace TrenchBroom {
         public:
             int key;
             string value;
-            ChoiceArgument(int key, string& value) : key(key), value(value) {};
+            ChoiceArgument(int key, const string& value) : key(key), value(value) {};
         };
         
         class ChoiceProperty : public Property {
         public:
             string name;
             vector<ChoiceArgument> arguments;
-            ChoiceProperty(const string& name, vector<ChoiceArgument>& arguments) : Property(TB_EDP_CHOICE), name(name), arguments(arguments) {};
+            ChoiceProperty(const string& name, const vector<ChoiceArgument>& arguments) : Property(TB_EDP_CHOICE), name(name), arguments(arguments) {};
         };
         
         typedef tr1::shared_ptr<Property> PropertyPtr;
