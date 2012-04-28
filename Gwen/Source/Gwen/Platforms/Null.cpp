@@ -8,6 +8,7 @@
 #include "Gwen/Platform.h"
 
 #ifndef _WIN32
+#ifndef __APPLE__
 
 #include <time.h>
 
@@ -51,4 +52,5 @@ bool Gwen::Platform::FileSave( const String& Name, const String& StartPath, cons
 	return false;
 }
 
+#endif // ndef APPLE
 #endif // ndef WIN32

@@ -138,6 +138,7 @@
 		48C97950153174B9003020FC /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794F153174B9003020FC /* QuakePalette.lmp */; };
 		48F579F9154C5B3D0039B369 /* MacConsole.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48F579F8154C5B3D0039B369 /* MacConsole.mm */; };
 		48F579FB154C749E0039B369 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F579FA154C749E0039B369 /* Console.cpp */; };
+		48F579FD154CA9340039B369 /* MacOSX.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48F579FC154CA9340039B369 /* MacOSX.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -431,6 +432,7 @@
 		48F579F7154C5B3D0039B369 /* MacConsole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacConsole.h; sourceTree = "<group>"; };
 		48F579F8154C5B3D0039B369 /* MacConsole.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacConsole.mm; sourceTree = "<group>"; };
 		48F579FA154C749E0039B369 /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Console.cpp; sourceTree = "<group>"; };
+		48F579FC154CA9340039B369 /* MacOSX.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacOSX.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -809,6 +811,7 @@
 			isa = PBXGroup;
 			children = (
 				4825B4E0153AE5E9007E3AE1 /* Null.cpp */,
+				48F579FC154CA9340039B369 /* MacOSX.mm */,
 				4825B4E1153AE5E9007E3AE1 /* Windows.cpp */,
 			);
 			name = Platforms;
@@ -1129,6 +1132,7 @@
 				480ED5351549CEE4003CA78F /* AppDelegate.mm in Sources */,
 				48F579F9154C5B3D0039B369 /* MacConsole.mm in Sources */,
 				48F579FB154C749E0039B369 /* Console.cpp in Sources */,
+				48F579FD154CA9340039B369 /* MacOSX.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

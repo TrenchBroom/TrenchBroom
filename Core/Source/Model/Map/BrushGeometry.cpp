@@ -1447,9 +1447,9 @@ namespace TrenchBroom {
             
             // sort indices by dot value, eek, bubblesort
             bool switched = true;
-            for (unsigned int j = static_cast<int>(sideVertexCount) - 1; j >= 0 && switched; j--) {
+            for (long j = static_cast<long>(sideVertexCount) - 1; j >= 0 && switched; j--) {
                 switched = false;
-                for (unsigned int i = 0; i < j; i++) {
+                for (long i = 0; i < j; i++) {
                     if (dots[i] > dots[i + 1]) {
                         float dt = dots[i];
                         dots[i] = dots[i + 1];
