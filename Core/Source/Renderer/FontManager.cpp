@@ -208,12 +208,13 @@ namespace TrenchBroom {
         }
 
         StringRendererPtr FontManager::createStringRenderer(const FontDescriptor& descriptor, const string& str) {
-            FontCache::iterator fontIt = m_fontCache.find(descriptor);
-            StringCachePtr stringCache;
-            if (fontIt != m_fontCache.end()) {
-                stringCache = fontIt->second;
-                StringCache::iterator stringIt = stringCache->find(str);
-                if (stringIt != stringCache->end()) {
+            FontCacheMap& fontCache = m_fontCache.fontCacheMap;
+            FontCacheMap::iterator fontIt = fontCache.find(descriptor);
+            StringCachePtr stringCachePtr;
+            if (fontIt != fontCache.end()) {
+                stringCachePtr = fontIt->second;
+                StringCacheMap::iterator stringIt = stringCachePtr->stringCacheMap.find(str);
+                if (stringIt != stringCachePtr->stringCacheMap.end()) {
                     StringCacheEntryPtr entry = stringIt->second;
                     entry->count++;
                     return entry->stringRenderer;
@@ -224,13 +225,13 @@ namespace TrenchBroom {
             StringRenderer* stringRenderer = new StringRenderer(descriptor, str, stringData);
             StringRendererPtr stringRendererPtr(stringRenderer);
             
-            if (stringCache.get() == NULL) {
-                stringCache = StringCachePtr(new StringCache());
-                m_fontCache[descriptor] = stringCache;
+            if (stringCachePtr.get() == NULL) {
+                stringCachePtr = StringCachePtr(new StringCache());
+                fontCache[descriptor] = stringCachePtr;
             }
 
             m_unpreparedStrings.push_back(stringRendererPtr);
-            (*stringCache)[str] = StringCacheEntryPtr(new StringCacheEntry(stringRendererPtr, 1));
+            stringCachePtr->stringCacheMap[str] = StringCacheEntryPtr(new StringCacheEntry(stringRendererPtr, 1));
 
             return stringRendererPtr;
         }
@@ -244,18 +245,19 @@ namespace TrenchBroom {
                 }
             }
 
-            FontCache::iterator fontIt = m_fontCache.find(stringRenderer->fontDescriptor);
-            StringCachePtr stringCache;
-            if (fontIt != m_fontCache.end()) {
-                stringCache = fontIt->second;
-                StringCache::iterator stringIt = stringCache->find(stringRenderer->str);
-                if (stringIt != stringCache->end()) {
+            FontCacheMap& fontCache = m_fontCache.fontCacheMap;
+            FontCacheMap::iterator fontIt = fontCache.find(stringRenderer->fontDescriptor);
+            StringCachePtr stringCachePtr;
+            if (fontIt != fontCache.end()) {
+                stringCachePtr = fontIt->second;
+                StringCacheMap::iterator stringIt = stringCachePtr->stringCacheMap.find(stringRenderer->str);
+                if (stringIt != stringCachePtr->stringCacheMap.end()) {
                     StringCacheEntryPtr entry = stringIt->second;
                     entry->count--;
                     if (entry->count <= 0) {
-                        stringCache->erase(stringIt);
-                        if (stringCache->empty())
-                            m_fontCache.erase(fontIt);
+                        stringCachePtr->stringCacheMap.erase(stringIt);
+                        if (stringCachePtr->stringCacheMap.empty())
+                            fontCache.erase(fontIt);
                     }
                 }
             }
@@ -263,7 +265,7 @@ namespace TrenchBroom {
 
         void FontManager::clear() {
             m_unpreparedStrings.clear();
-            m_fontCache.clear();
+            m_fontCache.fontCacheMap.clear();
         }
 
         void FontManager::activate() {

@@ -106,6 +106,7 @@ namespace TrenchBroom {
 
         class FontManager {
         private:
+            // this had to be structured like this to avoid a warning in VC++
             class StringCacheEntry {
             public:
                 StringRendererPtr stringRenderer;
@@ -114,10 +115,18 @@ namespace TrenchBroom {
             };
             typedef tr1::shared_ptr<StringCacheEntry> StringCacheEntryPtr;
 
-            typedef map<const string, StringCacheEntryPtr> StringCache;
+            typedef map<const string, StringCacheEntryPtr> StringCacheMap;
+            class StringCache {
+            public:
+                StringCacheMap stringCacheMap;
+            };
             typedef tr1::shared_ptr<StringCache> StringCachePtr;
             
-            typedef map<const FontDescriptor, StringCachePtr> FontCache;
+            typedef map<const FontDescriptor, StringCachePtr> FontCacheMap;
+            class FontCache {
+            public:
+                FontCacheMap fontCacheMap;
+            };
 
             Vbo* m_vbo;
             vector<StringRendererPtr> m_unpreparedStrings;
