@@ -29,6 +29,8 @@
 #include "MapView.h"
 #include "WinStringFactory.h"
 #include "GUI/EditorGui.h"
+#include "Utilities/Utils.h"
+#include <cassert>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -207,7 +209,15 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	wglMakeCurrent(m_deviceContext, m_openGLContext);
 	wglSwapIntervalEXT(1);
 
-	string skinPath = "..\\..\\Resources\\Graphics\\DefaultSkin.png";
+	char appPath [MAX_PATH] = "";
+
+	::GetModuleFileName(0, appPath, sizeof(appPath) - 1);
+	string appDirectory = TrenchBroom::deleteLastPathComponent(appPath);
+
+	string skinPath	= TrenchBroom::appendPath(appDirectory, "../../Resources/Graphics/DefaultSkin.png");
+//	string skinPath = TrenchBroom::appendPath(appDirectory, "DefaultSkin.png");
+	assert(TrenchBroom::fileExists(skinPath));
+
 	TrenchBroom::Renderer::StringFactory* stringFactory = new TrenchBroom::Renderer::WinStringFactory(m_deviceContext);
 	m_fontManager = new TrenchBroom::Renderer::FontManager(*stringFactory);
 

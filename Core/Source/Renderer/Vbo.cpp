@@ -249,9 +249,6 @@ namespace TrenchBroom {
         }
         
         void Vbo::activate() {
-			if (m_active)
-				fprintf(stdout, "asdf");
-
             assert(!m_active);
             
             if (m_vboId == 0) {

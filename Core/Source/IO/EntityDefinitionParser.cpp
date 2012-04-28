@@ -85,7 +85,7 @@ namespace TrenchBroom {
                 m_token.data = *data;
             m_token.line = m_line;
             m_token.column = m_column;
-            m_token.charsRead = (int)m_stream.tellg();
+            m_token.charsRead = static_cast<int>(m_stream.tellg());
             return &m_token;
         }
 

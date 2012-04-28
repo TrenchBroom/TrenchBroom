@@ -26,6 +26,8 @@
 
 #include "MapDocument.h"
 #include "ProgressDialog.h"
+#include "Utilities/Utils.h"
+#include <cassert>
 
 #include <propkey.h>
 
@@ -45,8 +47,19 @@ END_MESSAGE_MAP()
 
 CMapDocument::CMapDocument() : m_editor(NULL)
 {
-	string definitionPath	= "..\\..\\Resources\\Defs\\quake.def";
-	string palettePath		= "..\\..\\Resources\\Graphics\\QuakePalette.lmp";
+	char appPath [MAX_PATH] = "";
+
+	::GetModuleFileName(0, appPath, sizeof(appPath) - 1);
+	string appDirectory = TrenchBroom::deleteLastPathComponent(appPath);
+
+	string definitionPath	= TrenchBroom::appendPath(appDirectory, "../../Resources/Defs/quake.def");
+	string palettePath		= TrenchBroom::appendPath(appDirectory, "../../Resources/Graphics/QuakePalette.lmp");
+
+//	string definitionPath	= TrenchBroom::appendPath(appDirectory, "quake.def");
+//	string palettePath		= TrenchBroom::appendPath(appDirectory, "QuakePalette.lmp");
+
+	assert(TrenchBroom::fileExists(definitionPath));
+	assert(TrenchBroom::fileExists(palettePath));
 
 	m_editor = new TrenchBroom::Controller::Editor(definitionPath, palettePath);
 }
