@@ -53,7 +53,7 @@ namespace TrenchBroom {
             return c;
         }
         
-        MapToken* MapTokenizer::token(ETokenType type, char* data, int index, int line, int column) {
+        MapToken* MapTokenizer::token(ETokenType type, char* data, unsigned int index, unsigned int line, unsigned int column) {
             m_token.type = type;
             if (data != NULL) m_token.data = string(data, index);
             else m_token.data.clear();
@@ -248,8 +248,8 @@ namespace TrenchBroom {
         MapParser::MapParser(istream& stream, const BBox& worldBounds, Assets::TextureManager& textureManager) : m_worldBounds(worldBounds), m_textureManager(textureManager) {
             streamoff cur = stream.tellg();
             stream.seekg(0, ios::end);
-            m_size = (int)stream.tellg();
-            m_size -= cur;
+            m_size = static_cast<unsigned int>(stream.tellg());
+            m_size -= static_cast<unsigned int>(cur);
             stream.seekg(cur, ios::beg);
             m_tokenizer = new MapTokenizer(stream);
         }
@@ -341,27 +341,27 @@ namespace TrenchBroom {
             
             expect(TB_TT_B_O, token = nextToken());
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p1.x = atof(token->data.c_str());
+            p1.x = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p1.y = atof(token->data.c_str());
+            p1.y = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p1.z = atof(token->data.c_str());
+            p1.z = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_B_C, token = nextToken());
             expect(TB_TT_B_O, token = nextToken());
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p2.x = atof(token->data.c_str());
+            p2.x = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p2.y = atof(token->data.c_str());
+            p2.y = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p2.z = atof(token->data.c_str());
+            p2.z = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_B_C, token = nextToken());
             expect(TB_TT_B_O, token = nextToken());
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p3.x = atof(token->data.c_str());
+            p3.x = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p3.y = atof(token->data.c_str());
+            p3.y = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p3.z = atof(token->data.c_str());
+            p3.z = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_B_C, token = nextToken());
             
             expect(TB_TT_STR, token = nextToken());
@@ -378,9 +378,9 @@ namespace TrenchBroom {
             if (m_format == TB_MF_STANDARD) {
                 expect(TB_TT_DEC | TB_TT_FRAC, token);
                 bool frac = token->type == TB_TT_FRAC;
-                xOffset = atof(token->data.c_str());
+                xOffset = static_cast<float>(atof(token->data.c_str()));
                 expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-                yOffset = atof(token->data.c_str());
+                yOffset = static_cast<float>(atof(token->data.c_str()));
                 if (frac || token->type == TB_TT_FRAC)
                     log(TB_LL_WARN, "Rounding fractional texture offset in line %i", token->line);
             } else { // Valve 220 format
@@ -389,23 +389,23 @@ namespace TrenchBroom {
                 expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // X texture axis y
                 expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // X texture axis z
                 expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // X texture axis offset
-                xOffset = atof(token->data.c_str());
+                xOffset = static_cast<float>(atof(token->data.c_str()));
                 expect(TB_TT_SB_C, token = nextToken());
                 expect(TB_TT_SB_O, token = nextToken());
                 expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // Y texture axis x
                 expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // Y texture axis y
                 expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // Y texture axis z
                 expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // Y texture axis offset
-                yOffset = atof(token->data.c_str());
+                yOffset = static_cast<float>(atof(token->data.c_str()));
                 expect(TB_TT_SB_C, token = nextToken());
             }
             
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            rotation = atof(token->data.c_str());
+            rotation = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            xScale = atof(token->data.c_str());
+            xScale = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            yScale = atof(token->data.c_str());
+            yScale = static_cast<float>(atof(token->data.c_str()));
             
             if (((p3 - p1) % (p2 - p1)).equals(Null3f)) {
                 log(TB_LL_WARN, "Skipping invalid face in line %i", token->line);
@@ -414,8 +414,8 @@ namespace TrenchBroom {
             
             Face* face = new Face(m_worldBounds, p1, p2, p3);
             face->setTexture(texture);
-            face->setXOffset((int)Math::roundf(xOffset));
-            face->setYOffset((int)Math::roundf(yOffset));
+            face->setXOffset(static_cast<int>(Math::roundf(xOffset)));
+            face->setYOffset(static_cast<int>(Math::roundf(yOffset)));
             face->setRotation(rotation);
             face->setXScale(xScale);
             face->setYScale(yScale);

@@ -54,9 +54,9 @@ namespace TrenchBroom {
                 m_vboBlock = &m_vbo.allocBlock(m_triangleCount * vertexSize * sizeof(float));
                 m_vbo.map();
                 int offset = 0;
-                for (int i = 0; i < m_triangleCount; i++) {
+                for (unsigned int i = 0; i < m_triangleCount; i++) {
                     Model::Assets::AliasFrameTriangle& triangle = *frame.triangles[i];
-                    for (int j = 0; j < 3; j++) {
+                    for (unsigned int j = 0; j < 3; j++) {
                         Model::Assets::AliasFrameVertex& vertex = triangle.vertices[j];
                         // GL_T2F_N3F_V3F format
                         offset = m_vboBlock->writeVec(vertex.texCoords, offset);

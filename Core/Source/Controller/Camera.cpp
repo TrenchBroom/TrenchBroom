@@ -71,7 +71,7 @@ namespace TrenchBroom {
             GLdouble rx, ry, rz;
             gluUnProject(x, y, depth, m_modelview, m_projection, m_viewport, &rx, &ry, &rz);
             
-            return Vec3f(rx, ry, rz);
+            return Vec3f(static_cast<float>(rx), static_cast<float>(ry), static_cast<float>(rz));
         }
 
         const Ray Camera::pickRay(float x, float y) const {
@@ -84,7 +84,7 @@ namespace TrenchBroom {
             glPushMatrix();
             glLoadIdentity();
             
-            float vfrustum = tan(m_fieldOfVision * Math::Pi / 360) * 0.75 * m_nearPlane;
+            float vfrustum = static_cast<float>(tan(m_fieldOfVision * Math::Pi / 360)) * 0.75f * m_nearPlane;
             float hfrustum = vfrustum * width / height;
             glFrustum(-hfrustum, hfrustum, -vfrustum, vfrustum, m_nearPlane, m_farPlane);
             

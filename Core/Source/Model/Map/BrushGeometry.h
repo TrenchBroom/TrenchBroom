@@ -119,7 +119,7 @@ namespace TrenchBroom {
             void* operator new(size_t size);
             void operator delete(void* pointer);
             Side() : mark(TB_SM_NEW), face(NULL) {}
-            Side(Edge* newEdges[], bool invert[], int count);
+            Side(Edge* newEdges[], bool invert[], unsigned int count);
             Side(Face& face, vector<Edge*>& newEdges);
             float intersectWithRay(const Ray& ray);
             void replaceEdges(size_t index1, size_t index2, Edge* edge);

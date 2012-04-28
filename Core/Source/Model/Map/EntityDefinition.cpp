@@ -96,7 +96,7 @@ namespace TrenchBroom {
         ModelPropertyPtr EntityDefinition::modelPropertyForEntity(const Entity& entity) const {
             ModelPropertyPtr defaultProperty;
             ModelPropertyPtr specificProperty;
-            for (int i = 0; i < properties.size() && specificProperty == NULL; i++) {
+            for (unsigned int i = 0; i < properties.size() && specificProperty == NULL; i++) {
                 PropertyPtr property = properties[i];
                 if (property->type == TB_EDP_MODEL) {
                     ModelPropertyPtr modelProperty = tr1::static_pointer_cast<ModelProperty>(property);
@@ -111,7 +111,7 @@ namespace TrenchBroom {
         }
 
         ModelPropertyPtr EntityDefinition::defaultModelProperty() const {
-            for (int i = 0; i < properties.size(); i++) {
+            for (unsigned int i = 0; i < properties.size(); i++) {
                 PropertyPtr property = properties[i];
                 if (property->type == TB_EDP_MODEL) {
                     ModelPropertyPtr modelProperty = tr1::static_pointer_cast<ModelProperty>(property);
@@ -166,7 +166,7 @@ namespace TrenchBroom {
 
         vector<EntityDefinitionPtr>EntityDefinitionManager::definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const {
             vector<EntityDefinitionPtr> definitionsOfType;
-            for (int i = 0; i < m_definitionsByName.size(); i++)
+            for (unsigned int i = 0; i < m_definitionsByName.size(); i++)
                 if (m_definitionsByName[i]->type == type)
                     definitionsOfType.push_back(m_definitionsByName[i]);
             if (criterion == ES_USAGE)

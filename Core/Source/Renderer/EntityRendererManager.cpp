@@ -37,7 +37,7 @@ namespace TrenchBroom {
     namespace Renderer {
         const string EntityRendererManager::entityRendererKey(Model::ModelPropertyPtr modelProperty, const vector<string>& searchPaths) {
             string key;
-            for (int i = 0; i < searchPaths.size(); i++)
+            for (unsigned int i = 0; i < searchPaths.size(); i++)
                 key += searchPaths[i] + " ";
             key += modelProperty->modelPath + " ";
             key += modelProperty->flagName + " ";
@@ -47,7 +47,7 @@ namespace TrenchBroom {
 
         EntityRenderer* EntityRendererManager::entityRenderer(Model::ModelPropertyPtr modelProperty, const vector<string>& mods) {
             vector<string> searchPaths;
-            for (int i = 0; i < mods.size(); i++)
+            for (unsigned int i = 0; i < mods.size(); i++)
                 searchPaths.push_back(appendPath(m_quakePath, mods[i]));
 
             const string key = entityRendererKey(modelProperty, searchPaths);

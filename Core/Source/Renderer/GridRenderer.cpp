@@ -27,7 +27,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         void GridRenderer::clear() {
-            for (int i = 0; i < m_textures.size(); i++)
+            for (unsigned int i = 0; i < m_textures.size(); i++)
                 if (m_textures[i] != -1)
                     glDeleteTextures(1, &m_textures[i]);
             m_textures.clear();
@@ -44,23 +44,23 @@ namespace TrenchBroom {
         }
         
         void GridRenderer::activate(const Controller::Grid& grid) {
-            int index = grid.size();
+            unsigned int index = grid.size();
             if (index >= m_textures.size()) {
                 m_textures.resize(index + 1);
-                for (int i = index; i < m_textures.size(); i++)
+                for (unsigned int i = index; i < m_textures.size(); i++)
                     m_textures[i] = -1;
             }
 
             GLuint textureId = m_textures[index];
             if (textureId == -1) {
                 glGenTextures(1, &textureId);
-                int dim = grid.actualSize();
+                unsigned int dim = grid.actualSize();
                 if (dim < 4) dim = 4;
-                int texSize = 1 << 8;
+                unsigned int texSize = 1 << 8;
                 unsigned char* pixel = new unsigned char[texSize * texSize * 4];
-                for (int y = 0; y < texSize; y++) {
-                    for (int x = 0; x < texSize; x++) {
-                        int i = (y * texSize + x) * 4;
+                for (unsigned int y = 0; y < texSize; y++) {
+                    for (unsigned int x = 0; x < texSize; x++) {
+                        unsigned int i = (y * texSize + x) * 4;
                         if ((x % dim) == 0 || (y % dim) == 0) {
                             pixel[i + 0] = 0xFF;
                             pixel[i + 1] = 0xFF;

@@ -48,9 +48,9 @@ namespace TrenchBroom {
 
         const vector<Face*> Selection::brushFaces() const {
             vector<Face*> faces;
-            for (int i = 0; i < m_brushes.size(); i++) {
+            for (unsigned int i = 0; i < m_brushes.size(); i++) {
                 vector<Face*> brushFaces = m_brushes[i]->faces();
-                for (int j = 0; j < brushFaces.size(); j++)
+                for (unsigned int j = 0; j < brushFaces.size(); j++)
                     faces.push_back(brushFaces[j]);
             }
             return faces;
@@ -73,7 +73,7 @@ namespace TrenchBroom {
                 return NULL;
 
             Entity* entity = m_brushes[0]->entity();
-            for (int i = 1; i < m_brushes.size(); i++) {
+            for (unsigned int i = 1; i < m_brushes.size(); i++) {
                 if (m_brushes[i]->entity() != entity)
                     return NULL;
             }
@@ -86,27 +86,27 @@ namespace TrenchBroom {
             switch (m_mode) {
                 case TB_SM_FACES:
                     center = m_faces[0]->center();
-                    for (int i = 1; i < m_faces.size(); i++)
+                    for (unsigned int i = 1; i < m_faces.size(); i++)
                         center += m_faces[i]->center();
                     center /= static_cast<float>(m_faces.size());
                     break;
                 case TB_SM_BRUSHES:
                     center = m_brushes[0]->center();
-                    for (int i = 1; i < m_brushes.size(); i++)
+                    for (unsigned int i = 1; i < m_brushes.size(); i++)
                         center += m_brushes[i]->center();
                     center /= static_cast<float>(m_brushes.size());
                     break;
                 case TB_SM_ENTITIES:
                     center = m_entities[0]->center();
-                    for (int i = 1; i < m_entities.size(); i++)
+                    for (unsigned int i = 1; i < m_entities.size(); i++)
                         center += m_entities[i]->center();
                     center /= static_cast<float>(m_entities.size());
                     break;
                 case TB_SM_BRUSHES_ENTITIES:
                     center = m_brushes[0]->center();
-                    for (int i = 1; i < m_brushes.size(); i++)
+                    for (unsigned int i = 1; i < m_brushes.size(); i++)
                         center += m_brushes[i]->center();
-                    for (int i = 0; i < m_entities.size(); i++)
+                    for (unsigned int i = 0; i < m_entities.size(); i++)
                         center += m_entities[i]->center();
                     center /= static_cast<float>(m_brushes.size() + m_entities.size());
                     break;
@@ -123,24 +123,24 @@ namespace TrenchBroom {
             switch (m_mode) {
                 case TB_SM_FACES:
                     bounds = m_faces[0]->brush()->bounds();
-                    for (int i = 1; i < m_faces.size(); i++)
+                    for (unsigned int i = 1; i < m_faces.size(); i++)
                         bounds += m_faces[i]->brush()->bounds();
                     break;
                 case TB_SM_BRUSHES:
                     bounds = m_brushes[0]->bounds();
-                    for (int i = 1; i < m_brushes.size(); i++)
+                    for (unsigned int i = 1; i < m_brushes.size(); i++)
                         bounds += m_brushes[i]->bounds();
                     break;
                 case TB_SM_ENTITIES:
                     bounds = m_entities[0]->bounds();
-                    for (int i = 1; i < m_entities.size(); i++)
+                    for (unsigned int i = 1; i < m_entities.size(); i++)
                         bounds += m_entities[i]->bounds();
                     break;
                 case TB_SM_BRUSHES_ENTITIES:
                     bounds = m_brushes[0]->bounds();
-                    for (int i = 1; i < m_brushes.size(); i++)
+                    for (unsigned int i = 1; i < m_brushes.size(); i++)
                         bounds += m_brushes[i]->bounds();
-                    for (int i = 0; i < m_entities.size(); i++)
+                    for (unsigned int i = 0; i < m_entities.size(); i++)
                         bounds += m_entities[i]->bounds();
                     break;
                 default:
@@ -181,7 +181,7 @@ namespace TrenchBroom {
             if (faces.empty()) return;
             if (m_mode != TB_SM_FACES) removeAll();
 
-            for (int i = 0; i < faces.size(); i++) {
+            for (unsigned int i = 0; i < faces.size(); i++) {
                 Face* face = faces[i];
                 m_faces.push_back(face);
                 face->setSelected(true);
@@ -213,7 +213,7 @@ namespace TrenchBroom {
             if (brushes.empty()) return;
             if (m_mode == TB_SM_FACES) removeAll();
 
-            for (int i = 0; i < brushes.size(); i++) {
+            for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
                 m_brushes.push_back(brush);
                 brush->setSelected(true);
@@ -243,7 +243,7 @@ namespace TrenchBroom {
             if (entities.empty()) return;
             if (m_mode == TB_SM_FACES) removeAll();
 
-            for (int i = 0; i < entities.size(); i++) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 m_entities.push_back(entity);
                 entity->setSelected(true);
@@ -269,7 +269,7 @@ namespace TrenchBroom {
             } else {
                 const vector<Face*> siblings = face.brush()->faces();
                 bool keep = false;
-                for (int i = 0; i < siblings.size() && !keep; i++)
+                for (unsigned int i = 0; i < siblings.size() && !keep; i++)
                     keep = find(m_faces.begin(), m_faces.end(), siblings[i]) != m_faces.end();
                 if (!keep)
                     m_partialBrushes.erase(find(m_partialBrushes.begin(), m_partialBrushes.end(), face.brush()));
@@ -283,7 +283,7 @@ namespace TrenchBroom {
             if (faces.empty()) return;
 
             vector<Face*> removedFaces;
-            for (int i = 0; i < faces.size(); i++) {
+            for (unsigned int i = 0; i < faces.size(); i++) {
                 Face* face = faces[i];
                 vector<Face*>::iterator it = find(m_faces.begin(), m_faces.end(), face);
                 if (it != m_faces.end()) {
@@ -293,7 +293,7 @@ namespace TrenchBroom {
 
                     const vector<Face*> siblings = face->brush()->faces();
                     bool keep = false;
-                    for (int j = 0; j < siblings.size() && !keep; j++)
+                    for (unsigned int j = 0; j < siblings.size() && !keep; j++)
                         keep = find(m_faces.begin(), m_faces.end(), siblings[j]) != m_faces.end();
                     if (!keep)
                         m_partialBrushes.erase(find(m_partialBrushes.begin(), m_partialBrushes.end(), face->brush()));
@@ -327,7 +327,7 @@ namespace TrenchBroom {
             if (brushes.empty()) return;
 
             vector<Brush*> removedBrushes;
-            for (int i = 0; i < brushes.size(); i++) {
+            for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
                 vector<Brush*>::iterator it = find(m_brushes.begin(), m_brushes.end(), brush);
                 if (it != m_brushes.end()) {
@@ -366,7 +366,7 @@ namespace TrenchBroom {
             if (entities.empty()) return;
 
             vector<Entity*> removedEntities;
-            for (int i = 0; i < entities.size(); i++) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 vector<Entity*>::iterator it = find(m_entities.begin(), m_entities.end(), entity);
                 if (it != m_entities.end()) {
@@ -392,7 +392,7 @@ namespace TrenchBroom {
 
             if (!m_faces.empty()) {
                 data.faces = m_faces;
-                for (int i = 0; i < m_faces.size(); i++)
+                for (unsigned int i = 0; i < m_faces.size(); i++)
                     m_faces[i]->setSelected(false);
                 m_faces.clear();
                 m_mode = TB_SM_NONE;
@@ -400,7 +400,7 @@ namespace TrenchBroom {
 
             if (!m_brushes.empty()) {
                 data.brushes = m_brushes;
-                for (int i = 0; i < m_brushes.size(); i++)
+                for (unsigned int i = 0; i < m_brushes.size(); i++)
                     m_brushes[i]->setSelected(false);
                 m_brushes.clear();
                 m_mode = TB_SM_NONE;
@@ -408,7 +408,7 @@ namespace TrenchBroom {
 
             if (!m_entities.empty()) {
                 data.entities = m_entities;
-                for (int i = 0; i < m_entities.size(); i++)
+                for (unsigned int i = 0; i < m_entities.size(); i++)
                     m_entities[i]->setSelected(false);
                 m_entities.clear();
                 m_mode = TB_SM_NONE;

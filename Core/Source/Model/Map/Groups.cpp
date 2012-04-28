@@ -27,7 +27,7 @@ namespace TrenchBroom {
     namespace Model {
         void GroupManager::entitesAdded(const vector<Entity*>& entities) {
             bool changed = false;
-            for (int i = 0; i < entities.size(); i++) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
                 if (entities[i]->group()) {
                     m_groups.push_back(entities[i]);
                     if (visible(*entities[i]))
@@ -41,7 +41,7 @@ namespace TrenchBroom {
 
         void GroupManager::entitiesRemoved(const vector<Entity*>& entities) {
             bool changed = false;
-            for (int i = 0; i < entities.size(); i++) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
                 if (entities[i]->group()) {
                     if (visible(*entities[i]))
                         m_visibleGroupCount--;
@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
         void GroupManager::brushesChanged(const vector<Brush*>& brushes) {
             bool changed = false;
-            for (int i = 0; i < brushes.size(); i++) {
+            for (unsigned int i = 0; i < brushes.size(); i++) {
                 if (brushes[i]->entity()->group()) {
                     changed = true;
                     break;
@@ -67,7 +67,7 @@ namespace TrenchBroom {
 
         void GroupManager::mapLoaded(Map& map) {
             const vector<Entity*>& entities = map.entities();
-            for (int i = 0; i < entities.size(); i++) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
                 if (entities[i]->group()) {
                     m_groups.push_back(entities[i]);
                     if (visible(*entities[i]))

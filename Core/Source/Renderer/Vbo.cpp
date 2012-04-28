@@ -33,25 +33,25 @@ namespace TrenchBroom {
         
         VboBlock::VboBlock(Vbo& vbo, int address, int capacity) : m_vbo(vbo), address(address), capacity(capacity), free(true), previous(NULL), next(NULL) {}
 
-        int VboBlock::writeBuffer(const unsigned char* buffer, int offset, int length) {
+        int VboBlock::writeBuffer(const unsigned char* buffer, unsigned int offset, unsigned int length) {
             assert(offset >= 0 && offset + length <= capacity);
             memcpy(m_vbo.m_buffer + address + offset, buffer, length);
             return offset + length;
         }
         
-        int VboBlock::writeByte(unsigned char b, int offset) {
+        int VboBlock::writeByte(unsigned char b, unsigned int offset) {
             assert(offset >= 0 && offset < capacity);
             m_vbo.m_buffer[address + offset] = b;
             return offset + 1;
         }
         
-        int VboBlock::writeFloat(float f, int offset) {
+        int VboBlock::writeFloat(float f, unsigned int offset) {
             assert(offset >= 0 && offset + sizeof(float) <= capacity);
             memcpy(m_vbo.m_buffer + address + offset, &f, sizeof(float));
             return offset + sizeof(float);
         }
         
-        int VboBlock::writeColor(const Vec4f& color, int offset) {
+        int VboBlock::writeColor(const Vec4f& color, unsigned int offset) {
             assert(offset >= 0 && offset + 4 <= capacity);
             offset = writeByte((unsigned char)(color.x * 0xFF), offset);
             offset = writeByte((unsigned char)(color.y * 0xFF), offset);
@@ -60,19 +60,19 @@ namespace TrenchBroom {
             return offset;
         }
         
-        int VboBlock::writeVec(const Vec4f& vec, int offset) {
+        int VboBlock::writeVec(const Vec4f& vec, unsigned int offset) {
             assert(offset >= 0 && offset + sizeof(Vec4f) <= capacity);
             memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(Vec4f));
             return offset + sizeof(Vec4f);
         }
         
-        int VboBlock::writeVec(const Vec3f& vec, int offset) {
+        int VboBlock::writeVec(const Vec3f& vec, unsigned int offset) {
             assert(offset >= 0 && offset + sizeof(Vec3f) <= capacity);
             memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(Vec3f));
             return offset + sizeof(Vec3f);
         }
         
-        int VboBlock::writeVec(const Vec2f& vec, int offset) {
+        int VboBlock::writeVec(const Vec2f& vec, unsigned int offset) {
             assert(offset >= 0 && offset + sizeof(Vec2f) <= capacity);
             memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(Vec2f));
             return offset + sizeof(Vec2f);
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             m_vbo.freeBlock(*this);
         }
         
-        int VboBlock::compare(int anAddress, int aCapacity) {
+        int VboBlock::compare(unsigned int anAddress, unsigned int aCapacity) {
             if (capacity < aCapacity) return -1;
             if (capacity > aCapacity) return 1;
             if (address < anAddress) return -1;
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             return 0;
         }
 
-        int Vbo::findFreeBlockInRange(int address, int capacity, int start, int length) {
+        unsigned int Vbo::findFreeBlockInRange(unsigned int address, unsigned int capacity, unsigned int start, unsigned int length) {
             assert(length > 0);
             
             int pivot = start + length / 2;
@@ -110,16 +110,16 @@ namespace TrenchBroom {
             return findFreeBlockInRange(address, capacity, pivot, (length + 1) / 2);
         }
         
-        int Vbo::findFreeBlock(int address, int capacity) {
+        unsigned int Vbo::findFreeBlock(unsigned int address, unsigned int capacity) {
             if (m_freeBlocks.empty()) return 0;
-            int index = findFreeBlockInRange(address, capacity, 0, static_cast<int>(m_freeBlocks.size()));
+            unsigned int index = findFreeBlockInRange(address, capacity, 0, static_cast<int>(m_freeBlocks.size()));
             assert(index == m_freeBlocks.size() || capacity < m_freeBlocks[index]->capacity || (capacity == m_freeBlocks[index]->capacity && address <= m_freeBlocks[index]->address));
             return index;
         }
 
         void Vbo::insertFreeBlock(VboBlock& block) {
             assert(block.free);
-            int index = findFreeBlock(block.address, block.capacity);
+            unsigned int index = findFreeBlock(block.address, block.capacity);
             assert(index >= 0 && index <= m_freeBlocks.size());
             if (index < m_freeBlocks.size())
                 m_freeBlocks.insert(m_freeBlocks.begin() + index, &block);
@@ -132,7 +132,7 @@ namespace TrenchBroom {
         
         void Vbo::removeFreeBlock(VboBlock& block) {
             assert(block.free);
-            int index = findFreeBlock(block.address, block.capacity);
+            unsigned int index = findFreeBlock(block.address, block.capacity);
             assert(index < m_freeBlocks.size());
             assert(m_freeBlocks[index] == &block);
             m_freeBlocks.erase(m_freeBlocks.begin() + index);
@@ -141,7 +141,7 @@ namespace TrenchBroom {
 #endif
         }
         
-        void Vbo::resizeVbo(int newCapacity) {
+        void Vbo::resizeVbo(unsigned int newCapacity) {
             bool wasActive = m_active;
             bool wasMapped = m_mapped;
             
@@ -153,7 +153,7 @@ namespace TrenchBroom {
                 memcpy(temp, m_buffer, m_totalCapacity);
             }
             
-            int addedCapacity = newCapacity - m_totalCapacity;
+            unsigned int addedCapacity = newCapacity - m_totalCapacity;
             m_freeCapacity = newCapacity - (m_totalCapacity - m_freeCapacity);
             m_totalCapacity = newCapacity;
             
@@ -193,7 +193,7 @@ namespace TrenchBroom {
 #endif
         }
         
-        void Vbo::resizeBlock(VboBlock& block, int newCapacity) {
+        void Vbo::resizeBlock(VboBlock& block, unsigned int newCapacity) {
             if (block.capacity == newCapacity) return;
             if (block.free) {
                 removeFreeBlock(block);
@@ -208,8 +208,8 @@ namespace TrenchBroom {
             
             VboBlock* previous = block.previous;
             VboBlock* last = first;
-            int size = 0;
-            int address = first->address;
+            unsigned int size = 0;
+            unsigned int address = first->address;
             
             do {
                 last->address -= block.capacity;
@@ -247,7 +247,7 @@ namespace TrenchBroom {
             return last;
         }
         
-        Vbo::Vbo(GLenum type, int capacity) : m_type(type), m_totalCapacity(capacity), m_freeCapacity(capacity), m_buffer(NULL), m_vboId(0), m_active(false), m_mapped(false) {
+        Vbo::Vbo(GLenum type, unsigned int capacity) : m_type(type), m_totalCapacity(capacity), m_freeCapacity(capacity), m_buffer(NULL), m_vboId(0), m_active(false), m_mapped(false) {
             m_first = new VboBlock(*this, 0, m_totalCapacity);
             m_last = m_first;
             m_freeBlocks.push_back(m_first);
@@ -316,7 +316,7 @@ namespace TrenchBroom {
             m_mapped = false;
         }
         
-        VboBlock& Vbo::allocBlock(int capacity) {
+        VboBlock& Vbo::allocBlock(unsigned int capacity) {
             assert(capacity > 0);
             
 #ifdef _DEBUG_VBO
@@ -329,7 +329,7 @@ namespace TrenchBroom {
                 return allocBlock(capacity);
             }
             
-            int index = findFreeBlock(0, capacity);
+            unsigned int index = findFreeBlock(0, capacity);
             if (index >= m_freeBlocks.size()) {
                 resizeVbo(2 * m_totalCapacity);
                 return allocBlock(capacity);
@@ -448,7 +448,7 @@ namespace TrenchBroom {
         }
         
         void Vbo::checkFreeBlocks() {
-            for (int i = 0; i < m_freeBlocks.size(); i++) {
+            for (unsigned int i = 0; i < m_freeBlocks.size(); i++) {
                 VboBlock* block = m_freeBlocks[i];
                 assert(block->free);
                 if (i < m_freeBlocks.size() - 1)

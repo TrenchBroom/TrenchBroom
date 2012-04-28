@@ -105,7 +105,7 @@ namespace TrenchBroom {
         Entity* Map::worldspawn(bool create) {
             if (m_worldspawn != NULL)
                 return m_worldspawn;
-            for (int i = 0; i < m_entities.size(); i++) {
+            for (unsigned int i = 0; i < m_entities.size(); i++) {
                 Entity* entity = m_entities[i];
                 if (entity->worldspawn()) {
                     m_worldspawn = entity;
@@ -162,7 +162,7 @@ namespace TrenchBroom {
             if (entities.empty()) return;
 
             vector<Entity*> changedEntities;
-            for (int i = 0; i < entities.size(); i++) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 const string* oldValue = entity->propertyForKey(key);
                 if (oldValue != value) changedEntities.push_back(entity);
@@ -170,7 +170,7 @@ namespace TrenchBroom {
 
             if (!changedEntities.empty()) {
                 if (m_postNotifications) propertiesWillChange(changedEntities);
-                for (int i = 0; i < changedEntities.size(); i++) {
+                for (unsigned int i = 0; i < changedEntities.size(); i++) {
                     if (value == NULL) entities[i]->deleteProperty(key);
                     else entities[i]->setProperty(key, value);
                 }
@@ -221,7 +221,7 @@ namespace TrenchBroom {
             if (brushes.empty()) return;
 
             if (m_postNotifications) brushesWillChange(brushes);
-            for (int i = 0; i < brushes.size(); i++)
+            for (unsigned int i = 0; i < brushes.size(); i++)
                 brushes[i]->snap();
             if (m_postNotifications) brushesDidChange(brushes);
         }
@@ -232,7 +232,7 @@ namespace TrenchBroom {
 
             bool drag = true;
             vector<Brush*> changedBrushes;
-            for (int i = 0; i < faces.size() && drag; i++) {
+            for (unsigned int i = 0; i < faces.size() && drag; i++) {
                 Face* face = faces[i];
                 Brush* brush = face->brush();
                 drag &= brush->selected() && brush->canResize(*face, delta);
@@ -241,7 +241,7 @@ namespace TrenchBroom {
 
             if (drag) {
                 if (m_postNotifications) brushesWillChange(changedBrushes);
-                for (int i = 0; i < faces.size(); i++) {
+                for (unsigned int i = 0; i < faces.size(); i++) {
                     Face* face = faces[i];
                     Brush* brush = face->brush();
                     brush->resize(*face, delta, lockTextures);
@@ -257,7 +257,7 @@ namespace TrenchBroom {
             const vector<Brush*>& brushes = m_selection->brushes();
 
             if (!entities.empty()) {
-                for (int i = 0; i < entities.size(); i++) {
+                for (unsigned int i = 0; i < entities.size(); i++) {
                     Entity* entity = entities[i];
                     Entity* newEntity = new Entity(entity->properties());
 
@@ -268,7 +268,7 @@ namespace TrenchBroom {
                     newEntities.push_back(newEntity);
                     m_entities.push_back(newEntity);
 
-                    for (int i = 0; i < entity->brushes().size(); i++) {
+                    for (unsigned int i = 0; i < entity->brushes().size(); i++) {
                         Brush* newBrush = new Brush(m_worldBounds, *entity->brushes()[i]);
                         newBrushes.push_back(newBrush);
                         newEntity->addBrush(newBrush);
@@ -277,7 +277,7 @@ namespace TrenchBroom {
             }
 
             if (!brushes.empty()) {
-                for (int i = 0; i < brushes.size(); i++) {
+                for (unsigned int i = 0; i < brushes.size(); i++) {
                     Brush* newBrush = new Brush(m_worldBounds, *brushes[i]);
                     newBrushes.push_back(newBrush);
                     worldspawn(true)->addBrush(newBrush);
@@ -294,14 +294,14 @@ namespace TrenchBroom {
 
             if (!entities.empty()) {
                 if (m_postNotifications) propertiesWillChange(entities);
-                for (int i = 0; i < entities.size(); i++)
+                for (unsigned int i = 0; i < entities.size(); i++)
                     entities[i]->translate(delta);
                 if (m_postNotifications) propertiesDidChange(entities);
             }
 
             if (!brushes.empty()) {
                 if (m_postNotifications) brushesWillChange(brushes);
-                for (int i = 0; i < brushes.size(); i++)
+                for (unsigned int i = 0; i < brushes.size(); i++)
                     brushes[i]->translate(delta, lockTextures);
                 if (m_postNotifications) brushesDidChange(brushes);
             }
@@ -313,14 +313,14 @@ namespace TrenchBroom {
 
             if (!entities.empty()) {
                 if (m_postNotifications) propertiesWillChange(entities);
-                for (int i = 0; i < entities.size(); i++)
+                for (unsigned int i = 0; i < entities.size(); i++)
                     entities[i]->rotate90(axis, center, clockwise);
                 if (m_postNotifications) propertiesDidChange(entities);
             }
 
             if (!brushes.empty()) {
                 if (m_postNotifications) brushesWillChange(brushes);
-                for (int i = 0; i < brushes.size(); i++)
+                for (unsigned int i = 0; i < brushes.size(); i++)
                     brushes[i]->rotate90(axis, center, clockwise, lockTextures);
                 if (m_postNotifications) brushesDidChange(brushes);
             }
@@ -332,14 +332,14 @@ namespace TrenchBroom {
 
             if (!entities.empty()) {
                 if (m_postNotifications) propertiesWillChange(entities);
-                for (int i = 0; i < entities.size(); i++)
+                for (unsigned int i = 0; i < entities.size(); i++)
                     entities[i]->rotate(rotation, center);
                 if (m_postNotifications) propertiesDidChange(entities);
             }
 
             if (!brushes.empty()) {
                 if (m_postNotifications) brushesWillChange(brushes);
-                for (int i = 0; i < brushes.size(); i++)
+                for (unsigned int i = 0; i < brushes.size(); i++)
                     brushes[i]->rotate(rotation, center, lockTextures);
                 if (m_postNotifications) brushesDidChange(brushes);
             }
@@ -351,14 +351,14 @@ namespace TrenchBroom {
 
             if (!entities.empty()) {
                 if (m_postNotifications) propertiesWillChange(entities);
-                for (int i = 0; i < entities.size(); i++)
+                for (unsigned int i = 0; i < entities.size(); i++)
                     entities[i]->flip(axis, center);
                 if (m_postNotifications) propertiesDidChange(entities);
             }
 
             if (!brushes.empty()) {
                 if (m_postNotifications) brushesWillChange(brushes);
-                for (int i = 0; i < brushes.size(); i++)
+                for (unsigned int i = 0; i < brushes.size(); i++)
                     brushes[i]->flip(axis, center, lockTextures);
                 if (m_postNotifications) brushesDidChange(brushes);
             }
@@ -373,7 +373,7 @@ namespace TrenchBroom {
                 vector<Brush*> removedBrushes = brushes;
                 if (m_postNotifications) brushesWillBeRemoved(removedBrushes);
                 m_selection->removeBrushes(removedBrushes);
-                for (int i = 0; i < removedBrushes.size(); i++) {
+                for (unsigned int i = 0; i < removedBrushes.size(); i++) {
                     Brush* brush = removedBrushes[i];
                     Entity* entity = brush->entity();
                     entity->removeBrush(brush);
@@ -385,7 +385,7 @@ namespace TrenchBroom {
             }
 
             if (!removedEntities.empty() || !entities.empty()) {
-                for (int i = 0; i < entities.size(); i++) {
+                for (unsigned int i = 0; i < entities.size(); i++) {
                     Entity* entity = entities[i];
                     if (!entity->worldspawn()) {
                         worldspawn(true)->addBrushes(entity->brushes());
@@ -396,7 +396,7 @@ namespace TrenchBroom {
 
                 if (m_postNotifications) entitiesWillBeRemoved(removedEntities);
                 m_selection->removeEntities(removedEntities);
-                for (int i = 0; i < removedEntities.size(); i++) {
+                for (unsigned int i = 0; i < removedEntities.size(); i++) {
                     remove(m_entities.begin(), m_entities.end(), removedEntities[i]);
                     delete removedEntities[i];
                 }
@@ -408,7 +408,7 @@ namespace TrenchBroom {
             if (faces.empty()) return;
 
             if (m_postNotifications) facesWillChange(faces);
-            for (int i = 0; i < faces.size(); i++)
+            for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->setXOffset(xOffset);
             if (m_postNotifications) facesDidChange(faces);
         }
@@ -418,7 +418,7 @@ namespace TrenchBroom {
             if (faces.empty()) return;
 
             if (m_postNotifications) facesWillChange(faces);
-            for (int i = 0; i < faces.size(); i++)
+            for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->setYOffset(yOffset);
             if (m_postNotifications) facesDidChange(faces);
         }
@@ -428,7 +428,7 @@ namespace TrenchBroom {
             if (faces.empty()) return;
 
             if (m_postNotifications) facesWillChange(faces);
-            for (int i = 0; i < faces.size(); i++)
+            for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->translateOffsets(delta, dir);
             if (m_postNotifications) facesDidChange(faces);
         }
@@ -438,7 +438,7 @@ namespace TrenchBroom {
             if (faces.empty()) return;
 
             if (m_postNotifications) facesWillChange(faces);
-            for (int i = 0; i < faces.size(); i++)
+            for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->setRotation(rotation);
             if (m_postNotifications) facesDidChange(faces);
         }
@@ -448,7 +448,7 @@ namespace TrenchBroom {
             if (faces.empty()) return;
 
             if (m_postNotifications) facesWillChange(faces);
-            for (int i = 0; i < faces.size(); i++)
+            for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->rotateTexture(angle);
             if (m_postNotifications) facesDidChange(faces);
         }
@@ -458,7 +458,7 @@ namespace TrenchBroom {
             if (faces.empty()) return;
 
             if (m_postNotifications) facesWillChange(faces);
-            for (int i = 0; i < faces.size(); i++)
+            for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->setXScale(xScale);
             if (m_postNotifications) facesDidChange(faces);
         }
@@ -468,7 +468,7 @@ namespace TrenchBroom {
             if (faces.empty()) return;
 
             if (m_postNotifications) facesWillChange(faces);
-            for (int i = 0; i < faces.size(); i++)
+            for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->setYScale(yScale);
             if (m_postNotifications) facesDidChange(faces);
         }
@@ -479,7 +479,7 @@ namespace TrenchBroom {
 
             vector<Brush*> changedBrushes;
             bool del = true;
-            for (int i = 0; i < faces.size() && del; i++) {
+            for (unsigned int i = 0; i < faces.size() && del; i++) {
                 Face* face = faces[i];
                 Brush* brush = face->brush();
                 del &= brush->canDeleteFace(*face);
@@ -490,7 +490,7 @@ namespace TrenchBroom {
                 m_selection->removeAll();
                 m_selection->addBrushes(changedBrushes);
                 if (m_postNotifications) brushesWillChange(changedBrushes);
-                for (int i = 0; i < faces.size() && del; i++) {
+                for (unsigned int i = 0; i < faces.size() && del; i++) {
                     Face* face = faces[i];
                     Brush* brush = face->brush();
                     brush->deleteFace(*face);

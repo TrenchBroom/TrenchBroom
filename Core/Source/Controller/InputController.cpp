@@ -65,11 +65,11 @@ namespace TrenchBroom {
             m_currentEvent.mouseButton = mouseButton;
             
             if (m_currentEvent.mouseButton == TB_MB_LEFT) {
-                for (int i = 0; i < m_receiverChain.size(); i++)
+                for (unsigned int i = 0; i < m_receiverChain.size(); i++)
                     if (m_receiverChain[i]->leftMouseDown(m_currentEvent))
                         break;
             } else if (m_currentEvent.mouseButton == TB_MB_RIGHT) {
-                for (int i = 0; i < m_receiverChain.size(); i++)
+                for (unsigned int i = 0; i < m_receiverChain.size(); i++)
                     if (m_receiverChain[i]->rightMouseDown(m_currentEvent))
                         break;
             }
@@ -85,7 +85,7 @@ namespace TrenchBroom {
                     m_dragScrollReceiver = NULL;
                     m_dragStatus = TB_MS_NONE;
                 } else {
-                    for (int i = 0; i < m_receiverChain.size(); i++)
+                    for (unsigned int i = 0; i < m_receiverChain.size(); i++)
                         if (m_receiverChain[i]->leftMouseUp(m_currentEvent))
                             break;
                 }
@@ -96,7 +96,7 @@ namespace TrenchBroom {
                     m_dragScrollReceiver = NULL;
                     m_dragStatus = TB_MS_NONE;
                 } else {
-                    for (int i = 0; i < m_receiverChain.size(); i++)
+                    for (unsigned int i = 0; i < m_receiverChain.size(); i++)
                         if (m_receiverChain[i]->rightMouseUp(m_currentEvent))
                             break;
                 }
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             if (m_currentEvent.mouseButton != TB_MB_NONE && m_dragStatus == TB_MS_NONE) {
                 if (m_currentEvent.mouseButton == TB_MB_LEFT) {
                     m_dragStatus = TB_MS_LEFT;
-                    for (int i = 0; i < m_receiverChain.size(); i++) {
+                    for (unsigned int i = 0; i < m_receiverChain.size(); i++) {
                         if (m_receiverChain[i]->beginLeftDrag(m_currentEvent)) {
                             m_dragScrollReceiver = m_receiverChain[i];
                             break;
@@ -123,7 +123,7 @@ namespace TrenchBroom {
                     }
                 } else if (m_currentEvent.mouseButton == TB_MB_RIGHT) {
                     m_dragStatus = TB_MS_RIGHT;
-                    for (int i = 0; i < m_receiverChain.size(); i++) {
+                    for (unsigned int i = 0; i < m_receiverChain.size(); i++) {
                         if (m_receiverChain[i]->beginRightDrag(m_currentEvent)) {
                             m_dragScrollReceiver = m_receiverChain[i];
                             break;
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             } else if (m_dragStatus == TB_MS_RIGHT && m_dragScrollReceiver != NULL) {
                 m_dragScrollReceiver->rightDrag(m_currentEvent);
             } else {
-                for (int i = 0; i < m_receiverChain.size(); i++)
+                for (unsigned int i = 0; i < m_receiverChain.size(); i++)
                     m_receiverChain[i]->mouseMoved(m_currentEvent);
             }
         }
@@ -149,7 +149,7 @@ namespace TrenchBroom {
             if (m_dragScrollReceiver != NULL) {
                 m_dragScrollReceiver->scrolled(m_currentEvent);
             } else {
-                for (int i = 0; i < m_receiverChain.size(); i++)
+                for (unsigned int i = 0; i < m_receiverChain.size(); i++)
                     if (m_receiverChain[i]->scrolled(m_currentEvent))
                         break;
             }

@@ -47,15 +47,15 @@ namespace TrenchBroom {
             VboBlock* next;
 
             VboBlock(Vbo& vbo, int address, int capacity);
-            int writeBuffer(const unsigned char* buffer, int offset, int length);
-            int writeByte(unsigned char b, int offset);
-            int writeFloat(float f, int offset);
-            int writeColor(const Vec4f& color, int offset);
-            int writeVec(const Vec4f& vec, int offset);
-            int writeVec(const Vec3f& vec, int offset);
-            int writeVec(const Vec2f& vec, int offset);
+            int writeBuffer(const unsigned char* buffer, unsigned int offset, unsigned int length);
+            int writeByte(unsigned char b, unsigned int offset);
+            int writeFloat(float f, unsigned int offset);
+            int writeColor(const Vec4f& color, unsigned int offset);
+            int writeVec(const Vec4f& vec, unsigned int offset);
+            int writeVec(const Vec3f& vec, unsigned int offset);
+            int writeVec(const Vec2f& vec, unsigned int offset);
             void freeBlock();
-            int compare(int anAddress, int aCapacity);
+            int compare(unsigned int anAddress, unsigned int aCapacity);
         };
         
         class Vbo {
@@ -70,24 +70,24 @@ namespace TrenchBroom {
             GLenum m_type;
             bool m_active;
             bool m_mapped;
-            int findFreeBlockInRange(int address, int capacity, int start, int length);
-            int findFreeBlock(int address, int capacity);
+            unsigned int findFreeBlockInRange(unsigned int address, unsigned int capacity, unsigned int start, unsigned int length);
+            unsigned int findFreeBlock(unsigned int address, unsigned int capacity);
             void insertFreeBlock(VboBlock& block);
             void removeFreeBlock(VboBlock& block);
-            void resizeVbo(int newCapacity);
-            void resizeBlock(VboBlock& block, int newCapacity);
+            void resizeVbo(unsigned int newCapacity);
+            void resizeBlock(VboBlock& block, unsigned int newCapacity);
             VboBlock* packBlock(VboBlock& block);
             void checkBlockChain();
             void checkFreeBlocks();
             friend class VboBlock;
         public:
-            Vbo(GLenum type, int capacity);
+            Vbo(GLenum type, unsigned int capacity);
             ~Vbo();
             void activate();
             void deactivate();
             void map();
             void unmap();
-            VboBlock& allocBlock(int capacity);
+            VboBlock& allocBlock(unsigned int capacity);
             VboBlock& freeBlock(VboBlock& block);
             void pack();
             bool ownsBlock(VboBlock& block);

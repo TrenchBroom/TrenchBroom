@@ -118,7 +118,7 @@ namespace TrenchBroom {
             m_hasTriangleStrips = !m_data->triangleStrips.empty();
             m_hasTriangleFans = !m_data->triangleFans.empty();
 
-            int offset = 0;
+            unsigned int offset = 0;
             if (m_hasTriangleSet) {
                 m_triangleSetIndex = (m_vboBlock->address + offset) / (2 * sizeof(float));
                 m_triangleSetCount = (int)m_data->triangleSet.size() / 2;
@@ -129,7 +129,7 @@ namespace TrenchBroom {
             if (m_hasTriangleStrips) {
                 m_triangleStripIndices = new IntBuffer();
                 m_triangleStripCounts = new IntBuffer();
-                for (int i = 0; i < m_data->triangleStrips.size(); i++) {
+                for (unsigned int i = 0; i < m_data->triangleStrips.size(); i++) {
                     FloatBuffer* strip = m_data->triangleStrips[i];
                     m_triangleStripIndices->push_back((m_vboBlock->address + offset) / (2 * sizeof(float)));
                     m_triangleStripCounts->push_back((int)strip->size() / 2);
@@ -141,7 +141,7 @@ namespace TrenchBroom {
             if (m_hasTriangleFans) {
                 m_triangleFanIndices = new IntBuffer();
                 m_triangleFanCounts = new IntBuffer();
-                for (int i = 0; i < m_data->triangleFans.size(); i++) {
+                for (unsigned int i = 0; i < m_data->triangleFans.size(); i++) {
                     FloatBuffer* fan = m_data->triangleFans[i];
                     m_triangleFanIndices->push_back((m_vboBlock->address + offset) / (2 * sizeof(float)));
                     m_triangleFanCounts->push_back((int)fan->size() / 2);
@@ -274,7 +274,7 @@ namespace TrenchBroom {
             m_vbo->activate();
             if (!m_unpreparedStrings.empty()) {
                 m_vbo->map();
-                for (int i = 0; i < m_unpreparedStrings.size(); i++)
+                for (unsigned int i = 0; i < m_unpreparedStrings.size(); i++)
                     m_unpreparedStrings[i]->prepare(*m_vbo);
                 m_vbo->unmap();
                 m_unpreparedStrings.clear();

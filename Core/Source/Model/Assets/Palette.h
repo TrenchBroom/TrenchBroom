@@ -30,11 +30,11 @@ namespace TrenchBroom {
             class Palette {
             private:
                 unsigned char* m_data;
-                size_t m_size;
+                unsigned int m_size;
             public:
                 Palette(const string& path);
                 ~Palette();
-                void indexToRgb(const unsigned char* indexedImage, unsigned char* rgbImage, int pixelCount) const;
+                void indexToRgb(const unsigned char* indexedImage, unsigned char* rgbImage, unsigned int pixelCount) const;
             };
         }
     }

@@ -108,7 +108,7 @@ namespace TrenchBroom {
             delete m_geometry;
             m_geometry = new BrushGeometry(m_worldBounds);
             m_geometry->addFaces(m_faces, droppedFaces);
-            for (int i = 0; i < droppedFaces.size(); i++) {
+            for (unsigned int i = 0; i < droppedFaces.size(); i++) {
                 Face* droppedFace = droppedFaces[i];
                 vector<Face*>::iterator it = find(m_faces.begin(), m_faces.end(), droppedFace);
                 delete *it;
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             m_geometry = new BrushGeometry(m_worldBounds);
             
             vector<Face* > templateFaces = brushTemplate.faces();
-            for (int i = 0; i < templateFaces.size(); i++) {
+            for (unsigned int i = 0; i < templateFaces.size(); i++) {
                 Face* face = new Face(m_worldBounds, *templateFaces[i]);
                 addFace(face);
             }
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             
             dist = numeric_limits<float>::quiet_NaN();
             Side* side;
-            for (int i = 0; i < m_geometry->sides.size() && Math::isnan(dist); i++) {
+            for (unsigned int i = 0; i < m_geometry->sides.size() && Math::isnan(dist); i++) {
                 side = m_geometry->sides[i];
                 dist = side->intersectWithRay(ray);
             }
@@ -189,7 +189,7 @@ namespace TrenchBroom {
         bool Brush::containsPoint(Vec3f point) {
             if (!bounds().contains(point)) return false;
             
-            for (int i = 0; i < m_faces.size(); i++)
+            for (unsigned int i = 0; i < m_faces.size(); i++)
                 if (m_faces[i]->boundary().pointStatus(point) == TB_PS_ABOVE)
                     return false;
             return true;
@@ -203,7 +203,7 @@ namespace TrenchBroom {
             
             const vector<Vertex*>& myVertices = vertices();
             const vector<Face*>& theirFaces = brush.faces();
-            for (int i = 0; i < theirFaces.size(); i++) {
+            for (unsigned int i = 0; i < theirFaces.size(); i++) {
                 Face* theirFace = theirFaces[i];
                 Vec3f origin = theirFace->vertices()[0]->position;
                 Vec3f direction = theirFace->boundary().normal;
@@ -213,7 +213,7 @@ namespace TrenchBroom {
             
             
             const vector<Vertex*>& theirVertices = brush.vertices();
-            for (int i = 0; i < m_faces.size(); i++) {
+            for (unsigned int i = 0; i < m_faces.size(); i++) {
                 Face* myFace = m_faces[i];
                 Vec3f origin = myFace->vertices()[0]->position;
                 Vec3f direction = myFace->boundary().normal;
@@ -223,9 +223,9 @@ namespace TrenchBroom {
             
             const vector<Edge*>& myEdges = edges();
             const vector<Edge*>& theirEdges = brush.edges();
-            for (int i = 0; i < myEdges.size(); i++) {
+            for (unsigned int i = 0; i < myEdges.size(); i++) {
                 Edge* myEdge = myEdges[i];
-                for (int j = 0; j < theirEdges.size(); j++) {
+                for (unsigned int j = 0; j < theirEdges.size(); j++) {
                     Edge* theirEdge = theirEdges[i];
                     Vec3f myEdgeVec = myEdge->end->position - myEdge->start->position;
                     Vec3f theirEdgeVec = theirEdge->end->position - theirEdge->start->position;
@@ -250,7 +250,7 @@ namespace TrenchBroom {
             if (bounds().contains(brush.bounds())) return false;
             
             const vector<Vertex*>& theirVertices = brush.vertices();
-            for (int i = 0; i < theirVertices.size(); i++)
+            for (unsigned int i = 0; i < theirVertices.size(); i++)
                 if (!containsPoint(theirVertices[i]->position))
                     return false;
             return true;
@@ -324,7 +324,7 @@ namespace TrenchBroom {
             if (result == TB_CR_REDUNDANT) return true;
             if (result == TB_CR_NULL) return false;
             
-            for (int i = 0; i < droppedFaces.size(); i++) {
+            for (unsigned int i = 0; i < droppedFaces.size(); i++) {
                 Face* droppedFace = droppedFaces[i];
                 vector<Face*>::iterator it = find(m_faces.begin(), m_faces.end(), droppedFace);
                 delete *it;
@@ -339,7 +339,7 @@ namespace TrenchBroom {
             vector<Face*> droppedFaces;
             BrushGeometry testGeometry(m_worldBounds);
             
-            for (int i = 0; i < m_faces.size(); i++)
+            for (unsigned int i = 0; i < m_faces.size(); i++)
                 if (m_faces[i] != &face)
                     testGeometry.addFace(*m_faces[i], droppedFaces);
             
@@ -357,28 +357,28 @@ namespace TrenchBroom {
         }
         
         void Brush::translate(const Vec3f& delta, bool lockTextures) {
-            for (int i = 0; i < m_faces.size(); i++)
+            for (unsigned int i = 0; i < m_faces.size(); i++)
                 m_faces[i]->translate(delta, lockTextures);
             m_geometry->translate(delta);
             m_entity->brushChanged(this);
         }
         
         void Brush::rotate90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures) {
-            for (int i = 0; i < m_faces.size(); i++)
+            for (unsigned int i = 0; i < m_faces.size(); i++)
                 m_faces[i]->rotate90(axis, center, clockwise, lockTextures);
             m_geometry->rotate90(axis, center, clockwise);
             m_entity->brushChanged(this);
         }
         
         void Brush::rotate(const Quat& rotation, const Vec3f& center, bool lockTextures) {
-            for (int i = 0; i < m_faces.size(); i++)
+            for (unsigned int i = 0; i < m_faces.size(); i++)
                 m_faces[i]->rotate(rotation, center, lockTextures);
             m_geometry->rotate(rotation, center);
             m_entity->brushChanged(this);
         }
         
         void Brush::flip(EAxis axis, const Vec3f& center, bool lockTextures) {
-            for (int i = 0; i < m_faces.size(); i++)
+            for (unsigned int i = 0; i < m_faces.size(); i++)
                 m_faces[i]->flip(axis, center, lockTextures);
             m_geometry->flip(axis, center);
             m_entity->brushChanged(this);
@@ -392,7 +392,7 @@ namespace TrenchBroom {
             
             vector<Face*> droppedFaces;
             BrushGeometry testGeometry(m_worldBounds);
-            for (int i = 0; i < m_faces.size(); i++)
+            for (unsigned int i = 0; i < m_faces.size(); i++)
                 if (m_faces[i] != &face)
                     testGeometry.addFace(*m_faces[i], droppedFaces);
             
@@ -410,7 +410,7 @@ namespace TrenchBroom {
         }
         
         void Brush::enlarge(float delta, bool lockTextures) {
-            for (int i = 0; i < m_faces.size(); i++)
+            for (unsigned int i = 0; i < m_faces.size(); i++)
                 m_faces[i]->move(delta, lockTextures);
             rebuildGeometry();
             m_entity->brushChanged(this);

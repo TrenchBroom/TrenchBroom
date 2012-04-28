@@ -24,12 +24,12 @@ namespace TrenchBroom {
     namespace Controller {
         class Grid {
         private:
-            int m_size;
+            unsigned int m_size;
             bool m_snap;
         public:
-            Grid(int size) : m_size(size), m_snap(true) {}
-            int size() const;
-            int actualSize() const;
+            Grid(unsigned int size) : m_size(size), m_snap(true) {}
+            unsigned int size() const;
+            unsigned int actualSize() const;
         };
     }
 }

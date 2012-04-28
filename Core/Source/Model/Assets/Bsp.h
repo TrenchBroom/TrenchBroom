@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 BBox bounds;
                 BBox maxBounds;
                 vector<BspFace*> faces;
-                int vertexCount;
+                unsigned int vertexCount;
                 BspModel(vector<BspFace*>& faces, int vertexCount, Vec3f& center, BBox& bounds, BBox& maxBounds);
                 ~BspModel();
             };
@@ -90,12 +90,12 @@ namespace TrenchBroom {
             
             class Bsp {
             private:
-                void readTextures(IO::PakStream& stream, int counts);
-                void readTextureInfos(IO::PakStream& stream, int count, vector<BspTexture*>& textures);
-                void readVertices(IO::PakStream& stream, int count, vector<Vec3f>& vertices);
-                void readEdges(IO::PakStream& stream, int count, vector<BspEdgeInfo>& edges);
-                void readFaces(IO::PakStream& stream, int count, vector<BspFaceInfo>& faces);
-                void readFaceEdges(IO::PakStream& stream, int count, int32_t* indices);
+                void readTextures(IO::PakStream& stream, unsigned int count);
+                void readTextureInfos(IO::PakStream& stream, unsigned int count, vector<BspTexture*>& textures);
+                void readVertices(IO::PakStream& stream, unsigned int count, vector<Vec3f>& vertices);
+                void readEdges(IO::PakStream& stream, unsigned int count, vector<BspEdgeInfo>& edges);
+                void readFaces(IO::PakStream& stream, unsigned int count, vector<BspFaceInfo>& faces);
+                void readFaceEdges(IO::PakStream& stream, unsigned int count, int32_t* indices);
             public:
                 string name;
                 vector<BspModel*> models;

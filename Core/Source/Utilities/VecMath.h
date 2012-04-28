@@ -31,7 +31,7 @@ namespace Math {
 
     inline bool isnan(float f) {
 #ifdef _MSC_VER
-        return _isnan(f);
+        return _isnan(f) != 0;
 #else
         return std::isnan(f);
 #endif

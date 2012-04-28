@@ -36,8 +36,8 @@ namespace TrenchBroom {
             
             void CALLBACK gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, StringData* data) {
 				StringData::Point* vertex = new StringData::Point();
-                vertex->x = coords[0];
-                vertex->y = coords[1];
+                vertex->x = static_cast<float>(coords[0]);
+                vertex->y = static_cast<float>(coords[1]);
                 *outData = vertex;
 				fprintf(stdout, "%li", outData);
             }
@@ -88,11 +88,11 @@ namespace TrenchBroom {
             }
 
 			TCHAR* fontName = new TCHAR[descriptor.name.length()];
-			for (int i = 0; i < descriptor.name.length(); i++)
+			for (unsigned int i = 0; i < descriptor.name.length(); i++)
 				fontName[i] = descriptor.name[i];
 
 			TCHAR* wstr = new TCHAR[str.length()];
-			for (int i = 0; i < str.length(); i++)
+			for (unsigned int i = 0; i < str.length(); i++)
 				wstr[i] = str[i];
 
 			float scale = 4.0f;

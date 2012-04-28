@@ -109,7 +109,7 @@ namespace TrenchBroom {
         
         void Splitter::UnZoom() {
             m_zoomedSection = -1;
-            for (int i = 0; i < 2; i++)
+            for (unsigned int i = 0; i < 2; i++)
                 if (m_sections[i] != NULL) m_sections[i]->SetHidden(false);
             Invalidate();
             ZoomChanged();

@@ -77,25 +77,25 @@ namespace TrenchBroom {
         public:
             ETokenType type;
             string data;
-            int line;
-            int column;
-            int charsRead;
+            unsigned int line;
+            unsigned int column;
+            unsigned int charsRead;
         };
         
         class MapTokenizer {
             vector<char> m_chars;
-            int m_index;
+            unsigned int m_index;
             char m_buffer[1024];
-            int m_bufferIndex;
+            unsigned int m_bufferIndex;
             ETokenizerState m_state;
-            int m_line;
-            int m_column;
-            int m_startLine;
-            int m_startColumn;
+            unsigned int m_line;
+            unsigned int m_column;
+            unsigned int m_startLine;
+            unsigned int m_startColumn;
             MapToken m_token;
             char nextChar();
             char peekChar();
-            MapToken* token(ETokenType type, char* data, int index, int line, int column);
+            MapToken* token(ETokenType type, char* data, unsigned int index, unsigned int line, unsigned int column);
         public:
             MapTokenizer(istream& stream);
             MapToken* next();
@@ -106,7 +106,7 @@ namespace TrenchBroom {
         private:
             const BBox& m_worldBounds;
             Assets::TextureManager& m_textureManager;
-            int m_size;
+            unsigned int m_size;
             EMapFormat m_format;
             MapTokenizer* m_tokenizer;
             vector<MapToken*> m_tokenStack;

@@ -49,7 +49,7 @@ namespace TrenchBroom {
             if (m_entityDefinition == NULL || m_entityDefinition->type == TB_EDT_BRUSH) {
                 if (!m_brushes.empty()) {
                     m_bounds = m_brushes[0]->bounds();
-                    for (int i = 1; i < m_brushes.size(); i++)
+                    for (unsigned int i = 1; i < m_brushes.size(); i++)
                         m_bounds += m_brushes[i]->bounds();
                 }
             } else if (m_entityDefinition->type == TB_EDT_POINT) {
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             m_properties = properties;
             map<string, string>::iterator it;
             if ((it = m_properties.find(AngleKey)) != m_properties.end())
-                m_angle = atof(it->second.c_str());
+                m_angle = static_cast<float>(atof(it->second.c_str()));
             if ((it = m_properties.find(OriginKey)) != m_properties.end())
                 m_origin = Vec3f(it->second);
             invalidateGeometry();
@@ -185,7 +185,7 @@ namespace TrenchBroom {
                 }
                 m_origin = Vec3f(*value);
             } else if (key == AngleKey) {
-                if (value != NULL) m_angle = atof(value->c_str());
+                if (value != NULL) m_angle = static_cast<float>(atof(value->c_str()));
                 else m_angle = numeric_limits<float>::quiet_NaN();
             }
 
@@ -255,7 +255,7 @@ namespace TrenchBroom {
             if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
 
-            for (int i = 0; i < brushes.size(); i++) {
+            for (unsigned int i = 0; i < brushes.size(); i++) {
                 brushes[i]->setEntity(this);
                 m_brushes.push_back(brushes[i]);
             }
@@ -279,7 +279,7 @@ namespace TrenchBroom {
             if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
 
-            for (int i = 0; i < brushes.size(); i++) {
+            for (unsigned int i = 0; i < brushes.size(); i++) {
                 brushes[i]->setEntity(NULL);
                 m_brushes.erase(find(m_brushes.begin(), m_brushes.end(), brushes[i]));
             }

@@ -230,13 +230,13 @@ Vec3f::Vec3f(const string& str) {
     string blank = " \t\n\r";
 
     pos = str.find_first_not_of(blank, pos);
-    x = atof(cstr + pos);
+    x = static_cast<float>(atof(cstr + pos));
     pos = str.find_first_of(blank, pos);
     pos = str.find_first_not_of(blank, pos);
-    y = atof(cstr + pos);
+    y = static_cast<float>(atof(cstr + pos));
     pos = str.find_first_of(blank, pos);
     pos = str.find_first_not_of(blank, pos);
-    z = atof(cstr + pos);
+    z = static_cast<float>(atof(cstr + pos));
 }
 
 Vec3f::Vec3f(float x, float y, float z) : x(x), y(y), z(z) {}
@@ -436,16 +436,16 @@ Vec4f::Vec4f(const string& str) {
     string blank = " \t\n\r";
     
     pos = str.find_first_not_of(blank, pos);
-    x = atof(cstr + pos);
+    x = static_cast<float>(atof(cstr + pos));
     pos = str.find_first_of(blank, pos);
     pos = str.find_first_not_of(blank, pos);
-    y = atof(cstr + pos);
+    y = static_cast<float>(atof(cstr + pos));
     pos = str.find_first_of(blank, pos);
     pos = str.find_first_not_of(blank, pos);
-    z = atof(cstr + pos);
+    z = static_cast<float>(atof(cstr + pos));
     pos = str.find_first_of(blank, pos);
     pos = str.find_first_not_of(blank, pos);
-    w = atof(cstr + pos);
+    w = static_cast<float>(atof(cstr + pos));
 }
 
 Vec4f::Vec4f(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
@@ -492,7 +492,7 @@ string Vec4f::asString() const {
 }
 
 Mat2f& Mat2f::operator= (const Mat2f& right) {
-    for (int i = 0; i < 4; i++)
+    for (unsigned int i = 0; i < 4; i++)
         v[i] = right.v[i];
     return *this;
 }
@@ -532,19 +532,19 @@ const Mat2f Mat2f::operator/ (const float right) const {
 }
 
 Mat2f& Mat2f::operator+= (const Mat2f& right) {
-    for (int i = 0; i < 4; i++)
+    for (unsigned int i = 0; i < 4; i++)
         v[i] += right.v[i];
     return *this;
 }
 
 Mat2f& Mat2f::operator-= (const Mat2f& right) {
-    for (int i = 0; i < 4; i++)
+    for (unsigned int i = 0; i < 4; i++)
         v[i] -= right.v[i];
     return *this;
 }
 
 Mat2f& Mat2f::operator*= (const float right) {
-    for (int i = 0; i < 4; i++)
+    for (unsigned int i = 0; i < 4; i++)
         v[i] *= right;
     return *this;
 }
@@ -570,7 +570,7 @@ const float& Mat2f::operator[] (const int index) const {
 }
 
 Mat2f::Mat2f() {
-    for (int i = 0; i < 4; i++)
+    for (unsigned int i = 0; i < 4; i++)
         v[i] = 0;
 }
 
@@ -582,8 +582,8 @@ Mat2f::Mat2f(float v11, float v12, float v21, float v22) {
 }
 
 void Mat2f::setIdentity() {
-    for (int c = 0; c < 2; c++)
-        for (int r = 0; r < 2; r++)
+    for (unsigned int c = 0; c < 2; c++)
+        for (unsigned int r = 0; r < 2; r++)
             v[c * 2 + r] = c == r ? 1.0f : 0.0f;
 }
 
@@ -626,9 +626,9 @@ const Mat2f Mat2f::negate() const {
 
 const Mat2f Mat2f::transpose() const {
     Mat2f result;
-    for (int c = 0; c < 2; c++) {
+    for (unsigned int c = 0; c < 2; c++) {
         result[c * 2 + c] = v[c * 2 + c];
-        for (int r = c + 1; r < 2; r++) {
+        for (unsigned int r = c + 1; r < 2; r++) {
             result[c * 2 + r] = v[r * 2 + c];
             result[r * 2 + c] = v[c * 2 + r];
         }
@@ -641,7 +641,7 @@ float Mat2f::determinant() const {
 }
 
 Mat3f& Mat3f::operator= (const Mat3f& right) {
-    for (int i = 0; i < 9; i++)
+    for (unsigned int i = 0; i < 9; i++)
         v[i] = right.v[i];
     return *this;
 }
@@ -672,9 +672,9 @@ const Vec3f Mat3f::operator* (const Vec3f& right) const {
 
 const Mat3f Mat3f::operator* (const Mat3f& right) const {
     Mat3f result;
-    for (int c = 0; c < 3; c++)
-        for (int r = 0; r < 3; r++)
-            for (int i = 0; i < 3; i++)
+    for (unsigned int c = 0; c < 3; c++)
+        for (unsigned int r = 0; r < 3; r++)
+            for (unsigned int i = 0; i < 3; i++)
                 result[c * 3 + r] += v[i * 3 + r] * right.v[c * 3 + i];
     return result;
 }
@@ -686,19 +686,19 @@ const Mat3f Mat3f::operator/ (const float right) const {
 }
 
 Mat3f& Mat3f::operator+= (const Mat3f& right) {
-    for (int i = 0; i < 9; i++)
+    for (unsigned int i = 0; i < 9; i++)
         v[i] += right.v[i];
     return *this;
 }
 
 Mat3f& Mat3f::operator-= (const Mat3f& right) {
-    for (int i = 0; i < 9; i++)
+    for (unsigned int i = 0; i < 9; i++)
         v[i] -= right.v[i];
     return *this;
 }
 
 Mat3f& Mat3f::operator*= (const float right) {
-    for (int i = 0; i < 9; i++)
+    for (unsigned int i = 0; i < 9; i++)
         v[i] *= right;
     return *this;
 }
@@ -724,7 +724,7 @@ const float& Mat3f::operator[] (const int index) const {
 }
 
 Mat3f::Mat3f() {
-    for (int i = 0; i < 9; i++)
+    for (unsigned int i = 0; i < 9; i++)
         v[i] = 0;
 }
 
@@ -735,8 +735,8 @@ Mat3f::Mat3f(float v11, float v12, float v13, float v21, float v22, float v23, f
 }
 
 void Mat3f::setIdentity() {
-    for (int c = 0; c < 3; c++)
-        for (int r = 0; r < 3; r++)
+    for (unsigned int c = 0; c < 3; c++)
+        for (unsigned int r = 0; r < 3; r++)
             v[c * 3 + r] = c == r ? 1.0f : 0.0f;
 }
 
@@ -761,8 +761,8 @@ const Mat3f Mat3f::invert(bool& invertible) const {
 
 const Mat3f Mat3f::adjugate() const {
     Mat3f result;
-    for (int c = 0; c < 3; c++)
-        for (int r = 0; r < 3; r++)
+    for (unsigned int c = 0; c < 3; c++)
+        for (unsigned int r = 0; r < 3; r++)
             result[c * 3 + r] = ((c + r) % 2 == 0 ? 1 : -1) * minor(c, r).determinant();
     return result;
 }
@@ -775,9 +775,9 @@ const Mat3f Mat3f::negate() const {
 
 const Mat3f Mat3f::transpose() const {
     Mat3f result;
-    for (int c = 0; c < 3; c++) {
+    for (unsigned int c = 0; c < 3; c++) {
         result[c * 3 + c] = v[c * 3 + c];
-        for (int r = c + 1; r < 3; r++) {
+        for (unsigned int r = c + 1; r < 3; r++) {
             result[c * 3 + r] = v[r * 3 + c];
             result[r * 3 + c] = v[c * 3 + r];
         }
@@ -797,15 +797,15 @@ float Mat3f::determinant() const {
 const Mat2f Mat3f::minor(int row, int col) const {
     Mat2f result;
     int i = 0;
-    for (int c = 0; c < 3; c++)
-        for (int r = 0; r < 3; r++)
+    for (unsigned int c = 0; c < 3; c++)
+        for (unsigned int r = 0; r < 3; r++)
             if (c != col && r != row)
                 result[i++] = v[c * 3 + r];
     return result;
 }
 
 Mat4f& Mat4f::operator= (const Mat4f& right) {
-    for (int i = 0; i < 16; i++)
+    for (unsigned int i = 0; i < 16; i++)
         v[i] = right.v[i];
     return *this;
 }
@@ -847,10 +847,10 @@ const Vec4f Mat4f::operator* (const Vec4f& right) const {
 
 const Mat4f Mat4f::operator* (const Mat4f& right) const {
     Mat4f result;
-    for (int c = 0; c < 4; c++) {
-        for (int r = 0; r < 4; r++) {
+    for (unsigned int c = 0; c < 4; c++) {
+        for (unsigned int r = 0; r < 4; r++) {
             result[c * 4 + r] = 0;
-            for (int i = 0; i < 4; i++)
+            for (unsigned int i = 0; i < 4; i++)
                 result[c * 4 + r] += v[i * 4 + r] * right.v[c * 4 + i];
         }
     }
@@ -863,19 +863,19 @@ const Mat4f Mat4f::operator/ (const float right) const {
 }
 
 Mat4f& Mat4f::operator+= (const Mat4f& right) {
-    for (int i = 0; i < 16; i++)
+    for (unsigned int i = 0; i < 16; i++)
         v[i] += right.v[i];
     return *this;
 }
 
 Mat4f& Mat4f::operator-= (const Mat4f& right) {
-    for (int i = 0; i < 16; i++)
+    for (unsigned int i = 0; i < 16; i++)
         v[i] -= right.v[i];
     return *this;
 }
 
 Mat4f& Mat4f::operator*= (const float right) {
-    for (int i = 0; i < 16; i++)
+    for (unsigned int i = 0; i < 16; i++)
         v[i] *= right;
     return *this;
 }
@@ -901,7 +901,7 @@ const float& Mat4f::operator[] (const int index) const {
 }
 
 Mat4f::Mat4f() {
-    for (int i = 0; i < 16; i++)
+    for (unsigned int i = 0; i < 16; i++)
         v[i] = 0;
 }
 
@@ -913,8 +913,8 @@ Mat4f::Mat4f(float v11, float v12, float v13, float v14, float v21, float v22, f
 }
 
 void Mat4f::setIdentity() {
-    for (int r = 0; r < 4; r++)
-        for (int c = 0; c < 4; c++)
+    for (unsigned int r = 0; r < 4; r++)
+        for (unsigned int c = 0; c < 4; c++)
             v[c * 4 + r] = r == c ? 1.0f : 0.0f;
 }
 
@@ -1047,8 +1047,8 @@ const Mat4f Mat4f::invert(bool& invertible) const {
 
 const Mat4f Mat4f::adjugate() const {
     Mat4f result;
-    for (int c = 0; c < 4; c++)
-        for (int r = 0; r < 4; r++)
+    for (unsigned int c = 0; c < 4; c++)
+        for (unsigned int r = 0; r < 4; r++)
             result[c * 4 + r] = ((c + r) % 2 == 0 ? 1 : -1) * minor(c, r).determinant();
     return result.transpose();
 }
@@ -1062,9 +1062,9 @@ const Mat4f Mat4f::negate() const {
 
 const Mat4f Mat4f::transpose() const {
     Mat4f result;
-    for (int c = 0; c < 4; c++) {
+    for (unsigned int c = 0; c < 4; c++) {
         result[c * 4 + c] = v[c * 4 + c];
-        for (int r = c + 1; r < 4; r++) {
+        for (unsigned int r = c + 1; r < 4; r++) {
             result[c * 4 + r] = v[r * 4 + c];
             result[r * 4 + c] = v[c * 4 + r];
         }
@@ -1075,7 +1075,7 @@ const Mat4f Mat4f::transpose() const {
 float Mat4f::determinant() const {
     // Laplace after first col
     float det = 0;
-    for (int r = 0; r < 4; r++)
+    for (unsigned int r = 0; r < 4; r++)
         det += (r % 2 == 0 ? 1 : -1) *v[r] * minor(0, r).determinant();
     return det;
 }
@@ -1083,8 +1083,8 @@ float Mat4f::determinant() const {
 const Mat3f Mat4f::minor(int row, int col) const {
     Mat3f result;
     int i = 0;
-    for (int c = 0; c < 4; c++)
-        for (int r = 0; r < 4; r++)
+    for (unsigned int c = 0; c < 4; c++)
+        for (unsigned int r = 0; r < 4; r++)
             if (c != col && r != row)
                 result[i++] = v[c * 4 + r];
     return result;

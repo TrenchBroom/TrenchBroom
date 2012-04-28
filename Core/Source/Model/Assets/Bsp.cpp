@@ -69,7 +69,7 @@ namespace TrenchBroom {
                 bounds.min = vertices.front();
                 bounds.max = bounds.min;
 
-                for (int i = 1; i < vertices.size(); i++)
+                for (unsigned int i = 1; i < vertices.size(); i++)
                     bounds += vertices[i];
             }
 
@@ -87,7 +87,7 @@ namespace TrenchBroom {
                 while(!faces.empty()) delete faces.back(), faces.pop_back();
             }
 
-            void Bsp::readTextures(IO::PakStream& stream, int count) {
+            void Bsp::readTextures(IO::PakStream& stream, unsigned int count) {
                 int32_t offset;
                 uint32_t width, height, mip0Offset;
                 char textureName[BSP_TEXTURE_NAME_LENGTH];
@@ -96,7 +96,7 @@ namespace TrenchBroom {
 
                 base = stream->tellg();
 
-                for (int i = 0; i < count; i++) {
+                for (unsigned int i = 0; i < count; i++) {
                     stream->seekg(base + (i + 1) * sizeof(int32_t), ios::beg);
                     stream->read((char *)&offset, sizeof(int32_t));
                     stream->seekg(base + offset, ios::beg);
@@ -114,10 +114,10 @@ namespace TrenchBroom {
                 }
             }
 
-            void Bsp::readTextureInfos(IO::PakStream& stream, int count, vector<BspTexture*>& textures) {
+            void Bsp::readTextureInfos(IO::PakStream& stream, unsigned int count, vector<BspTexture*>& textures) {
                 uint32_t textureIndex;
 
-                for (int i = 0; i < count; i++) {
+                for (unsigned int i = 0; i < count; i++) {
                     BspTextureInfo* textureInfo = new BspTextureInfo();
                     stream->read((char *)&textureInfo->sAxis, 3 * sizeof(float));
                     stream->read((char *)&textureInfo->sOffset, sizeof(float));
@@ -131,25 +131,25 @@ namespace TrenchBroom {
                 }
             }
 
-            void Bsp::readVertices(IO::PakStream& stream, int count, vector<Vec3f>& vertices) {
+            void Bsp::readVertices(IO::PakStream& stream, unsigned int count, vector<Vec3f>& vertices) {
                 Vec3f vertex;
-                for (int i = 0; i < count; i++) {
+                for (unsigned int i = 0; i < count; i++) {
                     stream->read((char *)&vertex, sizeof(Vec3f));
                     vertices.push_back(vertex);
                 }
             }
 
-            void Bsp::readEdges(IO::PakStream& stream, int count, vector<BspEdgeInfo>& edges) {
+            void Bsp::readEdges(IO::PakStream& stream, unsigned int count, vector<BspEdgeInfo>& edges) {
                 BspEdgeInfo edge;
-                for (int i = 0; i < count; i++) {
+                for (unsigned int i = 0; i < count; i++) {
                     stream->read((char *)&edge, sizeof(BspEdgeInfo));
                     edges.push_back(edge);
                 }
             }
 
-            void Bsp::readFaces(IO::PakStream& stream, int count, vector<BspFaceInfo>& faces) {
+            void Bsp::readFaces(IO::PakStream& stream, unsigned int count, vector<BspFaceInfo>& faces) {
                 BspFaceInfo face;
-                for (int i = 0; i < count; i++) {
+                for (unsigned int i = 0; i < count; i++) {
                     stream->seekg(BSP_FACE_EDGE_INDEX, ios::cur);
                     stream->read((char *)&face.edgeIndex, sizeof(int32_t));
                     stream->read((char *)&face.edgeCount, sizeof(uint16_t));
@@ -160,7 +160,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void Bsp::readFaceEdges(IO::PakStream& stream, int count, int32_t* indices) {
+            void Bsp::readFaceEdges(IO::PakStream& stream, unsigned int count, int32_t* indices) {
                 stream->read((char *)indices, count * sizeof(int32_t));
             }
 

@@ -35,7 +35,7 @@ namespace TrenchBroom {
                 return texture1->usageCount < texture2->usageCount;
             }
 
-            void Texture::init(const string& name, int width, int height) {
+            void Texture::init(const string& name, unsigned int width, unsigned int height) {
                 static int currentId = 1;
                 this->uniqueId = currentId++;
                 this->name = name;
@@ -47,17 +47,17 @@ namespace TrenchBroom {
 				m_textureBuffer = NULL;
             }
 
-            void Texture::init(const string& name, const unsigned char* indexImage, int width, int height, const Palette* palette) {
+            void Texture::init(const string& name, const unsigned char* indexImage, unsigned int width, unsigned int height, const Palette* palette) {
                 init(name, width, height);
 
                 if (indexImage != NULL) {
-                    int pixelCount = width * height;
+                    unsigned int pixelCount = width * height;
                     m_textureBuffer = new unsigned char[pixelCount * 3];
                     palette->indexToRgb(indexImage, m_textureBuffer, pixelCount);
 
                     averageColor.x = averageColor.y = averageColor.z = 0;
                     averageColor.w = 1;
-                    for (int i = 0; i < pixelCount; i++) {
+                    for (unsigned int i = 0; i < pixelCount; i++) {
                         averageColor.x += (m_textureBuffer[i * 3 + 0] / 255.0f);
                         averageColor.y += (m_textureBuffer[i * 3 + 1] / 255.0f);
                         averageColor.z += (m_textureBuffer[i * 3 + 2] / 255.0f);
@@ -69,7 +69,7 @@ namespace TrenchBroom {
                 }
             }
 
-            Texture::Texture(const string& name, const unsigned char* rgbImage, int width, int height) {
+            Texture::Texture(const string& name, const unsigned char* rgbImage, unsigned int width, unsigned int height) {
                 init(name, width, height);
                 if (rgbImage != NULL) {
                     int pixelCount = width * height;
@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 }
             }
 
-            Texture::Texture(const string& name, const unsigned char* indexImage, int width, int height, const Palette& palette) {
+            Texture::Texture(const string& name, const unsigned char* indexImage, unsigned int width, unsigned int height, const Palette& palette) {
                 init(name, indexImage, width, height, &palette);
             }
 
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 init(mip.name, mip.mip0, mip.width, mip.height, &palette);
             }
 
-            Texture::Texture(const string& name, const AliasSkin& skin, int skinIndex, const Palette& palette) {
+            Texture::Texture(const string& name, const AliasSkin& skin, unsigned int skinIndex, const Palette& palette) {
                 init(name, skin.pictures[skinIndex], skin.width, skin.height, &palette);
             }
 
@@ -137,7 +137,7 @@ namespace TrenchBroom {
 
             TextureCollection::TextureCollection(const string& name, IO::Wad& wad, const Palette& palette) {
                 this->name = name;
-                for (int i = 0; i < wad.entries.size(); i++) {
+                for (unsigned int i = 0; i < wad.entries.size(); i++) {
                     IO::WadEntry& entry = wad.entries[i];
                     if (entry.type == IO::WT_MIP) {
                         IO::Mip* mip = wad.loadMipAtEntry(entry);
@@ -154,9 +154,9 @@ namespace TrenchBroom {
 
             void TextureManager::reloadTextures() {
                 m_textures.clear();
-                for (int i = 0; i < m_collections.size(); i++) {
+                for (unsigned int i = 0; i < m_collections.size(); i++) {
                     TextureCollection* collection = m_collections[i];
-                    for (int j = 0; j < collection->textures.size(); j++) {
+                    for (unsigned int j = 0; j < collection->textures.size(); j++) {
                         Texture* texture = collection->textures[j];
                         m_textures.insert(pair<string, Texture*>(texture->name, texture));
                     }
@@ -167,15 +167,15 @@ namespace TrenchBroom {
                 clear();
             }
 
-            void TextureManager::addCollection(TextureCollection* collection, int index) {
-                assert(index >= 0 && index <= m_collections.size());
+            void TextureManager::addCollection(TextureCollection* collection, unsigned int index) {
+                assert(index <= m_collections.size());
                 m_collections.insert(m_collections.begin() + index, collection);
                 reloadTextures();
                 textureManagerChanged(*this);
             }
 
-            void TextureManager::removeCollection(int index) {
-                assert(index >= 0 && index < m_collections.size());
+            void TextureManager::removeCollection(unsigned int index) {
+                assert(index < m_collections.size());
                 delete m_collections[index];
                 m_collections.erase(m_collections.begin() + index);
                 textureManagerChanged(*this);

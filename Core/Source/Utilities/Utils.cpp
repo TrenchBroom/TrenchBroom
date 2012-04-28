@@ -31,8 +31,8 @@ namespace TrenchBroom {
     
     vector<string> split(const string& str, char d) {
         vector<string> result;
-        int lastIndex = 0;
-        for (int i = 0; i < str.length(); i++) {
+        unsigned int lastIndex = 0;
+        for (unsigned int i = 0; i < str.length(); i++) {
             char c = str[i];
             if (c == d && lastIndex < i) {
                 result.push_back(str.substr(lastIndex, i - lastIndex));

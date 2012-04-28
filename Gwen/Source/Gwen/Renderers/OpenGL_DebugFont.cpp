@@ -38,7 +38,7 @@ namespace Gwen
 
 			// GLenum format = GL_RGB;
 			unsigned char* texdata = new unsigned char[256*256*4];
-			for (int i=0;i<256*256;i++)
+			for (unsigned int i=0;i<256*256;i++)
 			{
 				texdata[i*4] = sGwenFontData[i];
 				texdata[i*4+1] = sGwenFontData[i];
@@ -65,7 +65,7 @@ namespace Gwen
 			Gwen::String converted_string = Gwen::Utility::UnicodeToString( text );
 
 			float yOffset=0.0f;
-			for ( int i=0; i<text.length(); i++ )
+			for ( unsigned int i=0; i<text.length(); i++ )
 			{
 				// wchar_t chr = text[i];
 				char ch = converted_string[i];
@@ -107,7 +107,7 @@ namespace Gwen
 			Gwen::String converted_string = Gwen::Utility::UnicodeToString( text );
 			float spacing = 0.0f;
 
-			for ( int i=0; i<text.length(); i++ )
+			for ( unsigned int i=0; i<text.length(); i++ )
 			{
 				char ch = converted_string[i];
 				spacing += sGwenDebugFontSpacing[ch];

@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 
                 if (frames.size() > 0) {
                     bounds = frames[0]->bounds;
-                    for (int i = 1; i < frames.size(); i++)
+                    for (unsigned int i = 1; i < frames.size(); i++)
                         bounds += frames[0]->bounds;
                 } else {
                     bounds.min = Null3f;
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 stream->read(name, MDL_SIMPLE_FRAME_NAME_SIZE);
                 
                 vector<AliasPackedFrameVertex> packedFrameVertices(vertices.size());
-                for (int i = 0; i < vertices.size(); i++) {
+                for (unsigned int i = 0; i < vertices.size(); i++) {
                     AliasPackedFrameVertex packedVertex;
                     stream->read((char *)&packedVertex, 4 * sizeof(unsigned char));
                     packedFrameVertices[i] = packedVertex;
@@ -101,7 +101,7 @@ namespace TrenchBroom {
                 bounds.min = frameVertices[0];
                 bounds.max = frameVertices[0];
                 
-                for (int i = 1; i < vertices.size(); i++) {
+                for (unsigned int i = 1; i < vertices.size(); i++) {
                     frameVertices[i] = unpackFrameVertex(packedFrameVertices[i], origin, scale);
                     center += frameVertices[i];
                     bounds += frameVertices[i];
@@ -111,7 +111,7 @@ namespace TrenchBroom {
                 
                 Vec3f diff = frameVertices[0] - center;
 				float distSquared = diff.lengthSquared();
-                for (int i = 1; i < vertices.size(); i++) {
+                for (unsigned int i = 1; i < vertices.size(); i++) {
                     diff = frameVertices[i] - center;
                     distSquared = Math::fmax(distSquared, diff.lengthSquared());
                 }
@@ -129,9 +129,9 @@ namespace TrenchBroom {
                 maxBounds.max.z += dist;
                 
                 vector<AliasFrameTriangle*> frameTriangles(triangles.size());
-                for (int i = 0; i < triangles.size(); i++) {
+                for (unsigned int i = 0; i < triangles.size(); i++) {
                     AliasFrameTriangle* frameTriangle = new AliasFrameTriangle();
-                    for (int j = 0; j < 3; j++) {
+                    for (unsigned int j = 0; j < 3; j++) {
                         int index = triangles[i].vertices[j];
                         frameTriangle->vertices[j].position = frameVertices[index];
                         frameTriangle->vertices[j].normal = AliasNormals[packedFrameVertices[index].i];
@@ -215,7 +215,7 @@ namespace TrenchBroom {
                 vector<AliasSkinTriangle> triangles(triangleCount);
                 for (int i = 0; i < triangleCount; i++) {
                     stream->read((char *)&triangles[i].front, sizeof(int32_t));
-                    for (int j = 0; j < 3; j++)
+                    for (unsigned int j = 0; j < 3; j++)
                         stream->read((char *)&triangles[i].vertices[j], sizeof(int32_t));
                 }
                 

@@ -135,7 +135,7 @@ bool Gwen::Platform::FileOpen( const String& Name, const String& StartPath, cons
 	{
 		memset( FilterBuffer, 0, sizeof(FilterBuffer) );
 		memcpy( FilterBuffer, Extension.c_str(), GwenUtil_Min( Extension.size(), 512 ) );
-		for (int i=0; i<512; i++)
+		for (unsigned int i=0; i<512; i++)
 		{
 			if ( FilterBuffer[i] == '|' )
 				FilterBuffer[i] = 0;
@@ -196,7 +196,7 @@ bool Gwen::Platform::FileSave( const String& Name, const String& StartPath, cons
 	{
 		memset( FilterBuffer, 0, sizeof(FilterBuffer) );
 		memcpy( FilterBuffer, Extension.c_str(), GwenUtil_Min( Extension.size(), 512 ) );
-		for (int i=0; i<512; i++)
+		for (unsigned int i=0; i<512; i++)
 		{
 			if ( FilterBuffer[i] == '|' )
 				FilterBuffer[i] = 0;

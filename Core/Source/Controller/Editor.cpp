@@ -41,11 +41,11 @@ namespace TrenchBroom {
             vector<Model::Assets::Texture*> newTextures;
 
             const vector<Model::Entity*>& entities = m_map->entities();
-            for (int i = 0; i < entities.size(); i++) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
                 const vector<Model::Brush*>& brushes = entities[i]->brushes();
-                for (int j = 0; j < brushes.size(); j++) {
+                for (unsigned int j = 0; j < brushes.size(); j++) {
                     const vector<Model::Face*>& faces = brushes[j]->faces();
-                    for (int k = 0; k < faces.size(); k++) {
+                    for (unsigned int k = 0; k < faces.size(); k++) {
                         Model::Assets::Texture* oldTexture = faces[k]->texture();
                         Model::Assets::Texture* newTexture = m_textureManager->texture(oldTexture->name);
                         if (oldTexture != newTexture) {
@@ -58,7 +58,7 @@ namespace TrenchBroom {
 
             if (!changedFaces.empty()) {
                 m_map->facesWillChange(changedFaces);
-                for (int i = 0; i < changedFaces.size(); i++)
+                for (unsigned int i = 0; i < changedFaces.size(); i++)
                     changedFaces[i]->setTexture(newTextures[i]);
                 m_map->facesDidChange(changedFaces);
             }
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             const string* wads = m_map->worldspawn(true)->propertyForKey(WadKey);
             if (wads != NULL) {
                 vector<string> wadPaths = split(*wads, ';');
-                for (int i = 0; i < wadPaths.size(); i++) {
+                for (unsigned int i = 0; i < wadPaths.size(); i++) {
                     string wadPath = trim(wadPaths[i]);
                     if (!fileExists(wadPath)) {
                         string folderPath = deleteLastPathComponent(path);

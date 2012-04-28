@@ -95,12 +95,12 @@ namespace TrenchBroom {
         }
 
         OctreeNode::OctreeNode(const BBox& bounds, int minSize) : m_bounds(bounds), m_minSize(minSize) {
-            for (int i = 0; i < 8; i++)
+            for (unsigned int i = 0; i < 8; i++)
                 m_children[i] = NULL;
         }
         
         OctreeNode::~OctreeNode() {
-            for (int i = 0; i < 8; i++)
+            for (unsigned int i = 0; i < 8; i++)
                 if (m_children != NULL)
                     delete m_children[i];
         }
@@ -108,7 +108,7 @@ namespace TrenchBroom {
         bool OctreeNode::addObject(MapObject& object) {
             if (!m_bounds.contains(object.bounds())) return false;
             if (m_bounds.max.x - m_bounds.min.x > m_minSize)
-                for (int i = 0; i < 8; i++)
+                for (unsigned int i = 0; i < 8; i++)
                     if (addObject(object, i)) return true;
             m_objects.push_back(&object);
             return true;
@@ -116,7 +116,7 @@ namespace TrenchBroom {
         
         bool OctreeNode::removeObject(MapObject& object) {
             if (!m_bounds.contains(object.bounds())) return false;
-            for (int i = 0; i < 8; i++)
+            for (unsigned int i = 0; i < 8; i++)
                 if (m_children[i] != NULL && m_children[i]->removeObject(object)) return true;
             vector<MapObject*>::iterator it = find(m_objects.begin(), m_objects.end(), &object);
             if (it != m_objects.end()) m_objects.erase(it);
@@ -126,13 +126,13 @@ namespace TrenchBroom {
         void OctreeNode::intersect(const Ray& ray, vector<MapObject*>& objects) {
             if (m_bounds.contains(ray.origin) || !Math::isnan(m_bounds.intersectWithRay(ray))) {
                 objects.insert(objects.end(), m_objects.begin(), m_objects.end());
-                for (int i = 0; i < 8; i++)
+                for (unsigned int i = 0; i < 8; i++)
                     if (m_children[i] != NULL) m_children[i]->intersect(ray, objects);
             }
         }
         
         void Octree::entitiesWereAddedOrPropertiesDidChange(const vector<Entity*>& entities) {
-            for (int i = 0; i < entities.size(); i++) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
                     m_root->addObject(*entity);
@@ -140,7 +140,7 @@ namespace TrenchBroom {
         }
         
         void Octree::entitiesWillBeRemovedOrPropertiesWillChange(const vector<Entity*>& entities){
-            for (int i = 0; i < entities.size(); i++) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
                     assert(m_root->removeObject(*entity));
@@ -148,14 +148,14 @@ namespace TrenchBroom {
         }
         
         void Octree::brushesWereAddedOrDidChange(const vector<Brush*>& brushes) {
-            for (int i = 0; i < brushes.size(); i++) {
+            for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
                 m_root->addObject(*brush);
             }
         }
         
         void Octree::brushesWillBeRemovedOrWillChange(const vector<Brush*>& brushes) {
-            for (int i = 0; i < brushes.size(); i++) {
+            for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
                 assert(m_root->removeObject(*brush));
             }
@@ -163,12 +163,12 @@ namespace TrenchBroom {
         
         void Octree::mapLoaded(Map& map) {
             const vector<Entity*>& entities = map.entities();
-            for (int i = 0; i < entities.size(); i++) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
                     m_root->addObject((MapObject&)*entity);
                 const vector<Brush*>& brushes = entity->brushes();
-                for (int j = 0; j < brushes.size(); j++) {
+                for (unsigned int j = 0; j < brushes.size(); j++) {
                     Brush* brush = brushes[j];
                     m_root->addObject(*brush);
                 }

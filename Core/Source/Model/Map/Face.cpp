@@ -37,7 +37,7 @@ namespace TrenchBroom {
         void Face::texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, int& planeNormIndex, int& faceNormIndex) const {
             int bestIndex = 0;
             float bestDot = -1;
-            for (int i = 0; i < 6; i++) {
+            for (unsigned int i = 0; i < 6; i++) {
                 float dot = faceNormal | *BaseAxes[i * 3];
                 if (dot >= bestDot) {
                     bestDot = dot;
@@ -269,7 +269,7 @@ namespace TrenchBroom {
             int best = -1;
             vector<Vertex*> vertices = this->vertices();
             size_t vertexCount = vertices.size();
-            for (int i = 0; i < vertexCount && bestDot > 0; i++) {
+            for (unsigned int i = 0; i < vertexCount && bestDot > 0; i++) {
                 m_points[2] = vertices[(i - 1 + vertexCount) % vertexCount]->position;
                 m_points[0] = vertices[i]->position;
                 m_points[1] = vertices[(i + 1) % vertexCount]->position;
@@ -411,7 +411,7 @@ namespace TrenchBroom {
                 compensateTransformation(IdentityM4f.translate(delta));
             
             m_boundary = m_boundary.translate(delta);
-            for (int i = 0; i < 3; i++)
+            for (unsigned int i = 0; i < 3; i++)
                 m_points[i] += delta;
             
             m_texAxesValid = false;
@@ -428,7 +428,7 @@ namespace TrenchBroom {
             }
             
             m_boundary = m_boundary.rotate90(axis, center, clockwise);
-            for (int i = 0; i < 3; i++)
+            for (unsigned int i = 0; i < 3; i++)
                 m_points[i] = m_points[i].rotate90(axis, center, clockwise);
             
             m_texAxesValid = false;
@@ -442,7 +442,7 @@ namespace TrenchBroom {
             
             m_boundary = m_boundary.rotate(rotation, center);
             
-            for (int i = 0; i < 3; i++)
+            for (unsigned int i = 0; i < 3; i++)
                 m_points[i] = rotation * (m_points[i] - center) + center;
             
             m_texAxesValid = false;
@@ -470,7 +470,7 @@ namespace TrenchBroom {
             }
             
             m_boundary = m_boundary.flip(axis, center);
-            for (int i = 0; i < 3; i++)
+            for (unsigned int i = 0; i < 3; i++)
                 m_points[i] = m_points[i].flip(axis, center);
             
             Vec3f t = m_points[1];
@@ -482,7 +482,7 @@ namespace TrenchBroom {
         void Face::move(float dist, bool lockTexture) {
             m_boundary.distance += dist;
             Vec3f delta = m_boundary.normal * dist;
-            for (int i = 0; i < 3; i++)
+            for (unsigned int i = 0; i < 3; i++)
                 m_points[i] += delta;
             
             m_texAxesValid = false; 

@@ -67,7 +67,7 @@ namespace TrenchBroom {
 
         void ChangeSet::entitiesSelected(const vector<Model::Entity*>& entities) {
             if (!m_deselectedEntities.empty()) {
-                for (int i = 0; i < entities.size(); i++) {
+                for (unsigned int i = 0; i < entities.size(); i++) {
                     Model::Entity* entity = entities[i];
                     vector<Model::Entity*>::iterator it = find(m_deselectedEntities.begin(), m_deselectedEntities.end(), entity);
                     if (it != m_deselectedEntities.end()) m_deselectedEntities.erase(it);
@@ -96,7 +96,7 @@ namespace TrenchBroom {
 
         void ChangeSet::brushesSelected(const vector<Model::Brush*>& brushes) {
             if (!m_deselectedBrushes.empty()) {
-                for (int i = 0; i < brushes.size(); i++) {
+                for (unsigned int i = 0; i < brushes.size(); i++) {
                     Model::Brush* brush = brushes[i];
                     vector<Model::Brush*>::iterator it = find(m_deselectedBrushes.begin(), m_deselectedBrushes.end(), brush);
                     if (it != m_deselectedBrushes.end()) m_deselectedBrushes.erase(it);
@@ -117,7 +117,7 @@ namespace TrenchBroom {
 
         void ChangeSet::facesSelected(const vector<Model::Face*>& faces) {
             if (!m_deselectedFaces.empty()) {
-                for (int i = 0; i < faces.size(); i++) {
+                for (unsigned int i = 0; i < faces.size(); i++) {
                     Model::Face* face = faces[i];
                     vector<Model::Face*>::iterator it = find(m_deselectedFaces.begin(), m_deselectedFaces.end(), face);
                     if (it != m_deselectedFaces.end()) m_deselectedFaces.erase(it);
@@ -223,14 +223,14 @@ namespace TrenchBroom {
         void MapRenderer::addEntities(const vector<Model::Entity*>& entities) {
             m_changeSet.entitiesAdded(entities);
 
-            for (int i = 0; i < entities.size(); i++)
+            for (unsigned int i = 0; i < entities.size(); i++)
                 addBrushes(entities[i]->brushes());
         }
 
         void MapRenderer::removeEntities(const vector<Model::Entity*>& entities) {
             m_changeSet.entitiesRemoved(entities);
 
-            for (int i = 0; i < entities.size(); i++)
+            for (unsigned int i = 0; i < entities.size(); i++)
                 removeBrushes(entities[i]->brushes());
         }
 
@@ -271,7 +271,7 @@ namespace TrenchBroom {
             m_changeSet.brushesChanged(brushes);
 
             vector<Model::Entity*> entities;
-            for (int i = 0; i < brushes.size(); i++) {
+            for (unsigned int i = 0; i < brushes.size(); i++) {
                 Model::Entity* entity = brushes[i]->entity();
                 if (!entity->worldspawn() && entity->entityDefinition()->type == Model::TB_EDT_BRUSH) {
                     if (find(entities.begin(), entities.end(), entity) == entities.end())
@@ -317,12 +317,12 @@ namespace TrenchBroom {
             Model::Assets::Texture* texture = face.texture();
             const Vec4f& faceColor = texture != NULL && !texture->dummy ? texture->averageColor : context.preferences.faceColor();
             const Vec4f& edgeColor = context.preferences.edgeColor();
-            int width = texture != NULL ? texture->width : 1;
-            int height = texture != NULL ? texture->height : 1;
+            unsigned int width = texture != NULL ? texture->width : 1;
+            unsigned int height = texture != NULL ? texture->height : 1;
 
-            int offset = 0;
+            unsigned int offset = 0;
             const vector<Model::Vertex*>& vertices = face.vertices();
-            for (int i = 0; i < vertices.size(); i++) {
+            for (unsigned int i = 0; i < vertices.size(); i++) {
                 const Model::Vertex* vertex = vertices[i];
                 gridCoords = face.gridCoords(vertex->position);
                 texCoords = face.textureCoords(vertex->position);
@@ -338,13 +338,13 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::writeFaceIndices(RenderContext& context, Model::Face& face, IndexBuffer& triangleBuffer, IndexBuffer& edgeBuffer) {
-            int baseIndex = face.vboBlock()->address / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
-            int vertexCount = (int)face.vertices().size();
+            unsigned int baseIndex = face.vboBlock()->address / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+            unsigned int vertexCount = static_cast<unsigned int>(face.vertices().size());
 
             edgeBuffer.push_back(baseIndex);
             edgeBuffer.push_back(baseIndex + 1);
 
-            for (int i = 1; i < vertexCount - 1; i++) {
+            for (unsigned int i = 1; i < vertexCount - 1; i++) {
                 triangleBuffer.push_back(baseIndex);
                 triangleBuffer.push_back(baseIndex + i);
                 triangleBuffer.push_back(baseIndex + i + 1);
@@ -364,7 +364,7 @@ namespace TrenchBroom {
             Vec4f color = definition != NULL ? definition->color : context.preferences.entityBoundsColor();
             color.w = context.preferences.entityBoundsColor().w;
 
-            int offset = 0;
+            unsigned int offset = 0;
 
             t = bounds.min;
             offset = block.writeColor(color, offset);
@@ -470,7 +470,7 @@ namespace TrenchBroom {
             FontManager& fontManager = m_fontManager;
             m_selectionBounds = m_editor.map().selection().bounds();
 
-            for (int i = 0; i < 3; i++) {
+            for (unsigned int i = 0; i < 3; i++) {
                 if (m_guideStrings[i].get() != NULL) {
                     fontManager.destroyStringRenderer(m_guideStrings[i]);
                     m_guideStrings[i] = StringRendererPtr();
@@ -481,11 +481,11 @@ namespace TrenchBroom {
             if (!m_editor.map().selection().empty()) {
                 Vec3f size = m_selectionBounds.size();
                 const string& fontName = context.preferences.rendererFontName();
-                int fontSize = context.preferences.rendererFontSize();
+                unsigned int fontSize = context.preferences.rendererFontSize();
                 FontDescriptor descriptor(fontName, fontSize);
                 char str[16];
 
-                for (int i = 0; i < 3; i++) {
+                for (unsigned int i = 0; i < 3; i++) {
                     sprintf(str, "%.0f", size[i]);
                     m_guideStrings[i] = fontManager.createStringRenderer(descriptor, str);
                 }
@@ -502,15 +502,15 @@ namespace TrenchBroom {
             // possible improvement: collect all faces and sort them by their texture, then create the buffers sequentially
 
             const vector<Model::Entity*>& entities = m_editor.map().entities();
-            for (int i = 0; i < entities.size(); i++) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
                 if (context.filter.entityVisible(*entities[i])) {
                     const vector<Model::Brush*>& brushes = entities[i]->brushes();
-                    for (int j = 0; j < brushes.size(); j++) {
+                    for (unsigned int j = 0; j < brushes.size(); j++) {
                         if (context.filter.brushVisible(*brushes[j])) {
                             Model::Brush* brush = brushes[j];
                             if (!brush->selected()) {
                                 const vector<Model::Face*>& faces = brush->faces();
-                                for (int k = 0; k < faces.size(); k++) {
+                                for (unsigned int k = 0; k < faces.size(); k++) {
                                     Model::Face* face = faces[k];
                                     if (!face->selected()) {
                                         Model::Assets::Texture* texture = face->texture();
@@ -545,9 +545,9 @@ namespace TrenchBroom {
             // possible improvement: collect all faces and sort them by their texture, then create the buffers sequentially
 
             const vector<Model::Brush*> brushes = selection.brushes();
-            for (int i = 0; i < brushes.size(); i++) {
+            for (unsigned int i = 0; i < brushes.size(); i++) {
                 const vector<Model::Face*>& faces = brushes[i]->faces();
-                for (int j = 0; j < faces.size(); j++) {
+                for (unsigned int j = 0; j < faces.size(); j++) {
                     Model::Face* face = faces[j];
                     Model::Assets::Texture* texture = face->texture();
                     IndexBuffer* indexBuffer = NULL;
@@ -564,7 +564,7 @@ namespace TrenchBroom {
             }
 
             const vector<Model::Face*>& faces = selection.faces();
-            for (int i = 0; i < faces.size(); i++) {
+            for (unsigned int i = 0; i < faces.size(); i++) {
                 Model::Face* face = faces[i];
                 Model::Assets::Texture* texture = face->texture();
                 IndexBuffer* indexBuffer = NULL;
@@ -608,7 +608,7 @@ namespace TrenchBroom {
                 m_entityBoundsVbo->activate();
                 m_entityBoundsVbo->map();
 
-                for (int i = 0; i < addedEntities.size(); i++) {
+                for (unsigned int i = 0; i < addedEntities.size(); i++) {
                     Model::Entity* entity = addedEntities[i];
                     if (context.filter.entityVisible(*entity)) {
                         VboBlock& block = m_entityBoundsVbo->allocBlock(6 * 4 * (ColorSize + VertexSize));
@@ -638,7 +638,7 @@ namespace TrenchBroom {
                 m_entityBoundsVbo->activate();
                 m_entityBoundsVbo->map();
 
-                for (int i = 0; i < removedEntities.size(); i++) {
+                for (unsigned int i = 0; i < removedEntities.size(); i++) {
                     Model::Entity* entity = removedEntities[i];
                     if (context.filter.entityVisible(*entity)) {
                         entity->setVboBlock(NULL);
@@ -661,7 +661,7 @@ namespace TrenchBroom {
                 m_selectedEntityBoundsVbo->map();
 
                 vector<Entity*> unselectedEntities; // is this still necessary?
-                for (int i = 0; i < changedEntities.size(); i++) {
+                for (unsigned int i = 0; i < changedEntities.size(); i++) {
                     Model::Entity* entity = changedEntities[i];
                     if (context.filter.entityVisible(*entity)) {
                         VboBlock* block = entity->vboBlock();
@@ -679,7 +679,7 @@ namespace TrenchBroom {
                     m_entityBoundsVbo->activate();
                     m_entityBoundsVbo->map();
 
-                    for (int i = 0; i < unselectedEntities.size(); i++) {
+                    for (unsigned int i = 0; i < unselectedEntities.size(); i++) {
                         Model::Entity* entity = unselectedEntities[i];
                         if (context.filter.entityVisible(*entity)) {
                             VboBlock* block = entity->vboBlock();
@@ -700,9 +700,9 @@ namespace TrenchBroom {
                 m_faceVbo->activate();
                 m_faceVbo->map();
 
-                for (int i = 0; i < addedBrushes.size(); i++) {
+                for (unsigned int i = 0; i < addedBrushes.size(); i++) {
                     vector<Model::Face*> addedFaces = addedBrushes[i]->faces();
-                    for (int j = 0; j < addedFaces.size(); j++) {
+                    for (unsigned int j = 0; j < addedFaces.size(); j++) {
                         Model::Face* face = addedFaces[j];
                         VboBlock& block = m_faceVbo->allocBlock((int)face->vertices().size() * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize));
                         writeFaceVertices(context, *face, block);
@@ -733,7 +733,7 @@ namespace TrenchBroom {
                 m_selectedEntityBoundsVbo->activate();
                 m_selectedEntityBoundsVbo->map();
 
-                for (int i = 0; i < selectedEntities.size(); i++) {
+                for (unsigned int i = 0; i < selectedEntities.size(); i++) {
                     Model::Entity* entity = selectedEntities[i];
                     if (context.filter.entityVisible(*entity)) {
                         VboBlock& block = m_selectedEntityBoundsVbo->allocBlock(6 * 4 * (ColorSize + VertexSize));
@@ -779,7 +779,7 @@ namespace TrenchBroom {
                 m_entityBoundsVbo->activate();
                 m_entityBoundsVbo->map();
 
-                for (int i = 0; i < deselectedEntities.size(); i++) {
+                for (unsigned int i = 0; i < deselectedEntities.size(); i++) {
                     Model::Entity* entity = deselectedEntities[i];
                     if (context.filter.entityVisible(*entity)) {
                         VboBlock& block = m_entityBoundsVbo->allocBlock(6 * 4 * (ColorSize + VertexSize));
@@ -861,7 +861,7 @@ namespace TrenchBroom {
             Vec3f size = m_selectionBounds.size();
             Vec3f diff = center - cameraPos;
 
-            int maxi = 3;
+            unsigned int maxi = 3;
             Vec3f gv[3][4];
             // X guide
             if (diff.y >= 0) {
@@ -906,8 +906,8 @@ namespace TrenchBroom {
             }
 
             if (diff.z >= 0)
-                for (int i = 0; i < 2; i++)
-                    for (int j = 0; j < 4; j++)
+                for (unsigned int i = 0; i < 2; i++)
+                    for (unsigned int j = 0; j < 4; j++)
                         gv[i][j].z = m_selectionBounds.max.z;
 
             // Z Guide
@@ -969,12 +969,12 @@ namespace TrenchBroom {
             glStencilFunc(GL_ALWAYS, 1, 1);
             glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-            bool depth = glIsEnabled(GL_DEPTH_TEST);
+			bool depth = glIsEnabled(GL_DEPTH_TEST) == GL_TRUE;
             if (depth)
                 glDisable(GL_DEPTH_TEST);
 
             Vec3f points[3];
-            for (int i = 0; i < maxi; i++) {
+            for (unsigned int i = 0; i < maxi; i++) {
                 points[i] = (gv[i][2] - gv[i][1]) / 2 + gv[i][1];
 
                 float dist = context.camera.distanceTo(points[i]);
@@ -998,11 +998,11 @@ namespace TrenchBroom {
             if (depth)
                 glEnable(GL_DEPTH_TEST);
 
-            for (int i = 0; i < 3; i++) {
+            for (unsigned int i = 0; i < 3; i++) {
                 glColorV4f(color);
 
                 glBegin(GL_LINE_STRIP);
-                for (int j = 0; j < 4; j++)
+                for (unsigned int j = 0; j < 4; j++)
                     glVertexV3f(gv[i][j]);
                 glEnd();
             }
@@ -1010,7 +1010,7 @@ namespace TrenchBroom {
             glDisable(GL_STENCIL_TEST);
 
             fontManager.activate();
-            for (int i = 0; i < maxi; i++) {
+            for (unsigned int i = 0; i < maxi; i++) {
                 glColorV4f(color);
 
                 float dist = context.camera.distanceTo(points[i]);
@@ -1227,13 +1227,13 @@ namespace TrenchBroom {
             selection.selectionRemoved  -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
 
             const vector<Entity*>& entities = map.entities();
-            for (int i = 0; i < entities.size(); i++) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 const vector<Brush*>& brushes = entity->brushes();
-                for (int j = 0; j < brushes.size(); j++) {
+                for (unsigned int j = 0; j < brushes.size(); j++) {
                     Brush* brush = brushes[j];
                     const vector<Face*>& faces = brush->faces();
-                    for (int k = 0; k < faces.size(); k++)
+                    for (unsigned int k = 0; k < faces.size(); k++)
                         faces[k]->setVboBlock(NULL);
                 }
                 entity->setVboBlock(NULL);

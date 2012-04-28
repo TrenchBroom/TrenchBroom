@@ -16,7 +16,7 @@ using namespace Gwen::ControlsInternal;
 
 GWEN_CONTROL_CONSTRUCTOR( BaseScrollBar )
 {
-	for (int i = 0; i < 2; i++)
+	for (unsigned int i = 0; i < 2; i++)
 	{
 		m_ScrollButton[i] = new ScrollBarButton( this );
 	}

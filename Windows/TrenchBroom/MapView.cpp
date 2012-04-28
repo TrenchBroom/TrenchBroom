@@ -188,11 +188,11 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	wglMakeCurrent(testDC, testGLContext);
 
 	bool valid = true;
-	for (int i = 0; i < 3 && valid && numFormats == 0; i++) {
+	for (unsigned int i = 0; i < 3 && valid && numFormats == 0; i++) {
 		iAttributes[11] = tryDepthAttributes[i];
-		for (int j = 0; j < 2 && valid && numFormats == 0; j++) {
+		for (unsigned int j = 0; j < 2 && valid && numFormats == 0; j++) {
 			iAttributes[19] = trySampleAttributes[j];
-			valid = wglChoosePixelFormatARB(testDC, iAttributes, fAttributes, 1, &pixelFormat, &numFormats);
+			valid = wglChoosePixelFormatARB(testDC, iAttributes, fAttributes, 1, &pixelFormat, &numFormats) == TRUE;
 		}
 	}
 

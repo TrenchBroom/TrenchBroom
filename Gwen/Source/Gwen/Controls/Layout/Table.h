@@ -159,7 +159,7 @@ namespace Gwen
 						m_iColumnCount = 1;
 						m_iDefaultRowHeight = 22;
 
-						for (int i=0; i<TableRow::MaxColumns; i++)
+						for (unsigned int i=0; i<TableRow::MaxColumns; i++)
 						{
 							m_ColumnWidth[i] = 20;
 						}
@@ -275,7 +275,7 @@ namespace Gwen
 
 					void DoSizeToContents()
 					{
-						for (int i=0; i<TableRow::MaxColumns; i++)
+						for (unsigned int i=0; i<TableRow::MaxColumns; i++)
 						{
 							m_ColumnWidth[i] = 10;
 						}
@@ -287,7 +287,7 @@ namespace Gwen
 
 							pRow->SizeToContents();
 
-							for (int i=0; i<TableRow::MaxColumns; i++)
+							for (unsigned int i=0; i<TableRow::MaxColumns; i++)
 							{
 								if ( pRow->m_Columns[i] )
 								{

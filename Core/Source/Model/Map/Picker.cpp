@@ -75,10 +75,10 @@ namespace TrenchBroom {
                     if (m_hits[0]->hasType(typeMask)) return m_hits[0];
 
                     float closest = m_hits[0]->distance;
-                    for (int i = 1; i < m_hits.size() && m_hits[i]->distance == closest; i++)
+                    for (unsigned int i = 1; i < m_hits.size() && m_hits[i]->distance == closest; i++)
                         if (m_hits[i]->hasType(typeMask)) return m_hits[i];
                 } else {
-                    for (int i = 0; i < m_hits.size(); i++)
+                    for (unsigned int i = 0; i < m_hits.size(); i++)
                         if (m_hits[i]->hasType(typeMask)) return m_hits[i];
                 }
             }
@@ -88,7 +88,7 @@ namespace TrenchBroom {
         vector<Hit*> HitList::hits(int typeMask) {
             vector<Hit*> result;
             if (!m_sorted) sortHits();
-            for (int i = 0; i < m_hits.size(); i++)
+            for (unsigned int i = 0; i < m_hits.size(); i++)
                 if (m_hits[i]->hasType(typeMask))
                     result.push_back(m_hits[i]);
             return result;
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             HitList* hits = new HitList();
 
             vector<MapObject*> objects = m_octree.intersect(ray);
-            for (int i = 0; i < objects.size(); i++)
+            for (unsigned int i = 0; i < objects.size(); i++)
                 objects[i]->pick(ray, *hits);
 
             return hits;

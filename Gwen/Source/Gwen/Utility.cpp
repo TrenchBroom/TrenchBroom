@@ -141,7 +141,7 @@ void Gwen::Utility::Strings::Strip( Gwen::UnicodeString& str, const Gwen::Unicod
 	Gwen::UnicodeString Source = str;
 	str = L"";
 
-	for ( int i =0; i<Source.length(); i++ )
+	for ( unsigned int i =0; i<Source.length(); i++ )
 	{
 		if ( chars.find( Source[i] ) != Gwen::UnicodeString::npos )
 			continue;

@@ -46,7 +46,7 @@ namespace TrenchBroom {
             Model::Assets::Palette& m_palette;
             VboBlock* m_vboBlock;
             Model::Assets::Texture* m_texture;
-            int m_triangleCount;
+            unsigned int m_triangleCount;
         public:
             AliasRenderer(Model::Assets::Alias& alias, int skinIndex, Vbo& vbo, Model::Assets::Palette& palette);
             ~AliasRenderer();

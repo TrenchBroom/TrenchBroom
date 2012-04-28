@@ -294,11 +294,11 @@ namespace TrenchBroom {
 
             expect(TB_TT_B_O, token = m_tokenizer->next());
             expect(TB_TT_FRAC, token = m_tokenizer->next());
-            color.x = atof(token->data.c_str());
+            color.x = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_FRAC, token = m_tokenizer->next());
-            color.y = atof(token->data.c_str());
+            color.y = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_FRAC, token = m_tokenizer->next());
-            color.z = atof(token->data.c_str());
+            color.z = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_B_C, token = m_tokenizer->next());
             color.w = 1;
             return color;
@@ -310,19 +310,19 @@ namespace TrenchBroom {
 
             expect(TB_TT_B_O, token = m_tokenizer->next());
             expect(TB_TT_DEC, token = m_tokenizer->next());
-            bounds.min.x = atof(token->data.c_str());
+            bounds.min.x = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_DEC, token = m_tokenizer->next());
-            bounds.min.y = atof(token->data.c_str());
+            bounds.min.y = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_DEC, token = m_tokenizer->next());
-            bounds.min.z = atof(token->data.c_str());
+            bounds.min.z = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_B_C, token = m_tokenizer->next());
             expect(TB_TT_B_O, token = m_tokenizer->next());
             expect(TB_TT_DEC, token = m_tokenizer->next());
-            bounds.max.x = atof(token->data.c_str());
+            bounds.max.x = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_DEC, token = m_tokenizer->next());
-            bounds.max.y = atof(token->data.c_str());
+            bounds.max.y = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_DEC, token = m_tokenizer->next());
-            bounds.max.z = atof(token->data.c_str());
+            bounds.max.z = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_B_C, token = m_tokenizer->next());
             return bounds;
         }

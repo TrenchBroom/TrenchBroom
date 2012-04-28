@@ -43,14 +43,14 @@ namespace TrenchBroom {
         void BspRenderer::render(RenderContext& context, const Vec3f& position, float angle) {
             if (m_vboBlock == NULL) {
                 Model::Assets::BspModel& model = *m_bsp.models[0];
-                int modelVertexCount = model.vertexCount;
-                int vertexSize = 5 * sizeof(float);
+                unsigned int modelVertexCount = model.vertexCount;
+                unsigned int vertexSize = 5 * sizeof(float);
 
                 m_vboBlock = &m_vbo.allocBlock(modelVertexCount * vertexSize);
                 m_vbo.map();
-                int offset = 0;
+                unsigned int offset = 0;
                 
-                for (int i = 0; i < model.faces.size(); i++) {
+                for (unsigned int i = 0; i < model.faces.size(); i++) {
                     Model::Assets::BspFace& face = *model.faces[i];
                     Model::Assets::BspTexture& bspTexture = *face.textureInfo->texture;
                     Model::Assets::Texture* texture = NULL;
@@ -72,7 +72,7 @@ namespace TrenchBroom {
                     infoBuffer.first.push_back(offset / vertexSize);
                     infoBuffer.second.push_back((GLsizei)face.vertices.size());
                     
-                    for (int j = 0; j < face.vertices.size(); j++) {
+                    for (unsigned int j = 0; j < face.vertices.size(); j++) {
                         const Vec3f& vertex = face.vertices[j];
                         Vec2f texCoords = face.textureCoordinates(vertex);
                         offset = m_vboBlock->writeVec(texCoords, offset);

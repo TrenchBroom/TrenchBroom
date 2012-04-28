@@ -52,21 +52,21 @@ namespace TrenchBroom {
                 GLuint m_textureId;
                 unsigned char* m_textureBuffer;
 
-                void init(const string& name, int width, int height);
-                void init(const string& name, const unsigned char* indexImage, int width, int height, const Palette* palette);
+                void init(const string& name, unsigned int width, unsigned int height);
+                void init(const string& name, const unsigned char* indexImage, unsigned int width, unsigned int height, const Palette* palette);
             public:
                 string name;
                 int uniqueId;
                 bool dummy;
-                int usageCount;
-                int width;
-                int height;
+                unsigned int usageCount;
+                unsigned int width;
+                unsigned int height;
                 Vec4f averageColor;
 
-                Texture(const string& name, const unsigned char* rgbImage, int width, int height);
-                Texture(const string& name, const unsigned char* indexedImage, int width, int height, const Palette& palette);
+                Texture(const string& name, const unsigned char* rgbImage, unsigned int width, unsigned int height);
+                Texture(const string& name, const unsigned char* indexedImage, unsigned int width, unsigned int height, const Palette& palette);
                 Texture(const IO::Mip& mip, const Palette& palette);
-                Texture(const string& name, const AliasSkin& skin, int skinIndex, const Palette& palette);
+                Texture(const string& name, const AliasSkin& skin, unsigned int skinIndex, const Palette& palette);
                 Texture(const string& name, const BspTexture& texture, const Palette& palette);
                 Texture(const string& name);
                 ~Texture();
@@ -95,8 +95,8 @@ namespace TrenchBroom {
 
                 ~TextureManager();
 
-                void addCollection(TextureCollection* collection, int index);
-                void removeCollection(int index);
+                void addCollection(TextureCollection* collection, unsigned int index);
+                void removeCollection(unsigned int index);
                 void clear();
 
                 const vector<TextureCollection*> collections();

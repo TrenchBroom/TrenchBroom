@@ -21,11 +21,11 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        int Grid::size() const {
+        unsigned int Grid::size() const {
             return m_size;
         }
         
-        int Grid::actualSize() const {
+        unsigned int Grid::actualSize() const {
             if (m_snap)
                 return 1 << m_size;
             return 1;

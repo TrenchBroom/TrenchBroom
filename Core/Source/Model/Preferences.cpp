@@ -172,7 +172,7 @@ namespace TrenchBroom {
             return m_rendererFontName;
         }
         
-        int Preferences::rendererFontSize() {
+        unsigned int Preferences::rendererFontSize() {
             return m_rendererFontSize;
         }
 

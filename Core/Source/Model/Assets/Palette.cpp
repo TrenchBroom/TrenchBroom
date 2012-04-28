@@ -29,7 +29,7 @@ namespace TrenchBroom {
                 assert(stream.is_open());
                 
                 stream.seekg(0, ios::end);
-                m_size = stream.tellg();
+                m_size = static_cast<int>(stream.tellg());
                 stream.seekg(0, ios::beg);
                 m_data = new unsigned char[m_size];
                 stream.read((char*)m_data, m_size);
@@ -40,11 +40,11 @@ namespace TrenchBroom {
                 delete[] m_data;
             }
             
-            void Palette::indexToRgb(const unsigned char* indexedImage, unsigned char* rgbImage, int pixelCount) const {
-                for (int i = 0; i < pixelCount; i++) {
+            void Palette::indexToRgb(const unsigned char* indexedImage, unsigned char* rgbImage, unsigned int pixelCount) const {
+                for (unsigned int i = 0; i < pixelCount; i++) {
                     unsigned char index = indexedImage[i];
                     assert(index < m_size);
-                    for (int j = 0; j < 3; j++)
+                    for (unsigned int j = 0; j < 3; j++)
                         rgbImage[i * 3 + j] = m_data[index * 3 + j];
                 }
             }
