@@ -25,7 +25,6 @@
 
 #include "resource.h"       // main symbols
 
-
 // CTrenchBroomApp:
 // See TrenchBroom.cpp for the implementation of this class
 //

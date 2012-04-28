@@ -203,7 +203,7 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	testDC = NULL;
 
 	if (!valid || numFormats == 0) {
-		TrenchBroom::log(TrenchBroom::TB_LL_INFO, "Multisampling disabled");
+		TrenchBroom::log(TrenchBroom::TB_LL_INFO, "Multisampling disabled\n");
 		pixelFormat = ChoosePixelFormat(m_deviceContext, &descriptor);
 	}
 
@@ -211,7 +211,7 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_openGLContext = wglCreateContext(m_deviceContext);
 	wglMakeCurrent(m_deviceContext, m_openGLContext);
 	if (!wglSwapIntervalEXT(1) || wglGetSwapIntervalEXT() == 0)
-		TrenchBroom::log(TrenchBroom::TB_LL_INFO, "Vertical sync disabled");
+		TrenchBroom::log(TrenchBroom::TB_LL_INFO, "Vertical sync disabled\n");
 
 	char appPath [MAX_PATH] = "";
 

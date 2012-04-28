@@ -36,7 +36,6 @@
 #define new DEBUG_NEW
 #endif
 
-
 // CTrenchBroomApp
 
 BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
@@ -47,6 +46,18 @@ BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	ON_COMMAND(ID_FILE_OPEN, &CWinApp::OnFileOpen)
 END_MESSAGE_MAP()
 
+/*
+// force memory leak dumping when the program terminates in debug mode
+struct _DEBUG_STATE
+{
+	_DEBUG_STATE() {}
+	~_DEBUG_STATE() {
+		_CrtDumpMemoryLeaks();
+	}
+};
+
+_DEBUG_STATE g_ds;
+*/
 
 // CTrenchBroomApp construction
 
@@ -78,6 +89,9 @@ CTrenchBroomApp theApp;
 
 BOOL CTrenchBroomApp::InitInstance()
 {
+	// disable MFC's automatic leak dumping
+	AfxEnableMemoryLeakDump(FALSE);
+
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
 	// visual styles.  Otherwise, any window creation will fail.
