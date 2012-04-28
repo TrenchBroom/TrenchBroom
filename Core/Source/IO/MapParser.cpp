@@ -21,6 +21,7 @@
 #include <assert.h>
 #include <cmath>
 #include "Controller/ProgressIndicator.h"
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -297,7 +298,7 @@ namespace TrenchBroom {
                         return entity;
                     }
                     default:
-                        fprintf(stdout, "Warning: Unexpected token type %i at line %i\n", token->type, token->line);
+                        log(TB_LL_ERR, "Unexpected token type %i at line %i\n", token->type, token->line);
                         return NULL;
                 }
             }
@@ -326,7 +327,7 @@ namespace TrenchBroom {
                         if (indicator != NULL) indicator->update(static_cast<float>(token->charsRead));
                         return brush;
                     default:
-                        fprintf(stdout, "Warning: Unexpected token type %i at line %i\n", token->type, token->line);
+                        log(TB_LL_ERR, "Unexpected token type %i at line %i\n", token->type, token->line);
                         return NULL;
                 }
             }
@@ -370,7 +371,8 @@ namespace TrenchBroom {
             if (m_format == TB_MF_UNDEFINED) {
                 expect(TB_TT_DEC | TB_TT_FRAC | TB_TT_SB_O, token);
                 m_format = token->type == TB_TT_DEC ? TB_MF_STANDARD : TB_MF_VALVE;
-                if (m_format == TB_MF_VALVE) fprintf(stdout, "Warning: Loading unsupported map Valve 220 map format");
+                if (m_format == TB_MF_VALVE) 
+                    log(TB_LL_WARN, "Loading unsupported map Valve 220 map format");
             }
             
             if (m_format == TB_MF_STANDARD) {
@@ -379,7 +381,8 @@ namespace TrenchBroom {
                 xOffset = atof(token->data.c_str());
                 expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
                 yOffset = atof(token->data.c_str());
-                if (frac || token->type == TB_TT_FRAC) fprintf(stdout, "Warning: Rounding fractional texture offset in line %i", token->line);
+                if (frac || token->type == TB_TT_FRAC)
+                    log(TB_LL_WARN, "Rounding fractional texture offset in line %i", token->line);
             } else { // Valve 220 format
                 expect(TB_TT_SB_O, token);
                 expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // X texture axis x
@@ -405,7 +408,7 @@ namespace TrenchBroom {
             yScale = atof(token->data.c_str());
             
             if (((p3 - p1) % (p2 - p1)).equals(Null3f)) {
-                fprintf(stdout, "Warning: Skipping invalid face in line %i", token->line);
+                log(TB_LL_WARN, "Skipping invalid face in line %i", token->line);
                 return NULL;
             }
             

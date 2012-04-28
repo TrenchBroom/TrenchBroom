@@ -24,6 +24,7 @@
 
 #include "IO/EntityDefinitionParser.h"
 #include "Model/Map/Entity.h"
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -134,7 +135,7 @@ namespace TrenchBroom {
             }
 
             sort(m_definitionsByName.begin(), m_definitionsByName.end(), compareByName);
-            fprintf(stdout, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
+            log(TB_LL_INFO, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
         }
 
         EntityDefinitionManagerPtr EntityDefinitionManager::sharedManager(const string& path) {

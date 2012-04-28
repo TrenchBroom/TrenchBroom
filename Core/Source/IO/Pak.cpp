@@ -24,6 +24,7 @@
 #include <algorithm>
 #include "substream.h"
 #include "Utilities/Utils.h"
+#include "Utilities/Console.h"
 
 #ifdef _MSC_VER
 #include "dirent.h"
@@ -100,7 +101,7 @@ namespace TrenchBroom {
             }
 
             string nicePaths = accumulate(paths.begin(), paths.end(), string(", "));
-            fprintf(stdout, "Warning: Could not find pak entry %s at pak paths %s\n", name.c_str(), nicePaths.c_str());
+            log(TB_LL_WARN, "Could not find pak entry %s at pak paths %s\n", name.c_str(), nicePaths.c_str());
             return PakStream(NULL);
         }
 
@@ -113,13 +114,13 @@ namespace TrenchBroom {
 
             DIR* dir = opendir(path.c_str());
             if (!dir) {
-                fprintf(stdout, "Warning: Could not open pak path %s\n", path.c_str());
+                log(TB_LL_WARN, "Could not open pak path %s\n", path.c_str());
                 return false;
             }
 
             struct dirent* entry = readdir(dir);
             if (!entry) {
-                fprintf(stdout, "Warning: %s does not contain any pak files\n", path.c_str());
+                log(TB_LL_WARN, "%s does not contain any pak files\n", path.c_str());
                 closedir(dir);
                 return false;
             }

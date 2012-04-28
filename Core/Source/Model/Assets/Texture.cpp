@@ -20,6 +20,7 @@
 #include "Texture.h"
 #include <cassert>
 #include <algorithm>
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -123,7 +124,7 @@ namespace TrenchBroom {
                         delete[] m_textureBuffer;
                         m_textureBuffer = NULL;
                     } else {
-                        fprintf(stdout, "Warning: Cannot create texture '%s'", name.c_str());
+                        log(TB_LL_WARN, "Cannot create texture '%s'", name.c_str());
                     }
                 }
 

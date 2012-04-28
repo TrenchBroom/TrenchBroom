@@ -21,6 +21,7 @@
 #include <cmath>
 #include <numeric>
 #include <cstring>
+#include "Utilities/Console.h"
 
 #define BSP_DIR_TEXTURES_ADDRESS      0x14
 #define BSP_DIR_TEXTURES_SIZE         0x18
@@ -339,7 +340,7 @@ namespace TrenchBroom {
                 if (it != bsps.end())
                     return it->second;
 
-                fprintf(stdout, "Loading BSP model '%s', search paths: %s\n", name.c_str(), pathList.c_str());
+                log(TB_LL_INFO, "Loading BSP model '%s', search paths: %s\n", name.c_str(), pathList.c_str());
 
                 IO::PakManager& pakManager = *IO::PakManager::sharedManager;
                 IO::PakStream stream = pakManager.streamForEntry(name, paths);
@@ -349,7 +350,7 @@ namespace TrenchBroom {
                     return bsp;
                 }
 
-                fprintf(stdout, "Warning: Unable to find BSP model '%s'\n", name.c_str());
+                log(TB_LL_WARN, "Unable to find BSP model '%s'\n", name.c_str());
                 return NULL;
             }
 

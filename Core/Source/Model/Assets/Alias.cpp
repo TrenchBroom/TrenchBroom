@@ -21,7 +21,8 @@
 #include <assert.h>
 #include <numeric>
 #include <cmath>
-#include "AliasNormals.h"
+#include "Model/Assets/AliasNormals.h"
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -269,7 +270,7 @@ namespace TrenchBroom {
                 if (it != aliases.end())
                     return it->second;
                 
-                fprintf(stdout, "Loading alias model '%s', search paths: %s\n", name.c_str(), pathList.c_str());
+                log(TB_LL_INFO, "Loading alias model '%s', search paths: %s\n", name.c_str(), pathList.c_str());
                 
                 IO::PakManager& pakManager = *IO::PakManager::sharedManager;
                 IO::PakStream stream = pakManager.streamForEntry(name, paths);
@@ -279,7 +280,7 @@ namespace TrenchBroom {
                     return alias;
                 }
                 
-                fprintf(stdout, "Warning: Unable to find alias model '%s'\n", name.c_str());
+                log(TB_LL_WARN, "Unable to find alias model '%s'\n", name.c_str());
                 return NULL;
             }
             

@@ -31,6 +31,7 @@
 #include "GL/GLee.h"
 #include "Utilities/Utils.h"
 #include "Utilities/SharedPointer.h"
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -73,7 +74,7 @@ namespace TrenchBroom {
                     return renderer;
                 }
             } else {
-                fprintf(stdout, "Warning: Unknown model type '%s'\n", ext.c_str());
+                log(TB_LL_WARN, "Unknown model type '%s'\n", ext.c_str());
             }
 
             return NULL;

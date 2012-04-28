@@ -30,6 +30,7 @@
 #include "Model/Octree.h"
 #include "Model/Selection.h"
 #include "Utilities/Utils.h"
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -150,9 +151,9 @@ namespace TrenchBroom {
                 if (entityDefinition.get() != NULL)
                     entity->setEntityDefinition(entityDefinition);
                 // else
-                //    fprintf(stdout, "Warning: No entity definition found for class name '%s'\n", classname->c_str());
+                //    log(TB_LL_WARN, "No entity definition found for class name '%s'\n", classname->c_str());
             } else {
-                fprintf(stdout, "Warning: Entity with id %i is missing classname property (line %i)\n", entity->uniqueId(), entity->filePosition());
+                log(TB_LL_WARN, "Entity with id %i is missing classname property (line %i)\n", entity->uniqueId(), entity->filePosition());
             }
         }
 

@@ -25,6 +25,7 @@
 #include <cassert>
 #include <algorithm>
 #include "Model/Map/Picker.h"
+#include "Utilities/Console.h"
 
 using namespace std;
 
@@ -175,11 +176,11 @@ namespace TrenchBroom {
 
         void Entity::setProperty(const string& key, const string* value) {
             if (key == ClassnameKey && classname() != NULL) {
-                fprintf(stdout, "Warning: Cannot overwrite classname property");
+                log(TB_LL_WARN, "Cannot overwrite classname property");
                 return;
             } else if (key == OriginKey) {
                 if (value == NULL) {
-                    fprintf(stdout, "Warning: Cannot set origin to NULL");
+                    log(TB_LL_WARN, "Cannot set origin to NULL");
                     return;
                 }
                 m_origin = Vec3f(*value);
@@ -215,7 +216,7 @@ namespace TrenchBroom {
 
         void Entity::deleteProperty(const string& key) {
             if (!propertyDeletable(key)) {
-                fprintf(stdout, "Warning: Cannot delete property '%s'", key.c_str());
+                log(TB_LL_WARN, "Cannot delete property '%s'", key.c_str());
                 return;
             }
 

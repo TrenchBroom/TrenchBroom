@@ -32,6 +32,7 @@
 #include "Utilities/Filter.h"
 #include "Utilities/Utils.h"
 #include "Utilities/VecMath.h"
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -101,7 +102,7 @@ namespace TrenchBroom {
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
             IO::MapParser parser(stream, worldBounds, *m_textureManager);
             parser.parseMap(*m_map, indicator);
-            fprintf(stdout, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
+            log(TB_LL_INFO, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
 
             indicator->setText("Loading wad files...");
 
@@ -121,9 +122,9 @@ namespace TrenchBroom {
                         IO::Wad wad(wadPath);
                         Model::Assets::TextureCollection* collection = new Model::Assets::TextureCollection(wadPath, wad, *m_palette);
                         m_textureManager->addCollection(collection, i);
-                        fprintf(stdout, "Loaded %s in %f seconds\n", wadPath.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
+                        log(TB_LL_INFO, "Loaded %s in %f seconds\n", wadPath.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
                     } else {
-                        fprintf(stdout, "Warning: Could not open texture wad %s\n", wadPaths[i].c_str());
+                        log(TB_LL_WARN, "Could not open texture wad %s\n", wadPaths[i].c_str());
                     }
                 }
             }
