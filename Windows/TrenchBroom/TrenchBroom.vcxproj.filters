@@ -580,6 +580,15 @@
     <ClInclude Include="WinPreferences.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Utilities\SharedPointer.h">
+      <Filter>Header\Core\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Utilities\Console.h">
+      <Filter>Header\Core\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="WinConsole.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TrenchBroom.cpp">
@@ -928,6 +937,12 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="WinPreferences.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Utilities\Console.cpp">
+      <Filter>Source\Core\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="WinConsole.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

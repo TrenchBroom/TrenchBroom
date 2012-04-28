@@ -18,6 +18,8 @@
  */
 
 #include "Console.h"
+#include <cstdio>
+#include <cstdarg>
 
 namespace TrenchBroom {
     void log(LogLevel level, const char* format, ...) {

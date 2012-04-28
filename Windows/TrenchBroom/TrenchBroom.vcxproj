@@ -152,8 +152,10 @@
     <ClInclude Include="..\..\Core\Source\Renderer\RenderUtils.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\TextRenderer.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\Vbo.h" />
+    <ClInclude Include="..\..\Core\Source\Utilities\Console.h" />
     <ClInclude Include="..\..\Core\Source\Utilities\Event.h" />
     <ClInclude Include="..\..\Core\Source\Utilities\Filter.h" />
+    <ClInclude Include="..\..\Core\Source\Utilities\SharedPointer.h" />
     <ClInclude Include="..\..\Core\Source\Utilities\Utils.h" />
     <ClInclude Include="..\..\Core\Source\Utilities\VecMath.h" />
     <ClInclude Include="..\..\Gwen\Source\FreeImage\FreeImage.h" />
@@ -254,6 +256,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TrenchBroom.h" />
+    <ClInclude Include="WinConsole.h" />
     <ClInclude Include="WinPreferences.h" />
     <ClInclude Include="WinStringFactory.h" />
   </ItemGroup>
@@ -298,6 +301,7 @@
     <ClCompile Include="..\..\Core\Source\Renderer\RenderUtils.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\TextRenderer.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\Vbo.cpp" />
+    <ClCompile Include="..\..\Core\Source\Utilities\Console.cpp" />
     <ClCompile Include="..\..\Core\Source\Utilities\Filter.cpp" />
     <ClCompile Include="..\..\Core\Source\Utilities\Utils.cpp" />
     <ClCompile Include="..\..\Core\Source\Utilities\VecMath.cpp" />
@@ -375,6 +379,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TrenchBroom.cpp" />
+    <ClCompile Include="WinConsole.cpp" />
     <ClCompile Include="WinPreferences.cpp" />
     <ClCompile Include="WinStringFactory.cpp" />
   </ItemGroup>

@@ -30,6 +30,7 @@
 #include "WinStringFactory.h"
 #include "GUI/EditorGui.h"
 #include "Utilities/Utils.h"
+#include "Utilities/Console.h"
 #include <cassert>
 
 #ifdef _DEBUG
@@ -201,13 +202,16 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	testWindow = NULL;
 	testDC = NULL;
 
-	if (!valid || numFormats == 0)
+	if (!valid || numFormats == 0) {
+		TrenchBroom::log(TrenchBroom::TB_LL_INFO, "Multisampling disabled");
 		pixelFormat = ChoosePixelFormat(m_deviceContext, &descriptor);
+	}
 
 	SetPixelFormat(m_deviceContext, pixelFormat, &descriptor);
 	m_openGLContext = wglCreateContext(m_deviceContext);
 	wglMakeCurrent(m_deviceContext, m_openGLContext);
-	wglSwapIntervalEXT(1);
+	if (!wglSwapIntervalEXT(1) || wglGetSwapIntervalEXT() == 0)
+		TrenchBroom::log(TrenchBroom::TB_LL_INFO, "Vertical sync disabled");
 
 	char appPath [MAX_PATH] = "";
 
