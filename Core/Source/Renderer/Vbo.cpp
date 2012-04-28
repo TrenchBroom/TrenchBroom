@@ -82,50 +82,63 @@ namespace TrenchBroom {
             m_vbo.freeBlock(*this);
         }
         
-        int Vbo::findFreeBlockInRange(int capacity, int start, int length) {
+        int VboBlock::compare(int anAddress, int aCapacity) {
+            if (capacity < aCapacity) return -1;
+            if (capacity > aCapacity) return 1;
+            if (address < anAddress) return -1;
+            if (address > anAddress) return 1;
+            return 0;
+        }
+
+        int Vbo::findFreeBlockInRange(int address, int capacity, int start, int length) {
+            assert(length > 0);
+            
+            int pivot = start + length / 2;
+            VboBlock* block = m_freeBlocks[pivot];
+
+            int order = block->compare(address, capacity);
+            if (order == 0)
+                return pivot;
             if (length == 1) {
-                VboBlock* block = m_freeBlocks[start];
-                if (block->capacity >= capacity) return start;
-                return (int)m_freeBlocks.size();
+                if (order > 0)
+                    return pivot;
+                return pivot + 1;
             }
             
-            int s = length / 2;
-            int l = findFreeBlockInRange(capacity, start, s);
-            if (l < m_freeBlocks.size()) return l;
-            return findFreeBlockInRange(capacity, start + s, length - s);
+            if (order > 0)
+                return findFreeBlockInRange(address, capacity, start, length / 2);
+            return findFreeBlockInRange(address, capacity, pivot, (length + 1) / 2);
         }
         
-        int Vbo::findFreeBlock(int capacity) {
+        int Vbo::findFreeBlock(int address, int capacity) {
             if (m_freeBlocks.empty()) return 0;
-            return findFreeBlockInRange(capacity, 0, (int)m_freeBlocks.size());
+            int index = findFreeBlockInRange(address, capacity, 0, static_cast<int>(m_freeBlocks.size()));
+            assert(index == m_freeBlocks.size() || capacity < m_freeBlocks[index]->capacity || (capacity == m_freeBlocks[index]->capacity && address <= m_freeBlocks[index]->address));
+            return index;
         }
 
         void Vbo::insertFreeBlock(VboBlock& block) {
             assert(block.free);
-            int index = findFreeBlock(block.capacity);
+            int index = findFreeBlock(block.address, block.capacity);
             assert(index >= 0 && index <= m_freeBlocks.size());
-            m_freeBlocks.insert(m_freeBlocks.begin() + index, &block);
+            if (index < m_freeBlocks.size())
+                m_freeBlocks.insert(m_freeBlocks.begin() + index, &block);
+            else
+                m_freeBlocks.push_back(&block);
+#ifdef _DEBUG_VBO
+            checkFreeBlocks();
+#endif
         }
         
         void Vbo::removeFreeBlock(VboBlock& block) {
             assert(block.free);
-            int candidateIndex = findFreeBlock(block.capacity);
-            VboBlock* candidate = m_freeBlocks[candidateIndex];
-            int index = candidateIndex;
-            
-            while (index > 0 && candidate != &block && candidate->capacity == block.capacity)
-                candidate = m_freeBlocks[--index];
-            
-            if (candidate != &block) {
-                index = candidateIndex + 1;
-                candidate = m_freeBlocks[index];
-            
-                while (index < m_freeBlocks.size() - 1 && candidate != &block && candidate->capacity == block.capacity)
-                    candidate = m_freeBlocks[index++];
-            }
-            
-            assert(candidate == &block);
+            int index = findFreeBlock(block.address, block.capacity);
+            assert(index < m_freeBlocks.size());
+            assert(m_freeBlocks[index] == &block);
             m_freeBlocks.erase(m_freeBlocks.begin() + index);
+#ifdef _DEBUG_VBO
+            checkFreeBlocks();
+#endif
         }
         
         void Vbo::resizeVbo(int newCapacity) {
@@ -173,6 +186,11 @@ namespace TrenchBroom {
                 if (wasActive && !m_active) activate();
                 if (wasMapped && !m_mapped) map();
             }
+            
+#ifdef _DEBUG_VBO
+            checkBlockChain();
+            checkFreeBlocks();
+#endif
         }
         
         void Vbo::resizeBlock(VboBlock& block, int newCapacity) {
@@ -233,9 +251,17 @@ namespace TrenchBroom {
             m_first = new VboBlock(*this, 0, m_totalCapacity);
             m_last = m_first;
             m_freeBlocks.push_back(m_first);
+#ifdef _DEBUG_VBO
+            checkBlockChain();
+            checkFreeBlocks();
+#endif
         }
         
         Vbo::~Vbo() {
+#ifdef _DEBUG_VBO
+            checkBlockChain();
+            checkFreeBlocks();
+#endif
             if (m_mapped) unmap();
             if (m_active) deactivate();
             if (m_vboId != 0) glDeleteBuffers(1, &m_vboId);
@@ -293,12 +319,17 @@ namespace TrenchBroom {
         VboBlock& Vbo::allocBlock(int capacity) {
             assert(capacity > 0);
             
+#ifdef _DEBUG_VBO
+            checkBlockChain();
+            checkFreeBlocks();
+#endif
+
             if (capacity > m_freeCapacity) {
                 resizeVbo(2 * m_totalCapacity);
                 return allocBlock(capacity);
             }
             
-            int index = findFreeBlock(capacity);
+            int index = findFreeBlock(0, capacity);
             if (index >= m_freeBlocks.size()) {
                 resizeVbo(2 * m_totalCapacity);
                 return allocBlock(capacity);
@@ -318,10 +349,21 @@ namespace TrenchBroom {
             
             m_freeCapacity -= block->capacity;
             block->free = false;
+
+#ifdef _DEBUG_VBO
+            checkBlockChain();
+            checkFreeBlocks();
+#endif
+
             return *block;
         }
         
         VboBlock& Vbo::freeBlock(VboBlock& block) {
+#ifdef _DEBUG_VBO
+            checkBlockChain();
+            checkFreeBlocks();
+#endif
+
             VboBlock* previous = block.previous;
             VboBlock* next = block.next;
             
@@ -348,22 +390,33 @@ namespace TrenchBroom {
             
             if (next != NULL && next->free) {
                 if (m_last == next) m_last = &block;
+                removeFreeBlock(*next);
                 block.capacity += next->capacity;
                 block.free = true;
-                insertFreeBlock(block);
-                removeFreeBlock(*next);
                 block.insertBetween(previous, next->next);
+                insertFreeBlock(block);
                 delete next;
                 return block;
             }
             
             insertFreeBlock(block);
+
+#ifdef _DEBUG_VBO
+            checkBlockChain();
+            checkFreeBlocks();
+#endif
+
             return block;
         }
         
         void Vbo::pack() {
             assert(m_mapped);
             
+#ifdef _DEBUG_VBO
+            checkBlockChain();
+            checkFreeBlocks();
+#endif
+
             if (m_totalCapacity == m_freeCapacity || (m_last->free && m_last->capacity == m_freeCapacity)) return;
             
             // find first free block
@@ -372,8 +425,38 @@ namespace TrenchBroom {
                 block = block->next;
             while (block != NULL && block->next != NULL)
                 block = packBlock(*block);
+
+#ifdef _DEBUG_VBO
+            checkBlockChain();
+            checkFreeBlocks();
+#endif
         }
 
+        void Vbo::checkBlockChain() {
+            VboBlock* block = m_first;
+            VboBlock* previous = NULL;
+            assert(block->previous == NULL);
+            
+            while (block != NULL) {
+                assert(&block->m_vbo == this);
+                previous = block;
+                block = block->next;
+                assert(block == NULL || block->previous == previous);
+            }
+            
+            assert(previous == m_last);
+        }
+        
+        void Vbo::checkFreeBlocks() {
+            for (int i = 0; i < m_freeBlocks.size(); i++) {
+                VboBlock* block = m_freeBlocks[i];
+                assert(block->free);
+                if (i < m_freeBlocks.size() - 1)
+                    assert((block->capacity < m_freeBlocks[i + 1]->capacity) || 
+                           (block->capacity == m_freeBlocks[i + 1]->capacity && block->address < m_freeBlocks[i + 1]->address));
+            }
+        }
+        
         bool Vbo::ownsBlock(VboBlock& block) {
             return &block.m_vbo == this;
         }

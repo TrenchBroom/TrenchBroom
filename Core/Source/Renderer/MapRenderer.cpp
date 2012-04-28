@@ -360,7 +360,7 @@ namespace TrenchBroom {
         void MapRenderer::writeEntityBounds(RenderContext& context, Model::Entity& entity, VboBlock& block) {
             Vec3f t;
             const BBox& bounds = entity.bounds();
-            const Model::EntityDefinition* definition = entity.entityDefinition();
+            const Model::EntityDefinitionPtr definition = entity.entityDefinition();
             Vec4f color = definition != NULL ? definition->color : context.preferences.entityBoundsColor();
             color.w = context.preferences.entityBoundsColor().w;
 

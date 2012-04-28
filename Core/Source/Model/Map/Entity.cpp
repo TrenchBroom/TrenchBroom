@@ -31,7 +31,6 @@ using namespace std;
 namespace TrenchBroom {
     namespace Model {
         void Entity::init() {
-            m_entityDefinition = NULL;
             m_map = NULL;
             m_filePosition = -1;
             m_selected = false;
@@ -89,11 +88,11 @@ namespace TrenchBroom {
             return TB_MT_ENTITY;
         }
 
-        const EntityDefinition* Entity::entityDefinition() const {
+        const EntityDefinitionPtr Entity::entityDefinition() const {
             return m_entityDefinition;
         }
 
-        void Entity::setEntityDefinition(EntityDefinition* entityDefinition) {
+        void Entity::setEntityDefinition(EntityDefinitionPtr entityDefinition) {
             if (m_entityDefinition != NULL)
                 m_entityDefinition->usageCount--;
             m_entityDefinition = entityDefinition;

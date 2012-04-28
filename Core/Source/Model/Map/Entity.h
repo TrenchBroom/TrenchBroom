@@ -50,7 +50,7 @@ namespace TrenchBroom {
         class Brush;
         class Entity : public MapObject {
         private:
-            EntityDefinition* m_entityDefinition;
+            EntityDefinitionPtr m_entityDefinition;
             Vec3f m_origin;
             float m_angle;
             mutable Vec3f m_center;
@@ -76,8 +76,8 @@ namespace TrenchBroom {
             ~Entity();
             
             EMapObjectType objectType() const;
-            const EntityDefinition* entityDefinition() const;
-            void setEntityDefinition(EntityDefinition* entityDefinition);
+            const EntityDefinitionPtr entityDefinition() const;
+            void setEntityDefinition(EntityDefinitionPtr entityDefinition);
             const Vec3f& center() const;
             const Vec3f& origin() const;
             const BBox& bounds() const;

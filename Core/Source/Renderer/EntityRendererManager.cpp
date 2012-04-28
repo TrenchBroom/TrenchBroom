@@ -97,8 +97,8 @@ namespace TrenchBroom {
         }
 
         EntityRenderer* EntityRendererManager::entityRenderer(const Model::Entity& entity, const vector<string>& mods) {
-            const Model::EntityDefinition* entityDefinition = entity.entityDefinition();
-            if (entityDefinition == NULL)
+            const Model::EntityDefinitionPtr entityDefinition = entity.entityDefinition();
+            if (entityDefinition.get() == NULL)
                 return NULL;
             return entityRenderer(*entityDefinition, mods);
         }

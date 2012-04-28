@@ -47,8 +47,6 @@ namespace TrenchBroom {
         class Entity;
         class SpawnFlag;
         
-        bool compareByName(const EntityDefinition* def1, const EntityDefinition* def2);
-        bool compareByUsage(const EntityDefinition* def1, const EntityDefinition* def2);
         bool compareByFlag(const SpawnFlag& left, const SpawnFlag& right);
 
         class Property {
@@ -104,11 +102,15 @@ namespace TrenchBroom {
             SpawnFlag(const string& name, int flag) : name(name), flag(flag) {};
         };
         
+        typedef tr1::shared_ptr<EntityDefinition> EntityDefinitionPtr;
+        bool compareByName(const EntityDefinitionPtr def1, const EntityDefinitionPtr def2);
+        bool compareByUsage(const EntityDefinitionPtr def1, const EntityDefinitionPtr def2);
+        
         class EntityDefinition {
         public:
-            static EntityDefinition* baseDefinition(const string& name, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties);
-            static EntityDefinition* pointDefinition(const string& name, const Vec4f& color, const BBox& bounds, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description);
-            static EntityDefinition* brushDefinition(const string& name, const Vec4f& color, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description);
+            static EntityDefinitionPtr baseDefinition(const string& name, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties);
+            static EntityDefinitionPtr pointDefinition(const string& name, const Vec4f& color, const BBox& bounds, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description);
+            static EntityDefinitionPtr brushDefinition(const string& name, const Vec4f& color, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description);
             EEntityDefinitionType type;
             string name;
             Vec4f color;
@@ -130,35 +132,26 @@ namespace TrenchBroom {
             ES_NAME,
             ES_USAGE
         } EEntityDefinitionSortCriterion;
+
+        class EntityDefinitionManager;
+        typedef tr1::shared_ptr<EntityDefinitionManager> EntityDefinitionManagerPtr;
+        typedef map<string, EntityDefinitionManagerPtr> EntityDefinitionManagerMap;
         
-        class EntityDefinitionMap;
         class EntityDefinitionManager {
         private:
-            map<const string, EntityDefinition*> m_definitions;
-            vector<EntityDefinition*> m_definitionsByName;
+            map<const string, EntityDefinitionPtr> m_definitions;
+            vector<EntityDefinitionPtr> m_definitionsByName;
         public:
-            static EntityDefinitionMap* sharedManagers;
+            static EntityDefinitionManagerMap* sharedManagers;
             
             EntityDefinitionManager(const string& path);
-            ~EntityDefinitionManager();
-            static EntityDefinitionManager* sharedManager(const string& path);
+            static EntityDefinitionManagerPtr sharedManager(const string& path);
             
-            EntityDefinition* definition(const string& name) const;
-            const vector<EntityDefinition*> definitions() const;
-            const vector<EntityDefinition*> definitions(EEntityDefinitionType type) const;
-            const vector<EntityDefinition*> definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const;
+            EntityDefinitionPtr definition(const string& name) const;
+            const vector<EntityDefinitionPtr>& definitions() const;
+            vector<EntityDefinitionPtr> definitions(EEntityDefinitionType type) const;
+            vector<EntityDefinitionPtr> definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const;
         };
-
-        class EntityDefinitionMap {
-        public:
-            map<string, EntityDefinitionManager*> managers;
-            ~EntityDefinitionMap() {
-                map<string, EntityDefinitionManager*>::iterator it;
-                for (it = managers.begin(); it != managers.end(); ++it)
-                    delete it->second;
-            }
-        };
-        
     }
 }
 #endif

@@ -146,8 +146,8 @@ namespace TrenchBroom {
         void Map::setEntityDefinition(Entity* entity) {
             const string* classname = entity->classname();
             if (classname != NULL) {
-                EntityDefinition* entityDefinition = m_entityDefinitionManager->definition(*classname);
-                if (entityDefinition != NULL)
+                EntityDefinitionPtr entityDefinition = m_entityDefinitionManager->definition(*classname);
+                if (entityDefinition.get() != NULL)
                     entity->setEntityDefinition(entityDefinition);
                 // else
                 //    fprintf(stdout, "Warning: No entity definition found for class name '%s'\n", classname->c_str());
@@ -260,8 +260,8 @@ namespace TrenchBroom {
                     Entity* entity = entities[i];
                     Entity* newEntity = new Entity(entity->properties());
 
-                    EntityDefinition* entityDefinition = m_entityDefinitionManager->definition(*newEntity->classname());
-                    assert(entityDefinition != NULL);
+                    EntityDefinitionPtr entityDefinition = m_entityDefinitionManager->definition(*newEntity->classname());
+                    assert(entityDefinition.get() != NULL);
                     newEntity->setEntityDefinition(entityDefinition);
 
                     newEntities.push_back(newEntity);

@@ -25,6 +25,8 @@
 #include "Utilities/VecMath.h"
 #include "GL/GLee.h"
 
+// #define _DEBUG_VBO 1
+
 using namespace std;
 
 namespace TrenchBroom {
@@ -53,8 +55,9 @@ namespace TrenchBroom {
             int writeVec(const Vec3f& vec, int offset);
             int writeVec(const Vec2f& vec, int offset);
             void freeBlock();
+            int compare(int anAddress, int aCapacity);
         };
-
+        
         class Vbo {
         private:
             unsigned int m_totalCapacity;
@@ -67,13 +70,15 @@ namespace TrenchBroom {
             GLenum m_type;
             bool m_active;
             bool m_mapped;
-            int findFreeBlockInRange(int capacity, int start, int length);
-            int findFreeBlock(int capacity);
+            int findFreeBlockInRange(int address, int capacity, int start, int length);
+            int findFreeBlock(int address, int capacity);
             void insertFreeBlock(VboBlock& block);
             void removeFreeBlock(VboBlock& block);
             void resizeVbo(int newCapacity);
             void resizeBlock(VboBlock& block, int newCapacity);
             VboBlock* packBlock(VboBlock& block);
+            void checkBlockChain();
+            void checkFreeBlocks();
             friend class VboBlock;
         public:
             Vbo(GLenum type, int capacity);

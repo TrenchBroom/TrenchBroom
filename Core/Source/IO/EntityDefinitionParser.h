@@ -98,7 +98,7 @@ namespace TrenchBroom {
         public:
             EntityDefinitionParser(string path);
             ~EntityDefinitionParser();
-            Model::EntityDefinition* nextDefinition();
+            Model::EntityDefinitionPtr nextDefinition();
         };
     }
 }

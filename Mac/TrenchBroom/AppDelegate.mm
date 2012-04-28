@@ -30,7 +30,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
     TrenchBroom::Model::Preferences::sharedPreferences = new TrenchBroom::Model::MacPreferences();
     TrenchBroom::Model::Preferences::sharedPreferences->init();
-    TrenchBroom::Model::EntityDefinitionManager::sharedManagers = new TrenchBroom::Model::EntityDefinitionMap();
+    TrenchBroom::Model::EntityDefinitionManager::sharedManagers = new TrenchBroom::Model::EntityDefinitionManagerMap();
     TrenchBroom::IO::PakManager::sharedManager = new TrenchBroom::IO::PakManager();
     TrenchBroom::Model::Assets::AliasManager::sharedManager = new TrenchBroom::Model::Assets::AliasManager();
     TrenchBroom::Model::Assets::BspManager::sharedManager = new TrenchBroom::Model::Assets::BspManager();

@@ -23,6 +23,7 @@
 #include <vector>
 #include "Utilities/Event.h"
 #include "Utilities/VecMath.h"
+#include "Model/Map/EntityDefinition.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -45,7 +46,7 @@ namespace TrenchBroom {
             Octree* m_octree;
             Picker* m_picker;
             Selection* m_selection;
-            EntityDefinitionManager* m_entityDefinitionManager;
+            EntityDefinitionManagerPtr m_entityDefinitionManager;
             GroupManager* m_groupManager;
             
             vector<Entity*> m_entities;

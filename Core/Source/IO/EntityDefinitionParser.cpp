@@ -449,10 +449,10 @@ namespace TrenchBroom {
                 delete m_tokenizer;
         }
 
-        Model::EntityDefinition* EntityDefinitionParser::nextDefinition() {
+        Model::EntityDefinitionPtr EntityDefinitionParser::nextDefinition() {
             EntityDefinitionToken* token = m_tokenizer->next();
             if (token == NULL)
-                return NULL;
+                return Model::EntityDefinitionPtr();
 
             expect(TB_TT_ED_O, token);
             string name;
@@ -496,7 +496,7 @@ namespace TrenchBroom {
             description = parseDescription();
             expect(TB_TT_ED_C, token = m_tokenizer->next());
 
-            Model::EntityDefinition* definition = NULL;
+            Model::EntityDefinitionPtr definition;
             if (!hasColor)
                 definition = Model::EntityDefinition::baseDefinition(name, flags, properties);
             else if (hasBounds)

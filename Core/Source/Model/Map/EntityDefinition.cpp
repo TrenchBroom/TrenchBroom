@@ -27,28 +27,28 @@
 
 namespace TrenchBroom {
     namespace Model {
-        bool compareByName(const EntityDefinition* def1, const EntityDefinition* def2) {
-            return def1->name <= def2->name;
-        }
-
-        bool compareByUsage(const EntityDefinition* def1, const EntityDefinition* def2) {
-            return def1->usageCount <= def2->usageCount;
-        }
-
         bool compareByFlag(const SpawnFlag& left, const SpawnFlag& right) {
             return left.flag < right.flag;
         }
 
-        EntityDefinition* EntityDefinition::baseDefinition(const string& name, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties) {
+        bool compareByName(const EntityDefinitionPtr def1, const EntityDefinitionPtr def2) {
+            return def1->name <= def2->name;
+        }
+        
+        bool compareByUsage(const EntityDefinitionPtr def1, const EntityDefinitionPtr def2) {
+            return def1->usageCount <= def2->usageCount;
+        }
+        
+        EntityDefinitionPtr EntityDefinition::baseDefinition(const string& name, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties) {
             EntityDefinition* definition = new EntityDefinition();
             definition->type = TB_EDT_BASE;
             definition->name = name;
             definition->flags = flags;
             definition->properties = properties;
-            return definition;
+            return EntityDefinitionPtr(definition);
         }
 
-        EntityDefinition* EntityDefinition::pointDefinition(const string& name, const Vec4f& color, const BBox& bounds, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description) {
+        EntityDefinitionPtr EntityDefinition::pointDefinition(const string& name, const Vec4f& color, const BBox& bounds, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description) {
             EntityDefinition* definition = new EntityDefinition();
             definition->type = TB_EDT_POINT;
             definition->name = name;
@@ -57,10 +57,10 @@ namespace TrenchBroom {
             definition->flags = flags;
             definition->properties = properties;
             definition->description = description;
-            return definition;
+            return EntityDefinitionPtr(definition);
         }
 
-        EntityDefinition* EntityDefinition::brushDefinition(const string& name, const Vec4f& color, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description) {
+        EntityDefinitionPtr EntityDefinition::brushDefinition(const string& name, const Vec4f& color, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description) {
             EntityDefinition* definition = new EntityDefinition();
             definition->type = TB_EDT_BRUSH;
             definition->name = name;
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             definition->flags = flags;
             definition->properties = properties;
             definition->description = description;
-            return definition;
+            return EntityDefinitionPtr(definition);
         }
 
         vector<SpawnFlag> EntityDefinition::flagsForMask(int mask) const {
@@ -122,13 +122,13 @@ namespace TrenchBroom {
             return ModelPropertyPtr();
         }
 
-        EntityDefinitionMap* EntityDefinitionManager::sharedManagers = NULL;
+        EntityDefinitionManagerMap* EntityDefinitionManager::sharedManagers = NULL;
 
         EntityDefinitionManager::EntityDefinitionManager(const string& path) {
             clock_t start = clock();
             IO::EntityDefinitionParser parser(path);
-            EntityDefinition* definition = NULL;
-            while ((definition = parser.nextDefinition()) != NULL) {
+            EntityDefinitionPtr definition;
+            while ((definition = parser.nextDefinition()).get() != NULL) {
                 m_definitions[definition->name] = definition;
                 m_definitionsByName.push_back(definition);
             }
@@ -137,37 +137,34 @@ namespace TrenchBroom {
             fprintf(stdout, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
         }
 
-        EntityDefinitionManager::~EntityDefinitionManager() {
-            while(!m_definitionsByName.empty()) delete m_definitionsByName.back(), m_definitionsByName.pop_back();
-        }
-
-        EntityDefinitionManager* EntityDefinitionManager::sharedManager(const string& path) {
-            map<string, EntityDefinitionManager*>::iterator it = sharedManagers->managers.find(path);
-            if (it != sharedManagers->managers.end())
+        EntityDefinitionManagerPtr EntityDefinitionManager::sharedManager(const string& path) {
+            EntityDefinitionManagerMap::iterator it = sharedManagers->find(path);
+            if (it != sharedManagers->end())
                 return it->second;
 
             EntityDefinitionManager* instance = new EntityDefinitionManager(path);
-            sharedManagers->managers[path] = instance;
-            return instance;
+            EntityDefinitionManagerPtr instancePtr(instance);
+            (*sharedManagers)[path] = instancePtr;
+            return instancePtr;
         }
 
-        EntityDefinition* EntityDefinitionManager::definition(const string& name) const {
-            map<const string, EntityDefinition*>::const_iterator it = m_definitions.find(name);
+        EntityDefinitionPtr EntityDefinitionManager::definition(const string& name) const {
+            map<const string, EntityDefinitionPtr>::const_iterator it = m_definitions.find(name);
             if (it == m_definitions.end())
-                return NULL;
+                return EntityDefinitionPtr();
             return it->second;
         }
 
-        const vector<EntityDefinition*> EntityDefinitionManager::definitions() const {
+        const vector<EntityDefinitionPtr>& EntityDefinitionManager::definitions() const {
             return m_definitionsByName;
         }
 
-        const vector<EntityDefinition*> EntityDefinitionManager::definitions(EEntityDefinitionType type) const {
+        vector<EntityDefinitionPtr> EntityDefinitionManager::definitions(EEntityDefinitionType type) const {
             return definitions(type, ES_NAME);
         }
 
-        const vector<EntityDefinition*>EntityDefinitionManager::definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const {
-            vector<EntityDefinition*> definitionsOfType;
+        vector<EntityDefinitionPtr>EntityDefinitionManager::definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const {
+            vector<EntityDefinitionPtr> definitionsOfType;
             for (int i = 0; i < m_definitionsByName.size(); i++)
                 if (m_definitionsByName[i]->type == type)
                     definitionsOfType.push_back(m_definitionsByName[i]);
