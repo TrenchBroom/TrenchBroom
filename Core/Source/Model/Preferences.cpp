@@ -23,6 +23,9 @@ namespace TrenchBroom {
     namespace Model {
         const string Preferences::CameraKey                         = "Controls: camera key";
         const string Preferences::CameraOrbitKey                    = "Controls: camera orbit key";
+        const string Preferences::CameraInvertY                     = "Controls: invert camera Y axis";
+        const string Preferences::CameraFov                         = "Camera: field of vision";
+        const string Preferences::Brightness                        = "Renderer: brightness";
         const string Preferences::FaceColor                         = "Renderer: face color";
         const string Preferences::EdgeColor                         = "Renderer: edge color";
         const string Preferences::SelectedFaceColor                 = "Renderer: face color (selected)";
@@ -45,6 +48,8 @@ namespace TrenchBroom {
         const string Preferences::QuakePath                         = "General: quake path";
         
         void Preferences::loadDefaults() {
+            m_cameraInvertY = false;
+            m_cameraFov = 90;
             m_faceColor = Vec4f(0.2f, 0.2f, 0.2f, 1);
             m_edgeColor = Vec4f(0.6f, 0.6f, 0.6f, 0.6f);
             m_selectedFaceColor = Vec4f(0.6f, 0.35f, 0.35f, 1);
@@ -89,10 +94,34 @@ namespace TrenchBroom {
             return m_cameraOrbitKey;
         }
 
+        bool Preferences::cameraInvertY() {
+            return m_cameraInvertY;
+        }
+
+        void Preferences::setCameraInvertY(bool cameraInvertY) {
+            if (cameraInvertY == m_cameraInvertY)
+                return;
+            
+            m_cameraInvertY = cameraInvertY;
+            if (saveInstantly())
+                saveBool(CameraInvertY, m_cameraInvertY);
+            preferencesDidChange(QuakePath);
+        }
+
         float Preferences::cameraFov() {
-            return 90;
+            return m_cameraFov;
         }
         
+        void Preferences::setCameraFov(float cameraFov) {
+            if (cameraFov == m_cameraFov)
+                return;
+            
+            m_cameraFov = cameraFov;
+            if (saveInstantly())
+                saveFloat(CameraFov, m_cameraFov);
+            preferencesDidChange(QuakePath);
+        }
+
         float Preferences::cameraNear() {
             return 10;
         }
@@ -102,7 +131,17 @@ namespace TrenchBroom {
         }
 
         float Preferences::brightness() {
-            return 1;
+            return m_brightness;
+        }
+
+        void Preferences::setBrightness(float brightness) {
+            if (brightness == m_brightness)
+                return;
+            
+            m_brightness = brightness;
+            if (saveInstantly())
+                saveFloat(Brightness, m_brightness);
+            preferencesDidChange(QuakePath);
         }
 
         const Vec4f& Preferences::faceColor() {
@@ -182,6 +221,16 @@ namespace TrenchBroom {
 
         const string& Preferences::quakePath() {
             return m_quakePath;
+        }
+
+        void Preferences::setQuakePath(const string& quakePath) {
+            if (quakePath == m_quakePath)
+                return;
+            
+            m_quakePath = quakePath;
+            if (saveInstantly())
+                saveString(QuakePath, m_quakePath);
+            preferencesDidChange(QuakePath);
         }
     }
 }

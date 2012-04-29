@@ -120,6 +120,8 @@
 		4825B549153AE693007E3AE1 /* OpenGL_DebugFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B546153AE693007E3AE1 /* OpenGL_DebugFont.cpp */; };
 		4825B555153C9F56007E3AE1 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4825B553153C9F56007E3AE1 /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		48261BC2153F2ECE00D067FD /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48261BC1153F2ECE00D067FD /* libfreeimage.a */; };
+		483DE918154DCE62002FD6B0 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */; };
+		483DE91C154DCFCF002FD6B0 /* PreferencesWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */; };
 		48886BA51545FE0A006A781B /* EditorHolder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48886BA41545FE09006A781B /* EditorHolder.mm */; };
 		4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4888F8331536099B000423D2 /* MacStringFactory.mm */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
@@ -401,6 +403,9 @@
 		4825B553153C9F56007E3AE1 /* GLee.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GLee.c; sourceTree = "<group>"; };
 		4825B554153C9F56007E3AE1 /* GLee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLee.h; sourceTree = "<group>"; };
 		48261BC1153F2ECE00D067FD /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfreeimage.a; sourceTree = "<group>"; };
+		483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindow.xib; sourceTree = "<group>"; };
+		483DE91A154DCFCF002FD6B0 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
+		483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PreferencesWindowController.mm; sourceTree = "<group>"; };
 		48886BA31545FE09006A781B /* EditorHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorHolder.h; sourceTree = "<group>"; };
 		48886BA41545FE09006A781B /* EditorHolder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EditorHolder.mm; sourceTree = "<group>"; };
 		4888F8321536099B000423D2 /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
@@ -904,8 +909,11 @@
 				48B50E41152CF95500E75402 /* MapView.mm */,
 				48B50E3D152CF8F900E75402 /* MapWindowController.h */,
 				48B50E3E152CF8F900E75402 /* MapWindowController.mm */,
+				483DE91A154DCFCF002FD6B0 /* PreferencesWindowController.h */,
+				483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */,
 				48B50E27152CF6E400E75402 /* MapWindow.xib */,
 				48B50E2A152CF6E400E75402 /* MainMenu.xib */,
+				483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */,
 				4812004D1538636900181D66 /* ProgressWindow.xib */,
 				48B50E19152CF6E400E75402 /* Supporting Files */,
 			);
@@ -1003,6 +1011,7 @@
 				48C9794E1530CB72003020FC /* quake.def in Resources */,
 				48C97950153174B9003020FC /* QuakePalette.lmp in Resources */,
 				4812004E1538636900181D66 /* ProgressWindow.xib in Resources */,
+				483DE918154DCE62002FD6B0 /* PreferencesWindow.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1133,6 +1142,7 @@
 				48F579F9154C5B3D0039B369 /* MacConsole.mm in Sources */,
 				48F579FB154C749E0039B369 /* Console.cpp in Sources */,
 				48F579FD154CA9340039B369 /* MacOSX.mm in Sources */,
+				483DE91C154DCFCF002FD6B0 /* PreferencesWindowController.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

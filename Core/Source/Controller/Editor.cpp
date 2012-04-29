@@ -64,6 +64,12 @@ namespace TrenchBroom {
             }
         }
 
+        void Editor::preferencesDidChange(const string& key) {
+            m_camera->setFieldOfVision(Model::Preferences::sharedPreferences->cameraFov());
+            m_camera->setNearPlane(Model::Preferences::sharedPreferences->cameraNear());
+            m_camera->setFarPlane(Model::Preferences::sharedPreferences->cameraFar());
+        }
+
         Editor::Editor(const string& entityDefinitionFilePath, const string& palettePath) : m_entityDefinitionFilePath(entityDefinitionFilePath) {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
 
@@ -78,9 +84,14 @@ namespace TrenchBroom {
             m_palette = new Model::Assets::Palette(palettePath);
             m_options = new TransientOptions();
             m_filter = new Filter();
+            
+            Model::Preferences::sharedPreferences->preferencesDidChange += new Preferences::PreferencesEvent::Listener<Editor>(this, &Editor::preferencesDidChange);
+
         }
 
         Editor::~Editor() {
+            Model::Preferences::sharedPreferences->preferencesDidChange -= new Preferences::PreferencesEvent::Listener<Editor>(this, &Editor::preferencesDidChange);
+
             delete m_inputController;
             delete m_camera;
             delete m_map;

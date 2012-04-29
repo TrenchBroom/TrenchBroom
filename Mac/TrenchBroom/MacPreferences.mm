@@ -32,6 +32,11 @@ namespace TrenchBroom {
                      forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
         }
 
+        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const string& key, bool value) {
+            [dict setObject:[NSNumber numberWithBool:value == true ? YES : NO] 
+                     forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+        }
+        
         void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const string& key, const string& value) {
             [dict setObject:[NSString stringWithCString:value.c_str() encoding:NSASCIIStringEncoding] 
                      forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
@@ -50,6 +55,10 @@ namespace TrenchBroom {
             return [[NSUserDefaults standardUserDefaults] floatForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
         }
         
+        bool MacPreferences::getBool(const string& key) {
+            return [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]] == YES ? true : false;
+        }
+
         string MacPreferences::getString(const string& key) {
             NSString* value = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
             if (value == nil)
@@ -71,6 +80,9 @@ namespace TrenchBroom {
             NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
             setDictionaryValue(dict, CameraKey, m_cameraKey);
             setDictionaryValue(dict, CameraOrbitKey, m_cameraOrbitKey);
+            setDictionaryValue(dict, CameraInvertY, m_cameraInvertY);
+            setDictionaryValue(dict, CameraFov, m_cameraFov);
+            setDictionaryValue(dict, Brightness, m_brightness);
             setDictionaryValue(dict, FaceColor, m_faceColor);
             setDictionaryValue(dict, EdgeColor, m_edgeColor);
             setDictionaryValue(dict, SelectedFaceColor, m_selectedFaceColor);
@@ -100,12 +112,15 @@ namespace TrenchBroom {
         void MacPreferences::loadPlatformDefaults() {
             m_cameraKey = Controller::TB_MK_SHIFT;
             m_cameraOrbitKey = Controller::TB_MK_SHIFT | Controller::TB_MK_CMD;
-            m_quakePath = "/Applications/Quake";
+            m_quakePath = "";
         }
         
         void MacPreferences::loadPreferences() {
             m_cameraKey = getInt(CameraKey);
             m_cameraOrbitKey = getInt(CameraOrbitKey);
+            m_cameraInvertY = getBool(CameraInvertY);
+            m_cameraFov = getFloat(CameraFov);
+            m_brightness = getFloat(Brightness);
             m_faceColor = getVec4f(FaceColor);
             m_edgeColor = getVec4f(EdgeColor);
             m_selectedFaceColor = getVec4f(SelectedFaceColor);
@@ -138,6 +153,11 @@ namespace TrenchBroom {
                                                      forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
         }
         
+        void MacPreferences::saveBool(const string& key, bool value) {
+            [[NSUserDefaults standardUserDefaults] setBool:value 
+                                                     forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+        }
+        
         void MacPreferences::saveString(const string& key, const string& value) {
             [[NSUserDefaults standardUserDefaults] setObject:[NSString stringWithCString:value.c_str() encoding:NSASCIIStringEncoding] 
                                                       forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
@@ -145,6 +165,10 @@ namespace TrenchBroom {
 
         void MacPreferences::saveVec4f(const string& key, const Vec4f& value) {
             saveString(key, value.asString());
+        }
+
+        bool MacPreferences::saveInstantly() {
+            return true;
         }
     }
 }

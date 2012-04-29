@@ -55,6 +55,7 @@ namespace TrenchBroom {
             string m_entityDefinitionFilePath;
 
             void updateFaceTextures();
+            void preferencesDidChange(const string& key);
         public:
             Editor(const string& entityDefinitionFilePath, const string& palettePath);
             ~Editor();

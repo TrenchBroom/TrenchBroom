@@ -25,4 +25,6 @@
     IBOutlet MapView* mapView;
 }
 
+- (IBAction)showPreferences:(id)sender;
+
 @end

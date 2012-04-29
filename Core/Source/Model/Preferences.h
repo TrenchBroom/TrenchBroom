@@ -29,6 +29,9 @@ namespace TrenchBroom {
         protected:
             static const string CameraKey;
             static const string CameraOrbitKey;
+            static const string CameraInvertY;
+            static const string CameraFov;
+            static const string Brightness;
             static const string FaceColor;
             static const string EdgeColor;
             static const string SelectedFaceColor;
@@ -52,7 +55,12 @@ namespace TrenchBroom {
             
             int m_cameraKey;
             int m_cameraOrbitKey;
+            bool m_cameraInvertY;
             
+            float m_cameraFov;
+            
+            float m_brightness;
+
             Vec4f m_faceColor;
             Vec4f m_edgeColor;
             Vec4f m_selectedFaceColor;
@@ -84,11 +92,16 @@ namespace TrenchBroom {
             
             virtual void saveInt(const string& key, int value) = 0;
             virtual void saveFloat(const string& key, float value) = 0;
+            virtual void saveBool(const string& key, bool value) = 0;
             virtual void saveString(const string& key, const string& value) = 0;
 			virtual void saveVec4f(const string& key, const Vec4f& value) = 0;
+            virtual bool saveInstantly() = 0;
         public:
             static Preferences* sharedPreferences;
 
+            typedef Event<const string&> PreferencesEvent;
+            PreferencesEvent preferencesDidChange;
+            
             Preferences() {};
             virtual ~Preferences() {};
             
@@ -96,11 +109,15 @@ namespace TrenchBroom {
             
             int cameraKey();
             int cameraOrbitKey();
+            bool cameraInvertY();
+            void setCameraInvertY(bool cameraInvertY);
             
             float cameraFov();
+            void setCameraFov(float cameraFov);
             float cameraNear();
             float cameraFar();
             float brightness();
+            void setBrightness(float brightness);
             
             const Vec4f& faceColor();
             const Vec4f& edgeColor();
@@ -126,6 +143,7 @@ namespace TrenchBroom {
             float gridAlpha();
             
             const string& quakePath();
+            void setQuakePath(const string& quakePath);
             
             
         };
