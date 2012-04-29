@@ -57,8 +57,8 @@ namespace TrenchBroom {
         public:
             string path;
             map<string, PakEntry> entries;
-            Pak(string path);
-            PakStream streamForEntry(string name);
+            Pak(const string& path);
+            PakStream streamForEntry(const string& name);
         };
         
         typedef tr1::shared_ptr<Pak> PakPtr;
@@ -71,7 +71,7 @@ namespace TrenchBroom {
         public:
             static PakManager* sharedManager;
             PakManager() {};
-            PakStream streamForEntry(string& name, const vector<string>& paths);
+            PakStream streamForEntry(const string& name, const vector<string>& paths);
         };
     }
 }

@@ -67,11 +67,11 @@ namespace TrenchBroom {
             
             class AliasSkin {
             public:
-                int width, height, count;
+                unsigned int width, height, count;
                 vector<float> times;
                 vector<const unsigned char*> pictures;
-                AliasSkin(const unsigned char* picture, int width, int height);
-                AliasSkin(vector<const unsigned char*>& pictures, vector<float>& times, int count, int width, int height);
+                AliasSkin(const unsigned char* picture, unsigned int width, unsigned int height);
+                AliasSkin(const vector<const unsigned char*>& pictures, const vector<float>& times, unsigned int count, unsigned int width, unsigned int height);
                 ~AliasSkin();
             };
             
@@ -79,7 +79,8 @@ namespace TrenchBroom {
             
             class AliasFrame {
             public:
-                virtual AliasSingleFrame* firstFrame() { return NULL; };
+                virtual ~AliasFrame() {};
+                virtual AliasSingleFrame* firstFrame() = 0;
             };
             
             class AliasSingleFrame : public AliasFrame {
@@ -89,7 +90,7 @@ namespace TrenchBroom {
                 Vec3f center;
                 BBox bounds;
                 BBox maxBounds;
-                AliasSingleFrame(string& name, vector<AliasFrameTriangle*>& triangles, Vec3f center, BBox bounds, BBox maxBounds);
+                AliasSingleFrame(const string& name, const vector<AliasFrameTriangle*>& triangles, const Vec3f& center, const BBox& bounds, const BBox& maxBounds);
                 ~AliasSingleFrame();
                 AliasSingleFrame* firstFrame();
             };
@@ -99,19 +100,20 @@ namespace TrenchBroom {
                 vector<float> times;
                 vector<AliasSingleFrame*> frames;
                 BBox bounds;
-                AliasFrameGroup(vector<float>& times, vector<AliasSingleFrame*>& frames);
+                AliasFrameGroup(const vector<float>& times, const vector<AliasSingleFrame*>& frames);
+                ~AliasFrameGroup();
                 AliasSingleFrame* firstFrame();
             };
             
             class Alias {
             private:
-                Vec3f unpackFrameVertex(AliasPackedFrameVertex& packedVertex, Vec3f origin, Vec3f size);
-                AliasSingleFrame* readFrame(IO::PakStream& stream, Vec3f origin, Vec3f scale, int skinWidth, int skinHeight, vector<AliasSkinVertex>& vertices, vector<AliasSkinTriangle>& triangles);
+                Vec3f unpackFrameVertex(const AliasPackedFrameVertex& packedVertex, const Vec3f& origin, const Vec3f& size);
+                AliasSingleFrame* readFrame(IO::PakStream& stream, const Vec3f& origin, const Vec3f& scale, unsigned int skinWidth, unsigned int skinHeight, const vector<AliasSkinVertex>& vertices, const vector<AliasSkinTriangle>& triangles);
             public:
                 string name;
                 vector<AliasFrame*> frames;
                 vector<AliasSkin*> skins;
-                Alias(string& name, IO::PakStream stream);
+                Alias(const string& name, IO::PakStream stream);
                 ~Alias();
                 AliasSingleFrame& firstFrame();
             };
@@ -124,7 +126,7 @@ namespace TrenchBroom {
                 static AliasManager* sharedManager;
                 AliasManager();
                 ~AliasManager();
-                Alias* aliasForName(string& name, vector<string>& paths);
+                Alias* aliasForName(const string& name, const vector<string>& paths);
             };
         }
     }

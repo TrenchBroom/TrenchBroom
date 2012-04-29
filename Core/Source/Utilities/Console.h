@@ -29,8 +29,6 @@ namespace TrenchBroom {
         TB_LL_ERR
     } LogLevel;
     
-    static LogLevel logLevel = TB_LL_INFO;
-    
     void log(const std::string& message);
     void log(LogLevel level, const char* format, ...);
 }

@@ -25,6 +25,7 @@
 #include <map>
 #include "Utilities/VecMath.h"
 #include "Utilities/SharedPointer.h"
+#include <cstdio>
 
 using namespace std;
 
@@ -53,6 +54,7 @@ namespace TrenchBroom {
         public:
             EPropertyType type;
             Property(EPropertyType type) : type(type) {};
+            virtual ~Property() {};
         };
         
         class BaseProperty : public Property {

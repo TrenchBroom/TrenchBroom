@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Pak::Pak(string path) {
+        Pak::Pak(const string& path) {
             char magic[PAK_HEADER_MAGIC_LENGTH];
             char entryName[PAK_ENTRY_NAME_LENGTH];
             int32_t directoryAddr, directorySize;
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             }
         }
 
-        PakStream Pak::streamForEntry(string name) {
+        PakStream Pak::streamForEntry(const string& name) {
             PakEntry* entry;
 
             map<string, PakEntry>::iterator it = entries.find(name);
@@ -86,7 +86,7 @@ namespace TrenchBroom {
         
         PakManager* PakManager::sharedManager = NULL;
         
-        PakStream PakManager::streamForEntry(string& name, const vector<string>& paths) {
+        PakStream PakManager::streamForEntry(const string& name, const vector<string>& paths) {
             vector<string>::const_reverse_iterator path;
             for (path = paths.rbegin(); path < paths.rend(); ++path) {
                 vector<PakPtr> paks;

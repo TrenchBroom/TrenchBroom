@@ -37,6 +37,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
+    /*
     delete TrenchBroom::Model::Assets::BspManager::sharedManager;
     TrenchBroom::Model::Assets::BspManager::sharedManager = NULL;
     delete TrenchBroom::Model::Assets::AliasManager::sharedManager;
@@ -47,6 +48,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TrenchBroom::Model::EntityDefinitionManager::sharedManagers = NULL;
     delete TrenchBroom::Model::Preferences::sharedPreferences;
     TrenchBroom::Model::Preferences::sharedPreferences = NULL;
+     */
 }
 
 - (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender {

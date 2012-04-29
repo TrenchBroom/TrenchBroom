@@ -26,9 +26,11 @@ namespace TrenchBroom {
         static char buffer[1024];
         static std::string message;
         
+        /*
         if (level < logLevel)
             return;
-        
+        */
+         
         va_list arglist;
         va_start(arglist, format);
         vsprintf(buffer, format, arglist);

@@ -26,6 +26,13 @@
 #import "MacProgressIndicator.h"
 #import <string>
 
+#import "Model/Preferences.h"
+#import "Model/Map/EntityDefinition.h"
+#import "IO/Pak.h"
+#import "Model/Assets/Alias.h"
+#import "Model/Assets/Bsp.h"
+
+
 using namespace TrenchBroom;
 using namespace TrenchBroom::Controller;
 using namespace TrenchBroom::Renderer;
@@ -46,6 +53,18 @@ using namespace TrenchBroom::Renderer;
 
 - (void)dealloc {
     [editorHolder release];
+
+    delete TrenchBroom::Model::Assets::BspManager::sharedManager;
+    TrenchBroom::Model::Assets::BspManager::sharedManager = NULL;
+    delete TrenchBroom::Model::Assets::AliasManager::sharedManager;
+    TrenchBroom::Model::Assets::AliasManager::sharedManager = NULL;
+    delete TrenchBroom::IO::PakManager::sharedManager;
+    TrenchBroom::IO::PakManager::sharedManager = NULL;
+    delete TrenchBroom::Model::EntityDefinitionManager::sharedManagers;
+    TrenchBroom::Model::EntityDefinitionManager::sharedManagers = NULL;
+    delete TrenchBroom::Model::Preferences::sharedPreferences;
+    TrenchBroom::Model::Preferences::sharedPreferences = NULL;
+
     [super dealloc];
 }
 
