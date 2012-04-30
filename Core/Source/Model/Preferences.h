@@ -96,6 +96,7 @@ namespace TrenchBroom {
             virtual void saveString(const string& key, const string& value) = 0;
 			virtual void saveVec4f(const string& key, const Vec4f& value) = 0;
             virtual bool saveInstantly() = 0;
+			virtual void savePreferences() {};
         public:
             static Preferences* sharedPreferences;
 

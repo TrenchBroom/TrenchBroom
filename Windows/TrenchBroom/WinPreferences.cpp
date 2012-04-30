@@ -34,6 +34,9 @@ namespace TrenchBroom {
 			void WinPreferences::saveInt(const string& key, int value) {
 			}
 
+			void WinPreferences::saveBool(const string& key, bool value) {
+			}
+
 			void WinPreferences::saveFloat(const string& key, float value) {
 			}
 
@@ -41,6 +44,13 @@ namespace TrenchBroom {
 			}
 			
 			void WinPreferences::saveVec4f(const string& key, const Vec4f& value) {
+			}
+
+			bool WinPreferences::saveInstantly() {
+				return false;
+			}
+
+			void WinPreferences::savePreferences() {
 			}
 	}
 }
