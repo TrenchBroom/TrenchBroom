@@ -20,6 +20,7 @@
 #include "TextRenderer.h"
 #include "Controller/Camera.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 
 namespace TrenchBroom {

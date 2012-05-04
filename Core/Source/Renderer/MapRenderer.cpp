@@ -32,7 +32,6 @@
 #include "Controller/Camera.h"
 #include "Controller/Editor.h"
 #include "Controller/Options.h"
-#include "Renderer/ChangeSet.h"
 #include "Renderer/EntityRendererManager.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/EntityClassnameAnchor.h"

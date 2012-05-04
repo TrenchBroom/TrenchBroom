@@ -24,6 +24,7 @@
 #include <vector>
 #include "GL/GLee.h"
 #include "Utilities/VecMath.h"
+#include "Renderer/ChangeSet.h"
 #include "Renderer/FontManager.h"
 
 using namespace std;
