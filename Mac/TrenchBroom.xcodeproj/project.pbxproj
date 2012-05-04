@@ -122,6 +122,8 @@
 		48261BC2153F2ECE00D067FD /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48261BC1153F2ECE00D067FD /* libfreeimage.a */; };
 		483DE918154DCE62002FD6B0 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */; };
 		483DE91C154DCFCF002FD6B0 /* PreferencesWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */; };
+		484544F51553374B0032E983 /* ChangeSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484544F41553374B0032E983 /* ChangeSet.cpp */; };
+		484544F81553387E0032E983 /* RenderContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484544F71553387E0032E983 /* RenderContext.cpp */; };
 		48886BA51545FE0A006A781B /* EditorHolder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48886BA41545FE09006A781B /* EditorHolder.mm */; };
 		4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4888F8331536099B000423D2 /* MacStringFactory.mm */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
@@ -406,6 +408,10 @@
 		483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindow.xib; sourceTree = "<group>"; };
 		483DE91A154DCFCF002FD6B0 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
 		483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PreferencesWindowController.mm; sourceTree = "<group>"; };
+		484544F2155336EF0032E983 /* ChangeSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChangeSet.h; sourceTree = "<group>"; };
+		484544F41553374B0032E983 /* ChangeSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChangeSet.cpp; sourceTree = "<group>"; };
+		484544F6155338190032E983 /* RenderContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderContext.h; sourceTree = "<group>"; };
+		484544F71553387E0032E983 /* RenderContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderContext.cpp; sourceTree = "<group>"; };
 		48886BA31545FE09006A781B /* EditorHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorHolder.h; sourceTree = "<group>"; };
 		48886BA41545FE09006A781B /* EditorHolder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EditorHolder.mm; sourceTree = "<group>"; };
 		4888F8321536099B000423D2 /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
@@ -572,6 +578,8 @@
 				4825B405153AE59F007E3AE1 /* AliasRenderer.h */,
 				4825B406153AE59F007E3AE1 /* BspRenderer.cpp */,
 				4825B407153AE59F007E3AE1 /* BspRenderer.h */,
+				484544F2155336EF0032E983 /* ChangeSet.h */,
+				484544F41553374B0032E983 /* ChangeSet.cpp */,
 				4825B408153AE59F007E3AE1 /* EntityClassnameAnchor.cpp */,
 				4825B409153AE59F007E3AE1 /* EntityClassnameAnchor.h */,
 				4825B40A153AE59F007E3AE1 /* EntityRenderer.h */,
@@ -583,6 +591,8 @@
 				4825B410153AE59F007E3AE1 /* GridRenderer.h */,
 				4825B411153AE59F007E3AE1 /* MapRenderer.cpp */,
 				4825B412153AE59F007E3AE1 /* MapRenderer.h */,
+				484544F6155338190032E983 /* RenderContext.h */,
+				484544F71553387E0032E983 /* RenderContext.cpp */,
 				4825B413153AE59F007E3AE1 /* RenderUtils.cpp */,
 				4825B414153AE59F007E3AE1 /* RenderUtils.h */,
 				4825B415153AE59F007E3AE1 /* TextRenderer.cpp */,
@@ -1143,6 +1153,8 @@
 				48F579FB154C749E0039B369 /* Console.cpp in Sources */,
 				48F579FD154CA9340039B369 /* MacOSX.mm in Sources */,
 				483DE91C154DCFCF002FD6B0 /* PreferencesWindowController.mm in Sources */,
+				484544F51553374B0032E983 /* ChangeSet.cpp in Sources */,
+				484544F81553387E0032E983 /* RenderContext.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

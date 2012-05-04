@@ -22,6 +22,7 @@
 #include "Model/Map/Entity.h"
 #include "Model/Preferences.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/RenderContext.h"
 #include "Renderer/Vbo.h"
 
 namespace TrenchBroom {

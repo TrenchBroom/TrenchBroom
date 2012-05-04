@@ -27,6 +27,7 @@
 #include "Controller/Camera.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/RenderContext.h"
 #include "GL/GLee.h"
 
 namespace TrenchBroom {

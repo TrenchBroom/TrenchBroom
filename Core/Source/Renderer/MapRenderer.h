@@ -59,69 +59,8 @@ namespace TrenchBroom {
         class TextRenderer;
         class GridRenderer;
         class FontManager;
-
-        class RenderContext {
-        public:
-            Controller::Camera& camera;
-            Filter& filter;
-            Controller::TransientOptions& options;
-            Model::Preferences& preferences;
-            RenderContext(Controller::Camera& camera, Filter& filter, Controller::TransientOptions& options);
-        };
-
-        class ChangeSet {
-        private:
-            vector<Model::Entity*> m_addedEntities;
-            vector<Model::Entity*> m_removedEntities;
-            vector<Model::Entity*> m_changedEntities;
-            vector<Model::Entity*> m_selectedEntities;
-            vector<Model::Entity*> m_deselectedEntities;
-            vector<Model::Brush*> m_addedBrushes;
-            vector<Model::Brush*> m_removedBrushes;
-            vector<Model::Brush*> m_changedBrushes;
-            vector<Model::Brush*> m_selectedBrushes;
-            vector<Model::Brush*> m_deselectedBrushes;
-            vector<Model::Face*> m_changedFaces;
-            vector<Model::Face*> m_selectedFaces;
-            vector<Model::Face*> m_deselectedFaces;
-            bool m_filterChanged;
-            bool m_textureManagerChanged;
-        public:
-			ChangeSet();
-
-            void entitiesAdded(const vector<Model::Entity*>& entities);
-            void entitiesRemoved(const vector<Model::Entity*>& entities);
-            void entitiesChanged(const vector<Model::Entity*>& entities);
-            void entitiesSelected(const vector<Model::Entity*>& entities);
-            void entitiesDeselected(const vector<Model::Entity*>& entities);
-            void brushesAdded(const vector<Model::Brush*>& brushes);
-            void brushesRemoved(const vector<Model::Brush*>& brushes);
-            void brushesChanged(const vector<Model::Brush*>& brushes);
-            void brushesSelected(const vector<Model::Brush*>& brushes);
-            void brushesDeselected(const vector<Model::Brush*>& brushes);
-            void facesChanged(const vector<Model::Face*>& faces);
-            void facesSelected(const vector<Model::Face*>& faces);
-            void facesDeselected(const vector<Model::Face*>& faces);
-            void setFilterChanged();
-            void setTextureManagerChanged();
-            void clear();
-
-            const vector<Model::Entity*> addedEntities() const;
-            const vector<Model::Entity*> removedEntities() const;
-            const vector<Model::Entity*> changedEntities() const;
-            const vector<Model::Entity*> selectedEntities() const;
-            const vector<Model::Entity*> deselectedEntities() const;
-            const vector<Model::Brush*> addedBrushes() const;
-            const vector<Model::Brush*> removedBrushes() const;
-            const vector<Model::Brush*> changedBrushes() const;
-            const vector<Model::Brush*> selectedBrushes() const;
-            const vector<Model::Brush*> deselectedBrushes() const;
-            const vector<Model::Face*> changedFaces() const;
-            const vector<Model::Face*> selectedFaces() const;
-            const vector<Model::Face*> deselectedFaces() const;
-            bool filterChanged() const;
-            bool textureManagerChanged() const;
-        };
+        class ChangeSet;
+        class RenderContext;
 
         class MapRenderer {
         private:
