@@ -19,32 +19,20 @@
 
 #pragma once
 
-#include "Controller/ProgressIndicator.h"
-#include "Resource.h"
 
-// ProgressDialog dialog
-
-
-class ProgressDialog : public CDialogEx, public TrenchBroom::Controller::ProgressIndicator
+class PreferencesDialog : public CDialog
 {
-	DECLARE_DYNAMIC(ProgressDialog)
+	DECLARE_DYNAMIC(PreferencesDialog)
 
 public:
-	CStatic m_label;
-	CProgressCtrl m_progressbar;
-
-	ProgressDialog(CWnd* pParent = NULL);   // standard constructor
-	virtual ~ProgressDialog();
-
-	virtual BOOL OnInitDialog();
-	void setText(const string& text);
+	PreferencesDialog(CWnd* pParent = NULL);   // standard constructor
+	virtual ~PreferencesDialog();
 
 // Dialog Data
-	enum { IDD = IDD_PROGRESSDIALOG };
+	enum { IDD = IDD_PREFERENCESDIALOG };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	void doReset();
-	void doUpdate();
+
 	DECLARE_MESSAGE_MAP()
 };

@@ -102,12 +102,14 @@ namespace TrenchBroom {
             delete m_filter;
         }
 
-        void Editor::loadMap(const string& path, ProgressIndicator* indicator) {
+ 
+		void Editor::loadMap(const string& path, ProgressIndicator* indicator) {
+			indicator->setText("Clearing map...");
             m_map->clear();
             m_textureManager->clear();
-
 			m_map->setPostNotifications(false);
 
+			indicator->setText("Loading map file...");
             clock_t start = clock();
             ifstream stream(path.c_str());
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));

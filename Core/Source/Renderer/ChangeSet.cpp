@@ -18,6 +18,8 @@
  */
 
 #include "Renderer/ChangeSet.h"
+#include <algorithm>
+
 #include "Model/Map/Entity.h"
 #include "Model/Map/Brush.h"
 #include "Model/Map/Face.h"

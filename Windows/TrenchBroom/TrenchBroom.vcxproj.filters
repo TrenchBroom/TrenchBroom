@@ -589,6 +589,15 @@
     <ClInclude Include="WinConsole.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="PreferencesDialog.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\ChangeSet.h">
+      <Filter>Header\Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\RenderContext.h">
+      <Filter>Header\Core\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TrenchBroom.cpp">
@@ -944,6 +953,15 @@
     </ClCompile>
     <ClCompile Include="WinConsole.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="PreferencesDialog.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\ChangeSet.cpp">
+      <Filter>Source\Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\RenderContext.cpp">
+      <Filter>Source\Core\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

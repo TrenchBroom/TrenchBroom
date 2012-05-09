@@ -17,34 +17,34 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "Controller/ProgressIndicator.h"
-#include "Resource.h"
-
-// ProgressDialog dialog
+#include "stdafx.h"
+#include "TrenchBroom.h"
+#include "PreferencesDialog.h"
+#include "afxdialogex.h"
 
 
-class ProgressDialog : public CDialogEx, public TrenchBroom::Controller::ProgressIndicator
+// PreferencesDialog dialog
+
+IMPLEMENT_DYNAMIC(PreferencesDialog, CDialog)
+
+PreferencesDialog::PreferencesDialog(CWnd* pParent /*=NULL*/)
+	: CDialog(PreferencesDialog::IDD, pParent)
 {
-	DECLARE_DYNAMIC(ProgressDialog)
 
-public:
-	CStatic m_label;
-	CProgressCtrl m_progressbar;
+}
 
-	ProgressDialog(CWnd* pParent = NULL);   // standard constructor
-	virtual ~ProgressDialog();
+PreferencesDialog::~PreferencesDialog()
+{
+}
 
-	virtual BOOL OnInitDialog();
-	void setText(const string& text);
+void PreferencesDialog::DoDataExchange(CDataExchange* pDX)
+{
+	CDialog::DoDataExchange(pDX);
+}
 
-// Dialog Data
-	enum { IDD = IDD_PROGRESSDIALOG };
 
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	void doReset();
-	void doUpdate();
-	DECLARE_MESSAGE_MAP()
-};
+BEGIN_MESSAGE_MAP(PreferencesDialog, CDialog)
+END_MESSAGE_MAP()
+
+
+// PreferencesDialog message handlers
