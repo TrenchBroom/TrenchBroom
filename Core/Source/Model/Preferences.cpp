@@ -79,6 +79,34 @@ namespace TrenchBroom {
             loadPlatformDefaults();
         }
         
+        void Preferences::loadPreferences() {
+            loadInt(CameraKey, m_cameraKey);
+            loadInt(CameraOrbitKey, m_cameraOrbitKey);
+            loadBool(CameraInvertY, m_cameraInvertY);
+            loadFloat(CameraFov, m_cameraFov);
+            loadFloat(Brightness, m_brightness);
+            loadVec4f(FaceColor, m_faceColor);
+            loadVec4f(EdgeColor, m_edgeColor);
+            loadVec4f(SelectedFaceColor, m_selectedFaceColor);
+            loadVec4f(SelectedEdgeColor, m_selectedEdgeColor);
+            loadVec4f(HiddenSelectedEdgeColor, m_hiddenSelectedEdgeColor);
+            loadVec4f(EntityBoundsColor, m_entityBoundsColor);
+            loadVec4f(EntityBoundsWireframeColor, m_entityBoundsWireframeColor);
+            loadVec4f(SelectedEntityBoundsColor, m_selectedEntityBoundsColor);
+            loadVec4f(HiddenSelectedEntityBoundsColor, m_hiddenSelectedEntityBoundsColor);
+            loadVec4f(SelectionGuideColor, m_selectionGuideColor);
+            loadVec4f(HiddenSelectionGuideColor, m_hiddenSelectionGuideColor);
+            loadVec4f(BackgroundColor, m_backgroundColor);
+			loadVec4f(InfoOverlayColor, m_infoOverlayColor);
+			loadFloat(InfoOverlayFadeDistance, m_infoOverlayFadeDistance);
+			loadVec4f(SelectedInfoOverlayColor, m_selectedInfoOverlayColor);
+			loadFloat(SelectedInfoOverlayFadeDistance, m_selectedInfoOverlayFadeDistance);
+			loadString(RendererFontName, m_rendererFontName);
+			loadInt(RendererFontSize, m_rendererFontSize);
+			loadFloat(GridAlpha, m_gridAlpha);
+			loadString(QuakePath, m_quakePath);
+        }
+
 		void Preferences::savePreferences() {
 			saveInt(CameraKey, m_cameraKey);
 			saveInt(CameraOrbitKey, m_cameraOrbitKey);
@@ -102,7 +130,7 @@ namespace TrenchBroom {
 			saveVec4f(SelectedInfoOverlayColor, m_selectedInfoOverlayColor);
 			saveFloat(SelectedInfoOverlayFadeDistance, m_selectedInfoOverlayFadeDistance);
 			saveString(RendererFontName, m_rendererFontName);
-			saveFloat(RendererFontSize, m_rendererFontSize);
+			saveInt(RendererFontSize, m_rendererFontSize);
 			saveFloat(GridAlpha, m_gridAlpha);
 			saveString(QuakePath, m_quakePath);
 		}

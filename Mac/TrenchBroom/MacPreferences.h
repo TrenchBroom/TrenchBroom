@@ -29,17 +29,17 @@ namespace TrenchBroom {
             static void setDictionaryValue(NSMutableDictionary* dict, const string& key, bool value);
             static void setDictionaryValue(NSMutableDictionary* dict, const string& key, const string& value);
             static void setDictionaryValue(NSMutableDictionary* dict, const string& key, const Vec4f& value);
-            
-            static int getInt(const string& key);
-            static float getFloat(const string& key);
-            static bool getBool(const string& key);
-            static string getString(const string& key);
-            static Vec4f getVec4f(const string& key);
         protected:
             void loadDefaults();
             void loadPlatformDefaults();
             void loadPreferences();
             
+            bool loadInt(const string& key, int& value);
+            bool loadFloat(const string& key, float& value);
+            bool loadBool(const string& key, bool& value);
+            bool loadString(const string& key, string& value);
+            bool loadVec4f(const string& key, Vec4f& value);
+
             void saveInt(const string& key, int value);
             void saveFloat(const string& key, float value);
             void saveBool(const string& key, bool value);

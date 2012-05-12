@@ -88,7 +88,13 @@ namespace TrenchBroom {
 
             virtual void loadDefaults();
             virtual void loadPlatformDefaults() = 0;
-            virtual void loadPreferences() = 0;
+
+            virtual bool loadInt(const string& key, int& value) = 0;
+            virtual bool loadFloat(const string& key, float& value) = 0;
+            virtual bool loadBool(const string& key, bool& value) = 0;
+            virtual bool loadString(const string& key, string& value) = 0;
+            virtual bool loadVec4f(const string& key, Vec4f& value) = 0;
+            void loadPreferences();
             
             virtual void saveInt(const string& key, int value) = 0;
             virtual void saveFloat(const string& key, float value) = 0;

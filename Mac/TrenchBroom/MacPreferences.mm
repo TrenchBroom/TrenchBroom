@@ -46,34 +46,6 @@ namespace TrenchBroom {
             setDictionaryValue(dict, key, value.asString());
         }
 
-        int MacPreferences::getInt(const string& key) {
-            long value = [[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
-            return static_cast<int>(value);
-        }
-        
-        float MacPreferences::getFloat(const string& key) {
-            return [[NSUserDefaults standardUserDefaults] floatForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
-        }
-        
-        bool MacPreferences::getBool(const string& key) {
-            return [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]] == YES ? true : false;
-        }
-
-        string MacPreferences::getString(const string& key) {
-            NSString* value = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
-            if (value == nil)
-                return "";
-            return [value cStringUsingEncoding:NSASCIIStringEncoding];
-        }
-        
-        Vec4f MacPreferences::getVec4f(const string& key) {
-            NSString* value = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
-            if (value == nil)
-                return Vec4f();
-            return Vec4f([value cStringUsingEncoding:NSASCIIStringEncoding]);
-        }
-
-
         void MacPreferences::loadDefaults() {
             Preferences::loadDefaults();
 
@@ -115,34 +87,39 @@ namespace TrenchBroom {
             m_quakePath = "";
         }
         
-        void MacPreferences::loadPreferences() {
-            m_cameraKey = getInt(CameraKey);
-            m_cameraOrbitKey = getInt(CameraOrbitKey);
-            m_cameraInvertY = getBool(CameraInvertY);
-            m_cameraFov = getFloat(CameraFov);
-            m_brightness = getFloat(Brightness);
-            m_faceColor = getVec4f(FaceColor);
-            m_edgeColor = getVec4f(EdgeColor);
-            m_selectedFaceColor = getVec4f(SelectedFaceColor);
-            m_selectedEdgeColor = getVec4f(SelectedEdgeColor);
-            m_hiddenSelectedEdgeColor = getVec4f(HiddenSelectedEdgeColor);
-            m_entityBoundsColor = getVec4f(EntityBoundsColor);
-            m_entityBoundsWireframeColor = getVec4f(EntityBoundsWireframeColor);
-            m_selectedEntityBoundsColor = getVec4f(SelectedEntityBoundsColor);
-            m_hiddenSelectedEntityBoundsColor = getVec4f(HiddenSelectedEntityBoundsColor);
-            m_selectionGuideColor =  getVec4f(SelectionGuideColor);
-            m_hiddenSelectionGuideColor = getVec4f(HiddenSelectionGuideColor);
-            m_backgroundColor = getVec4f(BackgroundColor);
-            m_infoOverlayColor = getVec4f(InfoOverlayColor);
-            m_infoOverlayFadeDistance = getFloat(InfoOverlayFadeDistance);
-            m_selectedInfoOverlayColor = getVec4f(SelectedInfoOverlayColor);
-            m_selectedInfoOverlayFadeDistance = getFloat(SelectedInfoOverlayFadeDistance);
-            m_rendererFontName = getString(RendererFontName);
-            m_rendererFontSize = getFloat(RendererFontSize);
-            m_gridAlpha = getFloat(GridAlpha);
-            m_quakePath = getString(QuakePath);
+        bool MacPreferences::loadInt(const string& key, int& value) {
+            value =  static_cast<int>([[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]]);
+            return true;
         }
         
+        bool MacPreferences::loadFloat(const string& key, float& value) {
+            value = [[NSUserDefaults standardUserDefaults] floatForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+            return true;
+        }
+        
+        bool MacPreferences::loadBool(const string& key, bool& value) {
+            value = [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]] == YES ? true : false;
+            return true;
+        }
+        
+        bool MacPreferences::loadString(const string& key, string& value) {
+            NSString* objcValue = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+            if (objcValue == nil)
+                value = "";
+            else
+                value = [objcValue cStringUsingEncoding:NSASCIIStringEncoding];
+            return true;
+        }
+        
+        bool MacPreferences::loadVec4f(const string& key, Vec4f& value) {
+            NSString* objcValue = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+            if (objcValue == nil)
+                value = Vec4f();
+            else
+                value = Vec4f([objcValue cStringUsingEncoding:NSASCIIStringEncoding]);
+            return true;
+        }
+
         void MacPreferences::saveInt(const string& key, int value) {
             [[NSUserDefaults standardUserDefaults] setInteger:value 
                                                        forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
