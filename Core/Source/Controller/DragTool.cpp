@@ -65,7 +65,7 @@ namespace TrenchBroom {
                 return;
             
             float dist = m_dragPlane->intersect(event.ray, m_dragPlanePosition);
-            if (isnan(dist))
+            if (Math::isnan(dist))
                 return;
             
             Vec3f point = event.ray.pointAtDistance(dist);

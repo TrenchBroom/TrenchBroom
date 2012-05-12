@@ -107,9 +107,12 @@
   <ItemGroup>
     <ClInclude Include="..\..\Core\Source\Controller\Camera.h" />
     <ClInclude Include="..\..\Core\Source\Controller\CameraTool.h" />
+    <ClInclude Include="..\..\Core\Source\Controller\DragPlane.h" />
+    <ClInclude Include="..\..\Core\Source\Controller\DragTool.h" />
     <ClInclude Include="..\..\Core\Source\Controller\Editor.h" />
     <ClInclude Include="..\..\Core\Source\Controller\Grid.h" />
     <ClInclude Include="..\..\Core\Source\Controller\InputController.h" />
+    <ClInclude Include="..\..\Core\Source\Controller\MoveObjectTool.h" />
     <ClInclude Include="..\..\Core\Source\Controller\Options.h" />
     <ClInclude Include="..\..\Core\Source\Controller\ProgressIndicator.h" />
     <ClInclude Include="..\..\Core\Source\Controller\SelectionTool.h" />
@@ -266,9 +269,12 @@
   <ItemGroup>
     <ClCompile Include="..\..\Core\Source\Controller\Camera.cpp" />
     <ClCompile Include="..\..\Core\Source\Controller\CameraTool.cpp" />
+    <ClCompile Include="..\..\Core\Source\Controller\DragPlane.cpp" />
+    <ClCompile Include="..\..\Core\Source\Controller\DragTool.cpp" />
     <ClCompile Include="..\..\Core\Source\Controller\Editor.cpp" />
     <ClCompile Include="..\..\Core\Source\Controller\Grid.cpp" />
     <ClCompile Include="..\..\Core\Source\Controller\InputController.cpp" />
+    <ClCompile Include="..\..\Core\Source\Controller\MoveObjectTool.cpp" />
     <ClCompile Include="..\..\Core\Source\Controller\SelectionTool.cpp" />
     <ClCompile Include="..\..\Core\Source\GL\GLee.c" />
     <ClCompile Include="..\..\Core\Source\GUI\EditorGui.cpp" />

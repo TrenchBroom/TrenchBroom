@@ -598,6 +598,15 @@
     <ClInclude Include="..\..\Core\Source\Renderer\RenderContext.h">
       <Filter>Header\Core\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\DragPlane.h">
+      <Filter>Header\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\DragTool.h">
+      <Filter>Header\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\MoveObjectTool.h">
+      <Filter>Header\Core\Controller</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TrenchBroom.cpp">
@@ -962,6 +971,15 @@
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\Renderer\RenderContext.cpp">
       <Filter>Source\Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\DragTool.cpp">
+      <Filter>Source\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\DragPlane.cpp">
+      <Filter>Source\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\MoveObjectTool.cpp">
+      <Filter>Source\Core\Controller</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

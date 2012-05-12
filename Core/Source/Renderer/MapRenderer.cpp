@@ -554,11 +554,11 @@ namespace TrenchBroom {
                 m_faceVbo->activate();
                 m_faceVbo->map();
                 
-                for (int i = 0; i < changedBrushes.size(); i++) {
+                for (unsigned int i = 0; i < changedBrushes.size(); i++) {
                     Model::Brush* brush = changedBrushes[i];
-                    for (int j = 0; j < brush->faces().size(); j++) {
+                    for (unsigned int j = 0; j < brush->faces().size(); j++) {
                         Model::Face* face = brush->faces()[j];
-                        int blockSize = static_cast<int>(face->vertices().size()) * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+                        unsigned int blockSize = static_cast<unsigned int>(face->vertices().size()) * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
                         VboBlock* block = face->vboBlock();
                         if (block == NULL || block->capacity != blockSize) {
                             block = &m_faceVbo->allocBlock(blockSize);

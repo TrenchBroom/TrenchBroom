@@ -18,6 +18,7 @@
  */
 
 #include "Grid.h"
+#include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -33,7 +34,7 @@ namespace TrenchBroom {
 
         float Grid::snap(float f) {
             int actSize = actualSize();
-            return actSize * roundf(f / actSize);
+            return actSize * Math::roundf(f / actSize);
         }
 
         void Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, Vec3f& delta, Vec3f* lastPoint) {
