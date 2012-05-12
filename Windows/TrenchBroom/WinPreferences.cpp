@@ -25,13 +25,14 @@ namespace TrenchBroom {
 			void WinPreferences::loadPlatformDefaults() {
 				m_cameraKey = Controller::TB_MK_SHIFT;
 				m_cameraOrbitKey = Controller::TB_MK_SHIFT | Controller::TB_MK_CTRL;
-				m_quakePath = "C:/Program Files/Quake";
+				m_quakePath = "C:\\Program Files\\Quake";
 			}
 
 			void WinPreferences::loadPreferences() {
 			}
 
 			void WinPreferences::saveInt(const string& key, int value) {
+
 			}
 
 			void WinPreferences::saveBool(const string& key, bool value) {
@@ -48,9 +49,6 @@ namespace TrenchBroom {
 
 			bool WinPreferences::saveInstantly() {
 				return false;
-			}
-
-			void WinPreferences::savePreferences() {
 			}
 	}
 }

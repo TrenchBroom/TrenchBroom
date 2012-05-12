@@ -25,14 +25,35 @@ class PreferencesDialog : public CDialog
 	DECLARE_DYNAMIC(PreferencesDialog)
 
 public:
+	CButton m_okButton;
+	CButton m_cancelButton;
+	CButton m_selectQuakePathButton;
+	CButton m_invertMouseYCheckbox;
+	CSliderCtrl m_brightnessSlider;
+	CSliderCtrl m_fovSlider;
+	CStatic m_brightnessLabel;
+	CStatic m_fovLabel;
+	CStatic m_quakePathLabel;
+
 	PreferencesDialog(CWnd* pParent = NULL);   // standard constructor
 	virtual ~PreferencesDialog();
+	
+	virtual BOOL OnInitDialog();
 
 // Dialog Data
 	enum { IDD = IDD_PREFERENCESDIALOG };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	void updateControls();
+	void updateSliderLabels();
+	float brightness();
+	float fov();
 
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnClickedButtonOk();
+	afx_msg void OnClickedButtonCancel();
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnClickedButtonSelectquakepath();
 };

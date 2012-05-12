@@ -72,13 +72,42 @@ namespace TrenchBroom {
             m_rendererFontSize = 11;
             
             m_gridAlpha = 0.15f;
+			m_brightness = 1.0f;
             
             m_quakePath = "";
             
             loadPlatformDefaults();
         }
         
-        Preferences* Preferences::sharedPreferences = NULL;
+		void Preferences::savePreferences() {
+			saveInt(CameraKey, m_cameraKey);
+			saveInt(CameraOrbitKey, m_cameraOrbitKey);
+			saveBool(CameraInvertY, m_cameraInvertY);
+			saveFloat(CameraFov, m_cameraFov);
+			saveFloat(Brightness, m_brightness);
+			saveVec4f(FaceColor, m_faceColor);
+			saveVec4f(EdgeColor, m_edgeColor);
+			saveVec4f(SelectedFaceColor, m_selectedFaceColor);
+			saveVec4f(SelectedEdgeColor, m_selectedEdgeColor);
+			saveVec4f(HiddenSelectedEdgeColor, m_hiddenSelectedEdgeColor);
+			saveVec4f(EntityBoundsColor, m_entityBoundsColor);
+			saveVec4f(EntityBoundsWireframeColor, m_entityBoundsWireframeColor);
+			saveVec4f(SelectedEntityBoundsColor, m_selectedEntityBoundsColor);
+			saveVec4f(HiddenSelectedEntityBoundsColor, m_hiddenSelectedEntityBoundsColor);
+			saveVec4f(SelectionGuideColor, m_selectionGuideColor);
+			saveVec4f(HiddenSelectionGuideColor, m_hiddenSelectionGuideColor);
+			saveVec4f(BackgroundColor, m_backgroundColor);
+			saveVec4f(InfoOverlayColor, m_infoOverlayColor);
+			saveFloat(InfoOverlayFadeDistance, m_infoOverlayFadeDistance);
+			saveVec4f(SelectedInfoOverlayColor, m_selectedInfoOverlayColor);
+			saveFloat(SelectedInfoOverlayFadeDistance, m_selectedInfoOverlayFadeDistance);
+			saveString(RendererFontName, m_rendererFontName);
+			saveFloat(RendererFontSize, m_rendererFontSize);
+			saveFloat(GridAlpha, m_gridAlpha);
+			saveString(QuakePath, m_quakePath);
+		}
+
+		Preferences* Preferences::sharedPreferences = NULL;
 
         void Preferences::init() {
             loadDefaults();

@@ -31,6 +31,7 @@
 #include "Model/Assets/Alias.h"
 #include "Model/Assets/Bsp.h"
 #include "WinPreferences.h"
+#include "PreferencesDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -44,6 +45,7 @@ BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	ON_COMMAND(ID_FILE_NEW, &CTrenchBroomApp::OnFileNew)
 	// Standard file based document commands
 	ON_COMMAND(ID_FILE_OPEN, &CWinApp::OnFileOpen)
+	ON_COMMAND(ID_TOOLS_OPTIONS, &CTrenchBroomApp::OnToolsOptions)
 END_MESSAGE_MAP()
 
 /*
@@ -300,4 +302,8 @@ void CTrenchBroomApp::OnFileNew()
 	}
 }
 
-
+void CTrenchBroomApp::OnToolsOptions()
+{
+	PreferencesDialog preferencesDialog(NULL);
+	preferencesDialog.DoModal();
+}

@@ -48,6 +48,7 @@ public:
 	afx_msg void OnFileNewFrame();
 	afx_msg void OnFileNew();
 	DECLARE_MESSAGE_MAP()
+	afx_msg void OnToolsOptions();
 };
 
 extern CTrenchBroomApp theApp;
