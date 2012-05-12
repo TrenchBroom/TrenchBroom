@@ -571,6 +571,8 @@ namespace TrenchBroom {
                 
                 m_faceVbo->unmap();
                 m_faceVbo->deactivate();
+
+                updateSelectionBounds(context);
             }
         }
 
