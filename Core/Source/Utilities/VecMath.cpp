@@ -265,6 +265,10 @@ bool Vec3f::equals(const Vec3f& other, float delta) const {
     return diff.lengthSquared() <= delta * delta;
 }
 
+bool Vec3f::null() const {
+    return equals(Null3f);
+}
+
 EAxis Vec3f::strongestAxis() const {
     float ax = fabsf(x);
     float ay = fabsf(y);
@@ -272,6 +276,89 @@ EAxis Vec3f::strongestAxis() const {
     if (ax >= ay && ax >= az) return TB_AX_X;
     if (ay >= ax && ay >= az) return TB_AX_Y;
     return TB_AX_Z;
+}
+
+const Vec3f& Vec3f::firstAxis(bool pos) const {
+    if (equals(Null3f)) {
+        return Null3f;
+    } else {
+        float xa = fabsf(x);
+        float ya = fabsf(y);
+        float za = fabsf(z);
+        
+        if (xa >= ya && xa >= za) {
+            if (x > 0 && pos)
+                return XAxisPos;
+            else
+                return XAxisNeg;
+        } else if (ya >= xa && ya >= za) {
+            if (y > 0 && pos)
+                return YAxisPos;
+            else
+                return YAxisNeg;
+        } else {
+            if (z > 0 && pos)
+                return ZAxisPos;
+            else
+                return ZAxisNeg;
+        }
+    }
+}
+
+const Vec3f& Vec3f::secondAxis(bool pos) const {
+    if (equals(Null3f)) {
+        return Null3f;
+    } else {
+        float xa = fabsf(x);
+        float ya = fabsf(y);
+        float za = fabsf(z);
+        
+        if ((xa <= ya && xa >= za) || 
+            (xa >= ya && xa <= za)) {
+            if (x > 0 && pos)
+                return XAxisPos;
+            else
+                return XAxisNeg;
+        } else if ((ya <= xa && ya >= za) || 
+                   (ya >= xa && ya <= za)) {
+            if (y > 0 && pos)
+                return YAxisPos;
+            else
+                return YAxisNeg;
+        } else {
+            if (z > 0 && pos)
+                return ZAxisPos;
+            else
+                return ZAxisNeg;
+        }
+    }
+}
+
+const Vec3f& Vec3f::thirdAxis(bool pos) const {
+    if (equals(Null3f)) {
+        return Null3f;
+    } else {
+        float xa = fabsf(x);
+        float ya = fabsf(y);
+        float za = fabsf(z);
+        
+        if (xa <= ya && xa <= za) {
+            if (x > 0 && pos)
+                return XAxisPos;
+            else
+                return XAxisNeg;
+        } else if (ya <= xa && ya <= za) {
+            if (y > 0 && pos)
+                return YAxisPos;
+            else
+                return YAxisNeg;
+        } else {
+            if (z > 0 && pos)
+                return ZAxisPos;
+            else
+                return ZAxisNeg;
+        }
+    }
 }
 
 void Vec3f::write(ostream& str) const {

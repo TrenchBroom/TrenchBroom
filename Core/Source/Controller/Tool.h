@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Tool_h
 #define TrenchBroom_Tool_h
 
+#include "Utilities/VecMath.h"
 #include <cstdio>
 
 namespace TrenchBroom {
@@ -57,6 +58,7 @@ namespace TrenchBroom {
             float scrollX;
             float scrollY;
             Model::HitList* hits;
+            Ray ray;
             ToolEvent() : modifierKeys(TB_MK_NONE), mouseButton(TB_MB_NONE), hits(NULL) {}
         };
 

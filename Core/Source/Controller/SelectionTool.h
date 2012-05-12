@@ -28,6 +28,8 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
+        class Editor;
+        
         class SelectionTool : public Tool {
         public:
             SelectionTool(Editor& editor) : Tool(editor) {}

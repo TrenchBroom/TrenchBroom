@@ -38,6 +38,7 @@ namespace TrenchBroom {
         class ToolEvent;
         class CameraTool;
         class SelectionTool;
+        class MoveObjectTool;
         class Editor;
 
         class InputController {
@@ -52,6 +53,7 @@ namespace TrenchBroom {
             
             CameraTool* m_cameraTool;
             SelectionTool* m_selectionTool;
+            MoveObjectTool* m_moveObjectTool;
             
             void updateHits();
         public:

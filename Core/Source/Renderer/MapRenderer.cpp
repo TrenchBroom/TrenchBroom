@@ -533,7 +533,8 @@ namespace TrenchBroom {
                     vector<Model::Face*> addedFaces = addedBrushes[i]->faces();
                     for (unsigned int j = 0; j < addedFaces.size(); j++) {
                         Model::Face* face = addedFaces[j];
-                        VboBlock& block = m_faceVbo->allocBlock((int)face->vertices().size() * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize));
+                        int blockSize = static_cast<int>(face->vertices().size()) * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+                        VboBlock& block = m_faceVbo->allocBlock(blockSize);
                         writeFaceVertices(context, *face, block);
                         face->setVboBlock(&block);
                     }
@@ -548,6 +549,29 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::validateChangedBrushes(RenderContext& context) {
+            const vector<Model::Brush*>& changedBrushes = m_changeSet.changedBrushes();
+            if (!changedBrushes.empty()) {
+                m_faceVbo->activate();
+                m_faceVbo->map();
+                
+                for (int i = 0; i < changedBrushes.size(); i++) {
+                    Model::Brush* brush = changedBrushes[i];
+                    for (int j = 0; j < brush->faces().size(); j++) {
+                        Model::Face* face = brush->faces()[j];
+                        int blockSize = static_cast<int>(face->vertices().size()) * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+                        VboBlock* block = face->vboBlock();
+                        if (block == NULL || block->capacity != blockSize) {
+                            block = &m_faceVbo->allocBlock(blockSize);
+                            face->setVboBlock(block);
+                        }
+                        
+                        writeFaceVertices(context, *face, *block);
+                    }
+                }
+                
+                m_faceVbo->unmap();
+                m_faceVbo->deactivate();
+            }
         }
 
         void MapRenderer::validateChangedFaces(RenderContext& context) {
@@ -1040,6 +1064,7 @@ namespace TrenchBroom {
 
             map.mapLoaded               += new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapLoaded);
             map.mapCleared              += new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapCleared);
+            map.brushesDidChange        += new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesDidChange);
             selection.selectionAdded    += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
             selection.selectionRemoved  += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
 
@@ -1052,6 +1077,7 @@ namespace TrenchBroom {
             
             map.mapLoaded               -= new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapLoaded);
             map.mapCleared              -= new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapCleared);
+            map.brushesDidChange        -= new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesDidChange);
             selection.selectionAdded    -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
             selection.selectionRemoved  -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
 

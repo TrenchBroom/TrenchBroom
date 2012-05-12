@@ -124,6 +124,9 @@
 		483DE91C154DCFCF002FD6B0 /* PreferencesWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */; };
 		484544F51553374B0032E983 /* ChangeSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484544F41553374B0032E983 /* ChangeSet.cpp */; };
 		484544F81553387E0032E983 /* RenderContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484544F71553387E0032E983 /* RenderContext.cpp */; };
+		485395DB155EE50F00636357 /* MoveObjectTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395DA155EE50F00636357 /* MoveObjectTool.cpp */; };
+		485395E2155EE59300636357 /* DragTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395E1155EE59300636357 /* DragTool.cpp */; };
+		485395E5155EE5ED00636357 /* DragPlane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395E4155EE5ED00636357 /* DragPlane.cpp */; };
 		48886BA51545FE0A006A781B /* EditorHolder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48886BA41545FE09006A781B /* EditorHolder.mm */; };
 		4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4888F8331536099B000423D2 /* MacStringFactory.mm */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
@@ -412,6 +415,12 @@
 		484544F41553374B0032E983 /* ChangeSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChangeSet.cpp; sourceTree = "<group>"; };
 		484544F6155338190032E983 /* RenderContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderContext.h; sourceTree = "<group>"; };
 		484544F71553387E0032E983 /* RenderContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderContext.cpp; sourceTree = "<group>"; };
+		485395D8155EE48E00636357 /* MoveObjectTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveObjectTool.h; sourceTree = "<group>"; };
+		485395DA155EE50F00636357 /* MoveObjectTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveObjectTool.cpp; sourceTree = "<group>"; };
+		485395E0155EE56E00636357 /* DragTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragTool.h; sourceTree = "<group>"; };
+		485395E1155EE59300636357 /* DragTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragTool.cpp; sourceTree = "<group>"; };
+		485395E3155EE5C700636357 /* DragPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragPlane.h; sourceTree = "<group>"; };
+		485395E4155EE5ED00636357 /* DragPlane.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragPlane.cpp; sourceTree = "<group>"; };
 		48886BA31545FE09006A781B /* EditorHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorHolder.h; sourceTree = "<group>"; };
 		48886BA41545FE09006A781B /* EditorHolder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EditorHolder.mm; sourceTree = "<group>"; };
 		4888F8321536099B000423D2 /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
@@ -467,12 +476,18 @@
 				4825B3BE153AE59F007E3AE1 /* Camera.h */,
 				4825B3BF153AE59F007E3AE1 /* CameraTool.cpp */,
 				4825B3C0153AE59F007E3AE1 /* CameraTool.h */,
+				485395E4155EE5ED00636357 /* DragPlane.cpp */,
+				485395E3155EE5C700636357 /* DragPlane.h */,
+				485395E1155EE59300636357 /* DragTool.cpp */,
+				485395E0155EE56E00636357 /* DragTool.h */,
 				4825B3C1153AE59F007E3AE1 /* Editor.cpp */,
 				4825B3C2153AE59F007E3AE1 /* Editor.h */,
 				4825B3C3153AE59F007E3AE1 /* Grid.cpp */,
 				4825B3C4153AE59F007E3AE1 /* Grid.h */,
 				4825B3C5153AE59F007E3AE1 /* InputController.cpp */,
 				4825B3C6153AE59F007E3AE1 /* InputController.h */,
+				485395DA155EE50F00636357 /* MoveObjectTool.cpp */,
+				485395D8155EE48E00636357 /* MoveObjectTool.h */,
 				4825B3C7153AE59F007E3AE1 /* Options.h */,
 				4825B3C8153AE59F007E3AE1 /* ProgressIndicator.h */,
 				4825B3C9153AE59F007E3AE1 /* SelectionTool.cpp */,
@@ -1155,6 +1170,9 @@
 				483DE91C154DCFCF002FD6B0 /* PreferencesWindowController.mm in Sources */,
 				484544F51553374B0032E983 /* ChangeSet.cpp in Sources */,
 				484544F81553387E0032E983 /* RenderContext.cpp in Sources */,
+				485395DB155EE50F00636357 /* MoveObjectTool.cpp in Sources */,
+				485395E2155EE59300636357 /* DragTool.cpp in Sources */,
+				485395E5155EE5ED00636357 /* DragPlane.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

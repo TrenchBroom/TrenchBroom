@@ -17,25 +17,22 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Grid_h
-#define TrenchBroom_Grid_h
+#ifndef TrenchBroom_MoveObjectTool_h
+#define TrenchBroom_MoveObjectTool_h
 
-#include "Utilities/VecMath.h"
+#include "Controller/DragTool.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class Grid {
-        private:
-            unsigned int m_size;
-            bool m_snap;
+        class Editor;
+        
+        class MoveObjectTool : public DragTool {
+        protected:
+            bool doBeginLeftDrag(ToolEvent& event, Vec3f& lastPoint);
+            bool doLeftDrag(ToolEvent& event, Vec3f& delta, Vec3f& lastPoint);
+            void doEndLeftDrag(ToolEvent& event);
         public:
-            Grid(unsigned int size) : m_size(size), m_snap(true) {}
-            unsigned int size() const;
-            unsigned int actualSize() const;
-            
-            float snap(float f);
-            
-            void moveDelta(const BBox& bounds, const BBox& worldBounds, Vec3f& delta, Vec3f* lastPoint);
+            MoveObjectTool(Editor& editor) : DragTool(editor) {}
         };
     }
 }

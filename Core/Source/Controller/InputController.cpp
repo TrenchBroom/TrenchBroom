@@ -21,6 +21,7 @@
 #include "Controller/Camera.h"
 #include "Controller/CameraTool.h"
 #include "Controller/Editor.h"
+#include "Controller/MoveObjectTool.h"
 #include "Controller/SelectionTool.h"
 #include "Model/Map/Map.h"
 #include "Model/Map/Picker.h"
@@ -33,14 +34,16 @@ namespace TrenchBroom {
             
             Model::Picker& picker = m_editor.map().picker();
             Camera& camera = m_editor.camera();
-            Ray pickRay = camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);
-            m_currentEvent.hits = picker.pick(pickRay, m_editor.filter());
+            m_currentEvent.ray = camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);
+            m_currentEvent.hits = picker.pick(m_currentEvent.ray, m_editor.filter());
         }
 
         InputController::InputController(Editor& editor) : m_editor(editor) {
             m_cameraTool = new CameraTool(m_editor);
             m_selectionTool = new SelectionTool(m_editor);
+            m_moveObjectTool = new MoveObjectTool(m_editor);
             m_receiverChain.push_back(m_cameraTool);
+            m_receiverChain.push_back(m_moveObjectTool);
             m_receiverChain.push_back(m_selectionTool);
             m_dragStatus = TB_MS_NONE;
             m_dragScrollReceiver = NULL;
@@ -51,6 +54,7 @@ namespace TrenchBroom {
                 delete m_currentEvent.hits;
             delete m_cameraTool;
             delete m_selectionTool;
+            delete m_moveObjectTool;
         }
         
         void InputController::modifierKeyDown(EModifierKeys modifierKey) {

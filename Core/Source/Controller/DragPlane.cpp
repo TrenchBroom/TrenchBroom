@@ -17,27 +17,17 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Grid_h
-#define TrenchBroom_Grid_h
-
-#include "Utilities/VecMath.h"
+#include "DragPlane.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class Grid {
-        private:
-            unsigned int m_size;
-            bool m_snap;
-        public:
-            Grid(unsigned int size) : m_size(size), m_snap(true) {}
-            unsigned int size() const;
-            unsigned int actualSize() const;
-            
-            float snap(float f);
-            
-            void moveDelta(const BBox& bounds, const BBox& worldBounds, Vec3f& delta, Vec3f* lastPoint);
-        };
+        DragPlane::DragPlane() : m_normal(ZAxisPos) {}
+
+        DragPlane::DragPlane(const Vec3f& direction) : m_normal(direction.firstAxis(false)) {}
+        
+        float DragPlane::intersect(const Ray& ray, const Vec3f& planePosition) {
+            Plane plane(m_normal, planePosition);
+            return plane.intersectWithRay(ray);
+        }
     }
 }
-
-#endif

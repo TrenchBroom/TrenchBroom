@@ -149,7 +149,11 @@ public:
     const Vec3f normalize() const;
     bool equals(const Vec3f& other) const;
     bool equals(const Vec3f& other, float delta) const;
+    bool null() const;
     EAxis strongestAxis() const;
+    const Vec3f& firstAxis(bool pos = true) const;
+    const Vec3f& secondAxis(bool pos = true) const;
+    const Vec3f& thirdAxis(bool pos = true) const;
     void write(ostream& str) const;
     string asString() const;
     
