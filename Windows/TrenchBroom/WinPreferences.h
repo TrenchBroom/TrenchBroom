@@ -25,15 +25,20 @@ namespace TrenchBroom {
 		class WinPreferences : public Preferences {
 		protected:
 			void loadPlatformDefaults();
-			void loadPreferences();
+
+			bool loadInt(const string& key, int& value);
+            bool loadFloat(const string& key, float& value);
+            bool loadBool(const string& key, bool& value);
+            bool loadString(const string& key, string& value);
+            bool loadVec4f(const string& key, Vec4f& value);
 
 			void saveInt(const string& key, int value);
 			void saveBool(const string& key, bool value);
 			void saveFloat(const string& key, float value);
 			void saveString(const string& key, const string& value);
 			void saveVec4f(const string& key, const Vec4f& value);
+
 			bool saveInstantly();
-			void savePreferences();
 		};
 	}
 }

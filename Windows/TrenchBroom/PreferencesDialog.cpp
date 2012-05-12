@@ -122,6 +122,8 @@ void PreferencesDialog::OnClickedButtonOk()
 	m_quakePathLabel.GetWindowTextA(quakePath, MAX_PATH);
 	prefs.setQuakePath(quakePath);
 
+	prefs.save();
+
 	EndDialog(IDOK);
 }
 

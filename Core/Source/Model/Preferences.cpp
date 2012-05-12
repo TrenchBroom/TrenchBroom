@@ -143,7 +143,11 @@ namespace TrenchBroom {
             loadPreferences();
         }
         
-        int Preferences::cameraKey() {
+		void Preferences::save() {
+			savePreferences();
+		}
+
+		int Preferences::cameraKey() {
             return m_cameraKey;
         }
         

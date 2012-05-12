@@ -113,6 +113,7 @@ namespace TrenchBroom {
             virtual ~Preferences() {};
             
             void init();
+			void save();
             
             int cameraKey();
             int cameraOrbitKey();
@@ -151,8 +152,6 @@ namespace TrenchBroom {
             
             const string& quakePath();
             void setQuakePath(const string& quakePath);
-            
-            
         };
     }
 }
