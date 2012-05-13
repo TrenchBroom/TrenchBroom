@@ -17,40 +17,31 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import <Cocoa/Cocoa.h>
+#ifndef TrenchBroom_UndoItem_h
+#define TrenchBroom_UndoItem_h
 
-@class EditorHolder;
-
-@interface MapDocument : NSDocument {
-    EditorHolder* editorHolder;
-    void* undoListener;
-}
-
-- (EditorHolder*)editorHolder;
-
-- (IBAction)customUndo:(id)sender;
-- (IBAction)customRedo:(id)sender;
-
-@end
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class UndoManager;
-        class UndoGroup;
-    }
-    
-    namespace Controller {
-        class UndoListener {
-        private:
-            Model::UndoManager& m_undoManager;
-            MapDocument* m_mapDocument;
+        class Map;
+        class Entity;
+        class Brush;
+        class Face;
+        
+        class UndoItem {
+        protected:
+            Map& m_map;
+            std::vector<Entity*> m_selectedEntities;
+            std::vector<Brush*> m_selectedBrushes;
+            std::vector<Face*> m_selectedFaces;
         public:
-            UndoListener(Model::UndoManager& undoManager, MapDocument* mapDocument);
-            ~UndoListener();
-            void undoGroupCreated(const Model::UndoGroup& group);
-            void undoPerformed(const Model::UndoGroup& group);
-            void redoPerformed(const Model::UndoGroup& group);
+            UndoItem(Map& map);
+            virtual ~UndoItem() {};
+            void undo();
+            virtual void performUndo() = 0;
         };
     }
 }
 
+#endif

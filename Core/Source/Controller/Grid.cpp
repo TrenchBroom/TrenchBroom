@@ -34,16 +34,16 @@ namespace TrenchBroom {
 
         float Grid::snap(float f) {
             int actSize = actualSize();
-            return actSize * Math::roundf(f / actSize);
+            return actSize * Math::fround(f / actSize);
         }
 
         void Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, Vec3f& delta, Vec3f* lastPoint) {
             for (int i = 0; i < 3; i++) {
                 if (delta[i] > 0) {
                     delta[i] = snap(bounds.max[i] + delta[i]) - bounds.max[i];
-                    if (delta[i] < 0) {
+                    if (delta[i] <= 0) {
                         delta[i] = 0;
-                    } else if (delta[i] > 0) {
+                    } else {
                         if (bounds.max[i] + delta[i] > worldBounds.max[i]) {
                             delta[i] = worldBounds.max[i] - bounds.max[i];
                             delta[i + 1 % 3] = 0;
@@ -54,9 +54,9 @@ namespace TrenchBroom {
                     }
                 } else if (delta[i] < 0) {
                     delta[i] = snap(bounds.min[i] + delta[i]) - bounds.min[i];
-                    if (delta[i] > 0) {
+                    if (delta[i] >= 0) {
                         delta[i] = 0;
-                    } else if (delta[i] < 0) {
+                    } else {
                         if (bounds.min[i] + delta[i] < worldBounds.min[i]) {
                             delta[i] = worldBounds.min[i] - bounds.min[i];
                             delta[i + 1 % 3] = 0;

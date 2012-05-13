@@ -27,6 +27,8 @@
 #include "Model/Map/Face.h"
 #include "Model/Map/Groups.h"
 #include "Model/Map/Picker.h"
+#include "Model/Undo/UndoManager.h"
+#include "Model/Undo/InvocationUndoItem.h"
 #include "Model/Octree.h"
 #include "Model/Selection.h"
 #include "Utilities/Utils.h"
@@ -44,6 +46,7 @@ namespace TrenchBroom {
             m_selection = new Selection();
             m_entityDefinitionManager = EntityDefinitionManager::sharedManager(entityDefinitionFilePath);
             m_groupManager = new GroupManager(*this);
+            m_undoManager = new UndoManager();
             m_postNotifications = true;
 
             m_mods.push_back("id1");
@@ -56,6 +59,7 @@ namespace TrenchBroom {
             delete m_picker;
             delete m_selection;
             delete m_groupManager;
+            delete m_undoManager;
         }
 
         void Map::save(const string& path) {
@@ -64,6 +68,7 @@ namespace TrenchBroom {
         void Map::clear() {
             m_selection->removeAll();
             unloadPointFile();
+            m_undoManager->clear();
             while(!m_entities.empty()) delete m_entities.back(), m_entities.pop_back();
             m_worldspawn = NULL;
             if (m_postNotifications) mapCleared(*this);
@@ -288,9 +293,12 @@ namespace TrenchBroom {
             if (!newBrushes.empty() && m_postNotifications) brushesWereAdded(newBrushes);
         }
 
-        void Map::translateObjects(const Vec3f& delta, bool lockTextures) {
+        void Map::translateObjects(const Vec3f delta, bool lockTextures) {
             const vector<Entity*>& entities = m_selection->entities();
             const vector<Brush*>& brushes = m_selection->brushes();
+
+            m_undoManager->begin("Move Objects");
+            m_undoManager->addItem<const Vec3f, bool>(*this, &Map::translateObjects, delta * -1, lockTextures);
 
             if (!entities.empty()) {
                 if (m_postNotifications) propertiesWillChange(entities);
@@ -305,6 +313,8 @@ namespace TrenchBroom {
                     brushes[i]->translate(delta, lockTextures);
                 if (m_postNotifications) brushesDidChange(brushes);
             }
+            
+            m_undoManager->end();
         }
 
         void Map::rotateObjects90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures) {
@@ -556,6 +566,10 @@ namespace TrenchBroom {
 
         GroupManager& Map::groupManager() {
             return *m_groupManager;
+        }
+
+        UndoManager& Map::undoManager() {
+            return *m_undoManager;
         }
 
         const vector<string>& Map::mods() {

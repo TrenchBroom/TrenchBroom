@@ -380,9 +380,9 @@ const Vec3f Vec3f::snap() const {
 }
 
 const Vec3f Vec3f::snap(float epsilon) const {
-    float xr = Math::roundf(x);
-    float yr = Math::roundf(y);
-    float zr = Math::roundf(z);
+    float xr = Math::fround(x);
+    float yr = Math::fround(y);
+    float zr = Math::fround(z);
     return Vec3f(Math::feq(x, xr) ? xr : x, 
                  Math::feq(y, yr) ? yr : y, 
                  Math::feq(z, zr) ? zr : z);

@@ -31,11 +31,54 @@
 #import "IO/Pak.h"
 #import "Model/Assets/Alias.h"
 #import "Model/Assets/Bsp.h"
+#import "Model/Map/Map.h"
+#import "Model/Undo/UndoManager.h"
 
 
 using namespace TrenchBroom;
 using namespace TrenchBroom::Controller;
 using namespace TrenchBroom::Renderer;
+using namespace TrenchBroom::Model;
+
+namespace TrenchBroom {
+    namespace Controller {
+        UndoListener::UndoListener(Model::UndoManager& undoManager, MapDocument* mapDocument) : m_undoManager(undoManager), m_mapDocument(mapDocument) {
+            m_undoManager.undoGroupCreated  += new Model::UndoManager::UndoEvent::Listener<UndoListener>(this, &UndoListener::undoGroupCreated);
+            m_undoManager.undoPerformed     += new Model::UndoManager::UndoEvent::Listener<UndoListener>(this, &UndoListener::undoPerformed);
+            m_undoManager.redoPerformed     += new Model::UndoManager::UndoEvent::Listener<UndoListener>(this, &UndoListener::redoPerformed);
+        }
+        
+        UndoListener::~UndoListener() {
+            m_undoManager.undoGroupCreated  -= new Model::UndoManager::UndoEvent::Listener<UndoListener>(this, &UndoListener::undoGroupCreated);
+            m_undoManager.undoPerformed     -= new Model::UndoManager::UndoEvent::Listener<UndoListener>(this, &UndoListener::undoPerformed);
+            m_undoManager.redoPerformed     -= new Model::UndoManager::UndoEvent::Listener<UndoListener>(this, &UndoListener::redoPerformed);
+        }
+        
+        void UndoListener::undoGroupCreated(const Model::UndoGroup& group) {
+            [m_mapDocument updateChangeCount:NSChangeDone];
+            NSLog(@"group created");
+            
+            for (NSWindowController* controller in [m_mapDocument windowControllers])
+                [controller setDocumentEdited:[m_mapDocument isDocumentEdited]];
+        }
+        
+        void UndoListener::undoPerformed(const Model::UndoGroup& group) {
+            [m_mapDocument updateChangeCount:NSChangeUndone];
+            NSLog(@"undo");
+            
+            for (NSWindowController* controller in [m_mapDocument windowControllers])
+                [controller setDocumentEdited:[m_mapDocument isDocumentEdited]];
+        }
+
+        void UndoListener::redoPerformed(const Model::UndoGroup& group) {
+            [m_mapDocument updateChangeCount:NSChangeRedone];
+            NSLog(@"redo");
+            
+            for (NSWindowController* controller in [m_mapDocument windowControllers])
+                [controller setDocumentEdited:[m_mapDocument isDocumentEdited]];
+        }
+    }
+}
 
 @implementation MapDocument
 
@@ -47,11 +90,15 @@ using namespace TrenchBroom::Renderer;
         NSString* palettePath = [mainBundle pathForResource:@"QuakePalette" ofType:@"lmp"];
         
         editorHolder = [[EditorHolder alloc] initWithDefinitionPath:definitionPath palettePath:palettePath];
+        Editor* editor = (Editor *)[editorHolder editor];
+        undoListener = new UndoListener(editor->map().undoManager(), self);
     }
+    
     return self;
 }
 
 - (void)dealloc {
+    delete (UndoListener *)undoListener;
     [editorHolder release];
     [super dealloc];
 }
@@ -78,12 +125,69 @@ using namespace TrenchBroom::Renderer;
     return YES;
 }
 
-+ (BOOL)autosavesInPlace {
+- (BOOL)writeToURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError {
+    NSString* path = [absoluteURL path];
+    const char* pathC = [path cStringUsingEncoding:NSASCIIStringEncoding];
+
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->saveMap(pathC);
+    
     return YES;
+}
+
++ (BOOL)autosavesInPlace {
+    return NO;
 }
 
 - (EditorHolder *)editorHolder {
     return editorHolder;
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    SEL action = [menuItem action];
+    if (action == @selector(customUndo:)) {
+        Editor* editor = (Editor *)[editorHolder editor];
+        Map& map = editor->map();
+        UndoManager& undoManager = map.undoManager();
+        
+        if (undoManager.undoStackEmpty()) {
+            [menuItem setTitle:@"Undo"];
+            return NO;
+        } else {
+            NSString* objcName = [NSString stringWithCString:undoManager.topUndoName().c_str() encoding:NSASCIIStringEncoding];
+            [menuItem setTitle:[NSString stringWithFormat:@"Undo %@", objcName]];
+            return YES;
+        }
+    } else if (action == @selector(customRedo:)) {
+        Editor* editor = (Editor *)[editorHolder editor];
+        Map& map = editor->map();
+        UndoManager& undoManager = map.undoManager();
+
+        if (undoManager.redoStackEmpty()) {
+            [menuItem setTitle:@"Redo"];
+            return NO;
+        } else {
+            NSString* objcName = [NSString stringWithCString:undoManager.topRedoName().c_str() encoding:NSASCIIStringEncoding];
+            [menuItem setTitle:[NSString stringWithFormat:@"Redo %@", objcName]];
+            return YES;
+        }
+    }
+    
+    return [super validateMenuItem:menuItem];
+}
+
+- (IBAction)customUndo:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    UndoManager& undoManager = map.undoManager();
+    undoManager.undo();
+}
+
+- (IBAction)customRedo:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    UndoManager& undoManager = map.undoManager();
+    undoManager.redo();
 }
 
 @end

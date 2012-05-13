@@ -37,8 +37,8 @@ namespace Math {
 #endif
     }
     
-    inline float roundf(float f) {
-        return floor(f + 0.5f);
+    inline float fround(float f) {
+        return f > 0.0f ? floor(f + 0.5f) : ceil(f - 0.5f);
     }
     
     inline bool fzero(float f) {

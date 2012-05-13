@@ -197,14 +197,14 @@ namespace TrenchBroom {
 
         void Entity::setProperty(const string& key, const Vec3f& value, bool round) {
             stringstream valueStr;
-            if (round) valueStr << (int)Math::roundf(value.x) << " " << (int)Math::roundf(value.y) << " " << (int)Math::roundf(value.z);
+            if (round) valueStr << (int)Math::fround(value.x) << " " << (int)Math::fround(value.y) << " " << (int)Math::fround(value.z);
             else valueStr << value.x << " " << value.y << " " << value.z;
             setProperty(key, valueStr.str());
         }
 
         void Entity::setProperty(const string& key, float value, bool round) {
             stringstream valueStr;
-            if (round) valueStr << (int)Math::roundf(value);
+            if (round) valueStr << (int)Math::fround(value);
             else valueStr << value;
             setProperty(key, valueStr.str());
         }
@@ -231,7 +231,7 @@ namespace TrenchBroom {
         }
 
         const int Entity::angle() const {
-            return static_cast<int>(Math::roundf(m_angle));
+            return static_cast<int>(Math::fround(m_angle));
         }
 
         bool Entity::worldspawn() const {
@@ -323,7 +323,7 @@ namespace TrenchBroom {
                     direction = direction.normalize();
                 }
                 
-                m_angle = Math::roundf(acos(direction.x) * 180 / Math::Pi);
+                m_angle = Math::fround(acos(direction.x) * 180 / Math::Pi);
                 Vec3f cross = direction % XAxisPos;
                 if (!cross.equals(Null3f) && cross.z < 0)
                     m_angle = 360 - m_angle;
@@ -364,7 +364,7 @@ namespace TrenchBroom {
                     direction = direction.normalize();
                 }
 
-                m_angle = Math::roundf(acos(direction.x) * 180 / Math::Pi);
+                m_angle = Math::fround(acos(direction.x) * 180 / Math::Pi);
                 Vec3f cross = direction % XAxisPos;
                 if (!cross.equals(Null3f) && cross.z < 0)
                     m_angle = 360 - m_angle;

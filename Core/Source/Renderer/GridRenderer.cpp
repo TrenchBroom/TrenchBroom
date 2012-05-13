@@ -65,7 +65,7 @@ namespace TrenchBroom {
                             pixel[i + 0] = 0xFF;
                             pixel[i + 1] = 0xFF;
                             pixel[i + 2] = 0xFF;
-                            pixel[i + 3] = static_cast<int>(Math::roundf(0xFF * m_alpha));
+                            pixel[i + 3] = static_cast<int>(Math::fround(0xFF * m_alpha));
                         } else {
                             pixel[i + 0] = 0x00;
                             pixel[i + 1] = 0x00;

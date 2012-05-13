@@ -27,6 +27,8 @@
 #include "Model/Map/Entity.h"
 #include "Model/Map/Map.h"
 #include "Model/Selection.h"
+#include "Model/Undo/UndoManager.h"
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -45,8 +47,10 @@ namespace TrenchBroom {
                 if (!entity.selected())
                     return false;
             }
-            
             lastPoint = hit->hitPoint;
+            
+            m_editor.map().undoManager().begin("Move Objects");
+            
             return true;
         }
         
@@ -54,8 +58,11 @@ namespace TrenchBroom {
             Grid& grid = m_editor.grid();
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
-            
+
+            log(TB_LL_INFO, "%f %f %f\n", delta.x, delta.y, delta.z);
             grid.moveDelta(selection.bounds(), map.worldBounds(), delta, &lastPoint);
+            log(TB_LL_INFO, "%f %f %f\n", delta.x, delta.y, delta.z);
+            
             if (delta.null())
                 return true;
             
@@ -64,6 +71,7 @@ namespace TrenchBroom {
         }
         
         void MoveObjectTool::doEndLeftDrag(ToolEvent& event) {
+            m_editor.map().undoManager().end();
         }
     }
 }

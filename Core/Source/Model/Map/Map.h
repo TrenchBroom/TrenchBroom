@@ -36,6 +36,7 @@ namespace TrenchBroom {
         class Selection;
         class EntityDefinitionManager;
         class GroupManager;
+        class UndoManager;
         class MoveResult;
         class Entity;
         class Brush;
@@ -48,6 +49,7 @@ namespace TrenchBroom {
             Selection* m_selection;
             EntityDefinitionManagerPtr m_entityDefinitionManager;
             GroupManager* m_groupManager;
+            UndoManager* m_undoManager;
             
             vector<Entity*> m_entities;
             Entity* m_worldspawn;
@@ -105,7 +107,7 @@ namespace TrenchBroom {
             bool resizeBrushes(vector<Face*>& faces, float delta, bool lockTextures);
             
             void duplicateObjects(vector<Entity*>& newEntities, vector<Brush*>& newBrushes);
-            void translateObjects(const Vec3f& delta, bool lockTextures);
+            void translateObjects(const Vec3f delta, bool lockTextures);
             void rotateObjects90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures);
             void rotateObjects(const Quat& rotation, const Vec3f& center, bool lockTextures);
             void flipObjects(EAxis axis, const Vec3f& center, bool lockTextures);
@@ -130,6 +132,7 @@ namespace TrenchBroom {
             Selection& selection();
             EntityDefinitionManager& entityDefinitionManager();
             GroupManager& groupManager();
+            UndoManager& undoManager();
             const vector<string>& mods();
         };
     }
