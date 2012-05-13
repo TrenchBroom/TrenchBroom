@@ -25,11 +25,16 @@
 
 #include "MapDocument.h"
 #include "MapView.h"
+
+#include "Controller/Editor.h"
 #include "Model/Preferences.h"
+#include "Model/Map/Map.h"
 #include "Model/Map/EntityDefinition.h"
-#include "IO/Pak.h"
+#include "Model/Undo/UndoManager.h"
 #include "Model/Assets/Alias.h"
 #include "Model/Assets/Bsp.h"
+#include "IO/Pak.h"
+
 #include "WinPreferences.h"
 #include "PreferencesDialog.h"
 
@@ -46,6 +51,10 @@ BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	// Standard file based document commands
 	ON_COMMAND(ID_FILE_OPEN, &CWinApp::OnFileOpen)
 	ON_COMMAND(ID_TOOLS_OPTIONS, &CTrenchBroomApp::OnToolsOptions)
+	ON_COMMAND(ID_EDIT_UNDO, &CTrenchBroomApp::OnEditUndo)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, &CTrenchBroomApp::OnUpdateEditUndo)
+	ON_COMMAND(ID_EDIT_REDO, &CTrenchBroomApp::OnEditRedo)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CTrenchBroomApp::OnUpdateEditRedo)
 END_MESSAGE_MAP()
 
 /*
@@ -299,6 +308,82 @@ void CTrenchBroomApp::OnFileNew()
 		if (pTemplate != NULL)
 			pTemplate->SetDefaultTitle(pDoc);
 		pDoc->OnNewDocument();
+	}
+}
+
+void CTrenchBroomApp::OnEditUndo()
+{
+	CFrameWnd* frame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
+	if (frame == NULL)
+		return;
+
+	CMapDocument* mapDocument = DYNAMIC_DOWNCAST(CMapDocument, frame->GetActiveDocument());
+	if (mapDocument == NULL)
+		return;
+
+	TrenchBroom::Model::UndoManager& undoManager = mapDocument->editor().map().undoManager();
+	undoManager.undo();
+}
+
+void CTrenchBroomApp::OnUpdateEditUndo(CCmdUI* pCmdUI)
+{
+	CFrameWnd* frame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
+	if (frame == NULL)
+		return;
+
+	CMapDocument* mapDocument = DYNAMIC_DOWNCAST(CMapDocument, frame->GetActiveDocument());
+	if (mapDocument == NULL)
+		return;
+
+	TrenchBroom::Model::UndoManager& undoManager = mapDocument->editor().map().undoManager();
+	if (undoManager.undoStackEmpty()) {
+		pCmdUI->Enable(FALSE);
+		pCmdUI->SetText("Undo\tCtrl+Z");
+	} else {
+		pCmdUI->Enable(TRUE);
+		std::string name = undoManager.topUndoName();
+		CString text = "Undo ";
+		text += name.c_str();
+		text += "\tCtrl+Z";
+		pCmdUI->SetText(text);
+	}
+}
+
+void CTrenchBroomApp::OnEditRedo()
+{
+	CFrameWnd* frame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
+	if (frame == NULL)
+		return;
+
+	CMapDocument* mapDocument = DYNAMIC_DOWNCAST(CMapDocument, frame->GetActiveDocument());
+	if (mapDocument == NULL)
+		return;
+
+	TrenchBroom::Model::UndoManager& undoManager = mapDocument->editor().map().undoManager();
+	undoManager.redo();
+}
+
+void CTrenchBroomApp::OnUpdateEditRedo(CCmdUI* pCmdUI)
+{
+	CFrameWnd* frame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
+	if (frame == NULL)
+		return;
+
+	CMapDocument* mapDocument = DYNAMIC_DOWNCAST(CMapDocument, frame->GetActiveDocument());
+	if (mapDocument == NULL)
+		return;
+
+	TrenchBroom::Model::UndoManager& undoManager = mapDocument->editor().map().undoManager();
+	if (undoManager.redoStackEmpty()) {
+		pCmdUI->Enable(FALSE);
+		pCmdUI->SetText("Redo\tCtrl+Y");
+	} else {
+		pCmdUI->Enable(TRUE);
+		std::string name = undoManager.topRedoName();
+		CString text = "Redo ";
+		text += name.c_str();
+		text += "\tCtrl+Y";
+		pCmdUI->SetText(text);
 	}
 }
 

@@ -20,6 +20,12 @@
 #pragma once
 #include "Controller/Editor.h"
 
+namespace TrenchBroom {
+	namespace Model {
+		class UndoGroup;
+	}
+}
+
 class CMapDocument : public CDocument
 {
 protected: // create from serialization only
@@ -62,4 +68,7 @@ protected:
 	TrenchBroom::Controller::Editor* m_editor;
 public:
 	TrenchBroom::Controller::Editor& editor();
+	void undoGroupCreated(const TrenchBroom::Model::UndoGroup& group);
+	void undoPerformed(const TrenchBroom::Model::UndoGroup& group);
+	void redoPerformed(const TrenchBroom::Model::UndoGroup& group);
 };

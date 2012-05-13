@@ -112,6 +112,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header\Core\Model\Undo">
+      <UniqueIdentifier>{f221d5de-0dd3-485b-8500-fca2ef372e31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Model\Undo">
+      <UniqueIdentifier>{a1689731-4e1f-40ed-89d2-12275ac0be72}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -607,6 +613,15 @@
     <ClInclude Include="..\..\Core\Source\Controller\MoveObjectTool.h">
       <Filter>Header\Core\Controller</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Undo\InvocationUndoItem.h">
+      <Filter>Header\Core\Model\Undo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Undo\UndoItem.h">
+      <Filter>Header\Core\Model\Undo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Undo\UndoManager.h">
+      <Filter>Header\Core\Model\Undo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TrenchBroom.cpp">
@@ -980,6 +995,15 @@
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\Controller\MoveObjectTool.cpp">
       <Filter>Source\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Undo\InvocationUndoItem.cpp">
+      <Filter>Source\Core\Model\Undo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Undo\UndoItem.cpp">
+      <Filter>Source\Core\Model\Undo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Undo\UndoManager.cpp">
+      <Filter>Source\Core\Model\Undo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

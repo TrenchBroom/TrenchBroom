@@ -144,6 +144,9 @@
     <ClInclude Include="..\..\Core\Source\Model\Octree.h" />
     <ClInclude Include="..\..\Core\Source\Model\Preferences.h" />
     <ClInclude Include="..\..\Core\Source\Model\Selection.h" />
+    <ClInclude Include="..\..\Core\Source\Model\Undo\InvocationUndoItem.h" />
+    <ClInclude Include="..\..\Core\Source\Model\Undo\UndoItem.h" />
+    <ClInclude Include="..\..\Core\Source\Model\Undo\UndoManager.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\AliasRenderer.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\BspRenderer.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\ChangeSet.h" />
@@ -300,6 +303,9 @@
     <ClCompile Include="..\..\Core\Source\Model\Octree.cpp" />
     <ClCompile Include="..\..\Core\Source\Model\Preferences.cpp" />
     <ClCompile Include="..\..\Core\Source\Model\Selection.cpp" />
+    <ClCompile Include="..\..\Core\Source\Model\Undo\InvocationUndoItem.cpp" />
+    <ClCompile Include="..\..\Core\Source\Model\Undo\UndoItem.cpp" />
+    <ClCompile Include="..\..\Core\Source\Model\Undo\UndoManager.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\AliasRenderer.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\BspRenderer.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\ChangeSet.cpp" />

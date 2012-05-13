@@ -35,7 +35,7 @@ namespace TrenchBroom {
         }
 
         void UndoGroup::undo() {
-            for (int i = 0; i < m_items.size(); i++)
+            for (unsigned int i = 0; i < m_items.size(); i++)
                 m_items[i]->undo();
         }
 

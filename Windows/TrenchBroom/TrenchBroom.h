@@ -43,11 +43,16 @@ public:
 	virtual BOOL InitInstance();
 	virtual BOOL ExitInstance();
 
+	DECLARE_MESSAGE_MAP()
+
 // Implementation
 	afx_msg void OnAppAbout();
 	afx_msg void OnFileNewFrame();
 	afx_msg void OnFileNew();
-	DECLARE_MESSAGE_MAP()
+	afx_msg void OnEditUndo();
+	afx_msg void OnUpdateEditUndo(CCmdUI* pCmdUI);
+	afx_msg void OnEditRedo();
+	afx_msg void OnUpdateEditRedo(CCmdUI* pCmdUI);
 	afx_msg void OnToolsOptions();
 };
 

@@ -26,6 +26,8 @@
 
 #include "MapDocument.h"
 #include "ProgressDialog.h"
+#include "Model/Map/Map.h"
+#include "Model/Undo/UndoManager.h"
 #include "Utilities/Utils.h"
 #include <cassert>
 
@@ -62,10 +64,20 @@ CMapDocument::CMapDocument() : m_editor(NULL)
 	assert(TrenchBroom::fileExists(palettePath));
 
 	m_editor = new TrenchBroom::Controller::Editor(definitionPath, palettePath);
+	
+	TrenchBroom::Model::UndoManager& undoManager = m_editor->map().undoManager();
+	undoManager.undoGroupCreated  += new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoGroupCreated);
+	undoManager.undoPerformed     += new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoPerformed);
+	undoManager.redoPerformed     += new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::redoPerformed);
 }
 
 CMapDocument::~CMapDocument()
 {
+	TrenchBroom::Model::UndoManager& undoManager = m_editor->map().undoManager();
+	undoManager.undoGroupCreated  -= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoGroupCreated);
+	undoManager.undoPerformed     -= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoPerformed);
+	undoManager.redoPerformed     -= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::redoPerformed);
+
 	if (m_editor != NULL)
 		delete m_editor;
 }
@@ -166,4 +178,20 @@ void CMapDocument::Dump(CDumpContext& dc) const
 TrenchBroom::Controller::Editor& CMapDocument::editor()
 {
 	return *m_editor;
+}
+
+void CMapDocument::undoGroupCreated(const TrenchBroom::Model::UndoGroup& group)
+{
+	SetModifiedFlag(TRUE);
+}
+
+void CMapDocument::undoPerformed(const TrenchBroom::Model::UndoGroup& group)
+{
+	TrenchBroom::Model::UndoManager& undoManager = m_editor->map().undoManager();
+	SetModifiedFlag(!undoManager.undoStackEmpty());
+}
+
+void CMapDocument::redoPerformed(const TrenchBroom::Model::UndoGroup& group)
+{
+	SetModifiedFlag(TRUE);
 }
