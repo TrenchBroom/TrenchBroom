@@ -54,18 +54,17 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool MoveObjectTool::doLeftDrag(ToolEvent& event, const Vec3f& delta, const Vec3f& direction, Vec3f& nextRefPoint) {
+        bool MoveObjectTool::doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
             Grid& grid = m_editor.grid();
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
 
-            Vec3f actualDelta = grid.moveDelta(selection.bounds(), map.worldBounds(), delta, direction);
-            if (actualDelta.null())
+            Vec3f delta = grid.moveDelta(selection.bounds(), map.worldBounds(), referencePoint, curMousePoint);
+            if (delta.null())
                 return true;
             
-            nextRefPoint += actualDelta;
-            
-            map.translateObjects(actualDelta, true);
+            referencePoint += delta;
+            map.translateObjects(delta, true);
             return true;
         }
         

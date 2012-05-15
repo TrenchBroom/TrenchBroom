@@ -32,6 +32,10 @@
 #import "Model/Assets/Alias.h"
 #import "Model/Assets/Bsp.h"
 #import "Model/Map/Map.h"
+#import "Model/Map/Entity.h"
+#import "Model/Map/Brush.h"
+#import "Model/Map/Face.h"
+#import "Model/Selection.h"
 #import "Model/Undo/UndoManager.h"
 
 
@@ -143,6 +147,33 @@ namespace TrenchBroom {
     return editorHolder;
 }
 
+- (IBAction)customUndo:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    UndoManager& undoManager = map.undoManager();
+    undoManager.undo();
+}
+
+- (IBAction)customRedo:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    UndoManager& undoManager = map.undoManager();
+    undoManager.redo();
+}
+
+- (IBAction)selectAll:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    
+    Selection& selection = map.selection();
+    selection.removeAll();
+    
+    const vector<Entity*>& entities = map.entities();
+    for (int i = 0; i < entities.size(); i++)
+        selection.addBrushes(entities[i]->brushes());
+    selection.addEntities(entities);
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     SEL action = [menuItem action];
     if (action == @selector(customUndo:)) {
@@ -162,7 +193,7 @@ namespace TrenchBroom {
         Editor* editor = (Editor *)[editorHolder editor];
         Map& map = editor->map();
         UndoManager& undoManager = map.undoManager();
-
+        
         if (undoManager.redoStackEmpty()) {
             [menuItem setTitle:@"Redo"];
             return NO;
@@ -174,20 +205,6 @@ namespace TrenchBroom {
     }
     
     return [super validateMenuItem:menuItem];
-}
-
-- (IBAction)customUndo:(id)sender {
-    Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    UndoManager& undoManager = map.undoManager();
-    undoManager.undo();
-}
-
-- (IBAction)customRedo:(id)sender {
-    Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    UndoManager& undoManager = map.undoManager();
-    undoManager.redo();
 }
 
 @end

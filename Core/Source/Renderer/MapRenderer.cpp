@@ -99,10 +99,11 @@ namespace TrenchBroom {
         void MapRenderer::brushesDidChange(const vector<Model::Brush*>& brushes) {
             m_changeSet.brushesChanged(brushes);
 
+            // TODO use a tree or a hash set here to optimize
             vector<Model::Entity*> entities;
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Model::Entity* entity = brushes[i]->entity();
-                if (!entity->worldspawn() && entity->entityDefinition()->type == Model::TB_EDT_BRUSH) {
+                if (!entity->worldspawn()) {
                     if (find(entities.begin(), entities.end(), entity) == entities.end())
                         entities.push_back(entity);
                 }

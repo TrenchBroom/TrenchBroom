@@ -39,7 +39,7 @@ namespace TrenchBroom {
             bool m_drag;
             
             virtual bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
-            virtual bool doLeftDrag(ToolEvent& event, const Vec3f& delta, const Vec3f& direction, Vec3f& nextRefPoint);
+            virtual bool doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
             virtual void doEndLeftDrag(ToolEvent& event);
             
             virtual bool doBeginRightDrag(ToolEvent& event, Vec3f& lastPoint) ;

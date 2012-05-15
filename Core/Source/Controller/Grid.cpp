@@ -19,6 +19,8 @@
 
 #include "Grid.h"
 #include "Utilities/VecMath.h"
+#include "Utilities/Console.h"
+#include <cmath>
 
 namespace TrenchBroom {
     namespace Controller {
@@ -37,21 +39,37 @@ namespace TrenchBroom {
             return actSize * Math::fround(f / actSize);
         }
 
-        Vec3f Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta, const Vec3f& direction) {
-            Vec3f actualDelta;
+        float Grid::snapDown(float f) {
+            int actSize = actualSize();
+            return actSize * floor(f / actSize);
+        }
+        
+        float Grid::snapUp(float f) {
+            int actSize = actualSize();
+            return actSize * floor(f / actSize);
+        }
+
+        Vec3f Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& referencePoint, const Vec3f& curMousePoint) {
+            Vec3f delta = curMousePoint - referencePoint;
             for (int i = 0; i < 3; i++) {
                 float low  = snap(bounds.min[i] + delta[i]) - bounds.min[i];
-                if (low > 0 != direction[i] > 0)
-                    low = 0;
                 float high = snap(bounds.max[i] + delta[i]) - bounds.max[i];
-                if (high > 0 != direction[i] > 0)
-                    high = 0;
-
-                float dist = fabsf(high) < fabsf(low) ? high : low;
-                actualDelta[i] = dist;
+                
+                if (low != 0 && high != 0)
+                    delta[i] = fabsf(high) < fabsf(low) ? high : low;
+                else if (low != 0)
+                    delta[i] = low;
+                else if (high != 0)
+                    delta[i] = high;
+                else
+                    delta[i] = 0;
+                
             }
             
-            return actualDelta;
+            if ((curMousePoint - referencePoint).lengthSquared() < (curMousePoint - (referencePoint + delta)).lengthSquared())
+                delta = Null3f;
+            
+            return delta;
         }
         
     }

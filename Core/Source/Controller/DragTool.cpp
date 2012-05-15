@@ -35,7 +35,7 @@ namespace TrenchBroom {
         }
 
         bool DragTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) { return false; }
-        bool DragTool::doLeftDrag(ToolEvent& event, const Vec3f& delta, const Vec3f& direction, Vec3f& nextRefPoint) { return false; }
+        bool DragTool::doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) { return false; }
         void DragTool::doEndLeftDrag(ToolEvent& event) {}
         
         bool DragTool::doBeginRightDrag(ToolEvent& event, Vec3f& lastPoint) { return false; }
@@ -70,12 +70,14 @@ namespace TrenchBroom {
                 return;
             
             Vec3f currentMousePoint = event.ray.pointAtDistance(dist);
+            if (currentMousePoint.equals(m_lastMousePoint))
+                return;
+
             Vec3f delta = currentMousePoint - m_lastRefPoint;
             if (delta.null())
                 return;
             
-            Vec3f direction = (currentMousePoint - m_lastMousePoint).normalize();
-            if (!doLeftDrag(event, delta, direction, m_lastRefPoint))
+            if (!doLeftDrag(event, m_lastMousePoint, currentMousePoint, m_lastRefPoint))
                 endLeftDrag(event);
             
             m_lastMousePoint = currentMousePoint;

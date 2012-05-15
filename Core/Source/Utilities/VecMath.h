@@ -37,6 +37,10 @@ namespace Math {
 #endif
     }
     
+    inline float nan() {
+        return std::numeric_limits<float>::quiet_NaN();
+    }
+    
     inline float fround(float f) {
         return f > 0.0f ? floor(f + 0.5f) : ceil(f - 0.5f);
     }
