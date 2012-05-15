@@ -34,11 +34,12 @@ namespace TrenchBroom {
         protected:
             DragPlane* m_dragPlane;
             Vec3f m_dragPlanePosition;
-            Vec3f m_lastPoint;
+            Vec3f m_lastMousePoint;
+            Vec3f m_lastRefPoint;
             bool m_drag;
             
-            virtual bool doBeginLeftDrag(ToolEvent& event, Vec3f& lastPoint);
-            virtual bool doLeftDrag(ToolEvent& event, Vec3f& delta, Vec3f& lastPoint);
+            virtual bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
+            virtual bool doLeftDrag(ToolEvent& event, const Vec3f& delta, const Vec3f& direction, Vec3f& nextRefPoint);
             virtual void doEndLeftDrag(ToolEvent& event);
             
             virtual bool doBeginRightDrag(ToolEvent& event, Vec3f& lastPoint) ;

@@ -35,7 +35,7 @@ namespace TrenchBroom {
             
             float snap(float f);
             
-            void moveDelta(const BBox& bounds, const BBox& worldBounds, Vec3f& delta, Vec3f* lastPoint);
+            Vec3f moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta, const Vec3f& direction);
         };
     }
 }

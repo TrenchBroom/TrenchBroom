@@ -269,12 +269,30 @@ bool Vec3f::null() const {
     return equals(Null3f);
 }
 
-EAxis Vec3f::strongestAxis() const {
+EAxis Vec3f::firstComponent() const {
     float ax = fabsf(x);
     float ay = fabsf(y);
     float az = fabsf(z);
     if (ax >= ay && ax >= az) return TB_AX_X;
     if (ay >= ax && ay >= az) return TB_AX_Y;
+    return TB_AX_Z;
+}
+
+EAxis Vec3f::secondComponent() const {
+    float ax = fabsf(x);
+    float ay = fabsf(y);
+    float az = fabsf(z);
+    if (ax >= ay && ax <= az) return TB_AX_X;
+    if (ay >= ax && ay <= az) return TB_AX_Y;
+    return TB_AX_Z;
+}
+
+EAxis Vec3f::thirdComponent() const {
+    float ax = fabsf(x);
+    float ay = fabsf(y);
+    float az = fabsf(z);
+    if (ax <= ay && ax <= az) return TB_AX_X;
+    if (ay <= ax && ay <= az) return TB_AX_Y;
     return TB_AX_Z;
 }
 
@@ -1688,7 +1706,7 @@ const CoordinatePlane& CoordinatePlane::plane(CPlane plane) {
 }
 
 const CoordinatePlane& CoordinatePlane::plane(const Vec3f& normal) {
-    switch (normal.strongestAxis()) {
+    switch (normal.firstComponent()) {
         case TB_AX_X:
             return plane(TB_CP_YZ);
         case TB_AX_Y:

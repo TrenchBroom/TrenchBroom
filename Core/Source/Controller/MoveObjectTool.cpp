@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        bool MoveObjectTool::doBeginLeftDrag(ToolEvent& event, Vec3f& lastPoint) {
+        bool MoveObjectTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) {
             Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
             if (hit == NULL)
                 return false;
@@ -47,26 +47,25 @@ namespace TrenchBroom {
                 if (!entity.selected())
                     return false;
             }
-            lastPoint = hit->hitPoint;
+            initialPoint = hit->hitPoint;
             
             m_editor.map().undoManager().begin("Move Objects");
             
             return true;
         }
         
-        bool MoveObjectTool::doLeftDrag(ToolEvent& event, Vec3f& delta, Vec3f& lastPoint) {
+        bool MoveObjectTool::doLeftDrag(ToolEvent& event, const Vec3f& delta, const Vec3f& direction, Vec3f& nextRefPoint) {
             Grid& grid = m_editor.grid();
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
 
-            log(TB_LL_INFO, "%f %f %f\n", delta.x, delta.y, delta.z);
-            grid.moveDelta(selection.bounds(), map.worldBounds(), delta, &lastPoint);
-            log(TB_LL_INFO, "%f %f %f\n", delta.x, delta.y, delta.z);
-            
-            if (delta.null())
+            Vec3f actualDelta = grid.moveDelta(selection.bounds(), map.worldBounds(), delta, direction);
+            if (actualDelta.null())
                 return true;
             
-            map.translateObjects(delta, true);
+            nextRefPoint += actualDelta;
+            
+            map.translateObjects(actualDelta, true);
             return true;
         }
         

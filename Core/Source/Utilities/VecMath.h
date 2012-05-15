@@ -150,7 +150,9 @@ public:
     bool equals(const Vec3f& other) const;
     bool equals(const Vec3f& other, float delta) const;
     bool null() const;
-    EAxis strongestAxis() const;
+    EAxis firstComponent() const;
+    EAxis secondComponent() const;
+    EAxis thirdComponent() const;
     const Vec3f& firstAxis(bool pos = true) const;
     const Vec3f& secondAxis(bool pos = true) const;
     const Vec3f& thirdAxis(bool pos = true) const;

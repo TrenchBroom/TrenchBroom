@@ -34,8 +34,8 @@ namespace TrenchBroom {
                 m_dragPlane = new DragPlane();
         }
 
-        bool DragTool::doBeginLeftDrag(ToolEvent& event, Vec3f& lastPoint) { return false; }
-        bool DragTool::doLeftDrag(ToolEvent& event, Vec3f& delta, Vec3f& lastPoint) { return false; }
+        bool DragTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) { return false; }
+        bool DragTool::doLeftDrag(ToolEvent& event, const Vec3f& delta, const Vec3f& direction, Vec3f& nextRefPoint) { return false; }
         void DragTool::doEndLeftDrag(ToolEvent& event) {}
         
         bool DragTool::doBeginRightDrag(ToolEvent& event, Vec3f& lastPoint) { return false; }
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             return event.modifierKeys == TB_MK_ALT;
         }
 
-        DragTool::DragTool(Editor& editor) : Tool(editor), m_dragPlane(NULL), m_dragPlanePosition(Null3f), m_lastPoint(Null3f), m_drag(false) {};
+        DragTool::DragTool(Editor& editor) : Tool(editor), m_dragPlane(NULL), m_dragPlanePosition(Null3f), m_lastMousePoint(Null3f), m_lastRefPoint(Null3f), m_drag(false) {};
         
         DragTool::~DragTool() {
             if (m_dragPlane != NULL)
@@ -55,8 +55,9 @@ namespace TrenchBroom {
         
         bool DragTool::beginLeftDrag(ToolEvent& event) {
             updateDragPlane(event);
-            m_drag = doBeginLeftDrag(event, m_lastPoint);
-            m_dragPlanePosition = m_lastPoint;
+            m_drag = doBeginLeftDrag(event, m_lastMousePoint);
+            m_lastRefPoint = m_lastMousePoint;
+            m_dragPlanePosition = m_lastMousePoint;
             return m_drag;
         }
         
@@ -68,10 +69,16 @@ namespace TrenchBroom {
             if (Math::isnan(dist))
                 return;
             
-            Vec3f point = event.ray.pointAtDistance(dist);
-            Vec3f delta = point - m_lastPoint;
-            if (!doLeftDrag(event, delta, m_lastPoint))
+            Vec3f currentMousePoint = event.ray.pointAtDistance(dist);
+            Vec3f delta = currentMousePoint - m_lastRefPoint;
+            if (delta.null())
+                return;
+            
+            Vec3f direction = (currentMousePoint - m_lastMousePoint).normalize();
+            if (!doLeftDrag(event, delta, direction, m_lastRefPoint))
                 endLeftDrag(event);
+            
+            m_lastMousePoint = currentMousePoint;
         }
 
         void DragTool::endLeftDrag(ToolEvent& event) {

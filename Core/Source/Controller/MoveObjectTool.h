@@ -28,8 +28,8 @@ namespace TrenchBroom {
         
         class MoveObjectTool : public DragTool {
         protected:
-            bool doBeginLeftDrag(ToolEvent& event, Vec3f& lastPoint);
-            bool doLeftDrag(ToolEvent& event, Vec3f& delta, Vec3f& lastPoint);
+            bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
+            bool doLeftDrag(ToolEvent& event, const Vec3f& delta, const Vec3f& direction, Vec3f& nextRefPoint);
             void doEndLeftDrag(ToolEvent& event);
         public:
             MoveObjectTool(Editor& editor) : DragTool(editor) {}

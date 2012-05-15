@@ -37,36 +37,21 @@ namespace TrenchBroom {
             return actSize * Math::fround(f / actSize);
         }
 
-        void Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, Vec3f& delta, Vec3f* lastPoint) {
+        Vec3f Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta, const Vec3f& direction) {
+            Vec3f actualDelta;
             for (int i = 0; i < 3; i++) {
-                if (delta[i] > 0) {
-                    delta[i] = snap(bounds.max[i] + delta[i]) - bounds.max[i];
-                    if (delta[i] <= 0) {
-                        delta[i] = 0;
-                    } else {
-                        if (bounds.max[i] + delta[i] > worldBounds.max[i]) {
-                            delta[i] = worldBounds.max[i] - bounds.max[i];
-                            delta[i + 1 % 3] = 0;
-                            delta[i + 2 % 3] = 0;
-                        } else if (lastPoint != NULL) {
-                            (*lastPoint)[i] += delta[i];
-                        }
-                    }
-                } else if (delta[i] < 0) {
-                    delta[i] = snap(bounds.min[i] + delta[i]) - bounds.min[i];
-                    if (delta[i] >= 0) {
-                        delta[i] = 0;
-                    } else {
-                        if (bounds.min[i] + delta[i] < worldBounds.min[i]) {
-                            delta[i] = worldBounds.min[i] - bounds.min[i];
-                            delta[i + 1 % 3] = 0;
-                            delta[i + 2 % 3] = 0;
-                        } else if (lastPoint != NULL) {
-                            (*lastPoint)[i] += delta[i];
-                        }
-                    }
-                }
+                float low  = snap(bounds.min[i] + delta[i]) - bounds.min[i];
+                if (low > 0 != direction[i] > 0)
+                    low = 0;
+                float high = snap(bounds.max[i] + delta[i]) - bounds.max[i];
+                if (high > 0 != direction[i] > 0)
+                    high = 0;
+
+                float dist = fabsf(high) < fabsf(low) ? high : low;
+                actualDelta[i] = dist;
             }
+            
+            return actualDelta;
         }
         
     }

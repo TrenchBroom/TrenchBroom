@@ -503,7 +503,7 @@ namespace TrenchBroom {
                 validateTexAxes(m_boundary.normal);
             
             Vec2f gridCoords;
-            switch (m_boundary.normal.strongestAxis()) {
+            switch (m_boundary.normal.firstComponent()) {
                 case TB_AX_X:
                     gridCoords.x = (vertex.y + 0.5f) / 256;
                     gridCoords.y = (vertex.z + 0.5f) / 256;
