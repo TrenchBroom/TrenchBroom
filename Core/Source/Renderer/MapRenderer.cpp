@@ -522,8 +522,9 @@ namespace TrenchBroom {
                     m_entityBoundsVbo->unmap();
                     m_entityBoundsVbo->deactivate();
                 }
+                
+                updateSelectionBounds(context);
             }
-
         }
 
         void MapRenderer::validateAddedBrushes(RenderContext& context) {
@@ -1074,6 +1075,7 @@ namespace TrenchBroom {
 
             map.mapLoaded               += new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapLoaded);
             map.mapCleared              += new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapCleared);
+            map.propertiesDidChange     += new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::propertiesDidChange);
             map.brushesDidChange        += new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesDidChange);
             selection.selectionAdded    += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
             selection.selectionRemoved  += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
@@ -1087,6 +1089,7 @@ namespace TrenchBroom {
             
             map.mapLoaded               -= new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapLoaded);
             map.mapCleared              -= new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapCleared);
+            map.propertiesDidChange     -= new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::propertiesDidChange);
             map.brushesDidChange        -= new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesDidChange);
             selection.selectionAdded    -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
             selection.selectionRemoved  -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);

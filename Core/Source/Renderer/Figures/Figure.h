@@ -26,7 +26,7 @@ namespace TrenchBroom {
         
         class Figure {
         public:
-            Figure();
+            Figure() {}
             virtual ~Figure() {}
             virtual void render(RenderContext& context) = 0;
         };

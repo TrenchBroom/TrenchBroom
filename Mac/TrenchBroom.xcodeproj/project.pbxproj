@@ -436,7 +436,7 @@
 		4888F8321536099B000423D2 /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
 		4888F8331536099B000423D2 /* MacStringFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacStringFactory.mm; sourceTree = "<group>"; };
 		488E65B31563011E00B4E72A /* Figure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
-		488E65B41563017400B4E72A /* PositioningGuideFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; path = PositioningGuideFigure.h; sourceTree = "<group>"; };
+		488E65B41563017400B4E72A /* PositioningGuideFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PositioningGuideFigure.h; sourceTree = "<group>"; };
 		488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PositioningGuideFigure.cpp; sourceTree = "<group>"; };
 		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
 		48B50E0E152CF6E400E75402 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
