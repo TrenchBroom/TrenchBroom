@@ -20,6 +20,7 @@
 #include "MapRenderer.h"
 #include <set>
 #include <algorithm>
+#include <cassert>
 
 #include "Model/Map/Brush.h"
 #include "Model/Map/BrushGeometry.h"
@@ -35,6 +36,7 @@
 #include "Renderer/EntityRendererManager.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/EntityClassnameAnchor.h"
+#include "Renderer/Figures/Figure.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/GridRenderer.h"
 #include "Renderer/RenderContext.h"
@@ -1043,6 +1045,11 @@ namespace TrenchBroom {
             glPopClientAttrib();
         }
 
+        void MapRenderer::renderFigures(RenderContext& context) {
+            for (int i = 0; i < m_figures.size(); i++)
+                m_figures[i]->render(context);
+        }
+
         MapRenderer::MapRenderer(Controller::Editor& editor, FontManager& fontManager) : m_editor(editor), m_fontManager(fontManager) {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
 
@@ -1119,6 +1126,17 @@ namespace TrenchBroom {
                 delete m_selectionDummyTexture;
         }
 
+        void MapRenderer::addFigure(Figure* figure) {
+            assert(figure != NULL);
+            m_figures.push_back(figure);
+        }
+        
+        void MapRenderer::removeFigure(Figure* figure) {
+            assert(figure != NULL);
+            vector<Figure*>::iterator it = find(m_figures.begin(), m_figures.end(), figure);
+            if (it != m_figures.end())
+                m_figures.erase(it);
+        }
 
         void MapRenderer::render(RenderContext& context) {
             validate(context);

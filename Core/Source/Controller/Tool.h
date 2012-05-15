@@ -28,6 +28,10 @@ namespace TrenchBroom {
         class HitList;
     }
 
+    namespace Renderer {
+        class Figure;
+    }
+    
     namespace Controller {
 
         typedef enum {
@@ -65,6 +69,12 @@ namespace TrenchBroom {
         class Tool {
         protected:
             Editor& m_editor;
+            
+            void addFigure(Renderer::Figure* figure) {
+            }
+            
+            void removeFigure(Renderer::Figure* figure) {
+            }
         public:
             Tool(Editor& editor) : m_editor(editor) {}
             virtual ~Tool() {}

@@ -38,8 +38,8 @@ namespace TrenchBroom {
         bool DragTool::doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) { return false; }
         void DragTool::doEndLeftDrag(ToolEvent& event) {}
         
-        bool DragTool::doBeginRightDrag(ToolEvent& event, Vec3f& lastPoint) { return false; }
-        bool DragTool::doRightDrag(ToolEvent& event, Vec3f& delta, Vec3f& lastPoint) { return false; }
+        bool DragTool::doBeginRightDrag(ToolEvent& event, Vec3f& initialPoint) { return false; }
+        bool DragTool::doRightDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) { return false; }
         void DragTool::doEndRightDrag(ToolEvent& event) {}
 
         bool DragTool::altPlaneModifierPressed(ToolEvent& event) {

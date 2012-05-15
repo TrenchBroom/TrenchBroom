@@ -62,6 +62,7 @@ namespace TrenchBroom {
         class FontManager;
         class ChangeSet;
         class RenderContext;
+        class Figure;
 
         class MapRenderer {
         private:
@@ -101,6 +102,9 @@ namespace TrenchBroom {
             BBox m_selectionBounds;
             StringRendererPtr m_guideStrings[3];
 
+            // figures
+            std::vector<Figure*> m_figures;
+            
             ChangeSet m_changeSet;
             Model::Assets::Texture* m_selectionDummyTexture;
             FontManager& m_fontManager;
@@ -146,9 +150,14 @@ namespace TrenchBroom {
             void renderEntityModels(RenderContext& context, EntityRenderers& entities);
             void renderEdges(RenderContext& context, const Vec4f* color, const IndexBuffer& indexBuffer);
             void renderFaces(RenderContext& context, bool textured, bool selected, FaceIndexBuffers& indexBuffers);
+            void renderFigures(RenderContext& context);
         public:
             MapRenderer(Controller::Editor& editor, FontManager& fontManager);
             ~MapRenderer();
+            
+            void addFigure(Figure* figure);
+            void removeFigure(Figure* figure);
+            
             void render(RenderContext& context);
         };
     }
