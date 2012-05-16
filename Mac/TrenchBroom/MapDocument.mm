@@ -60,24 +60,18 @@ namespace TrenchBroom {
         
         void UndoListener::undoGroupCreated(const Model::UndoGroup& group) {
             [m_mapDocument updateChangeCount:NSChangeDone];
-            NSLog(@"group created");
-            
             for (NSWindowController* controller in [m_mapDocument windowControllers])
                 [controller setDocumentEdited:[m_mapDocument isDocumentEdited]];
         }
         
         void UndoListener::undoPerformed(const Model::UndoGroup& group) {
             [m_mapDocument updateChangeCount:NSChangeUndone];
-            NSLog(@"undo");
-            
             for (NSWindowController* controller in [m_mapDocument windowControllers])
                 [controller setDocumentEdited:[m_mapDocument isDocumentEdited]];
         }
 
         void UndoListener::redoPerformed(const Model::UndoGroup& group) {
             [m_mapDocument updateChangeCount:NSChangeRedone];
-            NSLog(@"redo");
-            
             for (NSWindowController* controller in [m_mapDocument windowControllers])
                 [controller setDocumentEdited:[m_mapDocument isDocumentEdited]];
         }
