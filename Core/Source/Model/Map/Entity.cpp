@@ -202,6 +202,12 @@ namespace TrenchBroom {
             setProperty(key, valueStr.str());
         }
 
+        void Entity::setProperty(const string& key, int value) {
+            stringstream valueStr;
+            valueStr << value;
+            setProperty(key, valueStr.str());
+        }
+
         void Entity::setProperty(const string& key, float value, bool round) {
             stringstream valueStr;
             if (round) valueStr << (int)Math::fround(value);

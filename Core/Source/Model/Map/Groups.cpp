@@ -110,7 +110,7 @@ namespace TrenchBroom {
 
         void GroupManager::setGroupVisibility(Entity& group, bool visibility) {
             if (visibility == visible(group)) return;
-            group.setProperty(GroupNameKey, "" + visibility);
+            group.setProperty(GroupNameKey, static_cast<int>(visibility));
             if (visibility) m_visibleGroupCount++;
             else m_visibleGroupCount--;
             groupsChanged(*this);
