@@ -29,14 +29,14 @@ namespace TrenchBroom {
         
         class PositioningGuideFigure : public Figure {
         private:
-            const BBox& m_worldBounds;
             BBox m_bounds;
             Vec4f m_color;
             Vec4f m_hiddenColor;
             
-            void renderGuides(RenderContext& context);
+            void renderLine(RenderContext& context, const Vec4f& color, const Vec3f& anchor, float size, const Vec3f& axis);
+            void renderGuides(RenderContext& context, const Vec4f& color);
         public:
-            PositioningGuideFigure(const BBox& worldBounds, const BBox& bounds, const Vec4f& color, const Vec4f& hiddenColor);
+            PositioningGuideFigure(const BBox& bounds, const Vec4f& color, const Vec4f& hiddenColor);
             void updateBounds(const BBox& bounds);
             void render(RenderContext& context);
         };

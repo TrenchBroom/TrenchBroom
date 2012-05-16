@@ -1069,6 +1069,7 @@ namespace TrenchBroom {
             m_selectedClassnameRenderer = new TextRenderer(m_fontManager, prefs.selectedInfoOverlayFadeDistance());
 
             m_selectionDummyTexture = NULL;
+            m_editor.setRenderer(this);
 
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
@@ -1084,6 +1085,8 @@ namespace TrenchBroom {
         }
 
         MapRenderer::~MapRenderer() {
+            m_editor.setRenderer(NULL);
+            
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
             
@@ -1129,14 +1132,12 @@ namespace TrenchBroom {
                 delete m_selectionDummyTexture;
         }
 
-        void MapRenderer::addFigure(Figure* figure) {
-            assert(figure != NULL);
-            m_figures.push_back(figure);
+        void MapRenderer::addFigure(Figure& figure) {
+            m_figures.push_back(&figure);
         }
         
-        void MapRenderer::removeFigure(Figure* figure) {
-            assert(figure != NULL);
-            vector<Figure*>::iterator it = find(m_figures.begin(), m_figures.end(), figure);
+        void MapRenderer::removeFigure(Figure& figure) {
+            vector<Figure*>::iterator it = find(m_figures.begin(), m_figures.end(), &figure);
             if (it != m_figures.end())
                 m_figures.erase(it);
         }
@@ -1150,7 +1151,7 @@ namespace TrenchBroom {
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LESS);
-            glShadeModel(GL_FLAT);
+            glShadeModel(GL_SMOOTH);
             glResetEdgeOffset();
 
             if (context.options.renderOrigin) {
@@ -1279,6 +1280,8 @@ namespace TrenchBroom {
                     }
                 }
             }
+            
+            renderFigures(context);
         }
     }
 }

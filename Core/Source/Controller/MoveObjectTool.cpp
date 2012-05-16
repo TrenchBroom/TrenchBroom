@@ -26,8 +26,10 @@
 #include "Model/Map/Brush.h"
 #include "Model/Map/Entity.h"
 #include "Model/Map/Map.h"
+#include "Model/Preferences.h"
 #include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
+#include "Renderer/Figures/PositioningGuideFigure.h"
 #include "Utilities/Console.h"
 
 namespace TrenchBroom {
@@ -49,6 +51,19 @@ namespace TrenchBroom {
             }
             initialPoint = hit->hitPoint;
             
+            if (m_guideFigure == NULL) {
+                Model::Map& map = m_editor.map();
+                Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+                const Vec4f& color = prefs.selectedEdgeColor();
+                const Vec4f& hiddenColor = prefs.hiddenSelectedEdgeColor();
+                
+                m_guideFigure = new Renderer::PositioningGuideFigure(map.selection().bounds(), color, hiddenColor);
+            } else {
+                Model::Map& map = m_editor.map();
+                m_guideFigure->updateBounds(map.selection().bounds());
+            }
+
+            addFigure(*m_guideFigure);
             m_editor.map().undoManager().begin("Move Objects");
             
             return true;
@@ -58,18 +73,30 @@ namespace TrenchBroom {
             Grid& grid = m_editor.grid();
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
-
+            
             Vec3f delta = grid.moveDelta(selection.bounds(), map.worldBounds(), referencePoint, curMousePoint);
             if (delta.null())
                 return true;
             
             referencePoint += delta;
             map.translateObjects(delta, true);
+            m_guideFigure->updateBounds(selection.bounds());
+            
             return true;
         }
         
         void MoveObjectTool::doEndLeftDrag(ToolEvent& event) {
+            removeFigure(*m_guideFigure);
             m_editor.map().undoManager().end();
+        }
+
+        MoveObjectTool::MoveObjectTool(Editor& editor) : DragTool(editor), m_guideFigure(NULL) {}
+
+        MoveObjectTool::~MoveObjectTool() {
+            if (m_guideFigure != NULL) {
+                delete m_guideFigure;
+                m_guideFigure = NULL;
+            }
         }
     }
 }

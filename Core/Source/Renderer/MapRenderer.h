@@ -155,8 +155,8 @@ namespace TrenchBroom {
             MapRenderer(Controller::Editor& editor, FontManager& fontManager);
             ~MapRenderer();
             
-            void addFigure(Figure* figure);
-            void removeFigure(Figure* figure);
+            void addFigure(Figure& figure);
+            void removeFigure(Figure& figure);
             
             void render(RenderContext& context);
         };

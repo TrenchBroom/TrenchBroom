@@ -24,41 +24,60 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        void PositioningGuideFigure::renderGuides(RenderContext& context) {
+        void PositioningGuideFigure::renderLine(RenderContext& context, const Vec4f& color, const Vec3f& anchor, float size, const Vec3f& axis) {
+            float length = 256;
+            Vec3f outerOffset = axis * ((size / 2.0f) + length);
+            Vec3f innerOffset = axis * (size / 2.0f);
+
+            glColorV4f(color, 0.2f * color.w);
+            glVertexV3f(anchor - outerOffset);
+            glColorV4f(color);
+            glVertexV3f(anchor - innerOffset);
+            glVertexV3f(anchor - innerOffset);
+            glVertexV3f(anchor + innerOffset);
+            glVertexV3f(anchor + innerOffset);
+            glColorV4f(color, 0.2f * color.w);
+            glVertexV3f(anchor + outerOffset);
+        }
+
+        void PositioningGuideFigure::renderGuides(RenderContext& context, const Vec4f& color) {
+            Vec3f v;
+            Vec3f size = m_bounds.size();
+            
             glBegin(GL_LINES);
-            // X guides
-            glVertex3f(m_worldBounds.min.x, m_bounds.min.y, m_bounds.min.z);
-            glVertex3f(m_worldBounds.max.x, m_bounds.min.y, m_bounds.min.z);
-            glVertex3f(m_worldBounds.min.x, m_bounds.min.y, m_bounds.max.z);
-            glVertex3f(m_worldBounds.max.x, m_bounds.min.y, m_bounds.max.z);
-            glVertex3f(m_worldBounds.min.x, m_bounds.max.y, m_bounds.min.z);
-            glVertex3f(m_worldBounds.max.x, m_bounds.max.y, m_bounds.min.z);
-            glVertex3f(m_worldBounds.min.x, m_bounds.max.y, m_bounds.max.z);
-            glVertex3f(m_worldBounds.max.x, m_bounds.max.y, m_bounds.max.z);
+            v = m_bounds.min;
+            v.x += size.x / 2;
+            renderLine(context, color, v, size.x, XAxisPos);
+            v.y += size.y;
+            renderLine(context, color, v, size.x, XAxisPos);
+            v.z += size.z;
+            renderLine(context, color, v, size.x, XAxisPos);
+            v.y -= size.y;
+            renderLine(context, color, v, size.x, XAxisPos);
             
-            // Y guides
-            glVertex3f(m_bounds.min.x, m_worldBounds.min.y, m_bounds.min.z);
-            glVertex3f(m_bounds.min.x, m_worldBounds.max.y, m_bounds.min.z);
-            glVertex3f(m_bounds.min.x, m_worldBounds.min.y, m_bounds.max.z);
-            glVertex3f(m_bounds.min.x, m_worldBounds.max.y, m_bounds.max.z);
-            glVertex3f(m_bounds.max.x, m_worldBounds.min.y, m_bounds.min.z);
-            glVertex3f(m_bounds.max.x, m_worldBounds.max.y, m_bounds.min.z);
-            glVertex3f(m_bounds.max.x, m_worldBounds.min.y, m_bounds.max.z);
-            glVertex3f(m_bounds.max.x, m_worldBounds.max.y, m_bounds.max.z);
-            
-            // Z guides
-            glVertex3f(m_bounds.min.x, m_bounds.min.y, m_worldBounds.min.z);
-            glVertex3f(m_bounds.min.x, m_bounds.min.y, m_worldBounds.max.z);
-            glVertex3f(m_bounds.min.x, m_bounds.max.y, m_worldBounds.min.z);
-            glVertex3f(m_bounds.min.x, m_bounds.max.y, m_worldBounds.max.z);
-            glVertex3f(m_bounds.max.x, m_bounds.min.y, m_worldBounds.min.z);
-            glVertex3f(m_bounds.max.x, m_bounds.min.y, m_worldBounds.max.z);
-            glVertex3f(m_bounds.max.x, m_bounds.max.y, m_worldBounds.min.z);
-            glVertex3f(m_bounds.max.x, m_bounds.max.y, m_worldBounds.max.z);
+            v = m_bounds.min;
+            v.y += size.y / 2;
+            renderLine(context, color, v, size.y, YAxisPos);
+            v.x += size.x;
+            renderLine(context, color, v, size.y, YAxisPos);
+            v.z += size.z;
+            renderLine(context, color, v, size.y, YAxisPos);
+            v.x -= size.x;
+            renderLine(context, color, v, size.y, YAxisPos);
+
+            v = m_bounds.min;
+            v.z += size.y / 2;
+            renderLine(context, color, v, size.z, ZAxisPos);
+            v.x += size.x;
+            renderLine(context, color, v, size.z, ZAxisPos);
+            v.y += size.y;
+            renderLine(context, color, v, size.z, ZAxisPos);
+            v.x -= size.x;
+            renderLine(context, color, v, size.z, ZAxisPos);
             glEnd();
         }
 
-        PositioningGuideFigure::PositioningGuideFigure(const BBox& worldBounds, const BBox& bounds, const Vec4f& color, const Vec4f& hiddenColor) : m_worldBounds(worldBounds), m_bounds(bounds), m_color(color), m_hiddenColor(hiddenColor) {}
+        PositioningGuideFigure::PositioningGuideFigure(const BBox& bounds, const Vec4f& color, const Vec4f& hiddenColor) : m_bounds(bounds), m_color(color), m_hiddenColor(hiddenColor) {}
         
         void PositioningGuideFigure::updateBounds(const BBox& bounds) {
             m_bounds = bounds;
@@ -67,10 +86,10 @@ namespace TrenchBroom {
         void PositioningGuideFigure::render(RenderContext& context) {
             glDisable(GL_DEPTH_TEST);
             glColorV4f(m_hiddenColor);
-            renderGuides(context);
+            renderGuides(context, m_hiddenColor);
             glEnable(GL_DEPTH_TEST);
             glColorV4f(m_color);
-            renderGuides(context);
+            renderGuides(context, m_color);
         }
     }
 }

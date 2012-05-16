@@ -70,7 +70,7 @@ namespace TrenchBroom {
             m_camera->setFarPlane(Model::Preferences::sharedPreferences->cameraFar());
         }
 
-        Editor::Editor(const string& entityDefinitionFilePath, const string& palettePath) : m_entityDefinitionFilePath(entityDefinitionFilePath) {
+        Editor::Editor(const string& entityDefinitionFilePath, const string& palettePath) : m_entityDefinitionFilePath(entityDefinitionFilePath), m_renderer(NULL) {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
 
             m_textureManager = new Model::Assets::TextureManager();
@@ -178,6 +178,14 @@ namespace TrenchBroom {
 
         Model::Assets::Palette& Editor::palette() {
             return *m_palette;
+        }
+        
+        void Editor::setRenderer(Renderer::MapRenderer* renderer) {
+            m_renderer = renderer;
+        }
+        
+        Renderer::MapRenderer* Editor::renderer() {
+            return m_renderer;
         }
     }
 }

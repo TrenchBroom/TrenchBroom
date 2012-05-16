@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Tool_h
 #define TrenchBroom_Tool_h
 
+#include "Controller/Editor.h"
+#include "Renderer/MapRenderer.h"
 #include "Utilities/VecMath.h"
 #include <cstdio>
 
@@ -70,10 +72,12 @@ namespace TrenchBroom {
         protected:
             Editor& m_editor;
             
-            void addFigure(Renderer::Figure* figure) {
+            void addFigure(Renderer::Figure& figure) {
+                m_editor.renderer()->addFigure(figure);
             }
             
-            void removeFigure(Renderer::Figure* figure) {
+            void removeFigure(Renderer::Figure& figure) {
+                m_editor.renderer()->removeFigure(figure);
             }
         public:
             Tool(Editor& editor) : m_editor(editor) {}

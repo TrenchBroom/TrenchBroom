@@ -35,6 +35,10 @@ namespace TrenchBroom {
         class Map;
     }
     
+    namespace Renderer {
+        class MapRenderer;
+    }
+    
     namespace Controller {
         class Camera;
         class Grid;
@@ -52,6 +56,7 @@ namespace TrenchBroom {
             Filter* m_filter;
             Model::Assets::TextureManager* m_textureManager;
             Model::Assets::Palette* m_palette;
+            Renderer::MapRenderer* m_renderer;
             string m_entityDefinitionFilePath;
 
             void updateFaceTextures();
@@ -70,6 +75,9 @@ namespace TrenchBroom {
             TransientOptions& options();
             Filter& filter();
             Model::Assets::Palette& palette();
+            
+            void setRenderer(Renderer::MapRenderer* renderer);
+            Renderer::MapRenderer* renderer();
         };
     }
 }
