@@ -39,25 +39,34 @@ namespace TrenchBroom
             bool m_horizontal;
             float m_balance;
             int m_barSize;
+            int m_minSize[2];
+            int m_maxSize[2];
+            bool m_resize[2];
+            int m_initialPosition;
             char m_zoomedSection;
             
             Gwen::Event::Caller	onZoomed;
             Gwen::Event::Caller	onUnZoomed;
             Gwen::Event::Caller	onZoomChange;
         public:
-            Splitter(Controls::Base* parent, bool horizontal);
+            Splitter(Controls::Base* parent, bool horizontal, int initialPosition);
             
             void Layout( Skin::Base* skin );
             
             virtual float CalculateBalance();
             virtual void UpdateSplitter();
             virtual void OnSplitterMoved(Controls::Base * control);
+            virtual void OnBoundsChanged(Gwen::Rect oldBounds);
             
-            virtual void SetPanel(int i, Controls::Base* pPanel);
-            virtual Controls::Base* GetPanel(int i);
+            virtual void SetPanel(int index, Controls::Base* pPanel);
+            virtual Controls::Base* GetPanel(int index);
+            
+            virtual void SetMinSize(int index, int minSize);
+            virtual void SetMaxSize(int index, int maxSize);
+            virtual void SetResize(int index, bool resize);
             
             virtual bool IsZoomed(){ return m_zoomedSection != -1; }
-            virtual void Zoom(int section);
+            virtual void Zoom(int index);
             virtual void UnZoom();
             virtual void ZoomChanged();
             virtual void CenterPanels() { m_balance = 0.5f; }

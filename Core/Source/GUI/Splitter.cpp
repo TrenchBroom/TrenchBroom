@@ -18,23 +18,25 @@
  */
 
 #include "Splitter.h"
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace Gui {
-        Splitter::Splitter(Controls::Base* parent, bool horizontal) : Base(parent), m_horizontal(horizontal) {
+        Splitter::Splitter(Controls::Base* parent, bool horizontal, int initialPosition) : Base(parent), m_horizontal(horizontal), m_initialPosition(initialPosition) {
             m_splitter = new Controls::SplitterBar(this);
             m_splitter->onDragged.Add(this, &Splitter::OnSplitterMoved);
-            if (m_horizontal) {
-                m_splitter->SetPos(128, 0);
+            if (m_horizontal)
                 m_splitter->SetCursor(Gwen::CursorType::SizeWE);
-            } else {
-                m_splitter->SetPos(0, 128);
+            else
                 m_splitter->SetCursor(Gwen::CursorType::SizeNS);
-            }
             m_balance = 0.5f;
-            
-            SetPanel(0, NULL);
-            SetPanel(1, NULL);
+
+            for (int i = 0; i < 2; i++) {
+                m_minSize[i] = -1;
+                m_maxSize[i] = -1;
+                m_resize[i] = true;
+                SetPanel(i, NULL);
+            }
             
             SetSplitterSize(5);
             SetSplitterVisible(true);
@@ -51,16 +53,72 @@ namespace TrenchBroom {
             Invalidate();
         }
         
+        void Splitter::OnBoundsChanged(Gwen::Rect oldBounds) {
+            Base::OnBoundsChanged(oldBounds);
+            
+            Gwen::Rect newBounds = GetBounds();
+            if (m_horizontal) {
+                if (m_resize[0] && m_resize[1]) {
+                    int newPos = static_cast<int>(static_cast<float>(m_splitter->X()) / static_cast<float>(oldBounds.w) * static_cast<float>(newBounds.w));
+                    m_splitter->SetPos(newPos, 0);
+                } else if (m_resize[0]) {
+                    m_splitter->SetPos(m_splitter->X() + newBounds.w - oldBounds.w, 0);
+                }
+            } else {
+                if (m_resize[0] && m_resize[1]) {
+                    int newPos = static_cast<int>(static_cast<float>(m_splitter->Y()) / static_cast<float>(oldBounds.h) * static_cast<float>(newBounds.h));
+                    m_splitter->SetPos(0, newPos);
+                } else if (m_resize[0]) {
+                    m_splitter->SetPos(0, m_splitter->Y() + newBounds.h - oldBounds.h);
+                }
+            }
+        }
+        
         float Splitter::CalculateBalance() {
             if (m_horizontal)
-                return m_splitter->X() / (float)(Width() - m_splitter->Width());
-            return m_splitter->Y() / (float)(Height() - m_splitter->Height());
+                return m_splitter->X() / static_cast<float>(Width() - m_splitter->Width());
+            return m_splitter->Y() / static_cast<float>(Height() - m_splitter->Height());
         }
         
         void Splitter::Layout(Skin::Base* /*skin*/) {
             if (m_horizontal) m_splitter->SetSize(m_barSize, Height());
             else m_splitter->SetSize(Width(), m_barSize);
+
+            if (m_initialPosition > 0) {
+                if (m_horizontal)
+                    m_splitter->SetPos(m_initialPosition, 0);
+                else
+                    m_splitter->SetPos(0, m_initialPosition);
+                m_initialPosition = 0;
+            } else if (m_initialPosition < 0) {
+                if (m_horizontal)
+                    m_splitter->SetPos(Width() - m_splitter->Width() + m_initialPosition, 0);
+                else
+                    m_splitter->SetPos(0, Height() - m_splitter->Height() + m_initialPosition);
+                m_initialPosition = 0;
+            }
             
+            if (m_horizontal) {
+                if (m_minSize[0] > -1 && m_splitter->X() < m_minSize[0])
+                    m_splitter->SetPos(m_minSize[0], 0);
+                if (m_maxSize[0] > -1 && m_splitter->X() > m_maxSize[0])
+                    m_splitter->SetPos(m_maxSize[0], 0);
+                if (m_minSize[1] > -1 && m_splitter->X() > Width() - m_splitter->Width() - m_minSize[1])
+                    m_splitter->SetPos(Width() - m_splitter->Width() - m_minSize[1], 0);
+                if (m_maxSize[1] > -1 && m_splitter->X() < Width() - m_splitter->Width() - m_maxSize[1])
+                    m_splitter->SetPos(Width() - m_splitter->Width() - m_maxSize[1], 0);
+            } else {
+                if (m_minSize[0] > -1 && m_splitter->Y() < m_minSize[0])
+                    m_splitter->SetPos(0, m_minSize[0]);
+                if (m_maxSize[0] > -1 && m_splitter->Y() > m_maxSize[0])
+                    m_splitter->SetPos(0, m_maxSize[0]);
+                if (m_minSize[1] > -1 && m_splitter->Y() > Height() - m_splitter->Height() - m_minSize[1])
+                    m_splitter->SetPos(0, m_minSize[1]);
+                if (m_maxSize[1] > -1 && m_splitter->Y() < Height() - m_splitter->Height() - m_maxSize[1])
+                    m_splitter->SetPos(0, m_maxSize[1]);
+            }
+
+            m_balance = CalculateBalance();
             UpdateSplitter();
             
             if (m_zoomedSection == -1) {
@@ -87,21 +145,44 @@ namespace TrenchBroom {
             Invalidate();
         }
         
-        Controls::Base* Splitter::GetPanel(int i) {
-            return m_sections[i];
+        Controls::Base* Splitter::GetPanel(int index) {
+            return m_sections[index];
         }
         
+        void Splitter::SetMinSize(int index, int minSize) {
+            Debug::AssertCheck(index >= 0 && index < 2, "Splitter::SetMinSize out of range");
+            if (m_minSize[index] == minSize)
+                return;
+            m_minSize[index] = minSize;
+            Invalidate();
+        }
+        
+        void Splitter::SetMaxSize(int index, int maxSize) {
+            Debug::AssertCheck(index >= 0 && index < 2, "Splitter::SetMaxSize out of range");
+            if (m_maxSize[index] == maxSize)
+                return;
+            m_maxSize[index] = maxSize;
+            Invalidate();
+        }
+        
+        void Splitter::SetResize(int index, bool resize) {
+            Debug::AssertCheck(index >= 0 && index < 2, "Splitter::SetResize out of range");
+            if (m_resize[index] == resize)
+                return;
+            m_resize[index] = resize;
+        }
+
         void Splitter::ZoomChanged() {
             onZoomChange.Call(this);
             if (m_zoomedSection == -1) onUnZoomed.Call(this);
             else onZoomed.Call(this);
         }
         
-        void Splitter::Zoom(int section) {
+        void Splitter::Zoom(int index) {
             UnZoom();
-            if (m_sections[section] != NULL) {
-                if (m_sections[1 - section] != NULL) m_sections[1 - section]->SetHidden(true);
-                m_zoomedSection = section;
+            if (m_sections[index] != NULL) {
+                if (m_sections[1 - index] != NULL) m_sections[1 - index]->SetHidden(true);
+                m_zoomedSection = index;
                 Invalidate();
             }
             ZoomChanged();

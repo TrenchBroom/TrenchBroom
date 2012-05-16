@@ -32,11 +32,15 @@ namespace TrenchBroom {
             m_skin->SetRender(m_renderer);
             m_skin->Init(skinPath);
             m_canvas = new Gwen::Controls::Canvas(m_skin);
-            m_splitter = new Splitter(m_canvas, true);
+            m_splitter = new Splitter(m_canvas, true, -400);
             m_mapRenderer = new MapRendererControl(m_splitter, m_editor, fontManager);
             m_splitter->SetPanel(0, m_mapRenderer);
             m_inspectorTab = new Gwen::Controls::TabControl(m_splitter);
             m_splitter->SetPanel(1, m_inspectorTab);
+            m_splitter->SetMinSize(0, 300);
+            m_splitter->SetMinSize(1, 400);
+            m_splitter->SetResize(0, true);
+            m_splitter->SetResize(1, false);
         }
         
         EditorGui::~EditorGui() {
