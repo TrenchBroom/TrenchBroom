@@ -29,7 +29,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class EntityClassnameAnchor : public TextRenderer::Anchor {
+        class EntityClassnameAnchor : public Anchor {
         private:
             Model::Entity& m_entity;
             Vec3f m_position;

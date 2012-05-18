@@ -283,6 +283,19 @@ namespace Gwen
 						m_Render->DrawFilledRect( Gwen::Rect( (rect.x + rect.w)-1, rect.y+1, 1, rect.h-1 ) );			
 				}
 
+                virtual void DrawBox( Gwen::Controls::Base* control) 
+                {
+                    Gwen::Rect rect = control->GetRenderBounds();
+					m_Render->SetDrawColor( m_colControlOutlineLight );
+					m_Render->DrawFilledRect( Gwen::Rect( rect.x+1, rect.y, rect.w-2, 1 ) );
+					m_Render->DrawFilledRect( Gwen::Rect( rect.x, rect.y+1, 1, rect.h-2 ) );
+                    
+					m_Render->SetDrawColor( m_colControlOutlineLighter );
+					m_Render->DrawFilledRect( Gwen::Rect( rect.x+1, (rect.y + rect.h)-1, rect.w-2, 1 ) );
+					m_Render->DrawFilledRect( Gwen::Rect( (rect.x + rect.w)-1, rect.y+1, 1, rect.h-2 ) );
+                    
+                }
+            
 				virtual void DrawTextBox( Gwen::Controls::Base* control )
 				{
 					Gwen::Rect rect = control->GetRenderBounds();

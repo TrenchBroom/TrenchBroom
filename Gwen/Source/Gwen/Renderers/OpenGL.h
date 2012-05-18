@@ -42,13 +42,12 @@ namespace Gwen
 				void LoadTexture( Gwen::Texture* pTexture );
 				void FreeTexture( Gwen::Texture* pTexture );
 				Gwen::Color PixelColour( Gwen::Texture* pTexture, unsigned int x, unsigned int y, const Gwen::Color& col_default );
-
+                virtual void Flush();
 			protected:
 
 				static const int	MaxVerts = 1024;
 
 
-				void Flush();
 				void AddVert( int x, int y, float u = 0.0f , float v = 0.0f );
 
 				Gwen::Color			m_Color;

@@ -66,7 +66,7 @@ namespace TrenchBroom {
             renderLine(context, color, v, size.y, YAxisPos);
 
             v = m_bounds.min;
-            v.z += size.y / 2;
+            v.z += size.z / 2;
             renderLine(context, color, v, size.z, ZAxisPos);
             v.x += size.x;
             renderLine(context, color, v, size.z, ZAxisPos);

@@ -298,32 +298,6 @@ namespace TrenchBroom {
             offset = block.writeVec(t, offset);
         }
 
-        void MapRenderer::updateSelectionBounds(RenderContext& context) {
-            FontManager& fontManager = m_fontManager;
-            m_selectionBounds = m_editor.map().selection().bounds();
-
-            for (unsigned int i = 0; i < 3; i++) {
-                if (m_guideStrings[i].get() != NULL) {
-                    fontManager.destroyStringRenderer(m_guideStrings[i]);
-                    m_guideStrings[i] = StringRendererPtr();
-                }
-            }
-
-
-            if (!m_editor.map().selection().empty()) {
-                Vec3f size = m_selectionBounds.size();
-                const string& fontName = context.preferences.rendererFontName();
-                unsigned int fontSize = context.preferences.rendererFontSize();
-                FontDescriptor descriptor(fontName, fontSize);
-                char str[16];
-
-                for (unsigned int i = 0; i < 3; i++) {
-                    sprintf(str, "%.0f", size[i]);
-                    m_guideStrings[i] = fontManager.createStringRenderer(descriptor, str);
-                }
-            }
-        }
-
         void MapRenderer::rebuildFaceIndexBuffers(RenderContext& context) {
             for (FaceIndexBuffers::iterator it = m_faceIndexBuffers.begin(); it != m_faceIndexBuffers.end(); ++it)
                 delete it->second;
@@ -454,7 +428,7 @@ namespace TrenchBroom {
 
                         const string& classname = *entity->classname();
                         EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
-                        TextRenderer::AnchorPtr anchorPtr(anchor);
+                        AnchorPtr anchorPtr(anchor);
                         m_classnameRenderer->addString(entity->uniqueId(), classname, descriptor, anchorPtr);
                     }
                 }
@@ -522,8 +496,6 @@ namespace TrenchBroom {
                     m_entityBoundsVbo->unmap();
                     m_entityBoundsVbo->deactivate();
                 }
-                
-                updateSelectionBounds(context);
             }
         }
 
@@ -575,12 +547,28 @@ namespace TrenchBroom {
                 
                 m_faceVbo->unmap();
                 m_faceVbo->deactivate();
-
-                updateSelectionBounds(context);
             }
         }
 
         void MapRenderer::validateChangedFaces(RenderContext& context) {
+            const vector<Model::Face*> changedFaces = m_changeSet.changedFaces();
+            if (!changedFaces.empty()) {
+                m_faceVbo->activate();
+                m_faceVbo->map();
+                for (unsigned int i = 0; i < changedFaces.size(); i++) {
+                    Model::Face* face = changedFaces[i];
+                    unsigned int blockSize = static_cast<unsigned int>(face->vertices().size()) * (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+                    VboBlock* block = face->vboBlock();
+                    if (block == NULL || block->capacity != blockSize) {
+                        block = &m_faceVbo->allocBlock(blockSize);
+                        face->setVboBlock(block);
+                    }
+                    
+                    writeFaceVertices(context, *face, *block);
+                }
+                m_faceVbo->unmap();
+                m_faceVbo->deactivate();
+            }
         }
 
         void MapRenderer::validateSelection(RenderContext& context) {
@@ -624,9 +612,6 @@ namespace TrenchBroom {
                 m_entityBoundsVbo->unmap();
                 m_entityBoundsVbo->deactivate();
             }
-
-            if (!selectedEntities.empty() || !selectedBrushes.empty() || !selectedFaces.empty())
-                updateSelectionBounds(context);
         }
 
         void MapRenderer::validateDeselection(RenderContext& context) {
@@ -670,9 +655,6 @@ namespace TrenchBroom {
                 m_selectedEntityBoundsVbo->unmap();
                 m_selectedEntityBoundsVbo->deactivate();
             }
-
-            if (!deselectedEntities.empty() || !deselectedBrushes.empty() || !deselectedFaces.empty())
-                updateSelectionBounds(context);
         }
 
         void MapRenderer::validate(RenderContext& context) {
@@ -836,8 +818,12 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < maxi; i++) {
                 points[i] = (gv[i][2] - gv[i][1]) / 2 + gv[i][1];
 
+                /*
+                
                 float dist = context.camera.distanceTo(points[i]);
                 float factor = dist / 300;
+                
+                
                 float width = m_guideStrings[i]->width;
                 float height = m_guideStrings[i]->height;
 
@@ -848,6 +834,7 @@ namespace TrenchBroom {
                 glTranslatef(-width / 2, -height / 2, 0);
                 m_guideStrings[i]->renderBackground(1, 1);
                 glPopMatrix();
+                 */
             }
 
             glColorMask(true, true, true, true);
@@ -868,6 +855,7 @@ namespace TrenchBroom {
 
             glDisable(GL_STENCIL_TEST);
 
+            /*
             fontManager.activate();
             for (unsigned int i = 0; i < maxi; i++) {
                 glColorV4f(color);
@@ -886,6 +874,7 @@ namespace TrenchBroom {
                 glPopMatrix();
             }
             fontManager.deactivate();
+             */
         }
 
         void MapRenderer::renderEntityBounds(RenderContext& context, const Vec4f* color, int vertexCount) {
@@ -1078,6 +1067,7 @@ namespace TrenchBroom {
             map.mapCleared              += new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapCleared);
             map.propertiesDidChange     += new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::propertiesDidChange);
             map.brushesDidChange        += new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesDidChange);
+            map.facesDidChange          += new Model::Map::FaceEvent::Listener<MapRenderer>(this, &MapRenderer::facesDidChange);
             selection.selectionAdded    += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
             selection.selectionRemoved  += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
 
@@ -1094,6 +1084,7 @@ namespace TrenchBroom {
             map.mapCleared              -= new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapCleared);
             map.propertiesDidChange     -= new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::propertiesDidChange);
             map.brushesDidChange        -= new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesDidChange);
+            map.facesDidChange          -= new Model::Map::FaceEvent::Listener<MapRenderer>(this, &MapRenderer::facesDidChange);
             selection.selectionAdded    -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
             selection.selectionRemoved  -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
 
@@ -1238,9 +1229,7 @@ namespace TrenchBroom {
                     renderEntityModels(context, m_entityRenderers);
 
                     if (context.options.renderEntityClassnames) {
-                        m_fontManager.activate();
                         m_classnameRenderer->render(context, context.preferences.infoOverlayColor());
-                        m_fontManager.deactivate();
                     }
                 } else if (context.options.isolationMode == Controller::IM_WIREFRAME) {
                     m_entityBoundsVbo->activate();
@@ -1252,9 +1241,7 @@ namespace TrenchBroom {
 
                 if (!m_editor.map().selection().empty()) {
                     if (context.options.renderEntityClassnames) {
-                        m_fontManager.activate();
                         m_selectedClassnameRenderer->render(context, context.preferences.selectedInfoOverlayColor());
-                        m_fontManager.deactivate();
                     }
 
                     m_selectedEntityBoundsVbo->activate();

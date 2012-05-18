@@ -23,17 +23,16 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 namespace TrenchBroom {
-    string trim(const string& str);
-    vector<string> split(const string& str, char d);
+    std::string trim(const std::string& str);
+    std::vector<std::string> split(const std::string& str, char d);
 
-    string appendPath(const string& prefix, const string& suffix);
-    string deleteLastPathComponent(const string& path);
-    string pathExtension(const string& path);
+    std::string appendPath(const std::string& prefix, const std::string& suffix);
+    std::string appendExtension(const std::string& path, const std::string& ext);
+    std::string deleteLastPathComponent(const std::string& path);
+    std::string pathExtension(const std::string& path);
     
-    bool fileExists(const string& path);
+    bool fileExists(const std::string& path);
 }
 
 #endif

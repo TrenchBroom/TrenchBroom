@@ -66,6 +66,7 @@ namespace Gwen
 				virtual void DrawRadioButton(Controls::Base* control, bool bSelected, bool bDepressed) = 0;
 				virtual void DrawCheckBox( Controls::Base* control, bool bSelected, bool bDepressed ) = 0;
 				virtual void DrawGroupBox( Controls::Base* control, int textStart, int textHeight, int textWidth ) = 0;
+                virtual void DrawBox( Controls::Base* control ) = 0;
 				virtual void DrawTextBox( Controls::Base* control ) = 0;
 
 				virtual void DrawWindow( Controls::Base* control, int topHeight, bool inFocus ) = 0;

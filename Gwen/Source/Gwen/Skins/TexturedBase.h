@@ -361,7 +361,7 @@ namespace Gwen
 					
 					Textures.TextBox.Normal.Init		( &m_Texture, 0, 150, 127, 21, Margin( 4, 4, 4, 4 ) );
 					Textures.TextBox.Focus.Init			( &m_Texture, 0, 172, 127, 21, Margin( 4, 4, 4, 4 ) );
-					Textures.TextBox.Disabled.Init		( &m_Texture, 0, 193, 127, 21, Margin( 4, 4, 4, 4 ) );
+					Textures.TextBox.Disabled.Init		( &m_Texture, 0, 194, 127, 21, Margin( 4, 4, 4, 4 ) );
 
 					Textures.Menu.Strip.Init					( &m_Texture, 0, 128, 127, 21, Margin( 1, 1, 1, 1 ) );
 					Textures.Menu.BackgroundWithMargin.Init		( &m_Texture, 128, 128, 127, 63, Margin( 24, 8, 8, 8 ) );
@@ -577,7 +577,12 @@ namespace Gwen
 						GetRender()->DrawFilledRect( Gwen::Rect( (rect.x + rect.w)-1, rect.y+1, 1, rect.h-1 ) );			
 				}
 
-				virtual void DrawTextBox( Gwen::Controls::Base* control )
+                virtual void DrawBox( Controls::Base* control )
+                {
+                    Textures.Tab.Control.Draw(GetRender(), control->GetRenderBounds());
+                }
+
+                virtual void DrawTextBox( Gwen::Controls::Base* control )
 				{
 					if ( control->IsDisabled() )
 						return Textures.TextBox.Disabled.Draw( GetRender(), control->GetRenderBounds() );

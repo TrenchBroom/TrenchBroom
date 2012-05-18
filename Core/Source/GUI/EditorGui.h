@@ -22,9 +22,8 @@
 
 #include "Gwen/Skins/Simple.h"
 #include "Gwen/Skins/TexturedBase.h"
-#include "Gwen/Renderers/OpenGL_DebugFont.h"
+#include "Gwen/Renderers/OpenGL_FTGL.h"
 #include "Gwen/Controls/Canvas.h"
-#include "Gwen/Controls/TabControl.h"
 
 using namespace std;
 
@@ -38,6 +37,7 @@ namespace TrenchBroom {
     }
     
     namespace Gui {
+        class Inspector;
         class MapRendererControl;
         class Splitter;
 
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             Gwen::Controls::Canvas* m_canvas;
             Splitter* m_splitter;
             MapRendererControl* m_mapRenderer;
-            Gwen::Controls::TabControl* m_inspectorTab;
+            Inspector* m_inspector;
         public:
             EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const string& skinPath);
             ~EditorGui();

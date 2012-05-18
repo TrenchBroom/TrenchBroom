@@ -21,126 +21,33 @@
 #define TrenchBroom_FontManager_h
 
 #include <string>
-#include <vector>
 #include <map>
-#include "GL/GLee.h"
+#include "FTGL/ftgl.h"
 #include "Utilities/SharedPointer.h"
-
-using namespace std;
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Vbo;
-        class VboBlock;
-
-        typedef vector<int> IntBuffer;
-        typedef vector<float> FloatBuffer;
-
         class FontDescriptor {
         public:
-            const string name;
-            const int size;
-            FontDescriptor(const string name, int size) : name(name), size(size) {}
+            std::string name;
+            int size;
+            FontDescriptor() {}
+            FontDescriptor(const std::string name, int size) : name(name), size(size) {}
         };
 
         bool operator<(FontDescriptor const& left, FontDescriptor const& right);
 
-        class StringData {
-        private:
-            GLenum m_type;
-        public:
-            class Point {
-            public:
-                float x,y;
-				Point() : x(0), y(0) {};
-                Point(float x, float y) : x(x), y(y) {};
-            };
-
-            FloatBuffer triangleSet;
-            vector<FloatBuffer*> triangleStrips;
-            vector<FloatBuffer*> triangleFans;
-            int vertexCount;
-            float width, height;
-
-            StringData(float width, float height);
-            ~StringData();
-            void begin(GLenum type);
-            void append(Point& vertex);
-            void end();
-        };
-
-        class StringRenderer {
-        private:
-            StringData* m_data;
-            VboBlock* m_vboBlock;
-            GLuint m_listId;
-            bool m_hasTriangleSet;
-            bool m_hasTriangleStrips;
-            bool m_hasTriangleFans;
-            int m_triangleSetIndex;
-            int m_triangleSetCount;
-            IntBuffer* m_triangleStripIndices;
-            IntBuffer* m_triangleStripCounts;
-            IntBuffer* m_triangleFanIndices;
-            IntBuffer* m_triangleFanCounts;
-        public:
-            const FontDescriptor fontDescriptor;
-            const string str;
-            float width;
-            float height;
-
-            StringRenderer(const FontDescriptor& descriptor, const string& str, StringData* stringData);
-            ~StringRenderer();
-            void prepare(Vbo& vbo);
-            void renderBackground(float hInset, float vInset);
-            void render();
-        };
-
-        typedef tr1::shared_ptr<StringRenderer> StringRendererPtr;
-
-        class StringFactory {
-        public:
-            virtual ~StringFactory() {};
-            virtual StringData* createStringData(const FontDescriptor& descriptor, const string& str) = 0;
-        };
-
         class FontManager {
         private:
-            // this had to be structured like this to avoid a warning in VC++
-            class StringCacheEntry {
-            public:
-                StringRendererPtr stringRenderer;
-                int count;
-                StringCacheEntry(StringRendererPtr stringRenderer, int count) : stringRenderer(stringRenderer), count(count) {};
-            };
-            typedef tr1::shared_ptr<StringCacheEntry> StringCacheEntryPtr;
-
-            typedef map<const string, StringCacheEntryPtr> StringCacheMap;
-            class StringCache {
-            public:
-                StringCacheMap stringCacheMap;
-            };
-            typedef tr1::shared_ptr<StringCache> StringCachePtr;
-            
-            typedef map<const FontDescriptor, StringCachePtr> FontCacheMap;
-            class FontCache {
-            public:
-                FontCacheMap fontCacheMap;
-            };
-
-            Vbo* m_vbo;
-            vector<StringRendererPtr> m_unpreparedStrings;
+            typedef std::map<FontDescriptor, FTGL::FTGLfont*> FontCache;
             FontCache m_fontCache;
-            StringFactory& m_stringFactory;
+        protected:
+            virtual std::string resolveFont(const std::string& fontName) = 0;
         public:
-            FontManager(StringFactory& stringFactory);
-            ~FontManager();
-            StringRendererPtr createStringRenderer(const FontDescriptor& descriptor, const string& str);
-            void destroyStringRenderer(StringRendererPtr stringRenderer);
+            FontManager();
+            virtual ~FontManager();
+            FTGL::FTGLfont* font(const FontDescriptor& fontDescriptor);
             void clear();
-
-            void activate();
-            void deactivate();
         };
     }
 }

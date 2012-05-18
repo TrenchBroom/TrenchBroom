@@ -21,22 +21,24 @@
 #include "Controller/Editor.h"
 #include "Gui/MapRendererControl.h"
 #include "Gui/Splitter.h"
+#include "Gui/Inspector.h"
 #include "Renderer/FontManager.h"
 
 namespace TrenchBroom {
     namespace Gui {
 
         EditorGui::EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const string& skinPath) : m_editor(editor) {
-            m_renderer = new Gwen::Renderer::OpenGL_DebugFont();
+            m_renderer = new Gwen::Renderer::OpenGL_FTGL();
             m_skin = new Gwen::Skin::TexturedBase();
             m_skin->SetRender(m_renderer);
             m_skin->Init(skinPath);
+            m_skin->SetDefaultFont(L"Lucida Grande", 13);
             m_canvas = new Gwen::Controls::Canvas(m_skin);
             m_splitter = new Splitter(m_canvas, true, -400);
             m_mapRenderer = new MapRendererControl(m_splitter, m_editor, fontManager);
             m_splitter->SetPanel(0, m_mapRenderer);
-            m_inspectorTab = new Gwen::Controls::TabControl(m_splitter);
-            m_splitter->SetPanel(1, m_inspectorTab);
+            m_inspector = new Inspector(m_splitter, editor);
+            m_splitter->SetPanel(1, m_inspector);
             m_splitter->SetMinSize(0, 300);
             m_splitter->SetMinSize(1, 400);
             m_splitter->SetResize(0, true);
