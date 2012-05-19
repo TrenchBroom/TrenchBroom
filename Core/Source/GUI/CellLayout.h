@@ -202,6 +202,7 @@ namespace TrenchBroom {
                     CellRow<CellType>* row = new CellRow<CellType>(y, m_cellMargin, m_width, m_maxCellsPerRow);
                     rowPtr = CellRowPtr(row);
                     m_rows.push_back(rowPtr);
+                    m_height += m_rowMargin;
                 } else {
                     rowPtr = m_rows.back();
                 }
@@ -280,7 +281,7 @@ namespace TrenchBroom {
         public:
             const CellGroupPtr operator[] (const int index) {
                 assert(index >= 0 && index < m_groups.size());
-                if (m_valid)
+                if (!m_valid)
                     validate();
                 return m_groups[index];
             }
@@ -314,7 +315,14 @@ namespace TrenchBroom {
                 if (!m_valid)
                     validate();
                 
-                float y = m_groups.empty() ? 0 : m_groups.back()->y() + m_groups.back()->titleHeight() + m_groups.back()->height() + m_groupMargin;
+                float y = 0;
+                if (!m_groups.empty())
+                    y += m_groups.back()->y() + m_groups.back()->height() + m_groupMargin;
+                
+                m_height += titleHeight;
+                if (!m_groups.empty())
+                    m_height += m_groupMargin;
+                
                 CellGroup<CellType, GroupType>* group = new CellGroup<CellType, GroupType>(groupItem, y, m_cellMargin, m_rowMargin, titleHeight, m_width, m_maxCellsPerRow);
                 CellGroupPtr groupPtr = CellGroupPtr(group);
                 m_groups.push_back(groupPtr);
@@ -329,6 +337,9 @@ namespace TrenchBroom {
                     CellGroup<CellType, GroupType>* group = new CellGroup<CellType, GroupType>(0, m_cellMargin, m_rowMargin, m_width, m_maxCellsPerRow);
                     groupPtr = CellGroupPtr(group);
                     m_groups.push_back(groupPtr);
+                    m_height += titleHeight;
+                    if (titleHeight > 0)
+                        m_height += m_rowMargin;
                 } else {
                     groupPtr = m_groups.back();
                 }

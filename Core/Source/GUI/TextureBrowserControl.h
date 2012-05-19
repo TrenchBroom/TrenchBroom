@@ -51,6 +51,7 @@ namespace TrenchBroom {
         protected:
             Controller::Editor& m_editor;
             bool m_group;
+            bool m_hideUnused;
             Model::Assets::ETextureSortCriterion m_sortCriterion;
             Gwen::Font* m_font;
             
@@ -65,6 +66,7 @@ namespace TrenchBroom {
             virtual void SetPadding(const Gwen::Padding& padding);
             virtual void OnBoundsChanged(Gwen::Rect oldBounds);
             virtual void RenderOver(Gwen::Skin::Base* skin);
+            void setHideUnused(bool hideUnused);
             void setGroup(bool group);
             void setSortCriterion(Model::Assets::ETextureSortCriterion criterion);
         };
@@ -78,6 +80,7 @@ namespace TrenchBroom {
             TextureBrowserControl(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~TextureBrowserControl() {}
             virtual void Render(Gwen::Skin::Base* skin);
+            void setHideUnused(bool hideUnused);
             void setGroup(bool group);
             void setSortCriterion(Model::Assets::ETextureSortCriterion criterion);
         };

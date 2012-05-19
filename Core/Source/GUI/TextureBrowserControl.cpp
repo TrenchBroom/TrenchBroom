@@ -41,16 +41,20 @@ namespace TrenchBroom {
                     std::vector<Model::Assets::Texture*> textures = collection->textures(m_sortCriterion);
                     for (int j = 0; j < textures.size(); j++) {
                         Model::Assets::Texture* texture = textures[j];
-                        Gwen::Point size = GetSkin()->GetRender()->MeasureText(m_font, texture->name);
-                        m_layout.addItem(texture, texture->width, texture->height, static_cast<float>(size.x), m_font->size + 2);
+                        if (!m_hideUnused || texture->usageCount > 0) {
+                            Gwen::Point size = GetSkin()->GetRender()->MeasureText(m_font, texture->name);
+                            m_layout.addItem(texture, texture->width, texture->height, static_cast<float>(size.x), m_font->size + 2);
+                        }
                     }
                 }
             } else {
                 std::vector<Model::Assets::Texture*> textures = m_editor.textureManager().textures(m_sortCriterion);
                 for (int j = 0; j < textures.size(); j++) {
                     Model::Assets::Texture* texture = textures[j];
-                    Gwen::Point size = GetSkin()->GetRender()->MeasureText(m_font, texture->name);
-                    m_layout.addItem(texture, texture->width, texture->height, static_cast<float>(size.x), m_font->size + 2);
+                    if (!m_hideUnused || texture->usageCount > 0) {
+                        Gwen::Point size = GetSkin()->GetRender()->MeasureText(m_font, texture->name);
+                        m_layout.addItem(texture, texture->width, texture->height, static_cast<float>(size.x), m_font->size + 2);
+                    }
                 }
             }
 
@@ -73,6 +77,7 @@ namespace TrenchBroom {
             m_layout.setCellMargin(5);
             m_layout.setWidth(GetBounds().w);
             m_group = true;
+            m_hideUnused = false;
             m_sortCriterion = Model::Assets::TB_TS_USAGE;
             SetFont(GetSkin()->GetDefaultFont());
             reloadTextures();
@@ -207,6 +212,13 @@ namespace TrenchBroom {
             
         }
 
+        void TextureBrowserPanel::setHideUnused(bool hideUnused) {
+            if (m_hideUnused == hideUnused)
+                return;
+            m_hideUnused = hideUnused;
+            reloadTextures();
+        }
+        
         void TextureBrowserPanel::setGroup(bool group) {
             if (m_group == group)
                 return;
@@ -235,6 +247,10 @@ namespace TrenchBroom {
             skin->DrawBox(this);
         }
         
+        void TextureBrowserControl::setHideUnused(bool hideUnused) {
+            m_textureBrowserPanel->setHideUnused(hideUnused);
+        }
+
         void TextureBrowserControl::setGroup(bool group) {
             m_textureBrowserPanel->setGroup(group);
         }
