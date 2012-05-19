@@ -71,16 +71,17 @@ namespace TrenchBroom {
             void begin(const std::string& name);
             void end();
             void addItem(UndoItem* item);
+            void addSnapshot(Map& map);
             
             template <typename Arg1>
-            void addItem(Map& map, void(Map::*function)(Arg1), Arg1 arg1) {
+            void addFunctor(Map& map, void(Map::*function)(Arg1), Arg1 arg1) {
                 OneArgFunctor<Map, Arg1>* functor = new OneArgFunctor<Map, Arg1>(&map, function, arg1);
                 FunctorUndoItem* undoItem = new FunctorUndoItem(map, functor);
                 addItem(undoItem);
             }
             
             template <typename Arg1, typename Arg2>
-            void addItem(Map& map, void(Map::*function)(Arg1, Arg2), Arg1 arg1, Arg2 arg2) {
+            void addFunctor(Map& map, void(Map::*function)(Arg1, Arg2), Arg1 arg1, Arg2 arg2) {
                 TwoArgFunctor<Map, Arg1, Arg2>* functor = new TwoArgFunctor<Map, Arg1, Arg2>(&map, function, arg1, arg2);
                 FunctorUndoItem* undoItem = new FunctorUndoItem(map, functor);
                 addItem(undoItem);

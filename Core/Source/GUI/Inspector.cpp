@@ -25,9 +25,11 @@
 #include "Gwen/Controls/GroupBox.h"
 #include "Gwen/Controls/Label.h"
 #include "Gwen/Controls/NumericUpDown.h"
+#include "Gwen/Controls/ScrollControl.h"
 #include "Gwen/Controls/TabControl.h"
 #include "Gwen/Controls/TextBox.h"
 #include "GUI/SingleTextureControl.h"
+#include "GUI/TextureBrowserControl.h"
 #include <sstream>
 
 namespace TrenchBroom {
@@ -37,6 +39,7 @@ namespace TrenchBroom {
             if (disabled) {
                 control->SetDisabled(true);
                 control->SetPlaceholderString("n/a");
+                control->SetHasValue(false);
             } else {
                 control->SetDisabled(false);
                 if (multi) {
@@ -44,7 +47,7 @@ namespace TrenchBroom {
                     control->SetPlaceholderString("multiple");
                 } else {
                     control->SetHasValue(true);
-                    control->SetValue(value);
+                    control->SetValue(value, false);
                 }
             }
         }
@@ -75,7 +78,8 @@ namespace TrenchBroom {
                 }
                 
                 m_textureView->setTexture(texture);
-                m_textureLabel->SetText(texture == NULL ? "multiple" : texture->name);
+                m_textureLabel->SetPlaceholderString("multiple");
+                m_textureLabel->SetText(texture == NULL ? "" : texture->name);
                 updateNumericControl(m_xOffsetControl, false, xOffsetMulti, xOffset);
                 updateNumericControl(m_yOffsetControl, false, yOffsetMulti, yOffset);
                 updateNumericControl(m_xScaleControl, false, xScaleMulti, xScale);
@@ -88,7 +92,8 @@ namespace TrenchBroom {
                 updateNumericControl(m_yScaleControl, true, false, 0);
                 updateNumericControl(m_rotationControl, true, false, 0);
                 m_textureView->setTexture(NULL);
-                m_textureLabel->SetText("n/a");
+                m_textureLabel->SetPlaceholderString("n/a");
+                m_textureLabel->SetText("");
             }
         }
         
@@ -121,11 +126,15 @@ namespace TrenchBroom {
             m_sectionTabControl = new Gwen::Controls::TabControl(this);
             m_sectionTabControl->Dock(Gwen::Pos::Fill);
             
+            m_sectionTabControl->AddPage("Map");
+            m_sectionTabControl->AddPage("Entity");
+            m_sectionTabControl->AddPage("Brush");
+
             Gwen::Controls::Base* facePanel = new Gwen::Controls::Base(m_sectionTabControl);
             Gwen::Controls::GroupBox* facePropertiesBox = new Gwen::Controls::GroupBox(facePanel);
             facePropertiesBox->SetText("Face Properties");
             facePropertiesBox->Dock(Gwen::Pos::Top);
-            facePropertiesBox->SetHeight(200);
+            facePropertiesBox->SetHeight(183);
             facePropertiesBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
             
             m_textureView = new TrenchBroom::Gui::SingleTextureControl(facePropertiesBox);
@@ -183,10 +192,16 @@ namespace TrenchBroom {
             m_rotationControl->SetBounds(267, 76, 100, 20);
             m_rotationControl->onChanged.Add(this, &Inspector::onRotationChanged);
             
-            m_sectionTabControl->AddPage("Map", facePanel);
-            m_sectionTabControl->AddPage("Entity");
-            m_sectionTabControl->AddPage("Brush");
-            m_sectionTabControl->AddPage("Face");
+            Gwen::Controls::GroupBox* textureBrowserBox = new Gwen::Controls::GroupBox(facePanel);
+            textureBrowserBox->SetText("Texture Browser");
+            textureBrowserBox->Dock(Gwen::Pos::Fill);
+            textureBrowserBox->SetMargin(Gwen::Margin(0, 5, 0, 0));
+            textureBrowserBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
+
+            m_textureBrowser = new TextureBrowserControl(textureBrowserBox, m_editor);
+            m_textureBrowser->Dock(Gwen::Pos::Fill);
+            
+            m_sectionTabControl->AddPage("Face", facePanel);
 
             Model::Selection& selection = m_editor.map().selection();
             selection.selectionAdded    += new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);

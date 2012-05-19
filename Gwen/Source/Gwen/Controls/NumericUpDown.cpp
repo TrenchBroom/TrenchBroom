@@ -50,13 +50,13 @@ void NumericUpDown::OnButtonUp( Base* /*control*/ )
 {
     if (!m_bHasValue) return;
 	SyncNumberFromText();
-	SetValue( m_fNumber + m_fIncrement );
+	SetValue( m_fNumber + m_fIncrement, true );
 }
 
 void NumericUpDown::OnButtonDown( Base* /*control*/ )
 {
 	SyncNumberFromText();
-	SetValue( m_fNumber - m_fIncrement );
+	SetValue( m_fNumber - m_fIncrement, true );
 }
 
 
@@ -71,7 +71,9 @@ void NumericUpDown::SyncTextFromNumber()
 
 void NumericUpDown::SyncNumberFromText()
 {
-	SetValue( GetFloatFromText() );
+    m_bHasValue = IsTextAllowed(GetText(), 0);
+    if (m_bHasValue)
+        SetValue( GetFloatFromText(), true );
 }
 
 void NumericUpDown::SetMin( float f )
@@ -84,7 +86,7 @@ void NumericUpDown::SetMax( float f )
 	m_fMax = f;
 }
 
-void NumericUpDown::SetValue( float f )
+void NumericUpDown::SetValue( float f, bool call )
 {
 	if ( f > m_fMax ) f = m_fMax;
 	if ( f < m_fMin ) f = m_fMin;
@@ -95,6 +97,7 @@ void NumericUpDown::SetValue( float f )
 	}
 
 	m_fNumber = f;
+    m_bHasValue = true;
 
 	// Don't update the text if we're typing in it..
 	// Undone - any reason why not?
@@ -103,7 +106,8 @@ void NumericUpDown::SetValue( float f )
 		SyncTextFromNumber();
 	}
 
-	OnChange();
+    if (call)
+        OnChange();
 }
 
 float NumericUpDown::GetValue() {

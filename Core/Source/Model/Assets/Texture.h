@@ -76,11 +76,15 @@ namespace TrenchBroom {
             };
 
             class TextureCollection {
+            private:
+                vector<Texture*> m_textures;
+                string m_name;
             public:
-                vector<Texture*> textures;
-                string name;
                 TextureCollection(const string& name, IO::Wad& wad, const Palette& palette);
                 ~TextureCollection();
+                const vector<Texture*>& textures() const;
+                vector<Texture*> textures(ETextureSortCriterion criterion) const;
+                const std::string& name() const;
             };
 
             class TextureManager {
@@ -99,7 +103,7 @@ namespace TrenchBroom {
                 void removeCollection(unsigned int index);
                 void clear();
 
-                const vector<TextureCollection*> collections();
+                const vector<TextureCollection*>& collections();
                 const vector<Texture*> textures(ETextureSortCriterion criterion);
                 Texture* texture(const string& name);
 

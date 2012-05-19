@@ -45,7 +45,7 @@ void Label::SetText( const TextObject& str, bool bDoEvents )
 	if ( m_Text->GetText() == str.GetUnicode() ) return;
     
 	m_Text->SetString( str );
-    if (m_Text->GetText().empty()) {
+    if (m_Text->GetText().empty() && Gwen::KeyboardFocus != this) {
         m_Text->SetTextColorOverride(Gwen::Color(128, 128, 128, 255));
         m_Text->SetString(m_placeholderString);
     } else {

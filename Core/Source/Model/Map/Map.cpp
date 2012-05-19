@@ -298,7 +298,7 @@ namespace TrenchBroom {
             const vector<Brush*>& brushes = m_selection->brushes();
 
             m_undoManager->begin("Move Objects");
-            m_undoManager->addItem<const Vec3f, bool>(*this, &Map::translateObjects, delta * -1, lockTextures);
+            m_undoManager->addFunctor<const Vec3f, bool>(*this, &Map::translateObjects, delta * -1, lockTextures);
 
             if (!entities.empty()) {
                 if (m_postNotifications) propertiesWillChange(entities);
@@ -417,70 +417,105 @@ namespace TrenchBroom {
             const vector<Face*>& faces = m_selection->faces();
             if (faces.empty()) return;
 
+            m_undoManager->begin("Set X Offset");
+            m_undoManager->addSnapshot(*this);
+            
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->setXOffset(xOffset);
             if (m_postNotifications) facesDidChange(faces);
+            
+            m_undoManager->end();
         }
 
         void Map::setYOffset(int yOffset) {
             const vector<Face*>& faces = m_selection->faces();
             if (faces.empty()) return;
 
+            m_undoManager->begin("Set Y Offset");
+            m_undoManager->addSnapshot(*this);
+
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->setYOffset(yOffset);
             if (m_postNotifications) facesDidChange(faces);
+
+            m_undoManager->end();
         }
 
-        void Map::translateFaces(float delta, const Vec3f& dir) {
+        void Map::translateFaces(float delta, const Vec3f dir) {
             const vector<Face*>& faces = m_selection->faces();
             if (faces.empty()) return;
+
+            m_undoManager->begin("Move Texture");
+            m_undoManager->addFunctor<float, const Vec3f>(*this, &Map::translateFaces, delta * -1, dir);
 
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->translateOffsets(delta, dir);
             if (m_postNotifications) facesDidChange(faces);
+
+            m_undoManager->end();
         }
 
         void Map::setRotation(float rotation) {
             const vector<Face*>& faces = m_selection->faces();
             if (faces.empty()) return;
 
+            m_undoManager->begin("Set Rotation");
+            m_undoManager->addSnapshot(*this);
+
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->setRotation(rotation);
             if (m_postNotifications) facesDidChange(faces);
+
+            m_undoManager->end();
         }
 
         void Map::rotateFaces(float angle) {
             const vector<Face*>& faces = m_selection->faces();
             if (faces.empty()) return;
 
+            m_undoManager->begin("Rotate Texture");
+            m_undoManager->addFunctor<float>(*this, &Map::rotateFaces, angle * -1);
+
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->rotateTexture(angle);
             if (m_postNotifications) facesDidChange(faces);
+            
+            m_undoManager->end();
         }
 
         void Map::setXScale(float xScale) {
             const vector<Face*>& faces = m_selection->faces();
             if (faces.empty()) return;
 
+            m_undoManager->begin("Set X Scale");
+            m_undoManager->addSnapshot(*this);
+            
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->setXScale(xScale);
             if (m_postNotifications) facesDidChange(faces);
+            
+            m_undoManager->end();
         }
 
         void Map::setYScale(float yScale) {
             const vector<Face*>& faces = m_selection->faces();
             if (faces.empty()) return;
 
+            m_undoManager->begin("Set Y Scale");
+            m_undoManager->addSnapshot(*this);
+            
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->setYScale(yScale);
             if (m_postNotifications) facesDidChange(faces);
+            
+            m_undoManager->end();
         }
 
         bool Map::deleteFaces() {

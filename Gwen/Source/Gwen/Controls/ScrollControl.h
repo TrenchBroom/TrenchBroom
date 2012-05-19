@@ -53,6 +53,8 @@ namespace Gwen
 				virtual void ScrollToRight();
 
 				virtual void Clear();
+            
+                virtual const Gwen::Rect& GetVisibleRect();
 
 			protected:
 

@@ -71,6 +71,24 @@ namespace TrenchBroom {
         return path.substr(0, sepPos);
     }
     
+    std::vector<std::string> pathComponents(const std::string& path) {
+        std::vector<std::string> components;
+        if (path.empty()) return components;
+        
+        size_t lastPos = 0;
+        size_t pos = 0;
+        while ((pos = path.find_first_of("/\\", pos)) != std::string::npos) {
+            if (pos > lastPos + 1)
+                components.push_back(path.substr(lastPos + 1, pos - lastPos - 1));
+            lastPos = pos;
+            pos++;
+        }
+        if (pos > lastPos + 1)
+            components.push_back(path.substr(lastPos + 1, pos - lastPos - 1));
+        
+        return components;
+    }
+
     std::string pathExtension(const std::string& path) {
         size_t pos = path.find_last_of('.');
         if (pos == std::string::npos) return "";

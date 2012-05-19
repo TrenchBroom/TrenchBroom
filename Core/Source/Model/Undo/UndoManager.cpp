@@ -20,6 +20,7 @@
 #include "UndoManager.h"
 
 #include <cassert>
+#include "Model/Undo/SnapshotUndoItem.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -107,6 +108,12 @@ namespace TrenchBroom {
             m_currentGroup->addItem(item);
         }
 
+        void UndoManager::addSnapshot(Map& map) {
+            assert(m_currentGroup != NULL);
+            SnapshotUndoItem* snapshotItem = new SnapshotUndoItem(map);
+            m_currentGroup->addItem(snapshotItem);
+        }
+        
         void UndoManager::end() {
             assert(m_currentGroup != NULL);
             

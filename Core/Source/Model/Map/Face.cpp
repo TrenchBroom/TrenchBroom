@@ -223,6 +223,24 @@ namespace TrenchBroom {
             restore(faceTemplate);
         }
         
+        Face::Face(const Face& face) : 
+            m_faceId(face.faceId()), 
+            m_boundary(face.boundary()), 
+            m_worldBounds(face.worldBounds()),
+            m_texture(face.texture()),
+            m_xOffset(face.xOffset()),
+            m_yOffset(face.yOffset()),
+            m_xScale(face.xScale()),
+            m_yScale(face.yScale()),
+            m_rotation(face.rotation()),
+            m_side(NULL),
+            m_texAxesValid(false),
+            m_filePosition(face.filePosition()),
+            m_selected(false),
+            m_vboBlock(NULL) {
+            face.points(m_points[0], m_points[1], m_points[2]);
+        }
+
         Face::~Face() {
             if (m_vboBlock != NULL)
                 m_vboBlock->freeBlock();
@@ -261,7 +279,7 @@ namespace TrenchBroom {
             point2 = m_points[1];
             point3 = m_points[2];
         }
-        
+
         void Face::updatePoints() {
             Vec3f v1, v2;
             

@@ -136,6 +136,8 @@
 		488E65B6156301F300B4E72A /* PositioningGuideFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */; };
 		488E65E51563C6A600B4E72A /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65E41563C6A600B4E72A /* Inspector.cpp */; };
 		488E65ED15641FA500B4E72A /* SingleTextureControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65EC15641FA400B4E72A /* SingleTextureControl.cpp */; };
+		48953FDF15679B92006DD2E3 /* SnapshotUndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48953FDE15679B92006DD2E3 /* SnapshotUndoItem.cpp */; };
+		48953FE21567CE9C006DD2E3 /* TextureBrowserControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48953FE11567CE9C006DD2E3 /* TextureBrowserControl.cpp */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
 		48B50E13152CF6E400E75402 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E12152CF6E400E75402 /* Cocoa.framework */; };
 		48B50E1D152CF6E400E75402 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 48B50E1B152CF6E400E75402 /* InfoPlist.strings */; };
@@ -445,6 +447,11 @@
 		488E65E41563C6A600B4E72A /* Inspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inspector.cpp; sourceTree = "<group>"; };
 		488E65EB15641E4400B4E72A /* SingleTextureControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTextureControl.h; sourceTree = "<group>"; };
 		488E65EC15641FA400B4E72A /* SingleTextureControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SingleTextureControl.cpp; sourceTree = "<group>"; };
+		48953FDC15679B7C006DD2E3 /* SnapshotUndoItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SnapshotUndoItem.h; sourceTree = "<group>"; };
+		48953FDE15679B92006DD2E3 /* SnapshotUndoItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SnapshotUndoItem.cpp; sourceTree = "<group>"; };
+		48953FE01567CE7A006DD2E3 /* TextureBrowserControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextureBrowserControl.h; sourceTree = "<group>"; };
+		48953FE11567CE9C006DD2E3 /* TextureBrowserControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowserControl.cpp; sourceTree = "<group>"; };
+		48953FE31567CFE2006DD2E3 /* CellLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CellLayout.h; sourceTree = "<group>"; };
 		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
 		48B50E0E152CF6E400E75402 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48B50E12152CF6E400E75402 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -523,6 +530,7 @@
 		4825B3CC153AE59F007E3AE1 /* GUI */ = {
 			isa = PBXGroup;
 			children = (
+				48953FE31567CFE2006DD2E3 /* CellLayout.h */,
 				4825B3CD153AE59F007E3AE1 /* EditorGui.cpp */,
 				4825B3CE153AE59F007E3AE1 /* EditorGui.h */,
 				488E65E41563C6A600B4E72A /* Inspector.cpp */,
@@ -533,6 +541,8 @@
 				488E65EB15641E4400B4E72A /* SingleTextureControl.h */,
 				4825B3D1153AE59F007E3AE1 /* Splitter.cpp */,
 				4825B3D2153AE59F007E3AE1 /* Splitter.h */,
+				48953FE01567CE7A006DD2E3 /* TextureBrowserControl.h */,
+				48953FE11567CE9C006DD2E3 /* TextureBrowserControl.cpp */,
 			);
 			name = GUI;
 			path = ../Core/Source/GUI;
@@ -911,8 +921,10 @@
 		485395E6155FB57C00636357 /* Undo */ = {
 			isa = PBXGroup;
 			children = (
-				485395E8155FB5ED00636357 /* InvocationUndoItem.h */,
 				485395E9155FB69300636357 /* InvocationUndoItem.cpp */,
+				485395E8155FB5ED00636357 /* InvocationUndoItem.h */,
+				48953FDE15679B92006DD2E3 /* SnapshotUndoItem.cpp */,
+				48953FDC15679B7C006DD2E3 /* SnapshotUndoItem.h */,
 				485395E7155FB59500636357 /* UndoItem.h */,
 				485395EB155FBD3F00636357 /* UndoItem.cpp */,
 				485395ED155FC15000636357 /* UndoManager.h */,
@@ -1229,6 +1241,8 @@
 				488E65ED15641FA500B4E72A /* SingleTextureControl.cpp in Sources */,
 				482EB2A41565B5210071206A /* MacFontManager.mm in Sources */,
 				482EB2A71566CC120071206A /* OpenGL_FTGL.cpp in Sources */,
+				48953FDF15679B92006DD2E3 /* SnapshotUndoItem.cpp in Sources */,
+				48953FE21567CE9C006DD2E3 /* TextureBrowserControl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -34,6 +34,7 @@ namespace TrenchBroom {
         public:
             SelectionTool(Editor& editor) : Tool(editor) {}
             
+            bool scrolled(ToolEvent& event);
             bool leftMouseUp(ToolEvent& event);
             bool beginLeftDrag(ToolEvent& event);
             void leftDrag(ToolEvent& event);

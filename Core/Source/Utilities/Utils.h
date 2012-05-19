@@ -30,6 +30,7 @@ namespace TrenchBroom {
     std::string appendPath(const std::string& prefix, const std::string& suffix);
     std::string appendExtension(const std::string& path, const std::string& ext);
     std::string deleteLastPathComponent(const std::string& path);
+    std::vector<std::string> pathComponents(const std::string& path);
     std::string pathExtension(const std::string& path);
     
     bool fileExists(const std::string& path);

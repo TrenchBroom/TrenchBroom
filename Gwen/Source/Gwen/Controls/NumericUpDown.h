@@ -50,7 +50,7 @@ namespace Gwen
             
             virtual void SetMin( float f );
             virtual void SetMax( float f );
-            virtual void SetValue( float f );
+            virtual void SetValue( float f, bool call );
             virtual float GetValue();
             virtual void SetIncrement( float f);
             virtual void SetHasValue( bool b );

@@ -81,6 +81,7 @@ namespace TrenchBroom {
             bool addFace(Face* face);
             bool canDeleteFace(Face& face);
             void deleteFace(Face& face);
+            void replaceFaces(const vector<Face*>& newFaces);
             
             void translate(const Vec3f& delta, bool lockTextures);
             void rotate90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures);

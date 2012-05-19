@@ -115,7 +115,7 @@ namespace TrenchBroom {
             
             void setXOffset(int xOffset);
             void setYOffset(int yOffset);
-            void translateFaces(float delta, const Vec3f& dir);
+            void translateFaces(float delta, const Vec3f dir);
             void setRotation(float rotation);
             void rotateFaces(float angle);
             void setXScale(float xScale);

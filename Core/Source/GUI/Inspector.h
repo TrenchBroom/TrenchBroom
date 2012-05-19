@@ -44,10 +44,12 @@ namespace TrenchBroom {
     
     namespace Gui {
         class SingleTextureControl;
+        class TextureBrowserControl;
         
         class Inspector : public Gwen::Controls::Base {
         private:
             Gwen::Controls::TabControl* m_sectionTabControl;
+            
             SingleTextureControl* m_textureView;
             Gwen::Controls::Label* m_textureLabel;
             Gwen::Controls::NumericUpDown* m_xOffsetControl;
@@ -55,6 +57,9 @@ namespace TrenchBroom {
             Gwen::Controls::NumericUpDown* m_xScaleControl;
             Gwen::Controls::NumericUpDown* m_yScaleControl;
             Gwen::Controls::NumericUpDown* m_rotationControl;
+            
+            TextureBrowserControl* m_textureBrowser;
+            
             Controller::Editor& m_editor;
         protected:
             void updateNumericControl(Gwen::Controls::NumericUpDown* control, bool disabled, bool multi, float value);
