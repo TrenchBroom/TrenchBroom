@@ -37,7 +37,7 @@ namespace TrenchBroom {
         }
 
         void TextRenderer::addString(int key, const string& str, const FontDescriptor& descriptor, AnchorPtr anchor) {
-            FTGL::FTGLfont* font = m_fontManager.font(descriptor);
+            FontPtr font = m_fontManager.font(descriptor);
             addString(key, TextEntry(str, font, descriptor, anchor));
         }
         
@@ -89,9 +89,8 @@ namespace TrenchBroom {
                 if (dist2 <= cutoff) {
                     float dist = sqrt(dist2);
                     float factor = dist / 300;
-                    float bbox[6];
-                    FTGL::ftglGetFontBBox(entry.font, entry.text.c_str(), entry.text.length(), bbox);
-                    float width = bbox[3] - bbox[0];
+                    FTBBox bounds = entry.font->BBox(entry.text.c_str());
+                    float width = bounds.Upper().Xf() - bounds.Lower().Xf();
                     
                     glPushMatrix();
                     glTranslatef(position.x, position.y, position.z);
@@ -106,7 +105,7 @@ namespace TrenchBroom {
                     
                     glSetEdgeOffset(0.5f);
                     glColorV4f(color, alphaFactor);
-                    FTGL::ftglRenderFont(entry.font, entry.text.c_str(), FTGL::RENDER_ALL);
+                    entry.font->Render(entry.text.c_str());
                     glResetEdgeOffset();
                     glPopMatrix();
                 }

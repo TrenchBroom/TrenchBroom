@@ -9,6 +9,7 @@
 
 #include "Gwen/Gwen.h"
 #include "Gwen/Renderers/OpenGL.h"
+#include "Utilities/SharedPointer.h"
 #include "FTGL/ftgl.h"
 #include <map>
 
@@ -26,13 +27,15 @@ namespace Gwen
         
         bool operator<(FontDescriptor const& left, FontDescriptor const& right);
 
+        typedef std::tr1::shared_ptr<FTFont> FontPtr;
+
 		class OpenGL_FTGL : public Gwen::Renderer::OpenGL
 		{
         protected:
-            typedef std::map<FontDescriptor, FTGL::FTGLfont*> FontCache;
+            typedef std::map<FontDescriptor, FontPtr> FontCache;
             FontCache m_fontCache;
             String resolveFontPath(Gwen::Font* pFont);
-            FTGL::FTGLfont* loadFont(Gwen::Font* pFont);
+            FontPtr loadFont(Gwen::Font* pFont);
         public:
             
             OpenGL_FTGL();

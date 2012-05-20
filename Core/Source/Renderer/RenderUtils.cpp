@@ -45,14 +45,13 @@ namespace TrenchBroom {
             glDepthRange(EdgeOffset, 1.0);
         }
 
-        void renderTextBackground(const std::string& text, FTGL::FTGLfont* font, float hPadding, float vPadding) {
-            float bbox[6];
-            FTGL::ftglGetFontBBox(font, text.c_str(), text.length(), bbox);
+        void renderTextBackground(const std::string& text, FontPtr font, float hPadding, float vPadding) {
+            FTBBox bounds = font->BBox(text.c_str());
             glBegin(GL_QUADS);
-            glVertex3f(bbox[0] - hPadding, bbox[1] - vPadding, 0);
-            glVertex3f(bbox[3] + hPadding, bbox[1] - vPadding, 0);
-            glVertex3f(bbox[3] + hPadding, bbox[4] + vPadding, 0);
-            glVertex3f(bbox[0] - hPadding, bbox[4] + vPadding, 0);
+            glVertex3f(bounds.Lower().Xf() - hPadding, bounds.Lower().Yf() - vPadding, 0);
+            glVertex3f(bounds.Upper().Xf() + hPadding, bounds.Lower().Yf() - vPadding, 0);
+            glVertex3f(bounds.Upper().Xf() + hPadding, bounds.Upper().Yf() + vPadding, 0);
+            glVertex3f(bounds.Lower().Xf() - hPadding, bounds.Upper().Yf() + vPadding, 0);
             glEnd();
         }
     }

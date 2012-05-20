@@ -389,7 +389,7 @@ namespace TrenchBroom {
             }
             
             void setFixedCellWidth(float fixedCellWidth) {
-                if (m_fixedCellWidth = fixedCellWidth)
+                if (m_fixedCellWidth == fixedCellWidth)
                     return;
                 m_fixedCellWidth = fixedCellWidth;
                 invalidate();

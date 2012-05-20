@@ -36,14 +36,16 @@ namespace TrenchBroom {
             clear();
         }
 
-        FTGL::FTGLfont* FontManager::font(const FontDescriptor& fontDescriptor) {
+        FontPtr FontManager::font(const FontDescriptor& fontDescriptor) {
             FontCache::iterator it = m_fontCache.find(fontDescriptor);
             if (it == m_fontCache.end()) {
                 std::string fontPath = resolveFont(fontDescriptor.name);
-                FTGL::FTGLfont* font = FTGL::ftglCreateTextureFont(fontPath.c_str());
-                FTGL::ftglSetFontFaceSize(font, fontDescriptor.size, 72);
-                m_fontCache[fontDescriptor] = font;
-                return font;
+                FTFont* font = new FTTextureFont(fontPath.c_str());
+                font->FaceSize(fontDescriptor.size);
+                font->UseDisplayList(true);
+                FontPtr fontPtr(font);
+                m_fontCache[fontDescriptor] = fontPtr;
+                return fontPtr;
             } else {
                 return it->second;
             }
@@ -51,10 +53,7 @@ namespace TrenchBroom {
         }
 
         void FontManager::clear() {
-            FontCache::iterator it;
-            for (it = m_fontCache.begin(); it != m_fontCache.end(); ++it) {
-                FTGL::ftglDestroyFont(it->second);
-            }
+            m_fontCache.clear();
         }
     }
 }

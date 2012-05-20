@@ -37,16 +37,18 @@ namespace TrenchBroom {
 
         bool operator<(FontDescriptor const& left, FontDescriptor const& right);
 
+        typedef std::tr1::shared_ptr<FTFont> FontPtr;
+
         class FontManager {
         private:
-            typedef std::map<FontDescriptor, FTGL::FTGLfont*> FontCache;
+            typedef std::map<FontDescriptor, FontPtr> FontCache;
             FontCache m_fontCache;
         protected:
             virtual std::string resolveFont(const std::string& fontName) = 0;
         public:
             FontManager();
             virtual ~FontManager();
-            FTGL::FTGLfont* font(const FontDescriptor& fontDescriptor);
+            FontPtr font(const FontDescriptor& fontDescriptor);
             void clear();
         };
     }

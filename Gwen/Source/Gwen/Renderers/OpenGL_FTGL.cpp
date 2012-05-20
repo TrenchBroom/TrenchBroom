@@ -20,11 +20,7 @@ namespace Gwen {
 
         OpenGL_FTGL::OpenGL_FTGL() {}
         
-        OpenGL_FTGL::~OpenGL_FTGL() {
-            for (FontCache::iterator it = m_fontCache.begin(); it != m_fontCache.end(); ++it)
-                FTGL::ftglDestroyFont(it->second);
-            m_fontCache.clear();
-        }
+        OpenGL_FTGL::~OpenGL_FTGL() {}
         
         String OpenGL_FTGL::resolveFontPath(Gwen::Font* pFont) {
             String extensions[2] = {".ttf", "ttc"};
@@ -45,41 +41,41 @@ namespace Gwen {
             return "/System/Library/Fonts/LucidaGrande.ttc";
         }
 
-        FTGL::FTGLfont* OpenGL_FTGL::loadFont(Gwen::Font* pFont) {
+        FontPtr OpenGL_FTGL::loadFont(Gwen::Font* pFont) {
             FontDescriptor descriptor(pFont->facename, pFont->size);
             FontCache::iterator it = m_fontCache.find(descriptor);
             if (it == m_fontCache.end()) {
                 String fontPath = resolveFontPath(pFont);
-                FTGL::FTGLfont* ftglFont = FTGL::ftglCreatePixmapFont(fontPath.c_str());
-                FTGL::ftglSetFontFaceSize(ftglFont, pFont->size, 72);
-                m_fontCache[descriptor] = ftglFont;
-                return ftglFont;
+                FTFont* font = new FTPixmapFont(fontPath.c_str());
+                font->FaceSize(static_cast<int>(pFont->size));
+                FontPtr fontPtr(font);
+                m_fontCache[descriptor] = fontPtr;
+                return fontPtr;
             } else {
                 return it->second;
             }
         }
 
         void OpenGL_FTGL::RenderText( Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text ) {
-            FTGL::FTGLfont* ftglFont = loadFont(pFont);
+            FontPtr renderFont = loadFont(pFont);
 			Gwen::String convertedText = Gwen::Utility::UnicodeToString( text );
             
-            float bbox[6];
-            FTGL::ftglGetFontBBox(ftglFont, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 52, bbox);
-            int height = static_cast<int>(ceilf(bbox[4]));
+            FTBBox bounds = renderFont->BBox("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+            int height = static_cast<int>(ceilf(bounds.Upper().Yf()));
 
             glRasterPos2f(pos.x + m_RenderOffset.x - 1, pos.y + m_RenderOffset.y + height);
-            FTGL::ftglRenderFont(ftglFont, convertedText.c_str(), FTGL::RENDER_ALL);
+            renderFont->Render(convertedText.c_str());
         }
         
         Gwen::Point OpenGL_FTGL::MeasureText( Gwen::Font* pFont, const Gwen::UnicodeString& text ) {
+            FontPtr renderFont = loadFont(pFont);
 			Gwen::String convertedText = Gwen::Utility::UnicodeToString( text );
-            FTGL::FTGLfont* ftglFont = loadFont(pFont);
 
-            float bbox[6];
-            FTGL::ftglGetFontBBox(ftglFont, convertedText.c_str(), convertedText.length(), bbox);
-            int length = static_cast<int>((bbox[3] - bbox[0]))+2;
-            FTGL::ftglGetFontBBox(ftglFont, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 52, bbox);
-            int height = static_cast<int>(ceilf(bbox[4] - bbox[1]));
+            FTBBox lBounds = renderFont->BBox(convertedText.c_str());
+            FTBBox hBounds = renderFont->BBox("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+            int length = static_cast<int>(ceilf(lBounds.Upper().Xf() - lBounds.Lower().Xf()));
+            int height = static_cast<int>(ceilf(hBounds.Upper().Yf() - hBounds.Lower().Yf()));
+            
             return Gwen::Point(length, height);
         }
     }

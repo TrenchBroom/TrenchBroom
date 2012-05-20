@@ -43,11 +43,11 @@ namespace TrenchBroom {
         class TextEntry {
         public:
             std::string text;
-            FTGL::FTGLfont* font;
+            FontPtr font;
             FontDescriptor descriptor;
             AnchorPtr anchor;
             TextEntry() {}
-            TextEntry(const std::string& text, FTGL::FTGLfont* font, const FontDescriptor& descriptor, AnchorPtr anchor) : text(text), font(font), descriptor(descriptor), anchor(anchor) {}
+            TextEntry(const std::string& text, FontPtr font, const FontDescriptor& descriptor, AnchorPtr anchor) : text(text), font(font), descriptor(descriptor), anchor(anchor) {}
         };
         
         class TextRenderer {
