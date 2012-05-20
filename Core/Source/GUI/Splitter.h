@@ -21,20 +21,22 @@
 #ifndef TrenchBroom_Splitter_h
 #define TrenchBroom_Splitter_h
 
-#include "Gwen/Gwen.h"
 #include "Gwen/Controls/Base.h"
-#include "Gwen/Controls/SplitterBar.h"
 
-using namespace Gwen;
+namespace Gwen {
+    namespace Controls {
+        class SplitterBar;
+    }
+}
 
 namespace TrenchBroom 
 {
 	namespace Gui
 	{
-		class Splitter : public Controls::Base {
+		class Splitter : public Gwen::Controls::Base {
         private:
-            Controls::SplitterBar* m_splitter;
-            Controls::Base* m_sections[2];
+            Gwen::Controls::SplitterBar* m_splitter;
+            Gwen::Controls::Base* m_sections[2];
             
             bool m_horizontal;
             float m_balance;
@@ -49,17 +51,17 @@ namespace TrenchBroom
             Gwen::Event::Caller	onUnZoomed;
             Gwen::Event::Caller	onZoomChange;
         public:
-            Splitter(Controls::Base* parent, bool horizontal, int initialPosition);
+            Splitter(Gwen::Controls::Base* parent, bool horizontal, int initialPosition);
             
-            void Layout( Skin::Base* skin );
+            void Layout(Gwen::Skin::Base* skin);
             
             virtual float CalculateBalance();
             virtual void UpdateSplitter();
-            virtual void OnSplitterMoved(Controls::Base * control);
+            virtual void OnSplitterMoved(Gwen::Controls::Base * control);
             virtual void OnBoundsChanged(Gwen::Rect oldBounds);
             
-            virtual void SetPanel(int index, Controls::Base* pPanel);
-            virtual Controls::Base* GetPanel(int index);
+            virtual void SetPanel(int index, Gwen::Controls::Base* pPanel);
+            virtual Gwen::Controls::Base* GetPanel(int index);
             
             virtual void SetMinSize(int index, int minSize);
             virtual void SetMaxSize(int index, int maxSize);
@@ -71,8 +73,8 @@ namespace TrenchBroom
             virtual void ZoomChanged();
             virtual void CenterPanels() { m_balance = 0.5f; }
             
-            virtual void SetSplitterVisible(bool b){ m_splitter->SetShouldDrawBackground( b ); }
-            virtual void SetSplitterSize(int size) { m_barSize = size; }
+            virtual void SetSplitterVisible(bool b);
+            virtual void SetSplitterSize(int size);
 		};
 	}
 }

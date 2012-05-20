@@ -26,8 +26,7 @@
 #import "Editor.h"
 #import "EditorHolder.h"
 #import "MapDocument.h"
-#import "FontManager.h"
-#import "MacStringFactory.h"
+#import "MacFontManager.h"
 
 using namespace TrenchBroom;
 using namespace TrenchBroom::Gui;
@@ -160,10 +159,8 @@ using namespace TrenchBroom::Renderer;
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
-    if (fontManager == NULL) {
-        MacStringFactory* stringFactory = new MacStringFactory();
-        fontManager = new FontManager(*stringFactory);
-    }
+    if (fontManager == NULL)
+        fontManager = new MacFontManager();
     
     if (editorGui == NULL) {
         NSString* skinPath = [[NSBundle mainBundle] pathForResource:@"DefaultSkin" ofType:@"png"];
@@ -254,7 +251,8 @@ using namespace TrenchBroom::Renderer;
 
 - (void)mouseMoved:(NSEvent *)theEvent {
     NSPoint pos = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseMoved(pos.x, pos.y, theEvent.deltaX, theEvent.deltaY);
+    pos.y = [self visibleRect].size.height - pos.y;
+    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseMoved(pos.x, pos.y, theEvent.deltaX, -theEvent.deltaY);
 }
 
 @end

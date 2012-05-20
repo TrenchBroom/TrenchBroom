@@ -73,7 +73,7 @@ namespace Gwen
 				virtual void DrawShavedCornerRect( Gwen::Rect rect, bool bSlight = false );
 				virtual Gwen::Point MeasureText( Gwen::Font* pFont, const Gwen::String& text );
 				virtual void RenderText( Gwen::Font* pFont, Gwen::Point pos, const Gwen::String& text );
-
+                virtual void Flush() {}
 			public:
 
 				//
@@ -91,7 +91,7 @@ namespace Gwen
 				void AddRenderOffset( const Gwen::Rect& offset ){ m_RenderOffset.x += offset.x; m_RenderOffset.y += offset.y; }
 				const Gwen::Point& GetRenderOffset() const { return m_RenderOffset; }
 
-			private:
+			protected:
 
 				Gwen::Point m_RenderOffset;
 

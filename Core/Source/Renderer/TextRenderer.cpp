@@ -25,9 +25,9 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        void TextRenderer::addString(int key, StringRendererPtr stringRenderer, AnchorPtr anchor) {
+        void TextRenderer::addString(int key, const TextEntry& entry) {
             removeString(key);
-            m_entries[key] = TextEntry(stringRenderer, anchor);
+            m_entries[key] = entry;
         }
 
         TextRenderer::TextRenderer(FontManager& fontManager, float fadeDistance) : m_fontManager(fontManager), m_fadeDistance(fadeDistance) {}
@@ -37,30 +37,26 @@ namespace TrenchBroom {
         }
 
         void TextRenderer::addString(int key, const string& str, const FontDescriptor& descriptor, AnchorPtr anchor) {
-            StringRendererPtr stringRenderer = m_fontManager.createStringRenderer(descriptor, str);
-            addString(key, stringRenderer, anchor);
+            FTGL::FTGLfont* font = m_fontManager.font(descriptor);
+            addString(key, TextEntry(str, font, descriptor, anchor));
         }
         
         void TextRenderer::removeString(int key) {
             TextMap::iterator textIt = m_entries.find(key);
-            if (textIt != m_entries.end()) {
-                m_fontManager.destroyStringRenderer(textIt->second.first);
+            if (textIt != m_entries.end())
                 m_entries.erase(textIt);
-            }
         }
         
         void TextRenderer::transferString(int key, TextRenderer& destination) {
             TextMap::iterator textIt = m_entries.find(key);
             if (textIt != m_entries.end()) {
-                destination.addString(key, textIt->second.first, textIt->second.second);
+                TextEntry& entry = textIt->second;
+                destination.addString(key, entry.text, entry.descriptor, entry.anchor);
                 m_entries.erase(textIt);
             }
         }
         
         void TextRenderer::clear() {
-            TextMap::iterator textIt;
-            for (textIt = m_entries.begin(); textIt != m_entries.end(); ++textIt)
-                m_fontManager.destroyStringRenderer(textIt->second.first);
             m_entries.clear();
         }
         
@@ -69,21 +65,33 @@ namespace TrenchBroom {
         }
 
         void TextRenderer::render(RenderContext& context, const Vec4f& color) {
-            glDisable(GL_TEXTURE_2D);
+            glPushAttrib(GL_TEXTURE_BIT);
+            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+            
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PRIMARY_COLOR);
+            glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+            
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+            
+            glFrontFace(GL_CCW);
             glPolygonMode(GL_FRONT, GL_FILL);
             float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
 
             TextMap::iterator textIt;
             for (textIt = m_entries.begin(); textIt != m_entries.end(); ++textIt) {
-                StringRendererPtr renderer = textIt->second.first;
-                AnchorPtr anchor = textIt->second.second;
-                const Vec3f& position = anchor->position();
-
+                TextEntry& entry = textIt->second;
+                const Vec3f& position = entry.anchor->position();
+                
                 float dist2 = context.camera.squaredDistanceTo(position);
                 if (dist2 <= cutoff) {
                     float dist = sqrt(dist2);
                     float factor = dist / 300;
-                    float width = renderer->width;
+                    float bbox[6];
+                    FTGL::ftglGetFontBBox(entry.font, entry.text.c_str(), entry.text.length(), bbox);
+                    float width = bbox[3] - bbox[0];
                     
                     glPushMatrix();
                     glTranslatef(position.x, position.y, position.z);
@@ -94,15 +102,17 @@ namespace TrenchBroom {
                     float alphaFactor = 1 - Math::fmax((dist - m_fadeDistance), 0) / 100;
 
                     glColor4f(0, 0, 0, 0.6f * alphaFactor);
-                    renderer->renderBackground(2, 1);
+                    renderTextBackground(entry.text, entry.font, 2, 1);
                     
                     glSetEdgeOffset(0.5f);
                     glColorV4f(color, alphaFactor);
-                    renderer->render();
+                    FTGL::ftglRenderFont(entry.font, entry.text.c_str(), FTGL::RENDER_ALL);
                     glResetEdgeOffset();
                     glPopMatrix();
                 }
             }
+            glPopAttrib();
+            glFrontFace(GL_CW);
         }
     }
 }

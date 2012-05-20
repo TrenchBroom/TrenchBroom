@@ -180,6 +180,10 @@ namespace TrenchBroom {
             return *m_palette;
         }
         
+        Model::Assets::TextureManager& Editor::textureManager() {
+            return *m_textureManager;
+        }
+
         void Editor::setRenderer(Renderer::MapRenderer* renderer) {
             m_renderer = renderer;
         }

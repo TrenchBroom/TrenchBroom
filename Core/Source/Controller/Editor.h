@@ -75,6 +75,7 @@ namespace TrenchBroom {
             TransientOptions& options();
             Filter& filter();
             Model::Assets::Palette& palette();
+            Model::Assets::TextureManager& textureManager();
             
             void setRenderer(Renderer::MapRenderer* renderer);
             Renderer::MapRenderer* renderer();

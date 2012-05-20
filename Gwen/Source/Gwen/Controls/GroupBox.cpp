@@ -18,6 +18,7 @@ GWEN_CONTROL_CONSTRUCTOR( GroupBox )
 	// can't get it without us..
 	SetMouseInputEnabled( true );
 
+    Base::SetPadding(Padding(0, 0, 0, 0));
 	SetTextPadding( Padding( 10, 0, 0, 0 ) );
 
 	SetAlignment( Pos::Top | Pos::Left );
@@ -28,9 +29,13 @@ GWEN_CONTROL_CONSTRUCTOR( GroupBox )
 	
 }
 
+void GroupBox::SetPadding( const Gwen::Padding& padding ) {
+    m_myPadding = padding;
+}
+
 void GroupBox::Layout( Skin::Base* skin )
 {
-	m_InnerPanel->SetMargin( Margin( TextHeight() + 3, 6, 6, 6 ) );
+	m_InnerPanel->SetMargin( Margin( m_myPadding.left, m_myPadding.top + TextHeight(), m_myPadding.right, m_myPadding.bottom ) );
 
 	BaseClass::Layout( skin );
 }

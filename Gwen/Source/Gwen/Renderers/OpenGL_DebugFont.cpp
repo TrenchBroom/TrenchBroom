@@ -9,7 +9,6 @@
 
 #include "FontData.h"
 
-
 namespace Gwen
 {
 	namespace Renderer

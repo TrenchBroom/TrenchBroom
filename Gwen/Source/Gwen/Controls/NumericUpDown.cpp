@@ -38,56 +38,66 @@ GWEN_CONTROL_CONSTRUCTOR( NumericUpDown )
 
 		pSplitter->SetPanel( 1, pButtonDown, false );
 
-	m_iMax = 100;
-	m_iMin = 0;
-	m_iNumber = 0;
-	SetText( "0" );
+	m_fMax = std::numeric_limits<float>::max();
+	m_fMin = -std::numeric_limits<float>::max();
+	m_fNumber = 0;
+    m_fIncrement = 1;
+    m_bHasValue = false;
+	SetText( "");
 }
 
 void NumericUpDown::OnButtonUp( Base* /*control*/ )
 {
+    if (!m_bHasValue) return;
 	SyncNumberFromText();
-	SetValue( m_iNumber + 1 );
+	SetValue( m_fNumber + m_fIncrement, true );
 }
 
 void NumericUpDown::OnButtonDown( Base* /*control*/ )
 {
 	SyncNumberFromText();
-	SetValue( m_iNumber - 1 );
+	SetValue( m_fNumber - m_fIncrement, true );
 }
 
 
 void NumericUpDown::SyncTextFromNumber()
 {
-	SetText( Utility::ToString( m_iNumber ) );
+    if (!m_bHasValue) {
+        SetText( "" );
+    } else {
+        SetText( Utility::ToString( m_fNumber ) );
+    }
 }
 
 void NumericUpDown::SyncNumberFromText()
 {
-	SetValue( (int) GetFloatFromText() );
+    m_bHasValue = IsTextAllowed(GetText(), 0);
+    if (m_bHasValue)
+        SetValue( GetFloatFromText(), true );
 }
 
-void NumericUpDown::SetMin( int i )
+void NumericUpDown::SetMin( float f )
 {
-	m_iMin = i;
+	m_fMin = f;
 }
 
-void NumericUpDown::SetMax( int i )
+void NumericUpDown::SetMax( float f )
 {
-	m_iMax = i;
+	m_fMax = f;
 }
 
-void NumericUpDown::SetValue( int i )
+void NumericUpDown::SetValue( float f, bool call )
 {
-	if ( i > m_iMax ) i = m_iMax;
-	if ( i < m_iMin ) i = m_iMin;
+	if ( f > m_fMax ) f = m_fMax;
+	if ( f < m_fMin ) f = m_fMin;
 
-	if ( m_iNumber == i )
+	if ( m_fNumber == f )
 	{		
 		return;
 	}
 
-	m_iNumber = i;
+	m_fNumber = f;
+    m_bHasValue = true;
 
 	// Don't update the text if we're typing in it..
 	// Undone - any reason why not?
@@ -96,12 +106,31 @@ void NumericUpDown::SetValue( int i )
 		SyncTextFromNumber();
 	}
 
-	OnChange();
+    if (call)
+        OnChange();
+}
+
+float NumericUpDown::GetValue() {
+    if (!m_bHasValue)
+        return std::numeric_limits<float>::quiet_NaN();
+    return m_fNumber;
+}
+
+void NumericUpDown::SetIncrement( float f )
+{
+    m_fIncrement = f;
+}
+
+void NumericUpDown::SetHasValue( bool b ) {
+    if (m_bHasValue == b) return;
+    m_bHasValue = b;
+    SyncTextFromNumber();
 }
 
 void NumericUpDown::OnChange()
 {
-	onChanged.Call( this );
+    if (m_bHasValue)
+        onChanged.Call( this );
 }
 
 void NumericUpDown::OnTextChanged()
@@ -116,3 +145,4 @@ void NumericUpDown::OnEnter()
 	SyncNumberFromText();
 	SyncTextFromNumber();
 }
+

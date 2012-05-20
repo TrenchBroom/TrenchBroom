@@ -18,12 +18,13 @@
  */
 
 #include "Splitter.h"
+#include "Gwen/Controls/SplitterBar.h"
 #include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace Gui {
-        Splitter::Splitter(Controls::Base* parent, bool horizontal, int initialPosition) : Base(parent), m_horizontal(horizontal), m_initialPosition(initialPosition) {
-            m_splitter = new Controls::SplitterBar(this);
+        Splitter::Splitter(Gwen::Controls::Base* parent, bool horizontal, int initialPosition) : Base(parent), m_horizontal(horizontal), m_initialPosition(initialPosition) {
+            m_splitter = new Gwen::Controls::SplitterBar(this);
             m_splitter->onDragged.Add(this, &Splitter::OnSplitterMoved);
             if (m_horizontal)
                 m_splitter->SetCursor(Gwen::CursorType::SizeWE);
@@ -48,7 +49,7 @@ namespace TrenchBroom {
             else m_splitter->MoveTo(m_splitter->X(), (Height() - m_splitter->Height()) * m_balance);
         }
         
-        void Splitter::OnSplitterMoved(Controls::Base *control) {
+        void Splitter::OnSplitterMoved(Gwen::Controls::Base *control) {
             m_balance = CalculateBalance();
             Invalidate();
         }
@@ -80,7 +81,7 @@ namespace TrenchBroom {
             return m_splitter->Y() / static_cast<float>(Height() - m_splitter->Height());
         }
         
-        void Splitter::Layout(Skin::Base* /*skin*/) {
+        void Splitter::Layout(Gwen::Skin::Base* /*skin*/) {
             if (m_horizontal) m_splitter->SetSize(m_barSize, Height());
             else m_splitter->SetSize(Width(), m_barSize);
 
@@ -135,22 +136,22 @@ namespace TrenchBroom {
             }
         }
         
-        void Splitter::SetPanel(int index, Controls::Base* panel) {
-            Debug::AssertCheck(index >= 0 && index < 2, "Splitter::SetPanel out of range");
+        void Splitter::SetPanel(int index, Gwen::Controls::Base* panel) {
+            Gwen::Debug::AssertCheck(index >= 0 && index < 2, "Splitter::SetPanel out of range");
             m_sections[index] = panel;
             if (panel) {
-                panel->Dock(Pos::None);
+                panel->Dock(Gwen::Pos::None);
                 panel->SetParent(this);
             }
             Invalidate();
         }
         
-        Controls::Base* Splitter::GetPanel(int index) {
+        Gwen::Controls::Base* Splitter::GetPanel(int index) {
             return m_sections[index];
         }
         
         void Splitter::SetMinSize(int index, int minSize) {
-            Debug::AssertCheck(index >= 0 && index < 2, "Splitter::SetMinSize out of range");
+            Gwen::Debug::AssertCheck(index >= 0 && index < 2, "Splitter::SetMinSize out of range");
             if (m_minSize[index] == minSize)
                 return;
             m_minSize[index] = minSize;
@@ -158,7 +159,7 @@ namespace TrenchBroom {
         }
         
         void Splitter::SetMaxSize(int index, int maxSize) {
-            Debug::AssertCheck(index >= 0 && index < 2, "Splitter::SetMaxSize out of range");
+            Gwen::Debug::AssertCheck(index >= 0 && index < 2, "Splitter::SetMaxSize out of range");
             if (m_maxSize[index] == maxSize)
                 return;
             m_maxSize[index] = maxSize;
@@ -166,7 +167,7 @@ namespace TrenchBroom {
         }
         
         void Splitter::SetResize(int index, bool resize) {
-            Debug::AssertCheck(index >= 0 && index < 2, "Splitter::SetResize out of range");
+            Gwen::Debug::AssertCheck(index >= 0 && index < 2, "Splitter::SetResize out of range");
             if (m_resize[index] == resize)
                 return;
             m_resize[index] = resize;
@@ -194,6 +195,14 @@ namespace TrenchBroom {
                 if (m_sections[i] != NULL) m_sections[i]->SetHidden(false);
             Invalidate();
             ZoomChanged();
+        }
+
+        void Splitter::SetSplitterVisible(bool b) {
+            m_splitter->SetShouldDrawBackground( b );
+        }
+        
+        void Splitter::SetSplitterSize(int size) {
+            m_barSize = size;
         }
     }
 }

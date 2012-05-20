@@ -20,12 +20,12 @@
 #ifndef TrenchBroom_TextRenderer_h
 #define TrenchBroom_TextRenderer_h
 
+#include <string>
 #include <map>
 #include "Utilities/VecMath.h"
 #include "Renderer/FontManager.h"
 #include "Utilities/SharedPointer.h"
-
-using namespace std;
+#include "FTGL/ftgl.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -34,22 +34,32 @@ namespace TrenchBroom {
         class FontDescriptor;
         class StringRenderer;
         
+        class Anchor {
+        public:
+            virtual const Vec3f& position() = 0;
+        };
+        typedef tr1::shared_ptr<Anchor> AnchorPtr;
+
+        class TextEntry {
+        public:
+            std::string text;
+            FTGL::FTGLfont* font;
+            FontDescriptor descriptor;
+            AnchorPtr anchor;
+            TextEntry() {}
+            TextEntry(const std::string& text, FTGL::FTGLfont* font, const FontDescriptor& descriptor, AnchorPtr anchor) : text(text), font(font), descriptor(descriptor), anchor(anchor) {}
+        };
+        
         class TextRenderer {
         public:
-            class Anchor {
-            public:
-                virtual const Vec3f& position() = 0;
-            };
-            typedef tr1::shared_ptr<Anchor> AnchorPtr;
         private:
-            typedef pair<StringRendererPtr, AnchorPtr> TextEntry;
-            typedef map<int, TextEntry> TextMap;
+            typedef std::map<int, TextEntry> TextMap;
             
             float m_fadeDistance;
             FontManager& m_fontManager;
             TextMap m_entries;
             
-            void addString(int key, StringRendererPtr stringRenderer, AnchorPtr anchor);
+            void addString(int key, const TextEntry& entry);
         public:
             TextRenderer(FontManager& fontManager, float fadeDistance);
             ~TextRenderer();

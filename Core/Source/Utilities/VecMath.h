@@ -84,6 +84,14 @@ namespace Math {
     inline float fmax(float f1, float f2) {
         return f1 < f2 ? f2 : f1;
     }
+    
+    inline int imin(int i1, int i2) {
+        return i1 < i2 ? i1 : i2;
+    }
+
+    inline int imax(int i1, int i2) {
+        return i1 < i2 ? i2 : i1;
+    }
 }
     
 using namespace std;

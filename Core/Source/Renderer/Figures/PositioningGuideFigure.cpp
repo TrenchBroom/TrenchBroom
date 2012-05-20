@@ -31,7 +31,7 @@ namespace TrenchBroom {
 
             glColorV4f(color, 0.2f * color.w);
             glVertexV3f(anchor - outerOffset);
-            glColorV4f(color);
+            glColorV4f(color, 0.6f * color.w);
             glVertexV3f(anchor - innerOffset);
             glVertexV3f(anchor - innerOffset);
             glVertexV3f(anchor + innerOffset);
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             renderLine(context, color, v, size.y, YAxisPos);
 
             v = m_bounds.min;
-            v.z += size.y / 2;
+            v.z += size.z / 2;
             renderLine(context, color, v, size.z, ZAxisPos);
             v.x += size.x;
             renderLine(context, color, v, size.z, ZAxisPos);
@@ -84,9 +84,6 @@ namespace TrenchBroom {
         }
         
         void PositioningGuideFigure::render(RenderContext& context) {
-            glDisable(GL_DEPTH_TEST);
-            glColorV4f(m_hiddenColor);
-            renderGuides(context, m_hiddenColor);
             glEnable(GL_DEPTH_TEST);
             glColorV4f(m_color);
             renderGuides(context, m_color);

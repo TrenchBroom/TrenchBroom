@@ -67,6 +67,16 @@ namespace TrenchBroom {
             return m_position + m_direction * 256;
         }
         
+        const Vec3f Camera::project(const Vec3f& point) const {
+            GLdouble objX, objY, objZ, winX, winY, winZ;
+            objX = static_cast<GLdouble>(point.x);
+            objY = static_cast<GLdouble>(point.y);
+            objZ = static_cast<GLdouble>(point.z);
+            
+            gluProject(objX, objY, objZ, m_modelview, m_projection, m_viewport, &winX, &winY, &winZ);
+            return Vec3f(static_cast<float>(winX), static_cast<float>(winY), static_cast<float>(winZ));
+        }
+
         const Vec3f Camera::unproject(float x, float y, float depth) const {
             GLdouble rx, ry, rz;
             gluUnProject(x, y, depth, m_modelview, m_projection, m_viewport, &rx, &ry, &rz);

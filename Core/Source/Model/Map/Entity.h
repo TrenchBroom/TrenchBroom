@@ -98,7 +98,7 @@ namespace TrenchBroom {
             void setProperty(const string& key, const Vec3f& value, bool round);
             void setProperty(const string& key, int value);
             void setProperty(const string& key, float value, bool round);
-            void setProperties(map<string, string> properties, bool replace);
+            void setProperties(const map<string, string>& properties, bool replace);
             void deleteProperty(const string& key);
             
             const string* classname() const;

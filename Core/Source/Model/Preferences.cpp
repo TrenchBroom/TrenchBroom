@@ -68,7 +68,7 @@ namespace TrenchBroom {
             m_selectedInfoOverlayColor = Vec4f(1, 0, 0, 1);
             m_selectedInfoOverlayFadeDistance = 2000;
             
-            m_rendererFontName = "Helvetica";
+            m_rendererFontName = "Arial.ttf";
             m_rendererFontSize = 11;
             
             m_gridAlpha = 0.15f;

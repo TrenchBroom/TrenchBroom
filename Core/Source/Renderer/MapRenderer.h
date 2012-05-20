@@ -100,7 +100,6 @@ namespace TrenchBroom {
 
             // selection guides
             BBox m_selectionBounds;
-            StringRendererPtr m_guideStrings[3];
 
             // figures
             std::vector<Figure*> m_figures;
@@ -128,7 +127,6 @@ namespace TrenchBroom {
             void writeFaceVertices(RenderContext& context, Model::Face& face, VboBlock& block);
             void writeFaceIndices(RenderContext& context, Model::Face& face, IndexBuffer& triangleBuffer, IndexBuffer& edgeBuffer);
             void writeEntityBounds(RenderContext& context, Model::Entity& entity, VboBlock& block);
-            void updateSelectionBounds(RenderContext& context);
 
             void rebuildFaceIndexBuffers(RenderContext& context);
             void rebuildSelectedFaceIndexBuffers(RenderContext& context);

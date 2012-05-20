@@ -22,6 +22,8 @@
 #define TrenchBroom_RenderUtils_h
 
 #include "Utilities/VecMath.h"
+#include "FTGL/ftgl.h"
+#include <string>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -30,6 +32,7 @@ namespace TrenchBroom {
         void glColorV4f(const Vec4f& color, float blendFactor);
         void glSetEdgeOffset(float f);
         void glResetEdgeOffset();
+        void renderTextBackground(const std::string& text, FTGL::FTGLfont* font, float hPadding = 0, float vPadding = 0);
     }
 }
 

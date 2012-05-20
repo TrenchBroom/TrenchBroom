@@ -32,7 +32,7 @@ namespace TrenchBroom {
             bool compareByUsageCount(const Texture* texture1, const Texture* texture2) {
                 if (texture1->usageCount == texture2->usageCount)
                     return compareByName(texture1, texture2);
-                return texture1->usageCount < texture2->usageCount;
+                return texture1->usageCount > texture2->usageCount;
             }
 
             void Texture::init(const string& name, unsigned int width, unsigned int height) {
@@ -135,29 +135,44 @@ namespace TrenchBroom {
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
 
-            TextureCollection::TextureCollection(const string& name, IO::Wad& wad, const Palette& palette) {
-                this->name = name;
+            TextureCollection::TextureCollection(const string& name, IO::Wad& wad, const Palette& palette) : m_name(name) {
                 for (unsigned int i = 0; i < wad.entries.size(); i++) {
                     IO::WadEntry& entry = wad.entries[i];
                     if (entry.type == IO::WT_MIP) {
                         IO::Mip* mip = wad.loadMipAtEntry(entry);
                         Texture* texture = new Texture(*mip, palette);
-                        textures.push_back(texture);
+                        m_textures.push_back(texture);
                         delete mip;
                     }
                 }
             }
 
             TextureCollection::~TextureCollection() {
-                while (!textures.empty()) delete textures.back(), textures.pop_back();
+                while (!m_textures.empty()) delete m_textures.back(), m_textures.pop_back();
+            }
+
+            const vector<Texture*>& TextureCollection::textures() const {
+                return m_textures;
+            }
+
+            vector<Texture*> TextureCollection::textures(ETextureSortCriterion criterion) const {
+                vector<Texture*> result = m_textures;
+                if (criterion == TB_TS_USAGE) sort(result.begin(), result.end(), compareByUsageCount);
+                else sort(result.begin(), result.end(), compareByName);
+                return result;
+            }
+            
+            const std::string& TextureCollection::name() const {
+                return m_name;
             }
 
             void TextureManager::reloadTextures() {
                 m_textures.clear();
                 for (unsigned int i = 0; i < m_collections.size(); i++) {
                     TextureCollection* collection = m_collections[i];
-                    for (unsigned int j = 0; j < collection->textures.size(); j++) {
-                        Texture* texture = collection->textures[j];
+                    const vector<Texture*> textures = collection->textures();
+                    for (unsigned int j = 0; j < textures.size(); j++) {
+                        Texture* texture = textures[j];
                         m_textures.insert(pair<string, Texture*>(texture->name, texture));
                     }
                 }
@@ -190,7 +205,7 @@ namespace TrenchBroom {
                 textureManagerChanged(*this);
             }
 
-            const vector<TextureCollection*> TextureManager::collections() {
+            const vector<TextureCollection*>& TextureManager::collections() {
                 return m_collections;
             }
 

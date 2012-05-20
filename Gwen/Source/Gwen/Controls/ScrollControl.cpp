@@ -78,13 +78,13 @@ bool ScrollControl::OnMouseWheeled( int iDelta )
 {
 	if ( CanScrollV() && m_VerticalScrollBar->Visible() )
 	{
-		if ( m_VerticalScrollBar->SetScrolledAmount( m_VerticalScrollBar->GetScrolledAmount() - m_VerticalScrollBar->GetNudgeAmount() * ( (float)iDelta / 60.0f ), true) )
+		if ( m_VerticalScrollBar->SetScrolledAmount( m_VerticalScrollBar->GetScrolledAmount() - m_VerticalScrollBar->GetNudgeAmount() * ( (float)iDelta), true) )
 			return true;
 	}
 
 	if ( CanScrollH() && m_HorizontalScrollBar->Visible() )
 	{
-		if ( m_HorizontalScrollBar->SetScrolledAmount( m_HorizontalScrollBar->GetScrolledAmount() - m_HorizontalScrollBar->GetNudgeAmount() * ( (float)iDelta / 60.0f ), true) )
+		if ( m_HorizontalScrollBar->SetScrolledAmount( m_HorizontalScrollBar->GetScrolledAmount() - m_HorizontalScrollBar->GetNudgeAmount() * ( (float)iDelta), true) )
 		return true;
 	}
 
@@ -246,4 +246,8 @@ void ScrollControl::ScrollToRight()
 void ScrollControl::Clear()
 {
 	m_InnerPanel->RemoveAllChildren();
+}
+
+const Gwen::Rect& ScrollControl::GetVisibleRect() {
+    return m_InnerPanel->GetBounds();
 }

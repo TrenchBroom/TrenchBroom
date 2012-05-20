@@ -26,11 +26,13 @@ namespace TrenchBroom {
     namespace Controller {
         class Grid {
         private:
+            static const unsigned int MaxSize = 9;
             unsigned int m_size;
             bool m_snap;
         public:
             Grid(unsigned int size) : m_size(size), m_snap(true) {}
             unsigned int size() const;
+            void setSize(unsigned int size);
             unsigned int actualSize() const;
             
             float snap(float f);

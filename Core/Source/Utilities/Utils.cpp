@@ -21,7 +21,7 @@
 #include <fstream>
 
 namespace TrenchBroom {
-    string trim(const string& str) {
+    std::string trim(const std::string& str) {
         if (str.length() == 0) return str;
         size_t first = str.find_first_not_of(" \n\t\r" + 0);
         size_t last = str.find_last_not_of(" \n\t\r" + 0);
@@ -29,8 +29,8 @@ namespace TrenchBroom {
         return str.substr(first, last - first + 1);
     }
     
-    vector<string> split(const string& str, char d) {
-        vector<string> result;
+    std::vector<std::string> split(const std::string& str, char d) {
+        std::vector<std::string> result;
         unsigned int lastIndex = 0;
         for (unsigned int i = 0; i < str.length(); i++) {
             char c = str[i];
@@ -44,31 +44,59 @@ namespace TrenchBroom {
         return result;
     }
     
-    string appendPath(const string& prefix, const string& suffix) {
+    std::string appendPath(const std::string& prefix, const std::string& suffix) {
         if (prefix.empty()) return suffix;
         if (suffix.empty()) return prefix;
         
-        string path = prefix;
+        std::string path = prefix;
         if (prefix[prefix.length() - 1] != '/' && suffix[0] != '/')
             path += '/';
         return path + suffix;
     }
 
-    string deleteLastPathComponent(const string& path) {
+    std::string appendExtension(const std::string& path, const std::string& ext) {
+        if (path.empty()) return "";
+        if (ext.empty()) return path;
+        
+        std::string pathWithExt = path;
+        if (ext[0] != '.')
+            pathWithExt += '.';
+        return pathWithExt + ext;
+    }
+
+    std::string deleteLastPathComponent(const std::string& path) {
         if (path.empty()) return path;
         size_t sepPos = path.find_last_of("/\\");
-        if (sepPos == string::npos) return "";
+        if (sepPos == std::string::npos) return "";
         return path.substr(0, sepPos);
     }
     
-    string pathExtension(const string& path) {
+    std::vector<std::string> pathComponents(const std::string& path) {
+        std::vector<std::string> components;
+        if (path.empty()) return components;
+        
+        size_t lastPos = 0;
+        size_t pos = 0;
+        while ((pos = path.find_first_of("/\\", pos)) != std::string::npos) {
+            if (pos > lastPos + 1)
+                components.push_back(path.substr(lastPos + 1, pos - lastPos - 1));
+            lastPos = pos;
+            pos++;
+        }
+        if (pos > lastPos + 1)
+            components.push_back(path.substr(lastPos + 1, pos - lastPos - 1));
+        
+        return components;
+    }
+
+    std::string pathExtension(const std::string& path) {
         size_t pos = path.find_last_of('.');
-        if (pos == string::npos) return "";
+        if (pos == std::string::npos) return "";
         return path.substr(pos + 1);
     }
 
-    bool fileExists(const string& path) {
-        fstream testStream(path.c_str());
+    bool fileExists(const std::string& path) {
+        std::fstream testStream(path.c_str());
         return testStream.is_open();
     }
 }

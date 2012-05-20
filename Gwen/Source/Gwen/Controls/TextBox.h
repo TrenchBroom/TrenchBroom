@@ -93,10 +93,8 @@ namespace Gwen
 				GWEN_CONTROL( TextBoxNumeric, TextBox );
 
 				virtual float GetFloatFromText();
-
-			private:
-
-				virtual bool IsTextAllowed( const Gwen::UnicodeString& str, int iPos );
+            
+                virtual bool IsTextAllowed( const Gwen::UnicodeString& str, int iPos );
 			
 		};
 	}

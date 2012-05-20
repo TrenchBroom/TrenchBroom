@@ -33,6 +33,7 @@ namespace TrenchBroom {
     private:
         class ListenerBase {
         public:
+            virtual ~ListenerBase() {}
             virtual void operator()(Arg1 arg1) = 0;
             virtual bool equals(const void* other) const = 0;
             bool operator==(const ListenerBase& other) const {

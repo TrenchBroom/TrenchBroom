@@ -67,8 +67,6 @@
 		4825B503153AE5E9007E3AE1 /* FileOpen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B469153AE5E9007E3AE1 /* FileOpen.cpp */; };
 		4825B504153AE5E9007E3AE1 /* FileSave.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B46B153AE5E9007E3AE1 /* FileSave.cpp */; };
 		4825B505153AE5E9007E3AE1 /* Query.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B46D153AE5E9007E3AE1 /* Query.cpp */; };
-		4825B506153AE5E9007E3AE1 /* DockBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B46F153AE5E9007E3AE1 /* DockBase.cpp */; };
-		4825B507153AE5E9007E3AE1 /* DockedTabControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B471153AE5E9007E3AE1 /* DockedTabControl.cpp */; };
 		4825B508153AE5E9007E3AE1 /* Dragger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B473153AE5E9007E3AE1 /* Dragger.cpp */; };
 		4825B509153AE5E9007E3AE1 /* GroupBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B475153AE5E9007E3AE1 /* GroupBox.cpp */; };
 		4825B50A153AE5E9007E3AE1 /* HorizontalScrollBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B478153AE5E9007E3AE1 /* HorizontalScrollBar.cpp */; };
@@ -119,7 +117,8 @@
 		4825B548153AE693007E3AE1 /* OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B544153AE693007E3AE1 /* OpenGL.cpp */; };
 		4825B549153AE693007E3AE1 /* OpenGL_DebugFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B546153AE693007E3AE1 /* OpenGL_DebugFont.cpp */; };
 		4825B555153C9F56007E3AE1 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4825B553153C9F56007E3AE1 /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
-		48261BC2153F2ECE00D067FD /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48261BC1153F2ECE00D067FD /* libfreeimage.a */; };
+		482EB2A41565B5210071206A /* MacFontManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 482EB2A31565B5210071206A /* MacFontManager.mm */; };
+		482EB2A71566CC120071206A /* OpenGL_FTGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482EB2A61566CC120071206A /* OpenGL_FTGL.cpp */; };
 		483DE918154DCE62002FD6B0 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */; };
 		483DE91C154DCFCF002FD6B0 /* PreferencesWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */; };
 		484544F51553374B0032E983 /* ChangeSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484544F41553374B0032E983 /* ChangeSet.cpp */; };
@@ -130,9 +129,15 @@
 		485395EA155FB69300636357 /* InvocationUndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395E9155FB69300636357 /* InvocationUndoItem.cpp */; };
 		485395EC155FBD3F00636357 /* UndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395EB155FBD3F00636357 /* UndoItem.cpp */; };
 		485395EF155FC16800636357 /* UndoManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395EE155FC16800636357 /* UndoManager.cpp */; };
+		4856B01615659BB7004272EF /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4856B01515659BB7004272EF /* libfreeimage.a */; };
+		4856B01815659BC2004272EF /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4856B01715659BC2004272EF /* libfreetype.a */; };
+		4856B01A15659BC8004272EF /* libftgl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4856B01915659BC8004272EF /* libftgl.a */; };
 		48886BA51545FE0A006A781B /* EditorHolder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48886BA41545FE09006A781B /* EditorHolder.mm */; };
-		4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4888F8331536099B000423D2 /* MacStringFactory.mm */; };
 		488E65B6156301F300B4E72A /* PositioningGuideFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */; };
+		488E65E51563C6A600B4E72A /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65E41563C6A600B4E72A /* Inspector.cpp */; };
+		488E65ED15641FA500B4E72A /* SingleTextureControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65EC15641FA400B4E72A /* SingleTextureControl.cpp */; };
+		48953FDF15679B92006DD2E3 /* SnapshotUndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48953FDE15679B92006DD2E3 /* SnapshotUndoItem.cpp */; };
+		48953FE21567CE9C006DD2E3 /* TextureBrowserControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48953FE11567CE9C006DD2E3 /* TextureBrowserControl.cpp */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
 		48B50E13152CF6E400E75402 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E12152CF6E400E75402 /* Cocoa.framework */; };
 		48B50E1D152CF6E400E75402 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 48B50E1B152CF6E400E75402 /* InfoPlist.strings */; };
@@ -282,10 +287,6 @@
 		4825B46C153AE5E9007E3AE1 /* FileSave.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSave.h; sourceTree = "<group>"; };
 		4825B46D153AE5E9007E3AE1 /* Query.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Query.cpp; sourceTree = "<group>"; };
 		4825B46E153AE5E9007E3AE1 /* Query.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Query.h; sourceTree = "<group>"; };
-		4825B46F153AE5E9007E3AE1 /* DockBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DockBase.cpp; sourceTree = "<group>"; };
-		4825B470153AE5E9007E3AE1 /* DockBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DockBase.h; sourceTree = "<group>"; };
-		4825B471153AE5E9007E3AE1 /* DockedTabControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DockedTabControl.cpp; sourceTree = "<group>"; };
-		4825B472153AE5E9007E3AE1 /* DockedTabControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DockedTabControl.h; sourceTree = "<group>"; };
 		4825B473153AE5E9007E3AE1 /* Dragger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dragger.cpp; sourceTree = "<group>"; };
 		4825B474153AE5E9007E3AE1 /* Dragger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dragger.h; sourceTree = "<group>"; };
 		4825B475153AE5E9007E3AE1 /* GroupBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GroupBox.cpp; sourceTree = "<group>"; };
@@ -411,7 +412,10 @@
 		4825B547153AE693007E3AE1 /* OpenGL_DebugFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGL_DebugFont.h; sourceTree = "<group>"; };
 		4825B553153C9F56007E3AE1 /* GLee.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GLee.c; sourceTree = "<group>"; };
 		4825B554153C9F56007E3AE1 /* GLee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLee.h; sourceTree = "<group>"; };
-		48261BC1153F2ECE00D067FD /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfreeimage.a; sourceTree = "<group>"; };
+		482EB2A21565B5210071206A /* MacFontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacFontManager.h; sourceTree = "<group>"; };
+		482EB2A31565B5210071206A /* MacFontManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacFontManager.mm; sourceTree = "<group>"; };
+		482EB2A51566CB6C0071206A /* OpenGL_FTGL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenGL_FTGL.h; sourceTree = "<group>"; };
+		482EB2A61566CC120071206A /* OpenGL_FTGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenGL_FTGL.cpp; sourceTree = "<group>"; };
 		483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindow.xib; sourceTree = "<group>"; };
 		483DE91A154DCFCF002FD6B0 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
 		483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PreferencesWindowController.mm; sourceTree = "<group>"; };
@@ -431,13 +435,23 @@
 		485395EB155FBD3F00636357 /* UndoItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UndoItem.cpp; sourceTree = "<group>"; };
 		485395ED155FC15000636357 /* UndoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UndoManager.h; sourceTree = "<group>"; };
 		485395EE155FC16800636357 /* UndoManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UndoManager.cpp; sourceTree = "<group>"; };
+		4856B01515659BB7004272EF /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = Lib/libfreeimage.a; sourceTree = "<group>"; };
+		4856B01715659BC2004272EF /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = Lib/libfreetype.a; sourceTree = "<group>"; };
+		4856B01915659BC8004272EF /* libftgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libftgl.a; path = Lib/libftgl.a; sourceTree = "<group>"; };
 		48886BA31545FE09006A781B /* EditorHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorHolder.h; sourceTree = "<group>"; };
 		48886BA41545FE09006A781B /* EditorHolder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EditorHolder.mm; sourceTree = "<group>"; };
-		4888F8321536099B000423D2 /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
-		4888F8331536099B000423D2 /* MacStringFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacStringFactory.mm; sourceTree = "<group>"; };
 		488E65B31563011E00B4E72A /* Figure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
 		488E65B41563017400B4E72A /* PositioningGuideFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PositioningGuideFigure.h; sourceTree = "<group>"; };
 		488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PositioningGuideFigure.cpp; sourceTree = "<group>"; };
+		488E65E31563C67A00B4E72A /* Inspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Inspector.h; sourceTree = "<group>"; };
+		488E65E41563C6A600B4E72A /* Inspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inspector.cpp; sourceTree = "<group>"; };
+		488E65EB15641E4400B4E72A /* SingleTextureControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTextureControl.h; sourceTree = "<group>"; };
+		488E65EC15641FA400B4E72A /* SingleTextureControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SingleTextureControl.cpp; sourceTree = "<group>"; };
+		48953FDC15679B7C006DD2E3 /* SnapshotUndoItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SnapshotUndoItem.h; sourceTree = "<group>"; };
+		48953FDE15679B92006DD2E3 /* SnapshotUndoItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SnapshotUndoItem.cpp; sourceTree = "<group>"; };
+		48953FE01567CE7A006DD2E3 /* TextureBrowserControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextureBrowserControl.h; sourceTree = "<group>"; };
+		48953FE11567CE9C006DD2E3 /* TextureBrowserControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowserControl.cpp; sourceTree = "<group>"; };
+		48953FE31567CFE2006DD2E3 /* CellLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CellLayout.h; sourceTree = "<group>"; };
 		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
 		48B50E0E152CF6E400E75402 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48B50E12152CF6E400E75402 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -473,9 +487,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4856B01A15659BC8004272EF /* libftgl.a in Frameworks */,
+				4856B01815659BC2004272EF /* libfreetype.a in Frameworks */,
+				4856B01615659BB7004272EF /* libfreeimage.a in Frameworks */,
 				48B50E4D152D019C00E75402 /* OpenGL.framework in Frameworks */,
 				48B50E13152CF6E400E75402 /* Cocoa.framework in Frameworks */,
-				48261BC2153F2ECE00D067FD /* libfreeimage.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -514,12 +530,19 @@
 		4825B3CC153AE59F007E3AE1 /* GUI */ = {
 			isa = PBXGroup;
 			children = (
+				48953FE31567CFE2006DD2E3 /* CellLayout.h */,
 				4825B3CD153AE59F007E3AE1 /* EditorGui.cpp */,
 				4825B3CE153AE59F007E3AE1 /* EditorGui.h */,
+				488E65E41563C6A600B4E72A /* Inspector.cpp */,
+				488E65E31563C67A00B4E72A /* Inspector.h */,
 				4825B3CF153AE59F007E3AE1 /* MapRendererControl.cpp */,
 				4825B3D0153AE59F007E3AE1 /* MapRendererControl.h */,
+				488E65EC15641FA400B4E72A /* SingleTextureControl.cpp */,
+				488E65EB15641E4400B4E72A /* SingleTextureControl.h */,
 				4825B3D1153AE59F007E3AE1 /* Splitter.cpp */,
 				4825B3D2153AE59F007E3AE1 /* Splitter.h */,
+				48953FE01567CE7A006DD2E3 /* TextureBrowserControl.h */,
+				48953FE11567CE9C006DD2E3 /* TextureBrowserControl.cpp */,
 			);
 			name = GUI;
 			path = ../Core/Source/GUI;
@@ -718,10 +741,6 @@
 				4825B465153AE5E9007E3AE1 /* ComboBox.h */,
 				4825B466153AE5E9007E3AE1 /* CrossSplitter.cpp */,
 				4825B467153AE5E9007E3AE1 /* CrossSplitter.h */,
-				4825B46F153AE5E9007E3AE1 /* DockBase.cpp */,
-				4825B470153AE5E9007E3AE1 /* DockBase.h */,
-				4825B471153AE5E9007E3AE1 /* DockedTabControl.cpp */,
-				4825B472153AE5E9007E3AE1 /* DockedTabControl.h */,
 				4825B473153AE5E9007E3AE1 /* Dragger.cpp */,
 				4825B474153AE5E9007E3AE1 /* Dragger.h */,
 				4825B475153AE5E9007E3AE1 /* GroupBox.cpp */,
@@ -882,6 +901,8 @@
 				4825B545153AE693007E3AE1 /* OpenGL.h */,
 				4825B546153AE693007E3AE1 /* OpenGL_DebugFont.cpp */,
 				4825B547153AE693007E3AE1 /* OpenGL_DebugFont.h */,
+				482EB2A51566CB6C0071206A /* OpenGL_FTGL.h */,
+				482EB2A61566CC120071206A /* OpenGL_FTGL.cpp */,
 			);
 			name = Renderers;
 			path = ../Gwen/Source/Gwen/Renderers;
@@ -900,8 +921,10 @@
 		485395E6155FB57C00636357 /* Undo */ = {
 			isa = PBXGroup;
 			children = (
-				485395E8155FB5ED00636357 /* InvocationUndoItem.h */,
 				485395E9155FB69300636357 /* InvocationUndoItem.cpp */,
+				485395E8155FB5ED00636357 /* InvocationUndoItem.h */,
+				48953FDE15679B92006DD2E3 /* SnapshotUndoItem.cpp */,
+				48953FDC15679B7C006DD2E3 /* SnapshotUndoItem.h */,
 				485395E7155FB59500636357 /* UndoItem.h */,
 				485395EB155FBD3F00636357 /* UndoItem.cpp */,
 				485395ED155FC15000636357 /* UndoManager.h */,
@@ -942,7 +965,9 @@
 		48B50E11152CF6E400E75402 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				48261BC1153F2ECE00D067FD /* libfreeimage.a */,
+				4856B01915659BC8004272EF /* libftgl.a */,
+				4856B01715659BC2004272EF /* libfreetype.a */,
+				4856B01515659BB7004272EF /* libfreeimage.a */,
 				48B50E15152CF6E400E75402 /* AppKit.framework */,
 				48B50E12152CF6E400E75402 /* Cocoa.framework */,
 				48B50E17152CF6E400E75402 /* Foundation.framework */,
@@ -960,12 +985,12 @@
 				48886BA41545FE09006A781B /* EditorHolder.mm */,
 				48F579F7154C5B3D0039B369 /* MacConsole.h */,
 				48F579F8154C5B3D0039B369 /* MacConsole.mm */,
+				482EB2A21565B5210071206A /* MacFontManager.h */,
+				482EB2A31565B5210071206A /* MacFontManager.mm */,
 				480ED52F1549C7E4003CA78F /* MacPreferences.h */,
 				480ED5301549C7E4003CA78F /* MacPreferences.mm */,
 				48120053153867E300181D66 /* MacProgressIndicator.h */,
 				48120054153867E300181D66 /* MacProgressIndicator.mm */,
-				4888F8321536099B000423D2 /* MacStringFactory.h */,
-				4888F8331536099B000423D2 /* MacStringFactory.mm */,
 				48B50E24152CF6E400E75402 /* MapDocument.h */,
 				48B50E25152CF6E400E75402 /* MapDocument.mm */,
 				48B50E40152CF95500E75402 /* MapView.h */,
@@ -1040,7 +1065,7 @@
 		48B50E05152CF6E400E75402 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 				ORGANIZATIONNAME = "TU Berlin";
 			};
 			buildConfigurationList = 48B50E08152CF6E400E75402 /* Build configuration list for PBXProject "TrenchBroom" */;
@@ -1089,7 +1114,6 @@
 				48B50E26152CF6E400E75402 /* MapDocument.mm in Sources */,
 				48B50E3F152CF8F900E75402 /* MapWindowController.mm in Sources */,
 				48B50E42152CF95500E75402 /* MapView.mm in Sources */,
-				4888F8341536099B000423D2 /* MacStringFactory.mm in Sources */,
 				48120055153867E300181D66 /* MacProgressIndicator.mm in Sources */,
 				4825B422153AE59F007E3AE1 /* Camera.cpp in Sources */,
 				4825B423153AE59F007E3AE1 /* CameraTool.cpp in Sources */,
@@ -1147,8 +1171,6 @@
 				4825B503153AE5E9007E3AE1 /* FileOpen.cpp in Sources */,
 				4825B504153AE5E9007E3AE1 /* FileSave.cpp in Sources */,
 				4825B505153AE5E9007E3AE1 /* Query.cpp in Sources */,
-				4825B506153AE5E9007E3AE1 /* DockBase.cpp in Sources */,
-				4825B507153AE5E9007E3AE1 /* DockedTabControl.cpp in Sources */,
 				4825B508153AE5E9007E3AE1 /* Dragger.cpp in Sources */,
 				4825B509153AE5E9007E3AE1 /* GroupBox.cpp in Sources */,
 				4825B50A153AE5E9007E3AE1 /* HorizontalScrollBar.cpp in Sources */,
@@ -1215,6 +1237,12 @@
 				485395EC155FBD3F00636357 /* UndoItem.cpp in Sources */,
 				485395EF155FC16800636357 /* UndoManager.cpp in Sources */,
 				488E65B6156301F300B4E72A /* PositioningGuideFigure.cpp in Sources */,
+				488E65E51563C6A600B4E72A /* Inspector.cpp in Sources */,
+				488E65ED15641FA500B4E72A /* SingleTextureControl.cpp in Sources */,
+				482EB2A41565B5210071206A /* MacFontManager.mm in Sources */,
+				482EB2A71566CC120071206A /* OpenGL_FTGL.cpp in Sources */,
+				48953FDF15679B92006DD2E3 /* SnapshotUndoItem.cpp in Sources */,
+				48953FE21567CE9C006DD2E3 /* TextureBrowserControl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1281,6 +1309,7 @@
 				HEADER_SEARCH_PATHS = (
 					../Gwen/Source,
 					../Core/Source,
+					../Include,
 				);
 				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -1311,6 +1340,7 @@
 				HEADER_SEARCH_PATHS = (
 					../Gwen/Source,
 					../Core/Source,
+					../Include,
 				);
 				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -1329,6 +1359,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/Lib\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1345,6 +1376,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/Lib\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -19,6 +19,7 @@
 
 #include "SelectionTool.h"
 #include "Controller/Editor.h"
+#include "Controller/Grid.h"
 #include "Model/Map/Brush.h"
 #include "Model/Map/Face.h"
 #include "Model/Map/Entity.h"
@@ -27,6 +28,16 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        bool SelectionTool::scrolled(ToolEvent& event) {
+            if (!gridSizeModifierPressed(event))
+                return false;
+            if (event.scrollX > 0)
+                m_editor.grid().setSize(m_editor.grid().size() + 1);
+            else if (m_editor.grid().size() > 0)
+                m_editor.grid().setSize(m_editor.grid().size() - 1);
+            return true;
+        }
+
         bool SelectionTool::leftMouseUp(ToolEvent& event) {
             Model::Selection& selection = m_editor.map().selection();
             Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);

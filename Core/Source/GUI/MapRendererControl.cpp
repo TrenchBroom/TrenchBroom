@@ -70,7 +70,7 @@ namespace TrenchBroom {
         }
 
         void MapRendererControl::OnMouseMoved( int x, int y, int deltaX, int deltaY ) {
-            m_editor.inputController().mouseMoved(x, y, deltaX, deltaY);
+            m_editor.inputController().mouseMoved(x, GetBounds().h - y, deltaX, -deltaY);
         }
 
         bool MapRendererControl::OnMouseWheeled( int iDelta ) {

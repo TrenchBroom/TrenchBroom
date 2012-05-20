@@ -356,6 +356,15 @@ namespace TrenchBroom {
             rebuildGeometry();
         }
         
+        void Brush::replaceFaces(const vector<Face*>& newFaces) {
+            while (!m_faces.empty()) delete m_faces.back(), m_faces.pop_back();
+            for (int i = 0; i < newFaces.size(); i++) {
+                m_faces.push_back(newFaces[i]);
+                newFaces[i]->setBrush(this);
+            }
+            rebuildGeometry();
+        }
+
         void Brush::translate(const Vec3f& delta, bool lockTextures) {
             for (unsigned int i = 0; i < m_faces.size(); i++)
                 m_faces[i]->translate(delta, lockTextures);
