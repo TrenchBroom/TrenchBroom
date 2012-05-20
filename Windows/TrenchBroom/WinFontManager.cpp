@@ -26,15 +26,23 @@
 namespace TrenchBroom {
     namespace Renderer {
         std::string WinFontManager::resolveFont(const std::string& name) {
+			std::string extensions[2] = {".ttf", ".ttc"};
+
 			TCHAR windowsPathC[MAX_PATH];
 			GetWindowsDirectory(windowsPathC, MAX_PATH);
 			std::string windowsPath(windowsPathC);
-			std::string fontDirectoryPath = appendPath(windowsPath, "Fonts");
-			std::string path = appendPath(fontDirectoryPath, name);
-            std::fstream fs1(path.c_str());
-            if (fs1.is_open())
-                return path;
-            return appendPath(fontDirectoryPath, "Arial.ttf");
+			if (windowsPath.back() != '\\')
+				windowsPath.push_back('\\');
+			std::string fontDirectoryPath = windowsPath + "Fonts\\";
+			std::string fontBasePath = fontDirectoryPath + name;
+
+			for (int i = 0; i < 2; i++) {
+				std::string fontPath = fontBasePath + extensions[i];
+				std::fstream fs(fontPath.c_str(), std::ios::binary | std::ios::in);
+				if (fs.is_open())
+					return fontPath;
+			}
+			return fontDirectoryPath + "Arial.ttf";
         }
     }
 }
