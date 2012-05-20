@@ -92,7 +92,7 @@ void CMapView::OnDraw(CDC* /*pDC*/)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, clientRect.right, 0, clientRect.bottom, -1, 1);
+    glOrtho(clientRect.left, clientRect.right, clientRect.bottom, clientRect.top, -1, 1);
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -292,7 +292,7 @@ void CMapView::OnMouseMove(UINT nFlags, CPoint point)
 	RECT clientRect;
 	GetClientRect(&clientRect);
 	int x = point.x;
-	int y = clientRect.bottom - point.y;
+	int y = point.y;
 	m_editorGui->canvas()->InputMouseMoved(x, y, x - m_lastMousePos->x, y - m_lastMousePos->y);
 	m_lastMousePos->x = x;
 	m_lastMousePos->y = y;
