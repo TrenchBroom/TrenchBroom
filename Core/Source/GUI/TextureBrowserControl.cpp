@@ -29,6 +29,10 @@
 
 namespace TrenchBroom {
     namespace Gui {
+        void TextureBrowserPanel::textureManagerChanged(Model::Assets::TextureManager& textureManager) {
+            reloadTextures();
+        }
+
         void TextureBrowserPanel::reloadTextures() {
             m_layout.clear();
             if (m_group) {
@@ -82,8 +86,14 @@ namespace TrenchBroom {
             m_sortCriterion = Model::Assets::TB_TS_USAGE;
             SetFont(GetSkin()->GetDefaultFont());
             reloadTextures();
+            
+            m_editor.textureManager().textureManagerChanged += new Model::Assets::TextureManager::TextureManagerEvent::Listener<TextureBrowserPanel>(this, &TextureBrowserPanel::textureManagerChanged);
         }
 
+        TextureBrowserPanel::~TextureBrowserPanel() {
+            m_editor.textureManager().textureManagerChanged -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<TextureBrowserPanel>(this, &TextureBrowserPanel::textureManagerChanged);
+}
+        
         void TextureBrowserPanel::SetFont(Gwen::Font* font) {
             m_font = font;
         }

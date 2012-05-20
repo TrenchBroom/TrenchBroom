@@ -54,13 +54,14 @@ namespace TrenchBroom {
             bool m_hideUnused;
             Model::Assets::ETextureSortCriterion m_sortCriterion;
             Gwen::Font* m_font;
-            
             CellLayout<Model::Assets::Texture*, Model::Assets::TextureCollection*> m_layout;
+            
+            void textureManagerChanged(Model::Assets::TextureManager& textureManager);
             void reloadTextures();
             void renderTextureBorder(CellRow<Model::Assets::Texture*>::CellPtr cell);
         public:
             TextureBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor);
-            virtual ~TextureBrowserPanel() {}
+            virtual ~TextureBrowserPanel();
             virtual void SetFont(Gwen::Font* font);
             virtual Gwen::Font* GetFont();
             virtual void SetPadding(const Gwen::Padding& padding);
