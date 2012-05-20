@@ -153,6 +153,8 @@
     <ClInclude Include="..\..\Core\Source\Renderer\EntityClassnameAnchor.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\EntityRenderer.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\EntityRendererManager.h" />
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\Figure.h" />
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\PositioningGuideFigure.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\FontManager.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\GridRenderer.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\MapRenderer.h" />
@@ -311,6 +313,7 @@
     <ClCompile Include="..\..\Core\Source\Renderer\ChangeSet.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\EntityClassnameAnchor.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\EntityRendererManager.cpp" />
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\PositioningGuideFigure.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\FontManager.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\GridRenderer.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\MapRenderer.cpp" />

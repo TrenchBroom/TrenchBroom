@@ -1047,7 +1047,7 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::renderFigures(RenderContext& context) {
-            for (int i = 0; i < m_figures.size(); i++)
+            for (unsigned int i = 0; i < m_figures.size(); i++)
                 m_figures[i]->render(context);
         }
 

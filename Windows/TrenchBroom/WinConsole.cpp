@@ -21,7 +21,7 @@
 #include "Utilities/Console.h"
 #include <string>
 #include <iostream>
-#include <Windows.h>
+#include <windows.h>
 
 namespace TrenchBroom {
     void log(const std::string& message) {

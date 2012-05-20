@@ -18,9 +18,8 @@
  */
 
 #include "WinPreferences.h"
-#include "Controller/Tool.h"
 #include "stdafx.h"
-#include "afxwinappex.h"
+#include "Controller/Tool.h"
 #include <sstream>
 #include <iostream>
 #include <iomanip>

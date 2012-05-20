@@ -118,6 +118,12 @@
     <Filter Include="Source\Core\Model\Undo">
       <UniqueIdentifier>{a1689731-4e1f-40ed-89d2-12275ac0be72}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header\Core\Renderer\Figures">
+      <UniqueIdentifier>{e71fd7fb-54b9-4c0f-a373-ab28281f655d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Renderer\Figures">
+      <UniqueIdentifier>{8404f5d0-49dc-44e9-93ec-7023ae41005d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -622,6 +628,12 @@
     <ClInclude Include="..\..\Core\Source\Model\Undo\UndoManager.h">
       <Filter>Header\Core\Model\Undo</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\Figure.h">
+      <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\PositioningGuideFigure.h">
+      <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TrenchBroom.cpp">
@@ -1004,6 +1016,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\Model\Undo\UndoManager.cpp">
       <Filter>Source\Core\Model\Undo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\PositioningGuideFigure.cpp">
+      <Filter>Source\Core\Renderer\Figures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
