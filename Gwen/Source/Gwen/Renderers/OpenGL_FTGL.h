@@ -34,7 +34,6 @@ namespace Gwen
         protected:
             typedef std::map<FontDescriptor, FontPtr> FontCache;
             FontCache m_fontCache;
-            String resolveFontPath(Gwen::Font* pFont);
             FontPtr loadFont(Gwen::Font* pFont);
         public:
             

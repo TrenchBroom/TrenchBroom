@@ -150,7 +150,7 @@ namespace TrenchBroom {
                 }
                 for (unsigned int j = 0; j < group->size(); j++) {
                     CellGroup<Model::Assets::Texture*, Model::Assets::TextureCollection*>::CellRowPtr row = (*group)[j];
-                    for (int k = 0; k < row->size(); k++) {
+                    for (unsigned int k = 0; k < row->size(); k++) {
                         CellRow<Model::Assets::Texture*>::CellPtr cell = (*row)[k];
                         if (cell->y() + cell->height() >= visibleRect.y && cell->y() <= visibleRect.y + visibleRect.h) {
                             Model::Assets::Texture* texture = cell->item();

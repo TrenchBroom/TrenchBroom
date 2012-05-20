@@ -5,6 +5,7 @@
  */
 
 #include "OpenGL_FTGL.h"
+#include "Gwen/Platform.h"
 #include "GL/GLee.h"
 #include <string>
 #include <fstream>
@@ -22,33 +23,14 @@ namespace Gwen {
         
         OpenGL_FTGL::~OpenGL_FTGL() {}
         
-        String OpenGL_FTGL::resolveFontPath(Gwen::Font* pFont) {
-            String extensions[2] = {".ttf", "ttc"};
-            String facename = String(pFont->facename.begin(), pFont->facename.end());
-
-            for (int i = 0; i < 2; i++) {
-                String path = "/System/Library/Fonts/" + facename + extensions[i];
-                std::fstream fs1(path.c_str());
-                if (fs1.is_open())
-                    return path;
-                
-                path = "/Library/Fonts/" + facename + extensions[i];
-                std::fstream fs2(path.c_str());
-                if (fs2.is_open())
-                    return path;
-            }
-            
-            return "/System/Library/Fonts/LucidaGrande.ttc";
-        }
-
         FontPtr OpenGL_FTGL::loadFont(Gwen::Font* pFont) {
             FontDescriptor descriptor(pFont->facename, pFont->size);
             FontCache::iterator it = m_fontCache.find(descriptor);
             if (it == m_fontCache.end()) {
-                String fontPath = resolveFontPath(pFont);
+                String fontPath = Gwen::Platform::ResolveFontPath(pFont);
                 FTFont* font = new FTPixmapFont(fontPath.c_str());
-                font->FaceSize(static_cast<int>(pFont->size));
                 FontPtr fontPtr(font);
+                fontPtr->FaceSize(static_cast<int>(pFont->size));
                 m_fontCache[descriptor] = fontPtr;
                 return fontPtr;
             } else {

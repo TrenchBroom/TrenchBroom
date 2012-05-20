@@ -26,9 +26,10 @@
 namespace TrenchBroom {
     namespace Renderer {
         std::string WinFontManager::resolveFont(const std::string& name) {
-			TCHAR systemPath[MAX_PATH];
-			GetSystemDirectory(systemPath, MAX_PATH);
-            std::string fontDirectoryPath = appendPath(systemPath, "Fonts");
+			TCHAR windowsPathC[MAX_PATH];
+			GetWindowsDirectory(windowsPathC, MAX_PATH);
+			std::string windowsPath(windowsPathC);
+			std::string fontDirectoryPath = appendPath(windowsPath, "Fonts");
 			std::string path = appendPath(fontDirectoryPath, name);
             std::fstream fs1(path.c_str());
             if (fs1.is_open())

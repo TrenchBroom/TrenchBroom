@@ -1063,5 +1063,11 @@
     <Library Include="FreeImage.lib">
       <Filter>Resources</Filter>
     </Library>
+    <Library Include="freetype.lib">
+      <Filter>Resources</Filter>
+    </Library>
+    <Library Include="ftgl.lib">
+      <Filter>Resources</Filter>
+    </Library>
   </ItemGroup>
 </Project>

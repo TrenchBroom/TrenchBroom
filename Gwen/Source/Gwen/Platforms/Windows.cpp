@@ -6,10 +6,12 @@
 
 #include "Gwen/Macros.h"
 #include "Gwen/Platform.h"
+#include "Gwen/Font.h"
+#include "Gwen/Utility.h"
 
 #ifdef _WIN32
 
-
+#include <fstream>
 #include <windows.h>
 
 #include <mmsystem.h>
@@ -245,4 +247,24 @@ bool Gwen::Platform::FileSave( const String& Name, const String& StartPath, cons
 #endif 
 }
 
+String Platform::ResolveFontPath(Gwen::Font* pFont) {
+	String extensions[2] = {".ttf", "ttc"};
+	String facename = Gwen::Utility::UnicodeToString(pFont->facename);
+
+	TCHAR windowsPathC[MAX_PATH];
+	GetWindowsDirectory(windowsPathC, MAX_PATH);
+	String windowsPath(windowsPathC);
+	if (windowsPath.back() != '\\')
+		windowsPath.push_back('\\');
+	String fontDirectoryPath = windowsPath + "Fonts\\";
+	String fontBasePath = fontDirectoryPath + facename;
+
+	for (int i = 0; i < 2; i++) {
+		String fontPath = fontBasePath + extensions[i];
+		std::fstream fs(fontPath.c_str());
+		if (fs.is_open())
+			return fontPath;
+	}
+    return fontDirectoryPath + "Arial.ttf";
+}
 #endif // WIN32
