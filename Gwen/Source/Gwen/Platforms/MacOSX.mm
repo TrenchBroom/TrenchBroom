@@ -6,6 +6,9 @@
 
 #include "Gwen/Macros.h"
 #include "Gwen/Platform.h"
+#include "Gwen/Font.h"
+#include "Gwen/Utility.h"
+#include <fstream>
 
 #ifdef __APPLE__
 
@@ -65,6 +68,31 @@ bool Gwen::Platform::FileSave( const String& Name, const String& StartPath, cons
 	// Ideally you would open a system dialog here
     
 	return false;
+}
+
+String Gwen::Platform::ResolveFontPath(Gwen::Font* pFont) {
+	String fontDirectoryPaths[2] = {"/System/Library/Fonts/", "/Library/Fonts/"};
+	String extensions[2] = {".ttf", ".ttc"};
+    String facename = Gwen::Utility::UnicodeToString(pFont->facename);
+    
+	for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            String fontPath = fontDirectoryPaths[i] + facename + extensions[j];
+            std::fstream fs(fontPath.c_str(), std::ios::binary | std::ios::in);
+            if (fs.is_open())
+                return fontPath;
+        }
+	}
+
+    return "/System/Library/Fonts/LucidaGrande.ttc";
+}
+
+UnicodeString Gwen::Platform::GetDefaultFontFace() {
+    return L"LucidaGrande";
+}
+
+float Gwen::Platform::GetDefaultFontSize() {
+    return 13.0f;
 }
 
 #endif

@@ -23,6 +23,7 @@
 #include "Gui/Splitter.h"
 #include "Gui/Inspector.h"
 #include "Renderer/FontManager.h"
+#include "Gwen/Platform.h"
 
 namespace TrenchBroom {
     namespace Gui {
@@ -32,7 +33,7 @@ namespace TrenchBroom {
             m_skin = new Gwen::Skin::TexturedBase();
             m_skin->SetRender(m_renderer);
             m_skin->Init(skinPath);
-            m_skin->SetDefaultFont(L"Lucida Grande", 13);
+            m_skin->SetDefaultFont(Gwen::Platform::GetDefaultFontFace(), Gwen::Platform::GetDefaultFontSize());
             m_canvas = new Gwen::Controls::Canvas(m_skin);
             m_splitter = new Splitter(m_canvas, true, -400);
             m_mapRenderer = new MapRendererControl(m_splitter, m_editor, fontManager);

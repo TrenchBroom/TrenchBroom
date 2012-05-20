@@ -25,14 +25,18 @@
 namespace TrenchBroom {
     namespace Renderer {
         std::string MacFontManager::resolveFont(const std::string& name) {
-            std::string path = appendPath("/System/Library/Fonts", name);
-            std::fstream fs1(path.c_str());
-            if (fs1.is_open())
-                return path;
-            path = appendPath("/Library/Fonts", name);
-            std::fstream fs2(path.c_str());
-            if (fs2.is_open())
-                return path;
+            std::string fontDirectoryPaths[2] = {"/System/Library/Fonts/", "/Library/Fonts/"};
+            std::string extensions[2] = {".ttf", ".ttc"};
+            
+            for (int i = 0; i < 2; i++) {
+                for (int j = 0; j < 2; j++) {
+                    std::string fontPath = fontDirectoryPaths[i] + name + extensions[j];
+                    std::fstream fs(fontPath.c_str(), std::ios::binary | std::ios::in);
+                    if (fs.is_open())
+                        return fontPath;
+                }
+            }
+            
             return "/System/Library/Fonts/LucidaGrande.ttc";
         }
     }

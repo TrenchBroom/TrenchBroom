@@ -84,7 +84,7 @@ namespace TrenchBroom {
         void MacPreferences::loadPlatformDefaults() {
             m_cameraKey = Controller::TB_MK_SHIFT;
             m_cameraOrbitKey = Controller::TB_MK_SHIFT | Controller::TB_MK_CMD;
-            m_rendererFontName = "LucidaGrande.ttc";
+            m_rendererFontName = "LucidaGrande";
             m_rendererFontSize = 11;
             m_quakePath = "";
         }

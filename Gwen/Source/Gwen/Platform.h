@@ -41,6 +41,8 @@ namespace Gwen
 		bool FileSave( const String& Name, const String& StartPath, const String& Extension, Gwen::Event::Handler* pHandler, Event::Handler::FunctionStr fnCallback );
 
         String ResolveFontPath(Gwen::Font* pFont);
+        UnicodeString GetDefaultFontFace();
+        float GetDefaultFontSize();
 	}
 
 }

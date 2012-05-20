@@ -248,7 +248,7 @@ bool Gwen::Platform::FileSave( const String& Name, const String& StartPath, cons
 }
 
 String Platform::ResolveFontPath(Gwen::Font* pFont) {
-	String extensions[2] = {".ttf", "ttc"};
+	String extensions[2] = {".ttf", ".ttc"};
 	String facename = Gwen::Utility::UnicodeToString(pFont->facename);
 
 	TCHAR windowsPathC[MAX_PATH];
@@ -261,10 +261,19 @@ String Platform::ResolveFontPath(Gwen::Font* pFont) {
 
 	for (int i = 0; i < 2; i++) {
 		String fontPath = fontBasePath + extensions[i];
-		std::fstream fs(fontPath.c_str());
+		std::fstream fs(fontPath.c_str(), std::ios::binary | std::ios::in);
 		if (fs.is_open())
 			return fontPath;
 	}
     return fontDirectoryPath + "Arial.ttf";
 }
+
+UnicodeString Gwen::Platform::GetDefaultFontFace() {
+    return L"Arial";
+}
+
+float Gwen::Platform::GetDefaultFontSize() {
+    return 13.0f;
+}
+
 #endif // WIN32
