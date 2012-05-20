@@ -21,4 +21,5 @@ xcuserdata
 /Windows/TrenchBroom/TrenchBroom.aps
 /Windows/ipch
 
+*.suo
 Thumbs.db

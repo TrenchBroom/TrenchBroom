@@ -33,13 +33,13 @@ namespace TrenchBroom {
             m_layout.clear();
             if (m_group) {
                 const vector<Model::Assets::TextureCollection*>& collections = m_editor.textureManager().collections();
-                for (int i = 0; i < collections.size(); i++) {
+                for (unsigned int i = 0; i < collections.size(); i++) {
                     Model::Assets::TextureCollection* collection = collections[i];
                     if (m_group)
                         m_layout.addGroup(collection, m_font->size + 2);
                     
                     std::vector<Model::Assets::Texture*> textures = collection->textures(m_sortCriterion);
-                    for (int j = 0; j < textures.size(); j++) {
+                    for (unsigned int j = 0; j < textures.size(); j++) {
                         Model::Assets::Texture* texture = textures[j];
                         if (!m_hideUnused || texture->usageCount > 0) {
                             Gwen::Point size = GetSkin()->GetRender()->MeasureText(m_font, texture->name);
@@ -49,7 +49,7 @@ namespace TrenchBroom {
                 }
             } else {
                 std::vector<Model::Assets::Texture*> textures = m_editor.textureManager().textures(m_sortCriterion);
-                for (int j = 0; j < textures.size(); j++) {
+                for (unsigned int j = 0; j < textures.size(); j++) {
                     Model::Assets::Texture* texture = textures[j];
                     if (!m_hideUnused || texture->usageCount > 0) {
                         Gwen::Point size = GetSkin()->GetRender()->MeasureText(m_font, texture->name);
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             
             glTranslatef(padding.left, padding.top, 0);
             
-            for (int i = 0; i < m_layout.size(); i++) {
+            for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<Model::Assets::Texture*, Model::Assets::TextureCollection*>::CellGroupPtr group = m_layout[i];
                 if (m_group && group->y() + group->titleHeight() >= visibleRect.y && group->y() <= visibleRect.y + visibleRect.h) {
                     // paint background for group title
@@ -148,7 +148,7 @@ namespace TrenchBroom {
                     glVertex3f(m_layout.width(), group->y(), 0);
                     glEnd();
                 }
-                for (int j = 0; j < group->size(); j++) {
+                for (unsigned int j = 0; j < group->size(); j++) {
                     CellGroup<Model::Assets::Texture*, Model::Assets::TextureCollection*>::CellRowPtr row = (*group)[j];
                     for (int k = 0; k < row->size(); k++) {
                         CellRow<Model::Assets::Texture*>::CellPtr cell = (*row)[k];
@@ -192,16 +192,16 @@ namespace TrenchBroom {
             glPopMatrix();
             
             skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
-            for (int i = 0; i < m_layout.size(); i++) {
+            for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<Model::Assets::Texture*, Model::Assets::TextureCollection*>::CellGroupPtr group = m_layout[i];
                 if (m_group && group->y() + group->titleHeight() >= visibleRect.y && group->y() <= visibleRect.y + visibleRect.h) {
                     Model::Assets::TextureCollection* collection = group->item();
                     std::vector<std::string> components = pathComponents(collection->name());
                     skin->GetRender()->RenderText(m_font, Gwen::Point(padding.left + 3, padding.top + group->y() + 1), components.back());
                 }
-                for (int j = 0; j < group->size(); j++) {
+                for (unsigned int j = 0; j < group->size(); j++) {
                     CellGroup<Model::Assets::Texture*, Model::Assets::TextureCollection*>::CellRowPtr row = (*group)[j];
-                    for (int k = 0; k < row->size(); k++) {
+                    for (unsigned int k = 0; k < row->size(); k++) {
                         CellRow<Model::Assets::Texture*>::CellPtr cell = (*row)[k];
                         if (cell->y() + cell->height() >= visibleRect.y && cell->y() <= visibleRect.y + visibleRect.h) {
                             Model::Assets::Texture* texture = cell->item();

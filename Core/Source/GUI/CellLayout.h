@@ -111,19 +111,19 @@ namespace TrenchBroom {
         private:
             std::vector<CellPtr> m_cells;
             float m_rowWidth;
-            int m_maxCells;
+            unsigned int m_maxCells;
             float m_fixedCellWidth;
             float m_y;
             float m_width;
             float m_height;
             float m_cellMargin;
         public:
-            const CellPtr operator[] (const int index) const {
+            const CellPtr operator[] (const unsigned int index) const {
                 assert(index >= 0 && index < m_cells.size());
                 return m_cells[index];
             }
 
-            CellRow(float y, float cellMargin, float rowWidth, int maxCells, float fixedCellWidth) : m_y(y), m_cellMargin(cellMargin), m_rowWidth(rowWidth), m_maxCells(maxCells), m_fixedCellWidth(fixedCellWidth), m_width(0), m_height(0) {}
+            CellRow(float y, float cellMargin, float rowWidth, unsigned int maxCells, float fixedCellWidth) : m_y(y), m_cellMargin(cellMargin), m_rowWidth(rowWidth), m_maxCells(maxCells), m_fixedCellWidth(fixedCellWidth), m_width(0), m_height(0) {}
             
             bool addItem(CellType item, float itemWidth, float itemHeight, float titleWidth, float titleHeight) {
                 float x = m_width;
@@ -132,9 +132,9 @@ namespace TrenchBroom {
                 Cell<CellType>* cell = new Cell<CellType>(item, x, m_y, itemWidth, itemHeight, titleWidth, titleHeight, m_fixedCellWidth);
                 CellPtr cellPtr(cell);
 
-                if (m_maxCells == -1 && m_width + cellPtr->width() + 2 * m_cellMargin > m_rowWidth && !m_cells.empty())
+                if (m_maxCells == 0 && m_width + cellPtr->width() + 2 * m_cellMargin > m_rowWidth && !m_cells.empty())
                     return false;
-                if (m_maxCells != -1 && m_cells.size() >= m_maxCells - 1)
+                if (m_maxCells > 0 && m_cells.size() >= m_maxCells - 1)
                     return false;
                 
                 m_width += cellPtr->width();
@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 return m_height;
             }
             
-            int size() const {
+            size_t size() const {
                 return m_cells.size();
             }
         };
@@ -173,13 +173,13 @@ namespace TrenchBroom {
             float m_titleHeight;
             float m_width;
             float m_height;
-            int m_maxCellsPerRow;
+            unsigned int m_maxCellsPerRow;
             float m_fixedCellWidth;
             float m_cellMargin;
             float m_rowMargin;
             GroupType m_item;
         public:
-            const CellRowPtr operator[] (const int index) const {
+            const CellRowPtr operator[] (const unsigned int index) const {
                 assert(index >= 0 && index < m_rows.size());
                 return m_rows[index];
             }
@@ -248,7 +248,7 @@ namespace TrenchBroom {
                 return m_item;
             }
             
-            int size() const {
+            size_t size() const {
                 return m_rows.size();
             }
         };
@@ -260,7 +260,7 @@ namespace TrenchBroom {
         private:
             std::vector<CellGroupPtr> m_groups;
             bool m_valid;
-            float m_maxCellsPerRow;
+            unsigned int m_maxCellsPerRow;
             float m_fixedCellWidth;
             float m_width;
             float m_height;
@@ -278,12 +278,12 @@ namespace TrenchBroom {
                     std::vector<CellGroupPtr> copy = m_groups;
                     m_groups.clear();
                     
-                    for (int i = 0; i < copy.size(); i++) {
+                    for (unsigned int i = 0; i < copy.size(); i++) {
                         CellGroupPtr group = copy[i];
                         addGroup(group->item(), group->titleHeight());
-                        for (int j = 0; j < group->size(); j++) {
+                        for (unsigned int j = 0; j < group->size(); j++) {
                             const typename CellGroup<CellType, GroupType>::CellRowPtr row = (*group)[j];
-                            for (int k = 0; k < row->size(); k++) {
+                            for (unsigned int k = 0; k < row->size(); k++) {
                                 const typename CellRow<CellType>::CellPtr cell = (*row)[k];
                                 addItem(cell->item(), cell->itemWidth(), cell->itemHeight(), cell->titleWidth(), cell->titleHeight());
                             }
@@ -292,7 +292,7 @@ namespace TrenchBroom {
                 }
             }
         public:
-            const CellGroupPtr operator[] (const int index) {
+            const CellGroupPtr operator[] (const unsigned int index) {
                 assert(index >= 0 && index < m_groups.size());
                 if (!m_valid)
                     validate();
@@ -303,7 +303,7 @@ namespace TrenchBroom {
                 invalidate();
             }
             
-            CellLayout(int maxCellsPerRow = -1) : m_width(1), m_cellMargin(0), m_rowMargin(0), m_groupMargin(0), m_maxCellsPerRow(maxCellsPerRow), m_fixedCellWidth(0) {
+            CellLayout(int maxCellsPerRow = 0) : m_width(1), m_cellMargin(0), m_rowMargin(0), m_groupMargin(0), m_maxCellsPerRow(maxCellsPerRow), m_fixedCellWidth(0) {
                 invalidate();
             }
             
@@ -371,7 +371,7 @@ namespace TrenchBroom {
                 invalidate();
             }
             
-            int size() {
+            size_t size() {
                 if (!m_valid)
                     validate();
                 return m_groups.size();

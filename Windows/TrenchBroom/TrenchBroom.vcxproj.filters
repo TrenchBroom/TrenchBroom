@@ -583,9 +583,6 @@
     <ClInclude Include="..\..\Gwen\Source\Gwen\Skins\Simple.h">
       <Filter>Header\Gwen\Skins</Filter>
     </ClInclude>
-    <ClInclude Include="WinStringFactory.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="ProgressDialog.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -633,6 +630,27 @@
     </ClInclude>
     <ClInclude Include="..\..\Core\Source\Renderer\Figures\PositioningGuideFigure.h">
       <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="WinFontManager.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Model\Undo\SnapshotUndoItem.h">
+      <Filter>Header\Core\Model\Undo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\GUI\CellLayout.h">
+      <Filter>Header\Core\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\GUI\Inspector.h">
+      <Filter>Header\Core\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\GUI\SingleTextureControl.h">
+      <Filter>Header\Core\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\GUI\TextureBrowserControl.h">
+      <Filter>Header\Core\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Renderers\OpenGL_FTGL.h">
+      <Filter>Header\Gwen\Renderers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -975,9 +993,6 @@
     <ClCompile Include="..\..\Gwen\Source\Gwen\Renderers\OpenGL_DebugFont.cpp">
       <Filter>Source\Gwen\Renderers</Filter>
     </ClCompile>
-    <ClCompile Include="WinStringFactory.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="ProgressDialog.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -1019,6 +1034,24 @@
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\Renderer\Figures\PositioningGuideFigure.cpp">
       <Filter>Source\Core\Renderer\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="WinFontManager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Model\Undo\SnapshotUndoItem.cpp">
+      <Filter>Source\Core\Model\Undo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\GUI\Inspector.cpp">
+      <Filter>Source\Core\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\GUI\SingleTextureControl.cpp">
+      <Filter>Source\Core\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\GUI\TextureBrowserControl.cpp">
+      <Filter>Source\Core\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Renderers\OpenGL_FTGL.cpp">
+      <Filter>Source\Gwen\Renderers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

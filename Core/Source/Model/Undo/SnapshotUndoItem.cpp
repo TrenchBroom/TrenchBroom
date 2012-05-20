@@ -44,7 +44,7 @@ namespace TrenchBroom {
         BrushSnapshot::BrushSnapshot(const Brush& brush) {
             m_uniqueId = brush.uniqueId();
             const vector<Face*>& brushFaces = brush.faces();
-            for (int i = 0; i < brushFaces.size(); i++) {
+            for (unsigned int i = 0; i < brushFaces.size(); i++) {
                 Face* snapshot = new Face(*brushFaces[i]);
                 m_faces.push_back(snapshot);
             }
@@ -86,17 +86,17 @@ namespace TrenchBroom {
         }
 
         SnapshotUndoItem::SnapshotUndoItem(Map& map) : UndoItem(map) {
-            for (int i = 0; i < m_selectedEntities.size(); i++) {
+            for (unsigned int i = 0; i < m_selectedEntities.size(); i++) {
                 EntitySnapshot* snapshot = new EntitySnapshot(*m_selectedEntities[i]);
                 m_entities.push_back(snapshot);
             }
             
-            for (int i = 0; i < m_selectedBrushes.size(); i++) {
+            for (unsigned int i = 0; i < m_selectedBrushes.size(); i++) {
                 BrushSnapshot* snapshot = new BrushSnapshot(*m_selectedBrushes[i]);
                 m_brushes.push_back(snapshot);
             }
             
-            for (int i = 0; i < m_selectedFaces.size(); i++) {
+            for (unsigned int i = 0; i < m_selectedFaces.size(); i++) {
                 FaceSnapshot* snapshot = new FaceSnapshot(*m_selectedFaces[i]);
                 m_faces.push_back(snapshot);
             }
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             if (!m_faces.empty()) {
                 m_map.facesWillChange(m_selectedFaces);
 
-                for (int i = 0; i < m_faces.size(); i++) {
+                for (unsigned int i = 0; i < m_faces.size(); i++) {
                     FaceSnapshot* snapshot = m_faces[i];
                     Face* original = m_selectedFaces[i];
                     assert(snapshot->faceId() == original->faceId());
@@ -133,7 +133,7 @@ namespace TrenchBroom {
             if (!m_brushes.empty()) {
                 m_map.brushesWillChange(m_selectedBrushes);
                 
-                for (int i = 0; i < m_brushes.size(); i++) {
+                for (unsigned int i = 0; i < m_brushes.size(); i++) {
                     BrushSnapshot* snapshot = m_brushes[i];
                     Brush* original = m_selectedBrushes[i];
                     assert(snapshot->uniqueId() == original->uniqueId());
@@ -146,7 +146,7 @@ namespace TrenchBroom {
             if (!m_entities.empty()) {
                 m_map.propertiesWillChange(m_selectedEntities);
                 
-                for (int i = 0; i < m_entities.size(); i++) {
+                for (unsigned int i = 0; i < m_entities.size(); i++) {
                     EntitySnapshot* snapshot = m_entities[i];
                     Entity* original = m_selectedEntities[i];
                     assert(snapshot->uniqueId() == original->uniqueId());

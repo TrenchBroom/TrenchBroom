@@ -67,7 +67,7 @@ namespace TrenchBroom {
                 rotation = faces[0]->rotation();
                 Model::Assets::Texture* texture = faces[0]->texture();
 
-                for (int i = 1; i < faces.size(); i++) {
+                for (unsigned int i = 1; i < faces.size(); i++) {
                     if (texture != faces[i]->texture())
                         texture = NULL;
                     xOffsetMulti |= xOffset == static_cast<float>(faces[i]->xOffset());

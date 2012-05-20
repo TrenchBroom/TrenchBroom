@@ -27,7 +27,7 @@
 #include <cassert>
 #include "MapDocument.h"
 #include "MapView.h"
-#include "WinStringFactory.h"
+#include "WinFontManager.h"
 #include "GUI/EditorGui.h"
 #include "Utilities/Utils.h"
 #include "Utilities/Console.h"
@@ -222,9 +222,7 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 //	string skinPath = TrenchBroom::appendPath(appDirectory, "DefaultSkin.png");
 	assert(TrenchBroom::fileExists(skinPath));
 
-	TrenchBroom::Renderer::StringFactory* stringFactory = new TrenchBroom::Renderer::WinStringFactory(m_deviceContext);
-	m_fontManager = new TrenchBroom::Renderer::FontManager(*stringFactory);
-
+	m_fontManager = new TrenchBroom::Renderer::WinFontManager();
 	m_editorGui = new TrenchBroom::Gui::EditorGui(GetDocument()->editor(), *m_fontManager, skinPath);
 
 	SetTimer(1, 16, NULL);
