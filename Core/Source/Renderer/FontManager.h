@@ -32,7 +32,7 @@ namespace TrenchBroom {
             std::string name;
             int size;
             FontDescriptor() {}
-            FontDescriptor(const std::string name, int size) : name(name), size(size) {}
+            FontDescriptor(const std::string& name, int size) : name(name), size(size) {}
         };
 
         bool operator<(FontDescriptor const& left, FontDescriptor const& right);

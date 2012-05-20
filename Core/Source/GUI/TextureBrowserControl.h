@@ -69,6 +69,7 @@ namespace TrenchBroom {
             void setHideUnused(bool hideUnused);
             void setGroup(bool group);
             void setSortCriterion(Model::Assets::ETextureSortCriterion criterion);
+            void setFixedCellWidth(float fixedCellWidth);
         };
         
         class TextureBrowserControl : public Gwen::Controls::Base {
@@ -83,6 +84,7 @@ namespace TrenchBroom {
             void setHideUnused(bool hideUnused);
             void setGroup(bool group);
             void setSortCriterion(Model::Assets::ETextureSortCriterion criterion);
+            void setFixedCellWidth(float fixedCellWidth);
         };
     }
 }

@@ -11,8 +11,20 @@
 
 namespace Gwen {
     namespace Renderer {
+        bool operator<(FontDescriptor const& left, FontDescriptor const& right) {
+            int cmp = left.name.compare(right.name);
+            if (cmp < 0) return true;
+            if (cmp > 0) return false;
+            return left.size < right.size;
+        }
+
         OpenGL_FTGL::OpenGL_FTGL() {}
-        OpenGL_FTGL::~OpenGL_FTGL() {}
+        
+        OpenGL_FTGL::~OpenGL_FTGL() {
+            for (FontCache::iterator it = m_fontCache.begin(); it != m_fontCache.end(); ++it)
+                FTGL::ftglDestroyFont(it->second);
+            m_fontCache.clear();
+        }
         
         String OpenGL_FTGL::resolveFontPath(Gwen::Font* pFont) {
             String extensions[2] = {".ttf", "ttc"};
@@ -34,14 +46,17 @@ namespace Gwen {
         }
 
         FTGL::FTGLfont* OpenGL_FTGL::loadFont(Gwen::Font* pFont) {
-            FTGL::FTGLfont* ftglFont = static_cast<FTGL::FTGLfont*>(pFont->data);
-            if (ftglFont == NULL) {
+            FontDescriptor descriptor(pFont->facename, pFont->size);
+            FontCache::iterator it = m_fontCache.find(descriptor);
+            if (it == m_fontCache.end()) {
                 String fontPath = resolveFontPath(pFont);
-                ftglFont = FTGL::ftglCreatePixmapFont(fontPath.c_str());
+                FTGL::FTGLfont* ftglFont = FTGL::ftglCreatePixmapFont(fontPath.c_str());
                 FTGL::ftglSetFontFaceSize(ftglFont, pFont->size, 72);
-                pFont->data = ftglFont;
+                m_fontCache[descriptor] = ftglFont;
+                return ftglFont;
+            } else {
+                return it->second;
             }
-            return ftglFont;
         }
 
         void OpenGL_FTGL::RenderText( Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text ) {

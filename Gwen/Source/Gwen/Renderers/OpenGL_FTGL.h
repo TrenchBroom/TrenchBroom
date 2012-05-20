@@ -16,10 +16,21 @@ namespace Gwen
 {
 	namespace Renderer 
 	{
+        class FontDescriptor {
+        public:
+            UnicodeString name;
+            float size;
+            FontDescriptor() {}
+            FontDescriptor(const UnicodeString& name, float size) : name(name), size(size) {}
+        };
         
+        bool operator<(FontDescriptor const& left, FontDescriptor const& right);
+
 		class OpenGL_FTGL : public Gwen::Renderer::OpenGL
 		{
         protected:
+            typedef std::map<FontDescriptor, FTGL::FTGLfont*> FontCache;
+            FontCache m_fontCache;
             String resolveFontPath(Gwen::Font* pFont);
             FTGL::FTGLfont* loadFont(Gwen::Font* pFont);
         public:

@@ -36,9 +36,17 @@ namespace TrenchBroom {
             float m_itemHeight;
             float m_titleWidth;
             float m_titleHeight;
+            float m_fixedCellWidth;
             CellType m_item;
         public:
-            Cell(CellType item, float x, float y, float itemWidth, float itemHeight, float titleWidth, float titleHeight) : m_item(item), m_x(x), m_y(y), m_itemWidth(itemWidth), m_itemHeight(itemHeight), m_titleWidth(titleWidth), m_titleHeight(titleHeight) {}
+            Cell(CellType item, float x, float y, float itemWidth, float itemHeight, float titleWidth, float titleHeight, float fixedCellWidth) : m_item(item), m_x(x), m_y(y), m_itemWidth(itemWidth), m_itemHeight(itemHeight), m_titleWidth(titleWidth), m_titleHeight(titleHeight), m_fixedCellWidth(fixedCellWidth) {
+                if (m_fixedCellWidth > 0) {
+                    if (m_itemWidth >= m_fixedCellWidth) {
+                        m_itemHeight *= m_fixedCellWidth / m_itemWidth;
+                        m_itemWidth = m_fixedCellWidth;
+                    }
+                }
+            }
             
             float x() const {
                 return m_x;
@@ -49,6 +57,8 @@ namespace TrenchBroom {
             }
             
             float width() const {
+                if (m_fixedCellWidth > 0)
+                    return m_fixedCellWidth;
                 return Math::fmax(m_itemWidth, m_titleWidth);
             }
             
@@ -102,6 +112,7 @@ namespace TrenchBroom {
             std::vector<CellPtr> m_cells;
             float m_rowWidth;
             int m_maxCells;
+            float m_fixedCellWidth;
             float m_y;
             float m_width;
             float m_height;
@@ -112,28 +123,26 @@ namespace TrenchBroom {
                 return m_cells[index];
             }
 
-            CellRow(float y, float cellMargin, float rowWidth, int maxCells = -1) : m_y(y), m_cellMargin(cellMargin), m_rowWidth(rowWidth), m_maxCells(maxCells), m_width(0), m_height(0) {}
+            CellRow(float y, float cellMargin, float rowWidth, int maxCells, float fixedCellWidth) : m_y(y), m_cellMargin(cellMargin), m_rowWidth(rowWidth), m_maxCells(maxCells), m_fixedCellWidth(fixedCellWidth), m_width(0), m_height(0) {}
             
             bool addItem(CellType item, float itemWidth, float itemHeight, float titleWidth, float titleHeight) {
-                float cellWidth = Math::fmax(itemWidth, titleWidth);
-                float cellHeight = itemHeight + titleHeight;
-                if (m_maxCells == -1 && m_width + cellWidth + 2 * m_cellMargin > m_rowWidth && !m_cells.empty())
+                float x = m_width;
+                if (!m_cells.empty())
+                    x += m_cellMargin;
+                Cell<CellType>* cell = new Cell<CellType>(item, x, m_y, itemWidth, itemHeight, titleWidth, titleHeight, m_fixedCellWidth);
+                CellPtr cellPtr(cell);
+
+                if (m_maxCells == -1 && m_width + cellPtr->width() + 2 * m_cellMargin > m_rowWidth && !m_cells.empty())
                     return false;
                 if (m_maxCells != -1 && m_cells.size() >= m_maxCells - 1)
                     return false;
                 
-                float x = m_width;
-                m_width += cellWidth;
-                if (!m_cells.empty()) {
-                    x += m_cellMargin;
+                m_width += cellPtr->width();
+                if (!m_cells.empty())
                     m_width += m_cellMargin;
-                }
-                m_height = Math::fmax(m_height, cellHeight);
+                m_height = Math::fmax(m_height, cellPtr->height());
                 
-                Cell<CellType>* cell = new Cell<CellType>(item, x, m_y, itemWidth, itemHeight, titleWidth, titleHeight);
-                CellPtr cellPtr(cell);
                 m_cells.push_back(cellPtr);
-                
                 return true;
             }
 
@@ -165,6 +174,7 @@ namespace TrenchBroom {
             float m_width;
             float m_height;
             int m_maxCellsPerRow;
+            float m_fixedCellWidth;
             float m_cellMargin;
             float m_rowMargin;
             GroupType m_item;
@@ -174,7 +184,7 @@ namespace TrenchBroom {
                 return m_rows[index];
             }
 
-            CellGroup(GroupType item, float y, float cellMargin, float rowMargin, float titleHeight, float width, int maxCellsPerRow = -1) : 
+            CellGroup(GroupType item, float y, float cellMargin, float rowMargin, float titleHeight, float width, int maxCellsPerRow, float fixedCellWidth) : 
                 m_item(item), 
                 m_y(y), 
                 m_cellMargin(cellMargin), 
@@ -182,16 +192,18 @@ namespace TrenchBroom {
                 m_titleHeight(titleHeight), 
                 m_width(width), 
                 m_height(m_titleHeight), 
-                m_maxCellsPerRow(maxCellsPerRow) {}
+                m_maxCellsPerRow(maxCellsPerRow),
+                m_fixedCellWidth(fixedCellWidth) {}
             
-            CellGroup(float y, float cellMargin, float rowMargin, float width, int maxCellsPerRow = -1) : 
+            CellGroup(float y, float cellMargin, float rowMargin, float width, int maxCellsPerRow, float fixedCellWidth) : 
                 m_y(y), 
                 m_cellMargin(cellMargin), 
                 m_rowMargin(rowMargin), 
                 m_titleHeight(0), 
                 m_width(width), 
                 m_height(m_titleHeight), 
-                m_maxCellsPerRow(maxCellsPerRow) {}
+                m_maxCellsPerRow(maxCellsPerRow),
+                m_fixedCellWidth(fixedCellWidth) {}
             
             void addItem(CellType item, float itemWidth, float itemHeight, float titleWidth, float titleHeight) {
                 CellRowPtr rowPtr;
@@ -199,7 +211,7 @@ namespace TrenchBroom {
                     float y = m_y;
                     if (m_titleHeight > 0)
                         y += m_titleHeight + m_rowMargin;
-                    CellRow<CellType>* row = new CellRow<CellType>(y, m_cellMargin, m_width, m_maxCellsPerRow);
+                    CellRow<CellType>* row = new CellRow<CellType>(y, m_cellMargin, m_width, m_maxCellsPerRow, m_fixedCellWidth);
                     rowPtr = CellRowPtr(row);
                     m_rows.push_back(rowPtr);
                     m_height += m_rowMargin;
@@ -210,7 +222,7 @@ namespace TrenchBroom {
                 float oldHeight = rowPtr->height();
                 if (!rowPtr->addItem(item, itemWidth, itemHeight, titleWidth, titleHeight)) {
                     float y = rowPtr->y() + rowPtr->height() + m_rowMargin;
-                    CellRow<CellType>* row = new CellRow<CellType>(y, m_cellMargin, m_width, m_maxCellsPerRow);
+                    CellRow<CellType>* row = new CellRow<CellType>(y, m_cellMargin, m_width, m_maxCellsPerRow, m_fixedCellWidth);
                     rowPtr = CellRowPtr(row);
                     m_rows.push_back(rowPtr);
                     assert(rowPtr->addItem(item, itemWidth, itemHeight, titleWidth, titleHeight));
@@ -249,6 +261,7 @@ namespace TrenchBroom {
             std::vector<CellGroupPtr> m_groups;
             bool m_valid;
             float m_maxCellsPerRow;
+            float m_fixedCellWidth;
             float m_width;
             float m_height;
             float m_cellMargin;
@@ -286,7 +299,11 @@ namespace TrenchBroom {
                 return m_groups[index];
             }
 
-            CellLayout(int maxCellsPerRow = -1) : m_width(1), m_cellMargin(0), m_rowMargin(0), m_groupMargin(0), m_maxCellsPerRow(maxCellsPerRow) {
+            CellLayout(float fixedCellWidth) : m_width(1), m_cellMargin(0), m_rowMargin(0), m_groupMargin(0), m_maxCellsPerRow(-1), m_fixedCellWidth(fixedCellWidth) {
+                invalidate();
+            }
+            
+            CellLayout(int maxCellsPerRow = -1) : m_width(1), m_cellMargin(0), m_rowMargin(0), m_groupMargin(0), m_maxCellsPerRow(maxCellsPerRow), m_fixedCellWidth(0) {
                 invalidate();
             }
             
@@ -323,7 +340,7 @@ namespace TrenchBroom {
                 if (!m_groups.empty())
                     m_height += m_groupMargin;
                 
-                CellGroup<CellType, GroupType>* group = new CellGroup<CellType, GroupType>(groupItem, y, m_cellMargin, m_rowMargin, titleHeight, m_width, m_maxCellsPerRow);
+                CellGroup<CellType, GroupType>* group = new CellGroup<CellType, GroupType>(groupItem, y, m_cellMargin, m_rowMargin, titleHeight, m_width, m_maxCellsPerRow, m_fixedCellWidth);
                 CellGroupPtr groupPtr = CellGroupPtr(group);
                 m_groups.push_back(groupPtr);
             }
@@ -334,7 +351,7 @@ namespace TrenchBroom {
                 
                 CellGroupPtr groupPtr;
                 if (m_groups.empty()) {
-                    CellGroup<CellType, GroupType>* group = new CellGroup<CellType, GroupType>(0, m_cellMargin, m_rowMargin, m_width, m_maxCellsPerRow);
+                    CellGroup<CellType, GroupType>* group = new CellGroup<CellType, GroupType>(0, m_cellMargin, m_rowMargin, m_width, m_maxCellsPerRow, m_fixedCellWidth);
                     groupPtr = CellGroupPtr(group);
                     m_groups.push_back(groupPtr);
                     m_height += titleHeight;
@@ -370,8 +387,19 @@ namespace TrenchBroom {
                 m_width = width;
                 invalidate();
             }
+            
+            void setFixedCellWidth(float fixedCellWidth) {
+                if (m_fixedCellWidth = fixedCellWidth)
+                    return;
+                m_fixedCellWidth = fixedCellWidth;
+                invalidate();
+            }
+            
+            float fixedCellWidth() const {
+                return m_fixedCellWidth;
+            }
 
-            float width() {
+            float width() const {
                 return m_width;
             }
             
