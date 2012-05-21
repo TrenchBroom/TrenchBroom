@@ -53,6 +53,9 @@ namespace Gwen
 				}
 				
 				virtual void DrawButton( Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled ) = 0;
+                virtual void DrawLeftStripButton( Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled ) = 0;
+                virtual void DrawMidStripButton( Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled ) = 0;
+                virtual void DrawRightStripButton( Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled ) = 0;
 				virtual void DrawTabButton( Controls::Base* control, bool bActive, int dir ) = 0;
 				virtual void DrawTabControl( Controls::Base* control ) = 0;
 				virtual void DrawTabTitleBar( Controls::Base* control ) = 0;

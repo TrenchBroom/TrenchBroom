@@ -22,6 +22,8 @@
 #include "Model/Map/Map.h"
 #include "Model/Map/Face.h"
 #include "Model/Selection.h"
+#include "Gwen/Controls/Button.h"
+#include "Gwen/Controls/ButtonStrip.h"
 #include "Gwen/Controls/CheckBox.h"
 #include "Gwen/Controls/GroupBox.h"
 #include "Gwen/Controls/Label.h"
@@ -124,16 +126,21 @@ namespace TrenchBroom {
         }
         
         void Inspector::onTextureBrowserSortCriterionChanged(Gwen::Controls::Base* control) {
-            Gwen::Controls::RadioButtonController* controller = static_cast<Gwen::Controls::RadioButtonController*>(control);
-            if (controller->GetSelectedName() == "name")
-                m_textureBrowser->setSortCriterion(Model::Assets::TB_TS_NAME);
-            else
+            Gwen::Controls::ButtonStrip* buttonStrip = static_cast<Gwen::Controls::ButtonStrip*>(control);
+            if (buttonStrip->GetSelectedButtonIndex() == 1)
                 m_textureBrowser->setSortCriterion(Model::Assets::TB_TS_USAGE);
+            else
+                m_textureBrowser->setSortCriterion(Model::Assets::TB_TS_NAME);
         }
         
         void Inspector::onTextureBrowserGroupChanged(Gwen::Controls::Base* control) {
-            Gwen::Controls::CheckBox* checkbox = static_cast<Gwen::Controls::CheckBox*>(control);
-            m_textureBrowser->setGroup(checkbox->IsChecked());
+            Gwen::Controls::Button* button = static_cast<Gwen::Controls::Button*>(control);
+            m_textureBrowser->setGroup(button->GetToggleState());
+        }
+
+        void Inspector::onTextureBrowserFilterUsedChanged(Gwen::Controls::Base* control) {
+            Gwen::Controls::Button* button = static_cast<Gwen::Controls::Button*>(control);
+            m_textureBrowser->setHideUnused(button->GetToggleState());
         }
 
         Inspector::Inspector(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
@@ -220,6 +227,27 @@ namespace TrenchBroom {
             m_textureBrowser = new TextureBrowserControl(textureBrowserBox, m_editor);
             m_textureBrowser->Dock(Gwen::Pos::Fill);
 
+            Gwen::Controls::ButtonStrip* textureOrderStrip = new Gwen::Controls::ButtonStrip(textureBrowserFilterContainer);
+            textureOrderStrip->AddButton("Name");
+            textureOrderStrip->AddButton("Usage");
+            textureOrderStrip->SetPos(0, 0);
+            textureOrderStrip->onSelectionChange.Add(this, &Inspector::onTextureBrowserSortCriterionChanged);
+            
+            Gwen::Controls::Button* textureGroupButton = new Gwen::Controls::Button(textureBrowserFilterContainer);
+            textureGroupButton->SetText("Group");
+            textureGroupButton->SetIsToggle(true);
+            textureGroupButton->SetPos(textureOrderStrip->X() + textureOrderStrip->Width() + 5, 0);
+            textureGroupButton->SetWidth(48);
+            textureGroupButton->onToggle.Add(this, &Inspector::onTextureBrowserGroupChanged);
+                                                                                    
+            Gwen::Controls::Button* textureUsageButton = new Gwen::Controls::Button(textureBrowserFilterContainer);
+            textureUsageButton->SetText("Used");
+            textureUsageButton->SetIsToggle(true);
+            textureUsageButton->SetPos(textureGroupButton->X() + textureGroupButton->Width() + 5, 0);
+            textureUsageButton->SetWidth(48);
+            textureUsageButton->onToggle.Add(this, &Inspector::onTextureBrowserFilterUsedChanged);
+            
+            /*
             Gwen::Controls::Label* textureDisplayModeLabel = new Gwen::Controls::Label(textureBrowserFilterContainer);
             textureDisplayModeLabel->SetText("Display Mode");
             textureDisplayModeLabel->SetPos(0, 0);
@@ -233,6 +261,7 @@ namespace TrenchBroom {
             textureBrowserGroupCheckbox->Checkbox()->onCheckChanged.Add(this, &Inspector::onTextureBrowserGroupChanged);
             textureBrowserGroupCheckbox->Label()->SetText("Group by Wad");
             textureBrowserGroupCheckbox->SetPos(0, 60);
+             */
             
             m_sectionTabControl->AddPage("Face", facePanel);
 

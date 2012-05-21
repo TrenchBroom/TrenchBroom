@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4800C49B156A303000991875 /* ButtonStrip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4800C49A156A303000991875 /* ButtonStrip.cpp */; };
 		480ED5311549C7E4003CA78F /* MacPreferences.mm in Sources */ = {isa = PBXBuildFile; fileRef = 480ED5301549C7E4003CA78F /* MacPreferences.mm */; };
 		480ED5351549CEE4003CA78F /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 480ED5341549CEE4003CA78F /* AppDelegate.mm */; };
 		4812004E1538636900181D66 /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4812004D1538636900181D66 /* ProgressWindow.xib */; };
@@ -158,6 +159,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4800C498156A302000991875 /* ButtonStrip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ButtonStrip.h; sourceTree = "<group>"; };
+		4800C49A156A303000991875 /* ButtonStrip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ButtonStrip.cpp; sourceTree = "<group>"; };
 		480ED52F1549C7E4003CA78F /* MacPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacPreferences.h; sourceTree = "<group>"; };
 		480ED5301549C7E4003CA78F /* MacPreferences.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacPreferences.mm; sourceTree = "<group>"; };
 		480ED5331549CEE4003CA78F /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -726,6 +729,8 @@
 				4825B456153AE5E9007E3AE1 /* Base.h */,
 				4825B457153AE5E9007E3AE1 /* Button.cpp */,
 				4825B458153AE5E9007E3AE1 /* Button.h */,
+				4800C49A156A303000991875 /* ButtonStrip.cpp */,
+				4800C498156A302000991875 /* ButtonStrip.h */,
 				4825B459153AE5E9007E3AE1 /* Canvas.cpp */,
 				4825B45A153AE5E9007E3AE1 /* Canvas.h */,
 				4825B45B153AE5E9007E3AE1 /* CheckBox.cpp */,
@@ -1243,6 +1248,7 @@
 				482EB2A71566CC120071206A /* OpenGL_FTGL.cpp in Sources */,
 				48953FDF15679B92006DD2E3 /* SnapshotUndoItem.cpp in Sources */,
 				48953FE21567CE9C006DD2E3 /* TextureBrowserControl.cpp in Sources */,
+				4800C49B156A303000991875 /* ButtonStrip.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
