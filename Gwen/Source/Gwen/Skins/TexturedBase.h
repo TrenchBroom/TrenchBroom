@@ -153,6 +153,31 @@ namespace Gwen
 							Texturing::Bordered Pressed;
 
 						} Button;
+                        
+                        struct /* StripButton */
+                        {
+                            struct /* Left */
+                            {
+                                Texturing::Bordered Normal;
+                                Texturing::Bordered Hovered;
+                                Texturing::Bordered Disabled;
+                                Texturing::Bordered Pressed;
+                            } Left;
+                            struct /* Left */
+                            {
+                                Texturing::Bordered Normal;
+                                Texturing::Bordered Hovered;
+                                Texturing::Bordered Disabled;
+                                Texturing::Bordered Pressed;
+                            } Mid;
+                            struct /* Left */
+                            {
+                                Texturing::Bordered Normal;
+                                Texturing::Bordered Hovered;
+                                Texturing::Bordered Disabled;
+                                Texturing::Bordered Pressed;
+                            } Right;
+                        } StripButton;
 
 						struct /* ListBox */
 						{
@@ -390,11 +415,24 @@ namespace Gwen
 					Textures.Tree.Plus.Init					( &m_Texture, 448, 96, 15, 15 );
 					Textures.Tree.Minus.Init				( &m_Texture, 464, 96, 15, 15 );
 
-					Textures.Input.Button.Normal.Init				( &m_Texture, 480, 0,	31,		31,		Margin( 8, 8, 8, 8 ) );
+					Textures.Input.Button.Normal.Init			( &m_Texture, 480, 0,	31,		31,		Margin( 8, 8, 8, 8 ) );
 					Textures.Input.Button.Hovered.Init			( &m_Texture, 480, 32,	31,		31,		Margin( 8, 8, 8, 8 ) );
 					Textures.Input.Button.Disabled.Init			( &m_Texture, 480, 64,	31,		31,		Margin( 8, 8, 8, 8 ) );
 					Textures.Input.Button.Pressed.Init			( &m_Texture, 480, 96,	31,		31,		Margin( 8, 8, 8, 8 ) );
 
+                    Textures.Input.StripButton.Left.Normal.Init     ( &m_Texture, 512, 0, 31, 31, Margin( 8, 8, 8, 8) );
+                    Textures.Input.StripButton.Left.Hovered.Init    ( &m_Texture, 512, 32, 31, 31, Margin( 8, 8, 8, 8) );
+                    Textures.Input.StripButton.Left.Disabled.Init   ( &m_Texture, 512, 64, 31, 31, Margin( 8, 8, 8, 8) );
+                    Textures.Input.StripButton.Left.Pressed.Init    ( &m_Texture, 512, 96, 31, 31, Margin( 8, 8, 8, 8) );
+                    Textures.Input.StripButton.Mid.Normal.Init      ( &m_Texture, 544, 0, 31, 31, Margin( 8, 8, 8, 8) );
+                    Textures.Input.StripButton.Mid.Hovered.Init     ( &m_Texture, 544, 32, 31, 31, Margin( 8, 8, 8, 8) );
+                    Textures.Input.StripButton.Mid.Disabled.Init    ( &m_Texture, 544, 64, 31, 31, Margin( 8, 8, 8, 8) );
+                    Textures.Input.StripButton.Mid.Pressed.Init     ( &m_Texture, 544, 96, 31, 31, Margin( 8, 8, 8, 8) );
+                    Textures.Input.StripButton.Right.Normal.Init    ( &m_Texture, 576, 0, 31, 31, Margin( 8, 8, 8, 8) );
+                    Textures.Input.StripButton.Right.Hovered.Init   ( &m_Texture, 576, 32, 31, 31, Margin( 8, 8, 8, 8) );
+                    Textures.Input.StripButton.Right.Disabled.Init  ( &m_Texture, 576, 64, 31, 31, Margin( 8, 8, 8, 8) );
+                    Textures.Input.StripButton.Right.Pressed.Init   ( &m_Texture, 576, 96, 31, 31, Margin( 8, 8, 8, 8) );
+                    
 					for ( int i=0; i<4; i++ )
 					{
 						Textures.Scroller.Button.Normal[i].Init		( &m_Texture, 464 + 0, 208 + i * 16, 15, 15, Margin( 2, 2, 2, 2 ) );

@@ -76,8 +76,8 @@ namespace TrenchBroom {
         class TextureBrowserControl : public Gwen::Controls::Base {
         protected:
             Controller::Editor& m_editor;
-            TextureBrowserPanel* m_textureBrowserPanel;
-            Gwen::Controls::ScrollControl* m_textureBrowserScroller;
+            TextureBrowserPanel* m_browserPanel;
+            Gwen::Controls::ScrollControl* m_browserScroller;
         public:
             TextureBrowserControl(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~TextureBrowserControl() {}

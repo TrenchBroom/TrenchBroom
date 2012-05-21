@@ -25,6 +25,7 @@
 #include "Utilities/VecMath.h"
 #include "Gwen/Skin.h"
 #include "Gwen/Controls/ScrollControl.h"
+#include "Gwen/Utility.h"
 #include <vector>
 
 namespace TrenchBroom {
@@ -63,7 +64,8 @@ namespace TrenchBroom {
             }
 
             const Gwen::Padding& padding = GetPadding();
-            SetBounds(GetBounds().x, GetBounds().y, GetBounds().w, static_cast<int>(m_layout.height()) + padding.top + padding.bottom);
+            int controlHeight = static_cast<int>(m_layout.height()) + padding.top + padding.bottom;
+            SetBounds(GetBounds().x, GetBounds().y, GetBounds().w, controlHeight);
         }
 
         void TextureBrowserPanel::renderTextureBorder(CellRow<Model::Assets::Texture*>::CellPtr cell) {
@@ -80,10 +82,10 @@ namespace TrenchBroom {
             m_layout.setRowMargin(5);
             m_layout.setCellMargin(5);
             m_layout.setWidth(GetBounds().w);
-            m_group = true;
+            m_group = false;
             m_hideUnused = false;
             m_layout.setFixedCellWidth(64);
-            m_sortCriterion = Model::Assets::TB_TS_USAGE;
+            m_sortCriterion = Model::Assets::TB_TS_NAME;
             SetFont(GetSkin()->GetDefaultFont());
             reloadTextures();
             
@@ -109,10 +111,12 @@ namespace TrenchBroom {
         
         void TextureBrowserPanel::OnBoundsChanged( Gwen::Rect oldBounds ) {
             Base::OnBoundsChanged(oldBounds);
-            const Gwen::Padding& padding = GetPadding();
 
+            const Gwen::Padding& padding = GetPadding();
             m_layout.setWidth(GetBounds().w - padding.left - padding.right);
-            SetBounds(GetBounds().x, GetBounds().y, GetBounds().w, static_cast<int>(m_layout.height()) + padding.top + padding.bottom);
+
+            int controlHeight = static_cast<int>(m_layout.height()) + padding.top + padding.bottom;
+            SetBounds(GetBounds().x, GetBounds().y, GetBounds().w, controlHeight);
         }
 
         void TextureBrowserPanel::RenderOver(Gwen::Skin::Base* skin) {
@@ -138,9 +142,9 @@ namespace TrenchBroom {
             glDisable(GL_TEXTURE_2D);
             glBegin(GL_QUADS);
             glVertex3f(0, 0, 0);
-            glVertex3f(0, bounds.h, 0);
-            glVertex3f(bounds.w, bounds.h, 0);
-            glVertex3f(bounds.w, 0, 0);
+            glVertex3f(0, scrollerVisibleRect.h, 0);
+            glVertex3f(scrollerVisibleRect.w, scrollerVisibleRect.h, 0);
+            glVertex3f(scrollerVisibleRect.w, 0, 0);
             glEnd();
             
             glTranslatef(padding.left, padding.top, 0);
@@ -166,7 +170,8 @@ namespace TrenchBroom {
                             Model::Assets::Texture* texture = cell->item();
                             
                             // paint border if necessary
-                            if (textureManager.texture(texture->name) != texture) {
+                            bool override = textureManager.texture(texture->name) != texture;
+                            if (override) {
                                 glDisable(GL_TEXTURE_2D);
                                 glColor4f(0.5f, 0.5f, 0.5f, 1);
                                 renderTextureBorder(cell);
@@ -183,7 +188,10 @@ namespace TrenchBroom {
                             // render the texture
                             glEnable(GL_TEXTURE_2D);
                             texture->activate();
-                            glColor4f(1, 1, 1, 1);
+                            if (override)
+                                glColor4f(1, 1, 1, 0.7f);
+                            else
+                                glColor4f(1, 1, 1, 1);
                             glBegin(GL_QUADS);
                             glTexCoord2f(0, 0);
                             glVertex3f(cell->itemX(), cell->itemY(), 0);
@@ -260,13 +268,13 @@ namespace TrenchBroom {
         }
 
         TextureBrowserControl::TextureBrowserControl(Gwen::Controls::Base* parent, Controller::Editor& editor) : Gwen::Controls::Base(parent), m_editor(editor) {
-            m_textureBrowserScroller = new Gwen::Controls::ScrollControl(this);
-            m_textureBrowserScroller->Dock(Gwen::Pos::Fill);
-            m_textureBrowserScroller->SetScroll(false, true);
+            m_browserScroller = new Gwen::Controls::ScrollControl(this);
+            m_browserScroller->Dock(Gwen::Pos::Fill);
+            m_browserScroller->SetScroll(false, true);
             
-            m_textureBrowserPanel = new TextureBrowserPanel(m_textureBrowserScroller, editor);
-            m_textureBrowserPanel->Dock(Gwen::Pos::Top);
-            m_textureBrowserPanel->SetPadding(Gwen::Padding(5, 5, 5, 5));
+            m_browserPanel = new TextureBrowserPanel(m_browserScroller, editor);
+            m_browserPanel->Dock(Gwen::Pos::Top);
+            m_browserPanel->SetPadding(Gwen::Padding(5, 5, 5, 5));
         }
 
         void TextureBrowserControl::Render(Gwen::Skin::Base* skin) {
@@ -274,19 +282,19 @@ namespace TrenchBroom {
         }
         
         void TextureBrowserControl::setHideUnused(bool hideUnused) {
-            m_textureBrowserPanel->setHideUnused(hideUnused);
+            m_browserPanel->setHideUnused(hideUnused);
         }
 
         void TextureBrowserControl::setGroup(bool group) {
-            m_textureBrowserPanel->setGroup(group);
+            m_browserPanel->setGroup(group);
         }
     
         void TextureBrowserControl::setSortCriterion(Model::Assets::ETextureSortCriterion criterion) {
-            m_textureBrowserPanel->setSortCriterion(criterion);
+            m_browserPanel->setSortCriterion(criterion);
         }
         
         void TextureBrowserControl::setFixedCellWidth(float fixedCellWidth) {
-            m_textureBrowserPanel->setFixedCellWidth(fixedCellWidth);
+            m_browserPanel->setFixedCellWidth(fixedCellWidth);
         }
     }
 }

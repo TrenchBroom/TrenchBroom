@@ -22,9 +22,11 @@
 #include "Model/Map/Map.h"
 #include "Model/Map/Face.h"
 #include "Model/Selection.h"
+#include "Gwen/Controls/CheckBox.h"
 #include "Gwen/Controls/GroupBox.h"
 #include "Gwen/Controls/Label.h"
 #include "Gwen/Controls/NumericUpDown.h"
+#include "Gwen/Controls/RadioButtonController.h"
 #include "Gwen/Controls/ScrollControl.h"
 #include "Gwen/Controls/TabControl.h"
 #include "Gwen/Controls/TextBox.h"
@@ -121,6 +123,19 @@ namespace TrenchBroom {
             m_editor.map().setRotation(m_rotationControl->GetValue());
         }
         
+        void Inspector::onTextureBrowserSortCriterionChanged(Gwen::Controls::Base* control) {
+            Gwen::Controls::RadioButtonController* controller = static_cast<Gwen::Controls::RadioButtonController*>(control);
+            if (controller->GetSelectedName() == "name")
+                m_textureBrowser->setSortCriterion(Model::Assets::TB_TS_NAME);
+            else
+                m_textureBrowser->setSortCriterion(Model::Assets::TB_TS_USAGE);
+        }
+        
+        void Inspector::onTextureBrowserGroupChanged(Gwen::Controls::Base* control) {
+            Gwen::Controls::CheckBox* checkbox = static_cast<Gwen::Controls::CheckBox*>(control);
+            m_textureBrowser->setGroup(checkbox->IsChecked());
+        }
+
         Inspector::Inspector(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
             SetMargin(Gwen::Margin(5, 5, 5, 5));
             m_sectionTabControl = new Gwen::Controls::TabControl(this);
@@ -198,8 +213,26 @@ namespace TrenchBroom {
             textureBrowserBox->SetMargin(Gwen::Margin(0, 5, 0, 0));
             textureBrowserBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
 
+            Gwen::Controls::Base* textureBrowserFilterContainer = new Gwen::Controls::Base(textureBrowserBox);
+            textureBrowserFilterContainer->SetHeight(100);
+            textureBrowserFilterContainer->Dock(Gwen::Pos::Top);
+
             m_textureBrowser = new TextureBrowserControl(textureBrowserBox, m_editor);
             m_textureBrowser->Dock(Gwen::Pos::Fill);
+
+            Gwen::Controls::Label* textureDisplayModeLabel = new Gwen::Controls::Label(textureBrowserFilterContainer);
+            textureDisplayModeLabel->SetText("Display Mode");
+            textureDisplayModeLabel->SetPos(0, 0);
+            textureDisplayModeLabel->SizeToContents();
+            Gwen::Controls::RadioButtonController* textureBrowserOrderRadios = new Gwen::Controls::RadioButtonController(textureBrowserFilterContainer);
+            textureBrowserOrderRadios->onSelectionChange.Add(this, &Inspector::onTextureBrowserSortCriterionChanged);
+            textureBrowserOrderRadios->SetBounds(0, 16, 120, 40);
+            textureBrowserOrderRadios->AddOption("Order by Name", "name")->GetRadioButton()->SetChecked(true);
+            textureBrowserOrderRadios->AddOption("Order by Usage", "usage");
+            Gwen::Controls::CheckBoxWithLabel* textureBrowserGroupCheckbox = new Gwen::Controls::CheckBoxWithLabel(textureBrowserFilterContainer);
+            textureBrowserGroupCheckbox->Checkbox()->onCheckChanged.Add(this, &Inspector::onTextureBrowserGroupChanged);
+            textureBrowserGroupCheckbox->Label()->SetText("Group by Wad");
+            textureBrowserGroupCheckbox->SetPos(0, 60);
             
             m_sectionTabControl->AddPage("Face", facePanel);
 

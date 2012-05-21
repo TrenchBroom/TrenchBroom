@@ -70,6 +70,8 @@ namespace TrenchBroom {
             void onXScaleChanged(Gwen::Controls::Base* control);
             void onYScaleChanged(Gwen::Controls::Base* control);
             void onRotationChanged(Gwen::Controls::Base* control);
+            void onTextureBrowserSortCriterionChanged(Gwen::Controls::Base* control);
+            void onTextureBrowserGroupChanged(Gwen::Controls::Base* control);
         public:
             Inspector(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~Inspector();

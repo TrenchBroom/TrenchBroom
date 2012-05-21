@@ -67,6 +67,7 @@ namespace Gwen
 				virtual bool OnKeySpace(bool bDown) { if ( bDown )  m_RadioButton->SetChecked( !m_RadioButton->IsChecked() ); return true;  }
 
 				virtual void Select(){ m_RadioButton->SetChecked( true ); }
+                virtual void RenderRecursive(Gwen::Skin::Base *skin, const Gwen::Rect &cliprect) { Base::RenderRecursive(skin, cliprect); }
 
 			private:
 
