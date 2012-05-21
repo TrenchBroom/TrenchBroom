@@ -169,24 +169,32 @@ namespace TrenchBroom {
             }
         }
 
-        void MapRenderer::writeFaceIndices(RenderContext& context, Model::Face& face, IndexBuffer& triangleBuffer, IndexBuffer& edgeBuffer) {
+        unsigned int MapRenderer::writeFaceIndices(RenderContext& context, Model::Face& face, VboBlock& block, unsigned int offset) {
             unsigned int baseIndex = face.vboBlock()->address / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
             unsigned int vertexCount = static_cast<unsigned int>(face.vertices().size());
 
-            edgeBuffer.push_back(baseIndex);
-            edgeBuffer.push_back(baseIndex + 1);
-
             for (unsigned int i = 1; i < vertexCount - 1; i++) {
-                triangleBuffer.push_back(baseIndex);
-                triangleBuffer.push_back(baseIndex + i);
-                triangleBuffer.push_back(baseIndex + i + 1);
-
-                edgeBuffer.push_back(baseIndex + i);
-                edgeBuffer.push_back(baseIndex + i + 1);
+                offset = block.writeUInt32(baseIndex, offset);
+                offset = block.writeUInt32(baseIndex + i, offset);
+                offset = block.writeUInt32(baseIndex + i + 1, offset);
             }
+            
+            return offset;
+        }
 
-            edgeBuffer.push_back(baseIndex + vertexCount - 1);
-            edgeBuffer.push_back(baseIndex);
+        unsigned int MapRenderer::writeEdgeIndices(RenderContext& context, Model::Face& face, VboBlock& block, unsigned int offset) {
+            unsigned int baseIndex = face.vboBlock()->address / (TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize);
+            unsigned int vertexCount = static_cast<unsigned int>(face.vertices().size());
+            
+            for (unsigned int i = 0; i < vertexCount - 1; i++) {
+                offset = block.writeUInt32(baseIndex + i, offset);
+                offset = block.writeUInt32(baseIndex + i + 1, offset);
+            }
+            
+            offset = block.writeUInt32(baseIndex + vertexCount - 1, offset);
+            offset = block.writeUInt32(baseIndex, offset);
+            
+            return offset;
         }
 
         void MapRenderer::writeEntityBounds(RenderContext& context, Model::Entity& entity, VboBlock& block) {
@@ -299,14 +307,23 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::rebuildFaceIndexBuffers(RenderContext& context) {
-            for (FaceIndexBuffers::iterator it = m_faceIndexBuffers.begin(); it != m_faceIndexBuffers.end(); ++it)
-                delete it->second;
-            m_faceIndexBuffers.clear();
-            m_edgeIndexBuffer.clear();
-            m_edgeIndexBuffer.reserve(0xFFFF);
+            for (FaceIndexBlocks::iterator it = m_faceIndexBlocks.begin(); it != m_faceIndexBlocks.end(); ++it)
+                it->second->freeBlock();
+            m_faceIndexBlocks.clear();
+            
+            if (m_edgeIndexBlock != NULL) {
+                m_edgeIndexBlock->freeBlock();
+                m_edgeIndexBlock = NULL;
+            }
 
-            // possible improvement: collect all faces and sort them by their texture, then create the buffers sequentially
-
+            typedef vector<Face*> Faces;
+            typedef pair<Faces, unsigned int> FaceCountEntry;
+            typedef map<Model::Assets::Texture*, FaceCountEntry> TextureFaces;
+            TextureFaces textureFaces;
+            Faces allFaces;
+            unsigned int edgeBlockSize = 0;
+            
+            // determine the sizes for the VBO blocks and add them to the TextureFaces map
             const vector<Model::Entity*>& entities = m_editor.map().entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 if (context.filter.entityVisible(*entities[i])) {
@@ -320,16 +337,16 @@ namespace TrenchBroom {
                                     Model::Face* face = faces[k];
                                     if (!face->selected()) {
                                         Model::Assets::Texture* texture = face->texture();
-                                        IndexBuffer* indexBuffer = NULL;
-                                        FaceIndexBuffers::iterator it = m_faceIndexBuffers.find(texture);
-                                        if (it == m_faceIndexBuffers.end()) {
-                                            indexBuffer = new vector<GLuint>();
-                                            indexBuffer->reserve(0xFF);
-                                            m_faceIndexBuffers[texture] = indexBuffer;
+                                        TextureFaces::iterator it = textureFaces.find(texture);
+                                        if (it == textureFaces.end()) {
+                                            textureFaces[texture].first.push_back(face);
+                                            textureFaces[texture].second = (face->vertices().size() - 2) * 3;
                                         } else {
-                                            indexBuffer = it->second;
+                                            it->second.first.push_back(face);
+                                            it->second.second += (face->vertices().size() - 2) * 3; 
                                         }
-                                        writeFaceIndices(context, *face, *indexBuffer, m_edgeIndexBuffer);
+                                        allFaces.push_back(face);
+                                        edgeBlockSize += face->vertices().size() * 2;
                                     }
                                 }
                             }
@@ -337,53 +354,110 @@ namespace TrenchBroom {
                     }
                 }
             }
+
+            if (allFaces.empty())
+                return;
+            
+            // write the face blocks
+            m_faceIndexVbo->activate();
+            m_faceIndexVbo->map();
+            for (TextureFaces::iterator it = textureFaces.begin(); it != textureFaces.end(); ++it) {
+                Model::Assets::Texture* texture = it->first;
+                FaceCountEntry& entry = it->second;
+                Faces& faces = entry.first;
+                unsigned int size = entry.second;
+                
+                unsigned int offset = 0;
+                VboBlock& block = m_faceIndexVbo->allocBlock(size * sizeof(unsigned int));
+                for (int i = 0; i < faces.size(); i++)
+                    offset = writeFaceIndices(context, *faces[i], block, offset);
+                m_faceIndexBlocks[texture] = &block;
+            }
+            m_faceIndexVbo->unmap();
+            m_faceIndexVbo->deactivate();
+            
+            m_edgeIndexVbo->activate();
+            m_edgeIndexVbo->map();
+            unsigned int offset = 0;
+            m_edgeIndexBlock = &m_edgeIndexVbo->allocBlock(edgeBlockSize * sizeof(unsigned int));
+            for (unsigned int i = 0; i < allFaces.size(); i++)
+                offset = writeEdgeIndices(context, *allFaces[i], *m_edgeIndexBlock, offset);
+            m_edgeIndexVbo->unmap();
+            m_edgeIndexVbo->deactivate();
         }
 
         void MapRenderer::rebuildSelectedFaceIndexBuffers(RenderContext& context) {
-            for (FaceIndexBuffers::iterator it = m_selectedFaceIndexBuffers.begin(); it != m_selectedFaceIndexBuffers.end(); ++it)
-                delete it->second;
-            m_selectedFaceIndexBuffers.clear();
-            m_selectedEdgeIndexBuffer.clear();
-            m_selectedEdgeIndexBuffer.reserve(0xFFFF);
-
+            for (FaceIndexBlocks::iterator it = m_selectedFaceIndexBlocks.begin(); it != m_selectedFaceIndexBlocks.end(); ++it)
+                it->second->freeBlock();
+            m_selectedFaceIndexBlocks.clear();
+            
+            if (m_selectedEdgeIndexBlock != NULL) {
+                m_selectedEdgeIndexBlock->freeBlock();
+                m_selectedEdgeIndexBlock = NULL;
+            }
+            
             Model::Selection& selection = m_editor.map().selection();
-
-            // possible improvement: collect all faces and sort them by their texture, then create the buffers sequentially
-
-            const vector<Model::Brush*> brushes = selection.brushes();
-            for (unsigned int i = 0; i < brushes.size(); i++) {
-                const vector<Model::Face*>& faces = brushes[i]->faces();
-                for (unsigned int j = 0; j < faces.size(); j++) {
-                    Model::Face* face = faces[j];
-                    Model::Assets::Texture* texture = face->texture();
-                    IndexBuffer* indexBuffer = NULL;
-                    FaceIndexBuffers::iterator it = m_selectedFaceIndexBuffers.find(texture);
-                    if (it == m_selectedFaceIndexBuffers.end()) {
-                        indexBuffer = new vector<GLuint>();
-                        indexBuffer->reserve(0xFF);
-                        m_selectedFaceIndexBuffers[texture] = indexBuffer;
-                    } else {
-                        indexBuffer = it->second;
-                    }
-                    writeFaceIndices(context, *face, *indexBuffer, m_selectedEdgeIndexBuffer);
-                }
+            if (selection.faces().empty() && selection.brushes().empty())
+                return;
+            
+            typedef vector<Face*> Faces;
+            typedef pair<Faces, unsigned int> FaceCountEntry;
+            typedef map<Model::Assets::Texture*, FaceCountEntry> TextureFaces;
+            TextureFaces textureFaces;
+            Faces allFaces;
+            unsigned int edgeBlockSize = 0;
+            
+            // collect all selected faces in allFaces
+            const vector<Model::Brush*>& selectedBrushes = selection.brushes();
+            for (unsigned int i = 0; i < selectedBrushes.size(); i++) {
+                const vector<Model::Face*>& faces = selectedBrushes[i]->faces();
+                allFaces.insert(allFaces.end(), faces.begin(), faces.end());
             }
-
-            const vector<Model::Face*>& faces = selection.faces();
-            for (unsigned int i = 0; i < faces.size(); i++) {
-                Model::Face* face = faces[i];
+            
+            const vector<Model::Face*>& selectedFaces = selection.faces();
+            allFaces.insert(allFaces.end(), selectedFaces.begin(), selectedFaces.end());
+            
+            // sort them into the texture face map
+            for (int i = 0; i < allFaces.size(); i++) {
+                Model::Face* face = allFaces[i];
                 Model::Assets::Texture* texture = face->texture();
-                IndexBuffer* indexBuffer = NULL;
-                FaceIndexBuffers::iterator it = m_selectedFaceIndexBuffers.find(texture);
-                if (it == m_selectedFaceIndexBuffers.end()) {
-                    indexBuffer = new vector<GLuint>();
-                    indexBuffer->reserve(0xFF);
-                    m_selectedFaceIndexBuffers[texture] = indexBuffer;
+                TextureFaces::iterator it = textureFaces.find(texture);
+                if (it == textureFaces.end()) {
+                    textureFaces[texture].first.push_back(face);
+                    textureFaces[texture].second = (face->vertices().size() - 2) * 3;
                 } else {
-                    indexBuffer = it->second;
+                    it->second.first.push_back(face);
+                    it->second.second += (face->vertices().size() - 2) * 3; 
                 }
-                writeFaceIndices(context, *face, *indexBuffer, m_selectedEdgeIndexBuffer);
+                edgeBlockSize += face->vertices().size() * 2;
             }
+            
+            // write the face blocks
+            m_faceIndexVbo->activate();
+            m_faceIndexVbo->map();
+            for (TextureFaces::iterator it = textureFaces.begin(); it != textureFaces.end(); ++it) {
+                Model::Assets::Texture* texture = it->first;
+                FaceCountEntry& entry = it->second;
+                Faces& faces = entry.first;
+                unsigned int size = entry.second;
+                
+                unsigned int offset = 0;
+                VboBlock& block = m_faceIndexVbo->allocBlock(size * sizeof(unsigned int));
+                for (int i = 0; i < faces.size(); i++)
+                    offset = writeFaceIndices(context, *faces[i], block, offset);
+                m_selectedFaceIndexBlocks[texture] = &block;
+            }
+            m_faceIndexVbo->unmap();
+            m_faceIndexVbo->deactivate();
+            
+            m_edgeIndexVbo->activate();
+            m_edgeIndexVbo->map();
+            unsigned int offset = 0;
+            m_selectedEdgeIndexBlock = &m_edgeIndexVbo->allocBlock(edgeBlockSize * sizeof(unsigned int));
+            for (unsigned int i = 0; i < allFaces.size(); i++)
+                offset = writeEdgeIndices(context, *allFaces[i], *m_selectedEdgeIndexBlock, offset);
+            m_edgeIndexVbo->unmap();
+            m_edgeIndexVbo->deactivate();
         }
 
         void MapRenderer::validateEntityRendererCache(RenderContext& context) {
@@ -917,10 +991,10 @@ namespace TrenchBroom {
             m_entityRendererManager->deactivate();
         }
 
-        void MapRenderer::renderEdges(RenderContext& context, const Vec4f* color, const IndexBuffer& indexBuffer) {
-			if (indexBuffer.empty())
-				return;
-
+        void MapRenderer::renderEdges(RenderContext& context, const Vec4f* color, const VboBlock* indexBlock) {
+            if (indexBlock == NULL)
+                return;
+            
             glDisable(GL_TEXTURE_2D);
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 
@@ -933,16 +1007,13 @@ namespace TrenchBroom {
                 glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
             }
 
-            GLsizei count = (GLsizei)indexBuffer.size();
-            GLvoid* offset = (GLvoid*)&indexBuffer[0];
-
-            glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, offset);
+            glDrawElements(GL_LINES, indexBlock->capacity / sizeof(unsigned int), GL_UNSIGNED_INT, reinterpret_cast<GLvoid*>(indexBlock->address));
             glPopClientAttrib();
         }
 
-        void MapRenderer::renderFaces(RenderContext& context, bool textured, bool selected, FaceIndexBuffers& indexBuffers) {
-			if (indexBuffers.empty())
-				return;
+        void MapRenderer::renderFaces(RenderContext& context, bool textured, bool selected, const FaceIndexBlocks& indexBlocks) {
+            if (indexBlocks.empty())
+                return;
 
             glPolygonMode(GL_FRONT, GL_FILL);
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
@@ -1007,15 +1078,15 @@ namespace TrenchBroom {
             glColorPointer(4, GL_UNSIGNED_BYTE, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize));
             glVertexPointer(3, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize + ColorSize + ColorSize));
 
-            FaceIndexBuffers::iterator it;
-            for (it = indexBuffers.begin(); it != indexBuffers.end(); ++it) {
+            FaceIndexBlocks::const_iterator it;
+            for (it = indexBlocks.begin(); it != indexBlocks.end(); ++it) {
                 Model::Assets::Texture* texture = it->first;
+                VboBlock* block = it->second;
                 if (textured) texture->activate();
-                IndexBuffer* indices = it->second;
-                glDrawElements(GL_TRIANGLES, (GLsizei)indices->size(), GL_UNSIGNED_INT, &(*indices)[0]);
+                glDrawElements(GL_TRIANGLES, block->capacity / sizeof(unsigned int), GL_UNSIGNED_INT, reinterpret_cast<GLvoid*>(block->address));
                 if (textured) texture->deactivate();
             }
-
+            
             if (textured)
                 glDisable(GL_TEXTURE_2D);
 
@@ -1040,10 +1111,13 @@ namespace TrenchBroom {
                 m_figures[i]->render(context);
         }
 
-        MapRenderer::MapRenderer(Controller::Editor& editor, FontManager& fontManager) : m_editor(editor), m_fontManager(fontManager) {
+        MapRenderer::MapRenderer(Controller::Editor& editor, FontManager& fontManager) : m_editor(editor), m_fontManager(fontManager), m_edgeIndexBlock(NULL), m_selectedEdgeIndexBlock(NULL) {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
 
             m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            m_faceIndexVbo = new Vbo(GL_ELEMENT_ARRAY_BUFFER, 0xFFFF);
+            m_edgeIndexVbo = new Vbo(GL_ELEMENT_ARRAY_BUFFER, 0xFFFF);
+            
             m_gridRenderer = new GridRenderer(prefs.gridAlpha());
 
             m_entityBoundsVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
@@ -1102,6 +1176,9 @@ namespace TrenchBroom {
             }
             
             delete m_faceVbo;
+            delete m_faceIndexVbo;
+            delete m_edgeIndexVbo;
+            
             delete m_gridRenderer;
 
             delete m_entityBoundsVbo;
@@ -1111,14 +1188,6 @@ namespace TrenchBroom {
             delete m_classnameRenderer;
             delete m_selectedClassnameRenderer;
 
-            for (FaceIndexBuffers::iterator it = m_faceIndexBuffers.begin(); it != m_faceIndexBuffers.end(); ++it)
-                delete it->second;
-            m_faceIndexBuffers.clear();
-
-            for (FaceIndexBuffers::iterator it = m_selectedFaceIndexBuffers.begin(); it != m_selectedFaceIndexBuffers.end(); ++it)
-                delete it->second;
-            m_selectedFaceIndexBuffers.clear();
-            
             if (m_selectionDummyTexture != NULL)
                 delete m_selectionDummyTexture;
         }
@@ -1177,44 +1246,51 @@ namespace TrenchBroom {
 
             if (context.options.renderBrushes) {
                 m_faceVbo->activate();
+                m_faceIndexVbo->activate();
                 glEnableClientState(GL_VERTEX_ARRAY);
+                glEnableClientState(GL_INDEX_ARRAY);
 
                 switch (context.options.renderMode) {
                     case Controller::TB_RM_TEXTURED:
                         if (context.options.isolationMode == Controller::IM_NONE)
-                            renderFaces(context, true, false, m_faceIndexBuffers);
+                            renderFaces(context, true, false, m_faceIndexBlocks);
                         if (!m_editor.map().selection().empty())
-                            renderFaces(context, true, true, m_selectedFaceIndexBuffers);
+                            renderFaces(context, true, true, m_selectedFaceIndexBlocks);
                         break;
                     case Controller::TB_RM_FLAT:
                         if (context.options.isolationMode == Controller::IM_NONE)
-                            renderFaces(context, false, false, m_faceIndexBuffers);
+                            renderFaces(context, false, false, m_faceIndexBlocks);
                         if (!m_editor.map().selection().empty())
-                            renderFaces(context, false, true, m_selectedFaceIndexBuffers);
+                            renderFaces(context, false, true, m_selectedFaceIndexBlocks);
                         break;
                     case Controller::TB_RM_WIREFRAME:
                         break;
                 }
 
+                m_faceIndexVbo->deactivate();
+                m_edgeIndexVbo->activate();
+                
                 if (context.options.isolationMode != Controller::IM_DISCARD) {
                     glSetEdgeOffset(0.1f);
-                    renderEdges(context, NULL, m_edgeIndexBuffer);
+                    renderEdges(context, NULL, m_edgeIndexBlock);
                     glResetEdgeOffset();
                 }
 
                 if (!m_editor.map().selection().empty()) {
                     glDisable(GL_DEPTH_TEST);
-                    renderEdges(context, &context.preferences.hiddenSelectedEdgeColor(), m_selectedEdgeIndexBuffer);
+                    renderEdges(context, &context.preferences.hiddenSelectedEdgeColor(), m_selectedEdgeIndexBlock);
                     glEnable(GL_DEPTH_TEST);
 
                     glSetEdgeOffset(0.2f);
                     glDepthFunc(GL_LEQUAL);
-                    renderEdges(context, &context.preferences.selectedEdgeColor(), m_selectedEdgeIndexBuffer);
+                    renderEdges(context, &context.preferences.selectedEdgeColor(), m_selectedEdgeIndexBlock);
                     glDepthFunc(GL_LESS);
                     glResetEdgeOffset();
                 }
 
+                glDisableClientState(GL_INDEX_ARRAY);
                 glDisableClientState(GL_VERTEX_ARRAY);
+                m_edgeIndexVbo->deactivate();
                 m_faceVbo->deactivate();
             }
 

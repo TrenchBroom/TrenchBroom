@@ -31,7 +31,13 @@ namespace Gwen {
                 FTFont* font = new FTPixmapFont(fontPath.c_str());
                 FontPtr fontPtr(font);
                 fontPtr->FaceSize(static_cast<int>(pFont->size));
+                fontPtr->UseDisplayList(true);
                 m_fontCache[descriptor] = fontPtr;
+
+                FTBBox bounds = font->BBox("Ayg");
+                int offset = static_cast<int>(ceilf(bounds.Upper().Yf()));
+                pFont->data = reinterpret_cast<void*>(offset);
+
                 return fontPtr;
             } else {
                 return it->second;
@@ -42,10 +48,8 @@ namespace Gwen {
             FontPtr renderFont = loadFont(pFont);
 			Gwen::String convertedText = Gwen::Utility::UnicodeToString( text );
             
-            FTBBox bounds = renderFont->BBox("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-            int height = static_cast<int>(ceilf(bounds.Upper().Yf()));
-
-            glRasterPos2f(pos.x + m_RenderOffset.x - 1, pos.y + m_RenderOffset.y + height);
+            int offset = static_cast<int>(reinterpret_cast<long>(pFont->data));
+            glRasterPos2f(pos.x + m_RenderOffset.x - 1, pos.y + m_RenderOffset.y + offset + 2);
             renderFont->Render(convertedText.c_str());
         }
         
@@ -54,9 +58,9 @@ namespace Gwen {
 			Gwen::String convertedText = Gwen::Utility::UnicodeToString( text );
 
             FTBBox lBounds = renderFont->BBox(convertedText.c_str());
-            FTBBox hBounds = renderFont->BBox("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+            FTBBox hBounds = renderFont->BBox("Ayg");
             int length = static_cast<int>(ceilf(lBounds.Upper().Xf() - lBounds.Lower().Xf()));
-            int height = static_cast<int>(ceilf(hBounds.Upper().Yf() - hBounds.Lower().Yf()));
+            int height = static_cast<int>(ceilf(hBounds.Upper().Yf() - hBounds.Lower().Yf())) + 2;
             
             return Gwen::Point(length, height);
         }

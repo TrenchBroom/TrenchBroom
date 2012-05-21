@@ -47,13 +47,14 @@ namespace TrenchBroom {
             VboBlock* next;
 
             VboBlock(Vbo& vbo, int address, int capacity);
-            int writeBuffer(const unsigned char* buffer, unsigned int offset, unsigned int length);
-            int writeByte(unsigned char b, unsigned int offset);
-            int writeFloat(float f, unsigned int offset);
-            int writeColor(const Vec4f& color, unsigned int offset);
-            int writeVec(const Vec4f& vec, unsigned int offset);
-            int writeVec(const Vec3f& vec, unsigned int offset);
-            int writeVec(const Vec2f& vec, unsigned int offset);
+            unsigned int writeBuffer(const unsigned char* buffer, unsigned int offset, unsigned int length);
+            unsigned int writeByte(unsigned char b, unsigned int offset);
+            unsigned int writeFloat(float f, unsigned int offset);
+            unsigned int writeUInt32(unsigned int i, unsigned int offset);
+            unsigned int writeColor(const Vec4f& color, unsigned int offset);
+            unsigned int writeVec(const Vec4f& vec, unsigned int offset);
+            unsigned int writeVec(const Vec3f& vec, unsigned int offset);
+            unsigned int writeVec(const Vec2f& vec, unsigned int offset);
             void freeBlock();
             int compare(unsigned int anAddress, unsigned int aCapacity);
         };
@@ -89,6 +90,7 @@ namespace TrenchBroom {
             void unmap();
             VboBlock& allocBlock(unsigned int capacity);
             VboBlock& freeBlock(VboBlock& block);
+            void freeAllBlocks();
             void pack();
             bool ownsBlock(VboBlock& block);
         };

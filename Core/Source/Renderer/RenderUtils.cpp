@@ -44,15 +44,5 @@ namespace TrenchBroom {
         void glResetEdgeOffset() {
             glDepthRange(EdgeOffset, 1.0);
         }
-
-        void renderTextBackground(const std::string& text, FontPtr font, float hPadding, float vPadding) {
-            FTBBox bounds = font->BBox(text.c_str());
-            glBegin(GL_QUADS);
-            glVertex3f(bounds.Lower().Xf() - hPadding, bounds.Lower().Yf() - vPadding, 0);
-            glVertex3f(bounds.Upper().Xf() + hPadding, bounds.Lower().Yf() - vPadding, 0);
-            glVertex3f(bounds.Upper().Xf() + hPadding, bounds.Upper().Yf() + vPadding, 0);
-            glVertex3f(bounds.Lower().Xf() - hPadding, bounds.Upper().Yf() + vPadding, 0);
-            glEnd();
-        }
     }
 }

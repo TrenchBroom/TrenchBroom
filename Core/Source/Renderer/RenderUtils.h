@@ -32,7 +32,6 @@ namespace TrenchBroom {
         void glColorV4f(const Vec4f& color, float blendFactor);
         void glSetEdgeOffset(float f);
         void glResetEdgeOffset();
-        void renderTextBackground(const std::string& text, FontPtr font, float hPadding = 0, float vPadding = 0);
     }
 }
 

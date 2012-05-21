@@ -46,8 +46,21 @@ namespace TrenchBroom {
             FontPtr font;
             FontDescriptor descriptor;
             AnchorPtr anchor;
+            float x;
+            float y;
+            float width;
+            float height;
             TextEntry() {}
-            TextEntry(const std::string& text, FontPtr font, const FontDescriptor& descriptor, AnchorPtr anchor) : text(text), font(font), descriptor(descriptor), anchor(anchor) {}
+            TextEntry(const std::string& text, FontPtr font, const FontDescriptor& descriptor, AnchorPtr anchor, float x, float y, float width, float height) : 
+                text(text), 
+                font(font), 
+                descriptor(descriptor), 
+                anchor(anchor), 
+                x(x),
+                y(y),
+                width(width), 
+                height(height)
+            {}
         };
         
         class TextRenderer {
@@ -60,6 +73,7 @@ namespace TrenchBroom {
             TextMap m_entries;
             
             void addString(int key, const TextEntry& entry);
+            void renderTextBackground(float x, float y, float width, float height, float hPadding, float vPadding);
         public:
             TextRenderer(FontManager& fontManager, float fadeDistance);
             ~TextRenderer();

@@ -33,25 +33,31 @@ namespace TrenchBroom {
         
         VboBlock::VboBlock(Vbo& vbo, int address, int capacity) : m_vbo(vbo), address(address), capacity(capacity), free(true), previous(NULL), next(NULL) {}
 
-        int VboBlock::writeBuffer(const unsigned char* buffer, unsigned int offset, unsigned int length) {
+        unsigned int VboBlock::writeBuffer(const unsigned char* buffer, unsigned int offset, unsigned int length) {
             assert(offset >= 0 && offset + length <= capacity);
             memcpy(m_vbo.m_buffer + address + offset, buffer, length);
             return offset + length;
         }
         
-        int VboBlock::writeByte(unsigned char b, unsigned int offset) {
+        unsigned int VboBlock::writeByte(unsigned char b, unsigned int offset) {
             assert(offset >= 0 && offset < capacity);
             m_vbo.m_buffer[address + offset] = b;
             return offset + 1;
         }
         
-        int VboBlock::writeFloat(float f, unsigned int offset) {
+        unsigned int VboBlock::writeFloat(float f, unsigned int offset) {
             assert(offset >= 0 && offset + sizeof(float) <= capacity);
             memcpy(m_vbo.m_buffer + address + offset, &f, sizeof(float));
             return offset + sizeof(float);
         }
         
-        int VboBlock::writeColor(const Vec4f& color, unsigned int offset) {
+        unsigned int VboBlock::writeUInt32(unsigned int i, unsigned int offset) {
+            assert(offset >= 0 && offset + sizeof(unsigned int) <= capacity);
+            memcpy(m_vbo.m_buffer + address + offset, &i, sizeof(unsigned int));
+            return offset + sizeof(unsigned int);
+        }
+        
+        unsigned int VboBlock::writeColor(const Vec4f& color, unsigned int offset) {
             assert(offset >= 0 && offset + 4 <= capacity);
             offset = writeByte((unsigned char)(color.x * 0xFF), offset);
             offset = writeByte((unsigned char)(color.y * 0xFF), offset);
@@ -60,19 +66,19 @@ namespace TrenchBroom {
             return offset;
         }
         
-        int VboBlock::writeVec(const Vec4f& vec, unsigned int offset) {
+        unsigned int VboBlock::writeVec(const Vec4f& vec, unsigned int offset) {
             assert(offset >= 0 && offset + sizeof(Vec4f) <= capacity);
             memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(Vec4f));
             return offset + sizeof(Vec4f);
         }
         
-        int VboBlock::writeVec(const Vec3f& vec, unsigned int offset) {
+        unsigned int VboBlock::writeVec(const Vec3f& vec, unsigned int offset) {
             assert(offset >= 0 && offset + sizeof(Vec3f) <= capacity);
             memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(Vec3f));
             return offset + sizeof(Vec3f);
         }
         
-        int VboBlock::writeVec(const Vec2f& vec, unsigned int offset) {
+        unsigned int VboBlock::writeVec(const Vec2f& vec, unsigned int offset) {
             assert(offset >= 0 && offset + sizeof(Vec2f) <= capacity);
             memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(Vec2f));
             return offset + sizeof(Vec2f);
@@ -285,7 +291,8 @@ namespace TrenchBroom {
                 glBindBuffer(m_type, m_vboId);
             }
             
-            assert(glGetError() == GL_NO_ERROR);
+            GLenum error = glGetError();
+            assert(error == GL_NO_ERROR);
             m_active = true;
         }
         
@@ -408,7 +415,19 @@ namespace TrenchBroom {
 
             return block;
         }
-        
+
+        void Vbo::freeAllBlocks() {
+            m_freeBlocks.clear();
+            VboBlock* block = m_first;
+            while (block != NULL) {
+                VboBlock* next = block->next;
+                delete block;
+                block = next;
+            }
+            m_first = m_last = new VboBlock(*this, 0, m_totalCapacity);
+            m_freeCapacity = m_totalCapacity;
+        }
+
         void Vbo::pack() {
             assert(m_mapped);
             

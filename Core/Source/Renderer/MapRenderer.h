@@ -67,17 +67,19 @@ namespace TrenchBroom {
         class MapRenderer {
         private:
             typedef vector<GLuint> IndexBuffer;
-            typedef map<Model::Assets::Texture*, IndexBuffer* > FaceIndexBuffers;
+            typedef map<Model::Assets::Texture*, VboBlock* > FaceIndexBlocks;
             typedef map<Model::Entity*, EntityRenderer*> EntityRenderers;
 
             Controller::Editor& m_editor;
             Vbo* m_faceVbo;
+            Vbo* m_faceIndexVbo;
+            Vbo* m_edgeIndexVbo;
 
             // level geometry rendering
-            FaceIndexBuffers m_faceIndexBuffers;
-            FaceIndexBuffers m_selectedFaceIndexBuffers;
-            IndexBuffer m_edgeIndexBuffer;
-            IndexBuffer m_selectedEdgeIndexBuffer;
+            FaceIndexBlocks m_faceIndexBlocks;
+            FaceIndexBlocks m_selectedFaceIndexBlocks;
+            VboBlock* m_edgeIndexBlock;
+            VboBlock* m_selectedEdgeIndexBlock;
 
             // grid
             GridRenderer* m_gridRenderer;
@@ -125,7 +127,8 @@ namespace TrenchBroom {
             void selectionRemoved(const Model::SelectionEventData& event);
 
             void writeFaceVertices(RenderContext& context, Model::Face& face, VboBlock& block);
-            void writeFaceIndices(RenderContext& context, Model::Face& face, IndexBuffer& triangleBuffer, IndexBuffer& edgeBuffer);
+            unsigned int writeFaceIndices(RenderContext& context, Model::Face& face, VboBlock& block, unsigned int offset);
+            unsigned int writeEdgeIndices(RenderContext& context, Model::Face& face, VboBlock& block, unsigned int offset);
             void writeEntityBounds(RenderContext& context, Model::Entity& entity, VboBlock& block);
 
             void rebuildFaceIndexBuffers(RenderContext& context);
@@ -146,8 +149,8 @@ namespace TrenchBroom {
             void renderSelectionGuides(RenderContext& context, const Vec4f& color);
             void renderEntityBounds(RenderContext& context, const Vec4f* color, int vertexCount);
             void renderEntityModels(RenderContext& context, EntityRenderers& entities);
-            void renderEdges(RenderContext& context, const Vec4f* color, const IndexBuffer& indexBuffer);
-            void renderFaces(RenderContext& context, bool textured, bool selected, FaceIndexBuffers& indexBuffers);
+            void renderEdges(RenderContext& context, const Vec4f* color, const VboBlock* indexBlock);
+            void renderFaces(RenderContext& context, bool textured, bool selected, const FaceIndexBlocks& indexBlocks);
             void renderFigures(RenderContext& context);
         public:
             MapRenderer(Controller::Editor& editor, FontManager& fontManager);

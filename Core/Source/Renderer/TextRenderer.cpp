@@ -30,6 +30,15 @@ namespace TrenchBroom {
             m_entries[key] = entry;
         }
 
+        void TextRenderer::renderTextBackground(float x, float y, float width, float height, float hPadding, float vPadding) {
+            glBegin(GL_QUADS);
+            glVertex3f(x - hPadding, y - vPadding, 0);
+            glVertex3f(x + width + hPadding, y - vPadding, 0);
+            glVertex3f(x + width + hPadding, y + height + vPadding, 0);
+            glVertex3f(x - hPadding, y + height + vPadding, 0);
+            glEnd();
+        }
+
         TextRenderer::TextRenderer(FontManager& fontManager, float fadeDistance) : m_fontManager(fontManager), m_fadeDistance(fadeDistance) {}
         
         TextRenderer::~TextRenderer() {
@@ -38,7 +47,12 @@ namespace TrenchBroom {
 
         void TextRenderer::addString(int key, const string& str, const FontDescriptor& descriptor, AnchorPtr anchor) {
             FontPtr font = m_fontManager.font(descriptor);
-            addString(key, TextEntry(str, font, descriptor, anchor));
+            FTBBox bounds = font->BBox(str.c_str());
+            float x = bounds.Lower().Xf();
+            float y = bounds.Lower().Yf();
+            float width = bounds.Upper().Xf() - bounds.Lower().Xf();
+            float height = bounds.Upper().Yf() - bounds.Lower().Yf();
+            addString(key, TextEntry(str, font, descriptor, anchor, x, y, width, height));
         }
         
         void TextRenderer::removeString(int key) {
@@ -72,9 +86,11 @@ namespace TrenchBroom {
             glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PRIMARY_COLOR);
             glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
             
-            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PRIMARY_COLOR);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_ALPHA, GL_TEXTURE);
             glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+            glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
             
             glFrontFace(GL_CCW);
             glPolygonMode(GL_FRONT, GL_FILL);
@@ -101,7 +117,7 @@ namespace TrenchBroom {
                     float alphaFactor = 1 - Math::fmax((dist - m_fadeDistance), 0) / 100;
 
                     glColor4f(0, 0, 0, 0.6f * alphaFactor);
-                    renderTextBackground(entry.text, entry.font, 2, 1);
+                    renderTextBackground(entry.x, entry.y, entry.width, entry.height, 2, 1);
                     
                     glSetEdgeOffset(0.5f);
                     glColorV4f(color, alphaFactor);
