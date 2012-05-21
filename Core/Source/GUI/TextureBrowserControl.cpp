@@ -151,58 +151,60 @@ namespace TrenchBroom {
             
             for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<Model::Assets::Texture*, Model::Assets::TextureCollection*>::CellGroupPtr group = m_layout[i];
-                if (m_group && group->y() + group->titleHeight() >= visibleRect.y && group->y() <= visibleRect.y + visibleRect.h) {
-                    // paint background for group title
-                    glDisable(GL_TEXTURE_2D);
-                    glBegin(GL_QUADS);
-                    glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
-                    glVertex3f(0, group->y(), 0);
-                    glVertex3f(0, group->y() + group->titleHeight(), 0);
-                    glVertex3f(m_layout.width(), group->y() + group->titleHeight(), 0);
-                    glVertex3f(m_layout.width(), group->y(), 0);
-                    glEnd();
-                }
-                for (unsigned int j = 0; j < group->size(); j++) {
-                    CellGroup<Model::Assets::Texture*, Model::Assets::TextureCollection*>::CellRowPtr row = (*group)[j];
-                    for (unsigned int k = 0; k < row->size(); k++) {
-                        CellRow<Model::Assets::Texture*>::CellPtr cell = (*row)[k];
-                        if (cell->y() + cell->height() >= visibleRect.y && cell->y() <= visibleRect.y + visibleRect.h) {
-                            Model::Assets::Texture* texture = cell->item();
-                            
-                            // paint border if necessary
-                            bool override = textureManager.texture(texture->name) != texture;
-                            if (override) {
-                                glDisable(GL_TEXTURE_2D);
-                                glColor4f(0.5f, 0.5f, 0.5f, 1);
-                                renderTextureBorder(cell);
-                            } else if (!selection.mruTextures().empty() && selection.mruTextures().back() == texture) {
-                                glDisable(GL_TEXTURE_2D);
-                                glColor4f(1, 0, 0, 0.75f);
-                                renderTextureBorder(cell);
-                            } else if (texture->usageCount > 0) {
-                                glDisable(GL_TEXTURE_2D);
-                                glColor4f(1, 1, 0, 0.75f);
-                                renderTextureBorder(cell);
+                if (group->intersects(visibleRect.y, visibleRect.h)) {
+                    if (m_group && group->y() + group->titleHeight() >= visibleRect.y && group->y() <= visibleRect.y + visibleRect.h) {
+                        // paint background for group title
+                        glDisable(GL_TEXTURE_2D);
+                        glBegin(GL_QUADS);
+                        glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+                        glVertex3f(0, group->y(), 0);
+                        glVertex3f(0, group->y() + group->titleHeight(), 0);
+                        glVertex3f(m_layout.width(), group->y() + group->titleHeight(), 0);
+                        glVertex3f(m_layout.width(), group->y(), 0);
+                        glEnd();
+                    }
+                    for (unsigned int j = 0; j < group->size(); j++) {
+                        CellGroup<Model::Assets::Texture*, Model::Assets::TextureCollection*>::CellRowPtr row = (*group)[j];
+                        if (row->intersects(visibleRect.y, visibleRect.h)) {
+                            for (unsigned int k = 0; k < row->size(); k++) {
+                                CellRow<Model::Assets::Texture*>::CellPtr cell = (*row)[k];
+                                Model::Assets::Texture* texture = cell->item();
+                                
+                                // paint border if necessary
+                                bool override = textureManager.texture(texture->name) != texture;
+                                if (override) {
+                                    glDisable(GL_TEXTURE_2D);
+                                    glColor4f(0.5f, 0.5f, 0.5f, 1);
+                                    renderTextureBorder(cell);
+                                } else if (!selection.mruTextures().empty() && selection.mruTextures().back() == texture) {
+                                    glDisable(GL_TEXTURE_2D);
+                                    glColor4f(1, 0, 0, 0.75f);
+                                    renderTextureBorder(cell);
+                                } else if (texture->usageCount > 0) {
+                                    glDisable(GL_TEXTURE_2D);
+                                    glColor4f(1, 1, 0, 0.75f);
+                                    renderTextureBorder(cell);
+                                }
+                                
+                                // render the texture
+                                glEnable(GL_TEXTURE_2D);
+                                texture->activate();
+                                if (override)
+                                    glColor4f(1, 1, 1, 0.7f);
+                                else
+                                    glColor4f(1, 1, 1, 1);
+                                glBegin(GL_QUADS);
+                                glTexCoord2f(0, 0);
+                                glVertex3f(cell->itemX(), cell->itemY(), 0);
+                                glTexCoord2f(0, 1);
+                                glVertex3f(cell->itemX(), cell->itemY() + cell->itemHeight(), 0);
+                                glTexCoord2f(1, 1);
+                                glVertex3f(cell->itemX() + cell->itemWidth(), cell->itemY() + cell->itemHeight(), 0);
+                                glTexCoord2f(1, 0);
+                                glVertex3f(cell->itemX() + cell->itemWidth(), cell->itemY(), 0);
+                                glEnd();
+                                texture->deactivate();
                             }
-                            
-                            // render the texture
-                            glEnable(GL_TEXTURE_2D);
-                            texture->activate();
-                            if (override)
-                                glColor4f(1, 1, 1, 0.7f);
-                            else
-                                glColor4f(1, 1, 1, 1);
-                            glBegin(GL_QUADS);
-                            glTexCoord2f(0, 0);
-                            glVertex3f(cell->itemX(), cell->itemY(), 0);
-                            glTexCoord2f(0, 1);
-                            glVertex3f(cell->itemX(), cell->itemY() + cell->itemHeight(), 0);
-                            glTexCoord2f(1, 1);
-                            glVertex3f(cell->itemX() + cell->itemWidth(), cell->itemY() + cell->itemHeight(), 0);
-                            glTexCoord2f(1, 0);
-                            glVertex3f(cell->itemX() + cell->itemWidth(), cell->itemY(), 0);
-                            glEnd();
-                            texture->deactivate();
                         }
                     }
                 }
@@ -227,8 +229,8 @@ namespace TrenchBroom {
                             if  (m_layout.fixedCellWidth() > 0) {
                                 Gwen::Font actualFont(*m_font);
                                 Gwen::Point actualSize;
-                                while ((actualSize = skin->GetRender()->MeasureText(&actualFont, texture->name)).x > cell->width())
-                                    actualFont.size -= 0.5f;
+                                while (actualFont.size > 5 && (actualSize = skin->GetRender()->MeasureText(&actualFont, texture->name)).x > cell->width())
+                                    actualFont.size -= 1.0f;
                                 float actualX = cell->x() + (cell->width() - actualSize.x) / 2;
                                 skin->GetRender()->RenderText(&actualFont, Gwen::Point(padding.left + actualX, padding.top + cell->titleY() + 1), texture->name);
                             } else {

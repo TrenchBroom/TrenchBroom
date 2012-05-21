@@ -158,6 +158,10 @@ namespace TrenchBroom {
                 return m_height;
             }
             
+            bool intersects(float y, float height) {
+                return m_y + m_height >= y && m_y <= y + height;
+            }
+            
             size_t size() const {
                 return m_cells.size();
             }
@@ -242,6 +246,10 @@ namespace TrenchBroom {
             
             float height() const {
                 return m_height;
+            }
+            
+            bool intersects(float y, float height) {
+                return m_y + m_height >= y && m_y <= y + height;
             }
             
             GroupType item() const {
