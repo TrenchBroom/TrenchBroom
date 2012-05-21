@@ -30,8 +30,29 @@
 
 namespace TrenchBroom {
     namespace Gui {
+        
         void TextureBrowserPanel::textureManagerChanged(Model::Assets::TextureManager& textureManager) {
             reloadTextures();
+        }
+
+        void TextureBrowserPanel::addTexture(Model::Assets::Texture* texture) {
+            if ((!m_hideUnused || texture->usageCount > 0) && (m_filterText.empty() || containsString(texture->name, m_filterText, false))) {
+                Gwen::Skin::Base* skin = GetSkin();
+                Gwen::Font* actualFont = new Gwen::Font(*m_font);
+                FontPtr actualFontPtr(actualFont);
+                Gwen::Point actualSize;
+
+                float fixedCellWidth = m_layout.fixedCellWidth();
+                if  (m_layout.fixedCellWidth() > 0) {
+                    Gwen::Renderer::Base* renderer = skin->GetRender();
+                    while (actualFont->size > 5 && (actualSize = renderer->MeasureText(actualFont, texture->name)).x > fixedCellWidth)
+                        actualFont->size -= 1.0f;
+                } else {
+                    actualSize = GetSkin()->GetRender()->MeasureText(m_font, texture->name);
+                }
+
+                m_layout.addItem(CellData(texture, actualFontPtr), texture->width, texture->height, static_cast<float>(actualSize.x), actualFont->size + 2);
+            }
         }
 
         void TextureBrowserPanel::reloadTextures() {
@@ -44,23 +65,13 @@ namespace TrenchBroom {
                         m_layout.addGroup(collection, m_font->size + 2);
                     
                     std::vector<Model::Assets::Texture*> textures = collection->textures(m_sortCriterion);
-                    for (unsigned int j = 0; j < textures.size(); j++) {
-                        Model::Assets::Texture* texture = textures[j];
-                        if ((!m_hideUnused || texture->usageCount > 0) && (m_filterText.empty() || containsString(texture->name, m_filterText, false))) {
-                            Gwen::Point size = GetSkin()->GetRender()->MeasureText(m_font, texture->name);
-                            m_layout.addItem(texture, texture->width, texture->height, static_cast<float>(size.x), m_font->size + 2);
-                        }
-                    }
+                    for (unsigned int j = 0; j < textures.size(); j++)
+                        addTexture(textures[j]);
                 }
             } else {
                 std::vector<Model::Assets::Texture*> textures = m_editor.textureManager().textures(m_sortCriterion);
-                for (unsigned int j = 0; j < textures.size(); j++) {
-                    Model::Assets::Texture* texture = textures[j];
-                    if ((!m_hideUnused || texture->usageCount > 0) && (m_filterText.empty() || containsString(texture->name, m_filterText, false))) {
-                        Gwen::Point size = GetSkin()->GetRender()->MeasureText(m_font, texture->name);
-                        m_layout.addItem(texture, texture->width, texture->height, static_cast<float>(size.x), m_font->size + 2);
-                    }
-                }
+                for (unsigned int i = 0; i < textures.size(); i++)
+                    addTexture(textures[i]);
             }
 
             const Gwen::Padding& padding = GetPadding();
@@ -68,7 +79,7 @@ namespace TrenchBroom {
             SetBounds(GetBounds().x, GetBounds().y, GetBounds().w, controlHeight);
         }
 
-        void TextureBrowserPanel::renderTextureBorder(CellRow<Model::Assets::Texture*>::CellPtr cell) {
+        void TextureBrowserPanel::renderTextureBorder(CellRow<CellData>::CellPtr cell) {
             glBegin(GL_QUADS);
             glVertex3f(cell->itemX() - 1, cell->itemY() - 1, 0);
             glVertex3f(cell->itemX() - 1, cell->itemY() + cell->itemHeight() + 1, 0);
@@ -94,7 +105,7 @@ namespace TrenchBroom {
 
         TextureBrowserPanel::~TextureBrowserPanel() {
             m_editor.textureManager().textureManagerChanged -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<TextureBrowserPanel>(this, &TextureBrowserPanel::textureManagerChanged);
-}
+        }
         
         void TextureBrowserPanel::SetFont(Gwen::Font* font) {
             m_font = font;
@@ -150,7 +161,7 @@ namespace TrenchBroom {
             glTranslatef(padding.left, padding.top, 0);
             
             for (unsigned int i = 0; i < m_layout.size(); i++) {
-                CellLayout<Model::Assets::Texture*, Model::Assets::TextureCollection*>::CellGroupPtr group = m_layout[i];
+                CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
                 if (group->intersects(visibleRect.y, visibleRect.h)) {
                     if (m_group && group->y() + group->titleHeight() >= visibleRect.y && group->y() <= visibleRect.y + visibleRect.h) {
                         // paint background for group title
@@ -164,11 +175,11 @@ namespace TrenchBroom {
                         glEnd();
                     }
                     for (unsigned int j = 0; j < group->size(); j++) {
-                        CellGroup<Model::Assets::Texture*, Model::Assets::TextureCollection*>::CellRowPtr row = (*group)[j];
+                        CellGroup<CellData, GroupData>::CellRowPtr row = (*group)[j];
                         if (row->intersects(visibleRect.y, visibleRect.h)) {
                             for (unsigned int k = 0; k < row->size(); k++) {
-                                CellRow<Model::Assets::Texture*>::CellPtr cell = (*row)[k];
-                                Model::Assets::Texture* texture = cell->item();
+                                CellRow<CellData>::CellPtr cell = (*row)[k];
+                                Model::Assets::Texture* texture = cell->item().first;
                                 
                                 // paint border if necessary
                                 bool override = textureManager.texture(texture->name) != texture;
@@ -213,29 +224,20 @@ namespace TrenchBroom {
             
             skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
             for (unsigned int i = 0; i < m_layout.size(); i++) {
-                CellLayout<Model::Assets::Texture*, Model::Assets::TextureCollection*>::CellGroupPtr group = m_layout[i];
+                CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
                 if (m_group && group->y() + group->titleHeight() >= visibleRect.y && group->y() <= visibleRect.y + visibleRect.h) {
                     Model::Assets::TextureCollection* collection = group->item();
                     std::vector<std::string> components = pathComponents(collection->name());
                     skin->GetRender()->RenderText(m_font, Gwen::Point(padding.left + 3, padding.top + group->y() + 1), components.back());
                 }
                 for (unsigned int j = 0; j < group->size(); j++) {
-                    CellGroup<Model::Assets::Texture*, Model::Assets::TextureCollection*>::CellRowPtr row = (*group)[j];
+                    CellGroup<CellData, GroupData>::CellRowPtr row = (*group)[j];
                     for (unsigned int k = 0; k < row->size(); k++) {
-                        CellRow<Model::Assets::Texture*>::CellPtr cell = (*row)[k];
+                        CellRow<CellData>::CellPtr cell = (*row)[k];
                         if (cell->y() + cell->height() >= visibleRect.y && cell->y() <= visibleRect.y + visibleRect.h) {
-                            Model::Assets::Texture* texture = cell->item();
-                            
-                            if  (m_layout.fixedCellWidth() > 0) {
-                                Gwen::Font actualFont(*m_font);
-                                Gwen::Point actualSize;
-                                while (actualFont.size > 5 && (actualSize = skin->GetRender()->MeasureText(&actualFont, texture->name)).x > cell->width())
-                                    actualFont.size -= 1.0f;
-                                float actualX = cell->x() + (cell->width() - actualSize.x) / 2;
-                                skin->GetRender()->RenderText(&actualFont, Gwen::Point(padding.left + actualX, padding.top + cell->titleY() + 1), texture->name);
-                            } else {
-                                skin->GetRender()->RenderText(m_font, Gwen::Point(padding.left + cell->titleX(), padding.top + cell->titleY() + 1), texture->name);
-                            }
+                            Model::Assets::Texture* texture = cell->item().first;
+                            FontPtr font = cell->item().second;
+                            skin->GetRender()->RenderText(font.get(), Gwen::Point(padding.left + cell->titleX(), padding.top + cell->titleY() + 1), texture->name);
                         }
                     }
                 }

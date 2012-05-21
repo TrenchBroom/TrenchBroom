@@ -23,6 +23,7 @@
 #include "Gwen/Controls/Base.h"
 #include "GUI/CellLayout.h"
 #include "Model/Assets/Texture.h"
+#include "Utilities/SharedPointer.h"
 
 namespace Gwen {
     namespace Controls {
@@ -49,17 +50,22 @@ namespace TrenchBroom {
     namespace Gui {
         class TextureBrowserPanel : public Gwen::Controls::Base {
         protected:
+            typedef std::tr1::shared_ptr<Gwen::Font> FontPtr;
+            typedef pair<Model::Assets::Texture*, FontPtr> CellData;
+            typedef Model::Assets::TextureCollection* GroupData;
+            
             Controller::Editor& m_editor;
             bool m_group;
             bool m_hideUnused;
             Model::Assets::ETextureSortCriterion m_sortCriterion;
             std::string m_filterText;
             Gwen::Font* m_font;
-            CellLayout<Model::Assets::Texture*, Model::Assets::TextureCollection*> m_layout;
+            CellLayout<CellData, GroupData> m_layout;
             
             void textureManagerChanged(Model::Assets::TextureManager& textureManager);
+            void addTexture(Model::Assets::Texture* texture);
             void reloadTextures();
-            void renderTextureBorder(CellRow<Model::Assets::Texture*>::CellPtr cell);
+            void renderTextureBorder(CellRow<CellData>::CellPtr cell);
         public:
             TextureBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~TextureBrowserPanel();
