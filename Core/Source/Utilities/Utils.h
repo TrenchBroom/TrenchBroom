@@ -32,6 +32,9 @@ namespace TrenchBroom {
     std::string deleteLastPathComponent(const std::string& path);
     std::vector<std::string> pathComponents(const std::string& path);
     std::string pathExtension(const std::string& path);
+    bool caseInsensitiveCharEqual(char c1, char c2);
+    bool caseSensitiveCharEqual(char c1, char c2);
+    bool containsString(const std::string& haystack, const std::string& needle, bool caseSensitive = true);
     
     bool fileExists(const std::string& path);
 }

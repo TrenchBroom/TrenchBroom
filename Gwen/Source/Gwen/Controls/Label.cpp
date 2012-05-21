@@ -61,6 +61,7 @@ void Label::SetPlaceholderString( const TextObject& str)
 {
     if (m_Text->GetText() == m_placeholderString.GetUnicode()) {
         m_placeholderString = str;
+        m_Text->SetTextColorOverride(Gwen::Color(128, 128, 128, 255));
         m_Text->SetString(m_placeholderString);
         Redraw();
     } else {

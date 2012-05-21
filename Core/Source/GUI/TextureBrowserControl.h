@@ -53,6 +53,7 @@ namespace TrenchBroom {
             bool m_group;
             bool m_hideUnused;
             Model::Assets::ETextureSortCriterion m_sortCriterion;
+            std::string m_filterText;
             Gwen::Font* m_font;
             CellLayout<Model::Assets::Texture*, Model::Assets::TextureCollection*> m_layout;
             
@@ -71,6 +72,7 @@ namespace TrenchBroom {
             void setGroup(bool group);
             void setSortCriterion(Model::Assets::ETextureSortCriterion criterion);
             void setFixedCellWidth(float fixedCellWidth);
+            void setFilterText(const std::string& filterText);
         };
         
         class TextureBrowserControl : public Gwen::Controls::Base {
@@ -86,6 +88,7 @@ namespace TrenchBroom {
             void setGroup(bool group);
             void setSortCriterion(Model::Assets::ETextureSortCriterion criterion);
             void setFixedCellWidth(float fixedCellWidth);
+            void setFilterText(const std::string& filterText);
         };
     }
 }

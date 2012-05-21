@@ -46,7 +46,7 @@ namespace TrenchBroom {
                     std::vector<Model::Assets::Texture*> textures = collection->textures(m_sortCriterion);
                     for (unsigned int j = 0; j < textures.size(); j++) {
                         Model::Assets::Texture* texture = textures[j];
-                        if (!m_hideUnused || texture->usageCount > 0) {
+                        if ((!m_hideUnused || texture->usageCount > 0) && (m_filterText.empty() || containsString(texture->name, m_filterText, false))) {
                             Gwen::Point size = GetSkin()->GetRender()->MeasureText(m_font, texture->name);
                             m_layout.addItem(texture, texture->width, texture->height, static_cast<float>(size.x), m_font->size + 2);
                         }
@@ -56,7 +56,7 @@ namespace TrenchBroom {
                 std::vector<Model::Assets::Texture*> textures = m_editor.textureManager().textures(m_sortCriterion);
                 for (unsigned int j = 0; j < textures.size(); j++) {
                     Model::Assets::Texture* texture = textures[j];
-                    if (!m_hideUnused || texture->usageCount > 0) {
+                    if ((!m_hideUnused || texture->usageCount > 0) && (m_filterText.empty() || containsString(texture->name, m_filterText, false))) {
                         Gwen::Point size = GetSkin()->GetRender()->MeasureText(m_font, texture->name);
                         m_layout.addItem(texture, texture->width, texture->height, static_cast<float>(size.x), m_font->size + 2);
                     }
@@ -262,11 +262,17 @@ namespace TrenchBroom {
             reloadTextures();
         }
 
-        
         void TextureBrowserPanel::setFixedCellWidth(float fixedCellWidth) {
             m_layout.setFixedCellWidth(fixedCellWidth);
         }
 
+        void TextureBrowserPanel::setFilterText(const std::string& filterText) {
+            if (m_filterText.compare(filterText) == 0)
+                return;
+            m_filterText = filterText;
+            reloadTextures();
+        }
+        
         TextureBrowserControl::TextureBrowserControl(Gwen::Controls::Base* parent, Controller::Editor& editor) : Gwen::Controls::Base(parent), m_editor(editor) {
             m_browserScroller = new Gwen::Controls::ScrollControl(this);
             m_browserScroller->Dock(Gwen::Pos::Fill);
@@ -295,6 +301,10 @@ namespace TrenchBroom {
         
         void TextureBrowserControl::setFixedCellWidth(float fixedCellWidth) {
             m_browserPanel->setFixedCellWidth(fixedCellWidth);
+        }
+        
+        void TextureBrowserControl::setFilterText(const std::string& filterText) {
+            m_browserPanel->setFilterText(filterText);
         }
     }
 }

@@ -143,6 +143,11 @@ namespace TrenchBroom {
             m_textureBrowser->setHideUnused(button->GetToggleState());
         }
 
+        void Inspector::onTextureBrowserFilterTextChanged(Gwen::Controls::Base* control) {
+            Gwen::Controls::TextBox* textBox = static_cast<Gwen::Controls::TextBox*>(control);
+            m_textureBrowser->setFilterText(Gwen::Utility::UnicodeToString(textBox->GetText()));
+        }
+
         Inspector::Inspector(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
             SetMargin(Gwen::Margin(5, 5, 5, 5));
             m_sectionTabControl = new Gwen::Controls::TabControl(this);
@@ -221,47 +226,44 @@ namespace TrenchBroom {
             textureBrowserBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
 
             Gwen::Controls::Base* textureBrowserFilterContainer = new Gwen::Controls::Base(textureBrowserBox);
-            textureBrowserFilterContainer->SetHeight(100);
+            textureBrowserFilterContainer->SetMargin(Gwen::Margin(0, 0, 0, 5));
             textureBrowserFilterContainer->Dock(Gwen::Pos::Top);
 
             m_textureBrowser = new TextureBrowserControl(textureBrowserBox, m_editor);
             m_textureBrowser->Dock(Gwen::Pos::Fill);
 
-            Gwen::Controls::ButtonStrip* textureOrderStrip = new Gwen::Controls::ButtonStrip(textureBrowserFilterContainer);
+            Gwen::Controls::Base* textureButtonsContainer = new Gwen::Controls::Base(textureBrowserFilterContainer);
+            textureButtonsContainer->Dock(Gwen::Pos::Left);
+            
+            Gwen::Controls::ButtonStrip* textureOrderStrip = new Gwen::Controls::ButtonStrip(textureButtonsContainer);
             textureOrderStrip->AddButton("Name");
             textureOrderStrip->AddButton("Usage");
             textureOrderStrip->SetPos(0, 0);
             textureOrderStrip->onSelectionChange.Add(this, &Inspector::onTextureBrowserSortCriterionChanged);
             
-            Gwen::Controls::Button* textureGroupButton = new Gwen::Controls::Button(textureBrowserFilterContainer);
+            Gwen::Controls::Button* textureGroupButton = new Gwen::Controls::Button(textureButtonsContainer);
             textureGroupButton->SetText("Group");
             textureGroupButton->SetIsToggle(true);
             textureGroupButton->SetPos(textureOrderStrip->X() + textureOrderStrip->Width() + 5, 0);
             textureGroupButton->SetWidth(48);
             textureGroupButton->onToggle.Add(this, &Inspector::onTextureBrowserGroupChanged);
                                                                                     
-            Gwen::Controls::Button* textureUsageButton = new Gwen::Controls::Button(textureBrowserFilterContainer);
+            Gwen::Controls::Button* textureUsageButton = new Gwen::Controls::Button(textureButtonsContainer);
             textureUsageButton->SetText("Used");
             textureUsageButton->SetIsToggle(true);
             textureUsageButton->SetPos(textureGroupButton->X() + textureGroupButton->Width() + 5, 0);
             textureUsageButton->SetWidth(48);
             textureUsageButton->onToggle.Add(this, &Inspector::onTextureBrowserFilterUsedChanged);
             
-            /*
-            Gwen::Controls::Label* textureDisplayModeLabel = new Gwen::Controls::Label(textureBrowserFilterContainer);
-            textureDisplayModeLabel->SetText("Display Mode");
-            textureDisplayModeLabel->SetPos(0, 0);
-            textureDisplayModeLabel->SizeToContents();
-            Gwen::Controls::RadioButtonController* textureBrowserOrderRadios = new Gwen::Controls::RadioButtonController(textureBrowserFilterContainer);
-            textureBrowserOrderRadios->onSelectionChange.Add(this, &Inspector::onTextureBrowserSortCriterionChanged);
-            textureBrowserOrderRadios->SetBounds(0, 16, 120, 40);
-            textureBrowserOrderRadios->AddOption("Order by Name", "name")->GetRadioButton()->SetChecked(true);
-            textureBrowserOrderRadios->AddOption("Order by Usage", "usage");
-            Gwen::Controls::CheckBoxWithLabel* textureBrowserGroupCheckbox = new Gwen::Controls::CheckBoxWithLabel(textureBrowserFilterContainer);
-            textureBrowserGroupCheckbox->Checkbox()->onCheckChanged.Add(this, &Inspector::onTextureBrowserGroupChanged);
-            textureBrowserGroupCheckbox->Label()->SetText("Group by Wad");
-            textureBrowserGroupCheckbox->SetPos(0, 60);
-             */
+            textureButtonsContainer->SizeToChildren();
+            
+            Gwen::Controls::TextBox* textureFilterTextBox = new Gwen::Controls::TextBox(textureBrowserFilterContainer);
+            textureFilterTextBox->SetPlaceholderString("Filter");
+            textureFilterTextBox->SetMargin(Gwen::Margin(5, 0, 0, 0));
+            textureFilterTextBox->Dock(Gwen::Pos::Fill);
+            textureFilterTextBox->onTextChanged.Add(this, &Inspector::onTextureBrowserFilterTextChanged);
+            
+            textureBrowserFilterContainer->SizeToChildren();
             
             m_sectionTabControl->AddPage("Face", facePanel);
 

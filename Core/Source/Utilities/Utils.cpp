@@ -19,6 +19,7 @@
 
 #include "Utils.h"
 #include <fstream>
+#include <algorithm>
 
 namespace TrenchBroom {
     std::string trim(const std::string& str) {
@@ -93,6 +94,23 @@ namespace TrenchBroom {
         size_t pos = path.find_last_of('.');
         if (pos == std::string::npos) return "";
         return path.substr(pos + 1);
+    }
+    
+    bool caseInsensitiveCharEqual(char c1, char c2) {
+        return std::toupper(c1) == std::toupper(c2);
+    }
+    
+    bool caseSensitiveCharEqual(char c1, char c2) {
+        return c1 == c2;
+    }
+    
+    bool containsString(const std::string& haystack, const std::string& needle, bool caseSensitive) {
+        std::string::const_iterator it;
+        if (caseSensitive)
+            it = std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), caseSensitiveCharEqual);
+        else
+            it = std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), caseInsensitiveCharEqual);
+        return it != haystack.end();
     }
 
     bool fileExists(const std::string& path) {
