@@ -259,6 +259,31 @@ namespace TrenchBroom {
                 }
             }
             
+            if (m_group) {
+                CellLayout<CellData, GroupData>::CellGroupPtr group;
+                if (m_layout.groupAt(0, visibleRect.y, group)) {
+                    glPushMatrix();
+                    glTranslatef(offset.x, offset.y, 0);
+                    glTranslatef(padding.left, padding.top, 0);
+
+                    glDisable(GL_TEXTURE_2D);
+                    glBegin(GL_QUADS);
+                    glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+                    glVertex3f(0, visibleRect.y, 0);
+                    glVertex3f(0, visibleRect.y + group->titleHeight(), 0);
+                    glVertex3f(m_layout.width(), visibleRect.y + group->titleHeight(), 0);
+                    glVertex3f(m_layout.width(), visibleRect.y, 0);
+                    glEnd();
+
+                    glPopMatrix();
+
+                    skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
+                    Model::Assets::TextureCollection* collection = group->item();
+                    std::vector<std::string> components = pathComponents(collection->name());
+                    skin->GetRender()->RenderText(m_font, Gwen::Point(padding.left + 3, padding.top + visibleRect.y), components.back());
+
+                }
+            }
         }
 
         void TextureBrowserPanel::setHideUnused(bool hideUnused) {

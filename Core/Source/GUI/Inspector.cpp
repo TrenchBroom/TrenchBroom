@@ -348,7 +348,7 @@ namespace TrenchBroom {
             // texture wad list
             Gwen::Controls::Base* textureWadListContainer = new Gwen::Controls::Base(textureBrowserBox);
             textureWadListContainer->SetMargin(Gwen::Margin(0, 5, 0, 0));
-            textureWadListContainer->SetHeight(120);
+            textureWadListContainer->SetHeight(65);
             textureWadListContainer->Dock(Gwen::Pos::Bottom);
             
             m_textureWadList = new Gwen::Controls::ListBox(textureWadListContainer);

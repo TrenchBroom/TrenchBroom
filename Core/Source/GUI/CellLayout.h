@@ -274,6 +274,11 @@ namespace TrenchBroom {
                 return false;
             }
 
+            bool hitTest(float x, float y) const {
+                return y >= this->y()  && y <= this->y() + this->height();
+                
+            }
+
             float y() const {
                 return m_y;
             }
@@ -430,6 +435,25 @@ namespace TrenchBroom {
                     typename CellRow<CellType>::CellPtr cell;
                     if (group->cellAt(x, y, cell)) {
                         result = cell;
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+            
+            bool groupAt(float x, float y, CellGroupPtr& result) {
+                if (!m_valid)
+                    validate();
+                
+                for (unsigned int i = 0; i < m_groups.size(); i++) {
+                    CellGroupPtr group = m_groups[i];
+                    if (y > group->y() + group->height())
+                        continue;
+                    else if (y < group->y())
+                        break;
+                    if (group->hitTest(x, y)) {
+                        result = group;
                         return true;
                     }
                 }
