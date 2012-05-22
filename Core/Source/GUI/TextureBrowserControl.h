@@ -21,6 +21,7 @@
 #define TrenchBroom_TextureBrowserControl_h
 
 #include "Gwen/Controls/Base.h"
+#include "Gwen/Events.h"
 #include "GUI/CellLayout.h"
 #include "Model/Assets/Texture.h"
 #include "Utilities/SharedPointer.h"
@@ -61,11 +62,14 @@ namespace TrenchBroom {
             std::string m_filterText;
             Gwen::Font* m_font;
             CellLayout<CellData, GroupData> m_layout;
+            Model::Assets::Texture* m_selectedTexture;
             
             void textureManagerChanged(Model::Assets::TextureManager& textureManager);
             void addTexture(Model::Assets::Texture* texture);
             void reloadTextures();
             void renderTextureBorder(CellRow<CellData>::CellPtr cell);
+            virtual void OnMouseClickLeft(int x, int y, bool down);
+            virtual void OnTextureSelected();
         public:
             TextureBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~TextureBrowserPanel();
@@ -79,6 +83,9 @@ namespace TrenchBroom {
             void setSortCriterion(Model::Assets::ETextureSortCriterion criterion);
             void setFixedCellWidth(float fixedCellWidth);
             void setFilterText(const std::string& filterText);
+
+            Gwen::Event::Caller onTextureSelected;
+            Model::Assets::Texture* selectedTexture();
         };
         
         class TextureBrowserControl : public Gwen::Controls::Base {
@@ -86,6 +93,7 @@ namespace TrenchBroom {
             Controller::Editor& m_editor;
             TextureBrowserPanel* m_browserPanel;
             Gwen::Controls::ScrollControl* m_browserScroller;
+            void onTextureSelectedInBrowserPanel(Gwen::Controls::Base* control);
         public:
             TextureBrowserControl(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~TextureBrowserControl() {}
@@ -95,6 +103,9 @@ namespace TrenchBroom {
             void setSortCriterion(Model::Assets::ETextureSortCriterion criterion);
             void setFixedCellWidth(float fixedCellWidth);
             void setFilterText(const std::string& filterText);
+
+            Gwen::Event::Caller onTextureSelected;
+            Model::Assets::Texture* selectedTexture();
         };
     }
 }

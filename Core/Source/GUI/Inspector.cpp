@@ -23,6 +23,7 @@
 #include "Model/Map/Map.h"
 #include "Model/Map/Face.h"
 #include "Model/Selection.h"
+#include "Model/Undo/UndoManager.h"
 #include "Utilities/Console.h"
 #include "Gwen/Controls/Button.h"
 #include "Gwen/Controls/ButtonStrip.h"
@@ -63,8 +64,8 @@ namespace TrenchBroom {
 
         void Inspector::updateTextureControls() {
             Model::Selection& selection = m_editor.map().selection();
-            const vector<Model::Face*>& faces = selection.faces();
-            if (selection.mode() == Model::TB_SM_FACES) {
+            vector<Model::Face*> faces = selection.allFaces();
+            if (!faces.empty()) {
                 float xOffset, yOffset, xScale, yScale, rotation;
                 bool xOffsetMulti, yOffsetMulti, xScaleMulti, yScaleMulti, rotationMulti, textureMulti;
                 
@@ -78,12 +79,12 @@ namespace TrenchBroom {
                 Model::Assets::Texture* texture = faces[0]->texture();
 
                 for (unsigned int i = 1; i < faces.size(); i++) {
-                    xOffsetMulti    |= xOffset == static_cast<float>(faces[i]->xOffset());
-                    yOffsetMulti    |= yOffset == static_cast<float>(faces[i]->yOffset());
-                    xScaleMulti     |= xScale == faces[i]->xScale();
-                    yScaleMulti     |= yScale == faces[i]->yScale();
-                    rotationMulti   |= rotation == faces[i]->rotation();
-                    textureMulti    |= textureName.compare(faces[i]->textureName()) != 0;
+                    xOffsetMulti    |= (xOffset != static_cast<float>(faces[i]->xOffset()));
+                    yOffsetMulti    |= (yOffset != static_cast<float>(faces[i]->yOffset()));
+                    xScaleMulti     |= (xScale != faces[i]->xScale());
+                    yScaleMulti     |= (yScale != faces[i]->yScale());
+                    rotationMulti   |= (rotation != faces[i]->rotation());
+                    textureMulti    |= (textureName.compare(faces[i]->textureName()) != 0);
                 }
                 
                 m_textureLabel->SetPlaceholderString("multiple");
@@ -99,6 +100,7 @@ namespace TrenchBroom {
                 updateNumericControl(m_xScaleControl, false, xScaleMulti, xScale);
                 updateNumericControl(m_yScaleControl, false, yScaleMulti, yScale);
                 updateNumericControl(m_rotationControl, false, rotationMulti, rotation);
+                m_resetFaceButton->SetDisabled(false);
             } else {
                 updateNumericControl(m_xOffsetControl, true, false, 0);
                 updateNumericControl(m_yOffsetControl, true, false, 0);
@@ -108,6 +110,7 @@ namespace TrenchBroom {
                 m_textureView->setTexture(NULL);
                 m_textureLabel->SetPlaceholderString("n/a");
                 m_textureLabel->SetText("");
+                m_resetFaceButton->SetDisabled(true);
             }
         }
         
@@ -118,6 +121,18 @@ namespace TrenchBroom {
             const vector<Model::Assets::TextureCollection*> collections = textureManager.collections();
             for (unsigned int i = 0; i < collections.size(); i++)
                 m_textureWadList->AddItem(collections[i]->name());
+        }
+
+        void Inspector::propertiesDidChange(const std::vector<Model::Entity*>& entities) {
+            updateTextureControls();
+        }
+        
+        void Inspector::brushesDidChange(const std::vector<Model::Brush*>& brushes) {
+            updateTextureControls();
+        }
+
+        void Inspector::facesDidChange(const vector<Model::Face*>& faces) {
+            updateTextureControls();
         }
 
         void Inspector::selectionChanged(const Model::SelectionEventData& data) {
@@ -149,6 +164,10 @@ namespace TrenchBroom {
             m_editor.map().setRotation(m_rotationControl->GetValue());
         }
         
+        void Inspector::onResetFaceButtonPressed(Gwen::Controls::Base* control) {
+            m_editor.map().resetFaces();
+        }
+
         void Inspector::onTextureBrowserSortCriterionChanged(Gwen::Controls::Base* control) {
             Gwen::Controls::ButtonStrip* buttonStrip = static_cast<Gwen::Controls::ButtonStrip*>(control);
             if (buttonStrip->GetSelectedButtonIndex() == 1)
@@ -172,6 +191,15 @@ namespace TrenchBroom {
             m_textureBrowser->setFilterText(Gwen::Utility::UnicodeToString(textBox->GetText()));
         }
 
+        void Inspector::onTextureSelected(Gwen::Controls::Base* control) {
+            Model::Assets::Texture* texture = m_textureBrowser->selectedTexture();
+            if (texture == NULL)
+                return;
+            
+            m_editor.map().setTexture(texture);
+            m_editor.map().selection().addTexture(*texture);
+        }
+
         void Inspector::onTextureWadListRowSelected(Gwen::Controls::Base* control) {
             m_removeTextureWadsButton->SetDisabled(m_textureWadList->GetSelectedRows().empty());
         }
@@ -190,30 +218,26 @@ namespace TrenchBroom {
                 m_editor.textureManager().removeCollection(i);
         }
 
-        Inspector::Inspector(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
-            SetMargin(Gwen::Margin(5, 5, 5, 5));
-            m_sectionTabControl = new Gwen::Controls::TabControl(this);
-            m_sectionTabControl->Dock(Gwen::Pos::Fill);
-            
-            m_sectionTabControl->AddPage("Map");
-            m_sectionTabControl->AddPage("Entity");
-            m_sectionTabControl->AddPage("Brush");
-
+        Gwen::Controls::Base* Inspector::createFaceInspector() {
             Gwen::Controls::Base* facePanel = new Gwen::Controls::Base(m_sectionTabControl);
+            
+            // Face properties box
             Gwen::Controls::GroupBox* facePropertiesBox = new Gwen::Controls::GroupBox(facePanel);
             facePropertiesBox->SetText("Face Properties");
             facePropertiesBox->Dock(Gwen::Pos::Top);
-            facePropertiesBox->SetHeight(183);
+            facePropertiesBox->SetHeight(187);
             facePropertiesBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
             
+            // single texture view for current selection
             m_textureView = new TrenchBroom::Gui::SingleTextureControl(facePropertiesBox);
             m_textureView->SetBounds(0, 0, 134, 134);
             m_textureView->SetPadding(Gwen::Padding(3, 3, 3, 3));
             
             m_textureLabel = new Gwen::Controls::Label(facePropertiesBox);
-            m_textureLabel->SetBounds(0, 140, 134, 20);
+            m_textureLabel->SetBounds(0, 140, 134, 25);
             m_textureLabel->SetAlignment(Gwen::Pos::CenterH);
             
+            // face properties (offset, scale, rotation)
             Gwen::Controls::Label* xLabel = new Gwen::Controls::Label(facePropertiesBox);
             xLabel->SetBounds(143, 23, 12, 20);
             xLabel->SetText("X");
@@ -236,7 +260,7 @@ namespace TrenchBroom {
             m_yOffsetControl = new Gwen::Controls::NumericUpDown(facePropertiesBox);
             m_yOffsetControl->SetBounds(159, 48, 100, 20);
             m_yOffsetControl->onChanged.Add(this, &Inspector::onYOffsetChanged);
-
+            
             Gwen::Controls::Label* scaleLabel = new Gwen::Controls::Label(facePropertiesBox);
             scaleLabel->SetBounds(267, 0, 100, 20);
             scaleLabel->SetText("Scale");
@@ -256,40 +280,53 @@ namespace TrenchBroom {
             rotationLabel->SetBounds(159, 79, 100, 20);
             rotationLabel->SetText("Rotation");
             rotationLabel->SetAlignment(Gwen::Pos::Right);
-
+            
             m_rotationControl = new Gwen::Controls::NumericUpDown(facePropertiesBox);
             m_rotationControl->SetBounds(267, 76, 100, 20);
             m_rotationControl->onChanged.Add(this, &Inspector::onRotationChanged);
             
+            m_resetFaceButton = new Gwen::Controls::Button(facePropertiesBox);
+            m_resetFaceButton->SetText("Reset");
+            m_resetFaceButton->SetBounds(267, 104, 100, 20);
+            m_resetFaceButton->onPress.Add(this, &Inspector::onResetFaceButtonPressed);
+
+            // texture browser
             Gwen::Controls::GroupBox* textureBrowserBox = new Gwen::Controls::GroupBox(facePanel);
             textureBrowserBox->SetText("Texture Browser");
             textureBrowserBox->Dock(Gwen::Pos::Fill);
             textureBrowserBox->SetMargin(Gwen::Margin(0, 5, 0, 0));
             textureBrowserBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
-
+            
+            // texture controls container
             Gwen::Controls::Base* textureBrowserFilterContainer = new Gwen::Controls::Base(textureBrowserBox);
             textureBrowserFilterContainer->SetMargin(Gwen::Margin(0, 0, 0, 5));
             textureBrowserFilterContainer->Dock(Gwen::Pos::Top);
-
+            
+            // actual texture browser control
             m_textureBrowser = new TextureBrowserControl(textureBrowserBox, m_editor);
             m_textureBrowser->Dock(Gwen::Pos::Fill);
-
+            m_textureBrowser->onTextureSelected.Add(this, &Inspector::onTextureSelected);
+            
+            // texture controls
             Gwen::Controls::Base* textureButtonsContainer = new Gwen::Controls::Base(textureBrowserFilterContainer);
             textureButtonsContainer->Dock(Gwen::Pos::Left);
             
+            // options for ordering the textures
             Gwen::Controls::ButtonStrip* textureOrderStrip = new Gwen::Controls::ButtonStrip(textureButtonsContainer);
             textureOrderStrip->AddButton("Name");
             textureOrderStrip->AddButton("Usage");
             textureOrderStrip->SetPos(0, 0);
             textureOrderStrip->onSelectionChange.Add(this, &Inspector::onTextureBrowserSortCriterionChanged);
             
+            // toggle texture grouping
             Gwen::Controls::Button* textureGroupButton = new Gwen::Controls::Button(textureButtonsContainer);
             textureGroupButton->SetText("Group");
             textureGroupButton->SetIsToggle(true);
             textureGroupButton->SetPos(textureOrderStrip->X() + textureOrderStrip->Width() + 5, 0);
             textureGroupButton->SetWidth(48);
             textureGroupButton->onToggle.Add(this, &Inspector::onTextureBrowserGroupChanged);
-                                                                                    
+            
+            // toggle whether only used textures are displayed
             Gwen::Controls::Button* textureUsageButton = new Gwen::Controls::Button(textureButtonsContainer);
             textureUsageButton->SetText("Used");
             textureUsageButton->SetIsToggle(true);
@@ -299,6 +336,7 @@ namespace TrenchBroom {
             
             textureButtonsContainer->SizeToChildren();
             
+            // text box for name matching
             Gwen::Controls::TextBox* textureFilterTextBox = new Gwen::Controls::TextBox(textureBrowserFilterContainer);
             textureFilterTextBox->SetPlaceholderString("Filter");
             textureFilterTextBox->SetMargin(Gwen::Margin(5, 0, 0, 0));
@@ -307,6 +345,7 @@ namespace TrenchBroom {
             
             textureBrowserFilterContainer->SizeToChildren();
             
+            // texture wad list
             Gwen::Controls::Base* textureWadListContainer = new Gwen::Controls::Base(textureBrowserBox);
             textureWadListContainer->SetMargin(Gwen::Margin(0, 5, 0, 0));
             textureWadListContainer->SetHeight(120);
@@ -316,7 +355,7 @@ namespace TrenchBroom {
             m_textureWadList->Dock(Gwen::Pos::Fill);
             m_textureWadList->SetAllowMultiSelect(true);
             m_textureWadList->onRowSelected.Add(this, &Inspector::onTextureWadListRowSelected);
-
+            
             Gwen::Controls::Base* textureWadListButtonsContainer = new Gwen::Controls::Base(textureWadListContainer);
             textureWadListButtonsContainer->SetMargin(Gwen::Margin(5, 0, 0, 0));
             textureWadListButtonsContainer->SetWidth(20);
@@ -327,7 +366,7 @@ namespace TrenchBroom {
             m_addTextureWadButton->SetSize(16, 20);
             m_addTextureWadButton->Dock(Gwen::Pos::Top);
             m_addTextureWadButton->onPress.Add(this, &Inspector::onAddTextureWadButtonPressed);
-
+            
             m_removeTextureWadsButton = new Gwen::Controls::Button(textureWadListButtonsContainer);
             m_removeTextureWadsButton->SetText("-");
             m_removeTextureWadsButton->SetSize(16, 20);
@@ -336,11 +375,28 @@ namespace TrenchBroom {
             m_removeTextureWadsButton->SetDisabled(true);
             m_removeTextureWadsButton->onPress.Add(this, &Inspector::onRemoveTextureWadButtonPressed);
             
-            m_sectionTabControl->AddPage("Face", facePanel);
+            return facePanel;
+        }
+        
+        Inspector::Inspector(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
+            SetMargin(Gwen::Margin(5, 5, 5, 5));
+            m_sectionTabControl = new Gwen::Controls::TabControl(this);
+            m_sectionTabControl->Dock(Gwen::Pos::Fill);
+            
+            m_sectionTabControl->AddPage("Map");
+            m_sectionTabControl->AddPage("Entity");
+            m_sectionTabControl->AddPage("Brush");
 
-            Model::Selection& selection = m_editor.map().selection();
+            Gwen::Controls::Base* faceInspector = createFaceInspector();
+            m_sectionTabControl->AddPage("Face", faceInspector);
+
+            Model::Map& map = m_editor.map();
+            Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
 
+            map.propertiesDidChange                 += new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::propertiesDidChange);
+            map.brushesDidChange                    += new Model::Map::BrushEvent::Listener<Inspector>(this, &Inspector::brushesDidChange);
+            map.facesDidChange                      += new Model::Map::FaceEvent::Listener<Inspector>(this, &Inspector::facesDidChange);
             selection.selectionAdded                += new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
             selection.selectionRemoved              += new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
             textureManager.textureManagerChanged    += new Model::Assets::TextureManager::TextureManagerEvent::Listener<Inspector>(this, &Inspector::textureManagerChanged);
@@ -350,9 +406,13 @@ namespace TrenchBroom {
         }
         
         Inspector::~Inspector() {
-            Model::Selection& selection = m_editor.map().selection();
+            Model::Map& map = m_editor.map();
+            Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
 
+            map.propertiesDidChange                 -= new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::propertiesDidChange);
+            map.brushesDidChange                    -= new Model::Map::BrushEvent::Listener<Inspector>(this, &Inspector::brushesDidChange);
+            map.facesDidChange                      -= new Model::Map::FaceEvent::Listener<Inspector>(this, &Inspector::facesDidChange);
             selection.selectionAdded                -= new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
             selection.selectionRemoved              -= new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
             textureManager.textureManagerChanged    -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<Inspector>(this, &Inspector::textureManagerChanged);

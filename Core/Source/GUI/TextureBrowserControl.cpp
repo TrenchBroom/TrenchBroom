@@ -88,7 +88,23 @@ namespace TrenchBroom {
             glEnd();
         }
 
-        TextureBrowserPanel::TextureBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor) : Gwen::Controls::Base(parent), m_editor(editor), m_group(false) {
+        void TextureBrowserPanel::OnMouseClickLeft(int x, int y, bool down) {
+            if (!down)
+                return;
+            
+            Gwen::Point local = CanvasPosToLocal(Gwen::Point(x, y));
+            CellRow<CellData>::CellPtr cell;
+            if (m_layout.cellAt(static_cast<float>(local.x), static_cast<float>(local.y), cell)) {
+                m_selectedTexture = cell->item().first;
+                onTextureSelected.Call(this);
+            }
+        }
+        
+        void TextureBrowserPanel::OnTextureSelected() {
+            onTextureSelected.Call(this);
+        }
+        
+        TextureBrowserPanel::TextureBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor) : Gwen::Controls::Base(parent), m_editor(editor), m_group(false), m_selectedTexture(NULL) {
             m_layout.setGroupMargin(5);
             m_layout.setRowMargin(5);
             m_layout.setCellMargin(5);
@@ -277,6 +293,15 @@ namespace TrenchBroom {
             reloadTextures();
         }
         
+        
+        Model::Assets::Texture* TextureBrowserPanel::selectedTexture() {
+            return m_selectedTexture;
+        }
+
+        void TextureBrowserControl::onTextureSelectedInBrowserPanel(Gwen::Controls::Base* control) {
+            onTextureSelected.Call(this);
+        }
+
         TextureBrowserControl::TextureBrowserControl(Gwen::Controls::Base* parent, Controller::Editor& editor) : Gwen::Controls::Base(parent), m_editor(editor) {
             m_browserScroller = new Gwen::Controls::ScrollControl(this);
             m_browserScroller->Dock(Gwen::Pos::Fill);
@@ -285,6 +310,7 @@ namespace TrenchBroom {
             m_browserPanel = new TextureBrowserPanel(m_browserScroller, editor);
             m_browserPanel->Dock(Gwen::Pos::Top);
             m_browserPanel->SetPadding(Gwen::Padding(5, 5, 5, 5));
+            m_browserPanel->onTextureSelected.Add(this, &TextureBrowserControl::onTextureSelectedInBrowserPanel);
         }
 
         void TextureBrowserControl::Render(Gwen::Skin::Base* skin) {
@@ -309,6 +335,10 @@ namespace TrenchBroom {
         
         void TextureBrowserControl::setFilterText(const std::string& filterText) {
             m_browserPanel->setFilterText(filterText);
+        }
+        
+        Model::Assets::Texture* TextureBrowserControl::selectedTexture() {
+            return m_browserPanel->selectedTexture();
         }
     }
 }

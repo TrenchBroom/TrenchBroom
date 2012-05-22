@@ -113,6 +113,7 @@ namespace TrenchBroom {
             void flipObjects(EAxis axis, const Vec3f& center, bool lockTextures);
             void deleteObjects();
             
+            void setTexture(Model::Assets::Texture* texture);
             void setXOffset(int xOffset);
             void setYOffset(int yOffset);
             void translateFaces(float delta, const Vec3f dir);
@@ -120,6 +121,7 @@ namespace TrenchBroom {
             void rotateFaces(float angle);
             void setXScale(float xScale);
             void setYScale(float yScale);
+            void resetFaces();
             bool deleteFaces();
             
             MoveResult moveVertex(Brush& brush, int vertexIndex, const Vec3f& delta);

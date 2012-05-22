@@ -51,7 +51,7 @@ namespace TrenchBroom {
         }
         
         BrushSnapshot::~BrushSnapshot() {
-            while (!m_faces.empty()) delete m_faces.back(), m_faces.pop_back();
+            // must not delete the face snapshots because they are now in use by the original brush!
         }
         
         int BrushSnapshot::uniqueId() {

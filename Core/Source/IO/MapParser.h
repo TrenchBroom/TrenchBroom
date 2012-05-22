@@ -104,7 +104,6 @@ namespace TrenchBroom {
         
         class MapParser {
         private:
-            const BBox& m_worldBounds;
             unsigned int m_size;
             EMapFormat m_format;
             MapTokenizer* m_tokenizer;
@@ -114,12 +113,12 @@ namespace TrenchBroom {
             MapToken* nextToken();
             void pushToken(MapToken* token);
         public:
-            MapParser(istream& stream, const BBox& worldBounds);
+            MapParser(istream& stream);
             ~MapParser();
             void parseMap(Map& map, Controller::ProgressIndicator* indicator);
-            Entity* parseEntity(Controller::ProgressIndicator* indicator);
-            Brush* parseBrush(Controller::ProgressIndicator* indicator);
-            Face* parseFace();
+            Entity* parseEntity(const BBox& worldBounds, Controller::ProgressIndicator* indicator);
+            Brush* parseBrush(const BBox& worldBounds, Controller::ProgressIndicator* indicator);
+            Face* parseFace(const BBox& worldBounds);
         };
     }
 }

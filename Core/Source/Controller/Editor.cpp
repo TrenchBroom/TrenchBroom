@@ -120,8 +120,7 @@ namespace TrenchBroom {
 
             clock_t start = clock();
             ifstream stream(path.c_str());
-            BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
-            IO::MapParser parser(stream, worldBounds);
+            IO::MapParser parser(stream);
             parser.parseMap(*m_map, indicator);
             log(TB_LL_INFO, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
 

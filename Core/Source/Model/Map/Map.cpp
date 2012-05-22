@@ -413,8 +413,23 @@ namespace TrenchBroom {
             }
         }
 
+        void Map::setTexture(Model::Assets::Texture* texture) {
+            vector<Face*> faces = m_selection->allFaces();
+            if (faces.empty()) return;
+
+            m_undoManager->begin("Set Texture");
+            m_undoManager->addSnapshot(*this);
+            
+            if (m_postNotifications) facesWillChange(faces);
+            for (unsigned int i = 0; i < faces.size(); i++)
+                faces[i]->setTexture(texture);
+            if (m_postNotifications) facesDidChange(faces);
+            
+            m_undoManager->end();
+        }
+
         void Map::setXOffset(int xOffset) {
-            const vector<Face*>& faces = m_selection->faces();
+            vector<Face*> faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Set X Offset");
@@ -429,7 +444,7 @@ namespace TrenchBroom {
         }
 
         void Map::setYOffset(int yOffset) {
-            const vector<Face*>& faces = m_selection->faces();
+            vector<Face*> faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Set Y Offset");
@@ -444,7 +459,7 @@ namespace TrenchBroom {
         }
 
         void Map::translateFaces(float delta, const Vec3f dir) {
-            const vector<Face*>& faces = m_selection->faces();
+            vector<Face*> faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Move Texture");
@@ -459,7 +474,7 @@ namespace TrenchBroom {
         }
 
         void Map::setRotation(float rotation) {
-            const vector<Face*>& faces = m_selection->faces();
+            vector<Face*> faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Set Rotation");
@@ -474,7 +489,7 @@ namespace TrenchBroom {
         }
 
         void Map::rotateFaces(float angle) {
-            const vector<Face*>& faces = m_selection->faces();
+            vector<Face*> faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Rotate Texture");
@@ -489,7 +504,7 @@ namespace TrenchBroom {
         }
 
         void Map::setXScale(float xScale) {
-            const vector<Face*>& faces = m_selection->faces();
+            vector<Face*> faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Set X Scale");
@@ -504,7 +519,7 @@ namespace TrenchBroom {
         }
 
         void Map::setYScale(float yScale) {
-            const vector<Face*>& faces = m_selection->faces();
+            vector<Face*> faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Set Y Scale");
@@ -513,6 +528,26 @@ namespace TrenchBroom {
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->setYScale(yScale);
+            if (m_postNotifications) facesDidChange(faces);
+            
+            m_undoManager->end();
+        }
+
+        void Map::resetFaces() {
+            vector<Face*> faces = m_selection->allFaces();
+            if (faces.empty()) return;
+            
+            m_undoManager->begin("Reset Faces");
+            m_undoManager->addSnapshot(*this);
+            
+            if (m_postNotifications) facesWillChange(faces);
+            for (unsigned int i = 0; i < faces.size(); i++) {
+                faces[i]->setXOffset(0);
+                faces[i]->setYOffset(0);
+                faces[i]->setXScale(1.0f);
+                faces[i]->setYScale(1.0f);
+                faces[i]->setRotation(0.0f);
+            }
             if (m_postNotifications) facesDidChange(faces);
             
             m_undoManager->end();

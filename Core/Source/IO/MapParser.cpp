@@ -245,7 +245,7 @@ namespace TrenchBroom {
             m_tokenStack.push_back(token);
         }
         
-        MapParser::MapParser(istream& stream, const BBox& worldBounds) : m_worldBounds(worldBounds) {
+        MapParser::MapParser(istream& stream) {
             streamoff cur = stream.tellg();
             stream.seekg(0, ios::end);
             m_size = static_cast<unsigned int>(stream.tellg());
@@ -263,11 +263,11 @@ namespace TrenchBroom {
             Entity* entity = NULL;
             
             if (indicator != NULL) indicator->reset(static_cast<float>(m_tokenizer->size()));
-            while ((entity = parseEntity(indicator)) != NULL) map.addEntity(entity);
+            while ((entity = parseEntity(map.worldBounds(), indicator)) != NULL) map.addEntity(entity);
             if (indicator != NULL) indicator->update(static_cast<float>(m_tokenizer->size()));
         }
         
-        Entity* MapParser::parseEntity(Controller::ProgressIndicator* indicator) {
+        Entity* MapParser::parseEntity(const BBox& worldBounds, Controller::ProgressIndicator* indicator) {
             MapToken* token = nextToken();
             if (token == NULL) return NULL;
             
@@ -290,7 +290,7 @@ namespace TrenchBroom {
                     case TB_TT_CB_O: {
                         pushToken(token);
                         Brush* brush = NULL;
-                        while ((brush = parseBrush(indicator)) != NULL)
+                        while ((brush = parseBrush(worldBounds, indicator)) != NULL)
                             entity->addBrush(brush);
                     }
                     case TB_TT_CB_C: {
@@ -306,20 +306,20 @@ namespace TrenchBroom {
             return entity;
         }
         
-        Brush* MapParser::parseBrush(Controller::ProgressIndicator* indicator) {
+        Brush* MapParser::parseBrush(const BBox& worldBounds, Controller::ProgressIndicator* indicator) {
             MapToken* token;
 
             expect(TB_TT_CB_O | TB_TT_CB_C, token = nextToken());
             if (token->type == TB_TT_CB_C) return NULL;
             
-            Brush* brush = new Brush(m_worldBounds);
+            Brush* brush = new Brush(worldBounds);
             brush->setFilePosition(token->line);
             
             while ((token = nextToken()) != NULL) {
                 switch (token->type) {
                     case TB_TT_B_O: {
                         pushToken(token);
-                        Face* face = parseFace();
+                        Face* face = parseFace(worldBounds);
                         if (face != NULL) brush->addFace(face);
                         break;
                     }
@@ -334,7 +334,7 @@ namespace TrenchBroom {
             return NULL;
         }
         
-        Face* MapParser::parseFace() {
+        Face* MapParser::parseFace(const BBox& worldBounds) {
             Vec3f p1, p2, p3;
             float xOffset, yOffset, rotation, xScale, yScale;
             MapToken* token;
@@ -412,7 +412,7 @@ namespace TrenchBroom {
                 return NULL;
             }
             
-            Face* face = new Face(m_worldBounds, p1, p2, p3, textureName);
+            Face* face = new Face(worldBounds, p1, p2, p3, textureName);
             face->setXOffset(static_cast<int>(Math::fround(xOffset)));
             face->setYOffset(static_cast<int>(Math::fround(yOffset)));
             face->setRotation(rotation);

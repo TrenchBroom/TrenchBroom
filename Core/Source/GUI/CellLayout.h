@@ -48,6 +48,12 @@ namespace TrenchBroom {
                 }
             }
             
+            bool hitTest(float x, float y) {
+                return (x >= itemX()  && x <= itemX()  + itemWidth()  && y >= itemY()  && y <= itemY()  + itemHeight()) ||
+                       (x >= titleX() && x <= titleX() + titleWidth() && y >= titleY() && y <= titleY() + titleHeight());
+                    
+            }
+            
             float x() const {
                 return m_x;
             }
@@ -150,6 +156,21 @@ namespace TrenchBroom {
                 return m_cells;
             }
             
+            bool cellAt(float x, float y, CellPtr& result) {
+                for (unsigned int i = 0; i < m_cells.size(); i++) {
+                    CellPtr cell = m_cells[i];
+                    if (x > cell->x() + cell->width())
+                        continue;
+                    else if (x < cell->x())
+                        break;
+                    if (cell->hitTest(x, y)) {
+                        result = cell;
+                        return true;
+                    }
+                }
+                return false;
+            }
+
             float y() const {
                 return m_y;
             }
@@ -236,6 +257,23 @@ namespace TrenchBroom {
                 }
             }
             
+            bool cellAt(float x, float y, typename CellRow<CellType>::CellPtr& result) {
+                for (unsigned int i = 0; i < m_rows.size(); i++) {
+                    CellRowPtr row = m_rows[i];
+                    if (y > row->y() + row->height())
+                        continue;
+                    else if (y < row->y())
+                        break;
+                    typename CellRow<CellType>::CellPtr cell;
+                    if (row->cellAt(x, y, cell)) {
+                        result = cell;
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+
             float y() const {
                 return m_y;
             }
@@ -377,6 +415,26 @@ namespace TrenchBroom {
             void clear() {
                 m_groups.clear();
                 invalidate();
+            }
+            
+            bool cellAt(float x, float y, typename CellRow<CellType>::CellPtr& result) {
+                if (!m_valid)
+                    validate();
+                
+                for (unsigned int i = 0; i < m_groups.size(); i++) {
+                    CellGroupPtr group = m_groups[i];
+                    if (y > group->y() + group->height())
+                        continue;
+                    else if (y < group->y())
+                        break;
+                    typename CellRow<CellType>::CellPtr cell;
+                    if (group->cellAt(x, y, cell)) {
+                        result = cell;
+                        return true;
+                    }
+                }
+                
+                return false;
             }
             
             size_t size() {

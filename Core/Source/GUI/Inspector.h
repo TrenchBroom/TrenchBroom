@@ -41,6 +41,9 @@ namespace TrenchBroom {
             class TextureManager;
         }
         class SelectionEventData;
+        class Entity;
+        class Brush;
+        class Face;
     }
     
     namespace Controller {
@@ -62,6 +65,7 @@ namespace TrenchBroom {
             Gwen::Controls::NumericUpDown* m_xScaleControl;
             Gwen::Controls::NumericUpDown* m_yScaleControl;
             Gwen::Controls::NumericUpDown* m_rotationControl;
+            Gwen::Controls::Button* m_resetFaceButton;
             
             TextureBrowserControl* m_textureBrowser;
             Gwen::Controls::ListBox* m_textureWadList;
@@ -73,6 +77,9 @@ namespace TrenchBroom {
             void updateNumericControl(Gwen::Controls::NumericUpDown* control, bool disabled, bool multi, float value);
             void updateTextureControls();
             void updateTextureWadList();
+            void propertiesDidChange(const std::vector<Model::Entity*>& entities);
+            void brushesDidChange(const std::vector<Model::Brush*>& brushes);
+            void facesDidChange(const std::vector<Model::Face*>& faces);
             void selectionChanged(const Model::SelectionEventData& data);
             void textureManagerChanged(Model::Assets::TextureManager& textureManager);
             void onXOffsetChanged(Gwen::Controls::Base* control);
@@ -80,14 +87,18 @@ namespace TrenchBroom {
             void onXScaleChanged(Gwen::Controls::Base* control);
             void onYScaleChanged(Gwen::Controls::Base* control);
             void onRotationChanged(Gwen::Controls::Base* control);
+            void onResetFaceButtonPressed(Gwen::Controls::Base* control);
             void onTextureBrowserSortCriterionChanged(Gwen::Controls::Base* control);
             void onTextureBrowserGroupChanged(Gwen::Controls::Base* control);
             void onTextureBrowserFilterUsedChanged(Gwen::Controls::Base* control);
             void onTextureBrowserFilterTextChanged(Gwen::Controls::Base* control);
+            void onTextureSelected(Gwen::Controls::Base* control);
             void onTextureWadListRowSelected(Gwen::Controls::Base* control);
             void onAddTextureWadButtonPressed(Gwen::Controls::Base* control);
             void onTextureWadChosen(const Gwen::String& path);
             void onRemoveTextureWadButtonPressed(Gwen::Controls::Base* control);
+            
+            Gwen::Controls::Base* createFaceInspector();
         public:
             Inspector(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~Inspector();

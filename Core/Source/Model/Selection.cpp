@@ -56,6 +56,12 @@ namespace TrenchBroom {
             return faces;
         }
 
+        const vector<Face*> Selection::allFaces() const {
+            vector<Face*> allFaces = brushFaces();
+            allFaces.insert(allFaces.begin(), m_faces.begin(), m_faces.end());
+            return allFaces;
+        }
+
         const vector<Brush*>& Selection::brushes() const {
             return m_brushes;
         }

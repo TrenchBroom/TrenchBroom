@@ -35,6 +35,7 @@ namespace Gwen {
             Button* m_selected;
             bool m_ignoreToggle;
             virtual void OnButtonToggle(Gwen::Controls::Base* control);
+            virtual void OnChange();
         public:
             GWEN_CONTROL(ButtonStrip, Base);
             
@@ -44,7 +45,6 @@ namespace Gwen {
             virtual int GetSelectedButtonIndex();
             virtual void SetSelectedButton(Button* selectedButton);
 
-            virtual void OnChange();
             Event::Caller onSelectionChange;
         };
     }

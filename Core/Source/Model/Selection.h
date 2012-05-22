@@ -79,6 +79,7 @@ namespace TrenchBroom {
             const vector<Assets::Texture*>& mruTextures() const;
             const vector<Face*>& faces() const;
             const vector<Face*> brushFaces() const;
+            const vector<Face*> allFaces() const;
             const vector<Brush*>& brushes() const;
             const vector<Brush*>& partialBrushes() const;
             const vector<Entity*>& entities() const;

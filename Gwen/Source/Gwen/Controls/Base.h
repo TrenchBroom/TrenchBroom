@@ -244,7 +244,7 @@ namespace Gwen
 				virtual void Blur();
 
 				//Other
-				virtual void SetDisabled( bool active ) { m_bDisabled = active; }
+                virtual void SetDisabled( bool active ) { m_bDisabled = active; Redraw(); }
 				virtual bool IsDisabled(){ return m_bDisabled; }
 	
 				virtual void Redraw(){ UpdateColours(); m_bCacheTextureDirty = true; if ( m_Parent ) m_Parent->Redraw(); }
