@@ -118,9 +118,12 @@ namespace Gwen
 			// OpenGL's coords are from the bottom left
 			// so we need to translate them here.
 			{
+                rect.y = m_Viewport.h - (rect.y + rect.h);
+                /*
 				GLint view[4];
 				glGetIntegerv( GL_VIEWPORT, &view[0] );
 				rect.y = view[3] - (rect.y + rect.h);
+                 */
 			}
 
 			glScissor( rect.x * Scale(), rect.y * Scale(), rect.w * Scale(), rect.h * Scale() );
@@ -131,7 +134,6 @@ namespace Gwen
 		{
 			Flush();
 			glDisable( GL_SCISSOR_TEST );
-			
 		};
 
 		void OpenGL::DrawTexturedRect( Gwen::Texture* pTexture, Gwen::Rect rect, float u1, float v1, float u2, float v2 )

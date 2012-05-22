@@ -69,6 +69,12 @@ void Canvas::Render( Gwen::Skin::Base* /*pRender*/ )
 
 void Canvas::OnBoundsChanged( Gwen::Rect oldBounds )
 {
+    Gwen::Skin::Base* skin = GetSkin();
+    if (skin != NULL) {
+        Gwen::Renderer::Base* renderer = skin->GetRender();
+        if (renderer != NULL)
+            GetSkin()->GetRender()->SetViewport(GetBounds());
+    }
 	BaseClass::OnBoundsChanged( oldBounds );
 	InvalidateChildren( true );
 }

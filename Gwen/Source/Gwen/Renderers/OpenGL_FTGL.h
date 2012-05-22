@@ -26,15 +26,25 @@ namespace Gwen
         };
         
         bool operator<(FontDescriptor const& left, FontDescriptor const& right);
-
+        
         typedef std::tr1::shared_ptr<FTFont> FontPtr;
+
+        class FontInfo {
+        public:
+            FontPtr font;
+            float height;
+            float offset;
+            FontInfo() {}
+            FontInfo(FontPtr font, float height, float offset) : font(font), height(height), offset(offset) {}
+        };
+        
 
 		class OpenGL_FTGL : public Gwen::Renderer::OpenGL
 		{
         protected:
-            typedef std::map<FontDescriptor, FontPtr> FontCache;
+            typedef std::map<FontDescriptor, FontInfo> FontCache;
             FontCache m_fontCache;
-            FontPtr loadFont(Gwen::Font* pFont);
+            const FontInfo& loadFont(Gwen::Font* pFont);
         public:
             
             OpenGL_FTGL();

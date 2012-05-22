@@ -91,11 +91,11 @@ namespace TrenchBroom {
                 newTexAxisX.x = plane.x(newTexAxisX.y, newTexAxisX.z);
                 newTexAxisY.x = plane.x(newTexAxisY.y, newTexAxisY.z);
             } else if (BaseAxes[m_texPlaneNormIndex]->y != 0) {
-                newTexAxisX.x = plane.y(newTexAxisX.x, newTexAxisX.z);
-                newTexAxisY.x = plane.y(newTexAxisY.x, newTexAxisY.z);
+                newTexAxisX.y = plane.y(newTexAxisX.x, newTexAxisX.z);
+                newTexAxisY.y = plane.y(newTexAxisY.x, newTexAxisY.z);
             } else {
-                newTexAxisX.x = plane.z(newTexAxisX.x, newTexAxisX.y);
-                newTexAxisY.x = plane.z(newTexAxisY.x, newTexAxisY.y);
+                newTexAxisX.z = plane.z(newTexAxisX.x, newTexAxisX.y);
+                newTexAxisY.z = plane.z(newTexAxisY.x, newTexAxisY.y);
             }
             
             // apply the transformation
@@ -184,6 +184,11 @@ namespace TrenchBroom {
             if ((newBaseAxisY | newTexAxisY) < 0)
                 m_yScale *= -1;
             
+            // correct rounding errors
+            m_xScale = Math::fcorrect(m_xScale);
+            m_yScale = Math::fcorrect(m_yScale);
+            m_rotation = Math::fcorrect(m_rotation);
+
             validateTexAxes(newFaceNorm);
             
             // determine the new texture coordinates of the transformed center of the face, sans offsets
@@ -195,8 +200,12 @@ namespace TrenchBroom {
             m_xOffset = curCenterTexCoords.x - newCenterTexCoords.x;
             m_yOffset = curCenterTexCoords.y - newCenterTexCoords.y;
             
-            m_xOffset -= ((int)m_xOffset / m_texture->width) * m_texture->width;
-            m_yOffset -= ((int)m_yOffset / m_texture->height) * m_texture->height;
+            m_xOffset -= static_cast<int>(Math::fround(m_xOffset / static_cast<float>(m_texture->width))) * static_cast<int>(m_texture->width);
+            m_yOffset -= static_cast<int>(Math::fround(m_yOffset / static_cast<float>(m_texture->height))) * static_cast<int>(m_texture->height);
+
+            // correct rounding errors
+            m_xOffset = Math::fcorrect(m_xOffset);
+            m_yOffset = Math::fcorrect(m_yOffset);
         }
         
         void Face::init() {

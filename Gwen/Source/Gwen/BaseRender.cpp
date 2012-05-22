@@ -142,6 +142,10 @@ namespace Gwen
 			return m_rectClipRegion; 
 		}
 
+        void Base::SetViewport(const Gwen::Rect& viewport) {
+            m_Viewport = viewport;
+        }
+
 		bool Base::ClipRegionVisible()
 		{
 			if ( m_rectClipRegion.w <= 0 || m_rectClipRegion.h <= 0 )

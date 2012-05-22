@@ -45,6 +45,10 @@ namespace Math {
         return f > 0.0f ? floor(f + 0.5f) : ceil(f - 0.5f);
     }
     
+    inline float fcorrect(float f) {
+        return fround(1000.0f * f) / 1000.0f;
+    }
+    
     inline bool fzero(float f) {
         return fabsf(f) <= AlmostZero;
     }

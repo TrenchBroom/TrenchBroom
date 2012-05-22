@@ -105,19 +105,19 @@ namespace TrenchBroom {
                 if (dist2 <= cutoff) {
                     float dist = sqrt(dist2);
                     float factor = dist / 300;
-                    FTBBox bounds = entry.font->BBox(entry.text.c_str());
-                    float width = bounds.Upper().Xf() - bounds.Lower().Xf();
                     
                     glPushMatrix();
                     glTranslatef(position.x, position.y, position.z);
                     context.camera.setBillboard();
                     glScalef(factor, factor, 0);
-                    glTranslatef(-width / 2, 0, 0);
+                    glTranslatef(-entry.width / 2, 0, 0);
                     
                     float alphaFactor = 1 - Math::fmax((dist - m_fadeDistance), 0) / 100;
 
+                    /*
                     glColor4f(0, 0, 0, 0.6f * alphaFactor);
                     renderTextBackground(entry.x, entry.y, entry.width, entry.height, 2, 1);
+                     */
                     
                     glSetEdgeOffset(0.5f);
                     glColorV4f(color, alphaFactor);
