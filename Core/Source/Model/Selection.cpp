@@ -152,9 +152,6 @@ namespace TrenchBroom {
         }
 
         void Selection::addTexture(Assets::Texture& texture) {
-            if (texture.dummy)
-                return;
-
             vector<Assets::Texture*>::iterator it = find(m_mruTextures.begin(), m_mruTextures.end(), &texture);
             if (it != m_mruTextures.end())
                 m_mruTextures.erase(it);
@@ -170,7 +167,8 @@ namespace TrenchBroom {
             if (find(m_partialBrushes.begin(), m_partialBrushes.end(), face.brush()) == m_partialBrushes.end())
                 m_partialBrushes.push_back(face.brush());
 
-            addTexture(*face.texture());
+            if (face.texture() != NULL)
+                addTexture(*face.texture());
             m_mode = TB_SM_FACES;
 
             SelectionEventData data(face);
@@ -189,7 +187,8 @@ namespace TrenchBroom {
                     m_partialBrushes.push_back(face->brush());
             }
 
-            addTexture(*faces[faces.size() - 1]->texture());
+            if (faces.back()->texture() != NULL)
+                addTexture(*faces.back()->texture());
             m_mode = TB_SM_FACES;
 
             SelectionEventData data(faces);

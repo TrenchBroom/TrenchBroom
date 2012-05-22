@@ -95,7 +95,10 @@ namespace TrenchBroom {
             }
 
             Texture::Texture(const string& name) {
-                init(name, NULL, 1, 1, NULL);
+                init(name, 1, 1);
+                m_textureBuffer = new unsigned char[4];
+                for (int i = 0; i < 4; i++)
+                    m_textureBuffer[i] = 0;
                 dummy = true;
             }
 
@@ -107,11 +110,6 @@ namespace TrenchBroom {
             }
 
             void Texture::activate() {
-                if (dummy) {
-                    deactivate();
-                    return;
-                }
-
                 if (m_textureId == 0) {
                     if (m_textureBuffer != NULL) {
                         glGenTextures(1, &m_textureId);
@@ -198,9 +196,6 @@ namespace TrenchBroom {
             }
 
             void TextureManager::clear() {
-                for (map<string, Texture*>::iterator it = m_dummies.begin(); it != m_dummies.end(); ++it)
-                    delete it->second;
-                m_dummies.clear();
                 m_textures.clear();
                 while (!m_collections.empty()) delete m_collections.back(), m_collections.pop_back();
                 textureManagerChanged(*this);
@@ -222,13 +217,10 @@ namespace TrenchBroom {
             }
 
             Texture* TextureManager::texture(const string& name) {
-                map<string, Texture*>::iterator it;
-                if ((it = m_textures.find(name)) != m_textures.end()) return it->second;
-                if ((it = m_dummies.find(name)) != m_dummies.end()) return it->second;
-
-                Texture* dummy = new Texture(name);
-                m_dummies[name] = dummy;
-                return dummy;
+                map<string, Texture*>::iterator it = m_textures.find(name);
+                if (it == m_textures.end())
+                    return NULL;
+                return it->second;
             }
 
             void TextureManager::activateTexture(const string& name) {

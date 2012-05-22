@@ -47,9 +47,12 @@ namespace TrenchBroom {
                     const vector<Model::Face*>& faces = brushes[j]->faces();
                     for (unsigned int k = 0; k < faces.size(); k++) {
                         const string& textureName = faces[k]->textureName();
+                        Model::Assets::Texture* oldTexture = faces[k]->texture();
                         Model::Assets::Texture* newTexture = m_textureManager->texture(textureName);
-                        changedFaces.push_back(faces[k]);
-                        newTextures.push_back(newTexture);
+                        if (oldTexture != newTexture) {
+                            changedFaces.push_back(faces[k]);
+                            newTextures.push_back(newTexture);
+                        }
                     }
                 }
             }
@@ -118,7 +121,7 @@ namespace TrenchBroom {
             clock_t start = clock();
             ifstream stream(path.c_str());
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
-            IO::MapParser parser(stream, worldBounds, *m_textureManager);
+            IO::MapParser parser(stream, worldBounds);
             parser.parseMap(*m_map, indicator);
             log(TB_LL_INFO, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
 

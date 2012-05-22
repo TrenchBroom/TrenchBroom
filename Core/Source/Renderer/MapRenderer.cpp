@@ -151,7 +151,7 @@ namespace TrenchBroom {
             Vec2f texCoords, gridCoords;
 
             Model::Assets::Texture* texture = face.texture();
-            const Vec4f& faceColor = texture != NULL && !texture->dummy ? texture->averageColor : context.preferences.faceColor();
+            const Vec4f& faceColor = texture != NULL ? texture->averageColor : context.preferences.faceColor();
             const Vec4f& edgeColor = context.preferences.edgeColor();
             unsigned int width = texture != NULL ? texture->width : 1;
             unsigned int height = texture != NULL ? texture->height : 1;
@@ -340,7 +340,7 @@ namespace TrenchBroom {
                                 for (unsigned int k = 0; k < faces.size(); k++) {
                                     Model::Face* face = faces[k];
                                     if (!face->selected()) {
-                                        Model::Assets::Texture* texture = face->texture();
+                                        Model::Assets::Texture* texture = face->texture() != NULL ? face->texture() : m_dummyTexture;
                                         TextureFaces::iterator it = textureFaces.find(texture);
                                         if (it == textureFaces.end()) {
                                             textureFaces[texture].first.push_back(face);
@@ -424,7 +424,7 @@ namespace TrenchBroom {
             // sort them into the texture face map
             for (unsigned int i = 0; i < allFaces.size(); i++) {
                 Model::Face* face = allFaces[i];
-                Model::Assets::Texture* texture = face->texture();
+                Model::Assets::Texture* texture = face->texture() != NULL ? face->texture() : m_dummyTexture;
                 TextureFaces::iterator it = textureFaces.find(texture);
                 if (it == textureFaces.end()) {
                     textureFaces[texture].first.push_back(face);
@@ -1034,17 +1034,12 @@ namespace TrenchBroom {
             }
 
             if (selected) {
-                if (m_selectionDummyTexture == NULL) {
-                    unsigned char image = 0;
-                    m_selectionDummyTexture = new Model::Assets::Texture("selection dummy", &image, 1, 1);
-                }
-
                 const Vec4f& selectedFaceColor = context.preferences.selectedFaceColor();
                 GLfloat color[4] = {selectedFaceColor.x, selectedFaceColor.y, selectedFaceColor.z, selectedFaceColor.w};
 
                 glActiveTexture(GL_TEXTURE1);
                 glEnable(GL_TEXTURE_2D);
-                m_selectionDummyTexture->activate();
+                m_dummyTexture->activate();
                 glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
                 glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
                 glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
@@ -1055,6 +1050,7 @@ namespace TrenchBroom {
                 glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2);
             }
 
+            bool textureActive;
             glActiveTexture(GL_TEXTURE0);
             if (textured) {
                 glEnable(GL_TEXTURE_2D);
@@ -1074,8 +1070,10 @@ namespace TrenchBroom {
                 glClientActiveTexture(GL_TEXTURE0);
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                 glTexCoordPointer(2, GL_FLOAT, TexCoordSize + TexCoordSize + ColorSize + ColorSize + VertexSize, (const GLvoid *)(long)TexCoordSize);
+                textureActive = true;
             } else {
                 glDisable(GL_TEXTURE_2D);
+                textureActive = false;
             }
 
             glEnableClientState(GL_COLOR_ARRAY);
@@ -1086,17 +1084,23 @@ namespace TrenchBroom {
             for (it = indexBlocks.begin(); it != indexBlocks.end(); ++it) {
                 Model::Assets::Texture* texture = it->first;
                 VboBlock* block = it->second;
-                if (textured) texture->activate();
+                if (textured) {
+                    if (texture->dummy && textureActive)
+                        glDisable(GL_TEXTURE_2D);
+                    else
+                        glEnable(GL_TEXTURE_2D);
+                    if (!texture->dummy) texture->activate();
+                }
                 glDrawElements(GL_TRIANGLES, block->capacity / sizeof(unsigned int), GL_UNSIGNED_INT, reinterpret_cast<GLvoid*>(block->address));
-                if (textured) texture->deactivate();
+                if (textured && !texture->dummy) texture->deactivate();
             }
             
-            if (textured)
+            if (textured && textureActive)
                 glDisable(GL_TEXTURE_2D);
 
             if (selected) {
                 glActiveTexture(GL_TEXTURE1);
-                m_selectionDummyTexture->deactivate();
+                m_dummyTexture->deactivate();
                 glDisable(GL_TEXTURE_2D);
             }
 
@@ -1135,7 +1139,8 @@ namespace TrenchBroom {
             m_classnameRenderer = new TextRenderer(m_fontManager, prefs.infoOverlayFadeDistance());
             m_selectedClassnameRenderer = new TextRenderer(m_fontManager, prefs.selectedInfoOverlayFadeDistance());
 
-            m_selectionDummyTexture = NULL;
+            m_dummyTexture = new Model::Assets::Texture("dummy");
+
             m_editor.setRenderer(this);
 
             Model::Map& map = m_editor.map();
@@ -1196,8 +1201,8 @@ namespace TrenchBroom {
             delete m_classnameRenderer;
             delete m_selectedClassnameRenderer;
 
-            if (m_selectionDummyTexture != NULL)
-                delete m_selectionDummyTexture;
+            if (m_dummyTexture != NULL)
+                delete m_dummyTexture;
         }
 
         void MapRenderer::addFigure(Figure& figure) {

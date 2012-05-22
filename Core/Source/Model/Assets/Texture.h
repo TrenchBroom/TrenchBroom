@@ -57,11 +57,11 @@ namespace TrenchBroom {
             public:
                 string name;
                 int uniqueId;
-                bool dummy;
                 unsigned int usageCount;
                 unsigned int width;
                 unsigned int height;
                 Vec4f averageColor;
+                bool dummy;
 
                 Texture(const string& name, const unsigned char* rgbImage, unsigned int width, unsigned int height);
                 Texture(const string& name, const unsigned char* indexedImage, unsigned int width, unsigned int height, const Palette& palette);
@@ -91,7 +91,6 @@ namespace TrenchBroom {
             private:
                 vector<TextureCollection*> m_collections;
                 map<string, Texture*> m_textures;
-                map<string, Texture*> m_dummies;
                 void reloadTextures();
             public:
                 typedef Event<TextureManager&> TextureManagerEvent;

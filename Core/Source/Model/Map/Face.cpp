@@ -200,8 +200,10 @@ namespace TrenchBroom {
             m_xOffset = curCenterTexCoords.x - newCenterTexCoords.x;
             m_yOffset = curCenterTexCoords.y - newCenterTexCoords.y;
             
-            m_xOffset -= static_cast<int>(Math::fround(m_xOffset / static_cast<float>(m_texture->width))) * static_cast<int>(m_texture->width);
-            m_yOffset -= static_cast<int>(Math::fround(m_yOffset / static_cast<float>(m_texture->height))) * static_cast<int>(m_texture->height);
+            if (m_texture != NULL) {
+                m_xOffset -= static_cast<int>(Math::fround(m_xOffset / static_cast<float>(m_texture->width))) * static_cast<int>(m_texture->width);
+                m_yOffset -= static_cast<int>(Math::fround(m_yOffset / static_cast<float>(m_texture->height))) * static_cast<int>(m_texture->height);
+            }
 
             // correct rounding errors
             m_xOffset = Math::fcorrect(m_xOffset);

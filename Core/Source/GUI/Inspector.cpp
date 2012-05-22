@@ -66,29 +66,34 @@ namespace TrenchBroom {
             const vector<Model::Face*>& faces = selection.faces();
             if (selection.mode() == Model::TB_SM_FACES) {
                 float xOffset, yOffset, xScale, yScale, rotation;
-                bool xOffsetMulti, yOffsetMulti, xScaleMulti, yScaleMulti, rotationMulti;
+                bool xOffsetMulti, yOffsetMulti, xScaleMulti, yScaleMulti, rotationMulti, textureMulti;
                 
-                xOffsetMulti = yOffsetMulti = xScaleMulti = yScaleMulti = rotationMulti = false;
+                xOffsetMulti = yOffsetMulti = xScaleMulti = yScaleMulti = rotationMulti = textureMulti = false;
                 xOffset = static_cast<float>(faces[0]->xOffset());
                 yOffset = static_cast<float>(faces[0]->yOffset());
                 xScale = faces[0]->xScale();
                 yScale = faces[0]->yScale();
                 rotation = faces[0]->rotation();
+                std::string textureName = faces[0]->textureName();
                 Model::Assets::Texture* texture = faces[0]->texture();
 
                 for (unsigned int i = 1; i < faces.size(); i++) {
-                    if (texture != faces[i]->texture())
-                        texture = NULL;
-                    xOffsetMulti |= xOffset == static_cast<float>(faces[i]->xOffset());
-                    yOffsetMulti |= yOffset == static_cast<float>(faces[i]->yOffset());
-                    xScaleMulti |= xScale == faces[i]->xScale();
-                    yScaleMulti |= yScale == faces[i]->yScale();
-                    rotationMulti |= rotation == faces[i]->rotation();
+                    xOffsetMulti    |= xOffset == static_cast<float>(faces[i]->xOffset());
+                    yOffsetMulti    |= yOffset == static_cast<float>(faces[i]->yOffset());
+                    xScaleMulti     |= xScale == faces[i]->xScale();
+                    yScaleMulti     |= yScale == faces[i]->yScale();
+                    rotationMulti   |= rotation == faces[i]->rotation();
+                    textureMulti    |= textureName.compare(faces[i]->textureName()) != 0;
                 }
                 
-                m_textureView->setTexture(texture);
                 m_textureLabel->SetPlaceholderString("multiple");
-                m_textureLabel->SetText(texture == NULL ? "" : texture->name);
+                if (textureMulti) {
+                    m_textureView->setTexture(NULL);
+                    m_textureLabel->SetText("");
+                } else {
+                    m_textureView->setTexture(texture);
+                    m_textureLabel->SetText(textureName);
+                }
                 updateNumericControl(m_xOffsetControl, false, xOffsetMulti, xOffset);
                 updateNumericControl(m_yOffsetControl, false, yOffsetMulti, yOffset);
                 updateNumericControl(m_xScaleControl, false, xScaleMulti, xScale);

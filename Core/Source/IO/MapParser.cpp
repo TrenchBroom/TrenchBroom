@@ -245,7 +245,7 @@ namespace TrenchBroom {
             m_tokenStack.push_back(token);
         }
         
-        MapParser::MapParser(istream& stream, const BBox& worldBounds, Assets::TextureManager& textureManager) : m_worldBounds(worldBounds), m_textureManager(textureManager) {
+        MapParser::MapParser(istream& stream, const BBox& worldBounds) : m_worldBounds(worldBounds) {
             streamoff cur = stream.tellg();
             stream.seekg(0, ios::end);
             m_size = static_cast<unsigned int>(stream.tellg());
@@ -365,7 +365,7 @@ namespace TrenchBroom {
             expect(TB_TT_B_C, token = nextToken());
             
             expect(TB_TT_STR, token = nextToken());
-            Assets::Texture* texture = m_textureManager.texture(token->data);
+            string textureName = token->data;
             
             token = nextToken();
             if (m_format == TB_MF_UNDEFINED) {
@@ -412,8 +412,7 @@ namespace TrenchBroom {
                 return NULL;
             }
             
-            Face* face = new Face(m_worldBounds, p1, p2, p3, texture->name);
-            face->setTexture(texture);
+            Face* face = new Face(m_worldBounds, p1, p2, p3, textureName);
             face->setXOffset(static_cast<int>(Math::fround(xOffset)));
             face->setYOffset(static_cast<int>(Math::fround(yOffset)));
             face->setRotation(rotation);

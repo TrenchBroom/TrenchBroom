@@ -108,7 +108,7 @@ namespace TrenchBroom {
             std::vector<Figure*> m_figures;
             
             ChangeSet m_changeSet;
-            Model::Assets::Texture* m_selectionDummyTexture;
+            Model::Assets::Texture* m_dummyTexture;
             FontManager& m_fontManager;
 
             void addEntities(const vector<Model::Entity*>& entities);

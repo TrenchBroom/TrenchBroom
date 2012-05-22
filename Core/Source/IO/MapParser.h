@@ -105,7 +105,6 @@ namespace TrenchBroom {
         class MapParser {
         private:
             const BBox& m_worldBounds;
-            Assets::TextureManager& m_textureManager;
             unsigned int m_size;
             EMapFormat m_format;
             MapTokenizer* m_tokenizer;
@@ -115,7 +114,7 @@ namespace TrenchBroom {
             MapToken* nextToken();
             void pushToken(MapToken* token);
         public:
-            MapParser(istream& stream, const BBox& worldBounds, Assets::TextureManager& textureManager);
+            MapParser(istream& stream, const BBox& worldBounds);
             ~MapParser();
             void parseMap(Map& map, Controller::ProgressIndicator* indicator);
             Entity* parseEntity(Controller::ProgressIndicator* indicator);
