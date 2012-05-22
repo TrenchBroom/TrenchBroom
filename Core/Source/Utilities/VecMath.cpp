@@ -899,7 +899,7 @@ float Mat3f::determinant() const {
          - v[8] * v[1] * v[3];
 }
 
-const Mat2f Mat3f::minor(unsigned unsigned int row, unsigned unsigned int col) const {
+const Mat2f Mat3f::minor(unsigned int row, unsigned int col) const {
     Mat2f result;
     int i = 0;
     for (unsigned int c = 0; c < 3; c++)
