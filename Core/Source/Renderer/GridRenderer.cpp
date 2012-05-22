@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace Renderer {
         void GridRenderer::clear() {
             for (unsigned int i = 0; i < m_textures.size(); i++)
-                if (m_textures[i] != -1)
+                if (m_textures[i] != 0)
                     glDeleteTextures(1, &m_textures[i]);
             m_textures.clear();
         }
@@ -49,11 +49,11 @@ namespace TrenchBroom {
                 int oldSize = m_textures.size();
                 m_textures.resize(index + 1);
                 for (unsigned int i = oldSize; i < m_textures.size(); i++)
-                    m_textures[i] = -1;
+                    m_textures[i] = 0;
             }
 
             GLuint textureId = m_textures[index];
-            if (textureId == -1) {
+            if (textureId == 0) {
                 glGenTextures(1, &textureId);
                 unsigned int dim = grid.actualSize();
                 if (dim < 4) dim = 4;

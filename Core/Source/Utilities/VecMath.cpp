@@ -78,13 +78,13 @@ Vec2f& Vec2f::operator/= (const float right) {
     return *this;
 }
 
-float& Vec2f::operator[] (const int index) {
+float& Vec2f::operator[] (const unsigned int index) {
     assert(index >= 0 && index < 2);
     if (index == 0) return x;
     return y;
 }
 
-const float& Vec2f::operator[] (const int index) const {
+const float& Vec2f::operator[] (const unsigned int index) const {
     assert(index >= 0 && index < 2);
     if (index == 0) return x;
     return y;
@@ -208,14 +208,14 @@ Vec3f& Vec3f::operator%= (const Vec3f& right) {
     return *this;
 }
 
-float& Vec3f::operator[] (const int index) {
+float& Vec3f::operator[] (const unsigned int index) {
     assert(index >= 0 && index < 3);
     if (index == 0) return x;
     if (index == 1) return y;
     return z;
 }
 
-const float& Vec3f::operator[] (const int index) const {
+const float& Vec3f::operator[] (const unsigned int index) const {
     assert(index >= 0 && index < 3);
     if (index == 0) return x;
     if (index == 1) return y;
@@ -517,7 +517,7 @@ Vec4f& Vec4f::operator/= (const float right) {
     return *this;
 }
 
-float& Vec4f::operator[] (const int index) {
+float& Vec4f::operator[] (const unsigned int index) {
     assert(index >= 0 && index < 4);
     if (index == 0) return x;
     if (index == 1) return y;
@@ -525,7 +525,7 @@ float& Vec4f::operator[] (const int index) {
     return w;
 }
 
-const float& Vec4f::operator[] (const int index) const {
+const float& Vec4f::operator[] (const unsigned int index) const {
     assert(index >= 0 && index < 4);
     if (index == 0) return x;
     if (index == 1) return y;
@@ -664,12 +664,12 @@ Mat2f& Mat2f::operator/= (const float right) {
     return *this;
 }
 
-float& Mat2f::operator[] (const int index) {
+float& Mat2f::operator[] (const unsigned int index) {
     assert(index >= 0 && index < 4);
     return v[index];
 }
 
-const float& Mat2f::operator[] (const int index) const {
+const float& Mat2f::operator[] (const unsigned int index) const {
     assert(index >= 0 && index < 4);
     return v[index];
 }
@@ -692,13 +692,13 @@ void Mat2f::setIdentity() {
             v[c * 2 + r] = c == r ? 1.0f : 0.0f;
 }
 
-void Mat2f::setValue(int row, int col, float value) {
+void Mat2f::setValue(unsigned int row, unsigned int col, float value) {
     assert(row >= 0 && row < 2);
     assert(col >= 0 && col < 2);
     v[2 * col + row] = value;
 }
 
-void Mat2f::setColumn(int col, const Vec2f& values) {
+void Mat2f::setColumn(unsigned int col, const Vec2f& values) {
     assert(col >= 0 && col < 2);
     v[col + 0] = values.x;
     v[col + 1] = values.y;
@@ -818,12 +818,12 @@ Mat3f& Mat3f::operator/= (const float right) {
     return *this;
 }
 
-float& Mat3f::operator[] (const int index) {
+float& Mat3f::operator[] (const unsigned int index) {
     assert(index >= 0 && index < 9);
     return v[index];
 }
 
-const float& Mat3f::operator[] (const int index) const {
+const float& Mat3f::operator[] (const unsigned int index) const {
     assert(index >= 0 && index < 9);
     return v[index];
 }
@@ -845,13 +845,13 @@ void Mat3f::setIdentity() {
             v[c * 3 + r] = c == r ? 1.0f : 0.0f;
 }
 
-void Mat3f::setValue(int row, int col, float value) {
+void Mat3f::setValue(unsigned int row, unsigned int col, float value) {
     assert(row >= 0 && row < 3);
     assert(col >= 0 && col < 3);
     v[col * 3 + row] = value;
 }
 
-void Mat3f::setColumn(int col, const Vec3f& values) {
+void Mat3f::setColumn(unsigned int col, const Vec3f& values) {
     v[col + 0] = values.x;
     v[col + 1] = values.y;
     v[col + 2] = values.z;
@@ -899,7 +899,7 @@ float Mat3f::determinant() const {
          - v[8] * v[1] * v[3];
 }
 
-const Mat2f Mat3f::minor(int row, int col) const {
+const Mat2f Mat3f::minor(unsigned unsigned int row, unsigned unsigned int col) const {
     Mat2f result;
     int i = 0;
     for (unsigned int c = 0; c < 3; c++)
@@ -995,12 +995,12 @@ Mat4f& Mat4f::operator/= (const float right) {
     return *this;
 }
 
-float& Mat4f::operator[] (const int index) {
+float& Mat4f::operator[] (const unsigned int index) {
     assert(index >= 0 && index < 16);
     return v[index];
 }
 
-const float& Mat4f::operator[] (const int index) const {
+const float& Mat4f::operator[] (const unsigned int index) const {
     assert(index >= 0 && index < 16);
     return v[index];
 }
@@ -1023,13 +1023,13 @@ void Mat4f::setIdentity() {
             v[c * 4 + r] = r == c ? 1.0f : 0.0f;
 }
 
-void Mat4f::setValue(int row, int col, float value) {
+void Mat4f::setValue(unsigned int row, unsigned int col, float value) {
     assert(row >= 0 && row < 4);
     assert(col >= 0 && col < 4);
     v[col * 4 + row] = value;
 }
 
-void Mat4f::setColumn(int col, const Vec3f& values) {
+void Mat4f::setColumn(unsigned int col, const Vec3f& values) {
     assert(col >= 0 && col < 4);
     v[col * 4 + 0] = values.x;
     v[col * 4 + 1] = values.y;
@@ -1037,7 +1037,7 @@ void Mat4f::setColumn(int col, const Vec3f& values) {
     v[col * 4 + 3] = 0;
 }
 
-void Mat4f::setColumn(int col, const Vec4f& values) {
+void Mat4f::setColumn(unsigned int col, const Vec4f& values) {
     assert(col >= 0 && col < 4);
     v[col * 4 + 0] = values.x;
     v[col * 4 + 1] = values.y;
@@ -1185,7 +1185,7 @@ float Mat4f::determinant() const {
     return det;
 }
 
-const Mat3f Mat4f::minor(int row, int col) const {
+const Mat3f Mat4f::minor(unsigned int row, unsigned int col) const {
     Mat3f result;
     int i = 0;
     for (unsigned int c = 0; c < 4; c++)

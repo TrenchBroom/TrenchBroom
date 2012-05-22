@@ -20,7 +20,7 @@ namespace Gwen
 		class BaseHook
 		{
 			public:
-
+                virtual ~BaseHook() {}
 				virtual bool OnControlClicked( Gwen::Controls::Base*, int /*iMouseX*/, int /*iMouseY*/ ){ return false; };
 		};
 

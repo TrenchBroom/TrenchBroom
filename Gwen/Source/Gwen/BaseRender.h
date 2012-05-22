@@ -23,6 +23,7 @@ namespace Gwen
 		{
             
 		public:
+            virtual ~ICacheToTexture() {}
 			virtual void Initialize() = 0;
 			virtual void ShutDown() = 0;
 			virtual void SetupCacheTexture( Gwen::Controls::Base* control ) = 0;

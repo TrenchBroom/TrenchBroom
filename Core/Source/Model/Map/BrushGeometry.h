@@ -60,7 +60,7 @@ namespace TrenchBroom {
         
         class MoveResult {
         public:
-            size_t index;
+            int index;
             bool moved;
             MoveResult() {};
             MoveResult(size_t index, bool moved) : index(index), moved(moved) {}
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             void replaceEdges(size_t index1, size_t index2, Edge* edge);
             Edge* split();
             void flip();
-            void shift(size_t offset);
+            void shift(int offset);
         };
         
         class BrushGeometry {
@@ -172,12 +172,12 @@ namespace TrenchBroom {
         };
         
         
-        template <class T> size_t indexOf(const vector<T*>& vec, const T* element);
+        template <class T> int indexOf(const vector<T*>& vec, const T* element);
         template <class T> bool removeElement(vector<T*>& vec, T* element);
         template <class T> bool deleteElement(vector<T*>& vec, T* element);
-        size_t indexOf(const vector<Vertex*>& vertices, Vec3f v);
-        size_t indexOf(const vector<Edge*>& edges, Vec3f v1, Vec3f v2);
-        size_t indexOf(const vector<Side*>& sides, const vector<Vec3f>& vertices);
+        int indexOf(const vector<Vertex*>& vertices, Vec3f v);
+        int indexOf(const vector<Edge*>& edges, Vec3f v1, Vec3f v2);
+        int indexOf(const vector<Side*>& sides, const vector<Vec3f>& vertices);
         
         Vec3f centerOfVertices(const vector<Vertex*>& vertices);
         BBox boundsOfVertices(const vector<Vertex*>& vertices);

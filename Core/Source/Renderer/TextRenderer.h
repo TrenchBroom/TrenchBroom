@@ -36,6 +36,7 @@ namespace TrenchBroom {
         
         class Anchor {
         public:
+            virtual ~Anchor() {}
             virtual const Vec3f& position() = 0;
         };
         typedef tr1::shared_ptr<Anchor> AnchorPtr;

@@ -156,7 +156,7 @@ void CrossSplitter::Zoom( int section )
 
 	if ( m_Sections[section] )
 	{
-		for (unsigned int i = 0; i < 4; i++)
+		for ( int i = 0; i < 4; i++)
 		{
 			if ( i != section && m_Sections[i] )
 				m_Sections[i]->SetHidden( true );

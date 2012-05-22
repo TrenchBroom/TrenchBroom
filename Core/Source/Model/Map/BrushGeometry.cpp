@@ -309,10 +309,10 @@ namespace TrenchBroom {
         }
         
         Edge* Side::split() {
-            int keep = 0;
-            int drop = 0;
-            int split = 0;
-            int undecided = 0;
+            unsigned int keep = 0;
+            unsigned int drop = 0;
+            unsigned int split = 0;
+            unsigned int undecided = 0;
             Edge* undecidedEdge = NULL;
             
             int splitIndex1 = -2;
@@ -387,16 +387,17 @@ namespace TrenchBroom {
             }
         }
         
-        void Side::shift(size_t offset) {
-            vector<Edge*> newEdges;
-            vector<Vertex*> newVertices;
-            size_t count;
+        void Side::shift(int offset) {
+            assert(offset >= 0);
             
             if (offset == 0)
                 return;
             
-            count = edges.size();
-            for (unsigned int i = 0; i < count; i++) {
+            vector<Edge*> newEdges;
+            vector<Vertex*> newVertices;
+            
+            int count = static_cast<int>(edges.size());
+            for (int i = 0; i < count; i++) {
                 size_t index = (i + offset + count) % count;
                 newEdges.push_back(edges[index]);
                 newVertices.push_back(vertices[index]);
@@ -581,7 +582,7 @@ namespace TrenchBroom {
                     else
                         edge->end = keepVertex;
                     
-                    size_t index = indexOf(edge->left->vertices, dropVertex);
+                    int index = indexOf(edge->left->vertices, dropVertex);
                     if (index != -1)
                         edge->left->vertices[index] = keepVertex;
                     
@@ -887,10 +888,10 @@ namespace TrenchBroom {
             bounds = boundsOfVertices(vertices);
             
             // find the index of the dragged vertex
-            vertexIndex = indexOf(vertices, newPosition);
+            int newVertexIndex = indexOf(vertices, newPosition);
             
             // drag is concluded
-            if (vertexIndex == -1 || actualMoveDist == moveDist) {
+            if (newVertexIndex == -1 || actualMoveDist == moveDist) {
                 for (unsigned int i = 0; i < vertices.size(); i++)
                     vertices[i]->position = vertices[i]->position.snap();
                 for (unsigned int i = 0; i < sides.size(); i++)
@@ -900,6 +901,9 @@ namespace TrenchBroom {
                 result.index = vertexIndex;
                 return result;
             }
+            
+            // now safe
+            vertexIndex = static_cast<size_t>(newVertexIndex);
             
             // drag is not concluded, calculate the new delta and call self
             ray.direction *= (moveDist - actualMoveDist);
@@ -1190,9 +1194,9 @@ namespace TrenchBroom {
         ECutResult BrushGeometry::addFace(Face& face, vector<Face*>& droppedFaces) {
             Plane boundary = face.boundary();
             
-            int keep = 0;
-            int drop = 0;
-            int undecided = 0;
+            unsigned int keep = 0;
+            unsigned int drop = 0;
+            unsigned int undecided = 0;
             
             // mark vertices
             for (unsigned int i = 0; i < vertices.size(); i++) {
@@ -1480,7 +1484,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        template <class T> size_t indexOf(const vector<T*>& vec, const T* element) {
+        template <class T> int indexOf(const vector<T*>& vec, const T* element) {
             for (unsigned int i = 0; i < vec.size(); i++)
                 if (vec[i] == element)
                     return i;
@@ -1502,13 +1506,13 @@ namespace TrenchBroom {
             return true;
         }
         
-        size_t indexOf(const vector<Vertex*>& vertices, Vec3f v) {
+        int indexOf(const vector<Vertex*>& vertices, Vec3f v) {
             for (unsigned int i = 0; i < vertices.size(); i++)
                 if (vertices[i]->position.equals(v)) return i;
             return -1;
         }
         
-        size_t indexOf(const vector<Edge*>& edges, Vec3f v1, Vec3f v2) {
+        int indexOf(const vector<Edge*>& edges, Vec3f v1, Vec3f v2) {
             for (unsigned int i = 0; i < edges.size(); i++) {
                 Edge* edge = edges[i];
                 if ((edge->start->position.equals(v1) && edge->end->position.equals(v2)) ||
@@ -1518,7 +1522,7 @@ namespace TrenchBroom {
             return -1;
         }
         
-        size_t indexOf(const vector<Side*>& sides, const vector<Vec3f>& vertices) {
+        int indexOf(const vector<Side*>& sides, const vector<Vec3f>& vertices) {
             for (unsigned int i = 0; i < sides.size(); i++) {
                 Side* side = sides[i];
                 if (side->vertices.size() == vertices.size()) {

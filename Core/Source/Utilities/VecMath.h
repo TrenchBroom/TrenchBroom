@@ -125,8 +125,8 @@ public:
     Vec2f& operator-= (const Vec2f& right);
     Vec2f& operator*= (const float right);
     Vec2f& operator/= (const float right);
-    float& operator[] (const int index);
-    const float& operator[] (const int index) const;
+    float& operator[] (const unsigned int index);
+    const float& operator[] (const unsigned int index) const;
     Vec2f();
     Vec2f(float x, float y);
     
@@ -154,8 +154,8 @@ public:
     Vec3f& operator*= (const float right);
     Vec3f& operator/= (const float right);
     Vec3f& operator%= (const Vec3f& right);
-    float& operator[] (const int index);
-    const float& operator[] (const int index) const;
+    float& operator[] (const unsigned int index);
+    const float& operator[] (const unsigned int index) const;
     Vec3f();
     Vec3f(const string& str);
     Vec3f(float x, float y, float z);
@@ -205,8 +205,8 @@ public:
     Vec4f& operator-= (const Vec4f& right);
     Vec4f& operator*= (const float right);
     Vec4f& operator/= (const float right);
-    float& operator[] (const int index);
-    const float& operator[] (const int index) const;
+    float& operator[] (const unsigned int index);
+    const float& operator[] (const unsigned int index) const;
     Vec4f();
     Vec4f(const string& str);
     Vec4f(float x, float y, float z, float w);
@@ -235,13 +235,13 @@ public:
     Mat2f& operator*= (const float right);
     Mat2f& operator*= (const Mat2f& right);
     Mat2f& operator/= (const float right);
-    float& operator[] (const int index);
-    const float& operator[] (const int index) const;
+    float& operator[] (const unsigned int index);
+    const float& operator[] (const unsigned int index) const;
     Mat2f();
     Mat2f(float v11, float v12, float v21, float v22);
     void setIdentity();
-    void setValue(int row, int col, float value);
-    void setColumn(int col, const Vec2f& values);
+    void setValue(unsigned int row, unsigned int col, float value);
+    void setColumn(unsigned int col, const Vec2f& values);
     const Mat2f invert(bool& invertible) const;
     const Mat2f adjugate() const;
     const Mat2f negate() const;
@@ -266,19 +266,19 @@ public:
     Mat3f& operator*= (const float right);
     Mat3f& operator*= (const Mat3f& right);
     Mat3f& operator/= (const float right);
-    float& operator[] (const int index);
-    const float& operator[] (const int index) const;
+    float& operator[] (const unsigned int index);
+    const float& operator[] (const unsigned int index) const;
     Mat3f();
     Mat3f(float v11, float v12, float v13, float v21, float v22, float v23, float v31, float v32, float v33);
     void setIdentity();
-    void setValue(int row, int col, float value);
-    void setColumn(int col, const Vec3f& values);
+    void setValue(unsigned int row, unsigned int col, float value);
+    void setColumn(unsigned int col, const Vec3f& values);
     const Mat3f invert(bool& invertible) const;
     const Mat3f adjugate() const;
     const Mat3f negate() const;
     const Mat3f transpose() const;
     float determinant() const;
-    const Mat2f minor(int row, int col) const;
+    const Mat2f minor(unsigned int row, unsigned int col) const;
 };
 
 static const Mat3f IdentityM3f(1, 0, 0, 0, 1, 0, 0, 0, 1);
@@ -300,14 +300,14 @@ public:
     Mat4f& operator*= (const float right);
     Mat4f& operator*= (const Mat4f& right);
     Mat4f& operator/= (const float right);
-    float& operator[] (const int index);
-    const float& operator[] (const int index) const;
+    float& operator[] (const unsigned int index);
+    const float& operator[] (const unsigned int index) const;
     Mat4f();
     Mat4f(float v11, float v12, float v13, float v14, float v21, float v22, float v23, float v24, float v31, float v32, float v33, float v34, float v41, float v42, float v43, float v44);
     void setIdentity();
-    void setValue(int row, int col, float value);
-    void setColumn(int col, const Vec3f& values);
-    void setColumn(int col, const Vec4f& values);
+    void setValue(unsigned int row, unsigned int col, float value);
+    void setColumn(unsigned int col, const Vec3f& values);
+    void setColumn(unsigned int col, const Vec4f& values);
     void setSubMatrix(int index, const Mat2f& values);
     const Mat2f subMatrix(int index) const;
     const Mat4f invert(bool& invertible) const;
@@ -315,7 +315,7 @@ public:
     const Mat4f negate() const;
     const Mat4f transpose() const;
     float determinant() const;
-    const Mat3f minor(int row, int col) const;
+    const Mat3f minor(unsigned int row, unsigned int col) const;
     
     const Mat4f rotate(float angle, const Vec3f& axis) const;
     const Mat4f rotate(const Quat& rotation) const;

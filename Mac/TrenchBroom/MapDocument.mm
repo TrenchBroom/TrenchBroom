@@ -162,7 +162,7 @@ namespace TrenchBroom {
     selection.removeAll();
     
     const vector<Entity*>& entities = map.entities();
-    for (int i = 0; i < entities.size(); i++)
+    for (unsigned int i = 0; i < entities.size(); i++)
         selection.addBrushes(entities[i]->brushes());
     selection.addEntities(entities);
 }
