@@ -51,7 +51,7 @@ namespace TrenchBroom {
             p2.z = brushBounds.max.z;
             p3 = p1;
             p3.x = brushBounds.max.x;
-            Face* front = new Face(m_worldBounds, p1, p2, p3);
+            Face* front = new Face(m_worldBounds, p1, p2, p3, "");
             front->setTexture(&texture);
             addFace(front);
             
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             p2.y = brushBounds.max.y;
             p3 = p1;
             p3.z = brushBounds.max.z;
-            Face* left = new Face(m_worldBounds, p1, p2, p3);
+            Face* left = new Face(m_worldBounds, p1, p2, p3, "");
             left->setTexture(&texture);
             addFace(left);
             
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             p2.x = brushBounds.max.x;
             p3 = p1;
             p3.y = brushBounds.max.y;
-            Face* bottom = new Face(m_worldBounds, p1, p2, p3);
+            Face* bottom = new Face(m_worldBounds, p1, p2, p3, "");
             bottom->setTexture(&texture);
             addFace(bottom);
             
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             p2.x = brushBounds.min.x;
             p3 = p1;
             p3.z = brushBounds.min.z;
-            Face* back = new Face(m_worldBounds, p1, p2, p3);
+            Face* back = new Face(m_worldBounds, p1, p2, p3, "");
             back->setTexture(&texture);
             addFace(back);
             
@@ -84,7 +84,7 @@ namespace TrenchBroom {
             p2.z = brushBounds.min.z;
             p3 = p1;
             p3.y = brushBounds.min.y;
-            Face* right = new Face(m_worldBounds, p1, p2, p3);
+            Face* right = new Face(m_worldBounds, p1, p2, p3, "");
             right->setTexture(&texture);
             addFace(right);
             
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             p2.y = brushBounds.min.y;
             p3 = p1;
             p3.x = brushBounds.min.x;
-            Face* top = new Face(m_worldBounds, p1, p2, p3);
+            Face* top = new Face(m_worldBounds, p1, p2, p3, "");
             top->setTexture(&texture);
             addFace(top);
         }

@@ -48,6 +48,7 @@ namespace TrenchBroom {
 
         class Editor {
         private:
+            string m_mapPath;
             Model::Map* m_map;
             Camera* m_camera;
             Grid* m_grid;
@@ -60,6 +61,7 @@ namespace TrenchBroom {
             string m_entityDefinitionFilePath;
 
             void updateFaceTextures();
+            void textureManagerChanged(Model::Assets::TextureManager& textureManager);
             void preferencesDidChange(const string& key);
         public:
             Editor(const string& entityDefinitionFilePath, const string& palettePath);
@@ -67,6 +69,8 @@ namespace TrenchBroom {
             
             void loadMap(const string& path, ProgressIndicator* indicator);
             void saveMap(const string& path);
+            
+            void loadTextureWad(const string& path);
             
             Model::Map& map();
             Camera& camera();

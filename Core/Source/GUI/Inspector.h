@@ -27,6 +27,8 @@ namespace Gwen {
         class TabControl;
         class NumericUpDown;
         class Label;
+        class ListBox;
+        class Button;
     }
     namespace Skin {
         class Base;
@@ -35,6 +37,9 @@ namespace Gwen {
 
 namespace TrenchBroom {
     namespace Model {
+        namespace Assets {
+            class TextureManager;
+        }
         class SelectionEventData;
     }
     
@@ -59,12 +64,17 @@ namespace TrenchBroom {
             Gwen::Controls::NumericUpDown* m_rotationControl;
             
             TextureBrowserControl* m_textureBrowser;
+            Gwen::Controls::ListBox* m_textureWadList;
+            Gwen::Controls::Button* m_addTextureWadButton;
+            Gwen::Controls::Button* m_removeTextureWadsButton;
             
             Controller::Editor& m_editor;
         protected:
             void updateNumericControl(Gwen::Controls::NumericUpDown* control, bool disabled, bool multi, float value);
             void updateTextureControls();
+            void updateTextureWadList();
             void selectionChanged(const Model::SelectionEventData& data);
+            void textureManagerChanged(Model::Assets::TextureManager& textureManager);
             void onXOffsetChanged(Gwen::Controls::Base* control);
             void onYOffsetChanged(Gwen::Controls::Base* control);
             void onXScaleChanged(Gwen::Controls::Base* control);
@@ -74,6 +84,10 @@ namespace TrenchBroom {
             void onTextureBrowserGroupChanged(Gwen::Controls::Base* control);
             void onTextureBrowserFilterUsedChanged(Gwen::Controls::Base* control);
             void onTextureBrowserFilterTextChanged(Gwen::Controls::Base* control);
+            void onTextureWadListRowSelected(Gwen::Controls::Base* control);
+            void onAddTextureWadButtonPressed(Gwen::Controls::Base* control);
+            void onTextureWadChosen(const Gwen::String& path);
+            void onRemoveTextureWadButtonPressed(Gwen::Controls::Base* control);
         public:
             Inspector(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~Inspector();

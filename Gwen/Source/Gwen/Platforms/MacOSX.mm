@@ -56,8 +56,32 @@ float Gwen::Platform::GetTimeInSeconds()
 
 bool Gwen::Platform::FileOpen( const String& Name, const String& StartPath, const String& Extension, Gwen::Event::Handler* pHandler, Event::Handler::FunctionStr fnCallback )
 {
-	// No platform independent way to do this.
-	// Ideally you would open a system dialog here
+    NSOpenPanel* openPanel = [NSOpenPanel openPanel];
+    [openPanel setCanChooseFiles:YES];
+    [openPanel setCanChooseDirectories:YES];
+    [openPanel setAllowsMultipleSelection:NO];
+    [openPanel setAllowedFileTypes:[NSArray arrayWithObject:[NSString stringWithCString:Extension.c_str() encoding:NSASCIIStringEncoding]]];
+    [openPanel setAllowsOtherFileTypes:NO];
+    [openPanel setTitle:[NSString stringWithCString:Name.c_str() encoding:NSASCIIStringEncoding]];
+    [openPanel setNameFieldLabel:@"File"];
+    [openPanel setCanCreateDirectories:NO];
+    [openPanel setDirectory:[NSString stringWithCString:StartPath.c_str() encoding:NSASCIIStringEncoding]];
+    
+    if ([openPanel runModal] == NSFileHandlingPanelOKButton) {
+        for (NSURL* url in [openPanel URLs]) {
+            NSString* path = [url path];
+            if (path == nil)
+                return false;
+            
+            Gwen::String cppPath([path cStringUsingEncoding:NSASCIIStringEncoding]);
+            if (pHandler && fnCallback)
+                (pHandler->*fnCallback)(cppPath);
+            
+        }
+    } else {
+        if (pHandler && fnCallback)
+            (pHandler->*fnCallback)("");
+    }
     
 	return false;
 }

@@ -49,6 +49,7 @@ namespace TrenchBroom {
             Plane m_boundary;
             const BBox& m_worldBounds;
             
+            string m_textureName;
             Assets::Texture* m_texture;
             float m_xOffset;
             float m_yOffset;
@@ -75,7 +76,7 @@ namespace TrenchBroom {
             void validateTexAxes(const Vec3f& faceNormal);
             void compensateTransformation(const Mat4f& transformation);
         public:
-            Face(const BBox& worldBounds, Vec3f point1, Vec3f point2, Vec3f point3);
+            Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const string& textureName);
             Face(const BBox& worldBounds, const Face& faceTemplate);
             Face(const Face& face);
             ~Face();
@@ -97,6 +98,7 @@ namespace TrenchBroom {
             const vector<Edge*>& edges() const;
             
             Assets::Texture* texture() const;
+            const string& textureName() const;
             void setTexture(Assets::Texture* texture);
             int xOffset() const;
             void setXOffset(int xOffset);

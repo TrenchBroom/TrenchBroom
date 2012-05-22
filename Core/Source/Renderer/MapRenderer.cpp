@@ -143,6 +143,10 @@ namespace TrenchBroom {
                 m_changeSet.facesDeselected(event.faces);
         }
 
+        void MapRenderer::textureManagerChanged(Model::Assets::TextureManager& textureManager) {
+            m_changeSet.setTextureManagerChanged();
+        }
+
         void MapRenderer::writeFaceVertices(RenderContext& context, Model::Face& face, VboBlock& block) {
             Vec2f texCoords, gridCoords;
 
@@ -1136,15 +1140,17 @@ namespace TrenchBroom {
 
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
+            Model::Assets::TextureManager& textureManager = m_editor.textureManager();
 
-            map.mapLoaded               += new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapLoaded);
-            map.mapCleared              += new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapCleared);
-            map.propertiesDidChange     += new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::propertiesDidChange);
-            map.brushesDidChange        += new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesDidChange);
-            map.facesDidChange          += new Model::Map::FaceEvent::Listener<MapRenderer>(this, &MapRenderer::facesDidChange);
-            selection.selectionAdded    += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
-            selection.selectionRemoved  += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
-
+            map.mapLoaded                           += new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapLoaded);
+            map.mapCleared                          += new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapCleared);
+            map.propertiesDidChange                 += new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::propertiesDidChange);
+            map.brushesDidChange                    += new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesDidChange);
+            map.facesDidChange                      += new Model::Map::FaceEvent::Listener<MapRenderer>(this, &MapRenderer::facesDidChange);
+            selection.selectionAdded                += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
+            selection.selectionRemoved              += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
+            textureManager.textureManagerChanged    += new Model::Assets::TextureManager::TextureManagerEvent::Listener<MapRenderer>(this, &MapRenderer::textureManagerChanged);
+            
             addEntities(map.entities());
         }
 
@@ -1153,14 +1159,16 @@ namespace TrenchBroom {
             
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
+            Model::Assets::TextureManager& textureManager = m_editor.textureManager();
             
-            map.mapLoaded               -= new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapLoaded);
-            map.mapCleared              -= new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapCleared);
-            map.propertiesDidChange     -= new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::propertiesDidChange);
-            map.brushesDidChange        -= new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesDidChange);
-            map.facesDidChange          -= new Model::Map::FaceEvent::Listener<MapRenderer>(this, &MapRenderer::facesDidChange);
-            selection.selectionAdded    -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
-            selection.selectionRemoved  -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
+            map.mapLoaded                           -= new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapLoaded);
+            map.mapCleared                          -= new Model::Map::MapEvent::Listener<MapRenderer>(this, &MapRenderer::mapCleared);
+            map.propertiesDidChange                 -= new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::propertiesDidChange);
+            map.brushesDidChange                    -= new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesDidChange);
+            map.facesDidChange                      -= new Model::Map::FaceEvent::Listener<MapRenderer>(this, &MapRenderer::facesDidChange);
+            selection.selectionAdded                -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
+            selection.selectionRemoved              -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
+            textureManager.textureManagerChanged    -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<MapRenderer>(this, &MapRenderer::textureManagerChanged);
 
             const vector<Entity*>& entities = map.entities();
             for (unsigned int i = 0; i < entities.size(); i++) {

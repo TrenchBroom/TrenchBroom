@@ -19,19 +19,24 @@
 
 #include "Inspector.h"
 #include "Controller/Editor.h"
+#include "Model/Assets/Texture.h"
 #include "Model/Map/Map.h"
 #include "Model/Map/Face.h"
 #include "Model/Selection.h"
+#include "Utilities/Console.h"
 #include "Gwen/Controls/Button.h"
 #include "Gwen/Controls/ButtonStrip.h"
 #include "Gwen/Controls/CheckBox.h"
 #include "Gwen/Controls/GroupBox.h"
 #include "Gwen/Controls/Label.h"
+#include "Gwen/Controls/ListBox.h"
 #include "Gwen/Controls/NumericUpDown.h"
 #include "Gwen/Controls/RadioButtonController.h"
 #include "Gwen/Controls/ScrollControl.h"
 #include "Gwen/Controls/TabControl.h"
 #include "Gwen/Controls/TextBox.h"
+#include "Gwen/Events.h"
+#include "Gwen/Platform.h"
 #include "GUI/SingleTextureControl.h"
 #include "GUI/TextureBrowserControl.h"
 #include <sstream>
@@ -101,8 +106,22 @@ namespace TrenchBroom {
             }
         }
         
+        void Inspector::updateTextureWadList() {
+            m_textureWadList->Clear();
+            
+            Model::Assets::TextureManager& textureManager = m_editor.textureManager();
+            const vector<Model::Assets::TextureCollection*> collections = textureManager.collections();
+            for (unsigned int i = 0; i < collections.size(); i++)
+                m_textureWadList->AddItem(collections[i]->name());
+        }
+
         void Inspector::selectionChanged(const Model::SelectionEventData& data) {
             updateTextureControls();
+        }
+
+        void Inspector::textureManagerChanged(Model::Assets::TextureManager& textureManager) {
+            updateTextureControls();
+            updateTextureWadList();
         }
 
         void Inspector::onXOffsetChanged(Gwen::Controls::Base* control) {
@@ -146,6 +165,24 @@ namespace TrenchBroom {
         void Inspector::onTextureBrowserFilterTextChanged(Gwen::Controls::Base* control) {
             Gwen::Controls::TextBox* textBox = static_cast<Gwen::Controls::TextBox*>(control);
             m_textureBrowser->setFilterText(Gwen::Utility::UnicodeToString(textBox->GetText()));
+        }
+
+        void Inspector::onTextureWadListRowSelected(Gwen::Controls::Base* control) {
+            m_removeTextureWadsButton->SetDisabled(m_textureWadList->GetSelectedRows().empty());
+        }
+
+        void Inspector::onAddTextureWadButtonPressed(Gwen::Controls::Base* control) {
+            Gwen::Platform::FileOpen("Choose Wad File", "", "wad", this, static_cast<Gwen::Event::Handler::FunctionStr>(&Inspector::onTextureWadChosen));
+        }
+        
+        void Inspector::onTextureWadChosen(const Gwen::String& path) {
+            m_editor.loadTextureWad(path);
+        }
+
+        void Inspector::onRemoveTextureWadButtonPressed(Gwen::Controls::Base* control) {
+            Gwen::Controls::ListBox::Rows rows = m_textureWadList->GetSelectedRows();
+            for (int i = rows.size() - 1; i >= 0; i--)
+                m_editor.textureManager().removeCollection(i);
         }
 
         Inspector::Inspector(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
@@ -265,19 +302,55 @@ namespace TrenchBroom {
             
             textureBrowserFilterContainer->SizeToChildren();
             
+            Gwen::Controls::Base* textureWadListContainer = new Gwen::Controls::Base(textureBrowserBox);
+            textureWadListContainer->SetMargin(Gwen::Margin(0, 5, 0, 0));
+            textureWadListContainer->SetHeight(120);
+            textureWadListContainer->Dock(Gwen::Pos::Bottom);
+            
+            m_textureWadList = new Gwen::Controls::ListBox(textureWadListContainer);
+            m_textureWadList->Dock(Gwen::Pos::Fill);
+            m_textureWadList->SetAllowMultiSelect(true);
+            m_textureWadList->onRowSelected.Add(this, &Inspector::onTextureWadListRowSelected);
+
+            Gwen::Controls::Base* textureWadListButtonsContainer = new Gwen::Controls::Base(textureWadListContainer);
+            textureWadListButtonsContainer->SetMargin(Gwen::Margin(5, 0, 0, 0));
+            textureWadListButtonsContainer->SetWidth(20);
+            textureWadListButtonsContainer->Dock(Gwen::Pos::Right);
+            
+            m_addTextureWadButton = new Gwen::Controls::Button(textureWadListButtonsContainer);
+            m_addTextureWadButton->SetText("+");
+            m_addTextureWadButton->SetSize(16, 20);
+            m_addTextureWadButton->Dock(Gwen::Pos::Top);
+            m_addTextureWadButton->onPress.Add(this, &Inspector::onAddTextureWadButtonPressed);
+
+            m_removeTextureWadsButton = new Gwen::Controls::Button(textureWadListButtonsContainer);
+            m_removeTextureWadsButton->SetText("-");
+            m_removeTextureWadsButton->SetSize(16, 20);
+            m_removeTextureWadsButton->SetMargin(Gwen::Margin(0, 5, 0, 0));
+            m_removeTextureWadsButton->Dock(Gwen::Pos::Top);
+            m_removeTextureWadsButton->SetDisabled(true);
+            m_removeTextureWadsButton->onPress.Add(this, &Inspector::onRemoveTextureWadButtonPressed);
+            
             m_sectionTabControl->AddPage("Face", facePanel);
 
             Model::Selection& selection = m_editor.map().selection();
-            selection.selectionAdded    += new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
-            selection.selectionRemoved  += new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
+            Model::Assets::TextureManager& textureManager = m_editor.textureManager();
+
+            selection.selectionAdded                += new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
+            selection.selectionRemoved              += new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
+            textureManager.textureManagerChanged    += new Model::Assets::TextureManager::TextureManagerEvent::Listener<Inspector>(this, &Inspector::textureManagerChanged);
             
             updateTextureControls();
+            updateTextureWadList();
         }
         
         Inspector::~Inspector() {
             Model::Selection& selection = m_editor.map().selection();
-            selection.selectionAdded    -= new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
-            selection.selectionRemoved  -= new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
+            Model::Assets::TextureManager& textureManager = m_editor.textureManager();
+
+            selection.selectionAdded                -= new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
+            selection.selectionRemoved              -= new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
+            textureManager.textureManagerChanged    -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<Inspector>(this, &Inspector::textureManagerChanged);
         }
     }
 }

@@ -219,7 +219,7 @@ namespace TrenchBroom {
             m_texAxesValid = false;
         }
         
-        Face::Face(const BBox& worldBounds, Vec3f point1, Vec3f point2, Vec3f point3) : m_worldBounds(worldBounds) {
+        Face::Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const string& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {
             init();
             m_points[0] = point1;
             m_points[1] = point2;
@@ -237,6 +237,7 @@ namespace TrenchBroom {
             m_boundary(face.boundary()), 
             m_worldBounds(face.worldBounds()),
             m_texture(face.texture()),
+            m_textureName(face.textureName()),
             m_xOffset(static_cast<float>(face.xOffset())),
             m_yOffset(static_cast<float>(face.yOffset())),
             m_xScale(face.xScale()),
@@ -347,11 +348,17 @@ namespace TrenchBroom {
             return m_texture;
         }
         
+        const string& Face::textureName() const {
+            return m_textureName;
+        }
+
         void Face::setTexture(Assets::Texture* texture) {
             if (m_texture != NULL)
                 m_texture->usageCount--;
             
             m_texture = texture;
+            if (texture != NULL)
+                m_textureName = texture->name;
             
             if (m_texture != NULL)
                 m_texture->usageCount++;

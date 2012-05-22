@@ -193,6 +193,7 @@ namespace TrenchBroom {
                 assert(index < m_collections.size());
                 delete m_collections[index];
                 m_collections.erase(m_collections.begin() + index);
+                reloadTextures();
                 textureManagerChanged(*this);
             }
 

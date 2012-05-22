@@ -42,6 +42,7 @@ namespace TrenchBroom {
 
         namespace Assets {
             class Texture;
+            class TextureManager;
         }
     }
 
@@ -125,6 +126,7 @@ namespace TrenchBroom {
             void mapCleared(Model::Map& map);
             void selectionAdded(const Model::SelectionEventData& event);
             void selectionRemoved(const Model::SelectionEventData& event);
+            void textureManagerChanged(Model::Assets::TextureManager& textureManager);
 
             void writeFaceVertices(RenderContext& context, Model::Face& face, VboBlock& block);
             unsigned int writeFaceIndices(RenderContext& context, Model::Face& face, VboBlock& block, unsigned int offset);

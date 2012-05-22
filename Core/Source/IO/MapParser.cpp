@@ -412,7 +412,7 @@ namespace TrenchBroom {
                 return NULL;
             }
             
-            Face* face = new Face(m_worldBounds, p1, p2, p3);
+            Face* face = new Face(m_worldBounds, p1, p2, p3, texture->name);
             face->setTexture(texture);
             face->setXOffset(static_cast<int>(Math::fround(xOffset)));
             face->setYOffset(static_cast<int>(Math::fround(yOffset)));
