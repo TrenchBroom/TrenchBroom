@@ -189,6 +189,7 @@
     <ClInclude Include="..\..\Gwen\Source\Gwen\Controls.h" />
     <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Base.h" />
     <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Button.h" />
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ButtonStrip.h" />
     <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Canvas.h" />
     <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\CheckBox.h" />
     <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\CollapsibleCategory.h" />
@@ -347,6 +348,7 @@
     <ClCompile Include="..\..\Gwen\Source\Gwen\BaseRender.cpp" />
     <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Base.cpp" />
     <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Button.cpp" />
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\ButtonStrip.cpp" />
     <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Canvas.cpp" />
     <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\CheckBox.cpp" />
     <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\CollapsibleCategory.cpp" />

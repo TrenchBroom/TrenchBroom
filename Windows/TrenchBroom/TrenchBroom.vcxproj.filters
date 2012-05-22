@@ -652,6 +652,9 @@
     <ClInclude Include="..\..\Gwen\Source\Gwen\Renderers\OpenGL_FTGL.h">
       <Filter>Header\Gwen\Renderers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\ButtonStrip.h">
+      <Filter>Header\Gwen\Controls</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TrenchBroom.cpp">
@@ -1052,6 +1055,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Gwen\Source\Gwen\Renderers\OpenGL_FTGL.cpp">
       <Filter>Source\Gwen\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\ButtonStrip.cpp">
+      <Filter>Source\Gwen\Controls</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

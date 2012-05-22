@@ -20,6 +20,7 @@
 #include "Utils.h"
 #include <fstream>
 #include <algorithm>
+#include <locale>
 
 namespace TrenchBroom {
     std::string trim(const std::string& str) {
@@ -97,7 +98,7 @@ namespace TrenchBroom {
     }
     
     bool caseInsensitiveCharEqual(char c1, char c2) {
-        return std::toupper(c1) == std::toupper(c2);
+		return std::toupper(c1, std::locale::classic()) == std::toupper(c2, std::locale::classic());
     }
     
     bool caseSensitiveCharEqual(char c1, char c2) {

@@ -369,7 +369,7 @@ namespace TrenchBroom {
                 
                 unsigned int offset = 0;
                 VboBlock& block = m_faceIndexVbo->allocBlock(size * sizeof(unsigned int));
-                for (int i = 0; i < faces.size(); i++)
+                for (unsigned int i = 0; i < faces.size(); i++)
                     offset = writeFaceIndices(context, *faces[i], block, offset);
                 m_faceIndexBlocks[texture] = &block;
             }
@@ -418,7 +418,7 @@ namespace TrenchBroom {
             allFaces.insert(allFaces.end(), selectedFaces.begin(), selectedFaces.end());
             
             // sort them into the texture face map
-            for (int i = 0; i < allFaces.size(); i++) {
+            for (unsigned int i = 0; i < allFaces.size(); i++) {
                 Model::Face* face = allFaces[i];
                 Model::Assets::Texture* texture = face->texture();
                 TextureFaces::iterator it = textureFaces.find(texture);
@@ -443,7 +443,7 @@ namespace TrenchBroom {
                 
                 unsigned int offset = 0;
                 VboBlock& block = m_faceIndexVbo->allocBlock(size * sizeof(unsigned int));
-                for (int i = 0; i < faces.size(); i++)
+                for (unsigned int i = 0; i < faces.size(); i++)
                     offset = writeFaceIndices(context, *faces[i], block, offset);
                 m_selectedFaceIndexBlocks[texture] = &block;
             }
