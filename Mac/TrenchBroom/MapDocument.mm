@@ -21,8 +21,8 @@
 #import "MapWindowController.h"
 #import "Editor.h"
 #import "EditorHolder.h"
-#import "MacFontManager.h"
 #import "MacProgressIndicator.h"
+#import "MacStringFactory.h"
 #import <string>
 
 #import "Model/Preferences.h"

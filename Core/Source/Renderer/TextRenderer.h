@@ -20,12 +20,12 @@
 #ifndef TrenchBroom_TextRenderer_h
 #define TrenchBroom_TextRenderer_h
 
-#include <string>
 #include <map>
 #include "Utilities/VecMath.h"
 #include "Renderer/FontManager.h"
 #include "Utilities/SharedPointer.h"
-#include "FTGL/ftgl.h"
+
+using namespace std;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -34,47 +34,23 @@ namespace TrenchBroom {
         class FontDescriptor;
         class StringRenderer;
         
-        class Anchor {
-        public:
-            virtual ~Anchor() {}
-            virtual const Vec3f& position() = 0;
-        };
-        typedef tr1::shared_ptr<Anchor> AnchorPtr;
-
-        class TextEntry {
-        public:
-            std::string text;
-            FontPtr font;
-            FontDescriptor descriptor;
-            AnchorPtr anchor;
-            float x;
-            float y;
-            float width;
-            float height;
-            TextEntry() {}
-            TextEntry(const std::string& text, FontPtr font, const FontDescriptor& descriptor, AnchorPtr anchor, float x, float y, float width, float height) : 
-                text(text), 
-                font(font), 
-                descriptor(descriptor), 
-                anchor(anchor), 
-                x(x),
-                y(y),
-                width(width), 
-                height(height)
-            {}
-        };
-        
         class TextRenderer {
         public:
+            class Anchor {
+            public:
+                virtual ~Anchor() {}
+                virtual const Vec3f& position() = 0;
+            };
+            typedef tr1::shared_ptr<Anchor> AnchorPtr;
         private:
-            typedef std::map<int, TextEntry> TextMap;
+            typedef pair<StringRendererPtr, AnchorPtr> TextEntry;
+            typedef map<int, TextEntry> TextMap;
             
             float m_fadeDistance;
             FontManager& m_fontManager;
             TextMap m_entries;
             
-            void addString(int key, const TextEntry& entry);
-            void renderTextBackground(float x, float y, float width, float height, float hPadding, float vPadding);
+            void addString(int key, StringRendererPtr stringRenderer, AnchorPtr anchor);
         public:
             TextRenderer(FontManager& fontManager, float fadeDistance);
             ~TextRenderer();

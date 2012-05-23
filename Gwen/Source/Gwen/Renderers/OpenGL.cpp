@@ -6,7 +6,6 @@
 
 #include <math.h>
 
-#include "GL/GLee.h"
 #include "FreeImage/FreeImage.h"
 
 
@@ -14,7 +13,78 @@ namespace Gwen
 {
 	namespace Renderer
 	{
-		OpenGL::OpenGL()
+        OpenGLCacheToTexture::OpenGLCacheToTexture() {
+        }
+
+        OpenGLCacheToTexture::~OpenGLCacheToTexture() {
+        }
+        
+        void OpenGLCacheToTexture::Initialize() {
+            glGenFramebuffers(1, &m_frameBufferId);
+            glGenRenderbuffers(1, &m_renderBufferId);
+        }
+        
+        void OpenGLCacheToTexture::ShutDown() {
+            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glDeleteRenderbuffers(1, &m_renderBufferId);
+            glDeleteFramebuffers(1, &m_frameBufferId);
+            m_renderBufferId = 0;
+            m_frameBufferId = 0;
+        }
+        
+        void OpenGLCacheToTexture::SetupCacheTexture( Gwen::Controls::Base* control ) {
+            const Gwen::Rect& bounds = control->GetRenderBounds();
+
+            CacheTexture cacheTexture;
+            if (m_textures.count(control) == 0) {
+                cacheTexture.textureId = 0;
+            } else {
+                cacheTexture = m_textures[texture];
+                if (cacheTexture.width != bounds.w || cacheTexture.height != bounds.h) {
+                    glDeleteTextures(1, &cacheTexture.textureId);
+                    cacheTexture.textureId = 0;
+                }
+            }
+
+            if (cacheTexture.textureId == 0) {
+                cacheTexture.width = bounds.w;
+                cacheTexture.height = bounds.h;
+                glBindTexture(GL_TEXTURE_2D, cacheTexture.textureId);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bounds.w, bounds.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+            }
+            
+            glBindFramebuffer(GL_FRAMEBUFFER, m_frameBufferId);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE2D, cacheTexture.textureId);
+            
+            glBindRenderbuffer(GL_RENDERBUFFER, m_renderBufferId);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, bounds.w, bounds.h);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_renderBufferId);
+            
+            m_textures[control] = cacheTexture;
+        }
+        
+        void OpenGLCacheToTexture::FinishCacheTexture( Gwen::Controls::Base* control ) {
+            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
+        
+        void OpenGLCacheToTexture::DrawCachedControlTexture( Gwen::Controls::Base* control ) {
+            assert(m_textures.count(control) > 0);
+            CacheTexture& cacheTexture = m_textures[control];
+        }
+        
+        void OpenGLCacheToTexture::CreateControlCacheTexture( Gwen::Controls::Base* control ) {
+        }
+        
+        void OpenGLCacheToTexture::UpdateControlCacheTexture( Gwen::Controls::Base* control ) {
+        }
+        
+        void OpenGLCacheToTexture::SetRenderer( Gwen::Renderer::Base* renderer ) {
+        }
+
+		
+        OpenGL::OpenGL()
 		{
 			m_iVertNum = 0;
 
@@ -28,6 +98,10 @@ namespace Gwen
 
 		OpenGL::~OpenGL()
 		{
+            if (m_cacheToTexture != NULL) {
+                m_cacheToTexture->ShutDown();
+                delete m_cacheToTexture;
+            }
 			::FreeImage_DeInitialise();
 		}
 
@@ -62,6 +136,15 @@ namespace Gwen
 			glFlush();
 		}
 
+        ICacheToTexture* OpenGL::GetCTT() {
+            if (m_cacheToTexture == NULL) {
+                m_cacheToTexture = new OpenGLCacheToTexture();
+                m_cacheToTexture->Initialize();
+            }
+            
+            return m_cacheToTexture;
+        }
+        
 		void OpenGL::AddVert( int x, int y, float u, float v )
 		{
 			if ( m_iVertNum >= MaxVerts-1 )

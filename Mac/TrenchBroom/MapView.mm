@@ -26,7 +26,8 @@
 #import "Editor.h"
 #import "EditorHolder.h"
 #import "MapDocument.h"
-#import "MacFontManager.h"
+#import "Renderer/FontManager.h"
+#import "MacStringFactory.h"
 
 using namespace TrenchBroom;
 using namespace TrenchBroom::Gui;
@@ -160,7 +161,7 @@ using namespace TrenchBroom::Renderer;
 
 - (void)drawRect:(NSRect)dirtyRect {
     if (fontManager == NULL)
-        fontManager = new MacFontManager();
+        fontManager = new FontManager(new MacStringFactory());
     
     if (editorGui == NULL) {
         NSString* skinPath = [[NSBundle mainBundle] pathForResource:@"DefaultSkin" ofType:@"png"];

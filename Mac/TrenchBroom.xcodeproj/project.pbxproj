@@ -118,7 +118,6 @@
 		4825B548153AE693007E3AE1 /* OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B544153AE693007E3AE1 /* OpenGL.cpp */; };
 		4825B549153AE693007E3AE1 /* OpenGL_DebugFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B546153AE693007E3AE1 /* OpenGL_DebugFont.cpp */; };
 		4825B555153C9F56007E3AE1 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4825B553153C9F56007E3AE1 /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
-		482EB2A41565B5210071206A /* MacFontManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 482EB2A31565B5210071206A /* MacFontManager.mm */; };
 		482EB2A71566CC120071206A /* OpenGL_FTGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482EB2A61566CC120071206A /* OpenGL_FTGL.cpp */; };
 		483DE918154DCE62002FD6B0 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */; };
 		483DE91C154DCFCF002FD6B0 /* PreferencesWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */; };
@@ -153,6 +152,7 @@
 		48B50E4D152D019C00E75402 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E4C152D019C00E75402 /* OpenGL.framework */; };
 		48C9794E1530CB72003020FC /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794D1530CB72003020FC /* quake.def */; };
 		48C97950153174B9003020FC /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794F153174B9003020FC /* QuakePalette.lmp */; };
+		48DC47C6156D341C000C2D2F /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48DC47C5156D341C000C2D2F /* MacStringFactory.mm */; };
 		48F579F9154C5B3D0039B369 /* MacConsole.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48F579F8154C5B3D0039B369 /* MacConsole.mm */; };
 		48F579FB154C749E0039B369 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F579FA154C749E0039B369 /* Console.cpp */; };
 		48F579FD154CA9340039B369 /* MacOSX.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48F579FC154CA9340039B369 /* MacOSX.mm */; };
@@ -415,8 +415,6 @@
 		4825B547153AE693007E3AE1 /* OpenGL_DebugFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGL_DebugFont.h; sourceTree = "<group>"; };
 		4825B553153C9F56007E3AE1 /* GLee.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GLee.c; sourceTree = "<group>"; };
 		4825B554153C9F56007E3AE1 /* GLee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLee.h; sourceTree = "<group>"; };
-		482EB2A21565B5210071206A /* MacFontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacFontManager.h; sourceTree = "<group>"; };
-		482EB2A31565B5210071206A /* MacFontManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacFontManager.mm; sourceTree = "<group>"; };
 		482EB2A51566CB6C0071206A /* OpenGL_FTGL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenGL_FTGL.h; sourceTree = "<group>"; };
 		482EB2A61566CC120071206A /* OpenGL_FTGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenGL_FTGL.cpp; sourceTree = "<group>"; };
 		483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindow.xib; sourceTree = "<group>"; };
@@ -477,6 +475,8 @@
 		48B50E4C152D019C00E75402 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		48C9794D1530CB72003020FC /* quake.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = quake.def; path = ../../Resources/Defs/quake.def; sourceTree = "<group>"; };
 		48C9794F153174B9003020FC /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
+		48DC47C4156D341C000C2D2F /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
+		48DC47C5156D341C000C2D2F /* MacStringFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacStringFactory.mm; sourceTree = "<group>"; };
 		48F579F4154BFC830039B369 /* SharedPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SharedPointer.h; sourceTree = "<group>"; };
 		48F579F6154C58060039B369 /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Console.h; sourceTree = "<group>"; };
 		48F579F7154C5B3D0039B369 /* MacConsole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacConsole.h; sourceTree = "<group>"; };
@@ -990,12 +990,12 @@
 				48886BA41545FE09006A781B /* EditorHolder.mm */,
 				48F579F7154C5B3D0039B369 /* MacConsole.h */,
 				48F579F8154C5B3D0039B369 /* MacConsole.mm */,
-				482EB2A21565B5210071206A /* MacFontManager.h */,
-				482EB2A31565B5210071206A /* MacFontManager.mm */,
 				480ED52F1549C7E4003CA78F /* MacPreferences.h */,
 				480ED5301549C7E4003CA78F /* MacPreferences.mm */,
 				48120053153867E300181D66 /* MacProgressIndicator.h */,
 				48120054153867E300181D66 /* MacProgressIndicator.mm */,
+				48DC47C4156D341C000C2D2F /* MacStringFactory.h */,
+				48DC47C5156D341C000C2D2F /* MacStringFactory.mm */,
 				48B50E24152CF6E400E75402 /* MapDocument.h */,
 				48B50E25152CF6E400E75402 /* MapDocument.mm */,
 				48B50E40152CF95500E75402 /* MapView.h */,
@@ -1244,11 +1244,11 @@
 				488E65B6156301F300B4E72A /* PositioningGuideFigure.cpp in Sources */,
 				488E65E51563C6A600B4E72A /* Inspector.cpp in Sources */,
 				488E65ED15641FA500B4E72A /* SingleTextureControl.cpp in Sources */,
-				482EB2A41565B5210071206A /* MacFontManager.mm in Sources */,
 				482EB2A71566CC120071206A /* OpenGL_FTGL.cpp in Sources */,
 				48953FDF15679B92006DD2E3 /* SnapshotUndoItem.cpp in Sources */,
 				48953FE21567CE9C006DD2E3 /* TextureBrowserControl.cpp in Sources */,
 				4800C49B156A303000991875 /* ButtonStrip.cpp in Sources */,
+				48DC47C6156D341C000C2D2F /* MacStringFactory.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

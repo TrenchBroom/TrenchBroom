@@ -506,7 +506,7 @@ namespace TrenchBroom {
 
                         const string& classname = *entity->classname();
                         EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
-                        AnchorPtr anchorPtr(anchor);
+                        TextRenderer::AnchorPtr anchorPtr(anchor);
                         m_classnameRenderer->addString(entity->uniqueId(), classname, descriptor, anchorPtr);
                     }
                 }
@@ -1318,7 +1318,9 @@ namespace TrenchBroom {
                     renderEntityModels(context, m_entityRenderers);
 
                     if (context.options.renderEntityClassnames) {
+                        m_fontManager.activate();
                         m_classnameRenderer->render(context, context.preferences.infoOverlayColor());
+                        m_fontManager.deactivate();
                     }
                 } else if (context.options.isolationMode == Controller::IM_WIREFRAME) {
                     m_entityBoundsVbo->activate();
@@ -1330,7 +1332,9 @@ namespace TrenchBroom {
 
                 if (!m_editor.map().selection().empty()) {
                     if (context.options.renderEntityClassnames) {
+                        m_fontManager.activate();
                         m_selectedClassnameRenderer->render(context, context.preferences.selectedInfoOverlayColor());
+                        m_fontManager.deactivate();
                     }
 
                     m_selectedEntityBoundsVbo->activate();
