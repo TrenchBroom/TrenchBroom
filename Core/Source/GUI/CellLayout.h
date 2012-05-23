@@ -27,81 +27,92 @@
 
 namespace TrenchBroom {
     namespace Gui {
-        template <typename CellType>
-        class Cell {
+        class LayoutBounds {
         private:
             float m_x;
             float m_y;
-            float m_itemWidth;
-            float m_itemHeight;
-            float m_titleWidth;
-            float m_titleHeight;
-            float m_fixedCellWidth;
-            CellType m_item;
+            float m_width;
+            float m_height;
         public:
-            Cell(CellType item, float x, float y, float itemWidth, float itemHeight, float titleWidth, float titleHeight, float fixedCellWidth) : m_item(item), m_x(x), m_y(y), m_itemWidth(itemWidth), m_itemHeight(itemHeight), m_titleWidth(titleWidth), m_titleHeight(titleHeight), m_fixedCellWidth(fixedCellWidth) {
-                if (m_fixedCellWidth > 0) {
-                    if (m_itemWidth >= m_fixedCellWidth) {
-                        m_itemHeight *= m_fixedCellWidth / m_itemWidth;
-                        m_itemWidth = m_fixedCellWidth;
-                    }
-                }
-            }
-            
-            bool hitTest(float x, float y) {
-                return (x >= itemX()  && x <= itemX()  + itemWidth()  && y >= itemY()  && y <= itemY()  + itemHeight()) ||
-                       (x >= titleX() && x <= titleX() + titleWidth() && y >= titleY() && y <= titleY() + titleHeight());
-                    
-            }
-            
-            float x() const {
+            LayoutBounds() : m_x(0), m_y(0), m_width(0), m_height(0) {}
+            LayoutBounds(float x, float y, float width, float height) : m_x(x), m_y(y), m_width(width), m_height(height) {}
+
+            float left() const {
                 return m_x;
             }
-            
-            float y() const {
+
+            float top() const {
                 return m_y;
+            }
+            
+            float right() const {
+                return m_x + m_width;
+            }
+            
+            float bottom() const {
+                return m_y + m_height;
             }
             
             float width() const {
-                if (m_fixedCellWidth > 0)
-                    return m_fixedCellWidth;
-                return Math::fmax(m_itemWidth, m_titleWidth);
+                return m_width;
             }
             
             float height() const {
-                return m_itemHeight + m_titleHeight;
+                return m_height;
             }
             
-            float itemX() const {
-                return m_x + (width() - m_itemWidth) / 2.0f;
+            bool containsPoint(float x, float y) const {
+                return x >= left() && x <= right() && y >= top() && y <= bottom();
             }
             
-            float itemY() const {
-                return m_y;
+            bool intersectsY(float y, float height) const {
+                return bottom() >= y || top() <= y + height;
+            }
+        };
+        
+        template <typename CellType>
+        class Cell {
+        private:
+            LayoutBounds m_cellBounds;
+            LayoutBounds m_itemBounds;
+            LayoutBounds m_titleBounds;
+            CellType m_item;
+        public:
+            Cell(CellType item, float x, float y, float itemWidth, float itemHeight, float titleWidth, float titleHeight, float fixedCellWidth) : m_item(item) {
+                if (fixedCellWidth > 0) {
+                    float scaledItemWidth = itemWidth;
+                    float scaledItemHeight = itemHeight;
+                    if (scaledItemWidth >= fixedCellWidth) {
+                        scaledItemWidth *= fixedCellWidth / scaledItemWidth;
+                        scaledItemHeight = fixedCellWidth;
+                    }
+
+                    float clippedTitleWidth = Math::fmin(fixedCellWidth, titleWidth);
+                    
+                    m_cellBounds = LayoutBounds(x, y, fixedCellWidth, scaledItemHeight + titleHeight);
+                    m_itemBounds = LayoutBounds(x + (m_cellBounds.width() - scaledItemWidth) / 2.0f, y, scaledItemWidth, scaledItemHeight);
+                    m_titleBounds = LayoutBounds(x + (m_cellBounds.width() - clippedTitleWidth) / 2.0f, m_itemBounds.bottom(), clippedTitleWidth, titleHeight);
+                } else {
+                    m_cellBounds = LayoutBounds(x, y, Math::fmax(itemWidth, titleWidth), itemHeight + titleHeight);
+                    m_itemBounds = LayoutBounds(x + (m_cellBounds.width() - itemWidth) / 2.0f, y, itemWidth, itemHeight);
+                    m_titleBounds = LayoutBounds(x + (m_cellBounds.width() - titleWidth) / 2.0f, m_itemBounds.bottom(), titleWidth, titleHeight);
+                }
             }
             
-            float itemWidth() const {
-                return m_itemWidth;
+            bool hitTest(float x, float y) const {
+                return m_cellBounds.containsPoint(x, y) || m_titleBounds.containsPoint(x, y);
             }
             
-            float itemHeight() const {
-                return m_itemHeight;
+            const LayoutBounds& cellBounds() const {
+                return m_cellBounds;
             }
             
-            float titleX() const {
-                return m_x + (width() - m_titleWidth) / 2.0f;
+            const LayoutBounds& titleBounds() const {
+                return m_titleBounds;
             }
             
-            float titleY() const {
-                return m_y + m_itemHeight;
-            }
-            
-            float titleWidth() const {
-                return m_titleWidth;
-            }
-            
-            float titleHeight() const {
-                return m_titleHeight;
+            const LayoutBounds& itemBounds() const {
+                return m_itemBounds;
             }
             
             CellType item() const {
@@ -116,52 +127,52 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<Cell<CellType> > CellPtr;
         private:
             std::vector<CellPtr> m_cells;
-            float m_rowWidth;
             unsigned int m_maxCells;
+            float m_maxWidth;
             float m_fixedCellWidth;
-            float m_y;
-            float m_width;
-            float m_height;
             float m_cellMargin;
+            LayoutBounds m_bounds;
         public:
             const CellPtr operator[] (const unsigned int index) const {
                 assert(index >= 0 && index < m_cells.size());
                 return m_cells[index];
             }
 
-            CellRow(float y, float cellMargin, float rowWidth, unsigned int maxCells, float fixedCellWidth) : m_y(y), m_cellMargin(cellMargin), m_rowWidth(rowWidth), m_maxCells(maxCells), m_fixedCellWidth(fixedCellWidth), m_width(0), m_height(0) {}
+            CellRow(float y, float cellMargin, float maxWidth, unsigned int maxCells, float fixedCellWidth) : m_cellMargin(cellMargin), m_maxWidth(maxWidth), m_maxCells(maxCells), m_fixedCellWidth(fixedCellWidth), m_bounds(0, y, 0, 0) { }
             
             bool addItem(CellType item, float itemWidth, float itemHeight, float titleWidth, float titleHeight) {
-                float x = m_width;
+                float x = m_bounds.right();
                 if (!m_cells.empty())
                     x += m_cellMargin;
-                Cell<CellType>* cell = new Cell<CellType>(item, x, m_y, itemWidth, itemHeight, titleWidth, titleHeight, m_fixedCellWidth);
+                Cell<CellType>* cell = new Cell<CellType>(item, x, m_bounds.top(), itemWidth, itemHeight, titleWidth, titleHeight, m_fixedCellWidth);
                 CellPtr cellPtr(cell);
 
-                if (m_maxCells == 0 && m_width + cellPtr->width() + 2 * m_cellMargin > m_rowWidth && !m_cells.empty())
+                if (m_maxCells == 0 && m_bounds.right() + cellPtr->cellBounds().width() + 2 * m_cellMargin > m_maxWidth && !m_cells.empty())
                     return false;
                 if (m_maxCells > 0 && m_cells.size() >= m_maxCells - 1)
                     return false;
                 
-                m_width += cellPtr->width();
+                float width = x + cellPtr->cellBounds().width();
                 if (!m_cells.empty())
-                    m_width += m_cellMargin;
-                m_height = Math::fmax(m_height, cellPtr->height());
+                    width += m_cellMargin;
+                float height = Math::fmax(m_bounds.height(), cellPtr->cellBounds().height());
+                m_bounds = LayoutBounds(m_bounds.left(), m_bounds.top(), width, height);
                 
                 m_cells.push_back(cellPtr);
                 return true;
             }
 
-            const std::vector<CellPtr>& cells() {
+            const std::vector<CellPtr>& cells() const {
                 return m_cells;
             }
             
-            bool cellAt(float x, float y, CellPtr& result) {
+            bool cellAt(float x, float y, CellPtr& result) const {
                 for (unsigned int i = 0; i < m_cells.size(); i++) {
                     CellPtr cell = m_cells[i];
-                    if (x > cell->x() + cell->width())
+                    const LayoutBounds& cellBounds = cell->cellBounds();
+                    if (x > cellBounds.right())
                         continue;
-                    else if (x < cell->x())
+                    else if (x < cellBounds.left())
                         break;
                     if (cell->hitTest(x, y)) {
                         result = cell;
@@ -171,16 +182,12 @@ namespace TrenchBroom {
                 return false;
             }
 
-            float y() const {
-                return m_y;
+            const LayoutBounds& bounds() const {
+                return m_bounds;
             }
-            
-            float height() const {
-                return m_height;
-            }
-            
-            bool intersects(float y, float height) {
-                return m_y + m_height >= y && m_y <= y + height;
+
+            bool intersectsY(float y, float height) const {
+                return m_bounds.intersectsY(y, height);
             }
             
             size_t size() const {
@@ -194,12 +201,11 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<CellRow<CellType> > CellRowPtr;
         private:
             std::vector<CellRowPtr> m_rows;
-            float m_y;
-            float m_titleHeight;
-            float m_width;
-            float m_height;
+            LayoutBounds m_titleBounds;
+            LayoutBounds m_contentBounds;
             unsigned int m_maxCellsPerRow;
             float m_fixedCellWidth;
+            float m_maxWidth;
             float m_cellMargin;
             float m_rowMargin;
             GroupType m_item;
@@ -211,58 +217,56 @@ namespace TrenchBroom {
 
             CellGroup(GroupType item, float y, float cellMargin, float rowMargin, float titleHeight, float width, int maxCellsPerRow, float fixedCellWidth) : 
                 m_item(item), 
-                m_y(y), 
                 m_cellMargin(cellMargin), 
                 m_rowMargin(rowMargin), 
-                m_titleHeight(titleHeight), 
-                m_width(width), 
-                m_height(m_titleHeight), 
                 m_maxCellsPerRow(maxCellsPerRow),
-                m_fixedCellWidth(fixedCellWidth) {}
+                m_fixedCellWidth(fixedCellWidth),
+                m_titleBounds(0, y, width, titleHeight),
+                m_contentBounds(0, y + titleHeight, width, 0) {
+                }
             
             CellGroup(float y, float cellMargin, float rowMargin, float width, int maxCellsPerRow, float fixedCellWidth) : 
-                m_y(y), 
                 m_cellMargin(cellMargin), 
                 m_rowMargin(rowMargin), 
-                m_titleHeight(0), 
-                m_width(width), 
-                m_height(m_titleHeight), 
                 m_maxCellsPerRow(maxCellsPerRow),
-                m_fixedCellWidth(fixedCellWidth) {}
+                m_fixedCellWidth(fixedCellWidth),
+                m_titleBounds(0, y, width, 0),
+                m_contentBounds(0, y, width, 0) {}
             
             void addItem(CellType item, float itemWidth, float itemHeight, float titleWidth, float titleHeight) {
                 CellRowPtr rowPtr;
                 if (m_rows.empty()) {
-                    float y = m_y;
-                    if (m_titleHeight > 0)
-                        y += m_titleHeight + m_rowMargin;
-                    CellRow<CellType>* row = new CellRow<CellType>(y, m_cellMargin, m_width, m_maxCellsPerRow, m_fixedCellWidth);
+                    float y = m_contentBounds.top();
+                    if (m_titleBounds.height() > 0)
+                        y += m_rowMargin;
+                    CellRow<CellType>* row = new CellRow<CellType>(y, m_cellMargin, m_contentBounds.width(), m_maxCellsPerRow, m_fixedCellWidth);
                     rowPtr = CellRowPtr(row);
                     m_rows.push_back(rowPtr);
-                    m_height += m_rowMargin;
+                    m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height() + m_rowMargin);
                 } else {
                     rowPtr = m_rows.back();
                 }
                 
-                float oldHeight = rowPtr->height();
+                const LayoutBounds oldBounds = rowPtr->bounds();
                 if (!rowPtr->addItem(item, itemWidth, itemHeight, titleWidth, titleHeight)) {
-                    float y = rowPtr->y() + rowPtr->height() + m_rowMargin;
-                    CellRow<CellType>* row = new CellRow<CellType>(y, m_cellMargin, m_width, m_maxCellsPerRow, m_fixedCellWidth);
+                    float y = oldBounds.bottom() + m_rowMargin;
+                    CellRow<CellType>* row = new CellRow<CellType>(y, m_cellMargin, m_contentBounds.width(), m_maxCellsPerRow, m_fixedCellWidth);
                     rowPtr = CellRowPtr(row);
                     m_rows.push_back(rowPtr);
                     assert(rowPtr->addItem(item, itemWidth, itemHeight, titleWidth, titleHeight));
-                    m_height += row->height() + m_rowMargin;
+                    m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height() + rowPtr->bounds().height() + m_rowMargin);
                 } else {
-                    m_height += (rowPtr->height() - oldHeight);
+                    m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height() + (rowPtr->bounds().height() - oldBounds.height()));
                 }
             }
             
             bool cellAt(float x, float y, typename CellRow<CellType>::CellPtr& result) {
                 for (unsigned int i = 0; i < m_rows.size(); i++) {
                     CellRowPtr row = m_rows[i];
-                    if (y > row->y() + row->height())
+                    const LayoutBounds& rowBounds = row->bounds();
+                    if (y > rowBounds.bottom())
                         continue;
-                    else if (y < row->y())
+                    else if (y < rowBounds.top())
                         break;
                     typename CellRow<CellType>::CellPtr cell;
                     if (row->cellAt(x, y, cell)) {
@@ -275,24 +279,32 @@ namespace TrenchBroom {
             }
 
             bool hitTest(float x, float y) const {
-                return y >= this->y()  && y <= this->y() + this->height();
-                
-            }
-
-            float y() const {
-                return m_y;
+                return bounds().containsPoint(x, y);
             }
             
-            float titleHeight() const {
-                return m_titleHeight;
+            const LayoutBounds& titleBounds() const {
+                return m_titleBounds;
             }
             
-            float height() const {
-                return m_height;
+            const LayoutBounds titleBoundsForVisibleRect(float y, float height) {
+                if (intersectsY(y, height) && m_titleBounds.top() < y) {
+                    if (y > m_contentBounds.bottom() - m_titleBounds.height())
+                        return LayoutBounds(m_titleBounds.left(), m_contentBounds.bottom() - m_titleBounds.height(), m_titleBounds.width(), m_titleBounds.height());
+                    return LayoutBounds(m_titleBounds.left(), y, m_titleBounds.width(), m_titleBounds.height());
+                }
+                return m_titleBounds;
             }
             
-            bool intersects(float y, float height) {
-                return m_y + m_height >= y && m_y <= y + height;
+            const LayoutBounds& contentBounds() const {
+                return m_contentBounds;
+            }
+            
+            const LayoutBounds bounds() const {
+                return LayoutBounds(m_titleBounds.left(), m_titleBounds.top(), m_titleBounds.width(), m_contentBounds.bottom() - m_titleBounds.top());
+            }
+            
+            bool intersectsY(float y, float height) const {
+                return bounds().intersectsY(y, height);
             }
             
             GroupType item() const {
@@ -331,12 +343,14 @@ namespace TrenchBroom {
                     
                     for (unsigned int i = 0; i < copy.size(); i++) {
                         CellGroupPtr group = copy[i];
-                        addGroup(group->item(), group->titleHeight());
+                        addGroup(group->item(), group->titleBounds().height());
                         for (unsigned int j = 0; j < group->size(); j++) {
                             const typename CellGroup<CellType, GroupType>::CellRowPtr row = (*group)[j];
                             for (unsigned int k = 0; k < row->size(); k++) {
                                 const typename CellRow<CellType>::CellPtr cell = (*row)[k];
-                                addItem(cell->item(), cell->itemWidth(), cell->itemHeight(), cell->titleWidth(), cell->titleHeight());
+                                const LayoutBounds& itemBounds = cell->itemBounds();
+                                const LayoutBounds& titleBounds = cell->titleBounds();
+                                addItem(cell->item(), itemBounds.width(), itemBounds.height(), titleBounds.width(), titleBounds.height());
                             }
                         }
                     }
@@ -385,7 +399,7 @@ namespace TrenchBroom {
                 
                 float y = 0;
                 if (!m_groups.empty())
-                    y += m_groups.back()->y() + m_groups.back()->height() + m_groupMargin;
+                    y += m_groups.back()->bounds().bottom() + m_groupMargin;
                 
                 m_height += titleHeight;
                 if (!m_groups.empty())
@@ -412,9 +426,9 @@ namespace TrenchBroom {
                     groupPtr = m_groups.back();
                 }
                 
-                float oldHeight = groupPtr->height();
+                const LayoutBounds oldBounds = groupPtr->bounds();
                 groupPtr->addItem(item, itemWidth, itemHeight, titleWidth, titleHeight);
-                m_height += (groupPtr->height() - oldHeight);
+                m_height += (groupPtr->bounds().height() - oldBounds.height());
             }
             
             void clear() {
@@ -428,9 +442,10 @@ namespace TrenchBroom {
                 
                 for (unsigned int i = 0; i < m_groups.size(); i++) {
                     CellGroupPtr group = m_groups[i];
-                    if (y > group->y() + group->height())
+                    const LayoutBounds groupBounds = group->bounds();
+                    if (y > groupBounds.bottom())
                         continue;
-                    else if (y < group->y())
+                    else if (y < groupBounds.top())
                         break;
                     typename CellRow<CellType>::CellPtr cell;
                     if (group->cellAt(x, y, cell)) {
@@ -448,9 +463,10 @@ namespace TrenchBroom {
                 
                 for (unsigned int i = 0; i < m_groups.size(); i++) {
                     CellGroupPtr group = m_groups[i];
-                    if (y > group->y() + group->height())
+                    const LayoutBounds groupBounds = group->bounds();
+                    if (y > groupBounds.bottom())
                         continue;
-                    else if (y < group->y())
+                    else if (y < groupBounds.top())
                         break;
                     if (group->hitTest(x, y)) {
                         result = group;

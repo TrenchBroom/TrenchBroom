@@ -80,11 +80,13 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserPanel::renderTextureBorder(CellRow<CellData>::CellPtr cell) {
+            const LayoutBounds& cellBounds = cell->cellBounds();
+            
             glBegin(GL_QUADS);
-            glVertex3f(cell->itemX() - 1, cell->itemY() - 1, 0);
-            glVertex3f(cell->itemX() - 1, cell->itemY() + cell->itemHeight() + 1, 0);
-            glVertex3f(cell->itemX() + cell->itemWidth() + 1, cell->itemY() + cell->itemHeight() + 1, 0);
-            glVertex3f(cell->itemX() + cell->itemWidth() + 1, cell->itemY() - 1, 0);
+            glVertex3f(cellBounds.left()  - 1, cellBounds.top()    - 1, 0);
+            glVertex3f(cellBounds.left()  - 1, cellBounds.bottom() + 1, 0);
+            glVertex3f(cellBounds.right() + 1, cellBounds.bottom() + 1, 0);
+            glVertex3f(cellBounds.right() + 1, cellBounds.top()    - 1, 0);
             glEnd();
         }
 
@@ -178,23 +180,13 @@ namespace TrenchBroom {
             
             for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
-                if (group->intersects(visibleRect.y, visibleRect.h)) {
-                    if (m_group && group->y() + group->titleHeight() >= visibleRect.y && group->y() <= visibleRect.y + visibleRect.h) {
-                        // paint background for group title
-                        glDisable(GL_TEXTURE_2D);
-                        glBegin(GL_QUADS);
-                        glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
-                        glVertex3f(0, group->y(), 0);
-                        glVertex3f(0, group->y() + group->titleHeight(), 0);
-                        glVertex3f(m_layout.width(), group->y() + group->titleHeight(), 0);
-                        glVertex3f(m_layout.width(), group->y(), 0);
-                        glEnd();
-                    }
+                if (group->intersectsY(visibleRect.y, visibleRect.h)) {
                     for (unsigned int j = 0; j < group->size(); j++) {
                         CellGroup<CellData, GroupData>::CellRowPtr row = (*group)[j];
-                        if (row->intersects(visibleRect.y, visibleRect.h)) {
+                        if (row->intersectsY(visibleRect.y, visibleRect.h)) {
                             for (unsigned int k = 0; k < row->size(); k++) {
                                 CellRow<CellData>::CellPtr cell = (*row)[k];
+                                const LayoutBounds& itemBounds = cell->itemBounds();
                                 Model::Assets::Texture* texture = cell->item().first;
                                 
                                 // paint border if necessary
@@ -222,13 +214,13 @@ namespace TrenchBroom {
                                     glColor4f(1, 1, 1, 1);
                                 glBegin(GL_QUADS);
                                 glTexCoord2f(0, 0);
-                                glVertex3f(cell->itemX(), cell->itemY(), 0);
+                                glVertex3f(itemBounds.left(), itemBounds.top(), 0);
                                 glTexCoord2f(0, 1);
-                                glVertex3f(cell->itemX(), cell->itemY() + cell->itemHeight(), 0);
+                                glVertex3f(itemBounds.left(), itemBounds.bottom(), 0);
                                 glTexCoord2f(1, 1);
-                                glVertex3f(cell->itemX() + cell->itemWidth(), cell->itemY() + cell->itemHeight(), 0);
+                                glVertex3f(itemBounds.right(), itemBounds.bottom(), 0);
                                 glTexCoord2f(1, 0);
-                                glVertex3f(cell->itemX() + cell->itemWidth(), cell->itemY(), 0);
+                                glVertex3f(itemBounds.right(), itemBounds.top(), 0);
                                 glEnd();
                                 texture->deactivate();
                             }
@@ -238,27 +230,48 @@ namespace TrenchBroom {
             }
             glPopMatrix();
             
-            skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
             for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
-                if (m_group && group->y() + group->titleHeight() >= visibleRect.y && group->y() <= visibleRect.y + visibleRect.h) {
-                    Model::Assets::TextureCollection* collection = group->item();
-                    std::vector<std::string> components = pathComponents(collection->name());
-                    skin->GetRender()->RenderText(m_font, Gwen::Point(padding.left + 3, padding.top + group->y() + 1), components.back());
-                }
+
+                skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
                 for (unsigned int j = 0; j < group->size(); j++) {
                     CellGroup<CellData, GroupData>::CellRowPtr row = (*group)[j];
                     for (unsigned int k = 0; k < row->size(); k++) {
                         CellRow<CellData>::CellPtr cell = (*row)[k];
-                        if (cell->y() + cell->height() >= visibleRect.y && cell->y() <= visibleRect.y + visibleRect.h) {
+                        const LayoutBounds& titleBounds = cell->titleBounds();
+                        if (titleBounds.intersectsY(visibleRect.y, visibleRect.h)) {
                             Model::Assets::Texture* texture = cell->item().first;
                             FontPtr font = cell->item().second;
-                            skin->GetRender()->RenderText(font.get(), Gwen::Point(padding.left + cell->titleX(), padding.top + cell->titleY() + 1), texture->name);
+                            skin->GetRender()->RenderText(font.get(), Gwen::Point(padding.left + titleBounds.left(), padding.top + titleBounds.top() + 1), texture->name);
                         }
+                    }
+                }
+
+                if (m_group) {
+                    const LayoutBounds titleBounds = group->titleBoundsForVisibleRect(visibleRect.y, visibleRect.h);
+                    if (titleBounds.intersectsY(visibleRect.y, visibleRect.h)) {
+                        // paint background for group title
+                        glPushMatrix();
+                        glTranslatef(offset.x + padding.left, offset.y + padding.right, 0);
+                        glDisable(GL_TEXTURE_2D);
+                        glBegin(GL_QUADS);
+                        glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+                        glVertex3f(titleBounds.left(),  titleBounds.top(),    0);
+                        glVertex3f(titleBounds.left(),  titleBounds.bottom(), 0);
+                        glVertex3f(titleBounds.right(), titleBounds.bottom(), 0);
+                        glVertex3f(titleBounds.right(), titleBounds.top(),    0);
+                        glEnd();
+                        glPopMatrix();
+                        
+                        Model::Assets::TextureCollection* collection = group->item();
+                        std::vector<std::string> components = pathComponents(collection->name());
+                        skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
+                        skin->GetRender()->RenderText(m_font, Gwen::Point(padding.left + titleBounds.left() + 3, padding.top + titleBounds.top() + 1), components.back());
                     }
                 }
             }
             
+            /*
             if (m_group) {
                 CellLayout<CellData, GroupData>::CellGroupPtr group;
                 if (m_layout.groupAt(0, visibleRect.y, group)) {
@@ -284,6 +297,7 @@ namespace TrenchBroom {
 
                 }
             }
+             */
         }
 
         void TextureBrowserPanel::setHideUnused(bool hideUnused) {
