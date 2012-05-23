@@ -150,7 +150,7 @@ using namespace TrenchBroom::Renderer;
 
 - (void)awakeFromNib {
     // set up a render loop
-    renderTimer = [NSTimer timerWithTimeInterval:0.016 target:self selector:@selector(renderTimerFired:) userInfo:nil repeats:YES];
+    renderTimer = [NSTimer timerWithTimeInterval:0.033 target:self selector:@selector(renderTimerFired:) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:renderTimer forMode:NSDefaultRunLoopMode];
     [[NSRunLoop currentRunLoop] addTimer:renderTimer forMode:NSEventTrackingRunLoopMode]; //Ensure timer fires during resize
     
