@@ -480,6 +480,7 @@ void Base::DoCacheRender( Gwen::Skin::Base* skin, Gwen::Controls::Base* pMaster 
 			cache->SetupCacheTexture( this );
 
 		//Render myself first
+        RenderUnder( skin );
 		Render( skin );
 
 		if ( !Children.empty() )
@@ -494,6 +495,8 @@ void Base::DoCacheRender( Gwen::Skin::Base* skin, Gwen::Controls::Base* pMaster 
 			}		
 		}
 
+        RenderOver( skin );
+        
 		if ( ShouldCacheToTexture() )
 		{
 			cache->FinishCacheTexture( this );
@@ -501,10 +504,12 @@ void Base::DoCacheRender( Gwen::Skin::Base* skin, Gwen::Controls::Base* pMaster 
 		}
 	}
 
-	render->SetClipRegion( rOldRegion );
-	render->StartClip();
-	render->SetRenderOffset( pOldRenderOffset );
-	cache->DrawCachedControlTexture( this );
+    if ( ShouldCacheToTexture() ) {
+        render->SetClipRegion( rOldRegion );
+        render->StartClip();
+        render->SetRenderOffset( pOldRenderOffset );
+        cache->DrawCachedControlTexture( this );
+    }
 }
 
 void Base::DoRender( Gwen::Skin::Base* skin )
@@ -721,8 +726,10 @@ Base* Base::GetControlAt( int x, int y )
 
 void Base::Layout( Skin::Base* skin )
 {
-	if ( skin->GetRender()->GetCTT() && ShouldCacheToTexture() )
-		skin->GetRender()->GetCTT()->CreateControlCacheTexture( this );
+    Gwen::Renderer::Base* renderer = skin->GetRender();
+    Gwen::Renderer::ICacheToTexture* ctt = renderer->GetCTT();
+    if (ctt != NULL && ShouldCacheToTexture())
+        ctt->CreateControlCacheTexture(this);
 }
 
 void Base::RecurseLayout( Skin::Base* skin )

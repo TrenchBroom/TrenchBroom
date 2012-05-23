@@ -8,28 +8,26 @@
 #define GWEN_RENDERERS_OPENGL_H
 
 #include "Gwen/Gwen.h"
+#include "Gwen/Texture.h"
 #include "Gwen/BaseRender.h"
 #include "GL/GLee.h"
-#include <vector>
+#include <map>
 
 namespace Gwen 
 {
 	namespace Renderer 
 	{
         
-        class CacheTexture {
-        public:
-            GLuint textureId;
-            int width;
-            int height;
-            CacheTexture() {};
-        };
-        
         class OpenGLCacheToTexture : public ICacheToTexture {
         protected:
+            typedef std::map<Gwen::Controls::Base*, Gwen::Texture*> RenderTextureCache;
+            typedef std::vector<Gwen::Rect> ViewportStack;
+            
+            Gwen::Renderer::Base* m_renderer;
             GLuint m_frameBufferId;
             GLuint m_renderBufferId;
-            std::vector<Gwen::Controls::Base*, CacheTexture> m_textures;
+            RenderTextureCache m_textures;
+            ViewportStack m_viewportStack;
         public:
             OpenGLCacheToTexture();
             virtual ~OpenGLCacheToTexture();

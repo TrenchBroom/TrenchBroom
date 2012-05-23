@@ -62,6 +62,7 @@ namespace Gwen
 				bool m_bCanScrollV;
 
 				bool m_bAutoHideBars;
+                bool m_bNeedsUpdate;
 
 				Controls::BaseScrollBar* m_VerticalScrollBar;
 				Controls::BaseScrollBar* m_HorizontalScrollBar;

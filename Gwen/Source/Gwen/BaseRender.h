@@ -58,7 +58,7 @@ namespace Gwen
             virtual void DrawMissingImage( Gwen::Rect pTargetRect );
             virtual Gwen::Color PixelColour( Gwen::Texture* pTexture, unsigned int x, unsigned int y, const Gwen::Color& col_default = Gwen::Color( 255, 255, 255, 255 ) ){ return col_default; }
             
-            virtual ICacheToTexture* GetCTT() { return NULL; }
+            virtual ICacheToTexture* GetCTT() = 0;
             
             virtual void LoadFont( Gwen::Font* pFont ){};
             virtual void FreeFont( Gwen::Font* pFont ){};
@@ -105,6 +105,7 @@ namespace Gwen
             const Gwen::Rect& ClipRegion() const;
             
             void SetViewport(const Gwen::Rect& viewport);
+            const Gwen::Rect& GetViewport() const;
             
         private:
             

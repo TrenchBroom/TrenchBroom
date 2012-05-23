@@ -31,6 +31,7 @@ namespace Gwen
 				GWEN_CONTROL( BaseScrollBar, Base );
 
 				virtual void Render( Skin::Base* skin );
+            virtual void DoCacheRender( Gwen::Skin::Base* skin, Gwen::Controls::Base* pMaster );
 
 				virtual void SetBarSize(int size) = 0;
 				virtual int GetBarSize() = 0;

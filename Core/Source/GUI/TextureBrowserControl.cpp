@@ -80,13 +80,13 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserPanel::renderTextureBorder(CellRow<CellData>::CellPtr cell) {
-            const LayoutBounds& cellBounds = cell->cellBounds();
+            const LayoutBounds& itemBounds = cell->itemBounds();
             
             glBegin(GL_QUADS);
-            glVertex3f(cellBounds.left()  - 1, cellBounds.top()    - 1, 0);
-            glVertex3f(cellBounds.left()  - 1, cellBounds.bottom() + 1, 0);
-            glVertex3f(cellBounds.right() + 1, cellBounds.bottom() + 1, 0);
-            glVertex3f(cellBounds.right() + 1, cellBounds.top()    - 1, 0);
+            glVertex3f(itemBounds.left()  - 1, itemBounds.top()    - 1, 0);
+            glVertex3f(itemBounds.left()  - 1, itemBounds.bottom() + 1, 0);
+            glVertex3f(itemBounds.right() + 1, itemBounds.bottom() + 1, 0);
+            glVertex3f(itemBounds.right() + 1, itemBounds.top()    - 1, 0);
             glEnd();
         }
 
@@ -98,11 +98,12 @@ namespace TrenchBroom {
             CellRow<CellData>::CellPtr cell;
             if (m_layout.cellAt(static_cast<float>(local.x), static_cast<float>(local.y), cell)) {
                 m_selectedTexture = cell->item().first;
-                onTextureSelected.Call(this);
+                OnTextureSelected();
             }
         }
         
         void TextureBrowserPanel::OnTextureSelected() {
+            m_bCacheTextureDirty = true;
             onTextureSelected.Call(this);
         }
         
@@ -151,9 +152,6 @@ namespace TrenchBroom {
         void TextureBrowserPanel::RenderOver(Gwen::Skin::Base* skin) {
             skin->GetRender()->Flush();
             
-            glMatrixMode(GL_MODELVIEW);
-            glPushMatrix();
-            
             const Gwen::Padding& padding = GetPadding();
             const Gwen::Point& offset = skin->GetRender()->GetRenderOffset();
             const Gwen::Rect& scrollerVisibleRect = ((Gwen::Controls::ScrollControl*)GetParent())->GetVisibleRect();
@@ -164,6 +162,8 @@ namespace TrenchBroom {
             Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
             
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
             glTranslatef(offset.x, offset.y, 0);
 
             // paint background in black
@@ -171,9 +171,9 @@ namespace TrenchBroom {
             glDisable(GL_TEXTURE_2D);
             glBegin(GL_QUADS);
             glVertex3f(0, 0, 0);
-            glVertex3f(0, scrollerVisibleRect.h, 0);
-            glVertex3f(scrollerVisibleRect.w, scrollerVisibleRect.h, 0);
-            glVertex3f(scrollerVisibleRect.w, 0, 0);
+            glVertex3f(0, bounds.h, 0);
+            glVertex3f(bounds.w, bounds.h, 0);
+            glVertex3f(bounds.w, 0, 0);
             glEnd();
             
             glTranslatef(padding.left, padding.top, 0);
@@ -270,34 +270,6 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
-            /*
-            if (m_group) {
-                CellLayout<CellData, GroupData>::CellGroupPtr group;
-                if (m_layout.groupAt(0, visibleRect.y, group)) {
-                    glPushMatrix();
-                    glTranslatef(offset.x, offset.y, 0);
-                    glTranslatef(padding.left, padding.top, 0);
-
-                    glDisable(GL_TEXTURE_2D);
-                    glBegin(GL_QUADS);
-                    glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
-                    glVertex3f(0, visibleRect.y, 0);
-                    glVertex3f(0, visibleRect.y + group->titleHeight(), 0);
-                    glVertex3f(m_layout.width(), visibleRect.y + group->titleHeight(), 0);
-                    glVertex3f(m_layout.width(), visibleRect.y, 0);
-                    glEnd();
-
-                    glPopMatrix();
-
-                    skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
-                    Model::Assets::TextureCollection* collection = group->item();
-                    std::vector<std::string> components = pathComponents(collection->name());
-                    skin->GetRender()->RenderText(m_font, Gwen::Point(padding.left + 3, padding.top + visibleRect.y), components.back());
-
-                }
-            }
-             */
         }
 
         void TextureBrowserPanel::setHideUnused(bool hideUnused) {
@@ -350,6 +322,8 @@ namespace TrenchBroom {
             m_browserPanel->Dock(Gwen::Pos::Top);
             m_browserPanel->SetPadding(Gwen::Padding(5, 5, 5, 5));
             m_browserPanel->onTextureSelected.Add(this, &TextureBrowserControl::onTextureSelectedInBrowserPanel);
+            
+            SetCacheToTexture();
         }
 
         void TextureBrowserControl::Render(Gwen::Skin::Base* skin) {

@@ -38,6 +38,11 @@ void BaseScrollBar::Render( Skin::Base* skin )
 	skin->DrawScrollBar( this, IsHorizontal(), m_bDepressed );
 }
 
+void BaseScrollBar::DoCacheRender( Gwen::Skin::Base* skin, Gwen::Controls::Base* pMaster ) {
+    BaseClass::DoCacheRender(skin, pMaster);
+}
+
+
 void BaseScrollBar::OnBarMoved( Controls::Base* /*control*/ )
 {
 	onBarMoved.Call( this );

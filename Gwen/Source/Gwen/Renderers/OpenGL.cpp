@@ -31,61 +31,121 @@ namespace Gwen
             glDeleteFramebuffers(1, &m_frameBufferId);
             m_renderBufferId = 0;
             m_frameBufferId = 0;
+
+            for (RenderTextureCache::iterator it = m_textures.begin(); it != m_textures.end(); ++it)
+                it->second->Release(m_renderer);
+            m_textures.clear();
         }
         
         void OpenGLCacheToTexture::SetupCacheTexture( Gwen::Controls::Base* control ) {
             const Gwen::Rect& bounds = control->GetRenderBounds();
 
-            CacheTexture cacheTexture;
-            if (m_textures.count(control) == 0) {
-                cacheTexture.textureId = 0;
-            } else {
-                cacheTexture = m_textures[texture];
-                if (cacheTexture.width != bounds.w || cacheTexture.height != bounds.h) {
-                    glDeleteTextures(1, &cacheTexture.textureId);
-                    cacheTexture.textureId = 0;
+            Gwen::Texture* texture = NULL;
+            if (m_textures.count(control) > 0) {
+                texture = m_textures[control];
+                if (texture->width != bounds.w || texture->height != bounds.h) {
+                    texture->Release(m_renderer);
+                    texture = NULL;
                 }
             }
+            
+            if (texture == NULL) {
+                texture = new Gwen::Texture();
+                GLuint* textureId = new GLuint();
+                *textureId = 0;
+                texture->data = textureId;
+                texture->width = bounds.w;
+                texture->height = bounds.h;
+            }
 
-            if (cacheTexture.textureId == 0) {
-                cacheTexture.width = bounds.w;
-                cacheTexture.height = bounds.h;
-                glBindTexture(GL_TEXTURE_2D, cacheTexture.textureId);
+            GLuint* textureId = static_cast<GLuint*>(texture->data);
+            if (*textureId == 0) {
+                glGenTextures(1, textureId);
+                glBindTexture(GL_TEXTURE_2D, *textureId);
+
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+                //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap generation included in OpenGL v1.4
+                
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bounds.w, bounds.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+                glBindTexture(GL_TEXTURE_2D, 0);
             }
             
             glBindFramebuffer(GL_FRAMEBUFFER, m_frameBufferId);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE2D, cacheTexture.textureId);
             
             glBindRenderbuffer(GL_RENDERBUFFER, m_renderBufferId);
             glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, bounds.w, bounds.h);
+            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *textureId, 0);
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_renderBufferId);
+
+            glMatrixMode(GL_PROJECTION);
+            glPushMatrix();
+            glLoadIdentity();
+            glOrtho(0, bounds.w, bounds.h, 0, 0, 1);
             
-            m_textures[control] = cacheTexture;
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+            glLoadIdentity();
+            
+            glPushAttrib(GL_VIEWPORT_BIT);
+            glViewport(0, 0, bounds.w, bounds.h);
+
+            m_viewportStack.push_back(m_renderer->GetViewport());
+            m_renderer->SetViewport(bounds);
+            
+            GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+            assert(status == GL_FRAMEBUFFER_COMPLETE);
+            
+            GLenum error = glGetError();
+            assert(error == GL_NO_ERROR);
+            
+            m_textures[control] = texture;
         }
         
         void OpenGLCacheToTexture::FinishCacheTexture( Gwen::Controls::Base* control ) {
-            glBindRenderbuffer(GL_RENDERBUFFER, 0);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            
+            glPopAttrib();
+
+            glMatrixMode(GL_PROJECTION);
+            glPopMatrix();
+            
+            glMatrixMode(GL_MODELVIEW);
+            glPopMatrix();
+            
+            m_renderer->SetViewport(m_viewportStack.back());
+            m_viewportStack.pop_back();
         }
         
         void OpenGLCacheToTexture::DrawCachedControlTexture( Gwen::Controls::Base* control ) {
             assert(m_textures.count(control) > 0);
-            CacheTexture& cacheTexture = m_textures[control];
+            Gwen::Texture* texture = m_textures[control];
+            m_renderer->SetDrawColor(Gwen::Color(255, 255, 255, 255));
+            m_renderer->DrawTexturedRect(texture, control->GetRenderBounds(), 0, 1, 1, 0);
         }
         
         void OpenGLCacheToTexture::CreateControlCacheTexture( Gwen::Controls::Base* control ) {
+            control->GetBounds();
         }
         
         void OpenGLCacheToTexture::UpdateControlCacheTexture( Gwen::Controls::Base* control ) {
         }
         
         void OpenGLCacheToTexture::SetRenderer( Gwen::Renderer::Base* renderer ) {
+            m_renderer = renderer;
         }
 
 		
         OpenGL::OpenGL()
 		{
+            m_cacheToTexture = NULL;
 			m_iVertNum = 0;
 
 			::FreeImage_Initialise();
@@ -139,6 +199,7 @@ namespace Gwen
         ICacheToTexture* OpenGL::GetCTT() {
             if (m_cacheToTexture == NULL) {
                 m_cacheToTexture = new OpenGLCacheToTexture();
+                m_cacheToTexture->SetRenderer(this);
                 m_cacheToTexture->Initialize();
             }
             
