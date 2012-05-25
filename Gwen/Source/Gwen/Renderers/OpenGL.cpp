@@ -37,9 +37,19 @@ namespace Gwen
             m_textures.clear();
         }
         
-        void OpenGLCacheToTexture::SetupCacheTexture( Gwen::Controls::Base* control ) {
-            const Gwen::Rect& bounds = control->GetRenderBounds();
-
+        void OpenGLCacheToTexture::SetupCacheTexture( Gwen::Controls::Base* control, const Gwen::Point& offset ) {
+            const Gwen::Rect& bounds = control->GetBounds();
+            Gwen::Rect backgroundBounds = Gwen::Rect(offset.x + bounds.x, offset.y + bounds.y, bounds.w, bounds.h);
+            
+            // fetch the background of the control
+            glPixelStorei(GL_PACK_ALIGNMENT, 4);	/* Force 4-byte alignment */
+            glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+            glPixelStorei(GL_PACK_SKIP_ROWS, 0);
+            glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
+            
+            unsigned char buffer[backgroundBounds.w * backgroundBounds.h * 4];
+            glReadPixels(backgroundBounds.x, backgroundBounds.y - backgroundBounds.h, backgroundBounds.w, backgroundBounds.h, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+            
             Gwen::Texture* texture = NULL;
             if (m_textures.count(control) > 0) {
                 texture = m_textures[control];
@@ -71,10 +81,11 @@ namespace Gwen
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap generation included in OpenGL v1.4
-                
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bounds.w, bounds.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-                glBindTexture(GL_TEXTURE_2D, 0);
+            } else {
+                glBindTexture(GL_TEXTURE_2D, *textureId);
             }
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bounds.w, bounds.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+            glBindTexture(GL_TEXTURE_2D, 0);
             
             glBindFramebuffer(GL_FRAMEBUFFER, m_frameBufferId);
             
@@ -88,7 +99,7 @@ namespace Gwen
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
-            glOrtho(0, bounds.w, bounds.h, 0, 0, 1);
+            glOrtho(0, bounds.w, bounds.h, 0, -1, 1);
             
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
@@ -103,9 +114,11 @@ namespace Gwen
             GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
             assert(status == GL_FRAMEBUFFER_COMPLETE);
             
+            /*
             GLenum error = glGetError();
             assert(error == GL_NO_ERROR);
-            
+            */
+             
             m_textures[control] = texture;
         }
         
@@ -128,7 +141,7 @@ namespace Gwen
             assert(m_textures.count(control) > 0);
             Gwen::Texture* texture = m_textures[control];
             m_renderer->SetDrawColor(Gwen::Color(255, 255, 255, 255));
-            m_renderer->DrawTexturedRect(texture, control->GetRenderBounds(), 0, 1, 1, 0);
+            m_renderer->DrawTexturedRect(texture, control->GetBounds(), 0, 1, 1, 0);
         }
         
         void OpenGLCacheToTexture::CreateControlCacheTexture( Gwen::Controls::Base* control ) {

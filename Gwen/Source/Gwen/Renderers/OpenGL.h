@@ -33,7 +33,7 @@ namespace Gwen
             virtual ~OpenGLCacheToTexture();
 			virtual void Initialize();
 			virtual void ShutDown();
-			virtual void SetupCacheTexture( Gwen::Controls::Base* control );
+			virtual void SetupCacheTexture( Gwen::Controls::Base* control, const Gwen::Point& offset );
 			virtual void FinishCacheTexture( Gwen::Controls::Base* control );
 			virtual void DrawCachedControlTexture( Gwen::Controls::Base* control );
 			virtual void CreateControlCacheTexture( Gwen::Controls::Base* control );

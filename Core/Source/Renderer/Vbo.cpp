@@ -291,8 +291,11 @@ namespace TrenchBroom {
                 glBindBuffer(m_type, m_vboId);
             }
             
+            /*
             GLenum error = glGetError();
             assert(error == GL_NO_ERROR);
+             */
+            
             m_active = true;
         }
         

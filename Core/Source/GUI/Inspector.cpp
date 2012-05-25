@@ -227,6 +227,7 @@ namespace TrenchBroom {
             facePropertiesBox->Dock(Gwen::Pos::Top);
             facePropertiesBox->SetHeight(187);
             facePropertiesBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
+//            facePropertiesBox->SetCacheToTexture();
             
             // single texture view for current selection
             m_textureView = new TrenchBroom::Gui::SingleTextureControl(facePropertiesBox);
@@ -296,6 +297,7 @@ namespace TrenchBroom {
             textureBrowserBox->Dock(Gwen::Pos::Fill);
             textureBrowserBox->SetMargin(Gwen::Margin(0, 5, 0, 0));
             textureBrowserBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
+            textureBrowserBox->SetCacheToTexture();
             
             // texture controls container
             Gwen::Controls::Base* textureBrowserFilterContainer = new Gwen::Controls::Base(textureBrowserBox);
@@ -389,7 +391,7 @@ namespace TrenchBroom {
 
             Gwen::Controls::Base* faceInspector = createFaceInspector();
             m_sectionTabControl->AddPage("Face", faceInspector);
-
+            
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();

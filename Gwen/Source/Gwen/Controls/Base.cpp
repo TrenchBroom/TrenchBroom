@@ -458,7 +458,6 @@ void Base::DoCacheRender( Gwen::Skin::Base* skin, Gwen::Controls::Base* pMaster 
 	if ( !cache ) return;
 
 	Gwen::Point pOldRenderOffset = render->GetRenderOffset();
-
 	Gwen::Rect rOldRegion = render->ClipRegion();
 	
 	if ( this != pMaster )
@@ -469,16 +468,16 @@ void Base::DoCacheRender( Gwen::Skin::Base* skin, Gwen::Controls::Base* pMaster 
 	else
 	{
 		render->SetRenderOffset( Gwen::Point( 0, 0 ) );
-		render->SetClipRegion( GetBounds() );
+		render->SetClipRegion( GetRenderBounds() );
 	}
 
 	if ( m_bCacheTextureDirty && render->ClipRegionVisible() )
 	{
-		render->StartClip();
-
 		if ( ShouldCacheToTexture() )
-			cache->SetupCacheTexture( this );
+			cache->SetupCacheTexture( this, pOldRenderOffset );
 
+		render->StartClip();
+        
 		//Render myself first
         RenderUnder( skin );
 		Render( skin );
@@ -504,10 +503,11 @@ void Base::DoCacheRender( Gwen::Skin::Base* skin, Gwen::Controls::Base* pMaster 
 		}
 	}
 
+    render->SetClipRegion( rOldRegion );
+    render->StartClip();
+    render->SetRenderOffset( pOldRenderOffset );
+
     if ( ShouldCacheToTexture() ) {
-        render->SetClipRegion( rOldRegion );
-        render->StartClip();
-        render->SetRenderOffset( pOldRenderOffset );
         cache->DrawCachedControlTexture( this );
     }
 }

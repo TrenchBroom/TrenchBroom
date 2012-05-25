@@ -26,7 +26,7 @@ namespace Gwen
             virtual ~ICacheToTexture() {}
 			virtual void Initialize() = 0;
 			virtual void ShutDown() = 0;
-			virtual void SetupCacheTexture( Gwen::Controls::Base* control ) = 0;
+			virtual void SetupCacheTexture( Gwen::Controls::Base* control, const Gwen::Point& offset ) = 0;
 			virtual void FinishCacheTexture( Gwen::Controls::Base* control ) = 0;
 			virtual void DrawCachedControlTexture( Gwen::Controls::Base* control ) = 0;
 			virtual void CreateControlCacheTexture( Gwen::Controls::Base* control ) = 0;
@@ -58,7 +58,7 @@ namespace Gwen
             virtual void DrawMissingImage( Gwen::Rect pTargetRect );
             virtual Gwen::Color PixelColour( Gwen::Texture* pTexture, unsigned int x, unsigned int y, const Gwen::Color& col_default = Gwen::Color( 255, 255, 255, 255 ) ){ return col_default; }
             
-            virtual ICacheToTexture* GetCTT() = 0;
+            virtual ICacheToTexture* GetCTT() { return NULL; };
             
             virtual void LoadFont( Gwen::Font* pFont ){};
             virtual void FreeFont( Gwen::Font* pFont ){};

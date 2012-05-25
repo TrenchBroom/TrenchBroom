@@ -8,6 +8,8 @@
 #include "Gwen/Texture.h"
 #include "Gwen/Skins/Texturing.h"
 
+#include "GL/Glee.h"
+
 namespace Gwen 
 {
 	namespace Skin
@@ -704,6 +706,8 @@ namespace Gwen
             
             virtual void DrawScrollBar( Gwen::Controls::Base* control, bool isHorizontal, bool bDepressed )
             {
+                glGetError();
+                
                 if ( isHorizontal )
                     Textures.Scroller.TrackH.Draw( GetRender(), control->GetRenderBounds() );
                 else
