@@ -123,7 +123,7 @@ namespace TrenchBroom {
                 m_triangleSetIndex = (m_vboBlock->address + offset) / (2 * sizeof(float));
                 m_triangleSetCount = (int)m_data->triangleSet.size() / 2;
                 const unsigned char* buffer = (const unsigned char*)&m_data->triangleSet[0];
-                offset = m_vboBlock->writeBuffer(buffer, offset, (int)m_data->triangleSet.size() * sizeof(float));
+                offset = m_vboBlock->writeBuffer(buffer, offset, m_data->triangleSet.size() * sizeof(float));
             }
 
             if (m_hasTriangleStrips) {
@@ -134,7 +134,7 @@ namespace TrenchBroom {
                     m_triangleStripIndices->push_back((m_vboBlock->address + offset) / (2 * sizeof(float)));
                     m_triangleStripCounts->push_back((int)strip->size() / 2);
                     const unsigned char* buffer = (const unsigned char*)&(*strip)[0];
-                    offset = m_vboBlock->writeBuffer(buffer, offset, (int)strip->size() * sizeof(float));
+                    offset = m_vboBlock->writeBuffer(buffer, offset, strip->size() * sizeof(float));
                 }
             }
 
@@ -146,7 +146,7 @@ namespace TrenchBroom {
                     m_triangleFanIndices->push_back((m_vboBlock->address + offset) / (2 * sizeof(float)));
                     m_triangleFanCounts->push_back((int)fan->size() / 2);
                     const unsigned char* buffer = (const unsigned char*)&(*fan)[0];
-                    offset = m_vboBlock->writeBuffer(buffer, offset, (int)fan->size() * sizeof(float));
+                    offset = m_vboBlock->writeBuffer(buffer, offset, fan->size() * sizeof(float));
                 }
             }
 

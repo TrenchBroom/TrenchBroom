@@ -227,7 +227,7 @@ namespace TrenchBroom {
             facePropertiesBox->Dock(Gwen::Pos::Top);
             facePropertiesBox->SetHeight(187);
             facePropertiesBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
-//            facePropertiesBox->SetCacheToTexture();
+            facePropertiesBox->SetCacheToTexture();
             
             // single texture view for current selection
             m_textureView = new TrenchBroom::Gui::SingleTextureControl(facePropertiesBox);

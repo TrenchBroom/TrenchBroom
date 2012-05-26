@@ -40,6 +40,7 @@ namespace Gwen
         void OpenGLCacheToTexture::SetupCacheTexture( Gwen::Controls::Base* control, const Gwen::Point& offset ) {
             const Gwen::Rect& bounds = control->GetBounds();
             Gwen::Rect backgroundBounds = Gwen::Rect(offset.x + bounds.x, offset.y + bounds.y, bounds.w, bounds.h);
+            backgroundBounds.y = m_renderer->GetViewport().h - (backgroundBounds.y + backgroundBounds.h);
             
             // fetch the background of the control
             glPixelStorei(GL_PACK_ALIGNMENT, 4);	/* Force 4-byte alignment */
@@ -48,7 +49,7 @@ namespace Gwen
             glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
             
             unsigned char buffer[backgroundBounds.w * backgroundBounds.h * 4];
-            glReadPixels(backgroundBounds.x, backgroundBounds.y - backgroundBounds.h, backgroundBounds.w, backgroundBounds.h, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+            glReadPixels(backgroundBounds.x,backgroundBounds.y, backgroundBounds.w, backgroundBounds.h, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
             
             Gwen::Texture* texture = NULL;
             if (m_textures.count(control) > 0) {
