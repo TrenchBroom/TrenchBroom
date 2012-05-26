@@ -31,10 +31,6 @@
     return self;
 }
 
-- (void)windowWillClose:(NSNotification *)notification {
-    [mapView stopRenderLoop];
-}
-
 - (IBAction)showPreferences:(id)sender {
     PreferencesWindowController* preferencesController = [PreferencesWindowController sharedInstance];
     [[preferencesController window] makeKeyAndOrderFront:self];

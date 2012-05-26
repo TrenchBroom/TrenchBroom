@@ -28,6 +28,10 @@
 namespace TrenchBroom {
     namespace Gui {
 
+        void EditorGui::onCanvasRedraw(Gwen::Controls::Base* control) {
+            editorGuiRedraw(*this);
+        }
+
         EditorGui::EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const string& skinPath) : m_editor(editor) {
             m_renderer = new Gwen::Renderer::OpenGL_FTGL();
             m_skin = new Gwen::Skin::TexturedBase();
@@ -44,6 +48,8 @@ namespace TrenchBroom {
             m_splitter->SetMinSize(1, 400);
             m_splitter->SetResize(0, true);
             m_splitter->SetResize(1, false);
+            
+            m_canvas->onRedraw.Add(this, &EditorGui::onCanvasRedraw);
         }
         
         EditorGui::~EditorGui() {

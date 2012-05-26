@@ -32,13 +32,20 @@
 
 namespace TrenchBroom {
     namespace Gui {
+        void MapRendererControl::rendererChanged(Renderer::MapRenderer& renderer) {
+            Redraw();
+        }
+
         MapRendererControl::MapRendererControl(Base* parent, Controller::Editor& editor, Renderer::FontManager& fontManager) : Base(parent), m_editor(editor) {
             m_mapRenderer = new Renderer::MapRenderer(m_editor, fontManager);
             SetKeyboardInputEnabled(true);
             SetMouseInputEnabled(true);
+            
+            m_mapRenderer->rendererChanged += new Renderer::MapRenderer::MapRendererEvent::Listener<MapRendererControl>(this, &MapRendererControl::rendererChanged);
         }
 
         MapRendererControl::~MapRendererControl() {
+            m_mapRenderer->rendererChanged -= new Renderer::MapRenderer::MapRendererEvent::Listener<MapRendererControl>(this, &MapRendererControl::rendererChanged);
             delete m_mapRenderer;
         }
 

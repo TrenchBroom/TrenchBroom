@@ -48,7 +48,9 @@ namespace Gwen
 				// by checking NeedsRedraw().
 				//
 				virtual bool NeedsRedraw(){ return m_bNeedsRedraw; }
-				virtual void Redraw(){ m_bNeedsRedraw = true; }
+                virtual void Redraw();
+
+                Gwen::Event::Caller onRedraw;
 
 				// Internal. Do not call directly.
 				virtual void Render( Skin::Base* pRender );

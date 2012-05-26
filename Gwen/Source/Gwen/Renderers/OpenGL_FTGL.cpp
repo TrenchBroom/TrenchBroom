@@ -56,7 +56,6 @@ namespace Gwen {
             glTranslatef(static_cast<float>(m_RenderOffset.x + pos.x - 1), static_cast<float>(m_RenderOffset.y + pos.y + offset + 2), 0);
             glScalef(1, -1, 1);
             
-            glDisable(GL_SCISSOR_TEST);
             fontInfo.font->Render(convertedText.c_str());
             glPopMatrix();
         }

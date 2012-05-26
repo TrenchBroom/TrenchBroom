@@ -75,10 +75,12 @@ namespace TrenchBroom {
 
         void MapRenderer::entitiesWereAdded(const vector<Model::Entity*>& entities) {
             addEntities(entities);
+            rendererChanged(*this);
         }
 
         void MapRenderer::entitiesWillBeRemoved(const vector<Model::Entity*>& entities) {
             removeEntities(entities);
+            rendererChanged(*this);
         }
 
         void MapRenderer::propertiesDidChange(const vector<Model::Entity*>& entities) {
@@ -88,14 +90,17 @@ namespace TrenchBroom {
             if (find(entities.begin(), entities.end(), worldspawn) != entities.end()) {
                 // if mods changed, invalidate renderer cache here
             }
+            rendererChanged(*this);
         }
 
         void MapRenderer::brushesWereAdded(const vector<Model::Brush*>& brushes) {
             addBrushes(brushes);
+            rendererChanged(*this);
         }
 
         void MapRenderer::brushesWillBeRemoved(const vector<Model::Brush*>& brushes) {
             removeBrushes(brushes);
+            rendererChanged(*this);
         }
 
         void MapRenderer::brushesDidChange(const vector<Model::Brush*>& brushes) {
@@ -112,17 +117,21 @@ namespace TrenchBroom {
             }
 
             m_changeSet.entitiesChanged(entities);
+            rendererChanged(*this);
         }
 
         void MapRenderer::facesDidChange(const vector<Model::Face*>& faces) {
             m_changeSet.facesChanged(faces);
+            rendererChanged(*this);
         }
 
         void MapRenderer::mapLoaded(Model::Map& map) {
             addEntities(map.entities());
+            rendererChanged(*this);
         }
 
         void MapRenderer::mapCleared(Model::Map& map) {
+            rendererChanged(*this);
         }
 
         void MapRenderer::selectionAdded(const Model::SelectionEventData& event) {
@@ -132,6 +141,7 @@ namespace TrenchBroom {
                 m_changeSet.brushesSelected(event.brushes);
             if (!event.faces.empty())
                 m_changeSet.facesSelected(event.faces);
+            rendererChanged(*this);
         }
 
         void MapRenderer::selectionRemoved(const Model::SelectionEventData& event) {
@@ -141,10 +151,16 @@ namespace TrenchBroom {
                 m_changeSet.brushesDeselected(event.brushes);
             if (!event.faces.empty())
                 m_changeSet.facesDeselected(event.faces);
+            rendererChanged(*this);
         }
 
         void MapRenderer::textureManagerChanged(Model::Assets::TextureManager& textureManager) {
             m_changeSet.setTextureManagerChanged();
+            rendererChanged(*this);
+        }
+
+        void MapRenderer::cameraChanged(Controller::Camera& camera) {
+            rendererChanged(*this);
         }
 
         void MapRenderer::writeFaceVertices(RenderContext& context, Model::Face& face, VboBlock& block) {
@@ -1143,6 +1159,7 @@ namespace TrenchBroom {
 
             m_editor.setRenderer(this);
 
+            Controller::Camera& camera = m_editor.camera();
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
@@ -1155,6 +1172,7 @@ namespace TrenchBroom {
             selection.selectionAdded                += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
             selection.selectionRemoved              += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
             textureManager.textureManagerChanged    += new Model::Assets::TextureManager::TextureManagerEvent::Listener<MapRenderer>(this, &MapRenderer::textureManagerChanged);
+            camera.cameraChanged                    += new Controller::Camera::CameraEvent::Listener<MapRenderer>(this, &MapRenderer::cameraChanged);
             
             addEntities(map.entities());
         }
@@ -1162,6 +1180,7 @@ namespace TrenchBroom {
         MapRenderer::~MapRenderer() {
             m_editor.setRenderer(NULL);
             
+            Controller::Camera& camera = m_editor.camera();
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
@@ -1174,6 +1193,7 @@ namespace TrenchBroom {
             selection.selectionAdded                -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
             selection.selectionRemoved              -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
             textureManager.textureManagerChanged    -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<MapRenderer>(this, &MapRenderer::textureManagerChanged);
+            camera.cameraChanged                    -= new Controller::Camera::CameraEvent::Listener<MapRenderer>(this, &MapRenderer::cameraChanged);
 
             const vector<Entity*>& entities = map.entities();
             for (unsigned int i = 0; i < entities.size(); i++) {

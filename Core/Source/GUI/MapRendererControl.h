@@ -40,6 +40,8 @@ namespace TrenchBroom {
         protected:
             Controller::Editor& m_editor;
             Renderer::MapRenderer* m_mapRenderer;
+            
+            void rendererChanged(Renderer::MapRenderer& renderer);
         public:
             MapRendererControl(Base* parent, Controller::Editor& editor, Renderer::FontManager& fontManager);
             ~MapRendererControl();

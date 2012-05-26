@@ -21,6 +21,7 @@
 #define TrenchBroom_Camera_h
 
 #include "GL/GLee.h"
+#include "Utilities/Event.h"
 #include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
@@ -39,6 +40,8 @@ namespace TrenchBroom {
             GLdouble m_modelview[16];
             GLdouble m_projection[16];
         public:
+            typedef Event<Camera&> CameraEvent;
+            
             Camera(float fieldOfVision, float nearPlane, float farPlane, Vec3f position, Vec3f direction);
             const Vec3f& position() const;
             const Vec3f& direction() const;
@@ -69,6 +72,8 @@ namespace TrenchBroom {
             void setFieldOfVision(float fieldOfVision);
             void setNearPlane(float nearPlane);
             void setFarPlane(float farPlane);
+            
+            CameraEvent cameraChanged;
         };
     }
 }

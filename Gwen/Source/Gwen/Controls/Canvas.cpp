@@ -62,6 +62,11 @@ void Canvas::RenderCanvas()
 
 }
 
+void Canvas::Redraw() {
+    m_bNeedsRedraw = true;
+    onRedraw.Call(this);
+}
+
 void Canvas::Render( Gwen::Skin::Base* /*pRender*/ )
 {
 	m_bNeedsRedraw = false;

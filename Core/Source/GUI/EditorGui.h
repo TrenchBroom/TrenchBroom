@@ -24,6 +24,8 @@
 #include "Gwen/Skins/TexturedBase.h"
 #include "Gwen/Renderers/OpenGL_FTGL.h"
 #include "Gwen/Controls/Canvas.h"
+#include "Gwen/Events.h"
+#include "Utilities/Event.h"
 
 using namespace std;
 
@@ -41,7 +43,7 @@ namespace TrenchBroom {
         class MapRendererControl;
         class Splitter;
 
-        class EditorGui {
+        class EditorGui : public Gwen::Event::Handler {
         private:
             Controller::Editor& m_editor;
             Gwen::Renderer::OpenGL* m_renderer;
@@ -50,7 +52,10 @@ namespace TrenchBroom {
             Splitter* m_splitter;
             MapRendererControl* m_mapRenderer;
             Inspector* m_inspector;
+            void onCanvasRedraw(Gwen::Controls::Base* control);
         public:
+            typedef Event<EditorGui&> EditorGuiEvent;
+
             EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const string& skinPath);
             ~EditorGui();
             
@@ -58,6 +63,7 @@ namespace TrenchBroom {
             void render();
             
             Gwen::Controls::Canvas* canvas();
+            EditorGuiEvent editorGuiRedraw;
         };
     }
 }

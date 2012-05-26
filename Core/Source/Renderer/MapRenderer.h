@@ -23,9 +23,10 @@
 #include <map>
 #include <vector>
 #include "GL/GLee.h"
-#include "Utilities/VecMath.h"
 #include "Renderer/ChangeSet.h"
 #include "Renderer/FontManager.h"
+#include "Utilities/Event.h"
+#include "Utilities/VecMath.h"
 
 using namespace std;
 
@@ -127,6 +128,7 @@ namespace TrenchBroom {
             void selectionAdded(const Model::SelectionEventData& event);
             void selectionRemoved(const Model::SelectionEventData& event);
             void textureManagerChanged(Model::Assets::TextureManager& textureManager);
+            void cameraChanged(Controller::Camera& camera);
 
             void writeFaceVertices(RenderContext& context, Model::Face& face, VboBlock& block);
             unsigned int writeFaceIndices(RenderContext& context, Model::Face& face, VboBlock& block, unsigned int offset);
@@ -155,6 +157,8 @@ namespace TrenchBroom {
             void renderFaces(RenderContext& context, bool textured, bool selected, const FaceIndexBlocks& indexBlocks);
             void renderFigures(RenderContext& context);
         public:
+            typedef Event<MapRenderer&> MapRendererEvent;
+            
             MapRenderer(Controller::Editor& editor, FontManager& fontManager);
             ~MapRenderer();
             
@@ -162,6 +166,8 @@ namespace TrenchBroom {
             void removeFigure(Figure& figure);
             
             void render(RenderContext& context);
+            
+            MapRendererEvent rendererChanged;
         };
     }
 }

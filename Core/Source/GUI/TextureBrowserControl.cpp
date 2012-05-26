@@ -322,8 +322,6 @@ namespace TrenchBroom {
             m_browserPanel->Dock(Gwen::Pos::Top);
             m_browserPanel->SetPadding(Gwen::Padding(5, 5, 5, 5));
             m_browserPanel->onTextureSelected.Add(this, &TextureBrowserControl::onTextureSelectedInBrowserPanel);
-            
-            // SetCacheToTexture();
         }
 
         void TextureBrowserControl::Render(Gwen::Skin::Base* skin) {

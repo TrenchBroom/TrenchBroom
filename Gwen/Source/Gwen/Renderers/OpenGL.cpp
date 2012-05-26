@@ -146,7 +146,6 @@ namespace Gwen
         }
         
         void OpenGLCacheToTexture::CreateControlCacheTexture( Gwen::Controls::Base* control ) {
-            control->GetBounds();
         }
         
         void OpenGLCacheToTexture::UpdateControlCacheTexture( Gwen::Controls::Base* control ) {

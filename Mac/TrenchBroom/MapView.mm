@@ -34,9 +34,24 @@ using namespace TrenchBroom::Gui;
 using namespace TrenchBroom::Controller;
 using namespace TrenchBroom::Renderer;
 
+namespace TrenchBroom {
+    namespace Gui {
+        EditorGuiListener::EditorGuiListener(EditorGui* editorGui, MapView* mapView) : m_editorGui(editorGui), m_mapView(mapView) {
+            m_editorGui->editorGuiRedraw += new EditorGui::EditorGuiEvent::Listener<EditorGuiListener>(this, &EditorGuiListener::editorGuiRedraw);
+        }
+        
+        EditorGuiListener::~EditorGuiListener() {
+            m_editorGui->editorGuiRedraw -= new EditorGui::EditorGuiEvent::Listener<EditorGuiListener>(this, &EditorGuiListener::editorGuiRedraw);
+        }
+
+        void EditorGuiListener::editorGuiRedraw(EditorGui& editorGui) {
+            [m_mapView setNeedsDisplay:YES];
+        }
+    }
+}
+
 @interface MapView (Private)
 - (void)prepareOpenGL;
-- (void)renderTimerFired:(NSNotification*)theNotification;
 - (void)key:(NSEvent*)theEvent down:(BOOL)down;
 - (void)key:(NSEvent*)theEvent mask:(NSUInteger)theMask gwenKey:(int)theGwenKey;
 - (Editor*)editor;
@@ -47,10 +62,6 @@ using namespace TrenchBroom::Renderer;
 - (void)prepareOpenGL {
     GLint swapInt = 1;
     [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
-}
-
-- (void)renderTimerFired:(NSNotification*)theNotification {
-    [self setNeedsDisplay:YES];
 }
 
 - (void)key:(NSEvent*)theEvent down:(BOOL)down {
@@ -131,6 +142,8 @@ using namespace TrenchBroom::Renderer;
 - (void)dealloc {
     if (editorGui != NULL)
         delete ((EditorGui*)editorGui);
+    if (editorGuiListener != NULL)
+        delete ((EditorGuiListener*)editorGuiListener);
     if (fontManager != NULL)
         delete ((FontManager*)fontManager);
     if (editorHolder != NULL)
@@ -138,23 +151,11 @@ using namespace TrenchBroom::Renderer;
     [super dealloc];
 }
 
-- (void)stopRenderLoop {
-    if (renderTimer != nil) {
-        [renderTimer invalidate];
-        renderTimer = nil;
-    }
-}
-
 - (BOOL)acceptsFirstResponder {
     return YES;
 }
 
 - (void)awakeFromNib {
-    // set up a render loop
-    renderTimer = [NSTimer timerWithTimeInterval:0.033 target:self selector:@selector(renderTimerFired:) userInfo:nil repeats:YES];
-    [[NSRunLoop currentRunLoop] addTimer:renderTimer forMode:NSDefaultRunLoopMode];
-    [[NSRunLoop currentRunLoop] addTimer:renderTimer forMode:NSEventTrackingRunLoopMode]; //Ensure timer fires during resize
-    
     [[self window] setAcceptsMouseMovedEvents:YES];
     flags = [NSEvent modifierFlags];
 }
@@ -167,6 +168,7 @@ using namespace TrenchBroom::Renderer;
         NSString* skinPath = [[NSBundle mainBundle] pathForResource:@"DefaultSkin" ofType:@"png"];
         string skinPathCpp([skinPath cStringUsingEncoding:NSASCIIStringEncoding]);
         editorGui = new EditorGui(*[self editor], *(FontManager*)fontManager, skinPathCpp);
+        editorGuiListener = new EditorGuiListener((EditorGui *)editorGui, self);
     }
 
     NSRect viewport = [self visibleRect];

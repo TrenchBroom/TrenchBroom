@@ -23,12 +23,27 @@
 
 @interface MapView: NSOpenGLView {
     EditorHolder* editorHolder;
-    NSTimer* renderTimer;
     void* editorGui;
+    void* editorGuiListener;
     void* fontManager;
     NSUInteger flags;
 }
 
-- (void)stopRenderLoop;
-
 @end
+
+namespace TrenchBroom {
+    namespace Gui {
+        class EditorGui;
+        class EditorGuiListener {
+        private:
+            EditorGui* m_editorGui;
+            MapView* m_mapView;
+        public:
+            EditorGuiListener(EditorGui* editorGui, MapView* mapView);
+            ~EditorGuiListener();
+            
+            void editorGuiRedraw(EditorGui& editorGui);
+        };
+    }
+}
+
