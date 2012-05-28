@@ -25,7 +25,6 @@ namespace Gwen
             
             Gwen::Renderer::Base* m_renderer;
             GLuint m_frameBufferId;
-            GLuint m_renderBufferId;
             RenderTextureCache m_textures;
             ViewportStack m_viewportStack;
         public:
@@ -33,7 +32,7 @@ namespace Gwen
             virtual ~OpenGLCacheToTexture();
 			virtual void Initialize();
 			virtual void ShutDown();
-			virtual void SetupCacheTexture( Gwen::Controls::Base* control, const Gwen::Point& offset );
+			virtual void SetupCacheTexture( Gwen::Controls::Base* control );
 			virtual void FinishCacheTexture( Gwen::Controls::Base* control );
 			virtual void DrawCachedControlTexture( Gwen::Controls::Base* control );
 			virtual void CreateControlCacheTexture( Gwen::Controls::Base* control );

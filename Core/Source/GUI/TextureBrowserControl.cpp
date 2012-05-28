@@ -104,6 +104,7 @@ namespace TrenchBroom {
         
         void TextureBrowserPanel::OnTextureSelected() {
             m_bCacheTextureDirty = true;
+            Redraw();
             onTextureSelected.Call(this);
         }
         

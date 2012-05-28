@@ -140,10 +140,10 @@ namespace TrenchBroom {
 @implementation MapView
 
 - (void)dealloc {
-    if (editorGui != NULL)
-        delete ((EditorGui*)editorGui);
     if (editorGuiListener != NULL)
         delete ((EditorGuiListener*)editorGuiListener);
+    if (editorGui != NULL)
+        delete ((EditorGui*)editorGui);
     if (fontManager != NULL)
         delete ((FontManager*)fontManager);
     if (editorHolder != NULL)

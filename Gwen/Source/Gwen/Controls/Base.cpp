@@ -474,7 +474,7 @@ void Base::DoCacheRender( Gwen::Skin::Base* skin, Gwen::Controls::Base* pMaster 
 	if ( m_bCacheTextureDirty && render->ClipRegionVisible() )
 	{
 		if ( ShouldCacheToTexture() )
-			cache->SetupCacheTexture( this, pOldRenderOffset );
+			cache->SetupCacheTexture( this );
 
 		render->StartClip();
         

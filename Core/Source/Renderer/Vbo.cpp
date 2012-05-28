@@ -312,7 +312,9 @@ namespace TrenchBroom {
             
             m_buffer = (unsigned char *)glMapBuffer(m_type, GL_WRITE_ONLY);
             assert(m_buffer != NULL);
-            assert(glGetError() == GL_NO_ERROR);
+            
+            GLenum error = glGetError();
+            assert(error == GL_NO_ERROR);
             m_mapped = true;
         }
         
@@ -321,7 +323,9 @@ namespace TrenchBroom {
             assert(m_mapped);
             
             glUnmapBuffer(m_type);
-            assert(glGetError() == GL_NO_ERROR);
+
+            GLenum error = glGetError();
+            assert(error == GL_NO_ERROR);
             m_buffer = NULL;
             m_mapped = false;
         }

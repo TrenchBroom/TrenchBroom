@@ -48,14 +48,10 @@ namespace Gwen {
             const FontInfo& fontInfo = loadFont(pFont);
 			Gwen::String convertedText = Gwen::Utility::UnicodeToString( text );
             
-            int offset = static_cast<int>(ceilf(fontInfo.offset));
-//            glRasterPos2f(pos.x + m_RenderOffset.x - 1, pos.y + m_RenderOffset.y + offset + 2);
-            
-
             glPushMatrix();
+            int offset = static_cast<int>(ceilf(fontInfo.offset));
             glTranslatef(static_cast<float>(m_RenderOffset.x + pos.x - 1), static_cast<float>(m_RenderOffset.y + pos.y + offset + 2), 0);
             glScalef(1, -1, 1);
-            
             fontInfo.font->Render(convertedText.c_str());
             glPopMatrix();
         }

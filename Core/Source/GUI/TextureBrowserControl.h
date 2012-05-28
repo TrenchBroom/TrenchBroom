@@ -103,7 +103,7 @@ namespace TrenchBroom {
             void setSortCriterion(Model::Assets::ETextureSortCriterion criterion);
             void setFixedCellWidth(float fixedCellWidth);
             void setFilterText(const std::string& filterText);
-
+            
             Gwen::Event::Caller onTextureSelected;
             Model::Assets::Texture* selectedTexture();
         };

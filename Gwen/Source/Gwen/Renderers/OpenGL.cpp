@@ -21,15 +21,11 @@ namespace Gwen
         
         void OpenGLCacheToTexture::Initialize() {
             glGenFramebuffers(1, &m_frameBufferId);
-            glGenRenderbuffers(1, &m_renderBufferId);
         }
         
         void OpenGLCacheToTexture::ShutDown() {
-            glBindRenderbuffer(GL_RENDERBUFFER, 0);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            glDeleteRenderbuffers(1, &m_renderBufferId);
             glDeleteFramebuffers(1, &m_frameBufferId);
-            m_renderBufferId = 0;
             m_frameBufferId = 0;
 
             for (RenderTextureCache::iterator it = m_textures.begin(); it != m_textures.end(); ++it)
@@ -37,19 +33,10 @@ namespace Gwen
             m_textures.clear();
         }
         
-        void OpenGLCacheToTexture::SetupCacheTexture( Gwen::Controls::Base* control, const Gwen::Point& offset ) {
+        void OpenGLCacheToTexture::SetupCacheTexture( Gwen::Controls::Base* control ) {
+            m_renderer->Flush();
+            
             const Gwen::Rect& bounds = control->GetBounds();
-            Gwen::Rect backgroundBounds = Gwen::Rect(offset.x + bounds.x, offset.y + bounds.y, bounds.w, bounds.h);
-            backgroundBounds.y = m_renderer->GetViewport().h - (backgroundBounds.y + backgroundBounds.h);
-            
-            // fetch the background of the control
-            glPixelStorei(GL_PACK_ALIGNMENT, 4);	/* Force 4-byte alignment */
-            glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-            glPixelStorei(GL_PACK_SKIP_ROWS, 0);
-            glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
-            
-            unsigned char buffer[backgroundBounds.w * backgroundBounds.h * 4];
-            glReadPixels(backgroundBounds.x,backgroundBounds.y, backgroundBounds.w, backgroundBounds.h, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
             
             Gwen::Texture* texture = NULL;
             if (m_textures.count(control) > 0) {
@@ -69,33 +56,22 @@ namespace Gwen
                 texture->height = bounds.h;
             }
 
+            glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT);
             GLuint* textureId = static_cast<GLuint*>(texture->data);
             if (*textureId == 0) {
                 glGenTextures(1, textureId);
                 glBindTexture(GL_TEXTURE_2D, *textureId);
 
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-                //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-                //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap generation included in OpenGL v1.4
-            } else {
-                glBindTexture(GL_TEXTURE_2D, *textureId);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, bounds.w, bounds.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
             }
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bounds.w, bounds.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
             glBindTexture(GL_TEXTURE_2D, 0);
-            
-            glBindFramebuffer(GL_FRAMEBUFFER, m_frameBufferId);
-            
-            glBindRenderbuffer(GL_RENDERBUFFER, m_renderBufferId);
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, bounds.w, bounds.h);
-            glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
+            glBindFramebuffer(GL_FRAMEBUFFER, m_frameBufferId);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *textureId, 0);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_renderBufferId);
 
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
@@ -106,24 +82,26 @@ namespace Gwen
             glPushMatrix();
             glLoadIdentity();
             
-            glPushAttrib(GL_VIEWPORT_BIT);
             glViewport(0, 0, bounds.w, bounds.h);
+            glDisable(GL_SCISSOR_TEST);
 
+            glClearColor(0, 0, 0, 0);
+            glClear(GL_COLOR_BUFFER_BIT);
+            
             m_viewportStack.push_back(m_renderer->GetViewport());
             m_renderer->SetViewport(bounds);
             
             GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
             assert(status == GL_FRAMEBUFFER_COMPLETE);
             
-            /*
             GLenum error = glGetError();
             assert(error == GL_NO_ERROR);
-            */
              
             m_textures[control] = texture;
         }
         
         void OpenGLCacheToTexture::FinishCacheTexture( Gwen::Controls::Base* control ) {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             
             glPopAttrib();
@@ -142,7 +120,18 @@ namespace Gwen
             assert(m_textures.count(control) > 0);
             Gwen::Texture* texture = m_textures[control];
             m_renderer->SetDrawColor(Gwen::Color(255, 255, 255, 255));
+            
+            glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+			glDisableClientState( GL_VERTEX_ARRAY );
+            glDisableClientState(GL_COLOR_ARRAY);
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            
             m_renderer->DrawTexturedRect(texture, control->GetBounds(), 0, 1, 1, 0);
+
+            double plane[4];
+            glGetClipPlane(GL_CLIP_PLANE0, plane);
+            
+            glPopClientAttrib();
         }
         
         void OpenGLCacheToTexture::CreateControlCacheTexture( Gwen::Controls::Base* control ) {
