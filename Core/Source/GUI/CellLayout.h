@@ -153,8 +153,6 @@ namespace TrenchBroom {
                     return false;
                 
                 float width = x + cellPtr->cellBounds().width();
-                if (!m_cells.empty())
-                    width += m_cellMargin;
                 float height = Math::fmax(m_bounds.height(), cellPtr->cellBounds().height());
                 m_bounds = LayoutBounds(m_bounds.left(), m_bounds.top(), width, height);
                 

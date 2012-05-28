@@ -83,10 +83,10 @@ namespace TrenchBroom {
             const LayoutBounds& itemBounds = cell->itemBounds();
             
             glBegin(GL_QUADS);
-            glVertex3f(itemBounds.left()  - 1, itemBounds.top()    - 1, 0);
-            glVertex3f(itemBounds.left()  - 1, itemBounds.bottom() + 1, 0);
-            glVertex3f(itemBounds.right() + 1, itemBounds.bottom() + 1, 0);
-            glVertex3f(itemBounds.right() + 1, itemBounds.top()    - 1, 0);
+            glVertex3f(itemBounds.left()  - 2.0f, itemBounds.top()    - 2.0f, 0);
+            glVertex3f(itemBounds.left()  - 2.0f, itemBounds.bottom() + 2.0f, 0);
+            glVertex3f(itemBounds.right() + 2.0f, itemBounds.bottom() + 2.0f, 0);
+            glVertex3f(itemBounds.right() + 2.0f, itemBounds.top()    - 2.0f, 0);
             glEnd();
         }
 
@@ -109,9 +109,9 @@ namespace TrenchBroom {
         }
         
         TextureBrowserPanel::TextureBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor) : Gwen::Controls::Base(parent), m_editor(editor), m_group(false), m_selectedTexture(NULL) {
-            m_layout.setGroupMargin(5);
-            m_layout.setRowMargin(5);
-            m_layout.setCellMargin(5);
+            m_layout.setGroupMargin(8);
+            m_layout.setRowMargin(8);
+            m_layout.setCellMargin(8);
             m_layout.setWidth(GetBounds().w);
             m_group = false;
             m_hideUnused = false;
@@ -166,17 +166,6 @@ namespace TrenchBroom {
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
             glTranslatef(offset.x, offset.y, 0);
-
-            // paint background in black
-            glColor4f(0, 0, 0, 1);
-            glDisable(GL_TEXTURE_2D);
-            glBegin(GL_QUADS);
-            glVertex3f(0, 0, 0);
-            glVertex3f(0, bounds.h, 0);
-            glVertex3f(bounds.w, bounds.h, 0);
-            glVertex3f(bounds.w, 0, 0);
-            glEnd();
-            
             glTranslatef(padding.left, padding.top, 0);
             
             for (unsigned int i = 0; i < m_layout.size(); i++) {
@@ -198,11 +187,11 @@ namespace TrenchBroom {
                                     renderTextureBorder(cell);
                                 } else if (!selection.mruTextures().empty() && selection.mruTextures().back() == texture) {
                                     glDisable(GL_TEXTURE_2D);
-                                    glColor4f(1, 0, 0, 0.75f);
+                                    glColor4f(1, 0, 0, 1);
                                     renderTextureBorder(cell);
                                 } else if (texture->usageCount > 0) {
                                     glDisable(GL_TEXTURE_2D);
-                                    glColor4f(1, 1, 0, 0.75f);
+                                    glColor4f(0, 0, 1, 1);
                                     renderTextureBorder(cell);
                                 }
                                 
@@ -234,7 +223,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
 
-                skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
+                skin->GetRender()->SetDrawColor(Gwen::Color(0, 0, 0, 255));
                 for (unsigned int j = 0; j < group->size(); j++) {
                     CellGroup<CellData, GroupData>::CellRowPtr row = (*group)[j];
                     for (unsigned int k = 0; k < row->size(); k++) {
