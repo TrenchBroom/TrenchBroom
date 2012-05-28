@@ -68,6 +68,7 @@ protected:
 	HGLRC m_openGLContext;
 	TrenchBroom::Gui::EditorGui* m_editorGui;
 	TrenchBroom::Renderer::FontManager* m_fontManager;
+	void editorGuiRedraw(TrenchBroom::Gui::EditorGui& editorGui);
 public:
 	afx_msg void OnDestroy();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
@@ -79,7 +80,6 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
 protected:
 	CPoint* m_lastMousePos;
 	void key(UINT nChar, UINT nFlags, bool down);

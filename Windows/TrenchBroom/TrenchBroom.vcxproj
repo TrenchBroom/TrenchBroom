@@ -283,8 +283,8 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TrenchBroom.h" />
     <ClInclude Include="WinConsole.h" />
-    <ClInclude Include="WinFontManager.h" />
     <ClInclude Include="WinPreferences.h" />
+    <ClInclude Include="WinStringFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Core\Source\Controller\Camera.cpp" />
@@ -422,8 +422,8 @@
     </ClCompile>
     <ClCompile Include="TrenchBroom.cpp" />
     <ClCompile Include="WinConsole.cpp" />
-    <ClCompile Include="WinFontManager.cpp" />
     <ClCompile Include="WinPreferences.cpp" />
+    <ClCompile Include="WinStringFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TrenchBroom.rc" />

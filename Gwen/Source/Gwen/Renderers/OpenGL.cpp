@@ -4,7 +4,8 @@
 #include "Gwen/Font.h"
 #include "Gwen/Texture.h"
 
-#include <math.h>
+#include <cmath>
+#include <cassert>
 
 #include "FreeImage/FreeImage.h"
 
@@ -101,6 +102,8 @@ namespace Gwen
         }
         
         void OpenGLCacheToTexture::FinishCacheTexture( Gwen::Controls::Base* control ) {
+            m_renderer->Flush();
+            
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             

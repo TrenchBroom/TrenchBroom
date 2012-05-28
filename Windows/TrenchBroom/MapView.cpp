@@ -27,8 +27,9 @@
 #include <cassert>
 #include "MapDocument.h"
 #include "MapView.h"
-#include "WinFontManager.h"
+#include "WinStringFactory.h"
 #include "GUI/EditorGui.h"
+#include "Renderer/FontManager.h"
 #include "Utilities/Utils.h"
 #include "Utilities/Console.h"
 #include <cassert>
@@ -52,7 +53,6 @@ BEGIN_MESSAGE_MAP(CMapView, CView)
 	ON_WM_MOUSEMOVE()
 	ON_WM_KEYDOWN()
 	ON_WM_KEYUP()
-	ON_WM_TIMER()
 	ON_WM_MOUSEWHEEL()
 	ON_WM_MOUSEHWHEEL()
 END_MESSAGE_MAP()
@@ -222,21 +222,24 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 //	string skinPath = TrenchBroom::appendPath(appDirectory, "DefaultSkin.png");
 	assert(TrenchBroom::fileExists(skinPath));
 
-	m_fontManager = new TrenchBroom::Renderer::WinFontManager();
+	TrenchBroom::Renderer::StringFactory* stringFactory = new TrenchBroom::Renderer::WinStringFactory(GetDC()->m_hDC);
+	m_fontManager = new TrenchBroom::Renderer::FontManager(stringFactory);
 	m_editorGui = new TrenchBroom::Gui::EditorGui(GetDocument()->editor(), *m_fontManager, skinPath);
-
-	SetTimer(1, 16, NULL);
+	m_editorGui->editorGuiRedraw += new TrenchBroom::Gui::EditorGui::EditorGuiEvent::Listener<CMapView>(this, &CMapView::editorGuiRedraw);
 
 	return 0;
 }
 
+void CMapView::editorGuiRedraw(TrenchBroom::Gui::EditorGui& editorGui)
+{
+	Invalidate(FALSE);
+}
 
 void CMapView::OnDestroy()
 {
 	CView::OnDestroy();
 
-	KillTimer(1);
-
+	m_editorGui->editorGuiRedraw -= new TrenchBroom::Gui::EditorGui::EditorGuiEvent::Listener<CMapView>(this, &CMapView::editorGuiRedraw);
 	delete m_editorGui;
 	delete m_fontManager;
 
@@ -334,10 +337,4 @@ void CMapView::key(UINT nChar, UINT nFlags, bool down)
 		Gwen::UnicodeChar chr = (Gwen::UnicodeChar)nChar;
 		m_editorGui->canvas()->InputCharacter(chr);
 	}
-}
-
-
-void CMapView::OnTimer(UINT_PTR nIDEvent)
-{
-	Invalidate(FALSE);
 }
