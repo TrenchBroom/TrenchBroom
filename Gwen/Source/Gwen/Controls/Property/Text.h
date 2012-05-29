@@ -26,7 +26,8 @@ namespace Gwen
 						m_TextBox = new TextBox( this );
 						m_TextBox->Dock( Pos::Fill );
 						m_TextBox->SetShouldDrawBackground( false );
-						m_TextBox->onTextChanged.Add( this, &BaseClass::OnPropertyValueChanged );
+                        m_TextBox->onReturnPressed.Add( this, &BaseClass::OnPropertyValueChanged );
+                        m_TextBox->onLostKeyboardFocus.Add( this, &BaseClass::OnPropertyValueChanged );
 					}
 
 					virtual UnicodeString GetPropertyValue()
@@ -49,7 +50,11 @@ namespace Gwen
 						return BaseClass::IsHovered() || m_TextBox->IsHovered();
 					}
 
-					TextBox* m_TextBox;
+                    virtual void SetPlaceholderString( const TextObject& str) {
+                        m_TextBox->SetPlaceholderString( str );
+                    }
+
+                    TextBox* m_TextBox;
 			};
 		}
 	}

@@ -32,12 +32,16 @@
 #include "Gwen/Controls/Label.h"
 #include "Gwen/Controls/ListBox.h"
 #include "Gwen/Controls/NumericUpDown.h"
+#include "Gwen/Controls/Properties.h"
+#include "Gwen/Controls/Property/Text.h"
 #include "Gwen/Controls/RadioButtonController.h"
 #include "Gwen/Controls/ScrollControl.h"
+#include "Gwen/Controls/Splitter.h"
 #include "Gwen/Controls/TabControl.h"
 #include "Gwen/Controls/TextBox.h"
 #include "Gwen/Events.h"
 #include "Gwen/Platform.h"
+#include "GUI/EntityPropertyTableControl.h"
 #include "GUI/SingleTextureControl.h"
 #include "GUI/TextureBrowserControl.h"
 #include <sstream>
@@ -125,6 +129,9 @@ namespace TrenchBroom {
 
         void Inspector::propertiesDidChange(const std::vector<Model::Entity*>& entities) {
             updateTextureControls();
+
+            Model::Selection& selection = m_editor.map().selection();
+            m_propertiesTable->setEntities(selection.entities());
         }
         
         void Inspector::brushesDidChange(const std::vector<Model::Brush*>& brushes) {
@@ -137,6 +144,9 @@ namespace TrenchBroom {
 
         void Inspector::selectionChanged(const Model::SelectionEventData& data) {
             updateTextureControls();
+            
+            Model::Selection& selection = m_editor.map().selection();
+            m_propertiesTable->setEntities(selection.entities());
         }
 
         void Inspector::textureManagerChanged(Model::Assets::TextureManager& textureManager) {
@@ -218,12 +228,37 @@ namespace TrenchBroom {
                 m_editor.textureManager().removeCollection(i);
         }
 
+        Gwen::Controls::Base* Inspector::createEntityInspector() {
+            Gwen::Controls::Base* entityPanel = new Gwen::Controls::Base(m_sectionTabControl);
+            entityPanel->Dock(Gwen::Pos::Fill);
+
+            Gwen::Controls::Splitter* splitter = new Gwen::Controls::Splitter(entityPanel, false, 250);
+            splitter->Dock(Gwen::Pos::Fill);
+            
+            Gwen::Controls::GroupBox* propertiesBox = new Gwen::Controls::GroupBox(splitter);
+            propertiesBox->SetText("Properties");
+            propertiesBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
+            propertiesBox->SetMargin(Gwen::Margin(0, 0, 0, 2));
+            splitter->SetPanel(0, propertiesBox);
+            
+            m_propertiesTable = new EntityPropertyTableControl(propertiesBox, m_editor);
+            m_propertiesTable->Dock(Gwen::Pos::Fill);
+            
+            Gwen::Controls::GroupBox* browserBox = new Gwen::Controls::GroupBox(splitter);
+            browserBox->SetText("Browser");
+            browserBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
+            browserBox->SetMargin(Gwen::Margin(0, 2, 0, 0));
+            splitter->SetPanel(1, browserBox);
+            
+            return entityPanel;
+        }
+        
         Gwen::Controls::Base* Inspector::createFaceInspector() {
             Gwen::Controls::Base* facePanel = new Gwen::Controls::Base(m_sectionTabControl);
             
             // Face properties box
             Gwen::Controls::GroupBox* facePropertiesBox = new Gwen::Controls::GroupBox(facePanel);
-            facePropertiesBox->SetText("Face Properties");
+            facePropertiesBox->SetText("Properties");
             facePropertiesBox->Dock(Gwen::Pos::Top);
             facePropertiesBox->SetHeight(187);
             facePropertiesBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
@@ -381,12 +416,13 @@ namespace TrenchBroom {
         }
         
         Inspector::Inspector(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
-            SetMargin(Gwen::Margin(5, 5, 5, 5));
             m_sectionTabControl = new Gwen::Controls::TabControl(this);
             m_sectionTabControl->Dock(Gwen::Pos::Fill);
             
             m_sectionTabControl->AddPage("Map");
-            m_sectionTabControl->AddPage("Entity");
+            
+            Gwen::Controls::Base* entityInspector = createEntityInspector();
+            m_sectionTabControl->AddPage("Entity", entityInspector);
             m_sectionTabControl->AddPage("Brush");
 
             Gwen::Controls::Base* faceInspector = createFaceInspector();

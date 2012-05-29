@@ -49,6 +49,8 @@ namespace Gwen
 					{
 						DoChanged();
 					}
+                
+                    virtual void SetPlaceholderString( const TextObject& str) {};
 
 					Event::Caller	onChange;
 			};

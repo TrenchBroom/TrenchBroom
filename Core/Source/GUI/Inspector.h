@@ -51,12 +51,15 @@ namespace TrenchBroom {
     }
     
     namespace Gui {
+        class EntityPropertyTableControl;
         class SingleTextureControl;
         class TextureBrowserControl;
         
         class Inspector : public Gwen::Controls::Base {
         private:
             Gwen::Controls::TabControl* m_sectionTabControl;
+            
+            EntityPropertyTableControl* m_propertiesTable;
             
             SingleTextureControl* m_textureView;
             Gwen::Controls::Label* m_textureLabel;
@@ -98,6 +101,7 @@ namespace TrenchBroom {
             void onTextureWadChosen(const Gwen::String& path);
             void onRemoveTextureWadButtonPressed(Gwen::Controls::Base* control);
             
+            Gwen::Controls::Base* createEntityInspector();
             Gwen::Controls::Base* createFaceInspector();
         public:
             Inspector(Gwen::Controls::Base* parent, Controller::Editor& editor);

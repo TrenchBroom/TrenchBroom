@@ -166,6 +166,9 @@ namespace TrenchBroom {
             const vector<Entity*>& entities = m_selection->entities();
             if (entities.empty()) return;
 
+            m_undoManager->begin("Set Entity Property");
+            m_undoManager->addSnapshot(*this);
+
             vector<Entity*> changedEntities;
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
@@ -181,6 +184,8 @@ namespace TrenchBroom {
                 }
                 if (m_postNotifications) propertiesDidChange(changedEntities);
             }
+            
+            m_undoManager->end();
         }
 
         void Map::addBrushesToEntity(Entity& entity) {

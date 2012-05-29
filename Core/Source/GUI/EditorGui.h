@@ -20,14 +20,26 @@
 #ifndef TrenchBroom_MapGui_h
 #define TrenchBroom_MapGui_h
 
-#include "Gwen/Skins/Simple.h"
-#include "Gwen/Skins/TexturedBase.h"
-#include "Gwen/Renderers/OpenGL_FTGL.h"
-#include "Gwen/Controls/Canvas.h"
 #include "Gwen/Events.h"
 #include "Utilities/Event.h"
 
 using namespace std;
+
+namespace Gwen {
+    namespace Renderer {
+        class OpenGL;
+    }
+    
+    namespace Skin {
+        class TexturedBase;
+    }
+    
+    namespace Controls {
+        class Base;
+        class Canvas;
+        class Splitter;
+    }
+}
 
 namespace TrenchBroom {
     namespace Controller {
@@ -41,7 +53,6 @@ namespace TrenchBroom {
     namespace Gui {
         class Inspector;
         class MapRendererControl;
-        class Splitter;
 
         class EditorGui : public Gwen::Event::Handler {
         private:
@@ -49,7 +60,7 @@ namespace TrenchBroom {
             Gwen::Renderer::OpenGL* m_renderer;
             Gwen::Skin::TexturedBase* m_skin;
             Gwen::Controls::Canvas* m_canvas;
-            Splitter* m_splitter;
+            Gwen::Controls::Splitter* m_splitter;
             MapRendererControl* m_mapRenderer;
             Inspector* m_inspector;
             void onCanvasRedraw(Gwen::Controls::Base* control);

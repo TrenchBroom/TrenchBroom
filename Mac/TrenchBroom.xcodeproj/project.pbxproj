@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		4800C49B156A303000991875 /* ButtonStrip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4800C49A156A303000991875 /* ButtonStrip.cpp */; };
+		480963D8157421EB0091C481 /* Splitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480963D6157421EA0091C481 /* Splitter.cpp */; };
+		480963DB1574AB5A0091C481 /* EntityPropertyTableControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480963DA1574AB5A0091C481 /* EntityPropertyTableControl.cpp */; };
 		480ED5311549C7E4003CA78F /* MacPreferences.mm in Sources */ = {isa = PBXBuildFile; fileRef = 480ED5301549C7E4003CA78F /* MacPreferences.mm */; };
 		480ED5351549CEE4003CA78F /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 480ED5341549CEE4003CA78F /* AppDelegate.mm */; };
 		4812004E1538636900181D66 /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4812004D1538636900181D66 /* ProgressWindow.xib */; };
@@ -20,7 +22,6 @@
 		4825B427153AE59F007E3AE1 /* SelectionTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B3C9153AE59F007E3AE1 /* SelectionTool.cpp */; };
 		4825B428153AE59F007E3AE1 /* EditorGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B3CD153AE59F007E3AE1 /* EditorGui.cpp */; };
 		4825B429153AE59F007E3AE1 /* MapRendererControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B3CF153AE59F007E3AE1 /* MapRendererControl.cpp */; };
-		4825B42A153AE59F007E3AE1 /* Splitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B3D1153AE59F007E3AE1 /* Splitter.cpp */; };
 		4825B42B153AE59F007E3AE1 /* EntityDefinitionParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B3D4153AE59F007E3AE1 /* EntityDefinitionParser.cpp */; };
 		4825B42C153AE59F007E3AE1 /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B3D6153AE59F007E3AE1 /* MapParser.cpp */; };
 		4825B42D153AE59F007E3AE1 /* Pak.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B3D8153AE59F007E3AE1 /* Pak.cpp */; };
@@ -161,6 +162,10 @@
 /* Begin PBXFileReference section */
 		4800C498156A302000991875 /* ButtonStrip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ButtonStrip.h; sourceTree = "<group>"; };
 		4800C49A156A303000991875 /* ButtonStrip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ButtonStrip.cpp; sourceTree = "<group>"; };
+		480963D6157421EA0091C481 /* Splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Splitter.cpp; sourceTree = "<group>"; };
+		480963D7157421EA0091C481 /* Splitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Splitter.h; sourceTree = "<group>"; };
+		480963D91574AB3F0091C481 /* EntityPropertyTableControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityPropertyTableControl.h; sourceTree = "<group>"; };
+		480963DA1574AB5A0091C481 /* EntityPropertyTableControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertyTableControl.cpp; sourceTree = "<group>"; };
 		480ED52F1549C7E4003CA78F /* MacPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacPreferences.h; sourceTree = "<group>"; };
 		480ED5301549C7E4003CA78F /* MacPreferences.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacPreferences.mm; sourceTree = "<group>"; };
 		480ED5331549CEE4003CA78F /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -187,8 +192,6 @@
 		4825B3CE153AE59F007E3AE1 /* EditorGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorGui.h; sourceTree = "<group>"; };
 		4825B3CF153AE59F007E3AE1 /* MapRendererControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapRendererControl.cpp; sourceTree = "<group>"; };
 		4825B3D0153AE59F007E3AE1 /* MapRendererControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapRendererControl.h; sourceTree = "<group>"; };
-		4825B3D1153AE59F007E3AE1 /* Splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Splitter.cpp; sourceTree = "<group>"; };
-		4825B3D2153AE59F007E3AE1 /* Splitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Splitter.h; sourceTree = "<group>"; };
 		4825B3D4153AE59F007E3AE1 /* EntityDefinitionParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityDefinitionParser.cpp; sourceTree = "<group>"; };
 		4825B3D5153AE59F007E3AE1 /* EntityDefinitionParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionParser.h; sourceTree = "<group>"; };
 		4825B3D6153AE59F007E3AE1 /* MapParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapParser.cpp; sourceTree = "<group>"; };
@@ -536,14 +539,14 @@
 				48953FE31567CFE2006DD2E3 /* CellLayout.h */,
 				4825B3CD153AE59F007E3AE1 /* EditorGui.cpp */,
 				4825B3CE153AE59F007E3AE1 /* EditorGui.h */,
+				480963DA1574AB5A0091C481 /* EntityPropertyTableControl.cpp */,
+				480963D91574AB3F0091C481 /* EntityPropertyTableControl.h */,
 				488E65E41563C6A600B4E72A /* Inspector.cpp */,
 				488E65E31563C67A00B4E72A /* Inspector.h */,
 				4825B3CF153AE59F007E3AE1 /* MapRendererControl.cpp */,
 				4825B3D0153AE59F007E3AE1 /* MapRendererControl.h */,
 				488E65EC15641FA400B4E72A /* SingleTextureControl.cpp */,
 				488E65EB15641E4400B4E72A /* SingleTextureControl.h */,
-				4825B3D1153AE59F007E3AE1 /* Splitter.cpp */,
-				4825B3D2153AE59F007E3AE1 /* Splitter.h */,
 				48953FE01567CE7A006DD2E3 /* TextureBrowserControl.h */,
 				48953FE11567CE9C006DD2E3 /* TextureBrowserControl.cpp */,
 			);
@@ -799,6 +802,8 @@
 				4825B4AE153AE5E9007E3AE1 /* ScrollControl.h */,
 				4825B4AF153AE5E9007E3AE1 /* Slider.cpp */,
 				4825B4B0153AE5E9007E3AE1 /* Slider.h */,
+				480963D6157421EA0091C481 /* Splitter.cpp */,
+				480963D7157421EA0091C481 /* Splitter.h */,
 				4825B4B1153AE5E9007E3AE1 /* SplitterBar.cpp */,
 				4825B4B2153AE5E9007E3AE1 /* SplitterBar.h */,
 				4825B4B3153AE5E9007E3AE1 /* StatusBar.h */,
@@ -1128,7 +1133,6 @@
 				4825B427153AE59F007E3AE1 /* SelectionTool.cpp in Sources */,
 				4825B428153AE59F007E3AE1 /* EditorGui.cpp in Sources */,
 				4825B429153AE59F007E3AE1 /* MapRendererControl.cpp in Sources */,
-				4825B42A153AE59F007E3AE1 /* Splitter.cpp in Sources */,
 				4825B42B153AE59F007E3AE1 /* EntityDefinitionParser.cpp in Sources */,
 				4825B42C153AE59F007E3AE1 /* MapParser.cpp in Sources */,
 				4825B42D153AE59F007E3AE1 /* Pak.cpp in Sources */,
@@ -1249,6 +1253,8 @@
 				48953FE21567CE9C006DD2E3 /* TextureBrowserControl.cpp in Sources */,
 				4800C49B156A303000991875 /* ButtonStrip.cpp in Sources */,
 				48DC47C6156D341C000C2D2F /* MacStringFactory.mm in Sources */,
+				480963D8157421EB0091C481 /* Splitter.cpp in Sources */,
+				480963DB1574AB5A0091C481 /* EntityPropertyTableControl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

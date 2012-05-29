@@ -13,8 +13,11 @@ GWEN_CONTROL_CONSTRUCTOR( SplitterBar )
 
 void SplitterBar::Render( Skin::Base* skin )
 {
-	if ( ShouldDrawBackground() )
-		skin->DrawButton( this, true, false, IsDisabled() );
+	if ( ShouldDrawBackground() ) {
+//		skin->DrawButton( this, true, false, IsDisabled() );
+        skin->GetRender()->SetDrawColor( Gwen::Color( 100, 100, 100, 255 ) );
+        skin->GetRender()->DrawFilledRect( GetRenderBounds() );
+    }
 }
 
 void SplitterBar::Layout( Skin::Base* /*skin*/ )

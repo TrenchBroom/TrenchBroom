@@ -48,6 +48,7 @@ namespace TrenchBroom {
         
         class Map;
         class Brush;
+        
         class Entity : public MapObject {
         private:
             EntityDefinitionPtr m_entityDefinition;
@@ -89,7 +90,7 @@ namespace TrenchBroom {
             void setMap(Map* quakeMap);
             const vector<Brush*>& brushes() const;
             
-            const map<string, string> properties() const;
+            const map<string, string>& properties() const;
             const string* propertyForKey(const string& key) const;
             bool propertyWritable(const string& key) const;
             bool propertyDeletable(const string& key) const;

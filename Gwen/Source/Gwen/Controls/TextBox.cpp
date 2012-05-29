@@ -276,6 +276,16 @@ bool TextBox::OnKeyEnd( bool /*bDown*/ )
 	return true;
 }
 
+void TextBox::OnLostKeyboardFocus() {
+    BaseClass::OnLostKeyboardFocus();
+    onLostKeyboardFocus.Call(this);
+}
+
+void TextBox::OnKeyboardFocus() {
+    BaseClass::OnKeyboardFocus();
+    onKeyboardFocus.Call(this);
+}
+
 void TextBox::SetCursorPos( int i )
 {
 	if ( m_iCursorPos == i ) return;

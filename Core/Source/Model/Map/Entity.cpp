@@ -144,7 +144,7 @@ namespace TrenchBroom {
             return m_brushes;
         }
 
-        const map<string, string> Entity::properties() const {
+        const map<string, string>& Entity::properties() const {
             return m_properties;
         }
 

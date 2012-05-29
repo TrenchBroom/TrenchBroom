@@ -1,28 +1,14 @@
 /*
- Copyright (C) 2010-2012 Kristian Duske
- 
- This file is part of TrenchBroom.
- 
- TrenchBroom is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
- 
- TrenchBroom is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ GWEN
+ Copyright (c) 2012 Kristian Duske
+ See license in Gwen.h
  */
 
 #include "Splitter.h"
 #include "Gwen/Controls/SplitterBar.h"
-#include "Utilities/Console.h"
 
-namespace TrenchBroom {
-    namespace Gui {
+namespace Gwen {
+    namespace Controls {
         Splitter::Splitter(Gwen::Controls::Base* parent, bool horizontal, int initialPosition) : Base(parent), m_horizontal(horizontal), m_initialPosition(initialPosition) {
             m_splitter = new Gwen::Controls::SplitterBar(this);
             m_splitter->onDragged.Add(this, &Splitter::OnSplitterMoved);
@@ -124,15 +110,18 @@ namespace TrenchBroom {
             
             if (m_zoomedSection == -1) {
                 if (m_sections[0] != NULL) {
-                    if (m_horizontal) m_sections[0]->SetBounds(0, 0, m_splitter->X(), Height());
-                    else m_sections[0]->SetBounds(0, 0, Width(), m_splitter->Y());
+                    const Gwen::Margin& margin = m_sections[0]->GetMargin();
+                    if (m_horizontal) m_sections[0]->SetBounds(margin.left, margin.top, m_splitter->X() - margin.left - margin.right, Height() - margin.top - margin.bottom);
+                    else m_sections[0]->SetBounds(margin.left, margin.top, Width() - margin.left - margin.right, m_splitter->Y() - margin.top - margin.bottom);
                 }
                 if (m_sections[1] != NULL) {
-                    if (m_horizontal) m_sections[1]->SetBounds(m_splitter->X() + m_barSize, 0, Width() - (m_splitter->X() + m_barSize), Height());
-                    else m_sections[1]->SetBounds(0, m_splitter->Y() + m_barSize, Width(), Height() - (m_splitter->Y() + m_barSize));
+                    const Gwen::Margin& margin = m_sections[1]->GetMargin();
+                    if (m_horizontal) m_sections[1]->SetBounds(m_splitter->X() + m_barSize + margin.left, margin.top, Width() - m_splitter->X() - m_barSize - margin.left - margin.right, Height() - margin.top - margin.bottom);
+                    else m_sections[1]->SetBounds(margin.left, m_splitter->Y() + m_barSize + margin.top, Width() - margin.left - margin.right, Height() - m_splitter->Y() - m_barSize - margin.top - margin.bottom);
                 }
             } else {
-                m_sections[m_zoomedSection]->SetBounds(0, 0, Width(), Height());
+                const Gwen::Margin& margin = m_sections[m_zoomedSection]->GetMargin();
+                m_sections[m_zoomedSection]->SetBounds(margin.left, margin.top, Width() - margin.left - margin.right, Height() - margin.top - margin.bottom);
             }
         }
         

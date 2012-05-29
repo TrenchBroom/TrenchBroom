@@ -18,12 +18,14 @@
  */
 
 #include "EditorGui.h"
+#include "Gwen/Controls/Splitter.h"
 #include "Controller/Editor.h"
 #include "Gui/MapRendererControl.h"
-#include "Gui/Splitter.h"
 #include "Gui/Inspector.h"
 #include "Renderer/FontManager.h"
 #include "Gwen/Platform.h"
+#include "Gwen/Renderers/OpenGL_FTGL.h"
+#include "Gwen/Skins/TexturedBase.h"
 
 namespace TrenchBroom {
     namespace Gui {
@@ -39,7 +41,7 @@ namespace TrenchBroom {
             m_skin->Init(skinPath);
             m_skin->SetDefaultFont(Gwen::Platform::GetDefaultFontFace(), Gwen::Platform::GetDefaultFontSize());
             m_canvas = new Gwen::Controls::Canvas(m_skin);
-            m_splitter = new Splitter(m_canvas, true, -400);
+            m_splitter = new Gwen::Controls::Splitter(m_canvas, true, -400);
             m_mapRenderer = new MapRendererControl(m_splitter, m_editor, fontManager);
             m_splitter->SetPanel(0, m_mapRenderer);
             m_inspector = new Inspector(m_splitter, editor);
