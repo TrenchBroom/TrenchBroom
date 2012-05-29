@@ -217,7 +217,9 @@ namespace TrenchBroom {
 
         void Entity::setProperties(const map<string, string>& properties, bool replace) {
             if (replace) m_properties.clear();
-            m_properties.insert(properties.begin(), properties.end());
+            map<string, string>::const_iterator it;
+            for (it = properties.begin(); it != properties.end(); ++it)
+                setProperty(it->first, it->second);
         }
 
         void Entity::deleteProperty(const string& key) {

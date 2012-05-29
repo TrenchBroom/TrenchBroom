@@ -28,6 +28,7 @@ namespace Gwen
 						m_TextBox->SetShouldDrawBackground( false );
                         m_TextBox->onReturnPressed.Add( this, &BaseClass::OnPropertyValueChanged );
                         m_TextBox->onLostKeyboardFocus.Add( this, &BaseClass::OnPropertyValueChanged );
+                        m_TextBox->onKeyboardFocus.Add(this, &BaseClass::OnBeginEditingPropertyValue);
 					}
 
 					virtual UnicodeString GetPropertyValue()

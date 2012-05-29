@@ -1,8 +1,8 @@
 /*
-	GWEN
-	Copyright (c) 2010 Facepunch Studios
-	See license in Gwen.h
-*/
+ GWEN
+ Copyright (c) 2010 Facepunch Studios
+ See license in Gwen.h
+ */
 
 #pragma once
 #ifndef GWEN_CONTROLS_PROPERTY_BASEPROPERTY_H
@@ -22,37 +22,47 @@ namespace Gwen
 		{
 			class Base : public Gwen::Controls::Base
 			{
-				public:
-
-					GWEN_CONTROL_INLINE( Base, Gwen::Controls::Base )
-					{
-						SetHeight( 17 );
-					}
-
-					virtual String GetPropertyValueAnsi()
-					{
-						return Gwen::Utility::UnicodeToString( GetPropertyValue() );
-					}
-
-					virtual UnicodeString GetPropertyValue() = 0;
-
-					virtual void SetPropertyValue( const TextObject& v, bool bFireChangeEvents = false ) = 0;
-
-					virtual bool IsEditing() = 0;
-
-					virtual void DoChanged()
-					{
-						onChange.Call( this );
-					}
-
-					void OnPropertyValueChanged( Gwen::Controls::Base* /*control*/ )
-					{
-						DoChanged();
-					}
+            protected:
+                UnicodeString m_oldPropertyValue;
+            public:
                 
-                    virtual void SetPlaceholderString( const TextObject& str) {};
-
-					Event::Caller	onChange;
+                GWEN_CONTROL_INLINE( Base, Gwen::Controls::Base )
+                {
+                    SetHeight( 17 );
+                }
+                
+                virtual String GetPropertyValueAnsi()
+                {
+                    return Gwen::Utility::UnicodeToString( GetPropertyValue() );
+                }
+                
+                virtual UnicodeString GetPropertyValue() = 0;
+                
+                virtual void SetPropertyValue( const TextObject& v, bool bFireChangeEvents = false ) = 0;
+                
+                virtual bool IsEditing() = 0;
+                
+                virtual void DoChanged()
+                {
+                    if (GetPropertyValue() != m_oldPropertyValue) {
+                        onChange.Call( this );
+                        m_oldPropertyValue = GetPropertyValue();
+                    }
+                }
+                
+                void OnBeginEditingPropertyValue (Gwen::Controls::Base* /*control*/ )
+                {
+                    m_oldPropertyValue = GetPropertyValue();
+                }
+                
+                void OnPropertyValueChanged( Gwen::Controls::Base* /*control*/ )
+                {
+                    DoChanged();
+                }
+                
+                virtual void SetPlaceholderString( const TextObject& str) {};
+                
+                Event::Caller	onChange;
 			};
 		}
 	}

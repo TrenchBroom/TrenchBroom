@@ -93,9 +93,10 @@ namespace TrenchBroom {
         EntityPropertyTableControl::EntityPropertyTableControl(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
             m_scroller = new Gwen::Controls::ScrollControl(this);
             m_scroller->Dock(Gwen::Pos::Fill);
+            m_scroller->SetScroll(false, true);
             
             m_properties = new Gwen::Controls::Properties(m_scroller);
-            m_properties->Dock(Gwen::Pos::Fill);
+            m_properties->Dock(Gwen::Pos::Top);
             
             updateProperties();
         }
