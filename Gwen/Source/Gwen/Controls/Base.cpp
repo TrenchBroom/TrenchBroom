@@ -751,7 +751,8 @@ void Base::RecurseLayout( Skin::Base* skin )
 	rBounds.y += m_Padding.top;
 	rBounds.h -= m_Padding.top + m_Padding.bottom;
 
-	for (Base::List::iterator iter = Children.begin(); iter != Children.end(); ++iter)
+    Base::List LayoutChildren = GetChildrenForLayout();
+	for (Base::List::iterator iter = LayoutChildren.begin(); iter != LayoutChildren.end(); ++iter)
 	{
 		Base* pChild = *iter;
 
@@ -813,7 +814,7 @@ void Base::RecurseLayout( Skin::Base* skin )
 	//
 	// Fill uses the left over space, so do that now.
 	//
-	for (Base::List::iterator iter = Children.begin(); iter != Children.end(); ++iter)
+	for (Base::List::iterator iter = LayoutChildren.begin(); iter != LayoutChildren.end(); ++iter)
 	{
 		Base* pChild = *iter;
 		int iDock = pChild->GetDock();

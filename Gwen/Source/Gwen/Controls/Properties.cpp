@@ -9,6 +9,8 @@
 #include "Gwen/Skin.h"
 #include "Gwen/Controls/Properties.h"
 #include "Gwen/Utility.h"
+#include <algorithm>
+#include <vector>
 
 using namespace Gwen;
 using namespace Gwen::Controls;
@@ -20,6 +22,39 @@ GWEN_CONTROL_CONSTRUCTOR( Properties )
 	m_SplitterBar->SetCursor( Gwen::CursorType::SizeWE );
 	m_SplitterBar->onDragged.Add( this, &Properties::OnSplitterMoved );
 	m_SplitterBar->SetShouldDrawBackground( false );
+    m_sorted = false;
+}
+
+bool Properties::CompareControls::operator() (Gwen::Controls::Base* first, Gwen::Controls::Base* second) {
+    PropertyRow* firstRow = gwen_cast<PropertyRow>(first);
+    PropertyRow* secondRow = gwen_cast<PropertyRow>(second);
+    
+    if (firstRow == NULL && secondRow == NULL)
+        return false;
+    
+    if (firstRow == NULL)
+        return false;
+    
+    if (secondRow == NULL)
+        return true;
+    
+    return firstRow->GetLabel()->GetText().compare(secondRow->GetLabel()->GetText()) <= 0;
+}
+
+Base::List Properties::GetChildrenForLayout()
+{
+    if (!m_sorted)
+        return BaseClass::GetChildrenForLayout();
+    
+    std::vector<Gwen::Controls::Base*> SortedChildren;
+    CompareControls compare;
+    
+    SortedChildren.insert(SortedChildren.begin(), Children.begin(), Children.end());
+    std::sort(SortedChildren.begin(), SortedChildren.end(), compare);
+    
+    Base::List Result;
+    Result.insert(Result.begin(), SortedChildren.begin(), SortedChildren.end());
+    return Result;
 }
 
 void Properties::PostLayout( Gwen::Skin::Base* /*skin*/ )
@@ -73,6 +108,16 @@ void Properties::Clear()
 		row->DelayedDelete();
 	}
 }
+
+void Properties::SetSorted(bool sorted)
+{
+    if (m_sorted == sorted)
+        return;
+    
+    m_sorted = sorted;
+    Invalidate();
+}
+
 
 class PropertyRowLabel : public Label 
 {

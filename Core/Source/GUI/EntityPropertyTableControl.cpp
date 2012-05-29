@@ -97,6 +97,7 @@ namespace TrenchBroom {
             
             m_properties = new Gwen::Controls::Properties(m_scroller);
             m_properties->Dock(Gwen::Pos::Top);
+            m_properties->SetSorted(true);
             
             updateProperties();
         }

@@ -29,6 +29,8 @@ namespace Gwen
         public:
             
             GWEN_CONTROL( Properties, Base );
+
+            virtual Base::List GetChildrenForLayout();
             
             virtual void PostLayout( Gwen::Skin::Base* skin );
             
@@ -39,11 +41,19 @@ namespace Gwen
             
             virtual void Clear();
             
+            virtual void SetSorted(bool sorted);
+            
         protected:
+            
+            struct CompareControls {
+                bool operator() (Gwen::Controls::Base* first, Gwen::Controls::Base* second);
+            };
             
             virtual void OnSplitterMoved( Controls::Base * control );
             
             Controls::SplitterBar*	m_SplitterBar;
+            
+            bool m_sorted;
             
 		};
         
