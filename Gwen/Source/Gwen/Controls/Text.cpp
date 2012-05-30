@@ -79,10 +79,12 @@ void Text::Layout( Skin::Base* /*skin*/ )
 
 Gwen::Point Text::GetCharacterPosition( int iChar )
 {
+    /*
 	if ( Length() == 0 || iChar == 0 )
 	{
 		return Gwen::Point( 1, 0 );
 	}
+     */
 
 	UnicodeString sub = m_String.substr( 0, iChar );
 	Gwen::Point p = GetSkin()->GetRender()->MeasureText( GetFont(), sub );

@@ -61,7 +61,7 @@ namespace Gwen {
 			Gwen::String convertedText = Gwen::Utility::UnicodeToString( text );
 
             FTBBox bounds = fontInfo.font->BBox(convertedText.c_str());
-            int length = static_cast<int>(ceilf(bounds.Upper().Xf() - bounds.Lower().Xf()));
+            int length = static_cast<int>(ceilf(bounds.Upper().Xf() - bounds.Lower().Xf())) - 1;
             int height = static_cast<int>(ceilf(fontInfo.height)) + 2;
             
             return Gwen::Point(length, height);
