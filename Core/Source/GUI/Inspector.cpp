@@ -18,13 +18,7 @@
  */
 
 #include "Inspector.h"
-#include "Controller/Editor.h"
-#include "Model/Assets/Texture.h"
-#include "Model/Map/Map.h"
-#include "Model/Map/Face.h"
-#include "Model/Selection.h"
-#include "Model/Undo/UndoManager.h"
-#include "Utilities/Console.h"
+
 #include "Gwen/Controls/Button.h"
 #include "Gwen/Controls/ButtonStrip.h"
 #include "Gwen/Controls/CheckBox.h"
@@ -41,9 +35,19 @@
 #include "Gwen/Controls/TextBox.h"
 #include "Gwen/Events.h"
 #include "Gwen/Platform.h"
+
+#include "Controller/Editor.h"
+#include "GUI/EntityBrowserControl.h"
 #include "GUI/EntityPropertyTableControl.h"
 #include "GUI/SingleTextureControl.h"
 #include "GUI/TextureBrowserControl.h"
+#include "Model/Assets/Texture.h"
+#include "Model/Map/Map.h"
+#include "Model/Map/Face.h"
+#include "Model/Selection.h"
+#include "Model/Undo/UndoManager.h"
+#include "Utilities/Console.h"
+
 #include <sstream>
 
 namespace TrenchBroom {
@@ -250,6 +254,9 @@ namespace TrenchBroom {
             browserBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
             browserBox->SetMargin(Gwen::Margin(0, 2, 0, 0));
             splitter->SetPanel(1, browserBox);
+            
+            m_entityBrowser = new EntityBrowserControl(browserBox, m_editor);
+            m_entityBrowser->Dock(Gwen::Pos::Fill);
             
             return entityPanel;
         }

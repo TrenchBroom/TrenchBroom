@@ -52,6 +52,7 @@ namespace TrenchBroom {
     
     namespace Gui {
         class EntityPropertyTableControl;
+        class EntityBrowserControl;
         class SingleTextureControl;
         class TextureBrowserControl;
         
@@ -60,6 +61,7 @@ namespace TrenchBroom {
             Gwen::Controls::TabControl* m_sectionTabControl;
             
             EntityPropertyTableControl* m_propertiesTable;
+            EntityBrowserControl* m_entityBrowser;
             
             SingleTextureControl* m_textureView;
             Gwen::Controls::Label* m_textureLabel;

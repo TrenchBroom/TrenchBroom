@@ -22,9 +22,53 @@
 
 #include "Gwen/Controls/Base.h"
 
+#include "Model/Map/EntityDefinition.h"
+#include "GUI/CellLayout.h"
+#include "Utilities/SharedPointer.h"
+
+namespace Gwen {
+    namespace Controls {
+        class ScrollControl;
+    }
+}
+
 namespace TrenchBroom {
+    namespace Controller {
+        class Editor;
+    }
+    
     namespace Gui {
+        class EntityBrowserPanel : public Gwen::Controls::Base {
+        protected:
+            typedef std::tr1::shared_ptr<Gwen::Font> FontPtr;
+            typedef pair<Model::EntityDefinitionPtr, FontPtr> CellData;
+
+            Controller::Editor& m_editor;
+            CellLayout<CellData, void*> m_layout;
+            Gwen::Font* m_font;
+            
+            void reloadEntityDefinitions();
+        public:
+            EntityBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor);
+            virtual ~EntityBrowserPanel();
+
+            virtual void SetFont(Gwen::Font* font);
+            virtual Gwen::Font* GetFont();
+            virtual void SetPadding(const Gwen::Padding& padding);
+            virtual void OnBoundsChanged(Gwen::Rect oldBounds);
+            virtual void RenderOver(Gwen::Skin::Base* skin);
+        };
+        
         class EntityBrowserControl : public Gwen::Controls::Base {
+        protected:
+            Controller::Editor& m_editor;
+            EntityBrowserPanel* m_browserPanel;
+            Gwen::Controls::ScrollControl* m_browserScroller;
+        public:
+            EntityBrowserControl(Gwen::Controls::Base* parent, Controller::Editor& editor);
+            virtual ~EntityBrowserControl();
+            
+            virtual void Render(Gwen::Skin::Base* skin);
         };
     }
 }
