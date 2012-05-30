@@ -184,7 +184,7 @@ namespace TrenchBroom {
                 assert(index <= m_collections.size());
                 m_collections.insert(m_collections.begin() + index, collection);
                 reloadTextures();
-                textureManagerChanged(*this);
+                textureManagerDidChange(*this);
             }
 
             void TextureManager::removeCollection(unsigned int index) {
@@ -192,13 +192,13 @@ namespace TrenchBroom {
                 delete m_collections[index];
                 m_collections.erase(m_collections.begin() + index);
                 reloadTextures();
-                textureManagerChanged(*this);
+                textureManagerDidChange(*this);
             }
 
             void TextureManager::clear() {
                 m_textures.clear();
                 while (!m_collections.empty()) delete m_collections.back(), m_collections.pop_back();
-                textureManagerChanged(*this);
+                textureManagerDidChange(*this);
             }
 
             const vector<TextureCollection*>& TextureManager::collections() {

@@ -48,6 +48,9 @@ namespace TrenchBroom {
             static const string InfoOverlayFadeDistance;
             static const string SelectedInfoOverlayColor;
             static const string SelectedInfoOverlayFadeDistance;
+            static const string SelectedTextureColor;
+            static const string UsedTextureColor;
+            static const string OverriddenTextureColor;
             static const string RendererFontName;
             static const string RendererFontSize;
             static const string GridAlpha;
@@ -78,6 +81,10 @@ namespace TrenchBroom {
             float m_infoOverlayFadeDistance;
             Vec4f m_selectedInfoOverlayColor;
             float m_selectedInfoOverlayFadeDistance;
+            
+            Vec4f m_selectedTextureColor;
+            Vec4f m_usedTextureColor;
+            Vec4f m_overriddenTextureColor;
             
             string m_rendererFontName;
             int m_rendererFontSize;
@@ -144,6 +151,10 @@ namespace TrenchBroom {
             float infoOverlayFadeDistance();
             const Vec4f& selectedInfoOverlayColor();
             float selectedInfoOverlayFadeDistance();
+            
+            const Vec4f& selectedTextureColor();
+            const Vec4f& usedTextureColor();
+            const Vec4f& overriddenTextureColor();
             
             const string& rendererFontName();
             unsigned int rendererFontSize();

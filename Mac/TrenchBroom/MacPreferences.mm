@@ -71,6 +71,9 @@ namespace TrenchBroom {
             setDictionaryValue(dict, InfoOverlayFadeDistance, m_infoOverlayFadeDistance);
             setDictionaryValue(dict, SelectedInfoOverlayColor, m_selectedInfoOverlayColor);
             setDictionaryValue(dict, SelectedInfoOverlayFadeDistance, m_selectedInfoOverlayFadeDistance);
+            setDictionaryValue(dict, SelectedTextureColor, m_selectedTextureColor);
+            setDictionaryValue(dict, UsedTextureColor, m_usedTextureColor);
+            setDictionaryValue(dict, OverriddenTextureColor, m_overriddenTextureColor);
             setDictionaryValue(dict, RendererFontName, m_rendererFontName);
             setDictionaryValue(dict, RendererFontSize, m_rendererFontSize);
             setDictionaryValue(dict, GridAlpha, m_gridAlpha);

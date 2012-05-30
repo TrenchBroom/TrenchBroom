@@ -46,6 +46,7 @@ namespace TrenchBroom {
             class Texture;
             class TextureCollection;
         }
+        class SelectionEventData;
     }
     
     namespace Gui {
@@ -64,10 +65,13 @@ namespace TrenchBroom {
             CellLayout<CellData, GroupData> m_layout;
             Model::Assets::Texture* m_selectedTexture;
             
-            void textureManagerChanged(Model::Assets::TextureManager& textureManager);
+            void selectionChanged(const Model::SelectionEventData& data);
+            void textureManagerDidChange(Model::Assets::TextureManager& textureManager);
+            void preferencesDidChange(const std::string& key);
             void addTexture(Model::Assets::Texture* texture);
             void reloadTextures();
             void renderTextureBorder(CellRow<CellData>::CellPtr cell);
+            virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);
             virtual void OnMouseClickLeft(int x, int y, bool down);
             virtual void OnTextureSelected();
         public:

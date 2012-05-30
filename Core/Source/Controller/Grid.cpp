@@ -29,10 +29,14 @@ namespace TrenchBroom {
         }
         
         void Grid::setSize(unsigned int size) {
+            if (m_size == size)
+                return;
+            
             if (size > MaxSize)
                 m_size = MaxSize;
             else
                 m_size = size;
+            gridDidChange(*this);
         }
 
         unsigned int Grid::actualSize() const {

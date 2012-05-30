@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Grid_h
 #define TrenchBroom_Grid_h
 
+#include "Utilities/Event.h"
 #include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
@@ -30,6 +31,8 @@ namespace TrenchBroom {
             unsigned int m_size;
             bool m_snap;
         public:
+            typedef Event<Grid&> GridEvent;
+
             Grid(unsigned int size) : m_size(size), m_snap(true) {}
             unsigned int size() const;
             void setSize(unsigned int size);
@@ -40,6 +43,8 @@ namespace TrenchBroom {
             float snapUp(float f);
             
             Vec3f moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& referencePoint, const Vec3f& curMousePoint);
+            
+            GridEvent gridDidChange;
         };
     }
 }

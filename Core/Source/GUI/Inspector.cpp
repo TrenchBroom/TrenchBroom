@@ -149,7 +149,7 @@ namespace TrenchBroom {
             m_propertiesTable->setEntities(selection.entities());
         }
 
-        void Inspector::textureManagerChanged(Model::Assets::TextureManager& textureManager) {
+        void Inspector::textureManagerDidChange(Model::Assets::TextureManager& textureManager) {
             updateTextureControls();
             updateTextureWadList();
         }
@@ -438,7 +438,7 @@ namespace TrenchBroom {
             map.facesDidChange                      += new Model::Map::FaceEvent::Listener<Inspector>(this, &Inspector::facesDidChange);
             selection.selectionAdded                += new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
             selection.selectionRemoved              += new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
-            textureManager.textureManagerChanged    += new Model::Assets::TextureManager::TextureManagerEvent::Listener<Inspector>(this, &Inspector::textureManagerChanged);
+            textureManager.textureManagerDidChange  += new Model::Assets::TextureManager::TextureManagerEvent::Listener<Inspector>(this, &Inspector::textureManagerDidChange);
             
             updateTextureControls();
             updateTextureWadList();
@@ -454,7 +454,7 @@ namespace TrenchBroom {
             map.facesDidChange                      -= new Model::Map::FaceEvent::Listener<Inspector>(this, &Inspector::facesDidChange);
             selection.selectionAdded                -= new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
             selection.selectionRemoved              -= new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
-            textureManager.textureManagerChanged    -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<Inspector>(this, &Inspector::textureManagerChanged);
+            textureManager.textureManagerDidChange  -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<Inspector>(this, &Inspector::textureManagerDidChange);
         }
     }
 }

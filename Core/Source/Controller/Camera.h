@@ -73,7 +73,7 @@ namespace TrenchBroom {
             void setNearPlane(float nearPlane);
             void setFarPlane(float farPlane);
             
-            CameraEvent cameraChanged;
+            CameraEvent cameraDidChange;
         };
     }
 }

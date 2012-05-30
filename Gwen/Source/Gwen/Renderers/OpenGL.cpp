@@ -68,12 +68,20 @@ namespace Gwen
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, bounds.w, bounds.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+            } else {
+                glBindTexture(GL_TEXTURE_2D, *textureId);
             }
+
+            // copy the background from the back buffer to the texture
+            Gwen::Point absPos = control->LocalPosToCanvas(Gwen::Point(0, 0));
+            absPos.y = m_renderer->GetViewport().h - absPos.y - bounds.h; // convert Gwen coords to OpenGL coords
+            glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, absPos.x, absPos.y, bounds.w, bounds.h, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
 
             glBindFramebuffer(GL_FRAMEBUFFER, m_frameBufferId);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *textureId, 0);
 
+            // set up for 2D rendering into the texture
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
@@ -86,9 +94,6 @@ namespace Gwen
             glViewport(0, 0, bounds.w, bounds.h);
             glDisable(GL_SCISSOR_TEST);
 
-            glClearColor(0, 0, 0, 0);
-            glClear(GL_COLOR_BUFFER_BIT);
-            
             m_viewportStack.push_back(m_renderer->GetViewport());
             m_renderer->SetViewport(bounds);
             

@@ -133,6 +133,7 @@
 		4856B01615659BB7004272EF /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4856B01515659BB7004272EF /* libfreeimage.a */; };
 		4856B01815659BC2004272EF /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4856B01715659BC2004272EF /* libfreetype.a */; };
 		4856B01A15659BC8004272EF /* libftgl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4856B01915659BC8004272EF /* libftgl.a */; };
+		486571AF1575558C00698829 /* EntityBrowserControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571AE1575558C00698829 /* EntityBrowserControl.cpp */; };
 		48886BA51545FE0A006A781B /* EditorHolder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48886BA41545FE09006A781B /* EditorHolder.mm */; };
 		488E65B6156301F300B4E72A /* PositioningGuideFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */; };
 		488E65E51563C6A600B4E72A /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65E41563C6A600B4E72A /* Inspector.cpp */; };
@@ -442,6 +443,8 @@
 		4856B01515659BB7004272EF /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = Lib/libfreeimage.a; sourceTree = "<group>"; };
 		4856B01715659BC2004272EF /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = Lib/libfreetype.a; sourceTree = "<group>"; };
 		4856B01915659BC8004272EF /* libftgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libftgl.a; path = Lib/libftgl.a; sourceTree = "<group>"; };
+		486571AC1575557600698829 /* EntityBrowserControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityBrowserControl.h; sourceTree = "<group>"; };
+		486571AE1575558C00698829 /* EntityBrowserControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityBrowserControl.cpp; sourceTree = "<group>"; };
 		48886BA31545FE09006A781B /* EditorHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorHolder.h; sourceTree = "<group>"; };
 		48886BA41545FE09006A781B /* EditorHolder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EditorHolder.mm; sourceTree = "<group>"; };
 		488E65B31563011E00B4E72A /* Figure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
@@ -539,6 +542,8 @@
 				48953FE31567CFE2006DD2E3 /* CellLayout.h */,
 				4825B3CD153AE59F007E3AE1 /* EditorGui.cpp */,
 				4825B3CE153AE59F007E3AE1 /* EditorGui.h */,
+				486571AE1575558C00698829 /* EntityBrowserControl.cpp */,
+				486571AC1575557600698829 /* EntityBrowserControl.h */,
 				480963DA1574AB5A0091C481 /* EntityPropertyTableControl.cpp */,
 				480963D91574AB3F0091C481 /* EntityPropertyTableControl.h */,
 				488E65E41563C6A600B4E72A /* Inspector.cpp */,
@@ -1255,6 +1260,7 @@
 				48DC47C6156D341C000C2D2F /* MacStringFactory.mm in Sources */,
 				480963D8157421EB0091C481 /* Splitter.cpp in Sources */,
 				480963DB1574AB5A0091C481 /* EntityPropertyTableControl.cpp in Sources */,
+				486571AF1575558C00698829 /* EntityBrowserControl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

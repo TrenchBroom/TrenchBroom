@@ -48,8 +48,9 @@ namespace TrenchBroom {
     }
 
     namespace Controller {
-        class Editor;
         class Camera;
+        class Editor;
+        class Grid;
         class TransientOptions;
     }
 
@@ -127,8 +128,10 @@ namespace TrenchBroom {
             void mapCleared(Model::Map& map);
             void selectionAdded(const Model::SelectionEventData& event);
             void selectionRemoved(const Model::SelectionEventData& event);
-            void textureManagerChanged(Model::Assets::TextureManager& textureManager);
-            void cameraChanged(Controller::Camera& camera);
+            void textureManagerDidChange(Model::Assets::TextureManager& textureManager);
+            void cameraDidChange(Controller::Camera& camera);
+            void gridDidChange(Controller::Grid& grid);
+            void preferencesDidChange(const std::string& name);
 
             void writeFaceVertices(RenderContext& context, Model::Face& face, VboBlock& block);
             unsigned int writeFaceIndices(RenderContext& context, Model::Face& face, VboBlock& block, unsigned int offset);

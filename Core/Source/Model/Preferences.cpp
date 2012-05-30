@@ -42,6 +42,9 @@ namespace TrenchBroom {
         const string Preferences::InfoOverlayFadeDistance           = "Renderer: info overlay fade distance";
         const string Preferences::SelectedInfoOverlayColor          = "Renderer: info overlay color (selected)";
         const string Preferences::SelectedInfoOverlayFadeDistance   = "Renderer: info overlay fade distance (selected)";
+        const string Preferences::SelectedTextureColor              = "Texture Browser: selected texture color";
+        const string Preferences::UsedTextureColor                  = "Texture Browser: used texture color";
+        const string Preferences::OverriddenTextureColor            = "Texture Browser: overridden texture color";
         const string Preferences::RendererFontName                  = "Renderer: font name";
         const string Preferences::RendererFontSize                  = "Renderer: font size";
         const string Preferences::GridAlpha                         = "Renderer: grid translucency";
@@ -61,12 +64,16 @@ namespace TrenchBroom {
             m_hiddenSelectedEntityBoundsColor = m_hiddenSelectedEdgeColor;
             m_selectionGuideColor = m_selectedEdgeColor;
             m_hiddenSelectionGuideColor = m_hiddenSelectedEdgeColor;
-            m_backgroundColor = Vec4f(0, 0, 0, 0);
+            m_backgroundColor = Vec4f(0, 0, 0, 1);
             
-            m_infoOverlayColor= Vec4f(1, 1, 1, 1);
+            m_infoOverlayColor = Vec4f(1, 1, 1, 1);
             m_infoOverlayFadeDistance = 400;
             m_selectedInfoOverlayColor = Vec4f(1, 0, 0, 1);
             m_selectedInfoOverlayFadeDistance = 2000;
+            
+            m_selectedTextureColor = Vec4f(0.8f, 0, 0, 1);
+            m_usedTextureColor = Vec4f(0.8f, 0.8f, 0, 1);
+            m_overriddenTextureColor = Vec4f(0.5f, 0.5f, 0.5f, 1);
             
             m_rendererFontName = "Arial.ttf";
             m_rendererFontSize = 11;
@@ -101,6 +108,9 @@ namespace TrenchBroom {
 			loadFloat(InfoOverlayFadeDistance, m_infoOverlayFadeDistance);
 			loadVec4f(SelectedInfoOverlayColor, m_selectedInfoOverlayColor);
 			loadFloat(SelectedInfoOverlayFadeDistance, m_selectedInfoOverlayFadeDistance);
+            loadVec4f(SelectedTextureColor, m_selectedTextureColor);
+            loadVec4f(UsedTextureColor, m_usedTextureColor);
+            loadVec4f(OverriddenTextureColor, m_overriddenTextureColor);
 			loadString(RendererFontName, m_rendererFontName);
 			loadInt(RendererFontSize, m_rendererFontSize);
 			loadFloat(GridAlpha, m_gridAlpha);
@@ -129,6 +139,9 @@ namespace TrenchBroom {
 			saveFloat(InfoOverlayFadeDistance, m_infoOverlayFadeDistance);
 			saveVec4f(SelectedInfoOverlayColor, m_selectedInfoOverlayColor);
 			saveFloat(SelectedInfoOverlayFadeDistance, m_selectedInfoOverlayFadeDistance);
+            saveVec4f(SelectedTextureColor, m_selectedTextureColor);
+            saveVec4f(UsedTextureColor, m_usedTextureColor);
+            saveVec4f(OverriddenTextureColor, m_overriddenTextureColor);
 			saveString(RendererFontName, m_rendererFontName);
 			saveInt(RendererFontSize, m_rendererFontSize);
 			saveFloat(GridAlpha, m_gridAlpha);
@@ -266,6 +279,18 @@ namespace TrenchBroom {
         
         float Preferences::selectedInfoOverlayFadeDistance() {
             return m_selectedInfoOverlayFadeDistance;
+        }
+
+        const Vec4f& Preferences::selectedTextureColor() {
+            return m_selectedTextureColor;
+        }
+        
+        const Vec4f& Preferences::usedTextureColor() {
+            return m_usedTextureColor;
+        }
+        
+        const Vec4f& Preferences::overriddenTextureColor() {
+            return m_overriddenTextureColor;
         }
 
         const string& Preferences::rendererFontName() {

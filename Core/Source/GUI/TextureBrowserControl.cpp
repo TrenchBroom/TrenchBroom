@@ -20,7 +20,9 @@
 #include "TextureBrowserControl.h"
 #include "Controller/Editor.h"
 #include "Model/Map/Map.h"
+#include "Model/Preferences.h"
 #include "Model/Selection.h"
+#include "Renderer/RenderUtils.h"
 #include "Utilities/Utils.h"
 #include "Utilities/VecMath.h"
 #include "Gwen/Skin.h"
@@ -31,8 +33,17 @@
 namespace TrenchBroom {
     namespace Gui {
         
-        void TextureBrowserPanel::textureManagerChanged(Model::Assets::TextureManager& textureManager) {
+        void TextureBrowserPanel::selectionChanged(const Model::SelectionEventData& data) {
+            Redraw();
+        }
+
+        void TextureBrowserPanel::textureManagerDidChange(Model::Assets::TextureManager& textureManager) {
             reloadTextures();
+            Redraw();
+        }
+        
+        void TextureBrowserPanel::preferencesDidChange(const std::string& key) {
+            Redraw();
         }
 
         void TextureBrowserPanel::addTexture(Model::Assets::Texture* texture) {
@@ -83,11 +94,19 @@ namespace TrenchBroom {
             const LayoutBounds& itemBounds = cell->itemBounds();
             
             glBegin(GL_QUADS);
-            glVertex3f(itemBounds.left()  - 2.0f, itemBounds.top()    - 2.0f, 0);
-            glVertex3f(itemBounds.left()  - 2.0f, itemBounds.bottom() + 2.0f, 0);
-            glVertex3f(itemBounds.right() + 2.0f, itemBounds.bottom() + 2.0f, 0);
-            glVertex3f(itemBounds.right() + 2.0f, itemBounds.top()    - 2.0f, 0);
+            glVertex3f(itemBounds.left()  - 1.0f, itemBounds.top()    - 1.0f, 0);
+            glVertex3f(itemBounds.left()  - 1.0f, itemBounds.bottom() + 1.0f, 0);
+            glVertex3f(itemBounds.right() + 1.0f, itemBounds.bottom() + 1.0f, 0);
+            glVertex3f(itemBounds.right() + 1.0f, itemBounds.top()    - 1.0f, 0);
             glEnd();
+        }
+
+        void TextureBrowserPanel::OnMouseMoved(int x, int y, int deltaX, int deltaY) {
+            Gwen::Point local = CanvasPosToLocal(Gwen::Point(x, y));
+            CellRow<CellData>::CellPtr cell;
+            if (m_layout.cellAt(static_cast<float>(local.x), static_cast<float>(local.y), cell)) {
+                DragAndDrop_SetPackage(true, "Texture", cell->item().first);
+            }
         }
 
         void TextureBrowserPanel::OnMouseClickLeft(int x, int y, bool down) {
@@ -120,11 +139,17 @@ namespace TrenchBroom {
             SetFont(GetSkin()->GetDefaultFont());
             reloadTextures();
             
-            m_editor.textureManager().textureManagerChanged += new Model::Assets::TextureManager::TextureManagerEvent::Listener<TextureBrowserPanel>(this, &TextureBrowserPanel::textureManagerChanged);
+            m_editor.map().selection().selectionAdded                   += new Model::Selection::SelectionEvent::Listener<TextureBrowserPanel>(this, &TextureBrowserPanel::selectionChanged);
+            m_editor.map().selection().selectionRemoved                 += new Model::Selection::SelectionEvent::Listener<TextureBrowserPanel>(this, &TextureBrowserPanel::selectionChanged);
+            m_editor.textureManager().textureManagerDidChange           += new Model::Assets::TextureManager::TextureManagerEvent::Listener<TextureBrowserPanel>(this, &TextureBrowserPanel::textureManagerDidChange);
+            Model::Preferences::sharedPreferences->preferencesDidChange += new Model::Preferences::PreferencesEvent::Listener<TextureBrowserPanel>(this, &TextureBrowserPanel::preferencesDidChange);
         }
 
         TextureBrowserPanel::~TextureBrowserPanel() {
-            m_editor.textureManager().textureManagerChanged -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<TextureBrowserPanel>(this, &TextureBrowserPanel::textureManagerChanged);
+            m_editor.map().selection().selectionAdded                   -= new Model::Selection::SelectionEvent::Listener<TextureBrowserPanel>(this, &TextureBrowserPanel::selectionChanged);
+            m_editor.map().selection().selectionRemoved                 -= new Model::Selection::SelectionEvent::Listener<TextureBrowserPanel>(this, &TextureBrowserPanel::selectionChanged);
+            m_editor.textureManager().textureManagerDidChange           -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<TextureBrowserPanel>(this, &TextureBrowserPanel::textureManagerDidChange);
+            Model::Preferences::sharedPreferences->preferencesDidChange -= new Model::Preferences::PreferencesEvent::Listener<TextureBrowserPanel>(this, &TextureBrowserPanel::preferencesDidChange);
         }
         
         void TextureBrowserPanel::SetFont(Gwen::Font* font) {
@@ -168,6 +193,21 @@ namespace TrenchBroom {
             glTranslatef(offset.x, offset.y, 0);
             glTranslatef(padding.left, padding.top, 0);
             
+            glPushAttrib(GL_TEXTURE_BIT);
+            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+            
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            float brightness = prefs.brightness();
+            float color[4] = {brightness / 2.0f, brightness / 2.0f, brightness / 2.0f, 1.0f};
+            
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
+            glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
+
             for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
                 if (group->intersectsY(visibleRect.y, visibleRect.h)) {
@@ -183,15 +223,15 @@ namespace TrenchBroom {
                                 bool override = textureManager.texture(texture->name) != texture;
                                 if (override) {
                                     glDisable(GL_TEXTURE_2D);
-                                    glColor4f(0.5f, 0.5f, 0.5f, 1);
+                                    Renderer::glColorV4f(prefs.overriddenTextureColor());
                                     renderTextureBorder(cell);
                                 } else if (!selection.mruTextures().empty() && selection.mruTextures().back() == texture) {
                                     glDisable(GL_TEXTURE_2D);
-                                    glColor4f(1, 0, 0, 1);
+                                    Renderer::glColorV4f(prefs.selectedTextureColor());
                                     renderTextureBorder(cell);
                                 } else if (texture->usageCount > 0) {
                                     glDisable(GL_TEXTURE_2D);
-                                    glColor4f(0, 0, 1, 1);
+                                    Renderer::glColorV4f(prefs.usedTextureColor());
                                     renderTextureBorder(cell);
                                 }
                                 
@@ -219,11 +259,12 @@ namespace TrenchBroom {
                 }
             }
             glPopMatrix();
+            glPopAttrib();
             
             for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
 
-                skin->GetRender()->SetDrawColor(Gwen::Color(0, 0, 0, 255));
+                skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
                 for (unsigned int j = 0; j < group->size(); j++) {
                     CellGroup<CellData, GroupData>::CellRowPtr row = (*group)[j];
                     for (unsigned int k = 0; k < row->size(); k++) {
@@ -315,7 +356,16 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserControl::Render(Gwen::Skin::Base* skin) {
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            const Vec4f& backgroundColor = prefs.backgroundColor();
+            Gwen::Color drawColor(static_cast<unsigned char>(Math::fround(backgroundColor.x * 255.0f)),
+                                  static_cast<unsigned char>(Math::fround(backgroundColor.y * 255.0f)),
+                                  static_cast<unsigned char>(Math::fround(backgroundColor.z * 255.0f)),
+                                  static_cast<unsigned char>(Math::fround(backgroundColor.w * 255.0f)));
+            
             skin->DrawBox(this);
+            skin->GetRender()->SetDrawColor(drawColor);
+            skin->GetRender()->DrawFilledRect(GetRenderBounds());
         }
         
         void TextureBrowserControl::setHideUnused(bool hideUnused) {

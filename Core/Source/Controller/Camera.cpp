@@ -132,14 +132,14 @@ namespace TrenchBroom {
 
         void Camera::moveTo(Vec3f position) {
             m_position = position;
-            cameraChanged(*this);
+            cameraDidChange(*this);
         }
         
         void Camera::moveBy(float forward, float right, float up) {
             m_position += m_direction * forward;
             m_position += m_right * right;
             m_position += m_up * up;
-            cameraChanged(*this);
+            cameraDidChange(*this);
         }
         
         void Camera::lookAt(Vec3f point, Vec3f up) {
@@ -150,7 +150,7 @@ namespace TrenchBroom {
             m_direction = direction;
             m_right = (m_direction % up).normalize();
             m_up = m_right % m_direction;
-            cameraChanged(*this);
+            cameraDidChange(*this);
         }
         
         void Camera::rotate(float yawAngle, float pitchAngle) {
@@ -202,17 +202,17 @@ namespace TrenchBroom {
         
         void Camera::setFieldOfVision(float fieldOfVision) {
             m_fieldOfVision = fieldOfVision;
-            cameraChanged(*this);
+            cameraDidChange(*this);
         }
         
         void Camera::setNearPlane(float nearPlane) {
             m_nearPlane = nearPlane;
-            cameraChanged(*this);
+            cameraDidChange(*this);
         }
         
         void Camera::setFarPlane(float farPlane) {
             m_farPlane = farPlane;
-            cameraChanged(*this);
+            cameraDidChange(*this);
         }
     }
 }

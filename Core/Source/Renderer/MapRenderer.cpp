@@ -32,6 +32,7 @@
 #include "Model/Selection.h"
 #include "Controller/Camera.h"
 #include "Controller/Editor.h"
+#include "Controller/Grid.h"
 #include "Controller/Options.h"
 #include "Renderer/EntityRendererManager.h"
 #include "Renderer/EntityRenderer.h"
@@ -154,12 +155,20 @@ namespace TrenchBroom {
             rendererChanged(*this);
         }
 
-        void MapRenderer::textureManagerChanged(Model::Assets::TextureManager& textureManager) {
+        void MapRenderer::textureManagerDidChange(Model::Assets::TextureManager& textureManager) {
             m_changeSet.setTextureManagerChanged();
             rendererChanged(*this);
         }
 
-        void MapRenderer::cameraChanged(Controller::Camera& camera) {
+        void MapRenderer::cameraDidChange(Controller::Camera& camera) {
+            rendererChanged(*this);
+        }
+
+        void MapRenderer::gridDidChange(Controller::Grid& grid) {
+            rendererChanged(*this);
+        }
+
+        void MapRenderer::preferencesDidChange(const std::string& key) {
             rendererChanged(*this);
         }
 
@@ -1073,7 +1082,7 @@ namespace TrenchBroom {
                 glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 
                 float brightness = context.preferences.brightness();
-                float color[4] = {brightness / 2, brightness / 2, brightness / 2, 1};
+                float color[4] = {brightness / 2.0f, brightness / 2.0f, brightness / 2.0f, 1.0f};
 
                 glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
                 glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
@@ -1160,6 +1169,7 @@ namespace TrenchBroom {
             m_editor.setRenderer(this);
 
             Controller::Camera& camera = m_editor.camera();
+            Controller::Grid& grid = m_editor.grid();
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
@@ -1171,8 +1181,10 @@ namespace TrenchBroom {
             map.facesDidChange                      += new Model::Map::FaceEvent::Listener<MapRenderer>(this, &MapRenderer::facesDidChange);
             selection.selectionAdded                += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
             selection.selectionRemoved              += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
-            textureManager.textureManagerChanged    += new Model::Assets::TextureManager::TextureManagerEvent::Listener<MapRenderer>(this, &MapRenderer::textureManagerChanged);
-            camera.cameraChanged                    += new Controller::Camera::CameraEvent::Listener<MapRenderer>(this, &MapRenderer::cameraChanged);
+            textureManager.textureManagerDidChange  += new Model::Assets::TextureManager::TextureManagerEvent::Listener<MapRenderer>(this, &MapRenderer::textureManagerDidChange);
+            camera.cameraDidChange                  += new Controller::Camera::CameraEvent::Listener<MapRenderer>(this, &MapRenderer::cameraDidChange);
+            grid.gridDidChange                      += new Controller::Grid::GridEvent::Listener<MapRenderer>(this, &MapRenderer::gridDidChange);
+            prefs.preferencesDidChange              += new Model::Preferences::PreferencesEvent::Listener<MapRenderer>(this, &MapRenderer::preferencesDidChange);
             
             addEntities(map.entities());
         }
@@ -1180,7 +1192,9 @@ namespace TrenchBroom {
         MapRenderer::~MapRenderer() {
             m_editor.setRenderer(NULL);
             
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             Controller::Camera& camera = m_editor.camera();
+            Controller::Grid& grid = m_editor.grid();
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
@@ -1192,8 +1206,10 @@ namespace TrenchBroom {
             map.facesDidChange                      -= new Model::Map::FaceEvent::Listener<MapRenderer>(this, &MapRenderer::facesDidChange);
             selection.selectionAdded                -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
             selection.selectionRemoved              -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionRemoved);
-            textureManager.textureManagerChanged    -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<MapRenderer>(this, &MapRenderer::textureManagerChanged);
-            camera.cameraChanged                    -= new Controller::Camera::CameraEvent::Listener<MapRenderer>(this, &MapRenderer::cameraChanged);
+            textureManager.textureManagerDidChange  -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<MapRenderer>(this, &MapRenderer::textureManagerDidChange);
+            camera.cameraDidChange                  -= new Controller::Camera::CameraEvent::Listener<MapRenderer>(this, &MapRenderer::cameraDidChange);
+            grid.gridDidChange                      -= new Controller::Grid::GridEvent::Listener<MapRenderer>(this, &MapRenderer::gridDidChange);
+            prefs.preferencesDidChange              -= new Model::Preferences::PreferencesEvent::Listener<MapRenderer>(this, &MapRenderer::preferencesDidChange);
 
             const vector<Entity*>& entities = map.entities();
             for (unsigned int i = 0; i < entities.size(); i++) {

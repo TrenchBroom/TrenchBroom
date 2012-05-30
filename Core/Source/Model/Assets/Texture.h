@@ -94,7 +94,7 @@ namespace TrenchBroom {
                 void reloadTextures();
             public:
                 typedef Event<TextureManager&> TextureManagerEvent;
-                TextureManagerEvent textureManagerChanged;
+                TextureManagerEvent textureManagerDidChange;
 
                 ~TextureManager();
 

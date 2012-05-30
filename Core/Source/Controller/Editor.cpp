@@ -65,7 +65,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Editor::textureManagerChanged(Model::Assets::TextureManager& textureManager) {
+        void Editor::textureManagerDidChange(Model::Assets::TextureManager& textureManager) {
             updateFaceTextures();
         }
 
@@ -91,12 +91,12 @@ namespace TrenchBroom {
             m_filter = new Filter();
             
             Model::Preferences::sharedPreferences->preferencesDidChange += new Preferences::PreferencesEvent::Listener<Editor>(this, &Editor::preferencesDidChange);
-            m_textureManager->textureManagerChanged += new Model::Assets::TextureManager::TextureManagerEvent::Listener<Editor>(this, &Editor::textureManagerChanged);
+            m_textureManager->textureManagerDidChange += new Model::Assets::TextureManager::TextureManagerEvent::Listener<Editor>(this, &Editor::textureManagerDidChange);
         }
 
         Editor::~Editor() {
             Model::Preferences::sharedPreferences->preferencesDidChange -= new Preferences::PreferencesEvent::Listener<Editor>(this, &Editor::preferencesDidChange);
-            m_textureManager->textureManagerChanged -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<Editor>(this, &Editor::textureManagerChanged);
+            m_textureManager->textureManagerDidChange -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<Editor>(this, &Editor::textureManagerDidChange);
 
             delete m_inputController;
             delete m_camera;

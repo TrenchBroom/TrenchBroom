@@ -61,7 +61,7 @@ namespace TrenchBroom {
             string m_entityDefinitionFilePath;
 
             void updateFaceTextures();
-            void textureManagerChanged(Model::Assets::TextureManager& textureManager);
+            void textureManagerDidChange(Model::Assets::TextureManager& textureManager);
             void preferencesDidChange(const string& key);
         public:
             Editor(const string& entityDefinitionFilePath, const string& palettePath);
