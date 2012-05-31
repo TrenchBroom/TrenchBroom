@@ -170,6 +170,8 @@ namespace TrenchBroom {
             
             void render(RenderContext& context);
             
+            EntityRendererManager& entityRendererManager();
+            
             MapRendererEvent rendererChanged;
         };
     }

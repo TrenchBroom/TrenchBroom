@@ -50,8 +50,8 @@ namespace TrenchBroom {
         public:
             AliasRenderer(Model::Assets::Alias& alias, int skinIndex, Vbo& vbo, Model::Assets::Palette& palette);
             ~AliasRenderer();
-            void render(RenderContext& context, Model::Entity& entity);
-            void render(RenderContext& context, const Vec3f& position, float angle);
+            void render(Model::Entity& entity);
+            void render(const Vec3f& position, float angle, float scale = 1.0f);
             const Vec3f& center();
             const BBox& bounds();
             const BBox& maxBounds();

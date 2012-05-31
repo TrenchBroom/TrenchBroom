@@ -42,9 +42,10 @@ namespace TrenchBroom {
         protected:
             typedef std::tr1::shared_ptr<Gwen::Font> FontPtr;
             typedef pair<Model::EntityDefinitionPtr, FontPtr> CellData;
+            typedef void* GroupData;
 
             Controller::Editor& m_editor;
-            CellLayout<CellData, void*> m_layout;
+            CellLayout<CellData, GroupData> m_layout;
             Gwen::Font* m_font;
             
             void reloadEntityDefinitions();

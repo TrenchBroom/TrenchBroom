@@ -39,11 +39,11 @@ namespace TrenchBroom {
                 delete m_texture;
         }
 
-        void AliasRenderer::render(RenderContext& context, Model::Entity& entity) {
-            render(context, entity.origin(), static_cast<float>(entity.angle()));
+        void AliasRenderer::render(Model::Entity& entity) {
+            render(entity.origin(), static_cast<float>(entity.angle()));
         }
 
-        void AliasRenderer::render(RenderContext& context, const Vec3f& position, float angle) {
+        void AliasRenderer::render(const Vec3f& position, float angle, float scale) {
             if (m_vboBlock == NULL) {
                 Model::Assets::AliasSkin& skin = *m_alias.skins[m_skinIndex];
                 m_texture = new Model::Assets::Texture(m_alias.name, skin, 0, m_palette);
@@ -69,27 +69,18 @@ namespace TrenchBroom {
             }
 
             glTranslatef(position.x, position.y, position.z);
-            if (angle != 0) {
-                if (angle == -1) glRotatef(90, 1, 0, 0);
-                else if (angle == 1) glRotatef(-90, 1, 0, 0);
+
+            if (scale != 1.0f)
+                glScalef(scale, scale, scale);
+
+            if (angle != 0.0f) {
+                if (angle == -1.0f) glRotatef(90, 1, 0, 0);
+                else if (angle == -2.0f) glRotatef(-90, 1, 0, 0);
                 else glRotatef(-angle, 0, 0, 1);
             }
 
-            glPolygonMode(GL_FRONT, GL_FILL);
-            glEnable(GL_TEXTURE_2D);
-
-            float brightness = context.preferences.brightness();
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_PRIMARY_COLOR);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
-            glColor3f(brightness / 2, brightness / 2, brightness / 2);
-            glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
-
             m_texture->activate();
-
+            
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             glInterleavedArrays(GL_T2F_N3F_V3F, 0, (const GLvoid *)(long)m_vboBlock->address);
             glDrawArrays(GL_TRIANGLES, 0, m_triangleCount * 3);

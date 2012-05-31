@@ -33,8 +33,8 @@ namespace TrenchBroom {
         class EntityRenderer {
         public:
             virtual ~EntityRenderer() {};
-            virtual void render(RenderContext& context, Model::Entity& entity) = 0;
-            virtual void render(RenderContext& context, const Vec3f& position, float angle) = 0;
+            virtual void render(Model::Entity& entity) = 0;
+            virtual void render(const Vec3f& position, float angle, float scale = 1.0f) = 0;
             virtual const Vec3f& center() = 0;
             virtual const BBox& bounds() = 0;
             virtual const BBox& maxBounds() = 0;
