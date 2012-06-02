@@ -433,6 +433,7 @@ public:
     const BBox rotate90(EAxis axis, const Vec3f& center, bool clockwise) const;
     const BBox rotate(Quat rotation) const;
     const BBox rotate(Quat rotation, const Vec3f& center) const;
+    const BBox boundsAfterRotation(Quat rotation) const;
     const BBox flip(EAxis axis) const;
     const BBox flip(EAxis axis, const Vec3f& center) const;
     const BBox expand(float f);

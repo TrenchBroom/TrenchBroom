@@ -38,7 +38,6 @@ namespace TrenchBroom {
             virtual void render() = 0;
             virtual const Vec3f& center() = 0;
             virtual const BBox& bounds() = 0;
-            virtual const BBox& maxBounds() = 0;
         };
     }
 }

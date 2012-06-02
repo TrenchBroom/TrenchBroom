@@ -42,7 +42,7 @@ namespace TrenchBroom {
                 const unsigned char* image;
                 int width;
                 int height;
-                BspTexture(string name, const unsigned char* image, int width, int height);
+                BspTexture(const string& name, const unsigned char* image, int width, int height);
                 ~BspTexture();
             };
             
@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 BBox bounds;
                 BspTextureInfo* textureInfo;
                 vector<Vec3f> vertices;
-                BspFace(BspTextureInfo* textureInfo, vector<Vec3f>& vertices);
+                BspFace(BspTextureInfo* textureInfo, const vector<Vec3f>& vertices);
                 Vec2f textureCoordinates(const Vec3f& vertex);
             };
             
@@ -68,10 +68,9 @@ namespace TrenchBroom {
             public:
                 Vec3f center;
                 BBox bounds;
-                BBox maxBounds;
                 vector<BspFace*> faces;
                 unsigned int vertexCount;
-                BspModel(vector<BspFace*>& faces, int vertexCount, Vec3f& center, BBox& bounds, BBox& maxBounds);
+                BspModel(const vector<BspFace*>& faces, int vertexCount, const Vec3f& center, const BBox& bounds);
                 ~BspModel();
             };
             
@@ -101,7 +100,7 @@ namespace TrenchBroom {
                 vector<BspModel*> models;
                 vector<BspTexture*>textures;
                 vector<BspTextureInfo*>textureInfos;
-                Bsp(string& name, IO::PakStream stream);
+                Bsp(const string& name, IO::PakStream stream);
                 ~Bsp();
             };
             
@@ -112,7 +111,7 @@ namespace TrenchBroom {
                 static BspManager* sharedManager;
                 BspManager();
                 ~BspManager();
-                Bsp* bspForName(string& name, vector<string>& paths);
+                Bsp* bspForName(const string& name, const vector<string>& paths);
             };
         }
     }

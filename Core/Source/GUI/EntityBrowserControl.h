@@ -37,6 +37,11 @@ namespace TrenchBroom {
         class Editor;
     }
     
+    namespace Renderer {
+        class Vbo;
+        class VboBlock;
+    }
+    
     namespace Gui {
         class EntityBrowserPanel : public Gwen::Controls::Base {
         protected:
@@ -47,6 +52,9 @@ namespace TrenchBroom {
             Controller::Editor& m_editor;
             CellLayout<CellData, GroupData> m_layout;
             Gwen::Font* m_font;
+            
+            Renderer::Vbo* m_boundsVbo;
+            Renderer::VboBlock* m_boundsBlock;
             
             void reloadEntityDefinitions();
         public:

@@ -89,8 +89,7 @@ namespace TrenchBroom {
                 vector<AliasFrameTriangle*> triangles;
                 Vec3f center;
                 BBox bounds;
-                BBox maxBounds;
-                AliasSingleFrame(const string& name, const vector<AliasFrameTriangle*>& triangles, const Vec3f& center, const BBox& bounds, const BBox& maxBounds);
+                AliasSingleFrame(const string& name, const vector<AliasFrameTriangle*>& triangles, const Vec3f& center, const BBox& bounds);
                 ~AliasSingleFrame();
                 AliasSingleFrame* firstFrame();
             };

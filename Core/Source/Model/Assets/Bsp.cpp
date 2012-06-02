@@ -57,14 +57,14 @@
 namespace TrenchBroom {
     namespace Model {
         namespace Assets {
-            BspTexture::BspTexture(string name, const unsigned char* image, int width, int height)
+            BspTexture::BspTexture(const string& name, const unsigned char* image, int width, int height)
             : name(name), image(image), width(width), height(height) {}
 
             BspTexture::~BspTexture() {
                 delete[] image;
             }
 
-            BspFace::BspFace(BspTextureInfo* textureInfo, vector<Vec3f>& vertices)
+            BspFace::BspFace(BspTextureInfo* textureInfo, const vector<Vec3f>& vertices)
             : textureInfo(textureInfo), vertices(vertices) {
                 bounds.min = vertices.front();
                 bounds.max = bounds.min;
@@ -80,8 +80,8 @@ namespace TrenchBroom {
                 return result;
             }
 
-            BspModel::BspModel(vector<BspFace*>& faces, int vertexCount, Vec3f& center, BBox& bounds, BBox& maxBounds)
-            : faces(faces), vertexCount(vertexCount), center(center), bounds(bounds), maxBounds(maxBounds) {}
+            BspModel::BspModel(const vector<BspFace*>& faces, int vertexCount, const Vec3f& center, const BBox& bounds)
+            : faces(faces), vertexCount(vertexCount), center(center), bounds(bounds) {}
 
             BspModel::~BspModel() {
                 while(!faces.empty()) delete faces.back(), faces.pop_back();
@@ -164,7 +164,7 @@ namespace TrenchBroom {
                 stream->read((char *)indices, count * sizeof(int32_t));
             }
 
-            Bsp::Bsp(string& name, IO::PakStream stream) : name(name) {
+            Bsp::Bsp(const string& name, IO::PakStream stream) : name(name) {
                 int32_t version;
                 stream->read((char *)&version, sizeof(int32_t));
 
@@ -295,27 +295,7 @@ namespace TrenchBroom {
 
                     center /= static_cast<float>(modelVertexCount);
 
-                    BBox maxBounds;
-                    Vec3f diff;
-                    float distSquared = 0;
-
-                    for (int i = 0; i < modelVertexCount; i++) {
-                        int vertexIndex = modelVertices[i];
-                        diff = vertices[vertexIndex] - center;
-						distSquared = Math::fmax(distSquared, diff.lengthSquared());
-                    }
-
-                    float dist = sqrt(distSquared);
-                    maxBounds.min = center;
-                    maxBounds.min.x -= dist;
-                    maxBounds.min.y -= dist;
-                    maxBounds.min.z -= dist;
-                    maxBounds.max = center;
-                    maxBounds.max.x += dist;
-                    maxBounds.max.y += dist;
-                    maxBounds.max.z += dist;
-
-                    BspModel* bspModel = new BspModel(bspFaces, totalVertexCount, center, bounds, maxBounds);
+                    BspModel* bspModel = new BspModel(bspFaces, totalVertexCount, center, bounds);
                     models.push_back(bspModel);
                 }
 
@@ -332,7 +312,7 @@ namespace TrenchBroom {
 
             BspManager* BspManager::sharedManager = NULL;
             
-            Bsp* BspManager::bspForName(string& name, vector<string>& paths) {
+            Bsp* BspManager::bspForName(const string& name, const vector<string>& paths) {
                 string pathList = accumulate(paths.begin(), paths.end(), string(";"));
                 string key = pathList + ":" + name;
 

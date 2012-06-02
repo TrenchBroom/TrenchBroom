@@ -32,6 +32,7 @@
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderUtils.h"
+#include "Renderer/Vbo.h"
 #include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
@@ -70,6 +71,9 @@ namespace TrenchBroom {
         }
 
         EntityBrowserPanel::EntityBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
+            m_boundsVbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFF);
+            m_boundsBlock = NULL;
+            
             m_layout.setCellMargin(8);
             m_layout.setRowMargin(8);
             m_layout.setGroupMargin(8);
@@ -79,7 +83,9 @@ namespace TrenchBroom {
             reloadEntityDefinitions();
         }
         
-        EntityBrowserPanel::~EntityBrowserPanel() {}
+        EntityBrowserPanel::~EntityBrowserPanel() {
+            delete m_boundsVbo;
+        }
 
         void EntityBrowserPanel::SetFont(Gwen::Font* font) {
             m_font = font;
@@ -129,7 +135,7 @@ namespace TrenchBroom {
             float color[4] = {brightness / 2.0f, brightness / 2.0f, brightness / 2.0f, 1.0f};
             
             glPushAttrib(GL_TEXTURE_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT);
-            glFrontFace(GL_CW);
+            glFrontFace(GL_CCW);
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
 
@@ -145,44 +151,12 @@ namespace TrenchBroom {
             Renderer::EntityRendererManager& rendererManager = m_editor.renderer()->entityRendererManager();
             rendererManager.activate();
             
-            Quat rot = Quat(Math::fradians(235.0f), ZAxisPos) * Quat(Math::fradians(125.0f), XAxisPos);
-            std::vector<Vec3f> boundsVertices;
+            float xAng = 70.0f;
+            float zAng = 115.0f;
             
-            for (unsigned int i = 0; i < m_layout.size(); i++) {
-                CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
-                if (group->intersectsY(visibleRect.y, visibleRect.h)) {
-                    for (unsigned int j = 0; j < group->size(); j++) {
-                        CellGroup<CellData, GroupData>::CellRowPtr row = (*group)[j];
-                        if (row->intersectsY(visibleRect.y, visibleRect.h)) {
-                            for (unsigned int k = 0; k < row->size(); k++) {
-                                CellRow<CellData>::CellPtr cell = (*row)[k];
-                                const LayoutBounds& itemBounds = cell->itemBounds();
-                                Model::EntityDefinitionPtr definition = cell->item().first;
-                                
-                                Renderer::EntityRenderer* renderer = rendererManager.entityRenderer(*definition, m_editor.map().mods());
-                                if (renderer != NULL) {
-                                    BBox centeredBounds = definition->bounds.centered();
-                                    Renderer::bboxEdgeVertices(centeredBounds, boundsVertices);
-                                    for (unsigned int i = 0; i < boundsVertices.size(); i++)
-                                        boundsVertices[i] = rot * boundsVertices[i];
-                                    
-                                    Vec3f size = definition->bounds.size();
-                                    
-                                    glPushMatrix();
-                                    glTranslatef(itemBounds.left(), itemBounds.top(), size.y / 2.0f);
-                                    glRotatef(125.0f, 1.0f, 0.0f, 0.0f);
-                                    glRotatef(235.0f, 0.0f, 0.0f, 1.0f);
-                                    glTranslatef(-size.x / 2.0f, -size.z / 2.0f, -size.y / 2.0f);
-//                                    glScalef(scale, scale, scale);
-                                    renderer->render();
-                                    glPopMatrix();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            rendererManager.deactivate();
+            Quat rot = Quat(Math::fradians(-xAng), XAxisPos) * Quat(Math::fradians(zAng), ZAxisPos);
+            std::vector<Vec3f> boundsVertices;
+            std::vector<Vec4f> boundsColors;
 
             for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
@@ -196,15 +170,34 @@ namespace TrenchBroom {
                                 Model::EntityDefinitionPtr definition = cell->item().first;
                                 
                                 Renderer::EntityRenderer* renderer = rendererManager.entityRenderer(*definition, m_editor.map().mods());
-                                if (renderer != NULL) {
-                                    Vec3f size = definition->bounds.size();
+                                if (renderer == NULL) {
+                                    BBox actualBounds = definition->bounds.boundsAfterRotation(rot);
+                                    Vec3f actualSize = actualBounds.size();
+                                    float scale = Math::fmin(2.0f, actualSize.x > actualSize.y ? itemBounds.width() / actualSize.x : itemBounds.height() / actualSize.y);
+                                    Vec3f center = definition->bounds.center();
+
+                                    std::vector<Vec3f> vertices = Renderer::bboxEdgeVertices(definition->bounds);
+                                    for (unsigned int l = 0; l < vertices.size(); l++) {
+                                        vertices[l] = rot * (vertices[l] - center);
+                                        vertices[l] *= scale;
+//                                        vertices[l] += center;
+                                        vertices[l].x += itemBounds.midX();
+                                        vertices[l].y += itemBounds.midY();
+                                        boundsVertices.push_back(vertices[l]);
+                                        boundsColors.push_back(definition->color);
+                                    }
+                                } else {
+                                    BBox actualBounds = renderer->bounds().boundsAfterRotation(rot);
+                                    Vec3f actualSize = actualBounds.size();
+                                    float scale = Math::fmin(2.0f, actualSize.x > actualSize.y ? itemBounds.width() / actualSize.x : itemBounds.height() / actualSize.y);
+                                    Vec3f center = renderer->bounds().center();
                                     
                                     glPushMatrix();
-                                    glTranslatef(itemBounds.left(), itemBounds.top(), size.y / 2.0f);
-                                    glRotatef(125.0f, 1.0f, 0.0f, 0.0f);
-                                    glRotatef(235.0f, 0.0f, 0.0f, 1.0f);
-                                    glTranslatef(-size.x / 2.0f, -size.z / 2.0f, -size.y / 2.0f);
-                                    //                                    glScalef(scale, scale, scale);
+                                    glTranslatef(itemBounds.midX(), itemBounds.midY(), 0);
+                                    glScalef(scale, scale, scale);
+                                    glRotatef(xAng, 1.0f, 0.0f, 0.0f);
+                                    glRotatef(zAng, 0.0f, 0.0f, 1.0f);
+                                    glTranslatef(-center.x, -center.y, -center.z);
                                     renderer->render();
                                     glPopMatrix();
                                 }
@@ -212,6 +205,35 @@ namespace TrenchBroom {
                         }
                     }
                 }
+            }
+            rendererManager.deactivate();
+
+            if (m_boundsBlock != NULL) {
+                m_boundsBlock->freeBlock();
+                m_boundsBlock = NULL;
+            }
+            
+            if (!boundsVertices.empty()) {
+                m_boundsVbo->activate();
+                m_boundsVbo->map();
+                
+                m_boundsBlock = &m_boundsVbo->allocBlock((4 * 3 + 4) * boundsVertices.size());
+                unsigned int offset = 0;
+                for (unsigned int i = 0; i < boundsVertices.size(); i++) {
+                    offset = m_boundsBlock->writeColor(boundsColors[i], offset);
+                    offset = m_boundsBlock->writeVec(boundsVertices[i], offset);
+                }
+                
+                m_boundsVbo->unmap();
+
+                glColor4f(1, 1, 1, 0.5f);
+                glDisable(GL_TEXTURE_2D);
+                glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+                glInterleavedArrays(GL_C4UB_V3F, 0, 0);
+                glDrawArrays(GL_LINES, 0, boundsVertices.size());
+                glPopClientAttrib();
+                
+                m_boundsVbo->deactivate();
             }
 
             glPopAttrib();

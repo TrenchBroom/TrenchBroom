@@ -53,6 +53,14 @@ namespace TrenchBroom {
                 return m_y + m_height;
             }
             
+            float midX() const {
+                return m_x + m_width / 2.0f;
+            }
+            
+            float midY() const {
+                return m_y + m_height / 2.0f;
+            }
+            
             float width() const {
                 return m_width;
             }

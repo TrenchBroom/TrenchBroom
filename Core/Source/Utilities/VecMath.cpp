@@ -1587,6 +1587,20 @@ const BBox BBox::rotate(Quat rotation, const Vec3f& center) const {
     return result;
 }
 
+const BBox BBox::boundsAfterRotation(Quat rotation) const {
+    BBox result;
+    Vec3f c = center();
+    result += (rotation * (vertex(false, false, false) - c) + c);
+    result += (rotation * (vertex(false, false, true ) - c) + c);
+    result += (rotation * (vertex(false, true , false) - c) + c);
+    result += (rotation * (vertex(false, true , true ) - c) + c);
+    result += (rotation * (vertex(true , false, false) - c) + c);
+    result += (rotation * (vertex(true , false, true ) - c) + c);
+    result += (rotation * (vertex(true , true , false) - c) + c);
+    result += (rotation * (vertex(true , true , true ) - c) + c);
+    return result;
+}
+
 const BBox BBox::flip(EAxis axis) const {
     BBox result;
     result.min = min.flip(axis);

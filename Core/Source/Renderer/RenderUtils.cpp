@@ -25,9 +25,9 @@ namespace TrenchBroom {
     namespace Renderer {
         float const EdgeOffset = 0.0001f;
 
-        void bboxEdgeVertices(const BBox& bounds, std::vector<Vec3f>& vertices) {
-            if (vertices.size() != 24)
-                vertices.resize(24);
+        std::vector<Vec3f> bboxEdgeVertices(const BBox& bounds) {
+            std::vector<Vec3f> vertices;
+            vertices.resize(24);
             
             // bottom
             vertices[ 0] = vertices[ 7] = bounds.vertex(false, false, false);
@@ -50,6 +50,8 @@ namespace TrenchBroom {
             vertices[21] = bounds.vertex(true , false, true );
             vertices[22] = bounds.vertex(true , true , false);
             vertices[23] = bounds.vertex(true , true , true );
+            
+            return vertices;
         }
 
         void glVertexV3f(const Vec3f& vertex) {

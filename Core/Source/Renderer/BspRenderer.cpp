@@ -106,9 +106,5 @@ namespace TrenchBroom {
         const BBox& BspRenderer::bounds() {
             return m_bsp.models[0]->bounds;
         }
-        
-        const BBox& BspRenderer::maxBounds() {
-            return m_bsp.models[0]->maxBounds;
-        }
     }
 }

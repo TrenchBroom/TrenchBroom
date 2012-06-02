@@ -81,9 +81,5 @@ namespace TrenchBroom {
         const BBox& AliasRenderer::bounds() {
             return m_alias.firstFrame().bounds;
         }
-
-        const BBox& AliasRenderer::maxBounds() {
-            return m_alias.firstFrame().maxBounds;
-        }
     }
 }

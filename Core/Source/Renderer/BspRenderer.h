@@ -64,7 +64,6 @@ namespace TrenchBroom {
             void render();
             const Vec3f& center();
             const BBox& bounds();
-            const BBox& maxBounds();
         };
     }
 }

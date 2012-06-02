@@ -48,7 +48,7 @@ namespace TrenchBroom {
                 while(!pictures.empty()) delete pictures.back(), pictures.pop_back();
             }
             
-            AliasSingleFrame::AliasSingleFrame(const string& name, const vector<AliasFrameTriangle*>& triangles, const Vec3f& center, const BBox& bounds, const BBox& maxBounds) : name(name), triangles(triangles), center(center), bounds(bounds), maxBounds(maxBounds) {}
+            AliasSingleFrame::AliasSingleFrame(const string& name, const vector<AliasFrameTriangle*>& triangles, const Vec3f& center, const BBox& bounds) : name(name), triangles(triangles), center(center), bounds(bounds) {}
             
             AliasSingleFrame* AliasSingleFrame::firstFrame() {
                 return this;
@@ -113,25 +113,6 @@ namespace TrenchBroom {
                 
                 center /= static_cast<float>(vertices.size());
                 
-                Vec3f diff = frameVertices[0] - center;
-				float distSquared = diff.lengthSquared();
-                for (unsigned int i = 1; i < vertices.size(); i++) {
-                    diff = frameVertices[i] - center;
-                    distSquared = Math::fmax(distSquared, diff.lengthSquared());
-                }
-                
-                float dist = sqrt(distSquared);
-                
-                BBox maxBounds;
-                maxBounds.min = center;
-                maxBounds.min.x -= dist;
-                maxBounds.min.y -= dist;
-                maxBounds.min.z -= dist;
-                maxBounds.max = center;
-                maxBounds.max.x += dist;
-                maxBounds.max.y += dist;
-                maxBounds.max.z += dist;
-                
                 vector<AliasFrameTriangle*> frameTriangles(triangles.size());
                 for (unsigned int i = 0; i < triangles.size(); i++) {
                     AliasFrameTriangle* frameTriangle = new AliasFrameTriangle();
@@ -147,7 +128,7 @@ namespace TrenchBroom {
                     frameTriangles[i] = frameTriangle;
                 }
                 
-                return new AliasSingleFrame(name, frameTriangles, center, bounds, maxBounds);
+                return new AliasSingleFrame(name, frameTriangles, center, bounds);
             }
             
             AliasSingleFrame::~AliasSingleFrame() {

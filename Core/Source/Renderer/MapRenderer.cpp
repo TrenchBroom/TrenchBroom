@@ -234,8 +234,7 @@ namespace TrenchBroom {
             color.w = context.preferences.entityBoundsColor().w;
 
             unsigned int offset = 0;
-            std::vector<Vec3f> vertices;
-            bboxEdgeVertices(bounds, vertices);
+            std::vector<Vec3f> vertices = bboxEdgeVertices(bounds);
             for (unsigned int i = 0; i < vertices.size(); i++) {
                 offset = block.writeColor(color, offset);
                 offset = block.writeVec(vertices[i], offset);
