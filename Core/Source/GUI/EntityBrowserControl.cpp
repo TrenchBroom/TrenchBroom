@@ -40,7 +40,6 @@ namespace TrenchBroom {
         void EntityBrowserPanel::reloadEntityDefinitions() {
             m_layout.clear();
             
-            Renderer::EntityRendererManager& rendererManager = m_editor.renderer()->entityRendererManager();
             Model::EntityDefinitionManager& defManager = m_editor.map().entityDefinitionManager();
             const vector<Model::EntityDefinitionPtr> definitions = defManager.definitions();
             
@@ -180,7 +179,6 @@ namespace TrenchBroom {
                                     for (unsigned int l = 0; l < vertices.size(); l++) {
                                         vertices[l] = rot * (vertices[l] - center);
                                         vertices[l] *= scale;
-//                                        vertices[l] += center;
                                         vertices[l].x += itemBounds.midX();
                                         vertices[l].y += itemBounds.midY();
                                         boundsVertices.push_back(vertices[l]);
