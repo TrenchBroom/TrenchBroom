@@ -31,6 +31,7 @@
 #include "Renderer/EntityRendererManager.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/RenderUtils.h"
 #include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
@@ -38,12 +39,13 @@ namespace TrenchBroom {
         void EntityBrowserPanel::reloadEntityDefinitions() {
             m_layout.clear();
             
+            Renderer::EntityRendererManager& rendererManager = m_editor.renderer()->entityRendererManager();
             Model::EntityDefinitionManager& defManager = m_editor.map().entityDefinitionManager();
             const vector<Model::EntityDefinitionPtr> definitions = defManager.definitions();
             
             for (unsigned int i = 0; i < definitions.size(); i++) {
                 Model::EntityDefinitionPtr definition = definitions[i];
-                if (definition->type != Model::TB_EDP_BASE) {
+                if (definition->type == Model::TB_EDT_POINT) {
                     Gwen::Skin::Base* skin = GetSkin();
                     Gwen::Font* actualFont = new Gwen::Font(*m_font);
                     FontPtr actualFontPtr(actualFont);
@@ -58,12 +60,7 @@ namespace TrenchBroom {
                         actualSize = GetSkin()->GetRender()->MeasureText(m_font, definition->name);
                     }
                     
-                    Vec3f size = definition->bounds.size();
-                    if (size.x < m_layout.fixedCellWidth() && size.z < m_layout.fixedCellWidth()) {
-                        float f = Math::fmax(size.x, size.z);
-                        size *= m_layout.fixedCellWidth() / f;
-                    }
-                    m_layout.addItem(CellData(definition, actualFontPtr), size.x, size.z, static_cast<float>(actualSize.x), actualFont->size + 2);
+                    m_layout.addItem(CellData(definition, actualFontPtr), m_layout.fixedCellWidth(), m_layout.fixedCellWidth(), static_cast<float>(actualSize.x), actualFont->size + 2);
                 }
             }
             
@@ -116,16 +113,26 @@ namespace TrenchBroom {
             const Gwen::Rect& bounds = GetRenderBounds();
             Gwen::Rect visibleRect(bounds.x, -scrollerVisibleRect.y, bounds.w, GetParent()->GetBounds().h);
             
+            glMatrixMode(GL_PROJECTION);
+            glPushMatrix();
+            glLoadIdentity();
+            
+            const Gwen::Rect& viewport = skin->GetRender()->GetViewport();
+            glOrtho(0, viewport.w, viewport.h, 0, -512, 512);
+
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
-            glTranslatef(offset.x, offset.y, 0);
-            glTranslatef(padding.left, padding.top, 0);
-            
+            glTranslatef(offset.x + padding.left, offset.y + padding.top, -256.0f);
+
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             float brightness = prefs.brightness();
             float color[4] = {brightness / 2.0f, brightness / 2.0f, brightness / 2.0f, 1.0f};
             
-            glPushAttrib(GL_TEXTURE_BIT);
+            glPushAttrib(GL_TEXTURE_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT);
+            glFrontFace(GL_CW);
+            glEnable(GL_CULL_FACE);
+            glEnable(GL_DEPTH_TEST);
+
             glEnable(GL_TEXTURE_2D);
             glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
             glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
@@ -134,9 +141,12 @@ namespace TrenchBroom {
             glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
             glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
             glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
-
+             
             Renderer::EntityRendererManager& rendererManager = m_editor.renderer()->entityRendererManager();
             rendererManager.activate();
+            
+            Quat rot = Quat(Math::fradians(235.0f), ZAxisPos) * Quat(Math::fradians(125.0f), XAxisPos);
+            std::vector<Vec3f> boundsVertices;
             
             for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
@@ -151,15 +161,22 @@ namespace TrenchBroom {
                                 
                                 Renderer::EntityRenderer* renderer = rendererManager.entityRenderer(*definition, m_editor.map().mods());
                                 if (renderer != NULL) {
-                                    glPushMatrix();
+                                    BBox centeredBounds = definition->bounds.centered();
+                                    Renderer::bboxEdgeVertices(centeredBounds, boundsVertices);
+                                    for (unsigned int i = 0; i < boundsVertices.size(); i++)
+                                        boundsVertices[i] = rot * boundsVertices[i];
+                                    
                                     Vec3f size = definition->bounds.size();
-                                    float scale;
-                                    if (size.x > size.z) scale = itemBounds.width() / size.x;
-                                    else scale = itemBounds.height() / size.z;
-                                    renderer->render(Vec3f(itemBounds.left(), itemBounds.top(), 0.0f), 0.0f, scale);
+                                    
+                                    glPushMatrix();
+                                    glTranslatef(itemBounds.left(), itemBounds.top(), size.y / 2.0f);
+                                    glRotatef(125.0f, 1.0f, 0.0f, 0.0f);
+                                    glRotatef(235.0f, 0.0f, 0.0f, 1.0f);
+                                    glTranslatef(-size.x / 2.0f, -size.z / 2.0f, -size.y / 2.0f);
+//                                    glScalef(scale, scale, scale);
+                                    renderer->render();
                                     glPopMatrix();
                                 }
-
                             }
                         }
                     }
@@ -167,8 +184,41 @@ namespace TrenchBroom {
             }
             rendererManager.deactivate();
 
-            glPopMatrix();
+            for (unsigned int i = 0; i < m_layout.size(); i++) {
+                CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
+                if (group->intersectsY(visibleRect.y, visibleRect.h)) {
+                    for (unsigned int j = 0; j < group->size(); j++) {
+                        CellGroup<CellData, GroupData>::CellRowPtr row = (*group)[j];
+                        if (row->intersectsY(visibleRect.y, visibleRect.h)) {
+                            for (unsigned int k = 0; k < row->size(); k++) {
+                                CellRow<CellData>::CellPtr cell = (*row)[k];
+                                const LayoutBounds& itemBounds = cell->itemBounds();
+                                Model::EntityDefinitionPtr definition = cell->item().first;
+                                
+                                Renderer::EntityRenderer* renderer = rendererManager.entityRenderer(*definition, m_editor.map().mods());
+                                if (renderer != NULL) {
+                                    Vec3f size = definition->bounds.size();
+                                    
+                                    glPushMatrix();
+                                    glTranslatef(itemBounds.left(), itemBounds.top(), size.y / 2.0f);
+                                    glRotatef(125.0f, 1.0f, 0.0f, 0.0f);
+                                    glRotatef(235.0f, 0.0f, 0.0f, 1.0f);
+                                    glTranslatef(-size.x / 2.0f, -size.z / 2.0f, -size.y / 2.0f);
+                                    //                                    glScalef(scale, scale, scale);
+                                    renderer->render();
+                                    glPopMatrix();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             glPopAttrib();
+            glMatrixMode(GL_PROJECTION);
+            glPopMatrix();
+            glMatrixMode(GL_MODELVIEW);
+            glPopMatrix();
             
             for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];

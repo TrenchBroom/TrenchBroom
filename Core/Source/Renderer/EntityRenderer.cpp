@@ -17,30 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityRenderer_h
-#define TrenchBroom_EntityRenderer_h
+#include "EntityRenderer.h"
 
-#include "Utilities/VecMath.h"
+#include "Model/Map/Entity.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Entity;
-    }
-    
     namespace Renderer {
-        class RenderContext;
-        
-        class EntityRenderer {
-        public:
-            virtual ~EntityRenderer() {};
-            virtual void render(const Model::Entity& entity);
-            virtual void render(const Vec3f& position, float angle);
-            virtual void render() = 0;
-            virtual const Vec3f& center() = 0;
-            virtual const BBox& bounds() = 0;
-            virtual const BBox& maxBounds() = 0;
-        };
+        void EntityRenderer::render(const Model::Entity& entity) {
+            render(entity.origin(), static_cast<float>(entity.angle()));
+        }
+
+        void EntityRenderer::render(const Vec3f& position, float angle) {
+            glPushMatrix();
+            glTranslatef(position.x, position.y, position.z);
+            if (angle != 0.0f) {
+                if (angle == -1.0f) glRotatef(90, 1, 0, 0);
+                else if (angle == -2.0f) glRotatef(-90, 1, 0, 0);
+                else glRotatef(-angle, 0, 0, 1);
+            }
+            
+            render();
+            glPopMatrix();
+        }
     }
 }
-
-#endif

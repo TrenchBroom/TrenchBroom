@@ -25,6 +25,33 @@ namespace TrenchBroom {
     namespace Renderer {
         float const EdgeOffset = 0.0001f;
 
+        void bboxEdgeVertices(const BBox& bounds, std::vector<Vec3f>& vertices) {
+            if (vertices.size() != 24)
+                vertices.resize(24);
+            
+            // bottom
+            vertices[ 0] = vertices[ 7] = bounds.vertex(false, false, false);
+            vertices[ 1] = vertices[ 2] = bounds.vertex(true , false, false);
+            vertices[ 3] = vertices[ 4] = bounds.vertex(true , true , false);
+            vertices[ 5] = vertices[ 6] = bounds.vertex(false, true , false);
+            
+            // top
+            vertices[ 8] = vertices[15] = bounds.vertex(false, false, true );
+            vertices[ 9] = vertices[10] = bounds.vertex(true , false, true );
+            vertices[11] = vertices[12] = bounds.vertex(true , true , true );
+            vertices[13] = vertices[14] = bounds.vertex(false, true , true );
+            
+            // verticals
+            vertices[16] = bounds.vertex(false, false, false);
+            vertices[17] = bounds.vertex(false, false, true );
+            vertices[18] = bounds.vertex(false, true , false );
+            vertices[19] = bounds.vertex(false, true , true );
+            vertices[20] = bounds.vertex(true , false, false);
+            vertices[21] = bounds.vertex(true , false, true );
+            vertices[22] = bounds.vertex(true , true , false);
+            vertices[23] = bounds.vertex(true , true , true );
+        }
+
         void glVertexV3f(const Vec3f& vertex) {
             glVertex3f(vertex.x, vertex.y, vertex.z);
         }

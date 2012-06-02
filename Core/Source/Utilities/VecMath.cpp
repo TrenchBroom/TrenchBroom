@@ -1428,6 +1428,11 @@ const BBox BBox::maxBounds() const {
     return BBox(c - diff, c + diff);
 }
 
+const BBox BBox::centered() const {
+    Vec3f c = center();
+    return BBox(min - c, max - c);
+}
+
 const Vec3f BBox::center() const {
     return Vec3f((max.x + min.x) / 2,
                  (max.y + min.y) / 2,
@@ -1438,6 +1443,14 @@ const Vec3f BBox::size() const {
     return Vec3f(max.x - min.x,
                  max.y - min.y,
                  max.z - min.z);
+}
+
+const Vec3f BBox::vertex(bool x, bool y, bool z) const {
+    Vec3f vertex;
+    vertex.x = x ? min.x : max.x;
+    vertex.y = y ? min.y : max.y;
+    vertex.z = z ? min.z : max.z;
+    return vertex;
 }
 
 bool BBox::contains(const Vec3f& point) const {

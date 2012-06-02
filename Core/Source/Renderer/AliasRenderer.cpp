@@ -39,11 +39,7 @@ namespace TrenchBroom {
                 delete m_texture;
         }
 
-        void AliasRenderer::render(Model::Entity& entity) {
-            render(entity.origin(), static_cast<float>(entity.angle()));
-        }
-
-        void AliasRenderer::render(const Vec3f& position, float angle, float scale) {
+        void AliasRenderer::render() {
             if (m_vboBlock == NULL) {
                 Model::Assets::AliasSkin& skin = *m_alias.skins[m_skinIndex];
                 m_texture = new Model::Assets::Texture(m_alias.name, skin, 0, m_palette);
@@ -66,17 +62,6 @@ namespace TrenchBroom {
                     }
                 }
                 m_vbo.unmap();
-            }
-
-            glTranslatef(position.x, position.y, position.z);
-
-            if (scale != 1.0f)
-                glScalef(scale, scale, scale);
-
-            if (angle != 0.0f) {
-                if (angle == -1.0f) glRotatef(90, 1, 0, 0);
-                else if (angle == -2.0f) glRotatef(-90, 1, 0, 0);
-                else glRotatef(-angle, 0, 0, 1);
             }
 
             m_texture->activate();

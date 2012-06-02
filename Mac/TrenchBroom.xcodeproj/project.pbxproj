@@ -120,6 +120,7 @@
 		4825B549153AE693007E3AE1 /* OpenGL_DebugFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B546153AE693007E3AE1 /* OpenGL_DebugFont.cpp */; };
 		4825B555153C9F56007E3AE1 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4825B553153C9F56007E3AE1 /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		482EB2A71566CC120071206A /* OpenGL_FTGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482EB2A61566CC120071206A /* OpenGL_FTGL.cpp */; };
+		4833E9F815790E9D0089FD2A /* EntityRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4833E9F715790E9D0089FD2A /* EntityRenderer.cpp */; };
 		483DE918154DCE62002FD6B0 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */; };
 		483DE91C154DCFCF002FD6B0 /* PreferencesWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */; };
 		484544F51553374B0032E983 /* ChangeSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484544F41553374B0032E983 /* ChangeSet.cpp */; };
@@ -421,6 +422,7 @@
 		4825B554153C9F56007E3AE1 /* GLee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLee.h; sourceTree = "<group>"; };
 		482EB2A51566CB6C0071206A /* OpenGL_FTGL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenGL_FTGL.h; sourceTree = "<group>"; };
 		482EB2A61566CC120071206A /* OpenGL_FTGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenGL_FTGL.cpp; sourceTree = "<group>"; };
+		4833E9F715790E9D0089FD2A /* EntityRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityRenderer.cpp; sourceTree = "<group>"; };
 		483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindow.xib; sourceTree = "<group>"; };
 		483DE91A154DCFCF002FD6B0 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
 		483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PreferencesWindowController.mm; sourceTree = "<group>"; };
@@ -646,6 +648,7 @@
 				484544F41553374B0032E983 /* ChangeSet.cpp */,
 				4825B408153AE59F007E3AE1 /* EntityClassnameAnchor.cpp */,
 				4825B409153AE59F007E3AE1 /* EntityClassnameAnchor.h */,
+				4833E9F715790E9D0089FD2A /* EntityRenderer.cpp */,
 				4825B40A153AE59F007E3AE1 /* EntityRenderer.h */,
 				4825B40B153AE59F007E3AE1 /* EntityRendererManager.cpp */,
 				4825B40C153AE59F007E3AE1 /* EntityRendererManager.h */,
@@ -1261,6 +1264,7 @@
 				480963D8157421EB0091C481 /* Splitter.cpp in Sources */,
 				480963DB1574AB5A0091C481 /* EntityPropertyTableControl.cpp in Sources */,
 				486571AF1575558C00698829 /* EntityBrowserControl.cpp in Sources */,
+				4833E9F815790E9D0089FD2A /* EntityRenderer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

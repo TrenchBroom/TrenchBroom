@@ -61,8 +61,7 @@ namespace TrenchBroom {
         public:
             BspRenderer(Model::Assets::Bsp& bsp, Vbo& vbo, Model::Assets::Palette& palette);
             ~BspRenderer();
-            void render(Model::Entity& entity);
-            void render(const Vec3f& position, float angle, float scale = 1.0f);
+            void render();
             const Vec3f& center();
             const BBox& bounds();
             const BBox& maxBounds();

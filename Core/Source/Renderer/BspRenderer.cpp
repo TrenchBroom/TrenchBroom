@@ -37,11 +37,7 @@ namespace TrenchBroom {
             m_textures.clear();
         }
         
-        void BspRenderer::render(Model::Entity& entity) {
-            render(entity.origin(), static_cast<float>(entity.angle()));
-        }
-        
-        void BspRenderer::render(const Vec3f& position, float angle, float scale) {
+        void BspRenderer::render() {
             if (m_vboBlock == NULL) {
                 Model::Assets::BspModel& model = *m_bsp.models[0];
                 unsigned int modelVertexCount = model.vertexCount;
@@ -81,17 +77,6 @@ namespace TrenchBroom {
                     }
                 }
                 m_vbo.unmap();
-            }
-            
-            glTranslatef(position.x, position.y, position.z);
-            
-            if (scale != 1.0f)
-                glScalef(scale, scale, scale);
-
-            if (angle != 0.0f) {
-                if (angle == -1.0f) glRotatef(90, 1, 0, 0);
-                else if (angle == -2.0f) glRotatef(-90, 1, 0, 0);
-                else glRotatef(-angle, 0, 0, 1);
             }
             
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);

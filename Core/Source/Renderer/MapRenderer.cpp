@@ -234,105 +234,12 @@ namespace TrenchBroom {
             color.w = context.preferences.entityBoundsColor().w;
 
             unsigned int offset = 0;
-
-            t = bounds.min;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.x = bounds.max.x;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.x = bounds.min.x;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.y = bounds.max.y;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.y = bounds.min.y;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.z = bounds.max.z;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t = bounds.max;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.x = bounds.min.x;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.x = bounds.max.x;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.y = bounds.min.y;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.y = bounds.max.y;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.z = bounds.min.z;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t = bounds.min;
-            t.x = bounds.max.x;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.y = bounds.max.y;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.y = bounds.min.y;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.z = bounds.max.z;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t = bounds.min;
-            t.y = bounds.max.y;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.x = bounds.max.x;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.x = bounds.min.x;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.z = bounds.max.z;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t = bounds.min;
-            t.z = bounds.max.z;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.x = bounds.max.x;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.x = bounds.min.x;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
-
-            t.y = bounds.max.y;
-            offset = block.writeColor(color, offset);
-            offset = block.writeVec(t, offset);
+            std::vector<Vec3f> vertices;
+            bboxEdgeVertices(bounds, vertices);
+            for (unsigned int i = 0; i < vertices.size(); i++) {
+                offset = block.writeColor(color, offset);
+                offset = block.writeVec(vertices[i], offset);
+            }
         }
 
         void MapRenderer::rebuildFaceIndexBuffers(RenderContext& context) {
@@ -1025,9 +932,7 @@ namespace TrenchBroom {
             for (it = entities.begin(); it != entities.end(); ++it) {
                 Entity* entity = it->first;
                 EntityRenderer* renderer = it->second;
-                glPushMatrix();
                 renderer->render(*entity);
-                glPopMatrix();
             }
 
             m_entityRendererManager->deactivate();

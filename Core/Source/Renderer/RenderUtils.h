@@ -24,9 +24,11 @@
 #include "Utilities/VecMath.h"
 #include "Renderer/FontManager.h"
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
+        void bboxEdgeVertices(const BBox& bounds, std::vector<Vec3f>& vertices);
         void glVertexV3f(const Vec3f& vertex);
         void glColorV4f(const Vec4f& color);
         void glColorV4f(const Vec4f& color, float blendFactor);

@@ -41,6 +41,14 @@ namespace Math {
         return std::numeric_limits<float>::quiet_NaN();
     }
     
+    inline float fradians(float d) {
+        return Pi * d / 180.0f;
+    }
+    
+    inline float fdegrees(float r) {
+        return 180.0f * r / Pi;
+    }
+    
     inline float fround(float f) {
         return f > 0.0f ? floor(f + 0.5f) : ceil(f - 0.5f);
     }
@@ -410,8 +418,10 @@ public:
     BBox(const Vec3f& min, const Vec3f& max);
     BBox(float minx, float miny, float minz, float maxx, float maxy, float maxz);
     const BBox maxBounds() const;
+    const BBox centered() const;
     const Vec3f center() const;
     const Vec3f size() const;
+    const Vec3f vertex(bool x, bool y, bool z) const;
     bool contains(const Vec3f& point) const;
     bool contains(const BBox& bounds) const;
     bool intersects(const BBox& bounds) const;
