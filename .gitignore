@@ -23,3 +23,8 @@ xcuserdata
 
 *.suo
 Thumbs.db
+
+/Linux/bin/*
+/Linux/bin/**/*
+/Linux/obj/*
+/Linux/obj/**/*

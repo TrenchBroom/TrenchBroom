@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,6 +23,7 @@
 #include <string>
 #include <cmath>
 #include <ostream>
+#include <limits>
 
 namespace Math {
     static const float AlmostZero = 0.001f;
@@ -36,67 +37,67 @@ namespace Math {
         return std::isnan(f);
 #endif
     }
-    
+
     inline float nan() {
         return std::numeric_limits<float>::quiet_NaN();
     }
-    
+
     inline float fradians(float d) {
         return Pi * d / 180.0f;
     }
-    
+
     inline float fdegrees(float r) {
         return 180.0f * r / Pi;
     }
-    
+
     inline float fround(float f) {
         return f > 0.0f ? floor(f + 0.5f) : ceil(f - 0.5f);
     }
-    
+
     inline float fcorrect(float f) {
         return fround(1000.0f * f) / 1000.0f;
     }
-    
+
     inline bool fzero(float f) {
         return fabsf(f) <= AlmostZero;
     }
-    
+
     inline bool fpos(float f) {
         return f > AlmostZero;
     }
-    
+
     inline bool fneg(float f) {
         return f < -AlmostZero;
     }
-    
+
     inline bool feq(float f1, float f2) {
         return fabsf(f1 - f2) < AlmostZero;
     }
-    
+
     inline bool fgt(float f1, float f2) {
         return f1 > f2 + AlmostZero;
     }
-    
+
     inline bool flt(float f1, float f2) {
         return f1 < f2 - AlmostZero;
     }
-    
+
     inline bool fgte(float f1, float f2) {
         return !flt(f1, f2);
     }
-    
+
     inline bool flte(float f1, float f2) {
         return !fgt(f1, f2);
     }
-    
+
     inline float fmin(float f1, float f2) {
         return f1 < f2 ? f1 : f2;
     }
-    
+
     inline float fmax(float f1, float f2) {
         return f1 < f2 ? f2 : f1;
     }
-    
+
     inline int imin(int i1, int i2) {
         return i1 < i2 ? i1 : i2;
     }
@@ -105,7 +106,7 @@ namespace Math {
         return i1 < i2 ? i2 : i1;
     }
 }
-    
+
 using namespace std;
 
 typedef enum {
@@ -137,7 +138,7 @@ public:
     const float& operator[] (const unsigned int index) const;
     Vec2f();
     Vec2f(float x, float y);
-    
+
     float length() const;
     float lengthSquared() const;
     const Vec2f normalize() const;
@@ -167,7 +168,7 @@ public:
     Vec3f();
     Vec3f(const string& str);
     Vec3f(float x, float y, float z);
-    
+
     float length() const;
     float lengthSquared() const;
     const Vec3f normalize() const;
@@ -182,7 +183,7 @@ public:
     const Vec3f& thirdAxis(bool pos = true) const;
     void write(ostream& str) const;
     string asString() const;
-    
+
     const Vec3f snap() const;
     const Vec3f snap(float epsilon) const;
     const Vec3f rotate90(EAxis axis, bool clockwise) const;
@@ -218,7 +219,7 @@ public:
     Vec4f();
     Vec4f(const string& str);
     Vec4f(float x, float y, float z, float w);
-    
+
     float length() const;
     float lengthSquared() const;
     const Vec4f normalize() const;
@@ -324,52 +325,52 @@ public:
     const Mat4f transpose() const;
     float determinant() const;
     const Mat3f subMatrix(unsigned int row, unsigned int col) const;
-    
+
     const Mat4f rotate(float angle, const Vec3f& axis) const;
     const Mat4f rotate(const Quat& rotation) const;
     const Mat4f translate(const Vec3f& delta) const;
     const Mat4f scale(const Vec3f& factors) const;
 };
 
-static const Mat4f IdentityM4f(1, 0, 0, 0, 
-                               0, 1, 0, 0, 
-                               0, 0, 1, 0, 
+static const Mat4f IdentityM4f(1, 0, 0, 0,
+                               0, 1, 0, 0,
+                               0, 0, 1, 0,
                                0, 0, 0, 1);
-static const Mat4f RotX90CWM4f( 1,  0,  0,  0, 
-                                0,  0, -1,  0, 
-                                0,  1,  0,  0, 
+static const Mat4f RotX90CWM4f( 1,  0,  0,  0,
+                                0,  0, -1,  0,
+                                0,  1,  0,  0,
                                 0,  0,  0,  1);
-static const Mat4f RotY90CWM4f( 0,  0,  1,  0, 
-                                0,  1,  0,  0, 
-                               -1,  0,  0,  0, 
+static const Mat4f RotY90CWM4f( 0,  0,  1,  0,
+                                0,  1,  0,  0,
+                               -1,  0,  0,  0,
                                 0,  0,  0,  1);
-static const Mat4f RotZ90CWM4f( 0, -1,  0,  0, 
-                                1,  0,  0,  0, 
-                                0,  0,  1,  0, 
+static const Mat4f RotZ90CWM4f( 0, -1,  0,  0,
+                                1,  0,  0,  0,
+                                0,  0,  1,  0,
                                 0,  0,  0,  1);
-static const Mat4f RotX90CCWM4f( 1,  0,  0,  0, 
-                                 0,  0,  1,  0, 
-                                 0, -1,  0,  0, 
+static const Mat4f RotX90CCWM4f( 1,  0,  0,  0,
+                                 0,  0,  1,  0,
+                                 0, -1,  0,  0,
                                  0,  0,  0,  1);
-static const Mat4f RotY90CCWM4f( 0,  0, -1,  0, 
-                                 0,  1,  0,  0, 
-                                 1,  0,  0,  0, 
+static const Mat4f RotY90CCWM4f( 0,  0, -1,  0,
+                                 0,  1,  0,  0,
+                                 1,  0,  0,  0,
                                  0,  0,  0,  1);
-static const Mat4f RotZ90CCWM4f( 0,  1,  0,  0, 
-                                -1,  0,  0,  0, 
-                                 0,  0,  1,  0, 
+static const Mat4f RotZ90CCWM4f( 0,  1,  0,  0,
+                                -1,  0,  0,  0,
+                                 0,  0,  1,  0,
                                  0,  0,  0,  1);
-static const Mat4f MirXM4f(-1,  0,  0,  0, 
-                            0,  1,  0,  0, 
-                            0,  0,  1,  0, 
+static const Mat4f MirXM4f(-1,  0,  0,  0,
+                            0,  1,  0,  0,
+                            0,  0,  1,  0,
                             0,  0,  0,  1);
-static const Mat4f MirYM4f( 1,  0,  0,  0, 
-                            0, -1,  0,  0, 
-                            0,  0,  1,  0, 
+static const Mat4f MirYM4f( 1,  0,  0,  0,
+                            0, -1,  0,  0,
+                            0,  0,  1,  0,
                             0,  0,  0,  1);
-static const Mat4f MirZM4f( 1,  0,  0,  0, 
-                            0,  1,  0,  0, 
-                            0,  0, -1,  0, 
+static const Mat4f MirZM4f( 1,  0,  0,  0,
+                            0,  1,  0,  0,
+                            0,  0, -1,  0,
                             0,  0,  0,  1);
 
 class Quat {
@@ -427,7 +428,7 @@ public:
     bool intersects(const BBox& bounds) const;
     float intersectWithRay(const Ray& ray, Vec3f* sideNormal) const;
     float intersectWithRay(const Ray& ray) const;
-    
+
     const BBox translate(const Vec3f& delta) const;
     const BBox rotate90(EAxis axis, bool clockwise) const;
     const BBox rotate90(EAxis axis, const Vec3f& center, bool clockwise) const;
@@ -456,7 +457,7 @@ public:
     float z(float x, float y) const;
     bool equals(const Plane& other) const;
     bool equals(const Plane& other, float epsilon) const;
-    
+
     const Plane translate(const Vec3f& delta) const;
     const Plane rotate90(EAxis axis, bool clockwise) const;
     const Plane rotate90(EAxis axis, const Vec3f& center, bool clockwise) const;

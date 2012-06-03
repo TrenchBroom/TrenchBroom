@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,8 +27,10 @@
 #include "Utilities/VecMath.h"
 #include "IO/Pak.h"
 
-#ifdef _MSC_VER
+#if defined _MSC_VER
 #include <cstdint>
+#elif defined __GNUC__
+#include <stdint.h>
 #endif
 
 using namespace std;
@@ -45,7 +47,7 @@ namespace TrenchBroom {
                 BspTexture(const string& name, const unsigned char* image, int width, int height);
                 ~BspTexture();
             };
-            
+
             class BspTextureInfo {
             public:
                 Vec3f sAxis;
@@ -54,7 +56,7 @@ namespace TrenchBroom {
                 float tOffset;
                 BspTexture* texture;
             };
-            
+
             class BspFace {
             public:
                 BBox bounds;
@@ -63,7 +65,7 @@ namespace TrenchBroom {
                 BspFace(BspTextureInfo* textureInfo, const vector<Vec3f>& vertices);
                 Vec2f textureCoordinates(const Vec3f& vertex);
             };
-            
+
             class BspModel {
             public:
                 Vec3f center;
@@ -73,20 +75,20 @@ namespace TrenchBroom {
                 BspModel(const vector<BspFace*>& faces, int vertexCount, const Vec3f& center, const BBox& bounds);
                 ~BspModel();
             };
-            
+
             class BspEdgeInfo {
             public:
                 uint16_t vertex0;
                 uint16_t vertex1;
             };
-            
+
             class BspFaceInfo {
             public:
                 int32_t edgeIndex;
                 uint16_t edgeCount;
                 uint16_t textureInfoIndex;
             };
-            
+
             class Bsp {
             private:
                 void readTextures(IO::PakStream& stream, unsigned int count);
@@ -103,7 +105,7 @@ namespace TrenchBroom {
                 Bsp(const string& name, IO::PakStream stream);
                 ~Bsp();
             };
-            
+
             class BspManager {
             private:
                 map<string, Bsp*> bsps;

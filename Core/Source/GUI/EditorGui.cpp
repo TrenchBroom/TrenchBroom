@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,8 +20,8 @@
 #include "EditorGui.h"
 #include "Gwen/Controls/Splitter.h"
 #include "Controller/Editor.h"
-#include "Gui/MapRendererControl.h"
-#include "Gui/Inspector.h"
+#include "GUI/MapRendererControl.h"
+#include "GUI/Inspector.h"
 #include "Renderer/FontManager.h"
 #include "Gwen/Platform.h"
 #include "Gwen/Renderers/OpenGL_FTGL.h"
@@ -50,26 +50,26 @@ namespace TrenchBroom {
             m_splitter->SetMinSize(1, 400);
             m_splitter->SetResize(0, true);
             m_splitter->SetResize(1, false);
-            
+
             m_canvas->onRedraw.Add(this, &EditorGui::onCanvasRedraw);
         }
-        
+
         EditorGui::~EditorGui() {
             m_canvas->Release();
-            
+
             delete m_skin;
             delete m_renderer;
         }
-        
+
         void EditorGui::resizeTo(int width, int height) {
             m_canvas->SetSize(width, height);
             m_splitter->SetBounds(m_canvas->GetBounds());
         }
-        
+
         void EditorGui::render() {
             m_canvas->RenderCanvas();
         }
-        
+
         Gwen::Controls::Canvas* EditorGui::canvas() {
             return m_canvas;
         }

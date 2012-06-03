@@ -89,7 +89,7 @@ namespace TrenchBroom {
             m_palette = new Model::Assets::Palette(palettePath);
             m_options = new TransientOptions();
             m_filter = new Filter();
-            
+
             Model::Preferences::sharedPreferences->preferencesDidChange += new Preferences::PreferencesEvent::Listener<Editor>(this, &Editor::preferencesDidChange);
             m_textureManager->textureManagerDidChange += new Model::Assets::TextureManager::TextureManagerEvent::Listener<Editor>(this, &Editor::textureManagerDidChange);
         }
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             delete m_filter;
         }
 
- 
+
 		void Editor::loadMap(const string& path, ProgressIndicator* indicator) {
 			indicator->setText("Clearing map...");
             m_map->clear();
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             ifstream stream(path.c_str());
             IO::MapParser parser(stream);
             parser.parseMap(*m_map, indicator);
-            log(TB_LL_INFO, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
+            log(TB_LL_INFO, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLOCKS_PER_SEC / 10000.0f);
 
             indicator->setText("Loading wad files...");
 
@@ -151,18 +151,18 @@ namespace TrenchBroom {
                 string folderPath = deleteLastPathComponent(m_mapPath);
                 wadPath = appendPath(folderPath, wadPath);
             }
-            
+
             if (fileExists(wadPath)) {
                 clock_t start = clock();
                 IO::Wad wad(wadPath);
                 Model::Assets::TextureCollection* collection = new Model::Assets::TextureCollection(wadPath, wad, *m_palette);
                 m_textureManager->addCollection(collection, m_textureManager->collections().size());
-                log(TB_LL_INFO, "Loaded %s in %f seconds\n", wadPath.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
+                log(TB_LL_INFO, "Loaded %s in %f seconds\n", wadPath.c_str(), (clock() - start) / CLOCKS_PER_SEC / 10000.0f);
             } else {
                 log(TB_LL_WARN, "Could not open texture wad %s\n", path.c_str());
             }
         }
-        
+
         Model::Map& Editor::map() {
             return *m_map;
         }
@@ -190,7 +190,7 @@ namespace TrenchBroom {
         Model::Assets::Palette& Editor::palette() {
             return *m_palette;
         }
-        
+
         Model::Assets::TextureManager& Editor::textureManager() {
             return *m_textureManager;
         }
@@ -198,7 +198,7 @@ namespace TrenchBroom {
         void Editor::setRenderer(Renderer::MapRenderer* renderer) {
             m_renderer = renderer;
         }
-        
+
         Renderer::MapRenderer* Editor::renderer() {
             return m_renderer;
         }
