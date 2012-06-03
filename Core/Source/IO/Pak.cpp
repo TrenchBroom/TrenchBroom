@@ -23,14 +23,9 @@
 #include <numeric>
 #include <algorithm>
 #include "substream.h"
+#include "IO/FileManager.h"
 #include "Utilities/Utils.h"
 #include "Utilities/Console.h"
-
-#if defined _MSC_VER
-#include "dirent.h"
-#else
-#include <dirent.h>
-#endif
 
 namespace TrenchBroom {
     namespace IO {
@@ -112,41 +107,28 @@ namespace TrenchBroom {
                 return true;
             }
 
-            DIR* dir = opendir(path.c_str());
-            if (!dir) {
+            FileManager& fileManager = *FileManager::sharedFileManager;
+            std::vector<std::string> pakNames = fileManager.directoryContents(path, "pak");
+            if (!pakNames.empty()) {
+                std::vector<PakPtr> newPaks;
+                for (unsigned int i = 0; i < pakNames.size(); i++) {
+                    std::string pakPath = fileManager.appendPath(path, pakNames[i]);
+                    if (!fileManager.isDirectory(pakPath)) {
+                        Pak* pak = new Pak(pakPath);
+                        PakPtr pakPtr(pak);
+                        newPaks.push_back(pakPtr);
+                    }
+                }
+
+                sort(newPaks.begin(), newPaks.end(), comparePaks);
+                paks[path] = newPaks;
+                
+                result = paks[path];
+                return true;
+            } else {
                 log(TB_LL_WARN, "Could not open pak path %s\n", path.c_str());
                 return false;
             }
-
-            struct dirent* entry = readdir(dir);
-            if (!entry) {
-                log(TB_LL_WARN, "%s does not contain any pak files\n", path.c_str());
-                closedir(dir);
-                return false;
-            }
-
-            std::vector<PakPtr> newPaks;
-            do {
-                #if defined __GNUC__
-                size_t namlen = static_cast<size_t>(entry->d_reclen);
-                #else
-                size_t namlen = entry->d_namlen;
-                #endif
-                if (strncmp(entry->d_name + namlen - 4, ".pak", 4) == 0) {
-					std::string pakPath = appendPath(path, entry->d_name);
-                    Pak* pak = new Pak(pakPath);
-                    PakPtr pakPtr(pak);
-                    newPaks.push_back(pakPtr);
-                }
-                entry = readdir(dir);
-            } while (entry);
-            closedir(dir);
-
-            sort(newPaks.begin(), newPaks.end(), comparePaks);
-            paks[path] = newPaks;
-
-            result = paks[path];
-            return true;
         }
     }
 }

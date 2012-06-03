@@ -20,14 +20,17 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 #import "AppDelegate.h"
 #import "Model/Preferences.h"
 #import "Model/Map/EntityDefinition.h"
+#import "IO/FileManager.h"
 #import "IO/Pak.h"
 #import "Model/Assets/Alias.h"
 #import "Model/Assets/Bsp.h"
 #import "MacPreferences.h"
+#import "MacFileManager.h"
 
 @implementation AppDelegate
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
+    TrenchBroom::IO::FileManager::sharedFileManager = new TrenchBroom::IO::MacFileManager();
     TrenchBroom::Model::Preferences::sharedPreferences = new TrenchBroom::Model::MacPreferences();
     TrenchBroom::Model::Preferences::sharedPreferences->init();
     TrenchBroom::Model::EntityDefinitionManager::sharedManagers = new TrenchBroom::Model::EntityDefinitionManagerMap();
@@ -47,6 +50,8 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
     TrenchBroom::Model::EntityDefinitionManager::sharedManagers = NULL;
     delete TrenchBroom::Model::Preferences::sharedPreferences;
     TrenchBroom::Model::Preferences::sharedPreferences = NULL;
+    delete TrenchBroom::IO::FileManager::sharedFileManager;
+    TrenchBroom::IO::FileManager::sharedFileManager = NULL;
 }
 
 - (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender {

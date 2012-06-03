@@ -29,6 +29,7 @@
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/Vbo.h"
 #include "GL/GLee.h"
+#include "IO/FileManager.h"
 #include "Utilities/Utils.h"
 #include "Utilities/SharedPointer.h"
 #include "Utilities/Console.h"
@@ -46,16 +47,19 @@ namespace TrenchBroom {
         }
 
         EntityRenderer* EntityRendererManager::entityRenderer(Model::ModelPropertyPtr modelProperty, const std::vector<std::string>& mods) {
+            
+            IO::FileManager& fileManager = *IO::FileManager::sharedFileManager;
+            
             std::vector<std::string> searchPaths;
             for (unsigned int i = 0; i < mods.size(); i++)
-                searchPaths.push_back(appendPath(m_quakePath, mods[i]));
+                searchPaths.push_back(fileManager.appendPath(m_quakePath, mods[i]));
 
             const std::string key = entityRendererKey(modelProperty, searchPaths);
             EntityRendererCache::iterator it = m_entityRenderers.find(key);
             if (it != m_entityRenderers.end()) return it->second;
 
             std::string modelName = modelProperty->modelPath.substr(1);
-            std::string ext = pathExtension(modelName);
+            std::string ext = fileManager.pathExtension(modelName);
             if (ext == "mdl") {
                 Model::Assets::AliasManager& aliasManager = *Model::Assets::AliasManager::sharedManager;
                 Model::Assets::Alias* alias = aliasManager.aliasForName(modelName, searchPaths);

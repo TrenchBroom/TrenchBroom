@@ -18,7 +18,6 @@
  */
 
 #include "Utils.h"
-#include <fstream>
 #include <algorithm>
 #include <locale>
 
@@ -46,57 +45,6 @@ namespace TrenchBroom {
         return result;
     }
     
-    std::string appendPath(const std::string& prefix, const std::string& suffix) {
-        if (prefix.empty()) return suffix;
-        if (suffix.empty()) return prefix;
-        
-        std::string path = prefix;
-        if (prefix[prefix.length() - 1] != '/' && suffix[0] != '/')
-            path += '/';
-        return path + suffix;
-    }
-
-    std::string appendExtension(const std::string& path, const std::string& ext) {
-        if (path.empty()) return "";
-        if (ext.empty()) return path;
-        
-        std::string pathWithExt = path;
-        if (ext[0] != '.')
-            pathWithExt += '.';
-        return pathWithExt + ext;
-    }
-
-    std::string deleteLastPathComponent(const std::string& path) {
-        if (path.empty()) return path;
-        size_t sepPos = path.find_last_of("/\\");
-        if (sepPos == std::string::npos) return "";
-        return path.substr(0, sepPos);
-    }
-    
-    std::vector<std::string> pathComponents(const std::string& path) {
-        std::vector<std::string> components;
-        if (path.empty()) return components;
-        
-        size_t lastPos = 0;
-        size_t pos = 0;
-        while ((pos = path.find_first_of("/\\", pos)) != std::string::npos) {
-            if (pos > lastPos + 1)
-                components.push_back(path.substr(lastPos + 1, pos - lastPos - 1));
-            lastPos = pos;
-            pos++;
-        }
-        if (pos > lastPos + 1)
-            components.push_back(path.substr(lastPos + 1, pos - lastPos - 1));
-        
-        return components;
-    }
-
-    std::string pathExtension(const std::string& path) {
-        size_t pos = path.find_last_of('.');
-        if (pos == std::string::npos) return "";
-        return path.substr(pos + 1);
-    }
-    
     bool caseInsensitiveCharEqual(char c1, char c2) {
 		return std::toupper(c1, std::locale::classic()) == std::toupper(c2, std::locale::classic());
     }
@@ -112,10 +60,5 @@ namespace TrenchBroom {
         else
             it = std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), caseInsensitiveCharEqual);
         return it != haystack.end();
-    }
-
-    bool fileExists(const std::string& path) {
-        std::fstream testStream(path.c_str());
-        return testStream.is_open();
     }
 }

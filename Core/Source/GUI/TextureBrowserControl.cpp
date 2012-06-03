@@ -19,6 +19,8 @@
 
 #include "TextureBrowserControl.h"
 #include "Controller/Editor.h"
+
+#include "IO/FileManager.h"
 #include "Model/Map/Map.h"
 #include "Model/Preferences.h"
 #include "Model/Selection.h"
@@ -279,6 +281,8 @@ namespace TrenchBroom {
                 }
 
                 if (m_group) {
+                    IO::FileManager& fileManager = *IO::FileManager::sharedFileManager;
+                    
                     const LayoutBounds titleBounds = group->titleBoundsForVisibleRect(visibleRect.y, visibleRect.h);
                     if (titleBounds.intersectsY(visibleRect.y, visibleRect.h)) {
                         // paint background for group title
@@ -295,7 +299,7 @@ namespace TrenchBroom {
                         glPopMatrix();
                         
                         Model::Assets::TextureCollection* collection = group->item();
-                        std::vector<std::string> components = pathComponents(collection->name());
+                        std::vector<std::string> components = fileManager.pathComponents(collection->name());
                         skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
                         skin->GetRender()->RenderText(m_font, Gwen::Point(padding.left + titleBounds.left() + 3, padding.top + titleBounds.top() + 1), components.back());
                     }

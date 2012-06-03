@@ -17,19 +17,21 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Utils_h
-#define TrenchBroom_Utils_h
-
-#include <string>
-#include <vector>
+#import "IO/FileManager.h"
 
 namespace TrenchBroom {
-    std::string trim(const std::string& str);
-    std::vector<std::string> split(const std::string& str, char d);
+    namespace IO {
+        class MacFileManager : public FileManager {
+        public:
+            MacFileManager() {}
+            virtual ~MacFileManager() {}
+            
+            virtual bool isDirectory(const std::string& path);
+            virtual bool exists(const std::string& path);
+            
+            virtual std::vector<std::string> directoryContents(const std::string& path, std::string extension = "");
 
-    bool caseInsensitiveCharEqual(char c1, char c2);
-    bool caseSensitiveCharEqual(char c1, char c2);
-    bool containsString(const std::string& haystack, const std::string& needle, bool caseSensitive = true);
+            virtual char pathSeparator();
+        };
+    }
 }
-
-#endif

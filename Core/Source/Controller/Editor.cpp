@@ -27,6 +27,7 @@
 #include "Model/Map/Map.h"
 #include "Model/Map/Entity.h"
 #include "Model/Preferences.h"
+#include "IO/FileManager.h"
 #include "IO/MapParser.h"
 #include "IO/Wad.h"
 #include "Utilities/Filter.h"
@@ -146,13 +147,15 @@ namespace TrenchBroom {
         }
 
         void Editor::loadTextureWad(const std::string& path) {
+            IO::FileManager& fileManager = *IO::FileManager::sharedFileManager;
+
             std::string wadPath = path;
-            if (!fileExists(wadPath) && !m_mapPath.empty()) {
-                std::string folderPath = deleteLastPathComponent(m_mapPath);
-                wadPath = appendPath(folderPath, wadPath);
+            if (!fileManager.exists(wadPath) && !m_mapPath.empty()) {
+                std::string folderPath = fileManager.deleteLastPathComponent(m_mapPath);
+                wadPath = fileManager.appendPath(folderPath, wadPath);
             }
 
-            if (fileExists(wadPath)) {
+            if (fileManager.exists(wadPath)) {
                 clock_t start = clock();
                 IO::Wad wad(wadPath);
                 Model::Assets::TextureCollection* collection = new Model::Assets::TextureCollection(wadPath, wad, *m_palette);
