@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,6 +29,8 @@
 
 #ifdef _MSC_VER
 #include <cstdint>
+#elif defined __GNUC__
+#include <stdint.h>
 #endif
 
 #define PAK_HEADER_ADDRESS 0x0
@@ -42,14 +44,14 @@ namespace TrenchBroom {
         class Pak;
 
         typedef std::auto_ptr<std::istream> PakStream;
-        
+
         class PakEntry {
         public:
             std::string name;
             int32_t address;
             int32_t length;
         };
-        
+
         class Pak {
             std::ifstream m_stream;
         public:
@@ -58,10 +60,10 @@ namespace TrenchBroom {
             Pak(const std::string& path);
             PakStream streamForEntry(const std::string& name);
         };
-        
+
         typedef std::tr1::shared_ptr<Pak> PakPtr;
         static int comparePaks(const PakPtr pak1, const PakPtr pak2);
-        
+
         class PakManager {
         private:
             std::map<std::string, std::vector<PakPtr> > paks;

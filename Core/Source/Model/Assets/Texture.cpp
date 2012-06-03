@@ -20,6 +20,7 @@
 #include "Texture.h"
 #include <cassert>
 #include <algorithm>
+#include <cstring>
 #include "Utilities/Console.h"
 
 namespace TrenchBroom {
@@ -159,7 +160,7 @@ namespace TrenchBroom {
                 else sort(result.begin(), result.end(), compareByName);
                 return result;
             }
-            
+
             const std::string& TextureCollection::name() const {
                 return m_name;
             }

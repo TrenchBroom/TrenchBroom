@@ -26,7 +26,7 @@
 #include "Utilities/Utils.h"
 #include "Utilities/Console.h"
 
-#ifdef _MSC_VER
+#if defined _MSC_VER
 #include "dirent.h"
 #else
 #include <dirent.h>
@@ -83,9 +83,9 @@ namespace TrenchBroom {
         int comparePaks(const PakPtr pak1, const PakPtr pak2) {
 			return pak1->path.compare(pak2->path) < 0;
         }
-        
+
         PakManager* PakManager::sharedManager = NULL;
-        
+
         PakStream PakManager::streamForEntry(const std::string& name, const std::vector<std::string>& paths) {
             std::vector<std::string>::const_reverse_iterator path;
             for (path = paths.rbegin(); path < paths.rend(); ++path) {
@@ -127,7 +127,12 @@ namespace TrenchBroom {
 
             std::vector<PakPtr> newPaks;
             do {
-                if (strncmp(entry->d_name + entry->d_namlen - 4, ".pak", 4) == 0) {
+                #if defined __GNUC__
+                size_t namlen = static_cast<size_t>(entry->d_reclen);
+                #else
+                size_t namlen = entry->d_namlen;
+                #endif
+                if (strncmp(entry->d_name + namlen - 4, ".pak", 4) == 0) {
 					std::string pakPath = appendPath(path, entry->d_name);
                     Pak* pak = new Pak(pakPath);
                     PakPtr pakPtr(pak);

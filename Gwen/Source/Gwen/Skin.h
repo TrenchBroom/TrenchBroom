@@ -11,14 +11,18 @@
 #include "Gwen/BaseRender.h"
 #include "Gwen/Font.h"
 
-namespace Gwen 
+#ifdef None
+#undef None
+#endif
+
+namespace Gwen
 {
 	namespace Controls
 	{
 		class Base;
 	}
 
-	namespace Skin 
+	namespace Skin
 	{
 		namespace Symbol
 		{
@@ -51,7 +55,7 @@ namespace Gwen
 
 					m_Render->FreeFont( fnt );
 				}
-				
+
 				virtual void DrawButton( Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled ) = 0;
                 virtual void DrawLeftStripButton( Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled ) = 0;
                 virtual void DrawMidStripButton( Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled ) = 0;
@@ -59,8 +63,8 @@ namespace Gwen
 				virtual void DrawTabButton( Controls::Base* control, bool bActive, int dir ) = 0;
 				virtual void DrawTabControl( Controls::Base* control ) = 0;
 				virtual void DrawTabTitleBar( Controls::Base* control ) = 0;
-				
-				
+
+
 				virtual void DrawMenuItem( Controls::Base* control, bool bSubmenuOpen, bool bChecked ) = 0;
 				virtual void DrawMenuStrip( Controls::Base* control ) = 0;
 				virtual void DrawMenu( Controls::Base* control, bool bPaddingDisabled ) = 0;
@@ -109,7 +113,7 @@ namespace Gwen
 
 				virtual void DrawCategoryHolder( Controls::Base* ctrl ) = 0;
 				virtual void DrawCategoryInner( Controls::Base* ctrl, bool bCollapsed ) = 0;
-				
+
 
 				virtual void SetRender( Gwen::Renderer::Base* renderer )
 				{
@@ -230,7 +234,7 @@ namespace Gwen
 					Gwen::Color TooltipText;
 
 				} Colors;
-				
+
 
 			public:
 

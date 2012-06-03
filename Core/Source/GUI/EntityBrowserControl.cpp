@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,7 +22,7 @@
 #include "Gwen/Controls/ScrollControl.h"
 #include "Gwen/Skin.h"
 
-#include "GL/Glee.h"
+#include "GL/GLee.h"
 
 #include "Controller/Editor.h"
 #include "Model/Map/EntityDefinition.h"
@@ -39,10 +39,10 @@ namespace TrenchBroom {
     namespace Gui {
         void EntityBrowserPanel::reloadEntityDefinitions() {
             m_layout.clear();
-            
+
             Model::EntityDefinitionManager& defManager = m_editor.map().entityDefinitionManager();
             const std::vector<Model::EntityDefinitionPtr> definitions = defManager.definitions();
-            
+
             for (unsigned int i = 0; i < definitions.size(); i++) {
                 Model::EntityDefinitionPtr definition = definitions[i];
                 if (definition->type == Model::TB_EDT_POINT) {
@@ -50,7 +50,7 @@ namespace TrenchBroom {
                     Gwen::Font* actualFont = new Gwen::Font(*m_font);
                     FontPtr actualFontPtr(actualFont);
                     Gwen::Point actualSize;
-                    
+
                     float fixedCellWidth = m_layout.fixedCellWidth();
                     if  (m_layout.fixedCellWidth() > 0) {
                         Gwen::Renderer::Base* renderer = skin->GetRender();
@@ -59,11 +59,11 @@ namespace TrenchBroom {
                     } else {
                         actualSize = GetSkin()->GetRender()->MeasureText(m_font, definition->name);
                     }
-                    
+
                     m_layout.addItem(CellData(definition, actualFontPtr), m_layout.fixedCellWidth(), m_layout.fixedCellWidth(), static_cast<float>(actualSize.x), actualFont->size + 2);
                 }
             }
-            
+
             const Gwen::Padding& padding = GetPadding();
             int controlHeight = static_cast<int>(m_layout.height()) + padding.top + padding.bottom;
             SetBounds(GetBounds().x, GetBounds().y, GetBounds().w, controlHeight);
@@ -72,7 +72,7 @@ namespace TrenchBroom {
         EntityBrowserPanel::EntityBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
             m_boundsVbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFF);
             m_boundsBlock = NULL;
-            
+
             m_layout.setCellMargin(8);
             m_layout.setRowMargin(8);
             m_layout.setGroupMargin(8);
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             SetFont(GetSkin()->GetDefaultFont());
             reloadEntityDefinitions();
         }
-        
+
         EntityBrowserPanel::~EntityBrowserPanel() {
             delete m_boundsVbo;
         }
@@ -89,39 +89,39 @@ namespace TrenchBroom {
         void EntityBrowserPanel::SetFont(Gwen::Font* font) {
             m_font = font;
         }
-        
+
         Gwen::Font* EntityBrowserPanel::GetFont() {
             return m_font;
         }
-        
+
         void EntityBrowserPanel::SetPadding(const Gwen::Padding& padding) {
             Base::SetPadding(padding);
             m_layout.setWidth(GetBounds().w - padding.left - padding.right);
         }
-        
+
         void EntityBrowserPanel::OnBoundsChanged( Gwen::Rect oldBounds ) {
             Base::OnBoundsChanged(oldBounds);
-            
+
             const Gwen::Padding& padding = GetPadding();
             m_layout.setWidth(GetBounds().w - padding.left - padding.right);
-            
+
             int controlHeight = static_cast<int>(m_layout.height()) + padding.top + padding.bottom;
             SetBounds(GetBounds().x, GetBounds().y, GetBounds().w, controlHeight);
         }
-        
+
         void EntityBrowserPanel::RenderOver(Gwen::Skin::Base* skin) {
             skin->GetRender()->Flush();
-            
+
             const Gwen::Padding& padding = GetPadding();
             const Gwen::Point& offset = skin->GetRender()->GetRenderOffset();
             const Gwen::Rect& scrollerVisibleRect = ((Gwen::Controls::ScrollControl*)GetParent())->GetVisibleRect();
             const Gwen::Rect& bounds = GetRenderBounds();
             Gwen::Rect visibleRect(bounds.x, -scrollerVisibleRect.y, bounds.w, GetParent()->GetBounds().h);
-            
+
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
-            
+
             const Gwen::Rect& viewport = skin->GetRender()->GetViewport();
             glOrtho(0, viewport.w, viewport.h, 0, -512, 512);
 
@@ -132,7 +132,7 @@ namespace TrenchBroom {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             float brightness = prefs.brightness();
             float color[4] = {brightness / 2.0f, brightness / 2.0f, brightness / 2.0f, 1.0f};
-            
+
             glPushAttrib(GL_TEXTURE_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT);
             glFrontFace(GL_CCW);
             glEnable(GL_CULL_FACE);
@@ -146,13 +146,13 @@ namespace TrenchBroom {
             glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
             glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
             glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
-             
+
             Renderer::EntityRendererManager& rendererManager = m_editor.renderer()->entityRendererManager();
             rendererManager.activate();
-            
+
             float xAng = 70.0f;
             float zAng = 115.0f;
-            
+
             Quat rot = Quat(Math::fradians(-xAng), XAxisPos) * Quat(Math::fradians(zAng), ZAxisPos);
             std::vector<Vec3f> boundsVertices;
             std::vector<Vec4f> boundsColors;
@@ -167,7 +167,7 @@ namespace TrenchBroom {
                                 CellRow<CellData>::CellPtr cell = (*row)[k];
                                 const LayoutBounds& itemBounds = cell->itemBounds();
                                 Model::EntityDefinitionPtr definition = cell->item().first;
-                                
+
                                 Renderer::EntityRenderer* renderer = rendererManager.entityRenderer(*definition, m_editor.map().mods());
                                 if (renderer == NULL) {
                                     BBox actualBounds = definition->bounds.boundsAfterRotation(rot);
@@ -189,7 +189,7 @@ namespace TrenchBroom {
                                     Vec3f actualSize = actualBounds.size();
                                     float scale = Math::fmin(2.0f, actualSize.x > actualSize.y ? itemBounds.width() / actualSize.x : itemBounds.height() / actualSize.y);
                                     Vec3f center = renderer->bounds().center();
-                                    
+
                                     glPushMatrix();
                                     glTranslatef(itemBounds.midX(), itemBounds.midY(), 0);
                                     glScalef(scale, scale, scale);
@@ -210,18 +210,18 @@ namespace TrenchBroom {
                 m_boundsBlock->freeBlock();
                 m_boundsBlock = NULL;
             }
-            
+
             if (!boundsVertices.empty()) {
                 m_boundsVbo->activate();
                 m_boundsVbo->map();
-                
+
                 m_boundsBlock = &m_boundsVbo->allocBlock((4 * 3 + 4) * boundsVertices.size());
                 unsigned int offset = 0;
                 for (unsigned int i = 0; i < boundsVertices.size(); i++) {
                     offset = m_boundsBlock->writeColor(boundsColors[i], offset);
                     offset = m_boundsBlock->writeVec(boundsVertices[i], offset);
                 }
-                
+
                 m_boundsVbo->unmap();
 
                 glColor4f(1, 1, 1, 0.5f);
@@ -230,7 +230,7 @@ namespace TrenchBroom {
                 glInterleavedArrays(GL_C4UB_V3F, 0, 0);
                 glDrawArrays(GL_LINES, 0, boundsVertices.size());
                 glPopClientAttrib();
-                
+
                 m_boundsVbo->deactivate();
             }
 
@@ -239,10 +239,10 @@ namespace TrenchBroom {
             glPopMatrix();
             glMatrixMode(GL_MODELVIEW);
             glPopMatrix();
-            
+
             for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
-                
+
                 skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
                 for (unsigned int j = 0; j < group->size(); j++) {
                     CellGroup<CellData, GroupData>::CellRowPtr row = (*group)[j];
@@ -258,17 +258,17 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         EntityBrowserControl::EntityBrowserControl(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
             m_browserScroller = new Gwen::Controls::ScrollControl(this);
             m_browserScroller->Dock(Gwen::Pos::Fill);
             m_browserScroller->SetScroll(false, true);
-            
+
             m_browserPanel = new EntityBrowserPanel(m_browserScroller, m_editor);
             m_browserPanel->Dock(Gwen::Pos::Top);
             m_browserPanel->SetPadding(Gwen::Padding(5, 5, 5, 5));
         }
-        
+
         EntityBrowserControl::~EntityBrowserControl() {}
 
         void EntityBrowserControl::Render(Gwen::Skin::Base* skin) {
@@ -278,7 +278,7 @@ namespace TrenchBroom {
                                   static_cast<unsigned char>(Math::fround(backgroundColor.y * 255.0f)),
                                   static_cast<unsigned char>(Math::fround(backgroundColor.z * 255.0f)),
                                   static_cast<unsigned char>(Math::fround(backgroundColor.w * 255.0f)));
-            
+
             skin->DrawBox(this);
             skin->GetRender()->SetDrawColor(drawColor);
             skin->GetRender()->DrawFilledRect(GetRenderBounds());

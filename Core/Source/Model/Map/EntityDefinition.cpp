@@ -35,11 +35,11 @@ namespace TrenchBroom {
         bool compareByName(const EntityDefinitionPtr def1, const EntityDefinitionPtr def2) {
             return def1->name <= def2->name;
         }
-        
+
         bool compareByUsage(const EntityDefinitionPtr def1, const EntityDefinitionPtr def2) {
             return def1->usageCount <= def2->usageCount;
         }
-        
+
         EntityDefinitionPtr EntityDefinition::baseDefinition(const std::string& name, const std::map<std::string, SpawnFlag>& flags, const std::vector<PropertyPtr>& properties) {
             EntityDefinition* definition = new EntityDefinition();
             definition->type = TB_EDT_BASE;
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             }
 
             sort(m_definitionsByName.begin(), m_definitionsByName.end(), compareByName);
-            log(TB_LL_INFO, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
+            log(TB_LL_INFO, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLOCKS_PER_SEC / 10000.0f);
         }
 
         EntityDefinitionManagerPtr EntityDefinitionManager::sharedManager(const std::string& path) {

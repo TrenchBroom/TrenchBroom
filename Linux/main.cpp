@@ -7,4 +7,4 @@ int main (int argc, char *argv[]) {
     kit.run(window);
 
     return 0;
-  }
+ }
