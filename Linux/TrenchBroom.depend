@@ -1,0 +1,340 @@
+# depslib dependency file v1.0
+1338672918 source:/home/kristian/Desktop/TrenchBroom/Core/Source/Controller/Camera.cpp
+	"Camera.h"
+	<cmath>
+
+1338672918 /home/kristian/Desktop/TrenchBroom/Core/Source/Controller/Camera.h
+	"GL/GLee.h"
+	"Utilities/Event.h"
+	"Utilities/VecMath.h"
+
+1338713847 /home/kristian/Desktop/TrenchBroom/Core/Source/GL/GLee.h
+	<windows.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<GL/glx.h>
+	<stddef.h>
+
+1338317559 /home/kristian/Desktop/TrenchBroom/Core/Source/Utilities/Event.h
+	<cstdlib>
+	<string>
+	<vector>
+	<map>
+
+1338713739 /home/kristian/Desktop/TrenchBroom/Core/Source/Utilities/VecMath.h
+	<string>
+	<cmath>
+	<ostream>
+	<limits>
+
+1338317558 source:/home/kristian/Desktop/TrenchBroom/Core/Source/Controller/CameraTool.cpp
+	"CameraTool.h"
+	<cstdio>
+	"Controller/Camera.h"
+	"Controller/Editor.h"
+	"Model/Map/Picker.h"
+	"Model/Preferences.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Controller/CameraTool.h
+	"Controller/Tool.h"
+	"Utilities/VecMath.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Controller/Tool.h
+	"Controller/Editor.h"
+	"Renderer/MapRenderer.h"
+	"Utilities/VecMath.h"
+	<cstdio>
+
+1338672918 /home/kristian/Desktop/TrenchBroom/Core/Source/Controller/Editor.h
+	<string>
+
+1338672918 /home/kristian/Desktop/TrenchBroom/Core/Source/Renderer/MapRenderer.h
+	<map>
+	<vector>
+	"GL/GLee.h"
+	"Renderer/ChangeSet.h"
+	"Renderer/FontManager.h"
+	"Utilities/Event.h"
+	"Utilities/VecMath.h"
+
+1338317559 /home/kristian/Desktop/TrenchBroom/Core/Source/Renderer/ChangeSet.h
+	<vector>
+
+1338317559 /home/kristian/Desktop/TrenchBroom/Core/Source/Renderer/FontManager.h
+	<string>
+	<vector>
+	<map>
+	"GL/GLee.h"
+	"Utilities/SharedPointer.h"
+
+1338713975 /home/kristian/Desktop/TrenchBroom/Core/Source/Utilities/SharedPointer.h
+	<memory>
+	<tr1/memory>
+	<tr1/memory>
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Map/Picker.h
+	<vector>
+	"Utilities/VecMath.h"
+
+1338672918 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Preferences.h
+	"Utilities/Event.h"
+	"Utilities/VecMath.h"
+
+1338317558 source:/home/kristian/Desktop/TrenchBroom/Core/Source/Controller/DragPlane.cpp
+	"DragPlane.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Controller/DragPlane.h
+	"Utilities/VecMath.h"
+
+1338317558 source:/home/kristian/Desktop/TrenchBroom/Core/Source/Controller/DragTool.cpp
+	"DragTool.h"
+	"Controller/DragPlane.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Controller/DragTool.h
+	"Controller/Tool.h"
+	"Utilities/VecMath.h"
+
+1338714309 source:/home/kristian/Desktop/TrenchBroom/Core/Source/Controller/Editor.cpp
+	"Editor.h"
+	<ctime>
+	"Controller/Camera.h"
+	"Controller/Grid.h"
+	"Controller/InputController.h"
+	"Controller/Options.h"
+	"Controller/ProgressIndicator.h"
+	"Model/Map/Map.h"
+	"Model/Map/Entity.h"
+	"Model/Preferences.h"
+	"IO/MapParser.h"
+	"IO/Wad.h"
+	"Utilities/Filter.h"
+	"Utilities/Utils.h"
+	"Utilities/VecMath.h"
+	"Utilities/Console.h"
+
+1338672918 /home/kristian/Desktop/TrenchBroom/Core/Source/Controller/Grid.h
+	"Utilities/Event.h"
+	"Utilities/VecMath.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Controller/InputController.h
+	<vector>
+	"Controller/Tool.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Controller/Options.h
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Controller/ProgressIndicator.h
+	<cassert>
+	<string>
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Map/Map.h
+	<vector>
+	"Utilities/Event.h"
+	"Utilities/VecMath.h"
+	"Model/Map/EntityDefinition.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Map/EntityDefinition.h
+	<string>
+	<vector>
+	<map>
+	"Utilities/VecMath.h"
+	"Utilities/SharedPointer.h"
+	<cstdio>
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Map/Entity.h
+	<string>
+	<vector>
+	<map>
+	"Model/Map/Brush.h"
+	"Model/Map/EntityDefinition.h"
+	"Model/Map/Map.h"
+	"Model/Map/MapObject.h"
+	"Renderer/Vbo.h"
+	"Utilities/VecMath.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Map/Brush.h
+	<vector>
+	"Model/Assets/Texture.h"
+	"Model/Map/BrushGeometry.h"
+	"Model/Map/Entity.h"
+	"Model/Map/Face.h"
+	"Model/Map/MapObject.h"
+
+1338672918 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Assets/Texture.h
+	<string>
+	<vector>
+	<map>
+	"IO/Wad.h"
+	"Model/Assets/Alias.h"
+	"Model/Assets/Bsp.h"
+	"Model/Assets/Palette.h"
+	"Utilities/Event.h"
+	"GL/GLee.h"
+	"Utilities/VecMath.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/IO/Wad.h
+	<fstream>
+	<string>
+	<vector>
+	<cstdint>
+
+1338672918 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Assets/Alias.h
+	<istream>
+	<string>
+	<vector>
+	<map>
+	"Utilities/VecMath.h"
+	"IO/Pak.h"
+	<cstdint>
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/IO/Pak.h
+	<istream>
+	<fstream>
+	<string>
+	<vector>
+	<map>
+	"Utilities/SharedPointer.h"
+	<cstdint>
+
+1338714154 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Assets/Bsp.h
+	<string>
+	<vector>
+	<map>
+	<istream>
+	"Utilities/VecMath.h"
+	"IO/Pak.h"
+	<cstdint>
+	<stdint.h>
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Assets/Palette.h
+	<string>
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Map/BrushGeometry.h
+	<vector>
+	"Model/Map/Face.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Map/Face.h
+	<vector>
+	"Utilities/VecMath.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Map/MapObject.h
+	"Utilities/VecMath.h"
+
+1338317559 /home/kristian/Desktop/TrenchBroom/Core/Source/Renderer/Vbo.h
+	<vector>
+	"Utilities/VecMath.h"
+	"GL/GLee.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/IO/MapParser.h
+	<string>
+	<istream>
+	<sstream>
+	"Model/Map/Map.h"
+	"Model/Map/Entity.h"
+	"Model/Map/Brush.h"
+	"Model/Map/Face.h"
+	"Model/Assets/Texture.h"
+
+1338317559 /home/kristian/Desktop/TrenchBroom/Core/Source/Utilities/Filter.h
+	"Model/Map/Brush.h"
+	"Model/Map/Entity.h"
+	"Model/Map/Groups.h"
+	"Model/Selection.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Map/Groups.h
+	<vector>
+	"Utilities/Event.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Selection.h
+	<vector>
+	"Model/Assets/Texture.h"
+	"Model/Map/Brush.h"
+	"Model/Map/Face.h"
+	"Model/Map/Entity.h"
+	"Utilities/Event.h"
+	"Utilities/VecMath.h"
+
+1338317559 /home/kristian/Desktop/TrenchBroom/Core/Source/Utilities/Utils.h
+	<string>
+	<vector>
+
+1338317559 /home/kristian/Desktop/TrenchBroom/Core/Source/Utilities/Console.h
+	<sstream>
+
+1338672918 source:/home/kristian/Desktop/TrenchBroom/Core/Source/Controller/Grid.cpp
+	"Grid.h"
+	"Utilities/VecMath.h"
+	"Utilities/Console.h"
+	<cmath>
+
+1338317558 source:/home/kristian/Desktop/TrenchBroom/Core/Source/Controller/InputController.cpp
+	"InputController.h"
+	"Controller/Camera.h"
+	"Controller/CameraTool.h"
+	"Controller/Editor.h"
+	"Controller/MoveObjectTool.h"
+	"Controller/SelectionTool.h"
+	"Model/Map/Map.h"
+	"Model/Map/Picker.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Controller/MoveObjectTool.h
+	"Controller/DragTool.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Controller/SelectionTool.h
+	"Controller/Tool.h"
+
+1338317558 source:/home/kristian/Desktop/TrenchBroom/Core/Source/Controller/MoveObjectTool.cpp
+	"MoveObjectTool.h"
+	"Controller/Editor.h"
+	"Controller/Grid.h"
+	"Controller/Tool.h"
+	"Model/Map/Picker.h"
+	"Model/Map/Face.h"
+	"Model/Map/Brush.h"
+	"Model/Map/Entity.h"
+	"Model/Map/Map.h"
+	"Model/Preferences.h"
+	"Model/Selection.h"
+	"Model/Undo/UndoManager.h"
+	"Renderer/Figures/PositioningGuideFigure.h"
+	"Utilities/Console.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Undo/UndoManager.h
+	<string>
+	<vector>
+	"Utilities/Event.h"
+	"Model/Undo/UndoItem.h"
+	"Model/Undo/InvocationUndoItem.h"
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Undo/UndoItem.h
+	<vector>
+
+1338317558 /home/kristian/Desktop/TrenchBroom/Core/Source/Model/Undo/InvocationUndoItem.h
+	"Model/Undo/UndoItem.h"
+
+1338317559 /home/kristian/Desktop/TrenchBroom/Core/Source/Renderer/Figures/PositioningGuideFigure.h
+	"Renderer/Figures/Figure.h"
+	"Utilities/VecMath.h"
+
+1338317559 /home/kristian/Desktop/TrenchBroom/Core/Source/Renderer/Figures/Figure.h
+
+1338317558 source:/home/kristian/Desktop/TrenchBroom/Core/Source/Controller/SelectionTool.cpp
+	"SelectionTool.h"
+	"Controller/Editor.h"
+	"Controller/Grid.h"
+	"Model/Map/Brush.h"
+	"Model/Map/Face.h"
+	"Model/Map/Entity.h"
+	"Model/Map/Picker.h"
+	"Model/Selection.h"
+
+1338317558 source:/home/kristian/Desktop/TrenchBroom/Core/Source/GL/GLee.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"GLee.h"
+	<Carbon/Carbon.h>
+
