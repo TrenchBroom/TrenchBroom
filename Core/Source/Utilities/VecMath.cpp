@@ -868,7 +868,7 @@ const Mat3f Mat3f::adjugate() const {
     Mat3f result;
     for (unsigned int c = 0; c < 3; c++)
         for (unsigned int r = 0; r < 3; r++)
-            result[c * 3 + r] = ((c + r) % 2 == 0 ? 1 : -1) * minor(c, r).determinant();
+            result[c * 3 + r] = ((c + r) % 2 == 0 ? 1 : -1) * subMatrix(c, r).determinant();
     return result;
 }
 
@@ -899,7 +899,7 @@ float Mat3f::determinant() const {
          - v[8] * v[1] * v[3];
 }
 
-const Mat2f Mat3f::minor(unsigned int row, unsigned int col) const {
+const Mat2f Mat3f::subMatrix(unsigned int row, unsigned int col) const {
     Mat2f result;
     int i = 0;
     for (unsigned int c = 0; c < 3; c++)
@@ -1154,7 +1154,7 @@ const Mat4f Mat4f::adjugate() const {
     Mat4f result;
     for (unsigned int c = 0; c < 4; c++)
         for (unsigned int r = 0; r < 4; r++)
-            result[c * 4 + r] = ((c + r) % 2 == 0 ? 1 : -1) * minor(c, r).determinant();
+            result[c * 4 + r] = ((c + r) % 2 == 0 ? 1 : -1) * subMatrix(c, r).determinant();
     return result.transpose();
 }
 
@@ -1181,11 +1181,11 @@ float Mat4f::determinant() const {
     // Laplace after first col
     float det = 0;
     for (unsigned int r = 0; r < 4; r++)
-        det += (r % 2 == 0 ? 1 : -1) *v[r] * minor(0, r).determinant();
+        det += (r % 2 == 0 ? 1 : -1) *v[r] * subMatrix(0, r).determinant();
     return det;
 }
 
-const Mat3f Mat4f::minor(unsigned int row, unsigned int col) const {
+const Mat3f Mat4f::subMatrix(unsigned int row, unsigned int col) const {
     Mat3f result;
     int i = 0;
     for (unsigned int c = 0; c < 4; c++)

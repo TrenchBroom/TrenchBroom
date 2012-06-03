@@ -286,7 +286,7 @@ public:
     const Mat3f negate() const;
     const Mat3f transpose() const;
     float determinant() const;
-    const Mat2f minor(unsigned int row, unsigned int col) const;
+    const Mat2f subMatrix(unsigned int row, unsigned int col) const;
 };
 
 static const Mat3f IdentityM3f(1, 0, 0, 0, 1, 0, 0, 0, 1);
@@ -323,7 +323,7 @@ public:
     const Mat4f negate() const;
     const Mat4f transpose() const;
     float determinant() const;
-    const Mat3f minor(unsigned int row, unsigned int col) const;
+    const Mat3f subMatrix(unsigned int row, unsigned int col) const;
     
     const Mat4f rotate(float angle, const Vec3f& axis) const;
     const Mat4f rotate(const Quat& rotation) const;
